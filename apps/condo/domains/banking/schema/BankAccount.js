@@ -211,6 +211,12 @@ const BankAccount = new GQLListSchema('BankAccount', {
             isRequired: false,
         },
 
+        offsettingAccount: {
+            schemaDoc: 'Bank account to receive money',
+            type: 'Text',
+            isRequired: false,
+        },
+
         meta: {
             schemaDoc: 'Structured non-typed metadata, can be used by mini-apps or external services to store information',
             type: 'Json',

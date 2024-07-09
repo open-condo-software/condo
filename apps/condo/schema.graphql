@@ -15563,6 +15563,7 @@ type BankAccountHistoryRecord {
   organization: String
   integrationContext: String
   property: String
+  name: String
   tin: String
   tinMeta: JSON
   country: String
@@ -15576,6 +15577,7 @@ type BankAccountHistoryRecord {
   importId: String
   territoryCode: String
   bankName: String
+  offsettingAccount: String
   meta: JSON
   classificationCode: String
   id: ID!
@@ -15608,6 +15610,24 @@ input BankAccountHistoryRecordWhereInput {
   property_not: String
   property_in: [String]
   property_not_in: [String]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
   tin: String
   tin_not: String
   tin_contains: String
@@ -15774,6 +15794,24 @@ input BankAccountHistoryRecordWhereInput {
   bankName_not_ends_with_i: String
   bankName_in: [String]
   bankName_not_in: [String]
+  offsettingAccount: String
+  offsettingAccount_not: String
+  offsettingAccount_contains: String
+  offsettingAccount_not_contains: String
+  offsettingAccount_starts_with: String
+  offsettingAccount_not_starts_with: String
+  offsettingAccount_ends_with: String
+  offsettingAccount_not_ends_with: String
+  offsettingAccount_i: String
+  offsettingAccount_not_i: String
+  offsettingAccount_contains_i: String
+  offsettingAccount_not_contains_i: String
+  offsettingAccount_starts_with_i: String
+  offsettingAccount_not_starts_with_i: String
+  offsettingAccount_ends_with_i: String
+  offsettingAccount_not_ends_with_i: String
+  offsettingAccount_in: [String]
+  offsettingAccount_not_in: [String]
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -15879,6 +15917,8 @@ input BankAccountHistoryRecordWhereUniqueInput {
 }
 
 enum SortBankAccountHistoryRecordsBy {
+  name_ASC
+  name_DESC
   tin_ASC
   tin_DESC
   country_ASC
@@ -15899,6 +15939,8 @@ enum SortBankAccountHistoryRecordsBy {
   territoryCode_DESC
   bankName_ASC
   bankName_DESC
+  offsettingAccount_ASC
+  offsettingAccount_DESC
   classificationCode_ASC
   classificationCode_DESC
   id_ASC
@@ -15923,6 +15965,7 @@ input BankAccountHistoryRecordUpdateInput {
   organization: String
   integrationContext: String
   property: String
+  name: String
   tin: String
   tinMeta: JSON
   country: String
@@ -15936,6 +15979,7 @@ input BankAccountHistoryRecordUpdateInput {
   importId: String
   territoryCode: String
   bankName: String
+  offsettingAccount: String
   meta: JSON
   classificationCode: String
   v: Int
@@ -15961,6 +16005,7 @@ input BankAccountHistoryRecordCreateInput {
   organization: String
   integrationContext: String
   property: String
+  name: String
   tin: String
   tinMeta: JSON
   country: String
@@ -15974,6 +16019,7 @@ input BankAccountHistoryRecordCreateInput {
   importId: String
   territoryCode: String
   bankName: String
+  offsettingAccount: String
   meta: JSON
   classificationCode: String
   v: Int
@@ -16216,6 +16262,9 @@ type BankAccount {
   """ Property to which this bank account is connected """
   property: Property
 
+  """ Recipient name. Some times it differs from organization name """
+  name: String
+
   """ Tax Identification Number """
   tin: String
 
@@ -16257,6 +16306,9 @@ type BankAccount {
   """ Bank name """
   bankName: String
 
+  """ Bank account to receive money """
+  offsettingAccount: String
+
   """ Structured non-typed metadata, can be used by mini-apps or external services to store information 
   """
   meta: JSON
@@ -16295,6 +16347,24 @@ input BankAccountWhereInput {
   integrationContext_is_null: Boolean
   property: PropertyWhereInput
   property_is_null: Boolean
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
   tin: String
   tin_not: String
   tin_contains: String
@@ -16431,6 +16501,24 @@ input BankAccountWhereInput {
   bankName_not_ends_with_i: String
   bankName_in: [String]
   bankName_not_in: [String]
+  offsettingAccount: String
+  offsettingAccount_not: String
+  offsettingAccount_contains: String
+  offsettingAccount_not_contains: String
+  offsettingAccount_starts_with: String
+  offsettingAccount_not_starts_with: String
+  offsettingAccount_ends_with: String
+  offsettingAccount_not_ends_with: String
+  offsettingAccount_i: String
+  offsettingAccount_not_i: String
+  offsettingAccount_contains_i: String
+  offsettingAccount_not_contains_i: String
+  offsettingAccount_starts_with_i: String
+  offsettingAccount_not_starts_with_i: String
+  offsettingAccount_ends_with_i: String
+  offsettingAccount_not_ends_with_i: String
+  offsettingAccount_in: [String]
+  offsettingAccount_not_in: [String]
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -16522,6 +16610,8 @@ enum SortBankAccountsBy {
   integrationContext_DESC
   property_ASC
   property_DESC
+  name_ASC
+  name_DESC
   tin_ASC
   tin_DESC
   country_ASC
@@ -16544,6 +16634,8 @@ enum SortBankAccountsBy {
   territoryCode_DESC
   bankName_ASC
   bankName_DESC
+  offsettingAccount_ASC
+  offsettingAccount_DESC
   classificationCode_ASC
   classificationCode_DESC
   id_ASC
@@ -16568,6 +16660,7 @@ input BankAccountUpdateInput {
   organization: OrganizationRelateToOneInput
   integrationContext: BankIntegrationAccountContextRelateToOneInput
   property: PropertyRelateToOneInput
+  name: String
   tin: String
   tinMeta: JSON
   country: BankAccountCountryType
@@ -16581,6 +16674,7 @@ input BankAccountUpdateInput {
   importId: String
   territoryCode: String
   bankName: String
+  offsettingAccount: String
   meta: JSON
   classificationCode: String
   v: Int
@@ -16603,6 +16697,7 @@ input BankAccountCreateInput {
   organization: OrganizationRelateToOneInput
   integrationContext: BankIntegrationAccountContextRelateToOneInput
   property: PropertyRelateToOneInput
+  name: String
   tin: String
   tinMeta: JSON
   country: BankAccountCountryType
@@ -16616,6 +16711,7 @@ input BankAccountCreateInput {
   importId: String
   territoryCode: String
   bankName: String
+  offsettingAccount: String
   meta: JSON
   classificationCode: String
   v: Int
@@ -58778,8 +58874,11 @@ type PaymentRuleMarketPlaceScopeHistoryRecord {
    4. As an alias to the 'id' field on the PaymentRuleMarketPlaceScopeHistoryRecord List.
   """
   _label_: String
-  property: String
   id: ID!
+  address: String
+  addressKey: String
+  addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -58797,14 +58896,54 @@ type PaymentRuleMarketPlaceScopeHistoryRecord {
 input PaymentRuleMarketPlaceScopeHistoryRecordWhereInput {
   AND: [PaymentRuleMarketPlaceScopeHistoryRecordWhereInput]
   OR: [PaymentRuleMarketPlaceScopeHistoryRecordWhereInput]
-  property: String
-  property_not: String
-  property_in: [String]
-  property_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
   id_not_in: [ID]
+  address: String
+  address_not: String
+  address_contains: String
+  address_not_contains: String
+  address_starts_with: String
+  address_not_starts_with: String
+  address_ends_with: String
+  address_not_ends_with: String
+  address_i: String
+  address_not_i: String
+  address_contains_i: String
+  address_not_contains_i: String
+  address_starts_with_i: String
+  address_not_starts_with_i: String
+  address_ends_with_i: String
+  address_not_ends_with_i: String
+  address_in: [String]
+  address_not_in: [String]
+  addressKey: String
+  addressKey_not: String
+  addressKey_contains: String
+  addressKey_not_contains: String
+  addressKey_starts_with: String
+  addressKey_not_starts_with: String
+  addressKey_ends_with: String
+  addressKey_not_ends_with: String
+  addressKey_i: String
+  addressKey_not_i: String
+  addressKey_contains_i: String
+  addressKey_not_contains_i: String
+  addressKey_starts_with_i: String
+  addressKey_not_starts_with_i: String
+  addressKey_ends_with_i: String
+  addressKey_not_ends_with_i: String
+  addressKey_in: [String]
+  addressKey_not_in: [String]
+  addressMeta: JSON
+  addressMeta_not: JSON
+  addressMeta_in: [JSON]
+  addressMeta_not_in: [JSON]
+  addressSources: JSON
+  addressSources_not: JSON
+  addressSources_in: [JSON]
+  addressSources_not_in: [JSON]
   v: Int
   v_not: Int
   v_lt: Int
@@ -58886,6 +59025,10 @@ input PaymentRuleMarketPlaceScopeHistoryRecordWhereUniqueInput {
 enum SortPaymentRuleMarketPlaceScopeHistoryRecordsBy {
   id_ASC
   id_DESC
+  address_ASC
+  address_DESC
+  addressKey_ASC
+  addressKey_DESC
   v_ASC
   v_DESC
   createdAt_ASC
@@ -58903,7 +59046,10 @@ enum SortPaymentRuleMarketPlaceScopeHistoryRecordsBy {
 }
 
 input PaymentRuleMarketPlaceScopeHistoryRecordUpdateInput {
-  property: String
+  address: String
+  addressKey: String
+  addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -58924,7 +59070,10 @@ input PaymentRuleMarketPlaceScopeHistoryRecordsUpdateInput {
 }
 
 input PaymentRuleMarketPlaceScopeHistoryRecordCreateInput {
-  property: String
+  address: String
+  addressKey: String
+  addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -58953,10 +59102,20 @@ type PaymentRuleMarketPlaceScope {
    4. As an alias to the 'id' field on the PaymentRuleMarketPlaceScope List.
   """
   _label_: String
-
-  """ Make payment rule to work only for the specific property """
-  property: Property
   id: ID!
+
+  """ Normalized address """
+  address: String
+
+  """ The unique key of the address """
+  addressKey: String
+
+  """ Property address components """
+  addressMeta: AddressMetaField
+
+  """ The origins of the address (some strings which may looks like real address or some id) 
+  """
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -58982,12 +59141,54 @@ type PaymentRuleMarketPlaceScope {
 input PaymentRuleMarketPlaceScopeWhereInput {
   AND: [PaymentRuleMarketPlaceScopeWhereInput]
   OR: [PaymentRuleMarketPlaceScopeWhereInput]
-  property: PropertyWhereInput
-  property_is_null: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
   id_not_in: [ID]
+  address: String
+  address_not: String
+  address_contains: String
+  address_not_contains: String
+  address_starts_with: String
+  address_not_starts_with: String
+  address_ends_with: String
+  address_not_ends_with: String
+  address_i: String
+  address_not_i: String
+  address_contains_i: String
+  address_not_contains_i: String
+  address_starts_with_i: String
+  address_not_starts_with_i: String
+  address_ends_with_i: String
+  address_not_ends_with_i: String
+  address_in: [String]
+  address_not_in: [String]
+  addressKey: String
+  addressKey_not: String
+  addressKey_contains: String
+  addressKey_not_contains: String
+  addressKey_starts_with: String
+  addressKey_not_starts_with: String
+  addressKey_ends_with: String
+  addressKey_not_ends_with: String
+  addressKey_i: String
+  addressKey_not_i: String
+  addressKey_contains_i: String
+  addressKey_not_contains_i: String
+  addressKey_starts_with_i: String
+  addressKey_not_starts_with_i: String
+  addressKey_ends_with_i: String
+  addressKey_not_ends_with_i: String
+  addressKey_in: [String]
+  addressKey_not_in: [String]
+  addressMeta: JSON
+  addressMeta_not: JSON
+  addressMeta_in: [JSON]
+  addressMeta_not_in: [JSON]
+  addressSources: JSON
+  addressSources_not: JSON
+  addressSources_in: [JSON]
+  addressSources_not_in: [JSON]
   v: Int
   v_not: Int
   v_lt: Int
@@ -59047,10 +59248,12 @@ input PaymentRuleMarketPlaceScopeWhereUniqueInput {
 }
 
 enum SortPaymentRuleMarketPlaceScopesBy {
-  property_ASC
-  property_DESC
   id_ASC
   id_DESC
+  address_ASC
+  address_DESC
+  addressKey_ASC
+  addressKey_DESC
   v_ASC
   v_DESC
   createdAt_ASC
@@ -59068,7 +59271,10 @@ enum SortPaymentRuleMarketPlaceScopesBy {
 }
 
 input PaymentRuleMarketPlaceScopeUpdateInput {
-  property: PropertyRelateToOneInput
+  address: String
+  addressKey: String
+  addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -59086,7 +59292,10 @@ input PaymentRuleMarketPlaceScopesUpdateInput {
 }
 
 input PaymentRuleMarketPlaceScopeCreateInput {
-  property: PropertyRelateToOneInput
+  address: String
+  addressKey: String
+  addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -59118,11 +59327,14 @@ type PaymentRuleBillingScopeHistoryRecord {
    4. As an alias to the 'id' field on the PaymentRuleBillingScopeHistoryRecord List.
   """
   _label_: String
-  property: String
   category: String
   bankAccountNumber: String
-  serviceId: String
+  serviceIds: JSON
   id: ID!
+  address: String
+  addressKey: String
+  addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -59140,10 +59352,6 @@ type PaymentRuleBillingScopeHistoryRecord {
 input PaymentRuleBillingScopeHistoryRecordWhereInput {
   AND: [PaymentRuleBillingScopeHistoryRecordWhereInput]
   OR: [PaymentRuleBillingScopeHistoryRecordWhereInput]
-  property: String
-  property_not: String
-  property_in: [String]
-  property_not_in: [String]
   category: String
   category_not: String
   category_in: [String]
@@ -59166,28 +59374,58 @@ input PaymentRuleBillingScopeHistoryRecordWhereInput {
   bankAccountNumber_not_ends_with_i: String
   bankAccountNumber_in: [String]
   bankAccountNumber_not_in: [String]
-  serviceId: String
-  serviceId_not: String
-  serviceId_contains: String
-  serviceId_not_contains: String
-  serviceId_starts_with: String
-  serviceId_not_starts_with: String
-  serviceId_ends_with: String
-  serviceId_not_ends_with: String
-  serviceId_i: String
-  serviceId_not_i: String
-  serviceId_contains_i: String
-  serviceId_not_contains_i: String
-  serviceId_starts_with_i: String
-  serviceId_not_starts_with_i: String
-  serviceId_ends_with_i: String
-  serviceId_not_ends_with_i: String
-  serviceId_in: [String]
-  serviceId_not_in: [String]
+  serviceIds: JSON
+  serviceIds_not: JSON
+  serviceIds_in: [JSON]
+  serviceIds_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
   id_not_in: [ID]
+  address: String
+  address_not: String
+  address_contains: String
+  address_not_contains: String
+  address_starts_with: String
+  address_not_starts_with: String
+  address_ends_with: String
+  address_not_ends_with: String
+  address_i: String
+  address_not_i: String
+  address_contains_i: String
+  address_not_contains_i: String
+  address_starts_with_i: String
+  address_not_starts_with_i: String
+  address_ends_with_i: String
+  address_not_ends_with_i: String
+  address_in: [String]
+  address_not_in: [String]
+  addressKey: String
+  addressKey_not: String
+  addressKey_contains: String
+  addressKey_not_contains: String
+  addressKey_starts_with: String
+  addressKey_not_starts_with: String
+  addressKey_ends_with: String
+  addressKey_not_ends_with: String
+  addressKey_i: String
+  addressKey_not_i: String
+  addressKey_contains_i: String
+  addressKey_not_contains_i: String
+  addressKey_starts_with_i: String
+  addressKey_not_starts_with_i: String
+  addressKey_ends_with_i: String
+  addressKey_not_ends_with_i: String
+  addressKey_in: [String]
+  addressKey_not_in: [String]
+  addressMeta: JSON
+  addressMeta_not: JSON
+  addressMeta_in: [JSON]
+  addressMeta_not_in: [JSON]
+  addressSources: JSON
+  addressSources_not: JSON
+  addressSources_in: [JSON]
+  addressSources_not_in: [JSON]
   v: Int
   v_not: Int
   v_lt: Int
@@ -59269,10 +59507,12 @@ input PaymentRuleBillingScopeHistoryRecordWhereUniqueInput {
 enum SortPaymentRuleBillingScopeHistoryRecordsBy {
   bankAccountNumber_ASC
   bankAccountNumber_DESC
-  serviceId_ASC
-  serviceId_DESC
   id_ASC
   id_DESC
+  address_ASC
+  address_DESC
+  addressKey_ASC
+  addressKey_DESC
   v_ASC
   v_DESC
   createdAt_ASC
@@ -59290,10 +59530,13 @@ enum SortPaymentRuleBillingScopeHistoryRecordsBy {
 }
 
 input PaymentRuleBillingScopeHistoryRecordUpdateInput {
-  property: String
   category: String
   bankAccountNumber: String
-  serviceId: String
+  serviceIds: JSON
+  address: String
+  addressKey: String
+  addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -59314,10 +59557,13 @@ input PaymentRuleBillingScopeHistoryRecordsUpdateInput {
 }
 
 input PaymentRuleBillingScopeHistoryRecordCreateInput {
-  property: String
   category: String
   bankAccountNumber: String
-  serviceId: String
+  serviceIds: JSON
+  address: String
+  addressKey: String
+  addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -59347,9 +59593,6 @@ type PaymentRuleBillingScope {
   """
   _label_: String
 
-  """ Make payment rule to work only for the specific property """
-  property: Property
-
   """ Determinate if payment rule is working on the specific billing category 
   """
   category: BillingCategory
@@ -59360,8 +59603,21 @@ type PaymentRuleBillingScope {
 
   """ Additional payment split according to the services in the billing receipt 
   """
-  serviceId: String
+  serviceIds: JSON
   id: ID!
+
+  """ Normalized address """
+  address: String
+
+  """ The unique key of the address """
+  addressKey: String
+
+  """ Property address components """
+  addressMeta: AddressMetaField
+
+  """ The origins of the address (some strings which may looks like real address or some id) 
+  """
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -59387,8 +59643,6 @@ type PaymentRuleBillingScope {
 input PaymentRuleBillingScopeWhereInput {
   AND: [PaymentRuleBillingScopeWhereInput]
   OR: [PaymentRuleBillingScopeWhereInput]
-  property: PropertyWhereInput
-  property_is_null: Boolean
   category: BillingCategoryWhereInput
   category_is_null: Boolean
   bankAccountNumber: String
@@ -59409,28 +59663,58 @@ input PaymentRuleBillingScopeWhereInput {
   bankAccountNumber_not_ends_with_i: String
   bankAccountNumber_in: [String]
   bankAccountNumber_not_in: [String]
-  serviceId: String
-  serviceId_not: String
-  serviceId_contains: String
-  serviceId_not_contains: String
-  serviceId_starts_with: String
-  serviceId_not_starts_with: String
-  serviceId_ends_with: String
-  serviceId_not_ends_with: String
-  serviceId_i: String
-  serviceId_not_i: String
-  serviceId_contains_i: String
-  serviceId_not_contains_i: String
-  serviceId_starts_with_i: String
-  serviceId_not_starts_with_i: String
-  serviceId_ends_with_i: String
-  serviceId_not_ends_with_i: String
-  serviceId_in: [String]
-  serviceId_not_in: [String]
+  serviceIds: JSON
+  serviceIds_not: JSON
+  serviceIds_in: [JSON]
+  serviceIds_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
   id_not_in: [ID]
+  address: String
+  address_not: String
+  address_contains: String
+  address_not_contains: String
+  address_starts_with: String
+  address_not_starts_with: String
+  address_ends_with: String
+  address_not_ends_with: String
+  address_i: String
+  address_not_i: String
+  address_contains_i: String
+  address_not_contains_i: String
+  address_starts_with_i: String
+  address_not_starts_with_i: String
+  address_ends_with_i: String
+  address_not_ends_with_i: String
+  address_in: [String]
+  address_not_in: [String]
+  addressKey: String
+  addressKey_not: String
+  addressKey_contains: String
+  addressKey_not_contains: String
+  addressKey_starts_with: String
+  addressKey_not_starts_with: String
+  addressKey_ends_with: String
+  addressKey_not_ends_with: String
+  addressKey_i: String
+  addressKey_not_i: String
+  addressKey_contains_i: String
+  addressKey_not_contains_i: String
+  addressKey_starts_with_i: String
+  addressKey_not_starts_with_i: String
+  addressKey_ends_with_i: String
+  addressKey_not_ends_with_i: String
+  addressKey_in: [String]
+  addressKey_not_in: [String]
+  addressMeta: JSON
+  addressMeta_not: JSON
+  addressMeta_in: [JSON]
+  addressMeta_not_in: [JSON]
+  addressSources: JSON
+  addressSources_not: JSON
+  addressSources_in: [JSON]
+  addressSources_not_in: [JSON]
   v: Int
   v_not: Int
   v_lt: Int
@@ -59490,16 +59774,16 @@ input PaymentRuleBillingScopeWhereUniqueInput {
 }
 
 enum SortPaymentRuleBillingScopesBy {
-  property_ASC
-  property_DESC
   category_ASC
   category_DESC
   bankAccountNumber_ASC
   bankAccountNumber_DESC
-  serviceId_ASC
-  serviceId_DESC
   id_ASC
   id_DESC
+  address_ASC
+  address_DESC
+  addressKey_ASC
+  addressKey_DESC
   v_ASC
   v_DESC
   createdAt_ASC
@@ -59517,10 +59801,13 @@ enum SortPaymentRuleBillingScopesBy {
 }
 
 input PaymentRuleBillingScopeUpdateInput {
-  property: PropertyRelateToOneInput
   category: BillingCategoryRelateToOneInput
   bankAccountNumber: String
-  serviceId: String
+  serviceIds: JSON
+  address: String
+  addressKey: String
+  addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -59538,10 +59825,13 @@ input PaymentRuleBillingScopesUpdateInput {
 }
 
 input PaymentRuleBillingScopeCreateInput {
-  property: PropertyRelateToOneInput
   category: BillingCategoryRelateToOneInput
   bankAccountNumber: String
-  serviceId: String
+  serviceIds: JSON
+  address: String
+  addressKey: String
+  addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -59575,7 +59865,10 @@ type PaymentRuleHistoryRecord {
   _label_: String
   context: String
   explicitFee: String
+  explicitServiceCharge: String
   implicitFee: String
+  minFeeAmount: String
+  maxFeeAmount: String
   bankAccount: String
   merchant: String
   marketPlaceScope: String
@@ -59610,6 +59903,14 @@ input PaymentRuleHistoryRecordWhereInput {
   explicitFee_gte: String
   explicitFee_in: [String]
   explicitFee_not_in: [String]
+  explicitServiceCharge: String
+  explicitServiceCharge_not: String
+  explicitServiceCharge_lt: String
+  explicitServiceCharge_lte: String
+  explicitServiceCharge_gt: String
+  explicitServiceCharge_gte: String
+  explicitServiceCharge_in: [String]
+  explicitServiceCharge_not_in: [String]
   implicitFee: String
   implicitFee_not: String
   implicitFee_lt: String
@@ -59618,6 +59919,22 @@ input PaymentRuleHistoryRecordWhereInput {
   implicitFee_gte: String
   implicitFee_in: [String]
   implicitFee_not_in: [String]
+  minFeeAmount: String
+  minFeeAmount_not: String
+  minFeeAmount_lt: String
+  minFeeAmount_lte: String
+  minFeeAmount_gt: String
+  minFeeAmount_gte: String
+  minFeeAmount_in: [String]
+  minFeeAmount_not_in: [String]
+  maxFeeAmount: String
+  maxFeeAmount_not: String
+  maxFeeAmount_lt: String
+  maxFeeAmount_lte: String
+  maxFeeAmount_gt: String
+  maxFeeAmount_gte: String
+  maxFeeAmount_in: [String]
+  maxFeeAmount_not_in: [String]
   bankAccount: String
   bankAccount_not: String
   bankAccount_in: [String]
@@ -59733,8 +60050,14 @@ input PaymentRuleHistoryRecordWhereUniqueInput {
 enum SortPaymentRuleHistoryRecordsBy {
   explicitFee_ASC
   explicitFee_DESC
+  explicitServiceCharge_ASC
+  explicitServiceCharge_DESC
   implicitFee_ASC
   implicitFee_DESC
+  minFeeAmount_ASC
+  minFeeAmount_DESC
+  maxFeeAmount_ASC
+  maxFeeAmount_DESC
   merchant_ASC
   merchant_DESC
   id_ASC
@@ -59758,7 +60081,10 @@ enum SortPaymentRuleHistoryRecordsBy {
 input PaymentRuleHistoryRecordUpdateInput {
   context: String
   explicitFee: String
+  explicitServiceCharge: String
   implicitFee: String
+  minFeeAmount: String
+  maxFeeAmount: String
   bankAccount: String
   merchant: String
   marketPlaceScope: String
@@ -59785,7 +60111,10 @@ input PaymentRuleHistoryRecordsUpdateInput {
 input PaymentRuleHistoryRecordCreateInput {
   context: String
   explicitFee: String
+  explicitServiceCharge: String
   implicitFee: String
+  minFeeAmount: String
+  maxFeeAmount: String
   bankAccount: String
   merchant: String
   marketPlaceScope: String
@@ -59837,11 +60166,23 @@ type PaymentRule {
   """ acquiring context for the payment rule """
   context: AcquiringIntegrationContext
 
-  """ The amount of fee that will be taken from the payer """
+  """ Amount of money which payer pays on top of initial "amount", which counts as fee for every service which is not housing and communal services 
+  """
   explicitFee: String
 
-  """ The amount of fee that will be taken from the payee """
+  """ Amount of money which payer pays on top of initial "amount", which counts as internal service charge for all payments from housing and communal services category 
+  """
+  explicitServiceCharge: String
+
+  """ Amount of money which recipient pays from initial amount for transaction 
+  """
   implicitFee: String
+
+  """ Minimum fee """
+  minFeeAmount: String
+
+  """ Maximum fee """
+  maxFeeAmount: String
 
   """ Bank account from organization that will be used for money transfer """
   bankAccount: BankAccount
@@ -59893,6 +60234,14 @@ input PaymentRuleWhereInput {
   explicitFee_gte: String
   explicitFee_in: [String]
   explicitFee_not_in: [String]
+  explicitServiceCharge: String
+  explicitServiceCharge_not: String
+  explicitServiceCharge_lt: String
+  explicitServiceCharge_lte: String
+  explicitServiceCharge_gt: String
+  explicitServiceCharge_gte: String
+  explicitServiceCharge_in: [String]
+  explicitServiceCharge_not_in: [String]
   implicitFee: String
   implicitFee_not: String
   implicitFee_lt: String
@@ -59901,6 +60250,22 @@ input PaymentRuleWhereInput {
   implicitFee_gte: String
   implicitFee_in: [String]
   implicitFee_not_in: [String]
+  minFeeAmount: String
+  minFeeAmount_not: String
+  minFeeAmount_lt: String
+  minFeeAmount_lte: String
+  minFeeAmount_gt: String
+  minFeeAmount_gte: String
+  minFeeAmount_in: [String]
+  minFeeAmount_not_in: [String]
+  maxFeeAmount: String
+  maxFeeAmount_not: String
+  maxFeeAmount_lt: String
+  maxFeeAmount_lte: String
+  maxFeeAmount_gt: String
+  maxFeeAmount_gte: String
+  maxFeeAmount_in: [String]
+  maxFeeAmount_not_in: [String]
   bankAccount: BankAccountWhereInput
   bankAccount_is_null: Boolean
   merchant: String
@@ -59992,8 +60357,14 @@ enum SortPaymentRulesBy {
   context_DESC
   explicitFee_ASC
   explicitFee_DESC
+  explicitServiceCharge_ASC
+  explicitServiceCharge_DESC
   implicitFee_ASC
   implicitFee_DESC
+  minFeeAmount_ASC
+  minFeeAmount_DESC
+  maxFeeAmount_ASC
+  maxFeeAmount_DESC
   bankAccount_ASC
   bankAccount_DESC
   merchant_ASC
@@ -60023,7 +60394,10 @@ enum SortPaymentRulesBy {
 input PaymentRuleUpdateInput {
   context: AcquiringIntegrationContextRelateToOneInput
   explicitFee: String
+  explicitServiceCharge: String
   implicitFee: String
+  minFeeAmount: String
+  maxFeeAmount: String
   bankAccount: BankAccountRelateToOneInput
   merchant: String
   marketPlaceScope: PaymentRuleMarketPlaceScopeRelateToOneInput
@@ -60047,7 +60421,10 @@ input PaymentRulesUpdateInput {
 input PaymentRuleCreateInput {
   context: AcquiringIntegrationContextRelateToOneInput
   explicitFee: String
+  explicitServiceCharge: String
   implicitFee: String
+  minFeeAmount: String
+  maxFeeAmount: String
   bankAccount: BankAccountRelateToOneInput
   merchant: String
   marketPlaceScope: PaymentRuleMarketPlaceScopeRelateToOneInput
@@ -78592,6 +78969,31 @@ type RegisterMultiPaymentForInvoicesOutput {
   anonymousPaymentUrl: String!
 }
 
+input RegisterPaymentRuleBankAccountInput {
+  tin: String!
+  routingNumber: String!
+  number: String!
+}
+
+input RegisterPaymentRuleFeeSettingsInput {
+  explicitFee: String
+  explicitServiceCharge: String
+  implicitFee: String
+  minFeeAmount: String
+  maxFeeAmount: String
+  merchant: String
+}
+
+input RegisterPaymentRuleInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  acquiringIntegrationContext: AcquiringIntegrationContextWhereUniqueInput!
+  fee: RegisterPaymentRuleFeeSettingsInput!
+  bankAccount: RegisterPaymentRuleBankAccountInput
+  marketPlaceScope: PaymentRuleMarketPlaceScopeCreateInput
+  billingScope: PaymentRuleBillingScopeCreateInput
+}
+
 enum TicketReportPeriodType {
   calendarWeek
   month
@@ -90791,6 +91193,7 @@ type Mutation {
   registerMultiPaymentForVirtualReceipt(data: RegisterMultiPaymentForVirtualReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
   createPaymentByLink(data: CreatePaymentByLinkInput!): CreatePaymentByLinkOutput
   registerMultiPaymentForInvoices(data: RegisterMultiPaymentForInvoicesInput!): RegisterMultiPaymentForInvoicesOutput
+  registerPaymentRule(data: RegisterPaymentRuleInput!): PaymentRule
   sendB2CAppPushMessage(data: SendB2CAppPushMessageInput!): SendB2CAppPushMessageOutput
 
   """ Authenticate and generate a token for a User with the Password Authentication Strategy. 

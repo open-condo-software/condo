@@ -95,7 +95,7 @@ const PaymentRule = generateGqlQueries('PaymentRule', PAYMENT_RULE_FIELDS)
 
 const REGISTER_PAYMENT_RULE_MUTATION = gql`
     mutation registerPaymentRule ($data: RegisterPaymentRuleInput!) {
-        result: registerPaymentRule(data: $data) { id }
+        obj: registerPaymentRule(data: $data) { id }
     }
 `
 

@@ -6,9 +6,7 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 async function canRegisterPaymentRule ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin) return true
-
-    // TODO(codegen): write mutation access logic!
+    if (user.isAdmin || user.isSupport) return true
     return false
 }
 
