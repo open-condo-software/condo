@@ -6,7 +6,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 
 const logger = getLogger('replicaKnexAdapter')
 
-const MUTABLE_OPERATIONS = ['create', 'update', 'insert', 'delete', 'alter', 'drop', 'truncate', 'rollback', 'del']
+const IMMUTABLE_OPERATIONS = ['select', 'show']
 
 /**
  *
@@ -44,10 +44,10 @@ class ReplicaKnexAdapter extends KnexAdapter {
         const checkUseMasterSingle = (object) => {
             // if object.method equals "insert", "delete" or "update" then use master endpoint
             if (object.method !== undefined) {
-                return MUTABLE_OPERATIONS.includes(object.method)
+                return !IMMUTABLE_OPERATIONS.includes(object.method)
             }
             // try to parse sql
-            return MUTABLE_OPERATIONS.some(sub => object.sql.includes(sub))
+            return !IMMUTABLE_OPERATIONS.some(sub => object.sql.includes(sub))
         }
 
         const checkUseMasterMultiple = (array) => array.some(checkUseMasterSingle)

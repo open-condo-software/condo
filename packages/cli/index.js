@@ -305,25 +305,10 @@ async function getAllActualApps () {
     const hasPackageJson = await Promise.all(appNames.map(name => exists(`${PROJECT_ROOT}/apps/${name}/package.json`)))
     const hasIndexJs = await Promise.all(appNames.map(name => exists(`${PROJECT_ROOT}/apps/${name}/index.js`)))
     const hasNextConfig = await Promise.all(appNames.map(name => exists(`${PROJECT_ROOT}/apps/${name}/next.config.js`)))
-    const customDbAdapterSupport = []
-    for (const appName of appNames) {
-        let jsonContent = {}
-        try {
-            jsonContent = JSON.parse(await readFile(`${PROJECT_ROOT}/apps/${appName}/package.json`, { encoding: 'utf-8' }))
-        } catch (e) {
-            if (e.code !== 'ENOENT') {
-                throw e
-            }
-        }
-        customDbAdapterSupport.push(jsonContent)
-    }
 
     return appNames.reduce((apps, name, idx) => {
         if (hasPackageJson[idx] && (hasIndexJs[idx] || hasNextConfig[idx])) {
-            apps.push({
-                name, type: hasIndexJs[idx] ? 'KS' : 'Next',
-                hasCustomDbAdapterSupport: !!(customDbAdapterSupport[idx]['dbAdapters'] && customDbAdapterSupport[idx]['dbAdapters'].includes('ReplicaKnexAdapter')),
-            })
+            apps.push({ name, type: hasIndexJs[idx] ? 'KS' : 'Next' })
         }
         return apps
     }, [])
