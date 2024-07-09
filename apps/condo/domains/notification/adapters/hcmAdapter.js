@@ -199,7 +199,7 @@ class HCMAdapter {
      * @returns {Promise<(*[]|{})[]>}
      */
     static async prepareBatchData (notificationRaw, data, tokens = [], pushTypes = {}) {
-        const isSilentDataPushEnabled = IS_TEST_ENV || IS_LOCAL_ENV || await featureToggleManager.isFeatureEnabled(null, HUAWEI_SILENT_DATA_PUSH_ENABLED)
+        const isSilentDataPushEnabled = IS_LOCAL_ENV || await featureToggleManager.isFeatureEnabled(null, HUAWEI_SILENT_DATA_PUSH_ENABLED)
         const notification = HCMAdapter.validateAndPrepareNotification(notificationRaw)
         const notifications = []
         const fakeNotifications = []
