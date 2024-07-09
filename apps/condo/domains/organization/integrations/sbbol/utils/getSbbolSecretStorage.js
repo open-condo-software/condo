@@ -1,10 +1,12 @@
+const { isEmpty } = require('lodash')
+
 const conf = require('@open-condo/config')
 
 const { SbbolSecretStorage } = require('../SbbolSecretStorage')
 
 const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
 const SBBOL_AUTH_CONFIG_EXTENDED = conf.SBBOL_AUTH_CONFIG_EXTENDED ? JSON.parse(conf.SBBOL_AUTH_CONFIG_EXTENDED) : {}
-if (conf.NODE_ENV === 'test') {
+if (isEmpty(SBBOL_AUTH_CONFIG)) {
     SBBOL_AUTH_CONFIG.client_id = 'test'
 }
 
