@@ -18,6 +18,7 @@ export type BaseInputProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'style'
 export type InputProps = BaseInputProps & {
     allowClear?: boolean
     suffix?: string
+    prefix?: string
 }
 
 const Input: React.ForwardRefExoticComponent<InputProps & React.RefAttributes<InputRef>> = React.forwardRef((props, ref) => {
@@ -25,6 +26,7 @@ const Input: React.ForwardRefExoticComponent<InputProps & React.RefAttributes<In
         allowClear: allowClearProp,
         className: propsClassName,
         suffix,
+        prefix,
         ...restProps
     } = props
 
@@ -37,6 +39,7 @@ const Input: React.ForwardRefExoticComponent<InputProps & React.RefAttributes<In
     }, [allowClearProp])
 
     const className = classNames(propsClassName, {
+        [`${INPUT_CLASS_PREFIX}-with-prefix`]: prefix,
         [`${INPUT_CLASS_PREFIX}-with-suffix`]: suffix,
     })
 
@@ -47,6 +50,7 @@ const Input: React.ForwardRefExoticComponent<InputProps & React.RefAttributes<In
         className={className}
         allowClear={allowClear}
         suffix={suffix}
+        prefix={prefix}
     />
 })
 
