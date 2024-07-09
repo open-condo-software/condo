@@ -286,13 +286,6 @@
   border-radius: @condo-global-border-radius-medium;
   box-shadow: @condo-global-box-shadow-default;
 
-  &.condo-select-dropdown-ellipsis-start {
-    .condo-select-item-option-content {
-      direction: rtl;
-      text-align: left;
-    }
-  }
-
   .condo-select-item-empty {
     display: flex;
     align-items: center;
@@ -334,5 +327,12 @@
 
   .condo-select-item-option-content {
     .condo-typography-text-medium();
+  }
+
+  &.condo-select-dropdown-ellipsis-start {
+    .condo-select-item-option-content {
+      direction: rtl;
+      text-align: left;
+    }
   }
 }
