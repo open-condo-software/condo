@@ -351,15 +351,7 @@ async function createWorker (keystoneModule, config) {
         } catch (e) {
             throw new Error('Can\'t parse worker config. Please provide correct value')
         }
-        //
-        // if (parsedConfig['include'] && parsedConfig['include'].length > 0) {
-        //     const queuesToDelete = Array.from(QUEUES.entries()).filter(queue => !parsedConfig['include'].includes(queue[0]))
-        //
-        //     for (const [queueName] of queuesToDelete) {
-        //         QUEUES.delete(queueName)
-        //     }
-        // }
-        //
+
         if (parsedConfig['exclude'] && parsedConfig['exclude'].length > 0) {
             const queuesToDelete = Array.from(QUEUES.entries()).filter(queue => parsedConfig['exclude'].includes(queue[0]))
             for (const [queueName] of queuesToDelete) {
