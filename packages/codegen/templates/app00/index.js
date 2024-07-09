@@ -26,13 +26,13 @@ const authStrategy = keystone.createAuthStrategy({
 module.exports = {
     keystone,
     apps: [
-        new GraphQLApp({ apollo: { debug: conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test' } }),
+        new GraphQLApp({ apollo: { debug: conf.NODE_ENV === 'development' } }),
         new StaticApp({ path: conf.MEDIA_URL, src: conf.MEDIA_ROOT }),
         new AdminUIApp({
             adminPath: '/admin',
             isAccessAllowed: access.userIsAdmin,
             authStrategy,
         }),
-        conf.NODE_ENV === 'test' ? new EmptyApp() : new NextApp({ dir: '.' }),
+        conf.DISABLE_NEXT_APP ? new EmptyApp() : new NextApp({ dir: '.' }),
     ],
 }
