@@ -1,136 +1,40 @@
-@import "react-phone-input-2/lib/style.css";
 @import "antd/lib/input/style/index.less";
+@import "antd/lib/select/style/index.less";
 @import (reference) "@open-condo/ui/src/tokens/variables.less";
 @import (reference) "@open-condo/ui/src/components/style/mixins/typography";
 
-.condo-input,
-.condo-input-phone,
-.condo-input-phone .condo-input,
-.condo-input-affix-wrapper {
+.condo-phone-input-wrapper {
   color: @condo-global-color-black;
   .condo-typography-text-large();
-}
 
-.condo-input-with-suffix.condo-input-affix-wrapper {
-  padding-right: @condo-global-spacing-4;
-
-  & > .condo-input {
-    padding-right: @condo-global-spacing-4;
+  .condo-input,
+  .condo-input-group-addon {
+    box-sizing: border-box;
+    height: @condo-global-typography-text-l-line-height + 2 * @condo-global-spacing-12;
+    border: @condo-global-border-width-default solid @condo-global-color-gray-5;
   }
 
-  & > .condo-input-suffix {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: -@condo-global-spacing-8 0;
-    padding: @condo-global-spacing-8 @condo-global-spacing-12;
-    color: @condo-global-color-gray-7;
-    font-weight: @condo-global-font-weight-semibold;
-    font-size: @condo-global-spacing-12;
-    background-color: @condo-global-color-gray-3;
-    border-radius: 0 @condo-global-spacing-4 @condo-global-spacing-4 0;
+  .condo-input {
+    border-bottom-right-radius: @condo-global-border-radius-medium;
+    border-top-right-radius: @condo-global-border-radius-medium;
   }
-}
 
-.condo-input:not(.condo-input-affix-wrapper .condo-input),
-.condo-input-affix-wrapper {
-  box-sizing: border-box;
-  width: 100%;
-  height: @condo-global-typography-text-l-line-height + 2 * @condo-global-spacing-12;
-  border: @condo-global-border-width-default solid @condo-global-color-gray-5;
-  border-radius: @condo-global-border-radius-medium;
-}
+  .condo-input-group-addon {
+    border-bottom-left-radius: @condo-global-border-radius-medium;
+    border-top-left-radius: @condo-global-border-radius-medium;
+    border-right: none;
 
-.condo-input-affix-wrapper {
-  padding: @condo-global-spacing-12 - @condo-global-border-width-default;
-}
-
-.condo-input-focused,
-.condo-input-affix-wrapper-focused {
-  border-color: @condo-global-color-gray-7;
-  box-shadow: none;
-}
-
-.condo-input-phone .flag-dropdown {
-  margin: @condo-global-spacing-4;
-  background: @condo-global-color-gray-3;
-  border: 0;
-  border-radius: @condo-global-border-radius-small;
-
-  .selected-flag {
-    width: @condo-global-spacing-40;
-
-    &:hover,
-    &:focus {
-      background: transparent;
+    .condo-select-selector {
+      padding: 0 @condo-global-spacing-16 !important;
     }
   }
 
-  &.open .selected-flag {
-    background: transparent;
-  }
-}
-
-.condo-input-phone-disabled .flag-dropdown {
-  cursor: not-allowed !important;
-}
-
-.condo-input-phone .flag-dropdown.open,
-.condo-input-phone .flag-dropdown:hover:not(.condo-input-phone-disabled .flag-dropdown) {
-  background: @condo-global-color-gray-5;
-  border-radius: @condo-global-border-radius-small;
-}
-
-.condo-input-phone .country-list .country .dial-code {
-  color: @condo-global-color-gray-7;
-}
-
-.condo-input:not(.condo-input-affix-wrapper .condo-input,
-.condo-input-disabled,
-.condo-input-phone-disabled .condo-input),
-.condo-input-affix-wrapper:not(.condo-input-affix-wrapper-disabled) {
-  &:hover,
-  &:focus,
-  &:active {
-    border-color: @condo-global-color-gray-7;
-    box-shadow: none;
-  }
-}
-
-.condo-input::placeholder {
-  color: @condo-global-color-gray-7;
-  .condo-typography-text-large();
-}
-
-.condo-input-affix-wrapper-disabled,
-.condo-input-disabled[disabled],
-.condo-input[disabled] {
-  color: @condo-global-color-black;
-  background-color: @condo-global-color-white;
-  opacity: @condo-global-opacity-disabled;
-
-  &:hover {
-    border-color: @condo-global-color-gray-5;
-  }
-}
-
-.condo-input-affix-wrapper-disabled > .condo-input-disabled[disabled] {
-  opacity: 1;
-}
-
-.condo-input[disabled]::placeholder,
-.condo-input-disabled[disabled]::placeholder,
-.condo-input-affix-wrapper-disabled > .condo-input-disabled[disabled]::placeholder {
-  color: @condo-global-color-gray-7;
-}
-
-.condo-input-clear-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  &,
-  &:hover {
-    color: @condo-global-color-black;
+  .condo-select {
+    .condo-select-selector {
+      height: inherit;
+      min-height: 48px;
+      padding-top: calc(4px - 1px);
+      padding-bottom: calc(4px - 1px);
+    }
   }
 }
