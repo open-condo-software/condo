@@ -369,7 +369,7 @@ async function createWorker (keystoneModule, config) {
     }
 
     const activeQueues = parsedConfig['include'] && parsedConfig['include'].length > 0
-        ? Array.from(QUEUES.entries()).filter(queue => !parsedConfig['include'].includes(queue[0]))
+        ? Array.from(QUEUES.entries()).filter(queue => parsedConfig['include'].includes(queue[0]))
         : Array.from(QUEUES.entries())
 
     // Apply callbacks to each created queue
