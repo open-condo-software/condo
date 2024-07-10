@@ -30,7 +30,7 @@ if [ -z "$domain_name" ]; then
     usage
 fi
 
-node bin/prepare.js -f condo
+node bin/prepare.js -f condo -r condo
 
 export NODE_ENV=test
 export DISABLE_LOGGING=false
