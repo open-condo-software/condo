@@ -37,10 +37,12 @@ jobs:
           pip3 install psycopg2-binary
 
       - name: Docker compose up databases
-        run: |
-          docker compose up -d redis postgresdb-master postgresdb-replica
         env:
           REGISTRY: ${{ secrets.DOCKER_REGISTRY }}/doma/utils/
+        run: |
+          printenv
+          echo $REGISTRY
+          docker compose up -d redis postgresdb-master postgresdb-replica
 
       - name: Build deps
         run: yarn workspace @app/condo build:deps
