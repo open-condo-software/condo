@@ -8,7 +8,9 @@ import {
     PaymentRuleBillingScopeUpdateInput,
     QueryAllPaymentRuleBillingScopesArgs,
 } from '@app/condo/schema'
+
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
 import { PaymentRuleBillingScope as PaymentRuleBillingScopeGQL } from '@condo/domains/acquiring/gql'
 
 // TODO(codegen): write utils like convertToFormState and formValuesProcessor if needed, otherwise delete this TODO

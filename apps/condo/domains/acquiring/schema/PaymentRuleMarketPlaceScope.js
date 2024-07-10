@@ -11,7 +11,16 @@ const access = require('@condo/domains/acquiring/access/PaymentRuleMarketPlaceSc
 
 const PaymentRuleMarketPlaceScope = new GQLListSchema('PaymentRuleMarketPlaceScope', {
     schemaDoc: 'Conditions to match paymentRule with the marketplace invoices',
-    fields: {},
+    fields: {
+
+        paymentRule: {
+            schemaDoc: 'Payment rule to apply if market place invoice matches the scope',
+            type: 'Relationship',
+            ref: 'PaymentRule',
+            kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
+        },
+
+    },
     plugins: [uuided(), addressService(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadPaymentRuleMarketPlaceScopes,

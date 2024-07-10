@@ -3122,5 +3122,10 @@
   "acquiringReceipt.invoice.row.count": "Кол-во",
   "acquiringReceipt.invoice.row.vatPercent": "НДС",
   "acquiringReceipt.invoice.row.amount": "Стоимость",
-  "api.acquiring.multiPayment.error.receiptsWithInvoices": "Квитанции и счета не могут быть в одном платеже, увы. Но мы над этим работаем."
+  "api.acquiring.multiPayment.error.receiptsWithInvoices": "Квитанции и счета не могут быть в одном платеже, увы. Но мы над этим работаем.",
+  "api.user.registerPaymentRule.DUPLICATE_BILLING_SCOPE": "Такое же ограничение уже настроено для другого правила",
+  "api.user.registerPaymentRule.DUPLICATE_MARKET_PLACE_SCOPE": "Такое же ограничение уже настроено для другого правила",
+  "api.user.registerPaymentRule.ACQUIRING_CONTEXT_CHECK_FAILED": "Контекст эквайринга должен быть активным и в статусе Finished",
+  "api.user.registerPaymentRule.FAILED_TO_GET_INFORMATION_ABOUT_ORGANIZATION": "Не удалось получить информацию об организации по ИНН",
+  "api.user.registerPaymentRule.FAILED_TO_GET_INFORMATION_ABOUT_BANK": "Не удалось получить информацию о банке по БИК"
 }

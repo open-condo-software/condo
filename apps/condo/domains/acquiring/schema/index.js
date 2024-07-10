@@ -11,6 +11,9 @@ const { ExportPaymentsService } = require('./ExportPaymentsService')
 const { GeneratePaymentLinkService } = require('./GeneratePaymentLinkService')
 const { MultiPayment } = require('./MultiPayment')
 const { Payment } = require('./Payment')
+const { PaymentRule } = require('./PaymentRule')
+const { PaymentRuleBillingScope } = require('./PaymentRuleBillingScope')
+const { PaymentRuleMarketPlaceScope } = require('./PaymentRuleMarketPlaceScope')
 const { PaymentsFilterTemplate } = require('./PaymentsFilterTemplate')
 const { RecurrentPayment } = require('./RecurrentPayment')
 const { RecurrentPaymentContext } = require('./RecurrentPaymentContext')
@@ -18,11 +21,8 @@ const { RegisterMultiPaymentForInvoicesService } = require('./RegisterMultiPayme
 const { RegisterMultiPaymentForOneReceiptService } = require('./RegisterMultiPaymentForOneReceiptService')
 const { RegisterMultiPaymentForVirtualReceiptService } = require('./RegisterMultiPaymentForVirtualReceiptService')
 const { RegisterMultiPaymentService } = require('./RegisterMultiPaymentService')
-const { SumPaymentsService } = require('./SumPaymentsService')
-const { PaymentRuleMarketPlaceScope } = require('./PaymentRuleMarketPlaceScope')
-const { PaymentRuleBillingScope } = require('./PaymentRuleBillingScope')
-const { PaymentRule } = require('./PaymentRule')
 const { RegisterPaymentRuleService } = require('./RegisterPaymentRuleService')
+const { SumPaymentsService } = require('./SumPaymentsService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {

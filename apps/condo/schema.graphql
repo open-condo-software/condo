@@ -58874,6 +58874,7 @@ type PaymentRuleMarketPlaceScopeHistoryRecord {
    4. As an alias to the 'id' field on the PaymentRuleMarketPlaceScopeHistoryRecord List.
   """
   _label_: String
+  paymentRule: String
   id: ID!
   address: String
   addressKey: String
@@ -58896,6 +58897,10 @@ type PaymentRuleMarketPlaceScopeHistoryRecord {
 input PaymentRuleMarketPlaceScopeHistoryRecordWhereInput {
   AND: [PaymentRuleMarketPlaceScopeHistoryRecordWhereInput]
   OR: [PaymentRuleMarketPlaceScopeHistoryRecordWhereInput]
+  paymentRule: String
+  paymentRule_not: String
+  paymentRule_in: [String]
+  paymentRule_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -59046,6 +59051,7 @@ enum SortPaymentRuleMarketPlaceScopeHistoryRecordsBy {
 }
 
 input PaymentRuleMarketPlaceScopeHistoryRecordUpdateInput {
+  paymentRule: String
   address: String
   addressKey: String
   addressMeta: JSON
@@ -59070,6 +59076,7 @@ input PaymentRuleMarketPlaceScopeHistoryRecordsUpdateInput {
 }
 
 input PaymentRuleMarketPlaceScopeHistoryRecordCreateInput {
+  paymentRule: String
   address: String
   addressKey: String
   addressMeta: JSON
@@ -59092,6 +59099,13 @@ input PaymentRuleMarketPlaceScopeHistoryRecordsCreateInput {
   data: PaymentRuleMarketPlaceScopeHistoryRecordCreateInput
 }
 
+input PaymentRuleRelateToOneInput {
+  create: PaymentRuleCreateInput
+  connect: PaymentRuleWhereUniqueInput
+  disconnect: PaymentRuleWhereUniqueInput
+  disconnectAll: Boolean
+}
+
 """ Conditions to match paymentRule with the marketplace invoices """
 type PaymentRuleMarketPlaceScope {
   """
@@ -59102,6 +59116,9 @@ type PaymentRuleMarketPlaceScope {
    4. As an alias to the 'id' field on the PaymentRuleMarketPlaceScope List.
   """
   _label_: String
+
+  """ Payment rule to apply if market place invoice matches the scope """
+  paymentRule: PaymentRule
   id: ID!
 
   """ Normalized address """
@@ -59141,6 +59158,8 @@ type PaymentRuleMarketPlaceScope {
 input PaymentRuleMarketPlaceScopeWhereInput {
   AND: [PaymentRuleMarketPlaceScopeWhereInput]
   OR: [PaymentRuleMarketPlaceScopeWhereInput]
+  paymentRule: PaymentRuleWhereInput
+  paymentRule_is_null: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -59248,6 +59267,8 @@ input PaymentRuleMarketPlaceScopeWhereUniqueInput {
 }
 
 enum SortPaymentRuleMarketPlaceScopesBy {
+  paymentRule_ASC
+  paymentRule_DESC
   id_ASC
   id_DESC
   address_ASC
@@ -59271,6 +59292,7 @@ enum SortPaymentRuleMarketPlaceScopesBy {
 }
 
 input PaymentRuleMarketPlaceScopeUpdateInput {
+  paymentRule: PaymentRuleRelateToOneInput
   address: String
   addressKey: String
   addressMeta: JSON
@@ -59292,6 +59314,7 @@ input PaymentRuleMarketPlaceScopesUpdateInput {
 }
 
 input PaymentRuleMarketPlaceScopeCreateInput {
+  paymentRule: PaymentRuleRelateToOneInput
   address: String
   addressKey: String
   addressMeta: JSON
@@ -59327,6 +59350,7 @@ type PaymentRuleBillingScopeHistoryRecord {
    4. As an alias to the 'id' field on the PaymentRuleBillingScopeHistoryRecord List.
   """
   _label_: String
+  paymentRule: String
   category: String
   bankAccountNumber: String
   serviceIds: JSON
@@ -59352,6 +59376,10 @@ type PaymentRuleBillingScopeHistoryRecord {
 input PaymentRuleBillingScopeHistoryRecordWhereInput {
   AND: [PaymentRuleBillingScopeHistoryRecordWhereInput]
   OR: [PaymentRuleBillingScopeHistoryRecordWhereInput]
+  paymentRule: String
+  paymentRule_not: String
+  paymentRule_in: [String]
+  paymentRule_not_in: [String]
   category: String
   category_not: String
   category_in: [String]
@@ -59530,6 +59558,7 @@ enum SortPaymentRuleBillingScopeHistoryRecordsBy {
 }
 
 input PaymentRuleBillingScopeHistoryRecordUpdateInput {
+  paymentRule: String
   category: String
   bankAccountNumber: String
   serviceIds: JSON
@@ -59557,6 +59586,7 @@ input PaymentRuleBillingScopeHistoryRecordsUpdateInput {
 }
 
 input PaymentRuleBillingScopeHistoryRecordCreateInput {
+  paymentRule: String
   category: String
   bankAccountNumber: String
   serviceIds: JSON
@@ -59592,6 +59622,9 @@ type PaymentRuleBillingScope {
    4. As an alias to the 'id' field on the PaymentRuleBillingScope List.
   """
   _label_: String
+
+  """ Payment rule to apply if billing receipt matches the scope """
+  paymentRule: PaymentRule
 
   """ Determinate if payment rule is working on the specific billing category 
   """
@@ -59643,6 +59676,8 @@ type PaymentRuleBillingScope {
 input PaymentRuleBillingScopeWhereInput {
   AND: [PaymentRuleBillingScopeWhereInput]
   OR: [PaymentRuleBillingScopeWhereInput]
+  paymentRule: PaymentRuleWhereInput
+  paymentRule_is_null: Boolean
   category: BillingCategoryWhereInput
   category_is_null: Boolean
   bankAccountNumber: String
@@ -59774,6 +59809,8 @@ input PaymentRuleBillingScopeWhereUniqueInput {
 }
 
 enum SortPaymentRuleBillingScopesBy {
+  paymentRule_ASC
+  paymentRule_DESC
   category_ASC
   category_DESC
   bankAccountNumber_ASC
@@ -59801,6 +59838,7 @@ enum SortPaymentRuleBillingScopesBy {
 }
 
 input PaymentRuleBillingScopeUpdateInput {
+  paymentRule: PaymentRuleRelateToOneInput
   category: BillingCategoryRelateToOneInput
   bankAccountNumber: String
   serviceIds: JSON
@@ -59825,6 +59863,7 @@ input PaymentRuleBillingScopesUpdateInput {
 }
 
 input PaymentRuleBillingScopeCreateInput {
+  paymentRule: PaymentRuleRelateToOneInput
   category: BillingCategoryRelateToOneInput
   bankAccountNumber: String
   serviceIds: JSON
@@ -59871,8 +59910,6 @@ type PaymentRuleHistoryRecord {
   maxFeeAmount: String
   bankAccount: String
   merchant: String
-  marketPlaceScope: String
-  billingScope: String
   id: ID!
   v: Int
   createdAt: String
@@ -59957,14 +59994,6 @@ input PaymentRuleHistoryRecordWhereInput {
   merchant_not_ends_with_i: String
   merchant_in: [String]
   merchant_not_in: [String]
-  marketPlaceScope: String
-  marketPlaceScope_not: String
-  marketPlaceScope_in: [String]
-  marketPlaceScope_not_in: [String]
-  billingScope: String
-  billingScope_not: String
-  billingScope_in: [String]
-  billingScope_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -60087,8 +60116,6 @@ input PaymentRuleHistoryRecordUpdateInput {
   maxFeeAmount: String
   bankAccount: String
   merchant: String
-  marketPlaceScope: String
-  billingScope: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -60117,8 +60144,6 @@ input PaymentRuleHistoryRecordCreateInput {
   maxFeeAmount: String
   bankAccount: String
   merchant: String
-  marketPlaceScope: String
-  billingScope: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -60135,20 +60160,6 @@ input PaymentRuleHistoryRecordCreateInput {
 
 input PaymentRuleHistoryRecordsCreateInput {
   data: PaymentRuleHistoryRecordCreateInput
-}
-
-input PaymentRuleMarketPlaceScopeRelateToOneInput {
-  create: PaymentRuleMarketPlaceScopeCreateInput
-  connect: PaymentRuleMarketPlaceScopeWhereUniqueInput
-  disconnect: PaymentRuleMarketPlaceScopeWhereUniqueInput
-  disconnectAll: Boolean
-}
-
-input PaymentRuleBillingScopeRelateToOneInput {
-  create: PaymentRuleBillingScopeCreateInput
-  connect: PaymentRuleBillingScopeWhereUniqueInput
-  disconnect: PaymentRuleBillingScopeWhereUniqueInput
-  disconnectAll: Boolean
 }
 
 """ Defines the bank account and the fee settings where the money will be transferred 
@@ -60190,14 +60201,6 @@ type PaymentRule {
   """ Acquiring specific settings to define MCC (used to classify businesses by the type of goods or services they provide) 
   """
   merchant: String
-
-  """ Condition to check if the payment rule works for the specific market place invoice 
-  """
-  marketPlaceScope: PaymentRuleMarketPlaceScope
-
-  """ Condition to check if the payment rule works for the specific billing receipt 
-  """
-  billingScope: PaymentRuleBillingScope
   id: ID!
   v: Int
   createdAt: String
@@ -60286,10 +60289,6 @@ input PaymentRuleWhereInput {
   merchant_not_ends_with_i: String
   merchant_in: [String]
   merchant_not_in: [String]
-  marketPlaceScope: PaymentRuleMarketPlaceScopeWhereInput
-  marketPlaceScope_is_null: Boolean
-  billingScope: PaymentRuleBillingScopeWhereInput
-  billingScope_is_null: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -60369,10 +60368,6 @@ enum SortPaymentRulesBy {
   bankAccount_DESC
   merchant_ASC
   merchant_DESC
-  marketPlaceScope_ASC
-  marketPlaceScope_DESC
-  billingScope_ASC
-  billingScope_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -60400,8 +60395,6 @@ input PaymentRuleUpdateInput {
   maxFeeAmount: String
   bankAccount: BankAccountRelateToOneInput
   merchant: String
-  marketPlaceScope: PaymentRuleMarketPlaceScopeRelateToOneInput
-  billingScope: PaymentRuleBillingScopeRelateToOneInput
   v: Int
   createdAt: String
   updatedAt: String
@@ -60427,8 +60420,6 @@ input PaymentRuleCreateInput {
   maxFeeAmount: String
   bankAccount: BankAccountRelateToOneInput
   merchant: String
-  marketPlaceScope: PaymentRuleMarketPlaceScopeRelateToOneInput
-  billingScope: PaymentRuleBillingScopeRelateToOneInput
   v: Int
   createdAt: String
   updatedAt: String
@@ -78984,14 +78975,25 @@ input RegisterPaymentRuleFeeSettingsInput {
   merchant: String
 }
 
+input RegisterPaymentRuleMarketPlaceScopeInput {
+  address: String
+}
+
+input RegisterPaymentRuleBillingScopeInput {
+  address: String
+  category: BillingCategoryRelateToOneInput
+  bankAccountNumber: String
+  serviceIds: JSON
+}
+
 input RegisterPaymentRuleInput {
   dv: Int!
   sender: SenderFieldInput!
   acquiringIntegrationContext: AcquiringIntegrationContextWhereUniqueInput!
   fee: RegisterPaymentRuleFeeSettingsInput!
   bankAccount: RegisterPaymentRuleBankAccountInput
-  marketPlaceScope: PaymentRuleMarketPlaceScopeCreateInput
-  billingScope: PaymentRuleBillingScopeCreateInput
+  marketPlaceScope: RegisterPaymentRuleMarketPlaceScopeInput
+  billingScope: RegisterPaymentRuleBillingScopeInput
 }
 
 enum TicketReportPeriodType {

@@ -3,15 +3,14 @@
  */
 
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor, expectValuesOfCommonFields } = require('@open-condo/keystone/test.utils')
-
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects,
 } = require('@open-condo/keystone/test.utils')
 
+const { PaymentRuleMarketPlaceScope, createTestPaymentRuleMarketPlaceScope, updateTestPaymentRuleMarketPlaceScope } = require('@condo/domains/acquiring/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
-const { PaymentRuleMarketPlaceScope, createTestPaymentRuleMarketPlaceScope, updateTestPaymentRuleMarketPlaceScope } = require('@condo/domains/acquiring/utils/testSchema')
 
 describe('PaymentRuleMarketPlaceScope', () => {
     describe('CRUD tests', () => {
