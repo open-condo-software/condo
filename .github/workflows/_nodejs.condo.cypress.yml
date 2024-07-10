@@ -36,6 +36,13 @@ jobs:
           pip3 install django
           pip3 install psycopg2-binary
 
+      - name: login to sbercloud registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
+          password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
+
       - name: Docker compose up databases
         env:
           REGISTRY: ${{ secrets.DOCKER_REGISTRY }}/doma/utils/
