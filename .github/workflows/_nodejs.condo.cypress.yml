@@ -38,7 +38,9 @@ jobs:
 
       - name: Docker compose up databases
         run: |
-          docker compose up -d postgresdb postgresdb-replica redis
+          docker compose up -d redis postgresdb-master postgresdb-replica
+        env:
+          REGISTRY: ${{ secrets.DOCKER_REGISTRY }}/doma/utils/
 
       - name: Build deps
         run: yarn workspace @app/condo build:deps
