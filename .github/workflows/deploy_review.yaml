@@ -13,7 +13,7 @@ jobs:
       PULL_USER: ${{ secrets.PULL_USER }}
       PULL_PERSONAL_ACCESS_KEY: ${{ secrets.PULL_PERSONAL_ACCESS_KEY }}
     steps:
-      - name: Login to Sbercloud Container Registry
+      - name: Login to Container Registry
         uses: docker/login-action@v3
         with:
           registry: ${{ secrets.DOCKER_REGISTRY }}
