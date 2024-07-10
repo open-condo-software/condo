@@ -10,7 +10,7 @@ const SMALL_ROW_GUTTERS: [Gutter, Gutter] = [0, 20]
 export const MarketSettingAbout: React.FC = () => {
     const intl = useIntl()
     const DescriptionLabel = intl.formatMessage({ id: 'Description' })
-    const DescriptionMessage = intl.formatMessage({ id: 'pages.condo.settings.marketplace.about.description.message' })
+    const DescriptionMessage = intl.formatMessage({ id: 'pages.condo.settings.marketplace.paymentTypesAbout.description.message' })
 
     return (
         <Row gutter={MIDDLE_ROW_GUTTERS}>

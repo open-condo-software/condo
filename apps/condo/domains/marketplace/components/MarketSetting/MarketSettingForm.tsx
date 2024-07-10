@@ -1,23 +1,21 @@
-import { jsx } from '@emotion/react'
-import { Col, Form, Row, Typography } from 'antd'
+import { MarketSetting as MarketSettingType } from '@app/condo/schema'
+import { Col, Form, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button } from '@open-condo/ui'
 import { Checkbox } from '@open-condo/ui'
 
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
-import { fontSizes } from '@condo/domains/common/constants/style'
 import { useNotificationMessages } from '@condo/domains/common/hooks/useNotificationMessages'
-import { INVOICE_PAYMENT_TYPE_CASH } from '@condo/domains/marketplace/constants'
+import { INVOICE_PAYMENT_TYPE_CASH, INVOICE_PAYMENT_TYPE_ONLINE, INVOICE_PAYMENT_TYPES } from '@condo/domains/marketplace/constants'
 import { MarketSetting } from '@condo/domains/marketplace/utils/clientSchema'
-import { TicketOrganizationSetting as TicketSetting } from '@condo/domains/ticket/utils/clientSchema'
 
-const INPUT_LAYOUT_PROPS = {
+
+const CHECKBOX_LAYOUT_PROPS = {
     labelCol: {
         span: 24,
         md: 5,
@@ -34,52 +32,61 @@ const INPUT_LAYOUT_PROPS = {
 const BIG_ROW_GUTTERS: [Gutter, Gutter] = [0, 60]
 const MIDDLE_ROW_GUTTERS: [Gutter, Gutter] = [0, 40]
 const SMALL_ROW_GUTTERS: [Gutter, Gutter] = [0, 20]
-const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.content }
 
-export const MarketSettingForm: React.FC = () => {
+interface IMarketSettingForm {
+    marketSetting?: MarketSettingType,
+    userOrganizationId: string
+    loading: boolean
+}
+export const MarketSettingForm: React.FC<IMarketSettingForm> = ({ marketSetting, userOrganizationId, loading }) => {
     const intl = useIntl()
-    const allowCashPaymentTypeLabel = intl.formatMessage({ id: 'pages.condo.settings.ticketDeadlines.defaultDeadline.label' })
+    const allowCashPaymentTypeLabel = intl.formatMessage({ id: 'pages.condo.settings.marketplace.cashCheckbox.label' })
+    const allowOnlinePaymentsTypeLabel = intl.formatMessage({ id: 'pages.condo.settings.marketplace.onlineCheckbox.label' })
     const SaveMessage = intl.formatMessage({ id: 'Save' })
 
     const { getSuccessfulChangeNotification } = useNotificationMessages()
 
     const router = useRouter()
 
-    const userOrganization = useOrganization()
-    const userOrganizationId = get(userOrganization, ['organization', 'id'])
-    const { obj: marketSetting, loading } = MarketSetting.useObject({
-        where: {
-            organization: { id: userOrganizationId },
-        },
-    })
+    const updateHook = MarketSetting.useUpdate({}, () => router.push('/settings?tab=marketplace'))
+    const updateAction = async (data) => {
+        await updateHook(data, marketSetting)
+    }
+    const createAction = MarketSetting.useCreate({ organization: { connect: { id: userOrganizationId } } }, () => router.push('/settings?tab=marketplace'))
 
-    const action = MarketSetting.useUpdate({})
-    const updateAction = useCallback(async (value) => {
-        await action(value, marketSetting)
-        await router.push('/settings?tab=marketplace')
-    }, [action, router, marketSetting])
+    const action = marketSetting ? updateAction : createAction
 
     const initialValues = useMemo(() => {
         const result = {}
-        for (const paymentType in marketSetting) {
-            result[paymentType] = true
+        for (const type of INVOICE_PAYMENT_TYPES) {
+            result[type] = false
+        }
+        const residentAllowedPaymentTypes = get(marketSetting, 'residentAllowedPaymentTypes')
+        for (const index in residentAllowedPaymentTypes) {
+            result[residentAllowedPaymentTypes[index]] = true
         }
         return result
     }, [marketSetting])
 
-    const [allowCashPaymentsType, setAllowCashPaymentsType] = useState<boolean>(initialValues[INVOICE_PAYMENT_TYPE_CASH] || false)
-
-    const handleCheckboxChange = useCallback(() => {
-        setAllowCashPaymentsType(!allowCashPaymentsType)
-    }, [allowCashPaymentsType])
-
     const settingsForm = useMemo(() => (
         <FormWithAction
             initialValues={initialValues}
-            action={updateAction}
+            action={action}
             colon={false}
             layout='horizontal'
             OnCompletedMsg={getSuccessfulChangeNotification}
+            formValuesToMutationDataPreprocessor={(values) => {
+                const residentAllowedPaymentTypes = []
+                for (const [key, value] of Object.entries(values)) {
+                    if (INVOICE_PAYMENT_TYPES.includes(key)) {
+                        if (value) residentAllowedPaymentTypes.push(key)
+
+                        values[key] = undefined
+                    }
+                }
+                values.residentAllowedPaymentTypes = residentAllowedPaymentTypes
+                return values
+            }}
         >
             {({ handleSave, isLoading }) => (
                 <Row gutter={BIG_ROW_GUTTERS}>
@@ -88,19 +95,27 @@ export const MarketSettingForm: React.FC = () => {
                             <Col span={24}>
                                 <Row gutter={SMALL_ROW_GUTTERS}>
                                     <Col span={24}>
-                                        <Typography.Title level={5}>{allowCashPaymentTypeLabel}</Typography.Title>
-                                    </Col>
-                                    <Col span={24}>
                                         <Form.Item
-                                            name='allowCashPaymentsType'
+                                            name={INVOICE_PAYMENT_TYPE_CASH}
                                             label={allowCashPaymentTypeLabel}
                                             labelAlign='left'
-                                            //{...INPUT_LAYOUT_PROPS}
+                                            valuePropName='checked'
+                                            {...CHECKBOX_LAYOUT_PROPS}
                                         >
-                                            <Checkbox
-                                                checked={allowCashPaymentsType}
-                                                onChange={handleCheckboxChange}
-                                            />
+                                            <Checkbox/>
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+                                <Row gutter={SMALL_ROW_GUTTERS}>
+                                    <Col span={24}>
+                                        <Form.Item
+                                            name={INVOICE_PAYMENT_TYPE_ONLINE}
+                                            label={allowOnlinePaymentsTypeLabel}
+                                            labelAlign='left'
+                                            valuePropName='checked'
+                                            {...CHECKBOX_LAYOUT_PROPS}
+                                        >
+                                            <Checkbox/>
                                         </Form.Item>
                                     </Col>
                                 </Row>
@@ -124,9 +139,9 @@ export const MarketSettingForm: React.FC = () => {
                 </Row>
             )}
         </FormWithAction>
-    ), [allowCashPaymentTypeLabel, getSuccessfulChangeNotification, initialValues, updateAction, SaveMessage, allowCashPaymentsType, handleCheckboxChange])
+    ), [initialValues, action, getSuccessfulChangeNotification, allowCashPaymentTypeLabel, allowOnlinePaymentsTypeLabel, SaveMessage])
 
-    if (loading || !marketSetting) return null
+    if (loading) return null
 
     return settingsForm
 }

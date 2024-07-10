@@ -3,7 +3,6 @@ import get from 'lodash/get'
 import Head from 'next/head'
 import React, { CSSProperties, useMemo } from 'react'
 
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { TabItem } from '@open-condo/ui'
@@ -33,7 +32,8 @@ import { MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/com
 import { useEmployeeRolesPermissionsGroups } from '@condo/domains/organization/hooks/useEmployeeRolesPermissionsGroups'
 import { SettingsReadPermissionRequired } from '@condo/domains/settings/components/PageAccess'
 import { SubscriptionPane } from '@condo/domains/subscription/components/SubscriptionPane'
-import MarketplaceSettingsPage from "./marketplace";
+
+import MarketplaceSettingsPage from './marketplace'
 
 
 const TITLE_STYLES: CSSProperties = { margin: 0 }
@@ -69,9 +69,8 @@ const SettingsPage = () => {
         if (canManageContactRoles && isManagingCompany) availableTabs.push(SETTINGS_TAB_CONTACT_ROLES)
         if (isManagingCompany) availableTabs.push(SETTINGS_TAB_CONTROL_ROOM)
         if (canManageMobileFeatureConfigsRoles) availableTabs.push(SETTINGS_TAB_MOBILE_FEATURE_CONFIG)
-        if (true) availableTabs.push(SETTINGS_TAB_MARKETPLACE)
+        if (canManageMarketSettingRoles) availableTabs.push(SETTINGS_TAB_MARKETPLACE)
 
-        console.log('availableTabs', availableTabs,  get(userOrganization, ['link', 'role']))
         return availableTabs
     }, [hasSubscriptionFeature, isManagingCompany, canManageContactRoles, canManageMobileFeatureConfigsRoles, canManageEmployeeRoles, canManageMarketSettingRoles])
     const settingsTabs: TabItem[] = useMemo(
@@ -109,12 +108,12 @@ const SettingsPage = () => {
             canManageMarketSettingRoles && {
                 key: SETTINGS_TAB_MARKETPLACE,
                 label: MarketSettingTitle,
-                children: <div>sdfdverfvsdvervsdvcdr</div>,//<MarketplaceSettingsPage/>,
+                children: <MarketplaceSettingsPage/>,
             },
         ].filter(Boolean),
         [isManagingCompany, hasSubscriptionFeature, SubscriptionTitle, canManageEmployeeRoles, EmployeeRolesTitle, DetailsTitle, canManageContactRoles, RolesTitle, ControlRoomTitle, canManageMobileFeatureConfigsRoles, MobileFeatureConfigTitle, canManageMarketSettingRoles, MarketSettingTitle],
     )
-    console.log('canManageMarketSettingRoles', canManageMarketSettingRoles)
+
     const titleContent = useMemo(() => (
         <Typography.Title style={TITLE_STYLES}>{PageTitle}</Typography.Title>
     ), [PageTitle])
