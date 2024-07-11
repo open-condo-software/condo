@@ -44,9 +44,9 @@ let organization, acquiringIntegration
 
 describe('RegisterResidentInvoiceService', () => {
     beforeAll(async () => {
-        adminClient = await makeLoggedInAdminClient()
-        ;[acquiringIntegration] = await createTestAcquiringIntegration(adminClient)
-        ;[organization] = await createTestOrganization(adminClient)
+        adminClient = await makeLoggedInAdminClient();
+        [acquiringIntegration] = await createTestAcquiringIntegration(adminClient);
+        [organization] = await createTestOrganization(adminClient)
         await createTestAcquiringIntegrationContext(adminClient, organization, acquiringIntegration, { invoiceStatus: CONTEXT_FINISHED_STATUS })
     })
 

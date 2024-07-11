@@ -7,6 +7,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { TabItem } from '@open-condo/ui'
 
+import { AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
@@ -23,6 +24,7 @@ import {
     SETTINGS_TAB_MARKETPLACE,
 } from '@condo/domains/common/constants/settingsTabs'
 import { ContactRolesSettingsContent } from '@condo/domains/contact/components/contactRoles/ContactRolesSettingsContent'
+import { CONTEXT_FINISHED_STATUS } from '@condo/domains/miniapp/constants'
 import {
     EmployeeRolesSettingsContent,
 } from '@condo/domains/organization/components/EmployeeRolesSettingsContent'
@@ -54,11 +56,21 @@ const SettingsPage = () => {
     const hasSubscriptionFeature = hasFeature('subscription')
 
     const userOrganization = useOrganization()
+    const userOrganizationId = get(userOrganization, ['organization', 'id'])
     const isManagingCompany = get(userOrganization, 'organization.type', MANAGING_COMPANY_TYPE) === MANAGING_COMPANY_TYPE
     const canManageContactRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageContactRoles']), [userOrganization])
     const canManageEmployeeRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageRoles'], false), [userOrganization])
     const canManageMobileFeatureConfigsRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageMobileFeatureConfigs']), [userOrganization])
     const canManageMarketSettingRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageMarketSetting']), [userOrganization])
+
+    const { objs: [acquiringIntegrationContext], loading } = AcquiringIntegrationContext.useObjects({
+        where: {
+            organization: { id: userOrganizationId },
+            invoiceStatus: CONTEXT_FINISHED_STATUS,
+            deletedAt: null,
+        },
+        first: 1,
+    })
 
     const availableTabs = useMemo(() => {
         const availableTabs = [...ALWAYS_AVAILABLE_TABS]
@@ -69,10 +81,10 @@ const SettingsPage = () => {
         if (canManageContactRoles && isManagingCompany) availableTabs.push(SETTINGS_TAB_CONTACT_ROLES)
         if (isManagingCompany) availableTabs.push(SETTINGS_TAB_CONTROL_ROOM)
         if (canManageMobileFeatureConfigsRoles) availableTabs.push(SETTINGS_TAB_MOBILE_FEATURE_CONFIG)
-        if (canManageMarketSettingRoles) availableTabs.push(SETTINGS_TAB_MARKETPLACE)
+        if (canManageMarketSettingRoles && acquiringIntegrationContext && !loading) availableTabs.push(SETTINGS_TAB_MARKETPLACE)
 
         return availableTabs
-    }, [hasSubscriptionFeature, isManagingCompany, canManageContactRoles, canManageMobileFeatureConfigsRoles, canManageEmployeeRoles, canManageMarketSettingRoles])
+    }, [hasSubscriptionFeature, isManagingCompany, canManageEmployeeRoles, canManageContactRoles, canManageMobileFeatureConfigsRoles, canManageMarketSettingRoles, acquiringIntegrationContext, loading])
     const settingsTabs: TabItem[] = useMemo(
         () => [
             hasSubscriptionFeature && isManagingCompany && {
