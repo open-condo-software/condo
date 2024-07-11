@@ -321,13 +321,6 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
                                         {CreateMeterReadingsButtonLabel}
                                     </Button>
                                 ),
-                                canManageMeterReadings && (
-                                    <MetersImportWrapper
-                                        key='import'
-                                        accessCheck={canManageMeterReadings}
-                                        onFinish={refetch}
-                                    />
-                                ),
                             ]}
                         />
                     )}
