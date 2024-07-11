@@ -48,6 +48,7 @@ interface IOrganizationEmployeeItem {
 const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) => {
     const intl = useIntl()
     const OrganizationMessage = intl.formatMessage({ id: 'pages.condo.property.field.Organization' })
+    const TinMessage = intl.formatMessage({ id: 'pages.condo.property.field.Tin' })
     const PositionMessage = intl.formatMessage({ id: 'employee.Position' })
     const RoleMessage = intl.formatMessage({ id: 'employee.Role' })
 
@@ -84,11 +85,19 @@ const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) =>
                 </Col>
                 <Col lg={5} xs={10}>
                     <Typography.Text type='secondary'>
+                        {TinMessage}
+                    </Typography.Text>
+                </Col>
+                <Col lg={18} xs={12} offset={1}>
+                    <NotDefinedField value={get(employee, ['organization', 'tin'])} />
+                </Col>
+                <Col lg={5} xs={10}>
+                    <Typography.Text type='secondary'>
                         {PositionMessage}
                     </Typography.Text>
                 </Col>
                 <Col lg={18} xs={12} offset={1}>
-                    <NotDefinedField value={get(employee, ['position'])}/>
+                    <NotDefinedField value={get(employee, ['position'])} />
                 </Col>
                 <Col lg={5} xs={10}>
                     <Typography.Text type='secondary'>
@@ -127,10 +136,11 @@ export const UserOrganizationsList = ({ userOrganization, organizationEmployeesQ
     }, [userOrganization, userOrganizations])
 
     return (
+
         <Row gutter={[0, 60]}>
             {
                 !allDataLoaded
-                    ? <Skeleton active/>
+                    ? <Skeleton active />
                     : list
             }
         </Row>

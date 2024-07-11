@@ -631,6 +631,7 @@
   "pages.condo.property.field.Address.notFound.modal.contacts.description.bot": "В телеграм-бот",
   "pages.condo.property.field.Name": "Название ",
   "pages.condo.property.field.Organization": "Организация",
+  "pages.condo.property.field.Tin": "ИНН",
   "pages.condo.property.field.Type": "Тип объекта",
   "pages.condo.property.floor.Name": "Этаж",
   "pages.condo.property.form.BuildingTabTitle": "Шахматка",
