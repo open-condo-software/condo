@@ -68,6 +68,7 @@ type MetersTableContentProps = {
     mutationErrorsToMessages?: Record<string, string>
     loading?: boolean
     showImportButton?: boolean
+    refetchReadingsCount?: () => void
 }
 
 
@@ -81,6 +82,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     meter,
     resource,
     showImportButton = true,
+    refetchReadingsCount,
 }) => {
     const intl = useIntl()
     const CreateMeterReadingsButtonLabel = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterReadingsButtonLabel' })
@@ -179,10 +181,10 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
         if (selectedReadingKeys.length) {
             const itemsToDeleteByChunks = chunk(selectedReadingKeys.map((key) => ({ id: key })), 30)
             for (const itemsToDelete of itemsToDeleteByChunks) {
-                await softDeleteMeterReadings(itemsToDelete)
+                await softDeleteMeterReadings(itemsToDelete).then(refetchReadingsCount)
             }
         }
-    }, [softDeleteMeterReadings, selectedReadingKeys])
+    }, [selectedReadingKeys, softDeleteMeterReadings, refetchReadingsCount])
 
     const handleSelectAllRowsByPage = useCallback((e: CheckboxChangeEvent) => {
         const checked = e.target.checked
@@ -415,7 +417,7 @@ export const MeterReadingsPageContent: React.FC<MeterReadingsPageContentProps> =
     const CreateMeterReading = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterReadingButtonLabel' })
 
     const { refetch } = MeterReadingForOrganization.useCount({}, { skip: true })
-    const { count, loading: countLoading } = MeterReadingForOrganization.useCount({ where: baseSearchQuery })
+    const { count, loading: countLoading, refetch: refetchReadingsCount } = MeterReadingForOrganization.useCount({ where: baseSearchQuery })
 
     const nextVerificationDate = get(meter, 'nextVerificationDate')
     const isDeletedProperty = !get(meter, 'property')
@@ -478,9 +480,10 @@ export const MeterReadingsPageContent: React.FC<MeterReadingsPageContentProps> =
                 isAutomatic={isAutomatic}
                 resource={resource}
                 showImportButton={showImportButton}
+                refetchReadingsCount={refetchReadingsCount}
             />
         )
-    }, [CreateMeterReading, EmptyListLabel, EmptyListManualBodyDescription, baseSearchQuery, canManageMeterReadings, count, countLoading, filtersMeta, isAutomatic, isDeletedProperty, loading, meter, nextVerificationDate, refetch, resource, showImportButton])
+    }, [CreateMeterReading, EmptyListLabel, EmptyListManualBodyDescription, baseSearchQuery, canManageMeterReadings, count, countLoading, filtersMeta, isAutomatic, isDeletedProperty, loading, meter, nextVerificationDate, refetch, refetchReadingsCount, resource, showImportButton])
 
     return (
         <TablePageContent>
