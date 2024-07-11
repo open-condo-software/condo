@@ -623,12 +623,14 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
     const emergencyTemplatesTabsProps = useMemo(() => Object.keys(emergencyTemplates).map(id => ({
         key: id,
-        label: emergencyTemplates[id].title,
+        label: emergencyTemplates[id].label || emergencyTemplates[id].title,
+        category: emergencyTemplates[id].category,
     })), [emergencyTemplates])
 
     const commonTemplatesTabsProps = useMemo(() => Object.keys(commonTemplates).map(id => ({
         key: id,
-        label: commonTemplates[id].title,
+        label: commonTemplates[id].label || emergencyTemplates[id].title,
+        category: commonTemplates[id].category,
     })), [commonTemplates])
 
     const propertyCheckboxChange = (form) => {
@@ -1257,12 +1259,14 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                         <TemplatesSelect
                                                                             onChange={handleTemplateChange(form)}
                                                                             items={commonTemplatesTabsProps}
+                                                                            hasCategories
                                                                         />
                                                                     )}
                                                                     {selectedType === NEWS_TYPE_EMERGENCY && (
                                                                         <TemplatesSelect
                                                                             onChange={handleTemplateChange(form)}
                                                                             items={emergencyTemplatesTabsProps}
+                                                                            hasCategories
                                                                         />
                                                                     )}
                                                                 </Form.Item>
