@@ -31,8 +31,6 @@ export const TemplatesSelect: React.FC<INewsFormProps> = ({ items, onChange, has
         return keyBy(items, 'key')
     }, [items, hasCategories])
 
-    console.log(templatesByKey)
-
     const processedOptions = useMemo(() => {
         if (hasCategories) {
             const result = []
@@ -50,7 +48,7 @@ export const TemplatesSelect: React.FC<INewsFormProps> = ({ items, onChange, has
     return (
         <Select
             showSearch
-            defaultValue={items[0].key}
+            defaultValue={null}
             placeholder={TemplatesPlaceholderLabel}
             displayMode='fill-parent'
             optionFilterProp='label'

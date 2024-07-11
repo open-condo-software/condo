@@ -59,7 +59,6 @@ const guideModalCardLink = JSON.parse(conf['GUIDE_MODAL_CARD_LINK'] || '{}')
 const guideIntroduceAppMaterials = JSON.parse(conf['GUIDE_INTRODUCE_APP_MATERIALS'] || '{}')
 const importInstructionUrl = JSON.parse(conf['IMPORT_INSTRUCTION_URL'] || '{}')
 const telegramEmployeeBotName = conf['TELEGRAM_EMPLOYEE_BOT_NAME']
-const newsTemplates = JSON.parse(conf['NEWS_TEMPLATES'] || '[]')
 
 let nextConfig = withTM(withLess(withCSS({
     publicRuntimeConfig: {
@@ -99,7 +98,6 @@ let nextConfig = withTM(withLess(withCSS({
         guideIntroduceAppMaterials,
         importInstructionUrl,
         telegramEmployeeBotName,
-        newsTemplates,
     },
     lessLoaderOptions: {
         javascriptEnabled: true,

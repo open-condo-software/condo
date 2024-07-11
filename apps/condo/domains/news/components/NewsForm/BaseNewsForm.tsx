@@ -115,7 +115,7 @@ export type BaseNewsFormProps = {
         sendPeriod: SendPeriodType,
         properties?: IProperty[],
     }>,
-    templates: { [key: string]: Pick<INewsItemTemplate, 'title' | 'body' | 'type'> }
+    templates: { [key: string]: { title: string, body: string, type: string | null, id?: string, label?: string, category?: string } }
     afterAction?: () => void,
     newsItem?: INewsItem,
     OnCompletedMsg: (INewsItem) => ArgsProps | null,
@@ -450,6 +450,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             if (unitType && unitName) return `${unitType}-${unitName}`
         }).filter(Boolean)
     }, [initialHasAllProperties, initialNewsItemScopes, initialProperties.length])
+
 
     const commonTemplates = useMemo(() => {
         return transform(templates, (result, value, key) => {
