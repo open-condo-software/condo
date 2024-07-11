@@ -1049,6 +1049,7 @@
   "pages.condo.meter.MeterReading.DeleteMeterReadings": "Удалить показания",
   "pages.condo.meter.MeterReading.DeleteMeterReadings.Warn": "Восстановить их будет нельзя. Но можно ввести заново.",
   "pages.condo.meter.Meter.DeleteMeter": "Вы хотите удалить прибор учета?",
+  "pages.condo.meter.Meter.DeleteMeter.button": "Удалить счетчик",
   "pages.condo.meter.Meter.DeleteMeter.Warn": "Его нельзя будет восстановить, но можно будет добавить новый",
   "pages.condo.meter.Meter.isActive": "Активен",
   "pages.condo.meter.Meter.outOfOrder": "Выведен из работы",

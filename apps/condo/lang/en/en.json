@@ -1049,6 +1049,7 @@
   "pages.condo.meter.MeterReading.DeleteMeterReadings": "Delete readings",
   "pages.condo.meter.MeterReading.DeleteMeterReadings.Warn": "It will be impossible to restore them. But you can enter them again.",
   "pages.condo.meter.Meter.DeleteMeter": "Do you want to delete metering device?",
+  "pages.condo.meter.Meter.DeleteMeter.button": "Delete device",
   "pages.condo.meter.Meter.DeleteMeter.Warn": "You won't be able to restore it but can add a new one",
   "pages.condo.meter.Meter.isActive": "Active",
   "pages.condo.meter.Meter.outOfOrder": "Out of order",

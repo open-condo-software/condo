@@ -38,7 +38,7 @@ const ActionBarForSingleMeter = ({
     const DeleteMeterMessage = intl.formatMessage({ id: 'pages.condo.meter.Meter.DeleteMeter' })
     const DeleteMeterMessageWarn = intl.formatMessage({ id: 'pages.condo.meter.Meter.DeleteMeter.Warn' })
     const CreateMeterReadingsButtonLabel = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterReadingsButtonLabel' })
-    const DeleteMessage = intl.formatMessage({ id: 'Delete' })
+    const DeleteMessage = intl.formatMessage({ id: 'pages.condo.meter.Meter.DeleteMeter.button' })
     const EditMessage = intl.formatMessage({ id: 'Edit' })
     const DontDeleteMessage = intl.formatMessage({ id: 'DontDelete' })
 
