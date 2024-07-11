@@ -54,6 +54,7 @@ const METERS_PAGE_CONTENT_ROW_GUTTERS: RowProps['gutter'] = [0, 40]
 const FILTERS_CONTAINER_GUTTER: RowProps['gutter'] = [16, 16]
 const RESET_FILTERS_BUTTON_STYLE: CSSProperties = { paddingLeft: 0 }
 const QUICK_FILTERS_COL_STYLE: CSSProperties = { alignSelf: 'center' }
+const FULL_WIDTH_DATE_RANGE_STYLE: CSSProperties = { width: '100%' }
 
 const SORTABLE_PROPERTIES = ['date', 'clientName', 'source']
 
@@ -259,13 +260,14 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                                         suffix={<Search size='medium' color={colors.gray[7]}/>}
                                     />
                                 </Col>
-                                <Col>
+                                <Col xs={24} sm={24} md={16}>
                                     <Row justify='start' gutter={FILTERS_CONTAINER_GUTTER} style={{ flexWrap: 'nowrap' }}>
-                                        <Col style={QUICK_FILTERS_COL_STYLE}>
+                                        <Col style={QUICK_FILTERS_COL_STYLE} xs={24} sm={11}>
                                             <DateRangePicker
                                                 value={dateRange}
                                                 onChange={handleDateChange}
                                                 placeholder={[StartDateMessage, EndDateMessage]}
+                                                style={FULL_WIDTH_DATE_RANGE_STYLE}
                                             />
                                         </Col>
                                     </Row>
