@@ -117,13 +117,13 @@ const SettingsPage = () => {
                 label: MobileFeatureConfigTitle,
                 children: <MobileFeatureConfigContent/>,
             },
-            canManageMarketSettingRoles && {
+            canManageMarketSettingRoles && Boolean(acquiringIntegrationContext) && !loading && {
                 key: SETTINGS_TAB_MARKETPLACE,
                 label: MarketSettingTitle,
                 children: <MarketplaceSettingsPage/>,
             },
         ].filter(Boolean),
-        [isManagingCompany, hasSubscriptionFeature, SubscriptionTitle, canManageEmployeeRoles, EmployeeRolesTitle, DetailsTitle, canManageContactRoles, RolesTitle, ControlRoomTitle, canManageMobileFeatureConfigsRoles, MobileFeatureConfigTitle, canManageMarketSettingRoles, MarketSettingTitle],
+        [hasSubscriptionFeature, isManagingCompany, SubscriptionTitle, canManageEmployeeRoles, EmployeeRolesTitle, DetailsTitle, canManageContactRoles, RolesTitle, ControlRoomTitle, canManageMobileFeatureConfigsRoles, MobileFeatureConfigTitle, canManageMarketSettingRoles, acquiringIntegrationContext, loading, MarketSettingTitle],
     )
 
     const titleContent = useMemo(() => (
