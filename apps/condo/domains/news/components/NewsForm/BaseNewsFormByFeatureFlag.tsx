@@ -16,26 +16,26 @@ import React from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 
-import { NEWS_SHARING } from '@condo/domains/common/constants/featureflags'
+import { NEWS_SHARING, NEWS_SHARING_TEMPLATES } from '@condo/domains/common/constants/featureflags'
 import { BaseNewsFormProps, BaseNewsForm } from '@condo/domains/news/components/NewsForm/BaseNewsForm'
 import { OldBaseNewsForm } from '@condo/domains/news/components/NewsForm/OldBaseNewsForm'
-const {
-    publicRuntimeConfig,
-} = getConfig()
-
-const { newsTemplates } = publicRuntimeConfig
 
 export const BaseNewsFormByFeatureFlag: React.FC<BaseNewsFormProps> = (
     props
 ) => {
-    const { useFlag } = useFeatureFlags()
+    const { useFlag, useFlagValue } = useFeatureFlags()
     const isNewsSharingEnabled = useFlag(NEWS_SHARING)
+    let newsSharingTemplates = useFlagValue(NEWS_SHARING_TEMPLATES)
+
+    if (!Array.isArray(newsSharingTemplates)) {
+        newsSharingTemplates = []
+    }
 
     if (isNewsSharingEnabled) {
 
         const newProps = {
             ...props,
-            templates: newsTemplates,
+            templates: [...[{ id: '0', label: '', title: '', body: '', type: null }], ...newsSharingTemplates],
         }
 
         return <BaseNewsForm
