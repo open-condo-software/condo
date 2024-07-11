@@ -21,12 +21,13 @@ import isNil from 'lodash/isNil'
 import isNull from 'lodash/isNull'
 import last from 'lodash/last'
 import uniq from 'lodash/uniq'
-import uniqWith from 'lodash/uniqWith'
 
 import { buildingEmptyMapJson } from '@condo/domains/property/constants/property'
 import { NUMERIC_REGEXP } from '@condo/domains/property/constants/regexps'
+import { getUniqUnits, getUnitsFromSections } from '@condo/domains/property/utils/helpers'
 
 import MapSchemaJSON from './MapJsonSchema.json'
+
 
 const ajv = new Ajv()
 const validator = ajv.compile(MapSchemaJSON)
@@ -154,19 +155,8 @@ class Map {
         return true
     }
     public validateUniqueUnits (): boolean {
-        const getUnitsFromSections = (sections = []) => sections.map(section =>
-            get(section, 'floors', []).map(floor =>
-                get(floor, 'units', [])
-            )
-        ).flat(2)
-
         const sectionUnits = getUnitsFromSections(this.map.sections)
         const parkingUnits = getUnitsFromSections(this.map.parking)
-
-        const getUniqUnits = (units) => uniqWith(units,
-            (firstUnit, secondUnit) => get(firstUnit, 'label', '') === get(secondUnit, 'label', '') &&
-                get(firstUnit, 'unitType', '') === get(secondUnit, 'unitType', '')
-        )
 
         const notUniqSectionLabels = sectionUnits.length !== getUniqUnits(sectionUnits).length
         const notUniqParkingLabels = parkingUnits.length !== getUniqUnits(parkingUnits).length

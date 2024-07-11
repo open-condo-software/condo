@@ -2,7 +2,6 @@ import { BuildingMap, Property } from '@app/condo/schema'
 import { Typography, Form } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
-import uniqWith from 'lodash/uniqWith'
 import React, { useState, useCallback } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -12,6 +11,8 @@ import { FormWithAction, IFormWithActionChildren } from '@condo/domains/common/c
 import Prompt from '@condo/domains/common/components/Prompt'
 import { BuildingPanelEdit } from '@condo/domains/property/components/panels/Builder/BuildingPanelEdit'
 import { IPropertyFormState } from '@condo/domains/property/utils/clientSchema/Property'
+import { getUniqUnits, getUnitsFromSections } from '@condo/domains/property/utils/helpers'
+
 
 export interface IPropertyMapFormProps {
     id: string
@@ -73,12 +74,6 @@ const BasePropertyMapForm: React.FC<IPropertyMapFormProps> = (props) => {
                                     const sections = get(value, 'sections', [])
                                     const parking = get(value, 'parking', [])
 
-                                    const getUnitsFromSections = (sections) => sections.map(section =>
-                                        get(section, 'floors', []).map(floor =>
-                                            get(floor, 'units', [])
-                                        )
-                                    ).flat(2)
-
                                     const sectionUnits = getUnitsFromSections(sections)
                                     const parkingUnits = getUnitsFromSections(parking)
 
@@ -87,11 +82,6 @@ const BasePropertyMapForm: React.FC<IPropertyMapFormProps> = (props) => {
                                         setMapValidationError(UnitLabelEmptyError)
                                         return Promise.reject(UnitLabelEmptyError)
                                     }
-
-                                    const getUniqUnits = (units) => uniqWith(units,
-                                        (firstUnit, secondUnit) => get(firstUnit, 'label', '') === get(secondUnit, 'label', '') &&
-                                            get(firstUnit, 'unitType', '') === get(secondUnit, 'unitType', '')
-                                    )
 
                                     if (sectionUnits.length !== getUniqUnits(sectionUnits).length
                                         || parkingUnits.length !== getUniqUnits(parkingUnits).length) {
