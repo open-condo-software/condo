@@ -5,8 +5,9 @@ import get from 'lodash/get'
 import { ComponentProps, useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Button, Input, Typography } from '@open-condo/ui'
+import { Button, Typography } from '@open-condo/ui'
 
+import Input from '@condo/domains/common/components/antd/Input'
 import Select from '@condo/domains/common/components/antd/Select'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { ShowMoreFieldsButton } from '@condo/domains/common/components/ShowMoreFieldsButton'
@@ -99,6 +100,8 @@ export const BaseMetersFormFields: React.FC<BaseMetersFormFieldsProps> = ({
     const ControlReadingsDateMessage = intl.formatMessage({ id: 'pages.condo.meter.ControlReadingsDate' })
     const ResourceMessage = intl.formatMessage({ id: 'pages.condo.meter.Resource' })
     const DeviceInfoMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterInfo' })
+    const ResourcePlaceholderMessage = intl.formatMessage({ id: 'pages.condo.meter.Resource.placeholder' })
+    const PlacePlaceholderMessage = intl.formatMessage({ id: 'pages.condo.meter.Place.placeholder' })
 
     const isPropertyMeter = meterType === METER_TAB_TYPES.propertyMeter
     const meterResourceId = get(initialValues, ['resource', 'id'])
@@ -185,6 +188,7 @@ export const BaseMetersFormFields: React.FC<BaseMetersFormFieldsProps> = ({
                                 onChange={resource => handleResourceChange(form, resource)}
                                 search={searchMeterResources}
                                 disabled={disabledFields}
+                                placeholder={ResourcePlaceholderMessage}
                             />
                         </BaseMeterModalFormItem>
                     </Col>
@@ -206,7 +210,7 @@ export const BaseMetersFormFields: React.FC<BaseMetersFormFieldsProps> = ({
                             initialValue={get(initialValues, 'place')}
                             rules={validations.placeValidator}
                         >
-                            <Input disabled={disabledFields}/>
+                            <Input disabled={disabledFields} placeholder={PlacePlaceholderMessage}/>
                         </BaseMeterModalFormItem>
                     </Col>}
                     {

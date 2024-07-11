@@ -1066,6 +1066,8 @@
   "pages.condo.meter.archivedMeterTip.NotShowing": "не отображается",
   "pages.condo.meter.MeterWithSameNumberIsExist": "Прибор учета с таким номером уже существует в организации",
   "pages.condo.meter.MeterWithSameAccountNumberIsExist": "Такой лицевой счет уже существует в другой квартире",
+  "pages.condo.meter.Resource.placeholder": "Укажите тип счетчика",
+  "pages.condo.meter.Place.placeholder": "Укажите, где установлен счетчик",
   "pages.condo.meter.TariffsNumber": "Количество тарифов",
   "pages.condo.meter.InstallationDate": "Дата установки",
   "pages.condo.meter.CommissioningDate": "Дата ввода в эксплуатацию",

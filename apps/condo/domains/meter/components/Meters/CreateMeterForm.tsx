@@ -47,8 +47,8 @@ export const CreateMeterForm = (props: CreateMeterProps): JSX.Element => {
 
     const disabledFields = useMemo(() => !canManageMeters, [canManageMeters])
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>(propertyIdFromQuery as string || null)
-    const [selectedUnitName, setSelectedUnitName] = useState<string>(null)
-    const [selectedUnitType, setSelectedUnitType] = useState<MeterUnitTypeType>(null)
+    const [selectedUnitName, setSelectedUnitName] = useState<string>(unitNameFromQuery as string || null)
+    const [selectedUnitType, setSelectedUnitType] = useState<MeterUnitTypeType>(unitTypeFromQuery as MeterUnitTypeType || MeterUnitTypeType.Flat)
     const [isMatchSelectedProperty] = useState(true)
 
     const { obj: property, loading: propertyLoading } = Property.useObject({ where: { id: selectedPropertyId } },

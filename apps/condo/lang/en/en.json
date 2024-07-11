@@ -1066,6 +1066,8 @@
   "pages.condo.meter.archivedMeterTip.NotShowing": "is not shown",
   "pages.condo.meter.MeterWithSameNumberIsExist": "Meter with same number exist in organization",
   "pages.condo.meter.MeterWithSameAccountNumberIsExist": "Such a account number already exists in another unit",
+  "pages.condo.meter.Resource.placeholder": "Specify the type of meter",
+  "pages.condo.meter.Place.placeholder": "Specify where the meter is installed",
   "pages.condo.meter.TariffsNumber": "Number of tariffs",
   "pages.condo.meter.InstallationDate": "Date of installation",
   "pages.condo.meter.CommissioningDate": "Date of commissioning",
