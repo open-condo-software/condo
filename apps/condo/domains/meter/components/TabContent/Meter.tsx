@@ -295,7 +295,7 @@ export const MetersPageContent: React.FC<MeterReadingsPageContentProps> = ({
                     accessCheck={canManageMeters}
                 />) : (<EmptyListContent
                     label={EmptyListLabel}
-                    createRoute={`/meter/create?tab=${METER_TAB_TYPES.propertyMeterReading}`}
+                    createRoute={`/meter/create?tab=${METER_TAB_TYPES.meter}`}
                     createLabel={CreateMeter}
                     accessCheck={canManageMeters}
                 />)
