@@ -55,7 +55,7 @@ export const TemplatesSelect: React.FC<INewsFormProps> = ({ items, onChange, has
             onChange={onChange}
             options={processedOptions}
             filterOption={(inputValue, option) => {
-                // Search on item: if
+                // Search on item: if input is like item -> show this option
                 const optionText = get(option, ['children', 'props', 'children'], '')
                 if (optionText.toLowerCase().indexOf(inputValue.toLowerCase()) >= 0) { return true }
 
