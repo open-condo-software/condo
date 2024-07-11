@@ -2,6 +2,7 @@ import { BuildingMap, Property } from '@app/condo/schema'
 import { Typography, Form } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
+import uniqWith from 'lodash/uniqWith'
 import React, { useState, useCallback } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -72,25 +73,28 @@ const BasePropertyMapForm: React.FC<IPropertyMapFormProps> = (props) => {
                                     const sections = get(value, 'sections', [])
                                     const parking = get(value, 'parking', [])
 
-                                    const getUnitLabelsFromSections = (sections) => sections.map(section =>
+                                    const getUnitsFromSections = (sections) => sections.map(section =>
                                         get(section, 'floors', []).map(floor =>
-                                            get(floor, 'units', []).map(unit =>
-                                                get(unit, 'label', '').trim()
-                                            )
+                                            get(floor, 'units', [])
                                         )
                                     ).flat(2)
 
-                                    const sectionUnitLabels = getUnitLabelsFromSections(sections)
-                                    const parkingUnitLabels = getUnitLabelsFromSections(parking)
+                                    const sectionUnits = getUnitsFromSections(sections)
+                                    const parkingUnits = getUnitsFromSections(parking)
 
-                                    if (sectionUnitLabels.some(label => !label.length)
-                                    || parkingUnitLabels.some(label => !label.length)) {
+                                    if (sectionUnits.some(unit => !get(unit, 'label', '').length)
+                                    || parkingUnits.some(unit => !get(unit, 'label', '').length)) {
                                         setMapValidationError(UnitLabelEmptyError)
                                         return Promise.reject(UnitLabelEmptyError)
                                     }
 
-                                    if (sectionUnitLabels.length !== new Set(sectionUnitLabels).size
-                                        || parkingUnitLabels.length !== new Set(parkingUnitLabels).size) {
+                                    const getUniqUnits = (units) => uniqWith(units,
+                                        (firstUnit, secondUnit) => get(firstUnit, 'label', '') === get(secondUnit, 'label', '') &&
+                                            get(firstUnit, 'unitType', '') === get(secondUnit, 'unitType', '')
+                                    )
+
+                                    if (sectionUnits.length !== getUniqUnits(sectionUnits).length
+                                        || parkingUnits.length !== getUniqUnits(parkingUnits).length) {
                                         setMapValidationError(UnitLabelsNotUniqueError)
                                         return Promise.reject(UnitLabelsNotUniqueError)
                                     }
