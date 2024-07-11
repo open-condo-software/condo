@@ -631,6 +631,7 @@
   "pages.condo.property.field.Address.notFound.modal.contacts.description.bot": "Telegram-bot",
   "pages.condo.property.field.Name": "Name",
   "pages.condo.property.field.Organization": "Organization",
+  "pages.condo.property.field.Tin": "TIN",
   "pages.condo.property.field.Type": "Property type",
   "pages.condo.property.floor.Name": "Floor",
   "pages.condo.property.form.BuildingTabTitle": "Map",
