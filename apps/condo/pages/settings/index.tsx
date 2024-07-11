@@ -81,7 +81,7 @@ const SettingsPage = () => {
         if (canManageContactRoles && isManagingCompany) availableTabs.push(SETTINGS_TAB_CONTACT_ROLES)
         if (isManagingCompany) availableTabs.push(SETTINGS_TAB_CONTROL_ROOM)
         if (canManageMobileFeatureConfigsRoles) availableTabs.push(SETTINGS_TAB_MOBILE_FEATURE_CONFIG)
-        if (canManageMarketSettingRoles && acquiringIntegrationContext && !loading) availableTabs.push(SETTINGS_TAB_MARKETPLACE)
+        if (canManageMarketSettingRoles && Boolean(acquiringIntegrationContext) && !loading) availableTabs.push(SETTINGS_TAB_MARKETPLACE)
 
         return availableTabs
     }, [hasSubscriptionFeature, isManagingCompany, canManageEmployeeRoles, canManageContactRoles, canManageMobileFeatureConfigsRoles, canManageMarketSettingRoles, acquiringIntegrationContext, loading])
