@@ -29,7 +29,7 @@ export const TemplatesSelect: React.FC<INewsFormProps> = ({ items, onChange, has
 
     const templatesByKey = useMemo(() => {
         return keyBy(items, 'key')
-    }, [items, hasCategories])
+    }, [items])
 
     const processedOptions = useMemo(() => {
         if (hasCategories) {
