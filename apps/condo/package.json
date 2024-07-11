@@ -17,10 +17,10 @@
     "migrate": "./../../bin/kmigrator.py migrate",
     "migrate:down": "./../../bin/kmigrator.py down",
     "migrate:unlock": "./../../bin/kmigrator.py unlock",
-    "maketypes": "mkdirp dist/admin && NODE_ENV=test node ./../../bin/create-graphql-schema.js && graphql-codegen -c codegen.yaml",
+    "maketypes": "mkdirp dist/admin && node ./../../bin/create-graphql-schema.js && graphql-codegen -c codegen.yaml",
     "createservice": "node ./../../bin/createservice",
     "createschema": "node ./../../bin/createschema",
-    "lint-schema": "NODE_ENV=test node ./../../bin/lint-schema.js",
+    "lint-schema": "node ./../../bin/lint-schema.js",
     "lint-translations": "node ./../../bin/lint-i18n-translations.js"
   },
   "dependencies": {
