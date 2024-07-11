@@ -32,6 +32,7 @@ fi
 
 node bin/prepare.js -f condo -r condo
 
+export DISABLE_NEXT_APP=true
 export USE_LOCAL_FEATURE_FLAGS=true
 export DISABLE_LOGGING=false
 export NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true
