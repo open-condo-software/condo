@@ -589,9 +589,8 @@ describe('sendDailyStatistics helpers', () => {
             await sendDailyMessageToUserSafely(context, { ...administratorClient.user, email: administratorClient.userAttrs.email }, currentDate, null)
             await sendDailyMessageToUserSafely(context, { ...administratorClient.user, email: administratorClient.userAttrs.email }, currentDate, null)
 
-            let message = await Message.getOne(admin, {
-                uniqKey: `send_daily_statistics_${administratorClient.user.id}_${dayjs(currentDate).format('DD-MM-YYYY')}`,
-            })
+            const uniqKey = `send_daily_statistics_${administratorClient.user.id}_${dayjs(currentDate).format('DD-MM-YYYY')}`
+            let message = await Message.getOne(admin, { uniqKey })
 
             const getDate = (incident) => {
                 const EMPTY_LINE = '—'
@@ -622,14 +621,28 @@ describe('sendDailyStatistics helpers', () => {
                             water: `${getDate(actualWaterIncidentSoonForOneProperty)} - ${administratorClient.property.address}; ${getDate(actualWaterIncidentSoonForAllProperties)} - ${i18n('notification.messages.SEND_DAILY_STATISTICS.email.allProperties', { locale: administratorClient.user.locale, meta: { organization: administratorClient.organization.name } })}`,
                         },
                     },
-                    tags: [`orgId: ${administratorClient.organization.id}`.slice(0, 128)],
+                    attachingData: {
+                        organizationIds: [administratorClient.organization.id],
+                        userId: administratorClient.user.id,
+                        uniqKey,
+                        statisticsData: {
+                            tickets: {
+                                inProgress: 1,
+                                isEmergency: 1,
+                                isExpired: 1,
+                                isReturned: 1,
+                                withoutEmployee: 1,
+                            },
+                            incidents: {
+                                water: 2,
+                            },
+                        },
+                    },
                 }),
             }))
 
             await waitFor(async () => {
-                message = await Message.getOne(admin, {
-                    uniqKey: `send_daily_statistics_${administratorClient.user.id}_${dayjs(currentDate).format('DD-MM-YYYY')}`,
-                })
+                message = await Message.getOne(admin, { uniqKey })
                 expect(message.status).toEqual('sent')
             })
         })

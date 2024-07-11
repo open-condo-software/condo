@@ -656,7 +656,7 @@ const MESSAGE_META = {
     },
     [SEND_DAILY_STATISTICS_MESSAGE_TYPE]: {
         dv: { required: true },
-        tags: { required: false },
+        attachingData: { required: false },
         data: {
             date: { required: true },
             tickets: { required: true },
