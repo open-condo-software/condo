@@ -31,7 +31,6 @@ const HCMMessaging = require('./hcm/messaging')
 const HCM_CONFIG = conf[HCM_CONFIG_ENV] ? JSON.parse(conf[HCM_CONFIG_ENV]) : null
 const DEFAULT_PUSH_SETTINGS = {}
 const CONFIG_VALIDATED_FIELDS = [APP_MASTER_KEY, APP_RESIDENT_KEY, `${APP_MASTER_KEY}.clientId`, `${APP_MASTER_KEY}.secret`, `${APP_RESIDENT_KEY}.clientId`, `${APP_RESIDENT_KEY}.secret`]
-const IS_TEST_ENV = conf.NODE_ENV === 'test'
 const IS_LOCAL_ENV = conf.SERVER_URL.includes('localhost')
 
 const logger = getLogger('HCMAdapter')
@@ -200,7 +199,7 @@ class HCMAdapter {
      * @returns {Promise<(*[]|{})[]>}
      */
     static async prepareBatchData (notificationRaw, data, tokens = [], pushTypes = {}) {
-        const isSilentDataPushEnabled = IS_TEST_ENV || IS_LOCAL_ENV || await featureToggleManager.isFeatureEnabled(null, HUAWEI_SILENT_DATA_PUSH_ENABLED)
+        const isSilentDataPushEnabled = IS_LOCAL_ENV || await featureToggleManager.isFeatureEnabled(null, HUAWEI_SILENT_DATA_PUSH_ENABLED)
         const notification = HCMAdapter.validateAndPrepareNotification(notificationRaw)
         const notifications = []
         const fakeNotifications = []

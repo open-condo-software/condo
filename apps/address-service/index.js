@@ -32,7 +32,7 @@ const { SearchKeystoneApp } = require('@address-service/domains/common/utils/ser
 const { SuggestionKeystoneApp } = require('@address-service/domains/common/utils/services/suggest/SuggestionKeystoneApp')
 const { makeId } = require('@condo/domains/common/utils/makeid.utils')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
-const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
+const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development'
 const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND === 'true'
 
 if (conf.NODE_ENV === 'production' && IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND) {
@@ -63,7 +63,7 @@ module.exports = {
                 getAddressProviderLimitHealthCheck(),
             ],
         }),
-        conf.NODE_ENV === 'test' ? undefined : new OIDCKeystoneApp(),
+        conf.DISABLE_OIDC_AUTH ? undefined : new OIDCKeystoneApp(),
         new GraphQLApp({
             apollo: {
                 formatError,

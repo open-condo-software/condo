@@ -4,7 +4,7 @@ const conf = require('@open-condo/config')
 const { GQLError } = require('@open-condo/keystone/errors')
 const { getById } = require('@open-condo/keystone/schema')
 
-const IS_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
+const IS_DEBUG = conf.NODE_ENV === 'development'
 
 const isNotUndefined = (x) => typeof x !== 'undefined'
 const ALLOWED_OPTIONS = ['errorMapping', 'doesNotExistError', 'multipleObjectsError']

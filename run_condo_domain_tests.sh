@@ -32,7 +32,8 @@ fi
 
 node bin/prepare.js -f condo -r condo
 
-export NODE_ENV=test
+export DISABLE_NEXT_APP=true
+export USE_LOCAL_FEATURE_FLAGS=true
 export DISABLE_LOGGING=false
 export NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true
 export NOTIFICATION__DISABLE_LOGGING=true
@@ -59,12 +60,12 @@ source bin/validate-db-schema-ts-to-match-graphql-api.sh
 
 yarn workspace @app/condo worker 2>&1 > /app/test_logs/condo.worker.log &
 sleep 3
-yarn workspace @app/condo worker 2>&1 > /app/test_logs/condo.worker1.log &
-sleep 3
+#yarn workspace @app/condo worker 2>&1 > /app/test_logs/condo.worker1.log &
+#sleep 3
 
 
 # And check background processes!
-[[ $(jobs | wc -l | tr -d ' ') != '3' ]] && exit 2
+[[ $(jobs | wc -l | tr -d ' ') != '2' ]] && exit 2
 sleep 3
 
 if [ $domain_name != "others" ]; then

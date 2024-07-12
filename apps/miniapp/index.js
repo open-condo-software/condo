@@ -16,7 +16,7 @@ const { EmptyApp } = require('@open-condo/keystone/test.utils')
 const { CONDO_ACCESS_TOKEN_KEY, CONDO_ORGANIZATION_KEY } = require('./domains/condo/constants/common')
 const { createOrUpdateUser } = require('@miniapp/domains/condo/utils/serverSchema/createOrUpdateUser')
 
-const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
+const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development'
 
 // NOTE: should be disabled in production: https://www.apollographql.com/docs/apollo-server/testing/graphql-playground/
 // WARN: https://github.com/graphql/graphql-playground/tree/main/packages/graphql-playground-html/examples/xss-attack
@@ -167,7 +167,7 @@ module.exports = {
             isAccessAllowed: ({ authentication: { item: user } }) => Boolean(user && (user.isAdmin || user.isSupport)),
             authStrategy,
         }),
-        conf.NODE_ENV === 'test' ? new EmptyApp() : new NextApp({ dir: '.' }),
+        conf.DISABLE_NEXT_APP ? new EmptyApp() : new NextApp({ dir: '.' }),
     ],
     configureExpress: (app) => {
         app.set('trust proxy', 1) // trust first proxy
