@@ -41,6 +41,7 @@ const METERS_PAGE_CONTENT_ROW_GUTTERS: RowProps['gutter'] = [0, 40]
 const FILTERS_CONTAINER_GUTTER: RowProps['gutter'] = [16, 16]
 const QUICK_FILTERS_COL_STYLE: CSSProperties = { alignSelf: 'center' }
 const RESET_FILTERS_BUTTON_STYLE: CSSProperties = { paddingLeft: 0 }
+const FULL_WIDTH_DATE_RANGE_STYLE: CSSProperties = { width: '100%' }
 
 const SORTABLE_PROPERTIES = ['verificationDate', 'source']
 const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs(), dayjs().add(2, 'month')]
@@ -173,9 +174,9 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
                                     suffix={<Search size='medium' color={colors.gray[7]}/>}
                                 />
                             </Col>
-                            <Col>
+                            <Col sm={24} md={18}>
                                 <Row justify='start' gutter={FILTERS_CONTAINER_GUTTER} >
-                                    <Col style={QUICK_FILTERS_COL_STYLE} xs={24} sm={11}>
+                                    <Col style={QUICK_FILTERS_COL_STYLE} xs={24} sm={10}>
                                         <DateRangePicker
                                             value={dateRange}
                                             onChange={handleDateChange}
@@ -183,6 +184,7 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
                                             onClick={handleOnClickVerificationDate}
                                             size='large'
                                             disabledDate={_ => false}
+                                            style={FULL_WIDTH_DATE_RANGE_STYLE}
                                         />
                                     </Col>
                                     <Col style={QUICK_FILTERS_COL_STYLE}>
@@ -204,7 +206,7 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
                                 </Row>
                             </Col>
                             <Col>
-                                <Row gutter={[16, 10]} align='middle' style={{ flexWrap: 'nowrap' }}>
+                                <Row gutter={[16, 10]} align='middle' justify='end' style={{ flexWrap: 'nowrap' }}>
                                     {
                                         appliedFiltersCount > 0 && (
                                             <Col>
@@ -295,7 +297,7 @@ export const MetersPageContent: React.FC<MeterReadingsPageContentProps> = ({
                     accessCheck={canManageMeters}
                 />) : (<EmptyListContent
                     label={EmptyListLabel}
-                    createRoute={`/meter/create?tab=${METER_TAB_TYPES.propertyMeterReading}`}
+                    createRoute={`/meter/create?tab=${METER_TAB_TYPES.meter}`}
                     createLabel={CreateMeter}
                     accessCheck={canManageMeters}
                 />)

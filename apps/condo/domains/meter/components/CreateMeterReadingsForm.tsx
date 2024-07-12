@@ -365,12 +365,12 @@ export const CreateMeterReadingsForm = ({ organization, role, canManageMeterRead
                     title={NotFoundMetersLink}
                     size='medium'
                     PostfixIcon={Meters}
-                    href='/meter/create?tab=meter'
+                    href={`/meter/create?tab=meter&propertyId=${selectedPropertyId}${isNoMeterForUnitName ? `&unitName=${selectedUnitName}&unitType=${selectedUnitType}` : ''}`}
                     target='_blank'
                 />
             </div>
         )
-    }, [NotFoundMetersForAddress, NotFoundMetersLink])
+    }, [NotFoundMetersForAddress, NotFoundMetersLink, isNoMeterForUnitName, selectedPropertyId, selectedUnitName, selectedUnitType])
 
     return (
         <FormWithAction
@@ -635,12 +635,12 @@ export const CreatePropertyMeterReadingsForm = ({ organization, canManageMeterRe
                     title={NotFoundMetersLink}
                     size='medium'
                     PostfixIcon={Meters}
-                    href='/meter/create?tab=property-meter'
+                    href={`/meter/create?tab=property-meter&propertyId=${selectedPropertyId}`}
                     target='_blank'
                 />
             </div>
         )
-    }, [NotFoundMeters, NotFoundMetersLink])
+    }, [NotFoundMeters, NotFoundMetersLink, selectedPropertyId])
 
     return (
         <FormWithAction

@@ -62,6 +62,7 @@ type PropertyMetersTableContentProps = {
     loading?: boolean
     meter?: Meter | PropertyMeter,
     resource?: MeterResource,
+    refetchReadingsCount?: () => void
 }
 
 const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProps> = (props) => {
@@ -74,6 +75,7 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
         meter,
         isAutomatic,
         resource,
+        refetchReadingsCount,
     } = props
 
     const intl = useIntl()
@@ -162,10 +164,10 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
         if (selectedReadingKeys.length) {
             const itemsToDeleteByChunks = chunk(selectedReadingKeys.map((key) => ({ id: key })), 30)
             for (const itemsToDelete of itemsToDeleteByChunks) {
-                await softDeleteMeterReadings(itemsToDelete)
+                await softDeleteMeterReadings(itemsToDelete).then(refetchReadingsCount)
             }
         }
-    }, [softDeleteMeterReadings, selectedReadingKeys])
+    }, [selectedReadingKeys, softDeleteMeterReadings, refetchReadingsCount])
 
     const handleSelectAllRowsByPage = useCallback((e: CheckboxChangeEvent) => {
         const checked = e.target.checked
@@ -321,13 +323,6 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
                                         {CreateMeterReadingsButtonLabel}
                                     </Button>
                                 ),
-                                canManageMeterReadings && (
-                                    <MetersImportWrapper
-                                        key='import'
-                                        accessCheck={canManageMeterReadings}
-                                        onFinish={refetch}
-                                    />
-                                ),
                             ]}
                         />
                     )}
@@ -373,7 +368,7 @@ export const PropertyMeterReadingsPageContent: React.FC<PropertyMetersTableConte
     const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.propertyMeter.index.EmptyList.header' })
     const CreateMeterReading = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterReadingButtonLabel' })
 
-    const { count, loading: countLoading } = PropertyMeterReading.useCount({ where: baseSearchQuery })
+    const { count, loading: countLoading, refetch: refetchReadingsCount } = PropertyMeterReading.useCount({ where: baseSearchQuery })
     const nextVerificationDate = get(meter, 'nextVerificationDate')
     const isDeletedProperty = !get(meter, 'property')
 
@@ -404,9 +399,9 @@ export const PropertyMeterReadingsPageContent: React.FC<PropertyMetersTableConte
                 )
             }
 
-        return <PropertyMeterReadingsTableContent {...props} />
+        return <PropertyMeterReadingsTableContent {...props} refetchReadingsCount={refetchReadingsCount}/>
 
-    }, [CreateMeterReading, EmptyListLabel, canManageMeterReadings, count, countLoading, isAutomatic, isDeletedProperty, loading, meter, nextVerificationDate, props])
+    }, [CreateMeterReading, EmptyListLabel, canManageMeterReadings, count, countLoading, isAutomatic, isDeletedProperty, loading, meter, nextVerificationDate, props, refetchReadingsCount])
 
     return (
         <TablePageContent>
