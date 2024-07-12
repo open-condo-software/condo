@@ -398,6 +398,33 @@ async function createWorker (keystoneModule, config) {
             })
             gauge({ name: `worker.${queueName}.${job.name}ExecutionTime`, value: job.finishedOn - job.processedOn })
         })
+
+        queue.on('active', function (job) {
+            logger.info({
+                taskId: job.id,
+                status: 'active',
+                queue: queueName,
+                task: getTaskLoggingContext(job),
+            })
+        })
+
+        queue.on('stalled', function (job) {
+            logger.info({
+                taskId: job.id,
+                status: 'stalled',
+                queue: queueName,
+                task: getTaskLoggingContext(job),
+            })
+        })
+
+        queue.on('waiting', function (job) {
+            logger.info({
+                taskId: job.id,
+                status: 'waiting',
+                queue: queueName,
+                task: getTaskLoggingContext(job),
+            })
+        })
     })
 
     for (const [, queue] of activeQueues) {
