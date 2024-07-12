@@ -60339,6 +60339,8 @@ export type PaymentRuleBillingScope = {
   _label_?: Maybe<Scalars['String']>;
   /**  Payment rule to apply if billing receipt matches the scope  */
   paymentRule?: Maybe<PaymentRule>;
+  /**  Address restrictions  */
+  property?: Maybe<Property>;
   /**  Determinate if payment rule is working on the specific billing category  */
   category?: Maybe<BillingCategory>;
   /**  Defines that the payment rule works only for the specific bank account from the billing receipt  */
@@ -60346,14 +60348,6 @@ export type PaymentRuleBillingScope = {
   /**  Additional payment split according to the services in the billing receipt  */
   serviceIds?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
-  /**  Normalized address  */
-  address?: Maybe<Scalars['String']>;
-  /**  The unique key of the address  */
-  addressKey?: Maybe<Scalars['String']>;
-  /**  Property address components  */
-  addressMeta?: Maybe<AddressMetaField>;
-  /**  The origins of the address (some strings which may looks like real address or some id)  */
-  addressSources?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -60371,13 +60365,10 @@ export type PaymentRuleBillingScope = {
 
 export type PaymentRuleBillingScopeCreateInput = {
   paymentRule?: Maybe<PaymentRuleRelateToOneInput>;
+  property?: Maybe<PropertyRelateToOneInput>;
   category?: Maybe<BillingCategoryRelateToOneInput>;
   bankAccountNumber?: Maybe<Scalars['String']>;
   serviceIds?: Maybe<Scalars['JSON']>;
-  address?: Maybe<Scalars['String']>;
-  addressKey?: Maybe<Scalars['String']>;
-  addressMeta?: Maybe<Scalars['JSON']>;
-  addressSources?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -60401,14 +60392,11 @@ export type PaymentRuleBillingScopeHistoryRecord = {
    */
   _label_?: Maybe<Scalars['String']>;
   paymentRule?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
   category?: Maybe<Scalars['String']>;
   bankAccountNumber?: Maybe<Scalars['String']>;
   serviceIds?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
-  address?: Maybe<Scalars['String']>;
-  addressKey?: Maybe<Scalars['String']>;
-  addressMeta?: Maybe<Scalars['JSON']>;
-  addressSources?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -60425,13 +60413,10 @@ export type PaymentRuleBillingScopeHistoryRecord = {
 
 export type PaymentRuleBillingScopeHistoryRecordCreateInput = {
   paymentRule?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
   category?: Maybe<Scalars['String']>;
   bankAccountNumber?: Maybe<Scalars['String']>;
   serviceIds?: Maybe<Scalars['JSON']>;
-  address?: Maybe<Scalars['String']>;
-  addressKey?: Maybe<Scalars['String']>;
-  addressMeta?: Maybe<Scalars['JSON']>;
-  addressSources?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -60454,13 +60439,10 @@ export enum PaymentRuleBillingScopeHistoryRecordHistoryActionType {
 
 export type PaymentRuleBillingScopeHistoryRecordUpdateInput = {
   paymentRule?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
   category?: Maybe<Scalars['String']>;
   bankAccountNumber?: Maybe<Scalars['String']>;
   serviceIds?: Maybe<Scalars['JSON']>;
-  address?: Maybe<Scalars['String']>;
-  addressKey?: Maybe<Scalars['String']>;
-  addressMeta?: Maybe<Scalars['JSON']>;
-  addressSources?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -60482,6 +60464,10 @@ export type PaymentRuleBillingScopeHistoryRecordWhereInput = {
   paymentRule_not?: Maybe<Scalars['String']>;
   paymentRule_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   paymentRule_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  property?: Maybe<Scalars['String']>;
+  property_not?: Maybe<Scalars['String']>;
+  property_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  property_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   category?: Maybe<Scalars['String']>;
   category_not?: Maybe<Scalars['String']>;
   category_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -60512,50 +60498,6 @@ export type PaymentRuleBillingScopeHistoryRecordWhereInput = {
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
   id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  address?: Maybe<Scalars['String']>;
-  address_not?: Maybe<Scalars['String']>;
-  address_contains?: Maybe<Scalars['String']>;
-  address_not_contains?: Maybe<Scalars['String']>;
-  address_starts_with?: Maybe<Scalars['String']>;
-  address_not_starts_with?: Maybe<Scalars['String']>;
-  address_ends_with?: Maybe<Scalars['String']>;
-  address_not_ends_with?: Maybe<Scalars['String']>;
-  address_i?: Maybe<Scalars['String']>;
-  address_not_i?: Maybe<Scalars['String']>;
-  address_contains_i?: Maybe<Scalars['String']>;
-  address_not_contains_i?: Maybe<Scalars['String']>;
-  address_starts_with_i?: Maybe<Scalars['String']>;
-  address_not_starts_with_i?: Maybe<Scalars['String']>;
-  address_ends_with_i?: Maybe<Scalars['String']>;
-  address_not_ends_with_i?: Maybe<Scalars['String']>;
-  address_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  address_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  addressKey?: Maybe<Scalars['String']>;
-  addressKey_not?: Maybe<Scalars['String']>;
-  addressKey_contains?: Maybe<Scalars['String']>;
-  addressKey_not_contains?: Maybe<Scalars['String']>;
-  addressKey_starts_with?: Maybe<Scalars['String']>;
-  addressKey_not_starts_with?: Maybe<Scalars['String']>;
-  addressKey_ends_with?: Maybe<Scalars['String']>;
-  addressKey_not_ends_with?: Maybe<Scalars['String']>;
-  addressKey_i?: Maybe<Scalars['String']>;
-  addressKey_not_i?: Maybe<Scalars['String']>;
-  addressKey_contains_i?: Maybe<Scalars['String']>;
-  addressKey_not_contains_i?: Maybe<Scalars['String']>;
-  addressKey_starts_with_i?: Maybe<Scalars['String']>;
-  addressKey_not_starts_with_i?: Maybe<Scalars['String']>;
-  addressKey_ends_with_i?: Maybe<Scalars['String']>;
-  addressKey_not_ends_with_i?: Maybe<Scalars['String']>;
-  addressKey_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  addressKey_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  addressMeta?: Maybe<Scalars['JSON']>;
-  addressMeta_not?: Maybe<Scalars['JSON']>;
-  addressMeta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  addressMeta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  addressSources?: Maybe<Scalars['JSON']>;
-  addressSources_not?: Maybe<Scalars['JSON']>;
-  addressSources_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  addressSources_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   v?: Maybe<Scalars['Int']>;
   v_not?: Maybe<Scalars['Int']>;
   v_lt?: Maybe<Scalars['Int']>;
@@ -60645,13 +60587,10 @@ export type PaymentRuleBillingScopeHistoryRecordsUpdateInput = {
 
 export type PaymentRuleBillingScopeUpdateInput = {
   paymentRule?: Maybe<PaymentRuleRelateToOneInput>;
+  property?: Maybe<PropertyRelateToOneInput>;
   category?: Maybe<BillingCategoryRelateToOneInput>;
   bankAccountNumber?: Maybe<Scalars['String']>;
   serviceIds?: Maybe<Scalars['JSON']>;
-  address?: Maybe<Scalars['String']>;
-  addressKey?: Maybe<Scalars['String']>;
-  addressMeta?: Maybe<Scalars['JSON']>;
-  addressSources?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -60668,6 +60607,8 @@ export type PaymentRuleBillingScopeWhereInput = {
   OR?: Maybe<Array<Maybe<PaymentRuleBillingScopeWhereInput>>>;
   paymentRule?: Maybe<PaymentRuleWhereInput>;
   paymentRule_is_null?: Maybe<Scalars['Boolean']>;
+  property?: Maybe<PropertyWhereInput>;
+  property_is_null?: Maybe<Scalars['Boolean']>;
   category?: Maybe<BillingCategoryWhereInput>;
   category_is_null?: Maybe<Scalars['Boolean']>;
   bankAccountNumber?: Maybe<Scalars['String']>;
@@ -60696,50 +60637,6 @@ export type PaymentRuleBillingScopeWhereInput = {
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
   id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  address?: Maybe<Scalars['String']>;
-  address_not?: Maybe<Scalars['String']>;
-  address_contains?: Maybe<Scalars['String']>;
-  address_not_contains?: Maybe<Scalars['String']>;
-  address_starts_with?: Maybe<Scalars['String']>;
-  address_not_starts_with?: Maybe<Scalars['String']>;
-  address_ends_with?: Maybe<Scalars['String']>;
-  address_not_ends_with?: Maybe<Scalars['String']>;
-  address_i?: Maybe<Scalars['String']>;
-  address_not_i?: Maybe<Scalars['String']>;
-  address_contains_i?: Maybe<Scalars['String']>;
-  address_not_contains_i?: Maybe<Scalars['String']>;
-  address_starts_with_i?: Maybe<Scalars['String']>;
-  address_not_starts_with_i?: Maybe<Scalars['String']>;
-  address_ends_with_i?: Maybe<Scalars['String']>;
-  address_not_ends_with_i?: Maybe<Scalars['String']>;
-  address_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  address_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  addressKey?: Maybe<Scalars['String']>;
-  addressKey_not?: Maybe<Scalars['String']>;
-  addressKey_contains?: Maybe<Scalars['String']>;
-  addressKey_not_contains?: Maybe<Scalars['String']>;
-  addressKey_starts_with?: Maybe<Scalars['String']>;
-  addressKey_not_starts_with?: Maybe<Scalars['String']>;
-  addressKey_ends_with?: Maybe<Scalars['String']>;
-  addressKey_not_ends_with?: Maybe<Scalars['String']>;
-  addressKey_i?: Maybe<Scalars['String']>;
-  addressKey_not_i?: Maybe<Scalars['String']>;
-  addressKey_contains_i?: Maybe<Scalars['String']>;
-  addressKey_not_contains_i?: Maybe<Scalars['String']>;
-  addressKey_starts_with_i?: Maybe<Scalars['String']>;
-  addressKey_not_starts_with_i?: Maybe<Scalars['String']>;
-  addressKey_ends_with_i?: Maybe<Scalars['String']>;
-  addressKey_not_ends_with_i?: Maybe<Scalars['String']>;
-  addressKey_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  addressKey_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  addressMeta?: Maybe<Scalars['JSON']>;
-  addressMeta_not?: Maybe<Scalars['JSON']>;
-  addressMeta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  addressMeta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  addressSources?: Maybe<Scalars['JSON']>;
-  addressSources_not?: Maybe<Scalars['JSON']>;
-  addressSources_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  addressSources_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   v?: Maybe<Scalars['Int']>;
   v_not?: Maybe<Scalars['Int']>;
   v_lt?: Maybe<Scalars['Int']>;
@@ -61086,15 +60983,9 @@ export type PaymentRuleMarketPlaceScope = {
   _label_?: Maybe<Scalars['String']>;
   /**  Payment rule to apply if market place invoice matches the scope  */
   paymentRule?: Maybe<PaymentRule>;
+  /**  Address restrictions  */
+  property?: Maybe<Property>;
   id: Scalars['ID'];
-  /**  Normalized address  */
-  address?: Maybe<Scalars['String']>;
-  /**  The unique key of the address  */
-  addressKey?: Maybe<Scalars['String']>;
-  /**  Property address components  */
-  addressMeta?: Maybe<AddressMetaField>;
-  /**  The origins of the address (some strings which may looks like real address or some id)  */
-  addressSources?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -61112,10 +61003,7 @@ export type PaymentRuleMarketPlaceScope = {
 
 export type PaymentRuleMarketPlaceScopeCreateInput = {
   paymentRule?: Maybe<PaymentRuleRelateToOneInput>;
-  address?: Maybe<Scalars['String']>;
-  addressKey?: Maybe<Scalars['String']>;
-  addressMeta?: Maybe<Scalars['JSON']>;
-  addressSources?: Maybe<Scalars['JSON']>;
+  property?: Maybe<PropertyRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -61139,11 +61027,8 @@ export type PaymentRuleMarketPlaceScopeHistoryRecord = {
    */
   _label_?: Maybe<Scalars['String']>;
   paymentRule?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
-  address?: Maybe<Scalars['String']>;
-  addressKey?: Maybe<Scalars['String']>;
-  addressMeta?: Maybe<Scalars['JSON']>;
-  addressSources?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -61160,10 +61045,7 @@ export type PaymentRuleMarketPlaceScopeHistoryRecord = {
 
 export type PaymentRuleMarketPlaceScopeHistoryRecordCreateInput = {
   paymentRule?: Maybe<Scalars['String']>;
-  address?: Maybe<Scalars['String']>;
-  addressKey?: Maybe<Scalars['String']>;
-  addressMeta?: Maybe<Scalars['JSON']>;
-  addressSources?: Maybe<Scalars['JSON']>;
+  property?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -61186,10 +61068,7 @@ export enum PaymentRuleMarketPlaceScopeHistoryRecordHistoryActionType {
 
 export type PaymentRuleMarketPlaceScopeHistoryRecordUpdateInput = {
   paymentRule?: Maybe<Scalars['String']>;
-  address?: Maybe<Scalars['String']>;
-  addressKey?: Maybe<Scalars['String']>;
-  addressMeta?: Maybe<Scalars['JSON']>;
-  addressSources?: Maybe<Scalars['JSON']>;
+  property?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -61211,54 +61090,14 @@ export type PaymentRuleMarketPlaceScopeHistoryRecordWhereInput = {
   paymentRule_not?: Maybe<Scalars['String']>;
   paymentRule_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   paymentRule_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  property?: Maybe<Scalars['String']>;
+  property_not?: Maybe<Scalars['String']>;
+  property_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  property_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
   id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  address?: Maybe<Scalars['String']>;
-  address_not?: Maybe<Scalars['String']>;
-  address_contains?: Maybe<Scalars['String']>;
-  address_not_contains?: Maybe<Scalars['String']>;
-  address_starts_with?: Maybe<Scalars['String']>;
-  address_not_starts_with?: Maybe<Scalars['String']>;
-  address_ends_with?: Maybe<Scalars['String']>;
-  address_not_ends_with?: Maybe<Scalars['String']>;
-  address_i?: Maybe<Scalars['String']>;
-  address_not_i?: Maybe<Scalars['String']>;
-  address_contains_i?: Maybe<Scalars['String']>;
-  address_not_contains_i?: Maybe<Scalars['String']>;
-  address_starts_with_i?: Maybe<Scalars['String']>;
-  address_not_starts_with_i?: Maybe<Scalars['String']>;
-  address_ends_with_i?: Maybe<Scalars['String']>;
-  address_not_ends_with_i?: Maybe<Scalars['String']>;
-  address_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  address_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  addressKey?: Maybe<Scalars['String']>;
-  addressKey_not?: Maybe<Scalars['String']>;
-  addressKey_contains?: Maybe<Scalars['String']>;
-  addressKey_not_contains?: Maybe<Scalars['String']>;
-  addressKey_starts_with?: Maybe<Scalars['String']>;
-  addressKey_not_starts_with?: Maybe<Scalars['String']>;
-  addressKey_ends_with?: Maybe<Scalars['String']>;
-  addressKey_not_ends_with?: Maybe<Scalars['String']>;
-  addressKey_i?: Maybe<Scalars['String']>;
-  addressKey_not_i?: Maybe<Scalars['String']>;
-  addressKey_contains_i?: Maybe<Scalars['String']>;
-  addressKey_not_contains_i?: Maybe<Scalars['String']>;
-  addressKey_starts_with_i?: Maybe<Scalars['String']>;
-  addressKey_not_starts_with_i?: Maybe<Scalars['String']>;
-  addressKey_ends_with_i?: Maybe<Scalars['String']>;
-  addressKey_not_ends_with_i?: Maybe<Scalars['String']>;
-  addressKey_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  addressKey_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  addressMeta?: Maybe<Scalars['JSON']>;
-  addressMeta_not?: Maybe<Scalars['JSON']>;
-  addressMeta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  addressMeta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  addressSources?: Maybe<Scalars['JSON']>;
-  addressSources_not?: Maybe<Scalars['JSON']>;
-  addressSources_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  addressSources_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   v?: Maybe<Scalars['Int']>;
   v_not?: Maybe<Scalars['Int']>;
   v_lt?: Maybe<Scalars['Int']>;
@@ -61348,10 +61187,7 @@ export type PaymentRuleMarketPlaceScopeHistoryRecordsUpdateInput = {
 
 export type PaymentRuleMarketPlaceScopeUpdateInput = {
   paymentRule?: Maybe<PaymentRuleRelateToOneInput>;
-  address?: Maybe<Scalars['String']>;
-  addressKey?: Maybe<Scalars['String']>;
-  addressMeta?: Maybe<Scalars['JSON']>;
-  addressSources?: Maybe<Scalars['JSON']>;
+  property?: Maybe<PropertyRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -61368,54 +61204,12 @@ export type PaymentRuleMarketPlaceScopeWhereInput = {
   OR?: Maybe<Array<Maybe<PaymentRuleMarketPlaceScopeWhereInput>>>;
   paymentRule?: Maybe<PaymentRuleWhereInput>;
   paymentRule_is_null?: Maybe<Scalars['Boolean']>;
+  property?: Maybe<PropertyWhereInput>;
+  property_is_null?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
   id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  address?: Maybe<Scalars['String']>;
-  address_not?: Maybe<Scalars['String']>;
-  address_contains?: Maybe<Scalars['String']>;
-  address_not_contains?: Maybe<Scalars['String']>;
-  address_starts_with?: Maybe<Scalars['String']>;
-  address_not_starts_with?: Maybe<Scalars['String']>;
-  address_ends_with?: Maybe<Scalars['String']>;
-  address_not_ends_with?: Maybe<Scalars['String']>;
-  address_i?: Maybe<Scalars['String']>;
-  address_not_i?: Maybe<Scalars['String']>;
-  address_contains_i?: Maybe<Scalars['String']>;
-  address_not_contains_i?: Maybe<Scalars['String']>;
-  address_starts_with_i?: Maybe<Scalars['String']>;
-  address_not_starts_with_i?: Maybe<Scalars['String']>;
-  address_ends_with_i?: Maybe<Scalars['String']>;
-  address_not_ends_with_i?: Maybe<Scalars['String']>;
-  address_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  address_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  addressKey?: Maybe<Scalars['String']>;
-  addressKey_not?: Maybe<Scalars['String']>;
-  addressKey_contains?: Maybe<Scalars['String']>;
-  addressKey_not_contains?: Maybe<Scalars['String']>;
-  addressKey_starts_with?: Maybe<Scalars['String']>;
-  addressKey_not_starts_with?: Maybe<Scalars['String']>;
-  addressKey_ends_with?: Maybe<Scalars['String']>;
-  addressKey_not_ends_with?: Maybe<Scalars['String']>;
-  addressKey_i?: Maybe<Scalars['String']>;
-  addressKey_not_i?: Maybe<Scalars['String']>;
-  addressKey_contains_i?: Maybe<Scalars['String']>;
-  addressKey_not_contains_i?: Maybe<Scalars['String']>;
-  addressKey_starts_with_i?: Maybe<Scalars['String']>;
-  addressKey_not_starts_with_i?: Maybe<Scalars['String']>;
-  addressKey_ends_with_i?: Maybe<Scalars['String']>;
-  addressKey_not_ends_with_i?: Maybe<Scalars['String']>;
-  addressKey_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  addressKey_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  addressMeta?: Maybe<Scalars['JSON']>;
-  addressMeta_not?: Maybe<Scalars['JSON']>;
-  addressMeta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  addressMeta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  addressSources?: Maybe<Scalars['JSON']>;
-  addressSources_not?: Maybe<Scalars['JSON']>;
-  addressSources_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  addressSources_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   v?: Maybe<Scalars['Int']>;
   v_not?: Maybe<Scalars['Int']>;
   v_lt?: Maybe<Scalars['Int']>;
@@ -75285,7 +75079,7 @@ export type RegisterPaymentRuleBankAccountInput = {
 };
 
 export type RegisterPaymentRuleBillingScopeInput = {
-  address?: Maybe<Scalars['String']>;
+  property?: Maybe<PropertyRelateToOneInput>;
   category?: Maybe<BillingCategoryRelateToOneInput>;
   bankAccountNumber?: Maybe<Scalars['String']>;
   serviceIds?: Maybe<Scalars['JSON']>;
@@ -75311,7 +75105,7 @@ export type RegisterPaymentRuleInput = {
 };
 
 export type RegisterPaymentRuleMarketPlaceScopeInput = {
-  address?: Maybe<Scalars['String']>;
+  property?: Maybe<PropertyRelateToOneInput>;
 };
 
 export type RegisterResidentInput = {
@@ -83518,10 +83312,6 @@ export enum SortPaymentRuleBillingScopeHistoryRecordsBy {
   BankAccountNumberDesc = 'bankAccountNumber_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
-  AddressAsc = 'address_ASC',
-  AddressDesc = 'address_DESC',
-  AddressKeyAsc = 'addressKey_ASC',
-  AddressKeyDesc = 'addressKey_DESC',
   VAsc = 'v_ASC',
   VDesc = 'v_DESC',
   CreatedAtAsc = 'createdAt_ASC',
@@ -83541,16 +83331,14 @@ export enum SortPaymentRuleBillingScopeHistoryRecordsBy {
 export enum SortPaymentRuleBillingScopesBy {
   PaymentRuleAsc = 'paymentRule_ASC',
   PaymentRuleDesc = 'paymentRule_DESC',
+  PropertyAsc = 'property_ASC',
+  PropertyDesc = 'property_DESC',
   CategoryAsc = 'category_ASC',
   CategoryDesc = 'category_DESC',
   BankAccountNumberAsc = 'bankAccountNumber_ASC',
   BankAccountNumberDesc = 'bankAccountNumber_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
-  AddressAsc = 'address_ASC',
-  AddressDesc = 'address_DESC',
-  AddressKeyAsc = 'addressKey_ASC',
-  AddressKeyDesc = 'addressKey_DESC',
   VAsc = 'v_ASC',
   VDesc = 'v_DESC',
   CreatedAtAsc = 'createdAt_ASC',
@@ -83601,10 +83389,6 @@ export enum SortPaymentRuleHistoryRecordsBy {
 export enum SortPaymentRuleMarketPlaceScopeHistoryRecordsBy {
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
-  AddressAsc = 'address_ASC',
-  AddressDesc = 'address_DESC',
-  AddressKeyAsc = 'addressKey_ASC',
-  AddressKeyDesc = 'addressKey_DESC',
   VAsc = 'v_ASC',
   VDesc = 'v_DESC',
   CreatedAtAsc = 'createdAt_ASC',
@@ -83624,12 +83408,10 @@ export enum SortPaymentRuleMarketPlaceScopeHistoryRecordsBy {
 export enum SortPaymentRuleMarketPlaceScopesBy {
   PaymentRuleAsc = 'paymentRule_ASC',
   PaymentRuleDesc = 'paymentRule_DESC',
+  PropertyAsc = 'property_ASC',
+  PropertyDesc = 'property_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
-  AddressAsc = 'address_ASC',
-  AddressDesc = 'address_DESC',
-  AddressKeyAsc = 'addressKey_ASC',
-  AddressKeyDesc = 'addressKey_DESC',
   VAsc = 'v_ASC',
   VDesc = 'v_DESC',
   CreatedAtAsc = 'createdAt_ASC',

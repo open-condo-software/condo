@@ -20,8 +20,15 @@ const PaymentRuleMarketPlaceScope = new GQLListSchema('PaymentRuleMarketPlaceSco
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
         },
 
+        property: {
+            schemaDoc: 'Address restrictions',
+            type: 'Relationship',
+            ref: 'Property',
+            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
+        },
+
     },
-    plugins: [uuided(), addressService(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadPaymentRuleMarketPlaceScopes,
         create: access.canManagePaymentRuleMarketPlaceScopes,

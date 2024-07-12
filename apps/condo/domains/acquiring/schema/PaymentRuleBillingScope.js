@@ -20,6 +20,13 @@ const PaymentRuleBillingScope = new GQLListSchema('PaymentRuleBillingScope', {
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
         },
 
+        property: {
+            schemaDoc: 'Address restrictions',
+            type: 'Relationship',
+            ref: 'Property',
+            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
+        },
+
         category: {
             schemaDoc: 'Determinate if payment rule is working on the specific billing category',
             type: 'Relationship',
@@ -40,7 +47,7 @@ const PaymentRuleBillingScope = new GQLListSchema('PaymentRuleBillingScope', {
         },
 
     },
-    plugins: [uuided(), addressService(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadPaymentRuleBillingScopes,
         create: access.canManagePaymentRuleBillingScopes,

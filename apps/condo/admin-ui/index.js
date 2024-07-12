@@ -11,7 +11,6 @@ import { useLocation, useHistory } from 'react-router-dom'
 import PaymentRulesSettingsPage from '@condo/domains/acquiring/admin-ui/PaymentRulesSettingsPage'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 
-
 const SIGNIN_AS_USER_MUTATION = gql`
         mutation signinAsUser ($data: SigninAsUserInput!) {
             result: signinAsUser(data: $data) { user { id } token }

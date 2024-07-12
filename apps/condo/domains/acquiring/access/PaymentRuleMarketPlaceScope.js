@@ -14,6 +14,7 @@ async function canReadPaymentRuleMarketPlaceScopes ({ authentication: { item: us
 async function canManagePaymentRuleMarketPlaceScopes ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
+    if (user.isAdmin) return true
     if (user.isSupport) {
         // Allow support user to delete payment rule marketplace scope
         if (operation === 'update' && originalInput.deletedAt) {
