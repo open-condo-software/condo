@@ -32,14 +32,9 @@ fi
 
 node bin/prepare.js -f condo -r condo
 
-export DISABLE_NEXT_APP=true
 export DISABLE_LOGGING=false
 export NEWS_ITEMS_SENDING_DELAY_SEC=2
 export NEWS_ITEM_SENDING_TTL_SEC=2
-export NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true
-export NOTIFICATION__DISABLE_LOGGING=true
-export TESTS_LOG_REQUEST_RESPONSE=true
-export WORKER_CONCURRENCY=50
 export NODE_OPTIONS="--max_old_space_size=4192"
 
 node -e 'console.log(v8.getHeapStatistics().heap_size_limit/(1024*1024))'
