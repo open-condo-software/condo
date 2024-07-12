@@ -32,24 +32,16 @@ fi
 
 node bin/prepare.js -f condo -r condo
 
-export DISABLE_NEXT_APP=true
-export USE_LOCAL_FEATURE_FLAGS=true
-export DISABLE_LOGGING=false
-export NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true
-export NOTIFICATION__DISABLE_LOGGING=true
-export TESTS_LOG_REQUEST_RESPONSE=true
-export WORKER_CONCURRENCY=50
-export NODE_OPTIONS="--max_old_space_size=4192"
-export METABASE_CONFIG='{"url": "https://metabase.example.com", "secret": "4879960c-a625-4096-9add-7a81d925774a"}'
 export NEWS_ITEMS_SENDING_DELAY_SEC=2
 export NEWS_ITEM_SENDING_TTL_SEC=2
+export NODE_OPTIONS="--max_old_space_size=4192"
 
 node -e 'console.log(v8.getHeapStatistics().heap_size_limit/(1024*1024))'
 
 # NOTE(pahaz): Keystone not in dev mode trying to check dist/admin folder
 mkdir -p ./apps/condo/dist/admin
 
-yarn workspace @app/condo node --trace-warnings ./../../bin/run-keystone-app.js 2>&1 > /app/test_logs/condo.dev.log &
+yarn workspace @app/condo start 2>&1 > /app/test_logs/condo.dev.log &
 
 node bin/wait-apps-apis.js -f condo
 
@@ -60,9 +52,6 @@ source bin/validate-db-schema-ts-to-match-graphql-api.sh
 
 yarn workspace @app/condo worker 2>&1 > /app/test_logs/condo.worker.log &
 sleep 3
-#yarn workspace @app/condo worker 2>&1 > /app/test_logs/condo.worker1.log &
-#sleep 3
-
 
 # And check background processes!
 [[ $(jobs | wc -l | tr -d ' ') != '2' ]] && exit 2
