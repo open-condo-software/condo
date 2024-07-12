@@ -55597,6 +55597,7 @@ enum MultiPaymentPaymentWayType {
   IPOS
   SBERPAY
   SBERID
+  SBRF_SBOL_BINDING
 }
 
 enum MultiPaymentStatusType {
