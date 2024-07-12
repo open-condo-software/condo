@@ -37515,7 +37515,8 @@ export enum MultiPaymentPaymentWayType {
   SamsungPayBinding = 'SAMSUNG_PAY_BINDING',
   Ipos = 'IPOS',
   Sberpay = 'SBERPAY',
-  Sberid = 'SBERID'
+  Sberid = 'SBERID',
+  SbrfSbolBinding = 'SBRF_SBOL_BINDING'
 }
 
 export type MultiPaymentRelateToOneInput = {
