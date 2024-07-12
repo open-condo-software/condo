@@ -64,7 +64,7 @@ import SelectSharingAppControl from '@condo/domains/news/components/NewsForm/Sel
 import { NewsItemCard } from '@condo/domains/news/components/NewsItemCard'
 import { MemoizedCondoNewsPreview } from '@condo/domains/news/components/NewsPreview'
 import { detectTargetedSections, RecipientCounter } from '@condo/domains/news/components/RecipientCounter'
-import { TemplatesTabs } from '@condo/domains/news/components/TemplatesTabs'
+import { TemplatesSelect } from '@condo/domains/news/components/TemplatesSelect'
 import { TNewsItemScopeNoInstance } from '@condo/domains/news/components/types'
 import { PROFANITY_TITLE_DETECTED_MOT_ERF_KER, PROFANITY_BODY_DETECTED_MOT_ERF_KER } from '@condo/domains/news/constants/errors'
 import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
@@ -115,7 +115,7 @@ export type BaseNewsFormProps = {
         sendPeriod: SendPeriodType,
         properties?: IProperty[],
     }>,
-    templates: { [key: string]: Pick<INewsItemTemplate, 'title' | 'body' | 'type'> }
+    templates: { [key: string]: { title: string, body: string, type: string | null, id?: string, label?: string, category?: string } }
     afterAction?: () => void,
     newsItem?: INewsItem,
     OnCompletedMsg: (INewsItem) => ArgsProps | null,
@@ -385,7 +385,6 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const TemplateBodyErrorMessage = intl.formatMessage({ id: 'news.fields.templateBody.error' })
     const ValidBeforeErrorMessage = intl.formatMessage({ id: 'news.fields.validBefore.error' })
     const ToManyMessagesMessage = intl.formatMessage({ id: 'news.fields.toManyMessages.error' })
-    const TemplatesLabel = intl.formatMessage({ id: 'news.fields.templates' })
     const PastTimeErrorMessage = intl.formatMessage({ id: 'global.input.error.pastTime' })
     const NextStepMessage = intl.formatMessage({ id: 'pages.condo.news.steps.nextStep' })
     const TimezoneMskTitle = intl.formatMessage({ id: 'timezone.msk' })
@@ -451,6 +450,8 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             if (unitType && unitName) return `${unitType}-${unitName}`
         }).filter(Boolean)
     }, [initialHasAllProperties, initialNewsItemScopes, initialProperties.length])
+
+
     const commonTemplates = useMemo(() => {
         return transform(templates, (result, value, key) => {
             if (value.type === NEWS_TYPE_COMMON || isNull(value.type)) {
@@ -623,12 +624,14 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
     const emergencyTemplatesTabsProps = useMemo(() => Object.keys(emergencyTemplates).map(id => ({
         key: id,
-        label: emergencyTemplates[id].title,
+        label: emergencyTemplates[id].label || emergencyTemplates[id].title,
+        category: emergencyTemplates[id].category,
     })), [emergencyTemplates])
 
     const commonTemplatesTabsProps = useMemo(() => Object.keys(commonTemplates).map(id => ({
         key: id,
-        label: commonTemplates[id].title,
+        label: commonTemplates[id].label || emergencyTemplates[id].title,
+        category: commonTemplates[id].category,
     })), [commonTemplates])
 
     const propertyCheckboxChange = (form) => {
@@ -1243,41 +1246,32 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                 <Col span={formFieldsColSpan}>
                                                     <Row>
                                                         <Col span={24} style={MARGIN_BOTTOM_32_STYLE}>
-                                                            <Row gutter={EXTRA_SMALL_VERTICAL_GUTTER}>
-                                                                <Col span={24}>
-                                                                    <Typography.Title level={2}>
-                                                                        {MakeTextLabel}
-                                                                    </Typography.Title>
-                                                                </Col>
-                                                            </Row>
+                                                            <Typography.Title level={2}>
+                                                                {MakeTextLabel}
+                                                            </Typography.Title>
                                                         </Col>
 
                                                         {templates && (
-                                                            <Row gutter={SMALL_VERTICAL_GUTTER} style={MARGIN_BOTTOM_38_STYLE}>
-                                                                <Col span={24}>
-                                                                    <Typography.Title level={4}>
-                                                                        {TemplatesLabel}
-                                                                    </Typography.Title>
-                                                                </Col>
-                                                                <Col span={24}>
-                                                                    <Form.Item
-                                                                        name='template'
-                                                                    >
-                                                                        {/* TODO: (DOMA-9327) Move to select component here */}
-                                                                        {selectedType === NEWS_TYPE_COMMON && (
-                                                                            <TemplatesTabs
-                                                                                onChange={handleTemplateChange(form)}
-                                                                                items={commonTemplatesTabsProps}/>
-                                                                        )}
-                                                                        {/* TODO: (DOMA-9327) Move to select component here */}
-                                                                        {selectedType === NEWS_TYPE_EMERGENCY && (
-                                                                            <TemplatesTabs
-                                                                                onChange={handleTemplateChange(form)}
-                                                                                items={emergencyTemplatesTabsProps}/>
-                                                                        )}
-                                                                    </Form.Item>
-                                                                </Col>
-                                                            </Row>
+                                                            <Col span={24} style={BIG_MARGIN_BOTTOM_STYLE}>
+                                                                <Form.Item
+                                                                    name='template'
+                                                                >
+                                                                    {selectedType === NEWS_TYPE_COMMON && (
+                                                                        <TemplatesSelect
+                                                                            onChange={handleTemplateChange(form)}
+                                                                            items={commonTemplatesTabsProps}
+                                                                            hasCategories
+                                                                        />
+                                                                    )}
+                                                                    {selectedType === NEWS_TYPE_EMERGENCY && (
+                                                                        <TemplatesSelect
+                                                                            onChange={handleTemplateChange(form)}
+                                                                            items={emergencyTemplatesTabsProps}
+                                                                            hasCategories
+                                                                        />
+                                                                    )}
+                                                                </Form.Item>
+                                                            </Col>
                                                         )}
 
                                                         <Col span={24}>

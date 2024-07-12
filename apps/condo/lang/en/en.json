@@ -1667,6 +1667,7 @@
   "news.fields.text.label": "News text",
   "news.fields.address.label": "Select addressees",
   "news.fields.period.label": "Select the sending time",
+  "news.fields.template.placeholder": "Select template",
   "news.fields.templateBody.error": "Fill blanks in the template before sending",
   "news.fields.emptyTemplate.title": "Without template",
   "news.fields.validBefore.error": "Time for sending news does not match the validBefore. Change the validBefore to send the news.",

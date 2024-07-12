@@ -268,8 +268,6 @@ export const OldBaseNewsForm: React.FC<BaseNewsFormProps> = ({
     organizationId,
     ActionBar,
     newsItemAction: createOrUpdateNewsItem,
-    sharingAppContexts,
-    newsItemSharingAction: createOrUpdateNewsSharingItem,
     initialValues = INITIAL_VALUES,
     templates,
     afterAction,

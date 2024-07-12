@@ -1667,6 +1667,7 @@
   "news.fields.text.label": "Текст новости",
   "news.fields.address.label": "Выберите адресатов",
   "news.fields.period.label": "Выберите время отправки",
+  "news.fields.template.placeholder": "Выберите шаблон",
   "news.fields.templateBody.error": "Заполните пропуски в шаблоне перед отправкой",
   "news.fields.emptyTemplate.title": "Без шаблона",
   "news.fields.validBefore.error": "Время отправки новости не совпадает со сроком ее актуальности. Измените срок, чтобы отправить новость.",

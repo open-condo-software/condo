@@ -25,6 +25,7 @@ const PROPERTY_DOCUMENTS = 'property-documents'
 const SEND_DAILY_STATISTICS_TASK = 'send-daily-statistics-task'
 const RETENTION_LOOPS_ENABLED = 'retention-loops-enabled'
 const NEWS_SHARING = 'news-sharing'
+const NEWS_SHARING_TEMPLATES = 'news-sharing-templates'
 const TICKET_DOCUMENT_GENERATION = 'ticket-document-generation'
 const SERVICE_PROBLEMS_ALERT = 'service-problems-alert'
 
@@ -55,6 +56,7 @@ module.exports = {
     RETENTION_LOOPS_ENABLED,
     SEND_DAILY_STATISTICS_TASK,
     NEWS_SHARING,
+    NEWS_SHARING_TEMPLATES,
     TICKET_DOCUMENT_GENERATION,
     SERVICE_PROBLEMS_ALERT,
 }
