@@ -1425,11 +1425,12 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                     ( getStepTypeByStep(currentStep) === 'sharingApp' ) && (
                                         // TODO (DOMA-9328) Move onSkip to BaseNewsForm component, since steps are handled here!
                                         <NewsItemSharingForm
+                                            ctxId={getStepDataByStep(currentStep).sharingAppData.id}
                                             onSkip={ () => handleStepSkip({ skip: true, step: currentStep }) }
                                             onSubmit={ (values) => handleSharingAppFormSubmit({ values: values, ctxId: getStepDataByStep(currentStep).sharingAppData.id }) }
                                             sharingApp={getStepDataByStep(currentStep).sharingAppData.app}
                                             initialValues={ get(sharingAppsFormValues, [getStepDataByStep(currentStep).sharingAppData.id], undefined) }
-                                            newsItemData={{ type: selectedType, validBefore: selectedValidBeforeText, title: selectedTitle, body: selectedBody }}
+                                            newsItemData={{ type: selectedType, validBefore: selectedValidBeforeText, title: selectedTitle, body: selectedBody, scopes: newsItemScopesNoInstance }}
                                         />
                                     )
                                 }
