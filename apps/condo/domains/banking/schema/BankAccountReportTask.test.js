@@ -21,6 +21,70 @@ const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = r
 const { createTestOrganizationLink } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
+
+const prepareBankAccountData = async (client, o10n, bankIntegration, category) => {
+    const currentDate = dayjs()
+    const formattedCurrentDate = currentDate.format('YYYY-MM-DD')
+
+    const incomeTransactions = 5
+    const incomeTransactionAmount = 50
+    const totalIncome = incomeTransactions * incomeTransactionAmount
+
+    const outcomeTransactions = 5
+    const outcomeTransactionAmount = 10
+    const totalOutcome = outcomeTransactions * outcomeTransactionAmount
+
+    const totalAmount = totalIncome - totalOutcome
+
+    const [integrationContext] = await createTestBankIntegrationAccountContext(client, bankIntegration, o10n, {
+        meta: {
+            amount: String(totalAmount),
+            amountAt: formattedCurrentDate,
+        },
+    })
+    const [account] = await createTestBankAccount(client, o10n, {
+        integrationContext: { connect: { id: integrationContext.id } },
+    })
+
+    const [costItem] = await createTestBankCostItem(client, category, {
+        isOutcome: false,
+    })
+
+    const [contractorAccount] = await createTestBankContractorAccount(client, o10n, {
+        costItem: { connect: { id: costItem.id } },
+    })
+
+    for (let i = 0; i < incomeTransactions; i++) {
+        await createTestBankTransaction(client, account, contractorAccount, integrationContext, o10n, {
+            date: formattedCurrentDate,
+            amount: String(incomeTransactionAmount),
+            isOutcome: false,
+        })
+
+    }
+    for (let i = 0; i < outcomeTransactions; i++) {
+        await createTestBankTransaction(client, account, { id: faker.datatype.uuid() }, integrationContext, o10n, {
+            date: formattedCurrentDate,
+            amount: String(outcomeTransactionAmount),
+            isOutcome: true,
+            contractorAccount: undefined,
+        })
+    }
+
+    return {
+        integrationContext,
+        account,
+        costItem,
+        contractorAccount,
+        bankIntegration,
+        category,
+        formattedCurrentDate,
+        totalIncome,
+        totalOutcome,
+        totalAmount,
+    }
+}
+
 describe('BankAccountReportTask', () => {
     let admin, bankIntegration, category
     beforeAll(async () => {
@@ -726,6 +790,58 @@ describe('BankAccountReportTask', () => {
             expect(Number(reportLatest.totalOutcome)).toEqual(250)
             expect(reportLatest.data.categoryGroups[0].costItemGroups[0].sum).toEqual(250)
             expect(reportLatest.data.categoryGroups[0].costItemGroups[1].sum).toEqual(250)
+        })
+
+        it('Should generate correct reports for different bank accounts', async () => {
+            const [org] = await createTestOrganization(admin)
+
+            const bankAccountData1 = await prepareBankAccountData(admin, org, bankIntegration, category)
+            const bankAccountData2 = await prepareBankAccountData(admin, org, bankIntegration, category)
+            const bankAccountData3 = await prepareBankAccountData(admin, org, bankIntegration, category)
+            const bankAccountsData = [bankAccountData1, bankAccountData2, bankAccountData3]
+
+            const [createdReportTask1] = await createTestBankAccountReportTask(admin, bankAccountData1.account, org, admin.user.id, { progress: 0 })
+            const [createdReportTask2] = await createTestBankAccountReportTask(admin, bankAccountData2.account, org, admin.user.id, { progress: 0 })
+            const [createdReportTask3] = await createTestBankAccountReportTask(admin, bankAccountData3.account, org, admin.user.id, { progress: 0 })
+
+            await waitFor(async () => {
+                const updatedTasks = await BankAccountReportTask.getAll(admin, {
+                    id_in: [createdReportTask1.id, createdReportTask2.id, createdReportTask3.id],
+                    status: BANK_SYNC_TASK_STATUS.COMPLETED,
+                })
+                expect(updatedTasks).toHaveLength(3)
+                expect(updatedTasks).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: createdReportTask1.id }),
+                    expect.objectContaining({ id: createdReportTask2.id }),
+                    expect.objectContaining({ id: createdReportTask3.id }),
+                ]))
+            })
+
+            const reports = await BankAccountReport.getAll(admin, {
+                organization: { id: org.id },
+            })
+
+            expect(reports).toHaveLength(3)
+            expect(reports).toEqual(expect.arrayContaining(reports.map(report => {
+                const bankAccountData = bankAccountsData.find(item => item.account.id === report.account.id)
+
+                return expect.objectContaining({
+                    account: expect.objectContaining({ id: bankAccountData.account.id }),
+                    isLatest: true,
+                    version: 1,
+                    amount: Number(bankAccountData.totalAmount).toFixed(4).toString(),
+                    amountAt: `${bankAccountData.formattedCurrentDate}T00:00:00.000Z`,
+                    totalIncome: Number(bankAccountData.totalIncome).toFixed(4).toString(),
+                    totalOutcome: Number(bankAccountData.totalOutcome).toFixed(4).toString(),
+                    data: {
+                        categoryGroups: [expect.objectContaining({
+                            costItemGroups: [expect.objectContaining({
+                                sum: bankAccountData.totalIncome,
+                            })],
+                        })],
+                    },
+                })
+            })))
         })
     })
 })
