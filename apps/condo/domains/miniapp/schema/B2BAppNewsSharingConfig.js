@@ -8,7 +8,7 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/miniapp/access/B2BAppNewsSharingConfig')
-
+const { NEWS_SHARING_PUSH_MESSAGE_PREVIEW_SETTINGS } = require('@condo/domains/miniapp/constants')
 
 const NEWS_SHARING_FILE_ADAPTER = new FileAdapter('news-sharing')
 
@@ -21,7 +21,7 @@ const previewPictureMetaAfterChange = getFileMetaAfterChange(NEWS_SHARING_FILE_A
  *
  * News Sharing B2BApp allow b2b users to share their NewsItem to external source like Telegram or Whatsapp from /news page
  *
- *                         [ whatsapp-sharing-miniapp ] -> [ whatsapp ]
+ *                         [ viber-sharing-miniapp ] -> [ viber ]
  * [ condo /news page ] ->              ...                    ...
  *                         [ telegram-sharing-miniapp ] -> [ telegram ]
  *
@@ -39,40 +39,59 @@ const B2BAppNewsSharingConfig = new GQLListSchema('B2BAppNewsSharingConfig', {
             isRequired: true,
         },
 
-        publishUrl: {
-            schemaDoc: 'URL that implements publishing NewsItem method',
-            type: 'Url',
-            isRequired: true,
-        },
-
         icon: {
-            schemaDoc: 'Icon of the app: Telegram Icon / WhatsApp Icon',
+            schemaDoc: 'Icon of the app. For example: Telegram Icon',
             type: 'File',
             isRequired: false,
             adapter: NEWS_SHARING_FILE_ADAPTER,
         },
 
         previewPicture: {
-            schemaDoc: 'Preview picture: might be app screenshot',
+            schemaDoc: 'Preview picture: For example: Telegram screenshot',
             type: 'File',
             isRequired: false,
             adapter: NEWS_SHARING_FILE_ADAPTER,
         },
 
+        pushNotificationSettings: {
+            schemaDoc: 'Push notification settings',
+            type: 'Select',
+            options: Object.values(NEWS_SHARING_PUSH_MESSAGE_PREVIEW_SETTINGS),
+            isRequired: true,
+            defaultValue: NEWS_SHARING_PUSH_MESSAGE_PREVIEW_SETTINGS.DISABLED,
+        },
+
+        // Standard set of methods that should be implemented to create an integration with telegram / viber / wa services
+
+        publishUrl: {
+            schemaDoc: 'URL that implements publishing NewsItem method. Check News domain for reference',
+            type: 'Url',
+            isRequired: true,
+        },
+
         previewUrl: {
-            schemaDoc: 'URL that returns HTML preview NewsItem',
+            schemaDoc: 'URL that returns rendered HTML preview of News Item. If not provided, app preview will not be rendered',
             type: 'Url',
             isRequired: false,
         },
 
         getRecipientsUrl: {
-            schemaDoc: 'URL that implements getRecipients function',
+            schemaDoc: 'URL that returns chats and/or channels (implements getRecipients function). If provided Select control with data from this endpoint will be used in /news/create page, If not provided, condo control will be used',
             type: 'Url',
-            isRequired: true,
+            isRequired: false,
         },
 
+        // Custom methods that allow to implement custom UI and data structure for sending news
+        // Should only be used as a last resort
+
         customFormUrl: {
-            schemaDoc: 'URL that implements customForm. If not filled, then app will use standard news form',
+            schemaDoc: 'URL that implements customForm. Should not be used in regular cases. Allows to provide custom UI for sending news. If not provided app will use condo news form',
+            type: 'Url',
+            isRequired: false,
+        },
+
+        customGetRecipientsCountersUrl: {
+            schemaDoc: 'URL that implements customGetRecipientsCounters. Should not be used in regular cases. Allows to provide custom values for recipients counter. If not provided app will use data from getRecipients. If getRecipients is not provided, app wont render recipients counter',
             type: 'Url',
             isRequired: false,
         },
