@@ -38,7 +38,6 @@ const NewsItemTemplate = new GQLListSchema('NewsItemTemplate', {
             type: 'Text',
             isRequired: true,
         },
-
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
