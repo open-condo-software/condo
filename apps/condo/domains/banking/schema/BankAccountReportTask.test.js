@@ -5,21 +5,44 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, waitFor, catchErrorFrom, expectValuesOfCommonFields } = require('@open-condo/keystone/test.utils')
 const {
-    expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
+    makeLoggedInAdminClient,
+    makeClient,
+    UUID_RE,
+    waitFor,
+    catchErrorFrom,
+    expectValuesOfCommonFields,
+    expectToThrowAuthenticationErrorToObj,
+    expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
-const { BANK_SYNC_TASK_STATUS } = require('@condo/domains/banking/constants')
-const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
-const { BankAccountReportTask, createTestBankAccountReportTask, updateTestBankAccountReportTask, createTestBankAccount, BankAccountReport, createTestBankTransaction, updateTestBankAccount, updateTestBankIntegrationAccountContext } = require('@condo/domains/banking/utils/testSchema')
-const { createTestBankIntegrationAccountContext, createTestBankContractorAccount, BankIntegration, createTestBankCategory, createTestBankCostItem } = require('@condo/domains/banking/utils/testSchema')
+const { BANK_SYNC_TASK_STATUS, BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
+const {
+    BankAccountReportTask,
+    createTestBankAccountReportTask,
+    updateTestBankAccountReportTask,
+    createTestBankAccount,
+    BankAccountReport,
+    createTestBankTransaction,
+    updateTestBankIntegrationAccountContext,
+    createTestBankIntegrationAccountContext,
+    createTestBankContractorAccount,
+    BankIntegration,
+    createTestBankCategory,
+    createTestBankCostItem,
+} = require('@condo/domains/banking/utils/testSchema')
 const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
-const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
-const { createTestOrganizationLink } = require('@condo/domains/organization/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+const {
+    createTestOrganization,
+    createTestOrganizationEmployeeRole,
+    createTestOrganizationEmployee,
+    createTestOrganizationLink,
+} = require('@condo/domains/organization/utils/testSchema')
+const {
+    makeClientWithNewRegisteredAndLoggedInUser,
+    makeClientWithSupportUser,
+} = require('@condo/domains/user/utils/testSchema')
 
 
 const prepareBankAccountData = async (client, o10n, bankIntegration, category) => {
@@ -152,8 +175,7 @@ describe('BankAccountReportTask', () => {
                 })
                 await createTestOrganizationEmployee(admin, anotherOrganization, userClient.user, role)
                 const [organization] = await createTestOrganization(admin)
-                const [account] = await createTestBankAccount(admin, organization, {
-                })
+                const [account] = await createTestBankAccount(admin, organization, {})
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await createTestBankAccountReportTask(userClient, account, organization, userClient.user.id)
@@ -234,7 +256,7 @@ describe('BankAccountReportTask', () => {
                     await updateTestBankAccountReportTask(admin, objCreated.id, {
                         account: { connect: { id: faker.datatype.uuid() } },
                     })
-                }, ({ errors }) =>{
+                }, ({ errors }) => {
                     expect(errors[0].message).toContain('Field "account" is not defined by type "BankAccountReportTaskUpdateInput"')
                 })
             })
@@ -293,14 +315,14 @@ describe('BankAccountReportTask', () => {
                     await updateTestBankAccountReportTask(userClient, objCreated.id, {
                         organization: { disconnectAll: true },
                     })
-                }, ({ errors }) =>{
+                }, ({ errors }) => {
                     expect(errors[0].message).toContain('Field "organization" is not defined by type "BankAccountReportTaskUpdateInput"')
                 })
                 await catchErrorFrom(async () => {
                     await updateTestBankAccountReportTask(userClient, objCreated.id, {
                         account: { disconnectAll: true },
                     })
-                }, ({ errors }) =>{
+                }, ({ errors }) => {
                     expect(errors[0].message).toContain('Field "account" is not defined by type "BankAccountReportTaskUpdateInput"')
                 })
                 await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -421,7 +443,7 @@ describe('BankAccountReportTask', () => {
             })
         })
     })
-    
+
     describe('BankAccountReportTask afterChange', () => {
 
         it('create BankAccountReport', async () => {
