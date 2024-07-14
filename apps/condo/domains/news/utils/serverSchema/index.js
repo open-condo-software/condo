@@ -14,8 +14,7 @@ const { EXPORT_NEWS_RECIPIENTS_MUTATION } = require('@condo/domains/news/gql')
 const { GET_NEWS_ITEMS_RECIPIENTS_COUNTERS_MUTATION } = require('@condo/domains/news/gql')
 const { NewsItemRecipientsExportTask: NewsItemRecipientsExportTaskGQL } = require('@condo/domains/news/gql')
 const { NewsItemSharing: NewsItemSharingGQL } = require('@condo/domains/news/gql')
-const { GET_NEWS_SHARING_RECIPIENTS_MUTATION } = require('@condo/domains/news/gql')
-const { GET_NEWS_ITEM_SHARINGS_RECIPIENTS_COUNTERS_MUTATION } = require('@condo/domains/news/gql')
+const { GET_NEWS_SHARING_RECIPIENTS_MUTATION, GET_NEWS_SHARING_RECIPIENTS_COUNTERS_QUERY } = require('@condo/domains/news/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const NewsItem = generateServerUtils(NewsItemGQL)
@@ -69,10 +68,9 @@ async function getNewsSharingRecipientsCounters (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
-    // TODO(codegen): write getNewsItemSharingsRecipientsCounters serverSchema guards
 
     return await execGqlWithoutAccess(context, {
-        query: GET_NEWS_SHARING_RECIPIENTS_COUNTERS_MUTATION,
+        query: GET_NEWS_SHARING_RECIPIENTS_COUNTERS_QUERY,
         variables: { data: { dv: 1, ...data } },
         errorMessage: '[error] Unable to getNewsSharingRecipientsCounters',
         dataPath: 'obj',

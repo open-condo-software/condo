@@ -3,14 +3,14 @@
  */
 
 const Ajv = require('ajv')
+const get = require('lodash/get')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
 const { fetch } = require('@open-condo/keystone/fetch')
-const { GQLCustomSchema, getById, find} = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, getById, find } = require('@open-condo/keystone/schema')
 
 const { WRONG_VALUE, NETWORK_ERROR } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/news/access/GetNewsSharingRecipientsCountersService')
-const get = require("lodash/get");
 
 const SCHEMA = {
     'type': 'object',
