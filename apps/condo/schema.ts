@@ -73311,9 +73311,15 @@ export type RegisterMultiPaymentOutput = {
   getCardTokensUrl: Scalars['String'];
 };
 
+export type RegisterMultiPaymentReceiptAmountInput = {
+  receipt: BillingReceiptWhereUniqueInput;
+  amount: Scalars['String'];
+};
+
 export type RegisterMultiPaymentServiceConsumerInput = {
   serviceConsumer: ServiceConsumerWhereUniqueInput;
   receipts: Array<BillingReceiptWhereUniqueInput>;
+  amountDistribution?: Maybe<Array<RegisterMultiPaymentReceiptAmountInput>>;
 };
 
 export type RegisterMultiPaymentVirtualReceiptInput = {
