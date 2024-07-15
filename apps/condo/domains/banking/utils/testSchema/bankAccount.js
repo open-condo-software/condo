@@ -81,69 +81,6 @@ function createValidRuTin12 () {
     return tin.replace(/.$/, penultNumber) + lastNumber
 }
 
-const makeBankAccountWithData = async (client, o10n, bankIntegration, category) => {
-    const currentDate = dayjs()
-    const formattedCurrentDate = currentDate.format('YYYY-MM-DD')
-
-    const incomeTransactions = 5
-    const incomeTransactionAmount = 50
-    const totalIncome = incomeTransactions * incomeTransactionAmount
-
-    const outcomeTransactions = 5
-    const outcomeTransactionAmount = 10
-    const totalOutcome = outcomeTransactions * outcomeTransactionAmount
-
-    const totalAmount = totalIncome - totalOutcome
-
-    const [integrationContext] = await createTestBankIntegrationAccountContext(client, bankIntegration, o10n, {
-        meta: {
-            amount: String(totalAmount),
-            amountAt: formattedCurrentDate,
-        },
-    })
-    const [account] = await createTestBankAccount(client, o10n, {
-        integrationContext: { connect: { id: integrationContext.id } },
-    })
-
-    const [costItem] = await createTestBankCostItem(client, category, {
-        isOutcome: false,
-    })
-
-    const [contractorAccount] = await createTestBankContractorAccount(client, o10n, {
-        costItem: { connect: { id: costItem.id } },
-    })
-
-    for (let i = 0; i < incomeTransactions; i++) {
-        await createTestBankTransaction(client, account, contractorAccount, integrationContext, o10n, {
-            date: formattedCurrentDate,
-            amount: String(incomeTransactionAmount),
-            isOutcome: false,
-        })
-
-    }
-    for (let i = 0; i < outcomeTransactions; i++) {
-        await createTestBankTransaction(client, account, { id: faker.datatype.uuid() }, integrationContext, o10n, {
-            date: formattedCurrentDate,
-            amount: String(outcomeTransactionAmount),
-            isOutcome: true,
-            contractorAccount: undefined,
-        })
-    }
-
-    return {
-        integrationContext,
-        account,
-        costItem,
-        contractorAccount,
-        bankIntegration,
-        category,
-        formattedCurrentDate,
-        totalIncome,
-        totalOutcome,
-        totalAmount,
-    }
-}
-
 
 module.exports = {
     bulidValidRequisitesForRuBankAccount,
@@ -152,5 +89,4 @@ module.exports = {
     createValidRuTin10,
     createValidRuTin12,
     createValidRuClassificationCode,
-    makeBankAccountWithData,
 }

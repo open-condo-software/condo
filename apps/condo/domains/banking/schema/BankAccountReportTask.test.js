@@ -31,8 +31,8 @@ const {
     BankIntegration,
     createTestBankCategory,
     createTestBankCostItem,
+    makeBankAccountWithData,
 } = require('@condo/domains/banking/utils/testSchema')
-const { makeBankAccountWithData } = require('@condo/domains/banking/utils/testSchema/bankAccount')
 const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const {
     createTestOrganization,
