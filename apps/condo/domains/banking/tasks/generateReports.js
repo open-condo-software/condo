@@ -268,11 +268,12 @@ const generateReports = async (taskId) => {
         }
         const lastReport = reports[reports.length - 1]
         if (reports.length > 0) {
-            const isEqualReportsData = !isEqual(lastReport.data, data)
+            // NOTE: We do not create a new version of a report unless it is different from the previous one.
+            const shouldCreateNewReportVersion = !isEqual(lastReport.data, data)
                 || Math.round(Number(payload.totalIncome) * 10000) / 10000 !== Math.round(Number(lastReport.totalIncome) * 10000) / 10000
                 || Math.round(Number(payload.totalOutcome) * 10000) / 10000 !== Math.round(Number(lastReport.totalOutcome) * 10000) / 10000
 
-            if (isEqualReportsData) {
+            if (shouldCreateNewReportVersion) {
                 if (date !== monthTurnovers[index].date) throw new Error('Date from categoryGroups not equal date from monthTurnovers')
                 await BankAccountReport.create(context, {
                     ...payload,
