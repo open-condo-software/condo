@@ -44,6 +44,19 @@ CREATE INDEX "MarketSetting_deletedAt_07e3a1a2" ON "MarketSetting" ("deletedAt")
 CREATE INDEX "MarketSetting_createdBy_599c8421" ON "MarketSetting" ("createdBy");
 CREATE INDEX "MarketSetting_organization_115b6aff" ON "MarketSetting" ("organization");
 CREATE INDEX "MarketSetting_updatedBy_956056cd" ON "MarketSetting" ("updatedBy");
+
+--
+-- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
+--
+SET statement_timeout = '1500s';  
+UPDATE "OrganizationEmployeeRole"
+SET "canManageMarketSetting" = true,
+    "canReadMarketSetting" = true
+WHERE "name" = 'employee.role.Administrator.name';
+--
+-- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
+--
+SET statement_timeout = '10s';
 COMMIT;
 
     `)
