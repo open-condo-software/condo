@@ -135,7 +135,7 @@ async function updateTaskProgress ({ task, lastProgress, context, progress }) {
  */
 const generateReports = async (taskId) => {
     if (!taskId) throw new Error('taskId is undefined')
-    const { keystone: context } = await getSchemaCtx('BankSyncTask')
+    const { keystone: context } = getSchemaCtx('BankSyncTask')
     let task = await BankAccountReportTask.getOne(context, { id: taskId })
     if (!task) {
         throw new Error(`Cannot find BankSyncTask by id="${taskId}"`)
@@ -305,6 +305,17 @@ const generateReports = async (taskId) => {
 
 module.exports = {
     generateReportsTask: createTask('generateReportsTask', async (taskId) => {
-        await generateReports(taskId)
+        logger.info({ msg: 'Start the task of generating a bank report', taskId })
+        try {
+            await generateReports(taskId)
+        } catch (error) {
+            logger.info({ msg: 'Bank report generation task failed', taskId, error })
+            const { keystone: context } = getSchemaCtx('BankAccountReportTask')
+            await BankAccountReportTask.update(context, taskId, {
+                ...DV_SENDER,
+                status: TASK_ERROR_STATUS,
+            })
+            throw error
+        }
     }, 'low'),
 }
