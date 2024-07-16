@@ -11,19 +11,11 @@ const { GQLCustomSchema, getById, find } = require('@open-condo/keystone/schema'
 
 const { WRONG_VALUE, NETWORK_ERROR } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/news/access/GetNewsSharingRecipientsCountersService')
-
-const SCHEMA = {
-    'type': 'object',
-    'properties': {
-        'receiversCount': { 'type': 'number' },
-    },
-    'required': ['receiversCount'],
-    'additionalProperties': false,
-}
+const { GET_CUSTOM_RECIPIENTS_COUNTERS_REQUEST_SCHEMA, GET_CUSTOM_RECIPIENTS_COUNTERS_RESPONSE_SCHEMA } = require('@condo/domains/news/constants/newsSharingApi')
 
 const ajv = new Ajv()
-const validateSchema = ajv.compile(SCHEMA)
-
+const validateRequestSchema = ajv.compile(GET_CUSTOM_RECIPIENTS_COUNTERS_REQUEST_SCHEMA)
+const validateResponseSchema = ajv.compile(GET_CUSTOM_RECIPIENTS_COUNTERS_RESPONSE_SCHEMA)
 
 const ERRORS = {
     NOT_NEWS_SHARING_APP: {
@@ -57,6 +49,14 @@ const ERRORS = {
         type: WRONG_VALUE,
         message: 'Response from NewsSharing miniapp was successful, but the data format was incorrect',
         messageForUser: 'api.newsItem.getNewsSharingRecipientsCount.NEWS_SHARING_APP_REQUEST_BAD_RESPONSE',
+    },
+    NEWS_SHARING_APP_REQUEST_INTERNAL_ERROR: {
+        query: 'getNewsSharingRecipientsCounters',
+        variable: ['data'],
+        code: INTERNAL_ERROR,
+        type: WRONG_VALUE,
+        message: 'Could not create request data payload',
+        messageForUser: 'api.newsItem.getNewsSharingRecipientsCount.NEWS_SHARING_APP_REQUEST_INTERNAL_ERROR',
     },
 }
 
@@ -103,7 +103,7 @@ const GetNewsSharingRecipientsCountersService = new GQLCustomSchema('GetNewsShar
 
                 const properties = await find('Property', { organization: { id: organizationId }, deletedAt: null })
 
-                const getCustomRecipientsCountersData = {
+                const getCustomRecipientsCountersRequestData = {
                     organization: {
                         tin: organization.tin,
                         id: organizationId,
@@ -112,6 +112,7 @@ const GetNewsSharingRecipientsCountersService = new GQLCustomSchema('GetNewsShar
 
                     // Preprocess scopes, { property: { id } -> property: id }
                     scopes: newsItemScopes.map(scope => ({
+                        organization: get(scope, ['organization', 'id']),
                         property: get(scope, ['property', 'id']),
                         unitName: scope.unitName,
                         unitType: scope.unitType,
@@ -124,6 +125,11 @@ const GetNewsSharingRecipientsCountersService = new GQLCustomSchema('GetNewsShar
                     })),
                 }
 
+                // This check guarantees that data sent to server complies with news sharing api contract.
+                if (!validateRequestSchema(getCustomRecipientsCountersRequestData)) {
+                    throw new GQLError(ERRORS.NEWS_SHARING_APP_REQUEST_INTERNAL_ERROR)
+                }
+
                 let customGetRecipientsCountResult
 
                 // Check that we can obtain result data
@@ -133,7 +139,7 @@ const GetNewsSharingRecipientsCountersService = new GQLCustomSchema('GetNewsShar
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify(getCustomRecipientsCountersData),
+                        body: JSON.stringify(getCustomRecipientsCountersRequestData),
                         abortRequestTimeout: 5000,
                     })
                 }
@@ -155,7 +161,7 @@ const GetNewsSharingRecipientsCountersService = new GQLCustomSchema('GetNewsShar
                     throw new GQLError(ERRORS.NEWS_SHARING_APP_REQUEST_BAD_RESPONSE)
                 }
 
-                if (!validateSchema(getCustomRecipientsCountResultData)) {
+                if (!validateResponseSchema(getCustomRecipientsCountResultData)) {
                     throw new GQLError(ERRORS.NEWS_SHARING_APP_REQUEST_BAD_RESPONSE)
                 }
 
