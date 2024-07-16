@@ -13,7 +13,10 @@ const { BankCategory: BankCategoryGQL } = require('@condo/domains/banking/gql')
 const { BankCostItem: BankCostItemGQL } = require('@condo/domains/banking/gql')
 const { BankAccount: BankAccountGQL } = require('@condo/domains/banking/gql')
 const { BankContractorAccount: BankContractorAccountGQL } = require('@condo/domains/banking/gql')
-const { BankIntegration: BankIntegrationGQL, CREATE_BANK_ACCOUNT_REQUEST_MUTATION } = require('@condo/domains/banking/gql')
+const {
+    BankIntegration: BankIntegrationGQL,
+    CREATE_BANK_ACCOUNT_REQUEST_MUTATION,
+} = require('@condo/domains/banking/gql')
 const { BankIntegrationAccountContext: BankIntegrationAccountContextGQL } = require('@condo/domains/banking/gql')
 const { BankTransaction: BankTransactionGQL } = require('@condo/domains/banking/gql')
 const { BankSyncTask: BankSyncTaskGQL } = require('@condo/domains/banking/gql')
@@ -21,7 +24,10 @@ const { BankIntegrationOrganizationContext: BankIntegrationOrganizationContextGQ
 const { BankIntegrationAccessRight: BankIntegrationAccessRightGQL } = require('@condo/domains/banking/gql')
 const { PREDICT_TRANSACTION_CLASSIFICATION_QUERY } = require('@condo/domains/banking/gql')
 const { BankAccountReport: BankAccountReportGQL } = require('@condo/domains/banking/gql')
-const { EXPENSES_GROUPED_BY_CATEGORY_AND_COST_ITEM, _1C_CLIENT_BANK_EXCHANGE } = require('@condo/domains/banking/constants')
+const {
+    EXPENSES_GROUPED_BY_CATEGORY_AND_COST_ITEM,
+    _1C_CLIENT_BANK_EXCHANGE,
+} = require('@condo/domains/banking/constants')
 const { BankAccountReportTask: BankAccountReportTaskGQL } = require('@condo/domains/banking/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -38,6 +44,7 @@ const BankIntegrationOrganizationContext = generateGQLTestUtils(BankIntegrationO
 const BankIntegrationAccessRight = generateGQLTestUtils(BankIntegrationAccessRightGQL)
 const BankAccountReport = generateGQLTestUtils(BankAccountReportGQL)
 const BankAccountReportTask = generateGQLTestUtils(BankAccountReportTaskGQL)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestBankCategory (client, extraAttrs = {}) {
@@ -314,7 +321,7 @@ async function updateTestBankSyncTask (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createBankAccountRequestByTestClient(client, extraAttrs = {}) {
+async function createBankAccountRequestByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -328,7 +335,7 @@ async function createBankAccountRequestByTestClient(client, extraAttrs = {}) {
     return [data.result, attrs]
 }
 
-async function importBankTransactionsByTestClient(client, extraAttrs = {}) {
+async function importBankTransactionsByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -341,6 +348,7 @@ async function importBankTransactionsByTestClient(client, extraAttrs = {}) {
     throwIfError(data, errors, { query: IMPORT_BANK_TRANSACTIONS_MUTATION, variables: { data: attrs } })
     return [data.result, attrs]
 }
+
 async function createTestBankIntegrationOrganizationContext (client, integration, organization, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!integration || !integration.id) throw new Error('no integration.id')
@@ -404,7 +412,7 @@ async function updateTestBankIntegrationAccessRight (client, id, extraAttrs = {}
 }
 
 
-async function predictTransactionClassificationByTestClient(client, extraAttrs = {}) {
+async function predictTransactionClassificationByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!extraAttrs.purpose) throw new Error('no purpose')
 
@@ -415,6 +423,7 @@ async function predictTransactionClassificationByTestClient(client, extraAttrs =
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
 async function createTestBankAccountReport (client, account, organization, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!account || !account.id) throw new Error('no account.id')
@@ -500,6 +509,69 @@ async function updateTestBankAccountReportTask (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+const makeBankAccountWithData = async (client, o10n, bankIntegration, category) => {
+    const currentDate = dayjs()
+    const formattedCurrentDate = currentDate.format('YYYY-MM-DD')
+
+    const incomeTransactions = 5
+    const incomeTransactionAmount = 50
+    const totalIncome = incomeTransactions * incomeTransactionAmount
+
+    const outcomeTransactions = 5
+    const outcomeTransactionAmount = 10
+    const totalOutcome = outcomeTransactions * outcomeTransactionAmount
+
+    const totalAmount = totalIncome - totalOutcome
+
+    const [integrationContext] = await createTestBankIntegrationAccountContext(client, bankIntegration, o10n, {
+        meta: {
+            amount: String(totalAmount),
+            amountAt: formattedCurrentDate,
+        },
+    })
+    const [account] = await createTestBankAccount(client, o10n, {
+        integrationContext: { connect: { id: integrationContext.id } },
+    })
+
+    const [costItem] = await createTestBankCostItem(client, category, {
+        isOutcome: false,
+    })
+
+    const [contractorAccount] = await createTestBankContractorAccount(client, o10n, {
+        costItem: { connect: { id: costItem.id } },
+    })
+
+    for (let i = 0; i < incomeTransactions; i++) {
+        await createTestBankTransaction(client, account, contractorAccount, integrationContext, o10n, {
+            date: formattedCurrentDate,
+            amount: String(incomeTransactionAmount),
+            isOutcome: false,
+        })
+
+    }
+    for (let i = 0; i < outcomeTransactions; i++) {
+        await createTestBankTransaction(client, account, { id: faker.datatype.uuid() }, integrationContext, o10n, {
+            date: formattedCurrentDate,
+            amount: String(outcomeTransactionAmount),
+            isOutcome: true,
+            contractorAccount: undefined,
+        })
+    }
+
+    return {
+        integrationContext,
+        account,
+        costItem,
+        contractorAccount,
+        bankIntegration,
+        category,
+        formattedCurrentDate,
+        totalIncome,
+        totalOutcome,
+        totalAmount,
+    }
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -518,5 +590,6 @@ module.exports = {
     predictTransactionClassificationByTestClient,
     BankAccountReport, createTestBankAccountReport, updateTestBankAccountReport,
     BankAccountReportTask, createTestBankAccountReportTask, updateTestBankAccountReportTask,
+    makeBankAccountWithData,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

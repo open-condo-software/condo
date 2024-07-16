@@ -135,7 +135,7 @@ async function updateTaskProgress ({ task, lastProgress, context, progress }) {
  */
 const generateReports = async (taskId) => {
     if (!taskId) throw new Error('taskId is undefined')
-    const { keystone: context } = await getSchemaCtx('BankSyncTask')
+    const { keystone: context } = getSchemaCtx('BankSyncTask')
     let task = await BankAccountReportTask.getOne(context, { id: taskId })
     if (!task) {
         throw new Error(`Cannot find BankSyncTask by id="${taskId}"`)
@@ -149,9 +149,23 @@ const generateReports = async (taskId) => {
         deletedAt: null,
     })
 
+    if (!bankAccount) {
+        throw new Error(`Cannot find BankAccount by id="${bankAccountId}"`)
+    }
+
+    const bankIntegrationAccountContextId = get(bankAccount, 'integrationContext.id')
+    if (!bankIntegrationAccountContextId) {
+        throw new Error(`Cannot find BankIntegrationAccountContext for BankAccount by id="${bankAccountId}"`)
+    }
+
     const bankIntegrationAccountContext = await BankIntegrationAccountContext.getOne(context, {
-        id: bankAccount.integrationContext.id,
+        id: bankIntegrationAccountContextId,
+        deletedAt: null,
     })
+
+    if (!bankIntegrationAccountContext) {
+        throw new Error(`Cannot find BankIntegrationAccountContext by id="${bankAccount.integrationContext.id}"`)
+    }
 
     const taskUpdatePayload = {
         ...DV_SENDER,
@@ -234,6 +248,7 @@ const generateReports = async (taskId) => {
         const reports = await BankAccountReport.getAll(context, {
             period: date,
             deletedAt: null,
+            account: { id: bankAccountId },
             organization: { id: organization.id },
             isLatest: true,
         }, { sortBy: ['createdAt_ASC'] })
@@ -253,17 +268,18 @@ const generateReports = async (taskId) => {
         }
         const lastReport = reports[reports.length - 1]
         if (reports.length > 0) {
-            if (!isEqual(
-                lastReport.data, data) ||
-                Math.round(Number(payload.totalIncome) * 10000) / 10000 !== Math.round(Number(lastReport.totalIncome) * 10000) / 10000 ||
-                Math.round(Number(payload.totalOutcome) * 10000) / 10000 !== Math.round(Number(lastReport.totalOutcome) * 10000) / 10000
-            ) {
+            // NOTE: We do not create a new version of a report unless it is different from the previous one.
+            const shouldCreateNewReportVersion = !isEqual(lastReport.data, data)
+                || Math.round(Number(payload.totalIncome) * 10000) / 10000 !== Math.round(Number(lastReport.totalIncome) * 10000) / 10000
+                || Math.round(Number(payload.totalOutcome) * 10000) / 10000 !== Math.round(Number(lastReport.totalOutcome) * 10000) / 10000
+
+            if (shouldCreateNewReportVersion) {
                 if (date !== monthTurnovers[index].date) throw new Error('Date from categoryGroups not equal date from monthTurnovers')
                 await BankAccountReport.create(context, {
                     ...payload,
-                    version: reports[reports.length - 1].version + 1,
+                    version: lastReport.version + 1,
                 })
-                await BankAccountReport.update(context, reports[reports.length - 1].id, { isLatest: false, ...DV_SENDER })
+                await BankAccountReport.update(context, lastReport.id, { isLatest: false, ...DV_SENDER })
             }
         } else {
             await BankAccountReport.create(context, payload)
@@ -289,6 +305,17 @@ const generateReports = async (taskId) => {
 
 module.exports = {
     generateReportsTask: createTask('generateReportsTask', async (taskId) => {
-        await generateReports(taskId)
+        logger.info({ msg: 'Start the task of generating a bank report', taskId })
+        try {
+            await generateReports(taskId)
+        } catch (error) {
+            logger.info({ msg: 'Bank report generation task failed', taskId, error })
+            const { keystone: context } = getSchemaCtx('BankAccountReportTask')
+            await BankAccountReportTask.update(context, taskId, {
+                ...DV_SENDER,
+                status: TASK_ERROR_STATUS,
+            })
+            throw error
+        }
     }, 'low'),
 }
