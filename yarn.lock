@@ -2016,6 +2016,7 @@ __metadata:
     "@graphql-codegen/typescript": ^4.0.1
     "@graphql-codegen/typescript-operations": ^4.0.1
     "@graphql-codegen/typescript-react-apollo": ^4.0.0
+    "@nerdwallet/apollo-cache-policies": ^3.3.0
     "@open-condo/config": "workspace:^"
     "@open-condo/icons": "workspace:^"
     "@open-condo/locales": "workspace:^"
@@ -12079,6 +12080,20 @@ __metadata:
   peerDependencies:
     graphql: ^15.4.0 || ^16.0.0
   checksum: c50414f56f9aa7bc60cf73847498fe94dc220f069343a4b8a3feb4f94f588649ab5e9c713e45a7d9c930c0d4337d861fbdc971350b90147eec9215503bb8aeaa
+  languageName: node
+  linkType: hard
+
+"@nerdwallet/apollo-cache-policies@npm:^3.3.0":
+  version: 3.3.0
+  resolution: "@nerdwallet/apollo-cache-policies@npm:3.3.0"
+  dependencies:
+    graphql: ^15.5.0
+    lodash: ^4.17.21
+    uuid: ^7.0.3
+  peerDependencies:
+    "@apollo/client": ^3.8.1
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+  checksum: fff46e7a50a65169c7aa7030f512a661100899f87f212874f23fc758afacf63eafc5faf99221ff8f75fe418eff8bf4dd801cc983ecf7851bcc3a5504fd7a79a0
   languageName: node
   linkType: hard
 
@@ -51935,6 +51950,15 @@ __metadata:
   bin:
     uuid: ./bin/uuid
   checksum: 58de2feed61c59060b40f8203c0e4ed7fd6f99d42534a499f1741218a1dd0c129f4aa1de797bcf822c8ea5da7e4137aa3673431a96dae729047f7aca7b27866f
+  languageName: node
+  linkType: hard
+
+"uuid@npm:^7.0.3":
+  version: 7.0.3
+  resolution: "uuid@npm:7.0.3"
+  bin:
+    uuid: dist/bin/uuid
+  checksum: f5b7b5cc28accac68d5c083fd51cca64896639ebd4cca88c6cfb363801aaa83aa439c86dfc8446ea250a7a98d17afd2ad9e88d9d4958c79a412eccb93bae29de
   languageName: node
   linkType: hard
 
