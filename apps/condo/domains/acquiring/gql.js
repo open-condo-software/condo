@@ -85,10 +85,10 @@ const REGISTER_MULTI_PAYMENT_FOR_INVOICES_MUTATION = gql`
 const PAYMENT_RULE_MARKET_PLACE_SCOPE_FIELDS = '{ id  property { id address addressKey } paymentRule { id } }'
 const PaymentRuleMarketPlaceScope = generateGqlQueries('PaymentRuleMarketPlaceScope', PAYMENT_RULE_MARKET_PLACE_SCOPE_FIELDS)
 
-const PAYMENT_RULE_BILLING_SCOPE_FIELDS = '{ property { id address addressKey } category { id } bankAccountNumber serviceIds paymentRule { id } }'
+const PAYMENT_RULE_BILLING_SCOPE_FIELDS = '{ id property { id address addressKey } category { id name } bankAccountNumber serviceIds paymentRule { id } }'
 const PaymentRuleBillingScope = generateGqlQueries('PaymentRuleBillingScope', PAYMENT_RULE_BILLING_SCOPE_FIELDS)
 
-const PAYMENT_RULE_FIELDS = '{ id context { id } explicitFee explicitServiceCharge implicitFee bankAccount { id name tin routingNumber bankName offsettingAccount number } merchant  }'
+const PAYMENT_RULE_FIELDS = '{ id context { id } explicitFee explicitServiceCharge implicitFee minFeeAmount maxFeeAmount bankAccount { id name tin routingNumber bankName offsettingAccount number } merchant  }'
 const PaymentRule = generateGqlQueries('PaymentRule', PAYMENT_RULE_FIELDS)
 
 const REGISTER_PAYMENT_RULE_MUTATION = gql`

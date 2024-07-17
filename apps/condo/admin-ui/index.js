@@ -1,9 +1,9 @@
 /* global KEYSTONE_ADMIN_META */
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import { UserSwitchOutlined, MoneyCollectOutlined } from '@ant-design/icons'
+import { UserSwitchOutlined, SettingOutlined } from '@ant-design/icons'
 import { useMutation, gql } from '@apollo/client'
+import { IconButton } from '@arch-ui/button'
+import Tooltip from '@arch-ui/tooltip'
 import { ItemId, AddNewItem } from '@keystonejs/app-admin-ui/components'
 import React, { useCallback } from 'react'
 import { useLocation, useHistory } from 'react-router-dom'
@@ -38,7 +38,19 @@ function SignInAsUser () {
     }, [location, signinAs])
 
     return (
-        location.pathname.indexOf('users/') !== -1 && <UserSwitchOutlined style={ICON_STYLE} onClick={onClick} />
+        location.pathname.indexOf('users/') !== -1 &&
+        <Tooltip content='SignIn as User' hideOnMouseDown hideOnKeyDown>
+            {ref => (
+                <IconButton
+                    ref={ref}
+                    css={ICON_STYLE}
+                    variant='subtle'
+                    icon={UserSwitchOutlined}
+                    id='sign-in-as-user'
+                    onClick={onClick}
+                />
+            )}
+        </Tooltip>
     )
 }
 
@@ -46,7 +58,19 @@ function PaymentRulesSettings () {
     const location = useLocation()
     const history = useHistory()
     return (
-        location.pathname.indexOf('acquiring-integration-contexts/') !== -1 && <MoneyCollectOutlined style={ICON_STYLE} onClick={() => history.push(location.pathname + '/payment-rules')}/>
+        location.pathname.indexOf('acquiring-integration-contexts/') !== -1 &&
+        <Tooltip content='Payment Rules settings' hideOnMouseDown hideOnKeyDown>
+            {ref => (
+                <IconButton
+                    ref={ref}
+                    css={ICON_STYLE}
+                    variant='subtle'
+                    icon={SettingOutlined}
+                    id='payment-rules-settings'
+                    onClick={() => history.push(location.pathname + '/payment-rules')}
+                />
+            )}
+        </Tooltip>
     )
 }
 

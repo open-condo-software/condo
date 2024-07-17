@@ -14,12 +14,17 @@ const someThing = async () => {
     await keystone.prepare({ apps: [apps[apps.findIndex(app => app instanceof GraphQLApp)]], distDir, dev: true })
     await keystone.connect()
 
+    /*const requisites = [
+        { bankAccount: { tin: '9717025407', routingNumber: '044525225', number: '40702810838000015798' }, marketPlaceScope: { address: 'г Москва, ул Маломосковская, д 14' } },
+        { bankAccount: { tin: '9717025407', routingNumber: '044525593', number: '40702810701100008293' }, marketPlaceScope: { address: 'г Москва, ул Новоалексеевская, д 22 к 1' } },
+        { bankAccount: { tin: '9717025407', routingNumber: '044525593', number: '40702810701100008293' }, marketPlaceScope: { address: 'г Москва, ул Новоалексеевская, д 22 к 2' } },
+        { bankAccount: { tin: '9717025407', routingNumber: '044525593', number: '40702810501100016896' }, marketPlaceScope: { address: 'г Москва, Звонарский пер, д 3' } },
+        //{ bankAccount: { tin: '9717025407', routingNumber: '044525593', number: '40702810501100016896' }, billingScope: { category: { connect: { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' } } } },
+    ]*/
     const requisites = [
-        //{ bankAccount: { tin: '9717025407', routingNumber: '044525225', number: '40702810838000015798' }, marketPlaceScope: { address: 'г Москва, ул Маломосковская, д 14' } },
-        //{ bankAccount: { tin: '9717025407', routingNumber: '044525593', number: '40702810701100008293' }, marketPlaceScope: { address: 'г Москва, ул Новоалексеевская, д 22 к 1' } },
-        //{ bankAccount: { tin: '9717025407', routingNumber: '044525593', number: '40702810701100008293' }, marketPlaceScope: { address: 'г Москва, ул Новоалексеевская, д 22 к 2' } },
-        //{ bankAccount: { tin: '9717025407', routingNumber: '044525593', number: '40702810501100016896' }, marketPlaceScope: { address: 'г Москва, Звонарский пер, д 3' } },
-        { bankAccount: { tin: '9717025407', routingNumber: '044525593', number: '40702810501100016896' }, billingScope: { category: { connect: { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' } } } },
+        { bankAccount: { tin: '9717025407', routingNumber: '044525593', number: '40702810701100008293' }, marketPlaceScope: { property: { connect: { id: '32699913-6a83-4ad7-9277-f4bf79d0eb18' } } } },
+        { bankAccount: { tin: '9717025407', routingNumber: '044525593', number: '40702810701100008293' }, marketPlaceScope: { property: { connect: { id: '378cfeef-13df-43dc-b02d-a03e82035e95' } } } },
+        //{ bankAccount: { tin: '9717025407', routingNumber: '044525593', number: '40702810501100016896' }, billingScope: { category: { connect: { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' } } } },
     ]
 
     const rules = []
