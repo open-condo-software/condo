@@ -12,6 +12,7 @@ const { removeOrphansRecurrentPaymentContexts } = require('@condo/domains/acquir
 const { ORGANIZATION_OWNED_FIELD } = require(
     '@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/resident/access/ServiceConsumer')
+const { resetUserResidentCache } = require('@condo/domains/resident/utils/accessSchema')
 
 const { RESIDENT_ORGANIZATION_FIELD } = require('./fields')
 
@@ -121,19 +122,23 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
         auth: true,
     },
     hooks: {
-        afterChange: async ({ context, operation, updatedItem, originalInput }) => {
+        afterChange: async ({ operation, updatedItem, originalInput }) => {
             const deletedAt = get(updatedItem, 'deletedAt', null)
             const sender = get(originalInput, 'sender', null)
             const dv = get(originalInput, 'dv', null)
+            const userId = get(updatedItem, 'user', null)
 
             // handle soft delete
             // in order to soft delete recurrent payment contexts
-            if (operation === 'update' && deletedAt) {
-                await removeOrphansRecurrentPaymentContexts.delay({
-                    serviceConsumerId: updatedItem.id,
-                    dv,
-                    sender,
-                })
+            if (operation === 'update') {
+                await resetUserResidentCache(userId)
+                if (deletedAt) {
+                    await removeOrphansRecurrentPaymentContexts.delay({
+                        serviceConsumerId: updatedItem.id,
+                        dv,
+                        sender,
+                    })
+                }
             }
         },
     },

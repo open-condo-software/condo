@@ -13,6 +13,7 @@ const {
     getEmployedOrRelatedOrganizationsByPermissions,
     checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
+const { getUserResidents } = require('@condo/domains/resident/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 async function canReadNewsItems ({ authentication: { item: user }, context }) {
@@ -22,7 +23,7 @@ async function canReadNewsItems ({ authentication: { item: user }, context }) {
     if (user.isAdmin || user.isSupport) return {}
 
     if (user.type === RESIDENT) {
-        const residents = await find('Resident', { user: { id: user.id }, deletedAt: null })
+        const residents = await getUserResidents(context, user)
         if (isEmpty(residents)) return false
 
         const organizationsIds = residents.map((resident) => resident.organization)
