@@ -27,7 +27,10 @@ const {
     DIRECT_PAYMENT_PATH,
     GET_CARD_TOKENS_PATH,
 } = require('@condo/domains/acquiring/constants/links')
-const { DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY } = require('@condo/domains/acquiring/constants/payment')
+const {
+    DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY,
+    MINIMUM_PAYMENT_AMOUNT,
+} = require('@condo/domains/acquiring/constants/payment')
 // TODO(savelevMatthew): REPLACE WITH SERVER SCHEMAS AFTER GQL REFACTORING
 const { freezeBillingReceipt, freezeInvoice } = require('@condo/domains/acquiring/utils/billingFridge')
 const { Payment, MultiPayment, AcquiringIntegration, RecurrentPaymentContext } = require('@condo/domains/acquiring/utils/serverSchema')
@@ -99,7 +102,8 @@ const ERRORS = {
         variable: ['data', 'groupedReceipts', '[]', 'amountDistribution'],
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
-        message: 'Amount distribution should include all receipts in a request. Amount can not be less than or equals 0',
+        message: 'Amount distribution should include all receipts in a request. Amount can not be less than or equals {minimalAmount}',
+        messageInterpolation: { minimalAmount: MINIMUM_PAYMENT_AMOUNT },
     },
     DUPLICATED_INVOICE: {
         mutation: 'registerMultiPayment',
@@ -347,7 +351,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     if (distributionReceiptsIds.length !== uniqueDistributionReceiptsIds.size) {
                         throw new GQLError(ERRORS.BAD_AMOUNT_DISTRIBUTION_FOR_RECEIPTS, context)
                     }
-                    if (distributionReceiptsAmounts.filter(amount => amount.lte('0')).length > 0) {
+                    if (distributionReceiptsAmounts.filter(amount => amount.lte(MINIMUM_PAYMENT_AMOUNT)).length > 0) {
                         throw new GQLError(ERRORS.BAD_AMOUNT_DISTRIBUTION_FOR_RECEIPTS, context)
                     }
                 }

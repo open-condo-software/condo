@@ -205,7 +205,7 @@ describe('RegisterMultiPaymentService', () => {
             const payload = [{
                 serviceConsumer: { id: serviceConsumerId },
                 receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
-                amountDistribution: batch.billingReceipts.map(receipt => ({ receipt: { id: receipt.id }, amount: '5' })),
+                amountDistribution: batch.billingReceipts.map(receipt => ({ receipt: { id: receipt.id }, amount: '10' })),
             }]
 
             const [result] = await registerMultiPaymentByTestClient(commonData.client, payload)
@@ -220,7 +220,41 @@ describe('RegisterMultiPaymentService', () => {
             const { multiPaymentId } = result
             const multiPayment = await MultiPayment.getOne(admin, { id: multiPaymentId })
             expect(multiPayment).toBeDefined()
-            expect(Big(multiPayment.amountWithoutExplicitFee).toFixed(2)).toEqual('10.00')
+            expect(Big(multiPayment.amountWithoutExplicitFee).toFixed(2)).toEqual('20.00')
+        })
+        test('Amount distribution: bigger than in receipt', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const { commonData, batches } = await makePayerWithMultipleConsumers(1, 2)
+            const hostUrl = commonData.acquiringIntegration.hostUrl
+            const [batch] = batches
+            const serviceConsumerId = batch.serviceConsumer.id
+
+            const payload = [{
+                serviceConsumer: { id: serviceConsumerId },
+                receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
+                amountDistribution: batch.billingReceipts.map(receipt => ({
+                    receipt: { id: receipt.id },
+                    amount: Big(receipt.toPay).add(10).toFixed(2),
+                })),
+            }]
+
+            const [result] = await registerMultiPaymentByTestClient(commonData.client, payload)
+            expect(result).toBeDefined()
+            expect(result).toHaveProperty('dv', 1)
+            expect(result).toHaveProperty('multiPaymentId')
+            expect(result).toHaveProperty('webViewUrl', `${hostUrl}${WEB_VIEW_PATH.replace('[id]', result.multiPaymentId)}`)
+            expect(result).toHaveProperty('feeCalculationUrl', `${hostUrl}${FEE_CALCULATION_PATH.replace('[id]', result.multiPaymentId)}`)
+            expect(result).toHaveProperty('directPaymentUrl', `${hostUrl}${DIRECT_PAYMENT_PATH.replace('[id]', result.multiPaymentId)}`)
+            expect(result).toHaveProperty('getCardTokensUrl', `${hostUrl}${GET_CARD_TOKENS_PATH.replace('[id]', batches[0].resident.user.id)}`)
+
+            const { multiPaymentId } = result
+            const multiPayment = await MultiPayment.getOne(admin, { id: multiPaymentId })
+            expect(multiPayment).toBeDefined()
+            expect(Big(multiPayment.amountWithoutExplicitFee).toFixed(2)).toEqual(
+                batch.billingReceipts
+                    .reduce((acc, cur) => acc.add(cur.toPay).add(10), Big(0))
+                    .toFixed(2)
+            )
         })
     })
     describe('Validations', () => {
@@ -747,14 +781,14 @@ describe('RegisterMultiPaymentService', () => {
                     await registerMultiPaymentByTestClient(commonData.client, payload)
                 }, ({ errors }) => {
                     expect(errors).toMatchObject([{
-                        message: 'Amount distribution should include all receipts in a request. Amount can not be less than or equals 0',
+                        message: 'Amount distribution should include all receipts in a request. Amount can not be less than or equals 5',
                         path: ['result'],
                         extensions: {
                             mutation: 'registerMultiPayment',
                             variable: ['data', 'groupedReceipts', '[]', 'amountDistribution'],
                             code: 'BAD_USER_INPUT',
                             type: 'WRONG_VALUE',
-                            message: 'Amount distribution should include all receipts in a request. Amount can not be less than or equals 0',
+                            message: 'Amount distribution should include all receipts in a request. Amount can not be less than or equals {minimalAmount}',
                         },
                     }])
                 })
@@ -777,14 +811,14 @@ describe('RegisterMultiPaymentService', () => {
                     await registerMultiPaymentByTestClient(commonData.client, payload)
                 }, ({ errors }) => {
                     expect(errors).toMatchObject([{
-                        message: 'Amount distribution should include all receipts in a request. Amount can not be less than or equals 0',
+                        message: 'Amount distribution should include all receipts in a request. Amount can not be less than or equals 5',
                         path: ['result'],
                         extensions: {
                             mutation: 'registerMultiPayment',
                             variable: ['data', 'groupedReceipts', '[]', 'amountDistribution'],
                             code: 'BAD_USER_INPUT',
                             type: 'WRONG_VALUE',
-                            message: 'Amount distribution should include all receipts in a request. Amount can not be less than or equals 0',
+                            message: 'Amount distribution should include all receipts in a request. Amount can not be less than or equals {minimalAmount}',
                         },
                     }])
                 })
@@ -804,14 +838,14 @@ describe('RegisterMultiPaymentService', () => {
                     await registerMultiPaymentByTestClient(commonData.client, payload)
                 }, ({ errors }) => {
                     expect(errors).toMatchObject([{
-                        message: 'Amount distribution should include all receipts in a request. Amount can not be less than or equals 0',
+                        message: 'Amount distribution should include all receipts in a request. Amount can not be less than or equals 5',
                         path: ['result'],
                         extensions: {
                             mutation: 'registerMultiPayment',
                             variable: ['data', 'groupedReceipts', '[]', 'amountDistribution'],
                             code: 'BAD_USER_INPUT',
                             type: 'WRONG_VALUE',
-                            message: 'Amount distribution should include all receipts in a request. Amount can not be less than or equals 0',
+                            message: 'Amount distribution should include all receipts in a request. Amount can not be less than or equals {minimalAmount}',
                         },
                     }])
                 })
@@ -831,14 +865,41 @@ describe('RegisterMultiPaymentService', () => {
                     await registerMultiPaymentByTestClient(commonData.client, payload)
                 }, ({ errors }) => {
                     expect(errors).toMatchObject([{
-                        message: 'Amount distribution should include all receipts in a request. Amount can not be less than or equals 0',
+                        message: 'Amount distribution should include all receipts in a request. Amount can not be less than or equals 5',
                         path: ['result'],
                         extensions: {
                             mutation: 'registerMultiPayment',
                             variable: ['data', 'groupedReceipts', '[]', 'amountDistribution'],
                             code: 'BAD_USER_INPUT',
                             type: 'WRONG_VALUE',
-                            message: 'Amount distribution should include all receipts in a request. Amount can not be less than or equals 0',
+                            message: 'Amount distribution should include all receipts in a request. Amount can not be less than or equals {minimalAmount}',
+                        },
+                    }])
+                })
+            })
+            test('Input should contain amountDistribution with bigger than minimum amount', async () => {
+                const { commonData, batches } = await makePayerWithMultipleConsumers(1, 2)
+                const [batch] = batches
+                const serviceConsumerId = batch.serviceConsumer.id
+
+                const payload = [{
+                    serviceConsumer: { id: serviceConsumerId },
+                    receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
+                    amountDistribution: batch.billingReceipts.map(receipt => ({ receipt: { id: receipt.id }, amount: '5' })),
+                }]
+
+                await catchErrorFrom(async () => {
+                    await registerMultiPaymentByTestClient(commonData.client, payload)
+                }, ({ errors }) => {
+                    expect(errors).toMatchObject([{
+                        message: 'Amount distribution should include all receipts in a request. Amount can not be less than or equals 5',
+                        path: ['result'],
+                        extensions: {
+                            mutation: 'registerMultiPayment',
+                            variable: ['data', 'groupedReceipts', '[]', 'amountDistribution'],
+                            code: 'BAD_USER_INPUT',
+                            type: 'WRONG_VALUE',
+                            message: 'Amount distribution should include all receipts in a request. Amount can not be less than or equals {minimalAmount}',
                         },
                     }])
                 })
