@@ -22782,10 +22782,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"colorette@npm:2.0.16":
-  version: 2.0.16
-  resolution: "colorette@npm:2.0.16"
-  checksum: cd55596a3a2d1071c1a28eee7fd8a5387593ff1bd10a3e8d0a6221499311fe34a9f2b9272d77c391e0e003dcdc8934fb2f8d106e7ef1f7516f8060c901d41a27
+"colorette@npm:2.0.19, colorette@npm:^2.0.14, colorette@npm:^2.0.16, colorette@npm:^2.0.7":
+  version: 2.0.19
+  resolution: "colorette@npm:2.0.19"
+  checksum: 888cf5493f781e5fcf54ce4d49e9d7d698f96ea2b2ef67906834bb319a392c667f9ec69f4a10e268d2946d13a9503d2d19b3abaaaf174e3451bfe91fb9d82427
   languageName: node
   linkType: hard
 
@@ -22793,13 +22793,6 @@ __metadata:
   version: 1.4.0
   resolution: "colorette@npm:1.4.0"
   checksum: 01c3c16058b182a4ab4c126a65a75faa4d38a20fa7c845090b25453acec6c371bb2c5dceb0a2338511f17902b9d1a9af0cadd8509c9403894b79311032c256c3
-  languageName: node
-  linkType: hard
-
-"colorette@npm:^2.0.14, colorette@npm:^2.0.16, colorette@npm:^2.0.7":
-  version: 2.0.19
-  resolution: "colorette@npm:2.0.19"
-  checksum: 888cf5493f781e5fcf54ce4d49e9d7d698f96ea2b2ef67906834bb319a392c667f9ec69f4a10e268d2946d13a9503d2d19b3abaaaf174e3451bfe91fb9d82427
   languageName: node
   linkType: hard
 
@@ -22868,7 +22861,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:^7.0.0, commander@npm:^7.1.0, commander@npm:^7.2.0":
+"commander@npm:^7.0.0, commander@npm:^7.2.0":
   version: 7.2.0
   resolution: "commander@npm:7.2.0"
   checksum: 53501cbeee61d5157546c0bef0fedb6cdfc763a882136284bed9a07225f09a14b82d2a84e7637edfd1a679fb35ed9502fd58ef1d091e6287f60d790147f68ddc
@@ -22879,6 +22872,13 @@ __metadata:
   version: 8.3.0
   resolution: "commander@npm:8.3.0"
   checksum: 0f82321821fc27b83bd409510bb9deeebcfa799ff0bf5d102128b500b7af22872c0c92cb6a0ebc5a4cf19c6b550fba9cedfa7329d18c6442a625f851377bacf0
+  languageName: node
+  linkType: hard
+
+"commander@npm:^9.1.0":
+  version: 9.5.0
+  resolution: "commander@npm:9.5.0"
+  checksum: c7a3e27aa59e913b54a1bafd366b88650bc41d6651f0cbe258d4ff09d43d6a7394232a4dadd0bf518b3e696fdf595db1028a0d82c785b88bd61f8a440cecfade
   languageName: node
   linkType: hard
 
@@ -29090,10 +29090,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"getopts@npm:2.2.5":
-  version: 2.2.5
-  resolution: "getopts@npm:2.2.5"
-  checksum: f8b21793e6c548fbc4f2ecfd8a51a74aba71fa118638fbdf00200207b8a8d44e21709611366d0c3366602b7ae29ae27fbe599f6ad6a55f7a2e451ca581af923f
+"getopts@npm:2.3.0":
+  version: 2.3.0
+  resolution: "getopts@npm:2.3.0"
+  checksum: bbb5fcef8d4a8582cf4499ea3fc492d95322df2184e65d550ddacede04871e7ba33194c7abd06a6c5d540de3b70112a16f988787e236e1c66b89521032b398ce
   languageName: node
   linkType: hard
 
@@ -34435,24 +34435,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"knex@npm:0.95.15":
-  version: 0.95.15
-  resolution: "knex@npm:0.95.15"
+"knex@npm:2.4.0":
+  version: 2.4.0
+  resolution: "knex@npm:2.4.0"
   dependencies:
-    colorette: 2.0.16
-    commander: ^7.1.0
-    debug: 4.3.2
+    colorette: 2.0.19
+    commander: ^9.1.0
+    debug: 4.3.4
     escalade: ^3.1.1
     esm: ^3.2.25
-    getopts: 2.2.5
+    get-package-type: ^0.1.0
+    getopts: 2.3.0
     interpret: ^2.2.0
     lodash: ^4.17.21
     pg-connection-string: 2.5.0
-    rechoir: 0.7.0
+    rechoir: ^0.8.0
     resolve-from: ^5.0.0
-    tarn: ^3.0.1
+    tarn: ^3.0.2
     tildify: 2.0.0
   peerDependenciesMeta:
+    better-sqlite3:
+      optional: true
     mysql:
       optional: true
     mysql2:
@@ -34467,7 +34470,7 @@ __metadata:
       optional: true
   bin:
     knex: bin/cli.js
-  checksum: f70ad630c1a829b785514070a67d472511877c8fd17ef75df9dcadf9f7a244356a16dc85cd61a1c0a91a24a5a8d6355bfc29d1ff037092d0e1c7dfb3d19f9ff6
+  checksum: 66b4ae8412c61125b78512a66d924af95116628e16026efce4d03b80b2ced6b63208b37bb49fb52a499761da5e8981e136b48fcefcd48c3fe9fc72d9d17c5661
   languageName: node
   linkType: hard
 
@@ -45133,15 +45136,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rechoir@npm:0.7.0":
-  version: 0.7.0
-  resolution: "rechoir@npm:0.7.0"
-  dependencies:
-    resolve: ^1.9.0
-  checksum: 15f55f55e06c175d98df85d503b139982378e7ca34e157439125e5a6f25a5cbd9cfe2aa2d1052e2c1edf89d7d22dc020c911fc968702c84f669a16a12a1ec7ac
-  languageName: node
-  linkType: hard
-
 "rechoir@npm:^0.7.0":
   version: 0.7.1
   resolution: "rechoir@npm:0.7.1"
@@ -49565,7 +49559,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tarn@npm:^3.0.1":
+"tarn@npm:^3.0.2":
   version: 3.0.2
   resolution: "tarn@npm:3.0.2"
   checksum: 27a69658f02504979c5b02e500522e78ec12ef893b90cb00fdef794f9d847a92ed78f6c0ad12e82b8919519bded6a8d6d0000442cd0c6d6ea83cd9b7297729af
