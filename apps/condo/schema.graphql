@@ -77139,9 +77139,15 @@ type RegisterMetersReadingsOutput {
   meter: RegisterMetersReadingsMeterOutput!
 }
 
+input RegisterMultiPaymentReceiptAmountInput {
+  receipt: BillingReceiptWhereUniqueInput!
+  amount: String!
+}
+
 input RegisterMultiPaymentServiceConsumerInput {
   serviceConsumer: ServiceConsumerWhereUniqueInput!
   receipts: [BillingReceiptWhereUniqueInput!]!
+  amountDistribution: [RegisterMultiPaymentReceiptAmountInput!]
 }
 
 input RegisterMultiPaymentInput {
