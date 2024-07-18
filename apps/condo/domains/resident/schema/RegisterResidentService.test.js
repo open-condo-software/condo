@@ -48,7 +48,7 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
     let residentAddressMeta
     beforeEach(() => {
         const { address, addressMeta } = buildFakeAddressAndMeta(true)
-        residentAddress = addressMeta.value
+        residentAddress = address
         residentAddressMeta = addressMeta
         propertyPayload = { address, addressMeta: { ...addressMeta, value: address, map: buildingMapJson } }
     })
@@ -178,7 +178,7 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
     })
     it('Must relink residents on property address change', async () => {
         const { address, addressMeta } = buildFakeAddressAndMeta(true)
-        const anotherResidentAddress = addressMeta.value
+        const anotherResidentAddress = address
         const anotherResidentAddressMeta = addressMeta
         const anotherPropertyPayload = { address, addressMeta: { ...addressMeta, value: address, map: buildingMapJson } }
 

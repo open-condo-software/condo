@@ -4,6 +4,7 @@
  */
 
 const { AllResidentBillingReceiptsService } = require('./AllResidentBillingReceiptsService')
+const { AllResidentBillingVirtualReceiptsService } = require('./AllResidentBillingVirtualReceiptsService')
 const { BillingAccount } = require('./BillingAccount')
 const { BillingCategory } = require('./BillingCategory')
 const { BillingIntegration } = require('./BillingIntegration')
@@ -40,5 +41,6 @@ module.exports = {
     ValidateQRCodeService,
     RegisterBillingReceiptFileService,
     SumBillingReceiptsService,
+    AllResidentBillingVirtualReceiptsService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

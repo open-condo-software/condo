@@ -6,7 +6,7 @@
 const get = require('lodash/get')
 const uniq = require('lodash/uniq')
 
-const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
+const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
 const { find } = require('@open-condo/keystone/schema')
 
 const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
@@ -20,6 +20,7 @@ const { PropertyMeterReading: PropertyMeterReadingGQL } = require('@condo/domain
 const { MeterReportingPeriod: MeterReportingPeriodGQL } = require('@condo/domains/meter/gql')
 const { MeterResourceOwner: MeterResourceOwnerGQL } = require('@condo/domains/meter/gql')
 const { REGISTER_METERS_READINGS_MUTATION } = require('@condo/domains/meter/gql')
+const { MeterReadingsImportTask: MeterReadingsImportTaskGQL } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateServerUtils(MeterResourceGQL)
@@ -36,14 +37,17 @@ async function registerMetersReadings (context, data) {
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
 
-    return await execGqlWithoutAccess(context, {
+    return await context.executeGraphQL({
         query: REGISTER_METERS_READINGS_MUTATION,
+        context: {
+            req: context.req,
+            ...context.createContext({ skipAccessControl: true }),
+        },
         variables: { data: { dv: 1, ...data } },
-        errorMessage: '[error] Unable to registerMetersReadings',
-        dataPath: 'obj',
     })
 }
 
+const MeterReadingsImportTask = generateServerUtils(MeterReadingsImportTaskGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 /**
@@ -105,55 +109,56 @@ const getAvailableResidentMeters = async (userId) => {
  * Get all meter report periods, which resident has access to,
  * Mostly used in access, that's why used native keystone utils
  * @param userId - id of user
- * @returns {Promise<Array<unknown>>} list of meters ids which are available for resident
+ * @returns {Promise<unknown>} list of meters ids which are available for resident
  */
-const getAvailableResidentMeterReportPeriods = async (userId) => {
+async function getAvailableResidentMeterReportCondition (userId) {
     const userResidents = await find('Resident', {
         user: { id: userId, deletedAt: null },
-        property: { deletedAt: null },
-        organization: { deletedAt: null },
-        deletedAt: null,
-    })
-    const residentIds = userResidents.map(resident => resident.id)
-    const residentsByIds = Object.assign({}, ...userResidents.map(obj => ({ [obj.id]: obj })))
-
-    const userConsumers = await find('ServiceConsumer', {
-        resident: { id_in: residentIds, deletedAt: null },
-        organization: { deletedAt: null },
         deletedAt: null,
     })
 
-    const selectionsByOrganization = uniq(userConsumers.map(serviceConsumer => ({
-        organization: { id: get(residentsByIds, [serviceConsumer.resident, 'organization']) },
-        property_is_null: true,
-    })))
+    const addressKeys = userResidents
+        .map(resident => resident.addressKey)
+        .filter(Boolean)
+    const uniqueAddressKeys = uniq(addressKeys)
 
-    const selectionsByProperty = uniq(userConsumers.map(serviceConsumer => ({
-        organization: { id: get(residentsByIds, [serviceConsumer.resident, 'organization']) },
-        property: { id: get(residentsByIds, [serviceConsumer.resident, 'property']) },
-    })))
+    const resourceOwners = await find('MeterResourceOwner', {
+        addressKey_in: uniqueAddressKeys,
+        deletedAt: null,
+    })
 
-    const orStatement = selectionsByOrganization.map(selection => ({
+    const organizationIds = resourceOwners
+        .map(owner => owner.organization)
+        .filter(Boolean)
+
+    const defaultCondition = {
+        organization_is_null: true,
+    }
+
+    const orgOnlyCondition = {
         AND: [
-            selection,
+            { property_is_null: true },
+            { organization: { id_in: uniq(organizationIds) } },
         ],
-    }))
+    }
 
-    selectionsByProperty.map(selection => orStatement.push({
-        AND: [
-            selection,
-        ],
-    }))
+    const propertyConditions = resourceOwners
+        .filter(owner => owner.organization && owner.addressKey)
+        .map(owner => ({
+            AND: [
+                { property: { addressKey: owner.addressKey } },
+                { organization: { id: owner.organization } },
+            ],
+        }))
 
-    return await find('MeterReportingPeriod', {
+    return {
         OR: [
-            ...orStatement,
-            {
-                organization_is_null: true,
-            },
+            defaultCondition,
+            orgOnlyCondition,
+            ...propertyConditions,
         ],
         deletedAt: null,
-    })
+    }
 }
 
 const loadMetersForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
@@ -223,7 +228,7 @@ module.exports = {
     Meter,
     MeterReading,
     getAvailableResidentMeters,
-    getAvailableResidentMeterReportPeriods,
+    getAvailableResidentMeterReportCondition,
     loadMetersForExcelExport,
     loadMeterReadingsForExcelExport,
     loadPropertyMeterReadingsForExcelExport,
@@ -234,5 +239,6 @@ module.exports = {
     MeterReportingPeriod,
     MeterResourceOwner,
     registerMetersReadings,
+    MeterReadingsImportTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

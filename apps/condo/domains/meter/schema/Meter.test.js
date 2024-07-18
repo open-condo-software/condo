@@ -19,7 +19,6 @@ const {
     createTestBillingProperty,
     makeContextWithOrganizationAndIntegrationAsAdmin,
 } = require('@condo/domains/billing/utils/testSchema')
-const { sleep } = require('@condo/domains/common/utils/sleep')
 const { COLD_WATER_METER_RESOURCE_ID, HOT_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const { AUTOMATIC_METER_NO_MASTER_APP, B2C_APP_NOT_AVAILABLE, B2B_APP_NOT_CONNECTED } = require('@condo/domains/meter/constants/errors')
 const {
@@ -1414,6 +1413,38 @@ describe('Meter', () => {
             const [updatedMeter] = await Meter.softDelete(client, meter.id, {})
 
             expect(updatedMeter.deletedAt).not.toBeNull()
+        })
+
+        test('number of tariffs must be from 1 to 4', async () => {
+            const client = await makeEmployeeUserClientWithAbilities({
+                canManageMeters: true,
+            })
+            const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+            const errorFields = (value) => ({
+                code: 'BAD_USER_INPUT',
+                type: 'NUMBER_OF_TARIFFS_NOT_VALID',
+                message: 'Provided number of tariffs is not valid. Must be an integer from 1 to 4.',
+                messageForUser: 'api.meter.NUMBER_OF_TARIFFS_NOT_VALID',
+                messageInterpolation: { value },
+                variable: ['data', 'numberOfTariffs'],
+            })
+
+            await expectToThrowGQLError(
+                async () => createTestMeter(client, client.organization, client.property, resource, { numberOfTariffs: -2 }),
+                errorFields(-2),
+            )
+            await expectToThrowGQLError(
+                async () => createTestMeter(client, client.organization, client.property, resource, { numberOfTariffs: 0 }),
+                errorFields(0),
+            )
+            await expectToThrowGQLError(
+                async () => createTestMeter(client, client.organization, client.property, resource, { numberOfTariffs: 5 }),
+                errorFields(5),
+            )
+            await expectToThrowGQLError(
+                async () => createTestMeter(client, client.organization, client.property, resource, { numberOfTariffs: 100500 }),
+                errorFields(100500),
+            )
         })
     })
 })

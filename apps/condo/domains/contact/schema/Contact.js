@@ -135,6 +135,22 @@ const Contact = new GQLListSchema('Contact', {
             defaultValue: false,
         },
 
+        quota: {
+            schemaDoc: 'Percentage ownership of an apartment',
+            type: 'Decimal',
+            knexOptions: {
+                scale: 8,
+            },
+            isRequired: false,
+            hooks: {
+                validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
+                    const value = resolvedData[fieldPath]
+                    if (!(0 < value && value <= 100)) {
+                        return addFieldValidationError('Quota should be a positive number below 100')
+                    }
+                },
+            },
+        },
     },
     hooks: {
         validateInput: async ({ resolvedData, operation, existingItem, addValidationError, context }) => {

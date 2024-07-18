@@ -93,7 +93,7 @@ describe('PropertyMeterReading', () => {
                 expect(obj.updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
             })
 
-            test('employee with canManageMeterReadings cannot', async () => {
+            test('employee with canManageMeterReadings can', async () => {
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 const [organization] = await createTestOrganization(admin)
@@ -107,9 +107,12 @@ describe('PropertyMeterReading', () => {
 
                 const [meterReading] = await createTestPropertyMeterReading(client, meter, source)
 
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestPropertyMeterReading(client, meterReading.id)
-                })
+                const [obj, attrs] = await updateTestPropertyMeterReading(client, meterReading.id)
+
+                expect(obj.dv).toEqual(1)
+                expect(obj.sender).toEqual(attrs.sender)
+                expect(obj.v).toEqual(2)
+                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
             })
 
             test('employee without "canManageMeterReadings" role: cannot update MeterReadings', async () => {

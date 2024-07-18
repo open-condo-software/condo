@@ -4,9 +4,8 @@
   right: 0;
   left: 0;
   z-index: 2;
-  background: var(--condo-global-color-white);
-  border-bottom: var(--condo-global-border-width-default) solid var(--condo-global-color-gray-3);
-  border-radius: 0;
+  border-bottom: var(--condo-global-border-width-default) solid var(--condo-global-color-gray-3) !important;
+  border-radius: 0 !important;
 }
 
 .menu-collapse :global(.ant-collapse-header) {

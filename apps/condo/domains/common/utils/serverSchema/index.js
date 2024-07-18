@@ -1,6 +1,7 @@
 const { getItems } = require('@keystonejs/server-side-graphql-client')
 const { isFunction } = require('lodash')
 
+const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const GLOBAL_QUERY_LIMIT = 1000
 
@@ -93,7 +94,7 @@ class GqlWithKnexLoadList {
     async initContext () {
         const { keystone: modelAdapter } = await getSchemaCtx(this.listKey)
         this.keystone = modelAdapter
-        this.knex = modelAdapter.adapter.knex
+        this.knex = getDatabaseAdapter(modelAdapter).knex
     }
 
     // Takes rawAggregate SQL function and apply it on all objects with id from ids

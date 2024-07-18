@@ -168,6 +168,36 @@ async function itemsQuery (schemaName, args, { meta = false, from = {} } = {}) {
     return await schemaList._keystone.lists[schemaName].adapter.itemsQuery(args, { meta, from })
 }
 
+async function allItemsQueryByChunks ({
+    schemaName,
+    where = {},
+    chunkSize = 100,
+    chunkProcessor = (chunk) => chunk,
+}) {
+    let skip = 0
+    let newChunk = []
+    let all = []
+    let newChunkLength
+
+    do {
+        newChunk = await itemsQuery(schemaName, { where, first: chunkSize, skip, sortBy: ['id_ASC'] })
+        newChunkLength = newChunk.length
+
+        if (newChunkLength > 0) {
+            if (isFunction(chunkProcessor)) {
+                newChunk = chunkProcessor.constructor.name === 'AsyncFunction'
+                    ? await chunkProcessor(newChunk)
+                    : chunkProcessor(newChunk)
+            }
+
+            skip += newChunkLength
+            all = all.concat(newChunk)
+        }
+    } while (newChunkLength)
+
+    return all
+}
+
 async function getByCondition (schemaName, condition) {
     const res = await find(schemaName, condition)
     if (res.length > 1) throw new Error('getByCondition() returns multiple objects')
@@ -261,6 +291,7 @@ module.exports = {
     getById,
     getByCondition,
     itemsQuery,
+    allItemsQueryByChunks,
     getSchemaContexts,
     getListDependentRelations,
     GQL_SCHEMA_TYPES,

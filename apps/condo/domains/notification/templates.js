@@ -3,6 +3,7 @@ const path = require('path')
 
 const dayjs = require('dayjs')
 const { get, unescape, isObject, isArray } = require('lodash')
+const mjml2html = require('mjml')
 const Nunjucks = require('nunjucks')
 
 const conf = require('@open-condo/config')
@@ -24,6 +25,10 @@ const {
 const LANG_DIR_RELATED = '../../lang'
 const TEMPLATE_ENGINE_DEFAULT_DATE_FORMAT = 'D MMMM YYYY'
 const SERVER_URL = conf.SERVER_URL
+const SOCIAL_MEDIA_LINKS = conf.SOCIAL_MEDIA_LINKS ? JSON.parse(conf.SOCIAL_MEDIA_LINKS) : {}
+const HELP_REQUISITES = conf.HELP_REQUISITES ? JSON.parse(conf.HELP_REQUISITES) : {}
+const SUPPORT_EMAIL = get(HELP_REQUISITES, 'support_email') || ''
+const LANDING_URL = conf.LANDING_URL ? JSON.parse(conf.LANDING_URL) : {}
 
 // config based path
 // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
@@ -62,7 +67,7 @@ function getTemplate (locale, messageType, transportType) {
  * @param {string} locale
  * @param {string} messageType
  *
- * @returns {{templatePathText: ?string, templatePathHtml: ?string}}
+ * @returns {{templatePathText: ?string, templatePathHtml: ?string, templatePathMjml: ?string}}
  */
 function getEmailTemplate (locale, messageType) {
     // this is template reading method and files are distributed as part of source codes
@@ -72,9 +77,12 @@ function getEmailTemplate (locale, messageType) {
     const emailTextTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${EMAIL_TRANSPORT}.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
     // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     const emailHtmlTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${EMAIL_TRANSPORT}.html.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+    const emailMjmlTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${EMAIL_TRANSPORT}.mjml.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
 
     let templatePathText = null
     let templatePathHtml = null
+    let templatePathMjml = null
 
     if (fs.existsSync(emailTextTemplatePath)) {
         templatePathText = emailTextTemplatePath
@@ -84,11 +92,15 @@ function getEmailTemplate (locale, messageType) {
         templatePathHtml = emailHtmlTemplatePath
     }
 
-    if (!templatePathText && !templatePathHtml && fs.existsSync(defaultTemplatePath)) {
+    if (fs.existsSync(emailMjmlTemplatePath)) {
+        templatePathMjml = emailMjmlTemplatePath
+    }
+
+    if (!templatePathText && !templatePathHtml && !templatePathMjml && fs.existsSync(defaultTemplatePath)) {
         templatePathText = defaultTemplatePath
     }
 
-    if (templatePathText || templatePathHtml) return { templatePathText, templatePathHtml }
+    if (templatePathText || templatePathHtml || templatePathMjml) return { templatePathText, templatePathHtml, templatePathMjml }
 
     throw new Error(`There is no "${locale}" template for "${messageType}" to send by "${EMAIL_TRANSPORT}"`)
 }
@@ -222,7 +234,7 @@ function smsRenderer ({ message, env }) {
  */
 function emailRenderer ({ message, env }) {
     const { lang: locale, type } = message
-    const { templatePathText, templatePathHtml } = getEmailTemplate(locale, type)
+    const { templatePathText, templatePathHtml, templatePathMjml } = getEmailTemplate(locale, type)
     const messageTranslated = substituteTranslations(message, locale)
     const ret = {
         subject: i18n(translationStringKeyForEmailSubject(type), { locale, meta: messageTranslated.meta }),
@@ -237,6 +249,10 @@ function emailRenderer ({ message, env }) {
 
     if (templatePathHtml) {
         ret.html = nunjucks.render(templatePathHtml, { message: messageTranslated, env })
+    }
+
+    if (templatePathMjml) {
+        ret.html = mjml2html(nunjucks.render(templatePathMjml, { message: messageTranslated, env })).html
     }
 
     return ret
@@ -294,7 +310,12 @@ async function renderTemplate (transport, message) {
     /**
      * @type {MessageTemplateEnvironment}
      */
-    const env = { serverUrl: SERVER_URL }
+    const env = {
+        serverUrl: SERVER_URL,
+        socialMediaLinks: SOCIAL_MEDIA_LINKS,
+        supportEmail: SUPPORT_EMAIL,
+        landingUrl: LANDING_URL,
+    }
     const renderMessage = MESSAGE_TRANSPORTS_RENDERERS[transport]
 
     return renderMessage({ message, env })

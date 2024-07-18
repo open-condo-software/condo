@@ -211,7 +211,7 @@ const sendTicketChangedNotifications = async ({ ticketId, existingItem, operatio
                     { organization: organization.id }
                 )
 
-                if (conf.NODE_ENV === 'test' || isFeatureEnabled) {
+                if (conf.USE_LOCAL_FEATURE_FLAGS || isFeatureEnabled) {
                     const today = dayjs().format('YYYY-MM-DD')
                     const uniqKey = `${today}_${md5(clientPhone)}`
                     const ticketOrganizationName = get(organization, 'name', '')

@@ -10,10 +10,10 @@
  *
  * @example Set credentials manually
  * yarn workspace @app/condo node bin/sbbol/credentials.js set '{"clientSecret":"asdf12345"}'
- * yarn workspace @app/condo node bin/sbbol/credentials.js set '{"clientSecret":"asdf12345","accessToken":"dc808c8e-e070-4947-9d71-c984aaa9b2b7", "refreshToken":"dc808c8e-e070-4947-9d71-c984aaa9b2b8","userId":"your-user-id"}'
+ * yarn workspace @app/condo node bin/sbbol/credentials.js set '{"clientSecret":"asdf12345","accessToken":"access-token", "refreshToken":"refresh-token","userId":"your-user-id"}'
  *
  * @example Set credentials manually for extended config
- * yarn workspace @app/condo node bin/sbbol/credentials.js set '{"clientSecret":"asdf12345"}' true
+ * yarn workspace @app/condo node bin/sbbol/credentials.js set '{"clientSecret":"client-secret"}' true
  *
  *
  * @example Display credentials values

@@ -34,7 +34,7 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
-import { MARKETPLACE } from '@condo/domains/common/constants/featureflags'
+import { MARKETPLACE, TICKET_DOCUMENT_GENERATION } from '@condo/domains/common/constants/featureflags'
 import { getObjectCreatedMessage } from '@condo/domains/common/utils/date.utils'
 import { CopyButton } from '@condo/domains/marketplace/components/Invoice/CopyButton'
 import { TicketInvoicesList } from '@condo/domains/marketplace/components/Invoice/TicketInvoicesList'
@@ -78,6 +78,7 @@ import {
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import { usePollTicketComments } from '@condo/domains/ticket/hooks/usePollTicketComments'
 import { useTicketChangedFieldMessagesOf } from '@condo/domains/ticket/hooks/useTicketChangedFieldMessagesOf'
+import { useTicketDocumentGenerationTask } from '@condo/domains/ticket/hooks/useTicketDocumentGenerationTask'
 import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
 import {
     Ticket,
@@ -372,6 +373,9 @@ const TicketActionBar = ({
     const { requestFeature } = useGlobalAppsFeaturesContext()
     const { isCallActive, connectedTickets } = useActiveCall()
 
+    const { useFlag } = useFeatureFlags()
+    const isTicketDocumentGenerationEnabled = useFlag(TICKET_DOCUMENT_GENERATION)
+
     const id = get(ticket, 'id')
     const ticketOrganizationId = useMemo(() => get(ticket, 'organization.id'), [ticket])
     const canShareTickets = useMemo(() => get(employee, 'role.canShareTickets'), [employee])
@@ -395,6 +399,12 @@ const TicketActionBar = ({
         timeZone,
         locale: intl.locale,
         eventNamePrefix: 'TicketDetail',
+    })
+
+    const { TicketDocumentGenerationButton } = useTicketDocumentGenerationTask({
+        ticket,
+        timeZone,
+        user,
     })
 
     const { EditButton: EditQualityControlButton } = useTicketQualityControl()
@@ -427,14 +437,14 @@ const TicketActionBar = ({
                     <Link key='update' href={`/ticket/${ticket.id}/update`}>
                         <Button
                             disabled={disabledEditTicketButton}
-                            type='secondary'
-                            icon={<Edit size='medium'/>}
+                            type='primary'
                             data-cy='ticket__update-link'
                         >
                             {UpdateMessage}
                         </Button>
                     </Link>
                 ),
+                isTicketDocumentGenerationEnabled && <TicketDocumentGenerationButton key='generateDocument' />,
                 breakpoints.TABLET_LARGE && <>
                     <TicketBlanksExportToPdfButton/>
                     {TicketBlanksExportToPdfModal}

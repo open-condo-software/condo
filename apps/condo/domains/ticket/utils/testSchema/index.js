@@ -46,6 +46,7 @@ const { CallRecordFragment: CallRecordFragmentGQL } = require('@condo/domains/ti
 const { createTestPhone } = require('@condo/domains/user/utils/testSchema')
 const { TICKET_MULTIPLE_UPDATE_MUTATION } = require('@condo/domains/ticket/gql')
 const { TicketAutoAssignment: TicketAutoAssignmentGQL } = require('@condo/domains/ticket/gql')
+const { TicketDocumentGenerationTask: TicketDocumentGenerationTaskGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -79,6 +80,7 @@ const IncidentExportTask = generateGQLTestUtils(IncidentExportTaskGQL)
 const CallRecord = generateGQLTestUtils(CallRecordGQL)
 const CallRecordFragment = generateGQLTestUtils(CallRecordFragmentGQL)
 const TicketAutoAssignment = generateGQLTestUtils(TicketAutoAssignmentGQL)
+const TicketDocumentGenerationTask = generateGQLTestUtils(TicketDocumentGenerationTaskGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestTicket (client, organization, property, extraAttrs = {}) {
@@ -595,7 +597,7 @@ async function createTestTicketExportTask (client, user, extraAttrs = {}) {
         sender,
         format: EXCEL,
         where: {},
-        sortBy: {},
+        sortBy: [],
         locale: 'ru',
         timeZone: 'Europe/Moscow',
         user: { connect: { id: user.id } },
@@ -970,6 +972,35 @@ async function updateTestTicketAutoAssignment (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestTicketDocumentGenerationTask (client, user, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!user || !user.id) throw new Error('no user.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        user: { connect: { id: user.id } },
+        ...extraAttrs,
+    }
+    const obj = await TicketDocumentGenerationTask.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestTicketDocumentGenerationTask (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await TicketDocumentGenerationTask.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithTicket () {
@@ -1024,5 +1055,6 @@ module.exports = {
     CallRecordFragment, createTestCallRecordFragment, updateTestCallRecordFragment,
     ticketMultipleUpdateByTestClient,
     TicketAutoAssignment, createTestTicketAutoAssignment, updateTestTicketAutoAssignment,
+    TicketDocumentGenerationTask, createTestTicketDocumentGenerationTask, updateTestTicketDocumentGenerationTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -3,6 +3,7 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
+const { _internalSendHashedResidentPhonesService } = require('./_internalSendHashedResidentPhonesService')
 const { _internalSendNotificationNewMobileAppVersionService } = require('./_internalSendNotificationNewMobileAppVersionService')
 const { DisconnectUserFromRemoteClientService } = require('./DisconnectUserFromRemoteClientService')
 const { Message } = require('./Message')
@@ -32,5 +33,6 @@ module.exports = {
     TelegramUserChat,
     NotificationAnonymousSetting,
     _internalSendNotificationNewMobileAppVersionService,
+    _internalSendHashedResidentPhonesService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

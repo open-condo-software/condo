@@ -39,6 +39,7 @@ const { BILLING_RECEIPT_FILE_ADDED_TYPE, EMAIL_TRANSPORT } = require("@condo/dom
 const { createTestEmail, createTestPhone } = require('@condo/domains/user/utils/testSchema')
 const { _INTERNAL_SEND_NOTIFICATION_NEW_MOBILE_APP_VERSION_MUTATION } = require('@condo/domains/notification/gql')
 const { APP_RESIDENT_KEY } = require('@condo/domains/notification/constants/constants')
+const { _INTERNAL_SEND_HASHED_RESIDENT_PHONES_MUTATION } = require('@condo/domains/notification/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Message = generateGQLTestUtils(MessageGQL)
@@ -415,6 +416,20 @@ async function _internalSendNotificationNewMobileAppVersionByTestClient(client, 
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
+async function _internalSendHashedResidentPhonesByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(_INTERNAL_SEND_HASHED_RESIDENT_PHONES_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -431,5 +446,6 @@ module.exports = {
     TelegramUserChat, createTestTelegramUserChat, updateTestTelegramUserChat,
     NotificationAnonymousSetting, createTestNotificationAnonymousSetting, updateTestNotificationAnonymousSetting,
     _internalSendNotificationNewMobileAppVersionByTestClient,
+    _internalSendHashedResidentPhonesByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

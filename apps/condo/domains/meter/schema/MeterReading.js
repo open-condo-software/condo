@@ -73,7 +73,8 @@ const MeterReading = new GQLListSchema('MeterReading', {
     },
     hooks: {
         resolveInput: async ({ operation, context, resolvedData, existingItem }) => {
-            const user = get(context, ['req', 'user'])
+            // since request can come not only from transport layer - we have to use fallback auth detection
+            const user = get(context, ['req', 'user']) || get(context, ['authedItem'])
 
             if (operation === 'create' && isEmpty(resolvedData['date'])) {
                 resolvedData['date'] = new Date().toISOString()

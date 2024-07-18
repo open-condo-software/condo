@@ -1,10 +1,12 @@
 const express = require('express')
 
 const SUCCESS_GET_RECIPIENTS_URL = "/test/news-sharing-api/success/getRecipients"
-const SUCCESS_PUBLISH_URL = "/test/news-sharing-api/success/getRecipients"
+const SUCCESS_PUBLISH_URL = "/test/news-sharing-api/success/publish"
 const SUCCESS_PREVIEW_URL = "/test/news-sharing-api/success/preview"
+
 const FAULTY_GET_RECIPIENTS_URL_404 = '/test/news-sharing-api/fail/getRecipients/404'
 const FAULTY_GET_RECIPIENTS_URL_500 = '/test/news-sharing-api/fail/getRecipients/500'
+const FAULTY_PUBLISH_URL_500 = "/test/news-sharing-api/fail/publish/500"
 
 const INCORRECT_GET_RECIPIENTS_RESULT_URL_WRONG_RETURN_TYPE = '/test/news-sharing-api/fail/getRecipients/0'
 const INCORRECT_GET_RECIPIENTS_URL_BAD_NAME = '/test/news-sharing-api/fail/getRecipients/1'
@@ -99,41 +101,43 @@ class NewsSharingTestingApp {
         // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
 
-        app.get(SUCCESS_GET_RECIPIENTS_URL, async (req, res, next) => {
+        app.get(SUCCESS_GET_RECIPIENTS_URL, async (req, res) => {
             res.json(SUCCESS_GET_RECIPIENTS_RESULT)
         })
 
-        app.post(SUCCESS_PUBLISH_URL, async (req, res, next) => {
+        app.post(SUCCESS_PUBLISH_URL, async (req, res) => {
             res.status(200).send('OK')
         })
 
-        app.post(SUCCESS_PREVIEW_URL, async (req, res, next) => {
+        app.post(SUCCESS_PREVIEW_URL, async (req, res) => {
             res.status(200).send('OK')
         })
 
-        app.get(INCORRECT_GET_RECIPIENTS_URL_BAD_ID, async (req, res, next) => {
+        app.get(INCORRECT_GET_RECIPIENTS_URL_BAD_ID, async (req, res) => {
             res.status(200).send(INCORRECT_GET_RECIPIENTS_RESULT_BAD_ID)
         })
 
-        app.get(INCORRECT_GET_RECIPIENTS_URL_BAD_NAME, async (req, res, next) => {
+        app.get(INCORRECT_GET_RECIPIENTS_URL_BAD_NAME, async (req, res) => {
             res.status(200).send(INCORRECT_GET_RECIPIENTS_RESULT_BAD_NAME)
         })
 
-        app.get(INCORRECT_GET_RECIPIENTS_URL_OTHER_FIELDS, async (req, res, next) => {
+        app.get(INCORRECT_GET_RECIPIENTS_URL_OTHER_FIELDS, async (req, res) => {
             res.status(200).send(INCORRECT_GET_RECIPIENTS_RESULT_OTHER_FIELDS)
         })
 
-        app.get(INCORRECT_GET_RECIPIENTS_RESULT_URL_WRONG_RETURN_TYPE, async (req, res, next) => {
+        app.get(INCORRECT_GET_RECIPIENTS_RESULT_URL_WRONG_RETURN_TYPE, async (req, res) => {
             res.status(200).send(INCORRECT_GET_RECIPIENTS_RESULT_WRONG_RETURN_TYPE)
         })
 
-        app.get(FAULTY_GET_RECIPIENTS_URL_500, async (req, res, next) => {
+        app.get(FAULTY_GET_RECIPIENTS_URL_500, async (req, res) => {
             res.status(500).send({})
         })
 
-        app.get(FAULTY_GET_RECIPIENTS_URL_404, async (req, res, next) => {
+        app.get(FAULTY_GET_RECIPIENTS_URL_404, async (req, res) => {
             res.status(404).send({})
         })
+
+        app.get(FAULTY_PUBLISH_URL_500, async(req, res) => { res.status(500).send({}) })
 
         return app
     }
@@ -145,8 +149,10 @@ module.exports = {
     SUCCESS_GET_RECIPIENTS_URL,
     SUCCESS_PUBLISH_URL,
     SUCCESS_PREVIEW_URL,
+
     FAULTY_GET_RECIPIENTS_URL_404,
     FAULTY_GET_RECIPIENTS_URL_500,
+    FAULTY_PUBLISH_URL_500,
 
     INCORRECT_GET_RECIPIENTS_RESULT_URL_WRONG_RETURN_TYPE,
     INCORRECT_GET_RECIPIENTS_URL_BAD_NAME,

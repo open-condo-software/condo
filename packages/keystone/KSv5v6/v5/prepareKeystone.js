@@ -32,7 +32,7 @@ const { KeystoneTracingApp } = require('@open-condo/keystone/tracing')
 const IS_BUILD_PHASE = conf.PHASE === 'build'
 const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
 const IS_SENTRY_ENABLED = JSON.parse(get(conf, 'SENTRY_CONFIG', '{}'))['server'] !== undefined
-const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
+const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development'
 const IS_KEEP_ALIVE_ON_ERROR = get(conf, 'KEEP_ALIVE_ON_ERROR', false) === 'true'
 // NOTE: should be disabled in production: https://www.apollographql.com/docs/apollo-server/testing/graphql-playground/
 // WARN: https://github.com/graphql/graphql-playground/tree/main/packages/graphql-playground-html/examples/xss-attack

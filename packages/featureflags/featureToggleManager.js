@@ -1,8 +1,8 @@
 const { GrowthBook } = require('@growthbook/growthbook')
 const { get } = require('lodash')
-const fetch = require('node-fetch')
 
 const conf = require('@open-condo/config')
+const { fetch } = require('@open-condo/keystone/fetch')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getRedisClient } = require('@open-condo/keystone/redis')
 const { getFeatureFlag } = require('@open-condo/keystone/test.utils')
@@ -83,7 +83,7 @@ class FeatureToggleManager {
 
     async isFeatureEnabled (keystoneContext, featureName, featuresContext) {
         // Note: if you want to override the flag value by tests you can use setFeatureFlag() from test.utils! (TESTS ONLY)
-        if (conf.NODE_ENV === 'test') {
+        if (conf.USE_LOCAL_FEATURE_FLAGS) {
             return getFeatureFlag(keystoneContext, featureName)
         }
 
@@ -93,7 +93,7 @@ class FeatureToggleManager {
 
     async getFeatureValue (keystoneContext, featureName, defaultValue, featuresContext) {
         // Note: if you want to override the flag value by tests you use setFeatureFlag() from test.utils! (TESTS ONLY)
-        if (conf.NODE_ENV === 'test') {
+        if (conf.USE_LOCAL_FEATURE_FLAGS) {
             return getFeatureFlag(keystoneContext, featureName) || defaultValue
         }
 

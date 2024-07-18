@@ -24,8 +24,10 @@ import uniq from 'lodash/uniq'
 
 import { buildingEmptyMapJson } from '@condo/domains/property/constants/property'
 import { NUMERIC_REGEXP } from '@condo/domains/property/constants/regexps'
+import { getUniqUnits, getUnitsFromSections } from '@condo/domains/property/utils/helpers'
 
 import MapSchemaJSON from './MapJsonSchema.json'
+
 
 const ajv = new Ajv()
 const validator = ajv.compile(MapSchemaJSON)
@@ -140,7 +142,7 @@ class Map {
     }
 
     public validate (): boolean {
-        return this.validateSchema() && this.validateUniqueIds() && this.validateUniqueUnitLabel()
+        return this.validateSchema() && this.validateUniqueIds() && this.validateUniqueUnits()
     }
 
     public validateUniqueIds (): boolean {
@@ -152,35 +154,12 @@ class Map {
         }
         return true
     }
-    get getUnitLabelsWithoutPreview (): string[] {
-        return this.map.sections
-            ?.map((section) => section.floors
-                ?.map(floor => floor.units
-                    ?.map(unit => !unit.preview && unit.label)
-                    .filter(unit => !!unit)
-                )
-            )
-            .flat(2)
-    }
-    get getParkingUnitLabelsWithoutPreview (): string[] {
-        return this.map.parking
-            ?.map((parkingSection) => parkingSection.floors
-                ?.map(parkingFloor => parkingFloor.units
-                    ?.map(parkingUnit => !parkingUnit.preview && parkingUnit.label)
-                )
-            ).flat(2)
-    }
-    public validateUniqueUnitLabel (selectedUnit: BuildingUnit = null, destination: keyof typeof MapViewMode = null): boolean {
-        const unitLabels = this.getUnitLabelsWithoutPreview
-        const parkingUnitLabels = this.getParkingUnitLabelsWithoutPreview
-        const selectedUnitLabel = get(selectedUnit, 'label', null)
+    public validateUniqueUnits (): boolean {
+        const sectionUnits = getUnitsFromSections(this.map.sections)
+        const parkingUnits = getUnitsFromSections(this.map.parking)
 
-        if (selectedUnitLabel && destination) {
-            destination === 'section' ? unitLabels.push(selectedUnitLabel) : parkingUnitLabels.push(selectedUnitLabel)
-        }
-
-        const notUniqSectionLabels = unitLabels && unitLabels.length !== new Set(unitLabels).size
-        const notUniqParkingLabels = parkingUnitLabels && parkingUnitLabels.length !== new Set(parkingUnitLabels).size
+        const notUniqSectionLabels = sectionUnits.length !== getUniqUnits(sectionUnits).length
+        const notUniqParkingLabels = parkingUnits.length !== getUniqUnits(parkingUnits).length
 
         if (notUniqSectionLabels || notUniqParkingLabels) {
             this.validationErrors = ['Name of unit label must be unique']
@@ -672,8 +651,8 @@ class MapEdit extends MapView {
             || !isNull(this._previewSectionFloor)
     }
 
-    public validateInputUnitLabel (selectedUnit: BuildingUnit = null, newLabel = '', destination: keyof typeof MapViewMode = null): boolean {
-        const unitLabels = this.map.sections
+    public validateInputUnitLabel (selectedUnit: BuildingUnit = null, newLabel = '', unitType: BuildingUnit['unitType']): boolean {
+        const units = this.map.sections
             ?.map((section) => section.floors
                 ?.map(floor => floor.units
                     ?.map(unit => unit)
@@ -685,8 +664,8 @@ class MapEdit extends MapView {
             ).flat(2)
 
         this._duplicatedUnits = []
-        const notUniqSectionLabels = unitLabels && !isEmpty(unitLabels.filter(unit => {
-            if (unit.label === newLabel) {
+        const notUniqSectionLabels = units && !isEmpty(units.filter(unit => {
+            if (unit.label === newLabel && unit.unitType === unitType) {
                 this._duplicatedUnits.push(unit.id)
                 return unit
             }

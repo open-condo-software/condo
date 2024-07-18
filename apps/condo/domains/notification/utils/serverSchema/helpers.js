@@ -44,15 +44,23 @@ async function getAnonymousSettings (context, email, phone, messageType) {
         return []
     }
 
+    const subjectCondition = []
+    if (!isEmpty(email)) {
+        subjectCondition.push({ email })
+    }
+    if (!isEmpty(phone)) {
+        subjectCondition.push({ phone })
+    }
+
+    const typeCondition = [{ messageType: null }] // possible settings for all messages
+    if (!isEmpty(messageType)) {
+        typeCondition.push({ messageType }) // settings for specific message type
+    }
+
     return await NotificationAnonymousSetting.getAll(context, {
         AND: [
-            { OR: [ { email }, { phone } ] },
-            {
-                OR: [
-                    { messageType: null }, // possible settings for all messages
-                    { messageType }, // settings for specific message type
-                ],
-            },
+            { OR: subjectCondition },
+            { OR: typeCondition },
             {
                 deletedAt: null,
             },
