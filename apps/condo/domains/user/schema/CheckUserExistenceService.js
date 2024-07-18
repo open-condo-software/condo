@@ -11,6 +11,7 @@ const { GQLCustomSchema, getByCondition } = require('@open-condo/keystone/schema
 const { NOT_FOUND, COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/user/access/CheckUserExistenceService')
 const { CAPTCHA_CHECK_FAILED, INVALID_TOKEN, UNSUPPORTED_TOKEN } = require('@condo/domains/user/constants/errors')
+const { GQL_ERRORS: USER_ERRORS } = require('@condo/domains/user/constants/errors')
 const { captchaCheck } = require('@condo/domains/user/utils/hCaptcha')
 const { ConfirmPhoneAction } = require('@condo/domains/user/utils/serverSchema')
 const {
@@ -59,6 +60,12 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: UNSUPPORTED_TOKEN,
         message: 'Unsupported token',
+    },
+    DAILY_REQUEST_LIMIT_FOR_IP_REACHED: {
+        ...USER_ERRORS.DAILY_REQUEST_LIMIT_FOR_IP_REACHED,
+    },
+    DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED: {
+        ...USER_ERRORS.DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED,
     },
 }
 

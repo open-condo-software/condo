@@ -8,11 +8,10 @@ const {
     makeLoggedInAdminClient,
     makeClient,
     makeLoggedInClient,
-    expectToThrowGQLError,
+    expectToThrowGQLErrorToResult,
 } = require('@open-condo/keystone/test.utils')
 
 const { RESIDENT, USER_TYPES } = require('@condo/domains/user/constants/common')
-const { GQL_ERRORS: USER_ERRORS } = require('@condo/domains/user/constants/errors')
 const {
     createTestConfirmPhoneAction,
     createTestUser,
@@ -23,8 +22,6 @@ const {
     checkUserExistenceByTestClient,
 } = require('@condo/domains/user/utils/testSchema')
 const { TOKEN_TYPES } = require('@condo/domains/user/utils/tokens')
-
-const { ERRORS } = require('./CheckUserExistenceService')
 
 
 describe('CheckUserExistenceService', () => {
@@ -236,34 +233,52 @@ describe('CheckUserExistenceService', () => {
                     const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, {
                         isPhoneVerified: true, expiresAt: new Date().toISOString(),
                     })
-                    await expectToThrowGQLError(async () => {
+                    await expectToThrowGQLErrorToResult(async () => {
                         await checkUserExistenceByTestClient(anonymousClient, {
                             token: confirmPhoneAction.token,
                             userType: RESIDENT,
                         })
-                    }, ERRORS.TOKEN_NOT_FOUND, 'result')
+                    }, {
+                        query: 'checkUserExistence',
+                        variable: ['data', 'token'],
+                        code: 'NOT_FOUND',
+                        type: 'TOKEN_NOT_FOUND',
+                        message: 'Token not found',
+                    })
                 })
 
                 test('should throw error if phone token is used', async () => {
                     const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, {
                         isPhoneVerified: true, completedAt: new Date().toISOString(),
                     })
-                    await expectToThrowGQLError(async () => {
+                    await expectToThrowGQLErrorToResult(async () => {
                         await checkUserExistenceByTestClient(anonymousClient, {
                             token: confirmPhoneAction.token,
                             userType: RESIDENT,
                         })
-                    }, ERRORS.TOKEN_NOT_FOUND, 'result')
+                    }, {
+                        query: 'checkUserExistence',
+                        variable: ['data', 'token'],
+                        code: 'NOT_FOUND',
+                        type: 'TOKEN_NOT_FOUND',
+                        message: 'Token not found',
+                    })
                 })
 
                 test('should throw error if phone token is not confirmed', async () => {
                     const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: false })
-                    await expectToThrowGQLError(async () => {
+                    await expectToThrowGQLErrorToResult(async () => {
                         await checkUserExistenceByTestClient(anonymousClient, {
                             token: confirmPhoneAction.token,
                             userType: RESIDENT,
                         })
-                    }, ERRORS.TOKEN_NOT_FOUND, 'result')
+                    }, {
+                        query: 'checkUserExistence',
+                        variable: ['data', 'token'],
+                        code: 'NOT_FOUND',
+                        type: 'TOKEN_NOT_FOUND',
+                        message: 'Token not found',
+                    })
                 })
 
                 describe('should throw error if invalid token', () => {
@@ -273,12 +288,17 @@ describe('CheckUserExistenceService', () => {
                     ]
 
                     test.each(cases)('%p', async (invalidToken) => {
-                        await expectToThrowGQLError(async () => {
+                        await expectToThrowGQLErrorToResult(async () => {
                             await checkUserExistenceByTestClient(anonymousClient, {
                                 token: invalidToken,
                                 userType: RESIDENT,
                             })
-                        }, ERRORS.INVALID_TOKEN, 'result')
+                        }, {
+                            query: 'checkUserExistence',
+                            code: 'BAD_USER_INPUT',
+                            type: 'INVALID_TOKEN',
+                            message: 'Invalid token',
+                        })
                     })
                 })
             })
@@ -295,12 +315,17 @@ describe('CheckUserExistenceService', () => {
                     })
                 }
                 const client = await makeClient()
-                await expectToThrowGQLError(async () => {
+                await expectToThrowGQLErrorToResult(async () => {
                     await checkUserExistenceByTestClient(client, {
                         token: confirmPhoneAction.token,
                         userType: RESIDENT,
                     })
-                }, USER_ERRORS.DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED, 'result')
+                }, {
+                    code: 'BAD_USER_INPUT',
+                    type: 'DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED',
+                    message: 'Too many requests with this phone. Try again later',
+                    messageForUser: 'api.user.DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED',
+                })
             })
 
             test('should throw error if there are a lot of requests by ip per day', async () => {
@@ -311,12 +336,17 @@ describe('CheckUserExistenceService', () => {
                         userType: RESIDENT,
                     })
                 }
-                await expectToThrowGQLError(async () => {
+                await expectToThrowGQLErrorToResult(async () => {
                     await checkUserExistenceByTestClient(anonymousClient, {
                         token: confirmPhoneAction.token,
                         userType: RESIDENT,
                     })
-                }, USER_ERRORS.DAILY_REQUEST_LIMIT_FOR_IP_REACHED, 'result')
+                }, {
+                    code: 'BAD_USER_INPUT',
+                    type: 'DAILY_REQUEST_LIMIT_FOR_IP_REACHED',
+                    message: 'Too many requests from this ip address. Try again later',
+                    messageForUser: 'api.user.DAILY_REQUEST_LIMIT_FOR_IP_REACHED',
+                })
             })
         })
     })

@@ -4,6 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const { faker } = require('@faker-js/faker')
+const { gql } = require('graphql-tag')
 const { v4: uuid } = require('uuid')
 const { countryPhoneData } = require('phone')
 const { max, repeat, get, isEmpty } = require('lodash')
@@ -19,9 +20,9 @@ const {
     SBER_ID_IDP_TYPE,
     RESIDENT,
     STAFF,
-    SERVICE
+    SERVICE,
 } = require('@condo/domains/user/constants/common')
-const { IDENTITY_TYPES} = require('@condo/domains/user/constants')
+const { IDENTITY_TYPES } = require('@condo/domains/user/constants')
 const {
     ConfirmPhoneAction: ConfirmPhoneActionGQL,
     OidcClient: OidcClientGQL,
@@ -51,12 +52,17 @@ const { CHECK_USER_EXISTENCE_MUTATION } = require('@condo/domains/user/gql')
 const { ResetUserLimitAction: ResetUserLimitActionGQL } = require('@condo/domains/user/gql')
 const { UserSudoToken: UserSudoTokenGQL } = require('@condo/domains/user/gql')
 const { GENERATE_SUDO_TOKEN_MUTATION } = require('@condo/domains/user/gql')
+const { AUTHENTICATE_OR_REGISTER_USER_WITH_TOKEN_MUTATION } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const OIDC_REDIRECT_URI = 'https://httpbin.org/anything'
 
 function createTestEmail () {
     return ('test.' + getRandomString() + '@example.com').toLowerCase()
+}
+
+const captcha = () => {
+    return faker.lorem.sentence()
 }
 
 function createTestPhone () {
@@ -456,7 +462,7 @@ async function updateTestOidcClient (client, id, extraAttrs = {}) {
 async function createTestExternalTokenAccessRight (client, user, identityType, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!user || !user.id) throw new Error('no user.id')
-    if(!identityType) throw new Error('no identityType')
+    if (!identityType) throw new Error('no identityType')
     if (!IDENTITY_TYPES.includes(identityType)) throw new Error('unknown identityType')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -486,7 +492,7 @@ async function updateTestExternalTokenAccessRight (client, id, extraAttrs = {}) 
 }
 
 
-async function getAccessTokenByUserIdByTestClient(client, extraAttrs = {}) {
+async function getAccessTokenByUserIdByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
 
     const attrs = {
@@ -496,6 +502,7 @@ async function getAccessTokenByUserIdByTestClient(client, extraAttrs = {}) {
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
 async function createTestUserRightsSet (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -616,6 +623,20 @@ async function generateSudoTokenByTestClient(client, extraAttrs = {}) {
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+async function authenticateOrRegisterUserWithTokenByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        captcha: captcha(),
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(AUTHENTICATE_OR_REGISTER_USER_WITH_TOKEN_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -660,5 +681,6 @@ module.exports = {
     UserSudoToken, createTestUserSudoToken, updateTestUserSudoToken,
     generateSudoTokenByTestClient,
     OIDC_REDIRECT_URI,
+    authenticateOrRegisterUserWithTokenByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
