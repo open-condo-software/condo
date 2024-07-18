@@ -344,20 +344,12 @@ async function createWorker (keystoneModule, config) {
     }
 
     // Reapply queues configuration with worker startup config
+    let parsedConfig = {}
     if (get(config, '0', []).length > 0) {
-        let parsedConfig
         try {
             parsedConfig = JSON.parse(config[0])
         } catch (e) {
             throw new Error('Can\'t parse worker config. Please provide correct value')
-        }
-
-        if (parsedConfig['include'] && parsedConfig['include'].length > 0) {
-            const queuesToDelete = Array.from(QUEUES.entries()).filter(queue => !parsedConfig['include'].includes(queue[0]))
-
-            for (const [queueName] of queuesToDelete) {
-                QUEUES.delete(queueName)
-            }
         }
 
         if (parsedConfig['exclude'] && parsedConfig['exclude'].length > 0) {
@@ -368,7 +360,9 @@ async function createWorker (keystoneModule, config) {
         }
     }
 
-    const activeQueues = Array.from(QUEUES.entries())
+    const activeQueues = parsedConfig['include'] && parsedConfig['include'].length > 0
+        ? Array.from(QUEUES.entries()).filter(queue => parsedConfig['include'].includes(queue[0]))
+        : Array.from(QUEUES.entries())
 
     // Apply callbacks to each created queue
     activeQueues.forEach(([queueName, queue]) => {
@@ -453,8 +447,9 @@ async function createWorker (keystoneModule, config) {
         logger.info({ msg: 'Worker: remove tasks!', names: removeTasksNames })
 
         REMOVE_CRON_TASKS.forEach(([name, opts]) => {
-            activeQueues.forEach(([_, queue]) => {
+            Array.from(QUEUES.entries()).forEach(([queueName, queue]) => {
                 queue.removeRepeatable(name, opts.repeat)
+                logger.info({ taskName: name, msg: 'Worker: removed cron task from queue', queue: queueName })
             })
         })
     }
