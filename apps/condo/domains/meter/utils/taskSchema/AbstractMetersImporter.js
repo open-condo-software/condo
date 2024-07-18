@@ -176,13 +176,26 @@ class AbstractMetersImporter {
                             if (messageForUser) {
                                 rowErrors.push(messageForUser)
                             } else {
-                                const mutationErrorMessages =
+                                let mutationErrorMessages =
                                     get(mutationError, ['originalError', 'errors', 0, 'data', 'messages'], []) || []
+
+                                // errors thrown to mutation from models
+                                if (mutationErrorMessages.length === 0) {
+                                    mutationErrorMessages = (get(mutationError, ['originalError', 'errors', 0, 'originalError', 'errors'], []) || []).reduce((result, error) => {
+                                        return [
+                                            ...result,
+                                            get(error, ['extensions', 'messageForUser'], get(error, ['extensions', 'message'])),
+                                        ]
+                                    }, [])
+                                }
+
                                 for (const message of mutationErrorMessages) {
                                     const errorCodes = Object.keys(this.mutationErrorsToMessages)
                                     for (const code of errorCodes) {
                                         if (message.includes(code)) {
                                             rowErrors.push(this.mutationErrorsToMessages[code])
+                                        } else if (!rowErrors.includes(message)) {
+                                            rowErrors.push(message)
                                         }
                                     }
                                 }
