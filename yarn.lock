@@ -2024,13 +2024,16 @@ __metadata:
     "@open-condo/ui": "workspace:^"
     "@parcel/watcher": ^2.3.0
     "@serwist/next": ^9.0.1
+    "@types/big.js": ^6.2.2
     "@types/react": 18.0.27
     "@types/react-dom": 18.0.10
     antd: 5.16.4
     apollo-upload-client: ^17
     apollo3-cache-persist: ^0.15.0
+    big.js: ^6.2.1
     classnames: ^2.3.2
     cookies-next: ^4.2.1
+    dayjs: ^1.11.11
     deepmerge: ^4.3.1
     graphql: ^16.8.1
     http-proxy: ^1.18.1
@@ -16239,6 +16242,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/big.js@npm:^6.2.2":
+  version: 6.2.2
+  resolution: "@types/big.js@npm:6.2.2"
+  checksum: 6aeff1b763e71b79bb796c9f395ebecdd5a6aeb997b1c9b9acb2e14aa2f88eec620f26a6aedeba120ec7a881a0834d0b8e9869da864c60bba623f92d6de6f848
+  languageName: node
+  linkType: hard
+
 "@types/body-parser@npm:*":
   version: 1.19.2
   resolution: "@types/body-parser@npm:1.19.2"
@@ -20594,7 +20604,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"big.js@npm:^6.1.1":
+"big.js@npm:^6.1.1, big.js@npm:^6.2.1":
   version: 6.2.1
   resolution: "big.js@npm:6.2.1"
   checksum: 0b234a2fd56c52bed2798ed2020bcab6fef5e9523b99a05406ad071d1aed6ee97ada9fb8de9576092da74c68825c276e19015743b8d1baea269b60a5c666b0cd
@@ -24779,6 +24789,13 @@ __metadata:
   version: 1.11.10
   resolution: "dayjs@npm:1.11.10"
   checksum: a6b5a3813b8884f5cd557e2e6b7fa569f4c5d0c97aca9558e38534af4f2d60daafd3ff8c2000fed3435cfcec9e805bcebd99f90130c6d1c5ef524084ced588c4
+  languageName: node
+  linkType: hard
+
+"dayjs@npm:^1.11.11":
+  version: 1.11.11
+  resolution: "dayjs@npm:1.11.11"
+  checksum: 84788275aad8a87fee4f1ce4be08861df29687aae6b7b43dd65350118a37dda56772a3902f802cb2dc651dfed447a5a8df62d88f0fb900dba8333e411190a5d5
   languageName: node
   linkType: hard
 
