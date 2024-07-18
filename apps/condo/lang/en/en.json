@@ -1744,12 +1744,14 @@
   "meterResource.HeatSupply.name": "Heat supply",
   "meterResource.GasSupply.name": "Gas supply",
   "meterResource.ColdAir.name": "Cold air supply",
+  "meterResource.Drainage.name": "Drainage",
   "meterResource.ColdWater.measure": "cubic meter",
   "meterResource.HotWater.measure": "cubic meter",
   "meterResource.Electricity.measure": "kw",
   "meterResource.HeatSupply.measure": "gcal",
   "meterResource.GasSupply.measure": "cubic meter",
   "meterResource.ColdAir.measure": "gcal",
+  "meterResource.Drainage.measure": "cubic meter",
   "contact.AddContact": "Add contact",
   "meter.AddMeterReadings": "Add meter readings",
   "meter.AddPropertyMeterReadings": "Add property meter readings",
@@ -1797,6 +1799,7 @@
   "meter.import.value.meterResourceType.heatSupply": "HEAT",
   "meter.import.value.meterResourceType.gasSupply": "GAS",
   "meter.import.value.meterResourceType.coldAir": "COLD",
+  "meter.import.value.meterResourceType.drainage": "DRAINAGE",
   "ticket.import.column.address": "Address",
   "ticket.import.column.unitName": "Unit Name",
   "ticket.import.column.isResidentTicket": "Is resident ticket",
@@ -3125,3 +3128,4 @@
   "acquiringReceipt.invoice.row.amount": "Amount",
   "api.acquiring.multiPayment.error.receiptsWithInvoices": "Receipts and invoices are forbidden to be together"
 }
+

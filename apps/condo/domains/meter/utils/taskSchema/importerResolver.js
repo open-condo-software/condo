@@ -17,6 +17,7 @@ const {
     HEAT_SUPPLY_METER_RESOURCE_ID,
     GAS_SUPPLY_METER_RESOURCE_ID,
     COLD_AIR_METER_RESOURCE_ID,
+    DRAINAGE_METER_RESOURCE_ID,
 } = require('@condo/domains/meter/constants/constants')
 const {
     EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT,
@@ -97,6 +98,7 @@ function getMappers (format, locale) {
     const HeatSupplyResourceTypeValue = i18n('meter.import.value.meterResourceType.heatSupply', { locale })
     const GasSupplyResourceTypeValue = i18n('meter.import.value.meterResourceType.gasSupply', { locale })
     const ColdAirResourceTypeValue = i18n('meter.import.value.meterResourceType.coldAir', { locale })
+    const DrainageResourceTypeValue = i18n('meter.import.value.meterResourceType.drainage', { locale })
 
     return format === DOMA_EXCEL ? {
         unitType: {
@@ -113,6 +115,7 @@ function getMappers (format, locale) {
             [HeatSupplyResourceTypeValue]: HEAT_SUPPLY_METER_RESOURCE_ID,
             [GasSupplyResourceTypeValue]: GAS_SUPPLY_METER_RESOURCE_ID,
             [ColdAirResourceTypeValue]: COLD_AIR_METER_RESOURCE_ID,
+            [DrainageResourceTypeValue]: DRAINAGE_METER_RESOURCE_ID,
         },
     } : {
         unitType: {},
@@ -127,7 +130,7 @@ function getMappers (format, locale) {
             '8': HOT_WATER_METER_RESOURCE_ID, // Hot water
             '9': COLD_WATER_METER_RESOURCE_ID, // Cold water
             '10': HEAT_SUPPLY_METER_RESOURCE_ID, // Heating
-            '11': '', // Water disposal
+            '11': DRAINAGE_METER_RESOURCE_ID, // Drainage
             '12': '', // Water for irrigation
             '13': '', // Garbage
         },
@@ -274,3 +277,4 @@ async function getImporter (keystone, taskId, organizationId, userId, format, lo
 module.exports = {
     getImporter,
 }
+
