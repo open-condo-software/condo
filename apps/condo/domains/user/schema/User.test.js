@@ -193,17 +193,13 @@ describe('User', () => {
         })
     })
 
-    test('user: update self User password', async () => {
+    test('user: update self User password should fail', async () => {
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
         const password = getRandomString()
         const payload = { password }
-        const [obj, attrs] = await updateTestUser(client, client.user.id, payload)
-        expect(obj.updatedBy).toMatchObject({ id: client.user.id })
-        expect(obj.sender).toMatchObject(attrs.sender)
-        expect(obj.v).toBeGreaterThan(client.user.v)
-
-        const client2 = await makeLoggedInClient({ phone: client.userAttrs.phone, password })
-        expect(client2.user.id).toEqual(client.user.id)
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await updateTestUser(client, client.user.id, payload)
+        })
     })
 
     test('user: update another User should fail', async () => {
