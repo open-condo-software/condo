@@ -3,8 +3,9 @@
  */
 
 const { faker } = require('@faker-js/faker')
+const dayjs = require('dayjs')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 const {
     catchErrorFrom,
     expectToThrowAuthenticationErrorToObjects,
@@ -1365,6 +1366,61 @@ describe('MeterReading', () => {
 
                     expect(meterReading.id).toMatch(UUID_RE)
                     expect(meterReading.date).toMatch(DATETIME_RE)
+                })
+
+                test('throw an error if date is from the future and no error if date is from the past or now', async () => {
+                    const [resource] = await MeterResource.getAll(employeeCanManageReadings, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [source] = await MeterReadingSource.getAll(employeeCanManageReadings, { id: CALL_METER_READING_SOURCE_ID })
+                    const [meter] = await createTestMeter(
+                        employeeCanManageReadings,
+                        employeeCanManageReadings.organization,
+                        employeeCanManageReadings.property,
+                        resource,
+                    )
+
+                    const date = dayjs().add(10, 'seconds').toISOString()
+
+                    await expectToThrowGQLError(
+                        async () => await createTestMeterReading(employeeCanManageReadings, meter, source, {
+                            date,
+                        }),
+                        {
+                            code: 'BAD_USER_INPUT',
+                            type: 'METER_READING_DATE_IN_FUTURE',
+                            message: 'Meter reading date can not be from the future',
+                            messageForUser: 'api.meterReading.METER_READING_DATE_IN_FUTURE',
+                            messageInterpolation: { givenDate: date },
+                        }
+                    )
+
+                    const date2 = dayjs().add(2, 'days').format('YYYY-MM-DD')
+
+                    await expectToThrowGQLError(
+                        async () => await createTestMeterReading(employeeCanManageReadings, meter, source, {
+                            date: date2,
+                        }),
+                        {
+                            code: 'BAD_USER_INPUT',
+                            type: 'METER_READING_DATE_IN_FUTURE',
+                            message: 'Meter reading date can not be from the future',
+                            messageForUser: 'api.meterReading.METER_READING_DATE_IN_FUTURE',
+                            messageInterpolation: { givenDate: date2 },
+                        }
+                    )
+
+                    const now = dayjs()
+                    const [reading] = await createTestMeterReading(employeeCanManageReadings, meter, source, {
+                        date: now.format('YYYY-MM-DD'),
+                    })
+
+                    expect(reading.date).toBe(now.utc().hour(0).minute(0).second(0).millisecond(0).toISOString())
+
+                    const past = dayjs().subtract(1, 'day')
+                    const [reading2] = await createTestMeterReading(employeeCanManageReadings, meter, source, {
+                        date: past.format('YYYY-MM-DD'),
+                    })
+
+                    expect(reading2.date).toBe(past.utc().hour(0).minute(0).second(0).millisecond(0).toISOString())
                 })
             })
 
