@@ -12,7 +12,6 @@ const {
     PAYMENT_PROCESSING_STATUS,
     PAYMENT_WITHDRAWN_STATUS,
     PAYMENT_DONE_STATUS,
-    PAYMENT_ERROR_STATUS,
 } = require('@condo/domains/acquiring/constants/payment')
 const {
     AcquiringIntegrationContext,
