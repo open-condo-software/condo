@@ -1796,6 +1796,7 @@
   "meter.import.value.meterResourceType.electricity": "EL",
   "meter.import.value.meterResourceType.heatSupply": "HEAT",
   "meter.import.value.meterResourceType.gasSupply": "GAS",
+  "meter.import.value.meterResourceType.coldAir": "COLD",
   "ticket.import.column.address": "Address",
   "ticket.import.column.unitName": "Unit Name",
   "ticket.import.column.isResidentTicket": "Is resident ticket",
