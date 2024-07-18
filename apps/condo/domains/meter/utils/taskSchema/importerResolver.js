@@ -16,6 +16,7 @@ const {
     ELECTRICITY_METER_RESOURCE_ID,
     HEAT_SUPPLY_METER_RESOURCE_ID,
     GAS_SUPPLY_METER_RESOURCE_ID,
+    COLD_AIR_METER_RESOURCE_ID,
 } = require('@condo/domains/meter/constants/constants')
 const {
     EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT,
@@ -95,6 +96,7 @@ function getMappers (format, locale) {
     const ElectricityResourceTypeValue = i18n('meter.import.value.meterResourceType.electricity', { locale })
     const HeatSupplyResourceTypeValue = i18n('meter.import.value.meterResourceType.heatSupply', { locale })
     const GasSupplyResourceTypeValue = i18n('meter.import.value.meterResourceType.gasSupply', { locale })
+    const ColdAirResourceTypeValue = i18n('meter.import.value.meterResourceType.coldAir', { locale })
 
     return format === DOMA_EXCEL ? {
         unitType: {
@@ -110,6 +112,7 @@ function getMappers (format, locale) {
             [ElectricityResourceTypeValue]: ELECTRICITY_METER_RESOURCE_ID,
             [HeatSupplyResourceTypeValue]: HEAT_SUPPLY_METER_RESOURCE_ID,
             [GasSupplyResourceTypeValue]: GAS_SUPPLY_METER_RESOURCE_ID,
+            [ColdAirResourceTypeValue]: COLD_AIR_METER_RESOURCE_ID,
         },
     } : {
         unitType: {},
@@ -151,8 +154,8 @@ async function getErrors (keystone, format, locale, columns, mappers) {
     const ValidationErrorMessage = i18n('errors.import.ValidationError', { locale })
     const CreationErrorMessage = i18n('errors.import.CreationError', { locale })
 
-    const UnknownResource =  i18n('meter.import.error.unknownResourceType', { locale, meta: { knownList: Object.keys(mappers.resourceId).join(',') } })
-    const UnknownUnitType =  i18n('meter.import.error.unknownUnitType', { locale, meta: { knownList: Object.keys(mappers.unitType).join(',') } })
+    const UnknownResource =  i18n('meter.import.error.unknownResourceType', { locale, meta: { knownList: Object.keys(mappers.resourceId).join(', ') } })
+    const UnknownUnitType =  i18n('meter.import.error.unknownUnitType', { locale, meta: { knownList: Object.keys(mappers.unitType).join(', ') } })
 
     const InvalidColumnsMessage = columns ? i18n('TableHasInvalidHeaders.message', { locale, meta: {
         value: columns.map(column => `"${column.name}"`).join(', '),
@@ -175,7 +178,7 @@ function getMutationError (locale) {
     const MeterAccountNumberExistInOtherUnitMessage = i18n('meter.import.error.MeterAccountNumberExistInOtherUnit', locale)
     const MeterResourceOwnedByAnotherOrganizationMessage = i18n('api.meter.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION', locale)
     const MeterNumberExistInOrganizationMessage = i18n('meter.import.error.MeterNumberExistInOrganization', locale)
-    
+
     return {
         [EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT]: MeterAccountNumberExistInOtherUnitMessage,
         [EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION]: MeterNumberExistInOrganizationMessage,
@@ -198,12 +201,12 @@ async function importRows (keystone, userId, organizationId, rows) {
         organization: { id: organizationId },
         readings: rows,
     })
-    
+
     // fatal error proceeding case - throw error in order to fail proceeding job - since this is not recoverable state
     if (isNil(result) && !isEmpty(errors)) {
         throw errors[0]
     }
-    
+
     return { errors, result }
 }
 

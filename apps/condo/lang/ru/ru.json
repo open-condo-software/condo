@@ -1796,6 +1796,7 @@
   "meter.import.value.meterResourceType.electricity": "ЭЛ",
   "meter.import.value.meterResourceType.heatSupply": "ТЕПЛО",
   "meter.import.value.meterResourceType.gasSupply": "ГАЗ",
+  "meter.import.value.meterResourceType.coldAir": "ХОЛОД",
   "ticket.import.column.address": "Адрес",
   "ticket.import.column.unitName": "Номер помещения",
   "ticket.import.column.isResidentTicket": "Заявка от жителя",
