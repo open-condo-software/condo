@@ -2629,6 +2629,7 @@
   "api.meter.registerMetersReadings.PROPERTY_NOT_FOUND": "Дом не найден",
   "api.meter.registerMetersReadings.INVALID_METER_VALUES": "Неверные значения: {valuesList}",
   "api.meter.registerMetersReadings.MULTIPLE_METERS_FOUND": "Найдено несколько счетчиков ({count})",
+  "api.meterReading.METER_READING_DATE_IN_FUTURE": "Дата передачи показания ({givenDate}) не должна быть больше текущей даты",
   "api.marketplace.MarketCategory.MAXIMUM_DEPTH_REACHED": "Глубина наследования категорий должна быть не больше 2",
   "api.marketplace.MarketCategory.CANNOT_CONNECT_TO_ITSELF": "Нельзя привязать категорию к самой себе",
   "api.contact.exportContactsToExcel.NOTHING_TO_EXPORT": "Не найдено контактов для экспорта",
