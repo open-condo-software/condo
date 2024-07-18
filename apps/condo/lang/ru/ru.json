@@ -1744,12 +1744,14 @@
   "meterResource.HeatSupply.name": "Теплоснабжение",
   "meterResource.GasSupply.name": "Газоснабжение",
   "meterResource.ColdAir.name": "Холодоснабжение",
+  "meterResource.Drainage.name": "ЖБО",
   "meterResource.ColdWater.measure": "куб. м.",
   "meterResource.HotWater.measure": "куб. м.",
   "meterResource.Electricity.measure": "кВт",
   "meterResource.HeatSupply.measure": "Гкал",
   "meterResource.GasSupply.measure": "куб. м.",
   "meterResource.ColdAir.measure": "Гкал",
+  "meterResource.Drainage.measure": "куб. м.",
   "contact.AddContact": "Добавить жителя",
   "meter.AddMeterReadings": "Сдать показания ИПУ",
   "meter.AddPropertyMeterReadings": "Сдать показания ОДПУ",
@@ -1797,6 +1799,7 @@
   "meter.import.value.meterResourceType.heatSupply": "ТЕПЛО",
   "meter.import.value.meterResourceType.gasSupply": "ГАЗ",
   "meter.import.value.meterResourceType.coldAir": "ХОЛОД",
+  "meter.import.value.meterResourceType.drainage": "ЖБО",
   "ticket.import.column.address": "Адрес",
   "ticket.import.column.unitName": "Номер помещения",
   "ticket.import.column.isResidentTicket": "Заявка от жителя",
@@ -3125,3 +3128,4 @@
   "acquiringReceipt.invoice.row.amount": "Стоимость",
   "api.acquiring.multiPayment.error.receiptsWithInvoices": "Квитанции и счета не могут быть в одном платеже, увы. Но мы над этим работаем."
 }
+
