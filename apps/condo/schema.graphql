@@ -62862,7 +62862,8 @@ type NewsItemSharingHistoryRecord {
   sharingParams: JSON
   status: String
   statusMessage: String
-  lastPostRequest: JSON
+  lastPublishResponse: JSON
+  recipientsCount: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -62929,10 +62930,14 @@ input NewsItemSharingHistoryRecordWhereInput {
   statusMessage_not_ends_with_i: String
   statusMessage_in: [String]
   statusMessage_not_in: [String]
-  lastPostRequest: JSON
-  lastPostRequest_not: JSON
-  lastPostRequest_in: [JSON]
-  lastPostRequest_not_in: [JSON]
+  lastPublishResponse: JSON
+  lastPublishResponse_not: JSON
+  lastPublishResponse_in: [JSON]
+  lastPublishResponse_not_in: [JSON]
+  recipientsCount: JSON
+  recipientsCount_not: JSON
+  recipientsCount_in: [JSON]
+  recipientsCount_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -63044,7 +63049,8 @@ input NewsItemSharingHistoryRecordUpdateInput {
   sharingParams: JSON
   status: String
   statusMessage: String
-  lastPostRequest: JSON
+  lastPublishResponse: JSON
+  recipientsCount: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -63070,7 +63076,8 @@ input NewsItemSharingHistoryRecordCreateInput {
   sharingParams: JSON
   status: String
   statusMessage: String
-  lastPostRequest: JSON
+  lastPublishResponse: JSON
+  recipientsCount: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -63128,12 +63135,15 @@ type NewsItemSharing {
   """ Publication status of the news: updated automatically """
   status: NewsItemSharingStatusType
 
-  """ Explanations regarding the publication status. Might be shown to user 
-  """
+  """ Explanations regarding the publication status. Will be shown to user """
   statusMessage: String
 
-  """ The outcome from the most recent invocation of the lastPostRequest """
-  lastPostRequest: JSON
+  """ The outcome from the most recent invocation of the publish method of the miniapp 
+  """
+  lastPublishResponse: JSON
+
+  """ Recipients count for this shared news item """
+  recipientsCount: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -63190,10 +63200,14 @@ input NewsItemSharingWhereInput {
   statusMessage_not_ends_with_i: String
   statusMessage_in: [String]
   statusMessage_not_in: [String]
-  lastPostRequest: JSON
-  lastPostRequest_not: JSON
-  lastPostRequest_in: [JSON]
-  lastPostRequest_not_in: [JSON]
+  lastPublishResponse: JSON
+  lastPublishResponse_not: JSON
+  lastPublishResponse_in: [JSON]
+  lastPublishResponse_not_in: [JSON]
+  recipientsCount: JSON
+  recipientsCount_not: JSON
+  recipientsCount_in: [JSON]
+  recipientsCount_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -63289,7 +63303,8 @@ input NewsItemSharingUpdateInput {
   sharingParams: JSON
   status: NewsItemSharingStatusType
   statusMessage: String
-  lastPostRequest: JSON
+  lastPublishResponse: JSON
+  recipientsCount: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -63312,7 +63327,8 @@ input NewsItemSharingCreateInput {
   sharingParams: JSON
   status: NewsItemSharingStatusType
   statusMessage: String
-  lastPostRequest: JSON
+  lastPublishResponse: JSON
+  recipientsCount: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -69882,7 +69898,7 @@ type B2BAppNewsSharingConfigHistoryRecord {
   name: String
   icon: JSON
   previewPicture: JSON
-  pushNotificationPreviewSettings: String
+  pushNotificationSettings: String
   publishUrl: String
   previewUrl: String
   getRecipientsUrl: String
@@ -69932,24 +69948,24 @@ input B2BAppNewsSharingConfigHistoryRecordWhereInput {
   previewPicture_not: JSON
   previewPicture_in: [JSON]
   previewPicture_not_in: [JSON]
-  pushNotificationPreviewSettings: String
-  pushNotificationPreviewSettings_not: String
-  pushNotificationPreviewSettings_contains: String
-  pushNotificationPreviewSettings_not_contains: String
-  pushNotificationPreviewSettings_starts_with: String
-  pushNotificationPreviewSettings_not_starts_with: String
-  pushNotificationPreviewSettings_ends_with: String
-  pushNotificationPreviewSettings_not_ends_with: String
-  pushNotificationPreviewSettings_i: String
-  pushNotificationPreviewSettings_not_i: String
-  pushNotificationPreviewSettings_contains_i: String
-  pushNotificationPreviewSettings_not_contains_i: String
-  pushNotificationPreviewSettings_starts_with_i: String
-  pushNotificationPreviewSettings_not_starts_with_i: String
-  pushNotificationPreviewSettings_ends_with_i: String
-  pushNotificationPreviewSettings_not_ends_with_i: String
-  pushNotificationPreviewSettings_in: [String]
-  pushNotificationPreviewSettings_not_in: [String]
+  pushNotificationSettings: String
+  pushNotificationSettings_not: String
+  pushNotificationSettings_contains: String
+  pushNotificationSettings_not_contains: String
+  pushNotificationSettings_starts_with: String
+  pushNotificationSettings_not_starts_with: String
+  pushNotificationSettings_ends_with: String
+  pushNotificationSettings_not_ends_with: String
+  pushNotificationSettings_i: String
+  pushNotificationSettings_not_i: String
+  pushNotificationSettings_contains_i: String
+  pushNotificationSettings_not_contains_i: String
+  pushNotificationSettings_starts_with_i: String
+  pushNotificationSettings_not_starts_with_i: String
+  pushNotificationSettings_ends_with_i: String
+  pushNotificationSettings_not_ends_with_i: String
+  pushNotificationSettings_in: [String]
+  pushNotificationSettings_not_in: [String]
   publishUrl: String
   publishUrl_not: String
   publishUrl_contains: String
@@ -70125,8 +70141,8 @@ input B2BAppNewsSharingConfigHistoryRecordWhereUniqueInput {
 enum SortB2BAppNewsSharingConfigHistoryRecordsBy {
   name_ASC
   name_DESC
-  pushNotificationPreviewSettings_ASC
-  pushNotificationPreviewSettings_DESC
+  pushNotificationSettings_ASC
+  pushNotificationSettings_DESC
   publishUrl_ASC
   publishUrl_DESC
   previewUrl_ASC
@@ -70159,7 +70175,7 @@ input B2BAppNewsSharingConfigHistoryRecordUpdateInput {
   name: String
   icon: JSON
   previewPicture: JSON
-  pushNotificationPreviewSettings: String
+  pushNotificationSettings: String
   publishUrl: String
   previewUrl: String
   getRecipientsUrl: String
@@ -70188,7 +70204,7 @@ input B2BAppNewsSharingConfigHistoryRecordCreateInput {
   name: String
   icon: JSON
   previewPicture: JSON
-  pushNotificationPreviewSettings: String
+  pushNotificationSettings: String
   publishUrl: String
   previewUrl: String
   getRecipientsUrl: String
@@ -70212,7 +70228,7 @@ input B2BAppNewsSharingConfigHistoryRecordsCreateInput {
   data: B2BAppNewsSharingConfigHistoryRecordCreateInput
 }
 
-enum B2BAppNewsSharingConfigPushNotificationPreviewSettingType {
+enum B2BAppNewsSharingConfigPushNotificationSettingType {
   ONLY_EMERGENCY
   ENABLED
   DISABLED
@@ -70239,9 +70255,8 @@ type B2BAppNewsSharingConfig {
   """ Preview picture: For example: Telegram screenshot """
   previewPicture: File
 
-  """ If set to enabled (emergency only), push notification preview will be rendered (only on emergency news) 
-  """
-  pushNotificationPreviewSettings: B2BAppNewsSharingConfigPushNotificationPreviewSettingType
+  """ Push notification settings """
+  pushNotificationSettings: B2BAppNewsSharingConfigPushNotificationSettingType
 
   """ URL that implements publishing NewsItem method. Check News domain for reference 
   """
@@ -70314,10 +70329,10 @@ input B2BAppNewsSharingConfigWhereInput {
   previewPicture_not: String
   previewPicture_in: [String]
   previewPicture_not_in: [String]
-  pushNotificationPreviewSettings: B2BAppNewsSharingConfigPushNotificationPreviewSettingType
-  pushNotificationPreviewSettings_not: B2BAppNewsSharingConfigPushNotificationPreviewSettingType
-  pushNotificationPreviewSettings_in: [B2BAppNewsSharingConfigPushNotificationPreviewSettingType]
-  pushNotificationPreviewSettings_not_in: [B2BAppNewsSharingConfigPushNotificationPreviewSettingType]
+  pushNotificationSettings: B2BAppNewsSharingConfigPushNotificationSettingType
+  pushNotificationSettings_not: B2BAppNewsSharingConfigPushNotificationSettingType
+  pushNotificationSettings_in: [B2BAppNewsSharingConfigPushNotificationSettingType]
+  pushNotificationSettings_not_in: [B2BAppNewsSharingConfigPushNotificationSettingType]
   publishUrl: String
   publishUrl_not: String
   publishUrl_contains: String
@@ -70473,8 +70488,8 @@ input B2BAppNewsSharingConfigWhereUniqueInput {
 enum SortB2BAppNewsSharingConfigsBy {
   name_ASC
   name_DESC
-  pushNotificationPreviewSettings_ASC
-  pushNotificationPreviewSettings_DESC
+  pushNotificationSettings_ASC
+  pushNotificationSettings_DESC
   publishUrl_ASC
   publishUrl_DESC
   previewUrl_ASC
@@ -70507,7 +70522,7 @@ input B2BAppNewsSharingConfigUpdateInput {
   name: String
   icon: Upload
   previewPicture: Upload
-  pushNotificationPreviewSettings: B2BAppNewsSharingConfigPushNotificationPreviewSettingType
+  pushNotificationSettings: B2BAppNewsSharingConfigPushNotificationSettingType
   publishUrl: String
   previewUrl: String
   getRecipientsUrl: String
@@ -70533,7 +70548,7 @@ input B2BAppNewsSharingConfigCreateInput {
   name: String
   icon: Upload
   previewPicture: Upload
-  pushNotificationPreviewSettings: B2BAppNewsSharingConfigPushNotificationPreviewSettingType
+  pushNotificationSettings: B2BAppNewsSharingConfigPushNotificationSettingType
   publishUrl: String
   previewUrl: String
   getRecipientsUrl: String

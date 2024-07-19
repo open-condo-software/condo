@@ -15,6 +15,9 @@ const {
     BAD_STATUS_TRANSITION,
     NOT_NEWS_SHARING_CONTEXT,
     BAD_RECIPIENTS_JSON,
+    BAD_RECIPIENTS_COUNT_JSON,
+    BAD_PREVIEW_JSON,
+    BAD_SHARING_PARAMS_JSON,
 } = require('@condo/domains/news/constants/errors')
 const { STATUSES, ALLOWED_TRANSITIONS } = require('@condo/domains/news/constants/newsItemSharingStatuses')
 const publishNewsItemSharing = require('@condo/domains/news/tasks/publishNewsItemSharing')
@@ -22,12 +25,45 @@ const publishNewsItemSharing = require('@condo/domains/news/tasks/publishNewsIte
 
 const ajv = new Ajv()
 
-const RECIPIENTS_COUNT_FIELD_SCHEMA = {
+const SHARING_PARAMS_FIELD_SCHEMA = {
     type: 'object',
     properties: {
         dv: { type: 'integer' },
+        customFormValues: { type: 'object' },
+    },
+    required: ['dv'],
+    additionalProperties: false,
+}
+
+const RECIPIENTS_COUNT_FIELD_SCHEMA = {
+    type: 'object',
+    properties: {
+        receiversCount: { type: 'integer' },
+    },
+    required: ['receiversCount'],
+    additionalProperties: false,
+}
+
+const SCOPES_FIELD_SCHEMA = {
+    type: 'object',
+    properties: {
+        organizationId: { type: 'string' },
+        propertyId: { type: 'string' },
+        unitName: { type: 'string' },
+        unitType: { type: 'string' },
+    },
+    required: ['organizationId', 'propertyId', 'unitName', 'unitType'],
+    additionalProperties: false,
+}
+
+const RECIPIENTS_FIELD_SCHEMA = {
+    type: 'object',
+    properties: {
+        dv: { type: 'integer' },
+        // condo or getRecipients
         source: { type: 'string' },
         receiversCount: { type: 'integer' },
+        scopes: { type: 'object' },
     },
     required: ['source', 'receiversCount', 'dv'],
     additionalProperties: false,
@@ -52,14 +88,34 @@ const ERRORS = {
         message: 'Recipients field is in incorrect format',
         mutation: 'createNewsItemSharing',
     },
+    BAD_RECIPIENTS_COUNT_JSON: {
+        code: BAD_USER_INPUT,
+        type: BAD_RECIPIENTS_JSON,
+        message: 'Recipients Count field is in incorrect format',
+        mutation: 'createNewsItemSharing',
+    },
+    BAD_SHARING_PARAMS_JSON: {
+        code: BAD_USER_INPUT,
+        type: BAD_SHARING_PARAMS_JSON,
+        message: 'SharingParams field is in incorrect format',
+        mutation: 'createNewsItemSharing',
+    },
+    BAD_SCOPES_JSON: {
+        code: BAD_USER_INPUT,
+        type: 'BAD_SCOPES_JSON',
+        message: 'Scopes field is in incorrect format',
+        mutation: 'createNewsItemSharing',
+    },
 }
 
-const validateRecipientsCountField = getGQLErrorValidator(ajv.compile(RECIPIENTS_COUNT_FIELD_SCHEMA), BAD_RECIPIENTS_JSON)
+const validateRecipientsCountField = getGQLErrorValidator(ajv.compile(RECIPIENTS_COUNT_FIELD_SCHEMA), BAD_RECIPIENTS_COUNT_JSON)
+const validateRecipientsField = getGQLErrorValidator(ajv.compile(RECIPIENTS_FIELD_SCHEMA), BAD_RECIPIENTS_JSON)
+const validateSharingParamsField = getGQLErrorValidator(ajv.compile(SHARING_PARAMS_FIELD_SCHEMA), BAD_SHARING_PARAMS_JSON)
+const validateScopesField = getGQLErrorValidator(ajv.compile(SCOPES_FIELD_SCHEMA), 'BAD_SCOPES_JSON')
 
 const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
     schemaDoc: 'Existence of this models means that certain NewsItem should published in certain B2BApp that implements NewsSharing API.',
     fields: {
-
         b2bAppContext: {
             schemaDoc: 'Connection to the miniapp that is responsible for publishing this news item',
             type: 'Relationship',
@@ -75,23 +131,12 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
         },
 
         newsItem: {
-            schemaDoc: 'Connection to the published news item',
+            schemaDoc: 'Connection to the news item',
             type: 'Relationship',
             ref: 'NewsItem',
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
-            access: {
-                create: true,
-                read: true,
-                update: false,
-            },
-        },
-
-        sharingParams: {
-            schemaDoc: 'Sending parameters specific to a particular mini-app',
-            type: 'Json',
-            isRequired: false,
             access: {
                 create: true,
                 read: true,
@@ -107,15 +152,82 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
             defaultValue: STATUSES.SCHEDULED,
         },
 
+        previewTitle: {
+            schemaDoc: 'Rendered preview title',
+            type: 'Text',
+            isRequired: true,
+            access: {
+                create: true,
+                read: true,
+                update: false,
+            },
+        },
+
+        previewBody: {
+            schemaDoc: 'Rendered preview title',
+            type: 'Text',
+            isRequired: true,
+            access: {
+                create: true,
+                read: true,
+                update: false,
+            },
+        },
+
+        recipients: {
+            schemaDoc: 'Recipients from getRecipients for this shared news item. This or scopes should be filled',
+            type: 'Json',
+            isRequired: false,
+            hooks: {
+                validateInput: validateRecipientsField,
+            },
+            access: {
+                create: true,
+                read: true,
+                update: false,
+            },
+        },
+
+        scopes: {
+            schemaDoc: 'Recipients for this shared news item. This or recipients should be filled',
+            type: 'Json',
+            isRequired: false,
+            hooks: {
+                validateInput: validateScopesField,
+            },
+            access: {
+                create: true,
+                read: true,
+                update: false,
+            },
+        },
+
+        sharingParams: {
+            schemaDoc: 'Sending parameters are specific to a particular mini-app. If they exist, they will be sent with on publish',
+            type: 'Json',
+            isRequired: false,
+            hooks: {
+                validateInput: validateSharingParamsField,
+            },
+            access: {
+                create: true,
+                read: true,
+                update: false,
+            },
+        },
+
         statusMessage: {
-            schemaDoc: 'Explanations regarding the publication status. Will be shown to user',
+            schemaDoc: 'Explanations regarding the publication status. If exists, will be shown to user',
             type: 'Text',
             isRequired: false,
         },
 
         lastPublishResponse: {
-            schemaDoc: 'The outcome from the most recent invocation of the publish method of the miniapp',
+            schemaDoc: 'Typed outcome from the most recent invocation of the publish method of the miniapp',
             type: 'Json',
+            hooks: {
+                validateInput: () => {},  
+            },
             isRequired: false,
         },
 
@@ -160,7 +272,7 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
 
         /**
          * It is not guaranteed that NewsItemSharing will be created before NewsItem is published,
-         * Condo explicitly checks whether the related NewsItem had been published and publishes NewsItemSharing if it true
+         * Condo explicitly checks whether the related NewsItem had been sent and publishes NewsItemSharing if it true
          */
         afterChange: async ({ updatedItem }) => {
             if (updatedItem.status === STATUSES.SCHEDULED) {

@@ -47,17 +47,11 @@ async function _publishNewsItemSharing (newsItem, newsItemSharing, taskId){
         const { title, body, type, validBefore, createdAt, publishedAt } = newsItem
         const sharingParams = get(newsItemSharing, 'sharingParams')
 
-        // Check scopes
-        const scopes = await find('NewsItemScope', { newsItem: { id: newsItem.id }, deletedAt: null })
-        if (!scopes || !Array.isArray(scopes) || scopes.length === 0) {
-            throw new Error('No NewsItemScope found. Perhaps they were deleted?')
-        }
-
         // Check b2bAppContext
         const b2bAppContextId = get( newsItemSharing, 'b2bAppContext')
         const b2bAppContext = await getById('B2BAppContext', b2bAppContextId)
         if (!b2bAppContext || b2bAppContext.deletedAt) {
-            throw new Error('b2bAppContext is deleted?')
+            throw new Error('b2bAppContext is deleted')
         }
         if (b2bAppContext.status !== CONTEXT_FINISHED_STATUS) {
             throw new Error('b2bAppContext is not in finished status')
@@ -107,16 +101,10 @@ async function _publishNewsItemSharing (newsItem, newsItemSharing, taskId){
                 publishedAt,
             },
 
-            scopes: scopes.map(scope => ({
-                organization: scope.organization,
-                property: scope.property,
-                unitName: scope.unitName,
-                unitType: scope.unitType,
-            })),
-
             newsItemSharing: {
                 id: newsItemSharing.id,
                 sharingParams,
+                recipients: newsItemSharing.recipients,
             },
 
             properties: properties.map(property => ({
@@ -126,8 +114,8 @@ async function _publishNewsItemSharing (newsItem, newsItemSharing, taskId){
             })),
 
             organization: {
-                tin: organization.tin,
                 id: organizationId,
+                tin: organization.tin,
                 name: organization.name,
             },
         }

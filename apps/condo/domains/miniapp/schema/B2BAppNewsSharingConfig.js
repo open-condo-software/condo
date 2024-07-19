@@ -53,8 +53,8 @@ const B2BAppNewsSharingConfig = new GQLListSchema('B2BAppNewsSharingConfig', {
             adapter: NEWS_SHARING_FILE_ADAPTER,
         },
 
-        pushNotificationPreviewSettings: {
-            schemaDoc: 'If set to enabled (emergency only), push notification preview will be rendered (only on emergency news)',
+        pushNotificationSettings: {
+            schemaDoc: 'Push notification settings',
             type: 'Select',
             options: Object.values(NEWS_SHARING_PUSH_MESSAGE_PREVIEW_SETTINGS),
             isRequired: true,

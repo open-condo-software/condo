@@ -7,6 +7,18 @@ const DV_FIELD_SCHEMA = {
     type: 'integer',
 }
 
+const SHARING_PARAMS_FIELD_SCHEMA = {
+    type: 'object',
+    properties: {
+        dv: { type: 'integer' },
+        customFormValues: { type: 'object' },
+    },
+    required: ['dv'],
+    additionalProperties: false,
+}
+
+
+
 const SCOPES_FIELD_SCHEMA = {
     type: 'object',
     properties: {
@@ -75,6 +87,15 @@ const PUBLISH_REQUEST_SCHEMA = {
             type: 'object',
             properties: {
                 id: { type: 'string' },
+                recipients: {
+                    type: 'object',
+                    properties: {
+                        source: { type: 'string' },
+                        scopes: SCOPES_FIELD_SCHEMA,
+                        recipients: { type: 'array' },
+                    },
+                },
+                sharingParams: { type: 'object' },
             },
         },
 
@@ -91,11 +112,11 @@ const PUBLISH_RESPONSE_SCHEMA = {
     type: 'object',
     properties: {
         dv: DV_FIELD_SCHEMA,
-        referenceId: { type: 'string' },
-        status: { type: 'number' },
+        remoteId: { type: 'string' },
+        success: { type: 'boolean' },
         statusText: { type: 'string' },
     },
-    required: ['status', 'dv', 'statusText'],
+    required: ['success', 'dv', 'statusText'],
     additionalProperties: false,
 }
 
