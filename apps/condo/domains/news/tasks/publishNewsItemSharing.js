@@ -1,6 +1,8 @@
+const Ajv = require('ajv')
 const get = require('lodash/get')
 const { v4 } = require('uuid')
 
+const { GQLError } = require('@open-condo/keystone/errors')
 const { fetch } = require('@open-condo/keystone/fetch')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx, getById, find } = require('@open-condo/keystone/schema')
@@ -8,7 +10,12 @@ const { createTask } = require('@open-condo/keystone/tasks')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { STATUSES } = require('@condo/domains/news/constants/newsItemSharingStatuses')
+const {
+    PUBLISH_REQUEST_SCHEMA,
+    PUBLISH_RESPONSE_SCHEMA,
+} = require('@condo/domains/news/constants/newsSharingApi')
 const { NewsItemSharing } = require('@condo/domains/news/utils/serverSchema')
+
 
 
 const logger = getLogger('publishNewsItemSharing')
@@ -16,6 +23,11 @@ const logger = getLogger('publishNewsItemSharing')
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'publishNewsItemSharing' } }
 
 const DEFAULT_TIMEOUT = 20 * 1000
+
+
+const ajv = new Ajv()
+const validateRequestSchema = ajv.compile(PUBLISH_REQUEST_SCHEMA)
+const validateResponseSchema = ajv.compile(PUBLISH_RESPONSE_SCHEMA)
 
 
 async function _publishNewsItemSharing (newsItem, newsItemSharing, taskId){
@@ -35,17 +47,11 @@ async function _publishNewsItemSharing (newsItem, newsItemSharing, taskId){
         const { title, body, type, validBefore, createdAt, publishedAt } = newsItem
         const sharingParams = get(newsItemSharing, 'sharingParams')
 
-        // Check scopes
-        const scopes = await find('NewsItemScope', { newsItem: { id: newsItem.id }, deletedAt: null })
-        if (!scopes || !Array.isArray(scopes) || scopes.length === 0) {
-            throw new Error('No NewsItemScope found. Perhaps they were deleted?')
-        }
-
         // Check b2bAppContext
         const b2bAppContextId = get( newsItemSharing, 'b2bAppContext')
         const b2bAppContext = await getById('B2BAppContext', b2bAppContextId)
         if (!b2bAppContext || b2bAppContext.deletedAt) {
-            throw new Error('b2bAppContext is deleted?')
+            throw new Error('b2bAppContext is deleted')
         }
         if (b2bAppContext.status !== CONTEXT_FINISHED_STATUS) {
             throw new Error('b2bAppContext is not in finished status')
@@ -84,14 +90,13 @@ async function _publishNewsItemSharing (newsItem, newsItemSharing, taskId){
 
         const properties = await find('Property', { organization: { id: organizationId }, deletedAt: null })
 
-        const publishData = {
+        const publishRequestData = {
             newsItem: {
                 id: newsItem.id,
                 title,
                 body,
-                type,
-                scopes,
                 validBefore: validBefore ? validBefore : undefined,
+                type,
                 createdAt,
                 publishedAt,
             },
@@ -99,6 +104,7 @@ async function _publishNewsItemSharing (newsItem, newsItemSharing, taskId){
             newsItemSharing: {
                 id: newsItemSharing.id,
                 sharingParams,
+                recipients: newsItemSharing.recipients,
             },
 
             properties: properties.map(property => ({
@@ -108,10 +114,19 @@ async function _publishNewsItemSharing (newsItem, newsItemSharing, taskId){
             })),
 
             organization: {
-                tin: organization.tin,
                 id: organizationId,
+                tin: organization.tin,
                 name: organization.name,
             },
+        }
+        
+        // This check guarantees that data sent to server complies with news sharing api contract.
+        if (!validateRequestSchema(publishRequestData)) {
+            await NewsItemSharing.update(contextNewsItemSharing, newsItemSharing.id, {
+                ...DV_SENDER,
+                status: STATUSES.ERROR,
+                lastPublishResponse: { dv: 1, status: '500', statusText: 'Condo failed to create publish data compliant with news sharing api contract' },
+            })
         }
 
         const response = await fetch(publishUrl, {
@@ -119,25 +134,36 @@ async function _publishNewsItemSharing (newsItem, newsItemSharing, taskId){
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(publishData),
+            body: JSON.stringify(publishRequestData),
             abortRequestTimeout: DEFAULT_TIMEOUT,
         })
-
+        
         if (response.status !== 200) {
             const parsedResponse = await response.json()
+
+            let lastPostResponse = { dv: 1 }
 
             logger.error({ msg: 'newsSharing error: tried to publish, but failed', taskId, parsedResponse })
             await NewsItemSharing.update(contextNewsItemSharing, newsItemSharing.id, {
                 ...DV_SENDER,
                 status: STATUSES.ERROR,
-                lastPostRequest: parsedResponse,
+                lastPublishResponse: parsedResponse,
             })
         }
 
         if (response.status === 200) {
+            const parsedResponse = await response.json()
+
+            let lastPublishResponse
+            if (validateResponseSchema(parsedResponse)) {
+                lastPublishResponse = parsedResponse
+            } else {
+                lastPublishResponse = { dv: 1, status: 200, statusText: 'News item sent successfully, but could not parse data' }
+            }
             await NewsItemSharing.update(contextNewsItemSharing, newsItemSharing.id, {
                 ...DV_SENDER,
                 status: STATUSES.PUBLISHED,
+                lastPublishResponse,
             })
         }
     } catch (err) {
@@ -145,7 +171,7 @@ async function _publishNewsItemSharing (newsItem, newsItemSharing, taskId){
         await NewsItemSharing.update(contextNewsItemSharing, newsItemSharing.id, {
             ...DV_SENDER,
             status: STATUSES.ERROR,
-            lastPostRequest: err.message,
+            lastPostRequest: { dv: 1, status: 500, statusText: err.message },
         })
     }
 }

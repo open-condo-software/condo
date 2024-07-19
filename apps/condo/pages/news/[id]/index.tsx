@@ -12,6 +12,7 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
 
+import { useLazyQuery } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -29,9 +30,10 @@ import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/D
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { NewsReadPermissionRequired } from '@condo/domains/news/components/PageAccess'
-import { RecipientCounter } from '@condo/domains/news/components/RecipientCounter'
+import { NewsItemSharingCustomRecipientCounter, RecipientCounter } from '@condo/domains/news/components/RecipientCounter'
 import { TNewsItemScopeNoInstance } from '@condo/domains/news/components/types'
 import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
+import { GET_NEWS_SHARING_RECIPIENTS_COUNTERS_QUERY } from '@condo/domains/news/gql'
 import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess'
 import { isPostponedNewsItem } from '@condo/domains/news/utils'
 import { NewsItem, NewsItemScope, NewsItemSharing } from '@condo/domains/news/utils/clientSchema'
@@ -333,7 +335,13 @@ const NewsItemCard: React.FC = () => {
                                         </Row>
                                     </FrontLayerContainer>
                                 </Col>
-                            </>  
+
+                                { ( canManage && get(newsItemSharing, ['b2bAppContext', 'app', 'newsSharingConfig', 'customGetRecipientsCountersUrl'] ) ) && (
+                                    <Col span={24} sm={24} md={16} lg={8}>
+                                        <NewsItemSharingCustomRecipientCounter contextId={get(newsItemSharing, ['b2bAppContext', 'id'] )} newsItemScopes={newsItemScopesNoInstance}/>
+                                    </Col>
+                                ) }
+                            </>
                         ))}
                             
                         {canManage && (

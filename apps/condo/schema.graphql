@@ -62862,7 +62862,8 @@ type NewsItemSharingHistoryRecord {
   sharingParams: JSON
   status: String
   statusMessage: String
-  lastPostRequest: JSON
+  lastPublishResponse: JSON
+  recipientsCount: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -62929,10 +62930,14 @@ input NewsItemSharingHistoryRecordWhereInput {
   statusMessage_not_ends_with_i: String
   statusMessage_in: [String]
   statusMessage_not_in: [String]
-  lastPostRequest: JSON
-  lastPostRequest_not: JSON
-  lastPostRequest_in: [JSON]
-  lastPostRequest_not_in: [JSON]
+  lastPublishResponse: JSON
+  lastPublishResponse_not: JSON
+  lastPublishResponse_in: [JSON]
+  lastPublishResponse_not_in: [JSON]
+  recipientsCount: JSON
+  recipientsCount_not: JSON
+  recipientsCount_in: [JSON]
+  recipientsCount_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -63044,7 +63049,8 @@ input NewsItemSharingHistoryRecordUpdateInput {
   sharingParams: JSON
   status: String
   statusMessage: String
-  lastPostRequest: JSON
+  lastPublishResponse: JSON
+  recipientsCount: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -63070,7 +63076,8 @@ input NewsItemSharingHistoryRecordCreateInput {
   sharingParams: JSON
   status: String
   statusMessage: String
-  lastPostRequest: JSON
+  lastPublishResponse: JSON
+  recipientsCount: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -63128,12 +63135,15 @@ type NewsItemSharing {
   """ Publication status of the news: updated automatically """
   status: NewsItemSharingStatusType
 
-  """ Explanations regarding the publication status. Might be shown to user 
-  """
+  """ Explanations regarding the publication status. Will be shown to user """
   statusMessage: String
 
-  """ The outcome from the most recent invocation of the lastPostRequest """
-  lastPostRequest: JSON
+  """ The outcome from the most recent invocation of the publish method of the miniapp 
+  """
+  lastPublishResponse: JSON
+
+  """ Recipients count for this shared news item """
+  recipientsCount: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -63190,10 +63200,14 @@ input NewsItemSharingWhereInput {
   statusMessage_not_ends_with_i: String
   statusMessage_in: [String]
   statusMessage_not_in: [String]
-  lastPostRequest: JSON
-  lastPostRequest_not: JSON
-  lastPostRequest_in: [JSON]
-  lastPostRequest_not_in: [JSON]
+  lastPublishResponse: JSON
+  lastPublishResponse_not: JSON
+  lastPublishResponse_in: [JSON]
+  lastPublishResponse_not_in: [JSON]
+  recipientsCount: JSON
+  recipientsCount_not: JSON
+  recipientsCount_in: [JSON]
+  recipientsCount_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -63289,7 +63303,8 @@ input NewsItemSharingUpdateInput {
   sharingParams: JSON
   status: NewsItemSharingStatusType
   statusMessage: String
-  lastPostRequest: JSON
+  lastPublishResponse: JSON
+  recipientsCount: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -63312,7 +63327,8 @@ input NewsItemSharingCreateInput {
   sharingParams: JSON
   status: NewsItemSharingStatusType
   statusMessage: String
-  lastPostRequest: JSON
+  lastPublishResponse: JSON
+  recipientsCount: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -69880,12 +69896,14 @@ type B2BAppNewsSharingConfigHistoryRecord {
   """
   _label_: String
   name: String
-  publishUrl: String
   icon: JSON
   previewPicture: JSON
+  pushNotificationSettings: String
+  publishUrl: String
   previewUrl: String
   getRecipientsUrl: String
   customFormUrl: String
+  customGetRecipientsCountersUrl: String
   id: ID!
   v: Int
   createdAt: String
@@ -69922,6 +69940,32 @@ input B2BAppNewsSharingConfigHistoryRecordWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
+  icon: JSON
+  icon_not: JSON
+  icon_in: [JSON]
+  icon_not_in: [JSON]
+  previewPicture: JSON
+  previewPicture_not: JSON
+  previewPicture_in: [JSON]
+  previewPicture_not_in: [JSON]
+  pushNotificationSettings: String
+  pushNotificationSettings_not: String
+  pushNotificationSettings_contains: String
+  pushNotificationSettings_not_contains: String
+  pushNotificationSettings_starts_with: String
+  pushNotificationSettings_not_starts_with: String
+  pushNotificationSettings_ends_with: String
+  pushNotificationSettings_not_ends_with: String
+  pushNotificationSettings_i: String
+  pushNotificationSettings_not_i: String
+  pushNotificationSettings_contains_i: String
+  pushNotificationSettings_not_contains_i: String
+  pushNotificationSettings_starts_with_i: String
+  pushNotificationSettings_not_starts_with_i: String
+  pushNotificationSettings_ends_with_i: String
+  pushNotificationSettings_not_ends_with_i: String
+  pushNotificationSettings_in: [String]
+  pushNotificationSettings_not_in: [String]
   publishUrl: String
   publishUrl_not: String
   publishUrl_contains: String
@@ -69940,14 +69984,6 @@ input B2BAppNewsSharingConfigHistoryRecordWhereInput {
   publishUrl_not_ends_with_i: String
   publishUrl_in: [String]
   publishUrl_not_in: [String]
-  icon: JSON
-  icon_not: JSON
-  icon_in: [JSON]
-  icon_not_in: [JSON]
-  previewPicture: JSON
-  previewPicture_not: JSON
-  previewPicture_in: [JSON]
-  previewPicture_not_in: [JSON]
   previewUrl: String
   previewUrl_not: String
   previewUrl_contains: String
@@ -70002,6 +70038,24 @@ input B2BAppNewsSharingConfigHistoryRecordWhereInput {
   customFormUrl_not_ends_with_i: String
   customFormUrl_in: [String]
   customFormUrl_not_in: [String]
+  customGetRecipientsCountersUrl: String
+  customGetRecipientsCountersUrl_not: String
+  customGetRecipientsCountersUrl_contains: String
+  customGetRecipientsCountersUrl_not_contains: String
+  customGetRecipientsCountersUrl_starts_with: String
+  customGetRecipientsCountersUrl_not_starts_with: String
+  customGetRecipientsCountersUrl_ends_with: String
+  customGetRecipientsCountersUrl_not_ends_with: String
+  customGetRecipientsCountersUrl_i: String
+  customGetRecipientsCountersUrl_not_i: String
+  customGetRecipientsCountersUrl_contains_i: String
+  customGetRecipientsCountersUrl_not_contains_i: String
+  customGetRecipientsCountersUrl_starts_with_i: String
+  customGetRecipientsCountersUrl_not_starts_with_i: String
+  customGetRecipientsCountersUrl_ends_with_i: String
+  customGetRecipientsCountersUrl_not_ends_with_i: String
+  customGetRecipientsCountersUrl_in: [String]
+  customGetRecipientsCountersUrl_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -70087,6 +70141,8 @@ input B2BAppNewsSharingConfigHistoryRecordWhereUniqueInput {
 enum SortB2BAppNewsSharingConfigHistoryRecordsBy {
   name_ASC
   name_DESC
+  pushNotificationSettings_ASC
+  pushNotificationSettings_DESC
   publishUrl_ASC
   publishUrl_DESC
   previewUrl_ASC
@@ -70095,6 +70151,8 @@ enum SortB2BAppNewsSharingConfigHistoryRecordsBy {
   getRecipientsUrl_DESC
   customFormUrl_ASC
   customFormUrl_DESC
+  customGetRecipientsCountersUrl_ASC
+  customGetRecipientsCountersUrl_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -70115,12 +70173,14 @@ enum SortB2BAppNewsSharingConfigHistoryRecordsBy {
 
 input B2BAppNewsSharingConfigHistoryRecordUpdateInput {
   name: String
-  publishUrl: String
   icon: JSON
   previewPicture: JSON
+  pushNotificationSettings: String
+  publishUrl: String
   previewUrl: String
   getRecipientsUrl: String
   customFormUrl: String
+  customGetRecipientsCountersUrl: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -70142,12 +70202,14 @@ input B2BAppNewsSharingConfigHistoryRecordsUpdateInput {
 
 input B2BAppNewsSharingConfigHistoryRecordCreateInput {
   name: String
-  publishUrl: String
   icon: JSON
   previewPicture: JSON
+  pushNotificationSettings: String
+  publishUrl: String
   previewUrl: String
   getRecipientsUrl: String
   customFormUrl: String
+  customGetRecipientsCountersUrl: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -70166,6 +70228,12 @@ input B2BAppNewsSharingConfigHistoryRecordsCreateInput {
   data: B2BAppNewsSharingConfigHistoryRecordCreateInput
 }
 
+enum B2BAppNewsSharingConfigPushNotificationSettingType {
+  ONLY_EMERGENCY
+  ENABLED
+  DISABLED
+}
+
 """ News Sharing B2BApp allow b2b users to share their NewsItem to external source (like Telegram) from /news page 
 """
 type B2BAppNewsSharingConfig {
@@ -70181,24 +70249,34 @@ type B2BAppNewsSharingConfig {
   """ Short and simple name of the external source. For example: Telegram """
   name: String
 
-  """ URL that implements publishing NewsItem method """
-  publishUrl: String
-
-  """ Icon of the app: Telegram Icon / WhatsApp Icon """
+  """ Icon of the app. For example: Telegram Icon """
   icon: File
 
-  """ Preview picture: might be app screenshot """
+  """ Preview picture: For example: Telegram screenshot """
   previewPicture: File
 
-  """ URL that returns HTML preview NewsItem """
+  """ Push notification settings """
+  pushNotificationSettings: B2BAppNewsSharingConfigPushNotificationSettingType
+
+  """ URL that implements publishing NewsItem method. Check News domain for reference 
+  """
+  publishUrl: String
+
+  """ URL that returns rendered HTML preview of News Item. If not provided, app preview will not be rendered 
+  """
   previewUrl: String
 
-  """ URL that implements getRecipients function """
+  """ URL that returns chats and/or channels (implements getRecipients function). If provided Select control with data from this endpoint will be used in /news/create page, If not provided, condo control will be used 
+  """
   getRecipientsUrl: String
 
-  """ URL that implements customForm. If not filled, then app will use standard news form 
+  """ URL that implements customForm. Should not be used in regular cases. Allows to provide custom UI for sending news. If not provided app will use condo news form 
   """
   customFormUrl: String
+
+  """ URL that implements customGetRecipientsCounters. Should not be used in regular cases. Allows to provide custom values for recipients counter. If not provided app will use data from getRecipients. If getRecipients is not provided, app wont render recipients counter 
+  """
+  customGetRecipientsCountersUrl: String
   id: ID!
   v: Int
   createdAt: String
@@ -70243,6 +70321,18 @@ input B2BAppNewsSharingConfigWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
+  icon: String
+  icon_not: String
+  icon_in: [String]
+  icon_not_in: [String]
+  previewPicture: String
+  previewPicture_not: String
+  previewPicture_in: [String]
+  previewPicture_not_in: [String]
+  pushNotificationSettings: B2BAppNewsSharingConfigPushNotificationSettingType
+  pushNotificationSettings_not: B2BAppNewsSharingConfigPushNotificationSettingType
+  pushNotificationSettings_in: [B2BAppNewsSharingConfigPushNotificationSettingType]
+  pushNotificationSettings_not_in: [B2BAppNewsSharingConfigPushNotificationSettingType]
   publishUrl: String
   publishUrl_not: String
   publishUrl_contains: String
@@ -70261,14 +70351,6 @@ input B2BAppNewsSharingConfigWhereInput {
   publishUrl_not_ends_with_i: String
   publishUrl_in: [String]
   publishUrl_not_in: [String]
-  icon: String
-  icon_not: String
-  icon_in: [String]
-  icon_not_in: [String]
-  previewPicture: String
-  previewPicture_not: String
-  previewPicture_in: [String]
-  previewPicture_not_in: [String]
   previewUrl: String
   previewUrl_not: String
   previewUrl_contains: String
@@ -70323,6 +70405,24 @@ input B2BAppNewsSharingConfigWhereInput {
   customFormUrl_not_ends_with_i: String
   customFormUrl_in: [String]
   customFormUrl_not_in: [String]
+  customGetRecipientsCountersUrl: String
+  customGetRecipientsCountersUrl_not: String
+  customGetRecipientsCountersUrl_contains: String
+  customGetRecipientsCountersUrl_not_contains: String
+  customGetRecipientsCountersUrl_starts_with: String
+  customGetRecipientsCountersUrl_not_starts_with: String
+  customGetRecipientsCountersUrl_ends_with: String
+  customGetRecipientsCountersUrl_not_ends_with: String
+  customGetRecipientsCountersUrl_i: String
+  customGetRecipientsCountersUrl_not_i: String
+  customGetRecipientsCountersUrl_contains_i: String
+  customGetRecipientsCountersUrl_not_contains_i: String
+  customGetRecipientsCountersUrl_starts_with_i: String
+  customGetRecipientsCountersUrl_not_starts_with_i: String
+  customGetRecipientsCountersUrl_ends_with_i: String
+  customGetRecipientsCountersUrl_not_ends_with_i: String
+  customGetRecipientsCountersUrl_in: [String]
+  customGetRecipientsCountersUrl_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -70388,6 +70488,8 @@ input B2BAppNewsSharingConfigWhereUniqueInput {
 enum SortB2BAppNewsSharingConfigsBy {
   name_ASC
   name_DESC
+  pushNotificationSettings_ASC
+  pushNotificationSettings_DESC
   publishUrl_ASC
   publishUrl_DESC
   previewUrl_ASC
@@ -70396,6 +70498,8 @@ enum SortB2BAppNewsSharingConfigsBy {
   getRecipientsUrl_DESC
   customFormUrl_ASC
   customFormUrl_DESC
+  customGetRecipientsCountersUrl_ASC
+  customGetRecipientsCountersUrl_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -70416,12 +70520,14 @@ enum SortB2BAppNewsSharingConfigsBy {
 
 input B2BAppNewsSharingConfigUpdateInput {
   name: String
-  publishUrl: String
   icon: Upload
   previewPicture: Upload
+  pushNotificationSettings: B2BAppNewsSharingConfigPushNotificationSettingType
+  publishUrl: String
   previewUrl: String
   getRecipientsUrl: String
   customFormUrl: String
+  customGetRecipientsCountersUrl: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -70440,12 +70546,14 @@ input B2BAppNewsSharingConfigsUpdateInput {
 
 input B2BAppNewsSharingConfigCreateInput {
   name: String
-  publishUrl: String
   icon: Upload
   previewPicture: Upload
+  pushNotificationSettings: B2BAppNewsSharingConfigPushNotificationSettingType
+  publishUrl: String
   previewUrl: String
   getRecipientsUrl: String
   customFormUrl: String
+  customGetRecipientsCountersUrl: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -77535,6 +77643,17 @@ type GetNewsSharingRecipientsOutput {
   receiversCount: Int
 }
 
+input GetNewsSharingRecipientsCountersInput {
+  dv: Int!
+  sender: JSON!
+  b2bAppContext: B2BAppContextWhereUniqueInput!
+  newsItemScopes: [NewsItemScopeWhereInput!]!
+}
+
+type GetNewsSharingRecipientsCountersOutput {
+  receiversCount: Int!
+}
+
 enum AppCategory {
   DISPATCHING
   GIS
@@ -81550,6 +81669,7 @@ type Query {
   exportPropertyScopesToExcel(data: ExportPropertyScopeToExcelInput!): ExportPropertyScopeToExcelOutput
   getNewsItemsRecipientsCounters(data: GetNewsItemsRecipientsCountersInput!): GetNewsItemsRecipientsCountersOutput
   getNewsSharingRecipients(data: GetNewsSharingRecipientsInput!): [GetNewsSharingRecipientsOutput]
+  getNewsSharingRecipientsCounters(data: GetNewsSharingRecipientsCountersInput!): GetNewsSharingRecipientsCountersOutput
   allMiniApps(data: AllMiniAppsInput!): [MiniAppOutput!]
 
   """The version of the Keystone application serving this API."""
