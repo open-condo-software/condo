@@ -84,8 +84,8 @@ const canAccessToPasswordField = {
     // 3. Only admins can see if a password is set. No-one can read their own or other user's passwords.
     read: access.userIsAdmin,
     create: access.userIsAdmin,
-    // 4. Only authenticated users can update their own password. Admins can update anyone's password.
-    update: access.userIsAdminOrIsThisItem,
+    // 4. Users can not update their own password. Admins can update anyone's password.
+    update: access.userIsAdmin,
 }
 const canManageToIsAdminField = {
     read: true,

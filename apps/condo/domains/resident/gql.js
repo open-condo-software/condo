@@ -17,7 +17,7 @@ const RESIDENT_ORGANIZATION_FIELDS = 'id name country tin'
 const RESIDENT_PROPERTY_FIELDS = 'id name address'
 const ORGANIZATION_FEATURES_FIELDS = 'hasBillingData hasMeters'
 const PAYMENT_CATEGORIES_FIELDS = 'id categoryName billingName acquiringName'
-const RESIDENT_FIELDS = `{ user { id name locale } organization { id name tin country } residentOrganization { ${RESIDENT_ORGANIZATION_FIELDS} } property { id createdAt deletedAt address addressKey  } residentProperty { ${RESIDENT_PROPERTY_FIELDS} } address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitName unitType ${COMMON_FIELDS} organizationFeatures { ${ORGANIZATION_FEATURES_FIELDS} } paymentCategories { ${PAYMENT_CATEGORIES_FIELDS} } }`
+const RESIDENT_FIELDS = `{ user { id name locale } organization { id name tin country } residentOrganization { ${RESIDENT_ORGANIZATION_FIELDS} } property { id createdAt deletedAt address addressKey  } residentProperty { ${RESIDENT_PROPERTY_FIELDS} } address addressKey addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitName unitType ${COMMON_FIELDS} organizationFeatures { ${ORGANIZATION_FEATURES_FIELDS} } paymentCategories { ${PAYMENT_CATEGORIES_FIELDS} } }`
 const Resident = generateGqlQueries('Resident', RESIDENT_FIELDS)
 
 const REGISTER_RESIDENT_MUTATION = gql`
@@ -58,6 +58,12 @@ const REGISTER_RESIDENT_INVOICE_MUTATION = gql`
     }
 `
 
+const FIND_ORGANIZATIONS_FOR_ADDRESS_QUERY = gql`
+    query findOrganizationsForAddress ($data: FindOrganizationsForAddressInput!) {
+        result: findOrganizationsForAddress(data: $data) { organization { id name tin type } account { number category balance routingNumber bankAccountNumber } hasMeters hasBillingData }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const REGISTER_RESIDENT_SERVICE_CONSUMERS_MUTATION = gql`
@@ -80,5 +86,6 @@ module.exports = {
     GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_QUERY,
     REGISTER_RESIDENT_SERVICE_CONSUMERS_MUTATION,
     REGISTER_RESIDENT_INVOICE_MUTATION,
+    FIND_ORGANIZATIONS_FOR_ADDRESS_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

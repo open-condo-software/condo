@@ -15,8 +15,10 @@
     "build:apps": "turbo run build --filter='./apps/*' --concurrency=100%",
     "build": "turbo run build",
     "lint:code": "yarn run eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint:styles": "yarn run stylelint \"**/*.{less,css}\"",
     "lint:code:fix": "yarn run eslint --fix . --ext .js,.jsx,.ts,.tsx",
     "lint:translations": "turbo run lint-translations",
+    "lint": "yarn lint:code && yarn lint:styles && yarn lint:translations",
     "createapp": "node ./bin/createapp",
     "prepare": "husky install"
   },
@@ -51,6 +53,7 @@
     "jest-jasmine2": "^29.7.0",
     "mono-pub": "^1.0.1",
     "node-fetch": "^2.6.7",
+    "postcss": "^8.3.5",
     "postcss-less": "^6.0.0",
     "stylelint": "^14.11.0",
     "stylelint-config-rational-order": "^0.1.2",
@@ -87,7 +90,7 @@
     "es5-ext": "0.10.53",
     "debuglog": "1.0.1",
     "debug": "4.3.4",
-    "knex": "0.95.15",
+    "knex": "2.4.0",
     "@keystonejs/app-graphql": "patch:@keystonejs/app-graphql@npm:6.3.2#.yarn/patches/@keystonejs-app-graphql-npm-6.3.2-26fe50b988.patch",
     "@keystonejs/keystone": "patch:@keystonejs/keystone@npm:19.3.4#.yarn/patches/@keystonejs-keystone-npm-19.3.4-2a53e53061.patch",
     "@keystonejs/access-control": "patch:@keystonejs/access-control@npm:7.1.2#.yarn/patches/@keystonejs-access-control-npm-7.1.2-bec144d41a.patch",
@@ -121,6 +124,7 @@
     "decode-uri-component@^0.2.0": "^0.2.1",
     "node-fetch@2.6.0": "^2.6.7",
     "node-fetch@2.6.1": "^2.6.7",
-    "@keystonejs/app-admin-ui": "patch:@keystonejs/app-admin-ui@npm:7.5.2#.yarn/patches/@keystonejs-app-admin-ui-npm-7.5.2-ada8bd01c3.patch"
+    "@keystonejs/app-admin-ui": "patch:@keystonejs/app-admin-ui@npm:7.5.2#.yarn/patches/@keystonejs-app-admin-ui-npm-7.5.2-ada8bd01c3.patch",
+    "trim@0.0.1": "^0.0.3"
   }
 }

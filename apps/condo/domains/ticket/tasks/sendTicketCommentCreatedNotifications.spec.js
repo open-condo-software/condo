@@ -12,6 +12,7 @@ const { setFakeClientMode, makeLoggedInAdminClient, waitFor } = require('@open-c
 const { TICKET_COMMENT_CREATED_TYPE } = require('@condo/domains/notification/constants/constants')
 const { NO_TELEGRAM_CHAT_FOR_USER } = require('@condo/domains/notification/constants/errors')
 const { Message, createTestTelegramUserChat, TelegramUserChat } = require('@condo/domains/notification/utils/testSchema')
+const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestTicket, createTestTicketComment } = require('@condo/domains/ticket/utils/testSchema')
@@ -102,7 +103,7 @@ describe('sendTicketCommentCreatedNotifications', ()  => {
                     commentContent: ticketComment.content,
                     commentType: ticketComment.type,
                     commentTypeMessage: expect.stringContaining(''),
-                    commentCreatedAt: dayjs(ticketComment.createdAt).format('YYYY-MM-DD HH:mm'),
+                    commentCreatedAt: dayjs(ticketComment.createdAt).tz(DEFAULT_ORGANIZATION_TIMEZONE).format('YYYY-MM-DD HH:mm'),
                     ticketId: ticket.id,
                     ticketDetails: ticket.details,
                     ticketClassifier: expect.stringContaining(''),

@@ -10,7 +10,7 @@ const uniq = require('lodash/uniq')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getByCondition, find } = require('@open-condo/keystone/schema')
 
-const { getAvailableResidentMeterReportPeriods } = require('@condo/domains/meter/utils/serverSchema')
+const { getAvailableResidentMeterReportCondition } = require('@condo/domains/meter/utils/serverSchema')
 const {
     getEmployedOrRelatedOrganizationsByPermissions,
     checkPermissionsInEmployedOrRelatedOrganizations,
@@ -25,13 +25,7 @@ async function canReadMeterReportingPeriods ({ authentication: { item: user }, c
     if (user.isSupport || user.isAdmin) return {}
 
     if (user.type === RESIDENT) {
-        const availableMeterPeriods = await getAvailableResidentMeterReportPeriods(user.id)
-        const availableMeterPeriodIds = availableMeterPeriods.map(period => period.id)
-
-        return {
-            id_in: availableMeterPeriodIds,
-            deletedAt: null,
-        }
+        return await getAvailableResidentMeterReportCondition(user.id)
     }
 
     const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, [])

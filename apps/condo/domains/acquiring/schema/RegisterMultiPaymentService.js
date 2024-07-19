@@ -3,7 +3,7 @@
  */
 const Big = require('big.js')
 const dayjs = require('dayjs')
-const { get, uniq, map } = require('lodash')
+const { get, uniq, map, isNil } = require('lodash')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
@@ -27,7 +27,10 @@ const {
     DIRECT_PAYMENT_PATH,
     GET_CARD_TOKENS_PATH,
 } = require('@condo/domains/acquiring/constants/links')
-const { DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY } = require('@condo/domains/acquiring/constants/payment')
+const {
+    DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY,
+    MINIMUM_PAYMENT_AMOUNT,
+} = require('@condo/domains/acquiring/constants/payment')
 // TODO(savelevMatthew): REPLACE WITH SERVER SCHEMAS AFTER GQL REFACTORING
 const { freezeBillingReceipt, freezeInvoice } = require('@condo/domains/acquiring/utils/billingFridge')
 const { Payment, MultiPayment, AcquiringIntegration, RecurrentPaymentContext } = require('@condo/domains/acquiring/utils/serverSchema')
@@ -37,8 +40,14 @@ const {
     compactDistributionSettings,
 } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const { getPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
-const { REQUIRED, NOT_UNIQUE, NOT_FOUND, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
-const { WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
+const {
+    REQUIRED,
+    NOT_UNIQUE,
+    NOT_FOUND,
+    DV_VERSION_MISMATCH,
+    WRONG_VALUE,
+    WRONG_FORMAT,
+} = require('@condo/domains/common/constants/errors')
 const {
     INVOICE_STATUS_PUBLISHED,
     DEFAULT_INVOICE_CURRENCY_CODE,
@@ -87,6 +96,14 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: NOT_UNIQUE,
         message: 'Found duplicated receipt ids. Note, each receipt can only occur in single ServiceConsumer per mutation run and cannot be noticed twice',
+    },
+    BAD_AMOUNT_DISTRIBUTION_FOR_RECEIPTS: {
+        mutation: 'registerMultiPayment',
+        variable: ['data', 'groupedReceipts', '[]', 'amountDistribution'],
+        code: BAD_USER_INPUT,
+        type: WRONG_VALUE,
+        message: 'Amount distribution should include all receipts in a request. Amount can not be less than or equals {minimalAmount}',
+        messageInterpolation: { minimalAmount: MINIMUM_PAYMENT_AMOUNT },
     },
     DUPLICATED_INVOICE: {
         mutation: 'registerMultiPayment',
@@ -263,7 +280,11 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
     types: [
         {
             access: true,
-            type: 'input RegisterMultiPaymentServiceConsumerInput { serviceConsumer: ServiceConsumerWhereUniqueInput!, receipts: [BillingReceiptWhereUniqueInput!]! }',
+            type: 'input RegisterMultiPaymentReceiptAmountInput { receipt: BillingReceiptWhereUniqueInput!, amount: String! }',
+        },
+        {
+            access: true,
+            type: 'input RegisterMultiPaymentServiceConsumerInput { serviceConsumer: ServiceConsumerWhereUniqueInput!, receipts: [BillingReceiptWhereUniqueInput!]!, amountDistribution: [RegisterMultiPaymentReceiptAmountInput!] }',
         },
         {
             access: true,
@@ -312,6 +333,27 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 const uniqueReceiptsIds = new Set(receiptsIds)
                 if (receiptsIds.length !== uniqueReceiptsIds.size) {
                     throw new GQLError(ERRORS.DUPLICATED_RECEIPT, context)
+                }
+
+                const distributionReceipts = groupedReceipts
+                    .flatMap(group => group['amountDistribution'])
+                    .filter(distribution => !isNil(distribution))
+
+                if (distributionReceipts.length > 0) {
+                    const distributionReceiptsIds = distributionReceipts.map(receiptInfo => get(receiptInfo, 'receipt.id'))
+                    const distributionReceiptsAmounts = distributionReceipts
+                        .map(receiptInfo => get(receiptInfo, 'amount'))
+                        .map(amount => Big(amount))
+                    const uniqueDistributionReceiptsIds = new Set(distributionReceiptsIds)
+                    if (distributionReceiptsIds.length !== receiptsIds.length) {
+                        throw new GQLError(ERRORS.BAD_AMOUNT_DISTRIBUTION_FOR_RECEIPTS, context)
+                    }
+                    if (distributionReceiptsIds.length !== uniqueDistributionReceiptsIds.size) {
+                        throw new GQLError(ERRORS.BAD_AMOUNT_DISTRIBUTION_FOR_RECEIPTS, context)
+                    }
+                    if (distributionReceiptsAmounts.filter(amount => amount.lte(MINIMUM_PAYMENT_AMOUNT)).length > 0) {
+                        throw new GQLError(ERRORS.BAD_AMOUNT_DISTRIBUTION_FOR_RECEIPTS, context)
+                    }
                 }
 
                 if (invoices.length > 0 && invoices.length !== uniq(map(invoices, 'id')).length) {
@@ -515,20 +557,30 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 for (const group of groupedReceipts) {
                     const serviceConsumer = consumersByIds[group.serviceConsumer.id]
                     const acquiringContext = acquiringContextsByIds[serviceConsumer.acquiringIntegrationContext]
+                    const amountDistributions = group.amountDistribution || []
                     const formula = await getAcquiringIntegrationContextFormula(context, serviceConsumer.acquiringIntegrationContext)
                     for (const receiptInfo of group['receipts']) {
                         const receipt = receiptsByIds[receiptInfo.id]
                         const billingCategoryId = get(receipt, 'category')
-                        const frozenReceipt = await freezeBillingReceipt(context, receipt)
-                        const billingAccountNumber = get(frozenReceipt, ['data', 'account', 'number'])
-                        const feeCalculator = new FeeDistribution(formula, billingCategoryId)
-                        const organizationId = get(frozenReceipt, ['data', 'organization', 'id'])
-                        const period = get(frozenReceipt, ['data', 'period'])
-                        const routingNumber = get(frozenReceipt, ['data', 'recipient', 'bic'])
-                        const bankAccount = get(frozenReceipt, ['data', 'recipient', 'bankAccount'])
+                        const amountDistributionForReceipt = amountDistributions.find(distribution => distribution.receipt.id === receipt.id)
 
-                        const paidAmount = await getPaymentsSum(context, organizationId, billingAccountNumber, period, routingNumber, bankAccount)
-                        const amount = String(Big(receipt.toPay).minus(Big(paidAmount)))
+                        const frozenReceipt = await freezeBillingReceipt(context, receipt)
+                        const feeCalculator = new FeeDistribution(formula, billingCategoryId)
+                        const billingAccountNumber = get(frozenReceipt, ['data', 'account', 'number'])
+
+                        // for cases when we have set amount distribution explicitly
+                        // let's override toPay amount in billingReceipt
+                        let amount = null
+                        if (!isNil(amountDistributionForReceipt)) {
+                            amount = amountDistributionForReceipt.amount
+                        } else {
+                            const organizationId = get(frozenReceipt, ['data', 'organization', 'id'])
+                            const period = get(frozenReceipt, ['data', 'period'])
+                            const routingNumber = get(frozenReceipt, ['data', 'recipient', 'bic'])
+                            const bankAccount = get(frozenReceipt, ['data', 'recipient', 'bankAccount'])
+                            const paidAmount = await getPaymentsSum(context, organizationId, billingAccountNumber, period, routingNumber, bankAccount)
+                            amount = String(Big(receipt.toPay).minus(Big(paidAmount)))
+                        }
 
                         const { type, explicitFee = '0', implicitFee = '0', fromReceiptAmountFee = '0' } = feeCalculator.calculate(amount)
 
@@ -546,7 +598,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                         const payment = await Payment.create(context, {
                             dv: 1,
                             sender,
-                            amount: amount,
+                            amount,
                             currencyCode: billingIntegrationCurrencyCode,
                             accountNumber: billingAccountNumber,
                             period: receipt.period,

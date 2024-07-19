@@ -263,6 +263,9 @@ const TICKET_MULTIPLE_UPDATE_MUTATION = gql`
 const TICKET_AUTO_ASSIGNMENT_FIELDS = `{ organization { id name } assignee { id name } executor { id name } classifier { id place { id name } category { id name } problem { id name } } ${COMMON_FIELDS} }`
 const TicketAutoAssignment = generateGqlQueries('TicketAutoAssignment', TICKET_AUTO_ASSIGNMENT_FIELDS)
 
+const TICKET_DOCUMENT_GENERATION_TASK_FIELDS = `{ ticket { id } status format progress user { id } timeZone file { id originalFilename publicUrl mimetype } documentType meta ${COMMON_FIELDS} }`
+const TicketDocumentGenerationTask = generateGqlQueries('TicketDocumentGenerationTask', TICKET_DOCUMENT_GENERATION_TASK_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 module.exports = {
     Ticket,
@@ -301,5 +304,6 @@ module.exports = {
     CallRecordFragment,
     TICKET_MULTIPLE_UPDATE_MUTATION,
     TicketAutoAssignment,
+    TicketDocumentGenerationTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

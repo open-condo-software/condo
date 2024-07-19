@@ -16,7 +16,7 @@ jobs:
       WERF_SECRET_KEY: ${{ secrets.WERF_SECRET_KEY }}
       WERF_PARALLEL: 0
     steps:
-      - name: Login to Sbercloud Container Registry
+      - name: Login to Container Registry
         uses: docker/login-action@v3
         with:
           registry: ${{ secrets.DOCKER_REGISTRY }}

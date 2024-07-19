@@ -9,8 +9,9 @@ import type { PhoneInputProps as DefaultPhoneInputProps } from 'react-phone-inpu
 const DEFAULT_COUNTRY = 'ru'
 const DEFAULT_PLACEHOLDER = '7 (999) 123-4567'
 
-export type PhoneInputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'style' | 'value' | 'onChange'>
-& Pick<DefaultPhoneInputProps, 'country' | 'placeholder' | 'onChange' | 'value'>
+export type PhoneInputProps = Pick<DefaultPhoneInputProps, 'country' | 'placeholder' | 'onChange' | 'value' | 'onMount' | 'disabled'> & {
+    inputProps?: Omit<React.InputHTMLAttributes<HTMLInputElement>, 'style' | 'value' | 'onChange'>
+}
 
 const Phone: React.FC<PhoneInputProps> = (props) => {
     const { country, placeholder, onChange, disabled = false, ...restProps } = props

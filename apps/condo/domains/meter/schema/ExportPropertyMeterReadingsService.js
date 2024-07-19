@@ -3,7 +3,9 @@
  */
 
 const dayjs = require('dayjs')
-const { uniq, get } = require('lodash')
+const get = require('lodash/get')
+const uniq = require('lodash/uniq')
+const uniqBy = require('lodash/uniqBy')
 
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
@@ -84,12 +86,14 @@ const ExportPropertyMeterReadingsService = new GQLCustomSchema('ExportPropertyMe
                     throw new GQLError(ERRORS.NOTHING_TO_EXPORT, context)
                 }
 
-                const meterIds = uniq(meterReadings.map(meterReading => meterReading.meter))
+                const lastReadingsByMeter = uniqBy(meterReadings.sort((a, b) => (a.date < b.date ? 1 : -1)), (reading => get(reading, 'meter')))
+
+                const meterIds = uniq(lastReadingsByMeter.map(meterReading => meterReading.meter))
                 const meters = await loadPropertyMetersForExcelExport({ where: { id_in: meterIds } })
                 const meterResources = await MeterResource.getAll(context, {})
                 const meterReadingSources = await MeterReadingSource.getAll(context, {})
 
-                const mappedMeterReadings = meterReadings.map(meterReading => {
+                const mappedMeterReadings = lastReadingsByMeter.map(meterReading => {
                     const source = meterReadingSources.find(meterReadingSource => meterReadingSource.id === meterReading.source)
                     const sourceName = get(source, 'name')
                     const meter = meters.find(meter => meter.id === meterReading.meter)
@@ -131,7 +135,7 @@ const ExportPropertyMeterReadingsService = new GQLCustomSchema('ExportPropertyMe
                     },
                     meta: {
                         listkey: 'PropertyMeterReading',
-                        id: meterReadings[0].id,
+                        id: lastReadingsByMeter[0].id,
                     },
                 })
 

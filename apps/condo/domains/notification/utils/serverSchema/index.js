@@ -30,6 +30,7 @@ const {
 const { TelegramUserChat: TelegramUserChatGQL } = require('@condo/domains/notification/gql')
 const { NotificationAnonymousSetting: NotificationAnonymousSettingGQL } = require('@condo/domains/notification/gql')
 const { _INTERNAL_SEND_NOTIFICATION_NEW_MOBILE_APP_VERSION_MUTATION } = require('@condo/domains/notification/gql')
+const { _INTERNAL_SEND_HASHED_RESIDENT_PHONES_MUTATION } = require('@condo/domains/notification/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const logger = getLogger('notification/serverSchema')
@@ -182,6 +183,19 @@ async function _internalSendNotificationNewMobileAppVersion (context, data) {
     })
 }
 
+async function _internalSendHashedResidentPhones (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: _INTERNAL_SEND_HASHED_RESIDENT_PHONES_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to _internalSendHashedResidentPhones',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -200,5 +214,6 @@ module.exports = {
     TelegramUserChat,
     NotificationAnonymousSetting,
     _internalSendNotificationNewMobileAppVersion,
+    _internalSendHashedResidentPhones,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

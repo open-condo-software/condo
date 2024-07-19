@@ -6,6 +6,7 @@ const { get, omit } = require('lodash')
 const {
     createInstance: createAddressServiceClientInstance,
 } = require('@open-condo/clients/address-service-client')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
@@ -14,12 +15,12 @@ const { BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
 const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { Property: PropertyAPI } = require('@condo/domains/property/utils/serverSchema')
-const { getAddressUpToBuildingFrom } = require('@condo/domains/property/utils/serverSchema/helpers')
 const access = require('@condo/domains/resident/access/RegisterResidentService')
 const {
     RESIDENT_DISCOVER_CONSUMERS_WINDOW_SEC,
     MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW_SEC,
 } = require('@condo/domains/resident/constants/constants')
+const { ADDRESS_NOT_FOUND_ERROR } = require('@condo/domains/resident/constants/errors')
 const { Resident: ResidentAPI } = require('@condo/domains/resident/utils/serverSchema')
 const { discoverServiceConsumers } = require('@condo/domains/resident/utils/serverSchema')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
@@ -36,12 +37,21 @@ const checkLimits = async (uniqueField) => {
     )
 }
 
+const ERRORS = {
+    ADDRESS_NOT_FOUND: {
+        code: BAD_USER_INPUT,
+        type: ADDRESS_NOT_FOUND_ERROR,
+        message: 'The specified address is not found in the address service',
+        messageForUser: 'api.resident.registerResident.ADDRESS_NOT_FOUND',
+    },
+}
+
 const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
     types: [
         {
             access: true,
             // TODO(DOMA-6063): we need to remove `addressMeta` attribute here! We can work only with the `address` argument and request all data from addressService by addressKey or raw address string
-            type: 'input RegisterResidentInput { dv: Int!, sender: SenderFieldInput!, address: String!, addressMeta: AddressMetaFieldInput!, unitName: String!, unitType: BuildingUnitSubType }',
+            type: 'input RegisterResidentInput { dv: Int!, sender: SenderFieldInput!, address: String!, addressMeta: AddressMetaFieldInput, unitName: String!, unitType: BuildingUnitSubType }',
         },
     ],
 
@@ -50,14 +60,13 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
             access: access.canRegisterResident,
             schema: 'registerResident(data: RegisterResidentInput!): Resident',
             resolver: async (parent, args, context) => {
-                const { data: { dv, sender, address, addressMeta, unitName, unitType } } = args
+                const { data: { dv, sender, address, unitName, unitType } } = args
                 const reqId = get(context, ['req', 'id'])
 
                 const attrs = {
                     dv,
                     sender,
                     address,
-                    addressMeta,
                     unitName,
                     unitType,
                     user: { connect: { id: context.authedItem.id } },
@@ -67,12 +76,13 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
 
                 const addressItem = await client.search(address)
 
+                if (!addressItem || !addressItem.addressKey || !addressItem.address) {
+                    throw new GQLError(ERRORS.ADDRESS_NOT_FOUND, context)
+                }
+
                 const [existingResident] = await ResidentAPI.getAll(context, {
                     // Keep searching by address string and additionally search by addressKey
-                    OR: [
-                        { address_i: address },
-                        { addressKey: addressItem.addressKey },
-                    ],
+                    addressKey: addressItem.addressKey,
                     unitName_i: unitName,
                     unitType,
                     user: { id: context.authedItem.id },
@@ -80,18 +90,12 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                     first: 1,
                 })
 
-                const propertyAddress = getAddressUpToBuildingFrom(addressMeta)
-                const [property] = await PropertyAPI.getAll(
-                    context,
-                    {
-                        OR: [
-                            { address_i: propertyAddress },
-                            { addressKey: addressItem.addressKey },
-                        ],
-                        organization: { type: MANAGING_COMPANY_TYPE },
-                        deletedAt: null,
-                    },
-                    { sortBy: ['isApproved_DESC', 'createdAt_ASC'], first: 1 },
+                const [property] = await PropertyAPI.getAll(context, {
+                    addressKey: addressItem.addressKey,
+                    organization: { type: MANAGING_COMPANY_TYPE },
+                    deletedAt: null,
+                },
+                { sortBy: ['isApproved_DESC', 'createdAt_ASC'], first: 1 },
                 )
 
                 if (property) {
@@ -113,8 +117,7 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                     await ResidentAPI.update(context, existingResident.id, nextAttrs)
                     id = existingResident.id
                 } else {
-                    const propertyAddress = getAddressUpToBuildingFrom(addressMeta)
-                    const residentAttrs = { ...attrs, address: propertyAddress }
+                    const residentAttrs = { ...attrs, address: addressItem.address }
                     const resident = await ResidentAPI.create(context, residentAttrs)
 
                     id = resident.id

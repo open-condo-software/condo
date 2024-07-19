@@ -45,8 +45,51 @@ const normalizePropertyMap = ({ sections, parking, ...restMapProps }) => ({
     })),
 })
 
+const getAddressDetails = (propertyAddressMeta) => {
+    const addressMeta = get(propertyAddressMeta, 'data')
+
+    const streetWithType = get(addressMeta, 'street_with_type')
+
+    const houseType = get(addressMeta, 'house_type')
+    const houseName = get(addressMeta, 'house')
+
+    const blockType = get(addressMeta, 'block_type')
+    const blockName = get(addressMeta, 'block')
+
+    const regionType = get(addressMeta, 'region_type')
+    const regionName = get(addressMeta, 'region')
+    const regionWithType = get(addressMeta, 'region_with_type')
+    const regionNamePosition = regionWithType && regionWithType.split(' ')[0] === regionName ? 0 : 1
+    const regionWithFullType = regionNamePosition === 0 ? `${regionName} ${regionType}` : `${regionType} ${regionName}`
+
+    const cityWithType = get(addressMeta, 'city_with_type')
+    const cityType = get(addressMeta, 'city_type')
+    const cityName = get(addressMeta, 'city')
+
+    const settlementPart = get(addressMeta, 'settlement_with_type')
+
+    const block = blockType ? ` ${blockType} ${blockName}` : ''
+    const settlement = streetWithType ? streetWithType : settlementPart
+    const housePart = `${houseType} ${houseName}${block}`
+    const streetPart = settlement && `${settlement}, ${housePart}`
+    const regionPart = regionName && regionName !== cityName && regionWithFullType
+    const cityPart = cityWithType ? cityWithType : null
+
+    const areaWithType = get(addressMeta, 'area_with_type')
+    const areaPart = areaWithType && areaWithType !== cityPart && areaWithType
+
+    const regionLine = regionPart ? `${regionPart}` : ''
+    const areaLine = areaPart ? `${regionLine ? ',' : ''} ${areaPart}` : ''
+    const cityLine = cityPart ? `${regionLine ? ',' : ''} ${cityPart}` : ''
+    const settlementLine = settlementPart ? `, ${settlementPart}` : ''
+    const renderData = regionLine + areaLine + settlementLine + cityLine
+
+    return { streetPart, areaPart, settlementPart, regionPart, cityPart, renderData, settlement, housePart, cityType, cityName, houseName, block }
+}
+
 module.exports = {
     FLAT_WITHOUT_FLAT_TYPE_MESSAGE,
     getAddressUpToBuildingFrom,
     normalizePropertyMap,
+    getAddressDetails,
 }

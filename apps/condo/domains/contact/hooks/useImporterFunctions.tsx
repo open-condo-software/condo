@@ -1,6 +1,5 @@
 import { ContactCreateInput } from '@app/condo/schema'
 import get from 'lodash/get'
-import isNull from 'lodash/isNull'
 import { useEffect, useRef } from 'react'
 
 import { useApolloClient } from '@open-condo/next/apollo'
@@ -27,13 +26,6 @@ const { normalizePhone } = require('@condo/domains/common/utils/phone')
 
 const SPLIT_PATTERN = /[,;.]+/g
 
-const normalizeBooleanValue = (value: string, yes: string, no: string) => {
-    const VALID_VALUES = [yes.toLowerCase(), no.toLowerCase(), '']
-    const valueInLowerCase = value.trim().toLowerCase()
-    if (!VALID_VALUES.includes(valueInLowerCase)) return null
-    return valueInLowerCase === yes.toLowerCase()
-}
-
 const parsePhones = (phones: string) => {
     const clearedPhones = phones.replace(/[^0-9+,;.]/g, '')
     const splitPhones = clearedPhones.split(SPLIT_PATTERN)
@@ -47,7 +39,7 @@ const parsePhones = (phones: string) => {
 
 let rolesNameToIdMapping = {}
 
-export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, ObjectCreator] => {
+export const useImporterFunctions = ({ isVerifiedRef }): [Columns, RowNormalizer, RowValidator, ObjectCreator] => {
     const intl = useIntl()
     const IncorrectRowFormatMessage = intl.formatMessage({ id: 'errors.import.IncorrectRowFormat' })
     const AddressNotFoundMessage = intl.formatMessage({ id: 'errors.import.AddressNotFound' })
@@ -58,7 +50,6 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const IncorrectUnitTypeMessage = intl.formatMessage({ id: 'errors.import.EmptyUnitType' })
     const IncorrectEmailMessage = intl.formatMessage({ id: 'errors.import.IncorrectEmailFormat' })
     const IncorrectPhonesMessage = intl.formatMessage({ id: 'errors.import.IncorrectPhonesFormat' })
-    const IncorrectIsVerifiedMessage = intl.formatMessage({ id: 'errors.import.IncorrectIsVerifiedFormat' })
     const AlreadyCreatedContactMessage = intl.formatMessage({ id: 'errors.import.AlreadyCreatedContact' })
     const AddressTitle = intl.formatMessage({ id: 'contact.import.column.Address' })
     const UnitTitle = intl.formatMessage({ id: 'contact.import.column.Unit' })
@@ -66,15 +57,12 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const NameTitle = intl.formatMessage({ id: 'contact.import.column.Name' })
     const EmailTitle = intl.formatMessage({ id: 'contact.import.column.Email' })
     const RoleTitle = intl.formatMessage({ id: 'contact.import.column.Role' })
-    const IsVerifiedTitle = intl.formatMessage({ id: 'contact.import.column.IsVerified' })
     const UnitTypeTitle = intl.formatMessage({ id: 'contact.import.column.UnitType' })
     const FlatUnitTypeValue = intl.formatMessage({ id: 'pages.condo.ticket.field.unitType.flat' })
     const ParkingUnitTypeValue = intl.formatMessage({ id: 'pages.condo.ticket.field.unitType.parking' })
     const ApartmentUnitTypeValue = intl.formatMessage({ id: 'pages.condo.ticket.field.unitType.apartment' })
     const WarehouseUnitTypeValue = intl.formatMessage({ id: 'pages.condo.ticket.field.unitType.warehouse' })
     const CommercialUnitTypeValue = intl.formatMessage({ id: 'pages.condo.ticket.field.unitType.commercial' })
-    const NoMessage = intl.formatMessage({ id: 'No' })
-    const YesMessage = intl.formatMessage({ id: 'Yes' })
 
     const userOrganization = useOrganization()
     const client = useApolloClient()
@@ -115,7 +103,6 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         { name: NameTitle, type: 'string', required: true },
         { name: EmailTitle, type: 'string', required: false },
         { name: RoleTitle, type: 'string', required: false },
-        { name: IsVerifiedTitle, type: 'string', required: false },
     ]
 
     const UNIT_TYPE_TRANSLATION_TO_TYPE = {
@@ -136,9 +123,8 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             email: null,
             unitType: null,
             role: null,
-            isVerified: null,
         }
-        const [address, , unitType, phones, name, email, role, isVerified] = row
+        const [address, , unitType, phones, name, email, role] = row
 
         email.value = email.value && String(email.value).trim().length ? String(email.value).trim() : undefined
 
@@ -149,7 +135,6 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         if (roleValue) {
             addons.role = String(roleValue).trim().toLowerCase()
         }
-        addons.isVerified = normalizeBooleanValue(String(get(isVerified, 'value', '')), YesMessage, NoMessage)
 
         addons.phones = parsePhones(String(phones.value))
         addons.name = String(get(name, 'value', '')).trim()
@@ -207,9 +192,6 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             }
         }
 
-        const isVerified = get(row, ['addons', 'isVerified'])
-        if (isNull(isVerified)) errors.push(IncorrectIsVerifiedMessage)
-
         const { data } = await searchContacts(client, {
             organizationId: userOrganizationIdRef.current,
             propertyId: row.addons.property,
@@ -251,7 +233,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                 phone: phone,
                 name: row.addons.name,
                 email: row.addons.email,
-                isVerified: row.addons.isVerified,
+                isVerified: isVerifiedRef.current,
             }
 
             const role = get(row, ['addons', 'role'])

@@ -1,8 +1,7 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/react'
 import styled from '@emotion/styled'
-import { Row, Col, Image, Divider } from 'antd'
-import truncate from 'lodash/truncate'
+import { Row, Col, Divider } from 'antd'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -11,22 +10,25 @@ import { colors } from '@open-condo/ui/dist/colors'
 
 import { CrossIcon } from '@condo/domains/common/components/icons/CrossIcon'
 import { DEFAULT_BORDER_RADIUS } from '@condo/domains/common/constants/style'
+import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 
-import type { NewsItem } from '@app/condo/schema'
 import type { RowProps } from 'antd'
 
 enum NewsPreviewTabTypes {
     Push = 'push-notification',
-    App = 'resident-app',
-}
-type NewsPreviewProps = Pick<NewsItem, 'title' | 'body' | 'validBefore'>
-
-interface INewsPreview {
-    (props: NewsPreviewProps): React.ReactElement
+    App = 'app',
 }
 
-interface INewsPushPreview {
-    (props: Omit<NewsPreviewProps, 'validBefore'>): React.ReactElement
+type NewsItemData = ({
+    title: string,
+    body: string,
+    validBefore?: string,
+})
+
+interface INewsItemPushPreview {
+    appName: string,
+    appIcon: string,
+    newsItemData: Omit<NewsItemData, 'validBefore'>
 }
 
 const PUSH_ROW_GUTTER: RowProps['gutter'] = [0, 8]
@@ -38,16 +40,16 @@ const APP_CONTENT_STYLE: React.CSSProperties = { padding: '0 12px' }
 const RADIO_GROUP_CONTAINER_STYLE: React.CSSProperties = { maxWidth: '360px' }
 const PUSH_PARAGRAPH_ELLIPSIS_CONFIG = { rows: 2 }
 const PREVIEW_CONTENT_WIDTH = 360
-const STYLE_WIDTH_100P: React.CSSProperties = { width: '100%' }
+const FULL_WIDTH_STYLE: React.CSSProperties = { width: '100%' }
+const CONDO_APP_BACKGROUND_PICTURE_URL = '/phoneNewsPreview.png'
+const SHARING_APP_BACKGROUND_PICTURE_URL = '/phoneSharingNewsPreview.png'
+const PREVIEW_CONTENT_HEIGHT = 500
 
-const TITLE_MAX_LEN = 30
-const BODY_MAX_LEN = 160
-
-// TODO(DOMA-6153): rewrite to css-modules after migrating from custom style loader plugins
 const NewsPreviewContainer = styled.div`
   width: 100%;
-  max-width: 500px;
-  max-height: 500px;
+  // Not a typo, done intentionally
+  max-width: ${PREVIEW_CONTENT_HEIGHT}px;
+  max-height: ${PREVIEW_CONTENT_HEIGHT}px;
   background-color: ${colors.gray['1']};
   border-radius: ${DEFAULT_BORDER_RADIUS};
   padding: 40px 12px;
@@ -56,14 +58,15 @@ const NewsPreviewContainer = styled.div`
   flex-direction: column;
   align-items: center;
 `
-const AppPreviewContainer = styled.div`
+
+const CondoAppPreviewContainer = styled.div`
   margin-top: 24px;
   position: relative;
   height: 100%;
   width: 100%;
   display: flex;
   align-items: start;
-  background-image: url("/phoneNewsPreview.png");
+  background-image: url(${CONDO_APP_BACKGROUND_PICTURE_URL});
   justify-content: center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -71,21 +74,64 @@ const AppPreviewContainer = styled.div`
   padding-top: 60px;
   padding-left: 22px;
   padding-right: 22px;
-  min-height: 500px;
+  min-height: ${PREVIEW_CONTENT_HEIGHT}px;
   max-width: ${PREVIEW_CONTENT_WIDTH}px;
   
   & .ant-divider {
     margin: 12px;
   }
 `
+
+const SharingAppPreviewContainer = styled.div`
+  position: relative;
+  
+  margin-top: 24px;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: start;
+  justify-content: center;
+
+  background-color: ${colors.gray['1']};
+  
+  padding-left: 20px;
+  padding-right: 20px;
+  min-height: ${PREVIEW_CONTENT_HEIGHT}px;
+  min-width: ${PREVIEW_CONTENT_WIDTH}px;
+  
+  & .ant-divider {
+    margin: 12px;
+  }
+`
+
+const SharingAppOverflowContainer = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: start;
+  background-image: url(${SHARING_APP_BACKGROUND_PICTURE_URL});
+  justify-content: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: top center;
+  
+  padding-left: 20px;
+  padding-right: 20px;
+  min-height: ${PREVIEW_CONTENT_HEIGHT}px;  
+  max-width: ${PREVIEW_CONTENT_WIDTH}px;
+`
+
 const NewsPushPreviewContainer = styled.div`
   padding-top: 110px;
   padding-bottom: 190px;
 `
 
-const NewsPushPreview: INewsPushPreview = ({ title, body }) => {
+const NewsPushPreview: React.FC<INewsItemPushPreview> = ({ appName, appIcon, newsItemData: { title, body } }) => {
     const intl = useIntl()
-    const CompanyNameTitle = intl.formatMessage({ id: 'MobileAppName' })
+    const CompanyNameTitle =  appName
     const NowTitle = intl.formatMessage({ id: 'Now' })
 
     return (
@@ -94,7 +140,7 @@ const NewsPushPreview: INewsPushPreview = ({ title, body }) => {
                 <Row gutter={PUSH_ROW_GUTTER}>
                     <Col span={12}>
                         <Space direction='horizontal' size={8}>
-                            <Image preview={false} src='/logoDomaApp.png' />
+                            <img style={{ width: 16, height: 16 }} src={appIcon} alt={`${appName} icon`}/>
                             <Typography.Text size='medium' type='secondary'>{CompanyNameTitle}</Typography.Text>
                         </Space>
                     </Col>
@@ -121,15 +167,70 @@ const NewsPushPreview: INewsPushPreview = ({ title, body }) => {
 
 const LINE_BREAK_STYLE: CSSProperties = { whiteSpace: 'break-spaces' }
 
-const NewsAppPreview: INewsPreview = ({ title, body, validBefore }) => {
+interface INewsPreviewContainer {
+    push?: {
+        tabName: string
+        content: React.ReactNode
+    }
+    app: {
+        tabName: string
+        content: React.ReactNode
+    }
+}
+
+const NewsPreview: React.FC<INewsPreviewContainer> = ({ push, app }) => {
+
+    const [activeKey, setActiveKey] = useState<NewsPreviewTabTypes>(push ? NewsPreviewTabTypes.Push : NewsPreviewTabTypes.App)
+
+    const changeActiveKey = useCallback((event) => {
+        setActiveKey(event.target.value)
+    }, [])
+
+    return (
+        <NewsPreviewContainer>
+            {
+                (push && (
+                    <div style={RADIO_GROUP_CONTAINER_STYLE}>
+                        <RadioGroup optionType='button' value={activeKey} onChange={changeActiveKey}>
+                            <Radio
+                                key={NewsPreviewTabTypes.Push}
+                                value={NewsPreviewTabTypes.Push}
+                                label={push.tabName}
+                            />
+                            <Radio
+                                key={NewsPreviewTabTypes.App}
+                                value={NewsPreviewTabTypes.App}
+                                label={app.tabName}
+                            />
+                        </RadioGroup>
+                    </div>
+                ))
+            }
+            {
+                !push && (
+                    <Typography.Title level={3}>{app.tabName}</Typography.Title>
+                )
+            }
+
+            { (push && activeKey === NewsPreviewTabTypes.Push) && push.content }
+
+            {/*Hidden is used so that IFrame inside app.content would not re-render (useful for sharing apps)*/}
+            <div style={ activeKey === NewsPreviewTabTypes.App ? { display: 'block' } : { display: 'none' }}>
+                {app.content}
+            </div>
+        </NewsPreviewContainer>
+    )
+}
+
+const CondoAppPreview: React.FC<NewsItemData> = ({ title, body, validBefore }) => {
     const intl = useIntl()
     const NotificationFromOrganizationTitle = intl.formatMessage({ id: 'pages.news.create.preview.app.notificationFromOrganization' })
     const ReceivedAtTitle = intl.formatMessage({ id: 'pages.news.create.preview.app.receivedAt' })
     const ValidUntilTitle = intl.formatMessage({ id: 'pages.news.create.preview.app.validUntil' }, { validBefore })
 
     return (
-        <AppPreviewContainer>
-            <Row style={STYLE_WIDTH_100P}>
+        <CondoAppPreviewContainer>
+            <Row style={FULL_WIDTH_STYLE}>
                 <Col span={24} style={APP_TOP_COLUMN_STYLE}>
                     <Typography.Text size='small' type='secondary'>
                         {NotificationFromOrganizationTitle}
@@ -160,54 +261,83 @@ const NewsAppPreview: INewsPreview = ({ title, body, validBefore }) => {
                     </div>
                 </Col>
             </Row>
-        </AppPreviewContainer>
+        </CondoAppPreviewContainer>
     )
 }
 
-const NewsPreview: INewsPreview = ({ title, body, validBefore }) => {
+const CondoNewsPreview: React.FC<NewsItemData> = ({ title, body, validBefore }) => {
     const intl = useIntl()
-    const PushNotificationTitle = intl.formatMessage({ id: 'PushNotification' })
-    const MobileAppTitle = intl.formatMessage({ id: 'MobileAppResident' })
-
-    const [activeKey, setActiveKey] = useState<NewsPreviewTabTypes>(NewsPreviewTabTypes.Push)
-
-    const newsPreviewContent = useMemo(() => {
-        if (activeKey === NewsPreviewTabTypes.App) {
-            return <NewsAppPreview title={title} body={body} validBefore={validBefore} />
-        }
-        return (
-            <NewsPushPreview
-                title={truncate(title, { length: TITLE_MAX_LEN, omission: '...' })}
-                body={truncate(body, { length: BODY_MAX_LEN, omission: '...' })}
-            />
-        )
-    }, [activeKey, title, body, validBefore])
-
-    const onChange = useCallback((event) => {
-        setActiveKey(event.target.value)
-    }, [])
+    const PushNotificationTitle = intl.formatMessage({ id: 'pages.condo.news.preview.push' })
+    const CondoMobileAppTitle = intl.formatMessage({ id: 'pages.condo.news.preview.condoAppName' })
 
     return (
-        <NewsPreviewContainer>
-            <div style={RADIO_GROUP_CONTAINER_STYLE}>
-                <RadioGroup optionType='button' value={activeKey} onChange={onChange}>
-                    <Radio
-                        key={NewsPreviewTabTypes.Push}
-                        value={NewsPreviewTabTypes.Push}
-                        label={PushNotificationTitle}
-                    />
-                    <Radio
-                        key={NewsPreviewTabTypes.App}
-                        value={NewsPreviewTabTypes.App}
-                        label={MobileAppTitle}
-                    />
-                </RadioGroup>
-            </div>
-            {newsPreviewContent}
-        </NewsPreviewContainer>
+        <NewsPreview
+            app={{
+                tabName: CondoMobileAppTitle,
+                content: <CondoAppPreview title={title} body={body} validBefore={validBefore}/>,
+            }}
+
+            push={{
+                tabName: PushNotificationTitle,
+                content: <NewsPushPreview appName={CondoMobileAppTitle} appIcon='/logoDomaApp.png' newsItemData={{ title, body }}/>,
+            }}
+        />
     )
 }
 
-const MemoizedNewsPreview = React.memo(NewsPreview)
+export const MemoizedCondoNewsPreview = React.memo(CondoNewsPreview)
 
-export default MemoizedNewsPreview
+interface ISharingAppNewsPreview {
+    hasPush?: boolean,
+
+    appName: string,
+    appIcon: string,
+
+    iFrameUrl: string
+    iFrameRef: React.Ref<HTMLIFrameElement>
+
+    title: string,
+    body: string,
+    validBefore?: string
+}
+
+const SharingNewsPreview: React.FC<ISharingAppNewsPreview> = ({ hasPush = true, appName, appIcon, iFrameUrl, iFrameRef, title, body, validBefore }) => {
+    const intl = useIntl()
+    const PushNotificationTitle = intl.formatMessage({ id: 'pages.condo.news.preview.push' })
+
+    const appPreview = useMemo(() => {
+
+        return (
+            <SharingAppPreviewContainer>
+                <IFrame
+                    // el => iFrameRef.current = el is used here to support IFrame API
+                    // @ts-ignore
+                    ref={el => iFrameRef.current = el}
+                    src={`${iFrameUrl}?title=${title}&body=${body}`}
+                    reloadScope='organization'
+                />
+                <SharingAppOverflowContainer/>
+            </SharingAppPreviewContainer>
+        )
+    // title and body not included here by design as they are used only as initial values
+    }, [ iFrameUrl, iFrameRef ])
+
+    return (
+        <NewsPreview
+            app={{
+                tabName: appName,
+                content: appPreview,
+            }}
+
+            push={hasPush
+                ? {
+                    tabName: PushNotificationTitle,
+                    content: <NewsPushPreview appName={appName} appIcon={appIcon} newsItemData={{ title, body }}/>,
+                }
+                : undefined
+            }
+        />
+    )
+}
+
+export const MemoizedSharingNewsPreview = React.memo(SharingNewsPreview)

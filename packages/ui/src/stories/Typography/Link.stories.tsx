@@ -1,6 +1,7 @@
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 import React from 'react'
 
+import { ArrowLeft } from '@open-condo/icons'
 import { Space } from '@open-condo/ui/src'
 import { Typography } from '@open-condo/ui/src'
 
@@ -21,8 +22,17 @@ export default {
 } as ComponentMeta<typeof Typography.Link>
 
 const Template: ComponentStory<typeof Typography.Link> = (args) => {
+    const { children, ...restArgs } = args
     return (
         <Space direction='vertical' size={20}>
+            <Typography.Link {...restArgs}>
+                <Space size={8} direction='horizontal'>
+                    <ArrowLeft size='small'/>
+                    <Typography.Text type='inherit'>
+                        {children}
+                    </Typography.Text>
+                </Space>
+            </Typography.Link>
             <Typography.Link {...args}/>
             <Typography.Text>
                 <Typography.Link {...args}/>

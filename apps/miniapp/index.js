@@ -1,10 +1,8 @@
-
 const { AdminUIApp } = require('@keystonejs/app-admin-ui')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { NextApp } = require('@keystonejs/app-next')
 const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
 const { Keystone } = require('@keystonejs/keystone')
-const { createItems } = require('@keystonejs/server-side-graphql-client')
 const express = require('express')
 const { isObject, get } = require('lodash')
 const { generators, Issuer } = require('openid-client') // certified openid client will all checks
@@ -18,7 +16,7 @@ const { EmptyApp } = require('@open-condo/keystone/test.utils')
 const { CONDO_ACCESS_TOKEN_KEY, CONDO_ORGANIZATION_KEY } = require('./domains/condo/constants/common')
 const { createOrUpdateUser } = require('@miniapp/domains/condo/utils/serverSchema/createOrUpdateUser')
 
-const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
+const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development'
 
 // NOTE: should be disabled in production: https://www.apollographql.com/docs/apollo-server/testing/graphql-playground/
 // WARN: https://github.com/graphql/graphql-playground/tree/main/packages/graphql-playground-html/examples/xss-attack
@@ -34,23 +32,6 @@ const keystone = new Keystone({
         // Enable cross-site usage
         sameSite: 'none',
         secure: true,
-    },
-    onConnect: async () => {
-        // Initialise some data
-        if (conf.NODE_ENV !== 'development' && conf.NODE_ENV !== 'test') return // Just for dev env purposes!
-        // This function can be called before tables are created! (we just ignore this)
-        const users = await keystone.lists.User.adapter.findAll()
-        if (!users.length) {
-            const initialData = require('./initialData')
-            for (let { listKey, items } of initialData) {
-                console.log(`🗿 createItems(${listKey}) -> ${items.length}`)
-                await createItems({
-                    keystone,
-                    listKey,
-                    items,
-                })
-            }
-        }
     },
 })
 
@@ -186,7 +167,7 @@ module.exports = {
             isAccessAllowed: ({ authentication: { item: user } }) => Boolean(user && (user.isAdmin || user.isSupport)),
             authStrategy,
         }),
-        conf.NODE_ENV === 'test' ? new EmptyApp() : new NextApp({ dir: '.' }),
+        conf.DISABLE_NEXT_APP ? new EmptyApp() : new NextApp({ dir: '.' }),
     ],
     configureExpress: (app) => {
         app.set('trust proxy', 1) // trust first proxy

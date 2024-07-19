@@ -302,7 +302,6 @@ export const useTicketExportToPdfTask: UseTicketExportToPdfTaskType = (props)  =
             <ButtonWithDisabledTooltip
                 title={SaveToPDFTooltipMessage}
                 type='secondary'
-                icon={<Print size='medium'/>}
                 loading={loading}
                 disabled={disabled}
                 onClick={handleOpenModal}

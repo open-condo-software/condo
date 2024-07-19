@@ -11,6 +11,7 @@ const { GQLListSchema, getById, find, getByCondition } = require('@open-condo/ke
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const access = require('@condo/domains/billing/access/BillingReceipt')
+const { DEFAULT_BILLING_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
 const { BillingRecipient } = require('@condo/domains/billing/utils/serverSchema')
 const { WRONG_TEXT_FORMAT, UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
 const { MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
@@ -21,7 +22,6 @@ const { TO_PAY_DETAILS_FIELD } = require('./fields/BillingReceipt/ToPayDetailsFi
 const { RAW_DATA_FIELD, PERIOD_FIELD } = require('./fields/common')
 const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD } = require('./fields/relations')
 
-const DEFAULT_CATEGORY = '928c97ef-5289-4daa-b80e-4b9fed50c629'
 const findAcquiringContext = async (item) => {
     const billingContext = await getById('BillingIntegrationOrganizationContext', item.context)
     const acquiringContexts = await find('AcquiringIntegrationContext', { organization: { id: billingContext.organization }, status: CONTEXT_FINISHED_STATUS, deletedAt: null })
@@ -73,7 +73,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             isRequired: true,
             knexOptions: { isNotNullable: true },
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
-            defaultValue: { connect: { id: DEFAULT_CATEGORY } },
+            defaultValue: { connect: { id: DEFAULT_BILLING_CATEGORY_ID } },
         },
 
         printableNumber: {

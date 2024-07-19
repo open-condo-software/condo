@@ -1,40 +1,22 @@
 const querystring = require('querystring')
 
 const dayjs = require('dayjs')
-const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
-const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
-const { User } = require('@condo/domains/user/utils/serverSchema')
-
-const { getAccessTokenForUser } = require('./getAccessTokenForUser')
 const { getSbbolSecretStorage } = require('./getSbbolSecretStorage')
 
 const { SbbolRequestApi } = require('../SbbolRequestApi')
 
+
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
-const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
-const SBBOL_AUTH_CONFIG_EXTENDED = conf.SBBOL_AUTH_CONFIG_EXTENDED ? JSON.parse(conf.SBBOL_AUTH_CONFIG_EXTENDED) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
 
-async function changeClientSecret ({ clientId, currentClientSecret, newClientSecret, useExtendedConfig = false }) {
+async function changeClientSecret ({ clientId, currentClientSecret, newClientSecret, accessToken, useExtendedConfig = false }) {
     if (!clientId) throw new Error('changeClientSecret: no clientId')
     if (!newClientSecret) throw new Error('changeClientSecret: no newClientSecret')
 
     const sbbolSecretStorage = getSbbolSecretStorage(useExtendedConfig)
-
-    const { keystone: context } = getSchemaCtx('User')
-
-    const serviceUserId = useExtendedConfig ? get(SBBOL_AUTH_CONFIG_EXTENDED, 'serviceUserId') : get(SBBOL_AUTH_CONFIG, 'serviceUserId')
-    if (!serviceUserId) throw new Error('changeClientSecret: no SBBOL_AUTH_CONFIG.serviceUserId')
-
-    const user = await User.getOne(context, { id: serviceUserId })
-    if (!user) {
-        throw new Error(`Not found service User with id=${serviceUserId} to change Client Secret for SBBOL integration with clientId=${clientId}`)
-    }
-
-    const { accessToken } = await getAccessTokenForUser(user.id, useExtendedConfig)
 
     const requestApi = new SbbolRequestApi({
         accessToken,

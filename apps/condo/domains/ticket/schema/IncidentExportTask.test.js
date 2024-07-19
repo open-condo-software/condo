@@ -98,11 +98,18 @@ describe('IncidentExportTask', () => {
                         },
                     },
                 })
-                const [updatedAdminTask, adminAttrs] = await updateTestIncidentExportTask(admin, createdAdminTask.id, {
-                    status: CANCELLED,
+
+                // NOTE: we cannot guarantee that the task has been cancelled
+                // because the task completion may happen very quickly before we send the task cancellation request
+                await waitFor(async () => {
+                    const foundedTask = await IncidentExportTask.getOne(admin, { id: createdAdminTask.id })
+                    expect(foundedTask).toHaveProperty('status', COMPLETED)
                 })
-                expect(updatedAdminTask.id).toEqual(createdAdminTask.id)
-                expect(updatedAdminTask.status).toEqual(adminAttrs.status)
+                await expectToThrowGQLError(async () => {
+                    await updateTestIncidentExportTask(admin, createdAdminTask.id, {
+                        status: CANCELLED,
+                    })
+                }, ERRORS.STATUS_IS_ALREADY_COMPLETED)
             })
 
             test('cannot delete', async () => {
@@ -292,11 +299,17 @@ describe('IncidentExportTask', () => {
                     },
                 })
 
-                const [updatedTask, attrs] = await updateTestIncidentExportTask(employeeClient1, createdTask.id, {
-                    status: CANCELLED,
+                // NOTE: we cannot guarantee that the task has been cancelled
+                // because the task completion may happen very quickly before we send the task cancellation request
+                await waitFor(async () => {
+                    const foundedTask = await IncidentExportTask.getOne(employeeClient1, { id: createdTask.id })
+                    expect(foundedTask).toHaveProperty('status', COMPLETED)
                 })
-
-                expect(updatedTask.status).toEqual(attrs.status)
+                await expectToThrowGQLError(async () => {
+                    await updateTestIncidentExportTask(employeeClient1, createdTask.id, {
+                        status: CANCELLED,
+                    })
+                }, ERRORS.STATUS_IS_ALREADY_COMPLETED)
             })
 
             test('cannot update other user\'s task', async () => {

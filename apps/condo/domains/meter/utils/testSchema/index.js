@@ -4,7 +4,10 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
+const dayjs = require('dayjs')
 const { faker } = require('@faker-js/faker')
+const { get } = require('lodash')
+
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
 const { MeterResource: MeterResourceGQL } = require('@condo/domains/meter/gql')
@@ -23,6 +26,7 @@ const { MeterResourceOwner: MeterResourceOwnerGQL } = require('@condo/domains/me
 const { EXPORT_PROPERTY_METER_READINGS_QUERY } = require('@condo/domains/meter/gql')
 const { INTERNAL_DELETE_METER_READINGS_MUTATION } = require('@condo/domains/meter/gql')
 const { REGISTER_METERS_READINGS_MUTATION } = require('@condo/domains/meter/gql')
+const { MeterReadingsImportTask: MeterReadingsImportTaskGQL } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateGQLTestUtils(MeterResourceGQL)
@@ -34,11 +38,12 @@ const PropertyMeter = generateGQLTestUtils(PropertyMeterGQL)
 const PropertyMeterReading = generateGQLTestUtils(PropertyMeterReadingGQL)
 const MeterReportingPeriod = generateGQLTestUtils(MeterReportingPeriodGQL)
 const MeterResourceOwner = generateGQLTestUtils(MeterResourceOwnerGQL)
+const MeterReadingsImportTask = generateGQLTestUtils(MeterReadingsImportTaskGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
+const { COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
-
 
 async function createTestMeterResource (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -405,6 +410,30 @@ async function exportPropertyMeterReadingsByTestClient(client, extraAttrs = {}) 
     return [data.result, attrs]
 }
 
+/**
+ * @param {Pick<Property, 'address'>} property
+ * @param {Partial<RegisterMetersReadingsReadingInput>} extraAttrs
+ * @return {RegisterMetersReadingsReadingInput}
+ */
+const createTestReadingData = (property, extraAttrs = {}) => ({
+    address: property.address,
+    addressInfo: {
+        unitType: FLAT_UNIT_TYPE,
+        unitName: get(property, ['map', 'sections', 0, 'floors', 0, 'units', 0, 'label'], faker.random.alphaNumeric(4)),
+        globalId: get(property, ['addressMeta', 'data', 'house_fias_id'], faker.datatype.uuid()),
+    },
+    accountNumber: faker.random.alphaNumeric(12),
+    meterNumber: faker.random.numeric(8),
+    meterResource: { id: COLD_WATER_METER_RESOURCE_ID },
+    date: dayjs().toISOString(),
+    value1: faker.random.numeric(3),
+    value2: faker.random.numeric(4),
+    meterMeta: {
+        numberOfTariffs: 2,
+    },
+    ...extraAttrs,
+})
+
 async function registerMetersReadingsByTestClient(client, organization, readings, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
@@ -424,6 +453,37 @@ async function registerMetersReadingsByTestClient(client, organization, readings
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
+async function createTestMeterReadingsImportTask (client, user, organization, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!user || !user.id) throw new Error('no user.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        user: { connect: { id: user.id } },
+        organization: { connect: { id: organization.id } },
+        ...extraAttrs,
+    }
+    const obj = await MeterReadingsImportTask.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestMeterReadingsImportTask (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await MeterReadingsImportTask.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -441,6 +501,7 @@ module.exports = {
     MeterResourceOwner, createTestMeterResourceOwner, updateTestMeterResourceOwner,
     _internalDeleteMeterReadingsByTestClient,
     exportPropertyMeterReadingsByTestClient,
-    registerMetersReadingsByTestClient,
+    createTestReadingData, registerMetersReadingsByTestClient,
+    MeterReadingsImportTask, createTestMeterReadingsImportTask, updateTestMeterReadingsImportTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
