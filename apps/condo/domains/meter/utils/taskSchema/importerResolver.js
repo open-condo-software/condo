@@ -61,6 +61,7 @@ function getColumnNames (format, locale) {
     const SealingDateMessage = i18n('meter.import.column.SealingDate', { locale })
     const ControlReadingsDate = i18n('meter.import.column.ControlReadingsDate', { locale })
     const PlaceColumnMessage = i18n('meter.import.column.MeterPlace', { locale })
+    const AutomaticColumnMessage = i18n('meter.import.column.Automatic', { locale })
 
     return format === DOMA_EXCEL ? [
         { name: AddressColumnMessage, type: 'string', required: true },
@@ -74,7 +75,7 @@ function getColumnNames (format, locale) {
         { name: Value2ColumnMessage, type: 'string', required: false },
         { name: Value3ColumnMessage, type: 'string', required: false },
         { name: Value4ColumnMessage, type: 'string', required: false },
-        { name: ReadingSubmissionDateMessage, type: 'custom', required: true },
+        { name: ReadingSubmissionDateMessage, type: 'date', required: true },
         { name: VerificationDateMessage, type: 'date', required: false },
         { name: NextVerificationDateMessage, type: 'date', required: false },
         { name: InstallationDateMessage, type: 'date', required: false },
@@ -82,6 +83,7 @@ function getColumnNames (format, locale) {
         { name: SealingDateMessage, type: 'date', required: false },
         { name: ControlReadingsDate, type: 'date', required: false },
         { name: PlaceColumnMessage, type: 'string', required: false },
+        { name: AutomaticColumnMessage, type: 'string', required: false },
     ] : null
 }
 
