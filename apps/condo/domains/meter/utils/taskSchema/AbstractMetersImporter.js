@@ -179,7 +179,21 @@ class AbstractMetersImporter {
                                 let mutationErrorMessages =
                                     get(mutationError, ['originalError', 'errors', 0, 'data', 'messages'], []) || []
 
-                                // errors thrown to mutation from models
+                                // errors thrown to mutation from models (1 error)
+                                if (mutationErrorMessages.length === 0) {
+                                    mutationErrorMessages = [
+                                        get(
+                                            mutationError,
+                                            ['originalError', 'errors', 0, 'extensions', 'messageForUser'],
+                                            get(
+                                                mutationError,
+                                                ['originalError', 'errors', 0, 'originalError', 'extensions', 'messageForUser'],
+                                            ),
+                                        ),
+                                    ].filter(Boolean)
+                                }
+
+                                // errors thrown to mutation from models (2+ errors)
                                 if (mutationErrorMessages.length === 0) {
                                     mutationErrorMessages = (get(mutationError, ['originalError', 'errors', 0, 'originalError', 'errors'], []) || []).reduce((result, error) => {
                                         return [
