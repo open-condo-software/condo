@@ -29,7 +29,7 @@ const generateCsvFile = (validLinesSize, invalidLinesSize, fatalErrorLinesSize, 
     // content header
     let content = `#DATE_BEGIN01.12.2023
 #DATE_END: 31.12.2023`
-    
+
     // generate valid lines lines
     for (let i = 0 ; i < validLinesSize; i++) {
         const number = faker.datatype.number({ min:1000, max: 9999 })
@@ -71,7 +71,7 @@ const generateExcelFile = async (validLinesSize, invalidLinesSize, fatalLinesSiz
         'Тип счетчика', 'Номер счетчика', 'Количество тарифов',
         'Показание 1', 'Показание 2', 'Показание 3', 'Показание 4',
         'Дата передачи показаний', 'Дата поверки', 'Дата следующей поверки',
-        'Дата установки', 'Дата ввода в эксплуатацию', 'Дата опломбирования', 'Дата контрольных показаний', 'Место установки счетчика']]
+        'Дата установки', 'Дата ввода в эксплуатацию', 'Дата опломбирования', 'Дата контрольных показаний', 'Место установки счетчика', 'Автоматический']]
 
     for (let i = 0 ; i < validLinesSize; i++) {
         const unitName = `${i + 1}`
@@ -80,7 +80,7 @@ const generateExcelFile = async (validLinesSize, invalidLinesSize, fatalLinesSiz
             'ГВС', `${faker.datatype.number({ min:1000, max: 9999 })}`, '1',
             `${faker.datatype.number({ min:1000, max: 9999 })}`, '', '', '',
             '2021-01-21', '2021-01-21', '2021-01-21',
-            '2021-01-22', '2021-01-23', '2021-01-24', '2021-01-25', 'Кухня',
+            '2021-01-22', '2021-01-23', '2021-01-24', '2021-01-25', 'Кухня', '',
         ]
 
         data.push(line)
