@@ -1049,6 +1049,7 @@ describe('RegisterMetersReadingsService', () => {
         expect(updatedMeters2[0].place).toBe('place2')
         expect(updatedMeters2[0].numberOfTariffs).toBe(2)
         expect(updatedMeters2[0].nextVerificationDate).toBeTruthy()
+        expect(updatedMeters2[0].isAutomatic).toBe(true)
 
         // be sure that keep same value from creation
         expect(meters[0].controlReadingsDate).toBe(updatedMeters2[0].controlReadingsDate)
