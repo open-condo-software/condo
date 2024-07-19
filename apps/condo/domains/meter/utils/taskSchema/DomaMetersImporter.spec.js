@@ -70,6 +70,7 @@ describe('DomaMetersImporter', () => {
                 '',
                 '',
                 '',
+                'y',
             ],
             [
                 fakeAddress,
@@ -91,6 +92,7 @@ describe('DomaMetersImporter', () => {
                 sealingDate,
                 '',
                 '',
+                '',
             ],
             [
                 fakeAddress,
@@ -106,6 +108,7 @@ describe('DomaMetersImporter', () => {
                 '',
                 date,
                 verificationDate,
+                '',
                 '',
                 '',
                 '',
@@ -195,6 +198,7 @@ describe('DomaMetersImporter', () => {
                     commissioningDate: '',
                     sealingDate: '',
                     controlReadingsDate: '',
+                    isAutomatic: true,
                 },
             },
             {
@@ -222,6 +226,7 @@ describe('DomaMetersImporter', () => {
                     commissioningDate: '',
                     sealingDate: sealingDate,
                     controlReadingsDate: '',
+                    isAutomatic: false,
                 },
             },
             {
@@ -249,6 +254,7 @@ describe('DomaMetersImporter', () => {
                     commissioningDate: '',
                     sealingDate: '',
                     controlReadingsDate: '',
+                    isAutomatic: false,
                 },
             },
         ])
