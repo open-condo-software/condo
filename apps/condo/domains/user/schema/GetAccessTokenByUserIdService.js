@@ -5,6 +5,7 @@ const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const { getAccessTokenForUser } = require('@condo/domains/organization/integrations/sbbol/utils')
 const access = require('@condo/domains/user/access/GetAccessTokenByUserIdService')
+const { SBBOL_IDENTITY_TYPE } = require('@condo/domains/user/constants')
 
 
 /**
@@ -39,7 +40,11 @@ const GetAccessTokenByUserIdService = new GQLCustomSchema('GetAccessTokenByUserI
     types: [
         {
             access: true,
-            type: 'input GetAccessTokenByUserIdInput { userId: ID!, type: String! }',
+            type: 'input GetAccessTokenByUserIdInput { userId: ID!, type: GetAccessTokenByUserIdServiceType!, organization: OrganizationWhereUniqueInput }',
+        },
+        {
+            access: true,
+            type: `enum GetAccessTokenByUserIdServiceType { ${SBBOL_IDENTITY_TYPE} }`,
         },
         {
             access: true,
@@ -63,13 +68,15 @@ const GetAccessTokenByUserIdService = new GQLCustomSchema('GetAccessTokenByUserI
 
                 let accessToken, ttl
 
-                try {
-                    ({ accessToken, ttl } = await getAccessTokenForUser(data.userId))
-                } catch (e) {
-                    if (e.message.includes('refreshToken')) {
-                        throw new GQLError(ERRORS.REFRESH_TOKEN_EXPIRED, context)
+                if (data.type === SBBOL_IDENTITY_TYPE) {
+                    try {
+                        ({ accessToken, ttl } = await getAccessTokenForUser(data.userId))
+                    } catch (e) {
+                        if (e.message.includes('refreshToken')) {
+                            throw new GQLError(ERRORS.REFRESH_TOKEN_EXPIRED, context)
+                        }
+                        throw new GQLError(ERRORS.ERROR_GETTING_ACCESS_TOKEN, context)
                     }
-                    throw new GQLError(ERRORS.ERROR_GETTING_ACCESS_TOKEN, context)
                 }
 
                 return { accessToken, ttl }
