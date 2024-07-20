@@ -232,6 +232,7 @@ class AppleAdapter {
                     logger.error({ msg: 'Unknown appId. Config was not found', appId })
                     continue
                 }
+                if (appId === 'ai.doma.clients') continue
                 const currentNotificationsBatch = notificationsSortedByAppId[appId]
                 const app = new AppleMessaging(currentConfig)
 
