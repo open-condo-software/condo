@@ -42,9 +42,10 @@ class SbbolSecretStorage {
         await this.#setValue('clientSecret:updatedAt', dayjs().toISOString())
     }
 
-    async getAccessToken (userId) {
+    async getAccessToken (userId, organizationId) {
         if (!userId) throw new Error('userId is required for setAccessToken')
-        const key = `user:${userId}:accessToken`
+        if (!organizationId) throw new Error('organizationId is required for setAccessToken')
+        const key = `organization:${organizationId}:user:${userId}:accessToken`
         return {
             accessToken: await this.#getValue(key),
             ttl: await this.keyStorage.ttl(this.#scopedKey(key)),
@@ -54,37 +55,47 @@ class SbbolSecretStorage {
     async setAccessToken (
         value,
         userId,
+        organizationId,
         options,
     ) {
         if (!value) throw new Error('value is required for setAccessToken')
         if (!userId) throw new Error('userId is required for setAccessToken')
+        if (!organizationId) throw new Error('organizationId is required for setAccessToken')
 
-        await this.#setValue(`user:${userId}:accessToken`, value, { expiresAt: dayjs().add(ACCESS_TOKEN_TTL_SEC, 's').unix(), ...options })
-        await this.#setValue(`user:${userId}:accessToken:updatedAt`, dayjs().toISOString())
+        await this.#setValue(`organization:${organizationId}:user:${userId}:accessToken`, value, { expiresAt: dayjs().add(ACCESS_TOKEN_TTL_SEC, 's').unix(), ...options })
+        await this.#setValue(`organization:${organizationId}:user:${userId}:accessToken:updatedAt`, dayjs().toISOString())
     }
 
-    async isAccessTokenExpired (userId) {
-        return await this.#isExpired(`user:${userId}:accessToken`)
+    async isAccessTokenExpired (userId, organizationId) {
+        if (!organizationId) throw new Error('organizationId is required for isAccessTokenExpired')
+
+        return await this.#isExpired(`organization:${organizationId}:user:${userId}:accessToken`)
     }
 
-    async getRefreshToken (userId) {
-        return this.#getValue(`user:${userId}:refreshToken`)
+    async getRefreshToken (userId, organizationId) {
+        if (!organizationId) throw new Error('organizationId is required for getRefreshToken')
+
+        return this.#getValue(`organization:${organizationId}:user:${userId}:refreshToken`)
     }
 
     async setRefreshToken (
         value,
         userId,
+        organizationId
     ) {
         if (!value) throw new Error('value is required for setRefreshToken')
         if (!userId) throw new Error('userId is required for setRefreshToken')
+        if (!organizationId) throw new Error('organizationId is required for setRefreshToken')
 
         const options = { expiresAt: dayjs().add(REFRESH_TOKEN_TTL_DAYS, 'days').unix() }
-        await this.#setValue(`user:${userId}:refreshToken`, value, options)
-        await this.#setValue(`user:${userId}:refreshToken:updatedAt`, dayjs().toISOString())
+        await this.#setValue(`organization:${organizationId}:user:${userId}:refreshToken`, value, options)
+        await this.#setValue(`organization:${organizationId}:user:${userId}:refreshToken:updatedAt`, dayjs().toISOString())
     }
 
-    async isRefreshTokenExpired (userId) {
-        return await this.#isExpired(`user:${userId}:refreshToken`)
+    async isRefreshTokenExpired (userId, organizationId) {
+        if (!organizationId) throw new Error('organizationId is required for isRefreshTokenExpired')
+
+        return await this.#isExpired(`organization:${organizationId}:user:${userId}:refreshToken`)
     }
 
     async setOrganization (id) {
@@ -94,18 +105,19 @@ class SbbolSecretStorage {
     /**
      * Used for inspection of stored values in case when there is no direct access to Redis
      */
-    async getRawKeyValues (userId) {
+    async getRawKeyValues (userId, organizationId) {
         if (!userId) throw new Error('userId is required for getRawKeyValues')
+        if (!organizationId) throw new Error('organizationId is required for getRawKeyValues')
 
         const organization = this.#scopedKey('organization')
         const clientSecretScopedKey = this.#scopedKey('clientSecret')
-        const accessTokenScopedKey = this.#scopedKey(`user:${userId}:accessToken`)
-        const refreshTokenScopedKey = this.#scopedKey(`user:${userId}:refreshToken`)
+        const accessTokenScopedKey = this.#scopedKey(`organization:${organizationId}:user:${userId}:accessToken`)
+        const refreshTokenScopedKey = this.#scopedKey(`organization:${organizationId}:user:${userId}:refreshToken`)
 
         const organizationValue = await this.#getValue('organization')
         const clientSecretValue = await this.#getValue('clientSecret')
-        const accessTokenValue = await this.#getValue(`user:${userId}:accessToken`)
-        const refreshTokenValue = await this.#getValue(`user:${userId}:refreshToken`)
+        const accessTokenValue = await this.#getValue(`organization:${organizationId}:user:${userId}:accessToken`)
+        const refreshTokenValue = await this.#getValue(`organization:${organizationId}:user:${userId}:refreshToken`)
 
         return {
             [organization]: organizationValue,
