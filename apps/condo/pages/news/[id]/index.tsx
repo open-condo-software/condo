@@ -77,10 +77,13 @@ const NewsItemCard: React.FC = () => {
     const TitleLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.field.title' })
     const BodyLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.field.body' })
     const EditTitle = intl.formatMessage({ id: 'Edit' })
-    const DeleteTitle = intl.formatMessage({ id: 'Delete' })
     const ResendTitle = intl.formatMessage({ id: 'pages.news.newsItemCard.resendButton' })
+    const DeleteTitle = intl.formatMessage({ id: 'Delete' })
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'news.ConfirmDeleteTitle' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'news.ConfirmDeleteMessage' })
+    const DeprecateTitle = intl.formatMessage({ id: 'news.DeprecateTitle' })
+    const ConfirmDeprecateTitle = intl.formatMessage({ id: 'news.ConfirmDeprecateTitle' })
+    const ConfirmDeprecateMessage = intl.formatMessage({ id: 'news.ConfirmDeprecateMessage' })
     const CancelMessage = intl.formatMessage({ id: 'news.CancelMessage' })
     const NotSentMessage = intl.formatMessage({ id: 'pages.news.newsItemCard.status.notSent' })
     const SendingMessage = intl.formatMessage({ id: 'pages.news.newsItemCard.status.sending' })
@@ -99,6 +102,7 @@ const NewsItemCard: React.FC = () => {
         obj: newsItem,
         loading: newsItemLoading,
         error: newsItemError,
+        refetch: refetchNews,
     } = NewsItem.useObject({
         where: {
             id: newsItemId,
@@ -187,11 +191,18 @@ const NewsItemCard: React.FC = () => {
         },
     })
 
-    const softDeleteNews = NewsItem.useSoftDelete(() => push('/news/'))
+    const softDeleteNewsAction = NewsItem.useSoftDelete(() => push('/news/'))
     const handleDeleteButtonClick = useCallback(async () => {
         notification.close(newsItem.id)
-        await softDeleteNews(newsItem)
-    }, [softDeleteNews, newsItem])
+        await softDeleteNewsAction(newsItem)
+    }, [softDeleteNewsAction, newsItem])
+
+    const updateNewsAction = NewsItem.useUpdate({}, () => refetchNews())
+    const handleDeprecateButtonClick = useCallback(async () => {
+        notification.close(newsItem.id)
+        const now = dayjs().toISOString()
+        await updateNewsAction({ validBefore: now }, newsItem)
+    }, [ updateNewsAction, newsItem ])
 
     const CreatedByLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.author' }, {
         createdBy: get(employee, 'name'),
@@ -362,6 +373,20 @@ const NewsItemCard: React.FC = () => {
                                             <Link key='resend' href={`/news/${get(newsItem, 'id')}/resend`}>
                                                 <Button type='primary'>{ResendTitle}</Button>
                                             </Link>
+                                        ),
+                                        (isSent && (!newsItem.validBefore || dayjs(newsItem.validBefore) > dayjs()) && newsItemSharings.length === 0) && (
+                                            <DeleteButtonWithConfirmModal
+                                                key='validBefore'
+                                                title={ConfirmDeprecateTitle}
+                                                message={ConfirmDeprecateMessage}
+                                                okButtonLabel={DeprecateTitle}
+                                                action={handleDeprecateButtonClick}
+                                                buttonContent={DeprecateTitle}
+                                                showCancelButton={true}
+                                                cancelMessage={CancelMessage}
+                                                messageType='secondary'
+                                                buttonCustomProps={{ type:'secondary', danger: undefined }}
+                                            />
                                         ),
                                     ]}/>
                                 </Col>
