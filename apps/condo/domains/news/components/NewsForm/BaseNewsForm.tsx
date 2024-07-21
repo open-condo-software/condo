@@ -757,7 +757,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         const newsItemId = get(newsItem, 'id')
 
         if (actionName === 'create') {
-            for (const ctxId of selectedSharingAppsContexts) {
+            for (const ctxId of getSelectedAndNotSkippedSharingApps()) {
                 const newsItemSharing = {
                     b2bAppContext: { connect: { id: ctxId } },
                     newsItem: { connect: { id: newsItemId } },
