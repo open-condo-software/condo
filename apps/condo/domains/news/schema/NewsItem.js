@@ -260,9 +260,11 @@ const NewsItem = new GQLListSchema('NewsItem', {
             }
 
             if (operation === 'update') {
-                if (sentAt) {
+                // You can update only validBefore field if news item was already sent
+                if (sentAt && (Object.keys(resolvedData) > 1 || isEmpty(get(resolvedData, 'validBefore') ))) {
                     throw new GQLError(ERRORS.EDIT_DENIED_ALREADY_SENT, context)
                 }
+
                 if (isPublished) {
                     for (const readOnlyField of readOnlyFieldsWhenPublished) {
                         if (!isEmpty(get(resolvedData, readOnlyField))) {
