@@ -18,6 +18,7 @@ const { ResetUserService } = require('./ResetUserService')
 const { SendMessageToSupportService } = require('./SendMessageToSupportService')
 const { SigninAsUserService } = require('./SigninAsUserService')
 const { SigninResidentUserService } = require('./SigninResidentUserService')
+const { SignInUserService } = require('./SignInUserService')
 const { User } = require('./User')
 const { UserExternalIdentity } = require('./UserExternalIdentity')
 const { UserRightsSet } = require('./UserRightsSet')
@@ -42,5 +43,6 @@ module.exports = {
     GetAccessTokenByUserIdService,
     UserRightsSet,
     CheckUserExistenceService,
+    SignInUserService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

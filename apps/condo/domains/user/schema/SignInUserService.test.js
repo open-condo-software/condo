@@ -4,12 +4,15 @@
 
 const { faker } = require('@faker-js/faker')
 
+const { getById } = require('@open-condo/keystone/schema')
 const {
     makeLoggedInAdminClient,
     makeClient,
     expectToThrowGQLError,
+    catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 
+const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { RESIDENT, STAFF, SERVICE } = require('@condo/domains/user/constants/common')
 const {
     signInUserByTestClient,
@@ -42,7 +45,7 @@ describe('SignInUserService', () => {
                 const userClient = await makeLoggedInClient()
                 const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
                 const [result] = await signInUserByTestClient(userClient, {
-                    token: confirmPhoneAction.token,
+                    confirmActionToken: confirmPhoneAction.token,
                     userType: RESIDENT,
                 })
                 expect(result.token).not.toHaveLength(0)
@@ -55,7 +58,7 @@ describe('SignInUserService', () => {
             test('can execute', async () => {
                 const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
                 const [result] = await signInUserByTestClient(anonymousClient, {
-                    token: confirmPhoneAction.token,
+                    confirmActionToken: confirmPhoneAction.token,
                     userType: RESIDENT,
                 })
                 expect(result.token).not.toHaveLength(0)
@@ -69,40 +72,48 @@ describe('SignInUserService', () => {
             test('should register and sign in resident with confirmed phone token if a resident with such a phone is not registered yet', async () => {
                 const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
                 const [result] = await signInUserByTestClient(anonymousClient, {
-                    token: confirmPhoneAction.token,
+                    confirmActionToken: confirmPhoneAction.token,
                     userType: RESIDENT,
                 })
                 expect(result.token).not.toHaveLength(0)
                 expect(result.user.id).toBeDefined()
-                expect(result.user.type).toBe(RESIDENT)
-                expect(result.user.isAdmin).toBeFalsy()
-                expect(result.user.isSupport).toBeFalsy()
-                expect(result.user.name).toBeNull()
-                expect(result.user.email).toBeNull()
-                expect(result.user.isEmailVerified).toBeFalsy()
-                expect(result.user.phone).toBe(confirmPhoneAction.phone)
-                expect(result.user.isPhoneVerified).toBeTruthy()
-                expect(result.user.meta).toBeNull()
-                expect(result.user.password_is_set).toBeFalsy()
+
+                const user = await getById('User', result.user.id)
+                expect(user.type).toBe(RESIDENT)
+                expect(user.isAdmin).toBeFalsy()
+                expect(user.isSupport).toBeFalsy()
+                expect(user.name).toBeNull()
+                expect(user.email).toBeNull()
+                expect(user.isEmailVerified).toBeFalsy()
+                expect(user.phone).toBe(confirmPhoneAction.phone)
+                expect(user.isPhoneVerified).toBeTruthy()
+                expect(user.meta).toBeNull()
+                expect(user.password).toBeNull()
             })
 
             test('should sign in resident with confirmed phone token if a resident with such a phone is already registered', async () => {
                 const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
                 const [result] = await signInUserByTestClient(anonymousClient, {
-                    token: confirmPhoneAction.token,
+                    confirmActionToken: confirmPhoneAction.token,
                     userType: RESIDENT,
                 })
+                expect(result.token).not.toHaveLength(0)
                 expect(result.user.id).toBeDefined()
+                const user1 = await getById('User', result.user.id)
 
                 const anonymousClient2 = await makeClient()
                 const [confirmPhoneAction2] = await createTestConfirmPhoneAction(adminClient, {
                     isPhoneVerified: true, phone: confirmPhoneAction.phone,
                 })
                 const [result2] = await signInUserByTestClient(anonymousClient2, {
-                    token: confirmPhoneAction2.token,
+                    confirmActionToken: confirmPhoneAction2.token,
                     userType: RESIDENT,
                 })
-                expect(result.user).toEqual(result2.user)
+                expect(result2.token).not.toHaveLength(0)
+                expect(result2.user.id).toBeDefined()
+
+                const user2 = await getById('User', result2.user.id)
+                expect(user1).toEqual(user2)
             })
 
             describe('if an staff or service user with such a phone is already registered', () => {
@@ -111,14 +122,14 @@ describe('SignInUserService', () => {
                 beforeEach(async () => {
                     const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
                     const [result] = await signInUserByTestClient(anonymousClient, {
-                        token: confirmPhoneAction.token,
+                        confirmActionToken: confirmPhoneAction.token,
                         userType: STAFF,
                         userData: {
                             name: faker.name.fullName(),
                             password: faker.internet.password(16),
                         },
                     })
-                    staffUser = result.user;
+                    staffUser = await getById('User', result.user.id);
                     [serviceUser] = await createTestUser(adminClient, {
                         type: SERVICE,
                         phone: confirmPhoneAction.phone,
@@ -130,14 +141,16 @@ describe('SignInUserService', () => {
                         isPhoneVerified: true, phone: staffUser.phone,
                     })
                     const [result] = await signInUserByTestClient(anonymousClient, {
-                        token: confirmPhoneAction.token,
+                        confirmActionToken: confirmPhoneAction.token,
                         userType: RESIDENT,
                     })
                     expect(result.token).not.toHaveLength(0)
                     expect(result.user.id).toBeDefined()
-                    expect(result.user.id).not.toBe(staffUser.id)
-                    expect(result.user.type).toBe(RESIDENT)
-                    expect(result.user.phone).toBe(staffUser.phone)
+
+                    const user = await getById('User', result.user.id)
+                    expect(user.id).not.toBe(staffUser.id)
+                    expect(user.type).toBe(RESIDENT)
+                    expect(user.phone).toBe(staffUser.phone)
                 })
 
                 test('should sign in a resident with a verified phone token if a resident with such a phone is already registered', async () => {
@@ -145,24 +158,28 @@ describe('SignInUserService', () => {
                         isPhoneVerified: true, phone: staffUser.phone,
                     })
                     const [result] = await signInUserByTestClient(anonymousClient, {
-                        token: confirmPhoneAction.token,
+                        confirmActionToken: confirmPhoneAction.token,
                         userType: RESIDENT,
                     })
-                    expect(result.user.type).toBe(RESIDENT)
+                    expect(result.token).not.toHaveLength(0)
+                    expect(result.user.id).toBeDefined()
+                    const user = await getById('User', result.user.id)
+                    expect(user.type).toBe(RESIDENT)
+                    expect(user.id).not.toBe(staffUser.id)
+                    expect(user.phone).toBe(staffUser.phone)
 
                     const anonymousClient2 = await makeClient()
                     const [confirmPhoneAction2] = await createTestConfirmPhoneAction(adminClient, {
                         isPhoneVerified: true, phone: staffUser.phone,
                     })
                     const [result2] = await signInUserByTestClient(anonymousClient2, {
-                        token: confirmPhoneAction2.token,
+                        confirmActionToken: confirmPhoneAction2.token,
                         userType: RESIDENT,
                     })
-                    expect(result.token).not.toHaveLength(0)
-                    expect(result.user.id).toBeDefined()
-                    expect(result.user.id).not.toBe(staffUser.id)
-                    expect(result.user.phone).toBe(staffUser.phone)
-                    expect(result.user).toEqual(result2.user)
+                    expect(result2.token).not.toHaveLength(0)
+                    expect(result2.user.id).toBeDefined()
+                    const user2 = await getById('User', result2.user.id)
+                    expect(user).toEqual(user2)
                 })
             })
         })
@@ -171,7 +188,7 @@ describe('SignInUserService', () => {
             test('should register and sign in staff with confirmed phone token if a staff with such a phone is not registered yet', async () => {
                 const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
                 const [result, attrs] = await signInUserByTestClient(anonymousClient, {
-                    token: confirmPhoneAction.token,
+                    confirmActionToken: confirmPhoneAction.token,
                     userType: STAFF,
                     userData: {
                         name: faker.name.fullName(),
@@ -180,35 +197,48 @@ describe('SignInUserService', () => {
                 })
                 expect(result.token).not.toHaveLength(0)
                 expect(result.user.id).toBeDefined()
-                expect(result.user.type).toBe(STAFF)
-                expect(result.user.isAdmin).toBeFalsy()
-                expect(result.user.isSupport).toBeFalsy()
-                expect(result.user.name).toBe(attrs.userData.name)
-                expect(result.user.email).toBeNull()
-                expect(result.user.isEmailVerified).toBeFalsy()
-                expect(result.user.phone).toBe(confirmPhoneAction.phone)
-                expect(result.user.isPhoneVerified).toBeTruthy()
-                expect(result.user.meta).toBeNull()
-                expect(result.user.password_is_set).toBeTruthy()
+
+                const user = await getById('User', result.user.id)
+                expect(user.type).toBe(STAFF)
+                expect(user.isAdmin).toBeFalsy()
+                expect(user.isSupport).toBeFalsy()
+                expect(user.name).toBe(attrs.userData.name)
+                expect(user.email).toBeNull()
+                expect(user.isEmailVerified).toBeFalsy()
+                expect(user.phone).toBe(confirmPhoneAction.phone)
+                expect(user.isPhoneVerified).toBeTruthy()
+                expect(user.meta).toBeNull()
+                expect(user.password).not.toBeNull()
+                expect(user.password).not.toHaveLength(0)
             })
 
             test('should sign in staff with confirmed phone token if a staff with such a phone is already registered', async () => {
                 const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
                 const [result] = await signInUserByTestClient(anonymousClient, {
-                    token: confirmPhoneAction.token,
+                    confirmActionToken: confirmPhoneAction.token,
                     userType: STAFF,
+                    userData: {
+                        name: faker.name.fullName(),
+                        password: faker.internet.password(16),
+                    },
                 })
+                expect(result.token).not.toHaveLength(0)
                 expect(result.user.id).toBeDefined()
+                const user1 = await getById('User', result.user.id)
 
                 const anonymousClient2 = await makeClient()
                 const [confirmPhoneAction2] = await createTestConfirmPhoneAction(adminClient, {
                     isPhoneVerified: true, phone: confirmPhoneAction.phone,
                 })
                 const [result2] = await signInUserByTestClient(anonymousClient2, {
-                    token: confirmPhoneAction2.token,
+                    confirmActionToken: confirmPhoneAction2.token,
                     userType: STAFF,
                 })
-                expect(result.user).toEqual(result2.user)
+                expect(result2.token).not.toHaveLength(0)
+                expect(result2.user.id).toBeDefined()
+
+                const user2 = await getById('User', result2.user.id)
+                expect(user1).toEqual(user2)
             })
 
             describe('if an resident or service user with such a phone is already registered', () => {
@@ -217,10 +247,10 @@ describe('SignInUserService', () => {
                 beforeEach(async () => {
                     const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
                     const [result] = await signInUserByTestClient(anonymousClient, {
-                        token: confirmPhoneAction.token,
+                        confirmActionToken: confirmPhoneAction.token,
                         userType: RESIDENT,
                     })
-                    residentUser = result.user;
+                    residentUser = await getById('User', result.user.id);
                     [serviceUser] = await createTestUser(adminClient, {
                         type: SERVICE,
                         phone: confirmPhoneAction.phone,
@@ -232,14 +262,19 @@ describe('SignInUserService', () => {
                         isPhoneVerified: true, phone: residentUser.phone,
                     })
                     const [result] = await signInUserByTestClient(anonymousClient, {
-                        token: confirmPhoneAction.token,
+                        confirmActionToken: confirmPhoneAction.token,
                         userType: STAFF,
+                        userData: {
+                            name: faker.name.fullName(),
+                            password: faker.internet.password(16),
+                        },
                     })
                     expect(result.token).not.toHaveLength(0)
                     expect(result.user.id).toBeDefined()
-                    expect(result.user.id).not.toBe(residentUser.id)
-                    expect(result.user.type).toBe(STAFF)
-                    expect(result.user.phone).toBe(residentUser.phone)
+                    const user = await getById('User', result.user.id)
+                    expect(user.id).not.toBe(residentUser.id)
+                    expect(user.type).toBe(STAFF)
+                    expect(user.phone).toBe(residentUser.phone)
                 })
 
                 test('should sign in a staff with a verified phone token if a staff with such a phone is already registered', async () => {
@@ -247,24 +282,32 @@ describe('SignInUserService', () => {
                         isPhoneVerified: true, phone: residentUser.phone,
                     })
                     const [result] = await signInUserByTestClient(anonymousClient, {
-                        token: confirmPhoneAction.token,
+                        confirmActionToken: confirmPhoneAction.token,
                         userType: STAFF,
+                        userData: {
+                            name: faker.name.fullName(),
+                            password: faker.internet.password(16),
+                        },
                     })
-                    expect(result.user.type).toBe(STAFF)
+                    expect(result.token).not.toHaveLength(0)
+                    expect(result.user.id).toBeDefined()
+                    const user = await getById('User', result.user.id)
+                    expect(user.type).toBe(STAFF)
+                    expect(user.id).not.toBe(residentUser.id)
+                    expect(user.phone).toBe(residentUser.phone)
 
                     const anonymousClient2 = await makeClient()
                     const [confirmPhoneAction2] = await createTestConfirmPhoneAction(adminClient, {
                         isPhoneVerified: true, phone: residentUser.phone,
                     })
                     const [result2] = await signInUserByTestClient(anonymousClient2, {
-                        token: confirmPhoneAction2.token,
+                        confirmActionToken: confirmPhoneAction2.token,
                         userType: STAFF,
                     })
-                    expect(result.token).not.toHaveLength(0)
-                    expect(result.user.id).toBeDefined()
-                    expect(result.user.id).not.toBe(residentUser.id)
-                    expect(result.user.phone).toBe(residentUser.phone)
-                    expect(result.user).toEqual(result2.user)
+                    expect(result2.token).not.toHaveLength(0)
+                    expect(result2.user.id).toBeDefined()
+                    const user2 = await getById('User', result2.user.id)
+                    expect(user).toEqual(user2)
                 })
             })
 
@@ -272,30 +315,45 @@ describe('SignInUserService', () => {
                 const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
                 await expectToThrowGQLError(async () => {
                     await signInUserByTestClient(anonymousClient, {
-                        token: confirmPhoneAction.token,
+                        confirmActionToken: confirmPhoneAction.token,
                         userType: STAFF,
                     })
-                }, ERRORS.REQUIRED_USER_DATA_IS_MISSING, 'result')
+                }, {
+                    code: 'BAD_USER_INPUT',
+                    type: 'REQUIRED_USER_DATA_IS_MISSING',
+                    message: 'Some required user data was missing: name, password',
+                    variable: ['data', 'userData'],
+                }, 'result')
 
                 await expectToThrowGQLError(async () => {
                     await signInUserByTestClient(anonymousClient, {
-                        token: confirmPhoneAction.token,
+                        confirmActionToken: confirmPhoneAction.token,
                         userType: STAFF,
                         userData: {
                             password: faker.internet.password(16),
                         },
                     })
-                }, ERRORS.REQUIRED_USER_DATA_IS_MISSING, 'result')
+                }, {
+                    code: 'BAD_USER_INPUT',
+                    type: 'REQUIRED_USER_DATA_IS_MISSING',
+                    message: 'Some required user data was missing: name',
+                    variable: ['data', 'userData'],
+                }, 'result')
 
                 await expectToThrowGQLError(async () => {
                     await signInUserByTestClient(anonymousClient, {
-                        token: confirmPhoneAction.token,
+                        confirmActionToken: confirmPhoneAction.token,
                         userType: STAFF,
                         userData: {
                             name: faker.name.fullName(),
                         },
                     })
-                }, ERRORS.REQUIRED_USER_DATA_IS_MISSING, 'result')
+                }, {
+                    code: 'BAD_USER_INPUT',
+                    type: 'REQUIRED_USER_DATA_IS_MISSING',
+                    message: 'Some required user data was missing: password',
+                    variable: ['data', 'userData'],
+                }, 'result')
             })
         })
 
@@ -304,7 +362,7 @@ describe('SignInUserService', () => {
                 const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
                 await expectToThrowGQLError(async () => {
                     await signInUserByTestClient(anonymousClient, {
-                        token: confirmPhoneAction.token,
+                        confirmActionToken: confirmPhoneAction.token,
                         userType: SERVICE,
                     })
                 }, ERRORS.NOT_AVAILABLE_FOR_USER_WITH_SERVICE_TYPE, 'result')
@@ -314,7 +372,7 @@ describe('SignInUserService', () => {
         test('should register a user with the specified user data', async () => {
             const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
             const [result, attrs] = await signInUserByTestClient(anonymousClient, {
-                token: confirmPhoneAction.token,
+                confirmActionToken: confirmPhoneAction.token,
                 userType: STAFF,
                 userData: {
                     name: faker.name.fullName(),
@@ -326,43 +384,47 @@ describe('SignInUserService', () => {
             })
             expect(result.token).not.toHaveLength(0)
             expect(result.user.id).toBeDefined()
-            expect(result.user.type).toBe(STAFF)
-            expect(result.user.isAdmin).toBeFalsy()
-            expect(result.user.isSupport).toBeFalsy()
-            expect(result.user.name).toBe(attrs.userData.name)
-            expect(result.user.email).toBe(attrs.userData.email)
-            expect(result.user.isEmailVerified).toBeFalsy()
-            expect(result.user.phone).toBe(confirmPhoneAction.phone)
-            expect(result.user.phone).toBe(attrs.userData.phone)
-            expect(result.user.isPhoneVerified).toBeTruthy()
-            expect(result.user.meta).toEqual(attrs.userData.meta)
-            expect(result.user.password_is_set).toBeTruthy()
+
+            const user = await getById('User', result.user.id)
+            expect(user.type).toBe(STAFF)
+            expect(user.isAdmin).toBeFalsy()
+            expect(user.isSupport).toBeFalsy()
+            expect(user.name).toBe(attrs.userData.name)
+            expect(user.email).toBe(normalizeEmail(attrs.userData.email))
+            expect(user.isEmailVerified).toBeFalsy()
+            expect(user.phone).toBe(confirmPhoneAction.phone)
+            expect(user.phone).toBe(attrs.userData.phone)
+            expect(user.isPhoneVerified).toBeTruthy()
+            expect(user.meta).toEqual(attrs.userData.meta)
+            expect(user.password).not.toBeNull()
+            expect(user.password).not.toHaveLength(0)
         })
 
         test('should be set empty user data from the specified user data if the user is already registered', async () => {
             const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
             const [result] = await signInUserByTestClient(anonymousClient, {
-                token: confirmPhoneAction.token,
+                confirmActionToken: confirmPhoneAction.token,
                 userType: RESIDENT,
             })
             expect(result.token).not.toHaveLength(0)
             expect(result.user.id).toBeDefined()
-            expect(result.user.type).toBe(RESIDENT)
-            expect(result.user.isAdmin).toBeFalsy()
-            expect(result.user.isSupport).toBeFalsy()
-            expect(result.user.name).toBeNull()
-            expect(result.user.email).toBeNull()
-            expect(result.user.isEmailVerified).toBeFalsy()
-            expect(result.user.phone).toBe(confirmPhoneAction.phone)
-            expect(result.user.isPhoneVerified).toBeTruthy()
-            expect(result.user.meta).toBeNull()
-            expect(result.user.password_is_set).toBeFalsy()
+            const user = await getById('User', result.user.id)
+            expect(user.type).toBe(RESIDENT)
+            expect(user.isAdmin).toBeFalsy()
+            expect(user.isSupport).toBeFalsy()
+            expect(user.name).toBeNull()
+            expect(user.email).toBeNull()
+            expect(user.isEmailVerified).toBeFalsy()
+            expect(user.phone).toBe(confirmPhoneAction.phone)
+            expect(user.isPhoneVerified).toBeTruthy()
+            expect(user.meta).toBeNull()
+            expect(user.password).toBeNull()
 
             const [confirmPhoneAction2] = await createTestConfirmPhoneAction(adminClient, {
                 isPhoneVerified: true, phone: confirmPhoneAction.phone,
             })
             const [result2, attrs2] = await signInUserByTestClient(anonymousClient, {
-                token: confirmPhoneAction2.token,
+                confirmActionToken: confirmPhoneAction2.token,
                 userType: RESIDENT,
                 userData: {
                     name: faker.name.fullName(),
@@ -374,16 +436,18 @@ describe('SignInUserService', () => {
             })
             expect(result2.token).not.toHaveLength(0)
             expect(result2.user.id).toBeDefined()
-            expect(result2.user.type).toBe(RESIDENT)
-            expect(result2.user.isAdmin).toBeFalsy()
-            expect(result2.user.isSupport).toBeFalsy()
-            expect(result2.user.name).toBe(attrs2.userData.name)
-            expect(result2.user.email).toBe(attrs2.userData.email)
-            expect(result2.user.isEmailVerified).toBeFalsy()
-            expect(result2.user.phone).toBe(result.user.phone)
-            expect(result2.user.isPhoneVerified).toBe(result.user.isPhoneVerified)
-            expect(result2.user.meta).toEqual(attrs2.userData.meta)
-            expect(result2.user.password_is_set).toBeTruthy()
+            const user2 = await getById('User', result2.user.id)
+            expect(user2.type).toBe(RESIDENT)
+            expect(user2.isAdmin).toBeFalsy()
+            expect(user2.isSupport).toBeFalsy()
+            expect(user2.name).toBe(attrs2.userData.name)
+            expect(user2.email).toBe(normalizeEmail(attrs2.userData.email))
+            expect(user2.isEmailVerified).toBeFalsy()
+            expect(user2.phone).toBe(user.phone)
+            expect(user2.isPhoneVerified).toBe(user.isPhoneVerified)
+            expect(user2.meta).toEqual(attrs2.userData.meta)
+            expect(user2.password).not.toBeNull()
+            expect(user2.password).not.toHaveLength(0)
         })
 
         test('should set the flag "isPhoneVerified" to TRUE if an existing user with an unverified phone sign in with a verified phone token', async () => {
@@ -394,19 +458,20 @@ describe('SignInUserService', () => {
                 isPhoneVerified: true, phone: userAttrs.phone,
             })
             const [result] = await signInUserByTestClient(anonymousClient, {
-                token: confirmPhoneAction.token,
+                confirmActionToken: confirmPhoneAction.token,
                 userType: RESIDENT,
             })
             expect(result.user.id).toBe(residentUser.id)
-            expect(result.user.type).toBe(RESIDENT)
-            expect(result.user.phone).toBe(userAttrs.phone)
-            expect(result.user.isPhoneVerified).toBeTruthy()
+            const user = await getById('User', result.user.id)
+            expect(user.type).toBe(RESIDENT)
+            expect(user.phone).toBe(userAttrs.phone)
+            expect(user.isPhoneVerified).toBeTruthy()
         })
 
         test('should save current non-empty user data if the user is already registered and new user data is passed in the payload', async () => {
             const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
             const [result, attrs] = await signInUserByTestClient(anonymousClient, {
-                token: confirmPhoneAction.token,
+                confirmActionToken: confirmPhoneAction.token,
                 userType: RESIDENT,
                 userData: {
                     name: faker.name.fullName(),
@@ -418,22 +483,24 @@ describe('SignInUserService', () => {
             })
             expect(result.token).not.toHaveLength(0)
             expect(result.user.id).toBeDefined()
-            expect(result.user.type).toBe(RESIDENT)
-            expect(result.user.isAdmin).toBeFalsy()
-            expect(result.user.isSupport).toBeFalsy()
-            expect(result.user.name).toBe(attrs.userData.name)
-            expect(result.user.email).toBe(attrs.userData.email)
-            expect(result.user.isEmailVerified).toBeFalsy()
-            expect(result.user.phone).toBe(attrs.userData.phone)
-            expect(result.user.isPhoneVerified).toBeTruthy()
-            expect(result.user.meta).toEqual(attrs.userData.meta)
-            expect(result.user.password_is_set).toBeTruthy()
+            const user = await getById('User', result.user.id)
+            expect(user.type).toBe(RESIDENT)
+            expect(user.isAdmin).toBeFalsy()
+            expect(user.isSupport).toBeFalsy()
+            expect(user.name).toBe(attrs.userData.name)
+            expect(user.email).toBe(normalizeEmail(attrs.userData.email))
+            expect(user.isEmailVerified).toBeFalsy()
+            expect(user.phone).toBe(attrs.userData.phone)
+            expect(user.isPhoneVerified).toBeTruthy()
+            expect(user.meta).toEqual(attrs.userData.meta)
+            expect(user.password).not.toBeNull()
+            expect(user.password).not.toHaveLength(0)
 
             const [confirmPhoneAction2] = await createTestConfirmPhoneAction(adminClient, {
                 isPhoneVerified: true, phone: confirmPhoneAction.phone,
             })
             const [result2] = await signInUserByTestClient(anonymousClient, {
-                token: confirmPhoneAction2.token,
+                confirmActionToken: confirmPhoneAction2.token,
                 userType: RESIDENT,
                 userData: {
                     name: faker.name.fullName(),
@@ -444,7 +511,9 @@ describe('SignInUserService', () => {
                 },
             })
             expect(result2.token).not.toHaveLength(0)
-            expect(result2.user).toEqual(result.user)
+            expect(result2.user.id).toBeDefined()
+            const user2 = await getById('User', result2.user.id)
+            expect(user).toEqual(user2)
         })
 
         test('should register a new user if the user with the same phone number was reset', async () => {
@@ -455,28 +524,30 @@ describe('SignInUserService', () => {
                 isPhoneVerified: true, phone: resetUserAttrs.phone,
             })
             const [result] = await signInUserByTestClient(anonymousClient, {
-                token: confirmPhoneAction.token,
+                confirmActionToken: confirmPhoneAction.token,
                 userType: resetUserAttrs.type,
                 userData: {
                     name: faker.name.fullName(),
                     password: faker.internet.password(16),
                 },
             })
+            expect(result.token).not.toHaveLength(0)
             expect(result.user.id).toBeDefined()
-            expect(result.user.id).not.toBe(resetUser.id)
-            expect(result.user.type).not.toBe(resetUserAttrs.type)
-            expect(result.user.phone).not.toBe(resetUserAttrs.phone)
+            const user = await getById('User', result.user.id)
+            expect(user.id).not.toBe(resetUser.id)
+            expect(user.type).toBe(resetUserAttrs.type)
+            expect(user.phone).toBe(resetUserAttrs.phone)
         })
 
         test('should be marked as used a phone token after user sing in', async () => {
             const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
             const [result] = await signInUserByTestClient(anonymousClient, {
-                token: confirmPhoneAction.token,
+                confirmActionToken: confirmPhoneAction.token,
                 userType: RESIDENT,
             })
             expect(result.token).not.toHaveLength(0)
             expect(result.user.id).toBeDefined()
-            const [usedConfirmPhoneAction] = await ConfirmPhoneAction.getOne(adminClient, { token: confirmPhoneAction.token })
+            const usedConfirmPhoneAction = await ConfirmPhoneAction.getOne(adminClient, { token: confirmPhoneAction.token })
             expect(usedConfirmPhoneAction.completedAt).not.toBeNull()
         })
 
@@ -484,7 +555,7 @@ describe('SignInUserService', () => {
             const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
             await expectToThrowGQLError(async () => {
                 await signInUserByTestClient(anonymousClient, {
-                    token: confirmPhoneAction.token,
+                    confirmActionToken: confirmPhoneAction.token,
                     userType: STAFF,
                     userData: {
                         phone: createTestPhone(),
@@ -497,14 +568,14 @@ describe('SignInUserService', () => {
             const [softDeletedUser, softDeletedUserAttrs] = await createTestUser(adminClient)
             await User.softDelete(adminClient, softDeletedUser.id)
             const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, {
-                isPhoneVerified: true, phone: softDeletedUserAttrs,
+                isPhoneVerified: true, phone: softDeletedUserAttrs.phone,
             })
             await expectToThrowGQLError(async () => {
                 await signInUserByTestClient(anonymousClient, {
-                    token: confirmPhoneAction.token,
+                    confirmActionToken: confirmPhoneAction.token,
                     userType: STAFF,
                     userData: {
-                        phone: createTestPhone(),
+                        phone: softDeletedUserAttrs.phone,
                     },
                 })
             }, ERRORS.USER_NOT_FOUND, 'result')
@@ -516,7 +587,7 @@ describe('SignInUserService', () => {
             })
             await expectToThrowGQLError(async () => {
                 await signInUserByTestClient(anonymousClient, {
-                    token: confirmPhoneAction.token,
+                    confirmActionToken: confirmPhoneAction.token,
                     userType: RESIDENT,
                 })
             }, ERRORS.TOKEN_NOT_FOUND, 'result')
@@ -528,7 +599,7 @@ describe('SignInUserService', () => {
             })
             await expectToThrowGQLError(async () => {
                 await signInUserByTestClient(anonymousClient, {
-                    token: confirmPhoneAction.token,
+                    confirmActionToken: confirmPhoneAction.token,
                     userType: RESIDENT,
                 })
             }, ERRORS.TOKEN_NOT_FOUND, 'result')
@@ -538,10 +609,112 @@ describe('SignInUserService', () => {
             const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: false })
             await expectToThrowGQLError(async () => {
                 await signInUserByTestClient(anonymousClient, {
-                    token: confirmPhoneAction.token,
+                    confirmActionToken: confirmPhoneAction.token,
                     userType: RESIDENT,
                 })
             }, ERRORS.TOKEN_NOT_FOUND, 'result')
+        })
+
+        // TODO(DOMA-9749): update test after migrate from addFieldValidationError to GQLError
+        test('should throw error if an internal error occurs while creating or updating a user', async () => {
+            const [staffWithSameEmail, staffWithSameEmailAttrs] = await createTestUser(adminClient, {
+                email: faker.internet.email(),
+            })
+            const [staff, staffAttrs] = await createTestUser(adminClient, { email: undefined })
+
+            // case with registered user
+            const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, {
+                isPhoneVerified: true, phone: staffAttrs.phone,
+            })
+
+            await catchErrorFrom(async () => {
+                await signInUserByTestClient(anonymousClient, {
+                    confirmActionToken: confirmPhoneAction.token,
+                    userType: staff.type,
+                    userData: {
+                        name: faker.name.fullName(),
+                        password: faker.internet.password(16),
+                        email: staffWithSameEmailAttrs.email,
+                    },
+                })
+            }, (caught) => {
+                expect(caught.errors[0]).toEqual(expect.objectContaining({
+                    'message': '[error] Update User internal error',
+                    'name': 'GraphQLError',
+                    'path': ['result'],
+                    originalError: expect.objectContaining({
+                        errors: [expect.objectContaining({
+                            message: 'You attempted to perform an invalid mutation',
+                            path: ['obj'],
+                            data: expect.objectContaining({
+                                messages: [
+                                    '[unique:email:multipleFound] user already exists',
+                                ],
+                            }),
+                        })],
+                    }),
+                }))
+            })
+
+            // case with unregistered user
+            const [confirmPhoneAction2] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
+
+            await catchErrorFrom(async () => {
+                await signInUserByTestClient(anonymousClient, {
+                    confirmActionToken: confirmPhoneAction2.token,
+                    userType: staff.type,
+                    userData: {
+                        name: faker.name.fullName(),
+                        password: faker.internet.password(16),
+                        email: staffWithSameEmailAttrs.email,
+                    },
+                })
+            }, (caught) => {
+                expect(caught.errors[0]).toEqual(expect.objectContaining({
+                    'message': '[error] Create User internal error',
+                    'name': 'GraphQLError',
+                    'path': ['result'],
+                    originalError: expect.objectContaining({
+                        errors: [expect.objectContaining({
+                            message: 'You attempted to perform an invalid mutation',
+                            path: ['obj'],
+                            data: expect.objectContaining({
+                                messages: [
+                                    '[unique:email:multipleFound] user already exists',
+                                ],
+                            }),
+                        })],
+                    }),
+                }))
+            })
+
+            // case with invalid password
+            await catchErrorFrom(async () => {
+                await signInUserByTestClient(anonymousClient, {
+                    confirmActionToken: confirmPhoneAction2.token,
+                    userType: staff.type,
+                    userData: {
+                        name: faker.name.fullName(),
+                        password: '123321123321',
+                    },
+                })
+            }, (caught) => {
+                expect(caught.errors[0]).toEqual(expect.objectContaining({
+                    'message': '[error] Create User internal error',
+                    'name': 'GraphQLError',
+                    'path': ['result'],
+                    originalError: expect.objectContaining({
+                        errors: [expect.objectContaining({
+                            message: 'Password must contain at least 4 different characters',
+                            path: ['obj'],
+                            extensions: expect.objectContaining({
+                                code: 'BAD_USER_INPUT',
+                                type: 'PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS',
+                            }),
+                        })],
+                    }),
+                }))
+            })
         })
     })
 })

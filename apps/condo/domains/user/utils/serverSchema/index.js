@@ -27,6 +27,7 @@ const { ExternalTokenAccessRight: ExternalTokenAccessRightGQL } = require('@cond
 const { GET_ACCESS_TOKEN_BY_USER_ID_QUERY } = require('@condo/domains/user/gql')
 const { UserRightsSet: UserRightsSetGQL } = require('@condo/domains/user/gql')
 const { CHECK_USER_EXISTENCE_MUTATION } = require('@condo/domains/user/gql')
+const { SIGN_IN_USER_MUTATION } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateServerUtils(UserGQL)
@@ -113,6 +114,19 @@ async function checkUserExistence (context, data) {
     })
 }
 
+async function signInUser (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: SIGN_IN_USER_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to signInUser',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const whiteList = conf.SMS_WHITE_LIST ? JSON.parse(conf.SMS_WHITE_LIST) : {}
@@ -188,5 +202,6 @@ module.exports = {
     getAccessTokenByUserId,
     UserRightsSet,
     checkUserExistence,
+    signInUser,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

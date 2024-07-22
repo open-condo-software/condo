@@ -536,10 +536,10 @@ async function checkUserExistenceByTestClient(client, extraAttrs = {}) {
 }
 
 // NOTE: In tests we need to check different user fields and token. In real utilities we only need user id
-const SIGN_IN_USER_MUTATION = gql`
+const TEST_SIGN_IN_USER_MUTATION = gql`
     mutation signInUser ($data: SignInUserInput!) {
-        result: signInUser(data: $data) 
-            user { id type isAdmin isSupport name email isEmailVerified phone isPhoneVerified meta password_is_set createdAt updatedAt v }
+        result: signInUser(data: $data) {
+            user { id }
             token
         }
     }
@@ -554,7 +554,7 @@ async function signInUserByTestClient (client, extraAttrs = {}) {
         sender,
         ...extraAttrs,
     }
-    const { data, errors } = await client.mutate(SIGN_IN_USER_MUTATION, { data: attrs })
+    const { data, errors } = await client.mutate(TEST_SIGN_IN_USER_MUTATION, { data: attrs })
     throwIfError(data, errors)
     return [data.result, attrs]
 }
