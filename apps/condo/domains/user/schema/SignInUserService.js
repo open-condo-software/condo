@@ -95,9 +95,14 @@ const ERRORS = {
 }
 
 
-const getUserPayload = (user, userInfo) => {
+const REQUIRED_USER_FIELDS_BY_TYPE = {
+    [RESIDENT]: ['phone'],
+    [STAFF]: ['phone', 'name', 'password'],
+}
+
+const getUserPayload = (user, userData) => {
     const payload = {}
-    for (const [key, value] of Object.entries(userInfo))  {
+    for (const [key, value] of Object.entries(userData))  {
         if (!value) continue
         if (get(user, key)) continue
         payload[key] = value
@@ -105,17 +110,12 @@ const getUserPayload = (user, userInfo) => {
     return payload
 }
 
-const REQUIRED_USER_FIELDS_BY_TYPE = {
-    [RESIDENT]: ['phone'],
-    [STAFF]: ['phone', 'name', 'password'],
-}
-
-const checkRequiredUserFields = (requiredFields, userInfo) => {
+const checkRequiredUserFields = (requiredFields, userData) => {
     if (!Array.isArray(requiredFields)) throw new Error('"requiredFields" should be an array')
 
     const missingFields = []
     for (const field of requiredFields) {
-        const value = get(userInfo, field, null)
+        const value = get(userData, field, null)
         if (!value && typeof value !== 'boolean' && typeof value !== 'number') missingFields.push(field)
     }
     return { missingRequiredFields: missingFields.length > 0, missingFields }
