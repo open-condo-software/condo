@@ -196,11 +196,6 @@ const SignInUserService = new GQLCustomSchema('SignInUserService', {
 
                 const userPayload = getUserPayload(user, userInfo)
 
-                console.log({
-                    user,
-                    userPayload,
-                })
-
                 if (!user) {
                     const { missingRequiredFields, missingFields } = checkRequiredUserFields(REQUIRED_USER_FIELDS_BY_TYPE[userType], userPayload)
                     if (missingRequiredFields) {
