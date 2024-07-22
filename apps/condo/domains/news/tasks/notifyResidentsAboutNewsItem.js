@@ -5,6 +5,7 @@ const { v4: uuid } = require('uuid')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
+const { find } = require('@open-condo/keystone/schema')
 const { getSchemaCtx, allItemsQueryByChunks } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
 
@@ -60,7 +61,7 @@ async function sendNotifications (context, newsItem, taskId) {
 
     checkSendingPossibility(newsItem)
 
-    const scopes = await NewsItemScope.getAll(context, { newsItem: { id: newsItem.id } })
+    const scopes = await find('NewsItemScope', { newsItem: { id: newsItem.id } })
 
     const residentsData = []
     await allItemsQueryByChunks({
