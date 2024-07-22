@@ -41919,6 +41919,102 @@ export type Mutation = {
    */
   resetUser?: Maybe<ResetUserOutput>;
   /**
+   * This mutation authorizes the user without a password, after confirming the phone number.
+   *
+   * If the user is not registered, then he will be created with the data that is passed in the payload (user data).
+   *
+   * If the existing user is missing some fields, then these fields will be taken from the payload (user data) and updated.
+   *
+   * This mutation is not available for service users!
+   *
+   *
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "mutation": "signInUser",
+   *   "variable": [
+   *     "data",
+   *     "userType"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_AVAILABLE_FOR_USER_WITH_SERVICE_TYPE",
+   *   "message": "Not available for service users"
+   * }`
+   *
+   * `{
+   *   "mutation": "signInUser",
+   *   "variable": [
+   *     "data",
+   *     "userData",
+   *     "phone"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "DIFFERENT_PHONE_NUMBERS",
+   *   "message": "The verified phone number and the phone number from the payload cannot be different"
+   * }`
+   *
+   * `{
+   *   "mutation": "signInUser",
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "INVALID_PHONE_NUMBER",
+   *   "message": "Invalid phone number",
+   *   "messageForUser": "api.user.signInUser.INVALID_PHONE_NUMBER"
+   * }`
+   *
+   * `{
+   *   "mutation": "signInUser",
+   *   "code": "NOT_FOUND",
+   *   "type": "USER_NOT_FOUND",
+   *   "message": "User not found",
+   *   "messageForUser": "api.user.signInUser.USER_NOT_FOUND"
+   * }`
+   *
+   * `{
+   *   "mutation": "signInUser",
+   *   "variable": [
+   *     "data",
+   *     "token"
+   *   ],
+   *   "code": "NOT_FOUND",
+   *   "type": "TOKEN_NOT_FOUND",
+   *   "message": "Token not found"
+   * }`
+   *
+   * `{
+   *   "mutation": "signInUser",
+   *   "code": "NOT_FOUND",
+   *   "type": "MULTIPLE_USERS_FOUND",
+   *   "message": "Multiple users found"
+   * }`
+   *
+   * `{
+   *   "query": "signInUser",
+   *   "variable": [
+   *     "data",
+   *     "dv"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "DV_VERSION_MISMATCH",
+   *   "message": "Wrong value for data version number"
+   * }`
+   *
+   * `{
+   *   "query": "signInUser",
+   *   "variable": [
+   *     "data",
+   *     "sender"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_FORMAT",
+   *   "message": "Invalid format of \"sender\" field value",
+   *   "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}"
+   * }`
+   */
+  signInUser?: Maybe<SignInUserOutput>;
+  /**
    * Registers new Organization for current user
    *
    * Creates new Organization, new OrganizationEmployee for current user, creates a set of default OrganizationEmployeeRole for organization and connects created OrganizationEmployee to "Admin" OrganizationEmployeeRole, creates trial ServiceSubscription for organization
@@ -52456,6 +52552,11 @@ export type MutationSendMessageToSupportArgs = {
 
 export type MutationResetUserArgs = {
   data: ResetUserInput;
+};
+
+
+export type MutationSignInUserArgs = {
+  data: SignInUserInput;
 };
 
 
@@ -76502,6 +76603,28 @@ export type ShortScopesField = {
   __typename?: 'ShortScopesField';
   count: Scalars['Int'];
   firstOnes: Array<Maybe<NewsItemScope>>;
+};
+
+export type SignInUserInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  confirmActionToken: Scalars['String'];
+  userType: UserTypeType;
+  userData?: Maybe<SignInUserUserDataInput>;
+};
+
+export type SignInUserOutput = {
+  __typename?: 'SignInUserOutput';
+  user?: Maybe<User>;
+  token: Scalars['String'];
+};
+
+export type SignInUserUserDataInput = {
+  phone?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  email?: Maybe<Scalars['String']>;
+  password?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
 };
 
 export type SigninAsUserInput = {
