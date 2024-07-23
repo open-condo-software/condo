@@ -139,7 +139,7 @@ describe('CheckUserExistenceService', () => {
             ]
 
             test.each(cases)('if user is exist (case: %#)', async ({ userData, expectedResult }) => {
-                const [user, userAttrs] = await createTestUser(adminClient, {
+                const [, userAttrs] = await createTestUser(adminClient, {
                     type: userType,
                     ...userData,
                 })

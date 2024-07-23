@@ -109,7 +109,6 @@ async function checkUserExistence (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
-    // TODO(codegen): write checkUserExistence serverSchema guards
 
     return await execGqlWithoutAccess(context, {
         query: CHECK_USER_EXISTENCE_MUTATION,
