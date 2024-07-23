@@ -56,7 +56,7 @@ function checkSendingPossibility (newsItem) {
  * @param {string} taskId
  * @returns {Promise<void>}
  */
-async function sendNotifications(context, newsItem, taskId) {
+async function sendNotifications (newsItem, taskId) {
     logger.info({ msg: 'Data of news item for sending', taskId, data: { newsItem } })
 
     checkSendingPossibility(newsItem)
