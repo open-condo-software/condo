@@ -12,7 +12,7 @@ const { createTask } = require('@open-condo/keystone/tasks')
 const { NEWS_SENDING_TTL_IN_SEC } = require('@condo/domains/news/constants/common')
 const { defineMessageType } = require('@condo/domains/news/tasks/notifyResidentsAboutNewsItem.helpers')
 const { queryFindResidentsByOrganizationAndScopes } = require('@condo/domains/news/utils/accessSchema')
-const { NewsItem, NewsItemScope } = require('@condo/domains/news/utils/serverSchema')
+const { NewsItem } = require('@condo/domains/news/utils/serverSchema')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
@@ -61,7 +61,9 @@ async function sendNotifications (context, newsItem, taskId) {
 
     checkSendingPossibility(newsItem)
 
-    const scopes = await find('NewsItemScope', { newsItem: { id: newsItem.id } })
+    const scopes = await find ('NewsItemScope', { newsItem: { id: newsItem.id, deletedAt: null }, deletedAt: null })
+
+    console.log(scopes)
 
     const residentsData = []
     await allItemsQueryByChunks({

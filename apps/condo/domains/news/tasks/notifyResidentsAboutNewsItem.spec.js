@@ -4,6 +4,7 @@
 
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
+const truncate = require('lodash/truncate')
 
 const { waitFor, UUID_RE, makeLoggedInAdminClient, setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
@@ -24,6 +25,8 @@ const { createTestProperty } = require('@condo/domains/property/utils/testSchema
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
+const TITLE_MAX_LEN = 50
+const BODY_MAX_LEN = 150
 
 describe('notifyResidentsAboutNewsItem', () => {
     setFakeClientMode(index)
@@ -48,13 +51,16 @@ describe('notifyResidentsAboutNewsItem', () => {
                 unitName: unitName1,
             })
 
-            // News item for particular unit
+            const newsItemTitle = faker.lorem.words(100)
+            const newsItemBody = faker.lorem.words(100)
+
+            // NewsItem for particular unit
             const [newsItem1] = await createTestNewsItem(
                 adminClient,
                 o10n,
                 {
-                    title: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-                    body: 'Commodo viverra maecenas accumsan lacus vel facilisis volutpat est velit. Et malesuada fames ac turpis egestas sed tempus urna et. At augue eget arcu dictum varius duis at. Tempus quam pellentesque nec nam aliquam sem et tortor consequat. Enim sit amet venenatis urna cursus eget nunc scelerisque viverra. Urna cursus eget nunc scelerisque viverra. Ornare aenean euismod elementum nisi quis eleifend quam. Quis hendrerit dolor magna eget est. Gravida cum sociis natoque penatibus et.',
+                    title: newsItemTitle,
+                    body: newsItemBody,
                 }
             )
 
@@ -74,7 +80,7 @@ describe('notifyResidentsAboutNewsItem', () => {
 
             const messageWhere = { user: { id: residentClient1.user.id }, type: NEWS_ITEM_COMMON_MESSAGE_TYPE }
 
-            // Publish news item to make it send-able
+            // Publish NewsItem to make it sendable
             const [updatedItem1] = await publishTestNewsItem(adminClient, newsItem1.id)
             await notifyResidentsAboutNewsItem(newsItem1.id)
 
@@ -101,8 +107,8 @@ describe('notifyResidentsAboutNewsItem', () => {
                         })],
                     }),
                     meta: expect.objectContaining({
-                        title: 'Lorem ipsum dolor sit amet, consectetur...',
-                        body: 'Commodo viverra maecenas accumsan lacus vel facilisis volutpat est velit. Et malesuada fames ac turpis egestas sed tempus urna et. At augue eget...',
+                        title: truncate(newsItemTitle, { length: TITLE_MAX_LEN, separator: ' ', omission: '...' }),
+                        body: truncate(newsItemBody, { length: BODY_MAX_LEN, separator: ' ', omission: '...' }),
                         data: expect.objectContaining({
                             newsItemId: newsItem1.id,
                             residentId: resident.id,
@@ -116,13 +122,13 @@ describe('notifyResidentsAboutNewsItem', () => {
                 }))
             })
 
-            // This news item shouldn't send notification for the same user
+            // This NewsItem shouldn't send notification for the same user
             const [newsItem2] = await createTestNewsItem(adminClient, o10n)
             await createTestNewsItemScope(adminClient, newsItem2, {
                 property: { connect: { id: property.id } },
             })
 
-            // Publish 2nd news item...
+            // Publish 2nd NewsItem...
             await publishTestNewsItem(adminClient, newsItem2.id)
             await notifyResidentsAboutNewsItem(newsItem2.id)
 
@@ -158,17 +164,20 @@ describe('notifyResidentsAboutNewsItem', () => {
                 unitName: unitName1,
             })
 
-            // News item for particular unit
+            const newsItemTitle = faker.lorem.words(100)
+            const newsItemBody = faker.lorem.words(100)
+
+            // NewsItem for particular unit
             const [newsItem1] = await createTestNewsItem(
                 adminClient,
                 o10n,
                 {
-                    title: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-                    body: 'Commodo viverra maecenas accumsan lacus vel facilisis volutpat est velit. Et malesuada fames ac turpis egestas sed tempus urna et. At augue eget arcu dictum varius duis at. Tempus quam pellentesque nec nam aliquam sem et tortor consequat. Enim sit amet venenatis urna cursus eget nunc scelerisque viverra. Urna cursus eget nunc scelerisque viverra. Ornare aenean euismod elementum nisi quis eleifend quam. Quis hendrerit dolor magna eget est. Gravida cum sociis natoque penatibus et.',
+                    title: newsItemTitle,
+                    body: newsItemBody,
                 }
             )
 
-            // create a many newsItemScopes without Residents 
+            // create NewsItemScopes without Residents, that testing pushing newsItem in big scope
             for (let i = 0; i <= 100; i++) {
                 await createTestNewsItemScope(adminClient, newsItem1, {
                     property: { connect: { id: property.id } },
@@ -177,7 +186,7 @@ describe('notifyResidentsAboutNewsItem', () => {
                 })
             }
 
-            // create last newsItemScope with created Resident
+            // create NewsItemScope with Resident
             await createTestNewsItemScope(adminClient, newsItem1, {
                 property: { connect: { id: property.id } },
                 unitType: unitType1,
@@ -194,7 +203,7 @@ describe('notifyResidentsAboutNewsItem', () => {
 
             const messageWhere = { user: { id: residentClient1.user.id }, type: NEWS_ITEM_COMMON_MESSAGE_TYPE }
 
-            // Publish news item to make it send-able
+            // Publish NewsItem to make it sendable
             const [updatedItem1] = await publishTestNewsItem(adminClient, newsItem1.id)
             await notifyResidentsAboutNewsItem(newsItem1.id)
 
@@ -221,8 +230,8 @@ describe('notifyResidentsAboutNewsItem', () => {
                         })],
                     }),
                     meta: expect.objectContaining({
-                        title: 'Lorem ipsum dolor sit amet, consectetur...',
-                        body: 'Commodo viverra maecenas accumsan lacus vel facilisis volutpat est velit. Et malesuada fames ac turpis egestas sed tempus urna et. At augue eget...',
+                        title: truncate(newsItemTitle, { length: TITLE_MAX_LEN, separator: ' ', omission: '...' }),
+                        body: truncate(newsItemBody, { length: BODY_MAX_LEN, separator: ' ', omission: '...' }),
                         data: expect.objectContaining({
                             newsItemId: newsItem1.id,
                             residentId: resident.id,
