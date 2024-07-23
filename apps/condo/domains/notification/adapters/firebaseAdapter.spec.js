@@ -195,16 +195,16 @@ describe('Firebase adapter utils', () => {
         expect(pushContext.data._body).toEqual(pushData.notification.body)
     })
 
-    it('dont send push notification to blocked app', async () => {
+    it('doesnt send push notification to blocked app', async () => {
         const tokens = [PUSH_FAKE_TOKEN_SUCCESS]
         const pushData = {
             tokens,
             notification: {
-                title: 'Doma.ai',
+                title: 'Condo',
                 body: `${dayjs().format()} Condo greets you!`,
             },
             data: {
-                app : 'ai.doma.clients',
+                app : 'condo.app.clients',
                 type: 'notification',
             },
             pushTypes: {
