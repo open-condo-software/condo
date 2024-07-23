@@ -56,14 +56,12 @@ function checkSendingPossibility (newsItem) {
  * @param {string} taskId
  * @returns {Promise<void>}
  */
-async function sendNotifications (context, newsItem, taskId) {
+async function sendNotifications(context, newsItem, taskId) {
     logger.info({ msg: 'Data of news item for sending', taskId, data: { newsItem } })
 
     checkSendingPossibility(newsItem)
 
-    const scopes = await find ('NewsItemScope', { newsItem: { id: newsItem.id, deletedAt: null }, deletedAt: null })
-
-    console.log(scopes)
+    const scopes = await find('NewsItemScope', { newsItem: { id: newsItem.id, deletedAt: null }, deletedAt: null })
 
     const residentsData = []
     await allItemsQueryByChunks({
