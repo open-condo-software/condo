@@ -184,7 +184,7 @@ class AppleAdapter {
                     appId: get(appIds, pushToken),
                 }
 
-            target.push(pushData)
+            if (!APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.app)) target.push(pushData)
 
             if (!pushContext[pushType]) pushContext[pushType] = pushData
         })
@@ -234,7 +234,7 @@ class AppleAdapter {
                     logger.error({ msg: 'Unknown appId. Config was not found', appId })
                     continue
                 }
-                if (APPS_WITH_DISABLED_NOTIFICATIONS.includes(appId)) continue
+
                 const currentNotificationsBatch = notificationsSortedByAppId[appId]
                 const app = new AppleMessaging(currentConfig)
 
