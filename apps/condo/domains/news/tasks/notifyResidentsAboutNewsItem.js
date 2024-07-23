@@ -171,7 +171,7 @@ async function notifyResidentsAboutNewsItem (newsItemId) {
 
         const newsItem = await NewsItem.getOne(context, { id: newsItemId })
 
-        await sendNotifications(context, newsItem, taskId)
+        await sendNotifications(newsItem, taskId)
     } catch (error) {
         logger.error({
             msg: 'failed to send news to residents',
