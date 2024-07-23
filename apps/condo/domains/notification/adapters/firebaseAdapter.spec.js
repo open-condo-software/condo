@@ -195,7 +195,7 @@ describe('Firebase adapter utils', () => {
         expect(pushContext.data._body).toEqual(pushData.notification.body)
     })
 
-    it('doesnt send push notification to blocked app', async () => {
+    it('doesnt send push notification to app with disabled notifications', async () => {
         const tokens = [PUSH_FAKE_TOKEN_SUCCESS]
         const pushData = {
             tokens,
