@@ -20705,6 +20705,22 @@ export type CheckPasswordRecoveryTokenOutput = {
   status: Scalars['String'];
 };
 
+export type CheckUserExistenceInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  confirmActionToken: Scalars['String'];
+  userType: UserTypeType;
+};
+
+export type CheckUserExistenceOutput = {
+  __typename?: 'CheckUserExistenceOutput';
+  userIsExist: Scalars['Boolean'];
+  nameIsSet: Scalars['Boolean'];
+  emailIsSet: Scalars['Boolean'];
+  phoneIsSet: Scalars['Boolean'];
+  passwordIsSet: Scalars['Boolean'];
+};
+
 export type CompleteConfirmPhoneActionInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
@@ -65927,6 +65943,65 @@ export type Query = {
    * }`
    */
   getAccessTokenByUserId?: Maybe<GetAccessTokenByUserIdOutput>;
+  /**
+   * Using an action token with a verified phone number, checks whether a user with the specified type (resident, staff, service) is registered.
+   * As a result, information about the completion of some important fields (name, email, phone, password) is also returned.
+   *
+   *
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "query": "checkUserExistence",
+   *   "code": "NOT_FOUND",
+   *   "type": "MULTIPLE_USERS_FOUND",
+   *   "message": "Multiple users found"
+   * }`
+   *
+   * `{
+   *   "query": "checkUserExistence",
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "INVALID_PHONE_NUMBER",
+   *   "message": "Invalid phone number"
+   * }`
+   *
+   * `{
+   *   "query": "checkUserExistence",
+   *   "variable": [
+   *     "data",
+   *     "token"
+   *   ],
+   *   "code": "NOT_FOUND",
+   *   "type": "TOKEN_NOT_FOUND",
+   *   "message": "Token not found"
+   * }`
+   *
+   * `{
+   *   "query": "checkUserExistence",
+   *   "variable": [
+   *     "data",
+   *     "dv"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "DV_VERSION_MISMATCH",
+   *   "message": "Wrong value for data version number"
+   * }`
+   *
+   * `{
+   *   "query": "checkUserExistence",
+   *   "variable": [
+   *     "data",
+   *     "sender"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_FORMAT",
+   *   "message": "Invalid format of \"sender\" field value",
+   *   "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}"
+   * }`
+   */
+  checkUserExistence?: Maybe<CheckUserExistenceOutput>;
   exportPropertiesToExcel?: Maybe<ExportPropertiesToExcelOutput>;
   allResidentBillingReceipts?: Maybe<Array<Maybe<ResidentBillingReceiptOutput>>>;
   _allBillingReceiptsSum?: Maybe<BillingReceiptsSumOutput>;
@@ -72628,6 +72703,11 @@ export type QueryGetPhoneByConfirmPhoneActionTokenArgs = {
 
 export type QueryGetAccessTokenByUserIdArgs = {
   data: GetAccessTokenByUserIdInput;
+};
+
+
+export type QueryCheckUserExistenceArgs = {
+  data: CheckUserExistenceInput;
 };
 
 
