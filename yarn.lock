@@ -860,6 +860,7 @@ __metadata:
     commander: ^11.0.0
     cross-env: ^7.0.3
     css-loader: 1.0.1
+    csv-parse: ^5.5.6
     csv-stringify: ^6.2.0
     cuid: ^2.1.8
     cypress: 12.17.3
@@ -24456,6 +24457,13 @@ __metadata:
   version: 5.3.0
   resolution: "csv-parse@npm:5.3.0"
   checksum: 6754e85aef9dfdf19da99206b4a83f51fb881b3a75f9f7b6221864252c386410e1f535a013911d6e52f77a017d3dadf10f1e526fe31e01b2b79074c3fb4b3aaa
+  languageName: node
+  linkType: hard
+
+"csv-parse@npm:^5.5.6":
+  version: 5.5.6
+  resolution: "csv-parse@npm:5.5.6"
+  checksum: ee06f97f674487dc1d001b360de8ea510a41b9d971abf43bcf9c3be22c83a3634df0d3ebfbe52fd49d145077066be7ff9f25de3fc6b71aefb973099b04147a25
   languageName: node
   linkType: hard
 
