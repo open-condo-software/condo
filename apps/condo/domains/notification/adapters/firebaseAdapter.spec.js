@@ -195,6 +195,40 @@ describe('Firebase adapter utils', () => {
         expect(pushContext.data._body).toEqual(pushData.notification.body)
     })
 
+    it('dont send push notification to blocked app', async () => {
+        const tokens = [PUSH_FAKE_TOKEN_SUCCESS]
+        const pushData = {
+            tokens,
+            notification: {
+                title: 'Doma.ai',
+                body: `${dayjs().format()} Condo greets you!`,
+            },
+            data: {
+                app : 'ai.doma.clients',
+                type: 'notification',
+            },
+            pushTypes: {
+                [PUSH_FAKE_TOKEN_SUCCESS]: PUSH_TYPE_SILENT_DATA,
+            },
+        }
+        const [isOk, result] = await adapter.sendNotification(pushData)
+
+        expect(isOk).toBeFalsy()
+        expect(result).toBeDefined()
+        expect(result.successCount).toEqual(0)
+        expect(result.responses).toBeDefined()
+        expect(result.responses).toHaveLength(0)
+        expect(result.pushContext).toBeDefined()
+
+        const pushContext = result.pushContext[PUSH_TYPE_SILENT_DATA]
+
+        expect(pushContext).toBeDefined()
+        expect(pushContext.notification).toBeUndefined()
+        expect(pushContext.data).toBeDefined()
+        expect(pushContext.data._title).toEqual(pushData.notification.title)
+        expect(pushContext.data._body).toEqual(pushData.notification.body)
+    })
+
     it('should fail to send invalid push notification with missing title to fake success push token ', async () => {
         await expect(
             adapter.sendNotification({

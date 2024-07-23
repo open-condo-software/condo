@@ -178,7 +178,7 @@ class FirebaseAdapter {
                     ...extraPayload,
                 }
 
-            target.push(pushData)
+            if (data.app !== 'ai.doma.clients') target.push(pushData)
 
             if (!pushContext[pushType]) pushContext[pushType] = pushData
         })
