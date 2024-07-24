@@ -47,6 +47,7 @@ const SMS_CODE_MAX_RETRIES_REACHED = 'SMS_CODE_MAX_RETRIES_REACHED'
 const TOO_MANY_REQUESTS = 'TOO_MANY_REQUESTS'
 const SMS_FOR_PHONE_DAY_LIMIT_REACHED = 'SMS_FOR_PHONE_DAY_LIMIT_REACHED'
 const SMS_FOR_IP_DAY_LIMIT_REACHED = 'SMS_FOR_IP_DAY_LIMIT_REACHED'
+const DAILY_REQUEST_LIMIT_FOR_IP_REACHED = 'DAILY_REQUEST_LIMIT_FOR_IP_REACHED'
 
 const CAPTCHA_CHECK_FAILED = 'CAPTCHA_CHECK_FAILED'
 
@@ -79,6 +80,12 @@ const GQL_ERRORS = {
         code: 'BAD_USER_INPUT',
         type: SMS_FOR_IP_DAY_LIMIT_REACHED,
         message: 'Too many sms requests from this ip address. Try again tomorrow',
+    },
+    DAILY_REQUEST_LIMIT_FOR_IP_REACHED: {
+        code: 'BAD_USER_INPUT',
+        type: DAILY_REQUEST_LIMIT_FOR_IP_REACHED,
+        message: 'Too many requests from this ip address. Try again tomorrow',
+        messageForUser: 'api.user.DAILY_REQUEST_LIMIT_FOR_IP_REACHED',
     },
     WRONG_PASSWORD_FORMAT: {
         variable: ['data', 'password'],

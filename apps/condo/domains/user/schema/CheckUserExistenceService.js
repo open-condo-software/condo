@@ -12,6 +12,7 @@ const { NOT_FOUND, WRONG_FORMAT, DV_VERSION_MISMATCH } = require('@condo/domains
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const access = require('@condo/domains/user/access/CheckUserExistenceService')
 const { ConfirmPhoneAction } = require('@condo/domains/user/utils/serverSchema')
+const { checkDayAnonymousRequestLimitCounters } = require('@condo/domains/user/utils/serverSchema/requestLimitHelpers')
 
 
 /**
@@ -80,6 +81,8 @@ const CheckUserExistenceService = new GQLCustomSchema('CheckUserExistenceService
             resolver: async (parent, args, context) => {
                 const { data } = args
                 const { confirmActionToken, userType } = data
+
+                await checkDayAnonymousRequestLimitCounters(context, 'checkUserExistence', context.req.ip)
 
                 checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 
