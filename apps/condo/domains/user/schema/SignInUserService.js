@@ -151,7 +151,7 @@ const SignInUserService = new GQLCustomSchema('SignInUserService', {
             access: access.canSignInUser,
             schema: 'signInUser(data: SignInUserInput!): SignInUserOutput',
             doc: {
-                summary: 'This mutation authorizes the user without a password, after confirming the phone number.\n\n' +
+                summary: 'This mutation authorizes the user by token, after confirming the phone number.\n\n' +
                     'If the user is not registered, then he will be created with the data that is passed in the payload (user data).\n\n' +
                     'If the existing user is missing some fields, then these fields will be taken from the payload (user data) and updated.\n\n' +
                     'This mutation is not available for service users!',

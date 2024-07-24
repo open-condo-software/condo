@@ -41919,7 +41919,7 @@ export type Mutation = {
    */
   resetUser?: Maybe<ResetUserOutput>;
   /**
-   * This mutation authorizes the user without a password, after confirming the phone number.
+   * This mutation authorizes the user by token, after confirming the phone number.
    *
    * If the user is not registered, then he will be created with the data that is passed in the payload (user data).
    *
