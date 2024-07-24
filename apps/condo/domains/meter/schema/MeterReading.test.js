@@ -1462,7 +1462,7 @@ describe('MeterReading', () => {
                     const [meter] = await createTestMeter(admin, organization, property, resource, { numberOfTariffs: 3 })
 
                     await expectToThrowGQLError(
-                        async () => createTestMeterReading(admin, meter, source, {
+                        async () => await createTestMeterReading(admin, meter, source, {
                             value1: String(faker.datatype.number()),
                             value2: undefined,
                             value3: undefined,
@@ -1478,7 +1478,7 @@ describe('MeterReading', () => {
                     )
 
                     await expectToThrowGQLError(
-                        async () => createTestMeterReading(admin, meter, source, {
+                        async () => await createTestMeterReading(admin, meter, source, {
                             value1: String(faker.datatype.number()),
                             value2: String(faker.datatype.number()),
                             value3: undefined,
@@ -1494,7 +1494,7 @@ describe('MeterReading', () => {
                     )
 
                     await expectToThrowGQLError(
-                        async () => createTestMeterReading(admin, meter, source, {
+                        async () => await createTestMeterReading(admin, meter, source, {
                             value1: undefined,
                             value2: String(faker.datatype.number()),
                             value3: undefined,
