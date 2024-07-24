@@ -76767,8 +76767,8 @@ type GetAccessTokenByUserIdOutput {
 
 input CheckUserExistenceInput {
   dv: Int!
-  sender: JSON!
-  confirmActionToken: String!
+  sender: SenderFieldInput!
+  confirmActionToken: ID!
   userType: UserTypeType!
 }
 

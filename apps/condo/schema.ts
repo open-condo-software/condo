@@ -20707,8 +20707,8 @@ export type CheckPasswordRecoveryTokenOutput = {
 
 export type CheckUserExistenceInput = {
   dv: Scalars['Int'];
-  sender: Scalars['JSON'];
-  confirmActionToken: Scalars['String'];
+  sender: SenderFieldInput;
+  confirmActionToken: Scalars['ID'];
   userType: UserTypeType;
 };
 

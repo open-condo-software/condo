@@ -60,7 +60,7 @@ const CheckUserExistenceService = new GQLCustomSchema('CheckUserExistenceService
     types: [
         {
             access: true,
-            type: 'input CheckUserExistenceInput { dv: Int!, sender: JSON!, confirmActionToken: String!, userType: UserTypeType! }',
+            type: 'input CheckUserExistenceInput { dv: Int!, sender: SenderFieldInput!, confirmActionToken: ID!, userType: UserTypeType! }',
         },
         {
             access: true,
