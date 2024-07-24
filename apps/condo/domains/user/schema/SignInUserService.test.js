@@ -322,7 +322,7 @@ describe('SignInUserService', () => {
                     code: 'BAD_USER_INPUT',
                     type: 'REQUIRED_USER_DATA_IS_MISSING',
                     message: 'Some required user data was missing: name, password',
-                    variable: ['data', 'userData'],
+                    variable: ['data', 'userData', 'name'],
                 }, 'result')
 
                 await expectToThrowGQLError(async () => {
@@ -337,7 +337,7 @@ describe('SignInUserService', () => {
                     code: 'BAD_USER_INPUT',
                     type: 'REQUIRED_USER_DATA_IS_MISSING',
                     message: 'Some required user data was missing: name',
-                    variable: ['data', 'userData'],
+                    variable: ['data', 'userData', 'name'],
                 }, 'result')
 
                 await expectToThrowGQLError(async () => {
@@ -352,7 +352,7 @@ describe('SignInUserService', () => {
                     code: 'BAD_USER_INPUT',
                     type: 'REQUIRED_USER_DATA_IS_MISSING',
                     message: 'Some required user data was missing: password',
-                    variable: ['data', 'userData'],
+                    variable: ['data', 'userData', 'password'],
                 }, 'result')
             })
         })
@@ -710,17 +710,6 @@ describe('SignInUserService', () => {
                         })],
                     }),
                 }))
-            })
-        })
-
-        test('asd', async () => {
-            await signInUserByTestClient(anonymousClient, {
-                confirmActionToken: '123123',
-                userType: RESIDENT,
-                userData: {
-                    name: faker.name.fullName(),
-                    password: '123321123321',
-                },
             })
         })
     })
