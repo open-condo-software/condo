@@ -122,7 +122,7 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
         auth: true,
     },
     hooks: {
-        afterChange: async ({ operation, updatedItem, originalInput }) => {
+        afterChange: async ({ operation, updatedItem, originalInput, existingItem }) => {
             const deletedAt = get(updatedItem, 'deletedAt', null)
             const sender = get(originalInput, 'sender', null)
             const dv = get(originalInput, 'dv', null)
@@ -130,7 +130,7 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
             // handle soft delete
             // in order to soft delete recurrent payment contexts
             if (operation === 'update') {
-                const resident = await getById('Resident', updatedItem.id)
+                const resident = await getById('Resident', existingItem.resident)
                 await resetUserResidentCache(resident.user)
                 if (deletedAt) {
                     await removeOrphansRecurrentPaymentContexts.delay({
