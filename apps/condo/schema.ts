@@ -41940,8 +41940,8 @@ export type Mutation = {
    *     "userType"
    *   ],
    *   "code": "BAD_USER_INPUT",
-   *   "type": "NOT_AVAILABLE_FOR_USER_WITH_SERVICE_TYPE",
-   *   "message": "Not available for service users"
+   *   "type": "NOT_SUPPORTED_USER_TYPE",
+   *   "message": "Only the following user types are supported: resident, staff"
    * }`
    *
    * `{

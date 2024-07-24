@@ -13,11 +13,21 @@ const { DV_VERSION_MISMATCH, WRONG_FORMAT, NOT_FOUND } = require('@condo/domains
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const access = require('@condo/domains/user/access/SignInUserService')
-const { SERVICE, STAFF, RESIDENT, MAX_ANONYMOUS_REQUESTS_FOR_IP_BY_DAY } = require('@condo/domains/user/constants/common')
+const { STAFF, RESIDENT, MAX_ANONYMOUS_REQUESTS_FOR_IP_BY_DAY } = require('@condo/domains/user/constants/common')
 const { GQL_ERRORS } = require('@condo/domains/user/constants/errors')
 const { ConfirmPhoneAction, User } = require('@condo/domains/user/utils/serverSchema')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
+
+const REDIS_GUARD = new RedisGuard()
+const MAX_ANONYMOUS_REQUESTS_BY_DAY = Number(conf['MAX_ANONYMOUS_REQUESTS_FOR_IP_BY_DAY']) || MAX_ANONYMOUS_REQUESTS_FOR_IP_BY_DAY
+const IP_WHITE_LIST = conf.IP_WHITE_LIST ? JSON.parse(conf.IP_WHITE_LIST) : []
+
+const REQUIRED_USER_FIELDS_BY_TYPE = {
+    [RESIDENT]: ['phone'],
+    [STAFF]: ['phone', 'name', 'password'],
+}
+const SUPPORTED_USER_TYPES = [RESIDENT, STAFF]
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -32,12 +42,12 @@ const ERRORS = {
         message: `Some required user data was missing: ${missingFields.join(', ')}`,
         messageForUser: 'api.user.signInUser.REQUIRED_USER_DATA_IS_MISSING',
     }),
-    NOT_AVAILABLE_FOR_USER_WITH_SERVICE_TYPE: {
+    NOT_SUPPORTED_USER_TYPE: {
         mutation: 'signInUser',
         variable: ['data', 'userType'],
         code: BAD_USER_INPUT,
-        type: 'NOT_AVAILABLE_FOR_USER_WITH_SERVICE_TYPE',
-        message: 'Not available for service users',
+        type: 'NOT_SUPPORTED_USER_TYPE',
+        message: `Only the following user types are supported: ${SUPPORTED_USER_TYPES.join(', ')}`,
     },
     DIFFERENT_PHONE_NUMBERS: {
         mutation: 'signInUser',
@@ -88,16 +98,6 @@ const ERRORS = {
         message: 'Invalid format of "sender" field value',
         correctExample: '{ dv: 1, fingerprint: \'example-fingerprint-alphanumeric-value\'}',
     },
-}
-
-
-const REDIS_GUARD = new RedisGuard()
-const MAX_ANONYMOUS_REQUESTS_BY_DAY = Number(conf['MAX_ANONYMOUS_REQUESTS_FOR_IP_BY_DAY']) || MAX_ANONYMOUS_REQUESTS_FOR_IP_BY_DAY
-const IP_WHITE_LIST = conf.IP_WHITE_LIST ? JSON.parse(conf.IP_WHITE_LIST) : []
-
-const REQUIRED_USER_FIELDS_BY_TYPE = {
-    [RESIDENT]: ['phone'],
-    [STAFF]: ['phone', 'name', 'password'],
 }
 
 const getUserPayload = (user, userData) => {
@@ -155,9 +155,9 @@ const SignInUserService = new GQLCustomSchema('SignInUserService', {
                     'If the user is not registered, then he will be created with the data that is passed in the payload (user data).\n\n' +
                     'If the existing user is missing some fields, then these fields will be taken from the payload (user data) and updated.\n\n' +
                     'This mutation is not available for service users!',
-                errors: Object.fromEntries(Object.entries(ERRORS).filter(([key, error]) => typeof error === 'object')),
+                errors: Object.fromEntries(Object.entries(ERRORS).filter(([, error]) => typeof error === 'object')),
             },
-            resolver: async (parent, args, context, info, extra = {}) => {
+            resolver: async (parent, args, context) => {
                 const { data } = args
                 const { confirmActionToken, userType, userData, dv, sender } = data
 
@@ -176,7 +176,7 @@ const SignInUserService = new GQLCustomSchema('SignInUserService', {
 
                 checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 
-                if (userType === SERVICE) throw new GQLError(ERRORS.NOT_AVAILABLE_FOR_USER_WITH_SERVICE_TYPE, context)
+                if (!SUPPORTED_USER_TYPES.includes(userType)) throw new GQLError(ERRORS.NOT_SUPPORTED_USER_TYPE, context)
 
                 if (!confirmActionToken) throw new GQLError(ERRORS.TOKEN_NOT_FOUND, context)
 

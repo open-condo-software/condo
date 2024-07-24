@@ -365,7 +365,7 @@ describe('SignInUserService', () => {
                         confirmActionToken: confirmPhoneAction.token,
                         userType: SERVICE,
                     })
-                }, ERRORS.NOT_AVAILABLE_FOR_USER_WITH_SERVICE_TYPE, 'result')
+                }, ERRORS.NOT_SUPPORTED_USER_TYPE, 'result')
             })
         })
 
