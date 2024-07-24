@@ -4,7 +4,7 @@
 
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, expectValuesOfCommonFields, catchErrorFrom } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, expectValuesOfCommonFields, catchErrorFrom, expectToThrowValidationFailureError } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,

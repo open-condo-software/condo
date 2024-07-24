@@ -152,6 +152,7 @@ describe('MeterReading', () => {
                     await catchErrorFrom(async () => {
                         await createTestMeterReading(employeeCanManageReadings, meter, source, {
                             value1: stringValue,
+                            value2: faker.random.alphaNumeric(7),
                         })
                     }, ({ errors, data }) => {
                         expect(errors[0].message).toContain(`invalid input syntax for type numeric: "${stringValue}"`)
@@ -1449,6 +1450,64 @@ describe('MeterReading', () => {
                         value1: meterReading1.value1,
                     })
                     expect(meterReading2.clientPhone).toBe(landLinePhone)
+                })
+            })
+
+            describe('Values', () => {
+                test('Throw an error if values count less than number of tariffs', async () => {
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+                    const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [meter] = await createTestMeter(admin, organization, property, resource, { numberOfTariffs: 3 })
+
+                    await expectToThrowGQLError(
+                        async () => createTestMeterReading(admin, meter, source, {
+                            value1: String(faker.datatype.number()),
+                            value2: undefined,
+                            value3: undefined,
+                            value4: undefined,
+                        }),
+                        {
+                            code: 'BAD_USER_INPUT',
+                            type: 'METER_READING_WRONG_VALUES_COUNT',
+                            message: 'Wrong values count',
+                            messageForUser: 'api.meterReading.METER_READING_WRONG_VALUES_COUNT',
+                            messageInterpolation: { meterNumber: meter.number, numberOfTariffs: 3, fieldsNames: 'value2, value3' },
+                        }
+                    )
+
+                    await expectToThrowGQLError(
+                        async () => createTestMeterReading(admin, meter, source, {
+                            value1: String(faker.datatype.number()),
+                            value2: String(faker.datatype.number()),
+                            value3: undefined,
+                            value4: undefined,
+                        }),
+                        {
+                            code: 'BAD_USER_INPUT',
+                            type: 'METER_READING_WRONG_VALUES_COUNT',
+                            message: 'Wrong values count',
+                            messageForUser: 'api.meterReading.METER_READING_WRONG_VALUES_COUNT',
+                            messageInterpolation: { meterNumber: meter.number, numberOfTariffs: 3, fieldsNames: 'value3' },
+                        }
+                    )
+
+                    await expectToThrowGQLError(
+                        async () => createTestMeterReading(admin, meter, source, {
+                            value1: undefined,
+                            value2: String(faker.datatype.number()),
+                            value3: undefined,
+                            value4: undefined,
+                        }),
+                        {
+                            code: 'BAD_USER_INPUT',
+                            type: 'METER_READING_WRONG_VALUES_COUNT',
+                            message: 'Wrong values count',
+                            messageForUser: 'api.meterReading.METER_READING_WRONG_VALUES_COUNT',
+                            messageInterpolation: { meterNumber: meter.number, numberOfTariffs: 3, fieldsNames: 'value1, value3' },
+                        }
+                    )
                 })
             })
         })
