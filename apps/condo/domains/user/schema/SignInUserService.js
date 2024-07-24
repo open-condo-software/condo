@@ -8,8 +8,6 @@ const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { GQLCustomSchema, find, getSchemaCtx, getById } = require('@open-condo/keystone/schema')
-const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
-const { i18n } = require('@open-condo/locales/loader')
 
 const { DV_VERSION_MISMATCH, WRONG_FORMAT, NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
@@ -26,16 +24,13 @@ const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
  * They will be rendered in documentation section in GraphiQL for this custom schema
  */
 const ERRORS = {
-    REQUIRED_USER_DATA_IS_MISSING: (missingFields = [], missingFieldsForUser = []) => ({
+    REQUIRED_USER_DATA_IS_MISSING: (missingFields = []) => ({
         mutation: 'signInUser',
-        variable: ['data', 'userData'],
+        variable: ['data', 'userData', missingFields[0]],
         code: BAD_USER_INPUT,
         type: 'REQUIRED_USER_DATA_IS_MISSING',
         message: `Some required user data was missing: ${missingFields.join(', ')}`,
         messageForUser: 'api.user.signInUser.REQUIRED_USER_DATA_IS_MISSING',
-        messageInterpolation: {
-            missingFieldsForUser: missingFieldsForUser.join(', '),
-        },
     }),
     NOT_AVAILABLE_FOR_USER_WITH_SERVICE_TYPE: {
         mutation: 'signInUser',
@@ -168,8 +163,6 @@ const SignInUserService = new GQLCustomSchema('SignInUserService', {
 
                 await checkDayRequestLimitCounters(context, context.req.ip)
 
-                const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
-
                 const dvAndSender = { dv, sender }
                 const userInfo = {
                     ...userData,
@@ -215,13 +208,7 @@ const SignInUserService = new GQLCustomSchema('SignInUserService', {
                 if (!user) {
                     const { missingRequiredFields, missingFields } = checkRequiredUserFields(REQUIRED_USER_FIELDS_BY_TYPE[userType], userPayload)
                     if (missingRequiredFields) {
-                        throw new GQLError(
-                            ERRORS.REQUIRED_USER_DATA_IS_MISSING(
-                                missingFields,
-                                missingFields.map(field => i18n(`api.user.signInUser.REQUIRED_USER_DATA_IS_MISSING.${field}`, { locale, meta: { missingFields } }))
-                            ),
-                            context
-                        )
+                        throw new GQLError(ERRORS.REQUIRED_USER_DATA_IS_MISSING(missingFields), context)
                     }
 
                     user = await User.create(context, { ...userPayload, ...dvAndSender })
