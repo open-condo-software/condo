@@ -107,9 +107,8 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
 
                 const resident = await Resident.getOne(context, { id, deletedAt: null })
                 if (!resident) throw new GQLError(ERRORS.RESIDENT_NOT_FOUND, context)
-                if (get(context, 'authedItem.id')) {
-                    await resetUserResidentCache(context.authedItem.id)
-                }
+                await resetUserResidentCache(resident.user.id)
+
 
                 const propertyWhere = resident.addressKey
                     ? { addressKey: resident.addressKey }
