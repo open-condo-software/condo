@@ -2,6 +2,7 @@ import { MarketSetting as MarketSettingType } from '@app/condo/schema'
 import { Col, Form, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
+import uniq from 'lodash/uniq'
 import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'
 
@@ -41,7 +42,6 @@ interface IMarketSettingForm {
 export const MarketSettingForm: React.FC<IMarketSettingForm> = ({ marketSetting, userOrganizationId, loading }) => {
     const intl = useIntl()
     const allowCashPaymentTypeLabel = intl.formatMessage({ id: 'pages.condo.settings.marketplace.cashCheckbox.label' })
-    const allowOnlinePaymentsTypeLabel = intl.formatMessage({ id: 'pages.condo.settings.marketplace.onlineCheckbox.label' })
     const SaveMessage = intl.formatMessage({ id: 'Save' })
 
     const { getSuccessfulChangeNotification } = useNotificationMessages()
@@ -58,13 +58,9 @@ export const MarketSettingForm: React.FC<IMarketSettingForm> = ({ marketSetting,
 
     const initialValues = useMemo(() => {
         const result = {}
-        for (const type of INVOICE_PAYMENT_TYPES) {
-            result[type] = false
-        }
         const residentAllowedPaymentTypes = get(marketSetting, 'residentAllowedPaymentTypes')
-        for (const index in residentAllowedPaymentTypes) {
-            result[residentAllowedPaymentTypes[index]] = true
-        }
+        const isCashPaymentTypeAllowed = residentAllowedPaymentTypes.includes(INVOICE_PAYMENT_TYPE_CASH)
+        result[INVOICE_PAYMENT_TYPE_CASH] = !isCashPaymentTypeAllowed
         return result
     }, [marketSetting])
 
@@ -76,15 +72,15 @@ export const MarketSettingForm: React.FC<IMarketSettingForm> = ({ marketSetting,
             layout='horizontal'
             OnCompletedMsg={getSuccessfulChangeNotification}
             formValuesToMutationDataPreprocessor={(values) => {
-                const residentAllowedPaymentTypes = []
+                const residentAllowedPaymentTypes = [INVOICE_PAYMENT_TYPE_ONLINE]
                 for (const [key, value] of Object.entries(values)) {
                     if (INVOICE_PAYMENT_TYPES.includes(key)) {
-                        if (value) residentAllowedPaymentTypes.push(key)
+                        if (!value) residentAllowedPaymentTypes.push(key)
 
                         values[key] = undefined
                     }
                 }
-                values.residentAllowedPaymentTypes = residentAllowedPaymentTypes
+                values.residentAllowedPaymentTypes = uniq(residentAllowedPaymentTypes)
                 return values
             }}
         >
@@ -98,19 +94,6 @@ export const MarketSettingForm: React.FC<IMarketSettingForm> = ({ marketSetting,
                                         <Form.Item
                                             name={INVOICE_PAYMENT_TYPE_CASH}
                                             label={allowCashPaymentTypeLabel}
-                                            labelAlign='left'
-                                            valuePropName='checked'
-                                            {...CHECKBOX_LAYOUT_PROPS}
-                                        >
-                                            <Checkbox/>
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
-                                <Row gutter={SMALL_ROW_GUTTERS}>
-                                    <Col span={24}>
-                                        <Form.Item
-                                            name={INVOICE_PAYMENT_TYPE_ONLINE}
-                                            label={allowOnlinePaymentsTypeLabel}
                                             labelAlign='left'
                                             valuePropName='checked'
                                             {...CHECKBOX_LAYOUT_PROPS}
@@ -139,7 +122,7 @@ export const MarketSettingForm: React.FC<IMarketSettingForm> = ({ marketSetting,
                 </Row>
             )}
         </FormWithAction>
-    ), [initialValues, action, getSuccessfulChangeNotification, allowCashPaymentTypeLabel, allowOnlinePaymentsTypeLabel, SaveMessage])
+    ), [initialValues, action, getSuccessfulChangeNotification, allowCashPaymentTypeLabel, SaveMessage])
 
     if (loading) return null
 
