@@ -307,6 +307,7 @@ const Resident = new GQLListSchema('Resident', {
             const changedPropertyId = get(originalInput, ['property', 'connect', 'id'], null)
             const changedUnitName = get(originalInput, 'unitName', null)
             const changedUnitType = get(originalInput, 'unitType', null)
+            await resetUserResidentCache(userId)
 
             if (!isNull(changedPropertyId) || !isNull(changedUnitName) || !isNull(changedUnitType)) {
                 await manageResidentToTicketClientConnections.delay(propertyId, unitType, unitName, userId, dv, sender)
@@ -314,15 +315,12 @@ const Resident = new GQLListSchema('Resident', {
 
             // handle soft delete
             // in order to soft delete recurrent payment contexts
-            if (operation === 'update') {
-                await resetUserResidentCache(userId)
-                if (deletedAt) {
-                    await removeOrphansRecurrentPaymentContexts.delay({
-                        residentId: updatedItem.id,
-                        dv,
-                        sender,
-                    })
-                }
+            if (operation === 'update' && deletedAt) {
+                await removeOrphansRecurrentPaymentContexts.delay({
+                    residentId: updatedItem.id,
+                    dv,
+                    sender,
+                })
             }
         },
     },
