@@ -20,8 +20,8 @@ class ImporterWrapper extends DomaMetersImporter {
             ГАЗ: '1c267e92-0631-11ec-9a03-0242ac130003',
         },
         isAutomatic: {
-            да: true,
-            нет: false,
+            yes: true,
+            no: false,
         },
     }
 
@@ -75,7 +75,7 @@ describe('DomaMetersImporter', () => {
                 '',
                 '',
                 '',
-                'да',
+                'yes',
             ],
             [
                 fakeAddress,
@@ -119,7 +119,7 @@ describe('DomaMetersImporter', () => {
                 '',
                 '',
                 '',
-                'нет',
+                'no',
             ],
             [
                 fakeAddress,
