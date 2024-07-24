@@ -46,7 +46,7 @@ describe('CheckUserExistenceService', () => {
                     userType: RESIDENT,
                 })
                 expect(result).toEqual({
-                    userIsExist: false,
+                    userExists: false,
                     nameIsSet: false,
                     emailIsSet: false,
                     phoneIsSet: false,
@@ -63,7 +63,7 @@ describe('CheckUserExistenceService', () => {
                     userType: RESIDENT,
                 })
                 expect(result).toEqual({
-                    userIsExist: false,
+                    userExists: false,
                     nameIsSet: false,
                     emailIsSet: false,
                     phoneIsSet: false,
@@ -84,7 +84,7 @@ describe('CheckUserExistenceService', () => {
                         password: faker.internet.password(),
                     },
                     expectedResult: {
-                        userIsExist: true,
+                        userExists: true,
                         nameIsSet: true,
                         emailIsSet: true,
                         phoneIsSet: true,
@@ -99,7 +99,7 @@ describe('CheckUserExistenceService', () => {
                         password: faker.internet.password(),
                     },
                     expectedResult: {
-                        userIsExist: true,
+                        userExists: true,
                         nameIsSet: false,
                         emailIsSet: true,
                         phoneIsSet: true,
@@ -114,7 +114,7 @@ describe('CheckUserExistenceService', () => {
                         password: faker.internet.password(),
                     },
                     expectedResult: {
-                        userIsExist: true,
+                        userExists: true,
                         nameIsSet: true,
                         emailIsSet: false,
                         phoneIsSet: true,
@@ -129,7 +129,7 @@ describe('CheckUserExistenceService', () => {
                         password: null,
                     },
                     expectedResult: {
-                        userIsExist: true,
+                        userExists: true,
                         nameIsSet: true,
                         emailIsSet: true,
                         phoneIsSet: true,
@@ -161,7 +161,7 @@ describe('CheckUserExistenceService', () => {
                     userType: userType,
                 })
                 expect(result).toEqual({
-                    userIsExist: false,
+                    userExists: false,
                     nameIsSet: false,
                     emailIsSet: false,
                     phoneIsSet: false,
@@ -183,7 +183,7 @@ describe('CheckUserExistenceService', () => {
                     userType: resetUserAttrs.type,
                 })
                 expect(result).toEqual({
-                    userIsExist: false,
+                    userExists: false,
                     nameIsSet: false,
                     emailIsSet: false,
                     phoneIsSet: false,
@@ -207,7 +207,7 @@ describe('CheckUserExistenceService', () => {
                     userType: deletedUserAttrs.type,
                 })
                 expect(result).toEqual({
-                    userIsExist: false,
+                    userExists: false,
                     nameIsSet: false,
                     emailIsSet: false,
                     phoneIsSet: false,

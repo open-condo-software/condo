@@ -20714,7 +20714,7 @@ export type CheckUserExistenceInput = {
 
 export type CheckUserExistenceOutput = {
   __typename?: 'CheckUserExistenceOutput';
-  userIsExist: Scalars['Boolean'];
+  userExists: Scalars['Boolean'];
   nameIsSet: Scalars['Boolean'];
   emailIsSet: Scalars['Boolean'];
   phoneIsSet: Scalars['Boolean'];

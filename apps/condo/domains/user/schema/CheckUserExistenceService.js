@@ -63,7 +63,7 @@ const CheckUserExistenceService = new GQLCustomSchema('CheckUserExistenceService
         },
         {
             access: true,
-            type: 'type CheckUserExistenceOutput { userIsExist: Boolean!, nameIsSet: Boolean!, emailIsSet: Boolean!, phoneIsSet: Boolean!, passwordIsSet: Boolean! }',
+            type: 'type CheckUserExistenceOutput { userExists: Boolean!, nameIsSet: Boolean!, emailIsSet: Boolean!, phoneIsSet: Boolean!, passwordIsSet: Boolean! }',
         },
     ],
 
@@ -103,7 +103,7 @@ const CheckUserExistenceService = new GQLCustomSchema('CheckUserExistenceService
 
                 const user = users[0]
                 const result = {
-                    userIsExist: false,
+                    userExists: false,
                     nameIsSet: false,
                     emailIsSet: false,
                     phoneIsSet: false,
@@ -112,7 +112,7 @@ const CheckUserExistenceService = new GQLCustomSchema('CheckUserExistenceService
 
                 if (!user || user.deletedAt) return result
 
-                result.userIsExist = true
+                result.userExists = true
                 result.nameIsSet = Boolean(get(user, 'name', null))
                 result.emailIsSet = Boolean(get(user, 'email', null))
                 result.phoneIsSet = Boolean(get(user, 'phone', null))

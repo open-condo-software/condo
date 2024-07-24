@@ -76773,7 +76773,7 @@ input CheckUserExistenceInput {
 }
 
 type CheckUserExistenceOutput {
-  userIsExist: Boolean!
+  userExists: Boolean!
   nameIsSet: Boolean!
   emailIsSet: Boolean!
   phoneIsSet: Boolean!
