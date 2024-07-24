@@ -11,13 +11,14 @@ const { GQLCustomSchema, find, getSchemaCtx, getById } = require('@open-condo/ke
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { i18n } = require('@open-condo/locales/loader')
 
-const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
-const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
+const { DV_VERSION_MISMATCH, WRONG_FORMAT, NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const access = require('@condo/domains/user/access/SignInUserService')
-const { SERVICE, STAFF, RESIDENT } = require('@condo/domains/user/constants/common')
+const { SERVICE, STAFF, RESIDENT, MAX_ANONYMOUS_REQUESTS_FOR_IP_BY_DAY } = require('@condo/domains/user/constants/common')
+const { GQL_ERRORS } = require('@condo/domains/user/constants/errors')
 const { ConfirmPhoneAction, User } = require('@condo/domains/user/utils/serverSchema')
+const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 
 /**
@@ -95,6 +96,10 @@ const ERRORS = {
 }
 
 
+const REDIS_GUARD = new RedisGuard()
+const MAX_ANONYMOUS_REQUESTS_BY_DAY = Number(conf['MAX_ANONYMOUS_REQUESTS_FOR_IP_BY_DAY']) || MAX_ANONYMOUS_REQUESTS_FOR_IP_BY_DAY
+const IP_WHITE_LIST = conf.IP_WHITE_LIST ? JSON.parse(conf.IP_WHITE_LIST) : []
+
 const REQUIRED_USER_FIELDS_BY_TYPE = {
     [RESIDENT]: ['phone'],
     [STAFF]: ['phone', 'name', 'password'],
@@ -121,6 +126,15 @@ const checkRequiredUserFields = (requiredFields, userData) => {
     return { missingRequiredFields: missingFields.length > 0, missingFields }
 }
 
+const checkDayRequestLimitCounters = async (context, rawIp) => {
+    const ip = rawIp.split(':').pop()
+    const key = `signInUser:ip:${ip}`
+    const byIpCounter = await REDIS_GUARD.incrementDayCounter(key)
+    if (byIpCounter > MAX_ANONYMOUS_REQUESTS_BY_DAY && !IP_WHITE_LIST.includes(ip)) {
+        throw new GQLError(GQL_ERRORS.SMS_FOR_IP_DAY_LIMIT_REACHED, context)
+    }
+}
+
 const SignInUserService = new GQLCustomSchema('SignInUserService', {
     types: [
         {
@@ -129,11 +143,11 @@ const SignInUserService = new GQLCustomSchema('SignInUserService', {
         },
         {
             access: true,
-            type: 'input SignInUserInput { dv: Int!, sender: JSON!, confirmActionToken: String!, userType: UserTypeType!, userData: SignInUserUserDataInput }',
+            type: 'input SignInUserInput { dv: Int!, sender: SenderFieldInput!, confirmActionToken: ID!, userType: UserTypeType!, userData: SignInUserUserDataInput }',
         },
         {
             access: true,
-            type: 'type SignInUserOutput { user: User, token: String! }',
+            type: 'type SignInUserOutput { user: User, token: ID! }',
         },
     ],
 
@@ -151,6 +165,8 @@ const SignInUserService = new GQLCustomSchema('SignInUserService', {
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data } = args
                 const { confirmActionToken, userType, userData, dv, sender } = data
+
+                await checkDayRequestLimitCounters(context, context.req.ip)
 
                 const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
 

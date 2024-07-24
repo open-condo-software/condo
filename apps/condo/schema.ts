@@ -76607,8 +76607,8 @@ export type ShortScopesField = {
 
 export type SignInUserInput = {
   dv: Scalars['Int'];
-  sender: Scalars['JSON'];
-  confirmActionToken: Scalars['String'];
+  sender: SenderFieldInput;
+  confirmActionToken: Scalars['ID'];
   userType: UserTypeType;
   userData?: Maybe<SignInUserUserDataInput>;
 };
@@ -76616,7 +76616,7 @@ export type SignInUserInput = {
 export type SignInUserOutput = {
   __typename?: 'SignInUserOutput';
   user?: Maybe<User>;
-  token: Scalars['String'];
+  token: Scalars['ID'];
 };
 
 export type SignInUserUserDataInput = {

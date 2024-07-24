@@ -712,5 +712,16 @@ describe('SignInUserService', () => {
                 }))
             })
         })
+
+        test('asd', async () => {
+            await signInUserByTestClient(anonymousClient, {
+                confirmActionToken: '123123',
+                userType: RESIDENT,
+                userData: {
+                    name: faker.name.fullName(),
+                    password: '123321123321',
+                },
+            })
+        })
     })
 })
