@@ -102,6 +102,9 @@ function getMappers (format, locale) {
     const ColdAirResourceTypeValue = i18n('meter.import.value.meterResourceType.coldAir', { locale })
     const DrainageResourceTypeValue = i18n('meter.import.value.meterResourceType.drainage', { locale })
 
+    const Yes = i18n('Yes', { locale })
+    const No = i18n('No', { locale })
+
     return format === DOMA_EXCEL ? {
         unitType: {
             [FlatUnitTypeValue.toLowerCase()]: FLAT_UNIT_TYPE,
@@ -118,6 +121,10 @@ function getMappers (format, locale) {
             [GasSupplyResourceTypeValue]: GAS_SUPPLY_METER_RESOURCE_ID,
             [ColdAirResourceTypeValue]: COLD_AIR_METER_RESOURCE_ID,
             [DrainageResourceTypeValue]: DRAINAGE_METER_RESOURCE_ID,
+        },
+        isAutomatic: {
+            [Yes.toLowerCase()]: true,
+            [No.toLowerCase()]: false,
         },
     } : {
         unitType: {},
@@ -136,6 +143,7 @@ function getMappers (format, locale) {
             '12': '', // Water for irrigation
             '13': '', // Garbage
         },
+        isAutomatic: {},
     }
 }
 
@@ -161,6 +169,7 @@ async function getErrors (keystone, format, locale, columns, mappers) {
 
     const UnknownResource =  i18n('meter.import.error.unknownResourceType', { locale, meta: { knownList: Object.keys(mappers.resourceId).join(', ') } })
     const UnknownUnitType =  i18n('meter.import.error.unknownUnitType', { locale, meta: { knownList: Object.keys(mappers.unitType).join(', ') } })
+    const UnknownIsAutomatic = i18n('meter.import.error.unknownIsAutomatic', { locale, meta: { knownList: Object.keys(mappers.isAutomatic).join(', ') } })
 
     const InvalidColumnsMessage = columns ? i18n('TableHasInvalidHeaders.message', { locale, meta: {
         value: columns.map(column => `"${column.name}"`).join(', '),
@@ -176,6 +185,7 @@ async function getErrors (keystone, format, locale, columns, mappers) {
         emptyRows: { message: `${EmptyRowsErrorTitle}. ${EmptyRowsErrorMessage}` },
         unknownResource: { message: UnknownResource },
         unknownUnitType: { message: UnknownUnitType },
+        unknownIsAutomatic: { message: UnknownIsAutomatic },
     }
 }
 

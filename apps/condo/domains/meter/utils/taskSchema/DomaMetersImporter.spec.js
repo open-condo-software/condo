@@ -19,6 +19,10 @@ class ImporterWrapper extends DomaMetersImporter {
             ТЕПЛО: '18555734-0631-11ec-9a03-0242ac130003',
             ГАЗ: '1c267e92-0631-11ec-9a03-0242ac130003',
         },
+        isAutomatic: {
+            да: true,
+            нет: false,
+        },
     }
 
     errors = {
@@ -31,6 +35,7 @@ class ImporterWrapper extends DomaMetersImporter {
         emptyRows: { message: 'emptyRows' },
         unknownResource: { message: 'unknownResource' },
         unknownUnitType: { message: 'unknownUnitType' },
+        unknownIsAutomatic: { message: 'unknownIsAutomatic' },
     }
 
     constructor () {
@@ -70,7 +75,7 @@ describe('DomaMetersImporter', () => {
                 '',
                 '',
                 '',
-                'y',
+                'да',
             ],
             [
                 fakeAddress,
@@ -114,7 +119,7 @@ describe('DomaMetersImporter', () => {
                 '',
                 '',
                 '',
-                '',
+                'нет',
             ],
             [
                 fakeAddress,
@@ -157,6 +162,28 @@ describe('DomaMetersImporter', () => {
                 '',
                 '',
                 '',
+            ],
+            [
+                fakeAddress,
+                '2',
+                'Квартира',
+                '003',
+                'ХВС',
+                '0003',
+                '2',
+                '103.1',
+                '',
+                '',
+                '',
+                date,
+                verificationDate,
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '+',
             ],
         ]
 
@@ -226,7 +253,7 @@ describe('DomaMetersImporter', () => {
                     commissioningDate: '',
                     sealingDate: sealingDate,
                     controlReadingsDate: '',
-                    isAutomatic: false,
+                    isAutomatic: undefined,
                 },
             },
             {
@@ -259,6 +286,6 @@ describe('DomaMetersImporter', () => {
             },
         ])
 
-        expect(errors).toEqual([['unknownUnitType'], ['unknownResource']])
+        expect(errors).toEqual([['unknownUnitType'], ['unknownResource'], ['unknownIsAutomatic']])
     })
 })
