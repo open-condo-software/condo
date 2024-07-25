@@ -54,7 +54,7 @@ describe('DomaMetersImporter', () => {
         const verificationDate = dayjs().format('DD.MM.YYYY')
         const sealingDate = dayjs().format('DD.MM.YYYY')
         const rows = [
-            // address, unitName, unitType, accountNumber, meterType, meterNumber, tariffs, v1, v2, v3, v4, date, verificationDate, nextVerificationDate, installationDate, commissioningDate, sealingDate, controlReadingsDate, place
+            // address, unitName, unitType, accountNumber, meterType, meterNumber, tariffs, v1, v2, v3, v4, date, verificationDate, nextVerificationDate, installationDate, commissioningDate, sealingDate, controlReadingsDate, place, isAutomatic
             [
                 fakeAddress,
                 '1',
