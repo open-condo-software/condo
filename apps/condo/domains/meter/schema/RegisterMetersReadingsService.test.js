@@ -1033,7 +1033,6 @@ describe('RegisterMetersReadingsService', () => {
             ...readings[0],
             value1: faker.random.numeric(3),
             value2: faker.random.numeric(4),
-            value3: faker.random.numeric(5),
             meterMeta: undefined,
         }]
         const [thirdAttempt] = await registerMetersReadingsByTestClient(adminClient, o10n, thirdReadings)
