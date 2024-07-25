@@ -5,13 +5,14 @@ const { v4: uuid } = require('uuid')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
+const { find } = require('@open-condo/keystone/schema')
 const { getSchemaCtx, allItemsQueryByChunks } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
 
-const { NEWS_SENDING_TTL_IN_SEC } = require('@condo/domains/news/constants/common')
+const { NEWS_SENDING_TTL_IN_SEC, MESSAGE_TITLE_MAX_LEN, MESSAGE_BODY_MAX_LEN } = require('@condo/domains/news/constants/common')
 const { defineMessageType } = require('@condo/domains/news/tasks/notifyResidentsAboutNewsItem.helpers')
 const { queryFindResidentsByOrganizationAndScopes } = require('@condo/domains/news/utils/accessSchema')
-const { NewsItem, NewsItemScope } = require('@condo/domains/news/utils/serverSchema')
+const { NewsItem } = require('@condo/domains/news/utils/serverSchema')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
@@ -24,8 +25,6 @@ const REDIS_GUARD = new RedisGuard()
 const action = 'notifyResidentsAboutNewsItem'
 
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'notifyResidentsAboutNewsItem' } }
-const TITLE_MAX_LEN = 50
-const BODY_MAX_LEN = 150
 
 /**
  * @param {NewsItem} newsItem
@@ -55,12 +54,12 @@ function checkSendingPossibility (newsItem) {
  * @param {string} taskId
  * @returns {Promise<void>}
  */
-async function sendNotifications (context, newsItem, taskId) {
+async function sendNotifications (newsItem, taskId) {
     logger.info({ msg: 'Data of news item for sending', taskId, data: { newsItem } })
 
     checkSendingPossibility(newsItem)
 
-    const scopes = await NewsItemScope.getAll(context, { newsItem: { id: newsItem.id } })
+    const scopes = await find('NewsItemScope', { newsItem: { id: newsItem.id, deletedAt: null }, deletedAt: null })
 
     const residentsData = []
     await allItemsQueryByChunks({
@@ -98,8 +97,8 @@ async function sendNotifications (context, newsItem, taskId) {
                 type: defineMessageType(newsItem),
                 meta: {
                     dv: 1,
-                    title: truncate(newsItem.title, { length: TITLE_MAX_LEN, separator: ' ', omission: '...' }),
-                    body: truncate(newsItem.body, { length: BODY_MAX_LEN, separator: ' ', omission: '...' }),
+                    title: truncate(newsItem.title, { length: MESSAGE_TITLE_MAX_LEN, separator: ' ', omission: '...' }),
+                    body: truncate(newsItem.body, { length: MESSAGE_BODY_MAX_LEN, separator: ' ', omission: '...' }),
                     data: {
                         newsItemId: newsItem.id,
                         organizationId: newsItem.organization.id,
@@ -170,7 +169,7 @@ async function notifyResidentsAboutNewsItem (newsItemId) {
 
         const newsItem = await NewsItem.getOne(context, { id: newsItemId })
 
-        await sendNotifications(context, newsItem, taskId)
+        await sendNotifications(newsItem, taskId)
     } catch (error) {
         logger.error({
             msg: 'failed to send news to residents',
