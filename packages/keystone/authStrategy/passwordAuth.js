@@ -8,7 +8,7 @@ const { PasswordAuthStrategy: DefaultPasswordAuthStrategy } = require('@keystone
  * What are the differences with the main version?
  *
  * - User type check (disabled by default)
- * - Email verification check (disabled by default)
+ * - Verification check (disabled by default)
  * - Reject deleted user authorization (enabled by default)
  *
  * All custom features can be turned off, then there will be default authorization like in basic PasswordAuthStrategy
@@ -27,7 +27,7 @@ const { PasswordAuthStrategy: DefaultPasswordAuthStrategy } = require('@keystone
  *     itemTypeOptions: ['staff', 'service', 'resident'],
  *     itemTypeDefault: 'staff',
  *
- *     verificationEmailField: 'isEmailVerified',
+ *     verificationField: 'isEmailVerified',
  *
  *     rejectSoftDeletedItems: true,
  * }
@@ -44,7 +44,7 @@ class CondoPasswordAuthStrategy extends DefaultPasswordAuthStrategy {
             // itemTypeOptions: ['staff', 'service', 'resident'],
             // itemTypeDefault: 'staff',
             //
-            // verificationEmailField: 'isEmailVerified',
+            // verificationField: 'isEmailVerified',
 
             rejectSoftDeletedItems: true,
 
@@ -82,7 +82,7 @@ class CondoPasswordAuthStrategy extends DefaultPasswordAuthStrategy {
             identityField,
             itemTypeField,
             itemTypeDefault,
-            verificationEmailField,
+            verificationField,
             rejectSoftDeletedItems,
         } = this.config
 
@@ -92,7 +92,7 @@ class CondoPasswordAuthStrategy extends DefaultPasswordAuthStrategy {
             [identityField]: identity,
             ...(itemTypeField ? { [itemTypeField]: itemType } : null),
             ...(rejectSoftDeletedItems ? { deletedAt: null } : null),
-            ...(verificationEmailField ? { [verificationEmailField]: true } : null),
+            ...(verificationField ? { [verificationField]: true } : null),
         })
 
         // * * * Next comes the original logic * * *
