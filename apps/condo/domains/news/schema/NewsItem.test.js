@@ -789,6 +789,26 @@ describe('NewsItems', () => {
             expect(updatedObj.type).toMatch(NEWS_TYPE_COMMON)
         })
 
+        test('must allow to set validBefore on published and even sent news items', async () => {
+            const [o10n] = await createTestOrganization(adminClient)
+            const [newsItem] = await createTestNewsItem(adminClient, o10n)
+            await createTestNewsItemScope(adminClient, newsItem)
+            await publishTestNewsItem(adminClient, newsItem.id)
+
+            await waitFor(async () => {
+                const [res] = await _internalScheduleTaskByNameByTestClient(adminClient, { taskName: 'notifyResidentsAboutDelayedNewsItems' })
+                expect(res.id).toBeDefined()
+            }, { delay: (SENDING_DELAY_SEC + 2) * 1000 })
+
+            await waitFor(async () => {
+                const sentNewsItem = await NewsItem.getOne(adminClient, { id: newsItem.id })
+                expect(sentNewsItem.sentAt).not.toBeNull()
+            })
+
+            const [updatedObj] = await updateTestNewsItem(adminClient, newsItem.id, { validBefore: dayjs().toISOString() })
+            expect(updatedObj.type).toMatch(NEWS_TYPE_COMMON)
+        })
+
         test('must throw an error if there is no validity date for emergency news item', async () => {
             await expectToThrowGQLError(
                 async () => await createTestNewsItem(adminClient, dummyO10n, { type: NEWS_TYPE_EMERGENCY }),
@@ -819,32 +839,47 @@ describe('NewsItems', () => {
             )
         })
 
-        test('must throw an error on user trying to edit the news item which already been sent', async () => {
-            const [o10n] = await createTestOrganization(adminClient)
-            const [newsItem] = await createTestNewsItem(adminClient, o10n)
-            await createTestNewsItemScope(adminClient, newsItem)
-            await publishTestNewsItem(adminClient, newsItem.id)
+        describe('must throw an error on user trying to edit the news item which already been sent', () => {
+            const payloads = [
+                { title: faker.lorem.words(3) },
+                { body: faker.lorem.words(3) },
+                { type: NEWS_TYPE_EMERGENCY },
+                { sendAt: faker.date.soon().toISOString() },
+            ]
 
-            await waitFor(async () => {
-                const [res] = await _internalScheduleTaskByNameByTestClient(adminClient, { taskName: 'notifyResidentsAboutDelayedNewsItems' })
-                expect(res.id).toBeDefined()
-            }, { delay: (SENDING_DELAY_SEC + 2) * 1000 })
+            let newsItemId
 
-            await waitFor(async () => {
-                const sentNewsItem = await NewsItem.getOne(adminClient, { id: newsItem.id })
-                expect(sentNewsItem.sentAt).not.toBeNull()
+            beforeAll(async () => {
+                const [o10n] = await createTestOrganization(adminClient)
+                const [newsItem] = await createTestNewsItem(adminClient, o10n)
+                await createTestNewsItemScope(adminClient, newsItem)
+                await publishTestNewsItem(adminClient, newsItem.id)
+
+                await waitFor(async () => {
+                    const [res] = await _internalScheduleTaskByNameByTestClient(adminClient, { taskName: 'notifyResidentsAboutDelayedNewsItems' })
+                    expect(res.id).toBeDefined()
+                }, { delay: (SENDING_DELAY_SEC + 2) * 1000 })
+
+                await waitFor(async () => {
+                    const sentNewsItem = await NewsItem.getOne(adminClient, { id: newsItem.id })
+                    expect(sentNewsItem.sentAt).not.toBeNull()
+                })
+
+                newsItemId = newsItem.id
             })
 
-            await expectToThrowGQLError(
-                async () => await updateTestNewsItem(adminClient, newsItem.id, { title: faker.lorem.words(3) }),
-                {
-                    code: 'BAD_USER_INPUT',
-                    type: 'EDIT_DENIED_ALREADY_SENT',
-                    message: 'The sent news item is restricted from editing',
-                    mutation: 'updateNewsItem',
-                    messageForUser: 'api.newsItem.EDIT_DENIED_ALREADY_SENT',
-                },
-            )
+            test.each(payloads)('%p', async (payload) => {
+                await expectToThrowGQLError(
+                    async () => await updateTestNewsItem(adminClient, newsItemId, payload),
+                    {
+                        code: 'BAD_USER_INPUT',
+                        type: 'EDIT_DENIED_ALREADY_SENT',
+                        message: 'The sent news item is restricted from editing',
+                        mutation: 'updateNewsItem',
+                        messageForUser: 'api.newsItem.EDIT_DENIED_ALREADY_SENT',
+                    },
+                )
+            })
         })
 
         describe('must throw an error on trying to edit the published news item', () => {

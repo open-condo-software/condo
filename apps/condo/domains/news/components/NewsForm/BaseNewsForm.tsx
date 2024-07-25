@@ -8,7 +8,6 @@ import {
     NewsItemScope as INewsItemScope,
     NewsItemScopeCreateInput as INewsItemScopeCreateInput,
     NewsItemScopeUnitTypeType,
-    NewsItemTemplate as INewsItemTemplate,
     NewsItemUpdateInput as INewsItemUpdateInput,
     Property as IProperty,
     QueryAllNewsItemsArgs as IQueryAllNewsItemsArgs,
@@ -211,10 +210,6 @@ const getUnitNamesAndUnitTypes = (property, sectionKeys) => {
     return { unitNames, unitTypes }
 }
 
-const getIsDateInFuture = (form, fieldName) => {
-    const date = form.getFieldsValue([fieldName])[fieldName]
-    return date.isSameOrAfter(dayjs(), 'minute')
-}
 const getValidBeforeAfterSendAt = (form) => {
     const { sendAt, validBefore } = form.getFieldsValue(['sendAt', 'validBefore'])
     if (sendAt && validBefore) {
@@ -263,12 +258,15 @@ const isTimeDisabled = date => {
     }
 }
 
-export const getDateRule: (error: string) => Rule = (error) => (form) => {
+export const getIsDateInFutureRule: (error: string) => Rule = (error) => (form) => {
     return {
         message: error,
         validator: (rule) => {
             const fieldName = get(rule, 'fullField', null)
-            if (fieldName) return getIsDateInFuture(form, fieldName) ? Promise.resolve() : Promise.reject()
+            const date = form.getFieldsValue([fieldName])[fieldName]
+            if (fieldName && date) {
+                return date.isSameOrAfter(dayjs(), 'minute') ? Promise.resolve() : Promise.reject()
+            }
             return Promise.resolve()
         },
     }
@@ -683,7 +681,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     }), [PropertiesLabel])
 
     const { requiredValidator } = useValidations()
-    const dateRule: Rule = useMemo(() => getDateRule(PastTimeErrorMessage), [PastTimeErrorMessage])
+    const dateRule: Rule = useMemo(() => getIsDateInFutureRule(PastTimeErrorMessage), [PastTimeErrorMessage])
     const finishWorkRule: Rule = useMemo(() => getFinishWorkRule(ValidBeforeErrorMessage), [ValidBeforeErrorMessage])
     const commonRule: Rule = useMemo(() => requiredValidator, [requiredValidator])
     const titleRules = useMemo(() => [{
@@ -746,8 +744,8 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         } = condoFormValues
 
         const updatedNewsItemValues = {
-            validBefore: type === NEWS_TYPE_EMERGENCY ? validBefore : null,
             sendAt: sendPeriod === 'later' ? sendAt : null,
+            validBefore,
             type,
             body,
             title,
@@ -1196,32 +1194,30 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                 </RadioGroup>
                                                             </Form.Item>
                                                         </Col>
-                                                        { selectedType === NEWS_TYPE_EMERGENCY && (
-                                                            <Col span={isMediumWindow ? 24 : 12}>
-                                                                <Form.Item
-                                                                    label={(
-                                                                        <LabelWithInfo
-                                                                            title={ValidBeforeTitle}
-                                                                            message={ValidBeforeLabel}/>
-                                                                    )}
-                                                                    labelCol={FORM_FILED_COL_PROPS}
-                                                                    name='validBefore'
-                                                                    required
-                                                                    rules={[finishWorkRule, commonRule, dateRule]}
-                                                                    validateFirst={true}
-                                                                >
-                                                                    <DatePicker
-                                                                        style={FULL_WIDTH_STYLE}
-                                                                        format='DD MMMM YYYY HH:mm'
-                                                                        showTime={SHOW_TIME_CONFIG}
-                                                                        onChange={handleValidBeforeChange(form, 'validBefore')}
-                                                                        placeholder={SelectPlaceholder}
-                                                                        disabledDate={isDateDisabled}
-                                                                        disabledTime={isTimeDisabled}
-                                                                        showNow={false}/>
-                                                                </Form.Item>
-                                                            </Col>
-                                                        )}
+                                                        <Col span={isMediumWindow ? 24 : 12}>
+                                                            <Form.Item
+                                                                label={(
+                                                                    <LabelWithInfo
+                                                                        title={ValidBeforeTitle}
+                                                                        message={ValidBeforeLabel}/>
+                                                                )}
+                                                                labelCol={FORM_FILED_COL_PROPS}
+                                                                name='validBefore'
+                                                                required={selectedType === NEWS_TYPE_EMERGENCY}
+                                                                rules={selectedType === NEWS_TYPE_EMERGENCY ? [finishWorkRule, commonRule, dateRule] : [finishWorkRule, dateRule]}
+                                                                validateFirst={true}
+                                                            >
+                                                                <DatePicker
+                                                                    style={FULL_WIDTH_STYLE}
+                                                                    format='DD MMMM YYYY HH:mm'
+                                                                    showTime={SHOW_TIME_CONFIG}
+                                                                    onChange={handleValidBeforeChange(form, 'validBefore')}
+                                                                    placeholder={SelectPlaceholder}
+                                                                    disabledDate={isDateDisabled}
+                                                                    disabledTime={isTimeDisabled}
+                                                                    showNow={false}/>
+                                                            </Form.Item>
+                                                        </Col>
                                                     </Row>
                                                 </Col>
                                             </Row>
