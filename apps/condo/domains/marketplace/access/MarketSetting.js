@@ -21,7 +21,10 @@ async function canReadMarketSettings ({ authentication: { item: user }, context 
         const residentOrganizationsIds = compact(userResidents.map(resident => get(resident, 'organization')))
         const residentsIds = userResidents.map(resident => resident.id)
         const userServiceConsumers = await find('ServiceConsumer', {
-            resident: { id_in: residentsIds },
+            resident: {
+                id_in: residentsIds,
+                deletedAt: null,
+            },
             deletedAt: null,
         })
         const serviceConsumerOrganizationIds = userServiceConsumers.map(sc => sc.organization)

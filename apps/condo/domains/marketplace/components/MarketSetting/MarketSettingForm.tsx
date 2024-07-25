@@ -7,8 +7,7 @@ import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { ActionBar, Button } from '@open-condo/ui'
-import { Checkbox } from '@open-condo/ui'
+import { ActionBar, Button, Checkbox } from '@open-condo/ui'
 
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { useNotificationMessages } from '@condo/domains/common/hooks/useNotificationMessages'

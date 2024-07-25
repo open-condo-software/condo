@@ -67,7 +67,6 @@ const SettingsPage = () => {
         where: {
             organization: { id: userOrganizationId },
             invoiceStatus: CONTEXT_FINISHED_STATUS,
-            deletedAt: null,
         },
         first: 1,
     })

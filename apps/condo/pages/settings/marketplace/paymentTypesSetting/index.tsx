@@ -1,4 +1,4 @@
-import { Col, Row, Typography } from 'antd'
+import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
 import Head from 'next/head'
@@ -6,6 +6,7 @@ import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { Typography } from '@open-condo/ui'
 
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { Loader } from '@condo/domains/common/components/Loader'
@@ -23,11 +24,10 @@ const PaymentTypesSettingContent: React.FC = () => {
     const PageTitle = intl.formatMessage({ id: 'pages.condo.settings.marketplace.paymentTypesSetting.title' })
 
     const userOrganization = useOrganization()
-    const userOrganizationId = get(userOrganization, ['organization', 'id'])
+    const userOrganizationId = get(userOrganization, ['organization', 'id'], null)
     const { objs: [marketSetting], loading } = MarketSetting.useObjects({
         where: {
             organization: { id: userOrganizationId },
-            deletedAt: null,
         },
     })
 

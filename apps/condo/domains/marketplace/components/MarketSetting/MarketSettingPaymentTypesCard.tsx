@@ -6,7 +6,7 @@ import { Typography } from '@open-condo/ui'
 
 import { SettingCard } from '@condo/domains/common/components/settings/SettingCard'
 
-const TICKET_DISABLING_SETTINGS_URL = '/settings/marketplace/paymentTypesSetting'
+const PAYMENT_TYPE_SETTING_URL = '/settings/marketplace/paymentTypesSetting'
 const TEXT_ELLIPSIS_CONFIG = { rows: 2 }
 
 export const MarketSettingPaymentTypesCard: React.FC = () => {
@@ -17,7 +17,7 @@ export const MarketSettingPaymentTypesCard: React.FC = () => {
     const router = useRouter()
 
     const handleClickCard = useCallback(() => {
-        router.push(TICKET_DISABLING_SETTINGS_URL)
+        router.push(PAYMENT_TYPE_SETTING_URL)
     }, [router])
 
     return (

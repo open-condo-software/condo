@@ -115,7 +115,7 @@ describe('MarketSetting', () => {
             })
         })
 
-        describe('user staff with access', () => {
+        describe('employee with access', () => {
             test('can create', async () => {
                 const [organization] = await createTestOrganization(admin)
                 const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
@@ -172,7 +172,7 @@ describe('MarketSetting', () => {
             })
         })
 
-        describe('user staff without access', () => {
+        describe('employee without access', () => {
             test('can\'t create', async () => {
                 const [organization] = await createTestOrganization(admin)
                 const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
@@ -223,15 +223,15 @@ describe('MarketSetting', () => {
         })
 
         describe('resident', () => {
-            let organization, client, marketSetting
+            let organization, residentClient, marketSetting
             beforeAll(async () => {
                 [organization] = await createTestOrganization(admin)
-                client = await makeClientWithResidentUser()
+                residentClient = await makeClientWithResidentUser()
                 const unitName = faker.random.alphaNumeric(8)
                 const accountNumber = faker.random.alphaNumeric(8)
 
                 const [property] = await createTestProperty(admin, organization)
-                const [resident] = await createTestResident(admin, client.user, property, {
+                const [resident] = await createTestResident(admin, residentClient.user, property, {
                     unitName,
                 })
                 await createTestServiceConsumer(admin, resident, organization, {
@@ -242,13 +242,13 @@ describe('MarketSetting', () => {
             })
             test('can\'t create', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestMarketSetting(client, organization)
+                    await createTestMarketSetting(residentClient, organization)
                 })
             })
 
             test('can\'t update', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestMarketSetting(client, marketSetting.id, { residentAllowedPaymentTypes: INVOICE_PAYMENT_TYPES[0] })
+                    await updateTestMarketSetting(residentClient, marketSetting.id, { residentAllowedPaymentTypes: INVOICE_PAYMENT_TYPES[0] })
                 })
             })
 
@@ -258,8 +258,8 @@ describe('MarketSetting', () => {
                 })
             })
 
-            test('can read', async () => {
-                const objs = await MarketSetting.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
+            test('Can only read settings of organizations in which he is a resident', async () => {
+                const objs = await MarketSetting.getAll(residentClient, {}, { sortBy: ['updatedAt_DESC'] })
 
                 expect(objs.length).toBeGreaterThanOrEqual(1)
                 expect(objs).toEqual(expect.arrayContaining([
