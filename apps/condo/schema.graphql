@@ -3216,6 +3216,8 @@ type UserRightsSetHistoryRecord {
   canReadUsers: Boolean
   canReadUserRightsSets: Boolean
   canManageUserRightsSets: Boolean
+  canReadPayments: Boolean
+  canReadBillingReceipts: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
   canExecute_internalSendHashedResidentPhones: Boolean
@@ -3323,6 +3325,10 @@ input UserRightsSetHistoryRecordWhereInput {
   canReadUserRightsSets_not: Boolean
   canManageUserRightsSets: Boolean
   canManageUserRightsSets_not: Boolean
+  canReadPayments: Boolean
+  canReadPayments_not: Boolean
+  canReadBillingReceipts: Boolean
+  canReadBillingReceipts_not: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteRegisterNewServiceUser_not: Boolean
   canExecuteSendMessage: Boolean
@@ -3484,6 +3490,10 @@ enum SortUserRightsSetHistoryRecordsBy {
   canReadUserRightsSets_DESC
   canManageUserRightsSets_ASC
   canManageUserRightsSets_DESC
+  canReadPayments_ASC
+  canReadPayments_DESC
+  canReadBillingReceipts_ASC
+  canReadBillingReceipts_DESC
   canExecuteRegisterNewServiceUser_ASC
   canExecuteRegisterNewServiceUser_DESC
   canExecuteSendMessage_ASC
@@ -3547,6 +3557,8 @@ input UserRightsSetHistoryRecordUpdateInput {
   canReadUsers: Boolean
   canReadUserRightsSets: Boolean
   canManageUserRightsSets: Boolean
+  canReadPayments: Boolean
+  canReadBillingReceipts: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
   canExecute_internalSendHashedResidentPhones: Boolean
@@ -3606,6 +3618,8 @@ input UserRightsSetHistoryRecordCreateInput {
   canReadUsers: Boolean
   canReadUserRightsSets: Boolean
   canManageUserRightsSets: Boolean
+  canReadPayments: Boolean
+  canReadBillingReceipts: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
   canExecute_internalSendHashedResidentPhones: Boolean
@@ -3777,6 +3791,14 @@ type UserRightsSet {
   """
   canManageUserRightsSets: Boolean
 
+  """ Enables a user with the given UserRightsSet to view all entities of model "Payment" as support / admin users do 
+  """
+  canReadPayments: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "BillingReceipt" as support / admin users do 
+  """
+  canReadBillingReceipts: Boolean
+
   """ Enables a user with the given UserRightsSet to execute "registerNewServiceUser" query/mutation 
   """
   canExecuteRegisterNewServiceUser: Boolean
@@ -3906,6 +3928,10 @@ input UserRightsSetWhereInput {
   canReadUserRightsSets_not: Boolean
   canManageUserRightsSets: Boolean
   canManageUserRightsSets_not: Boolean
+  canReadPayments: Boolean
+  canReadPayments_not: Boolean
+  canReadBillingReceipts: Boolean
+  canReadBillingReceipts_not: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteRegisterNewServiceUser_not: Boolean
   canExecuteSendMessage: Boolean
@@ -4047,6 +4073,10 @@ enum SortUserRightsSetsBy {
   canReadUserRightsSets_DESC
   canManageUserRightsSets_ASC
   canManageUserRightsSets_DESC
+  canReadPayments_ASC
+  canReadPayments_DESC
+  canReadBillingReceipts_ASC
+  canReadBillingReceipts_DESC
   canExecuteRegisterNewServiceUser_ASC
   canExecuteRegisterNewServiceUser_DESC
   canExecuteSendMessage_ASC
@@ -4110,6 +4140,8 @@ input UserRightsSetUpdateInput {
   canReadUsers: Boolean
   canReadUserRightsSets: Boolean
   canManageUserRightsSets: Boolean
+  canReadPayments: Boolean
+  canReadBillingReceipts: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
   canExecute_internalSendHashedResidentPhones: Boolean
@@ -4166,6 +4198,8 @@ input UserRightsSetCreateInput {
   canReadUsers: Boolean
   canReadUserRightsSets: Boolean
   canManageUserRightsSets: Boolean
+  canReadPayments: Boolean
+  canReadBillingReceipts: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
   canExecute_internalSendHashedResidentPhones: Boolean

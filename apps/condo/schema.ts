@@ -84009,6 +84009,10 @@ export enum SortUserRightsSetHistoryRecordsBy {
   CanReadUserRightsSetsDesc = 'canReadUserRightsSets_DESC',
   CanManageUserRightsSetsAsc = 'canManageUserRightsSets_ASC',
   CanManageUserRightsSetsDesc = 'canManageUserRightsSets_DESC',
+  CanReadPaymentsAsc = 'canReadPayments_ASC',
+  CanReadPaymentsDesc = 'canReadPayments_DESC',
+  CanReadBillingReceiptsAsc = 'canReadBillingReceipts_ASC',
+  CanReadBillingReceiptsDesc = 'canReadBillingReceipts_DESC',
   CanExecuteRegisterNewServiceUserAsc = 'canExecuteRegisterNewServiceUser_ASC',
   CanExecuteRegisterNewServiceUserDesc = 'canExecuteRegisterNewServiceUser_DESC',
   CanExecuteSendMessageAsc = 'canExecuteSendMessage_ASC',
@@ -84106,6 +84110,10 @@ export enum SortUserRightsSetsBy {
   CanReadUserRightsSetsDesc = 'canReadUserRightsSets_DESC',
   CanManageUserRightsSetsAsc = 'canManageUserRightsSets_ASC',
   CanManageUserRightsSetsDesc = 'canManageUserRightsSets_DESC',
+  CanReadPaymentsAsc = 'canReadPayments_ASC',
+  CanReadPaymentsDesc = 'canReadPayments_DESC',
+  CanReadBillingReceiptsAsc = 'canReadBillingReceipts_ASC',
+  CanReadBillingReceiptsDesc = 'canReadBillingReceipts_DESC',
   CanExecuteRegisterNewServiceUserAsc = 'canExecuteRegisterNewServiceUser_ASC',
   CanExecuteRegisterNewServiceUserDesc = 'canExecuteRegisterNewServiceUser_DESC',
   CanExecuteSendMessageAsc = 'canExecuteSendMessage_ASC',
@@ -96522,6 +96530,10 @@ export type UserRightsSet = {
   canReadUserRightsSets?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "UserRightsSet" similar to support users  */
   canManageUserRightsSets?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "Payment" as support / admin users do  */
+  canReadPayments?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "BillingReceipt" as support / admin users do  */
+  canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to execute "registerNewServiceUser" query/mutation  */
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to execute "sendMessage" query/mutation  */
@@ -96583,6 +96595,8 @@ export type UserRightsSetCreateInput = {
   canReadUsers?: Maybe<Scalars['Boolean']>;
   canReadUserRightsSets?: Maybe<Scalars['Boolean']>;
   canManageUserRightsSets?: Maybe<Scalars['Boolean']>;
+  canReadPayments?: Maybe<Scalars['Boolean']>;
+  canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
   canExecute_internalSendHashedResidentPhones?: Maybe<Scalars['Boolean']>;
@@ -96644,6 +96658,8 @@ export type UserRightsSetHistoryRecord = {
   canReadUsers?: Maybe<Scalars['Boolean']>;
   canReadUserRightsSets?: Maybe<Scalars['Boolean']>;
   canManageUserRightsSets?: Maybe<Scalars['Boolean']>;
+  canReadPayments?: Maybe<Scalars['Boolean']>;
+  canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
   canExecute_internalSendHashedResidentPhones?: Maybe<Scalars['Boolean']>;
@@ -96699,6 +96715,8 @@ export type UserRightsSetHistoryRecordCreateInput = {
   canReadUsers?: Maybe<Scalars['Boolean']>;
   canReadUserRightsSets?: Maybe<Scalars['Boolean']>;
   canManageUserRightsSets?: Maybe<Scalars['Boolean']>;
+  canReadPayments?: Maybe<Scalars['Boolean']>;
+  canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
   canExecute_internalSendHashedResidentPhones?: Maybe<Scalars['Boolean']>;
@@ -96759,6 +96777,8 @@ export type UserRightsSetHistoryRecordUpdateInput = {
   canReadUsers?: Maybe<Scalars['Boolean']>;
   canReadUserRightsSets?: Maybe<Scalars['Boolean']>;
   canManageUserRightsSets?: Maybe<Scalars['Boolean']>;
+  canReadPayments?: Maybe<Scalars['Boolean']>;
+  canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
   canExecute_internalSendHashedResidentPhones?: Maybe<Scalars['Boolean']>;
@@ -96865,6 +96885,10 @@ export type UserRightsSetHistoryRecordWhereInput = {
   canReadUserRightsSets_not?: Maybe<Scalars['Boolean']>;
   canManageUserRightsSets?: Maybe<Scalars['Boolean']>;
   canManageUserRightsSets_not?: Maybe<Scalars['Boolean']>;
+  canReadPayments?: Maybe<Scalars['Boolean']>;
+  canReadPayments_not?: Maybe<Scalars['Boolean']>;
+  canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
+  canReadBillingReceipts_not?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser_not?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
@@ -97008,6 +97032,8 @@ export type UserRightsSetUpdateInput = {
   canReadUsers?: Maybe<Scalars['Boolean']>;
   canReadUserRightsSets?: Maybe<Scalars['Boolean']>;
   canManageUserRightsSets?: Maybe<Scalars['Boolean']>;
+  canReadPayments?: Maybe<Scalars['Boolean']>;
+  canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
   canExecute_internalSendHashedResidentPhones?: Maybe<Scalars['Boolean']>;
@@ -97111,6 +97137,10 @@ export type UserRightsSetWhereInput = {
   canReadUserRightsSets_not?: Maybe<Scalars['Boolean']>;
   canManageUserRightsSets?: Maybe<Scalars['Boolean']>;
   canManageUserRightsSets_not?: Maybe<Scalars['Boolean']>;
+  canReadPayments?: Maybe<Scalars['Boolean']>;
+  canReadPayments_not?: Maybe<Scalars['Boolean']>;
+  canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
+  canReadBillingReceipts_not?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser_not?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
