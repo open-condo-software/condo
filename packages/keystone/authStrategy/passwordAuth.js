@@ -68,7 +68,7 @@ class ExtendedPasswordAuthStrategy extends DefaultPasswordAuthStrategy {
         const { itemTypeField, itemTypeOptions, itemTypeDefault } = this.config
         const itemType = args[itemTypeField] || itemTypeDefault
 
-        if (Boolean(itemTypeField) && !itemTypeOptions.includes(itemType)) {
+        if (Boolean(itemTypeField) && Array.isArray(itemTypeOptions) && !itemTypeOptions.includes(itemType)) {
             const message = `[passwordAuth:itemType:invalid] The ${itemTypeField} contains an invalid value. It must be one of the following: ${itemTypeOptions.join(', ')}`
             return { success: false, message }
         }
