@@ -27,6 +27,12 @@ const FAKE_ERROR_MESSAGE_PREFIX_REGEXP = new RegExp(`^${FAKE_ERROR_MESSAGE_PREFI
 const APPLE_TEST_PUSHTOKEN = conf[APPLE_CONFIG_TEST_PUSHTOKEN_ENV] || null
 const APPLE_TEST_VOIP_PUSHTOKEN = conf[APPLE_CONFIG_TEST_VOIP_PUSHTOKEN_ENV] || null
 
+
+jest.mock('@open-condo/config',  () => {
+    return {
+        APPS_WITH_DISABLED_NOTIFICATIONS: '["condo.app.clients"]',
+    }
+})
 describe('Apple adapter utils', () => {
 
     it('should succeed sending push notification to fake success push token', async () => {

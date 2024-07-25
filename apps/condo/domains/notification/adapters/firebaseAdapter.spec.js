@@ -22,6 +22,11 @@ const adapter = new FirebaseAdapter()
 const FAKE_SUCCESS_MESSAGE_PREFIX_REGEXP = new RegExp(`^${FAKE_SUCCESS_MESSAGE_PREFIX}`)
 const FIREBASE_TEST_PUSHTOKEN = conf[FIREBASE_CONFIG_TEST_PUSHTOKEN_ENV] || null
 
+jest.mock('@open-condo/config',  () => {
+    return {
+        APPS_WITH_DISABLED_NOTIFICATIONS: '["condo.app.clients"]',
+    }
+})
 describe('Firebase adapter utils', () => {
     it('should succeed sending push notification to fake success push token ', async () => {
         const tokens = [PUSH_FAKE_TOKEN_SUCCESS]
