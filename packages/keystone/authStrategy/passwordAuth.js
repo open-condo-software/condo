@@ -7,9 +7,11 @@ const { PasswordAuthStrategy: DefaultPasswordAuthStrategy } = require('@keystone
  *
  * What are the differences with the main version?
  *
- * - User type check
- * - Email verification check
- * - Reject deleted user authorization
+ * - User type check (disabled by default)
+ * - Email verification check (disabled by default)
+ * - Reject deleted user authorization (enabled by default)
+ *
+ * All custom features can be turned off, then there will be default authorization like in basic PasswordAuthStrategy
  *
  * These features are configurable via "config"
  *
@@ -38,14 +40,13 @@ class CondoPasswordAuthStrategy extends DefaultPasswordAuthStrategy {
             // NOTE: We do not set default values for new fields as the implementation of our applications may differ.
             // We should configure each application yourself as we need.
             //
-            // NOTE: Example:
             // itemTypeField: 'type',
             // itemTypeOptions: ['staff', 'service', 'resident'],
             // itemTypeDefault: 'staff',
             //
             // verificationEmailField: 'isEmailVerified',
-            //
-            // rejectSoftDeletedItems: true,
+
+            rejectSoftDeletedItems: true,
 
             ...this.config,
         }
