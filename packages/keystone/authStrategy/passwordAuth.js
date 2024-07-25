@@ -69,7 +69,7 @@ class CondoPasswordAuthStrategy extends DefaultPasswordAuthStrategy {
         const itemType = args[itemTypeField] || itemTypeDefault
 
         if (Boolean(itemTypeField) && !itemTypeOptions.includes(itemType)) {
-            const message = `[passwordAuth:itemType:invalid] The ${itemTypeField.name} contains an invalid value. It must be one of the following: ${itemTypeField.options.join(', ')}`
+            const message = `[passwordAuth:itemType:invalid] The ${itemTypeField} contains an invalid value. It must be one of the following: ${itemTypeOptions.join(', ')}`
             return { success: false, message }
         }
 
