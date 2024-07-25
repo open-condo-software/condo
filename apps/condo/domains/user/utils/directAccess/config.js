@@ -55,6 +55,12 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
         'OidcClient',
         { schemaName: 'User', readonly: true },
         'UserRightsSet',
+
+        // Payments domain
+        { schemaName: 'Payment', readonly: true },
+        
+        // Billing domain
+        { schemaName: 'BillingReceipt', readonly: true },
     ],
     fields: {
         Organization: [
