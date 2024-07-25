@@ -74,7 +74,7 @@ class UploadingFile {
 }
 
 const SIGNIN_BY_EMAIL_MUTATION = gql`
-    mutation sigin($identity: String, $secret: String, $type: String) {
+    mutation signin($identity: String, $secret: String, $type: String) {
         auth: authenticateUserWithPassword(email: $identity, password: $secret, type: $type) {
             user: item {
                 id

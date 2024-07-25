@@ -128,11 +128,12 @@ describe('SIGNIN', () => {
         expect(res.errors[0].message).toEqual(expect.stringContaining('[passwordAuth:itemType:invalid]'))
     })
 
-    test('Should authorize staff and service user, but should not authorize resident user', async () => {
+    test('Should authorize staff and service user with same email, but should not authorize resident user', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [, residentUserAttrs] = await createTestUser(admin, { type: RESIDENT })
-        const [staffUser, staffUserAttrs] = await createTestUser(admin, { type: STAFF })
-        const [serviceUser, serviceUserAttrs] = await createTestUser(admin, { type: SERVICE })
+        const email = createTestEmail()
+        const [, residentUserAttrs] = await createTestUser(admin, { type: RESIDENT, email })
+        const [staffUser, staffUserAttrs] = await createTestUser(admin, { type: STAFF, email })
+        const [serviceUser, serviceUserAttrs] = await createTestUser(admin, { type: SERVICE, email })
 
         const client1 = await makeClient()
         const client2 = await makeClient()
@@ -153,7 +154,7 @@ describe('SIGNIN', () => {
 
     test('should authorize staff user if no pass user type', async () => {
         const SIGNIN_MUTATION_WITHOUT_USER_TYPE = gql`
-            mutation sigin($identity: String, $secret: String) {
+            mutation signin($identity: String, $secret: String) {
                 obj: authenticateUserWithPassword(email: $identity, password: $secret) {
                     item {
                         id
