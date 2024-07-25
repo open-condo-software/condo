@@ -25,6 +25,7 @@ const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
 const { PaymentLinkMiddleware } = require('@condo/domains/acquiring/PaymentLinkMiddleware')
 const { VersioningMiddleware, getCurrentVersion } = require('@condo/domains/common/utils/VersioningMiddleware')
 const { UnsubscribeMiddleware } = require('@condo/domains/notification/UnsubscribeMiddleware')
+const { STAFF, SERVICE } = require('@condo/domains/user/constants/common')
 const { UserExternalIdentityMiddleware } = require('@condo/domains/user/integration/UserExternalIdentityMiddleware')
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
 
@@ -160,8 +161,8 @@ module.exports = prepareKeystone({
     authStrategyOpts: {
         config: {
             itemTypeField: 'type',
-            itemTypeOptions: ['staff', 'service'],
-            itemTypeDefault: 'staff',
+            itemTypeOptions: [STAFF, SERVICE],
+            itemTypeDefault: STAFF,
         },
     },
 })
