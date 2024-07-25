@@ -14,7 +14,7 @@ const { v4 } = require('uuid')
 
 const conf = require('@open-condo/config')
 const { formatError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { CondoPasswordAuthStrategy } = require('@open-condo/keystone/authStrategy/passwordAuth')
+const { ExtendedPasswordAuthStrategy } = require('@open-condo/keystone/authStrategy/passwordAuth')
 const { parseCorsSettings } = require('@open-condo/keystone/cors.utils')
 const { _internalGetExecutionContextAsyncLocalStorage } = require('@open-condo/keystone/executionContext')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
@@ -108,7 +108,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
 
     const authStrategyConfig = get(authStrategyOpts, 'config', {})
     const authStrategy = keystone.createAuthStrategy({
-        type: CondoPasswordAuthStrategy,
+        type: ExtendedPasswordAuthStrategy,
         list: 'User',
         config: {
             protectIdentities: false,

@@ -32,7 +32,7 @@ const { PasswordAuthStrategy: DefaultPasswordAuthStrategy } = require('@keystone
  *     rejectSoftDeletedItems: true,
  * }
  */
-class CondoPasswordAuthStrategy extends DefaultPasswordAuthStrategy {
+class ExtendedPasswordAuthStrategy extends DefaultPasswordAuthStrategy {
     constructor (...props) {
         super(...props)
 
@@ -127,4 +127,4 @@ class CondoPasswordAuthStrategy extends DefaultPasswordAuthStrategy {
 }
 
 
-module.exports = { CondoPasswordAuthStrategy }
+module.exports = { ExtendedPasswordAuthStrategy }
