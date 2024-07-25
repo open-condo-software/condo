@@ -38,7 +38,7 @@ class DomaMetersImporter extends AbstractMetersImporter {
         }
 
         const cell19Value = String(row[19]).toLowerCase()
-        if (!isNil(row[19]) && !isEmpty(cell19Value) && !has(this, ['mappers', 'isAutomatic', cell19Value])) {
+        if (!!row[19] && !has(this, ['mappers', 'isAutomatic', cell19Value])) {
             errors.push(this.errors.unknownIsAutomatic.message)
         }
 
@@ -69,7 +69,7 @@ class DomaMetersImporter extends AbstractMetersImporter {
                 commissioningDate: row[15],
                 sealingDate: row[16],
                 controlReadingsDate: row[17],
-                isAutomatic: isEmpty(cell19Value) ? undefined : this.mappers.isAutomatic[cell19Value],
+                isAutomatic: get(this, ['mappers', 'isAutomatic', cell19Value]),
             },
         }
     }
