@@ -4,18 +4,23 @@
 const dayjs = require('dayjs')
 const { get, isEmpty, isNil } = require('lodash')
 
+const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
+const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
+const { i18n } = require('@open-condo/locales/loader')
 
 const { CONTACT_FIELD, CLIENT_EMAIL_FIELD, CLIENT_NAME_FIELD, CLIENT_PHONE_LANDLINE_FIELD, CLIENT_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/meter/access/MeterReading')
-const { METER_READING_DATE_IN_FUTURE, METER_READING_WRONG_VALUES_COUNT } = require('@condo/domains/meter/constants/errors')
+const { METER_READING_DATE_IN_FUTURE, METER_READING_FEW_VALUES, METER_READING_EXTRA_VALUES } = require('@condo/domains/meter/constants/errors')
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { connectContactToMeterReading } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
 const { addClientInfoToResidentMeterReading } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
 const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
+
+const VALUES_COUNT = 4
 
 const ERRORS = {
     METER_READING_DATE_IN_FUTURE: (givenDate) => ({
@@ -25,11 +30,18 @@ const ERRORS = {
         messageForUser: 'api.meterReading.METER_READING_DATE_IN_FUTURE',
         messageInterpolation: { givenDate },
     }),
-    METER_READING_WRONG_VALUES_COUNT: (meterNumber, numberOfTariffs, fieldsNames) => ({
+    METER_READING_FEW_VALUES: (meterNumber, numberOfTariffs, fieldsNames) => ({
         code: BAD_USER_INPUT,
-        type: METER_READING_WRONG_VALUES_COUNT,
-        message: 'Wrong values count',
-        messageForUser: 'api.meterReading.METER_READING_WRONG_VALUES_COUNT',
+        type: METER_READING_FEW_VALUES,
+        message: 'Wrong values count: few values',
+        messageForUser: 'api.meterReading.METER_READING_FEW_VALUES',
+        messageInterpolation: { meterNumber, numberOfTariffs, fieldsNames },
+    }),
+    METER_READING_EXTRA_VALUES: (meterNumber, numberOfTariffs, fieldsNames) => ({
+        code: BAD_USER_INPUT,
+        type: METER_READING_EXTRA_VALUES,
+        message: 'Wrong values count: extra values',
+        messageForUser: 'api.meterReading.METER_READING_EXTRA_VALUES',
         messageInterpolation: { meterNumber, numberOfTariffs, fieldsNames },
     }),
 }
@@ -132,11 +144,11 @@ const MeterReading = new GQLListSchema('MeterReading', {
         },
         validateInput: async ({ context, resolvedData, existingItem }) => {
             const newItem = { ...existingItem, ...resolvedData }
+            const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
+
             const meterId = get(newItem, 'meter')
 
-            const meter = await Meter.getOne(context, {
-                id: meterId,
-            })
+            const meter = await getById('Meter', meterId)
 
             const emptyFieldsNames = []
             for (let i = 1; i <= meter.numberOfTariffs; i++) {
@@ -145,7 +157,20 @@ const MeterReading = new GQLListSchema('MeterReading', {
                 }
             }
             if (emptyFieldsNames.length > 0) {
-                throw new GQLError(ERRORS.METER_READING_WRONG_VALUES_COUNT(meter.number, meter.numberOfTariffs, emptyFieldsNames.join(', ')), context)
+                const localizedFieldsNames = emptyFieldsNames.map((fieldName) => i18n(`meter.import.column.${fieldName}`, { locale }))
+                throw new GQLError(ERRORS.METER_READING_FEW_VALUES(meter.number, meter.numberOfTariffs, localizedFieldsNames.join(', ')), context)
+            }
+
+            const extraFieldsNames = []
+            for (let i = meter.numberOfTariffs + 1; i <= VALUES_COUNT; i++) {
+                const value = get(newItem, `value${i}`)
+                if (!isNil(value) && !isEmpty(value)) {
+                    extraFieldsNames.push(`value${i}`)
+                }
+            }
+            if (extraFieldsNames.length > 0) {
+                const localizedFieldsNames = extraFieldsNames.map((fieldName) => i18n(`meter.import.column.${fieldName}`, { locale }))
+                throw new GQLError(ERRORS.METER_READING_EXTRA_VALUES(meter.number, meter.numberOfTariffs, localizedFieldsNames.join(', ')), context)
             }
         },
     },

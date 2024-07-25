@@ -4,15 +4,17 @@
 
 const { faker } = require('@faker-js/faker')
 
+const conf = require('@open-condo/config')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, expectValuesOfCommonFields, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
+const { i18n } = require('@open-condo/locales/loader')
 
 const { COLD_WATER_METER_RESOURCE_ID, CALL_METER_READING_SOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const { PropertyMeterReading, createTestPropertyMeterReading, updateTestPropertyMeterReading, createTestPropertyMeter } = require('@condo/domains/meter/utils/testSchema')
-const { MeterResource, MeterReadingSource, createTestMeter, createTestMeterReading } = require('@condo/domains/meter/utils/testSchema')
+const { MeterResource, MeterReadingSource } = require('@condo/domains/meter/utils/testSchema')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
@@ -243,9 +245,9 @@ describe('PropertyMeterReading', () => {
                     })
                     await createTestOrganizationEmployee(admin, organization, client.user, role)
 
-                    const [meter] = await createTestMeter(client, organization, property, resource, {})
+                    const [meter] = await createTestPropertyMeter(client, organization, property, resource, {})
 
-                    const [meterReading] = await createTestMeterReading(client, meter, source, {
+                    const [meterReading] = await createTestPropertyMeterReading(client, meter, source, {
                         date: undefined,
                     })
 
@@ -255,12 +257,31 @@ describe('PropertyMeterReading', () => {
             })
 
             describe('Values', () => {
-                test('Throw an error if values count less than number of tariffs', async () => {
+
+                const locale = conf.DEFAULT_LOCALE
+
+                test('Throw an error if values count is less than number of tariffs', async () => {
                     const [organization] = await createTestOrganization(admin)
                     const [property] = await createTestProperty(admin, organization)
                     const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
                     const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
                     const [propertyMeter] = await createTestPropertyMeter(admin, organization, property, resource, { numberOfTariffs: 3 })
+
+                    await expectToThrowGQLError(
+                        async () => await createTestPropertyMeterReading(admin, propertyMeter, source, {
+                            value1: undefined,
+                            value2: undefined,
+                            value3: undefined,
+                            value4: undefined,
+                        }),
+                        {
+                            code: 'BAD_USER_INPUT',
+                            type: 'METER_READING_FEW_VALUES',
+                            message: 'Wrong values count: few values',
+                            messageForUser: 'api.meterReading.METER_READING_FEW_VALUES',
+                            messageInterpolation: { meterNumber: propertyMeter.number, numberOfTariffs: 3, fieldsNames: ['value1', 'value2', 'value3'].map((field) => i18n(`meter.import.column.${field}`, { locale })).join(', ') },
+                        }
+                    )
 
                     await expectToThrowGQLError(
                         async () => await createTestPropertyMeterReading(admin, propertyMeter, source, {
@@ -271,10 +292,10 @@ describe('PropertyMeterReading', () => {
                         }),
                         {
                             code: 'BAD_USER_INPUT',
-                            type: 'METER_READING_WRONG_VALUES_COUNT',
-                            message: 'Wrong values count',
-                            messageForUser: 'api.meterReading.METER_READING_WRONG_VALUES_COUNT',
-                            messageInterpolation: { meterNumber: propertyMeter.number, numberOfTariffs: 3, fieldsNames: 'value2, value3' },
+                            type: 'METER_READING_FEW_VALUES',
+                            message: 'Wrong values count: few values',
+                            messageForUser: 'api.meterReading.METER_READING_FEW_VALUES',
+                            messageInterpolation: { meterNumber: propertyMeter.number, numberOfTariffs: 3, fieldsNames: ['value2', 'value3'].map((field) => i18n(`meter.import.column.${field}`, { locale })).join(', ') },
                         }
                     )
 
@@ -287,10 +308,10 @@ describe('PropertyMeterReading', () => {
                         }),
                         {
                             code: 'BAD_USER_INPUT',
-                            type: 'METER_READING_WRONG_VALUES_COUNT',
-                            message: 'Wrong values count',
-                            messageForUser: 'api.meterReading.METER_READING_WRONG_VALUES_COUNT',
-                            messageInterpolation: { meterNumber: propertyMeter.number, numberOfTariffs: 3, fieldsNames: 'value3' },
+                            type: 'METER_READING_FEW_VALUES',
+                            message: 'Wrong values count: few values',
+                            messageForUser: 'api.meterReading.METER_READING_FEW_VALUES',
+                            messageInterpolation: { meterNumber: propertyMeter.number, numberOfTariffs: 3, fieldsNames: ['value3'].map((field) => i18n(`meter.import.column.${field}`, { locale })).join(', ') },
                         }
                     )
 
@@ -303,10 +324,66 @@ describe('PropertyMeterReading', () => {
                         }),
                         {
                             code: 'BAD_USER_INPUT',
-                            type: 'METER_READING_WRONG_VALUES_COUNT',
-                            message: 'Wrong values count',
-                            messageForUser: 'api.meterReading.METER_READING_WRONG_VALUES_COUNT',
-                            messageInterpolation: { meterNumber: propertyMeter.number, numberOfTariffs: 3, fieldsNames: 'value1, value3' },
+                            type: 'METER_READING_FEW_VALUES',
+                            message: 'Wrong values count: few values',
+                            messageForUser: 'api.meterReading.METER_READING_FEW_VALUES',
+                            messageInterpolation: { meterNumber: propertyMeter.number, numberOfTariffs: 3, fieldsNames: ['value1', 'value3'].map((field) => i18n(`meter.import.column.${field}`, { locale })).join(', ') },
+                        }
+                    )
+                })
+
+                test('Throw an error if values count is more than number of tariffs', async () => {
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+                    const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [propertyMeter] = await createTestPropertyMeter(admin, organization, property, resource, { numberOfTariffs: 1 })
+
+                    await expectToThrowGQLError(
+                        async () => await createTestPropertyMeterReading(admin, propertyMeter, source, {
+                            value1: String(faker.datatype.number()),
+                            value2: String(faker.datatype.number()),
+                            value3: undefined,
+                            value4: undefined,
+                        }),
+                        {
+                            code: 'BAD_USER_INPUT',
+                            type: 'METER_READING_EXTRA_VALUES',
+                            message: 'Wrong values count: extra values',
+                            messageForUser: 'api.meterReading.METER_READING_EXTRA_VALUES',
+                            messageInterpolation: { meterNumber: propertyMeter.number, numberOfTariffs: 1, fieldsNames: ['value2'].map((field) => i18n(`meter.import.column.${field}`, { locale })).join(', ') },
+                        }
+                    )
+
+                    await expectToThrowGQLError(
+                        async () => await createTestPropertyMeterReading(admin, propertyMeter, source, {
+                            value1: String(faker.datatype.number()),
+                            value2: String(faker.datatype.number()),
+                            value3: String(faker.datatype.number()),
+                            value4: undefined,
+                        }),
+                        {
+                            code: 'BAD_USER_INPUT',
+                            type: 'METER_READING_EXTRA_VALUES',
+                            message: 'Wrong values count: extra values',
+                            messageForUser: 'api.meterReading.METER_READING_EXTRA_VALUES',
+                            messageInterpolation: { meterNumber: propertyMeter.number, numberOfTariffs: 1, fieldsNames: ['value2', 'value3'].map((field) => i18n(`meter.import.column.${field}`, { locale })).join(', ') },
+                        }
+                    )
+
+                    await expectToThrowGQLError(
+                        async () => await createTestPropertyMeterReading(admin, propertyMeter, source, {
+                            value1: String(faker.datatype.number()),
+                            value2: String(faker.datatype.number()),
+                            value3: String(faker.datatype.number()),
+                            value4: String(faker.datatype.number()),
+                        }),
+                        {
+                            code: 'BAD_USER_INPUT',
+                            type: 'METER_READING_EXTRA_VALUES',
+                            message: 'Wrong values count: extra values',
+                            messageForUser: 'api.meterReading.METER_READING_EXTRA_VALUES',
+                            messageInterpolation: { meterNumber: propertyMeter.number, numberOfTariffs: 1, fieldsNames: ['value2', 'value3', 'value4'].map((field) => i18n(`meter.import.column.${field}`, { locale })).join(', ') },
                         }
                     )
                 })
