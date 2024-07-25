@@ -976,6 +976,7 @@ const APPLE_CONFIG_ENV = 'APPLE_CONFIG_JSON'
 const APPLE_CONFIG_TEST_PUSHTOKEN_ENV = 'APPLE_PUSH_TOKEN_TEST'
 const APPLE_CONFIG_TEST_VOIP_PUSHTOKEN_ENV = 'APPLE_VOIP_PUSH_TOKEN_TEST'
 
+const APPS_WITH_DISABLED_NOTIFICATIONS_ENV = 'APPS_WITH_DISABLED_NOTIFICATIONS'
 /**
  * Each account in Huawei is capable to send push-notifications to only one corresponding mobile app
  * These constants represent app type (master/resident) and connect app types to appIds (remoteClient schema)
@@ -1140,5 +1141,6 @@ module.exports = {
     BODY_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE,
     TITLE_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE,
     SEND_DAILY_STATISTICS_MESSAGE_TYPE,
+    APPS_WITH_DISABLED_NOTIFICATIONS_ENV,
 }
 
