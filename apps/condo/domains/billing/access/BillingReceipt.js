@@ -14,9 +14,6 @@ async function canReadBillingReceipts ({ authentication: { item: user }, listKey
     if (user.deletedAt) return false
     if (user.isAdmin) return {}
 
-    const hasDirectAccess = await canDirectlyReadSchemaObjects(user, listKey)
-    if (hasDirectAccess) return {}
-
     if (user.type === RESIDENT) {
 
         // We don't want to make honest GQL request, as it is too expensive
@@ -39,6 +36,9 @@ async function canReadBillingReceipts ({ authentication: { item: user }, listKey
     if (user.type === SERVICE) {
         return { context: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } } }
     }
+
+    const hasDirectAccess = await canDirectlyReadSchemaObjects(user, listKey)
+    if (hasDirectAccess) return {}
 
     return {
         OR: [

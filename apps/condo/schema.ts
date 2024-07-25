@@ -84013,12 +84013,18 @@ export enum SortUserRightsSetHistoryRecordsBy {
   CanReadPaymentsDesc = 'canReadPayments_DESC',
   CanReadBillingReceiptsAsc = 'canReadBillingReceipts_ASC',
   CanReadBillingReceiptsDesc = 'canReadBillingReceipts_DESC',
+  CanReadBillingOrganizationIntegrationContextsAsc = 'canReadBillingOrganizationIntegrationContexts_ASC',
+  CanReadBillingOrganizationIntegrationContextsDesc = 'canReadBillingOrganizationIntegrationContexts_DESC',
   CanExecuteRegisterNewServiceUserAsc = 'canExecuteRegisterNewServiceUser_ASC',
   CanExecuteRegisterNewServiceUserDesc = 'canExecuteRegisterNewServiceUser_DESC',
   CanExecuteSendMessageAsc = 'canExecuteSendMessage_ASC',
   CanExecuteSendMessageDesc = 'canExecuteSendMessage_DESC',
   CanExecuteInternalSendHashedResidentPhonesAsc = 'canExecute_internalSendHashedResidentPhones_ASC',
   CanExecuteInternalSendHashedResidentPhonesDesc = 'canExecute_internalSendHashedResidentPhones_DESC',
+  CanExecuteAllPaymentsSumAsc = 'canExecute_allPaymentsSum_ASC',
+  CanExecuteAllPaymentsSumDesc = 'canExecute_allPaymentsSum_DESC',
+  CanExecuteAllBillingReceiptsSumAsc = 'canExecute_allBillingReceiptsSum_ASC',
+  CanExecuteAllBillingReceiptsSumDesc = 'canExecute_allBillingReceiptsSum_DESC',
   CanManageOrganizationIsApprovedFieldAsc = 'canManageOrganizationIsApprovedField_ASC',
   CanManageOrganizationIsApprovedFieldDesc = 'canManageOrganizationIsApprovedField_DESC',
   CanReadUserEmailFieldAsc = 'canReadUserEmailField_ASC',
@@ -84114,12 +84120,18 @@ export enum SortUserRightsSetsBy {
   CanReadPaymentsDesc = 'canReadPayments_DESC',
   CanReadBillingReceiptsAsc = 'canReadBillingReceipts_ASC',
   CanReadBillingReceiptsDesc = 'canReadBillingReceipts_DESC',
+  CanReadBillingOrganizationIntegrationContextsAsc = 'canReadBillingOrganizationIntegrationContexts_ASC',
+  CanReadBillingOrganizationIntegrationContextsDesc = 'canReadBillingOrganizationIntegrationContexts_DESC',
   CanExecuteRegisterNewServiceUserAsc = 'canExecuteRegisterNewServiceUser_ASC',
   CanExecuteRegisterNewServiceUserDesc = 'canExecuteRegisterNewServiceUser_DESC',
   CanExecuteSendMessageAsc = 'canExecuteSendMessage_ASC',
   CanExecuteSendMessageDesc = 'canExecuteSendMessage_DESC',
   CanExecuteInternalSendHashedResidentPhonesAsc = 'canExecute_internalSendHashedResidentPhones_ASC',
   CanExecuteInternalSendHashedResidentPhonesDesc = 'canExecute_internalSendHashedResidentPhones_DESC',
+  CanExecuteAllPaymentsSumAsc = 'canExecute_allPaymentsSum_ASC',
+  CanExecuteAllPaymentsSumDesc = 'canExecute_allPaymentsSum_DESC',
+  CanExecuteAllBillingReceiptsSumAsc = 'canExecute_allBillingReceiptsSum_ASC',
+  CanExecuteAllBillingReceiptsSumDesc = 'canExecute_allBillingReceiptsSum_DESC',
   CanManageOrganizationIsApprovedFieldAsc = 'canManageOrganizationIsApprovedField_ASC',
   CanManageOrganizationIsApprovedFieldDesc = 'canManageOrganizationIsApprovedField_DESC',
   CanReadUserEmailFieldAsc = 'canReadUserEmailField_ASC',
@@ -96534,12 +96546,18 @@ export type UserRightsSet = {
   canReadPayments?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to view all entities of model "BillingReceipt" as support / admin users do  */
   canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "BillingOrganizationIntegrationContext" as support / admin users do  */
+  canReadBillingOrganizationIntegrationContexts?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to execute "registerNewServiceUser" query/mutation  */
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to execute "sendMessage" query/mutation  */
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to execute "_internalSendHashedResidentPhones" query/mutation  */
   canExecute_internalSendHashedResidentPhones?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to execute "_allPaymentsSum" query/mutation  */
+  canExecute_allPaymentsSum?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to execute "_allBillingReceiptsSum" query/mutation  */
+  canExecute_allBillingReceiptsSum?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to update "isApproved" field of model "Organization"  */
   canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to read "email" field of model "User"  */
@@ -96597,9 +96615,12 @@ export type UserRightsSetCreateInput = {
   canManageUserRightsSets?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
+  canReadBillingOrganizationIntegrationContexts?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
   canExecute_internalSendHashedResidentPhones?: Maybe<Scalars['Boolean']>;
+  canExecute_allPaymentsSum?: Maybe<Scalars['Boolean']>;
+  canExecute_allBillingReceiptsSum?: Maybe<Scalars['Boolean']>;
   canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
   canReadUserEmailField?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
@@ -96660,9 +96681,12 @@ export type UserRightsSetHistoryRecord = {
   canManageUserRightsSets?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
+  canReadBillingOrganizationIntegrationContexts?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
   canExecute_internalSendHashedResidentPhones?: Maybe<Scalars['Boolean']>;
+  canExecute_allPaymentsSum?: Maybe<Scalars['Boolean']>;
+  canExecute_allBillingReceiptsSum?: Maybe<Scalars['Boolean']>;
   canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
   canReadUserEmailField?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
@@ -96717,9 +96741,12 @@ export type UserRightsSetHistoryRecordCreateInput = {
   canManageUserRightsSets?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
+  canReadBillingOrganizationIntegrationContexts?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
   canExecute_internalSendHashedResidentPhones?: Maybe<Scalars['Boolean']>;
+  canExecute_allPaymentsSum?: Maybe<Scalars['Boolean']>;
+  canExecute_allBillingReceiptsSum?: Maybe<Scalars['Boolean']>;
   canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
   canReadUserEmailField?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
@@ -96779,9 +96806,12 @@ export type UserRightsSetHistoryRecordUpdateInput = {
   canManageUserRightsSets?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
+  canReadBillingOrganizationIntegrationContexts?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
   canExecute_internalSendHashedResidentPhones?: Maybe<Scalars['Boolean']>;
+  canExecute_allPaymentsSum?: Maybe<Scalars['Boolean']>;
+  canExecute_allBillingReceiptsSum?: Maybe<Scalars['Boolean']>;
   canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
   canReadUserEmailField?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
@@ -96889,12 +96919,18 @@ export type UserRightsSetHistoryRecordWhereInput = {
   canReadPayments_not?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts_not?: Maybe<Scalars['Boolean']>;
+  canReadBillingOrganizationIntegrationContexts?: Maybe<Scalars['Boolean']>;
+  canReadBillingOrganizationIntegrationContexts_not?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser_not?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage_not?: Maybe<Scalars['Boolean']>;
   canExecute_internalSendHashedResidentPhones?: Maybe<Scalars['Boolean']>;
   canExecute_internalSendHashedResidentPhones_not?: Maybe<Scalars['Boolean']>;
+  canExecute_allPaymentsSum?: Maybe<Scalars['Boolean']>;
+  canExecute_allPaymentsSum_not?: Maybe<Scalars['Boolean']>;
+  canExecute_allBillingReceiptsSum?: Maybe<Scalars['Boolean']>;
+  canExecute_allBillingReceiptsSum_not?: Maybe<Scalars['Boolean']>;
   canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
   canManageOrganizationIsApprovedField_not?: Maybe<Scalars['Boolean']>;
   canReadUserEmailField?: Maybe<Scalars['Boolean']>;
@@ -97034,9 +97070,12 @@ export type UserRightsSetUpdateInput = {
   canManageUserRightsSets?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
+  canReadBillingOrganizationIntegrationContexts?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
   canExecute_internalSendHashedResidentPhones?: Maybe<Scalars['Boolean']>;
+  canExecute_allPaymentsSum?: Maybe<Scalars['Boolean']>;
+  canExecute_allBillingReceiptsSum?: Maybe<Scalars['Boolean']>;
   canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
   canReadUserEmailField?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
@@ -97141,12 +97180,18 @@ export type UserRightsSetWhereInput = {
   canReadPayments_not?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts_not?: Maybe<Scalars['Boolean']>;
+  canReadBillingOrganizationIntegrationContexts?: Maybe<Scalars['Boolean']>;
+  canReadBillingOrganizationIntegrationContexts_not?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser_not?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage_not?: Maybe<Scalars['Boolean']>;
   canExecute_internalSendHashedResidentPhones?: Maybe<Scalars['Boolean']>;
   canExecute_internalSendHashedResidentPhones_not?: Maybe<Scalars['Boolean']>;
+  canExecute_allPaymentsSum?: Maybe<Scalars['Boolean']>;
+  canExecute_allPaymentsSum_not?: Maybe<Scalars['Boolean']>;
+  canExecute_allBillingReceiptsSum?: Maybe<Scalars['Boolean']>;
+  canExecute_allBillingReceiptsSum_not?: Maybe<Scalars['Boolean']>;
   canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
   canManageOrganizationIsApprovedField_not?: Maybe<Scalars['Boolean']>;
   canReadUserEmailField?: Maybe<Scalars['Boolean']>;

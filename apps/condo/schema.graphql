@@ -3218,9 +3218,12 @@ type UserRightsSetHistoryRecord {
   canManageUserRightsSets: Boolean
   canReadPayments: Boolean
   canReadBillingReceipts: Boolean
+  canReadBillingOrganizationIntegrationContexts: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
   canExecute_internalSendHashedResidentPhones: Boolean
+  canExecute_allPaymentsSum: Boolean
+  canExecute_allBillingReceiptsSum: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canReadUserEmailField: Boolean
   id: ID!
@@ -3329,12 +3332,18 @@ input UserRightsSetHistoryRecordWhereInput {
   canReadPayments_not: Boolean
   canReadBillingReceipts: Boolean
   canReadBillingReceipts_not: Boolean
+  canReadBillingOrganizationIntegrationContexts: Boolean
+  canReadBillingOrganizationIntegrationContexts_not: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteRegisterNewServiceUser_not: Boolean
   canExecuteSendMessage: Boolean
   canExecuteSendMessage_not: Boolean
   canExecute_internalSendHashedResidentPhones: Boolean
   canExecute_internalSendHashedResidentPhones_not: Boolean
+  canExecute_allPaymentsSum: Boolean
+  canExecute_allPaymentsSum_not: Boolean
+  canExecute_allBillingReceiptsSum: Boolean
+  canExecute_allBillingReceiptsSum_not: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageOrganizationIsApprovedField_not: Boolean
   canReadUserEmailField: Boolean
@@ -3494,12 +3503,18 @@ enum SortUserRightsSetHistoryRecordsBy {
   canReadPayments_DESC
   canReadBillingReceipts_ASC
   canReadBillingReceipts_DESC
+  canReadBillingOrganizationIntegrationContexts_ASC
+  canReadBillingOrganizationIntegrationContexts_DESC
   canExecuteRegisterNewServiceUser_ASC
   canExecuteRegisterNewServiceUser_DESC
   canExecuteSendMessage_ASC
   canExecuteSendMessage_DESC
   canExecute_internalSendHashedResidentPhones_ASC
   canExecute_internalSendHashedResidentPhones_DESC
+  canExecute_allPaymentsSum_ASC
+  canExecute_allPaymentsSum_DESC
+  canExecute_allBillingReceiptsSum_ASC
+  canExecute_allBillingReceiptsSum_DESC
   canManageOrganizationIsApprovedField_ASC
   canManageOrganizationIsApprovedField_DESC
   canReadUserEmailField_ASC
@@ -3559,9 +3574,12 @@ input UserRightsSetHistoryRecordUpdateInput {
   canManageUserRightsSets: Boolean
   canReadPayments: Boolean
   canReadBillingReceipts: Boolean
+  canReadBillingOrganizationIntegrationContexts: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
   canExecute_internalSendHashedResidentPhones: Boolean
+  canExecute_allPaymentsSum: Boolean
+  canExecute_allBillingReceiptsSum: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canReadUserEmailField: Boolean
   v: Int
@@ -3620,9 +3638,12 @@ input UserRightsSetHistoryRecordCreateInput {
   canManageUserRightsSets: Boolean
   canReadPayments: Boolean
   canReadBillingReceipts: Boolean
+  canReadBillingOrganizationIntegrationContexts: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
   canExecute_internalSendHashedResidentPhones: Boolean
+  canExecute_allPaymentsSum: Boolean
+  canExecute_allBillingReceiptsSum: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canReadUserEmailField: Boolean
   v: Int
@@ -3799,6 +3820,10 @@ type UserRightsSet {
   """
   canReadBillingReceipts: Boolean
 
+  """ Enables a user with the given UserRightsSet to view all entities of model "BillingOrganizationIntegrationContext" as support / admin users do 
+  """
+  canReadBillingOrganizationIntegrationContexts: Boolean
+
   """ Enables a user with the given UserRightsSet to execute "registerNewServiceUser" query/mutation 
   """
   canExecuteRegisterNewServiceUser: Boolean
@@ -3810,6 +3835,14 @@ type UserRightsSet {
   """ Enables a user with the given UserRightsSet to execute "_internalSendHashedResidentPhones" query/mutation 
   """
   canExecute_internalSendHashedResidentPhones: Boolean
+
+  """ Enables a user with the given UserRightsSet to execute "_allPaymentsSum" query/mutation 
+  """
+  canExecute_allPaymentsSum: Boolean
+
+  """ Enables a user with the given UserRightsSet to execute "_allBillingReceiptsSum" query/mutation 
+  """
+  canExecute_allBillingReceiptsSum: Boolean
 
   """ Enables a user with the given UserRightsSet to update "isApproved" field of model "Organization" 
   """
@@ -3932,12 +3965,18 @@ input UserRightsSetWhereInput {
   canReadPayments_not: Boolean
   canReadBillingReceipts: Boolean
   canReadBillingReceipts_not: Boolean
+  canReadBillingOrganizationIntegrationContexts: Boolean
+  canReadBillingOrganizationIntegrationContexts_not: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteRegisterNewServiceUser_not: Boolean
   canExecuteSendMessage: Boolean
   canExecuteSendMessage_not: Boolean
   canExecute_internalSendHashedResidentPhones: Boolean
   canExecute_internalSendHashedResidentPhones_not: Boolean
+  canExecute_allPaymentsSum: Boolean
+  canExecute_allPaymentsSum_not: Boolean
+  canExecute_allBillingReceiptsSum: Boolean
+  canExecute_allBillingReceiptsSum_not: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageOrganizationIsApprovedField_not: Boolean
   canReadUserEmailField: Boolean
@@ -4077,12 +4116,18 @@ enum SortUserRightsSetsBy {
   canReadPayments_DESC
   canReadBillingReceipts_ASC
   canReadBillingReceipts_DESC
+  canReadBillingOrganizationIntegrationContexts_ASC
+  canReadBillingOrganizationIntegrationContexts_DESC
   canExecuteRegisterNewServiceUser_ASC
   canExecuteRegisterNewServiceUser_DESC
   canExecuteSendMessage_ASC
   canExecuteSendMessage_DESC
   canExecute_internalSendHashedResidentPhones_ASC
   canExecute_internalSendHashedResidentPhones_DESC
+  canExecute_allPaymentsSum_ASC
+  canExecute_allPaymentsSum_DESC
+  canExecute_allBillingReceiptsSum_ASC
+  canExecute_allBillingReceiptsSum_DESC
   canManageOrganizationIsApprovedField_ASC
   canManageOrganizationIsApprovedField_DESC
   canReadUserEmailField_ASC
@@ -4142,9 +4187,12 @@ input UserRightsSetUpdateInput {
   canManageUserRightsSets: Boolean
   canReadPayments: Boolean
   canReadBillingReceipts: Boolean
+  canReadBillingOrganizationIntegrationContexts: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
   canExecute_internalSendHashedResidentPhones: Boolean
+  canExecute_allPaymentsSum: Boolean
+  canExecute_allBillingReceiptsSum: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canReadUserEmailField: Boolean
   v: Int
@@ -4200,9 +4248,12 @@ input UserRightsSetCreateInput {
   canManageUserRightsSets: Boolean
   canReadPayments: Boolean
   canReadBillingReceipts: Boolean
+  canReadBillingOrganizationIntegrationContexts: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
   canExecute_internalSendHashedResidentPhones: Boolean
+  canExecute_allPaymentsSum: Boolean
+  canExecute_allBillingReceiptsSum: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canReadUserEmailField: Boolean
   v: Int
