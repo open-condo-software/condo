@@ -18,9 +18,11 @@ const {
     INVOICE_STATUS_DRAFT,
     INVOICE_STATUS_PUBLISHED,
 } = require('@condo/domains/marketplace/constants')
+const { INVOICE_PAYMENT_TYPES } = require('@condo/domains/marketplace/constants')
 const {
     createTestMarketPriceScope, createTestMarketItem,
-    createTestMarketCategory, createTestMarketItemPrice, generatePriceRow, Invoice, createTestMarketSetting,
+    createTestMarketCategory, createTestMarketItemPrice, generatePriceRow, Invoice, updateTestMarketSetting,
+    MarketSetting,
 } = require('@condo/domains/marketplace/utils/testSchema')
 const {
     createTestOrganization,
@@ -344,7 +346,8 @@ describe('RegisterResidentInvoiceService', () => {
             const [marketItem] = await createTestMarketItem(adminClient, marketCategory, organization)
             const [itemPrice] = await createTestMarketItemPrice(adminClient, marketItem, { price: [generatePriceRow({ isMin: true })] })
             const [priceScope] = await createTestMarketPriceScope(adminClient, itemPrice, property)
-            const [marketSetting] = await createTestMarketSetting(adminClient, organization, { residentAllowedPaymentTypes: [] })
+            const [marketSetting] = await MarketSetting.getAll(adminClient, { organization: { id: organization.id } })
+            await updateTestMarketSetting(adminClient, marketSetting.id, { residentAllowedPaymentTypes: [INVOICE_PAYMENT_TYPES[0]] })
 
             await expectToThrowGQLError(async () => await registerResidentInvoiceByTestClient(
                 residentClient,
@@ -353,6 +356,7 @@ describe('RegisterResidentInvoiceService', () => {
                     priceScope: pick(priceScope, 'id'),
                     count: 1,
                 }],
+                { paymentType: INVOICE_PAYMENT_TYPES[1] }
             ), {
                 code: 'BAD_USER_INPUT',
                 type: 'PROHIBITED_INVOICE_PAYMENT_TYPE',
