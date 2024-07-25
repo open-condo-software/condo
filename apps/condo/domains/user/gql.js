@@ -80,8 +80,8 @@ const GET_MY_USERINFO = gql`
 `
 
 const SIGNIN_MUTATION = gql`
-    mutation sigin($identity: String, $secret: String) {
-        obj: authenticateUserWithPassword(email: $identity, password: $secret) {
+    mutation sigin($identity: String, $secret: String, $type: String) {
+        obj: authenticateUserWithPassword(email: $identity, password: $secret, type: $type) {
             item {
                 id
             }
