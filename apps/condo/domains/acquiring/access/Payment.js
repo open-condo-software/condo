@@ -8,14 +8,18 @@ const { find } = require('@open-condo/keystone/schema')
 
 const { checkPermissionsInEmployedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
 const { checkAcquiringIntegrationAccessRight } = require('../utils/accessSchema')
 
-async function canReadPayments ({ authentication: { item: user } }) {
+async function canReadPayments ({ authentication: { item: user }, listKey }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isSupport || user.isAdmin) return {}
+
+    const hasDirectAccess = await canDirectlyReadSchemaObjects(user, listKey)
+    if (hasDirectAccess) return {}
 
     if (user.type === RESIDENT) {
         return { multiPayment: { user: { id: user.id } } }
@@ -61,9 +65,12 @@ async function canManagePayments ({ authentication: { item: user }, operation, i
     return false
 }
 
-async function canReadPaymentsSensitiveData ({ authentication: { item: user }, existingItem, context }) {
+async function canReadPaymentsSensitiveData ({ authentication: { item: user }, existingItem, context, listKey }) {
     if (!user || user.deletedAt) return false
     if (user.isSupport || user.isAdmin) return true
+
+    const hasDirectAccess = await canDirectlyReadSchemaObjects(user, listKey)
+    if (hasDirectAccess) return true
 
     const [acquiringContext] = await find('AcquiringIntegrationContext', {
         deletedAt: null,

@@ -78,6 +78,7 @@ const {
     makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser, makeClientWithServiceUser,
 } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithResidentUser, makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
+const { createTestUserRightsSet, updateTestUser } = require('@condo/domains/user/utils/testSchema')
 
 
 describe('Payment', () => {
@@ -250,6 +251,19 @@ describe('Payment', () => {
                     expect(payments).toBeDefined()
                     expect(payments).toHaveLength(1)
                     expect(payments[0].id).toEqual(payment.id)
+                })
+                test('User with direct access `canReadPayments` can see organization payments', async () => {
+                    const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
+
+                    await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
+
+                    const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const [userRightsSet] = await createTestUserRightsSet(admin, { canReadPayments: true })
+                    await updateTestUser(admin, userClient.user.id, { rightsSet: { connect: { id: userRightsSet.id } } })
+
+                    const payments = await Payment.getAll(userClient, {}, { sortBy: ['createdAt_DESC'], first: 10 })
+                    expect(payments).toBeDefined()
+                    expect(payments).not.toHaveLength(0)
                 })
                 test('can\'t in other cases', async () => {
                     const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
