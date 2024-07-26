@@ -9,7 +9,6 @@ const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
 const { NOT_FOUND, WRONG_FORMAT, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
-const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const access = require('@condo/domains/user/access/CheckUserExistenceService')
 const { ConfirmPhoneAction } = require('@condo/domains/user/utils/serverSchema')
 const { checkDayAnonymousRequestLimitCounters } = require('@condo/domains/user/utils/serverSchema/requestLimitHelpers')
@@ -20,18 +19,6 @@ const { checkDayAnonymousRequestLimitCounters } = require('@condo/domains/user/u
  * They will be rendered in documentation section in GraphiQL for this custom schema
  */
 const ERRORS = {
-    MULTIPLE_USERS_FOUND: {
-        query: 'checkUserExistence',
-        code: NOT_FOUND,
-        type: 'MULTIPLE_USERS_FOUND',
-        message: 'Multiple users found',
-    },
-    INVALID_PHONE_NUMBER: {
-        query: 'checkUserExistence',
-        code: BAD_USER_INPUT,
-        type: 'INVALID_PHONE_NUMBER',
-        message: 'Invalid phone number',
-    },
     TOKEN_NOT_FOUND: {
         query: 'checkUserExistence',
         variable: ['data', 'token'],
@@ -98,13 +85,9 @@ const CheckUserExistenceService = new GQLCustomSchema('CheckUserExistenceService
                 )
                 if (!action) throw new GQLError(ERRORS.TOKEN_NOT_FOUND, context)
 
-                const phoneFromAction = normalizePhone(action.phone) || null
-                if (!phoneFromAction) throw new GQLError(ERRORS.INVALID_PHONE_NUMBER, context)
-
                 const users = await find('User', { type: userType, phone: action.phone })
-                if (users.length > 1) throw new GQLError(ERRORS.MULTIPLE_USERS_FOUND, context)
 
-                const user = users[0]
+                const user = users.length === 1 ? users[0] : null
                 const result = {
                     userExists: false,
                     nameIsSet: false,
