@@ -3205,6 +3205,8 @@ type UserRightsSetHistoryRecord {
   canManageB2CAppBuilds: Boolean
   canReadB2CAppProperties: Boolean
   canManageB2CAppProperties: Boolean
+  canReadMessageBatches: Boolean
+  canManageMessageBatches: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
   canReadTickets: Boolean
@@ -3306,6 +3308,10 @@ input UserRightsSetHistoryRecordWhereInput {
   canReadB2CAppProperties_not: Boolean
   canManageB2CAppProperties: Boolean
   canManageB2CAppProperties_not: Boolean
+  canReadMessageBatches: Boolean
+  canReadMessageBatches_not: Boolean
+  canManageMessageBatches: Boolean
+  canManageMessageBatches_not: Boolean
   canReadOrganizations: Boolean
   canReadOrganizations_not: Boolean
   canManageOrganizations: Boolean
@@ -3477,6 +3483,10 @@ enum SortUserRightsSetHistoryRecordsBy {
   canReadB2CAppProperties_DESC
   canManageB2CAppProperties_ASC
   canManageB2CAppProperties_DESC
+  canReadMessageBatches_ASC
+  canReadMessageBatches_DESC
+  canManageMessageBatches_ASC
+  canManageMessageBatches_DESC
   canReadOrganizations_ASC
   canReadOrganizations_DESC
   canManageOrganizations_ASC
@@ -3561,6 +3571,8 @@ input UserRightsSetHistoryRecordUpdateInput {
   canManageB2CAppBuilds: Boolean
   canReadB2CAppProperties: Boolean
   canManageB2CAppProperties: Boolean
+  canReadMessageBatches: Boolean
+  canManageMessageBatches: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
   canReadTickets: Boolean
@@ -3625,6 +3637,8 @@ input UserRightsSetHistoryRecordCreateInput {
   canManageB2CAppBuilds: Boolean
   canReadB2CAppProperties: Boolean
   canManageB2CAppProperties: Boolean
+  canReadMessageBatches: Boolean
+  canManageMessageBatches: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
   canReadTickets: Boolean
@@ -3767,6 +3781,14 @@ type UserRightsSet {
   """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2CAppProperty" similar to support users 
   """
   canManageB2CAppProperties: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "MessageBatch" as support / admin users do 
+  """
+  canReadMessageBatches: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "MessageBatch" similar to support users 
+  """
+  canManageMessageBatches: Boolean
 
   """ Enables a user with the given UserRightsSet to view all entities of model "Organization" as support / admin users do 
   """
@@ -3939,6 +3961,10 @@ input UserRightsSetWhereInput {
   canReadB2CAppProperties_not: Boolean
   canManageB2CAppProperties: Boolean
   canManageB2CAppProperties_not: Boolean
+  canReadMessageBatches: Boolean
+  canReadMessageBatches_not: Boolean
+  canManageMessageBatches: Boolean
+  canManageMessageBatches_not: Boolean
   canReadOrganizations: Boolean
   canReadOrganizations_not: Boolean
   canManageOrganizations: Boolean
@@ -4090,6 +4116,10 @@ enum SortUserRightsSetsBy {
   canReadB2CAppProperties_DESC
   canManageB2CAppProperties_ASC
   canManageB2CAppProperties_DESC
+  canReadMessageBatches_ASC
+  canReadMessageBatches_DESC
+  canManageMessageBatches_ASC
+  canManageMessageBatches_DESC
   canReadOrganizations_ASC
   canReadOrganizations_DESC
   canManageOrganizations_ASC
@@ -4174,6 +4204,8 @@ input UserRightsSetUpdateInput {
   canManageB2CAppBuilds: Boolean
   canReadB2CAppProperties: Boolean
   canManageB2CAppProperties: Boolean
+  canReadMessageBatches: Boolean
+  canManageMessageBatches: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
   canReadTickets: Boolean
@@ -4235,6 +4267,8 @@ input UserRightsSetCreateInput {
   canManageB2CAppBuilds: Boolean
   canReadB2CAppProperties: Boolean
   canManageB2CAppProperties: Boolean
+  canReadMessageBatches: Boolean
+  canManageMessageBatches: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
   canReadTickets: Boolean
