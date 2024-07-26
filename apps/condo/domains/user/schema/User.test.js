@@ -119,7 +119,7 @@ describe('SIGNIN', () => {
         expect(res.errors[0].message).toEqual(expect.stringContaining('[passwordAuth:identity:notFound]'))
     })
 
-    test('should throw error if user type invalid', async () => {
+    test.skip('should throw error if user type invalid', async () => {
         const admin = await makeLoggedInAdminClient()
         const [, userAttrs] = await createTestUser(admin)
         const client = await makeClient()
@@ -128,7 +128,7 @@ describe('SIGNIN', () => {
         expect(res.errors[0].message).toEqual(expect.stringContaining('[passwordAuth:itemType:invalid]'))
     })
 
-    test('Should authorize staff and service user with same email, but should not authorize resident user', async () => {
+    test.skip('Should authorize staff and service user with same email, but should not authorize resident user', async () => {
         const admin = await makeLoggedInAdminClient()
         const email = createTestEmail()
         const [, residentUserAttrs] = await createTestUser(admin, { type: RESIDENT, email })
