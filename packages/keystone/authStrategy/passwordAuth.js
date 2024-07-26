@@ -66,7 +66,7 @@ class ExtendedPasswordAuthStrategy extends DefaultPasswordAuthStrategy {
 
     async validate (args) {
         const { itemTypeField, itemTypeOptions, itemTypeDefault } = this.config
-        const itemType = args[itemTypeField] || itemTypeDefault
+        const itemType = args[itemTypeField] || itemTypeDefault || null
 
         if (Boolean(itemTypeField) && Array.isArray(itemTypeOptions) && !itemTypeOptions.includes(itemType)) {
             const message = `[passwordAuth:itemType:invalid] The ${itemTypeField} contains an invalid value. It must be one of the following: ${itemTypeOptions.join(', ')}`
@@ -81,16 +81,17 @@ class ExtendedPasswordAuthStrategy extends DefaultPasswordAuthStrategy {
         const {
             identityField,
             itemTypeField,
+            itemTypeOptions,
             itemTypeDefault,
             verificationField,
             rejectSoftDeletedItems,
         } = this.config
 
         const identity = args[identityField]
-        const itemType = args[itemTypeField] || itemTypeDefault
+        const itemType = args[itemTypeField] || itemTypeDefault || null
         const results = await list.adapter.find({
             [identityField]: identity,
-            ...(itemTypeField ? { [itemTypeField]: itemType } : null),
+            ...(itemTypeField && Array.isArray(itemTypeOptions) ? { [itemTypeField]: itemType } : null),
             ...(rejectSoftDeletedItems ? { deletedAt: null } : null),
             ...(verificationField ? { [verificationField]: true } : null),
         })

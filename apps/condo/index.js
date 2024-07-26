@@ -161,7 +161,7 @@ module.exports = prepareKeystone({
     authStrategyOpts: {
         config: {
             itemTypeField: 'type',
-            itemTypeOptions: [STAFF, SERVICE],
+            // itemTypeOptions: [STAFF, SERVICE],
             itemTypeDefault: STAFF,
         },
     },
