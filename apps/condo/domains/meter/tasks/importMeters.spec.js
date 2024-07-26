@@ -37,7 +37,7 @@ const generateCsvFile = (validLinesSize, invalidLinesSize, fatalErrorLinesSize, 
         const unitName = `${i + 1}`
         const address = property.address + ', кв ' + unitName
         content += `
-00-00000${number};${lastName} Л.М.;40ОН89${number}-02;${faker.datatype.uuid()},;${address},;9;${number}${number};ХВС;[];750,00;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;
+00-00000${number};${lastName} Л.М.;40ОН89${number}-02;${faker.datatype.uuid()};${address};9;${number}${number};ХВС;[];750,00;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;
 `
     }
 
@@ -48,7 +48,7 @@ const generateCsvFile = (validLinesSize, invalidLinesSize, fatalErrorLinesSize, 
         const unitName = `${validLinesSize + i + 1}`
         const address = property.address + ', кв ' + unitName
         content += `
-;${lastName} Л.М.;40ОН89${number}-02;${faker.datatype.uuid()},;${address},;9;${number}${number};ХВС;[];750,00;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;
+;${lastName} Л.М.;40ОН89${number}-02;${faker.datatype.uuid()};${address};9;${number}${number};ХВС;[];750,00;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;
 `
     }
 
@@ -58,7 +58,7 @@ const generateCsvFile = (validLinesSize, invalidLinesSize, fatalErrorLinesSize, 
         const lastName = faker.name.lastName()
         const address = faker.address.streetAddress(true)
         content += `
-;${lastName} Л.М.;40ОН89${number}-02;${faker.datatype.uuid()},;${address},;9;${number}${number};ХВС;[];750,00;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;
+;${lastName} Л.М.;40ОН89${number}-02;${faker.datatype.uuid()};${address};9;${number}${number};ХВС;[];750,00;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;
 `
     }
 

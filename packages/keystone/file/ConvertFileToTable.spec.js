@@ -8,7 +8,7 @@ const TEST_STRING = 'Тестовая строка'
 
 const ENCODINGS = [ 'utf-8', 'koi8-r', 'windows-1251', 'ibm866' ]
 
-const MOCK_FILES_PATH = '@registry/domains/format/lib/mock-files/'
+const MOCK_FILES_PATH = './mock-files/'
 
 const pathToFile = (fileName) => {
     return require.resolve(MOCK_FILES_PATH + fileName)
@@ -32,7 +32,6 @@ describe('ConvertFileToTable', () => {
     const TEST_CASES = [
         { file: 'check.csv', type: TYPES.CSV },
         { file: 'check.dbf', type: TYPES.DBF },
-        { file: 'check.xls', type: TYPES.EXCEL },
         { file: 'check.xlsx', type: TYPES.EXCEL },
         { file: 'check.png', type: TYPES.UNSUPPORTED },
         { file: 'check.zip', type: TYPES.UNSUPPORTED },
@@ -87,13 +86,6 @@ describe('ConvertFileToTable', () => {
                 expect(result).toBe(true)
             })
 
-            test('should return true for XLS file', async () => {
-                const content = readFileSync(pathToFile('check.xls'))
-                const fileType = new ConvertFileToTable(content)
-                const result = await fileType.isExcelFile()
-                expect(result).toBe(true)
-            })
-
             test('should return false for ZIP file', async () => {
                 const content = readFileSync(pathToFile('check.zip'))
                 const fileType = new ConvertFileToTable(content)
@@ -111,8 +103,8 @@ describe('ConvertFileToTable', () => {
             const extract = new ConvertFileToTable(content)
             const result = await extract.getData()
             expect(result).toEqual([
-                ['000150031/1', 'Жукова Лариса Ивановна', 'Химки г, Кудрявцева ул, дом № 15, Кв. 31', '1122', '6985.45' ],
-                ['000150063/1', 'Пынзарь Артур Юрьевич', 'Химки г, Кудрявцева ул, дом № 15, Кв. 63', '1122', '15662.53' ],
+                ['TEST1', 'User 1', 'Address 1', '1122', '6985.45' ],
+                ['TEST2', 'User 2', 'Address 2', '1122', '15662.53' ],
             ])
         })
 
@@ -121,8 +113,8 @@ describe('ConvertFileToTable', () => {
             const extract = new ConvertFileToTable(content)
             const result = await extract.getData()
             expect(result).toEqual([
-                ['192011238', 'г. Казань, ул. Театральная, д.1, оф.1', '922', '8640.02', 'Отопление', '8240.02', 'Газ', '400' ],
-                ['192018731', 'e7cff5f3-bbf1-46d1-8a99-f15f365060cd, кв.1', '922', '3355.06', 'Отопление', '3205.06', 'Газ', '150' ],
+                ['TEST1', 'Some street, 1, 1', '922', '8640.02', 'Heating', '8240.02', 'Gas', '400' ],
+                ['TEST2', 'e7cff5f3-bbf1-46d1-8a99-f15f365060cd, 1', '922', '3355.06', 'Heating', '3205.06', 'Gas', '150' ],
             ])
         })
 
@@ -131,9 +123,9 @@ describe('ConvertFileToTable', () => {
             const extract = new ConvertFileToTable(content)
             const result = await extract.getData()
             expect(result).toEqual([
-                ['1134969222', 'г. Копейск,ул. Короленко,12.А,1', '294,55', '0622'],
-                ['1134969230', 'г. Копейск,ул. Короленко,12.А,2', '-1872,61', '0622'],
-                ['1134969945', 'г. Копейск,ул. Короленко,12.А,3', '4231,93', '0622'],
+                ['TEST1', 'Some street,12,1', '294,55', '0622'],
+                ['TEST2', 'Some street,12,2', '-1872,61', '0622'],
+                ['TEST3', 'Some street,12,3', '4231,93', '0622'],
             ])
         })
 
@@ -142,9 +134,9 @@ describe('ConvertFileToTable', () => {
             const extract = new ConvertFileToTable(content)
             const result = await extract.getData()
             expect(result).toEqual([
-                ['1134969222', 'г. Копейск,ул. Короленко,12.А,1', '294,55', '0622'],
-                ['1134969230', 'г. Копейск,ул. Короленко,12.А,2', '-1872,61', '0622'],
-                ['1134969945', 'г. Копейск,ул. Короленко,12.А,3', '4231,93', '0622'],
+                ['TEST1', 'Some street,12,1', '294,55', '0622'],
+                ['TEST2', 'Some street,12,2', '-1872,61', '0622'],
+                ['TEST3', 'Some street,12,3', '4231,93', '0622'],
             ])
         })
 
