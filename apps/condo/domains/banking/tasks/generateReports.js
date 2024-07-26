@@ -252,6 +252,7 @@ const generateReports = async (taskId) => {
             organization: { id: organization.id },
             isLatest: true,
         }, { sortBy: ['createdAt_ASC'] })
+        const amount = get(bankIntegrationAccountContext, 'meta.amount')
         const payload = {
             data,
             version: 1,
@@ -262,7 +263,7 @@ const generateReports = async (taskId) => {
             totalIncome: monthTurnovers[index].totalIncome,
             totalOutcome: monthTurnovers[index].totalOutcome,
             template: EXPENSES_GROUPED_BY_CATEGORY_AND_COST_ITEM,
-            amount: get(bankIntegrationAccountContext, 'meta.amount'),
+            amount: typeof amount === 'number' ? String(amount) : amount,
             amountAt: get(bankIntegrationAccountContext, 'meta.amountAt'),
             ...DV_SENDER,
         }
