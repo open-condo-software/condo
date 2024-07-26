@@ -56,7 +56,7 @@ const SettingsPage = () => {
     const hasSubscriptionFeature = hasFeature('subscription')
 
     const userOrganization = useOrganization()
-    const userOrganizationId = get(userOrganization, ['organization', 'id'])
+    const userOrganizationId = get(userOrganization, ['organization', 'id'], null)
     const isManagingCompany = get(userOrganization, 'organization.type', MANAGING_COMPANY_TYPE) === MANAGING_COMPANY_TYPE
     const canManageContactRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageContactRoles']), [userOrganization])
     const canManageEmployeeRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageRoles'], false), [userOrganization])

@@ -270,16 +270,23 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
         },
         afterChange: async ({ operation, originalInput, context, updatedItem }) => {
             const orgId = updatedItem.organization
-            if (updatedItem.invoiceStatus === CONTEXT_FINISHED_STATUS) {
-                const [marketSetting] = await MarketSetting.getAll(context, {
-                    deletedAt: null,
-                    organization: { id: orgId },
+            const [marketSetting] = await MarketSetting.getAll(context, {
+                deletedAt: null,
+                organization: { id: orgId },
+            })
+
+            if (updatedItem.deletedAt) {
+                if (marketSetting) await MarketSetting.update(context, marketSetting.id, {
+                    deletedAt: new Date(),
                 })
-                if (!marketSetting) await MarketSetting.create(context, {
-                    organization: { connect: { id: orgId } },
-                    dv: originalInput.dv,
-                    sender: originalInput.sender,
-                })
+            } else {
+                if (updatedItem.invoiceStatus === CONTEXT_FINISHED_STATUS) {
+                    if (!marketSetting) await MarketSetting.create(context, {
+                        organization: { connect: { id: orgId } },
+                        dv: originalInput.dv,
+                        sender: originalInput.sender,
+                    })
+                }
             }
         },
     },

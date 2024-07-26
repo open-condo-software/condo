@@ -59,6 +59,7 @@ async function canManageMarketSettings ({ authentication: { item: user }, origin
     } else if (operation === 'update') {
         if (!itemId) return false
         const item = await getById('MarketSetting', itemId)
+        if (get(item, 'deletedAt')) return false
         organizationId = get(item, 'organization', null)
     }
 

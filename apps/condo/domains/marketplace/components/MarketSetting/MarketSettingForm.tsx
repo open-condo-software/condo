@@ -32,6 +32,7 @@ const CHECKBOX_LAYOUT_PROPS = {
 const BIG_ROW_GUTTERS: [Gutter, Gutter] = [0, 60]
 const MIDDLE_ROW_GUTTERS: [Gutter, Gutter] = [0, 40]
 const SMALL_ROW_GUTTERS: [Gutter, Gutter] = [0, 20]
+const IS_CASH_PAYMENT_TYPE_BLOCKED = 'isPaymentCashTypeBlocked'
 
 interface IMarketSettingForm {
     marketSetting?: MarketSettingType,
@@ -58,8 +59,7 @@ export const MarketSettingForm: React.FC<IMarketSettingForm> = ({ marketSetting,
     const initialValues = useMemo(() => {
         const result = {}
         const residentAllowedPaymentTypes = get(marketSetting, 'residentAllowedPaymentTypes')
-        const isCashPaymentTypeAllowed = residentAllowedPaymentTypes.includes(INVOICE_PAYMENT_TYPE_CASH)
-        result[INVOICE_PAYMENT_TYPE_CASH] = !isCashPaymentTypeAllowed
+        result[IS_CASH_PAYMENT_TYPE_BLOCKED] = !residentAllowedPaymentTypes.includes(INVOICE_PAYMENT_TYPE_CASH)
         return result
     }, [marketSetting])
 
@@ -72,13 +72,7 @@ export const MarketSettingForm: React.FC<IMarketSettingForm> = ({ marketSetting,
             OnCompletedMsg={getSuccessfulChangeNotification}
             formValuesToMutationDataPreprocessor={(values) => {
                 const residentAllowedPaymentTypes = [INVOICE_PAYMENT_TYPE_ONLINE]
-                for (const [key, value] of Object.entries(values)) {
-                    if (INVOICE_PAYMENT_TYPES.includes(key)) {
-                        if (!value) residentAllowedPaymentTypes.push(key)
-
-                        values[key] = undefined
-                    }
-                }
+                if (!values[IS_CASH_PAYMENT_TYPE_BLOCKED]) residentAllowedPaymentTypes.push(INVOICE_PAYMENT_TYPE_CASH)
                 values.residentAllowedPaymentTypes = uniq(residentAllowedPaymentTypes)
                 return values
             }}
@@ -91,7 +85,7 @@ export const MarketSettingForm: React.FC<IMarketSettingForm> = ({ marketSetting,
                                 <Row gutter={SMALL_ROW_GUTTERS}>
                                     <Col span={24}>
                                         <Form.Item
-                                            name={INVOICE_PAYMENT_TYPE_CASH}
+                                            name={IS_CASH_PAYMENT_TYPE_BLOCKED}
                                             label={allowCashPaymentTypeLabel}
                                             labelAlign='left'
                                             valuePropName='checked'

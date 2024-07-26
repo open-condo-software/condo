@@ -47,11 +47,40 @@ CREATE INDEX "MarketSetting_updatedBy_956056cd" ON "MarketSetting" ("updatedBy")
 --
 -- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
 --
-SET statement_timeout = '1500s';  
+SET statement_timeout = '1500s';
+-- update Administrator role
 UPDATE "OrganizationEmployeeRole"
 SET "canManageMarketSetting" = true,
     "canReadMarketSetting" = true
 WHERE "name" = 'employee.role.Administrator.name';
+--
+-- update Dispatcher role
+--
+UPDATE "OrganizationEmployeeRole"
+SET "canManageMarketSetting" = false,
+    "canReadMarketSetting" = true
+WHERE "name" = 'employee.role.Dispatcher.name';
+--
+-- update Manager role
+--
+UPDATE "OrganizationEmployeeRole"
+SET "canManageMarketSetting" = true,
+    "canReadMarketSetting" = true
+WHERE "name" = 'employee.role.Manager.name';
+--
+-- update Foreman role
+--
+UPDATE "OrganizationEmployeeRole"
+SET "canManageMarketSetting" = false,
+    "canReadMarketSetting" = true
+WHERE "name" = 'employee.role.Foreman.name';
+--
+-- update Technician role
+--
+UPDATE "OrganizationEmployeeRole"
+SET "canManageMarketSetting" = false,
+    "canReadMarketSetting" = true
+WHERE "name" = 'employee.role.Technician.name';
 --
 -- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
 --
