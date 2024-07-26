@@ -12,7 +12,7 @@ interface OnlyProgressionMeterReadingsSettingCardProps {
     mobileConfig?: MobileFeatureConfigType
 }
 
-const TICKET_DISABLING_SETTINGS_URL = '/settings/mobileFeatureConfig/onlyProgressionMeterReadings'
+const ONLY_PROGRESSION_METER_READINGS_URL = '/settings/mobileFeatureConfig/onlyProgressionMeterReadings'
 
 export const OnlyProgressionMeterReadingsSettingCard: React.FC<OnlyProgressionMeterReadingsSettingCardProps> = ({ mobileConfig }) => {
     const intl = useIntl()
@@ -23,7 +23,7 @@ export const OnlyProgressionMeterReadingsSettingCard: React.FC<OnlyProgressionMe
     const router = useRouter()
 
     const handleClickCard = useCallback(() => {
-        router.push(TICKET_DISABLING_SETTINGS_URL)
+        router.push(ONLY_PROGRESSION_METER_READINGS_URL)
     }, [router])
 
     const isEnabled = get(mobileConfig, 'onlyGreaterThanPreviousMeterReadingIsEnabled')
