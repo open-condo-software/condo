@@ -19,6 +19,10 @@ class ImporterWrapper extends DomaMetersImporter {
             ТЕПЛО: '18555734-0631-11ec-9a03-0242ac130003',
             ГАЗ: '1c267e92-0631-11ec-9a03-0242ac130003',
         },
+        isAutomatic: {
+            yes: true,
+            no: false,
+        },
     }
 
     errors = {
@@ -31,6 +35,7 @@ class ImporterWrapper extends DomaMetersImporter {
         emptyRows: { message: 'emptyRows' },
         unknownResource: { message: 'unknownResource' },
         unknownUnitType: { message: 'unknownUnitType' },
+        unknownIsAutomatic: { message: 'unknownIsAutomatic' },
     }
 
     constructor () {
@@ -49,7 +54,7 @@ describe('DomaMetersImporter', () => {
         const verificationDate = dayjs().format('DD.MM.YYYY')
         const sealingDate = dayjs().format('DD.MM.YYYY')
         const rows = [
-            // address, unitName, unitType, accountNumber, meterType, meterNumber, tariffs, v1, v2, v3, v4, date, verificationDate, nextVerificationDate, installationDate, commissioningDate, sealingDate, controlReadingsDate, place
+            // address, unitName, unitType, accountNumber, meterType, meterNumber, tariffs, v1, v2, v3, v4, date, verificationDate, nextVerificationDate, installationDate, commissioningDate, sealingDate, controlReadingsDate, place, isAutomatic
             [
                 fakeAddress,
                 '1',
@@ -70,6 +75,7 @@ describe('DomaMetersImporter', () => {
                 '',
                 '',
                 '',
+                'yes',
             ],
             [
                 fakeAddress,
@@ -89,6 +95,7 @@ describe('DomaMetersImporter', () => {
                 '',
                 '',
                 sealingDate,
+                '',
                 '',
                 '',
             ],
@@ -112,6 +119,7 @@ describe('DomaMetersImporter', () => {
                 '',
                 '',
                 '',
+                'no',
             ],
             [
                 fakeAddress,
@@ -155,6 +163,28 @@ describe('DomaMetersImporter', () => {
                 '',
                 '',
             ],
+            [
+                fakeAddress,
+                '2',
+                'Квартира',
+                '003',
+                'ХВС',
+                '0003',
+                '2',
+                '103.1',
+                '',
+                '',
+                '',
+                date,
+                verificationDate,
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '+',
+            ],
         ]
 
         const importer = new ImporterWrapper()
@@ -195,6 +225,7 @@ describe('DomaMetersImporter', () => {
                     commissioningDate: '',
                     sealingDate: '',
                     controlReadingsDate: '',
+                    isAutomatic: true,
                 },
             },
             {
@@ -222,6 +253,7 @@ describe('DomaMetersImporter', () => {
                     commissioningDate: '',
                     sealingDate: sealingDate,
                     controlReadingsDate: '',
+                    isAutomatic: undefined,
                 },
             },
             {
@@ -249,10 +281,11 @@ describe('DomaMetersImporter', () => {
                     commissioningDate: '',
                     sealingDate: '',
                     controlReadingsDate: '',
+                    isAutomatic: false,
                 },
             },
         ])
 
-        expect(errors).toEqual([['unknownUnitType'], ['unknownResource']])
+        expect(errors).toEqual([['unknownUnitType'], ['unknownResource'], ['unknownIsAutomatic']])
     })
 })

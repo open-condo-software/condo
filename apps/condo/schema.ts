@@ -73198,6 +73198,7 @@ export type RegisterMetersReadingsMeterMetaInput = {
   commissioningDate?: Maybe<Scalars['String']>;
   sealingDate?: Maybe<Scalars['String']>;
   controlReadingsDate?: Maybe<Scalars['String']>;
+  isAutomatic?: Maybe<Scalars['Boolean']>;
 };
 
 export type RegisterMetersReadingsMeterOutput = {

@@ -12,7 +12,6 @@ const { GQLListSchema, find, getByCondition, getById } = require('@open-condo/ke
 const { UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/meter/access/Meter')
 const {
-    AUTOMATIC_METER_NO_MASTER_APP,
     B2B_APP_NOT_CONNECTED,
     B2C_APP_NOT_AVAILABLE,
     METER_NUMBER_HAVE_INVALID_VALUE,
@@ -224,9 +223,7 @@ const Meter = new GQLListSchema('Meter', {
     hooks: {
         validateInput: async ({ resolvedData, addValidationError, existingItem, context, operation }) => {
             const newItem = { ...existingItem, ...resolvedData }
-            if (newItem.isAutomatic && !newItem.b2bApp) {
-                return addValidationError(AUTOMATIC_METER_NO_MASTER_APP)
-            }
+
             if (resolvedData['b2bApp']) {
                 const activeContext = await getByCondition('B2BAppContext', {
                     organization: { id: newItem.organization, deletedAt: null },

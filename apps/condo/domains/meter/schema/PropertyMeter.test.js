@@ -4,17 +4,16 @@
 
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor, expectValuesOfCommonFields, catchErrorFrom, expectToThrowValidationFailureError } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, expectValuesOfCommonFields, catchErrorFrom } = require('@open-condo/keystone/test.utils')
 const {
-    expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
-    expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects,
+    expectToThrowAuthenticationErrorToObj,
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
 const { COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
-const { AUTOMATIC_METER_NO_MASTER_APP } = require('@condo/domains/meter/constants/errors')
 const { PropertyMeter, createTestPropertyMeter, updateTestPropertyMeter } = require('@condo/domains/meter/utils/testSchema')
 const { MeterResource } = require('@condo/domains/meter/utils/testSchema')
-const { createTestB2BApp, createTestB2BAppContext } = require('@condo/domains/miniapp/utils/testSchema')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
@@ -288,28 +287,6 @@ describe('PropertyMeter', () => {
                 expect(errors[0].message).toMatch('duplicate key value violates unique constraint')
                 expect(data).toEqual({ 'obj': null })
             })
-        })
-
-        test('If automatic must have master-system b2b app', async () => {
-            const [organization] = await createTestOrganization(admin)
-            const [property] = await createTestProperty(admin, organization)
-            await expectToThrowValidationFailureError(async () => {
-                await createTestPropertyMeter(admin, organization, property, resource, {
-                    isAutomatic: true,
-                })
-            }, AUTOMATIC_METER_NO_MASTER_APP)
-            const [b2bApp] = await createTestB2BApp(admin)
-            await createTestB2BAppContext(admin, b2bApp, organization)
-            const [meter] = await createTestPropertyMeter(admin, organization, property, resource, {
-                isAutomatic: true,
-                b2bApp: { connect: { id: b2bApp.id } },
-            })
-            expect(meter).toHaveProperty('id')
-            await expectToThrowValidationFailureError(async () => {
-                await updateTestPropertyMeter(admin, meter.id, {
-                    b2bApp: { disconnectAll: true },
-                })
-            }, AUTOMATIC_METER_NO_MASTER_APP)
         })
     })
 })

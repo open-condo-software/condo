@@ -20,7 +20,7 @@ const {
     makeContextWithOrganizationAndIntegrationAsAdmin,
 } = require('@condo/domains/billing/utils/testSchema')
 const { COLD_WATER_METER_RESOURCE_ID, HOT_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
-const { AUTOMATIC_METER_NO_MASTER_APP, B2C_APP_NOT_AVAILABLE, B2B_APP_NOT_CONNECTED } = require('@condo/domains/meter/constants/errors')
+const { B2C_APP_NOT_AVAILABLE, B2B_APP_NOT_CONNECTED } = require('@condo/domains/meter/constants/errors')
 const {
     MeterResource,
     Meter,
@@ -1047,28 +1047,6 @@ describe('Meter', () => {
         })
     })
     describe('Validations', () => {
-        test('If automatic must have master-system b2b app', async () => {
-            const [organization] = await createTestOrganization(admin)
-            const [property] = await createTestProperty(admin, organization)
-            const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
-            await expectToThrowValidationFailureError(async () => {
-                await createTestMeter(admin, organization, property, resource, {
-                    isAutomatic: true,
-                })
-            }, AUTOMATIC_METER_NO_MASTER_APP)
-            const [b2bApp] = await createTestB2BApp(admin)
-            await createTestB2BAppContext(admin, b2bApp, organization)
-            const [meter] = await createTestMeter(admin, organization, property, resource, {
-                isAutomatic: true,
-                b2bApp: { connect: { id: b2bApp.id } },
-            })
-            expect(meter).toHaveProperty('id')
-            await expectToThrowValidationFailureError(async () => {
-                await updateTestMeter(admin, meter.id, {
-                    b2bApp: { disconnectAll: true },
-                })
-            }, AUTOMATIC_METER_NO_MASTER_APP)
-        })
         test('B2B app must have context with organization from meter', async () => {
             const [organization] = await createTestOrganization(admin)
             const [property] = await createTestProperty(admin, organization)

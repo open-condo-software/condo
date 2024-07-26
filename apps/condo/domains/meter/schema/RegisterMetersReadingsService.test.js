@@ -993,6 +993,7 @@ describe('RegisterMetersReadingsService', () => {
         expect(meters[0].number).toBe(readings[0].meterNumber)
         expect(meters[0].place).toBe('place1')
         expect(meters[0].nextVerificationDate).toBeFalsy()
+        expect(meters[0].isAutomatic).toBe(false)
 
         const metersReadings = await MeterReading.getAll(adminClient, { meter: { id_in: map(meters, 'id') } })
         expect(metersReadings).toHaveLength(1)
@@ -1008,6 +1009,7 @@ describe('RegisterMetersReadingsService', () => {
                 ...readings[0].meterMeta,
                 place: 'place2',
                 nextVerificationDate,
+                isAutomatic: true,
             },
         }]
         const [secondAttempt] = await registerMetersReadingsByTestClient(adminClient, o10n, anotherReadings)
@@ -1024,6 +1026,7 @@ describe('RegisterMetersReadingsService', () => {
         expect(updatedMeters[0].number).toBe(readings[0].meterNumber)
         expect(updatedMeters[0].place).toBe('place2')
         expect(updatedMeters[0].nextVerificationDate).toBeTruthy()
+        expect(updatedMeters[0].isAutomatic).toBe(true)
 
         // sent third readings without place - field value must be 'place2'
         const thirdReadings = [{
@@ -1046,6 +1049,7 @@ describe('RegisterMetersReadingsService', () => {
         expect(updatedMeters2[0].place).toBe('place2')
         expect(updatedMeters2[0].numberOfTariffs).toBe(2)
         expect(updatedMeters2[0].nextVerificationDate).toBeTruthy()
+        expect(updatedMeters2[0].isAutomatic).toBe(true)
 
         // be sure that keep same value from creation
         expect(meters[0].controlReadingsDate).toBe(updatedMeters2[0].controlReadingsDate)

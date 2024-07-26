@@ -1,4 +1,4 @@
-const { get, isEqual, isNil } = require('lodash')
+const { get, isEmpty, isEqual, isNil, has } = require('lodash')
 
 const { AbstractMetersImporter } = require('./AbstractMetersImporter')
 const { TransformRowError } = require('./MetersDataImporterTypes')
@@ -37,6 +37,11 @@ class DomaMetersImporter extends AbstractMetersImporter {
             errors.push(this.errors.unknownUnitType.message)
         }
 
+        const cell19Value = String(row[19]).toLowerCase()
+        if (!!row[19] && !has(this, ['mappers', 'isAutomatic', cell19Value])) {
+            errors.push(this.errors.unknownIsAutomatic.message)
+        }
+
         if (errors.length > 0) {
             throw new TransformRowError(errors)
         }
@@ -64,6 +69,7 @@ class DomaMetersImporter extends AbstractMetersImporter {
                 commissioningDate: row[15],
                 sealingDate: row[16],
                 controlReadingsDate: row[17],
+                isAutomatic: get(this, ['mappers', 'isAutomatic', cell19Value]),
             },
         }
     }

@@ -77090,6 +77090,7 @@ input RegisterMetersReadingsMeterMetaInput {
   commissioningDate: String
   sealingDate: String
   controlReadingsDate: String
+  isAutomatic: Boolean
 }
 
 input RegisterMetersReadingsReadingAddressInfoInput {
