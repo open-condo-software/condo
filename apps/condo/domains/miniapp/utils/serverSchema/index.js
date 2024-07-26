@@ -23,6 +23,7 @@ const {
     MessageAppBlackList: MessageAppBlackListGQL,
 } = require('@condo/domains/miniapp/gql')
 const { B2BAppNewsSharingConfig: B2BAppNewsSharingConfigGQL } = require('@condo/domains/miniapp/gql')
+const { B2CAppMessageSetting: B2CAppMessageSettingGQL } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 async function allOrganizationApps (context, data) {
@@ -64,6 +65,7 @@ const B2BAppPermission = generateServerUtils(B2BAppPermissionGQL)
 const B2BAppRole = generateServerUtils(B2BAppRoleGQL)
 const B2BAppAccessRightSet = generateServerUtils(B2BAppAccessRightSetGQL)
 const B2BAppNewsSharingConfig = generateServerUtils(B2BAppNewsSharingConfigGQL)
+const B2CAppMessageSetting = generateServerUtils(B2CAppMessageSettingGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -82,5 +84,6 @@ module.exports = {
     MessageAppBlackList,
     B2BAppAccessRightSet,
     B2BAppNewsSharingConfig,
+    B2CAppMessageSetting,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
