@@ -65955,20 +65955,6 @@ export type Query = {
    *
    * `{
    *   "query": "checkUserExistence",
-   *   "code": "NOT_FOUND",
-   *   "type": "MULTIPLE_USERS_FOUND",
-   *   "message": "Multiple users found"
-   * }`
-   *
-   * `{
-   *   "query": "checkUserExistence",
-   *   "code": "BAD_USER_INPUT",
-   *   "type": "INVALID_PHONE_NUMBER",
-   *   "message": "Invalid phone number"
-   * }`
-   *
-   * `{
-   *   "query": "checkUserExistence",
    *   "variable": [
    *     "data",
    *     "token"
