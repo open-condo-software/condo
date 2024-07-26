@@ -142,7 +142,7 @@ export const TaskProgress = ({ task, translations, progress, removeTask, isDeskt
                 )}
             </Space>
             {
-                !isAllTasksFinished
+                !isAllTasksFinished || task.status === TASK_ERROR_STATUS
                     ? (<TaskIconsHoverSwitcher
                         progress={progress}
                         taskStatus={task.status}
