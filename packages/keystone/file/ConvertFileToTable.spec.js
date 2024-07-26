@@ -103,8 +103,8 @@ describe('ConvertFileToTable', () => {
             const extract = new ConvertFileToTable(content)
             const result = await extract.getData()
             expect(result).toEqual([
-                ['TEST1', 'User 1', 'Кудрявцева ул, дом № 15, Кв. 31', '1122', '6985.45' ],
-                ['TEST2', 'User 2', 'Кудрявцева ул, дом № 15, Кв. 63', '1122', '15662.53' ],
+                ['TEST1', 'User 1', 'Address 1', '1122', '6985.45' ],
+                ['TEST2', 'User 2', 'Address 2', '1122', '15662.53' ],
             ])
         })
 
@@ -113,8 +113,8 @@ describe('ConvertFileToTable', () => {
             const extract = new ConvertFileToTable(content)
             const result = await extract.getData()
             expect(result).toEqual([
-                ['TEST1', 'ул. Театральная, д.1, оф.1', '922', '8640.02', 'Отопление', '8240.02', 'Газ', '400' ],
-                ['TEST2', 'e7cff5f3-bbf1-46d1-8a99-f15f365060cd, кв.1', '922', '3355.06', 'Отопление', '3205.06', 'Газ', '150' ],
+                ['TEST1', 'Some street, 1, 1', '922', '8640.02', 'Heating', '8240.02', 'Gas', '400' ],
+                ['TEST2', 'e7cff5f3-bbf1-46d1-8a99-f15f365060cd, 1', '922', '3355.06', 'Heating', '3205.06', 'Gas', '150' ],
             ])
         })
 
@@ -123,9 +123,9 @@ describe('ConvertFileToTable', () => {
             const extract = new ConvertFileToTable(content)
             const result = await extract.getData()
             expect(result).toEqual([
-                ['TEST1', 'ул. Короленко,12.А,1', '294,55', '0622'],
-                ['TEST2', 'ул. Короленко,12.А,2', '-1872,61', '0622'],
-                ['TEST3', 'ул. Короленко,12.А,3', '4231,93', '0622'],
+                ['TEST1', 'Some street,12,1', '294,55', '0622'],
+                ['TEST2', 'Some street,12,2', '-1872,61', '0622'],
+                ['TEST3', 'Some street,12,3', '4231,93', '0622'],
             ])
         })
 
@@ -134,9 +134,9 @@ describe('ConvertFileToTable', () => {
             const extract = new ConvertFileToTable(content)
             const result = await extract.getData()
             expect(result).toEqual([
-                ['TEST1', 'ул. Короленко,12.А,1', '294,55', '0622'],
-                ['TEST2', 'ул. Короленко,12.А,2', '-1872,61', '0622'],
-                ['TEST3', 'ул. Короленко,12.А,3', '4231,93', '0622'],
+                ['TEST1', 'Some street,12,1', '294,55', '0622'],
+                ['TEST2', 'Some street,12,2', '-1872,61', '0622'],
+                ['TEST3', 'Some street,12,3', '4231,93', '0622'],
             ])
         })
 

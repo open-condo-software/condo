@@ -2,7 +2,6 @@ const { createReadStream, readFileSync } = require('fs')
 const path = require('path')
 const { Duplex } = require('stream')
 
-//const DOTS_AND_COMMAS_REGEXP = /^([,.\s]+)|([,.\s]+)$/g // NOSONAR two groups usage required for proper work of regexp
 const INVISIBLE_CHARS_REGEXP = new RegExp('[\u200B-\u200D\uFEFF]', 'g')
 
 const clearString = (cell) => {
@@ -16,7 +15,6 @@ const clearString = (cell) => {
         .replace(/\s+/g, ' ')
         .replace(INVISIBLE_CHARS_REGEXP, '')
         .trim()
-        //.replace(DOTS_AND_COMMAS_REGEXP, '')
 }
 
 const readFileFromStream = async (stream) => new Promise((resolve, reject) => {
