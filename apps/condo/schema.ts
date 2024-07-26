@@ -7135,8 +7135,10 @@ export type B2CAppMessageSetting = {
   _label_?: Maybe<Scalars['String']>;
   /**  Link to B2CApp to which this config applies  */
   app?: Maybe<B2CApp>;
-  /**  reason for blocking messages with types from blockedNotificationTypes  */
+  /**  Reason for blocking messages with types from type  */
   blockReason?: Maybe<Scalars['String']>;
+  /**  Is message type in black list for this B2CApp  */
+  isBlacklisted?: Maybe<Scalars['Boolean']>;
   /**  The type of message we want to configure  */
   type?: Maybe<MessageType>;
   /**  Time window for sending push notifications  */
@@ -7162,6 +7164,7 @@ export type B2CAppMessageSetting = {
 export type B2CAppMessageSettingCreateInput = {
   app?: Maybe<B2CAppRelateToOneInput>;
   blockReason?: Maybe<Scalars['String']>;
+  isBlacklisted?: Maybe<Scalars['Boolean']>;
   type?: Maybe<MessageType>;
   notificationWindowSize?: Maybe<Scalars['Int']>;
   notificationWindowCount?: Maybe<Scalars['Int']>;
@@ -7189,6 +7192,7 @@ export type B2CAppMessageSettingHistoryRecord = {
   _label_?: Maybe<Scalars['String']>;
   app?: Maybe<Scalars['String']>;
   blockReason?: Maybe<Scalars['String']>;
+  isBlacklisted?: Maybe<Scalars['Boolean']>;
   type?: Maybe<Scalars['String']>;
   notificationWindowSize?: Maybe<Scalars['Int']>;
   notificationWindowCount?: Maybe<Scalars['Int']>;
@@ -7210,6 +7214,7 @@ export type B2CAppMessageSettingHistoryRecord = {
 export type B2CAppMessageSettingHistoryRecordCreateInput = {
   app?: Maybe<Scalars['String']>;
   blockReason?: Maybe<Scalars['String']>;
+  isBlacklisted?: Maybe<Scalars['Boolean']>;
   type?: Maybe<Scalars['String']>;
   notificationWindowSize?: Maybe<Scalars['Int']>;
   notificationWindowCount?: Maybe<Scalars['Int']>;
@@ -7236,6 +7241,7 @@ export enum B2CAppMessageSettingHistoryRecordHistoryActionType {
 export type B2CAppMessageSettingHistoryRecordUpdateInput = {
   app?: Maybe<Scalars['String']>;
   blockReason?: Maybe<Scalars['String']>;
+  isBlacklisted?: Maybe<Scalars['Boolean']>;
   type?: Maybe<Scalars['String']>;
   notificationWindowSize?: Maybe<Scalars['Int']>;
   notificationWindowCount?: Maybe<Scalars['Int']>;
@@ -7278,6 +7284,8 @@ export type B2CAppMessageSettingHistoryRecordWhereInput = {
   blockReason_not_ends_with_i?: Maybe<Scalars['String']>;
   blockReason_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   blockReason_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isBlacklisted?: Maybe<Scalars['Boolean']>;
+  isBlacklisted_not?: Maybe<Scalars['Boolean']>;
   type?: Maybe<Scalars['String']>;
   type_not?: Maybe<Scalars['String']>;
   type_contains?: Maybe<Scalars['String']>;
@@ -7406,6 +7414,7 @@ export type B2CAppMessageSettingHistoryRecordsUpdateInput = {
 export type B2CAppMessageSettingUpdateInput = {
   app?: Maybe<B2CAppRelateToOneInput>;
   blockReason?: Maybe<Scalars['String']>;
+  isBlacklisted?: Maybe<Scalars['Boolean']>;
   type?: Maybe<MessageType>;
   notificationWindowSize?: Maybe<Scalars['Int']>;
   notificationWindowCount?: Maybe<Scalars['Int']>;
@@ -7443,6 +7452,8 @@ export type B2CAppMessageSettingWhereInput = {
   blockReason_not_ends_with_i?: Maybe<Scalars['String']>;
   blockReason_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   blockReason_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isBlacklisted?: Maybe<Scalars['Boolean']>;
+  isBlacklisted_not?: Maybe<Scalars['Boolean']>;
   type?: Maybe<MessageType>;
   type_not?: Maybe<MessageType>;
   type_in?: Maybe<Array<Maybe<MessageType>>>;
@@ -77975,6 +77986,8 @@ export enum SortB2CAppHistoryRecordsBy {
 export enum SortB2CAppMessageSettingHistoryRecordsBy {
   BlockReasonAsc = 'blockReason_ASC',
   BlockReasonDesc = 'blockReason_DESC',
+  IsBlacklistedAsc = 'isBlacklisted_ASC',
+  IsBlacklistedDesc = 'isBlacklisted_DESC',
   TypeAsc = 'type_ASC',
   TypeDesc = 'type_DESC',
   NotificationWindowSizeAsc = 'notificationWindowSize_ASC',
@@ -78004,6 +78017,8 @@ export enum SortB2CAppMessageSettingsBy {
   AppDesc = 'app_DESC',
   BlockReasonAsc = 'blockReason_ASC',
   BlockReasonDesc = 'blockReason_DESC',
+  IsBlacklistedAsc = 'isBlacklisted_ASC',
+  IsBlacklistedDesc = 'isBlacklisted_DESC',
   TypeAsc = 'type_ASC',
   TypeDesc = 'type_DESC',
   NotificationWindowSizeAsc = 'notificationWindowSize_ASC',

@@ -32,6 +32,7 @@ describe('B2CAppMessageSetting', () => {
 
                 expectValuesOfCommonFields(obj, attrs, admin)
                 expect(obj.type).toEqual(B2C_APP_MESSAGE_PUSH_TYPE)
+                expect(obj.isBlacklisted).toBeFalsy()
             })
 
             test('can update', async () => {
@@ -75,6 +76,7 @@ describe('B2CAppMessageSetting', () => {
 
                 expectValuesOfCommonFields(obj, attrs, support)
                 expect(obj.type).toEqual(B2C_APP_MESSAGE_PUSH_TYPE)
+                expect(obj.isBlacklisted).toBeFalsy()
             })
 
             test('can update', async () => {

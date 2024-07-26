@@ -70643,6 +70643,7 @@ type B2CAppMessageSettingHistoryRecord {
   _label_: String
   app: String
   blockReason: String
+  isBlacklisted: Boolean
   type: String
   notificationWindowSize: Int
   notificationWindowCount: Int
@@ -70686,6 +70687,8 @@ input B2CAppMessageSettingHistoryRecordWhereInput {
   blockReason_not_ends_with_i: String
   blockReason_in: [String]
   blockReason_not_in: [String]
+  isBlacklisted: Boolean
+  isBlacklisted_not: Boolean
   type: String
   type_not: String
   type_contains: String
@@ -70805,6 +70808,8 @@ input B2CAppMessageSettingHistoryRecordWhereUniqueInput {
 enum SortB2CAppMessageSettingHistoryRecordsBy {
   blockReason_ASC
   blockReason_DESC
+  isBlacklisted_ASC
+  isBlacklisted_DESC
   type_ASC
   type_DESC
   notificationWindowSize_ASC
@@ -70832,6 +70837,7 @@ enum SortB2CAppMessageSettingHistoryRecordsBy {
 input B2CAppMessageSettingHistoryRecordUpdateInput {
   app: String
   blockReason: String
+  isBlacklisted: Boolean
   type: String
   notificationWindowSize: Int
   notificationWindowCount: Int
@@ -70857,6 +70863,7 @@ input B2CAppMessageSettingHistoryRecordsUpdateInput {
 input B2CAppMessageSettingHistoryRecordCreateInput {
   app: String
   blockReason: String
+  isBlacklisted: Boolean
   type: String
   notificationWindowSize: Int
   notificationWindowCount: Int
@@ -70893,9 +70900,11 @@ type B2CAppMessageSetting {
   """ Link to B2CApp to which this config applies """
   app: B2CApp
 
-  """ reason for blocking messages with types from blockedNotificationTypes 
-  """
+  """ Reason for blocking messages with types from type """
   blockReason: String
+
+  """ Is message type in black list for this B2CApp """
+  isBlacklisted: Boolean
 
   """ The type of message we want to configure """
   type: MessageType
@@ -70951,6 +70960,8 @@ input B2CAppMessageSettingWhereInput {
   blockReason_not_ends_with_i: String
   blockReason_in: [String]
   blockReason_not_in: [String]
+  isBlacklisted: Boolean
+  isBlacklisted_not: Boolean
   type: MessageType
   type_not: MessageType
   type_in: [MessageType]
@@ -71038,6 +71049,8 @@ enum SortB2CAppMessageSettingsBy {
   app_DESC
   blockReason_ASC
   blockReason_DESC
+  isBlacklisted_ASC
+  isBlacklisted_DESC
   type_ASC
   type_DESC
   notificationWindowSize_ASC
@@ -71065,6 +71078,7 @@ enum SortB2CAppMessageSettingsBy {
 input B2CAppMessageSettingUpdateInput {
   app: B2CAppRelateToOneInput
   blockReason: String
+  isBlacklisted: Boolean
   type: MessageType
   notificationWindowSize: Int
   notificationWindowCount: Int
@@ -71087,6 +71101,7 @@ input B2CAppMessageSettingsUpdateInput {
 input B2CAppMessageSettingCreateInput {
   app: B2CAppRelateToOneInput
   blockReason: String
+  isBlacklisted: Boolean
   type: MessageType
   notificationWindowSize: Int
   notificationWindowCount: Int

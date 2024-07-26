@@ -11,7 +11,7 @@ const {
     USER_NOT_FOUND_ERROR, RESIDENT_NOT_FOUND_ERROR,
     APP_NOT_FOUND_ERROR, APP_BLACK_LIST_ERROR, DEBUG_APP_ID,
 } = require('@condo/domains/miniapp/constants')
-const { MessageAppBlackList } = require('@condo/domains/miniapp/utils/serverSchema')
+const { B2CAppMessageSetting } = require('@condo/domains/miniapp/utils/serverSchema')
 const { B2CApp } = require('@condo/domains/miniapp/utils/serverSchema')
 const {
     VOIP_INCOMING_CALL_MESSAGE_TYPE,
@@ -143,8 +143,8 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
                     if (!appExisted) throw new GQLError(ERRORS.APP_NOT_FOUND, context)
 
                     B2CAppName = appExisted.name
-                    const where = { app: { id: app.id }, type, deletedAt: null }
-                    const appInBlackList = await MessageAppBlackList.getOne(context, where)
+                    const where = { app: { id: app.id }, type, isBlacklisted: true, deletedAt: null }
+                    const appInBlackList = await B2CAppMessageSetting.getOne(context, where)
 
                     if (appInBlackList) throw new GQLError(ERRORS.APP_IN_BLACK_LIST, context)
                 }
@@ -152,6 +152,11 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
                 const searchKey = `${type}_${app.id}_${user.id}`
                 const ttl = CACHE_TTL[type] || CACHE_TTL['DEFAULT']
 
+                await redisGuard.checkCustomLimitCounters(
+                    `${SERVICE_NAME}_${searchKey}`,
+                    RESIDENT_DISCOVER_CONSUMERS_WINDOW_SEC,
+                    MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW_SEC,
+                )
                 await redisGuard.checkLock(searchKey, SERVICE_NAME, context)
                 await redisGuard.lock(searchKey, SERVICE_NAME, ttl)
 

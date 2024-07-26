@@ -23,8 +23,15 @@ const B2CAppMessageSetting = new GQLListSchema('B2CAppMessageSetting', {
         },
 
         blockReason: {
-            schemaDoc: 'reason for blocking messages with types from blockedNotificationTypes',
+            schemaDoc: 'Reason for blocking messages with types from type',
             type: 'Text',
+        },
+
+        isBlacklisted: {
+            schemaDoc: 'Is message type in black list for this B2CApp',
+            type: 'Checkbox',
+            isRequired: true,
+            defaultValue: false,
         },
 
         type: getMessageTypeField({
