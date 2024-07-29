@@ -9,7 +9,7 @@ import { IntlShape } from 'react-intl/src/types'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button, Typography } from '@open-condo/ui'
+import { Button, Typography } from '@open-condo/ui'
 
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { B2BAppContext } from '@condo/domains/miniapp/utils/clientSchema'
@@ -29,16 +29,12 @@ export const CreateNewsActionBar: React.FC<{ handleSave: () => void, isLoading: 
     const { handleSave, isLoading } = props
 
     return (
-        <ActionBar
-            actions={[
-                <Button
-                    key='submit'
-                    type='primary'
-                    children={ShareButtonMessage}
-                    onClick={handleSave}
-                    disabled={isLoading}
-                />,
-            ]}
+        <Button
+            key='submit'
+            type='primary'
+            children={ShareButtonMessage}
+            onClick={handleSave}
+            disabled={isLoading}
         />
     )
 }

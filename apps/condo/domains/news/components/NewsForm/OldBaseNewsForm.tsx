@@ -143,6 +143,12 @@ const containWordsInSquareBrackets = (str) => {
     return words.length !== 0
 }
 
+const getTitleTemplateChanged = (form) => {
+    const { title } = form.getFieldsValue(['title'])
+    // NOTE: this check blocks any sending of [] in the news body
+    return !containWordsInSquareBrackets(title)
+}
+
 const getBodyTemplateChanged = (form) => {
     const { body } = form.getFieldsValue(['body'])
     // NOTE: this check blocks any sending of [] in the news body
@@ -192,6 +198,14 @@ export const getFinishWorkRule: (error: string) => Rule = (error) => (form) => {
         message: error,
         validator: () => {
             return getValidBeforeAfterSendAt(form) ? Promise.resolve() : Promise.reject()
+        },
+    }
+}
+export const getTitleTemplateChangedRule: (error: string) => Rule = (error) => (form) => {
+    return {
+        message: error,
+        validator: () => {
+            return getTitleTemplateChanged(form) ? Promise.resolve() : Promise.reject()
         },
     }
 }
@@ -305,7 +319,7 @@ export const OldBaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const SelectTextLabel = intl.formatMessage({ id: 'news.fields.text.label' })
     const SelectAddressLabel = intl.formatMessage({ id: 'news.fields.address.label' })
     const SelectSendPeriodLabel = intl.formatMessage({ id: 'news.fields.period.label' })
-    const TemplateBodyErrorMessage = intl.formatMessage({ id: 'news.fields.templateBody.error' })
+    const TemplateBlanksNotFilledErrorMessage = intl.formatMessage({ id: 'news.fields.template.blanksNotFilledError' })
     const ValidBeforeErrorMessage = intl.formatMessage({ id: 'news.fields.validBefore.error' })
     const ToManyMessagesMessage = intl.formatMessage({ id: 'news.fields.toManyMessages.error' })
     const TemlatesLabel = intl.formatMessage({ id: 'news.fields.templates' })
@@ -564,17 +578,18 @@ export const OldBaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const dateRule: Rule = useMemo(() => getDateRule(PastTimeErrorMessage), [PastTimeErrorMessage])
     const finishWorkRule: Rule = useMemo(() => getFinishWorkRule(ValidBeforeErrorMessage), [ValidBeforeErrorMessage])
     const commonRule: Rule = useMemo(() => requiredValidator, [requiredValidator])
-    const titleRules = useMemo(() => [{
+    const titleRule = useMemo(() => ({
         whitespace: true,
         required: true,
         message: TitleErrorMessage,
-    }], [TitleErrorMessage])
+    }), [TitleErrorMessage])
+    const MemoizedTitleTemplateChangedRule = useMemo(() => getTitleTemplateChangedRule(TemplateBlanksNotFilledErrorMessage), [TemplateBlanksNotFilledErrorMessage])
     const bodyRule = useMemo(() => ({
         whitespace: true,
         required: true,
         message: BodyErrorMessage,
     }), [BodyErrorMessage])
-    const bodyTemplateChanged = useMemo(() => getBodyTemplateChangedRule(TemplateBodyErrorMessage), [TemplateBodyErrorMessage])
+    const MemoizedBodyTemplateChangedRule = useMemo(() => getBodyTemplateChangedRule(TemplateBlanksNotFilledErrorMessage), [TemplateBlanksNotFilledErrorMessage])
 
     const initialFormValues = useMemo(() => {
         return {
@@ -991,7 +1006,7 @@ export const OldBaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                             labelCol={FORM_FILED_COL_PROPS}
                                                             name='title'
                                                             required
-                                                            rules={titleRules}
+                                                            rules={[titleRule, MemoizedTitleTemplateChangedRule]}
                                                             data-cy='news__create-title-input'
                                                         >
                                                             <Title.InputWithCounter
@@ -1011,7 +1026,7 @@ export const OldBaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                             labelCol={FORM_FILED_COL_PROPS}
                                                             name='body'
                                                             required
-                                                            rules={[bodyRule, bodyTemplateChanged]}
+                                                            rules={[bodyRule, MemoizedBodyTemplateChangedRule]}
                                                             validateFirst={true}
                                                             data-cy='news__create-body-input'
                                                         >
