@@ -45,6 +45,7 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
         'B2CAppProperty',
 
         // Notification domain
+        { schemaName: 'Message', readonly: true },
         'MessageBatch',
 
         // Organization domain

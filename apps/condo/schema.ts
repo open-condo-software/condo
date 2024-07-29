@@ -84516,6 +84516,8 @@ export enum SortUserRightsSetHistoryRecordsBy {
   CanReadB2CAppPropertiesDesc = 'canReadB2CAppProperties_DESC',
   CanManageB2CAppPropertiesAsc = 'canManageB2CAppProperties_ASC',
   CanManageB2CAppPropertiesDesc = 'canManageB2CAppProperties_DESC',
+  CanReadMessagesAsc = 'canReadMessages_ASC',
+  CanReadMessagesDesc = 'canReadMessages_DESC',
   CanReadMessageBatchesAsc = 'canReadMessageBatches_ASC',
   CanReadMessageBatchesDesc = 'canReadMessageBatches_DESC',
   CanManageMessageBatchesAsc = 'canManageMessageBatches_ASC',
@@ -84627,6 +84629,8 @@ export enum SortUserRightsSetsBy {
   CanReadB2CAppPropertiesDesc = 'canReadB2CAppProperties_DESC',
   CanManageB2CAppPropertiesAsc = 'canManageB2CAppProperties_ASC',
   CanManageB2CAppPropertiesDesc = 'canManageB2CAppProperties_DESC',
+  CanReadMessagesAsc = 'canReadMessages_ASC',
+  CanReadMessagesDesc = 'canReadMessages_DESC',
   CanReadMessageBatchesAsc = 'canReadMessageBatches_ASC',
   CanReadMessageBatchesDesc = 'canReadMessageBatches_DESC',
   CanManageMessageBatchesAsc = 'canManageMessageBatches_ASC',
@@ -97057,6 +97061,8 @@ export type UserRightsSet = {
   canReadB2CAppProperties?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2CAppProperty" similar to support users  */
   canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "Message" as support / admin users do  */
+  canReadMessages?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to view all entities of model "MessageBatch" as support / admin users do  */
   canReadMessageBatches?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "MessageBatch" similar to support users  */
@@ -97143,6 +97149,7 @@ export type UserRightsSetCreateInput = {
   canManageB2CAppBuilds?: Maybe<Scalars['Boolean']>;
   canReadB2CAppProperties?: Maybe<Scalars['Boolean']>;
   canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canReadMessages?: Maybe<Scalars['Boolean']>;
   canReadMessageBatches?: Maybe<Scalars['Boolean']>;
   canManageMessageBatches?: Maybe<Scalars['Boolean']>;
   canReadOrganizations?: Maybe<Scalars['Boolean']>;
@@ -97211,6 +97218,7 @@ export type UserRightsSetHistoryRecord = {
   canManageB2CAppBuilds?: Maybe<Scalars['Boolean']>;
   canReadB2CAppProperties?: Maybe<Scalars['Boolean']>;
   canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canReadMessages?: Maybe<Scalars['Boolean']>;
   canReadMessageBatches?: Maybe<Scalars['Boolean']>;
   canManageMessageBatches?: Maybe<Scalars['Boolean']>;
   canReadOrganizations?: Maybe<Scalars['Boolean']>;
@@ -97273,6 +97281,7 @@ export type UserRightsSetHistoryRecordCreateInput = {
   canManageB2CAppBuilds?: Maybe<Scalars['Boolean']>;
   canReadB2CAppProperties?: Maybe<Scalars['Boolean']>;
   canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canReadMessages?: Maybe<Scalars['Boolean']>;
   canReadMessageBatches?: Maybe<Scalars['Boolean']>;
   canManageMessageBatches?: Maybe<Scalars['Boolean']>;
   canReadOrganizations?: Maybe<Scalars['Boolean']>;
@@ -97340,6 +97349,7 @@ export type UserRightsSetHistoryRecordUpdateInput = {
   canManageB2CAppBuilds?: Maybe<Scalars['Boolean']>;
   canReadB2CAppProperties?: Maybe<Scalars['Boolean']>;
   canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canReadMessages?: Maybe<Scalars['Boolean']>;
   canReadMessageBatches?: Maybe<Scalars['Boolean']>;
   canManageMessageBatches?: Maybe<Scalars['Boolean']>;
   canReadOrganizations?: Maybe<Scalars['Boolean']>;
@@ -97442,6 +97452,8 @@ export type UserRightsSetHistoryRecordWhereInput = {
   canReadB2CAppProperties_not?: Maybe<Scalars['Boolean']>;
   canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
   canManageB2CAppProperties_not?: Maybe<Scalars['Boolean']>;
+  canReadMessages?: Maybe<Scalars['Boolean']>;
+  canReadMessages_not?: Maybe<Scalars['Boolean']>;
   canReadMessageBatches?: Maybe<Scalars['Boolean']>;
   canReadMessageBatches_not?: Maybe<Scalars['Boolean']>;
   canManageMessageBatches?: Maybe<Scalars['Boolean']>;
@@ -97610,6 +97622,7 @@ export type UserRightsSetUpdateInput = {
   canManageB2CAppBuilds?: Maybe<Scalars['Boolean']>;
   canReadB2CAppProperties?: Maybe<Scalars['Boolean']>;
   canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canReadMessages?: Maybe<Scalars['Boolean']>;
   canReadMessageBatches?: Maybe<Scalars['Boolean']>;
   canManageMessageBatches?: Maybe<Scalars['Boolean']>;
   canReadOrganizations?: Maybe<Scalars['Boolean']>;
@@ -97709,6 +97722,8 @@ export type UserRightsSetWhereInput = {
   canReadB2CAppProperties_not?: Maybe<Scalars['Boolean']>;
   canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
   canManageB2CAppProperties_not?: Maybe<Scalars['Boolean']>;
+  canReadMessages?: Maybe<Scalars['Boolean']>;
+  canReadMessages_not?: Maybe<Scalars['Boolean']>;
   canReadMessageBatches?: Maybe<Scalars['Boolean']>;
   canReadMessageBatches_not?: Maybe<Scalars['Boolean']>;
   canManageMessageBatches?: Maybe<Scalars['Boolean']>;
