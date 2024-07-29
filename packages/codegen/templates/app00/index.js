@@ -7,7 +7,7 @@ const { CondoOIDCMiddleware } = require('@app/{{name}}/middlewares/oidc')
 const { prepareKeystone } = require('@open-condo/keystone/KSv5v6/v5/prepareKeystone')
 
 
-const lastApp = conf.NODE_ENV === 'test' ? undefined : new NextApp({ dir: '.' })
+const lastApp = conf.DISABLE_NEXT_APP ? undefined : new NextApp({ dir: '.' })
 
 const schemas = () => [
     require('@{{name}}/domains/user/schema'),
