@@ -50,7 +50,10 @@ export const CreateMeterReadingsActionBar = ({
                 ({ getFieldsValue, getFieldValue, getFieldError }) => {
                     let isSubmitButtonDisabled, errors, requiredErrorMessage
 
-                    const metersByIds = meters.reduce((result, meter) => ({ ...result, [meter.id]: meter }), {})
+                    const metersByIds = {}
+                    for (const meter of meters) {
+                        metersByIds[meter.id] = meter
+                    }
 
                     const hasWrongNumberOfValues = Object.keys(newMeterReadings).reduce((result, meterId) => {
                         return result || Object.keys(newMeterReadings[meterId]).length !== metersByIds[meterId].numberOfTariffs
