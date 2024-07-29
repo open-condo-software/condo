@@ -15,7 +15,7 @@
     "migrate": "./../../bin/kmigrator.py migrate",
     "migrate:down": "./../../bin/kmigrator.py down",
     "migrate:unlock": "./../../bin/kmigrator.py unlock",
-    "maketypes:{{name}}": "mkdir -p dist/admin && NODE_ENV=test node ./../../bin/create-graphql-schema.js --no-codegen StitchSchemaMiddleware",
+    "maketypes:{{name}}": "mkdir -p dist/admin && node ./../../bin/create-graphql-schema.js --no-codegen StitchSchemaMiddleware",
     "maketypes:condo": "node ./bin/generate-condo-schema.js --no-codegen",
     "maketypes": "yarn maketypes:{{name}} && yarn maketypes:condo",
     "createschema": "./../../bin/createschema",
