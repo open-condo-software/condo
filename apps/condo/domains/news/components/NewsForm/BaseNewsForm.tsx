@@ -79,7 +79,7 @@ import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/componen
 
 type FormWithActionChildrenProps = ComponentProps<ComponentProps<typeof FormWithAction>['children']>
 
-type ActionBarProps = Pick<FormWithActionChildrenProps, 'handleSave' | 'isLoading' | 'form' >
+type ActionBarProps = Pick<FormWithActionChildrenProps, 'handleSave' | 'isLoading' | 'form'>
 
 type ActionNameProps = 'create' | 'update'
 
@@ -1584,7 +1584,8 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                     open={isConfirmModalVisible}
                                                     onCancel={() => setIsConfirmModalVisible(false)}
                                                     footer={[
-                                                        <Button key='cancel'
+                                                        <Button
+                                                            key='cancel'
                                                             type='secondary'
                                                             onClick={() => setIsConfirmModalVisible(false)}>
                                                             {CancelSendMessage}
