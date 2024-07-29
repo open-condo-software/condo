@@ -13,10 +13,9 @@ const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { i18n } = require('@open-condo/locales/loader')
 
 const access = require('@condo/domains/meter/access/PropertyMeterReading')
+const { PROPERTY_METER_READING_VALUES_COUNT } = require('@condo/domains/meter/constants/constants')
 const { METER_READING_FEW_VALUES, METER_READING_EXTRA_VALUES } = require('@condo/domains/meter/constants/errors')
 const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
-
-const VALUES_COUNT = 4
 
 const ERRORS = {
     METER_READING_FEW_VALUES: (meterNumber, numberOfTariffs, fieldsNames) => ({
@@ -112,7 +111,7 @@ const PropertyMeterReading = new GQLListSchema('PropertyMeterReading', {
             }
 
             const extraFieldsNames = []
-            for (let i = propertyMeter.numberOfTariffs + 1; i <= VALUES_COUNT; i++) {
+            for (let i = propertyMeter.numberOfTariffs + 1; i <= PROPERTY_METER_READING_VALUES_COUNT; i++) {
                 const value = get(newItem, `value${i}`)
                 if (!isNil(value) && !isEmpty(value)) {
                     extraFieldsNames.push(`value${i}`)
