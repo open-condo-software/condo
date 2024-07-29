@@ -2542,6 +2542,7 @@
   "pages.billing.NoBilling.button": "View list of integrations",
   "pages.billing.ReceiptsTable.PDFTooltip": "View PDF-receipt",
   "pages.billing.ReceiptsTable.loadRegistry.button": "Load registry",
+  "pages.billing.registry.uploadPage.title": "Registry upload",
   "pages.billing.Status.success.title": "Payments from individuals are enabled",
   "WillBeReadySoon": "Everything will be ready soon",
   "Accruals": "Accruals",
