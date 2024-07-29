@@ -37,13 +37,13 @@ export const CreateNewsActionBar: React.FC<{ handleSave: () => void, isLoading: 
     return (
         <ActionBar
             actions={[
-                    <Button
-                        key='submit'
-                        type='primary'
-                        children={ShareButtonMessage}
-                        onClick={handleSave}
-                        disabled={isLoading}
-                    />,
+                <Button
+                    key='submit'
+                    type='primary'
+                    children={ShareButtonMessage}
+                    onClick={handleSave}
+                    disabled={isLoading}
+                />,
             ]}
         />
     )
