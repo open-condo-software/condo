@@ -9,7 +9,7 @@ import { IntlShape } from 'react-intl/src/types'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Button, Typography } from '@open-condo/ui'
+import { ActionBar, Button, Typography } from '@open-condo/ui'
 
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { B2BAppContext } from '@condo/domains/miniapp/utils/clientSchema'
@@ -22,6 +22,12 @@ import { BaseNewsFormByFeatureFlag } from './BaseNewsFormByFeatureFlag'
 
 const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 28]
 
+// TODO DOMA-7397 This function use only in OldBaseNewsForm. In BaseNewsForm this function is not nedeed
+/**
+ * @deprecated
+ * @param props 
+ * @returns 
+ */
 export const CreateNewsActionBar: React.FC<{ handleSave: () => void, isLoading: boolean }> = (props) => {
     const intl = useIntl()
     const ShareButtonMessage = intl.formatMessage({ id: 'global.share' })
@@ -29,12 +35,16 @@ export const CreateNewsActionBar: React.FC<{ handleSave: () => void, isLoading: 
     const { handleSave, isLoading } = props
 
     return (
-        <Button
-            key='submit'
-            type='primary'
-            children={ShareButtonMessage}
-            onClick={handleSave}
-            disabled={isLoading}
+        <ActionBar
+            actions={[
+                    <Button
+                        key='submit'
+                        type='primary'
+                        children={ShareButtonMessage}
+                        onClick={handleSave}
+                        disabled={isLoading}
+                    />,
+            ]}
         />
     )
 }
