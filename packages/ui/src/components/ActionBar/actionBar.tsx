@@ -11,15 +11,16 @@ const SPACE_SIZE: SpaceProps['size'] = [16, 16]
 
 export type ActionBarProps = {
     message?: string
+    wrap?: boolean
     actions: [ReactElement, ...ReactElement[]]
 }
 
 export const ActionBar: React.FC<ActionBarProps> = (props) => {
-    const { actions, message } = props
+    const { actions, message, wrap = true } = props
 
     return (
         <Affix offsetBottom={0} prefixCls={ACTION_BAR_CLASS_PREFIX}>
-            <Space wrap size={SPACE_SIZE} className={AFFIX_CONTENT_WRAPPER_CLASS}>
+            <Space wrap={wrap} size={SPACE_SIZE} className={AFFIX_CONTENT_WRAPPER_CLASS}>
                 {message && <Typography.Text strong>{message}</Typography.Text>}
                 {actions}
             </Space>
