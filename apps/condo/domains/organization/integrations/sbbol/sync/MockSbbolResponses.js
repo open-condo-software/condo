@@ -182,11 +182,11 @@ const EXAMPLE_TRANSACTION = {
     'number': '42', // should be unique across multiple transaction example records
     'operationCode': '01',
     'amount': {
-        'amount': '1.00',
+        'amount': 1.00,
         'currencyName': 'RUB',
     },
     'amountRub': {
-        'amount': '1.00',
+        'amount': 1.00,
         'currencyName': 'RUB',
     },
     'paymentPurpose': 'кредит',
