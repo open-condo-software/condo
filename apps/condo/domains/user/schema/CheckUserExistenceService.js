@@ -11,7 +11,7 @@ const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 const { NOT_FOUND, WRONG_FORMAT, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/user/access/CheckUserExistenceService')
 const { ConfirmPhoneAction } = require('@condo/domains/user/utils/serverSchema')
-const { checkDayAnonymousRequestLimitCounters } = require('@condo/domains/user/utils/serverSchema/requestLimitHelpers')
+const { checkDailyRequestLimitCountersByIp, checkDailyRequestLimitCountersByPhone } = require('@condo/domains/user/utils/serverSchema/requestLimitHelpers')
 
 
 /**
@@ -69,7 +69,7 @@ const CheckUserExistenceService = new GQLCustomSchema('CheckUserExistenceService
                 const { data } = args
                 const { confirmActionToken, userType } = data
 
-                await checkDayAnonymousRequestLimitCounters(context, 'checkUserExistence', context.req.ip)
+                await checkDailyRequestLimitCountersByIp(context, 'checkUserExistence', context.req.ip)
 
                 checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 
@@ -81,9 +81,12 @@ const CheckUserExistenceService = new GQLCustomSchema('CheckUserExistenceService
                         expiresAt_gte: new Date().toISOString(),
                         completedAt: null,
                         isPhoneVerified: true,
+                        deletedAt: null,
                     },
                 )
                 if (!action) throw new GQLError(ERRORS.TOKEN_NOT_FOUND, context)
+
+                await checkDailyRequestLimitCountersByPhone(context, 'checkUserExistence', action.phone)
 
                 const users = await find('User', { type: userType, phone: action.phone })
 

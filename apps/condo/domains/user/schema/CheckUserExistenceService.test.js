@@ -12,6 +12,7 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { RESIDENT, USER_TYPES } = require('@condo/domains/user/constants/common')
+const { GQL_ERRORS: USER_ERRORS } = require('@condo/domains/user/constants/errors')
 const {
     createTestConfirmPhoneAction,
     createTestUser,
@@ -260,6 +261,40 @@ describe('CheckUserExistenceService', () => {
                     userType: RESIDENT,
                 })
             }, ERRORS.TOKEN_NOT_FOUND, 'result')
+        })
+
+        test('should throw error if there are a lot of requests for one phone number per day', async () => {
+            const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
+            for (let i = 0; i < 10; i++) {
+                const client = await makeClient()
+                await checkUserExistenceByTestClient(client, {
+                    confirmActionToken: confirmPhoneAction.token,
+                    userType: RESIDENT,
+                })
+            }
+            const client = await makeClient()
+            await expectToThrowGQLError(async () => {
+                await checkUserExistenceByTestClient(client, {
+                    confirmActionToken: confirmPhoneAction.token,
+                    userType: RESIDENT,
+                })
+            }, USER_ERRORS.DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED, 'result')
+        })
+
+        test('should throw error if there are a lot of requests by ip per day', async () => {
+            const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
+            for (let i = 0; i < 10; i++) {
+                await checkUserExistenceByTestClient(anonymousClient, {
+                    confirmActionToken: confirmPhoneAction.token,
+                    userType: RESIDENT,
+                })
+            }
+            await expectToThrowGQLError(async () => {
+                await checkUserExistenceByTestClient(anonymousClient, {
+                    confirmActionToken: confirmPhoneAction.token,
+                    userType: RESIDENT,
+                })
+            }, USER_ERRORS.DAILY_REQUEST_LIMIT_FOR_IP_REACHED, 'result')
         })
     })
 })
