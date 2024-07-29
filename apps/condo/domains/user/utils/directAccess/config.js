@@ -45,6 +45,7 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
         'B2CAppProperty',
 
         // Notification domain
+        'Message',
         'MessageBatch',
 
         // Organization domain
