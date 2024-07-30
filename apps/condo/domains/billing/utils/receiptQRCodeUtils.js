@@ -1,3 +1,4 @@
+const iconv = require('iconv-lite')
 const { get, isNil, map, set } = require('lodash')
 
 const { createInstance } = require('@open-condo/clients/address-service-client')
@@ -33,14 +34,14 @@ function parseReceiptQRCode (qrStr) {
 
     const requisitesStr = get(matches, ['groups', 'requisitesStr'], '')
 
-    // TODO(AleX83Xpert): maybe decode requisitesStr
-    // Need to test the result of scanning from mobile devices
     // https://encoding.spec.whatwg.org/#koi8-r
     // https://encoding.spec.whatwg.org/#windows-1251
-    // const encodingTag = get(matches, ['groups', 'encodingTag'])
-    // const encoding = get(['windows-1251', 'utf-8', 'koi8-r'], encodingTag, 'utf-8')
+    const encodingTag = get(matches, ['groups', 'encodingTag'])
+    const encoding = get({ 1: 'cp1251', 2: 'utf-8', 3: 'koi8-r' }, encodingTag, 'utf-8')
 
-    return Object.fromEntries(requisitesStr.split('|').map((part) => part.split('=', 2)))
+    const encodedRequisitesStr = iconv.encode(requisitesStr, encoding).toString()
+
+    return Object.fromEntries(encodedRequisitesStr.split('|').map((part) => part.split('=', 2)))
 }
 
 /**

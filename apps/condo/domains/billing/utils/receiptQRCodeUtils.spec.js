@@ -4,6 +4,7 @@
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
 const Big = require('big.js')
+const iconv = require('iconv-lite')
 
 const { getById } = require('@open-condo/keystone/schema')
 const { catchErrorFrom, setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
@@ -42,12 +43,22 @@ describe('receiptQRCodeUtils', () => {
         adminClient = await makeLoggedInAdminClient()
     })
 
-    test('QR-code fields parsed correctly', () => {
-        const parsed = parseReceiptQRCode('ST00012|field1=Hello|Field2=world|foo=bar baz')
-        expect(parsed).toEqual({
-            field1: 'Hello',
-            Field2: 'world',
-            foo: 'bar baz',
+    describe('RU QR-codes encoded correctly', () => {
+        const cases = [
+            [1, 'windows-1251'],
+            [2, 'utf-8'],
+            [3, 'koi8-r'],
+        ]
+
+        test.each(cases)('%p %p', (tag, encoding) => {
+            const buf = iconv.decode(iconv.encode('field1=Hello|Field2=world|foo=привет', 'utf8'), encoding)
+            const qrStr = `ST0001${tag}|${buf.toString()}`
+            const parsed = parseReceiptQRCode(qrStr)
+            expect(parsed).toEqual({
+                field1: 'Hello',
+                Field2: 'world',
+                foo: 'привет',
+            })
         })
     })
 
