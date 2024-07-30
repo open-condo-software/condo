@@ -72,11 +72,11 @@ const CheckUserExistenceService = new GQLCustomSchema('CheckUserExistenceService
                 const { data } = args
                 const { confirmActionToken, userType } = data
 
-                await checkDailyRequestLimitCountersByIp(context, 'checkUserExistence', context.req.ip)
-
                 checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 
                 if (!confirmActionToken) throw new GQLError(ERRORS.TOKEN_NOT_FOUND, context)
+
+                await checkDailyRequestLimitCountersByIp(context, 'checkUserExistence', context.req.ip)
 
                 const action = await ConfirmPhoneAction.getOne(context,
                     {

@@ -145,7 +145,24 @@ const SignInUserService = new GQLCustomSchema('SignInUserService', {
                 const { data } = args
                 const { confirmActionToken, userType, userData, dv, sender } = data
 
+                checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
+
+                if (!SUPPORTED_USER_TYPES.includes(userType)) throw new GQLError(ERRORS.NOT_SUPPORTED_USER_TYPE, context)
+
+                if (!confirmActionToken) throw new GQLError(ERRORS.TOKEN_NOT_FOUND, context)
+
                 await checkDailyRequestLimitCountersByIp(context, 'signInUser', context.req.ip)
+
+                const action = await ConfirmPhoneAction.getOne(context,
+                    {
+                        token: confirmActionToken,
+                        expiresAt_gte: new Date().toISOString(),
+                        completedAt: null,
+                        isPhoneVerified: true,
+                        deletedAt: null,
+                    }
+                )
+                if (!action) throw new GQLError(ERRORS.TOKEN_NOT_FOUND, context)
 
                 const dvAndSender = { dv, sender }
                 const userInfo = {
@@ -158,27 +175,10 @@ const SignInUserService = new GQLCustomSchema('SignInUserService', {
                     isPhoneVerified: false,
                 }
 
-                checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
+                if (!!userInfo.phone && userInfo.phone !== action.phone) throw new GQLError(ERRORS.DIFFERENT_PHONE_NUMBERS, context)
+                if (!action.phone) throw new GQLError(ERRORS.INVALID_PHONE_NUMBER, context)
 
-                if (!SUPPORTED_USER_TYPES.includes(userType)) throw new GQLError(ERRORS.NOT_SUPPORTED_USER_TYPE, context)
-
-                if (!confirmActionToken) throw new GQLError(ERRORS.TOKEN_NOT_FOUND, context)
-
-                const action = await ConfirmPhoneAction.getOne(context,
-                    {
-                        token: confirmActionToken,
-                        expiresAt_gte: new Date().toISOString(),
-                        completedAt: null,
-                        isPhoneVerified: true,
-                    }
-                )
-                if (!action) throw new GQLError(ERRORS.TOKEN_NOT_FOUND, context)
-
-                const phoneFromAction = normalizePhone(action.phone) || null
-                if (!!userInfo.phone && userInfo.phone !== phoneFromAction) throw new GQLError(ERRORS.DIFFERENT_PHONE_NUMBERS, context)
-                if (!phoneFromAction) throw new GQLError(ERRORS.INVALID_PHONE_NUMBER, context)
-
-                userInfo.phone = phoneFromAction
+                userInfo.phone = action.phone
                 userInfo.isPhoneVerified = action.isPhoneVerified
 
                 let user = await getByCondition('User', {
