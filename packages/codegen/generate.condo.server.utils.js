@@ -9,14 +9,11 @@ const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const IS_DEBUG = conf.NODE_ENV === 'development'
 
 const CONDO_API_URL = `${conf.CONDO_DOMAIN}/admin/api`
-const DEFAULT_LOCALE = conf.DEFAULT_LOCALE
-const CONDO_ACCESS_TOKEN_KEY = conf.CONDO_ACCESS_TOKEN_KEY
-const ACCEPT_LANGUAGE = conf.ACCEPT_LANGUAGE
-const CONDO_REFRESH_TOKEN_KEY = conf.CONDO_REFRESH_TOKEN_KEY
+const DEFAULT_LOCALE = conf.DEFAULT_LOCALE || 'en'
+const CONDO_ACCESS_TOKEN_KEY = conf.CONDO_ACCESS_TOKEN_KEY || 'condoAccessToken'
+const ACCEPT_LANGUAGE = conf.ACCEPT_LANGUAGE || 'accept-language'
+const CONDO_REFRESH_TOKEN_KEY = conf.CONDO_REFRESH_TOKEN_KEY || 'condoRefreshToken'
 
-if (!conf.CONDO_DOMAIN || !DEFAULT_LOCALE || !CONDO_ACCESS_TOKEN_KEY || !ACCEPT_LANGUAGE || !CONDO_REFRESH_TOKEN_KEY) {
-    throw new Error('You should fill CONDO_DOMAIN, DEFAULT_LOCALE, CONDO_ACCESS_TOKEN_KEY, ACCEPT_LANGUAGE, CONDO_REFRESH_TOKEN_KEY variables')
-}
 
 const client = makeRemoteExecutor(CONDO_API_URL, CONDO_ACCESS_TOKEN_KEY)
 

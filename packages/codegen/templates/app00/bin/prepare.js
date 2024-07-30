@@ -12,7 +12,7 @@ const main = async ([B2BAppName = '{{name}}']) => {
     await updateAppEnvFile(appName, 'CONDO_ORGANIZATION_ID_KEY', 'condoOrganizationId')
     await updateAppEnvFile(appName, 'ACCEPT_LANGUAGE', 'accept-language')
     // 2) prepare B2BApp in condo
-    await prepareCondoAppB2BAppConfig(appName, B2BAppName)
+    await prepareCondoAppB2BAppConfig(appName, B2BAppName, true)
     // 3) migrate initial data and maketypes
     await runAppPackageJsonScript(appName, 'makemigrations')
     await runAppPackageJsonScript(appName, 'migrate')

@@ -9,7 +9,7 @@
     "dev:start": "node --trace-warnings ./../../bin/run-keystone-app.js",
     "debug": "node inspect node_modules/.bin/keystone dev",
     "build:deps": "turbo build --filter={{name}}^... --filter=!condo",
-    "build": "keystone build",
+    "build": "cross-env PHASE=build keystone build",
     "start": "NODE_ENV=production node ./../../bin/run-keystone-app.js",
     "worker": "cross-env PHASE=worker node worker.js",
     "kmigrator": "./../../bin/kmigrator.py",

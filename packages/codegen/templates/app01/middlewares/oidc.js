@@ -5,6 +5,7 @@ const { generators } = require('openid-client')
 const { OIDCHelper } = require('@{{name}}/domains/condo/utils/oidcHelper')
 const { createOrUpdateUser } = require('@{{name}}/domains/user/utils/serverSchema/createOrUpdateUser')
 
+// TODO(DOMA-9342): move oidc logic to separate package
 class CondoOIDCMiddleware {
     prepareMiddleware ({ keystone }) {
         // this route can not be used for csrf attack (use oidc-client library to handle auth flows properly)
