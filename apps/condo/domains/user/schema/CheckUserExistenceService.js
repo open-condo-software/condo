@@ -4,14 +4,17 @@
 
 const get = require('lodash/get')
 
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { GQLError } = require('@open-condo/keystone/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
-const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, getByCondition } = require('@open-condo/keystone/schema')
 
-const { NOT_FOUND, WRONG_FORMAT, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
+const { NOT_FOUND, COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/user/access/CheckUserExistenceService')
 const { ConfirmPhoneAction } = require('@condo/domains/user/utils/serverSchema')
-const { checkDailyRequestLimitCountersByIp, checkDailyRequestLimitCountersByPhone } = require('@condo/domains/user/utils/serverSchema/requestLimitHelpers')
+const {
+    checkDailyRequestLimitCountersByIp,
+    checkDailyRequestLimitCountersByPhone,
+} = require('@condo/domains/user/utils/serverSchema/requestLimitHelpers')
 
 
 /**
@@ -27,19 +30,12 @@ const ERRORS = {
         message: 'Token not found',
     },
     DV_VERSION_MISMATCH: {
+        ...COMMON_ERRORS.DV_VERSION_MISMATCH,
         query: 'checkUserExistence',
-        variable: ['data', 'dv'],
-        code: BAD_USER_INPUT,
-        type: DV_VERSION_MISMATCH,
-        message: 'Wrong value for data version number',
     },
     WRONG_SENDER_FORMAT: {
+        ...COMMON_ERRORS.WRONG_SENDER_FORMAT,
         query: 'checkUserExistence',
-        variable: ['data', 'sender'],
-        code: BAD_USER_INPUT,
-        type: WRONG_FORMAT,
-        message: 'Invalid format of "sender" field value',
-        correctExample: '{ dv: 1, fingerprint: \'example-fingerprint-alphanumeric-value\'}',
     },
 }
 
@@ -51,7 +47,7 @@ const CheckUserExistenceService = new GQLCustomSchema('CheckUserExistenceService
         },
         {
             access: true,
-            type: 'type CheckUserExistenceOutput { userExists: Boolean!, nameIsSet: Boolean!, emailIsSet: Boolean!, phoneIsSet: Boolean!, passwordIsSet: Boolean! }',
+            type: 'type CheckUserExistenceOutput { userExists: Boolean!, nameSet: Boolean!, emailSet: Boolean!, phoneSet: Boolean!, passwordSet: Boolean! }',
         },
     ],
 
@@ -88,24 +84,27 @@ const CheckUserExistenceService = new GQLCustomSchema('CheckUserExistenceService
 
                 await checkDailyRequestLimitCountersByPhone(context, 'checkUserExistence', action.phone)
 
-                const users = await find('User', { type: userType, phone: action.phone })
+                const user = await getByCondition('User', {
+                    type: userType,
+                    phone: action.phone,
+                    deletedAt: null,
+                })
 
-                const user = users.length === 1 ? users[0] : null
                 const result = {
                     userExists: false,
-                    nameIsSet: false,
-                    emailIsSet: false,
-                    phoneIsSet: false,
-                    passwordIsSet: false,
+                    nameSet: false,
+                    emailSet: false,
+                    phoneSet: false,
+                    passwordSet: false,
                 }
 
-                if (!user || user.deletedAt) return result
+                if (!user) return result
 
                 result.userExists = true
-                result.nameIsSet = Boolean(get(user, 'name', null))
-                result.emailIsSet = Boolean(get(user, 'email', null))
-                result.phoneIsSet = Boolean(get(user, 'phone', null))
-                result.passwordIsSet = Boolean(get(user, 'password', null))
+                result.nameSet = Boolean(get(user, 'name', null))
+                result.emailSet = Boolean(get(user, 'email', null))
+                result.phoneSet = Boolean(get(user, 'phone', null))
+                result.passwordSet = Boolean(get(user, 'password', null))
 
                 return result
             },

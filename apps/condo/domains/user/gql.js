@@ -201,7 +201,7 @@ const UserRightsSet = generateGqlQueries('UserRightsSet', USER_RIGHTS_SET_FIELDS
 
 const CHECK_USER_EXISTENCE_MUTATION = gql`
     query checkUserExistence ($data: CheckUserExistenceInput!) {
-        result: checkUserExistence(data: $data) { userExists nameIsSet emailIsSet phoneIsSet passwordIsSet }
+        result: checkUserExistence(data: $data) { userExists nameSet emailSet phoneSet passwordSet }
     }
 `
 

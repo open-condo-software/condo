@@ -48,10 +48,10 @@ describe('CheckUserExistenceService', () => {
                 })
                 expect(result).toEqual({
                     userExists: false,
-                    nameIsSet: false,
-                    emailIsSet: false,
-                    phoneIsSet: false,
-                    passwordIsSet: false,
+                    nameSet: false,
+                    emailSet: false,
+                    phoneSet: false,
+                    passwordSet: false,
                 })
             })
         })
@@ -65,10 +65,10 @@ describe('CheckUserExistenceService', () => {
                 })
                 expect(result).toEqual({
                     userExists: false,
-                    nameIsSet: false,
-                    emailIsSet: false,
-                    phoneIsSet: false,
-                    passwordIsSet: false,
+                    nameSet: false,
+                    emailSet: false,
+                    phoneSet: false,
+                    passwordSet: false,
                 })
             })
         })
@@ -86,10 +86,10 @@ describe('CheckUserExistenceService', () => {
                     },
                     expectedResult: {
                         userExists: true,
-                        nameIsSet: true,
-                        emailIsSet: true,
-                        phoneIsSet: true,
-                        passwordIsSet: true,
+                        nameSet: true,
+                        emailSet: true,
+                        phoneSet: true,
+                        passwordSet: true,
                     },
                 },
                 {
@@ -101,10 +101,10 @@ describe('CheckUserExistenceService', () => {
                     },
                     expectedResult: {
                         userExists: true,
-                        nameIsSet: false,
-                        emailIsSet: true,
-                        phoneIsSet: true,
-                        passwordIsSet: true,
+                        nameSet: false,
+                        emailSet: true,
+                        phoneSet: true,
+                        passwordSet: true,
                     },
                 },
                 {
@@ -116,10 +116,10 @@ describe('CheckUserExistenceService', () => {
                     },
                     expectedResult: {
                         userExists: true,
-                        nameIsSet: true,
-                        emailIsSet: false,
-                        phoneIsSet: true,
-                        passwordIsSet: true,
+                        nameSet: true,
+                        emailSet: false,
+                        phoneSet: true,
+                        passwordSet: true,
                     },
                 },
                 {
@@ -131,10 +131,10 @@ describe('CheckUserExistenceService', () => {
                     },
                     expectedResult: {
                         userExists: true,
-                        nameIsSet: true,
-                        emailIsSet: true,
-                        phoneIsSet: true,
-                        passwordIsSet: false,
+                        nameSet: true,
+                        emailSet: true,
+                        phoneSet: true,
+                        passwordSet: false,
                     },
                 },
             ]
@@ -163,10 +163,10 @@ describe('CheckUserExistenceService', () => {
                 })
                 expect(result).toEqual({
                     userExists: false,
-                    nameIsSet: false,
-                    emailIsSet: false,
-                    phoneIsSet: false,
-                    passwordIsSet: false,
+                    nameSet: false,
+                    emailSet: false,
+                    phoneSet: false,
+                    passwordSet: false,
                 })
             })
 
@@ -185,10 +185,10 @@ describe('CheckUserExistenceService', () => {
                 })
                 expect(result).toEqual({
                     userExists: false,
-                    nameIsSet: false,
-                    emailIsSet: false,
-                    phoneIsSet: false,
-                    passwordIsSet: false,
+                    nameSet: false,
+                    emailSet: false,
+                    phoneSet: false,
+                    passwordSet: false,
                 })
             })
 
@@ -209,10 +209,10 @@ describe('CheckUserExistenceService', () => {
                 })
                 expect(result).toEqual({
                     userExists: false,
-                    nameIsSet: false,
-                    emailIsSet: false,
-                    phoneIsSet: false,
-                    passwordIsSet: false,
+                    nameSet: false,
+                    emailSet: false,
+                    phoneSet: false,
+                    passwordSet: false,
                 })
             })
         })

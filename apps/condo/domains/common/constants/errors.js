@@ -51,12 +51,24 @@ const COMMON_ERRORS = {
         message: 'Wrong phone number format',
         messageForUser: 'api.common.INVALID_PHONE_NUMBER_FORMAT',
     },
-
     INVALID_PERCENT_VALUE: {
         code: 'BAD_USER_INPUT',
         type: WRONG_PERCENT_VALUE,
         message: 'The percent value must be between 0 and 100',
         messageForUser: 'api.common.WRONG_PERCENT_VALUE',
+    },
+    DV_VERSION_MISMATCH: {
+        variable: ['data', 'dv'],
+        code: 'BAD_USER_INPUT',
+        type: DV_VERSION_MISMATCH,
+        message: 'Wrong value for data version number',
+    },
+    WRONG_SENDER_FORMAT: {
+        variable: ['data', 'sender'],
+        code: 'BAD_USER_INPUT',
+        type: WRONG_FORMAT,
+        message: 'Invalid format of "sender" field value',
+        correctExample: '{ dv: 1, fingerprint: \'example-fingerprint-alphanumeric-value\'}',
     },
 }
 

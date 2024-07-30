@@ -20715,10 +20715,10 @@ export type CheckUserExistenceInput = {
 export type CheckUserExistenceOutput = {
   __typename?: 'CheckUserExistenceOutput';
   userExists: Scalars['Boolean'];
-  nameIsSet: Scalars['Boolean'];
-  emailIsSet: Scalars['Boolean'];
-  phoneIsSet: Scalars['Boolean'];
-  passwordIsSet: Scalars['Boolean'];
+  nameSet: Scalars['Boolean'];
+  emailSet: Scalars['Boolean'];
+  phoneSet: Scalars['Boolean'];
+  passwordSet: Scalars['Boolean'];
 };
 
 export type CompleteConfirmPhoneActionInput = {
@@ -65965,18 +65965,17 @@ export type Query = {
    * }`
    *
    * `{
-   *   "query": "checkUserExistence",
    *   "variable": [
    *     "data",
    *     "dv"
    *   ],
    *   "code": "BAD_USER_INPUT",
    *   "type": "DV_VERSION_MISMATCH",
-   *   "message": "Wrong value for data version number"
+   *   "message": "Wrong value for data version number",
+   *   "query": "checkUserExistence"
    * }`
    *
    * `{
-   *   "query": "checkUserExistence",
    *   "variable": [
    *     "data",
    *     "sender"
@@ -65984,7 +65983,8 @@ export type Query = {
    *   "code": "BAD_USER_INPUT",
    *   "type": "WRONG_FORMAT",
    *   "message": "Invalid format of \"sender\" field value",
-   *   "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}"
+   *   "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}",
+   *   "query": "checkUserExistence"
    * }`
    */
   checkUserExistence?: Maybe<CheckUserExistenceOutput>;

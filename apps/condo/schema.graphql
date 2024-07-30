@@ -76774,10 +76774,10 @@ input CheckUserExistenceInput {
 
 type CheckUserExistenceOutput {
   userExists: Boolean!
-  nameIsSet: Boolean!
-  emailIsSet: Boolean!
-  phoneIsSet: Boolean!
-  passwordIsSet: Boolean!
+  nameSet: Boolean!
+  emailSet: Boolean!
+  phoneSet: Boolean!
+  passwordSet: Boolean!
 }
 
 enum OrganizationType {
@@ -82033,18 +82033,17 @@ type Query {
   }`
   
   `{
-    "query": "checkUserExistence",
     "variable": [
       "data",
       "dv"
     ],
     "code": "BAD_USER_INPUT",
     "type": "DV_VERSION_MISMATCH",
-    "message": "Wrong value for data version number"
+    "message": "Wrong value for data version number",
+    "query": "checkUserExistence"
   }`
   
   `{
-    "query": "checkUserExistence",
     "variable": [
       "data",
       "sender"
@@ -82052,7 +82051,8 @@ type Query {
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
     "message": "Invalid format of \"sender\" field value",
-    "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}"
+    "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}",
+    "query": "checkUserExistence"
   }`
   """
   checkUserExistence(data: CheckUserExistenceInput!): CheckUserExistenceOutput
