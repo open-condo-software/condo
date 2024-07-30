@@ -18,7 +18,7 @@ const {
 } = require('@condo/domains/billing/constants')
 const { SEVERAL_ORGANIZATIONS } = require('@condo/domains/billing/constants/errors')
 const {
-    parseReceiptQRCode,
+    parseRUReceiptQRCode,
     getQRCodeMissedFields,
     compareQRCodeWithLastReceipt,
     isReceiptPaid, formatPeriodFromQRCode, findAuxiliaryData,
@@ -142,7 +142,7 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
 
                 let qrCodeFields
                 try {
-                    qrCodeFields = parseReceiptQRCode(qrCode)
+                    qrCodeFields = parseRUReceiptQRCode(qrCode)
                 } catch (err) {
                     throw new GQLError(ERRORS.INVALID_QR_CODE_STRING, context)
                 }

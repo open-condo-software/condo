@@ -25,7 +25,7 @@ const REQUIRED_QR_CODE_FIELDS = ['BIC', 'PayerAddress', 'PaymPeriod', 'Sum', 'Pe
  * @param {string} qrStr The QR code string got from the picture
  * @return {TQRCodeFields}
  */
-function parseReceiptQRCode (qrStr) {
+function parseRUReceiptQRCode (qrStr) {
     const matches = /^ST(?<version>\d{4})(?<encodingTag>\d)\|(?<requisitesStr>.*)$/g.exec(qrStr)
 
     if (!matches) {
@@ -210,7 +210,7 @@ async function findAuxiliaryData (qrCodeFields, errors) {
 }
 
 module.exports = {
-    parseReceiptQRCode,
+    parseRUReceiptQRCode,
     getQRCodeMissedFields,
     isReceiptPaid,
     compareQRCodeWithLastReceipt,

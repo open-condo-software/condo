@@ -21,7 +21,7 @@ const { createTestProperty } = require('@condo/domains/property/utils/testSchema
 
 const {
     getQRCodeMissedFields,
-    parseReceiptQRCode,
+    parseRUReceiptQRCode,
     formatPeriodFromQRCode,
     compareQRCodeWithLastReceipt,
     findAuxiliaryData,
@@ -53,7 +53,7 @@ describe('receiptQRCodeUtils', () => {
         test.each(cases)('%p %p', (tag, encoding) => {
             const buf = iconv.decode(iconv.encode('field1=Hello|Field2=world|foo=привет', 'utf8'), encoding)
             const qrStr = `ST0001${tag}|${buf.toString()}`
-            const parsed = parseReceiptQRCode(qrStr)
+            const parsed = parseRUReceiptQRCode(qrStr)
             expect(parsed).toEqual({
                 field1: 'Hello',
                 Field2: 'world',
@@ -65,7 +65,7 @@ describe('receiptQRCodeUtils', () => {
     test('must throw an error on invalid QR-code', async () => {
         await catchErrorFrom(
             async () => {
-                parseReceiptQRCode('ST0012|field1=Hello|Field2=world')
+                parseRUReceiptQRCode('ST0012|field1=Hello|Field2=world')
             },
             (err) => {
                 expect(err).toEqual(expect.objectContaining({ message: 'Invalid QR code' }))
@@ -74,7 +74,7 @@ describe('receiptQRCodeUtils', () => {
     })
 
     test('check for required fields', () => {
-        const parsed = parseReceiptQRCode('ST00012|field1=Hello|Field2=world|foo=bar baz')
+        const parsed = parseRUReceiptQRCode('ST00012|field1=Hello|Field2=world|foo=bar baz')
         const missedFields = getQRCodeMissedFields(parsed)
 
         expect(missedFields).toEqual(['BIC', 'PayerAddress', 'PaymPeriod', 'Sum', 'PersAcc', 'PayeeINN', 'PersonalAcc'])
