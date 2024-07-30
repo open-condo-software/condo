@@ -611,6 +611,24 @@ describe('SignInUserService', () => {
             }, ERRORS.TOKEN_NOT_FOUND, 'result')
         })
 
+        test('should throw error if there are a lot of requests by ip per day', async () => {
+            for (let i = 0; i < 10; i++) {
+                const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
+                await signInUserByTestClient(anonymousClient, {
+                    confirmActionToken: confirmPhoneAction.token,
+                    userType: RESIDENT,
+                })
+            }
+
+            const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
+            await expectToThrowGQLError(async () => {
+                await signInUserByTestClient(anonymousClient, {
+                    confirmActionToken: confirmPhoneAction.token,
+                    userType: RESIDENT,
+                })
+            }, ERRORS.DAILY_REQUEST_LIMIT_FOR_IP_REACHED, 'result')
+        })
+
         // TODO(DOMA-9749): update test after migrate from addFieldValidationError to GQLError
         test('should throw error if an internal error occurs while creating or updating a user', async () => {
             const [staffWithSameEmail, staffWithSameEmailAttrs] = await createTestUser(adminClient, {

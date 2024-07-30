@@ -41984,25 +41984,17 @@ export type Mutation = {
    * }`
    *
    * `{
-   *   "mutation": "signInUser",
-   *   "code": "NOT_FOUND",
-   *   "type": "MULTIPLE_USERS_FOUND",
-   *   "message": "Multiple users found"
-   * }`
-   *
-   * `{
-   *   "query": "signInUser",
    *   "variable": [
    *     "data",
    *     "dv"
    *   ],
    *   "code": "BAD_USER_INPUT",
    *   "type": "DV_VERSION_MISMATCH",
-   *   "message": "Wrong value for data version number"
+   *   "message": "Wrong value for data version number",
+   *   "mutation": "signInUser"
    * }`
    *
    * `{
-   *   "query": "signInUser",
    *   "variable": [
    *     "data",
    *     "sender"
@@ -42010,7 +42002,15 @@ export type Mutation = {
    *   "code": "BAD_USER_INPUT",
    *   "type": "WRONG_FORMAT",
    *   "message": "Invalid format of \"sender\" field value",
-   *   "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}"
+   *   "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}",
+   *   "mutation": "signInUser"
+   * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "DAILY_REQUEST_LIMIT_FOR_IP_REACHED",
+   *   "message": "Too many requests from this ip address. Try again later",
+   *   "messageForUser": "api.user.DAILY_REQUEST_LIMIT_FOR_IP_REACHED"
    * }`
    */
   signInUser?: Maybe<SignInUserOutput>;
@@ -66039,6 +66039,20 @@ export type Query = {
    *   "message": "Invalid format of \"sender\" field value",
    *   "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}",
    *   "query": "checkUserExistence"
+   * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "DAILY_REQUEST_LIMIT_FOR_IP_REACHED",
+   *   "message": "Too many requests from this ip address. Try again later",
+   *   "messageForUser": "api.user.DAILY_REQUEST_LIMIT_FOR_IP_REACHED"
+   * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED",
+   *   "message": "Too many requests with this phone. Try again later",
+   *   "messageForUser": "api.user.DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED"
    * }`
    */
   checkUserExistence?: Maybe<CheckUserExistenceOutput>;

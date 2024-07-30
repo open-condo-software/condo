@@ -4,24 +4,19 @@
 
 const get = require('lodash/get')
 
-const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
-const { GQLCustomSchema, find, getSchemaCtx, getById } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, getSchemaCtx, getById, getByCondition } = require('@open-condo/keystone/schema')
 
-const { DV_VERSION_MISMATCH, WRONG_FORMAT, NOT_FOUND } = require('@condo/domains/common/constants/errors')
+const { NOT_FOUND, COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const access = require('@condo/domains/user/access/SignInUserService')
-const { STAFF, RESIDENT, MAX_ANONYMOUS_REQUESTS_FOR_IP_BY_DAY } = require('@condo/domains/user/constants/common')
-const { GQL_ERRORS } = require('@condo/domains/user/constants/errors')
+const { STAFF, RESIDENT } = require('@condo/domains/user/constants/common')
+const { GQL_ERRORS: USER_ERRORS } = require('@condo/domains/user/constants/errors')
 const { ConfirmPhoneAction, User } = require('@condo/domains/user/utils/serverSchema')
-const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
+const { checkDailyRequestLimitCountersByIp } = require('@condo/domains/user/utils/serverSchema/requestLimitHelpers')
 
-
-const REDIS_GUARD = new RedisGuard()
-const MAX_ANONYMOUS_REQUESTS_BY_DAY = Number(conf['MAX_ANONYMOUS_REQUESTS_FOR_IP_BY_DAY']) || MAX_ANONYMOUS_REQUESTS_FOR_IP_BY_DAY
-const IP_WHITE_LIST = conf.IP_WHITE_LIST ? JSON.parse(conf.IP_WHITE_LIST) : []
 
 const REQUIRED_USER_FIELDS_BY_TYPE = {
     [RESIDENT]: ['phone'],
@@ -77,26 +72,16 @@ const ERRORS = {
         type: 'TOKEN_NOT_FOUND',
         message: 'Token not found',
     },
-    MULTIPLE_USERS_FOUND: {
-        mutation: 'signInUser',
-        code: NOT_FOUND,
-        type: 'MULTIPLE_USERS_FOUND',
-        message: 'Multiple users found',
-    },
     DV_VERSION_MISMATCH: {
-        query: 'signInUser',
-        variable: ['data', 'dv'],
-        code: BAD_USER_INPUT,
-        type: DV_VERSION_MISMATCH,
-        message: 'Wrong value for data version number',
+        ...COMMON_ERRORS.DV_VERSION_MISMATCH,
+        mutation: 'signInUser',
     },
     WRONG_SENDER_FORMAT: {
-        query: 'signInUser',
-        variable: ['data', 'sender'],
-        code: BAD_USER_INPUT,
-        type: WRONG_FORMAT,
-        message: 'Invalid format of "sender" field value',
-        correctExample: '{ dv: 1, fingerprint: \'example-fingerprint-alphanumeric-value\'}',
+        ...COMMON_ERRORS.WRONG_SENDER_FORMAT,
+        mutation: 'signInUser',
+    },
+    DAILY_REQUEST_LIMIT_FOR_IP_REACHED: {
+        ...USER_ERRORS.DAILY_REQUEST_LIMIT_FOR_IP_REACHED,
     },
 }
 
@@ -119,15 +104,6 @@ const checkRequiredUserFields = (requiredFields, userData) => {
         if (!value && typeof value !== 'boolean' && typeof value !== 'number') missingFields.push(field)
     }
     return { missingRequiredFields: missingFields.length > 0, missingFields }
-}
-
-const checkDayRequestLimitCounters = async (context, rawIp) => {
-    const ip = rawIp.split(':').pop()
-    const key = `signInUser:ip:${ip}`
-    const byIpCounter = await REDIS_GUARD.incrementDayCounter(key)
-    if (byIpCounter > MAX_ANONYMOUS_REQUESTS_BY_DAY && !IP_WHITE_LIST.includes(ip)) {
-        throw new GQLError(GQL_ERRORS.SMS_FOR_IP_DAY_LIMIT_REACHED, context)
-    }
 }
 
 const SignInUserService = new GQLCustomSchema('SignInUserService', {
@@ -161,7 +137,7 @@ const SignInUserService = new GQLCustomSchema('SignInUserService', {
                 const { data } = args
                 const { confirmActionToken, userType, userData, dv, sender } = data
 
-                await checkDayRequestLimitCounters(context, context.req.ip)
+                await checkDailyRequestLimitCountersByIp(context, 'signInUser', context.req.ip)
 
                 const dvAndSender = { dv, sender }
                 const userInfo = {
@@ -197,10 +173,11 @@ const SignInUserService = new GQLCustomSchema('SignInUserService', {
                 userInfo.phone = phoneFromAction
                 userInfo.isPhoneVerified = action.isPhoneVerified
 
-                const users = await find('User', { type: userInfo.type, phone: userInfo.phone })
-                if (users.length > 1) throw new GQLError(ERRORS.MULTIPLE_USERS_FOUND, context)
+                let user = await getByCondition('User', {
+                    type: userInfo.type,
+                    phone: userInfo.phone,
+                })
 
-                let user = users[0]
                 if (user && user.deletedAt) throw new GQLError(ERRORS.USER_NOT_FOUND, context)
 
                 const userPayload = getUserPayload(user, userInfo)

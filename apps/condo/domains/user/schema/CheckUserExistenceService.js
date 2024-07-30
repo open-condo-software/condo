@@ -10,6 +10,7 @@ const { GQLCustomSchema, getByCondition } = require('@open-condo/keystone/schema
 
 const { NOT_FOUND, COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/user/access/CheckUserExistenceService')
+const { GQL_ERRORS: USER_ERRORS } = require('@condo/domains/user/constants/errors')
 const { ConfirmPhoneAction } = require('@condo/domains/user/utils/serverSchema')
 const {
     checkDailyRequestLimitCountersByIp,
@@ -36,6 +37,12 @@ const ERRORS = {
     WRONG_SENDER_FORMAT: {
         ...COMMON_ERRORS.WRONG_SENDER_FORMAT,
         query: 'checkUserExistence',
+    },
+    DAILY_REQUEST_LIMIT_FOR_IP_REACHED: {
+        ...USER_ERRORS.DAILY_REQUEST_LIMIT_FOR_IP_REACHED,
+    },
+    DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED: {
+        ...USER_ERRORS.DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED,
     },
 }
 
