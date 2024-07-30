@@ -40,7 +40,7 @@ const RegisterPage: AuthPage = () => {
         if (next) {
             await router.push(`/?next=${next}`)
         } else {
-            await router.push(`/`)
+            await router.push('/')
         }
     }, [router])
 

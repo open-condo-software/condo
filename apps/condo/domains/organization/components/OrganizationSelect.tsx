@@ -13,12 +13,11 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Space, Typography } from '@open-condo/ui'
 import type { TypographyTextProps } from '@open-condo/ui'
 
+import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { HOLDING_TYPE } from '@condo/domains/organization/constants/common'
-import { MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/common'
+import { HOLDING_TYPE, MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/common'
 import { useCreateOrganizationModalForm } from '@condo/domains/organization/hooks/useCreateOrganizationModalForm'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
-import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 
 import { SBBOLIndicator } from './SBBOLIndicator'
 
