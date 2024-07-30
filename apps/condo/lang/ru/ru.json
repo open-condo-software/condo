@@ -2602,6 +2602,8 @@
   "api.banking.BankSyncTask.TRANSACTIONS_NOT_ADDED": "Не удалось загрузить новые транзакции. Возможно вы уже загрузили их в этот отчет",
   "api.user.PASSWORD_IS_FREQUENTLY_USED": "Пароль слишком простой. Нужно использовать что-то более безопасное",
   "api.user.TOO_MANY_REQUESTS": "Подождите {secondsRemaining} сек., чтобы отправить запрос снова",
+  "api.user.DAILY_REQUEST_LIMIT_FOR_IP_REACHED": "С вашего IP-адреса поступает очень много запросов, попробуйте позже",
+  "api.user.DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED": "С использованием вашего номера телефона поступает очень много запросов, попробуйте позже",
   "api.user.WRONG_PASSWORD_FORMAT": "Пароль должен быть строкой",
   "api.user.INVALID_PASSWORD_LENGTH": "Длина пароля должна быть от {min} до {max} символов",
   "api.user.PASSWORD_CONTAINS_EMAIL": "Пароль не может быть похож на email",

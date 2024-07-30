@@ -2602,6 +2602,8 @@
   "api.banking.BankSyncTask.TRANSACTIONS_NOT_ADDED": "Failed to load new transactions. You may have already uploaded them to this report.",
   "api.user.PASSWORD_IS_FREQUENTLY_USED": "This password is weak or too obvious please choose something more secure",
   "api.user.TOO_MANY_REQUESTS": "You have to wait {secondsRemaining} sec. to be able to send request again",
+  "api.user.DAILY_REQUEST_LIMIT_FOR_IP_REACHED": "Too many requests from this ip address. Try again later",
+  "api.user.DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED": "Too many requests with this phone. Try again later",
   "api.user.WRONG_PASSWORD_FORMAT": "Password must be in string format",
   "api.user.INVALID_PASSWORD_LENGTH": "Password length must be between {min} and {max} characters",
   "api.user.PASSWORD_CONTAINS_EMAIL": "Password must not contain email",

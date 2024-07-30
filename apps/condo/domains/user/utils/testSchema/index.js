@@ -45,6 +45,7 @@ const UserExternalIdentity = generateGQLTestUtils(UserExternalIdentityGQL)
 const { ExternalTokenAccessRight: ExternalTokenAccessRightGQL } = require('@condo/domains/user/gql')
 const { GET_ACCESS_TOKEN_BY_USER_ID_QUERY } = require('@condo/domains/user/gql')
 const { UserRightsSet: UserRightsSetGQL } = require('@condo/domains/user/gql')
+const { CHECK_USER_EXISTENCE_MUTATION } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function createTestEmail () {
@@ -527,6 +528,20 @@ async function updateTestUserRightsSet (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+
+async function checkUserExistenceByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(CHECK_USER_EXISTENCE_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -568,5 +583,6 @@ module.exports = {
     ExternalTokenAccessRight, createTestExternalTokenAccessRight, updateTestExternalTokenAccessRight,
     getAccessTokenByUserIdByTestClient,
     UserRightsSet, createTestUserRightsSet, updateTestUserRightsSet,
+    checkUserExistenceByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

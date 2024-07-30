@@ -20705,6 +20705,22 @@ export type CheckPasswordRecoveryTokenOutput = {
   status: Scalars['String'];
 };
 
+export type CheckUserExistenceInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  confirmActionToken: Scalars['ID'];
+  userType: UserTypeType;
+};
+
+export type CheckUserExistenceOutput = {
+  __typename?: 'CheckUserExistenceOutput';
+  userExists: Scalars['Boolean'];
+  nameSet: Scalars['Boolean'];
+  emailSet: Scalars['Boolean'];
+  phoneSet: Scalars['Boolean'];
+  passwordSet: Scalars['Boolean'];
+};
+
 export type CompleteConfirmPhoneActionInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
@@ -65927,6 +65943,51 @@ export type Query = {
    * }`
    */
   getAccessTokenByUserId?: Maybe<GetAccessTokenByUserIdOutput>;
+  /**
+   * Using an action token with a verified phone number, checks whether a user with the specified type (resident, staff, service) is registered.
+   * As a result, information about the completion of some important fields (name, email, phone, password) is also returned.
+   *
+   *
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "query": "checkUserExistence",
+   *   "variable": [
+   *     "data",
+   *     "token"
+   *   ],
+   *   "code": "NOT_FOUND",
+   *   "type": "TOKEN_NOT_FOUND",
+   *   "message": "Token not found"
+   * }`
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "dv"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "DV_VERSION_MISMATCH",
+   *   "message": "Wrong value for data version number",
+   *   "query": "checkUserExistence"
+   * }`
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "sender"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_FORMAT",
+   *   "message": "Invalid format of \"sender\" field value",
+   *   "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}",
+   *   "query": "checkUserExistence"
+   * }`
+   */
+  checkUserExistence?: Maybe<CheckUserExistenceOutput>;
   exportPropertiesToExcel?: Maybe<ExportPropertiesToExcelOutput>;
   allResidentBillingReceipts?: Maybe<Array<Maybe<ResidentBillingReceiptOutput>>>;
   _allBillingReceiptsSum?: Maybe<BillingReceiptsSumOutput>;
@@ -72628,6 +72689,11 @@ export type QueryGetPhoneByConfirmPhoneActionTokenArgs = {
 
 export type QueryGetAccessTokenByUserIdArgs = {
   data: GetAccessTokenByUserIdInput;
+};
+
+
+export type QueryCheckUserExistenceArgs = {
+  data: CheckUserExistenceInput;
 };
 
 
