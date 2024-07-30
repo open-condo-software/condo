@@ -13,6 +13,9 @@ import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 import { MemoizedSharingNewsPreview } from '@condo/domains/news/components/NewsPreview'
 import { NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 
+import { NewsItemSharingCustomRecipientCounter } from '../RecipientCounter'
+import { NewsItemScopeNoInstanceType } from '../types'
+
 
 const BIG_MARGIN_BOTTOM_STYLE: React.CSSProperties = { marginBottom: '60px' }
 export const SCROLL_TO_FIRST_ERROR_CONFIG: ScrollOptions = { behavior: 'smooth', block: 'center' }
@@ -30,6 +33,8 @@ export type SharingAppValues = {
 interface INewsItemSharingForm {
     sharingApp: B2BApp
 
+    ctxId: string,
+
     onSubmit: (SharingAppValues) => void
     onSkip: (SharingAppValues) => void
 
@@ -40,10 +45,11 @@ interface INewsItemSharingForm {
         validBefore?: string,
         title: string,
         body: string,
+        scopes: NewsItemScopeNoInstanceType[]
     }
 }
 
-export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemData, initialValues, onSkip, onSubmit, sharingApp: { id, newsSharingConfig } }) => {
+export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemData, initialValues, onSkip, ctxId, onSubmit, sharingApp: { id, newsSharingConfig } }) => {
 
     const intl = useIntl()
     const NextStepShortMessage = intl.formatMessage({ id: 'pages.condo.news.steps.skipLabelShort' })
@@ -147,6 +153,14 @@ export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemDa
                                     </Col>
                                 </Row>
                             </Col>
+                            { newsSharingConfig.customGetRecipientsCountersUrl && (
+                                <Col span={formInfoColSpan}>
+                                    <NewsItemSharingCustomRecipientCounter
+                                        contextId={ctxId}
+                                        newsItemScopes={newsItemData.scopes}
+                                    />
+                                </Col>
+                            ) }
                         </Row>
                     </Col>
                 )

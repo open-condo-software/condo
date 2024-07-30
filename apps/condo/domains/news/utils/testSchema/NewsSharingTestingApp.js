@@ -13,6 +13,26 @@ const INCORRECT_GET_RECIPIENTS_URL_BAD_NAME = '/test/news-sharing-api/fail/getRe
 const INCORRECT_GET_RECIPIENTS_URL_BAD_ID = '/test/news-sharing-api/fail/getRecipients/2'
 const INCORRECT_GET_RECIPIENTS_URL_OTHER_FIELDS = '/test/news-sharing-api/fail/getRecipients/3'
 
+const SUCCESS_GET_RECIPIENTS_COUNTERS_URL = '/test/news-sharing-api/success/getRecipientsCount'
+const FAULTY_GET_RECIPIENTS_COUNTERS_URL_404 = '/test/news-sharing-api/fail/getRecipientsCount/404'
+const FAULTY_GET_RECIPIENTS_COUNTERS_URL_500 = '/test/news-sharing-api/fail/getRecipientsCount/500'
+
+const INCORRECT_GET_RECIPIENTS_COUNTERS_RESULT_URL_WRONG_RETURN_TYPE = '/test/news-sharing-api/fail/getRecipientsCount/0'
+const INCORRECT_GET_RECIPIENTS_COUNTERS_RESULT_URL_OTHER_FIELDS = '/test/news-sharing-api/fail/getRecipientsCount/1'
+
+const SUCCESS_GET_RECIPIENTS_COUNTERS_RESULT = {
+    receiversCount: 1000,
+}
+
+const INCORRECT_GET_RECIPIENTS_COUNTERS_RESULT_WRONG_RETURN_TYPE = {
+    receiversCount: 'abcd'
+}
+
+const INCORRECT_GET_RECIPIENTS_COUNTERS_RESULT_OTHER_FIELDS = {
+    ...SUCCESS_GET_RECIPIENTS_COUNTERS_RESULT,
+    meta: true,
+}
+
 const SUCCESS_GET_RECIPIENTS_RESULT = [
     {
         id: '1231-2312-3331-1231',
@@ -101,16 +121,21 @@ class NewsSharingTestingApp {
         // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
 
-        app.get(SUCCESS_GET_RECIPIENTS_URL, async (req, res) => {
-            res.json(SUCCESS_GET_RECIPIENTS_RESULT)
-        })
-
+        // Publish
         app.post(SUCCESS_PUBLISH_URL, async (req, res) => {
             res.status(200).send('OK')
         })
 
-        app.post(SUCCESS_PREVIEW_URL, async (req, res) => {
+        app.post(FAULTY_PUBLISH_URL_500, async(req, res) => { res.status(500).send({}) })
+
+        // Preview
+        app.get(SUCCESS_PREVIEW_URL, async (req, res) => {
             res.status(200).send('OK')
+        })
+
+        // GetRecipients
+        app.get(SUCCESS_GET_RECIPIENTS_URL, async (req, res) => {
+            res.json(SUCCESS_GET_RECIPIENTS_RESULT)
         })
 
         app.get(INCORRECT_GET_RECIPIENTS_URL_BAD_ID, async (req, res) => {
@@ -137,7 +162,26 @@ class NewsSharingTestingApp {
             res.status(404).send({})
         })
 
-        app.get(FAULTY_PUBLISH_URL_500, async(req, res) => { res.status(500).send({}) })
+        // GetRecipientsCounters
+        app.post(SUCCESS_GET_RECIPIENTS_COUNTERS_URL, async (req, res) => {
+            res.json(SUCCESS_GET_RECIPIENTS_COUNTERS_RESULT)
+        })
+
+        app.post(FAULTY_GET_RECIPIENTS_COUNTERS_URL_404, async (req, res) => {
+            res.status(404).send({})
+        })
+
+        app.post(FAULTY_GET_RECIPIENTS_COUNTERS_URL_500, async (req, res) => {
+            res.status(500).send({})
+        })
+
+        app.post(INCORRECT_GET_RECIPIENTS_COUNTERS_RESULT_URL_WRONG_RETURN_TYPE, async (req, res) => {
+            res.json(INCORRECT_GET_RECIPIENTS_COUNTERS_RESULT_WRONG_RETURN_TYPE)
+        })
+
+        app.post(INCORRECT_GET_RECIPIENTS_COUNTERS_RESULT_URL_OTHER_FIELDS, async (req, res) => {
+            res.json(INCORRECT_GET_RECIPIENTS_COUNTERS_RESULT_OTHER_FIELDS)
+        })
 
         return app
     }
@@ -146,23 +190,37 @@ class NewsSharingTestingApp {
 module.exports = {
     NewsSharingTestingApp,
 
-    SUCCESS_GET_RECIPIENTS_URL,
-    SUCCESS_PUBLISH_URL,
     SUCCESS_PREVIEW_URL,
 
-    FAULTY_GET_RECIPIENTS_URL_404,
-    FAULTY_GET_RECIPIENTS_URL_500,
+    // Publish Urls
+    SUCCESS_PUBLISH_URL,
     FAULTY_PUBLISH_URL_500,
 
+    // GetRecipients Urls
+    SUCCESS_GET_RECIPIENTS_URL,
+    FAULTY_GET_RECIPIENTS_URL_404,
+    FAULTY_GET_RECIPIENTS_URL_500,
     INCORRECT_GET_RECIPIENTS_RESULT_URL_WRONG_RETURN_TYPE,
     INCORRECT_GET_RECIPIENTS_URL_BAD_NAME,
     INCORRECT_GET_RECIPIENTS_URL_BAD_ID,
     INCORRECT_GET_RECIPIENTS_URL_OTHER_FIELDS,
 
+    // GetRecipients Data
     SUCCESS_GET_RECIPIENTS_RESULT,
-
     INCORRECT_GET_RECIPIENTS_RESULT_WRONG_RETURN_TYPE,
     INCORRECT_GET_RECIPIENTS_RESULT_BAD_NAME,
     INCORRECT_GET_RECIPIENTS_RESULT_BAD_ID,
     INCORRECT_GET_RECIPIENTS_RESULT_OTHER_FIELDS,
+
+    // GetRecipientsCount Urls
+    SUCCESS_GET_RECIPIENTS_COUNTERS_URL,
+    FAULTY_GET_RECIPIENTS_COUNTERS_URL_404,
+    FAULTY_GET_RECIPIENTS_COUNTERS_URL_500,
+    INCORRECT_GET_RECIPIENTS_COUNTERS_RESULT_URL_WRONG_RETURN_TYPE,
+    INCORRECT_GET_RECIPIENTS_COUNTERS_RESULT_URL_OTHER_FIELDS,
+
+    // GetRecipientsCount Data
+    SUCCESS_GET_RECIPIENTS_COUNTERS_RESULT,
+    INCORRECT_GET_RECIPIENTS_COUNTERS_RESULT_WRONG_RETURN_TYPE,
+    INCORRECT_GET_RECIPIENTS_COUNTERS_RESULT_OTHER_FIELDS
 }

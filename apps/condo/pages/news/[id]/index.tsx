@@ -30,7 +30,7 @@ import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayer
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { NewsReadPermissionRequired } from '@condo/domains/news/components/PageAccess'
 import { RecipientCounter } from '@condo/domains/news/components/RecipientCounter'
-import { TNewsItemScopeNoInstance } from '@condo/domains/news/components/types'
+import { NewsItemScopeNoInstanceType } from '@condo/domains/news/components/types'
 import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess'
 import { isPostponedNewsItem } from '@condo/domains/news/utils'
@@ -122,7 +122,7 @@ const NewsItemCard: React.FC = () => {
         where: { id: get(newsItemScopes, [0, 'property', 'id'], null) },
     })
 
-    const newsItemScopesNoInstance: TNewsItemScopeNoInstance[] = useMemo(() => {
+    const newsItemScopesNoInstance: NewsItemScopeNoInstanceType[] = useMemo(() => {
         const isAllScopesHaveProperty = every(newsItemScopes, newsItemScope => {
             return has(newsItemScope, ['property', 'id'])
         })
@@ -176,7 +176,7 @@ const NewsItemCard: React.FC = () => {
             },
         },
     })
-    
+
     const {
         objs: newsItemSharings,
         loading: newsItemSharingsLoading,
@@ -333,9 +333,9 @@ const NewsItemCard: React.FC = () => {
                                         </Row>
                                     </FrontLayerContainer>
                                 </Col>
-                            </>  
+                            </>
                         ))}
-                            
+
                         {canManage && (
                             <>
                                 <Col span={24}>
