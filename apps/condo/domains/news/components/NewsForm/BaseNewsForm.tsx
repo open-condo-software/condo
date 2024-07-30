@@ -42,7 +42,7 @@ import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
 
 import { IGenerateHooksResult } from '@open-condo/codegen/generate.hooks'
 import { useIntl } from '@open-condo/next/intl'
-import { ActionBar as UIActionBar, Alert, Button, Radio, RadioGroup, Space, Steps, Typography } from '@open-condo/ui'
+import { ActionBar as UIActionBar, Alert, Button, Radio, RadioGroup, Space, Steps, Typography, Modal } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
@@ -184,10 +184,10 @@ const buildCounterStyle = (textLength: number, type: 'Body' | 'Title'): React.CS
     }
 
     if (type === 'Body') {
-        style.top = '198px'
+        style.bottom = '12px'
     }
     if (type === 'Title') {
-        style.top = '123px'
+        style.bottom = '12px'
     }
 
     return style
@@ -229,9 +229,13 @@ const containWordsInSquareBrackets = (str) => {
     return words.length !== 0
 }
 
+const getTitleTemplateChanged = (form) => {
+    const { title } = form.getFieldsValue(['title'])
+    return !containWordsInSquareBrackets(title)
+}
+
 const getBodyTemplateChanged = (form) => {
     const { body } = form.getFieldsValue(['body'])
-    // NOTE: this check blocks any sending of [] in the news body
     return !containWordsInSquareBrackets(body)
 }
 
@@ -278,6 +282,14 @@ export const getFinishWorkRule: (error: string) => Rule = (error) => (form) => {
         message: error,
         validator: () => {
             return getValidBeforeAfterSendAt(form) ? Promise.resolve() : Promise.reject()
+        },
+    }
+}
+export const getTitleTemplateChangedRule: (error: string) => Rule = (error) => (form) => {
+    return {
+        message: error,
+        validator: () => {
+            return getTitleTemplateChanged(form) ? Promise.resolve() : Promise.reject()
         },
     }
 }
@@ -382,7 +394,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const SelectTextLabel = intl.formatMessage({ id: 'news.fields.text.label' })
     const SelectAddressLabel = intl.formatMessage({ id: 'news.fields.address.label' })
     const SelectSendPeriodLabel = intl.formatMessage({ id: 'news.fields.period.label' })
-    const TemplateBodyErrorMessage = intl.formatMessage({ id: 'news.fields.templateBody.error' })
+    const TemplateBlanksNotFilledErrorMessage = intl.formatMessage({ id: 'news.fields.template.blanksNotFilledError' })
     const ValidBeforeErrorMessage = intl.formatMessage({ id: 'news.fields.validBefore.error' })
     const ToManyMessagesMessage = intl.formatMessage({ id: 'news.fields.toManyMessages.error' })
     const PastTimeErrorMessage = intl.formatMessage({ id: 'global.input.error.pastTime' })
@@ -392,6 +404,11 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const ProfanityInBody = intl.formatMessage({ id: 'news.fields.profanityInBody.error' })
     const SelectSharingAppLabel = intl.formatMessage({ id: 'pages.news.create.selectSharingApp' })
     const DateAndTimePlaceholderLabel = intl.formatMessage({ id: 'pages.condo.news.dateAndTimePlaceholder' })
+    const ConfirmSendLabel = intl.formatMessage({ id: 'news.ConfirmSendTitle' })
+    const ConfirmSendMessage = intl.formatMessage({ id: 'news.ConfirmSendMessage' })
+    const CancelSendMessage = intl.formatMessage({ id: 'news.CancelSendMessage' })
+    const SendNewsLabel = intl.formatMessage({ id: 'news.filed.shareNews.button' })
+    const ShareButtonMessage = intl.formatMessage({ id: 'global.share' })
 
     const { logEvent, getEventName } = useTracking()
 
@@ -475,7 +492,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
     const [selectedType, setSelectedType] = useState<string>(get(initialValues, 'type', NEWS_TYPE_COMMON))
     const [selectedValidBeforeText, setSelectedValidBeforeText] = useState<string>(initialValidBefore)
-    
+
     const [selectedTitle, setSelectedTitle] = useState<string>(get(initialValues, 'title', ''))
     const [selectedBody, setSelectedBody] = useState<string>(get(initialValues, 'body', ''))
     const [isValidBeforeAfterSendAt, setIsValidBeforeAfterSendAt] = useState<boolean>(true)
@@ -484,6 +501,9 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const [selectedPropertiesId, setSelectedPropertiesId] = useState(initialPropertyIds)
     const [isAllPropertiesChecked, setIsAllPropertiesChecked] = useState(initialHasAllProperties)
     const [selectedSectionKeys, setSelectedSectionKeys] = useState(initialSectionIds)
+    const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false)
+
+
 
     // Select apps form values
     const [selectAppsFormValues, setSelectAppsFormValues] = useState<SelectAppsFormValues | null>(null)
@@ -686,17 +706,18 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const dateRule: Rule = useMemo(() => getDateRule(PastTimeErrorMessage), [PastTimeErrorMessage])
     const finishWorkRule: Rule = useMemo(() => getFinishWorkRule(ValidBeforeErrorMessage), [ValidBeforeErrorMessage])
     const commonRule: Rule = useMemo(() => requiredValidator, [requiredValidator])
-    const titleRules = useMemo(() => [{
+    const titleRule = useMemo(() => ({
         whitespace: true,
         required: true,
         message: TitleErrorMessage,
-    }], [TitleErrorMessage])
+    }), [TitleErrorMessage])
+    const MemoizedTitleTemplateChangedRule = useMemo(() => getTitleTemplateChangedRule(TemplateBlanksNotFilledErrorMessage), [TemplateBlanksNotFilledErrorMessage])
     const bodyRule = useMemo(() => ({
         whitespace: true,
         required: true,
         message: BodyErrorMessage,
     }), [BodyErrorMessage])
-    const bodyTemplateChanged = useMemo(() => getBodyTemplateChangedRule(TemplateBodyErrorMessage), [TemplateBodyErrorMessage])
+    const MemoizedBodyTemplateChangedRule = useMemo(() => getBodyTemplateChangedRule(TemplateBlanksNotFilledErrorMessage), [TemplateBlanksNotFilledErrorMessage])
 
     const initialFormValues = useMemo(() => {
         return {
@@ -713,7 +734,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             validBefore: initialValidBefore ? dayjs(initialValidBefore) : null,
             sendAt: initialSendAt ? dayjs(initialSendAt) : null,
         }
-    }, [ initialValues ])
+    }, [initialValues])
 
     const handleFormSubmit = useCallback(async (values) => {
         if (!values || !selectAppsFormValues || !condoFormValues) {
@@ -923,7 +944,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         } else {
             await router.push('/news')
         }
-    }, [ actionName, createOrUpdateNewsItem, initialHasAllProperties, initialPropertyIds, updateNewsItem, OnCompletedMsg, afterAction, initialSentAt, currentNewsItem, initialNewsItemScopes, softDeleteNewsItemScope, initialUnitKeys, createNewsItemScope, router ])
+    }, [actionName, createOrUpdateNewsItem, initialHasAllProperties, initialPropertyIds, updateNewsItem, OnCompletedMsg, afterAction, initialSentAt, currentNewsItem, initialNewsItemScopes, softDeleteNewsItemScope, initialUnitKeys, createNewsItemScope, router])
 
     const newsItemScopesNoInstance = useMemo<TNewsItemScopeNoInstance[]>(() => {
         if (isAllPropertiesChecked && countPropertiesAvailableToSelect.current !== 1) {
@@ -1035,20 +1056,20 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             if (skippedSteps.has(currentStep + 1)) {
                 handleStepSkip({ step: currentStep + 1, skip: false })
             }
-            setCurrentStep((currentStep) => currentStep + 1 )
+            setCurrentStep((currentStep) => currentStep + 1)
         }).catch((err) => {
             console.error('failed to validate the form', err)
         })
     }
 
     const handleStepSkip = ({ step, skip }: { step: number, skip: boolean }) => {
-        
+
         const stepType = getStepTypeByStep(step)
         if (stepType !== 'sharingApp') {
             console.warn('Can not skip non sharing app type steps')
             return
         }
-        
+
         setSkippedSteps(prevSelected => {
             const newSkippedSteps = new Set(prevSelected)
             if (skip) {
@@ -1065,7 +1086,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         const newFormValues = { ...sharingAppsFormValues, [ctxId]: values }
 
         setSharingAppsFormValues(newFormValues)
-        setCurrentStep((currentStep) => currentStep + 1 )
+        setCurrentStep((currentStep) => currentStep + 1)
     }
 
     const handleStepClick = (value: number) => {
@@ -1082,7 +1103,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             if (id) { skippedSharingAppIds.add(id) }
         })
         return Array.from(selectedSharingAppsContexts).filter(ctxId => !skippedSharingAppIds.has(ctxId))
-    }, [ skippedSteps, selectedSharingAppsContexts ])
+    }, [skippedSteps, selectedSharingAppsContexts])
 
     const getStepsData = useCallback((): StepData[] => {
         const sharingApps: StepData[] = Array.from(selectedSharingAppsContexts).map(appCtx => ({
@@ -1119,7 +1140,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             if (skippedSteps.has(i)) {
                 return { title: `(${StepSkippedPrefixLabel}) ${step.title}` }
             }
-            
+
             return { title: step.title }
         })
     }, [StepSkippedPrefixLabel, getStepsData, skippedSteps])
@@ -1134,7 +1155,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
     const getLastStep = useCallback(() => {
         return getSteps().length - 1
-    }, [ getSteps ])
+    }, [getSteps])
 
     return (
         <Row gutter={BIG_HORIZONTAL_GUTTER}>
@@ -1171,7 +1192,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                         <>
                             <Row style={BIG_MARGIN_BOTTOM_STYLE}>
 
-                                { getStepTypeByStep(currentStep) === 'selectApps' && (
+                                {getStepTypeByStep(currentStep) === 'selectApps' && (
                                     <>
                                         <Col span={24}>
                                             <Row style={BIG_MARGIN_BOTTOM_STYLE}>
@@ -1196,13 +1217,13 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                 </RadioGroup>
                                                             </Form.Item>
                                                         </Col>
-                                                        { selectedType === NEWS_TYPE_EMERGENCY && (
+                                                        {selectedType === NEWS_TYPE_EMERGENCY && (
                                                             <Col span={isMediumWindow ? 24 : 12}>
                                                                 <Form.Item
                                                                     label={(
                                                                         <LabelWithInfo
                                                                             title={ValidBeforeTitle}
-                                                                            message={ValidBeforeLabel}/>
+                                                                            message={ValidBeforeLabel} />
                                                                     )}
                                                                     labelCol={FORM_FILED_COL_PROPS}
                                                                     name='validBefore'
@@ -1214,11 +1235,12 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                         style={FULL_WIDTH_STYLE}
                                                                         format='DD MMMM YYYY HH:mm'
                                                                         showTime={SHOW_TIME_CONFIG}
+                                                                        minuteStep={15}
                                                                         onChange={handleValidBeforeChange(form, 'validBefore')}
                                                                         placeholder={SelectPlaceholder}
                                                                         disabledDate={isDateDisabled}
                                                                         disabledTime={isTimeDisabled}
-                                                                        showNow={false}/>
+                                                                        showNow={false} />
                                                                 </Form.Item>
                                                             </Col>
                                                         )}
@@ -1237,9 +1259,9 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                             sharingAppContexts={sharingAppContexts}
                                         />
                                     </>
-                                ) }
+                                )}
 
-                                { getStepTypeByStep(currentStep) === 'condoApp' && (
+                                {getStepTypeByStep(currentStep) === 'condoApp' && (
                                     <>
                                         <Col span={24} style={BIG_MARGIN_BOTTOM_STYLE}>
                                             <Row gutter={BIG_HORIZONTAL_GUTTER}>
@@ -1284,17 +1306,18 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                     labelCol={FORM_FILED_COL_PROPS}
                                                                     name='title'
                                                                     required
-                                                                    rules={titleRules}
+                                                                    rules={[titleRule, MemoizedTitleTemplateChangedRule]}
+                                                                    validateFirst={true}
                                                                     data-cy='news__create-title-input'
                                                                 >
                                                                     <Title.InputWithCounter
                                                                         style={NO_RESIZE_STYLE}
                                                                         rows={4}
                                                                         placeholder={TitlePlaceholderMessage}
-                                                                        onChange={handleTitleChange}/>
+                                                                        onChange={handleTitleChange} />
                                                                 </Form.Item>
                                                                 <Col style={buildCounterStyle(Title.textLength, 'Title')}>
-                                                                    <Title.Counter type='inverted'/>
+                                                                    <Title.Counter type='inverted' />
                                                                 </Col>
                                                             </Col>
                                                             <Col span={24}>
@@ -1303,7 +1326,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                     labelCol={FORM_FILED_COL_PROPS}
                                                                     name='body'
                                                                     required
-                                                                    rules={[bodyRule, bodyTemplateChanged]}
+                                                                    rules={[bodyRule, MemoizedBodyTemplateChangedRule]}
                                                                     validateFirst={true}
                                                                     data-cy='news__create-body-input'
                                                                 >
@@ -1312,10 +1335,10 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                         style={NO_RESIZE_STYLE}
                                                                         rows={7}
                                                                         placeholder={BodyPlaceholderMessage}
-                                                                        onChange={handleBodyChange}/>
+                                                                        onChange={handleBodyChange} />
                                                                 </Form.Item>
                                                                 <Col style={buildCounterStyle(Body.textLength, 'Body')}>
-                                                                    <Body.Counter type='inverted'/>
+                                                                    <Body.Counter type='inverted' />
                                                                 </Col>
                                                             </Col>
                                                         </Col>
@@ -1351,7 +1374,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                 >
                                                                     <GraphQlSearchInput
                                                                         {...propertySelectProps(form)}
-                                                                        onAllDataLoading={handleAllPropertiesLoading(form)}/>
+                                                                        onAllDataLoading={handleAllPropertiesLoading(form)} />
                                                                 </Form.Item>
                                                             )}
                                                             <HiddenBlock hide={newsItemForOneProperty}>
@@ -1363,7 +1386,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                     onCheckBoxChange={propertyCheckboxChange(form)}
                                                                     CheckAllMessage={CheckAllLabel}
                                                                     onDataLoaded={handleAllPropertiesDataLoading}
-                                                                    form={form}/>
+                                                                    form={form} />
                                                             </HiddenBlock>
                                                         </Col>
                                                         {isOnlyOnePropertySelected && (
@@ -1385,7 +1408,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                             property={selectedProperties[0]}
                                                                             loading={selectedPropertiesLoading}
                                                                             disabled={selectedPropertiesLoading || !isEmpty(selectedSectionKeys)}
-                                                                            onChange={handleChangeUnitNameInput}/>
+                                                                            onChange={handleChangeUnitNameInput} />
                                                                     </Form.Item>
                                                                 </Col>
                                                                 <Col span={11} offset={2}>
@@ -1394,7 +1417,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                         label={selectedPropertiesLoading || !isEmpty(selectedUnitNameKeys)
                                                                             ? (<LabelWithInfo
                                                                                 title={SectionsMessage}
-                                                                                message={SectionsLabel}/>)
+                                                                                message={SectionsLabel} />)
                                                                             : SectionsLabel}
                                                                     >
                                                                         <SectionNameInput
@@ -1402,7 +1425,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                             property={selectedProperties[0]}
                                                                             onChange={handleChangeSectionNameInput(selectedProperties[0])}
                                                                             mode='multiple'
-                                                                            data-cy='news__create-property-section-search'/>
+                                                                            data-cy='news__create-property-section-search' />
                                                                     </Form.Item>
                                                                 </Col>
                                                             </>
@@ -1412,29 +1435,29 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                 {
                                                     !!formInfoColSpan && newsItemScopesNoInstance.length > 0 && (
                                                         <Col span={formInfoColSpan}>
-                                                            <RecipientCounter newsItemScopes={newsItemScopesNoInstance}/>
+                                                            <RecipientCounter newsItemScopes={newsItemScopesNoInstance} />
                                                         </Col>
                                                     )
                                                 }
                                             </Row>
                                         </Col>
                                     </>
-                                ) }
+                                )}
 
                                 {
-                                    ( getStepTypeByStep(currentStep) === 'sharingApp' ) && (
+                                    (getStepTypeByStep(currentStep) === 'sharingApp') && (
                                         // TODO (DOMA-9328) Move onSkip to BaseNewsForm component, since steps are handled here!
                                         <NewsItemSharingForm
-                                            onSkip={ () => handleStepSkip({ skip: true, step: currentStep }) }
-                                            onSubmit={ (values) => handleSharingAppFormSubmit({ values: values, ctxId: getStepDataByStep(currentStep).sharingAppData.id }) }
+                                            onSkip={() => handleStepSkip({ skip: true, step: currentStep })}
+                                            onSubmit={(values) => handleSharingAppFormSubmit({ values: values, ctxId: getStepDataByStep(currentStep).sharingAppData.id })}
                                             sharingApp={getStepDataByStep(currentStep).sharingAppData.app}
-                                            initialValues={ get(sharingAppsFormValues, [getStepDataByStep(currentStep).sharingAppData.id], undefined) }
+                                            initialValues={get(sharingAppsFormValues, [getStepDataByStep(currentStep).sharingAppData.id], undefined)}
                                             newsItemData={{ type: selectedType, validBefore: selectedValidBeforeText, title: selectedTitle, body: selectedBody }}
                                         />
                                     )
                                 }
 
-                                { getStepTypeByStep(currentStep) === 'review' && (
+                                {getStepTypeByStep(currentStep) === 'review' && (
                                     <Col span={24}>
                                         <Row gutter={BIG_HORIZONTAL_GUTTER}>
 
@@ -1452,7 +1475,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                         appName={MobileAppLabel}
                                                         icon={DOMA_APP_ICON_URL}
                                                     />
-                                                    { getSelectedAndNotSkippedSharingApps().map(ctxId => {
+                                                    {getSelectedAndNotSkippedSharingApps().map(ctxId => {
 
                                                         const ctx = sharingAppContextsIndex[ctxId]
 
@@ -1525,6 +1548,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                             style={FULL_WIDTH_STYLE}
                                                                             format='DD MMMM YYYY HH:mm'
                                                                             showTime={SHOW_TIME_CONFIG}
+                                                                            minuteStep={15}
                                                                             onChange={handleSendAtChange(form, 'sendAt')}
                                                                             placeholder={DateAndTimePlaceholderLabel}
                                                                             disabledDate={isDateDisabled}
@@ -1540,21 +1564,49 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                             </Col>
                                         </Row>
                                     </Col>
-                                ) }
+                                )}
                             </Row>
 
                             <Row>
                                 <Col span={24} style={MARGIN_TOP_44_STYLE}>
-                                    { currentStep === getLastStep() && isFunction(ActionBar) && (
-                                        <Col span={24} style={MARGIN_TOP_44_STYLE}>
-                                            <ActionBar
-                                                handleSave={handleSave}
-                                                isLoading={isLoading}
-                                                form={form}
-                                            />
-                                        </Col>
+                                    {currentStep === getLastStep() && isFunction(ActionBar) && (
+                                        <UIActionBar
+                                            actions={[
+                                                <Button
+                                                    key='submit'
+                                                    type='primary'
+                                                    children={SendNewsLabel}
+                                                    onClick={() => setIsConfirmModalVisible(true)}
+                                                />,
+                                                <Modal
+                                                    key='modalWindow'
+                                                    title={ConfirmSendLabel}
+                                                    open={isConfirmModalVisible}
+                                                    onCancel={() => setIsConfirmModalVisible(false)}
+                                                    footer={[
+                                                        <Button
+                                                            key='cancel'
+                                                            type='secondary'
+                                                            onClick={() => setIsConfirmModalVisible(false)}>
+                                                            {CancelSendMessage}
+                                                        </Button>,
+                                                        <Button
+                                                            key='submit'
+                                                            type='primary'
+                                                            children={ShareButtonMessage}
+                                                            onClick={handleSave}
+                                                            disabled={isLoading}
+                                                        />,
+                                                    ]}
+                                                >
+                                                    <Typography.Text type='primary'>
+                                                        {ConfirmSendMessage}
+                                                    </Typography.Text>
+                                                </Modal>,
+                                            ]}
+                                        />
                                     )}
-                                    { currentStep <= 1 && (
+                                    {currentStep <= 1 && (
                                         <UIActionBar
                                             actions={[
                                                 <Button
