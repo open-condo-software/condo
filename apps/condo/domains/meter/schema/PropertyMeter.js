@@ -9,7 +9,7 @@ const { GQLListSchema, getByCondition, getById } = require('@open-condo/keystone
 
 const access = require('@condo/domains/meter/access/PropertyMeter')
 const { PROPERTY_METER_READING_VALUES_COUNT } = require('@condo/domains/meter/constants/constants')
-const { AUTOMATIC_METER_NO_MASTER_APP, B2B_APP_NOT_CONNECTED, B2C_APP_NOT_AVAILABLE } = require('@condo/domains/meter/constants/errors')
+const { B2B_APP_NOT_CONNECTED, B2C_APP_NOT_AVAILABLE } = require('@condo/domains/meter/constants/errors')
 const { deleteReadingsOfDeletedMeter } = require('@condo/domains/meter/tasks')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 
