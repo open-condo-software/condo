@@ -3,6 +3,7 @@
  */
 
 const get = require('lodash/get')
+const isNil = require('lodash/isNil')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
@@ -95,13 +96,20 @@ const getUserPayload = (user, userData) => {
     return payload
 }
 
+/**
+ * Checks that all required fields are present in a user data.
+ * @param {string[]} requiredFields
+ * @param {*} userData
+ * @return {{missingFields: string[], missingRequiredFields: boolean}}
+ */
 const checkRequiredUserFields = (requiredFields, userData) => {
     if (!Array.isArray(requiredFields)) throw new Error('"requiredFields" should be an array')
 
     const missingFields = []
     for (const field of requiredFields) {
         const value = get(userData, field, null)
-        if (!value && typeof value !== 'boolean' && typeof value !== 'number') missingFields.push(field)
+        if (isNil(value)) missingFields.push(field)
+        if (typeof value === 'string' && value.length < 1) missingFields.push(field)
     }
     return { missingRequiredFields: missingFields.length > 0, missingFields }
 }
