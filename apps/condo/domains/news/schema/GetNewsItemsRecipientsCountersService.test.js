@@ -22,10 +22,13 @@ const { buildPropertyMap } = require('@condo/domains/property/utils/testSchema/f
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, createTestUser } = require('@condo/domains/user/utils/testSchema')
 
+
 let adminClient, staffClientYes
 let dummyO10n
 describe('GetNewsItemsRecipientsCountersService', () => {
-    beforeAll(async () => {
+    jest.setTimeout(60000)
+
+    beforeEach(async () => {
         adminClient = await makeLoggedInAdminClient()
         const [o10n] = await createTestOrganization(adminClient)
         dummyO10n = o10n
@@ -154,6 +157,36 @@ describe('GetNewsItemsRecipientsCountersService', () => {
         const [data] = await getNewsItemsRecipientsCountersByTestClient(staffClientYes, payload)
 
         expect(data).toEqual({ propertiesCount: 1, unitsCount: unitsCount, receiversCount: residentsCount })
+    })
+
+    test('The data for counters calculated correctly on a large amount of data', async () => {
+        const residentsCount = 200
+        const floorsCount = 200
+        const unitsOnFloorCount = 10
+        const unitsCount = floorsCount * unitsOnFloorCount
+        const propertyMap = buildPropertyMap({
+            floors: floorsCount,
+            unitsOnFloor: unitsOnFloorCount,
+            parkingFloors: 0,
+        })
+        const [property1] = await createTestProperty(adminClient, dummyO10n, { map: propertyMap })
+        const [property2] = await createTestProperty(adminClient, dummyO10n, { map: propertyMap })
+        const [property3] = await createTestProperty(adminClient, dummyO10n, { map: propertyMap })
+        const [user] = await createTestUser(adminClient)
+
+        for (let i = 0; i < residentsCount; i++) {
+            await createTestResident(adminClient, user, property1, { unitType: 'flat', unitName: `${i + 1}` })
+        }
+
+        const payload = {
+            organization: pick(dummyO10n, 'id'),
+            newsItemScopes: [
+                { property: null, unitType: null, unitName: null },
+            ],
+        }
+        const [data] = await getNewsItemsRecipientsCountersByTestClient(staffClientYes, payload)
+
+        expect(data).toEqual({ propertiesCount: 3, unitsCount: unitsCount * 3, receiversCount: residentsCount })
     })
 
     test('anonymous can\'t execute', async () => {

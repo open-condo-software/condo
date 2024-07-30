@@ -3,9 +3,8 @@
  */
 const { filter, pick, uniq, uniqBy } = require('lodash')
 
-const { GQLCustomSchema } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, allItemsQueryByChunks } = require('@open-condo/keystone/schema')
 
-const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const access = require('@condo/domains/news/access/GetNewsItemsRecipientsCountersService')
 const { queryFindResidentsByOrganizationAndScopes } = require('@condo/domains/news/utils/accessSchema')
 const {
@@ -13,10 +12,9 @@ const {
     getUnitsFromProperty,
     queryConditionsByUnits,
 } = require('@condo/domains/news/utils/serverSchema/recipientsCounterUtils')
-const { Property } = require('@condo/domains/property/utils/serverSchema')
 
 
-const CHUNK_SIZE = 20
+const CHUNK_SIZE = 50
 
 const GetNewsItemsRecipientsCountersService = new GQLCustomSchema('GetNewsItemsRecipientsCountersService', {
     types: [
@@ -47,9 +45,8 @@ const GetNewsItemsRecipientsCountersService = new GQLCustomSchema('GetNewsItemsR
                 const orConditions = []
 
                 if (isAllOrganization) {
-                    await loadListByChunks({
-                        context,
-                        list: Property,
+                    await allItemsQueryByChunks({
+                        schemaName: 'Property',
                         chunkSize: CHUNK_SIZE,
                         where: { organization: { id: organizationId }, deletedAt: null },
                         /**
@@ -66,7 +63,7 @@ const GetNewsItemsRecipientsCountersService = new GQLCustomSchema('GetNewsItemsR
                             return []
                         },
                     })
-                    receiversCount = await countUniqueUnitsFromResidents(context, {
+                    receiversCount = await countUniqueUnitsFromResidents({
                         organization: { id: organizationId },
                         OR: orConditions,
                     })
@@ -89,9 +86,8 @@ const GetNewsItemsRecipientsCountersService = new GQLCustomSchema('GetNewsItemsR
 
                     const orConditions = []
 
-                    await loadListByChunks({
-                        context,
-                        list: Property,
+                    await allItemsQueryByChunks({
+                        schemaName: 'Property',
                         chunkSize: CHUNK_SIZE,
                         where: { id_in: propertiesIds, deletedAt: null },
                         /**
@@ -126,7 +122,7 @@ const GetNewsItemsRecipientsCountersService = new GQLCustomSchema('GetNewsItemsR
                         },
                     })
 
-                    receiversCount = await countUniqueUnitsFromResidents(context, {
+                    receiversCount = await countUniqueUnitsFromResidents({
                         ...queryFindResidentsByOrganizationAndScopes(organizationId, newsItemScopes),
                         OR: orConditions,
                     })
