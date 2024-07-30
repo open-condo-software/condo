@@ -10,7 +10,7 @@ import { ChevronDown, PlusCircle } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Space, Typography  } from '@open-condo/ui'
+import { Space, Typography } from '@open-condo/ui'
 import type { TypographyTextProps } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
@@ -18,6 +18,7 @@ import { HOLDING_TYPE } from '@condo/domains/organization/constants/common'
 import { MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/common'
 import { useCreateOrganizationModalForm } from '@condo/domains/organization/hooks/useCreateOrganizationModalForm'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
+import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 
 import { SBBOLIndicator } from './SBBOLIndicator'
 
@@ -47,6 +48,7 @@ export const InlineOrganizationSelect: React.FC = () => {
     const AddOrganizationTitle = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationButtonLabel' })
 
     const router = useRouter()
+    const { query: { next } } = router
 
     const { breakpoints } = useLayoutContext()
     const textSize: TypographyTextProps['size'] = !breakpoints.TABLET_LARGE ? 'small' : 'medium'
@@ -78,8 +80,12 @@ export const InlineOrganizationSelect: React.FC = () => {
     const { setIsVisible: showCreateOrganizationModal, ModalForm: CreateOrganizationModalForm } = useCreateOrganizationModalForm({
         onFinish: async (createdOrganization) => {
             const organizationType = get(createdOrganization, 'type')
+            const isValidNextUrl = next && !Array.isArray(next) && isSafeUrl(next)
 
-            if (organizationType === MANAGING_COMPANY_TYPE) {
+            // After registration and created first organization we want redirect user to nextUrl
+            if (isValidNextUrl && !hasInvites && !link && !filteredEmployees.length) {
+                await router.push(next)
+            } else if (organizationType === MANAGING_COMPANY_TYPE) {
                 await router.push('/tour')
             }
         },
@@ -102,11 +108,11 @@ export const InlineOrganizationSelect: React.FC = () => {
                 // But has organizations to select -> select first one
                 if (filteredEmployees.length) {
                     selectLink({ id: filteredEmployees[0].id })
-                // No organization -> show modal for creation directly
+                    // No organization -> show modal for creation directly
                 } else if (!hasInvites) {
                     showCreateModal()
                 }
-            // Note: organization in cookie, but value is invalid
+                // Note: organization in cookie, but value is invalid
             } else if (!filteredEmployees.some(employee => employee.id === link.id)) {
                 selectLink(null)
             }

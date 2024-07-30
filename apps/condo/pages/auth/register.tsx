@@ -31,12 +31,17 @@ const RegisterPage: AuthPage = () => {
     const PhoneConfirmTokenErrorMessage = intl.formatMessage({ id: 'pages.auth.register.PhoneConfirmTokenErrorMessage' })
     const RestartPhoneConfirmLabel = intl.formatMessage({ id: 'pages.auth.register.RestartPhoneConfirmLabel' })
     const router = useRouter()
+    const { query: { next }  } = router
 
     const { token, isConfirmed, tokenError, setToken, setTokenError } = useContext(RegisterContext)
     const [step, setStep] = useState('inputPhone')
 
     const handleFinish = useCallback(async () => {
-        await router.push('/')
+        if (next) {
+            await router.push(`/?next=${next}`)
+        } else {
+            await router.push(`/`)
+        }
     }, [router])
 
     useEffect(() => {

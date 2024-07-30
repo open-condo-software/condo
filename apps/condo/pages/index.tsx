@@ -27,6 +27,7 @@ const ACCESS_REDIRECTS = {
 
 const IndexPage = () => {
     const router = useRouter()
+    const { query: { next } } = router
     const organization = useOrganization()
     const organizationId = useMemo(() => get(organization, 'organization.id', null), [])
 
@@ -39,6 +40,7 @@ const IndexPage = () => {
     }, { skip: !organizationId })
 
     useEffect(() => {
+        if (next) return
         const role = get(organization, 'link.role')
         if (role) {
             if (get(organization, ['organization', 'type'], MANAGING_COMPANY_TYPE) === SERVICE_PROVIDER_TYPE) {
