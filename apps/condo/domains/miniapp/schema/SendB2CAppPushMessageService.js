@@ -24,6 +24,7 @@ const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 const get = require("lodash/get");
 const isEmpty = require("lodash/isEmpty");
 
+const DEFAULT_COUNTER_LIMIT = 1
 const CACHE_TTL = {
     DEFAULT: 3600,
     VOIP_INCOMING_CALL_MESSAGE: 2,
@@ -158,7 +159,7 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
                 await redisGuard.checkCustomLimitCounters(
                     `${SERVICE_NAME}_${searchKey}`,
                     get(appSettings, 'notificationWindowSize') || ttl,
-                    get(appSettings, 'numberOfNotificationInWindow') || 1,
+                    get(appSettings, 'numberOfNotificationInWindow') || DEFAULT_COUNTER_LIMIT,
                 )
 
                 const messageAttrs = {
