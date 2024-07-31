@@ -17,7 +17,7 @@ const {
 const { DEBUG_APP_ID } = require('@condo/domains/miniapp/constants')
 const {
     createTestB2CApp,
-    sendB2CAppPushMessageByTestClient, createTestMessageAppBlackList,
+    sendB2CAppPushMessageByTestClient, createTestB2CAppMessageSetting,
 } = require('@condo/domains/miniapp/utils/testSchema')
 const {
     B2C_APP_MESSAGE_PUSH_TYPE,
@@ -292,9 +292,9 @@ describe('SendB2CAppPushMessageService', () => {
         it('Don\'t send message if app added to MessageAppBlackList', async () => {
             const [b2c] = await createTestB2CApp(admin)
 
-            await createTestMessageAppBlackList(admin, {
+            const [obj, attrs] = await createTestB2CAppMessageSetting(admin, b2c, {
                 type: B2C_APP_MESSAGE_PUSH_TYPE,
-                app: { connect: { id: b2c.id } },
+                isBlacklisted: true,
             })
 
             await catchErrorFrom(async () => {
@@ -307,6 +307,76 @@ describe('SendB2CAppPushMessageService', () => {
                     message: ERRORS.APP_IN_BLACK_LIST.message,
                     path: ['result'],
                     extensions: omit(ERRORS.APP_IN_BLACK_LIST, 'messageForUser'),
+                }])
+            })
+        })
+    })
+
+    describe('Notification throttling checks', () => {
+        it('Don\'t send a notification if there was already a notification in the default time window', async () => {
+            const [b2c] = await createTestB2CApp(admin)
+
+            const [obj, attrs] = await createTestB2CAppMessageSetting(admin, b2c, {
+                type: B2C_APP_MESSAGE_PUSH_TYPE,
+            })
+            const [message] = await sendB2CAppPushMessageByTestClient(admin, {
+                ...appAttrs,
+                app: { id: b2c.id },
+            })
+            expect(message.id).toMatch(UUID_RE)
+
+            await catchErrorFrom(async () => {
+                await sendB2CAppPushMessageByTestClient(admin, {
+                    ...appAttrs,
+                    app: { id: b2c.id },
+                })
+            }, ({ errors }) => {
+                expect(errors).toMatchObject([{
+                    path: ['result'],
+                    extensions: {
+                        code: 'BAD_USER_INPUT',
+                        type: 'TOO_MANY_REQUESTS',
+                        message: 'You have to wait {secondsRemaining} seconds to be able to send request again',
+                    },
+                }])
+            })
+        })
+
+        it('Don\'t send a notification if the notification limit in the custom time window is exhausted', async () => {
+            const [b2c] = await createTestB2CApp(admin)
+
+            const notificationWindowSize = 3600
+            const numberOfNotificationInWindow = 2
+            const [obj, attrs] = await createTestB2CAppMessageSetting(admin, b2c, {
+                notificationWindowSize,
+                numberOfNotificationInWindow,
+            })
+
+            const [message1] = await sendB2CAppPushMessageByTestClient(admin, {
+                ...appAttrs,
+                app: { id: b2c.id },
+            })
+            expect(message1.id).toMatch(UUID_RE)
+
+            const [message2] = await sendB2CAppPushMessageByTestClient(admin, {
+                ...appAttrs,
+                app: { id: b2c.id },
+            })
+            expect(message2.id).toMatch(UUID_RE)
+
+            await catchErrorFrom(async () => {
+                await sendB2CAppPushMessageByTestClient(admin, {
+                    ...appAttrs,
+                    app: { id: b2c.id },
+                })
+            }, ({ errors }) => {
+                expect(errors).toMatchObject([{
+                    path: ['result'],
+                    extensions: {
+                        code: 'BAD_USER_INPUT',
+                        type: 'TOO_MANY_REQUESTS',
+                        message: 'You have to wait {secondsRemaining} seconds to be able to send request again',
+                    },
                 }])
             })
         })

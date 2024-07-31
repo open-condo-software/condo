@@ -7122,6 +7122,429 @@ export type B2CAppHistoryRecordsUpdateInput = {
   data?: Maybe<B2CAppHistoryRecordUpdateInput>;
 };
 
+/**  Configuration of sending push notifications for specific miniapps.Used to block certain types of push notifications and control throttling of notifications of a certain miniapp  */
+export type B2CAppMessageSetting = {
+  __typename?: 'B2CAppMessageSetting';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the B2CAppMessageSetting List config, or
+   *  2. As an alias to the field set on 'labelField' in the B2CAppMessageSetting List config, or
+   *  3. As an alias to a 'name' field on the B2CAppMessageSetting List (if one exists), or
+   *  4. As an alias to the 'id' field on the B2CAppMessageSetting List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Link to B2CApp to which this config applies  */
+  app?: Maybe<B2CApp>;
+  /**  Reason for blocking messages with types from type  */
+  blockReason?: Maybe<Scalars['String']>;
+  /**  Is message type in black list for this B2CApp  */
+  isBlacklisted?: Maybe<Scalars['Boolean']>;
+  /**  The type of message we want to configure  */
+  type?: Maybe<MessageType>;
+  /**  Time window for sending push notifications in sec  */
+  notificationWindowSize?: Maybe<Scalars['Int']>;
+  /**  The number of notifications that can be sent in one time window in sec  */
+  numberOfNotificationInWindow?: Maybe<Scalars['Int']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type B2CAppMessageSettingCreateInput = {
+  app?: Maybe<B2CAppRelateToOneInput>;
+  blockReason?: Maybe<Scalars['String']>;
+  isBlacklisted?: Maybe<Scalars['Boolean']>;
+  type?: Maybe<MessageType>;
+  notificationWindowSize?: Maybe<Scalars['Int']>;
+  numberOfNotificationInWindow?: Maybe<Scalars['Int']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type B2CAppMessageSettingHistoryRecord = {
+  __typename?: 'B2CAppMessageSettingHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the B2CAppMessageSettingHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the B2CAppMessageSettingHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the B2CAppMessageSettingHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the B2CAppMessageSettingHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  app?: Maybe<Scalars['String']>;
+  blockReason?: Maybe<Scalars['String']>;
+  isBlacklisted?: Maybe<Scalars['Boolean']>;
+  type?: Maybe<Scalars['String']>;
+  notificationWindowSize?: Maybe<Scalars['Int']>;
+  numberOfNotificationInWindow?: Maybe<Scalars['Int']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<B2CAppMessageSettingHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type B2CAppMessageSettingHistoryRecordCreateInput = {
+  app?: Maybe<Scalars['String']>;
+  blockReason?: Maybe<Scalars['String']>;
+  isBlacklisted?: Maybe<Scalars['Boolean']>;
+  type?: Maybe<Scalars['String']>;
+  notificationWindowSize?: Maybe<Scalars['Int']>;
+  numberOfNotificationInWindow?: Maybe<Scalars['Int']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<B2CAppMessageSettingHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum B2CAppMessageSettingHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type B2CAppMessageSettingHistoryRecordUpdateInput = {
+  app?: Maybe<Scalars['String']>;
+  blockReason?: Maybe<Scalars['String']>;
+  isBlacklisted?: Maybe<Scalars['Boolean']>;
+  type?: Maybe<Scalars['String']>;
+  notificationWindowSize?: Maybe<Scalars['Int']>;
+  numberOfNotificationInWindow?: Maybe<Scalars['Int']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<B2CAppMessageSettingHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type B2CAppMessageSettingHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<B2CAppMessageSettingHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<B2CAppMessageSettingHistoryRecordWhereInput>>>;
+  app?: Maybe<Scalars['String']>;
+  app_not?: Maybe<Scalars['String']>;
+  app_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  app_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  blockReason?: Maybe<Scalars['String']>;
+  blockReason_not?: Maybe<Scalars['String']>;
+  blockReason_contains?: Maybe<Scalars['String']>;
+  blockReason_not_contains?: Maybe<Scalars['String']>;
+  blockReason_starts_with?: Maybe<Scalars['String']>;
+  blockReason_not_starts_with?: Maybe<Scalars['String']>;
+  blockReason_ends_with?: Maybe<Scalars['String']>;
+  blockReason_not_ends_with?: Maybe<Scalars['String']>;
+  blockReason_i?: Maybe<Scalars['String']>;
+  blockReason_not_i?: Maybe<Scalars['String']>;
+  blockReason_contains_i?: Maybe<Scalars['String']>;
+  blockReason_not_contains_i?: Maybe<Scalars['String']>;
+  blockReason_starts_with_i?: Maybe<Scalars['String']>;
+  blockReason_not_starts_with_i?: Maybe<Scalars['String']>;
+  blockReason_ends_with_i?: Maybe<Scalars['String']>;
+  blockReason_not_ends_with_i?: Maybe<Scalars['String']>;
+  blockReason_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  blockReason_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isBlacklisted?: Maybe<Scalars['Boolean']>;
+  isBlacklisted_not?: Maybe<Scalars['Boolean']>;
+  type?: Maybe<Scalars['String']>;
+  type_not?: Maybe<Scalars['String']>;
+  type_contains?: Maybe<Scalars['String']>;
+  type_not_contains?: Maybe<Scalars['String']>;
+  type_starts_with?: Maybe<Scalars['String']>;
+  type_not_starts_with?: Maybe<Scalars['String']>;
+  type_ends_with?: Maybe<Scalars['String']>;
+  type_not_ends_with?: Maybe<Scalars['String']>;
+  type_i?: Maybe<Scalars['String']>;
+  type_not_i?: Maybe<Scalars['String']>;
+  type_contains_i?: Maybe<Scalars['String']>;
+  type_not_contains_i?: Maybe<Scalars['String']>;
+  type_starts_with_i?: Maybe<Scalars['String']>;
+  type_not_starts_with_i?: Maybe<Scalars['String']>;
+  type_ends_with_i?: Maybe<Scalars['String']>;
+  type_not_ends_with_i?: Maybe<Scalars['String']>;
+  type_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  type_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  notificationWindowSize?: Maybe<Scalars['Int']>;
+  notificationWindowSize_not?: Maybe<Scalars['Int']>;
+  notificationWindowSize_lt?: Maybe<Scalars['Int']>;
+  notificationWindowSize_lte?: Maybe<Scalars['Int']>;
+  notificationWindowSize_gt?: Maybe<Scalars['Int']>;
+  notificationWindowSize_gte?: Maybe<Scalars['Int']>;
+  notificationWindowSize_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  notificationWindowSize_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  numberOfNotificationInWindow?: Maybe<Scalars['Int']>;
+  numberOfNotificationInWindow_not?: Maybe<Scalars['Int']>;
+  numberOfNotificationInWindow_lt?: Maybe<Scalars['Int']>;
+  numberOfNotificationInWindow_lte?: Maybe<Scalars['Int']>;
+  numberOfNotificationInWindow_gt?: Maybe<Scalars['Int']>;
+  numberOfNotificationInWindow_gte?: Maybe<Scalars['Int']>;
+  numberOfNotificationInWindow_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  numberOfNotificationInWindow_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<B2CAppMessageSettingHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<B2CAppMessageSettingHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<B2CAppMessageSettingHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<B2CAppMessageSettingHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type B2CAppMessageSettingHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type B2CAppMessageSettingHistoryRecordsCreateInput = {
+  data?: Maybe<B2CAppMessageSettingHistoryRecordCreateInput>;
+};
+
+export type B2CAppMessageSettingHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<B2CAppMessageSettingHistoryRecordUpdateInput>;
+};
+
+export type B2CAppMessageSettingUpdateInput = {
+  app?: Maybe<B2CAppRelateToOneInput>;
+  blockReason?: Maybe<Scalars['String']>;
+  isBlacklisted?: Maybe<Scalars['Boolean']>;
+  type?: Maybe<MessageType>;
+  notificationWindowSize?: Maybe<Scalars['Int']>;
+  numberOfNotificationInWindow?: Maybe<Scalars['Int']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type B2CAppMessageSettingWhereInput = {
+  AND?: Maybe<Array<Maybe<B2CAppMessageSettingWhereInput>>>;
+  OR?: Maybe<Array<Maybe<B2CAppMessageSettingWhereInput>>>;
+  app?: Maybe<B2CAppWhereInput>;
+  app_is_null?: Maybe<Scalars['Boolean']>;
+  blockReason?: Maybe<Scalars['String']>;
+  blockReason_not?: Maybe<Scalars['String']>;
+  blockReason_contains?: Maybe<Scalars['String']>;
+  blockReason_not_contains?: Maybe<Scalars['String']>;
+  blockReason_starts_with?: Maybe<Scalars['String']>;
+  blockReason_not_starts_with?: Maybe<Scalars['String']>;
+  blockReason_ends_with?: Maybe<Scalars['String']>;
+  blockReason_not_ends_with?: Maybe<Scalars['String']>;
+  blockReason_i?: Maybe<Scalars['String']>;
+  blockReason_not_i?: Maybe<Scalars['String']>;
+  blockReason_contains_i?: Maybe<Scalars['String']>;
+  blockReason_not_contains_i?: Maybe<Scalars['String']>;
+  blockReason_starts_with_i?: Maybe<Scalars['String']>;
+  blockReason_not_starts_with_i?: Maybe<Scalars['String']>;
+  blockReason_ends_with_i?: Maybe<Scalars['String']>;
+  blockReason_not_ends_with_i?: Maybe<Scalars['String']>;
+  blockReason_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  blockReason_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isBlacklisted?: Maybe<Scalars['Boolean']>;
+  isBlacklisted_not?: Maybe<Scalars['Boolean']>;
+  type?: Maybe<MessageType>;
+  type_not?: Maybe<MessageType>;
+  type_in?: Maybe<Array<Maybe<MessageType>>>;
+  type_not_in?: Maybe<Array<Maybe<MessageType>>>;
+  notificationWindowSize?: Maybe<Scalars['Int']>;
+  notificationWindowSize_not?: Maybe<Scalars['Int']>;
+  notificationWindowSize_lt?: Maybe<Scalars['Int']>;
+  notificationWindowSize_lte?: Maybe<Scalars['Int']>;
+  notificationWindowSize_gt?: Maybe<Scalars['Int']>;
+  notificationWindowSize_gte?: Maybe<Scalars['Int']>;
+  notificationWindowSize_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  notificationWindowSize_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  numberOfNotificationInWindow?: Maybe<Scalars['Int']>;
+  numberOfNotificationInWindow_not?: Maybe<Scalars['Int']>;
+  numberOfNotificationInWindow_lt?: Maybe<Scalars['Int']>;
+  numberOfNotificationInWindow_lte?: Maybe<Scalars['Int']>;
+  numberOfNotificationInWindow_gt?: Maybe<Scalars['Int']>;
+  numberOfNotificationInWindow_gte?: Maybe<Scalars['Int']>;
+  numberOfNotificationInWindow_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  numberOfNotificationInWindow_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type B2CAppMessageSettingWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type B2CAppMessageSettingsCreateInput = {
+  data?: Maybe<B2CAppMessageSettingCreateInput>;
+};
+
+export type B2CAppMessageSettingsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<B2CAppMessageSettingUpdateInput>;
+};
+
 export type B2CAppPropertiesCreateInput = {
   data?: Maybe<B2CAppPropertyCreateInput>;
 };
@@ -30456,7 +30879,7 @@ export type Message = {
   sender?: Maybe<SenderField>;
 };
 
-/**  Rule for blocking specific type of messages for apps  */
+/**  [Deprecated] Rule for blocking specific type of messages for apps. Use B2CAppMessageSetting  */
 export type MessageAppBlackList = {
   __typename?: 'MessageAppBlackList';
   /**
@@ -41000,6 +41423,30 @@ export type Mutation = {
   deleteB2BAppNewsSharingConfig?: Maybe<B2BAppNewsSharingConfig>;
   /**  Delete multiple B2BAppNewsSharingConfig items by ID.  */
   deleteB2BAppNewsSharingConfigs?: Maybe<Array<Maybe<B2BAppNewsSharingConfig>>>;
+  /**  Create a single B2CAppMessageSettingHistoryRecord item.  */
+  createB2CAppMessageSettingHistoryRecord?: Maybe<B2CAppMessageSettingHistoryRecord>;
+  /**  Create multiple B2CAppMessageSettingHistoryRecord items.  */
+  createB2CAppMessageSettingHistoryRecords?: Maybe<Array<Maybe<B2CAppMessageSettingHistoryRecord>>>;
+  /**  Update a single B2CAppMessageSettingHistoryRecord item by ID.  */
+  updateB2CAppMessageSettingHistoryRecord?: Maybe<B2CAppMessageSettingHistoryRecord>;
+  /**  Update multiple B2CAppMessageSettingHistoryRecord items by ID.  */
+  updateB2CAppMessageSettingHistoryRecords?: Maybe<Array<Maybe<B2CAppMessageSettingHistoryRecord>>>;
+  /**  Delete a single B2CAppMessageSettingHistoryRecord item by ID.  */
+  deleteB2CAppMessageSettingHistoryRecord?: Maybe<B2CAppMessageSettingHistoryRecord>;
+  /**  Delete multiple B2CAppMessageSettingHistoryRecord items by ID.  */
+  deleteB2CAppMessageSettingHistoryRecords?: Maybe<Array<Maybe<B2CAppMessageSettingHistoryRecord>>>;
+  /**  Create a single B2CAppMessageSetting item.  */
+  createB2CAppMessageSetting?: Maybe<B2CAppMessageSetting>;
+  /**  Create multiple B2CAppMessageSetting items.  */
+  createB2CAppMessageSettings?: Maybe<Array<Maybe<B2CAppMessageSetting>>>;
+  /**  Update a single B2CAppMessageSetting item by ID.  */
+  updateB2CAppMessageSetting?: Maybe<B2CAppMessageSetting>;
+  /**  Update multiple B2CAppMessageSetting items by ID.  */
+  updateB2CAppMessageSettings?: Maybe<Array<Maybe<B2CAppMessageSetting>>>;
+  /**  Delete a single B2CAppMessageSetting item by ID.  */
+  deleteB2CAppMessageSetting?: Maybe<B2CAppMessageSetting>;
+  /**  Delete multiple B2CAppMessageSetting items by ID.  */
+  deleteB2CAppMessageSettings?: Maybe<Array<Maybe<B2CAppMessageSetting>>>;
   /**  Create a single MobileFeatureConfigHistoryRecord item.  */
   createMobileFeatureConfigHistoryRecord?: Maybe<MobileFeatureConfigHistoryRecord>;
   /**  Create multiple MobileFeatureConfigHistoryRecord items.  */
@@ -51666,6 +52113,68 @@ export type MutationDeleteB2BAppNewsSharingConfigArgs = {
 
 
 export type MutationDeleteB2BAppNewsSharingConfigsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateB2CAppMessageSettingHistoryRecordArgs = {
+  data?: Maybe<B2CAppMessageSettingHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateB2CAppMessageSettingHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<B2CAppMessageSettingHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateB2CAppMessageSettingHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<B2CAppMessageSettingHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateB2CAppMessageSettingHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<B2CAppMessageSettingHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteB2CAppMessageSettingHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteB2CAppMessageSettingHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateB2CAppMessageSettingArgs = {
+  data?: Maybe<B2CAppMessageSettingCreateInput>;
+};
+
+
+export type MutationCreateB2CAppMessageSettingsArgs = {
+  data?: Maybe<Array<Maybe<B2CAppMessageSettingsCreateInput>>>;
+};
+
+
+export type MutationUpdateB2CAppMessageSettingArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<B2CAppMessageSettingUpdateInput>;
+};
+
+
+export type MutationUpdateB2CAppMessageSettingsArgs = {
+  data?: Maybe<Array<Maybe<B2CAppMessageSettingsUpdateInput>>>;
+};
+
+
+export type MutationDeleteB2CAppMessageSettingArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteB2CAppMessageSettingsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -65663,6 +66172,22 @@ export type Query = {
   _allB2BAppNewsSharingConfigsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the B2BAppNewsSharingConfig list.  */
   _B2BAppNewsSharingConfigsMeta?: Maybe<_ListMeta>;
+  /**  Search for all B2CAppMessageSettingHistoryRecord items which match the where clause.  */
+  allB2CAppMessageSettingHistoryRecords?: Maybe<Array<Maybe<B2CAppMessageSettingHistoryRecord>>>;
+  /**  Search for the B2CAppMessageSettingHistoryRecord item with the matching ID.  */
+  B2CAppMessageSettingHistoryRecord?: Maybe<B2CAppMessageSettingHistoryRecord>;
+  /**  Perform a meta-query on all B2CAppMessageSettingHistoryRecord items which match the where clause.  */
+  _allB2CAppMessageSettingHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the B2CAppMessageSettingHistoryRecord list.  */
+  _B2CAppMessageSettingHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all B2CAppMessageSetting items which match the where clause.  */
+  allB2CAppMessageSettings?: Maybe<Array<Maybe<B2CAppMessageSetting>>>;
+  /**  Search for the B2CAppMessageSetting item with the matching ID.  */
+  B2CAppMessageSetting?: Maybe<B2CAppMessageSetting>;
+  /**  Perform a meta-query on all B2CAppMessageSetting items which match the where clause.  */
+  _allB2CAppMessageSettingsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the B2CAppMessageSetting list.  */
+  _B2CAppMessageSettingsMeta?: Maybe<_ListMeta>;
   /**  Search for all MobileFeatureConfigHistoryRecord items which match the where clause.  */
   allMobileFeatureConfigHistoryRecords?: Maybe<Array<Maybe<MobileFeatureConfigHistoryRecord>>>;
   /**  Search for the MobileFeatureConfigHistoryRecord item with the matching ID.  */
@@ -72072,6 +72597,56 @@ export type Query_AllB2BAppNewsSharingConfigsMetaArgs = {
 };
 
 
+export type QueryAllB2CAppMessageSettingHistoryRecordsArgs = {
+  where?: Maybe<B2CAppMessageSettingHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortB2CAppMessageSettingHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryB2CAppMessageSettingHistoryRecordArgs = {
+  where: B2CAppMessageSettingHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllB2CAppMessageSettingHistoryRecordsMetaArgs = {
+  where?: Maybe<B2CAppMessageSettingHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortB2CAppMessageSettingHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllB2CAppMessageSettingsArgs = {
+  where?: Maybe<B2CAppMessageSettingWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortB2CAppMessageSettingsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryB2CAppMessageSettingArgs = {
+  where: B2CAppMessageSettingWhereUniqueInput;
+};
+
+
+export type Query_AllB2CAppMessageSettingsMetaArgs = {
+  where?: Maybe<B2CAppMessageSettingWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortB2CAppMessageSettingsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
 export type QueryAllMobileFeatureConfigHistoryRecordsArgs = {
   where?: Maybe<MobileFeatureConfigHistoryRecordWhereInput>;
   search?: Maybe<Scalars['String']>;
@@ -77406,6 +77981,66 @@ export enum SortB2CAppHistoryRecordsBy {
   HistoryDateDesc = 'history_date_DESC',
   HistoryActionAsc = 'history_action_ASC',
   HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortB2CAppMessageSettingHistoryRecordsBy {
+  BlockReasonAsc = 'blockReason_ASC',
+  BlockReasonDesc = 'blockReason_DESC',
+  IsBlacklistedAsc = 'isBlacklisted_ASC',
+  IsBlacklistedDesc = 'isBlacklisted_DESC',
+  TypeAsc = 'type_ASC',
+  TypeDesc = 'type_DESC',
+  NotificationWindowSizeAsc = 'notificationWindowSize_ASC',
+  NotificationWindowSizeDesc = 'notificationWindowSize_DESC',
+  NumberOfNotificationInWindowAsc = 'numberOfNotificationInWindow_ASC',
+  NumberOfNotificationInWindowDesc = 'numberOfNotificationInWindow_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortB2CAppMessageSettingsBy {
+  AppAsc = 'app_ASC',
+  AppDesc = 'app_DESC',
+  BlockReasonAsc = 'blockReason_ASC',
+  BlockReasonDesc = 'blockReason_DESC',
+  IsBlacklistedAsc = 'isBlacklisted_ASC',
+  IsBlacklistedDesc = 'isBlacklisted_DESC',
+  TypeAsc = 'type_ASC',
+  TypeDesc = 'type_DESC',
+  NotificationWindowSizeAsc = 'notificationWindowSize_ASC',
+  NotificationWindowSizeDesc = 'notificationWindowSize_DESC',
+  NumberOfNotificationInWindowAsc = 'numberOfNotificationInWindow_ASC',
+  NumberOfNotificationInWindowDesc = 'numberOfNotificationInWindow_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
 }
 
 export enum SortB2CAppPropertiesBy {
