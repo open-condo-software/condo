@@ -20,6 +20,8 @@ const { createTestProperty } = require('@condo/domains/property/utils/testSchema
 
 const {
     getQRCodeMissedFields,
+    getQRCodeField,
+    getQRCodeFields,
     parseRUReceiptQRCode,
     formatPeriodFromQRCode,
     compareQRCodeWithLastReceipt,
@@ -73,6 +75,32 @@ describe('receiptQRCodeUtils', () => {
                 expect(err).toEqual(expect.objectContaining({ message: 'Invalid QR code' }))
             },
         )
+    })
+
+    test('can get field case-insensitively', () => {
+        const qrStr = 'ST00012|field1=Hello|Field2=world|someField=!!'
+        const parsed = parseRUReceiptQRCode(qrStr)
+        expect(parsed).toEqual({
+            field1: 'Hello',
+            Field2: 'world',
+            someField: '!!',
+        })
+
+        expect(getQRCodeField(parsed, 'Field1')).toBe('Hello')
+        expect(getQRCodeField(parsed, 'SomeField')).toBe('!!')
+    })
+
+    test('Fields returned as requested', () => {
+        const qrStr = 'ST00012|field1=Hello|Field2=world|someField=!!|paymPeriod=01.2024'
+        const parsed = parseRUReceiptQRCode(qrStr)
+        const fields = getQRCodeFields(parsed, ['field1', 'FIELD2', 'somefield', 'PaymPeriod'])
+
+        expect(fields).toEqual({
+            field1: 'Hello',
+            FIELD2: 'world',
+            somefield: '!!',
+            PaymPeriod: '01.2024',
+        })
     })
 
     test('check for required fields', () => {

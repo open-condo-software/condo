@@ -47,6 +47,32 @@ function parseRUReceiptQRCode (qrStr) {
 
 /**
  * @param {TQRCodeFields} qrCode
+ * @param {string} fieldName
+ * @return {string}
+ */
+function getQRCodeField (qrCode, fieldName) {
+    const entries = Object.entries(qrCode)
+    const ientries = entries.map(([fieldName, value]) => [fieldName.toLowerCase(), value])
+    return get(Object.fromEntries(ientries), fieldName.toLowerCase())
+}
+
+/**
+ * @param {TQRCodeFields} qrCode
+ * @param {string[]} fieldsNames
+ * @return {Object<string, string>}
+ */
+function getQRCodeFields (qrCode, fieldsNames) {
+    const result = {}
+
+    for (const fieldName of fieldsNames) {
+        set(result, fieldName, getQRCodeField(qrCode, fieldName))
+    }
+
+    return result
+}
+
+/**
+ * @param {TQRCodeFields} qrCode
  * @return {string[]}
  */
 function getQRCodeMissedFields (qrCode) {
@@ -212,6 +238,8 @@ async function findAuxiliaryData (qrCodeFields, errors) {
 
 module.exports = {
     parseRUReceiptQRCode,
+    getQRCodeField,
+    getQRCodeFields,
     getQRCodeMissedFields,
     isReceiptPaid,
     compareQRCodeWithLastReceipt,
