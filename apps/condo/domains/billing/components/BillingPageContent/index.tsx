@@ -50,9 +50,7 @@ export const BillingPageContent: React.FC = () => {
             </Head>
             <StyledPageWrapper>
                 <PageHeader title={<Typography.Title>{PageTitle}</Typography.Title>} extra={<Tag bgColor={tagBg} textColor={colors.white}>{tagMessage}</Tag>}/>
-                <TablePageContent>
-                    <MainContent />
-                </TablePageContent>
+                <MainContent />
             </StyledPageWrapper>
         </>
     )
