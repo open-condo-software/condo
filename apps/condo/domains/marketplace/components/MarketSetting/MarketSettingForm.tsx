@@ -74,6 +74,7 @@ export const MarketSettingForm: React.FC<IMarketSettingForm> = ({ marketSetting,
                 const residentAllowedPaymentTypes = [INVOICE_PAYMENT_TYPE_ONLINE]
                 if (!values[IS_CASH_PAYMENT_TYPE_BLOCKED]) residentAllowedPaymentTypes.push(INVOICE_PAYMENT_TYPE_CASH)
                 values.residentAllowedPaymentTypes = uniq(residentAllowedPaymentTypes)
+                values.isPaymentCashTypeBlocked = undefined
                 return values
             }}
         >
