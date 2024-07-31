@@ -13,7 +13,6 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Space, Typography } from '@open-condo/ui'
 import type { TypographyTextProps } from '@open-condo/ui'
 
-import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { HOLDING_TYPE, MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/common'
 import { useCreateOrganizationModalForm } from '@condo/domains/organization/hooks/useCreateOrganizationModalForm'
@@ -47,7 +46,6 @@ export const InlineOrganizationSelect: React.FC = () => {
     const AddOrganizationTitle = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationButtonLabel' })
 
     const router = useRouter()
-    const { query: { next } } = router
 
     const { breakpoints } = useLayoutContext()
     const textSize: TypographyTextProps['size'] = !breakpoints.TABLET_LARGE ? 'small' : 'medium'
@@ -79,12 +77,9 @@ export const InlineOrganizationSelect: React.FC = () => {
     const { setIsVisible: showCreateOrganizationModal, ModalForm: CreateOrganizationModalForm } = useCreateOrganizationModalForm({
         onFinish: async (createdOrganization) => {
             const organizationType = get(createdOrganization, 'type')
-            const isValidNextUrl = next && !Array.isArray(next) && isSafeUrl(next)
-
-            // After registration and created first organization we want redirect user to nextUrl
-            if (isValidNextUrl && !hasInvites && !link && !filteredEmployees.length) {
-                await router.push(next)
-            } else if (organizationType === MANAGING_COMPANY_TYPE) {
+            
+            // The slash will only be there if we have just registered and we don't have any additional parameters in the address bar.
+            if (organizationType === MANAGING_COMPANY_TYPE && router.route === '/') {
                 await router.push('/tour')
             }
         },

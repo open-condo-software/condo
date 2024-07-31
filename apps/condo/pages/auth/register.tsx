@@ -15,6 +15,7 @@ import { RegisterForm } from '@condo/domains/user/components/auth/RegisterForm'
 import { ValidatePhoneForm } from '@condo/domains/user/components/auth/ValidatePhoneForm'
 import AuthLayout, { AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
 import { WelcomeHeaderTitle } from '@condo/domains/user/components/UserWelcomeTitle'
+import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 
 
 const HeaderAction = () => {
@@ -32,13 +33,15 @@ const RegisterPage: AuthPage = () => {
     const RestartPhoneConfirmLabel = intl.formatMessage({ id: 'pages.auth.register.RestartPhoneConfirmLabel' })
     const router = useRouter()
     const { query: { next }  } = router
+    const isValidNextUrl = next && !Array.isArray(next) && isSafeUrl(next)
+
 
     const { token, isConfirmed, tokenError, setToken, setTokenError } = useContext(RegisterContext)
     const [step, setStep] = useState('inputPhone')
 
     const handleFinish = useCallback(async () => {
-        if (next) {
-            await router.push(`/?next=${next}`)
+        if (isValidNextUrl) {
+            await router.push(next)
         } else {
             await router.push('/')
         }
