@@ -68403,7 +68403,7 @@ input MessageAppBlackListHistoryRecordsCreateInput {
   data: MessageAppBlackListHistoryRecordCreateInput
 }
 
-""" Rule for blocking specific type of messages for apps """
+""" [Deprecated] Rule for blocking specific type of messages for apps """
 type MessageAppBlackList {
   """
   This virtual field will be resolved in one of the following ways (in this order):

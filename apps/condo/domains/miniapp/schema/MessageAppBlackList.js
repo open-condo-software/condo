@@ -10,7 +10,7 @@ const { getMessageTypeField } = require('@condo/domains/notification/schema/fiel
 
 
 const MessageAppBlackList = new GQLListSchema('MessageAppBlackList', {
-    schemaDoc: 'Rule for blocking specific type of messages for apps',
+    schemaDoc: '[Deprecated] Rule for blocking specific type of messages for apps',
     fields: {
         app: {
             schemaDoc: 'the app we want to block from sending messages to (null - all apps)',
