@@ -6,12 +6,13 @@ import {
     B2CAppMessageSetting,
     B2CAppMessageSettingCreateInput,
     B2CAppMessageSettingUpdateInput,
-    QueryAllB2CAppMessageSettingArgs,
+    QueryAllB2CAppMessageSettingsArgs,
 } from '@app/condo/schema'
+
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
 import { B2CAppMessageSetting as B2CAppMessageSettingGQL } from '@condo/domains/miniapp/gql'
 
-// TODO(codegen): write utils like convertToFormState and formValuesProcessor if needed, otherwise delete this TODO
 
 const {
     useObject,
@@ -19,7 +20,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
-} = generateReactHooks<B2CAppMessageSetting, B2CAppMessageSettingCreateInput, B2CAppMessageSettingUpdateInput, QueryAllB2CAppMessageSettingsArgs>(B2CAppMessageSettingsGQL)
+} = generateReactHooks<B2CAppMessageSetting, B2CAppMessageSettingCreateInput, B2CAppMessageSettingUpdateInput, QueryAllB2CAppMessageSettingsArgs>(B2CAppMessageSettingGQL)
 
 export {
     useObject,
