@@ -30879,7 +30879,7 @@ export type Message = {
   sender?: Maybe<SenderField>;
 };
 
-/**  [Deprecated] Rule for blocking specific type of messages for apps  */
+/**  [Deprecated] Rule for blocking specific type of messages for apps. Use B2CAppMessageSetting  */
 export type MessageAppBlackList = {
   __typename?: 'MessageAppBlackList';
   /**

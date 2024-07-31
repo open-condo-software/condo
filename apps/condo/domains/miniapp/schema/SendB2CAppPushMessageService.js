@@ -154,11 +154,11 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
                     B2CAppName = appExisted.name
                 }
 
-                const searchKey = `${type}_${app.id}_${user.id}`
+                const searchKey = `${type}-${app.id}-${user.id}`
                 const ttl = CACHE_TTL[type] || CACHE_TTL['DEFAULT']
 
                 await redisGuard.checkCustomLimitCounters(
-                    `${SERVICE_NAME}_${searchKey}`,
+                    `${SERVICE_NAME}-${searchKey}`,
                     get(appSettings, 'notificationWindowSize') || ttl,
                     get(appSettings, 'numberOfNotificationInWindow') || DEFAULT_COUNTER_LIMIT,
                 )
