@@ -5,7 +5,7 @@
 const Big = require('big.js')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { GQLCustomSchema } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, allItemsQueryByChunks } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/SumBillingReceiptsService')
 const { WRONG_VALUE } = require('@condo/domains/common/constants/errors')
@@ -49,19 +49,22 @@ const SumBillingReceiptsService = new GQLCustomSchema('SumBillingReceiptsService
                     throw new GQLError(ERRORS.PERIOD_BADLY_SPECIFIED)
                 }
 
-                const billingReceiptsLoader = new GqlWithKnexLoadList({
-                    listKey: 'BillingReceipt',
-                    fields: 'id toPay',
+                let sum = new Big(0)
+
+                await allItemsQueryByChunks({
+                    schemaName: 'BillingReceipt',
                     where,
-                    sortBy: 'createdAt_DESC',
+                    chunkProcessor: (receipts) => {
+                        for (const receipt of receipts) {
+                            sum.plus(new Big(receipt.toPay))
+                        }
+
+                        return []
+                    },
                 })
-                const objs = await billingReceiptsLoader.load()
-                const toPaySum = objs.reduce((accumulator, receipt) => {
-                    return accumulator.plus(new Big(receipt.toPay))
-                }, new Big(0))
 
                 return {
-                    sum: toPaySum.toFixed(8),
+                    sum: sum.toFixed(8),
                 }
             },
         },
