@@ -77582,6 +77582,13 @@ type RegisterBillingReceiptFileOutput {
   status: RegisterBillingReceiptFileResultStatus!
 }
 
+input BillingReceiptsSumInput {
+  period: String!
+  organizationId: ID
+  tin: String
+  importRemoteSystem: String
+}
+
 type BillingReceiptsSumOutput {
   sum: String!
 }
@@ -82585,7 +82592,7 @@ type Query {
   checkUserExistence(data: CheckUserExistenceInput!): CheckUserExistenceOutput
   exportPropertiesToExcel(data: ExportPropertiesToExcelInput!): ExportPropertiesToExcelOutput
   allResidentBillingReceipts(where: ResidentBillingReceiptWhereInput, first: Int, skip: Int, sortBy: [SortResidentBillingReceiptsBy!]): [ResidentBillingReceiptOutput]
-  _allBillingReceiptsSum(where: BillingReceiptWhereInput!): BillingReceiptsSumOutput
+  _allBillingReceiptsSum(where: BillingReceiptsSumInput!): BillingReceiptsSumOutput
   allResidentBillingVirtualReceipts(where: ResidentBillingVirtualReceiptWhereInput, first: Int, skip: Int, sortBy: [SortResidentBillingVirtualReceiptsBy!]): [ResidentBillingReceiptOutput]
 
   """

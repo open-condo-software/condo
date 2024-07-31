@@ -5,41 +5,44 @@
 const Big = require('big.js')
 
 const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
-const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { GQLError } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/SumBillingReceiptsService')
 const { WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 
+
 const ERRORS = {
-    PERIOD_BADLY_SPECIFIED: {
-        mutation: 'registerBillingReceipts',
-        variable: ['where', 'period'],
-        code: BAD_USER_INPUT,
+    TIN_OR_ORGANIZATION_ID_MUST_BE_SPECIFIED: {
+        mutation: '_allBillingReceiptsSum',
+        variable: ['where'],
+        code: 'BAD_USER_INPUT',
         type: WRONG_VALUE,
-        message: 'You must specify period field for receipts in where query. where.period should be a simple string, example: _allBillingReceiptsSum(period: "2022-12-01")',
+        message: 'You must specify one of two values: tin or organizationId',
     },
 }
 
 const SumBillingReceiptsService = new GQLCustomSchema('SumBillingReceiptsService', {
-
     types: [
         {
             access: true,
-            type: 'input BillingReceiptsSumInput { period: String!, tin: String!, importRemoteSystem: String }',
+            type: 'input BillingReceiptsSumInput { period: String!, organizationId: ID, tin: String, importRemoteSystem: String }',
         },
         {
             access: true,
             type: 'type BillingReceiptsSumOutput { sum: String! }',
         },
     ],
-
     queries: [
         {
             access: access.canSumBillingReceipts,
             schema: '_allBillingReceiptsSum (where: BillingReceiptsSumInput!): BillingReceiptsSumOutput',
             resolver: async (parent, args) => {
-                const { where: { period, tin, importRemoteSystem } } = args
+                const { where: { period, tin, organizationId, importRemoteSystem } } = args
+
+                if (!tin && !organizationId) {
+                    throw new GQLError(ERRORS.TIN_OR_ORGANIZATION_ID_MUST_BE_SPECIFIED)
+                }
 
                 const { keystone } = getSchemaCtx('BillingReceipt')
                 const { knex } = getDatabaseAdapter(keystone)
@@ -49,8 +52,13 @@ const SumBillingReceiptsService = new GQLCustomSchema('SumBillingReceiptsService
                     .innerJoin('BillingIntegrationOrganizationContext', 'BillingReceipt.context', 'BillingIntegrationOrganizationContext.id')
                     .innerJoin('Organization', 'BillingIntegrationOrganizationContext.organization', 'Organization.id')
                     .where('BillingReceipt.period', period)
-                    .andWhere('Organization.tin', tin)
 
+                if (organizationId) {
+                    query.andWhere('Organization.id', organizationId)
+                }
+                if (tin) {
+                    query.andWhere('Organization.tin', tin)
+                }
                 if (importRemoteSystem) {
                     query
                         .andWhereNot('Organization.importId', null)
@@ -60,7 +68,7 @@ const SumBillingReceiptsService = new GQLCustomSchema('SumBillingReceiptsService
                 const result = await query
 
                 return {
-                    sum: Big(result[0].totalToPay).toFixed(8),
+                    sum: Big(result[0].totalToPay || 0).toFixed(8),
                 }
             },
         },

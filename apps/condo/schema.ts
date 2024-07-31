@@ -19373,6 +19373,13 @@ export type BillingReceiptsRecipientFieldInput = {
   classificationCode?: Maybe<Scalars['String']>;
 };
 
+export type BillingReceiptsSumInput = {
+  period: Scalars['String'];
+  organizationId?: Maybe<Scalars['ID']>;
+  tin?: Maybe<Scalars['String']>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
+};
+
 export type BillingReceiptsSumOutput = {
   __typename?: 'BillingReceiptsSumOutput';
   sum: Scalars['String'];
@@ -73286,7 +73293,7 @@ export type QueryAllResidentBillingReceiptsArgs = {
 
 
 export type Query_AllBillingReceiptsSumArgs = {
-  where: BillingReceiptWhereInput;
+  where: BillingReceiptsSumInput;
 };
 
 
