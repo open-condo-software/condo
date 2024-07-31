@@ -110,6 +110,13 @@ describe('receiptQRCodeUtils', () => {
         expect(missedFields).toEqual(['BIC', 'PayerAddress', 'PaymPeriod', 'Sum', 'PersAcc', 'PayeeINN', 'PersonalAcc'])
     })
 
+    test('check for required fields except one', () => {
+        const parsed = parseRUReceiptQRCode('ST00012|field1=Hello|Field2=world|foo=bar baz|paymPeriod=01.2024')
+        const missedFields = getQRCodeMissedFields(parsed)
+
+        expect(missedFields).toEqual(['BIC', 'PayerAddress', 'Sum', 'PersAcc', 'PayeeINN', 'PersonalAcc'])
+    })
+
     test('format period from QR-code', () => {
         expect(formatPeriodFromQRCode('05.2024')).toBe('2024-05-01')
     })

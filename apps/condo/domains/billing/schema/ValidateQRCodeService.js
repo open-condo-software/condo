@@ -21,7 +21,7 @@ const {
     parseRUReceiptQRCode,
     getQRCodeMissedFields,
     compareQRCodeWithLastReceipt,
-    isReceiptPaid, formatPeriodFromQRCode, findAuxiliaryData,
+    isReceiptPaid, formatPeriodFromQRCode, findAuxiliaryData, getQRCodeFields, getQRCodeField,
 } = require('@condo/domains/billing/utils/receiptQRCodeUtils')
 const { WRONG_FORMAT, NOT_FOUND, ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
@@ -153,8 +153,8 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
                     throw new GQLError(ERRORS.INVALID_QR_CODE_FIELDS(missedFields), context)
                 }
 
-                const qrCodeAmount = String(Big(qrCodeFields.Sum).div(100))
-                const { PersAcc, PersonalAcc, PaymPeriod } = qrCodeFields
+                const qrCodeAmount = String(Big(getQRCodeField(qrCodeFields, 'Sum')).div(100))
+                const { PersAcc, PersonalAcc, PaymPeriod } = getQRCodeFields(qrCodeFields, ['PersAcc', 'PersonalAcc', 'PaymPeriod'])
                 const period = formatPeriodFromQRCode(PaymPeriod)
 
                 const auxiliaryData = await findAuxiliaryData(qrCodeFields, { address: ERRORS.ADDRESS_IS_INVALID })

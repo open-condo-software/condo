@@ -76,7 +76,7 @@ function getQRCodeFields (qrCode, fieldsNames) {
  * @return {string[]}
  */
 function getQRCodeMissedFields (qrCode) {
-    return REQUIRED_QR_CODE_FIELDS.filter((requiredField) => !get(qrCode, requiredField, null))
+    return REQUIRED_QR_CODE_FIELDS.filter((requiredField) => !getQRCodeField(qrCode, requiredField))
 }
 
 /**
@@ -143,11 +143,11 @@ async function isReceiptPaid (context, accountNumber, period, organizationIds, r
  * @return {Promise<void>}
  */
 async function compareQRCodeWithLastReceipt (qrCodeFields, resolvers) {
-    const period = formatPeriodFromQRCode(qrCodeFields.PaymPeriod)
+    const period = formatPeriodFromQRCode(getQRCodeField(qrCodeFields, 'PaymPeriod'))
 
     const [lastBillingReceipt] = await find('BillingReceipt', {
-        account: { number: qrCodeFields.PersAcc, deletedAt: null },
-        receiver: { bankAccount: qrCodeFields.PersonalAcc, deletedAt: null },
+        account: { number: getQRCodeField(qrCodeFields, 'PersAcc'), deletedAt: null },
+        receiver: { bankAccount: getQRCodeField(qrCodeFields, 'PersonalAcc'), deletedAt: null },
         deletedAt: null,
     }, {
         sortBy: ['period_DESC'],
@@ -198,12 +198,12 @@ function formatPeriodFromQRCode (period) {
  */
 async function findAuxiliaryData (qrCodeFields, errors) {
     const addressServiceClient = createInstance()
-    const normalizedAddress = await addressServiceClient.search(qrCodeFields.PayerAddress, { extractUnit: true })
+    const normalizedAddress = await addressServiceClient.search(getQRCodeField(qrCodeFields, 'PayerAddress'), { extractUnit: true })
 
     if (!normalizedAddress.addressKey || !normalizedAddress.unitType || !normalizedAddress.unitName) throw errors.address
 
     const properties = await find('Property', {
-        organization: { tin: qrCodeFields.PayeeINN, deletedAt: null },
+        organization: { tin: getQRCodeField(qrCodeFields, 'PayeeINN'), deletedAt: null },
         addressKey: normalizedAddress.addressKey,
         deletedAt: null,
     })

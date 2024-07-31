@@ -56,6 +56,10 @@ function generateQRCode (qrCodeData = {}, { version = '0001', encodingTag = '2' 
         ...qrCodeData,
     }
 
+    // Should work case-insensitively
+    qrCodeObj.paymPeriod = qrCodeObj.PaymPeriod
+    delete qrCodeObj['PaymPeriod']
+
     return [`ST${version}${encodingTag}|${Object.keys(qrCodeObj).map((k) => `${k}=${qrCodeObj[k]}`).join('|')}`, qrCodeObj]
 }
 

@@ -6,17 +6,15 @@ const Big = require('big.js')
 const { get } = require('lodash')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { find, GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/CreatePaymentByLinkService')
-const { CONTEXT_FINISHED_STATUS: ACQUIRING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const {
     registerMultiPaymentForOneReceipt,
     registerMultiPaymentForVirtualReceipt,
     MultiPayment,
 } = require('@condo/domains/acquiring/utils/serverSchema')
-const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
-const { isReceiptPaid, compareQRCodeWithLastReceipt, formatPeriodFromQRCode, findAuxiliaryData } = require('@condo/domains/billing/utils/receiptQRCodeUtils')
+const { isReceiptPaid, compareQRCodeWithLastReceipt, formatPeriodFromQRCode, findAuxiliaryData, getQRCodeFields } = require('@condo/domains/billing/utils/receiptQRCodeUtils')
 const {
     validateQRCode,
 } = require('@condo/domains/billing/utils/serverSchema')
@@ -69,7 +67,7 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                     PaymPeriod, // mm.yyyy
                     Sum,
                     PersAcc, // resident's account within organization
-                } = qrCodeFields
+                } = getQRCodeFields(qrCodeFields, ['PersonalAcc', 'PaymPeriod', 'Sum', 'PersAcc'])
                 const period = formatPeriodFromQRCode(PaymPeriod)
                 const amount = String(Big(Sum).div(100))
 

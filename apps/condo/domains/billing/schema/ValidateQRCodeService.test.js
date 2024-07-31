@@ -165,26 +165,28 @@ describe('ValidateQRCodeService', () => {
             'BIC',
             'PayerAddress',
             'Sum',
-            'PaymPeriod',
+            'paymPeriod',
             'PersAcc',
             'PayeeINN',
             'PersonalAcc',
         ]
 
         test.each(cases)('should throw if QR code doesn\'t have "%s"', async (field) => {
-            const qrCode = stringifyQrCode(omit(qrCodeObj, field))
+            const modifiedQrCodeObj = { ...qrCodeObj, PaymPeriod: undefined, paymPeriod: qrCodeObj.PaymPeriod }
+            delete modifiedQrCodeObj['PaymPeriod']
+            const qrCode = stringifyQrCode(omit(modifiedQrCodeObj, field))
             await catchErrorFrom(async () => {
                 await validateQRCodeByTestClient(adminClient, { qrCode })
             }, ({ errors }) => {
 
                 expect(errors).toMatchObject([{
-                    message: `Provided QR code doesn't have required fields: ${field}`,
+                    message: `Provided QR code doesn't have required fields: ${field === 'paymPeriod' ? 'PaymPeriod' : field}`,
                     path: ['result'],
                     extensions: {
                         mutation: 'validateQRCode',
                         code: 'BAD_USER_INPUT',
                         type: 'WRONG_FORMAT',
-                        message: `Provided QR code doesn't have required fields: ${field}`,
+                        message: `Provided QR code doesn't have required fields: ${field === 'paymPeriod' ? 'PaymPeriod' : field}`,
                     },
                 }])
             })
