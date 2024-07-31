@@ -15,8 +15,6 @@ import { useBillingAndAcquiringContexts } from './ContextProvider'
 import { EmptyContent } from './EmptyContent'
 import { PaymentsTab } from './PaymentsTab'
 
-const IFRAME_STYLES = { height: '100%' }
-
 type MainContentProps = {
     uploadComponent?: React.ReactElement
 }
@@ -61,7 +59,7 @@ export const MainContent: React.FC<MainContentProps> = ({
             result.push({
                 label: extensionPageTitle,
                 key: EXTENSION_TAB_KEY,
-                children: <IFrame src={appUrl} reloadScope='organization' withPrefetch withLoader withResize scrolling='yes' style={IFRAME_STYLES}/>,
+                children: <IFrame src={appUrl} reloadScope='organization' withPrefetch withLoader withResize scrolling='yes' />,
             })
         }
 
