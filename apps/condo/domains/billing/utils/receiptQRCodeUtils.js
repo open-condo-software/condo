@@ -39,9 +39,10 @@ function parseRUReceiptQRCode (qrStr) {
     const encodingTag = get(matches, ['groups', 'encodingTag'])
     const encoding = get({ 1: 'cp1251', 2: 'utf-8', 3: 'koi8-r' }, encodingTag, 'utf-8')
 
-    const encodedRequisitesStr = iconv.encode(requisitesStr, encoding).toString()
+    // Skip decoding for utf string
+    const decodedRequisitesStr = encodingTag === '2' ? requisitesStr : iconv.decode(requisitesStr, encoding)
 
-    return Object.fromEntries(encodedRequisitesStr.split('|').map((part) => part.split('=', 2)))
+    return Object.fromEntries(decodedRequisitesStr.split('|').map((part) => part.split('=', 2)))
 }
 
 /**

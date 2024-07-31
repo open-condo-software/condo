@@ -4,7 +4,6 @@
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
 const Big = require('big.js')
-const iconv = require('iconv-lite')
 
 const { getById } = require('@open-condo/keystone/schema')
 const { catchErrorFrom, setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
@@ -43,21 +42,24 @@ describe('receiptQRCodeUtils', () => {
         adminClient = await makeLoggedInAdminClient()
     })
 
-    describe('RU QR-codes encoded correctly', () => {
+    describe('RU QR-codes decoded correctly', () => {
         const cases = [
-            [1, 'windows-1251'],
-            [2, 'utf-8'],
-            [3, 'koi8-r'],
+            [1, 'ÀÒÌÎÑÔÅÐÀ', 'АТМОСФЕРА'], // Got from real QR-code
+            // Got from conversion (https://convertcyrillic.com/)
+            // curl 'https://convertcyrillic.com/api/conversionservice' --data-raw '={"sourceEncoding":"Russian.Unicode","targetEncoding":"Russian.KOI8","text":"Привет"}'
+            [1, 'Ïðèâåò', 'Привет'],
+            [2, 'Привет', 'Привет'],
+            // curl 'https://convertcyrillic.com/api/conversionservice' --data-raw '={"sourceEncoding":"Russian.Unicode","targetEncoding":"Russian.CP1251","text":"Привет"}'
+            [3, 'ðÒÉ×ÅÔ', 'Привет'],
         ]
 
-        test.each(cases)('%p %p', (tag, encoding) => {
-            const buf = iconv.decode(iconv.encode('field1=Hello|Field2=world|foo=привет', 'utf8'), encoding)
-            const qrStr = `ST0001${tag}|${buf.toString()}`
+        test.each(cases)('%p %p -> %p', (tag, dataFromQRCode, expectedData) => {
+            const qrStr = `ST0001${tag}|field1=Hello|Field2=world|foo=${dataFromQRCode}`
             const parsed = parseRUReceiptQRCode(qrStr)
             expect(parsed).toEqual({
                 field1: 'Hello',
                 Field2: 'world',
-                foo: 'привет',
+                foo: expectedData,
             })
         })
     })
