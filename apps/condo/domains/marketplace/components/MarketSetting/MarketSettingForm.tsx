@@ -58,7 +58,7 @@ export const MarketSettingForm: React.FC<IMarketSettingForm> = ({ marketSetting,
 
     const initialValues = useMemo(() => {
         const result = {}
-        const residentAllowedPaymentTypes = get(marketSetting, 'residentAllowedPaymentTypes')
+        const residentAllowedPaymentTypes = get(marketSetting, 'residentAllowedPaymentTypes', []) || []
         result[IS_CASH_PAYMENT_TYPE_BLOCKED] = !residentAllowedPaymentTypes.includes(INVOICE_PAYMENT_TYPE_CASH)
         return result
     }, [marketSetting])
