@@ -13,7 +13,7 @@ const { i18n } = require('@open-condo/locales/loader')
 
 const { CONTACT_FIELD, CLIENT_EMAIL_FIELD, CLIENT_NAME_FIELD, CLIENT_PHONE_LANDLINE_FIELD, CLIENT_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/meter/access/MeterReading')
-const { METER_READING_VALUES_COUNT } = require('@condo/domains/meter/constants/constants')
+const { METER_READING_MAX_VALUES_COUNT } = require('@condo/domains/meter/constants/constants')
 const { METER_READING_DATE_IN_FUTURE, METER_READING_FEW_VALUES, METER_READING_EXTRA_VALUES } = require('@condo/domains/meter/constants/errors')
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { connectContactToMeterReading } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
@@ -161,7 +161,7 @@ const MeterReading = new GQLListSchema('MeterReading', {
             }
 
             const extraFieldsNames = []
-            for (let i = meter.numberOfTariffs + 1; i <= METER_READING_VALUES_COUNT; i++) {
+            for (let i = meter.numberOfTariffs + 1; i <= METER_READING_MAX_VALUES_COUNT; i++) {
                 const value = get(newItem, `value${i}`)
                 if (!isNil(value) && !isEmpty(value)) {
                     extraFieldsNames.push(`value${i}`)

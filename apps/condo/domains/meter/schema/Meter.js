@@ -11,7 +11,7 @@ const { GQLListSchema, find, getByCondition, getById } = require('@open-condo/ke
 
 const { UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/meter/access/Meter')
-const { METER_READING_VALUES_COUNT } = require('@condo/domains/meter/constants/constants')
+const { METER_READING_MAX_VALUES_COUNT } = require('@condo/domains/meter/constants/constants')
 const {
     B2B_APP_NOT_CONNECTED,
     B2C_APP_NOT_AVAILABLE,
@@ -73,7 +73,7 @@ const Meter = new GQLListSchema('Meter', {
     schemaDoc: 'Resource meter at a certain place in the unitName',
     fields: {
         organization: ORGANIZATION_OWNED_FIELD,
-        numberOfTariffs: resolveNumberOfTariffs(METER_READING_VALUES_COUNT),
+        numberOfTariffs: resolveNumberOfTariffs(METER_READING_MAX_VALUES_COUNT),
         installationDate,
         commissioningDate,
         verificationDate,
