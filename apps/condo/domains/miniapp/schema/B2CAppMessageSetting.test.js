@@ -28,11 +28,18 @@ describe('B2CAppMessageSetting', () => {
         describe('admin', () => {
             test('can create', async () => {
                 const [app] = await createTestB2CApp(admin)
-                const [obj, attrs] = await createTestB2CAppMessageSetting(admin, app)
+                const notificationWindowSize = 30000
+                const numberOfNotificationInWindow = 5
+                const [obj, attrs] = await createTestB2CAppMessageSetting(admin, app, {
+                    notificationWindowSize,
+                    numberOfNotificationInWindow,
+                })
 
                 expectValuesOfCommonFields(obj, attrs, admin)
                 expect(obj.type).toEqual(B2C_APP_MESSAGE_PUSH_TYPE)
                 expect(obj.isBlacklisted).toBeFalsy()
+                expect(obj.notificationWindowSize).toEqual(notificationWindowSize)
+                expect(obj.numberOfNotificationInWindow).toEqual(numberOfNotificationInWindow)
             })
 
             test('can update', async () => {

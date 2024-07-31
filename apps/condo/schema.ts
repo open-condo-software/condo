@@ -7141,10 +7141,10 @@ export type B2CAppMessageSetting = {
   isBlacklisted?: Maybe<Scalars['Boolean']>;
   /**  The type of message we want to configure  */
   type?: Maybe<MessageType>;
-  /**  Time window for sending push notifications  */
+  /**  Time window for sending push notifications in sec  */
   notificationWindowSize?: Maybe<Scalars['Int']>;
-  /**  The number of notifications that can be sent in one time window  */
-  notificationWindowCount?: Maybe<Scalars['Int']>;
+  /**  The number of notifications that can be sent in one time window in sec  */
+  numberOfNotificationInWindow?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -7167,7 +7167,7 @@ export type B2CAppMessageSettingCreateInput = {
   isBlacklisted?: Maybe<Scalars['Boolean']>;
   type?: Maybe<MessageType>;
   notificationWindowSize?: Maybe<Scalars['Int']>;
-  notificationWindowCount?: Maybe<Scalars['Int']>;
+  numberOfNotificationInWindow?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -7195,7 +7195,7 @@ export type B2CAppMessageSettingHistoryRecord = {
   isBlacklisted?: Maybe<Scalars['Boolean']>;
   type?: Maybe<Scalars['String']>;
   notificationWindowSize?: Maybe<Scalars['Int']>;
-  notificationWindowCount?: Maybe<Scalars['Int']>;
+  numberOfNotificationInWindow?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -7217,7 +7217,7 @@ export type B2CAppMessageSettingHistoryRecordCreateInput = {
   isBlacklisted?: Maybe<Scalars['Boolean']>;
   type?: Maybe<Scalars['String']>;
   notificationWindowSize?: Maybe<Scalars['Int']>;
-  notificationWindowCount?: Maybe<Scalars['Int']>;
+  numberOfNotificationInWindow?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -7244,7 +7244,7 @@ export type B2CAppMessageSettingHistoryRecordUpdateInput = {
   isBlacklisted?: Maybe<Scalars['Boolean']>;
   type?: Maybe<Scalars['String']>;
   notificationWindowSize?: Maybe<Scalars['Int']>;
-  notificationWindowCount?: Maybe<Scalars['Int']>;
+  numberOfNotificationInWindow?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -7312,14 +7312,14 @@ export type B2CAppMessageSettingHistoryRecordWhereInput = {
   notificationWindowSize_gte?: Maybe<Scalars['Int']>;
   notificationWindowSize_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   notificationWindowSize_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  notificationWindowCount?: Maybe<Scalars['Int']>;
-  notificationWindowCount_not?: Maybe<Scalars['Int']>;
-  notificationWindowCount_lt?: Maybe<Scalars['Int']>;
-  notificationWindowCount_lte?: Maybe<Scalars['Int']>;
-  notificationWindowCount_gt?: Maybe<Scalars['Int']>;
-  notificationWindowCount_gte?: Maybe<Scalars['Int']>;
-  notificationWindowCount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  notificationWindowCount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  numberOfNotificationInWindow?: Maybe<Scalars['Int']>;
+  numberOfNotificationInWindow_not?: Maybe<Scalars['Int']>;
+  numberOfNotificationInWindow_lt?: Maybe<Scalars['Int']>;
+  numberOfNotificationInWindow_lte?: Maybe<Scalars['Int']>;
+  numberOfNotificationInWindow_gt?: Maybe<Scalars['Int']>;
+  numberOfNotificationInWindow_gte?: Maybe<Scalars['Int']>;
+  numberOfNotificationInWindow_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  numberOfNotificationInWindow_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -7417,7 +7417,7 @@ export type B2CAppMessageSettingUpdateInput = {
   isBlacklisted?: Maybe<Scalars['Boolean']>;
   type?: Maybe<MessageType>;
   notificationWindowSize?: Maybe<Scalars['Int']>;
-  notificationWindowCount?: Maybe<Scalars['Int']>;
+  numberOfNotificationInWindow?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -7466,14 +7466,14 @@ export type B2CAppMessageSettingWhereInput = {
   notificationWindowSize_gte?: Maybe<Scalars['Int']>;
   notificationWindowSize_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   notificationWindowSize_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  notificationWindowCount?: Maybe<Scalars['Int']>;
-  notificationWindowCount_not?: Maybe<Scalars['Int']>;
-  notificationWindowCount_lt?: Maybe<Scalars['Int']>;
-  notificationWindowCount_lte?: Maybe<Scalars['Int']>;
-  notificationWindowCount_gt?: Maybe<Scalars['Int']>;
-  notificationWindowCount_gte?: Maybe<Scalars['Int']>;
-  notificationWindowCount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  notificationWindowCount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  numberOfNotificationInWindow?: Maybe<Scalars['Int']>;
+  numberOfNotificationInWindow_not?: Maybe<Scalars['Int']>;
+  numberOfNotificationInWindow_lt?: Maybe<Scalars['Int']>;
+  numberOfNotificationInWindow_lte?: Maybe<Scalars['Int']>;
+  numberOfNotificationInWindow_gt?: Maybe<Scalars['Int']>;
+  numberOfNotificationInWindow_gte?: Maybe<Scalars['Int']>;
+  numberOfNotificationInWindow_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  numberOfNotificationInWindow_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -77992,8 +77992,8 @@ export enum SortB2CAppMessageSettingHistoryRecordsBy {
   TypeDesc = 'type_DESC',
   NotificationWindowSizeAsc = 'notificationWindowSize_ASC',
   NotificationWindowSizeDesc = 'notificationWindowSize_DESC',
-  NotificationWindowCountAsc = 'notificationWindowCount_ASC',
-  NotificationWindowCountDesc = 'notificationWindowCount_DESC',
+  NumberOfNotificationInWindowAsc = 'numberOfNotificationInWindow_ASC',
+  NumberOfNotificationInWindowDesc = 'numberOfNotificationInWindow_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -78023,8 +78023,8 @@ export enum SortB2CAppMessageSettingsBy {
   TypeDesc = 'type_DESC',
   NotificationWindowSizeAsc = 'notificationWindowSize_ASC',
   NotificationWindowSizeDesc = 'notificationWindowSize_DESC',
-  NotificationWindowCountAsc = 'notificationWindowCount_ASC',
-  NotificationWindowCountDesc = 'notificationWindowCount_DESC',
+  NumberOfNotificationInWindowAsc = 'numberOfNotificationInWindow_ASC',
+  NumberOfNotificationInWindowDesc = 'numberOfNotificationInWindow_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

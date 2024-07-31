@@ -70646,7 +70646,7 @@ type B2CAppMessageSettingHistoryRecord {
   isBlacklisted: Boolean
   type: String
   notificationWindowSize: Int
-  notificationWindowCount: Int
+  numberOfNotificationInWindow: Int
   id: ID!
   v: Int
   createdAt: String
@@ -70715,14 +70715,14 @@ input B2CAppMessageSettingHistoryRecordWhereInput {
   notificationWindowSize_gte: Int
   notificationWindowSize_in: [Int]
   notificationWindowSize_not_in: [Int]
-  notificationWindowCount: Int
-  notificationWindowCount_not: Int
-  notificationWindowCount_lt: Int
-  notificationWindowCount_lte: Int
-  notificationWindowCount_gt: Int
-  notificationWindowCount_gte: Int
-  notificationWindowCount_in: [Int]
-  notificationWindowCount_not_in: [Int]
+  numberOfNotificationInWindow: Int
+  numberOfNotificationInWindow_not: Int
+  numberOfNotificationInWindow_lt: Int
+  numberOfNotificationInWindow_lte: Int
+  numberOfNotificationInWindow_gt: Int
+  numberOfNotificationInWindow_gte: Int
+  numberOfNotificationInWindow_in: [Int]
+  numberOfNotificationInWindow_not_in: [Int]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -70814,8 +70814,8 @@ enum SortB2CAppMessageSettingHistoryRecordsBy {
   type_DESC
   notificationWindowSize_ASC
   notificationWindowSize_DESC
-  notificationWindowCount_ASC
-  notificationWindowCount_DESC
+  numberOfNotificationInWindow_ASC
+  numberOfNotificationInWindow_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -70840,7 +70840,7 @@ input B2CAppMessageSettingHistoryRecordUpdateInput {
   isBlacklisted: Boolean
   type: String
   notificationWindowSize: Int
-  notificationWindowCount: Int
+  numberOfNotificationInWindow: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -70866,7 +70866,7 @@ input B2CAppMessageSettingHistoryRecordCreateInput {
   isBlacklisted: Boolean
   type: String
   notificationWindowSize: Int
-  notificationWindowCount: Int
+  numberOfNotificationInWindow: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -70909,11 +70909,12 @@ type B2CAppMessageSetting {
   """ The type of message we want to configure """
   type: MessageType
 
-  """ Time window for sending push notifications """
+  """ Time window for sending push notifications in sec """
   notificationWindowSize: Int
 
-  """ The number of notifications that can be sent in one time window """
-  notificationWindowCount: Int
+  """ The number of notifications that can be sent in one time window in sec 
+  """
+  numberOfNotificationInWindow: Int
   id: ID!
   v: Int
   createdAt: String
@@ -70974,14 +70975,14 @@ input B2CAppMessageSettingWhereInput {
   notificationWindowSize_gte: Int
   notificationWindowSize_in: [Int]
   notificationWindowSize_not_in: [Int]
-  notificationWindowCount: Int
-  notificationWindowCount_not: Int
-  notificationWindowCount_lt: Int
-  notificationWindowCount_lte: Int
-  notificationWindowCount_gt: Int
-  notificationWindowCount_gte: Int
-  notificationWindowCount_in: [Int]
-  notificationWindowCount_not_in: [Int]
+  numberOfNotificationInWindow: Int
+  numberOfNotificationInWindow_not: Int
+  numberOfNotificationInWindow_lt: Int
+  numberOfNotificationInWindow_lte: Int
+  numberOfNotificationInWindow_gt: Int
+  numberOfNotificationInWindow_gte: Int
+  numberOfNotificationInWindow_in: [Int]
+  numberOfNotificationInWindow_not_in: [Int]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -71055,8 +71056,8 @@ enum SortB2CAppMessageSettingsBy {
   type_DESC
   notificationWindowSize_ASC
   notificationWindowSize_DESC
-  notificationWindowCount_ASC
-  notificationWindowCount_DESC
+  numberOfNotificationInWindow_ASC
+  numberOfNotificationInWindow_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -71081,7 +71082,7 @@ input B2CAppMessageSettingUpdateInput {
   isBlacklisted: Boolean
   type: MessageType
   notificationWindowSize: Int
-  notificationWindowCount: Int
+  numberOfNotificationInWindow: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -71104,7 +71105,7 @@ input B2CAppMessageSettingCreateInput {
   isBlacklisted: Boolean
   type: MessageType
   notificationWindowSize: Int
-  notificationWindowCount: Int
+  numberOfNotificationInWindow: Int
   v: Int
   createdAt: String
   updatedAt: String

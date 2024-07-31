@@ -21,6 +21,8 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 const { User } = require('@condo/domains/user/utils/serverSchema')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
+const get = require("lodash/get");
+const isEmpty = require("lodash/isEmpty");
 
 const CACHE_TTL = {
     DEFAULT: 3600,
@@ -135,6 +137,7 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
                 if (!residentExisted) throw new GQLError(ERRORS.RESIDENT_NOT_FOUND, context)
 
                 let B2CAppName = 'Debug app'
+                let appSettings = {}
 
                 // App requested to send notification to is not a DEBUG one
                 if (app.id !== DEBUG_APP_ID) {
@@ -142,11 +145,11 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
 
                     if (!appExisted) throw new GQLError(ERRORS.APP_NOT_FOUND, context)
 
-                    B2CAppName = appExisted.name
-                    const where = { app: { id: app.id }, type, isBlacklisted: true, deletedAt: null }
-                    const appInBlackList = await B2CAppMessageSetting.getOne(context, where)
+                    const where = { app: { id: app.id }, type, deletedAt: null }
+                    appSettings = await B2CAppMessageSetting.getOne(context, where)
 
-                    if (appInBlackList) throw new GQLError(ERRORS.APP_IN_BLACK_LIST, context)
+                    if (get(appSettings, 'isBlacklisted') === true) throw new GQLError(ERRORS.APP_IN_BLACK_LIST, context)
+                    B2CAppName = appExisted.name
                 }
 
                 const searchKey = `${type}_${app.id}_${user.id}`
@@ -154,11 +157,9 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
 
                 await redisGuard.checkCustomLimitCounters(
                     `${SERVICE_NAME}_${searchKey}`,
-                    RESIDENT_DISCOVER_CONSUMERS_WINDOW_SEC,
-                    MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW_SEC,
+                    get(appSettings, 'notificationWindowSize') || ttl,
+                    get(appSettings, 'numberOfNotificationInWindow') || 1,
                 )
-                await redisGuard.checkLock(searchKey, SERVICE_NAME, context)
-                await redisGuard.lock(searchKey, SERVICE_NAME, ttl)
 
                 const messageAttrs = {
                     uniqKey,

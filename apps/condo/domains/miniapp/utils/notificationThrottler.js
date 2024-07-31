@@ -6,7 +6,7 @@ const SERVICE_NAME = 'sendB2CAppPushMessage'
 class NotificationThrottler {
     async constructor(context, type, B2CApp, user, B2CAppMessageSetting) {
         this.windowSize = B2CAppMessageSetting.notificationWindowSize // Временное окно в миллисекундах
-        this.maxNotifications = B2CAppMessageSetting.notificationWindowCount // Максимальное количество нотификаций за окно
+        this.maxNotifications = B2CAppMessageSetting.numberOfNotificationInWindow // Максимальное количество нотификаций за окно
         this.searchKey = `${type}_${B2CApp.id}_${user.id}`
         this.notificationTimes = await this.redisGuard.checkLock(`${this.searchKey}_notificationTimes`, SERVICE_NAME, context) || [] // Массив для хранения времени отправки нотификаций
         this.redisGuard = new RedisGuard()

@@ -40,12 +40,12 @@ const B2CAppMessageSetting = new GQLListSchema('B2CAppMessageSetting', {
         }),
 
         notificationWindowSize: {
-            schemaDoc: 'Time window for sending push notifications',
+            schemaDoc: 'Time window for sending push notifications in sec',
             type: 'Integer',
         },
 
-        notificationWindowCount: {
-            schemaDoc: 'The number of notifications that can be sent in one time window',
+        numberOfNotificationInWindow: {
+            schemaDoc: 'The number of notifications that can be sent in one time window in sec',
             type: 'Integer',
         },
 
