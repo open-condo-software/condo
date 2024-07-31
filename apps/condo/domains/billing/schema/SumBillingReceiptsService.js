@@ -4,12 +4,12 @@
 
 const Big = require('big.js')
 
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { GQLCustomSchema, allItemsQueryByChunks } = require('@open-condo/keystone/schema')
+const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
+const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { GQLCustomSchema, getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/SumBillingReceiptsService')
 const { WRONG_VALUE } = require('@condo/domains/common/constants/errors')
-const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
 
 const ERRORS = {
     PERIOD_BADLY_SPECIFIED: {
@@ -26,50 +26,46 @@ const SumBillingReceiptsService = new GQLCustomSchema('SumBillingReceiptsService
     types: [
         {
             access: true,
+            type: 'input BillingReceiptsSumInput { period: String!, tin: String!, importRemoteSystem: String }',
+        },
+        {
+            access: true,
             type: 'type BillingReceiptsSumOutput { sum: String! }',
         },
     ],
-    
+
     queries: [
         {
             access: access.canSumBillingReceipts,
-            schema: '_allBillingReceiptsSum (where: BillingReceiptWhereInput!): BillingReceiptsSumOutput',
-            resolver: async (parent, args, context, info, extra = {}) => {
-                const { where } = args
+            schema: '_allBillingReceiptsSum (where: BillingReceiptsSumInput!): BillingReceiptsSumOutput',
+            resolver: async (parent, args) => {
+                const { where: { period, tin, importRemoteSystem } } = args
 
-                // We do not want to give user an easy way to query whole database. You must specify period in where query.
-                //
-                // It was done like this, and not as a separate argument for several reasons:
-                // 1. in order to keep validation of period in one place - in GraphQL
-                // 2. in order to keep all<model> styled api arguments somewhat consistent (e.x _allPaymentsSum / allBillingReceipts )
-                //
-                // If you try to add more periods to the where clause, like: where: (period=a1 period=a2) you will get an error
-                // If you try to be hacky and do this: where: (period=a1 period_gt=a1) you are going to have intersection of these clauses which means you will get only period=a1 ones!
-                if (!where.period || typeof where.period !== 'string') {
-                    throw new GQLError(ERRORS.PERIOD_BADLY_SPECIFIED)
+                const { keystone } = getSchemaCtx('BillingReceipt')
+                const { knex } = getDatabaseAdapter(keystone)
+
+                const query = knex('BillingReceipt')
+                    .sum('BillingReceipt.toPay as totalToPay')
+                    .innerJoin('BillingIntegrationOrganizationContext', 'BillingReceipt.context', 'BillingIntegrationOrganizationContext.id')
+                    .innerJoin('Organization', 'BillingIntegrationOrganizationContext.organization', 'Organization.id')
+                    .where('BillingReceipt.period', period)
+                    .andWhere('Organization.tin', tin)
+
+                if (importRemoteSystem) {
+                    query
+                        .andWhereNot('Organization.importId', null)
+                        .andWhere('Organization.importRemoteSystem', importRemoteSystem)
                 }
 
-                let sum = new Big(0)
-
-                await allItemsQueryByChunks({
-                    schemaName: 'BillingReceipt',
-                    where,
-                    chunkProcessor: (receipts) => {
-                        for (const receipt of receipts) {
-                            sum.plus(new Big(receipt.toPay))
-                        }
-
-                        return []
-                    },
-                })
+                const result = await query
 
                 return {
-                    sum: sum.toFixed(8),
+                    sum: Big(result[0].totalToPay).toFixed(8),
                 }
             },
         },
     ],
-    
+
 })
 
 module.exports = {
