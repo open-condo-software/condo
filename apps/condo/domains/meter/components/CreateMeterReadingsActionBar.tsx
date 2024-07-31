@@ -1,4 +1,5 @@
 import { Form } from 'antd'
+import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import React from 'react'
 
@@ -56,7 +57,7 @@ export const CreateMeterReadingsActionBar = ({
                     }
 
                     const hasWrongNumberOfValues = Object.keys(newMeterReadings).reduce((result, meterId) => {
-                        return result || Object.keys(newMeterReadings[meterId]).length !== metersByIds[meterId].numberOfTariffs
+                        return result || Object.keys(get(newMeterReadings, meterId, {})).length !== get(metersByIds, [meterId, 'numberOfTariffs'])
                     }, false)
 
                     if (meterType === METER_TAB_TYPES.meter) {
