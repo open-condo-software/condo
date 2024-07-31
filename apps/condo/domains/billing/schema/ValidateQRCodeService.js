@@ -21,7 +21,12 @@ const {
     parseRUReceiptQRCode,
     getQRCodeMissedFields,
     compareQRCodeWithLastReceipt,
-    isReceiptPaid, formatPeriodFromQRCode, findAuxiliaryData, getQRCodeFields, getQRCodeField,
+    isReceiptPaid,
+    formatPeriodFromQRCode,
+    findAuxiliaryData,
+    getQRCodeFields,
+    getQRCodeField,
+    getQRCodePaymPeriod,
 } = require('@condo/domains/billing/utils/receiptQRCodeUtils')
 const { WRONG_FORMAT, NOT_FOUND, ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
@@ -154,8 +159,7 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
                 }
 
                 const qrCodeAmount = String(Big(getQRCodeField(qrCodeFields, 'Sum')).div(100))
-                const { PersAcc, PersonalAcc, PaymPeriod } = getQRCodeFields(qrCodeFields, ['PersAcc', 'PersonalAcc', 'PaymPeriod'])
-                const period = formatPeriodFromQRCode(PaymPeriod)
+                const { PersAcc, PersonalAcc } = getQRCodeFields(qrCodeFields, ['PersAcc', 'PersonalAcc'])
 
                 const auxiliaryData = await findAuxiliaryData(qrCodeFields, { address: ERRORS.ADDRESS_IS_INVALID })
 
@@ -171,6 +175,14 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
 
                 if (!billingContext) throw new GQLError(ERRORS.NO_BILLING_CONTEXT, context)
                 if (!acquiringContext) throw new GQLError(ERRORS.NO_ACQUIRING_CONTEXT, context)
+
+                const PaymPeriod = getQRCodePaymPeriod(qrCodeFields, billingContext)
+
+                if (!qrCodeFields['PaymPeriod']) {
+                    qrCodeFields['PaymPeriod'] = PaymPeriod
+                }
+
+                const period = formatPeriodFromQRCode(PaymPeriod)
 
                 const acquiringContextRecipient = get(acquiringContext, 'recipient')
 

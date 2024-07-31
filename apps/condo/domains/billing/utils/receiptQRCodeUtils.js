@@ -1,3 +1,4 @@
+const dayjs = require('dayjs')
 const iconv = require('iconv-lite')
 const { get, isNil, map, set } = require('lodash')
 
@@ -8,7 +9,14 @@ const { CONTEXT_FINISHED_STATUS: ACQUIRING_CONTEXT_FINISHED_STATUS } = require('
 const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 
-const REQUIRED_QR_CODE_FIELDS = ['BIC', 'PayerAddress', 'PaymPeriod', 'Sum', 'PersAcc', 'PayeeINN', 'PersonalAcc']
+const REQUIRED_QR_CODE_FIELDS = ['BIC', 'PayerAddress', 'Sum', 'PersAcc', 'PayeeINN', 'PersonalAcc']
+
+/**
+ * Default day of month for detection of period. Before this date we use previous month, after - the next one
+ * This value is used as fallback for billingContext.settings.receiptUploadDate
+ * @type {number}
+ */
+const DEFAULT_PERIODS_EDGE_DATE = 20
 
 /**
  * @typedef {Object} TQRCodeFields
@@ -77,6 +85,27 @@ function getQRCodeFields (qrCode, fieldsNames) {
  */
 function getQRCodeMissedFields (qrCode) {
     return REQUIRED_QR_CODE_FIELDS.filter((requiredField) => !getQRCodeField(qrCode, requiredField))
+}
+
+/**
+ * @param {TQRCodeFields} qrCode
+ * @param billingContext
+ * @return {string}
+ */
+function getQRCodePaymPeriod (qrCode, billingContext) {
+    let ret = getQRCodeField(qrCode, 'PaymPeriod')
+
+    if (!ret) {
+        const periodsEdgeDay = Number(get(billingContext, ['settings', 'receiptUploadDate'])) || DEFAULT_PERIODS_EDGE_DATE
+        const currentDay = dayjs().date()
+        if (currentDay < periodsEdgeDay) {
+            ret = dayjs().subtract(1, 'month').format('MM.YYYY')
+        } else {
+            ret = dayjs().format('MM.YYYY')
+        }
+    }
+
+    return ret
 }
 
 /**
@@ -237,10 +266,12 @@ async function findAuxiliaryData (qrCodeFields, errors) {
 }
 
 module.exports = {
+    DEFAULT_PERIODS_EDGE_DATE,
     parseRUReceiptQRCode,
     getQRCodeField,
     getQRCodeFields,
     getQRCodeMissedFields,
+    getQRCodePaymPeriod,
     isReceiptPaid,
     compareQRCodeWithLastReceipt,
     formatPeriodFromQRCode,

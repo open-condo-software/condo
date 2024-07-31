@@ -57,8 +57,8 @@ function generateQRCode (qrCodeData = {}, { version = '0001', encodingTag = '2' 
     }
 
     // Should work case-insensitively
-    qrCodeObj.paymPeriod = qrCodeObj.PaymPeriod
-    delete qrCodeObj['PaymPeriod']
+    qrCodeObj.persAcc = qrCodeObj.PersAcc
+    delete qrCodeObj['PersAcc']
 
     return [`ST${version}${encodingTag}|${Object.keys(qrCodeObj).map((k) => `${k}=${qrCodeObj[k]}`).join('|')}`, qrCodeObj]
 }
@@ -106,7 +106,7 @@ async function createBillingReceiptAndAllDependencies (admin, organization, qrCo
         routingNumber: qrCodeAttrs.BIC,
     })
     const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext)
-    const [billingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, { number: qrCodeAttrs.PersAcc })
+    const [billingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, { number: qrCodeAttrs.persAcc })
     const [billingRecipient] = await createTestBillingRecipient(admin, billingIntegrationContext, {
         bankAccount: qrCodeAttrs.PersonalAcc,
         bic: qrCodeAttrs.BIC,
@@ -151,7 +151,7 @@ describe('CreatePaymentByLinkService', () => {
             LastName: faker.random.alpha(10),
             PaymPeriod: '07.2023',
             BIC: '044525999',
-            PersAcc: faker.random.numeric(8),
+            persAcc: faker.random.numeric(8),
             PayerAddress: 'г Москва, ул Тверская, д 14, кв 2',
         }
 
@@ -180,7 +180,7 @@ describe('CreatePaymentByLinkService', () => {
             routingNumber: qrCodeAttrs.BIC,
         })
         const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext)
-        const [billingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, { number: qrCodeAttrs.PersAcc })
+        const [billingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, { number: qrCodeAttrs.persAcc })
         const [billingRecipient] = await createTestBillingRecipient(admin, billingIntegrationContext, {
             bankAccount: qrCodeAttrs.PersonalAcc,
             bic: qrCodeAttrs.BIC,
@@ -198,7 +198,7 @@ describe('CreatePaymentByLinkService', () => {
 
         expect(data.multiPaymentId).toBeDefined()
         expect(data.unitName).toBeDefined()
-        expect(data.accountNumber).toEqual(qrCodeAttrs.PersAcc)
+        expect(data.accountNumber).toEqual(qrCodeAttrs.persAcc)
         expect(data.address).toBeDefined()
         expect(data.acquiringIntegrationHostUrl).toBe(acquiringIntegration.hostUrl)
         expect(data.currencyCode).toBe(billingIntegrationContext.integration.currencyCode)
@@ -240,7 +240,7 @@ describe('CreatePaymentByLinkService', () => {
             routingNumber: qrCodeAttrs.BIC,
         })
         const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext)
-        const [billingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, { number: qrCodeAttrs.PersAcc })
+        const [billingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, { number: qrCodeAttrs.persAcc })
         const [billingRecipient] = await createTestBillingRecipient(admin, billingIntegrationContext, {
             bankAccount: qrCodeAttrs.PersonalAcc,
             bic: qrCodeAttrs.BIC,
@@ -257,7 +257,7 @@ describe('CreatePaymentByLinkService', () => {
 
         expect(data.multiPaymentId).toBeDefined()
         expect(data.address).toBeDefined()
-        expect(data.accountNumber).toEqual(qrCodeAttrs.PersAcc)
+        expect(data.accountNumber).toEqual(qrCodeAttrs.persAcc)
         expect(data.unitName).toBeDefined()
         expect(data.acquiringIntegrationHostUrl).toBe(acquiringIntegrationContext.integration.hostUrl)
         expect(data.currencyCode).toBe(billingIntegrationContext.integration.currencyCode)
@@ -270,7 +270,7 @@ describe('CreatePaymentByLinkService', () => {
         })
 
         expect(payments).toHaveLength(1)
-        expect(payments[0].accountNumber).toBe(qrCodeAttrs.PersAcc)
+        expect(payments[0].accountNumber).toBe(qrCodeAttrs.persAcc)
         expect(payments[0].recipientBic).toBe(bankAccount.routingNumber)
         expect(payments[0].receipt).toBeDefined()
     })
@@ -297,7 +297,7 @@ describe('CreatePaymentByLinkService', () => {
         const { acquiringIntegration } = await addAcquiringIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS, recipient })
 
         const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext)
-        const [billingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, { number: qrCodeAttrs.PersAcc })
+        const [billingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, { number: qrCodeAttrs.persAcc })
         const [billingRecipient] = await createTestBillingRecipient(admin, billingIntegrationContext, {
             bankAccount: qrCodeAttrs.PersonalAcc,
             bic: qrCodeAttrs.BIC,
@@ -312,7 +312,7 @@ describe('CreatePaymentByLinkService', () => {
         expect(data.address).toBeDefined()
         expect(data.multiPaymentId).toBeDefined()
         expect(data.unitName).toBeDefined()
-        expect(data.accountNumber).toEqual(qrCodeAttrs.PersAcc)
+        expect(data.accountNumber).toEqual(qrCodeAttrs.persAcc)
         expect(data.acquiringIntegrationHostUrl).toBe(acquiringIntegration.hostUrl)
         expect(data.currencyCode).toBe(billingIntegrationContext.integration.currencyCode)
 
@@ -323,7 +323,7 @@ describe('CreatePaymentByLinkService', () => {
             multiPayment: { id: multiPayment.id },
         })
 
-        expect(payments[0].accountNumber).toBe(qrCodeAttrs.PersAcc)
+        expect(payments[0].accountNumber).toBe(qrCodeAttrs.persAcc)
         expect(payments[0].recipientBic).toBe(qrCodeAttrs.BIC)
         expect(payments[0].currencyCode).toBe(billingIntegrationContext.integration.currencyCode)
         expect(payments[0].receipt).toBeNull()
@@ -346,7 +346,7 @@ describe('CreatePaymentByLinkService', () => {
         const { acquiringIntegration } = await addAcquiringIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS, recipient })
 
         const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext)
-        await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, { number: qrCodeAttrs.PersAcc })
+        await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, { number: qrCodeAttrs.persAcc })
         await createTestBillingRecipient(admin, billingIntegrationContext, { bankAccount: qrCodeAttrs.PersonalAcc })
         await createTestBillingRecipient(admin, billingIntegrationContext)
         const [bankAccount] = await createTestBankAccount(admin, organization, {
@@ -357,7 +357,7 @@ describe('CreatePaymentByLinkService', () => {
         const [data] = await createPaymentByLinkByTestClient(user, { qrCode }) // NOSONAR code duplications is normal for tests
 
         expect(data.address).toBeDefined()
-        expect(data.accountNumber).toEqual(qrCodeAttrs.PersAcc)
+        expect(data.accountNumber).toEqual(qrCodeAttrs.persAcc)
         expect(data.multiPaymentId).toBeDefined()
         expect(data.unitName).toBeDefined()
         expect(data.acquiringIntegrationHostUrl).toBe(acquiringIntegration.hostUrl)
@@ -370,7 +370,56 @@ describe('CreatePaymentByLinkService', () => {
             multiPayment: { id: multiPayment.id },
         })
 
-        expect(payments[0].accountNumber).toBe(qrCodeAttrs.PersAcc)
+        expect(payments[0].accountNumber).toBe(qrCodeAttrs.persAcc)
+        expect(payments[0].recipientBic).toBe(bankAccount.routingNumber)
+        expect(payments[0].receipt).toBeNull()
+    })
+
+    test('user: create virtual multiPayment if no receipts found and no PaymPeriod passed', async () => {
+        const {
+            organization,
+            qrCode: qr,
+            qrCodeAttrs,
+        } = await createOrganizationAndPropertyAndQrCode(admin, 14, 4, '07.2023')
+
+        delete qrCodeAttrs['PaymPeriod']
+        const qrCode = qr.replace(/\|PaymPeriod=[^|]*/, '')
+
+        const { billingIntegrationContext } = await addBillingIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS, settings: { dv: 1, receiptUploadDate: 20 } })
+        const recipient = createTestRecipient({
+            name: organization.name,
+            tin: organization.tin,
+            bic: qrCodeAttrs.BIC,
+            bankAccount: qrCodeAttrs.PersonalAcc,
+        })
+        const { acquiringIntegration } = await addAcquiringIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS, recipient })
+
+        const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext)
+        await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, { number: qrCodeAttrs.persAcc })
+        await createTestBillingRecipient(admin, billingIntegrationContext, { bankAccount: qrCodeAttrs.PersonalAcc })
+        await createTestBillingRecipient(admin, billingIntegrationContext)
+        const [bankAccount] = await createTestBankAccount(admin, organization, {
+            number: qrCodeAttrs.PersonalAcc,
+            routingNumber: qrCodeAttrs.BIC,
+        })
+
+        const [data] = await createPaymentByLinkByTestClient(user, { qrCode })
+
+        expect(data.address).toBeDefined()
+        expect(data.accountNumber).toEqual(qrCodeAttrs.persAcc)
+        expect(data.multiPaymentId).toBeDefined()
+        expect(data.unitName).toBeDefined()
+        expect(data.acquiringIntegrationHostUrl).toBe(acquiringIntegration.hostUrl)
+        expect(data.currencyCode).toBe(billingIntegrationContext.integration.currencyCode)
+
+        const multiPayment = await MultiPayment.getOne(admin, { id: data.multiPaymentId })
+        expect(multiPayment).toBeDefined()
+
+        const payments = await Payment.getAll(admin, {
+            multiPayment: { id: multiPayment.id },
+        })
+
+        expect(payments[0].accountNumber).toBe(qrCodeAttrs.persAcc)
         expect(payments[0].recipientBic).toBe(bankAccount.routingNumber)
         expect(payments[0].receipt).toBeNull()
     })
@@ -602,7 +651,7 @@ describe('CreatePaymentByLinkService', () => {
                 routingNumber: qrCodeAttrs.BIC,
             })
             const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext)
-            const [billingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, { number: qrCodeAttrs.PersAcc })
+            const [billingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, { number: qrCodeAttrs.persAcc })
             await createTestBillingRecipient(admin, billingIntegrationContext, {
                 bankAccount: qrCodeAttrs.PersonalAcc,
                 bic: qrCodeAttrs.BIC,
