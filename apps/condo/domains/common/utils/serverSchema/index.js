@@ -4,7 +4,6 @@ const { isFunction } = require('lodash')
 const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { WARN_ON_TOO_MANY_OBJS_RETURNED_MSG, WARN_ON_TOO_MANY_OBJS_RETURNED_BY_CHUNKS_N } = require('@open-condo/keystone/schema')
 
 const GLOBAL_QUERY_LIMIT = 1000
 const logger = getLogger('common/utils/serverSchema.js')
