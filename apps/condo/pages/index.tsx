@@ -38,8 +38,6 @@ const IndexPage = () => {
         },
     }, { skip: !organizationId })
 
-
-
     useEffect(() => {
         const role = get(organization, 'link.role')
         if (role) {
