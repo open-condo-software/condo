@@ -35,14 +35,14 @@ describe('SumBillingReceiptsService', () => {
     describe('business logic', () => {
         test('sum multiple receipts', async () => {
             const period = payers.multipleReceipts.billingReceipts[0].period
-            const where = { organizationId: payers.multipleReceipts.organization.id, period: period }
-            const { sum } = await sumBillingReceiptsByTestClient(supportClient, where)
+            const data = { organizationId: payers.multipleReceipts.organization.id, period: period }
+            const { sum } = await sumBillingReceiptsByTestClient(supportClient, data)
 
             expect(String(sum)).toEqual(payers.multipleReceipts.toPaySum)
         })
         test('sum zero receipts', async () => {
-            const where = { organizationId: payers.zeroReceipts.organization.id, period: '2024-01-01' }
-            const { sum } = await sumBillingReceiptsByTestClient(supportClient, where)
+            const data = { organizationId: payers.zeroReceipts.organization.id, period: '2024-01-01' }
+            const { sum } = await sumBillingReceiptsByTestClient(supportClient, data)
 
             expect(String(sum)).toEqual(payers.zeroReceipts.toPaySum)
         })
@@ -61,27 +61,27 @@ describe('SumBillingReceiptsService', () => {
             const [userRightsSet] = await createTestUserRightsSet(adminClient, { canExecute_allBillingReceiptsSum: true })
             await updateTestUser(adminClient, userClient.user.id, { rightsSet: { connect: { id: userRightsSet.id } } })
 
-            const where1 = { organizationId: organization.id, period: PERIOD_01 }
-            const { sum: sum1 } = await sumBillingReceiptsByTestClient(userClient, where1)
+            const data1 = { organizationId: organization.id, period: PERIOD_01 }
+            const { sum: sum1 } = await sumBillingReceiptsByTestClient(userClient, data1)
             expect(String(sum1)).toEqual('40.00000000')
 
-            const where2 = { organizationId: organization.id, period: PERIOD_02 }
-            const { sum: sum2 } = await sumBillingReceiptsByTestClient(userClient, where2)
+            const data2 = { organizationId: organization.id, period: PERIOD_02 }
+            const { sum: sum2 } = await sumBillingReceiptsByTestClient(userClient, data2)
             expect(String(sum2)).toEqual('10.00000000')
         })
         test('should throw error if period not specified', async () => {
-            const where = { organizationId: payers.multipleReceipts.organization.id }
+            const data = { organizationId: payers.multipleReceipts.organization.id }
 
             await expectToThrowGraphQLRequestError(async () => {
-                await sumBillingReceiptsByTestClient(adminClient, where)
+                await sumBillingReceiptsByTestClient(adminClient, data)
             }, 'Field "period" of required type "String!" was not provided.')
         })
         test('should throw error if tin and organizationId not specified', async () => {
-            const where = { period: '2024-01-01' }
+            const data = { period: '2024-01-01' }
 
             await expectToThrowGQLError(
                 async () => {
-                    await sumBillingReceiptsByTestClient(adminClient, where)
+                    await sumBillingReceiptsByTestClient(adminClient, data)
                 },
                 {
                     code: ERRORS.TIN_OR_ORGANIZATION_ID_MUST_BE_SPECIFIED.code,
@@ -91,36 +91,51 @@ describe('SumBillingReceiptsService', () => {
                 'result'
             )
         })
+        test('should throw error if period value is invalid', async () => {
+            const data = { period: '2024-01', organizationId: payers.multipleReceipts.organization.id }
+
+            await expectToThrowGQLError(
+                async () => {
+                    await sumBillingReceiptsByTestClient(adminClient, data)
+                },
+                {
+                    code: ERRORS.BAD_PERIOD_FORMAT.code,
+                    type: ERRORS.BAD_PERIOD_FORMAT.type,
+                    message: ERRORS.BAD_PERIOD_FORMAT.message,
+                },
+                'result'
+            )
+        })
     })
     describe('access checks', () => {
         test('admin can sum payments', async () => {
             const period = payers.singleReceipt.billingReceipts[0].period
-            const where = { organizationId: payers.singleReceipt.organization.id, period: period }
-            const { sum } = await sumBillingReceiptsByTestClient(adminClient, where)
+            const data = { organizationId: payers.singleReceipt.organization.id, period: period }
+            const { sum } = await sumBillingReceiptsByTestClient(adminClient, data)
 
             expect(String(sum)).toEqual(payers.singleReceipt.toPaySum)
         })
         test('support can sum payments', async () => {
             const period = payers.singleReceipt.billingReceipts[0].period
-            const where = { organizationId: payers.singleReceipt.organization.id, period: period }
-            const { sum } = await sumBillingReceiptsByTestClient(supportClient, where)
+            const data = { organizationId: payers.singleReceipt.organization.id, period: period }
+            const { sum } = await sumBillingReceiptsByTestClient(supportClient, data)
 
             expect(String(sum)).toEqual(payers.singleReceipt.toPaySum)
         })
         test('user can\'t sum payments', async () => {
             const period = payers.singleReceipt.billingReceipts[0].period
-            const where = { organizationId: payers.singleReceipt.organization.id, period: period }
+            const data = { organizationId: payers.singleReceipt.organization.id, period: period }
 
             await expectToThrowAccessDeniedErrorToResult(async () => {
-                await sumBillingReceiptsByTestClient(userClient, where)
+                await sumBillingReceiptsByTestClient(userClient, data)
             })
         })
         test('anonymous can\'t sum payments', async () => {
             const period = payers.singleReceipt.billingReceipts[0].period
-            const where = { organizationId: payers.singleReceipt.organization.id, period: period }
+            const data = { organizationId: payers.singleReceipt.organization.id, period: period }
 
             await expectToThrowAuthenticationErrorToResult(async () => {
-                await sumBillingReceiptsByTestClient(anonymousClient, where)
+                await sumBillingReceiptsByTestClient(anonymousClient, data)
             })
         })
     })

@@ -6,19 +6,27 @@ const Big = require('big.js')
 
 const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
 const { GQLError } = require('@open-condo/keystone/errors')
-const { GQLCustomSchema, getSchemaCtx, find, allItemsQueryByChunks } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, getSchemaCtx, allItemsQueryByChunks } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/SumBillingReceiptsService')
+const { PERIOD_REGEX } = require('@condo/domains/billing/constants/constants')
 const { WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 
 
 const ERRORS = {
     TIN_OR_ORGANIZATION_ID_MUST_BE_SPECIFIED: {
         mutation: '_allBillingReceiptsSum',
-        variable: ['where'],
+        variable: ['data'],
         code: 'BAD_USER_INPUT',
         type: WRONG_VALUE,
         message: 'You must specify one of two values: tin or organizationId',
+    },
+    BAD_PERIOD_FORMAT: {
+        mutation: '_allBillingReceiptsSum',
+        variable: ['data', 'period'],
+        code: 'BAD_USER_INPUT',
+        type: WRONG_VALUE,
+        message: 'Bad period format, must be YYYY-MM-01. Example: 2022-02-01',
     },
 }
 
@@ -36,12 +44,20 @@ const SumBillingReceiptsService = new GQLCustomSchema('SumBillingReceiptsService
     queries: [
         {
             access: access.canSumBillingReceipts,
-            schema: '_allBillingReceiptsSum (where: BillingReceiptsSumInput!): BillingReceiptsSumOutput',
+            schema: '_allBillingReceiptsSum (data: BillingReceiptsSumInput!): BillingReceiptsSumOutput',
+            doc: {
+                summary: 'Sum of organizations billing receipts',
+                description: 'Calculate sum of organizations billing receipts by organizationId or tin and period',
+                errors: ERRORS,
+            },
             resolver: async (parent, args) => {
-                const { where: { period, tin, organizationId, importRemoteSystem } } = args
+                const { data: { period, tin, organizationId, importRemoteSystem } } = args
 
                 if (!tin && !organizationId) {
                     throw new GQLError(ERRORS.TIN_OR_ORGANIZATION_ID_MUST_BE_SPECIFIED)
+                }
+                if (!PERIOD_REGEX.test(period)) {
+                    throw new GQLError(ERRORS.BAD_PERIOD_FORMAT)
                 }
 
                 const { keystone } = getSchemaCtx('BillingReceipt')
