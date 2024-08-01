@@ -1,7 +1,6 @@
 const VALUE_LESS_THAN_PREVIOUS_ERROR = '[value:lessThanPrevious:'
 const EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION = '[unique:alreadyExists:number]'
 const EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT = '[unique:alreadyExists:accountNumber]'
-const AUTOMATIC_METER_NO_MASTER_APP = '[isAutomatic:b2bApp:null] Automatic meter must have b2b app master-system'
 const B2B_APP_NOT_CONNECTED = '[b2bApp:notConnected] Linked B2B app must be connected to organization'
 const B2C_APP_NOT_AVAILABLE = '[b2cApp:notAvailable] Linked B2C app have is not available on meter\'s property address'
 
@@ -26,12 +25,13 @@ const INVALID_METER_NUMBER = 'INVALID_METER_NUMBER'
 const INVALID_DATE = 'INVALID_DATE'
 
 const METER_READING_DATE_IN_FUTURE = 'METER_READING_DATE_IN_FUTURE'
+const METER_READING_FEW_VALUES = 'METER_READING_FEW_VALUES'
+const METER_READING_EXTRA_VALUES = 'METER_READING_EXTRA_VALUES'
 
 module.exports = {
     VALUE_LESS_THAN_PREVIOUS_ERROR,
     EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION,
     EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT,
-    AUTOMATIC_METER_NO_MASTER_APP,
     B2B_APP_NOT_CONNECTED,
     B2C_APP_NOT_AVAILABLE,
     METER_NUMBER_HAVE_INVALID_VALUE,
@@ -52,4 +52,6 @@ module.exports = {
     INVALID_METER_NUMBER,
     INVALID_DATE,
     METER_READING_DATE_IN_FUTURE,
+    METER_READING_FEW_VALUES,
+    METER_READING_EXTRA_VALUES,
 }

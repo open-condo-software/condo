@@ -8,18 +8,18 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema, getByCondition, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/meter/access/PropertyMeter')
-const { AUTOMATIC_METER_NO_MASTER_APP, B2B_APP_NOT_CONNECTED, B2C_APP_NOT_AVAILABLE } = require('@condo/domains/meter/constants/errors')
+const { PROPERTY_METER_READING_MAX_VALUES_COUNT } = require('@condo/domains/meter/constants/constants')
+const { B2B_APP_NOT_CONNECTED, B2C_APP_NOT_AVAILABLE } = require('@condo/domains/meter/constants/errors')
 const { deleteReadingsOfDeletedMeter } = require('@condo/domains/meter/tasks')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 
-const { resource, numberOfTariffs, installationDate, commissioningDate, verificationDate, nextVerificationDate, controlReadingsDate, sealingDate, isAutomatic, b2bApp, archiveDate } = require('./fields')
-
+const { resource, resolveNumberOfTariffs, installationDate, commissioningDate, verificationDate, nextVerificationDate, controlReadingsDate, sealingDate, isAutomatic, b2bApp, archiveDate } = require('./fields')
 
 const PropertyMeter = new GQLListSchema('PropertyMeter', {
     schemaDoc: 'Resource meter installed on the entire apartment building',
     fields: {
         organization: ORGANIZATION_OWNED_FIELD,
-        numberOfTariffs,
+        numberOfTariffs: resolveNumberOfTariffs(PROPERTY_METER_READING_MAX_VALUES_COUNT),
         installationDate,
         commissioningDate,
         verificationDate,
@@ -45,7 +45,7 @@ const PropertyMeter = new GQLListSchema('PropertyMeter', {
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
-        
+
         meta: {
             schemaDoc: 'Meter metadata. Can be used to store additional settings from external sources, such as billing integrations or mini apps',
             type: 'Json',
@@ -66,9 +66,7 @@ const PropertyMeter = new GQLListSchema('PropertyMeter', {
     hooks: {
         validateInput: async ({ resolvedData, addValidationError, existingItem }) => {
             const newItem = { ...existingItem, ...resolvedData }
-            if (newItem.isAutomatic && !newItem.b2bApp) {
-                return addValidationError(AUTOMATIC_METER_NO_MASTER_APP)
-            }
+
             if (resolvedData['b2bApp']) {
                 const activeContext = await getByCondition('B2BAppContext', {
                     organization: { id: newItem.organization, deletedAt: null },

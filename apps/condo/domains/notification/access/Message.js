@@ -4,11 +4,20 @@
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-async function canReadMessages ({ authentication: { item: user } }) {
+const { DIRECTLY_AVAILABLE_TYPES } = require('@condo/domains/notification/constants/constants')
+const { canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/directAccess')
+
+async function canReadMessages ({ authentication: { item: user }, listKey }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     
     if (user.isAdmin) return {}
+
+    const haveDirectRight = await canDirectlyReadSchemaObjects(user, listKey)
+
+    if (haveDirectRight) {
+        return { type_in: DIRECTLY_AVAILABLE_TYPES }
+    }
 
     return { user: { id: user.id } }
 }

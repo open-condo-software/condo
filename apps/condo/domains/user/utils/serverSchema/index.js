@@ -30,6 +30,7 @@ const { OidcClient: OidcClientGQL } = require('@condo/domains/user/gql')
 const { ExternalTokenAccessRight: ExternalTokenAccessRightGQL } = require('@condo/domains/user/gql')
 const { GET_ACCESS_TOKEN_BY_USER_ID_QUERY } = require('@condo/domains/user/gql')
 const { UserRightsSet: UserRightsSetGQL } = require('@condo/domains/user/gql')
+const { CHECK_USER_EXISTENCE_MUTATION } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateServerUtils(UserGQL)
@@ -104,6 +105,19 @@ async function getAccessTokenByUserId (context, data) {
 }
 
 const UserRightsSet = generateServerUtils(UserRightsSetGQL)
+async function checkUserExistence (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: CHECK_USER_EXISTENCE_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to checkUserExistence',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const whiteList = conf.SMS_WHITE_LIST ? JSON.parse(conf.SMS_WHITE_LIST) : {}
@@ -245,5 +259,6 @@ module.exports = {
     ExternalTokenAccessRight,
     getAccessTokenByUserId,
     UserRightsSet,
+    checkUserExistence,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

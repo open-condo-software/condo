@@ -860,6 +860,7 @@ __metadata:
     commander: ^11.0.0
     cross-env: ^7.0.3
     css-loader: 1.0.1
+    csv-parse: ^5.2.0
     csv-stringify: ^6.2.0
     cuid: ^2.1.8
     cypress: 12.17.3

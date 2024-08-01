@@ -358,7 +358,7 @@ const NewsItemCard: React.FC = () => {
                                                 messageType='secondary'
                                             />
                                         ),
-                                        isSent && (
+                                        (isSending || isSent) && (
                                             <Link key='resend' href={`/news/${get(newsItem, 'id')}/resend`}>
                                                 <Button type='primary'>{ResendTitle}</Button>
                                             </Link>

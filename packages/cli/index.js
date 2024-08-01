@@ -297,21 +297,44 @@ async function fillAppEnvWithDefaultValues (appName) {
     return await copyEnv(`${PROJECT_ROOT}/apps/${appName}/.env.example`, `${PROJECT_ROOT}/apps/${appName}/.env`, { override: false })
 }
 
+async function _isJSApp (appName) {
+    return exists(`${PROJECT_ROOT}/apps/${appName}/package.json`)
+}
+
+async function _isKeystoneApp (appName) {
+    return exists(`${PROJECT_ROOT}/apps/${appName}/index.js`)
+}
+
+async function _isNextJSApp (appName) {
+    return (await Promise.all([
+        exists(`${PROJECT_ROOT}/apps/${appName}/next.config.js`),
+        exists(`${PROJECT_ROOT}/apps/${appName}/next.config.mjs`),
+    ])).some(Boolean)
+}
+
 /**
- * @return {Promise<Array<{name: string, type: 'KS' | 'Next'}>>}
+ * Scan apps folder and return add
+ * @return {Promise<Array<{name: string, type: 'KS' | 'Next' | 'Unknown'}>>}
  */
 async function getAllActualApps () {
-    const appNames = await readdir(`${PROJECT_ROOT}/apps`)
-    const hasPackageJson = await Promise.all(appNames.map(name => exists(`${PROJECT_ROOT}/apps/${name}/package.json`)))
-    const hasIndexJs = await Promise.all(appNames.map(name => exists(`${PROJECT_ROOT}/apps/${name}/index.js`)))
-    const hasNextConfig = await Promise.all(appNames.map(name => exists(`${PROJECT_ROOT}/apps/${name}/next.config.js`)))
+    const appNames = (await readdir(`${PROJECT_ROOT}/apps`, { withFileTypes: true }))
+        .filter(app => !app.isFile())
+        .map(app => app.name)
 
-    return appNames.reduce((apps, name, idx) => {
-        if (hasPackageJson[idx] && (hasIndexJs[idx] || hasNextConfig[idx])) {
-            apps.push({ name, type: hasIndexJs[idx] ? 'KS' : 'Next' })
-        }
-        return apps
-    }, [])
+    // NOTE: Behavior in the full repository may differ from the Open Source part.
+    // In a full repo we can define the type of application, but in a partial repo we can't.
+    // However, its _DOMAIN variable should be specified
+    const knownJSApps = await Promise.all(appNames.map(_isJSApp))
+    const knownKSApps = await Promise.all(appNames.map(_isKeystoneApp))
+    const knownNextJSApps = await Promise.all(appNames.map(_isNextJSApp))
+
+    return appNames.map((appName, idx) => {
+        if (!knownJSApps[idx]) return { name: appName, type: 'Unknown' }
+        if (knownKSApps[idx]) return { name: appName, type: 'KS' }
+        if (knownNextJSApps[idx]) return { name: appName, type: 'Next' }
+
+        return { name: appName, type: 'Unknown' }
+    })
 }
 
 module.exports = {

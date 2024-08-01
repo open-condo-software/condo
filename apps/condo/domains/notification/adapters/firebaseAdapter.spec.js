@@ -22,6 +22,11 @@ const adapter = new FirebaseAdapter()
 const FAKE_SUCCESS_MESSAGE_PREFIX_REGEXP = new RegExp(`^${FAKE_SUCCESS_MESSAGE_PREFIX}`)
 const FIREBASE_TEST_PUSHTOKEN = conf[FIREBASE_CONFIG_TEST_PUSHTOKEN_ENV] || null
 
+jest.mock('@open-condo/config',  () => {
+    return {
+        APPS_WITH_DISABLED_NOTIFICATIONS: '["condo.app.clients"]',
+    }
+})
 describe('Firebase adapter utils', () => {
     it('should succeed sending push notification to fake success push token ', async () => {
         const tokens = [PUSH_FAKE_TOKEN_SUCCESS]
@@ -184,6 +189,40 @@ describe('Firebase adapter utils', () => {
         expect(result.successCount).toEqual(1)
         expect(result.responses).toBeDefined()
         expect(result.responses).toHaveLength(1)
+        expect(result.pushContext).toBeDefined()
+
+        const pushContext = result.pushContext[PUSH_TYPE_SILENT_DATA]
+
+        expect(pushContext).toBeDefined()
+        expect(pushContext.notification).toBeUndefined()
+        expect(pushContext.data).toBeDefined()
+        expect(pushContext.data._title).toEqual(pushData.notification.title)
+        expect(pushContext.data._body).toEqual(pushData.notification.body)
+    })
+
+    it('doesnt send push notification to app with disabled notifications', async () => {
+        const tokens = [PUSH_FAKE_TOKEN_SUCCESS]
+        const pushData = {
+            tokens,
+            notification: {
+                title: 'Condo',
+                body: `${dayjs().format()} Condo greets you!`,
+            },
+            data: {
+                app : 'condo.app.clients',
+                type: 'notification',
+            },
+            pushTypes: {
+                [PUSH_FAKE_TOKEN_SUCCESS]: PUSH_TYPE_SILENT_DATA,
+            },
+        }
+        const [isOk, result] = await adapter.sendNotification(pushData)
+
+        expect(isOk).toBeFalsy()
+        expect(result).toBeDefined()
+        expect(result.successCount).toEqual(0)
+        expect(result.responses).toBeDefined()
+        expect(result.responses).toHaveLength(0)
         expect(result.pushContext).toBeDefined()
 
         const pushContext = result.pushContext[PUSH_TYPE_SILENT_DATA]

@@ -13,16 +13,22 @@ const {
 } = require('@open-condo/keystone/test.utils')
 const { makeClient, UUID_RE, DATETIME_RE, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
+const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const {
     createTestOrganizationWithAccessToAnotherOrganization,
     makeClientWithRegisteredOrganization,
     makeEmployeeUserClientWithAbilities,
+    registerNewOrganization,
 } = require('@condo/domains/organization/utils/testSchema')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { Property, createTestProperty, updateTestProperty, makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { createTestTicket, updateTestTicket, ticketStatusByType } = require('@condo/domains/ticket/utils/testSchema')
-const { makeClientWithResidentUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+const {
+    makeClientWithResidentUser,
+    makeClientWithSupportUser,
+    makeClientWithNewRegisteredAndLoggedInUser,
+} = require('@condo/domains/user/utils/testSchema')
 
 
 
@@ -139,20 +145,40 @@ describe('Property', () => {
             })
         })
         describe('Resident', () => {
-            test('Can read properties, he resides in', async () => {
+            test('Can read properties from all organizations at the address where he resides', async () => {
                 const { property } = await makeClientWithProperty()
+                const anotherClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [serviceProvider] = await registerNewOrganization(anotherClient, {
+                    type: SERVICE_PROVIDER_TYPE,
+                })
+                const [providerProperty] = await createTestProperty(anotherClient, serviceProvider, {
+                    address: property.address,
+                    addressMeta: property.addressMeta,
+                })
+
+                expect(providerProperty).toHaveProperty('addressKey', property.addressKey)
+
                 const residentClient = await makeClientWithResidentUser()
                 await registerResidentByTestClient(residentClient, {
                     address: property.address,
-                    addressMeta: property.addressMeta,
                     unitName: '1',
                 })
 
                 const { property: anotherProperty } = await makeClientWithProperty()
 
-                const objs = await Property.getAll(residentClient, { id_in: [property.id, anotherProperty.id] })
-                expect(objs).toHaveLength(1)
-                expect(objs).toHaveProperty(['0', 'id'], property.id)
+                const objs = await Property.getAll(residentClient, {
+                    id_in: [
+                        property.id,
+                        providerProperty.id,
+                        anotherProperty.id,
+                    ],
+                })
+
+                expect(objs).toHaveLength(2)
+                expect(objs).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: property.id }),
+                    expect.objectContaining({ id: providerProperty.id }),
+                ]))
             })
         })
         describe('Support', () => {

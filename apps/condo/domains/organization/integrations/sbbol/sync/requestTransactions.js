@@ -238,10 +238,11 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
             // If SBBOL returned a transaction with an unsupported currency, do not process
             if (ISO_CODES.includes(currencyCode)) {
                 const formatedOperationDate = dayjs(transaction.operationDate).format('YYYY-MM-DD')
+                const amount = get(transaction, 'amount.amount')
                 const transactionAttrs = {
                     number: transaction.number,
                     date:  formatedOperationDate,
-                    amount: transaction.amount.amount,
+                    amount: typeof amount === 'number' ? String(amount) : amount,
                     currencyCode,
                     purpose: transaction.paymentPurpose,
                     // A debit transaction is an expense, since the direction of the transaction looks relative to the bank from which the data was received

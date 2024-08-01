@@ -61,27 +61,29 @@ function getColumnNames (format, locale) {
     const SealingDateMessage = i18n('meter.import.column.SealingDate', { locale })
     const ControlReadingsDate = i18n('meter.import.column.ControlReadingsDate', { locale })
     const PlaceColumnMessage = i18n('meter.import.column.MeterPlace', { locale })
+    const AutomaticColumnMessage = i18n('meter.import.column.Automatic', { locale })
 
     return format === DOMA_EXCEL ? [
-        { name: AddressColumnMessage, type: 'string', required: true },
-        { name: UnitNameColumnMessage, type: 'string', required: true },
-        { name: UnitTypeColumnMessage, type: 'string', required: true },
-        { name: AccountNumberColumnMessage, type: 'string', required: true },
-        { name: MeterTypeColumnMessage, type: 'string', required: true },
-        { name: MeterNumberColumnMessage, type: 'string', required: true },
-        { name: MeterTariffsNumberColumnMessage, type: 'string', required: true },
-        { name: Value1ColumnMessage, type: 'string', required: false },
-        { name: Value2ColumnMessage, type: 'string', required: false },
-        { name: Value3ColumnMessage, type: 'string', required: false },
-        { name: Value4ColumnMessage, type: 'string', required: false },
-        { name: ReadingSubmissionDateMessage, type: 'custom', required: true },
-        { name: VerificationDateMessage, type: 'date', required: false },
-        { name: NextVerificationDateMessage, type: 'date', required: false },
-        { name: InstallationDateMessage, type: 'date', required: false },
-        { name: CommissioningDateMessage, type: 'date', required: false },
-        { name: SealingDateMessage, type: 'date', required: false },
-        { name: ControlReadingsDate, type: 'date', required: false },
-        { name: PlaceColumnMessage, type: 'string', required: false },
+        { name: AddressColumnMessage },
+        { name: UnitNameColumnMessage },
+        { name: UnitTypeColumnMessage },
+        { name: AccountNumberColumnMessage },
+        { name: MeterTypeColumnMessage },
+        { name: MeterNumberColumnMessage },
+        { name: MeterTariffsNumberColumnMessage },
+        { name: Value1ColumnMessage },
+        { name: Value2ColumnMessage },
+        { name: Value3ColumnMessage },
+        { name: Value4ColumnMessage },
+        { name: ReadingSubmissionDateMessage },
+        { name: VerificationDateMessage },
+        { name: NextVerificationDateMessage },
+        { name: InstallationDateMessage },
+        { name: CommissioningDateMessage },
+        { name: SealingDateMessage },
+        { name: ControlReadingsDate },
+        { name: PlaceColumnMessage },
+        { name: AutomaticColumnMessage },
     ] : null
 }
 
@@ -100,6 +102,9 @@ function getMappers (format, locale) {
     const ColdAirResourceTypeValue = i18n('meter.import.value.meterResourceType.coldAir', { locale })
     const DrainageResourceTypeValue = i18n('meter.import.value.meterResourceType.drainage', { locale })
 
+    const Yes = i18n('Yes', { locale })
+    const No = i18n('No', { locale })
+
     return format === DOMA_EXCEL ? {
         unitType: {
             [FlatUnitTypeValue.toLowerCase()]: FLAT_UNIT_TYPE,
@@ -116,6 +121,10 @@ function getMappers (format, locale) {
             [GasSupplyResourceTypeValue]: GAS_SUPPLY_METER_RESOURCE_ID,
             [ColdAirResourceTypeValue]: COLD_AIR_METER_RESOURCE_ID,
             [DrainageResourceTypeValue]: DRAINAGE_METER_RESOURCE_ID,
+        },
+        isAutomatic: {
+            [Yes.toLowerCase()]: true,
+            [No.toLowerCase()]: false,
         },
     } : {
         unitType: {},
@@ -134,6 +143,7 @@ function getMappers (format, locale) {
             '12': '', // Water for irrigation
             '13': '', // Garbage
         },
+        isAutomatic: {},
     }
 }
 
@@ -159,6 +169,7 @@ async function getErrors (keystone, format, locale, columns, mappers) {
 
     const UnknownResource =  i18n('meter.import.error.unknownResourceType', { locale, meta: { knownList: Object.keys(mappers.resourceId).join(', ') } })
     const UnknownUnitType =  i18n('meter.import.error.unknownUnitType', { locale, meta: { knownList: Object.keys(mappers.unitType).join(', ') } })
+    const UnknownIsAutomatic = i18n('meter.import.error.unknownIsAutomatic', { locale, meta: { knownList: Object.keys(mappers.isAutomatic).join(', ') } })
 
     const InvalidColumnsMessage = columns ? i18n('TableHasInvalidHeaders.message', { locale, meta: {
         value: columns.map(column => `"${column.name}"`).join(', '),
@@ -174,6 +185,7 @@ async function getErrors (keystone, format, locale, columns, mappers) {
         emptyRows: { message: `${EmptyRowsErrorTitle}. ${EmptyRowsErrorMessage}` },
         unknownResource: { message: UnknownResource },
         unknownUnitType: { message: UnknownUnitType },
+        unknownIsAutomatic: { message: UnknownIsAutomatic },
     }
 }
 

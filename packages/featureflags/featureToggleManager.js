@@ -57,6 +57,7 @@ class FeatureToggleManager {
             throw new Error('FeatureToggleManager config error!')
         } catch (err) {
             logger.error({ msg: 'fetchFeatures error', err })
+            return {}
         }
     }
 

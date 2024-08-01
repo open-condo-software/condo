@@ -10,12 +10,11 @@ import { ChevronDown, PlusCircle } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Space, Typography  } from '@open-condo/ui'
+import { Space, Typography } from '@open-condo/ui'
 import type { TypographyTextProps } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { HOLDING_TYPE } from '@condo/domains/organization/constants/common'
-import { MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/common'
+import { HOLDING_TYPE, MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/common'
 import { useCreateOrganizationModalForm } from '@condo/domains/organization/hooks/useCreateOrganizationModalForm'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
@@ -78,8 +77,9 @@ export const InlineOrganizationSelect: React.FC = () => {
     const { setIsVisible: showCreateOrganizationModal, ModalForm: CreateOrganizationModalForm } = useCreateOrganizationModalForm({
         onFinish: async (createdOrganization) => {
             const organizationType = get(createdOrganization, 'type')
-
-            if (organizationType === MANAGING_COMPANY_TYPE) {
+            
+            // The slash will only be there if we have just registered and we don't have any additional parameters in the address bar.
+            if (organizationType === MANAGING_COMPANY_TYPE && router.route === '/') {
                 await router.push('/tour')
             }
         },
@@ -102,11 +102,11 @@ export const InlineOrganizationSelect: React.FC = () => {
                 // But has organizations to select -> select first one
                 if (filteredEmployees.length) {
                     selectLink({ id: filteredEmployees[0].id })
-                // No organization -> show modal for creation directly
+                    // No organization -> show modal for creation directly
                 } else if (!hasInvites) {
                     showCreateModal()
                 }
-            // Note: organization in cookie, but value is invalid
+                // Note: organization in cookie, but value is invalid
             } else if (!filteredEmployees.some(employee => employee.id === link.id)) {
                 selectLink(null)
             }

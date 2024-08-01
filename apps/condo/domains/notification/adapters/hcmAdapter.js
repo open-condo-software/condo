@@ -20,6 +20,7 @@ const {
     HCM_UNSUPPORTED_APP_ID_ERROR,
     INVALID_HCM_CONFIG_ERROR,
     EMPTY_NOTIFICATION_TITLE_BODY_ERROR,
+    APPS_WITH_DISABLED_NOTIFICATIONS_ENV,
 } = require('@condo/domains/notification/constants/errors')
 
 const {
@@ -29,6 +30,7 @@ const {
 const HCMMessaging = require('./hcm/messaging')
 
 const HCM_CONFIG = conf[HCM_CONFIG_ENV] ? JSON.parse(conf[HCM_CONFIG_ENV]) : null
+const APPS_WITH_DISABLED_NOTIFICATIONS = conf[APPS_WITH_DISABLED_NOTIFICATIONS_ENV] ? JSON.parse(conf[APPS_WITH_DISABLED_NOTIFICATIONS_ENV]) : []
 const DEFAULT_PUSH_SETTINGS = {}
 const CONFIG_VALIDATED_FIELDS = [APP_MASTER_KEY, APP_RESIDENT_KEY, `${APP_MASTER_KEY}.clientId`, `${APP_MASTER_KEY}.secret`, `${APP_RESIDENT_KEY}.clientId`, `${APP_RESIDENT_KEY}.secret`]
 const IS_LOCAL_ENV = conf.SERVER_URL.includes('localhost')
@@ -227,7 +229,7 @@ class HCMAdapter {
                     ...DEFAULT_PUSH_SETTINGS,
                 }
 
-            target.push(pushData)
+            if (!APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.app)) target.push(pushData)
 
             if (!pushContext[pushType]) pushContext[pushType] = pushData
         })

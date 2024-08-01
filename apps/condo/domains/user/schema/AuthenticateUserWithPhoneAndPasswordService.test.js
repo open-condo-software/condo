@@ -3,7 +3,7 @@ const { gql } = require('graphql-tag')
 const { makeClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 const { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } = require('@condo/domains/user/gql')
-const { createTestUser } = require('@condo/domains/user/utils/testSchema')
+const { createTestUser, User } = require('@condo/domains/user/utils/testSchema')
 
 describe('Auth by phone and password', () => {
     // We need to check that token is also returned for mobile phones. It's the same as SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION
@@ -17,6 +17,29 @@ describe('Auth by phone and password', () => {
             }
         }
     `
+
+    test('soft deleted user cannot be authorized', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const [user, userAttrs] = await createTestUser(admin)
+        const { phone, password } = userAttrs
+        const [deletedUser] = await User.softDelete(admin, user.id)
+        expect(deletedUser.deletedAt).not.toBeNull()
+        const client = await makeClient()
+        const res = await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION_WITH_TOKEN, { phone, password })
+        expect(res.data.obj).toBeNull()
+        expect(res.errors[0].message).toBe('Unable to find user by provided phone. Try to register')
+    })
+
+    test('user without password cannot be authorized', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const [, userAttrs] = await createTestUser(admin, { password: undefined })
+        const { phone } = userAttrs
+        const client = await makeClient()
+        const res = await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION_WITH_TOKEN, { phone, password: '' })
+        expect(res.data.obj).toBeNull()
+        expect(res.errors[0].message).toBe('Wrong password')
+    })
+
     test('valid password', async () => {
         const admin = await makeLoggedInAdminClient()
         const [user, userAttrs] = await createTestUser(admin)

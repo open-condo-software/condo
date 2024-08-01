@@ -12,6 +12,8 @@ const { getById, find } = require('@open-condo/keystone/schema')
 const { checkBillingIntegrationsAccessRights } = require('@condo/domains/billing/utils/accessSchema')
 const { SERVICE } = require('@condo/domains/user/constants/common')
 
+const { canDirectlyReadSchemaObjects } = require('../../user/utils/directAccess')
+
 
 /**
  * Context could be read either by:
@@ -19,10 +21,13 @@ const { SERVICE } = require('@condo/domains/user/constants/common')
  * 2. Integration service account
  * 3. Integration manager from user's organization
  */
-async function canReadBillingIntegrationOrganizationContexts ({ authentication: { item: user } }) {
+async function canReadBillingIntegrationOrganizationContexts ({ authentication: { item: user }, listKey }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isSupport || user.isAdmin) return true
+
+    const hasDirectAccess = await canDirectlyReadSchemaObjects(user, listKey)
+    if (hasDirectAccess) return {}
 
     return {
         OR: [

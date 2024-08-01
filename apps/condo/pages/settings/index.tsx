@@ -3,11 +3,11 @@ import get from 'lodash/get'
 import Head from 'next/head'
 import React, { CSSProperties, useMemo } from 'react'
 
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { TabItem } from '@open-condo/ui'
 
+import { AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
@@ -21,8 +21,10 @@ import {
     SETTINGS_TAB_CONTROL_ROOM,
     SETTINGS_TAB_EMPLOYEE_ROLES,
     SETTINGS_TAB_MOBILE_FEATURE_CONFIG,
+    SETTINGS_TAB_MARKETPLACE,
 } from '@condo/domains/common/constants/settingsTabs'
 import { ContactRolesSettingsContent } from '@condo/domains/contact/components/contactRoles/ContactRolesSettingsContent'
+import { CONTEXT_FINISHED_STATUS } from '@condo/domains/miniapp/constants'
 import {
     EmployeeRolesSettingsContent,
 } from '@condo/domains/organization/components/EmployeeRolesSettingsContent'
@@ -32,6 +34,8 @@ import { MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/com
 import { useEmployeeRolesPermissionsGroups } from '@condo/domains/organization/hooks/useEmployeeRolesPermissionsGroups'
 import { SettingsReadPermissionRequired } from '@condo/domains/settings/components/PageAccess'
 import { SubscriptionPane } from '@condo/domains/subscription/components/SubscriptionPane'
+
+import MarketplaceSettingsPage from './marketplace'
 
 
 const TITLE_STYLES: CSSProperties = { margin: 0 }
@@ -47,14 +51,25 @@ const SettingsPage = () => {
     const ControlRoomTitle = intl.formatMessage({ id: 'ControlRoom' })
     const EmployeeRolesTitle = intl.formatMessage({ id: 'EmployeeRoles' })
     const MobileFeatureConfigTitle = intl.formatMessage({ id: 'pages.condo.settings.barItem.MobileFeatureConfig' })
+    const MarketSettingTitle = intl.formatMessage({ id: 'global.section.marketplace' })
 
     const hasSubscriptionFeature = hasFeature('subscription')
 
     const userOrganization = useOrganization()
+    const userOrganizationId = get(userOrganization, ['organization', 'id'], null)
     const isManagingCompany = get(userOrganization, 'organization.type', MANAGING_COMPANY_TYPE) === MANAGING_COMPANY_TYPE
     const canManageContactRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageContactRoles']), [userOrganization])
     const canManageEmployeeRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageRoles'], false), [userOrganization])
     const canManageMobileFeatureConfigsRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageMobileFeatureConfigs']), [userOrganization])
+    const canManageMarketSettingRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageMarketSetting']), [userOrganization])
+
+    const { objs: [acquiringIntegrationContext], loading } = AcquiringIntegrationContext.useObjects({
+        where: {
+            organization: { id: userOrganizationId },
+            invoiceStatus: CONTEXT_FINISHED_STATUS,
+        },
+        first: 1,
+    })
 
     const availableTabs = useMemo(() => {
         const availableTabs = [...ALWAYS_AVAILABLE_TABS]
@@ -65,10 +80,10 @@ const SettingsPage = () => {
         if (canManageContactRoles && isManagingCompany) availableTabs.push(SETTINGS_TAB_CONTACT_ROLES)
         if (isManagingCompany) availableTabs.push(SETTINGS_TAB_CONTROL_ROOM)
         if (canManageMobileFeatureConfigsRoles) availableTabs.push(SETTINGS_TAB_MOBILE_FEATURE_CONFIG)
+        if (canManageMarketSettingRoles && Boolean(acquiringIntegrationContext) && !loading) availableTabs.push(SETTINGS_TAB_MARKETPLACE)
 
         return availableTabs
-    }, [hasSubscriptionFeature, isManagingCompany, canManageContactRoles, canManageMobileFeatureConfigsRoles, canManageEmployeeRoles])
-
+    }, [hasSubscriptionFeature, isManagingCompany, canManageEmployeeRoles, canManageContactRoles, canManageMobileFeatureConfigsRoles, canManageMarketSettingRoles, acquiringIntegrationContext, loading])
     const settingsTabs: TabItem[] = useMemo(
         () => [
             hasSubscriptionFeature && isManagingCompany && {
@@ -101,8 +116,13 @@ const SettingsPage = () => {
                 label: MobileFeatureConfigTitle,
                 children: <MobileFeatureConfigContent/>,
             },
+            canManageMarketSettingRoles && Boolean(acquiringIntegrationContext) && !loading && {
+                key: SETTINGS_TAB_MARKETPLACE,
+                label: MarketSettingTitle,
+                children: <MarketplaceSettingsPage/>,
+            },
         ].filter(Boolean),
-        [isManagingCompany, hasSubscriptionFeature, SubscriptionTitle, canManageEmployeeRoles, EmployeeRolesTitle, DetailsTitle, canManageContactRoles, RolesTitle, ControlRoomTitle, canManageMobileFeatureConfigsRoles, MobileFeatureConfigTitle],
+        [hasSubscriptionFeature, isManagingCompany, SubscriptionTitle, canManageEmployeeRoles, EmployeeRolesTitle, DetailsTitle, canManageContactRoles, RolesTitle, ControlRoomTitle, canManageMobileFeatureConfigsRoles, MobileFeatureConfigTitle, canManageMarketSettingRoles, acquiringIntegrationContext, loading, MarketSettingTitle],
     )
 
     const titleContent = useMemo(() => (

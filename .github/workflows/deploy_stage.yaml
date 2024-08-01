@@ -1,0 +1,76 @@
+name: "[stage] Deploy"
+
+concurrency: deploy_stage.yaml
+
+on:
+  workflow_dispatch:
+    branches:
+      - '*'
+
+jobs:
+  converge:
+    name: "[stage] Deploy"
+    runs-on: self-hosted
+    env:
+      WERF_SECRET_KEY: ${{ secrets.WERF_SECRET_KEY }}
+      PULL_USER: ${{ secrets.PULL_USER }}
+      PULL_PERSONAL_ACCESS_KEY: ${{ secrets.PULL_PERSONAL_ACCESS_KEY }}
+    steps:
+      - name: Login to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
+          password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+          name: id_rsa
+          known_hosts: ${{ secrets.SSH_DOCK_SERVER_KNOWN_HOSTS }}
+          if_key_exists: replace
+      - name: Set env for branch name
+        run: echo "BRANCH_NAME=$(echo ${GITHUB_REF##*/} | sed 's/\_/-/g')" >> $GITHUB_ENV
+      - name: Converge
+        uses: werf/actions/converge@v1.2
+        with:
+          channel: beta
+          env: development
+          kube-config-base64-data: ${{ secrets.KUBECONFIG_BASE64_STAGE_CLUSTER }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          WERF_SET_CI_CONDO_URL: "global.ci_condo_url=condo.s1.doma.ai"
+          WERF_SET_CI_CALLCENTER_URL: "global.ci_callcenter_url=callcenter.s1.doma.ai"
+          WERF_SET_CI_EPS_URL: "global.ci_eps_url=eps.s1.doma.ai"
+          WERF_SET_CI_RB_URL: "global.ci_rb_url=rb.s1.doma.ai"
+          WERF_SET_CI_INSURANCE_URL: "global.ci_insurance_url=insurance.s1.doma.ai"
+          WERF_SET_CI_REGISTRY_MA_URL: "global.ci_registry_ma_url=registry.s1.doma.ai"
+          WERF_SET_CI_MINIAPP_URL: "global.ci_miniapp_url=miniapp.s1.doma.ai"
+          WERF_SET_CI_PROPERTY_IMPORTER_URL: "global.ci_property_importer_url=property-importer.s1.doma.ai"
+          WERF_SET_CI_CLASSIFIER_URL: "global.ci_classifier_url=ml.s1.doma.ai"
+          WERF_SET_CI_ADDRESS_SERVICE_URL: "global.ci_address_service_url=address-service.s1.doma.ai"
+          WERF_SET_CI_TELEPHONY_URL: "global.ci_telephony_url=telephony.s1.doma.ai"
+          WERF_SET_CI_DEVPORTAL_URL: "global.ci_devportal_url=developers.s1.doma.ai"
+          WERF_SET_CI_PASSAPP_URL: "global.ci_passapp_url=miniapp-pass.s1.doma.ai"
+          WERF_SET_CI_DOCUMENTS_URL: "global.ci_documents_url=documents.s1.doma.ai"
+          WERF_SET_CI_DEVPORTALAPI_URL: "global.ci_devportalapi_url=developers-api.s1.doma.ai"
+          WERF_SET_CI_TELEGRAM_EMPLOYEE_BOT_URL: "global.ci_telegram_employee_bot_url=telegram-employee-bot.s1.doma.ai"
+          WERF_SET_CI_EDS_INTEGRATION_URL: "global.ci_eds_integration_url=eds-integration.s1.doma.ai"
+          WERF_SET_CI_CONDO_RESTAPI_URL: "global.ci_condo_restapi_url=bank-rest-api.s1.doma.ai"
+          WERF_SET_CI_RESIDENT_APP_URL: "global.ci_resident_app_url=m.s1.doma.ai"
+          WERF_SET_CI_ANNOUNCEMENT_GENERATOR_URL: "global.ci_announcement_url=announcement-generator.s1.doma.ai"
+          WERF_SET_CI_NEWS_SHARING_GREENDOM_APP_URL: "global.ci_news_sharing_greendom_app_url=news-sharing-greendom.s1.doma.ai"
+          WERF_NAMESPACE: "stage"
+          WERF_VIRTUAL_MERGE_FROM_COMMIT: "true"
+          WERF_SET_CI_REF: "ci.werf.io/ref=${GITHUB_REF_NAME}"
+          WERF_REPO: ${{ secrets.DOCKER_REGISTRY }}/condo/condo
+          WERF_REPO_CONTAINER_REGISTRY: default
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_RELEASE: "development-${{ github.sha }}"
+          SENTRY_ENVIRONMENT: "development"

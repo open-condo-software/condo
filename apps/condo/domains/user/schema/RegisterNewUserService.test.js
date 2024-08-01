@@ -1,11 +1,24 @@
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, expectToThrowGraphQLRequestError, catchErrorFrom } = require('@open-condo/keystone/test.utils')
+const {
+    makeLoggedInAdminClient,
+    makeClient,
+    expectToThrowGraphQLRequestError,
+    catchErrorFrom,
+} = require('@open-condo/keystone/test.utils')
 const { expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 
 const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
-const { createTestUser, registerNewUser, createTestPhone, createTestEmail, createTestLandlineNumber, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const {
+    createTestUser,
+    registerNewUser,
+    createTestPhone,
+    createTestEmail,
+    createTestLandlineNumber,
+    makeClientWithNewRegisteredAndLoggedInUser,
+    User,
+} = require('@condo/domains/user/utils/testSchema')
 
 const { errors } = require('./RegisterNewUserService')
 
@@ -22,6 +35,22 @@ describe('RegisterNewUserService', () => {
     test('register user with existed phone', async () => {
         const admin = await makeLoggedInAdminClient()
         const [, userAttrs] = await createTestUser(admin)
+        const client = await makeClient()
+        const name = faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}')
+        const password = faker.internet.password()
+        const email = createTestEmail()
+        const phone = userAttrs.phone
+        await expectToThrowGQLError(
+            async () => await registerNewUser(client, { name, phone, password, email }),
+            errors.USER_WITH_SPECIFIED_PHONE_ALREADY_EXISTS,
+            'user',
+        )
+    })
+
+    test('user cannot be registered again if phone registered for soft deleted user', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const [user, userAttrs] = await createTestUser(admin)
+        await User.softDelete(admin, user.id)
         const client = await makeClient()
         const name = faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}')
         const password = faker.internet.password()
@@ -90,7 +119,7 @@ describe('RegisterNewUserService', () => {
 
         await expectToThrowGraphQLRequestError(
             async () => await registerNewUser(client, { name, password }),
-            '"data.password"; String cannot represent a non string value'
+            '"data.password"; String cannot represent a non string value',
         )
     })
 
