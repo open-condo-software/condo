@@ -26,8 +26,6 @@ const { makeClientWithNewRegisteredAndLoggedInUser, createTestUser } = require('
 let adminClient, staffClientYes
 let dummyO10n
 describe('GetNewsItemsRecipientsCountersService', () => {
-    jest.setTimeout(60000)
-
     beforeEach(async () => {
         adminClient = await makeLoggedInAdminClient()
         const [o10n] = await createTestOrganization(adminClient)
@@ -144,8 +142,8 @@ describe('GetNewsItemsRecipientsCountersService', () => {
             Array.from(
                 { length: residentsCount },
                 (_, i) =>
-                    createTestResident(adminClient, user, property1, { unitType: 'flat', unitName: `${i + 1}` })
-            )
+                    createTestResident(adminClient, user, property1, { unitType: 'flat', unitName: `${i + 1}` }),
+            ),
         )
 
         const payload = {
@@ -187,7 +185,7 @@ describe('GetNewsItemsRecipientsCountersService', () => {
         const [data] = await getNewsItemsRecipientsCountersByTestClient(staffClientYes, payload)
 
         expect(data).toEqual({ propertiesCount: 3, unitsCount: unitsCount * 3, receiversCount: residentsCount })
-    })
+    }, 60000)
 
     test('anonymous can\'t execute', async () => {
         const anonymousClient = await makeClient()
