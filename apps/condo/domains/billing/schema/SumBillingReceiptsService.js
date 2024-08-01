@@ -6,7 +6,7 @@ const Big = require('big.js')
 
 const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
 const { GQLError } = require('@open-condo/keystone/errors')
-const { GQLCustomSchema, getSchemaCtx } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, getSchemaCtx, find, allItemsQueryByChunks } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/SumBillingReceiptsService')
 const { WRONG_VALUE } = require('@condo/domains/common/constants/errors')
@@ -47,25 +47,37 @@ const SumBillingReceiptsService = new GQLCustomSchema('SumBillingReceiptsService
                 const { keystone } = getSchemaCtx('BillingReceipt')
                 const { knex } = getDatabaseAdapter(keystone)
 
-                const query = knex('BillingReceipt')
-                    .sum('BillingReceipt.toPay as totalToPay')
-                    .innerJoin('BillingIntegrationOrganizationContext', 'BillingReceipt.context', 'BillingIntegrationOrganizationContext.id')
-                    .innerJoin('Organization', 'BillingIntegrationOrganizationContext.organization', 'Organization.id')
-                    .where('BillingReceipt.period', period)
-
+                const organizationWhere = { deletedAt: null }
                 if (organizationId) {
-                    query.andWhere('Organization.id', organizationId)
+                    organizationWhere.id = organizationId
                 }
                 if (tin) {
-                    query.andWhere('Organization.tin', tin)
+                    organizationWhere.tin = tin
                 }
                 if (importRemoteSystem) {
-                    query
-                        .andWhereNot('Organization.importId', null)
-                        .andWhere('Organization.importRemoteSystem', importRemoteSystem)
+                    organizationWhere.importId_not = null
+                    organizationWhere.importRemoteSystem = importRemoteSystem
                 }
 
-                const result = await query
+                const contextIds = []
+                await allItemsQueryByChunks({
+                    schemaName: 'BillingIntegrationOrganizationContext',
+                    where: {
+                        organization: organizationWhere,
+                        deletedAt: null,
+                    },
+                    chunkProcessor: (contexts) => {
+                        contextIds.push(...contexts.map(context => context.id))
+                        
+                        return []
+                    },
+                })
+
+                const result = await knex('BillingReceipt')
+                    .sum('toPay as totalToPay')
+                    .whereIn('context', contextIds)
+                    .andWhere('period', period)
+                    .andWhere('deletedAt', null)
 
                 return {
                     sum: Big(result[0].totalToPay || 0).toFixed(8),
