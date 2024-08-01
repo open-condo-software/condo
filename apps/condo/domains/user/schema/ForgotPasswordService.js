@@ -97,7 +97,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
 
                 if (!token) throw new GQLError(ERRORS.changePasswordWithToken.TOKEN_NOT_FOUND, context)
 
-                const tokenAction = await ConfirmPhoneAction.getOne(context, {
+                const tokenAction = await getByCondition('ConfirmPhoneAction', {
                     token,
                     expiresAt_gte: new Date().toISOString(),
                     completedAt: null,
