@@ -2,7 +2,8 @@ const { get, set } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { getRedisClient } = require('@open-condo/keystone/redis')
-const { find } = require('@open-condo/keystone/schema')
+
+const { ResidentAccess, ServiceConsumerAccess } = require('@condo/domains/resident/utils/serverSchema')
 
 const _redisClient = getRedisClient('default', 'cache')
 const DEFAULT_CACHE_TTL_IN_MS = 60 * 60 * 1000 // 1 hour
@@ -44,10 +45,19 @@ async function _getUserResidents (ctx, user) {
     }
 
     const newCacheEntry = { dv: 1, residents: [], serviceConsumers: [] }
-    newCacheEntry.residents = await find('Resident', { user: { id: user.id }, deletedAt: null })
-    newCacheEntry.serviceConsumers = await find('ServiceConsumer', {
-        deletedAt: null, resident: { id_in: newCacheEntry.residents.map(resident => resident.id) },
+    const residents = await ResidentAccess.getAll(ctx, { user: { id: user.id }, deletedAt: null })
+    const serviceConsumers = await ServiceConsumerAccess.getAll(ctx, { deletedAt: null, resident: { id_in: residents.map(resident => resident.id) } })
+
+    residents.forEach((resident) => {
+        resident.organization = resident.organization.id
+        resident.property = resident.property.id
     })
+    serviceConsumers.forEach(serviceConsumer => {
+        serviceConsumer.organization = serviceConsumer.organization.id
+    })
+
+    newCacheEntry.residents = residents
+    newCacheEntry.serviceConsumers = serviceConsumers
 
     if (!DISABLE_USER_RESIDENT_CACHING) {
         set(ctx, ctxCachePath, newCacheEntry)
