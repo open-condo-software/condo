@@ -57,6 +57,7 @@ class FeatureToggleManager {
             throw new Error('FeatureToggleManager config error!')
         } catch (err) {
             logger.error({ msg: 'fetchFeatures error', err })
+            return {}
         }
     }
 
@@ -83,7 +84,7 @@ class FeatureToggleManager {
 
     async isFeatureEnabled (keystoneContext, featureName, featuresContext) {
         // Note: if you want to override the flag value by tests you can use setFeatureFlag() from test.utils! (TESTS ONLY)
-        if (conf.NODE_ENV === 'test') {
+        if (conf.USE_LOCAL_FEATURE_FLAGS) {
             return getFeatureFlag(keystoneContext, featureName)
         }
 
@@ -93,7 +94,7 @@ class FeatureToggleManager {
 
     async getFeatureValue (keystoneContext, featureName, defaultValue, featuresContext) {
         // Note: if you want to override the flag value by tests you use setFeatureFlag() from test.utils! (TESTS ONLY)
-        if (conf.NODE_ENV === 'test') {
+        if (conf.USE_LOCAL_FEATURE_FLAGS) {
             return getFeatureFlag(keystoneContext, featureName) || defaultValue
         }
 

@@ -108,7 +108,6 @@ export function useMeterReadingFilters (meterType: MeterTypes): Array<FiltersMet
                 component: {
                     type: ComponentType.TagsSelect,
                     props: {
-                        tokenSeparators: [' '],
                         placeholder: EnterUnitNameLabel,
                     },
                     modalFilterComponentWrapper: {

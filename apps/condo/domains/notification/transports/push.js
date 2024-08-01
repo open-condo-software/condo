@@ -1,4 +1,6 @@
-const { get, isEmpty } = require('lodash')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
+const pick = require('lodash/pick')
 
 const { find } = require('@open-condo/keystone/schema')
 
@@ -94,7 +96,12 @@ async function prepareMessageToSend (message) {
     const { user, remoteClient } = message
     const { notification, data } = await renderTemplate(PUSH_TRANSPORT, message)
 
-    return { notification, data, user, remoteClient }
+    return {
+        notification,
+        data,
+        user: pick(user, ['id']),
+        remoteClient,
+    }
 }
 
 /**

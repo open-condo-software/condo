@@ -7,7 +7,12 @@ const { get, isNil } = require('lodash')
 const { generateQueryWhereInput, generateQuerySortBy } = require('@open-condo/codegen/generate.gql')
 const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
-const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants/payment')
+const {
+    PAYMENT_INIT_STATUS,
+    PAYMENT_PROCESSING_STATUS,
+    PAYMENT_WITHDRAWN_STATUS,
+    PAYMENT_DONE_STATUS,
+} = require('@condo/domains/acquiring/constants/payment')
 const {
     AcquiringIntegrationContext,
     Payment,
@@ -80,7 +85,10 @@ const AllResidentBillingVirtualReceiptsService = new GQLCustomSchema('AllResiden
                     ...isNil(period) ? {} : { period },
                     ...isNil(amount) ? {} : { amount },
                     ...isNil(accountNumber) ? {} : { accountNumber },
-                    status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS],
+                    status_in: [
+                        PAYMENT_INIT_STATUS, PAYMENT_PROCESSING_STATUS,
+                        PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS,
+                    ],
                     receipt_is_null: true,
                     invoice_is_null: true,
                     deletedAt: null,

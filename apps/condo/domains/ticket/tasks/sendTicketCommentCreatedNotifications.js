@@ -11,6 +11,7 @@ const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { setLocaleForKeystoneContext } = require('@condo/domains/common/utils/serverSchema/setLocaleForKeystoneContext')
 const { TICKET_COMMENT_CREATED_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
+const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
 const { buildFullClassifierName } = require('@condo/domains/ticket/utils')
 const { TicketClassifier } = require('@condo/domains/ticket/utils/serverSchema')
@@ -100,7 +101,8 @@ const sendTicketCommentCreatedNotifications = async (commentId, ticketId) => {
                         commentContent: createdComment.content || EMPTY_CONTENT,
                         commentType: createdComment.type,
                         commentTypeMessage: CommentTypeMessage,
-                        commentCreatedAt: dayjs(createdComment.createdAt).format('YYYY-MM-DD HH:mm'),
+                        // TODO(DOMA-9568): use user timezone after adding it
+                        commentCreatedAt: dayjs(createdComment.createdAt).tz(DEFAULT_ORGANIZATION_TIMEZONE).format('YYYY-MM-DD HH:mm'),
                         ticketId,
                         ticketDetails: ticket.details,
                         ticketClassifier,

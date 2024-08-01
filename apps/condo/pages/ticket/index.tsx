@@ -8,6 +8,7 @@ import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
 import { TableRowSelection } from 'antd/lib/table/interface'
 import debounce from 'lodash/debounce'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
 import isNull from 'lodash/isNull'
 import isNumber from 'lodash/isNumber'
@@ -195,8 +196,12 @@ const TicketTable = ({
         return String(selectedTicketKeys[0])
     }, [selectedTicketKeys])
 
+    const exportToExcelTicketsWhere = useMemo(() => !isEmpty(selectedTicketKeys) ?
+        { ...searchTicketsQuery, 'id_in': selectedTicketKeys } : searchTicketsQuery,
+    [searchTicketsQuery, selectedTicketKeys])
+
     const { TicketsExportToXlsxButton } = useTicketExportToExcelTask({
-        where: searchTicketsQuery,
+        where: exportToExcelTicketsWhere,
         sortBy,
         format: EXCEL,
         locale: intl.locale,
@@ -316,7 +321,7 @@ const TicketTable = ({
                                 ),
                                 selectedTicketKeys.length < 1 && TicketImportButton && TicketImportButton,
                                 // nosemgrep: generic.secrets.gitleaks.generic-api-key.generic-api-key
-                                selectedTicketKeys.length < 1 && <TicketsExportToXlsxButton key='exportToXlsx'/>,
+                                <TicketsExportToXlsxButton key='exportToXlsx'/>,
                                 selectedTicketKeys.length > 0 && (
                                     <Button
                                         key='cancelSelectedTicket'

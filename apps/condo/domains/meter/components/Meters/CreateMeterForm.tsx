@@ -41,11 +41,14 @@ export const CreateMeterForm = (props: CreateMeterProps): JSX.Element => {
 
     const { organizationId, meterType, canManageMeters } = props
     const router = useRouter()
+    const propertyIdFromQuery = get(router.query, 'propertyId')
+    const unitNameFromQuery = get(router.query, 'unitName')
+    const unitTypeFromQuery = get(router.query, 'unitType')
 
     const disabledFields = useMemo(() => !canManageMeters, [canManageMeters])
-    const [selectedPropertyId, setSelectedPropertyId] = useState<string>(null)
-    const [selectedUnitName, setSelectedUnitName] = useState<string>(null)
-    const [selectedUnitType, setSelectedUnitType] = useState<MeterUnitTypeType>(null)
+    const [selectedPropertyId, setSelectedPropertyId] = useState<string>(propertyIdFromQuery as string || null)
+    const [selectedUnitName, setSelectedUnitName] = useState<string>(unitNameFromQuery as string || null)
+    const [selectedUnitType, setSelectedUnitType] = useState<MeterUnitTypeType>(unitTypeFromQuery as MeterUnitTypeType || MeterUnitTypeType.Flat)
     const [isMatchSelectedProperty] = useState(true)
 
     const { obj: property, loading: propertyLoading } = Property.useObject({ where: { id: selectedPropertyId } },
@@ -98,6 +101,11 @@ export const CreateMeterForm = (props: CreateMeterProps): JSX.Element => {
         setSelectedPropertyId(null)
     }, [])
 
+    const [propertyUnitInitialValues, setPropertyUnitInitialValues] = useState(()=> !propertyIdFromQuery ? ({}) : ({
+        propertyId: propertyIdFromQuery as string,
+        unitName: unitNameFromQuery as string,
+        unitType: unitTypeFromQuery as string,
+    }))
 
     return (
         <PageWrapper style={WRAPPER_STYLE}>
@@ -126,6 +134,7 @@ export const CreateMeterForm = (props: CreateMeterProps): JSX.Element => {
                                     propertyLoading={propertyLoading}
                                     setSelectedUnitName={setSelectedUnitName}
                                     setSelectedUnitType={setSelectedUnitType}
+                                    initialValues={propertyUnitInitialValues}
                                 />
                             </Col>
                             <Row gutter={FORM_GUTTER}>

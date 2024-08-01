@@ -860,6 +860,7 @@ __metadata:
     commander: ^11.0.0
     cross-env: ^7.0.3
     css-loader: 1.0.1
+    csv-parse: ^5.2.0
     csv-stringify: ^6.2.0
     cuid: ^2.1.8
     cypress: 12.17.3
@@ -1636,6 +1637,7 @@ __metadata:
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@open-condo/next": "workspace:^"
+    "@open-condo/ui": "workspace:^"
     "@testing-library/react": ^11.2.5
     "@types/jest": ^29.4.0
     "@types/node": ^16
@@ -2015,6 +2017,7 @@ __metadata:
     "@graphql-codegen/typescript": ^4.0.1
     "@graphql-codegen/typescript-operations": ^4.0.1
     "@graphql-codegen/typescript-react-apollo": ^4.0.0
+    "@nerdwallet/apollo-cache-policies": ^3.3.0
     "@open-condo/config": "workspace:^"
     "@open-condo/icons": "workspace:^"
     "@open-condo/locales": "workspace:^"
@@ -2022,12 +2025,16 @@ __metadata:
     "@open-condo/ui": "workspace:^"
     "@parcel/watcher": ^2.3.0
     "@serwist/next": ^9.0.1
+    "@types/big.js": ^6.2.2
     "@types/react": 18.0.27
     "@types/react-dom": 18.0.10
     antd: 5.16.4
     apollo-upload-client: ^17
     apollo3-cache-persist: ^0.15.0
+    big.js: ^6.2.1
     classnames: ^2.3.2
+    cookies-next: ^4.2.1
+    dayjs: ^1.11.11
     deepmerge: ^4.3.1
     graphql: ^16.8.1
     http-proxy: ^1.18.1
@@ -12080,6 +12087,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nerdwallet/apollo-cache-policies@npm:^3.3.0":
+  version: 3.3.0
+  resolution: "@nerdwallet/apollo-cache-policies@npm:3.3.0"
+  dependencies:
+    graphql: ^15.5.0
+    lodash: ^4.17.21
+    uuid: ^7.0.3
+  peerDependencies:
+    "@apollo/client": ^3.8.1
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+  checksum: fff46e7a50a65169c7aa7030f512a661100899f87f212874f23fc758afacf63eafc5faf99221ff8f75fe418eff8bf4dd801cc983ecf7851bcc3a5504fd7a79a0
+  languageName: node
+  linkType: hard
+
 "@news-sharing-greendom/domains@link:./domains::locator=%40app%2Fnews-sharing-greendom%40workspace%3Aapps%2Fcondo-news-sharing-greendom":
   version: 0.0.0-use.local
   resolution: "@news-sharing-greendom/domains@link:./domains::locator=%40app%2Fnews-sharing-greendom%40workspace%3Aapps%2Fcondo-news-sharing-greendom"
@@ -12633,6 +12654,7 @@ __metadata:
     hot-shots: ^10.0.0
     inflection: ^1.13.1
     ioredis: ^4.28.5
+    knex: ^0.95.6
     lodash: ^4.17.21
     lru-cache: ^7.18.3
     minimatch: ^5.1.1
@@ -16221,6 +16243,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/big.js@npm:^6.2.2":
+  version: 6.2.2
+  resolution: "@types/big.js@npm:6.2.2"
+  checksum: 6aeff1b763e71b79bb796c9f395ebecdd5a6aeb997b1c9b9acb2e14aa2f88eec620f26a6aedeba120ec7a881a0834d0b8e9869da864c60bba623f92d6de6f848
+  languageName: node
+  linkType: hard
+
 "@types/body-parser@npm:*":
   version: 1.19.2
   resolution: "@types/body-parser@npm:1.19.2"
@@ -16298,6 +16327,13 @@ __metadata:
   version: 0.4.1
   resolution: "@types/cookie@npm:0.4.1"
   checksum: 3275534ed69a76c68eb1a77d547d75f99fedc80befb75a3d1d03662fb08d697e6f8b1274e12af1a74c6896071b11510631ba891f64d30c78528d0ec45a9c1a18
+  languageName: node
+  linkType: hard
+
+"@types/cookie@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "@types/cookie@npm:0.6.0"
+  checksum: 5edce7995775b0b196b142883e4d4f71fd93c294eaec973670f1fa2540b70ea7390408ed513ddefef5fcb12a578100c76596e8f2a714b0c2ae9f70ee773f4510
   languageName: node
   linkType: hard
 
@@ -20569,7 +20605,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"big.js@npm:^6.1.1":
+"big.js@npm:^6.1.1, big.js@npm:^6.2.1":
   version: 6.2.1
   resolution: "big.js@npm:6.2.1"
   checksum: 0b234a2fd56c52bed2798ed2020bcab6fef5e9523b99a05406ad071d1aed6ee97ada9fb8de9576092da74c68825c276e19015743b8d1baea269b60a5c666b0cd
@@ -22757,10 +22793,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"colorette@npm:2.0.16":
-  version: 2.0.16
-  resolution: "colorette@npm:2.0.16"
-  checksum: cd55596a3a2d1071c1a28eee7fd8a5387593ff1bd10a3e8d0a6221499311fe34a9f2b9272d77c391e0e003dcdc8934fb2f8d106e7ef1f7516f8060c901d41a27
+"colorette@npm:2.0.19, colorette@npm:^2.0.14, colorette@npm:^2.0.16, colorette@npm:^2.0.7":
+  version: 2.0.19
+  resolution: "colorette@npm:2.0.19"
+  checksum: 888cf5493f781e5fcf54ce4d49e9d7d698f96ea2b2ef67906834bb319a392c667f9ec69f4a10e268d2946d13a9503d2d19b3abaaaf174e3451bfe91fb9d82427
   languageName: node
   linkType: hard
 
@@ -22768,13 +22804,6 @@ __metadata:
   version: 1.4.0
   resolution: "colorette@npm:1.4.0"
   checksum: 01c3c16058b182a4ab4c126a65a75faa4d38a20fa7c845090b25453acec6c371bb2c5dceb0a2338511f17902b9d1a9af0cadd8509c9403894b79311032c256c3
-  languageName: node
-  linkType: hard
-
-"colorette@npm:^2.0.14, colorette@npm:^2.0.16, colorette@npm:^2.0.7":
-  version: 2.0.19
-  resolution: "colorette@npm:2.0.19"
-  checksum: 888cf5493f781e5fcf54ce4d49e9d7d698f96ea2b2ef67906834bb319a392c667f9ec69f4a10e268d2946d13a9503d2d19b3abaaaf174e3451bfe91fb9d82427
   languageName: node
   linkType: hard
 
@@ -22843,7 +22872,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:^7.0.0, commander@npm:^7.1.0, commander@npm:^7.2.0":
+"commander@npm:^7.0.0, commander@npm:^7.2.0":
   version: 7.2.0
   resolution: "commander@npm:7.2.0"
   checksum: 53501cbeee61d5157546c0bef0fedb6cdfc763a882136284bed9a07225f09a14b82d2a84e7637edfd1a679fb35ed9502fd58ef1d091e6287f60d790147f68ddc
@@ -22854,6 +22883,13 @@ __metadata:
   version: 8.3.0
   resolution: "commander@npm:8.3.0"
   checksum: 0f82321821fc27b83bd409510bb9deeebcfa799ff0bf5d102128b500b7af22872c0c92cb6a0ebc5a4cf19c6b550fba9cedfa7329d18c6442a625f851377bacf0
+  languageName: node
+  linkType: hard
+
+"commander@npm:^9.1.0":
+  version: 9.5.0
+  resolution: "commander@npm:9.5.0"
+  checksum: c7a3e27aa59e913b54a1bafd366b88650bc41d6651f0cbe258d4ff09d43d6a7394232a4dadd0bf518b3e696fdf595db1028a0d82c785b88bd61f8a440cecfade
   languageName: node
   linkType: hard
 
@@ -23249,6 +23285,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cookie@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "cookie@npm:0.6.0"
+  checksum: f56a7d32a07db5458e79c726b77e3c2eff655c36792f2b6c58d351fb5f61531e5b1ab7f46987150136e366c65213cbe31729e02a3eaed630c3bf7334635fb410
+  languageName: node
+  linkType: hard
+
 "cookiejar@npm:^2.1.3":
   version: 2.1.3
   resolution: "cookiejar@npm:2.1.3"
@@ -23264,6 +23307,16 @@ __metadata:
     "@types/node": ^16.10.2
     cookie: ^0.4.0
   checksum: c5fc2c72cf2d46d6fa804e5690b5038bab3d5c7e741a8472079bfbd6920010802962f7512d999ea430ebcbfc7c89c38e16f423479e4df7cb0bb782cc1a7f9004
+  languageName: node
+  linkType: hard
+
+"cookies-next@npm:^4.2.1":
+  version: 4.2.1
+  resolution: "cookies-next@npm:4.2.1"
+  dependencies:
+    "@types/cookie": ^0.6.0
+    cookie: ^0.6.0
+  checksum: e78e9871a516b5ac0c4f02d871ef8c37ef93a2fea9ce781ea88a16a10cc0b16928993dd90786dc8ab43259cffb5822cc4d218d79ed085b8a98b8c2ed3ae004ac
   languageName: node
   linkType: hard
 
@@ -24737,6 +24790,13 @@ __metadata:
   version: 1.11.10
   resolution: "dayjs@npm:1.11.10"
   checksum: a6b5a3813b8884f5cd557e2e6b7fa569f4c5d0c97aca9558e38534af4f2d60daafd3ff8c2000fed3435cfcec9e805bcebd99f90130c6d1c5ef524084ced588c4
+  languageName: node
+  linkType: hard
+
+"dayjs@npm:^1.11.11":
+  version: 1.11.11
+  resolution: "dayjs@npm:1.11.11"
+  checksum: 84788275aad8a87fee4f1ce4be08861df29687aae6b7b43dd65350118a37dda56772a3902f802cb2dc651dfed447a5a8df62d88f0fb900dba8333e411190a5d5
   languageName: node
   linkType: hard
 
@@ -29048,10 +29108,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"getopts@npm:2.2.5":
-  version: 2.2.5
-  resolution: "getopts@npm:2.2.5"
-  checksum: f8b21793e6c548fbc4f2ecfd8a51a74aba71fa118638fbdf00200207b8a8d44e21709611366d0c3366602b7ae29ae27fbe599f6ad6a55f7a2e451ca581af923f
+"getopts@npm:2.3.0":
+  version: 2.3.0
+  resolution: "getopts@npm:2.3.0"
+  checksum: bbb5fcef8d4a8582cf4499ea3fc492d95322df2184e65d550ddacede04871e7ba33194c7abd06a6c5d540de3b70112a16f988787e236e1c66b89521032b398ce
   languageName: node
   linkType: hard
 
@@ -34393,24 +34453,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"knex@npm:0.95.15":
-  version: 0.95.15
-  resolution: "knex@npm:0.95.15"
+"knex@npm:2.4.0":
+  version: 2.4.0
+  resolution: "knex@npm:2.4.0"
   dependencies:
-    colorette: 2.0.16
-    commander: ^7.1.0
-    debug: 4.3.2
+    colorette: 2.0.19
+    commander: ^9.1.0
+    debug: 4.3.4
     escalade: ^3.1.1
     esm: ^3.2.25
-    getopts: 2.2.5
+    get-package-type: ^0.1.0
+    getopts: 2.3.0
     interpret: ^2.2.0
     lodash: ^4.17.21
     pg-connection-string: 2.5.0
-    rechoir: 0.7.0
+    rechoir: ^0.8.0
     resolve-from: ^5.0.0
-    tarn: ^3.0.1
+    tarn: ^3.0.2
     tildify: 2.0.0
   peerDependenciesMeta:
+    better-sqlite3:
+      optional: true
     mysql:
       optional: true
     mysql2:
@@ -34425,7 +34488,7 @@ __metadata:
       optional: true
   bin:
     knex: bin/cli.js
-  checksum: f70ad630c1a829b785514070a67d472511877c8fd17ef75df9dcadf9f7a244356a16dc85cd61a1c0a91a24a5a8d6355bfc29d1ff037092d0e1c7dfb3d19f9ff6
+  checksum: 66b4ae8412c61125b78512a66d924af95116628e16026efce4d03b80b2ced6b63208b37bb49fb52a499761da5e8981e136b48fcefcd48c3fe9fc72d9d17c5661
   languageName: node
   linkType: hard
 
@@ -45091,15 +45154,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rechoir@npm:0.7.0":
-  version: 0.7.0
-  resolution: "rechoir@npm:0.7.0"
-  dependencies:
-    resolve: ^1.9.0
-  checksum: 15f55f55e06c175d98df85d503b139982378e7ca34e157439125e5a6f25a5cbd9cfe2aa2d1052e2c1edf89d7d22dc020c911fc968702c84f669a16a12a1ec7ac
-  languageName: node
-  linkType: hard
-
 "rechoir@npm:^0.7.0":
   version: 0.7.1
   resolution: "rechoir@npm:0.7.1"
@@ -49523,7 +49577,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tarn@npm:^3.0.1":
+"tarn@npm:^3.0.2":
   version: 3.0.2
   resolution: "tarn@npm:3.0.2"
   checksum: 27a69658f02504979c5b02e500522e78ec12ef893b90cb00fdef794f9d847a92ed78f6c0ad12e82b8919519bded6a8d6d0000442cd0c6d6ea83cd9b7297729af
@@ -51908,6 +51962,15 @@ __metadata:
   bin:
     uuid: ./bin/uuid
   checksum: 58de2feed61c59060b40f8203c0e4ed7fd6f99d42534a499f1741218a1dd0c129f4aa1de797bcf822c8ea5da7e4137aa3673431a96dae729047f7aca7b27866f
+  languageName: node
+  linkType: hard
+
+"uuid@npm:^7.0.3":
+  version: 7.0.3
+  resolution: "uuid@npm:7.0.3"
+  bin:
+    uuid: dist/bin/uuid
+  checksum: f5b7b5cc28accac68d5c083fd51cca64896639ebd4cca88c6cfb363801aaa83aa439c86dfc8446ea250a7a98d17afd2ad9e88d9d4958c79a412eccb93bae29de
   languageName: node
   linkType: hard
 

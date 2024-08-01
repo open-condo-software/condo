@@ -11,10 +11,12 @@ const {
     FIREBASE_CONFIG_ENV,
     PUSH_TYPE_DEFAULT,
     PUSH_TYPE_SILENT_DATA,
+    APPS_WITH_DISABLED_NOTIFICATIONS_ENV,
 } = require('@condo/domains/notification/constants/constants')
 const { EMPTY_FIREBASE_CONFIG_ERROR, EMPTY_NOTIFICATION_TITLE_BODY_ERROR } = require('@condo/domains/notification/constants/errors')
 
 const FIREBASE_CONFIG = conf[FIREBASE_CONFIG_ENV] ? JSON.parse(conf[FIREBASE_CONFIG_ENV]) : null
+const APPS_WITH_DISABLED_NOTIFICATIONS = conf[APPS_WITH_DISABLED_NOTIFICATIONS_ENV] ? JSON.parse(conf[APPS_WITH_DISABLED_NOTIFICATIONS_ENV]) : []
 const DEFAULT_PUSH_SETTINGS = {
     apns: { payload: { aps: { 'mutable-content': 1, sound: 'default' } } },
 }
@@ -178,7 +180,7 @@ class FirebaseAdapter {
                     ...extraPayload,
                 }
 
-            target.push(pushData)
+            if (!APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.app)) target.push(pushData)
 
             if (!pushContext[pushType]) pushContext[pushType] = pushData
         })

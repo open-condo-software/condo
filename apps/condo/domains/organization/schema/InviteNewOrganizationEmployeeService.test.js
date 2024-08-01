@@ -48,8 +48,8 @@ describe('InviteNewOrganizationEmployeeService', () => {
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
 
-        if (!conf.CALLCENTER_DOMAIN) {
-            process.env.CALLCENTER_DOMAIN = faker.internet.url()
+        if (!conf['CALLCENTER_DOMAIN']) {
+            throw Error('You should run bin/prepare.js before executing this test suite')
         }
     })
 

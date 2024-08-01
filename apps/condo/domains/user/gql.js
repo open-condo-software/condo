@@ -199,6 +199,12 @@ const USER_RIGHTS_SET_PERMISSIONS_FIELDS = generateFieldNames(DIRECT_ACCESS_AVAI
 const USER_RIGHTS_SET_FIELDS = `{ name ${USER_RIGHTS_SET_PERMISSIONS_FIELDS} ${COMMON_FIELDS} }`
 const UserRightsSet = generateGqlQueries('UserRightsSet', USER_RIGHTS_SET_FIELDS)
 
+const CHECK_USER_EXISTENCE_MUTATION = gql`
+    query checkUserExistence ($data: CheckUserExistenceInput!) {
+        result: checkUserExistence(data: $data) { userExists nameSet emailSet phoneSet passwordSet }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -231,5 +237,6 @@ module.exports = {
     ExternalTokenAccessRight,
     GET_ACCESS_TOKEN_BY_USER_ID_QUERY,
     UserRightsSet,
+    CHECK_USER_EXISTENCE_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

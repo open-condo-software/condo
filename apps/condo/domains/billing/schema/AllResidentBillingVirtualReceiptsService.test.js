@@ -8,7 +8,13 @@ const { makeClient } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAuthenticationErrorToObjects } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
-const { PAYMENT_PROCESSING_STATUS, PAYMENT_DONE_STATUS } = require('@condo/domains/acquiring/constants/payment')
+const {
+    PAYMENT_INIT_STATUS,
+    PAYMENT_PROCESSING_STATUS,
+    PAYMENT_WITHDRAWN_STATUS,
+    PAYMENT_DONE_STATUS,
+    PAYMENT_ERROR_STATUS,
+} = require('@condo/domains/acquiring/constants/payment')
 const {
     makePayer,
     createTestPayment,
@@ -227,7 +233,22 @@ describe('AllResidentBillingVirtualReceiptsService', () => {
             expect(receipts).toHaveLength(0)
         })
 
-        test('Do not return payments with processing statuses', async () => {
+        test('Return payments with init statuses', async () => {
+            const data = await getPayableOrgWithClient()
+
+            const [payment] = await createTestPayment(
+                data.admin,
+                data.organization,
+                null,
+                data.acquiringContext,
+                { status: PAYMENT_INIT_STATUS, accountNumber: data.serviceConsumer.accountNumber }
+            )
+
+            const receipts = await ResidentBillingVirtualReceipt.getAll(data.client)
+            expect(receipts).toHaveLength(1)
+        })
+
+        test('Return payments with processing statuses', async () => {
             const data = await getPayableOrgWithClient()
 
             const [payment] = await createTestPayment(
@@ -236,6 +257,51 @@ describe('AllResidentBillingVirtualReceiptsService', () => {
                 null,
                 data.acquiringContext,
                 { status: PAYMENT_PROCESSING_STATUS, accountNumber: data.serviceConsumer.accountNumber }
+            )
+
+            const receipts = await ResidentBillingVirtualReceipt.getAll(data.client)
+            expect(receipts).toHaveLength(1)
+        })
+
+        test('Return payments with withdraw statuses', async () => {
+            const data = await getPayableOrgWithClient()
+
+            const [payment] = await createTestPayment(
+                data.admin,
+                data.organization,
+                null,
+                data.acquiringContext,
+                { status: PAYMENT_WITHDRAWN_STATUS, accountNumber: data.serviceConsumer.accountNumber }
+            )
+
+            const receipts = await ResidentBillingVirtualReceipt.getAll(data.client)
+            expect(receipts).toHaveLength(1)
+        })
+
+        test('Return payments with done statuses', async () => {
+            const data = await getPayableOrgWithClient()
+
+            const [payment] = await createTestPayment(
+                data.admin,
+                data.organization,
+                null,
+                data.acquiringContext,
+                { status: PAYMENT_DONE_STATUS, accountNumber: data.serviceConsumer.accountNumber }
+            )
+
+            const receipts = await ResidentBillingVirtualReceipt.getAll(data.client)
+            expect(receipts).toHaveLength(1)
+        })
+
+        test('Do not return payments with error statuses', async () => {
+            const data = await getPayableOrgWithClient()
+
+            const [payment] = await createTestPayment(
+                data.admin,
+                data.organization,
+                null,
+                data.acquiringContext,
+                { status: PAYMENT_ERROR_STATUS, accountNumber: data.serviceConsumer.accountNumber }
             )
 
             const receipts = await ResidentBillingVirtualReceipt.getAll(data.client)

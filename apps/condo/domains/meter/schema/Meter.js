@@ -11,8 +11,8 @@ const { GQLListSchema, find, getByCondition, getById } = require('@open-condo/ke
 
 const { UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/meter/access/Meter')
+const { METER_READING_MAX_VALUES_COUNT } = require('@condo/domains/meter/constants/constants')
 const {
-    AUTOMATIC_METER_NO_MASTER_APP,
     B2B_APP_NOT_CONNECTED,
     B2C_APP_NOT_AVAILABLE,
     METER_NUMBER_HAVE_INVALID_VALUE,
@@ -26,7 +26,7 @@ const { Meter: MeterApi, MeterResourceOwner } = require('@condo/domains/meter/ut
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 
-const { numberOfTariffs, installationDate, commissioningDate, verificationDate, nextVerificationDate, controlReadingsDate, sealingDate, isAutomatic, resource, b2bApp, archiveDate } = require('./fields')
+const { resolveNumberOfTariffs, installationDate, commissioningDate, verificationDate, nextVerificationDate, controlReadingsDate, sealingDate, isAutomatic, resource, b2bApp, archiveDate } = require('./fields')
 
 const ADDRESS_SERVICE_ENABLED = get(conf, 'ADDRESS_SERVICE_URL', false)
 
@@ -73,7 +73,7 @@ const Meter = new GQLListSchema('Meter', {
     schemaDoc: 'Resource meter at a certain place in the unitName',
     fields: {
         organization: ORGANIZATION_OWNED_FIELD,
-        numberOfTariffs,
+        numberOfTariffs: resolveNumberOfTariffs(METER_READING_MAX_VALUES_COUNT),
         installationDate,
         commissioningDate,
         verificationDate,
@@ -224,9 +224,7 @@ const Meter = new GQLListSchema('Meter', {
     hooks: {
         validateInput: async ({ resolvedData, addValidationError, existingItem, context, operation }) => {
             const newItem = { ...existingItem, ...resolvedData }
-            if (newItem.isAutomatic && !newItem.b2bApp) {
-                return addValidationError(AUTOMATIC_METER_NO_MASTER_APP)
-            }
+
             if (resolvedData['b2bApp']) {
                 const activeContext = await getByCondition('B2BAppContext', {
                     organization: { id: newItem.organization, deletedAt: null },

@@ -14,18 +14,18 @@ const ERRORS = {
     }),
 }
 
-const numberOfTariffs = {
+const resolveNumberOfTariffs = (valuesCount) => ({
     type: 'Integer',
     isRequired: true,
     hooks: {
         validateInput: ({ context, resolvedData, fieldPath }) => {
             const value = Number(resolvedData[fieldPath])
-            if (value < 1 || value > 4) {
+            if (value < 1 || value > valuesCount) {
                 throw new GQLError(ERRORS.NUMBER_OF_TARIFFS_NOT_VALID(resolvedData[fieldPath]), context)
             }
         },
     },
-}
+})
 
 const installationDate = {
     schemaDoc: 'Date when the meter was installed',
@@ -94,7 +94,7 @@ const b2bApp = {
 }
 
 module.exports = {
-    numberOfTariffs,
+    resolveNumberOfTariffs,
     b2bApp,
     resource,
     isAutomatic,

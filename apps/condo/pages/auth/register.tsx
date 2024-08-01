@@ -9,6 +9,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@condo/domains/common/components/Button'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { fontSizes } from '@condo/domains/common/constants/style'
+import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import { InputPhoneForm } from '@condo/domains/user/components/auth/InputPhoneForm'
 import { RegisterContext, RegisterContextProvider } from '@condo/domains/user/components/auth/RegisterContextProvider'
 import { RegisterForm } from '@condo/domains/user/components/auth/RegisterForm'
@@ -31,12 +32,19 @@ const RegisterPage: AuthPage = () => {
     const PhoneConfirmTokenErrorMessage = intl.formatMessage({ id: 'pages.auth.register.PhoneConfirmTokenErrorMessage' })
     const RestartPhoneConfirmLabel = intl.formatMessage({ id: 'pages.auth.register.RestartPhoneConfirmLabel' })
     const router = useRouter()
+    const { query: { next }  } = router
+    const isValidNextUrl = next && !Array.isArray(next) && isSafeUrl(next)
+
 
     const { token, isConfirmed, tokenError, setToken, setTokenError } = useContext(RegisterContext)
     const [step, setStep] = useState('inputPhone')
 
     const handleFinish = useCallback(async () => {
-        await router.push('/')
+        if (isValidNextUrl) {
+            await router.push(next)
+        } else {
+            await router.push('/')
+        }
     }, [router])
 
     useEffect(() => {

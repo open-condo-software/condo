@@ -3205,6 +3205,9 @@ type UserRightsSetHistoryRecord {
   canManageB2CAppBuilds: Boolean
   canReadB2CAppProperties: Boolean
   canManageB2CAppProperties: Boolean
+  canReadMessages: Boolean
+  canReadMessageBatches: Boolean
+  canManageMessageBatches: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
   canReadTickets: Boolean
@@ -3216,9 +3219,14 @@ type UserRightsSetHistoryRecord {
   canReadUsers: Boolean
   canReadUserRightsSets: Boolean
   canManageUserRightsSets: Boolean
+  canReadPayments: Boolean
+  canReadBillingReceipts: Boolean
+  canReadBillingOrganizationIntegrationContexts: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
   canExecute_internalSendHashedResidentPhones: Boolean
+  canExecute_allPaymentsSum: Boolean
+  canExecute_allBillingReceiptsSum: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canReadUserEmailField: Boolean
   id: ID!
@@ -3301,6 +3309,12 @@ input UserRightsSetHistoryRecordWhereInput {
   canReadB2CAppProperties_not: Boolean
   canManageB2CAppProperties: Boolean
   canManageB2CAppProperties_not: Boolean
+  canReadMessages: Boolean
+  canReadMessages_not: Boolean
+  canReadMessageBatches: Boolean
+  canReadMessageBatches_not: Boolean
+  canManageMessageBatches: Boolean
+  canManageMessageBatches_not: Boolean
   canReadOrganizations: Boolean
   canReadOrganizations_not: Boolean
   canManageOrganizations: Boolean
@@ -3323,12 +3337,22 @@ input UserRightsSetHistoryRecordWhereInput {
   canReadUserRightsSets_not: Boolean
   canManageUserRightsSets: Boolean
   canManageUserRightsSets_not: Boolean
+  canReadPayments: Boolean
+  canReadPayments_not: Boolean
+  canReadBillingReceipts: Boolean
+  canReadBillingReceipts_not: Boolean
+  canReadBillingOrganizationIntegrationContexts: Boolean
+  canReadBillingOrganizationIntegrationContexts_not: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteRegisterNewServiceUser_not: Boolean
   canExecuteSendMessage: Boolean
   canExecuteSendMessage_not: Boolean
   canExecute_internalSendHashedResidentPhones: Boolean
   canExecute_internalSendHashedResidentPhones_not: Boolean
+  canExecute_allPaymentsSum: Boolean
+  canExecute_allPaymentsSum_not: Boolean
+  canExecute_allBillingReceiptsSum: Boolean
+  canExecute_allBillingReceiptsSum_not: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageOrganizationIsApprovedField_not: Boolean
   canReadUserEmailField: Boolean
@@ -3462,6 +3486,12 @@ enum SortUserRightsSetHistoryRecordsBy {
   canReadB2CAppProperties_DESC
   canManageB2CAppProperties_ASC
   canManageB2CAppProperties_DESC
+  canReadMessages_ASC
+  canReadMessages_DESC
+  canReadMessageBatches_ASC
+  canReadMessageBatches_DESC
+  canManageMessageBatches_ASC
+  canManageMessageBatches_DESC
   canReadOrganizations_ASC
   canReadOrganizations_DESC
   canManageOrganizations_ASC
@@ -3484,12 +3514,22 @@ enum SortUserRightsSetHistoryRecordsBy {
   canReadUserRightsSets_DESC
   canManageUserRightsSets_ASC
   canManageUserRightsSets_DESC
+  canReadPayments_ASC
+  canReadPayments_DESC
+  canReadBillingReceipts_ASC
+  canReadBillingReceipts_DESC
+  canReadBillingOrganizationIntegrationContexts_ASC
+  canReadBillingOrganizationIntegrationContexts_DESC
   canExecuteRegisterNewServiceUser_ASC
   canExecuteRegisterNewServiceUser_DESC
   canExecuteSendMessage_ASC
   canExecuteSendMessage_DESC
   canExecute_internalSendHashedResidentPhones_ASC
   canExecute_internalSendHashedResidentPhones_DESC
+  canExecute_allPaymentsSum_ASC
+  canExecute_allPaymentsSum_DESC
+  canExecute_allBillingReceiptsSum_ASC
+  canExecute_allBillingReceiptsSum_DESC
   canManageOrganizationIsApprovedField_ASC
   canManageOrganizationIsApprovedField_DESC
   canReadUserEmailField_ASC
@@ -3536,6 +3576,9 @@ input UserRightsSetHistoryRecordUpdateInput {
   canManageB2CAppBuilds: Boolean
   canReadB2CAppProperties: Boolean
   canManageB2CAppProperties: Boolean
+  canReadMessages: Boolean
+  canReadMessageBatches: Boolean
+  canManageMessageBatches: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
   canReadTickets: Boolean
@@ -3547,9 +3590,14 @@ input UserRightsSetHistoryRecordUpdateInput {
   canReadUsers: Boolean
   canReadUserRightsSets: Boolean
   canManageUserRightsSets: Boolean
+  canReadPayments: Boolean
+  canReadBillingReceipts: Boolean
+  canReadBillingOrganizationIntegrationContexts: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
   canExecute_internalSendHashedResidentPhones: Boolean
+  canExecute_allPaymentsSum: Boolean
+  canExecute_allBillingReceiptsSum: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canReadUserEmailField: Boolean
   v: Int
@@ -3595,6 +3643,9 @@ input UserRightsSetHistoryRecordCreateInput {
   canManageB2CAppBuilds: Boolean
   canReadB2CAppProperties: Boolean
   canManageB2CAppProperties: Boolean
+  canReadMessages: Boolean
+  canReadMessageBatches: Boolean
+  canManageMessageBatches: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
   canReadTickets: Boolean
@@ -3606,9 +3657,14 @@ input UserRightsSetHistoryRecordCreateInput {
   canReadUsers: Boolean
   canReadUserRightsSets: Boolean
   canManageUserRightsSets: Boolean
+  canReadPayments: Boolean
+  canReadBillingReceipts: Boolean
+  canReadBillingOrganizationIntegrationContexts: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
   canExecute_internalSendHashedResidentPhones: Boolean
+  canExecute_allPaymentsSum: Boolean
+  canExecute_allBillingReceiptsSum: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canReadUserEmailField: Boolean
   v: Int
@@ -3733,6 +3789,18 @@ type UserRightsSet {
   """
   canManageB2CAppProperties: Boolean
 
+  """ Enables a user with the given UserRightsSet to view all entities of model "Message" as support / admin users do 
+  """
+  canReadMessages: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "MessageBatch" as support / admin users do 
+  """
+  canReadMessageBatches: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "MessageBatch" similar to support users 
+  """
+  canManageMessageBatches: Boolean
+
   """ Enables a user with the given UserRightsSet to view all entities of model "Organization" as support / admin users do 
   """
   canReadOrganizations: Boolean
@@ -3777,6 +3845,18 @@ type UserRightsSet {
   """
   canManageUserRightsSets: Boolean
 
+  """ Enables a user with the given UserRightsSet to view all entities of model "Payment" as support / admin users do 
+  """
+  canReadPayments: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "BillingReceipt" as support / admin users do 
+  """
+  canReadBillingReceipts: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "BillingOrganizationIntegrationContext" as support / admin users do 
+  """
+  canReadBillingOrganizationIntegrationContexts: Boolean
+
   """ Enables a user with the given UserRightsSet to execute "registerNewServiceUser" query/mutation 
   """
   canExecuteRegisterNewServiceUser: Boolean
@@ -3788,6 +3868,14 @@ type UserRightsSet {
   """ Enables a user with the given UserRightsSet to execute "_internalSendHashedResidentPhones" query/mutation 
   """
   canExecute_internalSendHashedResidentPhones: Boolean
+
+  """ Enables a user with the given UserRightsSet to execute "_allPaymentsSum" query/mutation 
+  """
+  canExecute_allPaymentsSum: Boolean
+
+  """ Enables a user with the given UserRightsSet to execute "_allBillingReceiptsSum" query/mutation 
+  """
+  canExecute_allBillingReceiptsSum: Boolean
 
   """ Enables a user with the given UserRightsSet to update "isApproved" field of model "Organization" 
   """
@@ -3884,6 +3972,12 @@ input UserRightsSetWhereInput {
   canReadB2CAppProperties_not: Boolean
   canManageB2CAppProperties: Boolean
   canManageB2CAppProperties_not: Boolean
+  canReadMessages: Boolean
+  canReadMessages_not: Boolean
+  canReadMessageBatches: Boolean
+  canReadMessageBatches_not: Boolean
+  canManageMessageBatches: Boolean
+  canManageMessageBatches_not: Boolean
   canReadOrganizations: Boolean
   canReadOrganizations_not: Boolean
   canManageOrganizations: Boolean
@@ -3906,12 +4000,22 @@ input UserRightsSetWhereInput {
   canReadUserRightsSets_not: Boolean
   canManageUserRightsSets: Boolean
   canManageUserRightsSets_not: Boolean
+  canReadPayments: Boolean
+  canReadPayments_not: Boolean
+  canReadBillingReceipts: Boolean
+  canReadBillingReceipts_not: Boolean
+  canReadBillingOrganizationIntegrationContexts: Boolean
+  canReadBillingOrganizationIntegrationContexts_not: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteRegisterNewServiceUser_not: Boolean
   canExecuteSendMessage: Boolean
   canExecuteSendMessage_not: Boolean
   canExecute_internalSendHashedResidentPhones: Boolean
   canExecute_internalSendHashedResidentPhones_not: Boolean
+  canExecute_allPaymentsSum: Boolean
+  canExecute_allPaymentsSum_not: Boolean
+  canExecute_allBillingReceiptsSum: Boolean
+  canExecute_allBillingReceiptsSum_not: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageOrganizationIsApprovedField_not: Boolean
   canReadUserEmailField: Boolean
@@ -4025,6 +4129,12 @@ enum SortUserRightsSetsBy {
   canReadB2CAppProperties_DESC
   canManageB2CAppProperties_ASC
   canManageB2CAppProperties_DESC
+  canReadMessages_ASC
+  canReadMessages_DESC
+  canReadMessageBatches_ASC
+  canReadMessageBatches_DESC
+  canManageMessageBatches_ASC
+  canManageMessageBatches_DESC
   canReadOrganizations_ASC
   canReadOrganizations_DESC
   canManageOrganizations_ASC
@@ -4047,12 +4157,22 @@ enum SortUserRightsSetsBy {
   canReadUserRightsSets_DESC
   canManageUserRightsSets_ASC
   canManageUserRightsSets_DESC
+  canReadPayments_ASC
+  canReadPayments_DESC
+  canReadBillingReceipts_ASC
+  canReadBillingReceipts_DESC
+  canReadBillingOrganizationIntegrationContexts_ASC
+  canReadBillingOrganizationIntegrationContexts_DESC
   canExecuteRegisterNewServiceUser_ASC
   canExecuteRegisterNewServiceUser_DESC
   canExecuteSendMessage_ASC
   canExecuteSendMessage_DESC
   canExecute_internalSendHashedResidentPhones_ASC
   canExecute_internalSendHashedResidentPhones_DESC
+  canExecute_allPaymentsSum_ASC
+  canExecute_allPaymentsSum_DESC
+  canExecute_allBillingReceiptsSum_ASC
+  canExecute_allBillingReceiptsSum_DESC
   canManageOrganizationIsApprovedField_ASC
   canManageOrganizationIsApprovedField_DESC
   canReadUserEmailField_ASC
@@ -4099,6 +4219,9 @@ input UserRightsSetUpdateInput {
   canManageB2CAppBuilds: Boolean
   canReadB2CAppProperties: Boolean
   canManageB2CAppProperties: Boolean
+  canReadMessages: Boolean
+  canReadMessageBatches: Boolean
+  canManageMessageBatches: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
   canReadTickets: Boolean
@@ -4110,9 +4233,14 @@ input UserRightsSetUpdateInput {
   canReadUsers: Boolean
   canReadUserRightsSets: Boolean
   canManageUserRightsSets: Boolean
+  canReadPayments: Boolean
+  canReadBillingReceipts: Boolean
+  canReadBillingOrganizationIntegrationContexts: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
   canExecute_internalSendHashedResidentPhones: Boolean
+  canExecute_allPaymentsSum: Boolean
+  canExecute_allBillingReceiptsSum: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canReadUserEmailField: Boolean
   v: Int
@@ -4155,6 +4283,9 @@ input UserRightsSetCreateInput {
   canManageB2CAppBuilds: Boolean
   canReadB2CAppProperties: Boolean
   canManageB2CAppProperties: Boolean
+  canReadMessages: Boolean
+  canReadMessageBatches: Boolean
+  canManageMessageBatches: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
   canReadTickets: Boolean
@@ -4166,9 +4297,14 @@ input UserRightsSetCreateInput {
   canReadUsers: Boolean
   canReadUserRightsSets: Boolean
   canManageUserRightsSets: Boolean
+  canReadPayments: Boolean
+  canReadBillingReceipts: Boolean
+  canReadBillingOrganizationIntegrationContexts: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
   canExecute_internalSendHashedResidentPhones: Boolean
+  canExecute_allPaymentsSum: Boolean
+  canExecute_allBillingReceiptsSum: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canReadUserEmailField: Boolean
   v: Int
@@ -5780,6 +5916,8 @@ type OrganizationEmployeeRoleHistoryRecord {
   canManageMarketplace: Boolean
   canReadTour: Boolean
   canManageTour: Boolean
+  canReadMarketSetting: Boolean
+  canManageMarketSetting: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -5980,6 +6118,10 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canReadTour_not: Boolean
   canManageTour: Boolean
   canManageTour_not: Boolean
+  canReadMarketSetting: Boolean
+  canReadMarketSetting_not: Boolean
+  canManageMarketSetting: Boolean
+  canManageMarketSetting_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -6183,6 +6325,10 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canReadTour_DESC
   canManageTour_ASC
   canManageTour_DESC
+  canReadMarketSetting_ASC
+  canReadMarketSetting_DESC
+  canManageMarketSetting_ASC
+  canManageMarketSetting_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -6267,6 +6413,8 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canManageMarketplace: Boolean
   canReadTour: Boolean
   canManageTour: Boolean
+  canReadMarketSetting: Boolean
+  canManageMarketSetting: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -6352,6 +6500,8 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canManageMarketplace: Boolean
   canReadTour: Boolean
   canManageTour: Boolean
+  canReadMarketSetting: Boolean
+  canManageMarketSetting: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -6485,6 +6635,8 @@ type OrganizationEmployeeRole {
   canManageMarketplace: Boolean
   canReadTour: Boolean
   canManageTour: Boolean
+  canReadMarketSetting: Boolean
+  canManageMarketSetting: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -6679,6 +6831,10 @@ input OrganizationEmployeeRoleWhereInput {
   canReadTour_not: Boolean
   canManageTour: Boolean
   canManageTour_not: Boolean
+  canReadMarketSetting: Boolean
+  canReadMarketSetting_not: Boolean
+  canManageMarketSetting: Boolean
+  canManageMarketSetting_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -6876,6 +7032,10 @@ enum SortOrganizationEmployeeRolesBy {
   canReadTour_DESC
   canManageTour_ASC
   canManageTour_DESC
+  canReadMarketSetting_ASC
+  canReadMarketSetting_DESC
+  canManageMarketSetting_ASC
+  canManageMarketSetting_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -6962,6 +7122,8 @@ input OrganizationEmployeeRoleUpdateInput {
   canManageMarketplace: Boolean
   canReadTour: Boolean
   canManageTour: Boolean
+  canReadMarketSetting: Boolean
+  canManageMarketSetting: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -7046,6 +7208,8 @@ input OrganizationEmployeeRoleCreateInput {
   canManageMarketplace: Boolean
   canReadTour: Boolean
   canManageTour: Boolean
+  canReadMarketSetting: Boolean
+  canManageMarketSetting: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -42641,6 +42805,7 @@ type ContactHistoryRecord {
   name: String
   role: String
   isVerified: Boolean
+  quota: String
   id: ID!
   v: Int
   createdAt: String
@@ -42763,6 +42928,14 @@ input ContactHistoryRecordWhereInput {
   role_not_in: [String]
   isVerified: Boolean
   isVerified_not: Boolean
+  quota: String
+  quota_not: String
+  quota_lt: String
+  quota_lte: String
+  quota_gt: String
+  quota_gte: String
+  quota_in: [String]
+  quota_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -42858,6 +43031,8 @@ enum SortContactHistoryRecordsBy {
   name_DESC
   isVerified_ASC
   isVerified_DESC
+  quota_ASC
+  quota_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -42886,6 +43061,7 @@ input ContactHistoryRecordUpdateInput {
   name: String
   role: String
   isVerified: Boolean
+  quota: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -42915,6 +43091,7 @@ input ContactHistoryRecordCreateInput {
   name: String
   role: String
   isVerified: Boolean
+  quota: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -42990,6 +43167,9 @@ type Contact {
 
   """ Contact verification flag. """
   isVerified: Boolean
+
+  """ Percentage ownership of an apartment """
+  quota: String
   id: ID!
   v: Int
   createdAt: String
@@ -43100,6 +43280,14 @@ input ContactWhereInput {
   role_is_null: Boolean
   isVerified: Boolean
   isVerified_not: Boolean
+  quota: String
+  quota_not: String
+  quota_lt: String
+  quota_lte: String
+  quota_gt: String
+  quota_gte: String
+  quota_in: [String]
+  quota_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -43181,6 +43369,8 @@ enum SortContactsBy {
   role_DESC
   isVerified_ASC
   isVerified_DESC
+  quota_ASC
+  quota_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -43209,6 +43399,7 @@ input ContactUpdateInput {
   name: String
   role: ContactRoleRelateToOneInput
   isVerified: Boolean
+  quota: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -43235,6 +43426,7 @@ input ContactCreateInput {
   name: String
   role: ContactRoleRelateToOneInput
   isVerified: Boolean
+  quota: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -55597,6 +55789,7 @@ enum MultiPaymentPaymentWayType {
   IPOS
   SBERPAY
   SBERID
+  SBRF_SBOL_BINDING
 }
 
 enum MultiPaymentStatusType {
@@ -68210,7 +68403,8 @@ input MessageAppBlackListHistoryRecordsCreateInput {
   data: MessageAppBlackListHistoryRecordCreateInput
 }
 
-""" Rule for blocking specific type of messages for apps """
+""" [Deprecated] Rule for blocking specific type of messages for apps. Use B2CAppMessageSetting 
+"""
 type MessageAppBlackList {
   """
   This virtual field will be resolved in one of the following ways (in this order):
@@ -70430,6 +70624,502 @@ input B2BAppNewsSharingConfigCreateInput {
 
 input B2BAppNewsSharingConfigsCreateInput {
   data: B2BAppNewsSharingConfigCreateInput
+}
+
+enum B2CAppMessageSettingHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type B2CAppMessageSettingHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the B2CAppMessageSettingHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the B2CAppMessageSettingHistoryRecord List config, or
+   3. As an alias to a 'name' field on the B2CAppMessageSettingHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the B2CAppMessageSettingHistoryRecord List.
+  """
+  _label_: String
+  app: String
+  blockReason: String
+  isBlacklisted: Boolean
+  type: String
+  notificationWindowSize: Int
+  numberOfNotificationInWindow: Int
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: B2CAppMessageSettingHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input B2CAppMessageSettingHistoryRecordWhereInput {
+  AND: [B2CAppMessageSettingHistoryRecordWhereInput]
+  OR: [B2CAppMessageSettingHistoryRecordWhereInput]
+  app: String
+  app_not: String
+  app_in: [String]
+  app_not_in: [String]
+  blockReason: String
+  blockReason_not: String
+  blockReason_contains: String
+  blockReason_not_contains: String
+  blockReason_starts_with: String
+  blockReason_not_starts_with: String
+  blockReason_ends_with: String
+  blockReason_not_ends_with: String
+  blockReason_i: String
+  blockReason_not_i: String
+  blockReason_contains_i: String
+  blockReason_not_contains_i: String
+  blockReason_starts_with_i: String
+  blockReason_not_starts_with_i: String
+  blockReason_ends_with_i: String
+  blockReason_not_ends_with_i: String
+  blockReason_in: [String]
+  blockReason_not_in: [String]
+  isBlacklisted: Boolean
+  isBlacklisted_not: Boolean
+  type: String
+  type_not: String
+  type_contains: String
+  type_not_contains: String
+  type_starts_with: String
+  type_not_starts_with: String
+  type_ends_with: String
+  type_not_ends_with: String
+  type_i: String
+  type_not_i: String
+  type_contains_i: String
+  type_not_contains_i: String
+  type_starts_with_i: String
+  type_not_starts_with_i: String
+  type_ends_with_i: String
+  type_not_ends_with_i: String
+  type_in: [String]
+  type_not_in: [String]
+  notificationWindowSize: Int
+  notificationWindowSize_not: Int
+  notificationWindowSize_lt: Int
+  notificationWindowSize_lte: Int
+  notificationWindowSize_gt: Int
+  notificationWindowSize_gte: Int
+  notificationWindowSize_in: [Int]
+  notificationWindowSize_not_in: [Int]
+  numberOfNotificationInWindow: Int
+  numberOfNotificationInWindow_not: Int
+  numberOfNotificationInWindow_lt: Int
+  numberOfNotificationInWindow_lte: Int
+  numberOfNotificationInWindow_gt: Int
+  numberOfNotificationInWindow_gte: Int
+  numberOfNotificationInWindow_in: [Int]
+  numberOfNotificationInWindow_not_in: [Int]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: B2CAppMessageSettingHistoryRecordHistoryActionType
+  history_action_not: B2CAppMessageSettingHistoryRecordHistoryActionType
+  history_action_in: [B2CAppMessageSettingHistoryRecordHistoryActionType]
+  history_action_not_in: [B2CAppMessageSettingHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input B2CAppMessageSettingHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortB2CAppMessageSettingHistoryRecordsBy {
+  blockReason_ASC
+  blockReason_DESC
+  isBlacklisted_ASC
+  isBlacklisted_DESC
+  type_ASC
+  type_DESC
+  notificationWindowSize_ASC
+  notificationWindowSize_DESC
+  numberOfNotificationInWindow_ASC
+  numberOfNotificationInWindow_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input B2CAppMessageSettingHistoryRecordUpdateInput {
+  app: String
+  blockReason: String
+  isBlacklisted: Boolean
+  type: String
+  notificationWindowSize: Int
+  numberOfNotificationInWindow: Int
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: B2CAppMessageSettingHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input B2CAppMessageSettingHistoryRecordsUpdateInput {
+  id: ID!
+  data: B2CAppMessageSettingHistoryRecordUpdateInput
+}
+
+input B2CAppMessageSettingHistoryRecordCreateInput {
+  app: String
+  blockReason: String
+  isBlacklisted: Boolean
+  type: String
+  notificationWindowSize: Int
+  numberOfNotificationInWindow: Int
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: B2CAppMessageSettingHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input B2CAppMessageSettingHistoryRecordsCreateInput {
+  data: B2CAppMessageSettingHistoryRecordCreateInput
+}
+
+""" Configuration of sending push notifications for specific miniapps.Used to block certain types of push notifications and control throttling of notifications of a certain miniapp 
+"""
+type B2CAppMessageSetting {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the B2CAppMessageSetting List config, or
+   2. As an alias to the field set on 'labelField' in the B2CAppMessageSetting List config, or
+   3. As an alias to a 'name' field on the B2CAppMessageSetting List (if one exists), or
+   4. As an alias to the 'id' field on the B2CAppMessageSetting List.
+  """
+  _label_: String
+
+  """ Link to B2CApp to which this config applies """
+  app: B2CApp
+
+  """ Reason for blocking messages with types from type """
+  blockReason: String
+
+  """ Is message type in black list for this B2CApp """
+  isBlacklisted: Boolean
+
+  """ The type of message we want to configure """
+  type: MessageType
+
+  """ Time window for sending push notifications in sec """
+  notificationWindowSize: Int
+
+  """ The number of notifications that can be sent in one time window in sec 
+  """
+  numberOfNotificationInWindow: Int
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input B2CAppMessageSettingWhereInput {
+  AND: [B2CAppMessageSettingWhereInput]
+  OR: [B2CAppMessageSettingWhereInput]
+  app: B2CAppWhereInput
+  app_is_null: Boolean
+  blockReason: String
+  blockReason_not: String
+  blockReason_contains: String
+  blockReason_not_contains: String
+  blockReason_starts_with: String
+  blockReason_not_starts_with: String
+  blockReason_ends_with: String
+  blockReason_not_ends_with: String
+  blockReason_i: String
+  blockReason_not_i: String
+  blockReason_contains_i: String
+  blockReason_not_contains_i: String
+  blockReason_starts_with_i: String
+  blockReason_not_starts_with_i: String
+  blockReason_ends_with_i: String
+  blockReason_not_ends_with_i: String
+  blockReason_in: [String]
+  blockReason_not_in: [String]
+  isBlacklisted: Boolean
+  isBlacklisted_not: Boolean
+  type: MessageType
+  type_not: MessageType
+  type_in: [MessageType]
+  type_not_in: [MessageType]
+  notificationWindowSize: Int
+  notificationWindowSize_not: Int
+  notificationWindowSize_lt: Int
+  notificationWindowSize_lte: Int
+  notificationWindowSize_gt: Int
+  notificationWindowSize_gte: Int
+  notificationWindowSize_in: [Int]
+  notificationWindowSize_not_in: [Int]
+  numberOfNotificationInWindow: Int
+  numberOfNotificationInWindow_not: Int
+  numberOfNotificationInWindow_lt: Int
+  numberOfNotificationInWindow_lte: Int
+  numberOfNotificationInWindow_gt: Int
+  numberOfNotificationInWindow_gte: Int
+  numberOfNotificationInWindow_in: [Int]
+  numberOfNotificationInWindow_not_in: [Int]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input B2CAppMessageSettingWhereUniqueInput {
+  id: ID!
+}
+
+enum SortB2CAppMessageSettingsBy {
+  app_ASC
+  app_DESC
+  blockReason_ASC
+  blockReason_DESC
+  isBlacklisted_ASC
+  isBlacklisted_DESC
+  type_ASC
+  type_DESC
+  notificationWindowSize_ASC
+  notificationWindowSize_DESC
+  numberOfNotificationInWindow_ASC
+  numberOfNotificationInWindow_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input B2CAppMessageSettingUpdateInput {
+  app: B2CAppRelateToOneInput
+  blockReason: String
+  isBlacklisted: Boolean
+  type: MessageType
+  notificationWindowSize: Int
+  numberOfNotificationInWindow: Int
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input B2CAppMessageSettingsUpdateInput {
+  id: ID!
+  data: B2CAppMessageSettingUpdateInput
+}
+
+input B2CAppMessageSettingCreateInput {
+  app: B2CAppRelateToOneInput
+  blockReason: String
+  isBlacklisted: Boolean
+  type: MessageType
+  notificationWindowSize: Int
+  numberOfNotificationInWindow: Int
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input B2CAppMessageSettingsCreateInput {
+  data: B2CAppMessageSettingCreateInput
 }
 
 enum MobileFeatureConfigHistoryRecordHistoryActionType {
@@ -73908,6 +74598,363 @@ input MarketPriceScopesCreateInput {
   data: MarketPriceScopeCreateInput
 }
 
+enum MarketSettingHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type MarketSettingHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the MarketSettingHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the MarketSettingHistoryRecord List config, or
+   3. As an alias to a 'name' field on the MarketSettingHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the MarketSettingHistoryRecord List.
+  """
+  _label_: String
+  organization: String
+  residentAllowedPaymentTypes: JSON
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: MarketSettingHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input MarketSettingHistoryRecordWhereInput {
+  AND: [MarketSettingHistoryRecordWhereInput]
+  OR: [MarketSettingHistoryRecordWhereInput]
+  organization: String
+  organization_not: String
+  organization_in: [String]
+  organization_not_in: [String]
+  residentAllowedPaymentTypes: JSON
+  residentAllowedPaymentTypes_not: JSON
+  residentAllowedPaymentTypes_in: [JSON]
+  residentAllowedPaymentTypes_not_in: [JSON]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: MarketSettingHistoryRecordHistoryActionType
+  history_action_not: MarketSettingHistoryRecordHistoryActionType
+  history_action_in: [MarketSettingHistoryRecordHistoryActionType]
+  history_action_not_in: [MarketSettingHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input MarketSettingHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortMarketSettingHistoryRecordsBy {
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input MarketSettingHistoryRecordUpdateInput {
+  organization: String
+  residentAllowedPaymentTypes: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: MarketSettingHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input MarketSettingHistoryRecordsUpdateInput {
+  id: ID!
+  data: MarketSettingHistoryRecordUpdateInput
+}
+
+input MarketSettingHistoryRecordCreateInput {
+  organization: String
+  residentAllowedPaymentTypes: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: MarketSettingHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input MarketSettingHistoryRecordsCreateInput {
+  data: MarketSettingHistoryRecordCreateInput
+}
+
+""" Setting up special rules for the marketplace """
+type MarketSetting {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the MarketSetting List config, or
+   2. As an alias to the field set on 'labelField' in the MarketSetting List config, or
+   3. As an alias to a 'name' field on the MarketSetting List (if one exists), or
+   4. As an alias to the 'id' field on the MarketSetting List.
+  """
+  _label_: String
+
+  """ Ref to the organization. The object will be deleted if the organization ceases to exist 
+  """
+  organization: Organization
+
+  """ Types of payments are allowed for selection on the resident’s side """
+  residentAllowedPaymentTypes: [InvoicePaymentTypeType!]
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input MarketSettingWhereInput {
+  AND: [MarketSettingWhereInput]
+  OR: [MarketSettingWhereInput]
+  organization: OrganizationWhereInput
+  organization_is_null: Boolean
+  residentAllowedPaymentTypes: [InvoicePaymentTypeType!]
+  residentAllowedPaymentTypes_not: [InvoicePaymentTypeType!]
+  residentAllowedPaymentTypes_in: [[InvoicePaymentTypeType!]]
+  residentAllowedPaymentTypes_not_in: [[InvoicePaymentTypeType!]]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input MarketSettingWhereUniqueInput {
+  id: ID!
+}
+
+enum SortMarketSettingsBy {
+  organization_ASC
+  organization_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input MarketSettingUpdateInput {
+  organization: OrganizationRelateToOneInput
+  residentAllowedPaymentTypes: [InvoicePaymentTypeType!]
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input MarketSettingsUpdateInput {
+  id: ID!
+  data: MarketSettingUpdateInput
+}
+
+input MarketSettingCreateInput {
+  organization: OrganizationRelateToOneInput
+  residentAllowedPaymentTypes: [InvoicePaymentTypeType!]
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input MarketSettingsCreateInput {
+  data: MarketSettingCreateInput
+}
+
 enum DocumentCategoryHistoryRecordHistoryActionType {
   c
   u
@@ -76215,6 +77262,21 @@ type GetAccessTokenByUserIdOutput {
   ttl: Int!
 }
 
+input CheckUserExistenceInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  confirmActionToken: ID!
+  userType: UserTypeType!
+}
+
+type CheckUserExistenceOutput {
+  userExists: Boolean!
+  nameSet: Boolean!
+  emailSet: Boolean!
+  phoneSet: Boolean!
+  passwordSet: Boolean!
+}
+
 enum OrganizationType {
   MANAGING_COMPANY
   HOLDING
@@ -76851,7 +77913,7 @@ input RegisterResidentInput {
   dv: Int!
   sender: SenderFieldInput!
   address: String!
-  addressMeta: AddressMetaFieldInput!
+  addressMeta: AddressMetaFieldInput
   unitName: String!
   unitType: BuildingUnitSubType
 }
@@ -77061,6 +78123,7 @@ input RegisterMetersReadingsMeterMetaInput {
   commissioningDate: String
   sealingDate: String
   controlReadingsDate: String
+  isAutomatic: Boolean
 }
 
 input RegisterMetersReadingsReadingAddressInfoInput {
@@ -77110,9 +78173,15 @@ type RegisterMetersReadingsOutput {
   meter: RegisterMetersReadingsMeterOutput!
 }
 
+input RegisterMultiPaymentReceiptAmountInput {
+  receipt: BillingReceiptWhereUniqueInput!
+  amount: String!
+}
+
 input RegisterMultiPaymentServiceConsumerInput {
   serviceConsumer: ServiceConsumerWhereUniqueInput!
   receipts: [BillingReceiptWhereUniqueInput!]!
+  amountDistribution: [RegisterMultiPaymentReceiptAmountInput!]
 }
 
 input RegisterMultiPaymentInput {
@@ -81012,6 +82081,36 @@ type Query {
   """ Retrieve the meta-data for the B2BAppNewsSharingConfig list. """
   _B2BAppNewsSharingConfigsMeta: _ListMeta
 
+  """ Search for all B2CAppMessageSettingHistoryRecord items which match the where clause. 
+  """
+  allB2CAppMessageSettingHistoryRecords(where: B2CAppMessageSettingHistoryRecordWhereInput, search: String, sortBy: [SortB2CAppMessageSettingHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [B2CAppMessageSettingHistoryRecord]
+
+  """ Search for the B2CAppMessageSettingHistoryRecord item with the matching ID. 
+  """
+  B2CAppMessageSettingHistoryRecord(where: B2CAppMessageSettingHistoryRecordWhereUniqueInput!): B2CAppMessageSettingHistoryRecord
+
+  """ Perform a meta-query on all B2CAppMessageSettingHistoryRecord items which match the where clause. 
+  """
+  _allB2CAppMessageSettingHistoryRecordsMeta(where: B2CAppMessageSettingHistoryRecordWhereInput, search: String, sortBy: [SortB2CAppMessageSettingHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the B2CAppMessageSettingHistoryRecord list. 
+  """
+  _B2CAppMessageSettingHistoryRecordsMeta: _ListMeta
+
+  """ Search for all B2CAppMessageSetting items which match the where clause. 
+  """
+  allB2CAppMessageSettings(where: B2CAppMessageSettingWhereInput, search: String, sortBy: [SortB2CAppMessageSettingsBy!], orderBy: String, first: Int, skip: Int): [B2CAppMessageSetting]
+
+  """ Search for the B2CAppMessageSetting item with the matching ID. """
+  B2CAppMessageSetting(where: B2CAppMessageSettingWhereUniqueInput!): B2CAppMessageSetting
+
+  """ Perform a meta-query on all B2CAppMessageSetting items which match the where clause. 
+  """
+  _allB2CAppMessageSettingsMeta(where: B2CAppMessageSettingWhereInput, search: String, sortBy: [SortB2CAppMessageSettingsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the B2CAppMessageSetting list. """
+  _B2CAppMessageSettingsMeta: _ListMeta
+
   """ Search for all MobileFeatureConfigHistoryRecord items which match the where clause. 
   """
   allMobileFeatureConfigHistoryRecords(where: MobileFeatureConfigHistoryRecordWhereInput, search: String, sortBy: [SortMobileFeatureConfigHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [MobileFeatureConfigHistoryRecord]
@@ -81207,6 +82306,33 @@ type Query {
 
   """ Retrieve the meta-data for the MarketPriceScope list. """
   _MarketPriceScopesMeta: _ListMeta
+
+  """ Search for all MarketSettingHistoryRecord items which match the where clause. 
+  """
+  allMarketSettingHistoryRecords(where: MarketSettingHistoryRecordWhereInput, search: String, sortBy: [SortMarketSettingHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [MarketSettingHistoryRecord]
+
+  """ Search for the MarketSettingHistoryRecord item with the matching ID. """
+  MarketSettingHistoryRecord(where: MarketSettingHistoryRecordWhereUniqueInput!): MarketSettingHistoryRecord
+
+  """ Perform a meta-query on all MarketSettingHistoryRecord items which match the where clause. 
+  """
+  _allMarketSettingHistoryRecordsMeta(where: MarketSettingHistoryRecordWhereInput, search: String, sortBy: [SortMarketSettingHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the MarketSettingHistoryRecord list. """
+  _MarketSettingHistoryRecordsMeta: _ListMeta
+
+  """ Search for all MarketSetting items which match the where clause. """
+  allMarketSettings(where: MarketSettingWhereInput, search: String, sortBy: [SortMarketSettingsBy!], orderBy: String, first: Int, skip: Int): [MarketSetting]
+
+  """ Search for the MarketSetting item with the matching ID. """
+  MarketSetting(where: MarketSettingWhereUniqueInput!): MarketSetting
+
+  """ Perform a meta-query on all MarketSetting items which match the where clause. 
+  """
+  _allMarketSettingsMeta(where: MarketSettingWhereInput, search: String, sortBy: [SortMarketSettingsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the MarketSetting list. """
+  _MarketSettingsMeta: _ListMeta
 
   """ Search for all DocumentCategoryHistoryRecord items which match the where clause. 
   """
@@ -81411,6 +82537,52 @@ type Query {
   }`
   """
   getAccessTokenByUserId(data: GetAccessTokenByUserIdInput!): GetAccessTokenByUserIdOutput
+
+  """
+  Using an action token with a verified phone number, checks whether a user with the specified type (resident, staff, service) is registered.
+  As a result, information about the completion of some important fields (name, email, phone, password) is also returned.
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "query": "checkUserExistence",
+    "variable": [
+      "data",
+      "token"
+    ],
+    "code": "NOT_FOUND",
+    "type": "TOKEN_NOT_FOUND",
+    "message": "Token not found"
+  }`
+  
+  `{
+    "variable": [
+      "data",
+      "dv"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number",
+    "query": "checkUserExistence"
+  }`
+  
+  `{
+    "variable": [
+      "data",
+      "sender"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value",
+    "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}",
+    "query": "checkUserExistence"
+  }`
+  """
+  checkUserExistence(data: CheckUserExistenceInput!): CheckUserExistenceOutput
   exportPropertiesToExcel(data: ExportPropertiesToExcelInput!): ExportPropertiesToExcelOutput
   allResidentBillingReceipts(where: ResidentBillingReceiptWhereInput, first: Int, skip: Int, sortBy: [SortResidentBillingReceiptsBy!]): [ResidentBillingReceiptOutput]
   _allBillingReceiptsSum(where: BillingReceiptWhereInput!): BillingReceiptsSumOutput
@@ -85878,6 +87050,42 @@ type Mutation {
   """ Delete multiple B2BAppNewsSharingConfig items by ID. """
   deleteB2BAppNewsSharingConfigs(ids: [ID!]): [B2BAppNewsSharingConfig]
 
+  """ Create a single B2CAppMessageSettingHistoryRecord item. """
+  createB2CAppMessageSettingHistoryRecord(data: B2CAppMessageSettingHistoryRecordCreateInput): B2CAppMessageSettingHistoryRecord
+
+  """ Create multiple B2CAppMessageSettingHistoryRecord items. """
+  createB2CAppMessageSettingHistoryRecords(data: [B2CAppMessageSettingHistoryRecordsCreateInput]): [B2CAppMessageSettingHistoryRecord]
+
+  """ Update a single B2CAppMessageSettingHistoryRecord item by ID. """
+  updateB2CAppMessageSettingHistoryRecord(id: ID!, data: B2CAppMessageSettingHistoryRecordUpdateInput): B2CAppMessageSettingHistoryRecord
+
+  """ Update multiple B2CAppMessageSettingHistoryRecord items by ID. """
+  updateB2CAppMessageSettingHistoryRecords(data: [B2CAppMessageSettingHistoryRecordsUpdateInput]): [B2CAppMessageSettingHistoryRecord]
+
+  """ Delete a single B2CAppMessageSettingHistoryRecord item by ID. """
+  deleteB2CAppMessageSettingHistoryRecord(id: ID!): B2CAppMessageSettingHistoryRecord
+
+  """ Delete multiple B2CAppMessageSettingHistoryRecord items by ID. """
+  deleteB2CAppMessageSettingHistoryRecords(ids: [ID!]): [B2CAppMessageSettingHistoryRecord]
+
+  """ Create a single B2CAppMessageSetting item. """
+  createB2CAppMessageSetting(data: B2CAppMessageSettingCreateInput): B2CAppMessageSetting
+
+  """ Create multiple B2CAppMessageSetting items. """
+  createB2CAppMessageSettings(data: [B2CAppMessageSettingsCreateInput]): [B2CAppMessageSetting]
+
+  """ Update a single B2CAppMessageSetting item by ID. """
+  updateB2CAppMessageSetting(id: ID!, data: B2CAppMessageSettingUpdateInput): B2CAppMessageSetting
+
+  """ Update multiple B2CAppMessageSetting items by ID. """
+  updateB2CAppMessageSettings(data: [B2CAppMessageSettingsUpdateInput]): [B2CAppMessageSetting]
+
+  """ Delete a single B2CAppMessageSetting item by ID. """
+  deleteB2CAppMessageSetting(id: ID!): B2CAppMessageSetting
+
+  """ Delete multiple B2CAppMessageSetting items by ID. """
+  deleteB2CAppMessageSettings(ids: [ID!]): [B2CAppMessageSetting]
+
   """ Create a single MobileFeatureConfigHistoryRecord item. """
   createMobileFeatureConfigHistoryRecord(data: MobileFeatureConfigHistoryRecordCreateInput): MobileFeatureConfigHistoryRecord
 
@@ -86129,6 +87337,42 @@ type Mutation {
 
   """ Delete multiple MarketPriceScope items by ID. """
   deleteMarketPriceScopes(ids: [ID!]): [MarketPriceScope]
+
+  """ Create a single MarketSettingHistoryRecord item. """
+  createMarketSettingHistoryRecord(data: MarketSettingHistoryRecordCreateInput): MarketSettingHistoryRecord
+
+  """ Create multiple MarketSettingHistoryRecord items. """
+  createMarketSettingHistoryRecords(data: [MarketSettingHistoryRecordsCreateInput]): [MarketSettingHistoryRecord]
+
+  """ Update a single MarketSettingHistoryRecord item by ID. """
+  updateMarketSettingHistoryRecord(id: ID!, data: MarketSettingHistoryRecordUpdateInput): MarketSettingHistoryRecord
+
+  """ Update multiple MarketSettingHistoryRecord items by ID. """
+  updateMarketSettingHistoryRecords(data: [MarketSettingHistoryRecordsUpdateInput]): [MarketSettingHistoryRecord]
+
+  """ Delete a single MarketSettingHistoryRecord item by ID. """
+  deleteMarketSettingHistoryRecord(id: ID!): MarketSettingHistoryRecord
+
+  """ Delete multiple MarketSettingHistoryRecord items by ID. """
+  deleteMarketSettingHistoryRecords(ids: [ID!]): [MarketSettingHistoryRecord]
+
+  """ Create a single MarketSetting item. """
+  createMarketSetting(data: MarketSettingCreateInput): MarketSetting
+
+  """ Create multiple MarketSetting items. """
+  createMarketSettings(data: [MarketSettingsCreateInput]): [MarketSetting]
+
+  """ Update a single MarketSetting item by ID. """
+  updateMarketSetting(id: ID!, data: MarketSettingUpdateInput): MarketSetting
+
+  """ Update multiple MarketSetting items by ID. """
+  updateMarketSettings(data: [MarketSettingsUpdateInput]): [MarketSetting]
+
+  """ Delete a single MarketSetting item by ID. """
+  deleteMarketSetting(id: ID!): MarketSetting
+
+  """ Delete multiple MarketSetting items by ID. """
+  deleteMarketSettings(ids: [ID!]): [MarketSetting]
 
   """ Create a single DocumentCategoryHistoryRecord item. """
   createDocumentCategoryHistoryRecord(data: DocumentCategoryHistoryRecordCreateInput): DocumentCategoryHistoryRecord
@@ -88864,7 +90108,7 @@ type Mutation {
   		"dv": {
   			"required": true
   		},
-  		"tags": {
+  		"attachingData": {
   			"required": false
   		},
   		"data": {

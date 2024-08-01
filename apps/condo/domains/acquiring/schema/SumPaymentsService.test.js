@@ -11,6 +11,8 @@ const { makePayer, createTestPayment, sumPaymentsByTestClient, createPaymentsAnd
 const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
+const { createTestUserRightsSet, updateTestUser } = require('../../user/utils/testSchema')
+
 describe('SumPaymentsService', () => {
     describe('logic and correct summing', () => {
         test('admin: sum one payment', async () => {
@@ -41,6 +43,20 @@ describe('SumPaymentsService', () => {
             const support = await makeClientWithSupportUser()
             const where = { organization: { id: organization.id } }
             const { sum } = await sumPaymentsByTestClient(support, where)
+
+            expect(String(sum)).toEqual(manualSum)
+        })
+        test('user with directAccess can sum payments', async () => {
+            const { organization, sum: manualSum } = await createPaymentsAndGetSum(10)
+
+            const support = await makeClientWithSupportUser()
+
+            const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [userRightsSet] = await createTestUserRightsSet(support, { canExecute_allPaymentsSum: true })
+            await updateTestUser(support, userClient.user.id, { rightsSet: { connect: { id: userRightsSet.id } } })
+
+            const where = { organization: { id: organization.id } }
+            const { sum } = await sumPaymentsByTestClient(userClient, where)
 
             expect(String(sum)).toEqual(manualSum)
         })

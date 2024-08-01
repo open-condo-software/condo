@@ -171,6 +171,7 @@ export const CreatePropertyModal: React.FC<CreatePropertyModalProps> = ({ open, 
                                 filterOption={false}
                                 displayMode='fill-parent'
                                 notFoundContentLabel={searchValue.length ? NoDataMessage : EmptySearchNoDataMessage}
+                                ellipsis='start'
                             />
                         </Form.Item>
                     </Col>

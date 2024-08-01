@@ -60,7 +60,7 @@ const PredictTransactionClassificationService = new GQLCustomSchema('PredictTran
             type: 'type PredictTransactionClassificationOutput { id: ID!, name: String!, isOutcome: Boolean!, category: ID! }',
         },
     ],
-    
+
     queries: [
         {
             access: access.canPredictTransactionClassification,
@@ -72,7 +72,7 @@ const PredictTransactionClassificationService = new GQLCustomSchema('PredictTran
             },
             resolver: async (parent, args, context) => {
                 const { data: { purpose, isOutcome } } = args
-                if (conf.NODE_ENV === 'test' || !ML_SPACE_TRANSACTION_CLASSIFIER) {
+                if (!ML_SPACE_TRANSACTION_CLASSIFIER) {
                     return null
                 }
 
@@ -116,7 +116,7 @@ const PredictTransactionClassificationService = new GQLCustomSchema('PredictTran
             },
         },
     ],
-    
+
 })
 
 module.exports = {

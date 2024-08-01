@@ -1,5 +1,6 @@
 import { Form } from 'antd'
-import { isEmpty } from 'lodash'
+import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -8,14 +9,20 @@ import { ActionBar, Tour } from '@open-condo/ui'
 import { ButtonWithDisabledTooltip } from '@condo/domains/common/components/ButtonWithDisabledTooltip'
 import { MeterPageTypes, METER_TAB_TYPES } from '@condo/domains/meter/utils/clientSchema'
 
-
 const PROPERTY_DEPENDENCY = ['property']
 const handleShouldUpdate = (prev, next) => prev.unitName !== next.unitName
+
+interface ICreateMeterReadingsActionBarPropsMeter {
+    id: string,
+    numberOfTariffs?: number,
+}
+
 type CreateMeterReadingsActionBarProps = {
     handleSave: () => void
     isLoading: boolean,
     newMeterReadings: Array<unknown> | unknown
     meterType: MeterPageTypes,
+    meters: Array<ICreateMeterReadingsActionBarPropsMeter>,
 }
 
 export const CreateMeterReadingsActionBar = ({
@@ -23,6 +30,7 @@ export const CreateMeterReadingsActionBar = ({
     isLoading,
     newMeterReadings,
     meterType,
+    meters,
 }: CreateMeterReadingsActionBarProps): JSX.Element => {
     const intl = useIntl()
     const SendMetersReadingMessage = intl.formatMessage({ id: 'pages.condo.meter.SendMetersReading' })
@@ -41,11 +49,20 @@ export const CreateMeterReadingsActionBar = ({
         >
             {
                 ({ getFieldsValue, getFieldValue, getFieldError }) => {
-                    let isSubmitButtonDisabled, isCreateMeterButtonDisabled, errors, requiredErrorMessage
+                    let isSubmitButtonDisabled, errors, requiredErrorMessage
+
+                    const metersByIds = {}
+                    for (const meter of meters) {
+                        metersByIds[meter.id] = meter
+                    }
+
+                    const hasWrongNumberOfValues = Object.keys(newMeterReadings).reduce((result, meterId) => {
+                        return result || Object.keys(get(newMeterReadings, meterId, {})).length !== get(metersByIds, [meterId, 'numberOfTariffs'])
+                    }, false)
+
                     if (meterType === METER_TAB_TYPES.meter) {
                         const { property, unitName } = getFieldsValue(['property', 'unitName'])
-                        isSubmitButtonDisabled = !property || !unitName || isEmpty(newMeterReadings)
-                        isCreateMeterButtonDisabled = !property || !unitName
+                        isSubmitButtonDisabled = !property || !unitName || isEmpty(newMeterReadings) || hasWrongNumberOfValues
                         const propertyMismatchError = getFieldError('property').find((error) => error.includes(FieldIsRequiredMessage))
                         const propertyErrorMessage = !property && AddressLabel
                         const unitErrorMessage = !unitName && UnitMessage
@@ -60,8 +77,7 @@ export const CreateMeterReadingsActionBar = ({
                         const property = getFieldValue('property')
                         const propertyMismatchError = getFieldError('property').find((error) => error.includes(FieldIsRequiredMessage))
                         const propertyErrorMessage = !property && AddressLabel
-                        isSubmitButtonDisabled = !property || isEmpty(newMeterReadings)
-                        isCreateMeterButtonDisabled = !property
+                        isSubmitButtonDisabled = !property || isEmpty(newMeterReadings) || hasWrongNumberOfValues
                         requiredErrorMessage = propertyErrorMessage && ErrorsContainerTitle.concat(' ', propertyErrorMessage)
 
                         errors = [requiredErrorMessage, propertyMismatchError].filter(Boolean).join(',')

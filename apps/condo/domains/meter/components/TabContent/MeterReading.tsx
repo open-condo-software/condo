@@ -54,6 +54,7 @@ const METERS_PAGE_CONTENT_ROW_GUTTERS: RowProps['gutter'] = [0, 40]
 const FILTERS_CONTAINER_GUTTER: RowProps['gutter'] = [16, 16]
 const RESET_FILTERS_BUTTON_STYLE: CSSProperties = { paddingLeft: 0 }
 const QUICK_FILTERS_COL_STYLE: CSSProperties = { alignSelf: 'center' }
+const FULL_WIDTH_DATE_RANGE_STYLE: CSSProperties = { width: '100%' }
 
 const SORTABLE_PROPERTIES = ['date', 'clientName', 'source']
 
@@ -67,6 +68,8 @@ type MetersTableContentProps = {
     sortableProperties?: string[]
     mutationErrorsToMessages?: Record<string, string>
     loading?: boolean
+    showImportButton?: boolean
+    refetchReadingsCount?: () => void
 }
 
 
@@ -79,6 +82,8 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     isAutomatic,
     meter,
     resource,
+    showImportButton = true,
+    refetchReadingsCount,
 }) => {
     const intl = useIntl()
     const CreateMeterReadingsButtonLabel = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterReadingsButtonLabel' })
@@ -151,7 +156,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     }, [])
 
     const processedMeterReadings = useMemo(() => {
-        const filteredMeterReading = meterReadings.map(a => a).sort((a, b) => (a.date < b.date ? 1 : -1))
+        const filteredMeterReading = [...meterReadings].sort((a, b) => (a.date < b.date ? 1 : -1))
         return uniqBy(filteredMeterReading, (reading => get(reading, 'meter.id')))
     }, [meterReadings])
 
@@ -177,10 +182,10 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
         if (selectedReadingKeys.length) {
             const itemsToDeleteByChunks = chunk(selectedReadingKeys.map((key) => ({ id: key })), 30)
             for (const itemsToDelete of itemsToDeleteByChunks) {
-                await softDeleteMeterReadings(itemsToDelete)
+                await softDeleteMeterReadings(itemsToDelete).then(refetchReadingsCount)
             }
         }
-    }, [softDeleteMeterReadings, selectedReadingKeys])
+    }, [selectedReadingKeys, softDeleteMeterReadings, refetchReadingsCount])
 
     const handleSelectAllRowsByPage = useCallback((e: CheckboxChangeEvent) => {
         const checked = e.target.checked
@@ -255,13 +260,14 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                                         suffix={<Search size='medium' color={colors.gray[7]}/>}
                                     />
                                 </Col>
-                                <Col>
+                                <Col xs={24} sm={24} md={16}>
                                     <Row justify='start' gutter={FILTERS_CONTAINER_GUTTER} style={{ flexWrap: 'nowrap' }}>
-                                        <Col style={QUICK_FILTERS_COL_STYLE}>
+                                        <Col style={QUICK_FILTERS_COL_STYLE} xs={24} sm={11}>
                                             <DateRangePicker
                                                 value={dateRange}
                                                 onChange={handleDateChange}
                                                 placeholder={[StartDateMessage, EndDateMessage]}
+                                                style={FULL_WIDTH_DATE_RANGE_STYLE}
                                             />
                                         </Col>
                                     </Row>
@@ -353,7 +359,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                                         {CreateMeterReadingsButtonLabel}
                                     </Button>
                                 ),
-                                canManageMeterReadings && !meter && (
+                                canManageMeterReadings && !meter && showImportButton && (
                                     <MetersImportWrapper
                                         key='import'
                                         accessCheck={canManageMeterReadings}
@@ -405,13 +411,15 @@ export const MeterReadingsPageContent: React.FC<MeterReadingsPageContentProps> =
     meter,
     isAutomatic,
     resource,
+    showImportButton = true,
 }) => {
     const intl = useIntl()
     const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.header' })
     const EmptyListManualBodyDescription = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.manualCreateCard.body.description' })
+    const CreateMeterReading = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterReadingButtonLabel' })
 
     const { refetch } = MeterReadingForOrganization.useCount({}, { skip: true })
-    const { count, loading: countLoading } = MeterReadingForOrganization.useCount({ where: baseSearchQuery })
+    const { count, loading: countLoading, refetch: refetchReadingsCount } = MeterReadingForOrganization.useCount({ where: baseSearchQuery })
 
     const nextVerificationDate = get(meter, 'nextVerificationDate')
     const isDeletedProperty = !get(meter, 'property')
@@ -422,21 +430,27 @@ export const MeterReadingsPageContent: React.FC<MeterReadingsPageContentProps> =
         if (count === 0) {
             return (
                 <>
-                    {!meter && (<EmptyListContent
-                        label={EmptyListLabel}
-                        importLayoutProps={{
-                            manualCreateEmoji: EMOJI.CLOCK,
-                            manualCreateDescription: EmptyListManualBodyDescription,
-                            importCreateEmoji: EMOJI.LIST,
-                            importWrapper: {
-                                onFinish: refetch,
-                                domainName: 'meterReading',
-                            },
-                            OverrideImportWrapperFC: MetersImportWrapper,
-                        }}
-                        createRoute={`/meter/create?tab=${METER_TAB_TYPES.meterReading}`}
-                        accessCheck={canManageMeterReadings}
-                    />)}
+                    {!meter && (
+                        showImportButton ? (<EmptyListContent
+                            label={EmptyListLabel}
+                            importLayoutProps={{
+                                manualCreateEmoji: EMOJI.CLOCK,
+                                manualCreateDescription: EmptyListManualBodyDescription,
+                                importCreateEmoji: EMOJI.LIST,
+                                importWrapper: {
+                                    onFinish: refetch,
+                                    domainName: 'meterReading',
+                                },
+                                OverrideImportWrapperFC: MetersImportWrapper,
+                            }}
+                            createRoute={`/meter/create?tab=${METER_TAB_TYPES.meterReading}`}
+                            accessCheck={canManageMeterReadings}
+                        />) : (<EmptyListContent
+                            label={EmptyListLabel}
+                            createRoute={`/meter/create?tab=${METER_TAB_TYPES.meterReading}`}
+                            createLabel={CreateMeterReading}
+                            accessCheck={canManageMeterReadings}
+                        />) )}
                     {meter && (
                         <Col span={24}>
                             <ActionBarForSingleMeter
@@ -467,9 +481,11 @@ export const MeterReadingsPageContent: React.FC<MeterReadingsPageContentProps> =
                 meter={meter}
                 isAutomatic={isAutomatic}
                 resource={resource}
+                showImportButton={showImportButton}
+                refetchReadingsCount={refetchReadingsCount}
             />
         )
-    }, [EmptyListLabel, EmptyListManualBodyDescription, baseSearchQuery, canManageMeterReadings, count, countLoading, filtersMeta, isAutomatic, isDeletedProperty, loading, meter, nextVerificationDate, refetch, resource])
+    }, [CreateMeterReading, EmptyListLabel, EmptyListManualBodyDescription, baseSearchQuery, canManageMeterReadings, count, countLoading, filtersMeta, isAutomatic, isDeletedProperty, loading, meter, nextVerificationDate, refetch, refetchReadingsCount, resource, showImportButton])
 
     return (
         <TablePageContent>

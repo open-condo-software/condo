@@ -46,6 +46,7 @@ const SHARING_APP_BACKGROUND_PICTURE_URL = '/phoneSharingNewsPreview.png'
 const PREVIEW_CONTENT_HEIGHT = 500
 
 const NewsPreviewContainer = styled.div`
+  margin-left: auto;
   width: 100%;
   // Not a typo, done intentionally
   max-width: ${PREVIEW_CONTENT_HEIGHT}px;

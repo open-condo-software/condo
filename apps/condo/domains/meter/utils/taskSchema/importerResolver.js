@@ -16,6 +16,8 @@ const {
     ELECTRICITY_METER_RESOURCE_ID,
     HEAT_SUPPLY_METER_RESOURCE_ID,
     GAS_SUPPLY_METER_RESOURCE_ID,
+    COLD_AIR_METER_RESOURCE_ID,
+    DRAINAGE_METER_RESOURCE_ID,
 } = require('@condo/domains/meter/constants/constants')
 const {
     EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT,
@@ -59,27 +61,29 @@ function getColumnNames (format, locale) {
     const SealingDateMessage = i18n('meter.import.column.SealingDate', { locale })
     const ControlReadingsDate = i18n('meter.import.column.ControlReadingsDate', { locale })
     const PlaceColumnMessage = i18n('meter.import.column.MeterPlace', { locale })
+    const AutomaticColumnMessage = i18n('meter.import.column.Automatic', { locale })
 
     return format === DOMA_EXCEL ? [
-        { name: AddressColumnMessage, type: 'string', required: true },
-        { name: UnitNameColumnMessage, type: 'string', required: true },
-        { name: UnitTypeColumnMessage, type: 'string', required: true },
-        { name: AccountNumberColumnMessage, type: 'string', required: true },
-        { name: MeterTypeColumnMessage, type: 'string', required: true },
-        { name: MeterNumberColumnMessage, type: 'string', required: true },
-        { name: MeterTariffsNumberColumnMessage, type: 'string', required: true },
-        { name: Value1ColumnMessage, type: 'string', required: false },
-        { name: Value2ColumnMessage, type: 'string', required: false },
-        { name: Value3ColumnMessage, type: 'string', required: false },
-        { name: Value4ColumnMessage, type: 'string', required: false },
-        { name: ReadingSubmissionDateMessage, type: 'custom', required: true },
-        { name: VerificationDateMessage, type: 'date', required: false },
-        { name: NextVerificationDateMessage, type: 'date', required: false },
-        { name: InstallationDateMessage, type: 'date', required: false },
-        { name: CommissioningDateMessage, type: 'date', required: false },
-        { name: SealingDateMessage, type: 'date', required: false },
-        { name: ControlReadingsDate, type: 'date', required: false },
-        { name: PlaceColumnMessage, type: 'string', required: false },
+        { name: AddressColumnMessage },
+        { name: UnitNameColumnMessage },
+        { name: UnitTypeColumnMessage },
+        { name: AccountNumberColumnMessage },
+        { name: MeterTypeColumnMessage },
+        { name: MeterNumberColumnMessage },
+        { name: MeterTariffsNumberColumnMessage },
+        { name: Value1ColumnMessage },
+        { name: Value2ColumnMessage },
+        { name: Value3ColumnMessage },
+        { name: Value4ColumnMessage },
+        { name: ReadingSubmissionDateMessage },
+        { name: VerificationDateMessage },
+        { name: NextVerificationDateMessage },
+        { name: InstallationDateMessage },
+        { name: CommissioningDateMessage },
+        { name: SealingDateMessage },
+        { name: ControlReadingsDate },
+        { name: PlaceColumnMessage },
+        { name: AutomaticColumnMessage },
     ] : null
 }
 
@@ -95,6 +99,11 @@ function getMappers (format, locale) {
     const ElectricityResourceTypeValue = i18n('meter.import.value.meterResourceType.electricity', { locale })
     const HeatSupplyResourceTypeValue = i18n('meter.import.value.meterResourceType.heatSupply', { locale })
     const GasSupplyResourceTypeValue = i18n('meter.import.value.meterResourceType.gasSupply', { locale })
+    const ColdAirResourceTypeValue = i18n('meter.import.value.meterResourceType.coldAir', { locale })
+    const DrainageResourceTypeValue = i18n('meter.import.value.meterResourceType.drainage', { locale })
+
+    const Yes = i18n('Yes', { locale })
+    const No = i18n('No', { locale })
 
     return format === DOMA_EXCEL ? {
         unitType: {
@@ -110,6 +119,12 @@ function getMappers (format, locale) {
             [ElectricityResourceTypeValue]: ELECTRICITY_METER_RESOURCE_ID,
             [HeatSupplyResourceTypeValue]: HEAT_SUPPLY_METER_RESOURCE_ID,
             [GasSupplyResourceTypeValue]: GAS_SUPPLY_METER_RESOURCE_ID,
+            [ColdAirResourceTypeValue]: COLD_AIR_METER_RESOURCE_ID,
+            [DrainageResourceTypeValue]: DRAINAGE_METER_RESOURCE_ID,
+        },
+        isAutomatic: {
+            [Yes.toLowerCase()]: true,
+            [No.toLowerCase()]: false,
         },
     } : {
         unitType: {},
@@ -124,10 +139,11 @@ function getMappers (format, locale) {
             '8': HOT_WATER_METER_RESOURCE_ID, // Hot water
             '9': COLD_WATER_METER_RESOURCE_ID, // Cold water
             '10': HEAT_SUPPLY_METER_RESOURCE_ID, // Heating
-            '11': '', // Water disposal
+            '11': DRAINAGE_METER_RESOURCE_ID, // Drainage
             '12': '', // Water for irrigation
             '13': '', // Garbage
         },
+        isAutomatic: {},
     }
 }
 
@@ -151,24 +167,25 @@ async function getErrors (keystone, format, locale, columns, mappers) {
     const ValidationErrorMessage = i18n('errors.import.ValidationError', { locale })
     const CreationErrorMessage = i18n('errors.import.CreationError', { locale })
 
-    const UnknownResource =  i18n('meter.import.error.unknownResourceType', { locale, meta: { knownList: Object.keys(mappers.resourceId).join(',') } })
-    const UnknownUnitType =  i18n('meter.import.error.unknownUnitType', { locale, meta: { knownList: Object.keys(mappers.unitType).join(',') } })
+    const UnknownResource =  i18n('meter.import.error.unknownResourceType', { locale, meta: { knownList: Object.keys(mappers.resourceId).join(', ') } })
+    const UnknownUnitType =  i18n('meter.import.error.unknownUnitType', { locale, meta: { knownList: Object.keys(mappers.unitType).join(', ') } })
+    const UnknownIsAutomatic = i18n('meter.import.error.unknownIsAutomatic', { locale, meta: { knownList: Object.keys(mappers.isAutomatic).join(', ') } })
+
+    const InvalidColumnsMessage = columns ? i18n('TableHasInvalidHeaders.message', { locale, meta: {
+        value: columns.map(column => `"${column.name}"`).join(', '),
+    } }) : ''
 
     return {
-        tooManyRows: { title: TooManyRowsErrorTitle, message: TooManyRowsErrorMessage },
-        invalidColumns: {
-            title: InvalidHeadersErrorTitle,
-            message: columns ? i18n('TableHasInvalidHeaders.message', { locale, meta: {
-                value: columns.map(column => `"${column.name}"`).join(', '),
-            } }) : '',
-        },
+        tooManyRows: { message: `${TooManyRowsErrorTitle}.${TooManyRowsErrorMessage}` },
+        invalidColumns: { message: `${InvalidHeadersErrorTitle}. ${InvalidColumnsMessage}` },
         invalidTypes: { message: NotValidRowTypesMessage },
         normalization: { message: NormalizationErrorMessage },
         validation: { message: ValidationErrorMessage },
         creation: { message: CreationErrorMessage },
-        emptyRows: { title: EmptyRowsErrorTitle, message: EmptyRowsErrorMessage },
+        emptyRows: { message: `${EmptyRowsErrorTitle}. ${EmptyRowsErrorMessage}` },
         unknownResource: { message: UnknownResource },
         unknownUnitType: { message: UnknownUnitType },
+        unknownIsAutomatic: { message: UnknownIsAutomatic },
     }
 }
 
@@ -176,7 +193,7 @@ function getMutationError (locale) {
     const MeterAccountNumberExistInOtherUnitMessage = i18n('meter.import.error.MeterAccountNumberExistInOtherUnit', locale)
     const MeterResourceOwnedByAnotherOrganizationMessage = i18n('api.meter.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION', locale)
     const MeterNumberExistInOrganizationMessage = i18n('meter.import.error.MeterNumberExistInOrganization', locale)
-    
+
     return {
         [EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT]: MeterAccountNumberExistInOtherUnitMessage,
         [EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION]: MeterNumberExistInOrganizationMessage,
@@ -199,12 +216,12 @@ async function importRows (keystone, userId, organizationId, rows) {
         organization: { id: organizationId },
         readings: rows,
     })
-    
+
     // fatal error proceeding case - throw error in order to fail proceeding job - since this is not recoverable state
     if (isNil(result) && !isEmpty(errors)) {
         throw errors[0]
     }
-    
+
     return { errors, result }
 }
 
@@ -272,3 +289,4 @@ async function getImporter (keystone, taskId, organizationId, userId, format, lo
 module.exports = {
     getImporter,
 }
+

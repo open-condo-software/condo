@@ -510,6 +510,7 @@ const sendDailyMessageToUserSafely = async (context, user, currentDate, taskId, 
         logger.info({ msg: 'start sendDailyMessageToUser.', taskId, data: { currentDate, userId: user.id } })
         const userStatistics = new UserDailyStatistics(user.id, currentDate, taskId)
         const statisticsData = await userStatistics.loadStatistics(organizationWhere)
+        const organizationIds = userStatistics.getOrganizationIds()
 
         const isEmptyStatistics = statisticsData.tickets.inProgress.total < 1
             && statisticsData.tickets.isEmergency.total < 1
@@ -534,9 +535,23 @@ const sendDailyMessageToUserSafely = async (context, user, currentDate, taskId, 
             meta: {
                 dv: 1,
                 data: messageData,
-
-                // TODO(Alllex202): tags should be removed after testing!
-                tags: [`orgId: ${userStatistics.getOrganizationIds().join('; ')}`.slice(0, 128)],
+                attachingData: {
+                    organizationIds,
+                    userId: user.id,
+                    uniqKey,
+                    statisticsData: {
+                        tickets: {
+                            inProgress: statisticsData.tickets.inProgress.total,
+                            isEmergency: statisticsData.tickets.isEmergency.total,
+                            isExpired: statisticsData.tickets.isExpired.total,
+                            isReturned: statisticsData.tickets.isReturned.total,
+                            withoutEmployee: statisticsData.tickets.withoutEmployee.total,
+                        },
+                        incidents: {
+                            water: statisticsData.incidents.water.length,
+                        },
+                    },
+                },
             },
         })
 

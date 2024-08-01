@@ -13,23 +13,46 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE } = require('@condo/domains/common/constants/errors')
-const { INVITE_NEW_EMPLOYEE_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
+const { INVITE_NEW_EMPLOYEE_MESSAGE_TYPE, VOIP_INCOMING_CALL_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { Message, createTestMessage, updateTestMessage } = require('@condo/domains/notification/utils/testSchema')
 const { makeClientWithRegisteredOrganization, createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
+const {
+    makeClientWithNewRegisteredAndLoggedInUser,
+    createTestUserRightsSet,
+    updateTestUser,
+} = require('@condo/domains/user/utils/testSchema')
 
 describe('Message', () => {
-    test('admin: create Message', async () => {
-        const client = await makeLoggedInAdminClient()
+    let admin
+    let user
+    let anonymous
+    let permittedClient
 
-        const [obj, attrs] = await createTestMessage(client)
+    beforeAll(async () => {
+        admin = await makeLoggedInAdminClient()
+        user = await makeClientWithRegisteredOrganization()
+        anonymous = await makeClient()
+        permittedClient = await makeClientWithNewRegisteredAndLoggedInUser()
+
+        const [rightsSet] = await createTestUserRightsSet(admin, {
+            canReadMessages: true,
+        })
+
+        await updateTestUser(admin, permittedClient.user.id, {
+            rightsSet: { connect: { id: rightsSet.id } },
+        })
+    })
+
+    test('admin: create Message', async () => {
+        const [obj, attrs] = await createTestMessage(admin)
         expect(obj.id).toMatch(UUID_RE)
         expect(obj.dv).toEqual(1)
         expect(obj.sender).toEqual(attrs.sender)
         expect(obj.v).toEqual(1)
         expect(obj.newId).toEqual(null)
         expect(obj.deletedAt).toEqual(null)
-        expect(obj.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
-        expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
+        expect(obj.createdBy).toEqual(expect.objectContaining({ id: admin.user.id }))
+        expect(obj.updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
         expect(obj.createdAt).toMatch(DATETIME_RE)
         expect(obj.updatedAt).toMatch(DATETIME_RE)
         expect(obj.status).toEqual('sending')
@@ -44,62 +67,54 @@ describe('Message', () => {
     })
 
     test('cannot connect another organization', async () => {
-        const adminClient = await makeLoggedInAdminClient()
-        const [obj] = await createTestMessage(adminClient)
-        const [newOrganization] = await createTestOrganization(adminClient)
+        const [obj] = await createTestMessage(admin)
+        const [newOrganization] = await createTestOrganization(admin)
         const payload = {
             organization: { connect: newOrganization.id },
         }
         await catchErrorFrom(async () => {
-            await updateTestMessage(adminClient, obj.id, payload)
+            await updateTestMessage(admin, obj.id, payload)
         }, (e) => {
             expect(e.errors[0].message).toContain('Field "organization" is not defined by type "MessageUpdateInput"')
         })
     })
 
+
     test('cannot disconnect organization', async () => {
-        const adminClient = await makeLoggedInAdminClient()
-        const [obj] = await createTestMessage(adminClient)
-        await createTestOrganization(adminClient)
+        const [obj] = await createTestMessage(admin)
+        await createTestOrganization(admin)
         const payload = {
             organization: { disconnectAll: true },
         }
         await catchErrorFrom(async () => {
-            await updateTestMessage(adminClient, obj.id, payload)
+            await updateTestMessage(admin, obj.id, payload)
         }, (e) => {
             expect(e.errors[0].message).toContain('Field "organization" is not defined by type "MessageUpdateInput"')
         })
     })
 
     test('admin: update Message', async () => {
-        const client = await makeLoggedInAdminClient()
-
-        const [objCreated] = await createTestMessage(client)
-        const [obj] = await updateTestMessage(client, objCreated.id, { email: 'new.user.mail@example.org' })
+        const [objCreated] = await createTestMessage(admin)
+        const [obj] = await updateTestMessage(admin, objCreated.id, { email: 'new.user.mail@example.org' })
         expect(obj.email).toEqual('new.user.mail@example.org')
     })
 
     test('user: create Message', async () => {
-        const client = await makeClientWithRegisteredOrganization()
         await expectToThrowAccessDeniedErrorToObj(async () => {
-            await createTestMessage(client)
+            await createTestMessage(user)
         })
     })
 
     test('anonymous: create Message', async () => {
-        const client = await makeClient()
         await expectToThrowAuthenticationErrorToObj(async () => {
-            await createTestMessage(client)
+            await createTestMessage(anonymous)
         })
     })
 
     test('user: read Message', async () => {
-        const client = await makeClientWithRegisteredOrganization()
+        const [obj, attrs] = await createTestMessage(admin, { user: { connect: { id: user.user.id } } })
 
-        const admin = await makeLoggedInAdminClient()
-        const [obj, attrs] = await createTestMessage(admin, { user: { connect: { id: client.user.id } } })
-
-        const obj1 = await Message.getOne(client, { id: obj.id })
+        const obj1 = await Message.getOne(user, { id: obj.id })
 
         expect(obj1.type).toEqual(INVITE_NEW_EMPLOYEE_MESSAGE_TYPE)
         expect(obj1.id).toMatch(obj.id)
@@ -115,84 +130,81 @@ describe('Message', () => {
     })
 
     test('anonymous: read Message', async () => {
-        const client = await makeClient()
-
         await expectToThrowAuthenticationErrorToObjects(async () => {
-            await Message.getAll(client)
+            await Message.getAll(anonymous)
         })
     })
 
     test('user: update Message', async () => {
-        const client = await makeClientWithRegisteredOrganization()
-
-        const admin = await makeLoggedInAdminClient()
-        const [objCreated] = await createTestMessage(admin, { user: { connect: { id: client.user.id } } })
+        const [objCreated] = await createTestMessage(admin, { user: { connect: { id: user.user.id } } })
 
         const payload = {}
         await expectToThrowAccessDeniedErrorToObj(async () => {
-            await updateTestMessage(client, objCreated.id, payload)
+            await updateTestMessage(user, objCreated.id, payload)
         })
     })
 
     test('anonymous: update Message', async () => {
-        const admin = await makeLoggedInAdminClient()
         const [objCreated] = await createTestMessage(admin)
 
-        const client = await makeClient()
         const payload = {}
         await expectToThrowAuthenticationErrorToObj(async () => {
-            await updateTestMessage(client, objCreated.id, payload)
+            await updateTestMessage(anonymous, objCreated.id, payload)
         })
     })
 
     test('user: delete Message', async () => {
-        const client = await makeClientWithRegisteredOrganization()
-
-        const admin = await makeLoggedInAdminClient()
-        const [objCreated] = await createTestMessage(admin, { user: { connect: { id: client.user.id } } })
+        const [objCreated] = await createTestMessage(admin, { user: { connect: { id: user.user.id } } })
 
         await expectToThrowAccessDeniedErrorToObj(async () => {
-            await Message.delete(client, objCreated.id)
+            await Message.delete(user, objCreated.id)
         })
     })
 
     test('anonymous: delete Message', async () => {
-        const admin = await makeLoggedInAdminClient()
         const [objCreated] = await createTestMessage(admin)
 
-        const client = await makeClient()
         await expectToThrowAccessDeniedErrorToObj(async () => {
-            await Message.delete(client, objCreated.id)
+            await Message.delete(anonymous, objCreated.id)
         })
     })
 
     test('admin: create with wrong sender', async () => {
-        const admin = await makeLoggedInAdminClient()
         await expectToThrowGraphQLRequestError(
             async () => await createTestMessage(admin, { sender: 'invalid' }),
             'Variable "$data" got invalid value "invalid" at "data.sender"; Expected type "SenderFieldInput" to be an object.',
         )
     })
 
+    test('User with direct rights set can read specific message types', async () => {
+        const [wrongMessage] = await createTestMessage(admin)
+        const [correctMessage] = await createTestMessage(admin, {
+            type: VOIP_INCOMING_CALL_MESSAGE_TYPE,
+        })
+
+        const messages = await Message.getAll(permittedClient, { id_in: [wrongMessage.id, correctMessage.id] })
+        expect(messages).toHaveLength(1)
+        expect(messages).toEqual([
+            expect.objectContaining({ id: correctMessage.id }),
+        ])
+    })
+
     describe('Message constraints', () => {
         it('checks Message constraints with non-null uniqKey and user', async () => {
-            const client = await makeClientWithRegisteredOrganization()
-            const admin = await makeLoggedInAdminClient()
             const uniqKey = faker.datatype.uuid()
 
-            const [obj] = await createTestMessage(admin, { user: { connect: { id: client.user.id } }, uniqKey })
+            const [obj] = await createTestMessage(admin, { user: { connect: { id: user.user.id } }, uniqKey })
 
             expect(obj.uniqKey).toMatch(uniqKey)
-            expect(obj.user.id).toMatch(client.user.id)
+            expect(obj.user.id).toMatch(user.user.id)
 
             await expectToThrowInternalError(
-                async () => await createTestMessage(admin, { user: { connect: { id: client.user.id } }, uniqKey }),
+                async () => await createTestMessage(admin, { user: { connect: { id: user.user.id } }, uniqKey }),
                 DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE,
             )
         })
 
         it('checks Message constraints with non-null uniqKey and nullish user', async () => {
-            const admin = await makeLoggedInAdminClient()
             const uniqKey = faker.datatype.uuid()
 
             const [obj] = await createTestMessage(admin, { user: null, uniqKey })
@@ -207,14 +219,12 @@ describe('Message', () => {
         })
 
         it('checks that Message constraints with non-null uniqKey and nullish/non-null user do not interfere', async () => {
-            const client = await makeClientWithRegisteredOrganization()
-            const admin = await makeLoggedInAdminClient()
             const uniqKey = faker.datatype.uuid()
 
-            const [obj] = await createTestMessage(admin, { user: { connect: { id: client.user.id } }, uniqKey })
+            const [obj] = await createTestMessage(admin, { user: { connect: { id: user.user.id } }, uniqKey })
 
             expect(obj.uniqKey).toMatch(uniqKey)
-            expect(obj.user.id).toMatch(client.user.id)
+            expect(obj.user.id).toMatch(user.user.id)
 
             const [obj1] = await createTestMessage(admin, { uniqKey })
 
@@ -222,7 +232,7 @@ describe('Message', () => {
             expect(obj1.user).toBeNull()
 
             await expectToThrowInternalError(
-                async () => await createTestMessage(admin, { user: { connect: { id: client.user.id } }, uniqKey }),
+                async () => await createTestMessage(admin, { user: { connect: { id: user.user.id } }, uniqKey }),
                 DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE,
             )
 
@@ -233,8 +243,6 @@ describe('Message', () => {
         })
 
         it('checks that there is no Message constraints for both nullish uniqKey and user', async () => {
-            const admin = await makeLoggedInAdminClient()
-
             const [obj] = await createTestMessage(admin, { user: null, uniqKey: null })
 
             expect(obj.uniqKey).toBeNull()

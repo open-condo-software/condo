@@ -11,6 +11,7 @@ export default {
         disabled: false,
         allowClear: false,
         suffix: '',
+        prefix: '',
     },
 } as ComponentMeta<typeof Component>
 

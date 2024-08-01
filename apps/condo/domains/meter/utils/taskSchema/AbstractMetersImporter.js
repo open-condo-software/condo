@@ -73,21 +73,21 @@ class AbstractMetersImporter {
                 const columns = this.tableData.shift()
 
                 if (!columns) {
-                    logger.error({ msg: this.errors.invalidColumns })
-                    await this.errorHandler(this.errors.invalidColumns)
+                    logger.error({ msg: this.errors.invalidColumns.message })
+                    await this.errorHandler(this.errors.invalidColumns.message)
                     return
                 }
                 if (!this.areColumnsHeadersValid(columns)) {
-                    logger.error({ msg: this.errors.invalidColumns })
-                    await this.errorHandler(this.errors.invalidColumns)
+                    logger.error({ msg: this.errors.invalidColumns.message })
+                    await this.errorHandler(this.errors.invalidColumns.message)
                     return
                 }
             }
 
             // empty data
             if (this.tableData.length === 0) {
-                await this.errorHandler(this.errors.emptyRows)
-                logger.error({ msg: this.errors.emptyRows })
+                await this.errorHandler(this.errors.emptyRows.message)
+                logger.error({ msg: this.errors.emptyRows.message })
                 return
             }
 
@@ -176,13 +176,40 @@ class AbstractMetersImporter {
                             if (messageForUser) {
                                 rowErrors.push(messageForUser)
                             } else {
-                                const mutationErrorMessages =
+                                let mutationErrorMessages =
                                     get(mutationError, ['originalError', 'errors', 0, 'data', 'messages'], []) || []
+
+                                // errors thrown to mutation from models (1 error)
+                                if (mutationErrorMessages.length === 0) {
+                                    mutationErrorMessages = [
+                                        get(
+                                            mutationError,
+                                            ['originalError', 'errors', 0, 'extensions', 'messageForUser'],
+                                            get(
+                                                mutationError,
+                                                ['originalError', 'errors', 0, 'originalError', 'extensions', 'messageForUser'],
+                                            ),
+                                        ),
+                                    ].filter(Boolean)
+                                }
+
+                                // errors thrown to mutation from models (2+ errors)
+                                if (mutationErrorMessages.length === 0) {
+                                    mutationErrorMessages = (get(mutationError, ['originalError', 'errors', 0, 'originalError', 'errors'], []) || []).reduce((result, error) => {
+                                        return [
+                                            ...result,
+                                            get(error, ['extensions', 'messageForUser'], get(error, ['extensions', 'message'])),
+                                        ]
+                                    }, [])
+                                }
+
                                 for (const message of mutationErrorMessages) {
                                     const errorCodes = Object.keys(this.mutationErrorsToMessages)
                                     for (const code of errorCodes) {
                                         if (message.includes(code)) {
                                             rowErrors.push(this.mutationErrorsToMessages[code])
+                                        } else if (!rowErrors.includes(message)) {
+                                            rowErrors.push(message)
                                         }
                                     }
                                 }
@@ -195,6 +222,8 @@ class AbstractMetersImporter {
                                 }
                             }
 
+                            // for sbbol import file we can have several transformed lines per one source line
+                            // in such cases we would like to proceed exactly one failed line
                             if (!indexesOfFailedSourceRows.has(sourceRowIndex)) {
                                 logger.error({ msg: 'Failed to import rows', errors: rowErrors })
                                 await this.failProcessingHandler({
@@ -202,8 +231,6 @@ class AbstractMetersImporter {
                                     errors: rowErrors,
                                 })
                                 indexesOfFailedSourceRows.add(sourceRowIndex)
-                            } else {
-                                this.progress.absImported += 1
                             }
                         } else {
                             this.progress.absImported += 1

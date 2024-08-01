@@ -8,8 +8,10 @@ const { makePayer } = require('@condo/domains/acquiring/utils/testSchema')
 const { sumBillingReceiptsByTestClient } = require('@condo/domains/billing/utils/testSchema')
 const { createTestBillingReceipt } = require('@condo/domains/billing/utils/testSchema')
 const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { createTestUserRightsSet, updateTestUser } = require('@condo/domains/user/utils/testSchema')
 
 const { ERRORS } = require('./SumBillingReceiptsService')
+
 
 
 
@@ -46,7 +48,7 @@ describe('SumBillingReceiptsService', () => {
 
             expect(String(sum)).toEqual(payers.zeroReceipts.toPaySum)
         })
-        test('where filtering works', async () => {
+        test('different where filters work', async () => {
             const { billingAccount, billingContext, billingProperty, organization } = await makePayer(0)
 
             const PERIOD_01 = '2024-01-01'
@@ -56,21 +58,25 @@ describe('SumBillingReceiptsService', () => {
             await createTestBillingReceipt(adminClient, billingContext, billingProperty, billingAccount, { toPay: '20.00', period: PERIOD_01 })
             await createTestBillingReceipt(adminClient, billingContext, billingProperty, billingAccount, { toPay: '5.00', period: PERIOD_02 })
             await createTestBillingReceipt(adminClient, billingContext, billingProperty, billingAccount, { toPay: '5.00', period: PERIOD_02 })
-            
+
+            const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [userRightsSet] = await createTestUserRightsSet(adminClient, { canExecute_allBillingReceiptsSum: true })
+            await updateTestUser(adminClient, userClient.user.id, { rightsSet: { connect: { id: userRightsSet.id } } })
+
             const where1 = { context: { organization: { id: organization.id } }, period: PERIOD_01 }
-            const { sum: sum1 } = await sumBillingReceiptsByTestClient(supportClient, where1)
+            const { sum: sum1 } = await sumBillingReceiptsByTestClient(userClient, where1)
             expect(String(sum1)).toEqual('40.00000000')
 
             const where2 = { context: { organization: { id: organization.id } }, period: PERIOD_02 }
-            const { sum: sum2 } = await sumBillingReceiptsByTestClient(supportClient, where2)
+            const { sum: sum2 } = await sumBillingReceiptsByTestClient(userClient, where2)
             expect(String(sum2)).toEqual('10.00000000')
 
             const where3 = { context: { organization: { id: organization.id } }, period: PERIOD_02, period_in: [PERIOD_02, PERIOD_01] }
-            const { sum: sum3 } = await sumBillingReceiptsByTestClient(supportClient, where3)
+            const { sum: sum3 } = await sumBillingReceiptsByTestClient(userClient, where3)
             expect(String(sum3)).toEqual('10.00000000')
 
             const where4 = { context: { organization: { id: organization.id } }, period_gte: PERIOD_01, period: PERIOD_02 }
-            const { sum: sum4 } = await sumBillingReceiptsByTestClient(supportClient, where4)
+            const { sum: sum4 } = await sumBillingReceiptsByTestClient(userClient, where4)
             expect(String(sum4)).toEqual('10.00000000')
         })
         test('should throw error if period not specified', async () => {

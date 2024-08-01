@@ -155,7 +155,7 @@ export function useTableColumns <T> (
             key: 'unitName',
             dataIndex: isMeter ? 'unitName' : ['meter', 'unitName'],
             width: '12%',
-            render: getUnitRender(intl, search),
+            render: getUnitRender(intl, search, isMeter),
             filterDropdown: getFilterDropdownByKey(filterMetas, 'unitName'),
             filterIcon: getFilterIcon,
         },

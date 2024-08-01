@@ -5,6 +5,7 @@
 
 const { AuthenticateUserWithPhoneAndPasswordService } = require('./AuthenticateUserWithPhoneAndPasswordService')
 const { ChangePhoneNumberResidentUserService } = require('./ChangePhoneNumberResidentUserService')
+const { CheckUserExistenceService } = require('./CheckUserExistenceService')
 const { ConfirmPhoneAction } = require('./ConfirmPhoneAction')
 const { ConfirmPhoneActionService } = require('./ConfirmPhoneActionService')
 const { ExternalTokenAccessRight } = require('./ExternalTokenAccessRight')
@@ -42,5 +43,6 @@ module.exports = {
     ExternalTokenAccessRight,
     GetAccessTokenByUserIdService,
     UserRightsSet,
+    CheckUserExistenceService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

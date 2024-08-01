@@ -5,6 +5,7 @@ import ruRU from 'antd/lib/locale/ru_RU'
 import dayjs from 'dayjs'
 import { cache } from 'emotion'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import getConfig from 'next/config'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -32,6 +33,7 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { MenuItem } from '@condo/domains/common/components/MenuItem'
 import PopupSmart from '@condo/domains/common/components/PopupSmart'
 import { PostMessageProvider } from '@condo/domains/common/components/PostMessageProvider'
+import { ServiceProblemsAlert } from '@condo/domains/common/components/ServiceProblemsAlert'
 import { SetupTelegramNotificationsBanner } from '@condo/domains/common/components/SetupTelegramNotificationsBanner'
 import { TASK_STATUS } from '@condo/domains/common/components/tasks'
 import { TasksContextProvider } from '@condo/domains/common/components/tasks/TasksContextProvider'
@@ -434,6 +436,7 @@ const MyApp = ({ Component, pageProps }) => {
     useHotCodeReload()
     dayjs.locale(intl.locale)
     const router = useRouter()
+    const { publicRuntimeConfig: { yandexMetrikaID, popupSmartConfig } } = getConfig()
 
     const LayoutComponent = Component.container || BaseLayout
     // TODO(Dimitreee): remove this mess later
@@ -464,7 +467,7 @@ const MyApp = ({ Component, pageProps }) => {
                     <SetupTelegramNotificationsBanner />
                     <GlobalStyle/>
                     {shouldDisplayCookieAgreement && <CookieAgreement/>}
-                    <LayoutContextProvider>
+                    <LayoutContextProvider serviceProblemsAlert={<ServiceProblemsAlert />}>
                         <TasksProvider>
                             <PostMessageProvider>
                                 <TrackingProvider>
@@ -497,8 +500,8 @@ const MyApp = ({ Component, pageProps }) => {
                             </PostMessageProvider>
                         </TasksProvider>
                     </LayoutContextProvider>
-                    <YandexMetrika/>
-                    <PopupSmart />
+                    {yandexMetrikaID && <YandexMetrika />}
+                    {!isEmpty(popupSmartConfig) && <PopupSmart />}
                 </CacheProvider>
             </ConfigProvider>
             <UseDeskWidget/>
