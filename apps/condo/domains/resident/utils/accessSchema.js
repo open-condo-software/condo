@@ -22,6 +22,7 @@ const resetUserResidentCache = async (userId) => await _redisClient.del(_getUser
  * @property {string} unitType - resident type of the unit
  * @property {string} organization - resident organization id
  * @property {string} property - resident property id
+ * @property {string} addressKey - addressKey of the resident property
  */
 
 /**
