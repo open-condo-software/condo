@@ -5,13 +5,22 @@ const { pickBy, identity, isFunction, isArray, memoize } = require('lodash')
 const get = require('lodash/get')
 const ow = require('ow')
 
+const { getLogger } = require('@open-condo/keystone/logging')
+
 const { GQL_SCHEMA_PLUGIN } = require('./plugins/utils/typing')
 
 let EVENTS = new Emittery()
 let SCHEMAS = new Map()
 const GQL_LIST_SCHEMA_TYPE = 'GQLListSchema'
 const GQL_CUSTOM_SCHEMA_TYPE = 'GQLCustomSchema'
+// We warn user if more than X objects were returned. This may indicate memory leak
+const WARN_ON_TOO_MANY_OBJS_RETURNED_MSG = 'tooManyReturned'
+const WARN_ON_TOO_MANY_OBJS_RETURNED_N = 200
+const WARN_ON_TOO_MANY_OBJS_RETURNED_BY_CHUNKS_N = 1000
+
 const GQL_SCHEMA_TYPES = [GQL_LIST_SCHEMA_TYPE, GQL_CUSTOM_SCHEMA_TYPE]
+
+const logger = getLogger('packages/schema.js')
 
 /**
  * This function is Keystone v5 only compatible and will be removed soon!
@@ -140,7 +149,10 @@ async function find (schemaName, condition) {
     if (!SCHEMAS.has(schemaName)) throw new Error(`Schema ${schemaName} is not registered yet`)
     if (SCHEMAS.get(schemaName)._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${schemaName} type != ${GQL_LIST_SCHEMA_TYPE}`)
     const schemaList = SCHEMAS.get(schemaName)
-    return await schemaList._keystone.lists[schemaName].adapter.find(condition)
+    const result = await schemaList._keystone.lists[schemaName].adapter.find(condition)
+    if (result && Array.isArray(result) && result.length > WARN_ON_TOO_MANY_OBJS_RETURNED_N) {
+        logger.warn({ msg: WARN_ON_TOO_MANY_OBJS_RETURNED_MSG, limit: WARN_ON_TOO_MANY_OBJS_RETURNED_N, functionName: 'find', schemaName, findCondition: condition })
+    }
 }
 
 /**
@@ -165,7 +177,10 @@ async function itemsQuery (schemaName, args, { meta = false, from = {} } = {}) {
     if (!SCHEMAS.has(schemaName)) throw new Error(`Schema ${schemaName} is not registered yet`)
     if (SCHEMAS.get(schemaName)._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${schemaName} type != ${GQL_LIST_SCHEMA_TYPE}`)
     const schemaList = SCHEMAS.get(schemaName)
-    return await schemaList._keystone.lists[schemaName].adapter.itemsQuery(args, { meta, from })
+    const result = await schemaList._keystone.lists[schemaName].adapter.itemsQuery(args, { meta, from })
+    if (result && Array.isArray(result) && result.length > WARN_ON_TOO_MANY_OBJS_RETURNED_N) {
+        logger.warn({ msg: WARN_ON_TOO_MANY_OBJS_RETURNED_MSG, limit: WARN_ON_TOO_MANY_OBJS_RETURNED_N, functionName: 'itemsQuery', schemaName, itemsQueryCondition: args })
+    }
 }
 
 async function allItemsQueryByChunks ({
@@ -178,6 +193,7 @@ async function allItemsQueryByChunks ({
     let newChunk = []
     let all = []
     let newChunkLength
+    let haveWarnedAboutTooManyObjs = false
 
     do {
         newChunk = await itemsQuery(schemaName, { where, first: chunkSize, skip, sortBy: ['id_ASC'] })
@@ -192,6 +208,11 @@ async function allItemsQueryByChunks ({
 
             skip += newChunkLength
             all = all.concat(newChunk)
+        }
+
+        if ((!haveWarnedAboutTooManyObjs) && (all && Array.isArray(all) && all.length > WARN_ON_TOO_MANY_OBJS_RETURNED_BY_CHUNKS_N)) {
+            logger.warn({ msg: WARN_ON_TOO_MANY_OBJS_RETURNED_MSG, limit: WARN_ON_TOO_MANY_OBJS_RETURNED_BY_CHUNKS_N, functionName: 'allItemsQueryByChunks', allItemsQueryByChunksArgs: { where, first: chunkSize, skip, sortBy: ['id_ASC'] } })
+            haveWarnedAboutTooManyObjs = true
         }
     } while (newChunkLength)
 
@@ -297,4 +318,6 @@ module.exports = {
     GQL_SCHEMA_TYPES,
     GQL_CUSTOM_SCHEMA_TYPE,
     GQL_LIST_SCHEMA_TYPE,
+    WARN_ON_X_OBJECTS_RETURNED: WARN_ON_TOO_MANY_OBJS_RETURNED_N,
+    WARN_ON_X_ALL_OBJECTS_RETURNED_BY_CHUNKS: WARN_ON_TOO_MANY_OBJS_RETURNED_BY_CHUNKS_N,
 }
