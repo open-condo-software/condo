@@ -77,7 +77,8 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
             access: true,
             schema: 'changePasswordWithToken(data: ChangePasswordWithTokenInput!): ChangePasswordWithTokenOutput',
             doc: {
-                schema: 'Changes password and authorizes this action via correct token, that should correspond to ConfirmPhoneAction',
+                schema: 'Changes password this action via correct token, that should correspond to ConfirmPhoneAction.' +
+                    '\nOnly used for staff users',
                 errors: ERRORS.changePasswordWithToken,
             },
             resolver: async (parent, args, context) => {

@@ -32135,7 +32135,6 @@ export enum MessageType {
   DirtyInviteNewEmployeeSms = 'DIRTY_INVITE_NEW_EMPLOYEE_SMS',
   DirtyInviteNewEmployeeEmail = 'DIRTY_INVITE_NEW_EMPLOYEE_EMAIL',
   RegisterNewUser = 'REGISTER_NEW_USER',
-  ResetPassword = 'RESET_PASSWORD',
   SmsVerify = 'SMS_VERIFY',
   DeveloperImportantNoteType = 'DEVELOPER_IMPORTANT_NOTE_TYPE',
   CustomerImportantNoteType = 'CUSTOMER_IMPORTANT_NOTE_TYPE',
@@ -42457,24 +42456,6 @@ export type Mutation = {
    * 			"required": false
    * 		},
    * 		"userPassword": {
-   * 			"defaultValue": "",
-   * 			"required": false
-   * 		}
-   * 	},
-   * 	"RESET_PASSWORD": {
-   * 		"dv": {
-   * 			"defaultValue": "",
-   * 			"required": true
-   * 		},
-   * 		"token": {
-   * 			"defaultValue": "",
-   * 			"required": true
-   * 		},
-   * 		"userName": {
-   * 			"defaultValue": "USERNAME",
-   * 			"required": false
-   * 		},
-   * 		"userEmail": {
    * 			"defaultValue": "",
    * 			"required": false
    * 		}

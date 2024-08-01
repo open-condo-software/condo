@@ -77232,7 +77232,6 @@ enum MessageType {
   DIRTY_INVITE_NEW_EMPLOYEE_SMS
   DIRTY_INVITE_NEW_EMPLOYEE_EMAIL
   REGISTER_NEW_USER
-  RESET_PASSWORD
   SMS_VERIFY
   DEVELOPER_IMPORTANT_NOTE_TYPE
   CUSTOMER_IMPORTANT_NOTE_TYPE
@@ -88112,24 +88111,6 @@ type Mutation {
   			"required": false
   		},
   		"userPassword": {
-  			"defaultValue": "",
-  			"required": false
-  		}
-  	},
-  	"RESET_PASSWORD": {
-  		"dv": {
-  			"defaultValue": "",
-  			"required": true
-  		},
-  		"token": {
-  			"defaultValue": "",
-  			"required": true
-  		},
-  		"userName": {
-  			"defaultValue": "USERNAME",
-  			"required": false
-  		},
-  		"userEmail": {
   			"defaultValue": "",
   			"required": false
   		}
