@@ -49,13 +49,15 @@ class GqlWithKnexLoadList {
             all = all.concat(newchunk)
             skip += newchunk.length
 
-            if (!haveNotifiedAboutTooManyObjs && all && Array.isArray(all) && all.length > WARN_ON_TOO_MANY_OBJS_RETURNED_BY_CHUNKS_N) {
+            if (!haveNotifiedAboutTooManyObjs && all && Array.isArray(all) && all.length > 1000) {
                 logger.warn({
-                    msg: WARN_ON_TOO_MANY_OBJS_RETURNED_MSG,
-                    limit: WARN_ON_TOO_MANY_OBJS_RETURNED_BY_CHUNKS_N,
+                    msg: 'tooManyReturned',
                     functionName: 'GqlWithKnexLoadList.load',
                     schemaName: this.listKey,
-                    GqlWithKnexLoadListArgs: { singleRelations: this.singleRelations, multipleRelations: this.multipleRelations, where: this.where, fields: this.fields },
+                    data: {
+                        limit: 1000,
+                        GqlWithKnexLoadListArgs: { singleRelations: this.singleRelations, multipleRelations: this.multipleRelations, where: this.where, fields: this.fields },
+                    },
                 })
                 haveNotifiedAboutTooManyObjs = true
             }
@@ -170,13 +172,15 @@ const loadListByChunks = async ({
             all = all.concat(newChunk)
         }
 
-        if ((!haveWarnedAboutTooManyObjs) && (all && Array.isArray(all) && all.length > WARN_ON_TOO_MANY_OBJS_RETURNED_BY_CHUNKS_N)) {
+        if ((!haveWarnedAboutTooManyObjs) && (all && Array.isArray(all) && all.length > 1000)) {
             logger.warn({
-                msg: WARN_ON_TOO_MANY_OBJS_RETURNED_MSG,
-                limit: WARN_ON_TOO_MANY_OBJS_RETURNED_BY_CHUNKS_N,
+                msg: 'tooManyReturned',
                 functionName: 'loadListByChunks',
                 schemaName: list.key,
-                loadListByChunksArgs: { where },
+                data: {
+                    limit: 1000,
+                    loadListByChunksArgs: { where },
+                },
             })
             haveWarnedAboutTooManyObjs = true
         }

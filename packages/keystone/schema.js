@@ -15,7 +15,6 @@ const GQL_LIST_SCHEMA_TYPE = 'GQLListSchema'
 const GQL_CUSTOM_SCHEMA_TYPE = 'GQLCustomSchema'
 // We warn user if more than X objects were returned. This may indicate memory leak
 
-const WARN_ON_TOO_MANY_OBJS_RETURNED_MSG = 'tooManyReturned'
 const WARN_ON_TOO_MANY_OBJS_RETURNED_N = 200
 const WARN_ON_TOO_MANY_OBJS_RETURNED_BY_CHUNKS_N = 1000
 
@@ -151,8 +150,13 @@ async function find (schemaName, condition) {
     if (SCHEMAS.get(schemaName)._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${schemaName} type != ${GQL_LIST_SCHEMA_TYPE}`)
     const schemaList = SCHEMAS.get(schemaName)
     const result = await schemaList._keystone.lists[schemaName].adapter.find(condition)
-    if (result && Array.isArray(result) && result.length > WARN_ON_TOO_MANY_OBJS_RETURNED_N) {
-        logger.warn({ msg: WARN_ON_TOO_MANY_OBJS_RETURNED_MSG, limit: WARN_ON_TOO_MANY_OBJS_RETURNED_N, functionName: 'find', schemaName, findCondition: condition })
+    if (result && Array.isArray(result) && result.length > 200) {
+        logger.warn({ 
+            msg: 'tooManyReturned',
+            functionName: 'find',
+            schemaName,
+            data: { limit: 200, findCondition: condition },
+        })
     }
 }
 
@@ -179,8 +183,13 @@ async function itemsQuery (schemaName, args, { meta = false, from = {} } = {}) {
     if (SCHEMAS.get(schemaName)._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${schemaName} type != ${GQL_LIST_SCHEMA_TYPE}`)
     const schemaList = SCHEMAS.get(schemaName)
     const result = await schemaList._keystone.lists[schemaName].adapter.itemsQuery(args, { meta, from })
-    if (result && Array.isArray(result) && result.length > WARN_ON_TOO_MANY_OBJS_RETURNED_N) {
-        logger.warn({ msg: WARN_ON_TOO_MANY_OBJS_RETURNED_MSG, limit: WARN_ON_TOO_MANY_OBJS_RETURNED_N, functionName: 'itemsQuery', schemaName, itemsQueryCondition: args })
+    if (result && Array.isArray(result) && result.length > 200) {
+        logger.warn({
+            msg: 'tooManyReturned',
+            functionName: 'itemsQuery',
+            schemaName,
+            data: { limit: 200, itemsQueryCondition: args },
+        })
     }
 }
 
@@ -211,8 +220,15 @@ async function allItemsQueryByChunks ({
             all = all.concat(newChunk)
         }
 
-        if ((!haveWarnedAboutTooManyObjs) && (all && Array.isArray(all) && all.length > WARN_ON_TOO_MANY_OBJS_RETURNED_BY_CHUNKS_N)) {
-            logger.warn({ msg: WARN_ON_TOO_MANY_OBJS_RETURNED_MSG, limit: WARN_ON_TOO_MANY_OBJS_RETURNED_BY_CHUNKS_N, functionName: 'allItemsQueryByChunks', allItemsQueryByChunksArgs: { where, first: chunkSize, skip, sortBy: ['id_ASC'] } })
+        if ((!haveWarnedAboutTooManyObjs) && (all && Array.isArray(all) && all.length > 1000)) {
+            logger.warn(
+                { 
+                    msg: 'tooManyReturned',
+                    functionName: 'allItemsQueryByChunks',
+                    schemaName: schemaName,
+                    data: { limit: 1000, allItemsQueryByChunksArgs: { where, first: chunkSize, skip, sortBy: ['id_ASC'] } },
+                }
+            )
             haveWarnedAboutTooManyObjs = true
         }
     } while (newChunkLength)
