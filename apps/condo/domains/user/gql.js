@@ -104,19 +104,6 @@ const SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION = gql`
         }
     }
 `
-const START_PASSWORD_RECOVERY_MUTATION = gql`
-    mutation startPasswordRecovery($data: StartPasswordRecoveryInput!) {
-        result: startPasswordRecovery(data: $data) { status }
-    }
-`
-
-
-const CHECK_PASSWORD_RECOVERY_TOKEN = gql`
-    query checkPasswordRecoveryToken($data: CheckPasswordRecoveryTokenInput!) {
-        result: checkPasswordRecoveryToken(data: $data) { status }
-    }
-`
-
 
 const START_CONFIRM_PHONE_MUTATION = gql`
     mutation startConfirmPhoneAction($data: StartConfirmPhoneActionInput!) {
@@ -141,8 +128,6 @@ const GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY = gql`
 
 const CONFIRM_PHONE_ACTION_FIELDS = '{ id dv sender { dv fingerprint } deletedAt phone token smsCode smsCodeRequestedAt smsCodeExpiresAt retries isPhoneVerified requestedAt expiresAt completedAt }'
 const ConfirmPhoneAction = generateGqlQueries('ConfirmPhoneAction', CONFIRM_PHONE_ACTION_FIELDS)
-const FORGOT_PASSWORD_ACTION_FIELDS = `{ user { id } token requestedAt expiresAt usedAt ${COMMON_FIELDS} }`
-const ForgotPasswordAction = generateGqlQueries('ForgotPasswordAction', FORGOT_PASSWORD_ACTION_FIELDS)
 
 
 // TODO(codegen): write return type result!
@@ -217,14 +202,11 @@ module.exports = {
     SIGNIN_MUTATION,
     CHANGE_PASSWORD_WITH_TOKEN_MUTATION,
     SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION,
-    START_PASSWORD_RECOVERY_MUTATION,
     START_CONFIRM_PHONE_MUTATION,
     RESEND_CONFIRM_PHONE_SMS_MUTATION,
     COMPLETE_CONFIRM_PHONE_MUTATION,
     GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY,
     ConfirmPhoneAction,
-    ForgotPasswordAction,
-    CHECK_PASSWORD_RECOVERY_TOKEN,
     SIGNIN_RESIDENT_USER_MUTATION,
     CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION,
     SIGNIN_AS_USER_MUTATION,

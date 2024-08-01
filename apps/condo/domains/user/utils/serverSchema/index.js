@@ -9,18 +9,14 @@ const has = require('lodash/has')
 const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
 const conf = require('@open-condo/config')
-const { getByCondition } = require('@open-condo/keystone/schema')
 
 const { REGISTER_NEW_USER_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
-const {
-    SMS_CODE_LENGTH, STAFF,
-} = require('@condo/domains/user/constants/common')
+const { SMS_CODE_LENGTH } = require('@condo/domains/user/constants/common')
 const { ERRORS } = require('@condo/domains/user/constants/errors')
 const { User: UserGQL, UserExternalIdentity: UserExternalIdentityGQL, UserAdmin: UserAdminGQL } = require('@condo/domains/user/gql')
 const { ConfirmPhoneAction: ConfirmPhoneActionGQL } = require('@condo/domains/user/gql')
-const { ForgotPasswordAction: ForgotPasswordActionGQL } = require('@condo/domains/user/gql')
 const { SIGNIN_AS_USER_MUTATION } = require('@condo/domains/user/gql')
 const { REGISTER_NEW_SERVICE_USER_MUTATION } = require('@condo/domains/user/gql')
 const { SEND_MESSAGE_TO_SUPPORT_MUTATION } = require('@condo/domains/user/gql')
@@ -37,7 +33,6 @@ const User = generateServerUtils(UserGQL)
 const UserAdmin = generateServerUtils(UserAdminGQL)
 const UserExternalIdentity = generateServerUtils(UserExternalIdentityGQL)
 const ConfirmPhoneAction = generateServerUtils(ConfirmPhoneActionGQL)
-const ForgotPasswordAction = generateServerUtils(ForgotPasswordActionGQL)
 const OidcClient = generateServerUtils(OidcClientGQL)
 const ExternalTokenAccessRight = generateServerUtils(ExternalTokenAccessRightGQL)
 
@@ -150,70 +145,6 @@ const updateEmployeesRelatedToUser = async (context, user) => {
     }
 }
 
-async function findTokenAndRelatedUser (context, token) {
-    if (!context) throw new Error('no context')
-    if (!token) throw new Error('no token')
-
-    const now = (new Date(Date.now())).toISOString()
-
-    let user = null
-    let tokenType = 'ForgotPasswordAction'
-    let tokenAction = await ForgotPasswordAction.getOne(context, {
-        token,
-        expiresAt_gte: now,
-        usedAt: null,
-    })
-
-    if (!tokenAction) {
-        tokenType = 'ConfirmPhoneAction'
-        tokenAction = await ConfirmPhoneAction.getOne(context, {
-            token,
-            expiresAt_gte: now,
-            completedAt: null,
-            isPhoneVerified: true,
-        })
-
-    }
-
-    if (!tokenAction) {
-        return ['', null, user]
-    }
-
-    if (tokenType === 'ForgotPasswordAction') {
-        user = await getByCondition('User', { id: tokenAction.user.id })
-    } else if (tokenType === 'ConfirmPhoneAction') {
-        user = await getByCondition('User', { type: STAFF, phone: tokenAction.phone })
-    } else {
-        return ['', null, user]
-    }
-
-    return [tokenType, tokenAction, user]
-}
-
-async function markTokenAsUsed (context, tokenType, tokenAction, sender) {
-    if (!context) throw new Error('no context')
-    if (!tokenType) throw new Error('no tokenType')
-    if (!tokenAction) throw new Error('no tokenAction')
-
-    const now = (new Date(Date.now())).toISOString()
-
-    if (tokenType === 'ForgotPasswordAction') {
-        return await ForgotPasswordAction.update(context, tokenAction.id, {
-            dv: 1,
-            sender,
-            usedAt: now,
-        })
-    } else if (tokenType === 'ConfirmPhoneAction') {
-        return await ConfirmPhoneAction.update(context, tokenAction.id, {
-            dv: 1,
-            sender,
-            completedAt: now,
-        })
-    } else {
-        throw new Error('unknown tokenType')
-    }
-}
-
 async function createUserAndSendLoginData ({ context, userData }) {
     const user = await User.create(context, userData, {
         errorMapping: {
@@ -247,14 +178,11 @@ module.exports = {
     UserExternalIdentity,
     ConfirmPhoneAction,
     generateSmsCode,
-    ForgotPasswordAction,
     updateEmployeesRelatedToUser,
     signinAsUser,
     registerNewServiceUser,
     sendMessageToSupport,
     resetUser,
-    findTokenAndRelatedUser,
-    markTokenAsUsed,
     OidcClient,
     ExternalTokenAccessRight,
     getAccessTokenByUserId,

@@ -25,7 +25,6 @@ const SHARE_TICKET_MESSAGE_TYPE = 'SHARE_TICKET'
 const DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE = 'DIRTY_INVITE_NEW_EMPLOYEE_SMS'
 const DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE = 'DIRTY_INVITE_NEW_EMPLOYEE_EMAIL'
 const REGISTER_NEW_USER_MESSAGE_TYPE = 'REGISTER_NEW_USER'
-const RESET_PASSWORD_MESSAGE_TYPE = 'RESET_PASSWORD'
 const SMS_VERIFY_CODE_MESSAGE_TYPE = 'SMS_VERIFY'
 const DEVELOPER_IMPORTANT_NOTE_TYPE = 'DEVELOPER_IMPORTANT_NOTE_TYPE'
 const CUSTOMER_IMPORTANT_NOTE_TYPE = 'CUSTOMER_IMPORTANT_NOTE_TYPE'
@@ -193,12 +192,6 @@ const MESSAGE_META = {
         dv: { defaultValue: '', required: true },
         userPhone: { defaultValue: '', required: false },
         userPassword: { defaultValue: '', required: false },
-    },
-    [RESET_PASSWORD_MESSAGE_TYPE]: {
-        dv: { defaultValue: '', required: true },
-        token: { defaultValue: '', required: true },
-        userName: { defaultValue: 'USERNAME', required: false },
-        userEmail: { defaultValue: '', required: false },
     },
     [SMS_VERIFY_CODE_MESSAGE_TYPE]: {
         dv: { defaultValue: '', required: true },
@@ -725,9 +718,6 @@ const MESSAGE_DELIVERY_OPTIONS = {
         defaultTransports: [SMS_TRANSPORT, EMAIL_TRANSPORT],
         isAllowedToChangeDefaultTransport: false,
     },
-    [RESET_PASSWORD_MESSAGE_TYPE]: {
-        priority: MESSAGE_DELIVERY_FAST_PRIORITY,
-    },
     [DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE]: {
         allowedTransports: [SMS_TRANSPORT, EMAIL_TRANSPORT],
         defaultTransports: [SMS_TRANSPORT, EMAIL_TRANSPORT],
@@ -1020,7 +1010,6 @@ module.exports = {
     REGISTER_NEW_USER_MESSAGE_TYPE,
     SMS_VERIFY_CODE_MESSAGE_TYPE,
     INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
-    RESET_PASSWORD_MESSAGE_TYPE,
     DEVELOPER_IMPORTANT_NOTE_TYPE,
     MESSAGE_TYPES,
     MESSAGE_META,
