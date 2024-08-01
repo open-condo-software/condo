@@ -15,10 +15,29 @@ const _getUserResidentCacheKey = (user) => `cache:residents:user:${user.id}`
 const resetUserResidentCache = async (userId) => await _redisClient.del(_getUserResidentCacheKey({ id: userId }))
 
 /**
+ * Info about user resident
+ * @typedef {Object} ResidentCache
+ * @property {string} id - resident id
+ * @property {string} unitName - resident unitName
+ * @property {string} unitType - resident type of the unit
+ * @property {string} organization - resident organization id
+ * @property {string} property - resident property id
+ */
+
+/**
+ * Info about user service consumers
+ * @typedef {Object} ServiceConsumerCache
+ * @property {string} id - id of the resident service consumer
+ * @property {string} organization - organization id of service consumer
+ * @property {string} accountNumber - account number of service consumer
+ */
+
+/**
  * Info about all resident records of the current user
  * @typedef {Object} UserResidentCache
  * @property {number} dv - cache entry data version
- * @property {Array<Object>} residents - resident of the current user
+ * @property {Array<ResidentCache>} residents - resident of the current user
+ * @property {Array<ServiceConsumerCache>} serviceConsumers - resident service consumers
  */
 
 /**
@@ -67,10 +86,22 @@ async function _getUserResidents (ctx, user) {
     return newCacheEntry
 }
 
+/**
+ * Obtains user resident info via caching or sub-querying
+ * @param {{ req: import('express').Request }} ctx - keystone context
+ * @param {{ id: string }} user - user object
+ * @returns {Promise<Array<ResidentCache>>}
+ */
 async function getUserResidents (ctx, user) {
     return (await _getUserResidents(ctx, user)).residents || []
 }
 
+/**
+ * Obtains info about resident service consumers via caching or sub-querying
+ * @param ctx
+ * @param user
+ * @returns {Promise<Array<ServiceConsumerCache>>}
+ */
 async function getUserServiceConsumers (ctx, user) {
     return (await _getUserResidents(ctx, user)).serviceConsumers || []
 }
