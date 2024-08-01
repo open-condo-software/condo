@@ -389,9 +389,8 @@ async function authenticateUserWithPhoneAndPasswordByTestClient (client, extraAt
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
-        // TODO: Add dv and sender after adding them to API
-        // dv: 1,
-        // sender,
+        dv: 1,
+        sender,
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, {

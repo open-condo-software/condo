@@ -72,7 +72,6 @@ function isTemplateNeeded (messageType, transport) {
 }
 
 const ORGANIZATION_NAME_WITH_QUOTES = 'ООО "УК "РЕЗИДЕНЦИЯ У МОРЯ"'
-const TOKEN_URL_PART = 'auth/change-password?token='
 
 describe('Templates', () => {
     setFakeClientMode(index)
