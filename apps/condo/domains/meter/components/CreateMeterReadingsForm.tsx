@@ -221,6 +221,7 @@ export const MetersTable = ({
                     newMeterReadings={newMeterReadings}
                     isLoading={loading}
                     meterType={METER_TAB_TYPES.meter}
+                    meters={meters}
                 />
             </Col>
         </>
@@ -250,7 +251,7 @@ export const CreateMeterReadingsForm = ({ organization, role, canManageMeterRead
     const propertyIdFromQuery = get(router.query, 'propertyId')
     const unitNameFromQuery = get(router.query, 'unitName')
     const unitTypeFromQuery = get(router.query, 'unitType')
-    
+
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>(propertyIdFromQuery as string || null)
     const [selectedUnitName, setSelectedUnitName] = useState<string>(unitNameFromQuery as string || null)
     const [selectedUnitType, setSelectedUnitType] = useState<MeterUnitTypeType>(unitTypeFromQuery as MeterUnitTypeType || MeterUnitTypeType.Flat)
@@ -275,14 +276,14 @@ export const CreateMeterReadingsForm = ({ organization, role, canManageMeterRead
     }, { skip: isNull(selectedPropertyId) })
 
     const { count: meterCountForAddress, loading: meterCountForAddressLoading } = Meter.useCount({
-        where: { 
+        where: {
             property: { id: selectedPropertyId },
             archiveDate: null,
         },
     }, { skip: isNull(selectedPropertyId) })
 
     const { count: meterCountForUnitName, loading: meterCountForUnitNameLoading } = Meter.useCount({
-        where: { 
+        where: {
             property: { id: selectedPropertyId },
             unitName: selectedUnitName,
             unitType: selectedUnitType,
@@ -340,7 +341,7 @@ export const CreateMeterReadingsForm = ({ organization, role, canManageMeterRead
         setSelectedPropertyId(null)
     }, [])
 
-    useEffect(() => {        
+    useEffect(() => {
         selectPropertyIdRef.current = selectedPropertyId
         if (!propertyUnitInitialValues || !selectedPropertyId) {
             setSelectedUnitName(null)
@@ -348,7 +349,7 @@ export const CreateMeterReadingsForm = ({ organization, role, canManageMeterRead
         }
         if (!selectedPropertyId) setPropertyUnitInitialValues({})
 
-    }, [selectedPropertyId, meterCountForAddressLoading, meterCountForAddress])
+    }, [selectedPropertyId, meterCountForAddressLoading, meterCountForAddress, propertyUnitInitialValues])
 
     useEffect(() => {
         selectedUnitNameRef.current = selectedUnitName
@@ -405,7 +406,7 @@ export const CreateMeterReadingsForm = ({ organization, role, canManageMeterRead
                                     <Col lg={17} md={24}>
                                         <Row gutter={FORM_ROW_LARGE_VERTICAL_GUTTER}>
                                             <Col span={24}>
-                                                <AddressAndUnitInfo 
+                                                <AddressAndUnitInfo
                                                     organizationId={get(organization, 'id')}
                                                     form={form}
                                                     getHandleSelectPropertyAddress={getHandleSelectPropertyAddress}
@@ -495,7 +496,7 @@ export const PropertyMetersTable = ({
         refetchMeterReadings()
     }, [refetchMeterReadings, refetchMeters])
 
-    const loading = metersLoading || meterReadingsLoading 
+    const loading = metersLoading || meterReadingsLoading
     const dataSource = useMemo(() => getTableData(meters, meterReadings), [meterReadings, meters])
 
     useEffect(() => {
@@ -538,6 +539,7 @@ export const PropertyMetersTable = ({
                     newMeterReadings={newMeterReadings}
                     isLoading={loading}
                     meterType={METER_TAB_TYPES.propertyMeter}
+                    meters={meters}
                 />
             </Col>
         </>
@@ -593,7 +595,7 @@ export const CreatePropertyMeterReadingsForm = ({ organization, canManageMeterRe
 
     const isNoMeterForAddress = useMemo(() => !isEmpty(selectedPropertyId) && !propertyMetersCountLoading && propertyMetersCount === 0, [propertyMetersCount, propertyMetersCountLoading, selectedPropertyId])
 
-    useEffect(() => {        
+    useEffect(() => {
         selectPropertyIdRef.current = selectedPropertyId
 
     }, [selectedPropertyId, propertyMetersCountLoading, propertyMetersCount])
@@ -665,7 +667,7 @@ export const CreatePropertyMeterReadingsForm = ({ organization, canManageMeterRe
                     <Col span={24}>
                         <Row gutter={FORM_ROW_LARGE_VERTICAL_GUTTER}>
                             <Col span={24}>
-                                <AddressAndUnitInfo 
+                                <AddressAndUnitInfo
                                     form={form}
                                     getHandleSelectPropertyAddress={getHandleSelectPropertyAddress}
                                     handleDeselectPropertyAddress={handleDeselectPropertyAddress}

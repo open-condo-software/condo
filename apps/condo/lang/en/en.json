@@ -2644,6 +2644,8 @@
   "api.meter.registerMetersReadings.INVALID_METER_VALUES": "Invalid values: {valuesList}",
   "api.meter.registerMetersReadings.MULTIPLE_METERS_FOUND": "Multiple meters found ({count})",
   "api.meterReading.METER_READING_DATE_IN_FUTURE": "Reading date ({givenDate}) can not be from the future",
+  "api.meterReading.METER_READING_FEW_VALUES": "Meter {meterNumber} has {numberOfTariffs} tariff(s), please fill next fields: {fieldsNames}",
+  "api.meterReading.METER_READING_EXTRA_VALUES": "Meter {meterNumber} has {numberOfTariffs} tariff(s), please remove next fields: {fieldsNames}",
   "api.marketplace.MarketCategory.MAXIMUM_DEPTH_REACHED": "The depth of category inheritance should be no more than 2",
   "api.marketplace.MarketCategory.CANNOT_CONNECT_TO_ITSELF": "Cannot connect to itself",
   "api.contact.exportContactsToExcel.NOTHING_TO_EXPORT": "No contacts found for export",
