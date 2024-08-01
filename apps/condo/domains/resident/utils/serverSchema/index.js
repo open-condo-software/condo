@@ -10,8 +10,8 @@ const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codeg
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { REGISTER_RESIDENT_MUTATION } = require('@condo/domains/property/gql')
-const { Resident: ResidentGQL, REGISTER_RESIDENT_INVOICE_MUTATION } = require('@condo/domains/resident/gql')
-const { ServiceConsumer: ServiceConsumerGQL } = require('@condo/domains/resident/gql')
+const { Resident: ResidentGQL, REGISTER_RESIDENT_INVOICE_MUTATION, ResidentAccess: ResidentAccessGQL } = require('@condo/domains/resident/gql')
+const { ServiceConsumer: ServiceConsumerGQL, ServiceConsumerAccess: ServiceConsumerAccessGQL } = require('@condo/domains/resident/gql')
 const { REGISTER_CONSUMER_SERVICE_MUTATION } = require('@condo/domains/resident/gql')
 const { SEND_MESSAGE_TO_RESIDENT_SCOPES_MUTATION } = require('@condo/domains/resident/gql')
 const { DISCOVER_SERVICE_CONSUMERS_MUTATION } = require('@condo/domains/resident/gql')
@@ -21,6 +21,7 @@ const { FIND_ORGANIZATIONS_FOR_ADDRESS_QUERY } = require('@condo/domains/residen
 
 const logger = getLogger('resident/serverSchema')
 const Resident = generateServerUtils(ResidentGQL)
+const ResidentAccess = generateServerUtils(ResidentAccessGQL)
 
 async function registerResident (context, data) {
     if (!context) throw new Error('no context')
@@ -36,6 +37,7 @@ async function registerResident (context, data) {
 }
 
 const ServiceConsumer = generateServerUtils(ServiceConsumerGQL)
+const ServiceConsumerAccess = generateServerUtils(ServiceConsumerAccessGQL)
 async function registerConsumerService (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
@@ -127,8 +129,10 @@ async function findOrganizationsForAddress (context, data) {
 
 module.exports = {
     Resident,
+    ResidentAccess,
     registerResident,
     ServiceConsumer,
+    ServiceConsumerAccess,
     registerConsumerService,
     sendMessageToResidentScopes,
     discoverServiceConsumers,

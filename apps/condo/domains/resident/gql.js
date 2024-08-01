@@ -19,6 +19,7 @@ const ORGANIZATION_FEATURES_FIELDS = 'hasBillingData hasMeters'
 const PAYMENT_CATEGORIES_FIELDS = 'id categoryName billingName acquiringName'
 const RESIDENT_FIELDS = `{ user { id name locale } organization { id name tin country } residentOrganization { ${RESIDENT_ORGANIZATION_FIELDS} } property { id createdAt deletedAt address addressKey  } residentProperty { ${RESIDENT_PROPERTY_FIELDS} } address addressKey addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitName unitType ${COMMON_FIELDS} organizationFeatures { ${ORGANIZATION_FEATURES_FIELDS} } paymentCategories { ${PAYMENT_CATEGORIES_FIELDS} } }`
 const Resident = generateGqlQueries('Resident', RESIDENT_FIELDS)
+const ResidentAccess = generateGqlQueries('Resident', '{ id unitName unitType addressKey organization { id } property { id } }')
 
 const REGISTER_RESIDENT_MUTATION = gql`
     mutation registerResident ($data: RegisterResidentInput!) {
@@ -27,6 +28,7 @@ const REGISTER_RESIDENT_MUTATION = gql`
 `
 const SERVICE_CONSUMER_FIELDS = `{ residentBillingAccount { id } residentAcquiringIntegrationContext { id integration { id hostUrl } } paymentCategory resident { id user { id locale } organization { id } unitType unitName deletedAt address property { id } } billingIntegrationContext { id lastReport deletedAt }  acquiringIntegrationContext { id status deletedAt } accountNumber ${COMMON_FIELDS} organization { id name tin country } isDiscovered }`
 const ServiceConsumer = generateGqlQueries('ServiceConsumer', SERVICE_CONSUMER_FIELDS)
+const ServiceConsumerAccess = generateGqlQueries('ServiceConsumer', '{ id organization { id } accountNumber }')
 
 const REGISTER_SERVICE_CONSUMER_MUTATION = gql`
     mutation registerServiceConsumer ($data: RegisterServiceConsumerInput!) {
@@ -74,8 +76,10 @@ const REGISTER_RESIDENT_SERVICE_CONSUMERS_MUTATION = gql`
 
 module.exports = {
     Resident,
+    ResidentAccess,
     REGISTER_RESIDENT_MUTATION,
     ServiceConsumer,
+    ServiceConsumerAccess,
     REGISTER_SERVICE_CONSUMER_MUTATION,
     RESIDENT_ORGANIZATION_FIELDS,
     RESIDENT_PROPERTY_FIELDS,
