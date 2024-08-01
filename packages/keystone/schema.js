@@ -13,11 +13,6 @@ let EVENTS = new Emittery()
 let SCHEMAS = new Map()
 const GQL_LIST_SCHEMA_TYPE = 'GQLListSchema'
 const GQL_CUSTOM_SCHEMA_TYPE = 'GQLCustomSchema'
-// We warn user if more than X objects were returned. This may indicate memory leak
-
-const WARN_ON_TOO_MANY_OBJS_RETURNED_N = 200
-const WARN_ON_TOO_MANY_OBJS_RETURNED_BY_CHUNKS_N = 1000
-
 const GQL_SCHEMA_TYPES = [GQL_LIST_SCHEMA_TYPE, GQL_CUSTOM_SCHEMA_TYPE]
 
 const logger = getLogger('packages/schema.js')
@@ -335,8 +330,4 @@ module.exports = {
     GQL_SCHEMA_TYPES,
     GQL_CUSTOM_SCHEMA_TYPE,
     GQL_LIST_SCHEMA_TYPE,
-
-    WARN_ON_TOO_MANY_OBJS_RETURNED_MSG,
-    WARN_ON_TOO_MANY_OBJS_RETURNED_N,
-    WARN_ON_TOO_MANY_OBJS_RETURNED_BY_CHUNKS_N,
 }
