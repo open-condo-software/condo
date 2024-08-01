@@ -55,7 +55,7 @@ class GqlWithKnexLoadList {
                     limit: WARN_ON_TOO_MANY_OBJS_RETURNED_BY_CHUNKS_N,
                     functionName: 'GqlWithKnexLoadList.load',
                     schemaName: this.listKey,
-                    GqlWithKnexLoadListArgs: { singleRelations: this.singleRelations, multipleRelations: this.multipleRelations, where: this.where, fields: this.fields }
+                    GqlWithKnexLoadListArgs: { singleRelations: this.singleRelations, multipleRelations: this.multipleRelations, where: this.where, fields: this.fields },
                 })
                 haveNotifiedAboutTooManyObjs = true
             }
