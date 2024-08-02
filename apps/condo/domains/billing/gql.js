@@ -100,8 +100,8 @@ const REGISTER_BILLING_RECEIPT_FILE_MUTATION = gql`
 `
 
 const SUM_BILLING_RECEIPTS_QUERY = gql`
-    query _allBillingReceiptsSum ($where: BillingReceiptWhereInput!) {
-        result: _allBillingReceiptsSum(where: $where) { sum }
+    query _allBillingReceiptsSum ($data: BillingReceiptsSumInput!) {
+        result: _allBillingReceiptsSum(data: $data) { sum }
     }
 `
 

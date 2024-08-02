@@ -19373,6 +19373,13 @@ export type BillingReceiptsRecipientFieldInput = {
   classificationCode?: Maybe<Scalars['String']>;
 };
 
+export type BillingReceiptsSumInput = {
+  period: Scalars['String'];
+  organization?: Maybe<OrganizationWhereUniqueInput>;
+  tin?: Maybe<Scalars['String']>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
+};
+
 export type BillingReceiptsSumOutput = {
   __typename?: 'BillingReceiptsSumOutput';
   sum: Scalars['String'];
@@ -65936,6 +65943,36 @@ export type Query = {
   checkUserExistence?: Maybe<CheckUserExistenceOutput>;
   exportPropertiesToExcel?: Maybe<ExportPropertiesToExcelOutput>;
   allResidentBillingReceipts?: Maybe<Array<Maybe<ResidentBillingReceiptOutput>>>;
+  /**
+   * Sum of organizations billing receipts
+   *
+   * Calculate sum of organizations billing receipts by organizationId or tin and period
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "mutation": "_allBillingReceiptsSum",
+   *   "variable": [
+   *     "data"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_VALUE",
+   *   "message": "You must specify one of two values: tin or organization"
+   * }`
+   *
+   * `{
+   *   "mutation": "_allBillingReceiptsSum",
+   *   "variable": [
+   *     "data",
+   *     "period"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_VALUE",
+   *   "message": "Bad period format, must be YYYY-MM-01. Example: 2022-02-01"
+   * }`
+   */
   _allBillingReceiptsSum?: Maybe<BillingReceiptsSumOutput>;
   allResidentBillingVirtualReceipts?: Maybe<Array<Maybe<ResidentBillingReceiptOutput>>>;
   /**
@@ -72652,7 +72689,7 @@ export type QueryAllResidentBillingReceiptsArgs = {
 
 
 export type Query_AllBillingReceiptsSumArgs = {
-  where: BillingReceiptWhereInput;
+  data: BillingReceiptsSumInput;
 };
 
 

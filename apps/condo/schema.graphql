@@ -77090,6 +77090,13 @@ type RegisterBillingReceiptFileOutput {
   status: RegisterBillingReceiptFileResultStatus!
 }
 
+input BillingReceiptsSumInput {
+  period: String!
+  organization: OrganizationWhereUniqueInput
+  tin: String
+  importRemoteSystem: String
+}
+
 type BillingReceiptsSumOutput {
   sum: String!
 }
@@ -82039,7 +82046,38 @@ type Query {
   checkUserExistence(data: CheckUserExistenceInput!): CheckUserExistenceOutput
   exportPropertiesToExcel(data: ExportPropertiesToExcelInput!): ExportPropertiesToExcelOutput
   allResidentBillingReceipts(where: ResidentBillingReceiptWhereInput, first: Int, skip: Int, sortBy: [SortResidentBillingReceiptsBy!]): [ResidentBillingReceiptOutput]
-  _allBillingReceiptsSum(where: BillingReceiptWhereInput!): BillingReceiptsSumOutput
+
+  """
+  Sum of organizations billing receipts
+  
+  Calculate sum of organizations billing receipts by organizationId or tin and period
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "mutation": "_allBillingReceiptsSum",
+    "variable": [
+      "data"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_VALUE",
+    "message": "You must specify one of two values: tin or organization"
+  }`
+  
+  `{
+    "mutation": "_allBillingReceiptsSum",
+    "variable": [
+      "data",
+      "period"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_VALUE",
+    "message": "Bad period format, must be YYYY-MM-01. Example: 2022-02-01"
+  }`
+  """
+  _allBillingReceiptsSum(data: BillingReceiptsSumInput!): BillingReceiptsSumOutput
   allResidentBillingVirtualReceipts(where: ResidentBillingVirtualReceiptWhereInput, first: Int, skip: Int, sortBy: [SortResidentBillingVirtualReceiptsBy!]): [ResidentBillingReceiptOutput]
 
   """
