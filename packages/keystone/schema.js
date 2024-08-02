@@ -153,6 +153,7 @@ async function find (schemaName, condition) {
             data: { limit: 200, findCondition: condition },
         })
     }
+    return result
 }
 
 /**
@@ -186,6 +187,7 @@ async function itemsQuery (schemaName, args, { meta = false, from = {} } = {}) {
             data: { limit: 200, itemsQueryCondition: args },
         })
     }
+    return result
 }
 
 async function allItemsQueryByChunks ({
