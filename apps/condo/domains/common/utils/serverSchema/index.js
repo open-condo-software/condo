@@ -2,8 +2,11 @@ const { getItems } = require('@keystonejs/server-side-graphql-client')
 const { isFunction } = require('lodash')
 
 const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
+const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
+
 const GLOBAL_QUERY_LIMIT = 1000
+const logger = getLogger('common/utils/serverSchema.js')
 
 // When we load models with Apollo graphql - every relation on a field for every object makes sql request
 // For example, loading 50 tickets will cause a result of ~1000 sql queries which is near server limit
@@ -37,11 +40,27 @@ class GqlWithKnexLoadList {
         let skip = 0
         let newchunk = []
         let all = []
+        let haveNotifiedAboutTooManyObjs = false
+
         let maxiterationsCount = 100 // we need some limits - 100K records is more then enough
         do {
             newchunk = await this.loadChunk(skip)
             all = all.concat(newchunk)
             skip += newchunk.length
+
+            if (!haveNotifiedAboutTooManyObjs && all && Array.isArray(all) && all.length > 1000) {
+                logger.warn({
+                    msg: 'tooManyReturned',
+                    functionName: 'GqlWithKnexLoadList.load',
+                    schemaName: this.listKey,
+                    data: {
+                        limit: 1000,
+                        GqlWithKnexLoadListArgs: { singleRelations: this.singleRelations, multipleRelations: this.multipleRelations, where: this.where, fields: this.fields },
+                    },
+                })
+                haveNotifiedAboutTooManyObjs = true
+            }
+
             if (newchunk.length < GLOBAL_QUERY_LIMIT) {
                 break
             }
@@ -135,6 +154,7 @@ const loadListByChunks = async ({
     let newChunk = []
     let all = []
     let newChunkLength
+    let haveWarnedAboutTooManyObjs = false
 
     do {
         newChunk = await list.getAll(context, where, { sortBy, first: chunkSize, skip: skip })
@@ -150,6 +170,20 @@ const loadListByChunks = async ({
             skip += newChunkLength
             all = all.concat(newChunk)
         }
+
+        if ((!haveWarnedAboutTooManyObjs) && (all && Array.isArray(all) && all.length > 1000)) {
+            logger.warn({
+                msg: 'tooManyReturned',
+                functionName: 'loadListByChunks',
+                schemaName: list.key,
+                data: {
+                    limit: 1000,
+                    loadListByChunksArgs: { where },
+                },
+            })
+            haveWarnedAboutTooManyObjs = true
+        }
+
     } while (--maxIterationsCount > 0 && newChunkLength)
 
     return all

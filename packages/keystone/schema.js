@@ -5,6 +5,8 @@ const { pickBy, identity, isFunction, isArray, memoize } = require('lodash')
 const get = require('lodash/get')
 const ow = require('ow')
 
+const { getLogger } = require('@open-condo/keystone/logging')
+
 const { GQL_SCHEMA_PLUGIN } = require('./plugins/utils/typing')
 
 let EVENTS = new Emittery()
@@ -12,6 +14,8 @@ let SCHEMAS = new Map()
 const GQL_LIST_SCHEMA_TYPE = 'GQLListSchema'
 const GQL_CUSTOM_SCHEMA_TYPE = 'GQLCustomSchema'
 const GQL_SCHEMA_TYPES = [GQL_LIST_SCHEMA_TYPE, GQL_CUSTOM_SCHEMA_TYPE]
+
+const logger = getLogger('packages/schema.js')
 
 /**
  * This function is Keystone v5 only compatible and will be removed soon!
@@ -140,7 +144,16 @@ async function find (schemaName, condition) {
     if (!SCHEMAS.has(schemaName)) throw new Error(`Schema ${schemaName} is not registered yet`)
     if (SCHEMAS.get(schemaName)._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${schemaName} type != ${GQL_LIST_SCHEMA_TYPE}`)
     const schemaList = SCHEMAS.get(schemaName)
-    return await schemaList._keystone.lists[schemaName].adapter.find(condition)
+    const result = await schemaList._keystone.lists[schemaName].adapter.find(condition)
+    if (result && Array.isArray(result) && result.length > 200) {
+        logger.warn({ 
+            msg: 'tooManyReturned',
+            functionName: 'find',
+            schemaName,
+            data: { limit: 200, findCondition: condition },
+        })
+    }
+    return result
 }
 
 /**
@@ -165,7 +178,16 @@ async function itemsQuery (schemaName, args, { meta = false, from = {} } = {}) {
     if (!SCHEMAS.has(schemaName)) throw new Error(`Schema ${schemaName} is not registered yet`)
     if (SCHEMAS.get(schemaName)._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${schemaName} type != ${GQL_LIST_SCHEMA_TYPE}`)
     const schemaList = SCHEMAS.get(schemaName)
-    return await schemaList._keystone.lists[schemaName].adapter.itemsQuery(args, { meta, from })
+    const result = await schemaList._keystone.lists[schemaName].adapter.itemsQuery(args, { meta, from })
+    if (result && Array.isArray(result) && result.length > 200) {
+        logger.warn({
+            msg: 'tooManyReturned',
+            functionName: 'itemsQuery',
+            schemaName,
+            data: { limit: 200, itemsQueryCondition: args },
+        })
+    }
+    return result
 }
 
 async function allItemsQueryByChunks ({
@@ -178,6 +200,7 @@ async function allItemsQueryByChunks ({
     let newChunk = []
     let all = []
     let newChunkLength
+    let haveWarnedAboutTooManyObjs = false
 
     do {
         newChunk = await itemsQuery(schemaName, { where, first: chunkSize, skip, sortBy: ['id_ASC'] })
@@ -192,6 +215,18 @@ async function allItemsQueryByChunks ({
 
             skip += newChunkLength
             all = all.concat(newChunk)
+        }
+
+        if ((!haveWarnedAboutTooManyObjs) && (all && Array.isArray(all) && all.length > 1000)) {
+            logger.warn(
+                { 
+                    msg: 'tooManyReturned',
+                    functionName: 'allItemsQueryByChunks',
+                    schemaName: schemaName,
+                    data: { limit: 1000, allItemsQueryByChunksArgs: { where, first: chunkSize, skip, sortBy: ['id_ASC'] } },
+                }
+            )
+            haveWarnedAboutTooManyObjs = true
         }
     } while (newChunkLength)
 
