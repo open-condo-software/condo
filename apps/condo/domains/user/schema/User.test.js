@@ -3,7 +3,6 @@
  */
 
 const { faker } = require('@faker-js/faker')
-const { gql } = require('graphql-tag')
 
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
@@ -119,56 +118,47 @@ describe('SIGNIN', () => {
         expect(res.errors[0].message).toEqual(expect.stringContaining('[passwordAuth:identity:notFound]'))
     })
 
-    test.skip('should throw error if user type invalid', async () => {
+    test('should throw error if try auth resident user', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [, userAttrs] = await createTestUser(admin)
+        const [, userAttrs] = await createTestUser(admin, { type: RESIDENT })
         const client = await makeClient()
-        const res = await client.mutate(SIGNIN_MUTATION, { identity: userAttrs.email, secret: userAttrs.password, type: faker.lorem.words(3) })
+        const res = await client.mutate(SIGNIN_MUTATION, { identity: userAttrs.email, secret: userAttrs.password })
         expect(res.data.obj).toBeNull()
-        expect(res.errors[0].message).toEqual(expect.stringContaining('[passwordAuth:itemType:invalid]'))
+        expect(res.errors[0].message).toEqual(expect.stringContaining('[passwordAuth:identity:notFound]'))
     })
 
-    test.skip('Should authorize staff and service user with same email, but should not authorize resident user', async () => {
+    test('should authorize staff user', async () => {
         const admin = await makeLoggedInAdminClient()
-        const email = createTestEmail()
-        const [, residentUserAttrs] = await createTestUser(admin, { type: RESIDENT, email })
-        const [staffUser, staffUserAttrs] = await createTestUser(admin, { type: STAFF, email })
-        const [serviceUser, serviceUserAttrs] = await createTestUser(admin, { type: SERVICE, email })
-
-        const client1 = await makeClient()
-        const client2 = await makeClient()
-        const client3 = await makeClient()
-
-        const residentRes = await client1.mutate(SIGNIN_MUTATION, { identity: residentUserAttrs.email, secret: residentUserAttrs.password, type: RESIDENT })
-        expect(residentRes.data.obj).toBeNull()
-        expect(residentRes.errors[0].message).toEqual(expect.stringContaining('[passwordAuth:itemType:invalid]'))
-
-        const staffRes = await client2.mutate(SIGNIN_MUTATION, { identity: staffUserAttrs.email, secret: staffUserAttrs.password, type: STAFF })
-        expect(staffRes.errors).toEqual(undefined)
-        expect(staffRes.data.obj.item.id).toBe(staffUser.id)
-
-        const serviceRes = await client3.mutate(SIGNIN_MUTATION, { identity: serviceUserAttrs.email, secret: serviceUserAttrs.password, type: SERVICE })
-        expect(serviceRes.errors).toEqual(undefined)
-        expect(serviceRes.data.obj.item.id).toBe(serviceUser.id)
-    })
-
-    test('should authorize staff user if no pass user type', async () => {
-        const SIGNIN_MUTATION_WITHOUT_USER_TYPE = gql`
-            mutation signin($identity: String, $secret: String) {
-                obj: authenticateUserWithPassword(email: $identity, password: $secret) {
-                    item {
-                        id
-                    }
-                }
-            }
-        `
-
-        const admin = await makeLoggedInAdminClient()
-        const [user, userAttrs] = await createTestUser(admin)
+        const [user, userAttrs] = await createTestUser(admin, { type: STAFF })
         const client = await makeClient()
-        const res = await client.mutate(SIGNIN_MUTATION_WITHOUT_USER_TYPE, { identity: userAttrs.email, secret: userAttrs.password })
+        const res = await client.mutate(SIGNIN_MUTATION, { identity: userAttrs.email, secret: userAttrs.password })
         expect(res.errors).toEqual(undefined)
         expect(res.data.obj.item.id).toBe(user.id)
+    })
+
+    test('should authorize service user', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const [user, userAttrs] = await createTestUser(admin, { type: SERVICE })
+        const client = await makeClient()
+        const res = await client.mutate(SIGNIN_MUTATION, { identity: userAttrs.email, secret: userAttrs.password })
+        expect(res.errors).toEqual(undefined)
+        expect(res.data.obj.item.id).toBe(user.id)
+    })
+
+    test('should throw error if service and staff users have one email', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const email = createTestEmail()
+        const [, staffUserAttrs] = await createTestUser(admin, { type: STAFF, email })
+        const [, serviceUserAttrs] = await createTestUser(admin, { type: SERVICE, email })
+        const client = await makeClient()
+
+        const staffRes = await client.mutate(SIGNIN_MUTATION, { identity: staffUserAttrs.email, secret: staffUserAttrs.password })
+        expect(staffRes.data.obj).toBeNull()
+        expect(staffRes.errors[0].message).toEqual(expect.stringContaining('[passwordAuth:identity:multipleFound]'))
+
+        const serviceRes = await client.mutate(SIGNIN_MUTATION, { identity: serviceUserAttrs.email, secret: serviceUserAttrs.password })
+        expect(serviceRes.data.obj).toBeNull()
+        expect(serviceRes.errors[0].message).toEqual(expect.stringContaining('[passwordAuth:identity:multipleFound]'))
     })
 })
 
