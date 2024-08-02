@@ -19,7 +19,7 @@ const ERRORS = {
         variable: ['data'],
         code: 'BAD_USER_INPUT',
         type: WRONG_VALUE,
-        message: 'You must specify one of two values: tin or organizationId',
+        message: 'You must specify one of two values: tin or organization',
     },
     BAD_PERIOD_FORMAT: {
         mutation: '_allBillingReceiptsSum',
@@ -34,7 +34,7 @@ const SumBillingReceiptsService = new GQLCustomSchema('SumBillingReceiptsService
     types: [
         {
             access: true,
-            type: 'input BillingReceiptsSumInput { period: String!, organizationId: ID, tin: String, importRemoteSystem: String }',
+            type: 'input BillingReceiptsSumInput { period: String!, organization: OrganizationWhereUniqueInput, tin: String, importRemoteSystem: String }',
         },
         {
             access: true,
@@ -51,9 +51,9 @@ const SumBillingReceiptsService = new GQLCustomSchema('SumBillingReceiptsService
                 errors: ERRORS,
             },
             resolver: async (parent, args) => {
-                const { data: { period, tin, organizationId, importRemoteSystem } } = args
+                const { data: { period, tin, organization, importRemoteSystem } } = args
 
-                if (!tin && !organizationId) {
+                if (!tin && !organization) {
                     throw new GQLError(ERRORS.TIN_OR_ORGANIZATION_ID_MUST_BE_SPECIFIED)
                 }
                 if (!PERIOD_REGEX.test(period)) {
@@ -64,8 +64,8 @@ const SumBillingReceiptsService = new GQLCustomSchema('SumBillingReceiptsService
                 const { knex } = getDatabaseAdapter(keystone)
 
                 const organizationWhere = { deletedAt: null }
-                if (organizationId) {
-                    organizationWhere.id = organizationId
+                if (organization) {
+                    organizationWhere.id = organization.id
                 }
                 if (tin) {
                     organizationWhere.tin = tin

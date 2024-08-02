@@ -77584,7 +77584,7 @@ type RegisterBillingReceiptFileOutput {
 
 input BillingReceiptsSumInput {
   period: String!
-  organizationId: ID
+  organization: OrganizationWhereUniqueInput
   tin: String
   importRemoteSystem: String
 }
@@ -82609,7 +82609,7 @@ type Query {
     ],
     "code": "BAD_USER_INPUT",
     "type": "WRONG_VALUE",
-    "message": "You must specify one of two values: tin or organizationId"
+    "message": "You must specify one of two values: tin or organization"
   }`
   
   `{

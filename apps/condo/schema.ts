@@ -19375,7 +19375,7 @@ export type BillingReceiptsRecipientFieldInput = {
 
 export type BillingReceiptsSumInput = {
   period: Scalars['String'];
-  organizationId?: Maybe<Scalars['ID']>;
+  organization?: Maybe<OrganizationWhereUniqueInput>;
   tin?: Maybe<Scalars['String']>;
   importRemoteSystem?: Maybe<Scalars['String']>;
 };
@@ -66538,7 +66538,7 @@ export type Query = {
    *   ],
    *   "code": "BAD_USER_INPUT",
    *   "type": "WRONG_VALUE",
-   *   "message": "You must specify one of two values: tin or organizationId"
+   *   "message": "You must specify one of two values: tin or organization"
    * }`
    *
    * `{
