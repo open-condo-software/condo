@@ -21,7 +21,6 @@ const {
     MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW_SEC,
 } = require('@condo/domains/resident/constants/constants')
 const { ADDRESS_NOT_FOUND_ERROR } = require('@condo/domains/resident/constants/errors')
-const { resetUserResidentCache } = require('@condo/domains/resident/utils/accessSchema')
 const { Resident: ResidentAPI } = require('@condo/domains/resident/utils/serverSchema')
 const { discoverServiceConsumers } = require('@condo/domains/resident/utils/serverSchema')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
@@ -71,8 +70,6 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                     unitType,
                     user: { connect: { id: context.authedItem.id } },
                 }
-
-                await resetUserResidentCache(context.authedItem.id)
 
                 const client = createAddressServiceClientInstance({ address })
 
