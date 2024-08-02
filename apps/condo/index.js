@@ -160,9 +160,9 @@ module.exports = prepareKeystone({
     ui: { hooks: require.resolve('@app/condo/admin-ui') },
     authStrategyOpts: {
         config: {
-            itemTypeField: 'type',
-            // itemTypeOptions: [STAFF, SERVICE],
-            itemTypeDefault: STAFF,
+            // verificationField: 'isEmailVerified',
+            identityTypeField: 'type',
+            allowedIdentityTypes: [STAFF, SERVICE],
         },
     },
 })
