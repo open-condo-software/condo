@@ -54,7 +54,7 @@ const UpdateInvoicePage = () => {
         )
     }
 
-    const title = UpdateInvoiceTitle.replace('{number}', get(invoice, 'number'))
+    const title = UpdateInvoiceTitle.replace('{number}', String(get(invoice, 'number')))
 
     return (
         <>

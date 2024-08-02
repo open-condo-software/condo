@@ -5,21 +5,46 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, waitFor, catchErrorFrom, expectValuesOfCommonFields } = require('@open-condo/keystone/test.utils')
 const {
-    expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
+    makeLoggedInAdminClient,
+    makeClient,
+    UUID_RE,
+    waitFor,
+    catchErrorFrom,
+    expectValuesOfCommonFields,
+    expectToThrowAuthenticationErrorToObj,
+    expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
-const { BANK_SYNC_TASK_STATUS } = require('@condo/domains/banking/constants')
-const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
-const { BankAccountReportTask, createTestBankAccountReportTask, updateTestBankAccountReportTask, createTestBankAccount, BankAccountReport, createTestBankTransaction, updateTestBankAccount, updateTestBankIntegrationAccountContext } = require('@condo/domains/banking/utils/testSchema')
-const { createTestBankIntegrationAccountContext, createTestBankContractorAccount, BankIntegration, createTestBankCategory, createTestBankCostItem } = require('@condo/domains/banking/utils/testSchema')
+const { BANK_SYNC_TASK_STATUS, BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
+const {
+    BankAccountReportTask,
+    createTestBankAccountReportTask,
+    updateTestBankAccountReportTask,
+    createTestBankAccount,
+    BankAccountReport,
+    createTestBankTransaction,
+    updateTestBankIntegrationAccountContext,
+    createTestBankIntegrationAccountContext,
+    createTestBankContractorAccount,
+    BankIntegration,
+    createTestBankCategory,
+    createTestBankCostItem,
+    makeBankAccountWithData,
+} = require('@condo/domains/banking/utils/testSchema')
 const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
-const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
-const { createTestOrganizationLink } = require('@condo/domains/organization/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+const {
+    createTestOrganization,
+    createTestOrganizationEmployeeRole,
+    createTestOrganizationEmployee,
+    createTestOrganizationLink,
+} = require('@condo/domains/organization/utils/testSchema')
+const {
+    makeClientWithNewRegisteredAndLoggedInUser,
+    makeClientWithSupportUser,
+} = require('@condo/domains/user/utils/testSchema')
+
 
 describe('BankAccountReportTask', () => {
     let admin, bankIntegration, category
@@ -88,8 +113,7 @@ describe('BankAccountReportTask', () => {
                 })
                 await createTestOrganizationEmployee(admin, anotherOrganization, userClient.user, role)
                 const [organization] = await createTestOrganization(admin)
-                const [account] = await createTestBankAccount(admin, organization, {
-                })
+                const [account] = await createTestBankAccount(admin, organization, {})
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await createTestBankAccountReportTask(userClient, account, organization, userClient.user.id)
@@ -170,7 +194,7 @@ describe('BankAccountReportTask', () => {
                     await updateTestBankAccountReportTask(admin, objCreated.id, {
                         account: { connect: { id: faker.datatype.uuid() } },
                     })
-                }, ({ errors }) =>{
+                }, ({ errors }) => {
                     expect(errors[0].message).toContain('Field "account" is not defined by type "BankAccountReportTaskUpdateInput"')
                 })
             })
@@ -229,14 +253,14 @@ describe('BankAccountReportTask', () => {
                     await updateTestBankAccountReportTask(userClient, objCreated.id, {
                         organization: { disconnectAll: true },
                     })
-                }, ({ errors }) =>{
+                }, ({ errors }) => {
                     expect(errors[0].message).toContain('Field "organization" is not defined by type "BankAccountReportTaskUpdateInput"')
                 })
                 await catchErrorFrom(async () => {
                     await updateTestBankAccountReportTask(userClient, objCreated.id, {
                         account: { disconnectAll: true },
                     })
-                }, ({ errors }) =>{
+                }, ({ errors }) => {
                     expect(errors[0].message).toContain('Field "account" is not defined by type "BankAccountReportTaskUpdateInput"')
                 })
                 await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -357,7 +381,7 @@ describe('BankAccountReportTask', () => {
             })
         })
     })
-    
+
     describe('BankAccountReportTask afterChange', () => {
 
         it('create BankAccountReport', async () => {
@@ -726,6 +750,58 @@ describe('BankAccountReportTask', () => {
             expect(Number(reportLatest.totalOutcome)).toEqual(250)
             expect(reportLatest.data.categoryGroups[0].costItemGroups[0].sum).toEqual(250)
             expect(reportLatest.data.categoryGroups[0].costItemGroups[1].sum).toEqual(250)
+        })
+
+        it('Should generate correct reports for different bank accounts', async () => {
+            const [org] = await createTestOrganization(admin)
+
+            const bankAccountData1 = await makeBankAccountWithData(admin, org, bankIntegration, category)
+            const bankAccountData2 = await makeBankAccountWithData(admin, org, bankIntegration, category)
+            const bankAccountData3 = await makeBankAccountWithData(admin, org, bankIntegration, category)
+            const bankAccountsData = [bankAccountData1, bankAccountData2, bankAccountData3]
+
+            const [createdReportTask1] = await createTestBankAccountReportTask(admin, bankAccountData1.account, org, admin.user.id, { progress: 0 })
+            const [createdReportTask2] = await createTestBankAccountReportTask(admin, bankAccountData2.account, org, admin.user.id, { progress: 0 })
+            const [createdReportTask3] = await createTestBankAccountReportTask(admin, bankAccountData3.account, org, admin.user.id, { progress: 0 })
+
+            await waitFor(async () => {
+                const updatedTasks = await BankAccountReportTask.getAll(admin, {
+                    id_in: [createdReportTask1.id, createdReportTask2.id, createdReportTask3.id],
+                    status: BANK_SYNC_TASK_STATUS.COMPLETED,
+                })
+                expect(updatedTasks).toHaveLength(3)
+                expect(updatedTasks).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: createdReportTask1.id }),
+                    expect.objectContaining({ id: createdReportTask2.id }),
+                    expect.objectContaining({ id: createdReportTask3.id }),
+                ]))
+            })
+
+            const reports = await BankAccountReport.getAll(admin, {
+                organization: { id: org.id },
+            })
+
+            expect(reports).toHaveLength(3)
+            expect(reports).toEqual(expect.arrayContaining(reports.map(report => {
+                const bankAccountData = bankAccountsData.find(item => item.account.id === report.account.id)
+
+                return expect.objectContaining({
+                    account: expect.objectContaining({ id: bankAccountData.account.id }),
+                    isLatest: true,
+                    version: 1,
+                    amount: Number(bankAccountData.totalAmount).toFixed(4).toString(),
+                    amountAt: `${bankAccountData.formattedCurrentDate}T00:00:00.000Z`,
+                    totalIncome: Number(bankAccountData.totalIncome).toFixed(4).toString(),
+                    totalOutcome: Number(bankAccountData.totalOutcome).toFixed(4).toString(),
+                    data: {
+                        categoryGroups: [expect.objectContaining({
+                            costItemGroups: [expect.objectContaining({
+                                sum: bankAccountData.totalIncome,
+                            })],
+                        })],
+                    },
+                })
+            })))
         })
     })
 })

@@ -6,23 +6,25 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { find } = require('@open-condo/keystone/schema')
 
-const { checkOrganizationPermission, checkRelatedOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    checkPermissionsInRelatedOrganizations,
+    checkPermissionsInEmployedOrganizations,
+} = require('@condo/domains/organization/utils/accessSchema')
 
-
-async function canExportPropertiesToExcel ({ args: { data: { where } }, authentication: { item: user } }) {
+async function canExportPropertiesToExcel ({ args: { data: { where } }, authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
 
     const organizationId = get(where, ['organization', 'id'])
-    if (organizationId) return await checkOrganizationPermission(user.id, organizationId, 'canReadProperties')
+    if (organizationId) return await checkPermissionsInEmployedOrganizations(context, user, organizationId, 'canReadProperties')
 
     const organizationFromWhere = get(where, 'organization')
     if (!organizationFromWhere) return false
     const [organization] = await find('Organization', organizationFromWhere)
     if (!organization) return false
 
-    return await checkRelatedOrganizationPermission(user.id, organization.id, 'canReadProperties')
+    return await checkPermissionsInRelatedOrganizations(context, user, organization.id, 'canReadProperties')
 }
 
 /*

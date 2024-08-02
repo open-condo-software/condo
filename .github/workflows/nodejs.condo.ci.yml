@@ -4,22 +4,45 @@ on:
   push:
     branches:
       - master
-  pull_request:
+  pull_request_target:
+    types:
+      - opened
+      - reopened
+      - synchronize
     branches:
       - master
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 env:
-  DOCKER_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:${{ github.sha }}
+  DOCKER_IMAGE: condo/condo-image:${{ github.event.pull_request.head.sha || github.sha }}
+  DOCKER_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:${{ github.event.pull_request.head.sha || github.sha }}
   PG_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/doma/utils/postgres:13.2
   REDIS_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/doma/utils/redis:6.2
+  REF: ${{ github.event.pull_request.head.sha || github.ref }}
 
 jobs:
+  authorize:
+    name: Authorize PR
+    runs-on: ubuntu-latest
+    environment:
+      ${{ github.event_name == 'pull_request_target' &&
+      github.event.pull_request.head.repo.full_name != github.repository && 
+      'external' || 'internal' }}
+    outputs:
+      ref: ${{ env.REF }}
+    steps:
+      - run: echo "PR is authorized to run CI jobs"
+
   build-image:
     name: Build Docker Image
+    needs: authorize
     runs-on: test-pool-runners
     outputs:
-      DOCKER_IMAGE_FULL: ${{ env.DOCKER_IMAGE_FULL }}
+      DOCKER_IMAGE: ${{ env.DOCKER_IMAGE }}
     steps:
       - name: Prepare runner
         run: |
@@ -28,12 +51,19 @@ jobs:
         run: |
           echo "DOCKER_CACHE_FROM=type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:$( echo "${{github.ref_name}}" | sed 's/[^a-zA-Z0-9]/-/g' ) >> $GITHUB_ENV"
           echo "DOCKER_CACHE_TO=type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:$( echo "${{github.ref_name}}" | sed 's/[^a-zA-Z0-9]/-/g' ),mode=min,image-manifest=true" >> $GITHUB_ENV
+      - name: Login to cloud registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
+          password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           submodules: recursive
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+          ref: ${{ env.REF }}
       - name: Prune repo to filter out yarn.lock and package.json
         run: |
           bash bin/prune.sh
@@ -46,13 +76,9 @@ jobs:
         uses: docker/setup-buildx-action@v3
         with:
           endpoint: builders
-          driver-opts: env.BUILDKIT_STEP_LOG_MAX_SIZE=10485760
-      - name: Login to cloud registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ secrets.DOCKER_REGISTRY }}
-          username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
-          password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
+          driver-opts: |
+            env.BUILDKIT_STEP_LOG_MAX_SIZE=10485760
+            image=${{ secrets.DOCKER_REGISTRY }}/doma/utils/buildkit:buildx-stable-1
       - name: Build repo image
         uses: docker/build-push-action@v5
         with:
@@ -87,9 +113,13 @@ jobs:
   # SRC: https://how.wtf/run-workflow-step-or-job-based-on-file-changes-github-actions.html
   detect-changes:
     name: Define job list based on changed files
+    needs: authorize
     runs-on: ubuntu-latest
     outputs:
+      address-service: ${{ steps.detect-changes.outputs.address-service }}
       dev-api: ${{ steps.detect-changes.outputs.dev-api }}
+      condorb: ${{ steps.detect-changes.outputs.condorb }}
+      webhooks: ${{ steps.detect-changes.outputs.webhooks }}
     steps:
       - name: Checkout code with submodules
         uses: actions/checkout@v4
@@ -97,19 +127,26 @@ jobs:
           fetch-depth: 0
           submodules: recursive
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+          ref: ${{ env.REF }}
       - name: Scan changed files
         uses: dorny/paths-filter@v3
         id: detect-changes
         with:
           filters: |
+            address-service:
+              - 'apps/address-service/**'
+            condorb:
+              - 'apps/condorb'
             dev-api:
               - 'apps/dev-api/**'
               - 'apps/condo/domains/miniapp/**'
               - 'apps/condo/domains/user/**'
-
+            webhooks:
+              - 'packages/webhooks/**'
 
   lint:
     name: Lint source code
+    needs: authorize
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code with submodules
@@ -118,6 +155,7 @@ jobs:
           fetch-depth: 0
           submodules: recursive
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+          ref: ${{ env.REF }}
       - name: Prepare Node environment
         uses: actions/setup-node@v3
         with:
@@ -126,11 +164,12 @@ jobs:
       - name: Install root dependencies
         run: |
           yarn workspaces focus root
-      - name: Check code-style rules
+      - name: Check JS code-style rules
         run: |
           yarn lint:code
-        # TODO(DOMA-7753): Think about migrating this check to Typescript, like in dev-portal and documents.
-        # Reason: TS check is no cost + you can fix it before you commit it + lint out the box in build-time + have keys autocompletion!!
+      - name: Check styling rules
+        run: |
+          yarn lint:styles
       - name: Check translations rules
         run: |
           yarn lint:translations
@@ -141,6 +180,7 @@ jobs:
 
   security:
     name: Semgrep vulnerabilities check
+    needs: authorize
     runs-on: ubuntu-latest
     container:
       image: returntocorp/semgrep
@@ -148,15 +188,143 @@ jobs:
     if: (github.actor != 'dependabot[bot]')
     steps:
       # Fetch project source with GitHub Actions Checkout.
-      - uses: actions/checkout@v4
+      - name: Checkout code with submodules
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+          ref: ${{ env.REF }}
       - run: ./bin/run-semgrep.sh -a
+
+  run-address-service-tests:
+    name: Address-Service Tests
+    runs-on: ubuntu-latest
+    needs:
+      - authorize
+      - build-image
+      - detect-changes
+    if: ${{ needs.detect-changes.outputs.address-service == 'true' }}
+    steps:
+      - name: Login to cloud registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
+          password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
+      - name: Setup PG db
+        run: |
+          docker run -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5432:5432" -d ${{ env.PG_IMAGE_FULL }}
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: main
+      - name: Setup Redis db
+        run: |
+          docker run -p="127.0.0.1:6379:6379" -d ${{ env.REDIS_IMAGE_FULL }}
+      - name: Run condo container with daemon
+        run: |
+          docker run --network="host" --name condo-container -dit ${{ env.DOCKER_IMAGE_FULL }} sh
+      - name: Prepare apps
+        run: |
+          docker exec condo-container node bin/prepare.js -f address-service condo
+      - name: Check migrations state
+        run: |
+          docker exec condo-container yarn workspace @app/address-service makemigrations --check
+      - name: Run apps and tests
+        run: |
+          docker exec condo-container sh -c "(\
+          yarn workspace @app/address-service start & \
+          node bin/wait-apps-apis.js -f address-service) && \
+          yarn workspace @app/address-service test"
+
+  run-condo-tests:
+    name: Condo Tests
+    needs:
+      - authorize
+      - build-image
+    strategy:
+      matrix:
+        domain:
+          - organization
+          - user
+          - scope
+          - property
+          - acquiring
+          - billing
+          - miniapp
+          - banking
+          - ticket
+          - meter
+          - contact
+          - resident
+          - notification
+          - common
+          - others
+    uses: ./.github/workflows/_nodejs.condo.core.tests.yml
+    with:
+      domain_name: ${{ matrix.domain }}
+      runs-on: runners-dind-set-cpu5-ram10
+      image_name: ${{ needs.build-image.outputs.DOCKER_IMAGE }}
+    secrets: inherit
+
+  run-condo-e2e-tests:
+    name: Condo E2E Tests
+    needs: authorize
+    uses: ./.github/workflows/_nodejs.condo.cypress.yml
+    with:
+      ref: ${{ needs.authorize.outputs.ref }}
+    secrets: inherit
+
+  run-condorb-tests:
+    name: CondoRB Tests
+    runs-on: ubuntu-latest
+    needs:
+      - authorize
+      - build-image
+      - detect-changes
+    if: ${{ needs.detect-changes.outputs.condorb == 'true' }}
+    steps:
+      - name: Login to cloud registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
+          password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
+      - name: Setup PG db
+        run: |
+          docker run -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5432:5432" -d ${{ env.PG_IMAGE_FULL }}
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: main
+      - name: Setup Redis db
+        run: |
+          docker run -p="127.0.0.1:6379:6379" -d ${{ env.REDIS_IMAGE_FULL }}
+      - name: Run condo container with daemon
+        run: |
+          docker run --network="host" --name condo-container -dit ${{ env.DOCKER_IMAGE_FULL }} sh
+      - name: Prepare apps
+        run: |
+          docker exec condo-container node bin/prepare.js -f condo condorb
+      - name: Check migrations state
+        run: |
+          docker exec condo-container yarn workspace @app/condorb makemigrations --check
+      - name: Run apps and tests
+        run: |
+          docker exec condo-container sh -c "(\
+          yarn workspace @app/condo start & \
+          yarn workspace @app/condorb start & \
+          node bin/wait-apps-apis.js -f condo condorb) && \
+          yarn workspace @app/condorb test"
 
   run-dev-api-tests:
     name: DEV-API Tests
     runs-on: ubuntu-latest
     needs:
-      - detect-changes
+      - authorize
       - build-image
+      - detect-changes
     if: ${{ needs.detect-changes.outputs.dev-api == 'true' }}
     steps:
       - name: Login to cloud registry
@@ -181,6 +349,9 @@ jobs:
       - name: Prepare apps
         run: |
           docker exec condo-container node bin/prepare.js -f condo dev-api
+      - name: Check migrations state
+        run: |
+          docker exec condo-container yarn workspace @app/dev-api makemigrations --check
       - name: Run apps and tests
         run: |
           docker exec condo-container sh -c "(\
@@ -188,3 +359,25 @@ jobs:
           yarn workspace @app/dev-api start & \
           node bin/wait-apps-apis.js -f condo dev-api) && \
           yarn workspace @app/dev-api test"
+
+  run-webhooks-tests:
+    name: Webhooks Tests
+    runs-on: ubuntu-latest
+    needs:
+      - authorize
+      - detect-changes
+    if: ${{ needs.detect-changes.outputs.webhooks == 'true' }}
+    steps:
+      - name: Checkout code with submodules
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+          ref: ${{ env.REF }}
+      - name: Install packages
+        run: |
+          npm i -g turbo
+          yarn install --immutable
+      - name: Test webhooks utils
+        run: yarn workspace @open-condo/webhooks jest

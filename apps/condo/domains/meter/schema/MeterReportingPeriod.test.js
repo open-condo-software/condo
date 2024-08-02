@@ -17,17 +17,27 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { makeContextWithOrganizationAndIntegrationAsAdmin, createTestBillingProperty, createTestBillingAccount } = require('@condo/domains/billing/utils/testSchema')
-const { MeterReportingPeriod, createTestMeterReportingPeriod, updateTestMeterReportingPeriod } = require('@condo/domains/meter/utils/testSchema')
+const { COLD_WATER_METER_RESOURCE_ID, HOT_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
+const {
+    MeterReportingPeriod,
+    createTestMeterReportingPeriod,
+    updateTestMeterReportingPeriod,
+    createTestMeter,
+} = require('@condo/domains/meter/utils/testSchema')
+const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const {
     createTestOrganization,
     createTestOrganizationEmployeeRole,
     createTestOrganizationEmployee,
     createTestOrganizationWithAccessToAnotherOrganization,
     makeEmployeeUserClientWithAbilities,
+    makeClientWithRegisteredOrganization,
     updateTestOrganizationEmployeeRole,
+    registerNewOrganization,
 } = require('@condo/domains/organization/utils/testSchema')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 const { createTestResident, createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -152,7 +162,7 @@ describe('MeterReportingPeriod', () => {
                 ]))
             })
 
-            test('user can', async () => {
+            test('Staff user can', async () => {
                 const [property] = await createTestProperty(admin, commonOrganization, { map: buildingMapJson })
 
                 const [obj] = await createTestMeterReportingPeriod(commonClientWithPermission, commonOrganization, { property: { connect: { id: property.id } } })
@@ -163,7 +173,7 @@ describe('MeterReportingPeriod', () => {
                 })
             })
 
-            test('user can read default period', async () => {
+            test('Staff user can read default period', async () => {
                 const defaultMeterReportingPeriod = await MeterReportingPeriod.create(admin, {
                     dv: 1,
                     sender: { dv: 1, fingerprint: 'initDefaultPeriod' },
@@ -177,59 +187,83 @@ describe('MeterReportingPeriod', () => {
                 })
             })
 
-            test('resident can read his MeterReportingPeriods by property', async () => {
-                const client = await makeClientWithResidentUser()
-                const unitName = faker.random.alphaNumeric(8)
-                const { context, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
-                const [property] = await createTestProperty(admin, organization)
-                const [billingProperty] = await createTestBillingProperty(admin, context)
-                const [billingAccount] = await createTestBillingAccount(admin, context, billingProperty)
-                const [resident] = await createTestResident(admin, client.user, property, {
-                    unitName,
-                })
-                await createTestServiceConsumer(admin, resident, organization, {
-                    accountNumber: billingAccount.number,
-                })
-                const [obj] = await createTestMeterReportingPeriod(admin, organization, { property: { connect: { id: property.id } } })
+            test('Resident can read MeterReportingPeriods from any organizations on his address', async () => {
+                const orgManager = await makeClientWithRegisteredOrganization()
+                const anotherOrgManager = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [anotherOrg] = await registerNewOrganization(anotherOrgManager, { type: SERVICE_PROVIDER_TYPE })
 
-                const [period] = await MeterReportingPeriod.getAll(client, {
-                    property: { id: property.id },
-                }, { sortBy: ['updatedAt_DESC'] })
+                const [property] = await createTestProperty(orgManager, orgManager.organization)
+                const [anotherProperty] = await createTestProperty(anotherOrgManager, anotherOrg, {
+                    address: property.address,
+                    addressMeta: property.addressMeta,
+                })
 
-                expect(period.id).toEqual(obj.id)
+                expect(property.addressKey).not.toBeNull()
+                expect(anotherProperty).toHaveProperty('addressKey', property.addressKey)
+
+                const residentClient = await makeClientWithResidentUser()
+                const [resident] = await createTestResident(admin, residentClient.user, property)
+
+                expect(resident).toHaveProperty('addressKey', property.addressKey)
+
+                const [meter] = await createTestMeter(orgManager, orgManager.organization, property, { id: COLD_WATER_METER_RESOURCE_ID })
+                const [anotherMeter] = await createTestMeter(anotherOrgManager, anotherOrg, anotherProperty, { id: HOT_WATER_METER_RESOURCE_ID })
+                expect(meter).toHaveProperty('id')
+                expect(anotherMeter).toHaveProperty('id')
+
+                const [globalOrgPeriod] = await createTestMeterReportingPeriod(orgManager, orgManager.organization)
+                const [anotherGlobalOrgPeriod] = await createTestMeterReportingPeriod(anotherOrgManager, anotherOrg)
+                const [localOrgPeriod] = await createTestMeterReportingPeriod(orgManager, orgManager.organization, {
+                    property: { connect: { id: property.id } },
+                })
+                const [anotherLocalOrgPeriod] = await createTestMeterReportingPeriod(anotherOrgManager, anotherOrg, {
+                    property: { connect: { id: anotherProperty.id } },
+                })
+
+                const allPeriods = await MeterReportingPeriod.getAll(residentClient, {
+                    organization: { id_in: [orgManager.organization.id, anotherOrg.id] },
+                })
+
+                expect(allPeriods).toHaveLength(4)
+                expect(allPeriods).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: globalOrgPeriod.id }),
+                    expect.objectContaining({ id: anotherGlobalOrgPeriod.id }),
+                    expect.objectContaining({ id: localOrgPeriod.id }),
+                    expect.objectContaining({ id: anotherLocalOrgPeriod.id }),
+                ]))
             })
 
-            test('resident cannot read MeterReportingPeriods from another property', async () => {
-                const client = await makeClientWithResidentUser()
-                const client2 = await makeClientWithResidentUser()
-                const unitName = faker.random.alphaNumeric(8)
-                const { context, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
-                const [property] = await createTestProperty(admin, organization)
-                const [property2] = await createTestProperty(admin, organization)
-                const [billingProperty] = await createTestBillingProperty(admin, context)
-                const [billingAccount] = await createTestBillingAccount(admin, context, billingProperty)
-                const [resident] = await createTestResident(admin, client.user, property, {
-                    unitName,
-                })
-                await createTestServiceConsumer(admin, resident, organization, {
-                    accountNumber: billingAccount.number,
-                })
-                const [resident2] = await createTestResident(admin, client2.user, property2, {
-                    unitName,
-                })
-                await createTestServiceConsumer(admin, resident2, organization, {
-                    accountNumber: billingAccount.number,
-                })
-                await createTestMeterReportingPeriod(admin, organization, { property: { connect: { id: property.id } } })
+            test('Resident cannot read MeterReportingPeriods from another property', async () => {
+                const orgManager = await makeClientWithRegisteredOrganization()
 
-                const objs = await MeterReportingPeriod.getAll(client2, {
-                    property: { id: property.id },
-                }, { sortBy: ['updatedAt_DESC'] })
+                const [property] = await createTestProperty(orgManager, orgManager.organization)
+                expect(property.addressKey).not.toBeNull()
 
-                expect(objs).toHaveLength(0)
+                const residentClient = await makeClientWithResidentUser()
+                const { address, addressMeta } = buildFakeAddressAndMeta(false, {})
+                const [resident] = await createTestResident(admin, residentClient.user, null, {
+                    address,
+                    addressMeta,
+                })
+
+                expect(resident.addressKey).not.toEqual(property.addressKey)
+
+                const [meter] = await createTestMeter(orgManager, orgManager.organization, property, { id: COLD_WATER_METER_RESOURCE_ID })
+                expect(meter).toHaveProperty('id')
+
+                const [globalOrgPeriod] = await createTestMeterReportingPeriod(orgManager, orgManager.organization)
+                const [localOrgPeriod] = await createTestMeterReportingPeriod(orgManager, orgManager.organization, {
+                    property: { connect: { id: property.id } },
+                })
+
+                const allPeriods = await MeterReportingPeriod.getAll(residentClient, {
+                    organization: { id: orgManager.organization.id },
+                })
+
+                expect(allPeriods).toHaveLength(0)
             })
 
-            test('resident can read default MeterReportingPeriod', async () => {
+            test('Resident can read default MeterReportingPeriod', async () => {
                 const client = await makeClientWithResidentUser()
                 const unitName = faker.random.alphaNumeric(8)
                 const { organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()

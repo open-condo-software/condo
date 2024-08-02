@@ -63,6 +63,9 @@ function getTabsWrap (): HTMLElement {
     return document.querySelector('.condo-tabs-nav-wrap')
 }
 
+/**
+ * @deprecated Use TemplatesSelect component instead. Same API, but renders to different control
+ */
 export const TemplatesTabs: React.FC<INewsFormProps> = ({ items, onChange }) => {
 
     const [translateTabs, setTranslateTabs] = useState(0)

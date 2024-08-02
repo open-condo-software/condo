@@ -7,11 +7,13 @@ const { uniq, map, get } = require('lodash')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { find, getById } = require('@open-condo/keystone/schema')
 
-const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
-const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    getEmployedOrRelatedOrganizationsByPermissions,
+    checkPermissionsInEmployedOrRelatedOrganizations,
+} = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
-async function canReadMobileFeatureConfigs ({ authentication: { item: user } }) {
+async function canReadMobileFeatureConfigs ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -33,18 +35,17 @@ async function canReadMobileFeatureConfigs ({ authentication: { item: user } }) 
         return false
     }
 
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, [])
+
     return {
         organization: {
-            OR: [
-                queryOrganizationEmployeeFor(user.id),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
-            ],
+            id_in: permittedOrganizations,
         },
     }
 }
 
 async function canManageMobileFeatureConfigs (attrs) {
-    const { authentication: { item: user }, originalInput, operation, itemId } = attrs
+    const { authentication: { item: user }, originalInput, operation, itemId, context } = attrs
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.type === RESIDENT) return false
@@ -63,7 +64,9 @@ async function canManageMobileFeatureConfigs (attrs) {
         organizationId = get(foundConfig, 'organization')
     }
 
-    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageMobileFeatureConfigs')
+    if (!organizationId) return false
+
+    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageMobileFeatureConfigs')
 }
 
 /*

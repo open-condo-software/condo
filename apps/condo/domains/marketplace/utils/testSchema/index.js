@@ -16,6 +16,8 @@ const { MarketItem: MarketItemGQL } = require('@condo/domains/marketplace/gql')
 const { MarketItemFile: MarketItemFileGQL } = require('@condo/domains/marketplace/gql')
 const { MarketItemPrice: MarketItemPriceGQL } = require('@condo/domains/marketplace/gql')
 const { MarketPriceScope: MarketPriceScopeGQL } = require('@condo/domains/marketplace/gql')
+const { MarketSetting: MarketSettingGQL } = require('@condo/domains/marketplace/gql')
+const { INVOICE_PAYMENT_TYPES } = require('@condo/domains/marketplace/constants')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MarketCategory = generateGQLTestUtils(MarketCategoryGQL)
@@ -26,6 +28,7 @@ const MarketItemFile = generateGQLTestUtils(MarketItemFileGQL)
 const MarketItemPrice = generateGQLTestUtils(MarketItemPriceGQL)
 const MarketPriceScope = generateGQLTestUtils(MarketPriceScopeGQL)
 
+const MarketSetting = generateGQLTestUtils(MarketSettingGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const TEST_FILE = path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png')
@@ -291,6 +294,36 @@ async function softDeleteTestMarketPriceScopes (client, ids) {
     return await MarketPriceScope.updateMany(client, attrs)
 }
 
+async function createTestMarketSetting (client, organization, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        organization: { connect: { id: organization.id } },
+        residentAllowedPaymentTypes: INVOICE_PAYMENT_TYPES,
+        ...extraAttrs,
+    }
+    const obj = await MarketSetting.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestMarketSetting (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await MarketSetting.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -303,5 +336,6 @@ module.exports = {
     MarketItemPrice, createTestMarketItemPrice, updateTestMarketItemPrice,
     MarketPriceScope, createTestMarketPriceScope, updateTestMarketPriceScope,
     createTestMarketPriceScopes, softDeleteTestMarketPriceScopes,
+    MarketSetting, createTestMarketSetting, updateTestMarketSetting,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

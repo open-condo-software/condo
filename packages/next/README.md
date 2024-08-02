@@ -1,4 +1,8 @@
-# there are three important things #
+# Requirements for use
+
+You should transpile this module to use it in your app.
+
+# There are three important things #
 
  - withApollo
  - withIntl

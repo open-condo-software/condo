@@ -5,7 +5,7 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
-const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, waitFor } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObj,
@@ -33,6 +33,8 @@ const {
 const { createTestRecipient, createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
 const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
+const { INVOICE_PAYMENT_TYPES } = require('@condo/domains/marketplace/constants')
+const { MarketSetting } = require('@condo/domains/marketplace/utils/testSchema')
 const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployee, createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
@@ -778,6 +780,26 @@ describe('AcquiringIntegrationContext', () => {
             expect(contexts).toHaveProperty(['0', 'status'], CONTEXT_FINISHED_STATUS)
             expect(contexts).toHaveProperty(['0', 'invoiceStatus'], CONTEXT_FINISHED_STATUS)
             expect(contexts).toHaveProperty(['0', 'invoiceVatPercent'], '10.0000')
+        })
+    })
+
+    describe('afterChange hook', () => {
+        test('marketSetting create after invoiceStatus === finished', async () => {
+            [context] = await createTestAcquiringIntegrationContext(admin, organization, integration, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+            })
+            await waitFor(async () => {
+                const marketSetting = await MarketSetting.getOne(admin, {
+                    organization: { id: organization.id },
+                    deletedAt: null,
+                })
+
+                expect(marketSetting).toHaveProperty(['organization', 'id'], organization.id)
+                expect(marketSetting).toHaveProperty(['residentAllowedPaymentTypes'], INVOICE_PAYMENT_TYPES)
+            })
+            expect(context).toBeDefined()
+            expect(context).toHaveProperty(['organization', 'id'], organization.id)
+            expect(context).toHaveProperty(['integration', 'id'], integration.id)
         })
     })
 })

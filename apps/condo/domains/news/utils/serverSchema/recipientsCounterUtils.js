@@ -1,8 +1,8 @@
 const get = require('lodash/get')
 
-const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
+const { allItemsQueryByChunks } = require('@open-condo/keystone/schema')
+
 const { LOAD_RESIDENTS_CHUNK_SIZE } = require('@condo/domains/news/constants/common')
-const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 
 const getUnitsFromProperty = (property) => (
     [
@@ -28,23 +28,22 @@ const queryConditionsByUnits = (property) => {
     const unitsFromProperty = getUnitsFromProperty(property)
     for (const unitFromProperty of unitsFromProperty) {
         conditions.push({
-            AND: {
+            AND: [{
                 property: { id: property.id },
                 unitType: unitFromProperty.unitType,
                 unitName: unitFromProperty.unitName,
-            },
+            }],
         })
     }
     return conditions
 }
 
-async function countUniqueUnitsFromResidents (context, where) {
+async function countUniqueUnitsFromResidents (where) {
     const units = new Set()
 
     // Trying to minimize memory usage by working with chunks without keeping all residents within memory
-    await loadListByChunks({
-        context,
-        list: Resident,
+    await allItemsQueryByChunks({
+        schemaName: 'Resident',
         chunkSize: LOAD_RESIDENTS_CHUNK_SIZE,
         where: { ...where, deletedAt: null },
         /**
@@ -52,7 +51,7 @@ async function countUniqueUnitsFromResidents (context, where) {
          * @returns {Resident[]}
          */
         chunkProcessor: (chunk) => {
-            chunk.forEach((r) => units.add(`${r.property.id}_${r.unitType}_${r.unitName}`))
+            chunk.forEach((r) => units.add(`${r.property}_${r.unitType}_${r.unitName}`))
 
             return []
         },

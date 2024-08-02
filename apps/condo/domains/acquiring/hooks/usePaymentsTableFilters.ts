@@ -46,7 +46,7 @@ export function usePaymentsTableFilters (
     const EnterStatusMessage = intl.formatMessage({ id: 'pages.condo.payments.enterStatus' })
 
     const statuses = statusType.map((item) => ({
-        name: intl.formatMessage({ id: 'payment.status.' + item }),
+        name: intl.formatMessage({ id: 'payment.status.' + item as FormatjsIntl.Message['ids'] }),
         id: item,
     }))
     const statusOptions = convertToOptions(statuses, 'name', 'id')

@@ -1,8 +1,6 @@
 const Ajv = require('ajv')
 const addFormats = require('ajv-formats')
 
-const { Json } = require('@open-condo/keystone/fields')
-
 const { SBBOL, _1C_CLIENT_BANK_EXCHANGE } = require('@condo/domains/banking/constants')
 const { getValidator, render } = require('@condo/domains/common/schema/json.utils')
 
@@ -55,7 +53,7 @@ const bankSyncTaskOptionValidator = getValidator(ajv.compile(bankSyncTaskOptions
 
 const BANK_SYNC_TASK_OPTIONS = {
     schemaDoc: 'Options for launching tasks for banking domain',
-    type: Json,
+    type: 'Json',
     graphQLInputType: BANK_SYNC_TASK_OPTIONS_INPUT_NAME,
     graphQLReturnType: BANK_SYNC_TASK_OPTIONS_TYPE_NAME,
     extendGraphQLTypes: [BANK_SYNC_TASK_OPTIONS_TYPES],

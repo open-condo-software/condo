@@ -103,6 +103,7 @@ const PageWrapper = styled.div`
   line-height: normal;
   
   & .payerInfo {
+    padding-top: 20px;
     padding-bottom: 16px;
   }
   
@@ -113,6 +114,11 @@ const PageWrapper = styled.div`
   
   & .sectionTitle {
     padding: 24px 0 8px 0;
+    border-bottom: 1px solid ${colors.lightGrey[5]};
+  }
+
+  & .payerTitle {
+    padding: 0px 0 8px 0;
     border-bottom: 1px solid ${colors.lightGrey[5]};
   }
 
@@ -181,12 +187,15 @@ const InfoRow: React.FC<IInfoRowProps> = ({ row }) => !!row.value && (
 
 const Money: React.FC<{ amount: string, currencyCode: string }> = ({ amount, currencyCode }) => {
     const intl = useIntl()
-
-    return intl.formatNumber(amount || '', {
+    const money = intl.formatNumber(parseFloat(amount || '0'), {
         style: 'currency',
         currency: currencyCode,
         currencyDisplay: 'narrowSymbol',
     })
+
+    return (
+        <>{money}</>
+    )
 }
 
 const ReceiptRowsTable: React.FC<IReceiptSectionProps> = ({ section, currencyCode }) => {
@@ -357,7 +366,7 @@ const InvoiceSection: React.FC<IInvoiceSectionProps> = ({ section, currencyCode 
     const intl = useIntl()
     const InvoiceTitle = intl.formatMessage({ id: 'acquiringReceipt.invoice.title' }, pick(section, ['number', 'date']))
     const TaxRegimeTitle = intl.formatMessage({ id: 'acquiringReceipt.taxRegime' })
-    const TaxRegimeModeTitle = intl.formatMessage({ id: `acquiringReceipt.taxRegime.${section.taxRegime}` })
+    const TaxRegimeModeTitle = intl.formatMessage({ id: `acquiringReceipt.taxRegime.${section.taxRegime}` as FormatjsIntl.Message['ids'] })
 
     return (
         <Col span={24}>
@@ -414,6 +423,7 @@ export const AcquiringReceipt: React.FC<IAcquiringReceiptProps> = (props) => {
     } else if (status === MULTIPAYMENT_ERROR_STATUS) {
         statusColor = STATUS_ERROR_COLOR
     }
+    const payerTitle = intl.formatMessage({ id: 'acquiringReceipt.title' })
 
     const containerRef = useRef(null)
     useEffect(() => {
@@ -445,6 +455,11 @@ export const AcquiringReceipt: React.FC<IAcquiringReceiptProps> = (props) => {
                                 {documentTitle}
                             </Typography.Title>
                         </Col>
+                        {
+                            receipts && receipts.length ? <Col span={24} className='payerTitle'>
+                                <Typography.Text strong>{payerTitle}</Typography.Text>
+                            </Col> : ''
+                        }
                         <Col span={24} className='payerInfo'>
                             <Row gutter={[0, 8]}>{payerInfo.map((row, index) => <InfoRow row={row} key={index}/>)}</Row>
                         </Col>

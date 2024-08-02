@@ -5,7 +5,6 @@
 const { get, isEmpty, isUndefined, isNull } = require('lodash')
 
 const { GQLError } = require('@open-condo/keystone/errors')
-const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
@@ -29,6 +28,7 @@ const { AcquiringIntegrationContext: ContextServerSchema } = require('@condo/dom
 const { PERCENT_FIELD } = require('@condo/domains/common/schema/fields')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
+const { MarketSetting } = require('@condo/domains/marketplace/utils/serverSchema')
 const { STATUS_FIELD, getStatusDescription, getStatusResolver } = require('@condo/domains/miniapp/schema/fields/context')
 
 const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationContext', {
@@ -59,7 +59,7 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
 
         settings: {
             schemaDoc: 'Settings that are required for acquiring to work properly. The data structure depends on the integration and defined here',
-            type: Json,
+            type: 'Json',
             isRequired: true,
             hooks: {
                 validateInput: (args) => {
@@ -70,7 +70,7 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
 
         state: {
             schemaDoc: 'The current state of the integration process. Some integration need to store past state here, additional data and etc.',
-            type: Json,
+            type: 'Json',
             isRequired: true,
             hooks: {
                 validateInput: (args) => {
@@ -174,6 +174,7 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
                 create: access.canManageStatusField,
                 update: access.canManageStatusField,
             },
+            graphQLReturnType: 'String',
         },
 
         invoiceStatus: {
@@ -188,6 +189,7 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
                 create: access.canManageStatusField,
                 update: access.canManageStatusField,
             },
+            graphQLReturnType: 'String',
         },
 
         invoiceTaxRegime: {
@@ -265,6 +267,22 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
                     throw new GQLError(GQL_ERRORS.VAT_NOT_MATCHED_TO_INTEGRATION_OPTIONS(integration.vatPercentOptions), context)
                 }
             }
+        },
+        afterChange: async ({ operation, originalInput, context, updatedItem }) => {
+            const orgId = updatedItem.organization
+
+            if (updatedItem.invoiceStatus === CONTEXT_FINISHED_STATUS && !updatedItem.deletedAt) {
+                const [marketSetting] = await MarketSetting.getAll(context, {
+                    deletedAt: null,
+                    organization: { id: orgId },
+                })
+                if (!marketSetting) await MarketSetting.create(context, {
+                    organization: { connect: { id: orgId } },
+                    dv: originalInput.dv,
+                    sender: originalInput.sender,
+                })
+            }
+
         },
     },
 })

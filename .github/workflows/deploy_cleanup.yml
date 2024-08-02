@@ -16,10 +16,10 @@ jobs:
       WERF_SECRET_KEY: ${{ secrets.WERF_SECRET_KEY }}
       WERF_PARALLEL: 0
     steps:
-      - name: Login to Sbercloud Container Registry
+      - name: Login to Container Registry
         uses: docker/login-action@v3
         with:
-          registry: swr.ru-moscow-1.hc.sbercloud.ru
+          registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
           password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
       - name: Install SSH key
@@ -50,5 +50,5 @@ jobs:
         with:
           kube-config-base64-data: ${{ secrets.KUBECONFIG_BASE64_PROD_BACKUP_CLUSTER }}
         env:
-          WERF_REPO: swr.ru-moscow-1.hc.sbercloud.ru/condo/condo
+          WERF_REPO: ${{ secrets.DOCKER_REGISTRY }}/condo/condo
           WERF_REPO_CONTAINER_REGISTRY: default

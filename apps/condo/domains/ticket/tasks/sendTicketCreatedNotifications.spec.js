@@ -14,6 +14,7 @@ const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { TICKET_CREATED_TYPE } = require('@condo/domains/notification/constants/constants')
 const { NO_TELEGRAM_CHAT_FOR_USER } = require('@condo/domains/notification/constants/errors')
 const { Message, createTestTelegramUserChat, TelegramUserChat } = require('@condo/domains/notification/utils/testSchema')
+const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
@@ -114,7 +115,7 @@ describe('sendTicketCreatedNotifications', ()  => {
                     ticketStatus: expect.stringContaining(''),
                     ticketAddress: ticket.propertyAddress,
                     ticketUnit: expect.stringContaining(ticket.unitName),
-                    ticketCreatedAt: dayjs(ticket.createdAt).format('YYYY-MM-DD HH:mm'),
+                    ticketCreatedAt: dayjs(ticket.createdAt).tz(DEFAULT_ORGANIZATION_TIMEZONE).format('YYYY-MM-DD HH:mm'),
                     ticketDetails: ticket.details,
                     userId: employeeUser2.user.id,
                     url: `${conf.SERVER_URL}/ticket/${ticket.id}`,

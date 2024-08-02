@@ -1,12 +1,14 @@
 version: '3.8'
 x-postgres-common:
   &postgres-common
-  image: postgres:13.8
+  image: ${REGISTRY}postgres:13.8
   user: postgres
 
 services:
   app:
     image: app
+    profiles:
+      - app
     build:
       context: .
       dockerfile: Dockerfile
@@ -19,7 +21,16 @@ services:
       - ./.env:/app/.env
     networks:
       - app-network
+
   postgresdb:
+    image: alpine
+    depends_on:
+      - postgresdb-master
+      - postgresdb-replica
+    networks:
+      - app-network
+
+  postgresdb-master:
     <<: *postgres-common
     ports:
       - "127.0.0.1:5432:5432"
@@ -42,6 +53,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
   postgresdb-replica:
     <<: *postgres-common
     ports:
@@ -52,7 +64,7 @@ services:
     command: |
       bash -c "
       if [ ! -f /var/lib/postgresql/initialized ]; then
-        pg_basebackup --pgdata=/var/lib/postgresql/data -R --slot=replication_slot --host=postgresdb --port=5432
+        pg_basebackup --pgdata=/var/lib/postgresql/data -R --slot=replication_slot --host=postgresdb-master --port=5432
         chmod -R 0700 /var/lib/postgresql/data
         touch /var/lib/postgresql/initialized
       fi
@@ -61,10 +73,11 @@ services:
     networks:
       - app-network
     depends_on:
-      postgresdb:
+      postgresdb-master:
         condition: service_healthy
+
   redis:
-    image: redis:6.2
+    image: ${REGISTRY}redis:6.2
     ports:
       - "127.0.0.1:6379:6379"
     networks:

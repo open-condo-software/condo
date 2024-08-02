@@ -3,6 +3,7 @@ import { ParsedUrlQuery } from 'querystring'
 import { AddressMetaField, Property, PropertyWhereInput } from '@app/condo/schema'
 import { SortOrder } from 'antd/es/table/interface'
 import get from 'lodash/get'
+import uniqWith from 'lodash/uniqWith'
 
 import { TTextHighlighterProps } from '@condo/domains/common/components/TextHighlighter'
 import { getAddressDetails } from '@condo/domains/common/utils/helpers'
@@ -120,3 +121,14 @@ export const getPropertyAddressParts = (property: Property, DeletedMessage?: str
 
     return { postfix, extraProps, text }
 }
+
+export const getUniqUnits = (units) => uniqWith(units,
+    (firstUnit, secondUnit) => get(firstUnit, 'label', '') === get(secondUnit, 'label', '') &&
+        get(firstUnit, 'unitType', '') === get(secondUnit, 'unitType', '')
+)
+
+export const getUnitsFromSections = (sections = []) => sections.map(section =>
+    get(section, 'floors', []).map(floor =>
+        get(floor, 'units', [])
+    )
+).flat(2)

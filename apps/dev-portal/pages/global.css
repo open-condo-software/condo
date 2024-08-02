@@ -12,12 +12,12 @@ body {
   padding: 6px 0 6px 24px !important;
 }
 
-.ant-anchor-ink-ball {
+.ant-anchor-ink {
   width: 3px !important;
   background-color: var(--condo-global-color-black) !important;
 }
 
-.ant-anchor-ink::before {
+.ant-anchor::before {
   display: none !important;
 }
 

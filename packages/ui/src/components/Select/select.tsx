@@ -74,17 +74,34 @@ export type SelectProps<ValueType = SelectValueTypeBase> = Pick<DefaultSelectPro
     type?: typeof SELECT_TYPES[number]
     onChange?: OnChangeType
     notFoundContentLabel?: string
+    ellipsis?: 'end' | 'start'
 } & CustomSelectProps<ValueType>
 
 // TODO(DOMA-8757): default props autoClearSearchValue = false. Multi select search should not reset after selection
 const Select = <ValueType extends SelectValueTypeBase>(props: SelectProps<ValueType>): React.ReactElement => {
-    const { mode, options, displayMode = 'fill-parent', type, onChange, id, notFoundContentLabel, value,  ...rest } = props
+    const {
+        mode,
+        options,
+        displayMode = 'fill-parent',
+        type,
+        onChange,
+        id,
+        notFoundContentLabel,
+        value,
+        ellipsis = 'suffix',
+        ...rest
+    } = props
 
     const children = useItems(options)
 
     const className = classNames({
         [`${SELECT_CLASS_PREFIX}-${displayMode}`]: displayMode,
         [`${SELECT_CLASS_PREFIX}-${type}`]: !mode && type,
+        [`${SELECT_CLASS_PREFIX}-ellipsis-${ellipsis}`]: ellipsis,
+    })
+
+    const dropDownClassName = classNames({
+        [`${SELECT_CLASS_PREFIX}-dropdown-ellipsis-${ellipsis}`]: ellipsis,
     })
 
     const handleChange = useCallback<OnChangeType>((value, option) => {
@@ -115,6 +132,7 @@ const Select = <ValueType extends SelectValueTypeBase>(props: SelectProps<ValueT
             mode={mode}
             prefixCls={SELECT_CLASS_PREFIX}
             className={className}
+            popupClassName={dropDownClassName}
             suffixIcon={<ChevronDown size='small' />}
             onChange={handleChange}
             removeIcon={<Close size='small' />}

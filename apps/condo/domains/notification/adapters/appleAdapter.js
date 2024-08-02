@@ -10,6 +10,7 @@ const {
     APPLE_CONFIG_ENV,
     PUSH_TYPE_DEFAULT,
     PUSH_TYPE_SILENT_DATA,
+    APPS_WITH_DISABLED_NOTIFICATIONS_ENV,
 } = require('@condo/domains/notification/constants/constants')
 const { EMPTY_APPLE_CONFIG_ERROR, EMPTY_NOTIFICATION_TITLE_BODY_ERROR } = require('@condo/domains/notification/constants/errors')
 
@@ -17,6 +18,7 @@ const AppleMessaging = require('./apple/AppleMessaging')
 const { APS_RESPONSE_STATUS_SUCCESS } = require('./apple/constants')
 
 const APPLE_CONFIG = conf[APPLE_CONFIG_ENV] ? JSON.parse(conf[APPLE_CONFIG_ENV]) : null
+const APPS_WITH_DISABLED_NOTIFICATIONS = conf[APPS_WITH_DISABLED_NOTIFICATIONS_ENV] ? JSON.parse(conf[APPS_WITH_DISABLED_NOTIFICATIONS_ENV]) : []
 const DEFAULT_PUSH_SETTINGS = {
     aps: {
         'mutable-content': 1,
@@ -182,7 +184,7 @@ class AppleAdapter {
                     appId: get(appIds, pushToken),
                 }
 
-            target.push(pushData)
+            if (!APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.app)) target.push(pushData)
 
             if (!pushContext[pushType]) pushContext[pushType] = pushData
         })
@@ -232,6 +234,7 @@ class AppleAdapter {
                     logger.error({ msg: 'Unknown appId. Config was not found', appId })
                     continue
                 }
+
                 const currentNotificationsBatch = notificationsSortedByAppId[appId]
                 const app = new AppleMessaging(currentConfig)
 

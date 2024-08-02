@@ -136,6 +136,13 @@ export const TourProvider = ({ children }) => {
                     break
                 }
 
+                case 'createMeter': {
+                    if (currentImport.current && isFirstSuccessImport.current) return
+
+                    await updateStepIfNotCompleted(TourStepTypeType.CreateMeter)
+                    break
+                }
+
                 case 'createMeterReading': {
                     if (currentImport.current && isFirstSuccessImport.current) return
 

@@ -13,32 +13,22 @@ class MockedAddressServiceClient {
         console.log(`🥸 The mocked AddressServiceClient is used. All calls to ${url} will be mocked.`)
     }
 
+    /**
+     * @param {string} s
+     * @param {AddressServiceSearchParams} [params]
+     * @returns {Promise<*>}
+     * @public
+     */
     async search (s, params = {}) {
         if (!s) {
             throw new Error('The `s` parameter is mandatory')
         }
 
-        if (this.addressSourcesToAddressKeyMapping.has(s)) {
-            return this.addressKeysToSearchResultsMapping.get(this.addressSourcesToAddressKeyMapping.get(s))
-        }
-
-        const searchByKeyRegExp = /^key:(.+?)$/
-        if (searchByKeyRegExp.test(s)) {
-            const [, key] = searchByKeyRegExp.exec(s)
-            if (this.addressKeysToSearchResultsMapping.has(key)) {
-                return this.addressKeysToSearchResultsMapping.get(key)
-            } else {
-                return null
-            }
-        }
-
-        const addressKey = faker.datatype.uuid()
-        const addressParser = new AddressFromStringParser()
-
         // Extract unitType and unitName
         let address = s, unitType, unitName
         if (params.extractUnit) {
-            const { address: parsedAddress, unitType: ut, unitName: un } = addressParser.parse(s)
+            const addressParser = new AddressFromStringParser()
+            const { address: parsedAddress, unitType: ut, unitName: un } = addressParser.parse(address)
             address = parsedAddress
             if (!!ut && !!un) {
                 unitType = ut
@@ -46,8 +36,32 @@ class MockedAddressServiceClient {
             }
         }
 
+        if (this.addressSourcesToAddressKeyMapping.has(address)) {
+            return {
+                ...this.addressKeysToSearchResultsMapping.get(this.addressSourcesToAddressKeyMapping.get(address)),
+                unitType,
+                unitName,
+            }
+        }
+
+        const searchByKeyRegExp = /^key:(.+?)$/
+        if (searchByKeyRegExp.test(address)) {
+            const [, key] = searchByKeyRegExp.exec(address)
+            if (this.addressKeysToSearchResultsMapping.has(key)) {
+                return {
+                    ...this.addressKeysToSearchResultsMapping.get(key),
+                    unitType,
+                    unitName,
+                }
+            } else {
+                return null
+            }
+        }
+
+        const addressKey = faker.datatype.uuid()
+
         const fiasId = faker.datatype.uuid()
-        const addressSources = [s, `fiasId:${fiasId}`]
+        const addressSources = [address, `fiasId:${fiasId}`]
         const searchResult = {
             addressSources,
             address,
@@ -142,14 +156,12 @@ class MockedAddressServiceClient {
                 value: address,
                 unrestricted_value: address,
             },
-            unitType,
-            unitName,
         }
 
         this.addressKeysToSearchResultsMapping.set(addressKey, searchResult)
         addressSources.forEach((source) => this.addressSourcesToAddressKeyMapping.set(source, addressKey))
 
-        return searchResult
+        return { ...searchResult, unitType, unitName }
     }
 
     /**

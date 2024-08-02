@@ -11,6 +11,8 @@ import { FormWithAction, IFormWithActionChildren } from '@condo/domains/common/c
 import Prompt from '@condo/domains/common/components/Prompt'
 import { BuildingPanelEdit } from '@condo/domains/property/components/panels/Builder/BuildingPanelEdit'
 import { IPropertyFormState } from '@condo/domains/property/utils/clientSchema/Property'
+import { getUniqUnits, getUnitsFromSections } from '@condo/domains/property/utils/helpers'
+
 
 export interface IPropertyMapFormProps {
     id: string
@@ -72,25 +74,17 @@ const BasePropertyMapForm: React.FC<IPropertyMapFormProps> = (props) => {
                                     const sections = get(value, 'sections', [])
                                     const parking = get(value, 'parking', [])
 
-                                    const getUnitLabelsFromSections = (sections) => sections.map(section =>
-                                        get(section, 'floors', []).map(floor =>
-                                            get(floor, 'units', []).map(unit =>
-                                                get(unit, 'label', '').trim()
-                                            )
-                                        )
-                                    ).flat(2)
+                                    const sectionUnits = getUnitsFromSections(sections)
+                                    const parkingUnits = getUnitsFromSections(parking)
 
-                                    const sectionUnitLabels = getUnitLabelsFromSections(sections)
-                                    const parkingUnitLabels = getUnitLabelsFromSections(parking)
-
-                                    if (sectionUnitLabels.some(label => !label.length)
-                                    || parkingUnitLabels.some(label => !label.length)) {
+                                    if (sectionUnits.some(unit => !get(unit, 'label', '').length)
+                                    || parkingUnits.some(unit => !get(unit, 'label', '').length)) {
                                         setMapValidationError(UnitLabelEmptyError)
                                         return Promise.reject(UnitLabelEmptyError)
                                     }
 
-                                    if (sectionUnitLabels.length !== new Set(sectionUnitLabels).size
-                                        || parkingUnitLabels.length !== new Set(parkingUnitLabels).size) {
+                                    if (sectionUnits.length !== getUniqUnits(sectionUnits).length
+                                        || parkingUnits.length !== getUniqUnits(parkingUnits).length) {
                                         setMapValidationError(UnitLabelsNotUniqueError)
                                         return Promise.reject(UnitLabelsNotUniqueError)
                                     }

@@ -151,7 +151,7 @@ const InvoiceTicketAlert = ({ invoiceTicket }) => {
 const PaymentTypeField = ({ invoice, isTerminalStatus }) => {
     const intl = useIntl()
     const PaymentTypeMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.field.paymentType' })
-    const PaymentTypeValue = intl.formatMessage({ id: `pages.condo.marketplace.invoice.form.payment.${invoice.paymentType}` })
+    const PaymentTypeValue = intl.formatMessage({ id: `pages.condo.marketplace.invoice.form.payment.${invoice.paymentType}` as FormatjsIntl.Message['ids'] })
     const PaymentLinkMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.field.paymentLink' })
     const CopyMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.field.paymentLink.copy' })
     const CopiedLinkMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.create.notification.copiedLink' })
@@ -208,13 +208,13 @@ const AddressField = ({ invoice }) => {
     const unitType = get(invoice, 'unitType')
     const address = get(property, 'address')
     const addressMeta = get(property, 'addressMeta')
-    const UnitTypePrefix = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${unitType}` })
+    const UnitTypePrefix = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${unitType}` as FormatjsIntl.Message['ids'] })
     const addressDetails = getAddressDetails({ address, addressMeta })
     const streetPart = get(addressDetails, 'streetPart')
     const renderPostfix = get(addressDetails, 'renderPostfix')
     const ticketUnitMessage = unitName ? `${UnitTypePrefix.toLowerCase()} ${invoice.unitName} ` : ''
     const { sectionName, floorName, sectionType } = getSectionAndFloorByUnitName(property, unitName, unitType)
-    const SectionTypeMessage = intl.formatMessage({ id: `field.sectionType.${sectionType}` }).toLowerCase()
+    const SectionTypeMessage = intl.formatMessage({ id: `field.sectionType.${sectionType}` as FormatjsIntl.Message['ids'] }).toLowerCase()
     const SectionAndFloorMessage = `(${SectionTypeMessage} ${sectionName}, ${FloorNameMessage} ${floorName})`
 
     return (
@@ -348,7 +348,7 @@ const InvoiceIdPage = () => {
     const NotFoundErrorTitle = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.notFoundError.title' })
     const NotFoundDescription = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.notFoundError.description' })
 
-    const { link, loading: employeeLoading, organization } = useOrganization()
+    const { link, isLoading: employeeLoading, organization } = useOrganization()
     const router = useRouter()
     const { query: { id } } = router as { query: { [key: string]: string } }
 
@@ -359,7 +359,7 @@ const InvoiceIdPage = () => {
         },
     })
 
-    const InvoiceTitleMessage = RawInvoiceTitle.replace('{number}', get(invoice, 'number'))
+    const InvoiceTitleMessage = RawInvoiceTitle.replace('{number}', String(get(invoice, 'number')))
     const loading = invoiceLoading || employeeLoading
 
     if (!invoice) {

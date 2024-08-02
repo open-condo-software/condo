@@ -1,5 +1,3 @@
-const { Select } = require('@keystonejs/fields')
-
 const { getById } = require('@open-condo/keystone/schema')
 
 const { CONTEXT_STATUSES } = require('../../constants')
@@ -19,7 +17,7 @@ const getStatusDescription = (modelName) => `Status of ${modelName} connection, 
 
 const STATUS_FIELD = {
     isRequired: false,
-    type: Select,
+    type: 'Select',
     dataType: 'string',
     options: CONTEXT_STATUSES,
 }

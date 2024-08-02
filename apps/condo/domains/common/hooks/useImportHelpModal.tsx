@@ -1,3 +1,4 @@
+import { UserHelpRequestTypeType } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Form, Row, Space } from 'antd'
 import get from 'lodash/get'
@@ -70,7 +71,7 @@ const CallBackModal = ({ domainName, activeModal, setActiveModal }) => {
     const callFormAction = useCallback(async values => {
         setLoading(true)
         await createHelpRequestAction({
-            type: 'callback',
+            type: UserHelpRequestTypeType.Callback,
             phone: get(values, 'phone'),
         })
 
@@ -181,7 +182,7 @@ const FileImportModal = ({ domainName, activeModal, setActiveModal }) => {
     const uploadFormAction = useCallback(async values => {
         setLoading(true)
         const helpRequest = await createHelpRequestAction({
-            type: 'importFile',
+            type: UserHelpRequestTypeType.ImportFile,
             phone: get(values, 'phone'),
             isReadyToSend: false,
         })

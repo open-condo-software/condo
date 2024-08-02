@@ -3,8 +3,12 @@
  */
 const dayjs = require('dayjs')
 
-const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
-const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationError, catchErrorFrom } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, expectToThrowUniqueConstraintViolationError } = require('@open-condo/keystone/test.utils')
+const {
+    expectToThrowAccessDeniedErrorToResult,
+    expectToThrowAuthenticationError,
+    catchErrorFrom,
+} = require('@open-condo/keystone/test.utils')
 
 const { SERVICE } = require('@condo/domains/user/constants/common')
 const { EMAIL_ALREADY_REGISTERED_ERROR } = require('@condo/domains/user/constants/errors')
@@ -52,7 +56,11 @@ describe('RegisterNewServiceUserService', () => {
         })
         test('Deleted support can not register service user', async () => {
             const anotherSupport = await makeClientWithSupportUser()
-            await User.update(admin, anotherSupport.user.id, { dv: 1, sender: { dv: 1, fingerprint: 'tests' }, deletedAt: dayjs().toISOString() })
+            await User.update(admin, anotherSupport.user.id, {
+                dv: 1,
+                sender: { dv: 1, fingerprint: 'tests' },
+                deletedAt: dayjs().toISOString(),
+            })
             await expectToThrowAccessDeniedErrorToResult(async () => {
                 await registerNewServiceUserByTestClient(anotherSupport)
             })
@@ -73,6 +81,17 @@ describe('RegisterNewServiceUserService', () => {
             }, ({ errors }) => {
                 expect(errors[0].originalError.errors[0].data.messages[0]).toEqual(
                     expect.stringContaining(EMAIL_ALREADY_REGISTERED_ERROR))
+            })
+        })
+        test('service user cannot be registered again if email registered for soft deleted user', async () => {
+            const [user, userAttrs] = await registerNewServiceUserByTestClient(admin)
+            await User.softDelete(admin, user.id)
+            const email = userAttrs.email
+            await catchErrorFrom(async () => {
+                await registerNewServiceUserByTestClient(admin, { email })
+            }, ({ errors }) => {
+                expect(errors[0].originalError.errors[0].message).toEqual(
+                    expect.stringContaining('duplicate key value violates unique constraint "unique_type_and_email"'))
             })
         })
         test('Password must be strong enough', async () => {

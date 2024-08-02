@@ -6,18 +6,35 @@
   text-decoration-color: @condo-global-color-gray-7;
   outline: none;
   cursor: pointer;
+  transition-timing-function: ease-in;
   transition-duration: @condo-global-transition-duration-default;
   transition-property: color, text-decoration-color;
 
   &:focus-visible,
   &:hover {
     color: @condo-global-color-green-5;
+    text-decoration: underline;
     text-decoration-color: @condo-global-color-green-5;
   }
 
   &:active {
     color: @condo-global-color-green-5;
+    text-decoration: underline;
     opacity: 0.8;
     text-decoration-color: @condo-global-color-green-5;
+  }
+
+  &:hover .condo-typography-inherit,
+  &:focus-visible .condo-typography-inherit {
+    text-decoration-color: @condo-global-color-green-5;
+  }
+
+  .condo-typography-inherit {
+    font-size: inherit;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    text-decoration-thickness: 1px;
+    text-decoration-color: @condo-global-color-gray-7;
+    transition: @condo-global-transition-duration-default text-decoration-color ease-in;
   }
 }

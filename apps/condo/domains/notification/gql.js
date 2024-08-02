@@ -70,6 +70,12 @@ const _INTERNAL_SEND_NOTIFICATION_NEW_MOBILE_APP_VERSION_MUTATION = gql`
     }
 `
 
+const _INTERNAL_SEND_HASHED_RESIDENT_PHONES_MUTATION = gql`
+    mutation _internalSendHashedResidentPhones ($data: _internalSendHashedResidentPhonesInput!) {
+        result: _internalSendHashedResidentPhones(data: $data) { taskId }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -87,5 +93,6 @@ module.exports = {
     TelegramUserChat,
     NotificationAnonymousSetting,
     _INTERNAL_SEND_NOTIFICATION_NEW_MOBILE_APP_VERSION_MUTATION,
+    _INTERNAL_SEND_HASHED_RESIDENT_PHONES_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -3,14 +3,14 @@
  */
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
+const { checkPermissionsInEmployedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canSyncTourSteps ({ authentication: { item: user }, args: { data: { organization: { id: organizationId } } } }) {
+async function canSyncTourSteps ({ authentication: { item: user }, context, args: { data: { organization: { id: organizationId } } } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
 
-    return await checkOrganizationPermission(user.id, organizationId, 'canManageTour')
+    return await checkPermissionsInEmployedOrganizations(context, user, organizationId, 'canManageTour')
 }
 
 /*

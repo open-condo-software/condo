@@ -84,8 +84,8 @@ const canAccessToPasswordField = {
     // 3. Only admins can see if a password is set. No-one can read their own or other user's passwords.
     read: access.userIsAdmin,
     create: access.userIsAdmin,
-    // 4. Only authenticated users can update their own password. Admins can update anyone's password.
-    update: access.userIsAdminOrIsThisItem,
+    // 4. Users can not update their own password. Admins can update anyone's password.
+    update: access.userIsAdmin,
 }
 const canManageToIsAdminField = {
     read: true,
@@ -110,11 +110,6 @@ const canAccessCustomAccessField = {
     update: access.userIsAdmin,
 }
 
-const canAccessToStaffUserField = {
-    read: access.canReadOnlyIfUserIsActiveOrganizationEmployee,
-    create: access.userIsNotResidentUser,
-    update: access.userIsNotResidentUser,
-}
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
   all or no items are available) or a set of filters that limit the available items.
@@ -129,7 +124,6 @@ module.exports = {
     canAccessToIsEmailVerifiedField,
     canAccessToIsPhoneVerifiedField,
     canAccessToImportField,
-    canAccessToStaffUserField,
     canManageToIsAdminField,
     canAccessToRelatedOrganizationsField,
     canAccessToEmployeesField,

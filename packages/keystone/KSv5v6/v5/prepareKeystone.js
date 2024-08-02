@@ -17,8 +17,7 @@ const { parseCorsSettings } = require('@open-condo/keystone/cors.utils')
 const { _internalGetExecutionContextAsyncLocalStorage } = require('@open-condo/keystone/executionContext')
 const { IpBlackListMiddleware } = require('@open-condo/keystone/ipBlackList')
 const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSchema')
-const { getLogger } = require('@open-condo/keystone/logging')
-const { getKeystonePinoOptions, GraphQLLoggerPlugin } = require('@open-condo/keystone/logging')
+const { getKeystonePinoOptions, GraphQLLoggerPlugin, getLogger } = require('@open-condo/keystone/logging')
 const { expressErrorHandler } = require('@open-condo/keystone/logging/expressErrorHandler')
 const metrics = require('@open-condo/keystone/metrics')
 const { schemaDocPreprocessor, adminDocPreprocessor, escapeSearchPreprocessor, customAccessPostProcessor } = require('@open-condo/keystone/preprocessors')
@@ -33,7 +32,7 @@ const { KeystoneTracingApp } = require('@open-condo/keystone/tracing')
 const IS_BUILD_PHASE = conf.PHASE === 'build'
 const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
 const IS_SENTRY_ENABLED = JSON.parse(get(conf, 'SENTRY_CONFIG', '{}'))['server'] !== undefined
-const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
+const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development'
 const IS_KEEP_ALIVE_ON_ERROR = get(conf, 'KEEP_ALIVE_ON_ERROR', false) === 'true'
 // NOTE: should be disabled in production: https://www.apollographql.com/docs/apollo-server/testing/graphql-playground/
 // WARN: https://github.com/graphql/graphql-playground/tree/main/packages/graphql-playground-html/examples/xss-attack
@@ -179,6 +178,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
                 adminPath: '/admin',
                 isAccessAllowed: ({ authentication: { item: user } }) => Boolean(user && (user.isAdmin || user.isSupport || user.rightsSet)),
                 authStrategy,
+                showDashboardCounts: false,
                 ...(ui || {}),
             }),
             lastApp,
@@ -194,14 +194,14 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
             app.use(json({ limit: '100mb', extended: true }))
             app.use(urlencoded({ limit: '100mb', extended: true }))
 
-            const requestIdHeaderName = 'X-Request-Id'
+            const requestIdHeaderName = 'x-request-id'
             app.use(function reqId (req, res, next) {
-                const reqId = req.headers[requestIdHeaderName.toLowerCase()] || v4()
+                const reqId = req.get(requestIdHeaderName) || v4()
                 _internalGetExecutionContextAsyncLocalStorage().run({ reqId }, () => {
                     // we are expecting to receive reqId from client in order to have fully traced logs end to end
                     // also, property name are constant name, not a dynamic user input
                     // nosemgrep: javascript.express.security.audit.remote-property-injection.remote-property-injection
-                    req['id'] = req.headers[requestIdHeaderName.toLowerCase()] = reqId
+                    req['id'] = req.headers[requestIdHeaderName] = reqId
                     res.setHeader(requestIdHeaderName, reqId)
                     next()
                 })

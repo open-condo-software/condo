@@ -1,17 +1,20 @@
 const { KnexAdapter } = require('@keystonejs/adapter-knex')
 const { BaseKeystoneAdapter } = require('@keystonejs/keystone')
-const { find } = require('lodash/collection')
-const { mapValues } = require('lodash/object')
+const { find, mapValues } = require('lodash')
 
 const { FakeDatabaseAdapter } = require('./FakeDatabaseAdapter')
+const { ReplicaKnexAdapter } = require('./ReplicaKnexAdapter')
 const { parseDatabaseUrl, parseDatabaseMapping, matchDatabase } = require('./utils')
+
 
 function initDatabaseAdapters (databases) {
     return mapValues(databases, initDatabaseAdapter)
 }
 
 function initDatabaseAdapter (databaseUrl) {
-    if (databaseUrl.startsWith('postgresql:')) {
+    if (typeof databaseUrl === 'object') {
+        return new ReplicaKnexAdapter({ connection: databaseUrl })
+    } else if (databaseUrl.startsWith('postgresql:')) {
         return new KnexAdapter({ knexOptions: { connection: databaseUrl } })
     } else if (databaseUrl.startsWith('fake:')) {
         // NOTE: case for testing!
@@ -35,15 +38,15 @@ function initListAdapter (rootAdapter, parentAdapter, key, adapterConfig) {
 
 class ScalableDatabaseAdapter extends BaseKeystoneAdapter {
     static PUBLIC_API = [
-        'name', 'config',  // base keystone adapter props
-        'newListAdapter', 'getListAdapterByKey', 'connect', '_connect', 'checkDatabaseVersion', 'postConnect', 'disconnect',  // keystone interface props
-        '__databaseAdapters', '__listMappingRule', '__listMappingAdapters', '__listToDatabase',  // own private props
-        '__kmigratorKnexAdapters',  // kmigrator hacks for backward compatibility
+        'name', 'config', // base keystone adapter props
+        'newListAdapter', 'getListAdapterByKey', 'connect', '_connect', 'checkDatabaseVersion', 'postConnect', 'disconnect', // keystone interface props
+        '__databaseAdapters', '__listMappingRule', '__listMappingAdapters', '__listToDatabase', // own private props
+        '__kmigratorKnexAdapters', // kmigrator hacks for backward compatibility
     ]
 
     constructor (opts = {}) {
         if (!opts.url || !opts.url.startsWith('custom:')) throw new Error('ScalableDatabaseAdapter({ url }) wrong url format!')
-        if (!opts.mapping || !opts.mapping.startsWith('[')) throw new Error('ScalableDatabaseAdapter({ mapping }) wrong url format!')
+        if (!opts.mapping || !opts.mapping.startsWith('[')) throw new Error(`ScalableDatabaseAdapter({ mapping }) wrong url format! ${opts.mapping}`)
 
         const databases = parseDatabaseUrl(opts.url)
         if (!databases) throw new Error('ScalableDatabaseAdapter({ url }) wrong url format!')

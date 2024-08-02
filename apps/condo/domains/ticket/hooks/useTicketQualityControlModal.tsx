@@ -226,7 +226,7 @@ export const useTicketQualityControlModal: UseTicketQualityControlModalType = ({
     }, [setTextLength])
 
     const EditButton: IUseTicketQualityControlModalReturn['EditButton'] = useCallback(({ disabled }) => (
-        <Button icon={<FileEdit size='medium' />} type='secondary' onClick={handleOpenChangeModal} children={EditMessage} disabled={disabled || isLoading} />
+        <Button type='secondary' onClick={handleOpenChangeModal} children={EditMessage} disabled={disabled || isLoading} />
     ), [EditMessage, handleOpenChangeModal, isLoading])
 
     const GoodButton: IUseTicketQualityControlModalReturn['GoodButton'] = useMemo(() => (

@@ -26,6 +26,11 @@
     z-index: 1;
   }
 
+  &::after {
+    // We reset style for ::after element to remove wave effect
+    all: unset;
+  }
+
   // After layer is used to show gradient outline on tab-focusing
   &:focus-visible::after {
     box-sizing: border-box;
@@ -107,5 +112,14 @@
     &:focus::after {
       border-radius: @condo-icon-button-focus-outline-border-radius-small;
     }
+  }
+}
+
+// Overriding antd styles for buttons with href prop
+a.condo-icon-btn {
+  padding-top: @condo-icon-button-padding-medium !important;
+
+  &.condo-icon-btn-small {
+    padding-top: @condo-icon-button-padding-small !important;
   }
 }

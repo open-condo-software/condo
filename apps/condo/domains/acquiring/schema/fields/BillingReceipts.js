@@ -1,7 +1,5 @@
 const Ajv = require('ajv')
 
-const { Json } = require('@open-condo/keystone/fields')
-
 const {
     BILLING_RECEIPT_FIELD_NAME,
     BILLING_RECEIPT_INPUT_NAME,
@@ -45,7 +43,7 @@ const BILLING_RECEIPT_QUERY_LIST = Object.keys(BillingReceiptFields).join(' ')
 
 const BILLING_RECEIPTS_SCHEMA_FIELD = {
     schemaDoc: 'Contains information about the distribution of a certain type of fee',
-    type: Json,
+    type: 'Json',
     isRequired: true,
     extendGraphQLTypes: [BILLING_RECEIPT_GRAPHQL_TYPES],
     graphQLInputType: BILLING_RECEIPTS_SCHEMA_INPUT_NAME,

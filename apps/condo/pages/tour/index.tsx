@@ -185,8 +185,8 @@ const TourPageContent = () => {
     }, [stepsToRender])
 
     const activeStepWithDefault = useMemo(() => activeTourStep || 'default', [activeTourStep])
-    const CardVideoTitle = intl.formatMessage({ id: `tour.cardVideo.title.${activeStepWithDefault}` })
-    const CardVideoDescription = intl.formatMessage({ id: `tour.cardVideo.description.${activeStepWithDefault}` })
+    const CardVideoTitle = intl.formatMessage({ id: `tour.cardVideo.title.${activeStepWithDefault}` as FormatjsIntl.Message['ids'] })
+    const CardVideoDescription = intl.formatMessage({ id: `tour.cardVideo.description.${activeStepWithDefault}` as FormatjsIntl.Message['ids'] })
 
     const videoUrl = useMemo(() => get(tourVideoUrl, [locale, activeStepWithDefault]), [activeStepWithDefault, locale])
 

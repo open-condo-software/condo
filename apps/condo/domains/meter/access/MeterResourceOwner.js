@@ -5,23 +5,24 @@ const { get } = require('lodash')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
-const { queryOrganizationEmployeeFromRelatedOrganizationFor, queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    getEmployedOrRelatedOrganizationsByPermissions,
+    checkPermissionsInEmployedOrRelatedOrganizations,
+} = require('@condo/domains/organization/utils/accessSchema')
 const { STAFF } = require('@condo/domains/user/constants/common')
 
-async function canReadMeterResourceOwners ({ authentication: { item: user } }) {
+async function canReadMeterResourceOwners ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isAdmin || user.isSupport) return {}
 
     if (user.type === STAFF) {
+        const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadMeters')
+
         return {
             organization: {
-                OR: [
-                    queryOrganizationEmployeeFor(user.id, 'canReadMeters'),
-                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadMeters'),
-                ],
+                id_in: permittedOrganizations,
             },
         }
     }
@@ -29,7 +30,7 @@ async function canReadMeterResourceOwners ({ authentication: { item: user } }) {
     return false
 }
 
-async function canManageMeterResourceOwners ({ authentication: { item: user }, originalInput, operation }) {
+async function canManageMeterResourceOwners ({ authentication: { item: user }, originalInput, operation, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -38,7 +39,7 @@ async function canManageMeterResourceOwners ({ authentication: { item: user }, o
         const organizationId = get(originalInput, ['organization', 'connect', 'id'])
         if (!organizationId) return false
 
-        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageMeters')
+        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageMeters')
     }
 
     return false

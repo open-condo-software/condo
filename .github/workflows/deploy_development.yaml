@@ -19,10 +19,10 @@ jobs:
       PULL_USER: ${{ secrets.PULL_USER }}
       PULL_PERSONAL_ACCESS_KEY: ${{ secrets.PULL_PERSONAL_ACCESS_KEY }}
     steps:
-      - name: Login to Sbercloud Container Registry
+      - name: Login to Container Registry
         uses: docker/login-action@v3
         with:
-          registry: swr.ru-moscow-1.hc.sbercloud.ru
+          registry: ${{ secrets.DOCKER_REGISTRY }}
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
           password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
       - name: Checkout code
@@ -67,10 +67,12 @@ jobs:
           WERF_SET_CI_EDS_INTEGRATION_URL: "global.ci_eds_integration_url=eds-integration.d.doma.ai"
           WERF_SET_CI_CONDO_RESTAPI_URL: "global.ci_condo_restapi_url=bank-rest-api.d.doma.ai"
           WERF_SET_CI_RESIDENT_APP_URL: "global.ci_resident_app_url=m.d.doma.ai"
+          WERF_SET_CI_ANNOUNCEMENT_GENERATOR_URL: "global.ci_announcement_url=announcement-generator.d.doma.ai"
+          WERF_SET_CI_NEWS_SHARING_GREENDOM_APP_URL: "global.ci_news_sharing_greendom_app_url=news-sharing-greendom.d.doma.ai"
           WERF_NAMESPACE: "development"
           WERF_VIRTUAL_MERGE_FROM_COMMIT: "true"
           WERF_SET_CI_REF: "ci.werf.io/ref=${GITHUB_REF_NAME}"
-          WERF_REPO: swr.ru-moscow-1.hc.sbercloud.ru/condo/condo
+          WERF_REPO: ${{ secrets.DOCKER_REGISTRY }}/condo/condo
           WERF_REPO_CONTAINER_REGISTRY: default
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_RELEASE: "development-${{ github.sha }}"

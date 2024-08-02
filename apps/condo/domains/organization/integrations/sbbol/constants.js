@@ -9,6 +9,16 @@ const dvSenderFields = {
     sender: { dv: 1, fingerprint: SBBOL_FINGERPRINT_NAME },
 }
 
+const ISO_CODES_FOR_SBBOL = {
+    '810': 'RUB',
+    '840': 'USD',
+    '978': 'EUR',
+}
+
+const ALTERNATIVE_CURRENCY_CODES_FROM_SBBOL = {
+    'RUR': 'RUB',
+}
+
 const BANK_OPERATION_CODE = {
     BUYING: '06',
 }
@@ -90,4 +100,6 @@ module.exports = {
     ERROR_PASSED_DATE_IN_THE_FUTURE,
     INVALID_DATE_RECEIVED_MESSAGE,
     SBBOL_ERRORS,
+    ISO_CODES_FOR_SBBOL,
+    ALTERNATIVE_CURRENCY_CODES_FROM_SBBOL,
 }

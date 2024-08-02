@@ -134,7 +134,7 @@ const buildExportFile = async ({ task, rows }) => {
 
     return {
         stream,
-        filename: `incidents_${formatDate(null, timeZone, 'DD_MM_YYYY')}.xlsx`,
+        filename: `incidents_${formatDate(undefined, timeZone, 'DD_MM_YYYY')}.xlsx`,
         mimetype: EXCEL_FILE_META.mimetype,
         encoding: EXCEL_FILE_META.encoding,
         meta: {
@@ -152,7 +152,7 @@ async function exportIncidents (taskId) {
         throw new Error('taskId is undefined')
     }
 
-    const { keystone: context } = await getSchemaCtx('IncidentExportTask')
+    const { keystone: context } = getSchemaCtx('IncidentExportTask')
 
     const task = await IncidentExportTask.getOne(context, { id: taskId })
     if (!task) {

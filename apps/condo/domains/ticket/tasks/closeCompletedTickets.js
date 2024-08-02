@@ -27,7 +27,7 @@ const closeCompletedTickets = async (defaultLimit = 100) => {
     // Therefore, you should limit updating tickets for each organization at one time if there are a lot of them.
     // With the help of the feature flag, you can manage this restriction.
     const limitByOrganization = await featureToggleManager.getFeatureValue(
-        context, MAX_COUNT_COMPLETED_TICKET_TO_CLOSE_FOR_ORGANIZATION_TASK, defaultLimit
+        null, MAX_COUNT_COMPLETED_TICKET_TO_CLOSE_FOR_ORGANIZATION_TASK, defaultLimit
     )
 
     if (!isNumber(limitByOrganization) || limitByOrganization < 1) {

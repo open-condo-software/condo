@@ -1,8 +1,6 @@
 const Ajv = require('ajv')
 const { isEmpty, compact, isArray, uniq } = require('lodash')
 
-const { Json } = require('@open-condo/keystone/fields')
-
 const { getValidator, renderEnumOptions } = require('@condo/domains/common/schema/json.utils')
 const { FEEDBACK_ADDITIONAL_OPTIONS } = require('@condo/domains/ticket/constants/feedback')
 
@@ -30,7 +28,7 @@ const feedbackAdditionalOptionsValidator = getValidator(ajv.compile(FeedbackAddi
 const FEEDBACK_ADDITIONAL_OPTIONS_FIELD = {
     schemaDoc: 'Feedback additional options that extend it.' +
         'Duplicates are removed and empty arrays are converted to null.',
-    type: Json,
+    type: 'Json',
     isRequired: false,
     kmigratorOptions: { null: true },
     graphQLInputType: `[${FEEDBACK_ADDITIONAL_OPTIONS_ENUM}]`,

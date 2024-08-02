@@ -9,8 +9,7 @@ const { find } = require('@open-condo/keystone/schema')
 
 const { CANCELLED } = require('@condo/domains/common/constants/export')
 const {
-    queryOrganizationEmployeeFor,
-    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    getEmployedOrRelatedOrganizationsByPermissions,
 } = require('@condo/domains/organization/utils/accessSchema')
 
 // Only cancelling the task is allowed for user
@@ -44,7 +43,7 @@ async function canReadTicketExportTasks ({ authentication: { item: user } }) {
     return { user: { id: user.id } }
 }
 
-async function canManageTicketExportTasks ({ authentication: { item: user }, originalInput, operation }) {
+async function canManageTicketExportTasks ({ authentication: { item: user }, originalInput, operation, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
@@ -57,16 +56,15 @@ async function canManageTicketExportTasks ({ authentication: { item: user }, ori
         const organizationIdIn = get(originalInput, ['where', 'organization', 'id_in'])
         const organizationIds = uniq(compact([organizationId, ...(organizationIdIn || [])]))
         if (organizationIds.length === 0) return false
+        const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadTickets')
+
         const userEmployeeOrganizations = await find('Organization', {
             AND: [
                 {
                     id_in: organizationIds,
                 },
                 {
-                    OR: [
-                        queryOrganizationEmployeeFor(user.id, 'canReadTickets'),
-                        queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadTickets'),
-                    ],
+                    id_in: permittedOrganizations,
                 },
             ],
         })

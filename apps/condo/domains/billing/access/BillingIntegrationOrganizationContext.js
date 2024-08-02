@@ -10,8 +10,9 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { getById, find } = require('@open-condo/keystone/schema')
 
 const { checkBillingIntegrationsAccessRights } = require('@condo/domains/billing/utils/accessSchema')
-const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const { SERVICE } = require('@condo/domains/user/constants/common')
+
+const { canDirectlyReadSchemaObjects } = require('../../user/utils/directAccess')
 
 
 /**
@@ -20,10 +21,13 @@ const { SERVICE } = require('@condo/domains/user/constants/common')
  * 2. Integration service account
  * 3. Integration manager from user's organization
  */
-async function canReadBillingIntegrationOrganizationContexts ({ authentication: { item: user } }) {
+async function canReadBillingIntegrationOrganizationContexts ({ authentication: { item: user }, listKey }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isSupport || user.isAdmin) return true
+
+    const hasDirectAccess = await canDirectlyReadSchemaObjects(user, listKey)
+    if (hasDirectAccess) return {}
 
     return {
         OR: [
@@ -88,7 +92,7 @@ async function canManageBillingIntegrationOrganizationContexts ({ authentication
         organization: { id: organizationId },
     })
 
-    if (!employeeRole) return false
+    if (!employeeRole || employeeRole.deletedAt) return false
 
     const canManageIntegrations = employeeRole['canManageIntegrations'] || false
     const canImportBillingReceipts = employeeRole['canImportBillingReceipts'] || false

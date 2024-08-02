@@ -191,7 +191,7 @@ export const CardGrid: React.FC<CardGridProps> = ({ tabs, search, resetSearch })
                         tabKey={tab.category}
                         tab={
                             <Tab
-                                title={intl.formatMessage({ id: `miniapps.categories.${tab.category}.name` })}
+                                title={intl.formatMessage({ id: `miniapps.categories.${tab.category}.name` as FormatjsIntl.Message['ids'] })}
                                 icon={get(TAB_ICONS, tab.category)}
                             />
                         }

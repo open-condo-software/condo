@@ -1,6 +1,6 @@
-export enum ImportDataType {doma = 'doma', sbbol = 'sbbol'}
+import { File } from '@app/condo/schema'
 
-export type TOnMetersUpload = (dataType: ImportDataType, cols: string[][]) => void
+export type TOnMetersUpload = (blob: File) => void
 
 export interface IMeterDataImporterProps {
     onUpload: TOnMetersUpload,
@@ -21,6 +21,21 @@ export type TImporterErrorMessages = {
     validation: TImporterErrorMessage
     creation: TImporterErrorMessage
     emptyRows: TImporterErrorMessage
+    unknownResource: TImporterErrorMessage
+    unknownUnitType: TImporterErrorMessage
+}
+
+export class TransformRowError extends Error {
+    private readonly messages: string[]
+
+    constructor (messages: string[]) {
+        super(`Errors: ${messages.join(', ')}`)
+        this.messages = messages
+    }
+
+    getMessages (): string[] {
+        return this.messages
+    }
 }
 
 interface ColumnInfo {

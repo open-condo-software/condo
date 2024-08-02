@@ -1,7 +1,5 @@
 const Ajv = require('ajv')
 
-const { Json } = require('@open-condo/keystone/fields')
-
 const { render, getValidator } = require('@condo/domains/common/schema/json.utils')
 const { B2C_APP_COLOR_SCHEMA_TYPE_NAME, B2C_APP_COLOR_SCHEMA_INPUT_NAME } = require('@condo/domains/miniapp/constants')
 
@@ -43,7 +41,7 @@ const colorSchemaValidator = getValidator(colorSchemaCompiledSchema)
 
 const COLOR_SCHEMA_FIELD = {
     schemaDoc: 'The color schema of the B2C application used to display it correctly. The main color is used for texts, icons etc. The secondary color is used for the background',
-    type: Json,
+    type: 'Json',
     extendGraphQLTypes: [colorSchemaGraphQLTypes],
     graphQLInputType: B2C_APP_COLOR_SCHEMA_INPUT_NAME,
     graphQLReturnType: B2C_APP_COLOR_SCHEMA_TYPE_NAME,

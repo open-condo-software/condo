@@ -26,15 +26,18 @@ const {
 } = require('@condo/domains/miniapp/utils/testSchema')
 const { Organization, createTestOrganization, updateTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
+const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { createTestProperty, Property, updateTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
+const { RESIDENT_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
+const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const {
     createTestTicket,
     createTestTicketComment,
     TicketComment,
     updateTestTicket,
     Ticket,
-    updateTestTicketComment,
+    updateTestTicketComment, createTestTicketClassifier, createTestTicketFile, createTestTicketCommentFile, TicketFile, updateTestTicketFile, TicketCommentFile, updateTestTicketCommentFile,
 } = require('@condo/domains/ticket/utils/testSchema')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
@@ -42,6 +45,7 @@ const {
     registerNewServiceUserByTestClient,
     makeLoggedInClient,
 } = require('@condo/domains/user/utils/testSchema')
+
 
 describe('B2BAppAccessRightSet', () => {
     let admin
@@ -368,6 +372,14 @@ describe('B2BApp permissions for service user', () => {
         expect(foundRight).toHaveProperty('accessRightSet.canManageOrganizations', false)
         expect(foundRight).toHaveProperty('accessRightSet.canReadProperties', false)
         expect(foundRight).toHaveProperty('accessRightSet.canManageProperties', false)
+        expect(foundRight).toHaveProperty('accessRightSet.canManageTickets', false)
+        expect(foundRight).toHaveProperty('accessRightSet.canReadTickets', false)
+        expect(foundRight).toHaveProperty('accessRightSet.canManageTicketFiles', false)
+        expect(foundRight).toHaveProperty('accessRightSet.canReadTicketFiles', false)
+        expect(foundRight).toHaveProperty('accessRightSet.canManageTicketComments', false)
+        expect(foundRight).toHaveProperty('accessRightSet.canReadTicketComments', false)
+        expect(foundRight).toHaveProperty('accessRightSet.canManageTicketCommentFiles', false)
+        expect(foundRight).toHaveProperty('accessRightSet.canReadTicketCommentFiles', false)
     })
 
     describe('Bulk-operations', () => {
@@ -923,9 +935,7 @@ describe('B2BApp permissions for service user', () => {
         expect(countByUser3).toBe(1)
     })
 
-    // NOTE: Currently these schemes are not added to read/manage the service user.
-    //       It is used to local test the preprocessor
-    test.skip('Ticket and TicketComment', async () => {
+    test('Ticket domain', async () => {
         const [organization] = await registerNewOrganization(user)
 
         const [app] = await createTestB2BApp(support)
@@ -933,17 +943,51 @@ describe('B2BApp permissions for service user', () => {
         const [right] = await createTestB2BAppAccessRight(support, serviceUser.user, app)
 
         const [property] = await createTestProperty(user, organization)
-        const [ticket] = await createTestTicket(user, organization, property)
+        const [classifier] = await createTestTicketClassifier(support)
+        const unitName = faker.random.alphaNumeric(3)
+        const unitType = FLAT_UNIT_TYPE
+        const [contact] = await createTestContact(user, organization, property, {
+            unitName,
+            unitType,
+        })
+
+        const [ticket] = await createTestTicket(user, organization, property, {
+            contact: { connect: { id: contact.id } },
+            assignee: { connect: { id: user.user.id } },
+            executor: { connect: { id: user.user.id } },
+            classifier: { connect: { id: classifier.id } },
+            unitName,
+            unitType,
+        })
 
         const [ticketComment] = await createTestTicketComment(user, ticket, user.user)
+        const [ticketFile] = await createTestTicketFile(user, ticket)
+        const [ticketCommentFile] = await createTestTicketCommentFile(user, ticket, ticketComment)
 
         // B2BApp without permissions
-        const countWithoutPermissions = await TicketComment.count(serviceUser, {})
-        expect(countWithoutPermissions).toBe(0)
-        const contactWithoutPermissions = await TicketComment.getOne(serviceUser, {
-            ticket: { id: ticket.id },
+        await expectToThrowAccessDeniedErrorToCount(async () => {
+            await Ticket.count(serviceUser, {})
         })
-        expect(contactWithoutPermissions).toBeUndefined()
+        await expectToThrowAccessDeniedErrorToObjects(async () => {
+            await Ticket.getOne(serviceUser, {
+                id: ticket.id,
+            })
+        })
+        await expectToThrowAccessDeniedErrorToObjects(async () => {
+            await Ticket.getAll(serviceUser, {})
+        })
+
+        await expectToThrowAccessDeniedErrorToCount(async () => {
+            await TicketComment.count(serviceUser, {})
+        })
+        await expectToThrowAccessDeniedErrorToObjects(async () => {
+            await TicketComment.getOne(serviceUser, {
+                ticket: { id: ticket.id },
+            })
+        })
+        await expectToThrowAccessDeniedErrorToObjects(async () => {
+            await TicketComment.getAll(serviceUser, {})
+        })
 
         await expectToThrowAccessDeniedErrorToObj(async () => {
             await createTestTicket(serviceUser, organization, property)
@@ -965,7 +1009,36 @@ describe('B2BApp permissions for service user', () => {
             await TicketComment.softDelete(serviceUser, ticketComment.id)
         })
 
-        // add permissions for B2BApp
+        await expectToThrowAccessDeniedErrorToObjects(async () => {
+            await TicketFile.getOne(serviceUser, {
+                id: ticketFile.id,
+            })
+        })
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await createTestTicketFile(serviceUser, ticket)
+        })
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await updateTestTicketFile(serviceUser, ticketFile.id, {})
+        })
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await TicketFile.softDelete(serviceUser, ticketFile.id)
+        })
+
+        await expectToThrowAccessDeniedErrorToObjects(async () => {
+            await TicketCommentFile.getOne(serviceUser, {
+                id: ticketCommentFile.id,
+            })
+        })
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await createTestTicketCommentFile(serviceUser, ticket, ticketComment)
+        })
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await updateTestTicketCommentFile(serviceUser, ticketCommentFile.id, {})
+        })
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await TicketCommentFile.softDelete(serviceUser, ticketCommentFile.id)
+        })
+
         const [accessRightSet] = await createTestB2BAppAccessRightSet(support, app, {
             canReadContacts: true,
             canManageContacts: true,
@@ -975,59 +1048,116 @@ describe('B2BApp permissions for service user', () => {
             canManageTickets: true,
             canReadTicketComments: true,
             canManageTicketComments: true,
+            canReadTicketFiles: true,
+            canManageTicketFiles: true,
+            canReadTicketCommentFiles: true,
+            canManageTicketCommentFiles: true,
         })
         await updateTestB2BAppAccessRight(support, right.id, { accessRightSet: { connect: { id: accessRightSet.id } } })
-
-        // you can update 'canReadTickets', 'canManageTickets', 'canReadTicketComments' and 'canManageTicketComments'
-        await updateTestB2BAppAccessRightSet(support, accessRightSet.id, {
-            canReadTickets: true,
-            canManageTickets: true,
-            canReadTicketComments: true,
-            canManageTicketComments: true,
-        })
 
         await createTestTicket(serviceUser, organization, property)
 
         {
-            const countByUser2 = await Ticket.count(user, { organization: { id: organization.id } })
-            expect(countByUser2).toBe(2)
-
             const countWithPermissions = await Ticket.count(serviceUser, {})
-            expect(countWithPermissions).toBe(2)
-            const contactWithPermissions = await Ticket.getOne(serviceUser, { id: ticket.id })
-            expect(contactWithPermissions.id).toBe(ticket.id)
+            expect(countWithPermissions).toEqual(2)
+
+            const ticketWithPermissions = await Ticket.getOne(serviceUser, { id: ticket.id })
+
+            expect(ticketWithPermissions.id).toEqual(ticket.id)
+            expect(ticketWithPermissions.organization.id).toEqual(ticket.organization.id)
+            expect(ticketWithPermissions.status.id).toEqual(ticket.status.id)
+            expect(ticketWithPermissions.assignee.id).toEqual(ticket.assignee.id)
+            expect(ticketWithPermissions.executor.id).toEqual(ticket.executor.id)
+            expect(ticketWithPermissions.source.id).toEqual(ticket.source.id)
+            expect(ticketWithPermissions.classifier.id).toEqual(ticket.classifier.id)
+            expect(ticketWithPermissions.classifier.place.id).toEqual(ticket.classifier.place.id)
+            expect(ticketWithPermissions.classifier.category.id).toEqual(ticket.classifier.category.id)
+            expect(ticketWithPermissions.classifier.problem.id).toEqual(ticket.classifier.problem.id)
+            expect(ticketWithPermissions.property.id).toEqual(ticket.property.id)
+            expect(ticketWithPermissions.property.address).toEqual(ticket.property.address)
+            expect(ticketWithPermissions.contact.id).toEqual(ticket.contact.id)
+            expect(ticketWithPermissions.contact.phone).toEqual(ticket.contact.phone)
+            expect(ticketWithPermissions.contact.email).toEqual(ticket.contact.email)
+            expect(ticketWithPermissions.contact.name).toEqual(ticket.contact.name)
         }
 
-        await updateTestTicket(serviceUser, ticket.id, {})
+        const [updatedTicket] = await updateTestTicket(serviceUser, ticket.id, {
+            status: { connect: { id: STATUS_IDS.IN_PROGRESS } },
+        })
+        expect(updatedTicket.status.id).toEqual(STATUS_IDS.IN_PROGRESS)
 
-        // NOTE: problem with field accesses - the field "user" can only be read/submitted by the user who created the comment
-        const [tcByServiceUser] = await createTestTicketComment(serviceUser, ticket, serviceUser.user)
+        const [ticketCommentByServiceUser] = await createTestTicketComment(serviceUser, ticket, serviceUser.user)
+        const [ticketCommentWithResidentType] = await createTestTicketComment(user, ticket, user.user, {
+            type: RESIDENT_COMMENT_TYPE,
+        })
 
         {
-            const countByUser2 = await TicketComment.count(user, { ticket: { organization: { id: organization.id } } })
-            expect(countByUser2).toBe(2)
-
             const countWithPermissions = await TicketComment.count(serviceUser, {})
-            expect(countWithPermissions).toBe(2)
-            const contactWithPermissions = await TicketComment.getOne(serviceUser, { id: ticketComment.id })
-            expect(contactWithPermissions.id).toBe(ticketComment.id)
+            expect(countWithPermissions).toEqual(2)
+
+            const ticketCommentWithPermissions = await TicketComment.getOne(serviceUser, { id: ticketComment.id })
+            expect(ticketCommentWithPermissions.id).toEqual(ticketComment.id)
+            expect(ticketCommentWithPermissions.user.id).toEqual(ticketComment.user.id)
+            expect(ticketCommentWithPermissions.user.name).toEqual(ticketComment.user.name)
+            expect(ticketCommentWithPermissions.ticket.id).toEqual(ticketComment.ticket.id)
+            expect(ticketCommentWithPermissions.type).toEqual(ticketComment.type)
+
+            // can't read ticket comment type with resident type
+            const readTicketCommentWithResidentType = await TicketComment.getOne(serviceUser, { id: ticketCommentWithResidentType.id })
+            expect(readTicketCommentWithResidentType).toBeUndefined()
         }
 
-        // NOTE: problem with field accesses - the field "user" can only be read/submitted by the user who created the comment
-        await updateTestTicketComment(serviceUser, tcByServiceUser.id)
+        // can't create ticket comment with resident type
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await createTestTicketComment(serviceUser, ticket, serviceUser.user, {
+                type: RESIDENT_COMMENT_TYPE,
+            })
+        })
 
-        // await Ticket.softDelete(serviceUser, ticketByServiceUser.id)
-        await TicketComment.softDelete(serviceUser, tcByServiceUser.id)
+        // can't update ticket comment type to resident
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await updateTestTicketComment(serviceUser, ticketCommentByServiceUser.id, {
+                type: RESIDENT_COMMENT_TYPE,
+            })
+        })
 
-        {
-            const countByUser3 = await Ticket.count(user, { organization: { id: organization.id } })
-            expect(countByUser3).toBe(2)
-        }
+        // can't update not his own ticket comment
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await updateTestTicketComment(serviceUser, ticketComment.id, {})
+        })
 
-        {
-            const countByUser3 = await TicketComment.count(user, { ticket: { organization: { id: organization.id } } })
-            expect(countByUser3).toBe(1)
-        }
+        const readTicketFile = await TicketFile.getOne(serviceUser, { id: ticketFile.id })
+        expect(readTicketFile.ticket.id).toEqual(ticketFile.ticket.id)
+
+        const [ticketFileByServiceUser] = await createTestTicketFile(serviceUser, ticket)
+        await updateTestTicketFile(serviceUser, ticketFileByServiceUser.id, {})
+        await TicketFile.softDelete(serviceUser, ticketFileByServiceUser.id)
+
+        const readTicketCommentFile = await TicketCommentFile.getOne(serviceUser, { id: ticketCommentFile.id })
+        expect(readTicketCommentFile.ticket.id).toEqual(ticketCommentFile.ticket.id)
+
+        // can't read ticket comment file in comment with resident type
+        const [ticketCommentFileWithResidentUserComment] = await createTestTicketCommentFile(user, ticket, ticketCommentWithResidentType)
+        const readTicketCommentFileWithResidentUserComment = await TicketCommentFile.getOne(serviceUser, { id: ticketCommentFileWithResidentUserComment.id })
+        expect(readTicketCommentFileWithResidentUserComment).toBeUndefined()
+
+        // can't create file in not own comment
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await createTestTicketCommentFile(serviceUser, ticket, ticketComment)
+        })
+
+        // can't update not own file
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await updateTestTicketComment(serviceUser, ticketCommentFile.id, {})
+        })
+
+        const [ticketCommentFileByServiceUser] = await createTestTicketCommentFile(serviceUser, ticket, ticketCommentByServiceUser)
+
+        await updateTestTicketComment(serviceUser, ticketCommentByServiceUser.id, {})
+        await TicketComment.softDelete(serviceUser, ticketCommentByServiceUser.id)
+
+        await updateTestTicketCommentFile(serviceUser, ticketCommentFileByServiceUser.id, {})
+        await TicketCommentFile.softDelete(serviceUser, ticketCommentFileByServiceUser.id)
     })
 
     test('RegisterMetersReadings', async () => {

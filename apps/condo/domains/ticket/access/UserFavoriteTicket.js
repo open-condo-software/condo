@@ -7,28 +7,30 @@ const isEmpty = require('lodash/isEmpty')
 const omit = require('lodash/omit')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { getById, find } = require('@open-condo/keystone/schema')
+const { getById } = require('@open-condo/keystone/schema')
 
-const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    getEmployedOrRelatedOrganizationsByPermissions,
+    checkPermissionsInEmployedOrRelatedOrganizations,
+} = require('@condo/domains/organization/utils/accessSchema')
 
-async function canReadUserFavoriteTickets ({ authentication: { item: user } }) {
+async function canReadUserFavoriteTickets ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isAdmin || user.isSupport) return {}
 
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadTickets')
+
     return {
         user: { id: user.id },
         organization: {
-            OR: [
-                queryOrganizationEmployeeFor(user.id, 'canReadTickets'),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadTickets'),
-            ],
+            id_in: permittedOrganizations,
         },
     }
 }
 
-async function canManageUserFavoriteTickets ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageUserFavoriteTickets ({ authentication: { item: user }, context, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -41,28 +43,12 @@ async function canManageUserFavoriteTickets ({ authentication: { item: user }, o
         }
 
         const ticket = await getById('Ticket', ticketId)
+
+        if (!ticket || !ticket.organization) return false
+
         const organizationId = ticket.organization
 
-        const organizationEmployees = await find('OrganizationEmployee', {
-            organization: {
-                id: organizationId,
-            },
-            role: { canReadTickets: true },
-            user: { id: user.id },
-            deletedAt: null,
-        })
-
-        if (!isEmpty(organizationEmployees)) {
-            return true
-        }
-
-        const organizationLinks = await find('OrganizationLink', {
-            from: queryOrganizationEmployeeFor(user.id, 'canReadTickets'),
-            to: { id: organizationId },
-            deletedAt: null,
-        })
-
-        return !isEmpty(organizationLinks)
+        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canReadTickets')
     } else if (operation === 'update') {
         if (!isEmpty(omit(originalInput, ['deletedAt', 'dv', 'sender']))) {
             return false

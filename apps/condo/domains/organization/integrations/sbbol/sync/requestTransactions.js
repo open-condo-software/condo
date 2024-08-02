@@ -9,10 +9,14 @@ const { BANK_INTEGRATION_IDS, BANK_SYNC_TASK_STATUS } = require('@condo/domains/
 const { BankAccount, BankTransaction, BankContractorAccount, predictTransactionClassification, BankSyncTask, BankIntegrationAccountContext } = require('@condo/domains/banking/utils/serverSchema')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
-const { dvSenderFields, INVALID_DATE_RECEIVED_MESSAGE } = require('@condo/domains/organization/integrations/sbbol/constants')
-const { SBBOL_IMPORT_NAME } = require('@condo/domains/organization/integrations/sbbol/constants')
-const { ERROR_PASSED_DATE_IN_THE_FUTURE } = require('@condo/domains/organization/integrations/sbbol/constants')
-const { SBBOL_ERRORS } = require('@condo/domains/organization/integrations/sbbol/constants')
+const {
+    ALTERNATIVE_CURRENCY_CODES_FROM_SBBOL,
+    dvSenderFields,
+    INVALID_DATE_RECEIVED_MESSAGE,
+    SBBOL_IMPORT_NAME,
+    ERROR_PASSED_DATE_IN_THE_FUTURE,
+    SBBOL_ERRORS,
+} = require('@condo/domains/organization/integrations/sbbol/constants')
 const { initSbbolFintechApi, initSbbolClientWithToken } = require('@condo/domains/organization/integrations/sbbol/SbbolFintechApi')
 const { getAllAccessTokensByOrganization } = require('@condo/domains/organization/integrations/sbbol/utils/getAccessTokenForUser')
 
@@ -45,7 +49,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
     accessTokens = await getAllAccessTokensByOrganization(context, organizationId)
 
     if (!sbbolFintechClient) {
-        sbbolFintechClient = initSbbolClientWithToken(accessTokens[accessTokenIndex])
+        sbbolFintechClient = initSbbolClientWithToken(get(accessTokens, [accessTokenIndex, 'accessToken']), true)
     }
 
     const transactions = []
@@ -116,7 +120,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                     summary,
                 } })
             } else {
-                receivedTransactions.map( transaction => transactions.push(transaction))
+                transactions.push(...receivedTransactions)
             }
 
             page++
@@ -126,7 +130,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                 allDataReceived = true
             }
 
-            switch (get(transactions, 'error.cause')) {
+            switch (get(response, 'error.cause')) {
                 // WORKFLOW_FAULT means invalid request parameters, that can occur in cases:
                 // when report is requested for date in future
                 // when report page does not exist, for example, number is out of range of available pages
@@ -153,7 +157,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                 }
                 default: {
                     reqErrored = true
-                    transactionException = get(transactions, 'error.cause')
+                    transactionException = get(response, 'error.cause')
                     break
                 }
             }
@@ -183,12 +187,12 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                 }
             }
 
-            if (get(transactions, 'error.cause') === SBBOL_ERRORS.UNAUTHORIZED) {
+            if (get(response, 'error.cause') === SBBOL_ERRORS.UNAUTHORIZED || get(summary, 'error.cause') === SBBOL_ERRORS.UNAUTHORIZED) {
                 allDataReceived = false
                 reqErrored = false
                 accessTokenIndex++
                 if (accessTokenIndex < accessTokens.length) {
-                    sbbolFintechClient = initSbbolClientWithToken(accessTokens[accessTokenIndex])
+                    sbbolFintechClient = initSbbolClientWithToken(get(accessTokens, [accessTokenIndex, 'accessToken']), true)
                 } else {
                     reqErrored = true
                     transactionException = SBBOL_ERRORS.UNAUTHORIZED
@@ -227,14 +231,19 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
         }
 
         for (const transaction of transactions) {
+            const currencyCode = transaction.amount.currencyName in ALTERNATIVE_CURRENCY_CODES_FROM_SBBOL
+                ? ALTERNATIVE_CURRENCY_CODES_FROM_SBBOL[transaction.amount.currencyName]
+                : transaction.amount.currencyName
+
             // If SBBOL returned a transaction with an unsupported currency, do not process
-            if (ISO_CODES.includes(transaction.amount.currencyName)) {
+            if (ISO_CODES.includes(currencyCode)) {
                 const formatedOperationDate = dayjs(transaction.operationDate).format('YYYY-MM-DD')
+                const amount = get(transaction, 'amount.amount')
                 const transactionAttrs = {
                     number: transaction.number,
                     date:  formatedOperationDate,
-                    amount: transaction.amount.amount,
-                    currencyCode: transaction.amount.currencyName,
+                    amount: typeof amount === 'number' ? String(amount) : amount,
+                    currencyCode,
                     purpose: transaction.paymentPurpose,
                     // A debit transaction is an expense, since the direction of the transaction looks relative to the bank from which the data was received
                     isOutcome: transaction.direction === 'DEBIT',
@@ -269,7 +278,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                             country: RUSSIA_COUNTRY,
                             routingNumber: transaction.rurTransfer.payeeBankBic,
                             number: transaction.rurTransfer.payeeAccount,
-                            currencyCode: transaction.amount.currencyName,
+                            currencyCode,
                             ...dvSenderFields,
                         })
                         logger.info({ msg: `BankContractorAccount instance created with id: ${bankContractorAccount.id}` })

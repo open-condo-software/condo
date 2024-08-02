@@ -4,6 +4,7 @@
   "main": "./index.js",
   "exports": {
     "./fields": "./fields/index.js",
+    "./file": "./file/index.js",
     "./logging": "./logging/index.js",
     "./plugins": "./plugins/index.js",
     "./plugins/utils": "./plugins/utils/index.js",
@@ -61,7 +62,9 @@
     "graphql-tag": "^2.12.6",
     "graphql-upload": "^15.0.2",
     "hot-shots": "^10.0.0",
+    "inflection": "^1.13.1",
     "ioredis": "^4.28.5",
+    "knex": "^0.95.6",
     "lodash": "^4.17.21",
     "lru-cache": "^7.18.3",
     "minimatch": "^5.1.1",

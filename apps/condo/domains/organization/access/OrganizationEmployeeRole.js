@@ -6,31 +6,32 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
-const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
-const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    getEmployedOrRelatedOrganizationsByPermissions,
+    checkPermissionsInEmployedOrRelatedOrganizations,
+} = require('@condo/domains/organization/utils/accessSchema')
 
 
-async function canReadOrganizationEmployeeRoles ({ authentication: { item: user } }) {
+async function canReadOrganizationEmployeeRoles ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isSupport || user.isAdmin) return {}
 
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, [])
+
     return {
         organization: {
-            OR: [
-                queryOrganizationEmployeeFor(user.id),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
-            ],
+            id_in: permittedOrganizations,
         },
     }
 }
 
-async function canManageOrganizationEmployeeRoles ({ authentication: { item: user }, operation, originalInput, itemId }) {
+async function canManageOrganizationEmployeeRoles ({ authentication: { item: user }, context, operation, originalInput, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin) return true
+
+    if (user.isAdmin || user.isSupport) return true
 
     let organizationId
 
@@ -39,12 +40,13 @@ async function canManageOrganizationEmployeeRoles ({ authentication: { item: use
     } else if (operation === 'update') {
         if (!itemId) return false
         const role = await getById('OrganizationEmployeeRole', itemId)
+        if (!role || role.deletedAt) return false
         organizationId = get(role, 'organization', null)
     }
 
     if (!organizationId) return false
 
-    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageRoles')
+    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageRoles')
 }
 
 /*

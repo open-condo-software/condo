@@ -88,6 +88,8 @@ const dayjs = require('dayjs')
 const express = require('express')
 const LRUCache = require('lru-cache')
 
+const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
+
 const { getRedisClient } = require('./redis')
 
 const DEFAULT_HEALTHCHECK_URL = '/server-health'
@@ -133,7 +135,8 @@ const getPostgresHealthCheck = () => {
         },
         run: async () => {
             try {
-                const res = await this.keystone.adapter.knex.raw('SELECT 1')
+                const { knex } = getDatabaseAdapter(this.keystone)
+                const res = await knex.raw('SELECT 1')
                 return res ? PASS : FAIL
             } catch (e) { return FAIL }
         },

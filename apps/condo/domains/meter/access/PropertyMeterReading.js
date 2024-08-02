@@ -3,33 +3,37 @@
  */
 
 const get = require('lodash/get')
+const uniq = require('lodash/uniq')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { getById } = require('@open-condo/keystone/schema')
+const { getById, getByCondition, find } = require('@open-condo/keystone/schema')
 
-const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
-const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    getEmployedOrRelatedOrganizationsByPermissions,
+    checkPermissionsInEmployedOrRelatedOrganizations,
+} = require('@condo/domains/organization/utils/accessSchema')
 
-async function canReadPropertyMeterReadings ({ authentication: { item: user } }) {
+async function canReadPropertyMeterReadings ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isSupport || user.isAdmin) return {}
 
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadMeters')
+
     return {
         organization: {
-            OR: [
-                queryOrganizationEmployeeFor(user.id, 'canReadMeters'),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadMeters'),
-            ],
+            id_in: permittedOrganizations,
         },
     }
 }
 
-async function canManagePropertyMeterReadings ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManagePropertyMeterReadings ({ authentication: { item: user }, context, itemId, itemIds, originalInput, operation }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isSupport || user.isAdmin) return true
+
+    const isBulkRequest = Array.isArray(originalInput)
 
     if (operation === 'create') {
         const meterId = get(originalInput, ['meter', 'connect', 'id'], null)
@@ -38,7 +42,39 @@ async function canManagePropertyMeterReadings ({ authentication: { item: user },
         const meter = await getById('PropertyMeter', meterId)
         const meterOrganization = get(meter, 'organization', null)
 
-        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, meterOrganization, 'canManageMeterReadings')
+        if (!meterOrganization) return false
+
+        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, meterOrganization, 'canManageMeterReadings')
+    }
+
+
+    if (operation === 'update') {
+        if (isBulkRequest) {
+            if (!itemIds || !Array.isArray(itemIds)) return false
+            if (itemIds.length !== uniq(itemIds).length) return false
+
+            const meterReadings = await find('PropertyMeterReading', {
+                id_in: itemIds,
+                deletedAt: null,
+            })
+            if (meterReadings.length !== itemIds.length) return false
+
+            const organizationIds = uniq(meterReadings.map(reading => get(reading, 'organization')))
+            if (organizationIds.length !== 1) return false
+
+            return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationIds, 'canManageMeterReadings')
+        } else {
+            const meterReading = await getByCondition('PropertyMeterReading', {
+                id: itemId,
+                deletedAt: null,
+            })
+            if (!meterReading) return false
+    
+            const meterReadingOrganization = get(meterReading, 'organization')
+            if (!meterReadingOrganization) return false
+
+            return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, meterReadingOrganization, 'canManageMeterReadings')
+        }
     }
 
     return false
