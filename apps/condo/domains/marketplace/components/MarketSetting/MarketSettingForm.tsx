@@ -2,6 +2,7 @@ import { MarketSetting as MarketSettingType } from '@app/condo/schema'
 import { Col, Form, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import omit from 'lodash/omit'
 import uniq from 'lodash/uniq'
 import { useRouter } from 'next/router'
@@ -59,8 +60,10 @@ export const MarketSettingForm: React.FC<IMarketSettingForm> = ({ marketSetting,
 
     const initialValues = useMemo(() => {
         const result = {}
-        const residentAllowedPaymentTypes = get(marketSetting, 'residentAllowedPaymentTypes', []) || []
-        result[IS_CASH_PAYMENT_TYPE_BLOCKED] = !residentAllowedPaymentTypes.includes(INVOICE_PAYMENT_TYPE_CASH)
+        if (!isEmpty(marketSetting)) {
+            const residentAllowedPaymentTypes = get(marketSetting, 'residentAllowedPaymentTypes', []) || []
+            result[IS_CASH_PAYMENT_TYPE_BLOCKED] = !residentAllowedPaymentTypes.includes(INVOICE_PAYMENT_TYPE_CASH)
+        }
         return result
     }, [marketSetting])
 
