@@ -112,6 +112,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
         list: 'User',
         config: {
             protectIdentities: false,
+            softDeleteField: 'deletedAt',
             ...authStrategyConfig,
         },
         hooks: {
