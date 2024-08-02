@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - main
   pull_request_target:
     types:
       - opened
@@ -11,6 +12,7 @@ on:
       - synchronize
     branches:
       - master
+      - main
   workflow_dispatch:
 
 concurrency:
