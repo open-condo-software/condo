@@ -76785,7 +76785,7 @@ type CheckUserExistenceOutput {
   passwordSet: Boolean!
 }
 
-input SignInUserUserDataInput {
+input AuthenticateOrRegisterUserWithConfirmTokenUserDataInput {
   phone: String
   name: String
   email: String
@@ -76793,16 +76793,16 @@ input SignInUserUserDataInput {
   meta: JSON
 }
 
-input SignInUserInput {
+input AuthenticateOrRegisterUserWithConfirmTokenInput {
   dv: Int!
   sender: SenderFieldInput!
-  confirmActionToken: ID!
+  confirmToken: ID!
   userType: UserTypeType!
-  userData: SignInUserUserDataInput
+  userData: AuthenticateOrRegisterUserWithConfirmTokenUserDataInput
 }
 
-type SignInUserOutput {
-  user: User
+type AuthenticateOrRegisterUserWithConfirmTokenOutput {
+  item: User
   token: ID!
 }
 
@@ -87650,7 +87650,7 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
-    "mutation": "signInUser",
+    "mutation": "authenticateOrRegisterUserWithConfirmToken",
     "variable": [
       "data",
       "userType"
@@ -87661,7 +87661,7 @@ type Mutation {
   }`
   
   `{
-    "mutation": "signInUser",
+    "mutation": "authenticateOrRegisterUserWithConfirmToken",
     "variable": [
       "data",
       "userData",
@@ -87673,23 +87673,23 @@ type Mutation {
   }`
   
   `{
-    "mutation": "signInUser",
+    "mutation": "authenticateOrRegisterUserWithConfirmToken",
     "code": "BAD_USER_INPUT",
     "type": "INVALID_PHONE_NUMBER",
     "message": "Invalid phone number",
-    "messageForUser": "api.user.signInUser.INVALID_PHONE_NUMBER"
+    "messageForUser": "api.user.authenticateOrRegisterUserWithConfirmToken.INVALID_PHONE_NUMBER"
   }`
   
   `{
-    "mutation": "signInUser",
+    "mutation": "authenticateOrRegisterUserWithConfirmToken",
     "code": "NOT_FOUND",
     "type": "USER_NOT_FOUND",
     "message": "User not found",
-    "messageForUser": "api.user.signInUser.USER_NOT_FOUND"
+    "messageForUser": "api.user.authenticateOrRegisterUserWithConfirmToken.USER_NOT_FOUND"
   }`
   
   `{
-    "mutation": "signInUser",
+    "mutation": "authenticateOrRegisterUserWithConfirmToken",
     "variable": [
       "data",
       "token"
@@ -87707,7 +87707,7 @@ type Mutation {
     "code": "BAD_USER_INPUT",
     "type": "DV_VERSION_MISMATCH",
     "message": "Wrong value for data version number",
-    "mutation": "signInUser"
+    "mutation": "authenticateOrRegisterUserWithConfirmToken"
   }`
   
   `{
@@ -87719,7 +87719,7 @@ type Mutation {
     "type": "WRONG_FORMAT",
     "message": "Invalid format of \"sender\" field value",
     "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}",
-    "mutation": "signInUser"
+    "mutation": "authenticateOrRegisterUserWithConfirmToken"
   }`
   
   `{
@@ -87729,7 +87729,7 @@ type Mutation {
     "messageForUser": "api.user.DAILY_REQUEST_LIMIT_FOR_IP_REACHED"
   }`
   """
-  signInUser(data: SignInUserInput!): SignInUserOutput
+  authenticateOrRegisterUserWithConfirmToken(data: AuthenticateOrRegisterUserWithConfirmTokenInput!): AuthenticateOrRegisterUserWithConfirmTokenOutput
 
   """
   Registers new Organization for current user

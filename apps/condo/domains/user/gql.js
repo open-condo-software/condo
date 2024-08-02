@@ -186,9 +186,9 @@ const CHECK_USER_EXISTENCE_MUTATION = gql`
     }
 `
 
-const SIGN_IN_USER_MUTATION = gql`
-    mutation signInUser ($data: SignInUserInput!) {
-        result: signInUser(data: $data) { user { id } }
+const AUTHENTICATE_OR_REGISTER_USER_WITH_CONFIRM_TOKEN_MUTATION = gql`
+    mutation authenticateOrRegisterUserWithConfirmToken ($data: AuthenticateOrRegisterUserWithConfirmTokenInput!) {
+        result: authenticateOrRegisterUserWithConfirmToken(data: $data) { user: item { id } }
     }
 `
 
@@ -222,6 +222,6 @@ module.exports = {
     GET_ACCESS_TOKEN_BY_USER_ID_QUERY,
     UserRightsSet,
     CHECK_USER_EXISTENCE_MUTATION,
-    SIGN_IN_USER_MUTATION,
+    AUTHENTICATE_OR_REGISTER_USER_WITH_CONFIRM_TOKEN_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

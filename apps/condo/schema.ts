@@ -1896,6 +1896,28 @@ export type AppColorSchemaFieldInput = {
   secondary: Scalars['String'];
 };
 
+export type AuthenticateOrRegisterUserWithConfirmTokenInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  confirmToken: Scalars['ID'];
+  userType: UserTypeType;
+  userData?: Maybe<AuthenticateOrRegisterUserWithConfirmTokenUserDataInput>;
+};
+
+export type AuthenticateOrRegisterUserWithConfirmTokenOutput = {
+  __typename?: 'AuthenticateOrRegisterUserWithConfirmTokenOutput';
+  item?: Maybe<User>;
+  token: Scalars['ID'];
+};
+
+export type AuthenticateOrRegisterUserWithConfirmTokenUserDataInput = {
+  phone?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  email?: Maybe<Scalars['String']>;
+  password?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+};
+
 export type AuthenticateUserWithPhoneAndPasswordInput = {
   phone: Scalars['String'];
   password: Scalars['String'];
@@ -41934,7 +41956,7 @@ export type Mutation = {
    * Following objects will be presented in `extensions` property of thrown error
    *
    * `{
-   *   "mutation": "signInUser",
+   *   "mutation": "authenticateOrRegisterUserWithConfirmToken",
    *   "variable": [
    *     "data",
    *     "userType"
@@ -41945,7 +41967,7 @@ export type Mutation = {
    * }`
    *
    * `{
-   *   "mutation": "signInUser",
+   *   "mutation": "authenticateOrRegisterUserWithConfirmToken",
    *   "variable": [
    *     "data",
    *     "userData",
@@ -41957,23 +41979,23 @@ export type Mutation = {
    * }`
    *
    * `{
-   *   "mutation": "signInUser",
+   *   "mutation": "authenticateOrRegisterUserWithConfirmToken",
    *   "code": "BAD_USER_INPUT",
    *   "type": "INVALID_PHONE_NUMBER",
    *   "message": "Invalid phone number",
-   *   "messageForUser": "api.user.signInUser.INVALID_PHONE_NUMBER"
+   *   "messageForUser": "api.user.authenticateOrRegisterUserWithConfirmToken.INVALID_PHONE_NUMBER"
    * }`
    *
    * `{
-   *   "mutation": "signInUser",
+   *   "mutation": "authenticateOrRegisterUserWithConfirmToken",
    *   "code": "NOT_FOUND",
    *   "type": "USER_NOT_FOUND",
    *   "message": "User not found",
-   *   "messageForUser": "api.user.signInUser.USER_NOT_FOUND"
+   *   "messageForUser": "api.user.authenticateOrRegisterUserWithConfirmToken.USER_NOT_FOUND"
    * }`
    *
    * `{
-   *   "mutation": "signInUser",
+   *   "mutation": "authenticateOrRegisterUserWithConfirmToken",
    *   "variable": [
    *     "data",
    *     "token"
@@ -41991,7 +42013,7 @@ export type Mutation = {
    *   "code": "BAD_USER_INPUT",
    *   "type": "DV_VERSION_MISMATCH",
    *   "message": "Wrong value for data version number",
-   *   "mutation": "signInUser"
+   *   "mutation": "authenticateOrRegisterUserWithConfirmToken"
    * }`
    *
    * `{
@@ -42003,7 +42025,7 @@ export type Mutation = {
    *   "type": "WRONG_FORMAT",
    *   "message": "Invalid format of \"sender\" field value",
    *   "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}",
-   *   "mutation": "signInUser"
+   *   "mutation": "authenticateOrRegisterUserWithConfirmToken"
    * }`
    *
    * `{
@@ -42013,7 +42035,7 @@ export type Mutation = {
    *   "messageForUser": "api.user.DAILY_REQUEST_LIMIT_FOR_IP_REACHED"
    * }`
    */
-  signInUser?: Maybe<SignInUserOutput>;
+  authenticateOrRegisterUserWithConfirmToken?: Maybe<AuthenticateOrRegisterUserWithConfirmTokenOutput>;
   /**
    * Registers new Organization for current user
    *
@@ -52555,8 +52577,8 @@ export type MutationResetUserArgs = {
 };
 
 
-export type MutationSignInUserArgs = {
-  data: SignInUserInput;
+export type MutationAuthenticateOrRegisterUserWithConfirmTokenArgs = {
+  data: AuthenticateOrRegisterUserWithConfirmTokenInput;
 };
 
 
@@ -76617,28 +76639,6 @@ export type ShortScopesField = {
   __typename?: 'ShortScopesField';
   count: Scalars['Int'];
   firstOnes: Array<Maybe<NewsItemScope>>;
-};
-
-export type SignInUserInput = {
-  dv: Scalars['Int'];
-  sender: SenderFieldInput;
-  confirmActionToken: Scalars['ID'];
-  userType: UserTypeType;
-  userData?: Maybe<SignInUserUserDataInput>;
-};
-
-export type SignInUserOutput = {
-  __typename?: 'SignInUserOutput';
-  user?: Maybe<User>;
-  token: Scalars['ID'];
-};
-
-export type SignInUserUserDataInput = {
-  phone?: Maybe<Scalars['String']>;
-  name?: Maybe<Scalars['String']>;
-  email?: Maybe<Scalars['String']>;
-  password?: Maybe<Scalars['String']>;
-  meta?: Maybe<Scalars['JSON']>;
 };
 
 export type SigninAsUserInput = {

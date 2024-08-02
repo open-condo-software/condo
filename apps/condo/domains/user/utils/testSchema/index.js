@@ -536,16 +536,16 @@ async function checkUserExistenceByTestClient(client, extraAttrs = {}) {
 }
 
 // NOTE: In tests we need to check different user fields and token. In real utilities we only need user id
-const TEST_SIGN_IN_USER_MUTATION = gql`
-    mutation signInUser ($data: SignInUserInput!) {
-        result: signInUser(data: $data) {
-            user { id }
+const TEST_AUTHENTICATE_OR_REGISTER_USER_WITH_CONFIRM_TOKEN_MUTATION = gql`
+    mutation authenticateOrRegisterUserWithConfirmToken ($data: AuthenticateOrRegisterUserWithConfirmTokenInput!) {
+        result: authenticateOrRegisterUserWithConfirmToken(data: $data) {
+            user: item { id }
             token
         }
     }
 `
 
-async function signInUserByTestClient (client, extraAttrs = {}) {
+async function authenticateOrRegisterUserWithConfirmTokenByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -554,7 +554,7 @@ async function signInUserByTestClient (client, extraAttrs = {}) {
         sender,
         ...extraAttrs,
     }
-    const { data, errors } = await client.mutate(TEST_SIGN_IN_USER_MUTATION, { data: attrs })
+    const { data, errors } = await client.mutate(TEST_AUTHENTICATE_OR_REGISTER_USER_WITH_CONFIRM_TOKEN_MUTATION, { data: attrs })
     throwIfError(data, errors)
     return [data.result, attrs]
 }
@@ -599,6 +599,6 @@ module.exports = {
     UserRightsSet, createTestUserRightsSet, updateTestUserRightsSet,
     checkUserExistenceByTestClient,
     authenticateUserWithPhoneAndPasswordByTestClient,
-    signInUserByTestClient,
+    authenticateOrRegisterUserWithConfirmTokenByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
