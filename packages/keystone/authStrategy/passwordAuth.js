@@ -17,19 +17,18 @@ const { PasswordAuthStrategy: DefaultPasswordAuthStrategy } = require('@keystone
  *
  * @example config example
  * config = {
- *     // defaults props from "@keystonejs/auth-password"
+ *     // default props from "@keystonejs/auth-password"
  *     identityField: 'email',
  *     secretField: 'password',
  *     protectIdentities: true,
  *
  *     // custom props
- *     itemTypeField: 'type',
- *     itemTypeOptions: ['staff', 'service', 'resident'],
- *     itemTypeDefault: 'staff',
+ *     identityTypeField: 'type',
+ *     allowedIdentityTypes: ['staff', 'service', 'resident'],
  *
  *     verificationField: 'isEmailVerified',
  *
- *     rejectSoftDeletedItems: true,
+ *     softDeleteField: 'deletedAt',
  * }
  */
 class ExtendedPasswordAuthStrategy extends DefaultPasswordAuthStrategy {
@@ -38,65 +37,39 @@ class ExtendedPasswordAuthStrategy extends DefaultPasswordAuthStrategy {
 
         this.config = {
             // NOTE: We do not set default values for new fields as the implementation of our applications may differ.
-            // We should configure each application yourself as we need.
-            //
-            // itemTypeField: 'type',
-            // itemTypeOptions: ['staff', 'service', 'resident'],
-            // itemTypeDefault: 'staff',
+            // Each application is configured on its own
             //
             // verificationField: 'isEmailVerified',
+            // identityTypeField: 'type',
+            // allowedIdentityTypes: ['staff', 'service', 'resident'],
 
-            rejectSoftDeletedItems: true,
+            softDeleteField: 'deletedAt',
 
             ...this.config,
         }
-    }
-
-    getInputFragment () {
-        const itemTypeField = this.config.itemTypeField
-            ? `${this.config.itemTypeField}: String`
-            : ''
-
-        return `
-          ${this.config.identityField}: String
-          ${this.config.secretField}: String
-          ${itemTypeField}
-        `
-    }
-
-    async validate (args) {
-        const { itemTypeField, itemTypeOptions, itemTypeDefault } = this.config
-        const itemType = args[itemTypeField] || itemTypeDefault || null
-
-        if (Boolean(itemTypeField) && Array.isArray(itemTypeOptions) && !itemTypeOptions.includes(itemType)) {
-            const message = `[passwordAuth:itemType:invalid] The ${itemTypeField} contains an invalid value. It must be one of the following: ${itemTypeOptions.join(', ')}`
-            return { success: false, message }
-        }
-
-        return await super.validate(args)
     }
 
     async _getItem (list, args, secretFieldInstance) {
         // Match by identity
         const {
             identityField,
-            itemTypeField,
-            itemTypeOptions,
-            itemTypeDefault,
+            identityTypeField,
+            allowedIdentityTypes,
             verificationField,
-            rejectSoftDeletedItems,
+            softDeleteField,
         } = this.config
 
         const identity = args[identityField]
-        const itemType = args[itemTypeField] || itemTypeDefault || null
         const results = await list.adapter.find({
             [identityField]: identity,
-            ...(itemTypeField && Array.isArray(itemTypeOptions) ? { [itemTypeField]: itemType } : null),
-            ...(rejectSoftDeletedItems ? { deletedAt: null } : null),
+            ...(identityTypeField && Array.isArray(allowedIdentityTypes) ? { [`${identityTypeField}_in`]: allowedIdentityTypes } : null),
+            ...(softDeleteField ? { [softDeleteField]: null } : null),
             ...(verificationField ? { [verificationField]: true } : null),
         })
 
-        // * * * Next comes the original logic * * *
+        // > > > Next comes the original logic from @keystonejs/auth-password < < <
+        //
+        //
         //
         // If we failed to match an identity and we're protecting existing identities then combat timing
         // attacks by creating an arbitrary hash (should take about as long has comparing an existing one)
