@@ -49,7 +49,6 @@ const {
     Ticket,
     updateTestTicketComment, createTestTicketClassifier, createTestTicketFile, createTestTicketCommentFile, TicketFile, updateTestTicketFile, TicketCommentFile, updateTestTicketCommentFile,
 } = require('@condo/domains/ticket/utils/testSchema')
-const { SERVICE } = require('@condo/domains/user/constants/common')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
@@ -86,11 +85,11 @@ describe('B2BAppAccessRightSet', () => {
         accessRightSet = createdAccessRightSet
 
         const [newServiceUser] = await registerNewServiceUserByTestClient(support)
-        integratedServiceUser = await makeLoggedInClient({ email: newServiceUser.email, password: newServiceUser.password, type: SERVICE })
+        integratedServiceUser = await makeLoggedInClient({ email: newServiceUser.email, password: newServiceUser.password })
         await createTestB2BAppAccessRight(support, integratedServiceUser.user, app)
 
         const [newServiceUser2] = await registerNewServiceUserByTestClient(support)
-        integratedToAnotherAppServiceUser = await makeLoggedInClient({ email: newServiceUser2.email, password: newServiceUser2.password, type: SERVICE })
+        integratedToAnotherAppServiceUser = await makeLoggedInClient({ email: newServiceUser2.email, password: newServiceUser2.password })
         await createTestB2BAppAccessRight(support, integratedToAnotherAppServiceUser.user, anotherApp)
     })
 
