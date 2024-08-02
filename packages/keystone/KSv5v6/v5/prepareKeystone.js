@@ -1,4 +1,6 @@
+const fs = require('fs')
 const process = require('node:process')
+const path = require('path')
 const v8 = require('v8')
 
 const { AdminUIApp } = require('@keystonejs/app-admin-ui')
@@ -27,6 +29,10 @@ const { ApolloSentryPlugin } = require('@open-condo/keystone/sentry')
 const { prepareDefaultKeystoneConfig } = require('@open-condo/keystone/setup.utils')
 const { registerTasks, registerTaskQueues, taskQueues } = require('@open-condo/keystone/tasks')
 const { KeystoneTracingApp } = require('@open-condo/keystone/tracing')
+
+// This is needed temporary, to detect memory leak. There is no need to move all adapters and tests (with models) here
+// eslint-disable-next-line no-restricted-modules
+const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 
 
 const IS_BUILD_PHASE = conf.PHASE === 'build'
@@ -238,6 +244,44 @@ process.on('unhandledRejection', (err, promise) => {
     logger.error({ msg: 'unhandledRejection', err, promise })
     if (!IS_KEEP_ALIVE_ON_ERROR) {
         throw err
+    }
+})
+
+process.on('SIGPIPE', async () => {
+    if (process.env['DISABLE_HEAP_SNAPSHOT']) {
+        console.log('Dumping of heap snapshots disabled')
+        return
+    }
+
+    try {
+        const labelCreateSnapshot = 'Heap snapshot created in'
+
+        console.log('Start dumping heap snapshot')
+        console.time(labelCreateSnapshot)
+        const fileName = v8.writeHeapSnapshot()
+        console.timeEnd(labelCreateSnapshot)
+        console.log(`Created snapshot file: ${fileName}`)
+
+        const labelUploadSnapshot = 'Snapshot uploaded in'
+
+        console.log('Start snapshot uploading')
+        console.time(labelUploadSnapshot)
+        const ExportFileAdapter = new FileAdapter('heapSnapshots')
+        const stream = fs.createReadStream(path.resolve(fileName))
+        const fileInfo = await ExportFileAdapter.save({
+            stream,
+            filename: fileName,
+            id: `snapshot-${fileName}`,
+        })
+        console.timeEnd(labelUploadSnapshot)
+
+        const { filename } = fileInfo
+        const url = ExportFileAdapter.publicUrl({ filename })
+
+        console.log(`Snapshot file info: ${JSON.stringify(fileInfo)}`)
+        console.log(`Snapshot file URL: ${url}`)
+    } catch (err) {
+        console.error(err)
     }
 })
 
