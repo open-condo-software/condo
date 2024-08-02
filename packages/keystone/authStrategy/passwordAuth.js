@@ -7,9 +7,9 @@ const { PasswordAuthStrategy: DefaultPasswordAuthStrategy } = require('@keystone
  *
  * What are the differences with the main version?
  *
- * - User type check (disabled by default)
+ * - Identity type check (disabled by default)
  * - Verification check (disabled by default)
- * - Reject deleted user authorization (enabled by default)
+ * - Reject deleted identity authorization (disabled by default)
  *
  * All custom features can be turned off, then there will be default authorization like in basic PasswordAuthStrategy
  *
@@ -42,8 +42,7 @@ class ExtendedPasswordAuthStrategy extends DefaultPasswordAuthStrategy {
             // verificationField: 'isEmailVerified',
             // identityTypeField: 'type',
             // allowedIdentityTypes: ['staff', 'service', 'resident'],
-
-            softDeleteField: 'deletedAt',
+            // softDeleteField: 'deletedAt',
 
             ...this.config,
         }
