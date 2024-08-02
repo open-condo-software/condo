@@ -74,8 +74,8 @@ class UploadingFile {
 }
 
 const SIGNIN_BY_EMAIL_MUTATION = gql`
-    mutation signin($identity: String, $secret: String, $type: String) {
-        auth: authenticateUserWithPassword(email: $identity, password: $secret, type: $type) {
+    mutation signin($identity: String, $secret: String) {
+        auth: authenticateUserWithPassword(email: $identity, password: $secret) {
             user: item {
                 id
             }
@@ -444,7 +444,6 @@ const makeLoggedInClient = async (credentials, serverUrl) => {
         const { data, errors } = await client.mutate(SIGNIN_BY_EMAIL_MUTATION, {
             identity: credentials.email,
             secret: credentials.password,
-            ...(credentials.type ? { type: credentials.type } : {}),
         })
         if (errors && errors.length > 0) {
             throw new Error(errors[0].message)
