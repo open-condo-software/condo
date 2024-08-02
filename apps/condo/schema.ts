@@ -52659,7 +52659,6 @@ export type MutationSendB2CAppPushMessageArgs = {
 export type MutationAuthenticateUserWithPasswordArgs = {
   email?: Maybe<Scalars['String']>;
   password?: Maybe<Scalars['String']>;
-  type?: Maybe<Scalars['String']>;
 };
 
 

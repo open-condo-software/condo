@@ -89928,7 +89928,7 @@ type Mutation {
 
   """ Authenticate and generate a token for a User with the Password Authentication Strategy. 
   """
-  authenticateUserWithPassword(email: String, password: String, type: String): authenticateUserOutput
+  authenticateUserWithPassword(email: String, password: String): authenticateUserOutput
   unauthenticateUser: unauthenticateUserOutput
   updateAuthenticatedUser(data: UserUpdateInput): User
 }
