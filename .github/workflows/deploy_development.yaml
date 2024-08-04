@@ -4,11 +4,8 @@ concurrency: deploy_develop.yaml
 
 on:
   workflow_dispatch:
-    branches:
-      - '*'
   push:
     branches:
-      - 'master'
       - 'main'
 
 jobs:

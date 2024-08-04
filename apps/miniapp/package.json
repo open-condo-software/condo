@@ -106,5 +106,5 @@
     "typescript": "^4.1.5",
     "webpack": "^4.46.0"
   },
-  "repository": "https://github.com/open-condo-software/condo/tree/master/apps/miniapp"
+  "repository": "https://github.com/open-condo-software/condo/tree/main/apps/miniapp"
 }

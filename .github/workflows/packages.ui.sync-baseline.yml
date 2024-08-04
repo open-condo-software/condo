@@ -3,7 +3,6 @@ name: Chromatic sync baseline
 on:
   push:
     branches:
-      - master
       - main
     paths:
       - 'packages/ui/src/**'

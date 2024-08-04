@@ -9,5 +9,5 @@
   "exports": {
     "./*": "./*.js"
   },
-  "repository": "https://github.com/open-condo-software/condo/tree/master/packages/locales"
+  "repository": "https://github.com/open-condo-software/condo/tree/main/packages/locales"
 }
