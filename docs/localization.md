@@ -4,7 +4,7 @@
 
 ## File structure
 
-All files for localization are [stored in folders](https://github.com/open-condo-software/condo/tree/master/apps/condo/lang) distributed by locales `apps/condo/lang/[locale]/`
+All files for localization are [stored in folders](https://github.com/open-condo-software/condo/tree/main/apps/condo/lang) distributed by locales `apps/condo/lang/[locale]/`
 ```
 apps/condo/lang/
 ├─ [locale1]/
@@ -39,7 +39,7 @@ The name of template file is the name of transport. So, available file names are
 - `default.njk` will used in case there isn't any other template for chosen transport.
 
 Each template file receives two variables:
-1. `message` - the [Message](https://github.com/open-condo-software/condo/blob/master/apps/condo/domains/notification/schema/Message.js) model
+1. `message` - the [Message](https://github.com/open-condo-software/condo/blob/main/apps/condo/domains/notification/schema/Message.js) model
 2. `env` - the environment. For now contains an object with only one field `serverUrl`.
 
 Example of `default.njk`:

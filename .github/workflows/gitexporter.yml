@@ -4,7 +4,7 @@ on:
     - cron:  '10 */12 * * *'
   push:
     branches:
-      - 'master'
+      - 'main'
 
 jobs:
   gitexporter:
@@ -23,7 +23,7 @@ jobs:
           submodules: recursive
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
           path: ignore.gitexporter.source
-          ref: 'master'
+          ref: 'main'
       - name: Checkout target code
         uses: actions/checkout@v4
         with:
@@ -32,7 +32,7 @@ jobs:
           submodules: recursive
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
           path: ignore.gitexporter.target
-          ref: 'master'
+          ref: 'main'
       - name: gitexporter.sh
         run: |
           bash .github/workflows/gitexporter.sh ignore.gitexporter.source ignore.gitexporter.target
