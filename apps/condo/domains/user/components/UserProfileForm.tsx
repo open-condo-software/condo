@@ -17,12 +17,13 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import Prompt from '@condo/domains/common/components/Prompt'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
+import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
+import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import { EMAIL_ALREADY_REGISTERED_ERROR } from '@condo/domains/user/constants/errors'
 import { RESET_USER_MUTATION } from '@condo/domains/user/gql'
 import { User } from '@condo/domains/user/utils/clientSchema'
 
-import { UserAvatar } from './UserAvatar'
-import { getClientSideSenderInfo } from '../../common/utils/userid.utils'
+
 
 
 const INPUT_LAYOUT_PROPS = {
@@ -99,11 +100,10 @@ export const UserProfileForm = () => {
 
         const saveName = false
         const userId = {
-            id: user.id
+            id: user.id,
         }
 
         const data = { user: userId, saveName, ...profileExtraData }
-        console.log(`Where is data}`, data)
 
         return runMutation({
             mutation: resetUserMutation,
@@ -207,6 +207,7 @@ export const UserProfileForm = () => {
                                                     {CancelLabel}
                                                 </Button>,
                                                 <DeleteButtonWithConfirmModal
+                                                    key='deleteProfile'
                                                     buttonContent={DeleteUserLabel}
                                                     title={DeleteUserLabel}
                                                     message={ConfirmDeleteUserMessage}
