@@ -67,8 +67,8 @@ async function _getUserResidents (ctx, user) {
     const residents = await find('Resident', { user: { id: user.id }, deletedAt: null })
     const serviceConsumers = await find('ServiceConsumer', { deletedAt: null, resident: { id_in: residents.map(resident => resident.id) } })
 
-    newCacheEntry.residents = pick(residents, ['id', 'unitName', 'unitType', 'addressKey', 'organization', 'property'])
-    newCacheEntry.serviceConsumers = pick(serviceConsumers, ['id', 'organization', 'accountName'])
+    newCacheEntry.residents = residents.map(resident => pick(resident, ['id', 'unitName', 'unitType', 'addressKey', 'organization', 'property']))
+    newCacheEntry.serviceConsumers = serviceConsumers.map(serviceConsumer => pick(serviceConsumer, ['id', 'organization', 'accountName']))
 
     if (!DISABLE_USER_RESIDENT_CACHING) {
         set(ctx, ctxCachePath, newCacheEntry)
