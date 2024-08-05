@@ -30,14 +30,14 @@ const SUPPORTED_USER_TYPES = [RESIDENT, STAFF]
  * They will be rendered in documentation section in GraphiQL for this custom schema
  */
 const ERRORS = {
-    REQUIRED_USER_DATA_IS_MISSING: (missingFields = []) => ({
+    REQUIRED_USER_DATA_IS_MISSING: {
         mutation: 'authenticateOrRegisterUserWithConfirmToken',
-        variable: ['data', 'userData', missingFields[0]],
+        variable: ['data', 'userData'],
         code: BAD_USER_INPUT,
         type: 'REQUIRED_USER_DATA_IS_MISSING',
-        message: `Some required user data was missing: ${missingFields.join(', ')}`,
+        message: 'Some required user data was missing',
         messageForUser: 'api.user.authenticateOrRegisterUserWithConfirmToken.REQUIRED_USER_DATA_IS_MISSING',
-    }),
+    },
     NOT_SUPPORTED_USER_TYPE: {
         mutation: 'authenticateOrRegisterUserWithConfirmToken',
         variable: ['data', 'userType'],
@@ -139,7 +139,7 @@ const AuthenticateOrRegisterUserWithConfirmTokenService = new GQLCustomSchema('A
                     'If the user is not registered, then he will be created with the data that is passed in the payload (user data).\n\n' +
                     'If the existing user is missing some fields, then these fields will be taken from the payload (user data) and updated.\n\n' +
                     'This mutation is not available for service users!',
-                errors: Object.fromEntries(Object.entries(ERRORS).filter(([, error]) => typeof error === 'object')),
+                errors: ERRORS,
             },
             resolver: async (parent, args, context) => {
                 const { data } = args
@@ -193,7 +193,11 @@ const AuthenticateOrRegisterUserWithConfirmTokenService = new GQLCustomSchema('A
                 if (!user) {
                     const { missingRequiredFields, missingFields } = checkRequiredUserFields(REQUIRED_USER_FIELDS_BY_TYPE[userType], userPayload)
                     if (missingRequiredFields) {
-                        throw new GQLError(ERRORS.REQUIRED_USER_DATA_IS_MISSING(missingFields), context)
+                        throw new GQLError({
+                            ...ERRORS.REQUIRED_USER_DATA_IS_MISSING,
+                            variable: ['data', 'userData', missingFields[0]],
+                            message: `Some required user data was missing: ${missingFields.join(', ')}`,
+                        }, context)
                     }
 
                     user = await User.create(context, { ...userPayload, ...dvAndSender })
