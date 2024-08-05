@@ -67,15 +67,16 @@ async function _getUserResidents (ctx, user) {
     const newCacheEntry = { dv: 1, residents: [], serviceConsumers: [] }
     const residents = await find('Resident', { user: { id: user.id }, deletedAt: null })
     //ResidentAccess.getAll(ctx, { user: { id: user.id }, deletedAt: null })
-    const serviceConsumers = await ServiceConsumerAccess.getAll(ctx, { deletedAt: null, resident: { id_in: residents.map(resident => resident.id) } })
+    const serviceConsumers = await find('ServiceConsumer', { resident: { id_in: residents.map(resident => resident.id) }, deletedAt: null })
+    //ServiceConsumerAccess.getAll(ctx, { deletedAt: null, resident: { id_in: residents.map(resident => resident.id) } })
 
     // residents.forEach((resident) => {
     //     resident.organization = resident.organization.id
     //     resident.property = resident.property.id
     // })
-    serviceConsumers.forEach(serviceConsumer => {
-        serviceConsumer.organization = serviceConsumer.organization.id
-    })
+    // serviceConsumers.forEach(serviceConsumer => {
+    //     serviceConsumer.organization = serviceConsumer.organization.id
+    // })
 
     newCacheEntry.residents = residents
     newCacheEntry.serviceConsumers = serviceConsumers
