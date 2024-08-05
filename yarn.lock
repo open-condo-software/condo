@@ -754,7 +754,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@app/condo-restapi@workspace:apps/condo-restapi"
   dependencies:
+    "@condo/domains": "link:../condo/domains"
     "@faker-js/faker": ^8.3.1
+    "@open-condo/keystone": "workspace:^"
     apollo-boost: ^0.4.9
     apollo-client: ^2.6.10
     apollo-link-error: ^1.1.13
@@ -762,6 +764,7 @@ __metadata:
     body-parser: ^1.20.2
     cross-fetch: ^4.0.0
     cypress: ^13.6.3
+    dayjs: ^1.10.6
     dotenv: ^16.3.2
     express: ^4.18.2
     graphql: ^16.8.1
@@ -7056,6 +7059,12 @@ __metadata:
 "@condo/domains@link:../condo/domains::locator=%40app%2Fcallcenter%40workspace%3Aapps%2Fcallcenter":
   version: 0.0.0-use.local
   resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fcallcenter%40workspace%3Aapps%2Fcallcenter"
+  languageName: node
+  linkType: soft
+
+"@condo/domains@link:../condo/domains::locator=%40app%2Fcondo-restapi%40workspace%3Aapps%2Fcondo-restapi":
+  version: 0.0.0-use.local
+  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fcondo-restapi%40workspace%3Aapps%2Fcondo-restapi"
   languageName: node
   linkType: soft
 
