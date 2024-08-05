@@ -16,6 +16,8 @@ const {
     createValidRuRoutingNumber,
     createValidRuNumber,
 } = require('@condo/domains/banking/utils/testSchema/bankAccount')
+const { getCountrySpecificQRCodeParser } = require('@condo/domains/billing/utils/countrySpecificQRCodeParsers')
+const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 
@@ -24,7 +26,6 @@ const {
     getQRCodeMissedFields,
     getQRCodeField,
     getQRCodeFields,
-    parseRUReceiptQRCode,
     formatPeriodFromQRCode,
     compareQRCodeWithLastReceipt,
     findAuxiliaryData,
@@ -41,6 +42,7 @@ const {
 
 describe('receiptQRCodeUtils', () => {
 
+    const parseRUReceiptQRCode = getCountrySpecificQRCodeParser(RUSSIA_COUNTRY)
     let adminClient
 
     setFakeClientMode(index, { excludeApps: ['NextApp', 'AdminUIApp', 'OIDCMiddleware'] })

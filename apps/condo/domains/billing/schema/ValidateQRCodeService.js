@@ -17,8 +17,8 @@ const {
     MAX_CLIENT_VALIDATE_QR_CODE_BY_WINDOW,
 } = require('@condo/domains/billing/constants')
 const { SEVERAL_ORGANIZATIONS } = require('@condo/domains/billing/constants/errors')
+const { getCountrySpecificQRCodeParser } = require('@condo/domains/billing/utils/countrySpecificQRCodeParsers')
 const {
-    parseRUReceiptQRCode,
     getQRCodeMissedFields,
     compareQRCodeWithLastReceipt,
     isReceiptPaid,
@@ -28,6 +28,7 @@ const {
     getQRCodeField,
     getQRCodePaymPeriod,
 } = require('@condo/domains/billing/utils/receiptQRCodeUtils')
+const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { WRONG_FORMAT, NOT_FOUND, ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
@@ -147,8 +148,8 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
 
                 let qrCodeFields
                 try {
-                    // For now, we have only single implementation for parsing qr-codes, so there is no conditions needed (switch-case)
-                    qrCodeFields = parseRUReceiptQRCode(qrCode)
+                    // For now, we have only single implementation for parsing qr-codes, so place 'ru' directly
+                    qrCodeFields = getCountrySpecificQRCodeParser(RUSSIA_COUNTRY)(qrCode)
                 } catch (err) {
                     throw new GQLError(ERRORS.INVALID_QR_CODE_STRING, context)
                 }
