@@ -601,6 +601,19 @@ describe('AuthenticateOrRegisterUserWithConfirmTokenService', () => {
             }, ERRORS.TOKEN_NOT_FOUND, 'result')
         })
 
+        test('should throw error if phone token is deleted', async () => {
+            const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, {
+                isPhoneVerified: true, completedAt: new Date().toISOString(),
+            })
+            await ConfirmPhoneAction.softDelete(adminClient, confirmPhoneAction.id)
+            await expectToThrowGQLError(async () => {
+                await authenticateOrRegisterUserWithConfirmTokenByTestClient(anonymousClient, {
+                    confirmToken: confirmPhoneAction.token,
+                    userType: RESIDENT,
+                })
+            }, ERRORS.TOKEN_NOT_FOUND, 'result')
+        })
+
         test('should throw error if phone token is not confirmed', async () => {
             const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: false })
             await expectToThrowGQLError(async () => {
