@@ -12,6 +12,7 @@
     "./preprocessors": "./preprocessors/index.js",
     "./rateLimiting": "./rateLimiting/index.js",
     "./sentry": "./sentry/index.js",
+    "./fileAdapter/": "./fileAdapter/",
     "./*": "./*.js"
   },
   "dependencies": {

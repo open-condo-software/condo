@@ -4,9 +4,10 @@ const Upload = require('graphql-upload/Upload.js')
 const { get, isEmpty } = require('lodash')
 
 const { ConvertFileToTable, getObjectStream, readFileFromStream } = require('@open-condo/keystone/file')
+const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
-const { 
+const {
     DOMA_EXCEL,
     CSV,
     PROCESSING,
@@ -16,7 +17,6 @@ const {
     METER_READINGS_IMPORT_TASK_FOLDER_NAME,
 } = require('@condo/domains/common/constants/import')
 const { EXCEL_FILE_META } = require('@condo/domains/common/utils/createExportFile')
-const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { MeterReadingsImportTask } = require('@condo/domains/meter/utils/serverSchema')
 const { getImporter } = require('@condo/domains/meter/utils/taskSchema')
 

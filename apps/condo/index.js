@@ -9,6 +9,7 @@ const utc = require('dayjs/plugin/utc')
 const conf = require('@open-condo/config')
 const { FeaturesMiddleware } = require('@open-condo/featureflags/FeaturesMiddleware')
 const { AdapterCache } = require('@open-condo/keystone/adapterCache')
+const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const {
     HealthCheck,
     getRedisHealthCheck,
@@ -22,7 +23,6 @@ const { getWebhookModels } = require('@open-condo/webhooks/schema')
 const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
 
 const { PaymentLinkMiddleware } = require('@condo/domains/acquiring/PaymentLinkMiddleware')
-const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { VersioningMiddleware, getCurrentVersion } = require('@condo/domains/common/utils/VersioningMiddleware')
 const { UnsubscribeMiddleware } = require('@condo/domains/notification/UnsubscribeMiddleware')
 const { UserExternalIdentityMiddleware } = require('@condo/domains/user/integration/UserExternalIdentityMiddleware')

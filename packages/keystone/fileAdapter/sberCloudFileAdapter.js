@@ -8,7 +8,7 @@ const { get, isEmpty, isString, isNil } = require('lodash')
 const { SERVER_URL, SBERCLOUD_OBS_CONFIG } = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 
-const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
+const { UUID_REGEXP } = require('./constants')
 
 const logger = getLogger('sberCloudFileAdapter')
 const PUBLIC_URL_TTL = 60 * 60 * 24 * 30 // 1 MONTH IN SECONDS FOR ANY PUBLIC URL

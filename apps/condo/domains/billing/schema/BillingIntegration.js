@@ -4,6 +4,7 @@
 
 const { get } = require('lodash')
 
+const { getFileMetaAfterChange } = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
@@ -16,7 +17,6 @@ const {
 } = require('@condo/domains/billing/constants/errors')
 const { LINEAR_GRADIENT_REGEXP, HEX_CODE_REGEXP } = require('@condo/domains/common/constants/regexps')
 const { CURRENCY_CODE_FIELD } = require('@condo/domains/common/schema/fields')
-const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 const { PROMO_BLOCK_TEXT_VARIANTS, PROMO_BLOCK_DARK_TEXT_VARIANT } = require('@condo/domains/miniapp/constants')
 const {
     SHORT_DESCRIPTION_FIELD,

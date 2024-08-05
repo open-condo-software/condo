@@ -4,13 +4,13 @@
 
 const conf = require('@open-condo/config')
 const { canOnlyServerSideWithoutUserRequest } = require('@open-condo/keystone/access')
+const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
+const { getFileMetaAfterChange } = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 
 const { IMPORT_FORMAT_VALUES, IMPORT_STATUS_VALUES, PROCESSING, METER_READINGS_IMPORT_TASK_FOLDER_NAME } = require('@condo/domains/common/constants/import')
-const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
-const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 const access = require('@condo/domains/meter/access/MeterReadingsImportTask')
 const { importMeters } = require('@condo/domains/meter/tasks/index')
 
@@ -142,7 +142,7 @@ const MeterReadingsImportTask = new GQLListSchema('MeterReadingsImportTask', {
                 update: false,
             },
         },
-        
+
         locale: {
             schemaDoc: 'Requested import locale',
             type: 'Text',

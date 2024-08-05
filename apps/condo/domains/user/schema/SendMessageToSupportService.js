@@ -8,12 +8,12 @@ const { v4: uuid } = require('uuid')
 
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const { WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 const { LOCALES } = require('@condo/domains/common/constants/locale')
-const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { MESSAGE_FORWARDED_TO_SUPPORT_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')

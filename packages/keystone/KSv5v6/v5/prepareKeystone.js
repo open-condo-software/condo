@@ -17,6 +17,7 @@ const conf = require('@open-condo/config')
 const { formatError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { parseCorsSettings } = require('@open-condo/keystone/cors.utils')
 const { _internalGetExecutionContextAsyncLocalStorage } = require('@open-condo/keystone/executionContext')
+const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { IpBlackListMiddleware } = require('@open-condo/keystone/ipBlackList')
 const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSchema')
 const { getKeystonePinoOptions, GraphQLLoggerPlugin, getLogger } = require('@open-condo/keystone/logging')
@@ -29,11 +30,6 @@ const { ApolloSentryPlugin } = require('@open-condo/keystone/sentry')
 const { prepareDefaultKeystoneConfig } = require('@open-condo/keystone/setup.utils')
 const { registerTasks, registerTaskQueues, taskQueues } = require('@open-condo/keystone/tasks')
 const { KeystoneTracingApp } = require('@open-condo/keystone/tracing')
-
-// This is needed temporary, to detect memory leak. There is no need to move all adapters and tests (with models) here
-// eslint-disable-next-line no-restricted-modules
-const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
-
 
 const IS_BUILD_PHASE = conf.PHASE === 'build'
 const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
