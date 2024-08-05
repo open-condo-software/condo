@@ -86,12 +86,16 @@ const ERRORS = {
     },
 }
 
-const getUserPayload = (user, userData) => {
+const prepareCreateOrUpdateUserData = (user, userData, dvAndSender) => {
     const payload = {}
     for (const [key, value] of Object.entries(userData))  {
         if (!value) continue
         if (get(user, key)) continue
         payload[key] = value
+    }
+    if (Object.keys(payload).length > 0) {
+        payload.dv = get(dvAndSender, 'dv')
+        payload.sender = get(dvAndSender, 'sender')
     }
     return payload
 }
@@ -165,7 +169,7 @@ const AuthenticateOrRegisterUserWithConfirmTokenService = new GQLCustomSchema('A
                 if (!action) throw new GQLError(ERRORS.TOKEN_NOT_FOUND, context)
 
                 const dvAndSender = { dv, sender }
-                const userInfo = {
+                const normalizedUserData = {
                     ...userData,
                     type: userType,
                     name: String(get(userData, 'name', '')).trim() || null,
@@ -175,20 +179,20 @@ const AuthenticateOrRegisterUserWithConfirmTokenService = new GQLCustomSchema('A
                     isPhoneVerified: false,
                 }
 
-                if (!!userInfo.phone && userInfo.phone !== action.phone) throw new GQLError(ERRORS.DIFFERENT_PHONE_NUMBERS, context)
+                if (!!normalizedUserData.phone && normalizedUserData.phone !== action.phone) throw new GQLError(ERRORS.DIFFERENT_PHONE_NUMBERS, context)
                 if (!action.phone) throw new GQLError(ERRORS.INVALID_PHONE_NUMBER, context)
 
-                userInfo.phone = action.phone
-                userInfo.isPhoneVerified = action.isPhoneVerified
+                normalizedUserData.phone = action.phone
+                normalizedUserData.isPhoneVerified = action.isPhoneVerified
 
                 let user = await getByCondition('User', {
-                    type: userInfo.type,
-                    phone: userInfo.phone,
+                    type: normalizedUserData.type,
+                    phone: normalizedUserData.phone,
                 })
 
                 if (user && user.deletedAt) throw new GQLError(ERRORS.USER_NOT_FOUND, context)
 
-                const userPayload = getUserPayload(user, userInfo)
+                const userPayload = prepareCreateOrUpdateUserData(user, normalizedUserData, dvAndSender)
 
                 if (!user) {
                     const { missingRequiredFields, missingFields } = checkRequiredUserFields(REQUIRED_USER_FIELDS_BY_TYPE[userType], userPayload)
@@ -200,9 +204,9 @@ const AuthenticateOrRegisterUserWithConfirmTokenService = new GQLCustomSchema('A
                         }, context)
                     }
 
-                    user = await User.create(context, { ...userPayload, ...dvAndSender })
+                    user = await User.create(context, userPayload)
                 } else if (Object.keys(userPayload).length > 0) {
-                    user = await User.update(context, user.id, { ...userPayload, ...dvAndSender })
+                    user = await User.update(context, user.id, userPayload)
                 }
 
                 await ConfirmPhoneAction.update(context, action.id, { dv: 1, sender, completedAt: new Date().toISOString() })
