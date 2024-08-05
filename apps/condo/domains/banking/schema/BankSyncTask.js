@@ -7,6 +7,7 @@ const { values, get } = require('lodash')
 
 const { canOnlyServerSideWithoutUserRequest } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
@@ -21,7 +22,6 @@ const { BANK_SYNC_TASK_OPTIONS } = require('@condo/domains/banking/schema/fields
 const { importBankTransactionsFrom1CClientBankExchange } = require('@condo/domains/banking/tasks/importBankTransactionsFrom1CClientBankExchange')
 const { BankAccount, BankIntegrationOrganizationContext } = require('@condo/domains/banking/utils/serverSchema')
 const { getValidator } = require('@condo/domains/common/schema/json.utils')
-const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { syncSbbolTransactionsBankSyncTask } = require('@condo/domains/organization/tasks/syncSbbolTransactions')
 

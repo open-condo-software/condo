@@ -5,10 +5,9 @@ const express = require('express')
 const { isEmpty, get } = require('lodash')
 
 const conf = require('@open-condo/config')
+const { SberCloudFileAdapter, OBSFilesMiddleware } = require('@open-condo/keystone/fileAdapter/sberCloudFileAdapter')
 
-const { SberCloudFileAdapter, OBSFilesMiddleware } = require('./sberCloudFileAdapter')
-
-const { DEFAULT_FILE_ADAPTER } = require('../constants/uploads')
+const { DEFAULT_FILE_ADAPTER } = require('./constants')
 
 
 class NoFileAdapter {
