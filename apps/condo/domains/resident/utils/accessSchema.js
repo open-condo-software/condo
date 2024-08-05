@@ -9,6 +9,8 @@ const DEFAULT_CACHE_TTL_IN_MS = 60 * 60 * 1000 // 1 hour
 const CACHE_TTL_FROM_ENV = parseInt(conf['USER_RESIDENT_CACHING_TTL_IN_MS'])
 const CACHE_TTL_IN_MS = isNaN(CACHE_TTL_FROM_ENV) ? DEFAULT_CACHE_TTL_IN_MS : CACHE_TTL_FROM_ENV
 const DISABLE_USER_RESIDENT_CACHING = get(conf, 'DISABLE_USER_RESIDENT_CACHING', 'false').toLowerCase() === 'true'
+const RESIDENT_CACHE_FIELDS = ['id', 'unitName', 'unitType', 'addressKey', 'organization', 'property']
+const SERVICE_CONSUMER_CACHE_FIELDS = ['id', 'organization', 'accountNumber']
 
 const _getUserResidentCacheKey = (user) => `cache:residents:user:${user.id}`
 const resetUserResidentCache = async (userId) => await _redisClient.del(_getUserResidentCacheKey({ id: userId }))
@@ -67,8 +69,8 @@ async function _getUserResidents (ctx, user) {
     const residents = await find('Resident', { user: { id: user.id }, deletedAt: null })
     const serviceConsumers = await find('ServiceConsumer', { deletedAt: null, resident: { id_in: residents.map(resident => resident.id) } })
 
-    newCacheEntry.residents = residents.map(resident => pick(resident, ['id', 'unitName', 'unitType', 'addressKey', 'organization', 'property']))
-    newCacheEntry.serviceConsumers = serviceConsumers.map(serviceConsumer => pick(serviceConsumer, ['id', 'organization', 'accountName']))
+    newCacheEntry.residents = residents.map(resident => pick(resident, RESIDENT_CACHE_FIELDS))
+    newCacheEntry.serviceConsumers = serviceConsumers.map(serviceConsumer => pick(serviceConsumer, SERVICE_CONSUMER_CACHE_FIELDS))
 
     if (!DISABLE_USER_RESIDENT_CACHING) {
         set(ctx, ctxCachePath, newCacheEntry)
