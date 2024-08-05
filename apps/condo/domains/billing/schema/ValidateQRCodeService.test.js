@@ -192,7 +192,7 @@ describe('ValidateQRCodeService', () => {
             recipient,
         })
 
-        qrCodeString = stringifyQrCode(qrCodeObj)
+        const qrCodeString = stringifyQrCode(qrCodeObj)
         const [{ amount }] = await validateQRCodeByTestClient(adminClient, { qrCode: qrCodeString })
 
         expect(amount).toBe(Big(qrCodeObj.sUM).div(100).toString())
