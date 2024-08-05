@@ -147,6 +147,7 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
 
                 let qrCodeFields
                 try {
+                    // For now, we have only single implementation for parsing qr-codes, so there is no conditions needed (switch-case)
                     qrCodeFields = parseRUReceiptQRCode(qrCode)
                 } catch (err) {
                     throw new GQLError(ERRORS.INVALID_QR_CODE_STRING, context)
@@ -159,7 +160,7 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
                 }
 
                 const qrCodeAmount = String(Big(getQRCodeField(qrCodeFields, 'Sum')).div(100))
-                const { PersAcc, PersonalAcc } = getQRCodeFields(qrCodeFields, ['PersAcc', 'PersonalAcc'])
+                const { persAcc, personalAcc } = getQRCodeFields(qrCodeFields, ['persAcc', 'personalAcc'])
 
                 const auxiliaryData = await findAuxiliaryData(qrCodeFields, { address: ERRORS.ADDRESS_IS_INVALID })
 
@@ -176,13 +177,13 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
                 if (!billingContext) throw new GQLError(ERRORS.NO_BILLING_CONTEXT, context)
                 if (!acquiringContext) throw new GQLError(ERRORS.NO_ACQUIRING_CONTEXT, context)
 
-                const PaymPeriod = getQRCodePaymPeriod(qrCodeFields, billingContext)
+                const paymPeriod = getQRCodePaymPeriod(qrCodeFields, billingContext)
 
                 if (!qrCodeFields['PaymPeriod']) {
-                    qrCodeFields['PaymPeriod'] = PaymPeriod
+                    qrCodeFields['PaymPeriod'] = paymPeriod
                 }
 
-                const period = formatPeriodFromQRCode(PaymPeriod)
+                const period = formatPeriodFromQRCode(paymPeriod)
 
                 const acquiringContextRecipient = get(acquiringContext, 'recipient')
 
@@ -194,7 +195,7 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
                 let foundReceipt
                 let amount
                 const setDataFromReceipt = async (lastBillingReceipt) => {
-                    if (await isReceiptPaid(context, PersAcc, lastBillingReceipt.period, [organizationId], PersonalAcc)) {
+                    if (await isReceiptPaid(context, persAcc, lastBillingReceipt.period, [organizationId], personalAcc)) {
                         throw new GQLError(ERRORS.RECEIPT_ALREADY_PAID, context)
                     }
                     foundReceipt = lastBillingReceipt
@@ -204,7 +205,7 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
                 /** @type {TCompareQRResolvers} */
                 const resolvers = {
                     onNoReceipt: async () => {
-                        if (await isReceiptPaid(context, PersAcc, period, [organizationId], PersonalAcc)) {
+                        if (await isReceiptPaid(context, persAcc, period, [organizationId], personalAcc)) {
                             throw new GQLError(ERRORS.RECEIPT_ALREADY_PAID, context)
                         }
                         amount = qrCodeAmount
@@ -212,7 +213,7 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
                     onReceiptPeriodEqualsQrCodePeriod: setDataFromReceipt,
                     onReceiptPeriodNewerThanQrCodePeriod: setDataFromReceipt,
                     onReceiptPeriodOlderThanQrCodePeriod: async (lastBillingReceipt) => {
-                        if (await isReceiptPaid(context, PersAcc, period, [organizationId], PersonalAcc)) {
+                        if (await isReceiptPaid(context, persAcc, period, [organizationId], personalAcc)) {
                             throw new GQLError(ERRORS.RECEIPT_ALREADY_PAID, context)
                         }
                         foundReceipt = lastBillingReceipt
