@@ -1,4 +1,4 @@
-import { useMutation } from '@apollo/client'
+import { useMutation } from '@open-condo/next/apollo'
 import { jsx } from '@emotion/react/dist/emotion-react.cjs'
 import { Col, Form, Row, Space, Typography } from 'antd'
 import get from 'lodash/get'
@@ -98,12 +98,7 @@ export const UserProfileForm = () => {
             sender: getClientSideSenderInfo(),
         }
 
-        const saveName = false
-        const userId = {
-            id: user.id,
-        }
-
-        const data = { user: userId, saveName, ...profileExtraData }
+        const data = { user: { id: user.id }, saveName: true, ...profileExtraData }
 
         return runMutation({
             mutation: resetUserMutation,
@@ -116,7 +111,6 @@ export const UserProfileForm = () => {
                 console.error(e.friendlyDescription)
                 throw e
             },
-            OnCompletedMsg: null,
             intl,
         })
     }, [intl, user, signout])
@@ -207,7 +201,7 @@ export const UserProfileForm = () => {
                                                     {CancelLabel}
                                                 </Button>,
                                                 <DeleteButtonWithConfirmModal
-                                                    key='deleteProfile'
+                                                    key='deleteUser'
                                                     buttonContent={DeleteUserLabel}
                                                     title={DeleteUserLabel}
                                                     message={ConfirmDeleteUserMessage}
