@@ -193,7 +193,7 @@ describe('ChangePhoneNumberResidentUserService', () => {
         describe('Staff', () => {
             it('can not change phone with token', async () => {
                 const admin = await makeLoggedInAdminClient()
-                const client = await makeClientWithResidentUser()
+                const client = await makeClientWithStaffUser()
                 const [token] = await createTestConfirmPhoneAction(admin, {
                     phone: client.userAttrs.phone,
                     isPhoneVerified: true,
