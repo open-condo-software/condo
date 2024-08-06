@@ -349,7 +349,7 @@ export const CreateMeterReadingsForm = ({ organization, role, canManageMeterRead
         }
         if (!selectedPropertyId) setPropertyUnitInitialValues({})
 
-    }, [selectedPropertyId, meterCountForAddressLoading, meterCountForAddress, propertyUnitInitialValues])
+    }, [selectedPropertyId, meterCountForAddressLoading, meterCountForAddress])
 
     useEffect(() => {
         selectedUnitNameRef.current = selectedUnitName
