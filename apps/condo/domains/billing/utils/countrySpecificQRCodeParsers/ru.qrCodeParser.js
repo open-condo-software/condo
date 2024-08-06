@@ -2,7 +2,7 @@ const iconv = require('iconv-lite')
 const { get } = require('lodash')
 
 /**
- * @typedef {Object} TQRCodeFields
+ * @typedef {Object} TRUQRCodeFields
  * @property {string} BIC
  * @property {string} PayerAddress
  * @property {string} PaymPeriod
@@ -14,7 +14,7 @@ const { get } = require('lodash')
 
 /**
  * @param {string} qrStr The QR code string got from the picture
- * @return {TQRCodeFields}
+ * @return {TRUQRCodeFields}
  */
 function parseRUReceiptQRCode (qrStr) {
     const matches = /^ST(?<version>\d{4})(?<encodingTag>\d)\|(?<requisitesStr>.*)$/g.exec(qrStr)

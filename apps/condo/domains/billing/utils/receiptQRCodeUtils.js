@@ -18,7 +18,7 @@ const REQUIRED_QR_CODE_FIELDS = ['BIC', 'PayerAddress', 'Sum', 'PersAcc', 'Payee
 const DEFAULT_PERIODS_EDGE_DATE = 20
 
 /**
- * @param {TQRCodeFields} qrCode
+ * @param {TRUQRCodeFields} qrCode
  * @param {string} fieldName
  * @return {string}
  */
@@ -29,7 +29,7 @@ function getQRCodeField (qrCode, fieldName) {
 }
 
 /**
- * @param {TQRCodeFields} qrCode
+ * @param {TRUQRCodeFields} qrCode
  * @param {string[]} fieldsNames
  * @return {Object<string, string>}
  */
@@ -44,7 +44,7 @@ function getQRCodeFields (qrCode, fieldsNames) {
 }
 
 /**
- * @param {TQRCodeFields} qrCode
+ * @param {TRUQRCodeFields} qrCode
  * @return {string[]}
  */
 function getQRCodeMissedFields (qrCode) {
@@ -52,7 +52,7 @@ function getQRCodeMissedFields (qrCode) {
 }
 
 /**
- * @param {TQRCodeFields} qrCode
+ * @param {TRUQRCodeFields} qrCode
  * @param billingContext
  * @return {string}
  */
@@ -131,7 +131,7 @@ async function isReceiptPaid (context, accountNumber, period, organizationIds, r
  */
 
 /**
- * @param {TQRCodeFields} qrCodeFields
+ * @param {TRUQRCodeFields} qrCodeFields
  * @param {TCompareQRResolvers} resolvers
  * @return {Promise<void>}
  */
@@ -185,7 +185,7 @@ function formatPeriodFromQRCode (period) {
 
 /**
  * Returns contexts nested by organization id
- * @param {TQRCodeFields} qrCodeFields
+ * @param {TRUQRCodeFields} qrCodeFields
  * @param {{address: GQLError}} errors
  * @return {Promise<TQRAuxiliaryData>}
  */

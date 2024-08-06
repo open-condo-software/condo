@@ -118,10 +118,10 @@ describe('receiptQRCodeUtils', () => {
     })
 
     test('check for required fields except one', () => {
-        const parsed = parseRUReceiptQRCode('ST00012|field1=Hello|Field2=world|foo=bar baz|paymPeriod=01.2024')
+        const parsed = parseRUReceiptQRCode('ST00012|field1=Hello|Field2=world|foo=bar baz|persAcc=01.2024')
         const missedFields = getQRCodeMissedFields(parsed)
 
-        expect(missedFields).toEqual(['BIC', 'PayerAddress', 'Sum', 'PersAcc', 'PayeeINN', 'PersonalAcc'])
+        expect(missedFields).toEqual(['BIC', 'PayerAddress', 'Sum', 'PayeeINN', 'PersonalAcc'])
     })
 
     test('format period from QR-code', () => {
@@ -130,7 +130,7 @@ describe('receiptQRCodeUtils', () => {
 
     describe('resolvers', () => {
 
-        /** @type {TQRCodeFields} */
+        /** @type {TRUQRCodeFields} */
         let qrCodeObj
         let billingIntegrationContext, billingProperty, billingAccount, billingRecipient
 

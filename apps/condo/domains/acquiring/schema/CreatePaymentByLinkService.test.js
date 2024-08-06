@@ -415,6 +415,7 @@ describe('CreatePaymentByLinkService', () => {
             multiPayment: { id: multiPayment.id },
         })
 
+        expect(payments).toHaveLength(1)
         expect(payments[0].accountNumber).toBe(qrCodeAttrs.PersAcc)
         expect(payments[0].recipientBic).toBe(bankAccount.routingNumber)
         expect(payments[0].receipt).toBeNull()
