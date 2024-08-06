@@ -306,14 +306,11 @@ describe('notifyResidentsAboutNewsItem', () => {
 
             // The message should not be sent to the second user with a different address, but the same unitName and unitType 
             await waitFor(async () => {
-                const messages1 = await Message.getAll(adminClient, messageWhere1)
-                const messages2 = await Message.getAll(adminClient, messageWhere2)
+                const messages1 = await Message.getOne(adminClient, messageWhere1)
+                const messages2 = await Message.getOne(adminClient, messageWhere2)
 
                 expect(messages1).toBeDefined()
-                expect(messages1).toHaveLength(1)
-
-                expect(messages2).toBeDefined()
-                expect(messages2).toHaveLength(0)
+                expect(messages2).toBeUndefined()
             })
         })
 
