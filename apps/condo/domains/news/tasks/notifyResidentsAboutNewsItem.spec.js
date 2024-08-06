@@ -8,7 +8,12 @@ const truncate = require('lodash/truncate')
 
 const { waitFor, UUID_RE, makeLoggedInAdminClient, setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
-const { NEWS_SENDING_TTL_IN_SEC, MESSAGE_TITLE_MAX_LEN, MESSAGE_BODY_MAX_LEN } = require('@condo/domains/news/constants/common')
+const { 
+    NEWS_SENDING_TTL_IN_SEC, 
+    MESSAGE_TITLE_MAX_LEN, 
+    MESSAGE_BODY_MAX_LEN, 
+    THREE_DOT_FOR_TEST_REGEXP 
+} = require('@condo/domains/news/constants/common')
 const { notifyResidentsAboutNewsItem } = require('@condo/domains/news/tasks/notifyResidentsAboutNewsItem')
 const { updateTestNewsItem, createTestNewsItem, createTestNewsItemScope, publishTestNewsItem } = require('@condo/domains/news/utils/testSchema')
 const {
@@ -228,7 +233,9 @@ describe('notifyResidentsAboutNewsItem', () => {
                     }),
                     meta: expect.objectContaining({
                         title: truncate(newsItemTitle, { length: MESSAGE_TITLE_MAX_LEN, separator: ' ', omission: '...' }),
+                        title: expect.not.stringMatching(THREE_DOT_FOR_TEST_REGEXP),
                         body: truncate(newsItemBody, { length: MESSAGE_BODY_MAX_LEN, separator: ' ', omission: '...' }),
+                        body: expect.not.stringMatching(THREE_DOT_FOR_TEST_REGEXP),
                         data: expect.objectContaining({
                             newsItemId: newsItem1.id,
                             residentId: resident.id,
