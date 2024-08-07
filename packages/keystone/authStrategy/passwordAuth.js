@@ -1,19 +1,48 @@
 const { PasswordAuthStrategy: DefaultPasswordAuthStrategy } = require('@keystonejs/auth-password')
 
 /**
+ * @typedef AuthStrategyConfig
+ * @property {string} identityField
+ * @property {string} secretField
+ * @property {boolean} protectIdentities
+ * @property {findIdentityItems} findIdentityItems - Find identity items to authorize
+ */
+
+/**
+ * Find identity items to authorize
+ *
+ * You can override this behavior if you need additional checks
+ *
+ * @example Default use
+ * async (config, list, args) => {
+ *     const { identityField } = config
+ *     const identity = args[identityField]
+ *     return await list.adapter.find({ [identityField]: identity })
+ * }
+ *
+ * @async
+ * @function findIdentityItems
+ * @param {AuthStrategyConfig} config - auth strategy config
+ * @param list - list with identity items
+ * @param args - arguments passed in the request
+ * @return {Promise<any[]>}
+ */
+
+/**
+ *
+ * @param keystone
+ * @param {string} listKey
+ * @param {AuthStrategyConfig} config
+ * @param restProps
+ *
+ * @description
  * This is a custom authentication strategy specific to condo applications
  *
  * Based on PasswordAuthStrategy from "@keystonejs/auth-password"
  *
  * What are the differences with the main version?
  *
- * - Identity type check (disabled by default)
- * - Verification check (disabled by default)
- * - Reject deleted identity authorization (disabled by default)
- *
- * All custom features can be turned off, then there will be default authorization like in basic PasswordAuthStrategy
- *
- * These features are configurable via "config"
+ * - Custom function for finding of identity items
  *
  * @example config example
  * config = {
@@ -23,48 +52,27 @@ const { PasswordAuthStrategy: DefaultPasswordAuthStrategy } = require('@keystone
  *     protectIdentities: true,
  *
  *     // custom props
- *     identityTypeField: 'type',
- *     allowedIdentityTypes: ['staff', 'service', 'resident'],
- *
- *     verificationField: 'isEmailVerified',
- *
- *     softDeleteField: 'deletedAt',
+ *     findIdentityItems: async function (config, list, args) {
+ *         const { identityField } = config
+ *         const identity = args[identityField]
+ *         return await list.adapter.find({
+ *             [identityField]: identity,
+ *             deletedAt: null,
+ *         })
+ *     },
  * }
  */
 class ExtendedPasswordAuthStrategy extends DefaultPasswordAuthStrategy {
-    constructor (...props) {
-        super(...props)
-
-        this.config = {
-            // NOTE: We do not set default values for new fields as the implementation of our applications may differ.
-            // Each application is configured on its own
-            //
-            // verificationField: 'isEmailVerified',
-            // identityTypeField: 'type',
-            // allowedIdentityTypes: ['staff', 'service', 'resident'],
-            // softDeleteField: 'deletedAt',
-
-            ...this.config,
-        }
-    }
-
     async _getItem (list, args, secretFieldInstance) {
         // Match by identity
-        const {
-            identityField,
-            identityTypeField,
-            allowedIdentityTypes,
-            verificationField,
-            softDeleteField,
-        } = this.config
-
+        const { identityField, findIdentityItems } = this.config
         const identity = args[identityField]
-        const results = await list.adapter.find({
-            [identityField]: identity,
-            ...(identityTypeField && Array.isArray(allowedIdentityTypes) ? { [`${identityTypeField}_in`]: allowedIdentityTypes } : null),
-            ...(softDeleteField ? { [softDeleteField]: null } : null),
-            ...(verificationField ? { [verificationField]: true } : null),
-        })
+
+        const results = findIdentityItems
+            ? await findIdentityItems(this.config, list, args)
+            : await list.adapter.find({ [identityField]: identity })
+
+
 
         // > > > Next comes the original logic from @keystonejs/auth-password < < <
         //

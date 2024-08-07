@@ -112,7 +112,14 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
         list: 'User',
         config: {
             protectIdentities: false,
-            softDeleteField: 'deletedAt',
+            async findIdentityItems (config, list, args) {
+                const { identityField } = config
+                const identity = args[identityField]
+                return await list.adapter.find({
+                    [identityField]: identity,
+                    deletedAt: null,
+                })
+            },
             ...authStrategyConfig,
         },
         hooks: {

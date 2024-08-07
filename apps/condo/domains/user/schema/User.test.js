@@ -118,13 +118,13 @@ describe('SIGNIN', () => {
         expect(res.errors[0].message).toEqual(expect.stringContaining('[passwordAuth:identity:notFound]'))
     })
 
-    test('should throw error if try auth resident user', async () => {
+    test('should authorize resident user', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [, userAttrs] = await createTestUser(admin, { type: RESIDENT })
+        const [user, userAttrs] = await createTestUser(admin, { type: RESIDENT })
         const client = await makeClient()
         const res = await client.mutate(SIGNIN_MUTATION, { identity: userAttrs.email, secret: userAttrs.password })
-        expect(res.data.obj).toBeNull()
-        expect(res.errors[0].message).toEqual(expect.stringContaining('[passwordAuth:identity:notFound]'))
+        expect(res.errors).toEqual(undefined)
+        expect(res.data.obj.item.id).toBe(user.id)
     })
 
     test('should authorize staff user', async () => {
