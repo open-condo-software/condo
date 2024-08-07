@@ -12,7 +12,7 @@ const {
     NEWS_SENDING_TTL_IN_SEC, 
     MESSAGE_TITLE_MAX_LEN, 
     MESSAGE_BODY_MAX_LEN, 
-    THREE_DOT_FOR_TEST_REGEXP 
+    THREE_DOT_FOR_TEST_REGEXP,
 } = require('@condo/domains/news/constants/common')
 const { notifyResidentsAboutNewsItem } = require('@condo/domains/news/tasks/notifyResidentsAboutNewsItem')
 const { updateTestNewsItem, createTestNewsItem, createTestNewsItemScope, publishTestNewsItem } = require('@condo/domains/news/utils/testSchema')
