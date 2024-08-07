@@ -13,7 +13,17 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { createTestContact, Contact, updateTestContact } = require('@condo/domains/contact/utils/testSchema')
-const { registerMetersReadingsByTestClient } = require('@condo/domains/meter/utils/testSchema')
+const {
+    CALL_METER_READING_SOURCE_ID,
+    COLD_WATER_METER_RESOURCE_ID,
+} = require('@condo/domains/meter/constants/constants')
+const {
+    registerMetersReadingsByTestClient,
+    createTestMeterReading,
+    MeterReadingSource,
+    MeterResource,
+    createTestMeter,
+} = require('@condo/domains/meter/utils/testSchema')
 const {
     createTestB2BApp,
     createTestB2BAppContext,
@@ -1160,34 +1170,78 @@ describe('B2BApp permissions for service user', () => {
         await TicketCommentFile.softDelete(serviceUser, ticketCommentFileByServiceUser.id)
     })
 
-    test('RegisterMetersReadings', async () => {
-        const [organization] = await registerNewOrganization(user)
+    describe('Meters domain', () => {
+        test('RegisterMetersReadings', async () => {
+            const [organization] = await registerNewOrganization(user)
 
-        const [newServiceUser] = await registerNewServiceUserByTestClient(support)
-        const serviceUser = await makeLoggedInClient({ email: newServiceUser.email, password: newServiceUser.password })
+            const [newServiceUser] = await registerNewServiceUserByTestClient(support)
+            const serviceUser = await makeLoggedInClient({
+                email: newServiceUser.email,
+                password: newServiceUser.password,
+            })
 
-        const [app] = await createTestB2BApp(support)
-        await createTestB2BAppContext(support, app, organization, { status: 'Finished' })
-        const [right] = await createTestB2BAppAccessRight(support, serviceUser.user, app)
+            const [app] = await createTestB2BApp(support)
+            await createTestB2BAppContext(support, app, organization, { status: 'Finished' })
+            const [right] = await createTestB2BAppAccessRight(support, serviceUser.user, app)
 
-        // B2BApp without permissions
-        await expectToThrowAccessDeniedErrorToResult(
-            async () => await registerMetersReadingsByTestClient(serviceUser, organization, [])
-        )
+            // B2BApp without permissions
+            await expectToThrowAccessDeniedErrorToResult(
+                async () => await registerMetersReadingsByTestClient(serviceUser, organization, [])
+            )
 
-        // add permissions for B2BApp
-        const [accessRightSet] = await createTestB2BAppAccessRightSet(support, app, {
-            canExecuteRegisterMetersReadings: true,
-            canReadMeters: true,
-            canReadMeterReadings: true,
-            canReadOrganizations: true,
-            canReadProperties: true,
+            // add permissions for B2BApp
+            const [accessRightSet] = await createTestB2BAppAccessRightSet(support, app, {
+                canExecuteRegisterMetersReadings: true,
+                canReadMeters: true,
+                canReadMeterReadings: true,
+                canReadOrganizations: true,
+                canReadProperties: true,
+            })
+            await updateTestB2BAppAccessRight(support, right.id, { accessRightSet: { connect: { id: accessRightSet.id } } })
+
+            // B2BApp with permissions
+            const [result] = await registerMetersReadingsByTestClient(serviceUser, organization, [])
+
+            expect(result).toHaveLength(0)
         })
-        await updateTestB2BAppAccessRight(support, right.id, { accessRightSet: { connect: { id: accessRightSet.id } } })
 
-        // B2BApp with permissions
-        const [result] = await registerMetersReadingsByTestClient(serviceUser, organization, [])
+        test('create MeterReading model', async () => {
+            const [organization] = await registerNewOrganization(user)
+            const [property] = await createTestProperty(user, organization)
+            const [source] = await MeterReadingSource.getAll(user, { id: CALL_METER_READING_SOURCE_ID })
+            const [resource] = await MeterResource.getAll(user, { id: COLD_WATER_METER_RESOURCE_ID })
+            const [meter] = await createTestMeter(user, organization, property, resource, {})
 
-        expect(result).toHaveLength(0)
+            const [newServiceUser] = await registerNewServiceUserByTestClient(support)
+            const serviceUser = await makeLoggedInClient({
+                email: newServiceUser.email,
+                password: newServiceUser.password,
+            })
+
+            const [app] = await createTestB2BApp(support)
+            await createTestB2BAppContext(support, app, organization, { status: 'Finished' })
+            const [right] = await createTestB2BAppAccessRight(support, serviceUser.user, app)
+
+            // B2BApp without permissions
+            await expectToThrowAccessDeniedErrorToObj(
+                async () => await createTestMeterReading(serviceUser, meter, source)
+            )
+
+            // add permissions for B2BApp
+            const [accessRightSet] = await createTestB2BAppAccessRightSet(support, app, {
+                canReadMeters: true,
+                canReadMeterReadings: true,
+                canManageMeters: true,
+                canManageMeterReadings: true,
+                canReadOrganizations: true,
+                canReadProperties: true,
+            })
+            await updateTestB2BAppAccessRight(support, right.id, { accessRightSet: { connect: { id: accessRightSet.id } } })
+
+            // B2BApp with permissions
+            const [result] = await createTestMeterReading(serviceUser, meter, source)
+
+            expect(result.id).toMatch(UUID_RE)
+        })
     })
 })
