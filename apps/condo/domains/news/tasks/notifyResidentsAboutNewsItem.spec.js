@@ -220,7 +220,7 @@ describe('notifyResidentsAboutNewsItem', () => {
                 expect(message1).toBeDefined()
                 expect(message1.id).toMatch(UUID_RE)
 
-                // Check that push notifications do not contain dots instead of title and body
+                // Check content for notifications
                 expect(message1).toEqual(expect.objectContaining({
                     meta: expect.objectContaining({
                         title: expect.not.stringMatching(THREE_DOT_FOR_TEST_REGEXP),
