@@ -1,8 +1,10 @@
 import { Tabs } from 'antd'
-import Router from 'next/router'
+import Router, { useRouter } from 'next/router'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+
+import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 
 import { RemoveTabsLineWrapper } from '@condo/domains/user/components/containers/styles'
 
@@ -16,6 +18,12 @@ export const TabsAuthAction: React.FC<ITabsActionsProps> = (props) => {
     const registerTab = intl.formatMessage({ id: 'pages.auth.RegistrationTitle' })
     const signInTab = intl.formatMessage({ id: 'pages.auth.SignInTitle' })
 
+    const router = useRouter()
+    const { query: { next }  } = router
+    const isValidNextUrl = next && !Array.isArray(next) && isSafeUrl(next)
+
+    console.log(next)
+
     return (
         <RemoveTabsLineWrapper>
             <Tabs
@@ -24,8 +32,8 @@ export const TabsAuthAction: React.FC<ITabsActionsProps> = (props) => {
                 centered
                 animated={false}
             >
-                <Tabs.TabPane key='/auth/register?step=inputPhone' tab={registerTab}/>
-                <Tabs.TabPane key='/auth/signin' tab={signInTab}/>
+                <Tabs.TabPane key={isValidNextUrl ? `/auth/register?step=inputPhone&next=${next}` : '/auth/register?step=inputPhone'} tab={registerTab}/>
+                <Tabs.TabPane key={isValidNextUrl ? `/auth/signin?next=${next}` : '/auth/signin'} tab={signInTab}/>
             </Tabs>
         </RemoveTabsLineWrapper>
     )

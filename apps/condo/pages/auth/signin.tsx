@@ -1,8 +1,11 @@
 import { Col, Row } from 'antd'
 import Head from 'next/head'
 import React from 'react'
+import { useRouter } from 'next/router'
 
 import { useIntl } from '@open-condo/next/intl'
+
+import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 
 import { TabsAuthAction } from '@condo/domains/common/components/HeaderActions'
 import { SignInForm } from '@condo/domains/user/components/auth/SignInForm'
@@ -13,12 +16,16 @@ const SignInPage: AuthPage = () => {
     const intl = useIntl()
     const SignInTitleMsg = intl.formatMessage({ id: 'pages.auth.SignInTitle' })
 
+    const router = useRouter()
+    const { query: { next }  } = router
+    const isValidNextUrl = next && !Array.isArray(next) && isSafeUrl(next)
+
     return (
         <>
             <Head><title>{SignInTitleMsg}</title></Head>
             <Row justify='center'>
                 <Col span={16}>
-                    <TabsAuthAction currentActiveKey='/auth/signin'/>
+                    <TabsAuthAction currentActiveKey={isValidNextUrl ? `/auth/signin?next=${next}` : '/auth/signin'}/>
                 </Col>
                 <Col span={24}>
                     <SignInForm/>
