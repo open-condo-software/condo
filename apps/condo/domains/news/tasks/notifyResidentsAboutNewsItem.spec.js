@@ -220,6 +220,14 @@ describe('notifyResidentsAboutNewsItem', () => {
                 expect(message1).toBeDefined()
                 expect(message1.id).toMatch(UUID_RE)
 
+                // Check that push notifications do not contain dots instead of title and body
+                expect(message1).toEqual(expect.objectContaining({
+                    meta: expect.objectContaining({
+                        title: expect.not.stringMatching(THREE_DOT_FOR_TEST_REGEXP),
+                        body: expect.not.stringMatching(THREE_DOT_FOR_TEST_REGEXP),
+                    }),
+                }))
+
                 expect(message1).toEqual(expect.objectContaining({
                     status: MESSAGE_SENT_STATUS,
                     processingMeta: expect.objectContaining({
@@ -233,9 +241,7 @@ describe('notifyResidentsAboutNewsItem', () => {
                     }),
                     meta: expect.objectContaining({
                         title: truncate(newsItemTitle, { length: MESSAGE_TITLE_MAX_LEN, separator: ' ', omission: '...' }),
-                        title: expect.not.stringMatching(THREE_DOT_FOR_TEST_REGEXP),
                         body: truncate(newsItemBody, { length: MESSAGE_BODY_MAX_LEN, separator: ' ', omission: '...' }),
-                        body: expect.not.stringMatching(THREE_DOT_FOR_TEST_REGEXP),
                         data: expect.objectContaining({
                             newsItemId: newsItem1.id,
                             residentId: resident.id,
