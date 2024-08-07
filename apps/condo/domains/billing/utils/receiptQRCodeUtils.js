@@ -1,3 +1,4 @@
+const dayjs = require('dayjs')
 const { get, isNil, map, set } = require('lodash')
 
 const { createInstance } = require('@open-condo/clients/address-service-client')
@@ -7,48 +8,68 @@ const { CONTEXT_FINISHED_STATUS: ACQUIRING_CONTEXT_FINISHED_STATUS } = require('
 const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 
-const REQUIRED_QR_CODE_FIELDS = ['BIC', 'PayerAddress', 'PaymPeriod', 'Sum', 'PersAcc', 'PayeeINN', 'PersonalAcc']
+const REQUIRED_QR_CODE_FIELDS = ['BIC', 'PayerAddress', 'Sum', 'PersAcc', 'PayeeINN', 'PersonalAcc']
 
 /**
- * @typedef {Object} TQRCodeFields
- * @property {string} BIC
- * @property {string} PayerAddress
- * @property {string} PaymPeriod
- * @property {string} Sum
- * @property {string} PersAcc The resident's account
- * @property {string} PayeeINN
- * @property {string} PersonalAcc The bank account of the receiver
+ * Default day of month for detection of period. Before this date we use previous month, after - the next one
+ * This value is used as fallback for billingContext.settings.receiptUploadDate
+ * @type {number}
  */
+const DEFAULT_PERIODS_EDGE_DATE = 20
 
 /**
- * @param {string} qrStr The QR code string got from the picture
- * @return {TQRCodeFields}
+ * @param {TRUQRCodeFields} qrCode
+ * @param {string} fieldName
+ * @return {string}
  */
-function parseReceiptQRCode (qrStr) {
-    const matches = /^ST(?<version>\d{4})(?<encodingTag>\d)\|(?<requisitesStr>.*)$/g.exec(qrStr)
-
-    if (!matches) {
-        throw new Error('Invalid QR code')
-    }
-
-    const requisitesStr = get(matches, ['groups', 'requisitesStr'], '')
-
-    // TODO(AleX83Xpert): maybe decode requisitesStr
-    // Need to test the result of scanning from mobile devices
-    // https://encoding.spec.whatwg.org/#koi8-r
-    // https://encoding.spec.whatwg.org/#windows-1251
-    // const encodingTag = get(matches, ['groups', 'encodingTag'])
-    // const encoding = get(['windows-1251', 'utf-8', 'koi8-r'], encodingTag, 'utf-8')
-
-    return Object.fromEntries(requisitesStr.split('|').map((part) => part.split('=', 2)))
+function getQRCodeField (qrCode, fieldName) {
+    const entries = Object.entries(qrCode)
+    const ientries = entries.map(([fieldName, value]) => [fieldName.toLowerCase(), value])
+    return get(Object.fromEntries(ientries), fieldName.toLowerCase())
 }
 
 /**
- * @param {TQRCodeFields} qrCode
+ * @param {TRUQRCodeFields} qrCode
+ * @param {string[]} fieldsNames
+ * @return {Object<string, string>}
+ */
+function getQRCodeFields (qrCode, fieldsNames) {
+    const result = {}
+
+    for (const fieldName of fieldsNames) {
+        set(result, fieldName, getQRCodeField(qrCode, fieldName))
+    }
+
+    return result
+}
+
+/**
+ * @param {TRUQRCodeFields} qrCode
  * @return {string[]}
  */
 function getQRCodeMissedFields (qrCode) {
-    return REQUIRED_QR_CODE_FIELDS.filter((requiredField) => !get(qrCode, requiredField, null))
+    return REQUIRED_QR_CODE_FIELDS.filter((requiredField) => !getQRCodeField(qrCode, requiredField))
+}
+
+/**
+ * @param {TRUQRCodeFields} qrCode
+ * @param billingContext
+ * @return {string}
+ */
+function getQRCodePaymPeriod (qrCode, billingContext) {
+    let ret = getQRCodeField(qrCode, 'PaymPeriod')
+
+    if (!ret) {
+        const periodsEdgeDay = Number(get(billingContext, ['settings', 'receiptUploadDate'])) || DEFAULT_PERIODS_EDGE_DATE
+        const currentDay = dayjs().date()
+        if (currentDay < periodsEdgeDay) {
+            ret = dayjs().subtract(1, 'month').format('MM.YYYY')
+        } else {
+            ret = dayjs().format('MM.YYYY')
+        }
+    }
+
+    return ret
 }
 
 /**
@@ -110,16 +131,16 @@ async function isReceiptPaid (context, accountNumber, period, organizationIds, r
  */
 
 /**
- * @param {TQRCodeFields} qrCodeFields
+ * @param {TRUQRCodeFields} qrCodeFields
  * @param {TCompareQRResolvers} resolvers
  * @return {Promise<void>}
  */
 async function compareQRCodeWithLastReceipt (qrCodeFields, resolvers) {
-    const period = formatPeriodFromQRCode(qrCodeFields.PaymPeriod)
+    const period = formatPeriodFromQRCode(getQRCodeField(qrCodeFields, 'PaymPeriod'))
 
     const [lastBillingReceipt] = await find('BillingReceipt', {
-        account: { number: qrCodeFields.PersAcc, deletedAt: null },
-        receiver: { bankAccount: qrCodeFields.PersonalAcc, deletedAt: null },
+        account: { number: getQRCodeField(qrCodeFields, 'PersAcc'), deletedAt: null },
+        receiver: { bankAccount: getQRCodeField(qrCodeFields, 'PersonalAcc'), deletedAt: null },
         deletedAt: null,
     }, {
         sortBy: ['period_DESC'],
@@ -164,18 +185,18 @@ function formatPeriodFromQRCode (period) {
 
 /**
  * Returns contexts nested by organization id
- * @param {TQRCodeFields} qrCodeFields
+ * @param {TRUQRCodeFields} qrCodeFields
  * @param {{address: GQLError}} errors
  * @return {Promise<TQRAuxiliaryData>}
  */
 async function findAuxiliaryData (qrCodeFields, errors) {
     const addressServiceClient = createInstance()
-    const normalizedAddress = await addressServiceClient.search(qrCodeFields.PayerAddress, { extractUnit: true })
+    const normalizedAddress = await addressServiceClient.search(getQRCodeField(qrCodeFields, 'PayerAddress'), { extractUnit: true })
 
     if (!normalizedAddress.addressKey || !normalizedAddress.unitType || !normalizedAddress.unitName) throw errors.address
 
     const properties = await find('Property', {
-        organization: { tin: qrCodeFields.PayeeINN, deletedAt: null },
+        organization: { tin: getQRCodeField(qrCodeFields, 'PayeeINN'), deletedAt: null },
         addressKey: normalizedAddress.addressKey,
         deletedAt: null,
     })
@@ -209,8 +230,11 @@ async function findAuxiliaryData (qrCodeFields, errors) {
 }
 
 module.exports = {
-    parseReceiptQRCode,
+    DEFAULT_PERIODS_EDGE_DATE,
+    getQRCodeField,
+    getQRCodeFields,
     getQRCodeMissedFields,
+    getQRCodePaymPeriod,
     isReceiptPaid,
     compareQRCodeWithLastReceipt,
     formatPeriodFromQRCode,
