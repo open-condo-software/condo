@@ -21,22 +21,29 @@ async function canReadMobileFeatureConfigs ({ authentication: { item: user }, co
     if (user.isAdmin || user.isSupport) return {}
 
     if (user.type === RESIDENT) {
+        // NOTE: We're currently not sure, how to read organizations (like config / Organization) for service providers
+        // We have 2 have of doing it:
+        // 1. Match by addressKey of resident and addressKey of some org Property
+        // 2. Match by ServiceConsumer.Organization
+        // Currently temporary decided to go with option, since it fit well in Meter / Billing domains,
+        // but we might switch to first one after thinking about news / ticket domain.
+        // (or improve consumers logic to cover these domains as well)
+        // TODO(pahaz): Figure out from stakeholders the correct approach
         const residents = await find('Resident', { user: { id: user.id }, deletedAt: null })
-        const residentAddressKeys = residents.map(resident => resident.addressKey).filter(Boolean)
-        const uniqueResidentAddressKeys = uniq(residentAddressKeys)
-
-        const properties = await find('Property', {
-            addressKey_in: uniqueResidentAddressKeys,
-            organization: { deletedAt: null },
+        const consumers = await find('ServiceConsumer', {
+            resident: { id_in: residents.map(resident => resident.id) },
             deletedAt: null,
         })
 
-        const organizationIds = properties.map(property => property.organization).filter(Boolean)
-        const uniqOrganizationIds = uniq(organizationIds)
+        // NOTE: used to keep non-consumer domains alive (like tickets)
+        const managingCompanies = residents.map(resident => resident.organization).filter(Boolean)
+        const consumerCompanies = consumers.map(consumer => consumer.organization).filter(Boolean)
+
+        const organizationIds = uniq([...managingCompanies, ...consumerCompanies])
 
         return {
             organization: {
-                id_in: uniqOrganizationIds,
+                id_in: organizationIds,
                 deletedAt: null,
             },
             deletedAt: null,
