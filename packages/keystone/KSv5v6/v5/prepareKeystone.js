@@ -242,44 +242,41 @@ process.on('unhandledRejection', (err, promise) => {
         throw err
     }
 })
+if (!process.env['DISABLE_HEAP_SNAPSHOT']) {
+    process.on('SIGPIPE', async () => {
+        try {
+            const labelCreateSnapshot = 'Heap snapshot created in'
 
-process.on('SIGPIPE', async () => {
-    if (process.env['DISABLE_HEAP_SNAPSHOT']) {
-        console.log('Dumping of heap snapshots disabled')
-        return
-    }
+            console.log('Start dumping heap snapshot')
+            console.time(labelCreateSnapshot)
+            const fileName = v8.writeHeapSnapshot()
+            console.timeEnd(labelCreateSnapshot)
+            console.log(`Created snapshot file: ${fileName}`)
 
-    try {
-        const labelCreateSnapshot = 'Heap snapshot created in'
+            const labelUploadSnapshot = 'Snapshot uploaded in'
 
-        console.log('Start dumping heap snapshot')
-        console.time(labelCreateSnapshot)
-        const fileName = v8.writeHeapSnapshot()
-        console.timeEnd(labelCreateSnapshot)
-        console.log(`Created snapshot file: ${fileName}`)
+            console.log('Start snapshot uploading')
+            console.time(labelUploadSnapshot)
+            const ExportFileAdapter = new FileAdapter('heapSnapshots')
+            const stream = fs.createReadStream(path.resolve(fileName))
+            const fileInfo = await ExportFileAdapter.save({
+                stream,
+                filename: fileName,
+                id: `snapshot-${fileName}`,
+            })
+            console.timeEnd(labelUploadSnapshot)
 
-        const labelUploadSnapshot = 'Snapshot uploaded in'
+            const { filename } = fileInfo
+            const url = ExportFileAdapter.publicUrl({ filename })
 
-        console.log('Start snapshot uploading')
-        console.time(labelUploadSnapshot)
-        const ExportFileAdapter = new FileAdapter('heapSnapshots')
-        const stream = fs.createReadStream(path.resolve(fileName))
-        const fileInfo = await ExportFileAdapter.save({
-            stream,
-            filename: fileName,
-            id: `snapshot-${fileName}`,
-        })
-        console.timeEnd(labelUploadSnapshot)
+            console.log(`Snapshot file info: ${JSON.stringify(fileInfo)}`)
+            console.log(`Snapshot file URL: ${url}`)
+        } catch (err) {
+            console.error(err)
+        }
+    })
+}
 
-        const { filename } = fileInfo
-        const url = ExportFileAdapter.publicUrl({ filename })
-
-        console.log(`Snapshot file info: ${JSON.stringify(fileInfo)}`)
-        console.log(`Snapshot file URL: ${url}`)
-    } catch (err) {
-        console.error(err)
-    }
-})
 
 module.exports = {
     prepareKeystone,
