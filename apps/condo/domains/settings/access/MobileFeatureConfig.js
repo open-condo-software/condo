@@ -21,7 +21,8 @@ async function canReadMobileFeatureConfigs ({ authentication: { item: user }, co
     if (user.isAdmin || user.isSupport) return {}
 
     if (user.type === RESIDENT) {
-        // NOTE: We're currently not sure, how to read organizations (like config / Organization) for service providers
+        // NOTE: We're currently not sure, how to read organization-related models
+        // (like MobileFeatureConfig / Organization / MeterReportingPeriod and etc) for service providers
         // We have 2 have of doing it:
         // 1. Match by addressKey of resident and addressKey of some org Property
         // 2. Match by ServiceConsumer.Organization
