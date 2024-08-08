@@ -1896,6 +1896,28 @@ export type AppColorSchemaFieldInput = {
   secondary: Scalars['String'];
 };
 
+export type AuthenticateOrRegisterUserWithConfirmTokenInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  confirmToken: Scalars['ID'];
+  userType: UserTypeType;
+  userData?: Maybe<AuthenticateOrRegisterUserWithConfirmTokenUserDataInput>;
+};
+
+export type AuthenticateOrRegisterUserWithConfirmTokenOutput = {
+  __typename?: 'AuthenticateOrRegisterUserWithConfirmTokenOutput';
+  item?: Maybe<User>;
+  token: Scalars['ID'];
+};
+
+export type AuthenticateOrRegisterUserWithConfirmTokenUserDataInput = {
+  phone?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  email?: Maybe<Scalars['String']>;
+  password?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+};
+
 export type AuthenticateUserWithPhoneAndPasswordInput = {
   phone: Scalars['String'];
   password: Scalars['String'];
@@ -41919,6 +41941,102 @@ export type Mutation = {
    */
   resetUser?: Maybe<ResetUserOutput>;
   /**
+   * This mutation authorizes the user by token, after confirming the phone number.
+   *
+   * If the user is not registered, then he will be created with the data that is passed in the payload (user data).
+   *
+   * If the existing user is missing some fields, then these fields will be taken from the payload (user data) and updated.
+   *
+   * This mutation is not available for service users!
+   *
+   *
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "mutation": "authenticateOrRegisterUserWithConfirmToken",
+   *   "variable": [
+   *     "data",
+   *     "userType"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "NOT_SUPPORTED_USER_TYPE",
+   *   "message": "Only the following user types are supported: resident, staff"
+   * }`
+   *
+   * `{
+   *   "mutation": "authenticateOrRegisterUserWithConfirmToken",
+   *   "variable": [
+   *     "data",
+   *     "userData",
+   *     "phone"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "DIFFERENT_PHONE_NUMBERS",
+   *   "message": "The verified phone number and the phone number from the payload cannot be different"
+   * }`
+   *
+   * `{
+   *   "mutation": "authenticateOrRegisterUserWithConfirmToken",
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "INVALID_PHONE_NUMBER",
+   *   "message": "Invalid phone number",
+   *   "messageForUser": "api.user.authenticateOrRegisterUserWithConfirmToken.INVALID_PHONE_NUMBER"
+   * }`
+   *
+   * `{
+   *   "mutation": "authenticateOrRegisterUserWithConfirmToken",
+   *   "code": "NOT_FOUND",
+   *   "type": "USER_NOT_FOUND",
+   *   "message": "User not found",
+   *   "messageForUser": "api.user.authenticateOrRegisterUserWithConfirmToken.USER_NOT_FOUND"
+   * }`
+   *
+   * `{
+   *   "mutation": "authenticateOrRegisterUserWithConfirmToken",
+   *   "variable": [
+   *     "data",
+   *     "token"
+   *   ],
+   *   "code": "NOT_FOUND",
+   *   "type": "TOKEN_NOT_FOUND",
+   *   "message": "Token not found"
+   * }`
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "dv"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "DV_VERSION_MISMATCH",
+   *   "message": "Wrong value for data version number",
+   *   "mutation": "authenticateOrRegisterUserWithConfirmToken"
+   * }`
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "sender"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_FORMAT",
+   *   "message": "Invalid format of \"sender\" field value",
+   *   "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}",
+   *   "mutation": "authenticateOrRegisterUserWithConfirmToken"
+   * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "DAILY_REQUEST_LIMIT_FOR_IP_REACHED",
+   *   "message": "Too many requests from this ip address. Try again later",
+   *   "messageForUser": "api.user.DAILY_REQUEST_LIMIT_FOR_IP_REACHED"
+   * }`
+   */
+  authenticateOrRegisterUserWithConfirmToken?: Maybe<AuthenticateOrRegisterUserWithConfirmTokenOutput>;
+  /**
    * Registers new Organization for current user
    *
    * Creates new Organization, new OrganizationEmployee for current user, creates a set of default OrganizationEmployeeRole for organization and connects created OrganizationEmployee to "Admin" OrganizationEmployeeRole, creates trial ServiceSubscription for organization
@@ -52456,6 +52574,11 @@ export type MutationSendMessageToSupportArgs = {
 
 export type MutationResetUserArgs = {
   data: ResetUserInput;
+};
+
+
+export type MutationAuthenticateOrRegisterUserWithConfirmTokenArgs = {
+  data: AuthenticateOrRegisterUserWithConfirmTokenInput;
 };
 
 
@@ -65938,6 +66061,20 @@ export type Query = {
    *   "message": "Invalid format of \"sender\" field value",
    *   "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}",
    *   "query": "checkUserExistence"
+   * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "DAILY_REQUEST_LIMIT_FOR_IP_REACHED",
+   *   "message": "Too many requests from this ip address. Try again later",
+   *   "messageForUser": "api.user.DAILY_REQUEST_LIMIT_FOR_IP_REACHED"
+   * }`
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED",
+   *   "message": "Too many requests with this phone. Try again later",
+   *   "messageForUser": "api.user.DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED"
    * }`
    */
   checkUserExistence?: Maybe<CheckUserExistenceOutput>;

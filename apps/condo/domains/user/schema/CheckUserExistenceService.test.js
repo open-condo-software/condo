@@ -12,7 +12,6 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { RESIDENT, USER_TYPES } = require('@condo/domains/user/constants/common')
-const { GQL_ERRORS: USER_ERRORS } = require('@condo/domains/user/constants/errors')
 const {
     createTestConfirmPhoneAction,
     createTestUser,
@@ -278,7 +277,7 @@ describe('CheckUserExistenceService', () => {
                     confirmActionToken: confirmPhoneAction.token,
                     userType: RESIDENT,
                 })
-            }, USER_ERRORS.DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED, 'result')
+            }, ERRORS.DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED, 'result')
         })
 
         test('should throw error if there are a lot of requests by ip per day', async () => {
@@ -294,7 +293,7 @@ describe('CheckUserExistenceService', () => {
                     confirmActionToken: confirmPhoneAction.token,
                     userType: RESIDENT,
                 })
-            }, USER_ERRORS.DAILY_REQUEST_LIMIT_FOR_IP_REACHED, 'result')
+            }, ERRORS.DAILY_REQUEST_LIMIT_FOR_IP_REACHED, 'result')
         })
     })
 })
