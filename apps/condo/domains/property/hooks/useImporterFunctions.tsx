@@ -15,7 +15,7 @@ import { searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
 
 const createPropertyUnitsMap = (units, sections, floors) => {
-    const unitsOnFloor = Math.floor(units / (floors * sections))
+    const unitsOnFloor = Math.ceil(units / (floors * sections))
     if (!unitsOnFloor) {
         return
     }
