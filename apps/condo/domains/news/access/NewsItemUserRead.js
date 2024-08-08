@@ -8,6 +8,7 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { find } = require('@open-condo/keystone/schema')
 
 const { queryFindNewsItemsScopesByResidents } = require('@condo/domains/news/utils/accessSchema')
+const { getUserResidents } = require('@condo/domains/resident/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 async function canReadNewsItemUserReads ({ authentication: { item: user } }) {
@@ -21,7 +22,7 @@ async function canReadNewsItemUserReads ({ authentication: { item: user } }) {
     }
 }
 
-async function canManageNewsItemUserReads ({ authentication: { item: user }, originalInput, operation }) {
+async function canManageNewsItemUserReads ({ authentication: { item: user }, originalInput, operation, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -30,7 +31,7 @@ async function canManageNewsItemUserReads ({ authentication: { item: user }, ori
         const newsItemId = get(originalInput, ['newsItem', 'connect', 'id'])
         if (!newsItemId) return false
 
-        const residents = await find('Resident', { user: { id: user.id }, deletedAt: null })
+        const residents = await getUserResidents(context, user)
         if (isEmpty(residents)) return false
 
         const scopesConditions = queryFindNewsItemsScopesByResidents(residents)

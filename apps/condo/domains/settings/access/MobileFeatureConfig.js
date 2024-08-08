@@ -5,12 +5,13 @@
 const { uniq, map, get } = require('lodash')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { find, getById } = require('@open-condo/keystone/schema')
+const { getById } = require('@open-condo/keystone/schema')
 
 const {
     getEmployedOrRelatedOrganizationsByPermissions,
     checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
+const { getUserResidents } = require('@condo/domains/resident/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 async function canReadMobileFeatureConfigs ({ authentication: { item: user }, context }) {
@@ -20,7 +21,7 @@ async function canReadMobileFeatureConfigs ({ authentication: { item: user }, co
     if (user.isAdmin || user.isSupport) return {}
 
     if (user.type === RESIDENT) {
-        const residents = await find('Resident', { user: { id: user.id }, deletedAt: null })
+        const residents = await getUserResidents(context, user)
         const organizations = uniq(map(residents, 'organization'))
 
         if (residents.length > 0) {

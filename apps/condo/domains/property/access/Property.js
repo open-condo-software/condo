@@ -15,6 +15,7 @@ const {
     checkPermissionsInEmployedOrganizations,
     getEmployedOrRelatedOrganizationsByPermissions,
 } = require('@condo/domains/organization/utils/accessSchema')
+const { getUserResidents } = require('@condo/domains/resident/utils/accessSchema')
 const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 
 
@@ -27,7 +28,7 @@ async function canReadProperties (args) {
     if (user.isSupport || user.isAdmin) return {}
 
     if (user.type === RESIDENT) {
-        const residents = await find('Resident', { user: { id: user.id }, deletedAt: null })
+        const residents = await getUserResidents(context, user)
         const addressKeys = residents.map(resident => resident.addressKey).filter(Boolean)
 
         return {
@@ -97,3 +98,4 @@ module.exports = {
     canManageProperties,
     canManageIsApprovedField,
 }
+

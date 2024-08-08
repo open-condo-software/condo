@@ -3,13 +3,13 @@
  */
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { find } = require('@open-condo/keystone/schema')
 
 const { canManageBillingEntityWithContext } = require('@condo/domains/billing/utils/accessSchema')
+const { getUserResidents, getUserServiceConsumers } = require('@condo/domains/resident/utils/accessSchema')
 const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 const { canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
-async function canReadBillingReceipts ({ authentication: { item: user }, listKey }) {
+async function canReadBillingReceipts ({ authentication: { item: user }, context, listKey }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return {}
@@ -17,11 +17,11 @@ async function canReadBillingReceipts ({ authentication: { item: user }, listKey
     if (user.type === RESIDENT) {
 
         // We don't want to make honest GQL request, as it is too expensive
-        const residents = await find('Resident', { user: { id: user.id }, deletedAt: null })
+        const residents = await getUserResidents(context, user)
         if (!residents || residents.length === 0) {
             return false
         }
-        const serviceConsumers = await find('ServiceConsumer', { resident: { id_in: residents.map(r => r.id) }, deletedAt: null })
+        const serviceConsumers = await getUserServiceConsumers(context, user)
         if (!serviceConsumers || serviceConsumers.length === 0) {
             return false
         }
@@ -47,7 +47,7 @@ async function canReadBillingReceipts ({ authentication: { item: user }, listKey
             // { context: { organization: { relatedOrganizations_some: { from: { employees_some: { user: { id: user.id }, role: { canReadBillingReceipts: true }, deletedAt: null, isBlocked: false } } } } } },
         ],
     }
-    
+
 }
 
 async function canReadSensitiveBillingReceiptData ({ authentication: { item: user } }) {

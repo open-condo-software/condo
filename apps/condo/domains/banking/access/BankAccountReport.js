@@ -9,6 +9,7 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { find } = require('@open-condo/keystone/schema')
 
 const { canManageBankEntityWithOrganization } = require('@condo/domains/banking/utils/accessSchema')
+const { getUserResidents } = require('@condo/domains/resident/utils/accessSchema')
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 
 const ajv = new Ajv()
@@ -29,7 +30,7 @@ const isInputToManagePublishedAt = ajv.compile({
     required: ['dv', 'sender', 'publishedAt'],
 })
 
-async function canReadBankAccountReports ({ authentication: { item: user } }) {
+async function canReadBankAccountReports ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return {}
@@ -56,7 +57,7 @@ async function canReadBankAccountReports ({ authentication: { item: user } }) {
     }
 
     if (user.type === RESIDENT) {
-        const residents = await find('Resident', { user: { id: user.id } })
+        const residents = await getUserResidents(context, user)
         if (residents.length > 0) {
             const propertyIds = uniq(map(residents, 'property'))
             conditions.OR.push({

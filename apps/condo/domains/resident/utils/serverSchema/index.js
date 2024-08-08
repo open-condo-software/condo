@@ -36,6 +36,7 @@ async function registerResident (context, data) {
 }
 
 const ServiceConsumer = generateServerUtils(ServiceConsumerGQL)
+
 async function registerConsumerService (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
