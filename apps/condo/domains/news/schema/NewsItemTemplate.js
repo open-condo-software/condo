@@ -27,18 +27,29 @@ const NewsItemTemplate = new GQLListSchema('NewsItemTemplate', {
             kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
         },
 
-        title: {
-            schemaDoc: 'The title of a future news item',
+        category: {
+            schemaDoc: 'Category of this template. Will be shown to user',
+            type: 'Text',
+            isRequired: false,
+        },
+
+        label: {
+            schemaDoc: 'Label of this template. This will be shown to user',
             type: 'Text',
             isRequired: true,
         },
 
         body: {
-            schemaDoc: 'A future news item\'s body',
+            schemaDoc: 'A future news item\'s body, use brackets to indicate stuff that needs to be changed. Like this: Planned water outage [date]',
             type: 'Text',
             isRequired: true,
         },
 
+        title: {
+            schemaDoc: 'The title of a future news item, use brackets to indicate stuff that needs to be changed. Like this: Planned water outage [date]',
+            type: 'Text',
+            isRequired: true,
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
