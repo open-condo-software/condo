@@ -8231,7 +8231,8 @@ export type BankAccount = {
 
 export enum BankAccountCountryType {
   En = 'en',
-  Ru = 'ru'
+  Ru = 'ru',
+  Es = 'es'
 }
 
 export type BankAccountCreateInput = {
@@ -31750,7 +31751,8 @@ export type MessageHistoryRecordsUpdateInput = {
 
 export enum MessageLangType {
   Ru = 'ru',
-  En = 'en'
+  En = 'en',
+  Es = 'es'
 }
 
 /**  Rule for blocking specific type of messages for organization  */
@@ -56591,7 +56593,8 @@ export type Organization_RelatedOrganizationsMetaArgs = {
 
 export enum OrganizationCountryType {
   En = 'en',
-  Ru = 'ru'
+  Ru = 'ru',
+  Es = 'es'
 }
 
 export type OrganizationCreateInput = {
@@ -75429,7 +75432,8 @@ export type SendMessageInput = {
 
 export enum SendMessageLang {
   Ru = 'ru',
-  En = 'en'
+  En = 'en',
+  Es = 'es'
 }
 
 export type SendMessageOutput = {
@@ -75475,7 +75479,8 @@ export type SendMessageToSupportInput = {
 
 export enum SendMessageToSupportLang {
   Ru = 'ru',
-  En = 'en'
+  En = 'en',
+  Es = 'es'
 }
 
 export type SendMessageToSupportOutput = {
@@ -97031,7 +97036,8 @@ export type UserHistoryRecordsUpdateInput = {
 
 export enum UserLocaleType {
   Ru = 'ru',
-  En = 'en'
+  En = 'en',
+  Es = 'es'
 }
 
 export type UserRelateToOneInput = {

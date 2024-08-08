@@ -394,6 +394,7 @@ type File {
 enum UserLocaleType {
   ru
   en
+  es
 }
 
 type CustomAccessFieldRule {
@@ -4244,6 +4245,7 @@ input OrganizationHistoryRecordsCreateInput {
 enum OrganizationCountryType {
   en
   ru
+  es
 }
 
 enum OrganizationTypeType {
@@ -15701,6 +15703,7 @@ input PropertyRelateToOneInput {
 enum BankAccountCountryType {
   en
   ru
+  es
 }
 
 enum BankAccountCurrencyCodeType {
@@ -38297,6 +38300,7 @@ input RemoteClientRelateToOneInput {
 enum MessageLangType {
   ru
   en
+  es
 }
 
 enum MessageStatusType {
@@ -76730,6 +76734,7 @@ type RegisterNewServiceUserOutput {
 enum SendMessageToSupportLang {
   ru
   en
+  es
 }
 
 input SendMessageToSupportInput {
@@ -77221,6 +77226,7 @@ input TicketMultipleUpdateInput {
 enum SendMessageLang {
   ru
   en
+  es
 }
 
 input SendMessageToInput {
