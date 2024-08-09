@@ -1,28 +1,25 @@
-import Head from 'next/head'
 import React from 'react'
 
-import { useIntl } from '@open-condo/next/intl'
+import { useLaunchParams } from '@condo/domains/miniapp/hooks/useLaunchParams'
 
-import { PageContent, PageHeader, PageWrapper } from '@miniapp/domains/common/components/BaseLayout'
 
-const IndexPage: React.FC = () => {
-    const intl = useIntl()
+const IndexPage = () => {
+    const { context, loading: contextLoading, error: contextError } = useLaunchParams()
 
-    const PageTitleMsg = intl.formatMessage({ id: 'pages.index.PageTitle' })
+    if (contextLoading) {
+        return <>Loading...</>
+    }
+
+    if (contextError) {
+        return <>Context error: {JSON.stringify(contextError)}</>
+    }
 
     return (
         <>
-            <Head>
-                <title>{PageTitleMsg}</title>
-            </Head>
-            <PageWrapper>
-                <PageHeader title={PageTitleMsg}/>
-                <PageContent>
-                    Hello, world
-                </PageContent>
-            </PageWrapper>
+            {JSON.stringify(context)}
         </>
     )
 }
+
 
 export default IndexPage
