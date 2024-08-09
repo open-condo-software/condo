@@ -22,6 +22,8 @@ const { IpBlackListMiddleware } = require('@open-condo/keystone/ipBlackList')
 const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSchema')
 const { getKeystonePinoOptions, GraphQLLoggerPlugin, getLogger } = require('@open-condo/keystone/logging')
 const { expressErrorHandler } = require('@open-condo/keystone/logging/expressErrorHandler')
+const { ApolloMemMonPlugin } = require('@open-condo/keystone/memMon/plugin')
+const { isMemMonEnabled } = require('@open-condo/keystone/memMon/utils')
 const metrics = require('@open-condo/keystone/metrics')
 const { schemaDocPreprocessor, adminDocPreprocessor, escapeSearchPreprocessor, customAccessPostProcessor } = require('@open-condo/keystone/preprocessors')
 const { ApolloRateLimitingPlugin } = require('@open-condo/keystone/rateLimiting')
@@ -153,6 +155,10 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
 
     if (IS_SENTRY_ENABLED) {
         apolloPlugins.unshift(new ApolloSentryPlugin())
+    }
+
+    if (isMemMonEnabled()) {
+        apolloPlugins.push(new ApolloMemMonPlugin())
     }
 
     return {
