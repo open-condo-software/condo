@@ -25,7 +25,13 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
-const { MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
+const {
+    MIN_PASSWORD_LENGTH,
+    MAX_PASSWORD_LENGTH,
+    STAFF,
+    RESIDENT,
+    SERVICE,
+} = require('@condo/domains/user/constants/common')
 const {
     WRONG_EMAIL_ERROR, WRONG_PASSWORD_ERROR, EMPTY_PASSWORD_ERROR, GQL_ERRORS: ERRORS,
 } = require('@condo/domains/user/constants/errors')
@@ -98,6 +104,61 @@ describe('SIGNIN', () => {
             await makeLoggedInClient({ email: userAttrs.email, password: '' })
         }
         await expect(checkAuthByEmptyPassword).rejects.toThrow(EMPTY_PASSWORD_ERROR)
+    })
+
+    test('soft deleted user cannot be authorized', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const [user, userAttrs] = await createTestUser(admin)
+        const { email, password } = userAttrs
+        const [deletedUser] = await User.softDelete(admin, user.id)
+        expect(deletedUser.deletedAt).not.toBeNull()
+        const client = await makeClient()
+        const res = await client.mutate(SIGNIN_MUTATION, { identity: email, secret: password })
+        expect(res.data.obj).toBeNull()
+        expect(res.errors[0].message).toEqual(expect.stringContaining('[passwordAuth:identity:notFound]'))
+    })
+
+    test('should authorize resident user', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const [user, userAttrs] = await createTestUser(admin, { type: RESIDENT })
+        const client = await makeClient()
+        const res = await client.mutate(SIGNIN_MUTATION, { identity: userAttrs.email, secret: userAttrs.password })
+        expect(res.errors).toEqual(undefined)
+        expect(res.data.obj.item.id).toBe(user.id)
+    })
+
+    test('should authorize staff user', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const [user, userAttrs] = await createTestUser(admin, { type: STAFF })
+        const client = await makeClient()
+        const res = await client.mutate(SIGNIN_MUTATION, { identity: userAttrs.email, secret: userAttrs.password })
+        expect(res.errors).toEqual(undefined)
+        expect(res.data.obj.item.id).toBe(user.id)
+    })
+
+    test('should authorize service user', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const [user, userAttrs] = await createTestUser(admin, { type: SERVICE })
+        const client = await makeClient()
+        const res = await client.mutate(SIGNIN_MUTATION, { identity: userAttrs.email, secret: userAttrs.password })
+        expect(res.errors).toEqual(undefined)
+        expect(res.data.obj.item.id).toBe(user.id)
+    })
+
+    test('should throw error if service and staff users have one email', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const email = createTestEmail()
+        const [, staffUserAttrs] = await createTestUser(admin, { type: STAFF, email })
+        const [, serviceUserAttrs] = await createTestUser(admin, { type: SERVICE, email })
+        const client = await makeClient()
+
+        const staffRes = await client.mutate(SIGNIN_MUTATION, { identity: staffUserAttrs.email, secret: staffUserAttrs.password })
+        expect(staffRes.data.obj).toBeNull()
+        expect(staffRes.errors[0].message).toEqual(expect.stringContaining('[passwordAuth:identity:multipleFound]'))
+
+        const serviceRes = await client.mutate(SIGNIN_MUTATION, { identity: serviceUserAttrs.email, secret: serviceUserAttrs.password })
+        expect(serviceRes.data.obj).toBeNull()
+        expect(serviceRes.errors[0].message).toEqual(expect.stringContaining('[passwordAuth:identity:multipleFound]'))
     })
 })
 
@@ -587,7 +648,7 @@ describe('Validations', () => {
                     expect(errors[0]).toEqual(expect.objectContaining({
                         message: '[password:rejectCommon:User:password] Common and frequently-used passwords are not allowed.',
                     }))
-                }
+                },
             )
         })
 
@@ -602,7 +663,7 @@ describe('Validations', () => {
                     expect(errors[0]).toEqual(expect.objectContaining({
                         message: ERRORS.INVALID_PASSWORD_LENGTH.message,
                     }))
-                }
+                },
             )
         })
 
@@ -625,7 +686,7 @@ describe('Validations', () => {
                     expect(errors[0]).toEqual(expect.objectContaining({
                         message: ERRORS.INVALID_PASSWORD_LENGTH.message,
                     }))
-                }
+                },
             )
         })
 
@@ -641,7 +702,7 @@ describe('Validations', () => {
                     expect(errors[0]).toEqual(expect.objectContaining({
                         message: ERRORS.PASSWORD_CONTAINS_EMAIL.message,
                     }))
-                }
+                },
             )
         })
 
@@ -657,7 +718,7 @@ describe('Validations', () => {
                     expect(errors[0]).toEqual(expect.objectContaining({
                         message: ERRORS.PASSWORD_CONTAINS_PHONE.message,
                     }))
-                }
+                },
             )
         })
 
@@ -667,7 +728,7 @@ describe('Validations', () => {
 
             await expectToThrowGraphQLRequestError(
                 async () => await createTestUser(admin, { password }),
-                '"data.password"; String cannot represent a non string value'
+                '"data.password"; String cannot represent a non string value',
             )
         })
 
@@ -682,7 +743,7 @@ describe('Validations', () => {
                     expect(errors[0]).toEqual(expect.objectContaining({
                         message: ERRORS.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS.message,
                     }))
-                }
+                },
             )
         })
     })
@@ -711,14 +772,18 @@ describe('Sensitive data search', () => {
     const cases = [
         ...generateSearchScenarios('phone', testPhone).map(where => [JSON.stringify(where), where]),
         ...generateSearchScenarios('email', testEmail).map(where => [JSON.stringify(where), where]),
-        ['AND / OR combo with phone', { OR: [
-            { AND: [{ phone: testPhone }] },
-            { AND: [{ name: 'User' }] },
-        ] }],
-        ['AND / OR combo with email', { OR: [
-            { AND: [{ name: 'User' }] },
-            { AND: [{ email: testEmail }] },
-        ] }],
+        ['AND / OR combo with phone', {
+            OR: [
+                { AND: [{ phone: testPhone }] },
+                { AND: [{ name: 'User' }] },
+            ],
+        }],
+        ['AND / OR combo with email', {
+            OR: [
+                { AND: [{ name: 'User' }] },
+                { AND: [{ email: testEmail }] },
+            ],
+        }],
     ]
     describe('Sensitive fields cannot be searched by user', () => {
         let user
