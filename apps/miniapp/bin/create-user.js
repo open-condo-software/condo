@@ -3,7 +3,7 @@ const path = require('path')
 const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
 const { getRandomString } = require('@open-condo/keystone/test.utils')
 
-const { User } = require('@miniapp/domains/condo/utils/serverSchema')
+const { User } = require('@miniapp/domains/user/utils/serverSchema')
 
 function getJson (data) {
     try {
@@ -20,7 +20,7 @@ async function main (args) {
     if (options && !optionsJson) throw new Error('<options> argument should be a valid json')
     const json = optionsJson || {}
 
-    const { keystone: context } = await prepareKeystoneExpressApp(path.resolve('./index.js'), { excludeApps: ['NextApp', 'AdminUIApp'] })
+    const { keystone: context } = await prepareKeystoneExpressApp(path.resolve('./index.js'), { excludeApps: ['HealthCheck', 'CondoOIDCMiddleware', 'FeaturesMiddleware', 'NextApp', 'AdminUIApp', 'StitchSchemaMiddleware'] })
 
     console.info(`EMAIL: ${email}`)
     const user = await User.getOne(context, { email })
@@ -32,6 +32,7 @@ async function main (args) {
             console.info(`PASSWORD: ${json.password}`)
         }
         if (!json.name) json.name = email.split('@')[0]
+        if (!json.type) json.type = 'staff'
         await User.create(context, {
             email, ...json,
         })
