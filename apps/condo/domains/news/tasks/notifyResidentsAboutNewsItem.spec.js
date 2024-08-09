@@ -8,12 +8,7 @@ const truncate = require('lodash/truncate')
 
 const { waitFor, UUID_RE, makeLoggedInAdminClient, setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
-const { 
-    NEWS_SENDING_TTL_IN_SEC, 
-    MESSAGE_TITLE_MAX_LEN, 
-    MESSAGE_BODY_MAX_LEN, 
-    CHECK_CONTENT_MESSAGE_REGEXP,
-} = require('@condo/domains/news/constants/common')
+const { NEWS_SENDING_TTL_IN_SEC } = require('@condo/domains/news/constants/common')
 const { notifyResidentsAboutNewsItem } = require('@condo/domains/news/tasks/notifyResidentsAboutNewsItem')
 const { updateTestNewsItem, createTestNewsItem, createTestNewsItemScope, publishTestNewsItem } = require('@condo/domains/news/utils/testSchema')
 const {
@@ -30,7 +25,9 @@ const { createTestProperty } = require('@condo/domains/property/utils/testSchema
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
-jest.setTimeout(60000)
+const MESSAGE_TITLE_MAX_LEN = 50
+const MESSAGE_BODY_MAX_LEN = 150
+
 describe('notifyResidentsAboutNewsItem', () => {
     setFakeClientMode(index)
 
@@ -233,9 +230,8 @@ describe('notifyResidentsAboutNewsItem', () => {
                         })],
                     }),
                     meta: expect.objectContaining({
-                        // Check content for notifications
-                        title: expect.stringMatching(CHECK_CONTENT_MESSAGE_REGEXP),
-                        body: expect.stringMatching(CHECK_CONTENT_MESSAGE_REGEXP),
+                        title: truncate(newsItemTitle, { length: MESSAGE_TITLE_MAX_LEN, separator: ' ', omission: '...' }),
+                        body: truncate(newsItemBody, { length: MESSAGE_BODY_MAX_LEN, separator: ' ', omission: '...' }),
                         data: expect.objectContaining({
                             newsItemId: newsItem1.id,
                             residentId: resident.id,
