@@ -104,6 +104,12 @@ const REPLACE_ORGANIZATION_EMPLOYEE_ROLE_MUTATION = gql`
         result: replaceOrganizationEmployeeRole(data: $data) { status }
     }
 `
+ 
+const FIND_ORGANIZATIONS_BY_TIN_QUERY = gql`
+    query findOrganizationsByTin ($data: FindOrganizationsByTinInput!) {
+        result: findOrganizationsByTin(data: $data) { organizations { id name } }
+    }
+`
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -124,6 +130,6 @@ module.exports = {
     OrganizationEmployeeSpecialization,
     RESET_ORGANIZATION_MUTATION,
     REPLACE_ORGANIZATION_EMPLOYEE_ROLE_MUTATION,
+    FIND_ORGANIZATIONS_BY_TIN_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
-

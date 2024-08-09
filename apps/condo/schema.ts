@@ -24892,6 +24892,23 @@ export type FindOrganizationForAddressOutput = {
   hasBillingData: Scalars['Boolean'];
 };
 
+export type FindOrganizationsByTinInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  tin: Scalars['String'];
+};
+
+export type FindOrganizationsByTinOrganizationType = {
+  __typename?: 'FindOrganizationsByTinOrganizationType';
+  id: Scalars['String'];
+  name: Scalars['String'];
+};
+
+export type FindOrganizationsByTinOutput = {
+  __typename?: 'FindOrganizationsByTinOutput';
+  organizations: Array<Maybe<FindOrganizationsByTinOrganizationType>>;
+};
+
 export type FindOrganizationsForAddressInput = {
   addressKey: Scalars['String'];
   unitName?: Maybe<Scalars['String']>;
@@ -66031,6 +66048,50 @@ export type Query = {
    * }`
    */
   checkUserExistence?: Maybe<CheckUserExistenceOutput>;
+  /**
+   * Returns all organizations by TIN, to which the user can send a request to join
+   *
+   *
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "query": "findOrganizationsByTin",
+   *   "variable": [
+   *     "data",
+   *     "tin"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "EMPTY_TIN",
+   *   "message": "Empty tin"
+   * }`
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "dv"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "DV_VERSION_MISMATCH",
+   *   "message": "Wrong value for data version number",
+   *   "query": "findOrganizationsByTin"
+   * }`
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "sender"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_FORMAT",
+   *   "message": "Invalid format of \"sender\" field value",
+   *   "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}",
+   *   "query": "findOrganizationsByTin"
+   * }`
+   */
+  findOrganizationsByTin?: Maybe<FindOrganizationsByTinOutput>;
   exportPropertiesToExcel?: Maybe<ExportPropertiesToExcelOutput>;
   allResidentBillingReceipts?: Maybe<Array<Maybe<ResidentBillingReceiptOutput>>>;
   /**
@@ -72763,6 +72824,11 @@ export type QueryGetAccessTokenByUserIdArgs = {
 
 export type QueryCheckUserExistenceArgs = {
   data: CheckUserExistenceInput;
+};
+
+
+export type QueryFindOrganizationsByTinArgs = {
+  data: FindOrganizationsByTinInput;
 };
 
 
