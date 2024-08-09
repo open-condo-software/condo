@@ -1,12 +1,18 @@
 # miniapp quick start
 
 ```
+
+export DATABASE_NAME="miniapp"
+export SERVICE_LOCAL_PORT='3001'
+
+# create .env file!
+
 cat > .env << ENDOFFILE
-DATABASE_URL=postgresql://postgres:postgres@127.0.0.1/main
+DATABASE_URL=postgresql://postgres:postgres@127.0.0.1/${DATABASE_NAME}
 NODE_ENV=development
 DISABLE_LOGGING=true
 COOKIE_SECRET=random
-SERVER_URL=http://localhost:3000
+SERVER_URL=http://localhost:${SERVICE_LOCAL_PORT}
 TESTS_FAKE_CLIENT_MODE=true
 
 # production docker deploy envs!
@@ -20,7 +26,10 @@ DOCKER_COMPOSE_SERVER_URL=http://localhost:3003
 ENDOFFILE
 
 # up database on default port
-docker-compose up -d postgresdb
+docker-compose up -d postgresdb redis
+
+# create database if not exists
+docker exec condo_postgresdb_1 bash -c "su postgres -c \"createdb ${DATABASE_NAME}\""
 
 # install dependencies and link yarn workspaces
 yarn
@@ -29,11 +38,8 @@ yarn
 bash ./bin/warm-docker-cache
 docker-compose build
 
-# create first migration!
-docker-compose run app yarn workspace @app/miniapp makemigrations
-
-# migrate!
-docker-compose run app yarn workspace @app/miniapp migrate
+# prepare the application using the prepare script
+node ./bin/prepare.js
 
 # run dev server!
 yarn workspace @app/miniapp dev
