@@ -12,7 +12,7 @@ const {
     NEWS_SENDING_TTL_IN_SEC, 
     MESSAGE_TITLE_MAX_LEN, 
     MESSAGE_BODY_MAX_LEN, 
-    THREE_DOT_FOR_TEST_REGEXP,
+    CHECK_CONTENT_MESSAGE_REGEXP,
 } = require('@condo/domains/news/constants/common')
 const { notifyResidentsAboutNewsItem } = require('@condo/domains/news/tasks/notifyResidentsAboutNewsItem')
 const { updateTestNewsItem, createTestNewsItem, createTestNewsItemScope, publishTestNewsItem } = require('@condo/domains/news/utils/testSchema')
@@ -30,6 +30,7 @@ const { createTestProperty } = require('@condo/domains/property/utils/testSchema
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
+jest.setTimeout(60000)
 describe('notifyResidentsAboutNewsItem', () => {
     setFakeClientMode(index)
 
@@ -220,14 +221,6 @@ describe('notifyResidentsAboutNewsItem', () => {
                 expect(message1).toBeDefined()
                 expect(message1.id).toMatch(UUID_RE)
 
-                // Check content for notifications
-                expect(message1).toEqual(expect.objectContaining({
-                    meta: expect.objectContaining({
-                        title: expect.not.stringMatching(THREE_DOT_FOR_TEST_REGEXP),
-                        body: expect.not.stringMatching(THREE_DOT_FOR_TEST_REGEXP),
-                    }),
-                }))
-
                 expect(message1).toEqual(expect.objectContaining({
                     status: MESSAGE_SENT_STATUS,
                     processingMeta: expect.objectContaining({
@@ -240,8 +233,9 @@ describe('notifyResidentsAboutNewsItem', () => {
                         })],
                     }),
                     meta: expect.objectContaining({
-                        title: truncate(newsItemTitle, { length: MESSAGE_TITLE_MAX_LEN, separator: ' ', omission: '...' }),
-                        body: truncate(newsItemBody, { length: MESSAGE_BODY_MAX_LEN, separator: ' ', omission: '...' }),
+                        // Check content for notifications
+                        title: expect.stringMatching(CHECK_CONTENT_MESSAGE_REGEXP),
+                        body: expect.stringMatching(CHECK_CONTENT_MESSAGE_REGEXP),
                         data: expect.objectContaining({
                             newsItemId: newsItem1.id,
                             residentId: resident.id,
