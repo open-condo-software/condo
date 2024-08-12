@@ -32,6 +32,8 @@ describe('B2BAppNewsSharingConfig', () => {
                 publishUrl: faker.internet.url(),
                 previewUrl: faker.internet.url(),
                 getRecipientsUrl: faker.internet.url(),
+                getRecipientsCountersUrl: faker.internet.url(),
+                customFormUrl: faker.internet.url(),
             }
             test('admin can', async () => {
                 const [obj, attrs] = await createTestB2BAppNewsSharingConfig(admin, createPayload)

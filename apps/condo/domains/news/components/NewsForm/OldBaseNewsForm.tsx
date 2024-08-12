@@ -47,7 +47,7 @@ import { BaseNewsFormProps } from '@condo/domains/news/components/NewsForm/BaseN
 import { MemoizedCondoNewsPreview } from '@condo/domains/news/components/NewsPreview'
 import { detectTargetedSections, RecipientCounter } from '@condo/domains/news/components/RecipientCounter'
 import { TemplatesTabs } from '@condo/domains/news/components/TemplatesTabs'
-import { TNewsItemScopeNoInstance } from '@condo/domains/news/components/types'
+import { NewsItemScopeNoInstanceType } from '@condo/domains/news/components/types'
 import { PROFANITY_TITLE_DETECTED_MOT_ERF_KER, PROFANITY_BODY_DETECTED_MOT_ERF_KER } from '@condo/domains/news/constants/errors'
 import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 import { NewsItem, NewsItemScope } from '@condo/domains/news/utils/clientSchema'
@@ -793,7 +793,7 @@ export const OldBaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }
     }, [actionName, createOrUpdateNewsItem, initialHasAllProperties, initialPropertyIds, updateNewsItem, OnCompletedMsg, afterAction, initialSentAt, currentNewsItem, initialNewsItemScopes, softDeleteNewsItemScope, initialUnitKeys, createNewsItemScope, router])
 
-    const newsItemScopesNoInstance = useMemo<TNewsItemScopeNoInstance[]>(() => {
+    const newsItemScopesNoInstance = useMemo<NewsItemScopeNoInstanceType[]>(() => {
         if (isAllPropertiesChecked && countPropertiesAvaliableToSelect.current !== 1) {
             return [{ property: null, unitType: null, unitName: null }]
         }
