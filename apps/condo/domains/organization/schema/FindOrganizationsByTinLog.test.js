@@ -11,6 +11,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAccessDeniedErrorToObjects,
+    expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
 const {
@@ -211,10 +212,13 @@ describe('FindOrganizationsByTinLog', () => {
 
     describe('Validations', () => {
         test('cannot pass empty user', async () => {
-            await catchErrorFrom(async () => {
+            await expectToThrowGQLError(async () => {
                 await createTestFindOrganizationsByTinLog(adminClient, adminClient.user, { user: undefined })
-            }, ({ errors }) => {
-                expect(errors[0].message).toContain('null value in column "userId" of relation "FindOrganizationsByTinLog" violates not-null constraint')
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'USER_IS_MISSING',
+                variable: ['data', 'user'],
+                message: 'The "user" field must be specified',
             })
         })
 

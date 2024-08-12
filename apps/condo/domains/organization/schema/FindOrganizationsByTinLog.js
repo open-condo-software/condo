@@ -4,11 +4,21 @@
 
 const get = require('lodash/get')
 
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { versioned, uuided, tracked, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/organization/access/FindOrganizationsByTinLog')
 
+
+const ERRORS = {
+    USER_IS_MISSING: {
+        code: BAD_USER_INPUT,
+        type: 'USER_IS_MISSING',
+        variable: ['data', 'user'],
+        message: 'The "user" field must be specified',
+    },
+}
 
 const FindOrganizationsByTinLog = new GQLListSchema('FindOrganizationsByTinLog', {
     schemaDoc: 'Logging the query "FindOrganizationsByTin"',
@@ -41,14 +51,21 @@ const FindOrganizationsByTinLog = new GQLListSchema('FindOrganizationsByTinLog',
 
     },
     hooks: {
-        resolveInput: async (props) => {
-            const { resolvedData, existingItem } = props
+        resolveInput: async ({ resolvedData, existingItem }) => {
             const newItem = { ...existingItem, ...resolvedData }
             const userId = get(newItem, 'user', null)
             if (userId) {
                 resolvedData['userId'] = userId
             }
             return resolvedData
+        },
+        validateInput: async ({ resolvedData, context, existingItem }) => {
+            const newItem = { ...existingItem, ...resolvedData }
+            const user = get(newItem, 'user')
+            const userId = get(newItem, 'userId')
+            if (!user || !userId) {
+                throw new GQLError(ERRORS.USER_IS_MISSING, context)
+            }
         },
     },
     plugins: [uuided(), versioned(), tracked(), dvAndSender()],
