@@ -18,6 +18,7 @@ const {
     registerNewOrganization,
     Organization,
     createTestOrganization,
+    FindOrganizationsByTinLog,
 } = require('@condo/domains/organization/utils/testSchema')
 const {
     makeClientWithStaffUser,
@@ -105,6 +106,48 @@ describe('FindOrganizationsByTinService', () => {
                     { id: o10nWithAdministrator2.id, name: o10nWithAdministrator2.name },
                 ]))
             })
+        })
+
+        test('Requests should be logged in "FindOrganizationsByTinLog"', async () => {
+            const staffClient = await makeClientWithStaffUser()
+            const tin1 = String(generateTin())
+            const tin2 = String(generateTin())
+
+            const logs1 = await FindOrganizationsByTinLog.getAll(adminClient, { user: { id: staffClient.user.id } })
+            expect(logs1).toHaveLength(0)
+
+            const [result] = await findOrganizationsByTinByTestClient(staffClient, { tin: tin1 })
+            expect(result).toEqual({ organizations: [] })
+
+            const logs2 = await FindOrganizationsByTinLog.getAll(adminClient, { user: { id: staffClient.user.id } })
+            expect(logs2).toHaveLength(1)
+            expect(logs2).toEqual(expect.arrayContaining([
+                expect.objectContaining({
+                    tin: tin1,
+                }),
+            ]))
+
+            const [result2] = await findOrganizationsByTinByTestClient(staffClient, { tin: tin2 })
+            expect(result2).toEqual({ organizations: [] })
+            const [result3] = await findOrganizationsByTinByTestClient(staffClient, { tin: tin1 })
+            expect(result3).toEqual({ organizations: [] })
+
+            const logs3 = await FindOrganizationsByTinLog.getAll(adminClient,
+                { user: { id: staffClient.user.id } },
+                { sortBy: ['createdAt_ASC'] }
+            )
+            expect(logs3).toHaveLength(3)
+            expect(logs3).toEqual([
+                expect.objectContaining({
+                    tin: tin1,
+                }),
+                expect.objectContaining({
+                    tin: tin2,
+                }),
+                expect.objectContaining({
+                    tin: tin1,
+                }),
+            ])
         })
     })
 })
