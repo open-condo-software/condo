@@ -9,6 +9,7 @@ const { sumBillingReceiptsByTestClient } = require('@condo/domains/billing/utils
 const { createTestBillingReceipt } = require('@condo/domains/billing/utils/testSchema')
 const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestUserRightsSet, updateTestUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
 const { ERRORS } = require('./SumBillingReceiptsService')
 
@@ -119,6 +120,17 @@ describe('SumBillingReceiptsService', () => {
             const period = payers.singleReceipt.billingReceipts[0].period
             const data = { organization: { id: payers.singleReceipt.organization.id }, period: period }
             const { sum } = await sumBillingReceiptsByTestClient(supportClient, data)
+
+            expect(String(sum)).toEqual(payers.singleReceipt.toPaySum)
+        })
+        test('user with canExecute_allBillingReceiptsSum can sum billing receipts', async () => {
+            const serviceUserClient = await makeClientWithServiceUser()
+            const [userRightsSet] = await createTestUserRightsSet(adminClient, { canExecute_allBillingReceiptsSum: true })
+            await updateTestUser(adminClient, serviceUserClient.user.id, { rightsSet: { connect: { id: userRightsSet.id } } })
+
+            const period = payers.singleReceipt.billingReceipts[0].period
+            const data = { organization: { id: payers.singleReceipt.organization.id }, period: period }
+            const { sum } = await sumBillingReceiptsByTestClient(serviceUserClient, data)
 
             expect(String(sum)).toEqual(payers.singleReceipt.toPaySum)
         })
