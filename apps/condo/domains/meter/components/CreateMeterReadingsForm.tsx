@@ -319,7 +319,6 @@ export const CreateMeterReadingsForm = ({ organization, role, canManageMeterRead
                 ...clientInfo,
                 meter: { connect: { id: meterId } },
                 contact: values.contact ? { connect: { id: values.contact } } : undefined,
-                date: new Date(),
                 value1,
                 value2,
                 value3,
@@ -609,7 +608,6 @@ export const CreatePropertyMeterReadingsForm = ({ organization, canManageMeterRe
 
             createMeterReadingAction({
                 meter: { connect: { id: meterId } },
-                date: new Date().toISOString(),
                 value1,
                 value2,
                 value3,
