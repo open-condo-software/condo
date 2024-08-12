@@ -24898,6 +24898,163 @@ export type FindOrganizationsByTinInput = {
   tin: Scalars['String'];
 };
 
+/**  Logging the query "FindOrganizationsByTin"  */
+export type FindOrganizationsByTinLog = {
+  __typename?: 'FindOrganizationsByTinLog';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the FindOrganizationsByTinLog List config, or
+   *  2. As an alias to the field set on 'labelField' in the FindOrganizationsByTinLog List config, or
+   *  3. As an alias to a 'name' field on the FindOrganizationsByTinLog List (if one exists), or
+   *  4. As an alias to the 'id' field on the FindOrganizationsByTinLog List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  The user who caused the query  */
+  user?: Maybe<User>;
+  /**  The user id who caused the query (save id if user deleted)  */
+  userId?: Maybe<Scalars['String']>;
+  /**  TIN by which organizations were searched  */
+  tin?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type FindOrganizationsByTinLogCreateInput = {
+  user?: Maybe<UserRelateToOneInput>;
+  userId?: Maybe<Scalars['String']>;
+  tin?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type FindOrganizationsByTinLogUpdateInput = {
+  user?: Maybe<UserRelateToOneInput>;
+  userId?: Maybe<Scalars['String']>;
+  tin?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type FindOrganizationsByTinLogWhereInput = {
+  AND?: Maybe<Array<Maybe<FindOrganizationsByTinLogWhereInput>>>;
+  OR?: Maybe<Array<Maybe<FindOrganizationsByTinLogWhereInput>>>;
+  user?: Maybe<UserWhereInput>;
+  user_is_null?: Maybe<Scalars['Boolean']>;
+  userId?: Maybe<Scalars['String']>;
+  userId_not?: Maybe<Scalars['String']>;
+  userId_contains?: Maybe<Scalars['String']>;
+  userId_not_contains?: Maybe<Scalars['String']>;
+  userId_starts_with?: Maybe<Scalars['String']>;
+  userId_not_starts_with?: Maybe<Scalars['String']>;
+  userId_ends_with?: Maybe<Scalars['String']>;
+  userId_not_ends_with?: Maybe<Scalars['String']>;
+  userId_i?: Maybe<Scalars['String']>;
+  userId_not_i?: Maybe<Scalars['String']>;
+  userId_contains_i?: Maybe<Scalars['String']>;
+  userId_not_contains_i?: Maybe<Scalars['String']>;
+  userId_starts_with_i?: Maybe<Scalars['String']>;
+  userId_not_starts_with_i?: Maybe<Scalars['String']>;
+  userId_ends_with_i?: Maybe<Scalars['String']>;
+  userId_not_ends_with_i?: Maybe<Scalars['String']>;
+  userId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  userId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  tin?: Maybe<Scalars['String']>;
+  tin_not?: Maybe<Scalars['String']>;
+  tin_contains?: Maybe<Scalars['String']>;
+  tin_not_contains?: Maybe<Scalars['String']>;
+  tin_starts_with?: Maybe<Scalars['String']>;
+  tin_not_starts_with?: Maybe<Scalars['String']>;
+  tin_ends_with?: Maybe<Scalars['String']>;
+  tin_not_ends_with?: Maybe<Scalars['String']>;
+  tin_i?: Maybe<Scalars['String']>;
+  tin_not_i?: Maybe<Scalars['String']>;
+  tin_contains_i?: Maybe<Scalars['String']>;
+  tin_not_contains_i?: Maybe<Scalars['String']>;
+  tin_starts_with_i?: Maybe<Scalars['String']>;
+  tin_not_starts_with_i?: Maybe<Scalars['String']>;
+  tin_ends_with_i?: Maybe<Scalars['String']>;
+  tin_not_ends_with_i?: Maybe<Scalars['String']>;
+  tin_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  tin_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type FindOrganizationsByTinLogWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type FindOrganizationsByTinLogsCreateInput = {
+  data?: Maybe<FindOrganizationsByTinLogCreateInput>;
+};
+
+export type FindOrganizationsByTinLogsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<FindOrganizationsByTinLogUpdateInput>;
+};
+
 export type FindOrganizationsByTinOrganizationType = {
   __typename?: 'FindOrganizationsByTinOrganizationType';
   id: Scalars['String'];
@@ -38517,6 +38674,18 @@ export type Mutation = {
   deleteOrganizationEmployeeSpecialization?: Maybe<OrganizationEmployeeSpecialization>;
   /**  Delete multiple OrganizationEmployeeSpecialization items by ID.  */
   deleteOrganizationEmployeeSpecializations?: Maybe<Array<Maybe<OrganizationEmployeeSpecialization>>>;
+  /**  Create a single FindOrganizationsByTinLog item.  */
+  createFindOrganizationsByTinLog?: Maybe<FindOrganizationsByTinLog>;
+  /**  Create multiple FindOrganizationsByTinLog items.  */
+  createFindOrganizationsByTinLogs?: Maybe<Array<Maybe<FindOrganizationsByTinLog>>>;
+  /**  Update a single FindOrganizationsByTinLog item by ID.  */
+  updateFindOrganizationsByTinLog?: Maybe<FindOrganizationsByTinLog>;
+  /**  Update multiple FindOrganizationsByTinLog items by ID.  */
+  updateFindOrganizationsByTinLogs?: Maybe<Array<Maybe<FindOrganizationsByTinLog>>>;
+  /**  Delete a single FindOrganizationsByTinLog item by ID.  */
+  deleteFindOrganizationsByTinLog?: Maybe<FindOrganizationsByTinLog>;
+  /**  Delete multiple FindOrganizationsByTinLog items by ID.  */
+  deleteFindOrganizationsByTinLogs?: Maybe<Array<Maybe<FindOrganizationsByTinLog>>>;
   /**  Create a single PropertyHistoryRecord item.  */
   createPropertyHistoryRecord?: Maybe<PropertyHistoryRecord>;
   /**  Create multiple PropertyHistoryRecord items.  */
@@ -45026,6 +45195,37 @@ export type MutationDeleteOrganizationEmployeeSpecializationArgs = {
 
 
 export type MutationDeleteOrganizationEmployeeSpecializationsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateFindOrganizationsByTinLogArgs = {
+  data?: Maybe<FindOrganizationsByTinLogCreateInput>;
+};
+
+
+export type MutationCreateFindOrganizationsByTinLogsArgs = {
+  data?: Maybe<Array<Maybe<FindOrganizationsByTinLogsCreateInput>>>;
+};
+
+
+export type MutationUpdateFindOrganizationsByTinLogArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<FindOrganizationsByTinLogUpdateInput>;
+};
+
+
+export type MutationUpdateFindOrganizationsByTinLogsArgs = {
+  data?: Maybe<Array<Maybe<FindOrganizationsByTinLogsUpdateInput>>>;
+};
+
+
+export type MutationDeleteFindOrganizationsByTinLogArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteFindOrganizationsByTinLogsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -64009,6 +64209,14 @@ export type Query = {
   _allOrganizationEmployeeSpecializationsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the OrganizationEmployeeSpecialization list.  */
   _OrganizationEmployeeSpecializationsMeta?: Maybe<_ListMeta>;
+  /**  Search for all FindOrganizationsByTinLog items which match the where clause.  */
+  allFindOrganizationsByTinLogs?: Maybe<Array<Maybe<FindOrganizationsByTinLog>>>;
+  /**  Search for the FindOrganizationsByTinLog item with the matching ID.  */
+  FindOrganizationsByTinLog?: Maybe<FindOrganizationsByTinLog>;
+  /**  Perform a meta-query on all FindOrganizationsByTinLog items which match the where clause.  */
+  _allFindOrganizationsByTinLogsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the FindOrganizationsByTinLog list.  */
+  _FindOrganizationsByTinLogsMeta?: Maybe<_ListMeta>;
   /**  Search for all PropertyHistoryRecord items which match the where clause.  */
   allPropertyHistoryRecords?: Maybe<Array<Maybe<PropertyHistoryRecord>>>;
   /**  Search for the PropertyHistoryRecord item with the matching ID.  */
@@ -66776,6 +66984,31 @@ export type Query_AllOrganizationEmployeeSpecializationsMetaArgs = {
   where?: Maybe<OrganizationEmployeeSpecializationWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortOrganizationEmployeeSpecializationsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllFindOrganizationsByTinLogsArgs = {
+  where?: Maybe<FindOrganizationsByTinLogWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortFindOrganizationsByTinLogsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryFindOrganizationsByTinLogArgs = {
+  where: FindOrganizationsByTinLogWhereUniqueInput;
+};
+
+
+export type Query_AllFindOrganizationsByTinLogsMetaArgs = {
+  where?: Maybe<FindOrganizationsByTinLogWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortFindOrganizationsByTinLogsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -79592,6 +79825,29 @@ export enum SortExternalTokenAccessRightsBy {
   UpdatedByDesc = 'updatedBy_DESC',
   DeletedAtAsc = 'deletedAt_ASC',
   DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
+export enum SortFindOrganizationsByTinLogsBy {
+  UserAsc = 'user_ASC',
+  UserDesc = 'user_DESC',
+  UserIdAsc = 'userId_ASC',
+  UserIdDesc = 'userId_DESC',
+  TinAsc = 'tin_ASC',
+  TinDesc = 'tin_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC'
 }

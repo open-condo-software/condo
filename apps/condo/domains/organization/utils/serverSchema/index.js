@@ -14,6 +14,7 @@ const { OrganizationEmployeeSpecialization: OrganizationEmployeeSpecializationGQ
 const { RESET_ORGANIZATION_MUTATION } = require('@condo/domains/organization/gql')
 const { REPLACE_ORGANIZATION_EMPLOYEE_ROLE_MUTATION } = require('@condo/domains/organization/gql')
 const { FIND_ORGANIZATIONS_BY_TIN_MUTATION } = require('@condo/domains/organization/gql')
+const { FindOrganizationsByTinLog: FindOrganizationsByTinLogGQL } = require('@condo/domains/organization/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Organization = generateServerUtils(OrganizationGQL)
@@ -62,6 +63,7 @@ async function findOrganizationsByTin (context, data) {
     })
 }
 
+const FindOrganizationsByTinLog = generateServerUtils(FindOrganizationsByTinLogGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -73,5 +75,6 @@ module.exports = {
     resetOrganization,
     replaceOrganizationEmployeeRole,
     findOrganizationsByTin,
+    FindOrganizationsByTinLog,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
