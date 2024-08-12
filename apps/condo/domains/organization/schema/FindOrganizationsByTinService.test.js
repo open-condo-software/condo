@@ -8,7 +8,7 @@ const {
     makeLoggedInAdminClient,
     makeClient,
     expectToThrowAccessDeniedErrorToResult,
-    expectToThrowAuthenticationErrorToResult,
+    expectToThrowAuthenticationErrorToResult, expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
@@ -20,6 +20,7 @@ const {
     createTestOrganization,
     FindOrganizationsByTinLog,
 } = require('@condo/domains/organization/utils/testSchema')
+const { GQL_ERRORS: USER_ERRORS } = require('@condo/domains/user/constants/errors')
 const {
     makeClientWithStaffUser,
     makeClientWithResidentUser,
@@ -148,6 +149,30 @@ describe('FindOrganizationsByTinService', () => {
                     tin: tin1,
                 }),
             ])
+        })
+
+        test('should throw error if there are a lot of requests from user and save to logs all processed requests', async () => {
+            const staffClient = await makeClientWithStaffUser()
+            const tin = String(generateTin())
+
+            for (let i = 0; i < 10; i++) {
+                const [result] = await findOrganizationsByTinByTestClient(staffClient, { tin })
+                expect(result).toBeDefined()
+            }
+
+            await expectToThrowGQLError(async () => {
+                await findOrganizationsByTinByTestClient(staffClient, { tin })
+            }, USER_ERRORS.DAILY_REQUEST_LIMIT_FOR_USER_REACHED, 'result')
+
+            const logs = await FindOrganizationsByTinLog.getAll(adminClient, {
+                user: { id: staffClient.user.id },
+            })
+            expect(logs).toHaveLength(10)
+
+            // should not block other user
+            const staffClient2 = await makeClientWithStaffUser()
+            const [result] = await findOrganizationsByTinByTestClient(staffClient2, { tin })
+            expect(result).toBeDefined()
         })
     })
 })
