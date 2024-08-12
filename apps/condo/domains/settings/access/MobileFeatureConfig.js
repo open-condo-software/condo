@@ -12,7 +12,7 @@ const {
     getEmployedOrRelatedOrganizationsByPermissions,
     checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
-const { getUserResidents } = require('@condo/domains/resident/utils/accessSchema')
+const { getUserResidents, getUserServiceConsumers } = require('@condo/domains/resident/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 async function canReadMobileFeatureConfigs ({ authentication: { item: user }, context }) {
@@ -32,10 +32,7 @@ async function canReadMobileFeatureConfigs ({ authentication: { item: user }, co
         // (or improve consumers logic to cover these domains as well)
         // TODO(pahaz): Figure out from stakeholders the correct approach
         const residents = await getUserResidents(context, user)
-        const consumers = await find('ServiceConsumer', {
-            resident: { id_in: residents.map(resident => resident.id) },
-            deletedAt: null,
-        })
+        const consumers = await getUserServiceConsumers(context, user)
 
         // NOTE: used to keep non-consumer domains alive (like tickets)
         const managingCompanies = residents.map(resident => resident.organization).filter(Boolean)

@@ -87,7 +87,7 @@ async function _getUserResidents (ctx, user) {
  * @returns {Promise<Array<ResidentCache>>}
  */
 async function getUserResidents (ctx, user) {
-    return (await _getUserResidents(ctx, user)).residents || []
+    return (await _getUserResidents(ctx, user)).residents
 }
 
 /**
@@ -97,7 +97,7 @@ async function getUserResidents (ctx, user) {
  * @returns {Promise<Array<ServiceConsumerCache>>}
  */
 async function getUserServiceConsumers (ctx, user) {
-    return (await _getUserResidents(ctx, user)).serviceConsumers || []
+    return (await _getUserResidents(ctx, user)).serviceConsumers
 }
 
 module.exports = {
