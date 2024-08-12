@@ -22,6 +22,7 @@ import { START_CONFIRM_PHONE_MUTATION } from '@condo/domains/user/gql'
 
 
 import { RegisterContext } from './RegisterContextProvider'
+import { LoginWithSBBOLButton } from '../../../common/components/LoginWithSBBOLButton'
 
 
 const ROW_STYLES: React.CSSProperties = {
@@ -32,7 +33,7 @@ const FORM_PARAGRAPH_STYLES: React.CSSProperties = {
     fontSize: '12px',
 }
 const FORM_TYPOGRAPHY_STYLES: React.CSSProperties = {
-    textAlign:'center',
+    textAlign: 'center',
 }
 const FORM_PHONE_STYLES: React.CSSProperties = {
     borderRadius: 8,
@@ -136,7 +137,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
     return (
         <Row justify='center'>
             <Col span={16}>
-                <TabsAuthAction currentActiveKey='register'/>
+                <TabsAuthAction currentActiveKey='register' />
             </Col>
             <Col span={24}>
                 <Form
@@ -223,16 +224,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
                                         </Col>
                                         <Col span={24}>
                                             <Form.Item>
-                                                <Button
-                                                    key='submit'
-                                                    type='sberAction'
-                                                    secondary
-                                                    icon={<SberIconWithoutLabel/>}
-                                                    href='/api/sbbol/auth'
-                                                    block
-                                                >
-                                                    {LoginBySBBOLMsg}
-                                                </Button>
+                                                <LoginWithSBBOLButton block checkTlsCert />
                                             </Form.Item>
                                         </Col>
                                     </>
