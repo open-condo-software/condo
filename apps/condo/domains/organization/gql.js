@@ -111,6 +111,9 @@ const FIND_ORGANIZATIONS_BY_TIN_QUERY = gql`
     }
 `
 
+const FIND_ORGANIZATIONS_BY_TIN_LOG_FIELDS = '{ user { id } userId tin id dv sender { dv fingerprint } v createdBy { id name } updatedBy { id name } createdAt updatedAt }'
+const FindOrganizationsByTinLog = generateGqlQueries('FindOrganizationsByTinLog', FIND_ORGANIZATIONS_BY_TIN_LOG_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -132,6 +135,7 @@ module.exports = {
     REPLACE_ORGANIZATION_EMPLOYEE_ROLE_MUTATION,
     ORGANIZATION_FIELDS,
     FIND_ORGANIZATIONS_BY_TIN_QUERY,
+    FindOrganizationsByTinLog,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 
