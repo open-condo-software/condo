@@ -1,5 +1,5 @@
 import { Tabs } from 'antd'
-import Router, { useRouter } from 'next/router'
+import { useRouter } from 'next/router'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -22,18 +22,21 @@ export const TabsAuthAction: React.FC<ITabsActionsProps> = (props) => {
     const { query: { next }  } = router
     const isValidNextUrl = next && !Array.isArray(next) && isSafeUrl(next)
 
-    console.log(next)
-
     return (
         <RemoveTabsLineWrapper>
             <Tabs
                 defaultActiveKey={currentActiveKey}
-                onChange={(activeKey) => Router.push(activeKey)}
+                onChange={(activeKey) => {
+                    if (activeKey === 'signin') {
+                        router.push(isValidNextUrl ? `/auth/signin?next=${encodeURIComponent(next)}` : '/auth/signin')
+                    } else if (activeKey === 'register') {
+                        router.push(isValidNextUrl ? `/auth/register?next=${encodeURIComponent(next)}` : '/auth/register')
+                    }}}
                 centered
                 animated={false}
             >
-                <Tabs.TabPane key={isValidNextUrl ? `/auth/register?step=inputPhone&next=${next}` : '/auth/register?step=inputPhone'} tab={registerTab}/>
-                <Tabs.TabPane key={isValidNextUrl ? `/auth/signin?next=${next}` : '/auth/signin'} tab={signInTab}/>
+                <Tabs.TabPane key='register' tab={registerTab}/>
+                <Tabs.TabPane key='signin' tab={signInTab}/>
             </Tabs>
         </RemoveTabsLineWrapper>
     )

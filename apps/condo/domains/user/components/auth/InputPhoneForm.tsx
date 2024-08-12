@@ -136,7 +136,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
     return (
         <Row justify='center'>
             <Col span={16}>
-                <TabsAuthAction currentActiveKey='/auth/register'/>
+                <TabsAuthAction currentActiveKey='register'/>
             </Col>
             <Col span={24}>
                 <Form
