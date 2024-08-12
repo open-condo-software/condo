@@ -74,9 +74,10 @@ describe('FindOrganizationsByTinService', () => {
     })
 
     describe('Basic logic', () => {
-        describe('should return all not deleted organizations with the specified TIN, where there are employees with the right "canManageEmployees"', () => {
+        describe('should return all not deleted organizations with the specified TIN, where there are employees with the right "canManageEmployees" excluding service users', () => {
             test.each(COUNTRY_KEYS)('country: %p', async (country) => {
                 const staffClient = await makeClientWithStaffUser()
+                const serviceClient = await makeClientWithServiceUser()
                 const registeredStaffClient = await makeClientWithStaffUser()
 
                 const tin = String(generateTin(country))
@@ -94,6 +95,8 @@ describe('FindOrganizationsByTinService', () => {
                 const [o10nWithoutAdministrator] = await createTestOrganization(adminClient, { tin, country })
 
                 const [o10nWithOtherTin] = await registerNewOrganization(staffClient, { tin: tin2, country })
+
+                const [o10nWithServiceUser] = await registerNewOrganization(serviceClient, { tin, country })
 
                 const [result] = await findOrganizationsByTinByTestClient(registeredStaffClient, { tin })
                 expect(result.organizations).toHaveLength(2)
