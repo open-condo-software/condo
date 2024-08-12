@@ -6,6 +6,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const GLOBAL_QUERY_LIMIT = 1000
+const TOO_MANY_RETURNED_LOG_LIMITS = Object.freeze([1100, 4900, 9000, 14900, 49000, 149000])
 const logger = getLogger('common/utils/serverSchema.js')
 
 // When we load models with Apollo graphql - every relation on a field for every object makes sql request
@@ -20,6 +21,24 @@ const logger = getLogger('common/utils/serverSchema.js')
 // It's about ~4.5 times faster then using only gql queries
 // Tested on tickets export for 24755 tickets: without knex  71220.902ms, with knex: 16094.841ms )
 // TODO(zuch): find out how to make 1 request for 1. and 2.
+
+function logTooManyReturnedIfRequired (tooManyReturnedLimitCounters, allObjects, { functionName, schemaName, data }) {
+    if (!Array.isArray(tooManyReturnedLimitCounters)) throw new Error('logTooManyReturned: wrong argument type')
+    if (tooManyReturnedLimitCounters.length <= 0) return  // trying to notify only if have any counter
+
+    const realLimit = tooManyReturnedLimitCounters[0]
+
+    if (allObjects && Array.isArray(allObjects) && allObjects.length > realLimit) {
+        logger.warn({
+            msg: 'tooManyReturned',
+            tooManyLimit: realLimit,
+            functionName,
+            schemaName,
+            data,
+        })
+        tooManyReturnedLimitCounters.shift()  // remove counter and mark as already notified
+    }
+}
 
 class GqlWithKnexLoadList {
 
@@ -40,7 +59,7 @@ class GqlWithKnexLoadList {
         let skip = 0
         let newchunk = []
         let all = []
-        let haveNotifiedAboutTooManyObjs = false
+        let tooManyReturnedLimitCounters = [...TOO_MANY_RETURNED_LOG_LIMITS]
 
         let maxiterationsCount = 100 // we need some limits - 100K records is more then enough
         do {
@@ -48,18 +67,13 @@ class GqlWithKnexLoadList {
             all = all.concat(newchunk)
             skip += newchunk.length
 
-            if (!haveNotifiedAboutTooManyObjs && all && Array.isArray(all) && all.length > 1000) {
-                logger.warn({
-                    msg: 'tooManyReturned',
-                    functionName: 'GqlWithKnexLoadList.load',
-                    schemaName: this.listKey,
-                    data: {
-                        limit: 1000,
-                        GqlWithKnexLoadListArgs: { singleRelations: this.singleRelations, multipleRelations: this.multipleRelations, where: this.where, fields: this.fields },
-                    },
-                })
-                haveNotifiedAboutTooManyObjs = true
-            }
+            logTooManyReturnedIfRequired(tooManyReturnedLimitCounters, all, {
+                functionName: 'GqlWithKnexLoadList.load',
+                schemaName: this.listKey,
+                data: {
+                    singleRelations: this.singleRelations, multipleRelations: this.multipleRelations, where: this.where, fields: this.fields,
+                },
+            })
 
             if (newchunk.length < GLOBAL_QUERY_LIMIT) {
                 break
