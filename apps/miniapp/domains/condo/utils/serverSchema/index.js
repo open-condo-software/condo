@@ -1,3 +1,5 @@
+const { generateCondoServerUtils } = require('@open-condo/codegen/generate.condo.server.utils')
+
 const {
     serverGql: {
         B2BAppRole: B2BAppRoleGQL,
@@ -7,7 +9,6 @@ const {
     },
 } = require('@miniapp/domains/condo/gql')
 
-const { generateCondoServerUtils } = require('@open-condo/codegen/generate.condo.server.utils')
 
 const { User: UserGQL } = require('@miniapp/domains/condo/gql')
 /* AUTOGENERATE MARKER <IMPORT> */

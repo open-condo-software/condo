@@ -6,10 +6,10 @@
 const { faker } = require('@faker-js/faker')
 
 const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
-
-const { User: UserGQL } = require('@miniapp/domains/user/gql')
 const { makeLoggedInAdminClient, makeLoggedInClient } = require('@open-condo/keystone/test.utils')
+
 const { STAFF_USER_TYPE, RESIDENT_USER_TYPE } = require('@miniapp/domains/user/constants')
+const { User: UserGQL } = require('@miniapp/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateGQLTestUtils(UserGQL)
@@ -24,15 +24,15 @@ async function makeClientWithNewRegisteredAndLoggedInUser (extraAttrs = {}) {
     return client
 }
 
-async function makeClientWithSupportUser(extraAttrs = {}) {
+async function makeClientWithSupportUser (extraAttrs = {}) {
     return await makeClientWithNewRegisteredAndLoggedInUser({ isSupport: true, type: STAFF_USER_TYPE, ...extraAttrs })
 }
 
-async function makeClientWithResidentUser(extraAttrs = {}) {
+async function makeClientWithResidentUser (extraAttrs = {}) {
     return await makeClientWithNewRegisteredAndLoggedInUser({ type: RESIDENT_USER_TYPE, ...extraAttrs })
 }
 
-async function makeClientWithStaffUser(extraAttrs = {}) {
+async function makeClientWithStaffUser (extraAttrs = {}) {
     return await makeClientWithNewRegisteredAndLoggedInUser({ type: STAFF_USER_TYPE, ...extraAttrs })
 }
 

@@ -6,7 +6,6 @@ const withTMModule = require('next-transpile-modules')
 const conf = require('@open-condo/config')
 
 const { antGlobalVariables } = require('@condo/domains/common/constants/style')
-
 const { DEFAULT_LOCALE } = require('@miniapp/domains/common/constants')
 
 // Tell webpack to compile the "@open-condo/next" package, necessary
