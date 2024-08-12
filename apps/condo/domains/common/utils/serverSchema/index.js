@@ -72,7 +72,7 @@ class GqlWithKnexLoadList {
                 schemaName: this.listKey,
                 data: {
                     singleRelations: this.singleRelations, multipleRelations: this.multipleRelations, where: this.where, fields: this.fields,
-                }
+                },
             })
 
             if (newchunk.length < GLOBAL_QUERY_LIMIT) {
