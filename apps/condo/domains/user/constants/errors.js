@@ -49,6 +49,8 @@ const SMS_FOR_PHONE_DAY_LIMIT_REACHED = 'SMS_FOR_PHONE_DAY_LIMIT_REACHED'
 const SMS_FOR_IP_DAY_LIMIT_REACHED = 'SMS_FOR_IP_DAY_LIMIT_REACHED'
 const DAILY_REQUEST_LIMIT_FOR_IP_REACHED = 'DAILY_REQUEST_LIMIT_FOR_IP_REACHED'
 const DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED = 'DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED'
+const DAILY_REQUEST_LIMIT_FOR_USER_REACHED = 'DAILY_REQUEST_LIMIT_FOR_USER_REACHED'
+const REQUEST_LIMIT_FOR_USER_REACHED = 'REQUEST_LIMIT_FOR_USER_REACHED'
 
 const CAPTCHA_CHECK_FAILED = 'CAPTCHA_CHECK_FAILED'
 
@@ -99,6 +101,18 @@ const GQL_ERRORS = {
         type: DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED,
         message: 'Too many requests with this phone. Try again later',
         messageForUser: 'api.user.DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED',
+    },
+    DAILY_REQUEST_LIMIT_FOR_USER_REACHED: {
+        code: 'BAD_USER_INPUT',
+        type: DAILY_REQUEST_LIMIT_FOR_USER_REACHED,
+        message: 'Too many requests from this user. Try again later',
+        messageForUser: 'api.user.DAILY_REQUEST_LIMIT_FOR_USER_REACHED',
+    },
+    REQUEST_LIMIT_FOR_USER_REACHED: {
+        code: 'BAD_USER_INPUT',
+        type: REQUEST_LIMIT_FOR_USER_REACHED,
+        message: 'Too many requests from this user. Try again later',
+        messageForUser: 'api.user.REQUEST_LIMIT_FOR_USER_REACHED',
     },
     WRONG_PASSWORD_FORMAT: {
         variable: ['data', 'password'],

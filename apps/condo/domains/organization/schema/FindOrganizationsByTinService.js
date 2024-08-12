@@ -12,6 +12,10 @@ const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/organization/access/FindOrganizationsByTinService')
 const { FindOrganizationsByTinLog } = require('@condo/domains/organization/utils/serverSchema')
 const { STAFF } = require('@condo/domains/user/constants/common')
+const { checkDailyRequestLimitCountersByUser, checkTotalRequestLimitCountersByUser } = require('@condo/domains/user/utils/serverSchema/requestLimitHelpers')
+
+
+const MAX_TOTAL_REQUESTS = 50
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -68,7 +72,8 @@ const FindOrganizationsByTinService = new GQLCustomSchema('FindOrganizationsByTi
 
                 if (!tin) throw new GQLError(ERRORS.EMPTY_TIN, context)
 
-                // await checkDailyRequestLimitCountersByIp(context, 'findOrganizationsByTin', context.req.ip)
+                await checkDailyRequestLimitCountersByUser(context, 'findOrganizationsByTin', authedItemId)
+                await checkTotalRequestLimitCountersByUser(context, 'findOrganizationsByTin', authedItemId, MAX_TOTAL_REQUESTS)
 
                 await FindOrganizationsByTinLog.create(context, {
                     tin,
