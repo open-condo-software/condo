@@ -3,7 +3,7 @@
  */
 
 const { userIsAdmin, userIsAdminOrIsThisItem } = require('@open-condo/keystone/access')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@miniapp/domains/user/access/User')
@@ -80,7 +80,16 @@ const User = new GQLListSchema('User', {
             },
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender()],
+    kmigratorOptions: {
+        constraints: [
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['type', 'email'],
+                name: 'unique_type_and_email',
+            },
+        ],
+    },
     access: {
         read: access.canReadUsers,
         create: access.canManageUsers,
