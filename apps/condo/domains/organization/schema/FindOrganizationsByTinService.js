@@ -8,6 +8,7 @@ const { GQLCustomSchema, allItemsQueryByChunks } = require('@open-condo/keystone
 
 const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/organization/access/FindOrganizationsByTinService')
+const { STAFF } = require('@condo/domains/user/constants/common')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -71,7 +72,7 @@ const FindOrganizationsByTinService = new GQLCustomSchema('FindOrganizationsByTi
                     schemaName: 'OrganizationEmployee',
                     where: {
                         organization: { tin, deletedAt: null },
-                        user: { deletedAt: null },
+                        user: { deletedAt: null, type: STAFF },
                         role: { canManageEmployees: true, deletedAt: null },
                         isAccepted: true,
                         isRejected: false,
