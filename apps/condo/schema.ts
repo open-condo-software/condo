@@ -3857,7 +3857,7 @@ export type B2BAppNewsSharingConfig = {
   getRecipientsUrl?: Maybe<Scalars['String']>;
   /**  URL that implements customForm. Use only if you need custom NewsItemSharing data structure, for example if . Allows to provide custom UI for sending news. If not provided app will use condo news form  */
   customFormUrl?: Maybe<Scalars['String']>;
-  /**  URL that returns number of subscribers for condo scopes. This function should not be used in regular cases. Use only if in your miniapp  Should implement POST customGetRecipientsCounters method. Should not be used in regular cases. Allows to provide custom values for recipients counter. If not provided app will use data from getRecipients. If getRecipients is not provided, app wont render recipients counter  */
+  /**  URL that returns number of subscribers for condo scopes. Should implement POST customGetRecipientsCounters method. Allows to provide custom values for recipients counter. If not provided app will use data from getRecipients. If getRecipients is not provided, recipients counter will not be rendered  */
   getRecipientsCountersUrl?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
