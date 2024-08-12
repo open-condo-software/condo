@@ -153,7 +153,7 @@ const extendExpressApp = (app) => {
     app.use(Sentry.Handlers.errorHandler())
 }
 
-if (isMemMonEnabled()) {
+if (!IS_BUILD_PHASE && isMemMonEnabled()) {
     catchGC()
 }
 
