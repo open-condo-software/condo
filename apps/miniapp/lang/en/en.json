@@ -5,5 +5,7 @@
   "AskForOpenWindowButton": "Open new tab and grant access",
   "NoAbleToAskForStorageAccess": "According the browser security restrictions, you will have to grant access to data storage. Please press the following button. There will be a new tab with a form that be opened. Please follow the instructions.",
   "GrantButtonPressed": "OK, thanks! Now you may close this page and press same button at the previous one.",
-  "BeAbleToAskForStorageAccess": "To be able to ask for access to browser storage, please press the following button."
+  "BeAbleToAskForStorageAccess": "To be able to ask for access to browser storage, please press the following button.",
+  "AccessError": "You don't have access to complete this request",
+  "ServerErrorPleaseTryAgainLater": "There are problems on the server, try to visit the page after a while"
 }
