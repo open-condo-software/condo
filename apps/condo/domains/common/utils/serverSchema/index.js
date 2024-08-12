@@ -21,6 +21,24 @@ const logger = getLogger('common/utils/serverSchema.js')
 // Tested on tickets export for 24755 tickets: without knex  71220.902ms, with knex: 16094.841ms )
 // TODO(zuch): find out how to make 1 request for 1. and 2.
 
+function logTooManyReturnedIfRequired (tooManyReturnedMemory, allObjects, { limit, functionName, schemaName, data }) {
+    if (tooManyReturnedMemory.length < 5) return  // trying to notify only if have not notidied yet. Max 4 times
+
+    let realLimit = limit  // notify on: limit, limix * 10, limit * 100, limit * 1000
+    for (let i = 0; i < tooManyReturnedMemory.length; i++) realLimit *= 10
+
+    if (allObjects && Array.isArray(allObjects) && allObjects.length > realLimit) {
+        logger.warn({
+            msg: 'tooManyReturned',
+            tooManyLimit: realLimit,
+            functionName,
+            schemaName,
+            data,
+        })
+        tooManyReturnedMemory.push(true)  // mark as already notified
+    }
+}
+
 class GqlWithKnexLoadList {
 
     constructor ({ listKey, fields, singleRelations = [], multipleRelations = [], where = {}, sortBy = [] }) {
@@ -40,7 +58,7 @@ class GqlWithKnexLoadList {
         let skip = 0
         let newchunk = []
         let all = []
-        let haveNotifiedAboutTooManyObjs = false
+        let tooManyReturnedMemory = []
 
         let maxiterationsCount = 100 // we need some limits - 100K records is more then enough
         do {
@@ -48,18 +66,14 @@ class GqlWithKnexLoadList {
             all = all.concat(newchunk)
             skip += newchunk.length
 
-            if (!haveNotifiedAboutTooManyObjs && all && Array.isArray(all) && all.length > 1000) {
-                logger.warn({
-                    msg: 'tooManyReturned',
-                    functionName: 'GqlWithKnexLoadList.load',
-                    schemaName: this.listKey,
-                    data: {
-                        limit: 1000,
-                        GqlWithKnexLoadListArgs: { singleRelations: this.singleRelations, multipleRelations: this.multipleRelations, where: this.where, fields: this.fields },
-                    },
-                })
-                haveNotifiedAboutTooManyObjs = true
-            }
+            logTooManyReturnedIfRequired(tooManyReturnedMemory, all, {
+                limit: 1000,
+                functionName: 'GqlWithKnexLoadList.load',
+                schemaName: this.listKey,
+                data: {
+                    singleRelations: this.singleRelations, multipleRelations: this.multipleRelations, where: this.where, fields: this.fields,
+                }
+            })
 
             if (newchunk.length < GLOBAL_QUERY_LIMIT) {
                 break
