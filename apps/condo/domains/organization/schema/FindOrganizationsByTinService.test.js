@@ -96,7 +96,7 @@ describe('FindOrganizationsByTinService', () => {
 
                 const [o10nWithOtherTin] = await registerNewOrganization(staffClient, { tin: tin2, country })
 
-                const [o10nWithServiceUser] = await registerNewOrganization(serviceClient, { tin, country })
+                const [o10nWithServiceUserOnly] = await registerNewOrganization(serviceClient, { tin, country })
 
                 const [result] = await findOrganizationsByTinByTestClient(registeredStaffClient, { tin })
                 expect(result.organizations).toHaveLength(2)
