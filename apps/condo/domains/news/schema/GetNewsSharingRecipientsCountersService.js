@@ -61,7 +61,7 @@ const ERRORS = {
         variable: ['data', 'b2bAppContext'],
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
-        message: 'Provided b2bApp does not have customGetRecipientsCountersUrl',
+        message: 'Provided b2bApp does not have getRecipientsCountersUrl',
     },
     NEWS_SHARING_APP_REQUEST_FAILED: {
         query: 'getNewsSharingRecipientsCounters',
@@ -83,6 +83,13 @@ const ERRORS = {
         code: INTERNAL_ERROR,
         type: WRONG_VALUE,
         message: 'Could not create request data payload',
+    },
+    BAD_ORGANIZATION: {
+        query: 'getNewsSharingRecipientsCounters',
+        variable: ['data'],
+        code: INTERNAL_ERROR,
+        type: WRONG_VALUE,
+        message: 'Bad organization in one of the scopes. Organization in scopes should equal organization in context',
     },
 }
 
@@ -130,8 +137,8 @@ const GetNewsSharingRecipientsCountersService = new GQLCustomSchema('GetNewsShar
                     throw new GQLError(ERRORS.NOT_NEWS_SHARING_APP)
                 }
 
-                const customGetRecipientsCountersUrl = newsSharingConfig.customGetRecipientsCountersUrl
-                if (!customGetRecipientsCountersUrl) {
+                const getRecipientsCountersUrl = newsSharingConfig.getRecipientsCountersUrl
+                if (!getRecipientsCountersUrl) {
                     throw new GQLError(ERRORS.NOT_CUSTOM_RECIPIENTS_QUERY_APP)
                 }
 
@@ -151,7 +158,7 @@ const GetNewsSharingRecipientsCountersService = new GQLCustomSchema('GetNewsShar
 
                     // Preprocess scopes, { property: { id } -> property: id }
                     scopes: newsItemScopes.map(scope => ({
-                        organization: get(scope, ['organization', 'id'], null),
+                        organization: organizationId,
                         property: get(scope, ['property', 'id'], null),
                         unitName: scope.unitName || null,
                         unitType: scope.unitType || null,
@@ -173,7 +180,7 @@ const GetNewsSharingRecipientsCountersService = new GQLCustomSchema('GetNewsShar
 
                 // Check that we can obtain result data
                 try {
-                    customGetRecipientsCountResult = await fetch(`${customGetRecipientsCountersUrl}`, {
+                    customGetRecipientsCountResult = await fetch(`${getRecipientsCountersUrl}`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

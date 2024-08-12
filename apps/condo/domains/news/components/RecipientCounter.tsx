@@ -28,8 +28,6 @@ import { useNewsItemRecipientsExportToExcelTask } from '@condo/domains/news/hook
 
 import { NewsItemScopeNoInstanceType, TUnit } from './types'
 
-import { Loader } from '../../common/components/Loader'
-
 interface CounterProps {
     label: string
     value: number
@@ -45,12 +43,12 @@ export const RecipientCounterContainer: React.FC<{ title: React.ReactNode }> = (
     return (
         <Card>
             <Typography.Text>
-                { title }
+                {title}
             </Typography.Text>
             <Space direction='vertical' size={24} width='100%'>
                 <Col xs={24}>
                     <Row align='top' justify='space-evenly'>
-                        { children }
+                        {children}
                     </Row>
                 </Col>
             </Space>
@@ -303,7 +301,7 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
     )
 }
 
-export const NewsItemSharingCustomRecipientCounter: React.FC<{ contextId: string, newsItemScopes: NewsItemScopeNoInstanceType[] }> = ({ contextId, newsItemScopes }) => {
+const NewsSharingRecipientCounter: React.FC<{ contextId: string, newsItemScopes: NewsItemScopeNoInstanceType[] }> = ({ contextId, newsItemScopes }) => {
     const [counter, setCounter] = useState(null)
 
     const intl = useIntl()
@@ -315,8 +313,6 @@ export const NewsItemSharingCustomRecipientCounter: React.FC<{ contextId: string
         GET_NEWS_SHARING_RECIPIENTS_COUNTERS_QUERY,
         {
             onCompleted: (data) => {
-                console.log(data)
-                console.log(get(data, ['result', 'receiversCount']))
                 setCounter(get(data, ['result', 'receiversCount']))
             },
             onError: (error) => {
@@ -360,3 +356,5 @@ export const NewsItemSharingCustomRecipientCounter: React.FC<{ contextId: string
         </RecipientCounterContainer>
     )
 }
+
+export const MemoizedNewsSharingRecipientCounter = React.memo(NewsSharingRecipientCounter)

@@ -69578,7 +69578,7 @@ type B2BAppNewsSharingConfigHistoryRecord {
   previewUrl: String
   getRecipientsUrl: String
   customFormUrl: String
-  customGetRecipientsCountersUrl: String
+  getRecipientsCountersUrl: String
   id: ID!
   v: Int
   createdAt: String
@@ -69713,24 +69713,24 @@ input B2BAppNewsSharingConfigHistoryRecordWhereInput {
   customFormUrl_not_ends_with_i: String
   customFormUrl_in: [String]
   customFormUrl_not_in: [String]
-  customGetRecipientsCountersUrl: String
-  customGetRecipientsCountersUrl_not: String
-  customGetRecipientsCountersUrl_contains: String
-  customGetRecipientsCountersUrl_not_contains: String
-  customGetRecipientsCountersUrl_starts_with: String
-  customGetRecipientsCountersUrl_not_starts_with: String
-  customGetRecipientsCountersUrl_ends_with: String
-  customGetRecipientsCountersUrl_not_ends_with: String
-  customGetRecipientsCountersUrl_i: String
-  customGetRecipientsCountersUrl_not_i: String
-  customGetRecipientsCountersUrl_contains_i: String
-  customGetRecipientsCountersUrl_not_contains_i: String
-  customGetRecipientsCountersUrl_starts_with_i: String
-  customGetRecipientsCountersUrl_not_starts_with_i: String
-  customGetRecipientsCountersUrl_ends_with_i: String
-  customGetRecipientsCountersUrl_not_ends_with_i: String
-  customGetRecipientsCountersUrl_in: [String]
-  customGetRecipientsCountersUrl_not_in: [String]
+  getRecipientsCountersUrl: String
+  getRecipientsCountersUrl_not: String
+  getRecipientsCountersUrl_contains: String
+  getRecipientsCountersUrl_not_contains: String
+  getRecipientsCountersUrl_starts_with: String
+  getRecipientsCountersUrl_not_starts_with: String
+  getRecipientsCountersUrl_ends_with: String
+  getRecipientsCountersUrl_not_ends_with: String
+  getRecipientsCountersUrl_i: String
+  getRecipientsCountersUrl_not_i: String
+  getRecipientsCountersUrl_contains_i: String
+  getRecipientsCountersUrl_not_contains_i: String
+  getRecipientsCountersUrl_starts_with_i: String
+  getRecipientsCountersUrl_not_starts_with_i: String
+  getRecipientsCountersUrl_ends_with_i: String
+  getRecipientsCountersUrl_not_ends_with_i: String
+  getRecipientsCountersUrl_in: [String]
+  getRecipientsCountersUrl_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -69826,8 +69826,8 @@ enum SortB2BAppNewsSharingConfigHistoryRecordsBy {
   getRecipientsUrl_DESC
   customFormUrl_ASC
   customFormUrl_DESC
-  customGetRecipientsCountersUrl_ASC
-  customGetRecipientsCountersUrl_DESC
+  getRecipientsCountersUrl_ASC
+  getRecipientsCountersUrl_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -69855,7 +69855,7 @@ input B2BAppNewsSharingConfigHistoryRecordUpdateInput {
   previewUrl: String
   getRecipientsUrl: String
   customFormUrl: String
-  customGetRecipientsCountersUrl: String
+  getRecipientsCountersUrl: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -69884,7 +69884,7 @@ input B2BAppNewsSharingConfigHistoryRecordCreateInput {
   previewUrl: String
   getRecipientsUrl: String
   customFormUrl: String
-  customGetRecipientsCountersUrl: String
+  getRecipientsCountersUrl: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -69924,34 +69924,35 @@ type B2BAppNewsSharingConfig {
   """ Short and simple name of the external source. For example: Telegram """
   name: String
 
-  """ Icon of the app. For example: Telegram Icon """
+  """ App icon. For example: Telegram app icon """
   icon: File
 
-  """ Preview picture: For example: Telegram screenshot """
+  """ Preview image. For example: Telegram app screenshot """
   previewPicture: File
 
-  """ Push notification settings """
+  """ Push notification preferences for each B2BApp. The available options include: notifications are sent only for emergency alerts, all notifications are turned off, or all notifications are enabled 
+  """
   pushNotificationSettings: B2BAppNewsSharingConfigPushNotificationSettingType
 
-  """ URL that implements publishing NewsItem method. Check News domain for reference 
+  """ URL that publishes NewsItem. Should implement POST publish method. It will be called once news item is ready to be published. Check News domain for reference 
   """
   publishUrl: String
 
-  """ URL that returns rendered HTML preview of News Item. If not provided, app preview will not be rendered 
+  """ URL that returns rendered HTML preview of News Item. Used to render NewsItem preview. If not provided, app preview will not be rendered 
   """
   previewUrl: String
 
-  """ URL that returns chats and/or channels (implements getRecipients function). If provided Select control with data from this endpoint will be used in /news/create page, If not provided, condo control will be used 
+  """ URL that returns chats and/or channels. Should implement POST getRecipients method. If provided Select control with data from this endpoint will be used in /news/create page, If not provided, condo control will be used 
   """
   getRecipientsUrl: String
 
-  """ URL that implements customForm. Should not be used in regular cases. Allows to provide custom UI for sending news. If not provided app will use condo news form 
+  """ URL that implements customForm. Use only if you need custom NewsItemSharing data structure, for example if . Allows to provide custom UI for sending news. If not provided app will use condo news form 
   """
   customFormUrl: String
 
-  """ URL that implements customGetRecipientsCounters. Should not be used in regular cases. Allows to provide custom values for recipients counter. If not provided app will use data from getRecipients. If getRecipients is not provided, app wont render recipients counter 
+  """ URL that returns number of subscribers for condo scopes. This function should not be used in regular cases. Use only if in your miniapp  Should implement POST customGetRecipientsCounters method. Should not be used in regular cases. Allows to provide custom values for recipients counter. If not provided app will use data from getRecipients. If getRecipients is not provided, app wont render recipients counter 
   """
-  customGetRecipientsCountersUrl: String
+  getRecipientsCountersUrl: String
   id: ID!
   v: Int
   createdAt: String
@@ -70080,24 +70081,24 @@ input B2BAppNewsSharingConfigWhereInput {
   customFormUrl_not_ends_with_i: String
   customFormUrl_in: [String]
   customFormUrl_not_in: [String]
-  customGetRecipientsCountersUrl: String
-  customGetRecipientsCountersUrl_not: String
-  customGetRecipientsCountersUrl_contains: String
-  customGetRecipientsCountersUrl_not_contains: String
-  customGetRecipientsCountersUrl_starts_with: String
-  customGetRecipientsCountersUrl_not_starts_with: String
-  customGetRecipientsCountersUrl_ends_with: String
-  customGetRecipientsCountersUrl_not_ends_with: String
-  customGetRecipientsCountersUrl_i: String
-  customGetRecipientsCountersUrl_not_i: String
-  customGetRecipientsCountersUrl_contains_i: String
-  customGetRecipientsCountersUrl_not_contains_i: String
-  customGetRecipientsCountersUrl_starts_with_i: String
-  customGetRecipientsCountersUrl_not_starts_with_i: String
-  customGetRecipientsCountersUrl_ends_with_i: String
-  customGetRecipientsCountersUrl_not_ends_with_i: String
-  customGetRecipientsCountersUrl_in: [String]
-  customGetRecipientsCountersUrl_not_in: [String]
+  getRecipientsCountersUrl: String
+  getRecipientsCountersUrl_not: String
+  getRecipientsCountersUrl_contains: String
+  getRecipientsCountersUrl_not_contains: String
+  getRecipientsCountersUrl_starts_with: String
+  getRecipientsCountersUrl_not_starts_with: String
+  getRecipientsCountersUrl_ends_with: String
+  getRecipientsCountersUrl_not_ends_with: String
+  getRecipientsCountersUrl_i: String
+  getRecipientsCountersUrl_not_i: String
+  getRecipientsCountersUrl_contains_i: String
+  getRecipientsCountersUrl_not_contains_i: String
+  getRecipientsCountersUrl_starts_with_i: String
+  getRecipientsCountersUrl_not_starts_with_i: String
+  getRecipientsCountersUrl_ends_with_i: String
+  getRecipientsCountersUrl_not_ends_with_i: String
+  getRecipientsCountersUrl_in: [String]
+  getRecipientsCountersUrl_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -70173,8 +70174,8 @@ enum SortB2BAppNewsSharingConfigsBy {
   getRecipientsUrl_DESC
   customFormUrl_ASC
   customFormUrl_DESC
-  customGetRecipientsCountersUrl_ASC
-  customGetRecipientsCountersUrl_DESC
+  getRecipientsCountersUrl_ASC
+  getRecipientsCountersUrl_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -70202,7 +70203,7 @@ input B2BAppNewsSharingConfigUpdateInput {
   previewUrl: String
   getRecipientsUrl: String
   customFormUrl: String
-  customGetRecipientsCountersUrl: String
+  getRecipientsCountersUrl: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -70228,7 +70229,7 @@ input B2BAppNewsSharingConfigCreateInput {
   previewUrl: String
   getRecipientsUrl: String
   customFormUrl: String
-  customGetRecipientsCountersUrl: String
+  getRecipientsCountersUrl: String
   v: Int
   createdAt: String
   updatedAt: String

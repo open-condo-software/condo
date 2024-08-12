@@ -32,7 +32,7 @@ describe('B2BAppNewsSharingConfig', () => {
                 publishUrl: faker.internet.url(),
                 previewUrl: faker.internet.url(),
                 getRecipientsUrl: faker.internet.url(),
-                customGetRecipientsCountersUrl: faker.internet.url(),
+                getRecipientsCountersUrl: faker.internet.url(),
                 customFormUrl: faker.internet.url(),
             }
             test('admin can', async () => {

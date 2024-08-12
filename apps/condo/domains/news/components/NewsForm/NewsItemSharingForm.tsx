@@ -2,7 +2,7 @@ import { B2BApp } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -10,10 +10,11 @@ import { ActionBar as UIActionBar, Alert, Button, Typography } from '@open-condo
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
+import { NEWS_SHARING_PUSH_NOTIFICATION_SETTINGS } from '@condo/domains/miniapp/constants'
 import { MemoizedSharingNewsPreview } from '@condo/domains/news/components/NewsPreview'
 import { NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 
-import { NewsItemSharingCustomRecipientCounter } from '../RecipientCounter'
+import { MemoizedNewsSharingRecipientCounter } from '../RecipientCounter'
 import { NewsItemScopeNoInstanceType } from '../types'
 
 
@@ -58,6 +59,11 @@ export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemDa
     const NotSupportedMessage = intl.formatMessage({ id: 'pages.condo.news.steps.sharingApp.notSupported' })
     const NextStepMessage = intl.formatMessage({ id: 'pages.condo.news.steps.nextStep' })
 
+    const previewHasPush = useMemo(() =>
+        (newsSharingConfig.pushNotificationSettings === NEWS_SHARING_PUSH_NOTIFICATION_SETTINGS.ENABLED) ||
+            (newsSharingConfig.pushNotificationSettings === NEWS_SHARING_PUSH_NOTIFICATION_SETTINGS.ONLY_EMERGENCY && newsItemData.type === NEWS_TYPE_EMERGENCY),
+    [newsSharingConfig, newsItemData, NEWS_SHARING_PUSH_NOTIFICATION_SETTINGS])
+
     const { breakpoints } = useLayoutContext()
     const isMediumWindow = !breakpoints.DESKTOP_SMALL
     const formFieldsColSpan = isMediumWindow ? 24 : 14
@@ -80,6 +86,15 @@ export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemDa
             setSharingAppFormValues({ formValues, preview, isValid })
         }
     }, [id])
+    
+    const newsSharingRecipientCounter = useMemo(() => <>{ newsSharingConfig.getRecipientsCountersUrl && (
+        <Col span={formInfoColSpan}>
+            <MemoizedNewsSharingRecipientCounter
+                contextId={ctxId}
+                newsItemScopes={newsItemData.scopes}
+            />
+        </Col>
+    ) }</>, [newsSharingConfig, newsItemData])
 
     useEffect(() => {
         const title = get(sharingAppFormValues, ['preview', 'renderedTitle'])
@@ -119,7 +134,7 @@ export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemDa
                             <Col style={{ marginLeft: '10px' }} span={formInfoColSpan}>
                                 {(!!get(sharingAppFormValues, ['preview', 'renderedTitle']) || !!get(sharingAppFormValues, ['preview', 'renderedBody'])) && (
                                     <MemoizedSharingNewsPreview
-                                        hasPush={false}
+                                        hasPush={previewHasPush}
 
                                         appName={appName}
                                         appIcon={appIcon}
@@ -151,16 +166,9 @@ export const NewsItemSharingForm: React.FC<INewsItemSharingForm> = ({ newsItemDa
                                             </Col>
                                         </Row>
                                     </Col>
+                                    { newsSharingRecipientCounter }
                                 </Row>
                             </Col>
-                            { newsSharingConfig.customGetRecipientsCountersUrl && (
-                                <Col span={formInfoColSpan}>
-                                    <NewsItemSharingCustomRecipientCounter
-                                        contextId={ctxId}
-                                        newsItemScopes={newsItemData.scopes}
-                                    />
-                                </Col>
-                            ) }
                         </Row>
                     </Col>
                 )

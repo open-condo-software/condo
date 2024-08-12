@@ -8,7 +8,7 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/miniapp/access/B2BAppNewsSharingConfig')
-const { NEWS_SHARING_PUSH_MESSAGE_PREVIEW_SETTINGS } = require('@condo/domains/miniapp/constants')
+const { NEWS_SHARING_PUSH_NOTIFICATION_SETTINGS } = require('@condo/domains/miniapp/constants')
 
 const NEWS_SHARING_FILE_ADAPTER = new FileAdapter('news-sharing')
 
@@ -40,43 +40,43 @@ const B2BAppNewsSharingConfig = new GQLListSchema('B2BAppNewsSharingConfig', {
         },
 
         icon: {
-            schemaDoc: 'Icon of the app. For example: Telegram Icon',
+            schemaDoc: 'App icon. For example: Telegram app icon',
             type: 'File',
             isRequired: false,
             adapter: NEWS_SHARING_FILE_ADAPTER,
         },
 
         previewPicture: {
-            schemaDoc: 'Preview picture: For example: Telegram screenshot',
+            schemaDoc: 'Preview image. For example: Telegram app screenshot',
             type: 'File',
             isRequired: false,
             adapter: NEWS_SHARING_FILE_ADAPTER,
         },
 
         pushNotificationSettings: {
-            schemaDoc: 'Push notification settings',
+            schemaDoc: 'Push notification preferences for each B2BApp. The available options include: notifications are sent only for emergency alerts, all notifications are turned off, or all notifications are enabled',
             type: 'Select',
-            options: Object.values(NEWS_SHARING_PUSH_MESSAGE_PREVIEW_SETTINGS),
+            options: Object.values(NEWS_SHARING_PUSH_NOTIFICATION_SETTINGS),
             isRequired: true,
-            defaultValue: NEWS_SHARING_PUSH_MESSAGE_PREVIEW_SETTINGS.DISABLED,
+            defaultValue: NEWS_SHARING_PUSH_NOTIFICATION_SETTINGS.DISABLED,
         },
 
-        // Standard set of methods that should be implemented to create an integration with telegram / viber / wa services
+        // Standard set of methods that should be implemented to create an integration with telegram / viber apps
 
         publishUrl: {
-            schemaDoc: 'URL that implements publishing NewsItem method. Check News domain for reference',
+            schemaDoc: 'URL that publishes NewsItem. Should implement POST publish method. It will be called once news item is ready to be published. Check News domain for reference',
             type: 'Url',
             isRequired: true,
         },
 
         previewUrl: {
-            schemaDoc: 'URL that returns rendered HTML preview of News Item. If not provided, app preview will not be rendered',
+            schemaDoc: 'URL that returns rendered HTML preview of News Item. Used to render NewsItem preview. If not provided, app preview will not be rendered',
             type: 'Url',
             isRequired: false,
         },
 
         getRecipientsUrl: {
-            schemaDoc: 'URL that returns chats and/or channels (implements getRecipients function). If provided Select control with data from this endpoint will be used in /news/create page, If not provided, condo control will be used',
+            schemaDoc: 'URL that returns chats and/or channels. Should implement POST getRecipients method. If provided Select control with data from this endpoint will be used in /news/create page, If not provided, condo control will be used',
             type: 'Url',
             isRequired: false,
         },
@@ -85,13 +85,13 @@ const B2BAppNewsSharingConfig = new GQLListSchema('B2BAppNewsSharingConfig', {
         // Should only be used as a last resort
 
         customFormUrl: {
-            schemaDoc: 'URL that implements customForm. Should not be used in regular cases. Allows to provide custom UI for sending news. If not provided app will use condo news form',
+            schemaDoc: 'URL that implements customForm. Use only if you need custom NewsItemSharing data structure, for example if . Allows to provide custom UI for sending news. If not provided app will use condo news form',
             type: 'Url',
             isRequired: false,
         },
 
-        customGetRecipientsCountersUrl: {
-            schemaDoc: 'URL that implements customGetRecipientsCounters. Should not be used in regular cases. Allows to provide custom values for recipients counter. If not provided app will use data from getRecipients. If getRecipients is not provided, app wont render recipients counter',
+        getRecipientsCountersUrl: {
+            schemaDoc: 'URL that returns number of subscribers for condo scopes. This function should not be used in regular cases. Use only if in your miniapp  Should implement POST customGetRecipientsCounters method. Should not be used in regular cases. Allows to provide custom values for recipients counter. If not provided app will use data from getRecipients. If getRecipients is not provided, app wont render recipients counter',
             type: 'Url',
             isRequired: false,
         },

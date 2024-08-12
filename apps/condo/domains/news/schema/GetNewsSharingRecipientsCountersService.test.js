@@ -55,7 +55,7 @@ describe('GetNewsSharingRecipientsService', () => {
         await createTestOrganizationEmployee(adminClient, o10n, staffClientWithPermissions.user, roleYes)
 
         const [B2BAppNewsSharingConfig] = await createTestB2BAppNewsSharingConfig(adminClient, {
-            customGetRecipientsCountersUrl: `${testExpressAppBaseUrl}${SUCCESS_GET_RECIPIENTS_COUNTERS_URL}`,
+            getRecipientsCountersUrl: `${testExpressAppBaseUrl}${SUCCESS_GET_RECIPIENTS_COUNTERS_URL}`,
             publishUrl: `${testExpressAppBaseUrl}${SUCCESS_PUBLISH_URL}`,
         })
         
@@ -99,7 +99,7 @@ describe('GetNewsSharingRecipientsService', () => {
 
     test('fails if remote server return bad response code: 404', async () => {
         const [B2BAppFailingNewsSharingConfig] = await createTestB2BAppNewsSharingConfig(adminClient, {
-            customGetRecipientsCountersUrl: `${testExpressAppBaseUrl}${FAULTY_GET_RECIPIENTS_COUNTERS_URL_404}`,
+            getRecipientsCountersUrl: `${testExpressAppBaseUrl}${FAULTY_GET_RECIPIENTS_COUNTERS_URL_404}`,
             publishUrl: `${testExpressAppBaseUrl}${SUCCESS_PUBLISH_URL}`,
         })
         const [B2BApp] = await createTestB2BApp(adminClient, { contextDefaultStatus: CONTEXT_FINISHED_STATUS, newsSharingConfig: { connect: { id: B2BAppFailingNewsSharingConfig.id } } })
@@ -116,7 +116,7 @@ describe('GetNewsSharingRecipientsService', () => {
 
     test('fails if remote server return bad response code: 500', async () => {
         const [B2BAppFailingNewsSharingConfig] = await createTestB2BAppNewsSharingConfig(adminClient, {
-            customGetRecipientsCountersUrl: `${testExpressAppBaseUrl}${FAULTY_GET_RECIPIENTS_COUNTERS_URL_500}`,
+            getRecipientsCountersUrl: `${testExpressAppBaseUrl}${FAULTY_GET_RECIPIENTS_COUNTERS_URL_500}`,
             publishUrl: `${testExpressAppBaseUrl}${SUCCESS_PUBLISH_URL}`,
         })
         const [B2BApp] = await createTestB2BApp(adminClient, { contextDefaultStatus: CONTEXT_FINISHED_STATUS, newsSharingConfig: { connect: { id: B2BAppFailingNewsSharingConfig.id } } })
@@ -133,7 +133,7 @@ describe('GetNewsSharingRecipientsService', () => {
 
     test('fails if remote server returns wrong data (wrong data type)', async () => {
         const [B2BAppFailingNewsSharingConfig] = await createTestB2BAppNewsSharingConfig(adminClient, {
-            customGetRecipientsCountersUrl: `${testExpressAppBaseUrl}${INCORRECT_GET_RECIPIENTS_COUNTERS_RESULT_URL_WRONG_RETURN_TYPE}`,
+            getRecipientsCountersUrl: `${testExpressAppBaseUrl}${INCORRECT_GET_RECIPIENTS_COUNTERS_RESULT_URL_WRONG_RETURN_TYPE}`,
             publishUrl: `${testExpressAppBaseUrl}${SUCCESS_PUBLISH_URL}`,
         })
         const [B2BApp] = await createTestB2BApp(adminClient, { contextDefaultStatus: CONTEXT_FINISHED_STATUS, newsSharingConfig: { connect: { id: B2BAppFailingNewsSharingConfig.id } } })
@@ -150,7 +150,7 @@ describe('GetNewsSharingRecipientsService', () => {
 
     test('fails if remote server returns wrong data (additional fields)', async () => {
         const [B2BAppFailingNewsSharingConfig] = await createTestB2BAppNewsSharingConfig(adminClient, {
-            customGetRecipientsCountersUrl: `${testExpressAppBaseUrl}${INCORRECT_GET_RECIPIENTS_COUNTERS_RESULT_URL_OTHER_FIELDS}`,
+            getRecipientsCountersUrl: `${testExpressAppBaseUrl}${INCORRECT_GET_RECIPIENTS_COUNTERS_RESULT_URL_OTHER_FIELDS}`,
             previewUrl: `${testExpressAppBaseUrl}${SUCCESS_PREVIEW_URL}`,
             publishUrl: `${testExpressAppBaseUrl}${SUCCESS_PUBLISH_URL}`,
         })
@@ -168,7 +168,7 @@ describe('GetNewsSharingRecipientsService', () => {
 
     test('fails if url is wrong', async () => {
         const [B2BAppFailingNewsSharingConfig] = await createTestB2BAppNewsSharingConfig(adminClient, {
-            customGetRecipientsCountersUrl: 'ssh://192.168.255.255',
+            getRecipientsCountersUrl: 'ssh://192.168.255.255',
             previewUrl: `${testExpressAppBaseUrl}${SUCCESS_PREVIEW_URL}`,
             publishUrl: `${testExpressAppBaseUrl}${SUCCESS_PUBLISH_URL}`,
         })
@@ -186,7 +186,7 @@ describe('GetNewsSharingRecipientsService', () => {
 
     test('fails if remote server is inaccessible', async () => {
         const [B2BAppFailingNewsSharingConfig] = await createTestB2BAppNewsSharingConfig(adminClient, {
-            customGetRecipientsCountersUrl: 'https://192.168.255.255',
+            getRecipientsCountersUrl: 'https://192.168.255.255',
             previewUrl: `${testExpressAppBaseUrl}${SUCCESS_PREVIEW_URL}`,
             publishUrl: `${testExpressAppBaseUrl}${SUCCESS_PUBLISH_URL}`,
         })
