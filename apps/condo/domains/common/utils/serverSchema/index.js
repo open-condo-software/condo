@@ -6,6 +6,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const GLOBAL_QUERY_LIMIT = 1000
+const TOO_MANY_RETURNED_LOG_LIMITS = Object.freeze([1100, 4900, 9000, 14900, 49000, 149000])
 const logger = getLogger('common/utils/serverSchema.js')
 
 // When we load models with Apollo graphql - every relation on a field for every object makes sql request
@@ -21,11 +22,11 @@ const logger = getLogger('common/utils/serverSchema.js')
 // Tested on tickets export for 24755 tickets: without knex  71220.902ms, with knex: 16094.841ms )
 // TODO(zuch): find out how to make 1 request for 1. and 2.
 
-function logTooManyReturnedIfRequired (tooManyReturnedMemory, allObjects, { limit, functionName, schemaName, data }) {
-    if (tooManyReturnedMemory.length < 5) return  // trying to notify only if have not notidied yet. Max 4 times
+function logTooManyReturnedIfRequired (tooManyReturnedLimitCounters, allObjects, { functionName, schemaName, data }) {
+    if (!Array.isArray(tooManyReturnedLimitCounters)) throw new Error('logTooManyReturned: wrong argument type')
+    if (tooManyReturnedLimitCounters.length <= 0) return  // trying to notify only if have any counter
 
-    let realLimit = limit  // notify on: limit, limix * 10, limit * 100, limit * 1000
-    for (let i = 0; i < tooManyReturnedMemory.length; i++) realLimit *= 10
+    const realLimit = tooManyReturnedLimitCounters[0]
 
     if (allObjects && Array.isArray(allObjects) && allObjects.length > realLimit) {
         logger.warn({
@@ -35,7 +36,7 @@ function logTooManyReturnedIfRequired (tooManyReturnedMemory, allObjects, { limi
             schemaName,
             data,
         })
-        tooManyReturnedMemory.push(true)  // mark as already notified
+        tooManyReturnedLimitCounters.shift()  // remove counter and mark as already notified
     }
 }
 
@@ -58,7 +59,7 @@ class GqlWithKnexLoadList {
         let skip = 0
         let newchunk = []
         let all = []
-        let tooManyReturnedMemory = []
+        let tooManyReturnedLimitCounters = [...TOO_MANY_RETURNED_LOG_LIMITS]
 
         let maxiterationsCount = 100 // we need some limits - 100K records is more then enough
         do {
@@ -66,8 +67,7 @@ class GqlWithKnexLoadList {
             all = all.concat(newchunk)
             skip += newchunk.length
 
-            logTooManyReturnedIfRequired(tooManyReturnedMemory, all, {
-                limit: 1000,
+            logTooManyReturnedIfRequired(tooManyReturnedLimitCounters, all, {
                 functionName: 'GqlWithKnexLoadList.load',
                 schemaName: this.listKey,
                 data: {
