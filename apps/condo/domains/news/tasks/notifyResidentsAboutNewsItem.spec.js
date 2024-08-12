@@ -8,7 +8,7 @@ const truncate = require('lodash/truncate')
 
 const { waitFor, UUID_RE, makeLoggedInAdminClient, setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
-const { NEWS_SENDING_TTL_IN_SEC, MESSAGE_TITLE_MAX_LEN, MESSAGE_BODY_MAX_LEN } = require('@condo/domains/news/constants/common')
+const { NEWS_SENDING_TTL_IN_SEC } = require('@condo/domains/news/constants/common')
 const { notifyResidentsAboutNewsItem } = require('@condo/domains/news/tasks/notifyResidentsAboutNewsItem')
 const { updateTestNewsItem, createTestNewsItem, createTestNewsItemScope, publishTestNewsItem } = require('@condo/domains/news/utils/testSchema')
 const {
@@ -24,6 +24,9 @@ const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
+
+const MESSAGE_TITLE_MAX_LEN = 50
+const MESSAGE_BODY_MAX_LEN = 150
 
 describe('notifyResidentsAboutNewsItem', () => {
     setFakeClientMode(index)
