@@ -36,7 +36,7 @@ function logTooManyReturnedIfRequired (tooManyReturnedLimitCounters, allObjects,
             functionName,
             schemaName,
             data,
-            reqId: executionContext.reqId,
+            reqId: executionContext?.reqId,
         })
         tooManyReturnedLimitCounters.shift()  // remove counter and mark as already notified
     }
