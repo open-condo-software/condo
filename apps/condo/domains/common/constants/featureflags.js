@@ -28,6 +28,7 @@ const NEWS_SHARING = 'news-sharing'
 const NEWS_SHARING_TEMPLATES = 'news-sharing-templates'
 const TICKET_DOCUMENT_GENERATION = 'ticket-document-generation'
 const SERVICE_PROBLEMS_ALERT = 'service-problems-alert'
+const USER_WHITE_LIST_FOR_FIND_ORGANIZATIONS_BY_TIN = 'user-white-list-for-find-organizations-by-tin'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -59,4 +60,5 @@ module.exports = {
     NEWS_SHARING_TEMPLATES,
     TICKET_DOCUMENT_GENERATION,
     SERVICE_PROBLEMS_ALERT,
+    USER_WHITE_LIST_FOR_FIND_ORGANIZATIONS_BY_TIN,
 }

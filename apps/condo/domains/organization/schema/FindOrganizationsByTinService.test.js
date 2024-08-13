@@ -8,7 +8,8 @@ const {
     makeLoggedInAdminClient,
     makeClient,
     expectToThrowAccessDeniedErrorToResult,
-    expectToThrowAuthenticationErrorToResult, expectToThrowGQLError,
+    expectToThrowAuthenticationErrorToResult,
+    expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
@@ -25,21 +26,38 @@ const {
     makeClientWithStaffUser,
     makeClientWithResidentUser,
     makeClientWithServiceUser,
+    makeClientWithSupportUser,
 } = require('@condo/domains/user/utils/testSchema')
 
 
 const COUNTRY_KEYS = Object.keys(COUNTRIES)
+const REQUEST_DAILY_LIMIT = 10
 
 
 describe('FindOrganizationsByTinService', () => {
-    let adminClient, anonymousClient
+    let adminClient, supportClient, anonymousClient
 
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
+        supportClient = await makeClientWithSupportUser()
         anonymousClient = await makeClient()
     })
 
     describe('Accesses', () => {
+        describe('Admin', () => {
+            test('Can execute', async () => {
+                const [result] = await findOrganizationsByTinByTestClient(adminClient, { tin: String(generateTin(faker.helpers.arrayElement(COUNTRY_KEYS))) })
+                expect(result).toBeDefined()
+            })
+        })
+
+        describe('Support', () => {
+            test('Can execute', async () => {
+                const [result] = await findOrganizationsByTinByTestClient(supportClient, { tin: String(generateTin(faker.helpers.arrayElement(COUNTRY_KEYS))) })
+                expect(result).toBeDefined()
+            })
+        })
+
         describe('Staff', () => {
             test('Can execute', async () => {
                 const staffClient = await makeClientWithStaffUser()
@@ -76,7 +94,7 @@ describe('FindOrganizationsByTinService', () => {
     })
 
     describe('Basic logic', () => {
-        describe('should return all not deleted organizations with the specified TIN, where there are employees with the right "canManageEmployees" excluding service users', () => {
+        describe('Should return all not deleted organizations with the specified TIN, where there are employees with the right "canManageEmployees" excluding service users', () => {
             test.each(COUNTRY_KEYS)('country: %p', async (country) => {
                 const staffClient = await makeClientWithStaffUser()
                 const serviceClient = await makeClientWithServiceUser()
@@ -150,12 +168,14 @@ describe('FindOrganizationsByTinService', () => {
                 }),
             ])
         })
+    })
 
-        test('should throw error if there are a lot of requests from user and save to logs all processed requests', async () => {
+    describe('Request limit', () => {
+        test('Should throw error if there are a lot of requests from user and save to logs all processed requests', async () => {
             const staffClient = await makeClientWithStaffUser()
             const tin = String(generateTin())
 
-            for (let i = 0; i < 10; i++) {
+            for (let i = 0; i < REQUEST_DAILY_LIMIT; i++) {
                 const [result] = await findOrganizationsByTinByTestClient(staffClient, { tin })
                 expect(result).toBeDefined()
             }
@@ -173,6 +193,38 @@ describe('FindOrganizationsByTinService', () => {
             const staffClient2 = await makeClientWithStaffUser()
             const [result] = await findOrganizationsByTinByTestClient(staffClient2, { tin })
             expect(result).toBeDefined()
+        })
+
+        test('Admin should skip limit', async () => {
+            const tin = String(generateTin())
+            for (let i = 0; i < REQUEST_DAILY_LIMIT; i++) {
+                const [result] = await findOrganizationsByTinByTestClient(adminClient, { tin })
+                expect(result).toBeDefined()
+            }
+            const [result] = await findOrganizationsByTinByTestClient(adminClient, { tin })
+            expect(result).toBeDefined()
+
+            const logs = await FindOrganizationsByTinLog.getAll(adminClient, {
+                user: { id: adminClient.user.id },
+                tin,
+            })
+            expect(logs).toHaveLength(11)
+        })
+
+        test('Support should skip limit', async () => {
+            const tin = String(generateTin())
+            for (let i = 0; i < REQUEST_DAILY_LIMIT; i++) {
+                const [result] = await findOrganizationsByTinByTestClient(supportClient, { tin })
+                expect(result).toBeDefined()
+            }
+            const [result] = await findOrganizationsByTinByTestClient(supportClient, { tin })
+            expect(result).toBeDefined()
+
+            const logs = await FindOrganizationsByTinLog.getAll(supportClient, {
+                user: { id: supportClient.user.id },
+                tin,
+            })
+            expect(logs).toHaveLength(11)
         })
     })
 })

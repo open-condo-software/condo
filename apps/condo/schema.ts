@@ -66257,7 +66257,7 @@ export type Query = {
    */
   checkUserExistence?: Maybe<CheckUserExistenceOutput>;
   /**
-   * Returns all organizations by TIN, to which the user can send a request to join
+   * Returns all organizations by TIN. Used to get organizations that the user can apply to join
    *
    *
    *
