@@ -127,7 +127,7 @@ const FindOrganizationsByTinService = new GQLCustomSchema('FindOrganizationsByTi
 
                 const organizations = await allItemsQueryByChunks({
                     schemaName: 'Organization',
-                    where: { id_in: Array.from(orgIds), tin, deletedAt: null },
+                    where: { id_in: Array.from(orgIds) },
                     chunkSize: 100,
                     chunkProcessor: (orgs) => {
                         return orgs.map(org => ({ id: org.id, name: org.name }))
