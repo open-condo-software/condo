@@ -2,6 +2,7 @@ const { getItems } = require('@keystonejs/server-side-graphql-client')
 const { isFunction } = require('lodash')
 
 const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
+const { getExecutionContext } = require('@open-condo/keystone/executionContext')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
@@ -25,16 +26,17 @@ const logger = getLogger('common/utils/serverSchema.js')
 function logTooManyReturnedIfRequired (tooManyReturnedLimitCounters, allObjects, { functionName, schemaName, data }) {
     if (!Array.isArray(tooManyReturnedLimitCounters)) throw new Error('logTooManyReturned: wrong argument type')
     if (tooManyReturnedLimitCounters.length <= 0) return  // trying to notify only if have any counter
-
     const realLimit = tooManyReturnedLimitCounters[0]
 
     if (allObjects && Array.isArray(allObjects) && allObjects.length > realLimit) {
+        const executionContext = getExecutionContext()
         logger.warn({
             msg: 'tooManyReturned',
             tooManyLimit: realLimit,
             functionName,
             schemaName,
             data,
+            reqId: executionContext.reqId,
         })
         tooManyReturnedLimitCounters.shift()  // remove counter and mark as already notified
     }
