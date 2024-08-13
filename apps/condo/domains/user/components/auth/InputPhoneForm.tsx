@@ -1,6 +1,6 @@
 import { Col, Form, Row, RowProps, Typography } from 'antd'
 import getConfig from 'next/config'
-import Router from 'next/router'
+import { useRouter } from 'next/router'
 import React, { useCallback, useContext, useMemo, useState } from 'react'
 
 import { useMutation } from '@open-condo/next/apollo'
@@ -9,7 +9,6 @@ import { FormattedMessage } from '@open-condo/next/intl'
 
 import { Button } from '@condo/domains/common/components/Button'
 import { TabsAuthAction } from '@condo/domains/common/components/HeaderActions'
-import { SberIconWithoutLabel } from '@condo/domains/common/components/icons/SberIcon'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { colors } from '@condo/domains/common/constants/style'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
@@ -23,6 +22,7 @@ import { START_CONFIRM_PHONE_MUTATION } from '@condo/domains/user/gql'
 
 import { RegisterContext } from './RegisterContextProvider'
 import { LoginWithSBBOLButton } from '../../../common/components/LoginWithSBBOLButton'
+import { isSafeUrl } from '../../../common/utils/url.utils'
 
 
 const ROW_STYLES: React.CSSProperties = {
@@ -54,7 +54,6 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
     const SMSTooManyRequestsErrorMsg = intl.formatMessage({ id: 'pages.auth.TooManyRequests' })
     const WrongPhoneFormatErrorMsg = intl.formatMessage({ id: 'api.common.WRONG_PHONE_FORMAT' })
     const RegisterMsg = intl.formatMessage({ id: 'Register' })
-    const LoginBySBBOLMsg = intl.formatMessage({ id: 'LoginBySBBOL' })
     const ConsentContent = intl.formatMessage({ id: 'pages.auth.register.info.ConsentContent' })
     const PrivacyPolicyContent = intl.formatMessage({ id: 'pages.auth.register.info.PrivacyPolicyContent' })
     const TermsOfUseContent = intl.formatMessage({ id: 'pages.auth.register.info.termsOfUseContent' })
@@ -63,6 +62,9 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
 
     const { publicRuntimeConfig: { hasSbbolAuth } } = getConfig()
 
+    const router = useRouter()
+    const { query: { next }  } = router
+    const redirectUrl = (next && !Array.isArray(next) && isSafeUrl(next)) ? next : '/'
     const { setToken, setPhone, handleCaptchaVerify } = useContext(RegisterContext)
     const [isLoading, setIsLoading] = useState(false)
     const [startPhoneVerify] = useMutation(START_CONFIRM_PHONE_MUTATION)
@@ -120,7 +122,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
             onCompleted: (data) => {
                 const { data: { result: { token } } } = data
                 setToken(token)
-                Router.push(`/auth/register?token=${token}`)
+                router.push(`/auth/register?token=${token}`)
                 onFinish()
             },
             // Skip notification
@@ -224,7 +226,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
                                         </Col>
                                         <Col span={24}>
                                             <Form.Item>
-                                                <LoginWithSBBOLButton block checkTlsCert />
+                                                <LoginWithSBBOLButton redirect={redirectUrl} block checkTlsCert />
                                             </Form.Item>
                                         </Col>
                                     </>

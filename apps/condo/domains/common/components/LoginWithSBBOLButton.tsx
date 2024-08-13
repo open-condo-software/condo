@@ -7,7 +7,6 @@ import { Button } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { useCheckTLSClientCert } from '../hooks/useCheckTLSClientCert'
-import { isSafeUrl } from '../utils/url.utils'
 
 export const LoginWithSBBOLButton: React.FC<{ label?: string, block?: boolean, redirect?: string, checkTlsCert: boolean }> = ({
     label,
@@ -18,11 +17,9 @@ export const LoginWithSBBOLButton: React.FC<{ label?: string, block?: boolean, r
     const intl = useIntl()
     const LoginLabel = intl.formatMessage({ id: 'LoginBySBBOL' })
     const router = useRouter()
-    const { query: { next }  } = router
-    const isValidNextUrl = next && !Array.isArray(next) && isSafeUrl(next)
 
     const redirectToAuth = async () => {
-        const queryParams = redirect ? `?redirectUrl=${encodeURIComponent(redirect)}` + isValidNextUrl ? `&next=${encodeURIComponent(next)}` : '' : ''
+        const queryParams = redirect ? `?redirectUrl=${encodeURIComponent(redirect)}` : ''
         const authUrl = `/api/sbbol/auth${queryParams}`
         await router.push(authUrl)
     }
