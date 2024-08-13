@@ -9,9 +9,9 @@ exports.up = async (knex) => {
 --
 SET statement_timeout = '1500s';
 --
--- Create index billingReceipt_period_context on field(s) period, context of model billingreceipt
+-- [CUSTOM] Create index billingReceipt_period_context on field(s) period, context of model billingreceipt
 --
-CREATE INDEX IF NOT EXISTS "billingReceipt_period_context" ON "BillingReceipt" USING btree ("period", "context");
+CREATE INDEX IF NOT EXISTS "billingReceipt_period_context" ON "BillingReceipt" USING btree ("period", "context") WHERE ("deletedAt" IS null);
 --
 -- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
 --

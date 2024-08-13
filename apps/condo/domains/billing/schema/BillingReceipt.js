@@ -284,6 +284,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                 type: 'BTreeIndex',
                 fields: ['period', 'context'],
                 name: 'billingReceipt_period_context',
+                condition: 'Q(deletedAt__isnull=True)',
             },
         ],
     },
