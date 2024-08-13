@@ -24,7 +24,7 @@ const {
     publicRuntimeConfig,
 } = getConfig()
 
-const { guideModalCardLink, guideIntroduceAppMaterials } = publicRuntimeConfig
+const { guideModalCardExamples, guideIntroduceAppMaterials } = publicRuntimeConfig
 
 const MEDIUM_GUTTER: RowProps['gutter'] = [0, 40]
 const LARGE_GUTTER: RowProps['gutter'] = [0, 60]
@@ -86,11 +86,11 @@ const AboutAppBlock = () => {
     const InMoreDetailMessage = intl.formatMessage({ id: 'InMoreDetail' })
     const NextMessage = intl.formatMessage({ id: 'Next' })
     const CloseMessage = intl.formatMessage({ id: 'Close' })
-    const ModalCardLinkMessage = intl.formatMessage({ id: 'tour.guide.aboutApp.modal.card.link' })
 
     const { breakpoints } = useLayoutContext()
     const locale = useMemo(() => get(intl, 'locale'), [intl])
 
+    const modalCardExamples = get(guideModalCardExamples, [locale, 'types'], {})
     const modalImageBgStyles: CSSProperties = useMemo(() => ({
         display: 'flex',
         flexDirection: 'row',
@@ -188,21 +188,22 @@ const AboutAppBlock = () => {
                                     }
                                 </Col>
                                 {
-                                    get(guideModalCardLink, [locale, type]) && (
+                                    locale === 'ru' && modalCardExamples[type] && (
                                         <Col xs={24} md={12}>
                                             <Card title={(
                                                 <img
-                                                    src={`/onboarding/guide/aboutApp/${locale}/${type}/modalLogo.webp`}
+                                                    src={modalCardExamples[type].imageUrl}
                                                     style={CARD_IMAGE_STYLES}
                                                 />
                                             )}
                                             >
                                                 <Card.CardBody
-                                                    description={intl.formatMessage({ id: `tour.guide.aboutApp.${type}.modal.card.body` as FormatjsIntl.Message['ids'] })}
+                                                    description={modalCardExamples[type].text}
                                                     mainLink={{
-                                                        href: get(guideModalCardLink, [locale, type]),
+                                                        href: modalCardExamples[type].blogUrl,
                                                         PreIcon: ExternalLink,
-                                                        label: ModalCardLinkMessage,
+                                                        // Тоже нужно убрать перевод? 
+                                                        label: get(guideModalCardExamples, [locale, 'textLink']),
                                                         openInNewTab: true,
                                                     }}
                                                 />
@@ -302,7 +303,7 @@ const IntroduceAppBlock = () => {
                     accordion
                     ghost
                     expandIconPosition='end'
-                    expandIcon={({ isActive }) => isActive ? <ChevronUp/> : <ChevronDown/>}
+                    expandIcon={({ isActive }) => isActive ? <ChevronUp /> : <ChevronDown />}
                     onChange={(type) => window.setTimeout(() => executeScroll(type), 300)}
                 >
                     {
@@ -321,7 +322,7 @@ const IntroduceAppBlock = () => {
                                     key={type}
                                 >
                                     <Space size={40} direction='vertical'>
-                                        <img style={PANEL_IMAGE_STYLES} src={get(stepMaterials, [type, 'imageUrl'], '')}/>
+                                        <img style={PANEL_IMAGE_STYLES} src={get(stepMaterials, [type, 'imageUrl'], '')} />
                                         <div style={STEP_TEXT_CONTAINER_STYLES}>
                                             <Typography.Paragraph type='secondary'>
                                                 {getTextWithAccent(intl.formatMessage({ id: `tour.guide.introduceApp.step.${type}.body` }))}
@@ -367,14 +368,14 @@ const GuidePage = () => {
                 <title>{PageTitle}</title>
             </Head>
             <PageWrapper>
-                <PageHeader spaced title={<Typography.Title>{PageTitle}</Typography.Title>}/>
+                <PageHeader spaced title={<Typography.Title>{PageTitle}</Typography.Title>} />
                 <PageContent>
                     <Row gutter={LARGE_GUTTER}>
                         <Col span={24}>
-                            <AboutAppBlock/>
+                            <AboutAppBlock />
                         </Col>
                         <Col span={24}>
-                            <IntroduceAppBlock/>
+                            <IntroduceAppBlock />
                         </Col>
                     </Row>
                 </PageContent>
