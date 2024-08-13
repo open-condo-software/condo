@@ -4,19 +4,28 @@
 
 const get = require('lodash/get')
 
+const conf = require('@open-condo/config')
+const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { getLogger } = require('@open-condo/keystone/logging')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { GQLCustomSchema, allItemsQueryByChunks } = require('@open-condo/keystone/schema')
 
 const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
+const { USER_WHITE_LIST_FOR_FIND_ORGANIZATIONS_BY_TIN } = require('@condo/domains/common/constants/featureflags')
 const access = require('@condo/domains/organization/access/FindOrganizationsByTinService')
 const { FindOrganizationsByTinLog } = require('@condo/domains/organization/utils/serverSchema')
 const { STAFF } = require('@condo/domains/user/constants/common')
-const { checkDailyRequestLimitCountersByUser, checkTotalRequestLimitCountersByUser } = require('@condo/domains/user/utils/serverSchema/requestLimitHelpers')
+const {
+    checkDailyRequestLimitCountersByUser,
+    checkTotalRequestLimitCountersByUser,
+} = require('@condo/domains/user/utils/serverSchema/requestLimitHelpers')
 
+
+const appLogger = getLogger('condo')
+const logger = appLogger.child({ module: 'organization/findOrganizationsByTin' })
 
 const MAX_TOTAL_REQUESTS = 50
-
 /**
  * List of possible errors, that this custom schema can throw
  * They will be rendered in documentation section in GraphiQL for this custom schema
@@ -54,26 +63,36 @@ const FindOrganizationsByTinService = new GQLCustomSchema('FindOrganizationsByTi
             type: 'type FindOrganizationsByTinOutput { organizations: [FindOrganizationsByTinOrganizationType]! }',
         },
     ],
-    
+
     queries: [
         {
             access: access.canFindOrganizationsByTin,
             schema: 'findOrganizationsByTin (data: FindOrganizationsByTinInput!): FindOrganizationsByTinOutput',
             doc: {
-                summary: 'Returns all organizations by TIN, to which the user can send a request to join',
+                summary: 'Returns all organizations by TIN. Used to get organizations that the user can apply to join',
                 errors: ERRORS,
             },
             resolver: async (parent, args, context) => {
                 const { data } = args
                 const { tin, dv, sender } = data
                 const authedItemId = get(context, 'authedItem.id', null)
+                if (!authedItemId) throw new Error('no authedItemId!')
 
                 checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 
                 if (!tin) throw new GQLError(ERRORS.EMPTY_TIN, context)
 
-                await checkDailyRequestLimitCountersByUser(context, 'findOrganizationsByTin', authedItemId)
-                await checkTotalRequestLimitCountersByUser(context, 'findOrganizationsByTin', authedItemId, MAX_TOTAL_REQUESTS)
+                // NOTE: we don't use "isFeatureEnabled" because it can skip the request limit for all users
+                const userWhiteList = await featureToggleManager.getFeatureValue(context, USER_WHITE_LIST_FOR_FIND_ORGANIZATIONS_BY_TIN, [], { user: authedItemId }) || []
+                const skipRequestLimit = get(context, 'authedItem.isAdmin', false)
+                    || get(context, 'authedItem.isSupport', false)
+                    || (Array.isArray(userWhiteList) && userWhiteList.includes(authedItemId))
+                if (!skipRequestLimit) {
+                    await checkDailyRequestLimitCountersByUser(context, 'findOrganizationsByTin', authedItemId)
+                    await checkTotalRequestLimitCountersByUser(context, 'findOrganizationsByTin', authedItemId, MAX_TOTAL_REQUESTS)
+                } else {
+                    logger.info({ msg: `User "${authedItemId}" skip request limit` })
+                }
 
                 await FindOrganizationsByTinLog.create(context, {
                     tin,
@@ -118,7 +137,7 @@ const FindOrganizationsByTinService = new GQLCustomSchema('FindOrganizationsByTi
             },
         },
     ],
-    
+
 })
 
 module.exports = {
