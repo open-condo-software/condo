@@ -292,6 +292,21 @@ const Payment = new GQLListSchema('Payment', {
         delete: false,
         auth: true,
     },
+    kmigratorOptions: {
+        indexes: [
+            {
+                type: 'BTreeIndex',
+                fields: ['period', 'status', 'organization'],
+                // index name cannot be longer than 32 characters,
+                // 'payment_period_status_organization' is longer than 32 characters, so organization is changed to org
+                name: 'payment_period_status_org',
+                // This should add conditional index like in constraints, but is not yet implemented in kmigrator.
+                // Instead, you can add conditional index manually – check 20240814014708-0418_payment_payment_period_status_org.js for reference
+                // Don't forget to add CONCURRENTLY if running manually on large tables
+                condition: 'Q(deletedAt__isnull=True)',
+            },
+        ],
+    },
     hooks: {
         resolveInput: async ({ resolvedData }) => {
             if (resolvedData['explicitFee'] && !resolvedData['explicitServiceCharge']) {
