@@ -48,7 +48,6 @@ async function findOrganizationsByTin (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
-    // TODO(codegen): write findOrganizationsByTin serverSchema guards
 
     return await execGqlWithoutAccess(context, {
         query: FIND_ORGANIZATIONS_BY_TIN_MUTATION,
