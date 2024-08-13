@@ -284,6 +284,9 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                 type: 'BTreeIndex',
                 fields: ['period', 'context'],
                 name: 'billingReceipt_period_context',
+                // This should add conditional index like in constraints, but is not yet implemented in kmigrator.
+                // Instead you can add conditional index manually – check 20240814005507-0417_billingreceipt_billingreceipt_period_context.js for reference
+                // Don't forget to add CONCURRENTLY if running manually on large tables
                 condition: 'Q(deletedAt__isnull=True)',
             },
         ],
