@@ -19,9 +19,9 @@ async function fetchWithLogger (url, options, extraAttrs) {
     const parentReqId = executionContext.reqId
     const parentTaskId = executionContext.taskId
 
-    const { setTracingHeaders } = extraAttrs
+    const { skipTracingHeaders } = extraAttrs
 
-    if (setTracingHeaders) {
+    if (!skipTracingHeaders) {
         // We want to set special headers to track requests across the microservices:
         // Client --reqId-> Condo --reqId-> AddressService
         //                    ^                   ^
