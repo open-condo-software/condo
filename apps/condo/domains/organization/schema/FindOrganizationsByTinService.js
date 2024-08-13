@@ -91,7 +91,8 @@ const FindOrganizationsByTinService = new GQLCustomSchema('FindOrganizationsByTi
                     await checkDailyRequestLimitCountersByUser(context, 'findOrganizationsByTin', authedItemId)
                     await checkTotalRequestLimitCountersByUser(context, 'findOrganizationsByTin', authedItemId, MAX_TOTAL_REQUESTS)
                 } else {
-                    logger.info({ msg: `User "${authedItemId}" skip request limit` })
+                    const reqId = get(context, ['req', 'id'])
+                    logger.info({ msg: `User "${authedItemId}" skip request limit`, reqId })
                 }
 
                 await FindOrganizationsByTinLog.create(context, {
