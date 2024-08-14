@@ -24,7 +24,7 @@ const {
     publicRuntimeConfig,
 } = getConfig()
 
-const { guideModalCardExamples, guideIntroduceAppMaterials } = publicRuntimeConfig
+const { guideModalCardReviews, guideIntroduceAppMaterials } = publicRuntimeConfig
 
 const MEDIUM_GUTTER: RowProps['gutter'] = [0, 40]
 const LARGE_GUTTER: RowProps['gutter'] = [0, 60]
@@ -90,7 +90,6 @@ const AboutAppBlock = () => {
     const { breakpoints } = useLayoutContext()
     const locale = useMemo(() => get(intl, 'locale'), [intl])
 
-    const modalCardExamples = get(guideModalCardExamples, [locale, 'types'], {})
     const modalImageBgStyles: CSSProperties = useMemo(() => ({
         display: 'flex',
         flexDirection: 'row',
@@ -188,22 +187,21 @@ const AboutAppBlock = () => {
                                     }
                                 </Col>
                                 {
-                                    locale === 'ru' && modalCardExamples[type] && (
+                                    get(guideModalCardReviews, [locale, 'types', type]) && (
                                         <Col xs={24} md={12}>
                                             <Card title={(
                                                 <img
-                                                    src={modalCardExamples[type].imageUrl}
+                                                    src={get(guideModalCardReviews, [locale, 'types', type, 'imageUrl'], {})}
                                                     style={CARD_IMAGE_STYLES}
                                                 />
                                             )}
                                             >
                                                 <Card.CardBody
-                                                    description={modalCardExamples[type].text}
+                                                    description={get(guideModalCardReviews, [locale, 'types', type, 'text'])}
                                                     mainLink={{
-                                                        href: modalCardExamples[type].blogUrl,
+                                                        href: get(guideModalCardReviews, [locale, 'types', type, 'blogUrl']),
                                                         PreIcon: ExternalLink,
-                                                        // Тоже нужно убрать перевод? 
-                                                        label: get(guideModalCardExamples, [locale, 'textLink']),
+                                                        label: get(guideModalCardReviews, [locale, 'textLink']),
                                                         openInNewTab: true,
                                                     }}
                                                 />
