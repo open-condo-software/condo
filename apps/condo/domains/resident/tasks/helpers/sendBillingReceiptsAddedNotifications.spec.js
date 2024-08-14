@@ -4,7 +4,7 @@
 
 const index = require('@app/condo/index')
 
-const { setFakeClientMode, makeLoggedInAdminClient, makeClient} = require('@open-condo/keystone/test.utils')
+const { setFakeClientMode, makeLoggedInAdminClient, makeClient, waitFor } = require('@open-condo/keystone/test.utils')
 
 const {
     BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
@@ -52,7 +52,7 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
             let lastDt
             const setLastDt = (dt) => lastDt = dt
 
-            await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] }, setLastDt)
+            sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] }, setLastDt)
 
             const notificationKey = makeMessageKey(receipt.period, receipt.account.number, receipt.category.id, resident.id)
             const notificationKey1 = makeMessageKey(receipt1.period, receipt1.account.number, receipt1.category.id, resident1.id)
@@ -60,11 +60,12 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
                 type: BILLING_RECEIPT_ADDED_TYPE,
                 uniqKey_in: [notificationKey, notificationKey1],
             }
-            const messages = await Message.getAll(admin, messageWhere)
-
-            expect(messages).toHaveLength(1)
-            expect(lastDt).toEqual(receipt.createdAt)
-            expect(messages[0].organization.id).toEqual(resident.organization.id)
+            await waitFor(async () => {
+                const messages = await Message.getAll(admin, messageWhere)
+                expect(messages).toHaveLength(1)
+                expect(lastDt).toEqual(receipt.createdAt)
+                expect(messages[0].organization.id).toEqual(resident.organization.id)
+            })
         })
 
 
