@@ -4,7 +4,7 @@
 
 const index = require('@app/condo/index')
 
-const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+const { setFakeClientMode, makeLoggedInAdminClient, makeClient} = require('@open-condo/keystone/test.utils')
 
 const {
     BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
@@ -19,10 +19,12 @@ const { makeBillingReceiptWithResident } = require('./spec.helpers')
 
 describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
     setFakeClientMode(index)
-
+    let admin
+    beforeAll(async () => {
+        admin = await makeLoggedInAdminClient()
+    })
     describe('notifications', () => {
         it('sends notification of BILLING_RECEIPT_ADDED_TYPE for toPay > 0', async () => {
-            const admin = await makeLoggedInAdminClient()
             const { receipt, resident } = await makeBillingReceiptWithResident({ toPay: '10000', toPayDetails: { charge: '1000', formula: '', balance: '9000', penalty: '0' } } )
             let lastDt
             const setLastDt = (dt) => lastDt = dt
@@ -42,7 +44,6 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
         })
 
         it('sends only one notification of BILLING_RECEIPT_ADDED_TYPE for same user but multiple billing receipts', async () => {
-            const admin = await makeLoggedInAdminClient()
             const { receipt, resident, residentUser } = await makeBillingReceiptWithResident({ toPay: '10000', toPayDetails: { charge: '1000', formula: '', balance: '9000', penalty: '0' } } )
             const { receipt: receipt1, resident: resident1 } = await makeBillingReceiptWithResident({ toPay: '10000', toPayDetails: { charge: '1000', formula: '', balance: '9000', penalty: '0' } }, undefined, residentUser)
 
@@ -68,7 +69,6 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
 
 
         it('sends notification of BILLING_RECEIPT_ADDED_TYPE for toPay > 0 and missing toPayDetails', async () => {
-            const admin = await makeLoggedInAdminClient()
             const { receipt, resident } = await makeBillingReceiptWithResident({ toPay: '10000' } )
             let lastDt
             const setLastDt = (dt) => lastDt = dt
@@ -88,7 +88,6 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
         })
 
         it('does not send notification of BILLING_RECEIPT_ADDED_WITH_NO_DEBT for toPay = 0.0', async () => {
-            const admin = await makeLoggedInAdminClient()
             const { receipt, resident } = await makeBillingReceiptWithResident({ toPay: '0.0' })
 
             await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] })
@@ -104,7 +103,6 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
         })
 
         it('does not send notification of BILLING_RECEIPT_ADDED_WITH_NO_DEBT for toPay < 0', async () => {
-            const admin = await makeLoggedInAdminClient()
             const { receipt, resident } = await makeBillingReceiptWithResident({ toPay: '-1.0' })
 
             await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] })
@@ -120,7 +118,6 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
         })
 
         it('sends only one notification for same receipt', async () => {
-            const admin = await makeLoggedInAdminClient()
             const { receipt, resident } = await makeBillingReceiptWithResident()
 
             await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] })
@@ -138,7 +135,6 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
         })
 
         it('sends nothing for receipt with no ServiceConsumer record', async () => {
-            const admin = await makeLoggedInAdminClient()
             const { receipt, resident } = await makeBillingReceiptWithResident({}, true)
 
             await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] })
@@ -154,7 +150,6 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
         })
 
         it('sends nothing to deleted resident', async () => {
-            const admin = await makeLoggedInAdminClient()
             const { receipt, resident } = await makeBillingReceiptWithResident({ toPay: '10000', toPayDetails: { charge: '1000', formula: '', balance: '9000', penalty: '0' } } )
             const resident1 = await Resident.softDelete(admin, resident.id)
 

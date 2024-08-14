@@ -1,12 +1,13 @@
 const { get, isEmpty, isFunction, uniq, groupBy, isNull } = require('lodash')
 
+const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
+const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getRedisClient } = require('@open-condo/keystone/redis')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { getLocalized } = require('@open-condo/locales/loader')
 
-const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { CURRENCY_SYMBOLS, DEFAULT_CURRENCY_CODE } = require('@condo/domains/common/constants/currencies')
 const { getStartDates } = require('@condo/domains/common/utils/date')
@@ -21,6 +22,9 @@ const { ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema'
 
 
 const REDIS_LAST_DATE_KEY = 'LAST_SEND_BILLING_RECEIPT_NOTIFICATION_CREATED_AT'
+const BILLING_RECEIPT_FIELDS = '{ id deletedAt createdAt isPayable period toPay context { id integration { id currencyCode } organization { id } } property { id address addressKey } account { id number unitType unitName fullName property { address } } toPayDetails { charge } category { id nameNonLocalized } }'
+const BillingReceiptGQL = generateGqlQueries('BillingReceipt', BILLING_RECEIPT_FIELDS)
+const BillingReceipt = generateServerUtils(BillingReceiptGQL)
 const CHUNK_SIZE = 20
 
 const logger = getLogger('sendBillingReceiptsAddedNotifications')
@@ -37,7 +41,7 @@ const getMessageTypeAndDebt = (toPay, toPayCharge) => {
 
 /**
  * Prepares data for sendMessage to resident on available billing receipt, then tries to send the message
- * @param keystone
+ * @param context
  * @param receipt
  * @param resident
  * @returns {Promise<number>}
@@ -95,27 +99,25 @@ const prepareAndSendNotification = async (context, receipt, resident) => {
  */
 const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onLastDtChange) => {
     const { keystone: context } = await getSchemaCtx('Resident')
-    const receiptsCount = await BillingReceipt.count(context, receiptsWhere)
     let skip = 0, successCount = 0
     const notifiedUsers = new Set()
 
-    logger.info({ msg: 'sending billing receipts', receiptsCount, data: receiptsWhere })
+    let lastReceipt, currBatchLength = CHUNK_SIZE
 
-    // Exit if no receipts found to proceed
-    if (!receiptsCount) return
-
-    let lastReceipt
-
-    while (skip < receiptsCount) {
-        const receipts = await BillingReceipt.getAll(context, receiptsWhere, { sortBy: ['createdAt_ASC'], first: CHUNK_SIZE, skip })
-
+    while (currBatchLength === CHUNK_SIZE) {
+        const receipts = await BillingReceipt.getAll(
+            context,
+            receiptsWhere,
+            { sortBy: ['createdAt_ASC'], first: CHUNK_SIZE, skip })
+        currBatchLength = receipts.length
         if (isEmpty(receipts)) break
 
-        skip += receipts.length
+        skip += currBatchLength
 
+        const payableReceipts = receipts.filter(receipt => receipt.isPayable)
         let organisationIds = []
         const accountsNumbers = []
-        for (const receipt of receipts) {
+        for (const receipt of payableReceipts) {
             organisationIds.push(get(receipt, 'context.organization.id'))
             accountsNumbers.push(get(receipt, 'account.number'))
         }
@@ -137,7 +139,7 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
             return makeAccountKey(...params)
         })
 
-        for (const receipt of receipts) {
+        for (const receipt of payableReceipts) {
             const params = [
                 get(receipt, 'property.address'),
                 get(receipt, 'account.number'),
@@ -174,9 +176,9 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
         // Store receipt.createdAt as lastDt in order to continue from this point on next execution
         if (isFunction(onLastDtChange) && !isEmpty(lastReceipt)) await onLastDtChange(lastReceipt.createdAt)
 
-        logger.info({ msg: `Processed ${skip} receipts of ${receiptsCount}.` })
+        logger.info({ msg: `Processed ${skip} receipts.` })
     }
-    logger.info({ msg: 'sent billing receipts', successCount, receiptsCount })
+    logger.info({ msg: 'sent billing receipts', successCount })
 }
 
 
