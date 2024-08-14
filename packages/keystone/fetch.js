@@ -32,9 +32,8 @@ async function fetchWithLogger (url, options, extraAttrs) {
             options.headers = {}
         }
 
-        options.headers['X-Request-Id'] = parentReqId || parentTaskId || null
-        options.headers['reqId'] = parentReqId ? parentReqId : null
-        options.headers['taskId'] = parentTaskId ? parentTaskId : null
+        options.headers['X-Parent-Request-Id'] = parentReqId || parentTaskId || null
+        options.headers['X-Request-Client'] = hostname
     }
 
     const startTime = Date.now()
