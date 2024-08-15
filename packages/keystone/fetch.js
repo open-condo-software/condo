@@ -47,20 +47,13 @@ async function fetchWithLogger (url, options, extraAttrs) {
 
         const response = await nodeFetch(url, options)
 
-        const serverHeader = response.headers && response.headers.get('server')
-        const xPoweredBy = response.headers && response.headers.get('X-Powered-By')
-        const xParentRequestId = response.headers && response.headers.get('X-Parent-Request-ID')
-        const xParentTaskId = response.headers && response.headers.get('X-Parent-Request-ID')
-        const xParentExecId = response.headers && response.headers.get('X-Parent-Exec-ID')
-        const xRequestId = response.headers && response.headers.get('X-Request-ID')
-        const xRemoteClient = response.headers && response.headers.get('X-Remote-Client')
-        const xRemoteApp = response.headers && response.headers.get('X-Remote-App')
-        const xRemoteVersion = response.headers && response.headers.get('X-Remote-Version')
+        const headers = response.headers ? Object.fromEntries(response.headers) : {}
 
         const endTime = Date.now()
         const responseTime = endTime - startTime
+        const childReqId = response.headers && response.headers.get('X-Request-ID')
 
-        logger.info({ msg: 'fetch: request successful', url, reqId: parentReqId, childReqId: xRequestId, responseHeaders: { server: serverHeader, xPoweredBy, xParentExecId, xParentRequestId, xParentTaskId, xRemoteClient, xRemoteApp, xRemoteVersion }, taskId: parentTaskId, execId: parentExecId, path, hostname, status: response.status, responseTime })
+        logger.info({ msg: 'fetch: request successful', url, reqId: parentReqId, childReqId, responseHeaders: { headers }, taskId: parentTaskId, execId: parentExecId, path, hostname, status: response.status, responseTime })
 
         Mertrics.increment({ name: FETCH_COUNT_METRIC_NAME, value: 1, tags: { status: response.status, hostname, path } })
         Mertrics.gauge({ name: FETCH_TIME_METRIC_NAME, value: responseTime, tags: { status: response.status, hostname, path } })
