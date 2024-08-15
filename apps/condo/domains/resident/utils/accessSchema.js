@@ -10,7 +10,7 @@ const CACHE_TTL_FROM_ENV = parseInt(conf['USER_RESIDENT_CACHING_TTL_IN_MS'])
 const CACHE_TTL_IN_MS = isNaN(CACHE_TTL_FROM_ENV) ? DEFAULT_CACHE_TTL_IN_MS : CACHE_TTL_FROM_ENV
 const DISABLE_USER_RESIDENT_CACHING = get(conf, 'DISABLE_USER_RESIDENT_CACHING', 'false').toLowerCase() === 'true'
 const RESIDENT_CACHE_FIELDS = ['id', 'unitName', 'unitType', 'addressKey', 'organization', 'property']
-const SERVICE_CONSUMER_CACHE_FIELDS = ['id', 'organization', 'accountNumber']
+const SERVICE_CONSUMER_CACHE_FIELDS = ['id', 'organization', 'accountNumber', 'resident']
 
 const _getUserResidentCacheKey = (user) => `cache:residents:user:${user.id}`
 const resetUserResidentCache = async (userId) => await _redisClient.del(_getUserResidentCacheKey({ id: userId }))
@@ -32,6 +32,7 @@ const resetUserResidentCache = async (userId) => await _redisClient.del(_getUser
  * @property {string} id - id of the resident service consumer
  * @property {string} organization - organization id of service consumer
  * @property {string} accountNumber - account number of service consumer
+ * @property {string} resident - current service consumer resident
  */
 
 /**
