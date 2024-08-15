@@ -83,7 +83,7 @@ const fetchWithRetriesAndLogger = async (url, options = {}) => {
         maxRetries = 0,
         abortRequestTimeout = 60 * 1000,
         timeoutBetweenRequests = 0,
-        setTracingHeaders = false,
+        skipTracingHeaders = false,
         ...fetchOptions
     } = options
     let retries = 0
@@ -95,7 +95,7 @@ const fetchWithRetriesAndLogger = async (url, options = {}) => {
             const controller = new AbortController()
             const signal = controller.signal
             const response = await Promise.race([
-                fetchWithLogger(url, { ... fetchOptions, signal }, { setTracingHeaders }),
+                fetchWithLogger(url, { ... fetchOptions, signal }, { skipTracingHeaders }),
                 new Promise((_, reject) =>
                     setTimeout(() => {
                         controller.abort()
