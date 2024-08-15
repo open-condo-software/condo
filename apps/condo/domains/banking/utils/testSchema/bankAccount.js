@@ -1,10 +1,21 @@
 const { faker } = require('@faker-js/faker')
 
-const { RU_NUMBER_WEIGHTS, getRuTinControlSum } = require('@condo/domains/banking/utils/validate/countrySpecificValidators/ru.validator')
+const {
+    RU_NUMBER_WEIGHTS,
+    getRuTinControlSum,
+} = require('@condo/domains/banking/utils/validate/countrySpecificValidators/ru.validator')
+const dayjs = require('dayjs')
+const {
+    createTestBankIntegrationAccountContext,
+    createTestBankAccount,
+    createTestBankCostItem,
+    createTestBankContractorAccount,
+    createTestBankTransaction,
+} = require('./index')
 
 
 function getRange (length) {
-    return ({ min: Math.pow(10,length - 1), max: Math.pow(10, length) - 1 })
+    return ({ min: Math.pow(10, length - 1), max: Math.pow(10, length) - 1 })
 }
 
 function bulidValidRequisitesForRuBankAccount (extra = {}) {
@@ -40,7 +51,7 @@ function createValidRuNumber (routingNumber) {
         controlSum = (controlSum + (RU_NUMBER_WEIGHTS[i] * controlString[i])) % 10
     }
 
-    const lastNumber = controlSum ?  (10 - controlSum) : controlSum
+    const lastNumber = controlSum ? (10 - controlSum) : controlSum
 
     return number + lastNumber
 }

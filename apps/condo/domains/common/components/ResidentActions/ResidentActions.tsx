@@ -79,7 +79,7 @@ const ResidentAppealDropdownOverlay = ({ setIsSearchByPhoneModalVisible, setDrop
                     <MenuItem
                         id='menuitem-action-CreateMeterReading'
                         menuItemWrapperProps={ResidentAppealDropDownMenuItemWrapperProps}
-                        path='/meter/create'
+                        path='/meter/create?tab=meter-reading'
                         icon={Readings}
                         label='CreateMeterReading'
                         eventName='MenuCreateMeterReadingClick'

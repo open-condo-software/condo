@@ -191,14 +191,20 @@ const useHotkeyToSaveProperty = ({ map, mapEdit, property, canManageProperties }
     const quickSaveCallback = useCallback((event) => {
         event.preventDefault()
 
-        if (!canManageProperties || mapEdit.validate() || !mapEdit.hasPreviewComponents) {
-            debouncedQuickSave()
+        if (!canManageProperties) {
             return
         }
-        notification.error({
-            message: MapValidationError,
-            placement: 'bottomRight',
-        })
+
+        if (!mapEdit.validate()) {
+            notification.error({
+                message: MapValidationError,
+                placement: 'bottomRight',
+            })
+
+            return
+        }
+
+        debouncedQuickSave()
     }, [debouncedQuickSave, mapEdit, canManageProperties, MapValidationError])
 
     useHotkeys('ctrl+s', quickSaveCallback, [map, property, canManageProperties])
@@ -392,7 +398,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                 <BuildingPanelTopModal
                     visible={!isNull(mode)}
                     title={!isNull(mode) ?
-                        intl.formatMessage({ id: `pages.condo.property.modal.title.${mode}` })
+                        intl.formatMessage({ id: `pages.condo.property.modal.title.${mode}` as FormatjsIntl.Message['ids'] })
                         : null
                     }
                     onClose={onModalCancel}

@@ -1,8 +1,6 @@
 const Ajv = require('ajv')
 const addFormats = require('ajv-formats')
 
-const { Json } = require('@open-condo/keystone/fields')
-
 const { getValidator } = require('@condo/domains/common/schema/json.utils')
 
 const GalleryJSONSchema = {
@@ -21,7 +19,7 @@ const validateGallery = getValidator(GalleryJSONValidator)
 
 const GALLERY_FIELD = {
     schemaDoc: 'Array containing links to promotional images, which will be shown to user on app\'s page',
-    type: Json,
+    type: 'Json',
     isRequired: false,
     graphQLInputType: '[String!]',
     graphQLReturnType: '[String!]',

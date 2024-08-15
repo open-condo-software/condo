@@ -1,8 +1,4 @@
-const { Relationship, Select, Integer, Text } = require('@keystonejs/fields')
-const { Decimal } = require('@keystonejs/fields')
-
 const { GQLError } = require('@open-condo/keystone/errors')
-const { Json, SignedDecimal } = require('@open-condo/keystone/fields')
 
 const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
 const {
@@ -21,7 +17,7 @@ const {
 
 /** @deprecated use dvSenderPlugin! */
 const DV_FIELD = {
-    type: Integer,
+    type: 'Integer',
     schemaDoc: 'Data structure Version',
     isRequired: true,
     kmigratorOptions: { null: false },
@@ -29,7 +25,7 @@ const DV_FIELD = {
 
 /** @deprecated use dvSenderPlugin ! */
 const SENDER_FIELD = {
-    type: Json,
+    type: 'Json',
     schemaDoc: 'Client-side device identification used for the anti-fraud detection. ' +
         'Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. ' +
         'Where the `fingerprint` should be the same for the same devices and it\'s not linked to the user ID. ' +
@@ -51,7 +47,7 @@ const SENDER_FIELD = {
  */
 const ADDRESS_META_FIELD = {
     schemaDoc: 'Property address components',
-    type: Json,
+    type: 'Json',
     extendGraphQLTypes: [ADDRESS_META_FIELD_GRAPHQL_TYPES],
     graphQLReturnType: 'AddressMetaField',
     graphQLAdminFragment: `{ ${ADDRESS_META_SUBFIELDS_QUERY_LIST} }`,
@@ -78,14 +74,14 @@ const ADDRESS_META_FIELD = {
 
 const CLIENT_FIELD = {
     schemaDoc: 'Inhabitant/customer/person who has a problem or want to improve/order something. Not null if we have a registered client.',
-    type: Relationship,
+    type: 'Relationship',
     ref: 'User',
     kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
 }
 
 const CONTACT_FIELD = {
     schemaDoc: 'Contact, that reported issue, described in this ticket',
-    type: Relationship,
+    type: 'Relationship',
     ref: 'Contact',
     isRequired: false,
     kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
@@ -93,12 +89,12 @@ const CONTACT_FIELD = {
 
 const CLIENT_NAME_FIELD = {
     schemaDoc: 'Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it',
-    type: Text,
+    type: 'Text',
 }
 
 const CLIENT_EMAIL_FIELD = {
     schemaDoc: 'Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it',
-    type: Text,
+    type: 'Text',
 }
 
 const getClientPhoneResolver = (allowLandLine = false) => async ({ resolvedData, fieldPath }) => {
@@ -116,7 +112,7 @@ const getClientPhoneValidator = (allowLandLine = false) => async ({ resolvedData
 
 const CLIENT_PHONE_FIELD = {
     schemaDoc: 'Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it',
-    type: Text,
+    type: 'Text',
     hooks: {
         resolveInput: getClientPhoneResolver(),
         validateInput: getClientPhoneValidator(),
@@ -133,7 +129,7 @@ const CLIENT_PHONE_LANDLINE_FIELD = {
 
 const MONEY_AMOUNT_FIELD = {
     schemaDoc: 'Money field',
-    type: Decimal,
+    type: 'Decimal',
     knexOptions: {
         scale: 8,
     },
@@ -141,20 +137,20 @@ const MONEY_AMOUNT_FIELD = {
 
 const POSITIVE_MONEY_AMOUNT_FIELD = {
     ...MONEY_AMOUNT_FIELD,
-    type: SignedDecimal,
+    type: 'SignedDecimal',
     template: 'positive',
 }
 
 const NON_NEGATIVE_MONEY_FIELD = {
     ...MONEY_AMOUNT_FIELD,
-    type: SignedDecimal,
+    type: 'SignedDecimal',
     template: 'non-negative',
 }
 
 const CURRENCY_CODE_FIELD = {
     schemaDoc: 'Code of currency in ISO-4217 format',
     isRequired: true,
-    type: Select,
+    type: 'Select',
     dataType: 'string',
     options: ISO_CODES,
 }
@@ -162,13 +158,13 @@ const CURRENCY_CODE_FIELD = {
 // TODO(DOMA-1766) add constrains with this field! + context
 const IMPORT_ID_FIELD = {
     schemaDoc: 'Id of object in external service which represents current item. Mostly used for internal needs of integration services for matching our objects with theirs',
-    type: Text,
+    type: 'Text',
     isRequired: false,
 }
 
 const UNIT_TYPE_FIELD = {
     schemaDoc: 'Type of unit, such as parking lot or flat. Default value: "flat"',
-    type: Select,
+    type: 'Select',
     options: UNIT_TYPES,
     dataType: 'string',
     isRequired: false,
@@ -208,7 +204,7 @@ const getPhoneFieldHooks = ({ allowLandline }) => ({
 
 const PHONE_FIELD = {
     schemaDoc: 'Normalized phone in E.164 format without spaces',
-    type: Text,
+    type: 'Text',
     hooks: getPhoneFieldHooks({ allowLandline: true }),
 }
 

@@ -41,7 +41,7 @@ export const ChangeHistory = <ChangesType extends BaseChangesType> (props: Chang
     const [displayCount, setDisplayCount] = useState(CHANGES_PER_CHUNK)
 
     const FetchMoreLabel = useMemo(() => {
-        return FetchMoreTemplate.replace('{count}', Math.min(total - displayCount, CHANGES_PER_CHUNK))
+        return FetchMoreTemplate.replace('{count}', String(Math.min(total - displayCount, CHANGES_PER_CHUNK)))
     }, [FetchMoreTemplate, total, displayCount])
 
     const handleFetchMore = useCallback(() => {

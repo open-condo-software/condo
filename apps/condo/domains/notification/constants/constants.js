@@ -25,7 +25,6 @@ const SHARE_TICKET_MESSAGE_TYPE = 'SHARE_TICKET'
 const DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE = 'DIRTY_INVITE_NEW_EMPLOYEE_SMS'
 const DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE = 'DIRTY_INVITE_NEW_EMPLOYEE_EMAIL'
 const REGISTER_NEW_USER_MESSAGE_TYPE = 'REGISTER_NEW_USER'
-const RESET_PASSWORD_MESSAGE_TYPE = 'RESET_PASSWORD'
 const SMS_VERIFY_CODE_MESSAGE_TYPE = 'SMS_VERIFY'
 const DEVELOPER_IMPORTANT_NOTE_TYPE = 'DEVELOPER_IMPORTANT_NOTE_TYPE'
 const CUSTOMER_IMPORTANT_NOTE_TYPE = 'CUSTOMER_IMPORTANT_NOTE_TYPE'
@@ -86,6 +85,7 @@ const MARKETPLACE_INVOICE_CASH_WITH_TICKET_PUBLISHED_MESSAGE_TYPE = 'MARKETPLACE
 const SERVICE_USER_CREATED_MESSAGE_TYPE = 'SERVICE_USER_CREATED'
 const TITLE_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE = 'TITLE_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE'
 const BODY_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE = 'BODY_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE'
+const SEND_DAILY_STATISTICS_MESSAGE_TYPE = 'SEND_DAILY_STATISTICS'
 
 const SMS_FORBIDDEN_SYMBOLS_REGEXP = /[&#|«»]+/gim
 
@@ -192,12 +192,6 @@ const MESSAGE_META = {
         dv: { defaultValue: '', required: true },
         userPhone: { defaultValue: '', required: false },
         userPassword: { defaultValue: '', required: false },
-    },
-    [RESET_PASSWORD_MESSAGE_TYPE]: {
-        dv: { defaultValue: '', required: true },
-        token: { defaultValue: '', required: true },
-        userName: { defaultValue: 'USERNAME', required: false },
-        userEmail: { defaultValue: '', required: false },
     },
     [SMS_VERIFY_CODE_MESSAGE_TYPE]: {
         dv: { defaultValue: '', required: true },
@@ -653,6 +647,15 @@ const MESSAGE_META = {
             password: { required: true },
         },
     },
+    [SEND_DAILY_STATISTICS_MESSAGE_TYPE]: {
+        dv: { required: true },
+        attachingData: { required: false },
+        data: {
+            date: { required: true },
+            tickets: { required: true },
+            incidents: { required: true },
+        },
+    },
 }
 
 /** Used to validate type field for sendMessage mutation payload */
@@ -714,9 +717,6 @@ const MESSAGE_DELIVERY_OPTIONS = {
         allowedTransports: [SMS_TRANSPORT, EMAIL_TRANSPORT],
         defaultTransports: [SMS_TRANSPORT, EMAIL_TRANSPORT],
         isAllowedToChangeDefaultTransport: false,
-    },
-    [RESET_PASSWORD_MESSAGE_TYPE]: {
-        priority: MESSAGE_DELIVERY_FAST_PRIORITY,
     },
     [DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE]: {
         allowedTransports: [SMS_TRANSPORT, EMAIL_TRANSPORT],
@@ -900,6 +900,11 @@ const MESSAGE_DELIVERY_OPTIONS = {
         // NOTE: Used for mass distribution by MessageBatch
         priority: MESSAGE_DELIVERY_SLOW_PRIORITY,
     },
+    [SEND_DAILY_STATISTICS_MESSAGE_TYPE]: {
+        allowedTransports: [EMAIL_TRANSPORT],
+        defaultTransports: [EMAIL_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
+    },
 }
 
 const MESSAGE_SENDING_STATUS = 'sending'
@@ -932,7 +937,7 @@ const MESSAGE_BATCH_PROCESSING_STATUS = 'processing'
 const MESSAGE_BATCH_FAILED_STATUS = 'failed'
 const MESSAGE_BATCH_DONE_STATUS = 'done'
 const MESSAGE_BATCH_STATUSES = [MESSAGE_BATCH_CREATED_STATUS, MESSAGE_BATCH_PROCESSING_STATUS, MESSAGE_BATCH_FAILED_STATUS, MESSAGE_BATCH_DONE_STATUS]
-const MESSAGE_BATCH_TYPE_OPTIONS = [CUSTOM_CONTENT_MESSAGE_TYPE, MOBILE_APP_UPDATE_AVAILABLE_MESSAGE_PUSH_TYPE]
+const MESSAGE_BATCH_TYPE_OPTIONS = [CUSTOM_CONTENT_MESSAGE_TYPE, MOBILE_APP_UPDATE_AVAILABLE_MESSAGE_PUSH_TYPE, CUSTOM_CONTENT_MESSAGE_PUSH_TYPE, CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE, CUSTOM_CONTENT_MESSAGE_SMS_TYPE]
 
 const DEVICE_PLATFORM_ANDROID = 'android'
 const DEVICE_PLATFORM_IOS = 'ios'
@@ -961,6 +966,7 @@ const APPLE_CONFIG_ENV = 'APPLE_CONFIG_JSON'
 const APPLE_CONFIG_TEST_PUSHTOKEN_ENV = 'APPLE_PUSH_TOKEN_TEST'
 const APPLE_CONFIG_TEST_VOIP_PUSHTOKEN_ENV = 'APPLE_VOIP_PUSH_TOKEN_TEST'
 
+const APPS_WITH_DISABLED_NOTIFICATIONS_ENV = 'APPS_WITH_DISABLED_NOTIFICATIONS'
 /**
  * Each account in Huawei is capable to send push-notifications to only one corresponding mobile app
  * These constants represent app type (master/resident) and connect app types to appIds (remoteClient schema)
@@ -985,6 +991,11 @@ const HUAWEI_APP_TYPE_BY_APP_ID = {
 const DEFAULT_TEMPLATE_FILE_EXTENSION = 'njk'
 const DEFAULT_TEMPLATE_FILE_NAME = `default.${DEFAULT_TEMPLATE_FILE_EXTENSION}`
 
+const DIRECTLY_AVAILABLE_TYPES = [
+    B2C_APP_MESSAGE_PUSH_TYPE,
+    VOIP_INCOMING_CALL_MESSAGE_TYPE,
+]
+
 module.exports = {
     JSON_NO_REQUIRED_ATTR_ERROR,
     JSON_SUSPICIOUS_ATTR_NAME_ERROR,
@@ -999,7 +1010,6 @@ module.exports = {
     REGISTER_NEW_USER_MESSAGE_TYPE,
     SMS_VERIFY_CODE_MESSAGE_TYPE,
     INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
-    RESET_PASSWORD_MESSAGE_TYPE,
     DEVELOPER_IMPORTANT_NOTE_TYPE,
     MESSAGE_TYPES,
     MESSAGE_META,
@@ -1124,5 +1134,8 @@ module.exports = {
     MOBILE_APP_UPDATE_AVAILABLE_MESSAGE_PUSH_TYPE,
     BODY_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE,
     TITLE_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE,
+    SEND_DAILY_STATISTICS_MESSAGE_TYPE,
+    APPS_WITH_DISABLED_NOTIFICATIONS_ENV,
+    DIRECTLY_AVAILABLE_TYPES,
 }
 

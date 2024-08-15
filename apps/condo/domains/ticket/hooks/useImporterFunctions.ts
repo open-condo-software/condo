@@ -79,7 +79,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const { addressApi } = useAddressApi()
 
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
-    const userOrganizationIdRef = useRef(userOrganization.id)
+    const userOrganizationIdRef = useRef(userOrganizationId)
     useEffect(() => {
         userOrganizationIdRef.current = userOrganizationId
     }, [userOrganizationId])

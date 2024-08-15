@@ -15,7 +15,7 @@ import { searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
 
 const createPropertyUnitsMap = (units, sections, floors) => {
-    const unitsOnFloor = Math.floor(units / (floors * sections))
+    const unitsOnFloor = Math.ceil(units / (floors * sections))
     if (!unitsOnFloor) {
         return
     }
@@ -58,7 +58,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const { addressApi } = useAddressApi()
 
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
-    const userOrganizationIdRef = useRef(userOrganization.id)
+    const userOrganizationIdRef = useRef(userOrganizationId)
     useEffect(() => {
         userOrganizationIdRef.current = userOrganizationId
     }, [userOrganizationId])

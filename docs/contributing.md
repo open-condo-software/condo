@@ -1,11 +1,11 @@
 # Contributing to open-condo-platform
 
 Contributions are always welcome. Please follow next recommendations:
-1. Create new branch from `master`
+1. Create new branch from `main`
 2. Modify relevant files to achieve your aim
 3. [Test new code](#testing) locally
 4. Push your new branch to origin
-5. Then create a pull request to the `master` branch.
+5. Then create a pull request to the `main` branch.
 
 ## Testing
 

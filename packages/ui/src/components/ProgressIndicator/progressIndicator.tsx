@@ -9,6 +9,7 @@ import {
     FourStepsProgressSVG,
     ProgressIndicatorStepsProps,
     TwoStepsProgressSVG,
+    FiveStepsProgressSVG,
 } from './steps'
 
 import { colors } from '../../colors'
@@ -40,6 +41,7 @@ const ProgressIndicator: React.FC<ProgressIndicatorProps> = ({ steps, disabled }
         2: TwoStepsProgressSVG,
         3: ThreeStepsProgressSVG,
         4: FourStepsProgressSVG,
+        5: FiveStepsProgressSVG,
     }
 
     const Component = arrayLengthToIndicator[filteredSteps.length]

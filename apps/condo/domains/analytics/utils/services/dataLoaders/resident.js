@@ -1,5 +1,6 @@
 const { get, isEmpty } = require('lodash')
 
+const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { AbstractDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/AbstractDataLoader')
@@ -15,7 +16,7 @@ class ResidentGqlKnexLoader extends GqlToKnexBaseAdapter {
 
     async loadData () {
         const { keystone } = await getSchemaCtx(this.domainName)
-        const knex = keystone.adapter.knex
+        const { knex } = getDatabaseAdapter(keystone)
 
         this.whereIn = {}
 

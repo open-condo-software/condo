@@ -6,9 +6,10 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { find } = require('@open-condo/keystone/schema')
 
 const { canManageBillingEntityWithContext } = require('@condo/domains/billing/utils/accessSchema')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
+const { canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
-async function canReadBillingReceipts ({ authentication: { item: user } }) {
+async function canReadBillingReceipts ({ authentication: { item: user }, listKey }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return {}
@@ -30,15 +31,23 @@ async function canReadBillingReceipts ({ authentication: { item: user } }) {
                 serviceConsumer => ({ AND: [{ account: { number: serviceConsumer.accountNumber, deletedAt: null }, deletedAt: null, context: { organization: { id: serviceConsumer.organization, deletedAt: null }, deletedAt: null } }] } )
             ),
         }
-    } else {
-        return {
-            OR: [
-                { context: { organization: { employees_some: { user: { id: user.id }, role: { canReadBillingReceipts: true }, deletedAt: null, isBlocked: false } } } },
-                { context: { organization: { relatedOrganizations_some: { from: { employees_some: { user: { id: user.id }, role: { canReadBillingReceipts: true }, deletedAt: null, isBlocked: false } } } } } },
-                { context: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } } },
-            ],
-        }
     }
+
+    if (user.type === SERVICE) {
+        return { context: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } } }
+    }
+
+    const hasDirectAccess = await canDirectlyReadSchemaObjects(user, listKey)
+    if (hasDirectAccess) return {}
+
+    return {
+        OR: [
+            { context: { organization: { employees_some: { user: { id: user.id }, role: { canReadBillingReceipts: true }, deletedAt: null, isBlocked: false } } } },
+            // CallCenter doesn't have access to Billing
+            // { context: { organization: { relatedOrganizations_some: { from: { employees_some: { user: { id: user.id }, role: { canReadBillingReceipts: true }, deletedAt: null, isBlocked: false } } } } } },
+        ],
+    }
+    
 }
 
 async function canReadSensitiveBillingReceiptData ({ authentication: { item: user } }) {

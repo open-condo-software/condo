@@ -79,15 +79,16 @@ describe('Push notification on payday about unpaid receipts', () => {
                 billingIntegrationContext: { connect: { id: context.id } },
                 acquiringIntegrationContext: { connect: { id: acquiringContext.id } },
             })
+            const closerPeriod = dayjs().subtract(1, 'month').set('date', 1).format('YYYY-MM-DD')
             const [receipt] = await createTestBillingReceipt(admin, context, billingProperty, account, { period })
-            await createTestBillingReceipt(admin, context, billingProperty, account, { period: dayjs().subtract(1, 'month').set('date', 1).format('YYYY-MM-DD') })
+            await createTestBillingReceipt(admin, context, billingProperty, account, { period: closerPeriod })
             await createTestBillingReceipt(admin, context, billingProperty, account, { period: dayjs().subtract(3, 'month').set('date', 1).format('YYYY-MM-DD') })
 
             await notifyResidentsOnPayday()
 
             const messages = await getNewMessages({ userId: client.user.id })
             expect(messages).toHaveLength(1)
-            expect(messages[0].uniqKey.slice(-10)).toEqual(period)
+            expect(messages[0].uniqKey.slice(-10)).toEqual(closerPeriod)
         })
 
         it('has BillingReceipt with positive toPay field and has partial Payments', async () => {

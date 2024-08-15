@@ -38,7 +38,7 @@ export const UpdatePropertyScopeForm = ({ id }) => {
     const name = get(propertyScope, 'name')
     const initialValues = useMemo(() => ({
         id: get(propertyScope, 'id'),
-        name: name && intl.formatMessage({ id: name }) || name,
+        name: name && intl.formatMessage({ id: name as FormatjsIntl.Message['ids'] }) || name,
         propertyScopeProperties,
         propertyScopeEmployees,
         hasAllProperties: get(propertyScope, 'hasAllProperties'),

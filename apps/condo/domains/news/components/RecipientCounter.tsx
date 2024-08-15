@@ -20,10 +20,13 @@ import { colors } from '@open-condo/ui/dist/colors'
 
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import { GET_NEWS_ITEMS_RECIPIENTS_COUNTERS_MUTATION } from '@condo/domains/news/gql'
+import {
+    GET_NEWS_ITEMS_RECIPIENTS_COUNTERS_MUTATION,
+    GET_NEWS_SHARING_RECIPIENTS_COUNTERS_QUERY,
+} from '@condo/domains/news/gql'
 import { useNewsItemRecipientsExportToExcelTask } from '@condo/domains/news/hooks/useNewsItemRecipientsExportToExcelTask'
 
-import { TNewsItemScopeNoInstance, TUnit } from './types'
+import { NewsItemScopeNoInstanceType, TUnit } from './types'
 
 interface CounterProps {
     label: string
@@ -36,7 +39,24 @@ interface CounterProps {
 
 const styleQuestionCircle: CSSProperties = { color: colors.gray['5'], cursor: 'help' }
 
-const Counter: React.FC<CounterProps> = ({ label, value, type = 'success', hint, downloadButton, isLoading }) => (
+export const RecipientCounterContainer: React.FC<{ title: React.ReactNode }> = ({ children, title }) => {
+    return (
+        <Card>
+            <Typography.Text>
+                {title}
+            </Typography.Text>
+            <Space direction='vertical' size={24} width='100%'>
+                <Col xs={24}>
+                    <Row align='top' justify='space-evenly'>
+                        {children}
+                    </Row>
+                </Col>
+            </Space>
+        </Card>
+    )
+}
+
+export const Counter: React.FC<CounterProps> = ({ label, value, type = 'success', hint, downloadButton, isLoading }) => (
     <Space size={8} align='center' direction='vertical'>
         <Space size={8} direction='horizontal' align='center'>
             {
@@ -63,15 +83,15 @@ const Counter: React.FC<CounterProps> = ({ label, value, type = 'success', hint,
     </Space>
 )
 
-const isTargetedToEntireProperty = ({ property, unitType, unitName }: TNewsItemScopeNoInstance) => (
+const isTargetedToEntireProperty = ({ property, unitType, unitName }: NewsItemScopeNoInstanceType) => (
     !!property && !unitType && !unitName
 )
 
-const isTargetedToUnitName = ({ property, unitType, unitName }: TNewsItemScopeNoInstance) => (
+const isTargetedToUnitName = ({ property, unitType, unitName }: NewsItemScopeNoInstanceType) => (
     !!property && !!unitType && !!unitName
 )
 
-const isAllOrganization = (newsItemScopes: TNewsItemScopeNoInstance[]) => {
+const isAllOrganization = (newsItemScopes: NewsItemScopeNoInstanceType[]) => {
     return filter(newsItemScopes, { property: null, unitType: null, unitName: null }).length > 0
 }
 
@@ -99,7 +119,7 @@ export const detectTargetedSections = (newsItemScopes: NewsItemScope[], property
     return { sections, parking }
 }
 
-const areTargetedToOneProperty = (newsItemScopes: TNewsItemScopeNoInstance[]): boolean => uniq(map(newsItemScopes, ['property', 'id'])).length === 1
+const areTargetedToOneProperty = (newsItemScopes: NewsItemScopeNoInstanceType[]): boolean => uniq(map(newsItemScopes, ['property', 'id'])).length === 1
 
 const buildMessageFromNewsItemScopes = (newsItemScopes, intl): string => {
     if (isAllOrganization(newsItemScopes)) {
@@ -151,7 +171,22 @@ const buildMessageFromNewsItemScopes = (newsItemScopes, intl): string => {
 }
 
 interface RecipientCounterProps {
-    newsItemScopes: TNewsItemScopeNoInstance[]
+    newsItemScopes: NewsItemScopeNoInstanceType[]
+}
+
+const processNewsItemScopes = (newsItemScopes: NewsItemScopeNoInstanceType[]) => {
+    return newsItemScopes.reduce<NewsItemScopeNoInstanceType[]>((acc, scope) => {
+        const property = get(scope, 'property')
+
+        return [
+            ...acc,
+            {
+                property: property ? { id: property.id } : null,
+                unitType: get(scope, 'unitType', null),
+                unitName: get(scope, 'unitName', null),
+            },
+        ]
+    }, [])
 }
 
 export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScopes }) => {
@@ -178,18 +213,7 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
     const user = get(auth, 'user')
 
     const processedNewsItemScope = useMemo(() => {
-        return newsItemScopes.reduce<TNewsItemScopeNoInstance[]>((acc, scope) => {
-            const property = get(scope, 'property')
-
-            return [
-                ...acc,
-                {
-                    property: property ? { id: property.id } : null,
-                    unitType: get(scope, 'unitType', null),
-                    unitName: get(scope, 'unitName', null),
-                },
-            ]
-        }, [])
+        return processNewsItemScopes(newsItemScopes)
     }, [newsItemScopes])
 
     const { NewsItemRecipientsExportToXlsxButton } = useNewsItemRecipientsExportToExcelTask({
@@ -243,44 +267,94 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
     const isLoadingCounters = isCountersLoading || !counters
 
     return (
-        <Card>
-            <Space direction='vertical' size={24} width='100%'>
-                <Typography.Text>
-                    {MailingMessage}
-                    <Typography.Text strong>{message}</Typography.Text>
-                </Typography.Text>
-                <Col xs={24}>
-                    <Row align='top' justify='space-evenly'>
-                        <Col>
-                            <Counter
-                                label={formatPropertiesLabelMessage(propertiesCount)}
-                                value={propertiesCount}
-                                isLoading={isLoadingCounters}
-                            />
-                        </Col>
-                        <Col>
-                            <Counter
-                                label={WillReceiveLabelMessage}
-                                value={receiversCount}
-                                hint={receiversCount === 0 ? WillZeroReceiveHintMessage : formatWillReceiveHintMessage(receiversCount)}
-                                isLoading={isLoadingCounters}
-                            />
-                        </Col>
-                        <Col>
-                            <Counter
-                                label={WillNotReceiveLabelMessage}
-                                value={unitsCount - receiversCount}
-                                type='danger'
-                                hint={willNotReceiveUnitsCount === 0 ? WillZeroNotReceiveHintMessage : formatWillNotReceiveHintMessage(willNotReceiveUnitsCount)}
-                                downloadButton={(
-                                    <NewsItemRecipientsExportToXlsxButton key='exportToExcel' />
-                                )}
-                                isLoading={isLoadingCounters}
-                            />
-                        </Col>
-                    </Row>
-                </Col>
-            </Space>
-        </Card>
+        <RecipientCounterContainer
+            title={<>{MailingMessage}<Typography.Text strong>{message}</Typography.Text></>}
+        >
+            <Col>
+                <Counter
+                    label={formatPropertiesLabelMessage(propertiesCount)}
+                    value={propertiesCount}
+                    isLoading={isLoadingCounters}
+                />
+            </Col>
+            <Col>
+                <Counter
+                    label={WillReceiveLabelMessage}
+                    value={receiversCount}
+                    hint={receiversCount === 0 ? WillZeroReceiveHintMessage : formatWillReceiveHintMessage(receiversCount)}
+                    isLoading={isLoadingCounters}
+                />
+            </Col>
+            <Col>
+                <Counter
+                    label={WillNotReceiveLabelMessage}
+                    value={unitsCount - receiversCount}
+                    type='danger'
+                    hint={willNotReceiveUnitsCount === 0 ? WillZeroNotReceiveHintMessage : formatWillNotReceiveHintMessage(willNotReceiveUnitsCount)}
+                    downloadButton={(
+                        <NewsItemRecipientsExportToXlsxButton key='exportToExcel' />
+                    )}
+                    isLoading={isLoadingCounters}
+                />
+            </Col>
+        </RecipientCounterContainer>
     )
 }
+
+const NewsSharingRecipientCounter: React.FC<{ contextId: string, newsItemScopes: NewsItemScopeNoInstanceType[] }> = ({ contextId, newsItemScopes }) => {
+    const [counter, setCounter] = useState(null)
+
+    const intl = useIntl()
+    const MailingMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.mailing' })
+    const WillReceiveLabelMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.willReceive.label' })
+    const ErrorLoadingMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.error.loading' })
+
+    const [getCounter, { loading: isCounterLoading }] = useLazyQuery(
+        GET_NEWS_SHARING_RECIPIENTS_COUNTERS_QUERY,
+        {
+            onCompleted: (data) => {
+                setCounter(get(data, ['result', 'receiversCount']))
+            },
+            onError: (error) => {
+                console.error({ msg: 'Failed to load recipients counters', error })
+                const message = get(error, ['graphQLErrors', 0, 'extensions', 'messageForUser'], ErrorLoadingMessage)
+                notification.error({ message })
+            },
+            fetchPolicy: 'cache-first',
+        },
+    )
+
+    const processedNewsItemScope = useMemo(() => {
+        return processNewsItemScopes(newsItemScopes)
+    }, [newsItemScopes])
+
+    useEffect(() => {
+        const sender = getClientSideSenderInfo()
+        const meta = { dv: 1, sender }
+
+        getCounter({
+            variables: {
+                data: {
+                    newsItemScopes: processedNewsItemScope,
+                    b2bAppContext: { id: contextId },
+                    ...meta,
+                },
+            },
+        })
+    }, [getCounter, contextId, newsItemScopes])
+
+    // if typeof counter !== number is used here instead of just if !counter because bool(0) => false
+    const isLoadingCounter = isCounterLoading || typeof counter !== 'number'
+
+    return (
+        <RecipientCounterContainer
+            title={<>{MailingMessage}<Typography.Text strong>{buildMessageFromNewsItemScopes(newsItemScopes, intl)}</Typography.Text></>}
+        >
+            <Col>
+                <Counter label={WillReceiveLabelMessage} value={counter} isLoading={isLoadingCounter}/>
+            </Col>
+        </RecipientCounterContainer>
+    )
+}
+
+export const MemoizedNewsSharingRecipientCounter = React.memo(NewsSharingRecipientCounter)

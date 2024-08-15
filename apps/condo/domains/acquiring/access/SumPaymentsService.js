@@ -5,17 +5,24 @@ const get = require('lodash/get')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
+const { checkPermissionsInEmployedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
+const { canDirectlyExecuteService } = require('@condo/domains/user/utils/directAccess')
 
-async function canSumPayments ({ args: { where }, authentication: { item: user } }) {
+async function canSumPayments ({ args: { where }, authentication: { item: user }, context, gqlName }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
 
-    const organizationFromInvoice = get(where, ['invoice', 'context', 'organization', 'id'], null)
-    if (organizationFromInvoice) return await checkOrganizationPermission(user.id, organizationFromInvoice, 'canReadPayments')
+    const hasDirectAccess = await canDirectlyExecuteService(user, gqlName)
+    if (hasDirectAccess) return hasDirectAccess
 
-    return await checkOrganizationPermission(user.id, get(where, ['organization', 'id'], null), 'canReadPayments')
+    const organizationFromInvoice = get(where, ['invoice', 'context', 'organization', 'id'], null)
+    if (organizationFromInvoice) return await checkPermissionsInEmployedOrganizations(context, user, organizationFromInvoice, 'canReadPayments')
+
+    const organizationId = get(where, ['organization', 'id'], null)
+    if (!organizationId) return false
+
+    return await checkPermissionsInEmployedOrganizations(context, user, organizationId, 'canReadPayments')
 }
 
 /*

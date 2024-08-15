@@ -1,3 +1,4 @@
+import { ResolvedIntlConfig } from '@formatjs/intl/src/types'
 import get from 'lodash/get'
 import isObject from 'lodash/isObject'
 import isString from 'lodash/isString'
@@ -20,7 +21,7 @@ const UNIT_TYPES_BY_TRANSLATION_KEYS = {
     'field.UnitType.prefix.commercial': COMMERCIAL_UNIT_TYPE,
 }
 
-export const getUnitFilter = (translations: Record<string, string>): FilterType => (search) => {
+export const getUnitFilter = (translations: ResolvedIntlConfig['messages']): FilterType => (search) => {
     if (!isObject(translations)) return
     if (!isString(search)) return
 
@@ -28,11 +29,11 @@ export const getUnitFilter = (translations: Record<string, string>): FilterType 
     if (!typeOrNumber) return
 
     const unitType = get(
-        Object.entries(UNIT_TYPES_BY_TRANSLATION_KEYS)
-            .find(([key]) => {
+        Object.keys(UNIT_TYPES_BY_TRANSLATION_KEYS)
+            .find((key) => {
                 const keyTranslation = get(translations, key)
                 if (!keyTranslation) return false
-                return typeOrNumber.toLowerCase() === keyTranslation.toLowerCase()
+                return typeOrNumber.toLowerCase() === (keyTranslation as string).toLowerCase()
             }),
         '1'
     )

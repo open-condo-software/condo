@@ -52,6 +52,7 @@ const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
 } = require('@condo/domains/user/utils/testSchema')
+const { createTestUserRightsSet, updateTestUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('BillingReceipt', () => {
     let admin
@@ -541,6 +542,16 @@ describe('BillingReceipt', () => {
 
                     expect(receipts).not.toBeFalsy()
                     expect(receipts).toHaveLength(0)
+                })
+                test('User with directAccess can', async () => {
+                    const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const [userRightsSet] = await createTestUserRightsSet(admin, { canReadBillingReceipts: true })
+                    await updateTestUser(admin, userClient.user.id, { rightsSet: { connect: { id: userRightsSet.id } } })
+
+                    const receipts = await BillingReceipt.getAll(userClient, {
+                        id_in: [receipt.id, anotherReceipt.id],
+                    })
+                    expect(receipts).toHaveLength(2)
                 })
             })
             test('Anonymous cannot', async () => {

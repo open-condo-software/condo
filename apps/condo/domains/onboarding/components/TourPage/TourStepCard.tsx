@@ -61,14 +61,14 @@ export const TourStepCard: React.FC<TourStepCardProps> = (props) => {
     const NoPermissionsMessage = intl.formatMessage({ id: 'tour.step.disabledTooltip.noPermission' })
     const CompletePreviousStepMessage = intl.formatMessage({ id: 'tour.step.disabledTooltip.completePreviousSteps' })
     const CompleteBillingStepResidentStepMessage = intl.formatMessage({ id: 'tour.step.disabledTooltip.completeBillingStep' })
-    const CardTitle = intl.formatMessage({ id: pathToCardTitleTranslation })
+    const CardTitle = intl.formatMessage({ id: pathToCardTitleTranslation as FormatjsIntl.Message['ids'] })
     const BodyDescription = useMemo(() => SECOND_LEVEL_STEPS.includes(stepType) &&
             (stepStatus === TourStepStatusType.Todo || stepStatus === TourStepStatusType.Waiting) &&
-            intl.formatMessage({ id: pathToBodyDescription })
+            intl.formatMessage({ id: pathToBodyDescription as FormatjsIntl.Message['ids'] })
     , [intl, pathToBodyDescription, stepStatus, stepType])
     const CompletedStepLinkLabel = useMemo(() => SECOND_LEVEL_STEPS.includes(stepType) &&
             stepStatus === TourStepStatusType.Completed &&
-            intl.formatMessage({ id: `tour.step.${stepType}.completed.linkTitle` })
+            intl.formatMessage({ id: `tour.step.${stepType}.completed.linkTitle` as FormatjsIntl.Message['ids'] })
     , [intl, stepStatus, stepType])
     const SettingsMessage = intl.formatMessage({ id: 'global.section.settings' })
 

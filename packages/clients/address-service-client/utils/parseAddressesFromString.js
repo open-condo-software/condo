@@ -98,7 +98,7 @@ class AddressFromStringParser {
         const unit = addressParts.pop()
         return {
             housePart: addressParts.join(', '),
-            unitPart: unit,
+            unitPart: unit || '1',
         }
     }
 

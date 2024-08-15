@@ -1,7 +1,8 @@
 import { IncidentChange as IIncidentChange, IncidentStatusType } from '@app/condo/schema'
 import { Typography } from 'antd'
 import dayjs from 'dayjs'
-import { has, isNil } from 'lodash'
+import has from 'lodash/has'
+import isNil from 'lodash/isNil'
 import React, { ComponentProps, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -23,9 +24,9 @@ enum IncidentChangeFieldMessageType {
 }
 
 interface IIncidentChangeFieldMessages {
-    add?: string,
-    change?: string,
-    remove?: string,
+    add?: FormatjsIntl.Message['ids'],
+    change?: FormatjsIntl.Message['ids'],
+    remove?: FormatjsIntl.Message['ids'],
 }
 
 type UseIncidentChangedFieldMessagesOfType =

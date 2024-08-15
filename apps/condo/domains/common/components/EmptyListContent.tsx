@@ -114,7 +114,7 @@ export const EmptyListContent: React.FC<IEmptyListProps> = (props) => {
         const CardWrapper = isLargeScreen ? DesktopEmptyListCardWrapper : MobileEmptyListCardWrapper
         const spaceStyles = !isLargeScreen ? { width: '100%' } : {}
         const domainName = get(importWrapper, 'domainName')
-        const objsMessage = intl.formatMessage({ id: `import.${domainName}.plural` }).toLowerCase()
+        const objsMessage = intl.formatMessage({ id: `import.${domainName}.plural` as FormatjsIntl.Message['ids'] }).toLowerCase()
 
         const ImportComponent = OverrideImportWrapperFC || ImportWrapper
 

@@ -1,10 +1,33 @@
-const { Relationship, Integer, Float, Slug, Virtual, Url, Uuid, Checkbox, DateTimeUtc, CalendarDay, Decimal, Password } = require('@keystonejs/fields')
+const {
+    CalendarDay,
+    Checkbox,
+    DateTimeUtc,
+    Decimal,
+    Float,
+    Integer,
+    Password,
+    Relationship,
+    Slug,
+    Url,
+    Uuid,
+    Virtual,
+} = require('@keystonejs/fields')
 const { AuthedRelationship } = require('@keystonejs/fields-authed-relationship')
+const { Markdown } = require('@keystonejs/fields-markdown')
+const { Wysiwyg } = require('@keystonejs/fields-wysiwyg-tinymce')
 const { get, isObject, isString } = require('lodash')
 
-const { Text } = require('@open-condo/keystone/fields')
-
-const { Json, SignedDecimal, AutoIncrementInteger, LocalizedText, DateInterval, FileWithUTF8Name, Select } = require('../../fields')
+const {
+    AddressPartWithType,
+    AutoIncrementInteger,
+    DateInterval,
+    FileWithUTF8Name,
+    Json,
+    LocalizedText,
+    Select,
+    SignedDecimal,
+    Text,
+} = require('../../fields')
 const { HiddenRelationship } = require('../../plugins/utils/HiddenRelationship')
 const { GQL_SCHEMA_TYPES, GQL_CUSTOM_SCHEMA_TYPE, GQL_LIST_SCHEMA_TYPE } = require('../../schema')
 
@@ -33,47 +56,52 @@ function applyKeystoneV5AdminFixes (schema) {
 /** @deprecated it's part of internal API use prepareKeystone instead */
 function convertStringToTypes (schema) {
     const mapping = {
+        // Default types
+        AuthedRelationship,
         CalendarDay,
         Checkbox,
         DateTimeUtc,
         Decimal,
-        File: FileWithUTF8Name,
         Float,
         Integer,
+        Markdown,
         Password,
         Relationship,
-        Select,
         Slug,
-        Text,
         Url,
         Uuid,
         Virtual,
-        Json,
-        SignedDecimal,
+        Wysiwyg,
+
+        // Custom types
+        AddressPartWithType,
         AutoIncrementInteger,
-        LocalizedText,
-        AuthedRelationship,
-        HiddenRelationship,
         DateInterval,
+        File: FileWithUTF8Name,
+        Json,
+        HiddenRelationship,
+        LocalizedText,
+        Select,
+        SignedDecimal,
+        Text,
     }
+    const allTypesForPrint = Object.keys(mapping).map(item => `"${item}"`).join(', ')
 
     if (!schema.fields) throw new Error('convertStringToTypes(): wrong schema type! no fields!')
-    Object.keys(schema.fields).forEach((field) => {
+    schema.fields = Object.keys(schema.fields).reduce((acc, field) => {
         const fieldObj = schema.fields[field]
         if (fieldObj && !isObject(fieldObj)) throw new Error(`convertStringToTypes(): field "${field}" is not an object like!`)
         const type = fieldObj.type
         if (!type) throw new Error(`convertStringToTypes(): field "${field}" no "type" attr`)
-        let ks5type
-        if (isString(type)) {
-            // convert to object!
-            ks5type = get(mapping, type)
-            if (!ks5type) throw new Error(`convertStringToTypes(): field "${field}" unknown "type" == ${type}`)
-        } else if (isObject(type)) {
-            ks5type = get(mapping, get(type, 'type'), type)
-        }
+        if (!isString(type)) throw new Error(`convertStringToTypes(): field "${field}" unknown "type" == ${type}. Type can be one of the listed values: ${allTypesForPrint}`)
 
-        fieldObj['type'] = ks5type
-    })
+        // convert to object!
+        const ks5type = get(mapping, type)
+        if (!ks5type) throw new Error(`convertStringToTypes(): field "${field}" unknown "type" == ${type}. Type can be one of the listed values: ${allTypesForPrint}`)
+
+        acc[field] = { ...fieldObj, type: ks5type }
+        return acc
+    }, {})
     return schema
 }
 

@@ -47,10 +47,13 @@ const SMS_CODE_MAX_RETRIES_REACHED = 'SMS_CODE_MAX_RETRIES_REACHED'
 const TOO_MANY_REQUESTS = 'TOO_MANY_REQUESTS'
 const SMS_FOR_PHONE_DAY_LIMIT_REACHED = 'SMS_FOR_PHONE_DAY_LIMIT_REACHED'
 const SMS_FOR_IP_DAY_LIMIT_REACHED = 'SMS_FOR_IP_DAY_LIMIT_REACHED'
+const DAILY_REQUEST_LIMIT_FOR_IP_REACHED = 'DAILY_REQUEST_LIMIT_FOR_IP_REACHED'
+const DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED = 'DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED'
 
 const CAPTCHA_CHECK_FAILED = 'CAPTCHA_CHECK_FAILED'
 
 const UNABLE_TO_FIND_CONFIRM_PHONE_ACTION = 'UNABLE_TO_FIND_CONFIRM_PHONE_ACTION'
+const NO_CONFIRM_PHONE_ACTION_TOKEN = 'NO_CONFIRM_PHONE_ACTION_TOKEN'
 const CANNOT_RESET_ADMIN_USER = 'CANNOT_RESET_ADMIN_USER'
 
 const EMPTY_EXTERNAL_IDENTITY_ID_VALUE = 'EMPTY_EXTERNAL_IDENTITY_ID_VALUE'
@@ -78,6 +81,18 @@ const GQL_ERRORS = {
         code: 'BAD_USER_INPUT',
         type: SMS_FOR_IP_DAY_LIMIT_REACHED,
         message: 'Too many sms requests from this ip address. Try again tomorrow',
+    },
+    DAILY_REQUEST_LIMIT_FOR_IP_REACHED: {
+        code: 'BAD_USER_INPUT',
+        type: DAILY_REQUEST_LIMIT_FOR_IP_REACHED,
+        message: 'Too many requests from this ip address. Try again later',
+        messageForUser: 'api.user.DAILY_REQUEST_LIMIT_FOR_IP_REACHED',
+    },
+    DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED: {
+        code: 'BAD_USER_INPUT',
+        type: DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED,
+        message: 'Too many requests with this phone. Try again later',
+        messageForUser: 'api.user.DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED',
     },
     WRONG_PASSWORD_FORMAT: {
         variable: ['data', 'password'],
@@ -151,6 +166,14 @@ const ERRORS = {
         message: 'Wrong format of provided phone number',
         messageForUser: 'api.common.WRONG_PHONE_FORMAT',
         correctExample: '+79991234567',
+    },
+    NO_CONFIRM_PHONE_ACTION_TOKEN: {
+        mutation: 'registerNewUser',
+        variable: ['data', 'confirmPhoneActionToken'],
+        code: 'BAD_USER_INPUT',
+        type: NO_CONFIRM_PHONE_ACTION_TOKEN,
+        message: '"confirmPhoneActionToken" cannot be empty',
+        messageForUser: 'api.user.registerNewUser.NO_CONFIRM_PHONE_ACTION_TOKEN',
     },
     ...pick(GQL_ERRORS, [
         'INVALID_PASSWORD_LENGTH',

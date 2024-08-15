@@ -13,7 +13,7 @@
     "kmigrator": "./../../bin/kmigrator.py",
     "makemigrations": "./../../bin/kmigrator.py makemigrations",
     "migrate": "./../../bin/kmigrator.py migrate",
-    "maketypes": "mkdir -p dist/admin && NODE_ENV=test node ./../../bin/create-graphql-schema.js && graphql-codegen -c codegen.yaml",
+    "maketypes": "mkdir -p dist/admin && node ./../../bin/create-graphql-schema.js && graphql-codegen -c codegen.yaml",
     "createschema": "./../../bin/createschema"
   },
   "dependencies": {
@@ -106,5 +106,5 @@
     "typescript": "^4.1.5",
     "webpack": "^4.46.0"
   },
-  "repository": "https://github.com/open-condo-software/condo/tree/master/apps/miniapp"
+  "repository": "https://github.com/open-condo-software/condo/tree/main/apps/miniapp"
 }

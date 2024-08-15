@@ -1,8 +1,6 @@
-const { Relationship } = require('@keystonejs/fields')
-
 const INTEGRATION_CONTEXT_FIELD = {
     schemaDoc: 'Integration context',
-    type: Relationship,
+    type: 'Relationship',
     ref: 'BillingIntegrationOrganizationContext',
     isRequired: true,
     knexOptions: { isNotNullable: true }, // Required relationship only!
@@ -12,7 +10,7 @@ const INTEGRATION_CONTEXT_FIELD = {
 
 const BILLING_ORGANIZATION_FIELD = {
     schemaDoc: 'Billing organization',
-    type: Relationship,
+    type: 'Relationship',
     ref: 'BillingOrganization',
     isRequired: true,
     knexOptions: { isNotNullable: false }, // Relationship only!
@@ -21,7 +19,7 @@ const BILLING_ORGANIZATION_FIELD = {
 
 const BILLING_PROPERTY_FIELD = {
     schemaDoc: 'Billing property',
-    type: Relationship,
+    type: 'Relationship',
     ref: 'BillingProperty',
     isRequired: true,
     knexOptions: { isNotNullable: true }, // Relationship only!
@@ -30,7 +28,7 @@ const BILLING_PROPERTY_FIELD = {
 
 const BILLING_ACCOUNT_FIELD = {
     schemaDoc: 'Billing account',
-    type: Relationship,
+    type: 'Relationship',
     ref: 'BillingAccount',
     isRequired: true,
     knexOptions: { isNotNullable: true }, // Relationship only!

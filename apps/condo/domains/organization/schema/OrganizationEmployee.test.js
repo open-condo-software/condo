@@ -18,6 +18,7 @@ const {
     makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee,
     createTestOrganizationEmployeeRole,
     createTestOrganization,
+    replaceOrganizationEmployeeRoleByTestClient,
 } = require('@condo/domains/organization/utils/testSchema')
 const {
     acceptOrRejectOrganizationInviteById,
@@ -599,6 +600,19 @@ describe('OrganizationEmployee', () => {
         })
     })
 
+    test('User can see organization information while invite is not accepted and not rejected', async () => {
+        const orgAdmin = await makeClientWithRegisteredOrganization()
+        const [role] = await createTestOrganizationEmployeeRole(orgAdmin, orgAdmin.organization)
+        const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+
+        await inviteNewOrganizationEmployee(orgAdmin, orgAdmin.organization, userClient.userAttrs, role)
+
+        const employees = await OrganizationEmployee.getAll(userClient, { user: { id: userClient.user.id } })
+        expect(employees).toHaveLength(1)
+        const employee = employees[0]
+        expect(employee).toHaveProperty(['organization', 'name'], orgAdmin.organization.name)
+    })
+
     describe('Validations', () => {
         test('cannot create employee with role from other organization', async () => {
             const admin = await makeLoggedInAdminClient()
@@ -615,6 +629,27 @@ describe('OrganizationEmployee', () => {
                 variable: ['data', 'role'],
                 message: 'Role not found for the specified organization',
                 messageForUser: 'api.organizationEmployee.NOT_FOUND_ROLE',
+            })
+        })
+        test('cannot create employee with deleted role', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(admin)
+            const [deletedRole] = await createTestOrganizationEmployeeRole(admin, organization)
+            const [role] = await createTestOrganizationEmployeeRole(admin, organization)
+            // NOTE: we can delete role only by run mutation "replaceOrganizationEmployeeRole"
+            await replaceOrganizationEmployeeRoleByTestClient(admin, organization, deletedRole, role, true)
+            const { user } = await makeClientWithNewRegisteredAndLoggedInUser()
+
+            await catchErrorFrom(async () => {
+                await createTestOrganizationEmployee(admin, organization, user, deletedRole)
+            }, ({ errors }) => {
+                expect(errors).toMatchObject([{
+                    message: 'Unable to connect a OrganizationEmployee.role<OrganizationEmployeeRole>',
+                    name: 'GraphQLError',
+                    extensions: {
+                        code: 'INTERNAL_SERVER_ERROR',
+                    },
+                }])
             })
         })
         test('cannot update an employee\'s role to a role from another organization', async () => {
@@ -640,6 +675,34 @@ describe('OrganizationEmployee', () => {
                 variable: ['data', 'role'],
                 message: 'Role not found for the specified organization',
                 messageForUser: 'api.organizationEmployee.NOT_FOUND_ROLE',
+            })
+        })
+        test('cannot update an employee\'s role to a deleted role', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(admin)
+            const [deletedRole] = await createTestOrganizationEmployeeRole(admin, organization)
+            const [role] = await createTestOrganizationEmployeeRole(admin, organization)
+            // NOTE: we can delete role only by run mutation "replaceOrganizationEmployeeRole"
+            await replaceOrganizationEmployeeRoleByTestClient(admin, organization, deletedRole, role, true)
+            const { user } = await makeClientWithNewRegisteredAndLoggedInUser()
+
+            const [employee] = await createTestOrganizationEmployee(admin, organization, user, role)
+
+            expect(employee.id).toBeDefined()
+            expect(employee.role.id).toEqual(role.id)
+
+            await catchErrorFrom(async () => {
+                await updateTestOrganizationEmployee(admin, employee.id, {
+                    role: { connect: { id: deletedRole.id } },
+                })
+            }, ({ errors }) => {
+                expect(errors).toMatchObject([{
+                    message: 'Unable to connect a OrganizationEmployee.role<OrganizationEmployeeRole>',
+                    name: 'GraphQLError',
+                    extensions: {
+                        code: 'INTERNAL_SERVER_ERROR',
+                    },
+                }])
             })
         })
         test('can update an employee\'s role to a role from current organization', async () => {

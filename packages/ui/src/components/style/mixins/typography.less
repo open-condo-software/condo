@@ -1,3 +1,5 @@
+@import (reference) "@open-condo/ui/src/components/style/core/breakpoints.less";
+
 .condo-typography-layer(@font-family, @font-weight, @line-height, @font-size, @letter-spacing, @paragraph-spacing) {
   margin: 0;
   font-weight: @font-weight;
@@ -22,6 +24,11 @@
     @condo-global-typography-h1-letter-spacing,
     @condo-global-typography-h1-paragraph-spacing
   );
+
+  @media @to-tablet-small {
+    font-size: @condo-global-font-size-h1-sm;
+    line-height: @condo-global-line-height-h1-sm;
+  }
 }
 
 .condo-typography-h2() {
@@ -55,6 +62,11 @@
     @condo-global-typography-h4-letter-spacing,
     @condo-global-typography-h4-paragraph-spacing
   );
+
+  @media @to-tablet-small {
+    font-size: @condo-global-font-size-h4-sm;
+    line-height: @condo-global-line-height-h4-sm;
+  }
 }
 
 .condo-typography-h5() {

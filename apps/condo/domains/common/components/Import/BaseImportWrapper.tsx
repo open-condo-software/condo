@@ -58,6 +58,7 @@ const SuccessModal = styled(Modal)`
 `
 
 export type ActiveModalType = null | 'example' | 'progress' | 'partlyLoaded' | 'success' | 'error'
+export type ExtraModalContentType = Record<Extract<ActiveModalType, 'example'>, JSX.Element>
 
 type TBaseImportWrapperProps = {
     importCardButton?: {
@@ -75,7 +76,8 @@ type TBaseImportWrapperProps = {
     successRowsRef: React.MutableRefObject<number>,
     totalRowsRef: React.MutableRefObject<number>,
     error: any,
-    dataImporter: JSX.Element,
+    dataImporter: JSX.Element
+    extraModalContent?: ExtraModalContentType
 }
 
 const BaseImportWrapper: React.FC<TBaseImportWrapperProps> = (props) => {
@@ -93,13 +95,14 @@ const BaseImportWrapper: React.FC<TBaseImportWrapperProps> = (props) => {
         totalRowsRef,
         error,
         dataImporter,
+        extraModalContent = {},
     } = props
 
     const intl = useIntl()
-    const ImportPluralMessage = intl.formatMessage({ id: `import.${domainName}.plural` })
-    const ImportGenitiveMessage = intl.formatMessage({ id: `import.${domainName}.genitive` })
-    const ImportPrepositionalMessage = intl.formatMessage({ id: `import.${domainName}.prepositional` })
-    const ImportRequiredFieldsMessage = intl.formatMessage({ id: `import.${domainName}.requiredFields` })
+    const ImportPluralMessage = intl.formatMessage({ id: `import.${domainName}.plural` as FormatjsIntl.Message['ids'] })
+    const ImportGenitiveMessage = intl.formatMessage({ id: `import.${domainName}.genitive` as FormatjsIntl.Message['ids'] })
+    const ImportPrepositionalMessage = intl.formatMessage({ id: `import.${domainName}.prepositional` as FormatjsIntl.Message['ids'] })
+    const ImportRequiredFieldsMessage = intl.formatMessage({ id: `import.${domainName}.requiredFields` as FormatjsIntl.Message['ids'] })
     const ImportSuccessMessage = intl.formatMessage({ id: 'import.successModal.title' })
     const ImportDefaultErrorMessage = intl.formatMessage({ id: 'ImportError' })
     const GetFailedDataMessage = intl.formatMessage({ id: 'GetFailedData' })
@@ -179,6 +182,7 @@ const BaseImportWrapper: React.FC<TBaseImportWrapperProps> = (props) => {
                         message={RequiredFieldsTitle}
                         description={ImportRequiredFieldsMessage}
                     />
+                    {get(extraModalContent, 'example')}
                     <LinkWithIcon
                         title={ExampleLinkMessage}
                         size='medium'
@@ -233,8 +237,8 @@ const BaseImportWrapper: React.FC<TBaseImportWrapperProps> = (props) => {
                     showIcon
                     message={
                         PartlyDataLoadedModalAlertMessage
-                            .replace('{success}', successRowsRef.current)
-                            .replace('{total}', totalRowsRef.current)
+                            .replace('{success}', String(successRowsRef.current))
+                            .replace('{total}', String(totalRowsRef.current))
                             .replace('{genitive}', ImportGenitiveMessage.toLowerCase())
                     }
                     description={PartlyDataLoadedModalAlertDescription}

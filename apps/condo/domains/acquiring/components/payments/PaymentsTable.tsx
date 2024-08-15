@@ -117,8 +117,8 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
     const [titleStatusDescModal, setTitleStatusDescModal] = useState('')
     const [textStatusDescModal, setTextStatusDescModal] = useState('')
     const openStatusDescModal = (statusType) => {
-        const titleModal = intl.formatMessage({ id: 'payment.status.description.title.' + statusType })
-        const textModal = intl.formatMessage({ id: 'payment.status.description.text.' + statusType })
+        const titleModal = intl.formatMessage({ id: 'payment.status.description.title.' + statusType as FormatjsIntl.Message['ids'] })
+        const textModal = intl.formatMessage({ id: 'payment.status.description.text.' + statusType as FormatjsIntl.Message['ids'] })
 
         setTitleStatusDescModal(titleModal)
         setTextStatusDescModal(textModal)
@@ -135,13 +135,13 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
 
     const [filtersAreReset, setFiltersAreReset] = useState(false)
     const dateFallback = filtersAreReset ? null : DEFAULT_DATE_RANGE
-    const [dateRange, setDateRange] = useDateRangeSearch('advancedAt')
+    const [dateRange, setDateRange] = useDateRangeSearch('depositedDate')
     const dateFilterValue = dateRange || dateFallback
     const dateFilter = dateFilterValue ? dateFilterValue.map(el => el.toISOString()) : null
 
 
     const searchPaymentsQuery: Record<string, unknown> = {
-        ...filtersToWhere({ advancedAt: dateFilter, ...filters }),
+        ...filtersToWhere({ depositedDate: dateFilter, ...filters }),
         organization: { id: organizationId },
         status_in: [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS],
         invoice_is_null: true,

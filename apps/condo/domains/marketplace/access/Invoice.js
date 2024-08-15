@@ -14,14 +14,13 @@ const {
     INVOICE_STATUS_CANCELED,
 } = require('@condo/domains/marketplace/constants')
 const {
-    queryOrganizationEmployeeFor,
-    queryOrganizationEmployeeFromRelatedOrganizationFor,
-    checkPermissionInUserOrganizationOrRelatedOrganization,
+    getEmployedOrRelatedOrganizationsByPermissions,
+    checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 
-async function canReadInvoices ({ authentication: { item: user } }) {
+async function canReadInvoices ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -43,19 +42,18 @@ async function canReadInvoices ({ authentication: { item: user } }) {
         }
     }
 
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadInvoices')
+
+
     return {
         organization: {
-            OR: [
-                queryOrganizationEmployeeFor(user.id, 'canReadInvoices'),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadInvoices'),
-            ],
-            deletedAt: null,
+            id_in: permittedOrganizations,
         },
         deletedAt: null,
     }
 }
 
-async function canManageInvoices ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageInvoices ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -72,7 +70,7 @@ async function canManageInvoices ({ authentication: { item: user }, originalInpu
     }
 
     if (!organizationId) return false
-    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageInvoices')
+    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageInvoices')
 }
 
 /*

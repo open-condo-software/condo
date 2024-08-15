@@ -28,9 +28,7 @@ const CreateNewsPageContent: React.FC = () => {
             <PageWrapper>
                 <PageHeader title={<Typography.Title>{PageTitle}</Typography.Title>} spaced/>
                 <PageContent>
-                    <NewsForm
-                        actionName='create'
-                    />
+                    <NewsForm actionName='create'/>
                 </PageContent>
             </PageWrapper>
         </>

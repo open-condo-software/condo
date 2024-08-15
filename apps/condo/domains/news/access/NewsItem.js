@@ -10,13 +10,12 @@ const { find, getById } = require('@open-condo/keystone/schema')
 
 const { queryFindNewsItemsScopesByResidents } = require('@condo/domains/news/utils/accessSchema')
 const {
-    queryOrganizationEmployeeFor,
-    queryOrganizationEmployeeFromRelatedOrganizationFor,
-    checkPermissionInUserOrganizationOrRelatedOrganization,
+    getEmployedOrRelatedOrganizationsByPermissions,
+    checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
-async function canReadNewsItems ({ authentication: { item: user } }) {
+async function canReadNewsItems ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -37,19 +36,17 @@ async function canReadNewsItems ({ authentication: { item: user } }) {
         }
     }
 
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadNewsItems')
+
     // access for staff
     return {
         organization: {
-            OR: [
-                queryOrganizationEmployeeFor(user.id, 'canReadNewsItems'),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadNewsItems'),
-            ],
-            deletedAt: null,
+            id_in: permittedOrganizations,
         },
     }
 }
 
-async function canManageNewsItems ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageNewsItems ({ authentication: { item: user }, context, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -67,7 +64,7 @@ async function canManageNewsItems ({ authentication: { item: user }, originalInp
 
     if (!organizationId) return false
 
-    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageNewsItems')
+    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageNewsItems')
 }
 
 /*

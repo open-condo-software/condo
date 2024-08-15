@@ -7,28 +7,26 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { getById } = require('@open-condo/keystone/schema')
 
 const {
-    queryOrganizationEmployeeFor,
-    queryOrganizationEmployeeFromRelatedOrganizationFor,
-    checkPermissionInUserOrganizationOrRelatedOrganization,
+    getEmployedOrRelatedOrganizationsByPermissions,
+    checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 
 
-async function canReadIncidents ({ authentication: { item: user } }) {
+async function canReadIncidents ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
 
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadIncidents')
+
     return {
         organization: {
-            OR: [
-                queryOrganizationEmployeeFor(user.id, 'canReadIncidents'),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadIncidents'),
-            ],
+            id_in: permittedOrganizations,
         },
     }
 }
 
-async function canManageIncidents ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageIncidents ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -43,7 +41,7 @@ async function canManageIncidents ({ authentication: { item: user }, originalInp
     }
     if (!organizationId) return false
 
-    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageIncidents')
+    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageIncidents')
 }
 
 /*

@@ -8,28 +8,26 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { getById } = require('@open-condo/keystone/schema')
 
 const {
-    queryOrganizationEmployeeFor,
-    queryOrganizationEmployeeFromRelatedOrganizationFor,
-    checkPermissionInUserOrganizationOrRelatedOrganization,
+    getEmployedOrRelatedOrganizationsByPermissions,
+    checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 
 
-async function canReadIncidentClassifierIncidents ({ authentication: { item: user } }) {
+async function canReadIncidentClassifierIncidents ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
 
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadIncidents')
+
     return {
         organization: {
-            OR: [
-                queryOrganizationEmployeeFor(user.id, 'canReadIncidents'),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadIncidents'),
-            ],
+            id_in: permittedOrganizations,
         },
     }
 }
 
-async function canManageIncidentClassifierIncidents ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageIncidentClassifierIncidents ({ authentication: { item: user }, context, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (operation === 'update' && !isSoftDelete(originalInput)) return false
@@ -46,7 +44,9 @@ async function canManageIncidentClassifierIncidents ({ authentication: { item: u
         organizationId = get(incidentClassifierIncident, 'organization', null)
     }
 
-    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageIncidents')
+    if (!organizationId) return false
+
+    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageIncidents')
 }
 
 /*

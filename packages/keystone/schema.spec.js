@@ -81,7 +81,7 @@ test('registerSchema without preprocessors', () => {
             User: new GQLListSchema('User', {
                 fields: {
                     name: {
-                        type: Text,
+                        type: 'Text',
                         defaultValue: 'username',
                     },
                 },
@@ -93,7 +93,7 @@ test('registerSchema without preprocessors', () => {
             Organization: new GQLListSchema('Organization', {
                 fields: {
                     name: {
-                        type: Text,
+                        type: 'Text',
                         defaultValue: 'orgname',
                     },
                 },
@@ -141,7 +141,7 @@ test('registerSchema with preprocessors', () => {
             User: new GQLListSchema('User', {
                 fields: {
                     name: {
-                        type: Text,
+                        type: 'Text',
                         defaultValue: 'username',
                     },
                 },
@@ -153,7 +153,7 @@ test('registerSchema with preprocessors', () => {
             Organization: new GQLListSchema('Organization', {
                 fields: {
                     name: {
-                        type: Text,
+                        type: 'Text',
                         defaultValue: 'orgname',
                     },
                 },

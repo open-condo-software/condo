@@ -12,7 +12,6 @@ const PROPERTY_REPORT_DELETE_ENTITIES = 'property-report-delete-entities'
 const SERVICE_PROVIDER_PROFILE = 'service-provider-profile'
 const DISABLE_DISCOVER_SERVICE_CONSUMERS = 'disable-discover-service-consumers'
 const TICKET_SUBMITTING_FORM_RESIDENT_MOBILE_APP = 'ticket-submitting-from-resident-mobile-app'
-const SETTINGS_NEW_EMPLOYEE_ROLE_TABLE = 'settings-new-employee-role-table'
 const BIGGER_LIMIT_FOR_IMPORT = 'bigger-limit-for-import'
 const SEND_BILLING_RECEIPTS_ON_PAYDAY_REMAINDER_TASK = 'send-billing-receipts-on-payday-remainder-task'
 const MARKETPLACE = 'marketplace'
@@ -23,6 +22,12 @@ const CAPTCHA_CHECK_ENABLED = 'captcha-check-enabled'
 // TODO(DOMA-8667): Remove flag after links to instructions will be ready
 const IMPORT_HELP_MODAL = 'import-help-modal'
 const PROPERTY_DOCUMENTS = 'property-documents'
+const SEND_DAILY_STATISTICS_TASK = 'send-daily-statistics-task'
+const RETENTION_LOOPS_ENABLED = 'retention-loops-enabled'
+const NEWS_SHARING = 'news-sharing'
+const NEWS_SHARING_TEMPLATES = 'news-sharing-templates'
+const TICKET_DOCUMENT_GENERATION = 'ticket-document-generation'
+const SERVICE_PROBLEMS_ALERT = 'service-problems-alert'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -39,7 +44,6 @@ module.exports = {
     SERVICE_PROVIDER_PROFILE,
     DISABLE_DISCOVER_SERVICE_CONSUMERS,
     TICKET_SUBMITTING_FORM_RESIDENT_MOBILE_APP,
-    SETTINGS_NEW_EMPLOYEE_ROLE_TABLE,
     BIGGER_LIMIT_FOR_IMPORT,
     SEND_BILLING_RECEIPTS_ON_PAYDAY_REMAINDER_TASK,
     MARKETPLACE,
@@ -49,4 +53,10 @@ module.exports = {
     CAPTCHA_CHECK_ENABLED,
     IMPORT_HELP_MODAL,
     PROPERTY_DOCUMENTS,
+    RETENTION_LOOPS_ENABLED,
+    SEND_DAILY_STATISTICS_TASK,
+    NEWS_SHARING,
+    NEWS_SHARING_TEMPLATES,
+    TICKET_DOCUMENT_GENERATION,
+    SERVICE_PROBLEMS_ALERT,
 }

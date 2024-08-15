@@ -19,11 +19,13 @@ export * as MeterReadingSource from './MeterReadingSource'
 export * as MeterReading from './MeterReading'
 export * as MeterReadingForOrganization from './MeterReadingForOrganization'
 export * as Meter from './Meter'
+export * as MeterForOrganization from './MeterForOrganization'
 export * as MeterReadingFilterTemplate from './MeterReadingFilterTemplate'
 export * as PropertyMeter from './PropertyMeter'
 export * as PropertyMeterReading from './PropertyMeterReading'
 export * as MeterReportingPeriod from './MeterReportingPeriod'
 export * as MeterResourceOwner from './MeterResourceOwner'
+export * as MeterReadingsImportTask from './MeterReadingsImportTask'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
 
 
@@ -51,14 +53,28 @@ export const resourceIdToCreateMeterTitleIdMap = {
     [HEAT_SUPPLY_METER_RESOURCE_ID]: 'pages.condo.meter.AddHeatSupplyMeterModalTitle',
 }
 
-export type MeterPageTypes = 'property-meter' | 'meter' | 'meter-reporting-period'
+export type MeterPageTypes = 'meter-reading' | 'meter' | 'meter-reporting-period' | 'property-meter' | 'property-meter-reading'
 type MeterPageTypesSwitch = {
-    propertyMeter: MeterPageTypes
+    meterReading: MeterPageTypes
     meter: MeterPageTypes
     reportingPeriod: MeterPageTypes
+    propertyMeter: MeterPageTypes,
+    propertyMeterReading: MeterPageTypes,
 }
-export const METER_PAGE_TYPES: MeterPageTypesSwitch = {
-    propertyMeter: 'property-meter',
+export const METER_TAB_TYPES: MeterPageTypesSwitch = {
+    meterReading: 'meter-reading',
     meter: 'meter',
     reportingPeriod: 'meter-reporting-period',
+    propertyMeter: 'property-meter',
+    propertyMeterReading: 'property-meter-reading',
+}
+
+export type MeterTypes = 'unit' | 'property'
+type MeterTypeSwitch = {
+    unit: MeterTypes,
+    property: MeterTypes,
+}
+export const METER_TYPES: MeterTypeSwitch = {
+    unit: 'unit',
+    property: 'property',
 }

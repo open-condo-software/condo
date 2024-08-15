@@ -24,6 +24,7 @@ const CERT_FILE = path.join(__filename, '..', '.ssl', 'localhost.pem')
 
 program.option('-f, --filter <names...>', 'Filters apps by name')
 program.option('--https', 'Uses https for local running')
+program.option('-r, --replication <names...>', 'Enables replica adapter to interact with multiple databases')
 program.description(`Prepares applications from the /apps directory for local running 
 by creating separate databases for them 
 and running their local bin/prepare.js scripts.
@@ -35,7 +36,7 @@ function logWithIndent (message, indent = 1) {
 
 async function prepare () {
     program.parse()
-    const { https, filter } = program.opts()
+    const { https, filter, replication } = program.opts()
 
     // Step 1. Sanity checks
     logWithIndent('Running sanity checks')
@@ -47,11 +48,13 @@ async function prepare () {
     const allApps = await getAllActualApps()
     logWithIndent(`Apps found: ${allApps.map(app => app.name).join(', ')}`)
     logWithIndent('Assigning ports, urls and db indexes/names to all apps')
+
     const appsWithData = allApps.map((app, idx) => {
         const appOrder = idx + 1
+        const sport = 8000 + appOrder
+        const port = 4000 + appOrder
+
         if (app.type === 'KS') {
-            const sport = 8000 + appOrder
-            const port = 4000 + appOrder
             return {
                 ...app,
                 pgName: `${DEFAULT_DB_NAME_PREFIX}-${app.name}`,
@@ -70,7 +73,10 @@ async function prepare () {
                 serviceUrl: 'http://localhost:3000',
             }
         } else {
-            throw new Error('Unknown app type!')
+            return {
+                ...app,
+                serviceUrl: `http://localhost:${port}`,
+            }
         }
     })
 
@@ -79,13 +85,15 @@ async function prepare () {
     await fillGlobalEnvWithDefaultValues()
     // Step 3.2. Extract domains .env information, like CONDO_DOMAIN, MY_APP_DOMAIN and put it global monorepo env
     logWithIndent('Writing services <service-name>_DOMAIN variables to global .env')
+    // console.log(appsWithData)
     for (const app of appsWithData) {
         const domainEnvKey = `${app.name.toUpperCase().replaceAll('-', '_')}_DOMAIN`
         await updateGlobalEnvFile(domainEnvKey, app.serviceUrl)
     }
 
-    // Step 4. Filter out apps that you don't need, save
-    const filteredApps = filter ? appsWithData.filter(app => filter.includes(app.name)) : appsWithData
+    // Step 4. Filter out apps that you don't need
+    const knownApps = appsWithData.filter(app => app.type !== 'Unknown')
+    const filteredApps = filter ? knownApps.filter(app => filter.includes(app.name)) : knownApps
     logWithIndent(`Filtering apps to prepare: ${filteredApps.map(app => app.name).join(', ')}`)
 
     // Step 5. Create missing databases
@@ -108,6 +116,12 @@ async function prepare () {
                 SPORT: String(app.sport),
                 SERVER_URL: app.serviceUrl,
             }
+
+            if (replication && app in replication) {
+                env.DATABASE_URL = `custom:{"default":{"read":"postgresql://postgres:postgres@127.0.0.1:5433/${app.pgName}","write":"postgresql://postgres:postgres@127.0.0.1:5432/${app.pgName}"}}` // NOSONAR used only for test purposes
+                env.DATABASE_MAPPING = '[{"match":"*","query":"default","command":"default"}]'
+            }
+
             await prepareAppEnv(app.name, env)
             logWithIndent('Running migration script', 2)
             const migrateResult = await runAppPackageJsonScript(app.name, 'migrate')

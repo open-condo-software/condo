@@ -118,8 +118,8 @@ const MarketplacePaymentsTableContent = () => {
     const [titleStatusDescModal, setTitleStatusDescModal] = useState('')
     const [textStatusDescModal, setTextStatusDescModal] = useState('')
     const openStatusDescModal = (statusType) => {
-        const titleModal = intl.formatMessage({ id: 'payment.status.description.title.' + statusType })
-        const textModal = intl.formatMessage({ id: 'payment.status.description.text.' + statusType })
+        const titleModal = intl.formatMessage({ id: 'payment.status.description.title.' + statusType as FormatjsIntl.Message['ids'] })
+        const textModal = intl.formatMessage({ id: 'payment.status.description.text.' + statusType as FormatjsIntl.Message['ids'] })
 
         setTitleStatusDescModal(titleModal)
         setTextStatusDescModal(textModal)

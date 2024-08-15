@@ -1,11 +1,11 @@
 const path = require('path')
 
+// eslint-disable-next-line no-restricted-modules
 const { File } = require('@keystonejs/fields')
 const { LocalFileAdapter } = require('@keystonejs/file-adapters')
 
+const { SberCloudFileAdapter } = require('@open-condo/keystone/fileAdapter/sberCloudFileAdapter')
 const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
-
-const { SberCloudFileAdapter } = require('@condo/domains/common/utils/sberCloudFileAdapter')
 
 const APPS = ['condo']
 const excludedManyRelationshipCheckLists = ['MultiPayment']

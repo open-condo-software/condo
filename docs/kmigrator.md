@@ -21,11 +21,11 @@ const User = new GQLListSchema('User', {
         ...
         email: {
             schemaDoc: 'Email. Transformed to lower case',
-            type: Text,
+            type: 'Text',
             kmigratorOptions: { null: false, unique: true },
         },
         birth: {
-            type: DateTimeUtc,
+            type: 'DateTimeUtc',
             kmigratorOptions: { db_index: true },
         },
         ...
@@ -61,7 +61,7 @@ const User = new GQLListSchema('User', {
     fields: {
         type: {
             schemaDoc: 'We have b2b and b2c user segments',
-            type: Select,
+            type: 'Select',
             dataType: 'enum',
             options: ['b2b', 'b2c', 'sys'],
             defaultValue: 'b2b',
@@ -69,7 +69,7 @@ const User = new GQLListSchema('User', {
         },
         phone: {
             schemaDoc: 'Phone. In international E.164 format without spaces',
-            type: Text,
+            type: 'Text',
             isRequired: true,
         },
         ...
@@ -95,12 +95,12 @@ const User = new GQLListSchema('User', {
     fields: {
         phone: {
             schemaDoc: 'Phone. In international E.164 format without spaces',
-            type: Text,
+            type: 'Text',
             isRequired: false,
         },
         email: {
             schemaDoc: 'Email',
-            type: Text,
+            type: 'Text',
             isRequired: false,
         },
         ...

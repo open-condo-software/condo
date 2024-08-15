@@ -6,24 +6,27 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor, checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    getEmployedOrRelatedOrganizationsByPermissions,
+    checkPermissionsInEmployedOrRelatedOrganizations,
+} = require('@condo/domains/organization/utils/accessSchema')
 
-async function canReadTicketPropertyHints ({ authentication: { item: user } }) {
+async function canReadTicketPropertyHints ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
 
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, [])
+
+
     return {
         organization: {
-            OR: [
-                queryOrganizationEmployeeFor(user.id),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
-            ],
+            id_in: permittedOrganizations,
         },
     }
 }
 
-async function canManageTicketPropertyHints ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageTicketPropertyHints ({ authentication: { item: user }, context, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -42,7 +45,9 @@ async function canManageTicketPropertyHints ({ authentication: { item: user }, o
         }
     }
 
-    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, hintOrganizationId, 'canManageTicketPropertyHints')
+    if (!hintOrganizationId) return false
+
+    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, hintOrganizationId, 'canManageTicketPropertyHints')
 }
 
 /*

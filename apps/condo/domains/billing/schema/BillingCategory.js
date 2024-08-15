@@ -3,7 +3,6 @@
  */
 const Ajv = require('ajv')
 
-const { LocalizedText, Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
@@ -17,13 +16,13 @@ const BillingCategory = new GQLListSchema('BillingCategory', {
     fields: {
         name: {
             schemaDoc: 'Localized name of billing category: Hot water, Cold water, Housing Services',
-            type: LocalizedText,
+            type: 'LocalizedText',
             isRequired: true,
             template: 'billing.category.*.name',
         },
         serviceNames: {
             schemaDoc: 'Possible names of services to auto-detect receipt category',
-            type: Json,
+            type: 'Json',
             isRequired: false,
             hooks: {
                 validateInput: getValidator(ajv.compile({

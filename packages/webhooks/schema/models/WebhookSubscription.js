@@ -1,7 +1,4 @@
-const { Relationship, DateTimeUtc, Select, Text, Integer } = require('@keystonejs/fields')
-
 const conf = require('@open-condo/config')
-const { Json } = require('@open-condo/keystone/fields')
 const { uuided, versioned, tracked, softDeleted, dvAndSender, historical } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { DEFAULT_MAX_PACK_SIZE, DEFAULT_UNAVAILABILITY_THRESHOLD } = require('@open-condo/webhooks/constants')
@@ -58,7 +55,7 @@ function getWebhookSubscriptionModel (schemaPath) {
         fields: {
             webhook: {
                 schemaDoc: 'Link to a webhook containing information about integration',
-                type: Relationship,
+                type: 'Relationship',
                 ref: 'Webhook',
                 isRequired: true,
                 knexOptions: { isNotNullable: true },
@@ -72,14 +69,14 @@ function getWebhookSubscriptionModel (schemaPath) {
             },
             syncedAt: {
                 schemaDoc: 'The time was the data was last synced. At the next synchronization, only objects that have changed since that time will be sent.',
-                type: DateTimeUtc,
+                type: 'DateTimeUtc',
                 isRequired: true,
             },
             syncedAmount: {
                 schemaDoc: 'The number of objects successfully delivered by webhooks. ' +
                     'On successful synchronization, the syncedAt field is updated and syncedAmount becomes 0. ' +
                     'If the remote server fails, syncedAt will not be updated, and syncedAmount will increment to the number of successfully delivered objects.',
-                type: Integer,
+                type: 'Integer',
                 isRequired: true,
                 defaultValue: 0,
                 hooks: {
@@ -102,7 +99,7 @@ function getWebhookSubscriptionModel (schemaPath) {
                     `as the unavailability of the external service for at least ${UNAVAILABILITY_THRESHOLD} hours, ` +
                     'the webhook will stop being sent to this url. ' +
                     'In this case, you will need to manually reset the counter via support to resume sending.',
-                type: Integer,
+                type: 'Integer',
                 isRequired: true,
                 defaultValue: 0,
                 hooks: {
@@ -117,7 +114,7 @@ function getWebhookSubscriptionModel (schemaPath) {
             },
             model: {
                 schemaDoc: 'The data model (schema) that the webhook is subscribed to',
-                type: Select,
+                type: 'Select',
                 dataType: 'string',
                 isRequired: true,
                 options: validator.models,
@@ -132,7 +129,7 @@ function getWebhookSubscriptionModel (schemaPath) {
                 schemaDoc: 'String representing list of model fields in graphql-query format. ' +
                     'Exactly the fields specified here will be sent by the webhook. ' +
                     'Correct examples: "field1 field2 { subfield }", "{ field1 relation { subfield } }"',
-                type: Text,
+                type: 'Text',
                 isRequired: true,
                 hooks: {
                     resolveInput: ({ resolvedData, fieldPath }) => {
@@ -146,7 +143,7 @@ function getWebhookSubscriptionModel (schemaPath) {
                 schemaDoc: 'Filters which is stored in JSON and used to filter models sent by the webhook. ' +
                     'Examples of filters can be found in ModelWhereInput GQL type, ' +
                     'where Model is name of your model',
-                type: Json,
+                type: 'Json',
                 isRequired: true,
                 kmigratorOptions: { null: false },
                 hooks: {
@@ -159,7 +156,7 @@ function getWebhookSubscriptionModel (schemaPath) {
                     'In most cases, you do not need to override this field, but it is recommended to lower this value ' +
                     'for requests with a large number of related fields ' +
                     'or in case of external restrictions of the server accepting webhooks.',
-                type: Integer,
+                type: 'Integer',
                 isRequired: false,
                 hooks: {
                     validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {

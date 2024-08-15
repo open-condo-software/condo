@@ -1,6 +1,3 @@
-const { Text } = require('@keystonejs/fields')
-
-const { Json } = require('@open-condo/keystone/fields')
 const { versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
@@ -19,17 +16,17 @@ const BillingIntegrationProblem = new GQLListSchema('BillingIntegrationProblem',
         context: INTEGRATION_CONTEXT_FIELD,
         title: {
             schemaDoc: 'Problem summary, like "Wrong requisites", "No access provided" and so on',
-            type: Text,
+            type: 'Text',
             isRequired: true,
         },
         message: {
             schemaDoc: 'Client understandable message, describing what should client do to fix a problem',
-            type: Text,
+            type: 'Text',
             isRequired: true,
         },
         meta: {
             schemaDoc: 'The message metadata, which can help support to resolve an issue',
-            type: Json,
+            type: 'Json',
             isRequired: false,
         },
     },

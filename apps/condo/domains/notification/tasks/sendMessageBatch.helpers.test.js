@@ -38,7 +38,7 @@ describe('sendMessageBatch', () => {
                 const landLinePhone = faker.phone.number('+7343#######')
                 const brokenLandLinePhone = faker.phone.number('+7343######')
 
-                expect(selectTarget(user.phone)).toEqual({ to: { phone: user.phone } })
+                expect(selectTarget(user.phone, CUSTOM_CONTENT_MESSAGE_TYPE)).toEqual({ to: { phone: user.phone } })
                 expect(selectTarget(user.email)).toEqual({ to: { email: user.email }, emailFrom: EMAIL_FROM })
                 expect(selectTarget(user.id)).toEqual({ to: { user: { id: user.id } } })
                 expect(selectTarget(user.remoteClient)).toEqual({ to: { remoteClient: { id: user.remoteClient.replace('rc:', '') } } })

@@ -30,11 +30,11 @@ import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayer
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { NewsReadPermissionRequired } from '@condo/domains/news/components/PageAccess'
 import { RecipientCounter } from '@condo/domains/news/components/RecipientCounter'
-import { TNewsItemScopeNoInstance } from '@condo/domains/news/components/types'
+import { NewsItemScopeNoInstanceType } from '@condo/domains/news/components/types'
 import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess'
 import { isPostponedNewsItem } from '@condo/domains/news/utils'
-import { NewsItem, NewsItemScope } from '@condo/domains/news/utils/clientSchema'
+import { NewsItem, NewsItemScope, NewsItemSharing } from '@condo/domains/news/utils/clientSchema'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
@@ -84,6 +84,8 @@ const NewsItemCard: React.FC = () => {
     const CancelMessage = intl.formatMessage({ id: 'news.CancelMessage' })
     const NotSentMessage = intl.formatMessage({ id: 'pages.news.newsItemCard.status.notSent' })
     const SendingMessage = intl.formatMessage({ id: 'pages.news.newsItemCard.status.sending' })
+    const ErrorMessage = intl.formatMessage({ id: 'pages.news.newsItemCard.status.error' })
+    const SentMessage = intl.formatMessage({ id: 'pages.news.newsItemCard.status.success' })
 
     const { user } = useAuth()
     const { query, push } = useRouter()
@@ -120,7 +122,7 @@ const NewsItemCard: React.FC = () => {
         where: { id: get(newsItemScopes, [0, 'property', 'id'], null) },
     })
 
-    const newsItemScopesNoInstance: TNewsItemScopeNoInstance[] = useMemo(() => {
+    const newsItemScopesNoInstance: NewsItemScopeNoInstanceType[] = useMemo(() => {
         const isAllScopesHaveProperty = every(newsItemScopes, newsItemScope => {
             return has(newsItemScope, ['property', 'id'])
         })
@@ -175,6 +177,16 @@ const NewsItemCard: React.FC = () => {
         },
     })
 
+    const {
+        objs: newsItemSharings,
+        loading: newsItemSharingsLoading,
+        error: newsItemSharingsError,
+    } = NewsItemSharing.useObjects({
+        where: {
+            newsItem: { id: newsItemId },
+        },
+    })
+
     const softDeleteNews = NewsItem.useSoftDelete(() => push('/news/'))
     const handleDeleteButtonClick = useCallback(async () => {
         notification.close(newsItem.id)
@@ -214,8 +226,31 @@ const NewsItemCard: React.FC = () => {
         )
     }, [NotSentMessage, SendingMessage, isSending, isSent, newsItem])
 
-    const isLoading = employeeLoading || newsItemLoading || isAccessLoading || newsItemScopesLoading || propertyLoading
-    const hasError = employeeError || newsItemError || newsItemScopesError
+    const formattedNewsItemSharingSendAt = (newsItemSharing) => {
+        const dateToShow = get(newsItemSharing, 'createdAt', null)
+        if (!dateToShow) return '—'
+
+        let status
+        if (newsItemSharing.status === 'scheduled') {
+            status = NotSentMessage
+        } else if (newsItemSharing.status === 'processing') {
+            status = SendingMessage
+        } else if (newsItemSharing.status === 'error') {
+            status = ErrorMessage
+        } else if (newsItemSharing.status === 'success') {
+            status = SentMessage
+        }
+
+        return (
+            <>
+                {dayjs(dateToShow).format('YYYY.MM.DD HH:mm')}
+                {status && <Typography.Text type='secondary'> ({status})</Typography.Text>}
+            </>
+        )
+    }
+
+    const isLoading = employeeLoading || newsItemLoading || isAccessLoading || newsItemScopesLoading || propertyLoading || newsItemSharingsLoading
+    const hasError = employeeError || newsItemError || newsItemScopesError || newsItemSharingsError
     const isNotFound = !isLoading && (!employee || !newsItem)
     if (hasError || isLoading || isNotFound) {
         const errorToPrint = hasError ? ServerErrorMsg : isNotFound ? NotFoundMsg : null
@@ -268,11 +303,41 @@ const NewsItemCard: React.FC = () => {
                                 </Row>
                             </FrontLayerContainer>
                         </Col>
+
+                        { canManage && (
+                            <Col span={24} sm={24} md={16} lg={8}>
+                                <RecipientCounter newsItemScopes={newsItemScopesNoInstance}/>
+                            </Col>
+                        ) }
+
+                        { newsItemSharings.map(newsItemSharing => (
+                            <>
+                                <Col span={24}>
+                                    <Typography.Title level={2}>{get(newsItemSharing, ['b2bAppContext', 'app', 'newsSharingConfig', 'name'])}</Typography.Title>
+                                </Col>
+                                <Col span={24} lg={16}>
+                                    <FrontLayerContainer>
+                                        <Row gutter={HORIZONTAL_ROW_GUTTER}>
+                                            <FieldPairRow
+                                                fieldTitle={SendAtLabel}
+                                                fieldValue={formattedNewsItemSharingSendAt(newsItemSharing)}
+                                            />
+                                            <FieldPairRow
+                                                fieldTitle={TitleLabel}
+                                                fieldValue={get(newsItemSharing, ['sharingParams', 'preview', 'renderedTitle'])}
+                                            />
+                                            <FieldPairRow
+                                                fieldTitle={BodyLabel}
+                                                fieldValue={get(newsItemSharing, ['sharingParams', 'preview', 'renderedBody'])}
+                                            />
+                                        </Row>
+                                    </FrontLayerContainer>
+                                </Col>
+                            </>
+                        ))}
+
                         {canManage && (
                             <>
-                                <Col span={24} sm={24} md={16} lg={8}>
-                                    <RecipientCounter newsItemScopes={newsItemScopesNoInstance}/>
-                                </Col>
                                 <Col span={24}>
                                     <ActionBar actions={[
                                         !isSent && canBeUpdated && (
@@ -293,7 +358,7 @@ const NewsItemCard: React.FC = () => {
                                                 messageType='secondary'
                                             />
                                         ),
-                                        isSent && (
+                                        (isSending || isSent) && (
                                             <Link key='resend' href={`/news/${get(newsItem, 'id')}/resend`}>
                                                 <Button type='primary'>{ResendTitle}</Button>
                                             </Link>
@@ -303,6 +368,7 @@ const NewsItemCard: React.FC = () => {
                             </>
                         )}
                     </Row>
+
                 </PageContent>
             </PageWrapper>
         </>

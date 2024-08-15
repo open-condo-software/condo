@@ -126,7 +126,7 @@ export const GlobalAppsContainer: React.FC = () => {
         }
     }, [user, loading])
 
-    // // Global miniapps allowed only for authenticated users
+    // Global miniapps allowed only for authenticated users
     if (!user) {
         return null
     }

@@ -1,20 +1,21 @@
-import { Col, Row, RowProps, Typography } from 'antd'
+import { Col, Row, RowProps } from 'antd'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React from 'react'
 import { useIntl } from 'react-intl'
 
+import { Typography } from '@open-condo/ui'
+
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { MeterReportingPeriodForm } from '@condo/domains/meter/components/MeterReportingPeriodForm'
 import { MeterReadAndManagePermissionRequired } from '@condo/domains/meter/components/PageAccess'
-import { METER_PAGE_TYPES, MeterReportingPeriod } from '@condo/domains/meter/utils/clientSchema'
+import { METER_TAB_TYPES, MeterReportingPeriod, METER_TYPES } from '@condo/domains/meter/utils/clientSchema'
 
 
-const CREATE_REPORTING_PERIOD_PAGE_GUTTER: RowProps['gutter'] = [0, 40]
-const TITLE_MARGIN = { marginBottom: '20px' }
+const CREATE_REPORTING_PERIOD_PAGE_GUTTER: RowProps['gutter'] = [0, 16]
 
-const MeterReportingPeriodUpdatePage = () => {
+const MeterReportingPeriodUpdatePage = (): JSX.Element => {
     const intl = useIntl()
     const { query: { id: reportingPeriodId }, push } = useRouter()
 
@@ -26,21 +27,17 @@ const MeterReportingPeriodUpdatePage = () => {
         obj: reportingPeriod,
         error: reportingPeriodError,
         loading: reportingPeriodLoading,
-        refetch,
     } = MeterReportingPeriod.useObject(
         {
             where: {
                 id: String(reportingPeriodId),
             },
-        }, {
-            fetchPolicy: 'network-only',
-        }
-    )
+        })
 
     const action = MeterReportingPeriod.useUpdate({})
     const submitAction = async (data) => {
         await action(data, reportingPeriod)
-        await push(`/meter?tab=${METER_PAGE_TYPES.reportingPeriod}`)
+        await push(`/meter?tab=${METER_TAB_TYPES.reportingPeriod}&type=${METER_TYPES.unit}`)
     }
     
     const isNotFound = !reportingPeriodLoading && (!reportingPeriod)
@@ -55,17 +52,15 @@ const MeterReportingPeriodUpdatePage = () => {
         <PageWrapper>
             <PageContent>
                 <Row gutter={CREATE_REPORTING_PERIOD_PAGE_GUTTER}>
+                    <Typography.Title level={1}>{PageTitle}</Typography.Title>
                     <Col span={24}>
-                        <Typography.Title style={TITLE_MARGIN} level={1}>{PageTitle}</Typography.Title>
-                        <Col span={24}>
-                            <Row gutter={CREATE_REPORTING_PERIOD_PAGE_GUTTER}>
-                                <MeterReportingPeriodForm
-                                    mode='update'
-                                    action={submitAction}
-                                    reportingPeriodRecord={reportingPeriod}
-                                />
-                            </Row>
-                        </Col>
+                        <Row gutter={CREATE_REPORTING_PERIOD_PAGE_GUTTER}>
+                            <MeterReportingPeriodForm
+                                mode='update'
+                                action={submitAction}
+                                reportingPeriodRecord={reportingPeriod}
+                            />
+                        </Row>
                     </Col>
                 </Row>
             </PageContent>

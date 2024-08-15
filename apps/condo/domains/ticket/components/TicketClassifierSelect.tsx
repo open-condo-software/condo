@@ -188,7 +188,8 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
         } catch (error) {
             console.error(error)
         }
-        if (!prediction) {
+
+        if (!prediction || get(prediction, 'data.obj') === null) {
             return
         }
         const { data: { obj: { id, category, place } } } = prediction

@@ -1,5 +1,4 @@
 const { NextApp } = require('@keystonejs/app-next')
-const { createItems } = require('@keystonejs/server-side-graphql-client')
 const Sentry = require('@sentry/node')
 const dayjs = require('dayjs')
 const duration = require('dayjs/plugin/duration')
@@ -10,6 +9,7 @@ const utc = require('dayjs/plugin/utc')
 const conf = require('@open-condo/config')
 const { FeaturesMiddleware } = require('@open-condo/featureflags/FeaturesMiddleware')
 const { AdapterCache } = require('@open-condo/keystone/adapterCache')
+const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const {
     HealthCheck,
     getRedisHealthCheck,
@@ -18,12 +18,12 @@ const {
     getPfxCertificateHealthCheck,
 } = require('@open-condo/keystone/healthCheck')
 const { prepareKeystone } = require('@open-condo/keystone/KSv5v6/v5/prepareKeystone')
+const { isMemMonEnabled, catchGC } = require('@open-condo/keystone/memMon/utils')
 const { RequestCache } = require('@open-condo/keystone/requestCache')
 const { getWebhookModels } = require('@open-condo/webhooks/schema')
 const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
 
 const { PaymentLinkMiddleware } = require('@condo/domains/acquiring/PaymentLinkMiddleware')
-const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { VersioningMiddleware, getCurrentVersion } = require('@condo/domains/common/utils/VersioningMiddleware')
 const { UnsubscribeMiddleware } = require('@condo/domains/notification/UnsubscribeMiddleware')
 const { UserExternalIdentityMiddleware } = require('@condo/domains/user/integration/UserExternalIdentityMiddleware')
@@ -47,25 +47,6 @@ if (IS_ENABLE_DD_TRACE && !IS_BUILD_PHASE) {
     require('dd-trace').init({
         logInjection: true,
     })
-}
-
-/** @deprecated */
-const onConnect = async (keystone) => {
-    // Initialise some data
-    if (conf.NODE_ENV !== 'development' && conf.NODE_ENV !== 'test') return // Just for dev env purposes!
-    // This function can be called before tables are created! (we just ignore this)
-    const users = await keystone.lists.User.adapter.findAll()
-    if (!users.length) {
-        const initialData = require('./initialData')
-        for (let { listKey, items } of initialData) {
-            console.log(`🗿 createItems(${listKey}) -> ${items.length}`)
-            await createItems({
-                keystone,
-                listKey,
-                items,
-            })
-        }
-    }
 }
 
 const schemas = () => [
@@ -105,6 +86,7 @@ const tasks = () => [
     require('@condo/domains/miniapp/tasks'),
     getWebhookTasks('low'),
     require('@condo/domains/marketplace/tasks'),
+    require('@condo/domains/analytics/tasks'),
 ]
 
 if (!IS_BUILD_PHASE && SENTRY_CONFIG['server']) {
@@ -137,9 +119,16 @@ const checks = [
             return { pfx: SBBOL_PFX.certificate, passphrase: SBBOL_PFX.passphrase }
         },
     }),
+    getPfxCertificateHealthCheck({
+        certificateName: 'sbbol_client_extended',
+        getPfxParams: () => {
+            const SBBOL_PFX_EXTENDED = conf['SBBOL_PFX_EXTENDED'] && JSON.parse(conf['SBBOL_PFX_EXTENDED']) || {}
+            return { pfx: SBBOL_PFX_EXTENDED.certificate, passphrase: SBBOL_PFX_EXTENDED.passphrase }
+        },
+    }),
 ]
 
-const lastApp = conf.NODE_ENV === 'test' ? undefined : new NextApp({ dir: '.' })
+const lastApp = conf.DISABLE_NEXT_APP ? undefined : new NextApp({ dir: '.' })
 
 const apps = () => {
     return [
@@ -164,8 +153,11 @@ const extendExpressApp = (app) => {
     app.use(Sentry.Handlers.errorHandler())
 }
 
+if (!IS_BUILD_PHASE && isMemMonEnabled()) {
+    catchGC()
+}
+
 module.exports = prepareKeystone({
-    onConnect,
     extendExpressApp,
     schemas, tasks, queues: ['low', 'medium', 'high'],
     apps, lastApp,

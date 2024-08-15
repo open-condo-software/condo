@@ -170,7 +170,7 @@ const NewsItem = new GQLListSchema('NewsItem', {
                     orderBy: 'createdAt_ASC',
                 })
 
-                let count = 0
+                let count
                 if (firstOnesScopes.length > COMPACT_SCOPES_SIZE) {
                     const { count: countObjs } = await itemsQuery('NewsItemScope', {
                         where: {
@@ -313,18 +313,6 @@ const NewsItem = new GQLListSchema('NewsItem', {
                     ...ERRORS.PROFANITY_BODY_DETECTED_MOT_ERF_KER,
                     badWords: [...bodyBadWords].join(','),
                 }, context)
-            }
-        },
-
-        afterChange: async ({ updatedItem }) => {
-            if (
-                updatedItem.isPublished
-                && !updatedItem.sendAt // There is a cron task to send delayed news items
-                && !updatedItem.sentAt
-            ) {
-                // Publish connected NewsItemSharing items
-                // Todo: @toplenboren (DOMA-7887) turn this on when one of miniapps is ready
-                // await publishSharedNewsItemsByNewsItem.delay(updatedItem.id)
             }
         },
     },

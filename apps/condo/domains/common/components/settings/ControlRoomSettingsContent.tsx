@@ -2,7 +2,7 @@ import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React  from 'react'
+import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -18,7 +18,6 @@ const CONTENT_GUTTER: Gutter | [Gutter, Gutter] = [0, 40]
 
 export const ControlRoomSettingsContent: React.FC = () => {
     const intl = useIntl()
-    const ControlRoomTitle = intl.formatMessage({ id: 'ControlRoom' })
     const HintsMessage = intl.formatMessage({ id: 'global.Hints' })
     const CreatedMessage = intl.formatMessage({ id: 'Created' })
     const PropertyScopesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.title' })
@@ -48,9 +47,6 @@ export const ControlRoomSettingsContent: React.FC = () => {
 
     return (
         <Row gutter={CONTENT_GUTTER}>
-            <Col span={24}>
-                <Typography.Title level={3}>{ControlRoomTitle}</Typography.Title>
-            </Col>
             <Col span={24}>
                 {
                     loading ? (

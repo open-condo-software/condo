@@ -5,13 +5,13 @@ import { ColumnsType } from 'antd/lib/table'
 import { get } from 'lodash'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { PlusCircle, Search } from '@open-condo/icons'
+import { AlertCircle, PlusCircle, Search } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button } from '@open-condo/ui'
+import { ActionBar, Button, Checkbox, Space, Tooltip } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
@@ -49,6 +49,46 @@ type ContactPageContentProps = {
     baseSearchQuery: ContactWhereInput,
     role: OrganizationEmployeeRole,
     loading: boolean,
+}
+
+
+const useContactImportIsVerifiedCheckbox = () => {
+    const intl = useIntl()
+    const TooltipTitle = intl.formatMessage({ id: 'import.contact.isVerifiedCheckbox.tooltip.title' })
+    const CheckboxTitle = intl.formatMessage({ id: 'import.contact.isVerifiedCheckbox.title' })
+
+    const [isVerified, setIsVerified] = useState<boolean>(true)
+    const isVerifiedRef = useRef<boolean>(isVerified)
+
+    const handleImportModalClose = useCallback(() => {
+        setIsVerified(true)
+    }, [])
+
+    const IsVerifiedCheckbox = useMemo(() => (
+        <Checkbox
+            onChange={(e) => setIsVerified(e.target.checked)}
+            checked={isVerified}
+        >
+            <Space size={8} align='center'>
+                <Typography.Text>{CheckboxTitle}</Typography.Text>
+                <Tooltip title={TooltipTitle}>
+                    <Space size={8}>
+                        <AlertCircle size='small' />
+                    </Space>
+                </Tooltip>
+            </Space>
+        </Checkbox>
+    ), [CheckboxTitle, TooltipTitle, isVerified])
+
+    useEffect(() => {
+        isVerifiedRef.current = isVerified
+    }, [isVerified])
+
+    return {
+        isVerifiedRef,
+        handleImportModalClose,
+        IsVerifiedCheckbox,
+    }
 }
 
 const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
@@ -101,8 +141,10 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
         locale: intl.locale,
     })
 
+    const { isVerifiedRef, handleImportModalClose, IsVerifiedCheckbox } = useContactImportIsVerifiedCheckbox()
+
     const [search, handleSearchChange] = useSearch<IFilters>()
-    const [columns, contactNormalizer, contactValidator, contactCreator] = useImporterFunctions()
+    const [columns, contactNormalizer, contactValidator, contactCreator] = useImporterFunctions({ isVerifiedRef })
 
     const handleRowAction = useCallback((record) => {
         return {
@@ -162,6 +204,10 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
                                             rowValidator={contactValidator}
                                             objectCreator={contactCreator}
                                             domainName='contact'
+                                            extraModalContent={{
+                                                'example': IsVerifiedCheckbox,
+                                            }}
+                                            handleClose={handleImportModalClose}
                                         />
                                     </>
                                 ),
@@ -186,7 +232,8 @@ const ContactsPageContent: React.FC<ContactPageContentProps> = (props) => {
     const { count, loading: contactsCountLoading } = Contact.useCount({ where: baseSearchQuery })
     const canManageContacts = get(role, 'canManageContacts', false)
 
-    const [columns, contactNormalizer, contactValidator, contactCreator] = useImporterFunctions()
+    const { isVerifiedRef, handleImportModalClose, IsVerifiedCheckbox } = useContactImportIsVerifiedCheckbox()
+    const [columns, contactNormalizer, contactValidator, contactCreator] = useImporterFunctions({ isVerifiedRef })
 
     if (contactsCountLoading || loading) return <Loader />
 
@@ -206,6 +253,10 @@ const ContactsPageContent: React.FC<ContactPageContentProps> = (props) => {
                         rowValidator: contactValidator,
                         objectCreator: contactCreator,
                         domainName: 'contact',
+                        extraModalContent: {
+                            'example': IsVerifiedCheckbox,
+                        },
+                        handleClose: handleImportModalClose,
                     },
                 }}
                 createRoute={ADD_CONTACT_ROUTE}

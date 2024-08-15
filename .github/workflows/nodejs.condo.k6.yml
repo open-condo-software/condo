@@ -17,7 +17,7 @@ on:
       - completed
 
 env:
-  SERVER_URL: ${{ inputs.server_url || 'https://review-master-condo.r.doma.ai' }}
+  SERVER_URL: ${{ inputs.server_url || 'https://review-main-condo.r.doma.ai' }}
 
 jobs:
   test:
@@ -62,6 +62,7 @@ jobs:
           export BASE_URL=${{ github.event_name == 'schedule' && 'https://condo.d.doma.ai' || env.SERVER_URL }}
           export AUTH_EMAIL=${{ secrets.K6_AUTH_EMAIL }} 
           export AUTH_PASSWORD=${{ secrets.K6_AUTH_PASSWORD }}
+          export ORGANIZATION_ID=${{ secrets.K6_ORGANIZATION_ID }}
           
           k6 -o experimental-prometheus-rw run --summary-trend-stats="avg,min,med,max,p(90),p(95),p(99)" apps/condo/k6/dist/ticket.test.js
           k6 -o experimental-prometheus-rw run --summary-trend-stats="avg,min,med,max,p(90),p(95),p(99)" apps/condo/k6/dist/payment.test.js

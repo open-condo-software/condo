@@ -1,7 +1,5 @@
 const Ajv = require('ajv')
 
-const { Json } = require('@open-condo/keystone/fields')
-
 const { getValidator, render } = require('@condo/domains/common/schema/json.utils')
 
 
@@ -44,7 +42,7 @@ const ticketExportOptionValidator = getValidator(ajv.compile(TicketExportOptions
 
 const TICKET_EXPORT_OPTIONS_FIELD = {
     schemaDoc: 'Options for exporting tickets into PDF format',
-    type: Json,
+    type: 'Json',
     graphQLInputType: TICKET_EXPORT_OPTIONS_INPUT_NAME,
     graphQLReturnType: TICKET_EXPORT_OPTIONS_TYPE_NAME,
     extendGraphQLTypes: [TICKET_EXPORT_OPTIONS_TYPES],

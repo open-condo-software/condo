@@ -8,9 +8,9 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 const access = require('@condo/domains/miniapp/access/MessageAppBlackList')
 const { getMessageTypeField } = require('@condo/domains/notification/schema/fields/MessageType')
 
-
+//TODO(VKislov): DOMA-9836 delete this entity
 const MessageAppBlackList = new GQLListSchema('MessageAppBlackList', {
-    schemaDoc: 'Rule for blocking specific type of messages for apps',
+    schemaDoc: '[Deprecated] Rule for blocking specific type of messages for apps. Use B2CAppMessageSetting',
     fields: {
         app: {
             schemaDoc: 'the app we want to block from sending messages to (null - all apps)',

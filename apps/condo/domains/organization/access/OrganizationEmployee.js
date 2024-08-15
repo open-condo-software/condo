@@ -5,32 +5,32 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { getById } = require('@open-condo/keystone/schema')
 
 const {
-    queryOrganizationEmployeeFor, checkOrganizationPermission, queryOrganizationEmployeeFromRelatedOrganizationFor,
+    checkPermissionsInEmployedOrganizations,
+    getEmployedOrRelatedOrganizationsByPermissions,
 } = require('@condo/domains/organization/utils/accessSchema')
 
 
-async function canReadOrganizationEmployees ({ authentication: { item: user } }) {
+async function canReadOrganizationEmployees ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isSupport || user.isAdmin) return {}
+
+    const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canReadEmployees')
 
     return {
         OR: [
             { user: { id: user.id } },
             {
                 organization: {
-                    OR: [
-                        queryOrganizationEmployeeFor(user.id, 'canReadEmployees'),
-                        queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadEmployees'),
-                    ],
+                    id_in: permittedOrganizations,
                 },
             },
         ],
     }
 }
 
-async function canManageOrganizationEmployees ({ authentication: { item: user }, operation, itemId }) {
+async function canManageOrganizationEmployees ({ authentication: { item: user }, context, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
@@ -44,7 +44,7 @@ async function canManageOrganizationEmployees ({ authentication: { item: user },
 
         if (!employeeToEdit || !employeeToEdit.organization) return false
 
-        return await checkOrganizationPermission(user.id, employeeToEdit.organization, 'canManageEmployees')
+        return await checkPermissionsInEmployedOrganizations(context, user, employeeToEdit.organization, 'canManageEmployees')
     }
 
     return false

@@ -3,19 +3,17 @@
  */
 
 const Big = require('big.js')
-const dayjs = require('dayjs')
 const { pick, get, isNil } = require('lodash')
 
 const { generateQuerySortBy } = require('@open-condo/codegen/generate.gql')
 const { generateQueryWhereInput } = require('@open-condo/codegen/generate.gql')
-const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema')
+const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
+const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
-const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const { getAcquiringIntegrationContextFormula, FeeDistribution } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const access = require('@condo/domains/billing/access/AllResidentBillingReceipts')
 const { BILLING_RECEIPT_FILE_FOLDER_NAME } = require('@condo/domains/billing/constants/constants')
 const { BillingReceiptAdmin, getPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
-const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 
 const {

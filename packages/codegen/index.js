@@ -18,6 +18,9 @@ const DEFAULT_APPLICATION_TEMPLATE = 'app00'
 const DEFAULT_SCHEMA_TEMPLATE = 'schema00'
 const DEFAULT_SERVICE_TEMPLATE = 'service00'
 
+const LEGACY_KEYSTONE_NEXT_APP_TYPE = 'legacy-keystone-next'
+const KEYSTONE_APP_TYPE = 'keystone'
+const APP_TYPES = [LEGACY_KEYSTONE_NEXT_APP_TYPE, KEYSTONE_APP_TYPE]
 const SERVICE_TYPES = ['mutations', 'queries']
 
 const access = promisify(fs.access)
@@ -232,6 +235,11 @@ function createapp (argv) {
                 describe: 'create if exists',
                 type: 'boolean',
             },
+            'type': {
+                default: 'keystone',
+                describe: 'type of app',
+                choices: APP_TYPES,
+            },
         })
         .usage(
             '$0 <name> [--force]',
@@ -244,6 +252,7 @@ function createapp (argv) {
             },
             async (args) => {
                 const force = args.force
+                const type = args.type
                 const name = args.name
                 const greeting = chalk.white.bold(name)
                 const boxenOptions = {
@@ -254,7 +263,24 @@ function createapp (argv) {
                     backgroundColor: '#555555',
                 }
                 const msgBox = boxen(greeting, boxenOptions)
-                const template = conf.CODEGEN_APPLICATION_TEMPLATE || DEFAULT_APPLICATION_TEMPLATE
+
+                let template = conf.CODEGEN_APPLICATION_TEMPLATE
+                if (!template) {
+                    switch (type) {
+                        case KEYSTONE_APP_TYPE: {
+                            template = 'app01'
+                            break
+                        }
+                        case LEGACY_KEYSTONE_NEXT_APP_TYPE: {
+                            template = DEFAULT_APPLICATION_TEMPLATE
+                            break
+                        }
+                        default: {
+                            throw new Error(`There is no such template type. Available types: ${APP_TYPES.join(', ')}`)
+                        }
+                    }
+                }
+
                 // no end user input expected
                 // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
                 const targetDirectory = path.resolve(process.cwd(), `./apps/${name}`)

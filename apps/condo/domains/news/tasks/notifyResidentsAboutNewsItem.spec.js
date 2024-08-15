@@ -4,6 +4,7 @@
 
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
+const truncate = require('lodash/truncate')
 
 const { waitFor, UUID_RE, makeLoggedInAdminClient, setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
@@ -24,6 +25,8 @@ const { createTestProperty } = require('@condo/domains/property/utils/testSchema
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
+const MESSAGE_TITLE_MAX_LEN = 50
+const MESSAGE_BODY_MAX_LEN = 150
 
 describe('notifyResidentsAboutNewsItem', () => {
     setFakeClientMode(index)
@@ -48,14 +51,19 @@ describe('notifyResidentsAboutNewsItem', () => {
                 unitName: unitName1,
             })
 
-            // News item for particular unit
+            const newsItemTitle = faker.lorem.words(100)
+            const newsItemBody = faker.lorem.words(100)
+
+            // NewsItem for particular unit
             const [newsItem1] = await createTestNewsItem(
                 adminClient,
                 o10n,
                 {
-                    title: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-                    body: 'Commodo viverra maecenas accumsan lacus vel facilisis volutpat est velit. Et malesuada fames ac turpis egestas sed tempus urna et. At augue eget arcu dictum varius duis at. Tempus quam pellentesque nec nam aliquam sem et tortor consequat. Enim sit amet venenatis urna cursus eget nunc scelerisque viverra. Urna cursus eget nunc scelerisque viverra. Ornare aenean euismod elementum nisi quis eleifend quam. Quis hendrerit dolor magna eget est. Gravida cum sociis natoque penatibus et.',
-                })
+                    title: newsItemTitle,
+                    body: newsItemBody,
+                }
+            )
+
             await createTestNewsItemScope(adminClient, newsItem1, {
                 property: { connect: { id: property.id } },
                 unitType: unitType1,
@@ -72,7 +80,7 @@ describe('notifyResidentsAboutNewsItem', () => {
 
             const messageWhere = { user: { id: residentClient1.user.id }, type: NEWS_ITEM_COMMON_MESSAGE_TYPE }
 
-            // Publish news item to make it send-able
+            // Publish NewsItem to make it sendable
             const [updatedItem1] = await publishTestNewsItem(adminClient, newsItem1.id)
             await notifyResidentsAboutNewsItem(newsItem1.id)
 
@@ -99,8 +107,8 @@ describe('notifyResidentsAboutNewsItem', () => {
                         })],
                     }),
                     meta: expect.objectContaining({
-                        title: 'Lorem ipsum dolor sit amet, consectetur...',
-                        body: 'Commodo viverra maecenas accumsan lacus vel facilisis volutpat est velit. Et malesuada fames ac turpis egestas sed tempus urna et. At augue eget...',
+                        title: truncate(newsItemTitle, { length: MESSAGE_TITLE_MAX_LEN, separator: ' ', omission: '...' }),
+                        body: truncate(newsItemBody, { length: MESSAGE_BODY_MAX_LEN, separator: ' ', omission: '...' }),
                         data: expect.objectContaining({
                             newsItemId: newsItem1.id,
                             residentId: resident.id,
@@ -114,13 +122,13 @@ describe('notifyResidentsAboutNewsItem', () => {
                 }))
             })
 
-            // This news item shouldn't send notification for the same user
+            // This NewsItem shouldn't send notification for the same user
             const [newsItem2] = await createTestNewsItem(adminClient, o10n)
             await createTestNewsItemScope(adminClient, newsItem2, {
                 property: { connect: { id: property.id } },
             })
 
-            // Publish 2nd news item...
+            // Publish 2nd NewsItem...
             await publishTestNewsItem(adminClient, newsItem2.id)
             await notifyResidentsAboutNewsItem(newsItem2.id)
 
@@ -140,6 +148,172 @@ describe('notifyResidentsAboutNewsItem', () => {
                         processingMeta: expect.objectContaining({ error: expect.stringContaining('1 message per 3600 sec for user. The latest message was at ') }),
                     }),
                 ]))
+            })
+        })
+
+        test('notify resident about NewsItem in all NewItemScope', async () => {
+            const residentClient1 = await makeClientWithResidentUser()
+            const [o10n] = await createTestOrganization(adminClient)
+            const [property] = await createTestProperty(adminClient, o10n)
+
+            const unitType1 = FLAT_UNIT_TYPE
+            const unitName1 = faker.lorem.word()
+
+            const [resident] = await createTestResident(adminClient, residentClient1.user, property, {
+                unitType: unitType1,
+                unitName: unitName1,
+            })
+
+            const newsItemTitle = faker.lorem.words(100)
+            const newsItemBody = faker.lorem.words(100)
+
+            // NewsItem for particular unit
+            const [newsItem1] = await createTestNewsItem(
+                adminClient,
+                o10n,
+                {
+                    title: newsItemTitle,
+                    body: newsItemBody,
+                }
+            )
+
+            // create NewsItemScopes without Residents, that testing pushing newsItem in big scope
+            for (let i = 0; i <= 100; i++) {
+                await createTestNewsItemScope(adminClient, newsItem1, {
+                    property: { connect: { id: property.id } },
+                    unitType: FLAT_UNIT_TYPE,
+                    unitName: faker.lorem.word(),
+                })
+            }
+
+            // create NewsItemScope with Resident
+            await createTestNewsItemScope(adminClient, newsItem1, {
+                property: { connect: { id: property.id } },
+                unitType: unitType1,
+                unitName: unitName1,
+            })
+
+            const payload = getRandomTokenData({
+                devicePlatform: DEVICE_PLATFORM_ANDROID,
+                appId: APP_RESIDENT_ID_ANDROID,
+                pushToken: getRandomFakeSuccessToken(),
+            })
+
+            await syncRemoteClientByTestClient(residentClient1, payload)
+
+            const messageWhere = { user: { id: residentClient1.user.id }, type: NEWS_ITEM_COMMON_MESSAGE_TYPE }
+
+            // Publish NewsItem to make it sendable
+            const [updatedItem1] = await publishTestNewsItem(adminClient, newsItem1.id)
+            await notifyResidentsAboutNewsItem(newsItem1.id)
+
+            await waitFor(async () => {
+                const messages = await Message.getAll(adminClient, messageWhere)
+
+                expect(messages).toBeDefined()
+                expect(messages).toHaveLength(1)
+
+                const message1 = messages[0]
+
+                expect(message1).toBeDefined()
+                expect(message1.id).toMatch(UUID_RE)
+
+                expect(message1).toEqual(expect.objectContaining({
+                    status: MESSAGE_SENT_STATUS,
+                    processingMeta: expect.objectContaining({
+                        // old way check
+                        transport: 'push',
+
+                        // ADR-7 way check
+                        transportsMeta: [expect.objectContaining({
+                            transport: 'push',
+                        })],
+                    }),
+                    meta: expect.objectContaining({
+                        title: truncate(newsItemTitle, { length: MESSAGE_TITLE_MAX_LEN, separator: ' ', omission: '...' }),
+                        body: truncate(newsItemBody, { length: MESSAGE_BODY_MAX_LEN, separator: ' ', omission: '...' }),
+                        data: expect.objectContaining({
+                            newsItemId: newsItem1.id,
+                            residentId: resident.id,
+                            userId: residentClient1.user.id,
+                            userRelatedResidentsIds: resident.id,
+                            organizationId: o10n.id,
+                            validBefore: null,
+                            dateCreated: updatedItem1.sendAt,
+                        }),
+                    }),
+                }))
+            })
+        })
+
+        test('newsItem message is sent to the desired property and unitName', async () => {
+            const residentClient1 = await makeClientWithResidentUser()
+            const residentClient2 = await makeClientWithResidentUser()
+            const [o10n] = await createTestOrganization(adminClient)
+            const [property1] = await createTestProperty(adminClient, o10n)
+            const [property2] = await createTestProperty(adminClient, o10n)
+
+            const unitType1 = FLAT_UNIT_TYPE
+            const unitName1 = faker.lorem.word()
+
+            await createTestResident(adminClient, residentClient1.user, property1, {
+                unitType: unitType1,
+                unitName: unitName1,
+            })
+
+            // Second user to check the sending of messages with the same unitName and unitType
+            await createTestResident(adminClient, residentClient2.user, property2, {
+                unitType: unitType1,
+                unitName: unitName1,
+            })
+
+            const newsItemTitle = faker.lorem.words(100)
+            const newsItemBody = faker.lorem.words(100)
+
+            const [newsItem] = await createTestNewsItem(
+                adminClient,
+                o10n,
+                {
+                    title: newsItemTitle,
+                    body: newsItemBody,
+                }
+            )
+
+            await createTestNewsItemScope(adminClient, newsItem, {
+                property: { connect: { id: property1.id } },
+                unitType: unitType1,
+                unitName: unitName1,
+            })
+
+            const payload1 = getRandomTokenData({
+                devicePlatform: DEVICE_PLATFORM_ANDROID,
+                appId: APP_RESIDENT_ID_ANDROID,
+                pushToken: getRandomFakeSuccessToken(),
+            })
+
+            const payload2 = getRandomTokenData({
+                devicePlatform: DEVICE_PLATFORM_ANDROID,
+                appId: APP_RESIDENT_ID_ANDROID,
+                pushToken: getRandomFakeSuccessToken(),
+            })
+
+            await syncRemoteClientByTestClient(residentClient1, payload1)
+            await syncRemoteClientByTestClient(residentClient2, payload2)
+
+            const messageWhere1 = { user: { id: residentClient1.user.id }, type: NEWS_ITEM_COMMON_MESSAGE_TYPE }
+            const messageWhere2 = { user: { id: residentClient2.user.id }, type: NEWS_ITEM_COMMON_MESSAGE_TYPE }
+
+            // Publish NewsItem to make it sendable
+            await publishTestNewsItem(adminClient, newsItem.id)
+            await notifyResidentsAboutNewsItem(newsItem.id)
+
+            // The message should not be sent to the second user with a different address, but the same unitName and unitType 
+            await waitFor(async () => {
+                const messages1 = await Message.getOne(adminClient, messageWhere1)
+                const messages2 = await Message.getOne(adminClient, messageWhere2)
+
+                expect(messages1).toBeDefined()
+                expect(messages2).toBeUndefined()
             })
         })
 

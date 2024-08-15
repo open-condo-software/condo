@@ -17,7 +17,7 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { FieldPairRow as BaseFieldPairRow, FieldPairRowProps } from '@condo/domains/common/components/FieldPairRow'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
-import  { TicketCardList } from '@condo/domains/common/components/TicketCard/TicketCardList'
+import { TicketCardList } from '@condo/domains/common/components/TicketCard/TicketCardList'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { ContactsReadPermissionRequired } from '@condo/domains/contact/components/PageAccess'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
@@ -53,15 +53,15 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
     const ContactRoleTitle = intl.formatMessage({ id: 'ContactRole' })
     const VerifiedMessage = intl.formatMessage({ id: 'pages.condo.contact.Verified' })
     const DeleteMessage = intl.formatMessage({ id: 'Delete' })
+    const UnitTypeMessage = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${get(contact, 'unitType', BuildingUnitSubType.Flat)}` as FormatjsIntl.Message['ids'] })
 
     const contactId = get(contact, 'id', null)
     const contactName = get(contact, 'name')
     const contactEmail = get(contact, 'email', '')
     const contactPhone = get(contact, 'phone', '')
     const contactUnitName = get(contact, 'unitName')
-    const contactUnitType = get(contact, 'unitType', BuildingUnitSubType.Flat)
     const unitSuffix = contactUnitName
-        ? `${intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${contactUnitType}` }).toLowerCase()} ${contactUnitName}`
+        ? `${UnitTypeMessage.toLowerCase()} ${contactUnitName}`
         : ''
     const contactAddress = `${get(contact, ['property', 'address'], DeletedMessage)} ${unitSuffix}`
     const contactRole = get(contact, 'role')

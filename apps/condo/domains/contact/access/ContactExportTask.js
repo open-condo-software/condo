@@ -4,12 +4,11 @@
 const { compact, get, uniq } = require('lodash')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { find, getById } = require('@open-condo/keystone/schema')
+const { getById } = require('@open-condo/keystone/schema')
 
 const { CANCELLED } = require('@condo/domains/common/constants/export')
 const {
-    queryOrganizationEmployeeFor,
-    queryOrganizationEmployeeFromRelatedOrganizationFor, checkUserPermissionsInOrganizations,
+    checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 
 async function canReadContactExportTasks ({ authentication: { item: user } }) {
@@ -21,7 +20,7 @@ async function canReadContactExportTasks ({ authentication: { item: user } }) {
     return { user: { id: user.id } }
 }
 
-async function canManageContactExportTasks ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageContactExportTasks ({ authentication: { item: user }, context, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
@@ -35,13 +34,9 @@ async function canManageContactExportTasks ({ authentication: { item: user }, or
         const organizationIdIn = get(originalInput, ['where', 'organization', 'id_in'], [])
         const organizationIds = uniq(compact([organizationId, ...organizationIdIn]))
 
-        if (organizationIds.length === 0) return false
+        if (organizationIds.length === 0 || organizationIds.some(id => typeof id !== 'string')) return false
 
-        return await checkUserPermissionsInOrganizations({
-            userId: user.id,
-            organizationIds,
-            permission: 'canReadContacts',
-        })
+        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationIds, 'canReadContacts')
     } else if (operation === 'update') {
         const task = await getById('ContactExportTask', itemId)
 

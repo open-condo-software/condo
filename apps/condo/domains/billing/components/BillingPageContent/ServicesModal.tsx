@@ -95,7 +95,7 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
 
     const moneyRender = useMemo(() => {
         return getMoneyRender(intl, currencyCode)
-    }, [currencyCode])
+    }, [currencyCode, intl])
 
     const accountNumber = get(receipt, ['account', 'number'])
     const address = get(receipt, ['property', 'address'])
@@ -103,13 +103,16 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
     const unitType = get(receipt, ['account', 'unitType'])
     const fullName = get(receipt, ['account', 'fullName'])
     const period = get(receipt, 'period')
+    const pfdUrl = get(receipt, 'file.file.publicUrl')
     const category = get(receipt, ['category', 'nameNonLocalized'])
     const services = get(receipt, 'services', [])
 
     const UnitTypePrefix = unitType
-        ? intl.formatMessage({ id: `field.UnitType.prefix.${unitType.toLowerCase()}` }).toLocaleLowerCase()
+        ? intl.formatMessage({ id: `field.UnitType.prefix.${unitType.toLowerCase()}` as FormatjsIntl.Message['ids'] }).toLocaleLowerCase()
         : ''
-    const CategoryName = category ? intl.formatMessage({ id: category }) : ''
+    const CategoryName = category
+        ? intl.formatMessage({ id: category as FormatjsIntl.Message['ids'] })
+        : ''
 
     const modalTitleMessage = `${AccountMessage} ${accountNumber}`
 
@@ -124,20 +127,11 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
     const [expanded, setExpanded] = useState(false)
     const handleRowExpand = () => setExpanded(!expanded)
 
-    const {
-        loading,
-        objs,
-    } = BillingReceiptFile.useObjects({
-        where: {
-            receipt: { id: receipt && receipt.id },
-        },
-    })
-
     const ModalFooter = () => {
         return (
             <Row justify='end'>
                 <Col span={24}>
-                    <Button disabled={!loading && objs.length < 1} onClick={() => window.open(get(objs[0], 'file.publicUrl'))} type='primary'>
+                    <Button disabled={!pfdUrl} onClick={() => window.open(pfdUrl)} type='primary'>
                         {ViewPDFButton}
                     </Button>
                 </Col>

@@ -1,13 +1,15 @@
 const { get, uniq, isArray } = require('lodash')
 
-const { find, getById } = require('@open-condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 
-const { checkPermissionsInUserOrganizationsOrRelatedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    checkPermissionsInEmployedOrRelatedOrganizations,
+} = require('@condo/domains/organization/utils/accessSchema')
 
 const { BankIntegrationAccessRight } = require('./serverSchema')
 
 
-async function canManageBankEntityWithOrganization ({ authentication: { item: user }, originalInput, operation, itemId, itemIds, listKey }, permission) {
+async function canManageBankEntityWithOrganization ({ authentication: { item: user }, context, originalInput, operation, itemId, itemIds, listKey }, permission) {
     const isBulkRequest = isArray(originalInput)
 
     let organizationIds
@@ -20,27 +22,22 @@ async function canManageBankEntityWithOrganization ({ authentication: { item: us
             organizationIds = uniq(organizationIds)
         } else {
             const organizationId = get(originalInput, ['organization', 'connect', 'id'])
+            if (!organizationId) return false
             organizationIds = [organizationId]
         }
     } else if (operation === 'update') {
-        if (isBulkRequest) {
-            if (!itemIds || !isArray(itemIds)) return false
-            if (itemIds.length !== uniq(itemIds).length) return false
+        const ids = itemIds || [itemId]
+        if (ids.length !== uniq(ids).length) return false
 
-            const items = await find(listKey, {
-                id_in: itemIds,
-                deletedAt: null,
-            })
-            if (items.length !== itemIds.length) return false
-            organizationIds = uniq(items.map(item => item.organization))
-        } else {
-            if (!itemId) return false
-            const item = await getById(listKey, itemId)
-            organizationIds = [item.organization]
-        }
+        const items = await find(listKey, {
+            id_in: ids,
+            deletedAt: null,
+        })
+        if (items.length !== ids.length || items.some(item => !item.organization)) return false
+        organizationIds = uniq(items.map(item => item.organization))
     }
 
-    return await checkPermissionsInUserOrganizationsOrRelatedOrganizations(user.id, organizationIds, permission)
+    return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationIds, permission)
 }
 
 async function checkBankIntegrationsAccessRights (context, userId, integrationIds) {

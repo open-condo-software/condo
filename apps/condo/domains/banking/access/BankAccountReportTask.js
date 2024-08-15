@@ -9,7 +9,7 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
+const { checkPermissionsInEmployedOrRelatedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 
 const { BANK_SYNC_TASK_STATUS } = require('../constants')
 
@@ -44,7 +44,7 @@ async function canReadBankAccountReportTasks ({ authentication: { item: user } }
     return { user: { id: user.id } }
 }
 
-async function canManageBankAccountReportTasks ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageBankAccountReportTasks ({ authentication: { item: user }, context, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
@@ -53,7 +53,10 @@ async function canManageBankAccountReportTasks ({ authentication: { item: user }
 
     if (operation === 'create') {
         organizationId = get(originalInput, ['organization', 'connect', 'id'])
-        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageBankAccountReportTasks')
+
+        if (!organizationId) return false
+
+        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, 'canManageBankAccountReportTasks')
     }
     if (operation === 'update') {
         const syncTask = await getById('BankAccountReportTask', itemId)

@@ -5,16 +5,21 @@ const get = require('lodash/get')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
+const { checkPermissionsInEmployedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canExportPaymentsToExcel ({ args: { data: { where } }, authentication: { item: user } }) {
+async function canExportPaymentsToExcel ({ args: { data: { where } }, authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
 
-    return await checkOrganizationPermission(
-        user.id,
-        get(where, ['organization', 'id'], null),
+    const organizationId = get(where, ['organization', 'id'], null)
+
+    if (!organizationId) return false
+
+    return await checkPermissionsInEmployedOrganizations(
+        context,
+        user,
+        organizationId,
         'canReadPayments',
     )
 }

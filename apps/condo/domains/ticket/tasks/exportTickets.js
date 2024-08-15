@@ -241,7 +241,7 @@ const buildExportFile = async ({ rows, task }) => {
  */
 async function exportTickets (taskId) {
     if (!taskId) throw new Error('taskId is undefined')
-    const { keystone: context } = await getSchemaCtx('TicketExportTask')
+    const { keystone: context } = getSchemaCtx('TicketExportTask')
 
     let task = await TicketExportTask.getOne(context, { id: taskId })
     const { where, sortBy, format } = task
@@ -319,6 +319,10 @@ async function exportTickets (taskId) {
         }
 
     } catch (error) {
+        await TicketExportTask.update(context, task.id, {
+            ...baseAttrs,
+            status: ERROR,
+        })
         taskLogger.error({
             msg: 'Failed to export tickets',
             data: { id: task.id },
