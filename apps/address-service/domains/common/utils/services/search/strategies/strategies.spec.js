@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 const index = require('@app/address-service/index')
 const { faker } = require('@faker-js/faker')
 const { isEqual } = require('lodash')
