@@ -38,6 +38,7 @@ const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
 const IS_SENTRY_ENABLED = JSON.parse(get(conf, 'SENTRY_CONFIG', '{}'))['server'] !== undefined
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development'
 const IS_KEEP_ALIVE_ON_ERROR = get(conf, 'KEEP_ALIVE_ON_ERROR', false) === 'true'
+const ENABLE_HEAP_SNAPSHOT = get(conf, 'ENABLE_HEAP_SNAPSHOT', false) === 'true'
 // NOTE: should be disabled in production: https://www.apollographql.com/docs/apollo-server/testing/graphql-playground/
 // WARN: https://github.com/graphql/graphql-playground/tree/main/packages/graphql-playground-html/examples/xss-attack
 const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND === 'true'
@@ -258,7 +259,7 @@ process.on('unhandledRejection', (err, promise) => {
         throw err
     }
 })
-if (!process.env['DISABLE_HEAP_SNAPSHOT']) {
+if (ENABLE_HEAP_SNAPSHOT) {
     process.on('SIGPIPE', async () => {
         try {
             const labelCreateSnapshot = 'Heap snapshot created in'
