@@ -47,7 +47,7 @@ async function fetchWithLogger (url, options, extraAttrs) {
 
         const response = await nodeFetch(url, options)
 
-        const headers = response.headers ? Object.fromEntries(response.headers) : {}
+        const headers = (response.headers && typeof response.headers == 'object') ? Object.fromEntries(response.headers) : {}
 
         const endTime = Date.now()
         const responseTime = endTime - startTime
