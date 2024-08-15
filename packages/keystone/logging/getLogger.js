@@ -27,7 +27,7 @@ function getLogger (name) {
             'message': toString,
             'error': safeFormatError,
             'req': serializers.req,
-            'res': serializers.req,
+            'res': serializers.res,
             'err': serializers.err,
         },
     })
