@@ -90,6 +90,9 @@ import '@open-condo/ui/dist/styles.min.css'
 import '@open-condo/ui/dist/style-vars/variables.css'
 import '@condo/domains/common/components/containers/global-styles.css'
 
+const { publicRuntimeConfig: { defaultLocale, sppConfig, disableSSR } } = getConfig()
+
+const IS_SSR_DISABLED = Boolean(disableSSR && disableSSR === 'true')
 
 const ANT_LOCALES = {
     ru: ruRU,
@@ -115,8 +118,6 @@ interface IMenuCategoryData {
 }
 
 const ANT_DEFAULT_LOCALE = enUS
-
-const { publicRuntimeConfig: { defaultLocale, sppConfig } } = getConfig()
 
 const MenuItems: React.FC = () => {
     const { updateContext, useFlag } = useFeatureFlags()
@@ -546,14 +547,14 @@ const apolloClientConfig: WithApolloProps['apolloClientConfig'] = {
 }
 
 export default (
-    withApollo({ ssr: true, apolloCacheConfig, apolloClientConfig })(
-        withAuth({ ssr: true, USER_QUERY })(
-            withIntl({ ssr: true, messagesImporter, extractReqLocale, defaultLocale })(
+    withApollo({ ssr: !IS_SSR_DISABLED, apolloCacheConfig, apolloClientConfig })(
+        withAuth({ ssr: !IS_SSR_DISABLED, USER_QUERY })(
+            withIntl({ ssr: !IS_SSR_DISABLED, messagesImporter, extractReqLocale, defaultLocale })(
                 withOrganization({
-                    ssr: true,
+                    ssr: !IS_SSR_DISABLED,
                     GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY: GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,
                 })(
-                    withFeatureFlags({ ssr: true })(
+                    withFeatureFlags({ ssr: !IS_SSR_DISABLED })(
                         MyApp
                     )
                 )
