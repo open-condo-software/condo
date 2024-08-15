@@ -290,6 +290,7 @@ if (!process.env['DISABLE_HEAP_SNAPSHOT']) {
         } catch (err) {
             console.error(err)
         }
+        process.exit(0)
     })
 }
 
