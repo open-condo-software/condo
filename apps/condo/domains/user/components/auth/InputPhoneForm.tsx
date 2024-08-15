@@ -9,20 +9,18 @@ import { FormattedMessage } from '@open-condo/next/intl'
 
 import { Button } from '@condo/domains/common/components/Button'
 import { TabsAuthAction } from '@condo/domains/common/components/HeaderActions'
+import { LoginWithSBBOLButton } from '@condo/domains/common/components/LoginWithSBBOLButton'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { colors } from '@condo/domains/common/constants/style'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
+import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 import { TOO_MANY_REQUESTS } from '@condo/domains/user/constants/errors'
 import { START_CONFIRM_PHONE_MUTATION } from '@condo/domains/user/gql'
 
-
-
 import { RegisterContext } from './RegisterContextProvider'
-import { LoginWithSBBOLButton } from '../../../common/components/LoginWithSBBOLButton'
-import { isSafeUrl } from '../../../common/utils/url.utils'
 
 
 const ROW_STYLES: React.CSSProperties = {
@@ -63,7 +61,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
     const { publicRuntimeConfig: { hasSbbolAuth } } = getConfig()
 
     const router = useRouter()
-    const { query: { next }  } = router
+    const { query: { next } } = router
     const redirectUrl = (next && !Array.isArray(next) && isSafeUrl(next)) ? next : '/'
     const { setToken, setPhone, handleCaptchaVerify } = useContext(RegisterContext)
     const [isLoading, setIsLoading] = useState(false)

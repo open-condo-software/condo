@@ -5,7 +5,6 @@ import React from 'react'
 import { useIntl } from '@open-condo/next/intl'
 
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
-
 import { RemoveTabsLineWrapper } from '@condo/domains/user/components/containers/styles'
 
 interface ITabsActionsProps {
@@ -30,7 +29,7 @@ export const TabsAuthAction: React.FC<ITabsActionsProps> = (props) => {
                     if (activeKey === 'signin') {
                         router.push(isValidNextUrl ? `/auth/signin?next=${encodeURIComponent(next)}` : '/auth/signin')
                     } else if (activeKey === 'register') {
-                        router.push(isValidNextUrl ? `/auth/register?next=${encodeURIComponent(next)}` : '/auth/register')
+                        router.push(isValidNextUrl ? `/auth/register?step=inputPhone&next=${encodeURIComponent(next)}` : '/auth/register')
                     }}}
                 centered
                 animated={false}
