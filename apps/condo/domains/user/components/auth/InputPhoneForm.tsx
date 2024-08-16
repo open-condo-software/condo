@@ -223,7 +223,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
                                             <FormattedMessage id='Or'/>
                                         </Col>
                                         <Col span={24}>
-                                            <Form.Item>
+                                            <Form.Item id='inputPhoneSBBOL'>
                                                 <LoginWithSBBOLButton redirect={redirectUrl} block checkTlsCert />
                                             </Form.Item>
                                         </Col>

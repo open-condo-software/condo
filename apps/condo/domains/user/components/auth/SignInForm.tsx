@@ -169,7 +169,7 @@ export const SignInForm = (): React.ReactElement => {
                                     <FormattedMessage id='Or'/>
                                 </Col>
                                 <Col span={24}>
-                                    <Form.Item>
+                                    <Form.Item id='signInSBBOL'>
                                         <LoginWithSBBOLButton redirect={redirectUrl} block checkTlsCert/>
                                     </Form.Item>
                                 </Col>
