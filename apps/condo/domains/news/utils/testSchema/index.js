@@ -10,6 +10,7 @@ const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/gene
 
 const {
     EXPORT_NEWS_RECIPIENTS_MUTATION,
+    GET_NEWS_SHARING_RECIPIENTS_MUTATION,
     GET_NEWS_ITEMS_RECIPIENTS_COUNTERS_MUTATION,
     NewsItem: NewsItemGQL,
     NewsItemScope: NewsItemScopeGQL,
@@ -20,7 +21,7 @@ const {
 const { NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { NewsItemSharing: NewsItemSharingGQL } = require('@condo/domains/news/gql')
-const { GET_NEWS_SHARING_RECIPIENTS_MUTATION } = require('@condo/domains/news/gql')
+const { GET_NEWS_SHARING_RECIPIENTS_COUNTERS_QUERY } = require('@condo/domains/news/gql')
 const { buildPropertyMap } = require('@condo/domains/property/utils/testSchema/factories')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -312,6 +313,23 @@ async function getNewsSharingRecipientsByTestClient(client, b2bAppContext, extra
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
+async function getNewsSharingRecipientsCountersByTestClient(client, b2bAppContext, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!b2bAppContext.id) throw new Error('no b2bAppContext id')
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        b2bAppContext: { id: b2bAppContext.id },
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(GET_NEWS_SHARING_RECIPIENTS_COUNTERS_QUERY, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -325,5 +343,6 @@ module.exports = {
     NewsItemRecipientsExportTask, createTestNewsItemRecipientsExportTask, updateTestNewsItemRecipientsExportTask,
     NewsItemSharing, createTestNewsItemSharing, updateTestNewsItemSharing,
     getNewsSharingRecipientsByTestClient,
+    getNewsSharingRecipientsCountersByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -31,11 +31,11 @@ export const NewsItemCard: React.FC<NewsItemCardProps> = ({ icon, appName, title
                 <Row gutter={[0, 16]}>
                     <div>
                         <Typography.Text strong type='secondary'>{TitleLabel}</Typography.Text><br/>
-                        <Typography.Paragraph type='secondary'>{ title }</Typography.Paragraph>
+                        <Typography.Paragraph type='secondary'>{title}</Typography.Paragraph>
                     </div>
                     <div>
                         <Typography.Text strong type='secondary'>{BodyLabel}</Typography.Text><br/>
-                        <Typography.Paragraph type='secondary'>{ body }</Typography.Paragraph>
+                        <Typography.Paragraph type='secondary'>{body}</Typography.Paragraph>
                     </div>
                 </Row>
             </Modal>

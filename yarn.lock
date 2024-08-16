@@ -767,6 +767,7 @@ __metadata:
     dayjs: ^1.10.6
     dotenv: ^16.3.2
     express: ^4.18.2
+    express-pino-logger: ^6.0.0
     graphql: ^16.8.1
     graphql-tag: ^2.12.6
     lodash: ^4.17.21
@@ -2020,7 +2021,7 @@ __metadata:
     "@graphql-codegen/typescript": ^4.0.1
     "@graphql-codegen/typescript-operations": ^4.0.1
     "@graphql-codegen/typescript-react-apollo": ^4.0.0
-    "@nerdwallet/apollo-cache-policies": ^3.3.0
+    "@nerdwallet/apollo-cache-policies": ^3.3.2
     "@open-condo/config": "workspace:^"
     "@open-condo/icons": "workspace:^"
     "@open-condo/locales": "workspace:^"
@@ -12096,17 +12097,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nerdwallet/apollo-cache-policies@npm:^3.3.0":
-  version: 3.3.0
-  resolution: "@nerdwallet/apollo-cache-policies@npm:3.3.0"
+"@nerdwallet/apollo-cache-policies@npm:^3.3.2":
+  version: 3.3.2
+  resolution: "@nerdwallet/apollo-cache-policies@npm:3.3.2"
   dependencies:
-    graphql: ^15.5.0
+    graphql: ^16.8.1
     lodash: ^4.17.21
     uuid: ^7.0.3
   peerDependencies:
     "@apollo/client": ^3.8.1
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
-  checksum: fff46e7a50a65169c7aa7030f512a661100899f87f212874f23fc758afacf63eafc5faf99221ff8f75fe418eff8bf4dd801cc983ecf7851bcc3a5504fd7a79a0
+  checksum: 96ba857021bd369a6896d1810c2a22a88962f0f21eb790f378274f3c513f898ccb4c4ea4acd9e6988b91a39e87d4c60902e09752a1cb17ce2ece9bf12e992218
   languageName: node
   linkType: hard
 

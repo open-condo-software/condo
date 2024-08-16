@@ -23,6 +23,11 @@ const HTTPS_OPTIONS = {}
 const IS_DEVELOPMENT = conf.NODE_ENV === 'development'
 const IS_PRODUCTION = conf.NODE_ENV === 'production'
 
+// NOTE: Headers must be greater than keep alive, for express 5000 / 60000 ms is default
+// SRC: https://shuheikagawa.com/blog/2019/04/25/keep-alive-timeout/
+const KEEP_ALIVE_TIMEOUT = parseInt(conf['KEEP_ALIVE_TIMEOUT'] || '5000')
+const HEADERS_TIMEOUT = parseInt(conf['HEADERS_TIMEOUT'] || '60000')
+
 const logger = getLogger('keystone-dev')
 
 try {
@@ -44,6 +49,9 @@ async function main () {
             if (error) return reject(error)
             return resolve(server)
         })
+
+        server.keepAliveTimeout = KEEP_ALIVE_TIMEOUT
+        server.headersTimeout = HEADERS_TIMEOUT
     })
 
     if (HTTPS_OPTIONS.key && HTTPS_OPTIONS.cert && SPORT) {
@@ -52,6 +60,9 @@ async function main () {
                 if (error) return reject(error)
                 return resolve(server)
             })
+
+            server.keepAliveTimeout = KEEP_ALIVE_TIMEOUT
+            server.headersTimeout = HEADERS_TIMEOUT
         })
     }
 

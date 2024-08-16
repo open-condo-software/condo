@@ -33,12 +33,18 @@ const GET_NEWS_ITEMS_RECIPIENTS_COUNTERS_MUTATION = gql`
 const RECIPIENTS_EXPORT_TASK_FIELDS = `{ user { id locale } organization { id } scopes status file { id originalFilename publicUrl mimetype } ${COMMON_FIELDS} }`
 const NewsItemRecipientsExportTask = generateGqlQueries('NewsItemRecipientsExportTask', RECIPIENTS_EXPORT_TASK_FIELDS)
 
-const NEWS_ITEM_SHARING_FIELDS = `{ b2bAppContext { id app { newsSharingConfig { name } } } newsItem { id } sharingParams status statusMessage lastPostRequest ${COMMON_FIELDS} createdAt }`
+const NEWS_ITEM_SHARING_FIELDS = `{ b2bAppContext { id app { newsSharingConfig { name getRecipientsCountersUrl } } } newsItem { id } sharingParams status statusMessage lastPostRequest ${COMMON_FIELDS} createdAt }`
 const NewsItemSharing = generateGqlQueries('NewsItemSharing', NEWS_ITEM_SHARING_FIELDS)
 
 const GET_NEWS_SHARING_RECIPIENTS_MUTATION = gql`
-    query getGetNewsSharingRecipients ($data: GetNewsSharingRecipientsInput!) {
-        result: getNewsSharingRecipients(data: $data) { id name receiversCount }
+    query getNewsSharingRecipients ($data: GetNewsSharingRecipientsInput!) {
+        result: getNewsSharingRecipients(data: $data) { id, name, receiversCount }
+    }
+`
+
+const GET_NEWS_SHARING_RECIPIENTS_COUNTERS_QUERY = gql`
+    query getNewsSharingRecipientsCounters ($data: GetNewsSharingRecipientsCountersInput!) {
+        result: getNewsSharingRecipientsCounters(data: $data) { receiversCount }
     }
 `
 
@@ -54,5 +60,6 @@ module.exports = {
     NewsItemSharing,
     GET_NEWS_SHARING_RECIPIENTS_MUTATION,
     NEWS_ITEM_SCOPE_FIELDS,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    GET_NEWS_SHARING_RECIPIENTS_COUNTERS_QUERY,
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

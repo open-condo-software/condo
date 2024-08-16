@@ -9,6 +9,7 @@ const logger = getLogger('fetch')
 const FETCH_COUNT_METRIC_NAME = 'fetch.count'
 const FETCH_TIME_METRIC_NAME = 'fetch.time'
 
+
 async function fetchWithLogger (url, options, extraAttrs) {
 
     const urlObject = new URL(url)
@@ -18,10 +19,11 @@ async function fetchWithLogger (url, options, extraAttrs) {
     const executionContext = getExecutionContext()
     const parentReqId = executionContext.reqId
     const parentTaskId = executionContext.taskId
+    const parentExecId = executionContext.execId
 
-    const { setTracingHeaders } = extraAttrs
+    const { skipTracingHeaders } = extraAttrs
 
-    if (setTracingHeaders) {
+    if (!skipTracingHeaders) {
         // We want to set special headers to track requests across the microservices:
         // Client --reqId-> Condo --reqId-> AddressService
         //                    ^                   ^
@@ -32,35 +34,41 @@ async function fetchWithLogger (url, options, extraAttrs) {
             options.headers = {}
         }
 
-        options.headers['X-Request-Id'] = parentReqId || parentTaskId || null
-        options.headers['reqId'] = parentReqId ? parentReqId : null
-        options.headers['taskId'] = parentTaskId ? parentTaskId : null
+        options.headers['X-Parent-Request-ID'] = parentReqId
+        options.headers['X-Parent-Task-ID'] = parentTaskId
+        options.headers['X-Parent-Exec-ID'] = parentExecId
+        options.headers['X-Remote-Client'] = hostname
     }
 
     const startTime = Date.now()
 
     try {
+        logger.info({ msg: 'fetch: request start', url, reqId: parentReqId, taskId: parentTaskId, execId: parentExecId, path, hostname })
+
         const response = await nodeFetch(url, options)
 
-        const endTime = Date.now()
-        const elapsedTime = endTime - startTime
+        const headers = (response.headers && typeof response.headers == 'object') ? Object.fromEntries(response.headers) : {}
 
-        logger.info({ msg: 'fetch: request successful', url, reqId: parentReqId, taskId: parentTaskId, path, hostname, status: response.status, elapsedTime })
+        const endTime = Date.now()
+        const responseTime = endTime - startTime
+        const childReqId = response.headers && response.headers.get('X-Request-ID')
+
+        logger.info({ msg: 'fetch: request successful', url, reqId: parentReqId, childReqId, responseHeaders: { headers }, taskId: parentTaskId, execId: parentExecId, path, hostname, status: response.status, responseTime })
 
         Mertrics.increment({ name: FETCH_COUNT_METRIC_NAME, value: 1, tags: { status: response.status, hostname, path } })
-        Mertrics.gauge({ name: FETCH_TIME_METRIC_NAME, value: elapsedTime, tags: { status: response.status, hostname, path } })
+        Mertrics.gauge({ name: FETCH_TIME_METRIC_NAME, value: responseTime, tags: { status: response.status, hostname, path } })
 
         return response
-    } catch (error) {
+    } catch (err) {
         const endTime = Date.now()
-        const elapsedTime = endTime - startTime
+        const responseTime = endTime - startTime
 
-        logger.error({ msg: 'fetch: failed with error', url, path, hostname, reqId: parentReqId, taskId: parentTaskId, error, elapsedTime })
+        logger.error({ msg: 'fetch: failed with error', url, path, hostname, reqId: parentReqId, taskId: parentTaskId, execId: parentExecId, err, responseTime })
 
         Mertrics.increment({ name: FETCH_COUNT_METRIC_NAME, value: 1, tags: { status: 'failed', hostname, path } })
-        Mertrics.gauge({ name: FETCH_TIME_METRIC_NAME, value: elapsedTime, tags: { status: 'failed', hostname, path } })
+        Mertrics.gauge({ name: FETCH_TIME_METRIC_NAME, value: responseTime, tags: { status: 'failed', hostname, path } })
 
-        throw error
+        throw err
     }
 }
 
@@ -83,7 +91,7 @@ const fetchWithRetriesAndLogger = async (url, options = {}) => {
         maxRetries = 0,
         abortRequestTimeout = 60 * 1000,
         timeoutBetweenRequests = 0,
-        setTracingHeaders = false,
+        skipTracingHeaders = false,
         ...fetchOptions
     } = options
     let retries = 0
@@ -95,7 +103,7 @@ const fetchWithRetriesAndLogger = async (url, options = {}) => {
             const controller = new AbortController()
             const signal = controller.signal
             const response = await Promise.race([
-                fetchWithLogger(url, { ... fetchOptions, signal }, { setTracingHeaders }),
+                fetchWithLogger(url, { ... fetchOptions, signal }, { skipTracingHeaders }),
                 new Promise((_, reject) =>
                     setTimeout(() => {
                         controller.abort()

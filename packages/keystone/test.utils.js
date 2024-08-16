@@ -74,7 +74,7 @@ class UploadingFile {
 }
 
 const SIGNIN_BY_EMAIL_MUTATION = gql`
-    mutation sigin($identity: String, $secret: String) {
+    mutation signin($identity: String, $secret: String) {
         auth: authenticateUserWithPassword(email: $identity, password: $secret) {
             user: item {
                 id
@@ -216,7 +216,7 @@ function initTestExpressApp (name, app, protocol = 'http') {
  * @param name
  * @returns {*}
  */
-function getTestExpressApp (name){
+function getTestExpressApp (name) {
     return __expressTestServers[name]
 }
 
@@ -292,8 +292,8 @@ async function doGqlRequest (callable, { mutation, query, variables }, logReques
  */
 const makeApolloClient = (serverUrl, opts = {}) => {
     let cookiesObj = {}
-    let customHeaders =  opts.hasOwnProperty('customHeaders') ? opts.customHeaders : {}
-    let logRequestResponse =  Boolean(opts.logRequestResponse)
+    let customHeaders = opts.hasOwnProperty('customHeaders') ? opts.customHeaders : {}
+    let logRequestResponse = Boolean(opts.logRequestResponse)
 
     /**
      * @returns {string}
@@ -342,7 +342,10 @@ const makeApolloClient = (serverUrl, opts = {}) => {
         },
         useGETForQueries: true,
         fetch: (uri, options) => {
-            options.headers = { ...options.headers, 'feature-flags': JSON.stringify(Array.from(featureFlagsStore)), ...customHeaders }
+            options.headers = {
+                ...options.headers,
+                'feature-flags': JSON.stringify(Array.from(featureFlagsStore)), ...customHeaders,
+            }
             if (cookiesObj && Object.keys(cookiesObj).length > 0) {
                 options.headers = { ...options.headers, cookie: restoreCookies() }
             }
