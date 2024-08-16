@@ -47,11 +47,13 @@ async function fetchWithLogger (url, options, extraAttrs) {
 
         const response = await nodeFetch(url, options)
 
+        const headers = (response.headers && typeof response.headers == 'object') ? Object.fromEntries(response.headers) : {}
+
         const endTime = Date.now()
         const responseTime = endTime - startTime
         const childReqId = response.headers && response.headers.get('X-Request-ID')
 
-        logger.info({ msg: 'fetch: request successful', url, reqId: parentReqId, childReqId, taskId: parentTaskId, execId: parentExecId, path, hostname, status: response.status, responseTime })
+        logger.info({ msg: 'fetch: request successful', url, reqId: parentReqId, childReqId, responseHeaders: { headers }, taskId: parentTaskId, execId: parentExecId, path, hostname, status: response.status, responseTime })
 
         Mertrics.increment({ name: FETCH_COUNT_METRIC_NAME, value: 1, tags: { status: response.status, hostname, path } })
         Mertrics.gauge({ name: FETCH_TIME_METRIC_NAME, value: responseTime, tags: { status: response.status, hostname, path } })
