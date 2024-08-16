@@ -1,6 +1,6 @@
 import { Col, Form, Row, RowProps, Typography } from 'antd'
 import getConfig from 'next/config'
-import Router, { useRouter } from 'next/router'
+import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { useMutation } from '@open-condo/next/apollo'
@@ -139,7 +139,7 @@ export const SignInForm = (): React.ReactElement => {
                                         link: (
                                             <Typography.Link
                                                 style={{ color: colors.black }}
-                                                onClick={() => Router.push('/auth/forgot')}>
+                                                onClick={() => router.push('/auth/forgot')}>
                                                 {ResetMsg}
                                             </Typography.Link>
                                         ),
@@ -169,8 +169,8 @@ export const SignInForm = (): React.ReactElement => {
                                     <FormattedMessage id='Or'/>
                                 </Col>
                                 <Col span={24}>
-                                    <Form.Item>
-                                        <LoginWithSBBOLButton block checkTlsCert/>
+                                    <Form.Item id='signInSBBOL'>
+                                        <LoginWithSBBOLButton redirect={redirectUrl} block checkTlsCert/>
                                     </Form.Item>
                                 </Col>
                             </>

@@ -18,7 +18,7 @@ const SignInPage: AuthPage = () => {
             <Head><title>{SignInTitleMsg}</title></Head>
             <Row justify='center'>
                 <Col span={16}>
-                    <TabsAuthAction currentActiveKey='/auth/signin'/>
+                    <TabsAuthAction currentActiveKey='signin'/>
                 </Col>
                 <Col span={24}>
                     <SignInForm/>
