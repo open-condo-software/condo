@@ -68,6 +68,7 @@ jobs:
           WERF_SET_CI_ANNOUNCEMENT_GENERATOR_URL: "global.ci_announcement_url=announcement-generator.d.doma.ai"
           WERF_SET_CI_NEWS_SHARING_GREENDOM_APP_URL: "global.ci_news_sharing_greendom_app_url=news-sharing-greendom.d.doma.ai"
           WERF_NAMESPACE: "development"
+          WERF_SET_CI_NAMESPACE: "development"
           WERF_VIRTUAL_MERGE_FROM_COMMIT: "true"
           WERF_SET_CI_REF: "ci.werf.io/ref=${GITHUB_REF_NAME}"
           WERF_REPO: ${{ secrets.DOCKER_REGISTRY }}/condo/condo

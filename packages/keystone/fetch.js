@@ -1,14 +1,26 @@
+const os = require('os')
+
+const { pickBy } = require('lodash')
 const nodeFetch = require('node-fetch')
+
+const conf = require('@open-condo/config')
 
 const { getExecutionContext } = require('./executionContext')
 const { getLogger } = require('./logging')
 const Mertrics = require('./metrics')
+
 
 const logger = getLogger('fetch')
 
 const FETCH_COUNT_METRIC_NAME = 'fetch.count'
 const FETCH_TIME_METRIC_NAME = 'fetch.time'
 
+const HOSTNAME = os.hostname()
+const NAMESPACE = conf.NAMESPACE
+const DEPLOYMENT = (HOSTNAME.startsWith('condo') &&
+    HOSTNAME.split('-').length > 2 &&
+    HOSTNAME.split('-').slice(0, 3).join('-')) || HOSTNAME
+const VERSION = conf.WERF_COMMIT_HASH
 
 async function fetchWithLogger (url, options, extraAttrs) {
 
@@ -35,17 +47,35 @@ async function fetchWithLogger (url, options, extraAttrs) {
             options.headers = {}
         }
 
+        const xRemoteApp = NAMESPACE ? `${NAMESPACE}-${DEPLOYMENT}` : DEPLOYMENT
+        const xRemoteClient = HOSTNAME
+        const xTarget = options.headers['X-Target']
+        const referrer = `http://${xRemoteClient}/${parentReqId}`
+
+        options.headers['X-Remote-Client'] = HOSTNAME
+        options.headers['X-Remote-App'] = xRemoteApp
+        options.headers['X-Remote-Version'] = VERSION
         options.headers['X-Parent-Request-ID'] = parentReqId
         options.headers['X-Start-Request-ID'] = startReqId
         options.headers['X-Parent-Task-ID'] = parentTaskId
         options.headers['X-Parent-Exec-ID'] = parentExecId
-        options.headers['X-Remote-Client'] = hostname
+        options.headers['User-Agent'] = VERSION ? `node ${xRemoteApp} ${VERSION}` : `node ${xRemoteApp}`
+        options.headers['Referrer'] = xTarget ? `${referrer}?t=${xTarget}` : referrer
+
+        options.headers = pickBy(options.headers)
     }
 
     const startTime = Date.now()
+    const requestLogCommonData = pickBy({
+        reqId: parentReqId,
+        startReqId,
+        taskId: parentTaskId,
+        execId: parentExecId,
+        url, path, hostname,
+    })
 
     try {
-        logger.info({ msg: 'fetch: request start', url, reqId: parentReqId, startReqId, taskId: parentTaskId, execId: parentExecId, path, hostname })
+        logger.info({ msg: 'fetch: request start', ...requestLogCommonData })
 
         const response = await nodeFetch(url, options)
 
@@ -55,7 +85,7 @@ async function fetchWithLogger (url, options, extraAttrs) {
         const responseTime = endTime - startTime
         const childReqId = response.headers && response.headers.get('X-Request-ID')
 
-        logger.info({ msg: 'fetch: request successful', url, reqId: parentReqId, startReqId, childReqId, responseHeaders: { headers }, taskId: parentTaskId, execId: parentExecId, path, hostname, status: response.status, responseTime })
+        logger.info({ msg: 'fetch: request successful', childReqId, responseHeaders: { headers }, status: response.status, responseTime, ...requestLogCommonData })
 
         Mertrics.increment({ name: FETCH_COUNT_METRIC_NAME, value: 1, tags: { status: response.status, hostname, path } })
         Mertrics.gauge({ name: FETCH_TIME_METRIC_NAME, value: responseTime, tags: { status: response.status, hostname, path } })
@@ -65,7 +95,7 @@ async function fetchWithLogger (url, options, extraAttrs) {
         const endTime = Date.now()
         const responseTime = endTime - startTime
 
-        logger.error({ msg: 'fetch: failed with error', url, path, hostname, reqId: parentReqId, startReqId, taskId: parentTaskId, execId: parentExecId, err, responseTime })
+        logger.error({ msg: 'fetch: failed with error', err, responseTime, ...requestLogCommonData })
 
         Mertrics.increment({ name: FETCH_COUNT_METRIC_NAME, value: 1, tags: { status: 'failed', hostname, path } })
         Mertrics.gauge({ name: FETCH_TIME_METRIC_NAME, value: responseTime, tags: { status: 'failed', hostname, path } })

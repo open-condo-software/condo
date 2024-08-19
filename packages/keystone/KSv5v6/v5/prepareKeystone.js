@@ -224,6 +224,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
                     // also, property name are constant name, not a dynamic user input
                     // nosemgrep: javascript.express.security.audit.remote-property-injection.remote-property-injection
                     req['id'] = req.headers[requestIdHeaderName] = reqId
+                    // nosemgrep: javascript.express.security.audit.remote-property-injection.remote-property-injection
                     req['startId'] = req.headers[startRequestIdHeaderName] = startReqId
 
                     res.setHeader(requestIdHeaderName, reqId)
