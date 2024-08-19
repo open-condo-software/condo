@@ -11,7 +11,7 @@ const { getLocalized } = require('@open-condo/locales/loader')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { CURRENCY_SYMBOLS, DEFAULT_CURRENCY_CODE } = require('@condo/domains/common/constants/currencies')
 const { getStartDates } = require('@condo/domains/common/utils/date')
-const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
+const { loadListByChunks, processListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const {
     BILLING_RECEIPT_ADDED_TYPE,
     // BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE,
@@ -99,85 +99,81 @@ const prepareAndSendNotification = async (context, receipt, resident) => {
  */
 const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onLastDtChange) => {
     const { keystone: context } = await getSchemaCtx('Resident')
-    let skip = 0, successCount = 0
+    let successCount = 0
     const notifiedUsers = new Set()
 
-    let lastReceipt, currBatchLength = CHUNK_SIZE
+    let lastReceipt
 
-    while (currBatchLength === CHUNK_SIZE) {
-        const receipts = await BillingReceipt.getAll(
-            context,
-            receiptsWhere,
-            { sortBy: ['createdAt_ASC'], first: CHUNK_SIZE, skip })
-        currBatchLength = receipts.length
-        if (isEmpty(receipts)) break
-
-        skip += currBatchLength
-
-        const payableReceipts = receipts.filter(receipt => receipt.isPayable)
-        let organisationIds = []
-        const accountsNumbers = []
-        for (const receipt of payableReceipts) {
-            organisationIds.push(get(receipt, 'context.organization.id'))
-            accountsNumbers.push(get(receipt, 'account.number'))
-        }
-        organisationIds = uniq(organisationIds)
-
-        const serviceConsumerWhere = {
-            organization: { id_in: organisationIds },
-            accountNumber_in: accountsNumbers,
-            deletedAt: null,
-        }
-        const serviceConsumers = await loadListByChunks({ context, chunkSize: 50, list: ServiceConsumer, where: serviceConsumerWhere })
-
-        const consumersByAccountKey = groupBy(serviceConsumers, (item) => {
-            const params = [
-                get(item, 'resident.address'),
-                get(item, 'accountNumber'),
-            ]
-
-            return makeAccountKey(...params)
-        })
-
-        for (const receipt of payableReceipts) {
-            const params = [
-                get(receipt, 'property.address'),
-                get(receipt, 'account.number'),
-            ]
-            const receiptAccountKey = makeAccountKey(...params)
-            const consumers = consumersByAccountKey[receiptAccountKey]
-
-            // We have no ServiceConsumer records for this receipt
-            if (isEmpty(consumers)) continue
-
-            let successConsumerCount = 0
-
-            for (const consumer of consumers) {
-                const resident = get(consumer, 'resident')
-
-                // ServiceConsumer has no connection to Resident
-                if (!resident || resident.deletedAt) continue
-
-                // NOTE: (DOMA-4351) skip already notified user to get rid of duplicate notifications
-                if (notifiedUsers.has(resident.user.id)) continue
-
-                const success = await prepareAndSendNotification(context, receipt, resident)
-
-                if (success) notifiedUsers.add(resident.user.id)
-
-                successConsumerCount += success
+    await processListByChunks({
+        context,
+        chunkSize: CHUNK_SIZE,
+        list: BillingReceipt,
+        where: receiptsWhere,
+        chunkProcessor: async (/** @type {BillingReceipt[]} */ receipts) => {
+            const payableReceipts = receipts.filter(receipt => receipt.isPayable)
+            let organisationIds = []
+            const accountsNumbers = []
+            for (const receipt of payableReceipts) {
+                organisationIds.push(get(receipt, 'context.organization.id'))
+                accountsNumbers.push(get(receipt, 'account.number'))
             }
+            organisationIds = uniq(organisationIds)
 
-            if (successConsumerCount > 0) successCount += 1
+            const serviceConsumerWhere = {
+                organization: { id_in: organisationIds },
+                accountNumber_in: accountsNumbers,
+                deletedAt: null,
+            }
+            const serviceConsumers = await loadListByChunks({ context, chunkSize: 50, list: ServiceConsumer, where: serviceConsumerWhere })
 
-            lastReceipt = receipt
-        }
+            const consumersByAccountKey = groupBy(serviceConsumers, (item) => {
+                const params = [
+                    get(item, 'resident.address'),
+                    get(item, 'accountNumber'),
+                ]
 
-        // Store receipt.createdAt as lastDt in order to continue from this point on next execution
-        if (isFunction(onLastDtChange) && !isEmpty(lastReceipt)) await onLastDtChange(lastReceipt.createdAt)
+                return makeAccountKey(...params)
+            })
 
-        logger.info({ msg: `Processed ${skip} receipts.` })
-    }
+            for (const receipt of payableReceipts) {
+                const params = [
+                    get(receipt, 'property.address'),
+                    get(receipt, 'account.number'),
+                ]
+                const receiptAccountKey = makeAccountKey(...params)
+                const consumers = consumersByAccountKey[receiptAccountKey]
+
+                // We have no ServiceConsumer records for this receipt
+                if (isEmpty(consumers)) continue
+
+                let successConsumerCount = 0
+
+                for (const consumer of consumers) {
+                    const resident = get(consumer, 'resident')
+
+                    // ServiceConsumer has no connection to Resident
+                    if (!resident || resident.deletedAt) continue
+
+                    // NOTE: (DOMA-4351) skip already notified user to get rid of duplicate notifications
+                    if (notifiedUsers.has(resident.user.id)) continue
+
+                    const success = await prepareAndSendNotification(context, receipt, resident)
+
+                    if (success) notifiedUsers.add(resident.user.id)
+
+                    successConsumerCount += success
+                }
+
+                if (successConsumerCount > 0) successCount += 1
+                logger.info({ msg: `Processed ${CHUNK_SIZE} receipts.` })
+                lastReceipt = receipt
+            }
+        },
+    })
+
+    // Store receipt.createdAt as lastDt in order to continue from this point on next execution
+    if (isFunction(onLastDtChange) && !isEmpty(lastReceipt)) await onLastDtChange(lastReceipt.createdAt)
+
     logger.info({ msg: 'sent billing receipts', successCount })
 }
 
