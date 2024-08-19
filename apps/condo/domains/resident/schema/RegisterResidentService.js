@@ -24,7 +24,6 @@ const { ADDRESS_NOT_FOUND_ERROR } = require('@condo/domains/resident/constants/e
 const { Resident: ResidentAPI } = require('@condo/domains/resident/utils/serverSchema')
 const { discoverServiceConsumers } = require('@condo/domains/resident/utils/serverSchema')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
-
 const redisGuard = new RedisGuard()
 
 const logger = getLogger('registerResident')

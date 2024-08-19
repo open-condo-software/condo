@@ -12,6 +12,7 @@ const {
     getEmployedOrRelatedOrganizationsByPermissions,
     getInvitedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
+const { getUserResidents, getUserServiceConsumers } = require('@condo/domains/resident/utils/accessSchema')
 const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 const { canDirectlyReadSchemaObjects, canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
@@ -21,20 +22,16 @@ async function canReadOrganizations (args) {
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    
+
     if (user.isSupport || user.isAdmin) return {}
     const hasDirectAccess = await canDirectlyReadSchemaObjects(user, listKey)
     if (hasDirectAccess) return true
 
     if (user.type === RESIDENT) {
-        const userResidents = await find('Resident', { user:{ id: user.id }, deletedAt: null })
+        const userResidents = await getUserResidents(context, user)
         if (!userResidents.length) return false
         const residentOrganizations = compact(userResidents.map(resident => get(resident, 'organization')))
-        const residentsIds = userResidents.map(resident => resident.id)
-        const userServiceConsumers = await find('ServiceConsumer', {
-            resident: { id_in: residentsIds },
-            deletedAt: null,
-        })
+        const userServiceConsumers = await getUserServiceConsumers(context, user)
         const serviceConsumerOrganizations = userServiceConsumers.map(sc => sc.organization)
         const organizations = [...residentOrganizations, ...serviceConsumerOrganizations]
         if (organizations.length) {
