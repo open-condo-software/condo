@@ -18,6 +18,7 @@ async function fetchWithLogger (url, options, extraAttrs) {
 
     const executionContext = getExecutionContext()
     const parentReqId = executionContext.reqId
+    const startReqId = executionContext.startReqId
     const parentTaskId = executionContext.taskId
     const parentExecId = executionContext.execId
 
@@ -35,6 +36,7 @@ async function fetchWithLogger (url, options, extraAttrs) {
         }
 
         options.headers['X-Parent-Request-ID'] = parentReqId
+        options.headers['X-Start-Request-ID'] = startReqId
         options.headers['X-Parent-Task-ID'] = parentTaskId
         options.headers['X-Parent-Exec-ID'] = parentExecId
         options.headers['X-Remote-Client'] = hostname
@@ -43,7 +45,7 @@ async function fetchWithLogger (url, options, extraAttrs) {
     const startTime = Date.now()
 
     try {
-        logger.info({ msg: 'fetch: request start', url, reqId: parentReqId, taskId: parentTaskId, execId: parentExecId, path, hostname })
+        logger.info({ msg: 'fetch: request start', url, reqId: parentReqId, startReqId, taskId: parentTaskId, execId: parentExecId, path, hostname })
 
         const response = await nodeFetch(url, options)
 
@@ -53,7 +55,7 @@ async function fetchWithLogger (url, options, extraAttrs) {
         const responseTime = endTime - startTime
         const childReqId = response.headers && response.headers.get('X-Request-ID')
 
-        logger.info({ msg: 'fetch: request successful', url, reqId: parentReqId, childReqId, responseHeaders: { headers }, taskId: parentTaskId, execId: parentExecId, path, hostname, status: response.status, responseTime })
+        logger.info({ msg: 'fetch: request successful', url, reqId: parentReqId, startReqId, childReqId, responseHeaders: { headers }, taskId: parentTaskId, execId: parentExecId, path, hostname, status: response.status, responseTime })
 
         Mertrics.increment({ name: FETCH_COUNT_METRIC_NAME, value: 1, tags: { status: response.status, hostname, path } })
         Mertrics.gauge({ name: FETCH_TIME_METRIC_NAME, value: responseTime, tags: { status: response.status, hostname, path } })
@@ -63,7 +65,7 @@ async function fetchWithLogger (url, options, extraAttrs) {
         const endTime = Date.now()
         const responseTime = endTime - startTime
 
-        logger.error({ msg: 'fetch: failed with error', url, path, hostname, reqId: parentReqId, taskId: parentTaskId, execId: parentExecId, err, responseTime })
+        logger.error({ msg: 'fetch: failed with error', url, path, hostname, reqId: parentReqId, startReqId, taskId: parentTaskId, execId: parentExecId, err, responseTime })
 
         Mertrics.increment({ name: FETCH_COUNT_METRIC_NAME, value: 1, tags: { status: 'failed', hostname, path } })
         Mertrics.gauge({ name: FETCH_TIME_METRIC_NAME, value: responseTime, tags: { status: 'failed', hostname, path } })
