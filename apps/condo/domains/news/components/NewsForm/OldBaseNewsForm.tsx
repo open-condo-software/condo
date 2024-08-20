@@ -45,7 +45,10 @@ import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCou
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { BaseNewsFormProps } from '@condo/domains/news/components/NewsForm/BaseNewsForm'
 import { MemoizedCondoNewsPreview } from '@condo/domains/news/components/NewsPreview'
-import { detectTargetedSections, RecipientCounter } from '@condo/domains/news/components/RecipientCounter'
+import {
+    detectTargetedSections,
+    MemoizedRecipientCounter,
+} from '@condo/domains/news/components/RecipientCounter'
 import { TemplatesTabs } from '@condo/domains/news/components/TemplatesTabs'
 import { NewsItemScopeNoInstanceType } from '@condo/domains/news/components/types'
 import { PROFANITY_TITLE_DETECTED_MOT_ERF_KER, PROFANITY_BODY_DETECTED_MOT_ERF_KER } from '@condo/domains/news/constants/errors'
@@ -419,7 +422,7 @@ export const OldBaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
     const { loading: selectedPropertiesLoading, objs: selectedProperties } = Property.useAllObjects({
         where: { id_in: selectedPropertiesId },
-    })
+    }, { fetchPolicy: 'cache-first' })
 
     const isOnlyOnePropertySelected: boolean = useMemo(() => (selectedPropertiesId.length === 1), [selectedPropertiesId.length])
 
@@ -827,7 +830,15 @@ export const OldBaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }
 
         return []
-    }, [isAllPropertiesChecked, isOnlyOnePropertySelected, selectedProperties, selectedPropertiesId.length, selectedPropertiesLoading, selectedSectionKeys, selectedUnitNameKeys])
+    }, [
+        selectedPropertiesLoading,
+        isAllPropertiesChecked,
+        isOnlyOnePropertySelected,
+        selectedProperties,
+        selectedPropertiesId,
+        selectedSectionKeys,
+        selectedUnitNameKeys,
+    ])
 
     const dayjsTz = dayjs().format('Z')
     const tzInfo = useMemo<string>(() => {
@@ -1082,12 +1093,12 @@ export const OldBaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                     }
                                                     <HiddenBlock hide={newsItemForOneProperty}>
                                                         <GraphQlSearchInputWithCheckAll
-                                                            checkAllFieldName='hasAllProperties'
-                                                            checkAllInitialValue={get(initialValues, 'hasAllProperties', false)}
                                                             selectFormItemProps={propertySelectFormItemProps}
                                                             selectProps={propertySelectProps(form)}
-                                                            onCheckBoxChange={propertyCheckboxChange(form)}
+                                                            checkAllFieldName='hasAllProperties'
+                                                            checkAllInitialValue={get(initialValues, 'hasAllProperties', false)}
                                                             CheckAllMessage={CheckAllLabel}
+                                                            onCheckBoxChange={propertyCheckboxChange(form)}
                                                             onDataLoaded={handleAllPropertiesDataLoading}
                                                             form={form}
                                                         />
@@ -1141,13 +1152,11 @@ export const OldBaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                 }
                                             </Row>
                                         </Col>
-                                        {
-                                            !!formInfoColSpan && newsItemScopesNoInstance.length > 0 && (
-                                                <Col span={formInfoColSpan}>
-                                                    <RecipientCounter newsItemScopes={newsItemScopesNoInstance}/>
-                                                </Col>
-                                            )
-                                        }
+                                        <Col span={formInfoColSpan}>
+                                            <HiddenBlock hide={newsItemScopesNoInstance.length <= 0} >
+                                                <MemoizedRecipientCounter newsItemScopes={newsItemScopesNoInstance}/>
+                                            </HiddenBlock>
+                                        </Col>
                                     </Row>
                                 </Col>
                                 <Col span={24}>
