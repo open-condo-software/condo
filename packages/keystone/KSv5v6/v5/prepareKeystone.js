@@ -214,14 +214,21 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
             app.use(urlencoded({ limit: '100mb', extended: true }))
 
             const requestIdHeaderName = 'x-request-id'
+            const startRequestIdHeaderName = 'x-start-request-id'
             app.use(function reqId (req, res, next) {
                 const reqId = req.get(requestIdHeaderName) || v4()
-                _internalGetExecutionContextAsyncLocalStorage().run({ reqId }, () => {
+                const startReqId = req.get(startRequestIdHeaderName) || reqId
+
+                _internalGetExecutionContextAsyncLocalStorage().run({ reqId, startReqId }, () => {
                     // we are expecting to receive reqId from client in order to have fully traced logs end to end
                     // also, property name are constant name, not a dynamic user input
                     // nosemgrep: javascript.express.security.audit.remote-property-injection.remote-property-injection
                     req['id'] = req.headers[requestIdHeaderName] = reqId
+                    // nosemgrep: javascript.express.security.audit.remote-property-injection.remote-property-injection
+                    req['startId'] = req.headers[startRequestIdHeaderName] = startReqId
+
                     res.setHeader(requestIdHeaderName, reqId)
+                    res.setHeader(startRequestIdHeaderName, startReqId)
                     next()
                 })
             })
