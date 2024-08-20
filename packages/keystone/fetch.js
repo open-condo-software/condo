@@ -15,11 +15,15 @@ const logger = getLogger('fetch')
 const FETCH_COUNT_METRIC_NAME = 'fetch.count'
 const FETCH_TIME_METRIC_NAME = 'fetch.time'
 
-const HOSTNAME = os.hostname() || ''
-const NAMESPACE = conf.NAMESPACE || ''
-const VERSION = conf.WERF_COMMIT_HASH || ''
+const HOSTNAME = os.hostname() || 'nohost'
+const NAMESPACE = conf.NAMESPACE || 'nospace'
+const VERSION = conf.WERF_COMMIT_HASH || 'local'
 
-const getDeploymentName = () => {
+const getAppName = () => {
+    if (conf.APP_NAME) {
+        return conf.APP_NAME
+    }
+
     if (!HOSTNAME.startsWith('condo')) {
         return HOSTNAME
     }
@@ -62,11 +66,11 @@ async function fetchWithLogger (url, options, extraAttrs) {
             options.headers = {}
         }
 
-        const deployment = getDeploymentName()
+        const deployment = getAppName()
         const xRemoteApp = NAMESPACE ? `${NAMESPACE}-${deployment}` : deployment
         const xRemoteClient = HOSTNAME
         const xTarget = options.headers['X-Target']
-        const referrer = parentReqId ? `http://${xRemoteClient}/${parentReqId}` : xRemoteClient
+        const referrer = `http://${xRemoteClient}/${parentReqId || parentTaskId || parentExecId || ''}?${(xTarget) ? 't=' + xTarget + '&' : ''}${(startReqId) ? 's=' + startReqId + '&' : ''}`
 
         options.headers['X-Remote-Client'] = HOSTNAME
         options.headers['X-Remote-App'] = xRemoteApp
@@ -112,7 +116,7 @@ async function fetchWithLogger (url, options, extraAttrs) {
         const endTime = Date.now()
         const responseTime = endTime - startTime
 
-        logger.error({ msg: 'fetch: failed with error', err, responseTime, ...requestLogCommonData })
+        logger.error({ msg: 'fetch: failed with error', err, responseTime, status: 0, ...requestLogCommonData })
 
         Mertrics.increment({ name: FETCH_COUNT_METRIC_NAME, value: 1, tags: { status: 'failed', hostname, path } })
         Mertrics.gauge({ name: FETCH_TIME_METRIC_NAME, value: responseTime, tags: { status: 'failed', hostname, path } })
