@@ -269,9 +269,6 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
 
     const isLoadingCounters = isCountersLoading || !counters
 
-    console.log('Recipient counter', { isLoadingCounters, isCountersLoading, counters })
-
-
     return (
         <RecipientCounterContainer
             title={<>{MailingMessage}<Typography.Text strong>{message}</Typography.Text></>}
