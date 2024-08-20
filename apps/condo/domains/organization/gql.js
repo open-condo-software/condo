@@ -105,6 +105,9 @@ const REPLACE_ORGANIZATION_EMPLOYEE_ROLE_MUTATION = gql`
     }
 `
 
+const ORGANIZATION_EMPLOYEE_REQUEST_FIELDS = `{ organization { id } organizationId organizationName organizationTin user { id } isAccepted isRejected decidedBy { id } decidedAt retries employee { id } ${COMMON_FIELDS} }`
+const OrganizationEmployeeRequest = generateGqlQueries('OrganizationEmployeeRequest', ORGANIZATION_EMPLOYEE_REQUEST_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -124,6 +127,7 @@ module.exports = {
     OrganizationEmployeeSpecialization,
     RESET_ORGANIZATION_MUTATION,
     REPLACE_ORGANIZATION_EMPLOYEE_ROLE_MUTATION,
+    OrganizationEmployeeRequest,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 
