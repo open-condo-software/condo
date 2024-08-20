@@ -22,12 +22,14 @@ const CERT_FILE = path.join(__filename, '..', '.ssl', 'localhost.pem')
 const HTTPS_OPTIONS = {}
 const IS_DEVELOPMENT = conf.NODE_ENV === 'development'
 const IS_PRODUCTION = conf.NODE_ENV === 'production'
+const IS_SOCKET_EVENT_LOGS_ENABLED = conf['IS_SOCKET_EVENT_LOGS_ENABLED'] === 'true'
 
 // NOTE: Headers must be greater than keep alive, for express 5000 / 60000 ms is default
 // SRC: https://shuheikagawa.com/blog/2019/04/25/keep-alive-timeout/
 const KEEP_ALIVE_TIMEOUT = parseInt(conf['KEEP_ALIVE_TIMEOUT'] || '5000')
 const HEADERS_TIMEOUT = parseInt(conf['HEADERS_TIMEOUT'] || '60000')
 
+const socketLogger = getLogger('socketLogger')
 const logger = getLogger('keystone-dev')
 
 try {
@@ -37,6 +39,74 @@ try {
     }
 } catch (err) {
     logger.warn({ msg: 'load certs error', err })
+}
+
+function configureServerSocketLogging (server) {
+    if (IS_SOCKET_EVENT_LOGS_ENABLED && server != null) {
+        // prepare http entities mapping functions
+        const getSocketState = (socket) => {
+            const {
+                bytesRead, bytesWritten, timeout, readyState,
+                writable, connecting, destroyed,
+                localAddress, localPort,
+                remoteAddress, remotePort,
+            } = socket
+
+            return {
+                bytesRead, bytesWritten, timeout, readyState,
+                writable, connecting, destroyed,
+                localAddress, localPort,
+                remoteAddress, remotePort,
+            }
+        }
+        const getRequestState = (request) => {
+            if (request == null) return
+            const { headers, method, url } = request
+            const reqId = headers != null ? headers['x-request-id'] : null
+
+            return {
+                headers, method, url, reqId,
+            }
+        }
+
+        // handle client error according to https://nodejs.org/api/http.html#event-clienterror
+        server.on('clientError', (err, socket) => {
+            socketLogger.error({
+                msg: 'Client error socket error occurred',
+                socket: getSocketState(socket),
+                err,
+            })
+
+            if (err.code === 'ECONNRESET' || !socket.writable) {
+                return
+            }
+
+            socket.end('HTTP/1.1 400 Bad Request\r\n\r\n')
+        })
+
+        // handle connection according to https://nodejs.org/api/http.html#event-connection
+        server.on('connection', (socket) => {
+            socketLogger.info({ msg: 'New tcp stream connection occurred', socket: getSocketState(socket) })
+        })
+
+        // handle dropRequest according to https://nodejs.org/api/http.html#event-droprequest
+        server.on('dropRequest', (request, socket) => {
+            socketLogger.info({
+                msg: 'Server drop request due to maxRequestsPerSocket exceeded',
+                socket: getSocketState(socket),
+                request: getRequestState(request),
+            })
+        })
+
+        // handle request according to https://nodejs.org/api/http.html#event-request
+        server.on('request', (request, response) => {
+            socketLogger.info({
+                msg: 'New request to socket registered',
+                socket: response.socket != null ? getSocketState(response.socket) : null,
+                request: getRequestState(request),
+            })
+        })
+    }
 }
 
 async function main () {
@@ -65,6 +135,9 @@ async function main () {
             server.headersTimeout = HEADERS_TIMEOUT
         })
     }
+
+    configureServerSocketLogging(httpServer)
+    configureServerSocketLogging(httpsServer)
 
     if (IS_DEVELOPMENT) {
         if (httpServer) console.log(chalk.gray.bold(`HTTP 🚀 server started on port ${PORT}`))
