@@ -15,9 +15,9 @@ const logger = getLogger('fetch')
 const FETCH_COUNT_METRIC_NAME = 'fetch.count'
 const FETCH_TIME_METRIC_NAME = 'fetch.time'
 
-const HOSTNAME = os.hostname()
-const NAMESPACE = conf.NAMESPACE
-const VERSION = conf.WERF_COMMIT_HASH
+const HOSTNAME = os.hostname() || ''
+const NAMESPACE = conf.NAMESPACE || ''
+const VERSION = conf.WERF_COMMIT_HASH || ''
 
 const getDeploymentName = () => {
     if (!HOSTNAME.startsWith('condo')) {
@@ -66,7 +66,7 @@ async function fetchWithLogger (url, options, extraAttrs) {
         const xRemoteApp = NAMESPACE ? `${NAMESPACE}-${deployment}` : deployment
         const xRemoteClient = HOSTNAME
         const xTarget = options.headers['X-Target']
-        const referrer = `http://${xRemoteClient}/${parentReqId}`
+        const referrer = parentReqId ? `http://${xRemoteClient}/${parentReqId}` : xRemoteClient
 
         options.headers['X-Remote-Client'] = HOSTNAME
         options.headers['X-Remote-App'] = xRemoteApp
