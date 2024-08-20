@@ -13,7 +13,7 @@ const { i18n } = require('@open-condo/locales/loader')
 
 const { CONTACT_FIELD, CLIENT_EMAIL_FIELD, CLIENT_NAME_FIELD, CLIENT_PHONE_LANDLINE_FIELD, CLIENT_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/meter/access/MeterReading')
-const { METER_READING_MAX_VALUES_COUNT } = require('@condo/domains/meter/constants/constants')
+const { METER_READING_MAX_VALUES_COUNT, METER_READING_BILLING_STATUSES } = require('@condo/domains/meter/constants/constants')
 const { METER_READING_DATE_IN_FUTURE, METER_READING_FEW_VALUES, METER_READING_EXTRA_VALUES } = require('@condo/domains/meter/constants/errors')
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { connectContactToMeterReading } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
@@ -108,6 +108,17 @@ const MeterReading = new GQLListSchema('MeterReading', {
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
+        },
+
+        billingStatus: {
+            schemaDoc: 'Meter reading billing status',
+            type: 'Select',
+            dataType: 'string',
+            options: METER_READING_BILLING_STATUSES,
+        },
+        billingStatusText: {
+            schemaDoc: 'A message from external billing system. Can\'t be filled if billing status id `approved`',
+            type: 'Text',
         },
 
     },
