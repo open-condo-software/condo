@@ -9,8 +9,9 @@ import intersectionWith from 'lodash/intersectionWith'
 import isEqual from 'lodash/isEqual'
 import map from 'lodash/map'
 import slice from 'lodash/slice'
+import throttle from 'lodash/throttle'
 import uniq from 'lodash/uniq'
-import React, { CSSProperties, useEffect, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -237,11 +238,13 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
         },
     )
 
+    const throttledGetCounters = useCallback(throttle(getCounters, 1500), [throttle])
+
     useEffect(() => {
         const sender = getClientSideSenderInfo()
         const meta = { dv: 1, sender }
 
-        getCounters({
+        throttledGetCounters({
             variables: {
                 data: {
                     newsItemScopes: processedNewsItemScope,
@@ -265,6 +268,9 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
     const willNotReceiveUnitsCount = unitsCount - receiversCount
 
     const isLoadingCounters = isCountersLoading || !counters
+
+    console.log('Recipient counter', { isLoadingCounters, isCountersLoading, counters })
+
 
     return (
         <RecipientCounterContainer
@@ -341,7 +347,7 @@ const NewsSharingRecipientCounter: React.FC<{ contextId: string, newsItemScopes:
                 },
             },
         })
-    }, [getCounter, contextId, newsItemScopes])
+    }, [ getCounter, contextId, newsItemScopes ])
 
     // if typeof counter !== number is used here instead of just if !counter because bool(0) => false
     const isLoadingCounter = isCounterLoading || typeof counter !== 'number'
@@ -356,5 +362,7 @@ const NewsSharingRecipientCounter: React.FC<{ contextId: string, newsItemScopes:
         </RecipientCounterContainer>
     )
 }
+
+export const MemoizedRecipientCounter = React.memo(RecipientCounter)
 
 export const MemoizedNewsSharingRecipientCounter = React.memo(NewsSharingRecipientCounter)
