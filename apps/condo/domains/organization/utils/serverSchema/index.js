@@ -14,6 +14,7 @@ const { OrganizationEmployeeSpecialization: OrganizationEmployeeSpecializationGQ
 const { RESET_ORGANIZATION_MUTATION } = require('@condo/domains/organization/gql')
 const { REPLACE_ORGANIZATION_EMPLOYEE_ROLE_MUTATION } = require('@condo/domains/organization/gql')
 const { OrganizationEmployeeRequest: OrganizationEmployeeRequestGQL } = require('@condo/domains/organization/gql')
+const { SEND_ORGANIZATION_EMPLOYEE_REQUEST_MUTATION } = require('@condo/domains/organization/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Organization = generateServerUtils(OrganizationGQL)
@@ -49,6 +50,19 @@ async function replaceOrganizationEmployeeRole (context, data) {
 }
 
 const OrganizationEmployeeRequest = generateServerUtils(OrganizationEmployeeRequestGQL)
+async function sendOrganizationEmployeeRequest (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: SEND_ORGANIZATION_EMPLOYEE_REQUEST_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to sendOrganizationEmployeeRequest',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -60,5 +74,6 @@ module.exports = {
     resetOrganization,
     replaceOrganizationEmployeeRole,
     OrganizationEmployeeRequest,
+    sendOrganizationEmployeeRequest,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

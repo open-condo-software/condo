@@ -5,9 +5,10 @@
 const dayjs = require('dayjs')
 const get = require('lodash/get')
 
+const { canOnlyServerSideWithoutUserRequest } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const { GQLListSchema, find, getByCondition } = require('@open-condo/keystone/schema')
+const { GQLListSchema, getByCondition } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/organization/access/OrganizationEmployeeRequest')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
@@ -137,7 +138,7 @@ const OrganizationEmployeeRequest = new GQLListSchema('OrganizationEmployeeReque
             access: {
                 read: true,
                 create: false,
-                update: false,
+                update: canOnlyServerSideWithoutUserRequest,
             },
         },
 
@@ -147,7 +148,7 @@ const OrganizationEmployeeRequest = new GQLListSchema('OrganizationEmployeeReque
             access: {
                 read: true,
                 create: false,
-                update: false,
+                update: canOnlyServerSideWithoutUserRequest,
             },
         },
 

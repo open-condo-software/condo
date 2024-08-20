@@ -42254,6 +42254,90 @@ export type Mutation = {
    * }`
    */
   replaceOrganizationEmployeeRole?: Maybe<ReplaceOrganizationEmployeeRoleOutput>;
+  /**
+   * Creates a request to join the specified organization
+   *
+   *
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "mutation": "sendOrganizationEmployeeRequest",
+   *   "variable": [
+   *     "data",
+   *     "organization"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "ORGANIZATION_NOT_FOUND",
+   *   "message": "Organization not found"
+   * }`
+   *
+   * `{
+   *   "mutation": "sendOrganizationEmployeeRequest",
+   *   "variable": [
+   *     "data"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "REQUEST_ALREADY_ACCEPTED",
+   *   "message": "Request already accepted"
+   * }`
+   *
+   * `{
+   *   "mutation": "sendOrganizationEmployeeRequest",
+   *   "variable": [
+   *     "data"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "REQUEST_TO_ORGANIZATION_LIMIT_REACHED",
+   *   "message": "A request to the organization limit reached"
+   * }`
+   *
+   * `{
+   *   "mutation": "sendOrganizationEmployeeRequest",
+   *   "variable": [
+   *     "data"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "REQUEST_NOT_DECIDED",
+   *   "message": "A request not decided yet. Please wait for a decide on the request from the organization"
+   * }`
+   *
+   * `{
+   *   "mutation": "sendOrganizationEmployeeRequest",
+   *   "variable": [
+   *     "data"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "EMPLOYEE_ALREADY_EXIST",
+   *   "message": "An employee already exist in this organization"
+   * }`
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "dv"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "DV_VERSION_MISMATCH",
+   *   "message": "Wrong value for data version number",
+   *   "query": "findOrganizationsByTin"
+   * }`
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "sender"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_FORMAT",
+   *   "message": "Invalid format of \"sender\" field value",
+   *   "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}",
+   *   "query": "findOrganizationsByTin"
+   * }`
+   */
+  sendOrganizationEmployeeRequest?: Maybe<OrganizationEmployeeRequest>;
   registerBillingReceipts?: Maybe<Array<Maybe<BillingReceipt>>>;
   sendNewBillingReceiptFilesNotifications?: Maybe<SendNewBillingReceiptFilesNotificationsOutput>;
   /**
@@ -52669,6 +52753,11 @@ export type MutationResetOrganizationArgs = {
 
 export type MutationReplaceOrganizationEmployeeRoleArgs = {
   data: ReplaceOrganizationEmployeeRoleInput;
+};
+
+
+export type MutationSendOrganizationEmployeeRequestArgs = {
+  data: SendOrganizationEmployeeRequestInput;
 };
 
 
@@ -76271,6 +76360,12 @@ export type SendNewReceiptMessagesToResidentScopesInput = {
 export type SendNewReceiptMessagesToResidentScopesOutput = {
   __typename?: 'SendNewReceiptMessagesToResidentScopesOutput';
   status: Scalars['String'];
+};
+
+export type SendOrganizationEmployeeRequestInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  organization: OrganizationWhereUniqueInput;
 };
 
 export type SenderField = {
