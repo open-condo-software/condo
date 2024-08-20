@@ -17,10 +17,25 @@ const FETCH_TIME_METRIC_NAME = 'fetch.time'
 
 const HOSTNAME = os.hostname()
 const NAMESPACE = conf.NAMESPACE
-const DEPLOYMENT = (HOSTNAME.startsWith('condo') &&
-    HOSTNAME.split('-').length > 2 &&
-    HOSTNAME.split('-').slice(0, 3).join('-')) || HOSTNAME
 const VERSION = conf.WERF_COMMIT_HASH
+
+const getDeploymentName = () => {
+    if (!HOSTNAME.startsWith('condo')) {
+        return HOSTNAME
+    }
+
+    const splittedHostname = HOSTNAME.split('-')
+    if (splittedHostname.length < 3) {
+        return HOSTNAME
+    }
+
+    return HOSTNAME
+        .split('-')
+        .reverse()
+        .slice(2)
+        .reverse()
+        .join('-')
+}
 
 async function fetchWithLogger (url, options, extraAttrs) {
 
@@ -47,7 +62,8 @@ async function fetchWithLogger (url, options, extraAttrs) {
             options.headers = {}
         }
 
-        const xRemoteApp = NAMESPACE ? `${NAMESPACE}-${DEPLOYMENT}` : DEPLOYMENT
+        const deployment = getDeploymentName()
+        const xRemoteApp = NAMESPACE ? `${NAMESPACE}-${deployment}` : deployment
         const xRemoteClient = HOSTNAME
         const xTarget = options.headers['X-Target']
         const referrer = `http://${xRemoteClient}/${parentReqId}`
@@ -71,6 +87,7 @@ async function fetchWithLogger (url, options, extraAttrs) {
         startReqId,
         taskId: parentTaskId,
         execId: parentExecId,
+        headers: options.headers,
         url, path, hostname,
     })
 
