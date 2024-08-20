@@ -209,10 +209,8 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
             // NOTE(pahaz): we are always behind reverse proxy
             app.set('trust proxy', true)
 
-            // NOTE(toplenboren): we need a custom body parser for custom file upload limit
-            app.use(json({ limit: '100mb', extended: true }))
-            app.use(urlencoded({ limit: '100mb', extended: true }))
-
+            // NOTE(ekabardinsky): set reqId must be done before body parsing
+            // since not parseable request errors must be logged along with req id
             const requestIdHeaderName = 'x-request-id'
             const startRequestIdHeaderName = 'x-start-request-id'
             app.use(function reqId (req, res, next) {
@@ -232,6 +230,10 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
                     next()
                 })
             })
+
+            // NOTE(toplenboren): we need a custom body parser for custom file upload limit
+            app.use(json({ limit: '100mb', extended: true }))
+            app.use(urlencoded({ limit: '100mb', extended: true }))
 
             app.use('/admin/', (req, res, next) => {
                 if (req.url === '/api') return next()
