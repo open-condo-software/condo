@@ -95,9 +95,10 @@ const prepareAndSendNotification = async (context, receipt, resident) => {
  * Reads by portions all data required to send notifications to residents on available billing receipts and sends notifications
  * @param receiptsWhere
  * @param onLastDtChange
+ * @param taskId
  * @returns {Promise<void>}
  */
-const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onLastDtChange) => {
+const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onLastDtChange, taskId) => {
     const { keystone: context } = await getSchemaCtx('Resident')
     let successCount = 0
     const notifiedUsers = new Set()
@@ -165,7 +166,7 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
                 }
 
                 if (successConsumerCount > 0) successCount += 1
-                logger.info({ msg: `Processed ${CHUNK_SIZE} receipts.` })
+                logger.info({ msg: `Processed ${CHUNK_SIZE} receipts.`, taskId })
                 lastReceipt = receipt
             }
         },
@@ -174,11 +175,11 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
     // Store receipt.createdAt as lastDt in order to continue from this point on next execution
     if (isFunction(onLastDtChange) && !isEmpty(lastReceipt)) await onLastDtChange(lastReceipt.createdAt)
 
-    logger.info({ msg: 'sent billing receipts', successCount })
+    logger.info({ msg: 'sent billing receipts', successCount, taskId })
 }
 
 
-const sendBillingReceiptsAddedNotifications = async (resendFromDt = null) => {
+const sendBillingReceiptsAddedNotifications = async (resendFromDt = null, taskId) => {
     const { prevMonthStart, thisMonthStart } = getStartDates()
     const redisClient = getRedisClient()
     const handleLastDtChange = async (createdAt) => { await redisClient.set(REDIS_LAST_DATE_KEY, createdAt) }
@@ -198,7 +199,7 @@ const sendBillingReceiptsAddedNotifications = async (resendFromDt = null) => {
         createdAt_gt: lastDt,
         deletedAt: null,
     }
-    await sendBillingReceiptsAddedNotificationsForPeriod(receiptsWhere, handleLastDtChange)
+    await sendBillingReceiptsAddedNotificationsForPeriod(receiptsWhere, handleLastDtChange, taskId)
 }
 
 module.exports = {
