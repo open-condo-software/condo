@@ -114,6 +114,9 @@ const FIND_ORGANIZATIONS_BY_TIN_QUERY = gql`
 const FIND_ORGANIZATIONS_BY_TIN_LOG_FIELDS = '{ user { id } userPhone userEmail tin id dv sender { dv fingerprint } v createdBy { id name } updatedBy { id name } createdAt updatedAt }'
 const FindOrganizationsByTinLog = generateGqlQueries('FindOrganizationsByTinLog', FIND_ORGANIZATIONS_BY_TIN_LOG_FIELDS)
 
+const ORGANIZATION_EMPLOYEE_REQUEST_FIELDS = `{ organization { id } organizationId organizationName organizationTin user { id } isAccepted isRejected decidedBy { id } decidedAt retries employee { id } ${COMMON_FIELDS} }`
+const OrganizationEmployeeRequest = generateGqlQueries('OrganizationEmployeeRequest', ORGANIZATION_EMPLOYEE_REQUEST_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -136,6 +139,7 @@ module.exports = {
     ORGANIZATION_FIELDS,
     FIND_ORGANIZATIONS_BY_TIN_QUERY,
     FindOrganizationsByTinLog,
+    OrganizationEmployeeRequest,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 
