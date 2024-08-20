@@ -13,6 +13,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAccessDeniedErrorToObjects,
+    catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 
 const {
@@ -449,12 +450,26 @@ describe('OrganizationEmployeeRequest', () => {
             }, 'Field "decidedAt" is not defined by type "OrganizationEmployeeRequestCreateInput"')
 
             const [request] = await createTestOrganizationEmployeeRequest(admin, organization, user)
-            await expectToThrowGraphQLRequestError(async () => {
-                await updateTestOrganizationEmployeeRequest(admin, request.id, { decidedBy: { connect: { id: admin.user } } })
-            }, 'Field "decidedBy" is not defined by type "OrganizationEmployeeRequestUpdateInput"')
-            await expectToThrowGraphQLRequestError(async () => {
+            await catchErrorFrom(async () => {
+                await updateTestOrganizationEmployeeRequest(admin, request.id, { decidedBy: { connect: { id: admin.user.id } } })
+            }, (caught) => {
+                expect(caught.errors[0].message).toBe('You do not have access to this resource')
+                expect(caught.errors[0].data).toEqual(expect.objectContaining({
+                    type: 'mutation',
+                    target: 'updateOrganizationEmployeeRequest',
+                    restrictedFields: ['decidedBy'],
+                }))
+            })
+            await catchErrorFrom(async () => {
                 await updateTestOrganizationEmployeeRequest(admin, request.id, { decidedAt: new Date().toISOString() })
-            }, 'Field "decidedAt" is not defined by type "OrganizationEmployeeRequestUpdateInput"')
+            }, (caught) => {
+                expect(caught.errors[0].message).toBe('You do not have access to this resource')
+                expect(caught.errors[0].data).toEqual(expect.objectContaining({
+                    type: 'mutation',
+                    target: 'updateOrganizationEmployeeRequest',
+                    restrictedFields: ['decidedAt'],
+                }))
+            })
         })
 
         test('"decidedBy", "decidedAt" fields should be auto-set from authed item when set "isAccepted" or "isRejected"', async () => {

@@ -35,6 +35,7 @@ const { REPLACE_ORGANIZATION_EMPLOYEE_ROLE_MUTATION } = require('@condo/domains/
 const { FIND_ORGANIZATIONS_BY_TIN_QUERY } = require('@condo/domains/organization/gql')
 const { FindOrganizationsByTinLog: FindOrganizationsByTinLogGQL } = require('@condo/domains/organization/gql')
 const { OrganizationEmployeeRequest: OrganizationEmployeeRequestGQL } = require('@condo/domains/organization/gql')
+const { SEND_ORGANIZATION_EMPLOYEE_REQUEST_MUTATION } = require('@condo/domains/organization/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const OrganizationEmployeeRole = generateGQLTestUtils(OrganizationEmployeeRoleGQL)
@@ -455,6 +456,20 @@ async function updateTestOrganizationEmployeeRequest (client, id, extraAttrs = {
     return [obj, attrs]
 }
 
+
+async function sendOrganizationEmployeeRequestByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(SEND_ORGANIZATION_EMPLOYEE_REQUEST_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -484,5 +499,6 @@ module.exports = {
     findOrganizationsByTinByTestClient,
     FindOrganizationsByTinLog, createTestFindOrganizationsByTinLog, updateTestFindOrganizationsByTinLog,
     OrganizationEmployeeRequest, createTestOrganizationEmployeeRequest, updateTestOrganizationEmployeeRequest,
+    sendOrganizationEmployeeRequestByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

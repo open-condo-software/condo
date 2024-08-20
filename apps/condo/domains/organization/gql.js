@@ -117,6 +117,12 @@ const FindOrganizationsByTinLog = generateGqlQueries('FindOrganizationsByTinLog'
 const ORGANIZATION_EMPLOYEE_REQUEST_FIELDS = `{ organization { id } organizationId organizationName organizationTin user { id } isAccepted isRejected decidedBy { id } decidedAt retries employee { id } ${COMMON_FIELDS} }`
 const OrganizationEmployeeRequest = generateGqlQueries('OrganizationEmployeeRequest', ORGANIZATION_EMPLOYEE_REQUEST_FIELDS)
 
+const SEND_ORGANIZATION_EMPLOYEE_REQUEST_MUTATION = gql`
+    mutation sendOrganizationEmployeeRequest ($data: SendOrganizationEmployeeRequestInput!) {
+        result: sendOrganizationEmployeeRequest(data: $data) { organization { id } organizationId organizationName organizationTin user { id } isAccepted isRejected decidedBy { id } decidedAt retries employee { id } ${COMMON_FIELDS} }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -140,6 +146,7 @@ module.exports = {
     FIND_ORGANIZATIONS_BY_TIN_QUERY,
     FindOrganizationsByTinLog,
     OrganizationEmployeeRequest,
+    SEND_ORGANIZATION_EMPLOYEE_REQUEST_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 
