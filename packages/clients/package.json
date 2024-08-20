@@ -12,7 +12,7 @@
         "@open-condo/config": "workspace:^",
         "dotenv": "^16.3.1"
     },
-    "repository": "https://github.com/open-condo-software/condo/tree/master/packages/clients",
+    "repository": "https://github.com/open-condo-software/condo/tree/main/packages/clients",
     "author": {
         "name": "Alexander Naydenov",
         "email": "anaydionov@doma.ai",

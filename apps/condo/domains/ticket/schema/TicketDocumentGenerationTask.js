@@ -4,11 +4,11 @@
 
 const { canOnlyServerSideWithoutUserRequest } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT  } } = require('@open-condo/keystone/errors')
+const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const { WRONG_VALUE } = require('@condo/domains/common/constants/errors')
-const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const access = require('@condo/domains/ticket/access/TicketDocumentGenerationTask')

@@ -49,7 +49,6 @@ function checkSendingPossibility (newsItem) {
 }
 
 /**
- * @param context
  * @param {NewsItem} newsItem
  * @param {string} taskId
  * @returns {Promise<void>}
@@ -61,11 +60,13 @@ async function sendNotifications (newsItem, taskId) {
 
     const scopes = await find('NewsItemScope', { newsItem: { id: newsItem.id, deletedAt: null }, deletedAt: null })
 
+    const gelAllLikeScopes = scopes.map((scope) => ({ unitType: scope.unitType, unitName: scope.unitName, property: { id: scope.property } }))
+
     const residentsData = []
     await allItemsQueryByChunks({
         schemaName: 'Resident',
         where: {
-            ...queryFindResidentsByOrganizationAndScopes(newsItem.organization.id, scopes),
+            ...queryFindResidentsByOrganizationAndScopes(newsItem.organization.id, gelAllLikeScopes),
             deletedAt: null,
         },
         chunkSize: 50,

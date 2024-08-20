@@ -5,12 +5,13 @@
 const { get, uniq, compact } = require('lodash')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { getById, find } = require('@open-condo/keystone/schema')
+const { getById } = require('@open-condo/keystone/schema')
 
 const {
     checkPermissionsInEmployedOrRelatedOrganizations,
     getEmployedOrRelatedOrganizationsByPermissions,
 } = require('@condo/domains/organization/utils/accessSchema')
+const { getUserResidents, getUserServiceConsumers } = require('@condo/domains/resident/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { STAFF } = require('@condo/domains/user/constants/common')
 
@@ -20,14 +21,10 @@ async function canReadMarketItemFiles ({ authentication: { item: user }, context
     if (user.isAdmin || user.isSupport) return {}
     if (user.type === RESIDENT) {
         // TODO (DOMA-7503) use PriceScope to check access
-        const userResidents = await find('Resident', { user: { id: user.id }, deletedAt: null })
+        const userResidents = await getUserResidents(context, user)
         if (!userResidents.length) return false
         const residentOrganizationsIds = compact(userResidents.map(resident => get(resident, 'organization')))
-        const residentsIds = userResidents.map(resident => resident.id)
-        const userServiceConsumers = await find('ServiceConsumer', {
-            resident: { id_in: residentsIds },
-            deletedAt: null,
-        })
+        const userServiceConsumers = await getUserServiceConsumers(context, user)
         const serviceConsumerOrganizationIds = userServiceConsumers.map(sc => sc.organization)
         const organizationIds = [...residentOrganizationsIds, ...serviceConsumerOrganizationIds]
         if (organizationIds.length) {
@@ -73,7 +70,7 @@ async function canManageMarketItemFiles ({ authentication: { item: user }, origi
             const marketItemId = get(originalInput, ['marketItem', 'connect', 'id'], null)
             // all staff users can create files without market items
             if (!marketItemId) return true
-            
+
             marketItem = await getById('MarketItem', marketItemId)
         } else if (operation === 'update') {
             const marketItemFile = await getById('MarketItemFile', itemId)

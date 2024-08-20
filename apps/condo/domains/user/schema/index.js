@@ -9,7 +9,6 @@ const { CheckUserExistenceService } = require('./CheckUserExistenceService')
 const { ConfirmPhoneAction } = require('./ConfirmPhoneAction')
 const { ConfirmPhoneActionService } = require('./ConfirmPhoneActionService')
 const { ExternalTokenAccessRight } = require('./ExternalTokenAccessRight')
-const { ForgotPasswordAction  } = require('./ForgotPasswordAction')
 const { ForgotPasswordService } = require('./ForgotPasswordService')
 const { GetAccessTokenByUserIdService } = require('./GetAccessTokenByUserIdService')
 const { OidcClient } = require('./OidcClient')
@@ -28,7 +27,6 @@ module.exports = {
     User,
     RegisterNewUserService,
     AuthenticateUserWithPhoneAndPasswordService,
-    ForgotPasswordAction,
     ForgotPasswordService,
     ConfirmPhoneAction,
     ConfirmPhoneActionService,

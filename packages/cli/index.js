@@ -208,10 +208,11 @@ async function prepareCondoAppOidcConfig (appName) {
     return { serverUrl, clientId, clientSecret }
 }
 
-async function prepareCondoAppB2BAppConfig (appName, p2pAppName) {
-    const appUrl = await getAppServerUrl(appName)
+async function prepareCondoAppB2BAppConfig (appName, b2bAppName, withLaunchRoute) {
+    let appUrl = await getAppServerUrl(appName)
+    appUrl = withLaunchRoute ? (appUrl + '/launch') : appUrl
     const opts = JSON.stringify({ appUrl, displayPriority: 2 })
-    await safeExec(`yarn workspace @app/condo node ./bin/create-b2bapp.js ${p2pAppName} ${JSON.stringify(opts)}`)
+    await safeExec(`yarn workspace @app/condo node ./bin/create-b2bapp.js ${b2bAppName} ${JSON.stringify(opts)} ${appName}`)
     return { appUrl }
 }
 

@@ -5,11 +5,11 @@
 const { get, isEmpty, isUndefined, isNull } = require('lodash')
 
 const userAccess = require('@open-condo/keystone/access')
+const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
-const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const access = require('@condo/domains/user/access/User')

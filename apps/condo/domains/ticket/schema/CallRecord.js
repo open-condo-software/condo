@@ -5,11 +5,11 @@
 const { get } = require('lodash')
 
 const { GQLError } = require('@open-condo/keystone/errors')
+const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const { PHONE_FIELD } = require('@condo/domains/common/schema/fields')
-const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/ticket/access/CallRecord')
 const { CALL_RECORD_ERRORS } = require('@condo/domains/ticket/constants/errors')

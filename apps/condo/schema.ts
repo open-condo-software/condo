@@ -3843,18 +3843,22 @@ export type B2BAppNewsSharingConfig = {
   _label_?: Maybe<Scalars['String']>;
   /**  Short and simple name of the external source. For example: Telegram  */
   name?: Maybe<Scalars['String']>;
-  /**  URL that implements publishing NewsItem method  */
-  publishUrl?: Maybe<Scalars['String']>;
-  /**  Icon of the app: Telegram Icon / WhatsApp Icon  */
+  /**  App icon. For example: Telegram app icon  */
   icon?: Maybe<File>;
-  /**  Preview picture: might be app screenshot  */
+  /**  Preview image. For example: Telegram app screenshot  */
   previewPicture?: Maybe<File>;
-  /**  URL that returns HTML preview NewsItem  */
+  /**  Push notification preferences for each B2BApp. The available options include: notifications are sent only for emergency alerts, all notifications are turned off, or all notifications are enabled  */
+  pushNotificationSettings?: Maybe<B2BAppNewsSharingConfigPushNotificationSettingType>;
+  /**  URL that publishes NewsItem. Should implement POST publish method. It will be called once news item is ready to be published. Check News domain for reference  */
+  publishUrl?: Maybe<Scalars['String']>;
+  /**  URL that returns rendered HTML preview of News Item. Used to render NewsItem preview. If not provided, app preview will not be rendered  */
   previewUrl?: Maybe<Scalars['String']>;
-  /**  URL that implements getRecipients function  */
+  /**  URL that returns chats and/or channels. Should implement POST getRecipients method. If provided Select control with data from this endpoint will be used in /news/create page, If not provided, condo control will be used  */
   getRecipientsUrl?: Maybe<Scalars['String']>;
-  /**  URL that implements customForm. If not filled, then app will use standard news form  */
+  /**  URL that implements customForm. Use only if you need custom NewsItemSharing data structure, for example if . Allows to provide custom UI for sending news. If not provided app will use condo news form  */
   customFormUrl?: Maybe<Scalars['String']>;
+  /**  URL that returns number of subscribers for condo scopes. Should implement POST customGetRecipientsCounters method. Allows to provide custom values for recipients counter. If not provided app will use data from getRecipients. If getRecipients is not provided, recipients counter will not be rendered  */
+  getRecipientsCountersUrl?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3873,12 +3877,14 @@ export type B2BAppNewsSharingConfig = {
 
 export type B2BAppNewsSharingConfigCreateInput = {
   name?: Maybe<Scalars['String']>;
-  publishUrl?: Maybe<Scalars['String']>;
   icon?: Maybe<Scalars['Upload']>;
   previewPicture?: Maybe<Scalars['Upload']>;
+  pushNotificationSettings?: Maybe<B2BAppNewsSharingConfigPushNotificationSettingType>;
+  publishUrl?: Maybe<Scalars['String']>;
   previewUrl?: Maybe<Scalars['String']>;
   getRecipientsUrl?: Maybe<Scalars['String']>;
   customFormUrl?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3902,12 +3908,14 @@ export type B2BAppNewsSharingConfigHistoryRecord = {
    */
   _label_?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
-  publishUrl?: Maybe<Scalars['String']>;
   icon?: Maybe<Scalars['JSON']>;
   previewPicture?: Maybe<Scalars['JSON']>;
+  pushNotificationSettings?: Maybe<Scalars['String']>;
+  publishUrl?: Maybe<Scalars['String']>;
   previewUrl?: Maybe<Scalars['String']>;
   getRecipientsUrl?: Maybe<Scalars['String']>;
   customFormUrl?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3925,12 +3933,14 @@ export type B2BAppNewsSharingConfigHistoryRecord = {
 
 export type B2BAppNewsSharingConfigHistoryRecordCreateInput = {
   name?: Maybe<Scalars['String']>;
-  publishUrl?: Maybe<Scalars['String']>;
   icon?: Maybe<Scalars['JSON']>;
   previewPicture?: Maybe<Scalars['JSON']>;
+  pushNotificationSettings?: Maybe<Scalars['String']>;
+  publishUrl?: Maybe<Scalars['String']>;
   previewUrl?: Maybe<Scalars['String']>;
   getRecipientsUrl?: Maybe<Scalars['String']>;
   customFormUrl?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3953,12 +3963,14 @@ export enum B2BAppNewsSharingConfigHistoryRecordHistoryActionType {
 
 export type B2BAppNewsSharingConfigHistoryRecordUpdateInput = {
   name?: Maybe<Scalars['String']>;
-  publishUrl?: Maybe<Scalars['String']>;
   icon?: Maybe<Scalars['JSON']>;
   previewPicture?: Maybe<Scalars['JSON']>;
+  pushNotificationSettings?: Maybe<Scalars['String']>;
+  publishUrl?: Maybe<Scalars['String']>;
   previewUrl?: Maybe<Scalars['String']>;
   getRecipientsUrl?: Maybe<Scalars['String']>;
   customFormUrl?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3994,6 +4006,32 @@ export type B2BAppNewsSharingConfigHistoryRecordWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  icon?: Maybe<Scalars['JSON']>;
+  icon_not?: Maybe<Scalars['JSON']>;
+  icon_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  icon_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  previewPicture?: Maybe<Scalars['JSON']>;
+  previewPicture_not?: Maybe<Scalars['JSON']>;
+  previewPicture_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  previewPicture_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  pushNotificationSettings?: Maybe<Scalars['String']>;
+  pushNotificationSettings_not?: Maybe<Scalars['String']>;
+  pushNotificationSettings_contains?: Maybe<Scalars['String']>;
+  pushNotificationSettings_not_contains?: Maybe<Scalars['String']>;
+  pushNotificationSettings_starts_with?: Maybe<Scalars['String']>;
+  pushNotificationSettings_not_starts_with?: Maybe<Scalars['String']>;
+  pushNotificationSettings_ends_with?: Maybe<Scalars['String']>;
+  pushNotificationSettings_not_ends_with?: Maybe<Scalars['String']>;
+  pushNotificationSettings_i?: Maybe<Scalars['String']>;
+  pushNotificationSettings_not_i?: Maybe<Scalars['String']>;
+  pushNotificationSettings_contains_i?: Maybe<Scalars['String']>;
+  pushNotificationSettings_not_contains_i?: Maybe<Scalars['String']>;
+  pushNotificationSettings_starts_with_i?: Maybe<Scalars['String']>;
+  pushNotificationSettings_not_starts_with_i?: Maybe<Scalars['String']>;
+  pushNotificationSettings_ends_with_i?: Maybe<Scalars['String']>;
+  pushNotificationSettings_not_ends_with_i?: Maybe<Scalars['String']>;
+  pushNotificationSettings_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  pushNotificationSettings_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   publishUrl?: Maybe<Scalars['String']>;
   publishUrl_not?: Maybe<Scalars['String']>;
   publishUrl_contains?: Maybe<Scalars['String']>;
@@ -4012,14 +4050,6 @@ export type B2BAppNewsSharingConfigHistoryRecordWhereInput = {
   publishUrl_not_ends_with_i?: Maybe<Scalars['String']>;
   publishUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   publishUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  icon?: Maybe<Scalars['JSON']>;
-  icon_not?: Maybe<Scalars['JSON']>;
-  icon_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  icon_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  previewPicture?: Maybe<Scalars['JSON']>;
-  previewPicture_not?: Maybe<Scalars['JSON']>;
-  previewPicture_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  previewPicture_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   previewUrl?: Maybe<Scalars['String']>;
   previewUrl_not?: Maybe<Scalars['String']>;
   previewUrl_contains?: Maybe<Scalars['String']>;
@@ -4074,6 +4104,24 @@ export type B2BAppNewsSharingConfigHistoryRecordWhereInput = {
   customFormUrl_not_ends_with_i?: Maybe<Scalars['String']>;
   customFormUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   customFormUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  getRecipientsCountersUrl?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_not?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_contains?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_not_contains?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_starts_with?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_not_starts_with?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_ends_with?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_not_ends_with?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_i?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_not_i?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_contains_i?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_not_contains_i?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_starts_with_i?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_not_starts_with_i?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_ends_with_i?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_not_ends_with_i?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  getRecipientsCountersUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -4165,6 +4213,12 @@ export type B2BAppNewsSharingConfigHistoryRecordsUpdateInput = {
   data?: Maybe<B2BAppNewsSharingConfigHistoryRecordUpdateInput>;
 };
 
+export enum B2BAppNewsSharingConfigPushNotificationSettingType {
+  OnlyEmergency = 'ONLY_EMERGENCY',
+  Enabled = 'ENABLED',
+  Disabled = 'DISABLED'
+}
+
 export type B2BAppNewsSharingConfigRelateToOneInput = {
   create?: Maybe<B2BAppNewsSharingConfigCreateInput>;
   connect?: Maybe<B2BAppNewsSharingConfigWhereUniqueInput>;
@@ -4174,12 +4228,14 @@ export type B2BAppNewsSharingConfigRelateToOneInput = {
 
 export type B2BAppNewsSharingConfigUpdateInput = {
   name?: Maybe<Scalars['String']>;
-  publishUrl?: Maybe<Scalars['String']>;
   icon?: Maybe<Scalars['Upload']>;
   previewPicture?: Maybe<Scalars['Upload']>;
+  pushNotificationSettings?: Maybe<B2BAppNewsSharingConfigPushNotificationSettingType>;
+  publishUrl?: Maybe<Scalars['String']>;
   previewUrl?: Maybe<Scalars['String']>;
   getRecipientsUrl?: Maybe<Scalars['String']>;
   customFormUrl?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -4212,6 +4268,18 @@ export type B2BAppNewsSharingConfigWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  icon?: Maybe<Scalars['String']>;
+  icon_not?: Maybe<Scalars['String']>;
+  icon_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  icon_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  previewPicture?: Maybe<Scalars['String']>;
+  previewPicture_not?: Maybe<Scalars['String']>;
+  previewPicture_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  previewPicture_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  pushNotificationSettings?: Maybe<B2BAppNewsSharingConfigPushNotificationSettingType>;
+  pushNotificationSettings_not?: Maybe<B2BAppNewsSharingConfigPushNotificationSettingType>;
+  pushNotificationSettings_in?: Maybe<Array<Maybe<B2BAppNewsSharingConfigPushNotificationSettingType>>>;
+  pushNotificationSettings_not_in?: Maybe<Array<Maybe<B2BAppNewsSharingConfigPushNotificationSettingType>>>;
   publishUrl?: Maybe<Scalars['String']>;
   publishUrl_not?: Maybe<Scalars['String']>;
   publishUrl_contains?: Maybe<Scalars['String']>;
@@ -4230,14 +4298,6 @@ export type B2BAppNewsSharingConfigWhereInput = {
   publishUrl_not_ends_with_i?: Maybe<Scalars['String']>;
   publishUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   publishUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  icon?: Maybe<Scalars['String']>;
-  icon_not?: Maybe<Scalars['String']>;
-  icon_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  icon_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  previewPicture?: Maybe<Scalars['String']>;
-  previewPicture_not?: Maybe<Scalars['String']>;
-  previewPicture_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  previewPicture_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   previewUrl?: Maybe<Scalars['String']>;
   previewUrl_not?: Maybe<Scalars['String']>;
   previewUrl_contains?: Maybe<Scalars['String']>;
@@ -4292,6 +4352,24 @@ export type B2BAppNewsSharingConfigWhereInput = {
   customFormUrl_not_ends_with_i?: Maybe<Scalars['String']>;
   customFormUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   customFormUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  getRecipientsCountersUrl?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_not?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_contains?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_not_contains?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_starts_with?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_not_starts_with?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_ends_with?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_not_ends_with?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_i?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_not_i?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_contains_i?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_not_contains_i?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_starts_with_i?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_not_starts_with_i?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_ends_with_i?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_not_ends_with_i?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  getRecipientsCountersUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -19373,6 +19451,13 @@ export type BillingReceiptsRecipientFieldInput = {
   classificationCode?: Maybe<Scalars['String']>;
 };
 
+export type BillingReceiptsSumInput = {
+  period: Scalars['String'];
+  organization?: Maybe<OrganizationWhereUniqueInput>;
+  tin?: Maybe<Scalars['String']>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
+};
+
 export type BillingReceiptsSumOutput = {
   __typename?: 'BillingReceiptsSumOutput';
   sum: Scalars['String'];
@@ -21116,15 +21201,6 @@ export type ChangePhoneNumberResidentUserInput = {
 
 export type ChangePhoneNumberResidentUserOutput = {
   __typename?: 'ChangePhoneNumberResidentUserOutput';
-  status: Scalars['String'];
-};
-
-export type CheckPasswordRecoveryTokenInput = {
-  token: Scalars['String'];
-};
-
-export type CheckPasswordRecoveryTokenOutput = {
-  __typename?: 'CheckPasswordRecoveryTokenOutput';
   status: Scalars['String'];
 };
 
@@ -24824,412 +24900,6 @@ export type FindOrganizationsForAddressInput = {
   accountNumber?: Maybe<Scalars['String']>;
 };
 
-/**  Forgot password actions is used for anonymous user password recovery procedure  */
-export type ForgotPasswordAction = {
-  __typename?: 'ForgotPasswordAction';
-  /**
-   * This virtual field will be resolved in one of the following ways (in this order):
-   *  1. Execution of 'labelResolver' set on the ForgotPasswordAction List config, or
-   *  2. As an alias to the field set on 'labelField' in the ForgotPasswordAction List config, or
-   *  3. As an alias to a 'name' field on the ForgotPasswordAction List (if one exists), or
-   *  4. As an alias to the 'id' field on the ForgotPasswordAction List.
-   */
-  _label_?: Maybe<Scalars['String']>;
-  /**  Ref to the user. The object will be deleted if the user ceases to exist  */
-  user?: Maybe<User>;
-  /**  Unique token to complete confirmation  */
-  token?: Maybe<Scalars['String']>;
-  /**  DateTime when confirm phone action was started  */
-  requestedAt?: Maybe<Scalars['String']>;
-  /**  When password recovery action becomes invalid  */
-  expiresAt?: Maybe<Scalars['String']>;
-  /**  When password recovery action was completed  */
-  usedAt?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
-  createdBy?: Maybe<User>;
-  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
-  updatedBy?: Maybe<User>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['String']>;
-  /**  Data structure Version  */
-  dv?: Maybe<Scalars['Int']>;
-  /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<SenderField>;
-};
-
-export type ForgotPasswordActionCreateInput = {
-  user?: Maybe<UserRelateToOneInput>;
-  token?: Maybe<Scalars['String']>;
-  requestedAt?: Maybe<Scalars['String']>;
-  expiresAt?: Maybe<Scalars['String']>;
-  usedAt?: Maybe<Scalars['String']>;
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<UserRelateToOneInput>;
-  updatedBy?: Maybe<UserRelateToOneInput>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['String']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<SenderFieldInput>;
-};
-
-/**  A keystone list  */
-export type ForgotPasswordActionHistoryRecord = {
-  __typename?: 'ForgotPasswordActionHistoryRecord';
-  /**
-   * This virtual field will be resolved in one of the following ways (in this order):
-   *  1. Execution of 'labelResolver' set on the ForgotPasswordActionHistoryRecord List config, or
-   *  2. As an alias to the field set on 'labelField' in the ForgotPasswordActionHistoryRecord List config, or
-   *  3. As an alias to a 'name' field on the ForgotPasswordActionHistoryRecord List (if one exists), or
-   *  4. As an alias to the 'id' field on the ForgotPasswordActionHistoryRecord List.
-   */
-  _label_?: Maybe<Scalars['String']>;
-  user?: Maybe<Scalars['String']>;
-  token?: Maybe<Scalars['String']>;
-  requestedAt?: Maybe<Scalars['String']>;
-  expiresAt?: Maybe<Scalars['String']>;
-  usedAt?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<Scalars['String']>;
-  updatedBy?: Maybe<Scalars['String']>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['JSON']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
-  history_date?: Maybe<Scalars['String']>;
-  history_action?: Maybe<ForgotPasswordActionHistoryRecordHistoryActionType>;
-  history_id?: Maybe<Scalars['String']>;
-};
-
-export type ForgotPasswordActionHistoryRecordCreateInput = {
-  user?: Maybe<Scalars['String']>;
-  token?: Maybe<Scalars['String']>;
-  requestedAt?: Maybe<Scalars['String']>;
-  expiresAt?: Maybe<Scalars['String']>;
-  usedAt?: Maybe<Scalars['String']>;
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<Scalars['String']>;
-  updatedBy?: Maybe<Scalars['String']>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['JSON']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
-  history_date?: Maybe<Scalars['String']>;
-  history_action?: Maybe<ForgotPasswordActionHistoryRecordHistoryActionType>;
-  history_id?: Maybe<Scalars['String']>;
-};
-
-export enum ForgotPasswordActionHistoryRecordHistoryActionType {
-  C = 'c',
-  U = 'u',
-  D = 'd'
-}
-
-export type ForgotPasswordActionHistoryRecordUpdateInput = {
-  user?: Maybe<Scalars['String']>;
-  token?: Maybe<Scalars['String']>;
-  requestedAt?: Maybe<Scalars['String']>;
-  expiresAt?: Maybe<Scalars['String']>;
-  usedAt?: Maybe<Scalars['String']>;
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<Scalars['String']>;
-  updatedBy?: Maybe<Scalars['String']>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['JSON']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
-  history_date?: Maybe<Scalars['String']>;
-  history_action?: Maybe<ForgotPasswordActionHistoryRecordHistoryActionType>;
-  history_id?: Maybe<Scalars['String']>;
-};
-
-export type ForgotPasswordActionHistoryRecordWhereInput = {
-  AND?: Maybe<Array<Maybe<ForgotPasswordActionHistoryRecordWhereInput>>>;
-  OR?: Maybe<Array<Maybe<ForgotPasswordActionHistoryRecordWhereInput>>>;
-  user?: Maybe<Scalars['String']>;
-  user_not?: Maybe<Scalars['String']>;
-  user_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  user_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  token?: Maybe<Scalars['String']>;
-  token_not?: Maybe<Scalars['String']>;
-  token_contains?: Maybe<Scalars['String']>;
-  token_not_contains?: Maybe<Scalars['String']>;
-  token_starts_with?: Maybe<Scalars['String']>;
-  token_not_starts_with?: Maybe<Scalars['String']>;
-  token_ends_with?: Maybe<Scalars['String']>;
-  token_not_ends_with?: Maybe<Scalars['String']>;
-  token_i?: Maybe<Scalars['String']>;
-  token_not_i?: Maybe<Scalars['String']>;
-  token_contains_i?: Maybe<Scalars['String']>;
-  token_not_contains_i?: Maybe<Scalars['String']>;
-  token_starts_with_i?: Maybe<Scalars['String']>;
-  token_not_starts_with_i?: Maybe<Scalars['String']>;
-  token_ends_with_i?: Maybe<Scalars['String']>;
-  token_not_ends_with_i?: Maybe<Scalars['String']>;
-  token_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  token_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  requestedAt?: Maybe<Scalars['String']>;
-  requestedAt_not?: Maybe<Scalars['String']>;
-  requestedAt_lt?: Maybe<Scalars['String']>;
-  requestedAt_lte?: Maybe<Scalars['String']>;
-  requestedAt_gt?: Maybe<Scalars['String']>;
-  requestedAt_gte?: Maybe<Scalars['String']>;
-  requestedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  requestedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  expiresAt?: Maybe<Scalars['String']>;
-  expiresAt_not?: Maybe<Scalars['String']>;
-  expiresAt_lt?: Maybe<Scalars['String']>;
-  expiresAt_lte?: Maybe<Scalars['String']>;
-  expiresAt_gt?: Maybe<Scalars['String']>;
-  expiresAt_gte?: Maybe<Scalars['String']>;
-  expiresAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  expiresAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  usedAt?: Maybe<Scalars['String']>;
-  usedAt_not?: Maybe<Scalars['String']>;
-  usedAt_lt?: Maybe<Scalars['String']>;
-  usedAt_lte?: Maybe<Scalars['String']>;
-  usedAt_gt?: Maybe<Scalars['String']>;
-  usedAt_gte?: Maybe<Scalars['String']>;
-  usedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  usedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  id?: Maybe<Scalars['ID']>;
-  id_not?: Maybe<Scalars['ID']>;
-  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  v?: Maybe<Scalars['Int']>;
-  v_not?: Maybe<Scalars['Int']>;
-  v_lt?: Maybe<Scalars['Int']>;
-  v_lte?: Maybe<Scalars['Int']>;
-  v_gt?: Maybe<Scalars['Int']>;
-  v_gte?: Maybe<Scalars['Int']>;
-  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  createdAt?: Maybe<Scalars['String']>;
-  createdAt_not?: Maybe<Scalars['String']>;
-  createdAt_lt?: Maybe<Scalars['String']>;
-  createdAt_lte?: Maybe<Scalars['String']>;
-  createdAt_gt?: Maybe<Scalars['String']>;
-  createdAt_gte?: Maybe<Scalars['String']>;
-  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedAt?: Maybe<Scalars['String']>;
-  updatedAt_not?: Maybe<Scalars['String']>;
-  updatedAt_lt?: Maybe<Scalars['String']>;
-  updatedAt_lte?: Maybe<Scalars['String']>;
-  updatedAt_gt?: Maybe<Scalars['String']>;
-  updatedAt_gte?: Maybe<Scalars['String']>;
-  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdBy?: Maybe<Scalars['String']>;
-  createdBy_not?: Maybe<Scalars['String']>;
-  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedBy?: Maybe<Scalars['String']>;
-  updatedBy_not?: Maybe<Scalars['String']>;
-  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  deletedAt?: Maybe<Scalars['String']>;
-  deletedAt_not?: Maybe<Scalars['String']>;
-  deletedAt_lt?: Maybe<Scalars['String']>;
-  deletedAt_lte?: Maybe<Scalars['String']>;
-  deletedAt_gt?: Maybe<Scalars['String']>;
-  deletedAt_gte?: Maybe<Scalars['String']>;
-  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  newId?: Maybe<Scalars['JSON']>;
-  newId_not?: Maybe<Scalars['JSON']>;
-  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  dv?: Maybe<Scalars['Int']>;
-  dv_not?: Maybe<Scalars['Int']>;
-  dv_lt?: Maybe<Scalars['Int']>;
-  dv_lte?: Maybe<Scalars['Int']>;
-  dv_gt?: Maybe<Scalars['Int']>;
-  dv_gte?: Maybe<Scalars['Int']>;
-  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  history_date?: Maybe<Scalars['String']>;
-  history_date_not?: Maybe<Scalars['String']>;
-  history_date_lt?: Maybe<Scalars['String']>;
-  history_date_lte?: Maybe<Scalars['String']>;
-  history_date_gt?: Maybe<Scalars['String']>;
-  history_date_gte?: Maybe<Scalars['String']>;
-  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  history_action?: Maybe<ForgotPasswordActionHistoryRecordHistoryActionType>;
-  history_action_not?: Maybe<ForgotPasswordActionHistoryRecordHistoryActionType>;
-  history_action_in?: Maybe<Array<Maybe<ForgotPasswordActionHistoryRecordHistoryActionType>>>;
-  history_action_not_in?: Maybe<Array<Maybe<ForgotPasswordActionHistoryRecordHistoryActionType>>>;
-  history_id?: Maybe<Scalars['String']>;
-  history_id_not?: Maybe<Scalars['String']>;
-  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-};
-
-export type ForgotPasswordActionHistoryRecordWhereUniqueInput = {
-  id: Scalars['ID'];
-};
-
-export type ForgotPasswordActionHistoryRecordsCreateInput = {
-  data?: Maybe<ForgotPasswordActionHistoryRecordCreateInput>;
-};
-
-export type ForgotPasswordActionHistoryRecordsUpdateInput = {
-  id: Scalars['ID'];
-  data?: Maybe<ForgotPasswordActionHistoryRecordUpdateInput>;
-};
-
-export type ForgotPasswordActionUpdateInput = {
-  user?: Maybe<UserRelateToOneInput>;
-  token?: Maybe<Scalars['String']>;
-  requestedAt?: Maybe<Scalars['String']>;
-  expiresAt?: Maybe<Scalars['String']>;
-  usedAt?: Maybe<Scalars['String']>;
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<UserRelateToOneInput>;
-  updatedBy?: Maybe<UserRelateToOneInput>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['String']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<SenderFieldInput>;
-};
-
-export type ForgotPasswordActionWhereInput = {
-  AND?: Maybe<Array<Maybe<ForgotPasswordActionWhereInput>>>;
-  OR?: Maybe<Array<Maybe<ForgotPasswordActionWhereInput>>>;
-  user?: Maybe<UserWhereInput>;
-  user_is_null?: Maybe<Scalars['Boolean']>;
-  token?: Maybe<Scalars['String']>;
-  token_not?: Maybe<Scalars['String']>;
-  token_contains?: Maybe<Scalars['String']>;
-  token_not_contains?: Maybe<Scalars['String']>;
-  token_starts_with?: Maybe<Scalars['String']>;
-  token_not_starts_with?: Maybe<Scalars['String']>;
-  token_ends_with?: Maybe<Scalars['String']>;
-  token_not_ends_with?: Maybe<Scalars['String']>;
-  token_i?: Maybe<Scalars['String']>;
-  token_not_i?: Maybe<Scalars['String']>;
-  token_contains_i?: Maybe<Scalars['String']>;
-  token_not_contains_i?: Maybe<Scalars['String']>;
-  token_starts_with_i?: Maybe<Scalars['String']>;
-  token_not_starts_with_i?: Maybe<Scalars['String']>;
-  token_ends_with_i?: Maybe<Scalars['String']>;
-  token_not_ends_with_i?: Maybe<Scalars['String']>;
-  token_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  token_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  requestedAt?: Maybe<Scalars['String']>;
-  requestedAt_not?: Maybe<Scalars['String']>;
-  requestedAt_lt?: Maybe<Scalars['String']>;
-  requestedAt_lte?: Maybe<Scalars['String']>;
-  requestedAt_gt?: Maybe<Scalars['String']>;
-  requestedAt_gte?: Maybe<Scalars['String']>;
-  requestedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  requestedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  expiresAt?: Maybe<Scalars['String']>;
-  expiresAt_not?: Maybe<Scalars['String']>;
-  expiresAt_lt?: Maybe<Scalars['String']>;
-  expiresAt_lte?: Maybe<Scalars['String']>;
-  expiresAt_gt?: Maybe<Scalars['String']>;
-  expiresAt_gte?: Maybe<Scalars['String']>;
-  expiresAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  expiresAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  usedAt?: Maybe<Scalars['String']>;
-  usedAt_not?: Maybe<Scalars['String']>;
-  usedAt_lt?: Maybe<Scalars['String']>;
-  usedAt_lte?: Maybe<Scalars['String']>;
-  usedAt_gt?: Maybe<Scalars['String']>;
-  usedAt_gte?: Maybe<Scalars['String']>;
-  usedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  usedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  id?: Maybe<Scalars['ID']>;
-  id_not?: Maybe<Scalars['ID']>;
-  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  v?: Maybe<Scalars['Int']>;
-  v_not?: Maybe<Scalars['Int']>;
-  v_lt?: Maybe<Scalars['Int']>;
-  v_lte?: Maybe<Scalars['Int']>;
-  v_gt?: Maybe<Scalars['Int']>;
-  v_gte?: Maybe<Scalars['Int']>;
-  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  createdAt?: Maybe<Scalars['String']>;
-  createdAt_not?: Maybe<Scalars['String']>;
-  createdAt_lt?: Maybe<Scalars['String']>;
-  createdAt_lte?: Maybe<Scalars['String']>;
-  createdAt_gt?: Maybe<Scalars['String']>;
-  createdAt_gte?: Maybe<Scalars['String']>;
-  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedAt?: Maybe<Scalars['String']>;
-  updatedAt_not?: Maybe<Scalars['String']>;
-  updatedAt_lt?: Maybe<Scalars['String']>;
-  updatedAt_lte?: Maybe<Scalars['String']>;
-  updatedAt_gt?: Maybe<Scalars['String']>;
-  updatedAt_gte?: Maybe<Scalars['String']>;
-  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdBy?: Maybe<UserWhereInput>;
-  createdBy_is_null?: Maybe<Scalars['Boolean']>;
-  updatedBy?: Maybe<UserWhereInput>;
-  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
-  deletedAt?: Maybe<Scalars['String']>;
-  deletedAt_not?: Maybe<Scalars['String']>;
-  deletedAt_lt?: Maybe<Scalars['String']>;
-  deletedAt_lte?: Maybe<Scalars['String']>;
-  deletedAt_gt?: Maybe<Scalars['String']>;
-  deletedAt_gte?: Maybe<Scalars['String']>;
-  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  newId?: Maybe<Scalars['String']>;
-  newId_not?: Maybe<Scalars['String']>;
-  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  dv?: Maybe<Scalars['Int']>;
-  dv_not?: Maybe<Scalars['Int']>;
-  dv_lt?: Maybe<Scalars['Int']>;
-  dv_lte?: Maybe<Scalars['Int']>;
-  dv_gt?: Maybe<Scalars['Int']>;
-  dv_gte?: Maybe<Scalars['Int']>;
-  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<SenderFieldInput>;
-  sender_not?: Maybe<SenderFieldInput>;
-  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
-  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
-};
-
-export type ForgotPasswordActionWhereUniqueInput = {
-  id: Scalars['ID'];
-};
-
-export type ForgotPasswordActionsCreateInput = {
-  data?: Maybe<ForgotPasswordActionCreateInput>;
-};
-
-export type ForgotPasswordActionsUpdateInput = {
-  id: Scalars['ID'];
-  data?: Maybe<ForgotPasswordActionUpdateInput>;
-};
-
 export type GeneratePaymentLinkCallbacksInput = {
   successUrl: Scalars['String'];
   failureUrl: Scalars['String'];
@@ -25294,6 +24964,18 @@ export type GetNewsItemsRecipientsCountersOutput = {
   __typename?: 'GetNewsItemsRecipientsCountersOutput';
   propertiesCount: Scalars['Int'];
   unitsCount: Scalars['Int'];
+  receiversCount: Scalars['Int'];
+};
+
+export type GetNewsSharingRecipientsCountersInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  b2bAppContext: B2BAppContextWhereUniqueInput;
+  newsItemScopes: Array<NewsItemScopeWhereInput>;
+};
+
+export type GetNewsSharingRecipientsCountersOutput = {
+  __typename?: 'GetNewsSharingRecipientsCountersOutput';
   receiversCount: Scalars['Int'];
 };
 
@@ -32550,7 +32232,6 @@ export enum MessageType {
   DirtyInviteNewEmployeeSms = 'DIRTY_INVITE_NEW_EMPLOYEE_SMS',
   DirtyInviteNewEmployeeEmail = 'DIRTY_INVITE_NEW_EMPLOYEE_EMAIL',
   RegisterNewUser = 'REGISTER_NEW_USER',
-  ResetPassword = 'RESET_PASSWORD',
   SmsVerify = 'SMS_VERIFY',
   DeveloperImportantNoteType = 'DEVELOPER_IMPORTANT_NOTE_TYPE',
   CustomerImportantNoteType = 'CUSTOMER_IMPORTANT_NOTE_TYPE',
@@ -38579,30 +38260,6 @@ export type Mutation = {
   deleteUser?: Maybe<User>;
   /**  Delete multiple User items by ID.  */
   deleteUsers?: Maybe<Array<Maybe<User>>>;
-  /**  Create a single ForgotPasswordActionHistoryRecord item.  */
-  createForgotPasswordActionHistoryRecord?: Maybe<ForgotPasswordActionHistoryRecord>;
-  /**  Create multiple ForgotPasswordActionHistoryRecord items.  */
-  createForgotPasswordActionHistoryRecords?: Maybe<Array<Maybe<ForgotPasswordActionHistoryRecord>>>;
-  /**  Update a single ForgotPasswordActionHistoryRecord item by ID.  */
-  updateForgotPasswordActionHistoryRecord?: Maybe<ForgotPasswordActionHistoryRecord>;
-  /**  Update multiple ForgotPasswordActionHistoryRecord items by ID.  */
-  updateForgotPasswordActionHistoryRecords?: Maybe<Array<Maybe<ForgotPasswordActionHistoryRecord>>>;
-  /**  Delete a single ForgotPasswordActionHistoryRecord item by ID.  */
-  deleteForgotPasswordActionHistoryRecord?: Maybe<ForgotPasswordActionHistoryRecord>;
-  /**  Delete multiple ForgotPasswordActionHistoryRecord items by ID.  */
-  deleteForgotPasswordActionHistoryRecords?: Maybe<Array<Maybe<ForgotPasswordActionHistoryRecord>>>;
-  /**  Create a single ForgotPasswordAction item.  */
-  createForgotPasswordAction?: Maybe<ForgotPasswordAction>;
-  /**  Create multiple ForgotPasswordAction items.  */
-  createForgotPasswordActions?: Maybe<Array<Maybe<ForgotPasswordAction>>>;
-  /**  Update a single ForgotPasswordAction item by ID.  */
-  updateForgotPasswordAction?: Maybe<ForgotPasswordAction>;
-  /**  Update multiple ForgotPasswordAction items by ID.  */
-  updateForgotPasswordActions?: Maybe<Array<Maybe<ForgotPasswordAction>>>;
-  /**  Delete a single ForgotPasswordAction item by ID.  */
-  deleteForgotPasswordAction?: Maybe<ForgotPasswordAction>;
-  /**  Delete multiple ForgotPasswordAction items by ID.  */
-  deleteForgotPasswordActions?: Maybe<Array<Maybe<ForgotPasswordAction>>>;
   /**  Create a single ConfirmPhoneActionHistoryRecord item.  */
   createConfirmPhoneActionHistoryRecord?: Maybe<ConfirmPhoneActionHistoryRecord>;
   /**  Create multiple ConfirmPhoneActionHistoryRecord items.  */
@@ -41879,59 +41536,20 @@ export type Mutation = {
   registerNewUser?: Maybe<User>;
   authenticateUserWithPhoneAndPassword?: Maybe<AuthenticateUserWithPhoneAndPasswordOutput>;
   /**
-   * Beginning of a multi-step process of a password recovery.
-   * 1. Start recovery and get token to confirm phone number
-   * 2. Confirm phone number
-   * 3. Call `changePasswordWithToken` mutation
-   *
-   *
-   *
    * **Errors**
    *
    * Following objects will be presented in `extensions` property of thrown error
    *
    * `{
-   *   "mutation": "startPasswordRecovery",
    *   "variable": [
    *     "data",
-   *     "phone"
+   *     "password"
    *   ],
    *   "code": "BAD_USER_INPUT",
-   *   "type": "USER_BY_PHONE_NOT_FOUND",
-   *   "message": "Unable to find user with specified phone",
-   *   "messageForUser": "api.user.startPasswordRecovery.USER_NOT_FOUND"
+   *   "type": "WRONG_PASSWORD_FORMAT",
+   *   "message": "Password must be in string format",
+   *   "messageForUser": "api.user.WRONG_PASSWORD_FORMAT"
    * }`
-   *
-   * `{
-   *   "mutation": "startPasswordRecovery",
-   *   "variable": [
-   *     "data",
-   *     "phone"
-   *   ],
-   *   "code": "BAD_USER_INPUT",
-   *   "type": "MULTIPLE_USERS_FOUND",
-   *   "message": "Unable to find exact one user to start password recovery",
-   *   "messageForUser": "api.user.startPasswordRecovery.MULTIPLE_USERS_FOUND"
-   * }`
-   *
-   * `{
-   *   "mutation": "startPasswordRecovery",
-   *   "variable": [
-   *     "data",
-   *     "phone"
-   *   ],
-   *   "code": "BAD_USER_INPUT",
-   *   "type": "WRONG_PHONE_FORMAT",
-   *   "message": "Wrong format of provided phone number",
-   *   "correctExample": "+79991234567",
-   *   "messageForUser": "api.common.WRONG_PHONE_FORMAT"
-   * }`
-   */
-  startPasswordRecovery?: Maybe<StartPasswordRecoveryOutput>;
-  /**
-   * **Errors**
-   *
-   * Following objects will be presented in `extensions` property of thrown error
    *
    * `{
    *   "variable": [
@@ -42017,6 +41635,29 @@ export type Mutation = {
    *   "type": "USER_NOT_FOUND",
    *   "message": "Unable to find user with specified phone",
    *   "messageForUser": "api.user.changePasswordWithToken.USER_NOT_FOUND"
+   * }`
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "dv"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "DV_VERSION_MISMATCH",
+   *   "message": "Wrong value for data version number",
+   *   "query": "checkUserExistence"
+   * }`
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "sender"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_FORMAT",
+   *   "message": "Invalid format of \"sender\" field value",
+   *   "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}",
+   *   "query": "checkUserExistence"
    * }`
    */
   changePasswordWithToken?: Maybe<ChangePasswordWithTokenOutput>;
@@ -42912,24 +42553,6 @@ export type Mutation = {
    * 			"required": false
    * 		},
    * 		"userPassword": {
-   * 			"defaultValue": "",
-   * 			"required": false
-   * 		}
-   * 	},
-   * 	"RESET_PASSWORD": {
-   * 		"dv": {
-   * 			"defaultValue": "",
-   * 			"required": true
-   * 		},
-   * 		"token": {
-   * 			"defaultValue": "",
-   * 			"required": true
-   * 		},
-   * 		"userName": {
-   * 			"defaultValue": "USERNAME",
-   * 			"required": false
-   * 		},
-   * 		"userEmail": {
    * 			"defaultValue": "",
    * 			"required": false
    * 		}
@@ -44766,68 +44389,6 @@ export type MutationDeleteUserArgs = {
 
 
 export type MutationDeleteUsersArgs = {
-  ids?: Maybe<Array<Scalars['ID']>>;
-};
-
-
-export type MutationCreateForgotPasswordActionHistoryRecordArgs = {
-  data?: Maybe<ForgotPasswordActionHistoryRecordCreateInput>;
-};
-
-
-export type MutationCreateForgotPasswordActionHistoryRecordsArgs = {
-  data?: Maybe<Array<Maybe<ForgotPasswordActionHistoryRecordsCreateInput>>>;
-};
-
-
-export type MutationUpdateForgotPasswordActionHistoryRecordArgs = {
-  id: Scalars['ID'];
-  data?: Maybe<ForgotPasswordActionHistoryRecordUpdateInput>;
-};
-
-
-export type MutationUpdateForgotPasswordActionHistoryRecordsArgs = {
-  data?: Maybe<Array<Maybe<ForgotPasswordActionHistoryRecordsUpdateInput>>>;
-};
-
-
-export type MutationDeleteForgotPasswordActionHistoryRecordArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationDeleteForgotPasswordActionHistoryRecordsArgs = {
-  ids?: Maybe<Array<Scalars['ID']>>;
-};
-
-
-export type MutationCreateForgotPasswordActionArgs = {
-  data?: Maybe<ForgotPasswordActionCreateInput>;
-};
-
-
-export type MutationCreateForgotPasswordActionsArgs = {
-  data?: Maybe<Array<Maybe<ForgotPasswordActionsCreateInput>>>;
-};
-
-
-export type MutationUpdateForgotPasswordActionArgs = {
-  id: Scalars['ID'];
-  data?: Maybe<ForgotPasswordActionUpdateInput>;
-};
-
-
-export type MutationUpdateForgotPasswordActionsArgs = {
-  data?: Maybe<Array<Maybe<ForgotPasswordActionsUpdateInput>>>;
-};
-
-
-export type MutationDeleteForgotPasswordActionArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationDeleteForgotPasswordActionsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -52935,11 +52496,6 @@ export type MutationRegisterNewUserArgs = {
 
 export type MutationAuthenticateUserWithPhoneAndPasswordArgs = {
   data: AuthenticateUserWithPhoneAndPasswordInput;
-};
-
-
-export type MutationStartPasswordRecoveryArgs = {
-  data: StartPasswordRecoveryInput;
 };
 
 
@@ -64276,22 +63832,6 @@ export type Query = {
   _allUsersMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the User list.  */
   _UsersMeta?: Maybe<_ListMeta>;
-  /**  Search for all ForgotPasswordActionHistoryRecord items which match the where clause.  */
-  allForgotPasswordActionHistoryRecords?: Maybe<Array<Maybe<ForgotPasswordActionHistoryRecord>>>;
-  /**  Search for the ForgotPasswordActionHistoryRecord item with the matching ID.  */
-  ForgotPasswordActionHistoryRecord?: Maybe<ForgotPasswordActionHistoryRecord>;
-  /**  Perform a meta-query on all ForgotPasswordActionHistoryRecord items which match the where clause.  */
-  _allForgotPasswordActionHistoryRecordsMeta?: Maybe<_QueryMeta>;
-  /**  Retrieve the meta-data for the ForgotPasswordActionHistoryRecord list.  */
-  _ForgotPasswordActionHistoryRecordsMeta?: Maybe<_ListMeta>;
-  /**  Search for all ForgotPasswordAction items which match the where clause.  */
-  allForgotPasswordActions?: Maybe<Array<Maybe<ForgotPasswordAction>>>;
-  /**  Search for the ForgotPasswordAction item with the matching ID.  */
-  ForgotPasswordAction?: Maybe<ForgotPasswordAction>;
-  /**  Perform a meta-query on all ForgotPasswordAction items which match the where clause.  */
-  _allForgotPasswordActionsMeta?: Maybe<_QueryMeta>;
-  /**  Retrieve the meta-data for the ForgotPasswordAction list.  */
-  _ForgotPasswordActionsMeta?: Maybe<_ListMeta>;
   /**  Search for all ConfirmPhoneActionHistoryRecord items which match the where clause.  */
   allConfirmPhoneActionHistoryRecords?: Maybe<Array<Maybe<ConfirmPhoneActionHistoryRecord>>>;
   /**  Search for the ConfirmPhoneActionHistoryRecord item with the matching ID.  */
@@ -66383,28 +65923,6 @@ export type Query = {
   /**  Retrieve the meta-data for all lists.  */
   _ksListsMeta?: Maybe<Array<Maybe<_ListMeta>>>;
   /**
-   * Tells, whether specified password recovery token is exists and not expired
-   *
-   *
-   *
-   * **Errors**
-   *
-   * Following objects will be presented in `extensions` property of thrown error
-   *
-   * `{
-   *   "mutation": "checkPasswordRecoveryToken",
-   *   "variable": [
-   *     "data",
-   *     "token"
-   *   ],
-   *   "code": "BAD_USER_INPUT",
-   *   "type": "TOKEN_NOT_FOUND",
-   *   "message": "Unable to find non-expired token",
-   *   "messageForUser": "api.user.checkPasswordRecoveryToken.TOKEN_NOT_FOUND"
-   * }`
-   */
-  checkPasswordRecoveryToken?: Maybe<CheckPasswordRecoveryTokenOutput>;
-  /**
    * Returns phone number information from ConfirmPhoneAction, that matches provided search conditions
    *
    *
@@ -66515,6 +66033,36 @@ export type Query = {
   checkUserExistence?: Maybe<CheckUserExistenceOutput>;
   exportPropertiesToExcel?: Maybe<ExportPropertiesToExcelOutput>;
   allResidentBillingReceipts?: Maybe<Array<Maybe<ResidentBillingReceiptOutput>>>;
+  /**
+   * Sum of organizations billing receipts
+   *
+   * Calculate sum of organizations billing receipts by organizationId or tin and period
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "mutation": "_allBillingReceiptsSum",
+   *   "variable": [
+   *     "data"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_VALUE",
+   *   "message": "You must specify one of two values: tin or organization"
+   * }`
+   *
+   * `{
+   *   "mutation": "_allBillingReceiptsSum",
+   *   "variable": [
+   *     "data",
+   *     "period"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_VALUE",
+   *   "message": "Bad period format, must be YYYY-MM-01. Example: 2022-02-01"
+   * }`
+   */
   _allBillingReceiptsSum?: Maybe<BillingReceiptsSumOutput>;
   allResidentBillingVirtualReceipts?: Maybe<Array<Maybe<ResidentBillingReceiptOutput>>>;
   /**
@@ -66615,6 +66163,7 @@ export type Query = {
   exportPropertyScopesToExcel?: Maybe<ExportPropertyScopeToExcelOutput>;
   getNewsItemsRecipientsCounters?: Maybe<GetNewsItemsRecipientsCountersOutput>;
   getNewsSharingRecipients?: Maybe<Array<Maybe<GetNewsSharingRecipientsOutput>>>;
+  getNewsSharingRecipientsCounters?: Maybe<GetNewsSharingRecipientsCountersOutput>;
   allMiniApps?: Maybe<Array<MiniAppOutput>>;
   /** The version of the Keystone application serving this API. */
   appVersion?: Maybe<Scalars['String']>;
@@ -66666,56 +66215,6 @@ export type Query_AllUsersMetaArgs = {
   where?: Maybe<UserWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortUsersBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryAllForgotPasswordActionHistoryRecordsArgs = {
-  where?: Maybe<ForgotPasswordActionHistoryRecordWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortForgotPasswordActionHistoryRecordsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryForgotPasswordActionHistoryRecordArgs = {
-  where: ForgotPasswordActionHistoryRecordWhereUniqueInput;
-};
-
-
-export type Query_AllForgotPasswordActionHistoryRecordsMetaArgs = {
-  where?: Maybe<ForgotPasswordActionHistoryRecordWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortForgotPasswordActionHistoryRecordsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryAllForgotPasswordActionsArgs = {
-  where?: Maybe<ForgotPasswordActionWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortForgotPasswordActionsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryForgotPasswordActionArgs = {
-  where: ForgotPasswordActionWhereUniqueInput;
-};
-
-
-export type Query_AllForgotPasswordActionsMetaArgs = {
-  where?: Maybe<ForgotPasswordActionWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortForgotPasswordActionsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -73252,11 +72751,6 @@ export type Query_KsListsMetaArgs = {
 };
 
 
-export type QueryCheckPasswordRecoveryTokenArgs = {
-  data: CheckPasswordRecoveryTokenInput;
-};
-
-
 export type QueryGetPhoneByConfirmPhoneActionTokenArgs = {
   data: GetPhoneByConfirmPhoneActionTokenInput;
 };
@@ -73286,7 +72780,7 @@ export type QueryAllResidentBillingReceiptsArgs = {
 
 
 export type Query_AllBillingReceiptsSumArgs = {
-  where: BillingReceiptWhereInput;
+  data: BillingReceiptsSumInput;
 };
 
 
@@ -73380,6 +72874,11 @@ export type QueryGetNewsItemsRecipientsCountersArgs = {
 
 export type QueryGetNewsSharingRecipientsArgs = {
   data: GetNewsSharingRecipientsInput;
+};
+
+
+export type QueryGetNewsSharingRecipientsCountersArgs = {
+  data: GetNewsSharingRecipientsCountersInput;
 };
 
 
@@ -77582,6 +77081,8 @@ export enum SortB2BAppHistoryRecordsBy {
 export enum SortB2BAppNewsSharingConfigHistoryRecordsBy {
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
+  PushNotificationSettingsAsc = 'pushNotificationSettings_ASC',
+  PushNotificationSettingsDesc = 'pushNotificationSettings_DESC',
   PublishUrlAsc = 'publishUrl_ASC',
   PublishUrlDesc = 'publishUrl_DESC',
   PreviewUrlAsc = 'previewUrl_ASC',
@@ -77590,6 +77091,8 @@ export enum SortB2BAppNewsSharingConfigHistoryRecordsBy {
   GetRecipientsUrlDesc = 'getRecipientsUrl_DESC',
   CustomFormUrlAsc = 'customFormUrl_ASC',
   CustomFormUrlDesc = 'customFormUrl_DESC',
+  GetRecipientsCountersUrlAsc = 'getRecipientsCountersUrl_ASC',
+  GetRecipientsCountersUrlDesc = 'getRecipientsCountersUrl_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -77611,6 +77114,8 @@ export enum SortB2BAppNewsSharingConfigHistoryRecordsBy {
 export enum SortB2BAppNewsSharingConfigsBy {
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
+  PushNotificationSettingsAsc = 'pushNotificationSettings_ASC',
+  PushNotificationSettingsDesc = 'pushNotificationSettings_DESC',
   PublishUrlAsc = 'publishUrl_ASC',
   PublishUrlDesc = 'publishUrl_DESC',
   PreviewUrlAsc = 'previewUrl_ASC',
@@ -77619,6 +77124,8 @@ export enum SortB2BAppNewsSharingConfigsBy {
   GetRecipientsUrlDesc = 'getRecipientsUrl_DESC',
   CustomFormUrlAsc = 'customFormUrl_ASC',
   CustomFormUrlDesc = 'customFormUrl_DESC',
+  GetRecipientsCountersUrlAsc = 'getRecipientsCountersUrl_ASC',
+  GetRecipientsCountersUrlDesc = 'getRecipientsCountersUrl_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -80005,62 +79512,6 @@ export enum SortExternalTokenAccessRightsBy {
   TypeDesc = 'type_DESC',
   UserAsc = 'user_ASC',
   UserDesc = 'user_DESC',
-  IdAsc = 'id_ASC',
-  IdDesc = 'id_DESC',
-  VAsc = 'v_ASC',
-  VDesc = 'v_DESC',
-  CreatedAtAsc = 'createdAt_ASC',
-  CreatedAtDesc = 'createdAt_DESC',
-  UpdatedAtAsc = 'updatedAt_ASC',
-  UpdatedAtDesc = 'updatedAt_DESC',
-  CreatedByAsc = 'createdBy_ASC',
-  CreatedByDesc = 'createdBy_DESC',
-  UpdatedByAsc = 'updatedBy_ASC',
-  UpdatedByDesc = 'updatedBy_DESC',
-  DeletedAtAsc = 'deletedAt_ASC',
-  DeletedAtDesc = 'deletedAt_DESC',
-  DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC'
-}
-
-export enum SortForgotPasswordActionHistoryRecordsBy {
-  TokenAsc = 'token_ASC',
-  TokenDesc = 'token_DESC',
-  RequestedAtAsc = 'requestedAt_ASC',
-  RequestedAtDesc = 'requestedAt_DESC',
-  ExpiresAtAsc = 'expiresAt_ASC',
-  ExpiresAtDesc = 'expiresAt_DESC',
-  UsedAtAsc = 'usedAt_ASC',
-  UsedAtDesc = 'usedAt_DESC',
-  IdAsc = 'id_ASC',
-  IdDesc = 'id_DESC',
-  VAsc = 'v_ASC',
-  VDesc = 'v_DESC',
-  CreatedAtAsc = 'createdAt_ASC',
-  CreatedAtDesc = 'createdAt_DESC',
-  UpdatedAtAsc = 'updatedAt_ASC',
-  UpdatedAtDesc = 'updatedAt_DESC',
-  DeletedAtAsc = 'deletedAt_ASC',
-  DeletedAtDesc = 'deletedAt_DESC',
-  DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC',
-  HistoryDateAsc = 'history_date_ASC',
-  HistoryDateDesc = 'history_date_DESC',
-  HistoryActionAsc = 'history_action_ASC',
-  HistoryActionDesc = 'history_action_DESC'
-}
-
-export enum SortForgotPasswordActionsBy {
-  UserAsc = 'user_ASC',
-  UserDesc = 'user_DESC',
-  TokenAsc = 'token_ASC',
-  TokenDesc = 'token_DESC',
-  RequestedAtAsc = 'requestedAt_ASC',
-  RequestedAtDesc = 'requestedAt_DESC',
-  ExpiresAtAsc = 'expiresAt_ASC',
-  ExpiresAtDesc = 'expiresAt_DESC',
-  UsedAtAsc = 'usedAt_ASC',
-  UsedAtDesc = 'usedAt_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -85617,17 +85068,6 @@ export type StartConfirmPhoneActionInput = {
 export type StartConfirmPhoneActionOutput = {
   __typename?: 'StartConfirmPhoneActionOutput';
   token: Scalars['String'];
-};
-
-export type StartPasswordRecoveryInput = {
-  phone: Scalars['String'];
-  sender: SenderFieldInput;
-  dv: Scalars['Int'];
-};
-
-export type StartPasswordRecoveryOutput = {
-  __typename?: 'StartPasswordRecoveryOutput';
-  status: Scalars['String'];
 };
 
 export enum Status {

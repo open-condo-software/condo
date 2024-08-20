@@ -4,69 +4,104 @@
 
 const Big = require('big.js')
 
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { GQLCustomSchema } = require('@open-condo/keystone/schema')
+const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
+const { GQLError } = require('@open-condo/keystone/errors')
+const { GQLCustomSchema, getSchemaCtx, allItemsQueryByChunks } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/SumBillingReceiptsService')
+const { PERIOD_REGEX } = require('@condo/domains/billing/constants/constants')
 const { WRONG_VALUE } = require('@condo/domains/common/constants/errors')
-const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
+
 
 const ERRORS = {
-    PERIOD_BADLY_SPECIFIED: {
-        mutation: 'registerBillingReceipts',
-        variable: ['where', 'period'],
-        code: BAD_USER_INPUT,
+    TIN_OR_ORGANIZATION_ID_MUST_BE_SPECIFIED: {
+        mutation: '_allBillingReceiptsSum',
+        variable: ['data'],
+        code: 'BAD_USER_INPUT',
         type: WRONG_VALUE,
-        message: 'You must specify period field for receipts in where query. where.period should be a simple string, example: _allBillingReceiptsSum(period: "2022-12-01")',
+        message: 'You must specify one of two values: tin or organization',
+    },
+    BAD_PERIOD_FORMAT: {
+        mutation: '_allBillingReceiptsSum',
+        variable: ['data', 'period'],
+        code: 'BAD_USER_INPUT',
+        type: WRONG_VALUE,
+        message: 'Bad period format, must be YYYY-MM-01. Example: 2022-02-01',
     },
 }
 
 const SumBillingReceiptsService = new GQLCustomSchema('SumBillingReceiptsService', {
-
     types: [
+        {
+            access: true,
+            type: 'input BillingReceiptsSumInput { period: String!, organization: OrganizationWhereUniqueInput, tin: String, importRemoteSystem: String }',
+        },
         {
             access: true,
             type: 'type BillingReceiptsSumOutput { sum: String! }',
         },
     ],
-    
     queries: [
         {
             access: access.canSumBillingReceipts,
-            schema: '_allBillingReceiptsSum (where: BillingReceiptWhereInput!): BillingReceiptsSumOutput',
-            resolver: async (parent, args, context, info, extra = {}) => {
-                const { where } = args
+            schema: '_allBillingReceiptsSum (data: BillingReceiptsSumInput!): BillingReceiptsSumOutput',
+            doc: {
+                summary: 'Sum of organizations billing receipts',
+                description: 'Calculate sum of organizations billing receipts by organizationId or tin and period',
+                errors: ERRORS,
+            },
+            resolver: async (parent, args) => {
+                const { data: { period, tin, organization, importRemoteSystem } } = args
 
-                // We do not want to give user an easy way to query whole database. You must specify period in where query.
-                //
-                // It was done like this, and not as a separate argument for several reasons:
-                // 1. in order to keep validation of period in one place - in GraphQL
-                // 2. in order to keep all<model> styled api arguments somewhat consistent (e.x _allPaymentsSum / allBillingReceipts )
-                //
-                // If you try to add more periods to the where clause, like: where: (period=a1 period=a2) you will get an error
-                // If you try to be hacky and do this: where: (period=a1 period_gt=a1) you are going to have intersection of these clauses which means you will get only period=a1 ones!
-                if (!where.period || typeof where.period !== 'string') {
-                    throw new GQLError(ERRORS.PERIOD_BADLY_SPECIFIED)
+                if (!tin && !organization) {
+                    throw new GQLError(ERRORS.TIN_OR_ORGANIZATION_ID_MUST_BE_SPECIFIED)
+                }
+                if (!PERIOD_REGEX.test(period)) {
+                    throw new GQLError(ERRORS.BAD_PERIOD_FORMAT)
                 }
 
-                const billingReceiptsLoader = new GqlWithKnexLoadList({
-                    listKey: 'BillingReceipt',
-                    fields: 'id toPay',
-                    where,
-                    sortBy: 'createdAt_DESC',
+                const { keystone } = getSchemaCtx('BillingReceipt')
+                const { knex } = getDatabaseAdapter(keystone)
+
+                const organizationWhere = { deletedAt: null }
+                if (organization) {
+                    organizationWhere.id = organization.id
+                }
+                if (tin) {
+                    organizationWhere.tin = tin
+                }
+                if (importRemoteSystem) {
+                    organizationWhere.importId_not = null
+                    organizationWhere.importRemoteSystem = importRemoteSystem
+                }
+
+                const contextIds = []
+                await allItemsQueryByChunks({
+                    schemaName: 'BillingIntegrationOrganizationContext',
+                    where: {
+                        organization: organizationWhere,
+                        deletedAt: null,
+                    },
+                    chunkProcessor: (contexts) => {
+                        contextIds.push(...contexts.map(context => context.id))
+                        
+                        return []
+                    },
                 })
-                const objs = await billingReceiptsLoader.load()
-                const toPaySum = objs.reduce((accumulator, receipt) => {
-                    return accumulator.plus(new Big(receipt.toPay))
-                }, new Big(0))
+
+                const result = await knex('BillingReceipt')
+                    .sum('toPay as totalToPay')
+                    .whereIn('context', contextIds)
+                    .andWhere('period', period)
+                    .andWhere('deletedAt', null)
 
                 return {
-                    sum: toPaySum.toFixed(8),
+                    sum: Big(result[0].totalToPay || 0).toFixed(8),
                 }
             },
         },
     ],
-    
+
 })
 
 module.exports = {

@@ -4,13 +4,14 @@
 const { get, uniq, map } = require('lodash')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { getById, find } = require('@open-condo/keystone/schema')
+const { getById } = require('@open-condo/keystone/schema')
 
 const { canManageBankEntityWithOrganization } = require('@condo/domains/banking/utils/accessSchema')
 const { checkBankIntegrationsAccessRights } = require('@condo/domains/banking/utils/accessSchema')
 const {
     getEmployedOrRelatedOrganizationsByPermissions,
 } = require('@condo/domains/organization/utils/accessSchema')
+const { getUserResidents } = require('@condo/domains/resident/utils/accessSchema')
 const { SERVICE, RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 
 const { BANK_INTEGRATION_IDS } = require('../constants')
@@ -48,7 +49,7 @@ async function canReadBankAccounts ({ authentication: { item: user }, context })
             ],
         }
     } else if (user.type === RESIDENT) {
-        const residents = await find('Resident', { user: { id: user.id } })
+        const residents = await getUserResidents(context, user)
         if (residents.length > 0) {
             const propertyIds = uniq(map(residents, 'property'))
             return {

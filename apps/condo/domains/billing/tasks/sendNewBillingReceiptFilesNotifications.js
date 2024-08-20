@@ -1,11 +1,11 @@
 const { isNil, get, isEmpty } = require('lodash')
 
+const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { BILLING_RECEIPT_FILE_FOLDER_NAME } = require('@condo/domains/billing/constants/constants')
 const { BillingReceiptFile, BillingReceiptAdmin, BillingProperty } = require('@condo/domains/billing/utils/serverSchema')
-const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { BILLING_RECEIPT_FILE_ADDED_TYPE } = require('@condo/domains/notification/constants/constants')
@@ -77,7 +77,7 @@ async function sendNewBillingReceiptFilesNotifications ({ organizationId, organi
             continue
         }
 
-        // destructuring receipt to build contact search conditions 
+        // destructuring receipt to build contact search conditions
         const {
             account: { unitName, unitType },
             property: { id: billingPropertyId, addressKey },
