@@ -211,7 +211,7 @@ const loadListByChunks = async ({
  * @param {String[]} sortBy
  * @param {Number} chunkSize
  * @param {Number} limit
- * @param {function(Array): Array} chunkProcessor A place to use or/and modify just loaded chunk
+ * @param {function(Array): Array | Promise<Array>} chunkProcessor A place to use or/and modify just loaded chunk
  * @returns {Promise<void>}
  */
 const processListByChunks = async ({
@@ -225,7 +225,6 @@ const processListByChunks = async ({
 }) => {
     if (chunkSize < 1 || limit < 1) throw new Error('Both chunkSize and limit should be > 0')
     if (chunkSize > 100) throw new Error('chunkSize is too large, max 100 allowed')
-    if (!isFunction(chunkProcessor)) throw new Error('chunkProcessor required for this utility')
     let skip = 0
     let maxIterationsCount = Math.ceil(limit / chunkSize)
     let newChunk = []

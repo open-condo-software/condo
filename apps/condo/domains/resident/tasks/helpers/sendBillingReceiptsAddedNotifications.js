@@ -1,4 +1,4 @@
-const { get, isEmpty, isFunction, uniq, groupBy, isNull } = require('lodash')
+const { get, compact, isEmpty, isFunction, uniq, groupBy, isNull } = require('lodash')
 
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
@@ -122,7 +122,7 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
 
             const serviceConsumerWhere = {
                 organization: { id_in: organisationIds },
-                accountNumber_in: accountsNumbers,
+                accountNumber_in: compact(accountsNumbers),
                 deletedAt: null,
             }
             const serviceConsumers = await loadListByChunks({ context, chunkSize: 50, list: ServiceConsumer, where: serviceConsumerWhere })
