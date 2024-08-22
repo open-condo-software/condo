@@ -14,7 +14,9 @@ const {
     createTestRecurrentPaymentContext,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBillingCategory } = require('@condo/domains/billing/utils/testSchema')
-const { makeClientWithRegisteredOrganization, OrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { makeClientWithRegisteredOrganization, OrganizationEmployee, createTestOrganizationEmployeeRequest,
+    createTestOrganization, updateTestOrganizationEmployeeRequest, OrganizationEmployeeRequest,
+} = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { DELETED_USER_NAME } = require('@condo/domains/user/constants')
 const {
@@ -400,5 +402,37 @@ describe('ResetUserService', () => {
         expect(resetUser2.name).toEqual(DELETED_USER_NAME)
         expect(resetUser2.phone).toBeNull()
         expect(resetUser2.email).toBeNull()
+    })
+
+    test('all employee requests without decide which created by user will be removed after reset', async () => {
+        const [user1] = await registerNewUser(await makeClient())
+        const [user2] = await registerNewUser(await makeClient())
+
+        const [organization] = await createTestOrganization(admin)
+        const [organization2] = await createTestOrganization(admin)
+        const [decidedEmployeeRequest1] = await createTestOrganizationEmployeeRequest(admin, organization, user1)
+        const [decidedEmployeeRequest2] = await createTestOrganizationEmployeeRequest(admin, organization, user2)
+        const [employeeRequest1] = await createTestOrganizationEmployeeRequest(admin, organization2, user1)
+        const [employeeRequest2] = await createTestOrganizationEmployeeRequest(admin, organization2, user2)
+
+        await updateTestOrganizationEmployeeRequest(admin, decidedEmployeeRequest1.id, { isRejected: true })
+        await updateTestOrganizationEmployeeRequest(admin, decidedEmployeeRequest2.id, { isRejected: true })
+
+        const payload = {
+            user: { id: user1.id },
+        }
+
+        await resetUserByTestClient(support, payload)
+
+        const employeeRequests = await OrganizationEmployeeRequest.getAll(admin, {
+            id_in: [employeeRequest1.id, decidedEmployeeRequest1.id, employeeRequest2.id, decidedEmployeeRequest2.id],
+        })
+
+        expect(employeeRequests).toHaveLength(3)
+        expect(employeeRequests).toEqual(expect.arrayContaining([
+            expect.objectContaining({ id: decidedEmployeeRequest1.id }),
+            expect.objectContaining({ id: decidedEmployeeRequest2.id }),
+            expect.objectContaining({ id: employeeRequest2.id }),
+        ]))
     })
 })
