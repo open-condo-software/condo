@@ -10,6 +10,7 @@ const { RESET_ORGANIZATION_MUTATION } = require('@condo/domains/organization/gql
 const { REPLACE_ORGANIZATION_EMPLOYEE_ROLE_MUTATION } = require('@condo/domains/organization/gql')
 const { FIND_ORGANIZATIONS_BY_TIN_MUTATION } = require('@condo/domains/organization/gql')
 const { SEND_ORGANIZATION_EMPLOYEE_REQUEST_MUTATION } = require('@condo/domains/organization/gql')
+const { ACCEPT_OR_REJECT_ORGANIZATION_EMPLOYEE_REQUEST_MUTATION } = require('@condo/domains/organization/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Organization = generateServerUtils('Organization')
@@ -72,6 +73,19 @@ async function sendOrganizationEmployeeRequest (context, data) {
     })
 }
 
+async function acceptOrRejectOrganizationEmployeeRequest (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: ACCEPT_OR_REJECT_ORGANIZATION_EMPLOYEE_REQUEST_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to acceptOrRejectOrganizationEmployeeRequest',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -86,5 +100,6 @@ module.exports = {
     FindOrganizationsByTinLog,
     OrganizationEmployeeRequest,
     sendOrganizationEmployeeRequest,
+    acceptOrRejectOrganizationEmployeeRequest,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

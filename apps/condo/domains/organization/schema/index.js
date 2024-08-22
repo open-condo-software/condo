@@ -3,6 +3,7 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
+const { AcceptOrRejectOrganizationEmployeeRequestService } = require('./AcceptOrRejectOrganizationEmployeeRequestService')
 const { AcceptOrRejectOrganizationInviteService } = require('./AcceptOrRejectOrganizationInviteService')
 const { FindOrganizationsByTinLog } = require('./FindOrganizationsByTinLog')
 const { FindOrganizationsByTinService } = require('./FindOrganizationsByTinService')
@@ -34,5 +35,6 @@ module.exports = {
     FindOrganizationsByTinLog,
     OrganizationEmployeeRequest,
     SendOrganizationEmployeeRequestService,
+    AcceptOrRejectOrganizationEmployeeRequestService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

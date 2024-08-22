@@ -123,6 +123,12 @@ const SEND_ORGANIZATION_EMPLOYEE_REQUEST_MUTATION = gql`
     }
 `
 
+const ACCEPT_OR_REJECT_ORGANIZATION_EMPLOYEE_REQUEST_MUTATION = gql`
+    mutation acceptOrRejectOrganizationEmployeeRequest ($data: AcceptOrRejectOrganizationEmployeeRequestInput!) {
+        result: acceptOrRejectOrganizationEmployeeRequest(data: $data) { organization { id } organizationId organizationName organizationTin user { id } isAccepted isRejected decidedBy { id } decidedAt retries employee { id } ${COMMON_FIELDS} }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -147,6 +153,7 @@ module.exports = {
     FindOrganizationsByTinLog,
     OrganizationEmployeeRequest,
     SEND_ORGANIZATION_EMPLOYEE_REQUEST_MUTATION,
+    ACCEPT_OR_REJECT_ORGANIZATION_EMPLOYEE_REQUEST_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 
