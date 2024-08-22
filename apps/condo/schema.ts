@@ -16,6 +16,19 @@ export type Scalars = {
 };
 
 
+export type AcceptOrRejectOrganizationEmployeeRequestEmployeeDataInput = {
+  role: OrganizationEmployeeRoleWhereUniqueInput;
+};
+
+export type AcceptOrRejectOrganizationEmployeeRequestInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  employeeRequest: OrganizationEmployeeRequestWhereUniqueInput;
+  employeeData?: Maybe<AcceptOrRejectOrganizationEmployeeRequestEmployeeDataInput>;
+  isRejected?: Maybe<Scalars['Boolean']>;
+  isAccepted?: Maybe<Scalars['Boolean']>;
+};
+
 export type AcceptOrRejectOrganizationInviteInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
@@ -42266,6 +42279,16 @@ export type Mutation = {
    * `{
    *   "mutation": "sendOrganizationEmployeeRequest",
    *   "variable": [
+   *     "data"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "USER_DOES_NOT_HAVE_PHONE",
+   *   "message": "The user does not have a phone"
+   * }`
+   *
+   * `{
+   *   "mutation": "sendOrganizationEmployeeRequest",
+   *   "variable": [
    *     "data",
    *     "organization"
    *   ],
@@ -42322,7 +42345,7 @@ export type Mutation = {
    *   "code": "BAD_USER_INPUT",
    *   "type": "DV_VERSION_MISMATCH",
    *   "message": "Wrong value for data version number",
-   *   "query": "findOrganizationsByTin"
+   *   "mutation": "sendOrganizationEmployeeRequest"
    * }`
    *
    * `{
@@ -42334,10 +42357,110 @@ export type Mutation = {
    *   "type": "WRONG_FORMAT",
    *   "message": "Invalid format of \"sender\" field value",
    *   "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}",
-   *   "query": "findOrganizationsByTin"
+   *   "mutation": "sendOrganizationEmployeeRequest"
    * }`
    */
   sendOrganizationEmployeeRequest?: Maybe<OrganizationEmployeeRequest>;
+  /**
+   * Accepts or rejects requests to join the organization.
+   * If accepted, a new employee is created
+   *
+   *
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "mutation": "acceptOrRejectOrganizationEmployeeRequest",
+   *   "variable": [
+   *     "data"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "REQUEST_NEEDS_ACCEPT_OR_REJECT",
+   *   "message": "The request must be accepted or rejected"
+   * }`
+   *
+   * `{
+   *   "mutation": "acceptOrRejectOrganizationEmployeeRequest",
+   *   "variable": [
+   *     "data",
+   *     "employeeRequest"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "REQUEST_ALREADY_DECIDED",
+   *   "message": "The request has already been decided"
+   * }`
+   *
+   * `{
+   *   "mutation": "acceptOrRejectOrganizationEmployeeRequest",
+   *   "variable": [
+   *     "data",
+   *     "employeeRequest"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "REQUEST_NOT_FOUND",
+   *   "message": "The request not found"
+   * }`
+   *
+   * `{
+   *   "mutation": "acceptOrRejectOrganizationEmployeeRequest",
+   *   "variable": [
+   *     "data",
+   *     "employeeData",
+   *     "role"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "EMPLOYEE_ROLE_REQUIRED",
+   *   "message": "Employee role required"
+   * }`
+   *
+   * `{
+   *   "mutation": "acceptOrRejectOrganizationEmployeeRequest",
+   *   "variable": [
+   *     "data",
+   *     "employeeRequest"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "USER_NOT_FOUND",
+   *   "message": "No user found to join the organization"
+   * }`
+   *
+   * `{
+   *   "mutation": "acceptOrRejectOrganizationEmployeeRequest",
+   *   "variable": [
+   *     "data",
+   *     "employeeRequest"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "USER_DOES_NOT_HAVE_PHONE",
+   *   "message": "The user does not have a phone"
+   * }`
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "dv"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "DV_VERSION_MISMATCH",
+   *   "message": "Wrong value for data version number",
+   *   "mutation": "acceptOrRejectOrganizationEmployeeRequest"
+   * }`
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "sender"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_FORMAT",
+   *   "message": "Invalid format of \"sender\" field value",
+   *   "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}",
+   *   "mutation": "acceptOrRejectOrganizationEmployeeRequest"
+   * }`
+   */
+  acceptOrRejectOrganizationEmployeeRequest?: Maybe<OrganizationEmployeeRequest>;
   registerBillingReceipts?: Maybe<Array<Maybe<BillingReceipt>>>;
   sendNewBillingReceiptFilesNotifications?: Maybe<SendNewBillingReceiptFilesNotificationsOutput>;
   /**
@@ -52758,6 +52881,11 @@ export type MutationReplaceOrganizationEmployeeRoleArgs = {
 
 export type MutationSendOrganizationEmployeeRequestArgs = {
   data: SendOrganizationEmployeeRequestInput;
+};
+
+
+export type MutationAcceptOrRejectOrganizationEmployeeRequestArgs = {
+  data: AcceptOrRejectOrganizationEmployeeRequestInput;
 };
 
 
