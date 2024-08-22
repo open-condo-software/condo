@@ -85,7 +85,17 @@ class GoogleSearchProvider extends AbstractSearchProvider {
                  * @see https://developers.google.com/maps/documentation/places/web-service/search-text#PlacesSearchStatus
                  */
                 if (result.status === 'OK') {
-                    return result.results
+                    /** @type {GooglePlace[]} */
+                    const ret = []
+
+                    for (const row of result.results) {
+                        const placeId = get(row, 'place_id')
+                        if (placeId) {
+                            ret.push(await this.getByPlaceId(placeId))
+                        }
+                    }
+
+                    return ret
                 }
             } else {
                 const result = await answer.text()
