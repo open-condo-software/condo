@@ -4,13 +4,14 @@
 
 const get = require('lodash/get')
 
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { GQLCustomSchema, getById, getByCondition } = require('@open-condo/keystone/schema')
 
 const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/organization/access/SendOrganizationEmployeeRequestService')
 const { OrganizationEmployeeRequest } = require('@condo/domains/organization/utils/serverSchema')
+const { checkTotalRequestLimitCountersByUser } = require('@condo/domains/user/utils/serverSchema/requestLimitHelpers')
 
 
 /**
@@ -77,8 +78,6 @@ const ERRORS = {
     },
 }
 
-// TODO(DOMA-9720): Added guard
-
 const SendOrganizationEmployeeRequestService = new GQLCustomSchema('SendOrganizationEmployeeRequestService', {
     types: [
         {
@@ -102,6 +101,8 @@ const SendOrganizationEmployeeRequestService = new GQLCustomSchema('SendOrganiza
                 if (!authedItemId) throw new Error('no authedItemId!')
 
                 checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
+
+                await checkTotalRequestLimitCountersByUser(context, 'sendOrganizationEmployeeRequest', authedItemId, 100)
 
                 const authedItemPhone = get(context, 'authedItem.phone', null)
                 // NOTE: Current business process requires phone to create employee
