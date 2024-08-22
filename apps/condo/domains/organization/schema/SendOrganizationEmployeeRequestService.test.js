@@ -16,7 +16,7 @@ const {
     sendOrganizationEmployeeRequestByTestClient,
     createTestOrganization,
     updateTestOrganizationEmployeeRequest,
-    makeEmployeeUserClientWithAbilities,
+    makeEmployeeUserClientWithAbilities, OrganizationEmployee, updateTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
 const {
     makeClientWithStaffUser,
@@ -101,6 +101,16 @@ describe('SendOrganizationEmployeeRequestService', () => {
             expect(request.user.id).toBe(staff.user.id)
         })
 
+        test('should create request if rejected employee already exist for specified organization and authed user', async () => {
+            const employee = await makeEmployeeUserClientWithAbilities({}, false)
+            await updateTestOrganizationEmployee(admin, employee.employee.id, { isRejected: true })
+            const [request] = await sendOrganizationEmployeeRequestByTestClient(employee, {
+                organization: { id: employee.organization.id },
+            })
+            expect(request.organizationId).toBe(employee.organization.id)
+            expect(request.user.id).toBe(employee.user.id)
+        })
+
         test('should re-create with increased retries request if it was rejected', async () => {
             const [request] = await sendOrganizationEmployeeRequestByTestClient(staff, {
                 organization: { id: organization.id },
@@ -121,6 +131,7 @@ describe('SendOrganizationEmployeeRequestService', () => {
                     organization: { id: organization.id }, dv: 123,
                 })
             }, {
+                mutation: 'sendOrganizationEmployeeRequest',
                 variable: ['data', 'dv'],
                 code: 'BAD_USER_INPUT',
                 type: 'DV_VERSION_MISMATCH',
@@ -132,6 +143,7 @@ describe('SendOrganizationEmployeeRequestService', () => {
                     organization: { id: organization.id }, sender: { dv: 1, fingerprint: '-' },
                 })
             }, {
+                mutation: 'sendOrganizationEmployeeRequest',
                 variable: ['data', 'sender'],
                 code: 'BAD_USER_INPUT',
                 type: 'WRONG_FORMAT',
@@ -154,7 +166,7 @@ describe('SendOrganizationEmployeeRequestService', () => {
             }, 'result')
         })
 
-        test('should throw error if employee already exist for specified organization and authed user', async () => {
+        test('should throw error if accepted employee already exist for specified organization and authed user', async () => {
             const employee = await makeEmployeeUserClientWithAbilities()
             await expectToThrowGQLError(async () => {
                 await sendOrganizationEmployeeRequestByTestClient(employee, {
@@ -164,8 +176,23 @@ describe('SendOrganizationEmployeeRequestService', () => {
                 mutation: 'sendOrganizationEmployeeRequest',
                 variable: ['data'],
                 code: 'BAD_USER_INPUT',
-                type: 'EMPLOYEE_ALREADY_EXIST',
-                message: 'An employee already exist in this organization',
+                type: 'EMPLOYEE_ALREADY_ACCEPTED',
+                message: 'An accepted employee already exist in this organization',
+            }, 'result')
+        })
+
+        test('should throw error if employee who did not respond to an invitation by specified organization', async () => {
+            const employee = await makeEmployeeUserClientWithAbilities({}, false)
+            await expectToThrowGQLError(async () => {
+                await sendOrganizationEmployeeRequestByTestClient(employee, {
+                    organization: { id: employee.organization.id },
+                })
+            }, {
+                mutation: 'sendOrganizationEmployeeRequest',
+                variable: ['data'],
+                code: 'BAD_USER_INPUT',
+                type: 'EMPLOYEE_INVITATION_ALREADY_SENT',
+                message: 'The invitation has already been sent to the employee.',
             }, 'result')
         })
 
@@ -203,6 +230,22 @@ describe('SendOrganizationEmployeeRequestService', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'REQUEST_NOT_DECIDED',
                 message: 'A request not decided yet. Please wait for a decide on the request from the organization',
+            }, 'result')
+        })
+
+        test('should throw error if authed user has not phone', async () => {
+            const staff = await makeClientWithStaffUser({ phone: null })
+
+            await expectToThrowGQLError(async () => {
+                await sendOrganizationEmployeeRequestByTestClient(staff, {
+                    organization: { id: organization.id },
+                })
+            }, {
+                mutation: 'sendOrganizationEmployeeRequest',
+                variable: ['data'],
+                code: 'BAD_USER_INPUT',
+                type: 'USER_DOES_NOT_HAVE_PHONE',
+                message: 'The user does not have a phone',
             }, 'result')
         })
     })
