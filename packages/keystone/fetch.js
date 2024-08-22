@@ -20,7 +20,7 @@ const FETCH_TIME_METRIC_NAME = 'fetch.time'
  * @example { v1.condo.ai: 'priority' }
  * @type {any}
  */
-const FETCH_X_TARGET_CONFIG = JSON.parse(conf.FETCH_X_TARGET_CONFIG || {})
+const FETCH_X_TARGET_CONFIG = JSON.parse(conf.FETCH_X_TARGET_CONFIG || '{}')
 
 const HOSTNAME = os.hostname() || 'nohost'
 const NAMESPACE = conf.NAMESPACE || 'nospace'
