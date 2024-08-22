@@ -1,18 +1,25 @@
-const { makeClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
-const { expectToThrowAuthenticationErrorToObj, expectToThrowAccessDeniedErrorToObj } = require('@open-condo/keystone/test.utils')
-
-const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-
-const { GET_ORGANIZATION_EMPLOYEE_BY_ID_WITH_INVITE_CODE_QUERY } = require('../gql')
 const {
+    expectToThrowAuthenticationErrorToObj,
+    expectToThrowAccessDeniedErrorToObj,
+    makeClient,
+    makeLoggedInAdminClient,
+} = require('@open-condo/keystone/test.utils')
+
+const { GET_ORGANIZATION_EMPLOYEE_BY_ID_WITH_INVITE_CODE_QUERY } = require('@condo/domains/organization/gql')
+const {
+    createTestOrganization,
+    createTestOrganizationEmployeeRequest,
+    OrganizationEmployeeRequest,
     createTestOrganizationEmployee,
     createTestOrganizationEmployeeRole,
     acceptOrRejectOrganizationInviteById,
     acceptOrRejectOrganizationInviteByCode,
     inviteNewOrganizationEmployee,
     makeClientWithRegisteredOrganization,
-} = require('../utils/testSchema')
+    updateTestOrganizationEmployeeRequest,
+} = require('@condo/domains/organization/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+
 
 describe('AcceptOrRejectOrganizationInviteService', () => {
     describe('acceptOrRejectOrganizationInviteById', () => {
@@ -46,6 +53,48 @@ describe('AcceptOrRejectOrganizationInviteService', () => {
 
                 await expectToThrowAccessDeniedErrorToObj(async () => await acceptOrRejectOrganizationInviteById(client1, invite))
                 await expectToThrowAccessDeniedErrorToObj(async () => await acceptOrRejectOrganizationInviteById(client1, invite, { isRejected: true }))
+            })
+
+            test('should accept invitation and accept not decided employee request', async () => {
+                const client1 = await makeClientWithRegisteredOrganization()
+                const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
+                const admin = await makeLoggedInAdminClient()
+
+                const [role] = await createTestOrganizationEmployeeRole(client1, client1.organization)
+                const [createdEmployeeRequest] = await createTestOrganizationEmployeeRequest(admin, client1.organization, client2.user)
+                const [invite] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs, role)
+                const [acceptedEmployee] = await acceptOrRejectOrganizationInviteById(client2, invite)
+                expect(acceptedEmployee).toEqual(expect.objectContaining({
+                    isAccepted: true,
+                    isRejected: false,
+                }))
+                const employeeRequest = await OrganizationEmployeeRequest.getOne(admin, { id: createdEmployeeRequest.id })
+                expect(employeeRequest.isAccepted).toBeTruthy()
+                expect(employeeRequest.isRejected).toBeFalsy()
+                expect(employeeRequest.employee.id).toBe(acceptedEmployee.id)
+            })
+
+            test('should accept invitation and not update decided employee request', async () => {
+                const client1 = await makeClientWithRegisteredOrganization()
+                const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
+                const admin = await makeLoggedInAdminClient()
+
+                const [role] = await createTestOrganizationEmployeeRole(client1, client1.organization)
+                const [createdEmployeeRequest] = await createTestOrganizationEmployeeRequest(admin, client1.organization, client2.user)
+                const [updatedEmployeeRequest] = await updateTestOrganizationEmployeeRequest(admin, createdEmployeeRequest.id, {
+                    isRejected: true,
+                })
+                const [invite] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs, role)
+                const [acceptedEmployee] = await acceptOrRejectOrganizationInviteById(client2, invite)
+                expect(acceptedEmployee).toEqual(expect.objectContaining({
+                    isAccepted: true,
+                    isRejected: false,
+                }))
+                const employeeRequest = await OrganizationEmployeeRequest.getOne(admin, { id: createdEmployeeRequest.id })
+                expect(employeeRequest.isAccepted).toBeFalsy()
+                expect(employeeRequest.isRejected).toBeTruthy()
+                expect(employeeRequest.employee).toBeNull()
+                expect(employeeRequest.updatedAt).toBe(updatedEmployeeRequest.updatedAt)
             })
         })
 
