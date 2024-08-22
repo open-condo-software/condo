@@ -18,6 +18,8 @@ const { DELETED_ORGANIZATION_NAME } = require('@condo/domains/organization/const
 const { Organization, OrganizationLink, OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 
+const { OrganizationEmployeeRequest } = require('../utils/serverSchema')
+
 /**
  * List of possible errors, that this custom schema can throw
  * They will be rendered in documentation section in GraphiQL for this custom schema
@@ -96,6 +98,14 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
                 })
                 for (let employee of employees) {
                     await OrganizationEmployee.softDelete(context, employee.id, 'id', DV_SENDER)
+                }
+
+                const employeeRequests = await find('OrganizationEmployeeRequest', {
+                    organization: { id: organizationId },
+                    deletedAt: null,
+                })
+                for (const request of employeeRequests) {
+                    await OrganizationEmployeeRequest.softDelete(context, request.id, DV_SENDER)
                 }
 
                 const organizationLinks = await OrganizationLink.getAll(context, {
