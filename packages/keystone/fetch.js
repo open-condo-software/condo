@@ -59,6 +59,12 @@ async function fetchWithLogger (url, options, extraAttrs) {
     const parentTaskId = executionContext.taskId
     const parentExecId = executionContext.execId
 
+    if (!options.headers) {
+        options.headers = {}
+    }
+
+    const originalHeaders = pickBy(options.headers)
+
     const { skipTracingHeaders, skipXTargetHeader } = extraAttrs
 
     if (!skipXTargetHeader) {
@@ -75,10 +81,6 @@ async function fetchWithLogger (url, options, extraAttrs) {
         //                    |                   |
         //               log reqId            log reqId
         //
-        if (!options.headers) {
-            options.headers = {}
-        }
-
         const deployment = getAppName()
         const xRemoteApp = NAMESPACE ? `${NAMESPACE}-${deployment}` : deployment
         const xRemoteClient = HOSTNAME
@@ -94,9 +96,9 @@ async function fetchWithLogger (url, options, extraAttrs) {
         options.headers['X-Parent-Exec-ID'] = parentExecId
         options.headers['User-Agent'] = VERSION ? `node ${xRemoteApp} ${VERSION}` : `node ${xRemoteApp}`
         options.headers['Referrer'] = xTarget ? `${referrer}?t=${xTarget}` : referrer
-
-        options.headers = pickBy(options.headers)
     }
+
+    options.headers = { ...options.headers, ...originalHeaders }
 
     const startTime = Date.now()
     const requestLogCommonData = pickBy({
