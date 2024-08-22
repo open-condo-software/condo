@@ -67,7 +67,7 @@ async function fetchWithLogger (url, options, extraAttrs) {
 
     const { skipTracingHeaders, skipXTargetHeader } = extraAttrs
 
-    if (!skipXTargetHeader) {
+    if (!skipXTargetHeader && !options.headers['X-Target']) {
         const xTargetHeader = FETCH_X_TARGET_CONFIG[urlObject.hostname]
         if (xTargetHeader) {
             options.headers['X-Target'] = xTargetHeader
