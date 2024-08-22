@@ -16,7 +16,8 @@ const {
     sendOrganizationEmployeeRequestByTestClient,
     createTestOrganization,
     updateTestOrganizationEmployeeRequest,
-    makeEmployeeUserClientWithAbilities, OrganizationEmployee, updateTestOrganizationEmployee,
+    makeEmployeeUserClientWithAbilities,
+    updateTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
 const {
     makeClientWithStaffUser,
@@ -246,6 +247,27 @@ describe('SendOrganizationEmployeeRequestService', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'USER_DOES_NOT_HAVE_PHONE',
                 message: 'The user does not have a phone',
+            }, 'result')
+        })
+
+        test('should throw error if user send many requests (more then 100)', async () => {
+            const staff = await makeClientWithStaffUser()
+
+            for (let i = 0; i < 100; i++) {
+                const [organization] = await createTestOrganization(admin)
+                await sendOrganizationEmployeeRequestByTestClient(staff, {
+                    organization: { id: organization.id },
+                })
+            }
+            const [organization] = await createTestOrganization(admin)
+            await expectToThrowGQLError(async () => {
+                await sendOrganizationEmployeeRequestByTestClient(staff, {
+                    organization: { id: organization.id },
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'REQUEST_LIMIT_FOR_USER_REACHED',
+                message: 'Too many requests from this user. Try again later',
             }, 'result')
         })
     })
