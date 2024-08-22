@@ -42333,8 +42333,18 @@ export type Mutation = {
    *     "data"
    *   ],
    *   "code": "BAD_USER_INPUT",
-   *   "type": "EMPLOYEE_ALREADY_EXIST",
-   *   "message": "An employee already exist in this organization"
+   *   "type": "EMPLOYEE_ALREADY_ACCEPTED",
+   *   "message": "An accepted employee already exist in this organization"
+   * }`
+   *
+   * `{
+   *   "mutation": "sendOrganizationEmployeeRequest",
+   *   "variable": [
+   *     "data"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "EMPLOYEE_INVITATION_ALREADY_SENT",
+   *   "message": "The invitation has already been sent to the employee."
    * }`
    *
    * `{
