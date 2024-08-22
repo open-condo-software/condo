@@ -17,7 +17,7 @@ const FETCH_TIME_METRIC_NAME = 'fetch.time'
 
 /**
  * Should be: { [hostname: str]:[x-target: str] }
- * @example { v1.condo.ai: 'priority' }
+ * @example { v1.condo.ai: 'example-app' }
  */
 const FETCH_X_TARGET_CONFIG = JSON.parse(conf.FETCH_X_TARGET_CONFIG || '{}')
 
