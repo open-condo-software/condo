@@ -301,7 +301,6 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
         canManageTour: { type: 'Checkbox', defaultValue: true },
         canReadMarketSetting: { type: 'Checkbox', defaultValue: false },
         canManageMarketSetting: { type: 'Checkbox', defaultValue: false },
-        // todo(DOMA-9720): add default values for other roles
         canManageOrganizationEmployeeRequests: { type: 'Checkbox', defaultValue: false },
     },
     plugins: [uuided(), versioned(), tracked(), dvAndSender(), historical(), softDeleted()],
