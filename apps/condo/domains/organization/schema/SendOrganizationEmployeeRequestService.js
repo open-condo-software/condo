@@ -18,6 +18,13 @@ const { OrganizationEmployeeRequest } = require('@condo/domains/organization/uti
  * They will be rendered in documentation section in GraphiQL for this custom schema
  */
 const ERRORS = {
+    USER_DOES_NOT_HAVE_PHONE: {
+        mutation: 'sendOrganizationEmployeeRequest',
+        variable: ['data'],
+        code: BAD_USER_INPUT,
+        type: 'USER_DOES_NOT_HAVE_PHONE',
+        message: 'The user does not have a phone',
+    },
     ORGANIZATION_NOT_FOUND: {
         mutation: 'sendOrganizationEmployeeRequest',
         variable: ['data', 'organization'],
@@ -46,22 +53,31 @@ const ERRORS = {
         type: 'REQUEST_NOT_DECIDED',
         message: 'A request not decided yet. Please wait for a decide on the request from the organization',
     },
-    EMPLOYEE_ALREADY_EXIST: {
+    EMPLOYEE_ALREADY_ACCEPTED: {
         mutation: 'sendOrganizationEmployeeRequest',
         variable: ['data'],
         code: BAD_USER_INPUT,
-        type: 'EMPLOYEE_ALREADY_EXIST',
-        message: 'An employee already exist in this organization',
+        type: 'EMPLOYEE_ALREADY_ACCEPTED',
+        message: 'An accepted employee already exist in this organization',
+    },
+    EMPLOYEE_INVITATION_ALREADY_SENT: {
+        mutation: 'sendOrganizationEmployeeRequest',
+        variable: ['data'],
+        code: BAD_USER_INPUT,
+        type: 'EMPLOYEE_INVITATION_ALREADY_SENT',
+        message: 'The invitation has already been sent to the employee.',
     },
     DV_VERSION_MISMATCH: {
         ...COMMON_ERRORS.DV_VERSION_MISMATCH,
-        query: 'findOrganizationsByTin',
+        mutation: 'sendOrganizationEmployeeRequest',
     },
     WRONG_SENDER_FORMAT: {
         ...COMMON_ERRORS.WRONG_SENDER_FORMAT,
-        query: 'findOrganizationsByTin',
+        mutation: 'sendOrganizationEmployeeRequest',
     },
 }
+
+// TODO(DOMA-9720): Added guard
 
 const SendOrganizationEmployeeRequestService = new GQLCustomSchema('SendOrganizationEmployeeRequestService', {
     types: [
@@ -87,6 +103,10 @@ const SendOrganizationEmployeeRequestService = new GQLCustomSchema('SendOrganiza
 
                 checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 
+                const authedItemPhone = get(context, 'authedItem.phone', null)
+                // NOTE: Current business process requires phone to create employee
+                if (!authedItemPhone) throw new GQLError(ERRORS.USER_DOES_NOT_HAVE_PHONE, context)
+
                 const organization = await getByCondition('Organization', {
                     id: organizationFromInput.id,
                     deletedAt: null,
@@ -98,7 +118,9 @@ const SendOrganizationEmployeeRequestService = new GQLCustomSchema('SendOrganiza
                     organization: { id: organization.id },
                     deletedAt: null,
                 })
-                if (employee) throw new GQLError(ERRORS.EMPLOYEE_ALREADY_EXIST, context)
+
+                if (employee && employee.isAccepted) throw new GQLError(ERRORS.EMPLOYEE_ALREADY_ACCEPTED, context)
+                if (employee && !employee.isAccepted && !employee.isRejected) throw new GQLError(ERRORS.EMPLOYEE_INVITATION_ALREADY_SENT, context)
 
                 const existedRequest = await getByCondition('OrganizationEmployeeRequest', {
                     organization: { id: organization.id },
