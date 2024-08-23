@@ -8,7 +8,7 @@ const { featureToggleManager } = require('@open-condo/featureflags/featureToggle
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
-const { GQLCustomSchema, allItemsQueryByChunks } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
 const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const { USER_WHITE_LIST_FOR_FIND_ORGANIZATIONS_BY_TIN } = require('@condo/domains/common/constants/featureflags')
@@ -112,11 +112,9 @@ const FindOrganizationsByTinService = new GQLCustomSchema('FindOrganizationsByTi
 
                 if (UNAVAILABLE_TINS.includes(tin)) throw new GQLError(ERRORS.UNAVAILABLE_TIN, context)
 
-                const orgIds = new Set()
-                await allItemsQueryByChunks({
-                    schemaName: 'OrganizationEmployee',
-                    where: {
-                        organization: { tin, deletedAt: null },
+                const organizations = await find('Organization', {
+                    tin,
+                    employees_some: {
                         user: { deletedAt: null, type: STAFF },
                         role: { canManageEmployees: true, deletedAt: null },
                         isAccepted: true,
@@ -124,31 +122,13 @@ const FindOrganizationsByTinService = new GQLCustomSchema('FindOrganizationsByTi
                         isBlocked: false,
                         deletedAt: null,
                     },
-                    chunkSize: 100,
-                    chunkProcessor: (employees) => {
-                        employees.forEach(employee => {
-                            orgIds.add(employee.organization)
-                        })
-                        return []
-                    },
-                })
-
-                if (orgIds.size < 1) return { organizations: [] }
-
-                const organizations = await allItemsQueryByChunks({
-                    schemaName: 'Organization',
-                    where: { id_in: Array.from(orgIds) },
-                    chunkSize: 100,
-                    chunkProcessor: (orgs) => {
-                        return orgs.map(org => ({ id: org.id, name: org.name }))
-                    },
+                    deletedAt: null,
                 })
 
                 return { organizations }
             },
         },
     ],
-
 })
 
 module.exports = {
