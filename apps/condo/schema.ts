@@ -33530,9 +33530,9 @@ export type MeterReading = {
   clientPhone?: Maybe<Scalars['String']>;
   /**  Meter reading source channel/system. Examples: call, mobile_app, billing, ...  */
   source?: Maybe<MeterReadingSource>;
-  /**  Meter reading billing status  */
+  /**  A status from external billing system. Changing during processing the reading in external system.  */
   billingStatus?: Maybe<MeterReadingBillingStatusType>;
-  /**  A message from external billing system. Can't be filled if billing status id `approved`  */
+  /**  A message from external billing system. Set to null if billing status is `approved`.  */
   billingStatusText?: Maybe<Scalars['String']>;
   /**  Ref to the organization. It is filled in on the server and is read-only  */
   organization?: Maybe<Organization>;
@@ -74008,6 +74008,7 @@ export type RegisterMetersReadingsReadingInput = {
   value3?: Maybe<Scalars['String']>;
   value4?: Maybe<Scalars['String']>;
   meterMeta?: Maybe<RegisterMetersReadingsMeterMetaInput>;
+  readingSource?: Maybe<MeterReadingSourceWhereUniqueInput>;
 };
 
 export type RegisterMultiPaymentForInvoicesInput = {
