@@ -168,6 +168,36 @@ describe('FindOrganizationsByTinService', () => {
                 }),
             ])
         })
+
+        test('should throw error if find by unavailable tin', async () => {
+            const staffClient = await makeClientWithStaffUser()
+
+            const logs1 = await FindOrganizationsByTinLog.getAll(adminClient, { user: { id: staffClient.user.id } })
+            expect(logs1).toHaveLength(0)
+
+            await expectToThrowGQLError(async () => {
+                await findOrganizationsByTinByTestClient(staffClient, { tin: '0000000000' })
+            }, {
+                query: 'findOrganizationsByTin',
+                variable: ['data', 'tin'],
+                code: 'BAD_USER_INPUT',
+                type: 'UNAVAILABLE_TIN',
+                message: 'Unavailable tin',
+            }, 'result')
+
+            await expectToThrowGQLError(async () => {
+                await findOrganizationsByTinByTestClient(staffClient, { tin: '000000000000' })
+            }, {
+                query: 'findOrganizationsByTin',
+                variable: ['data', 'tin'],
+                code: 'BAD_USER_INPUT',
+                type: 'UNAVAILABLE_TIN',
+                message: 'Unavailable tin',
+            }, 'result')
+
+            const logs2 = await FindOrganizationsByTinLog.getAll(adminClient, { user: { id: staffClient.user.id } })
+            expect(logs2).toHaveLength(2)
+        })
     })
 
     describe('Request limit', () => {
