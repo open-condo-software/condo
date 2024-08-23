@@ -114,17 +114,10 @@ const AcceptOrRejectOrganizationEmployeeRequestService = new GQLCustomSchema('Ac
                 })
                 if (!request) throw new GQLError(ERRORS.REQUEST_NOT_FOUND, context)
 
-                const alreadyDecided = request.decidedBy || request.decidedAt || request.isRejected || request.isAccepted
+                const alreadyDecided = request.isRejected || request.isAccepted
                 if (alreadyDecided) throw new GQLError(ERRORS.REQUEST_ALREADY_DECIDED, context)
 
-                if (isRejected) {
-                    await OrganizationEmployeeRequest.update(context, request.id, {
-                        isRejected: true,
-                        isAccepted: false,
-                        dv,
-                        sender,
-                    })
-                }
+                let employeeIdToConnect
 
                 if (isAccepted) {
                     if (!employeeRoleId) throw new GQLError(ERRORS.EMPLOYEE_ROLE_REQUIRED, context)
@@ -145,8 +138,6 @@ const AcceptOrRejectOrganizationEmployeeRequestService = new GQLCustomSchema('Ac
                         deletedAt: null,
                     })
 
-                    let employeeId = get(existedEmployee, 'id', null)
-
                     if (existedEmployee) {
                         const updatedEmployee = await OrganizationEmployee.update(context, existedEmployee.id, {
                             isAccepted: true,
@@ -158,10 +149,8 @@ const AcceptOrRejectOrganizationEmployeeRequestService = new GQLCustomSchema('Ac
                             dv,
                             sender,
                         })
-                        employeeId = get(updatedEmployee, 'id', null)
-                    }
-
-                    if (!existedEmployee) {
+                        employeeIdToConnect = get(updatedEmployee, 'id', null)
+                    } else {
                         const employeePayload = {
                             organization: { connect: { id: request.organization } },
                             user: { connect: { id: user.id } },
@@ -177,17 +166,17 @@ const AcceptOrRejectOrganizationEmployeeRequestService = new GQLCustomSchema('Ac
                         }
 
                         const createdEmployee = await OrganizationEmployee.create(context, employeePayload)
-                        employeeId = get(createdEmployee, 'id', null)
+                        employeeIdToConnect = get(createdEmployee, 'id', null)
                     }
-
-                    await OrganizationEmployeeRequest.update(context, request.id, {
-                        isRejected: false,
-                        isAccepted: true,
-                        employee: { connect: { id: employeeId } },
-                        dv,
-                        sender,
-                    })
                 }
+
+                await OrganizationEmployeeRequest.update(context, request.id, {
+                    isRejected,
+                    isAccepted,
+                    ...(isAccepted && !!employeeIdToConnect ? { employee: { connect: { id: employeeIdToConnect } } } : null),
+                    dv,
+                    sender,
+                })
 
                 return await getById('OrganizationEmployeeRequest', request.id)
             },

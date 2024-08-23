@@ -145,7 +145,7 @@ const SendOrganizationEmployeeRequestService = new GQLCustomSchema('SendOrganiza
 
                     if (existedRequest.retries >= 4) throw new GQLError(ERRORS.REQUEST_TO_ORGANIZATION_LIMIT_REACHED, context)
 
-                    const isNotDecided = !existedRequest.isRejected || !existedRequest.decidedAt || !existedRequest.decidedBy
+                    const isNotDecided = !existedRequest.isRejected || !existedRequest.decidedAt
                     if (isNotDecided) throw new GQLError(ERRORS.REQUEST_NOT_DECIDED, context)
 
                     const updatedRequest = await OrganizationEmployeeRequest.update(context, existedRequest.id, {
