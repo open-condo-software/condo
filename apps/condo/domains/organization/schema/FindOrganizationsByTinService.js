@@ -25,6 +25,8 @@ const appLogger = getLogger('condo')
 const logger = appLogger.child({ module: 'organization/findOrganizationsByTin' })
 
 const MAX_TOTAL_REQUESTS = 50
+const UNAVAILABLE_TINS = ['0000000000', '000000000000']
+
 /**
  * List of possible errors, that this custom schema can throw
  * They will be rendered in documentation section in GraphiQL for this custom schema
@@ -36,6 +38,13 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'EMPTY_TIN',
         message: 'Empty tin',
+    },
+    UNAVAILABLE_TIN: {
+        query: 'findOrganizationsByTin',
+        variable: ['data', 'tin'],
+        code: BAD_USER_INPUT,
+        type: 'UNAVAILABLE_TIN',
+        message: 'Unavailable tin',
     },
     DV_VERSION_MISMATCH: {
         ...COMMON_ERRORS.DV_VERSION_MISMATCH,
@@ -100,6 +109,8 @@ const FindOrganizationsByTinService = new GQLCustomSchema('FindOrganizationsByTi
                     dv,
                     sender,
                 })
+
+                if (UNAVAILABLE_TINS.includes(tin)) throw new GQLError(ERRORS.UNAVAILABLE_TIN, context)
 
                 const orgIds = new Set()
                 await allItemsQueryByChunks({
