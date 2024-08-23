@@ -6,12 +6,13 @@ const get = require('lodash/get')
 const uniq = require('lodash/uniq')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { find, getById } = require('@open-condo/keystone/schema')
+const { getById } = require('@open-condo/keystone/schema')
 
 const {
     getEmployedOrRelatedOrganizationsByPermissions,
     checkPermissionsInEmployedOrRelatedOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
+const { getUserResidents, getUserServiceConsumers } = require('@condo/domains/resident/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 async function canReadMobileFeatureConfigs ({ authentication: { item: user }, context }) {
@@ -30,11 +31,8 @@ async function canReadMobileFeatureConfigs ({ authentication: { item: user }, co
         // but we might switch to first one after thinking about news / ticket domain.
         // (or improve consumers logic to cover these domains as well)
         // TODO(pahaz): Figure out from stakeholders the correct approach
-        const residents = await find('Resident', { user: { id: user.id }, deletedAt: null })
-        const consumers = await find('ServiceConsumer', {
-            resident: { id_in: residents.map(resident => resident.id) },
-            deletedAt: null,
-        })
+        const residents = await getUserResidents(context, user)
+        const consumers = await getUserServiceConsumers(context, user)
 
         // NOTE: used to keep non-consumer domains alive (like tickets)
         const managingCompanies = residents.map(resident => resident.organization).filter(Boolean)

@@ -38,6 +38,7 @@ const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
 const IS_SENTRY_ENABLED = JSON.parse(get(conf, 'SENTRY_CONFIG', '{}'))['server'] !== undefined
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development'
 const IS_KEEP_ALIVE_ON_ERROR = get(conf, 'KEEP_ALIVE_ON_ERROR', false) === 'true'
+const ENABLE_HEAP_SNAPSHOT = get(conf, 'ENABLE_HEAP_SNAPSHOT', false) === 'true'
 // NOTE: should be disabled in production: https://www.apollographql.com/docs/apollo-server/testing/graphql-playground/
 // WARN: https://github.com/graphql/graphql-playground/tree/main/packages/graphql-playground-html/examples/xss-attack
 const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND === 'true'
@@ -213,14 +214,21 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
             app.use(urlencoded({ limit: '100mb', extended: true }))
 
             const requestIdHeaderName = 'x-request-id'
+            const startRequestIdHeaderName = 'x-start-request-id'
             app.use(function reqId (req, res, next) {
                 const reqId = req.get(requestIdHeaderName) || v4()
-                _internalGetExecutionContextAsyncLocalStorage().run({ reqId }, () => {
+                const startReqId = req.get(startRequestIdHeaderName) || reqId
+
+                _internalGetExecutionContextAsyncLocalStorage().run({ reqId, startReqId }, () => {
                     // we are expecting to receive reqId from client in order to have fully traced logs end to end
                     // also, property name are constant name, not a dynamic user input
                     // nosemgrep: javascript.express.security.audit.remote-property-injection.remote-property-injection
                     req['id'] = req.headers[requestIdHeaderName] = reqId
+                    // nosemgrep: javascript.express.security.audit.remote-property-injection.remote-property-injection
+                    req['startId'] = req.headers[startRequestIdHeaderName] = startReqId
+
                     res.setHeader(requestIdHeaderName, reqId)
+                    res.setHeader(startRequestIdHeaderName, startReqId)
                     next()
                 })
             })
@@ -258,7 +266,7 @@ process.on('unhandledRejection', (err, promise) => {
         throw err
     }
 })
-if (!process.env['DISABLE_HEAP_SNAPSHOT']) {
+if (ENABLE_HEAP_SNAPSHOT) {
     process.on('SIGPIPE', async () => {
         try {
             const labelCreateSnapshot = 'Heap snapshot created in'
@@ -290,6 +298,7 @@ if (!process.env['DISABLE_HEAP_SNAPSHOT']) {
         } catch (err) {
             console.error(err)
         }
+        process.exit(0)
     })
 }
 

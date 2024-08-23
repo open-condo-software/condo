@@ -59,6 +59,7 @@ const guideModalCardReviews = JSON.parse(conf['GUIDE_MODAL_CARD_REVIEWS'] || '{}
 const guideIntroduceAppMaterials = JSON.parse(conf['GUIDE_INTRODUCE_APP_MATERIALS'] || '{}')
 const importInstructionUrl = JSON.parse(conf['IMPORT_INSTRUCTION_URL'] || '{}')
 const telegramEmployeeBotName = conf['TELEGRAM_EMPLOYEE_BOT_NAME']
+const disableSSR = conf['DISABLE_SSR']
 
 let nextConfig = withTM(withLess(withCSS({
     publicRuntimeConfig: {
@@ -98,6 +99,7 @@ let nextConfig = withTM(withLess(withCSS({
         guideIntroduceAppMaterials,
         importInstructionUrl,
         telegramEmployeeBotName,
+        disableSSR,
     },
     lessLoaderOptions: {
         javascriptEnabled: true,
