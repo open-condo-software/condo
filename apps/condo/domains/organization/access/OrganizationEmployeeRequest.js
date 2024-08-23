@@ -26,7 +26,7 @@ async function canReadOrganizationEmployeeRequests ({ authentication: { item: us
 
     const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, 'canManageOrganizationEmployeeRequests')
 
-    if (permittedOrganizations.length < 0) return { user: { id: user.id } }
+    if (permittedOrganizations.length < 1) return { user: { id: user.id } }
 
     return {
         OR: [{
