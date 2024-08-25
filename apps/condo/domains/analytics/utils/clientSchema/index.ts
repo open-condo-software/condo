@@ -3,5 +3,4 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
-export * as ExternalReport from './ExternalReport'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
