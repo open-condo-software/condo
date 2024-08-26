@@ -20,7 +20,7 @@ const FETCH_TIME_METRIC_NAME = 'fetch.time'
  *
  * @example { _default: 'group0', v1.condo.ai: 'group1' }
  *
- * All requests will have X-Target=group0. Requests to v1.condo.aoo will have X-Target=group1
+ * All requests will have X-Target=group0. Requests to v1.condo.ai will have X-Target=group1
  */
 const FETCH_X_TARGET_CONFIG = JSON.parse(conf.FETCH_X_TARGET_CONFIG || '{}')
 
