@@ -40,7 +40,7 @@ const GetAccessTokenByUserIdService = new GQLCustomSchema('GetAccessTokenByUserI
     types: [
         {
             access: true,
-            type: 'input GetAccessTokenByUserIdInput { userId: ID!, type: GetAccessTokenByUserIdServiceType!, organization: OrganizationWhereUniqueInput }',
+            type: 'input GetAccessTokenByUserIdInput { userId: UserWhereUniqueInput!, type: GetAccessTokenByUserIdServiceType!, organization: OrganizationWhereUniqueInput }',
         },
         {
             access: true,
