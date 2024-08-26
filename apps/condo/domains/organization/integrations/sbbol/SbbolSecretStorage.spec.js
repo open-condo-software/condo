@@ -1,5 +1,7 @@
 const { faker } = require('@faker-js/faker')
 
+const { catchErrorFrom } = require('@open-condo/keystone/test.utils')
+
 const { SbbolSecretStorage } = require('./SbbolSecretStorage')
 
 describe('SbbolSecretStorage', () => {
@@ -17,6 +19,26 @@ describe('SbbolSecretStorage', () => {
         const orgId = faker.datatype.uuid()
         await storage.setRefreshToken(value, userId, orgId)
         expect(await storage.getRefreshToken(userId, orgId)).toEqual(value)
+    })
+
+    it('error setRefreshToken without orgId', async () => {
+        const storage = new SbbolSecretStorage('auth', '12345')
+        const value = faker.datatype.uuid()
+        const userId = faker.datatype.uuid()
+        await catchErrorFrom(async () => await storage.setRefreshToken(value, userId),
+            (e) => {
+                expect(e.message).toEqual('organizationId is required for setRefreshToken')
+            })
+    })
+
+    it('error getRefreshToken without orgId', async () => {
+        const storage = new SbbolSecretStorage('auth', '12345')
+        const value = faker.datatype.uuid()
+        const userId = faker.datatype.uuid()
+        await catchErrorFrom(async () => await storage.getRefreshToken(userId),
+            (e) => {
+                expect(e.message).toEqual('organizationId is required for getRefreshToken')
+            })
     })
 
     it('returns false for isRefreshTokenExpired() for not expired refreshToken', async () => {
@@ -37,6 +59,25 @@ describe('SbbolSecretStorage', () => {
         const { accessToken, ttl } = await storage.getAccessToken(userId, orgId)
         expect(accessToken).toEqual(value)
         expect(ttl).toBeTruthy()
+    })
+
+    it('error set accessToken without orgId', async () => {
+        const storage = new SbbolSecretStorage('auth', '12345')
+        const value = faker.datatype.uuid()
+        const userId = faker.datatype.uuid()
+        await catchErrorFrom(async () => await storage.setAccessToken(value, userId),
+            (e) => {
+                expect(e.message).toEqual('organizationId is required for setAccessToken')
+            })
+    })
+
+    it('error get accessToken without orgId', async () => {
+        const storage = new SbbolSecretStorage('auth', '12345')
+        const userId = faker.datatype.uuid()
+        await catchErrorFrom(async () => await storage.getAccessToken(userId),
+            (e) => {
+                expect(e.message).toEqual('organizationId is required for getAccessToken')
+            })
     })
 
     it('returns false for isAccessTokenExpired() for not expired accessToken', async () => {

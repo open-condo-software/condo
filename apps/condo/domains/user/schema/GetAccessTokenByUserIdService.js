@@ -40,7 +40,7 @@ const GetAccessTokenByUserIdService = new GQLCustomSchema('GetAccessTokenByUserI
     types: [
         {
             access: true,
-            type: 'input GetAccessTokenByUserIdInput { userId: UserWhereUniqueInput!, type: GetAccessTokenByUserIdServiceType!, organization: OrganizationWhereUniqueInput }',
+            type: 'input GetAccessTokenByUserIdInput { user: UserWhereUniqueInput!, type: GetAccessTokenByUserIdServiceType!, organization: OrganizationWhereUniqueInput! }',
         },
         {
             access: true,
@@ -70,7 +70,7 @@ const GetAccessTokenByUserIdService = new GQLCustomSchema('GetAccessTokenByUserI
 
                 if (data.type === SBBOL_IDENTITY_TYPE) {
                     try {
-                        ({ accessToken, ttl } = await getAccessTokenForUser(data.userId))
+                        ({ accessToken, ttl } = await getAccessTokenForUser(data.user.id, data.organization.id))
                     } catch (e) {
                         if (e.message.includes('refreshToken')) {
                             throw new GQLError(ERRORS.REFRESH_TOKEN_EXPIRED, context)

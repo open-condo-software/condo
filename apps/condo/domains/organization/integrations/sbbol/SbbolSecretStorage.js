@@ -44,7 +44,7 @@ class SbbolSecretStorage {
 
     async getAccessToken (userId, organizationId) {
         if (!userId) throw new Error('userId is required for setAccessToken')
-        if (!organizationId) throw new Error('organizationId is required for setAccessToken')
+        if (!organizationId) throw new Error('organizationId is required for getAccessToken')
         const key = `organization:${organizationId}:user:${userId}:accessToken`
         return {
             accessToken: await this.#getValue(key),
@@ -73,6 +73,7 @@ class SbbolSecretStorage {
     }
 
     async getRefreshToken (userId, organizationId) {
+        if (!userId) throw new Error('userId is required for getRefreshToken')
         if (!organizationId) throw new Error('organizationId is required for getRefreshToken')
 
         return this.#getValue(`organization:${organizationId}:user:${userId}:refreshToken`)
@@ -93,6 +94,7 @@ class SbbolSecretStorage {
     }
 
     async isRefreshTokenExpired (userId, organizationId) {
+        if (!userId) throw new Error('userId is required for isRefreshTokenExpired')
         if (!organizationId) throw new Error('organizationId is required for isRefreshTokenExpired')
 
         return await this.#isExpired(`organization:${organizationId}:user:${userId}:refreshToken`)

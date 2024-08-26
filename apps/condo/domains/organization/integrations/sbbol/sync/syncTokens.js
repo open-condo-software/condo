@@ -8,7 +8,7 @@ const { getSbbolSecretStorage } = require('../utils')
  * @param {String} organizationId
  * @return {Promise<void>}
  */
-const syncTokens = async (tokenInfoFromOAuth, userId, useExtendedConfig = false, organizationId) => {
+const syncTokens = async (tokenInfoFromOAuth, userId, organizationId, useExtendedConfig = false) => {
     const { access_token, expires_at: expiresAt, refresh_token } = tokenInfoFromOAuth
     const sbbolSecretStorage = getSbbolSecretStorage(useExtendedConfig)
     await sbbolSecretStorage.setAccessToken(access_token, userId, organizationId, { expiresAt })
