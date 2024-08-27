@@ -16,7 +16,7 @@ const GQL_LIST_SCHEMA_TYPE = 'GQLListSchema'
 const GQL_CUSTOM_SCHEMA_TYPE = 'GQLCustomSchema'
 const GQL_SCHEMA_TYPES = [GQL_LIST_SCHEMA_TYPE, GQL_CUSTOM_SCHEMA_TYPE]
 
-const TIMEOUT_DURATION = 60 * 1000
+const TIMEOUT_DURATION = Number(conf.TIMEOUT_CHUNKS_DURATION) || 60 * 1000
 
 const logger = getLogger('packages/schema.js')
 
@@ -212,6 +212,14 @@ async function allItemsQueryByChunks ({
         const now = Date.now()
 
         if (!conf.DISABLE_CHUNKS_TIMEOUT && now - startTime >= TIMEOUT_DURATION) {
+            logger.info({
+                msg: 'Operation timed out',
+                functionName: 'allItemsQueryByChunks',
+                schemaName: schemaName,
+                data: { allItemsQueryByChunksArgs: { where, first: chunkSize, skip, sortBy: ['id_ASC'] } },
+                count: allLength,
+            })
+
             throw new Error('Operation timed out')
         }
 
@@ -243,7 +251,13 @@ async function allItemsQueryByChunks ({
         }
     } while (newChunkLength)
 
-    logger.info({ msg: 'allItemsQueryByChunks return', count: allLength })
+    logger.info({
+        msg: 'Return count',
+        functionName: 'allItemsQueryByChunks',
+        schemaName: schemaName,
+        data: { allItemsQueryByChunksArgs: { where, first: chunkSize, skip, sortBy: ['id_ASC'] } },
+        count: allLength,
+    })
 
     return all
 }

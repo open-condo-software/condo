@@ -1,5 +1,6 @@
 const { getItems } = require('@keystonejs/server-side-graphql-client')
 const { isFunction } = require('lodash')
+const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
 const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
@@ -10,7 +11,7 @@ const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const GLOBAL_QUERY_LIMIT = 1000
 const TOO_MANY_RETURNED_LOG_LIMITS = Object.freeze([1100, 4900, 9000, 14900, 49000, 149000])
 const logger = getLogger('common/utils/serverSchema.js')
-const TIMEOUT_DURATION = 60 * 1000
+const TIMEOUT_DURATION = Number(conf.TIMEOUT_CHUNKS_DURATION) ||  60 * 1000
 
 // When we load models with Apollo graphql - every relation on a field for every object makes sql request
 // For example, loading 50 tickets will cause a result of ~1000 sql queries which is near server limit
@@ -73,6 +74,16 @@ class GqlWithKnexLoadList {
             const now = Date.now()
 
             if (!conf.DISABLE_CHUNKS_TIMEOUT && now - startTime >= TIMEOUT_DURATION) {
+                logger.info({
+                    msg: 'Operation timed out',
+                    functionName: 'GqlWithKnexLoadList.load',
+                    schemaName: this.listKey,
+                    data: {
+                        singleRelations: this.singleRelations, multipleRelations: this.multipleRelations, where: this.where, fields: this.fields,
+                    },
+                    count: allLength,
+                })
+
                 throw new Error('Operation timed out')
             }
 
@@ -94,7 +105,15 @@ class GqlWithKnexLoadList {
             }
         } while (--maxiterationsCount > 0 && newchunk.length)
 
-        logger.info({ msg: 'GqlWithKnexLoadList load return', count: allLength })
+        logger.info({
+            msg: 'Return count',
+            functionName: 'GqlWithKnexLoadList.load',
+            schemaName: this.listKey,
+            data: {
+                singleRelations: this.singleRelations, multipleRelations: this.multipleRelations, where: this.where, fields: this.fields,
+            },
+            count: allLength,
+        })
 
         return all
     }
@@ -194,6 +213,18 @@ const loadListByChunks = async ({
         const now = Date.now()
 
         if (!conf.DISABLE_CHUNKS_TIMEOUT && now - startTime >= TIMEOUT_DURATION) {
+            logger.info({
+                msg: 'Operation timed out',
+                functionName: 'loadListByChunks',
+                schemaName: get(list, 'key'),
+                data: {
+                    chunkSize,
+                    limit,
+                    loadListByChunksArgs: { where },
+                },
+                count: allLength,
+            })
+
             throw new Error('Operation timed out')
         }
 
@@ -216,7 +247,7 @@ const loadListByChunks = async ({
             logger.warn({
                 msg: 'tooManyReturned',
                 functionName: 'loadListByChunks',
-                schemaName: list.key,
+                schemaName: get(list, 'key'),
                 data: {
                     limit: 1000,
                     loadListByChunksArgs: { where },
@@ -226,7 +257,17 @@ const loadListByChunks = async ({
         }
     } while (--maxIterationsCount > 0 && newChunkLength)
 
-    logger.info({ msg: 'loadListByChunks return', count: allLength })
+    logger.info({
+        msg: 'Return count',
+        functionName: 'loadListByChunks',
+        schemaName: get(list, 'key'),
+        data: {
+            chunkSize,
+            limit,
+            loadListByChunksArgs: { where },
+        },
+        count: allLength,
+    })
 
     return all
 }
