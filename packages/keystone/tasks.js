@@ -156,16 +156,16 @@ async function _scheduleInProcessTask (name, preparedArgs, preparedOpts) {
     let executor = async function inProcessExecutor () {
         const startTime = Date.now()
         try {
-            logger.info({ msg: 'Executing task', taskName: name, meta: { preparedArgs, preparedOpts } })
+            logger.info({ msg: 'worker: task start', taskName: name, meta: { preparedArgs, preparedOpts } })
             result = await executeTask(name, preparedArgs, job)
             status = 'completed'
             const endTime = Date.now()
             const responseTime = endTime - startTime
-            logger.info({ msg: 'Task result', taskName: name, status, meta: { result, preparedArgs, preparedOpts }, responseTime })
+            logger.info({ msg: 'worker: task successful', taskName: name, status, meta: { result, preparedArgs, preparedOpts }, responseTime })
         } catch (e) {
             const endTime = Date.now()
             const responseTime = endTime - startTime
-            logger.error({ msg: 'Error executing task', taskName: name, err: e, meta: { preparedArgs, preparedOpts }, responseTime })
+            logger.error({ msg: 'worker: failed with error', taskName: name, err: e, meta: { preparedArgs, preparedOpts }, responseTime })
             status = 'error'
             error = e
         }
@@ -374,17 +374,17 @@ async function createWorker (keystoneModule, config) {
         queue.process('*', WORKER_CONCURRENCY, async function (job) {
             const startTime = Date.now()
             const task = getTaskLoggingContext(job)
-            logger.info({ msg: 'Executing task', taskId: job.id, queue: queueName, task })
+            logger.info({ msg: 'worker: task start', taskId: job.id, queue: queueName, task })
             try {
                 const result = await executeTask(job.name, job.data.args, job)
                 const endTime = Date.now()
                 const responseTime = endTime - startTime
-                logger.info({ msg: 'Task result', taskId: job.id, queue: queueName, task, responseTime })
+                logger.info({ msg: 'worker: task successful', taskId: job.id, queue: queueName, task, responseTime })
                 return result
             } catch (err) {
                 const endTime = Date.now()
                 const responseTime = endTime - startTime
-                logger.error({ msg: 'Error executing task', taskId: job.id, queue: queueName, task, err, responseTime })
+                logger.error({ msg: 'worker: failed with error', taskId: job.id, queue: queueName, task, err, responseTime })
                 throw err
             }
         })
