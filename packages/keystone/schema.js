@@ -5,6 +5,7 @@ const { pickBy, identity, isFunction, isArray, memoize } = require('lodash')
 const get = require('lodash/get')
 const ow = require('ow')
 
+const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { GQL_SCHEMA_PLUGIN } = require('./plugins/utils/typing')
@@ -14,6 +15,8 @@ let SCHEMAS = new Map()
 const GQL_LIST_SCHEMA_TYPE = 'GQLListSchema'
 const GQL_CUSTOM_SCHEMA_TYPE = 'GQLCustomSchema'
 const GQL_SCHEMA_TYPES = [GQL_LIST_SCHEMA_TYPE, GQL_CUSTOM_SCHEMA_TYPE]
+
+const TIMEOUT_DURATION = 60 * 1000
 
 const logger = getLogger('packages/schema.js')
 
@@ -201,10 +204,20 @@ async function allItemsQueryByChunks ({
     let all = []
     let newChunkLength
     let haveWarnedAboutTooManyObjs = false
+    let allLength = 0
+
+    const startTime = Date.now()
 
     do {
+        const now = Date.now()
+
+        if (!conf.DISABLE_CHUNKS_TIMEOUT && now - startTime >= TIMEOUT_DURATION) {
+            throw new Error('Operation timed out')
+        }
+
         newChunk = await itemsQuery(schemaName, { where, first: chunkSize, skip, sortBy: ['id_ASC'] })
         newChunkLength = newChunk.length
+        allLength += newChunk.length
 
         if (newChunkLength > 0) {
             if (isFunction(chunkProcessor)) {
@@ -229,6 +242,8 @@ async function allItemsQueryByChunks ({
             haveWarnedAboutTooManyObjs = true
         }
     } while (newChunkLength)
+
+    logger.info({ msg: 'allItemsQueryByChunks return', count: allLength })
 
     return all
 }
