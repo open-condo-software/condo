@@ -211,7 +211,7 @@ async function allItemsQueryByChunks ({
     do {
         const now = Date.now()
 
-        if (!conf.DISABLE_CHUNKS_TIMEOUT && now - startTime >= TIMEOUT_DURATION) {
+        if (conf.DISABLE_CHUNKS_TIMEOUT !== 'true' && now - startTime >= TIMEOUT_DURATION) {
             logger.info({
                 msg: 'Operation timed out',
                 functionName: 'allItemsQueryByChunks',

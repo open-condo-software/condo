@@ -73,7 +73,7 @@ class GqlWithKnexLoadList {
         do {
             const now = Date.now()
 
-            if (!conf.DISABLE_CHUNKS_TIMEOUT && now - startTime >= TIMEOUT_DURATION) {
+            if (conf.DISABLE_CHUNKS_TIMEOUT !== 'true' && now - startTime >= TIMEOUT_DURATION) {
                 logger.info({
                     msg: 'Operation timed out',
                     functionName: 'GqlWithKnexLoadList.load',
@@ -212,11 +212,11 @@ const loadListByChunks = async ({
     do {
         const now = Date.now()
 
-        if (!conf.DISABLE_CHUNKS_TIMEOUT && now - startTime >= TIMEOUT_DURATION) {
+        if (conf.DISABLE_CHUNKS_TIMEOUT !== 'true' && now - startTime >= TIMEOUT_DURATION) {
             logger.info({
                 msg: 'Operation timed out',
                 functionName: 'loadListByChunks',
-                schemaName: get(list, 'key'),
+                schemaName: get(list, 'gql.SINGULAR_FORM', ''),
                 data: {
                     chunkSize,
                     limit,
@@ -247,7 +247,7 @@ const loadListByChunks = async ({
             logger.warn({
                 msg: 'tooManyReturned',
                 functionName: 'loadListByChunks',
-                schemaName: get(list, 'key'),
+                schemaName: get(list, 'gql.SINGULAR_FORM', ''),
                 data: {
                     limit: 1000,
                     loadListByChunksArgs: { where },
@@ -260,7 +260,7 @@ const loadListByChunks = async ({
     logger.info({
         msg: 'Return count',
         functionName: 'loadListByChunks',
-        schemaName: get(list, 'key'),
+        schemaName: get(list, 'gql.SINGULAR_FORM', ''),
         data: {
             chunkSize,
             limit,
