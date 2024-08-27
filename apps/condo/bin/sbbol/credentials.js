@@ -56,8 +56,8 @@ const workerJob = async () => {
     if (command === COMMAND.CHANGE_CLIENT_SECRET) {
         await keystoneConnect()
         const sbbolSecretStorage = getSbbolSecretStorage()
-        let clientId, currentClientSecret, newClientSecret, userId, withExtendedConfig
-        [clientId, currentClientSecret, newClientSecret, userId, withExtendedConfig] = process.argv.slice(3)
+        let clientId, currentClientSecret, newClientSecret, accessToken, withExtendedConfig
+        [clientId, currentClientSecret, newClientSecret, accessToken, withExtendedConfig] = process.argv.slice(3)
         const useExtendedConfig = withExtendedConfig === 'true'
         if (!clientId && !currentClientSecret && !newClientSecret) {
             currentClientSecret = await sbbolSecretStorage.getClientSecret(useExtendedConfig)
@@ -76,14 +76,14 @@ const workerJob = async () => {
             }
         }
 
-        await changeClientSecret({ clientId, currentClientSecret, newClientSecret, userId, useExtendedConfig })
+        await changeClientSecret({ clientId, currentClientSecret, newClientSecret, accessToken, useExtendedConfig })
     }
 
     if (command === COMMAND.GET) {
-        const [userId, withExtendedConfig] = process.argv.slice(3)
+        const [userId, organizationId, withExtendedConfig] = process.argv.slice(3)
         const useExtendedConfig = withExtendedConfig === 'true'
         const sbbolSecretStorage = getSbbolSecretStorage(useExtendedConfig)
-        const values = await sbbolSecretStorage.getRawKeyValues(userId)
+        const values = await sbbolSecretStorage.getRawKeyValues(userId, organizationId)
         console.log('SbbolSecretStorage values: ', JSON.stringify(values, null, 2))
     }
 
