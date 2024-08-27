@@ -154,13 +154,18 @@ async function _scheduleInProcessTask (name, preparedArgs, preparedOpts) {
     let result = undefined
     let status = 'processing'
     let executor = async function inProcessExecutor () {
+        const startTime = Date.now()
         try {
             logger.info({ msg: 'Executing task', taskName: name, meta: { preparedArgs, preparedOpts } })
             result = await executeTask(name, preparedArgs, job)
             status = 'completed'
-            logger.info({ msg: 'Task result', taskName: name, status, meta: { result, preparedArgs, preparedOpts } })
+            const endTime = Date.now()
+            const responseTime = endTime - startTime
+            logger.info({ msg: 'Task result', taskName: name, status, meta: { result, preparedArgs, preparedOpts }, responseTime })
         } catch (e) {
-            logger.error({ msg: 'Error executing task', taskName: name, error: e, meta: { preparedArgs, preparedOpts } })
+            const endTime = Date.now()
+            const responseTime = endTime - startTime
+            logger.error({ msg: 'Error executing task', taskName: name, err: e, meta: { preparedArgs, preparedOpts }, responseTime })
             status = 'error'
             error = e
         }
