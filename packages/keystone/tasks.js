@@ -372,12 +372,20 @@ async function createWorker (keystoneModule, config) {
     // Apply callbacks to each created queue
     activeQueues.forEach(([queueName, queue]) => {
         queue.process('*', WORKER_CONCURRENCY, async function (job) {
-            logger.info({ taskId: job.id, status: 'processing', queue: queueName, task: getTaskLoggingContext(job) })
+            const startTime = Date.now()
+            const task = getTaskLoggingContext(job)
+            logger.info({ msg: 'Executing task', taskId: job.id, queue: queueName, task })
             try {
-                return await executeTask(job.name, job.data.args, job)
-            } catch (error) {
-                logger.error({ taskId: job.id, status: 'error', error, queue: queueName, task: getTaskLoggingContext(job) })
-                throw error
+                const result = await executeTask(job.name, job.data.args, job)
+                const endTime = Date.now()
+                const responseTime = endTime - startTime
+                logger.info({ msg: 'Task result', taskId: job.id, queue: queueName, task, responseTime })
+                return result
+            } catch (err) {
+                const endTime = Date.now()
+                const responseTime = endTime - startTime
+                logger.error({ msg: 'Error executing task', taskId: job.id, queue: queueName, task, err, responseTime })
+                throw err
             }
         })
 
