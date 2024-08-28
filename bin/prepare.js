@@ -117,7 +117,7 @@ async function prepare () {
                 SERVER_URL: app.serviceUrl,
             }
 
-            if (replication && app in replication) {
+            if (replication && replication.includes(app.name)) {
                 env.DATABASE_URL = `custom:{"default":{"read":"postgresql://postgres:postgres@127.0.0.1:5433/${app.pgName}","write":"postgresql://postgres:postgres@127.0.0.1:5432/${app.pgName}"}}` // NOSONAR used only for test purposes
                 env.DATABASE_MAPPING = '[{"match":"*","query":"default","command":"default"}]'
             }
