@@ -30,20 +30,19 @@ const logger = getLogger('firebaseAdapter')
  * Attempts to send push notifications to devices, connected through different projects will fail.
  */
 class RuStoreAdapter {
-    app = null
     projectId = null
+    #config = null
 
     constructor (config = RUSTORE_CONFIG) {
         try {
             if (isEmpty(config)) throw new Error(EMPTY_RUSTORE_CONFIG_ERROR)
-
-            this.app = new RuStoreNotificationSender(config)
         } catch (error) {
             // For CI/local tests config is useless because of emulation via FAKE tokens
             logger.error({ msg: 'RuStore adapter error', error })
         }
 
         this.projectId = get(config, 'project_id', null)
+        this.#config = config
         // not user input. No ReDoS regexp expected
         // nosemreg: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
         this.messageIdPrefixRegexp = new RegExp(`projects/${this.projectId}/messages`)
@@ -88,7 +87,7 @@ class RuStoreAdapter {
      */
     static prepareBatchData (notificationRaw, data, tokens = [], pushTypes = {}, isVoIP = false) {
         const notification = RuStoreAdapter.validateAndPrepareNotification(notificationRaw)
-        const notifications = []
+        const notifications = [] // User can have many Remote Clients. Message is created for the user, so from 1 message there can be many notifications
         const fakeNotifications = []
         const pushContext = {}
         const extraPayload = isVoIP ? HIGH_PRIORITY_SETTINGS : {}
@@ -216,26 +215,40 @@ class RuStoreAdapter {
             result = RuStoreAdapter.injectFakeResults(RuStoreAdapter.getEmptyResult(), fakeNotifications)
         }
 
-        // NOTE: we try to fire RuStore request only if RuStore was initialized and we have some real notifications
-        if (!isNull(this.app) && !isEmpty(notifications)) {
-            try {
-                const ruStoreResult = await this.app.sendAll(notifications)
-
-                if (!isEmpty(ruStoreResult.responses)) {
-                    ruStoreResult.responses = ruStoreResult.responses.map(
-                        (response, idx) =>
-                            ({
-                                ...response,
-                                pushToken: notifications[idx].token,
-                                pushType: get(pushTypes, notifications[idx].token, null),
-                            })
-                    )
+        if (!isNull(this.#config) && !isEmpty(notifications)) {
+            const notificationsByAppId = {}
+            for (const notification of notifications) {
+                const appId = notification.appId
+                notificationsByAppId[appId] ||= []
+                notificationsByAppId[appId].push(notification)
+            }
+            for (const [appId, notificationsBatchForApp] of Object.entries(notificationsByAppId)) {
+                const currentConfig = this.#config[appId]
+                if (!currentConfig) {
+                    logger.error({ msg: 'Unknown appId. Config was not found', appId })
+                    continue
                 }
 
-            } catch (error) {
-                logger.error({ msg: 'sendNotification error', error })
+                const app = new RuStoreNotificationSender(this.#config)
+                try {
+                    const ruStoreResult = await app.sendAll(notificationsBatchForApp)
 
-                result = { state: 'error', error }
+                    if (!isEmpty(ruStoreResult.responses)) {
+                        ruStoreResult.responses = ruStoreResult.responses.map(
+                            (response, idx) =>
+                                ({
+                                    ...response,
+                                    pushToken: notifications[idx].token,
+                                    pushType: get(pushTypes, notifications[idx].token, null),
+                                })
+                        )
+                    }
+
+                } catch (error) {
+                    logger.error({ msg: 'sendNotification error', error })
+
+                    result = { state: 'error', error }
+                }
             }
         }
 

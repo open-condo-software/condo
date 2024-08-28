@@ -27,7 +27,7 @@ jest.mock('@open-condo/config',  () => {
         APPS_WITH_DISABLED_NOTIFICATIONS: '["condo.app.clients"]',
     }
 })
-describe('Firebase adapter utils', () => {
+describe('RuStore adapter utils', () => {
     it('should succeed sending push notification to fake success push token ', async () => {
         const tokens = [PUSH_FAKE_TOKEN_SUCCESS]
         const [isOk, result] = await adapter.sendNotification({
