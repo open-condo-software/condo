@@ -1,6 +1,8 @@
+const { get } = require('lodash')
+
 const { fetch } = require('@open-condo/keystone/fetch')
-const {get} = require("lodash");
-const {APS_RESPONSE_STATUS_SUCCESS} = require("../apple/constants");
+
+const { APS_RESPONSE_STATUS_SUCCESS } = require('../apple/constants')
 
 
 class RuStoreNotificationSender {

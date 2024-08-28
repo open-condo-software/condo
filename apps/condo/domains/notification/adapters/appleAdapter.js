@@ -225,13 +225,13 @@ class AppleAdapter {
                 notificationsByAppId[appId].push(notification)
             }
             for (const [appId, notificationsBatchForApp] of Object.entries(notificationsByAppId)) {
-                const currentConfig = this.#config[appId]
-                if (!currentConfig) {
+                const configForApp = this.#config[appId]
+                if (!configForApp) {
                     logger.error({ msg: 'Unknown appId. Config was not found', appId })
                     continue
                 }
 
-                const app = new AppleMessaging(currentConfig)
+                const app = new AppleMessaging(configForApp)
 
                 try {
                     const appleResult = await app.sendAll(notificationsBatchForApp, isVoIP)
