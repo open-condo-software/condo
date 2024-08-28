@@ -6,7 +6,7 @@ const conf = require('@open-condo/config')
 const {
     PUSH_FAKE_TOKEN_SUCCESS,
     PUSH_FAKE_TOKEN_FAIL,
-    FIREBASE_CONFIG_TEST_PUSHTOKEN_ENV,
+    RUSTORE_CONFIG_TEST_PUSHTOKEN_ENV,
     PUSH_TYPE_SILENT_DATA,
     PUSH_TYPE_DEFAULT,
     FAKE_SUCCESS_MESSAGE_PREFIX,
@@ -14,13 +14,13 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 
 const {
-    FirebaseAdapter,
+    RuStoreAdapter,
     EMPTY_NOTIFICATION_TITLE_BODY_ERROR,
-} = require('./firebaseAdapter')
+} = require('./ruStoreAdapter')
 
-const adapter = new FirebaseAdapter()
+const adapter = new RuStoreAdapter()
 const FAKE_SUCCESS_MESSAGE_PREFIX_REGEXP = new RegExp(`^${FAKE_SUCCESS_MESSAGE_PREFIX}`)
-const FIREBASE_TEST_PUSHTOKEN = conf[FIREBASE_CONFIG_TEST_PUSHTOKEN_ENV] || null
+const RUSTORE_TEST_PUSHTOKEN = conf[RUSTORE_CONFIG_TEST_PUSHTOKEN_ENV] || null
 
 jest.mock('@open-condo/config',  () => {
     return {
@@ -52,9 +52,9 @@ describe('Firebase adapter utils', () => {
     })
 
     it('tries to send push notification to real test push token if provided ', async () => {
-        if (!FIREBASE_TEST_PUSHTOKEN) return
+        if (!RUSTORE_TEST_PUSHTOKEN) return
 
-        const tokens = [FIREBASE_TEST_PUSHTOKEN]
+        const tokens = [RUSTORE_TEST_PUSHTOKEN]
         const [isOk, result] = await adapter.sendNotification({
             type: CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
             tokens,
@@ -66,7 +66,7 @@ describe('Firebase adapter utils', () => {
                 // app: 'condo',
                 // type: 'notification',
                 recurrentPaymentContextId: faker.datatype.uuid(),
-                recurrentPaymentContext: { id: 'faker.datatype.uuid()' },
+                recurrentPaymentContext: { id: faker.datatype.uuid() },
                 errorCode: 'test2',
             },
         })
@@ -196,8 +196,8 @@ describe('Firebase adapter utils', () => {
         expect(pushContext).toBeDefined()
         expect(pushContext.notification).toBeUndefined()
         expect(pushContext.data).toBeDefined()
-        expect(pushContext.data._title).toEqual(pushData.notification.title)
-        expect(pushContext.data._body).toEqual(pushData.notification.body)
+        expect(pushContext.data.title).toEqual(pushData.notification.title)
+        expect(pushContext.data.body).toEqual(pushData.notification.body)
     })
 
     it('doesnt send push notification to app with disabled notifications', async () => {
@@ -230,8 +230,8 @@ describe('Firebase adapter utils', () => {
         expect(pushContext).toBeDefined()
         expect(pushContext.notification).toBeUndefined()
         expect(pushContext.data).toBeDefined()
-        expect(pushContext.data._title).toEqual(pushData.notification.title)
-        expect(pushContext.data._body).toEqual(pushData.notification.body)
+        expect(pushContext.data.title).toEqual(pushData.notification.title)
+        expect(pushContext.data.body).toEqual(pushData.notification.body)
     })
 
     it('should fail to send invalid push notification with missing title to fake success push token ', async () => {
@@ -270,7 +270,7 @@ describe('Firebase adapter utils', () => {
             ticketNumber: faker.datatype.number(8), // number type
             userId: faker.datatype.uuid(),
         }
-        const preparedData = FirebaseAdapter.prepareData(data)
+        const preparedData = RuStoreAdapter.prepareData(data)
 
         expect(typeof preparedData.ticketNumber).toEqual('string')
     })
