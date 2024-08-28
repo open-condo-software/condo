@@ -431,6 +431,24 @@ describe('RegisterResidentService', () => {
         expect(restoredResident.property.id).toEqual(property.id)
     })
 
+
+    it('restore deleted Resident for the same address and unitName updates unitName', async () => {
+        const userClient = await makeClientWithResidentAccessAndProperty()
+        const testUnitName = faker.random.numeric(3) + faker.random.alpha(5).toUpperCase()
+
+        const [resident, attrs] = await registerResidentByTestClient(userClient, {
+            unitName: testUnitName,
+        })
+        const [softDeletedResident] = await Resident.softDelete(userClient, resident.id)
+
+        const [restoredResident, restoredAttrs] = await registerResidentByTestClient(userClient, {
+            address: attrs.address,
+            unitName: attrs.unitName.toLowerCase(),
+        })
+
+        expect(restoredAttrs.unitName).toEqual(attrs.unitName.toLowerCase())
+    })
+
     it('should set unitType field if it was passed', async () => {
         const userClient = await makeClientWithResidentUser()
         const unitType = sample(UNIT_TYPES)

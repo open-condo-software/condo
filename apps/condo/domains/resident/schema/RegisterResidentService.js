@@ -109,7 +109,7 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                 if (existingResident) {
                     const nextAttrs = omit(
                         { ...attrs, deletedAt: null },
-                        ['address', 'addressMeta', 'unitName'],
+                        ['address', 'addressMeta'],
                     )
 
                     // TODO(DOMA-1780): we need to update address and addressMeta from property
