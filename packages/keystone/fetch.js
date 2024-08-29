@@ -68,7 +68,7 @@ async function fetchWithLogger (url, options, extraAttrs) {
 
     const originalHeaders = pickBy(options.headers)
 
-    const { skipTracingHeaders, skipXTargetHeader, shouldRetryHook } = extraAttrs
+    const { skipTracingHeaders, skipXTargetHeader } = extraAttrs
 
     if (!skipXTargetHeader && !options.headers['X-Target']) {
         const xTargetHeaderFromConfig = FETCH_X_TARGET_CONFIG[urlObject.hostname] || FETCH_X_TARGET_CONFIG['_default']
@@ -127,12 +127,9 @@ async function fetchWithLogger (url, options, extraAttrs) {
         Mertrics.increment({ name: FETCH_COUNT_METRIC_NAME, value: 1, tags: { status: response.status, hostname, path } })
         Mertrics.gauge({ name: FETCH_TIME_METRIC_NAME, value: responseTime, tags: { status: response.status, hostname, path } })
 
-        if (shouldRetryHook && typeof shouldRetryHook === 'function') {
-            const shouldRetry = shouldRetryHook(response)
-            if (shouldRetry) {
-                logger.info({ msg: 'fetch: request successful, but will retry', childReqId, responseHeaders: { headers }, status: response.status, responseTime, ...requestLogCommonData })
-                throw new Error('should retry by user defined function')
-            }
+        if (response.status === 502 || response.status === 504) {
+            logger.info({ msg: 'fetch: request successful, but will retry', childReqId, responseHeaders: { headers }, status: response.status, responseTime, ...requestLogCommonData })
+            throw new Error('should retry by user defined function')
         }
 
         logger.info({ msg: 'fetch: request successful', childReqId, responseHeaders: { headers }, status: response.status, responseTime, ...requestLogCommonData })
@@ -142,7 +139,7 @@ async function fetchWithLogger (url, options, extraAttrs) {
         const endTime = Date.now()
         const responseTime = endTime - startTime
 
-        logger.error({ msg: 'fetch: failed with error', err, responseTime, status: 0, ...requestLogCommonData })
+        logger.error({ msg: 'fetch: failed with error', err, responseTime, ...requestLogCommonData })
 
         Mertrics.increment({ name: FETCH_COUNT_METRIC_NAME, value: 1, tags: { status: 'failed', hostname, path } })
         Mertrics.gauge({ name: FETCH_TIME_METRIC_NAME, value: responseTime, tags: { status: 'failed', hostname, path } })
@@ -158,12 +155,11 @@ const sleep = (timeout) => new Promise(resolve => setTimeout(resolve, timeout))
  * Default behavior is similar to fetchWithLogger only limits the time for single request to be completed in 1 minute
  * @param {string} url - The URL to fetch data from.
  * @param {Object} [options] - Optional parameters for configuring the fetch request.
- * @param {number} [options.maxRetries=0] - Maximum number of retries before giving up. By default, fetch will retry only requests that failed to execute
+ * @param {number} [options.maxRetries=1] - Maximum number of retries before giving up. By default, fetch will retry only requests that failed to execute or with status code 502 or 504
  * @param {number} [options.abortRequestTimeout=60000] - Time in milliseconds to wait before aborting a single request.
- * @param {number} [options.timeoutBetweenRequests=0] - Time in milliseconds to wait between retry attempts. Will be multiplied by the attempt number
+ * @param {number} [options.timeoutBetweenRequests=2000] - Time in milliseconds to wait between retry attempts. Will be multiplied by the attempt number
  * @param {boolean} [options.skipTracingHeaders] - Skips setting X-Request-ID, reqId, taskId headers based on local execution context
  * @param {boolean} [options.skipXTargetHeader] - Skips setting X-Target header using FETCH_X_TARGET_CONFIG
- @param {Function<Response, Boolean>} [options.shouldRetry] - A custom function that allows you to customize retry condition. If returns true, request will be restarted. Check shouldRetryOn500xHook for example
  * @returns {Promise<Response>} - A Promise resolving to the Response object representing the fetched data.
  * @throws {Error} - If the maximum number of retries is reached or if an error occurs during the fetch operation.
  */
@@ -174,7 +170,6 @@ const fetchWithRetriesAndLogger = async (url, options = {}) => {
         timeoutBetweenRequests = 0,
         skipTracingHeaders = false,
         skipXTargetHeader = false,
-        shouldRetryHook = null,
         ...fetchOptions
     } = options
     let retries = 0
@@ -187,7 +182,7 @@ const fetchWithRetriesAndLogger = async (url, options = {}) => {
             const controller = new AbortController()
             const signal = controller.signal
             const response = await Promise.race([
-                fetchWithLogger(url, { ... fetchOptions, signal }, { skipTracingHeaders, skipXTargetHeader, shouldRetryHook }),
+                fetchWithLogger(url, { ... fetchOptions, signal }, { skipTracingHeaders, skipXTargetHeader }),
                 new Promise((_, reject) =>
                     setTimeout(() => {
                         controller.abort()
@@ -213,11 +208,6 @@ const fetchWithRetriesAndLogger = async (url, options = {}) => {
     return lastResponse
 }
 
-const shouldRetryOn500xHook = (response) => {
-    return (response.status >= 500 && response.status <= 599)
-}
-
 module.exports = {
     fetch: fetchWithRetriesAndLogger,
-    shouldRetryOn500xHook,
 }
