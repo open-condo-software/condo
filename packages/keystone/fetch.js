@@ -127,12 +127,11 @@ async function fetchWithLogger (url, options, extraAttrs) {
         Mertrics.increment({ name: FETCH_COUNT_METRIC_NAME, value: 1, tags: { status: response.status, hostname, path } })
         Mertrics.gauge({ name: FETCH_TIME_METRIC_NAME, value: responseTime, tags: { status: response.status, hostname, path } })
 
-        if (response.status === 502 || response.status === 504) {
-            logger.info({ msg: 'fetch: request successful, but will retry', childReqId, responseHeaders: { headers }, status: response.status, responseTime, ...requestLogCommonData })
-            throw new Error('should retry by user defined function')
-        }
-
         logger.info({ msg: 'fetch: request successful', childReqId, responseHeaders: { headers }, status: response.status, responseTime, ...requestLogCommonData })
+
+        if (response.status === 502 || response.status === 504) {
+            throw new Error('Should retry')
+        }
 
         return response
     } catch (err) {
