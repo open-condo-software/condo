@@ -4,6 +4,11 @@
 exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
+
+
+SET statement_timeout = '1500s';
+
+
 --
 -- Add field billingStatus to meterreading
 --
@@ -20,6 +25,11 @@ ALTER TABLE "MeterReadingHistoryRecord" ADD COLUMN "billingStatus" text NULL;
 -- Add field billingStatusText to meterreadinghistoryrecord
 --
 ALTER TABLE "MeterReadingHistoryRecord" ADD COLUMN "billingStatusText" text NULL;
+
+
+SET statement_timeout = '10s';
+
+
 COMMIT;
 
     `)
