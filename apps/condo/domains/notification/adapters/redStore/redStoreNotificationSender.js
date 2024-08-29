@@ -5,7 +5,7 @@ const { fetch } = require('@open-condo/keystone/fetch')
 const { APS_RESPONSE_STATUS_SUCCESS } = require('../apple/constants')
 
 
-class RuStoreNotificationSender {
+class RedStoreNotificationSender {
     #projectId = null
     #serviceToken = null
     #url = null
@@ -16,7 +16,7 @@ class RuStoreNotificationSender {
     constructor (config) {
         this.#projectId = config['project_id']
         this.#serviceToken = config['service_token']
-        this.#url = `https://vkpns.rustore.ru/v1/projects/${this.#projectId}/messages:send`
+        this.#url = config['url']
         this.sendPush = this.sendPush.bind(this)
     }
 
@@ -58,4 +58,4 @@ class RuStoreNotificationSender {
     }
 }
 
-module.exports = { RuStoreNotificationSender }
+module.exports = { RedStoreNotificationSender }

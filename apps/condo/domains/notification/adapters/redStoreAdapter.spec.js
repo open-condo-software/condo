@@ -6,7 +6,7 @@ const conf = require('@open-condo/config')
 const {
     PUSH_FAKE_TOKEN_SUCCESS,
     PUSH_FAKE_TOKEN_FAIL,
-    RUSTORE_CONFIG_TEST_PUSHTOKEN_ENV,
+    REDSTORE_CONFIG_TEST_PUSHTOKEN_ENV,
     PUSH_TYPE_SILENT_DATA,
     PUSH_TYPE_DEFAULT,
     FAKE_SUCCESS_MESSAGE_PREFIX,
@@ -14,20 +14,20 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 
 const {
-    RuStoreAdapter,
+    RedStoreAdapter,
     EMPTY_NOTIFICATION_TITLE_BODY_ERROR,
-} = require('./ruStoreAdapter')
+} = require('./redStoreAdapter')
 
-const adapter = new RuStoreAdapter()
+const adapter = new RedStoreAdapter()
 const FAKE_SUCCESS_MESSAGE_PREFIX_REGEXP = new RegExp(`^${FAKE_SUCCESS_MESSAGE_PREFIX}`)
-const RUSTORE_TEST_PUSHTOKEN = conf[RUSTORE_CONFIG_TEST_PUSHTOKEN_ENV] || null
+const REDSTORE_TEST_PUSHTOKEN = conf[REDSTORE_CONFIG_TEST_PUSHTOKEN_ENV] || null
 
 jest.mock('@open-condo/config',  () => {
     return {
         APPS_WITH_DISABLED_NOTIFICATIONS: '["condo.app.clients"]',
     }
 })
-describe('RuStore adapter utils', () => {
+describe('redStore adapter utils', () => {
     it('should succeed sending push notification to fake success push token ', async () => {
         const tokens = [PUSH_FAKE_TOKEN_SUCCESS]
         const [isOk, result] = await adapter.sendNotification({
@@ -52,9 +52,9 @@ describe('RuStore adapter utils', () => {
     })
 
     it('tries to send push notification to real test push token if provided ', async () => {
-        if (!RUSTORE_TEST_PUSHTOKEN) return
+        if (!REDSTORE_TEST_PUSHTOKEN) return
 
-        const tokens = [RUSTORE_TEST_PUSHTOKEN]
+        const tokens = [REDSTORE_TEST_PUSHTOKEN]
         const [isOk, result] = await adapter.sendNotification({
             type: CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
             tokens,
@@ -270,7 +270,7 @@ describe('RuStore adapter utils', () => {
             ticketNumber: faker.datatype.number(8), // number type
             userId: faker.datatype.uuid(),
         }
-        const preparedData = RuStoreAdapter.prepareData(data)
+        const preparedData = RedStoreAdapter.prepareData(data)
 
         expect(typeof preparedData.ticketNumber).toEqual('string')
     })

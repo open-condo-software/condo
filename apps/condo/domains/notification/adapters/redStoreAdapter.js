@@ -4,18 +4,18 @@ const { isEmpty, isNull, get, isObject } = require('lodash')
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 
-const { RuStoreNotificationSender } = require('@condo/domains/notification/adapters/RuStore/RuStoreNotificationSender')
+const { RedStoreNotificationSender } = require('@condo/domains/notification/adapters/redStore/redStoreNotificationSender')
 const {
     PUSH_FAKE_TOKEN_SUCCESS,
     PUSH_FAKE_TOKEN_FAIL,
-    RUSTORE_CONFIG_ENV,
+    REDSTORE_CONFIG_ENV,
     PUSH_TYPE_DEFAULT,
     PUSH_TYPE_SILENT_DATA,
     APPS_WITH_DISABLED_NOTIFICATIONS_ENV,
 } = require('@condo/domains/notification/constants/constants')
-const { EMPTY_RUSTORE_CONFIG_ERROR, EMPTY_NOTIFICATION_TITLE_BODY_ERROR } = require('@condo/domains/notification/constants/errors')
+const { EMPTY_REDSTORE_CONFIG_ERROR, EMPTY_NOTIFICATION_TITLE_BODY_ERROR } = require('@condo/domains/notification/constants/errors')
 
-const RUSTORE_CONFIG = conf[RUSTORE_CONFIG_ENV] ? JSON.parse(conf[RUSTORE_CONFIG_ENV]) : null
+const REDSTORE_CONFIG = conf[REDSTORE_CONFIG_ENV] ? JSON.parse(conf[REDSTORE_CONFIG_ENV]) : null
 const APPS_WITH_DISABLED_NOTIFICATIONS = conf[APPS_WITH_DISABLED_NOTIFICATIONS_ENV] ? JSON.parse(conf[APPS_WITH_DISABLED_NOTIFICATIONS_ENV]) : []
 const DEFAULT_PUSH_SETTINGS = {
     apns: { payload: { aps: { 'mutable-content': 1, sound: 'default' } } },
@@ -25,20 +25,20 @@ const HIGH_PRIORITY_SETTINGS = { android: { priority: 'high' } }
 const logger = getLogger('firebaseAdapter')
 
 /**
- * Send push notification to pushToken via app, configured by RUSTORE_CONFIG in .helm (.env)
+ * Send push notification to pushToken via app, configured by RedStore_CONFIG in .helm (.env)
  * Attention! Notifications could only be sent to devices, connected via same PROJECT_ID.
  * Attempts to send push notifications to devices, connected through different projects will fail.
  */
-class RuStoreAdapter {
+class RedStoreAdapter {
     projectId = null
     #config = null
 
-    constructor (config = RUSTORE_CONFIG) {
+    constructor (config = REDSTORE_CONFIG) {
         try {
-            if (isEmpty(config)) throw new Error(EMPTY_RUSTORE_CONFIG_ERROR)
+            if (isEmpty(config)) throw new Error(EMPTY_REDSTORE_CONFIG_ERROR)
         } catch (error) {
             // For CI/local tests config is useless because of emulation via FAKE tokens
-            logger.error({ msg: 'RuStore adapter error', error })
+            logger.error({ msg: 'redStore adapter error', error })
         }
 
         this.projectId = get(config, 'project_id', null)
@@ -76,7 +76,7 @@ class RuStoreAdapter {
     }
 
     /**
-     * Prepares notification for either/both sending to RuStore and/or emulation if FAKE tokens present
+     * Prepares notification for either/both sending to redStore and/or emulation if FAKE tokens present
      * Converts single notification to notifications array (for multiple tokens provided) for batch request
      * @param notificationRaw
      * @param data
@@ -86,7 +86,7 @@ class RuStoreAdapter {
      * @returns {*[][]}
      */
     static prepareBatchData (notificationRaw, data, tokens = [], pushTypes = {}, isVoIP = false) {
-        const notification = RuStoreAdapter.validateAndPrepareNotification(notificationRaw)
+        const notification = RedStoreAdapter.validateAndPrepareNotification(notificationRaw)
         const notifications = [] // User can have many Remote Clients. Message is created for the user, so from 1 message there can be many notifications
         const fakeNotifications = []
         const pushContext = {}
@@ -96,7 +96,7 @@ class RuStoreAdapter {
             const isFakeToken = pushToken.startsWith(PUSH_FAKE_TOKEN_SUCCESS) || pushToken.startsWith(PUSH_FAKE_TOKEN_FAIL)
             const target = isFakeToken ? fakeNotifications : notifications
             const pushType = pushTypes[pushToken] || PUSH_TYPE_DEFAULT
-            const preparedData = RuStoreAdapter.prepareData(data, pushToken)
+            const preparedData = RedStoreAdapter.prepareData(data, pushToken)
             const pushData = pushType === PUSH_TYPE_SILENT_DATA
                 ? {
                     token: pushToken,
@@ -137,7 +137,7 @@ class RuStoreAdapter {
     }
 
     /**
-     * Mimics RuStore failure response
+     * Mimics redStore failure response
      * @returns {{success: boolean, error: {errorInfo: {code: string, message: string}}}}
      */
     static getFakeErrorResponse () {
@@ -155,7 +155,7 @@ class RuStoreAdapter {
     }
 
     /**
-     * Mimics RuStore success response
+     * Mimics redStore success response
      * @returns {{success: boolean, messageId: string}}
      */
     static getFakeSuccessResponse () {
@@ -167,24 +167,24 @@ class RuStoreAdapter {
     }
 
     /**
-     * For testing purpose we have to emulate RuStore response for predefined FAKE tokens,
-     * because it's almost impossible to get real RuStore push token in automated way.
+     * For testing purpose we have to emulate redStore response for predefined FAKE tokens,
+     * because it's almost impossible to get real redStore push token in automated way.
      * @param result
      * @param fakeNotifications
      * @returns {*}
      */
     static injectFakeResults (result, fakeNotifications) {
-        const mixed = !isObject(result) || isEmpty(result) ? RuStoreAdapter.getEmptyResult() : JSON.parse(JSON.stringify(result))
+        const mixed = !isObject(result) || isEmpty(result) ? RedStoreAdapter.getEmptyResult() : JSON.parse(JSON.stringify(result))
 
         fakeNotifications.forEach(({ token }) => {
             if (token.startsWith(PUSH_FAKE_TOKEN_SUCCESS)) {
                 mixed.successCount++
-                mixed.responses.push(RuStoreAdapter.getFakeSuccessResponse())
+                mixed.responses.push(RedStoreAdapter.getFakeSuccessResponse())
             }
 
             if (token.startsWith(PUSH_FAKE_TOKEN_FAIL)) {
                 mixed.failureCount++
-                mixed.responses.push(RuStoreAdapter.getFakeErrorResponse())
+                mixed.responses.push(RedStoreAdapter.getFakeErrorResponse())
             }
         })
 
@@ -194,8 +194,8 @@ class RuStoreAdapter {
     /**
      * Manages to send notification to all available pushTokens of the user.
      * Also supports PUSH_FAKE_TOKEN_SUCCESS and PUSH_FAKE_TOKEN_FAIL for testing purposes
-     * Would try to send request to RuStore only if RuStore is initialized and `tokens` array contains real (non-fake) items.
-     * Would succeed if at least one real token succeeds in delivering notification through RuStore, or
+     * Would try to send request to redStore only if redStore is initialized and `tokens` array contains real (non-fake) items.
+     * Would succeed if at least one real token succeeds in delivering notification through redStore, or
      * PUSH_FAKE_TOKEN_SUCCESS provided within tokens
      * @param notification
      * @param tokens
@@ -206,13 +206,13 @@ class RuStoreAdapter {
     async sendNotification ({ notification, data, tokens, pushTypes } = {}, isVoIP = false) {
         if (!tokens || isEmpty(tokens)) return [false, { error: 'No pushTokens available.' }]
 
-        const [notifications, fakeNotifications, pushContext] = RuStoreAdapter.prepareBatchData(notification, data, tokens, pushTypes, isVoIP)
+        const [notifications, fakeNotifications, pushContext] = RedStoreAdapter.prepareBatchData(notification, data, tokens, pushTypes, isVoIP)
         let result
 
         // If we come up to here and no real tokens provided, that means fakeNotifications contains
         // some FAKE tokens and emulation is required for testing purposes
         if (isEmpty(notifications)) {
-            result = RuStoreAdapter.injectFakeResults(RuStoreAdapter.getEmptyResult(), fakeNotifications)
+            result = RedStoreAdapter.injectFakeResults(RedStoreAdapter.getEmptyResult(), fakeNotifications)
         }
 
         if (!isNull(this.#config) && !isEmpty(notifications)) {
@@ -229,12 +229,12 @@ class RuStoreAdapter {
                     continue
                 }
 
-                const app = new RuStoreNotificationSender(configForApp)
+                const app = new RedStoreNotificationSender(configForApp)
                 try {
-                    const ruStoreResult = await app.sendAll(notificationsBatchForApp)
+                    const RedStoreResult = await app.sendAll(notificationsBatchForApp)
 
-                    if (!isEmpty(ruStoreResult.responses)) {
-                        ruStoreResult.responses = ruStoreResult.responses.map(
+                    if (!isEmpty(RedStoreResult.responses)) {
+                        RedStoreResult.responses = RedStoreResult.responses.map(
                             (response, idx) =>
                                 ({
                                     ...response,
@@ -259,7 +259,7 @@ class RuStoreAdapter {
 }
 
 module.exports = {
-    RuStoreAdapter,
-    EMPTY_RUSTORE_CONFIG_ERROR,
+    RedStoreAdapter,
+    EMPTY_REDSTORE_CONFIG_ERROR,
     EMPTY_NOTIFICATION_TITLE_BODY_ERROR,
 }
