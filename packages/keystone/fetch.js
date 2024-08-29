@@ -138,7 +138,7 @@ async function fetchWithLogger (url, options, extraAttrs) {
         const endTime = Date.now()
         const responseTime = endTime - startTime
 
-        logger.error({ msg: 'fetch: failed with error', err, responseTime, ...requestLogCommonData })
+        logger.error({ msg: 'fetch: failed with error', err, status: 0, responseTime, ...requestLogCommonData })
 
         Mertrics.increment({ name: FETCH_COUNT_METRIC_NAME, value: 1, tags: { status: 'failed', hostname, path } })
         Mertrics.gauge({ name: FETCH_TIME_METRIC_NAME, value: responseTime, tags: { status: 'failed', hostname, path } })
