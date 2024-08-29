@@ -166,7 +166,7 @@ const fetchWithRetriesAndLogger = async (url, options = {}) => {
     const {
         maxRetries = 1,
         abortRequestTimeout = 60 * 1000,
-        timeoutBetweenRequests = 0,
+        timeoutBetweenRequests = 2000,
         skipTracingHeaders = false,
         skipXTargetHeader = false,
         ...fetchOptions
