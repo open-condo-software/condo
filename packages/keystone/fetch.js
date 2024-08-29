@@ -15,6 +15,15 @@ const logger = getLogger('fetch')
 const FETCH_COUNT_METRIC_NAME = 'fetch.count'
 const FETCH_TIME_METRIC_NAME = 'fetch.time'
 
+/**
+ * Should be: { [hostname: str]:[x-target: str] }
+ *
+ * @example { _default: 'group0', v1.condo.ai: 'group1' }
+ *
+ * All requests will have X-Target=group0. Requests to v1.condo.ai will have X-Target=group1
+ */
+const FETCH_X_TARGET_CONFIG = JSON.parse(conf.FETCH_X_TARGET_CONFIG || '{}')
+
 const HOSTNAME = os.hostname() || 'nohost'
 const NAMESPACE = conf.NAMESPACE || 'nospace'
 const VERSION = conf.WERF_COMMIT_HASH || 'local'
@@ -53,7 +62,20 @@ async function fetchWithLogger (url, options, extraAttrs) {
     const parentTaskId = executionContext.taskId
     const parentExecId = executionContext.execId
 
-    const { skipTracingHeaders } = extraAttrs
+    if (!options.headers) {
+        options.headers = {}
+    }
+
+    const originalHeaders = pickBy(options.headers)
+
+    const { skipTracingHeaders, skipXTargetHeader } = extraAttrs
+
+    if (!skipXTargetHeader && !options.headers['X-Target']) {
+        const xTargetHeaderFromConfig = FETCH_X_TARGET_CONFIG[urlObject.hostname] || FETCH_X_TARGET_CONFIG['_default']
+        if (xTargetHeaderFromConfig) {
+            options.headers['X-Target'] = xTargetHeaderFromConfig
+        }
+    }
 
     if (!skipTracingHeaders) {
         // We want to set special headers to track requests across the microservices:
@@ -62,10 +84,6 @@ async function fetchWithLogger (url, options, extraAttrs) {
         //                    |                   |
         //               log reqId            log reqId
         //
-        if (!options.headers) {
-            options.headers = {}
-        }
-
         const deployment = getAppName()
         const xRemoteApp = NAMESPACE ? `${NAMESPACE}-${deployment}` : deployment
         const xRemoteClient = HOSTNAME
@@ -81,9 +99,9 @@ async function fetchWithLogger (url, options, extraAttrs) {
         options.headers['X-Parent-Exec-ID'] = parentExecId
         options.headers['User-Agent'] = VERSION ? `node ${xRemoteApp} ${VERSION}` : `node ${xRemoteApp}`
         options.headers['Referrer'] = xTarget ? `${referrer}?t=${xTarget}` : referrer
-
-        options.headers = pickBy(options.headers)
     }
+
+    options.headers = { ...options.headers, ...originalHeaders }
 
     const startTime = Date.now()
     const requestLogCommonData = pickBy({
@@ -135,7 +153,8 @@ const sleep = (timeout) => new Promise(resolve => setTimeout(resolve, timeout))
  * @param {number} [options.maxRetries=0] - Maximum number of retries before giving up.
  * @param {number} [options.abortRequestTimeout=60000] - Time in milliseconds to wait before aborting a request.
  * @param {number} [options.timeoutBetweenRequests=0] - Time in milliseconds to wait between retry attempts. Will be multiplied by the attempt number
- * @param {boolean} [options.skipTracingHeaders] - Sets X-Request-ID, reqId, taskId headers based on local execution context
+ * @param {boolean} [options.skipTracingHeaders] - Skips setting X-Request-ID, reqId, taskId headers based on local execution context
+ * @param {boolean} [options.skipXTargetHeader] - Skips setting X-Target header using FETCH_X_TARGET_CONFIG
  * @returns {Promise<Response>} - A Promise resolving to the Response object representing the fetched data.
  * @throws {Error} - If the maximum number of retries is reached or if an error occurs during the fetch operation.
  */
@@ -145,6 +164,7 @@ const fetchWithRetriesAndLogger = async (url, options = {}) => {
         abortRequestTimeout = 60 * 1000,
         timeoutBetweenRequests = 0,
         skipTracingHeaders = false,
+        skipXTargetHeader = false,
         ...fetchOptions
     } = options
     let retries = 0
@@ -156,7 +176,7 @@ const fetchWithRetriesAndLogger = async (url, options = {}) => {
             const controller = new AbortController()
             const signal = controller.signal
             const response = await Promise.race([
-                fetchWithLogger(url, { ... fetchOptions, signal }, { skipTracingHeaders }),
+                fetchWithLogger(url, { ... fetchOptions, signal }, { skipTracingHeaders, skipXTargetHeader }),
                 new Promise((_, reject) =>
                     setTimeout(() => {
                         controller.abort()
