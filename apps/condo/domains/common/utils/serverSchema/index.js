@@ -45,6 +45,9 @@ function logTooManyReturnedIfRequired (tooManyReturnedLimitCounters, allObjects,
     }
 }
 
+/**
+ * @deprecated you should use find
+ */
 class GqlWithKnexLoadList {
 
     constructor ({ listKey, fields, singleRelations = [], multipleRelations = [], where = {}, sortBy = [] }) {
@@ -187,6 +190,7 @@ class GqlWithKnexLoadList {
  * @param {Number} limit
  * @param {function(Array): Array | Promise<Array>} chunkProcessor A place to use or/and modify just loaded chunk
  * @returns {Promise<*[]>}
+ * @deprecated you should use find
  */
 const loadListByChunks = async ({
     context,
@@ -276,6 +280,7 @@ const loadListByChunks = async ({
  * When no records of related model is found for `singleRelations` of `GqlWithKnexLoadList`, then knex returns `{}`.
  * Sometimes, when we are building array of ids of that related objects, we will get ids values with `{}`.
  * This utility filters these `{}` from array.
+ * @deprecated
  */
 function filterBlankRelatedObjectsFrom (records) {
     return records.filter(record => (
