@@ -880,21 +880,10 @@ describe('Resident', () => {
                 expect(e.errors[0].message).toContain('Field "organization" is not defined by type "ResidentUpdateInput"')
             })
         })
-        it('cannot be updated by changing address, addressMeta, property or unitName', async () => {
+        it('cannot be updated by changing address, addressMeta or property', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
             const [obj] = await createTestResident(adminClient, userClient.user, userClient.property)
-
-            await catchErrorFrom(async () => {
-                const payload = {
-                    unitName: faker.random.alphaNumeric(3),
-                }
-                await updateTestResident(adminClient, obj.id, payload)
-            }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                expect(errors[0].data.messages[0]).toMatch('Changing of address, addressMeta, unitName or property is not allowed for already existing Resident')
-                expect(data).toEqual({ 'obj': null })
-            })
 
             await catchErrorFrom(async () => {
                 const payload = {
@@ -903,7 +892,7 @@ describe('Resident', () => {
                 await updateTestResident(adminClient, obj.id, payload)
             }, ({ errors, data }) => {
                 expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                expect(errors[0].data.messages[0]).toMatch('Changing of address, addressMeta, unitName or property is not allowed for already existing Resident')
+                expect(errors[0].data.messages[0]).toMatch('Changing of address or property is not allowed for already existing Resident')
                 expect(data).toEqual({ 'obj': null })
             })
 
@@ -917,7 +906,7 @@ describe('Resident', () => {
                 await updateTestResident(adminClient, obj.id, payload)
             }, ({ errors, data }) => {
                 expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                expect(errors[0].data.messages[0]).toMatch('Changing of address, addressMeta, unitName or property is not allowed for already existing Resident')
+                expect(errors[0].data.messages[0]).toMatch('Changing of address or property is not allowed for already existing Resident')
                 expect(data).toEqual({ 'obj': null })
             })
         })
