@@ -83,7 +83,7 @@ class AbstractBulkSearchStrategy {
             }
             const { item, searchedAddress } = searchedAddressData
             const err = get(searchedAddress, 'err')
-            let data
+            let data = get(searchedAddress, 'data')
 
             if (!err) {
                 const addressKey = get(searchedAddress, ['data', 'addressKey'])
