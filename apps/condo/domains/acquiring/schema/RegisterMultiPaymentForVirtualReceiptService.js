@@ -22,9 +22,9 @@ const {
     FeeDistribution,
 } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
-const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
+const { DV_VERSION_MISMATCH, WRONG_FORMAT, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 
-
+const MINIMUM_PAYMENT_AMOUNT = 10
 const {
     RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE,
     RECEIPT_HAVE_INVALID_TO_PAY_VALUE,
@@ -66,6 +66,14 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: ACQUIRING_INTEGRATION_IS_DELETED,
         message: 'Cannot pay via deleted acquiring integration with id "{id}"',
+    },
+    PAYMENT_AMOUNT_LESS_THAN_MINIMUM: {
+        mutation: 'registerMultiPayment',
+        variable: ['data', 'groupedReceipts', '[]', 'amountDistribution'],
+        code: BAD_USER_INPUT,
+        type: WRONG_VALUE,
+        message: 'The minimum payment amount that can be accepted',
+        messageForUser: 'api.acquiring.payment.error.paymentAmountLessThanMinimum',
     },
     RECEIPT_HAVE_INVALID_TO_PAY_VALUE: {
         mutation: 'registerMultiPaymentForVirtualReceipt',
@@ -206,6 +214,10 @@ const RegisterMultiPaymentForVirtualReceiptService = new GQLCustomSchema('Regist
                     explicitServiceCharge: Big(payment.explicitServiceCharge),
                     serviceFee: Big(payment.serviceFee),
                     implicitFee: Big(payment.implicitFee),
+                }
+
+                if (totalAmount.amountWithoutExplicitFee.lt(Big(MINIMUM_PAYMENT_AMOUNT))) {
+                    throw new GQLError(ERRORS.PAYMENT_AMOUNT_LESS_THAN_MINIMUM, context)
                 }
 
                 const authedItemId = get(context, 'authedItem.id')

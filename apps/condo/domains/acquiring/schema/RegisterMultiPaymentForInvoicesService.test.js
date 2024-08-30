@@ -11,7 +11,7 @@ const {
     makeLoggedInAdminClient,
     makeClient,
     expectToThrowAuthenticationError,
-    expectToThrowAccessDeniedErrorToResult,
+    expectToThrowAccessDeniedErrorToResult, catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 const { expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 
@@ -22,7 +22,7 @@ const {
     updateTestAcquiringIntegrationContext,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestAcquiringIntegration } = require('@condo/domains/acquiring/utils/testSchema')
-const { createTestBillingIntegration, createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
+const { createTestBillingIntegration, createTestRecipient  } = require('@condo/domains/billing/utils/testSchema')
 const { INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
 const { createTestInvoice, updateTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')

@@ -22,8 +22,7 @@ const {
     getAcquiringIntegrationContextFormula,
     FeeDistribution,
 } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
-const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
-
+const { DV_VERSION_MISMATCH, WRONG_FORMAT, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 
 const {
     RECEIPTS_ARE_DELETED,
@@ -35,6 +34,7 @@ const {
     CANNOT_FIND_ALL_BILLING_RECEIPTS,
     ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
 } = require('../constants/errors')
+const MINIMUM_PAYMENT_AMOUNT = 10
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -55,6 +55,14 @@ const ERRORS = {
         type: WRONG_FORMAT,
         message: 'Invalid format of "sender" field value. {details}',
         correctExample: '{ dv: 1, fingerprint: \'example-fingerprint-alphanumeric-value\'}',
+    },
+    PAYMENT_AMOUNT_LESS_THAN_MINIMUM: {
+        mutation: 'registerMultiPayment',
+        variable: ['data', 'groupedReceipts', '[]', 'amountDistribution'],
+        code: BAD_USER_INPUT,
+        type: WRONG_VALUE,
+        message: 'The minimum payment amount that can be accepted',
+        messageForUser: 'api.acquiring.payment.error.paymentAmountLessThanMinimum',
     },
     ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED: {
         mutation: 'registerMultiPaymentForOneReceipt',
@@ -264,6 +272,10 @@ const RegisterMultiPaymentForOneReceiptService = new GQLCustomSchema('RegisterMu
                     explicitServiceCharge: Big(payment.explicitServiceCharge),
                     serviceFee: Big(payment.serviceFee),
                     implicitFee: Big(payment.implicitFee),
+                }
+
+                if (totalAmount.amountWithoutExplicitFee.lt(Big(MINIMUM_PAYMENT_AMOUNT))) {
+                    throw new GQLError(ERRORS.PAYMENT_AMOUNT_LESS_THAN_MINIMUM, context)
                 }
 
                 const authedItemId = get(context, 'authedItem.id')
