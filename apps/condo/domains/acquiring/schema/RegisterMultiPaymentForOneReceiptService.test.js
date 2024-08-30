@@ -7,7 +7,7 @@ const dayjs = require('dayjs')
 
 const {
     makeClient,
-    makeLoggedInAdminClient,
+    makeLoggedInAdminClient, expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationError,
@@ -15,6 +15,7 @@ const {
     catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 
+const { GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM } } = require('@condo/domains/acquiring/constants/errors')
 const {
     FEE_CALCULATION_PATH,
     WEB_VIEW_PATH,
@@ -34,6 +35,11 @@ const {
     createTestBillingIntegration,
     updateTestBillingIntegrationOrganizationContext,
 } = require('@condo/domains/billing/utils/testSchema')
+const {
+    TestUtils,
+    ResidentTestMixin,
+} = require('@condo/domains/billing/utils/testSchema/testUtils')
+
 
 describe('RegisterMultiPaymentForOneReceiptService', () => {
     describe('Execute', () => {
@@ -200,37 +206,6 @@ describe('RegisterMultiPaymentForOneReceiptService', () => {
                             message: 'AcquiringIntegration does not supports following BillingReceipt\'s BillingIntegration: {unsupportedBillingIntegration}',
                         },
                     }])
-                })
-            })
-            describe('The payment amount is less than the minimum', () => {
-                const cases = ['1', '2', '3', '5']
-                test.each(cases)('ToPay: %p', async (toPay) => {
-                    const {
-                        admin,
-                        billingReceipts,
-                        acquiringContext,
-                    } = await makePayer()
-                    const receipt = { id: billingReceipts[0].id }
-                    const acquiringIntegrationContext = { id: acquiringContext.id }
-                    await updateTestBillingReceipt(admin, receipt.id, {
-                        toPay,
-                    })
-                    await catchErrorFrom(async () => {
-                        await registerMultiPaymentForOneReceiptByTestClient(admin, receipt, acquiringIntegrationContext)
-                    }, ({ errors }) => {
-                        expect(errors).toMatchObject([{
-                            message: 'The minimum payment amount that can be accepted',
-                            path: ['result'],
-                            extensions: {
-                                mutation: 'registerMultiPayment',
-                                variable: ['data', 'groupedReceipts', '[]', 'amountDistribution'],
-                                code: 'BAD_USER_INPUT',
-                                type: 'WRONG_VALUE',
-                                message: 'The minimum payment amount that can be accepted',
-                                messageForUser: 'Сумма оплаты меньше минимальной.',
-                            },
-                        }])
-                    })
                 })
             })
             describe('Cannot pay for receipts with negative toPay', () => {
@@ -432,4 +407,41 @@ describe('RegisterMultiPaymentForOneReceiptService', () => {
             expect(serverObtainedAcquiring).toHaveProperty('supportedBillingIntegrationsGroup')
         })
     })
+})
+
+describe('RegisterMultiPaymentForOneReceiptService reworked', () => {
+
+    let utils
+
+    beforeAll(async () => {
+        utils = new TestUtils([ResidentTestMixin])
+        await utils.init()
+    })
+
+    afterEach(async () => {
+        await utils.updateAcquiringIntegration({ minimumPaymentAmount: null })
+    })
+
+
+    describe('Check minimum payment amount from acquiring integration', () => {
+
+        test('No limits for payment if no settings for minimumPaymentAmount in acquiring integration', async () => {
+            const [[receipt]] = await utils.createReceipts([
+                utils.createJSONReceipt({ toPay: '0.01' }),
+            ])
+            const [result] = await registerMultiPaymentForOneReceiptByTestClient(utils.clients.admin, { id: receipt.id }, { id: utils.acquiringContext.id })
+            expect(result).toHaveProperty('multiPaymentId')
+        })
+
+        test('The payment amount is less than the minimum amount from acquiring integration', async () => {
+            const [[receipt]] = await utils.createReceipts([
+                utils.createJSONReceipt({ toPay: '1000' }),
+            ])
+            await utils.updateAcquiringIntegration({ minimumPaymentAmount: '100000' })
+            await expectToThrowGQLError(async () => {
+                await registerMultiPaymentForOneReceiptByTestClient(utils.clients.admin, { id: receipt.id }, { id: utils.acquiringContext.id })
+            }, PAYMENT_AMOUNT_LESS_THAN_MINIMUM, 'result')
+        })
+    })
+
 })
