@@ -2196,7 +2196,6 @@
   "tour.step.createNews.completed.linkTitle": "Add more",
   "tour.step.disabledTooltip.noPermission": "You don't have enough rights for this task right now. Ask the head of your organization to give you access in the \"Settings\" or assign the task to another employee.",
   "tour.step.disabledTooltip.completePreviousSteps": "Follow the previous steps to unlock the task",
-  "tour.step.disabledTooltip.completeBillingStep": "Follow all the steps in the \"Reduce Accounts Receivable\" task to unlock this",
   "tour.completedStepModal.createProperty.title": "Everything worked out — you added the first house",
   "tour.completedStepModal.createProperty.subtitle": "You will be able to add more objects",
   "tour.completedStepModal.createProperty.subtitleLinkLabel": "in the \"Properties\" section",
