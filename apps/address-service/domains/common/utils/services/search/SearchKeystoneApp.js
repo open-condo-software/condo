@@ -120,7 +120,7 @@ class SearchKeystoneApp {
                             this.send404({ res, s, strategy, strategyResult })
                             return
                         }
-                        throw new Error(addressResult.err)
+                        throw new Error(`${addressResult.err}: ${addressResult.data}`.trim())
                     }
 
                     const addressKey = get(addressResult, ['data', 'addressKey'])
