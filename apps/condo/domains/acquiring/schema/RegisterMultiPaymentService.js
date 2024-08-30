@@ -29,7 +29,6 @@ const {
 } = require('@condo/domains/acquiring/constants/links')
 const {
     DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY,
-    MINIMUM_PAYMENT_AMOUNT,
 } = require('@condo/domains/acquiring/constants/payment')
 // TODO(savelevMatthew): REPLACE WITH SERVER SCHEMAS AFTER GQL REFACTORING
 const { freezeBillingReceipt, freezeInvoice } = require('@condo/domains/acquiring/utils/billingFridge')
@@ -53,6 +52,8 @@ const {
     DEFAULT_INVOICE_CURRENCY_CODE,
     ERROR_DIFFERENT_CURRENCY_CODES_FOR_RECEIPTS_AND_INVOICES,
 } = require('@condo/domains/marketplace/constants')
+
+const MINIMUM_PAYMENT_AMOUNT = 5
 
 const ERRORS = {
     DV_VERSION_MISMATCH: {
@@ -104,6 +105,14 @@ const ERRORS = {
         type: WRONG_VALUE,
         message: 'Amount distribution should include all receipts in a request. Amount can not be less than or equals {minimalAmount}',
         messageInterpolation: { minimalAmount: MINIMUM_PAYMENT_AMOUNT },
+    },
+    PAYMENT_AMOUNT_LESS_THAN_MINIMUM: {
+        mutation: 'registerMultiPayment',
+        variable: ['data', 'groupedReceipts', '[]', 'amountDistribution'],
+        code: BAD_USER_INPUT,
+        type: WRONG_VALUE,
+        message: 'The minimum payment amount that can be accepted',
+        messageForUser: 'api.acquiring.payment.error.paymentAmountLessThanMinimum',
     },
     DUPLICATED_INVOICE: {
         mutation: 'registerMultiPayment',
@@ -553,7 +562,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 }
 
                 // Stage 3 Generating payments
-                const payments = []
+                const paymentsInputs = []
                 for (const group of groupedReceipts) {
                     const serviceConsumer = consumersByIds[group.serviceConsumer.id]
                     const acquiringContext = acquiringContextsByIds[serviceConsumer.acquiringIntegrationContext]
@@ -595,7 +604,8 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                             implicitFee: String(implicitFee),
                             serviceFee: String(fromReceiptAmountFee),
                         }
-                        const payment = await Payment.create(context, {
+
+                        paymentsInputs.push({
                             dv: 1,
                             sender,
                             amount,
@@ -610,10 +620,30 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                             recipientBankAccount: receipt.recipient.bankAccount,
                             ...paymentCommissionFields,
                         })
-                        payments.push({ ...payment, serviceFee: paymentCommissionFields.serviceFee })
                     }
                 }
 
+                const totalAmount = paymentsInputs.reduce((acc, cur) => {
+                    return {
+                        amountWithoutExplicitFee: acc.amountWithoutExplicitFee.plus(Big(cur.amount)),
+                        explicitFee: acc.explicitFee.plus(Big(cur.explicitFee)),
+                        explicitServiceCharge: acc.explicitServiceCharge.plus(Big(cur.explicitServiceCharge)),
+                        serviceFee: acc.serviceFee.plus(Big(cur.serviceFee)),
+                        implicitFee: acc.implicitFee.plus(Big(cur.implicitFee)),
+                    }
+                }, {
+                    amountWithoutExplicitFee: Big('0.0'),
+                    explicitFee: Big('0.0'),
+                    explicitServiceCharge: Big('0.0'),
+                    serviceFee: Big('0.0'),
+                    implicitFee: Big('0.0'),
+                })
+
+                if (totalAmount.amountWithoutExplicitFee.lt(Big(MINIMUM_PAYMENT_AMOUNT))) {
+                    throw new GQLError(ERRORS.PAYMENT_AMOUNT_LESS_THAN_MINIMUM, context)
+                }
+
+                const payments = await Promise.all(paymentsInputs.map((paymentInput) => Payment.create(context, paymentInput)))
                 // Processing of invoices if provided
                 const invoiceIntegrationCurrencyCode = DEFAULT_INVOICE_CURRENCY_CODE
                 if (foundInvoices.length > 0) {
@@ -690,21 +720,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 const currencyCode = billingIntegrationCurrencyCode || invoiceIntegrationCurrencyCode
 
                 const paymentIds = payments.map(payment => ({ id: payment.id }))
-                const totalAmount = payments.reduce((acc, cur) => {
-                    return {
-                        amountWithoutExplicitFee: acc.amountWithoutExplicitFee.plus(Big(cur.amount)),
-                        explicitFee: acc.explicitFee.plus(Big(cur.explicitFee)),
-                        explicitServiceCharge: acc.explicitServiceCharge.plus(Big(cur.explicitServiceCharge)),
-                        serviceFee: acc.serviceFee.plus(Big(cur.serviceFee)),
-                        implicitFee: acc.implicitFee.plus(Big(cur.implicitFee)),
-                    }
-                }, {
-                    amountWithoutExplicitFee: Big('0.0'),
-                    explicitFee: Big('0.0'),
-                    explicitServiceCharge: Big('0.0'),
-                    serviceFee: Big('0.0'),
-                    implicitFee: Big('0.0'),
-                })
+
                 const recurrentPaymentContextField = recurrentPaymentContext ? {
                     recurrentPaymentContext: { connect: { id: recurrentPaymentContext.id } },
                 } : {}

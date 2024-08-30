@@ -202,6 +202,37 @@ describe('RegisterMultiPaymentForOneReceiptService', () => {
                     }])
                 })
             })
+            describe('The payment amount is less than the minimum', () => {
+                const cases = ['1', '2', '3', '5']
+                test.each(cases)('ToPay: %p', async (toPay) => {
+                    const {
+                        admin,
+                        billingReceipts,
+                        acquiringContext,
+                    } = await makePayer()
+                    const receipt = { id: billingReceipts[0].id }
+                    const acquiringIntegrationContext = { id: acquiringContext.id }
+                    await updateTestBillingReceipt(admin, receipt.id, {
+                        toPay,
+                    })
+                    await catchErrorFrom(async () => {
+                        await registerMultiPaymentForOneReceiptByTestClient(admin, receipt, acquiringIntegrationContext)
+                    }, ({ errors }) => {
+                        expect(errors).toMatchObject([{
+                            message: 'The minimum payment amount that can be accepted',
+                            path: ['result'],
+                            extensions: {
+                                mutation: 'registerMultiPayment',
+                                variable: ['data', 'groupedReceipts', '[]', 'amountDistribution'],
+                                code: 'BAD_USER_INPUT',
+                                type: 'WRONG_VALUE',
+                                message: 'The minimum payment amount that can be accepted',
+                                messageForUser: 'Сумма оплаты меньше минимальной.',
+                            },
+                        }])
+                    })
+                })
+            })
             describe('Cannot pay for receipts with negative toPay', () => {
                 const cases = ['0.0', '-1', '-50.00', '-0.000000']
                 test.each(cases)('ToPay: %p', async (toPay) => {

@@ -157,7 +157,7 @@ describe('RegisterMultiPaymentForVirtualReceiptService', () => {
         })
         describe('Receipt checks', () => {
             describe('Cannot pay for receipts with negative toPay', () => {
-                const cases = ['0.0', '-1', '-50.00', '-0.000000']
+                const cases = ['-0.0', '-1', '-50.00', '-0.000000']
                 test.each(cases)('ToPay: %p', async (toPay) => {
                     const {
                         admin,
@@ -178,6 +178,35 @@ describe('RegisterMultiPaymentForVirtualReceiptService', () => {
                                 code: 'BAD_USER_INPUT',
                                 type: 'RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE',
                                 message: 'Cannot pay for Receipt with negative "toPay" value',
+                            },
+                        }])
+                    })
+                })
+            })
+            describe('The payment amount is less than the minimum', () => {
+                const cases = ['1', '2', '3', '4']
+                test.each(cases)('ToPay: %p', async (toPay) => {
+                    const {
+                        admin,
+                        acquiringContext,
+                        billingAccount,
+                    } = await makePayer()
+                    const receipt = generateReceipt(billingAccount)
+                    receipt.amount = toPay
+                    const acquiringIntegrationContext = { id: acquiringContext.id }
+                    await catchErrorFrom(async () => {
+                        await registerMultiPaymentForVirtualReceiptByTestClient(admin, receipt, acquiringIntegrationContext)
+                    }, ({ errors }) => {
+                        expect(errors).toMatchObject([{
+                            message: 'The minimum payment amount that can be accepted',
+                            path: ['result'],
+                            extensions: {
+                                mutation: 'registerMultiPayment',
+                                variable: ['data', 'groupedReceipts', '[]', 'amountDistribution'],
+                                code: 'BAD_USER_INPUT',
+                                type: 'WRONG_VALUE',
+                                message: 'The minimum payment amount that can be accepted',
+                                messageForUser: 'Сумма оплаты меньше минимальной.',
                             },
                         }])
                     })

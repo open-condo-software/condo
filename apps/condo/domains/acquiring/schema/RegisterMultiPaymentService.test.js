@@ -91,6 +91,7 @@ const {
     makeClientWithResidentUser,
 } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
+const {multiPayment: payment} = require("@condorb/domains/condorb/test/mockSameReceiverForReceiptAndInvoice");
 
 let adminClient
 let dummyAcquiringIntegration
@@ -665,6 +666,7 @@ describe('RegisterMultiPaymentService', () => {
                     await updateTestBillingReceipt(commonData.admin, batches[1].billingReceipts[0].id, {
                         toPay,
                     })
+
                     await catchErrorFrom(async () => {
                         await registerMultiPaymentByTestClient(commonData.client, payload)
                     }, ({ errors }) => {
@@ -677,6 +679,40 @@ describe('RegisterMultiPaymentService', () => {
                                 code: 'BAD_USER_INPUT',
                                 type: 'RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE',
                                 message: 'Cannot pay for BillingReceipts {ids} with negative "toPay" value',
+                            },
+                        }])
+                    })
+                })
+            })
+            describe('The payment amount is less than the minimum', () => {
+                const cases = ['1', '2', '3', '4', '0.1']
+                test.each(cases)('ToPay: %p', async (toPay) => {
+                    const { commonData, batches } = await makePayerWithMultipleConsumers(2, 2)
+                    const payload = batches.map(batch => ({
+                        serviceConsumer: { id: batch.serviceConsumer.id },
+                        receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
+                    }))
+                    for (let i = 0; i < batches.length; i++) {
+                        for (let j = 0; j < batches[i].billingReceipts.length; j++) {
+                            await updateTestBillingReceipt(commonData.admin, batches[i].billingReceipts[j].id, {
+                                toPay,
+                            })
+                        }
+                    }
+
+                    await catchErrorFrom(async () => {
+                        await registerMultiPaymentByTestClient(commonData.client, payload)
+                    }, ({ errors }) => {
+                        expect(errors).toMatchObject([{
+                            message: 'The minimum payment amount that can be accepted',
+                            path: ['result'],
+                            extensions: {
+                                mutation: 'registerMultiPayment',
+                                variable: ['data', 'groupedReceipts', '[]', 'amountDistribution'],
+                                code: 'BAD_USER_INPUT',
+                                type: 'WRONG_VALUE',
+                                message: 'The minimum payment amount that can be accepted',
+                                messageForUser: 'Сумма оплаты меньше минимальной.',
                             },
                         }])
                     })
