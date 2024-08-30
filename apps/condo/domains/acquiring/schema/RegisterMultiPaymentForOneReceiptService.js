@@ -9,6 +9,7 @@ const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/RegisterMultiPaymentForOneReceiptService')
+const { GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM } } = require('@condo/domains/acquiring/constants/errors')
 const {
     FEE_CALCULATION_PATH,
     WEB_VIEW_PATH,
@@ -57,12 +58,8 @@ const ERRORS = {
         correctExample: '{ dv: 1, fingerprint: \'example-fingerprint-alphanumeric-value\'}',
     },
     PAYMENT_AMOUNT_LESS_THAN_MINIMUM: {
-        mutation: 'registerMultiPayment',
-        variable: ['data', 'groupedReceipts', '[]', 'amountDistribution'],
-        code: BAD_USER_INPUT,
-        type: WRONG_VALUE,
-        message: 'The minimum payment amount that can be accepted',
-        messageForUser: 'api.acquiring.payment.error.paymentAmountLessThanMinimum',
+        ...PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
+        mutation: 'registerMultiPaymentForOneReceipt',
     },
     ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED: {
         mutation: 'registerMultiPaymentForOneReceipt',
@@ -249,6 +246,10 @@ const RegisterMultiPaymentForOneReceiptService = new GQLCustomSchema('RegisterMu
                     implicitFee: String(implicitFee),
                     serviceFee: String(fromReceiptAmountFee),
                 }
+                const amountToPay = Big(paymentCommissionFields.explicitFee).add(Big(billingReceipt.toPay))
+                if (acquiringIntegration.minimumPaymentAmount && Big(amountToPay).lt(acquiringIntegration.minimumPaymentAmount)) {
+                    throw new GQLError(ERRORS.PAYMENT_AMOUNT_LESS_THAN_MINIMUM, context)
+                }
                 const paymentModel = await Payment.create(context, {
                     dv: 1,
                     sender,
@@ -274,9 +275,6 @@ const RegisterMultiPaymentForOneReceiptService = new GQLCustomSchema('RegisterMu
                     implicitFee: Big(payment.implicitFee),
                 }
 
-                if (totalAmount.amountWithoutExplicitFee.lt(Big(MINIMUM_PAYMENT_AMOUNT))) {
-                    throw new GQLError(ERRORS.PAYMENT_AMOUNT_LESS_THAN_MINIMUM, context)
-                }
 
                 const authedItemId = get(context, 'authedItem.id')
                 const multiPayment = await MultiPayment.create(context, {
