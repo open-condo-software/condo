@@ -80,6 +80,10 @@ const getPaymentsSum = async (context, organizationId, accountNumber, period, bi
         recipientBic: bic,
         recipientBankAccount: bankAccount,
     })
+    return getPaymentsSumByPayments(payments)
+}
+
+const getPaymentsSumByPayments = (payments) => {
     return payments.reduce((total, current) => (Big(total).plus(current.amount)), 0).toFixed(8).toString()
 }
 
@@ -171,6 +175,7 @@ module.exports = {
     BillingCategory,
     registerBillingReceipts,
     getPaymentsSum,
+    getPaymentsSumByPayments,
     sendNewReceiptMessagesToResidentScopes,
     BillingReceiptFile,
     validateQRCode,

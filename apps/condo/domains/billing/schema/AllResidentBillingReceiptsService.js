@@ -17,7 +17,10 @@ const {
 } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const access = require('@condo/domains/billing/access/AllResidentBillingReceipts')
 const { BILLING_RECEIPT_FILE_FOLDER_NAME } = require('@condo/domains/billing/constants/constants')
-const { ResidentBillingReceiptAdmin, getPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
+const {
+    ResidentBillingReceiptAdmin,
+    getPaymentsSumByPayments,
+} = require('@condo/domains/billing/utils/serverSchema')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 
 const {
@@ -25,6 +28,7 @@ const {
     BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME,
     BILLING_RECEIPT_SERVICES_FIELD,
 } = require('../constants/constants')
+const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require("../../acquiring/constants/payment");
 
 const Adapter = new FileAdapter(BILLING_RECEIPT_FILE_FOLDER_NAME)
 
@@ -205,6 +209,14 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                     })
                 })
 
+                // cache already maid payments
+                const paymentsCache = await  find('Payment', {
+                    organization: { id_in: [... new Set(processedReceipts.map(item => get(item, ['serviceConsumer', 'organization'])))] },
+                    accountNumber_in: [... new Set(processedReceipts.map(item => get(item, ['serviceConsumer', 'accountNumber'])))],
+                    period: minPeriod,
+                    status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS],
+                })
+
                 //
                 // Set receipt.paid field and calculate fees
                 //
@@ -213,14 +225,14 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                     const organizationId = get(receipt.serviceConsumer, ['organization'])
                     const accountNumber = get(receipt.serviceConsumer, ['accountNumber'])
                     const billingCategory = get(receipt, ['category']) || {}
-                    const paid = await getPaymentsSum(
-                        context,
-                        organizationId,
-                        accountNumber,
-                        get(receipt, 'period', null),
-                        get(receipt, ['recipient', 'bic'], null),
-                        get(receipt, ['recipient', 'bankAccount'], null)
-                    )
+                    const alreadyMaidPayments = paymentsCache.filter(payment => {
+                        return payment.organization === organizationId
+                            && payment.accountNumber === accountNumber
+                            && payment.period === get(receipt, 'period', null)
+                            && payment.recipientBic === get(receipt, ['recipient', 'bic'], null)
+                            && payment.recipientBankAccount === get(receipt, ['recipient', 'bankAccount'], null)
+                    })
+                    const paid = await getPaymentsSumByPayments(alreadyMaidPayments)
                     const acquiringContextId = get(receipt, ['serviceConsumer', 'acquiringIntegrationContext'], null)
                     const toPay = get(receipt, ['toPay'], 0)
                     let fee = '0'
