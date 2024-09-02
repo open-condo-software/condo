@@ -18,25 +18,6 @@ const getUnitsFromSection = (section) => section.floors.flatMap(floor => floor.u
     unitType: unit.unitType,
 })))
 
-/**
- * @param {Property} property
- * @returns {{property: PropertyWhereUniqueInput, unitType: string, unitName: string}[]}
- */
-const queryConditionsByUnits = (property) => {
-    const conditions = []
-    const unitsFromProperty = getUnitsFromProperty(property)
-    for (const unitFromProperty of unitsFromProperty) {
-        conditions.push({
-            AND: [{
-                property: { id: property.id },
-                unitType: unitFromProperty.unitType,
-                unitName: unitFromProperty.unitName,
-            }],
-        })
-    }
-    return conditions
-}
-
 async function countUniqueUnitsFromResidents (unitNamesByProperty) {
     const { keystone } = getSchemaCtx('Resident')
     const { knex } = getDatabaseAdapter(keystone)
@@ -55,4 +36,4 @@ async function countUniqueUnitsFromResidents (unitNamesByProperty) {
     return get(result, [0, 'count'], null)
 }
 
-module.exports = { getUnitsFromProperty, getUnitsFromSection, countUniqueUnitsFromResidents, queryConditionsByUnits }
+module.exports = { getUnitsFromProperty, getUnitsFromSection, countUniqueUnitsFromResidents }

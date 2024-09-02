@@ -30,7 +30,7 @@ const GetNewsItemsRecipientsCountersService = new GQLCustomSchema('GetNewsItemsR
         {
             access: access.canGetNewsItemsRecipientsCounters,
             schema: 'getNewsItemsRecipientsCounters(data: GetNewsItemsRecipientsCountersInput!): GetNewsItemsRecipientsCountersOutput',
-            resolver: async (parent, args, context, info, extra = {}) => {
+            resolver: async (parent, args) => {
                 const { data: { newsItemScopes, organization: { id: organizationId } } } = args
 
                 const isAllOrganization = filter(newsItemScopes, {
@@ -39,7 +39,7 @@ const GetNewsItemsRecipientsCountersService = new GQLCustomSchema('GetNewsItemsR
                     unitName: null,
                 }).length > 0
 
-                let propertiesCount = 0, unitsCount = 0, receiversCount = 0
+                let propertiesCount = 0, unitsCount = 0, receiversCount
 
                 const unitsByProperty = {}
 
