@@ -3,6 +3,7 @@
  */
 
 const { faker } = require('@faker-js/faker')
+const { values } = require('lodash')
 
 const {
     expectToThrowAuthenticationErrorToResult,
@@ -16,9 +17,12 @@ const {
     ResidentTestMixin,
     MeterTestMixin,
 } = require('@condo/domains/billing/utils/testSchema/testUtils')
+const { RUSSIAN_COUNTRY, DEFAULT_ENGLISH_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const { createTestMeterResourceOwner, updateTestMeterResourceOwner, MeterResource, MeterResourceOwner } = require('@condo/domains/meter/utils/testSchema')
 const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
+const { createTestOrganization, updateTestOrganization, generateTin } = require('@condo/domains/organization/utils/testSchema')
+const { createTestProperty, updateTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { suggestProviderByTinServiceByTestClient } = require('@condo/domains/resident/utils/testSchema')
 
 
@@ -34,6 +38,20 @@ const removeMeterResourceOwners = async (utils) => {
         await updateTestMeterResourceOwner(utils.clients.admin, owner.id, { deletedAt: new Date().toISOString() })
     }
 }
+
+const generateServiceProviders = async (client, count, extraAttrs) => {
+    const serviceProviders = []
+    const attrs = {
+        type: SERVICE_PROVIDER_TYPE,
+        ...extraAttrs,
+    }
+    for (let i = 0; i < count; i++) {
+        const serviceProvider = createTestOrganization(client, attrs).then(pair => pair[0])
+        serviceProviders.push(serviceProvider)
+    }
+    return Promise.all(serviceProviders)
+}
+
 describe('SuggestServiceProviderByTinService', () => {
 
     let utils
@@ -48,46 +66,46 @@ describe('SuggestServiceProviderByTinService', () => {
         test('anonymous: can not execute', async () => {
             await expectToThrowAuthenticationErrorToResult(async () => {
                 await suggestProviderByTinServiceByTestClient(utils.clients.anonymous, {
-                    tin: String(faker.datatype.number({ min: 100, max: 10000 })),
+                    tinOrName: String(generateTin(RUSSIAN_COUNTRY)),
                 })
             })
         })
         test('user: can not execute', async () => {
             await expectToThrowAccessDeniedErrorToResult(async () => {
                 await suggestProviderByTinServiceByTestClient(utils.clients.user, {
-                    tin: String(faker.datatype.number({ min: 100, max: 10000 })),
+                    tinOrName: String(generateTin(RUSSIAN_COUNTRY)),
                 })
             })
         })
         test('employee: can not execute', async () => {
             await expectToThrowAccessDeniedErrorToResult(async () => {
                 await suggestProviderByTinServiceByTestClient(utils.clients.employee['billing'], {
-                    tin: String(faker.datatype.number({ min: 100, max: 10000 })),
+                    tinOrName: String(generateTin(RUSSIAN_COUNTRY)),
                 })
             })
         })
         test('service user: can not execute', async () => {
             await expectToThrowAccessDeniedErrorToResult(async () => {
                 await suggestProviderByTinServiceByTestClient(utils.clients.service, {
-                    tin: String(faker.datatype.number({ min: 100, max: 10000 })),
+                    tinOrName: String(generateTin(RUSSIAN_COUNTRY)),
                 })
             })
         })
         test('admin: can execute', async () => {
             const [organizations] = await suggestProviderByTinServiceByTestClient(utils.clients.admin, {
-                tin: utils.organization.tin.substr(0, 5),
+                tinOrName: utils.organization.tin.substr(0, 5),
             })
             expect(organizations).not.toHaveLength(0)
         })
         test('support: can execute', async () => {
             const [organizations] = await suggestProviderByTinServiceByTestClient(utils.clients.support, {
-                tin: utils.organization.tin.substr(0, 5),
+                tinOrName: utils.organization.tin.substr(0, 5),
             })
             expect(organizations).not.toHaveLength(0)
         })
         test('resident: can execute', async () => {
             const [organizations] = await suggestProviderByTinServiceByTestClient(utils.clients.resident, {
-                tin: utils.organization.tin.substr(0, 5),
+                tinOrName: utils.organization.tin.substr(0, 5),
             })
             expect(organizations).not.toHaveLength(0)
         })
@@ -100,53 +118,124 @@ describe('SuggestServiceProviderByTinService', () => {
             await removeMeterResourceOwners(utils)
         })
 
+        const getPartialTinAndName = () => {
+            const tin = utils.organization.tin.substr(0, 5)
+            const name = utils.organization.name.substr(0, utils.organization.name.length / 2)
+            return [tin, name]
+        }
+
         test('should find organization with finished acquiring context', async () => {
-            const [organizations] = await suggestProviderByTinServiceByTestClient(utils.clients.resident, {
-                tin: utils.organization.tin.substr(0, 5),
-            })
-            expect(organizations).toContainEqual({
-                tin: utils.organization.tin,
-                name: utils.organization.name,
-            })
+            for (const tinOrName of getPartialTinAndName()) {
+                const [organizations] = await suggestProviderByTinServiceByTestClient(utils.clients.resident, {
+                    tinOrName: tinOrName,
+                })
+                expect(organizations).toContainEqual({
+                    tin: utils.organization.tin,
+                    name: utils.organization.name,
+                })
+            }
         })
 
         test('should find organization with meter resource owning', async () => {
             await utils.updateAcquiringContext({ status: CONTEXT_IN_PROGRESS_STATUS })
             await addMeterResourceOwner(utils)
-            const [organizations] = await suggestProviderByTinServiceByTestClient(utils.clients.resident, {
-                tin: utils.organization.tin.substr(0, 5),
-            })
-            expect(organizations).toContainEqual({
-                tin: utils.organization.tin,
-                name: utils.organization.name,
-            })
+
+            for (const tinOrName of getPartialTinAndName()) {
+                const [organizations] = await suggestProviderByTinServiceByTestClient(utils.clients.resident, {
+                    tinOrName: tinOrName,
+                })
+                expect(organizations).toContainEqual({
+                    tin: utils.organization.tin,
+                    name: utils.organization.name,
+                })
+            }
         })
 
         test('should find organization with finished acquiring context and meter resource owning', async () => {
             await addMeterResourceOwner(utils)
-            const [organizations] = await suggestProviderByTinServiceByTestClient(utils.clients.resident, {
-                tin: utils.organization.tin.substr(0, 5),
-            })
-            expect(organizations).toContainEqual({
-                tin: utils.organization.tin,
-                name: utils.organization.name,
-            })
+
+            for (const tinOrName of getPartialTinAndName()) {
+                const [organizations] = await suggestProviderByTinServiceByTestClient(utils.clients.resident, {
+                    tinOrName: tinOrName,
+                })
+                expect(organizations).toContainEqual({
+                    tin: utils.organization.tin,
+                    name: utils.organization.name,
+                })
+            }
         })
 
         test('should not find organization without acquiring context in Finished status and without meter owning', async () => {
             await utils.updateAcquiringContext({ status: CONTEXT_IN_PROGRESS_STATUS })
-            const [organizations] = await suggestProviderByTinServiceByTestClient(utils.clients.resident, {
-                tin: utils.organization.tin.substr(0, 5),
-            })
-            expect(organizations).toHaveLength(0)
+
+            for (const tinOrName of getPartialTinAndName()) {
+                const [organizations] = await suggestProviderByTinServiceByTestClient(utils.clients.resident, {
+                    tinOrName: tinOrName,
+                })
+                expect(organizations).not.toContainEqual({
+                    tin: utils.organization.tin,
+                    name: utils.organization.name,
+                })
+            }
         })
 
         test('should merge organizations with same tin', async () => {
+            const tin = generateTin(faker.helpers.arrayElement([RUSSIAN_COUNTRY, DEFAULT_ENGLISH_COUNTRY]))
+            const serviceProviders = await generateServiceProviders(utils.clients.admin, 5, { tin: tin })
+            const names = serviceProviders.map(provider => provider.name)
+            
+            const toCleanup = {
+                organizations: {
+                    items: [...serviceProviders],
+                    cleanupFn: (id) => updateTestOrganization(utils.clients.admin, id, { deletedAt: new Date().toISOString() }),
+                },
+                properties: {
+                    items: [],
+                    cleanupFn: (id) => updateTestProperty(utils.clients.admin, id, { deletedAt: new Date().toISOString() }),
+                },
+                meterResourceOwners: {
+                    items: [],
+                    cleanupFn: (id) => updateTestMeterResourceOwner(utils.clients.admin, id, { deletedAt: new Date().toISOString() }),
+                },
+            }
+            
+            try {
+                const resource = await MeterResource.getOne(utils.clients.admin, { id: COLD_WATER_METER_RESOURCE_ID })
+                for (const serviceProvider of serviceProviders) {
+                    const [organization] = await createTestOrganization(utils.clients.admin)
+                    const [property] = await createTestProperty(utils.clients.admin, organization)
+                    const [meterResourceOwner] = await createTestMeterResourceOwner(utils.clients.admin, serviceProvider, resource, {
+                        address: property.address,
+                    })
 
+                    toCleanup.organizations.items.push(organization)
+                    toCleanup.properties.items.push(property)
+                    toCleanup.meterResourceOwners.items.push(meterResourceOwner)
+                }
 
+                const searchParams = [
+                    tin.substring(0, 5),
+                    names[0].substring(0, names[0].length / 2),
+                ]
+
+                for (const searchParam of searchParams) {
+                    const [suggestedProviders] = await suggestProviderByTinServiceByTestClient(utils.clients.resident, {
+                        tinOrName: searchParam,
+                    })
+                    const uniqueTins = new Set(suggestedProviders.map((provider) => provider.tin))
+
+                    expect(uniqueTins.size).toBeGreaterThanOrEqual(1)
+                    expect(uniqueTins).toContain(tin)
+                }
+                
+            } finally {
+                const cleanupPromises = values(toCleanup)
+                    .flatMap(category =>
+                        category.items.map(item => category.cleanupFn(item.id))
+                    )
+                await Promise.all(cleanupPromises)
+                    .catch(err => console.error('could not cleanup properly', err))
+            }
         })
-
     })
-
-
 })
