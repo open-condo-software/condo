@@ -4,6 +4,7 @@ module.exports = {
     mode: 'production',
     entry: {
         'ticket.test': path.join(__dirname, 'src/ticket.test.ts'),
+        'getAllTickets.test': path.join(__dirname, 'src/getAllTickets.test.ts'),
         'news.test': path.join(__dirname, 'src/news.test.ts'),
         'payment.test': path.join(__dirname, 'src/payment.test.ts'),
     },
