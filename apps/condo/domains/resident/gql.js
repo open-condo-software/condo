@@ -72,6 +72,12 @@ const REGISTER_RESIDENT_SERVICE_CONSUMERS_MUTATION = gql`
     }
 `
 
+const SUGGEST_PROVIDER_BY_TIN_QUERY = gql`
+    query suggestProviderByTin ($data: SuggestProviderByTinInput!) {
+        result: suggestProviderByTin(data: $data) { tin, name }
+    }
+`
+
 module.exports = {
     Resident,
     REGISTER_RESIDENT_MUTATION,
@@ -87,5 +93,6 @@ module.exports = {
     REGISTER_RESIDENT_SERVICE_CONSUMERS_MUTATION,
     REGISTER_RESIDENT_INVOICE_MUTATION,
     FIND_ORGANIZATIONS_FOR_ADDRESS_QUERY,
+    SUGGEST_PROVIDER_BY_TIN_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

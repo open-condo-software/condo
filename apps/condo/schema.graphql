@@ -76947,15 +76947,6 @@ type ReplaceOrganizationEmployeeRoleOutput {
   status: String!
 }
 
-input SuggestProviderByTinInput {
-  tin: String!
-}
-
-type SuggestProviderByTinOutput {
-  tin: String!
-  name: String!
-}
-
 input ExportPropertiesToExcelInput {
   where: PropertyWhereInput!
   sortBy: [SortPropertiesBy!]
@@ -77659,6 +77650,15 @@ type FindOrganizationForAddressOutput {
   account: FindOrganizationForAddressAccountType
   hasMeters: Boolean!
   hasBillingData: Boolean!
+}
+
+input SuggestProviderByTinInput {
+  tin: String!
+}
+
+type SuggestProviderByTinOutput {
+  tin: String!
+  name: String!
 }
 
 input SyncTourStepsInput {
@@ -82157,7 +82157,6 @@ type Query {
   }`
   """
   checkUserExistence(data: CheckUserExistenceInput!): CheckUserExistenceOutput
-  suggestProviderByTin(data: SuggestProviderByTinInput!): [SuggestProviderByTinOutput]
   exportPropertiesToExcel(data: ExportPropertiesToExcelInput!): ExportPropertiesToExcelOutput
   allResidentBillingReceipts(where: ResidentBillingReceiptWhereInput, first: Int, skip: Int, sortBy: [SortResidentBillingReceiptsBy!]): [ResidentBillingReceiptOutput]
 
@@ -82239,6 +82238,7 @@ type Query {
   predictTicketClassification(data: PredictTicketClassificationInput!): TicketClassifier
   getResidentExistenceByPhoneAndAddress(data: GetResidentExistenceByPhoneAndAddressInput!): GetResidentExistenceByPhoneAndAddressOutput
   findOrganizationsForAddress(data: FindOrganizationsForAddressInput!): [FindOrganizationForAddressOutput]
+  suggestProviderByTin(data: SuggestProviderByTinInput!): [SuggestProviderByTinOutput]
   exportMeterReadings(data: ExportMeterReadingsInput!): ExportMeterReadingsOutput
 
   """

@@ -66031,7 +66031,6 @@ export type Query = {
    * }`
    */
   checkUserExistence?: Maybe<CheckUserExistenceOutput>;
-  suggestProviderByTin?: Maybe<Array<Maybe<SuggestProviderByTinOutput>>>;
   exportPropertiesToExcel?: Maybe<ExportPropertiesToExcelOutput>;
   allResidentBillingReceipts?: Maybe<Array<Maybe<ResidentBillingReceiptOutput>>>;
   /**
@@ -66111,6 +66110,7 @@ export type Query = {
   predictTicketClassification?: Maybe<TicketClassifier>;
   getResidentExistenceByPhoneAndAddress?: Maybe<GetResidentExistenceByPhoneAndAddressOutput>;
   findOrganizationsForAddress?: Maybe<Array<Maybe<FindOrganizationForAddressOutput>>>;
+  suggestProviderByTin?: Maybe<Array<Maybe<SuggestProviderByTinOutput>>>;
   exportMeterReadings?: Maybe<ExportMeterReadingsOutput>;
   /**
    * Export of property meters readings. A link to the file is returned
@@ -72767,11 +72767,6 @@ export type QueryCheckUserExistenceArgs = {
 };
 
 
-export type QuerySuggestProviderByTinArgs = {
-  data: SuggestProviderByTinInput;
-};
-
-
 export type QueryExportPropertiesToExcelArgs = {
   data: ExportPropertiesToExcelInput;
 };
@@ -72815,6 +72810,11 @@ export type QueryGetResidentExistenceByPhoneAndAddressArgs = {
 
 export type QueryFindOrganizationsForAddressArgs = {
   data: FindOrganizationsForAddressInput;
+};
+
+
+export type QuerySuggestProviderByTinArgs = {
+  data: SuggestProviderByTinInput;
 };
 
 
