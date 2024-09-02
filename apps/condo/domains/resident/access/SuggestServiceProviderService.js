@@ -5,7 +5,7 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
-async function canSuggestProviderByTin ({ authentication: { item: user } }) {
+async function canSuggestProvider ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     return user.isAdmin || user.isSupport || user.type === RESIDENT
@@ -16,5 +16,5 @@ async function canSuggestProviderByTin ({ authentication: { item: user } }) {
   all or no items are available) or a set of filters that limit the available items.
 */
 module.exports = {
-    canSuggestProviderByTin,
+    canSuggestProvider,
 }

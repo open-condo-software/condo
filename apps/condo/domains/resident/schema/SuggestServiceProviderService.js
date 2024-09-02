@@ -11,7 +11,7 @@ const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/
 const { MeterResourceOwner } = require('@condo/domains/meter/utils/serverSchema')
 const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
-const access = require('@condo/domains/resident/access/SuggestServiceProviderByTinService')
+const access = require('@condo/domains/resident/access/SuggestServiceProviderService')
 const { MAX_RESIDENT_SUGGEST_SERVICE_PROVIDER_BY_WINDOW_SEC, RESIDENT_SUGGEST_SERVICE_PROVIDER_WINDOW_SEC } = require('@condo/domains/resident/constants')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
@@ -49,22 +49,22 @@ const filterOrganizationsByAcquiringContextOrMeterResourceOwnership = async (con
 }
 
 
-const SuggestServiceProviderByTinService = new GQLCustomSchema('SuggestServiceProviderByTinService', {
+const SuggestServiceProviderService = new GQLCustomSchema('SuggestServiceProviderByTinService', {
     types: [
         {
             access: true,
-            type: 'input SuggestProviderByTinInput { tinOrName: String! }',
+            type: 'input SuggestProviderInput { tinOrName: String! }',
         },
         {
             access: true,
-            type: 'type SuggestProviderByTinOutput { tin: String!, name: String! }',
+            type: 'type SuggestProviderOutput { tin: String!, name: String! }',
         },
     ],
     
     queries: [
         {
-            access: access.canSuggestProviderByTin,
-            schema: 'suggestProviderByTin (data: SuggestProviderByTinInput!): [SuggestProviderByTinOutput]',
+            access: access.canSuggestProvider,
+            schema: 'suggestProvider (data: SuggestProviderInput!): [SuggestProviderOutput]',
             resolver: async (parent, args, context = {}) => {
                 if (context.authedItem.type === RESIDENT) {
                     await checkLimits(context.authedItem.id)
@@ -93,5 +93,5 @@ const SuggestServiceProviderByTinService = new GQLCustomSchema('SuggestServicePr
 })
 
 module.exports = {
-    SuggestServiceProviderByTinService,
+    SuggestServiceProviderService,
 }

@@ -66131,7 +66131,7 @@ export type Query = {
   predictTicketClassification?: Maybe<TicketClassifier>;
   getResidentExistenceByPhoneAndAddress?: Maybe<GetResidentExistenceByPhoneAndAddressOutput>;
   findOrganizationsForAddress?: Maybe<Array<Maybe<FindOrganizationForAddressOutput>>>;
-  suggestProviderByTin?: Maybe<Array<Maybe<SuggestProviderByTinOutput>>>;
+  suggestProvider?: Maybe<Array<Maybe<SuggestProviderOutput>>>;
   exportMeterReadings?: Maybe<ExportMeterReadingsOutput>;
   /**
    * Export of property meters readings. A link to the file is returned
@@ -72834,8 +72834,8 @@ export type QueryFindOrganizationsForAddressArgs = {
 };
 
 
-export type QuerySuggestProviderByTinArgs = {
-  data: SuggestProviderByTinInput;
+export type QuerySuggestProviderArgs = {
+  data: SuggestProviderInput;
 };
 
 
@@ -85110,12 +85110,12 @@ export enum Status {
   Error = 'error'
 }
 
-export type SuggestProviderByTinInput = {
-  tin: Scalars['String'];
+export type SuggestProviderInput = {
+  tinOrName: Scalars['String'];
 };
 
-export type SuggestProviderByTinOutput = {
-  __typename?: 'SuggestProviderByTinOutput';
+export type SuggestProviderOutput = {
+  __typename?: 'SuggestProviderOutput';
   tin: Scalars['String'];
   name: Scalars['String'];
 };

@@ -12,7 +12,7 @@ const { RegisterServiceConsumerService } = require('./RegisterServiceConsumerSer
 const { Resident } = require('./Resident')
 const { SendMessageToResidentScopesService } = require('./SendMessageToResidentScopesService')
 const { ServiceConsumer } = require('./ServiceConsumer')
-const { SuggestServiceProviderByTinService } = require('./SuggestServiceProviderByTinService')
+const { SuggestServiceProviderService } = require('./SuggestServiceProviderService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -25,6 +25,6 @@ module.exports = {
     GetResidentExistenceByPhoneAndAddressService,
     RegisterResidentInvoiceService,
     FindOrganizationsForAddressService,
-    SuggestServiceProviderByTinService,
+    SuggestServiceProviderService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
