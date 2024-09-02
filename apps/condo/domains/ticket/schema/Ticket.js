@@ -972,6 +972,80 @@ const Ticket = new GQLListSchema('Ticket', {
         delete: false,
         auth: true,
     },
+    kmigratorOptions: {
+        indexes: [
+            {
+                type: 'BTreeIndex',
+                fields: ['property'],
+                name: 'ticket_property',
+            },
+            {
+                type: 'BTreeIndex',
+                fields: ['number'],
+                name: 'ticket_number',
+            },
+            {
+                type: 'BTreeIndex',
+                fields: ['unitName'],
+                name: 'ticket_unitName',
+            },
+            {
+                type: 'BTreeIndex',
+                fields: ['problemClassifier'],
+                name: 'ticket_problemClassifier',
+            },
+            {
+                type: 'BTreeIndex',
+                fields: ['createdBy'],
+                name: 'ticket_createdBy',
+            },
+            {
+                type: 'BTreeIndex',
+                fields: ['isPayable'],
+                name: 'ticket_isPayable',
+            },
+            {
+                type: 'BTreeIndex',
+                fields: ['isEmergency'],
+                name: 'ticket_isEmergency',
+            },
+            {
+                type: 'BTreeIndex',
+                fields: ['isWarranty'],
+                name: 'ticket_isWarranty',
+            },
+            {
+                type: 'BTreeIndex',
+                fields: ['statusReopenedCounter'],
+                name: 'ticket_statusReopenedCounter',
+            },
+            {
+                type: 'BTreeIndex',
+                fields: ['source'],
+                name: 'ticket_source',
+            },
+            {
+                type: 'BTreeIndex',
+                fields: ['status'],
+                name: 'ticket_status',
+            },
+            {
+                type: 'BTreeIndex',
+                fields: ['createdAt'],
+                name: 'ticket_createdAt',
+            },
+            {
+                type: 'BTreeIndex',
+                fields: ['assignee'],
+                name: 'ticket_assignee',
+            },
+            {
+                type: 'BTreeIndex',
+                fields: ['executor'],
+                name: 'ticket_executor',
+            },
+        ],
+    },
 })
 
 module.exports = {
