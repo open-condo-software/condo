@@ -10,6 +10,7 @@ const { generateQueryWhereInput } = require('@open-condo/codegen/generate.gql')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
+const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
 const {
     getAcquiringIntegrationContextFormulaByInstance,
@@ -18,17 +19,16 @@ const {
 const access = require('@condo/domains/billing/access/AllResidentBillingReceipts')
 const { BILLING_RECEIPT_FILE_FOLDER_NAME } = require('@condo/domains/billing/constants/constants')
 const {
+    BILLING_RECEIPT_RECIPIENT_FIELD_NAME,
+    BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME,
+    BILLING_RECEIPT_SERVICES_FIELD,
+} = require('@condo/domains/billing/constants/constants')
+const {
     ResidentBillingReceiptAdmin,
     getPaymentsSumByPayments,
 } = require('@condo/domains/billing/utils/serverSchema')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 
-const {
-    BILLING_RECEIPT_RECIPIENT_FIELD_NAME,
-    BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME,
-    BILLING_RECEIPT_SERVICES_FIELD,
-} = require('../constants/constants')
-const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require("../../acquiring/constants/payment");
 
 const Adapter = new FileAdapter(BILLING_RECEIPT_FILE_FOLDER_NAME)
 
