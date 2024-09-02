@@ -104,6 +104,15 @@ const REPLACE_ORGANIZATION_EMPLOYEE_ROLE_MUTATION = gql`
         result: replaceOrganizationEmployeeRole(data: $data) { status }
     }
 `
+ 
+const FIND_ORGANIZATIONS_BY_TIN_QUERY = gql`
+    query findOrganizationsByTin ($data: FindOrganizationsByTinInput!) {
+        result: findOrganizationsByTin(data: $data) { organizations { id name } }
+    }
+`
+
+const FIND_ORGANIZATIONS_BY_TIN_LOG_FIELDS = '{ user { id } userId tin id dv sender { dv fingerprint } v createdBy { id name } updatedBy { id name } createdAt updatedAt }'
+const FindOrganizationsByTinLog = generateGqlQueries('FindOrganizationsByTinLog', FIND_ORGANIZATIONS_BY_TIN_LOG_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -124,6 +133,7 @@ module.exports = {
     OrganizationEmployeeSpecialization,
     RESET_ORGANIZATION_MUTATION,
     REPLACE_ORGANIZATION_EMPLOYEE_ROLE_MUTATION,
+    FIND_ORGANIZATIONS_BY_TIN_QUERY,
+    FindOrganizationsByTinLog,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
-
