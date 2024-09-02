@@ -39,6 +39,7 @@ const {
     TestUtils,
     ResidentTestMixin,
 } = require('@condo/domains/billing/utils/testSchema/testUtils')
+const Big = require("big.js");
 
 
 describe('RegisterMultiPaymentForOneReceiptService', () => {
@@ -436,10 +437,14 @@ describe('RegisterMultiPaymentForOneReceiptService', () => {
                 const [[receipt]] = await utils.createReceipts([
                     utils.createJSONReceipt({ toPay: '1000' }),
                 ])
-                await utils.updateAcquiringIntegration({ minimumPaymentAmount: '100000' })
+                const minimumPaymentAmount = Big(100000).toFixed(2)
+                await utils.updateAcquiringIntegration({ minimumPaymentAmount })
                 await expectToThrowGQLError(async () => {
                     await registerMultiPaymentForOneReceiptByTestClient(utils.clients.admin, { id: receipt.id }, { id: utils.acquiringContext.id })
-                }, PAYMENT_AMOUNT_LESS_THAN_MINIMUM, 'result')
+                }, {
+                    ...PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
+                    messageInterpolation: { minimumPaymentAmount },
+                }, 'result')
             })
         })
     })

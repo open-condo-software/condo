@@ -314,10 +314,14 @@ describe('RegisterMultiPaymentForInvoicesService', () => {
 
             test('The payment amount is less than the minimum amount from acquiring integration', async () => {
                 const [invoice] = await createTestInvoice(utils.clients.admin, utils.organization, { status: INVOICE_STATUS_PUBLISHED })
-                await utils.updateAcquiringIntegration({ minimumPaymentAmount: Big(invoice.toPay).add(Big(1)).toFixed(2) })
+                const minimumPaymentAmount = Big(invoice.toPay).add(1).toFixed(2)
+                await utils.updateAcquiringIntegration({ minimumPaymentAmount })
                 await expectToThrowGQLError(async () => {
                     await registerMultiPaymentForInvoicesByTestClient(utils.clients.admin, { invoices: [{ id: invoice.id }] })
-                }, PAYMENT_AMOUNT_LESS_THAN_MINIMUM, 'result')
+                },  {
+                    ...PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
+                    messageInterpolation: { minimumPaymentAmount },
+                }, 'result')
             })
         })
     })
