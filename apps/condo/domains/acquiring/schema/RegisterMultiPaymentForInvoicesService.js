@@ -25,7 +25,7 @@ const {
     ANONYMOUS_PAYMENT_PATH,
 } = require('@condo/domains/acquiring/constants/links')
 const { DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY } = require('@condo/domains/acquiring/constants/payment')
-const MINIMUM_PAYMENT_AMOUNT = 10
+
 const { freezeInvoice } = require('@condo/domains/acquiring/utils/billingFridge')
 const {
     AcquiringIntegration,
@@ -171,7 +171,7 @@ const RegisterMultiPaymentForInvoicesService = new GQLCustomSchema('RegisterMult
 
                 const acquiringContext = acquiringContexts[0]
                 const acquiringIntegration = await getById('AcquiringIntegration', acquiringContext.integration)
-                const paymentsInputs = []
+                const paymentCreateInputs = []
 
                 for (const invoice of foundInvoices) {
                     const frozenInvoice = await freezeInvoice(invoice)
@@ -204,7 +204,7 @@ const RegisterMultiPaymentForInvoicesService = new GQLCustomSchema('RegisterMult
                         serviceFee: String(fromReceiptAmountFee),
                     }
 
-                    paymentsInputs.push({
+                    paymentCreateInputs.push({
                         dv: 1,
                         sender,
                         context: { connect: { id: acquiringContext.id } },
@@ -220,7 +220,7 @@ const RegisterMultiPaymentForInvoicesService = new GQLCustomSchema('RegisterMult
                     })
                 }
 
-                const totalAmount = paymentsInputs.reduce((acc, cur) => {
+                const totalAmount = paymentCreateInputs.reduce((acc, cur) => {
                     return {
                         amountWithoutExplicitFee: acc.amountWithoutExplicitFee.plus(Big(cur.amount)),
                         explicitFee: acc.explicitFee.plus(Big(cur.explicitFee)),
@@ -243,7 +243,7 @@ const RegisterMultiPaymentForInvoicesService = new GQLCustomSchema('RegisterMult
                     throw new GQLError(ERRORS.PAYMENT_AMOUNT_LESS_THAN_MINIMUM, context)
                 }
 
-                const payments = await Promise.all(paymentsInputs.map((paymentInput) => Payment.create(context, paymentInput)))
+                const payments = await Promise.all(paymentCreateInputs.map((paymentInput) => Payment.create(context, paymentInput)))
                 const paymentIds = payments.map(payment => ({ id: payment.id }))
 
                 const multiPayment = await MultiPayment.create(context, {
