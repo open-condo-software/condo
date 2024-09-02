@@ -1662,13 +1662,17 @@ describe('RegisterMultiPaymentService', () => {
                 const [[receipt]] = await utils.createReceipts([
                     utils.createJSONReceipt({ accountNumber, toPay: '1000' }),
                 ])
-                await utils.updateAcquiringIntegration({ minimumPaymentAmount: '5000' })
+                const minimumPaymentAmount = Big(5000).toFixed(2)
+                await utils.updateAcquiringIntegration({ minimumPaymentAmount })
                 await expectToThrowGQLError(async () => {
                     await registerMultiPaymentByTestClient(utils.clients.resident, [{
                         serviceConsumer: { id: consumer.id },
                         receipts: [{ id: receipt.id }],
                     }])
-                }, PAYMENT_AMOUNT_LESS_THAN_MINIMUM, 'result')
+                }, {
+                    ...PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
+                    messageInterpolation: { minimumPaymentAmount },
+                }, 'result')
             })
 
             test('For partial payment', async () => {
@@ -1678,14 +1682,18 @@ describe('RegisterMultiPaymentService', () => {
                 const [[receipt]] = await utils.createReceipts([
                     utils.createJSONReceipt({ accountNumber, toPay: '1000' }),
                 ])
-                await utils.updateAcquiringIntegration({ minimumPaymentAmount: '100' })
+                const minimumPaymentAmount = Big(100).toFixed(2)
+                await utils.updateAcquiringIntegration({ minimumPaymentAmount })
                 await expectToThrowGQLError(async () => {
                     await registerMultiPaymentByTestClient(utils.clients.resident, [{
                         serviceConsumer: { id: consumer.id },
                         receipts: [{ id: receipt.id }],
                         amountDistribution: [{ receipt: { id: receipt.id }, amount: '50' }],
                     }])
-                }, PAYMENT_AMOUNT_LESS_THAN_MINIMUM, 'result')
+                }, {
+                    ...PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
+                    messageInterpolation: { minimumPaymentAmount },
+                }, 'result')
             })
         })
     })

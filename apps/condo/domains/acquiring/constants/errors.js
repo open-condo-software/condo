@@ -108,7 +108,7 @@ const GQL_ERRORS = {
     PAYMENT_AMOUNT_LESS_THAN_MINIMUM: {
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
-        message: 'The minimum payment amount that can be accepted',
+        message: 'The payment amount is less than the minimum amount from acquiring integration',
         messageForUser: 'api.acquiring.payment.error.paymentAmountLessThanMinimum',
     },
     MORE_THAN_ONE_ACQUIRING_CONTEXTS: {

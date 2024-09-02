@@ -249,7 +249,10 @@ const RegisterMultiPaymentForOneReceiptService = new GQLCustomSchema('RegisterMu
                     .add(Big(paymentCommissionFields.explicitServiceCharge))
                     .add(Big(paymentCommissionFields.explicitFee))
                 if (acquiringIntegration.minimumPaymentAmount && Big(amountToPay).lt(acquiringIntegration.minimumPaymentAmount)) {
-                    throw new GQLError(ERRORS.PAYMENT_AMOUNT_LESS_THAN_MINIMUM, context)
+                    throw new GQLError({
+                        ...ERRORS.PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
+                        messageInterpolation: { minimumPaymentAmount: Big(acquiringIntegration.minimumPaymentAmount).toFixed(2) },
+                    }, context)
                 }
                 const paymentModel = await Payment.create(context, {
                     dv: 1,
@@ -275,7 +278,6 @@ const RegisterMultiPaymentForOneReceiptService = new GQLCustomSchema('RegisterMu
                     serviceFee: Big(payment.serviceFee),
                     implicitFee: Big(payment.implicitFee),
                 }
-
 
                 const authedItemId = get(context, 'authedItem.id')
                 const multiPayment = await MultiPayment.create(context, {

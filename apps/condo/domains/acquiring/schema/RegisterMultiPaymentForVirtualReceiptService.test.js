@@ -337,10 +337,14 @@ describe('RegisterMultiPaymentForVirtualReceiptService', () => {
 
             test('The payment amount is less than the minimum amount from acquiring integration', async () => {
                 const receipt = generateReceipt({ number: faker.random.numeric(50) })
-                await utils.updateAcquiringIntegration({ minimumPaymentAmount: Big(receipt.amount).add(Big(1000)).toFixed(2) })
+                const minimumPaymentAmount =  Big(receipt.amount).add(1000).toFixed(2)
+                await utils.updateAcquiringIntegration({ minimumPaymentAmount })
                 await expectToThrowGQLError(async () => {
                     await registerMultiPaymentForVirtualReceiptByTestClient(utils.clients.admin, receipt, { id: utils.acquiringContext.id })
-                }, PAYMENT_AMOUNT_LESS_THAN_MINIMUM, 'result')
+                }, {
+                    ...PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
+                    messageInterpolation: { minimumPaymentAmount },
+                }, 'result')
             })
         })
     })

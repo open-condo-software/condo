@@ -3135,6 +3135,6 @@
   "acquiringReceipt.invoice.row.vatPercent": "VAT",
   "acquiringReceipt.invoice.row.amount": "Amount",
   "api.acquiring.multiPayment.error.receiptsWithInvoices": "Receipts and invoices are forbidden to be together",
-  "api.acquiring.payment.error.paymentAmountLessThanMinimum": "The payment amount is less than the minimum."
+  "api.acquiring.payment.error.paymentAmountLessThanMinimum": "The payment amount must be greater than {minimumPaymentAmount}"
 }
 
