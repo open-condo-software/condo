@@ -3,6 +3,7 @@
  */
 
 const { faker } = require('@faker-js/faker')
+const Big = require('big.js')
 const dayjs = require('dayjs')
 
 const {
@@ -159,7 +160,7 @@ describe('RegisterMultiPaymentForVirtualReceiptService', () => {
         })
         describe('Receipt checks', () => {
             describe('Cannot pay for receipts with negative toPay', () => {
-                const cases = ['-0.0', '-1', '-50.00', '-0.000000']
+                const cases = ['0.0', '-1', '-50.00', '-0.000000']
                 test.each(cases)('ToPay: %p', async (toPay) => {
                     const {
                         admin,
@@ -312,37 +313,38 @@ describe('RegisterMultiPaymentForVirtualReceiptService', () => {
             expect(serverObtainedAcquiring).toHaveProperty('supportedBillingIntegrationsGroup')
         })
     })
-})
 
-describe('RegisterMultiPaymentForVirtualReceiptService reworked', () => {
+    describe('RegisterMultiPaymentForVirtualReceiptService check minimum amount', () => {
 
-    let utils
+        let utils
 
-    beforeAll(async () => {
-        utils = new TestUtils([ResidentTestMixin])
-        await utils.init()
-    })
-
-    afterEach(async () => {
-        await utils.updateAcquiringIntegration({ minimumPaymentAmount: null })
-    })
-
-    describe('Check minimum payment amount from acquiring integration', () => {
-
-        test('No limits for payment if no settings for minimumPaymentAmount in acquiring integration', async () => {
-            const jsonReceipt = utils.createJSONReceipt()
-            await utils.partialPayForReceipt(jsonReceipt, '100')
-            await utils.createReceipts([jsonReceipt])
+        beforeAll(async () => {
+            utils = new TestUtils([ResidentTestMixin])
+            await utils.init()
         })
 
-        test('The payment amount is less than the minimum amount from acquiring integration', async () => {
-            const jsonReceipt = utils.createJSONReceipt()
-            await utils.createReceipts([jsonReceipt])
-            await utils.updateAcquiringIntegration({ minimumPaymentAmount: '100' })
-            await expectToThrowGQLError(async () => {
-                await utils.partialPayForReceipt(jsonReceipt, '0.1')
-            }, PAYMENT_AMOUNT_LESS_THAN_MINIMUM, 'result')
+        afterEach(async () => {
+            await utils.updateAcquiringIntegration({ minimumPaymentAmount: null })
+        })
+
+        describe('Check minimum payment amount from acquiring integration', () => {
+
+            test('No limits for payment if no settings for minimumPaymentAmount in acquiring integration', async () => {
+                const receipt = generateReceipt({ number: faker.random.numeric(50) })
+                const [result] = await registerMultiPaymentForVirtualReceiptByTestClient(utils.clients.admin, receipt, { id: utils.acquiringContext.id })
+                expect(result).toHaveProperty('multiPaymentId')
+            })
+
+            test('The payment amount is less than the minimum amount from acquiring integration', async () => {
+                const receipt = generateReceipt({ number: faker.random.numeric(50) })
+                await utils.updateAcquiringIntegration({ minimumPaymentAmount: Big(receipt.amount).add(Big(1000)).toFixed(2) })
+                await expectToThrowGQLError(async () => {
+                    await registerMultiPaymentForVirtualReceiptByTestClient(utils.clients.admin, receipt, { id: utils.acquiringContext.id })
+                }, PAYMENT_AMOUNT_LESS_THAN_MINIMUM, 'result')
+            })
         })
     })
 })
+
+
 
