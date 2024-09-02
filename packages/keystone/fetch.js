@@ -1,5 +1,3 @@
-const os = require('os')
-
 const { pickBy } = require('lodash')
 const nodeFetch = require('node-fetch')
 
@@ -7,7 +5,8 @@ const conf = require('@open-condo/config')
 
 const { getExecutionContext } = require('./executionContext')
 const { getLogger } = require('./logging')
-const Mertrics = require('./metrics')
+const Metrics = require('./metrics')
+const { getXRemoteApp, getXRemoteClient, getXRemoteVersion } = require('./tracingUtils')
 
 
 const logger = getLogger('fetch')
@@ -23,32 +22,6 @@ const FETCH_TIME_METRIC_NAME = 'fetch.time'
  * All requests will have X-Target=group0. Requests to v1.condo.ai will have X-Target=group1
  */
 const FETCH_X_TARGET_CONFIG = JSON.parse(conf.FETCH_X_TARGET_CONFIG || '{}')
-
-const HOSTNAME = os.hostname() || 'nohost'
-const NAMESPACE = conf.NAMESPACE || 'nospace'
-const VERSION = conf.WERF_COMMIT_HASH || 'local'
-
-const getAppName = () => {
-    if (conf.APP_NAME) {
-        return conf.APP_NAME
-    }
-
-    if (!HOSTNAME.startsWith('condo')) {
-        return HOSTNAME
-    }
-
-    const splittedHostname = HOSTNAME.split('-')
-    if (splittedHostname.length < 3) {
-        return HOSTNAME
-    }
-
-    return HOSTNAME
-        .split('-')
-        .reverse()
-        .slice(2)
-        .reverse()
-        .join('-')
-}
 
 async function fetchWithLogger (url, options, extraAttrs) {
 
@@ -83,21 +56,21 @@ async function fetchWithLogger (url, options, extraAttrs) {
         //                    ^                   ^
         //                    |                   |
         //               log reqId            log reqId
-        //
-        const deployment = getAppName()
-        const xRemoteApp = NAMESPACE ? `${NAMESPACE}-${deployment}` : deployment
-        const xRemoteClient = HOSTNAME
+
+        const xRemoteApp = getXRemoteApp()
+        const xRemoteClient = getXRemoteClient()
+        const xRemoteVersion = getXRemoteVersion()
         const xTarget = options.headers['X-Target']
         const referrer = `http://${xRemoteClient}/${parentReqId || parentTaskId || parentExecId || ''}?${(xTarget) ? 't=' + xTarget + '&' : ''}${(startReqId) ? 's=' + startReqId + '&' : ''}`
 
-        options.headers['X-Remote-Client'] = HOSTNAME
+        options.headers['X-Remote-Client'] = xRemoteClient
         options.headers['X-Remote-App'] = xRemoteApp
-        options.headers['X-Remote-Version'] = VERSION
+        options.headers['X-Remote-Version'] = xRemoteVersion
         options.headers['X-Parent-Request-ID'] = parentReqId
         options.headers['X-Start-Request-ID'] = startReqId
         options.headers['X-Parent-Task-ID'] = parentTaskId
         options.headers['X-Parent-Exec-ID'] = parentExecId
-        options.headers['User-Agent'] = VERSION ? `node ${xRemoteApp} ${VERSION}` : `node ${xRemoteApp}`
+        options.headers['User-Agent'] = xRemoteVersion ? `node ${xRemoteApp} ${xRemoteVersion}` : `node ${xRemoteApp}`
         options.headers['Referrer'] = xTarget ? `${referrer}?t=${xTarget}` : referrer
     }
 
@@ -126,8 +99,8 @@ async function fetchWithLogger (url, options, extraAttrs) {
 
         logger.info({ msg: 'fetch: request successful', childReqId, responseHeaders: { headers }, status: response.status, responseTime, ...requestLogCommonData })
 
-        Mertrics.increment({ name: FETCH_COUNT_METRIC_NAME, value: 1, tags: { status: response.status, hostname, path } })
-        Mertrics.gauge({ name: FETCH_TIME_METRIC_NAME, value: responseTime, tags: { status: response.status, hostname, path } })
+        Metrics.increment({ name: FETCH_COUNT_METRIC_NAME, value: 1, tags: { status: response.status, hostname, path } })
+        Metrics.gauge({ name: FETCH_TIME_METRIC_NAME, value: responseTime, tags: { status: response.status, hostname, path } })
 
         return response
     } catch (err) {
@@ -136,8 +109,8 @@ async function fetchWithLogger (url, options, extraAttrs) {
 
         logger.error({ msg: 'fetch: failed with error', err, responseTime, status: 0, ...requestLogCommonData })
 
-        Mertrics.increment({ name: FETCH_COUNT_METRIC_NAME, value: 1, tags: { status: 'failed', hostname, path } })
-        Mertrics.gauge({ name: FETCH_TIME_METRIC_NAME, value: responseTime, tags: { status: 'failed', hostname, path } })
+        Metrics.increment({ name: FETCH_COUNT_METRIC_NAME, value: 1, tags: { status: 'failed', hostname, path } })
+        Metrics.gauge({ name: FETCH_TIME_METRIC_NAME, value: responseTime, tags: { status: 'failed', hostname, path } })
 
         throw err
     }

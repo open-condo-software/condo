@@ -19,6 +19,7 @@ const {
 } = require('@open-condo/keystone/healthCheck')
 const { prepareKeystone } = require('@open-condo/keystone/KSv5v6/v5/prepareKeystone')
 const { RequestCache } = require('@open-condo/keystone/requestCache')
+const { getXRemoteApp, getXRemoteClient, getXRemoteVersion } = require('@open-condo/keystone/tracingUtils')
 const { getWebhookModels } = require('@open-condo/webhooks/schema')
 const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
 
@@ -43,8 +44,21 @@ if (IS_BUILD_PHASE) {
 }
 
 if (IS_ENABLE_DD_TRACE && !IS_BUILD_PHASE) {
-    require('dd-trace').init({
-        logInjection: true,
+    const xRemoteApp = getXRemoteApp()
+    const xRemoteClient = getXRemoteClient()
+    const xRemoteVersion = getXRemoteVersion()
+    const tracer = require('dd-trace').init({
+        tags: { xRemoteApp, xRemoteClient, xRemoteVersion },
+    })
+    tracer.use('express', {
+        // hook will be executed right before the request span is finished
+        hooks: {
+            request: (span, req, res) => {
+                if (req?.id) span.setTag('reqId', req.id)
+                if (req?.startId) span.setTag('startId', req.startId)
+                if (req?.user?.id) span.setTag('userId', req.user.id)
+            },
+        },
     })
 }
 
