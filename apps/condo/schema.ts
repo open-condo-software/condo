@@ -66031,6 +66031,7 @@ export type Query = {
    * }`
    */
   checkUserExistence?: Maybe<CheckUserExistenceOutput>;
+  suggestProviderByTin: Array<Maybe<Organization>>;
   exportPropertiesToExcel?: Maybe<ExportPropertiesToExcelOutput>;
   allResidentBillingReceipts?: Maybe<Array<Maybe<ResidentBillingReceiptOutput>>>;
   /**
@@ -72763,6 +72764,11 @@ export type QueryGetAccessTokenByUserIdArgs = {
 
 export type QueryCheckUserExistenceArgs = {
   data: CheckUserExistenceInput;
+};
+
+
+export type QuerySuggestProviderByTinArgs = {
+  data: SuggestProviderByTinInput;
 };
 
 
@@ -85074,6 +85080,12 @@ export enum Status {
   Success = 'success',
   Error = 'error'
 }
+
+export type SuggestProviderByTinInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  tin: Scalars['String'];
+};
 
 export type SyncRemoteClientInput = {
   dv: Scalars['Int'];
