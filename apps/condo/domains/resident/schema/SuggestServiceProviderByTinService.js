@@ -53,7 +53,7 @@ const SuggestServiceProviderByTinService = new GQLCustomSchema('SuggestServicePr
     types: [
         {
             access: true,
-            type: 'input SuggestProviderByTinInput { tin: String! }',
+            type: 'input SuggestProviderByTinInput { tinOrName: String! }',
         },
         {
             access: true,
@@ -69,12 +69,17 @@ const SuggestServiceProviderByTinService = new GQLCustomSchema('SuggestServicePr
                 if (context.authedItem.type === RESIDENT) {
                     await checkLimits(context.authedItem.id)
                 }
-                const { data: { tin } } = args
-                if (!tin) {
+
+                const { data: { tinOrName } } = args
+                if (!tinOrName) {
                     return []
                 }
+
                 const serviceProviders = await Organization.getAll(context, {
-                    tin_starts_with: tin.trim(),
+                    OR: [
+                        { tin_starts_with: tinOrName.trim() },
+                        { name_contains: tinOrName.trim() },
+                    ],
                     deletedAt: null,
                     type: SERVICE_PROVIDER_TYPE,
                 }, { sortBy: ['name_ASC'] }) // 100 default limit
