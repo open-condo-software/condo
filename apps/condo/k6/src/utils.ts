@@ -106,7 +106,7 @@ const signInAsUser = (token, userId) => sendAuthorizedRequest({ token }, {
     },
 })
 
-const createProperty = (data) => {
+const createProperty = (data, extraAttrs = {}) => {
     const { address: fakeAddress } = buildFakeAddressAndMeta()
 
     const address = __ENV.BASE_URL === 'http://localhost:3000'
@@ -152,7 +152,7 @@ const createProperty = (data) => {
 
     return sendAuthorizedRequest(data, {
         operationName: 'createProperty',
-        query: 'mutation createProperty($data:PropertyCreateInput!){obj:createProperty(data:$data){id}}',
+        query: 'mutation createProperty($data:PropertyCreateInput!){obj:createProperty(data:$data){id address addressKey}}',
         variables: {
             data: {
                 ...DV_SENDER,
@@ -160,6 +160,7 @@ const createProperty = (data) => {
                 organization: { connect: { id: data.organizationId } },
                 type: 'building',
                 map: propertyMap,
+                ...extraAttrs,
             },
         },
     })
@@ -206,7 +207,50 @@ const createBillingIntegrationOrganizationContext = (data, organization, integra
     })
 }
 
+const registerResident = (data, address, unitName, unitType = 'flat', extraAttrs = {}) => {
+    return sendAuthorizedRequest(data, {
+        operationName: 'registerResident',
+        query: 'mutation registerResident ($data: RegisterResidentInput!) { obj: registerResident(data: $data) { id } }',
+        variables: {
+            data: {
+                ...DV_SENDER,
+                address, unitName, unitType,
+                ...extraAttrs,
+            },
+        },
+    })
+}
+
+const registerResidentServiceConsumers = (data, residentId, accountNumber, extraAttrs = {}) => {
+    return sendAuthorizedRequest(data, {
+        operationName: 'registerResidentServiceConsumers',
+        query: 'mutation registerResidentServiceConsumers ($data: RegisterResidentServiceConsumersInput!) { obj: registerResidentServiceConsumers(data: $data) { id } }',
+        variables: {
+            data: {
+                ...DV_SENDER,
+                resident: { id: residentId }, accountNumber,
+                ...extraAttrs,
+            },
+        },
+    })
+}
+
+const allResidentBillingReceipts = (data, residentId, extraAttrs = {}) => {
+    return sendAuthorizedRequest(data, {
+        operationName: 'allResidentBillingReceipts',
+        query: 'query allResidentBillingReceipts($where: ResidentBillingReceiptWhereInput) { allResidentBillingReceipts(where: $where) { id } }',
+        variables: {
+            where: {
+                serviceConsumer: { resident: { id: residentId } },
+                ...extraAttrs,
+            },
+        },
+    })
+}
+
+
 export {
+    allResidentBillingReceipts,
     setupCondoAuth,
     createOrganization,
     createProperty,
@@ -215,6 +259,8 @@ export {
     sendAuthorizedRequest,
     getOrganizationEmployeeId,
     getOrganizationEmployees,
+    registerResident,
+    registerResidentServiceConsumers,
     signInAsUser,
     BASE_API_URL,
 }
