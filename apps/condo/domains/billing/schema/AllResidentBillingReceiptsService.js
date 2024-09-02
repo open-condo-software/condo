@@ -3,7 +3,7 @@
  */
 
 const Big = require('big.js')
-const { pick, get, isNil } = require('lodash')
+const { pick, get, isNil, min } = require('lodash')
 
 const { generateQuerySortBy } = require('@open-condo/codegen/generate.gql')
 const { generateQueryWhereInput } = require('@open-condo/codegen/generate.gql')
@@ -13,7 +13,7 @@ const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 const { getAcquiringIntegrationContextFormula, FeeDistribution } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const access = require('@condo/domains/billing/access/AllResidentBillingReceipts')
 const { BILLING_RECEIPT_FILE_FOLDER_NAME } = require('@condo/domains/billing/constants/constants')
-const { BillingReceiptAdmin, getPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
+const { ResidentBillingReceiptAdmin, getPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 
 const {
@@ -38,7 +38,7 @@ const getFile = (receipt, contacts) => {
     }
     const accountUnitName = get(receipt, ['account', 'unitName'])
     const accountUnitType = get(receipt, ['account', 'unitType'])
-    const propertyAddress = get(receipt, ['property', 'address'])
+    const propertyAddress = get(receipt, ['account', 'property', 'address'])
 
     // let's search for a contact
     // if any exists = user allowed to see sensitive data
@@ -136,7 +136,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                     'OR': receiptsQuery,
                 }
 
-                const receiptsForConsumer = await BillingReceiptAdmin.getAll(
+                const receiptsForConsumer = await ResidentBillingReceiptAdmin.getAll(
                     context,
                     joinedReceiptsQuery,
                     {
@@ -153,8 +153,26 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                     deletedAt: null,
                 })
 
+                // cache billing receipt for calculation of is payable field
+                const minPeriod = min(receiptsForConsumer.map(item => item.period))
+                const nextPeriodBillingReceiptsCache = await find('BillingReceipt', {
+                    account: { id_in: [...new Set(receiptsForConsumer.map(item => item.account.id))], deletedAt: null },
+                    OR: [
+                        { receiver: { AND: [{ id_in: [...new Set(receiptsForConsumer.map(item => item.account.id))] }, { deletedAt: null } ] } },
+                        { category: { AND: [{ id_in: [...new Set(receiptsForConsumer.map(item => item.category.id))] }, { deletedAt: null } ] } },
+                    ],
+                    period_gt: minPeriod,
+                    deletedAt: null,
+                })
+
                 receiptsForConsumer.forEach(receipt => {
                     const file = getFile(receipt, contacts)
+                    const isPayable = nextPeriodBillingReceiptsCache.filter(item => {
+                        return receipt.account.id === item.account && (
+                            receipt.category.id === item.category ||
+                            receipt.receiver.id === item.receiver
+                        ) && receipt.period < item.period
+                    }).length === 0
                     processedReceipts.push({
                         id: receipt.id,
                         dv: receipt.dv,
@@ -172,7 +190,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                             get(receipt, ['context', 'organization', 'id']) === organization ),
                         currencyCode: get(receipt, ['context', 'integration', 'currencyCode'], null),
                         file,
-                        isPayable: receipt.isPayable,
+                        isPayable,
                     })
                 })
 
