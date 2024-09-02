@@ -51,13 +51,11 @@ async function replaceOrganizationEmployeeRole (context, data) {
 async function suggestProviderByTin (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
-    if (!data.sender) throw new Error('no data.sender')
-
     return await execGqlWithoutAccess(context, {
         query: SUGGEST_PROVIDER_BY_TIN_QUERY,
-        variables: { data: { dv: 1, ...data } },
+        variables: { data },
         errorMessage: '[error] Unable to suggestProviderByTin',
-        dataPath: 'obj',
+        dataPath: 'result',
     })
 }
 

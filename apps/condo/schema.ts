@@ -66052,7 +66052,7 @@ export type Query = {
    * }`
    */
   checkUserExistence?: Maybe<CheckUserExistenceOutput>;
-  suggestProviderByTin: Array<Maybe<Organization>>;
+  suggestProviderByTin?: Maybe<Array<Maybe<SuggestProviderByTinOutput>>>;
   exportPropertiesToExcel?: Maybe<ExportPropertiesToExcelOutput>;
   allResidentBillingReceipts?: Maybe<Array<Maybe<ResidentBillingReceiptOutput>>>;
   /**
@@ -85111,9 +85111,13 @@ export enum Status {
 }
 
 export type SuggestProviderByTinInput = {
-  dv: Scalars['Int'];
-  sender: Scalars['JSON'];
   tin: Scalars['String'];
+};
+
+export type SuggestProviderByTinOutput = {
+  __typename?: 'SuggestProviderByTinOutput';
+  tin: Scalars['String'];
+  name: Scalars['String'];
 };
 
 export type SyncRemoteClientInput = {

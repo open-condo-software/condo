@@ -12,7 +12,6 @@ const { MeterResourceOwner } = require('@condo/domains/meter/utils/serverSchema'
 const access = require('@condo/domains/organization/access/SuggestServiceProviderByTinService')
 const { SERVICE_PROVIDER_TYPE, MAX_RESIDENT_SUGGEST_SERVICE_PROVIDER_BY_WINDOW_SEC, RESIDENT_SUGGEST_SERVICE_PROVIDER_WINDOW_SEC } = require('@condo/domains/organization/constants/common')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
-const { canPossiblyBeTin } = require('@condo/domains/organization/utils/tin.utils')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
@@ -26,47 +25,34 @@ const checkLimits = async (uniqueField) => {
     )
 }
 
-const getRealOrganizationsIds = async (context, organizations) => {
-    const uniqueOrganizationIds = [...new Set(organizations.map(provider => provider.id))]
+const filterOrganizationsByAcquiringContextOrMeterResourceOwnership = async (context, organizations) => {
+    const organizationIds = [...new Set(organizations.map(organization => organization.id))]
 
-    const acquiringIntegrationContextsPromise = AcquiringIntegrationContext.getAll(context, {
-        organization: { id_in: uniqueOrganizationIds },
+    const acquiringIntegrationContexts = await AcquiringIntegrationContext.getAll(context, {
+        organization: { id_in: organizationIds },
         deletedAt: null,
         status: CONTEXT_FINISHED_STATUS,
     })
 
-    const meterResourceOwnersPromise = MeterResourceOwner.getAll(context, {
-        organization: { id_in: uniqueOrganizationIds },
+    const meterResourceOwners = await MeterResourceOwner.getAll(context, {
+        organization: { id_in: organizationIds },
         deletedAt: null,
     })
 
-    const realityConfirmers = await Promise.allSettled(
-        [acquiringIntegrationContextsPromise, meterResourceOwnersPromise]
+    const organizationsForSuggest = new Set(
+        acquiringIntegrationContexts.map(context => context.organization.id)
+            .concat(meterResourceOwners.map(owner => owner.organization.id))
     )
 
-    return new Set(realityConfirmers
-        .filter(promise => promise.status === 'fulfilled')
-        .flatMap(promise => promise.value)
-        .map(obj => obj.organization.id))
+    return organizations.filter(organization => organizationsForSuggest.has(organization.id))
 }
 
-const getRealServiceProviders = async (context, tin) => {
-    const serviceProviders = await Organization.getAll(context, { // могут дублироваться
-        tin_starts_with: tin,
-        deletedAt: null,
-        type: SERVICE_PROVIDER_TYPE,
-    })
-    console.debug('found overall len', serviceProviders.length)
-    const realOrganizationIds = await getRealOrganizationsIds(context, serviceProviders)
-
-    return serviceProviders.filter(provider => realOrganizationIds.has(provider.id))
-}
 
 const SuggestServiceProviderByTinService = new GQLCustomSchema('SuggestServiceProviderByTinService', {
     types: [
         {
             access: true,
-            type: 'input SuggestProviderByTinInput { dv: Int!, sender: JSON!, tin: String! }',
+            type: 'input SuggestProviderByTinInput { tin: String! }',
         },
         {
             access: true,
@@ -77,29 +63,23 @@ const SuggestServiceProviderByTinService = new GQLCustomSchema('SuggestServicePr
     queries: [
         {
             access: access.canSuggestProviderByTin,
-            schema: 'suggestProviderByTin (data: SuggestProviderByTinInput!): [SuggestProviderByTinOutput!]!',
+            schema: 'suggestProviderByTin (data: SuggestProviderByTinInput!): [SuggestProviderByTinOutput]',
             resolver: async (parent, args, context = {}) => {
-
                 if (context.authedItem.type === RESIDENT) {
                     await checkLimits(context.authedItem.id)
                 }
-                
-                let { data: { tin } } = args
-                
+                const { data: { tin } } = args
                 if (!tin) {
                     return []
                 }
-                tin = tin.trim()
-                if (!canPossiblyBeTin(tin)) {
-                    return []
-                }
-
-                const realServiceProviders = await getRealServiceProviders(context, tin)
-                
-                const result = uniqBy(realServiceProviders, 'tin')
+                const serviceProviders = await Organization.getAll(context, {
+                    tin_starts_with: tin.trim(),
+                    deletedAt: null,
+                    type: SERVICE_PROVIDER_TYPE,
+                }, { sortBy: ['name_ASC'] }) // 100 default limit
+                const serviceProvidersForSuggest = await filterOrganizationsByAcquiringContextOrMeterResourceOwnership(context, serviceProviders)
+                return uniqBy(serviceProvidersForSuggest, 'tin')
                     .map(serviceProvider => pick(serviceProvider, ['tin', 'name']))
-                sortBy(result, 'name')
-                return result
             },
         },
     ],

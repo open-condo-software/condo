@@ -49,5 +49,4 @@ module.exports = {
     INVALID_RU_TIN_10,
     INVALID_RU_TIN_12,
     SOME_RANDOM_LETTERS,
-    VALID_TINS,
 }
