@@ -106,7 +106,7 @@ const REPLACE_ORGANIZATION_EMPLOYEE_ROLE_MUTATION = gql`
 `
  
 const SUGGEST_PROVIDER_BY_TIN_QUERY = gql`
-    query getSuggestProviderByTinServiceById ($data: SuggestProviderByTinInput!) {
+    query suggestProviderByTin ($data: SuggestProviderByTinInput!) {
         result: suggestProviderByTin(data: $data) { tin, name }
     }
 `
