@@ -1,6 +1,4 @@
-const fs = require('fs')
 const process = require('node:process')
-const path = require('path')
 const v8 = require('v8')
 
 const { AdminUIApp } = require('@keystonejs/app-admin-ui')
@@ -17,13 +15,10 @@ const { formatError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { ExtendedPasswordAuthStrategy } = require('@open-condo/keystone/authStrategy/passwordAuth')
 const { parseCorsSettings } = require('@open-condo/keystone/cors.utils')
 const { _internalGetExecutionContextAsyncLocalStorage } = require('@open-condo/keystone/executionContext')
-const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { IpBlackListMiddleware } = require('@open-condo/keystone/ipBlackList')
 const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSchema')
 const { getKeystonePinoOptions, GraphQLLoggerPlugin, getLogger } = require('@open-condo/keystone/logging')
 const { expressErrorHandler } = require('@open-condo/keystone/logging/expressErrorHandler')
-const { ApolloMemMonPlugin } = require('@open-condo/keystone/memMon/plugin')
-const { isMemMonEnabled } = require('@open-condo/keystone/memMon/utils')
 const metrics = require('@open-condo/keystone/metrics')
 const { schemaDocPreprocessor, adminDocPreprocessor, escapeSearchPreprocessor, customAccessPostProcessor } = require('@open-condo/keystone/preprocessors')
 const { ApolloRateLimitingPlugin } = require('@open-condo/keystone/rateLimiting')
@@ -38,7 +33,6 @@ const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
 const IS_SENTRY_ENABLED = JSON.parse(get(conf, 'SENTRY_CONFIG', '{}'))['server'] !== undefined
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development'
 const IS_KEEP_ALIVE_ON_ERROR = get(conf, 'KEEP_ALIVE_ON_ERROR', false) === 'true'
-const ENABLE_HEAP_SNAPSHOT = get(conf, 'ENABLE_HEAP_SNAPSHOT', false) === 'true'
 // NOTE: should be disabled in production: https://www.apollographql.com/docs/apollo-server/testing/graphql-playground/
 // WARN: https://github.com/graphql/graphql-playground/tree/main/packages/graphql-playground-html/examples/xss-attack
 const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND === 'true'
@@ -168,10 +162,6 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
         apolloPlugins.unshift(new ApolloSentryPlugin())
     }
 
-    if (isMemMonEnabled()) {
-        apolloPlugins.push(new ApolloMemMonPlugin())
-    }
-
     return {
         keystone,
         // NOTE(pahaz): please, check the `executeDefaultServer(..)` to understand how it works.
@@ -266,42 +256,6 @@ process.on('unhandledRejection', (err, promise) => {
         throw err
     }
 })
-if (ENABLE_HEAP_SNAPSHOT) {
-    process.on('SIGPIPE', async () => {
-        try {
-            const labelCreateSnapshot = 'Heap snapshot created in'
-
-            console.log('Start dumping heap snapshot')
-            console.time(labelCreateSnapshot)
-            const fileName = v8.writeHeapSnapshot()
-            console.timeEnd(labelCreateSnapshot)
-            console.log(`Created snapshot file: ${fileName}`)
-
-            const labelUploadSnapshot = 'Snapshot uploaded in'
-
-            console.log('Start snapshot uploading')
-            console.time(labelUploadSnapshot)
-            const ExportFileAdapter = new FileAdapter('heapSnapshots')
-            const stream = fs.createReadStream(path.resolve(fileName))
-            const fileInfo = await ExportFileAdapter.save({
-                stream,
-                filename: fileName,
-                id: `snapshot-${fileName}`,
-            })
-            console.timeEnd(labelUploadSnapshot)
-
-            const { filename } = fileInfo
-            const url = ExportFileAdapter.publicUrl({ filename })
-
-            console.log(`Snapshot file info: ${JSON.stringify(fileInfo)}`)
-            console.log(`Snapshot file URL: ${url}`)
-        } catch (err) {
-            console.error(err)
-        }
-        process.exit(0)
-    })
-}
-
 
 module.exports = {
     prepareKeystone,
