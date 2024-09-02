@@ -11,11 +11,12 @@ const {
     makeLoggedInAdminClient,
     makeClient,
     expectToThrowAuthenticationError,
-    expectToThrowAccessDeniedErrorToResult, catchErrorFrom,
+    expectToThrowAccessDeniedErrorToResult,
 } = require('@open-condo/keystone/test.utils')
 const { expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM } } = require('@condo/domains/acquiring/constants/errors')
 const {
     registerMultiPaymentForInvoicesByTestClient,
     updateTestAcquiringIntegration, Payment, MultiPayment, createTestAcquiringIntegrationContext,
@@ -23,6 +24,10 @@ const {
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestAcquiringIntegration } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBillingIntegration, createTestRecipient  } = require('@condo/domains/billing/utils/testSchema')
+const {
+    TestUtils,
+    ResidentTestMixin,
+} = require('@condo/domains/billing/utils/testSchema/testUtils')
 const { INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
 const { createTestInvoice, updateTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
@@ -275,6 +280,42 @@ describe('RegisterMultiPaymentForInvoicesService', () => {
                     invoice: expect.objectContaining({ id: invoice2.id }),
                 }),
             ]))
+        })
+    })
+})
+
+
+describe('RegisterMultiPaymentForInvoicesService reworked', () => {
+
+    let utils
+
+    beforeAll(async () => {
+        utils = new TestUtils([ResidentTestMixin])
+        await utils.init()
+    })
+
+    afterEach(async () => {
+        await utils.updateAcquiringIntegration({ minimumPaymentAmount: null })
+    })
+
+    describe('Check minimum payment amount from acquiring integration', () => {
+
+        test('No limits for payment if no settings for minimumPaymentAmount in acquiring integration', async () => {
+            const [[receipt]] = await utils.createReceipts([
+                utils.createJSONReceipt({ toPay: '0.01' }),
+            ])
+            const [result] = await registerMultiPaymentForInvoicesByTestClient(utils.clients.admin)
+            expect(result).toHaveProperty('multiPaymentId')
+        })
+
+        test('The payment amount is less than the minimum amount from acquiring integration', async () => {
+            const [[receipt]] = await utils.createReceipts([
+                utils.createJSONReceipt({ toPay: '1000' }),
+            ])
+            await utils.updateAcquiringIntegration({ minimumPaymentAmount: '100000' })
+            await expectToThrowGQLError(async () => {
+                await registerMultiPaymentForInvoicesByTestClient(utils.clients.admin, { id: receipt.id }, { id: utils.acquiringContext.id })
+            }, PAYMENT_AMOUNT_LESS_THAN_MINIMUM, 'result')
         })
     })
 })

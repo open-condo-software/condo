@@ -422,7 +422,6 @@ describe('RegisterMultiPaymentForOneReceiptService reworked', () => {
         await utils.updateAcquiringIntegration({ minimumPaymentAmount: null })
     })
 
-
     describe('Check minimum payment amount from acquiring integration', () => {
 
         test('No limits for payment if no settings for minimumPaymentAmount in acquiring integration', async () => {
@@ -443,5 +442,4 @@ describe('RegisterMultiPaymentForOneReceiptService reworked', () => {
             }, PAYMENT_AMOUNT_LESS_THAN_MINIMUM, 'result')
         })
     })
-
 })

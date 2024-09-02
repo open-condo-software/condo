@@ -11,6 +11,7 @@ const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema'
 
 const access = require('@condo/domains/acquiring/access/RegisterMultiPaymentForInvoicesService')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM } } = require('@condo/domains/acquiring/constants/errors')
 const {
     ACQUIRING_INTEGRATION_IS_DELETED,
     INVOICES_ARE_NOT_PUBLISHED,
@@ -68,12 +69,8 @@ const ERRORS = {
         message: 'Listed serviceConsumers are linked to different acquiring integrations',
     },
     PAYMENT_AMOUNT_LESS_THAN_MINIMUM: {
-        mutation: 'registerMultiPayment',
-        variable: ['data', 'groupedReceipts', '[]', 'amountDistribution'],
-        code: BAD_USER_INPUT,
-        type: WRONG_VALUE,
-        message: 'The minimum payment amount that can be accepted',
-        messageForUser: 'api.acquiring.payment.error.paymentAmountLessThanMinimum',
+        ...PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
+        mutation: 'registerMultiPaymentForOneReceiptService',
     },
     ACQUIRING_INTEGRATION_IS_DELETED: (id) => ({
         code: BAD_USER_INPUT,
@@ -238,7 +235,11 @@ const RegisterMultiPaymentForInvoicesService = new GQLCustomSchema('RegisterMult
                     serviceFee: Big('0.0'),
                     implicitFee: Big('0.0'),
                 })
-                if (totalAmount.amountWithoutExplicitFee.lt(Big(MINIMUM_PAYMENT_AMOUNT))) {
+
+                const amountToPay = Big(totalAmount.amountWithoutExplicitFee)
+                    .add(Big(totalAmount.explicitServiceCharge))
+                    .add(Big(totalAmount.explicitFee))
+                if (acquiringIntegration.minimumPaymentAmount && Big(amountToPay).lt(acquiringIntegration.minimumPaymentAmount)) {
                     throw new GQLError(ERRORS.PAYMENT_AMOUNT_LESS_THAN_MINIMUM, context)
                 }
 

@@ -9,6 +9,7 @@ const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/RegisterMultiPaymentForVirtualReceiptService')
+const { GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM } } = require('@condo/domains/acquiring/constants/errors')
 const {
     FEE_CALCULATION_PATH,
     WEB_VIEW_PATH,
@@ -22,9 +23,8 @@ const {
     FeeDistribution,
 } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
-const { DV_VERSION_MISMATCH, WRONG_FORMAT, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
+const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 
-const MINIMUM_PAYMENT_AMOUNT = 10
 const {
     RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE,
     RECEIPT_HAVE_INVALID_TO_PAY_VALUE,
@@ -68,12 +68,8 @@ const ERRORS = {
         message: 'Cannot pay via deleted acquiring integration with id "{id}"',
     },
     PAYMENT_AMOUNT_LESS_THAN_MINIMUM: {
-        mutation: 'registerMultiPayment',
-        variable: ['data', 'groupedReceipts', '[]', 'amountDistribution'],
-        code: BAD_USER_INPUT,
-        type: WRONG_VALUE,
-        message: 'The minimum payment amount that can be accepted',
-        messageForUser: 'api.acquiring.payment.error.paymentAmountLessThanMinimum',
+        ...PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
+        mutation: 'registerMultiPaymentForVirtualReceipt',
     },
     RECEIPT_HAVE_INVALID_TO_PAY_VALUE: {
         mutation: 'registerMultiPaymentForVirtualReceipt',
@@ -193,6 +189,14 @@ const RegisterMultiPaymentForVirtualReceiptService = new GQLCustomSchema('Regist
                     implicitFee: String(implicitFee),
                     serviceFee: String(fromReceiptAmountFee),
                 }
+
+                const amountToPay = Big(amount)
+                    .add(Big(paymentCommissionFields.explicitServiceCharge))
+                    .add(Big(paymentCommissionFields.explicitFee))
+                if (acquiringIntegration.minimumPaymentAmount && Big(amountToPay).lt(acquiringIntegration.minimumPaymentAmount)) {
+                    throw new GQLError(ERRORS.PAYMENT_AMOUNT_LESS_THAN_MINIMUM, context)
+                }
+
                 const paymentModel = await Payment.create(context, {
                     dv: 1,
                     sender,
@@ -214,10 +218,6 @@ const RegisterMultiPaymentForVirtualReceiptService = new GQLCustomSchema('Regist
                     explicitServiceCharge: Big(payment.explicitServiceCharge),
                     serviceFee: Big(payment.serviceFee),
                     implicitFee: Big(payment.implicitFee),
-                }
-
-                if (totalAmount.amountWithoutExplicitFee.lt(Big(MINIMUM_PAYMENT_AMOUNT))) {
-                    throw new GQLError(ERRORS.PAYMENT_AMOUNT_LESS_THAN_MINIMUM, context)
                 }
 
                 const authedItemId = get(context, 'authedItem.id')

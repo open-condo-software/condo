@@ -7,7 +7,7 @@ const dayjs = require('dayjs')
 
 const {
     makeClient,
-    makeLoggedInAdminClient,
+    makeLoggedInAdminClient, expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationError,
@@ -15,6 +15,7 @@ const {
     catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 
+const { GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM } } = require('@condo/domains/acquiring/constants/errors')
 const {
     FEE_CALCULATION_PATH,
     WEB_VIEW_PATH,
@@ -29,8 +30,9 @@ const {
     updateTestAcquiringIntegration,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const {
-    createTestBillingIntegration,
-} = require('@condo/domains/billing/utils/testSchema')
+    TestUtils,
+    ResidentTestMixin,
+} = require('@condo/domains/billing/utils/testSchema/testUtils')
 
 function generateReceipt (billingAccount) {
     return {
@@ -183,35 +185,6 @@ describe('RegisterMultiPaymentForVirtualReceiptService', () => {
                     })
                 })
             })
-            describe('The payment amount is less than the minimum', () => {
-                const cases = ['1', '2', '3', '4']
-                test.each(cases)('ToPay: %p', async (toPay) => {
-                    const {
-                        admin,
-                        acquiringContext,
-                        billingAccount,
-                    } = await makePayer()
-                    const receipt = generateReceipt(billingAccount)
-                    receipt.amount = toPay
-                    const acquiringIntegrationContext = { id: acquiringContext.id }
-                    await catchErrorFrom(async () => {
-                        await registerMultiPaymentForVirtualReceiptByTestClient(admin, receipt, acquiringIntegrationContext)
-                    }, ({ errors }) => {
-                        expect(errors).toMatchObject([{
-                            message: 'The minimum payment amount that can be accepted',
-                            path: ['result'],
-                            extensions: {
-                                mutation: 'registerMultiPayment',
-                                variable: ['data', 'groupedReceipts', '[]', 'amountDistribution'],
-                                code: 'BAD_USER_INPUT',
-                                type: 'WRONG_VALUE',
-                                message: 'The minimum payment amount that can be accepted',
-                                messageForUser: 'Сумма оплаты меньше минимальной.',
-                            },
-                        }])
-                    })
-                })
-            })
             describe('Cannot pay for Receipt with invalid "toPay" value', () => {
                 const cases = ['100 000', 'Hello world', '100 dollars', '100$']
                 test.each(cases)('ToPay: %p', async (toPay) => {
@@ -340,3 +313,36 @@ describe('RegisterMultiPaymentForVirtualReceiptService', () => {
         })
     })
 })
+
+describe('RegisterMultiPaymentForVirtualReceiptService reworked', () => {
+
+    let utils
+
+    beforeAll(async () => {
+        utils = new TestUtils([ResidentTestMixin])
+        await utils.init()
+    })
+
+    afterEach(async () => {
+        await utils.updateAcquiringIntegration({ minimumPaymentAmount: null })
+    })
+
+    describe('Check minimum payment amount from acquiring integration', () => {
+
+        test('No limits for payment if no settings for minimumPaymentAmount in acquiring integration', async () => {
+            const jsonReceipt = utils.createJSONReceipt()
+            await utils.partialPayForReceipt(jsonReceipt, '100')
+            await utils.createReceipts([jsonReceipt])
+        })
+
+        test('The payment amount is less than the minimum amount from acquiring integration', async () => {
+            const jsonReceipt = utils.createJSONReceipt()
+            await utils.createReceipts([jsonReceipt])
+            await utils.updateAcquiringIntegration({ minimumPaymentAmount: '100' })
+            await expectToThrowGQLError(async () => {
+                await utils.partialPayForReceipt(jsonReceipt, '0.1')
+            }, PAYMENT_AMOUNT_LESS_THAN_MINIMUM, 'result')
+        })
+    })
+})
+
