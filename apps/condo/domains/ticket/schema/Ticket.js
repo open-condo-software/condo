@@ -976,16 +976,6 @@ const Ticket = new GQLListSchema('Ticket', {
         indexes: [
             {
                 type: 'BTreeIndex',
-                fields: ['property'],
-                name: 'ticket_property',
-            },
-            {
-                type: 'BTreeIndex',
-                fields: ['number'],
-                name: 'ticket_number',
-            },
-            {
-                type: 'BTreeIndex',
                 fields: ['unitName'],
                 name: 'ticket_unitName',
             },
@@ -993,11 +983,6 @@ const Ticket = new GQLListSchema('Ticket', {
                 type: 'BTreeIndex',
                 fields: ['problemClassifier'],
                 name: 'ticket_problemClassifier',
-            },
-            {
-                type: 'BTreeIndex',
-                fields: ['createdBy'],
-                name: 'ticket_createdBy',
             },
             {
                 type: 'BTreeIndex',
@@ -1021,28 +1006,14 @@ const Ticket = new GQLListSchema('Ticket', {
             },
             {
                 type: 'BTreeIndex',
-                fields: ['source'],
-                name: 'ticket_source',
+                fields: ['assignee', 'executor', 'organization'],
+                name: 'ticket_assignee_exec_org',
             },
             {
                 type: 'BTreeIndex',
-                fields: ['status'],
-                name: 'ticket_status',
-            },
-            {
-                type: 'BTreeIndex',
-                fields: ['createdAt'],
-                name: 'ticket_createdAt',
-            },
-            {
-                type: 'BTreeIndex',
-                fields: ['assignee'],
-                name: 'ticket_assignee',
-            },
-            {
-                type: 'BTreeIndex',
-                fields: ['executor'],
-                name: 'ticket_executor',
+                fields: ['organization', 'status'],
+                name: 'ticket_organization_status',
+                condition: 'Q(deletedAt__isnull=True)',
             },
         ],
     },
