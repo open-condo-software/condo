@@ -32,7 +32,6 @@ const { ORGANIZATION_TICKET_VISIBILITY, HOLDING_TYPE} = require('@condo/domains/
 const { OrganizationEmployeeSpecialization: OrganizationEmployeeSpecializationGQL } = require('@condo/domains/organization/gql')
 const { RESET_ORGANIZATION_MUTATION } = require('@condo/domains/organization/gql')
 const { REPLACE_ORGANIZATION_EMPLOYEE_ROLE_MUTATION } = require('@condo/domains/organization/gql')
-const { SUGGEST_PROVIDER_BY_TIN_QUERY } = require('@condo/domains/organization/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const OrganizationEmployeeRole = generateGQLTestUtils(OrganizationEmployeeRoleGQL)
@@ -374,13 +373,6 @@ async function replaceOrganizationEmployeeRoleByTestClient(client, organization,
     return [data.result, attrs]
 }
 
-async function suggestProviderByTinServiceByTestClient(client, attrs = {}) {
-    if (!client) throw new Error('no client')
-    const { data, errors } = await client.query(SUGGEST_PROVIDER_BY_TIN_QUERY, { data: attrs })
-    console.error('======', data, errors , '=====')
-    throwIfError(data, errors)
-    return [data.result, attrs]
-}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -407,6 +399,5 @@ module.exports = {
     OrganizationEmployeeSpecialization, createTestOrganizationEmployeeSpecialization, updateTestOrganizationEmployeeSpecialization,
     resetOrganizationByTestClient,
     replaceOrganizationEmployeeRoleByTestClient,
-    suggestProviderByTinServiceByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

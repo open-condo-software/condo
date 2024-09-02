@@ -13,7 +13,6 @@ const { OrganizationLink } = require('./OrganizationLink')
 const { RegisterNewOrganizationService } = require('./RegisterNewOrganizationService')
 const { ReplaceOrganizationEmployeeRoleService } = require('./ReplaceOrganizationEmployeeRoleService')
 const { ResetOrganizationService } = require('./ResetOrganizationService')
-const { SuggestServiceProviderByTinService } = require('./SuggestServiceProviderByTinService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -27,6 +26,5 @@ module.exports = {
     OrganizationEmployeeSpecialization,
     ResetOrganizationService,
     ReplaceOrganizationEmployeeRoleService,
-    SuggestServiceProviderByTinService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -19,7 +19,7 @@ const {
 const { COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const { createTestMeterResourceOwner, updateTestMeterResourceOwner, MeterResource, MeterResourceOwner } = require('@condo/domains/meter/utils/testSchema')
 const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
-const { suggestProviderByTinServiceByTestClient } = require('@condo/domains/organization/utils/testSchema')
+const { suggestProviderByTinServiceByTestClient } = require('@condo/domains/resident/utils/testSchema')
 
 
 const addMeterResourceOwner = async (utils) => {
