@@ -76978,6 +76978,12 @@ type ReplaceOrganizationEmployeeRoleOutput {
   status: String!
 }
 
+input SuggestProviderByTinInput {
+  dv: Int!
+  sender: JSON!
+  tin: String!
+}
+
 input ExportPropertiesToExcelInput {
   where: PropertyWhereInput!
   sortBy: [SortPropertiesBy!]
@@ -82179,6 +82185,7 @@ type Query {
   }`
   """
   checkUserExistence(data: CheckUserExistenceInput!): CheckUserExistenceOutput
+  suggestProviderByTin(data: SuggestProviderByTinInput!): [Organization]!
   exportPropertiesToExcel(data: ExportPropertiesToExcelInput!): ExportPropertiesToExcelOutput
   allResidentBillingReceipts(where: ResidentBillingReceiptWhereInput, first: Int, skip: Int, sortBy: [SortResidentBillingReceiptsBy!]): [ResidentBillingReceiptOutput]
 

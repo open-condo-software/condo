@@ -104,6 +104,12 @@ const REPLACE_ORGANIZATION_EMPLOYEE_ROLE_MUTATION = gql`
         result: replaceOrganizationEmployeeRole(data: $data) { status }
     }
 `
+ 
+const SUGGEST_PROVIDER_BY_TIN_QUERY = gql`
+    query getSuggestProviderByTinServiceById ($data: SuggestProviderByTinInput!) {
+        result: suggestProviderByTin(data: $data) { tin, name }
+    }
+`
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -124,6 +130,7 @@ module.exports = {
     OrganizationEmployeeSpecialization,
     RESET_ORGANIZATION_MUTATION,
     REPLACE_ORGANIZATION_EMPLOYEE_ROLE_MUTATION,
+    SUGGEST_PROVIDER_BY_TIN_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 

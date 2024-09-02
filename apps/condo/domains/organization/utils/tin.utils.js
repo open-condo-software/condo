@@ -7,6 +7,7 @@ const { RUSSIA_COUNTRY, SPAIN_COUNTRY } = require('@condo/domains/common/constan
 const RU_TIN_DIGITS = [3, 7, 2, 4, 10, 3, 5, 9, 4, 6, 8, 0]
 const RU_ORGANIZATION_TIN_REGEXP = /^\d{10}$/
 const RU_PERSONAL_TIN_REGEXP = /^\d{12}$/
+const RU_CAN_BE_TIN_REGEXP = /^\d{1,12}$/
 
 const getTinChecksumRU = num => {
     const n = RU_TIN_DIGITS.slice(-num.length)
@@ -43,8 +44,11 @@ const isValidTin = (tinValue = null, country = RUSSIA_COUNTRY) => {
 
 const getIsValidTin = (country = RUSSIA_COUNTRY) => (tinValue = null) => isValidTin(tinValue, country)
 
+const canPossiblyBeTin = (tinLike) => RU_CAN_BE_TIN_REGEXP.test(tinLike)
+
 module.exports = {
     validateTinRU,
     isValidTin,
     getIsValidTin,
+    canPossiblyBeTin,
 }
