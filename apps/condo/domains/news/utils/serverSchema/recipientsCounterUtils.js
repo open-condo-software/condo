@@ -1,8 +1,7 @@
 const get = require('lodash/get')
 
-const { allItemsQueryByChunks } = require('@open-condo/keystone/schema')
-
-const { LOAD_RESIDENTS_CHUNK_SIZE } = require('@condo/domains/news/constants/common')
+const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const getUnitsFromProperty = (property) => (
     [
@@ -38,26 +37,22 @@ const queryConditionsByUnits = (property) => {
     return conditions
 }
 
-async function countUniqueUnitsFromResidents (where) {
-    const units = new Set()
+async function countUniqueUnitsFromResidents (unitNamesByProperty) {
+    const { keystone } = getSchemaCtx('Resident')
+    const { knex } = getDatabaseAdapter(keystone)
 
-    // Trying to minimize memory usage by working with chunks without keeping all residents within memory
-    await allItemsQueryByChunks({
-        schemaName: 'Resident',
-        chunkSize: LOAD_RESIDENTS_CHUNK_SIZE,
-        where: { ...where, deletedAt: null },
-        /**
-         * @param {Resident[]} chunk
-         * @returns {Resident[]}
-         */
-        chunkProcessor: (chunk) => {
-            chunk.forEach((r) => units.add(`${r.property}_${r.unitType}_${r.unitName}`))
+    const result = await knex('Resident')
+        .select(knex.raw('count(distinct(concat("unitName", "property")))'))
+        .where(function () {
+            Object.keys(unitNamesByProperty).forEach(propertyId => {
+                const unitNames = unitNamesByProperty[propertyId]
+                this.orWhere(function () {
+                    this.where('property', propertyId).whereIn('unitName', unitNames)
+                })
+            })
+        })
 
-            return []
-        },
-    })
-
-    return units.size
+    return get(result, [0, 'count'], null)
 }
 
 module.exports = { getUnitsFromProperty, getUnitsFromSection, countUniqueUnitsFromResidents, queryConditionsByUnits }

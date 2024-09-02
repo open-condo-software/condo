@@ -6,11 +6,9 @@ const { filter, pick, uniq, uniqBy } = require('lodash')
 const { GQLCustomSchema, allItemsQueryByChunks } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/news/access/GetNewsItemsRecipientsCountersService')
-const { queryFindResidentsByOrganizationAndScopes } = require('@condo/domains/news/utils/accessSchema')
 const {
     countUniqueUnitsFromResidents,
     getUnitsFromProperty,
-    queryConditionsByUnits,
 } = require('@condo/domains/news/utils/serverSchema/recipientsCounterUtils')
 
 
@@ -42,7 +40,8 @@ const GetNewsItemsRecipientsCountersService = new GQLCustomSchema('GetNewsItemsR
                 }).length > 0
 
                 let propertiesCount = 0, unitsCount = 0, receiversCount = 0
-                const orConditions = []
+
+                const unitsByProperty = {}
 
                 if (isAllOrganization) {
                     await allItemsQueryByChunks({
@@ -57,24 +56,28 @@ const GetNewsItemsRecipientsCountersService = new GQLCustomSchema('GetNewsItemsR
                             propertiesCount += chunk.length
                             for (const property of chunk) {
                                 unitsCount += (property.unitsCount + property.uninhabitedUnitsCount)
-                                orConditions.push(...queryConditionsByUnits(property))
+
+                                if (!unitsByProperty[property.id]) {
+                                    unitsByProperty[property.id] = []
+                                }
+
+                                unitsByProperty[property.id] = [...unitsByProperty[property.id], ...getUnitsFromProperty(property).map(u => u.unitName)]
                             }
 
                             return []
                         },
                     })
-                    receiversCount = await countUniqueUnitsFromResidents({
-                        organization: { id: organizationId },
-                        OR: orConditions,
-                    })
+                    receiversCount = await countUniqueUnitsFromResidents(unitsByProperty)
                 } else {
                     const propertiesIds = uniq(newsItemScopes.map(({ property: { id } }) => id))
                     propertiesCount = propertiesIds.length
 
+                    const unitsByProperty = {}
+
                     /**
                      * @type {Object<string, {unitType: string?, unitName: string?}[]>}
                      */
-                    const unitsByProperties = newsItemScopes.reduce((acc, scope) => {
+                    const scopesUnitsByProperties = newsItemScopes.reduce((acc, scope) => {
                         return {
                             ...acc,
                             [scope.property.id]: uniqBy([
@@ -83,8 +86,6 @@ const GetNewsItemsRecipientsCountersService = new GQLCustomSchema('GetNewsItemsR
                             ]),
                         }
                     }, {})
-
-                    const orConditions = []
 
                     await allItemsQueryByChunks({
                         schemaName: 'Property',
@@ -96,36 +97,38 @@ const GetNewsItemsRecipientsCountersService = new GQLCustomSchema('GetNewsItemsR
                          */
                         chunkProcessor: (chunk) => {
                             for (const property of chunk) {
-                                const propertyUnitsFromScope = unitsByProperties[property.id]
+                                const propertyUnitsFromScope = scopesUnitsByProperties[property.id]
                                 const isAllProperty = filter(propertyUnitsFromScope, {
                                     unitType: null,
                                     unitName: null,
                                 }).length > 0
 
+                                if (!unitsByProperty[property.id]) {
+                                    unitsByProperty[property.id] = []
+                                }
+
                                 if (isAllProperty) {
                                     unitsCount += (property.unitsCount + property.uninhabitedUnitsCount)
+                                    unitsByProperty[property.id] = [...unitsByProperty[property.id], ...getUnitsFromProperty(property).map(u => u.unitName)]
                                 } else {
                                     const unitsFromProperty = getUnitsFromProperty(property)
                                     for (const unitFilter of propertyUnitsFromScope) {
                                         if (unitFilter.unitName) {
-                                            unitsCount += filter(unitsFromProperty, unitFilter).length
+                                            const filteredUnits = filter(unitsFromProperty, unitFilter)
+                                            unitsCount += filteredUnits.length
+                                            unitsByProperty[property.id] = [...unitsByProperty[property.id], ...filteredUnits.map(u => u.unitName)]
                                         } else {
-                                            unitsCount += filter(unitsFromProperty, { unitType: unitFilter.unitType }).length
+                                            const filteredUnits = filter(unitsFromProperty, { unitType: unitFilter.unitType })
+                                            unitsCount += filteredUnits.length
+                                            unitsByProperty[property.id] = [...unitsByProperty[property.id], ...filteredUnits.map(u => u.unitName)]
                                         }
                                     }
                                 }
-
-                                orConditions.push(...queryConditionsByUnits(property))
                             }
-
                             return []
                         },
                     })
-
-                    receiversCount = await countUniqueUnitsFromResidents({
-                        ...queryFindResidentsByOrganizationAndScopes(organizationId, newsItemScopes),
-                        OR: orConditions,
-                    })
+                    receiversCount = await countUniqueUnitsFromResidents(unitsByProperty)
                 }
 
                 return { propertiesCount, unitsCount, receiversCount }
