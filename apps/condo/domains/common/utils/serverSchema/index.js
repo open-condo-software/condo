@@ -9,7 +9,8 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const GLOBAL_QUERY_LIMIT = 1000
-const TOO_MANY_RETURNED_LOG_LIMITS = Object.freeze([1100, 4900, 9000, 14900, 49000, 149000])
+const TOO_MANY_RETURNED_LOG_LIMITS = Object.freeze([1100, 9000, 14900, 49000, 149000])
+const TOO_MANY_RETURNED_RESULT_LOG_LIMIT = 4900
 const logger = getLogger('common/utils/serverSchema.js')
 const TIMEOUT_DURATION = Number(conf.TIMEOUT_CHUNKS_DURATION) ||  60 * 1000
 
@@ -33,13 +34,17 @@ function logTooManyReturnedIfRequired (tooManyReturnedLimitCounters, allObjects,
 
     if (allObjects && Array.isArray(allObjects) && allObjects.length > realLimit) {
         const executionContext = getExecutionContext()
+        const reqId = executionContext?.reqId
+        const taskId = executionContext?.taskId
         logger.warn({
             msg: 'tooManyReturned',
             tooManyLimit: realLimit,
+            count: allObjects.length,
             functionName,
             schemaName,
             data,
-            reqId: executionContext?.reqId,
+            reqId,
+            taskId,
         })
         tooManyReturnedLimitCounters.shift()  // remove counter and mark as already notified
     }
@@ -108,14 +113,12 @@ class GqlWithKnexLoadList {
             }
         } while (--maxiterationsCount > 0 && newchunk.length)
 
-        logger.info({
-            msg: 'Return count',
+        logTooManyReturnedIfRequired([TOO_MANY_RETURNED_RESULT_LOG_LIMIT], all, {
             functionName: 'GqlWithKnexLoadList.load',
             schemaName: this.listKey,
             data: {
                 singleRelations: this.singleRelations, multipleRelations: this.multipleRelations, where: this.where, fields: this.fields,
             },
-            count: allLength,
         })
 
         return all
@@ -208,8 +211,7 @@ const loadListByChunks = async ({
     let newChunk = []
     let all = []
     let newChunkLength
-    let haveWarnedAboutTooManyObjs = false
-    let allLength = 0
+    let tooManyReturnedLimitCounters = [...TOO_MANY_RETURNED_LOG_LIMITS]
 
     const startTime = Date.now()
 
@@ -226,7 +228,7 @@ const loadListByChunks = async ({
                     limit,
                     loadListByChunksArgs: { where },
                 },
-                count: allLength,
+                count: all.length,
             })
 
             throw new Error('Operation timed out')
@@ -234,7 +236,6 @@ const loadListByChunks = async ({
 
         newChunk = await list.getAll(context, where, { sortBy, first: chunkSize, skip: skip })
         newChunkLength = newChunk.length
-        allLength += newChunk.length
 
         if (newChunkLength > 0) {
             if (isFunction(chunkProcessor)) {
@@ -247,30 +248,22 @@ const loadListByChunks = async ({
             all = all.concat(newChunk)
         }
 
-        if ((!haveWarnedAboutTooManyObjs) && (all && Array.isArray(all) && all.length > 1000)) {
-            logger.warn({
-                msg: 'tooManyReturned',
-                functionName: 'loadListByChunks',
-                schemaName: get(list, 'gql.SINGULAR_FORM', ''),
-                data: {
-                    limit: 1000,
-                    loadListByChunksArgs: { where },
-                },
-            })
-            haveWarnedAboutTooManyObjs = true
-        }
+        logTooManyReturnedIfRequired(tooManyReturnedLimitCounters, all, {
+            functionName: 'loadListByChunks',
+            schemaName: get(list, 'gql.SINGULAR_FORM', ''),
+            data: {
+                where, sortBy, chunkSize,
+            },
+        })
+
     } while (--maxIterationsCount > 0 && newChunkLength)
 
-    logger.info({
-        msg: 'Return count',
+    logTooManyReturnedIfRequired([TOO_MANY_RETURNED_RESULT_LOG_LIMIT], all, {
         functionName: 'loadListByChunks',
         schemaName: get(list, 'gql.SINGULAR_FORM', ''),
         data: {
-            chunkSize,
-            limit,
-            loadListByChunksArgs: { where },
+            where, sortBy, chunkSize,
         },
-        count: allLength,
     })
 
     return all

@@ -18,7 +18,6 @@ const {
     getPfxCertificateHealthCheck,
 } = require('@open-condo/keystone/healthCheck')
 const { prepareKeystone } = require('@open-condo/keystone/KSv5v6/v5/prepareKeystone')
-const { isMemMonEnabled, catchGC } = require('@open-condo/keystone/memMon/utils')
 const { RequestCache } = require('@open-condo/keystone/requestCache')
 const { getWebhookModels } = require('@open-condo/webhooks/schema')
 const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
@@ -151,10 +150,6 @@ const extendExpressApp = (app) => {
         res.redirect('/auth/forgot')
     })
     app.use(Sentry.Handlers.errorHandler())
-}
-
-if (!IS_BUILD_PHASE && isMemMonEnabled()) {
-    catchGC()
 }
 
 module.exports = prepareKeystone({
