@@ -981,11 +981,6 @@ const Ticket = new GQLListSchema('Ticket', {
             },
             {
                 type: 'BTreeIndex',
-                fields: ['problemClassifier'],
-                name: 'ticket_problemClassifier',
-            },
-            {
-                type: 'BTreeIndex',
                 fields: ['isPayable'],
                 name: 'ticket_isPayable',
             },
