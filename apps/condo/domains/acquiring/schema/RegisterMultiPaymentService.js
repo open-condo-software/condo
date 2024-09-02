@@ -21,6 +21,7 @@ const {
     INVOICES_ARE_NOT_PUBLISHED, INVOICES_FOR_THIRD_USER, INVOICE_CONTEXT_NOT_FINISHED,
     MULTIPAYMENT_RECEIPTS_WITH_INVOICES_FORBIDDEN,
 } = require('@condo/domains/acquiring/constants/errors')
+const { GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM } } = require('@condo/domains/acquiring/constants/errors')
 const {
     FEE_CALCULATION_PATH,
     WEB_VIEW_PATH,
@@ -107,12 +108,8 @@ const ERRORS = {
         messageInterpolation: { minimalAmount: MINIMUM_PAYMENT_AMOUNT },
     },
     PAYMENT_AMOUNT_LESS_THAN_MINIMUM: {
+        ...PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
         mutation: 'registerMultiPayment',
-        variable: ['data', 'groupedReceipts', '[]', 'amountDistribution'],
-        code: BAD_USER_INPUT,
-        type: WRONG_VALUE,
-        message: 'The minimum payment amount that can be accepted',
-        messageForUser: 'api.acquiring.payment.error.paymentAmountLessThanMinimum',
     },
     DUPLICATED_INVOICE: {
         mutation: 'registerMultiPayment',
@@ -639,7 +636,10 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     implicitFee: Big('0.0'),
                 })
 
-                if (totalAmount.amountWithoutExplicitFee.lt(Big(MINIMUM_PAYMENT_AMOUNT))) {
+                const amountToPay = Big(totalAmount.amountWithoutExplicitFee)
+                    .add(Big(totalAmount.explicitServiceCharge))
+                    .add(Big(totalAmount.explicitFee))
+                if (acquiringIntegration.minimumPaymentAmount && Big(amountToPay).lt(acquiringIntegration.minimumPaymentAmount)) {
                     throw new GQLError(ERRORS.PAYMENT_AMOUNT_LESS_THAN_MINIMUM, context)
                 }
 

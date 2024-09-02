@@ -23,7 +23,7 @@ const {
     getAcquiringIntegrationContextFormula,
     FeeDistribution,
 } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
-const { DV_VERSION_MISMATCH, WRONG_FORMAT, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
+const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 
 const {
     RECEIPTS_ARE_DELETED,
@@ -35,7 +35,6 @@ const {
     CANNOT_FIND_ALL_BILLING_RECEIPTS,
     ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
 } = require('../constants/errors')
-const MINIMUM_PAYMENT_AMOUNT = 10
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -246,7 +245,9 @@ const RegisterMultiPaymentForOneReceiptService = new GQLCustomSchema('RegisterMu
                     implicitFee: String(implicitFee),
                     serviceFee: String(fromReceiptAmountFee),
                 }
-                const amountToPay = Big(paymentCommissionFields.explicitFee).add(Big(billingReceipt.toPay))
+                const amountToPay = Big(billingReceipt.toPay)
+                    .add(Big(paymentCommissionFields.explicitServiceCharge))
+                    .add(Big(paymentCommissionFields.explicitFee))
                 if (acquiringIntegration.minimumPaymentAmount && Big(amountToPay).lt(acquiringIntegration.minimumPaymentAmount)) {
                     throw new GQLError(ERRORS.PAYMENT_AMOUNT_LESS_THAN_MINIMUM, context)
                 }

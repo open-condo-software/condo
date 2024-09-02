@@ -7,6 +7,7 @@ const Big = require('big.js')
 const dayjs = require('dayjs')
 const { pick } = require('lodash')
 
+
 const {
     makeClient,
     makeLoggedInAdminClient,
@@ -19,6 +20,7 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM } } = require('@condo/domains/acquiring/constants/errors')
 const {
     FEE_CALCULATION_PATH,
     WEB_VIEW_PATH,
@@ -62,6 +64,7 @@ const {
     createTestBillingAccount,
     createTestBillingReceipt,
 } = require('@condo/domains/billing/utils/testSchema')
+const { TestUtils, ResidentTestMixin } = require('@condo/domains/billing/utils/testSchema/testUtils')
 const { DEFAULT_CURRENCY_CODE } = require('@condo/domains/common/constants/currencies')
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const {
@@ -91,7 +94,6 @@ const {
     makeClientWithResidentUser,
 } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
-const {multiPayment: payment} = require("@condorb/domains/condorb/test/mockSameReceiverForReceiptAndInvoice");
 
 let adminClient
 let dummyAcquiringIntegration
@@ -679,40 +681,6 @@ describe('RegisterMultiPaymentService', () => {
                                 code: 'BAD_USER_INPUT',
                                 type: 'RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE',
                                 message: 'Cannot pay for BillingReceipts {ids} with negative "toPay" value',
-                            },
-                        }])
-                    })
-                })
-            })
-            describe('The payment amount is less than the minimum', () => {
-                const cases = ['1', '2', '3', '4', '0.1']
-                test.each(cases)('ToPay: %p', async (toPay) => {
-                    const { commonData, batches } = await makePayerWithMultipleConsumers(2, 2)
-                    const payload = batches.map(batch => ({
-                        serviceConsumer: { id: batch.serviceConsumer.id },
-                        receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
-                    }))
-                    for (let i = 0; i < batches.length; i++) {
-                        for (let j = 0; j < batches[i].billingReceipts.length; j++) {
-                            await updateTestBillingReceipt(commonData.admin, batches[i].billingReceipts[j].id, {
-                                toPay,
-                            })
-                        }
-                    }
-
-                    await catchErrorFrom(async () => {
-                        await registerMultiPaymentByTestClient(commonData.client, payload)
-                    }, ({ errors }) => {
-                        expect(errors).toMatchObject([{
-                            message: 'The minimum payment amount that can be accepted',
-                            path: ['result'],
-                            extensions: {
-                                mutation: 'registerMultiPayment',
-                                variable: ['data', 'groupedReceipts', '[]', 'amountDistribution'],
-                                code: 'BAD_USER_INPUT',
-                                type: 'WRONG_VALUE',
-                                message: 'The minimum payment amount that can be accepted',
-                                messageForUser: 'Сумма оплаты меньше минимальной.',
                             },
                         }])
                     })
@@ -1678,6 +1646,45 @@ describe('RegisterMultiPaymentService', () => {
             expect(serverObtainedAcquiring).toHaveProperty('id')
             expect(serverObtainedAcquiring).toHaveProperty('canGroupReceipts')
             expect(serverObtainedAcquiring).toHaveProperty('supportedBillingIntegrationsGroup')
+        })
+    })
+})
+
+describe('RegisterMultiPaymentForOneReceiptService reworked', () => {
+
+    let utils
+
+    beforeAll(async () => {
+        utils = new TestUtils([ResidentTestMixin])
+        await utils.init()
+    })
+
+    afterEach(async () => {
+        await utils.updateAcquiringIntegration({ minimumPaymentAmount: null })
+    })
+
+    describe('Check minimum payment amount from acquiring integration', () => {
+
+        test('No limits for payment if no settings for minimumPaymentAmount in acquiring integration', async () => {
+            const { batches } = await makePayerWithMultipleConsumers(1, 2)
+            const payload = batches.map(batch => ({
+                serviceConsumer: { id: batch.serviceConsumer.id },
+                receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
+            }))
+            await utils.updateAcquiringIntegration({ minimumPaymentAmount: '1000000000' })
+            console.error('anchor', payload[0].receipts)
+            const [result] = await registerMultiPaymentByTestClient(utils.clients.admin, payload)
+            expect(result).toHaveProperty('multiPaymentId')
+        })
+
+        test('The payment amount is less than the minimum amount from acquiring integration', async () => {
+            const [[receipt]] = await utils.createReceipts([
+                utils.createJSONReceipt({ toPay: '1000' }),
+            ])
+            await utils.updateAcquiringIntegration({ minimumPaymentAmount: '100000' })
+            await expectToThrowGQLError(async () => {
+                await registerMultiPaymentByTestClient(utils.clients.admin, { id: receipt.id }, { id: utils.acquiringContext.id })
+            }, PAYMENT_AMOUNT_LESS_THAN_MINIMUM, 'result')
         })
     })
 })
