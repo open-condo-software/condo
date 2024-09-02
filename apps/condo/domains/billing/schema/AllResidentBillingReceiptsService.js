@@ -10,7 +10,11 @@ const { generateQueryWhereInput } = require('@open-condo/codegen/generate.gql')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
-const { getAcquiringIntegrationContextFormula, FeeDistribution } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
+const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
+const {
+    getAcquiringIntegrationContextFormulaByInstance,
+    FeeDistribution,
+} = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const access = require('@condo/domains/billing/access/AllResidentBillingReceipts')
 const { BILLING_RECEIPT_FILE_FOLDER_NAME } = require('@condo/domains/billing/constants/constants')
 const { ResidentBillingReceiptAdmin, getPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
@@ -165,6 +169,13 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                     deletedAt: null,
                 })
 
+                // cache acquiring integration contexts
+                const aicIds = serviceConsumersWithBillingAccount.map(consumer => consumer.acquiringIntegrationContext)
+                    .filter(aic => !isNil(aic))
+                const acquiringContexts = await AcquiringIntegrationContext.getAll(context, {
+                    id_in: aicIds,
+                })
+
                 receiptsForConsumer.forEach(receipt => {
                     const file = getFile(receipt, contacts)
                     const isPayable = nextPeriodBillingReceiptsCache.filter(item => {
@@ -214,7 +225,8 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                     const toPay = get(receipt, ['toPay'], 0)
                     let fee = '0'
                     if (acquiringContextId) {
-                        const formula = await getAcquiringIntegrationContextFormula(context, acquiringContextId)
+                        const acquiringContext = acquiringContexts.find(item => item.id === acquiringContextId) || {}
+                        const formula = getAcquiringIntegrationContextFormulaByInstance(acquiringContext)
                         const feeCalculator = new FeeDistribution(formula, billingCategory.id)
                         const { explicitFee } = feeCalculator.calculate(Big(toPay).minus(Big(paid)).toFixed(2))
                         fee = String(explicitFee)
