@@ -209,7 +209,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                     })
                 })
 
-                // cache already maid payments
+                // cache already paid payments
                 const paymentsCache = await  find('Payment', {
                     organization: { id_in: [... new Set(processedReceipts.map(item => get(item, ['serviceConsumer', 'organization'])))] },
                     accountNumber_in: [... new Set(processedReceipts.map(item => get(item, ['serviceConsumer', 'accountNumber'])))],
@@ -225,14 +225,14 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                     const organizationId = get(receipt.serviceConsumer, ['organization'])
                     const accountNumber = get(receipt.serviceConsumer, ['accountNumber'])
                     const billingCategory = get(receipt, ['category']) || {}
-                    const alreadyMaidPayments = paymentsCache.filter(payment => {
+                    const alreadyPaidPayments = paymentsCache.filter(payment => {
                         return payment.organization === organizationId
                             && payment.accountNumber === accountNumber
                             && payment.period === get(receipt, 'period', null)
                             && payment.recipientBic === get(receipt, ['recipient', 'bic'], null)
                             && payment.recipientBankAccount === get(receipt, ['recipient', 'bankAccount'], null)
                     })
-                    const paid = await getPaymentsSumByPayments(alreadyMaidPayments)
+                    const paid = await getPaymentsSumByPayments(alreadyPaidPayments)
                     const acquiringContextId = get(receipt, ['serviceConsumer', 'acquiringIntegrationContext'], null)
                     const toPay = get(receipt, ['toPay'], 0)
                     let fee = '0'
