@@ -23,7 +23,7 @@ async function countUniqueUnitsFromResidents (unitNamesByProperty) {
     const { knex } = getDatabaseAdapter(keystone)
 
     const result = await knex('Resident')
-        .select(knex.raw('count(distinct(concat("unitName", "property")))'))
+        .select(knex.raw('count(distinct(concat("unitName", "property", "unitType")))'))
         .where(function () {
             Object.keys(unitNamesByProperty).forEach(propertyId => {
                 const unitNames = unitNamesByProperty[propertyId]
