@@ -14,11 +14,10 @@ const falsey = require('falsey')
 const FormData = require('form-data')
 const { gql } = require('graphql-tag')
 const { flattenDeep, fromPairs, toPairs, get, set, isFunction, isEmpty, template } = require('lodash')
-const fetch = require('node-fetch')
 const { CookieJar, Cookie } = require('tough-cookie')
 
-
 const conf = require('@open-condo/config')
+const { fetch } = require('@open-condo/keystone/fetch')
 const { getTranslations } = require('@open-condo/locales/loader')
 
 const { prepareKeystoneExpressApp } = require('./prepareKeystoneApp')
@@ -354,7 +353,7 @@ const makeApolloClient = (serverUrl, opts = {}) => {
 
             return fetch(uri, options)
                 .then((response) => {
-                    const setCookieHeader = response.headers.raw()['set-cookie']
+                    const setCookieHeader = response.headers['set-cookie']
                     if (setCookieHeader) {
                         // accumulate cookies received from the server
                         saveCookies(setCookieHeader)
