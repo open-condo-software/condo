@@ -18,17 +18,51 @@ const getUnitsFromSection = (section) => section.floors.flatMap(floor => floor.u
     unitType: unit.unitType,
 })))
 
-async function countUniqueUnitsFromResidents (unitNamesByProperty) {
+/**
+ * Lets you count unique units from residents by property for simple news item scopes (ones that have property and organization)
+ * @param { string } organizationId
+ * @param { string[] } propertyIds
+ * @return { Promise<number> }
+ */
+async function countUniqueUnitsFromResidentsByPropertyIds (organizationId, propertyIds) {
     const { keystone } = getSchemaCtx('Resident')
     const { knex } = getDatabaseAdapter(keystone)
 
     const result = await knex('Resident')
-        .select(knex.raw('count(distinct(concat("unitName", "property", "unitType")))'))
+        .select(knex.raw('count(distinct(concat("property", "unitName", "unitType")))'))
+        .where('organization', organizationId)
+        .whereIn('property', propertyIds)
+
+    return get(result, [0, 'count'], null)
+}
+
+
+/**
+ * Lets you count unique units from residents by property for detailed news item scopes (ones that have property, organization, unitName and/or unitType)
+ * @param { string } propertyId
+ * @param { string } organizationId
+ * @param { { unitType: unitNames[] } } unitNamesByUnitType
+ * @return { Promise<number> }
+ */
+async function countUniqueUnitsFromResidentsByProperty (organizationId, propertyId, unitNamesByUnitType) {
+    const { keystone } = getSchemaCtx('Resident')
+    const { knex } = getDatabaseAdapter(keystone)
+
+    const result = await knex('Resident')
+        .select(knex.raw('count(distinct(concat("property", "unitName", "unitType")))'))
+        .where('organization', organizationId)
+        .where('property', propertyId)
         .where(function () {
-            Object.keys(unitNamesByProperty).forEach(propertyId => {
-                const unitNames = unitNamesByProperty[propertyId]
+            /**
+             * This will generate sql like:
+             *
+             * OR unitType=flat AND unitName_in [...]
+             * OR unitType=apartment AND unitName_in [...]
+             */
+            Object.keys(unitNamesByUnitType).forEach(unitType => {
+                const unitNames = unitNamesByUnitType[unitType]
                 this.orWhere(function () {
-                    this.where('property', propertyId).whereIn('unitName', unitNames)
+                    this.where('unitType', unitType).whereIn('unitName', unitNames)
                 })
             })
         })
@@ -36,4 +70,4 @@ async function countUniqueUnitsFromResidents (unitNamesByProperty) {
     return get(result, [0, 'count'], null)
 }
 
-module.exports = { getUnitsFromProperty, getUnitsFromSection, countUniqueUnitsFromResidents }
+module.exports = { getUnitsFromProperty, getUnitsFromSection, countUniqueUnitsFromResidentsByPropertyIds, countUniqueUnitsFromResidentsByProperty }
