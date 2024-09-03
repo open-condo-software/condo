@@ -225,8 +225,8 @@ describe('GetNewsItemsRecipientsCountersService', () => {
             parkingFloors: 0,
         })
         const [property1] = await createTestProperty(adminClient, dummyO10n, { map: propertyMap })
-        const [property2] = await createTestProperty(adminClient, dummyO10n, { map: propertyMap })
-        const [property3] = await createTestProperty(adminClient, dummyO10n, { map: propertyMap })
+        await createTestProperty(adminClient, dummyO10n, { map: propertyMap })
+        await createTestProperty(adminClient, dummyO10n, { map: propertyMap })
         const [user] = await createTestUser(adminClient)
 
         for (let i = 0; i < residentsCount; i++) {
