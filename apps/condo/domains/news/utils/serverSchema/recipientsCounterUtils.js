@@ -1,8 +1,7 @@
 const get = require('lodash/get')
 
-const { allItemsQueryByChunks } = require('@open-condo/keystone/schema')
-
-const { LOAD_RESIDENTS_CHUNK_SIZE } = require('@condo/domains/news/constants/common')
+const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const getUnitsFromProperty = (property) => (
     [
@@ -20,44 +19,55 @@ const getUnitsFromSection = (section) => section.floors.flatMap(floor => floor.u
 })))
 
 /**
- * @param {Property} property
- * @returns {{property: PropertyWhereUniqueInput, unitType: string, unitName: string}[]}
+ * Lets you count unique units from residents by property for simple news item scopes (ones that have property and organization)
+ * @param { string } organizationId
+ * @param { string[] } propertyIds
+ * @return { Promise<number> }
  */
-const queryConditionsByUnits = (property) => {
-    const conditions = []
-    const unitsFromProperty = getUnitsFromProperty(property)
-    for (const unitFromProperty of unitsFromProperty) {
-        conditions.push({
-            AND: [{
-                property: { id: property.id },
-                unitType: unitFromProperty.unitType,
-                unitName: unitFromProperty.unitName,
-            }],
+async function countUniqueUnitsFromResidentsByPropertyIds (organizationId, propertyIds) {
+    const { keystone } = getSchemaCtx('Resident')
+    const { knex } = getDatabaseAdapter(keystone)
+
+    const result = await knex('Resident')
+        .select(knex.raw('count(distinct(concat("property", "unitName", "unitType")))'))
+        .where('organization', organizationId)
+        .whereIn('property', propertyIds)
+
+    return get(result, [0, 'count'], null)
+}
+
+
+/**
+ * Lets you count unique units from residents by property for detailed news item scopes (ones that have property, organization, unitName and/or unitType)
+ * @param { string } propertyId
+ * @param { string } organizationId
+ * @param { { unitType: unitNames[] } } unitNamesByUnitType
+ * @return { Promise<number> }
+ */
+async function countUniqueUnitsFromResidentsByProperty (organizationId, propertyId, unitNamesByUnitType) {
+    const { keystone } = getSchemaCtx('Resident')
+    const { knex } = getDatabaseAdapter(keystone)
+
+    const result = await knex('Resident')
+        .select(knex.raw('count(distinct(concat("property", "unitName", "unitType")))'))
+        .where('organization', organizationId)
+        .where('property', propertyId)
+        .where(function () {
+            /**
+             * This will generate sql like:
+             *
+             * OR unitType=flat AND unitName_in [...]
+             * OR unitType=apartment AND unitName_in [...]
+             */
+            Object.keys(unitNamesByUnitType).forEach(unitType => {
+                const unitNames = unitNamesByUnitType[unitType]
+                this.orWhere(function () {
+                    this.where('unitType', unitType).whereIn('unitName', unitNames)
+                })
+            })
         })
-    }
-    return conditions
+
+    return get(result, [0, 'count'], null)
 }
 
-async function countUniqueUnitsFromResidents (where) {
-    const units = new Set()
-
-    // Trying to minimize memory usage by working with chunks without keeping all residents within memory
-    await allItemsQueryByChunks({
-        schemaName: 'Resident',
-        chunkSize: LOAD_RESIDENTS_CHUNK_SIZE,
-        where: { ...where, deletedAt: null },
-        /**
-         * @param {Resident[]} chunk
-         * @returns {Resident[]}
-         */
-        chunkProcessor: (chunk) => {
-            chunk.forEach((r) => units.add(`${r.property}_${r.unitType}_${r.unitName}`))
-
-            return []
-        },
-    })
-
-    return units.size
-}
-
-module.exports = { getUnitsFromProperty, getUnitsFromSection, countUniqueUnitsFromResidents, queryConditionsByUnits }
+module.exports = { getUnitsFromProperty, getUnitsFromSection, countUniqueUnitsFromResidentsByPropertyIds, countUniqueUnitsFromResidentsByProperty }
