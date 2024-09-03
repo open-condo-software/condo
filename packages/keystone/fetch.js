@@ -1,5 +1,5 @@
 const { pickBy } = require('lodash')
-const nodeFetch = require('node-fetch')
+const { fetch: uFetch } = require('undici')
 
 const conf = require('@open-condo/config')
 
@@ -89,8 +89,7 @@ async function fetchWithLogger (url, options, extraAttrs) {
     try {
         logger.info({ msg: 'fetch: request start', ...requestLogCommonData })
 
-        const response = await nodeFetch(url, options)
-
+        const response = await uFetch(url, options)
         const headers = (response.headers && typeof response.headers == 'object') ? Object.fromEntries(response.headers) : {}
 
         const endTime = Date.now()
@@ -145,24 +144,26 @@ const fetchWithRetriesAndLogger = async (url, options = {}) => {
     let lastResponse
     // At least one request on maxRetries = 0
     do {
+        let timeout
         try {
             const controller = new AbortController()
             const signal = controller.signal
-            const response = await Promise.race([
-                fetchWithLogger(url, { ... fetchOptions, signal }, { skipTracingHeaders, skipXTargetHeader }),
-                new Promise((_, reject) =>
-                    setTimeout(() => {
-                        controller.abort()
-                        reject(new Error('Abort request by timeout'))
-                    }, abortRequestTimeout)
-                ),
-            ])
+
+            timeout = setTimeout(() => {
+                controller.abort(new Error('Abort request by timeout'))
+            }, abortRequestTimeout)
+
+            const response = await fetchWithLogger(url, { ...fetchOptions, signal }, { skipTracingHeaders, skipXTargetHeader })
+
             if (response && response.ok) {
                 return response
             }
+
             lastResponse = response
         } catch (error) {
             lastError = error
+        } finally {
+            clearTimeout(timeout)
         }
         retries++
         if (timeoutBetweenRequests) {
@@ -170,8 +171,9 @@ const fetchWithRetriesAndLogger = async (url, options = {}) => {
         }
     }  while (retries < maxRetries)
     if (lastError) {
-        throw new Error(lastError)
+        throw lastError
     }
+
     return lastResponse
 }
 
