@@ -13,6 +13,7 @@ const {
     makeClientWithNewRegisteredAndLoggedInUser,
     createTestOidcClient,
     updateTestOidcClient,
+    makeClientWithSupportUser,
 } = require('@condo/domains/user/utils/testSchema')
 
 const { createAdapterClass } = require('../oidc/adapter')
@@ -206,6 +207,155 @@ describe('OIDC', () => {
             }, (error) => {
                 expect(error).toHaveProperty('message', 'Request failed with status code 500')
                 expect(error).toHaveProperty(['request', 'res', 'statusCode'], 500)
+            })
+        })
+        describe('OIDCClient with "canAuthorizeSuperUsers: false" must not be used for authorizing super users',  () => {
+            test('canAuthorizeSuperUsers: false', async () => {
+                const uri = 'https://jwt.io/'
+                const clientId = getRandomString()
+                const clientSecret = getRandomString()
+                const admin = await makeLoggedInAdminClient()
+
+                await createTestOidcClient(admin, {
+                    payload: {
+                    // application_type, client_id, client_name, client_secret, client_uri, contacts, default_acr_values, default_max_age, grant_types, id_token_signed_response_alg, initiate_login_uri, jwks, jwks_uri, logo_uri, policy_uri, post_logout_redirect_uris, redirect_uris, require_auth_time, response_types, scope, sector_identifier_uri, subject_type, token_endpoint_auth_method, tos_uri, userinfo_signed_response_alg
+                        client_id: clientId,
+                        client_secret: clientSecret,
+                        redirect_uris: [uri], // using uri as redirect_uri to show the ID Token contents
+                        response_types: ['code id_token', 'code', 'id_token'],
+                        grant_types: ['implicit', 'authorization_code', 'refresh_token'], // 'implicit', 'authorization_code', 'refresh_token', or 'urn:ietf:params:oauth:grant-type:device_code'
+                        token_endpoint_auth_method: 'client_secret_basic',
+                    },
+                })
+
+                const c = await makeClientWithSupportUser()
+                expectCookieKeys(c.getCookie(), ['keystone.sid'])
+
+                // 1) server side ( create oidc client and prepare oidcAuthUrl )
+
+                const oidcIssuer = await Issuer.discover(`${c.serverUrl}/oidc`)
+                const serverSideOidcClient = new oidcIssuer.Client({
+                    client_id: clientId,
+                    client_secret: clientSecret,
+                    redirect_uris: [uri], // using uri as redirect_uri to show the ID Token contents
+                    response_types: ['code id_token'],
+                    token_endpoint_auth_method: 'client_secret_basic',
+                })
+
+                const nonce = generators.nonce()
+                const url = new URL(serverSideOidcClient.authorizationUrl({ nonce }))
+                const oidcAuthUrl = `${c.serverUrl}${url.pathname}${url.search}`
+
+                // 2) client side ( open oidcAuthUrl )
+
+                const res1 = await request(oidcAuthUrl, c.getCookie())
+                expect(res1.status).toBe(303)
+                expect(res1.headers.location.startsWith('/oidc/interaction/')).toBeTruthy()
+                expectCookieKeys(res1.cookie, ['keystone.sid', '_interaction', '_interaction.sig', '_interaction_resume', '_interaction_resume.sig'])
+
+                const res2 = await request(`${c.serverUrl}${res1.headers.location}`, res1.cookie)
+                expect(res2.status).toBe(303)
+                expect(res2.headers.location.startsWith(`${c.serverUrl}/oidc/auth/`)).toBeTruthy()
+                expectCookieKeys(res2.cookie, ['keystone.sid', '_interaction', '_interaction.sig', '_interaction_resume', '_interaction_resume.sig'])
+
+
+
+                const res3 = await request(res2.headers.location, res2.cookie)
+                expect(res3.status).toBe(303)
+                expect(res3.headers.location.startsWith(`${uri}#error`)).toBeTruthy()
+                expect(res3.headers.location).toContain('error_description=Specified%20user%20cannot%20be%20authorized%20via%20OIDC')
+                expectCookieKeys(res3.cookie, ['keystone.sid', '_interaction', '_interaction.sig', '_interaction_resume', '_interaction_resume.sig', '_session', '_session.sig'])
+            })
+            test('canAuthorizeSuperUsers: true', async () => {
+                const uri = 'https://jwt.io/'
+                const clientId = getRandomString()
+                const clientSecret = getRandomString()
+                const admin = await makeLoggedInAdminClient()
+
+                await createTestOidcClient(admin, {
+                    canAuthorizeSuperUsers: true,
+                    payload: {
+                        // application_type, client_id, client_name, client_secret, client_uri, contacts, default_acr_values, default_max_age, grant_types, id_token_signed_response_alg, initiate_login_uri, jwks, jwks_uri, logo_uri, policy_uri, post_logout_redirect_uris, redirect_uris, require_auth_time, response_types, scope, sector_identifier_uri, subject_type, token_endpoint_auth_method, tos_uri, userinfo_signed_response_alg
+                        client_id: clientId,
+                        client_secret: clientSecret,
+                        redirect_uris: [uri], // using uri as redirect_uri to show the ID Token contents
+                        response_types: ['code id_token', 'code', 'id_token'],
+                        grant_types: ['implicit', 'authorization_code', 'refresh_token'], // 'implicit', 'authorization_code', 'refresh_token', or 'urn:ietf:params:oauth:grant-type:device_code'
+                        token_endpoint_auth_method: 'client_secret_basic',
+                    },
+                })
+
+                const c = await makeClientWithSupportUser()
+                expectCookieKeys(c.getCookie(), ['keystone.sid'])
+
+                // 1) server side ( create oidc client and prepare oidcAuthUrl )
+
+                const oidcIssuer = await Issuer.discover(`${c.serverUrl}/oidc`)
+                const serverSideOidcClient = new oidcIssuer.Client({
+                    client_id: clientId,
+                    client_secret: clientSecret,
+                    redirect_uris: [uri], // using uri as redirect_uri to show the ID Token contents
+                    response_types: ['code id_token'],
+                    token_endpoint_auth_method: 'client_secret_basic',
+                })
+
+                const nonce = generators.nonce()
+                const url = new URL(serverSideOidcClient.authorizationUrl({ nonce }))
+                const oidcAuthUrl = `${c.serverUrl}${url.pathname}${url.search}`
+
+                // 2) client side ( open oidcAuthUrl )
+
+                const res1 = await request(oidcAuthUrl, c.getCookie())
+                expect(res1.status).toBe(303)
+                expect(res1.headers.location.startsWith('/oidc/interaction/')).toBeTruthy()
+                expectCookieKeys(res1.cookie, ['keystone.sid', '_interaction', '_interaction.sig', '_interaction_resume', '_interaction_resume.sig'])
+
+                const res2 = await request(`${c.serverUrl}${res1.headers.location}`, res1.cookie)
+                expect(res2.status).toBe(303)
+                expect(res2.headers.location.startsWith(`${c.serverUrl}/oidc/auth/`)).toBeTruthy()
+                expectCookieKeys(res2.cookie, ['keystone.sid', '_interaction', '_interaction.sig', '_interaction_resume', '_interaction_resume.sig'])
+
+                const res3 = await request(res2.headers.location, res2.cookie)
+                expect(res3.status).toBe(303)
+                expect(res3.headers.location.startsWith(`${uri}#code`)).toBeTruthy()
+                expectCookieKeys(res3.cookie, ['keystone.sid', '_interaction', '_interaction.sig', '_interaction_resume', '_interaction_resume.sig', '_session', '_session.sig'])
+
+                // 3) callback to server side ( callback with code to oidc app site; server get the access and cann use it )
+
+                const params = serverSideOidcClient.callbackParams(res3.headers.location.replace(`${uri}#`, `${uri}?`))
+                const tokenSet = await serverSideOidcClient.callback(uri, { code: params.code }, { nonce })
+                expect(tokenSet.access_token).toHaveLength(43) // important to be 43!
+                expect(tokenSet.id_token.length > 10).toBeTruthy()
+
+                // 4) check requests by accessToken to /oidc/userinfo
+
+                const userinfo = await serverSideOidcClient.userinfo(tokenSet.access_token)
+                expect(userinfo).toEqual({
+                    'sub': c.user.id,
+                    'type': 'staff',
+                    'v': 2,
+                    'dv': 1,
+                    'isAdmin': false,
+                    'isSupport': true,
+                    'name': c.user.name,
+                })
+                expect(await getAccessToken(tokenSet.access_token, c)).toMatchObject({
+                    'accountId': c.user.id,
+                    'clientId': clientId,
+                    'expiresWithSession': true,
+                    'gty': 'authorization_code',
+                    'kind': 'AccessToken',
+                    'scope': 'openid',
+                })
+
+                // 5) check requests by accessToken to /admin/api
+
+                await expectToGetAuthenticatedUser(`${c.serverUrl}/admin/api`, null)
+                await expectToGetAuthenticatedUser(
+                    `${c.serverUrl}/admin/api`,
+                    { id: c.user.id, name: c.user.name },
+                    { 'Authorization': `Bearer ${tokenSet.access_token}` },
+                )
             })
         })
     })
@@ -549,7 +699,6 @@ describe('OIDC', () => {
             // 2) client side ( open oidcAuthUrl )
 
             const res1 = await request(oidcAuthUrl, c.getCookie())
-            console.log(res1)
             expect(res1.status).toBe(303)
             expect(res1.headers.location.startsWith(`${uri}#error`)).toBeTruthy()
             expect(res1.headers.location).toContain('error_description=requested%20response_type%20is%20not%20allowed%20for%20this%20client')

@@ -1,7 +1,7 @@
 const { get, isEmpty, isArray } = require('lodash')
-const { errors: { CustomOIDCProviderError } } = require('oidc-provider')
+const { errors: { CustomOIDCProviderError  } } = require('oidc-provider')
 
-const { getById } = require('@open-condo/keystone/schema')
+const { getById, getByCondition } = require('@open-condo/keystone/schema')
 
 const { CONDO_SUPPORTED_RESPONSE_TYPES } = require('@condo/domains/user/constants/oidc')
 
@@ -24,7 +24,14 @@ module.exports = function createConfiguration (context, conf) {
             if (!user) throw new CustomOIDCProviderError('Invalid user', 'Unknown user id')
 
             if (user.isSupport || user.isAdmin || user.rightsSet) {
-                throw new CustomOIDCProviderError('Invalid user', 'Specified user cannot be authorized via OIDC')
+                const clientId = get(ctx, ['oidc', 'client', 'clientId'])
+                if (!clientId) {
+                    throw new CustomOIDCProviderError('Invalid user', 'Client ID not found while trying to auth user')
+                }
+                const oidcClient = await getByCondition('OidcClient', { clientId, isEnabled: true, deletedAt: null })
+                if (!oidcClient || !oidcClient.canAuthorizeSuperUsers) {
+                    throw new CustomOIDCProviderError('Invalid user', 'Specified user cannot be authorized via OIDC')
+                }
             }
 
             // TODO(pahaz): think about user and and claims

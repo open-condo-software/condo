@@ -56110,6 +56110,8 @@ export type OidcClient = {
   name?: Maybe<Scalars['String']>;
   /**  A switch that allows you to disable some OIDC clients. If an OIDC client is disabled, it cannot be used for OIDC authorization. Used mainly by developers portal to create OIDC client before publishing an application, and enable OIDC after publishing.  */
   isEnabled?: Maybe<Scalars['Boolean']>;
+  /**  A switch that allows this OIDC client to authorize users with privileges, such as admins, support, or users with a special rights set. Temporary solution to allow OIDCs to be used to access the admin panel of mini-applications from condo ecosystem. Tokens with scopes should solve the logic separation problem and remove this checkbox  */
+  canAuthorizeSuperUsers?: Maybe<Scalars['Boolean']>;
   /**  The additional client data  */
   meta?: Maybe<Scalars['JSON']>;
   /**  The timestamp of the client expiration  */
@@ -56139,6 +56141,7 @@ export type OidcClientCreateInput = {
   payload?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
   isEnabled?: Maybe<Scalars['Boolean']>;
+  canAuthorizeSuperUsers?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   expiresAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -56169,6 +56172,7 @@ export type OidcClientHistoryRecord = {
   payload?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
   isEnabled?: Maybe<Scalars['Boolean']>;
+  canAuthorizeSuperUsers?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   expiresAt?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
@@ -56191,6 +56195,7 @@ export type OidcClientHistoryRecordCreateInput = {
   payload?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
   isEnabled?: Maybe<Scalars['Boolean']>;
+  canAuthorizeSuperUsers?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   expiresAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -56218,6 +56223,7 @@ export type OidcClientHistoryRecordUpdateInput = {
   payload?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
   isEnabled?: Maybe<Scalars['Boolean']>;
+  canAuthorizeSuperUsers?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   expiresAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -56279,6 +56285,8 @@ export type OidcClientHistoryRecordWhereInput = {
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isEnabled?: Maybe<Scalars['Boolean']>;
   isEnabled_not?: Maybe<Scalars['Boolean']>;
+  canAuthorizeSuperUsers?: Maybe<Scalars['Boolean']>;
+  canAuthorizeSuperUsers_not?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -56387,6 +56395,7 @@ export type OidcClientUpdateInput = {
   payload?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
   isEnabled?: Maybe<Scalars['Boolean']>;
+  canAuthorizeSuperUsers?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   expiresAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -56447,6 +56456,8 @@ export type OidcClientWhereInput = {
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isEnabled?: Maybe<Scalars['Boolean']>;
   isEnabled_not?: Maybe<Scalars['Boolean']>;
+  canAuthorizeSuperUsers?: Maybe<Scalars['Boolean']>;
+  canAuthorizeSuperUsers_not?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -81588,6 +81599,8 @@ export enum SortOidcClientHistoryRecordsBy {
   NameDesc = 'name_DESC',
   IsEnabledAsc = 'isEnabled_ASC',
   IsEnabledDesc = 'isEnabled_DESC',
+  CanAuthorizeSuperUsersAsc = 'canAuthorizeSuperUsers_ASC',
+  CanAuthorizeSuperUsersDesc = 'canAuthorizeSuperUsers_DESC',
   ExpiresAtAsc = 'expiresAt_ASC',
   ExpiresAtDesc = 'expiresAt_DESC',
   IdAsc = 'id_ASC',
@@ -81615,6 +81628,8 @@ export enum SortOidcClientsBy {
   NameDesc = 'name_DESC',
   IsEnabledAsc = 'isEnabled_ASC',
   IsEnabledDesc = 'isEnabled_DESC',
+  CanAuthorizeSuperUsersAsc = 'canAuthorizeSuperUsers_ASC',
+  CanAuthorizeSuperUsersDesc = 'canAuthorizeSuperUsers_DESC',
   ExpiresAtAsc = 'expiresAt_ASC',
   ExpiresAtDesc = 'expiresAt_DESC',
   IdAsc = 'id_ASC',
