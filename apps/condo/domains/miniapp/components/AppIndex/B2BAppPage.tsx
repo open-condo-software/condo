@@ -117,14 +117,13 @@ export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
                     we need to prevent iframe loading in cases where everything is (not) loaded fine,
                     but redirect is still happening*/}
                     {Boolean(appUrl && appRole && context) && (
-                        123123123
-                        // <IFrame
-                        //     src={appUrl}
-                        //     reloadScope='organization'
-                        //     withLoader
-                        //     withPrefetch
-                        //     withResize
-                        // />
+                        <IFrame
+                            src={appUrl}
+                            reloadScope='organization'
+                            withLoader
+                            withPrefetch
+                            withResize
+                        />
                     )}
                 </PageContent>
             </PageWrapper>

@@ -1,4 +1,5 @@
 const { get, isEmpty, isArray } = require('lodash')
+const { errors: { CustomOIDCProviderError } } = require('oidc-provider')
 
 const { getById } = require('@open-condo/keystone/schema')
 
@@ -20,7 +21,12 @@ module.exports = function createConfiguration (context, conf) {
         adapter: createAdapterClass(context),
         async findAccount (ctx, id) {
             const user = await getById('User', id)
-            if (!user) throw new Error('unknown user id')
+            if (!user) throw new CustomOIDCProviderError('Invalid user', 'Unknown user id')
+
+            if (user.isSupport || user.isAdmin || user.rightsSet) {
+                throw new CustomOIDCProviderError('Invalid user', 'Specified user cannot be authorized via OIDC')
+            }
+
             // TODO(pahaz): think about user and and claims
             return {
                 accountId: id,
