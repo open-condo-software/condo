@@ -3,6 +3,7 @@
  */
 
 const { faker } = require('@faker-js/faker')
+const Big = require('big.js')
 const dayjs = require('dayjs')
 
 const {
@@ -39,7 +40,6 @@ const {
     TestUtils,
     ResidentTestMixin,
 } = require('@condo/domains/billing/utils/testSchema/testUtils')
-const Big = require("big.js");
 
 
 describe('RegisterMultiPaymentForOneReceiptService', () => {

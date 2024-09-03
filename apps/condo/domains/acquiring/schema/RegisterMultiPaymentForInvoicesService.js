@@ -25,7 +25,6 @@ const {
     ANONYMOUS_PAYMENT_PATH,
 } = require('@condo/domains/acquiring/constants/links')
 const { DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY } = require('@condo/domains/acquiring/constants/payment')
-
 const { freezeInvoice } = require('@condo/domains/acquiring/utils/billingFridge')
 const {
     AcquiringIntegration,
@@ -38,7 +37,6 @@ const {
 } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const { DEFAULT_CURRENCY_CODE } = require('@condo/domains/common/constants/currencies')
 const { NOT_FOUND, NOT_UNIQUE } = require('@condo/domains/common/constants/errors')
-const { WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 const { INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
 
 /**
