@@ -16,6 +16,19 @@ export type Scalars = {
 };
 
 
+export type AcceptOrRejectOrganizationEmployeeRequestEmployeeDataInput = {
+  role: OrganizationEmployeeRoleWhereUniqueInput;
+};
+
+export type AcceptOrRejectOrganizationEmployeeRequestInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  employeeRequest: OrganizationEmployeeRequestWhereUniqueInput;
+  employeeData?: Maybe<AcceptOrRejectOrganizationEmployeeRequestEmployeeDataInput>;
+  isRejected?: Maybe<Scalars['Boolean']>;
+  isAccepted?: Maybe<Scalars['Boolean']>;
+};
+
 export type AcceptOrRejectOrganizationInviteInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
@@ -38500,6 +38513,30 @@ export type Mutation = {
   deleteOrganizationEmployeeSpecialization?: Maybe<OrganizationEmployeeSpecialization>;
   /**  Delete multiple OrganizationEmployeeSpecialization items by ID.  */
   deleteOrganizationEmployeeSpecializations?: Maybe<Array<Maybe<OrganizationEmployeeSpecialization>>>;
+  /**  Create a single OrganizationEmployeeRequestHistoryRecord item.  */
+  createOrganizationEmployeeRequestHistoryRecord?: Maybe<OrganizationEmployeeRequestHistoryRecord>;
+  /**  Create multiple OrganizationEmployeeRequestHistoryRecord items.  */
+  createOrganizationEmployeeRequestHistoryRecords?: Maybe<Array<Maybe<OrganizationEmployeeRequestHistoryRecord>>>;
+  /**  Update a single OrganizationEmployeeRequestHistoryRecord item by ID.  */
+  updateOrganizationEmployeeRequestHistoryRecord?: Maybe<OrganizationEmployeeRequestHistoryRecord>;
+  /**  Update multiple OrganizationEmployeeRequestHistoryRecord items by ID.  */
+  updateOrganizationEmployeeRequestHistoryRecords?: Maybe<Array<Maybe<OrganizationEmployeeRequestHistoryRecord>>>;
+  /**  Delete a single OrganizationEmployeeRequestHistoryRecord item by ID.  */
+  deleteOrganizationEmployeeRequestHistoryRecord?: Maybe<OrganizationEmployeeRequestHistoryRecord>;
+  /**  Delete multiple OrganizationEmployeeRequestHistoryRecord items by ID.  */
+  deleteOrganizationEmployeeRequestHistoryRecords?: Maybe<Array<Maybe<OrganizationEmployeeRequestHistoryRecord>>>;
+  /**  Create a single OrganizationEmployeeRequest item.  */
+  createOrganizationEmployeeRequest?: Maybe<OrganizationEmployeeRequest>;
+  /**  Create multiple OrganizationEmployeeRequest items.  */
+  createOrganizationEmployeeRequests?: Maybe<Array<Maybe<OrganizationEmployeeRequest>>>;
+  /**  Update a single OrganizationEmployeeRequest item by ID.  */
+  updateOrganizationEmployeeRequest?: Maybe<OrganizationEmployeeRequest>;
+  /**  Update multiple OrganizationEmployeeRequest items by ID.  */
+  updateOrganizationEmployeeRequests?: Maybe<Array<Maybe<OrganizationEmployeeRequest>>>;
+  /**  Delete a single OrganizationEmployeeRequest item by ID.  */
+  deleteOrganizationEmployeeRequest?: Maybe<OrganizationEmployeeRequest>;
+  /**  Delete multiple OrganizationEmployeeRequest items by ID.  */
+  deleteOrganizationEmployeeRequests?: Maybe<Array<Maybe<OrganizationEmployeeRequest>>>;
   /**  Create a single PropertyHistoryRecord item.  */
   createPropertyHistoryRecord?: Maybe<PropertyHistoryRecord>;
   /**  Create multiple PropertyHistoryRecord items.  */
@@ -42230,6 +42267,210 @@ export type Mutation = {
    * }`
    */
   replaceOrganizationEmployeeRole?: Maybe<ReplaceOrganizationEmployeeRoleOutput>;
+  /**
+   * Creates a request to join the specified organization
+   *
+   *
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "mutation": "sendOrganizationEmployeeRequest",
+   *   "variable": [
+   *     "data"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "USER_DOES_NOT_HAVE_PHONE",
+   *   "message": "The user does not have a phone"
+   * }`
+   *
+   * `{
+   *   "mutation": "sendOrganizationEmployeeRequest",
+   *   "variable": [
+   *     "data",
+   *     "organization"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "ORGANIZATION_NOT_FOUND",
+   *   "message": "Organization not found"
+   * }`
+   *
+   * `{
+   *   "mutation": "sendOrganizationEmployeeRequest",
+   *   "variable": [
+   *     "data"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "REQUEST_ALREADY_ACCEPTED",
+   *   "message": "Request already accepted"
+   * }`
+   *
+   * `{
+   *   "mutation": "sendOrganizationEmployeeRequest",
+   *   "variable": [
+   *     "data"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "REQUEST_TO_ORGANIZATION_LIMIT_REACHED",
+   *   "message": "A request to the organization limit reached"
+   * }`
+   *
+   * `{
+   *   "mutation": "sendOrganizationEmployeeRequest",
+   *   "variable": [
+   *     "data"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "REQUEST_NOT_DECIDED",
+   *   "message": "A request not decided yet. Please wait for a decide on the request from the organization"
+   * }`
+   *
+   * `{
+   *   "mutation": "sendOrganizationEmployeeRequest",
+   *   "variable": [
+   *     "data"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "EMPLOYEE_ALREADY_ACCEPTED",
+   *   "message": "An accepted employee already exist in this organization"
+   * }`
+   *
+   * `{
+   *   "mutation": "sendOrganizationEmployeeRequest",
+   *   "variable": [
+   *     "data"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "EMPLOYEE_INVITATION_ALREADY_SENT",
+   *   "message": "The invitation has already been sent to the employee."
+   * }`
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "dv"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "DV_VERSION_MISMATCH",
+   *   "message": "Wrong value for data version number",
+   *   "mutation": "sendOrganizationEmployeeRequest"
+   * }`
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "sender"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_FORMAT",
+   *   "message": "Invalid format of \"sender\" field value",
+   *   "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}",
+   *   "mutation": "sendOrganizationEmployeeRequest"
+   * }`
+   */
+  sendOrganizationEmployeeRequest?: Maybe<OrganizationEmployeeRequest>;
+  /**
+   * Accepts or rejects requests to join the organization.
+   * If accepted, a new employee is created
+   *
+   *
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "mutation": "acceptOrRejectOrganizationEmployeeRequest",
+   *   "variable": [
+   *     "data"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "REQUEST_NEEDS_ACCEPT_OR_REJECT",
+   *   "message": "The request must be accepted or rejected"
+   * }`
+   *
+   * `{
+   *   "mutation": "acceptOrRejectOrganizationEmployeeRequest",
+   *   "variable": [
+   *     "data",
+   *     "employeeRequest"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "REQUEST_ALREADY_DECIDED",
+   *   "message": "The request has already been decided"
+   * }`
+   *
+   * `{
+   *   "mutation": "acceptOrRejectOrganizationEmployeeRequest",
+   *   "variable": [
+   *     "data",
+   *     "employeeRequest"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "REQUEST_NOT_FOUND",
+   *   "message": "The request not found"
+   * }`
+   *
+   * `{
+   *   "mutation": "acceptOrRejectOrganizationEmployeeRequest",
+   *   "variable": [
+   *     "data",
+   *     "employeeData",
+   *     "role"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "EMPLOYEE_ROLE_REQUIRED",
+   *   "message": "Employee role required"
+   * }`
+   *
+   * `{
+   *   "mutation": "acceptOrRejectOrganizationEmployeeRequest",
+   *   "variable": [
+   *     "data",
+   *     "employeeRequest"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "USER_NOT_FOUND",
+   *   "message": "No user found to join the organization"
+   * }`
+   *
+   * `{
+   *   "mutation": "acceptOrRejectOrganizationEmployeeRequest",
+   *   "variable": [
+   *     "data",
+   *     "employeeRequest"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "USER_DOES_NOT_HAVE_PHONE",
+   *   "message": "The user does not have a phone"
+   * }`
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "dv"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "DV_VERSION_MISMATCH",
+   *   "message": "Wrong value for data version number",
+   *   "mutation": "acceptOrRejectOrganizationEmployeeRequest"
+   * }`
+   *
+   * `{
+   *   "variable": [
+   *     "data",
+   *     "sender"
+   *   ],
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_FORMAT",
+   *   "message": "Invalid format of \"sender\" field value",
+   *   "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}",
+   *   "mutation": "acceptOrRejectOrganizationEmployeeRequest"
+   * }`
+   */
+  acceptOrRejectOrganizationEmployeeRequest?: Maybe<OrganizationEmployeeRequest>;
   registerBillingReceipts?: Maybe<Array<Maybe<BillingReceipt>>>;
   sendNewBillingReceiptFilesNotifications?: Maybe<SendNewBillingReceiptFilesNotificationsOutput>;
   /**
@@ -45009,6 +45250,68 @@ export type MutationDeleteOrganizationEmployeeSpecializationArgs = {
 
 
 export type MutationDeleteOrganizationEmployeeSpecializationsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateOrganizationEmployeeRequestHistoryRecordArgs = {
+  data?: Maybe<OrganizationEmployeeRequestHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateOrganizationEmployeeRequestHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<OrganizationEmployeeRequestHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateOrganizationEmployeeRequestHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<OrganizationEmployeeRequestHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateOrganizationEmployeeRequestHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<OrganizationEmployeeRequestHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteOrganizationEmployeeRequestHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteOrganizationEmployeeRequestHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateOrganizationEmployeeRequestArgs = {
+  data?: Maybe<OrganizationEmployeeRequestCreateInput>;
+};
+
+
+export type MutationCreateOrganizationEmployeeRequestsArgs = {
+  data?: Maybe<Array<Maybe<OrganizationEmployeeRequestsCreateInput>>>;
+};
+
+
+export type MutationUpdateOrganizationEmployeeRequestArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<OrganizationEmployeeRequestUpdateInput>;
+};
+
+
+export type MutationUpdateOrganizationEmployeeRequestsArgs = {
+  data?: Maybe<Array<Maybe<OrganizationEmployeeRequestsUpdateInput>>>;
+};
+
+
+export type MutationDeleteOrganizationEmployeeRequestArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteOrganizationEmployeeRequestsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -52586,6 +52889,16 @@ export type MutationReplaceOrganizationEmployeeRoleArgs = {
 };
 
 
+export type MutationSendOrganizationEmployeeRequestArgs = {
+  data: SendOrganizationEmployeeRequestInput;
+};
+
+
+export type MutationAcceptOrRejectOrganizationEmployeeRequestArgs = {
+  data: AcceptOrRejectOrganizationEmployeeRequestInput;
+};
+
+
 export type MutationRegisterBillingReceiptsArgs = {
   data: RegisterBillingReceiptsInput;
 };
@@ -57082,6 +57395,508 @@ export type OrganizationEmployeeRelateToOneInput = {
   disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
+/**  User request to join the organization  */
+export type OrganizationEmployeeRequest = {
+  __typename?: 'OrganizationEmployeeRequest';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the OrganizationEmployeeRequest List config, or
+   *  2. As an alias to the field set on 'labelField' in the OrganizationEmployeeRequest List config, or
+   *  3. As an alias to a 'name' field on the OrganizationEmployeeRequest List (if one exists), or
+   *  4. As an alias to the 'id' field on the OrganizationEmployeeRequest List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
+  organization?: Maybe<Organization>;
+  /**  Organization id (For the user who sent the request)  */
+  organizationId?: Maybe<Scalars['ID']>;
+  /**  Organization name (For the user who sent the request)  */
+  organizationName?: Maybe<Scalars['String']>;
+  /**  Organization tin (For the user who sent the request)  */
+  organizationTin?: Maybe<Scalars['String']>;
+  /**  User who sent the request  */
+  user?: Maybe<User>;
+  /**  Means that the request has been accepted  */
+  isAccepted?: Maybe<Scalars['Boolean']>;
+  /**  Means that the request has been rejected  */
+  isRejected?: Maybe<Scalars['Boolean']>;
+  /**  User who decided the request  */
+  decidedBy?: Maybe<User>;
+  /**  Date when decided the request  */
+  decidedAt?: Maybe<Scalars['String']>;
+  /**  Number of re-sends  */
+  retries?: Maybe<Scalars['Int']>;
+  /**  An employee who was created in the organization after the request was accepted  */
+  employee?: Maybe<OrganizationEmployee>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type OrganizationEmployeeRequestCreateInput = {
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  organizationId?: Maybe<Scalars['ID']>;
+  organizationName?: Maybe<Scalars['String']>;
+  organizationTin?: Maybe<Scalars['String']>;
+  user?: Maybe<UserRelateToOneInput>;
+  isAccepted?: Maybe<Scalars['Boolean']>;
+  isRejected?: Maybe<Scalars['Boolean']>;
+  decidedBy?: Maybe<UserRelateToOneInput>;
+  decidedAt?: Maybe<Scalars['String']>;
+  retries?: Maybe<Scalars['Int']>;
+  employee?: Maybe<OrganizationEmployeeRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type OrganizationEmployeeRequestHistoryRecord = {
+  __typename?: 'OrganizationEmployeeRequestHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the OrganizationEmployeeRequestHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the OrganizationEmployeeRequestHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the OrganizationEmployeeRequestHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the OrganizationEmployeeRequestHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
+  organizationId?: Maybe<Scalars['ID']>;
+  organizationName?: Maybe<Scalars['String']>;
+  organizationTin?: Maybe<Scalars['String']>;
+  user?: Maybe<Scalars['String']>;
+  isAccepted?: Maybe<Scalars['Boolean']>;
+  isRejected?: Maybe<Scalars['Boolean']>;
+  decidedBy?: Maybe<Scalars['String']>;
+  decidedAt?: Maybe<Scalars['String']>;
+  retries?: Maybe<Scalars['Int']>;
+  employee?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<OrganizationEmployeeRequestHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type OrganizationEmployeeRequestHistoryRecordCreateInput = {
+  organization?: Maybe<Scalars['String']>;
+  organizationId?: Maybe<Scalars['ID']>;
+  organizationName?: Maybe<Scalars['String']>;
+  organizationTin?: Maybe<Scalars['String']>;
+  user?: Maybe<Scalars['String']>;
+  isAccepted?: Maybe<Scalars['Boolean']>;
+  isRejected?: Maybe<Scalars['Boolean']>;
+  decidedBy?: Maybe<Scalars['String']>;
+  decidedAt?: Maybe<Scalars['String']>;
+  retries?: Maybe<Scalars['Int']>;
+  employee?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<OrganizationEmployeeRequestHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum OrganizationEmployeeRequestHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type OrganizationEmployeeRequestHistoryRecordUpdateInput = {
+  organization?: Maybe<Scalars['String']>;
+  organizationId?: Maybe<Scalars['ID']>;
+  organizationName?: Maybe<Scalars['String']>;
+  organizationTin?: Maybe<Scalars['String']>;
+  user?: Maybe<Scalars['String']>;
+  isAccepted?: Maybe<Scalars['Boolean']>;
+  isRejected?: Maybe<Scalars['Boolean']>;
+  decidedBy?: Maybe<Scalars['String']>;
+  decidedAt?: Maybe<Scalars['String']>;
+  retries?: Maybe<Scalars['Int']>;
+  employee?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<OrganizationEmployeeRequestHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type OrganizationEmployeeRequestHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<OrganizationEmployeeRequestHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<OrganizationEmployeeRequestHistoryRecordWhereInput>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organizationId?: Maybe<Scalars['ID']>;
+  organizationId_not?: Maybe<Scalars['ID']>;
+  organizationId_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  organizationId_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  organizationName?: Maybe<Scalars['String']>;
+  organizationName_not?: Maybe<Scalars['String']>;
+  organizationName_contains?: Maybe<Scalars['String']>;
+  organizationName_not_contains?: Maybe<Scalars['String']>;
+  organizationName_starts_with?: Maybe<Scalars['String']>;
+  organizationName_not_starts_with?: Maybe<Scalars['String']>;
+  organizationName_ends_with?: Maybe<Scalars['String']>;
+  organizationName_not_ends_with?: Maybe<Scalars['String']>;
+  organizationName_i?: Maybe<Scalars['String']>;
+  organizationName_not_i?: Maybe<Scalars['String']>;
+  organizationName_contains_i?: Maybe<Scalars['String']>;
+  organizationName_not_contains_i?: Maybe<Scalars['String']>;
+  organizationName_starts_with_i?: Maybe<Scalars['String']>;
+  organizationName_not_starts_with_i?: Maybe<Scalars['String']>;
+  organizationName_ends_with_i?: Maybe<Scalars['String']>;
+  organizationName_not_ends_with_i?: Maybe<Scalars['String']>;
+  organizationName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organizationName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organizationTin?: Maybe<Scalars['String']>;
+  organizationTin_not?: Maybe<Scalars['String']>;
+  organizationTin_contains?: Maybe<Scalars['String']>;
+  organizationTin_not_contains?: Maybe<Scalars['String']>;
+  organizationTin_starts_with?: Maybe<Scalars['String']>;
+  organizationTin_not_starts_with?: Maybe<Scalars['String']>;
+  organizationTin_ends_with?: Maybe<Scalars['String']>;
+  organizationTin_not_ends_with?: Maybe<Scalars['String']>;
+  organizationTin_i?: Maybe<Scalars['String']>;
+  organizationTin_not_i?: Maybe<Scalars['String']>;
+  organizationTin_contains_i?: Maybe<Scalars['String']>;
+  organizationTin_not_contains_i?: Maybe<Scalars['String']>;
+  organizationTin_starts_with_i?: Maybe<Scalars['String']>;
+  organizationTin_not_starts_with_i?: Maybe<Scalars['String']>;
+  organizationTin_ends_with_i?: Maybe<Scalars['String']>;
+  organizationTin_not_ends_with_i?: Maybe<Scalars['String']>;
+  organizationTin_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organizationTin_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  user?: Maybe<Scalars['String']>;
+  user_not?: Maybe<Scalars['String']>;
+  user_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  user_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isAccepted?: Maybe<Scalars['Boolean']>;
+  isAccepted_not?: Maybe<Scalars['Boolean']>;
+  isRejected?: Maybe<Scalars['Boolean']>;
+  isRejected_not?: Maybe<Scalars['Boolean']>;
+  decidedBy?: Maybe<Scalars['String']>;
+  decidedBy_not?: Maybe<Scalars['String']>;
+  decidedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  decidedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  decidedAt?: Maybe<Scalars['String']>;
+  decidedAt_not?: Maybe<Scalars['String']>;
+  decidedAt_lt?: Maybe<Scalars['String']>;
+  decidedAt_lte?: Maybe<Scalars['String']>;
+  decidedAt_gt?: Maybe<Scalars['String']>;
+  decidedAt_gte?: Maybe<Scalars['String']>;
+  decidedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  decidedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  retries?: Maybe<Scalars['Int']>;
+  retries_not?: Maybe<Scalars['Int']>;
+  retries_lt?: Maybe<Scalars['Int']>;
+  retries_lte?: Maybe<Scalars['Int']>;
+  retries_gt?: Maybe<Scalars['Int']>;
+  retries_gte?: Maybe<Scalars['Int']>;
+  retries_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  retries_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  employee?: Maybe<Scalars['String']>;
+  employee_not?: Maybe<Scalars['String']>;
+  employee_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  employee_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<OrganizationEmployeeRequestHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<OrganizationEmployeeRequestHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<OrganizationEmployeeRequestHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<OrganizationEmployeeRequestHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type OrganizationEmployeeRequestHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type OrganizationEmployeeRequestHistoryRecordsCreateInput = {
+  data?: Maybe<OrganizationEmployeeRequestHistoryRecordCreateInput>;
+};
+
+export type OrganizationEmployeeRequestHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<OrganizationEmployeeRequestHistoryRecordUpdateInput>;
+};
+
+export type OrganizationEmployeeRequestUpdateInput = {
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  organizationId?: Maybe<Scalars['ID']>;
+  organizationName?: Maybe<Scalars['String']>;
+  organizationTin?: Maybe<Scalars['String']>;
+  user?: Maybe<UserRelateToOneInput>;
+  isAccepted?: Maybe<Scalars['Boolean']>;
+  isRejected?: Maybe<Scalars['Boolean']>;
+  decidedBy?: Maybe<UserRelateToOneInput>;
+  decidedAt?: Maybe<Scalars['String']>;
+  retries?: Maybe<Scalars['Int']>;
+  employee?: Maybe<OrganizationEmployeeRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type OrganizationEmployeeRequestWhereInput = {
+  AND?: Maybe<Array<Maybe<OrganizationEmployeeRequestWhereInput>>>;
+  OR?: Maybe<Array<Maybe<OrganizationEmployeeRequestWhereInput>>>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
+  organizationId?: Maybe<Scalars['ID']>;
+  organizationId_not?: Maybe<Scalars['ID']>;
+  organizationId_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  organizationId_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  organizationName?: Maybe<Scalars['String']>;
+  organizationName_not?: Maybe<Scalars['String']>;
+  organizationName_contains?: Maybe<Scalars['String']>;
+  organizationName_not_contains?: Maybe<Scalars['String']>;
+  organizationName_starts_with?: Maybe<Scalars['String']>;
+  organizationName_not_starts_with?: Maybe<Scalars['String']>;
+  organizationName_ends_with?: Maybe<Scalars['String']>;
+  organizationName_not_ends_with?: Maybe<Scalars['String']>;
+  organizationName_i?: Maybe<Scalars['String']>;
+  organizationName_not_i?: Maybe<Scalars['String']>;
+  organizationName_contains_i?: Maybe<Scalars['String']>;
+  organizationName_not_contains_i?: Maybe<Scalars['String']>;
+  organizationName_starts_with_i?: Maybe<Scalars['String']>;
+  organizationName_not_starts_with_i?: Maybe<Scalars['String']>;
+  organizationName_ends_with_i?: Maybe<Scalars['String']>;
+  organizationName_not_ends_with_i?: Maybe<Scalars['String']>;
+  organizationName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organizationName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organizationTin?: Maybe<Scalars['String']>;
+  organizationTin_not?: Maybe<Scalars['String']>;
+  organizationTin_contains?: Maybe<Scalars['String']>;
+  organizationTin_not_contains?: Maybe<Scalars['String']>;
+  organizationTin_starts_with?: Maybe<Scalars['String']>;
+  organizationTin_not_starts_with?: Maybe<Scalars['String']>;
+  organizationTin_ends_with?: Maybe<Scalars['String']>;
+  organizationTin_not_ends_with?: Maybe<Scalars['String']>;
+  organizationTin_i?: Maybe<Scalars['String']>;
+  organizationTin_not_i?: Maybe<Scalars['String']>;
+  organizationTin_contains_i?: Maybe<Scalars['String']>;
+  organizationTin_not_contains_i?: Maybe<Scalars['String']>;
+  organizationTin_starts_with_i?: Maybe<Scalars['String']>;
+  organizationTin_not_starts_with_i?: Maybe<Scalars['String']>;
+  organizationTin_ends_with_i?: Maybe<Scalars['String']>;
+  organizationTin_not_ends_with_i?: Maybe<Scalars['String']>;
+  organizationTin_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organizationTin_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  user?: Maybe<UserWhereInput>;
+  user_is_null?: Maybe<Scalars['Boolean']>;
+  isAccepted?: Maybe<Scalars['Boolean']>;
+  isAccepted_not?: Maybe<Scalars['Boolean']>;
+  isRejected?: Maybe<Scalars['Boolean']>;
+  isRejected_not?: Maybe<Scalars['Boolean']>;
+  decidedBy?: Maybe<UserWhereInput>;
+  decidedBy_is_null?: Maybe<Scalars['Boolean']>;
+  decidedAt?: Maybe<Scalars['String']>;
+  decidedAt_not?: Maybe<Scalars['String']>;
+  decidedAt_lt?: Maybe<Scalars['String']>;
+  decidedAt_lte?: Maybe<Scalars['String']>;
+  decidedAt_gt?: Maybe<Scalars['String']>;
+  decidedAt_gte?: Maybe<Scalars['String']>;
+  decidedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  decidedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  retries?: Maybe<Scalars['Int']>;
+  retries_not?: Maybe<Scalars['Int']>;
+  retries_lt?: Maybe<Scalars['Int']>;
+  retries_lte?: Maybe<Scalars['Int']>;
+  retries_gt?: Maybe<Scalars['Int']>;
+  retries_gte?: Maybe<Scalars['Int']>;
+  retries_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  retries_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  employee?: Maybe<OrganizationEmployeeWhereInput>;
+  employee_is_null?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type OrganizationEmployeeRequestWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type OrganizationEmployeeRequestsCreateInput = {
+  data?: Maybe<OrganizationEmployeeRequestCreateInput>;
+};
+
+export type OrganizationEmployeeRequestsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<OrganizationEmployeeRequestUpdateInput>;
+};
+
 /**  Employee role name and access permissions  */
 export type OrganizationEmployeeRole = {
   __typename?: 'OrganizationEmployeeRole';
@@ -57183,6 +57998,7 @@ export type OrganizationEmployeeRole = {
   canManageTour?: Maybe<Scalars['Boolean']>;
   canReadMarketSetting?: Maybe<Scalars['Boolean']>;
   canManageMarketSetting?: Maybe<Scalars['Boolean']>;
+  canManageOrganizationEmployeeRequests?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -57269,6 +58085,7 @@ export type OrganizationEmployeeRoleCreateInput = {
   canManageTour?: Maybe<Scalars['Boolean']>;
   canReadMarketSetting?: Maybe<Scalars['Boolean']>;
   canManageMarketSetting?: Maybe<Scalars['Boolean']>;
+  canManageOrganizationEmployeeRequests?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -57360,6 +58177,7 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canManageTour?: Maybe<Scalars['Boolean']>;
   canReadMarketSetting?: Maybe<Scalars['Boolean']>;
   canManageMarketSetting?: Maybe<Scalars['Boolean']>;
+  canManageOrganizationEmployeeRequests?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -57443,6 +58261,7 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canManageTour?: Maybe<Scalars['Boolean']>;
   canReadMarketSetting?: Maybe<Scalars['Boolean']>;
   canManageMarketSetting?: Maybe<Scalars['Boolean']>;
+  canManageOrganizationEmployeeRequests?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -57531,6 +58350,7 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canManageTour?: Maybe<Scalars['Boolean']>;
   canReadMarketSetting?: Maybe<Scalars['Boolean']>;
   canManageMarketSetting?: Maybe<Scalars['Boolean']>;
+  canManageOrganizationEmployeeRequests?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -57734,6 +58554,8 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canReadMarketSetting_not?: Maybe<Scalars['Boolean']>;
   canManageMarketSetting?: Maybe<Scalars['Boolean']>;
   canManageMarketSetting_not?: Maybe<Scalars['Boolean']>;
+  canManageOrganizationEmployeeRequests?: Maybe<Scalars['Boolean']>;
+  canManageOrganizationEmployeeRequests_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -57897,6 +58719,7 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canManageTour?: Maybe<Scalars['Boolean']>;
   canReadMarketSetting?: Maybe<Scalars['Boolean']>;
   canManageMarketSetting?: Maybe<Scalars['Boolean']>;
+  canManageOrganizationEmployeeRequests?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -58083,6 +58906,8 @@ export type OrganizationEmployeeRoleWhereInput = {
   canReadMarketSetting_not?: Maybe<Scalars['Boolean']>;
   canManageMarketSetting?: Maybe<Scalars['Boolean']>;
   canManageMarketSetting_not?: Maybe<Scalars['Boolean']>;
+  canManageOrganizationEmployeeRequests?: Maybe<Scalars['Boolean']>;
+  canManageOrganizationEmployeeRequests_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -63992,6 +64817,22 @@ export type Query = {
   _allOrganizationEmployeeSpecializationsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the OrganizationEmployeeSpecialization list.  */
   _OrganizationEmployeeSpecializationsMeta?: Maybe<_ListMeta>;
+  /**  Search for all OrganizationEmployeeRequestHistoryRecord items which match the where clause.  */
+  allOrganizationEmployeeRequestHistoryRecords?: Maybe<Array<Maybe<OrganizationEmployeeRequestHistoryRecord>>>;
+  /**  Search for the OrganizationEmployeeRequestHistoryRecord item with the matching ID.  */
+  OrganizationEmployeeRequestHistoryRecord?: Maybe<OrganizationEmployeeRequestHistoryRecord>;
+  /**  Perform a meta-query on all OrganizationEmployeeRequestHistoryRecord items which match the where clause.  */
+  _allOrganizationEmployeeRequestHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the OrganizationEmployeeRequestHistoryRecord list.  */
+  _OrganizationEmployeeRequestHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all OrganizationEmployeeRequest items which match the where clause.  */
+  allOrganizationEmployeeRequests?: Maybe<Array<Maybe<OrganizationEmployeeRequest>>>;
+  /**  Search for the OrganizationEmployeeRequest item with the matching ID.  */
+  OrganizationEmployeeRequest?: Maybe<OrganizationEmployeeRequest>;
+  /**  Perform a meta-query on all OrganizationEmployeeRequest items which match the where clause.  */
+  _allOrganizationEmployeeRequestsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the OrganizationEmployeeRequest list.  */
+  _OrganizationEmployeeRequestsMeta?: Maybe<_ListMeta>;
   /**  Search for all PropertyHistoryRecord items which match the where clause.  */
   allPropertyHistoryRecords?: Maybe<Array<Maybe<PropertyHistoryRecord>>>;
   /**  Search for the PropertyHistoryRecord item with the matching ID.  */
@@ -66715,6 +67556,56 @@ export type Query_AllOrganizationEmployeeSpecializationsMetaArgs = {
   where?: Maybe<OrganizationEmployeeSpecializationWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortOrganizationEmployeeSpecializationsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllOrganizationEmployeeRequestHistoryRecordsArgs = {
+  where?: Maybe<OrganizationEmployeeRequestHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortOrganizationEmployeeRequestHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryOrganizationEmployeeRequestHistoryRecordArgs = {
+  where: OrganizationEmployeeRequestHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllOrganizationEmployeeRequestHistoryRecordsMetaArgs = {
+  where?: Maybe<OrganizationEmployeeRequestHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortOrganizationEmployeeRequestHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllOrganizationEmployeeRequestsArgs = {
+  where?: Maybe<OrganizationEmployeeRequestWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortOrganizationEmployeeRequestsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryOrganizationEmployeeRequestArgs = {
+  where: OrganizationEmployeeRequestWhereUniqueInput;
+};
+
+
+export type Query_AllOrganizationEmployeeRequestsMetaArgs = {
+  where?: Maybe<OrganizationEmployeeRequestWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortOrganizationEmployeeRequestsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -75609,6 +76500,12 @@ export type SendNewReceiptMessagesToResidentScopesOutput = {
   status: Scalars['String'];
 };
 
+export type SendOrganizationEmployeeRequestInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  organization: OrganizationWhereUniqueInput;
+};
+
 export type SenderField = {
   __typename?: 'SenderField';
   dv: Scalars['Int'];
@@ -81676,6 +82573,80 @@ export enum SortOrganizationEmployeeHistoryRecordsBy {
   HistoryActionDesc = 'history_action_DESC'
 }
 
+export enum SortOrganizationEmployeeRequestHistoryRecordsBy {
+  OrganizationIdAsc = 'organizationId_ASC',
+  OrganizationIdDesc = 'organizationId_DESC',
+  OrganizationNameAsc = 'organizationName_ASC',
+  OrganizationNameDesc = 'organizationName_DESC',
+  OrganizationTinAsc = 'organizationTin_ASC',
+  OrganizationTinDesc = 'organizationTin_DESC',
+  IsAcceptedAsc = 'isAccepted_ASC',
+  IsAcceptedDesc = 'isAccepted_DESC',
+  IsRejectedAsc = 'isRejected_ASC',
+  IsRejectedDesc = 'isRejected_DESC',
+  DecidedAtAsc = 'decidedAt_ASC',
+  DecidedAtDesc = 'decidedAt_DESC',
+  RetriesAsc = 'retries_ASC',
+  RetriesDesc = 'retries_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortOrganizationEmployeeRequestsBy {
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
+  OrganizationIdAsc = 'organizationId_ASC',
+  OrganizationIdDesc = 'organizationId_DESC',
+  OrganizationNameAsc = 'organizationName_ASC',
+  OrganizationNameDesc = 'organizationName_DESC',
+  OrganizationTinAsc = 'organizationTin_ASC',
+  OrganizationTinDesc = 'organizationTin_DESC',
+  UserAsc = 'user_ASC',
+  UserDesc = 'user_DESC',
+  IsAcceptedAsc = 'isAccepted_ASC',
+  IsAcceptedDesc = 'isAccepted_DESC',
+  IsRejectedAsc = 'isRejected_ASC',
+  IsRejectedDesc = 'isRejected_DESC',
+  DecidedByAsc = 'decidedBy_ASC',
+  DecidedByDesc = 'decidedBy_DESC',
+  DecidedAtAsc = 'decidedAt_ASC',
+  DecidedAtDesc = 'decidedAt_DESC',
+  RetriesAsc = 'retries_ASC',
+  RetriesDesc = 'retries_DESC',
+  EmployeeAsc = 'employee_ASC',
+  EmployeeDesc = 'employee_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
 export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   IsDefaultAsc = 'isDefault_ASC',
   IsDefaultDesc = 'isDefault_DESC',
@@ -81813,6 +82784,8 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanReadMarketSettingDesc = 'canReadMarketSetting_DESC',
   CanManageMarketSettingAsc = 'canManageMarketSetting_ASC',
   CanManageMarketSettingDesc = 'canManageMarketSetting_DESC',
+  CanManageOrganizationEmployeeRequestsAsc = 'canManageOrganizationEmployeeRequests_ASC',
+  CanManageOrganizationEmployeeRequestsDesc = 'canManageOrganizationEmployeeRequests_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -81968,6 +82941,8 @@ export enum SortOrganizationEmployeeRolesBy {
   CanReadMarketSettingDesc = 'canReadMarketSetting_DESC',
   CanManageMarketSettingAsc = 'canManageMarketSetting_ASC',
   CanManageMarketSettingDesc = 'canManageMarketSetting_DESC',
+  CanManageOrganizationEmployeeRequestsAsc = 'canManageOrganizationEmployeeRequests_ASC',
+  CanManageOrganizationEmployeeRequestsDesc = 'canManageOrganizationEmployeeRequests_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

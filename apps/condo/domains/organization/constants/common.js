@@ -102,6 +102,7 @@ const DEFAULT_ROLES = {
         'canManageDocuments': true,
         'canReadMarketSetting': true,
         'canManageMarketSetting': true,
+        'canManageOrganizationEmployeeRequests': true,
     },
     'Dispatcher': {
         'isDefault': true,
@@ -166,6 +167,7 @@ const DEFAULT_ROLES = {
         'canManageDocuments': true,
         'canReadMarketSetting': true,
         'canManageMarketSetting': false,
+        'canManageOrganizationEmployeeRequests': false,
     },
     'Manager': {
         'isDefault': true,
@@ -233,6 +235,7 @@ const DEFAULT_ROLES = {
         'canManageDocuments': true,
         'canReadMarketSetting': true,
         'canManageMarketSetting': true,
+        'canManageOrganizationEmployeeRequests': false,
     },
     'Foreman': {
         'isDefault': true,
@@ -296,6 +299,7 @@ const DEFAULT_ROLES = {
         'canManageDocuments': true,
         'canReadMarketSetting': true,
         'canManageMarketSetting': false,
+        'canManageOrganizationEmployeeRequests': false,
     },
     'Technician': {
         'isDefault': true,
@@ -358,6 +362,7 @@ const DEFAULT_ROLES = {
         'canManageDocuments': true,
         'canReadMarketSetting': true,
         'canManageMarketSetting': false,
+        'canManageOrganizationEmployeeRequests': false,
     },
     'Contractor': {
         'isDefault': true,
@@ -418,6 +423,7 @@ const DEFAULT_ROLES = {
         'canManageDocuments': false,
         'canReadMarketSetting': false,
         'canManageMarketSetting': false,
+        'canManageOrganizationEmployeeRequests': false,
     },
 }
 

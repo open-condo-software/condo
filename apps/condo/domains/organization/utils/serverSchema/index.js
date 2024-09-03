@@ -13,6 +13,9 @@ const { OrganizationLink: OrganizationLinkGQL } = require('@condo/domains/organi
 const { OrganizationEmployeeSpecialization: OrganizationEmployeeSpecializationGQL } = require('@condo/domains/organization/gql')
 const { RESET_ORGANIZATION_MUTATION } = require('@condo/domains/organization/gql')
 const { REPLACE_ORGANIZATION_EMPLOYEE_ROLE_MUTATION } = require('@condo/domains/organization/gql')
+const { OrganizationEmployeeRequest: OrganizationEmployeeRequestGQL } = require('@condo/domains/organization/gql')
+const { SEND_ORGANIZATION_EMPLOYEE_REQUEST_MUTATION } = require('@condo/domains/organization/gql')
+const { ACCEPT_OR_REJECT_ORGANIZATION_EMPLOYEE_REQUEST_MUTATION } = require('@condo/domains/organization/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Organization = generateServerUtils(OrganizationGQL)
@@ -47,6 +50,33 @@ async function replaceOrganizationEmployeeRole (context, data) {
     })
 }
 
+const OrganizationEmployeeRequest = generateServerUtils(OrganizationEmployeeRequestGQL)
+async function sendOrganizationEmployeeRequest (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: SEND_ORGANIZATION_EMPLOYEE_REQUEST_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to sendOrganizationEmployeeRequest',
+        dataPath: 'obj',
+    })
+}
+
+async function acceptOrRejectOrganizationEmployeeRequest (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: ACCEPT_OR_REJECT_ORGANIZATION_EMPLOYEE_REQUEST_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to acceptOrRejectOrganizationEmployeeRequest',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -57,5 +87,8 @@ module.exports = {
     OrganizationEmployeeSpecialization,
     resetOrganization,
     replaceOrganizationEmployeeRole,
+    OrganizationEmployeeRequest,
+    sendOrganizationEmployeeRequest,
+    acceptOrRejectOrganizationEmployeeRequest,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -4,7 +4,7 @@
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
-const { GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, getById, find } = require('@open-condo/keystone/schema')
 
 const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
 const { BankIntegrationAccountContext, BankAccountReport, BankAccount, BankTransaction, BankContractorAccount, BankIntegrationOrganizationContext, BankSyncTask, BankAccountReportTask } = require('@condo/domains/banking/utils/serverSchema')
@@ -16,6 +16,8 @@ const access = require('@condo/domains/organization/access/ResetOrganizationServ
 const { DELETED_ORGANIZATION_NAME } = require('@condo/domains/organization/constants/common')
 const { Organization, OrganizationLink, OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
+
+const { OrganizationEmployeeRequest } = require('../utils/serverSchema')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -100,6 +102,14 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
                 })
                 for (let employee of employees) {
                     await OrganizationEmployee.softDelete(context, employee.id, DV_SENDER)
+                }
+
+                const employeeRequests = await find('OrganizationEmployeeRequest', {
+                    organization: { id: organizationId },
+                    deletedAt: null,
+                })
+                for (const request of employeeRequests) {
+                    await OrganizationEmployeeRequest.softDelete(context, request.id, DV_SENDER)
                 }
 
                 const organizationLinks = await OrganizationLink.getAll(context, {

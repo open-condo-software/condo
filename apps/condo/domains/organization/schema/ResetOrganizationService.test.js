@@ -12,10 +12,12 @@ const { createTestBankIntegrationAccountContext, createTestBankIntegrationOrgani
 const { createTestBillingIntegrationOrganizationContext, createTestBillingIntegration, BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
 const { createTestB2BAppContext, B2BAppContext, createTestB2BApp } = require('@condo/domains/miniapp/utils/testSchema')
 const { DELETED_ORGANIZATION_NAME, HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
-const { resetOrganizationByTestClient, createTestOrganization, Organization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole, createTestOrganizationLink, OrganizationLink } = require('@condo/domains/organization/utils/testSchema')
-const { OrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { resetOrganizationByTestClient, createTestOrganization, Organization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole, createTestOrganizationLink, OrganizationLink,
+    createTestOrganizationEmployeeRequest,
+} = require('@condo/domains/organization/utils/testSchema')
+const { OrganizationEmployee, OrganizationEmployeeRequest } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty, Property } = require('@condo/domains/property/utils/testSchema')
-const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithSupportUser, createTestUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
 
 
@@ -117,9 +119,25 @@ describe('ResetOrganizationService', () => {
         expect(employees).toHaveLength(0)
     })
 
+    test('clear all OrganizationEmployeeRequest related to reseted organization', async () => {
+        const [organization] = await createTestOrganization(admin)
+        const [anotherOrganization] = await createTestOrganization(admin)
+        const [user] = await createTestUser(admin)
+        const [employeeRequest] = await createTestOrganizationEmployeeRequest(admin, organization, user)
+        const [employeeRequest2] = await createTestOrganizationEmployeeRequest(admin, anotherOrganization, user)
+
+        await resetOrganizationByTestClient(support, { organizationId: organization.id })
+
+        const employeeRequests = await OrganizationEmployeeRequest.getAll(admin, {
+            id_in: [employeeRequest.id, employeeRequest2.id],
+        })
+
+        expect(employeeRequests).toHaveLength(1)
+        expect(employeeRequests[0].id).toBe(employeeRequest2.id)
+    })
+
     test('soft delete all entities related to reseted organization', async () => {
         const [createdOrganization] = await createTestOrganization(admin)
-
 
         const [role] = await createTestOrganizationEmployeeRole(admin, createdOrganization)
         const client = await makeClientWithStaffUser()
