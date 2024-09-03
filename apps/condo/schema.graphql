@@ -1338,6 +1338,7 @@ type OidcClientHistoryRecord {
   payload: JSON
   name: String
   isEnabled: Boolean
+  canAuthorizeSuperUsers: Boolean
   meta: JSON
   expiresAt: String
   id: ID!
@@ -1400,6 +1401,8 @@ input OidcClientHistoryRecordWhereInput {
   name_not_in: [String]
   isEnabled: Boolean
   isEnabled_not: Boolean
+  canAuthorizeSuperUsers: Boolean
+  canAuthorizeSuperUsers_not: Boolean
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -1501,6 +1504,8 @@ enum SortOidcClientHistoryRecordsBy {
   name_DESC
   isEnabled_ASC
   isEnabled_DESC
+  canAuthorizeSuperUsers_ASC
+  canAuthorizeSuperUsers_DESC
   expiresAt_ASC
   expiresAt_DESC
   id_ASC
@@ -1526,6 +1531,7 @@ input OidcClientHistoryRecordUpdateInput {
   payload: JSON
   name: String
   isEnabled: Boolean
+  canAuthorizeSuperUsers: Boolean
   meta: JSON
   expiresAt: String
   v: Int
@@ -1552,6 +1558,7 @@ input OidcClientHistoryRecordCreateInput {
   payload: JSON
   name: String
   isEnabled: Boolean
+  canAuthorizeSuperUsers: Boolean
   meta: JSON
   expiresAt: String
   v: Int
@@ -1595,6 +1602,10 @@ type OidcClient {
   """ A switch that allows you to disable some OIDC clients. If an OIDC client is disabled, it cannot be used for OIDC authorization. Used mainly by developers portal to create OIDC client before publishing an application, and enable OIDC after publishing. 
   """
   isEnabled: Boolean
+
+  """ A switch that allows this OIDC client to authorize users with privileges, such as admins, support, or users with a special rights set. Temporary solution to allow OIDCs to be used to access the admin panel of mini-applications from condo ecosystem. Tokens with scopes should solve the logic separation problem and remove this checkbox 
+  """
+  canAuthorizeSuperUsers: Boolean
 
   """ The additional client data """
   meta: JSON
@@ -1675,6 +1686,8 @@ input OidcClientWhereInput {
   name_not_in: [String]
   isEnabled: Boolean
   isEnabled_not: Boolean
+  canAuthorizeSuperUsers: Boolean
+  canAuthorizeSuperUsers_not: Boolean
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -1792,6 +1805,8 @@ enum SortOidcClientsBy {
   name_DESC
   isEnabled_ASC
   isEnabled_DESC
+  canAuthorizeSuperUsers_ASC
+  canAuthorizeSuperUsers_DESC
   expiresAt_ASC
   expiresAt_DESC
   id_ASC
@@ -1821,6 +1836,7 @@ input OidcClientUpdateInput {
   payload: JSON
   name: String
   isEnabled: Boolean
+  canAuthorizeSuperUsers: Boolean
   meta: JSON
   expiresAt: String
   v: Int
@@ -1846,6 +1862,7 @@ input OidcClientCreateInput {
   payload: JSON
   name: String
   isEnabled: Boolean
+  canAuthorizeSuperUsers: Boolean
   meta: JSON
   expiresAt: String
   v: Int
