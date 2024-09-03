@@ -70,8 +70,8 @@ async function expectToGetUnauthenticatedUser (url, headers) {
 }
 
 test('getCookie test util', async () => {
-    const c = await makeClientWithNewRegisteredAndLoggedInUser()
-    const cookie = c.getCookie()
+    const client =  await makeClientWithNewRegisteredAndLoggedInUser()
+    const cookie = client.getCookie()
     const graphql = { 'query': '{ authenticatedUser { id name } }' }
 
     const result1 = await axios.create({
@@ -81,17 +81,17 @@ test('getCookie test util', async () => {
         },
         validateStatus: () => true,
     })
-        .post(`${c.serverUrl}/admin/api`, graphql)
+        .post(`${client.serverUrl}/admin/api`, graphql)
     expect(result1.data).toMatchObject({
         'data': {
             'authenticatedUser': {
-                id: c.user.id,
-                name: c.user.name,
+                id: client.user.id,
+                name: client.user.name,
             },
         },
     })
 
-    const result2 = await fetch(`${c.serverUrl}/admin/api`, {
+    const result2 = await fetch(`${client.serverUrl}/admin/api`, {
         method: 'POST',
         body: JSON.stringify(graphql),
         headers: {
@@ -102,15 +102,15 @@ test('getCookie test util', async () => {
     expect(await result2.json()).toMatchObject({
         'data': {
             'authenticatedUser': {
-                id: c.user.id,
-                name: c.user.name,
+                id: client.user.id,
+                name: client.user.name,
             },
         },
     })
 
     await expectToGetAuthenticatedUser(
-        `${c.serverUrl}/admin/api`,
-        { id: c.user.id, name: c.user.name },
+        `${client.serverUrl}/admin/api`,
+        { id: client.user.id, name: client.user.name },
         { Cookie: cookie },
     )
 })
@@ -138,12 +138,12 @@ describe('OIDC', () => {
             expect(deletedClient).toHaveProperty('deletedAt')
             expect(deletedClient.deletedAt).not.toBeNull()
 
-            const c = await makeClientWithNewRegisteredAndLoggedInUser()
-            expectCookieKeys(c.getCookie(), ['keystone.sid'])
+            const client =  await makeClientWithNewRegisteredAndLoggedInUser()
+            expectCookieKeys(client.getCookie(), ['keystone.sid'])
 
             // 1) server side ( create oidc client and prepare oidcAuthUrl )
 
-            const oidcIssuer = await Issuer.discover(`${c.serverUrl}/oidc`)
+            const oidcIssuer = await Issuer.discover(`${client.serverUrl}/oidc`)
             const serverSideOidcClient = new oidcIssuer.Client({
                 client_id: clientId,
                 client_secret: clientSecret,
@@ -154,11 +154,11 @@ describe('OIDC', () => {
 
             const nonce = generators.nonce()
             const url = new URL(serverSideOidcClient.authorizationUrl({ nonce }))
-            const oidcAuthUrl = `${c.serverUrl}${url.pathname}${url.search}`
+            const oidcAuthUrl = `${client.serverUrl}${url.pathname}${url.search}`
 
             // 2) client side ( open oidcAuthUrl )
             await catchErrorFrom(async () => {
-                await request(oidcAuthUrl, c.getCookie())
+                await request(oidcAuthUrl, client.getCookie())
             }, (error) => {
                 expect(error).toHaveProperty('message', 'Request failed with status code 500')
                 expect(error).toHaveProperty(['request', 'res', 'statusCode'], 500)
@@ -183,12 +183,12 @@ describe('OIDC', () => {
                 },
             })
 
-            const c = await makeClientWithNewRegisteredAndLoggedInUser()
-            expectCookieKeys(c.getCookie(), ['keystone.sid'])
+            const client =  await makeClientWithNewRegisteredAndLoggedInUser()
+            expectCookieKeys(client.getCookie(), ['keystone.sid'])
 
             // 1) server side ( create oidc client and prepare oidcAuthUrl )
 
-            const oidcIssuer = await Issuer.discover(`${c.serverUrl}/oidc`)
+            const oidcIssuer = await Issuer.discover(`${client.serverUrl}/oidc`)
             const serverSideOidcClient = new oidcIssuer.Client({
                 client_id: clientId,
                 client_secret: clientSecret,
@@ -199,11 +199,11 @@ describe('OIDC', () => {
 
             const nonce = generators.nonce()
             const url = new URL(serverSideOidcClient.authorizationUrl({ nonce }))
-            const oidcAuthUrl = `${c.serverUrl}${url.pathname}${url.search}`
+            const oidcAuthUrl = `${client.serverUrl}${url.pathname}${url.search}`
 
             // 2) client side ( open oidcAuthUrl )
             await catchErrorFrom(async () => {
-                await request(oidcAuthUrl, c.getCookie())
+                await request(oidcAuthUrl, client.getCookie())
             }, (error) => {
                 expect(error).toHaveProperty('message', 'Request failed with status code 500')
                 expect(error).toHaveProperty(['request', 'res', 'statusCode'], 500)
@@ -228,12 +228,12 @@ describe('OIDC', () => {
                     },
                 })
 
-                const c = await makeClientWithSupportUser()
-                expectCookieKeys(c.getCookie(), ['keystone.sid'])
+                const client =  await makeClientWithSupportUser()
+                expectCookieKeys(client.getCookie(), ['keystone.sid'])
 
                 // 1) server side ( create oidc client and prepare oidcAuthUrl )
 
-                const oidcIssuer = await Issuer.discover(`${c.serverUrl}/oidc`)
+                const oidcIssuer = await Issuer.discover(`${client.serverUrl}/oidc`)
                 const serverSideOidcClient = new oidcIssuer.Client({
                     client_id: clientId,
                     client_secret: clientSecret,
@@ -244,18 +244,18 @@ describe('OIDC', () => {
 
                 const nonce = generators.nonce()
                 const url = new URL(serverSideOidcClient.authorizationUrl({ nonce }))
-                const oidcAuthUrl = `${c.serverUrl}${url.pathname}${url.search}`
+                const oidcAuthUrl = `${client.serverUrl}${url.pathname}${url.search}`
 
                 // 2) client side ( open oidcAuthUrl )
 
-                const res1 = await request(oidcAuthUrl, c.getCookie())
+                const res1 = await request(oidcAuthUrl, client.getCookie())
                 expect(res1.status).toBe(303)
                 expect(res1.headers.location.startsWith('/oidc/interaction/')).toBeTruthy()
                 expectCookieKeys(res1.cookie, ['keystone.sid', '_interaction', '_interaction.sig', '_interaction_resume', '_interaction_resume.sig'])
 
-                const res2 = await request(`${c.serverUrl}${res1.headers.location}`, res1.cookie)
+                const res2 = await request(`${client.serverUrl}${res1.headers.location}`, res1.cookie)
                 expect(res2.status).toBe(303)
-                expect(res2.headers.location.startsWith(`${c.serverUrl}/oidc/auth/`)).toBeTruthy()
+                expect(res2.headers.location.startsWith(`${client.serverUrl}/oidc/auth/`)).toBeTruthy()
                 expectCookieKeys(res2.cookie, ['keystone.sid', '_interaction', '_interaction.sig', '_interaction_resume', '_interaction_resume.sig'])
 
 
@@ -285,12 +285,12 @@ describe('OIDC', () => {
                     },
                 })
 
-                const c = await makeClientWithSupportUser()
-                expectCookieKeys(c.getCookie(), ['keystone.sid'])
+                const client =  await makeClientWithSupportUser()
+                expectCookieKeys(client.getCookie(), ['keystone.sid'])
 
                 // 1) server side ( create oidc client and prepare oidcAuthUrl )
 
-                const oidcIssuer = await Issuer.discover(`${c.serverUrl}/oidc`)
+                const oidcIssuer = await Issuer.discover(`${client.serverUrl}/oidc`)
                 const serverSideOidcClient = new oidcIssuer.Client({
                     client_id: clientId,
                     client_secret: clientSecret,
@@ -301,18 +301,18 @@ describe('OIDC', () => {
 
                 const nonce = generators.nonce()
                 const url = new URL(serverSideOidcClient.authorizationUrl({ nonce }))
-                const oidcAuthUrl = `${c.serverUrl}${url.pathname}${url.search}`
+                const oidcAuthUrl = `${client.serverUrl}${url.pathname}${url.search}`
 
                 // 2) client side ( open oidcAuthUrl )
 
-                const res1 = await request(oidcAuthUrl, c.getCookie())
+                const res1 = await request(oidcAuthUrl, client.getCookie())
                 expect(res1.status).toBe(303)
                 expect(res1.headers.location.startsWith('/oidc/interaction/')).toBeTruthy()
                 expectCookieKeys(res1.cookie, ['keystone.sid', '_interaction', '_interaction.sig', '_interaction_resume', '_interaction_resume.sig'])
 
-                const res2 = await request(`${c.serverUrl}${res1.headers.location}`, res1.cookie)
+                const res2 = await request(`${client.serverUrl}${res1.headers.location}`, res1.cookie)
                 expect(res2.status).toBe(303)
-                expect(res2.headers.location.startsWith(`${c.serverUrl}/oidc/auth/`)).toBeTruthy()
+                expect(res2.headers.location.startsWith(`${client.serverUrl}/oidc/auth/`)).toBeTruthy()
                 expectCookieKeys(res2.cookie, ['keystone.sid', '_interaction', '_interaction.sig', '_interaction_resume', '_interaction_resume.sig'])
 
                 const res3 = await request(res2.headers.location, res2.cookie)
@@ -331,16 +331,16 @@ describe('OIDC', () => {
 
                 const userinfo = await serverSideOidcClient.userinfo(tokenSet.access_token)
                 expect(userinfo).toEqual({
-                    'sub': c.user.id,
+                    'sub': client.user.id,
                     'type': 'staff',
                     'v': 2,
                     'dv': 1,
                     'isAdmin': false,
                     'isSupport': true,
-                    'name': c.user.name,
+                    'name': client.user.name,
                 })
-                expect(await getAccessToken(tokenSet.access_token, c)).toMatchObject({
-                    'accountId': c.user.id,
+                expect(await getAccessToken(tokenSet.access_token, client)).toMatchObject({
+                    'accountId': client.user.id,
                     'clientId': clientId,
                     'expiresWithSession': true,
                     'gty': 'authorization_code',
@@ -350,10 +350,10 @@ describe('OIDC', () => {
 
                 // 5) check requests by accessToken to /admin/api
 
-                await expectToGetAuthenticatedUser(`${c.serverUrl}/admin/api`, null)
+                await expectToGetAuthenticatedUser(`${client.serverUrl}/admin/api`, null)
                 await expectToGetAuthenticatedUser(
-                    `${c.serverUrl}/admin/api`,
-                    { id: c.user.id, name: c.user.name },
+                    `${client.serverUrl}/admin/api`,
+                    { id: client.user.id, name: client.user.name },
                     { 'Authorization': `Bearer ${tokenSet.access_token}` },
                 )
             })
@@ -379,12 +379,12 @@ describe('OIDC', () => {
                 },
             })
 
-            const c = await makeClientWithNewRegisteredAndLoggedInUser()
-            expectCookieKeys(c.getCookie(), ['keystone.sid'])
+            const client =  await makeClientWithNewRegisteredAndLoggedInUser()
+            expectCookieKeys(client.getCookie(), ['keystone.sid'])
 
             // 1) server side ( create oidc client and prepare oidcAuthUrl )
 
-            const oidcIssuer = await Issuer.discover(`${c.serverUrl}/oidc`)
+            const oidcIssuer = await Issuer.discover(`${client.serverUrl}/oidc`)
             const serverSideOidcClient = new oidcIssuer.Client({
                 client_id: clientId,
                 client_secret: clientSecret,
@@ -395,18 +395,18 @@ describe('OIDC', () => {
 
             const nonce = generators.nonce()
             const url = new URL(serverSideOidcClient.authorizationUrl({ nonce }))
-            const oidcAuthUrl = `${c.serverUrl}${url.pathname}${url.search}`
+            const oidcAuthUrl = `${client.serverUrl}${url.pathname}${url.search}`
 
             // 2) client side ( open oidcAuthUrl )
 
-            const res1 = await request(oidcAuthUrl, c.getCookie())
+            const res1 = await request(oidcAuthUrl, client.getCookie())
             expect(res1.status).toBe(303)
             expect(res1.headers.location.startsWith('/oidc/interaction/')).toBeTruthy()
             expectCookieKeys(res1.cookie, ['keystone.sid', '_interaction', '_interaction.sig', '_interaction_resume', '_interaction_resume.sig'])
 
-            const res2 = await request(`${c.serverUrl}${res1.headers.location}`, res1.cookie)
+            const res2 = await request(`${client.serverUrl}${res1.headers.location}`, res1.cookie)
             expect(res2.status).toBe(303)
-            expect(res2.headers.location.startsWith(`${c.serverUrl}/oidc/auth/`)).toBeTruthy()
+            expect(res2.headers.location.startsWith(`${client.serverUrl}/oidc/auth/`)).toBeTruthy()
             expectCookieKeys(res2.cookie, ['keystone.sid', '_interaction', '_interaction.sig', '_interaction_resume', '_interaction_resume.sig'])
 
             const res3 = await request(res2.headers.location, res2.cookie)
@@ -425,16 +425,16 @@ describe('OIDC', () => {
 
             const userinfo = await serverSideOidcClient.userinfo(tokenSet.access_token)
             expect(userinfo).toEqual({
-                'sub': c.user.id,
+                'sub': client.user.id,
                 'type': 'staff',
                 'v': 1,
                 'dv': 1,
                 'isAdmin': false,
                 'isSupport': false,
-                'name': c.user.name,
+                'name': client.user.name,
             })
-            expect(await getAccessToken(tokenSet.access_token, c)).toMatchObject({
-                'accountId': c.user.id,
+            expect(await getAccessToken(tokenSet.access_token, client)).toMatchObject({
+                'accountId': client.user.id,
                 'clientId': clientId,
                 'expiresWithSession': true,
                 'gty': 'authorization_code',
@@ -444,10 +444,10 @@ describe('OIDC', () => {
 
             // 5) check requests by accessToken to /admin/api
 
-            await expectToGetAuthenticatedUser(`${c.serverUrl}/admin/api`, null)
+            await expectToGetAuthenticatedUser(`${client.serverUrl}/admin/api`, null)
             await expectToGetAuthenticatedUser(
-                `${c.serverUrl}/admin/api`,
-                { id: c.user.id, name: c.user.name },
+                `${client.serverUrl}/admin/api`,
+                { id: client.user.id, name: client.user.name },
                 { 'Authorization': `Bearer ${tokenSet.access_token}` },
             )
 
@@ -457,7 +457,7 @@ describe('OIDC', () => {
                 count: 43,
             })
             await expectToGetUnauthenticatedUser(
-                `${c.serverUrl}/admin/api`,
+                `${client.serverUrl}/admin/api`,
                 {
                     authorization: `Bearer ${someWrongToken}`,
                 },
@@ -487,12 +487,12 @@ describe('OIDC', () => {
                 },
             })
 
-            const c = await makeClientWithNewRegisteredAndLoggedInUser()
-            expectCookieKeys(c.getCookie(), ['keystone.sid'])
+            const client =  await makeClientWithNewRegisteredAndLoggedInUser()
+            expectCookieKeys(client.getCookie(), ['keystone.sid'])
 
             // 1) server side ( create oidc client and prepare oidcAuthUrl )
 
-            const oidcIssuer = await Issuer.discover(`${c.serverUrl}/oidc`)
+            const oidcIssuer = await Issuer.discover(`${client.serverUrl}/oidc`)
             const serverSideOidcClient = new oidcIssuer.Client({
                 client_id: clientId,
                 client_secret: clientSecret,
@@ -503,18 +503,18 @@ describe('OIDC', () => {
 
             const nonce = generators.nonce()
             const url = new URL(serverSideOidcClient.authorizationUrl({ nonce }))
-            const oidcAuthUrl = `${c.serverUrl}${url.pathname}${url.search}`
+            const oidcAuthUrl = `${client.serverUrl}${url.pathname}${url.search}`
 
             // 2) client side ( open oidcAuthUrl )
 
-            const res1 = await request(oidcAuthUrl, c.getCookie())
+            const res1 = await request(oidcAuthUrl, client.getCookie())
             expect(res1.status).toBe(303)
             expect(res1.headers.location.startsWith('/oidc/interaction/')).toBeTruthy()
             expectCookieKeys(res1.cookie, ['keystone.sid', '_interaction', '_interaction.sig', '_interaction_resume', '_interaction_resume.sig'])
 
-            const res2 = await request(`${c.serverUrl}${res1.headers.location}`, res1.cookie)
+            const res2 = await request(`${client.serverUrl}${res1.headers.location}`, res1.cookie)
             expect(res2.status).toBe(303)
-            expect(res2.headers.location.startsWith(`${c.serverUrl}/oidc/auth/`)).toBeTruthy()
+            expect(res2.headers.location.startsWith(`${client.serverUrl}/oidc/auth/`)).toBeTruthy()
             expectCookieKeys(res2.cookie, ['keystone.sid', '_interaction', '_interaction.sig', '_interaction_resume', '_interaction_resume.sig'])
 
             const res3 = await request(res2.headers.location, res2.cookie)
@@ -534,16 +534,16 @@ describe('OIDC', () => {
 
             const userinfo = await serverSideOidcClient.userinfo(tokenSet.access_token)
             expect(userinfo).toEqual({
-                'sub': c.user.id,
+                'sub': client.user.id,
                 'type': 'staff',
                 'v': 1,
                 'dv': 1,
                 'isAdmin': false,
                 'isSupport': false,
-                'name': c.user.name,
+                'name': client.user.name,
             })
-            expect(await getAccessToken(tokenSet.access_token, c)).toMatchObject({
-                'accountId': c.user.id,
+            expect(await getAccessToken(tokenSet.access_token, client)).toMatchObject({
+                'accountId': client.user.id,
                 'clientId': clientId,
                 'expiresWithSession': true,
                 'gty': 'authorization_code',
@@ -553,10 +553,10 @@ describe('OIDC', () => {
 
             // 5) check requests by accessToken to /admin/api
 
-            await expectToGetAuthenticatedUser(`${c.serverUrl}/admin/api`, null)
+            await expectToGetAuthenticatedUser(`${client.serverUrl}/admin/api`, null)
             await expectToGetAuthenticatedUser(
-                `${c.serverUrl}/admin/api`,
-                { id: c.user.id, name: c.user.name },
+                `${client.serverUrl}/admin/api`,
+                { id: client.user.id, name: client.user.name },
                 { 'Authorization': `Bearer ${tokenSet.access_token}` },
             )
 
@@ -582,12 +582,12 @@ describe('OIDC', () => {
                 },
             })
 
-            const c = await makeClientWithNewRegisteredAndLoggedInUser()
-            expectCookieKeys(c.getCookie(), ['keystone.sid'])
+            const client =  await makeClientWithNewRegisteredAndLoggedInUser()
+            expectCookieKeys(client.getCookie(), ['keystone.sid'])
 
             // 1) server side ( create oidc client and prepare oidcAuthUrl )
 
-            const oidcIssuer = await Issuer.discover(`${c.serverUrl}/oidc`)
+            const oidcIssuer = await Issuer.discover(`${client.serverUrl}/oidc`)
             const serverSideOidcClient = new oidcIssuer.Client({
                 client_id: clientId,
                 client_secret: clientSecret,
@@ -598,18 +598,18 @@ describe('OIDC', () => {
 
             const nonce = generators.nonce()
             const url = new URL(serverSideOidcClient.authorizationUrl({ nonce }))
-            const oidcAuthUrl = `${c.serverUrl}${url.pathname}${url.search}`
+            const oidcAuthUrl = `${client.serverUrl}${url.pathname}${url.search}`
 
             // 2) client side ( open oidcAuthUrl )
 
-            const res1 = await request(oidcAuthUrl, c.getCookie())
+            const res1 = await request(oidcAuthUrl, client.getCookie())
             expect(res1.status).toBe(303)
             expect(res1.headers.location.startsWith('/oidc/interaction/')).toBeTruthy()
             expectCookieKeys(res1.cookie, ['keystone.sid', '_interaction', '_interaction.sig', '_interaction_resume', '_interaction_resume.sig'])
 
-            const res2 = await request(`${c.serverUrl}${res1.headers.location}`, res1.cookie)
+            const res2 = await request(`${client.serverUrl}${res1.headers.location}`, res1.cookie)
             expect(res2.status).toBe(303)
-            expect(res2.headers.location.startsWith(`${c.serverUrl}/oidc/auth/`)).toBeTruthy()
+            expect(res2.headers.location.startsWith(`${client.serverUrl}/oidc/auth/`)).toBeTruthy()
             expectCookieKeys(res2.cookie, ['keystone.sid', '_interaction', '_interaction.sig', '_interaction_resume', '_interaction_resume.sig'])
 
             const res3 = await request(res2.headers.location, res2.cookie)
@@ -630,16 +630,16 @@ describe('OIDC', () => {
 
             const userinfo = await serverSideOidcClient.userinfo(params.access_token)
             expect(userinfo).toEqual({
-                'sub': c.user.id,
+                'sub': client.user.id,
                 'type': 'staff',
                 'v': 1,
                 'dv': 1,
                 'isAdmin': false,
                 'isSupport': false,
-                'name': c.user.name,
+                'name': client.user.name,
             })
-            expect(await getAccessToken(params.access_token, c)).toMatchObject({
-                'accountId': c.user.id,
+            expect(await getAccessToken(params.access_token, client)).toMatchObject({
+                'accountId': client.user.id,
                 'clientId': clientId,
                 'expiresWithSession': true,
                 'gty': 'implicit',
@@ -649,10 +649,10 @@ describe('OIDC', () => {
 
             // 5) check requests by accessToken to /admin/api
 
-            await expectToGetAuthenticatedUser(`${c.serverUrl}/admin/api`, null)
+            await expectToGetAuthenticatedUser(`${client.serverUrl}/admin/api`, null)
             await expectToGetAuthenticatedUser(
-                `${c.serverUrl}/admin/api`,
-                { id: c.user.id, name: c.user.name },
+                `${client.serverUrl}/admin/api`,
+                { id: client.user.id, name: client.user.name },
                 { 'Authorization': `Bearer ${params.access_token}` },
             )
 
@@ -678,12 +678,12 @@ describe('OIDC', () => {
                 },
             })
 
-            const c = await makeClientWithNewRegisteredAndLoggedInUser()
-            expectCookieKeys(c.getCookie(), ['keystone.sid'])
+            const client =  await makeClientWithNewRegisteredAndLoggedInUser()
+            expectCookieKeys(client.getCookie(), ['keystone.sid'])
 
             // 1) server side ( create oidc client and prepare oidcAuthUrl )
 
-            const oidcIssuer = await Issuer.discover(`${c.serverUrl}/oidc`)
+            const oidcIssuer = await Issuer.discover(`${client.serverUrl}/oidc`)
             const serverSideOidcClient = new oidcIssuer.Client({
                 client_id: clientId,
                 client_secret: clientSecret,
@@ -694,11 +694,11 @@ describe('OIDC', () => {
 
             const nonce = generators.nonce()
             const url = new URL(serverSideOidcClient.authorizationUrl({ nonce }))
-            const oidcAuthUrl = `${c.serverUrl}${url.pathname}${url.search}`
+            const oidcAuthUrl = `${client.serverUrl}${url.pathname}${url.search}`
 
             // 2) client side ( open oidcAuthUrl )
 
-            const res1 = await request(oidcAuthUrl, c.getCookie())
+            const res1 = await request(oidcAuthUrl, client.getCookie())
             expect(res1.status).toBe(303)
             expect(res1.headers.location.startsWith(`${uri}#error`)).toBeTruthy()
             expect(res1.headers.location).toContain('error_description=requested%20response_type%20is%20not%20allowed%20for%20this%20client')
@@ -706,7 +706,7 @@ describe('OIDC', () => {
         })
 
         test('miniapp server side oidc client logic (code flow)', async () => {
-            const c = await makeClientWithNewRegisteredAndLoggedInUser()
+            const client =  await makeClientWithNewRegisteredAndLoggedInUser()
             const admin = await makeLoggedInAdminClient()
 
             const uri = 'https://jwt.io/'
@@ -725,7 +725,7 @@ describe('OIDC', () => {
                 },
             })
 
-            const serverUrl = c.serverUrl
+            const serverUrl = client.serverUrl
             const issuer = new Issuer({
                 authorization_endpoint: `${serverUrl}/oidc/auth`,
                 token_endpoint: `${serverUrl}/oidc/token`,
@@ -735,17 +735,17 @@ describe('OIDC', () => {
                 userinfo_endpoint: `${serverUrl}/oidc/me`,
                 issuer: serverUrl,
             })
-            const client = new issuer.Client({
+            const issuerClient = new issuer.Client({
                 client_id: clientId,
                 client_secret: clientSecret,
                 redirect_uris: [uri], // using uri as redirect_uri to show the ID Token contents
                 response_types: ['code'],
                 token_endpoint_auth_method: 'client_secret_basic',
             })
-            const _validateJWT = client.validateJWT
-            client.validateJWT = async (jwt, expectedAlg, required) => {
+            const _validateJWT = issuerClient.validateJWT
+            issuerClient.validateJWT = async (jwt, expectedAlg, required) => {
                 try {
-                    await _validateJWT.call(client, jwt, expectedAlg, required)
+                    await _validateJWT.call(issuerClient, jwt, expectedAlg, required)
                 } catch (error) {
                     console.error({ message: error.message, jwt, error })
                 }
@@ -753,18 +753,16 @@ describe('OIDC', () => {
             }
 
             const checks = { nonce: generators.nonce(), state: generators.state() }
-            const redirectUrl = client.authorizationUrl({
+            const redirectUrl = issuerClient.authorizationUrl({
                 response_type: 'code',
                 ...checks,
             })
 
-            console.log(redirectUrl)
-            const res1 = await request(redirectUrl, c.getCookie(), 100)
+            const res1 = await request(redirectUrl, client.getCookie(), 100)
             expect(res1.status).toEqual(200)
 
-            console.log(res1.url)
-            const params = client.callbackParams(res1.url)
-            const tokenSet = await client.callback(uri, { code: params.code }, { nonce: checks.nonce })
+            const params = issuerClient.callbackParams(res1.url)
+            const tokenSet = await issuerClient.callback(uri, { code: params.code }, { nonce: checks.nonce })
             expect(tokenSet.access_token).toBeTruthy()
         })
     })
