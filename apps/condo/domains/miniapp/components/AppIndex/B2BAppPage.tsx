@@ -31,6 +31,8 @@ export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
     const auth = useAuth()
     const isSupport = get(auth, ['user', 'isSupport'], false)
     const isAdmin = get(auth, ['user', 'isAdmin'], false)
+    const hasRightsSet = Boolean(get(auth, ['user', 'rightsSet']))
+
     const userOrganization = useOrganization()
     const organizationId = get(userOrganization, ['organization', 'id'], null)
     const employeeRoleId = get(userOrganization, ['link', 'role', 'id'], null)
@@ -96,7 +98,7 @@ export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
         return <LoadingOrErrorPage error={contextError || appRoleError} loading={contextLoading || appRoleLoading} title={LoadingMessage}/>
     }
 
-    if (isSupport || isAdmin) {
+    if (isSupport || isAdmin || hasRightsSet) {
         return <LoadingOrErrorPage title={FallbackPageTitle} error={SupportNotAllowedMessage}/>
     }
 
@@ -115,13 +117,14 @@ export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
                     we need to prevent iframe loading in cases where everything is (not) loaded fine,
                     but redirect is still happening*/}
                     {Boolean(appUrl && appRole && context) && (
-                        <IFrame
-                            src={appUrl}
-                            reloadScope='organization'
-                            withLoader
-                            withPrefetch
-                            withResize
-                        />
+                        123123123
+                        // <IFrame
+                        //     src={appUrl}
+                        //     reloadScope='organization'
+                        //     withLoader
+                        //     withPrefetch
+                        //     withResize
+                        // />
                     )}
                 </PageContent>
             </PageWrapper>
