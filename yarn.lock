@@ -359,6 +359,43 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@apollo/client@npm:^3.6.9":
+  version: 3.11.6
+  resolution: "@apollo/client@npm:3.11.6"
+  dependencies:
+    "@graphql-typed-document-node/core": ^3.1.1
+    "@wry/caches": ^1.0.0
+    "@wry/equality": ^0.5.6
+    "@wry/trie": ^0.5.0
+    graphql-tag: ^2.12.6
+    hoist-non-react-statics: ^3.3.2
+    optimism: ^0.18.0
+    prop-types: ^15.7.2
+    rehackt: ^0.1.0
+    response-iterator: ^0.2.6
+    symbol-observable: ^4.0.0
+    ts-invariant: ^0.10.3
+    tslib: ^2.3.0
+    zen-observable-ts: ^1.2.5
+  peerDependencies:
+    graphql: ^15.0.0 || ^16.0.0
+    graphql-ws: ^5.5.5
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || >=19.0.0-rc <19.0.0
+    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || >=19.0.0-rc <19.0.0
+    subscriptions-transport-ws: ^0.9.0 || ^0.11.0
+  peerDependenciesMeta:
+    graphql-ws:
+      optional: true
+    react:
+      optional: true
+    react-dom:
+      optional: true
+    subscriptions-transport-ws:
+      optional: true
+  checksum: b83c52ec65b1288c8063d3e29dba06b370959313b58f5bb9e0e28cd388903d00a903e3d1665d9f360e04d9b1fd3239056e370ffb6f4c917ab2711b4afd8d800d
+  languageName: node
+  linkType: hard
+
 "@apollo/protobufjs@npm:1.2.2":
   version: 1.2.2
   resolution: "@apollo/protobufjs@npm:1.2.2"
@@ -12465,14 +12502,12 @@ __metadata:
 "@open-condo/apollo-server-client@workspace:^, @open-condo/apollo-server-client@workspace:packages/apollo-server-client":
   version: 0.0.0-use.local
   resolution: "@open-condo/apollo-server-client@workspace:packages/apollo-server-client"
-  peerDependencies:
+  dependencies:
     "@apollo/client": ^3.6.9
     apollo-link-error: ^1.1.13
     apollo-upload-client: ^17.0.0
-    cross-fetch: ^3.1.5
     graphql: ^16.6.0
     graphql-tag: ^2.12.6
-    react: ^18.2.0
   languageName: unknown
   linkType: soft
 
@@ -19157,7 +19192,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"apollo-upload-client@npm:17.0.0, apollo-upload-client@npm:^17":
+"apollo-upload-client@npm:17.0.0, apollo-upload-client@npm:^17, apollo-upload-client@npm:^17.0.0":
   version: 17.0.0
   resolution: "apollo-upload-client@npm:17.0.0"
   dependencies:
@@ -29981,6 +30016,13 @@ __metadata:
   version: 15.8.0
   resolution: "graphql@npm:15.8.0"
   checksum: 423325271db8858428641b9aca01699283d1fe5b40ef6d4ac622569ecca927019fce8196208b91dd1d8eb8114f00263fe661d241d0eb40c10e5bfd650f86ec5e
+  languageName: node
+  linkType: hard
+
+"graphql@npm:^16.6.0":
+  version: 16.9.0
+  resolution: "graphql@npm:16.9.0"
+  checksum: 8cb3d54100e9227310383ce7f791ca48d12f15ed9f2021f23f8735f1121aafe4e5e611a853081dd935ce221724ea1ae4638faef5d2921fb1ad7c26b5f46611e9
   languageName: node
   linkType: hard
 
