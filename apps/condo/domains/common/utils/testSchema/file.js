@@ -1,4 +1,4 @@
-const fetch = require('node-fetch')
+const { fetch } = require('@open-condo/keystone/fetch')
 const fs = require('fs')
 const xlsx = require('xlsx')
 const os = require('os')
