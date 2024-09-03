@@ -51,6 +51,7 @@ if (IS_ENABLE_DD_TRACE && !IS_BUILD_PHASE) {
         tags: { xRemoteApp, xRemoteClient, xRemoteVersion },
     })
     tracer.use('express', {
+        headers: ['x-request-id', 'x-start-request-id'],
         // hook will be executed right before the request span is finished
         hooks: {
             request: (span, req, res) => {
