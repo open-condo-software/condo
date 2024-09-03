@@ -66,7 +66,7 @@ class OIDCAuthClient {
         if (response.status >= 400) {
             throw new Error(`OIDC request failed: ${response.status} ${response.statusText}`)
         }
-        const newCookies = response.headers['set-cookie']
+        const newCookies = response.headers.getSetCookie()
         if (newCookies) {
             newCookies.forEach(cookie => {
                 const [cookieValue] = cookie.split(';')

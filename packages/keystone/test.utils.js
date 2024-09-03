@@ -353,7 +353,7 @@ const makeApolloClient = (serverUrl, opts = {}) => {
 
             return fetch(uri, options)
                 .then((response) => {
-                    const setCookieHeader = response.headers['set-cookie']
+                    const setCookieHeader = response.headers.getSetCookie()
                     if (setCookieHeader) {
                         // accumulate cookies received from the server
                         saveCookies(setCookieHeader)
