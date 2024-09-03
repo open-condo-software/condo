@@ -6,6 +6,7 @@ const { initTestExpressApp, getTestExpressApp, catchErrorFrom } = require('@open
 
 describe('Fetch with retries', () => {
 
+    // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
     const app = express()
     const appName = 'TestInternalFetch'
     initTestExpressApp(appName, app)
