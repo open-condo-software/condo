@@ -5,8 +5,8 @@ const { onError }  = require('apollo-link-error')
 const { createUploadLink } = require('apollo-upload-client')
 const FormData = require('form-data')
 const { chunk: splitArray } = require('lodash')
-const fetch = require('node-fetch')
 
+const { fetch } = require('@open-condo/keystone/fetch')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { MAX_REQUESTS_IN_BATCH, MAX_MODIFY_OPERATIONS_IN_REQUEST, MAX_RETRIES_ON_NETWORK_ERROR, LOAD_CHUNK_SIZE } = require('./constants')
@@ -66,7 +66,7 @@ class OIDCAuthClient {
         if (response.status >= 400) {
             throw new Error(`OIDC request failed: ${response.status} ${response.statusText}`)
         }
-        const newCookies = response.headers.raw()['set-cookie']
+        const newCookies = response.headers['set-cookie']
         if (newCookies) {
             newCookies.forEach(cookie => {
                 const [cookieValue] = cookie.split(';')
