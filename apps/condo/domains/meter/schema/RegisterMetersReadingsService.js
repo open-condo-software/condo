@@ -13,7 +13,7 @@ const { i18n } = require('@open-condo/locales/loader')
 
 const { PropertyResolver } = require('@condo/domains/billing/schema/resolvers')
 const access = require('@condo/domains/meter/access/RegisterMetersReadingsService')
-const { IMPORT_CONDO_METER_READING_SOURCE_ID } = require('@condo/domains/meter/constants/constants')
+const { OTHER_METER_READING_SOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const {
     TOO_MUCH_READINGS,
     ORGANIZATION_NOT_FOUND,
@@ -306,7 +306,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     const addressKey = get(resolvedAddresses, [reading.address, 'addressResolve', 'propertyAddress', 'addressKey'])
                     let readingSource = get(reading, 'readingSource')
                     if (isNil(readingSource)) {
-                        readingSource = { id: IMPORT_CONDO_METER_READING_SOURCE_ID }
+                        readingSource = { id: OTHER_METER_READING_SOURCE_ID }
                     }
 
                     if (isEmpty(accountNumber)) {

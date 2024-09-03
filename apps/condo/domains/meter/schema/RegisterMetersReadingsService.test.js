@@ -18,7 +18,7 @@ const {
     ELECTRICITY_METER_RESOURCE_ID,
     HEAT_SUPPLY_METER_RESOURCE_ID,
     GAS_SUPPLY_METER_RESOURCE_ID,
-    IMPORT_CONDO_METER_READING_SOURCE_ID,
+    OTHER_METER_READING_SOURCE_ID,
     REMOTE_SYSTEM_METER_READING_SOURCE_ID,
 } = require('@condo/domains/meter/constants/constants')
 const {
@@ -1104,7 +1104,7 @@ describe('RegisterMetersReadingsService', () => {
 
         const metersReadings = await MeterReading.getAll(adminClient, { meter: { id_in: data.map((row) => row.meter.id) } })
         expect(metersReadings).toEqual([
-            expect.objectContaining({ source: expect.objectContaining({ id: IMPORT_CONDO_METER_READING_SOURCE_ID }) }),
+            expect.objectContaining({ source: expect.objectContaining({ id: OTHER_METER_READING_SOURCE_ID }) }),
             expect.objectContaining({ source: expect.objectContaining({ id: REMOTE_SYSTEM_METER_READING_SOURCE_ID }) }),
         ])
     })
