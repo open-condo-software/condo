@@ -30,7 +30,7 @@ const {
     DISCOVER_SERVICE_CONSUMERS_MUTATION,
     SEND_MESSAGE_TO_RESIDENT_SCOPES_MUTATION,
     REGISTER_SERVICE_CONSUMER_MUTATION,
-    SUGGEST_PROVIDER_QUERY
+    SUGGEST_SERVICE_PROVIDER_QUERY
 } = require('@condo/domains/resident/gql')
 const { makeClientWithResidentUser } = require(
     '@condo/domains/user/utils/testSchema')
@@ -258,9 +258,9 @@ async function registerResidentInvoiceByTestClient (client, resident, invoiceRow
     return [data.result, attrs]
 }
 
-async function suggestProviderByTestClient(client, attrs = {}) {
+async function suggestServiceProviderByTestClient(client, attrs = {}) {
     if (!client) throw new Error('no client')
-    const { data, errors } = await client.query(SUGGEST_PROVIDER_QUERY, { data: attrs })
+    const { data, errors } = await client.query(SUGGEST_SERVICE_PROVIDER_QUERY, { data: attrs })
     throwIfError(data, errors)
     return [data.result, attrs]
 }
@@ -277,6 +277,6 @@ module.exports = {
     registerResidentServiceConsumersByTestClient,
     registerResidentInvoiceByTestClient,
     findOrganizationsForAddressByTestClient,
-    suggestProviderByTestClient,
+    suggestServiceProviderByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -72,9 +72,9 @@ const REGISTER_RESIDENT_SERVICE_CONSUMERS_MUTATION = gql`
     }
 `
 
-const SUGGEST_PROVIDER_QUERY = gql`
-    query suggestProviderByTin ($data: SuggestProviderInput!) {
-        result: suggestProvider(data: $data) { tin, name }
+const SUGGEST_SERVICE_PROVIDER_QUERY = gql`
+    query suggestServiceProvider($data: SuggestServiceProviderInput!) {
+        result: suggestServiceProvider(data: $data) { tin name }
     }
 `
 
@@ -93,6 +93,6 @@ module.exports = {
     REGISTER_RESIDENT_SERVICE_CONSUMERS_MUTATION,
     REGISTER_RESIDENT_INVOICE_MUTATION,
     FIND_ORGANIZATIONS_FOR_ADDRESS_QUERY,
-    SUGGEST_PROVIDER_QUERY,
+    SUGGEST_SERVICE_PROVIDER_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

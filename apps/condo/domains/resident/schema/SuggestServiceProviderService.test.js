@@ -23,7 +23,7 @@ const { createTestMeterResourceOwner, updateTestMeterResourceOwner, MeterResourc
 const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const { createTestOrganization, updateTestOrganization, generateTin } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty, updateTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { suggestProviderByTestClient } = require('@condo/domains/resident/utils/testSchema')
+const { suggestServiceProviderByTestClient } = require('@condo/domains/resident/utils/testSchema')
 
 
 const addMeterResourceOwner = async (utils) => {
@@ -65,47 +65,47 @@ describe('SuggestServiceProviderService', () => {
     describe('Permissions check', () => {
         test('anonymous: can not execute', async () => {
             await expectToThrowAuthenticationErrorToResult(async () => {
-                await suggestProviderByTestClient(utils.clients.anonymous, {
-                    tinOrName: String(generateTin(RUSSIAN_COUNTRY)),
+                await suggestServiceProviderByTestClient(utils.clients.anonymous, {
+                    search: String(generateTin(RUSSIAN_COUNTRY)),
                 })
             })
         })
         test('user: can not execute', async () => {
             await expectToThrowAccessDeniedErrorToResult(async () => {
-                await suggestProviderByTestClient(utils.clients.user, {
-                    tinOrName: String(generateTin(RUSSIAN_COUNTRY)),
+                await suggestServiceProviderByTestClient(utils.clients.user, {
+                    search: String(generateTin(RUSSIAN_COUNTRY)),
                 })
             })
         })
         test('employee: can not execute', async () => {
             await expectToThrowAccessDeniedErrorToResult(async () => {
-                await suggestProviderByTestClient(utils.clients.employee['billing'], {
-                    tinOrName: String(generateTin(RUSSIAN_COUNTRY)),
+                await suggestServiceProviderByTestClient(utils.clients.employee['billing'], {
+                    search: String(generateTin(RUSSIAN_COUNTRY)),
                 })
             })
         })
         test('service user: can not execute', async () => {
             await expectToThrowAccessDeniedErrorToResult(async () => {
-                await suggestProviderByTestClient(utils.clients.service, {
-                    tinOrName: String(generateTin(RUSSIAN_COUNTRY)),
+                await suggestServiceProviderByTestClient(utils.clients.service, {
+                    search: String(generateTin(RUSSIAN_COUNTRY)),
                 })
             })
         })
         test('admin: can execute', async () => {
-            const [organizations] = await suggestProviderByTestClient(utils.clients.admin, {
-                tinOrName: utils.organization.tin.substr(0, 5),
+            const [organizations] = await suggestServiceProviderByTestClient(utils.clients.admin, {
+                search: utils.organization.tin.substr(0, 5),
             })
             expect(organizations).not.toHaveLength(0)
         })
         test('support: can execute', async () => {
-            const [organizations] = await suggestProviderByTestClient(utils.clients.support, {
-                tinOrName: utils.organization.tin.substr(0, 5),
+            const [organizations] = await suggestServiceProviderByTestClient(utils.clients.support, {
+                search: utils.organization.tin.substr(0, 5),
             })
             expect(organizations).not.toHaveLength(0)
         })
         test('resident: can execute', async () => {
-            const [organizations] = await suggestProviderByTestClient(utils.clients.resident, {
-                tinOrName: utils.organization.tin.substr(0, 5),
+            const [organizations] = await suggestServiceProviderByTestClient(utils.clients.resident, {
+                search: utils.organization.tin.substr(0, 5),
             })
             expect(organizations).not.toHaveLength(0)
         })
@@ -126,8 +126,8 @@ describe('SuggestServiceProviderService', () => {
 
         test('should find organization with finished acquiring context', async () => {
             for (const tinOrName of getPartialTinAndName()) {
-                const [organizations] = await suggestProviderByTestClient(utils.clients.resident, {
-                    tinOrName: tinOrName,
+                const [organizations] = await suggestServiceProviderByTestClient(utils.clients.resident, {
+                    search: tinOrName,
                 })
                 expect(organizations).toContainEqual({
                     tin: utils.organization.tin,
@@ -141,8 +141,8 @@ describe('SuggestServiceProviderService', () => {
             await addMeterResourceOwner(utils)
 
             for (const tinOrName of getPartialTinAndName()) {
-                const [organizations] = await suggestProviderByTestClient(utils.clients.resident, {
-                    tinOrName: tinOrName,
+                const [organizations] = await suggestServiceProviderByTestClient(utils.clients.resident, {
+                    search: tinOrName,
                 })
                 expect(organizations).toContainEqual({
                     tin: utils.organization.tin,
@@ -155,8 +155,8 @@ describe('SuggestServiceProviderService', () => {
             await addMeterResourceOwner(utils)
 
             for (const tinOrName of getPartialTinAndName()) {
-                const [organizations] = await suggestProviderByTestClient(utils.clients.resident, {
-                    tinOrName: tinOrName,
+                const [organizations] = await suggestServiceProviderByTestClient(utils.clients.resident, {
+                    search: tinOrName,
                 })
                 expect(organizations).toContainEqual({
                     tin: utils.organization.tin,
@@ -169,8 +169,8 @@ describe('SuggestServiceProviderService', () => {
             await utils.updateAcquiringContext({ status: CONTEXT_IN_PROGRESS_STATUS })
 
             for (const tinOrName of getPartialTinAndName()) {
-                const [organizations] = await suggestProviderByTestClient(utils.clients.resident, {
-                    tinOrName: tinOrName,
+                const [organizations] = await suggestServiceProviderByTestClient(utils.clients.resident, {
+                    search: tinOrName,
                 })
                 expect(organizations).not.toContainEqual({
                     tin: utils.organization.tin,
@@ -219,8 +219,8 @@ describe('SuggestServiceProviderService', () => {
                 ]
 
                 for (const searchParam of searchParams) {
-                    const [suggestedProviders] = await suggestProviderByTestClient(utils.clients.resident, {
-                        tinOrName: searchParam,
+                    const [suggestedProviders] = await suggestServiceProviderByTestClient(utils.clients.resident, {
+                        search: searchParam,
                     })
                     const uniqueTins = new Set(suggestedProviders.map((provider) => provider.tin))
 

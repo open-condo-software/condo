@@ -10,7 +10,7 @@ const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codeg
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { REGISTER_RESIDENT_MUTATION } = require('@condo/domains/property/gql')
-const { SUGGEST_PROVIDER_QUERY } = require('@condo/domains/resident/gql')
+const { SUGGEST_SERVICE_PROVIDER_QUERY } = require('@condo/domains/resident/gql')
 const { Resident: ResidentGQL, REGISTER_RESIDENT_INVOICE_MUTATION } = require('@condo/domains/resident/gql')
 const { ServiceConsumer: ServiceConsumerGQL } = require('@condo/domains/resident/gql')
 const { REGISTER_CONSUMER_SERVICE_MUTATION } = require('@condo/domains/resident/gql')
@@ -125,13 +125,13 @@ async function findOrganizationsForAddress (context, data) {
     })
 }
 
-async function suggestProviderByTin (context, data) {
+async function suggestServiceProvider (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     return await execGqlWithoutAccess(context, {
-        query: SUGGEST_PROVIDER_QUERY,
+        query: SUGGEST_SERVICE_PROVIDER_QUERY,
         variables: { data },
-        errorMessage: '[error] Unable to suggestProviderByTin',
+        errorMessage: '[error] Unable to suggestServiceProvider',
         dataPath: 'result',
     })
 }
@@ -148,6 +148,6 @@ module.exports = {
     getResidentExistenceByPhoneAndAddress,
     registerResidentInvoice,
     findOrganizationsForAddress,
-    suggestProviderByTin,
+    suggestServiceProvider,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

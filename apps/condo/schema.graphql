@@ -77683,11 +77683,11 @@ type FindOrganizationForAddressOutput {
   hasBillingData: Boolean!
 }
 
-input SuggestProviderInput {
-  tinOrName: String!
+input SuggestServiceProviderInput {
+  search: String!
 }
 
-type SuggestProviderOutput {
+type SuggestServiceProviderOutput {
   tin: String!
   name: String!
 }
@@ -82269,7 +82269,7 @@ type Query {
   predictTicketClassification(data: PredictTicketClassificationInput!): TicketClassifier
   getResidentExistenceByPhoneAndAddress(data: GetResidentExistenceByPhoneAndAddressInput!): GetResidentExistenceByPhoneAndAddressOutput
   findOrganizationsForAddress(data: FindOrganizationsForAddressInput!): [FindOrganizationForAddressOutput]
-  suggestProvider(data: SuggestProviderInput!): [SuggestProviderOutput]
+  suggestServiceProvider(data: SuggestServiceProviderInput!): [SuggestServiceProviderOutput]
   exportMeterReadings(data: ExportMeterReadingsInput!): ExportMeterReadingsOutput
 
   """
