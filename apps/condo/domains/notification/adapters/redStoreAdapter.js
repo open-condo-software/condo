@@ -172,11 +172,14 @@ class RedStoreAdapter {
             const notificationsByAppId = {}
             for (const notification of notifications) {
                 const appId = notification.appId
+                console.log('insideRedStoreAdapter', 'appId', appId)
                 notificationsByAppId[appId] ||= []
                 notificationsByAppId[appId].push(notification)
             }
+            console.log('insideRedStoreAdapter', 'notificationsByAppId', notificationsByAppId)
             for (const [appId, notificationsBatchForApp] of Object.entries(notificationsByAppId)) {
                 const configForApp = this.#config[appId]
+                console.log('insideRedStoreAdapter', 'configForApp', appId, configForApp)
                 if (!configForApp) {
                     logger.error({ msg: 'Unknown appId. Config was not found', appId })
                     continue
