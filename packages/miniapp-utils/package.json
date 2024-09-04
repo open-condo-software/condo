@@ -1,0 +1,29 @@
+{
+  "name": "@open-condo/miniapp-utils",
+  "description": "A set of helper functions / components / hooks used to build new condo apps fast",
+  "keywords": [
+    "condo",
+    "open-condo-software",
+    "miniapps",
+    "utils",
+    "React"
+  ],
+  "version": "0.0.0-development",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/open-condo-software/condo.git",
+    "directory": "packages/miniapp-utils"
+  },
+  "bugs": {
+    "url": "https://github.com/open-condo-software/condo/issues"
+  },
+  "homepage": "https://github.com/open-condo-software/condo/blob/main/packages/ui/README.md",
+  "author": {
+    "name": "Matthew Savelev",
+    "email": "msavelyev@doma.ai",
+    "url": "https://github.com/SavelevMatthew"
+  },
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": {}
+}
