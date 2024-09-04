@@ -25,5 +25,7 @@
   },
   "license": "MIT",
   "main": "index.js",
-  "scripts": {}
+  "devDependencies": {
+    "@open-condo/tsconfig": "workspace:^"
+  }
 }

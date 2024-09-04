@@ -12874,6 +12874,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@open-condo/miniapp-utils@workspace:packages/miniapp-utils":
+  version: 0.0.0-use.local
+  resolution: "@open-condo/miniapp-utils@workspace:packages/miniapp-utils"
+  dependencies:
+    "@open-condo/tsconfig": "workspace:^"
+  languageName: unknown
+  linkType: soft
+
 "@open-condo/next@workspace:^, @open-condo/next@workspace:packages/next":
   version: 0.0.0-use.local
   resolution: "@open-condo/next@workspace:packages/next"
