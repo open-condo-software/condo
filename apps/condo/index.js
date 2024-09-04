@@ -1,6 +1,3 @@
-// eslint-disable-next-line
-const tracer = require('dd-trace')  // Note: required for monkey patching
-
 const { NextApp } = require('@keystonejs/app-next')
 const Sentry = require('@sentry/node')
 const dayjs = require('dayjs')
@@ -37,51 +34,12 @@ dayjs.extend(utc)
 dayjs.extend(timezone)
 dayjs.extend(isBetween)
 
-const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production' && conf.DD_TRACE_ENABLED === 'true'
 const IS_BUILD_PHASE = conf.PHASE === 'build'
 const SENTRY_CONFIG = conf.SENTRY_CONFIG ? JSON.parse(conf.SENTRY_CONFIG) : {}
 
 // TODO(zuch): DOMA-2990: add FILE_FIELD_ADAPTER to env during build phase
 if (IS_BUILD_PHASE) {
     process.env.FILE_FIELD_ADAPTER = 'local' // Test
-}
-
-if (IS_ENABLE_DD_TRACE && !IS_BUILD_PHASE) {
-    const appName = getAppName()
-    const xRemoteApp = getXRemoteApp()
-    const xRemoteClient = getXRemoteClient()
-    const xRemoteVersion = getXRemoteVersion()
-    // NOTE: https://datadoghq.dev/dd-trace-js/
-    tracer.init({
-        // Note: we need to save old service name as `root` to save history
-        service: (appName === 'condo-app') ? 'root' : appName,
-        tags: { xRemoteApp, xRemoteClient, xRemoteVersion },
-    })
-    tracer.use('express', {
-        // hook will be executed right before the request span is finished
-        headers: [
-            'X-Remote-Client', 'X-Remote-App', 'X-Remote-Version',
-            'X-Request-ID', 'X-Start-Request-ID',
-            'X-Parent-Request-ID', 'X-Parent-Task-ID', 'X-Parent-Exec-ID',
-        ],
-        hooks: {
-            request: (span, req, res) => {
-                if (req?.id) span.setTag('reqId', req.id)
-                if (req?.startId) span.setTag('startId', req.startId)
-                if (req?.user?.id) span.setTag('userId', req.user.id)
-            },
-        },
-    })
-    tracer.use('graphql')
-    tracer.use('apollo')
-    tracer.use('next')
-    tracer.use('fetch')
-    tracer.use('ioredis')
-    tracer.use('pg')
-    tracer.use('knex')
-    tracer.use('net')
-    tracer.use('dns')
-    tracer.use('child_process')
 }
 
 const schemas = () => [
