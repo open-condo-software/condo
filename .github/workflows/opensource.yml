@@ -1,0 +1,36 @@
+name: Open Source
+
+on:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  readme:
+    name: Check README.md steps
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [ '16.x' ]
+        python-version: [ '3.12' ]
+
+    steps:
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Run commands
+        run: |
+          git clone git@github.com:open-condo-software/open-condo-platform.git condo
+          cd condo
+          
+          python -V
+          node -v
+          ls -lah ./apps/*
+          
+          yarn
