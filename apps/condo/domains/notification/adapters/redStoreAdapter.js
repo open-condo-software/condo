@@ -34,7 +34,7 @@ function prepareData (data = {}, token) {
     return result
 }
 /**
- * Send push notification to pushToken via app, configured by RedStore_CONFIG in .helm (.env)
+ * Send push notification to pushToken via app, configured by REDSTORE_CONFIG in .helm (.env)
  * Attention! Notifications could only be sent to devices, connected via same PROJECT_ID.
  * Attempts to send push notifications to devices, connected through different projects will fail.
  */
@@ -101,12 +101,14 @@ class RedStoreAdapter {
                         'title': notification.title,
                         'body': notification.body,
                     },
+                    appId: get(data, 'appId'),
                     ...DEFAULT_PUSH_SETTINGS,
                 }
                 : {
                     token: pushToken,
                     data: preparedData,
                     notification,
+                    appId: get(data, 'appId'),
                     ...DEFAULT_PUSH_SETTINGS,
                 }
 
