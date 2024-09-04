@@ -1680,7 +1680,7 @@ describe('RegisterMultiPaymentService', () => {
                 const [[receipt]] = await utils.createReceipts([
                     utils.createJSONReceipt({ accountNumber, toPay: '1000' }),
                 ])
-                const minimumPaymentAmount = Big(5000).toFixed(2)
+                const minimumPaymentAmount = Big(5000).toString()
                 await utils.updateAcquiringIntegration({ minimumPaymentAmount })
                 await expectToThrowGQLError(async () => {
                     await registerMultiPaymentByTestClient(utils.clients.resident, [{
@@ -1700,7 +1700,7 @@ describe('RegisterMultiPaymentService', () => {
                 const [[receipt]] = await utils.createReceipts([
                     utils.createJSONReceipt({ accountNumber, toPay: '1000' }),
                 ])
-                const minimumPaymentAmount = Big(100).toFixed(2)
+                const minimumPaymentAmount = Big(100).toString()
                 await utils.updateAcquiringIntegration({ minimumPaymentAmount })
                 await expectToThrowGQLError(async () => {
                     await registerMultiPaymentByTestClient(utils.clients.resident, [{
