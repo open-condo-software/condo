@@ -1635,7 +1635,25 @@ describe('RegisterMultiPaymentService', () => {
             await utils.updateAcquiringIntegration({ minimumPaymentAmount: null })
         })
 
-        describe('The payment amount is more then minimum amount from acquiring integration', () => {
+        describe('Payment amount is equal to minimum payment amount required by the acquiring integration', () => {
+            test('For partial payment', async () => {
+                const accountNumber = faker.random.alphaNumeric(12)
+                const resident = await utils.createResident()
+                const [consumer] = await utils.createServiceConsumer(resident, accountNumber)
+                const [[receipt]] = await utils.createReceipts([
+                    utils.createJSONReceipt({ accountNumber, toPay: '0.10' }),
+                ])
+                await utils.updateAcquiringIntegration({ minimumPaymentAmount: '5' })
+                const [result] = await registerMultiPaymentByTestClient(utils.clients.resident, [{
+                    serviceConsumer: { id: consumer.id },
+                    receipts: [{ id: receipt.id }],
+                    amountDistribution: [{ receipt: { id: receipt.id }, amount: '5' }],
+                }])
+                expect(result).toHaveProperty('multiPaymentId')
+            })
+        })
+
+        describe('Payment amount is greater than minimum payment amount required by the acquiring integration', () => {
             test('For partial payment', async () => {
                 const accountNumber = faker.random.alphaNumeric(12)
                 const resident = await utils.createResident()
@@ -1653,7 +1671,7 @@ describe('RegisterMultiPaymentService', () => {
             })
         })
 
-        describe('The payment amount is less than the minimum amount from acquiring integration', () => {
+        describe('Payment amount is less than minimum payment amount required by the acquiring integration', () => {
 
             test('For complete payment', async () => {
                 const accountNumber = faker.random.alphaNumeric(12)

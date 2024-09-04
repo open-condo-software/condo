@@ -1,8 +1,8 @@
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 
-const { WRONG_VALUE } = require('@condo/domains/common/constants/errors')
-
 const { PAYMENT_DONE_STATUS, MULTIPAYMENT_DONE_STATUS, PAYMENT_INIT_STATUS } = require('./payment')
+
+const { WRONG_VALUE } = require('../../common/constants/errors')
 
 const ACQUIRING_INTEGRATION_CONTEXT_IS_MISSING = 'ACQUIRING_INTEGRATION_CONTEXT_IS_MISSING'
 const ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED = 'ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED'
@@ -108,7 +108,7 @@ const GQL_ERRORS = {
     PAYMENT_AMOUNT_LESS_THAN_MINIMUM: {
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
-        message: 'The payment amount is less than the minimum amount from acquiring integration',
+        message: 'Payment amount is less than the minimum amount from acquiring integration',
         messageForUser: 'api.acquiring.payment.error.paymentAmountLessThanMinimum',
     },
     MORE_THAN_ONE_ACQUIRING_CONTEXTS: {

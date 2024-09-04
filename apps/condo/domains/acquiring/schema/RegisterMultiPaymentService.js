@@ -632,7 +632,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     }
                     if (
                         !!billingIntegrationCurrencyCode && !!invoiceIntegrationCurrencyCode
-                            && billingIntegrationCurrencyCode !== invoiceIntegrationCurrencyCode
+                        && billingIntegrationCurrencyCode !== invoiceIntegrationCurrencyCode
                     ) {
                         throw new GQLError(ERRORS.DIFFERENT_CURRENCY_CODES_FOR_RECEIPTS_AND_INVOICES, context)
                     }
@@ -703,7 +703,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 if (acquiringIntegration.minimumPaymentAmount && Big(amountToPay).lt(acquiringIntegration.minimumPaymentAmount)) {
                     throw new GQLError({
                         ...ERRORS.PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
-                        messageInterpolation: { minimumPaymentAmount: Big(acquiringIntegration.minimumPaymentAmount).toFixed(2) },
+                        messageInterpolation: { minimumPaymentAmount: Big(acquiringIntegration.minimumPaymentAmount).toString() },
                     }, context)
                 }
 
