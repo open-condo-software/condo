@@ -76,7 +76,7 @@ if (IS_ENABLE_DD_TRACE && !IS_BUILD_PHASE) {
     tracer.use('apollo')
     tracer.use('next')
     tracer.use('fetch')
-    tracer.use('ioredis', { splitByInstance: true })
+    tracer.use('ioredis')
     tracer.use('pg')
     tracer.use('knex')
     tracer.use('net')
