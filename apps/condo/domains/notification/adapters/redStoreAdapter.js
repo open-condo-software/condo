@@ -1,5 +1,4 @@
-const { faker } = require('@faker-js/faker')
-const { isEmpty, isNull, get, isObject } = require('lodash')
+const { isEmpty, isNull, isNil, get, isObject } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -13,17 +12,27 @@ const {
     PUSH_TYPE_SILENT_DATA,
     APPS_WITH_DISABLED_NOTIFICATIONS_ENV,
 } = require('@condo/domains/notification/constants/constants')
-const { EMPTY_REDSTORE_CONFIG_ERROR, EMPTY_NOTIFICATION_TITLE_BODY_ERROR } = require('@condo/domains/notification/constants/errors')
+const { getEmptyResult, getFakeSuccessResponse, getFakeErrorResponse } = require('@condo/domains/notification/utils/testSchema/helpers')
 
 const REDSTORE_CONFIG = conf[REDSTORE_CONFIG_ENV] ? JSON.parse(conf[REDSTORE_CONFIG_ENV]) : null
 const APPS_WITH_DISABLED_NOTIFICATIONS = conf[APPS_WITH_DISABLED_NOTIFICATIONS_ENV] ? JSON.parse(conf[APPS_WITH_DISABLED_NOTIFICATIONS_ENV]) : []
-const DEFAULT_PUSH_SETTINGS = {
-    apns: { payload: { aps: { 'mutable-content': 1, sound: 'default' } } },
+const DEFAULT_PUSH_SETTINGS = {}
+
+const logger = getLogger('redStoreAdapter')
+
+/**
+ * Firebase rejects push if any of data fields is not a string, so we should convert all non-string fields to strings
+ * @param data
+ */
+function prepareData (data = {}, token) {
+    const result = { token }
+
+    for (const key in data) {
+        if (data.hasOwnProperty(key)) result[key] = String(data[key])
+    }
+
+    return result
 }
-const HIGH_PRIORITY_SETTINGS = { android: { priority: 'high' } }
-
-const logger = getLogger('firebaseAdapter')
-
 /**
  * Send push notification to pushToken via app, configured by RedStore_CONFIG in .helm (.env)
  * Attention! Notifications could only be sent to devices, connected via same PROJECT_ID.
@@ -34,32 +43,20 @@ class RedStoreAdapter {
     #config = null
 
     constructor (config = REDSTORE_CONFIG) {
+        this.projectId = get(config, 'project_id', null)
         try {
-            if (isEmpty(config)) throw new Error(EMPTY_REDSTORE_CONFIG_ERROR)
-        } catch (error) {
+            if (isEmpty(config)) throw new Error(`Valid ${REDSTORE_CONFIG_ENV} should be provided within .helm (.env)`)
+            if (isNil(this.projectId)) throw new Error('Provided projectId is null or undefined')
+            if (isNil(config.url)) throw new Error('Provided url is null or undefined')
+        } catch (err) {
             // For CI/local tests config is useless because of emulation via FAKE tokens
-            logger.error({ msg: 'redStore adapter error', error })
+            logger.error({ msg: 'redStore adapter error', err })
         }
 
-        this.projectId = get(config, 'project_id', null)
         this.#config = config
         // not user input. No ReDoS regexp expected
         // nosemreg: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
         this.messageIdPrefixRegexp = new RegExp(`projects/${this.projectId}/messages`)
-    }
-
-    /**
-     * Firebase rejects push if any of data fields is not a string, so we should convert all non-string fields to strings
-     * @param data
-     */
-    static prepareData (data = {}, token) {
-        const result = { token }
-
-        for (const key in data) {
-            if (data.hasOwnProperty(key)) result[key] = String(data[key])
-        }
-
-        return result
     }
 
     /**
@@ -69,7 +66,7 @@ class RedStoreAdapter {
      * @returns {{title, body}}
      */
     static validateAndPrepareNotification ({ title, body } = {}) {
-        if (!title || !body || isEmpty(title) || isEmpty(body)) throw new Error(EMPTY_NOTIFICATION_TITLE_BODY_ERROR)
+        if (!title || !body || isEmpty(title) || isEmpty(body)) throw new Error('Missing notification.title or notification.body')
         const image = 'CondoImage' // надо сюды вставить урл на иконку домов, чтобы не приходило голое уведомление
 
         return { title, body, image }
@@ -90,13 +87,12 @@ class RedStoreAdapter {
         const notifications = [] // User can have many Remote Clients. Message is created for the user, so from 1 message there can be many notifications
         const fakeNotifications = []
         const pushContext = {}
-        const extraPayload = isVoIP ? HIGH_PRIORITY_SETTINGS : {}
 
         tokens.forEach((pushToken) => {
             const isFakeToken = pushToken.startsWith(PUSH_FAKE_TOKEN_SUCCESS) || pushToken.startsWith(PUSH_FAKE_TOKEN_FAIL)
             const target = isFakeToken ? fakeNotifications : notifications
             const pushType = pushTypes[pushToken] || PUSH_TYPE_DEFAULT
-            const preparedData = RedStoreAdapter.prepareData(data, pushToken)
+            const preparedData = prepareData(data, pushToken)
             const pushData = pushType === PUSH_TYPE_SILENT_DATA
                 ? {
                     token: pushToken,
@@ -106,14 +102,12 @@ class RedStoreAdapter {
                         'body': notification.body,
                     },
                     ...DEFAULT_PUSH_SETTINGS,
-                    ...extraPayload,
                 }
                 : {
                     token: pushToken,
                     data: preparedData,
                     notification,
                     ...DEFAULT_PUSH_SETTINGS,
-                    ...extraPayload,
                 }
 
             if (!APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.app)) target.push(pushData)
@@ -125,48 +119,6 @@ class RedStoreAdapter {
     }
 
     /**
-     * Mimics FireBase request result
-     * @returns {{responses: *[], successCount: number, failureCount: number}}
-     */
-    static getEmptyResult () {
-        return {
-            responses: [],
-            successCount: 0,
-            failureCount: 0,
-        }
-    }
-
-    /**
-     * Mimics redStore failure response
-     * @returns {{success: boolean, error: {errorInfo: {code: string, message: string}}}}
-     */
-    static getFakeErrorResponse () {
-        return {
-            success: false,
-            type: 'Fake',
-            error: {
-                errorInfo: {
-                    code: 'fake-error',
-                    message: 'Fake error message',
-                    status: 403,
-                },
-            },
-        }
-    }
-
-    /**
-     * Mimics redStore success response
-     * @returns {{success: boolean, messageId: string}}
-     */
-    static getFakeSuccessResponse () {
-        return {
-            success: true,
-            type: 'Fake',
-            messageId: `fake-success-message/${faker.datatype.uuid()}`,
-        }
-    }
-
-    /**
      * For testing purpose we have to emulate redStore response for predefined FAKE tokens,
      * because it's almost impossible to get real redStore push token in automated way.
      * @param result
@@ -174,17 +126,17 @@ class RedStoreAdapter {
      * @returns {*}
      */
     static injectFakeResults (result, fakeNotifications) {
-        const mixed = !isObject(result) || isEmpty(result) ? RedStoreAdapter.getEmptyResult() : JSON.parse(JSON.stringify(result))
+        const mixed = !isObject(result) || isEmpty(result) ? getEmptyResult() : JSON.parse(JSON.stringify(result))
 
         fakeNotifications.forEach(({ token }) => {
             if (token.startsWith(PUSH_FAKE_TOKEN_SUCCESS)) {
                 mixed.successCount++
-                mixed.responses.push(RedStoreAdapter.getFakeSuccessResponse())
+                mixed.responses.push(getFakeSuccessResponse())
             }
 
             if (token.startsWith(PUSH_FAKE_TOKEN_FAIL)) {
                 mixed.failureCount++
-                mixed.responses.push(RedStoreAdapter.getFakeErrorResponse())
+                mixed.responses.push(getFakeErrorResponse())
             }
         })
 
@@ -212,7 +164,7 @@ class RedStoreAdapter {
         // If we come up to here and no real tokens provided, that means fakeNotifications contains
         // some FAKE tokens and emulation is required for testing purposes
         if (isEmpty(notifications)) {
-            result = RedStoreAdapter.injectFakeResults(RedStoreAdapter.getEmptyResult(), fakeNotifications)
+            result = RedStoreAdapter.injectFakeResults(getEmptyResult(), fakeNotifications)
         }
 
         if (!isNull(this.#config) && !isEmpty(notifications)) {
@@ -231,10 +183,10 @@ class RedStoreAdapter {
 
                 const app = new RedStoreNotificationSender(configForApp)
                 try {
-                    const RedStoreResult = await app.sendAll(notificationsBatchForApp)
+                    const result = await app.sendAll(notificationsBatchForApp)
 
-                    if (!isEmpty(RedStoreResult.responses)) {
-                        RedStoreResult.responses = RedStoreResult.responses.map(
+                    if (!isEmpty(result.responses)) {
+                        result.responses = result.responses.map(
                             (response, idx) =>
                                 ({
                                     ...response,
@@ -260,6 +212,5 @@ class RedStoreAdapter {
 
 module.exports = {
     RedStoreAdapter,
-    EMPTY_REDSTORE_CONFIG_ERROR,
-    EMPTY_NOTIFICATION_TITLE_BODY_ERROR,
+    redStoreAdapterPrepareData: prepareData,
 }

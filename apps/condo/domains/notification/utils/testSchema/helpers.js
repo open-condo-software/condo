@@ -29,8 +29,53 @@ const getRandomTokenData = (extraAttrs = {}) => {
     }
 }
 
+/**
+ * Mimics redStore request result
+ * @returns {{responses: *[], successCount: number, failureCount: number}}
+ */
+function getEmptyResult () {
+    return {
+        responses: [],
+        successCount: 0,
+        failureCount: 0,
+    }
+}
+
+/**
+ * Mimics redStore failure response
+ * @returns {{success: boolean, error: {errorInfo: {code: string, message: string}}}}
+ */
+function getFakeErrorResponse () {
+    return {
+        success: false,
+        type: 'Fake',
+        error: {
+            errorInfo: {
+                code: 'fake-error',
+                message: 'Fake error message',
+                status: 403,
+            },
+        },
+    }
+}
+
+/**
+ * Mimics redStore success response
+ * @returns {{success: boolean, messageId: string}}
+ */
+function getFakeSuccessResponse () {
+    return {
+        success: true,
+        type: 'Fake',
+        messageId: `fake-success-message/${faker.datatype.uuid()}`,
+    }
+}
+
 module.exports = {
     getRandomTokenData,
     getRandomFakeSuccessToken,
     getRandomFakeFailToken,
+    getEmptyResult,
+    getFakeErrorResponse,
+    getFakeSuccessResponse,
 }

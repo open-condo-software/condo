@@ -15,7 +15,7 @@ const {
 
 const {
     RedStoreAdapter,
-    EMPTY_NOTIFICATION_TITLE_BODY_ERROR,
+    redStoreAdapterPrepareData,
 } = require('./redStoreAdapter')
 
 const adapter = new RedStoreAdapter()
@@ -270,7 +270,7 @@ describe('redStore adapter utils', () => {
             ticketNumber: faker.datatype.number(8), // number type
             userId: faker.datatype.uuid(),
         }
-        const preparedData = RedStoreAdapter.prepareData(data)
+        const preparedData = redStoreAdapterPrepareData(data)
 
         expect(typeof preparedData.ticketNumber).toEqual('string')
     })
