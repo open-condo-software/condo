@@ -19,9 +19,9 @@ const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 const redisGuard = new RedisGuard()
 
-const checkLimits = async (uniqueField) => {
+const checkLimits = async (userId) => {
     await redisGuard.checkCustomLimitCounters(
-        `suggest-service-provider-by-tin-${uniqueField}`,
+        `suggest_service_provider:user:${userId}`,
         RESIDENT_SUGGEST_SERVICE_PROVIDER_WINDOW_IN_SEC,
         MAX_RESIDENT_SUGGEST_SERVICE_PROVIDER_CALLS_BY_WINDOW_SEC,
     )
