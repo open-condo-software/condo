@@ -25,7 +25,11 @@
   },
   "license": "MIT",
   "scripts": {
-    "build": "rm -rf dist && NODE_ENV=production rollup -c"
+    "build:deps": "turbo build --filter=miniapp-utils^...",
+    "build:code": "NODE_ENV=production rollup -c",
+    "build:types": "tsc --declaration --emitDeclarationOnly",
+    "build": "rimraf dist && yarn build:code && yarn build:types",
+    "dev": "rimraf dist && yarn build:deps &&(rollup -c -w & tsc --declaration --emitDeclarationOnly --watch)"
   },
   "files": [
     "dist"
@@ -33,7 +37,8 @@
   "exports": {
     "./helpers/environment": {
       "require": "./dist/cjs/helpers/environment.js",
-      "import": "./dist/esm/helpers/environment.js"
+      "import": "./dist/esm/helpers/environment.js",
+      "types": "./dist/types/"
     }
   },
   "publishConfig": {
@@ -44,6 +49,7 @@
     "@rollup/plugin-commonjs": "^26.0.1",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-typescript": "^11.1.6",
+    "rimraf": "^6.0.1",
     "rollup": "^4.21.2",
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "typescript": "^5.5.4"

@@ -3,7 +3,9 @@
   "extends": "@open-condo/tsconfig/react-lib.json",
   "compilerOptions": {
     "module": "ESNext",
-    "rootDir": ".",
+    "rootDir": "./src",
     "outDir": "dist",
+    "declarationDir": "dist/types",
+    "declarationMap": false,
   }
 }
