@@ -107,7 +107,7 @@
     "facepaint": "^1.2.1",
     "falsey": "^1.0.0",
     "firebase": "^7.19.0",
-    "firebase-admin": "^10.0.2",
+    "firebase-admin": "^12.4.0",
     "generate-password": "^1.6.0",
     "get-contrast": "^2.0.0",
     "graphql": "^15.6.1",
