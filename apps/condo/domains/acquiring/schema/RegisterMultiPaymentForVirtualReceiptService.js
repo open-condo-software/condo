@@ -10,6 +10,14 @@ const { getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/RegisterMultiPaymentForVirtualReceiptService')
 const {
+    RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE,
+    RECEIPT_HAVE_INVALID_TO_PAY_VALUE,
+    RECEIPT_HAVE_INVALID_CURRENCY_CODE_VALUE,
+    ACQUIRING_INTEGRATION_IS_DELETED,
+    ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
+    GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM },
+} = require('@condo/domains/acquiring/constants/errors')
+const {
     FEE_CALCULATION_PATH,
     WEB_VIEW_PATH,
     DIRECT_PAYMENT_PATH,
@@ -24,14 +32,6 @@ const {
 const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
 const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 
-
-const {
-    RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE,
-    RECEIPT_HAVE_INVALID_TO_PAY_VALUE,
-    RECEIPT_HAVE_INVALID_CURRENCY_CODE_VALUE,
-    ACQUIRING_INTEGRATION_IS_DELETED,
-    ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
-} = require('../constants/errors')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -66,6 +66,10 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: ACQUIRING_INTEGRATION_IS_DELETED,
         message: 'Cannot pay via deleted acquiring integration with id "{id}"',
+    },
+    PAYMENT_AMOUNT_LESS_THAN_MINIMUM: {
+        ...PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
+        mutation: 'registerMultiPaymentForVirtualReceipt',
     },
     RECEIPT_HAVE_INVALID_TO_PAY_VALUE: {
         mutation: 'registerMultiPaymentForVirtualReceipt',
@@ -185,6 +189,17 @@ const RegisterMultiPaymentForVirtualReceiptService = new GQLCustomSchema('Regist
                     implicitFee: String(implicitFee),
                     serviceFee: String(fromReceiptAmountFee),
                 }
+
+                const amountToPay = Big(amount)
+                    .add(Big(paymentCommissionFields.explicitServiceCharge))
+                    .add(Big(paymentCommissionFields.explicitFee))
+                if (acquiringIntegration.minimumPaymentAmount && Big(amountToPay).lt(acquiringIntegration.minimumPaymentAmount)) {
+                    throw new GQLError({
+                        ...ERRORS.PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
+                        messageInterpolation: { minimumPaymentAmount: Big(acquiringIntegration.minimumPaymentAmount).toString() },
+                    }, context)
+                }
+
                 const paymentModel = await Payment.create(context, {
                     dv: 1,
                     sender,

@@ -48,6 +48,8 @@ export type AcquiringIntegration = {
   hostUrl?: Maybe<Scalars['String']>;
   /**  Supported billing integrations group. Useful when you need to restrict this acquiring to accept payment only from certain billing.  */
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
+  /**  The minimum payment amount that can be accepted  */
+  minimumPaymentAmount?: Maybe<Scalars['String']>;
   /**  Contains information about the default distribution of explicit fee. Each part is paid by the user on top of original amount if there is no part with the same name in the integration context. Otherwise, the part is ignored as it is paid by recipient  */
   explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionField>>;
   /**  Status, which context will have by default after creation if no overwriting option provided  */
@@ -1135,6 +1137,7 @@ export type AcquiringIntegrationCreateInput = {
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
+  minimumPaymentAmount?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   contextDefaultStatus?: Maybe<AcquiringIntegrationContextDefaultStatusType>;
   vatPercentOptions?: Maybe<Scalars['String']>;
@@ -1166,6 +1169,7 @@ export type AcquiringIntegrationHistoryRecord = {
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
+  minimumPaymentAmount?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   vatPercentOptions?: Maybe<Scalars['String']>;
@@ -1191,6 +1195,7 @@ export type AcquiringIntegrationHistoryRecordCreateInput = {
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
+  minimumPaymentAmount?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   vatPercentOptions?: Maybe<Scalars['String']>;
@@ -1221,6 +1226,7 @@ export type AcquiringIntegrationHistoryRecordUpdateInput = {
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
+  minimumPaymentAmount?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   vatPercentOptions?: Maybe<Scalars['String']>;
@@ -1317,6 +1323,14 @@ export type AcquiringIntegrationHistoryRecordWhereInput = {
   supportedBillingIntegrationsGroup_not_ends_with_i?: Maybe<Scalars['String']>;
   supportedBillingIntegrationsGroup_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   supportedBillingIntegrationsGroup_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  minimumPaymentAmount?: Maybe<Scalars['String']>;
+  minimumPaymentAmount_not?: Maybe<Scalars['String']>;
+  minimumPaymentAmount_lt?: Maybe<Scalars['String']>;
+  minimumPaymentAmount_lte?: Maybe<Scalars['String']>;
+  minimumPaymentAmount_gt?: Maybe<Scalars['String']>;
+  minimumPaymentAmount_gte?: Maybe<Scalars['String']>;
+  minimumPaymentAmount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  minimumPaymentAmount_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   explicitFeeDistributionSchema_not?: Maybe<Scalars['JSON']>;
   explicitFeeDistributionSchema_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -1463,6 +1477,7 @@ export type AcquiringIntegrationUpdateInput = {
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
+  minimumPaymentAmount?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   contextDefaultStatus?: Maybe<AcquiringIntegrationContextDefaultStatusType>;
   vatPercentOptions?: Maybe<Scalars['String']>;
@@ -1562,6 +1577,14 @@ export type AcquiringIntegrationWhereInput = {
   supportedBillingIntegrationsGroup_not_ends_with_i?: Maybe<Scalars['String']>;
   supportedBillingIntegrationsGroup_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   supportedBillingIntegrationsGroup_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  minimumPaymentAmount?: Maybe<Scalars['String']>;
+  minimumPaymentAmount_not?: Maybe<Scalars['String']>;
+  minimumPaymentAmount_lt?: Maybe<Scalars['String']>;
+  minimumPaymentAmount_lte?: Maybe<Scalars['String']>;
+  minimumPaymentAmount_gt?: Maybe<Scalars['String']>;
+  minimumPaymentAmount_gte?: Maybe<Scalars['String']>;
+  minimumPaymentAmount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  minimumPaymentAmount_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   explicitFeeDistributionSchema_not?: Maybe<Array<FeeDistributionFieldInput>>;
   explicitFeeDistributionSchema_in?: Maybe<Array<Maybe<Array<FeeDistributionFieldInput>>>>;
@@ -76778,6 +76801,8 @@ export enum SortAcquiringIntegrationHistoryRecordsBy {
   HostUrlDesc = 'hostUrl_DESC',
   SupportedBillingIntegrationsGroupAsc = 'supportedBillingIntegrationsGroup_ASC',
   SupportedBillingIntegrationsGroupDesc = 'supportedBillingIntegrationsGroup_DESC',
+  MinimumPaymentAmountAsc = 'minimumPaymentAmount_ASC',
+  MinimumPaymentAmountDesc = 'minimumPaymentAmount_DESC',
   ContextDefaultStatusAsc = 'contextDefaultStatus_ASC',
   ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
   VatPercentOptionsAsc = 'vatPercentOptions_ASC',
@@ -76815,6 +76840,8 @@ export enum SortAcquiringIntegrationsBy {
   HostUrlDesc = 'hostUrl_DESC',
   SupportedBillingIntegrationsGroupAsc = 'supportedBillingIntegrationsGroup_ASC',
   SupportedBillingIntegrationsGroupDesc = 'supportedBillingIntegrationsGroup_DESC',
+  MinimumPaymentAmountAsc = 'minimumPaymentAmount_ASC',
+  MinimumPaymentAmountDesc = 'minimumPaymentAmount_DESC',
   ContextDefaultStatusAsc = 'contextDefaultStatus_ASC',
   ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
   VatPercentOptionsAsc = 'vatPercentOptions_ASC',

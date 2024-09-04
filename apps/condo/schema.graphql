@@ -52795,6 +52795,7 @@ type AcquiringIntegrationHistoryRecord {
   canGroupReceipts: Boolean
   hostUrl: String
   supportedBillingIntegrationsGroup: String
+  minimumPaymentAmount: String
   explicitFeeDistributionSchema: JSON
   contextDefaultStatus: String
   vatPercentOptions: String
@@ -52892,6 +52893,14 @@ input AcquiringIntegrationHistoryRecordWhereInput {
   supportedBillingIntegrationsGroup_not_ends_with_i: String
   supportedBillingIntegrationsGroup_in: [String]
   supportedBillingIntegrationsGroup_not_in: [String]
+  minimumPaymentAmount: String
+  minimumPaymentAmount_not: String
+  minimumPaymentAmount_lt: String
+  minimumPaymentAmount_lte: String
+  minimumPaymentAmount_gt: String
+  minimumPaymentAmount_gte: String
+  minimumPaymentAmount_in: [String]
+  minimumPaymentAmount_not_in: [String]
   explicitFeeDistributionSchema: JSON
   explicitFeeDistributionSchema_not: JSON
   explicitFeeDistributionSchema_in: [JSON]
@@ -53027,6 +53036,8 @@ enum SortAcquiringIntegrationHistoryRecordsBy {
   hostUrl_DESC
   supportedBillingIntegrationsGroup_ASC
   supportedBillingIntegrationsGroup_DESC
+  minimumPaymentAmount_ASC
+  minimumPaymentAmount_DESC
   contextDefaultStatus_ASC
   contextDefaultStatus_DESC
   vatPercentOptions_ASC
@@ -53056,6 +53067,7 @@ input AcquiringIntegrationHistoryRecordUpdateInput {
   canGroupReceipts: Boolean
   hostUrl: String
   supportedBillingIntegrationsGroup: String
+  minimumPaymentAmount: String
   explicitFeeDistributionSchema: JSON
   contextDefaultStatus: String
   vatPercentOptions: String
@@ -53085,6 +53097,7 @@ input AcquiringIntegrationHistoryRecordCreateInput {
   canGroupReceipts: Boolean
   hostUrl: String
   supportedBillingIntegrationsGroup: String
+  minimumPaymentAmount: String
   explicitFeeDistributionSchema: JSON
   contextDefaultStatus: String
   vatPercentOptions: String
@@ -53170,6 +53183,9 @@ type AcquiringIntegration {
   """ Supported billing integrations group. Useful when you need to restrict this acquiring to accept payment only from certain billing. 
   """
   supportedBillingIntegrationsGroup: String
+
+  """ The minimum payment amount that can be accepted """
+  minimumPaymentAmount: String
 
   """ Contains information about the default distribution of explicit fee. Each part is paid by the user on top of original amount if there is no part with the same name in the integration context. Otherwise, the part is ignored as it is paid by recipient 
   """
@@ -53292,6 +53308,14 @@ input AcquiringIntegrationWhereInput {
   supportedBillingIntegrationsGroup_not_ends_with_i: String
   supportedBillingIntegrationsGroup_in: [String]
   supportedBillingIntegrationsGroup_not_in: [String]
+  minimumPaymentAmount: String
+  minimumPaymentAmount_not: String
+  minimumPaymentAmount_lt: String
+  minimumPaymentAmount_lte: String
+  minimumPaymentAmount_gt: String
+  minimumPaymentAmount_gte: String
+  minimumPaymentAmount_in: [String]
+  minimumPaymentAmount_not_in: [String]
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   explicitFeeDistributionSchema_not: [FeeDistributionFieldInput!]
   explicitFeeDistributionSchema_in: [[FeeDistributionFieldInput!]]
@@ -53395,6 +53419,8 @@ enum SortAcquiringIntegrationsBy {
   hostUrl_DESC
   supportedBillingIntegrationsGroup_ASC
   supportedBillingIntegrationsGroup_DESC
+  minimumPaymentAmount_ASC
+  minimumPaymentAmount_DESC
   contextDefaultStatus_ASC
   contextDefaultStatus_DESC
   vatPercentOptions_ASC
@@ -53425,6 +53451,7 @@ input AcquiringIntegrationUpdateInput {
   canGroupReceipts: Boolean
   hostUrl: String
   supportedBillingIntegrationsGroup: String
+  minimumPaymentAmount: String
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   contextDefaultStatus: AcquiringIntegrationContextDefaultStatusType
   vatPercentOptions: String
@@ -53452,6 +53479,7 @@ input AcquiringIntegrationCreateInput {
   canGroupReceipts: Boolean
   hostUrl: String
   supportedBillingIntegrationsGroup: String
+  minimumPaymentAmount: String
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   contextDefaultStatus: AcquiringIntegrationContextDefaultStatusType
   vatPercentOptions: String
