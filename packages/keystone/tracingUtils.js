@@ -7,8 +7,12 @@ const NAMESPACE = conf.NAMESPACE || 'nospace'
 const VERSION = conf.WERF_COMMIT_HASH || 'local'
 const APP = conf.APP_NAME
 
-const _getAppName = () => {
-    if (APP) {
+/**
+ * Examples: condo-worker-low, condo-worker-medium, condo-worker-high, condo-app
+ * @returns {string}
+ */
+function getAppName () {
+    if (typeof APP === 'string' && APP) {
         return APP
     }
 
@@ -29,20 +33,33 @@ const _getAppName = () => {
         .join('-')
 }
 
+/**
+ * Examples: development-condo-app, production-condo-app, production-condo-worker-low, development-condo-worker-low
+ * @returns {string}
+ */
 function getXRemoteApp () {
-    const deployment = _getAppName()
+    const deployment = getAppName()
     return NAMESPACE ? `${NAMESPACE}-${deployment}` : deployment
 }
 
+/**
+ * Example: condo-app-dccbd8f8-8wn7x
+ * @returns {string}
+ */
 function getXRemoteClient () {
     return HOSTNAME
 }
 
+/**
+ * Example: 84100eb7ce4ed9f01930aea291df53cc013734e8
+ * @returns {string}
+ */
 function getXRemoteVersion () {
     return VERSION
 }
 
 module.exports = {
+    getAppName,
     getXRemoteApp,
     getXRemoteClient,
     getXRemoteVersion,
