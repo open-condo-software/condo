@@ -141,6 +141,7 @@ async function send ({ notification, data, user, remoteClient } = {}, isVoIP = f
     const userId = get(user, 'id')
     const remoteClientId = get(remoteClient, 'id')
     const { tokensByTransport, pushTypes, appIds, count } = await getTokens(userId, remoteClientId, isVoIP)
+    console.log('logAllTokens', tokensByTransport)
 
     let container = {}
     let _isOk = false
@@ -149,7 +150,9 @@ async function send ({ notification, data, user, remoteClient } = {}, isVoIP = f
 
     for (const transport in tokensByTransport) {
         const tokens = tokensByTransport[transport]
-
+        if (transport === PUSH_TRANSPORT_REDSTORE) {
+            console.log('logTokensOfRedStore', tokens)
+        }
         if (!isEmpty(tokens)) {
             const adapter = ADAPTERS[transport]
             const payload = { tokens, pushTypes, appIds, notification, data }
@@ -179,6 +182,9 @@ async function send ({ notification, data, user, remoteClient } = {}, isVoIP = f
                 }
             }
 
+            if (transport === PUSH_TRANSPORT_REDSTORE) {
+                console.log('logResultOfRedStore', result)
+            }
             container = mixResult(container, result)
             _isOk = _isOk || isOk
         }

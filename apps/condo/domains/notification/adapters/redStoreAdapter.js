@@ -160,12 +160,13 @@ class RedStoreAdapter {
 
         const [notifications, fakeNotifications, pushContext] = RedStoreAdapter.prepareBatchData(notification, data, tokens, pushTypes, isVoIP)
         let result
-
+        console.log('insideRedStoreAdapter', 'logNotifications', notifications)
         // If we come up to here and no real tokens provided, that means fakeNotifications contains
         // some FAKE tokens and emulation is required for testing purposes
         if (isEmpty(notifications)) {
             result = RedStoreAdapter.injectFakeResults(getEmptyResult(), fakeNotifications)
         }
+        console.log('insideRedStoreAdapter', 'fakeNotificationsIf', !isNull(this.#config) && !isEmpty(notifications))
 
         if (!isNull(this.#config) && !isEmpty(notifications)) {
             const notificationsByAppId = {}
@@ -180,6 +181,7 @@ class RedStoreAdapter {
                     logger.error({ msg: 'Unknown appId. Config was not found', appId })
                     continue
                 }
+                console.log('insideRedStoreAdapter', 'notificationsBatchForApp', appId, notificationsBatchForApp)
 
                 const app = new RedStoreNotificationSender(configForApp)
                 try {
