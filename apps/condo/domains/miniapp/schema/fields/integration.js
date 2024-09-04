@@ -1,7 +1,7 @@
 const AllIcons = require('@open-condo/icons')
+const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 
 const { DEFAULT_MENU_CATEGORY, ALL_MENU_CATEGORIES } = require('@condo/domains/common/constants/menuCategories')
-const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { CONTEXT_STATUSES, CONTEXT_IN_PROGRESS_STATUS, B2B_APPS_LABELS } = require('@condo/domains/miniapp/constants')
 
 const APPS_FILE_ADAPTER = new FileAdapter('apps')

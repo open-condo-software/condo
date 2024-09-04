@@ -16,12 +16,13 @@ const {
     ERROR_INVOICE_EMPTY_ROWS,
     INVOICE_PAYMENT_TYPES,
     DEFAULT_INVOICE_CURRENCY_CODE,
+    ERROR_PROHIBITED_INVOICE_PAYMENT_TYPE,
 } = require('@condo/domains/marketplace/constants')
 const {
     ERROR_NO_ACQUIRING_CONTEXT,
     ERROR_ITEM_FROM_OTHER_ORGANIZATION,
 } = require('@condo/domains/marketplace/constants')
-const { Invoice, MarketPriceScope } = require('@condo/domains/marketplace/utils/serverSchema')
+const { Invoice, MarketPriceScope, MarketSetting } = require('@condo/domains/marketplace/utils/serverSchema')
 const access = require('@condo/domains/resident/access/RegisterResidentInvoiceService')
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 
@@ -44,6 +45,12 @@ const ERRORS = {
         type: ERROR_INVOICE_EMPTY_ROWS,
         message: 'The invoice contains no rows',
         messageForUser: 'api.marketplace.invoice.error.emptyRows',
+    },
+    PROHIBITED_INVOICE_PAYMENT_TYPE: {
+        code: BAD_USER_INPUT,
+        type: ERROR_PROHIBITED_INVOICE_PAYMENT_TYPE,
+        message: 'This payment method is prohibited in the selected organization',
+        messageForUser: 'api.marketplace.invoice.error.prohibitedPaymentType',
     },
 }
 
@@ -87,6 +94,15 @@ const RegisterResidentInvoiceService = new GQLCustomSchema('RegisterResidentInvo
 
                 if (!acquiringContext) {
                     throw new GQLError(ERRORS.NO_ACQUIRING_CONTEXT, context)
+                }
+
+                const [marketSetting] = await MarketSetting.getAll(context, {
+                    organization: { id: resident.organization },
+                    deletedAt: null,
+                }, { first: 1 })
+
+                if (resident && marketSetting && !get(marketSetting, 'residentAllowedPaymentTypes', []).includes(data.paymentType)) {
+                    throw new GQLError(ERRORS.PROHIBITED_INVOICE_PAYMENT_TYPE, context)
                 }
 
                 const priceScopesCounts = {}

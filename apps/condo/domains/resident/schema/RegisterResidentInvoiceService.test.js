@@ -18,9 +18,11 @@ const {
     INVOICE_STATUS_DRAFT,
     INVOICE_STATUS_PUBLISHED,
 } = require('@condo/domains/marketplace/constants')
+const { INVOICE_PAYMENT_TYPES } = require('@condo/domains/marketplace/constants')
 const {
     createTestMarketPriceScope, createTestMarketItem,
-    createTestMarketCategory, createTestMarketItemPrice, generatePriceRow, Invoice,
+    createTestMarketCategory, createTestMarketItemPrice, generatePriceRow, Invoice, updateTestMarketSetting,
+    MarketSetting,
 } = require('@condo/domains/marketplace/utils/testSchema')
 const {
     createTestOrganization,
@@ -36,6 +38,7 @@ const {
     makeClientWithResidentUser, makeClientWithStaffUser,
 } = require('@condo/domains/user/utils/testSchema')
 
+
 const MOBILE_APP_RESIDENT_TICKET_SOURCE_ID = '3068d49a-a45c-4c3a-a02d-ea1a53e1febb'
 
 let adminClient
@@ -43,9 +46,9 @@ let organization, acquiringIntegration
 
 describe('RegisterResidentInvoiceService', () => {
     beforeAll(async () => {
-        adminClient = await makeLoggedInAdminClient()
-        ;[acquiringIntegration] = await createTestAcquiringIntegration(adminClient)
-        ;[organization] = await createTestOrganization(adminClient)
+        adminClient = await makeLoggedInAdminClient();
+        [acquiringIntegration] = await createTestAcquiringIntegration(adminClient);
+        [organization] = await createTestOrganization(adminClient)
         await createTestAcquiringIntegrationContext(adminClient, organization, acquiringIntegration, { invoiceStatus: CONTEXT_FINISHED_STATUS })
     })
 
@@ -321,6 +324,44 @@ describe('RegisterResidentInvoiceService', () => {
                 type: 'EMPTY_ROWS',
                 message: 'The invoice contains no rows',
                 messageForUser: 'api.marketplace.invoice.error.emptyRows',
+            }, 'result')
+        })
+
+        test('can\'t create invoice with prohibited invoicePaymentType', async () => {
+            const [property] = await createTestProperty(adminClient, organization)
+
+            const residentClient = await makeClientWithResidentUser()
+            const unitType = FLAT_UNIT_TYPE
+            const unitName = faker.lorem.word()
+            const [resident] = await registerResidentByTestClient(
+                residentClient,
+                {
+                    address: property.address,
+                    addressMeta: property.addressMeta,
+                    unitType,
+                    unitName,
+                })
+
+            const [marketCategory] = await createTestMarketCategory(adminClient)
+            const [marketItem] = await createTestMarketItem(adminClient, marketCategory, organization)
+            const [itemPrice] = await createTestMarketItemPrice(adminClient, marketItem, { price: [generatePriceRow({ isMin: true })] })
+            const [priceScope] = await createTestMarketPriceScope(adminClient, itemPrice, property)
+            const [marketSetting] = await MarketSetting.getAll(adminClient, { organization: { id: organization.id } })
+            await updateTestMarketSetting(adminClient, marketSetting.id, { residentAllowedPaymentTypes: [INVOICE_PAYMENT_TYPES[0]] })
+
+            await expectToThrowGQLError(async () => await registerResidentInvoiceByTestClient(
+                residentClient,
+                pick(resident, 'id'),
+                [{
+                    priceScope: pick(priceScope, 'id'),
+                    count: 1,
+                }],
+                { paymentType: INVOICE_PAYMENT_TYPES[1] }
+            ), {
+                code: 'BAD_USER_INPUT',
+                type: 'PROHIBITED_INVOICE_PAYMENT_TYPE',
+                message: 'This payment method is prohibited in the selected organization',
+                messageForUser: 'api.marketplace.invoice.error.prohibitedPaymentType',
             }, 'result')
         })
     })

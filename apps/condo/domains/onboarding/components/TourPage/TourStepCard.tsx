@@ -60,7 +60,6 @@ export const TourStepCard: React.FC<TourStepCardProps> = (props) => {
     const intl = useIntl()
     const NoPermissionsMessage = intl.formatMessage({ id: 'tour.step.disabledTooltip.noPermission' })
     const CompletePreviousStepMessage = intl.formatMessage({ id: 'tour.step.disabledTooltip.completePreviousSteps' })
-    const CompleteBillingStepResidentStepMessage = intl.formatMessage({ id: 'tour.step.disabledTooltip.completeBillingStep' })
     const CardTitle = intl.formatMessage({ id: pathToCardTitleTranslation as FormatjsIntl.Message['ids'] })
     const BodyDescription = useMemo(() => SECOND_LEVEL_STEPS.includes(stepType) &&
             (stepStatus === TourStepStatusType.Todo || stepStatus === TourStepStatusType.Waiting) &&
@@ -105,15 +104,8 @@ export const TourStepCard: React.FC<TourStepCardProps> = (props) => {
             )
         }
 
-        if (stepType === TourStepTypeType.Resident) {
-            const uploadReceiptsStep = steps.find(step => step.type === TourStepTypeType.UploadReceipts)
-            if (uploadReceiptsStep && uploadReceiptsStep.status !== TourStepStatusType.Completed) {
-                return CompleteBillingStepResidentStepMessage
-            }
-        }
-
         return CompletePreviousStepMessage
-    }, [CompleteBillingStepResidentStepMessage, CompletePreviousStepMessage, NoPermissionsMessage, hasPermission, stepType, steps])
+    }, [CompletePreviousStepMessage, NoPermissionsMessage, hasPermission, stepType, steps])
     const isDisabledStatus = useMemo(() => stepStatus === TourStepStatusType.Disabled || !hasPermission || disabled, [disabled, hasPermission, stepStatus])
 
     const cardContent = (

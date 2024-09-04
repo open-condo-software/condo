@@ -4,6 +4,7 @@
 const index = require('@app/condo/index')
 const ObsClient = require('esdk-obs-nodejs')
 
+const { obsRouterHandler } = require('@open-condo/keystone/fileAdapter/sberCloudFileAdapter')
 const {
     setFakeClientMode,
     makeLoggedInAdminClient,
@@ -20,7 +21,6 @@ const {
     makeClientWithSupportUser,
 } = require('@condo/domains/user/utils/testSchema')
 
-const { obsRouterHandler } = require('./sberCloudFileAdapter')
 
 const { keystone } = index
 

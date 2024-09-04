@@ -4,15 +4,14 @@
 const get = require('lodash/get')
 
 const { GQLError } = require('@open-condo/keystone/errors')
+const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
+const { getFileMetaAfterChange } = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
-const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
-const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 const access = require('@condo/domains/document/access/Document')
 const { ERRORS } = require('@condo/domains/document/constants')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
-
 
 const DOCUMENT_FOLDER_NAME = 'document'
 const Adapter = new FileAdapter(DOCUMENT_FOLDER_NAME, false, true)
@@ -62,7 +61,7 @@ const Document = new GQLListSchema('Document', {
             const resolvedPropertyId = resolvedData['property']
             if (resolvedPropertyId) {
                 const property = await getById('Property', resolvedPropertyId)
-                
+
                 if (get(property, 'organization') !== newItem.organization) {
                     throw new GQLError(ERRORS.WRONG_PROPERTY_ORGANIZATION, context)
                 }

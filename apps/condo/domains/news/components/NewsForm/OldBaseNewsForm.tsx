@@ -45,9 +45,12 @@ import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCou
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { BaseNewsFormProps } from '@condo/domains/news/components/NewsForm/BaseNewsForm'
 import { MemoizedCondoNewsPreview } from '@condo/domains/news/components/NewsPreview'
-import { detectTargetedSections, RecipientCounter } from '@condo/domains/news/components/RecipientCounter'
+import {
+    detectTargetedSections,
+    MemoizedRecipientCounter,
+} from '@condo/domains/news/components/RecipientCounter'
 import { TemplatesTabs } from '@condo/domains/news/components/TemplatesTabs'
-import { TNewsItemScopeNoInstance } from '@condo/domains/news/components/types'
+import { NewsItemScopeNoInstanceType } from '@condo/domains/news/components/types'
 import { PROFANITY_TITLE_DETECTED_MOT_ERF_KER, PROFANITY_BODY_DETECTED_MOT_ERF_KER } from '@condo/domains/news/constants/errors'
 import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 import { NewsItem, NewsItemScope } from '@condo/domains/news/utils/clientSchema'
@@ -143,6 +146,12 @@ const containWordsInSquareBrackets = (str) => {
     return words.length !== 0
 }
 
+const getTitleTemplateChanged = (form) => {
+    const { title } = form.getFieldsValue(['title'])
+    // NOTE: this check blocks any sending of [] in the news body
+    return !containWordsInSquareBrackets(title)
+}
+
 const getBodyTemplateChanged = (form) => {
     const { body } = form.getFieldsValue(['body'])
     // NOTE: this check blocks any sending of [] in the news body
@@ -192,6 +201,14 @@ export const getFinishWorkRule: (error: string) => Rule = (error) => (form) => {
         message: error,
         validator: () => {
             return getValidBeforeAfterSendAt(form) ? Promise.resolve() : Promise.reject()
+        },
+    }
+}
+export const getTitleTemplateChangedRule: (error: string) => Rule = (error) => (form) => {
+    return {
+        message: error,
+        validator: () => {
+            return getTitleTemplateChanged(form) ? Promise.resolve() : Promise.reject()
         },
     }
 }
@@ -305,7 +322,7 @@ export const OldBaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const SelectTextLabel = intl.formatMessage({ id: 'news.fields.text.label' })
     const SelectAddressLabel = intl.formatMessage({ id: 'news.fields.address.label' })
     const SelectSendPeriodLabel = intl.formatMessage({ id: 'news.fields.period.label' })
-    const TemplateBodyErrorMessage = intl.formatMessage({ id: 'news.fields.templateBody.error' })
+    const TemplateBlanksNotFilledErrorMessage = intl.formatMessage({ id: 'news.fields.template.blanksNotFilledError' })
     const ValidBeforeErrorMessage = intl.formatMessage({ id: 'news.fields.validBefore.error' })
     const ToManyMessagesMessage = intl.formatMessage({ id: 'news.fields.toManyMessages.error' })
     const TemlatesLabel = intl.formatMessage({ id: 'news.fields.templates' })
@@ -405,7 +422,7 @@ export const OldBaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
     const { loading: selectedPropertiesLoading, objs: selectedProperties } = Property.useAllObjects({
         where: { id_in: selectedPropertiesId },
-    })
+    }, { fetchPolicy: 'cache-first' })
 
     const isOnlyOnePropertySelected: boolean = useMemo(() => (selectedPropertiesId.length === 1), [selectedPropertiesId.length])
 
@@ -564,17 +581,18 @@ export const OldBaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const dateRule: Rule = useMemo(() => getDateRule(PastTimeErrorMessage), [PastTimeErrorMessage])
     const finishWorkRule: Rule = useMemo(() => getFinishWorkRule(ValidBeforeErrorMessage), [ValidBeforeErrorMessage])
     const commonRule: Rule = useMemo(() => requiredValidator, [requiredValidator])
-    const titleRules = useMemo(() => [{
+    const titleRule = useMemo(() => ({
         whitespace: true,
         required: true,
         message: TitleErrorMessage,
-    }], [TitleErrorMessage])
+    }), [TitleErrorMessage])
+    const MemoizedTitleTemplateChangedRule = useMemo(() => getTitleTemplateChangedRule(TemplateBlanksNotFilledErrorMessage), [TemplateBlanksNotFilledErrorMessage])
     const bodyRule = useMemo(() => ({
         whitespace: true,
         required: true,
         message: BodyErrorMessage,
     }), [BodyErrorMessage])
-    const bodyTemplateChanged = useMemo(() => getBodyTemplateChangedRule(TemplateBodyErrorMessage), [TemplateBodyErrorMessage])
+    const MemoizedBodyTemplateChangedRule = useMemo(() => getBodyTemplateChangedRule(TemplateBlanksNotFilledErrorMessage), [TemplateBlanksNotFilledErrorMessage])
 
     const initialFormValues = useMemo(() => {
         return {
@@ -778,7 +796,7 @@ export const OldBaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }
     }, [actionName, createOrUpdateNewsItem, initialHasAllProperties, initialPropertyIds, updateNewsItem, OnCompletedMsg, afterAction, initialSentAt, currentNewsItem, initialNewsItemScopes, softDeleteNewsItemScope, initialUnitKeys, createNewsItemScope, router])
 
-    const newsItemScopesNoInstance = useMemo<TNewsItemScopeNoInstance[]>(() => {
+    const newsItemScopesNoInstance = useMemo<NewsItemScopeNoInstanceType[]>(() => {
         if (isAllPropertiesChecked && countPropertiesAvaliableToSelect.current !== 1) {
             return [{ property: null, unitType: null, unitName: null }]
         }
@@ -812,7 +830,15 @@ export const OldBaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }
 
         return []
-    }, [isAllPropertiesChecked, isOnlyOnePropertySelected, selectedProperties, selectedPropertiesId.length, selectedPropertiesLoading, selectedSectionKeys, selectedUnitNameKeys])
+    }, [
+        selectedPropertiesLoading,
+        isAllPropertiesChecked,
+        isOnlyOnePropertySelected,
+        selectedProperties,
+        selectedPropertiesId,
+        selectedSectionKeys,
+        selectedUnitNameKeys,
+    ])
 
     const dayjsTz = dayjs().format('Z')
     const tzInfo = useMemo<string>(() => {
@@ -991,7 +1017,7 @@ export const OldBaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                             labelCol={FORM_FILED_COL_PROPS}
                                                             name='title'
                                                             required
-                                                            rules={titleRules}
+                                                            rules={[titleRule, MemoizedTitleTemplateChangedRule]}
                                                             data-cy='news__create-title-input'
                                                         >
                                                             <Title.InputWithCounter
@@ -1011,7 +1037,7 @@ export const OldBaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                             labelCol={FORM_FILED_COL_PROPS}
                                                             name='body'
                                                             required
-                                                            rules={[bodyRule, bodyTemplateChanged]}
+                                                            rules={[bodyRule, MemoizedBodyTemplateChangedRule]}
                                                             validateFirst={true}
                                                             data-cy='news__create-body-input'
                                                         >
@@ -1067,12 +1093,12 @@ export const OldBaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                     }
                                                     <HiddenBlock hide={newsItemForOneProperty}>
                                                         <GraphQlSearchInputWithCheckAll
-                                                            checkAllFieldName='hasAllProperties'
-                                                            checkAllInitialValue={get(initialValues, 'hasAllProperties', false)}
                                                             selectFormItemProps={propertySelectFormItemProps}
                                                             selectProps={propertySelectProps(form)}
-                                                            onCheckBoxChange={propertyCheckboxChange(form)}
+                                                            checkAllFieldName='hasAllProperties'
+                                                            checkAllInitialValue={get(initialValues, 'hasAllProperties', false)}
                                                             CheckAllMessage={CheckAllLabel}
+                                                            onCheckBoxChange={propertyCheckboxChange(form)}
                                                             onDataLoaded={handleAllPropertiesDataLoading}
                                                             form={form}
                                                         />
@@ -1126,13 +1152,11 @@ export const OldBaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                 }
                                             </Row>
                                         </Col>
-                                        {
-                                            !!formInfoColSpan && newsItemScopesNoInstance.length > 0 && (
-                                                <Col span={formInfoColSpan}>
-                                                    <RecipientCounter newsItemScopes={newsItemScopesNoInstance}/>
-                                                </Col>
-                                            )
-                                        }
+                                        <Col span={formInfoColSpan}>
+                                            <HiddenBlock hide={newsItemScopesNoInstance.length <= 0} >
+                                                <MemoizedRecipientCounter newsItemScopes={newsItemScopesNoInstance}/>
+                                            </HiddenBlock>
+                                        </Col>
                                     </Row>
                                 </Col>
                                 <Col span={24}>

@@ -29,7 +29,7 @@ const SEND_B2C_APP_PUSH_MESSAGE_MUTATION = gql`
     }
 `
 
-const B2B_APP_NEWS_SHARING_CONFIG_FIELDS = `{ publishUrl previewUrl customFormUrl getRecipientsUrl icon { publicUrl } previewPicture { publicUrl } name ${COMMON_FIELDS} }`
+const B2B_APP_NEWS_SHARING_CONFIG_FIELDS = `{ publishUrl previewUrl pushNotificationSettings customFormUrl getRecipientsUrl getRecipientsCountersUrl icon { publicUrl } previewPicture { publicUrl } name ${COMMON_FIELDS} }`
 const B2BAppNewsSharingConfig = generateGqlQueries('B2BAppNewsSharingConfig', B2B_APP_NEWS_SHARING_CONFIG_FIELDS)
 
 const B2B_APP_FIELDS = `{ name logo { publicUrl } icon shortDescription detailedDescription newsSharingConfig ${B2B_APP_NEWS_SHARING_CONFIG_FIELDS} developer partnerUrl appUrl category label gallery price features ${COMMON_FIELDS} }`
@@ -76,6 +76,9 @@ const MessageAppBlackList = generateGqlQueries('MessageAppBlackList', MESSAGE_AP
 const B2B_APP_ACCESS_RIGHT_SET_FIELDS = `{ app { id } ${B2B_ACCESSES_LISTS_FIELDS} ${B2B_ACCESSES_SERVICES_FIELDS} ${COMMON_FIELDS} }`
 const B2BAppAccessRightSet = generateGqlQueries('B2BAppAccessRightSet', B2B_APP_ACCESS_RIGHT_SET_FIELDS)
 
+const B2C_APP_MESSAGE_SETTINGS_FIELDS = `{ app { id } isBlacklisted blockReason type notificationWindowSize numberOfNotificationInWindow ${COMMON_FIELDS} }`
+const B2CAppMessageSetting = generateGqlQueries('B2CAppMessageSetting', B2C_APP_MESSAGE_SETTINGS_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -94,5 +97,6 @@ module.exports = {
     B2CAppProperty,
     MessageAppBlackList,
     B2BAppNewsSharingConfig,
+    B2CAppMessageSetting,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

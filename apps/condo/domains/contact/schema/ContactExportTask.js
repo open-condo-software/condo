@@ -4,14 +4,14 @@
 
 const conf = require('@open-condo/config')
 const { canOnlyServerSideWithoutUserRequest } = require('@open-condo/keystone/access')
+const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
+const { getFileMetaAfterChange } = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 
 const { PROCESSING, EXPORT_STATUS_VALUES, EXCEL } = require('@condo/domains/common/constants/export')
 const { COMPLETED, ERROR } = require('@condo/domains/common/constants/export')
-const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
-const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const access = require('@condo/domains/contact/access/ContactExportTask')
 const { exportContacts } = require('@condo/domains/contact/tasks')

@@ -3,14 +3,14 @@ name: Condo CI
 on:
   push:
     branches:
-      - master
+      - main
   pull_request_target:
     types:
       - opened
       - reopened
       - synchronize
     branches:
-      - master
+      - main
   workflow_dispatch:
 
 concurrency:

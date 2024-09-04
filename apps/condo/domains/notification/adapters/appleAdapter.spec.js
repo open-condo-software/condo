@@ -27,9 +27,15 @@ const FAKE_ERROR_MESSAGE_PREFIX_REGEXP = new RegExp(`^${FAKE_ERROR_MESSAGE_PREFI
 const APPLE_TEST_PUSHTOKEN = conf[APPLE_CONFIG_TEST_PUSHTOKEN_ENV] || null
 const APPLE_TEST_VOIP_PUSHTOKEN = conf[APPLE_CONFIG_TEST_VOIP_PUSHTOKEN_ENV] || null
 
+
+jest.mock('@open-condo/config',  () => {
+    return {
+        APPS_WITH_DISABLED_NOTIFICATIONS: '["condo.app.clients"]',
+    }
+})
 describe('Apple adapter utils', () => {
 
-    it('should succeed sending push notification to fake success push token ', async () => {
+    it('should succeed sending push notification to fake success push token', async () => {
         const tokens = [PUSH_FAKE_TOKEN_SUCCESS]
         const [isOk, result] = await adapter.sendNotification({
             tokens,
@@ -51,6 +57,27 @@ describe('Apple adapter utils', () => {
         expect(result.responses[0].success).toBeTruthy()
         expect(result.responses[0].headers['apns-id']).toMatch(FAKE_SUCCESS_MESSAGE_PREFIX_REGEXP)
         expect(result.responses[0].headers[':status']).toEqual(APS_RESPONSE_STATUS_SUCCESS)
+    })
+
+    it('doesnt send push notification to app with disabled notifications', async () => {
+        const tokens = [PUSH_FAKE_TOKEN_SUCCESS]
+        const [isOk, result] = await adapter.sendNotification({
+            tokens,
+            notification: {
+                title: 'Condo',
+                body: `${dayjs().format()} Condo greets you!`,
+            },
+            data: {
+                app : 'condo.app.clients',
+                type: 'notification',
+            },
+        })
+
+        expect(isOk).toBeFalsy()
+        expect(result).toBeDefined()
+        expect(result.successCount).toEqual(0)
+        expect(result.responses).toBeDefined()
+        expect(result.responses).toHaveLength(0)
     })
 
     it.skip('tries to send push notification to real test push token if provided ', async () => {

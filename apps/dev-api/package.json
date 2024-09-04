@@ -65,5 +65,5 @@
     "jest-jasmine2": "^29.7.0",
     "jest-watch-typeahead": "^0.6.1"
   },
-  "repository": "https://github.com/open-condo-software/condo/tree/master/apps/dev-api"
+  "repository": "https://github.com/open-condo-software/condo/tree/main/apps/dev-api"
 }

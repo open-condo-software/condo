@@ -32,6 +32,9 @@ const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/prop
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
+    createTestUserRightsSet,
+    updateTestUserRightsSet,
+    updateTestUser,
 } = require('@condo/domains/user/utils/testSchema')
 
 const {
@@ -47,13 +50,24 @@ const { DATE_FORMAT, getUniqKey } = require('../tasks/sendMessageBatch.helpers')
 
 
 describe('MessageBatch', () => {
-    let admin, anonymous, support, userClient
+    let admin, anonymous, support, userClient, permittedClient
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
         anonymous = await makeClient()
         support = await makeClientWithSupportUser()
         userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+        permittedClient = await makeClientWithNewRegisteredAndLoggedInUser()
+
+        const [rightsSet] = await createTestUserRightsSet(support, {
+            canReadMessageBatches: true,
+            canManageMessageBatches: true,
+        })
+
+        await updateTestUser(support, permittedClient.user.id, {
+            rightsSet: { connect: { id: rightsSet.id } },
+        })
+        permittedClient.rightsSet = rightsSet
     })
 
     describe('CRUD tests', () => {
@@ -100,6 +114,11 @@ describe('MessageBatch', () => {
                 expect(obj.status).toMatch(MESSAGE_BATCH_CREATED_STATUS)
             })
 
+            test('user with "canManageMessageBatches" can', async () => {
+                const [obj] = await createTestMessageBatch(permittedClient)
+                expect(obj).toHaveProperty('id')
+            })
+
             test('user can not', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await createTestMessageBatch(userClient)
@@ -130,6 +149,14 @@ describe('MessageBatch', () => {
                 })
             })
 
+            test('user with "canManageMessageBatches" cannot', async () => {
+                const [objCreated] = await createTestMessageBatch(permittedClient)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestMessageBatch(permittedClient, objCreated.id)
+                })
+            })
+
             test('user can not', async () => {
                 const [objCreated] = await createTestMessageBatch(admin)
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -154,6 +181,14 @@ describe('MessageBatch', () => {
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await MessageBatch.delete(admin, objCreated.id)
+                })
+            })
+
+            test('user with "canManageMessageBatches" cannot', async () => {
+                const [objCreated] = await createTestMessageBatch(permittedClient)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await MessageBatch.delete(permittedClient, objCreated.id)
                 })
             })
 
@@ -207,6 +242,48 @@ describe('MessageBatch', () => {
                         targets: attrs.targets,
                     }),
                 )
+            })
+
+            test('user with "canManageMessageBatches" can see only his own batches and only while have rightsSet', async () => {
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
+
+                const [rightsSet] = await createTestUserRightsSet(support, {
+                    canReadMessageBatches: true,
+                    canManageMessageBatches: true,
+                })
+
+                await updateTestUser(support, client.user.id, {
+                    rightsSet: { connect: { id: rightsSet.id } },
+                })
+
+                const [ownBatch] = await createTestMessageBatch(client)
+                const [otherBatch] = await createTestMessageBatch(support)
+                expect(ownBatch).toHaveProperty('id')
+                expect(otherBatch).toHaveProperty('id')
+
+                const objs = await MessageBatch.getAll(client, { id_in: [ownBatch.id, otherBatch.id] })
+                expect(objs).toHaveLength(1)
+                expect(objs).toEqual([
+                    expect.objectContaining({
+                        id: ownBatch.id,
+                    }),
+                ])
+
+                await updateTestUserRightsSet(support, rightsSet.id, {
+                    canReadMessageBatches: false,
+                })
+
+                await expectToThrowAccessDeniedErrorToObjects(async () => {
+                    await MessageBatch.getAll(client, {}, { first: 100 })
+                })
+
+                await updateTestUser(support, client.user.id, {
+                    rightsSet: { disconnectAll: true },
+                })
+
+                await expectToThrowAccessDeniedErrorToObjects(async () => {
+                    await MessageBatch.getAll(client, {}, { first: 100 })
+                })
             })
 
             test('user can not', async () => {

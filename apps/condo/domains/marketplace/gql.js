@@ -29,6 +29,9 @@ const MarketItemPrice = generateGqlQueries('MarketItemPrice', MARKET_ITEM_PRICE_
 const MARKET_PRICE_SCOPE_FIELDS = `{ marketItemPrice { id marketItem { id name sku organization { id } marketCategory { id name order parentCategory { id order name } } } price { type name price isMin vatPercent salesTaxPercent currencyCode } } property { id addressMeta { ${ADDRESS_META_SUBFIELDS_TABLE_LIST} } } type ${COMMON_FIELDS} }`
 const MarketPriceScope = generateGqlQueries('MarketPriceScope', MARKET_PRICE_SCOPE_FIELDS)
 
+const MARKET_SETTING_FIELDS = `{ organization { id } residentAllowedPaymentTypes ${COMMON_FIELDS} }`
+const MarketSetting = generateGqlQueries('MarketSetting', MARKET_SETTING_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -39,5 +42,6 @@ module.exports = {
     MarketItemPrice,
     MarketPriceScope,
     INVOICE_FIELDS,
+    MarketSetting,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

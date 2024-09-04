@@ -10,13 +10,13 @@ SOURCE_FOLDER=$1
 TARGET_FOLDER=$2
 
 echo "[SOURCE/CLONE/PULL]"
-if [ -d ${SOURCE_FOLDER} ]; then git -C ${SOURCE_FOLDER} pull origin master; else echo "<source-git-repo> not found!: ${SOURCE_FOLDER}"; exit 3; fi
+if [ -d ${SOURCE_FOLDER} ]; then git -C ${SOURCE_FOLDER} pull origin main; else echo "<source-git-repo> not found!: ${SOURCE_FOLDER}"; exit 3; fi
 echo "[SOURCE/STATS]"
 git -C ${SOURCE_FOLDER} rev-parse HEAD
 git -C ${SOURCE_FOLDER} status
 
 echo "[TARGET/CLONE/PULL]"
-if [ -d ${TARGET_FOLDER} ]; then git -C ${TARGET_FOLDER} pull origin master; else echo "<target-git-repo> not found!: ${TARGET_FOLDER}"; exit 3; fi
+if [ -d ${TARGET_FOLDER} ]; then git -C ${TARGET_FOLDER} pull origin main; else echo "<target-git-repo> not found!: ${TARGET_FOLDER}"; exit 3; fi
 echo "[TARGET/STATS]"
 git -C ${TARGET_FOLDER} rev-parse HEAD
 git -C ${TARGET_FOLDER} status
@@ -119,14 +119,14 @@ npx gitexporter ${SOURCE_FOLDER}.config.json
 
 echo "[TARGET/SETUP]"
 cd ${TARGET_FOLDER}
-git branch -D master || echo "no branch master"
+git branch -D main || echo "no branch main"
 echo "[TARGET/STATS]"
 git rev-parse HEAD
 git status
 echo "[TARGET/CHECKOUT]"
 COMMIT=$(git rev-parse HEAD)
-git checkout -B master ${COMMIT}
+git checkout -B main ${COMMIT}
 echo "[TARGET/PUSH]"
-git push origin master
+git push origin main
 cd -
 echo "[END]"

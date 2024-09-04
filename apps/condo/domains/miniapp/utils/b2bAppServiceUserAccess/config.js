@@ -52,7 +52,9 @@ const B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS = {
 
         // Meter domain
         Meter: {},
-        MeterReading: {},
+        MeterReading: {
+            pathToOrganizationId: ['meter', 'organization', 'id'],
+        },
 
         // Organization domain
         Organization: {

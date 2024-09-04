@@ -100,6 +100,8 @@ const DEFAULT_ROLES = {
         'canManageTour': true,
         'canReadDocuments': true,
         'canManageDocuments': true,
+        'canReadMarketSetting': true,
+        'canManageMarketSetting': true,
     },
     'Dispatcher': {
         'isDefault': true,
@@ -162,6 +164,8 @@ const DEFAULT_ROLES = {
         'canManageTour': true,
         'canReadDocuments': true,
         'canManageDocuments': true,
+        'canReadMarketSetting': true,
+        'canManageMarketSetting': false,
     },
     'Manager': {
         'isDefault': true,
@@ -227,6 +231,8 @@ const DEFAULT_ROLES = {
         'canManageTour': true,
         'canReadDocuments': true,
         'canManageDocuments': true,
+        'canReadMarketSetting': true,
+        'canManageMarketSetting': true,
     },
     'Foreman': {
         'isDefault': true,
@@ -288,6 +294,8 @@ const DEFAULT_ROLES = {
         'canManageTour': true,
         'canReadDocuments': true,
         'canManageDocuments': true,
+        'canReadMarketSetting': true,
+        'canManageMarketSetting': false,
     },
     'Technician': {
         'isDefault': true,
@@ -348,6 +356,8 @@ const DEFAULT_ROLES = {
         'canManageTour': true,
         'canReadDocuments': true,
         'canManageDocuments': true,
+        'canReadMarketSetting': true,
+        'canManageMarketSetting': false,
     },
     'Contractor': {
         'isDefault': true,
@@ -406,6 +416,8 @@ const DEFAULT_ROLES = {
         'canManageTour': true,
         'canReadDocuments': true,
         'canManageDocuments': false,
+        'canReadMarketSetting': false,
+        'canManageMarketSetting': false,
     },
 }
 

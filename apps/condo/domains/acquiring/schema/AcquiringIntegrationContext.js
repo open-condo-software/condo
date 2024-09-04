@@ -28,6 +28,7 @@ const { AcquiringIntegrationContext: ContextServerSchema } = require('@condo/dom
 const { PERCENT_FIELD } = require('@condo/domains/common/schema/fields')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
+const { MarketSetting } = require('@condo/domains/marketplace/utils/serverSchema')
 const { STATUS_FIELD, getStatusDescription, getStatusResolver } = require('@condo/domains/miniapp/schema/fields/context')
 
 const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationContext', {
@@ -266,6 +267,22 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
                     throw new GQLError(GQL_ERRORS.VAT_NOT_MATCHED_TO_INTEGRATION_OPTIONS(integration.vatPercentOptions), context)
                 }
             }
+        },
+        afterChange: async ({ operation, originalInput, context, updatedItem }) => {
+            const orgId = updatedItem.organization
+
+            if (updatedItem.invoiceStatus === CONTEXT_FINISHED_STATUS && !updatedItem.deletedAt) {
+                const [marketSetting] = await MarketSetting.getAll(context, {
+                    deletedAt: null,
+                    organization: { id: orgId },
+                })
+                if (!marketSetting) await MarketSetting.create(context, {
+                    organization: { connect: { id: orgId } },
+                    dv: originalInput.dv,
+                    sender: originalInput.sender,
+                })
+            }
+
         },
     },
 })

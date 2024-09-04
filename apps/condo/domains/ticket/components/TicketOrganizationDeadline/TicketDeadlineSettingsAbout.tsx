@@ -1,7 +1,7 @@
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import Link from 'next/link'
-import React  from 'react'
+import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 

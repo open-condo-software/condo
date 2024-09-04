@@ -4,20 +4,20 @@
 
 const conf = require('@open-condo/config')
 const { canOnlyServerSideWithoutUserRequest } = require('@open-condo/keystone/access')
+const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
+const { getFileMetaAfterChange } = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 
 const { EXPORT_STATUS_VALUES, EXPORT_FORMAT_VALUES, PROCESSING, COMPLETED, ERROR } = require('@condo/domains/common/constants/export')
-const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const access = require('@condo/domains/ticket/access/TicketExportTask')
 
-
 const { TICKET_EXPORT_OPTIONS_FIELD } = require('./fields/TicketExportParameters')
 
-const { getFileMetaAfterChange } = require('../../common/utils/fileAdapter')
+
 const { exportTickets } = require('../tasks')
 
 const TICKET_EXPORT_TASK_FOLDER_NAME = 'TicketExportTask'

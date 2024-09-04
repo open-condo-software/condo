@@ -5,11 +5,11 @@
 const get = require('lodash/get')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
+const { getFileMetaAfterChange } = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, importable } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById, getByCondition } = require('@open-condo/keystone/schema')
 
-const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
-const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 const access = require('@condo/domains/miniapp/access/B2CAppBuild')
 const { NON_ZIP_FILE_ERROR } = require('@condo/domains/miniapp/constants')
 const { B2CApp } = require('@condo/domains/miniapp/utils/serverSchema')

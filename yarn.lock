@@ -754,7 +754,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@app/condo-restapi@workspace:apps/condo-restapi"
   dependencies:
+    "@condo/domains": "link:../condo/domains"
     "@faker-js/faker": ^8.3.1
+    "@open-condo/keystone": "workspace:^"
     apollo-boost: ^0.4.9
     apollo-client: ^2.6.10
     apollo-link-error: ^1.1.13
@@ -762,8 +764,10 @@ __metadata:
     body-parser: ^1.20.2
     cross-fetch: ^4.0.0
     cypress: ^13.6.3
+    dayjs: ^1.10.6
     dotenv: ^16.3.2
     express: ^4.18.2
+    express-pino-logger: ^6.0.0
     graphql: ^16.8.1
     graphql-tag: ^2.12.6
     lodash: ^4.17.21
@@ -860,6 +864,7 @@ __metadata:
     commander: ^11.0.0
     cross-env: ^7.0.3
     css-loader: 1.0.1
+    csv-parse: ^5.2.0
     csv-stringify: ^6.2.0
     cuid: ^2.1.8
     cypress: 12.17.3
@@ -2016,7 +2021,7 @@ __metadata:
     "@graphql-codegen/typescript": ^4.0.1
     "@graphql-codegen/typescript-operations": ^4.0.1
     "@graphql-codegen/typescript-react-apollo": ^4.0.0
-    "@nerdwallet/apollo-cache-policies": ^3.3.0
+    "@nerdwallet/apollo-cache-policies": ^3.3.2
     "@open-condo/config": "workspace:^"
     "@open-condo/icons": "workspace:^"
     "@open-condo/locales": "workspace:^"
@@ -2024,13 +2029,16 @@ __metadata:
     "@open-condo/ui": "workspace:^"
     "@parcel/watcher": ^2.3.0
     "@serwist/next": ^9.0.1
+    "@types/big.js": ^6.2.2
     "@types/react": 18.0.27
     "@types/react-dom": 18.0.10
     antd: 5.16.4
     apollo-upload-client: ^17
     apollo3-cache-persist: ^0.15.0
+    big.js: ^6.2.1
     classnames: ^2.3.2
     cookies-next: ^4.2.1
+    dayjs: ^1.11.11
     deepmerge: ^4.3.1
     graphql: ^16.8.1
     http-proxy: ^1.18.1
@@ -7052,6 +7060,12 @@ __metadata:
 "@condo/domains@link:../condo/domains::locator=%40app%2Fcallcenter%40workspace%3Aapps%2Fcallcenter":
   version: 0.0.0-use.local
   resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fcallcenter%40workspace%3Aapps%2Fcallcenter"
+  languageName: node
+  linkType: soft
+
+"@condo/domains@link:../condo/domains::locator=%40app%2Fcondo-restapi%40workspace%3Aapps%2Fcondo-restapi":
+  version: 0.0.0-use.local
+  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fcondo-restapi%40workspace%3Aapps%2Fcondo-restapi"
   languageName: node
   linkType: soft
 
@@ -12083,17 +12097,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nerdwallet/apollo-cache-policies@npm:^3.3.0":
-  version: 3.3.0
-  resolution: "@nerdwallet/apollo-cache-policies@npm:3.3.0"
+"@nerdwallet/apollo-cache-policies@npm:^3.3.2":
+  version: 3.3.2
+  resolution: "@nerdwallet/apollo-cache-policies@npm:3.3.2"
   dependencies:
-    graphql: ^15.5.0
+    graphql: ^16.8.1
     lodash: ^4.17.21
     uuid: ^7.0.3
   peerDependencies:
     "@apollo/client": ^3.8.1
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
-  checksum: fff46e7a50a65169c7aa7030f512a661100899f87f212874f23fc758afacf63eafc5faf99221ff8f75fe418eff8bf4dd801cc983ecf7851bcc3a5504fd7a79a0
+  checksum: 96ba857021bd369a6896d1810c2a22a88962f0f21eb790f378274f3c513f898ccb4c4ea4acd9e6988b91a39e87d4c60902e09752a1cb17ce2ece9bf12e992218
   languageName: node
   linkType: hard
 
@@ -12514,6 +12528,8 @@ __metadata:
   resolution: "@open-condo/codegen@workspace:packages/codegen"
   dependencies:
     "@apollo/client": 3.3.20
+    "@graphql-tools/graphql-file-loader": ^7.5.5
+    "@graphql-tools/load": ^8.0.0
     "@graphql-typed-document-node/core": ^3.1.1
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
@@ -16236,6 +16252,13 @@ __metadata:
   dependencies:
     "@babel/types": ^7.3.0
   checksum: 5fd7f4ea0963f9669b1bd6bd928b2d81452b98e4acfcfeb26ca4476162b87f9c1d8f66ff13567fd9f760a31ad04c36d767fa874f569aded6fb46890e379327c1
+  languageName: node
+  linkType: hard
+
+"@types/big.js@npm:^6.2.2":
+  version: 6.2.2
+  resolution: "@types/big.js@npm:6.2.2"
+  checksum: 6aeff1b763e71b79bb796c9f395ebecdd5a6aeb997b1c9b9acb2e14aa2f88eec620f26a6aedeba120ec7a881a0834d0b8e9869da864c60bba623f92d6de6f848
   languageName: node
   linkType: hard
 
@@ -20594,7 +20617,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"big.js@npm:^6.1.1":
+"big.js@npm:^6.1.1, big.js@npm:^6.2.1":
   version: 6.2.1
   resolution: "big.js@npm:6.2.1"
   checksum: 0b234a2fd56c52bed2798ed2020bcab6fef5e9523b99a05406ad071d1aed6ee97ada9fb8de9576092da74c68825c276e19015743b8d1baea269b60a5c666b0cd
@@ -24779,6 +24802,13 @@ __metadata:
   version: 1.11.10
   resolution: "dayjs@npm:1.11.10"
   checksum: a6b5a3813b8884f5cd557e2e6b7fa569f4c5d0c97aca9558e38534af4f2d60daafd3ff8c2000fed3435cfcec9e805bcebd99f90130c6d1c5ef524084ced588c4
+  languageName: node
+  linkType: hard
+
+"dayjs@npm:^1.11.11":
+  version: 1.11.11
+  resolution: "dayjs@npm:1.11.11"
+  checksum: 84788275aad8a87fee4f1ce4be08861df29687aae6b7b43dd65350118a37dda56772a3902f802cb2dc651dfed447a5a8df62d88f0fb900dba8333e411190a5d5
   languageName: node
   linkType: hard
 

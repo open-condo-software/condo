@@ -22,7 +22,6 @@ const {
 const { IDENTITY_TYPES} = require('@condo/domains/user/constants')
 const {
     ConfirmPhoneAction: ConfirmPhoneActionGQL,
-    ForgotPasswordAction: ForgotPasswordActionGQL,
     OidcClient: OidcClientGQL,
     User: UserGQL,
     UserAdmin: UserAdminGQL,
@@ -30,6 +29,7 @@ const {
     COMPLETE_CONFIRM_PHONE_MUTATION,
     CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION,
     CHANGE_PASSWORD_WITH_TOKEN_MUTATION,
+    SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION,
     REGISTER_NEW_SERVICE_USER_MUTATION,
     REGISTER_NEW_USER_MUTATION,
     RESET_USER_MUTATION,
@@ -45,6 +45,7 @@ const UserExternalIdentity = generateGQLTestUtils(UserExternalIdentityGQL)
 const { ExternalTokenAccessRight: ExternalTokenAccessRightGQL } = require('@condo/domains/user/gql')
 const { GET_ACCESS_TOKEN_BY_USER_ID_QUERY } = require('@condo/domains/user/gql')
 const { UserRightsSet: UserRightsSetGQL } = require('@condo/domains/user/gql')
+const { CHECK_USER_EXISTENCE_MUTATION } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function createTestEmail () {
@@ -234,7 +235,6 @@ async function addServiceAccess (user, extraAttrs = {}) {
 }
 
 const ConfirmPhoneAction = generateGQLTestUtils(ConfirmPhoneActionGQL)
-const ForgotPasswordAction = generateGQLTestUtils(ForgotPasswordActionGQL)
 
 const OidcClient = generateGQLTestUtils(OidcClientGQL)
 const ExternalTokenAccessRight = generateGQLTestUtils(ExternalTokenAccessRightGQL)
@@ -274,39 +274,6 @@ async function updateTestConfirmPhoneAction (client, id, extraAttrs = {}) {
         ...extraAttrs,
     }
     const obj = await ConfirmPhoneAction.update(client, id, attrs)
-    return [obj, attrs]
-}
-
-async function createTestForgotPasswordAction (client, user, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!user || !user.id) throw new Error('no user.id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const now = Date.now()
-    const attrs = {
-        dv: 1,
-        sender,
-        user: { connect: { id: user.id } },
-        token: uuid(),
-        requestedAt: new Date(now).toISOString(),
-        expiresAt: new Date(now + CONFIRM_PHONE_ACTION_EXPIRY * 1000).toISOString(),
-        ...extraAttrs,
-    }
-    const obj = await ForgotPasswordAction.create(client, attrs)
-
-    return [obj, attrs]
-}
-
-async function updateTestForgotPasswordAction (client, id, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!id) throw new Error('no id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const obj = await ForgotPasswordAction.update(client, id, attrs)
     return [obj, attrs]
 }
 
@@ -415,6 +382,28 @@ async function changePasswordWithTokenByTestClient (client, extraAttrs = {}) {
     const { data, errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: attrs })
     throwIfError(data, errors, { query: CHANGE_PASSWORD_WITH_TOKEN_MUTATION, variables: { data: attrs } })
     return [data.result, attrs]
+}
+
+async function authenticateUserWithPhoneAndPasswordByTestClient (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, {
+        phone: attrs.phone,
+        password: attrs.password,
+    })
+    throwIfError(data, errors, {
+        query: SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, variables: {
+            phone: attrs.phone,
+            password: attrs.password,
+        }
+    })
+    return [data.obj, attrs]
 }
 
 async function createTestOidcClient (client, extraAttrs = {}) {
@@ -527,6 +516,20 @@ async function updateTestUserRightsSet (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+
+async function checkUserExistenceByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(CHECK_USER_EXISTENCE_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -554,9 +557,6 @@ module.exports = {
     ConfirmPhoneAction,
     createTestConfirmPhoneAction,
     updateTestConfirmPhoneAction,
-    ForgotPasswordAction,
-    createTestForgotPasswordAction,
-    updateTestForgotPasswordAction,
     signinAsUserByTestClient,
     registerNewServiceUserByTestClient,
     resetUserByTestClient,
@@ -568,5 +568,7 @@ module.exports = {
     ExternalTokenAccessRight, createTestExternalTokenAccessRight, updateTestExternalTokenAccessRight,
     getAccessTokenByUserIdByTestClient,
     UserRightsSet, createTestUserRightsSet, updateTestUserRightsSet,
+    checkUserExistenceByTestClient,
+    authenticateUserWithPhoneAndPasswordByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

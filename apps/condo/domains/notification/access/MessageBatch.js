@@ -4,21 +4,38 @@
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-async function canReadMessageBatches ({ authentication: { item: user } }) {
+const { canDirectlyReadSchemaObjects, canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
+
+/**
+ * 1. Admin / support can read all
+ * 2. User with direct access can read his own batches
+ */
+async function canReadMessageBatches ({ authentication: { item: user }, listKey }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isAdmin || user.isSupport) return {}
 
+    const directAccess = await canDirectlyReadSchemaObjects(user, listKey)
+    if (directAccess) {
+        return { createdBy: { id: user.id } }
+    }
+
     return false
 }
 
-async function canManageMessageBatches ({ authentication: { item: user }, originalInput, operation, itemId }) {
+/**
+ * Update / delete is banned
+ * Create can be done by admin / support / direct-accessed users
+ */
+async function canManageMessageBatches ({ authentication: { item: user }, listKey, operation, originalInput }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if ((user.isAdmin || user.isSupport) && operation === 'create') return true
+    if (operation !== 'create') return false
 
-    return false
+    if (user.isAdmin || user.isSupport) return true
+
+    return await canDirectlyManageSchemaObjects(user, listKey, originalInput, operation)
 }
 
 /*

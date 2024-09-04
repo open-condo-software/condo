@@ -44,6 +44,10 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
         'B2CAppBuild',
         'B2CAppProperty',
 
+        // Notification domain
+        { schemaName: 'Message', readonly: true },
+        'MessageBatch',
+
         // Organization domain
         'Organization',
 
@@ -55,6 +59,13 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
         'OidcClient',
         { schemaName: 'User', readonly: true },
         'UserRightsSet',
+
+        // Payments domain
+        { schemaName: 'Payment', readonly: true },
+        
+        // Billing domain
+        { schemaName: 'BillingReceipt', readonly: true },
+        { schemaName: 'BillingOrganizationIntegrationContext', readonly: true },
     ],
     fields: {
         Organization: [
@@ -68,6 +79,8 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
         'registerNewServiceUser',
         'sendMessage',
         '_internalSendHashedResidentPhones',
+        '_allPaymentsSum',
+        '_allBillingReceiptsSum',
     ],
 }
 

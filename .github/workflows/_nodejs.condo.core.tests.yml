@@ -49,7 +49,7 @@ jobs:
         run: |
           mkdir test_logs
           chmod -R a+rw ./test_logs
-          docker run -v ./test_logs:/app/test_logs --network="host" ${{ secrets.DOCKER_REGISTRY }}/${{ inputs.image_name }} bash -c "/app/run_condo_domain_tests.sh -d ${{ inputs.domain_name }}"
+          docker run -v ./test_logs:/app/test_logs --network="host" ${{ secrets.DOCKER_REGISTRY }}/${{ inputs.image_name }} bash -c "./bin/run_condo_domain_tests.sh -d ${{ inputs.domain_name }}"
 
       - name: Collect docker logs on failure
         if: failure()

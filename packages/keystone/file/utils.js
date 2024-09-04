@@ -2,20 +2,18 @@ const { createReadStream, readFileSync } = require('fs')
 const path = require('path')
 const { Duplex } = require('stream')
 
-const DOTS_AND_COMMAS_REGEXP = /^([,.\s]+)|([,.\s]+)$/g // NOSONAR two groups usage required for proper work of regexp
 const INVISIBLE_CHARS_REGEXP = new RegExp('[\u200B-\u200D\uFEFF]', 'g')
 
 const clearString = (cell) => {
     if (!cell) {
         return ''
     }
-    if (typeof input !== 'string') {
+    if (typeof cell !== 'string') {
         cell = String(cell)
     }
     return cell
         .replace(/\s+/g, ' ')
         .replace(INVISIBLE_CHARS_REGEXP, '')
-        .replace(DOTS_AND_COMMAS_REGEXP, '')
         .trim()
 }
 
@@ -89,7 +87,7 @@ const toRanges = (lineNumbers = [], maxRangeCount = 10) => {
     }
 }
 
-const  bufferToStream = (content) => {
+const bufferToStream = (content) => {
     let stream = new Duplex()
     stream.push(content)
     stream.push(null)

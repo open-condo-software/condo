@@ -43,6 +43,10 @@ class SearchByProvider extends AbstractSearchPlugin {
 
         const addressKey = generateAddressKey(searchResult)
 
+        if (!addressKey) {
+            throw new Error('Impossible to build addressKey')
+        }
+
         const addressData = {
             address: searchResult.value,
             key: addressKey,

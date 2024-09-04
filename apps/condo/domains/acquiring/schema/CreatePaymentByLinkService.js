@@ -6,17 +6,15 @@ const Big = require('big.js')
 const { get } = require('lodash')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { find, GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/CreatePaymentByLinkService')
-const { CONTEXT_FINISHED_STATUS: ACQUIRING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const {
     registerMultiPaymentForOneReceipt,
     registerMultiPaymentForVirtualReceipt,
     MultiPayment,
 } = require('@condo/domains/acquiring/utils/serverSchema')
-const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
-const { isReceiptPaid, compareQRCodeWithLastReceipt, formatPeriodFromQRCode, findAuxiliaryData } = require('@condo/domains/billing/utils/receiptQRCodeUtils')
+const { isReceiptPaid, compareQRCodeWithLastReceipt, formatPeriodFromQRCode, findAuxiliaryData, getQRCodeFields } = require('@condo/domains/billing/utils/receiptQRCodeUtils')
 const {
     validateQRCode,
 } = require('@condo/domains/billing/utils/serverSchema')
@@ -65,13 +63,13 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
 
                 const { qrCodeFields, acquiringIntegrationHostUrl, currencyCode } = validationResult
                 const {
-                    PersonalAcc, // organization's bank account
-                    PaymPeriod, // mm.yyyy
-                    Sum,
-                    PersAcc, // resident's account within organization
-                } = qrCodeFields
-                const period = formatPeriodFromQRCode(PaymPeriod)
-                const amount = String(Big(Sum).div(100))
+                    personalAcc, // organization's bank account
+                    paymPeriod, // mm.yyyy
+                    sum,
+                    persAcc, // resident's account within organization
+                } = getQRCodeFields(qrCodeFields, ['personalAcc', 'paymPeriod', 'sum', 'persAcc'])
+                const period = formatPeriodFromQRCode(paymPeriod)
+                const amount = String(Big(sum).div(100))
 
                 const auxiliaryData = await findAuxiliaryData(qrCodeFields, { address: ERRORS.ADDRESS_IS_INVALID })
                 const { normalizedAddress } = auxiliaryData
@@ -83,7 +81,7 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                 let multiPaymentId
 
                 const payForLastBillingReceipt = async (lastBillingReceipt) => {
-                    if (await isReceiptPaid(context, PersAcc, lastBillingReceipt.period, [organizationId], PersonalAcc)) {
+                    if (await isReceiptPaid(context, persAcc, lastBillingReceipt.period, [organizationId], personalAcc)) {
                         throw new GQLError(ERRORS.RECEIPT_ALREADY_PAID, context)
                     }
                     const { multiPaymentId: id } = await registerMultiPaymentForOneReceipt(context, {
@@ -95,7 +93,7 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                 }
 
                 const payForQR = async (lastBillingReceipt) => {
-                    if (await isReceiptPaid(context, PersAcc, period, [organizationId], PersonalAcc)) {
+                    if (await isReceiptPaid(context, persAcc, period, [organizationId], personalAcc)) {
                         throw new GQLError(ERRORS.RECEIPT_ALREADY_PAID, context)
                     }
                     const { multiPaymentId: id } = await registerMultiPaymentForVirtualReceipt(context, {
@@ -107,7 +105,7 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                             recipient: {
                                 routingNumber: acquiringContextRecipient.bic, // get bank account from acquiring context
                                 bankAccount: acquiringContextRecipient.bankAccount,
-                                accountNumber: PersAcc, // resident's account number
+                                accountNumber: persAcc, // resident's account number
                             },
                         },
                         acquiringIntegrationContext: {
@@ -146,7 +144,7 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                     },
                     unitType: get(normalizedAddress, 'unitType'),
                     unitName: get(normalizedAddress, 'unitName'),
-                    accountNumber: PersAcc,
+                    accountNumber: persAcc,
                     period,
                 }
             },

@@ -1,6 +1,6 @@
 import { Col, Form, Row, RowProps, Typography } from 'antd'
 import getConfig from 'next/config'
-import Router from 'next/router'
+import { useRouter } from 'next/router'
 import React, { useCallback, useContext, useMemo, useState } from 'react'
 
 import { useMutation } from '@open-condo/next/apollo'
@@ -9,17 +9,16 @@ import { FormattedMessage } from '@open-condo/next/intl'
 
 import { Button } from '@condo/domains/common/components/Button'
 import { TabsAuthAction } from '@condo/domains/common/components/HeaderActions'
-import { SberIconWithoutLabel } from '@condo/domains/common/components/icons/SberIcon'
+import { LoginWithSBBOLButton } from '@condo/domains/common/components/LoginWithSBBOLButton'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { colors } from '@condo/domains/common/constants/style'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
+import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 import { TOO_MANY_REQUESTS } from '@condo/domains/user/constants/errors'
 import { START_CONFIRM_PHONE_MUTATION } from '@condo/domains/user/gql'
-
-
 
 import { RegisterContext } from './RegisterContextProvider'
 
@@ -32,7 +31,7 @@ const FORM_PARAGRAPH_STYLES: React.CSSProperties = {
     fontSize: '12px',
 }
 const FORM_TYPOGRAPHY_STYLES: React.CSSProperties = {
-    textAlign:'center',
+    textAlign: 'center',
 }
 const FORM_PHONE_STYLES: React.CSSProperties = {
     borderRadius: 8,
@@ -53,7 +52,6 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
     const SMSTooManyRequestsErrorMsg = intl.formatMessage({ id: 'pages.auth.TooManyRequests' })
     const WrongPhoneFormatErrorMsg = intl.formatMessage({ id: 'api.common.WRONG_PHONE_FORMAT' })
     const RegisterMsg = intl.formatMessage({ id: 'Register' })
-    const LoginBySBBOLMsg = intl.formatMessage({ id: 'LoginBySBBOL' })
     const ConsentContent = intl.formatMessage({ id: 'pages.auth.register.info.ConsentContent' })
     const PrivacyPolicyContent = intl.formatMessage({ id: 'pages.auth.register.info.PrivacyPolicyContent' })
     const TermsOfUseContent = intl.formatMessage({ id: 'pages.auth.register.info.termsOfUseContent' })
@@ -62,6 +60,9 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
 
     const { publicRuntimeConfig: { hasSbbolAuth } } = getConfig()
 
+    const router = useRouter()
+    const { query: { next } } = router
+    const redirectUrl = (next && !Array.isArray(next) && isSafeUrl(next)) ? next : '/'
     const { setToken, setPhone, handleCaptchaVerify } = useContext(RegisterContext)
     const [isLoading, setIsLoading] = useState(false)
     const [startPhoneVerify] = useMutation(START_CONFIRM_PHONE_MUTATION)
@@ -119,7 +120,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
             onCompleted: (data) => {
                 const { data: { result: { token } } } = data
                 setToken(token)
-                Router.push(`/auth/register?token=${token}`)
+                router.push(`/auth/register?token=${token}`)
                 onFinish()
             },
             // Skip notification
@@ -136,7 +137,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
     return (
         <Row justify='center'>
             <Col span={16}>
-                <TabsAuthAction currentActiveKey='/auth/register'/>
+                <TabsAuthAction currentActiveKey='register' />
             </Col>
             <Col span={24}>
                 <Form
@@ -222,17 +223,8 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
                                             <FormattedMessage id='Or'/>
                                         </Col>
                                         <Col span={24}>
-                                            <Form.Item>
-                                                <Button
-                                                    key='submit'
-                                                    type='sberAction'
-                                                    secondary
-                                                    icon={<SberIconWithoutLabel/>}
-                                                    href='/api/sbbol/auth'
-                                                    block
-                                                >
-                                                    {LoginBySBBOLMsg}
-                                                </Button>
+                                            <Form.Item id='inputPhoneSBBOL'>
+                                                <LoginWithSBBOLButton redirect={redirectUrl} block checkTlsCert />
                                             </Form.Item>
                                         </Col>
                                     </>

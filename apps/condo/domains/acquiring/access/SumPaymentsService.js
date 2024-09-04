@@ -6,11 +6,15 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
 const { checkPermissionsInEmployedOrganizations } = require('@condo/domains/organization/utils/accessSchema')
+const { canDirectlyExecuteService } = require('@condo/domains/user/utils/directAccess')
 
-async function canSumPayments ({ args: { where }, authentication: { item: user }, context }) {
+async function canSumPayments ({ args: { where }, authentication: { item: user }, context, gqlName }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
+
+    const hasDirectAccess = await canDirectlyExecuteService(user, gqlName)
+    if (hasDirectAccess) return hasDirectAccess
 
     const organizationFromInvoice = get(where, ['invoice', 'context', 'organization', 'id'], null)
     if (organizationFromInvoice) return await checkPermissionsInEmployedOrganizations(context, user, organizationFromInvoice, 'canReadPayments')

@@ -4,6 +4,7 @@
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
 const Big = require('big.js')
+const dayjs = require('dayjs')
 
 const { getById } = require('@open-condo/keystone/schema')
 const { catchErrorFrom, setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
@@ -15,25 +16,33 @@ const {
     createValidRuRoutingNumber,
     createValidRuNumber,
 } = require('@condo/domains/banking/utils/testSchema/bankAccount')
+const { getCountrySpecificQRCodeParser } = require('@condo/domains/billing/utils/countrySpecificQRCodeParsers')
+const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 
 const {
+    DEFAULT_PERIODS_EDGE_DATE,
     getQRCodeMissedFields,
-    parseReceiptQRCode,
+    getQRCodeField,
+    getQRCodeFields,
     formatPeriodFromQRCode,
     compareQRCodeWithLastReceipt,
     findAuxiliaryData,
+    getQRCodePaymPeriod,
 } = require('./receiptQRCodeUtils')
 const {
     addBillingIntegrationAndContext,
     createTestBillingProperty,
     createTestBillingAccount,
-    createTestBillingRecipient, createTestBillingReceipt, createTestRecipient,
+    createTestBillingRecipient,
+    createTestBillingReceipt,
+    createTestRecipient,
 } = require('./testSchema')
 
 describe('receiptQRCodeUtils', () => {
 
+    const parseRUReceiptQRCode = getCountrySpecificQRCodeParser(RUSSIA_COUNTRY)
     let adminClient
 
     setFakeClientMode(index, { excludeApps: ['NextApp', 'AdminUIApp', 'OIDCMiddleware'] })
@@ -42,19 +51,32 @@ describe('receiptQRCodeUtils', () => {
         adminClient = await makeLoggedInAdminClient()
     })
 
-    test('QR-code fields parsed correctly', () => {
-        const parsed = parseReceiptQRCode('ST00012|field1=Hello|Field2=world|foo=bar baz')
-        expect(parsed).toEqual({
-            field1: 'Hello',
-            Field2: 'world',
-            foo: 'bar baz',
+    describe('RU QR-codes decoded correctly', () => {
+        const cases = [
+            [1, 'ÀÒÌÎÑÔÅÐÀ', 'АТМОСФЕРА'], // Got from real QR-code
+            // Got from conversion (https://convertcyrillic.com/)
+            // curl 'https://convertcyrillic.com/api/conversionservice' --data-raw '={"sourceEncoding":"Russian.Unicode","targetEncoding":"Russian.KOI8","text":"Привет"}'
+            [1, 'Ïðèâåò', 'Привет'],
+            [2, 'Привет', 'Привет'],
+            // curl 'https://convertcyrillic.com/api/conversionservice' --data-raw '={"sourceEncoding":"Russian.Unicode","targetEncoding":"Russian.CP1251","text":"Привет"}'
+            [3, 'ðÒÉ×ÅÔ', 'Привет'],
+        ]
+
+        test.each(cases)('%p %p -> %p', (tag, dataFromQRCode, expectedData) => {
+            const qrStr = `ST0001${tag}|field1=Hello|Field2=world|foo=${dataFromQRCode}`
+            const parsed = parseRUReceiptQRCode(qrStr)
+            expect(parsed).toEqual({
+                field1: 'Hello',
+                Field2: 'world',
+                foo: expectedData,
+            })
         })
     })
 
     test('must throw an error on invalid QR-code', async () => {
         await catchErrorFrom(
             async () => {
-                parseReceiptQRCode('ST0012|field1=Hello|Field2=world')
+                parseRUReceiptQRCode('ST0012|field1=Hello|Field2=world')
             },
             (err) => {
                 expect(err).toEqual(expect.objectContaining({ message: 'Invalid QR code' }))
@@ -62,11 +84,44 @@ describe('receiptQRCodeUtils', () => {
         )
     })
 
+    test('can get field case-insensitively', () => {
+        const qrStr = 'ST00012|field1=Hello|Field2=world|someField=!!'
+        const parsed = parseRUReceiptQRCode(qrStr)
+        expect(parsed).toEqual({
+            field1: 'Hello',
+            Field2: 'world',
+            someField: '!!',
+        })
+
+        expect(getQRCodeField(parsed, 'Field1')).toBe('Hello')
+        expect(getQRCodeField(parsed, 'SomeField')).toBe('!!')
+    })
+
+    test('Fields returned as requested', () => {
+        const qrStr = 'ST00012|field1=Hello|Field2=world|someField=!!|paymPeriod=01.2024'
+        const parsed = parseRUReceiptQRCode(qrStr)
+        const fields = getQRCodeFields(parsed, ['field1', 'FIELD2', 'somefield', 'PaymPeriod'])
+
+        expect(fields).toEqual({
+            field1: 'Hello',
+            FIELD2: 'world',
+            somefield: '!!',
+            PaymPeriod: '01.2024',
+        })
+    })
+
     test('check for required fields', () => {
-        const parsed = parseReceiptQRCode('ST00012|field1=Hello|Field2=world|foo=bar baz')
+        const parsed = parseRUReceiptQRCode('ST00012|field1=Hello|Field2=world|foo=bar baz')
         const missedFields = getQRCodeMissedFields(parsed)
 
-        expect(missedFields).toEqual(['BIC', 'PayerAddress', 'PaymPeriod', 'Sum', 'PersAcc', 'PayeeINN', 'PersonalAcc'])
+        expect(missedFields).toEqual(['BIC', 'PayerAddress', 'Sum', 'PersAcc', 'PayeeINN', 'PersonalAcc'])
+    })
+
+    test('check for required fields except one', () => {
+        const parsed = parseRUReceiptQRCode('ST00012|field1=Hello|Field2=world|foo=bar baz|persAcc=01.2024')
+        const missedFields = getQRCodeMissedFields(parsed)
+
+        expect(missedFields).toEqual(['BIC', 'PayerAddress', 'Sum', 'PayeeINN', 'PersonalAcc'])
     })
 
     test('format period from QR-code', () => {
@@ -75,7 +130,7 @@ describe('receiptQRCodeUtils', () => {
 
     describe('resolvers', () => {
 
-        /** @type {TQRCodeFields} */
+        /** @type {TRUQRCodeFields} */
         let qrCodeObj
         let billingIntegrationContext, billingProperty, billingAccount, billingRecipient
 
@@ -267,5 +322,94 @@ describe('receiptQRCodeUtils', () => {
                 expect(err.message).toMatch('error about address')
             }
         )
+    })
+
+    describe('Detect PaymPeriod', () => {
+        test('When no period in qr-code receiptUploadDate exists', async () => {
+            const [o10n] = await createTestOrganization(adminClient)
+
+            const bic = createValidRuRoutingNumber()
+            const qrCodeObj = {
+                BIC: bic,
+                PayerAddress: faker.address.streetAddress(),
+                Sum: '10000',
+                PersAcc: faker.random.numeric(8),
+                PayeeINN: o10n.tin,
+                PersonalAcc: createValidRuNumber(bic),
+            }
+
+            const periodsEdgeDay = 10
+
+            const { billingIntegrationContext } = await addBillingIntegrationAndContext(adminClient, o10n, {}, {
+                status: CONTEXT_FINISHED_STATUS,
+                settings: { dv: 1, receiptUploadDate: periodsEdgeDay },
+            })
+
+            const now = dayjs()
+            const currentDay = now.date()
+            const PaymPeriod = getQRCodePaymPeriod(qrCodeObj, billingIntegrationContext)
+
+            if (currentDay < periodsEdgeDay) {
+                expect(PaymPeriod).toBe(now.subtract(1, 'month').format('MM.YYYY'))
+            } else {
+                expect(PaymPeriod).toBe(now.format('MM.YYYY'))
+            }
+        })
+
+        test('When no period in qr-code receiptUploadDate not exists', async () => {
+            const [o10n] = await createTestOrganization(adminClient)
+
+            const bic = createValidRuRoutingNumber()
+            const qrCodeObj = {
+                BIC: bic,
+                PayerAddress: faker.address.streetAddress(),
+                Sum: '10000',
+                PersAcc: faker.random.numeric(8),
+                PayeeINN: o10n.tin,
+                PersonalAcc: createValidRuNumber(bic),
+            }
+
+            const periodsEdgeDay = DEFAULT_PERIODS_EDGE_DATE
+
+            const { billingIntegrationContext } = await addBillingIntegrationAndContext(adminClient, o10n, {}, {
+                status: CONTEXT_FINISHED_STATUS,
+            })
+
+            const now = dayjs()
+            const currentDay = now.date()
+            const PaymPeriod = getQRCodePaymPeriod(qrCodeObj, billingIntegrationContext)
+
+            if (currentDay < periodsEdgeDay) {
+                expect(PaymPeriod).toBe(now.subtract(1, 'month').format('MM.YYYY'))
+            } else {
+                expect(PaymPeriod).toBe(now.format('MM.YYYY'))
+            }
+        })
+
+        test('When period exists in qr-code', async () => {
+            const [o10n] = await createTestOrganization(adminClient)
+
+            const bic = createValidRuRoutingNumber()
+            const qrCodeObj = {
+                BIC: bic,
+                PayerAddress: faker.address.streetAddress(),
+                Sum: '10000',
+                PersAcc: faker.random.numeric(8),
+                PayeeINN: o10n.tin,
+                paymPeriod: '07.2023',
+                PersonalAcc: createValidRuNumber(bic),
+            }
+
+            const periodsEdgeDay = 10
+
+            const { billingIntegrationContext } = await addBillingIntegrationAndContext(adminClient, o10n, {}, {
+                status: CONTEXT_FINISHED_STATUS,
+                settings: { dv: 1, receiptUploadDate: periodsEdgeDay },
+            })
+
+            const PaymPeriod = getQRCodePaymPeriod(qrCodeObj, billingIntegrationContext)
+
+            expect(PaymPeriod).toBe('07.2023')
+        })
     })
 })

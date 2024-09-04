@@ -55,6 +55,7 @@ const ResidentBillingVirtualReceipt = generateGqlQueries('ResidentBillingVirtual
 
 const BillingReceiptForOrganization = generateGqlQueries('BillingReceipt', `{ 
         id period toPay
+        file { file { id publicUrl } }
         property { id address addressKey }
         account { id number unitType unitName fullName ownerType globalId isClosed }
         toPayDetails { ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS} } 
@@ -100,8 +101,8 @@ const REGISTER_BILLING_RECEIPT_FILE_MUTATION = gql`
 `
 
 const SUM_BILLING_RECEIPTS_QUERY = gql`
-    query _allBillingReceiptsSum ($where: BillingReceiptWhereInput!) {
-        result: _allBillingReceiptsSum(where: $where) { sum }
+    query _allBillingReceiptsSum ($data: BillingReceiptsSumInput!) {
+        result: _allBillingReceiptsSum(data: $data) { sum }
     }
 `
 

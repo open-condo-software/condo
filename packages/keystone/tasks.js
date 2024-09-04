@@ -154,13 +154,18 @@ async function _scheduleInProcessTask (name, preparedArgs, preparedOpts) {
     let result = undefined
     let status = 'processing'
     let executor = async function inProcessExecutor () {
+        const startTime = Date.now()
         try {
-            logger.info({ msg: 'Executing task', taskName: name, meta: { preparedArgs, preparedOpts } })
+            logger.info({ msg: 'worker: task start', taskName: name, meta: { preparedArgs, preparedOpts } })
             result = await executeTask(name, preparedArgs, job)
             status = 'completed'
-            logger.info({ msg: 'Task result', taskName: name, status, meta: { result, preparedArgs, preparedOpts } })
+            const endTime = Date.now()
+            const responseTime = endTime - startTime
+            logger.info({ msg: 'worker: task successful', taskName: name, status, meta: { result, preparedArgs, preparedOpts }, responseTime })
         } catch (e) {
-            logger.error({ msg: 'Error executing task', taskName: name, error: e, meta: { preparedArgs, preparedOpts } })
+            const endTime = Date.now()
+            const responseTime = endTime - startTime
+            logger.error({ msg: 'worker: failed with error', taskName: name, err: e, meta: { preparedArgs, preparedOpts }, responseTime })
             status = 'error'
             error = e
         }
@@ -344,20 +349,12 @@ async function createWorker (keystoneModule, config) {
     }
 
     // Reapply queues configuration with worker startup config
+    let parsedConfig = {}
     if (get(config, '0', []).length > 0) {
-        let parsedConfig
         try {
             parsedConfig = JSON.parse(config[0])
         } catch (e) {
             throw new Error('Can\'t parse worker config. Please provide correct value')
-        }
-
-        if (parsedConfig['include'] && parsedConfig['include'].length > 0) {
-            const queuesToDelete = Array.from(QUEUES.entries()).filter(queue => !parsedConfig['include'].includes(queue[0]))
-
-            for (const [queueName] of queuesToDelete) {
-                QUEUES.delete(queueName)
-            }
         }
 
         if (parsedConfig['exclude'] && parsedConfig['exclude'].length > 0) {
@@ -368,17 +365,27 @@ async function createWorker (keystoneModule, config) {
         }
     }
 
-    const activeQueues = Array.from(QUEUES.entries())
+    const activeQueues = parsedConfig['include'] && parsedConfig['include'].length > 0
+        ? Array.from(QUEUES.entries()).filter(queue => parsedConfig['include'].includes(queue[0]))
+        : Array.from(QUEUES.entries())
 
     // Apply callbacks to each created queue
     activeQueues.forEach(([queueName, queue]) => {
         queue.process('*', WORKER_CONCURRENCY, async function (job) {
-            logger.info({ taskId: job.id, status: 'processing', queue: queueName, task: getTaskLoggingContext(job) })
+            const startTime = Date.now()
+            const task = getTaskLoggingContext(job)
+            logger.info({ msg: 'worker: task start', taskId: job.id, queue: queueName, task })
             try {
-                return await executeTask(job.name, job.data.args, job)
-            } catch (error) {
-                logger.error({ taskId: job.id, status: 'error', error, queue: queueName, task: getTaskLoggingContext(job) })
-                throw error
+                const result = await executeTask(job.name, job.data.args, job)
+                const endTime = Date.now()
+                const responseTime = endTime - startTime
+                logger.info({ msg: 'worker: task successful', taskId: job.id, queue: queueName, task, responseTime })
+                return result
+            } catch (err) {
+                const endTime = Date.now()
+                const responseTime = endTime - startTime
+                logger.error({ msg: 'worker: failed with error', taskId: job.id, queue: queueName, task, err, responseTime })
+                throw err
             }
         })
 
@@ -453,8 +460,9 @@ async function createWorker (keystoneModule, config) {
         logger.info({ msg: 'Worker: remove tasks!', names: removeTasksNames })
 
         REMOVE_CRON_TASKS.forEach(([name, opts]) => {
-            activeQueues.forEach(([_, queue]) => {
+            Array.from(QUEUES.entries()).forEach(([queueName, queue]) => {
                 queue.removeRepeatable(name, opts.repeat)
+                logger.info({ taskName: name, msg: 'Worker: removed cron task from queue', queue: queueName })
             })
         })
     }

@@ -52,22 +52,17 @@ const SCHEMA = {
 const ajv = new Ajv()
 const validateSchema = ajv.compile(SCHEMA)
 
-
-/**
- * List of possible errors, that this custom schema can throw
- * They will be rendered in documentation section in GraphiQL for this custom schema
- */
 const ERRORS = {
     NOT_NEWS_SHARING_APP: {
-        query: 'getNewsItemSharingRecipients',
+        query: 'getNewsSharingRecipients',
         variable: ['data', 'b2bAppContext'],
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
-        message: 'Provided b2bApp does not support NewsItemSharing',
+        message: 'Provided b2bApp does not support NewsSharing',
         messageForUser: 'api.newsItem.getNewsSharingRecipients.NOT_NEWS_SHARING_APP',
     },
     NEWS_SHARING_APP_REQUEST_FAILED: {
-        query: 'getNewsItemSharingRecipients',
+        query: 'getNewsSharingRecipients',
         variable: ['data'],
         code: INTERNAL_ERROR,
         type: NETWORK_ERROR,
@@ -75,7 +70,7 @@ const ERRORS = {
         messageForUser: 'api.newsItem.getNewsSharingRecipients.NEWS_SHARING_APP_REQUEST_FAILED',
     },
     NEWS_SHARING_APP_REQUEST_BAD_RESPONSE: {
-        query: 'getNewsItemSharingRecipients',
+        query: 'getNewsSharingRecipients',
         variable: ['data'],
         code: INTERNAL_ERROR,
         type: WRONG_VALUE,

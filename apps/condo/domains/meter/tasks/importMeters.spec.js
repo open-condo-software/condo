@@ -29,7 +29,7 @@ const generateCsvFile = (validLinesSize, invalidLinesSize, fatalErrorLinesSize, 
     // content header
     let content = `#DATE_BEGIN01.12.2023
 #DATE_END: 31.12.2023`
-    
+
     // generate valid lines lines
     for (let i = 0 ; i < validLinesSize; i++) {
         const number = faker.datatype.number({ min:1000, max: 9999 })
@@ -37,7 +37,7 @@ const generateCsvFile = (validLinesSize, invalidLinesSize, fatalErrorLinesSize, 
         const unitName = `${i + 1}`
         const address = property.address + ', кв ' + unitName
         content += `
-00-00000${number};${lastName} Л.М.;40ОН89${number}-02;${faker.datatype.uuid()},;${address},;9;${number}${number};ХВС;[];750,00;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;
+00-00000${number};${lastName} Л.М.;40ОН89${number}-02;${faker.datatype.uuid()};${address};9;${number}${number};ХВС;[];750,00;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;
 `
     }
 
@@ -48,7 +48,7 @@ const generateCsvFile = (validLinesSize, invalidLinesSize, fatalErrorLinesSize, 
         const unitName = `${validLinesSize + i + 1}`
         const address = property.address + ', кв ' + unitName
         content += `
-;${lastName} Л.М.;40ОН89${number}-02;${faker.datatype.uuid()},;${address},;9;${number}${number};ХВС;[];750,00;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;
+;${lastName} Л.М.;40ОН89${number}-02;${faker.datatype.uuid()};${address};9;${number}${number};ХВС;[];750,00;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;
 `
     }
 
@@ -58,7 +58,7 @@ const generateCsvFile = (validLinesSize, invalidLinesSize, fatalErrorLinesSize, 
         const lastName = faker.name.lastName()
         const address = faker.address.streetAddress(true)
         content += `
-;${lastName} Л.М.;40ОН89${number}-02;${faker.datatype.uuid()},;${address},;9;${number}${number};ХВС;[];750,00;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;
+;${lastName} Л.М.;40ОН89${number}-02;${faker.datatype.uuid()};${address};9;${number}${number};ХВС;[];750,00;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;
 `
     }
 
@@ -71,7 +71,7 @@ const generateExcelFile = async (validLinesSize, invalidLinesSize, fatalLinesSiz
         'Тип счетчика', 'Номер счетчика', 'Количество тарифов',
         'Показание 1', 'Показание 2', 'Показание 3', 'Показание 4',
         'Дата передачи показаний', 'Дата поверки', 'Дата следующей поверки',
-        'Дата установки', 'Дата ввода в эксплуатацию', 'Дата опломбирования', 'Дата контрольных показаний', 'Место установки счетчика']]
+        'Дата установки', 'Дата ввода в эксплуатацию', 'Дата опломбирования', 'Дата контрольных показаний', 'Место установки счетчика', 'Автоматический']]
 
     for (let i = 0 ; i < validLinesSize; i++) {
         const unitName = `${i + 1}`
@@ -80,7 +80,7 @@ const generateExcelFile = async (validLinesSize, invalidLinesSize, fatalLinesSiz
             'ГВС', `${faker.datatype.number({ min:1000, max: 9999 })}`, '1',
             `${faker.datatype.number({ min:1000, max: 9999 })}`, '', '', '',
             '2021-01-21', '2021-01-21', '2021-01-21',
-            '2021-01-22', '2021-01-23', '2021-01-24', '2021-01-25', 'Кухня',
+            '2021-01-22', '2021-01-23', '2021-01-24', '2021-01-25', 'Кухня', '',
         ]
 
         data.push(line)

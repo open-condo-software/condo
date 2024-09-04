@@ -1,5 +1,6 @@
+const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
+
 const { validatePeriod } = require('@condo/domains/billing/utils/validation.utils')
-const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 
 const BILLING_FILE_ADAPTER = new FileAdapter('BillingIntegrations')
 
