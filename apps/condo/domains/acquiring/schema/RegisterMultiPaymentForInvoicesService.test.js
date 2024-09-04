@@ -228,6 +228,61 @@ describe('RegisterMultiPaymentForInvoicesService', () => {
                 'result',
             )
         })
+        describe('RegisterMultiPaymentForInvoicesService minimum amount check', () => {
+
+            let utils
+
+            beforeAll(async () => {
+                utils = new TestUtils([ResidentTestMixin])
+                await utils.init()
+                await utils.updateAcquiringContext({
+                    invoiceStatus: CONTEXT_FINISHED_STATUS,
+                    invoiceRecipient: createTestRecipient(),
+                    invoiceImplicitFeeDistributionSchema: [{
+                        recipient: 'organization',
+                        percent: '5',
+                    }],
+                })
+            })
+
+            afterEach(async () => {
+                await utils.updateAcquiringIntegration({ minimumPaymentAmount: null })
+            })
+
+            describe('Check minimum payment amount from acquiring integration', () => {
+                test('Payment for acquiring with no set the minimum payment amount', async () => {
+                    const [invoice] = await createTestInvoice(utils.clients.admin, utils.organization, { status: INVOICE_STATUS_PUBLISHED })
+                    const [result] = await registerMultiPaymentForInvoicesByTestClient(utils.clients.admin, { invoices: [{ id: invoice.id }] })
+                    expect(result).toHaveProperty('multiPaymentId')
+                })
+
+                test('Payment amount is equal to minimum payment amount required by the acquiring integration', async () => {
+                    const [invoice] = await createTestInvoice(utils.clients.admin, utils.organization, { status: INVOICE_STATUS_PUBLISHED })
+                    await utils.updateAcquiringIntegration({ minimumPaymentAmount: Big(invoice.toPay) })
+                    const [result] = await registerMultiPaymentForInvoicesByTestClient(utils.clients.admin, { invoices: [{ id: invoice.id }] })
+                    expect(result).toHaveProperty('multiPaymentId')
+                })
+
+                test('Payment amount is greater than minimum payment amount required by the acquiring integration', async () => {
+                    const [invoice] = await createTestInvoice(utils.clients.admin, utils.organization, { status: INVOICE_STATUS_PUBLISHED })
+                    await utils.updateAcquiringIntegration({ minimumPaymentAmount: Big(invoice.toPay).minus(1) })
+                    const [result] = await registerMultiPaymentForInvoicesByTestClient(utils.clients.admin, { invoices: [{ id: invoice.id }] })
+                    expect(result).toHaveProperty('multiPaymentId')
+                })
+
+                test('Payment amount is less than minimum payment amount required by the acquiring integration', async () => {
+                    const [invoice] = await createTestInvoice(utils.clients.admin, utils.organization, { status: INVOICE_STATUS_PUBLISHED })
+                    const minimumPaymentAmount = Big(invoice.toPay).add(1).toString()
+                    await utils.updateAcquiringIntegration({ minimumPaymentAmount })
+                    await expectToThrowGQLError(async () => {
+                        await registerMultiPaymentForInvoicesByTestClient(utils.clients.admin, { invoices: [{ id: invoice.id }] })
+                    },  {
+                        ...PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
+                        messageInterpolation: { minimumPaymentAmount },
+                    }, 'result')
+                })
+            })
+        })
     })
 
     describe('success stories', () => {
@@ -280,62 +335,6 @@ describe('RegisterMultiPaymentForInvoicesService', () => {
                     invoice: expect.objectContaining({ id: invoice2.id }),
                 }),
             ]))
-        })
-    })
-
-    describe('RegisterMultiPaymentForInvoicesService minimum amount check', () => {
-
-        let utils
-
-        beforeAll(async () => {
-            utils = new TestUtils([ResidentTestMixin])
-            await utils.init()
-            await utils.updateAcquiringContext({
-                invoiceStatus: CONTEXT_FINISHED_STATUS,
-                invoiceRecipient: createTestRecipient(),
-                invoiceImplicitFeeDistributionSchema: [{
-                    recipient: 'organization',
-                    percent: '5',
-                }],
-            })
-        })
-
-        afterEach(async () => {
-            await utils.updateAcquiringIntegration({ minimumPaymentAmount: null })
-        })
-
-        describe('Check minimum payment amount from acquiring integration', () => {
-            test('Payment for acquiring with no set the minimum payment amount', async () => {
-                const [invoice] = await createTestInvoice(utils.clients.admin, utils.organization, { status: INVOICE_STATUS_PUBLISHED })
-                const [result] = await registerMultiPaymentForInvoicesByTestClient(utils.clients.admin, { invoices: [{ id: invoice.id }] })
-                expect(result).toHaveProperty('multiPaymentId')
-            })
-
-            test('Payment amount is equal to minimum payment amount required by the acquiring integration', async () => {
-                const [invoice] = await createTestInvoice(utils.clients.admin, utils.organization, { status: INVOICE_STATUS_PUBLISHED })
-                await utils.updateAcquiringIntegration({ minimumPaymentAmount: Big(invoice.toPay) })
-                const [result] = await registerMultiPaymentForInvoicesByTestClient(utils.clients.admin, { invoices: [{ id: invoice.id }] })
-                expect(result).toHaveProperty('multiPaymentId')
-            })
-
-            test('Payment amount is greater than minimum payment amount required by the acquiring integration', async () => {
-                const [invoice] = await createTestInvoice(utils.clients.admin, utils.organization, { status: INVOICE_STATUS_PUBLISHED })
-                await utils.updateAcquiringIntegration({ minimumPaymentAmount: Big(invoice.toPay).minus(1) })
-                const [result] = await registerMultiPaymentForInvoicesByTestClient(utils.clients.admin, { invoices: [{ id: invoice.id }] })
-                expect(result).toHaveProperty('multiPaymentId')
-            })
-
-            test('Payment amount is less than minimum payment amount required by the acquiring integration', async () => {
-                const [invoice] = await createTestInvoice(utils.clients.admin, utils.organization, { status: INVOICE_STATUS_PUBLISHED })
-                const minimumPaymentAmount = Big(invoice.toPay).add(1).toString()
-                await utils.updateAcquiringIntegration({ minimumPaymentAmount })
-                await expectToThrowGQLError(async () => {
-                    await registerMultiPaymentForInvoicesByTestClient(utils.clients.admin, { invoices: [{ id: invoice.id }] })
-                },  {
-                    ...PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
-                    messageInterpolation: { minimumPaymentAmount },
-                }, 'result')
-            })
         })
     })
 })

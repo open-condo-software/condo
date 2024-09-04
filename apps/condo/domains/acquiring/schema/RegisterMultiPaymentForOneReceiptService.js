@@ -9,7 +9,17 @@ const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/RegisterMultiPaymentForOneReceiptService')
-const { GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM } } = require('@condo/domains/acquiring/constants/errors')
+const {
+    GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM },
+    RECEIPTS_ARE_DELETED,
+    RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE,
+    ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION,
+    RECEIPT_HAS_DELETED_BILLING_INTEGRATION,
+    BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED,
+    ACQUIRING_INTEGRATION_IS_DELETED,
+    CANNOT_FIND_ALL_BILLING_RECEIPTS,
+    ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
+} = require('@condo/domains/acquiring/constants/errors')
 const {
     FEE_CALCULATION_PATH,
     WEB_VIEW_PATH,
@@ -24,17 +34,6 @@ const {
     FeeDistribution,
 } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
-
-const {
-    RECEIPTS_ARE_DELETED,
-    RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE,
-    ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION,
-    RECEIPT_HAS_DELETED_BILLING_INTEGRATION,
-    BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED,
-    ACQUIRING_INTEGRATION_IS_DELETED,
-    CANNOT_FIND_ALL_BILLING_RECEIPTS,
-    ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
-} = require('../constants/errors')
 
 /**
  * List of possible errors, that this custom schema can throw

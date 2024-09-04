@@ -11,8 +11,8 @@ const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema'
 
 const access = require('@condo/domains/acquiring/access/RegisterMultiPaymentForInvoicesService')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
-const { GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM } } = require('@condo/domains/acquiring/constants/errors')
 const {
+    GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM },
     ACQUIRING_INTEGRATION_IS_DELETED,
     INVOICES_ARE_NOT_PUBLISHED,
     INVOICE_CONTEXT_NOT_FINISHED,

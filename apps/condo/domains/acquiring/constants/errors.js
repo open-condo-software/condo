@@ -1,8 +1,9 @@
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+
+const { WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 
 const { PAYMENT_DONE_STATUS, MULTIPAYMENT_DONE_STATUS, PAYMENT_INIT_STATUS } = require('./payment')
 
-const { WRONG_VALUE } = require('../../common/constants/errors')
 
 const ACQUIRING_INTEGRATION_CONTEXT_IS_MISSING = 'ACQUIRING_INTEGRATION_CONTEXT_IS_MISSING'
 const ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED = 'ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED'

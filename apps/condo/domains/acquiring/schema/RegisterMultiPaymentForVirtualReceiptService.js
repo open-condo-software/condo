@@ -9,7 +9,14 @@ const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/RegisterMultiPaymentForVirtualReceiptService')
-const { GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM } } = require('@condo/domains/acquiring/constants/errors')
+const {
+    RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE,
+    RECEIPT_HAVE_INVALID_TO_PAY_VALUE,
+    RECEIPT_HAVE_INVALID_CURRENCY_CODE_VALUE,
+    ACQUIRING_INTEGRATION_IS_DELETED,
+    ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
+    GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM },
+} = require('@condo/domains/acquiring/constants/errors')
 const {
     FEE_CALCULATION_PATH,
     WEB_VIEW_PATH,
@@ -25,13 +32,6 @@ const {
 const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
 const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 
-const {
-    RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE,
-    RECEIPT_HAVE_INVALID_TO_PAY_VALUE,
-    RECEIPT_HAVE_INVALID_CURRENCY_CODE_VALUE,
-    ACQUIRING_INTEGRATION_IS_DELETED,
-    ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
-} = require('../constants/errors')
 
 /**
  * List of possible errors, that this custom schema can throw

@@ -41,11 +41,6 @@ const {
     ResidentTestMixin,
 } = require('@condo/domains/billing/utils/testSchema/testUtils')
 
-const { INVOICE_STATUS_PUBLISHED } = require('../../marketplace/constants')
-const { createTestInvoice } = require('../../marketplace/utils/testSchema')
-const { registerMultiPaymentForInvoicesByTestClient } = require('../utils/testSchema')
-
-
 describe('RegisterMultiPaymentForOneReceiptService', () => {
     describe('Execute', () => {
         describe('Staff', () => {
