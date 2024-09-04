@@ -57194,6 +57194,7 @@ export type OrganizationEmployeeRole = {
   canManageTour?: Maybe<Scalars['Boolean']>;
   canReadMarketSetting?: Maybe<Scalars['Boolean']>;
   canManageMarketSetting?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -57280,6 +57281,7 @@ export type OrganizationEmployeeRoleCreateInput = {
   canManageTour?: Maybe<Scalars['Boolean']>;
   canReadMarketSetting?: Maybe<Scalars['Boolean']>;
   canManageMarketSetting?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -57371,6 +57373,7 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canManageTour?: Maybe<Scalars['Boolean']>;
   canReadMarketSetting?: Maybe<Scalars['Boolean']>;
   canManageMarketSetting?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -57454,6 +57457,7 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canManageTour?: Maybe<Scalars['Boolean']>;
   canReadMarketSetting?: Maybe<Scalars['Boolean']>;
   canManageMarketSetting?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -57542,6 +57546,7 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canManageTour?: Maybe<Scalars['Boolean']>;
   canReadMarketSetting?: Maybe<Scalars['Boolean']>;
   canManageMarketSetting?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -57745,6 +57750,8 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canReadMarketSetting_not?: Maybe<Scalars['Boolean']>;
   canManageMarketSetting?: Maybe<Scalars['Boolean']>;
   canManageMarketSetting_not?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -57908,6 +57915,7 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canManageTour?: Maybe<Scalars['Boolean']>;
   canReadMarketSetting?: Maybe<Scalars['Boolean']>;
   canManageMarketSetting?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -58094,6 +58102,8 @@ export type OrganizationEmployeeRoleWhereInput = {
   canReadMarketSetting_not?: Maybe<Scalars['Boolean']>;
   canManageMarketSetting?: Maybe<Scalars['Boolean']>;
   canManageMarketSetting_not?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -81828,6 +81838,8 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanReadMarketSettingDesc = 'canReadMarketSetting_DESC',
   CanManageMarketSettingAsc = 'canManageMarketSetting_ASC',
   CanManageMarketSettingDesc = 'canManageMarketSetting_DESC',
+  CanManageTicketAutoAssignmentsAsc = 'canManageTicketAutoAssignments_ASC',
+  CanManageTicketAutoAssignmentsDesc = 'canManageTicketAutoAssignments_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -81983,6 +81995,8 @@ export enum SortOrganizationEmployeeRolesBy {
   CanReadMarketSettingDesc = 'canReadMarketSetting_DESC',
   CanManageMarketSettingAsc = 'canManageMarketSetting_ASC',
   CanManageMarketSettingDesc = 'canManageMarketSetting_DESC',
+  CanManageTicketAutoAssignmentsAsc = 'canManageTicketAutoAssignments_ASC',
+  CanManageTicketAutoAssignmentsDesc = 'canManageTicketAutoAssignments_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

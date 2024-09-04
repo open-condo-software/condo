@@ -5461,6 +5461,7 @@ type OrganizationEmployeeRoleHistoryRecord {
   canManageTour: Boolean
   canReadMarketSetting: Boolean
   canManageMarketSetting: Boolean
+  canManageTicketAutoAssignments: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -5665,6 +5666,8 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canReadMarketSetting_not: Boolean
   canManageMarketSetting: Boolean
   canManageMarketSetting_not: Boolean
+  canManageTicketAutoAssignments: Boolean
+  canManageTicketAutoAssignments_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -5872,6 +5875,8 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canReadMarketSetting_DESC
   canManageMarketSetting_ASC
   canManageMarketSetting_DESC
+  canManageTicketAutoAssignments_ASC
+  canManageTicketAutoAssignments_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -5958,6 +5963,7 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canManageTour: Boolean
   canReadMarketSetting: Boolean
   canManageMarketSetting: Boolean
+  canManageTicketAutoAssignments: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -6045,6 +6051,7 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canManageTour: Boolean
   canReadMarketSetting: Boolean
   canManageMarketSetting: Boolean
+  canManageTicketAutoAssignments: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -6180,6 +6187,7 @@ type OrganizationEmployeeRole {
   canManageTour: Boolean
   canReadMarketSetting: Boolean
   canManageMarketSetting: Boolean
+  canManageTicketAutoAssignments: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -6378,6 +6386,8 @@ input OrganizationEmployeeRoleWhereInput {
   canReadMarketSetting_not: Boolean
   canManageMarketSetting: Boolean
   canManageMarketSetting_not: Boolean
+  canManageTicketAutoAssignments: Boolean
+  canManageTicketAutoAssignments_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -6579,6 +6589,8 @@ enum SortOrganizationEmployeeRolesBy {
   canReadMarketSetting_DESC
   canManageMarketSetting_ASC
   canManageMarketSetting_DESC
+  canManageTicketAutoAssignments_ASC
+  canManageTicketAutoAssignments_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -6667,6 +6679,7 @@ input OrganizationEmployeeRoleUpdateInput {
   canManageTour: Boolean
   canReadMarketSetting: Boolean
   canManageMarketSetting: Boolean
+  canManageTicketAutoAssignments: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -6753,6 +6766,7 @@ input OrganizationEmployeeRoleCreateInput {
   canManageTour: Boolean
   canReadMarketSetting: Boolean
   canManageMarketSetting: Boolean
+  canManageTicketAutoAssignments: Boolean
   v: Int
   createdAt: String
   updatedAt: String

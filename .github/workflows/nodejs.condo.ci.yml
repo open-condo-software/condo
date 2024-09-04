@@ -135,12 +135,15 @@ jobs:
           filters: |
             address-service:
               - 'apps/address-service/**'
+              - 'packages/**'
             condorb:
               - 'apps/condorb'
+              - 'packages/**'
             dev-api:
               - 'apps/dev-api/**'
               - 'apps/condo/domains/miniapp/**'
               - 'apps/condo/domains/user/**'
+              - 'packages/**'
             webhooks:
               - 'packages/webhooks/**'
 
