@@ -38,7 +38,17 @@
     "./helpers/environment": {
       "require": "./dist/cjs/helpers/environment.js",
       "import": "./dist/esm/helpers/environment.js",
-      "types": "./dist/types/"
+      "types": "./dist/types/helpers/environment.d.ts"
+    },
+    "./hooks/useEffectOnce": {
+      "require": "./dist/cjs/hooks/usePrevious.js",
+      "import": "./dist/esm/hooks/usePrevious.js",
+      "types": "./dist/types/hooks/usePrevious.d.ts"
+    },
+    "./hooks/usePrevious": {
+      "require": "./dist/cjs/hooks/usePrevious.js",
+      "import": "./dist/esm/hooks/usePrevious.js",
+      "types": "./dist/types/hooks/usePrevious.d.ts"
     }
   },
   "publishConfig": {
@@ -51,8 +61,11 @@
     "@rollup/plugin-commonjs": "^26.0.1",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-typescript": "^11.1.6",
+    "@types/react": "18.0.27",
     "babel-core": "^6.26.3",
     "babel-loader": "^9.1.3",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
     "rimraf": "^6.0.1",
     "rollup": "^4.21.2",
     "rollup-plugin-peer-deps-external": "^2.2.4",
