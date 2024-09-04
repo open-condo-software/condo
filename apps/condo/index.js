@@ -1,3 +1,6 @@
+// eslint-disable-next-line
+const tracer = require('dd-trace')  // Note: required for monkey patching
+
 const { NextApp } = require('@keystonejs/app-next')
 const Sentry = require('@sentry/node')
 const dayjs = require('dayjs')
@@ -19,7 +22,7 @@ const {
 } = require('@open-condo/keystone/healthCheck')
 const { prepareKeystone } = require('@open-condo/keystone/KSv5v6/v5/prepareKeystone')
 const { RequestCache } = require('@open-condo/keystone/requestCache')
-const { getXRemoteApp, getXRemoteClient, getXRemoteVersion } = require('@open-condo/keystone/tracingUtils')
+const { getXRemoteApp, getXRemoteClient, getXRemoteVersion, getAppName } = require('@open-condo/keystone/tracingUtils')
 const { getWebhookModels } = require('@open-condo/webhooks/schema')
 const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
 
@@ -44,15 +47,23 @@ if (IS_BUILD_PHASE) {
 }
 
 if (IS_ENABLE_DD_TRACE && !IS_BUILD_PHASE) {
+    const appName = getAppName()
     const xRemoteApp = getXRemoteApp()
     const xRemoteClient = getXRemoteClient()
     const xRemoteVersion = getXRemoteVersion()
-    const tracer = require('dd-trace').init({
+    // NOTE: https://datadoghq.dev/dd-trace-js/
+    tracer.init({
+        // Note: we need to save old service name as `root` to save history
+        service: (appName === 'condo-app') ? 'root' : appName,
         tags: { xRemoteApp, xRemoteClient, xRemoteVersion },
     })
     tracer.use('express', {
-        headers: ['x-request-id', 'x-start-request-id'],
         // hook will be executed right before the request span is finished
+        headers: [
+            'X-Remote-Client', 'X-Remote-App', 'X-Remote-Version',
+            'X-Request-ID', 'X-Start-Request-ID',
+            'X-Parent-Request-ID', 'X-Parent-Task-ID', 'X-Parent-Exec-ID',
+        ],
         hooks: {
             request: (span, req, res) => {
                 if (req?.id) span.setTag('reqId', req.id)
@@ -61,6 +72,16 @@ if (IS_ENABLE_DD_TRACE && !IS_BUILD_PHASE) {
             },
         },
     })
+    tracer.use('graphql')
+    tracer.use('apollo')
+    tracer.use('next')
+    tracer.use('fetch')
+    tracer.use('ioredis', { splitByInstance: true })
+    tracer.use('pg')
+    tracer.use('knex')
+    tracer.use('net')
+    tracer.use('dns')
+    tracer.use('child_process')
 }
 
 const schemas = () => [
