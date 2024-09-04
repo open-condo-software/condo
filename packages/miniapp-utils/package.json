@@ -24,8 +24,28 @@
     "url": "https://github.com/SavelevMatthew"
   },
   "license": "MIT",
-  "main": "index.js",
+  "scripts": {
+    "build": "rm -rf dist && NODE_ENV=production rollup -c"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    "./helpers/environment": {
+      "require": "./dist/cjs/helpers/environment.js",
+      "import": "./dist/esm/helpers/environment.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "devDependencies": {
-    "@open-condo/tsconfig": "workspace:^"
+    "@open-condo/tsconfig": "workspace:^",
+    "@rollup/plugin-commonjs": "^26.0.1",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "rollup": "^4.21.2",
+    "rollup-plugin-peer-deps-external": "^2.2.4",
+    "typescript": "^5.5.4"
   }
 }
