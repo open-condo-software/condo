@@ -83,6 +83,42 @@ const createOrganization = (data) => sendAuthorizedRequest(data, {
     },
 })
 
+const createTicket = (data) => sendAuthorizedRequest(data, {
+    operationName: 'createTicket',
+    query: 'mutation createTicket($data: TicketCreateInput) {obj: createTicket(data: $data) {id}}',
+    variables: {
+        data: {
+            ...DV_SENDER,
+            organization: { connect: { id: data.organizationId } },
+            status: { connect: { id: '6ef3abc4-022f-481b-90fb-8430345ebfc2' } },
+            classifier: { connect: { id: '92b39cea-72f0-4c52-9d32-5a4ffe5240d2' } },
+            property: { connect: { id: data.propertyId } },
+            source: { connect: { id: '779d7bb6-b194-4d2c-a967-1f7321b2787f' } },
+            unitName: faker.random.alphaNumeric(3),
+            unitType: 'flat',
+            details: 'Api created ticket ' + __VU,
+        },
+    },
+})
+
+const createMeter = (data) => sendAuthorizedRequest(data, {
+    operationName: 'createMeter',
+    query: 'mutation createMeter($data: MeterCreateInput) {obj: createMeter(data: $data) {id}}',
+    variables: {
+        data: {
+            ...DV_SENDER,
+            organization: { connect: { id: data.organizationId } },
+            property: { connect: { id: data.propertyId } },
+            unitName: faker.random.alphaNumeric(3),
+            unitType: 'flat',
+            numberOfTariffs: 1,
+            resource: { connect: { id: 'ffc3f0c3-5044-4093-93ce-d7e92176dfe2' } },
+            number: faker.random.alphaNumeric(10),
+            accountNumber: faker.random.alphaNumeric(10),
+        },
+    },
+})
+
 const getOrganizationEmployeeId = (data) => sendAuthorizedRequest(data, {
     operationName: 'getList',
     query: 'query getList($where:OrganizationEmployeeWhereInput){allOrganizationEmployees(where:$where){id}}',
@@ -254,6 +290,8 @@ export {
     setupCondoAuth,
     createOrganization,
     createProperty,
+    createTicket,
+    createMeter,
     createBillingIntegration,
     createBillingIntegrationOrganizationContext,
     sendAuthorizedRequest,
