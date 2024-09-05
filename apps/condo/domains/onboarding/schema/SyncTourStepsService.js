@@ -48,69 +48,51 @@ const SyncTourStepsService = new GQLCustomSchema('SyncTourStepsService', {
                     throw new GQLError(SYNC_TOUR_STEPS_ERRORS.TOUR_STEPS_NOT_FOUND, context)
                 }
 
-                const completedStepTypes = new Set(
-                    tourSteps.filter(step => step.status === COMPLETED_STEP_STATUS)
-                        .map(step => step.type),
-                )
-                const newCompletedSteps = {}
-
-                if (!completedStepTypes.has(CREATE_PROPERTY_STEP_TYPE)) {
-                    const properties = await itemsQuery('Property', {
+                const stepToItemsQuery = {
+                    [CREATE_PROPERTY_STEP_TYPE]: {
+                        list: 'Property',
                         where: defaultOrganizationQuery,
-                        first: 1,
-                    })
-                    newCompletedSteps[CREATE_PROPERTY_STEP_TYPE] = !isEmpty(properties)
-                }
-                if (!completedStepTypes.has(CREATE_PROPERTY_MAP_STEP_TYPE)) {
-                    const propertiesWithMap = await itemsQuery('Property', {
+                    },
+                    [CREATE_PROPERTY_MAP_STEP_TYPE]: {
+                        list: 'Property',
                         where: { ...defaultOrganizationQuery, map_not: null },
-                        first: 1,
-                    })
-                    newCompletedSteps[CREATE_PROPERTY_MAP_STEP_TYPE] = !isEmpty(propertiesWithMap)
-                }
-                if (!completedStepTypes.has(CREATE_TICKET_STEP_TYPE)) {
-                    const tickets = await itemsQuery('Ticket', {
+                    },
+                    [CREATE_TICKET_STEP_TYPE]: {
+                        list: 'Ticket',
                         where: defaultOrganizationQuery,
-                        first: 1,
-                    })
-                    newCompletedSteps[CREATE_TICKET_STEP_TYPE] = !isEmpty(tickets)
-                }
-                if (!completedStepTypes.has(UPLOAD_RECEIPTS_STEP_TYPE)) {
-                    const billingReceipts = await itemsQuery('BillingReceipt', {
+                    },
+                    [UPLOAD_RECEIPTS_STEP_TYPE]: {
+                        list: 'BillingReceipt',
                         where: {
                             context: { organization: { id: organizationId }, deletedAt: null },
                             deletedAt: null,
                         },
-                        first: 1,
-                    })
-                    newCompletedSteps[UPLOAD_RECEIPTS_STEP_TYPE] = !isEmpty(billingReceipts)
-                }
-                if (!completedStepTypes.has(CREATE_METER_STEP_TYPE)) {
-                    const meters = await itemsQuery('Meter', {
+                    },
+                    [CREATE_METER_STEP_TYPE]: {
+                        list: 'Meter',
                         where: defaultOrganizationQuery,
-                        first: 1,
-                    })
-                    newCompletedSteps[CREATE_METER_STEP_TYPE] = !isEmpty(meters)
-                }
-                if (!completedStepTypes.has(CREATE_METER_READINGS_STEP_TYPE)) {
-                    const meterReadings = await itemsQuery('MeterReading', {
+                    },
+                    [CREATE_METER_READINGS_STEP_TYPE]: {
+                        list: 'MeterReading',
                         where: defaultOrganizationQuery,
-                        first: 1,
-                    })
-                    newCompletedSteps[CREATE_METER_READINGS_STEP_TYPE] = !isEmpty(meterReadings)
-                }
-                if (!completedStepTypes.has(CREATE_NEWS_STEP_TYPE)) {
-                    const news = await itemsQuery('NewsItem', {
+                    },
+                    [CREATE_NEWS_STEP_TYPE]: {
+                        list: 'NewsItem',
                         where: defaultOrganizationQuery,
-                        first: 1,
-                    })
-                    newCompletedSteps[CREATE_NEWS_STEP_TYPE] = !isEmpty(news)
+                    },
                 }
-
                 const notCompletedSteps = tourSteps.filter(step => step.status !== COMPLETED_STEP_STATUS)
-                for (const step of notCompletedSteps) {
-                    if (newCompletedSteps[step.type]) {
-                        await TourStep.update(context, step.id, {
+
+                for (const { type, id } of notCompletedSteps) {
+                    if (!stepToItemsQuery[type]) continue
+
+                    const objs = await itemsQuery(stepToItemsQuery[type].list, {
+                        where: stepToItemsQuery[type].where,
+                        first: 1,
+                    })
+
+                    if (!isEmpty(objs)) {
+                        await TourStep.update(context, id, {
                             status: COMPLETED_STEP_STATUS,
                             dv: 1,
                             sender: { fingerprint: 'sync-tour-steps', dv: 1 },
