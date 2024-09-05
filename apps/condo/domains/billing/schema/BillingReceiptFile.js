@@ -194,18 +194,18 @@ const BillingReceiptFile = new GQLListSchema('BillingReceiptFile', {
             }
         },
         validateInput: async ({ resolvedData, addValidationError, existingItem, operation, context }) => {
-            // in case if receipt was resolved by model hook - let's skip validation
-            if (resolveReceiptByImportId(operation, get(resolvedData, ['receipt']), get(resolvedData, ['importId']))) {
-                return
-            }
-
             const newItem = { ...existingItem, ...resolvedData }
             const { context: contextId, receipt: receiptId } = newItem
-            const receiptsExists = await BillingReceiptApi.count(context, {
-                id: receiptId, context: { id: contextId },
-            })
-            if (receiptsExists < 1) {
-                return addValidationError(`${UNEQUAL_CONTEXT_ERROR}:receipt:context] Context is not equal to receipt.context`)
+
+            // in case if receipt was resolved not by importId (see receipt field hook) - let's validate it
+            if (!resolveReceiptByImportId(operation, get(resolvedData, ['receipt']), get(resolvedData, ['importId']))) {
+                const receiptsExists = await BillingReceiptApi.count(context, {
+                    id: receiptId, context: { id: contextId },
+                })
+
+                if (receiptsExists < 1) {
+                    return addValidationError(`${UNEQUAL_CONTEXT_ERROR}:receipt:context] Context is not equal to receipt.context`)
+                }
             }
         },
     },
