@@ -27,7 +27,9 @@ const AcquiringTestMixin = {
     dependsOn: [OrganizationTestMixin],
 
     async initMixin () {
-        const [acquiringIntegration] = await createTestAcquiringIntegration(this.clients.admin)
+        const [acquiringIntegration] = await createTestAcquiringIntegration(this.clients.admin, {
+            explicitFeeDistributionSchema: [{'recipient':'acquiring','percent':'1.0'},{'recipient':'service','percent':'0.2'}],
+        })
         await createTestAcquiringIntegrationAccessRight(this.clients.admin, acquiringIntegration, this.clients.service.user)
         this.acquiringIntegration = acquiringIntegration
         const [acquiringContext] = await createTestAcquiringIntegrationContext(this.clients.admin, this.organization, acquiringIntegration, { status: CONTEXT_FINISHED_STATUS })
