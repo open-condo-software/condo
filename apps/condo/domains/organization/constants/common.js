@@ -427,6 +427,8 @@ const DEFAULT_ROLES = {
     },
 }
 
+
+
 module.exports = {
     TIN_LENGTH,
     DEFAULT_ORGANIZATION_TIMEZONE,
@@ -445,5 +447,4 @@ module.exports = {
     MIN_ROLE_NAME_LENGTH,
     MAX_ROLE_NAME_LENGTH,
     MAX_ROLE_DESCRIPTION_LENGTH,
-    MAX_ROLE_COUNT,
 }

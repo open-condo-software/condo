@@ -66154,6 +66154,7 @@ export type Query = {
   predictTicketClassification?: Maybe<TicketClassifier>;
   getResidentExistenceByPhoneAndAddress?: Maybe<GetResidentExistenceByPhoneAndAddressOutput>;
   findOrganizationsForAddress?: Maybe<Array<Maybe<FindOrganizationForAddressOutput>>>;
+  suggestServiceProvider?: Maybe<Array<Maybe<SuggestServiceProviderOutput>>>;
   exportMeterReadings?: Maybe<ExportMeterReadingsOutput>;
   /**
    * Export of property meters readings. A link to the file is returned
@@ -72853,6 +72854,11 @@ export type QueryGetResidentExistenceByPhoneAndAddressArgs = {
 
 export type QueryFindOrganizationsForAddressArgs = {
   data: FindOrganizationsForAddressInput;
+};
+
+
+export type QuerySuggestServiceProviderArgs = {
+  data: SuggestServiceProviderInput;
 };
 
 
@@ -85130,6 +85136,16 @@ export enum Status {
   Success = 'success',
   Error = 'error'
 }
+
+export type SuggestServiceProviderInput = {
+  search: Scalars['String'];
+};
+
+export type SuggestServiceProviderOutput = {
+  __typename?: 'SuggestServiceProviderOutput';
+  tin: Scalars['String'];
+  name: Scalars['String'];
+};
 
 export type SyncRemoteClientInput = {
   dv: Scalars['Int'];
