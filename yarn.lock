@@ -27951,6 +27951,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"farmhash-modern@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "farmhash-modern@npm:1.1.0"
+  checksum: 6f5378ebb0995b99a978a7184d098407a4c5de9a926e70010ee9555827a77b359568f01724a143192e43b06c78802f82687005b60b114ad9dcb9e4218c46fb62
+  languageName: node
+  linkType: hard
+
 "fast-copy@npm:^2.1.1":
   version: 2.1.3
   resolution: "fast-copy@npm:2.1.3"
