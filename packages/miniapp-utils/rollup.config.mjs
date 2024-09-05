@@ -10,7 +10,7 @@ import { uglify } from 'rollup-plugin-uglify'
 
 import pkg from './package.json' assert { type: 'json' }
 
-const AVAILABLE_EXTENSIONS = ['.ts', '.tsx']
+const AVAILABLE_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.json']
 
 function getFileExtension (path) {
     const ext =  AVAILABLE_EXTENSIONS.find(ext => fs.existsSync(`${path}${ext}`))
@@ -49,7 +49,7 @@ const options =  Object.entries(pkg.exports).map(([relativeImport, relativeMap])
                 babelHelpers: 'bundled',
                 exclude: 'node_modules/**',
                 presets: [['@babel/preset-react', { 'runtime': 'automatic' }]],
-                extensions: ['.js', '.jsx'],
+                extensions: AVAILABLE_EXTENSIONS,
             }),
             typescript({ tsconfig: './tsconfig.json', compilerOptions: { declaration: false } }),
             uglify(),
