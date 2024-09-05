@@ -166,7 +166,7 @@ const registerBillingReceipts = (data) => {
 }
 
 export function registerBillingReceiptFileCase (data) {
-    const receipt = data.receipts[Math.floor(Math.random() * data.receipts.length)]
+    const receipt = data.receipts[Math.floor(Math.random() * data.receipts.length)] // NOSONAR
     const response = registerBillingReceiptFile(
         data,
         data.billingContext.id,
