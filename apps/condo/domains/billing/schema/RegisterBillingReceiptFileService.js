@@ -11,13 +11,11 @@ const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema'
 const access = require('@condo/domains/billing/access/RegisterBillingReceiptFileService')
 const {
     REGISTER_BILLING_RECEIPT_FILE_CREATED_STATUS,
-    REGISTER_BILLING_RECEIPT_FILE_SKIPPED_STATUS,
     REGISTER_BILLING_RECEIPT_FILE_UPDATED_STATUS,
     REGISTER_BILLING_RECEIPT_FILE_STATUSES,
 } = require('@condo/domains/billing/constants')
-const { BillingReceiptFile: BillingReceiptFileAPI } = require('@condo/domains/billing/utils/serverSchema')
+const { BillingReceiptFileBase: BillingReceiptFileAPI } = require('@condo/domains/billing/utils/serverSchema')
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
-const { md5 } = require('@condo/domains/common/utils/crypto')
 const { buildUploadInputFrom } = require('@condo/domains/common/utils/serverSchema/export')
 
 
@@ -88,35 +86,25 @@ const RegisterBillingReceiptFileService = new GQLCustomSchema('RegisterBillingRe
                     encoding: 'UTF-8',
                     meta: {},
                 })
-                const controlSum = md5(base64EncodedPDF)
-                const result = {
-                    id: null,
-                    status: REGISTER_BILLING_RECEIPT_FILE_CREATED_STATUS,
-                }
+
                 if (!receiptFile) {
                     const { id } = await BillingReceiptFileAPI.create(context, {
                         dv, sender,
                         sensitiveDataFile,
                         receipt: { connect: { id: receipt.id } },
                         context: { connect: billingContextWhereUniqueInput },
-                        controlSum,
                     })
-                    result.id = id
+
+                    return { id, status: REGISTER_BILLING_RECEIPT_FILE_CREATED_STATUS }
                 } else {
-                    result.id = receiptFile.id
-                    if (receiptFile.controlSum !== controlSum) {
-                        await BillingReceiptFileAPI.update(context, receiptFile.id, {
-                            dv, sender,
-                            sensitiveDataFile,
-                            publicDataFile: null,
-                            controlSum,
-                        })
-                        result.status = REGISTER_BILLING_RECEIPT_FILE_UPDATED_STATUS
-                    } else {
-                        result.status = REGISTER_BILLING_RECEIPT_FILE_SKIPPED_STATUS
-                    }
+                    await BillingReceiptFileAPI.update(context, receiptFile.id, {
+                        dv, sender,
+                        sensitiveDataFile,
+                        publicDataFile: null,
+                    })
+
+                    return { id: receiptFile.id, status: REGISTER_BILLING_RECEIPT_FILE_UPDATED_STATUS }
                 }
-                return result
             },
         },
     ],
