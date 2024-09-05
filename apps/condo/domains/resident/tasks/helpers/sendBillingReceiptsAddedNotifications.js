@@ -5,13 +5,12 @@ const { generateServerUtils } = require('@open-condo/codegen/generate.server.uti
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getRedisClient } = require('@open-condo/keystone/redis')
-const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { getSchemaCtx, allItemsQueryByChunks, find, getById } = require('@open-condo/keystone/schema')
 const { getLocalized } = require('@open-condo/locales/loader')
 
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { CURRENCY_SYMBOLS, DEFAULT_CURRENCY_CODE } = require('@condo/domains/common/constants/currencies')
 const { getStartDates } = require('@condo/domains/common/utils/date')
-const { loadListByChunks, processListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const {
     BILLING_RECEIPT_ADDED_TYPE,
     // BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE,
@@ -55,7 +54,7 @@ const prepareAndSendNotification = async (context, receipt, resident) => {
     const toPay = isNaN(toPayValue) ? null : toPayValue
     const toPayChargeValue = parseFloat(get(receipt, 'toPayDetails.charge'))
     const toPayCharge = isNaN(toPayChargeValue) ? null : toPayChargeValue
-    const category = getLocalized(locale, receipt.category.nameNonLocalized)
+    const category = getLocalized(locale, receipt.category.name)
     const currencyCode = get(receipt, 'context.integration.currencyCode') || DEFAULT_CURRENCY_CODE
 
     // Temporarily disabled checking toPayCharge value (it's temporarily not used by now)
@@ -66,11 +65,11 @@ const prepareAndSendNotification = async (context, receipt, resident) => {
     const { messageType, debt } = getMessageTypeAndDebt(toPay, toPayCharge)
     const data = {
         residentId: resident.id,
-        userId: resident.user.id,
+        userId: resident.user,
         url: `${conf.SERVER_URL}/billing/receipts/${receipt.id}`,
         billingReceiptId: receipt.id,
         billingAccountNumber: receipt.account.number,
-        billingPropertyId: receipt.property.id,
+        billingPropertyId: receipt.property,
         period: receipt.period,
         category,
         toPay: debt,
@@ -78,12 +77,12 @@ const prepareAndSendNotification = async (context, receipt, resident) => {
     }
     const messageData = {
         lang: locale,
-        to: { user: { id: resident.user.id } },
+        to: { user: { id: resident.user } },
         type: messageType,
         meta: { dv: 1, data },
         sender: { dv: 1, fingerprint: 'send-billing-receipts-added-notifications' },
         uniqKey: notificationKey,
-        organization: resident.organization && { id: resident.organization.id },
+        organization: resident.organization && { id: resident.organization },
     }
 
     const { isDuplicateMessage } = await sendMessage(context, messageData)
@@ -99,33 +98,74 @@ const prepareAndSendNotification = async (context, receipt, resident) => {
  * @returns {Promise<void>}
  */
 const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onLastDtChange, taskId) => {
-    const { keystone: context } = await getSchemaCtx('Resident')
+    const { keystone: context } = getSchemaCtx('Resident')
     let successCount = 0
     const notifiedUsers = new Set()
 
     let lastReceipt
-
-    await processListByChunks({
-        context,
+    await allItemsQueryByChunks({
+        schemaName: 'BillingReceipt',
         chunkSize: CHUNK_SIZE,
-        list: BillingReceipt,
         where: receiptsWhere,
-        chunkProcessor: async (/** @type {BillingReceipt[]} */ receipts) => {
-            const payableReceipts = receipts.filter(receipt => receipt.isPayable)
-            let organisationIds = []
+        /**
+         * @param {BillingReceipt[]} receipts
+         * @returns {[]}
+         */
+        chunkProcessor: async (receipts) => {
+            const processedReceipts = []
             const accountsNumbers = []
-            for (const receipt of payableReceipts) {
-                organisationIds.push(get(receipt, 'context.organization.id'))
-                accountsNumbers.push(get(receipt, 'account.number'))
+            const organisationIds = []
+            const receiptAccountKeys = {}
+
+            for (const receipt of receipts) {
+                //Calculate isPayable field of BillingReceipt
+                const otherReceiptsInThatPeriod = await find('BillingReceipt', {
+                    account: { id: get(receipt, 'account'), deletedAt: null },
+                    OR: [
+                        { receiver: { AND: [{ id: get(receipt, 'receiver') }, { deletedAt: null } ] } },
+                        { category: { AND: [{ id: get(receipt, 'category') }, { deletedAt: null } ] } },
+                    ],
+                    period_gt: get(receipt, 'period'),
+                    deletedAt: null,
+                })
+
+                if (!(otherReceiptsInThatPeriod && otherReceiptsInThatPeriod.length)) { // if isPayable, we collect data in a form that includes relations
+                    const account = await getById('BillingAccount', receipt.account)
+                    const billingProperty = await getById('BillingProperty', account.property)
+                    const context = await getById('BillingIntegrationOrganizationContext', receipt.context)
+                    const category = await getById('BillingCategory', receipt.category)
+                    const processedReceipt = ({
+                        ...receipt,
+                        context,
+                        account: {
+                            ...account,
+                            property: { ...billingProperty },
+                        },
+                        category,
+                    })
+                    organisationIds.push(get(context, 'organization'))
+                    accountsNumbers.push(get(account, 'number'))
+                    receiptAccountKeys[makeAccountKey(get(billingProperty, 'address'), get(account, 'number'))] ||= processedReceipt // A necessary and sufficient condition for notifying the user is one unpaid receipt in this period.
+                }
             }
-            organisationIds = uniq(organisationIds)
 
             const serviceConsumerWhere = {
-                organization: { id_in: organisationIds },
+                organization: { id_in:  uniq(organisationIds) },
                 accountNumber_in: compact(accountsNumbers),
                 deletedAt: null,
             }
-            const serviceConsumers = await loadListByChunks({ context, chunkSize: 50, list: ServiceConsumer, where: serviceConsumerWhere })
+            const serviceConsumers = await allItemsQueryByChunks({
+                schemaName: 'ServiceConsumer',
+                where: serviceConsumerWhere,
+                chunkProcessor: async chunk => {
+                    const result = []
+                    for (const serviceConsumer of chunk) {
+                        serviceConsumer.resident = await getById('Resident', serviceConsumer.resident)
+                        result.push(serviceConsumer)
+                    }
+                    return result
+                },
+            })
 
             const consumersByAccountKey = groupBy(serviceConsumers, (item) => {
                 const params = [
@@ -136,13 +176,8 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
                 return makeAccountKey(...params)
             })
 
-            for (const receipt of payableReceipts) {
-                const params = [
-                    get(receipt, 'property.address'),
-                    get(receipt, 'account.number'),
-                ]
-                const receiptAccountKey = makeAccountKey(...params)
-                const consumers = consumersByAccountKey[receiptAccountKey]
+            for (const [key, receipt] of Object.entries(receiptAccountKeys)) {
+                const consumers = consumersByAccountKey[key]
 
                 // We have no ServiceConsumer records for this receipt
                 if (isEmpty(consumers)) continue
@@ -156,11 +191,11 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
                     if (!resident || resident.deletedAt) continue
 
                     // NOTE: (DOMA-4351) skip already notified user to get rid of duplicate notifications
-                    if (notifiedUsers.has(resident.user.id)) continue
+                    if (notifiedUsers.has(resident.user)) continue
 
                     const success = await prepareAndSendNotification(context, receipt, resident)
 
-                    if (success) notifiedUsers.add(resident.user.id)
+                    if (success) notifiedUsers.add(resident.user)
 
                     successConsumerCount += success
                 }
@@ -169,6 +204,8 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
                 logger.info({ msg: `Processed ${CHUNK_SIZE} receipts.`, taskId })
                 lastReceipt = receipt
             }
+
+            return []
         },
     })
 

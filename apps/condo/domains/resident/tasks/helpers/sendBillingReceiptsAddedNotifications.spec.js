@@ -39,7 +39,7 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
             const message = await Message.getOne(admin, messageWhere)
 
             expect(message).not.toBeUndefined()
-            expect(lastDt).toEqual(receipt.createdAt)
+            expect(lastDt).toEqual(String(receipt.createdAt))
             expect(message.organization.id).toEqual(resident.organization.id)
         })
 
