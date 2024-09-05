@@ -1,7 +1,5 @@
-const { get, compact, isEmpty, isFunction, uniq, groupBy, isNull } = require('lodash')
+const { get, isEmpty, isFunction, groupBy, isNull } = require('lodash')
 
-const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
-const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getRedisClient } = require('@open-condo/keystone/redis')
@@ -17,14 +15,9 @@ const {
     BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 
 
 const REDIS_LAST_DATE_KEY = 'LAST_SEND_BILLING_RECEIPT_NOTIFICATION_CREATED_AT'
-const BILLING_RECEIPT_FIELDS = '{ id deletedAt createdAt isPayable period toPay context { id integration { id currencyCode } organization { id } } property { id address addressKey } account { id number unitType unitName fullName property { address } } toPayDetails { charge } category { id nameNonLocalized } }'
-const BillingReceiptGQL = generateGqlQueries('BillingReceipt', BILLING_RECEIPT_FIELDS)
-const BillingReceipt = generateServerUtils(BillingReceiptGQL)
-const CHUNK_SIZE = 20
 
 const logger = getLogger('sendBillingReceiptsAddedNotifications')
 
@@ -105,21 +98,19 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
     let lastReceipt
     await allItemsQueryByChunks({
         schemaName: 'BillingReceipt',
-        chunkSize: CHUNK_SIZE,
         where: receiptsWhere,
         /**
          * @param {BillingReceipt[]} receipts
          * @returns {[]}
          */
         chunkProcessor: async (receipts) => {
-            const processedReceipts = []
             const accountsNumbers = []
-            const organisationIds = []
+            const organisationIdsSet = new Set
             const receiptAccountKeys = {}
 
             for (const receipt of receipts) {
                 //Calculate isPayable field of BillingReceipt
-                const otherReceiptsInThatPeriod = await find('BillingReceipt', {
+                const newerReceipts = await find('BillingReceipt', {
                     account: { id: get(receipt, 'account'), deletedAt: null },
                     OR: [
                         { receiver: { AND: [{ id: get(receipt, 'receiver') }, { deletedAt: null } ] } },
@@ -129,7 +120,7 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
                     deletedAt: null,
                 })
 
-                if (!(otherReceiptsInThatPeriod && otherReceiptsInThatPeriod.length)) { // if isPayable, we collect data in a form that includes relations
+                if (!newerReceipts.length) { // if isPayable, we collect data in a form that includes relations
                     const account = await getById('BillingAccount', receipt.account)
                     const billingProperty = await getById('BillingProperty', account.property)
                     const context = await getById('BillingIntegrationOrganizationContext', receipt.context)
@@ -143,33 +134,41 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
                         },
                         category,
                     })
-                    organisationIds.push(get(context, 'organization'))
+                    organisationIdsSet.add(get(context, 'organization'))
                     accountsNumbers.push(get(account, 'number'))
-                    receiptAccountKeys[makeAccountKey(get(billingProperty, 'address'), get(account, 'number'))] ||= processedReceipt // A necessary and sufficient condition for notifying the user is one unpaid receipt in this period.
+                    receiptAccountKeys[makeAccountKey(get(billingProperty, 'addressKey'), get(account, 'number'))] ||= processedReceipt // A necessary and sufficient condition for notifying the user is one unpaid receipt in this period.
                 }
             }
 
             const serviceConsumerWhere = {
-                organization: { id_in:  uniq(organisationIds) },
-                accountNumber_in: compact(accountsNumbers),
+                organization: { id_in:  Array.from(organisationIdsSet), deletedAt: null },
+                accountNumber_in: accountsNumbers.filter(Boolean),
                 deletedAt: null,
             }
             const serviceConsumers = await allItemsQueryByChunks({
                 schemaName: 'ServiceConsumer',
                 where: serviceConsumerWhere,
                 chunkProcessor: async chunk => {
-                    const result = []
-                    for (const serviceConsumer of chunk) {
-                        serviceConsumer.resident = await getById('Resident', serviceConsumer.resident)
-                        result.push(serviceConsumer)
-                    }
-                    return result
+                    const residents = await find('Resident', {
+                        id_in: chunk.map(serviceConsumer => serviceConsumer.resident),
+                        deletedAt: null,
+                    })
+
+                    const residentsFilteredById = residents.reduce((acc, resident) => {
+                        acc[resident.id] = resident
+                        return acc
+                    }, {})
+
+                    return chunk.map(serviceConsumer => ({
+                        ...serviceConsumer,
+                        resident: residentsFilteredById[serviceConsumer.resident] || {},
+                    }))
                 },
             })
 
             const consumersByAccountKey = groupBy(serviceConsumers, (item) => {
                 const params = [
-                    get(item, 'resident.address'),
+                    get(item, 'resident.addressKey'),
                     get(item, 'accountNumber'),
                 ]
 
@@ -201,7 +200,7 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
                 }
 
                 if (successConsumerCount > 0) successCount += 1
-                logger.info({ msg: `Processed ${CHUNK_SIZE} receipts.`, taskId })
+                logger.info({ msg: 'Processed 100 receipts.', taskId })
                 lastReceipt = receipt
             }
 

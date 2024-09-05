@@ -4,7 +4,7 @@
 
 const index = require('@app/condo/index')
 
-const { setFakeClientMode, makeLoggedInAdminClient, makeClient, waitFor } = require('@open-condo/keystone/test.utils')
+const { setFakeClientMode, makeLoggedInAdminClient, waitFor } = require('@open-condo/keystone/test.utils')
 
 const {
     BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
@@ -39,7 +39,7 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
             const message = await Message.getOne(admin, messageWhere)
 
             expect(message).not.toBeUndefined()
-            expect(lastDt).toEqual(String(receipt.createdAt))
+            expect((new Date(lastDt)).toISOString()).toEqual(receipt.createdAt)
             expect(message.organization.id).toEqual(resident.organization.id)
         })
 
@@ -63,7 +63,7 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
             await waitFor(async () => {
                 const messages = await Message.getAll(admin, messageWhere)
                 expect(messages).toHaveLength(1)
-                expect(lastDt).toEqual(receipt.createdAt)
+                expect((new Date(lastDt)).toISOString()).toEqual(receipt.createdAt)
                 expect(messages[0].organization.id).toEqual(resident.organization.id)
             })
         })
@@ -84,7 +84,7 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
             const message = await Message.getOne(admin, messageWhere)
 
             expect(message).not.toBeUndefined()
-            expect(lastDt).toEqual(receipt.createdAt)
+            expect((new Date(lastDt)).toISOString()).toEqual(receipt.createdAt)
             expect(message.organization.id).toEqual(resident.organization.id)
         })
 
