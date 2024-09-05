@@ -981,26 +981,6 @@ const Ticket = new GQLListSchema('Ticket', {
             },
             {
                 type: 'BTreeIndex',
-                fields: ['isPayable'],
-                name: 'ticket_isPayable',
-            },
-            {
-                type: 'BTreeIndex',
-                fields: ['isEmergency'],
-                name: 'ticket_isEmergency',
-            },
-            {
-                type: 'BTreeIndex',
-                fields: ['isWarranty'],
-                name: 'ticket_isWarranty',
-            },
-            {
-                type: 'BTreeIndex',
-                fields: ['statusReopenedCounter'],
-                name: 'ticket_statusReopenedCounter',
-            },
-            {
-                type: 'BTreeIndex',
                 fields: ['assignee', 'executor', 'organization'],
                 name: 'ticket_assignee_exec_org',
                 condition: 'Q(deletedAt__isnull=True)',
@@ -1014,7 +994,7 @@ const Ticket = new GQLListSchema('Ticket', {
             {
                 type: 'BTreeIndex',
                 fields: ['order', '-createdAt'],
-                name: 'idx_ticket_order_createdat',
+                name: 'ticket_order_createdat',
             },
         ],
     },
