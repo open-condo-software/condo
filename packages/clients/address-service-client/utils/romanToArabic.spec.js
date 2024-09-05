@@ -34,9 +34,17 @@ describe('romanToArabic', () => {
             ['V', [{ index: 0, value: 'V' }]],
             ['V I', [{ index: 0, value: 'V' }, { index: 2, value: 'I' }]],
             ['asd V asd', [{ index: 4, value: 'V' }]],
-            ['asdV', []],
+            ['фыв V фыв', [{ index: 4, value: 'V' }]],
         ])(
             'should detect properly in "%s"', (inputStr, expected) =>
+                expect(detectRomanNumerals(inputStr)).toEqual(expected)
+        )
+
+        test.each([
+            ['asdV', []],
+            ['фывV', []],
+        ])(
+            'should not detect properly in "%s"', (inputStr, expected) =>
                 expect(detectRomanNumerals(inputStr)).toEqual(expected)
         )
     })
@@ -46,7 +54,9 @@ describe('romanToArabic', () => {
             ['V', '5'],
             ['V I', '5 1'],
             ['asd V asd', 'asd 5 asd'],
+            ['фыв V фыв', 'фыв 5 фыв'],
             ['asdV', 'asdV'],
+            ['фывV', 'фывV'],
         ])(
             'should convert "%s" to "%s"', (inputStr, expected) =>
                 expect(replaceRomanWithArabicNumbers(inputStr)).toEqual(expected)

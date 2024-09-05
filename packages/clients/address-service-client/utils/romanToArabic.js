@@ -14,7 +14,8 @@ const ROMAN_NUMERALS = {
     'I': 1,
 }
 
-const SEPARATE_ROMANIAN_SYMBOLS_REGEXP = /\b([IVXLCDM]+)\b/gi
+// intellij throws warning that "\p{P}" regexp is not supported, but it works
+const SEPARATE_ROMANIAN_SYMBOLS_REGEXP = /(?<![^\s\p{P}\p{N}])([IVXLCDM]+)(?![^\s\p{P}\p{N}])/gi
 
 function convertRomanToArabic (romanString) {
     romanString = romanString.toUpperCase()

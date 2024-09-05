@@ -1,3 +1,5 @@
+const conf = require('@open-condo/config')
+
 const KEYWORDS = {
     ru: {
         parking: ['автоместо', 'парковка', 'паркинг', 'машиноместо', 'гараж', 'м/м', 'мм', 'место', 'м/место', 'а/м', 'бокс', 'парк'],
@@ -23,7 +25,7 @@ class AddressFromStringParser {
     splitRegexp
     locale
 
-    constructor (locale = 'ru') {
+    constructor (locale = conf.DEFAULT_LOCALE) {
         if (!['ru', 'en'].includes(locale.toLowerCase())) {
             console.error(`does not have locale ${locale}, using en`)
             locale = 'en'
