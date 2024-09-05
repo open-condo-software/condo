@@ -18,18 +18,14 @@ const {
     getAcquiringIntegrationContextFormula,
     FeeDistribution,
 } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
-
+const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 const ERRORS = {
     PAYMENT_AMOUNT_LESS_THAN_MINIMUM: {
         ...PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
         query: 'calculateFeeForReceipt',
     },
 }
-
-const { RESIDENT } = require('@condo/domains/user/constants/common')
-const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
-
-require('@condo/domains/acquiring/constants/context')
 
 const redisGuard = new RedisGuard()
 
