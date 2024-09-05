@@ -10,8 +10,6 @@ import {
     createBillingIntegration,
     createBillingIntegrationOrganizationContext,
     sendAuthorizedRequest,
-    registerResident,
-    registerResidentServiceConsumers, createProperty,
     registerBillingReceiptFile,
 } from './utils'
 
