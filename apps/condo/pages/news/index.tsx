@@ -156,13 +156,6 @@ const NewsPageContent = ({
     } = Property.useCount({ where: { organization: { id: get(organization, 'id') } } })
 
     const {
-        objs: objs2,
-    } = Property.useObjects({ where: { organization: { id: get(organization, 'id') } } })
-
-    console.log(propertiesCount)
-    console.log(objs2)
-
-    const {
         count: newsWithoutFiltersCount,
         loading: newsWithoutFiltersCountLoading,
         error: newsError,
