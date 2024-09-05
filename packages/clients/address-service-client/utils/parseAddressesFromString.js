@@ -1,9 +1,18 @@
 const KEYWORDS = {
-    parking: ['автоместо', 'парковка', 'паркинг', 'машиноместо', 'гараж', 'м/м', 'мм', 'место', 'м/место', 'а/м', 'бокс', 'парк'],
-    apartment: ['аппарт', 'апарт', 'ап', 'к/п'],
-    commercial: ['офис', 'оф'],
-    warehouse: ['помещение', 'подвал', 'помещ', 'пом', 'кл', 'кладовка', 'кладовая', 'нп'],
-    flat: ['квартира', 'кв', 'комн'],
+    ru: {
+        parking: ['автоместо', 'парковка', 'паркинг', 'машиноместо', 'гараж', 'м/м', 'мм', 'место', 'м/место', 'а/м', 'бокс', 'парк'],
+        apartment: ['аппарт', 'апарт', 'ап', 'к/п'],
+        commercial: ['офис', 'оф'],
+        warehouse: ['помещение', 'подвал', 'помещ', 'пом', 'кл', 'кладовка', 'кладовая', 'нп'],
+        flat: ['квартира', 'кв', 'комн'],
+    },
+    en: {
+        parking: ['parking spot', 'parking', 'parking garage', 'parking space', 'garage', 'p/s', 'ps', 'space', 'p/space', 'c/s', 'box', 'park'],
+        apartment: ['apartment', 'apt', 'ap', 'c/p', 'apartment', 'apartement', 'apart'],
+        commercial: ['office', 'off'],
+        warehouse: ['room', 'basement', 'premises', 'rm', 'stor', 'storage', 'storage room', 'np'],
+        flat: ['flat', 'apt', 'room', 'suite'],
+    },
 }
 
 const HOUSE_IDENTIFIERS = 'д|уч|дом|участок|двлд'
@@ -12,9 +21,15 @@ const SPLIT_SYMBOL = '%'
 class AddressFromStringParser {
 
     splitRegexp
+    locale
 
-    constructor () {
-        const keywordsRegex = this.keywordsToRegexp(Object.values(KEYWORDS).flat())
+    constructor (locale = 'ru') {
+        if (!['ru', 'en'].includes(locale.toLowerCase())) {
+            console.error(`does not have locale ${locale}, using en`)
+            locale = 'en'
+        }
+        this.locale = locale.toLowerCase()
+        const keywordsRegex = this.keywordsToRegexp(Object.values(KEYWORDS[this.locale]).flat())
         this.splitRegexp = new RegExp(`[\\s,](${HOUSE_IDENTIFIERS})([\\s.].*?)[\\s,]+(${keywordsRegex})[.\\s]`, 'i')
     }
 
@@ -61,8 +76,8 @@ class AddressFromStringParser {
      */
     parseUnit (unitInput = '') {
         let detectedType = null
-        for (const unitType in KEYWORDS) {
-            const unitTypeRegex = new RegExp(this.keywordsToRegexp(KEYWORDS[unitType]) + '[.]*', 'ig')
+        for (const unitType in KEYWORDS[this.locale]) {
+            const unitTypeRegex = new RegExp(this.keywordsToRegexp(KEYWORDS[this.locale][unitType]) + '[.]*', 'ig')
             if (!detectedType && unitTypeRegex.test(unitInput)) {
                 detectedType = unitType
             }

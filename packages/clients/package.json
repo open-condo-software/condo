@@ -10,7 +10,8 @@
     ],
     "dependencies": {
         "@open-condo/config": "workspace:^",
-        "dotenv": "^16.3.1"
+        "dotenv": "^16.3.1",
+        "slugify": "^1.6.6"
     },
     "repository": "https://github.com/open-condo-software/condo/tree/main/packages/clients",
     "author": {
