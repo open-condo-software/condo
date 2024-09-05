@@ -83,7 +83,7 @@ const REGISTER_MULTI_PAYMENT_FOR_INVOICES_MUTATION = gql`
 `
 
 const CALCULATE_FEE_FOR_RECEIPT_QUERY = gql`
-    query getCalculateFeeForReceiptById ($data: CalculateFeeForReceiptInput!) {
+    query calculateFeeForReceipt ($data: CalculateFeeForReceiptInput!) {
         result: calculateFeeForReceipt(data: $data) { amountWithoutExplicitFee explicitFee explicitServiceCharge }
     }
 `

@@ -16,10 +16,12 @@ describe('CalculateFeeForReceiptService', () => {
     beforeAll(async () => {
         utils = new TestUtils([ResidentTestMixin])
         await utils.init()
-    })
-
-    afterEach(async () => {
-        await utils.updateAcquiringIntegration({ minimumPaymentAmount: null })
+        await utils.updateAcquiringIntegration({
+            explicitFeeDistributionSchema: [
+                { 'recipient':'acquiring', 'percent':'1.0' },
+                { 'recipient':'service', 'percent':'0.2' },
+            ],
+        })
     })
 
     describe('Check the calculations for fees', () => {
@@ -29,7 +31,7 @@ describe('CalculateFeeForReceiptService', () => {
             const [result] = await calculateFeeForReceiptByTestClient(utils.clients.admin, { receipt: { id: receipt.id }, amount })
             expect(result.amountWithoutExplicitFee).toBe(amount)
             expect(result.explicitFee).toBe('0')
-            expect(result.explicitServiceCharge).toBe(Big(amount).mul(Big(0.012)).toString())
+            expect(result.explicitServiceCharge).toBe('3.6')
         })
 
         test('Check the calculations for implicit fees', async () => {
@@ -47,6 +49,10 @@ describe('CalculateFeeForReceiptService', () => {
     })
 
     describe('Check minimum payment amount from acquiring integration', () => {
+        afterEach(async () => {
+            await utils.updateAcquiringIntegration({ minimumPaymentAmount: null })
+        })
+
         test('Payment for acquiring with no set the minimum payment amount', async () => {
             const [[receipt]] = await utils.createReceipts()
             const amount = '300'
