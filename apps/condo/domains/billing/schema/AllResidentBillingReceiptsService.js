@@ -5,6 +5,7 @@
 const Big = require('big.js')
 const { pick, get, isNil, min } = require('lodash')
 
+const { normalizeUnitName } = require('@open-condo/clients/address-service-client/utils/normalizeUnitName')
 const { generateQuerySortBy } = require('@open-condo/codegen/generate.gql')
 const { generateQueryWhereInput } = require('@open-condo/codegen/generate.gql')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
@@ -50,7 +51,7 @@ const getFile = (receipt, contacts) => {
 
     // let's search for a contact
     // if any exists = user allowed to see sensitive data
-    const propertyContacts = contacts.filter(contact => contact.unitName === accountUnitName
+    const propertyContacts = contacts.filter(contact => normalizeUnitName(contact.unitName) === normalizeUnitName(accountUnitName)
         && contact.unitType === accountUnitType
         && contact.property.address === propertyAddress)
     const file = propertyContacts.length > 0
