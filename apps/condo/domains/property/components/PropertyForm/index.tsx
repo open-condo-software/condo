@@ -5,8 +5,9 @@ import { UpdatePropertyForm } from './UpdatePropertyForm'
 
 interface IPropertyFormProps {
     id?: string
+    next?: string
 }
 
-export const PropertyForm: React.FC<IPropertyFormProps> = ({ id }) => {
-    return (id ? <UpdatePropertyForm id={id}/> : <CreatePropertyForm/> )
+export const PropertyForm: React.FC<IPropertyFormProps> = ({ id, next }) => {
+    return (id ? <UpdatePropertyForm next={next} id={id}/> : <CreatePropertyForm next={next} /> )
 }

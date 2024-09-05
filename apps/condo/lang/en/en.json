@@ -1422,6 +1422,8 @@
   "pages.condo.news.index.field.date.sending": "Sending",
   "pages.condo.news.index.emptyList.header": "No news yet",
   "pages.condo.news.index.emptyList.title": "Shall we add the first news right now?",
+  "pages.condo.news.index.propertyGate.header": "To create news you should add your properties",
+  "pages.condo.news.index.propertyGate.title": "Shall we add the first property now?",
   "pages.condo.news.settings.pageTitle": "Settings",
   "pages.condo.news.settings.sharingAppSettingsTitle": "Select sharing apps",
   "pages.condo.news.settings.appCard.description": "Send your news to {sharingAppName}",

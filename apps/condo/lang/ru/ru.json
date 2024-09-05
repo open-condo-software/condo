@@ -1422,6 +1422,8 @@
   "pages.condo.news.index.field.date.sending": "Отправляется",
   "pages.condo.news.index.emptyList.header": "Пока новостей нет",
   "pages.condo.news.index.emptyList.title": "Добавим первую новость прямо сейчас?",
+  "pages.condo.news.index.propertyGate.header": "Чтобы отправить новость нужно добавить хотя бы один дом",
+  "pages.condo.news.index.propertyGate.title": "Добавим первый дом сейчас?",
   "pages.condo.news.settings.pageTitle": "Настройки",
   "pages.condo.news.settings.sharingAppSettingsTitle": "Выберите каналы отправки",
   "pages.condo.news.settings.appCard.description": "Отправка новостей в {sharingAppName}",

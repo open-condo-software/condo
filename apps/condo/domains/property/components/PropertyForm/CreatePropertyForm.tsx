@@ -9,6 +9,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Button, Tour } from '@open-condo/ui'
 
+import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import BasePropertyForm from '@condo/domains/property/components/BasePropertyForm'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
@@ -16,7 +17,11 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 const DEFAULT_PROPERTY_TYPE = PropertyTypeType.Building
 const FORM_DEPENDENCIES = ['address']
 
-export const CreatePropertyForm: React.FC = () => {
+interface ICreatePropertyFormProps {
+    next?: string
+}
+
+export const CreatePropertyForm: React.FC<ICreatePropertyFormProps> = ({ next }) => {
     const intl = useIntl()
     const CreatePropertyMessage = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
     const router = useRouter()
@@ -25,7 +30,12 @@ export const CreatePropertyForm: React.FC = () => {
     const action = Property.useCreate({
         organization: { connect: { id: organization.id } },
         type: DEFAULT_PROPERTY_TYPE,
-    }, async (property) => { await router.push(`/property/${property.id}`) })
+    }, async (property) => {
+        let redirectUrl = `/property/${property.id}`
+        if (next && isSafeUrl(next)) { redirectUrl = next }
+
+        await router.push(redirectUrl)
+    })
 
     const initialValues = {
         name: '',
