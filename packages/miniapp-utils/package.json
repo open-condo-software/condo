@@ -54,6 +54,10 @@
   "publishConfig": {
     "access": "public"
   },
+  "peerDependencies": {
+    "react": ">=16.0.0",
+    "react-dom": ">=16.0.0"
+  },
   "devDependencies": {
     "@babel/preset-react": "^7.24.7",
     "@open-condo/tsconfig": "workspace:^",
