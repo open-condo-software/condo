@@ -983,13 +983,11 @@ const Ticket = new GQLListSchema('Ticket', {
                 type: 'BTreeIndex',
                 fields: ['assignee', 'executor', 'organization'],
                 name: 'ticket_assignee_exec_org',
-                condition: 'Q(deletedAt__isnull=True)',
             },
             {
                 type: 'BTreeIndex',
                 fields: ['organization', 'status'],
                 name: 'ticket_organization_status',
-                condition: 'Q(deletedAt__isnull=True)',
             },
             {
                 type: 'BTreeIndex',
