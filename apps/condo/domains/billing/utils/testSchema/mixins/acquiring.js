@@ -26,20 +26,20 @@ const AcquiringTestMixin = {
 
     dependsOn: [OrganizationTestMixin],
 
-    async initMixin () {
-        const [acquiringIntegration] = await createTestAcquiringIntegration(this.clients.admin)
-        await createTestAcquiringIntegrationAccessRight(this.clients.admin, acquiringIntegration, this.clients.service.user)
+    async initMixin (data = {}) {
+        const [acquiringIntegration] = await createTestAcquiringIntegration(this.clients.support)
+        await createTestAcquiringIntegrationAccessRight(this.clients.support, acquiringIntegration, this.clients.service.user)
         this.acquiringIntegration = acquiringIntegration
-        const [acquiringContext] = await createTestAcquiringIntegrationContext(this.clients.admin, this.organization, acquiringIntegration, { status: CONTEXT_FINISHED_STATUS })
+        const [acquiringContext] = await createTestAcquiringIntegrationContext(this.clients.support, this.organization, acquiringIntegration, { status: CONTEXT_FINISHED_STATUS })
         this.acquiringContext = acquiringContext
     },
 
     async updateAcquiringContext (updateInput) {
-        return await updateTestAcquiringIntegrationContext(this.clients.admin, this.acquiringContext.id, updateInput)
+        return await updateTestAcquiringIntegrationContext(this.clients.support, this.acquiringContext.id, updateInput)
     },
 
     async updateAcquiringIntegration (updateInput) {
-        return await updateTestAcquiringIntegration(this.clients.admin, this.acquiringIntegration.id, updateInput)
+        return await updateTestAcquiringIntegration(this.clients.support, this.acquiringIntegration.id, updateInput)
     },
 
     async payForReceipt (receiptId, consumerId) {
@@ -61,20 +61,19 @@ const AcquiringTestMixin = {
                 accountNumber: jsonReceipt.accountNumber,
             },
         }
-        console.error(partialReceipt)
-        console.error(this.acquiringContext)
+        // Only admin can call registerMultiPaymentForVirtualReceipt
         const [ { multiPaymentId }] = await registerMultiPaymentForVirtualReceiptByTestClient(this.clients.admin, partialReceipt, { id: this.acquiringContext.id })
         await this.completeMultiPayment(multiPaymentId)
     },
 
     async completeMultiPayment (multiPaymentId) {
         const multiPayment = await MultiPayment.getOne(this.clients.service, { id: multiPaymentId })
-        await updateTestPayment(this.clients.admin, multiPayment.payments[0].id, {
+        await updateTestPayment(this.clients.service, multiPayment.payments[0].id, {
             explicitFee: '0.0',
             advancedAt: dayjs().toISOString(),
             status: PAYMENT_DONE_STATUS,
         })
-        await updateTestMultiPayment(this.clients.admin, multiPayment.id, {
+        await updateTestMultiPayment(this.clients.service, multiPayment.id, {
             explicitFee: '0.0',
             explicitServiceCharge: '0.0',
             withdrawnAt: dayjs().toISOString(),

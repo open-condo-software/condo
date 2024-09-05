@@ -46,11 +46,11 @@ const BillingTestMixin = {
             canReadBillingReceipts: true,
             canReadPayments: true,
         })
-        const [billingIntegration] = await createTestBillingIntegration(this.clients.admin)
-        const [billingContext] = await createTestBillingIntegrationOrganizationContext(this.clients.admin, this.organization, billingIntegration, {
+        const [billingIntegration] = await createTestBillingIntegration(this.clients.support)
+        const [billingContext] = await createTestBillingIntegrationOrganizationContext(this.clients.support, this.organization, billingIntegration, {
             status: CONTEXT_FINISHED_STATUS,
         })
-        await createTestBillingIntegrationAccessRight(this.clients.admin, billingIntegration, this.clients.service.user)
+        await createTestBillingIntegrationAccessRight(this.clients.support, billingIntegration, this.clients.service.user)
         this.billingIntegration = billingIntegration
         this.billingContext = billingContext
     },
@@ -100,22 +100,22 @@ const BillingTestMixin = {
         if (!jsonReceipts) {
             jsonReceipts = [this.createJSONReceipt()]
         }
-        return await registerBillingReceiptsByTestClient(this.clients.admin, {
+        return await registerBillingReceiptsByTestClient(this.clients.service, {
             context: { id: this.billingContext.id },
             receipts: jsonReceipts,
         })
     },
 
     async createBillingReceiptFile (receiptId, extra = {}) {
-        return await createTestBillingReceiptFile(this.clients.admin, { id: receiptId }, this.billingContext, extra)
+        return await createTestBillingReceiptFile(this.clients.service, { id: receiptId }, this.billingContext, extra)
     },
 
     async updateBillingContext (updateInput) {
-        return await updateTestBillingIntegrationOrganizationContext(this.clients.admin, this.billingContext.id, updateInput)
+        return await updateTestBillingIntegrationOrganizationContext(this.clients.support, this.billingContext.id, updateInput)
     },
 
     async updateBillingIntegration (updateInput) {
-        return await updateTestBillingIntegration(this.clients.admin, this.billingIntegration.id, updateInput)
+        return await updateTestBillingIntegration(this.clients.support, this.billingIntegration.id, updateInput)
     },
 
 }
