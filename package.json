@@ -66,6 +66,7 @@
     "yarn": ">=3.2.0"
   },
   "dependencies": {
+    "@open-condo/slugify": "workspace:^",
     "@sentry/nextjs": "^6.19.7",
     "@sentry/node": "^7.102.1",
     "@sentry/profiling-node": "^7.102.1",

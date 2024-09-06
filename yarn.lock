@@ -12896,6 +12896,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@open-condo/slugify@workspace:^, @open-condo/slugify@workspace:packages/slugify":
+  version: 0.0.0-use.local
+  resolution: "@open-condo/slugify@workspace:packages/slugify"
+  languageName: unknown
+  linkType: soft
+
 "@open-condo/tsconfig@workspace:^, @open-condo/tsconfig@workspace:packages/tsconfig":
   version: 0.0.0-use.local
   resolution: "@open-condo/tsconfig@workspace:packages/tsconfig"
@@ -46936,6 +46942,7 @@ __metadata:
     "@mono-pub/github": ^1.0.1
     "@mono-pub/npm": ^1.0.1
     "@open-condo/cli": "workspace:^"
+    "@open-condo/slugify": "workspace:^"
     "@sentry/nextjs": ^6.19.7
     "@sentry/node": ^7.102.1
     "@sentry/profiling-node": ^7.102.1
