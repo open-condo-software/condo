@@ -28,7 +28,7 @@ const {
 } = require('../constants/constants')
 const { prepareMessageData } = require('../tasks/sendMessageBatch.helpers')
 const { Message, sendMessageByTestClient, syncRemoteClientByTestClient } = require('../utils/testSchema')
-const { getRandomTokenData, getRandomFakeSuccessToken, getRandomFakeFailToken } = require('../utils/testSchema/helpers')
+const { getRandomTokenData, getRandomFakeSuccessToken, getRandomFakeFailToken } = require('../utils/testSchema/utils')
 
 
 describe('push transport', () => {

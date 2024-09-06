@@ -18,7 +18,7 @@ const { makeClientWithResidentUser, makeClientWithStaffUser } = require('@condo/
 
 const { makeMessageKey, sendRemoteClientsUpgradeAppNotifications } = require('./sendRemoteClientsUpgradeAppNotifications')
 
-const { getRandomTokenData } = require('../utils/testSchema/helpers')
+const { getRandomTokenData } = require('../utils/testSchema/utils')
 
 
 describe('sendResidentsNoAccountNotifications', () => {

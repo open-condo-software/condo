@@ -10,7 +10,7 @@ const {
     RemoteClient,
 } = require('@condo/domains/notification/utils/testSchema')
 
-const { getRandomTokenData } = require('../utils/testSchema/helpers')
+const { getRandomTokenData } = require('../utils/testSchema/utils')
 
 describe('DisconnectUserFromRemoteClientService', () => {
     describe('anonymous', () => {

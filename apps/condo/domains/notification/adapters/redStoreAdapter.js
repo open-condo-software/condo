@@ -12,7 +12,7 @@ const {
     PUSH_TYPE_SILENT_DATA,
     APPS_WITH_DISABLED_NOTIFICATIONS_ENV,
 } = require('@condo/domains/notification/constants/constants')
-const { getEmptyResult, getFakeSuccessResponse, getFakeErrorResponse } = require('@condo/domains/notification/utils/testSchema/helpers')
+const { getEmptyResult, getFakeSuccessResponse, getFakeErrorResponse } = require('apps/condo/domains/notification/utils/testSchema/utils')
 
 const REDSTORE_CONFIG = conf[REDSTORE_CONFIG_ENV] ? JSON.parse(conf[REDSTORE_CONFIG_ENV]) : null
 const APPS_WITH_DISABLED_NOTIFICATIONS = conf[APPS_WITH_DISABLED_NOTIFICATIONS_ENV] ? JSON.parse(conf[APPS_WITH_DISABLED_NOTIFICATIONS_ENV]) : []
@@ -85,12 +85,9 @@ class RedStoreAdapter {
     static prepareBatchData (notificationRaw, data, tokens = [], pushTypes = {}, isVoIP = false) {
         const notification = RedStoreAdapter.validateAndPrepareNotification(notificationRaw)
         const notifications = [] // User can have many Remote Clients. Message is created for the user, so from 1 message there can be many notifications
-        const fakeNotifications = []
         const pushContext = {}
 
         tokens.forEach((pushToken) => {
-            const isFakeToken = pushToken.startsWith(PUSH_FAKE_TOKEN_SUCCESS) || pushToken.startsWith(PUSH_FAKE_TOKEN_FAIL)
-            const target = isFakeToken ? fakeNotifications : notifications
             const pushType = pushTypes[pushToken] || PUSH_TYPE_DEFAULT
             const preparedData = prepareData(data, pushToken)
             const pushData = pushType === PUSH_TYPE_SILENT_DATA
@@ -160,15 +157,11 @@ class RedStoreAdapter {
     async sendNotification ({ notification, data, tokens, pushTypes } = {}, isVoIP = false) {
         if (!tokens || isEmpty(tokens)) return [false, { error: 'No pushTokens available.' }]
 
-        const [notifications, fakeNotifications, pushContext] = RedStoreAdapter.prepareBatchData(notification, data, tokens, pushTypes, isVoIP)
+        const [notifications, pushContext] = RedStoreAdapter.prepareBatchData(notification, data, tokens, pushTypes, isVoIP)
         let result
         console.log('insideRedStoreAdapter', 'logNotifications', notifications)
-        // If we come up to here and no real tokens provided, that means fakeNotifications contains
-        // some FAKE tokens and emulation is required for testing purposes
-        if (isEmpty(notifications)) {
-            result = RedStoreAdapter.injectFakeResults(getEmptyResult(), fakeNotifications)
-        }
-        console.log('insideRedStoreAdapter', 'fakeNotificationsIf', !isNull(this.#config) && !isEmpty(notifications))
+
+        console.log('insideRedStoreAdapter', 'EmptyNotifications', !isNull(this.#config) && !isEmpty(notifications))
 
         if (!isNull(this.#config) && !isEmpty(notifications)) {
             const notificationsByAppId = {}
