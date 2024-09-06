@@ -4,6 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const { faker } = require('@faker-js/faker')
+const { gql } = require('graphql-tag')
 const { v4: uuid } = require('uuid')
 const { countryPhoneData } = require('phone')
 const { max, repeat, get, isEmpty } = require('lodash')
@@ -17,9 +18,9 @@ const {
     SBER_ID_IDP_TYPE,
     RESIDENT,
     STAFF,
-    SERVICE
+    SERVICE,
 } = require('@condo/domains/user/constants/common')
-const { IDENTITY_TYPES} = require('@condo/domains/user/constants')
+const { IDENTITY_TYPES } = require('@condo/domains/user/constants')
 const {
     ConfirmPhoneAction: ConfirmPhoneActionGQL,
     OidcClient: OidcClientGQL,
@@ -46,6 +47,7 @@ const { ExternalTokenAccessRight: ExternalTokenAccessRightGQL } = require('@cond
 const { GET_ACCESS_TOKEN_BY_USER_ID_QUERY } = require('@condo/domains/user/gql')
 const { UserRightsSet: UserRightsSetGQL } = require('@condo/domains/user/gql')
 const { CHECK_USER_EXISTENCE_MUTATION } = require('@condo/domains/user/gql')
+
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function createTestEmail () {
@@ -202,35 +204,35 @@ async function makeClientWithServiceUser (userExtraAttrs = {}) {
 async function addAdminAccess (user, extraAttrs = {}) {
     const admin = await makeLoggedInAdminClient()
     const dv = 1
-    const sender = { dv:1, fingerprint: "user-test-schema-utils" }
+    const sender = { dv: 1, fingerprint: 'user-test-schema-utils' }
     await User.update(admin, user.id, { dv, sender, isAdmin: true, ...extraAttrs })
 }
 
 async function addSupportAccess (user, extraAttrs = {}) {
     const admin = await makeLoggedInAdminClient()
     const dv = 1
-    const sender = { dv:1, fingerprint: "user-test-schema-utils" }
+    const sender = { dv: 1, fingerprint: 'user-test-schema-utils' }
     await User.update(admin, user.id, { dv, sender, isSupport: true, ...extraAttrs })
 }
 
 async function addResidentAccess (user, extraAttrs = {}) {
     const admin = await makeLoggedInAdminClient()
     const dv = 1
-    const sender = { dv:1, fingerprint: "user-test-schema-utils" }
+    const sender = { dv: 1, fingerprint: 'user-test-schema-utils' }
     await User.update(admin, user.id, { dv, sender, type: RESIDENT, ...extraAttrs })
 }
 
 async function addStaffAccess (user, extraAttrs = {}) {
     const admin = await makeLoggedInAdminClient()
     const dv = 1
-    const sender = { dv:1, fingerprint: "user-test-schema-utils" }
+    const sender = { dv: 1, fingerprint: 'user-test-schema-utils' }
     await User.update(admin, user.id, { dv, sender, type: STAFF, ...extraAttrs })
 }
 
 async function addServiceAccess (user, extraAttrs = {}) {
     const admin = await makeLoggedInAdminClient()
     const dv = 1
-    const sender = { dv:1, fingerprint: "user-test-schema-utils" }
+    const sender = { dv: 1, fingerprint: 'user-test-schema-utils' }
     await User.update(admin, user.id, { dv, sender, type: SERVICE, ...extraAttrs })
 }
 
@@ -239,6 +241,7 @@ const ConfirmPhoneAction = generateGQLTestUtils(ConfirmPhoneActionGQL)
 const OidcClient = generateGQLTestUtils(OidcClientGQL)
 const ExternalTokenAccessRight = generateGQLTestUtils(ExternalTokenAccessRightGQL)
 const UserRightsSet = generateGQLTestUtils(UserRightsSetGQL)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestConfirmPhoneAction (client, extraAttrs = {}) {
@@ -447,7 +450,7 @@ async function updateTestOidcClient (client, id, extraAttrs = {}) {
 async function createTestExternalTokenAccessRight (client, user, identityType, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!user || !user.id) throw new Error('no user.id')
-    if(!identityType) throw new Error('no identityType')
+    if (!identityType) throw new Error('no identityType')
     if (!IDENTITY_TYPES.includes(identityType)) throw new Error('unknown identityType')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -477,7 +480,7 @@ async function updateTestExternalTokenAccessRight (client, id, extraAttrs = {}) 
 }
 
 
-async function getAccessTokenByUserIdByTestClient(client, extraAttrs = {}) {
+async function getAccessTokenByUserIdByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
 
     const attrs = {
@@ -487,6 +490,7 @@ async function getAccessTokenByUserIdByTestClient(client, extraAttrs = {}) {
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
 async function createTestUserRightsSet (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -530,6 +534,31 @@ async function checkUserExistenceByTestClient(client, extraAttrs = {}) {
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
+// NOTE: In tests we need to check different user fields and token. In real utilities we only need user id
+const TEST_AUTHENTICATE_OR_REGISTER_USER_WITH_CONFIRM_TOKEN_MUTATION = gql`
+    mutation authenticateOrRegisterUserWithConfirmToken ($data: AuthenticateOrRegisterUserWithConfirmTokenInput!) {
+        result: authenticateOrRegisterUserWithConfirmToken(data: $data) {
+            user: item { id }
+            token
+        }
+    }
+`
+
+async function authenticateOrRegisterUserWithConfirmTokenByTestClient (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(TEST_AUTHENTICATE_OR_REGISTER_USER_WITH_CONFIRM_TOKEN_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -570,5 +599,6 @@ module.exports = {
     UserRightsSet, createTestUserRightsSet, updateTestUserRightsSet,
     checkUserExistenceByTestClient,
     authenticateUserWithPhoneAndPasswordByTestClient,
+    authenticateOrRegisterUserWithConfirmTokenByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
