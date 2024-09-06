@@ -22,7 +22,7 @@ const { RecurrentPaymentContext: RecurrentPaymentContextGQL } = require('@condo/
 const { RecurrentPayment: RecurrentPaymentGQL } = require('@condo/domains/acquiring/gql')
 const { PAYMENT_BY_LINK_MUTATION } = require('@condo/domains/acquiring/gql')
 const { REGISTER_MULTI_PAYMENT_FOR_INVOICES_MUTATION } = require('@condo/domains/acquiring/gql')
-const { CALCULATE_FEE_FOR_RECEIPT_MUTATION } = require('@condo/domains/acquiring/gql')
+const { CALCULATE_FEE_FOR_RECEIPT_QUERY } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateServerUtils(AcquiringIntegrationGQL)
@@ -117,10 +117,9 @@ async function calculateFeeForReceipt (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
-    // TODO(codegen): write calculateFeeForReceipt serverSchema guards
 
     return await execGqlWithoutAccess(context, {
-        query: CALCULATE_FEE_FOR_RECEIPT_MUTATION,
+        query: CALCULATE_FEE_FOR_RECEIPT_QUERY,
         variables: { data: { dv: 1, ...data } },
         errorMessage: '[error] Unable to calculateFeeForReceipt',
         dataPath: 'obj',

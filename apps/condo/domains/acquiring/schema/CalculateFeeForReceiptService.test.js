@@ -28,7 +28,7 @@ describe('CalculateFeeForReceiptService', () => {
         test('Check the calculations for explicit fees', async () => {
             const [[receipt]] = await utils.createReceipts()
             const amount = '300'
-            const [result] = await calculateFeeForReceiptByTestClient(utils.clients.admin, { receipt: { id: receipt.id }, amount })
+            const [result] = await calculateFeeForReceiptByTestClient(utils.clients.resident, { receipt: { id: receipt.id }, amount })
             expect(result.amountWithoutExplicitFee).toBe(amount)
             expect(result.explicitFee).toBe('0')
             expect(result.explicitServiceCharge).toBe('3.6')
@@ -40,8 +40,7 @@ describe('CalculateFeeForReceiptService', () => {
                 implicitFeeDistributionSchema: [{ 'recipient':'organization', 'percent':'1.2' }],
             })
             const amount = '300'
-            const [result] = await calculateFeeForReceiptByTestClient(utils.clients.admin, { receipt: { id: receipt.id }, amount })
-            console.error(result)
+            const [result] = await calculateFeeForReceiptByTestClient(utils.clients.resident, { receipt: { id: receipt.id }, amount })
             expect(result.amountWithoutExplicitFee).toBe(amount)
             expect(result.explicitFee).toBe('0')
             expect(result.explicitServiceCharge).toBe('0')
@@ -56,7 +55,7 @@ describe('CalculateFeeForReceiptService', () => {
         test('Payment for acquiring with no set the minimum payment amount', async () => {
             const [[receipt]] = await utils.createReceipts()
             const amount = '300'
-            const [result] = await calculateFeeForReceiptByTestClient(utils.clients.admin, { receipt: { id: receipt.id }, amount })
+            const [result] = await calculateFeeForReceiptByTestClient(utils.clients.resident, { receipt: { id: receipt.id }, amount })
             expect(result).toHaveProperty('amountWithoutExplicitFee')
             expect(result).toHaveProperty('explicitFee')
             expect(result).toHaveProperty('explicitServiceCharge')
@@ -66,7 +65,7 @@ describe('CalculateFeeForReceiptService', () => {
             const [[receipt]] = await utils.createReceipts()
             const amount = '300'
             await utils.updateAcquiringIntegration({ minimumPaymentAmount: amount })
-            const [result] = await calculateFeeForReceiptByTestClient(utils.clients.admin, { receipt: { id: receipt.id }, amount })
+            const [result] = await calculateFeeForReceiptByTestClient(utils.clients.resident, { receipt: { id: receipt.id }, amount })
             expect(result).toHaveProperty('amountWithoutExplicitFee')
             expect(result).toHaveProperty('explicitFee')
             expect(result).toHaveProperty('explicitServiceCharge')
@@ -76,7 +75,7 @@ describe('CalculateFeeForReceiptService', () => {
             const [[receipt]] = await utils.createReceipts()
             const amount = '300'
             await utils.updateAcquiringIntegration({ minimumPaymentAmount: Big(amount).minus(10) })
-            const [result] = await calculateFeeForReceiptByTestClient(utils.clients.admin, { receipt: { id: receipt.id }, amount })
+            const [result] = await calculateFeeForReceiptByTestClient(utils.clients.resident, { receipt: { id: receipt.id }, amount })
             expect(result).toHaveProperty('amountWithoutExplicitFee')
             expect(result).toHaveProperty('explicitFee')
             expect(result).toHaveProperty('explicitServiceCharge')
@@ -88,7 +87,7 @@ describe('CalculateFeeForReceiptService', () => {
             const minimumPaymentAmount = Big(amount).add(100).toString()
             await utils.updateAcquiringIntegration({ minimumPaymentAmount })
             await expectToThrowGQLError(async () => {
-                await calculateFeeForReceiptByTestClient(utils.clients.admin, { receipt: { id: receipt.id }, amount })
+                await calculateFeeForReceiptByTestClient(utils.clients.resident, { receipt: { id: receipt.id }, amount })
             }, {
                 ...PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
                 messageInterpolation: { minimumPaymentAmount },

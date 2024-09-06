@@ -9,8 +9,8 @@ const { GQLCustomSchema, getById, find } = require('@open-condo/keystone/schema'
 
 const access = require('@condo/domains/acquiring/access/CalculateFeeForReceiptService')
 const {
-    RESIDENT_SUGGEST_SERVICE_PROVIDER_WINDOW_IN_SEC,
-    MAX_RESIDENT_SUGGEST_SERVICE_PROVIDER_CALLS_BY_WINDOW_SEC,
+    RESIDENT_CALCULATE_FEE_FOR_RECEIPT_WINDOW_IN_SEC,
+    MAX_RESIDENT_CALCULATE_FEE_FOR_RECEIPT_WINDOW_IN_SEC_CALLS_BY_WINDOW_SEC,
 } = require('@condo/domains/acquiring/constants/constants')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM } } = require('@condo/domains/acquiring/constants/errors')
@@ -31,9 +31,9 @@ const redisGuard = new RedisGuard()
 
 const checkLimits = async (userId) => {
     await redisGuard.checkCustomLimitCounters(
-        `suggest_service_provider:user:${userId}`,
-        RESIDENT_SUGGEST_SERVICE_PROVIDER_WINDOW_IN_SEC,
-        MAX_RESIDENT_SUGGEST_SERVICE_PROVIDER_CALLS_BY_WINDOW_SEC,
+        `calculate_fee_for_receipt:user:${userId}`,
+        RESIDENT_CALCULATE_FEE_FOR_RECEIPT_WINDOW_IN_SEC,
+        MAX_RESIDENT_CALCULATE_FEE_FOR_RECEIPT_WINDOW_IN_SEC_CALLS_BY_WINDOW_SEC,
     )
 }
 
@@ -57,12 +57,11 @@ const CalculateFeeForReceiptService = new GQLCustomSchema('CalculateFeeForReceip
                 if (context.authedItem.type === RESIDENT) {
                     await checkLimits(context.authedItem.id)
                 }
-                
-                const { data } = args
-                const { receipt, amount } = data
-                
+
+                const { data: { receipt: { id: receiptId }, amount } } = args
+
                 const [billingReceipt] = await find('BillingReceipt', {
-                    id: receipt.id,
+                    id: receiptId,
                     deletedAt: null,
                     context: {
                         deletedAt: null,
@@ -75,7 +74,7 @@ const CalculateFeeForReceiptService = new GQLCustomSchema('CalculateFeeForReceip
                 if (isNil(billingReceipt)) {
                     throw new GQLError({
                         ...ERRORS.CANNOT_FIND_BILLING_RECEIPT,
-                        messageInterpolation: { missingReceiptId: receipt.id },
+                        messageInterpolation: { missingReceiptId: receiptId },
                     }, context)
                 }
                 const billingContext = await getById('BillingIntegrationOrganizationContext', billingReceipt.context)
@@ -86,6 +85,7 @@ const CalculateFeeForReceiptService = new GQLCustomSchema('CalculateFeeForReceip
                     status: CONTEXT_FINISHED_STATUS,
                     integration: {
                         supportedBillingIntegrationsGroup: billingIntegration.group,
+                        deletedAt: null,
                     },
                 })
                 const acquiringIntegration = await  getById('AcquiringIntegration', acquiringContext.integration)
