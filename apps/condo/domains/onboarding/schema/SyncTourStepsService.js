@@ -10,8 +10,13 @@ const { GQLCustomSchema, find, itemsQuery } = require('@open-condo/keystone/sche
 const access = require('@condo/domains/onboarding/access/SyncTourStepsService')
 const { SYNC_TOUR_STEPS_ERRORS } = require('@condo/domains/onboarding/constants/errors')
 const {
-    CREATE_PROPERTY_STEP_TYPE, CREATE_PROPERTY_MAP_STEP_TYPE, CREATE_TICKET_STEP_TYPE,
-    CREATE_METER_STEP_TYPE, COMPLETED_STEP_STATUS, UPLOAD_RECEIPTS_STEP_TYPE, CREATE_METER_READINGS_STEP_TYPE,
+    CREATE_PROPERTY_STEP_TYPE,
+    CREATE_PROPERTY_MAP_STEP_TYPE,
+    CREATE_TICKET_STEP_TYPE,
+    CREATE_METER_STEP_TYPE,
+    COMPLETED_STEP_STATUS,
+    UPLOAD_RECEIPTS_STEP_TYPE,
+    CREATE_METER_READINGS_STEP_TYPE,
     CREATE_NEWS_STEP_TYPE,
 } = require('@condo/domains/onboarding/constants/steps')
 const { TourStep } = require('@condo/domains/onboarding/utils/serverSchema')
