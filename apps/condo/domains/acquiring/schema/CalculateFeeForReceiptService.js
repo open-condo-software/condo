@@ -4,7 +4,7 @@
 const Big = require('big.js')
 const { isNil } = require('lodash')
 
-const { GQLError } = require('@open-condo/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, getById, find } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/CalculateFeeForReceiptService')
@@ -14,16 +14,25 @@ const {
 } = require('@condo/domains/acquiring/constants/constants')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM } } = require('@condo/domains/acquiring/constants/errors')
+const { CANNOT_FIND_ALL_BILLING_RECEIPTS } = require('@condo/domains/acquiring/constants/errors')
 const {
     getAcquiringIntegrationContextFormula,
     FeeDistribution,
 } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
+
 const ERRORS = {
     PAYMENT_AMOUNT_LESS_THAN_MINIMUM: {
         ...PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
         query: 'calculateFeeForReceipt',
+    },
+    CANNOT_FIND_BILLING_RECEIPT: {
+        query: 'calculateFeeForReceipt',
+        variable: ['data', 'receipt', 'id'],
+        code: BAD_USER_INPUT,
+        type: CANNOT_FIND_ALL_BILLING_RECEIPTS,
+        message: 'Cannot find specified BillingReceipt with id {missingReceiptId}',
     },
 }
 
