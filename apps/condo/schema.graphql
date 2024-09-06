@@ -78002,6 +78002,17 @@ type RegisterMultiPaymentForInvoicesOutput {
   anonymousPaymentUrl: String!
 }
 
+input CalculateFeeForReceiptInput {
+  receipt: BillingReceiptWhereUniqueInput!
+  amount: String!
+}
+
+type CalculateFeeForReceiptOutput {
+  amountWithoutExplicitFee: String!
+  explicitFee: String!
+  explicitServiceCharge: String!
+}
+
 enum TicketReportPeriodType {
   calendarWeek
   month
@@ -82344,6 +82355,7 @@ type Query {
   exportPaymentsToExcel(data: ExportPaymentsToExcelInput!): ExportPaymentsToExcelOutput
   generatePaymentLink(data: GeneratePaymentLinkInput!): GeneratePaymentLinkOutput
   _allPaymentsSum(where: PaymentWhereInput!): PaymentsSumOutput
+  calculateFeeForReceipt(data: CalculateFeeForReceiptInput!): CalculateFeeForReceiptOutput
   ticketReportWidgetData(data: TicketReportWidgetInput!): TicketReportWidgetOutput
   ticketAnalyticsReport(data: TicketAnalyticsReportInput): TicketAnalyticsReportOutput
   exportTicketAnalyticsToExcel(data: ExportTicketAnalyticsToExcelInput): ExportTicketAnalyticsToExcelOutput

@@ -54,6 +54,7 @@ const { PAYMENT_BY_LINK_MUTATION } = require('@condo/domains/acquiring/gql')
 const { REGISTER_MULTI_PAYMENT_FOR_INVOICES_MUTATION } = require('@condo/domains/acquiring/gql')
 const { EXPORT_PAYMENTS_TO_EXCEL } = require('@condo/domains/acquiring/gql')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
+const { CALCULATE_FEE_FOR_RECEIPT_QUERY } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateGQLTestUtils(AcquiringIntegrationGQL)
@@ -526,6 +527,14 @@ async function registerMultiPaymentForInvoicesByTestClient(client, extraAttrs = 
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
+async function calculateFeeForReceiptByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+
+    const { data, errors } = await client.query(CALCULATE_FEE_FOR_RECEIPT_QUERY, { data: extraAttrs })
+    throwIfError(data, errors)
+    return [data.result, extraAttrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 // Utils used to generate a bunch of entities for working with MultiPayments
@@ -795,5 +804,6 @@ module.exports = {
     exportPaymentsServiceByTestClient,
     formatDateWithDefaultTimeZone,
     generateVirtualReceipt,
+    calculateFeeForReceiptByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -20357,6 +20357,18 @@ export enum CacheControlScope {
   Private = 'PRIVATE'
 }
 
+export type CalculateFeeForReceiptInput = {
+  receipt: BillingReceiptWhereUniqueInput;
+  amount: Scalars['String'];
+};
+
+export type CalculateFeeForReceiptOutput = {
+  __typename?: 'CalculateFeeForReceiptOutput';
+  amountWithoutExplicitFee: Scalars['String'];
+  explicitFee: Scalars['String'];
+  explicitServiceCharge: Scalars['String'];
+};
+
 /**  Conversation record between operator and client  */
 export type CallRecord = {
   __typename?: 'CallRecord';
@@ -66200,6 +66212,7 @@ export type Query = {
   exportPaymentsToExcel?: Maybe<ExportPaymentsToExcelOutput>;
   generatePaymentLink?: Maybe<GeneratePaymentLinkOutput>;
   _allPaymentsSum?: Maybe<PaymentsSumOutput>;
+  calculateFeeForReceipt?: Maybe<CalculateFeeForReceiptOutput>;
   ticketReportWidgetData?: Maybe<TicketReportWidgetOutput>;
   ticketAnalyticsReport?: Maybe<TicketAnalyticsReportOutput>;
   exportTicketAnalyticsToExcel?: Maybe<ExportTicketAnalyticsToExcelOutput>;
@@ -72884,6 +72897,11 @@ export type QueryGeneratePaymentLinkArgs = {
 
 export type Query_AllPaymentsSumArgs = {
   where: PaymentWhereInput;
+};
+
+
+export type QueryCalculateFeeForReceiptArgs = {
+  data: CalculateFeeForReceiptInput;
 };
 
 

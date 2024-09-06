@@ -82,6 +82,12 @@ const REGISTER_MULTI_PAYMENT_FOR_INVOICES_MUTATION = gql`
     }
 `
 
+const CALCULATE_FEE_FOR_RECEIPT_QUERY = gql`
+    query calculateFeeForReceipt ($data: CalculateFeeForReceiptInput!) {
+        result: calculateFeeForReceipt(data: $data) { amountWithoutExplicitFee explicitFee explicitServiceCharge }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const EXPORT_PAYMENTS_TO_EXCEL =  gql`
@@ -107,5 +113,6 @@ module.exports = {
     RecurrentPayment,
     PAYMENT_BY_LINK_MUTATION,
     REGISTER_MULTI_PAYMENT_FOR_INVOICES_MUTATION,
+    CALCULATE_FEE_FOR_RECEIPT_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
