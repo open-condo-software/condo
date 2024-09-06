@@ -36,6 +36,15 @@ const HEADERS_TIMEOUT = parseInt(conf['HEADERS_TIMEOUT'] || '60000')
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production' && conf.DD_TRACE_ENABLED === 'true'
 
 if (IS_ENABLE_DD_TRACE) {
+    // Note: it's slightly modified default templates! Ported from source code.
+
+    // eslint-disable-next-line
+    const blockedTemplateHtml = '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>You\'ve been blocked</title><style>a,body,div,html,span{margin:0;padding:0;border:0;font-size:100%;font:inherit;vertical-align:baseline}body{background:-webkit-radial-gradient(26% 19%,circle,#fff,#f4f7f9);background:radial-gradient(circle at 26% 19%,#fff,#f4f7f9);display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-ms-flex-line-pack:center;align-content:center;width:100%;min-height:100vh;line-height:1;flex-direction:column}p{display:block}main{text-align:center;flex:1;display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-ms-flex-line-pack:center;align-content:center;flex-direction:column}p{font-size:18px;line-height:normal;color:#646464;font-family:sans-serif;font-weight:400}a{color:#4842b7}footer{width:100%;text-align:center}footer p{font-size:16px}</style></head><body><main><p>ERROR: BLOCK_BY_WAF</p></main></body></html>'
+    // eslint-disable-next-line
+    const blockedTemplateJson = '{"errors":[{"title":"You\'ve been blocked","detail":"Sorry, you cannot access this page. Please contact the customer service team. ERROR: BLOCK_BY_WAF"}]}'
+    // eslint-disable-next-line
+    const blockedTemplateGraphql = '{"errors":[{"message":"You\'ve been blocked","extensions":{"detail":"Sorry, you cannot perform this operation. Please contact the customer service team. ERROR: BLOCK_BY_WAF"}}]}'
+
     const isDDLog = conf.DD_TRACE_LOGGING === 'true'
     const appName = getAppName()
     const xRemoteApp = getXRemoteApp()
@@ -47,6 +56,7 @@ if (IS_ENABLE_DD_TRACE) {
         service: (appName === 'condo-app') ? 'root' : appName,
         tags: { xRemoteApp, xRemoteClient, xRemoteVersion },
         experimental: (isDDLog) ? { exporter: 'log' } : undefined,
+        appsec: { blockedTemplateHtml, blockedTemplateJson, blockedTemplateGraphql },
     })
     tracer.use('express', {
         // hook will be executed right before the request span is finished
