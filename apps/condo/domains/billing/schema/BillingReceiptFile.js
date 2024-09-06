@@ -10,7 +10,7 @@ const { GQLListSchema, getById, find, getByCondition } = require('@open-condo/ke
 
 const access = require('@condo/domains/billing/access/BillingReceiptFile')
 const { BILLING_RECEIPT_FILE_FOLDER_NAME } = require('@condo/domains/billing/constants/constants')
-const { BillingReceiptBase: BillingReceiptApi } = require('@condo/domains/billing/utils/serverSchema')
+const { BillingReceiptIdOnly: BillingReceiptApi } = require('@condo/domains/billing/utils/serverSchema')
 const { UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
@@ -29,7 +29,7 @@ const isResidentVerified = async ({ id, phone }, billingAccountId) => {
     })
     return contacts.length !== 0
 }
-const resolveReceiptByImportId = (operation, receipt, importId) => operation === 'create' && !receipt && importId
+const shouldResolveReceiptByImportId = (operation, receipt, importId) => operation === 'create' && !receipt && importId
 
 const BillingReceiptFile = new GQLListSchema('BillingReceiptFile', {
     schemaDoc: 'File for billing receipt',
@@ -110,7 +110,7 @@ const BillingReceiptFile = new GQLListSchema('BillingReceiptFile', {
             hooks: {
                 resolveInput: async ({ resolvedData, operation }) => {
                     const { receipt, importId, context: contextId } = resolvedData
-                    if (resolveReceiptByImportId(operation, receipt, importId)) {
+                    if (shouldResolveReceiptByImportId(operation, receipt, importId)) {
                         const receiptByImportId = await getByCondition('BillingReceipt', {
                             importId,
                             context: { id: contextId, deletedAt: null },
@@ -199,7 +199,7 @@ const BillingReceiptFile = new GQLListSchema('BillingReceiptFile', {
             const { context: contextId, receipt: receiptId } = newItem
 
             // in case if receipt was resolved not by importId (see receipt field hook) - let's validate it
-            if (!resolveReceiptByImportId(operation, get(resolvedData, ['receipt']), get(resolvedData, ['importId']))) {
+            if (!shouldResolveReceiptByImportId(operation, get(resolvedData, ['receipt']), get(resolvedData, ['importId']))) {
                 const receiptsExists = await BillingReceiptApi.count(context, {
                     id: receiptId, context: { id: contextId },
                 })

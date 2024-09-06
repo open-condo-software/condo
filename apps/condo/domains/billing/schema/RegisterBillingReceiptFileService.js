@@ -14,7 +14,7 @@ const {
     REGISTER_BILLING_RECEIPT_FILE_UPDATED_STATUS,
     REGISTER_BILLING_RECEIPT_FILE_STATUSES,
 } = require('@condo/domains/billing/constants')
-const { BillingReceiptFileBase: BillingReceiptFileAPI } = require('@condo/domains/billing/utils/serverSchema')
+const { BillingReceiptFileIdOnly: BillingReceiptFileAPI } = require('@condo/domains/billing/utils/serverSchema')
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const { buildUploadInputFrom } = require('@condo/domains/common/utils/serverSchema/export')
 
