@@ -67,6 +67,7 @@ async function getTokens (ownerId, remoteClientId, isVoIP = false) {
 
     const conditions = getTokensConditions(ownerId, remoteClientId, isVoIP)
     const remoteClients =  await find('RemoteClient', conditions)
+    console.log('getTokens log', 'remoteClients:', remoteClients, conditions)
     const tokensByTransport = {
         [PUSH_TRANSPORT_FIREBASE]: [],
         [PUSH_TRANSPORT_REDSTORE]: [],
@@ -89,6 +90,13 @@ async function getTokens (ownerId, remoteClientId, isVoIP = false) {
             tokensByTransport[transport].push(token)
             pushTypes[token] = type
             appIds[token] = appId
+            console.log('getTokens log', 'remoteClient in forEach', {
+                id: remoteClient.id,
+                appId,
+                pushToken,
+                pushType,
+                pushTransport,
+            })
         })
     }
 
