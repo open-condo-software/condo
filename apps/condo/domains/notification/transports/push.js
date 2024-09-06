@@ -2,7 +2,7 @@ const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 const pick = require('lodash/pick')
 
-const { find } = require('@open-condo/keystone/schema')
+const { find, getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { AppleAdapter } = require('@condo/domains/notification/adapters/appleAdapter')
 const { FirebaseAdapter } = require('@condo/domains/notification/adapters/firebaseAdapter')
@@ -15,6 +15,7 @@ const {
     PUSH_TRANSPORT_HUAWEI,
 } = require('@condo/domains/notification/constants/constants')
 const { renderTemplate } = require('@condo/domains/notification/templates')
+const { RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
 
 const ADAPTERS = {
     [PUSH_TRANSPORT_FIREBASE]: new FirebaseAdapter(),
@@ -146,6 +147,27 @@ async function send ({ notification, data, user, remoteClient } = {}, isVoIP = f
             const adapter = ADAPTERS[transport]
             const payload = { tokens, pushTypes, appIds, notification, data }
             const [isOk, result] = await adapter.sendNotification(payload, isVoIP)
+            if (adapter === PUSH_TRANSPORT_FIREBASE) {
+                // handling expired token error. https://firebase.google.com/docs/cloud-messaging/manage-tokens?hl=ru#detect-invalid-token-responses-from-the-fcm-backend
+                if (get(result, 'responses')) {
+                    for (const res of result.responses) {
+                        const context = getSchemaCtx('RemoteClient')
+                        if (get(res, 'error.code') === 'messaging/registration-token-not-registered') {
+                            const field = isVoIP ? 'pushTokenVoIP' : 'pushToken'
+                            const [remoteClient] = await find('RemoteClient', {
+                                [field]: res.pushToken,
+                                deletedAt: null,
+                            })
+
+                            !!remoteClient && await RemoteClient.update(context, get(remoteClient, 'id'), {
+                                [field]: null,
+                                dv: 1,
+                                sender: { dv: 1, fingerprint: 'internal-update_token-not-registered' },
+                            })
+                        }
+                    }
+                }
+            }
 
             container = mixResult(container, result)
             _isOk = _isOk || isOk
