@@ -4,16 +4,25 @@
 
 const { get, isNil } = require('lodash')
 
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById, find, getByCondition } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/BillingReceiptFile')
 const { BILLING_RECEIPT_FILE_FOLDER_NAME } = require('@condo/domains/billing/constants/constants')
-const { BillingReceiptIdOnly: BillingReceiptApi } = require('@condo/domains/billing/utils/serverSchema')
+const { BillingReceiptIdOnly } = require('@condo/domains/billing/utils/serverSchema')
 const { UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
+const ERRORS = {
+    CONTEXT_IS_NOT_EQUAL: {
+        query: 'createProperty',
+        code: BAD_USER_INPUT,
+        type: `${UNEQUAL_CONTEXT_ERROR}:receipt:context]`,
+        message: 'Context is not equal to receipt.context',
+    },
+}
 
 const Adapter = new FileAdapter(BILLING_RECEIPT_FILE_FOLDER_NAME)
 
@@ -187,7 +196,7 @@ const BillingReceiptFile = new GQLListSchema('BillingReceiptFile', {
                 }
             }
             if (operation === 'create') {
-                await BillingReceiptApi.update(context, updatedItem.receipt, {
+                await BillingReceiptIdOnly.update(context, updatedItem.receipt, {
                     dv: 1,
                     sender: { dv: 1, fingerprint: 'connect-receipt-file' },
                     file: { connect: { id: updatedItem.id } },
@@ -200,12 +209,12 @@ const BillingReceiptFile = new GQLListSchema('BillingReceiptFile', {
 
             // in case if receipt was resolved not by importId (see receipt field hook) - let's validate it
             if (!shouldResolveReceiptByImportId(operation, get(resolvedData, ['receipt']), get(resolvedData, ['importId']))) {
-                const receiptsExists = await BillingReceiptApi.count(context, {
+                const receiptsExists = await BillingReceiptIdOnly.count(context, {
                     id: receiptId, context: { id: contextId },
                 })
 
                 if (receiptsExists < 1) {
-                    return addValidationError(`${UNEQUAL_CONTEXT_ERROR}:receipt:context] Context is not equal to receipt.context`)
+                    throw new GQLError(ERRORS.CONTEXT_IS_NOT_EQUAL, context)
                 }
             }
         },
