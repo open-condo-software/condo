@@ -31,7 +31,7 @@ const {
     createTestMessage,
     createTestNotificationUserSetting,
 } = require('@condo/domains/notification/utils/testSchema')
-const { getRandomFakeSuccessToken } = require('apps/condo/domains/notification/utils/testSchema/utils')
+const { getRandomFakeSuccessToken } = require('@condo/domains/notification/utils/testSchema/utils')
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 

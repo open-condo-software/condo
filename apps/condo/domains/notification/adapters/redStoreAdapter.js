@@ -12,7 +12,7 @@ const {
     PUSH_TYPE_SILENT_DATA,
     APPS_WITH_DISABLED_NOTIFICATIONS_ENV,
 } = require('@condo/domains/notification/constants/constants')
-const { getEmptyResult, getFakeSuccessResponse, getFakeErrorResponse } = require('apps/condo/domains/notification/utils/testSchema/utils')
+const { getEmptyResult, getFakeSuccessResponse, getFakeErrorResponse } = require('@condo/domains/notification/utils/testSchema/utils')
 
 const REDSTORE_CONFIG = conf[REDSTORE_CONFIG_ENV] ? JSON.parse(conf[REDSTORE_CONFIG_ENV]) : null
 const APPS_WITH_DISABLED_NOTIFICATIONS = conf[APPS_WITH_DISABLED_NOTIFICATIONS_ENV] ? JSON.parse(conf[APPS_WITH_DISABLED_NOTIFICATIONS_ENV]) : []
