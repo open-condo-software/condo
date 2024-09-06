@@ -2,6 +2,7 @@ const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 const pick = require('lodash/pick')
 
+const { getLogger } = require('@open-condo/keystone/logging/getLogger')
 const { find, getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { AppleAdapter } = require('@condo/domains/notification/adapters/appleAdapter')
@@ -16,6 +17,8 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 const { renderTemplate } = require('@condo/domains/notification/templates')
 const { RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
+
+const logger = getLogger('messaging/sendNotification')
 
 const ADAPTERS = {
     [PUSH_TRANSPORT_FIREBASE]: new FirebaseAdapter(),
@@ -164,6 +167,7 @@ async function send ({ notification, data, user, remoteClient } = {}, isVoIP = f
                                 dv: 1,
                                 sender: { dv: 1, fingerprint: 'internal-update_token-not-registered' },
                             })
+                            logger.info({ msg: 'Remove expired FCM token', remoteClientId: remoteClient.id, field })
                         }
                     }
                 }
