@@ -109,9 +109,9 @@ const CalculateFeeForReceiptService = new GQLCustomSchema('CalculateFeeForReceip
                 }
 
                 return {
-                    amountWithoutExplicitFee: Big(amount),
-                    explicitFee: Big(explicitFees.explicitFee),
-                    explicitServiceCharge: Big(explicitFees.explicitServiceCharge),
+                    amountWithoutExplicitFee: Big(amount).toString(),
+                    explicitFee: Big(explicitFees.explicitFee).toString(),
+                    explicitServiceCharge: Big(explicitFees.explicitServiceCharge).toString(),
                 }
             },
         },
