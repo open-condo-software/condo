@@ -81,7 +81,7 @@ export const TourProvider = ({ children }) => {
 
     const updateStepIfNotCompleted = useCallback(async (type: TourStepTypeType, nextRoute?: string) => {
         if (organizationType !== MANAGING_COMPANY_TYPE) return
-        
+
         const fetchResult = await refetchSteps({
             where: {
                 organization: { id: organizationId },
@@ -111,6 +111,8 @@ export const TourProvider = ({ children }) => {
             switch (name) {
                 case 'createProperty': {
                     if (currentImport.current && isFirstSuccessImport.current) return
+
+                    console.log('createProperty event', data)
 
                     if (get(data, 'obj.map')) {
                         await updateStepIfNotCompleted(TourStepTypeType.CreateProperty)

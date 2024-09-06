@@ -7,7 +7,7 @@ import React from 'react'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Button, Tour } from '@open-condo/ui'
+import { Button, Space, Tour } from '@open-condo/ui'
 
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import BasePropertyForm from '@condo/domains/property/components/BasePropertyForm'
@@ -27,6 +27,7 @@ export const CreatePropertyForm: React.FC<ICreatePropertyFormProps> = ({ next })
     const router = useRouter()
     const { organization, link } = useOrganization()
     const { user } = useAuth()
+
     const action = Property.useCreate({
         organization: { connect: { id: organization.id } },
         type: DEFAULT_PROPERTY_TYPE,
@@ -65,16 +66,18 @@ export const CreatePropertyForm: React.FC<ICreatePropertyFormProps> = ({ next })
                                 const { address } = getFieldsValue(['address'])
 
                                 return (
-                                    <Button
-                                        key='submit'
-                                        onClick={handleSave}
-                                        type='primary'
-                                        loading={isLoading}
-                                        disabled={!canManageProperties || !address}
-                                        focus={count === 0 && currentStep === 1}
-                                    >
-                                        {CreatePropertyMessage}
-                                    </Button>
+                                    <Space size={24} direction='horizontal'>
+                                        <Button
+                                            key='submit'
+                                            onClick={handleSave}
+                                            type='primary'
+                                            loading={isLoading}
+                                            disabled={!canManageProperties || !address}
+                                            focus={count === 0 && currentStep === 1}
+                                        >
+                                            {CreatePropertyMessage}
+                                        </Button>
+                                    </Space>
                                 )
                             }
                         }

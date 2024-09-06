@@ -153,7 +153,7 @@ const NewsPageContent = ({
         count: propertiesCount,
         loading: propertiesLoading,
         error: propertiesError,
-    } = Property.useCount({ where: { organization: { id: get(organization, 'id') } } })
+    } = Property.useCount({ where: { organization: { id: get(organization, 'id') } }, first: 1 })
 
     const {
         count: newsWithoutFiltersCount,
@@ -172,10 +172,10 @@ const NewsPageContent = ({
     if (propertiesCount === 0) {
         return (
             <EmptyListContent
-                image='dino/playing@2x.png'
+                image='/dino/playing@2x.png'
                 label={PropertyGateLabel}
                 message={PropertyGateMessage}
-                createRoute='/property/create?next=/news'
+                createRoute='/property/create?next=/news&skipTourModal=true'
                 createLabel={PropertyGateButtonLabel}
                 accessCheck={canManage}
             />

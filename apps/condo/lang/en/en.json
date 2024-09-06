@@ -651,6 +651,7 @@
   "pages.condo.property.form.AreaSuffix": "sq. m.",
   "pages.condo.property.form.YearPlaceholder": "2016",
   "pages.condo.property.id.PageTitle": "Property",
+  "pages.condo.property.form.SuccessNotification": "Property {address} was added successfully",
   "pages.condo.property.id.NotFound.PageTitle": "Property not found",
   "pages.condo.property.id.NotFound.Message": "Property with this ID is not in your organization",
   "pages.condo.property.id.Square": "Square",
