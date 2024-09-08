@@ -1,5 +1,6 @@
 {
   "name": "@open-condo/miniapp-utils",
+  "version": "0.0.0-development",
   "description": "A set of helper functions / components / hooks used to build new condo apps fast",
   "keywords": [
     "condo",
@@ -8,7 +9,6 @@
     "utils",
     "React"
   ],
-  "version": "0.0.0-development",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/open-condo-software/condo.git",
@@ -17,7 +17,7 @@
   "bugs": {
     "url": "https://github.com/open-condo-software/condo/issues"
   },
-  "homepage": "https://github.com/open-condo-software/condo/blob/main/packages/ui/README.md",
+  "homepage": "https://github.com/open-condo-software/condo/blob/main/packages/miniapp-utils/README.md",
   "author": {
     "name": "Matthew Savelev",
     "email": "matthew@doma.ai",
@@ -36,19 +36,19 @@
   ],
   "exports": {
     "./helpers/environment": {
+      "types": "./dist/types/helpers/environment.d.ts",
       "require": "./dist/cjs/helpers/environment.js",
-      "import": "./dist/esm/helpers/environment.js",
-      "types": "./dist/types/helpers/environment.d.ts"
+      "import": "./dist/esm/helpers/environment.js"
     },
     "./hooks/useEffectOnce": {
+      "types": "./dist/types/hooks/usePrevious.d.ts",
       "require": "./dist/cjs/hooks/usePrevious.js",
-      "import": "./dist/esm/hooks/usePrevious.js",
-      "types": "./dist/types/hooks/usePrevious.d.ts"
+      "import": "./dist/esm/hooks/usePrevious.js"
     },
     "./hooks/usePrevious": {
+      "types": "./dist/types/hooks/usePrevious.d.ts",
       "require": "./dist/cjs/hooks/usePrevious.js",
-      "import": "./dist/esm/hooks/usePrevious.js",
-      "types": "./dist/types/hooks/usePrevious.d.ts"
+      "import": "./dist/esm/hooks/usePrevious.js"
     }
   },
   "publishConfig": {

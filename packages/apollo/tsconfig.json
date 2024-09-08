@@ -7,5 +7,6 @@
     "outDir": "dist",
     "declarationDir": "dist/types",
     "declarationMap": false,
-  },
+    "declaration": true
+  }
 }
