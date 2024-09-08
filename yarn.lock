@@ -12896,12 +12896,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@open-condo/slugify@workspace:^, @open-condo/slugify@workspace:packages/slugify":
-  version: 0.0.0-use.local
-  resolution: "@open-condo/slugify@workspace:packages/slugify"
-  languageName: unknown
-  linkType: soft
-
 "@open-condo/tsconfig@workspace:^, @open-condo/tsconfig@workspace:packages/tsconfig":
   version: 0.0.0-use.local
   resolution: "@open-condo/tsconfig@workspace:packages/tsconfig"
@@ -46942,7 +46936,6 @@ __metadata:
     "@mono-pub/github": ^1.0.1
     "@mono-pub/npm": ^1.0.1
     "@open-condo/cli": "workspace:^"
-    "@open-condo/slugify": "workspace:^"
     "@sentry/nextjs": ^6.19.7
     "@sentry/node": ^7.102.1
     "@sentry/profiling-node": ^7.102.1
@@ -46971,6 +46964,7 @@ __metadata:
     node-fetch: ^2.6.7
     postcss: ^8.3.5
     postcss-less: ^6.0.0
+    slugify: ^1.6.6
     stylelint: ^14.11.0
     stylelint-config-rational-order: ^0.1.2
     stylelint-config-standard: ^28.0.0
@@ -48029,6 +48023,13 @@ __metadata:
   version: 1.1.6
   resolution: "slide@npm:1.1.6"
   checksum: 5768635d227172e215b7a1a91d32f8781f5783b4961feaaf3d536bbf83cc51878928c137508cde7659fea6d7c04074927cab982731302771ee0051518ff24896
+  languageName: node
+  linkType: hard
+
+"slugify@npm:^1.6.6":
+  version: 1.6.6
+  resolution: "slugify@npm:1.6.6"
+  checksum: 04773c2d3b7aea8d2a61fa47cc7e5d29ce04e1a96cbaec409da57139df906acb3a449fac30b167d203212c806e73690abd4ff94fbad0a9a7b7ea109a2a638ae9
   languageName: node
   linkType: hard
 

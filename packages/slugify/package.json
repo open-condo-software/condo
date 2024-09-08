@@ -1,8 +1,0 @@
-{
-  "name": "@open-condo/slugify",
-  "version": "1.0.0",
-  "exports": {
-    "./*": "./*.js"
-  },
-  "main": "slugify.js"
-}

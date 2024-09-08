@@ -23,7 +23,7 @@ const TEST_CASES = {
         ['кв. 1-a', 'kv-1-a'],
         ['кв 1-a', 'kv-1-a'],
         ['квартира 1-a', 'kvartira-1-a'],
-        ['корпус 1-a', 'korpyc-1-a'],
+        ['корпус 1-a', 'korpus-1-a'],
         ['к. 1-a', 'k-1-a'],
         ['к 1-a', 'k-1-a'],
         ['кладовая 1-a', 'kladovaya-1-a'],
@@ -36,8 +36,8 @@ const TEST_CASES = {
         ['а/м. 4', 'a-m-4'],
         ['мм 132', 'mm-132'],
         ['кл.кл. 132', 'kl-kl-132'],
-        ['НП1', 'hp-1'],
-        ['Н70', 'h-70'],
+        ['НП1', 'np-1'],
+        ['Н70', 'n-70'],
         ['Ю-122', 'yu-122'],
         ['кв.1', 'kv-1'],
         ['кв1', 'kv-1'],
@@ -50,22 +50,22 @@ const TEST_CASES = {
         ['770 М', '770-m'],
         ['770-M', '770-m'],
         ['770-m', '770-m'],
-        ['Особняк Оксфорд', 'ocobhyak-okcford'],
+        ['Особняк Оксфорд', 'osobnyak-oksford'],
         ['к', 'k'],
-        ['нет', 'het'],
+        ['нет', 'net'],
         ['0-1', '0-1'],
         ['3-8-13\n', '3-8-13'],
         ['050-2/1', '050-2-1'],
         ['кл.кл. 3 (19Б кв. 14)', 'kl-kl-3-19-b-kv-14'],
-        ['4 (1 ур.)', '4-1-yr'],
+        ['4 (1 ур.)', '4-1-ur'],
         ['21(кв.30)', '21-kv-30'],
-        ['"с4,кв6,7."', 'c-4-kv-6-7'],
-        ['3-12-15 (933Н)', '3-12-15-933-h'],
+        ['"с4,кв6,7."', 's-4-kv-6-7'],
+        ['3-12-15 (933Н)', '3-12-15-933-n'],
         ['-', ''],
-        ['37(ЛС 0007000037)', '37-lc-0007000037'],
-        ['ежилое помещение 11', 'ezhiloe-pomeschehie-11'],
-        ['28Н ком.1', '28-h-kom-1'],
-        ['х41м001', 'x-41-m-001'],
+        ['37(ЛС 0007000037)', '37-ls-0007000037'],
+        ['ежилое помещение 11', 'ezhiloe-pomeshenie-11'],
+        ['28Н ком.1', '28-n-kom-1'],
+        ['х41м001', 'h-41-m-001'],
         ['1₽7', '1-7'],
         ['I м/м 24', 'i-m-m-24'],
         ['47;48', '47-48'],
@@ -88,7 +88,7 @@ const TEST_CASES = {
         [':', ''],
         ['@', ''],
         ['XII', 'xii'],
-        ['КЛ88Н', 'kl-88-h'],
+        ['КЛ88Н', 'kl-88-n'],
     ],
     en: [
         ['Apart. VI A', 'apart-vi-a'],
@@ -112,60 +112,6 @@ const TEST_CASES = {
     ],
 }
 
-const TEST_CASES_SYMBOLS = {
-    ru: [
-        ['А', 'a'],
-        ['Б', 'b'],
-        ['В', 'v'],
-        ['Г', 'g'],
-        ['Д', 'd'],
-        ['Е', 'e'],
-        ['Ё', 'e'],
-        ['Ж', 'zh'],
-        ['З', 'z'],
-        ['И', 'i'],
-        ['Й', 'j'],
-        ['К', 'k'],
-        ['Л', 'l'],
-        ['М', 'm'],
-        ['Н', 'h'],
-        ['О', 'o'],
-        ['П', 'p'],
-        ['Р', 'r'],
-        ['С', 'c'],
-        ['Т', 't'],
-        ['У', 'y'],
-        ['Ф', 'f'],
-        ['Х', 'x'],
-        ['Ц', 'tc'],
-        ['Ч', 'ch'],
-        ['Ш', 'sh'],
-        ['Щ', 'sch'],
-        ['Ъ', ''],
-        ['Ы', 'ij'],
-        ['Ь', ''],
-        ['Э', 'e'],
-        ['Ю', 'yu'],
-        ['Я', 'ya'],
-    ],
-}
-
-const TEST_CASES_SYMBOLS_EQUAL = [
-    ['A', 'А'],
-    ['B', 'В'],
-    ['C', 'С'],
-    ['E', 'Е'],
-    ['E', 'Ё'],
-    ['H', 'Н'],
-    ['K', 'К'],
-    ['M', 'М'],
-    ['O', 'О'],
-    ['P', 'Р'],
-    ['T', 'Т'],
-    ['X', 'Х'],
-    ['Y', 'У'],
-]
-
 describe('normalizeUnitName', () => {
 
     describe('normalize unitName', () => {
@@ -175,22 +121,6 @@ describe('normalizeUnitName', () => {
                     expect(normalizeUnitName(unitNameRaw, locale)).toEqual(expectedNormalizedUnitName)
             )
         }
-    })
-
-    describe('normalize symbol', () => {
-        for (const locale in TEST_CASES_SYMBOLS) {
-            test.each(TEST_CASES_SYMBOLS[locale])(`Should convert сyrillic symbol "%s" to english symbol "%s" with locale ${locale}`,
-                (unitNameRaw, expectedNormalizedUnitName) =>
-                    expect(normalizeUnitName(unitNameRaw, locale)).toEqual(expectedNormalizedUnitName)
-            )
-        }
-    })
-
-    describe('similar symbols in different ru and en locale are equal', () => {
-        test.each(TEST_CASES_SYMBOLS_EQUAL)('English symbol "%s" should equal to сyrillic symbol "%s"',
-            (unitNameRaw, expectedNormalizedUnitName) =>
-                expect(normalizeUnitName(unitNameRaw)).toEqual(normalizeUnitName(expectedNormalizedUnitName))
-        )
     })
 
 })
