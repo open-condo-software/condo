@@ -2,16 +2,14 @@ const slugify = require('slugify')
 
 const conf = require('@open-condo/config')
 
-const JOINED_NUMBER_TO_WORD_REGEXP = /(\d+)(\D+)/g
-const JOINED_WORD_TO_NUMBER_REGEXP = /(\D+)(\d+)/g
+const NUMBER_REGEXP = /(\d+)/g
 const SYMBOLS_TO_REPLACE_WITH_SPACE_REGEXP = /[.,/\\#;"'\s|№$)(@]|(N°)/g
 const SYMBOLS_TO_REMOVE_REGEXP = /[^\wа-яА-ЯёЁ]+/g
 const EMOJI_REGEXP = /[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{1F680}-\u{1F6C5}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F1E0}-\u{1F1FF}\u{1F004}\u{1F0CF}\u{1F18E}\u{1F191}-\u{1F19A}\u{1F201}-\u{1F251}\u{1F191}-\u{1F19A}]+/gu
 const DELIMITER_IN_RESULT = '-'
 
 const addSpaceBetweenWordsAndNumbers = (str) => str
-    .replace(JOINED_NUMBER_TO_WORD_REGEXP, '$1 $2')
-    .replace(JOINED_WORD_TO_NUMBER_REGEXP, '$1 $2')
+    .replace(NUMBER_REGEXP, ' $1 ')
 
 const replaceTrashSymbolsWithDelimiter = (unitName) => unitName
     .replace(SYMBOLS_TO_REPLACE_WITH_SPACE_REGEXP, DELIMITER_IN_RESULT)
