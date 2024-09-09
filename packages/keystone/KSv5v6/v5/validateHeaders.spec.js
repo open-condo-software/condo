@@ -8,64 +8,64 @@ const {
 describe('validateHeaders', () => {
 
     describe('checkHeaderForInjection', () => {
-        test('should not throw an error for a valid string header', () => {
+        it('should not throw an error for a valid string header', () => {
             expect(() => validateHeaders({ 'x-custom-header': 'valid-header-value' })).not.toThrow()
         })
 
-        test('should throw an error if the header contains newline characters', () => {
+        it('should throw an error if the header contains newline characters', () => {
             expect(() => validateHeaders({ 'x-custom-header': 'invalid\r\nheader' })).toThrow(HEADERS_INJECTION_ERROR)
         })
 
-        test('should not throw an error for a valid array of strings', () => {
+        it('should not throw an error for a valid array of strings', () => {
             expect(() => validateHeaders({ 'x-custom-header': ['value1', 'value2'] })).not.toThrow()
         })
 
-        test('should throw an error if an array of strings contains newline characters', () => {
+        it('should throw an error if an array of strings contains newline characters', () => {
             expect(() => validateHeaders({ 'x-custom-header': ['valid', 'invalid\r\nheader'] } )).toThrow(HEADERS_INJECTION_ERROR)
         })
 
-        test('should not throw an error for a nested object with valid strings', () => {
+        it('should not throw an error for a nested object with valid strings', () => {
             expect(() =>
                 validateHeaders({ 'x-custom-header': { key1: 'value1', key2: { subKey: 'valid-value' } } } )
             ).not.toThrow()
         })
 
-        test('should throw an error if a nested object contains newline characters', () => {
+        it('should throw an error if a nested object contains newline characters', () => {
             expect(() =>
                 validateHeaders({ key1: 'value1', key2: { subKey: 'invalid\r\nheader' } }, 'x-custom-header')
             ).toThrow(HEADERS_INJECTION_ERROR)
         })
 
-        test('should not throw an error for numeric values', () => {
+        it('should not throw an error for numeric values', () => {
             expect(() => validateHeaders({ 'x-custom-header': 123 })).not.toThrow()
         })
 
-        test('should throw an error if a numeric value as string contains newline characters', () => {
+        it('should throw an error if a numeric value as string contains newline characters', () => {
             expect(() => validateHeaders({ 'x-custom-header': '123\r\n' } )).toThrow(HEADERS_INJECTION_ERROR)
         })
 
-        test('should not throw an error for Date objects', () => {
+        it('should not throw an error for Date objects', () => {
             expect(() => validateHeaders({ 'x-custom-header': new Date() } )).not.toThrow()
         })
     })
 
     describe('validateRequestId', () => {
-        test('should not throw an error for a valid requestId', () => {
+        it('should not throw an error for a valid requestId', () => {
             expect(() => validateHeaders({ 'x-request-id': 'validRequestId123' })).not.toThrow()
         })
 
-        test('should throw an error if the requestId contains prohibited characters', () => {
+        it('should throw an error if the requestId contains prohibited characters', () => {
             expect(() => validateHeaders({ 'x-request-id': 'invalidRequestId!@#$' })).toThrow(REQUEST_ID_VALIDATION_ERROR)
         })
 
-        test('should not throw an error for requestId with allowed characters (letters, numbers, /, =, +, -)', () => {
+        it('should not throw an error for requestId with allowed characters (letters, numbers, /, =, +, -)', () => {
             expect(() => validateHeaders({ 'x-request-id': 'valid/RequestId=123+-' })).not.toThrow()
         })
 
-        test('should throw an error for requestId with spaces', () => {
+        it('should throw an error for requestId with spaces', () => {
             expect(() => validateHeaders({ 'x-request-id': 'request id' })).toThrow(REQUEST_ID_VALIDATION_ERROR)
         })
-        test('should throw an error for requestId with \r\n symbols', () => {
+        it('should throw an error for requestId with \r\n symbols', () => {
             expect(() => validateHeaders({ 'x-request-id': 'requestid\r\nrequestid' })).toThrow(REQUEST_ID_VALIDATION_ERROR)
         })
     })

@@ -1,6 +1,6 @@
-const SYMBOLS_TO_CLEAR_FROM_REQUEST_ID_REGEXP = /[^a-zA-Z0-9_/=+-]/g
+const FORBIDDEN_SYMBOLS_IN_REQUEST_ID_REGEXP = /[^a-zA-Z0-9_/=+-]/g
 const HEADERS_INJECTION_ERROR = 'Header contains prohibited characters'
-const REQUEST_ID_VALIDATION_ERROR = 'RequestId from headers contains prohibited characters'
+const REQUEST_ID_VALIDATION_ERROR = 'RequestId contains prohibited characters'
 
 const HEADER_VALIDATORS = {
     'x-request-id': validateRequestId,
@@ -12,30 +12,28 @@ function containsNewline (value) {
     return /[\r\n]/.test(value)
 }
 
-function checkHeaderForInjection (value) {
-    if (typeof value === 'string') {
-        if (containsNewline(value)) {
+function checkHeaderForInjection (headerValue) {
+    if (typeof headerValue === 'string') {
+        if (containsNewline(headerValue)) {
             throw new Error(HEADERS_INJECTION_ERROR)
         }
         return
     }
-    if (Array.isArray(value)) {
-        value.forEach((item) => checkHeaderForInjection(item))
+    if (Array.isArray(headerValue)) {
+        headerValue.forEach(checkHeaderForInjection)
         return
     }
-    if (typeof value === 'object' && value !== null && !(value instanceof Date)) {
-        Object.entries(value).forEach(([, val]) =>
-            checkHeaderForInjection(val)
-        )
+    if (typeof headerValue === 'object' && headerValue !== null && !(headerValue instanceof Date)) {
+        Object.values(headerValue).forEach(checkHeaderForInjection)
         return
     }
-    if (value !== null && containsNewline(String(value))) {
+    if (headerValue && containsNewline(String(headerValue))) {
         throw new Error(HEADERS_INJECTION_ERROR)
     }
 }
 
 function validateRequestId (requestId) {
-    if (SYMBOLS_TO_CLEAR_FROM_REQUEST_ID_REGEXP.test(requestId)) {
+    if (FORBIDDEN_SYMBOLS_IN_REQUEST_ID_REGEXP.test(requestId)) {
         throw new Error(REQUEST_ID_VALIDATION_ERROR)
     }
 }
