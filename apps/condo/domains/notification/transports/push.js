@@ -162,12 +162,14 @@ async function send ({ notification, data, user, remoteClient } = {}, isVoIP = f
                                 deletedAt: null,
                             })
 
-                            !!remoteClient && await RemoteClient.update(context, get(remoteClient, 'id'), {
-                                [field]: null,
-                                dv: 1,
-                                sender: { dv: 1, fingerprint: 'internal-update_token-not-registered' },
-                            })
-                            logger.info({ msg: 'Remove expired FCM token', remoteClientId: remoteClient.id, field })
+                            if (get(remoteClient, 'id')) {
+                                await RemoteClient.update(context, get(remoteClient, 'id'), {
+                                    [field]: null,
+                                    dv: 1,
+                                    sender: { dv: 1, fingerprint: 'internal-update_token-not-registered' },
+                                })
+                                logger.info({ msg: 'Remove expired FCM token', remoteClientId: remoteClient.id, field })
+                            }
                         }
                     }
                 }
