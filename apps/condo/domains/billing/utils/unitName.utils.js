@@ -29,16 +29,15 @@ const slug = (unitName, locale = conf.DEFAULT_LOCALE) => slugify(unitName, {
     lower: true,
 })
 
+const UNIT_NAME_NORMALIZATION_STEPS = [
+    addSpaceBetweenWordsAndNumbers,
+    replaceTrashSymbolsWithDelimiter,
+    slug,
+]
+
 const normalizeUnitName = (unitName, locale = conf.DEFAULT_LOCALE) => {
     locale = locale.toLowerCase()
-
-    const steps = [
-        addSpaceBetweenWordsAndNumbers,
-        replaceTrashSymbolsWithDelimiter,
-        slug,
-    ]
-
-    return steps.reduce((unitName, step) =>
+    return UNIT_NAME_NORMALIZATION_STEPS.reduce((unitName, step) =>
         step(unitName, locale),
     unitName
     )
