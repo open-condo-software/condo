@@ -111,9 +111,6 @@ export const TourProvider = ({ children }) => {
             switch (name) {
                 case 'createProperty': {
                     if (currentImport.current && isFirstSuccessImport.current) return
-
-                    console.log('createProperty event', data)
-
                     if (get(data, 'obj.map')) {
                         await updateStepIfNotCompleted(TourStepTypeType.CreateProperty)
                         await updateStepIfNotCompleted(TourStepTypeType.CreatePropertyMap)
