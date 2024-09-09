@@ -76,6 +76,14 @@ const sendAppMetrics = () => {
     }
 }
 
+const SYMBOLS_TO_CLEAR_FROM_REQUEST_ID_REGEXP = /[^a-zA-Z0-9_/=+-]/g
+function sanitizeRequestId (value) {
+    if (!value) return value
+    // Strip out characters that could lead to header injection
+    return value.replace(SYMBOLS_TO_CLEAR_FROM_REQUEST_ID_REGEXP, '')
+}
+
+
 function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, schemas, schemasPreprocessors, tasks, queues, apps, lastApp, graphql, ui, authStrategyOpts }) {
     // trying to be compatible with keystone-6 and keystone-5
     // TODO(pahaz): add storage like https://keystonejs.com/docs/config/config#storage-images-and-files
@@ -206,8 +214,8 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
             const requestIdHeaderName = 'x-request-id'
             const startRequestIdHeaderName = 'x-start-request-id'
             app.use(function reqId (req, res, next) {
-                const reqId = req.get(requestIdHeaderName) || v4()
-                const startReqId = req.get(startRequestIdHeaderName) || reqId
+                const reqId = sanitizeRequestId(req.get(requestIdHeaderName)) || v4()
+                const startReqId = sanitizeRequestId(req.get(startRequestIdHeaderName)) || reqId
 
                 _internalGetExecutionContextAsyncLocalStorage().run({ reqId, startReqId }, () => {
                     // we are expecting to receive reqId from client in order to have fully traced logs end to end
