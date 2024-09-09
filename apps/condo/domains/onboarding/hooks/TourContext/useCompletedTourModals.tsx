@@ -132,7 +132,6 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
     const DownloadAppResidentFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.resident.downloadApp' })
 
     const router = useRouter()
-    //const { query: { skipTourModal } } = router
 
     const { organization } = useOrganization()
     const organizationId = useMemo(() => get(organization, 'id'), [organization])
