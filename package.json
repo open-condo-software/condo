@@ -12,7 +12,7 @@
   "scripts": {
     "analysis": "./bin/run-semgrep.sh -a",
     "build:packages": "turbo run build --filter='./packages/*'",
-    "build:apps": "turbo run build --filter='./apps/*' --filter=!./apps/eps --concurrency=100%",
+    "build:apps": "turbo run build --filter='./apps/*' --concurrency=100%",
     "build": "turbo run build",
     "lint:code": "yarn run eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:styles": "yarn run stylelint \"**/*.{less,css}\"",
