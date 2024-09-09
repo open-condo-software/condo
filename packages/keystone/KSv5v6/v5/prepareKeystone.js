@@ -10,6 +10,7 @@ const { get, identity } = require('lodash')
 const nextCookie = require('next-cookies')
 const { v4 } = require('uuid')
 
+
 const conf = require('@open-condo/config')
 const { formatError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { ExtendedPasswordAuthStrategy } = require('@open-condo/keystone/authStrategy/passwordAuth')
@@ -27,6 +28,8 @@ const { ApolloSentryPlugin } = require('@open-condo/keystone/sentry')
 const { prepareDefaultKeystoneConfig } = require('@open-condo/keystone/setup.utils')
 const { registerTasks, registerTaskQueues, taskQueues } = require('@open-condo/keystone/tasks')
 const { KeystoneTracingApp } = require('@open-condo/keystone/tracing')
+
+const {  validateRequestId, checkHeaderForInjection } = require('./headerValidation')
 
 const IS_BUILD_PHASE = conf.PHASE === 'build'
 const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
@@ -75,14 +78,6 @@ const sendAppMetrics = () => {
         })
     }
 }
-
-const SYMBOLS_TO_CLEAR_FROM_REQUEST_ID_REGEXP = /[^a-zA-Z0-9_/=+-]/g
-function sanitizeRequestId (value) {
-    if (!value) return value
-    // Strip out characters that could lead to header injection
-    return value.replace(SYMBOLS_TO_CLEAR_FROM_REQUEST_ID_REGEXP, '')
-}
-
 
 function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, schemas, schemasPreprocessors, tasks, queues, apps, lastApp, graphql, ui, authStrategyOpts }) {
     // trying to be compatible with keystone-6 and keystone-5
@@ -203,30 +198,36 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
 
         /** @type {(app: import('express').Application) => void} */
         configureExpress: (app) => {
+            const requestIdHeaderName = 'x-request-id'
+            const startRequestIdHeaderName = 'x-start-request-id'
 
             // NOTE(pahaz): we are always behind reverse proxy
             app.set('trust proxy', true)
+
+            app.use(function clearHeadersToPreventInjectionAttacks (req, res, next) {
+                try {
+                    for (const header in req.headers) {
+                        if (header === requestIdHeaderName || header === startRequestIdHeaderName) {
+                            validateRequestId(req.headers[header])
+                        } else {
+                            checkHeaderForInjection(req.headers[header], header)
+                        }
+                    }
+                    next()
+                } catch (err) {
+                    logger.error({ msg: 'Validation for request headers failed', err })
+                    res.status(423).send({ error: err.message })
+                }
+            })
 
             // NOTE(toplenboren): we need a custom body parser for custom file upload limit
             app.use(json({ limit: '100mb', extended: true }))
             app.use(urlencoded({ limit: '100mb', extended: true }))
 
-            // Remove \r and \n to prevent header injection attacks
-            app.use(function clearHeadersToPreventInjectionAttacks (req, res, next) {
-                for (const header in req.headers) {
-                    if (typeof req.headers[header] === 'string') {
-                        // nosemgrep: javascript.express.security.audit.remote-property-injection.remote-property-injection
-                        req.headers[header] = req.headers[header].replace(/[\r\n]/g, '')
-                    }
-                }
-                next()
-            })
 
-            const requestIdHeaderName = 'x-request-id'
-            const startRequestIdHeaderName = 'x-start-request-id'
             app.use(function reqId (req, res, next) {
-                const reqId = sanitizeRequestId(req.get(requestIdHeaderName)) || v4()
-                const startReqId = sanitizeRequestId(req.get(startRequestIdHeaderName)) || reqId
+                const reqId = req.get(requestIdHeaderName) || v4()
+                const startReqId = req.get(startRequestIdHeaderName) || reqId
 
                 _internalGetExecutionContextAsyncLocalStorage().run({ reqId, startReqId }, () => {
                     // we are expecting to receive reqId from client in order to have fully traced logs end to end
