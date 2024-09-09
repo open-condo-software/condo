@@ -26,7 +26,7 @@ const config: StorybookConfig = {
     },
     'staticDirs': [{ from: '../public', to: '/ui' }],
     'webpackFinal': async (config) => {
-        const configRules: Array<RuleSetRule> = get(config, ['module', 'rules'], [])
+        const configRules: Array<RuleSetRule> = get(config, ['module', 'rules'], []) as Array<RuleSetRule>
         const modifiedRules = configRules.map(rule => {
             if (typeof rule === 'object' && 'test' in rule && rule.test &&
                 rule.test.constructor === RegExp && rule.test.test('some.css')) {

@@ -75,8 +75,8 @@ export const IconsSubsection: React.FC<{ id: string }> = ({ id }) => {
 
     const { data } = useGetB2CAppQuery({ variables: { id } })
 
-    const name = get(data, ['app', 'name'], '')
-    const logo = get(data, ['app', 'logo', 'publicUrl'], DEFAULT_B2C_LOGO_URL)
+    const name = get(data, ['app', 'name'], '') as string
+    const logo = get(data, ['app', 'logo', 'publicUrl'], DEFAULT_B2C_LOGO_URL) as string
 
     const [form] = Form.useForm()
 
