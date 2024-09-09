@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 import { catchErrorFrom } from '@open-condo/keystone/test.utils'
 
 import { FLAT_WITHOUT_FLAT_TYPE_MESSAGE, getAddressUpToBuildingFrom, normalizePropertyMap } from './helpers'
