@@ -3,8 +3,8 @@ const { BatchHttpLink } = require('@apollo/client/link/batch-http')
 const { RetryLink } = require('@apollo/client/link/retry')
 const { onError }  = require('apollo-link-error')
 const { createUploadLink } = require('apollo-upload-client')
-const FormData = require('form-data')
 const { chunk: splitArray } = require('lodash')
+const { FormData } = require('undici')
 
 const { fetch } = require('@open-condo/keystone/fetch')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -18,7 +18,7 @@ if (!globalThis.fetch) {
 
 class UploadingFile {
     constructor ({ stream, filename, mimetype, encoding }) {
-        this.stream = stream
+        this._stream = stream
 
         if (filename) {
             this.filename = filename
@@ -33,8 +33,13 @@ class UploadingFile {
         }
     }
 
-    createReadStream () {
-        return this.stream
+    stream () {
+        return this._stream
+    }
+
+    get [Symbol.toStringTag] () {
+        // Undici checks for /^(Blob|File)$/.test(object[Symbol.toStringTag])
+        return 'File'
     }
 }
 
@@ -408,9 +413,9 @@ class ApolloServerClient {
             FormData,
             formDataAppendFile: (form, name, file) => {
                 if (file.name) {
-                    form.append(name, file.stream, file.name)
+                    form.append(name, file, file.name)
                 } else {
-                    form.append(name, file.stream)
+                    form.append(name, file)
                 }
             },
             fetch,
