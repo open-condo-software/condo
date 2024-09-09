@@ -81,6 +81,7 @@
   },
   "packageManager": "yarn@3.2.2",
   "resolutions": {
+    "typescript": "^5.5.0",
     "npm": "latest-6",
     "graphql-upload": "^15.0.2",
     "@keystonejs/app-admin-ui/@types/react": "16.9.17",

@@ -51,7 +51,7 @@ const options =  Object.entries(pkg.exports).map(([relativeImport, relativeMap])
                 presets: [['@babel/preset-react', { 'runtime': 'automatic' }]],
                 extensions: AVAILABLE_EXTENSIONS,
             }),
-            typescript({ tsconfig: './tsconfig.json', compilerOptions: { declaration: false } }),
+            typescript({ tsconfig: './tsconfig.json' }),
             uglify(),
         ],
         external: ['react', 'react-dom'],

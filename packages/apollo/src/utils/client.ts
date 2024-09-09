@@ -13,6 +13,7 @@ export type ApolloClientOptions = {
 export function createApolloClient (options: ApolloClientOptions): ApolloClient<NormalizedCacheObject> {
     return new ApolloClient({
         ssrMode: isSSR(),
+        // @ts-ignore
         link: createUploadLink({
             uri: '123', // TODO: ADD URI
             headers: options.headers,
