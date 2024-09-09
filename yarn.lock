@@ -955,7 +955,6 @@ __metadata:
     next: ^9.5.5
     next-cookies: ^2.0.3
     next-transpile-modules: ^7.0.0
-    node-fetch: ^2.6.7
     numeral: 2.0.6
     nunjucks: ^3.2.4
     oidc-provider: 7.14.3
@@ -7976,6 +7975,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fastify/busboy@npm:^2.0.0":
+  version: 2.1.1
+  resolution: "@fastify/busboy@npm:2.1.1"
+  checksum: 42c32ef75e906c9a4809c1e1930a5ca6d4ddc8d138e1a8c8ba5ea07f997db32210617d23b2e4a85fe376316a41a1a0439fc6ff2dedf5126d96f45a9d80754fb2
+  languageName: node
+  linkType: hard
+
 "@fastify/busboy@npm:^3.0.0":
   version: 3.0.0
   resolution: "@fastify/busboy@npm:3.0.0"
@@ -12851,7 +12857,6 @@ __metadata:
     minimatch: ^5.1.1
     ms: ^2.1.3
     next-cookies: ^2.0.3
-    node-fetch: ^2.6.7
     ow: ^0.19.0
     pino: ^6.13.3
     react: ^16.13.1
@@ -12859,6 +12864,7 @@ __metadata:
     serialize-error: ^8.1.0
     supertest: ^6.1.3
     tough-cookie: ^4.1.3
+    undici: 5.28.4
     uuid: ^8.3.0
     validator: ^13.7.0
   languageName: unknown
@@ -51355,6 +51361,15 @@ __metadata:
   version: 3.2.0
   resolution: "undici@npm:3.2.0"
   checksum: e89a97896e6142b66f387fa253ddfee72c054f3ec08ba11ccc64e3db61d39f4dd9c113559cd76d81b1b270411288477b848c039b128a25060ce3bee5bffae0a0
+  languageName: node
+  linkType: hard
+
+"undici@npm:5.28.4":
+  version: 5.28.4
+  resolution: "undici@npm:5.28.4"
+  dependencies:
+    "@fastify/busboy": ^2.0.0
+  checksum: a8193132d84540e4dc1895ecc8dbaa176e8a49d26084d6fbe48a292e28397cd19ec5d13bc13e604484e76f94f6e334b2bdc740d5f06a6e50c44072818d0c19f9
   languageName: node
   linkType: hard
 
