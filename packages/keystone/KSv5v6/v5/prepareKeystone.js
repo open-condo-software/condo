@@ -211,6 +211,16 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
             app.use(json({ limit: '100mb', extended: true }))
             app.use(urlencoded({ limit: '100mb', extended: true }))
 
+            // Remove \r and \n to prevent header injection attacks
+            app.use((req, res, next) => {
+                for (const header in req.headers) {
+                    if (typeof req.headers[header] === 'string') {
+                        req.headers[header] = req.headers[header].replace(/[\r\n]/g, '')
+                    }
+                }
+                next()
+            })
+
             const requestIdHeaderName = 'x-request-id'
             const startRequestIdHeaderName = 'x-start-request-id'
             app.use(function reqId (req, res, next) {
