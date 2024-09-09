@@ -12,19 +12,19 @@ SET statement_timeout = '1500s';
 --
 -- Create index ticket_unitName on field(s) unitName of model ticket
 --
-CREATE INDEX "ticket_unitName" ON "Ticket" USING btree ("unitName");
+CREATE INDEX IF NOT EXISTS "ticket_unitName" ON "Ticket" USING btree ("unitName");
 --
 -- Create index ticket_assignee_exec_org on field(s) assignee, executor, organization of model ticket
 --
-CREATE INDEX "ticket_assignee_exec_org" ON "Ticket" USING btree ("assignee", "executor", "organization");
+CREATE INDEX IF NOT EXISTS "ticket_assignee_exec_org" ON "Ticket" USING btree ("assignee", "executor", "organization");
 --
 -- Create index ticket_organization_status on field(s) organization, status of model ticket
 --
-CREATE INDEX "ticket_organization_status" ON "Ticket" USING btree ("organization", "status");
+CREATE INDEX IF NOT EXISTS "ticket_organization_status" ON "Ticket" USING btree ("organization", "status");
 --
 -- Create index ticket_order_createdat on field(s) order, -createdAt of model ticket
 --
-CREATE INDEX "ticket_order_createdat" ON "Ticket" USING btree ("order", "createdAt" DESC);
+CREATE INDEX IF NOT EXISTS "ticket_order_createdat" ON "Ticket" USING btree ("order", "createdAt" DESC);
 
 --
 -- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
