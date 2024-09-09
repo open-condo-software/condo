@@ -207,7 +207,7 @@
     "mkdirp": "^1.0.4",
     "pluralize": "^8.0.0",
     "raw-loader": "^4.0.2",
-    "typescript": "^4.1.5",
+    "typescript": "^4.9.5",
     "webpack": "^4.46.0"
   },
   "peerDependencies": {
