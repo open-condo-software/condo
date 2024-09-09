@@ -32,7 +32,7 @@ describe('validateHeaders', () => {
 
         it('should throw an error if a nested object contains newline characters', () => {
             expect(() =>
-                validateHeaders({ key1: 'value1', key2: { subKey: 'invalid\r\nheader' } }, 'x-custom-header')
+                validateHeaders({ 'x-custom-header': { key1: 'value1', key2: { subKey: 'invalid\r\nheader' } } } )
             ).toThrow(HEADERS_INJECTION_ERROR)
         })
 
