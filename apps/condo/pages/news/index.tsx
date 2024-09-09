@@ -169,7 +169,7 @@ const NewsPageContent = ({
         return <LoadingOrErrorPage loading={loading} error={errorToPrint}/>
     }
 
-    if (propertiesCount === 0) {
+    if (propertiesCount === 0 && newsWithoutFiltersCount === 0) {
         return (
             <EmptyListContent
                 image='/dino/playing@2x.png'

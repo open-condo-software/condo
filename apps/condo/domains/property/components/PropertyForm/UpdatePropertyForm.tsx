@@ -14,7 +14,6 @@ import BasePropertyForm from '../BasePropertyForm'
 
 interface IUpdatePropertyForm {
     id: string
-    next?: string,
 }
 
 const FORM_SUBMIT_BUTTON_STYLES = {
@@ -22,16 +21,19 @@ const FORM_SUBMIT_BUTTON_STYLES = {
 }
 const FORM_DEPENDENCIES = ['address']
 
-export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id, next }) => {
+export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
     const intl = useIntl()
     const ApplyChangesLabel = intl.formatMessage({ id: 'ApplyChanges' })
-    const { push } = useRouter()
+    const { push, query: { next }  } = useRouter()
     const { organization } = useOrganization()
     const { refetch, obj: property, loading, error } = Property.useObject({ where: { id } })
     const initialValues = Property.convertToFormState(property)
     const action = Property.useUpdate({}, async (property) => {
         let redirectUrl = `/property/${property.id}`
-        if (next && isSafeUrl(next)) { redirectUrl = next }
+
+        if (next && !Array.isArray(next) && isSafeUrl(next)) {
+            redirectUrl = next
+        }
 
         await push(redirectUrl)
     })

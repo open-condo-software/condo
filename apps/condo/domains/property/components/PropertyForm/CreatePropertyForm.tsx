@@ -17,14 +17,10 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 const DEFAULT_PROPERTY_TYPE = PropertyTypeType.Building
 const FORM_DEPENDENCIES = ['address']
 
-interface ICreatePropertyFormProps {
-    next?: string
-}
-
-export const CreatePropertyForm: React.FC<ICreatePropertyFormProps> = ({ next }) => {
+export const CreatePropertyForm: React.FC = () => {
     const intl = useIntl()
     const CreatePropertyMessage = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
-    const router = useRouter()
+    const { push, query: { next } } = useRouter()
     const { organization, link } = useOrganization()
     const { user } = useAuth()
 
@@ -33,9 +29,12 @@ export const CreatePropertyForm: React.FC<ICreatePropertyFormProps> = ({ next })
         type: DEFAULT_PROPERTY_TYPE,
     }, async (property) => {
         let redirectUrl = `/property/${property.id}`
-        if (next && isSafeUrl(next)) { redirectUrl = next }
 
-        await router.push(redirectUrl)
+        if (next && !Array.isArray(next) && isSafeUrl(next)) {
+            redirectUrl = next
+        }
+
+        await push(redirectUrl)
     })
 
     const initialValues = {
