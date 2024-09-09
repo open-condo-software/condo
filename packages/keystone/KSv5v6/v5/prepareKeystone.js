@@ -212,7 +212,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
             app.use(urlencoded({ limit: '100mb', extended: true }))
 
             // Remove \r and \n to prevent header injection attacks
-            app.use((req, res, next) => {
+            app.use(function clearHeadersToPreventInjectionAttacks (req, res, next) {
                 for (const header in req.headers) {
                     if (typeof req.headers[header] === 'string') {
                         // nosemgrep: javascript.express.security.audit.remote-property-injection.remote-property-injection
