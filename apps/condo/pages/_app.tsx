@@ -538,16 +538,8 @@ const apolloCacheConfig: WithApolloProps['apolloCacheConfig'] = {
     },
 }
 
-const apolloClientConfig: WithApolloProps['apolloClientConfig'] = {
-    defaultOptions: {
-        watchQuery: {
-            fetchPolicy: 'no-cache',
-        },
-    },
-}
-
 export default (
-    withApollo({ ssr: !IS_SSR_DISABLED, apolloCacheConfig, apolloClientConfig })(
+    withApollo({ ssr: !IS_SSR_DISABLED, apolloCacheConfig })(
         withAuth({ ssr: !IS_SSR_DISABLED, USER_QUERY })(
             withIntl({ ssr: !IS_SSR_DISABLED, messagesImporter, extractReqLocale, defaultLocale })(
                 withOrganization({

@@ -301,6 +301,7 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
         canManageTour: { type: 'Checkbox', defaultValue: true },
         canReadMarketSetting: { type: 'Checkbox', defaultValue: false },
         canManageMarketSetting: { type: 'Checkbox', defaultValue: false },
+        canManageTicketAutoAssignments: { type: 'Checkbox', defaultValue: false },
     },
     plugins: [uuided(), versioned(), tracked(), dvAndSender(), historical(), softDeleted()],
     hooks: {

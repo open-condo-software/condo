@@ -1338,6 +1338,7 @@ type OidcClientHistoryRecord {
   payload: JSON
   name: String
   isEnabled: Boolean
+  canAuthorizeSuperUsers: Boolean
   meta: JSON
   expiresAt: String
   id: ID!
@@ -1400,6 +1401,8 @@ input OidcClientHistoryRecordWhereInput {
   name_not_in: [String]
   isEnabled: Boolean
   isEnabled_not: Boolean
+  canAuthorizeSuperUsers: Boolean
+  canAuthorizeSuperUsers_not: Boolean
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -1501,6 +1504,8 @@ enum SortOidcClientHistoryRecordsBy {
   name_DESC
   isEnabled_ASC
   isEnabled_DESC
+  canAuthorizeSuperUsers_ASC
+  canAuthorizeSuperUsers_DESC
   expiresAt_ASC
   expiresAt_DESC
   id_ASC
@@ -1526,6 +1531,7 @@ input OidcClientHistoryRecordUpdateInput {
   payload: JSON
   name: String
   isEnabled: Boolean
+  canAuthorizeSuperUsers: Boolean
   meta: JSON
   expiresAt: String
   v: Int
@@ -1552,6 +1558,7 @@ input OidcClientHistoryRecordCreateInput {
   payload: JSON
   name: String
   isEnabled: Boolean
+  canAuthorizeSuperUsers: Boolean
   meta: JSON
   expiresAt: String
   v: Int
@@ -1595,6 +1602,10 @@ type OidcClient {
   """ A switch that allows you to disable some OIDC clients. If an OIDC client is disabled, it cannot be used for OIDC authorization. Used mainly by developers portal to create OIDC client before publishing an application, and enable OIDC after publishing. 
   """
   isEnabled: Boolean
+
+  """ A switch that allows this OIDC client to authorize users with privileges, such as admins, support, or users with a special rights set. Temporary solution to allow OIDCs to be used to access the admin panel of mini-applications from condo ecosystem. Tokens with scopes should solve the logic separation problem and remove this checkbox 
+  """
+  canAuthorizeSuperUsers: Boolean
 
   """ The additional client data """
   meta: JSON
@@ -1675,6 +1686,8 @@ input OidcClientWhereInput {
   name_not_in: [String]
   isEnabled: Boolean
   isEnabled_not: Boolean
+  canAuthorizeSuperUsers: Boolean
+  canAuthorizeSuperUsers_not: Boolean
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -1792,6 +1805,8 @@ enum SortOidcClientsBy {
   name_DESC
   isEnabled_ASC
   isEnabled_DESC
+  canAuthorizeSuperUsers_ASC
+  canAuthorizeSuperUsers_DESC
   expiresAt_ASC
   expiresAt_DESC
   id_ASC
@@ -1821,6 +1836,7 @@ input OidcClientUpdateInput {
   payload: JSON
   name: String
   isEnabled: Boolean
+  canAuthorizeSuperUsers: Boolean
   meta: JSON
   expiresAt: String
   v: Int
@@ -1846,6 +1862,7 @@ input OidcClientCreateInput {
   payload: JSON
   name: String
   isEnabled: Boolean
+  canAuthorizeSuperUsers: Boolean
   meta: JSON
   expiresAt: String
   v: Int
@@ -5444,6 +5461,7 @@ type OrganizationEmployeeRoleHistoryRecord {
   canManageTour: Boolean
   canReadMarketSetting: Boolean
   canManageMarketSetting: Boolean
+  canManageTicketAutoAssignments: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -5648,6 +5666,8 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canReadMarketSetting_not: Boolean
   canManageMarketSetting: Boolean
   canManageMarketSetting_not: Boolean
+  canManageTicketAutoAssignments: Boolean
+  canManageTicketAutoAssignments_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -5855,6 +5875,8 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canReadMarketSetting_DESC
   canManageMarketSetting_ASC
   canManageMarketSetting_DESC
+  canManageTicketAutoAssignments_ASC
+  canManageTicketAutoAssignments_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -5941,6 +5963,7 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canManageTour: Boolean
   canReadMarketSetting: Boolean
   canManageMarketSetting: Boolean
+  canManageTicketAutoAssignments: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -6028,6 +6051,7 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canManageTour: Boolean
   canReadMarketSetting: Boolean
   canManageMarketSetting: Boolean
+  canManageTicketAutoAssignments: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -6163,6 +6187,7 @@ type OrganizationEmployeeRole {
   canManageTour: Boolean
   canReadMarketSetting: Boolean
   canManageMarketSetting: Boolean
+  canManageTicketAutoAssignments: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -6361,6 +6386,8 @@ input OrganizationEmployeeRoleWhereInput {
   canReadMarketSetting_not: Boolean
   canManageMarketSetting: Boolean
   canManageMarketSetting_not: Boolean
+  canManageTicketAutoAssignments: Boolean
+  canManageTicketAutoAssignments_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -6562,6 +6589,8 @@ enum SortOrganizationEmployeeRolesBy {
   canReadMarketSetting_DESC
   canManageMarketSetting_ASC
   canManageMarketSetting_DESC
+  canManageTicketAutoAssignments_ASC
+  canManageTicketAutoAssignments_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -6650,6 +6679,7 @@ input OrganizationEmployeeRoleUpdateInput {
   canManageTour: Boolean
   canReadMarketSetting: Boolean
   canManageMarketSetting: Boolean
+  canManageTicketAutoAssignments: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -6736,6 +6766,7 @@ input OrganizationEmployeeRoleCreateInput {
   canManageTour: Boolean
   canReadMarketSetting: Boolean
   canManageMarketSetting: Boolean
+  canManageTicketAutoAssignments: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -52764,6 +52795,7 @@ type AcquiringIntegrationHistoryRecord {
   canGroupReceipts: Boolean
   hostUrl: String
   supportedBillingIntegrationsGroup: String
+  minimumPaymentAmount: String
   explicitFeeDistributionSchema: JSON
   contextDefaultStatus: String
   vatPercentOptions: String
@@ -52861,6 +52893,14 @@ input AcquiringIntegrationHistoryRecordWhereInput {
   supportedBillingIntegrationsGroup_not_ends_with_i: String
   supportedBillingIntegrationsGroup_in: [String]
   supportedBillingIntegrationsGroup_not_in: [String]
+  minimumPaymentAmount: String
+  minimumPaymentAmount_not: String
+  minimumPaymentAmount_lt: String
+  minimumPaymentAmount_lte: String
+  minimumPaymentAmount_gt: String
+  minimumPaymentAmount_gte: String
+  minimumPaymentAmount_in: [String]
+  minimumPaymentAmount_not_in: [String]
   explicitFeeDistributionSchema: JSON
   explicitFeeDistributionSchema_not: JSON
   explicitFeeDistributionSchema_in: [JSON]
@@ -52996,6 +53036,8 @@ enum SortAcquiringIntegrationHistoryRecordsBy {
   hostUrl_DESC
   supportedBillingIntegrationsGroup_ASC
   supportedBillingIntegrationsGroup_DESC
+  minimumPaymentAmount_ASC
+  minimumPaymentAmount_DESC
   contextDefaultStatus_ASC
   contextDefaultStatus_DESC
   vatPercentOptions_ASC
@@ -53025,6 +53067,7 @@ input AcquiringIntegrationHistoryRecordUpdateInput {
   canGroupReceipts: Boolean
   hostUrl: String
   supportedBillingIntegrationsGroup: String
+  minimumPaymentAmount: String
   explicitFeeDistributionSchema: JSON
   contextDefaultStatus: String
   vatPercentOptions: String
@@ -53054,6 +53097,7 @@ input AcquiringIntegrationHistoryRecordCreateInput {
   canGroupReceipts: Boolean
   hostUrl: String
   supportedBillingIntegrationsGroup: String
+  minimumPaymentAmount: String
   explicitFeeDistributionSchema: JSON
   contextDefaultStatus: String
   vatPercentOptions: String
@@ -53139,6 +53183,9 @@ type AcquiringIntegration {
   """ Supported billing integrations group. Useful when you need to restrict this acquiring to accept payment only from certain billing. 
   """
   supportedBillingIntegrationsGroup: String
+
+  """ The minimum payment amount that can be accepted """
+  minimumPaymentAmount: String
 
   """ Contains information about the default distribution of explicit fee. Each part is paid by the user on top of original amount if there is no part with the same name in the integration context. Otherwise, the part is ignored as it is paid by recipient 
   """
@@ -53261,6 +53308,14 @@ input AcquiringIntegrationWhereInput {
   supportedBillingIntegrationsGroup_not_ends_with_i: String
   supportedBillingIntegrationsGroup_in: [String]
   supportedBillingIntegrationsGroup_not_in: [String]
+  minimumPaymentAmount: String
+  minimumPaymentAmount_not: String
+  minimumPaymentAmount_lt: String
+  minimumPaymentAmount_lte: String
+  minimumPaymentAmount_gt: String
+  minimumPaymentAmount_gte: String
+  minimumPaymentAmount_in: [String]
+  minimumPaymentAmount_not_in: [String]
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   explicitFeeDistributionSchema_not: [FeeDistributionFieldInput!]
   explicitFeeDistributionSchema_in: [[FeeDistributionFieldInput!]]
@@ -53364,6 +53419,8 @@ enum SortAcquiringIntegrationsBy {
   hostUrl_DESC
   supportedBillingIntegrationsGroup_ASC
   supportedBillingIntegrationsGroup_DESC
+  minimumPaymentAmount_ASC
+  minimumPaymentAmount_DESC
   contextDefaultStatus_ASC
   contextDefaultStatus_DESC
   vatPercentOptions_ASC
@@ -53394,6 +53451,7 @@ input AcquiringIntegrationUpdateInput {
   canGroupReceipts: Boolean
   hostUrl: String
   supportedBillingIntegrationsGroup: String
+  minimumPaymentAmount: String
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   contextDefaultStatus: AcquiringIntegrationContextDefaultStatusType
   vatPercentOptions: String
@@ -53421,6 +53479,7 @@ input AcquiringIntegrationCreateInput {
   canGroupReceipts: Boolean
   hostUrl: String
   supportedBillingIntegrationsGroup: String
+  minimumPaymentAmount: String
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   contextDefaultStatus: AcquiringIntegrationContextDefaultStatusType
   vatPercentOptions: String
@@ -77652,6 +77711,15 @@ type FindOrganizationForAddressOutput {
   hasBillingData: Boolean!
 }
 
+input SuggestServiceProviderInput {
+  search: String!
+}
+
+type SuggestServiceProviderOutput {
+  tin: String!
+  name: String!
+}
+
 input SyncTourStepsInput {
   dv: Int!
   sender: SenderFieldInput!
@@ -77932,6 +78000,17 @@ type RegisterMultiPaymentForInvoicesOutput {
   feeCalculationUrl: String!
   directPaymentUrl: String!
   anonymousPaymentUrl: String!
+}
+
+input CalculateFeeForReceiptInput {
+  receipt: BillingReceiptWhereUniqueInput!
+  amount: String!
+}
+
+type CalculateFeeForReceiptOutput {
+  amountWithoutExplicitFee: String!
+  explicitFee: String!
+  explicitServiceCharge: String!
 }
 
 enum TicketReportPeriodType {
@@ -82229,6 +82308,7 @@ type Query {
   predictTicketClassification(data: PredictTicketClassificationInput!): TicketClassifier
   getResidentExistenceByPhoneAndAddress(data: GetResidentExistenceByPhoneAndAddressInput!): GetResidentExistenceByPhoneAndAddressOutput
   findOrganizationsForAddress(data: FindOrganizationsForAddressInput!): [FindOrganizationForAddressOutput]
+  suggestServiceProvider(data: SuggestServiceProviderInput!): [SuggestServiceProviderOutput]
   exportMeterReadings(data: ExportMeterReadingsInput!): ExportMeterReadingsOutput
 
   """
@@ -82275,6 +82355,7 @@ type Query {
   exportPaymentsToExcel(data: ExportPaymentsToExcelInput!): ExportPaymentsToExcelOutput
   generatePaymentLink(data: GeneratePaymentLinkInput!): GeneratePaymentLinkOutput
   _allPaymentsSum(where: PaymentWhereInput!): PaymentsSumOutput
+  calculateFeeForReceipt(data: CalculateFeeForReceiptInput!): CalculateFeeForReceiptOutput
   ticketReportWidgetData(data: TicketReportWidgetInput!): TicketReportWidgetOutput
   ticketAnalyticsReport(data: TicketAnalyticsReportInput): TicketAnalyticsReportOutput
   exportTicketAnalyticsToExcel(data: ExportTicketAnalyticsToExcelInput): ExportTicketAnalyticsToExcelOutput

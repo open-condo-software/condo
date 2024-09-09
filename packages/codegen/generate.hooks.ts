@@ -94,7 +94,7 @@ export function generateReactHooks<
     QueryVariables,
 > (gql: IGQLType): IGenerateHooksResult<GQLObject, GQLCreateInput, GQLUpdateInput, QueryVariables> {
     function useCreate (initialValues: Partial<GQLCreateInput>, onComplete?: IOnCompleteType<GQLObject>) {
-        const [rowAction] = useMutation(gql.CREATE_OBJ_MUTATION)
+        const [rowAction] = useMutation(gql.CREATE_OBJ_MUTATION, { fetchPolicy: 'no-cache' })
 
         return useCallback(async (values: Partial<GQLCreateInput>) => {
             const sender = getClientSideSenderInfo()
@@ -127,7 +127,7 @@ export function generateReactHooks<
     }
 
     function useCreateMany (initialValues: Partial<GQLCreateInput>, onComplete?: IOnCompleteType<Array<GQLObject>>) {
-        const [rowAction] = useMutation(gql.CREATE_OBJS_MUTATION)
+        const [rowAction] = useMutation(gql.CREATE_OBJS_MUTATION, { fetchPolicy: 'no-cache' })
 
         return useCallback(async (values: Array<Partial<GQLCreateInput>>) => {
             const sender = getClientSideSenderInfo()
@@ -162,7 +162,7 @@ export function generateReactHooks<
     }
 
     function useUpdate (initialValues: Partial<GQLUpdateInput>, onComplete?: IOnCompleteType<GQLObject>) {
-        const [rowAction] = useMutation(gql.UPDATE_OBJ_MUTATION)
+        const [rowAction] = useMutation(gql.UPDATE_OBJ_MUTATION, { fetchPolicy: 'no-cache' })
 
         return useCallback(async (values: Partial<GQLUpdateInput>, obj: IUUIDObject) => {
             const sender = getClientSideSenderInfo()
@@ -196,7 +196,7 @@ export function generateReactHooks<
     }
 
     function useUpdateMany (initialValues: Partial<GQLUpdateInput>, onComplete?: IOnCompleteType<Array<GQLObject>>) {
-        const [rowAction] = useMutation(gql.UPDATE_OBJS_MUTATION)
+        const [rowAction] = useMutation(gql.UPDATE_OBJS_MUTATION, { fetchPolicy: 'no-cache' })
 
         return useCallback(async (values: Array<{ data: Partial<GQLUpdateInput> } & IUUIDObject>) => {
             const sender = getClientSideSenderInfo()
@@ -233,7 +233,7 @@ export function generateReactHooks<
     }
 
     function useSoftDelete (onComplete?: IOnCompleteType<GQLObject>) {
-        const [rowAction] = useMutation(gql.UPDATE_OBJ_MUTATION)
+        const [rowAction] = useMutation(gql.UPDATE_OBJ_MUTATION, { fetchPolicy: 'no-cache' })
 
         return useCallback(async (obj: IUUIDObject) => {
             const sender = getClientSideSenderInfo()
@@ -266,7 +266,7 @@ export function generateReactHooks<
     }
 
     function useSoftDeleteMany (onComplete?: IOnCompleteType<Array<GQLObject>>) {
-        const [rowAction] = useMutation(gql.UPDATE_OBJS_MUTATION)
+        const [rowAction] = useMutation(gql.UPDATE_OBJS_MUTATION, { fetchPolicy: 'no-cache' })
 
         return useCallback(async (objs: Array<IUUIDObject>) => {
             const sender = getClientSideSenderInfo()
@@ -309,6 +309,7 @@ export function generateReactHooks<
             variables,
             notifyOnNetworkStatusChange: true,
             ...options,
+            ...(typeof options === 'object' && 'fetchPolicy' in options ? null : { fetchPolicy: 'no-cache' }),
         })
 
         const count = (data && data.meta) ? data.meta.count : null
@@ -342,6 +343,7 @@ export function generateReactHooks<
             variables,
             notifyOnNetworkStatusChange: true,
             ...options,
+            ...(typeof options === 'object' && 'fetchPolicy' in options ? null : { fetchPolicy: 'no-cache' }),
         })
 
         const objs: GQLObject[] = (data && data.objs) ? data.objs : []

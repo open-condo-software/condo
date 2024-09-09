@@ -2196,7 +2196,6 @@
   "tour.step.createNews.completed.linkTitle": "Добавить еще",
   "tour.step.disabledTooltip.noPermission": "Сейчас у вас недостаточно прав для этой задачи. Попросите руководителя вашей организации открыть вам доступ в «Настройках» или поручите задачу другому сотруднику.",
   "tour.step.disabledTooltip.completePreviousSteps": "Выполните предыдущие шаги, чтобы разблокировать задачу",
-  "tour.step.disabledTooltip.completeBillingStep": "Выполните все шаги в задаче «Снизить дебиторскую задолженность», чтобы разблокировать эту",
   "tour.completedStepModal.createProperty.title": "Все получилось — вы добавили первый дом",
   "tour.completedStepModal.createProperty.subtitle": "Вы сможете добавить больше объектов",
   "tour.completedStepModal.createProperty.subtitleLinkLabel": "в разделе «Дома»",
@@ -3135,6 +3134,7 @@
   "acquiringReceipt.invoice.row.count": "Кол-во",
   "acquiringReceipt.invoice.row.vatPercent": "НДС",
   "acquiringReceipt.invoice.row.amount": "Стоимость",
-  "api.acquiring.multiPayment.error.receiptsWithInvoices": "Квитанции и счета не могут быть в одном платеже, увы. Но мы над этим работаем."
+  "api.acquiring.multiPayment.error.receiptsWithInvoices": "Квитанции и счета не могут быть в одном платеже, увы. Но мы над этим работаем.",
+  "api.acquiring.payment.error.paymentAmountLessThanMinimum": "Сумма оплаты должна быть не меньше чем {minimumPaymentAmount}"
 }
 

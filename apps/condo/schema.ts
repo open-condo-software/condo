@@ -48,6 +48,8 @@ export type AcquiringIntegration = {
   hostUrl?: Maybe<Scalars['String']>;
   /**  Supported billing integrations group. Useful when you need to restrict this acquiring to accept payment only from certain billing.  */
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
+  /**  The minimum payment amount that can be accepted  */
+  minimumPaymentAmount?: Maybe<Scalars['String']>;
   /**  Contains information about the default distribution of explicit fee. Each part is paid by the user on top of original amount if there is no part with the same name in the integration context. Otherwise, the part is ignored as it is paid by recipient  */
   explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionField>>;
   /**  Status, which context will have by default after creation if no overwriting option provided  */
@@ -1135,6 +1137,7 @@ export type AcquiringIntegrationCreateInput = {
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
+  minimumPaymentAmount?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   contextDefaultStatus?: Maybe<AcquiringIntegrationContextDefaultStatusType>;
   vatPercentOptions?: Maybe<Scalars['String']>;
@@ -1166,6 +1169,7 @@ export type AcquiringIntegrationHistoryRecord = {
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
+  minimumPaymentAmount?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   vatPercentOptions?: Maybe<Scalars['String']>;
@@ -1191,6 +1195,7 @@ export type AcquiringIntegrationHistoryRecordCreateInput = {
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
+  minimumPaymentAmount?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   vatPercentOptions?: Maybe<Scalars['String']>;
@@ -1221,6 +1226,7 @@ export type AcquiringIntegrationHistoryRecordUpdateInput = {
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
+  minimumPaymentAmount?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   vatPercentOptions?: Maybe<Scalars['String']>;
@@ -1317,6 +1323,14 @@ export type AcquiringIntegrationHistoryRecordWhereInput = {
   supportedBillingIntegrationsGroup_not_ends_with_i?: Maybe<Scalars['String']>;
   supportedBillingIntegrationsGroup_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   supportedBillingIntegrationsGroup_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  minimumPaymentAmount?: Maybe<Scalars['String']>;
+  minimumPaymentAmount_not?: Maybe<Scalars['String']>;
+  minimumPaymentAmount_lt?: Maybe<Scalars['String']>;
+  minimumPaymentAmount_lte?: Maybe<Scalars['String']>;
+  minimumPaymentAmount_gt?: Maybe<Scalars['String']>;
+  minimumPaymentAmount_gte?: Maybe<Scalars['String']>;
+  minimumPaymentAmount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  minimumPaymentAmount_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   explicitFeeDistributionSchema_not?: Maybe<Scalars['JSON']>;
   explicitFeeDistributionSchema_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -1463,6 +1477,7 @@ export type AcquiringIntegrationUpdateInput = {
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
+  minimumPaymentAmount?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   contextDefaultStatus?: Maybe<AcquiringIntegrationContextDefaultStatusType>;
   vatPercentOptions?: Maybe<Scalars['String']>;
@@ -1562,6 +1577,14 @@ export type AcquiringIntegrationWhereInput = {
   supportedBillingIntegrationsGroup_not_ends_with_i?: Maybe<Scalars['String']>;
   supportedBillingIntegrationsGroup_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   supportedBillingIntegrationsGroup_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  minimumPaymentAmount?: Maybe<Scalars['String']>;
+  minimumPaymentAmount_not?: Maybe<Scalars['String']>;
+  minimumPaymentAmount_lt?: Maybe<Scalars['String']>;
+  minimumPaymentAmount_lte?: Maybe<Scalars['String']>;
+  minimumPaymentAmount_gt?: Maybe<Scalars['String']>;
+  minimumPaymentAmount_gte?: Maybe<Scalars['String']>;
+  minimumPaymentAmount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  minimumPaymentAmount_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   explicitFeeDistributionSchema_not?: Maybe<Array<FeeDistributionFieldInput>>;
   explicitFeeDistributionSchema_in?: Maybe<Array<Maybe<Array<FeeDistributionFieldInput>>>>;
@@ -20333,6 +20356,18 @@ export enum CacheControlScope {
   Public = 'PUBLIC',
   Private = 'PRIVATE'
 }
+
+export type CalculateFeeForReceiptInput = {
+  receipt: BillingReceiptWhereUniqueInput;
+  amount: Scalars['String'];
+};
+
+export type CalculateFeeForReceiptOutput = {
+  __typename?: 'CalculateFeeForReceiptOutput';
+  amountWithoutExplicitFee: Scalars['String'];
+  explicitFee: Scalars['String'];
+  explicitServiceCharge: Scalars['String'];
+};
 
 /**  Conversation record between operator and client  */
 export type CallRecord = {
@@ -56110,6 +56145,8 @@ export type OidcClient = {
   name?: Maybe<Scalars['String']>;
   /**  A switch that allows you to disable some OIDC clients. If an OIDC client is disabled, it cannot be used for OIDC authorization. Used mainly by developers portal to create OIDC client before publishing an application, and enable OIDC after publishing.  */
   isEnabled?: Maybe<Scalars['Boolean']>;
+  /**  A switch that allows this OIDC client to authorize users with privileges, such as admins, support, or users with a special rights set. Temporary solution to allow OIDCs to be used to access the admin panel of mini-applications from condo ecosystem. Tokens with scopes should solve the logic separation problem and remove this checkbox  */
+  canAuthorizeSuperUsers?: Maybe<Scalars['Boolean']>;
   /**  The additional client data  */
   meta?: Maybe<Scalars['JSON']>;
   /**  The timestamp of the client expiration  */
@@ -56139,6 +56176,7 @@ export type OidcClientCreateInput = {
   payload?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
   isEnabled?: Maybe<Scalars['Boolean']>;
+  canAuthorizeSuperUsers?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   expiresAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -56169,6 +56207,7 @@ export type OidcClientHistoryRecord = {
   payload?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
   isEnabled?: Maybe<Scalars['Boolean']>;
+  canAuthorizeSuperUsers?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   expiresAt?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
@@ -56191,6 +56230,7 @@ export type OidcClientHistoryRecordCreateInput = {
   payload?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
   isEnabled?: Maybe<Scalars['Boolean']>;
+  canAuthorizeSuperUsers?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   expiresAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -56218,6 +56258,7 @@ export type OidcClientHistoryRecordUpdateInput = {
   payload?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
   isEnabled?: Maybe<Scalars['Boolean']>;
+  canAuthorizeSuperUsers?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   expiresAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -56279,6 +56320,8 @@ export type OidcClientHistoryRecordWhereInput = {
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isEnabled?: Maybe<Scalars['Boolean']>;
   isEnabled_not?: Maybe<Scalars['Boolean']>;
+  canAuthorizeSuperUsers?: Maybe<Scalars['Boolean']>;
+  canAuthorizeSuperUsers_not?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -56387,6 +56430,7 @@ export type OidcClientUpdateInput = {
   payload?: Maybe<Scalars['JSON']>;
   name?: Maybe<Scalars['String']>;
   isEnabled?: Maybe<Scalars['Boolean']>;
+  canAuthorizeSuperUsers?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   expiresAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -56447,6 +56491,8 @@ export type OidcClientWhereInput = {
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isEnabled?: Maybe<Scalars['Boolean']>;
   isEnabled_not?: Maybe<Scalars['Boolean']>;
+  canAuthorizeSuperUsers?: Maybe<Scalars['Boolean']>;
+  canAuthorizeSuperUsers_not?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -57183,6 +57229,7 @@ export type OrganizationEmployeeRole = {
   canManageTour?: Maybe<Scalars['Boolean']>;
   canReadMarketSetting?: Maybe<Scalars['Boolean']>;
   canManageMarketSetting?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -57269,6 +57316,7 @@ export type OrganizationEmployeeRoleCreateInput = {
   canManageTour?: Maybe<Scalars['Boolean']>;
   canReadMarketSetting?: Maybe<Scalars['Boolean']>;
   canManageMarketSetting?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -57360,6 +57408,7 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canManageTour?: Maybe<Scalars['Boolean']>;
   canReadMarketSetting?: Maybe<Scalars['Boolean']>;
   canManageMarketSetting?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -57443,6 +57492,7 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canManageTour?: Maybe<Scalars['Boolean']>;
   canReadMarketSetting?: Maybe<Scalars['Boolean']>;
   canManageMarketSetting?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -57531,6 +57581,7 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canManageTour?: Maybe<Scalars['Boolean']>;
   canReadMarketSetting?: Maybe<Scalars['Boolean']>;
   canManageMarketSetting?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -57734,6 +57785,8 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canReadMarketSetting_not?: Maybe<Scalars['Boolean']>;
   canManageMarketSetting?: Maybe<Scalars['Boolean']>;
   canManageMarketSetting_not?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -57897,6 +57950,7 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canManageTour?: Maybe<Scalars['Boolean']>;
   canReadMarketSetting?: Maybe<Scalars['Boolean']>;
   canManageMarketSetting?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -58083,6 +58137,8 @@ export type OrganizationEmployeeRoleWhereInput = {
   canReadMarketSetting_not?: Maybe<Scalars['Boolean']>;
   canManageMarketSetting?: Maybe<Scalars['Boolean']>;
   canManageMarketSetting_not?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -66110,6 +66166,7 @@ export type Query = {
   predictTicketClassification?: Maybe<TicketClassifier>;
   getResidentExistenceByPhoneAndAddress?: Maybe<GetResidentExistenceByPhoneAndAddressOutput>;
   findOrganizationsForAddress?: Maybe<Array<Maybe<FindOrganizationForAddressOutput>>>;
+  suggestServiceProvider?: Maybe<Array<Maybe<SuggestServiceProviderOutput>>>;
   exportMeterReadings?: Maybe<ExportMeterReadingsOutput>;
   /**
    * Export of property meters readings. A link to the file is returned
@@ -66155,6 +66212,7 @@ export type Query = {
   exportPaymentsToExcel?: Maybe<ExportPaymentsToExcelOutput>;
   generatePaymentLink?: Maybe<GeneratePaymentLinkOutput>;
   _allPaymentsSum?: Maybe<PaymentsSumOutput>;
+  calculateFeeForReceipt?: Maybe<CalculateFeeForReceiptOutput>;
   ticketReportWidgetData?: Maybe<TicketReportWidgetOutput>;
   ticketAnalyticsReport?: Maybe<TicketAnalyticsReportOutput>;
   exportTicketAnalyticsToExcel?: Maybe<ExportTicketAnalyticsToExcelOutput>;
@@ -72812,6 +72870,11 @@ export type QueryFindOrganizationsForAddressArgs = {
 };
 
 
+export type QuerySuggestServiceProviderArgs = {
+  data: SuggestServiceProviderInput;
+};
+
+
 export type QueryExportMeterReadingsArgs = {
   data: ExportMeterReadingsInput;
 };
@@ -72834,6 +72897,11 @@ export type QueryGeneratePaymentLinkArgs = {
 
 export type Query_AllPaymentsSumArgs = {
   where: PaymentWhereInput;
+};
+
+
+export type QueryCalculateFeeForReceiptArgs = {
+  data: CalculateFeeForReceiptInput;
 };
 
 
@@ -76757,6 +76825,8 @@ export enum SortAcquiringIntegrationHistoryRecordsBy {
   HostUrlDesc = 'hostUrl_DESC',
   SupportedBillingIntegrationsGroupAsc = 'supportedBillingIntegrationsGroup_ASC',
   SupportedBillingIntegrationsGroupDesc = 'supportedBillingIntegrationsGroup_DESC',
+  MinimumPaymentAmountAsc = 'minimumPaymentAmount_ASC',
+  MinimumPaymentAmountDesc = 'minimumPaymentAmount_DESC',
   ContextDefaultStatusAsc = 'contextDefaultStatus_ASC',
   ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
   VatPercentOptionsAsc = 'vatPercentOptions_ASC',
@@ -76794,6 +76864,8 @@ export enum SortAcquiringIntegrationsBy {
   HostUrlDesc = 'hostUrl_DESC',
   SupportedBillingIntegrationsGroupAsc = 'supportedBillingIntegrationsGroup_ASC',
   SupportedBillingIntegrationsGroupDesc = 'supportedBillingIntegrationsGroup_DESC',
+  MinimumPaymentAmountAsc = 'minimumPaymentAmount_ASC',
+  MinimumPaymentAmountDesc = 'minimumPaymentAmount_DESC',
   ContextDefaultStatusAsc = 'contextDefaultStatus_ASC',
   ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
   VatPercentOptionsAsc = 'vatPercentOptions_ASC',
@@ -81588,6 +81660,8 @@ export enum SortOidcClientHistoryRecordsBy {
   NameDesc = 'name_DESC',
   IsEnabledAsc = 'isEnabled_ASC',
   IsEnabledDesc = 'isEnabled_DESC',
+  CanAuthorizeSuperUsersAsc = 'canAuthorizeSuperUsers_ASC',
+  CanAuthorizeSuperUsersDesc = 'canAuthorizeSuperUsers_DESC',
   ExpiresAtAsc = 'expiresAt_ASC',
   ExpiresAtDesc = 'expiresAt_DESC',
   IdAsc = 'id_ASC',
@@ -81615,6 +81689,8 @@ export enum SortOidcClientsBy {
   NameDesc = 'name_DESC',
   IsEnabledAsc = 'isEnabled_ASC',
   IsEnabledDesc = 'isEnabled_DESC',
+  CanAuthorizeSuperUsersAsc = 'canAuthorizeSuperUsers_ASC',
+  CanAuthorizeSuperUsersDesc = 'canAuthorizeSuperUsers_DESC',
   ExpiresAtAsc = 'expiresAt_ASC',
   ExpiresAtDesc = 'expiresAt_DESC',
   IdAsc = 'id_ASC',
@@ -81813,6 +81889,8 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanReadMarketSettingDesc = 'canReadMarketSetting_DESC',
   CanManageMarketSettingAsc = 'canManageMarketSetting_ASC',
   CanManageMarketSettingDesc = 'canManageMarketSetting_DESC',
+  CanManageTicketAutoAssignmentsAsc = 'canManageTicketAutoAssignments_ASC',
+  CanManageTicketAutoAssignmentsDesc = 'canManageTicketAutoAssignments_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -81968,6 +82046,8 @@ export enum SortOrganizationEmployeeRolesBy {
   CanReadMarketSettingDesc = 'canReadMarketSetting_DESC',
   CanManageMarketSettingAsc = 'canManageMarketSetting_ASC',
   CanManageMarketSettingDesc = 'canManageMarketSetting_DESC',
+  CanManageTicketAutoAssignmentsAsc = 'canManageTicketAutoAssignments_ASC',
+  CanManageTicketAutoAssignmentsDesc = 'canManageTicketAutoAssignments_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -85074,6 +85154,16 @@ export enum Status {
   Success = 'success',
   Error = 'error'
 }
+
+export type SuggestServiceProviderInput = {
+  search: Scalars['String'];
+};
+
+export type SuggestServiceProviderOutput = {
+  __typename?: 'SuggestServiceProviderOutput';
+  tin: Scalars['String'];
+  name: Scalars['String'];
+};
 
 export type SyncRemoteClientInput = {
   dv: Scalars['Int'];

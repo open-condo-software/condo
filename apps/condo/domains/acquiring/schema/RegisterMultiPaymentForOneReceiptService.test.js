@@ -3,11 +3,12 @@
  */
 
 const { faker } = require('@faker-js/faker')
+const Big = require('big.js')
 const dayjs = require('dayjs')
 
 const {
     makeClient,
-    makeLoggedInAdminClient,
+    makeLoggedInAdminClient, expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationError,
@@ -15,6 +16,7 @@ const {
     catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 
+const { GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM } } = require('@condo/domains/acquiring/constants/errors')
 const {
     FEE_CALCULATION_PATH,
     WEB_VIEW_PATH,
@@ -34,6 +36,10 @@ const {
     createTestBillingIntegration,
     updateTestBillingIntegrationOrganizationContext,
 } = require('@condo/domains/billing/utils/testSchema')
+const {
+    TestUtils,
+    ResidentTestMixin,
+} = require('@condo/domains/billing/utils/testSchema/testUtils')
 
 describe('RegisterMultiPaymentForOneReceiptService', () => {
     describe('Execute', () => {
@@ -401,4 +407,62 @@ describe('RegisterMultiPaymentForOneReceiptService', () => {
             expect(serverObtainedAcquiring).toHaveProperty('supportedBillingIntegrationsGroup')
         })
     })
+
+
+    describe('RegisterMultiPaymentForOneReceiptService check minimum amount', () => {
+
+        let utils
+
+        beforeAll(async () => {
+            utils = new TestUtils([ResidentTestMixin])
+            await utils.init()
+        })
+
+        afterEach(async () => {
+            await utils.updateAcquiringIntegration({ minimumPaymentAmount: null })
+        })
+
+        describe('Check minimum payment amount from acquiring integration', () => {
+            test('Payment for acquiring with no set the minimum payment amount', async () => {
+                const [[receipt]] = await utils.createReceipts([
+                    utils.createJSONReceipt({ toPay: '0.01' }),
+                ])
+                const [result] = await registerMultiPaymentForOneReceiptByTestClient(utils.clients.admin, { id: receipt.id }, { id: utils.acquiringContext.id })
+                expect(result).toHaveProperty('multiPaymentId')
+            })
+
+            test('Payment amount is equal to the minimum payment amount required by the acquiring integration', async () => {
+                const [[receipt]] = await utils.createReceipts([
+                    utils.createJSONReceipt({ toPay: '1000' }),
+                ])
+                await utils.updateAcquiringIntegration({ minimumPaymentAmount: Big(receipt.toPay) })
+                const [result] = await registerMultiPaymentForOneReceiptByTestClient(utils.clients.admin, { id: receipt.id }, { id: utils.acquiringContext.id })
+                expect(result).toHaveProperty('multiPaymentId')
+            })
+
+            test('Payment amount is greater than the minimum payment amount required by the acquiring integration', async () => {
+                const [[receipt]] = await utils.createReceipts([
+                    utils.createJSONReceipt({ toPay: '1000' }),
+                ])
+                await utils.updateAcquiringIntegration({ minimumPaymentAmount: Big(receipt.toPay).minus(1) })
+                const [result] = await registerMultiPaymentForOneReceiptByTestClient(utils.clients.admin, { id: receipt.id }, { id: utils.acquiringContext.id })
+                expect(result).toHaveProperty('multiPaymentId')
+            })
+
+            test('Payment amount is less than the minimum payment amount required by the acquiring integration', async () => {
+                const [[receipt]] = await utils.createReceipts([
+                    utils.createJSONReceipt({ toPay: '1000' }),
+                ])
+                const minimumPaymentAmount = Big(receipt.toPay).add(100).toString()
+                await utils.updateAcquiringIntegration({ minimumPaymentAmount })
+                await expectToThrowGQLError(async () => {
+                    await registerMultiPaymentForOneReceiptByTestClient(utils.clients.admin, { id: receipt.id }, { id: utils.acquiringContext.id })
+                }, {
+                    ...PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
+                    messageInterpolation: { minimumPaymentAmount },
+                }, 'result')
+            })
+        })
+    })
 })
+

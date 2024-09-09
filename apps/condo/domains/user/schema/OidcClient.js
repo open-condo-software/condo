@@ -39,13 +39,11 @@ const jsonPayloadValidator = ajv.compile(payloadJsonSchema)
 const OidcClient = new GQLListSchema('OidcClient', {
     schemaDoc: 'The OIDC clients list',
     fields: {
-
         clientId: {
             schemaDoc: 'The clientId',
             type: 'Text',
             isRequired: true,
         },
-
         payload: {
             schemaDoc: 'The payload of the client (clientId, clientSecret, callbackUrl, ...)',
             type: 'Json',
@@ -59,12 +57,10 @@ const OidcClient = new GQLListSchema('OidcClient', {
                 },
             },
         },
-
         name: {
             schemaDoc: 'The human readable name for client',
             type: 'Text',
         },
-
         isEnabled: {
             schemaDoc:
                 'A switch that allows you to disable some OIDC clients. ' +
@@ -75,17 +71,25 @@ const OidcClient = new GQLListSchema('OidcClient', {
             isRequired: true,
             defaultValue: false,
         },
-
+        canAuthorizeSuperUsers: {
+            schemaDoc:
+                'A switch that allows this OIDC client to authorize users with privileges, ' +
+                'such as admins, support, or users with a special rights set. ' +
+                'Temporary solution to allow OIDCs to be used ' +
+                'to access the admin panel of mini-applications from condo ecosystem. ' +
+                'Tokens with scopes should solve the logic separation problem and remove this checkbox',
+            type: 'Checkbox',
+            isRequired: true,
+            defaultValue: false,
+        },
         meta: {
             schemaDoc: 'The additional client data',
             type: 'Json',
         },
-
         expiresAt: {
             schemaDoc: 'The timestamp of the client expiration',
             type: 'DateTimeUtc',
         },
-
     },
     kmigratorOptions: {
         constraints: [

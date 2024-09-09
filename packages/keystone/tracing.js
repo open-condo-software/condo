@@ -72,12 +72,21 @@ function _getTracedFunction ({ name, spanHook, tracer, ctx, f }) {
 
 function _addExecutionContextAttributes (span) {
     const executionContext = getExecutionContext()
+
+    if (executionContext.startReqId) {
+        span.setAttribute('startReqId', executionContext.startReqId)
+    }
+
     if (executionContext.reqId) {
         span.setAttribute('reqId', executionContext.reqId)
-    } else if (executionContext.execId) {
+    }
+
+    if (executionContext.execId) {
         span.setAttribute('execId', executionContext.execId)
         span.setAttribute('execProcessArgv', executionContext.execProcessArgv)
-    } else if (executionContext.taskId) {
+    }
+
+    if (executionContext.taskId) {
         span.setAttribute('taskId', executionContext.taskId)
         span.setAttribute('taskName', executionContext.taskName)
     }

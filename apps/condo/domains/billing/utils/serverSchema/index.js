@@ -20,6 +20,7 @@ const { BillingAccount: BillingAccountGQL } = require('@condo/domains/billing/gq
 const { BillingReceipt: BillingReceiptGQL } = require('@condo/domains/billing/gql')
 const { BillingReceiptAdmin: BillingReceiptAdminGQL } = require('@condo/domains/billing/gql')
 const { ResidentBillingReceipt: ResidentBillingReceiptGQL } = require('@condo/domains/billing/gql')
+const { ResidentBillingReceiptAdmin: ResidentBillingReceiptAdminGQL } = require('@condo/domains/billing/gql')
 const { ResidentBillingVirtualReceipt: ResidentBillingVirtualReceiptGQL } = require('@condo/domains/billing/gql')
 const { BillingRecipient: BillingRecipientGQL } = require('@condo/domains/billing/gql')
 const { BillingCategory: BillingCategoryGQL } = require('@condo/domains/billing/gql')
@@ -41,6 +42,7 @@ const BillingAccount = generateServerUtils(BillingAccountGQL)
 const BillingReceipt = generateServerUtils(BillingReceiptGQL)
 const BillingReceiptAdmin = generateServerUtils(BillingReceiptAdminGQL)
 const ResidentBillingReceipt = generateServerUtils(ResidentBillingReceiptGQL)
+const ResidentBillingReceiptAdmin = generateServerUtils(ResidentBillingReceiptAdminGQL)
 const ResidentBillingVirtualReceipt = generateServerUtils(ResidentBillingVirtualReceiptGQL)
 const BillingRecipient = generateServerUtils(BillingRecipientGQL)
 const BillingCategory = generateServerUtils(BillingCategoryGQL)
@@ -78,6 +80,10 @@ const getPaymentsSum = async (context, organizationId, accountNumber, period, bi
         recipientBic: bic,
         recipientBankAccount: bankAccount,
     })
+    return getPaymentsSumByPayments(payments)
+}
+
+const getPaymentsSumByPayments = (payments) => {
     return payments.reduce((total, current) => (Big(total).plus(current.amount)), 0).toFixed(8).toString()
 }
 
@@ -163,11 +169,13 @@ module.exports = {
     BillingReceipt,
     BillingReceiptAdmin,
     ResidentBillingReceipt,
+    ResidentBillingReceiptAdmin,
     ResidentBillingVirtualReceipt,
     BillingRecipient,
     BillingCategory,
     registerBillingReceipts,
     getPaymentsSum,
+    getPaymentsSumByPayments,
     sendNewReceiptMessagesToResidentScopes,
     BillingReceiptFile,
     validateQRCode,

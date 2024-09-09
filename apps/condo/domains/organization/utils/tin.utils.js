@@ -43,6 +43,7 @@ const isValidTin = (tinValue = null, country = RUSSIA_COUNTRY) => {
 
 const getIsValidTin = (country = RUSSIA_COUNTRY) => (tinValue = null) => isValidTin(tinValue, country)
 
+
 module.exports = {
     validateTinRU,
     isValidTin,

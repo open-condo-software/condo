@@ -387,7 +387,7 @@ describe('RegisterResidentService', () => {
         })
     })
 
-    it('restore deleted Resident for the same address and unitName (property not exists)', async () => {
+    it('restore deleted Resident for the same address and unitName creates new record (property not exists)', async () => {
         const userClient = await makeClientWithResidentAccessAndProperty()
         const [resident, attrs] = await registerResidentByTestClient(userClient)
         const [softDeletedResident] = await Resident.softDelete(userClient, resident.id)
@@ -396,13 +396,13 @@ describe('RegisterResidentService', () => {
             address: attrs.address,
             unitName: attrs.unitName,
         })
-        expect(restoredResident.id).toEqual(softDeletedResident.id)
+        expect(restoredResident.id).not.toEqual(softDeletedResident.id)
         expect(restoredResident.deletedAt).toBeNull()
         expect(restoredResident.organization).toBeNull()
         expect(restoredResident.property).toBeNull()
     })
 
-    it('restore deleted Resident for the same address and unitName (property exists)', async () => {
+    it('restore deleted Resident for the same address and unitName creates new record (property exists)', async () => {
         const adminClient = await makeLoggedInAdminClient()
         const userClient = await makeClientWithResidentAccessAndProperty()
 
@@ -425,10 +425,30 @@ describe('RegisterResidentService', () => {
             addressMeta: attrs.addressMeta,
             unitName: attrs.unitName,
         })
-        expect(restoredResident.id).toEqual(resident.id)
+        expect(restoredResident.id).not.toEqual(resident.id)
         expect(restoredResident.deletedAt).toBeNull()
         expect(restoredResident.organization.id).toEqual(organization.id)
         expect(restoredResident.property.id).toEqual(property.id)
+    })
+
+
+    it('restore deleted Resident for the same address and unitName creates record with new unitName', async () => {
+        const userClient = await makeClientWithResidentAccessAndProperty()
+        const testUnitName = faker.random.numeric(3) + faker.random.alpha(5).toUpperCase()
+
+        const [resident, attrs] = await registerResidentByTestClient(userClient, {
+            unitName: testUnitName,
+        })
+        const [softDeletedResident] = await Resident.softDelete(userClient, resident.id)
+
+        const [restoredResident, restoredAttrs] = await registerResidentByTestClient(userClient, {
+            address: attrs.address,
+            unitName: attrs.unitName.toLowerCase(),
+        })
+
+        expect(restoredResident.id).not.toEqual(softDeletedResident.id)
+        expect(softDeletedResident.deletedAt).not.toBeNull()
+        expect(restoredAttrs.unitName).toEqual(attrs.unitName.toLowerCase())
     })
 
     it('should set unitType field if it was passed', async () => {
