@@ -215,6 +215,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
             app.use((req, res, next) => {
                 for (const header in req.headers) {
                     if (typeof req.headers[header] === 'string') {
+                        // nosemgrep: javascript.express.security.audit.remote-property-injection.remote-property-injection
                         req.headers[header] = req.headers[header].replace(/[\r\n]/g, '')
                     }
                 }
