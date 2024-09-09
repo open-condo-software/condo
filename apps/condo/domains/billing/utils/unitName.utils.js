@@ -11,7 +11,7 @@ const DELIMITER_IN_RESULT = '-'
 const addSpaceBetweenWordsAndNumbers = (str) => str
     .replace(NUMBER_REGEXP, ' $1 ')
 
-const replaceTrashSymbolsWithDelimiter = (unitName) => unitName
+const replaceUnwantedSymbolsWithDelimiter = (unitName) => unitName
     .replace(SYMBOLS_TO_REPLACE_WITH_SPACE_REGEXP, DELIMITER_IN_RESULT)
     .replace(EMOJI_REGEXP, DELIMITER_IN_RESULT)
     .replace(SYMBOLS_TO_REMOVE_REGEXP, DELIMITER_IN_RESULT)
@@ -22,7 +22,7 @@ const replaceTrashSymbolsWithDelimiter = (unitName) => unitName
  * @param locale
  * @returns {string}
  */
-const slug = (unitName, locale = conf.DEFAULT_LOCALE) => slugify(unitName, {
+const joinToOneLowercaseWordWithDelimiter = (unitName, locale = conf.DEFAULT_LOCALE) => slugify(unitName, {
     replacement: DELIMITER_IN_RESULT,
     locale,
     strict: true,
@@ -31,8 +31,8 @@ const slug = (unitName, locale = conf.DEFAULT_LOCALE) => slugify(unitName, {
 
 const UNIT_NAME_NORMALIZATION_STEPS = [
     addSpaceBetweenWordsAndNumbers,
-    replaceTrashSymbolsWithDelimiter,
-    slug,
+    replaceUnwantedSymbolsWithDelimiter,
+    joinToOneLowercaseWordWithDelimiter,
 ]
 
 const normalizeUnitName = (unitName, locale = conf.DEFAULT_LOCALE) => {
