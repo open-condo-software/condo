@@ -6,9 +6,16 @@ const { readFileSync } = require('fs')
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
-const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult, catchErrorFrom } = require('@open-condo/keystone/test.utils')
+const {
+    expectToThrowAccessDeniedErrorToResult,
+    expectToThrowAuthenticationErrorToResult,
+    catchErrorFrom,
+} = require('@open-condo/keystone/test.utils')
 
-const { REGISTER_BILLING_RECEIPT_FILE_SKIPPED_STATUS, REGISTER_BILLING_RECEIPT_FILE_CREATED_STATUS, REGISTER_BILLING_RECEIPT_FILE_UPDATED_STATUS } = require('@condo/domains/billing/constants')
+const {
+    REGISTER_BILLING_RECEIPT_FILE_CREATED_STATUS,
+    REGISTER_BILLING_RECEIPT_FILE_UPDATED_STATUS,
+} = require('@condo/domains/billing/constants')
 const { registerBillingReceiptFileByTestClient, PUBLIC_FILE } = require('@condo/domains/billing/utils/testSchema')
 const { BillingReceiptFile } = require('@condo/domains/billing/utils/testSchema')
 const {

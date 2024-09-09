@@ -139,8 +139,8 @@ const BillingReceiptFile = new GQLListSchema('BillingReceiptFile', {
             type: 'Text',
             isRequired: true,
             hooks: {
-                resolveInput: async ({ resolvedData, operation }) => {
-                    const { controlSum, sensitiveDataFile, publicDataFile } = resolvedData
+                resolveInput: async ({ resolvedData }) => {
+                    const { controlSum, sensitiveDataFile } = resolvedData
 
                     // use provided value, since it can use a specific controlSum calc algorithm
                     if (!isNil(controlSum)) {

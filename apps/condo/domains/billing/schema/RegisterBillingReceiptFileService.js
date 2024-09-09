@@ -5,7 +5,9 @@ const { Readable } = require('stream')
 
 const { get } = require('lodash')
 
+const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT  } } = require('@open-condo/keystone/errors')
+const { DEFAULT_FILE_ADAPTER } = require('@open-condo/keystone/fileAdapter/constants')
 const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/RegisterBillingReceiptFileService')
@@ -16,8 +18,10 @@ const {
 } = require('@condo/domains/billing/constants')
 const { BillingReceiptFileIdOnly } = require('@condo/domains/billing/utils/serverSchema')
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
+const { md5 } = require('@condo/domains/common/utils/crypto')
 const { buildUploadInputFrom } = require('@condo/domains/common/utils/serverSchema/export')
 
+const isLocalFileAdapterConfigured = (conf.FILE_FIELD_ADAPTER || DEFAULT_FILE_ADAPTER) === 'local'
 
 const ERRORS = {
     MULTIPLE_BILLING_RECEIPTS_FOUND: {
@@ -75,6 +79,9 @@ const RegisterBillingReceiptFileService = new GQLCustomSchema('RegisterBillingRe
                 const account = await getById('BillingAccount', receipt.account)
                 const [receiptFile] = await find('BillingReceiptFile', { receipt: { id: receipt.id }, deletedAt: null })
 
+                // since control sum for local file adapter not going to be resolved exactly as for s3 one
+                // let's calculate it in order to keep compatibility for tests purposes
+                const controlSumInput = isLocalFileAdapterConfigured ? { controlSum: md5(base64EncodedPDF) } : {}
                 const sensitiveDataFile = buildUploadInputFrom({
                     stream: Readable.from(Buffer.from(base64EncodedPDF, 'base64')),
                     filename: [
@@ -91,6 +98,7 @@ const RegisterBillingReceiptFileService = new GQLCustomSchema('RegisterBillingRe
                     const { id } = await BillingReceiptFileIdOnly.create(context, {
                         dv, sender,
                         sensitiveDataFile,
+                        ...controlSumInput,
                         receipt: { connect: { id: receipt.id } },
                         context: { connect: billingContextWhereUniqueInput },
                     })
@@ -100,6 +108,7 @@ const RegisterBillingReceiptFileService = new GQLCustomSchema('RegisterBillingRe
                     await BillingReceiptFileIdOnly.update(context, receiptFile.id, {
                         dv, sender,
                         sensitiveDataFile,
+                        ...controlSumInput,
                         publicDataFile: null,
                     })
 
