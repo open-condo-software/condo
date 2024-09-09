@@ -27,6 +27,7 @@ const {
     ResidentBillingReceiptAdmin,
     getPaymentsSumByPayments,
 } = require('@condo/domains/billing/utils/serverSchema')
+const { normalizeUnitName } = require('@condo/domains/billing/utils/unitName.utils')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 
 
@@ -50,7 +51,7 @@ const getFile = (receipt, contacts) => {
 
     // let's search for a contact
     // if any exists = user allowed to see sensitive data
-    const propertyContacts = contacts.filter(contact => contact.unitName === accountUnitName
+    const propertyContacts = contacts.filter(contact => normalizeUnitName(contact.unitName) === normalizeUnitName(accountUnitName)
         && contact.unitType === accountUnitType
         && contact.property.address === propertyAddress)
     const file = propertyContacts.length > 0
