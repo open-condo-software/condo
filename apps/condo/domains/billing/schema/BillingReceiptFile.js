@@ -11,15 +11,15 @@ const { GQLListSchema, getById, find, getByCondition } = require('@open-condo/ke
 
 const access = require('@condo/domains/billing/access/BillingReceiptFile')
 const { BILLING_RECEIPT_FILE_FOLDER_NAME } = require('@condo/domains/billing/constants/constants')
+const { CONTEXT_IS_NOT_EQUAL } = require('@condo/domains/billing/constants/errors')
 const { BillingReceiptIdOnly } = require('@condo/domains/billing/utils/serverSchema')
-const { UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 const ERRORS = {
     CONTEXT_IS_NOT_EQUAL: {
-        query: 'createProperty',
+        mutation: 'createBillingReceiptFile',
         code: BAD_USER_INPUT,
-        type: `${UNEQUAL_CONTEXT_ERROR}:receipt:context]`,
+        type: CONTEXT_IS_NOT_EQUAL,
         message: 'Context is not equal to receipt.context',
     },
 }
@@ -203,7 +203,7 @@ const BillingReceiptFile = new GQLListSchema('BillingReceiptFile', {
                 })
             }
         },
-        validateInput: async ({ resolvedData, addValidationError, existingItem, operation, context }) => {
+        validateInput: async ({ resolvedData, existingItem, operation, context }) => {
             const newItem = { ...existingItem, ...resolvedData }
             const { context: contextId, receipt: receiptId } = newItem
 
