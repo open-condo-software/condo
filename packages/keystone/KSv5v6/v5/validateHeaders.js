@@ -2,6 +2,12 @@ const SYMBOLS_TO_CLEAR_FROM_REQUEST_ID_REGEXP = /[^a-zA-Z0-9_/=+-]/g
 const HEADERS_INJECTION_ERROR = 'Header contains prohibited characters'
 const REQUEST_ID_VALIDATION_ERROR = 'RequestId from headers contains prohibited characters'
 
+const HEADER_VALIDATORS = {
+    'x-request-id': validateRequestId,
+    'x-start-request-id': validateRequestId,
+    '*': checkHeaderForInjection,
+}
+
 function containsNewline (value) {
     return /[\r\n]/.test(value)
 }
@@ -18,7 +24,7 @@ function checkHeaderForInjection (value) {
         return
     }
     if (typeof value === 'object' && value !== null && !(value instanceof Date)) {
-        Object.entries(value).forEach(([key, val]) =>
+        Object.entries(value).forEach(([, val]) =>
             checkHeaderForInjection(val)
         )
         return
@@ -34,9 +40,15 @@ function validateRequestId (requestId) {
     }
 }
 
+function validateHeaders (headers) {
+    for (const header in headers) {
+        const validator = HEADER_VALIDATORS.hasOwnProperty(header) ? HEADER_VALIDATORS[header] : HEADER_VALIDATORS['*']
+        validator(headers[header])
+    }
+}
+
 module.exports = {
-    checkHeaderForInjection,
-    validateRequestId,
+    validateHeaders,
     HEADERS_INJECTION_ERROR,
     REQUEST_ID_VALIDATION_ERROR,
 }

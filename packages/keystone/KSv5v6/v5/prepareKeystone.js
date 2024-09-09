@@ -29,7 +29,7 @@ const { prepareDefaultKeystoneConfig } = require('@open-condo/keystone/setup.uti
 const { registerTasks, registerTaskQueues, taskQueues } = require('@open-condo/keystone/tasks')
 const { KeystoneTracingApp } = require('@open-condo/keystone/tracing')
 
-const {  validateRequestId, checkHeaderForInjection } = require('./headerValidation')
+const { validateHeaders } = require('./validateHeaders')
 
 const IS_BUILD_PHASE = conf.PHASE === 'build'
 const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
@@ -204,20 +204,14 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
             // NOTE(pahaz): we are always behind reverse proxy
             app.set('trust proxy', true)
 
-            app.use(function clearHeadersToPreventInjectionAttacks (req, res, next) {
+            app.use(function validateHeadersToPreventInjectionAttacks (req, res, next) {
                 try {
-                    for (const header in req.headers) {
-                        if (header === requestIdHeaderName || header === startRequestIdHeaderName) {
-                            validateRequestId(req.headers[header])
-                        } else {
-                            checkHeaderForInjection(req.headers[header], header)
-                        }
-                    }
-                    next()
+                    validateHeaders(req.headers)
                 } catch (err) {
-                    logger.error({ msg: 'Validation for request headers failed', err })
+                    logger.error({ msg: 'InvalidHeader', err })
                     res.status(423).send({ error: err.message })
                 }
+                next()
             })
 
             // NOTE(toplenboren): we need a custom body parser for custom file upload limit
