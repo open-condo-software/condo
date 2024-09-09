@@ -215,7 +215,7 @@ class FirebaseAdapter {
         // NOTE: we try to fire FireBase request only if FireBase was initialized and we have some real notifications
         if (!isNull(this.app) && !isEmpty(notifications)) {
             try {
-                const fbResult = await this.app.messaging().sendAll(notifications)
+                const fbResult = await this.app.messaging().sendEach(notifications)
 
                 if (!isEmpty(fbResult.responses)) {
                     fbResult.responses = fbResult.responses.map(
