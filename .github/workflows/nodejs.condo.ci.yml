@@ -3,14 +3,14 @@ name: Condo CI
 on:
   push:
     branches:
-      - master
+      - main
   pull_request_target:
     types:
       - opened
       - reopened
       - synchronize
     branches:
-      - master
+      - main
   workflow_dispatch:
 
 concurrency:
@@ -135,12 +135,15 @@ jobs:
           filters: |
             address-service:
               - 'apps/address-service/**'
+              - 'packages/**'
             condorb:
               - 'apps/condorb'
+              - 'packages/**'
             dev-api:
               - 'apps/dev-api/**'
               - 'apps/condo/domains/miniapp/**'
               - 'apps/condo/domains/user/**'
+              - 'packages/**'
             webhooks:
               - 'packages/webhooks/**'
 

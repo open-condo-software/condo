@@ -1,11 +1,9 @@
 const get = require('lodash/get')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { getFileMetaAfterChange, makeFileAdapterMiddleware } = require('@open-condo/keystone/fileAdapter/fileAdapter')
+const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 
-
-// TODO: Move everything to @open-condo/keystone or somewhere outside of condo to avoid possible side-effects
-const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
-const { getFileMetaAfterChange, makeFileAdapterMiddleware } = require('@condo/domains/common/utils/fileAdapter')
 const { INVALID_MIMETYPE } = require('@dev-api/domains/common/constants/errors')
 
 const ERRORS = {

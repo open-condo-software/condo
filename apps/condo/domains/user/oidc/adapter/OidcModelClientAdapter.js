@@ -2,6 +2,8 @@
  * The OidcModelClientAdapter based on official example
  * @link https://github.com/panva/node-oidc-provider/blob/f5c9a3f9d4bd83df24959e7bfc5d354a5015164a/example/my_adapter.js
  */
+const { getByCondition } = require('@open-condo/keystone/schema')
+
 const { OidcClient } = require('@condo/domains/user/utils/serverSchema')
 
 const OIDC_FINGERPRINT = 'create-oidc-client'
@@ -158,6 +160,7 @@ class OidcModelClientAdapter {
          * - iat {number} - timestamp of the replay object cache's creation
          */
         const expiresAt = expiresIn ? new Date(Date.now() + expiresIn * 1000) : undefined
+        const { isEnabled, ...clientPayload } = payload
         const dvAndSender = {
             dv: 1,
             sender: {
@@ -167,9 +170,9 @@ class OidcModelClientAdapter {
         }
         const item = await OidcClient.getOne(this.context, { clientId: id, deletedAt: null })
         if (!item) {
-            return await OidcClient.create(this.context, { ...dvAndSender, clientId: id, payload, expiresAt })
+            return await OidcClient.create(this.context, { ...dvAndSender, clientId: id, payload: clientPayload, isEnabled, expiresAt })
         } else {
-            return await OidcClient.update(this.context, item.id, { ...dvAndSender, clientId: id, payload, expiresAt })
+            return await OidcClient.update(this.context, item.id, { ...dvAndSender, clientId: id, payload: clientPayload, isEnabled, expiresAt })
         }
     }
 
@@ -184,7 +187,7 @@ class OidcModelClientAdapter {
      *
      */
     async find (id) {
-        const item = await OidcClient.getOne(this.context, { clientId: id, isEnabled: true, deletedAt: null })
+        const item = await getByCondition('OidcClient', { clientId: id, isEnabled: true, deletedAt: null })
         if (!item) {
             throw new Error(`There is no active OIDC client with clientId=${id}`)
         }

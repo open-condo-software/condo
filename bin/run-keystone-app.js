@@ -1,3 +1,8 @@
+// eslint-disable-next-line
+const conf = require('@open-condo/config')  // Note: we need to prepare process.env first
+// eslint-disable-next-line
+const tracer = require('dd-trace')  // Note: required for monkey patching
+
 /**
  * This file is based on @keystonejs/keystone/bin/commands/dev.js
  * The main reason is to add PORT environment support for `yarn dev` command!
@@ -10,9 +15,9 @@ const path = require('path')
 
 const chalk = require('chalk')
 
-const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
+const { getAppName, getXRemoteApp, getXRemoteClient, getXRemoteVersion } = require('@open-condo/keystone/tracingUtils')
 
 const PORT = conf['PORT'] || '3000'
 const SPORT = conf['SPORT']
@@ -23,7 +28,57 @@ const HTTPS_OPTIONS = {}
 const IS_DEVELOPMENT = conf.NODE_ENV === 'development'
 const IS_PRODUCTION = conf.NODE_ENV === 'production'
 
-const logger = getLogger('keystone-dev')
+// NOTE: Headers must be greater than keep alive, for express 5000 / 60000 ms is default
+// SRC: https://shuheikagawa.com/blog/2019/04/25/keep-alive-timeout/
+const KEEP_ALIVE_TIMEOUT = parseInt(conf['KEEP_ALIVE_TIMEOUT'] || '5000')
+const HEADERS_TIMEOUT = parseInt(conf['HEADERS_TIMEOUT'] || '60000')
+
+const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production' && conf.DD_TRACE_ENABLED === 'true'
+
+if (IS_ENABLE_DD_TRACE) {
+    // Note: it's slightly modified default templates! Ported from source code.
+
+    // eslint-disable-next-line
+    const blockedTemplateHtml = path.join(__filename, '..', '.ddtrace', 'blockedTemplate.html')
+    // eslint-disable-next-line
+    const blockedTemplateJson = path.join(__filename, '..', '.ddtrace', 'blockedTemplate.json')
+    // eslint-disable-next-line
+    const blockedTemplateGraphql = path.join(__filename, '..', '.ddtrace', 'blockedTemplateGraphql.json')
+
+    const isDDLog = conf.DD_TRACE_LOGGING === 'true'
+    const appName = getAppName()
+    const xRemoteApp = getXRemoteApp()
+    const xRemoteClient = getXRemoteClient()
+    const xRemoteVersion = getXRemoteVersion()
+    // NOTE: https://datadoghq.dev/dd-trace-js/
+    tracer.init({
+        // Note: we need to save old service name as `root` to save history
+        service: (appName === 'condo-app') ? 'root' : appName,
+        tags: { xRemoteApp, xRemoteClient, xRemoteVersion },
+        experimental: (isDDLog) ? { exporter: 'log' } : undefined,
+        appsec: { blockedTemplateHtml, blockedTemplateJson, blockedTemplateGraphql },
+    })
+    tracer.use('express', {
+        // hook will be executed right before the request span is finished
+        headers: [
+            'X-Remote-Client', 'X-Remote-App', 'X-Remote-Version',
+            'X-Request-ID', 'X-Start-Request-ID',
+            'X-Parent-Request-ID', 'X-Parent-Task-ID', 'X-Parent-Exec-ID',
+        ],
+        hooks: {
+            request: (span, req, res) => {
+                if (req?.id) span.setTag('reqId', req.id)
+                if (req?.startId) span.setTag('startId', req.startId)
+                if (req?.user?.id) {
+                    span.setTag('userId', req.user.id)
+                    tracer.setUser({ id: req.user.id, isSupport: req.user.isSupport })
+                }
+            },
+        },
+    })
+}
+
+const logger = getLogger('run-keystone')
 
 try {
     if (fs.existsSync(KEY_FILE) && fs.existsSync(CERT_FILE) && SPORT) {
@@ -44,6 +99,9 @@ async function main () {
             if (error) return reject(error)
             return resolve(server)
         })
+
+        server.keepAliveTimeout = KEEP_ALIVE_TIMEOUT
+        server.headersTimeout = HEADERS_TIMEOUT
     })
 
     if (HTTPS_OPTIONS.key && HTTPS_OPTIONS.cert && SPORT) {
@@ -52,6 +110,9 @@ async function main () {
                 if (error) return reject(error)
                 return resolve(server)
             })
+
+            server.keepAliveTimeout = KEEP_ALIVE_TIMEOUT
+            server.headersTimeout = HEADERS_TIMEOUT
         })
     }
 

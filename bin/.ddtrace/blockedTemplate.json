@@ -1,0 +1,10 @@
+{
+  "errors": [
+    {
+      "name": "SecurityError",
+      "message": "You've been blocked",
+      "title": "You've been blocked",
+      "detail": "Sorry, you cannot access this page. Please contact the customer service team. ERROR: BLOCK_BY_WAF"
+    }
+  ]
+}

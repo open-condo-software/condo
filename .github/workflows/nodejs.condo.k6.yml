@@ -17,7 +17,7 @@ on:
       - completed
 
 env:
-  SERVER_URL: ${{ inputs.server_url || 'https://review-master-condo.r.doma.ai' }}
+  SERVER_URL: ${{ inputs.server_url || 'https://review-main-condo.r.doma.ai' }}
 
 jobs:
   test:

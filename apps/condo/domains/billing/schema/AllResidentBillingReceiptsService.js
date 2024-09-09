@@ -3,26 +3,33 @@
  */
 
 const Big = require('big.js')
-const dayjs = require('dayjs')
-const { pick, get, isNil } = require('lodash')
+const { pick, get, isNil, min } = require('lodash')
 
 const { generateQuerySortBy } = require('@open-condo/codegen/generate.gql')
 const { generateQueryWhereInput } = require('@open-condo/codegen/generate.gql')
-const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema')
+const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
+const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
 const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants/payment')
-const { getAcquiringIntegrationContextFormula, FeeDistribution } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
+const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
+const {
+    getAcquiringIntegrationContextFormulaByInstance,
+    FeeDistribution,
+} = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const access = require('@condo/domains/billing/access/AllResidentBillingReceipts')
 const { BILLING_RECEIPT_FILE_FOLDER_NAME } = require('@condo/domains/billing/constants/constants')
-const { BillingReceiptAdmin, getPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
-const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
-const { Contact } = require('@condo/domains/contact/utils/serverSchema')
-
 const {
     BILLING_RECEIPT_RECIPIENT_FIELD_NAME,
     BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME,
     BILLING_RECEIPT_SERVICES_FIELD,
-} = require('../constants/constants')
+} = require('@condo/domains/billing/constants/constants')
+const {
+    ResidentBillingReceiptAdmin,
+    getPaymentsSumByPayments,
+} = require('@condo/domains/billing/utils/serverSchema')
+const { normalizeUnitName } = require('@condo/domains/billing/utils/unitName.utils')
+const { Contact } = require('@condo/domains/contact/utils/serverSchema')
+
 
 const Adapter = new FileAdapter(BILLING_RECEIPT_FILE_FOLDER_NAME)
 
@@ -40,11 +47,11 @@ const getFile = (receipt, contacts) => {
     }
     const accountUnitName = get(receipt, ['account', 'unitName'])
     const accountUnitType = get(receipt, ['account', 'unitType'])
-    const propertyAddress = get(receipt, ['property', 'address'])
+    const propertyAddress = get(receipt, ['account', 'property', 'address'])
 
     // let's search for a contact
     // if any exists = user allowed to see sensitive data
-    const propertyContacts = contacts.filter(contact => contact.unitName === accountUnitName
+    const propertyContacts = contacts.filter(contact => normalizeUnitName(contact.unitName) === normalizeUnitName(accountUnitName)
         && contact.unitType === accountUnitType
         && contact.property.address === propertyAddress)
     const file = propertyContacts.length > 0
@@ -138,7 +145,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                     'OR': receiptsQuery,
                 }
 
-                const receiptsForConsumer = await BillingReceiptAdmin.getAll(
+                const receiptsForConsumer = await ResidentBillingReceiptAdmin.getAll(
                     context,
                     joinedReceiptsQuery,
                     {
@@ -155,8 +162,33 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                     deletedAt: null,
                 })
 
+                // cache billing receipt for calculation of is payable field
+                const minPeriod = min(receiptsForConsumer.map(item => item.period))
+                const nextPeriodBillingReceiptsCache = await find('BillingReceipt', {
+                    account: { id_in: [...new Set(receiptsForConsumer.map(item => item.account.id))], deletedAt: null },
+                    OR: [
+                        { receiver: { AND: [{ id_in: [...new Set(receiptsForConsumer.map(item => item.account.id))] }, { deletedAt: null } ] } },
+                        { category: { AND: [{ id_in: [...new Set(receiptsForConsumer.map(item => item.category.id))] }, { deletedAt: null } ] } },
+                    ],
+                    period_gt: minPeriod,
+                    deletedAt: null,
+                })
+
+                // cache acquiring integration contexts
+                const aicIds = serviceConsumersWithBillingAccount.map(consumer => consumer.acquiringIntegrationContext)
+                    .filter(aic => !isNil(aic))
+                const acquiringContexts = await AcquiringIntegrationContext.getAll(context, {
+                    id_in: aicIds,
+                })
+
                 receiptsForConsumer.forEach(receipt => {
                     const file = getFile(receipt, contacts)
+                    const isPayable = nextPeriodBillingReceiptsCache.filter(item => {
+                        return receipt.account.id === item.account && (
+                            receipt.category.id === item.category ||
+                            receipt.receiver.id === item.receiver
+                        ) && receipt.period < item.period
+                    }).length === 0
                     processedReceipts.push({
                         id: receipt.id,
                         dv: receipt.dv,
@@ -174,8 +206,16 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                             get(receipt, ['context', 'organization', 'id']) === organization ),
                         currencyCode: get(receipt, ['context', 'integration', 'currencyCode'], null),
                         file,
-                        isPayable: receipt.isPayable,
+                        isPayable,
                     })
+                })
+
+                // cache already paid payments
+                const paymentsCache = await  find('Payment', {
+                    organization: { id_in: [... new Set(processedReceipts.map(item => get(item, ['serviceConsumer', 'organization'])))] },
+                    accountNumber_in: [... new Set(processedReceipts.map(item => get(item, ['serviceConsumer', 'accountNumber'])))],
+                    period: minPeriod,
+                    status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS],
                 })
 
                 //
@@ -186,19 +226,20 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                     const organizationId = get(receipt.serviceConsumer, ['organization'])
                     const accountNumber = get(receipt.serviceConsumer, ['accountNumber'])
                     const billingCategory = get(receipt, ['category']) || {}
-                    const paid = await getPaymentsSum(
-                        context,
-                        organizationId,
-                        accountNumber,
-                        get(receipt, 'period', null),
-                        get(receipt, ['recipient', 'bic'], null),
-                        get(receipt, ['recipient', 'bankAccount'], null)
-                    )
+                    const alreadyPaidPayments = paymentsCache.filter(payment => {
+                        return payment.organization === organizationId
+                            && payment.accountNumber === accountNumber
+                            && payment.period === get(receipt, 'period', null)
+                            && payment.recipientBic === get(receipt, ['recipient', 'bic'], null)
+                            && payment.recipientBankAccount === get(receipt, ['recipient', 'bankAccount'], null)
+                    })
+                    const paid = await getPaymentsSumByPayments(alreadyPaidPayments)
                     const acquiringContextId = get(receipt, ['serviceConsumer', 'acquiringIntegrationContext'], null)
                     const toPay = get(receipt, ['toPay'], 0)
                     let fee = '0'
                     if (acquiringContextId) {
-                        const formula = await getAcquiringIntegrationContextFormula(context, acquiringContextId)
+                        const acquiringContext = acquiringContexts.find(item => item.id === acquiringContextId) || {}
+                        const formula = getAcquiringIntegrationContextFormulaByInstance(acquiringContext)
                         const feeCalculator = new FeeDistribution(formula, billingCategory.id)
                         const { explicitFee } = feeCalculator.calculate(Big(toPay).minus(Big(paid)).toFixed(2))
                         fee = String(explicitFee)

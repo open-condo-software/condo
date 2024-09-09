@@ -32,7 +32,7 @@ from datetime import datetime
 from pathlib import Path
 from time import time
 
-VERSION = (1, 5, 8)
+VERSION = (1, 5, 9)
 CACHE_DIR = Path('.kmigrator')
 KNEX_MIGRATIONS_DIR = Path('migrations')
 GET_KNEX_SETTINGS_SCRIPT = CACHE_DIR / 'get.knex.settings.js'
@@ -653,7 +653,7 @@ def _hotfix_django_migration_bug(item):
     def _repl(x):
         return x.group(0).replace('\n', '\n#')
     for m in deleting_models:
-        (code, _) = re.subn(r'\s*migrations\.RemoveField\([^)]*?model_name=[\'"](' + m + ')[\'"][^)]*?\),', _repl, code, flags=flags)
+        (code, _) = re.subn(r'\s*migrations\.RemoveField\([^)]*?model_name=[\'"](' + m + r')[\'"][^)]*?\),', _repl, code, flags=flags)
     # change DeleteModel order (reversed!)
     # TODO(pahaz): probably it's not solve the delete order?
     # if you see the error like: The field XXX was declared with a lazy reference to 'YYY', but app '_django_schema' doesn't provide model 'ZZZ'.

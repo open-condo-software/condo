@@ -105,6 +105,10 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
             onChange(data)
         }
 
+        if (selectedDataLength !== allDataLength && isFunction(onCheckBoxChange)) {
+            onCheckBoxChange(false)
+        }
+
         if (selectedDataLength === allDataLength && isFunction(onCheckBoxChange)) {
             onCheckBoxChange(true)
         }

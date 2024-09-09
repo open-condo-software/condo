@@ -59,7 +59,7 @@ RUN echo "# Build time .env config!" >> /app/.env && \
 	echo "NEXT_TELEMETRY_DISABLED=1" >> /app/.env && \
 	echo "NODE_ENV=production" >> /app/.env
 
-RUN chmod +x /app/run_condo_domain_tests.sh
+RUN chmod +x ./bin/run_condo_domain_tests.sh
 
 RUN set -ex \
     && yarn build \

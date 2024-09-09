@@ -9,6 +9,7 @@ const utc = require('dayjs/plugin/utc')
 const conf = require('@open-condo/config')
 const { FeaturesMiddleware } = require('@open-condo/featureflags/FeaturesMiddleware')
 const { AdapterCache } = require('@open-condo/keystone/adapterCache')
+const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const {
     HealthCheck,
     getRedisHealthCheck,
@@ -18,11 +19,11 @@ const {
 } = require('@open-condo/keystone/healthCheck')
 const { prepareKeystone } = require('@open-condo/keystone/KSv5v6/v5/prepareKeystone')
 const { RequestCache } = require('@open-condo/keystone/requestCache')
+const { getXRemoteApp, getXRemoteClient, getXRemoteVersion, getAppName } = require('@open-condo/keystone/tracingUtils')
 const { getWebhookModels } = require('@open-condo/webhooks/schema')
 const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
 
 const { PaymentLinkMiddleware } = require('@condo/domains/acquiring/PaymentLinkMiddleware')
-const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { VersioningMiddleware, getCurrentVersion } = require('@condo/domains/common/utils/VersioningMiddleware')
 const { UnsubscribeMiddleware } = require('@condo/domains/notification/UnsubscribeMiddleware')
 const { UserExternalIdentityMiddleware } = require('@condo/domains/user/integration/UserExternalIdentityMiddleware')
@@ -33,19 +34,12 @@ dayjs.extend(utc)
 dayjs.extend(timezone)
 dayjs.extend(isBetween)
 
-const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production' && conf.DD_TRACE_ENABLED === 'true'
 const IS_BUILD_PHASE = conf.PHASE === 'build'
 const SENTRY_CONFIG = conf.SENTRY_CONFIG ? JSON.parse(conf.SENTRY_CONFIG) : {}
 
 // TODO(zuch): DOMA-2990: add FILE_FIELD_ADAPTER to env during build phase
 if (IS_BUILD_PHASE) {
     process.env.FILE_FIELD_ADAPTER = 'local' // Test
-}
-
-if (IS_ENABLE_DD_TRACE && !IS_BUILD_PHASE) {
-    require('dd-trace').init({
-        logInjection: true,
-    })
 }
 
 const schemas = () => [

@@ -1,9 +1,18 @@
 const { getItems } = require('@keystonejs/server-side-graphql-client')
 const { isFunction } = require('lodash')
+const get = require('lodash/get')
 
+const conf = require('@open-condo/config')
 const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
+const { getExecutionContext } = require('@open-condo/keystone/executionContext')
+const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
+
 const GLOBAL_QUERY_LIMIT = 1000
+const TOO_MANY_RETURNED_LOG_LIMITS = Object.freeze([1100, 9000, 14900, 49000, 149000])
+const TOO_MANY_RETURNED_RESULT_LOG_LIMIT = 4900
+const logger = getLogger('common/utils/serverSchema.js')
+const TIMEOUT_DURATION = Number(conf.TIMEOUT_CHUNKS_DURATION) ||  60 * 1000
 
 // When we load models with Apollo graphql - every relation on a field for every object makes sql request
 // For example, loading 50 tickets will cause a result of ~1000 sql queries which is near server limit
@@ -18,6 +27,32 @@ const GLOBAL_QUERY_LIMIT = 1000
 // Tested on tickets export for 24755 tickets: without knex  71220.902ms, with knex: 16094.841ms )
 // TODO(zuch): find out how to make 1 request for 1. and 2.
 
+function logTooManyReturnedIfRequired (tooManyReturnedLimitCounters, allObjects, { functionName, schemaName, data }) {
+    if (!Array.isArray(tooManyReturnedLimitCounters)) throw new Error('logTooManyReturned: wrong argument type')
+    if (tooManyReturnedLimitCounters.length <= 0) return  // trying to notify only if have any counter
+    const realLimit = tooManyReturnedLimitCounters[0]
+
+    if (allObjects && Array.isArray(allObjects) && allObjects.length > realLimit) {
+        const executionContext = getExecutionContext()
+        const reqId = executionContext?.reqId
+        const taskId = executionContext?.taskId
+        logger.warn({
+            msg: 'tooManyReturned',
+            tooManyLimit: realLimit,
+            count: allObjects.length,
+            functionName,
+            schemaName,
+            data,
+            reqId,
+            taskId,
+        })
+        tooManyReturnedLimitCounters.shift()  // remove counter and mark as already notified
+    }
+}
+
+/**
+ * @deprecated you should use find
+ */
 class GqlWithKnexLoadList {
 
     constructor ({ listKey, fields, singleRelations = [], multipleRelations = [], where = {}, sortBy = [] }) {
@@ -37,15 +72,55 @@ class GqlWithKnexLoadList {
         let skip = 0
         let newchunk = []
         let all = []
+        let tooManyReturnedLimitCounters = [...TOO_MANY_RETURNED_LOG_LIMITS]
+        let allLength = 0
+
+        const startTime = Date.now()
+
         let maxiterationsCount = 100 // we need some limits - 100K records is more then enough
         do {
+            const now = Date.now()
+
+            if (conf.DISABLE_CHUNKS_TIMEOUT !== 'true' && now - startTime >= TIMEOUT_DURATION) {
+                logger.info({
+                    msg: 'Operation timed out',
+                    functionName: 'GqlWithKnexLoadList.load',
+                    schemaName: this.listKey,
+                    data: {
+                        singleRelations: this.singleRelations, multipleRelations: this.multipleRelations, where: this.where, fields: this.fields,
+                    },
+                    count: allLength,
+                })
+
+                throw new Error('Operation timed out')
+            }
+
             newchunk = await this.loadChunk(skip)
+            allLength += newchunk.length
             all = all.concat(newchunk)
             skip += newchunk.length
+
+            logTooManyReturnedIfRequired(tooManyReturnedLimitCounters, all, {
+                functionName: 'GqlWithKnexLoadList.load',
+                schemaName: this.listKey,
+                data: {
+                    singleRelations: this.singleRelations, multipleRelations: this.multipleRelations, where: this.where, fields: this.fields,
+                },
+            })
+
             if (newchunk.length < GLOBAL_QUERY_LIMIT) {
                 break
             }
         } while (--maxiterationsCount > 0 && newchunk.length)
+
+        logTooManyReturnedIfRequired([TOO_MANY_RETURNED_RESULT_LOG_LIMIT], all, {
+            functionName: 'GqlWithKnexLoadList.load',
+            schemaName: this.listKey,
+            data: {
+                singleRelations: this.singleRelations, multipleRelations: this.multipleRelations, where: this.where, fields: this.fields,
+            },
+        })
+
         return all
     }
 
@@ -118,6 +193,7 @@ class GqlWithKnexLoadList {
  * @param {Number} limit
  * @param {function(Array): Array | Promise<Array>} chunkProcessor A place to use or/and modify just loaded chunk
  * @returns {Promise<*[]>}
+ * @deprecated you should use find
  */
 const loadListByChunks = async ({
     context,
@@ -135,8 +211,29 @@ const loadListByChunks = async ({
     let newChunk = []
     let all = []
     let newChunkLength
+    let tooManyReturnedLimitCounters = [...TOO_MANY_RETURNED_LOG_LIMITS]
+
+    const startTime = Date.now()
 
     do {
+        const now = Date.now()
+
+        if (conf.DISABLE_CHUNKS_TIMEOUT !== 'true' && now - startTime >= TIMEOUT_DURATION) {
+            logger.info({
+                msg: 'Operation timed out',
+                functionName: 'loadListByChunks',
+                schemaName: get(list, 'gql.SINGULAR_FORM', ''),
+                data: {
+                    chunkSize,
+                    limit,
+                    loadListByChunksArgs: { where },
+                },
+                count: all.length,
+            })
+
+            throw new Error('Operation timed out')
+        }
+
         newChunk = await list.getAll(context, where, { sortBy, first: chunkSize, skip: skip })
         newChunkLength = newChunk.length
 
@@ -150,7 +247,24 @@ const loadListByChunks = async ({
             skip += newChunkLength
             all = all.concat(newChunk)
         }
+
+        logTooManyReturnedIfRequired(tooManyReturnedLimitCounters, all, {
+            functionName: 'loadListByChunks',
+            schemaName: get(list, 'gql.SINGULAR_FORM', ''),
+            data: {
+                where, sortBy, chunkSize,
+            },
+        })
+
     } while (--maxIterationsCount > 0 && newChunkLength)
+
+    logTooManyReturnedIfRequired([TOO_MANY_RETURNED_RESULT_LOG_LIMIT], all, {
+        functionName: 'loadListByChunks',
+        schemaName: get(list, 'gql.SINGULAR_FORM', ''),
+        data: {
+            where, sortBy, chunkSize,
+        },
+    })
 
     return all
 }
@@ -159,6 +273,7 @@ const loadListByChunks = async ({
  * When no records of related model is found for `singleRelations` of `GqlWithKnexLoadList`, then knex returns `{}`.
  * Sometimes, when we are building array of ids of that related objects, we will get ids values with `{}`.
  * This utility filters these `{}` from array.
+ * @deprecated
  */
 function filterBlankRelatedObjectsFrom (records) {
     return records.filter(record => (

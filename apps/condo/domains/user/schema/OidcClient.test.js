@@ -46,6 +46,9 @@ describe('OidcClient', () => {
                 expect(obj.updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
                 expect(obj.createdAt).toMatch(DATETIME_RE)
                 expect(obj.updatedAt).toMatch(DATETIME_RE)
+
+                expect(attrs).not.toHaveProperty('canAuthorizeSuperUsers')
+                expect(obj).toHaveProperty('canAuthorizeSuperUsers', false)
             })
             test('Support can', async () => {
                 const [obj, attrs] = await createTestOidcClient(support)

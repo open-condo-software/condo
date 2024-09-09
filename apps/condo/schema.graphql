@@ -797,480 +797,6 @@ input UsersCreateInput {
   data: UserCreateInput
 }
 
-enum ForgotPasswordActionHistoryRecordHistoryActionType {
-  c
-  u
-  d
-}
-
-""" A keystone list """
-type ForgotPasswordActionHistoryRecord {
-  """
-  This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the ForgotPasswordActionHistoryRecord List config, or
-   2. As an alias to the field set on 'labelField' in the ForgotPasswordActionHistoryRecord List config, or
-   3. As an alias to a 'name' field on the ForgotPasswordActionHistoryRecord List (if one exists), or
-   4. As an alias to the 'id' field on the ForgotPasswordActionHistoryRecord List.
-  """
-  _label_: String
-  user: String
-  token: String
-  requestedAt: String
-  expiresAt: String
-  usedAt: String
-  id: ID!
-  v: Int
-  createdAt: String
-  updatedAt: String
-  createdBy: String
-  updatedBy: String
-  deletedAt: String
-  newId: JSON
-  dv: Int
-  sender: JSON
-  history_date: String
-  history_action: ForgotPasswordActionHistoryRecordHistoryActionType
-  history_id: String
-}
-
-input ForgotPasswordActionHistoryRecordWhereInput {
-  AND: [ForgotPasswordActionHistoryRecordWhereInput]
-  OR: [ForgotPasswordActionHistoryRecordWhereInput]
-  user: String
-  user_not: String
-  user_in: [String]
-  user_not_in: [String]
-  token: String
-  token_not: String
-  token_contains: String
-  token_not_contains: String
-  token_starts_with: String
-  token_not_starts_with: String
-  token_ends_with: String
-  token_not_ends_with: String
-  token_i: String
-  token_not_i: String
-  token_contains_i: String
-  token_not_contains_i: String
-  token_starts_with_i: String
-  token_not_starts_with_i: String
-  token_ends_with_i: String
-  token_not_ends_with_i: String
-  token_in: [String]
-  token_not_in: [String]
-  requestedAt: String
-  requestedAt_not: String
-  requestedAt_lt: String
-  requestedAt_lte: String
-  requestedAt_gt: String
-  requestedAt_gte: String
-  requestedAt_in: [String]
-  requestedAt_not_in: [String]
-  expiresAt: String
-  expiresAt_not: String
-  expiresAt_lt: String
-  expiresAt_lte: String
-  expiresAt_gt: String
-  expiresAt_gte: String
-  expiresAt_in: [String]
-  expiresAt_not_in: [String]
-  usedAt: String
-  usedAt_not: String
-  usedAt_lt: String
-  usedAt_lte: String
-  usedAt_gt: String
-  usedAt_gte: String
-  usedAt_in: [String]
-  usedAt_not_in: [String]
-  id: ID
-  id_not: ID
-  id_in: [ID]
-  id_not_in: [ID]
-  v: Int
-  v_not: Int
-  v_lt: Int
-  v_lte: Int
-  v_gt: Int
-  v_gte: Int
-  v_in: [Int]
-  v_not_in: [Int]
-  createdAt: String
-  createdAt_not: String
-  createdAt_lt: String
-  createdAt_lte: String
-  createdAt_gt: String
-  createdAt_gte: String
-  createdAt_in: [String]
-  createdAt_not_in: [String]
-  updatedAt: String
-  updatedAt_not: String
-  updatedAt_lt: String
-  updatedAt_lte: String
-  updatedAt_gt: String
-  updatedAt_gte: String
-  updatedAt_in: [String]
-  updatedAt_not_in: [String]
-  createdBy: String
-  createdBy_not: String
-  createdBy_in: [String]
-  createdBy_not_in: [String]
-  updatedBy: String
-  updatedBy_not: String
-  updatedBy_in: [String]
-  updatedBy_not_in: [String]
-  deletedAt: String
-  deletedAt_not: String
-  deletedAt_lt: String
-  deletedAt_lte: String
-  deletedAt_gt: String
-  deletedAt_gte: String
-  deletedAt_in: [String]
-  deletedAt_not_in: [String]
-  newId: JSON
-  newId_not: JSON
-  newId_in: [JSON]
-  newId_not_in: [JSON]
-  dv: Int
-  dv_not: Int
-  dv_lt: Int
-  dv_lte: Int
-  dv_gt: Int
-  dv_gte: Int
-  dv_in: [Int]
-  dv_not_in: [Int]
-  sender: JSON
-  sender_not: JSON
-  sender_in: [JSON]
-  sender_not_in: [JSON]
-  history_date: String
-  history_date_not: String
-  history_date_lt: String
-  history_date_lte: String
-  history_date_gt: String
-  history_date_gte: String
-  history_date_in: [String]
-  history_date_not_in: [String]
-  history_action: ForgotPasswordActionHistoryRecordHistoryActionType
-  history_action_not: ForgotPasswordActionHistoryRecordHistoryActionType
-  history_action_in: [ForgotPasswordActionHistoryRecordHistoryActionType]
-  history_action_not_in: [ForgotPasswordActionHistoryRecordHistoryActionType]
-  history_id: String
-  history_id_not: String
-  history_id_in: [String]
-  history_id_not_in: [String]
-}
-
-input ForgotPasswordActionHistoryRecordWhereUniqueInput {
-  id: ID!
-}
-
-enum SortForgotPasswordActionHistoryRecordsBy {
-  token_ASC
-  token_DESC
-  requestedAt_ASC
-  requestedAt_DESC
-  expiresAt_ASC
-  expiresAt_DESC
-  usedAt_ASC
-  usedAt_DESC
-  id_ASC
-  id_DESC
-  v_ASC
-  v_DESC
-  createdAt_ASC
-  createdAt_DESC
-  updatedAt_ASC
-  updatedAt_DESC
-  deletedAt_ASC
-  deletedAt_DESC
-  dv_ASC
-  dv_DESC
-  history_date_ASC
-  history_date_DESC
-  history_action_ASC
-  history_action_DESC
-}
-
-input ForgotPasswordActionHistoryRecordUpdateInput {
-  user: String
-  token: String
-  requestedAt: String
-  expiresAt: String
-  usedAt: String
-  v: Int
-  createdAt: String
-  updatedAt: String
-  createdBy: String
-  updatedBy: String
-  deletedAt: String
-  newId: JSON
-  dv: Int
-  sender: JSON
-  history_date: String
-  history_action: ForgotPasswordActionHistoryRecordHistoryActionType
-  history_id: String
-}
-
-input ForgotPasswordActionHistoryRecordsUpdateInput {
-  id: ID!
-  data: ForgotPasswordActionHistoryRecordUpdateInput
-}
-
-input ForgotPasswordActionHistoryRecordCreateInput {
-  user: String
-  token: String
-  requestedAt: String
-  expiresAt: String
-  usedAt: String
-  v: Int
-  createdAt: String
-  updatedAt: String
-  createdBy: String
-  updatedBy: String
-  deletedAt: String
-  newId: JSON
-  dv: Int
-  sender: JSON
-  history_date: String
-  history_action: ForgotPasswordActionHistoryRecordHistoryActionType
-  history_id: String
-}
-
-input ForgotPasswordActionHistoryRecordsCreateInput {
-  data: ForgotPasswordActionHistoryRecordCreateInput
-}
-
-""" Forgot password actions is used for anonymous user password recovery procedure 
-"""
-type ForgotPasswordAction {
-  """
-  This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the ForgotPasswordAction List config, or
-   2. As an alias to the field set on 'labelField' in the ForgotPasswordAction List config, or
-   3. As an alias to a 'name' field on the ForgotPasswordAction List (if one exists), or
-   4. As an alias to the 'id' field on the ForgotPasswordAction List.
-  """
-  _label_: String
-
-  """ Ref to the user. The object will be deleted if the user ceases to exist 
-  """
-  user: User
-
-  """ Unique token to complete confirmation """
-  token: String
-
-  """ DateTime when confirm phone action was started """
-  requestedAt: String
-
-  """ When password recovery action becomes invalid """
-  expiresAt: String
-
-  """ When password recovery action was completed """
-  usedAt: String
-  id: ID!
-  v: Int
-  createdAt: String
-  updatedAt: String
-
-  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
-  """
-  createdBy: User
-
-  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
-  """
-  updatedBy: User
-  deletedAt: String
-  newId: String
-
-  """ Data structure Version """
-  dv: Int
-
-  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
-  """
-  sender: SenderField
-}
-
-input ForgotPasswordActionWhereInput {
-  AND: [ForgotPasswordActionWhereInput]
-  OR: [ForgotPasswordActionWhereInput]
-  user: UserWhereInput
-  user_is_null: Boolean
-  token: String
-  token_not: String
-  token_contains: String
-  token_not_contains: String
-  token_starts_with: String
-  token_not_starts_with: String
-  token_ends_with: String
-  token_not_ends_with: String
-  token_i: String
-  token_not_i: String
-  token_contains_i: String
-  token_not_contains_i: String
-  token_starts_with_i: String
-  token_not_starts_with_i: String
-  token_ends_with_i: String
-  token_not_ends_with_i: String
-  token_in: [String]
-  token_not_in: [String]
-  requestedAt: String
-  requestedAt_not: String
-  requestedAt_lt: String
-  requestedAt_lte: String
-  requestedAt_gt: String
-  requestedAt_gte: String
-  requestedAt_in: [String]
-  requestedAt_not_in: [String]
-  expiresAt: String
-  expiresAt_not: String
-  expiresAt_lt: String
-  expiresAt_lte: String
-  expiresAt_gt: String
-  expiresAt_gte: String
-  expiresAt_in: [String]
-  expiresAt_not_in: [String]
-  usedAt: String
-  usedAt_not: String
-  usedAt_lt: String
-  usedAt_lte: String
-  usedAt_gt: String
-  usedAt_gte: String
-  usedAt_in: [String]
-  usedAt_not_in: [String]
-  id: ID
-  id_not: ID
-  id_in: [ID]
-  id_not_in: [ID]
-  v: Int
-  v_not: Int
-  v_lt: Int
-  v_lte: Int
-  v_gt: Int
-  v_gte: Int
-  v_in: [Int]
-  v_not_in: [Int]
-  createdAt: String
-  createdAt_not: String
-  createdAt_lt: String
-  createdAt_lte: String
-  createdAt_gt: String
-  createdAt_gte: String
-  createdAt_in: [String]
-  createdAt_not_in: [String]
-  updatedAt: String
-  updatedAt_not: String
-  updatedAt_lt: String
-  updatedAt_lte: String
-  updatedAt_gt: String
-  updatedAt_gte: String
-  updatedAt_in: [String]
-  updatedAt_not_in: [String]
-  createdBy: UserWhereInput
-  createdBy_is_null: Boolean
-  updatedBy: UserWhereInput
-  updatedBy_is_null: Boolean
-  deletedAt: String
-  deletedAt_not: String
-  deletedAt_lt: String
-  deletedAt_lte: String
-  deletedAt_gt: String
-  deletedAt_gte: String
-  deletedAt_in: [String]
-  deletedAt_not_in: [String]
-  newId: String
-  newId_not: String
-  newId_in: [String]
-  newId_not_in: [String]
-  dv: Int
-  dv_not: Int
-  dv_lt: Int
-  dv_lte: Int
-  dv_gt: Int
-  dv_gte: Int
-  dv_in: [Int]
-  dv_not_in: [Int]
-  sender: SenderFieldInput
-  sender_not: SenderFieldInput
-  sender_in: [SenderFieldInput]
-  sender_not_in: [SenderFieldInput]
-}
-
-input ForgotPasswordActionWhereUniqueInput {
-  id: ID!
-}
-
-enum SortForgotPasswordActionsBy {
-  user_ASC
-  user_DESC
-  token_ASC
-  token_DESC
-  requestedAt_ASC
-  requestedAt_DESC
-  expiresAt_ASC
-  expiresAt_DESC
-  usedAt_ASC
-  usedAt_DESC
-  id_ASC
-  id_DESC
-  v_ASC
-  v_DESC
-  createdAt_ASC
-  createdAt_DESC
-  updatedAt_ASC
-  updatedAt_DESC
-  createdBy_ASC
-  createdBy_DESC
-  updatedBy_ASC
-  updatedBy_DESC
-  deletedAt_ASC
-  deletedAt_DESC
-  dv_ASC
-  dv_DESC
-}
-
-input ForgotPasswordActionUpdateInput {
-  user: UserRelateToOneInput
-  token: String
-  requestedAt: String
-  expiresAt: String
-  usedAt: String
-  v: Int
-  createdAt: String
-  updatedAt: String
-  createdBy: UserRelateToOneInput
-  updatedBy: UserRelateToOneInput
-  deletedAt: String
-  newId: String
-  dv: Int
-  sender: SenderFieldInput
-}
-
-input ForgotPasswordActionsUpdateInput {
-  id: ID!
-  data: ForgotPasswordActionUpdateInput
-}
-
-input ForgotPasswordActionCreateInput {
-  user: UserRelateToOneInput
-  token: String
-  requestedAt: String
-  expiresAt: String
-  usedAt: String
-  v: Int
-  createdAt: String
-  updatedAt: String
-  createdBy: UserRelateToOneInput
-  updatedBy: UserRelateToOneInput
-  deletedAt: String
-  newId: String
-  dv: Int
-  sender: SenderFieldInput
-}
-
-input ForgotPasswordActionsCreateInput {
-  data: ForgotPasswordActionCreateInput
-}
-
 enum ConfirmPhoneActionHistoryRecordHistoryActionType {
   c
   u
@@ -1812,6 +1338,7 @@ type OidcClientHistoryRecord {
   payload: JSON
   name: String
   isEnabled: Boolean
+  canAuthorizeSuperUsers: Boolean
   meta: JSON
   expiresAt: String
   id: ID!
@@ -1874,6 +1401,8 @@ input OidcClientHistoryRecordWhereInput {
   name_not_in: [String]
   isEnabled: Boolean
   isEnabled_not: Boolean
+  canAuthorizeSuperUsers: Boolean
+  canAuthorizeSuperUsers_not: Boolean
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -1975,6 +1504,8 @@ enum SortOidcClientHistoryRecordsBy {
   name_DESC
   isEnabled_ASC
   isEnabled_DESC
+  canAuthorizeSuperUsers_ASC
+  canAuthorizeSuperUsers_DESC
   expiresAt_ASC
   expiresAt_DESC
   id_ASC
@@ -2000,6 +1531,7 @@ input OidcClientHistoryRecordUpdateInput {
   payload: JSON
   name: String
   isEnabled: Boolean
+  canAuthorizeSuperUsers: Boolean
   meta: JSON
   expiresAt: String
   v: Int
@@ -2026,6 +1558,7 @@ input OidcClientHistoryRecordCreateInput {
   payload: JSON
   name: String
   isEnabled: Boolean
+  canAuthorizeSuperUsers: Boolean
   meta: JSON
   expiresAt: String
   v: Int
@@ -2069,6 +1602,10 @@ type OidcClient {
   """ A switch that allows you to disable some OIDC clients. If an OIDC client is disabled, it cannot be used for OIDC authorization. Used mainly by developers portal to create OIDC client before publishing an application, and enable OIDC after publishing. 
   """
   isEnabled: Boolean
+
+  """ A switch that allows this OIDC client to authorize users with privileges, such as admins, support, or users with a special rights set. Temporary solution to allow OIDCs to be used to access the admin panel of mini-applications from condo ecosystem. Tokens with scopes should solve the logic separation problem and remove this checkbox 
+  """
+  canAuthorizeSuperUsers: Boolean
 
   """ The additional client data """
   meta: JSON
@@ -2149,6 +1686,8 @@ input OidcClientWhereInput {
   name_not_in: [String]
   isEnabled: Boolean
   isEnabled_not: Boolean
+  canAuthorizeSuperUsers: Boolean
+  canAuthorizeSuperUsers_not: Boolean
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -2266,6 +1805,8 @@ enum SortOidcClientsBy {
   name_DESC
   isEnabled_ASC
   isEnabled_DESC
+  canAuthorizeSuperUsers_ASC
+  canAuthorizeSuperUsers_DESC
   expiresAt_ASC
   expiresAt_DESC
   id_ASC
@@ -2295,6 +1836,7 @@ input OidcClientUpdateInput {
   payload: JSON
   name: String
   isEnabled: Boolean
+  canAuthorizeSuperUsers: Boolean
   meta: JSON
   expiresAt: String
   v: Int
@@ -2320,6 +1862,7 @@ input OidcClientCreateInput {
   payload: JSON
   name: String
   isEnabled: Boolean
+  canAuthorizeSuperUsers: Boolean
   meta: JSON
   expiresAt: String
   v: Int
@@ -5918,6 +5461,7 @@ type OrganizationEmployeeRoleHistoryRecord {
   canManageTour: Boolean
   canReadMarketSetting: Boolean
   canManageMarketSetting: Boolean
+  canManageTicketAutoAssignments: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -6122,6 +5666,8 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canReadMarketSetting_not: Boolean
   canManageMarketSetting: Boolean
   canManageMarketSetting_not: Boolean
+  canManageTicketAutoAssignments: Boolean
+  canManageTicketAutoAssignments_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -6329,6 +5875,8 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canReadMarketSetting_DESC
   canManageMarketSetting_ASC
   canManageMarketSetting_DESC
+  canManageTicketAutoAssignments_ASC
+  canManageTicketAutoAssignments_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -6415,6 +5963,7 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canManageTour: Boolean
   canReadMarketSetting: Boolean
   canManageMarketSetting: Boolean
+  canManageTicketAutoAssignments: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -6502,6 +6051,7 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canManageTour: Boolean
   canReadMarketSetting: Boolean
   canManageMarketSetting: Boolean
+  canManageTicketAutoAssignments: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -6637,6 +6187,7 @@ type OrganizationEmployeeRole {
   canManageTour: Boolean
   canReadMarketSetting: Boolean
   canManageMarketSetting: Boolean
+  canManageTicketAutoAssignments: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -6835,6 +6386,8 @@ input OrganizationEmployeeRoleWhereInput {
   canReadMarketSetting_not: Boolean
   canManageMarketSetting: Boolean
   canManageMarketSetting_not: Boolean
+  canManageTicketAutoAssignments: Boolean
+  canManageTicketAutoAssignments_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -7036,6 +6589,8 @@ enum SortOrganizationEmployeeRolesBy {
   canReadMarketSetting_DESC
   canManageMarketSetting_ASC
   canManageMarketSetting_DESC
+  canManageTicketAutoAssignments_ASC
+  canManageTicketAutoAssignments_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -7124,6 +6679,7 @@ input OrganizationEmployeeRoleUpdateInput {
   canManageTour: Boolean
   canReadMarketSetting: Boolean
   canManageMarketSetting: Boolean
+  canManageTicketAutoAssignments: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -7210,6 +6766,7 @@ input OrganizationEmployeeRoleCreateInput {
   canManageTour: Boolean
   canReadMarketSetting: Boolean
   canManageMarketSetting: Boolean
+  canManageTicketAutoAssignments: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -53238,6 +52795,7 @@ type AcquiringIntegrationHistoryRecord {
   canGroupReceipts: Boolean
   hostUrl: String
   supportedBillingIntegrationsGroup: String
+  minimumPaymentAmount: String
   explicitFeeDistributionSchema: JSON
   contextDefaultStatus: String
   vatPercentOptions: String
@@ -53335,6 +52893,14 @@ input AcquiringIntegrationHistoryRecordWhereInput {
   supportedBillingIntegrationsGroup_not_ends_with_i: String
   supportedBillingIntegrationsGroup_in: [String]
   supportedBillingIntegrationsGroup_not_in: [String]
+  minimumPaymentAmount: String
+  minimumPaymentAmount_not: String
+  minimumPaymentAmount_lt: String
+  minimumPaymentAmount_lte: String
+  minimumPaymentAmount_gt: String
+  minimumPaymentAmount_gte: String
+  minimumPaymentAmount_in: [String]
+  minimumPaymentAmount_not_in: [String]
   explicitFeeDistributionSchema: JSON
   explicitFeeDistributionSchema_not: JSON
   explicitFeeDistributionSchema_in: [JSON]
@@ -53470,6 +53036,8 @@ enum SortAcquiringIntegrationHistoryRecordsBy {
   hostUrl_DESC
   supportedBillingIntegrationsGroup_ASC
   supportedBillingIntegrationsGroup_DESC
+  minimumPaymentAmount_ASC
+  minimumPaymentAmount_DESC
   contextDefaultStatus_ASC
   contextDefaultStatus_DESC
   vatPercentOptions_ASC
@@ -53499,6 +53067,7 @@ input AcquiringIntegrationHistoryRecordUpdateInput {
   canGroupReceipts: Boolean
   hostUrl: String
   supportedBillingIntegrationsGroup: String
+  minimumPaymentAmount: String
   explicitFeeDistributionSchema: JSON
   contextDefaultStatus: String
   vatPercentOptions: String
@@ -53528,6 +53097,7 @@ input AcquiringIntegrationHistoryRecordCreateInput {
   canGroupReceipts: Boolean
   hostUrl: String
   supportedBillingIntegrationsGroup: String
+  minimumPaymentAmount: String
   explicitFeeDistributionSchema: JSON
   contextDefaultStatus: String
   vatPercentOptions: String
@@ -53613,6 +53183,9 @@ type AcquiringIntegration {
   """ Supported billing integrations group. Useful when you need to restrict this acquiring to accept payment only from certain billing. 
   """
   supportedBillingIntegrationsGroup: String
+
+  """ The minimum payment amount that can be accepted """
+  minimumPaymentAmount: String
 
   """ Contains information about the default distribution of explicit fee. Each part is paid by the user on top of original amount if there is no part with the same name in the integration context. Otherwise, the part is ignored as it is paid by recipient 
   """
@@ -53735,6 +53308,14 @@ input AcquiringIntegrationWhereInput {
   supportedBillingIntegrationsGroup_not_ends_with_i: String
   supportedBillingIntegrationsGroup_in: [String]
   supportedBillingIntegrationsGroup_not_in: [String]
+  minimumPaymentAmount: String
+  minimumPaymentAmount_not: String
+  minimumPaymentAmount_lt: String
+  minimumPaymentAmount_lte: String
+  minimumPaymentAmount_gt: String
+  minimumPaymentAmount_gte: String
+  minimumPaymentAmount_in: [String]
+  minimumPaymentAmount_not_in: [String]
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   explicitFeeDistributionSchema_not: [FeeDistributionFieldInput!]
   explicitFeeDistributionSchema_in: [[FeeDistributionFieldInput!]]
@@ -53838,6 +53419,8 @@ enum SortAcquiringIntegrationsBy {
   hostUrl_DESC
   supportedBillingIntegrationsGroup_ASC
   supportedBillingIntegrationsGroup_DESC
+  minimumPaymentAmount_ASC
+  minimumPaymentAmount_DESC
   contextDefaultStatus_ASC
   contextDefaultStatus_DESC
   vatPercentOptions_ASC
@@ -53868,6 +53451,7 @@ input AcquiringIntegrationUpdateInput {
   canGroupReceipts: Boolean
   hostUrl: String
   supportedBillingIntegrationsGroup: String
+  minimumPaymentAmount: String
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   contextDefaultStatus: AcquiringIntegrationContextDefaultStatusType
   vatPercentOptions: String
@@ -53895,6 +53479,7 @@ input AcquiringIntegrationCreateInput {
   canGroupReceipts: Boolean
   hostUrl: String
   supportedBillingIntegrationsGroup: String
+  minimumPaymentAmount: String
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   contextDefaultStatus: AcquiringIntegrationContextDefaultStatusType
   vatPercentOptions: String
@@ -70045,12 +69630,14 @@ type B2BAppNewsSharingConfigHistoryRecord {
   """
   _label_: String
   name: String
-  publishUrl: String
   icon: JSON
   previewPicture: JSON
+  pushNotificationSettings: String
+  publishUrl: String
   previewUrl: String
   getRecipientsUrl: String
   customFormUrl: String
+  getRecipientsCountersUrl: String
   id: ID!
   v: Int
   createdAt: String
@@ -70087,6 +69674,32 @@ input B2BAppNewsSharingConfigHistoryRecordWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
+  icon: JSON
+  icon_not: JSON
+  icon_in: [JSON]
+  icon_not_in: [JSON]
+  previewPicture: JSON
+  previewPicture_not: JSON
+  previewPicture_in: [JSON]
+  previewPicture_not_in: [JSON]
+  pushNotificationSettings: String
+  pushNotificationSettings_not: String
+  pushNotificationSettings_contains: String
+  pushNotificationSettings_not_contains: String
+  pushNotificationSettings_starts_with: String
+  pushNotificationSettings_not_starts_with: String
+  pushNotificationSettings_ends_with: String
+  pushNotificationSettings_not_ends_with: String
+  pushNotificationSettings_i: String
+  pushNotificationSettings_not_i: String
+  pushNotificationSettings_contains_i: String
+  pushNotificationSettings_not_contains_i: String
+  pushNotificationSettings_starts_with_i: String
+  pushNotificationSettings_not_starts_with_i: String
+  pushNotificationSettings_ends_with_i: String
+  pushNotificationSettings_not_ends_with_i: String
+  pushNotificationSettings_in: [String]
+  pushNotificationSettings_not_in: [String]
   publishUrl: String
   publishUrl_not: String
   publishUrl_contains: String
@@ -70105,14 +69718,6 @@ input B2BAppNewsSharingConfigHistoryRecordWhereInput {
   publishUrl_not_ends_with_i: String
   publishUrl_in: [String]
   publishUrl_not_in: [String]
-  icon: JSON
-  icon_not: JSON
-  icon_in: [JSON]
-  icon_not_in: [JSON]
-  previewPicture: JSON
-  previewPicture_not: JSON
-  previewPicture_in: [JSON]
-  previewPicture_not_in: [JSON]
   previewUrl: String
   previewUrl_not: String
   previewUrl_contains: String
@@ -70167,6 +69772,24 @@ input B2BAppNewsSharingConfigHistoryRecordWhereInput {
   customFormUrl_not_ends_with_i: String
   customFormUrl_in: [String]
   customFormUrl_not_in: [String]
+  getRecipientsCountersUrl: String
+  getRecipientsCountersUrl_not: String
+  getRecipientsCountersUrl_contains: String
+  getRecipientsCountersUrl_not_contains: String
+  getRecipientsCountersUrl_starts_with: String
+  getRecipientsCountersUrl_not_starts_with: String
+  getRecipientsCountersUrl_ends_with: String
+  getRecipientsCountersUrl_not_ends_with: String
+  getRecipientsCountersUrl_i: String
+  getRecipientsCountersUrl_not_i: String
+  getRecipientsCountersUrl_contains_i: String
+  getRecipientsCountersUrl_not_contains_i: String
+  getRecipientsCountersUrl_starts_with_i: String
+  getRecipientsCountersUrl_not_starts_with_i: String
+  getRecipientsCountersUrl_ends_with_i: String
+  getRecipientsCountersUrl_not_ends_with_i: String
+  getRecipientsCountersUrl_in: [String]
+  getRecipientsCountersUrl_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -70252,6 +69875,8 @@ input B2BAppNewsSharingConfigHistoryRecordWhereUniqueInput {
 enum SortB2BAppNewsSharingConfigHistoryRecordsBy {
   name_ASC
   name_DESC
+  pushNotificationSettings_ASC
+  pushNotificationSettings_DESC
   publishUrl_ASC
   publishUrl_DESC
   previewUrl_ASC
@@ -70260,6 +69885,8 @@ enum SortB2BAppNewsSharingConfigHistoryRecordsBy {
   getRecipientsUrl_DESC
   customFormUrl_ASC
   customFormUrl_DESC
+  getRecipientsCountersUrl_ASC
+  getRecipientsCountersUrl_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -70280,12 +69907,14 @@ enum SortB2BAppNewsSharingConfigHistoryRecordsBy {
 
 input B2BAppNewsSharingConfigHistoryRecordUpdateInput {
   name: String
-  publishUrl: String
   icon: JSON
   previewPicture: JSON
+  pushNotificationSettings: String
+  publishUrl: String
   previewUrl: String
   getRecipientsUrl: String
   customFormUrl: String
+  getRecipientsCountersUrl: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -70307,12 +69936,14 @@ input B2BAppNewsSharingConfigHistoryRecordsUpdateInput {
 
 input B2BAppNewsSharingConfigHistoryRecordCreateInput {
   name: String
-  publishUrl: String
   icon: JSON
   previewPicture: JSON
+  pushNotificationSettings: String
+  publishUrl: String
   previewUrl: String
   getRecipientsUrl: String
   customFormUrl: String
+  getRecipientsCountersUrl: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -70331,6 +69962,12 @@ input B2BAppNewsSharingConfigHistoryRecordsCreateInput {
   data: B2BAppNewsSharingConfigHistoryRecordCreateInput
 }
 
+enum B2BAppNewsSharingConfigPushNotificationSettingType {
+  ONLY_EMERGENCY
+  ENABLED
+  DISABLED
+}
+
 """ News Sharing B2BApp allow b2b users to share their NewsItem to external source (like Telegram) from /news page 
 """
 type B2BAppNewsSharingConfig {
@@ -70346,24 +69983,35 @@ type B2BAppNewsSharingConfig {
   """ Short and simple name of the external source. For example: Telegram """
   name: String
 
-  """ URL that implements publishing NewsItem method """
-  publishUrl: String
-
-  """ Icon of the app: Telegram Icon / WhatsApp Icon """
+  """ App icon. For example: Telegram app icon """
   icon: File
 
-  """ Preview picture: might be app screenshot """
+  """ Preview image. For example: Telegram app screenshot """
   previewPicture: File
 
-  """ URL that returns HTML preview NewsItem """
+  """ Push notification preferences for each B2BApp. The available options include: notifications are sent only for emergency alerts, all notifications are turned off, or all notifications are enabled 
+  """
+  pushNotificationSettings: B2BAppNewsSharingConfigPushNotificationSettingType
+
+  """ URL that publishes NewsItem. Should implement POST publish method. It will be called once news item is ready to be published. Check News domain for reference 
+  """
+  publishUrl: String
+
+  """ URL that returns rendered HTML preview of News Item. Used to render NewsItem preview. If not provided, app preview will not be rendered 
+  """
   previewUrl: String
 
-  """ URL that implements getRecipients function """
+  """ URL that returns chats and/or channels. Should implement POST getRecipients method. If provided Select control with data from this endpoint will be used in /news/create page, If not provided, condo control will be used 
+  """
   getRecipientsUrl: String
 
-  """ URL that implements customForm. If not filled, then app will use standard news form 
+  """ URL that implements customForm. Use only if you need custom NewsItemSharing data structure, for example if . Allows to provide custom UI for sending news. If not provided app will use condo news form 
   """
   customFormUrl: String
+
+  """ URL that returns number of subscribers for condo scopes. Should implement POST customGetRecipientsCounters method. Allows to provide custom values for recipients counter. If not provided app will use data from getRecipients. If getRecipients is not provided, recipients counter will not be rendered 
+  """
+  getRecipientsCountersUrl: String
   id: ID!
   v: Int
   createdAt: String
@@ -70408,6 +70056,18 @@ input B2BAppNewsSharingConfigWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
+  icon: String
+  icon_not: String
+  icon_in: [String]
+  icon_not_in: [String]
+  previewPicture: String
+  previewPicture_not: String
+  previewPicture_in: [String]
+  previewPicture_not_in: [String]
+  pushNotificationSettings: B2BAppNewsSharingConfigPushNotificationSettingType
+  pushNotificationSettings_not: B2BAppNewsSharingConfigPushNotificationSettingType
+  pushNotificationSettings_in: [B2BAppNewsSharingConfigPushNotificationSettingType]
+  pushNotificationSettings_not_in: [B2BAppNewsSharingConfigPushNotificationSettingType]
   publishUrl: String
   publishUrl_not: String
   publishUrl_contains: String
@@ -70426,14 +70086,6 @@ input B2BAppNewsSharingConfigWhereInput {
   publishUrl_not_ends_with_i: String
   publishUrl_in: [String]
   publishUrl_not_in: [String]
-  icon: String
-  icon_not: String
-  icon_in: [String]
-  icon_not_in: [String]
-  previewPicture: String
-  previewPicture_not: String
-  previewPicture_in: [String]
-  previewPicture_not_in: [String]
   previewUrl: String
   previewUrl_not: String
   previewUrl_contains: String
@@ -70488,6 +70140,24 @@ input B2BAppNewsSharingConfigWhereInput {
   customFormUrl_not_ends_with_i: String
   customFormUrl_in: [String]
   customFormUrl_not_in: [String]
+  getRecipientsCountersUrl: String
+  getRecipientsCountersUrl_not: String
+  getRecipientsCountersUrl_contains: String
+  getRecipientsCountersUrl_not_contains: String
+  getRecipientsCountersUrl_starts_with: String
+  getRecipientsCountersUrl_not_starts_with: String
+  getRecipientsCountersUrl_ends_with: String
+  getRecipientsCountersUrl_not_ends_with: String
+  getRecipientsCountersUrl_i: String
+  getRecipientsCountersUrl_not_i: String
+  getRecipientsCountersUrl_contains_i: String
+  getRecipientsCountersUrl_not_contains_i: String
+  getRecipientsCountersUrl_starts_with_i: String
+  getRecipientsCountersUrl_not_starts_with_i: String
+  getRecipientsCountersUrl_ends_with_i: String
+  getRecipientsCountersUrl_not_ends_with_i: String
+  getRecipientsCountersUrl_in: [String]
+  getRecipientsCountersUrl_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -70553,6 +70223,8 @@ input B2BAppNewsSharingConfigWhereUniqueInput {
 enum SortB2BAppNewsSharingConfigsBy {
   name_ASC
   name_DESC
+  pushNotificationSettings_ASC
+  pushNotificationSettings_DESC
   publishUrl_ASC
   publishUrl_DESC
   previewUrl_ASC
@@ -70561,6 +70233,8 @@ enum SortB2BAppNewsSharingConfigsBy {
   getRecipientsUrl_DESC
   customFormUrl_ASC
   customFormUrl_DESC
+  getRecipientsCountersUrl_ASC
+  getRecipientsCountersUrl_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -70581,12 +70255,14 @@ enum SortB2BAppNewsSharingConfigsBy {
 
 input B2BAppNewsSharingConfigUpdateInput {
   name: String
-  publishUrl: String
   icon: Upload
   previewPicture: Upload
+  pushNotificationSettings: B2BAppNewsSharingConfigPushNotificationSettingType
+  publishUrl: String
   previewUrl: String
   getRecipientsUrl: String
   customFormUrl: String
+  getRecipientsCountersUrl: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -70605,12 +70281,14 @@ input B2BAppNewsSharingConfigsUpdateInput {
 
 input B2BAppNewsSharingConfigCreateInput {
   name: String
-  publishUrl: String
   icon: Upload
   previewPicture: Upload
+  pushNotificationSettings: B2BAppNewsSharingConfigPushNotificationSettingType
+  publishUrl: String
   previewUrl: String
   getRecipientsUrl: String
   customFormUrl: String
+  getRecipientsCountersUrl: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -77098,24 +76776,6 @@ type AuthenticateUserWithPhoneAndPasswordOutput {
   token: String!
 }
 
-input CheckPasswordRecoveryTokenInput {
-  token: String!
-}
-
-type CheckPasswordRecoveryTokenOutput {
-  status: String!
-}
-
-input StartPasswordRecoveryInput {
-  phone: String!
-  sender: SenderFieldInput!
-  dv: Int!
-}
-
-type StartPasswordRecoveryOutput {
-  status: String!
-}
-
 input ChangePasswordWithTokenInput {
   token: String!
   password: String!
@@ -77582,6 +77242,13 @@ type RegisterBillingReceiptFileOutput {
   status: RegisterBillingReceiptFileResultStatus!
 }
 
+input BillingReceiptsSumInput {
+  period: String!
+  organization: OrganizationWhereUniqueInput
+  tin: String
+  importRemoteSystem: String
+}
+
 type BillingReceiptsSumOutput {
   sum: String!
 }
@@ -77724,7 +77391,6 @@ enum MessageType {
   DIRTY_INVITE_NEW_EMPLOYEE_SMS
   DIRTY_INVITE_NEW_EMPLOYEE_EMAIL
   REGISTER_NEW_USER
-  RESET_PASSWORD
   SMS_VERIFY
   DEVELOPER_IMPORTANT_NOTE_TYPE
   CUSTOMER_IMPORTANT_NOTE_TYPE
@@ -78045,6 +77711,15 @@ type FindOrganizationForAddressOutput {
   hasBillingData: Boolean!
 }
 
+input SuggestServiceProviderInput {
+  search: String!
+}
+
+type SuggestServiceProviderOutput {
+  tin: String!
+  name: String!
+}
+
 input SyncTourStepsInput {
   dv: Int!
   sender: SenderFieldInput!
@@ -78327,6 +78002,17 @@ type RegisterMultiPaymentForInvoicesOutput {
   anonymousPaymentUrl: String!
 }
 
+input CalculateFeeForReceiptInput {
+  receipt: BillingReceiptWhereUniqueInput!
+  amount: String!
+}
+
+type CalculateFeeForReceiptOutput {
+  amountWithoutExplicitFee: String!
+  explicitFee: String!
+  explicitServiceCharge: String!
+}
+
 enum TicketReportPeriodType {
   calendarWeek
   month
@@ -78569,6 +78255,17 @@ type GetNewsSharingRecipientsOutput {
   receiversCount: Int
 }
 
+input GetNewsSharingRecipientsCountersInput {
+  dv: Int!
+  sender: JSON!
+  b2bAppContext: B2BAppContextWhereUniqueInput!
+  newsItemScopes: [NewsItemScopeWhereInput!]!
+}
+
+type GetNewsSharingRecipientsCountersOutput {
+  receiversCount: Int!
+}
+
 enum AppCategory {
   DISPATCHING
   GIS
@@ -78686,36 +78383,6 @@ type Query {
 
   """ Retrieve the meta-data for the User list. """
   _UsersMeta: _ListMeta
-
-  """ Search for all ForgotPasswordActionHistoryRecord items which match the where clause. 
-  """
-  allForgotPasswordActionHistoryRecords(where: ForgotPasswordActionHistoryRecordWhereInput, search: String, sortBy: [SortForgotPasswordActionHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [ForgotPasswordActionHistoryRecord]
-
-  """ Search for the ForgotPasswordActionHistoryRecord item with the matching ID. 
-  """
-  ForgotPasswordActionHistoryRecord(where: ForgotPasswordActionHistoryRecordWhereUniqueInput!): ForgotPasswordActionHistoryRecord
-
-  """ Perform a meta-query on all ForgotPasswordActionHistoryRecord items which match the where clause. 
-  """
-  _allForgotPasswordActionHistoryRecordsMeta(where: ForgotPasswordActionHistoryRecordWhereInput, search: String, sortBy: [SortForgotPasswordActionHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
-
-  """ Retrieve the meta-data for the ForgotPasswordActionHistoryRecord list. 
-  """
-  _ForgotPasswordActionHistoryRecordsMeta: _ListMeta
-
-  """ Search for all ForgotPasswordAction items which match the where clause. 
-  """
-  allForgotPasswordActions(where: ForgotPasswordActionWhereInput, search: String, sortBy: [SortForgotPasswordActionsBy!], orderBy: String, first: Int, skip: Int): [ForgotPasswordAction]
-
-  """ Search for the ForgotPasswordAction item with the matching ID. """
-  ForgotPasswordAction(where: ForgotPasswordActionWhereUniqueInput!): ForgotPasswordAction
-
-  """ Perform a meta-query on all ForgotPasswordAction items which match the where clause. 
-  """
-  _allForgotPasswordActionsMeta(where: ForgotPasswordActionWhereInput, search: String, sortBy: [SortForgotPasswordActionsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
-
-  """ Retrieve the meta-data for the ForgotPasswordAction list. """
-  _ForgotPasswordActionsMeta: _ListMeta
 
   """ Search for all ConfirmPhoneActionHistoryRecord items which match the where clause. 
   """
@@ -82450,29 +82117,6 @@ type Query {
   _ksListsMeta(where: _ksListsMetaInput): [_ListMeta]
 
   """
-  Tells, whether specified password recovery token is exists and not expired
-  
-  
-  
-  **Errors**
-  
-  Following objects will be presented in `extensions` property of thrown error
-  
-  `{
-    "mutation": "checkPasswordRecoveryToken",
-    "variable": [
-      "data",
-      "token"
-    ],
-    "code": "BAD_USER_INPUT",
-    "type": "TOKEN_NOT_FOUND",
-    "message": "Unable to find non-expired token",
-    "messageForUser": "api.user.checkPasswordRecoveryToken.TOKEN_NOT_FOUND"
-  }`
-  """
-  checkPasswordRecoveryToken(data: CheckPasswordRecoveryTokenInput!): CheckPasswordRecoveryTokenOutput
-
-  """
   Returns phone number information from ConfirmPhoneAction, that matches provided search conditions
   
   
@@ -82585,7 +82229,38 @@ type Query {
   checkUserExistence(data: CheckUserExistenceInput!): CheckUserExistenceOutput
   exportPropertiesToExcel(data: ExportPropertiesToExcelInput!): ExportPropertiesToExcelOutput
   allResidentBillingReceipts(where: ResidentBillingReceiptWhereInput, first: Int, skip: Int, sortBy: [SortResidentBillingReceiptsBy!]): [ResidentBillingReceiptOutput]
-  _allBillingReceiptsSum(where: BillingReceiptWhereInput!): BillingReceiptsSumOutput
+
+  """
+  Sum of organizations billing receipts
+  
+  Calculate sum of organizations billing receipts by organizationId or tin and period
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "mutation": "_allBillingReceiptsSum",
+    "variable": [
+      "data"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_VALUE",
+    "message": "You must specify one of two values: tin or organization"
+  }`
+  
+  `{
+    "mutation": "_allBillingReceiptsSum",
+    "variable": [
+      "data",
+      "period"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_VALUE",
+    "message": "Bad period format, must be YYYY-MM-01. Example: 2022-02-01"
+  }`
+  """
+  _allBillingReceiptsSum(data: BillingReceiptsSumInput!): BillingReceiptsSumOutput
   allResidentBillingVirtualReceipts(where: ResidentBillingVirtualReceiptWhereInput, first: Int, skip: Int, sortBy: [SortResidentBillingVirtualReceiptsBy!]): [ResidentBillingReceiptOutput]
 
   """
@@ -82633,6 +82308,7 @@ type Query {
   predictTicketClassification(data: PredictTicketClassificationInput!): TicketClassifier
   getResidentExistenceByPhoneAndAddress(data: GetResidentExistenceByPhoneAndAddressInput!): GetResidentExistenceByPhoneAndAddressOutput
   findOrganizationsForAddress(data: FindOrganizationsForAddressInput!): [FindOrganizationForAddressOutput]
+  suggestServiceProvider(data: SuggestServiceProviderInput!): [SuggestServiceProviderOutput]
   exportMeterReadings(data: ExportMeterReadingsInput!): ExportMeterReadingsOutput
 
   """
@@ -82679,6 +82355,7 @@ type Query {
   exportPaymentsToExcel(data: ExportPaymentsToExcelInput!): ExportPaymentsToExcelOutput
   generatePaymentLink(data: GeneratePaymentLinkInput!): GeneratePaymentLinkOutput
   _allPaymentsSum(where: PaymentWhereInput!): PaymentsSumOutput
+  calculateFeeForReceipt(data: CalculateFeeForReceiptInput!): CalculateFeeForReceiptOutput
   ticketReportWidgetData(data: TicketReportWidgetInput!): TicketReportWidgetOutput
   ticketAnalyticsReport(data: TicketAnalyticsReportInput): TicketAnalyticsReportOutput
   exportTicketAnalyticsToExcel(data: ExportTicketAnalyticsToExcelInput): ExportTicketAnalyticsToExcelOutput
@@ -82687,6 +82364,7 @@ type Query {
   exportPropertyScopesToExcel(data: ExportPropertyScopeToExcelInput!): ExportPropertyScopeToExcelOutput
   getNewsItemsRecipientsCounters(data: GetNewsItemsRecipientsCountersInput!): GetNewsItemsRecipientsCountersOutput
   getNewsSharingRecipients(data: GetNewsSharingRecipientsInput!): [GetNewsSharingRecipientsOutput]
+  getNewsSharingRecipientsCounters(data: GetNewsSharingRecipientsCountersInput!): GetNewsSharingRecipientsCountersOutput
   allMiniApps(data: AllMiniAppsInput!): [MiniAppOutput!]
 
   """The version of the Keystone application serving this API."""
@@ -82730,42 +82408,6 @@ type Mutation {
 
   """ Delete multiple User items by ID. """
   deleteUsers(ids: [ID!]): [User]
-
-  """ Create a single ForgotPasswordActionHistoryRecord item. """
-  createForgotPasswordActionHistoryRecord(data: ForgotPasswordActionHistoryRecordCreateInput): ForgotPasswordActionHistoryRecord
-
-  """ Create multiple ForgotPasswordActionHistoryRecord items. """
-  createForgotPasswordActionHistoryRecords(data: [ForgotPasswordActionHistoryRecordsCreateInput]): [ForgotPasswordActionHistoryRecord]
-
-  """ Update a single ForgotPasswordActionHistoryRecord item by ID. """
-  updateForgotPasswordActionHistoryRecord(id: ID!, data: ForgotPasswordActionHistoryRecordUpdateInput): ForgotPasswordActionHistoryRecord
-
-  """ Update multiple ForgotPasswordActionHistoryRecord items by ID. """
-  updateForgotPasswordActionHistoryRecords(data: [ForgotPasswordActionHistoryRecordsUpdateInput]): [ForgotPasswordActionHistoryRecord]
-
-  """ Delete a single ForgotPasswordActionHistoryRecord item by ID. """
-  deleteForgotPasswordActionHistoryRecord(id: ID!): ForgotPasswordActionHistoryRecord
-
-  """ Delete multiple ForgotPasswordActionHistoryRecord items by ID. """
-  deleteForgotPasswordActionHistoryRecords(ids: [ID!]): [ForgotPasswordActionHistoryRecord]
-
-  """ Create a single ForgotPasswordAction item. """
-  createForgotPasswordAction(data: ForgotPasswordActionCreateInput): ForgotPasswordAction
-
-  """ Create multiple ForgotPasswordAction items. """
-  createForgotPasswordActions(data: [ForgotPasswordActionsCreateInput]): [ForgotPasswordAction]
-
-  """ Update a single ForgotPasswordAction item by ID. """
-  updateForgotPasswordAction(id: ID!, data: ForgotPasswordActionUpdateInput): ForgotPasswordAction
-
-  """ Update multiple ForgotPasswordAction items by ID. """
-  updateForgotPasswordActions(data: [ForgotPasswordActionsUpdateInput]): [ForgotPasswordAction]
-
-  """ Delete a single ForgotPasswordAction item by ID. """
-  deleteForgotPasswordAction(id: ID!): ForgotPasswordAction
-
-  """ Delete multiple ForgotPasswordAction items by ID. """
-  deleteForgotPasswordActions(ids: [ID!]): [ForgotPasswordAction]
 
   """ Create a single ConfirmPhoneActionHistoryRecord item. """
   createConfirmPhoneActionHistoryRecord(data: ConfirmPhoneActionHistoryRecordCreateInput): ConfirmPhoneActionHistoryRecord
@@ -87663,60 +87305,20 @@ type Mutation {
   authenticateUserWithPhoneAndPassword(data: AuthenticateUserWithPhoneAndPasswordInput!): AuthenticateUserWithPhoneAndPasswordOutput
 
   """
-  Beginning of a multi-step process of a password recovery.
-  1. Start recovery and get token to confirm phone number
-  2. Confirm phone number
-  3. Call `changePasswordWithToken` mutation
-  
-  
-  
   **Errors**
   
   Following objects will be presented in `extensions` property of thrown error
   
   `{
-    "mutation": "startPasswordRecovery",
     "variable": [
       "data",
-      "phone"
+      "password"
     ],
     "code": "BAD_USER_INPUT",
-    "type": "USER_BY_PHONE_NOT_FOUND",
-    "message": "Unable to find user with specified phone",
-    "messageForUser": "api.user.startPasswordRecovery.USER_NOT_FOUND"
+    "type": "WRONG_PASSWORD_FORMAT",
+    "message": "Password must be in string format",
+    "messageForUser": "api.user.WRONG_PASSWORD_FORMAT"
   }`
-  
-  `{
-    "mutation": "startPasswordRecovery",
-    "variable": [
-      "data",
-      "phone"
-    ],
-    "code": "BAD_USER_INPUT",
-    "type": "MULTIPLE_USERS_FOUND",
-    "message": "Unable to find exact one user to start password recovery",
-    "messageForUser": "api.user.startPasswordRecovery.MULTIPLE_USERS_FOUND"
-  }`
-  
-  `{
-    "mutation": "startPasswordRecovery",
-    "variable": [
-      "data",
-      "phone"
-    ],
-    "code": "BAD_USER_INPUT",
-    "type": "WRONG_PHONE_FORMAT",
-    "message": "Wrong format of provided phone number",
-    "correctExample": "+79991234567",
-    "messageForUser": "api.common.WRONG_PHONE_FORMAT"
-  }`
-  """
-  startPasswordRecovery(data: StartPasswordRecoveryInput!): StartPasswordRecoveryOutput
-
-  """
-  **Errors**
-  
-  Following objects will be presented in `extensions` property of thrown error
   
   `{
     "variable": [
@@ -87802,6 +87404,29 @@ type Mutation {
     "type": "USER_NOT_FOUND",
     "message": "Unable to find user with specified phone",
     "messageForUser": "api.user.changePasswordWithToken.USER_NOT_FOUND"
+  }`
+  
+  `{
+    "variable": [
+      "data",
+      "dv"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number",
+    "query": "checkUserExistence"
+  }`
+  
+  `{
+    "variable": [
+      "data",
+      "sender"
+    ],
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value",
+    "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}",
+    "query": "checkUserExistence"
   }`
   """
   changePasswordWithToken(data: ChangePasswordWithTokenInput!): ChangePasswordWithTokenOutput
@@ -88710,24 +88335,6 @@ type Mutation {
   			"required": false
   		},
   		"userPassword": {
-  			"defaultValue": "",
-  			"required": false
-  		}
-  	},
-  	"RESET_PASSWORD": {
-  		"dv": {
-  			"defaultValue": "",
-  			"required": true
-  		},
-  		"token": {
-  			"defaultValue": "",
-  			"required": true
-  		},
-  		"userName": {
-  			"defaultValue": "USERNAME",
-  			"required": false
-  		},
-  		"userEmail": {
   			"defaultValue": "",
   			"required": false
   		}

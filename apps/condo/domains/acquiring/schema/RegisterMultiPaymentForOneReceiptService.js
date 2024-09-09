@@ -10,6 +10,17 @@ const { getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/RegisterMultiPaymentForOneReceiptService')
 const {
+    GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM },
+    RECEIPTS_ARE_DELETED,
+    RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE,
+    ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION,
+    RECEIPT_HAS_DELETED_BILLING_INTEGRATION,
+    BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED,
+    ACQUIRING_INTEGRATION_IS_DELETED,
+    CANNOT_FIND_ALL_BILLING_RECEIPTS,
+    ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
+} = require('@condo/domains/acquiring/constants/errors')
+const {
     FEE_CALCULATION_PATH,
     WEB_VIEW_PATH,
     DIRECT_PAYMENT_PATH,
@@ -23,18 +34,6 @@ const {
     FeeDistribution,
 } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
-
-
-const {
-    RECEIPTS_ARE_DELETED,
-    RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE,
-    ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION,
-    RECEIPT_HAS_DELETED_BILLING_INTEGRATION,
-    BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED,
-    ACQUIRING_INTEGRATION_IS_DELETED,
-    CANNOT_FIND_ALL_BILLING_RECEIPTS,
-    ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
-} = require('../constants/errors')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -55,6 +54,10 @@ const ERRORS = {
         type: WRONG_FORMAT,
         message: 'Invalid format of "sender" field value. {details}',
         correctExample: '{ dv: 1, fingerprint: \'example-fingerprint-alphanumeric-value\'}',
+    },
+    PAYMENT_AMOUNT_LESS_THAN_MINIMUM: {
+        ...PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
+        mutation: 'registerMultiPaymentForOneReceipt',
     },
     ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED: {
         mutation: 'registerMultiPaymentForOneReceipt',
@@ -240,6 +243,15 @@ const RegisterMultiPaymentForOneReceiptService = new GQLCustomSchema('RegisterMu
                     ...explicitFees,
                     implicitFee: String(implicitFee),
                     serviceFee: String(fromReceiptAmountFee),
+                }
+                const amountToPay = Big(billingReceipt.toPay)
+                    .add(Big(paymentCommissionFields.explicitServiceCharge))
+                    .add(Big(paymentCommissionFields.explicitFee))
+                if (acquiringIntegration.minimumPaymentAmount && Big(amountToPay).lt(acquiringIntegration.minimumPaymentAmount)) {
+                    throw new GQLError({
+                        ...ERRORS.PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
+                        messageInterpolation: { minimumPaymentAmount: Big(acquiringIntegration.minimumPaymentAmount).toString() },
+                    }, context)
                 }
                 const paymentModel = await Payment.create(context, {
                     dv: 1,

@@ -204,6 +204,13 @@ DROP TABLE "TicketCommentsTime" CASCADE;
 DROP TABLE "TicketCommentsTimeHistoryRecord" CASCADE;
 COMMIT;
 
+--
+-- 20240801123459-0415_remove_forgotpasswordaction_createdby_and_more.js Delete ForgotPasswordAction schema
+--
+DROP TABLE "ForgotPasswordAction" CASCADE;
+DROP TABLE "ForgotPasswordActionHistoryRecord" CASCADE;
+COMMIT;
+
     `))
 }
 

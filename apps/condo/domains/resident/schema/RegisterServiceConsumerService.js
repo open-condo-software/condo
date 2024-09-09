@@ -21,6 +21,7 @@ const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const access = require('@condo/domains/resident/access/RegisterServiceConsumerService')
+const { resetUserResidentCache } = require('@condo/domains/resident/utils/accessSchema')
 const { ServiceConsumer, Resident } = require('@condo/domains/resident/utils/serverSchema')
 
 
@@ -106,6 +107,8 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
 
                 const resident = await Resident.getOne(context, { id, deletedAt: null })
                 if (!resident) throw new GQLError(ERRORS.RESIDENT_NOT_FOUND, context)
+                await resetUserResidentCache(resident.user.id)
+
 
                 const propertyWhere = resident.addressKey
                     ? { addressKey: resident.addressKey }
@@ -224,6 +227,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                 if (!resident) {
                     throw new GQLError(ERRORS.RESIDENT_NOT_FOUND, context)
                 }
+                await resetUserResidentCache(resident.user.id)
                 const organization = await Organization.getOne(context, { id: organizationId, deletedAt: null })
                 if (!organization) {
                     throw new GQLError(ERRORS.ORGANIZATION_NOT_FOUND, context)

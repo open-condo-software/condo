@@ -4,6 +4,7 @@
 
 const { get, isNil } = require('lodash')
 
+const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById, find, getByCondition } = require('@open-condo/keystone/schema')
 
@@ -11,7 +12,6 @@ const access = require('@condo/domains/billing/access/BillingReceiptFile')
 const { BILLING_RECEIPT_FILE_FOLDER_NAME } = require('@condo/domains/billing/constants/constants')
 const { BillingReceipt: BillingReceiptApi } = require('@condo/domains/billing/utils/serverSchema')
 const { UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
-const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 

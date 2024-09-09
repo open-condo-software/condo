@@ -65,7 +65,7 @@ const REGISTER_NEW_USER_MUTATION = gql`
     }
 `
 
-const OWN_USER_FIELDS = '{ id name avatar { publicUrl } phone email isAdmin isSupport locale showGlobalHints }'
+const OWN_USER_FIELDS = '{ id name avatar { publicUrl } phone email isAdmin isSupport rightsSet { id } locale showGlobalHints }'
 
 const USER_QUERY = gql`
     query {
@@ -80,7 +80,7 @@ const GET_MY_USERINFO = gql`
 `
 
 const SIGNIN_MUTATION = gql`
-    mutation sigin($identity: String, $secret: String) {
+    mutation signin($identity: String, $secret: String) {
         obj: authenticateUserWithPassword(email: $identity, password: $secret) {
             item {
                 id
@@ -104,19 +104,6 @@ const SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION = gql`
         }
     }
 `
-const START_PASSWORD_RECOVERY_MUTATION = gql`
-    mutation startPasswordRecovery($data: StartPasswordRecoveryInput!) {
-        result: startPasswordRecovery(data: $data) { status }
-    }
-`
-
-
-const CHECK_PASSWORD_RECOVERY_TOKEN = gql`
-    query checkPasswordRecoveryToken($data: CheckPasswordRecoveryTokenInput!) {
-        result: checkPasswordRecoveryToken(data: $data) { status }
-    }
-`
-
 
 const START_CONFIRM_PHONE_MUTATION = gql`
     mutation startConfirmPhoneAction($data: StartConfirmPhoneActionInput!) {
@@ -141,8 +128,6 @@ const GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY = gql`
 
 const CONFIRM_PHONE_ACTION_FIELDS = '{ id dv sender { dv fingerprint } deletedAt phone token smsCode smsCodeRequestedAt smsCodeExpiresAt retries isPhoneVerified requestedAt expiresAt completedAt }'
 const ConfirmPhoneAction = generateGqlQueries('ConfirmPhoneAction', CONFIRM_PHONE_ACTION_FIELDS)
-const FORGOT_PASSWORD_ACTION_FIELDS = `{ user { id } token requestedAt expiresAt usedAt ${COMMON_FIELDS} }`
-const ForgotPasswordAction = generateGqlQueries('ForgotPasswordAction', FORGOT_PASSWORD_ACTION_FIELDS)
 
 
 // TODO(codegen): write return type result!
@@ -183,7 +168,7 @@ const SEND_MESSAGE_TO_SUPPORT_MUTATION = gql`
     }
 `
 
-const OIDC_CLIENT_FIELDS = `{ clientId payload name meta expiresAt ${COMMON_FIELDS} }`
+const OIDC_CLIENT_FIELDS = `{ clientId payload name canAuthorizeSuperUsers meta expiresAt ${COMMON_FIELDS} }`
 const OidcClient = generateGqlQueries('OidcClient', OIDC_CLIENT_FIELDS)
 
 const EXTERNAL_TOKEN_ACCESS_RIGHT_FIELDS = `{ type user { id } deletedAt ${COMMON_FIELDS} }`
@@ -217,14 +202,11 @@ module.exports = {
     SIGNIN_MUTATION,
     CHANGE_PASSWORD_WITH_TOKEN_MUTATION,
     SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION,
-    START_PASSWORD_RECOVERY_MUTATION,
     START_CONFIRM_PHONE_MUTATION,
     RESEND_CONFIRM_PHONE_SMS_MUTATION,
     COMPLETE_CONFIRM_PHONE_MUTATION,
     GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY,
     ConfirmPhoneAction,
-    ForgotPasswordAction,
-    CHECK_PASSWORD_RECOVERY_TOKEN,
     SIGNIN_RESIDENT_USER_MUTATION,
     CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION,
     SIGNIN_AS_USER_MUTATION,

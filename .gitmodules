@@ -10,7 +10,6 @@
 [submodule "infrastructure/helm"]
 	path = .helm
 	url = ../infrastructure-condo.git
-	branch = master
 [submodule "apps/condorb"]
 	path = apps/condorb
 	url = ../condorb.git

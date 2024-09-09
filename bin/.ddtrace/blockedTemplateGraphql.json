@@ -1,0 +1,15 @@
+{
+  "errors": [
+    {
+      "name": "SecurityError",
+      "message": "You've been blocked",
+      "developerMessage": "You've been blocked by security system. You need to stop all your activity related to API calls",
+      "extensions": {
+        "message": "You've been blocked",
+        "messageForUser": "ERROR: BLOCK_BY_WAF. Sorry, you cannot perform this operation. Please contact the support team",
+        "code": "FORBIDDEN",
+        "type": "BLOCK_BY_WAF"
+      }
+    }
+  ]
+}

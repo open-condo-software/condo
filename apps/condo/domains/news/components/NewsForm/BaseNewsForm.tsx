@@ -63,9 +63,12 @@ import { NewsItemSharingForm, SharingAppValues } from '@condo/domains/news/compo
 import SelectSharingAppControl from '@condo/domains/news/components/NewsForm/SelectSharingAppControl'
 import { NewsItemCard } from '@condo/domains/news/components/NewsItemCard'
 import { MemoizedCondoNewsPreview } from '@condo/domains/news/components/NewsPreview'
-import { detectTargetedSections, RecipientCounter } from '@condo/domains/news/components/RecipientCounter'
+import {
+    detectTargetedSections,
+    MemoizedRecipientCounter,
+} from '@condo/domains/news/components/RecipientCounter'
 import { TemplatesSelect } from '@condo/domains/news/components/TemplatesSelect'
-import { TNewsItemScopeNoInstance } from '@condo/domains/news/components/types'
+import { NewsItemScopeNoInstanceType } from '@condo/domains/news/components/types'
 import { PROFANITY_TITLE_DETECTED_MOT_ERF_KER, PROFANITY_BODY_DETECTED_MOT_ERF_KER } from '@condo/domains/news/constants/errors'
 import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 import { NewsItem, NewsItemScope } from '@condo/domains/news/utils/clientSchema'
@@ -519,7 +522,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
     const { loading: selectedPropertiesLoading, objs: selectedProperties } = Property.useAllObjects({
         where: { id_in: selectedPropertiesId },
-    })
+    }, { fetchPolicy: 'cache-first' })
 
     const isOnlyOnePropertySelected: boolean = useMemo(() => (selectedPropertiesId.length === 1), [selectedPropertiesId.length])
 
@@ -946,7 +949,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }
     }, [actionName, createOrUpdateNewsItem, initialHasAllProperties, initialPropertyIds, updateNewsItem, OnCompletedMsg, afterAction, initialSentAt, currentNewsItem, initialNewsItemScopes, softDeleteNewsItemScope, initialUnitKeys, createNewsItemScope, router])
 
-    const newsItemScopesNoInstance = useMemo<TNewsItemScopeNoInstance[]>(() => {
+    const newsItemScopesNoInstance = useMemo<NewsItemScopeNoInstanceType[]>(() => {
         if (isAllPropertiesChecked && countPropertiesAvailableToSelect.current !== 1) {
             return [{ property: null, unitType: null, unitName: null }]
         }
@@ -1432,13 +1435,11 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                         )}
                                                     </Row>
                                                 </Col>
-                                                {
-                                                    !!formInfoColSpan && newsItemScopesNoInstance.length > 0 && (
-                                                        <Col span={formInfoColSpan}>
-                                                            <RecipientCounter newsItemScopes={newsItemScopesNoInstance} />
-                                                        </Col>
-                                                    )
-                                                }
+                                                <Col span={formInfoColSpan}>
+                                                    <HiddenBlock hide={newsItemScopesNoInstance.length <= 0} >
+                                                        <MemoizedRecipientCounter newsItemScopes={newsItemScopesNoInstance}/>
+                                                    </HiddenBlock>
+                                                </Col>
                                             </Row>
                                         </Col>
                                     </>
@@ -1448,11 +1449,12 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                     (getStepTypeByStep(currentStep) === 'sharingApp') && (
                                         // TODO (DOMA-9328) Move onSkip to BaseNewsForm component, since steps are handled here!
                                         <NewsItemSharingForm
+                                            ctxId={getStepDataByStep(currentStep).sharingAppData.id}
                                             onSkip={() => handleStepSkip({ skip: true, step: currentStep })}
                                             onSubmit={(values) => handleSharingAppFormSubmit({ values: values, ctxId: getStepDataByStep(currentStep).sharingAppData.id })}
                                             sharingApp={getStepDataByStep(currentStep).sharingAppData.app}
                                             initialValues={get(sharingAppsFormValues, [getStepDataByStep(currentStep).sharingAppData.id], undefined)}
-                                            newsItemData={{ type: selectedType, validBefore: selectedValidBeforeText, title: selectedTitle, body: selectedBody }}
+                                            newsItemData={{ type: selectedType, validBefore: selectedValidBeforeText, title: selectedTitle, body: selectedBody, scopes: newsItemScopesNoInstance }}
                                         />
                                     )
                                 }

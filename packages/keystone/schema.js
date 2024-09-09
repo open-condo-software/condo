@@ -5,6 +5,10 @@ const { pickBy, identity, isFunction, isArray, memoize } = require('lodash')
 const get = require('lodash/get')
 const ow = require('ow')
 
+const conf = require('@open-condo/config')
+const { getExecutionContext } = require('@open-condo/keystone/executionContext')
+const { getLogger } = require('@open-condo/keystone/logging')
+
 const { GQL_SCHEMA_PLUGIN } = require('./plugins/utils/typing')
 
 let EVENTS = new Emittery()
@@ -12,6 +16,37 @@ let SCHEMAS = new Map()
 const GQL_LIST_SCHEMA_TYPE = 'GQLListSchema'
 const GQL_CUSTOM_SCHEMA_TYPE = 'GQLCustomSchema'
 const GQL_SCHEMA_TYPES = [GQL_LIST_SCHEMA_TYPE, GQL_CUSTOM_SCHEMA_TYPE]
+
+const TIMEOUT_DURATION = Number(conf.TIMEOUT_CHUNKS_DURATION) || 60 * 1000
+const TOO_MANY_RETURNED_FIND_LIMIT = 200
+const TOO_MANY_RETURNED_ITEMS_LIMIT = 200
+const TOO_MANY_RETURNED_ALL_ITEMS_WARN_LIMIT = 1000
+const TOO_MANY_RETURNED_ALL_ITEMS_ERROR_LIMIT = 2000
+
+const logger = getLogger('packages/schema.js')
+
+function logTooManyReturnedIfRequired (tooManyReturnedLimitCounters, allObjects, { functionName, schemaName, data }) {
+    if (!Array.isArray(tooManyReturnedLimitCounters)) throw new Error('logTooManyReturned: wrong argument type')
+    if (tooManyReturnedLimitCounters.length <= 0) return  // trying to notify only if have any counter
+    const realLimit = tooManyReturnedLimitCounters[0]
+
+    if (allObjects && Array.isArray(allObjects) && allObjects.length > realLimit) {
+        const executionContext = getExecutionContext()
+        const reqId = executionContext?.reqId
+        const taskId = executionContext?.taskId
+        logger.warn({
+            msg: 'tooManyReturned',
+            tooManyLimit: realLimit,
+            count: allObjects.length,
+            functionName,
+            schemaName,
+            data,
+            reqId,
+            taskId,
+        })
+        tooManyReturnedLimitCounters.shift()  // remove counter and mark as already notified
+    }
+}
 
 /**
  * This function is Keystone v5 only compatible and will be removed soon!
@@ -140,7 +175,13 @@ async function find (schemaName, condition) {
     if (!SCHEMAS.has(schemaName)) throw new Error(`Schema ${schemaName} is not registered yet`)
     if (SCHEMAS.get(schemaName)._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${schemaName} type != ${GQL_LIST_SCHEMA_TYPE}`)
     const schemaList = SCHEMAS.get(schemaName)
-    return await schemaList._keystone.lists[schemaName].adapter.find(condition)
+    const result = await schemaList._keystone.lists[schemaName].adapter.find(condition)
+    logTooManyReturnedIfRequired([TOO_MANY_RETURNED_FIND_LIMIT], result, {
+        functionName: 'find',
+        schemaName,
+        data: { where: condition },
+    })
+    return result
 }
 
 /**
@@ -165,7 +206,13 @@ async function itemsQuery (schemaName, args, { meta = false, from = {} } = {}) {
     if (!SCHEMAS.has(schemaName)) throw new Error(`Schema ${schemaName} is not registered yet`)
     if (SCHEMAS.get(schemaName)._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${schemaName} type != ${GQL_LIST_SCHEMA_TYPE}`)
     const schemaList = SCHEMAS.get(schemaName)
-    return await schemaList._keystone.lists[schemaName].adapter.itemsQuery(args, { meta, from })
+    const result = await schemaList._keystone.lists[schemaName].adapter.itemsQuery(args, { meta, from })
+    logTooManyReturnedIfRequired([TOO_MANY_RETURNED_ITEMS_LIMIT], result, {
+        functionName: 'itemsQuery',
+        schemaName,
+        data: { from, meta, where: args },
+    })
+    return result
 }
 
 async function allItemsQueryByChunks ({
@@ -178,9 +225,27 @@ async function allItemsQueryByChunks ({
     let newChunk = []
     let all = []
     let newChunkLength
+    let tooManyReturnedLimitCounters = [TOO_MANY_RETURNED_ALL_ITEMS_WARN_LIMIT]
+
+    const startTime = Date.now()
+    const sortBy = ['id_ASC']
 
     do {
-        newChunk = await itemsQuery(schemaName, { where, first: chunkSize, skip, sortBy: ['id_ASC'] })
+        const now = Date.now()
+
+        if (conf.DISABLE_CHUNKS_TIMEOUT !== 'true' && now - startTime >= TIMEOUT_DURATION) {
+            logger.info({
+                msg: 'Operation timed out',
+                functionName: 'allItemsQueryByChunks',
+                schemaName: schemaName,
+                data: { where, first: chunkSize, skip, sortBy },
+                count: all.length,
+            })
+
+            throw new Error('Operation timed out')
+        }
+
+        newChunk = await itemsQuery(schemaName, { where, first: chunkSize, skip, sortBy })
         newChunkLength = newChunk.length
 
         if (newChunkLength > 0) {
@@ -193,7 +258,24 @@ async function allItemsQueryByChunks ({
             skip += newChunkLength
             all = all.concat(newChunk)
         }
+
+        logTooManyReturnedIfRequired(tooManyReturnedLimitCounters, all, {
+            functionName: 'allItemsQueryByChunks',
+            schemaName: schemaName,
+            data: {
+                where, first: chunkSize, skip, sortBy,
+            },
+        })
+
     } while (newChunkLength)
+
+    logTooManyReturnedIfRequired([TOO_MANY_RETURNED_ALL_ITEMS_ERROR_LIMIT], all, {
+        functionName: 'allItemsQueryByChunks',
+        schemaName: schemaName,
+        data: {
+            where, first: chunkSize, skip, sortBy,
+        },
+    })
 
     return all
 }

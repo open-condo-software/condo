@@ -3,7 +3,6 @@ const v8 = require('v8')
 
 const { AdminUIApp } = require('@keystonejs/app-admin-ui')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
-const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
 const { Keystone } = require('@keystonejs/keystone')
 const cuid = require('cuid')
 const { json, urlencoded } = require('express')
@@ -13,6 +12,7 @@ const { v4 } = require('uuid')
 
 const conf = require('@open-condo/config')
 const { formatError } = require('@open-condo/keystone/apolloErrorFormatter')
+const { ExtendedPasswordAuthStrategy } = require('@open-condo/keystone/authStrategy/passwordAuth')
 const { parseCorsSettings } = require('@open-condo/keystone/cors.utils')
 const { _internalGetExecutionContextAsyncLocalStorage } = require('@open-condo/keystone/executionContext')
 const { IpBlackListMiddleware } = require('@open-condo/keystone/ipBlackList')
@@ -27,7 +27,6 @@ const { ApolloSentryPlugin } = require('@open-condo/keystone/sentry')
 const { prepareDefaultKeystoneConfig } = require('@open-condo/keystone/setup.utils')
 const { registerTasks, registerTaskQueues, taskQueues } = require('@open-condo/keystone/tasks')
 const { KeystoneTracingApp } = require('@open-condo/keystone/tracing')
-
 
 const IS_BUILD_PHASE = conf.PHASE === 'build'
 const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
@@ -77,7 +76,7 @@ const sendAppMetrics = () => {
     }
 }
 
-function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, schemas, schemasPreprocessors, tasks, queues, apps, lastApp, graphql, ui }) {
+function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, schemas, schemasPreprocessors, tasks, queues, apps, lastApp, graphql, ui, authStrategyOpts }) {
     // trying to be compatible with keystone-6 and keystone-5
     // TODO(pahaz): add storage like https://keystonejs.com/docs/config/config#storage-images-and-files
 
@@ -104,11 +103,21 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
     // We need to register all schemas as they will appear in admin ui
     registerSchemas(keystone, schemas(), globalPreprocessors)
 
+    const authStrategyConfig = get(authStrategyOpts, 'config', {})
     const authStrategy = keystone.createAuthStrategy({
-        type: PasswordAuthStrategy,
+        type: ExtendedPasswordAuthStrategy,
         list: 'User',
         config: {
             protectIdentities: false,
+            async findIdentityItems (config, list, args) {
+                const { identityField } = config
+                const identity = args[identityField]
+                return await list.adapter.find({
+                    [identityField]: identity,
+                    deletedAt: null,
+                })
+            },
+            ...authStrategyConfig,
         },
         hooks: {
             async afterAuth ({ item, token, success })  {
@@ -195,14 +204,21 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
             app.use(urlencoded({ limit: '100mb', extended: true }))
 
             const requestIdHeaderName = 'x-request-id'
+            const startRequestIdHeaderName = 'x-start-request-id'
             app.use(function reqId (req, res, next) {
                 const reqId = req.get(requestIdHeaderName) || v4()
-                _internalGetExecutionContextAsyncLocalStorage().run({ reqId }, () => {
+                const startReqId = req.get(startRequestIdHeaderName) || reqId
+
+                _internalGetExecutionContextAsyncLocalStorage().run({ reqId, startReqId }, () => {
                     // we are expecting to receive reqId from client in order to have fully traced logs end to end
                     // also, property name are constant name, not a dynamic user input
                     // nosemgrep: javascript.express.security.audit.remote-property-injection.remote-property-injection
                     req['id'] = req.headers[requestIdHeaderName] = reqId
+                    // nosemgrep: javascript.express.security.audit.remote-property-injection.remote-property-injection
+                    req['startId'] = req.headers[startRequestIdHeaderName] = startReqId
+
                     res.setHeader(requestIdHeaderName, reqId)
+                    res.setHeader(startRequestIdHeaderName, startReqId)
                     next()
                 })
             })

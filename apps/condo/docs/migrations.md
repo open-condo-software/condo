@@ -1,7 +1,7 @@
 Migrations guide
 =====
 
-Migrations should not be changed if they have already been merged in master ;)
+Migrations should not be changed if they have already been merged in main branch ;)
 Don't change migration files by hands If you don't really understand how the `kmigrator` works!
 
 ## Snippets
@@ -129,7 +129,7 @@ By running `makemigrations` util, it can crash with following error:
 The reason can be a `.DS_Store` file, added by macOS ;)
 
 ```shell
-➜  condo git:(master) ls -la apps/condo/migrations 
+➜  condo git:(main) ls -la apps/condo/migrations 
 total 752
 drwxr-xr-x  31 antonal  staff     992 16 июл 10:15 .
 drwxr-xr-x  29 antonal  staff     928 16 июл 10:15 ..

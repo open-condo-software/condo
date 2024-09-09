@@ -24,7 +24,6 @@ const { ADDRESS_NOT_FOUND_ERROR } = require('@condo/domains/resident/constants/e
 const { Resident: ResidentAPI } = require('@condo/domains/resident/utils/serverSchema')
 const { discoverServiceConsumers } = require('@condo/domains/resident/utils/serverSchema')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
-
 const redisGuard = new RedisGuard()
 
 const logger = getLogger('registerResident')
@@ -85,6 +84,7 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                     addressKey: addressItem.addressKey,
                     unitName_i: unitName,
                     unitType,
+                    deletedAt: null,
                     user: { id: context.authedItem.id },
                 }, {
                     first: 1,
@@ -107,16 +107,7 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                 }
 
                 let id
-                if (existingResident) {
-                    const nextAttrs = omit(
-                        { ...attrs, deletedAt: null },
-                        ['address', 'addressMeta', 'unitName'],
-                    )
-
-                    // TODO(DOMA-1780): we need to update address and addressMeta from property
-                    await ResidentAPI.update(context, existingResident.id, nextAttrs)
-                    id = existingResident.id
-                } else {
+                if (!existingResident) {
                     const residentAttrs = { ...attrs, address: addressItem.address }
                     const resident = await ResidentAPI.create(context, residentAttrs)
 

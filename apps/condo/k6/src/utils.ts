@@ -83,6 +83,42 @@ const createOrganization = (data) => sendAuthorizedRequest(data, {
     },
 })
 
+const createTicket = (data) => sendAuthorizedRequest(data, {
+    operationName: 'createTicket',
+    query: 'mutation createTicket($data: TicketCreateInput) {obj: createTicket(data: $data) {id}}',
+    variables: {
+        data: {
+            ...DV_SENDER,
+            organization: { connect: { id: data.organizationId } },
+            status: { connect: { id: '6ef3abc4-022f-481b-90fb-8430345ebfc2' } },
+            classifier: { connect: { id: '92b39cea-72f0-4c52-9d32-5a4ffe5240d2' } },
+            property: { connect: { id: data.propertyId } },
+            source: { connect: { id: '779d7bb6-b194-4d2c-a967-1f7321b2787f' } },
+            unitName: faker.random.alphaNumeric(3),
+            unitType: 'flat',
+            details: 'Api created ticket ' + __VU,
+        },
+    },
+})
+
+const createMeter = (data) => sendAuthorizedRequest(data, {
+    operationName: 'createMeter',
+    query: 'mutation createMeter($data: MeterCreateInput) {obj: createMeter(data: $data) {id}}',
+    variables: {
+        data: {
+            ...DV_SENDER,
+            organization: { connect: { id: data.organizationId } },
+            property: { connect: { id: data.propertyId } },
+            unitName: faker.random.alphaNumeric(3),
+            unitType: 'flat',
+            numberOfTariffs: 1,
+            resource: { connect: { id: 'ffc3f0c3-5044-4093-93ce-d7e92176dfe2' } },
+            number: faker.random.alphaNumeric(10),
+            accountNumber: faker.random.alphaNumeric(10),
+        },
+    },
+})
+
 const getOrganizationEmployeeId = (data) => sendAuthorizedRequest(data, {
     operationName: 'getList',
     query: 'query getList($where:OrganizationEmployeeWhereInput){allOrganizationEmployees(where:$where){id}}',
@@ -106,7 +142,7 @@ const signInAsUser = (token, userId) => sendAuthorizedRequest({ token }, {
     },
 })
 
-const createProperty = (data) => {
+const createProperty = (data, extraAttrs = {}) => {
     const { address: fakeAddress } = buildFakeAddressAndMeta()
 
     const address = __ENV.BASE_URL === 'http://localhost:3000'
@@ -152,7 +188,7 @@ const createProperty = (data) => {
 
     return sendAuthorizedRequest(data, {
         operationName: 'createProperty',
-        query: 'mutation createProperty($data:PropertyCreateInput!){obj:createProperty(data:$data){id}}',
+        query: 'mutation createProperty($data:PropertyCreateInput!){obj:createProperty(data:$data){id address addressKey}}',
         variables: {
             data: {
                 ...DV_SENDER,
@@ -160,6 +196,7 @@ const createProperty = (data) => {
                 organization: { connect: { id: data.organizationId } },
                 type: 'building',
                 map: propertyMap,
+                ...extraAttrs,
             },
         },
     })
@@ -206,15 +243,62 @@ const createBillingIntegrationOrganizationContext = (data, organization, integra
     })
 }
 
+const registerResident = (data, address, unitName, unitType = 'flat', extraAttrs = {}) => {
+    return sendAuthorizedRequest(data, {
+        operationName: 'registerResident',
+        query: 'mutation registerResident ($data: RegisterResidentInput!) { obj: registerResident(data: $data) { id } }',
+        variables: {
+            data: {
+                ...DV_SENDER,
+                address, unitName, unitType,
+                ...extraAttrs,
+            },
+        },
+    })
+}
+
+const registerResidentServiceConsumers = (data, residentId, accountNumber, extraAttrs = {}) => {
+    return sendAuthorizedRequest(data, {
+        operationName: 'registerResidentServiceConsumers',
+        query: 'mutation registerResidentServiceConsumers ($data: RegisterResidentServiceConsumersInput!) { obj: registerResidentServiceConsumers(data: $data) { id } }',
+        variables: {
+            data: {
+                ...DV_SENDER,
+                resident: { id: residentId }, accountNumber,
+                ...extraAttrs,
+            },
+        },
+    })
+}
+
+const allResidentBillingReceipts = (data, residentId, extraAttrs = {}) => {
+    return sendAuthorizedRequest(data, {
+        operationName: 'allResidentBillingReceipts',
+        query: 'query allResidentBillingReceipts($where: ResidentBillingReceiptWhereInput) { allResidentBillingReceipts(where: $where) { id } }',
+        variables: {
+            where: {
+                serviceConsumer: { resident: { id: residentId } },
+                ...extraAttrs,
+            },
+        },
+    })
+}
+
+
 export {
+    allResidentBillingReceipts,
     setupCondoAuth,
     createOrganization,
     createProperty,
+    createTicket,
+    createMeter,
     createBillingIntegration,
     createBillingIntegrationOrganizationContext,
     sendAuthorizedRequest,
     getOrganizationEmployeeId,
     getOrganizationEmployees,
+    registerResident,
+    registerResidentServiceConsumers,
     signInAsUser,
     BASE_API_URL,
 }

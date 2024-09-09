@@ -7,7 +7,7 @@
 
 # Change esLint style
 
-If you want to change linting please follow the https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/eslint-plugin 
+If you want to change linting please follow the https://github.com/typescript-eslint/typescript-eslint/tree/main/packages/eslint-plugin 
 official recommendations!
 
 # React component style
