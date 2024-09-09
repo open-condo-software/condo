@@ -20,9 +20,7 @@ const PAGE_ROW_GUTTER: RowProps['gutter'] = [0, 40]
 const UpdatePropertyPage: IUpdatePropertyPage = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id:'pages.condo.property.index.UpdatePropertyTitle' })
-    const { query: { id, next } } = useRouter()
-
-    const isValidNextUrl = next && !Array.isArray(next) && isSafeUrl(next)
+    const { query: { id } } = useRouter()
 
     return (
         <>
@@ -35,7 +33,7 @@ const UpdatePropertyPage: IUpdatePropertyPage = () => {
                         <Col span={24}>
                             <Typography.Title level={1}>{PageTitleMsg}</Typography.Title>
                         </Col>
-                        <PropertyForm next={isValidNextUrl ? next : undefined} id={id as string}/>
+                        <PropertyForm id={id as string}/>
                     </Row>
                 </PageContent>
             </PageWrapper>
