@@ -8,7 +8,7 @@ const { pick, get, isNil, min } = require('lodash')
 const { generateQuerySortBy } = require('@open-condo/codegen/generate.gql')
 const { generateQueryWhereInput } = require('@open-condo/codegen/generate.gql')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
-const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema')
 
 const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
@@ -29,6 +29,9 @@ const {
 } = require('@condo/domains/billing/utils/serverSchema')
 const { normalizeUnitName } = require('@condo/domains/billing/utils/unitName.utils')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
+
+const { log } = require('../../../scripts')
+const { CONTEXT_FINISHED_STATUS } = require('../../acquiring/constants/context')
 
 
 const Adapter = new FileAdapter(BILLING_RECEIPT_FILE_FOLDER_NAME)
@@ -113,13 +116,16 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                     serviceConsumerWhere.deletedAt = null
                 }
 
-                const serviceConsumers = (await find('ServiceConsumer', serviceConsumerWhere))
+                const serviceConsumers = await find('ServiceConsumer', serviceConsumerWhere)
+                const consumerOrganizations = new Set(serviceConsumers.map(consumer => consumer.organization))
+                const billingContexts = await find('BillingIntegrationOrganizationContext', {
+                    organization: { id_in: [...consumerOrganizations] },
+                    status: CONTEXT_FINISHED_STATUS,
+                })
+                const billingContextOrganizations = new Set(billingContexts.map(context => context.organization))
+                const serviceConsumersWithBillingAccount = serviceConsumers.filter(consumer => billingContextOrganizations.has(consumer.organization))
 
-                const serviceConsumersWithBillingAccount = serviceConsumers.filter(consumer => (
-                    get(consumer, 'billingIntegrationContext')
-                ))
-
-                if (!Array.isArray(serviceConsumersWithBillingAccount) || !serviceConsumersWithBillingAccount.length) {
+                if (!serviceConsumersWithBillingAccount.length) {
                     return []
                 }
 
@@ -175,10 +181,10 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                 })
 
                 // cache acquiring integration contexts
-                const aicIds = serviceConsumersWithBillingAccount.map(consumer => consumer.acquiringIntegrationContext)
-                    .filter(aic => !isNil(aic))
-                const acquiringContexts = await AcquiringIntegrationContext.getAll(context, {
-                    id_in: aicIds,
+                const consumerWithBillingAccountOrganizations = new Set(serviceConsumersWithBillingAccount.map(consumer => consumer.organization))
+                const acquiringContexts = await find('AcquiringIntegrationContext', {
+                    organization: { id_in: [...consumerWithBillingAccountOrganizations] },
+                    status: CONTEXT_FINISHED_STATUS,
                 })
 
                 receiptsForConsumer.forEach(receipt => {
