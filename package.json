@@ -13,7 +13,7 @@
     "analysis": "./bin/run-semgrep.sh -a",
     "build:packages": "turbo run build --filter='./packages/*'",
     "build:apps": "turbo run build --filter='./apps/*' --concurrency=100%",
-    "build": "turbo run build --filter=!./apps/eps --filter=!./packages/bicrypt --force",
+    "build": "turbo run build --force",
     "lint:code": "yarn run eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:styles": "yarn run stylelint \"**/*.{less,css}\"",
     "lint:code:fix": "yarn run eslint --fix . --ext .js,.jsx,.ts,.tsx",
