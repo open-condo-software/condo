@@ -12854,6 +12854,7 @@ __metadata:
     knex: ^0.95.6
     lodash: ^4.17.21
     lru-cache: ^7.18.3
+    mime-types: ^2.1.35
     minimatch: ^5.1.1
     ms: ^2.1.3
     next-cookies: ^2.0.3
@@ -37345,7 +37346,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mime-types@npm:^2.1.12, mime-types@npm:^2.1.18, mime-types@npm:^2.1.27, mime-types@npm:^2.1.30, mime-types@npm:~2.1.19, mime-types@npm:~2.1.24, mime-types@npm:~2.1.34":
+"mime-types@npm:^2.1.12, mime-types@npm:^2.1.18, mime-types@npm:^2.1.27, mime-types@npm:^2.1.30, mime-types@npm:^2.1.35, mime-types@npm:~2.1.19, mime-types@npm:~2.1.24, mime-types@npm:~2.1.34":
   version: 2.1.35
   resolution: "mime-types@npm:2.1.35"
   dependencies:

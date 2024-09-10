@@ -2,6 +2,7 @@ const crypto = require('crypto')
 const fs = require('fs')
 const http = require('http')
 const https = require('https')
+const path = require('path')
 const urlLib = require('url')
 
 const { ApolloClient, ApolloLink, InMemoryCache } = require('@apollo/client')
@@ -13,6 +14,7 @@ const express = require('express')
 const falsey = require('falsey')
 const { gql } = require('graphql-tag')
 const { flattenDeep, fromPairs, toPairs, get, set, isFunction, isEmpty, template } = require('lodash')
+const mime = require('mime-types')
 const { CookieJar, Cookie } = require('tough-cookie')
 const { FormData } = require('undici')
 
@@ -63,11 +65,13 @@ const SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION = gql`
  */
 class UploadingFile {
     constructor (filePath) {
-        this._stream = fs.createReadStream(filePath)
+        this.path = filePath
+        this.name = path.basename(filePath)
+        this.type = mime.lookup(filePath)
     }
 
     stream () {
-        return this._stream
+        return fs.createReadStream(this.path)
     }
 
     get [Symbol.toStringTag] () {

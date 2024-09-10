@@ -4,6 +4,7 @@ const { RetryLink } = require('@apollo/client/link/retry')
 const { onError }  = require('apollo-link-error')
 const { createUploadLink } = require('apollo-upload-client')
 const { chunk: splitArray } = require('lodash')
+const mime = require('mime-types')
 const { FormData } = require('undici')
 
 const { fetch } = require('@open-condo/keystone/fetch')
@@ -27,6 +28,10 @@ class UploadingFile {
         }
         if (mimetype) {
             this.mimetype = mimetype
+            this.type = mimetype
+        } else if (filename) {
+            this.mimetype = mime.lookup(filename)
+            this.type = mime.lookup(filename)
         }
         if (encoding) {
             this.encoding = encoding
