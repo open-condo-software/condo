@@ -1,12 +1,7 @@
 import get from 'lodash/get'
 
 import type { InitCacheOptions } from './cache'
-
-
-type ReadListFunction = <TData, TOptions extends Record<string, unknown>>(
-    existing: ReadonlyArray<TData> | undefined,
-    options: TOptions
-) => Array<TData> | undefined
+import type { FieldReadFunction } from '@apollo/client'
 
 export type ListHelperOptions = {
     skipArgName?: string
@@ -52,7 +47,7 @@ export class ListHelper {
         return undefined
     }
 
-    getReadFunction (clientPagination: ClientPaginationBehaviour): ReadListFunction | undefined {
+    getReadFunction (clientPagination: ClientPaginationBehaviour): FieldReadFunction | undefined {
         if (this.skipCacheOnRead) {
             return this.networkOnlyRead
         }
