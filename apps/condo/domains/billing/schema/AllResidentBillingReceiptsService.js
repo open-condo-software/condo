@@ -8,10 +8,10 @@ const { pick, get, isNil, min } = require('lodash')
 const { generateQuerySortBy } = require('@open-condo/codegen/generate.gql')
 const { generateQueryWhereInput } = require('@open-condo/codegen/generate.gql')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
-const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants/payment')
-const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
 const {
     getAcquiringIntegrationContextFormulaByInstance,
     FeeDistribution,
@@ -30,8 +30,6 @@ const {
 const { normalizeUnitName } = require('@condo/domains/billing/utils/unitName.utils')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 
-const { log } = require('../../../scripts')
-const { CONTEXT_FINISHED_STATUS } = require('../../acquiring/constants/context')
 
 
 const Adapter = new FileAdapter(BILLING_RECEIPT_FILE_FOLDER_NAME)
