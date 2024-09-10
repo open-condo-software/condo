@@ -1,4 +1,3 @@
-// @ts-ignore
 import { UserSwitchOutlined } from '@ant-design/icons'
 import { useMutation, gql } from '@apollo/client'
 import { ItemId, AddNewItem } from '@keystonejs/app-admin-ui/components'
