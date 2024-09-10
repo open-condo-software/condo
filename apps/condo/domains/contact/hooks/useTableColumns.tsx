@@ -8,13 +8,12 @@ import { useCallback, useMemo } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
-import { getOptionFilterDropdown } from '@condo/domains/common/components/Table/Filters'
+import { getOptionFilterDropdown, getFilterIcon } from '@condo/domains/common/components/Table/Filters'
 import {
     getAddressRender,
     getTableCellRenderer,
     getUnitNameRender,
 } from '@condo/domains/common/components/Table/Renders'
-import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
