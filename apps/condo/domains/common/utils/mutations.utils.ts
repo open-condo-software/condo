@@ -1,9 +1,21 @@
 import { notification } from 'antd'
-import find from 'lodash/find'
 import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
 
-import { NETWORK_ERROR } from '@condo/domains/common/constants/errors'
+
+type RunMutationProps = {
+    action?
+    mutation?
+    variables?
+    onCompleted?
+    onError?
+    onFinally?
+    intl?
+    form?
+    ErrorToFormFieldMsgMapping?
+    OnErrorMsg?
+    OnCompletedMsg?
+}
 
 /**
  * Mapping of error codes to field errors
@@ -49,7 +61,7 @@ import { NETWORK_ERROR } from '@condo/domains/common/constants/errors'
  * @param OnCompletedMsg
  * @return {*}
  */
-function runMutation ({ action, mutation, variables, onCompleted, onError, onFinally, intl, form, ErrorToFormFieldMsgMapping, OnErrorMsg, OnCompletedMsg }) {
+function runMutation ({ action, mutation, variables, onCompleted, onError, onFinally, intl, form, ErrorToFormFieldMsgMapping, OnErrorMsg, OnCompletedMsg }: RunMutationProps) {
     if (!intl) throw new Error('intl prop required')
     if (!mutation && !action) throw new Error('mutation or action prop required')
     if (action && mutation) throw new Error('impossible to pass mutation and action prop')
