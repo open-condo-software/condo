@@ -6,7 +6,7 @@ import type { NormalizedCacheObject, ApolloClient } from '@apollo/client'
 import type { InvalidationPolicyCacheConfig } from '@nerdwallet/apollo-cache-policies'
 
 export interface InvalidationCacheConfig extends InvalidationPolicyCacheConfig {
-    cacheIdentityKey: string | Array<string>
+    cacheIdentityKey?: string | Array<string>
 }
 
 export type InitCacheOptions = {

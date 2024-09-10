@@ -24,11 +24,11 @@ type ApolloClientOptions = {
     middlewares?: Array<ApolloLink>
 }
 
-type InitApolloClientOptions = Partial<Omit<ApolloClientOptions, 'cacheConfig'>> & {
+export type InitApolloClientOptions = Partial<Omit<ApolloClientOptions, 'cacheConfig'>> & {
     networkOnly?: boolean
 }
 
-type ApolloHelperOptions = Omit<ApolloClientOptions, 'cacheConfig'> & {
+export type ApolloHelperOptions = Omit<ApolloClientOptions, 'cacheConfig'> & {
     cacheConfig?: InitCacheConfig
 }
 
@@ -113,7 +113,7 @@ export class ApolloHelper {
         return this._apolloClient
     }
 
-    generateHook () {
+    generateUseApolloHook () {
         const initApollo = this.initializeApollo
         const initCacheConfig = this._getCacheConfig
 
