@@ -38,6 +38,11 @@ type SSRResult<PropsType> = {
     }
 }
 
+type UseApolloHookResult = {
+    client: ApolloClient<NormalizedCacheObject>
+    cachePersistor: CachePersistor<NormalizedCacheObject> | undefined
+}
+
 function createApolloClient (options: ApolloClientOptions): ApolloClient<NormalizedCacheObject> {
     const middlewares = options.middlewares || []
     const httpLink = createUploadLink({
@@ -113,7 +118,7 @@ export class ApolloHelper {
         return this._apolloClient
     }
 
-    generateUseApolloHook () {
+    generateUseApolloHook (): <PropsType> (pageProps: SSRResult<PropsType>['props']) => UseApolloHookResult {
         const initApollo = this.initializeApollo
         const initCacheConfig = this._getCacheConfig
 
