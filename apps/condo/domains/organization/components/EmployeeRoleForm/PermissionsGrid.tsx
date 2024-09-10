@@ -93,6 +93,11 @@ Permissions Trees state:
 
  */
 
+type PermissionsFormStateType = {
+    organization: EmployeeRoleFormValuesType['permissions']['organization']
+    b2bApps: EmployeeRoleFormValuesType['permissions']['b2bApps']
+}
+
 type PermissionsTreesStateType = {
     organization: {
         [groupKey: string]: Array<string>
@@ -187,8 +192,10 @@ export const PermissionsGrid: React.FC<PermissionsGridPropsType> = ({
     const currentRoleName = useRef(form.getFieldValue('name'))
 
     const updatePermissionsFormState = useCallback((checkedKeysByGroup: PermissionsTreesStateType, permissionsGroups: Array<PermissionsGroup>) => {
-        let organizationPermissions: EmployeeRoleFormValuesType['permissions']['organization'] = {}
-        const b2bAppPermissions: EmployeeRoleFormValuesType['permissions']['b2bApps'] = {}
+        let organizationPermissions: PermissionsFormStateType['organization'] = {}
+        const b2bAppPermissions: PermissionsFormStateType['b2bApps'] = {}
+
+        const prev: PermissionsFormStateType = form.getFieldValue('permissions')
 
         for (const group of permissionsGroups) {
             const groupKey = group.key
@@ -199,7 +206,28 @@ export const PermissionsGrid: React.FC<PermissionsGridPropsType> = ({
 
             for (const permission of permissions) {
                 const permissionKey = permission.key
-                groupPermissions[permissionKey] = Array.isArray(checkedKeys) && checkedKeys.includes(permissionKey)
+                const isCheckedPermissionKey = Array.isArray(checkedKeys) && checkedKeys.includes(permissionKey)
+                groupPermissions[permissionKey] = isCheckedPermissionKey
+
+                // ---------- related checkboxes ----------
+
+                const isCheckedPermissionKeyPrev = b2bAppId
+                    ? prev['b2bApps'][b2bAppId][permissionKey]
+                    : prev['organization'][permissionKey]
+                const wasChecked = !isCheckedPermissionKeyPrev && isCheckedPermissionKey
+                const wasUnchecked = !isCheckedPermissionKey && isCheckedPermissionKeyPrev
+
+                if (wasChecked && Array.isArray(permission.relatedCheckPermissions)) {
+                    for (const relatedPermissionKey of permission.relatedCheckPermissions) {
+                        groupPermissions[relatedPermissionKey] = true
+                    }
+                }
+
+                if (wasUnchecked && Array.isArray(permission.relatedUncheckPermissions)) {
+                    for (const relatedPermissionKey of permission.relatedUncheckPermissions) {
+                        groupPermissions[relatedPermissionKey] = false
+                    }
+                }
             }
 
             if (b2bAppId) {
@@ -212,7 +240,7 @@ export const PermissionsGrid: React.FC<PermissionsGridPropsType> = ({
             }
         }
 
-        const nextPermissions = {
+        const nextPermissions: PermissionsFormStateType = {
             organization: organizationPermissions,
             b2bApps: b2bAppPermissions,
         }
@@ -224,7 +252,7 @@ export const PermissionsGrid: React.FC<PermissionsGridPropsType> = ({
         updatePermissionsFormState(permissionsTreesState, permissionsGroups)
     }, [permissionsTreesState, permissionsGroups])
 
-    const handleCheck: (groupType: 'b2bApps' | 'organization', groupKey: string, permissions: PermissionRow[]) => TreeProps['onCheck'] =
+    const updatePermissionsTreesState: (groupType: 'b2bApps' | 'organization', groupKey: string, permissions: PermissionRow[]) => TreeProps['onCheck'] =
         useCallback((groupType, groupKey, permissions) =>
             (checkedKeys: Array<string>) => {
                 setPermissionsTreesState(prev => {
@@ -354,7 +382,7 @@ export const PermissionsGrid: React.FC<PermissionsGridPropsType> = ({
                         }]}
                         selectable={false}
                         checkedKeys={checkedKeys}
-                        onCheck={handleCheck(groupType, groupKey, permissions)}
+                        onCheck={updatePermissionsTreesState(groupType, groupKey, permissions)}
                         switcherIcon={(props) => {
                             const expanded = props.expanded
                             return (
@@ -371,7 +399,7 @@ export const PermissionsGrid: React.FC<PermissionsGridPropsType> = ({
                 </Col>
             )
         })
-    }, [permissionsGroups, permissionsTreesState, disabled, handleCheck])
+    }, [permissionsGroups, permissionsTreesState, disabled, updatePermissionsTreesState])
 
     return (
         <>
