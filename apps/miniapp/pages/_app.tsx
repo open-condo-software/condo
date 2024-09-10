@@ -79,13 +79,13 @@ const customAuthMutations = {
 }
 
 // export default (
-//     withApollo({ ssr: true })(
-//         withIntl({ ssr: true, messagesImporter })(
+//     withIntl({ ssr: true, messagesImporter })(
+//         withApollo({ ssr: true })(
 //             withAuth({ ssr: true, USER_QUERY })(MyApp))))
 
 export default (
-    withApollo({ ssr: true })(
-        withIntl({ ssr: true, messagesImporter })(
+    withIntl({ ssr: true, messagesImporter })(
+        withApollo({ ssr: true })(
             withAuth({ ssr: true, ...customAuthMutations })( // Auth is mandatory to detection is oauth needed or not
                 withOidcAuth()(
                     MyApp,
