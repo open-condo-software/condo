@@ -90,6 +90,7 @@ class RedStoreAdapter {
         tokens.forEach((pushToken) => {
             const pushType = pushTypes[pushToken] || PUSH_TYPE_DEFAULT
             const preparedData = prepareData(data, pushToken)
+            const appId = get(notification, `appIds.${pushToken}`)
             const pushData = pushType === PUSH_TYPE_SILENT_DATA
                 ? {
                     token: pushToken,
@@ -98,14 +99,14 @@ class RedStoreAdapter {
                         'title': notification.title,
                         'body': notification.body,
                     },
-                    appId: get(data, 'appId'),
+                    appId,
                     ...DEFAULT_PUSH_SETTINGS,
                 }
                 : {
                     token: pushToken,
                     data: preparedData,
                     notification,
-                    appId: get(data, 'appId'),
+                    appId,
                     ...DEFAULT_PUSH_SETTINGS,
                 }
 
