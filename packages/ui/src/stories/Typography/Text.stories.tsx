@@ -1,4 +1,4 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react'
+import { StoryFn, Meta } from '@storybook/react'
 import { styled } from '@storybook/theming'
 import get from 'lodash/get'
 import React from 'react'
@@ -57,9 +57,9 @@ export default {
             control: 'select',
         },
     },
-} as ComponentMeta<typeof Typography.Text>
+} as Meta<typeof Typography.Text>
 
-const Template: ComponentStory<typeof Typography.Text> = (args) => {
+const Template: StoryFn<typeof Typography.Text> = (args) => {
 
     return (
         <Space direction='vertical' size={20}>

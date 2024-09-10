@@ -1,4 +1,4 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react'
+import { StoryFn, Meta } from '@storybook/react'
 import { Col, Row } from 'antd'
 import React from 'react'
 
@@ -18,9 +18,9 @@ export default {
         message: { control: 'text' },
         actions: { control: false },
     },
-} as ComponentMeta<typeof Component>
+} as Meta<typeof Component>
 
-const Template: ComponentStory<typeof Component> = (args) => {
+const Template: StoryFn<typeof Component> = (args) => {
     return (
         <Row style={{ height: '120vh' }}>
             <Col span={24} style={{
