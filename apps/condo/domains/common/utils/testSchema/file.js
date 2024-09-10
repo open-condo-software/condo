@@ -7,7 +7,7 @@ const { getRandomString } = require('@open-condo/keystone/test.utils')
 async function downloadFile (url, path) {
     const res = await fetch(url)
     if (res.status !== 200) throw new Error(`downloadFile(): status=${res.status}`)
-    const buffer = await res.buffer()
+    const buffer = Buffer.from(await res.arrayBuffer())
     fs.writeFileSync(path, buffer)
 }
 
