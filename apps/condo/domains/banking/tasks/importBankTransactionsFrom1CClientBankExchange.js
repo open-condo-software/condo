@@ -98,7 +98,7 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
     if (!response.ok) {
         throw new Error(`Could not fetch file by url "${file.publicUrl}". Response code: ${response.status} ${response.statusText}`)
     }
-    const fileBuffer = await response.buffer()
+    const fileBuffer = Buffer.from(await response.arrayBuffer())
 
     const { result } = new ConvertToUTF8(fileBuffer).convert()
     try {
