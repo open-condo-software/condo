@@ -8,7 +8,7 @@ import { CONTEXT_IN_PROGRESS_STATUS, CONTEXT_FINISHED_STATUS, CONTEXT_ERROR_STAT
 type ConnectModalProps = {
     miniappHasFrame: boolean
     miniappHasIcon: boolean
-    contextStatus?: CONTEXT_FINISHED_STATUS | CONTEXT_IN_PROGRESS_STATUS | CONTEXT_ERROR_STATUS
+    contextStatus?: typeof CONTEXT_FINISHED_STATUS | typeof CONTEXT_IN_PROGRESS_STATUS | typeof CONTEXT_ERROR_STATUS
     open: boolean
     closeModal: () => void
 }
