@@ -1,6 +1,7 @@
 const iconv = require('iconv-lite')
 const jschardet = require('jschardet')
 
+const { EncodingDetector } = require('./EncodingDetector')
 const { DBFParser, CSVParser, ExcelParser } = require('./file-types')
 const { clearString } = require('./utils')
 
@@ -11,16 +12,13 @@ const TYPES = {
     UNSUPPORTED: 'NOT SUPPORTED FILE',
 }
 
-const FORCE_ENCODING_CHANGE = {
-    'X-MAC-CYRILLIC': 'WINDOWS-1251',
-    'KOI8-R': 'WINDOWS-1251', // TODO: Find why KOI8 detected on WINDOWS-1251
-}
-
 
 class ConvertFileToTable {
+    #encodingDetector = null
 
     constructor (buffer) {
         this.buffer = Buffer.from(buffer)
+        this.#encodingDetector = new EncodingDetector(this.buffer)
     }
 
     isDBFFile () {
@@ -67,38 +65,15 @@ class ConvertFileToTable {
         return TYPES.UNSUPPORTED
     }
 
-    async encode (encoding) {
-        if (!encoding) {
-            return null
-        }
-        if (encoding === 'UTF-8') {
-            return this.buffer.toString()
-        }
-        return iconv.decode(this.buffer, encoding).toString()
-    }
-
-    detectEncoding () {
-        const { encoding: detectedEncoding } = jschardet.detect(this.buffer)
-        if (detectedEncoding) {
-            const encoding = detectedEncoding.toUpperCase()
-            return FORCE_ENCODING_CHANGE[encoding] || encoding
-        }
-        return null
-    }
-
-    async convertEncoding (encoding) {
-        return await this.encode(encoding)
-    }
-
     async getData () {
         const type = await this.detectFileType()
         let worker
         switch (type) {
             case TYPES.CSV:
-                worker = new CSVParser(await this.convertEncoding(this.detectEncoding()))
+                worker = new CSVParser(await this.#encodingDetector.convertEncoding(this.#encodingDetector.detectEncoding()))
                 break
             case TYPES.DBF:
-                worker = new DBFParser(this.buffer, this.detectEncoding())
+                worker = new DBFParser(this.buffer, this.#encodingDetector.detectEncoding())
                 break
             case TYPES.EXCEL:
                 worker = new ExcelParser(this.buffer)
