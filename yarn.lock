@@ -674,7 +674,6 @@ __metadata:
     next: ^9.5.5
     next-cookies: ^2.0.3
     next-transpile-modules: ^4.1.0
-    node-fetch: ^2.6.7
     numeral: 2.0.6
     openid-client: 4.7.4
     pluralize: ^8.0.0
