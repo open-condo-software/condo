@@ -16,7 +16,7 @@ const LABEL_TO_TAG_PROPS = {
 }
 
 type AppLabelTagProps = {
-    type: APP_NEW_LABEL | APP_POPULAR_LABEL | APP_DISCOUNT_LABEL | APP_FREE_LABEL
+    type: typeof APP_NEW_LABEL | typeof APP_POPULAR_LABEL | typeof APP_DISCOUNT_LABEL | typeof APP_FREE_LABEL
 }
 
 export const AppLabelTag: React.FC<AppLabelTagProps> = ({ type }) => {
