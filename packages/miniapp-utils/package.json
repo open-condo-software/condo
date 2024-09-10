@@ -39,6 +39,16 @@
       "types": "./dist/types/helpers/environment.d.ts",
       "require": "./dist/cjs/helpers/environment.js",
       "import": "./dist/esm/helpers/environment.js"
+    },
+    "./hooks/usePrevious": {
+      "types": "./dist/types/hooks/usePrevious.d.ts",
+      "require": "./dist/cjs/hooks/usePrevious.js",
+      "import": "./dist/esm/hooks/usePrevious.js"
+    },
+    "./hooks/useEffectOnce": {
+      "types": "./dist/types/hooks/useEffectOnce.d.ts",
+      "require": "./dist/cjs/hooks/useEffectOnce.js",
+      "import": "./dist/esm/hooks/useEffectOnce.js"
     }
   },
   "publishConfig": {

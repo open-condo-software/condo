@@ -55,7 +55,7 @@ export function addCacheToClient (
     client: ApolloClient<NormalizedCacheObject>,
     cache: NormalizedCacheObject | undefined,
     options: AddCacheOptions
-) {
+): void {
     if (!cache) return
 
     const clientCache = client.cache.extract()

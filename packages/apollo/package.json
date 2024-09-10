@@ -38,10 +38,10 @@
   ],
   "type": "module",
   "exports": {
-    "./utils/client": {
-      "types": "./dist/types/utils/client.d.ts",
-      "require": "./dist/cjs/utils/client.js",
-      "import": "./dist/esm/utils/client.js"
+    "./utils/lists": {
+      "types": "./dist/types/utils/lists.d.ts",
+      "require": "./dist/cjs/utils/lists.js",
+      "import": "./dist/esm/utils/lists.js"
     }
   },
   "publishConfig": {
@@ -77,6 +77,7 @@
     "@nerdwallet/apollo-cache-policies": "^3.3.3",
     "@open-condo/miniapp-utils": "workspace:^",
     "apollo-upload-client": "^17.0.0",
+    "apollo3-cache-persist": "^0.15.0",
     "deepmerge": "^4.3.1",
     "lodash": "^4.17.21"
   }
