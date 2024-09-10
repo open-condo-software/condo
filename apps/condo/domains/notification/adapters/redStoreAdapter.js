@@ -109,12 +109,12 @@ class RedStoreAdapter {
                     ...DEFAULT_PUSH_SETTINGS,
                 }
 
-            if (!APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.app)) target.push(pushData)
+            if (!APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.app)) notifications.push(pushData)
 
             if (!pushContext[pushType]) pushContext[pushType] = pushData
         })
 
-        return [notifications, fakeNotifications, pushContext]
+        return [notifications, pushContext]
     }
 
     /**
