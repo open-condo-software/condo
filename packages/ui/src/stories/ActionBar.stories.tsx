@@ -57,7 +57,7 @@ export const WithDropdownButton = Template.bind({})
 WithDropdownButton.args = {
     actions: [
         <Dropdown.Button
-            items={[{ label: 'Short label' }]}
+            items={[{ label: 'Short label', key: 1 }]}
             key='1'
             type='primary'
             dropdownProps={{ getPopupContainer: (target) => target.parentElement || target }}
@@ -65,7 +65,7 @@ WithDropdownButton.args = {
             Hover me 1
         </Dropdown.Button>,
         <Dropdown.Button
-            items={[{ label: LOREM_TEXT }]}
+            items={[{ label: LOREM_TEXT, key: 2 }]}
             key='2'
             type='secondary'
             dropdownProps={{ getPopupContainer: (target) => target.parentElement || target }}
