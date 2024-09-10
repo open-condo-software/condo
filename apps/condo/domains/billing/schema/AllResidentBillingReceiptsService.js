@@ -12,6 +12,7 @@ const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants/payment')
+const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
 const {
     getAcquiringIntegrationContextFormulaByInstance,
     FeeDistribution,
@@ -29,8 +30,6 @@ const {
 } = require('@condo/domains/billing/utils/serverSchema')
 const { normalizeUnitName } = require('@condo/domains/billing/utils/unitName.utils')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
-
-
 
 const Adapter = new FileAdapter(BILLING_RECEIPT_FILE_FOLDER_NAME)
 
@@ -117,7 +116,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                 const serviceConsumers = await find('ServiceConsumer', serviceConsumerWhere)
                 const consumerOrganizations = new Set(serviceConsumers.map(consumer => consumer.organization))
                 const billingContexts = await find('BillingIntegrationOrganizationContext', {
-                    organization: { id_in: [...consumerOrganizations] },
+                    organization: { id_in: Array.from(consumerOrganizations) },
                     status: CONTEXT_FINISHED_STATUS,
                 })
                 const billingContextOrganizations = new Set(billingContexts.map(context => context.organization))
@@ -179,9 +178,9 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                 })
 
                 // cache acquiring integration contexts
-                const consumerWithBillingAccountOrganizations = new Set(serviceConsumersWithBillingAccount.map(consumer => consumer.organization))
-                const acquiringContexts = await find('AcquiringIntegrationContext', {
-                    organization: { id_in: [...consumerWithBillingAccountOrganizations] },
+                const serviceConsumerWithBillingAccountOrganizations = serviceConsumersWithBillingAccount.map(consumer => consumer.organization)
+                const acquiringContexts = await AcquiringIntegrationContext.getAll(context, {
+                    organization: { id_in: serviceConsumerWithBillingAccountOrganizations },
                     status: CONTEXT_FINISHED_STATUS,
                 })
 
