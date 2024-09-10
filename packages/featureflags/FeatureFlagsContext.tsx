@@ -23,7 +23,7 @@ const {
 } = getConfig()
 
 const growthbook = new GrowthBook()
-const FEATURES_RE_FETCH_INTERVAL = 10 * 1000
+const FEATURES_RE_FETCH_INTERVAL = 60 * 1000 // 1 min
 
 type UseFlagValueType = <T>(name: string) => T | null
 
