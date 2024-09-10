@@ -10,6 +10,7 @@ const { get, identity } = require('lodash')
 const nextCookie = require('next-cookies')
 const { v4 } = require('uuid')
 
+
 const conf = require('@open-condo/config')
 const { formatError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { ExtendedPasswordAuthStrategy } = require('@open-condo/keystone/authStrategy/passwordAuth')
@@ -27,6 +28,8 @@ const { ApolloSentryPlugin } = require('@open-condo/keystone/sentry')
 const { prepareDefaultKeystoneConfig } = require('@open-condo/keystone/setup.utils')
 const { registerTasks, registerTaskQueues, taskQueues } = require('@open-condo/keystone/tasks')
 const { KeystoneTracingApp } = require('@open-condo/keystone/tracing')
+
+const { validateHeaders } = require('./validateHeaders')
 
 const IS_BUILD_PHASE = conf.PHASE === 'build'
 const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
@@ -195,16 +198,27 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
 
         /** @type {(app: import('express').Application) => void} */
         configureExpress: (app) => {
+            const requestIdHeaderName = 'x-request-id'
+            const startRequestIdHeaderName = 'x-start-request-id'
 
             // NOTE(pahaz): we are always behind reverse proxy
             app.set('trust proxy', true)
+
+            app.use(function validateHeadersToPreventInjectionAttacks (req, res, next) {
+                try {
+                    validateHeaders(req.headers)
+                } catch (err) {
+                    logger.error({ msg: 'InvalidHeader', err })
+                    res.status(423).send({ error: err.message })
+                }
+                next()
+            })
 
             // NOTE(toplenboren): we need a custom body parser for custom file upload limit
             app.use(json({ limit: '100mb', extended: true }))
             app.use(urlencoded({ limit: '100mb', extended: true }))
 
-            const requestIdHeaderName = 'x-request-id'
-            const startRequestIdHeaderName = 'x-start-request-id'
+
             app.use(function reqId (req, res, next) {
                 const reqId = req.get(requestIdHeaderName) || v4()
                 const startReqId = req.get(startRequestIdHeaderName) || reqId
