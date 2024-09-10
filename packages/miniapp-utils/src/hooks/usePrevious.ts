@@ -2,6 +2,18 @@
 
 import { useEffect, useRef } from 'react'
 
+/**
+ * Returns previous state value, useful for diff comparison
+ * @example
+ * const [count, setCount] = useState(0)
+ * const prevCount = usePrevious(value)
+ *
+ * return (
+ *      <button onClick={() => setValue(current => current + 1)}>
+ *          Diff: {count - prevCount}
+ *      </button>
+ * )
+ */
 export function usePrevious<T> (state: T): T | undefined {
     const ref = useRef<T>()
 
