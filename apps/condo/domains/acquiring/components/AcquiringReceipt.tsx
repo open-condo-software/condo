@@ -62,11 +62,16 @@ const STATUS_PROCESSING_COLOR = '#FF9500'
 const STATUS_SUCCESS_COLOR = '#4CD174'
 const STATUS_ERROR_COLOR = '#FF3B30'
 
+type AcquiringReceiptStatusType = typeof MULTIPAYMENT_DONE_STATUS
+    | typeof MULTIPAYMENT_ERROR_STATUS
+    | typeof MULTIPAYMENT_PROCESSING_STATUS
+    | typeof MULTIPAYMENT_WITHDRAWN_STATUS
+
 interface IAcquiringReceiptProps {
     paymentDateTime: string,
     documentNumber: string,
     documentTitle: string,
-    status: MULTIPAYMENT_DONE_STATUS | MULTIPAYMENT_ERROR_STATUS | MULTIPAYMENT_PROCESSING_STATUS | MULTIPAYMENT_WITHDRAWN_STATUS,
+    status: AcquiringReceiptStatusType,
     payerInfo: Array<PrintingOption>,
     totalSum: {
         amountWithExplicits: string,
