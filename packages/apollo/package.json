@@ -37,11 +37,14 @@
     "dist"
   ],
   "type": "module",
+  "types": "dist/types/index.d.ts",
+  "main": "dist/cjs/index.js",
+  "module": "/dist/esm/index.js",
   "exports": {
-    "./utils/lists": {
-      "types": "./dist/types/utils/lists.d.ts",
-      "require": "./dist/cjs/utils/lists.js",
-      "import": "./dist/esm/utils/lists.js"
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "require": "./dist/cjs/index.js",
+      "import": "./dist/esm/index.js"
     }
   },
   "publishConfig": {

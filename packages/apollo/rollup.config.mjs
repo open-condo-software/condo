@@ -12,16 +12,19 @@ import pkg from './package.json' assert { type: 'json' }
 
 const AVAILABLE_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.json']
 
-function getFileExtension (path) {
-    const ext =  AVAILABLE_EXTENSIONS.find(ext => fs.existsSync(`${path}${ext}`))
+function getInputFileFromExports (exportsPath) {
+    const isDirectory = fs.existsSync(exportsPath) && fs.lstatSync(exportsPath).isDirectory()
+    const pathToFile = isDirectory ? path.join(exportsPath, 'index') : exportsPath
+
+    const ext =  AVAILABLE_EXTENSIONS.find(ext => fs.existsSync(`${pathToFile}${ext}`))
     if (!ext) throw new Error('Unknown extension')
 
-    return `${path}${ext}`
+    return `${pathToFile}${ext}`
 }
 
 /** @type {Array<import('rollup').RollupOptions>} */
 const options =  Object.entries(pkg.exports).map(([relativeImport, relativeMap]) => {
-    const input = getFileExtension(path.join('src', relativeImport))
+    const input = getInputFileFromExports(path.join('src', relativeImport))
     const output = []
     if (relativeMap && relativeMap.require) {
         output.push({
