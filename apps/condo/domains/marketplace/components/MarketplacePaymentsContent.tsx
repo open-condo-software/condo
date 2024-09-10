@@ -1,7 +1,5 @@
 import { useQuery } from '@apollo/client'
-import {
-    Payment as PaymentType, SortPaymentsBy,
-} from '@app/condo/schema'
+import { Payment as PaymentType, PaymentStatusType, PaymentWhereInput, SortPaymentsBy } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Row, RowProps } from 'antd'
 import { TableRowSelection } from 'antd/lib/table/interface'
@@ -18,7 +16,6 @@ import { colors } from '@open-condo/ui/dist/colors'
 import { useBreakpoints } from '@open-condo/ui/dist/hooks'
 
 import { PaymentsSumTable } from '@condo/domains/acquiring/components/payments/PaymentsSumTable'
-import { PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS } from '@condo/domains/acquiring/constants/payment'
 import { EXPORT_PAYMENTS_TO_EXCEL, SUM_PAYMENTS_QUERY } from '@condo/domains/acquiring/gql'
 import { Payment } from '@condo/domains/acquiring/utils/clientSchema'
 import Input from '@condo/domains/common/components/antd/Input'
@@ -45,7 +42,7 @@ const ROW_GUTTERS: RowProps['gutter'] = [16, 16]
 const SUM_BAR_COL_GUTTER: RowProps['gutter'] = [40, 0]
 const QUICK_FILTERS_COL_STYLE: CSSProperties = { alignSelf: 'center' }
 
-function usePaymentsSum (whereQuery) {
+function usePaymentsSum (whereQuery: PaymentWhereInput) {
     const { data, error, loading } = useQuery(SUM_PAYMENTS_QUERY, {
         fetchPolicy: 'cache-first',
         variables: {
@@ -140,10 +137,10 @@ const MarketplacePaymentsTableContent = () => {
         },
     }), [orgId])
 
-    const searchPaymentsQuery = useMemo(() => {
+    const searchPaymentsQuery: PaymentWhereInput = useMemo(() => {
         return {
             ...invoiceOrganizationQuery,
-            status_in: showPaymentsOnlyInDoneStatus ? [PAYMENT_DONE_STATUS] : [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS],
+            status_in: showPaymentsOnlyInDoneStatus ? [PaymentStatusType.Done] : [PaymentStatusType.Withdrawn, PaymentStatusType.Done],
         }
     }, [orgId, showPaymentsOnlyInDoneStatus])
     const sortBy = useMemo(() => sortersToSortBy(sorters) as SortPaymentsBy[], [sorters, sortersToSortBy])
@@ -167,17 +164,17 @@ const MarketplacePaymentsTableContent = () => {
     const { data: allPaymentsSum, loading: allPaymentsSumLoading } = usePaymentsSum({
         ...filtersToWhere(filters),
         ...invoiceOrganizationQuery,
-        status_in: [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS],
+        status_in: [PaymentStatusType.Withdrawn, PaymentStatusType.Done],
     })
     const { data: donePaymentsSum, loading: donePaymentsSumLoading } = usePaymentsSum({
         ...filtersToWhere(filters),
         ...invoiceOrganizationQuery,
-        status_in: [PAYMENT_DONE_STATUS],
+        status_in: [PaymentStatusType.Done],
     })
     const { data: withdrawnPaymentsSum, loading: withdrawnPaymentsSumLoading } = usePaymentsSum({
         ...filtersToWhere(filters),
         ...invoiceOrganizationQuery,
-        status_in: [PAYMENT_WITHDRAWN_STATUS],
+        status_in: [PaymentStatusType.Withdrawn],
     })
 
     const [selectedRows, setSelectedRows] = useState([])
@@ -389,7 +386,7 @@ export const MarketplacePaymentsContent = () => {
             invoice: {
                 organization: { id: orgId },
             },
-            status_in: [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS],
+            status_in: [PaymentStatusType.Withdrawn, PaymentStatusType.Done],
         },
     })
 
