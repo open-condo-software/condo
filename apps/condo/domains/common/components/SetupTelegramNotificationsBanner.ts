@@ -1,6 +1,5 @@
 import cookie from 'js-cookie'
 import get from 'lodash/get'
-import isInteger from 'lodash/isInteger'
 import { useEffect } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
@@ -23,7 +22,9 @@ export const SetupTelegramNotificationsBanner = () => {
     const { useFlag, useFlagValue } = useFeatureFlags()
     const forceShowBanner = useFlag(SHOW_TELEGRAM_NOTIFICATIONS_BANNER) || false
     const maxEmployeeSizeFromFeatureFlag = useFlagValue(MAX_EMPLOYEE_SIZE_IN_ORGANIZATION_TO_TELEGRAM_NOTIFICATIONS)
-    const maxEmployeeSize = isInteger(maxEmployeeSizeFromFeatureFlag) ? maxEmployeeSizeFromFeatureFlag : DEFAULT_MAX_EMPLOYEE_SIZE
+    const maxEmployeeSize = typeof maxEmployeeSizeFromFeatureFlag === 'number' && Number.isInteger(maxEmployeeSizeFromFeatureFlag)
+        ? maxEmployeeSizeFromFeatureFlag
+        : DEFAULT_MAX_EMPLOYEE_SIZE
 
     const { count: employeeCount, loading: employeeLoading } = OrganizationEmployee.useCount({
         where: {
