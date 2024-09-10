@@ -46,7 +46,13 @@ class FeatureToggleManager {
                 if (wasUpdatedRecently) {
                     return this._getFeaturesFromCache()
                 }
-                return this._loadFeaturesFromGrowthBook()
+                const result = await fetch(this._url)
+                const parsedResult = await result.json()
+                const features = parsedResult.features
+                await this.redis.set(this._redisKey, JSON.stringify(features))
+                await this.redis.set(this._redisUpdateKey, 'true', 'EX', this._redisExpires)
+                return features
+
             } else if (this._static) {
                 return JSON.parse(JSON.stringify(this._static))
             }
@@ -104,19 +110,15 @@ class FeatureToggleManager {
 
     async _getFeaturesFromCache () {
         const cachedFeatureFlags = await this.redis.get(this._redisKey)
-        if (cachedFeatureFlags) return JSON.parse(cachedFeatureFlags)
-        return null
-    }
-
-    async _loadFeaturesFromGrowthBook () {
-        const result = await fetch(this._url)
-        const parsedResult = await result.json()
-        const features = parsedResult.features
-
-        await this.redis.set(this._redisKey, JSON.stringify(features))
-        await this.redis.set(this._redisUpdateKey, 'true', 'EX', this._redisExpires)
-
-        return features
+        if (cachedFeatureFlags) {
+            try {
+                return JSON.parse(cachedFeatureFlags)
+            } catch (err) {
+                logger.error({ msg: '_getFeaturesFromCache json.parse error', err })
+                return {}
+            }
+        }
+        return {}
     }
 }
 
