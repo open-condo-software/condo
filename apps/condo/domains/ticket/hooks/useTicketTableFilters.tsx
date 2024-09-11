@@ -28,9 +28,9 @@ import {
 } from '@condo/domains/common/utils/tables.utils'
 import { searchOrganizationPropertyScope } from '@condo/domains/scope/utils/clientSchema/search'
 import { ExpiredTicketsFilter } from '@condo/domains/ticket/components/TicketModalFilters'
-import { VISIBLE_TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/common'
 import { FEEDBACK_VALUES_BY_KEY } from '@condo/domains/ticket/constants/feedback'
 import { QUALITY_CONTROL_VALUES_BY_KEY } from '@condo/domains/ticket/constants/qualityControl'
+import { VISIBLE_TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/sourceTypes'
 import { TicketCategoryClassifier, TicketSource, TicketStatus } from '@condo/domains/ticket/utils/clientSchema'
 import { searchEmployeeUser, searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 import {

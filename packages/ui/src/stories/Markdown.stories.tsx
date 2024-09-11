@@ -1,4 +1,4 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react'
+import { StoryFn, Meta } from '@storybook/react'
 import React from 'react'
 
 import { Markdown as Component } from '@open-condo/ui/src'
@@ -152,9 +152,9 @@ export default {
     args: {
         children: MD_EXAMPLE,
     },
-} as ComponentMeta<typeof Component>
+} as Meta<typeof Component>
 
-const Template: ComponentStory<typeof Component> = (args) => <Component {...args}/>
+const Template: StoryFn<typeof Component> = (args) => <Component {...args}/>
 
 export const Markdown = Template.bind({})
 

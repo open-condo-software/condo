@@ -18,6 +18,7 @@ import { CONTEXT_IN_PROGRESS_STATUS } from '@condo/domains/miniapp/constants'
 
 import { AppLabelTag } from '../AppLabelTag'
 
+import type { B2BAppLabelType } from '@app/condo/schema'
 import type { RowProps, ColProps } from 'antd'
 
 const CAROUSEL_CHANGE_DELAY_IN_MS = 6000 // 6 sec
@@ -47,7 +48,7 @@ type TopCardProps = {
     id: string
     name: string
     category: string
-    label?: string
+    label?: B2BAppLabelType
     description?: string
     price?: string
     gallery?: Array<string>

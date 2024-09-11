@@ -6,8 +6,8 @@ import omit from 'lodash/omit'
 import uniqBy from 'lodash/uniqBy'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
-import { useIntl } from 'react-intl'
 
+import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Select } from '@open-condo/ui'
 

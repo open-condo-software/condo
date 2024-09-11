@@ -1,4 +1,4 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react'
+import { StoryFn, Meta } from '@storybook/react'
 import React from 'react'
 
 import { Alert } from '@open-condo/ui/src'
@@ -12,9 +12,9 @@ export default {
         showIcon: true,
         description: 'Description',
     },
-} as ComponentMeta<typeof Alert>
+} as Meta<typeof Alert>
 
-const Template: ComponentStory<typeof Alert> = (props) => <Alert {...props}/>
+const Template: StoryFn<typeof Alert> = (props) => <Alert {...props}/>
 
 export const SuccessAlert = Template.bind({})
 SuccessAlert.args = {

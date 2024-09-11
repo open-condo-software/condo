@@ -132,6 +132,7 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
     const DownloadAppResidentFeatureMessage = intl.formatMessage({ id: 'tour.newFeatures.resident.downloadApp' })
 
     const router = useRouter()
+
     const { organization } = useOrganization()
     const organizationId = useMemo(() => get(organization, 'id'), [organization])
     const { logEvent } = useTracking()
@@ -287,6 +288,15 @@ export const useCompletedTourModals = ({ activeStep, setActiveTourStep, refetchS
 
     const updateCompletedStepModalData = useCallback((type: TourStepTypeType | 'importProperties', nextRoute?: string) => {
         if (activeStep !== TourStepTypeType.Resident && type === TourStepTypeType.CreateNews) return
+
+        const { query: { skipTourModal } } = router
+
+        if (skipTourModal) {
+            logEvent({ eventName: 'TourCompleteStepModalSkip', eventProperties: { activeStep } })
+            setActiveTourStep(null)
+            setCompletedStepModalData(null)
+            return
+        }
 
         if (
             activeStep !== TourStepTypeType.Resident && type === TourStepTypeType.ViewResidentsAppGuide ||
