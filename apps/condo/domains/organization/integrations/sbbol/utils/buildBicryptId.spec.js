@@ -1,6 +1,3 @@
-/**
- * @jest-environment node
- */
 // NOTE: To avoid an error "Cannot access 'mockLoggerError' before initialization, any function mock
 // should be instantiated before any module import
 const mockLoggerError = jest.fn()
@@ -8,6 +5,12 @@ const mockLoggerError = jest.fn()
 const { catchErrorFrom } = require('@open-condo/keystone/test.utils')
 
 const { buildBicryptId } = require('./buildBicryptId')
+
+jest.mock('@open-condo/keystone/logging', () => {
+    return {
+        getLogger: () => { return { error: mockLoggerError }},
+    }
+})
 
 // NOTE: Despite of We should still use `async` function,
 const checkValidationAgainstIncorrectValue = async (field, invalidValue, errorFields) => {
@@ -36,18 +39,6 @@ const checkValidationAgainstIncorrectValue = async (field, invalidValue, errorFi
 }
 
 describe('buildBicryptId', () => {
-    beforeAll(() => {
-        jest.mock('@open-condo/keystone/logging', () => {
-            return {
-                getLogger: () => { return { error: mockLoggerError }},
-            }
-        })
-    })
-
-    afterAll(() => {
-        jest.clearAllMocks()
-    })
-
     it('throws error if `certCenterNum` argument has incorrect value or is not specified', async () => {
         await checkValidationAgainstIncorrectValue('certCenterNum', null, {
             instancePath: '/certCenterNum',
