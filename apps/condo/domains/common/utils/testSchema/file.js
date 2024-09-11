@@ -1,4 +1,4 @@
-const fetch = require('node-fetch')
+const { fetch } = require('@open-condo/keystone/fetch')
 const fs = require('fs')
 const xlsx = require('xlsx')
 const os = require('os')
@@ -7,7 +7,7 @@ const { getRandomString } = require('@open-condo/keystone/test.utils')
 async function downloadFile (url, path) {
     const res = await fetch(url)
     if (res.status !== 200) throw new Error(`downloadFile(): status=${res.status}`)
-    const buffer = await res.buffer()
+    const buffer = Buffer.from(await res.arrayBuffer())
     fs.writeFileSync(path, buffer)
 }
 

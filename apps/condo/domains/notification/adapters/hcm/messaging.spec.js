@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 const { get } = require('lodash')
 
 const conf = require('@open-condo/config')

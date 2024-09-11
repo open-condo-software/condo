@@ -3,10 +3,11 @@ const { BatchHttpLink } = require('@apollo/client/link/batch-http')
 const { RetryLink } = require('@apollo/client/link/retry')
 const { onError }  = require('apollo-link-error')
 const { createUploadLink } = require('apollo-upload-client')
-const FormData = require('form-data')
 const { chunk: splitArray } = require('lodash')
-const fetch = require('node-fetch')
+const mime = require('mime-types')
+const { FormData } = require('undici')
 
+const { fetch } = require('@open-condo/keystone/fetch')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { MAX_REQUESTS_IN_BATCH, MAX_MODIFY_OPERATIONS_IN_REQUEST, MAX_RETRIES_ON_NETWORK_ERROR, LOAD_CHUNK_SIZE } = require('./constants')
@@ -18,7 +19,7 @@ if (!globalThis.fetch) {
 
 class UploadingFile {
     constructor ({ stream, filename, mimetype, encoding }) {
-        this.stream = stream
+        this._stream = stream
 
         if (filename) {
             this.filename = filename
@@ -27,14 +28,23 @@ class UploadingFile {
         }
         if (mimetype) {
             this.mimetype = mimetype
+            this.type = mimetype
+        } else if (filename) {
+            this.mimetype = mime.lookup(filename)
+            this.type = mime.lookup(filename)
         }
         if (encoding) {
             this.encoding = encoding
         }
     }
 
-    createReadStream () {
-        return this.stream
+    stream () {
+        return this._stream
+    }
+
+    get [Symbol.toStringTag] () {
+        // Undici checks for /^(Blob|File)$/.test(object[Symbol.toStringTag])
+        return 'File'
     }
 }
 
@@ -66,7 +76,7 @@ class OIDCAuthClient {
         if (response.status >= 400) {
             throw new Error(`OIDC request failed: ${response.status} ${response.statusText}`)
         }
-        const newCookies = response.headers.raw()['set-cookie']
+        const newCookies = response.headers.getSetCookie()
         if (newCookies) {
             newCookies.forEach(cookie => {
                 const [cookieValue] = cookie.split(';')
@@ -408,9 +418,9 @@ class ApolloServerClient {
             FormData,
             formDataAppendFile: (form, name, file) => {
                 if (file.name) {
-                    form.append(name, file.stream, file.name)
+                    form.append(name, file, file.name)
                 } else {
-                    form.append(name, file.stream)
+                    form.append(name, file)
                 }
             },
             fetch,

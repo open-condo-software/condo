@@ -4,8 +4,23 @@ module.exports = {
             testRunner: 'jasmine2',
             displayName: 'schema',
             testEnvironment: 'node',
-            testMatch: [`${__dirname}/schema/**/*.test.js`, `${__dirname}/domains/**/schema/*.test.js`],
+            testMatch: [
+                `${__dirname}/schema/**/*.test.js`,
+                `${__dirname}/domains/**/schema/*.test.js`,
+            ],
             setupFilesAfterEnv: [`${__dirname}/jest.setupTest.js`],
+            // NOTE: need to pass uuid export syntax through babel
+            transformIgnorePatterns: ['/node_modules/(?!(uuid)/)'],
+        },
+        {
+            testRunner: 'jasmine2',
+            displayName: 'common utils spec',
+            testEnvironment: 'node',
+            testMatch: [
+                `${__dirname}/domains/**/schema/**/*.spec.js`,
+                `${__dirname}/domains/common/utils/**/*.spec.js`,
+            ],
+            setupFilesAfterEnv: [`${__dirname}/jest.setupSpec.js`],
             // NOTE: need to pass uuid export syntax through babel
             transformIgnorePatterns: ['/node_modules/(?!(uuid)/)'],
         },
@@ -13,14 +28,17 @@ module.exports = {
             testRunner: 'jasmine2',
             displayName: 'main',
             testEnvironment: 'jsdom',
-            testURL: 'http://localhost:3000/',
-            testPathIgnorePatterns: ['/node_modules/', '/.next/', '/dist/', '/.kmigrator/', '/schema/'],
+            testEnvironmentOptions: { url: 'http://localhost:3000/' },
+            testPathIgnorePatterns: ['/node_modules/', '/.next/', '/dist/', '/.kmigrator/', '/schema/', '/domains/common/utils/'],
             transform: {
                 '\\.[jt]sx?$': 'babel-jest',
             },
             setupFilesAfterEnv: [`${__dirname}/jest.setupSpec.js`],
             // NOTE: need to pass uuid export syntax through babel
             transformIgnorePatterns: ['/node_modules/(?!(uuid)/)'],
+            moduleNameMapper: {
+                '@open-condo/(.*)': '<rootDir>/../../packages/$1',
+            },
         },
     ],
 }

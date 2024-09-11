@@ -2,6 +2,7 @@ const crypto = require('crypto')
 const fs = require('fs')
 const http = require('http')
 const https = require('https')
+const path = require('path')
 const urlLib = require('url')
 
 const { ApolloClient, ApolloLink, InMemoryCache } = require('@apollo/client')
@@ -11,14 +12,14 @@ const axiosLib = require('axios')
 const axiosCookieJarSupportLib = require('axios-cookiejar-support')
 const express = require('express')
 const falsey = require('falsey')
-const FormData = require('form-data')
 const { gql } = require('graphql-tag')
 const { flattenDeep, fromPairs, toPairs, get, set, isFunction, isEmpty, template } = require('lodash')
-const fetch = require('node-fetch')
+const mime = require('mime-types')
 const { CookieJar, Cookie } = require('tough-cookie')
-
+const { FormData } = require('undici')
 
 const conf = require('@open-condo/config')
+const { fetch } = require('@open-condo/keystone/fetch')
 const { getTranslations } = require('@open-condo/locales/loader')
 
 const { prepareKeystoneExpressApp } = require('./prepareKeystoneApp')
@@ -64,12 +65,18 @@ const SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION = gql`
  */
 class UploadingFile {
     constructor (filePath) {
-        this.stream = fs.createReadStream(filePath)
+        this.path = filePath
+        this.name = path.basename(filePath)
+        this.type = mime.lookup(filePath)
     }
 
-    // Used for testing code, that reads data from this object
-    createReadStream () {
-        return this.stream
+    stream () {
+        return fs.createReadStream(this.path)
+    }
+
+    get [Symbol.toStringTag] () {
+        // Undici checks for /^(Blob|File)$/.test(object[Symbol.toStringTag])
+        return 'File'
     }
 }
 
@@ -338,7 +345,7 @@ const makeApolloClient = (serverUrl, opts = {}) => {
         },
         FormData,
         formDataAppendFile: (form, name, file) => {
-            form.append(name, file.stream)
+            form.append(name, file)
         },
         useGETForQueries: true,
         fetch: (uri, options) => {
@@ -354,7 +361,7 @@ const makeApolloClient = (serverUrl, opts = {}) => {
 
             return fetch(uri, options)
                 .then((response) => {
-                    const setCookieHeader = response.headers.raw()['set-cookie']
+                    const setCookieHeader = response.headers.getSetCookie()
                     if (setCookieHeader) {
                         // accumulate cookies received from the server
                         saveCookies(setCookieHeader)
