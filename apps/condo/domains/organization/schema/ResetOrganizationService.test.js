@@ -131,6 +131,9 @@ describe('ResetOrganizationService', () => {
         const [parentOrganization] = await createTestOrganization(admin, { type: HOLDING_TYPE })
         const [createdLink] = await createTestOrganizationLink(admin, parentOrganization, createdOrganization)
 
+        const [meter] = await createTestMeter(admin)
+        const [meterResourceOwner] = await createTestMeterResourceOwner(admin)
+
         const [billingIntegration] = await createTestBillingIntegration(admin)
         const [createdBillingIntegrationOrgCtx] = await createTestBillingIntegrationOrganizationContext(admin, createdOrganization, billingIntegration)
 
@@ -156,6 +159,9 @@ describe('ResetOrganizationService', () => {
 
         const linkTo = await OrganizationLink.getAll(admin, { id: createdLink.id })
         expect(linkTo).toHaveLength(0)
+
+        const meterOwner = await MeterResourceOwner.getAll(admin, { id: createdLink.id })
+        expect(meterOwner).toHaveLength(0)
 
         const billingIntegrationOrgCtx = await BillingIntegrationOrganizationContext.getAll(admin, { id: createdBillingIntegrationOrgCtx.id })
         expect(billingIntegrationOrgCtx).toHaveLength(0)
