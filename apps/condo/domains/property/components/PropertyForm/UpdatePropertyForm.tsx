@@ -7,6 +7,7 @@ import { useOrganization } from '@open-condo/next/organization'
 
 import { Button } from '@condo/domains/common/components/Button'
 import { Loader } from '@condo/domains/common/components/Loader'
+import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import BasePropertyForm from '../BasePropertyForm'
@@ -23,11 +24,19 @@ const FORM_DEPENDENCIES = ['address']
 export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
     const intl = useIntl()
     const ApplyChangesLabel = intl.formatMessage({ id: 'ApplyChanges' })
-    const { push } = useRouter()
+    const { push, query: { next }  } = useRouter()
     const { organization } = useOrganization()
     const { refetch, obj: property, loading, error } = Property.useObject({ where: { id } })
     const initialValues = Property.convertToFormState(property)
-    const action = Property.useUpdate({}, (property) => push(`/property/${property.id}`))
+    const action = Property.useUpdate({}, async (property) => {
+        let redirectUrl = `/property/${property.id}`
+
+        if (next && !Array.isArray(next) && isSafeUrl(next)) {
+            redirectUrl = next
+        }
+
+        await push(redirectUrl)
+    })
     const updateAction = (value) => action(value, property)
 
     useEffect(() => {
