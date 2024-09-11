@@ -43,7 +43,7 @@ services:
       command: |
         postgres
            -c wal_level=replica
-           -c synchronous_commit=on
+           -c synchronous_commit=remote_apply
     volumes:
       - ./docker-compose-postgresql-init-replication.sql:/docker-entrypoint-initdb.d/docker-compose-postgresql-init-replication.sql
     networks:
