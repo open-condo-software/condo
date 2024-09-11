@@ -15,7 +15,7 @@ jest.mock('@open-condo/keystone/logging', (...args) => {
         getLogger: (...s) => {
             return {
                 error: mockLoggerError,
-                info: (...infoArgs) => console.log(...infoArgs)
+                info: (...infoArgs) => console.log(...infoArgs),
             }
         },
     }
