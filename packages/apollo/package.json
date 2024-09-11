@@ -51,7 +51,7 @@
     "access": "public"
   },
   "peerDependencies": {
-    "@apollo/client": "^3.11.0",
+    "@apollo/client": "^3.11.8",
     "react": ">=16.0.0",
     "react-dom": ">=16.0.0"
   },

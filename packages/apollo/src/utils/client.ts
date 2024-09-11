@@ -49,6 +49,14 @@ type UseApolloHookResult = {
     cachePersistor: CachePersistor<NormalizedCacheObject> | undefined
 }
 
+export type InitializeApollo = (options?: InitApolloClientOptions) => ApolloClient<NormalizedCacheObject>
+export type UseApollo = <PropsType> (pageProps: SSRResult<PropsType>['props']) => UseApolloHookResult
+
+interface ApolloHelperInterface {
+    initializeApollo: InitializeApollo
+    generateUseApolloHook: () => UseApollo
+}
+
 /**
  * Creates new apollo client with InvalidationCache
  */
@@ -163,7 +171,7 @@ export function extractApolloState<PropsType> (
  *     )
  * }
  */
-export class ApolloHelper {
+export class ApolloHelper implements ApolloHelperInterface {
     /** Initial options */
     private readonly _initialApolloOptions: ApolloClientOptions
     /** Cache initializer */
