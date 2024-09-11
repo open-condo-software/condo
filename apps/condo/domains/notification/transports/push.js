@@ -26,7 +26,7 @@ const ADAPTERS = {
     [PUSH_TRANSPORT_APPLE]: new AppleAdapter(),
 }
 const responseResolversByTransport = {
-    [PUSH_TRANSPORT_FIREBASE]: async (result, isVoIP) => await responseResolver(result, isVoIP),
+    [PUSH_TRANSPORT_FIREBASE]: responseResolver,
     [PUSH_TRANSPORT_HUAWEI]: () => { return 'not implemented'},
     [PUSH_TRANSPORT_APPLE]: () => { return 'not implemented'},
 }

@@ -6,7 +6,7 @@ const { getSchemaCtx, find } = require('@open-condo/keystone/schema')
 const { RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
 
 
-const logger = getLogger('messaging/firebase/responseResolver')
+const logger = getLogger('firebaseResponseResolver')
 
 const responseResolver = async (result, isVoIP) => {
     const responses = get(result, 'responses', [])
