@@ -30,11 +30,14 @@ async function main () {
         const resolvedDistDir = path.resolve(CWD, distDir)
         console.log(chalk.gray.bold(`KEYSTONE 🏗️ building to ${resolvedDistDir}`))
 
-        await Promise.all(
-            apps.filter(app => app.build).map(app => app.build({ distDir: resolvedDistDir, keystone })),
-        )
+        for (const app of apps) {
+            if (!app.build) continue
+            console.log(chalk.gray.bold(`KEYSTONE 🏗️ building ${app.constructor.name}`))
+            await app.build({ distDir: resolvedDistDir, keystone })
+            console.log(chalk.green.bold(`KEYSTONE 🏗️ done ${app.constructor.name}`))
+        }
 
-        console.log(chalk.green.bold('KEYSTONE 🏗️ done'))
+        console.log(chalk.green.bold('KEYSTONE 🏗️ all done !'))
     } else {
         console.log(chalk.red.bold('KEYSTONE 🏗️ nothing to build'))
     }
@@ -42,7 +45,10 @@ async function main () {
     return { keystone, apps }
 }
 
-main().catch((e) => {
-    console.error(e)
-    process.exit(1)
-})
+main()
+    .then(() => process.exit(0))
+    .catch((e) => {
+        console.log(chalk.red.bold('KEYSTONE 🏗️ error'))
+        console.error(e)
+        process.exit(1)
+    })
