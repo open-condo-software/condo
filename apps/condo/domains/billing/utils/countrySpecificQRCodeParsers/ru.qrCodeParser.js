@@ -1,5 +1,5 @@
 const iconv = require('iconv-lite')
-const { get } = require('lodash')
+const jschardet = require('jschardet')
 
 /**
  * @typedef {Object} TRUQRCodeFields
@@ -17,21 +17,20 @@ const { get } = require('lodash')
  * @return {TRUQRCodeFields}
  */
 function parseRUReceiptQRCode (qrStr) {
-    const matches = /^ST(?<version>\d{4})(?<encodingTag>\d)\|(?<requisitesStr>.*)$/g.exec(qrStr)
+    const buffer = Buffer.from(qrStr, 'base64')
+    const { encoding: detectedEncoding } = jschardet.detect(buffer)
+
+    // In Russia, only two formats are used: utf and windows-1251. Therefore, here we strictly control the formats
+    const encoding = detectedEncoding && detectedEncoding.toUpperCase() === 'UTF-8' ? 'UTF-8' : 'WINDOWS-1251'
+
+    // Skip decoding for utf string
+    const decodedRequisitesStr = encoding === 'UTF-8' ? buffer.toString() : iconv.decode(buffer, encoding)
+
+    const matches = /^ST(?<version>\d{4})(?<encodingTag>\d)\|(?<requisitesStr>.*)$/g.exec(decodedRequisitesStr)
 
     if (!matches) {
         throw new Error('Invalid QR code')
     }
-
-    const requisitesStr = get(matches, ['groups', 'requisitesStr'], '')
-
-    // https://encoding.spec.whatwg.org/#koi8-r
-    // https://encoding.spec.whatwg.org/#windows-1251
-    const encodingTag = get(matches, ['groups', 'encodingTag'])
-    const encoding = get({ 1: 'cp1251', 2: 'utf-8', 3: 'koi8-r' }, encodingTag, 'utf-8')
-
-    // Skip decoding for utf string
-    const decodedRequisitesStr = encodingTag === '2' ? requisitesStr : iconv.decode(requisitesStr, encoding)
 
     return Object.fromEntries(decodedRequisitesStr.split('|').map((part) => part.split('=', 2)))
 }
