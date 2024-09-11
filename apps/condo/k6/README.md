@@ -26,11 +26,7 @@ docker pull grafana/k6:master-with-browser
 ## Native package
 
 ```bash
-export BASE_URL=http://localhost:3000
-export AUTH_EMAIL=user@example.com
-export AUTH_PASSWORD=secret_example
-
-yarn --cwd . webpack && k6 run <path to script in dist directory>
+BASE_URL=http://localhost:3000 AUTH_EMAIL=user@example.com AUTH_PASSWORD=secret_example k6 run <path to script>
 ```
 
 ## Docker image
