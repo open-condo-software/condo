@@ -121,8 +121,8 @@ const resolveBypass = ({ router }) => {
 }
 
 export default (
-    withApollo({ ssr: true })(
-        withIntl({ ssr: true, messagesImporter })(
+    withIntl({ ssr: true, messagesImporter })(
+        withApollo({ ssr: true })(
             withAuth({ ssr: true, ...customAuthMutations })(
                 withOidcAuth({ resolveBypass })(
                     MyApp

@@ -1,4 +1,4 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react'
+import { StoryFn, Meta } from '@storybook/react'
 import { styled } from '@storybook/theming'
 import get from 'lodash/get'
 import React from 'react'
@@ -26,15 +26,15 @@ export default {
         },
     },
     decorators: [
-        (Story, options) => (
+        (StoryFn, options) => (
             <StoryDecorator bg={options.args.type === 'inverted' ? 'dark' : 'light'}>
-                <Story/>
+                <StoryFn/>
             </StoryDecorator>
         ),
     ],
-} as ComponentMeta<typeof Typography.Title>
+} as Meta<typeof Typography.Title>
 
-const Template: ComponentStory<typeof Typography.Title> = (args) => {
+const Template: StoryFn<typeof Typography.Title> = (args) => {
     const levels: Array<TypographyTitleProps['level']> = [1, 2, 3, 4, 5, 6]
 
     return (

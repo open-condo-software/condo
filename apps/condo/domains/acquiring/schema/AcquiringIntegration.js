@@ -12,12 +12,12 @@ const { CONTEXT_STATUSES, CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains
 const { SUPPORTED_BILLING_INTEGRATION_GROUP_DOESNT_EXIST_ERROR } = require('@condo/domains/acquiring/constants/errors')
 const { FEE_DISTRIBUTION_SCHEMA_FIELD } = require('@condo/domains/acquiring/schema/fields/json/FeeDistribution')
 const { DEFAULT_BILLING_INTEGRATION_GROUP } = require('@condo/domains/billing/constants/constants')
+const { POSITIVE_MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
 const {
     IFRAME_URL_FIELD,
     IS_HIDDEN_FIELD,
     CONTEXT_DEFAULT_STATUS_FIELD,
 } = require('@condo/domains/miniapp/schema/fields/integration')
-
 
 const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
     schemaDoc: 'Information about `acquiring component` which will generate `billing receipts` and `payments`',
@@ -75,7 +75,10 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
                 },
             },
         },
-
+        minimumPaymentAmount: {
+            ...POSITIVE_MONEY_AMOUNT_FIELD,
+            schemaDoc: 'The minimum payment amount that can be accepted',
+        },
         explicitFeeDistributionSchema: {
             ...FEE_DISTRIBUTION_SCHEMA_FIELD,
             schemaDoc: 'Contains information about the default distribution of explicit fee. Each part is paid by the user on top of original amount if there is no part with the same name in the integration context. Otherwise, the part is ignored as it is paid by recipient',

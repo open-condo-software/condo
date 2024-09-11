@@ -7,7 +7,7 @@ import {
     createOrganization,
     createProperty,
     sendAuthorizedRequest,
-    getOrganizationEmployeeId, getOrganizationEmployees, signInAsUser,
+    getOrganizationEmployeeId, getOrganizationEmployees, signInAsUser, createTicket,
 } from './utils'
 
 
@@ -157,23 +157,7 @@ export function queryBasicEntities (data) {
 }
 
 export function createTickets (data) {
-    const payload = {
-        operationName: 'createTicket',
-        query: 'mutation createTicket($data: TicketCreateInput) {obj: createTicket(data: $data) {id}}',
-        variables: {
-            data: {
-                dv: 1, sender: { dv: 1, fingerprint: 'k6-load-test' },
-                organization: { connect: { id: data.organizationId } },
-                status: { connect: { id: '6ef3abc4-022f-481b-90fb-8430345ebfc2' } },
-                classifier: { connect: { id: '92b39cea-72f0-4c52-9d32-5a4ffe5240d2' } },
-                property: { connect: { id: data.propertyId } },
-                source: { connect: { id: '779d7bb6-b194-4d2c-a967-1f7321b2787f' } },
-                unitType: 'flat',
-                details: 'Api created ticket ' + __VU + ' ' + __ITER,
-            },
-        },
-    }
-    const response = sendAuthorizedRequest(data, payload)
+    const response = createTicket(data)
 
     check(response, {
         'create ticket status is 200': (res) => res.status === 200,

@@ -291,7 +291,7 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
             <Col>
                 <Counter
                     label={WillNotReceiveLabelMessage}
-                    value={unitsCount - receiversCount}
+                    value={Math.max(unitsCount - receiversCount, 0)}
                     type='danger'
                     hint={willNotReceiveUnitsCount === 0 ? WillZeroNotReceiveHintMessage : formatWillNotReceiveHintMessage(willNotReceiveUnitsCount)}
                     downloadButton={(

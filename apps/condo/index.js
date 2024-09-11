@@ -19,7 +19,7 @@ const {
 } = require('@open-condo/keystone/healthCheck')
 const { prepareKeystone } = require('@open-condo/keystone/KSv5v6/v5/prepareKeystone')
 const { RequestCache } = require('@open-condo/keystone/requestCache')
-const { getXRemoteApp, getXRemoteClient, getXRemoteVersion } = require('@open-condo/keystone/tracingUtils')
+const { getXRemoteApp, getXRemoteClient, getXRemoteVersion, getAppName } = require('@open-condo/keystone/tracingUtils')
 const { getWebhookModels } = require('@open-condo/webhooks/schema')
 const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
 
@@ -34,33 +34,12 @@ dayjs.extend(utc)
 dayjs.extend(timezone)
 dayjs.extend(isBetween)
 
-const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production' && conf.DD_TRACE_ENABLED === 'true'
 const IS_BUILD_PHASE = conf.PHASE === 'build'
 const SENTRY_CONFIG = conf.SENTRY_CONFIG ? JSON.parse(conf.SENTRY_CONFIG) : {}
 
 // TODO(zuch): DOMA-2990: add FILE_FIELD_ADAPTER to env during build phase
 if (IS_BUILD_PHASE) {
     process.env.FILE_FIELD_ADAPTER = 'local' // Test
-}
-
-if (IS_ENABLE_DD_TRACE && !IS_BUILD_PHASE) {
-    const xRemoteApp = getXRemoteApp()
-    const xRemoteClient = getXRemoteClient()
-    const xRemoteVersion = getXRemoteVersion()
-    const tracer = require('dd-trace').init({
-        tags: { xRemoteApp, xRemoteClient, xRemoteVersion },
-    })
-    tracer.use('express', {
-        headers: ['x-request-id', 'x-start-request-id'],
-        // hook will be executed right before the request span is finished
-        hooks: {
-            request: (span, req, res) => {
-                if (req?.id) span.setTag('reqId', req.id)
-                if (req?.startId) span.setTag('startId', req.startId)
-                if (req?.user?.id) span.setTag('userId', req.user.id)
-            },
-        },
-    })
 }
 
 const schemas = () => [

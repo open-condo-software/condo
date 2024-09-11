@@ -1,4 +1,4 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react'
+import { StoryFn, Meta } from '@storybook/react'
 import React from 'react'
 
 import { FileText } from '@open-condo/icons'
@@ -27,9 +27,9 @@ export default {
             options: [undefined, true, false],
         },
     },
-} as ComponentMeta<typeof Component>
+} as Meta<typeof Component>
 
-const Template: ComponentStory<typeof Component> = (props) => <Component {...props} />
+const Template: StoryFn<typeof Component> = (props) => <Component {...props} />
 
 const radioGroupButtonTemplateArgs = [
     { title: 'Default', customProps: { value: 'value 1' } },
@@ -47,7 +47,7 @@ const radioGroupButtonTemplateArgs = [
         )) },
     },
 ]
-const RadioGroupButtonTemplate: ComponentStory<typeof Component> = (props) => <>
+const RadioGroupButtonTemplate: StoryFn<typeof Component> = (props) => <>
     <Space direction='vertical' size={20} width={SPACE_WIDTH}>
         {
             radioGroupButtonTemplateArgs.map((templateArgs, key) => (

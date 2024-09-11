@@ -47,7 +47,7 @@ function _internalGetAsyncLocalStorage (name = 'default') {
     if (!name) throw new Error('getAsyncLocalStorage() without client name')
     if (typeof name !== 'string') throw new Error('getAsyncLocalStorage() name is not a string')
     if (!ASYNC_LOCAL_STORAGES[name]) {
-        logger.info({ msg: 'getAsyncLocalStorage new storage to be created:', name })
+        logger.info({ msg: 'getAsyncLocalStorage new storage to be created', args: [name] })
         ASYNC_LOCAL_STORAGES[name] = new ExecutionContext()
     }
 

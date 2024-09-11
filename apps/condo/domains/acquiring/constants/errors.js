@@ -1,6 +1,9 @@
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+
+const { WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 
 const { PAYMENT_DONE_STATUS, MULTIPAYMENT_DONE_STATUS, PAYMENT_INIT_STATUS } = require('./payment')
+
 
 const ACQUIRING_INTEGRATION_CONTEXT_IS_MISSING = 'ACQUIRING_INTEGRATION_CONTEXT_IS_MISSING'
 const ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED = 'ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED'
@@ -102,6 +105,12 @@ const GQL_ERRORS = {
         code: BAD_USER_INPUT,
         type: ERROR_TAX_REGIME_AND_VAT_NOT_MATCHED,
         message: 'Tax regime and vat values are not matched',
+    },
+    PAYMENT_AMOUNT_LESS_THAN_MINIMUM: {
+        code: BAD_USER_INPUT,
+        type: WRONG_VALUE,
+        message: 'Payment amount is less than the minimum amount from acquiring integration',
+        messageForUser: 'api.acquiring.payment.error.paymentAmountLessThanMinimum',
     },
     MORE_THAN_ONE_ACQUIRING_CONTEXTS: {
         code: BAD_USER_INPUT,

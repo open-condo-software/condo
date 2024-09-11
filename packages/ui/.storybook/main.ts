@@ -1,8 +1,8 @@
 import get from 'lodash/get'
 const lessLoader = require('../less-loader.config.js')
 
-import type { StorybookConfig } from '@storybook/react/types'
 import type { RuleSetRule } from 'webpack'
+import type { StorybookConfig } from '@storybook/react-webpack5'
 
 const baseCssLoaders = [
     'style-loader',
@@ -20,9 +20,9 @@ const config: StorybookConfig = {
         '@storybook/addon-essentials',
         '@storybook/addon-interactions'
     ],
-    'framework': '@storybook/react',
-    'core': {
-        'builder': '@storybook/builder-webpack5'
+    'framework': {
+        name: "@storybook/react-webpack5",
+        options: {}
     },
     'staticDirs': [{ from: '../public', to: '/ui' }],
     'webpackFinal': async (config) => {

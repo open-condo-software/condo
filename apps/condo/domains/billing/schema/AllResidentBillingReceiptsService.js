@@ -14,6 +14,7 @@ const { getAcquiringIntegrationContextFormula, FeeDistribution } = require('@con
 const access = require('@condo/domains/billing/access/AllResidentBillingReceipts')
 const { BILLING_RECEIPT_FILE_FOLDER_NAME } = require('@condo/domains/billing/constants/constants')
 const { BillingReceiptAdmin, getPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
+const { normalizeUnitName } = require('@condo/domains/billing/utils/unitName.utils')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 
 const {
@@ -42,7 +43,7 @@ const getFile = (receipt, contacts) => {
 
     // let's search for a contact
     // if any exists = user allowed to see sensitive data
-    const propertyContacts = contacts.filter(contact => contact.unitName === accountUnitName
+    const propertyContacts = contacts.filter(contact => normalizeUnitName(contact.unitName) === normalizeUnitName(accountUnitName)
         && contact.unitType === accountUnitType
         && contact.property.address === propertyAddress)
     const file = propertyContacts.length > 0

@@ -30,6 +30,7 @@ import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess
 import { useTableColumns } from '@condo/domains/news/hooks/useTableColumns'
 import { useTableFilters } from '@condo/domains/news/hooks/useTableFilters'
 import { NewsItem } from '@condo/domains/news/utils/clientSchema'
+import { Property } from '@condo/domains/property/utils/clientSchema'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 
 
@@ -127,6 +128,9 @@ const NewsPageContent = ({
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.news.index.emptyList.header' })
     const EmptyListMessage = intl.formatMessage({ id: 'pages.condo.news.index.emptyList.title' })
+    const PropertyGateLabel = intl.formatMessage({ id: 'pages.condo.news.index.propertyGate.header' })
+    const PropertyGateMessage = intl.formatMessage({ id: 'pages.condo.news.index.propertyGate.title' })
+    const PropertyGateButtonLabel = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
     const CreateNews = intl.formatMessage({ id: 'news.createNews' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
 
@@ -143,16 +147,39 @@ const NewsPageContent = ({
         [baseNewsQuery, filters, filtersToWhere])
     const { canManage } = useNewsItemsAccess()
 
+    const { organization } = useOrganization()
+
+    const {
+        count: propertiesCount,
+        loading: propertiesLoading,
+        error: propertiesError,
+    } = Property.useCount({ where: { organization: { id: get(organization, 'id') } }, first: 1 })
+
     const {
         count: newsWithoutFiltersCount,
         loading: newsWithoutFiltersCountLoading,
-        error,
+        error: newsError,
     } = NewsItem.useCount({ where: baseNewsQuery })
-    const loading = newsWithoutFiltersCountLoading
+
+    const loading = newsWithoutFiltersCountLoading || propertiesLoading
+    const error = newsError || propertiesError
 
     if (loading || error) {
         const errorToPrint = error ? ServerErrorMsg : null
         return <LoadingOrErrorPage loading={loading} error={errorToPrint}/>
+    }
+
+    if (propertiesCount === 0 && newsWithoutFiltersCount === 0) {
+        return (
+            <EmptyListContent
+                image='/dino/playing@2x.png'
+                label={PropertyGateLabel}
+                message={PropertyGateMessage}
+                createRoute='/property/create?next=/news&skipTourModal=true'
+                createLabel={PropertyGateButtonLabel}
+                accessCheck={canManage}
+            />
+        )
     }
 
     if (newsWithoutFiltersCount === 0) {

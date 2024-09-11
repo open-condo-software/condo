@@ -1,4 +1,4 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react'
+import { StoryFn, Meta } from '@storybook/react'
 import React from 'react'
 
 import { ArrowLeft } from '@open-condo/icons'
@@ -19,9 +19,9 @@ export default {
         title: { type: 'string', defaultValue: 'Magic hover text' },
         disabled: { type: 'boolean', defaultValue: false },
     },
-} as ComponentMeta<typeof Typography.Link>
+} as Meta<typeof Typography.Link>
 
-const Template: ComponentStory<typeof Typography.Link> = (args) => {
+const Template: StoryFn<typeof Typography.Link> = (args) => {
     const { children, ...restArgs } = args
     return (
         <Space direction='vertical' size={20}>

@@ -1,4 +1,4 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react'
+import { StoryFn, Meta } from '@storybook/react'
 import React from 'react'
 
 import { Select as Component, Space, SelectProps } from '@open-condo/ui/src'
@@ -34,10 +34,10 @@ export default {
             },
         },
     },
-} as ComponentMeta<typeof Component>
+} as Meta<typeof Component>
 
-const Template: ComponentStory<typeof Component> = (props) => <Component {...props} />
-const MultipleTemplate: ComponentStory<typeof Component> = (props) => (
+const Template: StoryFn<typeof Component> = (props) => <Component {...props} />
+const MultipleTemplate: StoryFn<typeof Component> = (props) => (
     <Space direction='horizontal' size={20} wrap>
         {AVAILABLE_TYPES.map((type, index) => (
             <Component key={index} {...props} type={type} />
