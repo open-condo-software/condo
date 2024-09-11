@@ -727,7 +727,7 @@ __metadata:
     dotenv: ^10.0.0
     node-telegram-bot-api: ^0.53.0
     simple-node-logger: ^21.8.12
-    ts-node: ^10.9.1
+    ts-node: ^10.9.2
     ts-node-dev: ^1.0.0-pre.63
     typescript: ^5.5.4
     yana: ^1.2.3
@@ -1225,7 +1225,7 @@ __metadata:
     remark-custom-heading-id: 1.0.0
     remark-gfm: 3.0.1
     title: 3.5.3
-    ts-node: ^10.9.1
+    ts-node: ^10.9.2
     typescript: ^5.5.4
     usehooks-ts: ^2.9.1
     zod: ^3.22.4
@@ -2089,7 +2089,7 @@ __metadata:
     react-dom: 18.2.0
     react-intl: ^6.6.5
     serwist: ^9.0.0
-    ts-node: ^10.9.1
+    ts-node: ^10.9.2
     typescript: ^5.5.4
     usehooks-ts: ^3.1.0
     zod: ^3.22.4
@@ -13891,8 +13891,8 @@ __metadata:
     fs-extra: ^11.1.0
     react: ^16.13.1
     react-dom: ^16.13.1
-    ts-node: ^10.9.1
-    typescript: ^4.9.5
+    ts-node: ^10.9.2
+    typescript: ^5.5.4
     webpack: ^5.91.0
     webpack-cli: ^5.0.1
   peerDependencies:
@@ -52315,9 +52315,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-node@npm:^10.8.1, ts-node@npm:^10.9.1":
-  version: 10.9.1
-  resolution: "ts-node@npm:10.9.1"
+"ts-node@npm:^10.8.1, ts-node@npm:^10.9.2":
+  version: 10.9.2
+  resolution: "ts-node@npm:10.9.2"
   dependencies:
     "@cspotcode/source-map-support": ^0.8.0
     "@tsconfig/node10": ^1.0.7
@@ -52349,7 +52349,7 @@ __metadata:
     ts-node-script: dist/bin-script.js
     ts-node-transpile-only: dist/bin-transpile.js
     ts-script: dist/bin-script-deprecated.js
-  checksum: 090adff1302ab20bd3486e6b4799e90f97726ed39e02b39e566f8ab674fd5bd5f727f43615debbfc580d33c6d9d1c6b1b3ce7d8e3cca3e20530a145ffa232c35
+  checksum: fde256c9073969e234526e2cfead42591b9a2aec5222bac154b0de2fa9e4ceb30efcd717ee8bc785a56f3a119bdd5aa27b333d9dbec94ed254bd26f8944c67ac
   languageName: node
   linkType: hard
 
@@ -52778,16 +52778,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^4.9.5":
-  version: 4.9.5
-  resolution: "typescript@npm:4.9.5"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: ee000bc26848147ad423b581bd250075662a354d84f0e06eb76d3b892328d8d4440b7487b5a83e851b12b255f55d71835b008a66cbf8f255a11e4400159237db
-  languageName: node
-  linkType: hard
-
 "typescript@npm:^5.5.4":
   version: 5.5.4
   resolution: "typescript@npm:5.5.4"
@@ -52805,16 +52795,6 @@ __metadata:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 0404a09c625df01934ef774b45ce1ca57ccae41cd625fcdbb82056715320d9329e70d9d75c2c732ec6ef947444ca978c189a332b71fa21f5c1437d5a83e24906
-  languageName: node
-  linkType: hard
-
-"typescript@patch:typescript@^4.9.5#~builtin<compat/typescript>":
-  version: 4.9.5
-  resolution: "typescript@patch:typescript@npm%3A4.9.5#~builtin<compat/typescript>::version=4.9.5&hash=f456af"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 2eee5c37cad4390385db5db5a8e81470e42e8f1401b0358d7390095d6f681b410f2c4a0c496c6ff9ebd775423c7785cdace7bcdad76c7bee283df3d9718c0f20
   languageName: node
   linkType: hard
 
