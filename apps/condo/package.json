@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "test": "mkdirp dist/admin && jest --unhandled-rejections=strict",
+    "test": "mkdirp dist/admin && jest --unhandled-rejections=strict --findRelatedTests ./domains/organization/schema/ResetOrganizationService.test.js",
     "prepare": "node ./bin/prepare.js",
     "dev": "yarn build:deps && node --trace-warnings ./../../bin/run-keystone-app.js & yarn types:watch",
     "debug": "node inspect node_modules/.bin/keystone dev",

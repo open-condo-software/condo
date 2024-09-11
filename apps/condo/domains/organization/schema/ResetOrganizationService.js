@@ -11,6 +11,7 @@ const { BankIntegrationOrganizationContext } = require('@condo/domains/banking/u
 const { BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/serverSchema')
 const { DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
+const { MeterResourceOwner } = require('@condo/domains/meter/utils/serverSchema')
 const { B2BAppContext } = require('@condo/domains/miniapp/utils/serverSchema')
 const access = require('@condo/domains/organization/access/ResetOrganizationService')
 const { DELETED_ORGANIZATION_NAME } = require('@condo/domains/organization/constants/common')
@@ -56,7 +57,7 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
             type: 'type ResetOrganizationOutput { status: String! }',
         },
     ],
-    
+
     mutations: [
         {
             access: access.canResetOrganization,
@@ -113,6 +114,20 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
                     await OrganizationLink.softDelete(context, organizationLink.id, DV_SENDER)
                 }
 
+                const MeterResourceOwners = await loadListByChunks({
+                    context,
+                    list: MeterResourceOwner,
+                    chunkSize: 20,
+                    limit: 100000,
+                    where: {
+                        deletedAt: null,
+                        organization: { id: organizationId },
+                    },
+                })
+                for (let MeterResourceOwner of MeterResourceOwners) {
+                    await MeterResourceOwner.softDelete(context, MeterResourceOwner.id, DV_SENDER)
+                }
+
                 const billingOrgCtxs = await BillingIntegrationOrganizationContext.getAll(context, {
                     deletedAt: null,
                     organization: { id: organizationId },
@@ -158,11 +173,11 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
                 await Organization.update(context, organizationId, newOrganizationData)
 
                 return { status: 'ok' }
-                
+
             },
         },
     ],
-    
+
 })
 
 module.exports = {
