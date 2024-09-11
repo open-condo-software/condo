@@ -86,11 +86,12 @@ class RedStoreAdapter {
         const notification = RedStoreAdapter.validateAndPrepareNotification(notificationRaw)
         const notifications = [] // User can have many Remote Clients. Message is created for the user, so from 1 message there can be many notifications
         const pushContext = {}
-
+        console.log('notificationRaw', notificationRaw)
         tokens.forEach((pushToken) => {
             const pushType = pushTypes[pushToken] || PUSH_TYPE_DEFAULT
             const preparedData = prepareData(data, pushToken)
             const appId = get(notification, `appIds.${pushToken}`)
+            console.log('prepareBatchData', 'appId', appId)
             const pushData = pushType === PUSH_TYPE_SILENT_DATA
                 ? {
                     token: pushToken,
