@@ -2,19 +2,6 @@ module.exports = {
     projects: [
         {
             testRunner: 'jasmine2',
-            displayName: 'main',
-            testEnvironment: 'jsdom',
-            testEnvironmentOptions: { url: 'http://localhost:3000/' },
-            testPathIgnorePatterns: ['/node_modules/', '/.next/', '/dist/', '/.kmigrator/', '/schema/'],
-            transform: {
-                '\\.[jt]sx?$': 'babel-jest',
-            },
-            setupFilesAfterEnv: [`${__dirname}/jest.setupSpec.js`],
-            // NOTE: need to pass uuid export syntax through babel
-            transformIgnorePatterns: ['/node_modules/(?!(uuid)/)'],
-        },
-        {
-            testRunner: 'jasmine2',
             displayName: 'schema',
             testEnvironment: 'node',
             testMatch: [
@@ -36,6 +23,22 @@ module.exports = {
             setupFilesAfterEnv: [`${__dirname}/jest.setupSpec.js`],
             // NOTE: need to pass uuid export syntax through babel
             transformIgnorePatterns: ['/node_modules/(?!(uuid)/)'],
+        },
+        {
+            testRunner: 'jasmine2',
+            displayName: 'main',
+            testEnvironment: 'jsdom',
+            testEnvironmentOptions: { url: 'http://localhost:3000/' },
+            testPathIgnorePatterns: ['/node_modules/', '/.next/', '/dist/', '/.kmigrator/', '/schema/', '/domains/common/utils/'],
+            transform: {
+                '\\.[jt]sx?$': 'babel-jest',
+            },
+            setupFilesAfterEnv: [`${__dirname}/jest.setupSpec.js`],
+            // NOTE: need to pass uuid export syntax through babel
+            transformIgnorePatterns: ['/node_modules/(?!(uuid)/)'],
+            moduleNameMapper: {
+                '@open-condo/(.*)': '<rootDir>/../../packages/$1',
+            },
         },
     ],
 }
