@@ -55,7 +55,7 @@ const options =  Object.entries(pkg.exports).map(([relativeImport, relativeMap])
                 extensions: AVAILABLE_EXTENSIONS,
             }),
             typescript({ tsconfig: './tsconfig.json', compilerOptions: { declaration: false } }),
-            uglify(),
+            // uglify(),
         ],
         external: ['react', 'react-dom'],
     }

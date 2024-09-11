@@ -15,7 +15,7 @@ import { APOLLO_STATE_PROP_NAME } from '../constants'
 
 import type { InitCacheConfig, InitCacheOptions, InvalidationCacheConfig } from './cache'
 import type { CachePersistor } from './cachePersistor'
-import type { ApolloLink, NormalizedCacheObject } from '@apollo/client'
+import type { ApolloLink, NormalizedCacheObject, RequestHandler, ApolloCache } from '@apollo/client'
 
 type ApolloClientOptions = {
     /** Apollo server url, can be static string or obtained from function on the fly */
@@ -25,7 +25,7 @@ type ApolloClientOptions = {
     /** Client's cache config */
     cacheConfig?: InvalidationCacheConfig
     /** Middleware to process / enrich requests */
-    middlewares?: Array<ApolloLink>
+    middlewares?: Array<ApolloLink | RequestHandler>
 }
 
 export type InitApolloClientOptions = Partial<Omit<ApolloClientOptions, 'cacheConfig'>> & {
@@ -44,17 +44,25 @@ type SSRResult<PropsType> = {
     }
 }
 
-type UseApolloHookResult = {
-    client: ApolloClient<NormalizedCacheObject>
+// TODO(SavelevMatthew): Remove TClient entirely or extend it from apollo client after resolving monorepo type mismatch issue
+
+type UseApolloHookResult<TClient> = {
+    client: TClient
     cachePersistor: CachePersistor<NormalizedCacheObject> | undefined
 }
 
-export type InitializeApollo = (options?: InitApolloClientOptions) => ApolloClient<NormalizedCacheObject>
-export type UseApollo = <PropsType> (pageProps: SSRResult<PropsType>['props']) => UseApolloHookResult
+export type InitializeApollo<TClient> = (options?: InitApolloClientOptions) => TClient
+export type UseApollo<TClient> = <PropsType> (pageProps: SSRResult<PropsType>['props']) => UseApolloHookResult<TClient>
 
 interface ApolloHelperInterface {
-    initializeApollo: InitializeApollo
-    generateUseApolloHook: () => UseApollo
+    initializeApollo: InitializeApollo<ApolloClient<NormalizedCacheObject>>
+    generateUseApolloHook: () => UseApollo<ApolloClient<NormalizedCacheObject>>
+}
+
+// NOTE: This type is used to avoid monorepo type mismatch issues,
+// see README.md for details
+type ClientWithExtractableCache = {
+    cache: Pick<ApolloCache<NormalizedCacheObject>, 'extract'>
 }
 
 /**
@@ -96,7 +104,7 @@ function createApolloClient (options: ApolloClientOptions): ApolloClient<Normali
  * }
  */
 export function extractApolloState<PropsType> (
-    client: ApolloClient<NormalizedCacheObject>,
+    client: ClientWithExtractableCache,
     pageParams: SSRResult<PropsType>
 ): SSRResult<PropsType> {
     if (pageParams?.props) {
@@ -259,7 +267,7 @@ export class ApolloHelper implements ApolloHelperInterface {
      *     )
      * }
      */
-    generateUseApolloHook (): <PropsType> (pageProps: SSRResult<PropsType>['props']) => UseApolloHookResult {
+    generateUseApolloHook (): <PropsType> (pageProps: SSRResult<PropsType>['props']) => UseApolloHookResult<ApolloClient<NormalizedCacheObject>> {
         const initApollo = this.initializeApollo
         const initCacheConfig = this._getCacheConfig
 
