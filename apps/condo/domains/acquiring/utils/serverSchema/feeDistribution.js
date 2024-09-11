@@ -197,17 +197,12 @@ const compactDistributionSettings  = (settings = []) => {
 
 
 const getAcquiringIntegrationContextFormula = async (context, acquiringContextId) => {
-    const acquiringContext = await AcquiringIntegrationContextApi.getOne(context, { id: acquiringContextId })
-    return getAcquiringIntegrationContextFormulaByInstance(acquiringContext)
-}
-
-const getAcquiringIntegrationContextFormulaByInstance = (acquiringContext) => {
     let {
         integration: {
             explicitFeeDistributionSchema: acquiringDistributionSchema,
         },
         implicitFeeDistributionSchema: contextDistributionSchema,
-    } = acquiringContext
+    } = await AcquiringIntegrationContextApi.getOne(context, { id: acquiringContextId })
     if (!Array.isArray(acquiringDistributionSchema)) {
         acquiringDistributionSchema = []
     }
@@ -220,6 +215,5 @@ const getAcquiringIntegrationContextFormulaByInstance = (acquiringContext) => {
 module.exports = {
     FeeDistribution,
     getAcquiringIntegrationContextFormula,
-    getAcquiringIntegrationContextFormulaByInstance,
     compactDistributionSettings,
 }
