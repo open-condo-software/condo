@@ -1,3 +1,6 @@
+/**
+ * @jest-environment node
+ */
 const conf = require('@open-condo/config')
 
 const { SMSAdapter } = require('./smsAdapter')
