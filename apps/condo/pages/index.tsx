@@ -1,4 +1,4 @@
-import { TourStepStatusType } from '@app/condo/schema'
+import { TourStepStatusType, TourStepTypeType } from '@app/condo/schema'
 import get from 'lodash/get'
 import pickBy from 'lodash/pickBy'
 import { useRouter } from 'next/router'
@@ -33,7 +33,7 @@ const IndexPage = () => {
     const { count: completedTourStepsCount, loading : completedTourStepsCountLoading } = TourStep.useCount({
         where: {
             organization: { id: organizationId },
-            type_in: SECOND_LEVEL_STEPS,
+            type_in: SECOND_LEVEL_STEPS as Array<TourStepTypeType>,
             status: TourStepStatusType.Completed,
         },
     }, { skip: !organizationId })

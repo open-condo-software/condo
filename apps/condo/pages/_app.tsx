@@ -539,9 +539,9 @@ const apolloCacheConfig: WithApolloProps['apolloCacheConfig'] = {
 }
 
 export default (
-    withApollo({ ssr: !IS_SSR_DISABLED, apolloCacheConfig })(
-        withAuth({ ssr: !IS_SSR_DISABLED, USER_QUERY })(
-            withIntl({ ssr: !IS_SSR_DISABLED, messagesImporter, extractReqLocale, defaultLocale })(
+    withIntl({ ssr: !IS_SSR_DISABLED, messagesImporter, extractReqLocale, defaultLocale })(
+        withApollo({ ssr: !IS_SSR_DISABLED, apolloCacheConfig })(
+            withAuth({ ssr: !IS_SSR_DISABLED, USER_QUERY })(
                 withOrganization({
                     ssr: !IS_SSR_DISABLED,
                     GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY: GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,

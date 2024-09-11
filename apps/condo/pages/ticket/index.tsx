@@ -792,7 +792,6 @@ export const TicketsPageContent = ({
             <ImportWrapper
                 accessCheck={isTicketImportFeatureEnabled}
                 columns={columns}
-                onFinish={undefined}
                 rowValidator={ticketValidator}
                 rowNormalizer={ticketNormalizer}
                 objectCreator={ticketCreator}

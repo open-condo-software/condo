@@ -1,3 +1,4 @@
+import { OrganizationTypeType, OrganizationWhereInput } from '@app/condo/schema'
 import { Layout } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
@@ -13,16 +14,15 @@ import { Logo } from '@condo/domains/common/components/Logo'
 import { ResidentActions } from '@condo/domains/common/components/ResidentActions/ResidentActions'
 import { InlineOrganizationSelect } from '@condo/domains/organization/components/OrganizationSelect'
 import { SBBOLIndicator } from '@condo/domains/organization/components/SBBOLIndicator'
-import { HOLDING_TYPE, MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
+import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
 import { useOrganizationInvites } from '@condo/domains/organization/hooks/useOrganizationInvites'
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
 
 import { ITopMenuItemsProps, TopMenuItems } from './components/TopMenuItems'
 
-import type{ OrganizationWhereInput } from '@app/condo/schema'
 
 const ORGANIZATION_FILTER: OrganizationWhereInput = {
-    type_not: HOLDING_TYPE,
+    type_not: OrganizationTypeType.Holding,
 }
 
 interface IHeaderProps {
