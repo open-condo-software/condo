@@ -47361,6 +47361,8 @@ type MeterReadingHistoryRecord {
   clientEmail: String
   clientPhone: String
   source: String
+  billingStatus: String
+  billingStatusText: String
   organization: String
   id: ID!
   v: Int
@@ -47490,6 +47492,42 @@ input MeterReadingHistoryRecordWhereInput {
   source_not: String
   source_in: [String]
   source_not_in: [String]
+  billingStatus: String
+  billingStatus_not: String
+  billingStatus_contains: String
+  billingStatus_not_contains: String
+  billingStatus_starts_with: String
+  billingStatus_not_starts_with: String
+  billingStatus_ends_with: String
+  billingStatus_not_ends_with: String
+  billingStatus_i: String
+  billingStatus_not_i: String
+  billingStatus_contains_i: String
+  billingStatus_not_contains_i: String
+  billingStatus_starts_with_i: String
+  billingStatus_not_starts_with_i: String
+  billingStatus_ends_with_i: String
+  billingStatus_not_ends_with_i: String
+  billingStatus_in: [String]
+  billingStatus_not_in: [String]
+  billingStatusText: String
+  billingStatusText_not: String
+  billingStatusText_contains: String
+  billingStatusText_not_contains: String
+  billingStatusText_starts_with: String
+  billingStatusText_not_starts_with: String
+  billingStatusText_ends_with: String
+  billingStatusText_not_ends_with: String
+  billingStatusText_i: String
+  billingStatusText_not_i: String
+  billingStatusText_contains_i: String
+  billingStatusText_not_contains_i: String
+  billingStatusText_starts_with_i: String
+  billingStatusText_not_starts_with_i: String
+  billingStatusText_ends_with_i: String
+  billingStatusText_not_ends_with_i: String
+  billingStatusText_in: [String]
+  billingStatusText_not_in: [String]
   organization: String
   organization_not: String
   organization_in: [String]
@@ -47593,6 +47631,10 @@ enum SortMeterReadingHistoryRecordsBy {
   clientEmail_DESC
   clientPhone_ASC
   clientPhone_DESC
+  billingStatus_ASC
+  billingStatus_DESC
+  billingStatusText_ASC
+  billingStatusText_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -47624,6 +47666,8 @@ input MeterReadingHistoryRecordUpdateInput {
   clientEmail: String
   clientPhone: String
   source: String
+  billingStatus: String
+  billingStatusText: String
   organization: String
   v: Int
   createdAt: String
@@ -47657,6 +47701,8 @@ input MeterReadingHistoryRecordCreateInput {
   clientEmail: String
   clientPhone: String
   source: String
+  billingStatus: String
+  billingStatusText: String
   organization: String
   v: Int
   createdAt: String
@@ -47688,6 +47734,11 @@ input MeterReadingSourceRelateToOneInput {
   connect: MeterReadingSourceWhereUniqueInput
   disconnect: MeterReadingSourceWhereUniqueInput
   disconnectAll: Boolean
+}
+
+enum MeterReadingBillingStatusType {
+  approved
+  declined
 }
 
 """ Meter reading taken from a client or billing """
@@ -47745,6 +47796,14 @@ type MeterReading {
   """ Meter reading source channel/system. Examples: call, mobile_app, billing, ... 
   """
   source: MeterReadingSource
+
+  """ A status from external billing system. Changing during processing the reading in external system. 
+  """
+  billingStatus: MeterReadingBillingStatusType
+
+  """ A message from external billing system. Set to null if billing status is `approved`. 
+  """
+  billingStatusText: String
 
   """ Ref to the organization. It is filled in on the server and is read-only 
   """
@@ -47877,6 +47936,28 @@ input MeterReadingWhereInput {
   clientPhone_not_in: [String]
   source: MeterReadingSourceWhereInput
   source_is_null: Boolean
+  billingStatus: MeterReadingBillingStatusType
+  billingStatus_not: MeterReadingBillingStatusType
+  billingStatus_in: [MeterReadingBillingStatusType]
+  billingStatus_not_in: [MeterReadingBillingStatusType]
+  billingStatusText: String
+  billingStatusText_not: String
+  billingStatusText_contains: String
+  billingStatusText_not_contains: String
+  billingStatusText_starts_with: String
+  billingStatusText_not_starts_with: String
+  billingStatusText_ends_with: String
+  billingStatusText_not_ends_with: String
+  billingStatusText_i: String
+  billingStatusText_not_i: String
+  billingStatusText_contains_i: String
+  billingStatusText_not_contains_i: String
+  billingStatusText_starts_with_i: String
+  billingStatusText_not_starts_with_i: String
+  billingStatusText_ends_with_i: String
+  billingStatusText_not_ends_with_i: String
+  billingStatusText_in: [String]
+  billingStatusText_not_in: [String]
   organization: OrganizationWhereInput
   organization_is_null: Boolean
   id: ID
@@ -47966,6 +48047,10 @@ enum SortMeterReadingsBy {
   clientPhone_DESC
   source_ASC
   source_DESC
+  billingStatus_ASC
+  billingStatus_DESC
+  billingStatusText_ASC
+  billingStatusText_DESC
   organization_ASC
   organization_DESC
   id_ASC
@@ -47999,6 +48084,8 @@ input MeterReadingUpdateInput {
   clientEmail: String
   clientPhone: String
   source: MeterReadingSourceRelateToOneInput
+  billingStatus: MeterReadingBillingStatusType
+  billingStatusText: String
   organization: OrganizationRelateToOneInput
   v: Int
   createdAt: String
@@ -48029,6 +48116,8 @@ input MeterReadingCreateInput {
   clientEmail: String
   clientPhone: String
   source: MeterReadingSourceRelateToOneInput
+  billingStatus: MeterReadingBillingStatusType
+  billingStatusText: String
   organization: OrganizationRelateToOneInput
   v: Int
   createdAt: String
@@ -77819,6 +77908,7 @@ input RegisterMetersReadingsReadingInput {
   value3: String
   value4: String
   meterMeta: RegisterMetersReadingsMeterMetaInput
+  readingSource: MeterReadingSourceWhereUniqueInput
 }
 
 input RegisterMetersReadingsInput {

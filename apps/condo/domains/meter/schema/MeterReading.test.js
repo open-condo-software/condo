@@ -640,6 +640,22 @@ describe('MeterReading', () => {
                     })
                 })
             })
+
+            test('Set billingStatusText to null if billingStatus=`approved`', async () => {
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+                const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
+                const [meter] = await createTestMeter(admin, organization, property, resource, {})
+
+                const [meterReading] = await createTestMeterReading(admin, meter, source, {
+                    billingStatus: 'approved',
+                    billingStatusText: faker.lorem.sentence(5),
+                })
+
+                expect(meterReading.billingStatus).toBe('approved')
+                expect(meterReading.billingStatusText).toBeNull()
+            })
         })
         describe('Update', () => {
             describe('Admin', () => {
@@ -815,6 +831,23 @@ describe('MeterReading', () => {
                 })
 
                 expect(updatedMeterReading.organization.id).toEqual(organization1.id)
+            })
+
+            test('Set billingStatusText to null if billingStatus=`approved`', async () => {
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+                const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
+                const [meter] = await createTestMeter(admin, organization, property, resource, {})
+                const [meterReading] = await createTestMeterReading(admin, meter, source)
+
+                const [updatedMeterReading] = await updateTestMeterReading(admin, meterReading.id, {
+                    billingStatus: 'approved',
+                    billingStatusText: faker.lorem.sentence(5),
+                })
+
+                expect(updatedMeterReading.billingStatus).toBe('approved')
+                expect(updatedMeterReading.billingStatusText).toBeNull()
             })
         })
         describe('Read', () => {
@@ -1583,6 +1616,47 @@ describe('MeterReading', () => {
                             message: 'Wrong values count: extra values',
                             messageForUser: 'api.meterReading.METER_READING_EXTRA_VALUES',
                             messageInterpolation: { meterNumber: meter.number, numberOfTariffs: 1, fieldsNames: ['value2', 'value3', 'value4'].map((field) => i18n(`meter.import.column.${field}`, { locale })).join(', ') },
+                        }
+                    )
+                })
+            })
+
+            describe('billingStatus & billingStatusText', () => {
+                test('can not set billingStatusText without billingStatus', async () => {
+                    const [resource] = await MeterResource.getAll(employeeCanManageReadings, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [source] = await MeterReadingSource.getAll(employeeCanManageReadings, { id: CALL_METER_READING_SOURCE_ID })
+                    const [meter] = await createTestMeter(
+                        employeeCanManageReadings,
+                        employeeCanManageReadings.organization,
+                        employeeCanManageReadings.property,
+                        resource,
+                    )
+
+                    await expectToThrowGQLError(
+                        async () => await createTestMeterReading(admin, meter, source, {
+                            billingStatus: null,
+                            billingStatusText: faker.lorem.sentence(5),
+                        }),
+                        {
+                            code: 'BAD_USER_INPUT',
+                            type: 'BILLING_STATUS_MESSAGE_WITHOUT_BILLING_STATUS',
+                            message: 'Can not set billingStatusText without billingStatus',
+                        }
+                    )
+
+                    const [meterReading] = await createTestMeterReading(admin, meter, source, {
+                        billingStatus: 'declined',
+                        billingStatusText: faker.lorem.sentence(5),
+                    })
+
+                    await expectToThrowGQLError(
+                        async () => await updateTestMeterReading(admin, meterReading.id, {
+                            billingStatus: null,
+                        }),
+                        {
+                            code: 'BAD_USER_INPUT',
+                            type: 'BILLING_STATUS_MESSAGE_WITHOUT_BILLING_STATUS',
+                            message: 'Can not set billingStatusText without billingStatus',
                         }
                     )
                 })

@@ -33530,6 +33530,10 @@ export type MeterReading = {
   clientPhone?: Maybe<Scalars['String']>;
   /**  Meter reading source channel/system. Examples: call, mobile_app, billing, ...  */
   source?: Maybe<MeterReadingSource>;
+  /**  A status from external billing system. Changing during processing the reading in external system.  */
+  billingStatus?: Maybe<MeterReadingBillingStatusType>;
+  /**  A message from external billing system. Set to null if billing status is `approved`.  */
+  billingStatusText?: Maybe<Scalars['String']>;
   /**  Ref to the organization. It is filled in on the server and is read-only  */
   organization?: Maybe<Organization>;
   id: Scalars['ID'];
@@ -33548,6 +33552,11 @@ export type MeterReading = {
   sender?: Maybe<SenderField>;
 };
 
+export enum MeterReadingBillingStatusType {
+  Approved = 'approved',
+  Declined = 'declined'
+}
+
 export type MeterReadingCreateInput = {
   date?: Maybe<Scalars['String']>;
   meter?: Maybe<MeterRelateToOneInput>;
@@ -33561,6 +33570,8 @@ export type MeterReadingCreateInput = {
   clientEmail?: Maybe<Scalars['String']>;
   clientPhone?: Maybe<Scalars['String']>;
   source?: Maybe<MeterReadingSourceRelateToOneInput>;
+  billingStatus?: Maybe<MeterReadingBillingStatusType>;
+  billingStatusText?: Maybe<Scalars['String']>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -33967,6 +33978,8 @@ export type MeterReadingHistoryRecord = {
   clientEmail?: Maybe<Scalars['String']>;
   clientPhone?: Maybe<Scalars['String']>;
   source?: Maybe<Scalars['String']>;
+  billingStatus?: Maybe<Scalars['String']>;
+  billingStatusText?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -33996,6 +34009,8 @@ export type MeterReadingHistoryRecordCreateInput = {
   clientEmail?: Maybe<Scalars['String']>;
   clientPhone?: Maybe<Scalars['String']>;
   source?: Maybe<Scalars['String']>;
+  billingStatus?: Maybe<Scalars['String']>;
+  billingStatusText?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -34030,6 +34045,8 @@ export type MeterReadingHistoryRecordUpdateInput = {
   clientEmail?: Maybe<Scalars['String']>;
   clientPhone?: Maybe<Scalars['String']>;
   source?: Maybe<Scalars['String']>;
+  billingStatus?: Maybe<Scalars['String']>;
+  billingStatusText?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -34158,6 +34175,42 @@ export type MeterReadingHistoryRecordWhereInput = {
   source_not?: Maybe<Scalars['String']>;
   source_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   source_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  billingStatus?: Maybe<Scalars['String']>;
+  billingStatus_not?: Maybe<Scalars['String']>;
+  billingStatus_contains?: Maybe<Scalars['String']>;
+  billingStatus_not_contains?: Maybe<Scalars['String']>;
+  billingStatus_starts_with?: Maybe<Scalars['String']>;
+  billingStatus_not_starts_with?: Maybe<Scalars['String']>;
+  billingStatus_ends_with?: Maybe<Scalars['String']>;
+  billingStatus_not_ends_with?: Maybe<Scalars['String']>;
+  billingStatus_i?: Maybe<Scalars['String']>;
+  billingStatus_not_i?: Maybe<Scalars['String']>;
+  billingStatus_contains_i?: Maybe<Scalars['String']>;
+  billingStatus_not_contains_i?: Maybe<Scalars['String']>;
+  billingStatus_starts_with_i?: Maybe<Scalars['String']>;
+  billingStatus_not_starts_with_i?: Maybe<Scalars['String']>;
+  billingStatus_ends_with_i?: Maybe<Scalars['String']>;
+  billingStatus_not_ends_with_i?: Maybe<Scalars['String']>;
+  billingStatus_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  billingStatus_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  billingStatusText?: Maybe<Scalars['String']>;
+  billingStatusText_not?: Maybe<Scalars['String']>;
+  billingStatusText_contains?: Maybe<Scalars['String']>;
+  billingStatusText_not_contains?: Maybe<Scalars['String']>;
+  billingStatusText_starts_with?: Maybe<Scalars['String']>;
+  billingStatusText_not_starts_with?: Maybe<Scalars['String']>;
+  billingStatusText_ends_with?: Maybe<Scalars['String']>;
+  billingStatusText_not_ends_with?: Maybe<Scalars['String']>;
+  billingStatusText_i?: Maybe<Scalars['String']>;
+  billingStatusText_not_i?: Maybe<Scalars['String']>;
+  billingStatusText_contains_i?: Maybe<Scalars['String']>;
+  billingStatusText_not_contains_i?: Maybe<Scalars['String']>;
+  billingStatusText_starts_with_i?: Maybe<Scalars['String']>;
+  billingStatusText_not_starts_with_i?: Maybe<Scalars['String']>;
+  billingStatusText_ends_with_i?: Maybe<Scalars['String']>;
+  billingStatusText_not_ends_with_i?: Maybe<Scalars['String']>;
+  billingStatusText_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  billingStatusText_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   organization?: Maybe<Scalars['String']>;
   organization_not?: Maybe<Scalars['String']>;
   organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -34642,6 +34695,8 @@ export type MeterReadingUpdateInput = {
   clientEmail?: Maybe<Scalars['String']>;
   clientPhone?: Maybe<Scalars['String']>;
   source?: Maybe<MeterReadingSourceRelateToOneInput>;
+  billingStatus?: Maybe<MeterReadingBillingStatusType>;
+  billingStatusText?: Maybe<Scalars['String']>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -34759,6 +34814,28 @@ export type MeterReadingWhereInput = {
   clientPhone_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   source?: Maybe<MeterReadingSourceWhereInput>;
   source_is_null?: Maybe<Scalars['Boolean']>;
+  billingStatus?: Maybe<MeterReadingBillingStatusType>;
+  billingStatus_not?: Maybe<MeterReadingBillingStatusType>;
+  billingStatus_in?: Maybe<Array<Maybe<MeterReadingBillingStatusType>>>;
+  billingStatus_not_in?: Maybe<Array<Maybe<MeterReadingBillingStatusType>>>;
+  billingStatusText?: Maybe<Scalars['String']>;
+  billingStatusText_not?: Maybe<Scalars['String']>;
+  billingStatusText_contains?: Maybe<Scalars['String']>;
+  billingStatusText_not_contains?: Maybe<Scalars['String']>;
+  billingStatusText_starts_with?: Maybe<Scalars['String']>;
+  billingStatusText_not_starts_with?: Maybe<Scalars['String']>;
+  billingStatusText_ends_with?: Maybe<Scalars['String']>;
+  billingStatusText_not_ends_with?: Maybe<Scalars['String']>;
+  billingStatusText_i?: Maybe<Scalars['String']>;
+  billingStatusText_not_i?: Maybe<Scalars['String']>;
+  billingStatusText_contains_i?: Maybe<Scalars['String']>;
+  billingStatusText_not_contains_i?: Maybe<Scalars['String']>;
+  billingStatusText_starts_with_i?: Maybe<Scalars['String']>;
+  billingStatusText_not_starts_with_i?: Maybe<Scalars['String']>;
+  billingStatusText_ends_with_i?: Maybe<Scalars['String']>;
+  billingStatusText_not_ends_with_i?: Maybe<Scalars['String']>;
+  billingStatusText_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  billingStatusText_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
@@ -73931,6 +74008,7 @@ export type RegisterMetersReadingsReadingInput = {
   value3?: Maybe<Scalars['String']>;
   value4?: Maybe<Scalars['String']>;
   meterMeta?: Maybe<RegisterMetersReadingsMeterMetaInput>;
+  readingSource?: Maybe<MeterReadingSourceWhereUniqueInput>;
 };
 
 export type RegisterMultiPaymentForInvoicesInput = {
@@ -80687,6 +80765,10 @@ export enum SortMeterReadingHistoryRecordsBy {
   ClientEmailDesc = 'clientEmail_DESC',
   ClientPhoneAsc = 'clientPhone_ASC',
   ClientPhoneDesc = 'clientPhone_DESC',
+  BillingStatusAsc = 'billingStatus_ASC',
+  BillingStatusDesc = 'billingStatus_DESC',
+  BillingStatusTextAsc = 'billingStatusText_ASC',
+  BillingStatusTextDesc = 'billingStatusText_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -80776,6 +80858,10 @@ export enum SortMeterReadingsBy {
   ClientPhoneDesc = 'clientPhone_DESC',
   SourceAsc = 'source_ASC',
   SourceDesc = 'source_DESC',
+  BillingStatusAsc = 'billingStatus_ASC',
+  BillingStatusDesc = 'billingStatus_DESC',
+  BillingStatusTextAsc = 'billingStatusText_ASC',
+  BillingStatusTextDesc = 'billingStatusText_DESC',
   OrganizationAsc = 'organization_ASC',
   OrganizationDesc = 'organization_DESC',
   IdAsc = 'id_ASC',

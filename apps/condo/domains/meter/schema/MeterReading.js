@@ -13,8 +13,8 @@ const { i18n } = require('@open-condo/locales/loader')
 
 const { CONTACT_FIELD, CLIENT_EMAIL_FIELD, CLIENT_NAME_FIELD, CLIENT_PHONE_LANDLINE_FIELD, CLIENT_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/meter/access/MeterReading')
-const { METER_READING_MAX_VALUES_COUNT } = require('@condo/domains/meter/constants/constants')
-const { METER_READING_DATE_IN_FUTURE, METER_READING_FEW_VALUES, METER_READING_EXTRA_VALUES } = require('@condo/domains/meter/constants/errors')
+const { METER_READING_MAX_VALUES_COUNT, METER_READING_BILLING_STATUSES, METER_READING_BILLING_STATUS_APPROVED } = require('@condo/domains/meter/constants/constants')
+const { METER_READING_DATE_IN_FUTURE, METER_READING_FEW_VALUES, METER_READING_EXTRA_VALUES, BILLING_STATUS_MESSAGE_WITHOUT_BILLING_STATUS } = require('@condo/domains/meter/constants/errors')
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { connectContactToMeterReading } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
 const { addClientInfoToResidentMeterReading } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
@@ -43,6 +43,11 @@ const ERRORS = {
         messageForUser: 'api.meterReading.METER_READING_EXTRA_VALUES',
         messageInterpolation: { meterNumber, numberOfTariffs, fieldsNames },
     }),
+    BILLING_STATUS_MESSAGE_WITHOUT_BILLING_STATUS: {
+        code: BAD_USER_INPUT,
+        type: BILLING_STATUS_MESSAGE_WITHOUT_BILLING_STATUS,
+        message: 'Can not set billingStatusText without billingStatus',
+    },
 }
 
 const MeterReading = new GQLListSchema('MeterReading', {
@@ -110,6 +115,27 @@ const MeterReading = new GQLListSchema('MeterReading', {
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
         },
 
+        billingStatus: {
+            schemaDoc: 'A status from external billing system. Changing during processing the reading in external system.',
+            type: 'Select',
+            dataType: 'string',
+            options: METER_READING_BILLING_STATUSES,
+        },
+        billingStatusText: {
+            schemaDoc: 'A message from external billing system. Set to null if billing status is `approved`.',
+            type: 'Text',
+            hooks: {
+                resolveInput: async ({ resolvedData, existingItem, fieldPath }) => {
+                    const nextItem = { ...existingItem, ...resolvedData }
+                    if (nextItem.billingStatus === METER_READING_BILLING_STATUS_APPROVED) {
+                        return null
+                    }
+
+                    return resolvedData[fieldPath]
+                },
+            },
+        },
+
     },
     hooks: {
         resolveInput: async ({ operation, context, resolvedData, existingItem }) => {
@@ -144,6 +170,10 @@ const MeterReading = new GQLListSchema('MeterReading', {
         validateInput: async ({ context, resolvedData, existingItem }) => {
             const newItem = { ...existingItem, ...resolvedData }
             const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
+
+            if (!isNil(newItem.billingStatusText) && newItem.billingStatus === null) {
+                throw new GQLError(ERRORS.BILLING_STATUS_MESSAGE_WITHOUT_BILLING_STATUS, context)
+            }
 
             const meterId = get(newItem, 'meter')
 
