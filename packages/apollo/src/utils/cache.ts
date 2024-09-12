@@ -25,6 +25,8 @@ type AddCacheOptions =  {
     overrideClient?: boolean
 }
 
+const DEFAULT_IDENTITY_PATH = ['ROOT_QUERY', 'authenticatedUser', '__ref']
+
 /**
  * Basic Apollo cache with the following features:
  * 1. data invalidation, which can occur according to TTL (globally or per-list / per-type level).
@@ -44,8 +46,7 @@ type AddCacheOptions =  {
  * })
  */
 export class InvalidationCache extends InvalidationPolicyCache {
-    // TODO: auth default
-    readonly cacheIdentityKey: string | Array<string> = 'id'
+    readonly cacheIdentityKey: string | Array<string> = DEFAULT_IDENTITY_PATH
 
     constructor (config?: InvalidationCacheConfig) {
         super(config)

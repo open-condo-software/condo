@@ -1,6 +1,7 @@
 import { ApolloClient, from } from '@apollo/client/core'
 import { createUploadLink } from 'apollo-upload-client'
 import bindAll from 'lodash/bindAll'
+import get from 'lodash/get'
 import isEqual from 'lodash/isEqual'
 import { useMemo, useState } from 'react'
 
@@ -316,9 +317,20 @@ export class ApolloHelper implements ApolloHelperInterface {
                     // IMPORTANT: Restore client side persisted data before letting the application run any queries
                     await loaderPersistor.restore()
 
-                    // NOTE: At this point we have async filled cache,
-                    // but since apollo client is returned in sync mode via useMemo, and we're trying to avoid using loader,
-                    // this cache can be outdated, so it MUST NOT appear on top of clients sync cache, but under it instead
+                    // NOTE: At this point we have async filled cache, but:
+                    // 1. apollo SSR cache is already filled in sync mode
+                    // 2. async cache from local storage can be owned / left by another user
+                    // So we need to compare identities first
+
+                    const cacheIdentityKey = cache.cacheIdentityKey
+                    const asyncIdentity = get(cache.extract(), cacheIdentityKey, null)
+                    const clientIdentity = get(client.cache.extract(), cacheIdentityKey, null)
+
+                    // If user is not authorized (no identity) or identity not matched -> clear async store
+                    if (!clientIdentity || !isEqual(clientIdentity, asyncIdentity)) {
+                        await loaderPersistor.purge()
+                        await cache.reset()
+                    }
 
                     addCacheToClient(client, cache.extract(), {
                         broadcast: true,
