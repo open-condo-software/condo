@@ -1,0 +1,194 @@
+const dayjs = require('dayjs')
+const get = require('lodash/get')
+const uniq = require('lodash/uniq')
+
+const { getLogger } = require('@open-condo/keystone/logging')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { createTask } = require('@open-condo/keystone/tasks')
+const { i18n } = require('@open-condo/locales/loader')
+
+const { ERROR, EXCEL } = require('@condo/domains/common/constants/export')
+const { TASK_WORKER_FINGERPRINT } = require('@condo/domains/common/constants/tasks')
+const { EXCEL_FILE_META, buildExportFile: buildExportExcelFile } = require('@condo/domains/common/utils/createExportFile')
+const { getHeadersTranslations } = require('@condo/domains/common/utils/exportToExcel')
+const { EXPORT_TYPE_METERS } = require('@condo/domains/common/utils/exportToExcel')
+const { exportRecordsAsCsvFile, exportRecordsAsXlsxFile } = require('@condo/domains/common/utils/serverSchema/export')
+const { setLocaleForKeystoneContext } = require('@condo/domains/common/utils/serverSchema/setLocaleForKeystoneContext')
+const { MeterReadingExportTask, MeterReading, loadMetersForExcelExport } = require('@condo/domains/meter/utils/serverSchema')
+const { buildMeterReadingsLoader, MeterResource, MeterReadingSource } = require('@condo/domains/meter/utils/serverSchema')
+
+
+const BASE_ATTRIBUTES = { dv: 1, sender: { dv: 1, fingerprint: TASK_WORKER_FINGERPRINT } }
+const MAX_XLSX_FILE_ROWS = 10000
+const DATE_FORMAT = 'DD.MM.YYYY'
+
+const taskLogger = getLogger('exportMeterReadings')
+
+const formatDate = (date, timeZone, format = DATE_FORMAT) => {
+    return dayjs(date).tz(timeZone).format(format)
+}
+
+const meterReadingToRow = async ({ task, meterReading }) => {
+    const { timeZone, locale } = task
+
+    const unitType = meterReading.unitType ? i18n(`pages.condo.ticket.field.unitType.${meterReading.unitType}`, { locale }) : ''
+
+    return {
+        date: formatDate(meterReading.date, timeZone),
+        address: meterReading.address,
+        unitName: meterReading.unitName,
+        unitType,
+        accountNumber: meterReading.accountNumber,
+        resource: meterReading.resource,
+        number: meterReading.number,
+        place: meterReading.place,
+        value1: meterReading.value1,
+        value2: meterReading.value2,
+        value3: meterReading.value3,
+        value4: meterReading.value4,
+        clientName: meterReading.clientName,
+        source: meterReading.source,
+    }
+}
+
+const buildExportFile = async ({ task, rows }) => {
+    const { id, locale } = task
+
+    const { stream } = await buildExportExcelFile({
+        templatePath: './domains/meter/templates/MeterReadingsExportTemplate.xlsx',
+        replaces: {
+            meter: rows,
+            i18n: {
+                ...getHeadersTranslations(EXPORT_TYPE_METERS, locale),
+                sheetName: i18n('global.section.meters', { locale }),
+            },
+        },
+    })
+
+    return {
+        stream,
+        filename: `meterReadings_${dayjs().format('DD_MM')}.xlsx`,
+        mimetype: EXCEL_FILE_META.mimetype,
+        encoding: EXCEL_FILE_META.encoding,
+        meta: {
+            listkey: 'MeterReadingExportTask',
+            id,
+        },
+    }
+}
+
+async function exportMeterReadings (taskId) {
+    if (!taskId) {
+        taskLogger.error({
+            msg: 'taskId is undefined',
+        })
+        throw new Error('taskId is undefined')
+    }
+
+    const { keystone: context } = getSchemaCtx('MeterReadingExportTask')
+
+    const task = await MeterReadingExportTask.getOne(context, { id: taskId })
+    if (!task) {
+        taskLogger.error({
+            msg: `No task with id "${taskId}"`,
+        })
+        throw new Error(`No task with id "${taskId}"`)
+    }
+
+    const { where, sortBy, format, locale } = task
+
+    try {
+        if (!locale) {
+            throw new Error(`MeterReadingExportTask with id "${taskId}" does not have value for "locale" field!`)
+        }
+
+        setLocaleForKeystoneContext(context, locale)
+
+        const totalRecordsCount = await MeterReading.count(context, where)
+
+        const meterReadingsLoader = await buildMeterReadingsLoader({ where, sortBy })
+        const meterResources = await MeterResource.getAll(context, {})
+        const meterReadingSources = await MeterReadingSource.getAll(context, {})
+
+        const loadRecordsBatch = async (offset, limit) => {
+            const meterReadings = await meterReadingsLoader.loadChunk(offset, limit)
+            const meterIds = uniq(meterReadings.map(reading => get(reading, 'meter')).filter(Boolean))
+            const meters = await loadMetersForExcelExport({ where: { id_in: meterIds } })
+
+            const mappedMeterReadings = meterReadings.map(meterReading => {
+                const source = meterReadingSources.find(meterReadingSource => meterReadingSource.id === meterReading.source)
+                const sourceName = get(source, 'name')
+                const meter = meters.find(meter => meter.id === meterReading.meter)
+                if (!meter) return
+
+                const resource = meterResources.find(meterResource => meterResource.id === meter.resource)
+                const resourceName = get(resource, 'name')
+
+                meterReading.source = sourceName
+                meterReading.resource = resourceName
+                meterReading.unitName = meter.unitName
+                meterReading.unitType = meter.unitType
+                meterReading.accountNumber = meter.accountNumber
+                meterReading.number = meter.number
+                meterReading.place = meter.place
+                meterReading.address = meter.property
+
+                return meterReading
+            }).filter(Boolean)
+
+            this.progress(Math.floor(offset / totalRecordsCount * 100))
+
+            return mappedMeterReadings
+        }
+
+        const convertRecordToFileRow = async (meterReading) => await meterReadingToRow({
+            task,
+            meterReading,
+        })
+
+        switch (format) {
+            case EXCEL: {
+                if (totalRecordsCount > MAX_XLSX_FILE_ROWS) {
+                    await exportRecordsAsCsvFile({
+                        context,
+                        loadRecordsBatch,
+                        convertRecordToFileRow,
+                        baseAttrs: BASE_ATTRIBUTES,
+                        taskServerUtils: MeterReadingExportTask,
+                        totalRecordsCount,
+                        taskId,
+                        registry: EXPORT_TYPE_METERS,
+                    })
+                } else {
+                    await exportRecordsAsXlsxFile({
+                        context,
+                        loadRecordsBatch,
+                        convertRecordToFileRow,
+                        buildExportFile: (rows) => buildExportFile({ rows, task }),
+                        baseAttrs: BASE_ATTRIBUTES,
+                        taskServerUtils: MeterReadingExportTask,
+                        totalRecordsCount,
+                        taskId,
+                    })
+                }
+            }
+        }
+    } catch (err) {
+        await MeterReadingExportTask.update(context, taskId, {
+            ...BASE_ATTRIBUTES,
+            status: ERROR,
+        })
+
+        taskLogger.error({
+            msg: 'Failed to export meter readings',
+            data: { id: taskId },
+            err,
+        })
+
+        throw err
+    }
+}
+
+module.exports = {
+    exportMeterReadings: createTask('exportMeterReadings', exportMeterReadings, 'low'),
+}

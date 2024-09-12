@@ -21,6 +21,7 @@ const { MeterReportingPeriod: MeterReportingPeriodGQL } = require('@condo/domain
 const { MeterResourceOwner: MeterResourceOwnerGQL } = require('@condo/domains/meter/gql')
 const { REGISTER_METERS_READINGS_MUTATION } = require('@condo/domains/meter/gql')
 const { MeterReadingsImportTask: MeterReadingsImportTaskGQL } = require('@condo/domains/meter/gql')
+const { MeterReadingExportTask: MeterReadingExportTaskGQL } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateServerUtils(MeterResourceGQL)
@@ -48,6 +49,7 @@ async function registerMetersReadings (context, data) {
 }
 
 const MeterReadingsImportTask = generateServerUtils(MeterReadingsImportTaskGQL)
+const MeterReadingExportTask = generateServerUtils(MeterReadingExportTaskGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 /**
@@ -176,9 +178,8 @@ const loadMetersForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'
     return await metersLoader.load()
 }
 
-
-const loadMeterReadingsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
-    const meterReadingsLoader = new GqlWithKnexLoadList({
+const buildMeterReadingsLoader = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
+    return new GqlWithKnexLoadList({
         listKey: 'MeterReading',
         fields: 'id date value1 value2 value3 value4 clientName',
         singleRelations: [
@@ -188,8 +189,6 @@ const loadMeterReadingsForExcelExport = async ({ where = {}, sortBy = ['createdA
         sortBy,
         where,
     })
-
-    return await meterReadingsLoader.load()
 }
 
 const loadPropertyMetersForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
@@ -230,7 +229,6 @@ module.exports = {
     getAvailableResidentMeters,
     getAvailableResidentMeterReportCondition,
     loadMetersForExcelExport,
-    loadMeterReadingsForExcelExport,
     loadPropertyMeterReadingsForExcelExport,
     loadPropertyMetersForExcelExport,
     MeterReadingFilterTemplate,
@@ -240,5 +238,7 @@ module.exports = {
     MeterResourceOwner,
     registerMetersReadings,
     MeterReadingsImportTask,
+    MeterReadingExportTask,
+    buildMeterReadingsLoader,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
