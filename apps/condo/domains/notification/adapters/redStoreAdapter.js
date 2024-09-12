@@ -82,7 +82,7 @@ class RedStoreAdapter {
      * @param isVoIP
      * @returns {*[][]}
      */
-    static prepareBatchData (notificationRaw, data, tokens = [], pushTypes = {}, isVoIP = false) {
+    static prepareBatchData (notificationRaw, data, tokens = [], pushTypes = {}, appIds = {}, isVoIP = false) {
         const notification = RedStoreAdapter.validateAndPrepareNotification(notificationRaw)
         const notifications = [] // User can have many Remote Clients. Message is created for the user, so from 1 message there can be many notifications
         const pushContext = {}
@@ -90,8 +90,7 @@ class RedStoreAdapter {
         tokens.forEach((pushToken) => {
             const pushType = pushTypes[pushToken] || PUSH_TYPE_DEFAULT
             const preparedData = prepareData(data, pushToken)
-            const appId = get(notification, `appIds.${pushToken}`)
-            console.log('prepareBatchData', 'appId', appId)
+            console.log('prepareBatchData', 'appId', appIds[pushToken])
             const pushData = pushType === PUSH_TYPE_SILENT_DATA
                 ? {
                     token: pushToken,
@@ -100,14 +99,14 @@ class RedStoreAdapter {
                         'title': notification.title,
                         'body': notification.body,
                     },
-                    appId,
+                    appId: appIds[pushToken],
                     ...DEFAULT_PUSH_SETTINGS,
                 }
                 : {
                     token: pushToken,
                     data: preparedData,
                     notification,
-                    appId,
+                    appId: appIds[pushToken],
                     ...DEFAULT_PUSH_SETTINGS,
                 }
 
@@ -156,10 +155,10 @@ class RedStoreAdapter {
      * @param pushTypes
      * @returns {Promise<null|(boolean|T|{state: string, error: *})[]>}
      */
-    async sendNotification ({ notification, data, tokens, pushTypes } = {}, isVoIP = false) {
+    async sendNotification ({ notification, data, tokens, pushTypes, appIds } = {}, isVoIP = false) {
         if (!tokens || isEmpty(tokens)) return [false, { error: 'No pushTokens available.' }]
 
-        const [notifications, pushContext] = RedStoreAdapter.prepareBatchData(notification, data, tokens, pushTypes, isVoIP)
+        const [notifications, pushContext] = RedStoreAdapter.prepareBatchData(notification, data, tokens, pushTypes, appIds, isVoIP)
         let result
         console.log('insideRedStoreAdapter', 'logNotifications', notifications)
 

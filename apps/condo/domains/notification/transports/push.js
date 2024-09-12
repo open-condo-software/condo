@@ -149,7 +149,7 @@ async function send ({ notification, data, user, remoteClient } = {}, isVoIP = f
     const userId = get(user, 'id')
     const remoteClientId = get(remoteClient, 'id')
     const { tokensByTransport, pushTypes, appIds, count } = await getTokens(userId, remoteClientId, isVoIP)
-    console.log('logAllTokens', tokensByTransport)
+    console.log('logAllTokens', tokensByTransport, appIds)
 
     let container = {}
     let _isOk = false
