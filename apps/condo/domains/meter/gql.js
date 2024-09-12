@@ -86,6 +86,9 @@ const REGISTER_METERS_READINGS_MUTATION = gql`
 const METER_READINGS_IMPORT_TASK_FIELDS = `{ status format processedRecordsCount importedRecordsCount totalRecordsCount file { id filename originalFilename publicUrl mimetype } errorFile { id filename originalFilename publicUrl mimetype } errorMessage user { id } organization { id } locale meta ${COMMON_FIELDS} }`
 const MeterReadingsImportTask = generateGqlQueries('MeterReadingsImportTask', METER_READINGS_IMPORT_TASK_FIELDS)
 
+const METER_READING_EXPORT_TASK_FIELDS = `{ status format exportedRecordsCount totalRecordsCount file { id originalFilename publicUrl mimetype } meta where sortBy locale timeZone user { id } ${COMMON_FIELDS} }`
+const MeterReadingExportTask = generateGqlQueries('MeterReadingExportTask', METER_READING_EXPORT_TASK_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -106,6 +109,7 @@ module.exports = {
     EXPORT_PROPERTY_METER_READINGS_QUERY,
     REGISTER_METERS_READINGS_MUTATION,
     MeterReadingsImportTask,
+    MeterReadingExportTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 

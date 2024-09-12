@@ -18,6 +18,7 @@ const { MeterResourceOwner } = require('./MeterResourceOwner')
 const { PropertyMeter } = require('./PropertyMeter')
 const { PropertyMeterReading } = require('./PropertyMeterReading')
 const { RegisterMetersReadingsService } = require('./RegisterMetersReadingsService')
+const { MeterReadingExportTask } = require('./MeterReadingExportTask')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -36,5 +37,6 @@ module.exports = {
     ExportPropertyMeterReadingsService,
     RegisterMetersReadingsService,
     MeterReadingsImportTask,
+    MeterReadingExportTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
