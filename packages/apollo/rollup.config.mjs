@@ -26,9 +26,9 @@ function getInputFileFromExports (exportsPath) {
 const options =  Object.entries(pkg.exports).map(([relativeImport, relativeMap]) => {
     const input = getInputFileFromExports(path.join('src', relativeImport))
     const output = []
-    if (relativeMap && relativeMap.require) {
+    if (relativeMap && (relativeMap.require || relativeMap.default)) {
         output.push({
-            file: relativeMap.require,
+            file: relativeMap.require || relativeMap.default,
             format: 'cjs',
             sourcemap: true,
         })
@@ -47,7 +47,10 @@ const options =  Object.entries(pkg.exports).map(([relativeImport, relativeMap])
         plugins: [
             peerDepsExternal(),
             resolve(),
-            commonjs(),
+            commonjs({
+                transformMixedEsModules: true,
+                esmExternals: true,
+            }),
             babel({
                 babelHelpers: 'bundled',
                 exclude: 'node_modules/**',
@@ -55,7 +58,7 @@ const options =  Object.entries(pkg.exports).map(([relativeImport, relativeMap])
                 extensions: AVAILABLE_EXTENSIONS,
             }),
             typescript({ tsconfig: './tsconfig.json', compilerOptions: { declaration: false } }),
-            // uglify(),
+            uglify(),
         ],
         external: ['react', 'react-dom'],
     }

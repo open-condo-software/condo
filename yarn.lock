@@ -2097,7 +2097,6 @@ __metadata:
     "@graphql-codegen/typescript": ^4.0.1
     "@graphql-codegen/typescript-operations": ^4.0.1
     "@graphql-codegen/typescript-react-apollo": ^4.0.0
-    "@nerdwallet/apollo-cache-policies": ^3.3.2
     "@open-condo/apollo": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/icons": "workspace:^"
@@ -2110,8 +2109,6 @@ __metadata:
     "@types/react": 18.0.27
     "@types/react-dom": 18.0.10
     antd: 5.16.4
-    apollo-upload-client: ^17
-    apollo3-cache-persist: ^0.15.0
     big.js: ^6.2.1
     classnames: ^2.3.2
     cookies-next: ^4.2.1
@@ -13436,7 +13433,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nerdwallet/apollo-cache-policies@npm:^3.3.2, @nerdwallet/apollo-cache-policies@npm:^3.3.3":
+"@nerdwallet/apollo-cache-policies@npm:^3.3.3":
   version: 3.3.3
   resolution: "@nerdwallet/apollo-cache-policies@npm:3.3.3"
   dependencies:
