@@ -28,7 +28,7 @@ const ADAPTERS = {
 // Now we want to resolve only the error with the expired token and not send obviously erroneous requests to cloud messaging.
 const responseResolversByTransport = {
     [PUSH_TRANSPORT_FIREBASE]: responseResolver,
-    [PUSH_TRANSPORT_HUAWEI]: () => { return 'not implemented'},
+    [PUSH_TRANSPORT_HUAWEI]: () => { return 'not implemented'}, // TODO: need research on how Huawei push kit works with push tokens and responses from the API to catch expired tokens
     /* APNS works with tokens differently than FCM
     * in docs i not found info about token expiration and error in this case, but found some information on stackoverflow about this logic of APNS and IOS
     * quote: "One of the Apple devs shared with me that tokens do actually expire (after 2 years, I think). For many purposes, this is long enough that can be thought of as invariant."
