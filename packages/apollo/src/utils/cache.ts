@@ -109,7 +109,7 @@ function mergeCaches (
  */
 export function addCacheToClient (
     client: ApolloClient<NormalizedCacheObject>,
-    cache: NormalizedCacheObject | undefined,
+    cache: NormalizedCacheObject,
     options: AddCacheOptions
 ): void {
     if (!cache) return
