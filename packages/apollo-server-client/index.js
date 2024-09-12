@@ -4,7 +4,7 @@ const { RetryLink } = require('@apollo/client/link/retry')
 const { onError }  = require('apollo-link-error')
 const { createUploadLink } = require('apollo-upload-client')
 const FormData = require('form-data')
-const { chunk: splitArray } = require('lodash')
+const { chunk: splitArray, isFunction } = require('lodash')
 const fetch = require('node-fetch')
 
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -231,16 +231,35 @@ class ApolloServerClient {
         }
     }
 
-    async loadByChunks ({ modelGql, where, chunkSize = LOAD_CHUNK_SIZE, limit = 100000, sortBy = ['id_ASC'] }) {
+    async loadByChunks ({
+        modelGql,
+        where,
+        chunkSize = LOAD_CHUNK_SIZE,
+        limit = 100000,
+        sortBy = ['id_ASC'],
+        chunkProcessor = (chunk) => chunk,
+    }) {
         let skip = 0
         let maxIterationsCount = Math.ceil(limit / chunkSize)
-        let newChunk = []
         let all = []
+        let newChunkLength
+
         do {
-            newChunk = await this.getModels({ modelGql, where, sortBy, first: chunkSize, skip: skip })
-            all = all.concat(newChunk)
-            skip += newChunk.length
-        } while (--maxIterationsCount > 0 && newChunk.length)
+            let newChunk = await this.getModels({ modelGql, where, sortBy, first: chunkSize, skip: skip })
+            newChunkLength = newChunk.length
+
+            if (newChunkLength > 0) {
+                if (isFunction(chunkProcessor)) {
+                    newChunk = chunkProcessor.constructor.name === 'AsyncFunction'
+                        ? await chunkProcessor(newChunk)
+                        : chunkProcessor(newChunk)
+                }
+
+                skip += newChunkLength
+                all = all.concat(newChunk)
+            }
+        } while (--maxIterationsCount > 0 && newChunkLength)
+
         return all
     }
 
