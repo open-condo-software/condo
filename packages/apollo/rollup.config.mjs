@@ -14,6 +14,8 @@ const AVAILABLE_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.json']
 
 function getInputFileFromExports (exportsPath) {
     const isDirectory = fs.existsSync(exportsPath) && fs.lstatSync(exportsPath).isDirectory()
+    // NOTE: inputs are controlled by package.json exports field
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     const pathToFile = isDirectory ? path.join(exportsPath, 'index') : exportsPath
 
     const ext =  AVAILABLE_EXTENSIONS.find(ext => fs.existsSync(`${pathToFile}${ext}`))
@@ -26,9 +28,9 @@ function getInputFileFromExports (exportsPath) {
 const options =  Object.entries(pkg.exports).map(([relativeImport, relativeMap]) => {
     const input = getInputFileFromExports(path.join('src', relativeImport))
     const output = []
-    if (relativeMap && (relativeMap.require || relativeMap.default)) {
+    if (relativeMap && relativeMap.require) {
         output.push({
-            file: relativeMap.require || relativeMap.default,
+            file: relativeMap.require,
             format: 'cjs',
             sourcemap: true,
         })
