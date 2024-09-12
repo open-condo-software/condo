@@ -80,7 +80,9 @@ export class ListHelper {
         const skip: number = get(options, ['args', this.skipArgName], 0)
         const first: number = get(options, ['args', this.firstArgName], 0)
 
-        if (!existing || existing.length <= skip) {
+        // NOTE: partial data (skip only) is not enough for case
+        // where you fetch (page + 1) item to show "Next page" pagination event
+        if (!existing || existing.length <= skip + first) {
             return undefined
         }
 
