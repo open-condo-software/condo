@@ -1,7 +1,8 @@
-import { StoryFn, Meta } from '@storybook/react'
 import React from 'react'
 
 import { Card as Component, Typography } from '@open-condo/ui/src'
+
+import type { StoryFn, Meta, StoryObj } from '@storybook/react'
 
 export default {
     title: 'Components/Card',
@@ -23,11 +24,11 @@ const Template: StoryFn<typeof Component> = ({ children, ...rest }) => {
     )
 }
 
-export const Simple = {
+export const Simple: StoryObj<typeof Component> = {
     render: Template,
 }
 
-export const WithTitle = {
+export const WithTitle: StoryObj<typeof Component> = {
     render: Template,
     args: {
         title: <Typography.Title level={3}>Some Title Content</Typography.Title>,
@@ -37,14 +38,14 @@ export const WithTitle = {
     },
 }
 
-export const Accent = {
+export const Accent: StoryObj<typeof Component> = {
     render: Template,
     args: {
         accent: true,
     },
 }
 
-export const AccentWithTitle = {
+export const AccentWithTitle: StoryObj<typeof Component> = {
     render: Template,
     args: {
         title: <Typography.Title level={3}>Some Title Content</Typography.Title>,

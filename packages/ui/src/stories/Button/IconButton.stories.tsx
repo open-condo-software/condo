@@ -1,8 +1,9 @@
-import { Meta } from '@storybook/react'
 import React from 'react'
 
 import * as condoIcons from '@open-condo/icons'
 import { Button } from '@open-condo/ui/src'
+
+import type { Meta, StoryObj } from '@storybook/react'
 
 const Component = Button.Icon
 const { Trash } = condoIcons
@@ -38,4 +39,4 @@ export default {
     },
 } as Meta<typeof Component>
 
-export const IconButton = {}
+export const IconButton: StoryObj<typeof Component> = {}

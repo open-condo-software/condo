@@ -1,4 +1,3 @@
-import { StoryFn, Meta } from '@storybook/react'
 import { styled } from '@storybook/theming'
 import get from 'lodash/get'
 import React from 'react'
@@ -6,6 +5,8 @@ import React from 'react'
 import { Typography, Space } from '@open-condo/ui/src'
 import type { TypographyTextProps } from '@open-condo/ui/src'
 import { colors } from '@open-condo/ui/src/colors'
+
+import type { StoryFn, Meta, StoryObj } from '@storybook/react'
 
 const getArticle = (str?: string) => {
     if (!str) return 'a'
@@ -94,6 +95,6 @@ const Template: StoryFn<typeof Typography.Text> = (args) => {
     )
 }
 
-export const Text = {
+export const Text: StoryObj<typeof Typography.Paragraph> = {
     render: Template,
 }

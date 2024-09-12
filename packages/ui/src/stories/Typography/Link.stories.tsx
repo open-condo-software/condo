@@ -1,8 +1,9 @@
-import { StoryFn, Meta } from '@storybook/react'
 import React from 'react'
 
 import { ArrowLeft } from '@open-condo/icons'
 import { Space, Typography } from '@open-condo/ui/src'
+
+import type { StoryFn, Meta, StoryObj } from '@storybook/react'
 
 export default {
     title: 'Components/Typography',
@@ -48,6 +49,6 @@ const Template: StoryFn<typeof Typography.Link> = (args) => {
     )
 }
 
-export const Link = {
+export const Link: StoryObj<typeof Typography.Link> = {
     render: Template,
 }

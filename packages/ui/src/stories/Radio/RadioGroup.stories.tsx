@@ -1,8 +1,9 @@
-import { StoryFn, Meta } from '@storybook/react'
 import React from 'react'
 
 import { FileText } from '@open-condo/icons'
 import { RadioGroup as Component, Radio, Space, Typography } from '@open-condo/ui/src'
+
+import type { StoryFn, Meta, StoryObj } from '@storybook/react'
 
 const { ItemGroup } = Component
 const SPACE_WIDTH = 500
@@ -60,7 +61,7 @@ const RadioGroupButtonTemplate: StoryFn<typeof Component> = (props) => (
     </>
 )
 
-export const RadioGroup = {
+export const RadioGroup: StoryObj<typeof Component> = {
     args: {
         children: (
             <Space direction='vertical' size={12}>
@@ -71,7 +72,7 @@ export const RadioGroup = {
     },
 }
 
-export const RadioGroupButtonType = {
+export const RadioGroupButtonType: StoryObj<typeof Component> = {
     render: RadioGroupButtonTemplate,
     args: {
         optionType: 'button',
@@ -85,7 +86,7 @@ export const RadioGroupButtonType = {
     },
 }
 
-export const ManyRadioGroups = {
+export const ManyRadioGroups: StoryObj<typeof Component> = {
     args: {
         children: (
             <>

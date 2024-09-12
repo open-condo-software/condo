@@ -1,6 +1,6 @@
-import { Meta } from '@storybook/react'
-
 import { Alert } from '@open-condo/ui/src'
+
+import type { Meta, StoryObj } from '@storybook/react'
 
 export default {
     title: 'Components/Alert',
@@ -13,25 +13,25 @@ export default {
     },
 } as Meta<typeof Alert>
  
-export const SuccessAlert = {
+export const SuccessAlert: StoryObj<typeof Alert> = {
     args: {
         type: 'success',
     },
 }
 
-export const InfoAlert = {
+export const InfoAlert: StoryObj<typeof Alert> = {
     args: {
         type: 'info',
     },
 }
 
-export const WarningAlert = {
+export const WarningAlert: StoryObj<typeof Alert> = {
     args: {
         type: 'warning',
     },
 }
 
-export const ErrorAlert = {
+export const ErrorAlert: StoryObj<typeof Alert> = {
     args: {
         type: 'error',
     },

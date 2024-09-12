@@ -1,4 +1,3 @@
-import { StoryFn, Meta } from '@storybook/react'
 import { styled } from '@storybook/theming'
 import get from 'lodash/get'
 import React from 'react'
@@ -7,6 +6,7 @@ import { Space, Typography } from '@open-condo/ui/src'
 import type { TypographyTitleProps } from '@open-condo/ui/src'
 import { colors } from '@open-condo/ui/src/colors'
 
+import type { StoryFn, Meta, StoryObj } from '@storybook/react'
 
 const StoryDecorator = styled.div<{ bg: 'light' | 'dark' }>`
   background: ${(props) => props.bg === 'light' ? colors.white : colors.black};
@@ -47,6 +47,6 @@ const Template: StoryFn<typeof Typography.Title> = (args) => {
     )
 }
 
-export const Title = {
+export const Title: StoryObj<typeof Typography.Title> = {
     render: Template,
 }

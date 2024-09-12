@@ -1,6 +1,6 @@
-import { Meta } from '@storybook/react'
-
 import { Checkbox as Component } from '@open-condo/ui/src'
+
+import type { Meta, StoryObj } from '@storybook/react'
 
 export default {
     title: 'Components/Checkbox',
@@ -42,26 +42,26 @@ export default {
     },
 } as Meta<typeof Component>
 
-export const Unchecked = {
+export const Unchecked: StoryObj<typeof Component> = {
     args: {
         defaultChecked: false,
     },
 }
 
-export const Checked = {
+export const Checked: StoryObj<typeof Component> = {
     args: {
         checked: true,
     },
 }
 
-export const Disabled = {
+export const Disabled: StoryObj<typeof Component> = {
     args: {
         checked: true,
         disabled: true,
     },
 }
 
-export const BoldText = {
+export const BoldText: StoryObj<typeof Component> = {
     args: {
         labelProps: { strong: true },
     },

@@ -1,7 +1,8 @@
-import { StoryFn, Meta } from '@storybook/react'
 import React, { useState } from 'react'
 
 import { Steps as Component, Button, Space } from '@open-condo/ui/src'
+
+import type { StoryFn, Meta, StoryObj } from '@storybook/react'
 
 export default {
     title: 'Components/Steps',
@@ -34,7 +35,7 @@ const Template: StoryFn<typeof Component> = (args) => {
     )
 }
 
-export const Simple = {
+export const Simple: StoryObj<typeof Component> = {
     render: Template,
     args: {
         items: [
@@ -46,7 +47,7 @@ export const Simple = {
     },
 }
 
-export const WithBreakpoints = {
+export const WithBreakpoints: StoryObj<typeof Component> = {
     render: Template,
     args: {
         items: [
@@ -58,7 +59,7 @@ export const WithBreakpoints = {
     },
 }
 
-export const Many = {
+export const Many: StoryObj<typeof Component> = {
     render: Template,
     args: {
         items: [
@@ -76,7 +77,7 @@ export const Many = {
     },
 }
 
-export const Spacy = {
+export const Spacy: StoryObj<typeof Component> = {
     render: Template,
     args: {
         items: [{ title: 'We should take' }, { title: 'All possible space' }],

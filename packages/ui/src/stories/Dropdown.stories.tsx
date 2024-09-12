@@ -1,8 +1,9 @@
-import { StoryFn, Meta } from '@storybook/react'
 import React from 'react'
 
 import { Play } from '@open-condo/icons'
 import { Dropdown, Space, Typography } from '@open-condo/ui/src'
+
+import type { Meta, StoryObj, StoryFn } from '@storybook/react'
 
 const LOREM_TEXT = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus aliquid amet dolores eligendi' +
     ' est ex, facilis, iure magnam molestias neque, possimus praesentium quidem repellat saepe similique vero vitae' +
@@ -203,7 +204,7 @@ const DropdownButtonTemplate: StoryFn<typeof Dropdown.Button> = () => {
     )
 }
 
-export const Controlled = {
+export const Controlled: StoryObj<typeof Dropdown> = {
     args: {
         menu: {
             items: [
@@ -216,10 +217,10 @@ export const Controlled = {
     },
 }
 
-export const DifferentSizeOfTriggers = {
+export const DifferentSizeOfTriggers: StoryObj<typeof Dropdown> = {
     render: DifferentSizeOfTriggersTemplate,
 }
 
-export const WithButton = {
+export const WithButton: StoryObj<typeof Dropdown.Button> = {
     render: DropdownButtonTemplate,
 }

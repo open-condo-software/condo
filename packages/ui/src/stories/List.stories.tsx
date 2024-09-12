@@ -1,6 +1,6 @@
-import { Meta } from '@storybook/react'
-
 import { List as Component } from '@open-condo/ui/src'
+
+import type { Meta, StoryObj } from '@storybook/react'
 
 export default {
     title: 'Components/List',
@@ -24,4 +24,4 @@ export default {
     },
 } as Meta<typeof Component>
 
-export const List = {}
+export const List: StoryObj<typeof Component> = {}

@@ -1,8 +1,9 @@
-import { Meta, StoryFn } from '@storybook/react'
 import get from 'lodash/get'
 import React, { useMemo } from 'react'
 
 import { Button, Modal as Component, Typography, Tabs } from '@open-condo/ui/src'
+
+import type { StoryFn, Meta, StoryObj } from '@storybook/react'
 
 const LOREM_TEXT = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus aliquid amet dolores eligendi' +
     ' est ex, facilis, iure magnam molestias neque, possimus praesentium quidem repellat saepe similique vero vitae' +
@@ -76,11 +77,11 @@ const Template: StoryFn<typeof Component> = (props) => {
     )
 }
 
-export const Modal = {
+export const Modal: StoryObj<typeof Component> = {
     render: Template,
 }
 
-export const ModalWithBigContent = {
+export const ModalWithBigContent: StoryObj<typeof Component> = {
     render: Template,
     args: {
         title: 'Modal with big content. Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
@@ -93,7 +94,7 @@ export const ModalWithBigContent = {
     },
 }
 
-export const ModalWithWideContent = {
+export const ModalWithWideContent: StoryObj<typeof Component> = {
     render: Template,
     args: {
         title: 'Modal with wide content',
@@ -108,7 +109,7 @@ export const ModalWithWideContent = {
     },
 }
 
-export const ModalWithFixedContentWidth = {
+export const ModalWithFixedContentWidth: StoryObj<typeof Component> = {
     render: Template,
     args: {
         title: 'Modal with fixed content width',
@@ -129,7 +130,7 @@ export const ModalWithFixedContentWidth = {
     },
 }
 
-export const Alert = {
+export const Alert: StoryObj<typeof Component> = {
     render: Template,
     args: {
         title: 'Alert',

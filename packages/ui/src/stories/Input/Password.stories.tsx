@@ -1,6 +1,6 @@
-import { Meta } from '@storybook/react'
-
 import { Input } from '@open-condo/ui/src'
+
+import type { Meta, StoryObj } from '@storybook/react'
 
 const Component = Input.Password
 
@@ -13,4 +13,4 @@ export default {
     },
 } as Meta<typeof Component>
 
-export const Password = {}
+export const Password: StoryObj<typeof Component> = {}

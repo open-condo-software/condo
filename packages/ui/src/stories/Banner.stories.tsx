@@ -1,7 +1,7 @@
-import { Meta } from '@storybook/react'
-
 import { Banner as Component } from '@open-condo/ui/src'
 import { colors } from '@open-condo/ui/src/colors'
+
+import type { Meta, StoryObj } from '@storybook/react'
 
 export default {
     title: 'Components/Banner',
@@ -20,7 +20,7 @@ export default {
     },
 } as Meta<typeof Component>
 
-export const Solid = {
+export const Solid: StoryObj<typeof Component> = {
     args: {
         backgroundColor: '#9b9dfa',
         title: 'Settlement bank',
@@ -31,7 +31,7 @@ export const Solid = {
     },
 }
 
-export const Gradient = {
+export const Gradient: StoryObj<typeof Component> = {
     args: {
         backgroundColor: colors.brandGradient['1'],
         title: 'Some long description that takes 2 rows of texts',
@@ -42,7 +42,7 @@ export const Gradient = {
     },
 }
 
-export const NoAction = {
+export const NoAction: StoryObj<typeof Component> = {
     args: {
         backgroundColor: '#d3e3ff',
         title: 'Banner can exist without an action button',
@@ -52,7 +52,7 @@ export const NoAction = {
     },
 }
 
-export const Compact = {
+export const Compact: StoryObj<typeof Component> = {
     args: {
         backgroundColor: '#d3e3ff',
         title: 'Banner can exist without an action button',

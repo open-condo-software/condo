@@ -1,9 +1,10 @@
-import { Meta } from '@storybook/react'
 import React from 'react'
 
 import type { IconProps } from '@open-condo/icons'
 import * as AllIcons from '@open-condo/icons'
 import { Space, Typography } from '@open-condo/ui/src'
+
+import type { Meta, StoryObj } from '@storybook/react'
 
 type IconBlockProps = {
     name: string
@@ -52,4 +53,4 @@ export default {
     },
 } as Meta<typeof IconsStory>
 
-export const Icons = {}
+export const Icons: StoryObj<typeof IconsStory> = {}

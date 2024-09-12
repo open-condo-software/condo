@@ -1,7 +1,8 @@
-import { Meta } from '@storybook/react'
 import React from 'react'
 
 import { Space as Component } from '@open-condo/ui/src'
+
+import type { Meta, StoryObj } from '@storybook/react'
 
 export default {
     title: 'Components/Space',
@@ -27,14 +28,14 @@ export default {
     },
 } as Meta<typeof Component>
 
-export const Vertical = {
+export const Vertical: StoryObj<typeof Component> = {
     args: {
         direction: 'vertical',
         size: 20,
     },
 }
 
-export const Horizontal = {
+export const Horizontal: StoryObj<typeof Component> = {
     args: {
         direction: 'horizontal',
         size: 20,

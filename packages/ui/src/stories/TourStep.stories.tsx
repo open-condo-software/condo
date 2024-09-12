@@ -1,10 +1,10 @@
-// todo : import types
-import { StoryFn, Meta, StoryObj } from '@storybook/react'
 import React, { useEffect, useState } from 'react'
 
 import { Button, Input, Space, Tour } from '@open-condo/ui/src'
 
 const Component = Tour.TourStep
+
+import type { StoryFn, Meta, StoryObj } from '@storybook/react'
 
 export default {
     title: 'Components/TourStep',

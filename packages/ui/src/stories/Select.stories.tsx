@@ -1,7 +1,8 @@
-import { StoryFn, Meta } from '@storybook/react'
 import React from 'react'
 
 import { Select as Component, Space, SelectProps } from '@open-condo/ui/src'
+
+import type { StoryFn, Meta, StoryObj } from '@storybook/react'
 
 const AVAILABLE_TYPES: Array<SelectProps['type']> = [
     undefined,
@@ -47,9 +48,9 @@ const MultipleTemplate: StoryFn<typeof Component> = (props) => (
     </Space>
 )
 
-export const Default = {}
+export const Default: StoryObj<typeof Component> = {}
 
-export const CustomContent = {
+export const CustomContent: StoryObj<typeof Component> = {
     args: {
         options: [
             { label: 'Some custom content', value: 1, textType: 'danger' },
@@ -58,14 +59,14 @@ export const CustomContent = {
     },
 }
 
-export const CustomTypes = {
+export const CustomTypes: StoryObj<typeof Component> = {
     render: MultipleTemplate,
     args: {
         value: 1,
     },
 }
 
-export const GroupsContent = {
+export const GroupsContent: StoryObj<typeof Component> = {
     args: {
         options: [
             { label: 'Option without group', value: 0 },
@@ -89,7 +90,7 @@ export const GroupsContent = {
     },
 }
 
-export const Multiple = {
+export const Multiple: StoryObj<typeof Component> = {
     args: {
         options: [
             { label: 'First label', value: 'First label' },
@@ -105,7 +106,7 @@ export const Multiple = {
     },
 }
 
-export const LongLabels = {
+export const LongLabels: StoryObj<typeof Component> = {
     args: {
         options: [
             {
@@ -125,7 +126,7 @@ export const LongLabels = {
     },
 }
 
-export const WithSearch = {
+export const WithSearch: StoryObj<typeof Component> = {
     args: {
         options: [
             {
@@ -142,14 +143,14 @@ export const WithSearch = {
     },
 }
 
-export const EmptyData = {
+export const EmptyData: StoryObj<typeof Component> = {
     args: {
         options: [],
         notFoundContentLabel: 'No data',
     },
 }
 
-export const WithHiddenOptions = {
+export const WithHiddenOptions: StoryObj<typeof Component> = {
     args: {
         options: [
             { label: 'First label', value: '1' },

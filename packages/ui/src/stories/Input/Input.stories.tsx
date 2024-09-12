@@ -1,6 +1,6 @@
-import { Meta } from '@storybook/react'
-
 import { Input as Component } from '@open-condo/ui/src'
+
+import type { Meta, StoryObj } from '@storybook/react'
 
 export default {
     title: 'Components/Input',
@@ -14,4 +14,4 @@ export default {
     },
 } as Meta<typeof Component>
 
-export const Input = {}
+export const Input: StoryObj<typeof Component> = {}

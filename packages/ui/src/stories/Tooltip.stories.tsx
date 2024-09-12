@@ -1,7 +1,8 @@
-import { StoryFn, Meta, StoryObj } from '@storybook/react'
 import React from 'react'
 
 import { Tooltip as Component, Typography } from '@open-condo/ui/src'
+
+import type { StoryFn, Meta, StoryObj } from '@storybook/react'
 
 export default {
     title: 'Components/Tooltip',
@@ -60,7 +61,6 @@ export const Simple: StoryObj<typeof Component> = {
     ),
 }
 
-// todo add : StoryObj<typeof Component>
 export const Long: StoryObj<typeof Component> = {
     render: Template,
     args: {

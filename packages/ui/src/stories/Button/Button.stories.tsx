@@ -1,8 +1,9 @@
-import { Meta } from '@storybook/react'
 import React from 'react'
 
 import * as condoIcons from '@open-condo/icons'
 import { Button } from '@open-condo/ui/src'
+
+import type { Meta, StoryObj } from '@storybook/react'
 
 const icons = Object.assign({}, ...Object.entries(condoIcons).map(([key, Icon]) => ({
     [`${key}-small`]: <Icon size='small'/>,
@@ -40,13 +41,13 @@ export default {
     },
 } as Meta<typeof Button>
 
-export const Primary = {
+export const Primary: StoryObj<typeof Button> = {
     args: {
         type: 'primary',
     },
 }
 
-export const Secondary = {
+export const Secondary: StoryObj<typeof Button> = {
     args: {
         type: 'secondary',
     },

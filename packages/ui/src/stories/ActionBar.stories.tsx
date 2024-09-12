@@ -1,10 +1,10 @@
-import { StoryFn, Meta } from '@storybook/react'
 import { Col, Row } from 'antd'
 import React from 'react'
 
 import { ActionBar as Component, Button, Typography, Dropdown } from '@open-condo/ui/src'
 import { colors } from '@open-condo/ui/src/colors'
 
+import type { StoryFn, Meta, StoryObj } from '@storybook/react'
 
 const LOREM_TEXT = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus aliquid amet dolores eligendi' +
     ' est ex, facilis, iure magnam molestias neque, possimus praesentium quidem repellat saepe similique vero vitae' +
@@ -43,7 +43,7 @@ const Template: StoryFn<typeof Component> = (args) => {
     )
 }
 
-export const Simple = {
+export const Simple: StoryObj<typeof Component> = {
     render: Template,
     args: {
         actions: [
@@ -53,7 +53,7 @@ export const Simple = {
     },
 }
 
-export const WithMessage = {
+export const WithMessage: StoryObj<typeof Component> = {
     render: Template,
     args: {
         message: 'Action bar message',
@@ -64,7 +64,7 @@ export const WithMessage = {
     },
 }
 
-export const WithDropdownButton = {
+export const WithDropdownButton: StoryObj<typeof Component> = {
     render: Template,
     args: {
         actions: [

@@ -1,7 +1,8 @@
-import { Meta, StoryFn } from '@storybook/react'
 import React from 'react'
 
 import { ProgressIndicator, ProgressIndicatorProps, ProgressIndicatorStep } from '@open-condo/ui/src'
+
+import type { StoryFn, Meta, StoryObj } from '@storybook/react'
 
 type MetaProps = {
     firstStep: ProgressIndicatorStep,
@@ -35,7 +36,7 @@ export default {
             options: [true, false],
         },
     },
-} as Meta<typeof ProgressIndicator>
+} as Meta<ProgressIndicatorProps & MetaProps>
 
 const Template: StoryFn<ProgressIndicatorProps & MetaProps> = (props) => {
     const { firstStep, secondStep, thirdStep, fourthStep, ...rest } = props
@@ -44,6 +45,6 @@ const Template: StoryFn<ProgressIndicatorProps & MetaProps> = (props) => {
     return <ProgressIndicator {...rest} steps={steps} />
 }
 
-export const SimpleProgressIndicator = {
+export const SimpleProgressIndicator: StoryObj<ProgressIndicatorProps & MetaProps> = {
     render: Template,
 }

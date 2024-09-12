@@ -1,10 +1,11 @@
-import { StoryFn, Meta } from '@storybook/react'
 import { styled } from '@storybook/theming'
 import { get } from 'lodash'
 import React from 'react'
 
 import { Carousel as Component } from '@open-condo/ui/src'
 import { colors } from '@open-condo/ui/src/colors'
+
+import type { StoryFn, Meta, StoryObj } from '@storybook/react'
 
 const AVAILABLE_COLORS = [
     colors.green['3'],
@@ -103,6 +104,6 @@ const Template: StoryFn<typeof Component> = (args) => {
     )
 }
 
-export const Carousel = {
+export const Carousel: StoryObj<typeof Component> = {
     render: Template,
 }

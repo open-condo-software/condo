@@ -1,6 +1,6 @@
-import { Meta } from '@storybook/react'
-
 import { Input } from '@open-condo/ui/src'
+
+import type { Meta, StoryObj } from '@storybook/react'
 
 const Component = Input.Phone
 
@@ -12,4 +12,4 @@ export default {
     },
 } as Meta<typeof Component>
 
-export const Phone = {}
+export const Phone: StoryObj<typeof Component> = {}
