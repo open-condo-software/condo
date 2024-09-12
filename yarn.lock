@@ -2098,6 +2098,7 @@ __metadata:
     "@graphql-codegen/typescript-operations": ^4.0.1
     "@graphql-codegen/typescript-react-apollo": ^4.0.0
     "@nerdwallet/apollo-cache-policies": ^3.3.2
+    "@open-condo/apollo": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/icons": "workspace:^"
     "@open-condo/locales": "workspace:^"
@@ -13801,7 +13802,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@open-condo/apollo@workspace:packages/apollo":
+"@open-condo/apollo@workspace:^, @open-condo/apollo@workspace:packages/apollo":
   version: 0.0.0-use.local
   resolution: "@open-condo/apollo@workspace:packages/apollo"
   dependencies:

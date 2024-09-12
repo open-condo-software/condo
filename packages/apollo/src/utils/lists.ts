@@ -1,3 +1,4 @@
+import bindAll from 'lodash/bindAll'
 import get from 'lodash/get'
 
 import type { InitCacheOptions } from './cache'
@@ -65,6 +66,8 @@ export class ListHelper {
         if (options?.cacheOptions.skipOnRead) {
             this.skipCacheOnRead = options.cacheOptions.skipOnRead
         }
+
+        bindAll(this, '_readPage', '_networkOnlyRead', 'getReadFunction', 'mergeLists')
     }
 
     /**
