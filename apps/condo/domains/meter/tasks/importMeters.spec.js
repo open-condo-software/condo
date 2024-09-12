@@ -13,10 +13,10 @@ const {
     CSV,
     DOMA_EXCEL,
     CANCELLED,
-    COMPLETED,
     ERROR,
 } = require('@condo/domains/common/constants/import')
 const { EXCEL_FILE_META } = require('@condo/domains/common/utils/createExportFile')
+const { IMPORT_CONDO_METER_READING_SOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const { importMeters, createUpload } = require('@condo/domains/meter/tasks/importMeters')
 const { MeterReadingsImportTask, MeterReading } = require('@condo/domains/meter/utils/serverSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
@@ -151,6 +151,9 @@ describe('importMeters', () => {
             organization: { id: o10n.id },
         })
         expect(readings).toHaveLength(validLines)
+        for (const reading of readings) {
+            expect(reading.source.id).toBe(IMPORT_CONDO_METER_READING_SOURCE_ID)
+        }
     })
 
     it('import meters csv has failed lines case', async () => {
@@ -286,6 +289,9 @@ describe('importMeters', () => {
             organization: { id: o10n.id },
         })
         expect(readings).toHaveLength(validLines)
+        for (const reading of readings) {
+            expect(reading.source.id).toBe(IMPORT_CONDO_METER_READING_SOURCE_ID)
+        }
     })
 
     it('import meters excel has failed line case', async () => {

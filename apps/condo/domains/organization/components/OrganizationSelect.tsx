@@ -1,3 +1,4 @@
+import { OrganizationEmployeeWhereInput, OrganizationTypeType } from '@app/condo/schema'
 import { Dropdown } from 'antd'
 import get from 'lodash/get'
 import uniqBy from 'lodash/uniqBy'
@@ -14,7 +15,6 @@ import { Space, Typography } from '@open-condo/ui'
 import type { TypographyTextProps } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { HOLDING_TYPE, MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/common'
 import { useCreateOrganizationModalForm } from '@condo/domains/organization/hooks/useCreateOrganizationModalForm'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
@@ -34,10 +34,10 @@ function compareEmployees (lhs: OrganizationEmployeeType, rhs: OrganizationEmplo
 
 const DROPDOWN_OVERLAY_STYLES: CSSProperties = { maxWidth: 300, width: '100%' }
 
-const ORGANIZATION_EMPLOYEE_WHERE_QUERY = {
+const ORGANIZATION_EMPLOYEE_WHERE_QUERY: OrganizationEmployeeWhereInput = {
     isRejected: false,
     isBlocked: false,
-    organization: { type_not: HOLDING_TYPE },
+    organization: { type_not: OrganizationTypeType.Holding },
 }
 
 export const InlineOrganizationSelect: React.FC = () => {
@@ -79,7 +79,7 @@ export const InlineOrganizationSelect: React.FC = () => {
             const organizationType = get(createdOrganization, 'type')
             
             // The slash will only be there if we have just registered and we don't have any additional parameters in the address bar.
-            if (organizationType === MANAGING_COMPANY_TYPE && router.route === '/') {
+            if (organizationType === OrganizationTypeType.ManagingCompany && router.route === '/') {
                 await router.push('/tour')
             }
         },

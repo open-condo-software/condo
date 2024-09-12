@@ -12,7 +12,7 @@ const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/s
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const ACQUIRING_INTEGRATION_FIELDS = `{ name setupUrl canGroupReceipts hostUrl supportedBillingIntegrationsGroup vatPercentOptions ${COMMON_FIELDS} }`
+const ACQUIRING_INTEGRATION_FIELDS = `{ name minimumPaymentAmount setupUrl canGroupReceipts hostUrl supportedBillingIntegrationsGroup vatPercentOptions ${COMMON_FIELDS} }`
 const AcquiringIntegration = generateGqlQueries('AcquiringIntegration', ACQUIRING_INTEGRATION_FIELDS)
 
 const ACQUIRING_INTEGRATION_ACCESS_RIGHT_FIELDS = `{ user { id } integration { id } ${COMMON_FIELDS} }`
@@ -82,6 +82,12 @@ const REGISTER_MULTI_PAYMENT_FOR_INVOICES_MUTATION = gql`
     }
 `
 
+const CALCULATE_FEE_FOR_RECEIPT_QUERY = gql`
+    query calculateFeeForReceipt ($data: CalculateFeeForReceiptInput!) {
+        result: calculateFeeForReceipt(data: $data) { amountWithoutExplicitFee explicitFee explicitServiceCharge }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const EXPORT_PAYMENTS_TO_EXCEL =  gql`
@@ -107,5 +113,6 @@ module.exports = {
     RecurrentPayment,
     PAYMENT_BY_LINK_MUTATION,
     REGISTER_MULTI_PAYMENT_FOR_INVOICES_MUTATION,
+    CALCULATE_FEE_FOR_RECEIPT_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

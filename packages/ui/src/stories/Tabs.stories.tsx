@@ -4,7 +4,7 @@ import { FileText } from '@open-condo/icons'
 import { Tabs, Typography } from '@open-condo/ui/src'
 import type { TabsProps, TabItem } from '@open-condo/ui/src'
 
-import type { ComponentStory, ComponentMeta } from '@storybook/react'
+import type { StoryFn, Meta } from '@storybook/react'
 
 export default {
     title: 'Components/Tabs',
@@ -12,7 +12,7 @@ export default {
     args: {
         centered: false,
     },
-} as ComponentMeta<React.FC<TabsProps>>
+} as Meta<React.FC<TabsProps>>
 
 const simpleItems: Array<TabItem> = [
     {
@@ -43,7 +43,7 @@ const simpleItems: Array<TabItem> = [
     },
 ]
 
-const Template: ComponentStory<React.FC<TabsProps>> = (args) => <Tabs {...args}/>
+const Template: StoryFn<React.FC<TabsProps>> = (args) => <Tabs {...args}/>
 
 export const Simple = Template.bind({})
 Simple.args = {

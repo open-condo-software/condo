@@ -1,4 +1,4 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react'
+import { StoryFn, Meta } from '@storybook/react'
 import React from 'react'
 
 import * as condoIcons from '@open-condo/icons'
@@ -35,8 +35,8 @@ export default {
         target: { control: false },
         htmlType: { defaultValue: 'button' },
     },
-} as ComponentMeta<typeof Component.Icon>
+} as Meta<typeof Component.Icon>
 
-const Template: ComponentStory<typeof Component.Icon> = (props) => <Component.Icon {...props}/>
+const Template: StoryFn<typeof Component.Icon> = (props) => <Component.Icon {...props}/>
 
 export const IconButton = Template.bind({})

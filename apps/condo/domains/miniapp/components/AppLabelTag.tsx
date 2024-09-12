@@ -8,6 +8,9 @@ import { colors } from '@open-condo/ui/dist/colors'
 
 import { APP_FREE_LABEL, APP_DISCOUNT_LABEL, APP_POPULAR_LABEL, APP_NEW_LABEL } from '@condo/domains/miniapp/constants'
 
+import type { B2BAppLabelType } from '@app/condo/schema'
+
+
 const LABEL_TO_TAG_PROPS = {
     [APP_FREE_LABEL]: { textColor: colors.blue['5'], bgColor: colors.blue['1'] },
     [APP_DISCOUNT_LABEL]: { textColor: colors.red['5'], bgColor: colors.red['1'] },
@@ -15,8 +18,8 @@ const LABEL_TO_TAG_PROPS = {
     [APP_NEW_LABEL]: { textColor: colors.orange['5'], bgColor: colors.orange['1'] },
 }
 
-type AppLabelTagProps = {
-    type: APP_NEW_LABEL | APP_POPULAR_LABEL | APP_DISCOUNT_LABEL | APP_FREE_LABEL
+export type AppLabelTagProps = {
+    type: B2BAppLabelType
 }
 
 export const AppLabelTag: React.FC<AppLabelTagProps> = ({ type }) => {

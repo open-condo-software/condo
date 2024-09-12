@@ -1,4 +1,3 @@
-// @ts-ignore
 import XLSX from 'xlsx'
 
 function isValidEmail (email) {

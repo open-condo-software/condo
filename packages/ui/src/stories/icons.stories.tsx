@@ -1,4 +1,4 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react'
+import { StoryFn, Meta } from '@storybook/react'
 import React from 'react'
 
 import type { IconProps } from '@open-condo/icons'
@@ -51,7 +51,7 @@ export default {
         },
         color: { control: 'color' },
     },
-} as ComponentMeta<typeof IconsStory>
+} as Meta<typeof IconsStory>
 
-const Template: ComponentStory<typeof IconsStory> = (args) => <IconsStory {...args}/>
+const Template: StoryFn<typeof IconsStory> = (args) => <IconsStory {...args}/>
 export const Icons = Template.bind({})

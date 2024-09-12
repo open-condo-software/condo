@@ -1,4 +1,4 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react'
+import { StoryFn, Meta } from '@storybook/react'
 import React from 'react'
 
 import { List as Component } from '@open-condo/ui/src'
@@ -23,8 +23,8 @@ export default {
             options: ['default', 'small', 'large'],
         },
     },
-} as ComponentMeta<typeof Component>
+} as Meta<typeof Component>
 
-const Template: ComponentStory<typeof Component> = (props) => <Component {...props} />
+const Template: StoryFn<typeof Component> = (props) => <Component {...props} />
 
 export const List = Template.bind({})

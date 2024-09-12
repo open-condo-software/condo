@@ -1,14 +1,14 @@
+import { B2BAppContextStatusType } from '@app/condo/schema'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Modal, Typography } from '@open-condo/ui'
 
-import { CONTEXT_IN_PROGRESS_STATUS, CONTEXT_FINISHED_STATUS, CONTEXT_ERROR_STATUS } from '@condo/domains/miniapp/constants'
 
 type ConnectModalProps = {
     miniappHasFrame: boolean
     miniappHasIcon: boolean
-    contextStatus?: CONTEXT_FINISHED_STATUS | CONTEXT_IN_PROGRESS_STATUS | CONTEXT_ERROR_STATUS
+    contextStatus?: B2BAppContextStatusType
     open: boolean
     closeModal: () => void
 }
@@ -22,11 +22,11 @@ export const ConnectModal: React.FC<ConnectModalProps> = ({
 }) => {
     const intl = useIntl()
 
-    if (!contextStatus || contextStatus === CONTEXT_ERROR_STATUS || (contextStatus === CONTEXT_FINISHED_STATUS && !miniappHasFrame)) {
+    if (!contextStatus || contextStatus === B2BAppContextStatusType.Error || (contextStatus === B2BAppContextStatusType.Finished && !miniappHasFrame)) {
         return null
     }
 
-    const postfix = contextStatus === CONTEXT_FINISHED_STATUS && miniappHasIcon ? '.withIcon' : ''
+    const postfix = contextStatus === B2BAppContextStatusType.Finished && miniappHasIcon ? '.withIcon' : ''
 
     const ModalTitle = intl.formatMessage({ id: `miniapp.connectModal.${contextStatus}${postfix}.title` as FormatjsIntl.Message['ids'] })
     const ModalMessage = intl.formatMessage({ id: `miniapp.connectModal.${contextStatus}${postfix}.message` as FormatjsIntl.Message['ids'] })

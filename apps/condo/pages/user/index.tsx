@@ -1,3 +1,4 @@
+import { OrganizationTypeType } from '@app/condo/schema'
 import { Col, Row, Switch } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { SwitchChangeEventHandler } from 'antd/lib/switch'
@@ -18,13 +19,13 @@ import { ActionBar, Button, Select, Tooltip, Typography } from '@open-condo/ui'
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
 import { PageContent, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { FeatureFlagsController } from '@condo/domains/common/components/containers/FeatureFlag'
-import { HOLDING_TYPE } from '@condo/domains/organization/constants/common'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import { UserOrganizationsList } from '@condo/domains/user/components/UserOrganizationsList'
 import { User } from '@condo/domains/user/utils/clientSchema'
 
 import type { OrganizationEmployeeWhereInput } from '@app/condo/schema'
+
 
 const ROW_GUTTER_BIG: [Gutter, Gutter] = [0, 60]
 const ROW_GUTTER_MID: [Gutter, Gutter] = [0, 40]
@@ -267,11 +268,11 @@ export const UserInfoPageContent: React.FC<IUserInfoPageContentProps> = ({ organ
 const UserInfoPage: React.FC & { requiredAccess?: React.FC } = () => {
     const { user } = useAuth()
     const userId = useMemo(() => get(user, 'id', null), [user])
-    const organizationEmployeesQuery = useMemo(() => ({
+    const organizationEmployeesQuery = useMemo<IUserInfoPageContentProps['organizationEmployeesQuery']>(() => ({
         where: {
             user: { id: userId },
             isAccepted: true,
-            organization: { type_not: HOLDING_TYPE },
+            organization: { type_not: OrganizationTypeType.Holding },
         },
     }), [userId])
 

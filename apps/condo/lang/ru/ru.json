@@ -651,6 +651,7 @@
   "pages.condo.property.form.AreaSuffix": "кв. м.",
   "pages.condo.property.form.YearPlaceholder": "2016",
   "pages.condo.property.id.PageTitle": "Объект",
+  "pages.condo.property.form.SuccessNotification": "Дом по адресу {address} был успешно добавлен",
   "pages.condo.property.id.NotFound.PageTitle": "Дом не найден",
   "pages.condo.property.id.NotFound.Message": "Дома с данным ID нет в вашей организации",
   "pages.condo.property.id.Square": "Площадь",
@@ -1422,6 +1423,8 @@
   "pages.condo.news.index.field.date.sending": "Отправляется",
   "pages.condo.news.index.emptyList.header": "Пока новостей нет",
   "pages.condo.news.index.emptyList.title": "Добавим первую новость прямо сейчас?",
+  "pages.condo.news.index.propertyGate.header": "Чтобы отправить новость нужно добавить хотя бы один дом",
+  "pages.condo.news.index.propertyGate.title": "Добавим первый дом сейчас?",
   "pages.condo.news.settings.pageTitle": "Настройки",
   "pages.condo.news.settings.sharingAppSettingsTitle": "Выберите каналы отправки",
   "pages.condo.news.settings.appCard.description": "Отправка новостей в {sharingAppName}",
@@ -2196,7 +2199,6 @@
   "tour.step.createNews.completed.linkTitle": "Добавить еще",
   "tour.step.disabledTooltip.noPermission": "Сейчас у вас недостаточно прав для этой задачи. Попросите руководителя вашей организации открыть вам доступ в «Настройках» или поручите задачу другому сотруднику.",
   "tour.step.disabledTooltip.completePreviousSteps": "Выполните предыдущие шаги, чтобы разблокировать задачу",
-  "tour.step.disabledTooltip.completeBillingStep": "Выполните все шаги в задаче «Снизить дебиторскую задолженность», чтобы разблокировать эту",
   "tour.completedStepModal.createProperty.title": "Все получилось — вы добавили первый дом",
   "tour.completedStepModal.createProperty.subtitle": "Вы сможете добавить больше объектов",
   "tour.completedStepModal.createProperty.subtitleLinkLabel": "в разделе «Дома»",
@@ -3135,6 +3137,7 @@
   "acquiringReceipt.invoice.row.count": "Кол-во",
   "acquiringReceipt.invoice.row.vatPercent": "НДС",
   "acquiringReceipt.invoice.row.amount": "Стоимость",
-  "api.acquiring.multiPayment.error.receiptsWithInvoices": "Квитанции и счета не могут быть в одном платеже, увы. Но мы над этим работаем."
+  "api.acquiring.multiPayment.error.receiptsWithInvoices": "Квитанции и счета не могут быть в одном платеже, увы. Но мы над этим работаем.",
+  "api.acquiring.payment.error.paymentAmountLessThanMinimum": "Сумма оплаты должна быть не меньше чем {minimumPaymentAmount}"
 }
 

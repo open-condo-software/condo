@@ -12,6 +12,7 @@ const logger = getLogger('featureToggleManager')
 const FEATURE_TOGGLE_CONFIG = (conf.FEATURE_TOGGLE_CONFIG) ? JSON.parse(conf.FEATURE_TOGGLE_CONFIG) : {}
 
 const REDIS_FEATURES_KEY = 'features'
+const REDIS_UPDATE_FEATURES_KEY = 'features-update'
 const FEATURES_EXPIRED_IN_SECONDS = 60
 
 class FeatureToggleManager {
@@ -34,22 +35,24 @@ class FeatureToggleManager {
             logger.warn('No FEATURE_TOGGLE_CONFIG! Every features and values will be false!')
         }
         this._redisKey = REDIS_FEATURES_KEY
+        this._redisUpdateKey = REDIS_UPDATE_FEATURES_KEY
         this._redisExpires = FEATURES_EXPIRED_IN_SECONDS
     }
 
     async fetchFeatures () {
         try {
             if (this._url) {
-                const cachedFeatureFlags = await this.redis.get(this._redisKey)
-                if (cachedFeatureFlags) return JSON.parse(cachedFeatureFlags)
-
+                const wasUpdatedRecently = await this.redis.get(this._redisUpdateKey)
+                if (wasUpdatedRecently) {
+                    return this._getFeaturesFromCache()
+                }
                 const result = await fetch(this._url)
                 const parsedResult = await result.json()
                 const features = parsedResult.features
-
-                await this.redis.set(this._redisKey, JSON.stringify(features), 'EX', this._redisExpires)
-
+                await this.redis.set(this._redisKey, JSON.stringify(features))
+                await this.redis.set(this._redisUpdateKey, 'true', 'EX', this._redisExpires)
                 return features
+
             } else if (this._static) {
                 return JSON.parse(JSON.stringify(this._static))
             }
@@ -57,6 +60,9 @@ class FeatureToggleManager {
             throw new Error('FeatureToggleManager config error!')
         } catch (err) {
             logger.error({ msg: 'fetchFeatures error', err })
+            if (this._url) {
+                return this._getFeaturesFromCache()
+            }
             return {}
         }
     }
@@ -100,6 +106,19 @@ class FeatureToggleManager {
 
         const growthbook = await this._getGrowthBookInstance(keystoneContext, featuresContext)
         return growthbook.getFeatureValue(featureName, defaultValue)
+    }
+
+    async _getFeaturesFromCache () {
+        const cachedFeatureFlags = await this.redis.get(this._redisKey)
+        if (cachedFeatureFlags) {
+            try {
+                return JSON.parse(cachedFeatureFlags)
+            } catch (err) {
+                logger.error({ msg: '_getFeaturesFromCache json.parse error', err })
+                return {}
+            }
+        }
+        return {}
     }
 }
 

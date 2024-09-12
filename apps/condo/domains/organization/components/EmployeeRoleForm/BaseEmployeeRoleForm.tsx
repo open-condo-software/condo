@@ -6,6 +6,7 @@ import {
     OrganizationEmployeeRoleCreateInput as IEmployeeRoleCreateInput,
     OrganizationEmployeeRoleUpdateInput as IEmployeeRoleUpdateInput,
     QueryAllOrganizationEmployeeRolesArgs as IQueryAllEmployeeRolesArgs,
+    OrganizationEmployeeRoleTicketVisibilityTypeType,
 } from '@app/condo/schema'
 import { Col, ColProps, Row } from 'antd'
 import { FormProps } from 'antd/lib/form/Form'
@@ -167,7 +168,7 @@ const getInitValues = (employeeRole: Partial<IEmployeeRole> = {}, permissionsGro
     return {
         name: employeeRole.name || '',
         description: employeeRole.description || '',
-        ticketVisibilityType: employeeRole.ticketVisibilityType || ORGANIZATION_TICKET_VISIBILITY,
+        ticketVisibilityType: employeeRole.ticketVisibilityType || OrganizationEmployeeRoleTicketVisibilityTypeType.Organization,
         permissions: {
             organization: organizationPermissions,
             b2bApps: b2bAppsPermissions,

@@ -11,13 +11,12 @@ import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { getOptionFilterDropdown } from '@condo/domains/common/components/Table/Filters'
+import { getOptionFilterDropdown, getFilterIcon } from '@condo/domains/common/components/Table/Filters'
 import {
     getAddressRender,
     getDateRender,
     getTableCellRenderer,
 } from '@condo/domains/common/components/Table/Renders'
-import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'

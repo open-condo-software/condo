@@ -27,20 +27,21 @@ const ExtendedButton: React.FC<ExtendedButtonProps> = (props) => {
             {...rest}
             prefixCls={BUTTON_CLASS_PREFIX}
             className={buttonClasses}
-        >
-            {/* NOTE: We ignore typing errors to put custom content in the CondoButton. */}
-            {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
-            {/* @ts-ignore */}
-            <>
-                <span className={`${BUTTON_CLASS_PREFIX}-label`}>
-                    {children}
-                </span>
-                <div className={`${BUTTON_CLASS_PREFIX}-vertical-divider`} />
-                <span className={`${BUTTON_CLASS_PREFIX}-ellipsis`}>
-                    <MoreHorizontal />
-                </span>
-            </>
-        </CondoButton>
+            /* NOTE: We ignore typing errors to put custom content in the CondoButton.
+               eslint-disable-next-line @typescript-eslint/ban-ts-comment
+               @ts-ignore */
+            children={(
+                <>
+                    <span className={`${BUTTON_CLASS_PREFIX}-label`}>
+                        {children}
+                    </span>
+                    <div className={`${BUTTON_CLASS_PREFIX}-vertical-divider`} />
+                    <span className={`${BUTTON_CLASS_PREFIX}-ellipsis`}>
+                        <MoreHorizontal />
+                    </span>
+                </>
+            )}
+        />
     )
 }
 

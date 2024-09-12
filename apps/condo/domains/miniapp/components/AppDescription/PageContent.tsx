@@ -1,4 +1,3 @@
-import { MiniAppOutput } from '@app/condo/schema'
 import { Row, Col } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
@@ -18,6 +17,7 @@ import { TopCard } from './TopCard'
 
 import { AppCard, MIN_CARD_WIDTH } from '../AppCard'
 
+import type { B2BAppLabelType, MiniAppOutput } from '@app/condo/schema'
 import type { RowProps, ColProps } from 'antd'
 
 
@@ -37,7 +37,7 @@ type PageContentProps = {
     id: string
     name: string
     category: string
-    label?: string
+    label?: B2BAppLabelType
     shortDescription?: string
     detailedDescription?: string
     price?: string
@@ -185,7 +185,7 @@ const PageContent: React.FC<PageContentProps> = ({
                                         name={app.name}
                                         description={app.shortDescription}
                                         logoUrl={app.logo}
-                                        label={app.label}
+                                        label={app.label as B2BAppLabelType}
                                         onClick={handleCardClick(app.id, app.connected)}
                                     />
                                 ))}

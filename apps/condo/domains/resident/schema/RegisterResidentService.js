@@ -84,6 +84,7 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                     addressKey: addressItem.addressKey,
                     unitName_i: unitName,
                     unitType,
+                    deletedAt: null,
                     user: { id: context.authedItem.id },
                 }, {
                     first: 1,
@@ -106,16 +107,7 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                 }
 
                 let id
-                if (existingResident) {
-                    const nextAttrs = omit(
-                        { ...attrs, deletedAt: null },
-                        ['address', 'addressMeta', 'unitName'],
-                    )
-
-                    // TODO(DOMA-1780): we need to update address and addressMeta from property
-                    await ResidentAPI.update(context, existingResident.id, nextAttrs)
-                    id = existingResident.id
-                } else {
+                if (!existingResident) {
                     const residentAttrs = { ...attrs, address: addressItem.address }
                     const resident = await ResidentAPI.create(context, residentAttrs)
 

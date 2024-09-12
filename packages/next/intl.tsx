@@ -29,7 +29,7 @@ const LocaleContext = React.createContext<ILocaleContext>({
 
 const useLocale = (): ILocaleContext => useContext(LocaleContext)
 
-let messagesImporter: MessagesImporter = (locale) => {
+let messagesImporter: MessagesImporter = () => {
     throw new Error('You should define your own "messagesImporter(locale)" function. ' +
         'Like so: "withIntl({ ..., messagesImporter: (locale) => import(`../lang/${locale}/${locale}`) })(...)"')
 }

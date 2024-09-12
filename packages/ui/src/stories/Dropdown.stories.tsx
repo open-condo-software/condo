@@ -1,4 +1,4 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react'
+import { StoryFn, Meta } from '@storybook/react'
 import React from 'react'
 
 import { Play } from '@open-condo/icons'
@@ -11,11 +11,11 @@ const LOREM_TEXT = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ac
 export default {
     title: 'Components/Dropdown',
     component: Dropdown,
-} as ComponentMeta<typeof Dropdown>
+} as Meta<typeof Dropdown>
 
-const Template: ComponentStory<typeof Dropdown> = (props) => <Dropdown {...props} />
+const Template: StoryFn<typeof Dropdown> = (props) => <Dropdown {...props} />
 
-const Template2: ComponentStory<typeof Dropdown> = () => {
+const Template2: StoryFn<typeof Dropdown> = () => {
     return (
         <>
             <Space size={24} direction='vertical'>
@@ -97,7 +97,7 @@ const Template2: ComponentStory<typeof Dropdown> = () => {
         </>
     )
 }
-const DropdownButtonTemplate: ComponentStory<typeof Dropdown.Button> = () => {
+const DropdownButtonTemplate: StoryFn<typeof Dropdown.Button> = () => {
     return (
         <>
             <Space size={24} direction='vertical'>

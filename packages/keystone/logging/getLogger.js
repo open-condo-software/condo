@@ -8,6 +8,12 @@ const { normalizeVariables } = require('./normalize')
 
 const { safeFormatError } = require('../apolloErrorFormatter')
 
+function toCount (data) {
+    const count = parseInt(data)
+    if (isNaN(count)) return 0
+    return count
+}
+
 function getLogger (name) {
     return pino({
         name, enabled: falsey(process.env.DISABLE_LOGGING),
@@ -29,6 +35,7 @@ function getLogger (name) {
             'req': serializers.req,
             'res': serializers.res,
             'err': serializers.err,
+            'count': toCount,
         },
     })
 }

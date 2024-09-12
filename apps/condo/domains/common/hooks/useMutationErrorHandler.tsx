@@ -1,9 +1,9 @@
 import { notification } from 'antd'
 import get from 'lodash/get'
 import { useCallback } from 'react'
-import { useIntl } from 'react-intl'
 import { z } from 'zod'
 
+import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
 import type { ApolloError } from '@apollo/client'

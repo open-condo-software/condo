@@ -64,13 +64,12 @@ import {
 } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
 import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
 import { MAX_DETAILS_LENGTH } from '@condo/domains/ticket/constants'
-import { VISIBLE_TICKET_SOURCE_TYPES_IN_TICKET_FORM } from '@condo/domains/ticket/constants/common'
+import { VISIBLE_TICKET_SOURCE_TYPES_IN_TICKET_FORM } from '@condo/domains/ticket/constants/sourceTypes'
 import { useActiveCall } from '@condo/domains/ticket/contexts/ActiveCallContext'
 import { TicketFile, TicketSource } from '@condo/domains/ticket/utils/clientSchema'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
 import { RESIDENT } from '@condo/domains/user/constants/common'
-
 
 import { TicketAssignments } from './TicketAssignments'
 import { TicketDeadlineField } from './TicketDeadlineField'

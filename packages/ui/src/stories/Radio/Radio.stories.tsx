@@ -1,4 +1,4 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react'
+import { StoryFn, Meta } from '@storybook/react'
 import React from 'react'
 
 import { Radio as Component } from '@open-condo/ui/src'
@@ -36,9 +36,9 @@ export default {
             if: { arg: 'indeterminate', truthy: false },
         },
     },
-} as ComponentMeta<typeof Component>
+} as Meta<typeof Component>
 
-const Template: ComponentStory<typeof Component> = (props) => <Component {...props} />
+const Template: StoryFn<typeof Component> = (props) => <Component {...props} />
 
 export const Unchecked = Template.bind({})
 Unchecked.args = {

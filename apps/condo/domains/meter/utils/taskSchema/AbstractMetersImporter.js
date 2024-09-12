@@ -4,7 +4,10 @@ const XLSX = require('xlsx')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { i18n } = require('@open-condo/locales/loader')
 
+const { IMPORT_CONDO_METER_READING_SOURCE_ID } = require('@condo/domains/meter/constants/constants')
+
 const READINGS_CHUNK_SIZE = 100
+const READING_SOURCE = { id: IMPORT_CONDO_METER_READING_SOURCE_ID }
 const logger = getLogger('AbstractMetersImporter')
 
 class AbstractMetersImporter {
@@ -121,6 +124,7 @@ class AbstractMetersImporter {
                                 })
                             }
                             for (const rowPart of transformedRow) {
+                                rowPart.readingSource = READING_SOURCE
                                 transformedData.push(rowPart)
                                 transformedRowToSourceRowMap.set(
                                     String(transformedIndex++),
@@ -128,6 +132,7 @@ class AbstractMetersImporter {
                                 )
                             }
                         } else {
+                            transformedRow.readingSource = READING_SOURCE
                             transformedData.push(transformedRow)
                             transformedRowToSourceRowMap.set(sourceIndex, sourceIndex)
                         }

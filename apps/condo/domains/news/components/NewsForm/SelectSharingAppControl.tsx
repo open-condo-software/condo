@@ -42,7 +42,7 @@ const CardCheckbox = Card.CardCheckbox
 interface ISelectSharingAppControl {
     sharingAppContexts: IB2BAppContext[],
     selectedSharingApps: Set<string>,
-    handleSelectSharingApp: ({ value: string, checked: boolean }) => void
+    handleSelectSharingApp: ({ value, checked }: { value: string, checked: boolean }) => void
 }
 
 const AppDescriptionLabelId = 'pages.news.create.selectSharingApp.appDescription'

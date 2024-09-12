@@ -18,8 +18,8 @@ const {
     getPfxCertificateHealthCheck,
 } = require('@open-condo/keystone/healthCheck')
 const { prepareKeystone } = require('@open-condo/keystone/KSv5v6/v5/prepareKeystone')
-const { isMemMonEnabled, catchGC } = require('@open-condo/keystone/memMon/utils')
 const { RequestCache } = require('@open-condo/keystone/requestCache')
+const { getXRemoteApp, getXRemoteClient, getXRemoteVersion, getAppName } = require('@open-condo/keystone/tracingUtils')
 const { getWebhookModels } = require('@open-condo/webhooks/schema')
 const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
 
@@ -34,19 +34,12 @@ dayjs.extend(utc)
 dayjs.extend(timezone)
 dayjs.extend(isBetween)
 
-const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production' && conf.DD_TRACE_ENABLED === 'true'
 const IS_BUILD_PHASE = conf.PHASE === 'build'
 const SENTRY_CONFIG = conf.SENTRY_CONFIG ? JSON.parse(conf.SENTRY_CONFIG) : {}
 
 // TODO(zuch): DOMA-2990: add FILE_FIELD_ADAPTER to env during build phase
 if (IS_BUILD_PHASE) {
     process.env.FILE_FIELD_ADAPTER = 'local' // Test
-}
-
-if (IS_ENABLE_DD_TRACE && !IS_BUILD_PHASE) {
-    require('dd-trace').init({
-        logInjection: true,
-    })
 }
 
 const schemas = () => [
@@ -151,10 +144,6 @@ const extendExpressApp = (app) => {
         res.redirect('/auth/forgot')
     })
     app.use(Sentry.Handlers.errorHandler())
-}
-
-if (!IS_BUILD_PHASE && isMemMonEnabled()) {
-    catchGC()
 }
 
 module.exports = prepareKeystone({

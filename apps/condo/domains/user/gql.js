@@ -65,7 +65,7 @@ const REGISTER_NEW_USER_MUTATION = gql`
     }
 `
 
-const OWN_USER_FIELDS = '{ id name avatar { publicUrl } phone email isAdmin isSupport locale showGlobalHints }'
+const OWN_USER_FIELDS = '{ id name avatar { publicUrl } phone email isAdmin isSupport rightsSet { id } locale showGlobalHints }'
 
 const USER_QUERY = gql`
     query {
@@ -168,7 +168,7 @@ const SEND_MESSAGE_TO_SUPPORT_MUTATION = gql`
     }
 `
 
-const OIDC_CLIENT_FIELDS = `{ clientId payload name meta expiresAt ${COMMON_FIELDS} }`
+const OIDC_CLIENT_FIELDS = `{ clientId payload name canAuthorizeSuperUsers meta expiresAt ${COMMON_FIELDS} }`
 const OidcClient = generateGqlQueries('OidcClient', OIDC_CLIENT_FIELDS)
 
 const EXTERNAL_TOKEN_ACCESS_RIGHT_FIELDS = `{ type user { id } deletedAt ${COMMON_FIELDS} }`

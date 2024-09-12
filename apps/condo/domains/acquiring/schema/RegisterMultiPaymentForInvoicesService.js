@@ -12,6 +12,7 @@ const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema'
 const access = require('@condo/domains/acquiring/access/RegisterMultiPaymentForInvoicesService')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const {
+    GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM },
     ACQUIRING_INTEGRATION_IS_DELETED,
     INVOICES_ARE_NOT_PUBLISHED,
     INVOICE_CONTEXT_NOT_FINISHED,
@@ -64,6 +65,10 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS,
         message: 'Listed serviceConsumers are linked to different acquiring integrations',
+    },
+    PAYMENT_AMOUNT_LESS_THAN_MINIMUM: {
+        ...PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
+        mutation: 'registerMultiPaymentForOneReceiptService',
     },
     ACQUIRING_INTEGRATION_IS_DELETED: (id) => ({
         code: BAD_USER_INPUT,
@@ -163,8 +168,8 @@ const RegisterMultiPaymentForInvoicesService = new GQLCustomSchema('RegisterMult
                 }
 
                 const acquiringContext = acquiringContexts[0]
-                const payments = []
                 const acquiringIntegration = await getById('AcquiringIntegration', acquiringContext.integration)
+                const paymentCreateInputs = []
 
                 for (const invoice of foundInvoices) {
                     const frozenInvoice = await freezeInvoice(invoice)
@@ -197,7 +202,7 @@ const RegisterMultiPaymentForInvoicesService = new GQLCustomSchema('RegisterMult
                         serviceFee: String(fromReceiptAmountFee),
                     }
 
-                    const payment = await Payment.create(context, {
+                    paymentCreateInputs.push({
                         dv: 1,
                         sender,
                         context: { connect: { id: acquiringContext.id } },
@@ -211,12 +216,9 @@ const RegisterMultiPaymentForInvoicesService = new GQLCustomSchema('RegisterMult
                         recipientBankAccount: bankAccount,
                         ...paymentCommissionFields,
                     })
-
-                    payments.push({ ...payment, serviceFee: paymentCommissionFields.serviceFee })
                 }
 
-                const paymentIds = payments.map(payment => ({ id: payment.id }))
-                const totalAmount = payments.reduce((acc, cur) => {
+                const totalAmount = paymentCreateInputs.reduce((acc, cur) => {
                     return {
                         amountWithoutExplicitFee: acc.amountWithoutExplicitFee.plus(Big(cur.amount)),
                         explicitFee: acc.explicitFee.plus(Big(cur.explicitFee)),
@@ -231,6 +233,19 @@ const RegisterMultiPaymentForInvoicesService = new GQLCustomSchema('RegisterMult
                     serviceFee: Big('0.0'),
                     implicitFee: Big('0.0'),
                 })
+
+                const amountToPay = Big(totalAmount.amountWithoutExplicitFee)
+                    .add(Big(totalAmount.explicitServiceCharge))
+                    .add(Big(totalAmount.explicitFee))
+                if (acquiringIntegration.minimumPaymentAmount && Big(amountToPay).lt(acquiringIntegration.minimumPaymentAmount)) {
+                    throw new GQLError({
+                        ...ERRORS.PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
+                        messageInterpolation: { minimumPaymentAmount: Big(acquiringIntegration.minimumPaymentAmount).toString() },
+                    }, context)
+                }
+
+                const payments = await Promise.all(paymentCreateInputs.map((paymentInput) => Payment.create(context, paymentInput)))
+                const paymentIds = payments.map(payment => ({ id: payment.id }))
 
                 const multiPayment = await MultiPayment.create(context, {
                     dv: 1,

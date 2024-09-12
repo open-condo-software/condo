@@ -1,8 +1,9 @@
 import { FilterFilled } from '@ant-design/icons'
-import { FilterValue } from 'antd/es/table/interface'
-import { CheckboxGroupProps } from 'antd/lib/checkbox/Group'
-import { PickerProps, RangePickerProps } from 'antd/lib/date-picker/generatePicker'
-import { FilterDropdownProps } from 'antd/lib/table/interface'
+import styled from '@emotion/styled'
+import { Space } from 'antd'
+import { CheckboxGroupProps } from 'antd/es/checkbox/Group'
+import { PickerProps, RangePickerProps } from 'antd/es/date-picker/generatePicker'
+import { FilterValue, FilterDropdownProps } from 'antd/es/table/interface'
 import dayjs, { Dayjs } from 'dayjs'
 import get from 'lodash/get'
 import isArray from 'lodash/isArray'
@@ -10,16 +11,18 @@ import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
 import React, { CSSProperties, useCallback, useMemo } from 'react'
 
+import { useIntl } from '@open-condo/next/intl'
+
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input, { CustomInputProps } from '@condo/domains/common/components/antd/Input'
 import Select, { CustomSelectProps, SelectValueType } from '@condo/domains/common/components/antd/Select'
 import { GraphQlSearchInput, ISearchInputProps } from '@condo/domains/common/components/GraphQlSearchInput'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
-import { FilterContainer, SelectFilterContainer } from '@condo/domains/common/components/TableFilter'
 import { colors } from '@condo/domains/common/constants/style'
 import { QueryArgType } from '@condo/domains/common/utils/tables.utils'
 
+import { Button } from '../Button'
 import { TrackingEventType, useTracking } from '../TrackingContext'
 
 
@@ -41,6 +44,72 @@ type GetGQLSelectFilterDropdownType = GetCommonFilterDropdownType<{ gqlSelectPro
 type GetDateFilterDropdownType = GetCommonFilterDropdownType<{ datePickerProps?: PickerProps<Dayjs> } & CommonFilterDropdownProps>
 
 type GetDateRangeFilterDropdownType = GetCommonFilterDropdownType<{ datePickerProps?: RangePickerProps<Dayjs> } & CommonFilterDropdownProps>
+
+interface IFilterContainerProps {
+    clearFilters: () => void
+    showClearButton?: boolean
+    style?: CSSProperties
+}
+
+const FILTER_CONTAINER_STYLES: CSSProperties = { padding: 16 }
+
+const handleStopPropagation = (e) => e.stopPropagation()
+
+const FilterContainer: React.FC<IFilterContainerProps> = (props) => {
+    const { showClearButton, clearFilters, children } = props
+    const intl = useIntl()
+    const ResetLabel = intl.formatMessage({ id: 'filters.Reset' })
+
+    return (
+        <div style={FILTER_CONTAINER_STYLES} onKeyDown={handleStopPropagation}>
+            <Space size={8} direction='vertical' align='center'>
+                {children}
+                {
+                    showClearButton && (
+                        <Button
+                            size='small'
+                            onClick={clearFilters}
+                            type='inlineLink'
+                        >
+                            {ResetLabel}
+                        </Button>
+                    )
+                }
+            </Space>
+        </div>
+    )
+}
+
+const StyledSelectFilterContainer = styled.div`
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 300px;
+`
+
+const SelectFilterContainer: React.FC<IFilterContainerProps> = (props) => {
+    const { showClearButton, clearFilters, style, children } = props
+    const intl = useIntl()
+    const ResetLabel = intl.formatMessage({ id: 'filters.Reset' })
+
+    return (
+        <StyledSelectFilterContainer style={style} onKeyDown={handleStopPropagation}>
+            {children}
+            {
+                showClearButton && (
+                    <Button
+                        size='small'
+                        onClick={clearFilters}
+                        type='inlineLink'
+                    >
+                        {ResetLabel}
+                    </Button>
+                )
+            }
+        </StyledSelectFilterContainer>
+    )
+}
 
 
 const FILTER_DROPDOWN_CHECKBOX_STYLES: CSSProperties = { display: 'flex', flexDirection: 'column' }

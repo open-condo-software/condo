@@ -55,7 +55,6 @@ const ChangeMeterStatusModal = ({
                     format={ARCHIVE_MODAL_DATE_PICKER_DATE_FORMAT}
                     style={ARCHIVE_MODAL_DATE_PICKER_STYLE}
                     onChange={handleChangeSelectedArchiveDate}
-                    disabledDate={(current) => current.isBefore(dayjs().subtract(1, 'day'))}
                 />
             </Row>
         </Modal>

@@ -1338,6 +1338,7 @@ type OidcClientHistoryRecord {
   payload: JSON
   name: String
   isEnabled: Boolean
+  canAuthorizeSuperUsers: Boolean
   meta: JSON
   expiresAt: String
   id: ID!
@@ -1400,6 +1401,8 @@ input OidcClientHistoryRecordWhereInput {
   name_not_in: [String]
   isEnabled: Boolean
   isEnabled_not: Boolean
+  canAuthorizeSuperUsers: Boolean
+  canAuthorizeSuperUsers_not: Boolean
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -1501,6 +1504,8 @@ enum SortOidcClientHistoryRecordsBy {
   name_DESC
   isEnabled_ASC
   isEnabled_DESC
+  canAuthorizeSuperUsers_ASC
+  canAuthorizeSuperUsers_DESC
   expiresAt_ASC
   expiresAt_DESC
   id_ASC
@@ -1526,6 +1531,7 @@ input OidcClientHistoryRecordUpdateInput {
   payload: JSON
   name: String
   isEnabled: Boolean
+  canAuthorizeSuperUsers: Boolean
   meta: JSON
   expiresAt: String
   v: Int
@@ -1552,6 +1558,7 @@ input OidcClientHistoryRecordCreateInput {
   payload: JSON
   name: String
   isEnabled: Boolean
+  canAuthorizeSuperUsers: Boolean
   meta: JSON
   expiresAt: String
   v: Int
@@ -1595,6 +1602,10 @@ type OidcClient {
   """ A switch that allows you to disable some OIDC clients. If an OIDC client is disabled, it cannot be used for OIDC authorization. Used mainly by developers portal to create OIDC client before publishing an application, and enable OIDC after publishing. 
   """
   isEnabled: Boolean
+
+  """ A switch that allows this OIDC client to authorize users with privileges, such as admins, support, or users with a special rights set. Temporary solution to allow OIDCs to be used to access the admin panel of mini-applications from condo ecosystem. Tokens with scopes should solve the logic separation problem and remove this checkbox 
+  """
+  canAuthorizeSuperUsers: Boolean
 
   """ The additional client data """
   meta: JSON
@@ -1675,6 +1686,8 @@ input OidcClientWhereInput {
   name_not_in: [String]
   isEnabled: Boolean
   isEnabled_not: Boolean
+  canAuthorizeSuperUsers: Boolean
+  canAuthorizeSuperUsers_not: Boolean
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -1792,6 +1805,8 @@ enum SortOidcClientsBy {
   name_DESC
   isEnabled_ASC
   isEnabled_DESC
+  canAuthorizeSuperUsers_ASC
+  canAuthorizeSuperUsers_DESC
   expiresAt_ASC
   expiresAt_DESC
   id_ASC
@@ -1821,6 +1836,7 @@ input OidcClientUpdateInput {
   payload: JSON
   name: String
   isEnabled: Boolean
+  canAuthorizeSuperUsers: Boolean
   meta: JSON
   expiresAt: String
   v: Int
@@ -1846,6 +1862,7 @@ input OidcClientCreateInput {
   payload: JSON
   name: String
   isEnabled: Boolean
+  canAuthorizeSuperUsers: Boolean
   meta: JSON
   expiresAt: String
   v: Int
@@ -5444,6 +5461,7 @@ type OrganizationEmployeeRoleHistoryRecord {
   canManageTour: Boolean
   canReadMarketSetting: Boolean
   canManageMarketSetting: Boolean
+  canManageTicketAutoAssignments: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -5648,6 +5666,8 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canReadMarketSetting_not: Boolean
   canManageMarketSetting: Boolean
   canManageMarketSetting_not: Boolean
+  canManageTicketAutoAssignments: Boolean
+  canManageTicketAutoAssignments_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -5855,6 +5875,8 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canReadMarketSetting_DESC
   canManageMarketSetting_ASC
   canManageMarketSetting_DESC
+  canManageTicketAutoAssignments_ASC
+  canManageTicketAutoAssignments_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -5941,6 +5963,7 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canManageTour: Boolean
   canReadMarketSetting: Boolean
   canManageMarketSetting: Boolean
+  canManageTicketAutoAssignments: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -6028,6 +6051,7 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canManageTour: Boolean
   canReadMarketSetting: Boolean
   canManageMarketSetting: Boolean
+  canManageTicketAutoAssignments: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -6163,6 +6187,7 @@ type OrganizationEmployeeRole {
   canManageTour: Boolean
   canReadMarketSetting: Boolean
   canManageMarketSetting: Boolean
+  canManageTicketAutoAssignments: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -6361,6 +6386,8 @@ input OrganizationEmployeeRoleWhereInput {
   canReadMarketSetting_not: Boolean
   canManageMarketSetting: Boolean
   canManageMarketSetting_not: Boolean
+  canManageTicketAutoAssignments: Boolean
+  canManageTicketAutoAssignments_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -6562,6 +6589,8 @@ enum SortOrganizationEmployeeRolesBy {
   canReadMarketSetting_DESC
   canManageMarketSetting_ASC
   canManageMarketSetting_DESC
+  canManageTicketAutoAssignments_ASC
+  canManageTicketAutoAssignments_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -6650,6 +6679,7 @@ input OrganizationEmployeeRoleUpdateInput {
   canManageTour: Boolean
   canReadMarketSetting: Boolean
   canManageMarketSetting: Boolean
+  canManageTicketAutoAssignments: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -6736,6 +6766,7 @@ input OrganizationEmployeeRoleCreateInput {
   canManageTour: Boolean
   canReadMarketSetting: Boolean
   canManageMarketSetting: Boolean
+  canManageTicketAutoAssignments: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -47330,6 +47361,8 @@ type MeterReadingHistoryRecord {
   clientEmail: String
   clientPhone: String
   source: String
+  billingStatus: String
+  billingStatusText: String
   organization: String
   id: ID!
   v: Int
@@ -47459,6 +47492,42 @@ input MeterReadingHistoryRecordWhereInput {
   source_not: String
   source_in: [String]
   source_not_in: [String]
+  billingStatus: String
+  billingStatus_not: String
+  billingStatus_contains: String
+  billingStatus_not_contains: String
+  billingStatus_starts_with: String
+  billingStatus_not_starts_with: String
+  billingStatus_ends_with: String
+  billingStatus_not_ends_with: String
+  billingStatus_i: String
+  billingStatus_not_i: String
+  billingStatus_contains_i: String
+  billingStatus_not_contains_i: String
+  billingStatus_starts_with_i: String
+  billingStatus_not_starts_with_i: String
+  billingStatus_ends_with_i: String
+  billingStatus_not_ends_with_i: String
+  billingStatus_in: [String]
+  billingStatus_not_in: [String]
+  billingStatusText: String
+  billingStatusText_not: String
+  billingStatusText_contains: String
+  billingStatusText_not_contains: String
+  billingStatusText_starts_with: String
+  billingStatusText_not_starts_with: String
+  billingStatusText_ends_with: String
+  billingStatusText_not_ends_with: String
+  billingStatusText_i: String
+  billingStatusText_not_i: String
+  billingStatusText_contains_i: String
+  billingStatusText_not_contains_i: String
+  billingStatusText_starts_with_i: String
+  billingStatusText_not_starts_with_i: String
+  billingStatusText_ends_with_i: String
+  billingStatusText_not_ends_with_i: String
+  billingStatusText_in: [String]
+  billingStatusText_not_in: [String]
   organization: String
   organization_not: String
   organization_in: [String]
@@ -47562,6 +47631,10 @@ enum SortMeterReadingHistoryRecordsBy {
   clientEmail_DESC
   clientPhone_ASC
   clientPhone_DESC
+  billingStatus_ASC
+  billingStatus_DESC
+  billingStatusText_ASC
+  billingStatusText_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -47593,6 +47666,8 @@ input MeterReadingHistoryRecordUpdateInput {
   clientEmail: String
   clientPhone: String
   source: String
+  billingStatus: String
+  billingStatusText: String
   organization: String
   v: Int
   createdAt: String
@@ -47626,6 +47701,8 @@ input MeterReadingHistoryRecordCreateInput {
   clientEmail: String
   clientPhone: String
   source: String
+  billingStatus: String
+  billingStatusText: String
   organization: String
   v: Int
   createdAt: String
@@ -47657,6 +47734,11 @@ input MeterReadingSourceRelateToOneInput {
   connect: MeterReadingSourceWhereUniqueInput
   disconnect: MeterReadingSourceWhereUniqueInput
   disconnectAll: Boolean
+}
+
+enum MeterReadingBillingStatusType {
+  approved
+  declined
 }
 
 """ Meter reading taken from a client or billing """
@@ -47714,6 +47796,14 @@ type MeterReading {
   """ Meter reading source channel/system. Examples: call, mobile_app, billing, ... 
   """
   source: MeterReadingSource
+
+  """ A status from external billing system. Changing during processing the reading in external system. 
+  """
+  billingStatus: MeterReadingBillingStatusType
+
+  """ A message from external billing system. Set to null if billing status is `approved`. 
+  """
+  billingStatusText: String
 
   """ Ref to the organization. It is filled in on the server and is read-only 
   """
@@ -47846,6 +47936,28 @@ input MeterReadingWhereInput {
   clientPhone_not_in: [String]
   source: MeterReadingSourceWhereInput
   source_is_null: Boolean
+  billingStatus: MeterReadingBillingStatusType
+  billingStatus_not: MeterReadingBillingStatusType
+  billingStatus_in: [MeterReadingBillingStatusType]
+  billingStatus_not_in: [MeterReadingBillingStatusType]
+  billingStatusText: String
+  billingStatusText_not: String
+  billingStatusText_contains: String
+  billingStatusText_not_contains: String
+  billingStatusText_starts_with: String
+  billingStatusText_not_starts_with: String
+  billingStatusText_ends_with: String
+  billingStatusText_not_ends_with: String
+  billingStatusText_i: String
+  billingStatusText_not_i: String
+  billingStatusText_contains_i: String
+  billingStatusText_not_contains_i: String
+  billingStatusText_starts_with_i: String
+  billingStatusText_not_starts_with_i: String
+  billingStatusText_ends_with_i: String
+  billingStatusText_not_ends_with_i: String
+  billingStatusText_in: [String]
+  billingStatusText_not_in: [String]
   organization: OrganizationWhereInput
   organization_is_null: Boolean
   id: ID
@@ -47935,6 +48047,10 @@ enum SortMeterReadingsBy {
   clientPhone_DESC
   source_ASC
   source_DESC
+  billingStatus_ASC
+  billingStatus_DESC
+  billingStatusText_ASC
+  billingStatusText_DESC
   organization_ASC
   organization_DESC
   id_ASC
@@ -47968,6 +48084,8 @@ input MeterReadingUpdateInput {
   clientEmail: String
   clientPhone: String
   source: MeterReadingSourceRelateToOneInput
+  billingStatus: MeterReadingBillingStatusType
+  billingStatusText: String
   organization: OrganizationRelateToOneInput
   v: Int
   createdAt: String
@@ -47998,6 +48116,8 @@ input MeterReadingCreateInput {
   clientEmail: String
   clientPhone: String
   source: MeterReadingSourceRelateToOneInput
+  billingStatus: MeterReadingBillingStatusType
+  billingStatusText: String
   organization: OrganizationRelateToOneInput
   v: Int
   createdAt: String
@@ -52764,6 +52884,7 @@ type AcquiringIntegrationHistoryRecord {
   canGroupReceipts: Boolean
   hostUrl: String
   supportedBillingIntegrationsGroup: String
+  minimumPaymentAmount: String
   explicitFeeDistributionSchema: JSON
   contextDefaultStatus: String
   vatPercentOptions: String
@@ -52861,6 +52982,14 @@ input AcquiringIntegrationHistoryRecordWhereInput {
   supportedBillingIntegrationsGroup_not_ends_with_i: String
   supportedBillingIntegrationsGroup_in: [String]
   supportedBillingIntegrationsGroup_not_in: [String]
+  minimumPaymentAmount: String
+  minimumPaymentAmount_not: String
+  minimumPaymentAmount_lt: String
+  minimumPaymentAmount_lte: String
+  minimumPaymentAmount_gt: String
+  minimumPaymentAmount_gte: String
+  minimumPaymentAmount_in: [String]
+  minimumPaymentAmount_not_in: [String]
   explicitFeeDistributionSchema: JSON
   explicitFeeDistributionSchema_not: JSON
   explicitFeeDistributionSchema_in: [JSON]
@@ -52996,6 +53125,8 @@ enum SortAcquiringIntegrationHistoryRecordsBy {
   hostUrl_DESC
   supportedBillingIntegrationsGroup_ASC
   supportedBillingIntegrationsGroup_DESC
+  minimumPaymentAmount_ASC
+  minimumPaymentAmount_DESC
   contextDefaultStatus_ASC
   contextDefaultStatus_DESC
   vatPercentOptions_ASC
@@ -53025,6 +53156,7 @@ input AcquiringIntegrationHistoryRecordUpdateInput {
   canGroupReceipts: Boolean
   hostUrl: String
   supportedBillingIntegrationsGroup: String
+  minimumPaymentAmount: String
   explicitFeeDistributionSchema: JSON
   contextDefaultStatus: String
   vatPercentOptions: String
@@ -53054,6 +53186,7 @@ input AcquiringIntegrationHistoryRecordCreateInput {
   canGroupReceipts: Boolean
   hostUrl: String
   supportedBillingIntegrationsGroup: String
+  minimumPaymentAmount: String
   explicitFeeDistributionSchema: JSON
   contextDefaultStatus: String
   vatPercentOptions: String
@@ -53139,6 +53272,9 @@ type AcquiringIntegration {
   """ Supported billing integrations group. Useful when you need to restrict this acquiring to accept payment only from certain billing. 
   """
   supportedBillingIntegrationsGroup: String
+
+  """ The minimum payment amount that can be accepted """
+  minimumPaymentAmount: String
 
   """ Contains information about the default distribution of explicit fee. Each part is paid by the user on top of original amount if there is no part with the same name in the integration context. Otherwise, the part is ignored as it is paid by recipient 
   """
@@ -53261,6 +53397,14 @@ input AcquiringIntegrationWhereInput {
   supportedBillingIntegrationsGroup_not_ends_with_i: String
   supportedBillingIntegrationsGroup_in: [String]
   supportedBillingIntegrationsGroup_not_in: [String]
+  minimumPaymentAmount: String
+  minimumPaymentAmount_not: String
+  minimumPaymentAmount_lt: String
+  minimumPaymentAmount_lte: String
+  minimumPaymentAmount_gt: String
+  minimumPaymentAmount_gte: String
+  minimumPaymentAmount_in: [String]
+  minimumPaymentAmount_not_in: [String]
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   explicitFeeDistributionSchema_not: [FeeDistributionFieldInput!]
   explicitFeeDistributionSchema_in: [[FeeDistributionFieldInput!]]
@@ -53364,6 +53508,8 @@ enum SortAcquiringIntegrationsBy {
   hostUrl_DESC
   supportedBillingIntegrationsGroup_ASC
   supportedBillingIntegrationsGroup_DESC
+  minimumPaymentAmount_ASC
+  minimumPaymentAmount_DESC
   contextDefaultStatus_ASC
   contextDefaultStatus_DESC
   vatPercentOptions_ASC
@@ -53394,6 +53540,7 @@ input AcquiringIntegrationUpdateInput {
   canGroupReceipts: Boolean
   hostUrl: String
   supportedBillingIntegrationsGroup: String
+  minimumPaymentAmount: String
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   contextDefaultStatus: AcquiringIntegrationContextDefaultStatusType
   vatPercentOptions: String
@@ -53421,6 +53568,7 @@ input AcquiringIntegrationCreateInput {
   canGroupReceipts: Boolean
   hostUrl: String
   supportedBillingIntegrationsGroup: String
+  minimumPaymentAmount: String
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   contextDefaultStatus: AcquiringIntegrationContextDefaultStatusType
   vatPercentOptions: String
@@ -77142,6 +77290,15 @@ type FindOrganizationForAddressOutput {
   hasBillingData: Boolean!
 }
 
+input SuggestServiceProviderInput {
+  search: String!
+}
+
+type SuggestServiceProviderOutput {
+  tin: String!
+  name: String!
+}
+
 input SyncTourStepsInput {
   dv: Int!
   sender: SenderFieldInput!
@@ -77241,6 +77398,7 @@ input RegisterMetersReadingsReadingInput {
   value3: String
   value4: String
   meterMeta: RegisterMetersReadingsMeterMetaInput
+  readingSource: MeterReadingSourceWhereUniqueInput
 }
 
 input RegisterMetersReadingsInput {
@@ -77422,6 +77580,17 @@ type RegisterMultiPaymentForInvoicesOutput {
   feeCalculationUrl: String!
   directPaymentUrl: String!
   anonymousPaymentUrl: String!
+}
+
+input CalculateFeeForReceiptInput {
+  receipt: BillingReceiptWhereUniqueInput!
+  amount: String!
+}
+
+type CalculateFeeForReceiptOutput {
+  amountWithoutExplicitFee: String!
+  explicitFee: String!
+  explicitServiceCharge: String!
 }
 
 enum TicketReportPeriodType {
@@ -81679,6 +81848,7 @@ type Query {
   predictTicketClassification(data: PredictTicketClassificationInput!): TicketClassifier
   getResidentExistenceByPhoneAndAddress(data: GetResidentExistenceByPhoneAndAddressInput!): GetResidentExistenceByPhoneAndAddressOutput
   findOrganizationsForAddress(data: FindOrganizationsForAddressInput!): [FindOrganizationForAddressOutput]
+  suggestServiceProvider(data: SuggestServiceProviderInput!): [SuggestServiceProviderOutput]
   exportMeterReadings(data: ExportMeterReadingsInput!): ExportMeterReadingsOutput
 
   """
@@ -81725,6 +81895,7 @@ type Query {
   exportPaymentsToExcel(data: ExportPaymentsToExcelInput!): ExportPaymentsToExcelOutput
   generatePaymentLink(data: GeneratePaymentLinkInput!): GeneratePaymentLinkOutput
   _allPaymentsSum(where: PaymentWhereInput!): PaymentsSumOutput
+  calculateFeeForReceipt(data: CalculateFeeForReceiptInput!): CalculateFeeForReceiptOutput
   ticketReportWidgetData(data: TicketReportWidgetInput!): TicketReportWidgetOutput
   ticketAnalyticsReport(data: TicketAnalyticsReportInput): TicketAnalyticsReportOutput
   exportTicketAnalyticsToExcel(data: ExportTicketAnalyticsToExcelInput): ExportTicketAnalyticsToExcelOutput

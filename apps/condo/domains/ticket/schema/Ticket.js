@@ -972,6 +972,30 @@ const Ticket = new GQLListSchema('Ticket', {
         delete: false,
         auth: true,
     },
+    kmigratorOptions: {
+        indexes: [
+            {
+                type: 'BTreeIndex',
+                fields: ['unitName'],
+                name: 'ticket_unitName',
+            },
+            {
+                type: 'BTreeIndex',
+                fields: ['assignee', 'executor', 'organization'],
+                name: 'ticket_assignee_exec_org',
+            },
+            {
+                type: 'BTreeIndex',
+                fields: ['organization', 'status'],
+                name: 'ticket_organization_status',
+            },
+            {
+                type: 'BTreeIndex',
+                fields: ['order', '-createdAt'],
+                name: 'ticket_order_createdat',
+            },
+        ],
+    },
 })
 
 module.exports = {

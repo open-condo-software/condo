@@ -3,18 +3,28 @@
  */
 const { filter, pick, uniq, uniqBy } = require('lodash')
 
-const { GQLCustomSchema, allItemsQueryByChunks } = require('@open-condo/keystone/schema')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { GQLCustomSchema, allItemsQueryByChunks, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/news/access/GetNewsItemsRecipientsCountersService')
-const { queryFindResidentsByOrganizationAndScopes } = require('@condo/domains/news/utils/accessSchema')
 const {
-    countUniqueUnitsFromResidents,
+    countUniqueUnitsFromResidentsByPropertyIds,
+    countUniqueUnitsFromResidentsByProperty,
     getUnitsFromProperty,
-    queryConditionsByUnits,
 } = require('@condo/domains/news/utils/serverSchema/recipientsCounterUtils')
 
 
+
 const CHUNK_SIZE = 50
+
+const ERRORS = {
+    SCOPE_NOT_SUPPORTED: {
+        code: BAD_USER_INPUT,
+        type: 'SCOPE_NOT_SUPPORTED',
+        message: 'Cannot count recipients on these scopes. Only: Organization-level scope, Property-level scope, or UnitName/UnitType level scope for single property is supported',
+    },
+}
+
 
 const GetNewsItemsRecipientsCountersService = new GQLCustomSchema('GetNewsItemsRecipientsCountersService', {
     types: [
@@ -32,19 +42,23 @@ const GetNewsItemsRecipientsCountersService = new GQLCustomSchema('GetNewsItemsR
         {
             access: access.canGetNewsItemsRecipientsCounters,
             schema: 'getNewsItemsRecipientsCounters(data: GetNewsItemsRecipientsCountersInput!): GetNewsItemsRecipientsCountersOutput',
-            resolver: async (parent, args, context, info, extra = {}) => {
+            resolver: async (parent, args) => {
                 const { data: { newsItemScopes, organization: { id: organizationId } } } = args
 
+                // todo (DOMA-10129) move to addressKey in scopes + finish rebuilding this query
+                let propertiesCount = 0, unitsCount = 0, receiversCount = 0
+
+
+                // Organization level scope
                 const isAllOrganization = filter(newsItemScopes, {
                     property: null,
                     unitType: null,
                     unitName: null,
                 }).length > 0
 
-                let propertiesCount = 0, unitsCount = 0, receiversCount = 0
-                const orConditions = []
-
                 if (isAllOrganization) {
+                    const propertyIds = []
+
                     await allItemsQueryByChunks({
                         schemaName: 'Property',
                         chunkSize: CHUNK_SIZE,
@@ -57,24 +71,70 @@ const GetNewsItemsRecipientsCountersService = new GQLCustomSchema('GetNewsItemsR
                             propertiesCount += chunk.length
                             for (const property of chunk) {
                                 unitsCount += (property.unitsCount + property.uninhabitedUnitsCount)
-                                orConditions.push(...queryConditionsByUnits(property))
+                                propertyIds.push(property.id)
                             }
 
                             return []
                         },
                     })
-                    receiversCount = await countUniqueUnitsFromResidents({
-                        organization: { id: organizationId },
-                        OR: orConditions,
+
+                    receiversCount = await countUniqueUnitsFromResidentsByPropertyIds(organizationId, propertyIds)
+
+                    return { propertiesCount, unitsCount, receiversCount }
+                }
+
+
+                // Property level scopes only
+                const isByProperties = filter(newsItemScopes, {
+                    unitType: null,
+                    unitName: null,
+                }).length >= newsItemScopes.length
+
+                if (isByProperties) {
+                    const scopesByProperty = filter(newsItemScopes, {
+                        unitType: null,
+                        unitName: null,
                     })
-                } else {
-                    const propertiesIds = uniq(newsItemScopes.map(({ property: { id } }) => id))
-                    propertiesCount = propertiesIds.length
+
+                    const scopesByPropertyPropertyIds = uniq(scopesByProperty.map(({ property: { id } }) => id))
+
+                    await allItemsQueryByChunks({
+                        schemaName: 'Property',
+                        chunkSize: CHUNK_SIZE,
+                        where: { id_in: scopesByPropertyPropertyIds, deletedAt: null },
+                        /**
+                         * @param {Property[]} chunk
+                         * @returns {Property[]}
+                         */
+                        chunkProcessor: (chunk) => {
+                            propertiesCount += chunk.length
+                            for (const property of chunk) {
+                                unitsCount += (property.unitsCount + property.uninhabitedUnitsCount)
+                            }
+
+                            return []
+                        },
+                    })
+
+                    receiversCount = await countUniqueUnitsFromResidentsByPropertyIds(organizationId, scopesByPropertyPropertyIds)
+
+                    return { propertiesCount, unitsCount, receiversCount }
+                }
+
+                // If any scope has unitName or unitType – this scope is considered complex
+                // Sending complex scopes by multiple properties is not supported
+                const isBySingleProperty = new Set(newsItemScopes.map(x => x.property.id)).size === 1
+
+                if (isBySingleProperty) {
+                    propertiesCount = 1
+                    const propertyId = newsItemScopes[0].property.id
+                    
+                    const scopesUnitNamesByUnitType = {}
 
                     /**
                      * @type {Object<string, {unitType: string?, unitName: string?}[]>}
                      */
-                    const unitsByProperties = newsItemScopes.reduce((acc, scope) => {
+                    const scopesUnitsByProperties = newsItemScopes.reduce((acc, scope) => {
                         return {
                             ...acc,
                             [scope.property.id]: uniqBy([
@@ -84,51 +144,30 @@ const GetNewsItemsRecipientsCountersService = new GQLCustomSchema('GetNewsItemsR
                         }
                     }, {})
 
-                    const orConditions = []
+                    const property = await getById('Property', propertyId)
 
-                    await allItemsQueryByChunks({
-                        schemaName: 'Property',
-                        chunkSize: CHUNK_SIZE,
-                        where: { id_in: propertiesIds, deletedAt: null },
-                        /**
-                         * @param {Property[]} chunk
-                         * @returns {Property[]}
-                         */
-                        chunkProcessor: (chunk) => {
-                            for (const property of chunk) {
-                                const propertyUnitsFromScope = unitsByProperties[property.id]
-                                const isAllProperty = filter(propertyUnitsFromScope, {
-                                    unitType: null,
-                                    unitName: null,
-                                }).length > 0
+                    const propertyUnitsFromScope = scopesUnitsByProperties[property.id]
 
-                                if (isAllProperty) {
-                                    unitsCount += (property.unitsCount + property.uninhabitedUnitsCount)
-                                } else {
-                                    const unitsFromProperty = getUnitsFromProperty(property)
-                                    for (const unitFilter of propertyUnitsFromScope) {
-                                        if (unitFilter.unitName) {
-                                            unitsCount += filter(unitsFromProperty, unitFilter).length
-                                        } else {
-                                            unitsCount += filter(unitsFromProperty, { unitType: unitFilter.unitType }).length
-                                        }
-                                    }
-                                }
+                    const unitsFromProperty = getUnitsFromProperty(property)
+                    for (const unitFilter of propertyUnitsFromScope) {
+                        if (!scopesUnitNamesByUnitType[unitFilter.unitType]) { scopesUnitNamesByUnitType[unitFilter.unitType] = [] }
+                        scopesUnitNamesByUnitType[unitFilter.unitType].push(unitFilter.unitName)
 
-                                orConditions.push(...queryConditionsByUnits(property))
-                            }
+                        if (unitFilter.unitName) {
+                            const filteredUnits = filter(unitsFromProperty, unitFilter)
+                            unitsCount += filteredUnits.length
+                        } else {
+                            const filteredUnits = filter(unitsFromProperty, { unitType: unitFilter.unitType })
+                            unitsCount += filteredUnits.length
+                        }
+                    }
 
-                            return []
-                        },
-                    })
+                    const receiversCount = countUniqueUnitsFromResidentsByProperty(organizationId, propertyId, scopesUnitNamesByUnitType)
 
-                    receiversCount = await countUniqueUnitsFromResidents({
-                        ...queryFindResidentsByOrganizationAndScopes(organizationId, newsItemScopes),
-                        OR: orConditions,
-                    })
+                    return { propertiesCount, unitsCount, receiversCount }
                 }
 
-                return { propertiesCount, unitsCount, receiversCount }
+                throw new GQLError(ERRORS.SCOPE_NOT_SUPPORTED)
             },
         },
     ],

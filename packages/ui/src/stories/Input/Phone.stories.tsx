@@ -1,4 +1,4 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react'
+import { StoryFn, Meta } from '@storybook/react'
 import React from 'react'
 
 import { Input } from '@open-condo/ui/src'
@@ -9,8 +9,8 @@ export default {
     args: {
         disabled: false,
     },
-} as ComponentMeta<typeof Input.Phone>
+} as Meta<typeof Input.Phone>
 
-const Template: ComponentStory<typeof Input.Phone> = (props) => <Input.Phone {...props}/>
+const Template: StoryFn<typeof Input.Phone> = (props) => <Input.Phone {...props}/>
 
 export const Phone = Template.bind({})

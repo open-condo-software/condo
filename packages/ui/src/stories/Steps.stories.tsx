@@ -1,4 +1,4 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react'
+import { StoryFn, Meta } from '@storybook/react'
 import React, { useState } from 'react'
 
 import { Steps as Component, Button, Space } from '@open-condo/ui/src'
@@ -10,9 +10,9 @@ export default {
         items: { control: false },
         noReturnMessage: { control: 'text' },
     },
-} as ComponentMeta<typeof Component>
+} as Meta<typeof Component>
 
-const Template: ComponentStory<typeof Component> = (args) => {
+const Template: StoryFn<typeof Component> = (args) => {
     const { items, ...restProps } = args
     const [current, setCurrent] = useState(0)
 

@@ -1,4 +1,4 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react'
+import { StoryFn, Meta } from '@storybook/react'
 import React, { useEffect, useState } from 'react'
 
 import { Button, Input, Space, Tour } from '@open-condo/ui/src'
@@ -19,9 +19,9 @@ export default {
             options: ['top', 'left', 'right', 'bottom'],
         },
     },
-} as ComponentMeta<typeof Component>
+} as Meta<typeof Component>
 
-const Template: ComponentStory<typeof Component> = (args) => {
+const Template: StoryFn<typeof Component> = (args) => {
     const [inputValue, setInputValue] = useState<string>('')
     const { currentStep, setCurrentStep } = Tour.useTourContext()
 
@@ -48,7 +48,7 @@ const Template: ComponentStory<typeof Component> = (args) => {
     )
 }
 
-const TourStory: ComponentStory<typeof Component> = (args) => (
+const TourStory: StoryFn<typeof Component> = (args) => (
     <Tour.Provider>
         <Template {...args} />
     </Tour.Provider>
@@ -56,9 +56,9 @@ const TourStory: ComponentStory<typeof Component> = (args) => (
 
 export const Simple = TourStory.bind({})
 Simple.decorators = [
-    (Story) => (
+    (StoryFn) => (
         <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Story/>
+            <StoryFn/>
         </div>
     ),
 ]

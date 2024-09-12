@@ -6,6 +6,7 @@ import React from 'react'
 import { useIntl } from '@open-condo/next/intl'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { PropertyForm } from '@condo/domains/property/components/PropertyForm'
 
@@ -20,6 +21,7 @@ const UpdatePropertyPage: IUpdatePropertyPage = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id:'pages.condo.property.index.UpdatePropertyTitle' })
     const { query: { id } } = useRouter()
+
     return (
         <>
             <Head>

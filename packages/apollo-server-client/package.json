@@ -5,13 +5,11 @@
   "main": "index.js",
   "author": "Dmitry Koviazin <dkovyazin@doma.ai>",
   "license": "MIT",
-  "peerDependencies": {
+  "dependencies": {
     "@apollo/client": "^3.6.9",
     "apollo-link-error": "^1.1.13",
     "apollo-upload-client": "^17.0.0",
-    "cross-fetch": "^3.1.5",
     "graphql": "^16.6.0",
-    "graphql-tag": "^2.12.6",
-    "react": "^18.2.0"
+    "graphql-tag": "^2.12.6"
   }
 }

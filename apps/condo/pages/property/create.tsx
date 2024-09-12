@@ -15,6 +15,7 @@ const PROPERTY_CREATE_PAGE_TITLE_STYLE: React.CSSProperties = { margin: 0 }
 export default function CreatePropertyPage () {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyTitle' })
+
     return (
         <>
             <Head>
@@ -30,7 +31,7 @@ export default function CreatePropertyPage () {
                         </Col>
                         <Col span={24}>
                             <Tour.Provider>
-                                <PropertyForm />
+                                <PropertyForm/>
                             </Tour.Provider>
                         </Col>
                     </Row>
@@ -41,4 +42,3 @@ export default function CreatePropertyPage () {
 }
 
 CreatePropertyPage.requiredAccess = OrganizationRequired
-

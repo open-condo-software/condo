@@ -369,6 +369,8 @@ const TicketsTableContainer = ({
         objs: tickets,
         refetch,
     } = Ticket.useObjects({
+        // NOTE: we have index "ticket_order_createdat" for sorting by order ASC, createdAt DESC.
+        // If you change sort condition, you need to change index
         sortBy,
         where: searchTicketsQuery,
         first: DEFAULT_PAGE_SIZE,
@@ -790,7 +792,6 @@ export const TicketsPageContent = ({
             <ImportWrapper
                 accessCheck={isTicketImportFeatureEnabled}
                 columns={columns}
-                onFinish={undefined}
                 rowValidator={ticketValidator}
                 rowNormalizer={ticketNormalizer}
                 objectCreator={ticketCreator}
@@ -892,6 +893,8 @@ export const TicketTypeFilterSwitch = ({ ticketFilterQuery }) => {
             ...ticketFilterQuery,
         },
     })
+    // NOTE: we have index "ticket_assignee_exec_org" for this filter.
+    // If you change filter condition, you need to change index
     const ownTicketsQuery = { OR: [{ executor: { id: user.id }, assignee: { id: user.id } }] }
     const { count: ownTicketsCount, refetch: refetchOwnTickets } = Ticket.useCount({
         where: {

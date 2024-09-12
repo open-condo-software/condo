@@ -4,7 +4,7 @@ const conf = require('@open-condo/config')
 const { fetch } = require('@open-condo/keystone/fetch')
 
 
-const { GOOGLE_PROVIDER, DADATA_PROVIDER } = require('@address-service/domains/common/constants/providers')
+const { GOOGLE_PROVIDER } = require('@address-service/domains/common/constants/providers')
 
 const { AbstractSearchProvider } = require('./AbstractSearchProvider')
 
@@ -79,17 +79,27 @@ class GoogleSearchProvider extends AbstractSearchProvider {
                  * @type {{html_attributions: string[], results: GooglePlace[], status: string, [error_message]: string, [info_messages]: string[], [next_page_token]: string}}
                  */
                 const result = await answer.json()
-                this.logger.info({ msg: 'response textsearch googleapis', url, result, status: result.status, statusCode: status })
+                this.logger.info({ msg: 'response textsearch googleapis', url, result, status: answer.status })
 
                 /**
                  * @see https://developers.google.com/maps/documentation/places/web-service/search-text#PlacesSearchStatus
                  */
                 if (result.status === 'OK') {
-                    return result.results
+                    /** @type {GooglePlace[]} */
+                    const ret = []
+
+                    for (const row of result.results) {
+                        const placeId = get(row, 'place_id')
+                        if (placeId) {
+                            ret.push(await this.getByPlaceId(placeId))
+                        }
+                    }
+
+                    return ret
                 }
             } else {
                 const result = await answer.text()
-                this.logger.info({ msg: 'response textsearch googleapis', url, result, status: result.status, statusCode: status })
+                this.logger.info({ msg: 'response textsearch googleapis', url, result, status: answer.status })
             }
         } catch (err) {
             this.logger.error({ msg: 'googleapis textsearch error', url, err })
@@ -263,7 +273,7 @@ class GoogleSearchProvider extends AbstractSearchProvider {
                     qc: undefined,
                 },
                 provider: {
-                    name: DADATA_PROVIDER,
+                    name: GOOGLE_PROVIDER,
                     rawData: item,
                 },
             }

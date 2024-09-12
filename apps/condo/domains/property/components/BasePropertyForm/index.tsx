@@ -57,6 +57,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.property.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.property.warning.modal.HelpMessage' })
     const AddressValidationErrorMsg = intl.formatMessage({ id: 'pages.condo.property.warning.modal.AddressValidationErrorMsg' })
+    const OperationCompletedTitle = intl.formatMessage({ id: 'OperationCompleted' })
 
     const { breakpoints } = useLayoutContext()
     const { addressApi } = useAddressApi()
@@ -137,6 +138,12 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                 initialValues={initialValues}
                 validateTrigger={FORM_WITH_ACTION_VALIDATION_TRIGGERS}
                 formValuesToMutationDataPreprocessor={formValuesToMutationDataPreprocessor}
+                OnCompletedMsg={(property) => ({
+                    message: <Typography.Text strong>{OperationCompletedTitle}</Typography.Text>,
+                    description: <Typography.Text type='secondary'>
+                        {intl.formatMessage({ id: 'pages.condo.property.form.SuccessNotification' }, { address: property.address })}
+                    </Typography.Text>,
+                })}
                 {...formLayout}
             >
                 {({ handleSave, isLoading, form }) => {

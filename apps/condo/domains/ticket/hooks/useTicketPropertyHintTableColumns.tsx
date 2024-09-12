@@ -6,8 +6,8 @@ import React, { CSSProperties, useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
+import { getFilterIcon } from '@condo/domains/common/components/Table/Filters'
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
-import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'

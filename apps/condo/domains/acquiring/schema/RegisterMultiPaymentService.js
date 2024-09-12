@@ -19,7 +19,7 @@ const {
     ACQUIRING_INTEGRATION_IS_DELETED, RECEIPTS_CANNOT_BE_GROUPED_BY_ACQUIRING_INTEGRATION,
     CANNOT_FIND_ALL_BILLING_RECEIPTS, ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
     INVOICES_ARE_NOT_PUBLISHED, INVOICES_FOR_THIRD_USER, INVOICE_CONTEXT_NOT_FINISHED,
-    MULTIPAYMENT_RECEIPTS_WITH_INVOICES_FORBIDDEN,
+    MULTIPAYMENT_RECEIPTS_WITH_INVOICES_FORBIDDEN, GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM },
 } = require('@condo/domains/acquiring/constants/errors')
 const {
     FEE_CALCULATION_PATH,
@@ -29,7 +29,6 @@ const {
 } = require('@condo/domains/acquiring/constants/links')
 const {
     DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY,
-    MINIMUM_PAYMENT_AMOUNT,
 } = require('@condo/domains/acquiring/constants/payment')
 // TODO(savelevMatthew): REPLACE WITH SERVER SCHEMAS AFTER GQL REFACTORING
 const { freezeBillingReceipt, freezeInvoice } = require('@condo/domains/acquiring/utils/billingFridge')
@@ -102,8 +101,11 @@ const ERRORS = {
         variable: ['data', 'groupedReceipts', '[]', 'amountDistribution'],
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
-        message: 'Amount distribution should include all receipts in a request. Amount can not be less than or equals {minimalAmount}',
-        messageInterpolation: { minimalAmount: MINIMUM_PAYMENT_AMOUNT },
+        message: 'Amount distribution should include all receipts in a request',
+    },
+    PAYMENT_AMOUNT_LESS_THAN_MINIMUM: {
+        ...PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
+        mutation: 'registerMultiPayment',
     },
     DUPLICATED_INVOICE: {
         mutation: 'registerMultiPayment',
@@ -351,7 +353,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     if (distributionReceiptsIds.length !== uniqueDistributionReceiptsIds.size) {
                         throw new GQLError(ERRORS.BAD_AMOUNT_DISTRIBUTION_FOR_RECEIPTS, context)
                     }
-                    if (distributionReceiptsAmounts.filter(amount => amount.lte(MINIMUM_PAYMENT_AMOUNT)).length > 0) {
+                    if (distributionReceiptsAmounts.filter(amount => amount.lte(0)).length > 0) {
                         throw new GQLError(ERRORS.BAD_AMOUNT_DISTRIBUTION_FOR_RECEIPTS, context)
                     }
                 }
@@ -553,85 +555,80 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 }
 
                 // Stage 3 Generating payments
-                const payments = []
-                for (const group of groupedReceipts) {
-                    const serviceConsumer = consumersByIds[group.serviceConsumer.id]
-                    const acquiringContext = acquiringContextsByIds[serviceConsumer.acquiringIntegrationContext]
-                    const amountDistributions = group.amountDistribution || []
-                    const formula = await getAcquiringIntegrationContextFormula(context, serviceConsumer.acquiringIntegrationContext)
-                    for (const receiptInfo of group['receipts']) {
-                        const receipt = receiptsByIds[receiptInfo.id]
-                        const billingCategoryId = get(receipt, 'category')
-                        const amountDistributionForReceipt = amountDistributions.find(distribution => distribution.receipt.id === receipt.id)
+                const paymentCreateInputs = []
+                if (receipts.length > 0) {
+                    for (const group of groupedReceipts) {
+                        const serviceConsumer = consumersByIds[group.serviceConsumer.id]
+                        const acquiringContext = acquiringContextsByIds[serviceConsumer.acquiringIntegrationContext]
+                        const amountDistributions = group.amountDistribution || []
+                        const formula = await getAcquiringIntegrationContextFormula(context, serviceConsumer.acquiringIntegrationContext)
+                        for (const receiptInfo of group['receipts']) {
+                            const receipt = receiptsByIds[receiptInfo.id]
+                            const billingCategoryId = get(receipt, 'category')
+                            const amountDistributionForReceipt = amountDistributions.find(distribution => distribution.receipt.id === receipt.id)
 
-                        const frozenReceipt = await freezeBillingReceipt(context, receipt)
-                        const feeCalculator = new FeeDistribution(formula, billingCategoryId)
-                        const billingAccountNumber = get(frozenReceipt, ['data', 'account', 'number'])
+                            const frozenReceipt = await freezeBillingReceipt(context, receipt)
+                            const feeCalculator = new FeeDistribution(formula, billingCategoryId)
+                            const billingAccountNumber = get(frozenReceipt, ['data', 'account', 'number'])
 
-                        // for cases when we have set amount distribution explicitly
-                        // let's override toPay amount in billingReceipt
-                        let amount = null
-                        if (!isNil(amountDistributionForReceipt)) {
-                            amount = amountDistributionForReceipt.amount
-                        } else {
-                            const organizationId = get(frozenReceipt, ['data', 'organization', 'id'])
-                            const period = get(frozenReceipt, ['data', 'period'])
-                            const routingNumber = get(frozenReceipt, ['data', 'recipient', 'bic'])
-                            const bankAccount = get(frozenReceipt, ['data', 'recipient', 'bankAccount'])
-                            const paidAmount = await getPaymentsSum(context, organizationId, billingAccountNumber, period, routingNumber, bankAccount)
-                            amount = String(Big(receipt.toPay).minus(Big(paidAmount)))
+                            // for cases when we have set amount distribution explicitly
+                            // let's override toPay amount in billingReceipt
+                            let amount = null
+                            if (!isNil(amountDistributionForReceipt)) {
+                                amount = amountDistributionForReceipt.amount
+                            } else {
+                                const organizationId = get(frozenReceipt, ['data', 'organization', 'id'])
+                                const period = get(frozenReceipt, ['data', 'period'])
+                                const routingNumber = get(frozenReceipt, ['data', 'recipient', 'bic'])
+                                const bankAccount = get(frozenReceipt, ['data', 'recipient', 'bankAccount'])
+                                const paidAmount = await getPaymentsSum(context, organizationId, billingAccountNumber, period, routingNumber, bankAccount)
+                                amount = String(Big(receipt.toPay).minus(Big(paidAmount)))
+                            }
+
+                            const { type, explicitFee = '0', implicitFee = '0', fromReceiptAmountFee = '0' } = feeCalculator.calculate(amount)
+
+                            const paymentCommissionFields = {
+                                ...type === 'service' ? {
+                                    explicitServiceCharge: String(explicitFee),
+                                    explicitFee: '0',
+                                } : {
+                                    explicitServiceCharge: '0',
+                                    explicitFee: String(explicitFee),
+                                },
+                                implicitFee: String(implicitFee),
+                                serviceFee: String(fromReceiptAmountFee),
+                            }
+
+                            paymentCreateInputs.push({
+                                dv: 1,
+                                sender,
+                                amount,
+                                currencyCode: billingIntegrationCurrencyCode,
+                                accountNumber: billingAccountNumber,
+                                period: receipt.period,
+                                receipt: { connect: { id: receiptInfo.id } },
+                                frozenReceipt,
+                                context: { connect: { id: acquiringContext.id } },
+                                organization: { connect: { id: acquiringContext.organization } },
+                                recipientBic: receipt.recipient.bic,
+                                recipientBankAccount: receipt.recipient.bankAccount,
+                                ...paymentCommissionFields,
+                            })
                         }
-
-                        const { type, explicitFee = '0', implicitFee = '0', fromReceiptAmountFee = '0' } = feeCalculator.calculate(amount)
-
-                        const paymentCommissionFields = {
-                            ...type === 'service' ? {
-                                explicitServiceCharge: String(explicitFee),
-                                explicitFee: '0',
-                            } : {
-                                explicitServiceCharge: '0',
-                                explicitFee: String(explicitFee),
-                            },
-                            implicitFee: String(implicitFee),
-                            serviceFee: String(fromReceiptAmountFee),
-                        }
-                        const payment = await Payment.create(context, {
-                            dv: 1,
-                            sender,
-                            amount,
-                            currencyCode: billingIntegrationCurrencyCode,
-                            accountNumber: billingAccountNumber,
-                            period: receipt.period,
-                            receipt: { connect: { id: receiptInfo.id } },
-                            frozenReceipt,
-                            context: { connect: { id: acquiringContext.id } },
-                            organization: { connect: { id: acquiringContext.organization } },
-                            recipientBic: receipt.recipient.bic,
-                            recipientBankAccount: receipt.recipient.bankAccount,
-                            ...paymentCommissionFields,
-                        })
-                        payments.push({ ...payment, serviceFee: paymentCommissionFields.serviceFee })
                     }
-                }
-
-                // Processing of invoices if provided
-                const invoiceIntegrationCurrencyCode = DEFAULT_INVOICE_CURRENCY_CODE
-                if (foundInvoices.length > 0) {
+                } else if (foundInvoices.length) {
                     // All invoices must be published
                     if (foundInvoices.some(({ status }) => status !== INVOICE_STATUS_PUBLISHED)) {
                         throw new GQLError(ERRORS.UNPUBLISHED_INVOICE, context)
                     }
-
                     // All invoices with client must be related to the current user
                     if (foundInvoices.some(({ client }) => !!client && client !== context.authedItem.id)) {
                         throw new GQLError(ERRORS.INVOICES_FOR_THIRD_USER, context)
                     }
-
                     // All acquiring contexts must be finished
                     if (acquiringContexts.some(({ invoiceStatus }) => invoiceStatus !== CONTEXT_FINISHED_STATUS)) {
                         throw new GQLError(ERRORS.INVOICE_CONTEXT_NOT_FINISHED, context)
                     }
-
                     if (
                         !!billingIntegrationCurrencyCode && !!invoiceIntegrationCurrencyCode
                         && billingIntegrationCurrencyCode !== invoiceIntegrationCurrencyCode
@@ -667,8 +664,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                             implicitFee: String(implicitFee),
                             serviceFee: String(fromReceiptAmountFee),
                         }
-
-                        const payment = await Payment.create(context, {
+                        paymentCreateInputs.push({
                             dv: 1,
                             sender,
                             amount: amount,
@@ -682,15 +678,9 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                             recipientBankAccount: bankAccount,
                             ...paymentCommissionFields,
                         })
-
-                        payments.push({ ...payment, serviceFee: paymentCommissionFields.serviceFee })
                     }
                 }
-
-                const currencyCode = billingIntegrationCurrencyCode || invoiceIntegrationCurrencyCode
-
-                const paymentIds = payments.map(payment => ({ id: payment.id }))
-                const totalAmount = payments.reduce((acc, cur) => {
+                const totalAmount = paymentCreateInputs.reduce((acc, cur) => {
                     return {
                         amountWithoutExplicitFee: acc.amountWithoutExplicitFee.plus(Big(cur.amount)),
                         explicitFee: acc.explicitFee.plus(Big(cur.explicitFee)),
@@ -705,6 +695,25 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     serviceFee: Big('0.0'),
                     implicitFee: Big('0.0'),
                 })
+
+                const amountToPay = Big(totalAmount.amountWithoutExplicitFee)
+                    .add(Big(totalAmount.explicitServiceCharge))
+                    .add(Big(totalAmount.explicitFee))
+                if (acquiringIntegration.minimumPaymentAmount && Big(amountToPay).lt(acquiringIntegration.minimumPaymentAmount)) {
+                    throw new GQLError({
+                        ...ERRORS.PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
+                        messageInterpolation: { minimumPaymentAmount: Big(acquiringIntegration.minimumPaymentAmount).toString() },
+                    }, context)
+                }
+
+                const payments = await Promise.all(paymentCreateInputs.map((paymentInput) => Payment.create(context, paymentInput)))
+                // Processing of invoices if provided
+                const invoiceIntegrationCurrencyCode = DEFAULT_INVOICE_CURRENCY_CODE
+
+                const currencyCode = billingIntegrationCurrencyCode || invoiceIntegrationCurrencyCode
+
+                const paymentIds = payments.map(payment => ({ id: payment.id }))
+
                 const recurrentPaymentContextField = recurrentPaymentContext ? {
                     recurrentPaymentContext: { connect: { id: recurrentPaymentContext.id } },
                 } : {}

@@ -8,11 +8,10 @@ import React, { ComponentProps, useCallback, useEffect, useRef, useState } from 
 
 import { useIntl } from '@open-condo/next/intl'
 
-import { GraphQlSearchInputOption } from '@condo/domains/common/components/GraphQlSearchInput/GraphQlSearchInput'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 
 import Checkbox from './antd/Checkbox'
-import { GraphQlSearchInput } from './GraphQlSearchInput'
+import { GraphQlSearchInputOption, GraphQlSearchInput } from './GraphQlSearchInput'
 
 
 export type InputWithCheckAllProps = {
@@ -28,7 +27,7 @@ export type InputWithCheckAllProps = {
     disabled?: boolean
     checkboxDisabled?: boolean
     checkboxHidden?: boolean
-    onDataLoaded?: (data: GraphQlSearchInputOption['data']) => void
+    onDataLoaded?: (data: GraphQlSearchInputOption['data'], allDataLoaded: boolean) => void
     /**
      * When your form has a complex structure, for example when fields change dynamically,
      * you need to mutation the form yourself after the checkbox has been checked.

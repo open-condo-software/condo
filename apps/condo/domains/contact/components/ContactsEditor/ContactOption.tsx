@@ -1,3 +1,4 @@
+import { Contact as ContactType } from '@app/condo/schema'
 import { Col, Row, Form, RowProps, FormItemProps } from 'antd'
 import React, { CSSProperties, useCallback } from 'react'
 
@@ -7,11 +8,10 @@ import { Radio, Space } from '@open-condo/ui'
 import Input from '@condo/domains/common/components/antd/Input'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
-import { Contact as TContact } from '@condo/domains/contact/schema'
 
 interface IContactFieldsDisplayProps {
-    contact: TContact,
-    onSelect: (contact: TContact) => void,
+    contact: ContactType,
+    onSelect: (contact: ContactType) => void,
     selected: boolean,
     contactFormItemProps?: FormItemProps
     disabled?: boolean

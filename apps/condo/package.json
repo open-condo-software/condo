@@ -9,7 +9,7 @@
     "debug": "node inspect node_modules/.bin/keystone dev",
     "build:static": "yarn workspace @open-condo/ui build:sb -o ../../apps/condo/public/ui && mv -f public/ui/ui/* public/ui",
     "build:deps": "turbo build --filter=condo^...",
-    "build": "yarn build:static && cross-env NODE_OPTIONS=\"--max_old_space_size=4096\" PHASE=build keystone build",
+    "build": "yarn build:static && cross-env NODE_OPTIONS=\"--max_old_space_size=6144\" PHASE=build keystone build",
     "start": "NODE_ENV=production node ./../../bin/run-keystone-app.js",
     "worker": "cross-env PHASE=worker DISABLE_NEXT_APP=true node worker.js",
     "kmigrator": "./../../bin/kmigrator.py",
@@ -95,7 +95,6 @@
     "csv-stringify": "^6.2.0",
     "cuid": "^2.1.8",
     "dayjs": "^1.10.6",
-    "dd-trace": "1.5.1",
     "echarts": "^5.1.2",
     "echarts-for-react": "3.0.2",
     "emotion": "^10.0.27",
@@ -107,8 +106,8 @@
     "express": "^4.17.1",
     "facepaint": "^1.2.1",
     "falsey": "^1.0.0",
-    "firebase": "^7.19.0",
-    "firebase-admin": "^10.0.2",
+    "firebase": "^10.13.1",
+    "firebase-admin": "^12.4.0",
     "generate-password": "^1.6.0",
     "get-contrast": "^2.0.0",
     "graphql": "^15.6.1",
@@ -167,6 +166,7 @@
     "recheck": "^4.4.5",
     "redlock": "^5.0.0-beta.2",
     "serialize-error": "^8.1.0",
+    "slugify": "^1.6.6",
     "swr": "^1.3.0",
     "tslib": "^1.9.3",
     "unified": "^9",
@@ -208,8 +208,11 @@
     "mkdirp": "^1.0.4",
     "pluralize": "^8.0.0",
     "raw-loader": "^4.0.2",
-    "typescript": "^4.1.5",
+    "typescript": "^5.5.4",
     "webpack": "^4.46.0"
+  },
+  "peerDependencies": {
+    "dd-trace": "^4.46.0"
   },
   "resolutions": {
     "@types/react": "16.9.17"

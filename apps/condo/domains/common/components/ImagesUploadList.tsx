@@ -225,7 +225,7 @@ export const ImagesUploadList: React.FC<ImagesUploadListProps> = ({
                         })
 
                         if (isFunction(onFilesChange)) {
-                            onFilesChange(fileList)
+                            onFilesChange(fileList as UploadFileType[])
                         }
 
                         setFiles(fileList)

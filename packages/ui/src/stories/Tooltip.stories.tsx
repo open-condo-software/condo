@@ -1,4 +1,4 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react'
+import { StoryFn, Meta } from '@storybook/react'
 import React from 'react'
 
 import { Tooltip as Component, Typography } from '@open-condo/ui/src'
@@ -19,9 +19,9 @@ export default {
             options: [undefined, true, false],
         },
     },
-} as ComponentMeta<typeof Component>
+} as Meta<typeof Component>
 
-const Template: ComponentStory<typeof Component> = (args) => (
+const Template: StoryFn<typeof Component> = (args) => (
     <Component {...args}>
         <Typography.Text>
             Hover me
@@ -31,9 +31,9 @@ const Template: ComponentStory<typeof Component> = (args) => (
 
 export const Simple = Template.bind({})
 Simple.decorators = [
-    (Story) => (
+    (StoryFn) => (
         <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Story/>
+            <StoryFn/>
         </div>
     ),
 ]
@@ -45,9 +45,9 @@ Long.args = {
     open: true,
 }
 Long.decorators = [
-    (Story) => (
+    (StoryFn) => (
         <div style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Story/>
+            <StoryFn/>
         </div>
     ),
 ]

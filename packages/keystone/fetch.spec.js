@@ -1,12 +1,24 @@
-jest.mock('node-fetch', () => jest.fn())
+const { faker } = require('@faker-js/faker')
+const express = require('express')
 
-const fetch = require('node-fetch')
-
-const { fetch: fetchWithRetries } = require('@open-condo/keystone/fetch')
+const { fetch } = require('@open-condo/keystone/fetch')
+const { initTestExpressApp, getTestExpressApp, catchErrorFrom } = require('@open-condo/keystone/test.utils')
 
 describe('Fetch with retries', () => {
 
-    const URL = 'https://example.com/api/data'
+    // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
+    const app = express()
+    const appName = 'TestInternalFetch'
+    initTestExpressApp(appName, app)
+    const handler = jest.fn()
+    app.get('/', handler)
+
+    let URL
+
+    beforeAll(() => {
+        URL = getTestExpressApp(appName).baseUrl
+    })
+
     const getOptions = (override = {}) => ({
         maxRetries: 2,
         abortRequestTimeout: 1000,
@@ -19,67 +31,85 @@ describe('Fetch with retries', () => {
     })
 
     it('should fetch data successfully without retries', async () => {
-        const responseData = { data: 'Mock response data' }
-        const response = { ok: true, json: () => Promise.resolve(responseData) }
-        fetch.mockResolvedValue(response)
-        const result = await fetchWithRetries(URL, getOptions())
-        expect(result).toEqual(response)
-        expect(fetch).toHaveBeenCalledTimes(1)
-        expect(fetch).toHaveBeenCalledWith(URL, expect.objectContaining({
-            signal: expect.any(Object),
-        }))
+        const responseData = { [faker.random.alpha(3)]: faker.random.alpha(5) }
+
+        handler.mockImplementationOnce(async (req, res) => {
+            res.json(responseData)
+        })
+        const response = await fetch(URL, getOptions())
+        const result = await response.json()
+
+        expect(handler).toHaveBeenCalledTimes(1)
+        expect(response).toEqual(expect.objectContaining({ ok: true }))
+        expect(result).toMatchObject(responseData)
     })
 
     it('should retry fetching data when response is not ok', async () => {
-        const responseData = { data: 'Mock response data' }
-        const failResponse = { ok: false, json: () => Promise.reject(responseData) }
-        const successResponse = { ok: true, json: () => Promise.resolve(responseData) }
-        fetch.mockResolvedValueOnce(failResponse).mockResolvedValueOnce(successResponse)
-        const result = await fetchWithRetries(URL, getOptions())
-        expect(result).toEqual(successResponse)
-        expect(fetch).toHaveBeenCalledTimes(2)
+        const responseData = { [faker.random.alpha(3)]: faker.random.alpha(5) }
+
+        handler.mockImplementationOnce(async (req, res) => {
+            res.sendStatus(502)
+        }).mockImplementationOnce(async (req, res) => {
+            res.json(responseData)
+        })
+
+        const response = await fetch(URL, getOptions())
+        const result = await response.json()
+
+        expect(handler).toHaveBeenCalledTimes(2)
+        expect(response).toEqual(expect.objectContaining({ ok: true }))
+        expect(result).toMatchObject(responseData)
     })
 
     it('should abort request when abort timeout is reached', async () => {
-        const responseData = { data: 'Mock response data' }
-        const successResponse = { ok: true, json: () => Promise.resolve(responseData) }
-        fetch.mockImplementationOnce(async () => {
+        const responseData = { [faker.random.alpha(3)]: faker.random.alpha(5) }
+
+        handler.mockImplementationOnce(async (req, res) => {
             await new Promise(resolve => setTimeout(resolve, 5000))
-            return successResponse
+            res.json(responseData)
         })
+
         const options = getOptions({ maxRetries: 0, abortRequestTimeout: 500, timeoutBetweenRequests: 0 })
-        await expect(fetchWithRetries(URL, options))
-            .rejects
-            .toThrowError('Error: Abort request by timeout')
-        expect(fetch).toHaveBeenCalledTimes(1)
+
+        await catchErrorFrom(async () => await fetch(URL, options), (err) => {
+            expect(err).toMatchObject({
+                message: 'Error: Abort request by timeout',
+            })
+        })
+
+        expect(handler).toHaveBeenCalledTimes(1)
     })
 
     it('should work after abort timeout and then success response', async () => {
-        const responseData = { data: 'Mock response data' }
-        const successResponse = { ok: true, json: () => Promise.resolve(responseData) }
-        fetch.mockImplementationOnce(async () => {
-            // Simulate a delay longer than abortRequestTimeout
-            await new Promise(resolve => setTimeout(resolve, 1500))
-            return successResponse
-        }).mockResolvedValueOnce(successResponse)
+        const responseData = { [faker.random.alpha(3)]: faker.random.alpha(5) }
+
+        handler.mockImplementationOnce(async (req, res) => {
+            await new Promise(resolve => setTimeout(resolve, 5000))
+            res.json(responseData)
+        }).mockImplementationOnce(async (req, res) => {
+            res.json(responseData)
+        })
+
         const options = getOptions({ abortRequestTimeout: 500, timeoutBetweenRequests: 0 })
-        const result = await fetchWithRetries(URL, options)
-        expect(result).toEqual(successResponse)
-        expect(fetch).toHaveBeenCalledTimes(2)
+        const response = await fetch(URL, options)
+        const result = await response.json()
+
+        expect(handler).toHaveBeenCalledTimes(2)
+        expect(result).toMatchObject(responseData)
     })
 
-    it('should return response if no success response is received in the end', async () => {
-        const failResponse = {
-            ok: false,
-            status: 404,
-            json: () => Promise.reject(new Error('Failed')),
-        }
-        fetch.mockResolvedValue(failResponse)
-        const options = getOptions()
-        const response = await fetchWithRetries(URL, options)
+    it('should return response if no success response is received after all retries', async () => {
+        handler.mockImplementationOnce(async (req, res) => {
+            res.sendStatus(404)
+        }).mockImplementationOnce(async (req, res) => {
+            res.sendStatus(404)
+        })
+
+        const options = getOptions({ abortRequestTimeout: 1000 })
+        const response = await fetch(URL, options)
+
+        expect(handler).toHaveBeenCalledTimes(2)
         expect(response.ok).toBeFalsy()
         expect(response.status).toEqual(404)
-        expect(fetch).toHaveBeenCalledTimes(2)
     })
-
 })

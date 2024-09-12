@@ -18,6 +18,8 @@ const {
     ELECTRICITY_METER_RESOURCE_ID,
     HEAT_SUPPLY_METER_RESOURCE_ID,
     GAS_SUPPLY_METER_RESOURCE_ID,
+    OTHER_METER_READING_SOURCE_ID,
+    REMOTE_SYSTEM_METER_READING_SOURCE_ID,
 } = require('@condo/domains/meter/constants/constants')
 const {
     registerMetersReadingsByTestClient,
@@ -1089,5 +1091,21 @@ describe('RegisterMetersReadingsService', () => {
         expect(notUpdatedMeters[0].id).toBe(meters[0].id)
         expect(notUpdatedMeters[0].v).toBe(meters[0].v)
         expect(notUpdatedMeters[0].place).toBe('place1')
+    })
+
+    test('default reading source if not passed', async () => {
+        const [o10n] = await createTestOrganization(adminClient)
+        const [property] = await createTestPropertyWithMap(adminClient, o10n)
+        const readings = [
+            createTestReadingData(property),
+            createTestReadingData(property, { readingSource: { id: REMOTE_SYSTEM_METER_READING_SOURCE_ID } }),
+        ]
+        const [data] = await registerMetersReadingsByTestClient(adminClient, o10n, readings)
+
+        const metersReadings = await MeterReading.getAll(adminClient, { meter: { id_in: data.map((row) => row.meter.id) } })
+        expect(metersReadings).toEqual([
+            expect.objectContaining({ source: expect.objectContaining({ id: OTHER_METER_READING_SOURCE_ID }) }),
+            expect.objectContaining({ source: expect.objectContaining({ id: REMOTE_SYSTEM_METER_READING_SOURCE_ID }) }),
+        ])
     })
 })

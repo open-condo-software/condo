@@ -1,4 +1,4 @@
-import { ComponentMeta, ComponentStory } from '@storybook/react'
+import { Meta, StoryFn } from '@storybook/react'
 import get from 'lodash/get'
 import React, { useMemo } from 'react'
 
@@ -44,9 +44,9 @@ export default {
         previewTabs: { 'storybook/docs/panel': { hidden: true } },
         viewMode: 'story',
     },
-} as ComponentMeta<typeof Component>
+} as Meta<typeof Component>
 
-const Template: ComponentStory<typeof Component> = (props) => {
+const Template: StoryFn<typeof Component> = (props) => {
     const { children, open, ...rest } = props
     const customFooter = get(props, 'customFooter')
     const footer = useMemo(() => {

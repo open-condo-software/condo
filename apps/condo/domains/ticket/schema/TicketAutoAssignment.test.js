@@ -7,8 +7,6 @@ const {
     makeClient,
     expectToThrowGQLError,
     expectToThrowUniqueConstraintViolationError,
-} = require('@open-condo/keystone/test.utils')
-const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
@@ -40,7 +38,6 @@ const { ERRORS } = require('./TicketAutoAssignment')
 
 
 describe('TicketAutoAssignment', () => {
-
     let admin, support, employeeWithPermission, employeeWithoutPermission, user, anonymous,
         organization, classifier, assignee, executor, otherClassifier,
         ticketAutoAssignment
@@ -52,11 +49,19 @@ describe('TicketAutoAssignment', () => {
         user = await makeClientWithNewRegisteredAndLoggedInUser()
         anonymous = await makeClient()
 
-        const { organization: createdOrganization, userClient, role } = await makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee({ canManageTickets: true })
+        const { 
+            organization: createdOrganization, userClient, role,
+        } = await makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee({
+            canManageTickets: true,
+            canManageTicketAutoAssignments: true,
+        })
         employeeWithPermission = userClient
         organization = createdOrganization
 
-        const [roleWithoutPermissions] = await createTestOrganizationEmployeeRole(admin, organization, { canManageTickets: false })
+        const [roleWithoutPermissions] = await createTestOrganizationEmployeeRole(admin, organization, {
+            canManageTickets: false,
+            canManageTicketAutoAssignments: false,
+        })
         employeeWithoutPermission = await makeClientWithNewRegisteredAndLoggedInUser()
         await createTestOrganizationEmployee(admin, organization, employeeWithoutPermission.user, roleWithoutPermissions)
 
@@ -156,9 +161,16 @@ describe('TicketAutoAssignment', () => {
         })
 
         describe('Employee', () => {
-            test('cannot create', async () => {
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestTicketAutoAssignment(employeeWithPermission, organization, assignee, executor, otherClassifier)
+            describe('create', () => {
+                test('can with permission canManageTicketAutoAssignments', async () => {
+                    const [ticketAutoAssignment] = await createTestTicketAutoAssignment(employeeWithPermission, organization, assignee, executor, otherClassifier)
+                    expect(ticketAutoAssignment).toBeDefined()
+                })
+
+                test('cannot without permission canManageTicketAutoAssignments', async () => {
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await createTestTicketAutoAssignment(employeeWithoutPermission, organization, assignee, executor, otherClassifier)
+                    })
                 })
             })
 
@@ -174,15 +186,31 @@ describe('TicketAutoAssignment', () => {
                 })
             })
 
-            test('cannot update', async () => {
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestTicketAutoAssignment(employeeWithPermission, ticketAutoAssignment.id)
+            describe('update', () => {
+                test('can with permission canManageTicketAutoAssignments', async () => {
+                    const [updatedItem] = await updateTestTicketAutoAssignment(employeeWithPermission, ticketAutoAssignment.id)
+                    expect(updatedItem).toHaveProperty('id', ticketAutoAssignment.id)
+                    expect(updatedItem).toHaveProperty('sender.fingerprint', expect.not.stringMatching(ticketAutoAssignment.sender.fingerprint))
+                })
+
+                test('cannot without permission canManageTicketAutoAssignments', async () => {
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await updateTestTicketAutoAssignment(employeeWithoutPermission, ticketAutoAssignment.id)
+                    })
                 })
             })
 
-            test('cannot soft-delete', async () => {
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await TicketAutoAssignment.softDelete(employeeWithPermission, ticketAutoAssignment.id)
+            describe('soft-delete', () => {
+                test('can with permission canManageTicketAutoAssignments', async () => {
+                    const [updatedItem] = await TicketAutoAssignment.softDelete(employeeWithPermission, ticketAutoAssignment.id)
+                    expect(updatedItem).toHaveProperty('id', ticketAutoAssignment.id)
+                    expect(updatedItem.deletedAt).not.toBeNull()
+                })
+
+                test('cannot without permission canManageTicketAutoAssignments', async () => {
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await TicketAutoAssignment.softDelete(employeeWithoutPermission, ticketAutoAssignment.id)
+                    })
                 })
             })
 

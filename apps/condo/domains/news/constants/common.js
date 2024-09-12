@@ -4,14 +4,12 @@ const conf = require('@open-condo/config')
 
 const SENDING_DELAY_SEC = Number(get(conf, 'NEWS_ITEMS_SENDING_DELAY_SEC', 15))
 const NEWS_SENDING_TTL_IN_SEC = Number(get(conf, 'NEWS_ITEM_SENDING_TTL_SEC', 60 * 30))
-const LOAD_RESIDENTS_CHUNK_SIZE = 50
 
 const MESSAGE_TITLE_MAX_LEN = 50
 const MESSAGE_BODY_MAX_LEN = 150
 
 module.exports = {
     SENDING_DELAY_SEC,
-    LOAD_RESIDENTS_CHUNK_SIZE,
     NEWS_SENDING_TTL_IN_SEC,
     MESSAGE_TITLE_MAX_LEN,
     MESSAGE_BODY_MAX_LEN,

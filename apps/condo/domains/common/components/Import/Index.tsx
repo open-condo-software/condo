@@ -25,7 +25,7 @@ import { ActiveModalType, BaseImportWrapper, ExtraModalContentType } from './Bas
 
 export interface IImportWrapperProps {
     accessCheck: boolean
-    onFinish: (variables: unknown) => void
+    onFinish?: () => void
     columns: Columns
     rowNormalizer: RowNormalizer
     rowValidator: RowValidator

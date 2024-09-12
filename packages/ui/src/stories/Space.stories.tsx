@@ -1,4 +1,4 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react'
+import { StoryFn, Meta } from '@storybook/react'
 import React from 'react'
 
 import { Space as Component } from '@open-condo/ui/src'
@@ -27,9 +27,9 @@ export default {
         wrap: { control: 'boolean' },
 
     },
-} as ComponentMeta<typeof Component>
+} as Meta<typeof Component>
 
-const Template: ComponentStory<typeof Component> = (props) => <Component {...props} />
+const Template: StoryFn<typeof Component> = (props) => <Component {...props} />
 
 export const Vertical = Template.bind({})
 Vertical.args = {

@@ -3,7 +3,7 @@
  */
 const dayjs = require('dayjs')
 const customParseFormat = require('dayjs/plugin/customParseFormat')
-const { get, isUndefined, isEmpty, isNumber, isString, pick, set } = require('lodash')
+const { get, isUndefined, isEmpty, isNumber, isString, isNil, pick, set } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
@@ -13,7 +13,7 @@ const { i18n } = require('@open-condo/locales/loader')
 
 const { PropertyResolver } = require('@condo/domains/billing/schema/resolvers')
 const access = require('@condo/domains/meter/access/RegisterMetersReadingsService')
-const { IMPORT_CONDO_METER_READING_SOURCE_ID } = require('@condo/domains/meter/constants/constants')
+const { OTHER_METER_READING_SOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const {
     TOO_MUCH_READINGS,
     ORGANIZATION_NOT_FOUND,
@@ -233,7 +233,8 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                 'value2: String,' +
                 'value3: String,' +
                 'value4: String,' +
-                'meterMeta: RegisterMetersReadingsMeterMetaInput' +
+                'meterMeta: RegisterMetersReadingsMeterMetaInput,' +
+                'readingSource: MeterReadingSourceWhereUniqueInput' +
                 '}',
         },
         {
@@ -303,6 +304,10 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     const unitType = get(reading, ['addressInfo', 'unitType'], get(resolvedAddresses, [reading.address, 'addressResolve', 'unitType'], '')).trim() || null
                     const unitName = get(reading, ['addressInfo', 'unitName'], get(resolvedAddresses, [reading.address, 'addressResolve', 'unitName'], '')).trim() || null
                     const addressKey = get(resolvedAddresses, [reading.address, 'addressResolve', 'propertyAddress', 'addressKey'])
+                    let readingSource = get(reading, 'readingSource')
+                    if (isNil(readingSource)) {
+                        readingSource = { id: OTHER_METER_READING_SOURCE_ID }
+                    }
 
                     if (isEmpty(accountNumber)) {
                         resultRows.push(new GQLError(ERRORS.INVALID_ACCOUNT_NUMBER, context))
@@ -428,7 +433,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                                 dv,
                                 sender,
                                 meter: { connect: { id: meterId } },
-                                source: { connect: { id: IMPORT_CONDO_METER_READING_SOURCE_ID } },
+                                source: { connect: readingSource },
                                 date: toISO(reading.date),
                                 ...values,
                             })

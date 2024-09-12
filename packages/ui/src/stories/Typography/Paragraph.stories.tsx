@@ -1,4 +1,4 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react'
+import { StoryFn, Meta } from '@storybook/react'
 import { styled } from '@storybook/theming'
 import get from 'lodash/get'
 import React from 'react'
@@ -53,9 +53,9 @@ export default {
             control: 'select',
         },
     },
-} as ComponentMeta<typeof Typography.Paragraph>
+} as Meta<typeof Typography.Paragraph>
 
-const Template: ComponentStory<typeof Typography.Paragraph> = (args) => {
+const Template: StoryFn<typeof Typography.Paragraph> = (args) => {
     const amount = get(args, 'amount')
     const Wrapper = args.type === 'inverted' ? InvertedBackground : React.Fragment
 

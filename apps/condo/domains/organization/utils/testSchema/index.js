@@ -372,6 +372,7 @@ async function replaceOrganizationEmployeeRoleByTestClient(client, organization,
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
