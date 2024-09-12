@@ -11,3 +11,5 @@
 // EXTRA
 // export {} from ''
 export { extractApolloState } from './utils/client'
+export { useCachePersistor, CachePersistorContext, createPersistor } from './utils/cachePersistor'
+export type { CachePersistor } from './utils/cachePersistor'
