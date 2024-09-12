@@ -26,7 +26,6 @@ export default {
         firstStep: {
             control: 'select',
             options: ['todo', 'completed', 'waiting'],
-            defaultValue: 'todo',
         },
         secondStep: stepMeta,
         thirdStep: stepMeta,
