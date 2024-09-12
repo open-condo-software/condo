@@ -7,7 +7,6 @@ import { Typography } from '@open-condo/ui/src'
 import type { TypographyParagraphProps } from '@open-condo/ui/src'
 import { colors } from '@open-condo/ui/src/colors'
 
-
 const AVAILABLE_TYPES: Array<TypographyParagraphProps['type']> = [
     'primary',
     'secondary',
@@ -23,25 +22,21 @@ const InvertedBackground = styled.div`
   background: ${colors.black};
 `
 
-const DEFAULT_PARAGRAPH_TEXT = 'Statistics is a branch of mathematics. It involves gathering information, summarizing it, and deciding what it means. The numbers that result from this work are also called statistics. They can help to predict such things as the weather and how sports teams will perform. They also can describe specific things about large groups of people—for example, the reading level of students, the opinions of voters, or the average weight of a city’s residents.'
+const DEFAULT_PARAGRAPH_TEXT =
+  'Statistics is a branch of mathematics. It involves gathering information, summarizing it, and deciding what it means. The numbers that result from this work are also called statistics. They can help to predict such things as the weather and how sports teams will perform. They also can describe specific things about large groups of people—for example, the reading level of students, the opinions of voters, or the average weight of a city’s residents.'
 
 export default {
     title: 'Components/Typography',
     component: Typography.Paragraph,
-    args: {
-        children: DEFAULT_PARAGRAPH_TEXT,
-    },
     argTypes: {
         children: { type: 'string' },
         size: {
-            defaultValue: 'undefined',
             options: [undefined, 'large', 'medium', 'small'],
             mapping: ['undefined', 'large', 'medium', 'small'],
             control: 'select',
         },
         amount: {
             type: 'number',
-            defaultValue: 2,
             control: {
                 type: 'range',
                 min: 1,
@@ -53,6 +48,10 @@ export default {
             control: 'select',
         },
     },
+    args: {
+        children: DEFAULT_PARAGRAPH_TEXT,
+        amount: 2,
+    },
 } as Meta<typeof Typography.Paragraph>
 
 const Template: StoryFn<typeof Typography.Paragraph> = (args) => {
@@ -62,7 +61,7 @@ const Template: StoryFn<typeof Typography.Paragraph> = (args) => {
     return (
         <>
             <Wrapper>
-                {[...Array(amount).keys()].map(index => (
+                {[...Array(amount).keys()].map((index) => (
                     <Typography.Paragraph key={index} {...args} />
                 ))}
             </Wrapper>
@@ -70,4 +69,6 @@ const Template: StoryFn<typeof Typography.Paragraph> = (args) => {
     )
 }
 
-export const Paragraph = Template.bind({})
+export const Paragraph = {
+    render: Template,
+}

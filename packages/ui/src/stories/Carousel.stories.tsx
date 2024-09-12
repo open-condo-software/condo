@@ -15,7 +15,7 @@ const AVAILABLE_COLORS = [
 ]
 
 const Slide = styled.h1<{ index: number }>`
-  background: ${(props => AVAILABLE_COLORS[props.index % AVAILABLE_COLORS.length])};
+  background: ${(props) => AVAILABLE_COLORS[props.index % AVAILABLE_COLORS.length]};
   border-radius: 8px;
   height: 320px;
   line-height: 320px;
@@ -29,11 +29,9 @@ export default {
     argTypes: {
         dots: {
             type: 'boolean',
-            defaultValue: true,
         },
         effect: {
             type: 'string',
-            defaultValue: 'scrollx',
             control: {
                 type: 'select',
                 options: ['scrollx', 'fade'],
@@ -41,27 +39,21 @@ export default {
         },
         autoplay: {
             type: 'boolean',
-            defaultValue: false,
         },
         autoplaySpeed: {
             type: 'number',
-            defaultValue: 5000,
         },
         infinite: {
             type: 'boolean',
-            defaultValue: true,
         },
         speed: {
             type: 'number',
-            defaultValue: 500,
         },
         draggable: {
             type: 'boolean',
-            defaultValue: false,
         },
         slides: {
             type: 'number',
-            defaultValue: 5,
             control: {
                 type: 'range',
                 min: 1,
@@ -70,7 +62,6 @@ export default {
         },
         slidesToShow: {
             type: 'number',
-            defaultValue: 1,
             control: {
                 type: 'range',
                 min: 1,
@@ -78,26 +69,40 @@ export default {
             },
         },
         controlsSize: {
-            defaultValue: 'large',
             options: ['large', 'small'],
             control: {
                 type: 'select',
             },
         },
     },
+    args: {
+        dots: true,
+        effect: 'scrollx',
+        autoplay: false,
+        autoplaySpeed: 5000,
+        infinite: true,
+        speed: 500,
+        draggable: false,
+        slides: 5,
+        slidesToShow: 1,
+        controlsSize: 'large',
+    },
 } as Meta<typeof Component>
-
 
 const Template: StoryFn<typeof Component> = (args) => {
     const slidesAmount = get(args, 'slides')
 
     return (
         <Component {...args}>
-            {[...Array(slidesAmount).keys()].map(key => (
-                <Slide key={key} index={key}>{key + 1}</Slide>
+            {[...Array(slidesAmount).keys()].map((key) => (
+                <Slide key={key} index={key}>
+                    {key + 1}
+                </Slide>
             ))}
         </Component>
     )
 }
 
-export const Carousel = Template.bind({})
+export const Carousel = {
+    render: Template,
+}

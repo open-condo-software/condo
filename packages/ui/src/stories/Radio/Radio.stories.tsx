@@ -1,5 +1,4 @@
-import { StoryFn, Meta } from '@storybook/react'
-import React from 'react'
+import { Meta } from '@storybook/react'
 
 import { Radio as Component } from '@open-condo/ui/src'
 
@@ -38,25 +37,27 @@ export default {
     },
 } as Meta<typeof Component>
 
-const Template: StoryFn<typeof Component> = (props) => <Component {...props} />
-
-export const Unchecked = Template.bind({})
-Unchecked.args = {
-    defaultChecked: false,
+export const Unchecked = {
+    args: {
+        defaultChecked: false,
+    },
 }
 
-export const Checked = Template.bind({})
-Checked.args = {
-    checked: true,
-    autoFocus: true,
+export const Checked = {
+    args: {
+        checked: true,
+        autoFocus: true,
+    },
 }
 
-export const Disabled = Template.bind({})
-Disabled.args = {
-    disabled: true,
+export const Disabled = {
+    args: {
+        disabled: true,
+    },
 }
 
-export const BoldText = Template.bind({})
-BoldText.args = {
-    labelProps: { strong: true },
+export const BoldText = {
+    args: {
+        labelProps: { strong: true },
+    },
 }

@@ -3,7 +3,6 @@ import React from 'react'
 
 import { Card as Component, Typography } from '@open-condo/ui/src'
 
-
 export default {
     title: 'Components/Card',
     component: Component,
@@ -18,31 +17,38 @@ export default {
 
 const Template: StoryFn<typeof Component> = ({ children, ...rest }) => {
     return (
-        <Component
-            {...rest}
-        >
-            <Typography.Paragraph ellipsis={{ rows: 3 }}>
-                {children}
-            </Typography.Paragraph>
+        <Component {...rest}>
+            <Typography.Paragraph ellipsis={{ rows: 3 }}>{children}</Typography.Paragraph>
         </Component>
     )
 }
 
-export const Simple = Template.bind({})
-export const WithTitle = Template.bind({})
-export const Accent = Template.bind({})
-export const AccentWithTitle = Template.bind({})
-WithTitle.args = {
-    title: <Typography.Title level={3}>Some Title Content</Typography.Title>,
+export const Simple = {
+    render: Template,
 }
-WithTitle.argTypes = {
-    title: { control: false },
+
+export const WithTitle = {
+    render: Template,
+    args: {
+        title: <Typography.Title level={3}>Some Title Content</Typography.Title>,
+    },
+    argTypes: {
+        title: { control: false },
+    },
 }
-Accent.args = {
-    accent: true,
+
+export const Accent = {
+    render: Template,
+    args: {
+        accent: true,
+    },
 }
-AccentWithTitle.args = {
-    title: <Typography.Title level={3}>Some Title Content</Typography.Title>,
-    titlePadding: 24,
-    accent: true,
+
+export const AccentWithTitle = {
+    render: Template,
+    args: {
+        title: <Typography.Title level={3}>Some Title Content</Typography.Title>,
+        titlePadding: 24,
+        accent: true,
+    },
 }

@@ -42,10 +42,9 @@ const Template: StoryFn<ProgressIndicatorProps & MetaProps> = (props) => {
     const { firstStep, secondStep, thirdStep, fourthStep, ...rest } = props
     const steps: ProgressIndicatorProps['steps'] = [firstStep, secondStep, thirdStep, fourthStep]
 
-    return (
-        <ProgressIndicator {...rest} steps={steps}/>
-    )
+    return <ProgressIndicator {...rest} steps={steps} />
 }
 
-export const SimpleProgressIndicator = Template.bind({})
-SimpleProgressIndicator.args = {}
+export const SimpleProgressIndicator = {
+    render: Template,
+}

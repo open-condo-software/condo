@@ -1,4 +1,4 @@
-import { StoryFn, Meta } from '@storybook/react'
+import { Meta } from '@storybook/react'
 import React from 'react'
 
 import * as condoIcons from '@open-condo/icons'
@@ -33,12 +33,11 @@ export default {
     },
 } as Meta<typeof Component>
 
-const Template: StoryFn<typeof Component> = (args) => <Component {...args}/>
+export const Tag = {}
 
-export const Tag = Template.bind({})
-
-export const TagWithIcon = Template.bind({})
-TagWithIcon.args = {
-    icon: icons['ChevronDown-small'],
-    iconPosition: 'end',
+export const TagWithIcon = {
+    args: {
+        icon: icons['ChevronDown-small'],
+        iconPosition: 'end',
+    },
 }

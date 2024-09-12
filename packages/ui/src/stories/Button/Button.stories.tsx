@@ -1,4 +1,4 @@
-import { StoryFn, Meta } from '@storybook/react'
+import { Meta } from '@storybook/react'
 import React from 'react'
 
 import * as condoIcons from '@open-condo/icons'
@@ -21,9 +21,10 @@ export default {
         stateless: false,
         block: false,
         focus: false,
+        htmlType: 'button',
     },
     argTypes: {
-        block: { type: 'boolean', default: false },
+        block: { type: 'boolean' },
         type: { control: 'select' },
         icon: {
             options: Object.keys(icons),
@@ -35,18 +36,18 @@ export default {
         onClick: { control: false },
         href: { control: false },
         target: { control: false },
-        htmlType: { defaultValue: 'button' },
-        focus: { type: 'boolean', default: false },
+        focus: { type: 'boolean' },
     },
 } as Meta<typeof Button>
 
-const Template: StoryFn<typeof Button> = (props) => <Button {...props}/>
-
-export const Primary = Template.bind({})
-Primary.args = {
-    type: 'primary',
+export const Primary = {
+    args: {
+        type: 'primary',
+    },
 }
-export const Secondary = Template.bind({})
-Secondary.args = {
-    type: 'secondary',
+
+export const Secondary = {
+    args: {
+        type: 'secondary',
+    },
 }

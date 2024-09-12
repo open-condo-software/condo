@@ -5,28 +5,27 @@ import { PlusCircle } from '@open-condo/icons'
 import { Card as Component, CardButtonProps } from '@open-condo/ui/src'
 import { colors } from '@open-condo/ui/src/colors'
 
-
 const CardButton = Component.CardButton
 
 type StoryProps = Pick<CardButtonProps, 'accent' | 'disabled'> & {
-    accent: boolean
-    disabled: boolean
-    headerTag: boolean
-    header: boolean
-    headerProgressIndicator: boolean
-    headerEmoji: boolean
-    headerTitle: boolean
-    headerMainLink: boolean
-    headerSecondLink: boolean
-    headerImage: boolean
-    body: boolean
-    bodyTitle: boolean
-    bodyDescription: boolean
-    bodyImage: boolean
-    bodyCaption: boolean
-    bodyMainLink: boolean
-    bodySecondLink: boolean
-    bodyButton: boolean
+    accent: boolean;
+    disabled: boolean;
+    headerTag: boolean;
+    header: boolean;
+    headerProgressIndicator: boolean;
+    headerEmoji: boolean;
+    headerTitle: boolean;
+    headerMainLink: boolean;
+    headerSecondLink: boolean;
+    headerImage: boolean;
+    body: boolean;
+    bodyTitle: boolean;
+    bodyDescription: boolean;
+    bodyImage: boolean;
+    bodyCaption: boolean;
+    bodyMainLink: boolean;
+    bodySecondLink: boolean;
+    bodyButton: boolean;
 }
 
 export default {
@@ -105,7 +104,9 @@ const Template: StoryFn<StoryProps> = (props) => {
     )
 }
 
-export const CardButtonComponent = Template.bind({})
-CardButtonComponent.args = {
-    accent: true,
+export const CardButtonComponent = {
+    render: Template,
+    args: {
+        accent: true,
+    },
 }

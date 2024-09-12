@@ -1,8 +1,8 @@
-import { StoryFn, Meta } from '@storybook/react'
+// todo : import types
+import { StoryFn, Meta, StoryObj } from '@storybook/react'
 import React, { useEffect, useState } from 'react'
 
 import { Button, Input, Space, Tour } from '@open-condo/ui/src'
-
 
 const Component = Tour.TourStep
 
@@ -54,11 +54,19 @@ const TourStory: StoryFn<typeof Component> = (args) => (
     </Tour.Provider>
 )
 
-export const Simple = TourStory.bind({})
-Simple.decorators = [
-    (StoryFn) => (
-        <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <StoryFn/>
+export const Simple: StoryObj<typeof Component> = {
+    render: TourStory,
+    decorators: (StoryFn) => (
+        <div
+            style={{
+                width: '100vw',
+                height: '100vh',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+            }}
+        >
+            <StoryFn />
         </div>
     ),
-]
+}
