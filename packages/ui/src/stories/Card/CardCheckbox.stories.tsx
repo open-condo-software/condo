@@ -1,13 +1,13 @@
-import { Meta, StoryFn } from '@storybook/react'
-import React from 'react'
+import React, { ComponentProps } from 'react'
 
 import { PlusCircle } from '@open-condo/icons'
 import { Card as Component, CardCheckboxProps } from '@open-condo/ui/src'
 
+import type { Meta, StoryFn, StoryObj } from '@storybook/react'
 
 const CardCheckbox = Component.CardCheckbox
 
-type StoryProps = Pick<CardCheckboxProps, 'disabled'> & {
+type StoryProps = ComponentProps<typeof CardCheckbox> & {
     disabled: boolean
     header: boolean
     headerProgressIndicator: boolean
@@ -43,7 +43,7 @@ export default {
         bodySecondLink: true,
         bodyButton: true,
     },
-} as Meta<typeof CardCheckbox> & { args: StoryProps }
+} as Meta<StoryProps>
 
 const Template: StoryFn<StoryProps> = (props) => {
     const {
@@ -90,4 +90,6 @@ const Template: StoryFn<StoryProps> = (props) => {
     )
 }
 
-export const CardCheckboxComponent = Template.bind({})
+export const CardCheckboxComponent: StoryObj<StoryProps> = {
+    render: Template,
+}

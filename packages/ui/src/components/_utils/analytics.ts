@@ -43,8 +43,8 @@ type ComponentNames = {
 type AnyComponentName = ComponentNames[AnalyticsEvent]
 
 type CommonAnalyticsProps<Event extends AnalyticsEvent, Component extends AnyComponentName> = {
-    event: Event,
-    location: string,
+    event: Event
+    location: string
     component: Component
 } & CommonComponentProps
 

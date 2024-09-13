@@ -5,7 +5,7 @@ import { Check } from '@open-condo/icons'
 import { Space, Typography, Tooltip } from '@open-condo/ui/src'
 
 export type StepItem = {
-    title: string,
+    title: string
     breakPoint?: boolean
 }
 

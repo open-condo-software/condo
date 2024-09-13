@@ -1,7 +1,6 @@
-import { StoryFn, Meta } from '@storybook/react'
-import React from 'react'
-
 import { Markdown as Component } from '@open-condo/ui/src'
+
+import type { Meta, StoryObj } from '@storybook/react'
 
 const TS_CODE_EXAMPLE = `
 \`\`\`typescript
@@ -154,7 +153,4 @@ export default {
     },
 } as Meta<typeof Component>
 
-const Template: StoryFn<typeof Component> = (args) => <Component {...args}/>
-
-export const Markdown = Template.bind({})
-
+export const Markdown: StoryObj<typeof Component> = {}

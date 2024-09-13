@@ -2,7 +2,7 @@ import { Alert as DefaultAlert, AlertProps as DefaultAlertProps } from 'antd'
 import React from 'react'
 
 type CondoAlertProps = {
-    type: 'success' | 'info' | 'warning' | 'error';
+    type: 'success' | 'info' | 'warning' | 'error'
 }
 
 const ALERT_CLASS_PREFIX = 'condo-alert'

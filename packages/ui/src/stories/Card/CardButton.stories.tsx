@@ -1,14 +1,14 @@
-import { Meta, StoryFn } from '@storybook/react'
-import React from 'react'
+import React, { ComponentProps } from 'react'
 
 import { PlusCircle } from '@open-condo/icons'
 import { Card as Component, CardButtonProps } from '@open-condo/ui/src'
 import { colors } from '@open-condo/ui/src/colors'
 
+import type { Meta, StoryFn, StoryObj } from '@storybook/react'
 
 const CardButton = Component.CardButton
 
-type StoryProps = Pick<CardButtonProps, 'accent' | 'disabled'> & {
+type StoryProps = ComponentProps<typeof CardButton> & {
     accent: boolean
     disabled: boolean
     headerTag: boolean
@@ -52,7 +52,7 @@ export default {
         bodySecondLink: true,
         bodyButton: true,
     },
-} as Meta<typeof CardButton> & { args: StoryProps }
+} as Meta<StoryProps>
 
 const Template: StoryFn<StoryProps> = (props) => {
     const {
@@ -105,7 +105,9 @@ const Template: StoryFn<StoryProps> = (props) => {
     )
 }
 
-export const CardButtonComponent = Template.bind({})
-CardButtonComponent.args = {
-    accent: true,
+export const CardButtonComponent: StoryObj<Meta<StoryProps>> = {
+    render: Template,
+    args: {
+        accent: true,
+    },
 }

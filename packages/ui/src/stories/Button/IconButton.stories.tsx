@@ -1,9 +1,11 @@
-import { StoryFn, Meta } from '@storybook/react'
 import React from 'react'
 
 import * as condoIcons from '@open-condo/icons'
-import { Button as Component } from '@open-condo/ui/src'
+import { Button } from '@open-condo/ui/src'
 
+import type { Meta, StoryObj } from '@storybook/react'
+
+const Component = Button.Icon
 const { Trash } = condoIcons
 
 const icons = Object.assign({}, ...Object.entries(condoIcons).map(([key, Icon]) => ({
@@ -14,11 +16,12 @@ const icons = Object.assign({}, ...Object.entries(condoIcons).map(([key, Icon]) 
 
 export default {
     title: 'Components/Button',
-    component: Component.Icon,
+    component: Component,
     args: {
         children: <Trash size='medium' />,
         disabled: false,
         size: 'medium',
+        htmlType: 'button',
     },
     argTypes: {
         size: { control: 'select', options: ['small', 'medium'] },
@@ -29,14 +32,11 @@ export default {
                 type: 'select',
             },
         },
-        disabled: { control: 'boolean', default: false },
+        disabled: { control: 'boolean' },
         onClick: { control: false },
         href: { control: false },
         target: { control: false },
-        htmlType: { defaultValue: 'button' },
     },
-} as Meta<typeof Component.Icon>
+} as Meta<typeof Component>
 
-const Template: StoryFn<typeof Component.Icon> = (props) => <Component.Icon {...props}/>
-
-export const IconButton = Template.bind({})
+export const IconButton: StoryObj<typeof Component> = {}

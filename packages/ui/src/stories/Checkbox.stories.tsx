@@ -1,7 +1,6 @@
-import { StoryFn, Meta } from '@storybook/react'
-import React from 'react'
-
 import { Checkbox as Component } from '@open-condo/ui/src'
+
+import type { Meta, StoryObj } from '@storybook/react'
 
 export default {
     title: 'Components/Checkbox',
@@ -17,7 +16,7 @@ export default {
     argTypes: {
         onChange: {
             table: {
-                type: { 
+                type: {
                     summary: 'MouseEventHandler<HTMLElement>',
                 },
             },
@@ -25,12 +24,12 @@ export default {
                 type: null,
             },
         },
-        checked: { 
+        checked: {
             control: 'boolean',
             if: { arg: 'indeterminate', truthy: false },
         },
-        indeterminate: { 
-            control: 'boolean', 
+        indeterminate: {
+            control: 'boolean',
             if: { arg: 'checked', truthy: false },
         },
         labelProps: {
@@ -43,22 +42,27 @@ export default {
     },
 } as Meta<typeof Component>
 
-const Template: StoryFn<typeof Component> = (props) => <Component {...props}/>
+export const Unchecked: StoryObj<typeof Component> = {
+    args: {
+        defaultChecked: false,
+    },
+}
 
-export const Unchecked = Template.bind({})
-Unchecked.args = {
-    defaultChecked: false,
+export const Checked: StoryObj<typeof Component> = {
+    args: {
+        checked: true,
+    },
 }
-export const Checked = Template.bind({})
-Checked.args = {
-    checked: true,
+
+export const Disabled: StoryObj<typeof Component> = {
+    args: {
+        checked: true,
+        disabled: true,
+    },
 }
-export const Disabled = Template.bind({})
-Disabled.args = {
-    checked: true,
-    disabled: true,
-}
-export const BoldText = Template.bind({})
-BoldText.args = {
-    labelProps: { strong: true },
+
+export const BoldText: StoryObj<typeof Component> = {
+    args: {
+        labelProps: { strong: true },
+    },
 }
