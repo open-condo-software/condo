@@ -36,6 +36,9 @@
   ],
   "typesVersions": {
     "*": {
+      "helpers/apollo": [
+        "dist/types/helpers/apollo.d.ts"
+      ],
       "helpers/environment": [
         "dist/types/helpers/environment.d.ts"
       ],
@@ -48,6 +51,11 @@
     }
   },
   "exports": {
+    "./helpers/apollo": {
+      "types": "./dist/types/helpers/apollo.d.ts",
+      "require": "./dist/cjs/helpers/apollo.js",
+      "import": "./dist/esm/helpers/apollo.js"
+    },
     "./helpers/environment": {
       "types": "./dist/types/helpers/environment.d.ts",
       "require": "./dist/cjs/helpers/environment.js",
@@ -68,10 +76,12 @@
     "access": "public"
   },
   "peerDependencies": {
+    "@apollo/client": "^3.11.8",
     "react": ">=16.0.0",
     "react-dom": ">=16.0.0"
   },
   "devDependencies": {
+    "@apollo/client": "^3.11.8",
     "@babel/preset-react": "^7.24.7",
     "@open-condo/tsconfig": "workspace:^",
     "@rollup/plugin-babel": "^6.0.4",
@@ -81,6 +91,7 @@
     "@types/react": "18.0.27",
     "babel-core": "^6.26.3",
     "babel-loader": "^9.1.3",
+    "graphql": "^16.8.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "rimraf": "^6.0.1",
@@ -88,5 +99,8 @@
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "rollup-plugin-uglify": "^6.0.4",
     "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "cookie": "^0.6.0"
   }
 }
