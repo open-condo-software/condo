@@ -13,12 +13,12 @@ const {
 const { getAccountsWithOnlineInteractionUrl } = require('@condo/domains/billing/utils/serverSchema/checkAccountNumberWithOnlineInteractionUrl')
 const { CONTEXT_FINISHED_STATUS: BILLING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 
-async function findMetersForOrganizations (organizations, addressKey, accountNumber) {
+async function findMetersForOrganizations (organizations, addressKey, meterQuery = {}) {
     const meters = await find('Meter', {
         organization: { id_in: organizations.map(({ id }) => id) },
         deletedAt: null,
         property: { addressKey, deletedAt: null },
-        accountNumber,
+        ...meterQuery,
     })
 
     const organizationIndex = Object.fromEntries(organizations.map(organization => [organization.id, organization]))

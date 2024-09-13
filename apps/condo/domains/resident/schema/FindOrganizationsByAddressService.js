@@ -126,9 +126,19 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
                         : { unitName, unitType }
                     ),
                 }
+
+                const meterQuery = accountNumber
+                    ? { accountNumber }
+                    : { unitName, unitType }
+                
                 let receipts = await findBillingReceiptsForOrganizations(organizations, billingInformation, receiptQuery)
-                receipts = receipts.map(receipt => )
-                const meters = accountNumber ? await findMetersForOrganizations(organizations, addressKey, accountNumber) : []
+                receipts = receipts.map(receipt1 =>
+                    receipts.find(receipt2 =>
+                        receipt1.category === receipt2.category &&
+                        receipt1.number === receipt2.number
+                    )
+                )
+                const meters = await findMetersForOrganizations(organizations, addressKey, meterQuery)
                 const organizationsWithReceipts = new Set(receipts.map(({ organizationId }) => organizationId))
                 const organizationsWithMeters = new Set(meters.map(({ organizationId }) => organizationId))
                 const organizationsWithoutReceiptsAndMeters = accountNumber ? [] : Object

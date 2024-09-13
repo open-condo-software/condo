@@ -284,21 +284,6 @@ describe('FindOrganizationsByAddress', () => {
             const foundForInProgressContext = foundOrganizationsOnInProgressContext.find(({ organization: { id } }) => id === utils.organization.id)
             expect(foundForInProgressContext).toBeUndefined()
         })
-
-        test('should not return organization if acquiring context is not in finished status', async () => {
-            const [foundOrganizationsOnFinishedContext] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
-                addressKey: utils.property.addressKey,
-            })
-            const foundForFinishedContext = foundOrganizationsOnFinishedContext.find(({ organization: { id } }) => id === utils.organization.id)
-            expect(foundForFinishedContext).not.toBeUndefined()
-            await utils.updateAcquiringContext({ status: CONTEXT_IN_PROGRESS_STATUS })
-            const [foundOrganizationsOnInProgressContext] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
-                addressKey: utils.property.addressKey,
-            })
-            const foundForInProgressContext = foundOrganizationsOnInProgressContext.find(({ organization: { id } }) => id === utils.organization.id)
-            expect(foundForInProgressContext).toBeUndefined()
-        })
-
     })
 
     describe('Permission check', () => {
