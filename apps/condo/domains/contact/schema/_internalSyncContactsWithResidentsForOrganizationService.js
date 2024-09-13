@@ -10,7 +10,7 @@ const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const access = require('@condo/domains/contact/access/_internalSyncContactsWithResidentsForOrganizationService')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
-const { Property } = require('@condo/domains/property/utils/serverSchema')
+const { PropertyIdOnly } = require('@condo/domains/property/utils/serverSchema')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 
 
@@ -49,7 +49,7 @@ const _internalSyncContactsWithResidentsForOrganizationService = new GQLCustomSc
 
                 const properties = await loadListByChunks({
                     context,
-                    list: Property,
+                    list: PropertyIdOnly,
                     where: {
                         organization: { id: organization.id },
                         deletedAt: null,
