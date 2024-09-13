@@ -137,7 +137,7 @@ module.exports = {
             },
         ],
         '@typescript-eslint/member-delimiter-style': [
-            'error',
+            'warn',
             {
                 multiline: {
                     delimiter: 'none',
