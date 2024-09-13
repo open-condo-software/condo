@@ -136,6 +136,19 @@ module.exports = {
                 int32Hint: false,
             },
         ],
+        '@typescript-eslint/member-delimiter-style': [
+            'error',
+            {
+                multiline: {
+                    delimiter: 'none',
+                    requireLast: false,
+                },
+                singleline: {
+                    delimiter: 'comma',
+                    requireLast: false,
+                },
+            },
+        ],
         'no-restricted-imports': [
             'warn',
             {
