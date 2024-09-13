@@ -8,20 +8,20 @@ import type { Meta, StoryFn, StoryObj } from '@storybook/react'
 const CardCheckbox = Component.CardCheckbox
 
 type StoryProps = ComponentProps<typeof CardCheckbox> & {
-    disabled: boolean;
-    header: boolean;
-    headerProgressIndicator: boolean;
-    headerEmoji: boolean;
-    headerTitle: boolean;
-    headerImage: boolean;
-    body: boolean;
-    bodyTitle: boolean;
-    bodyDescription: boolean;
-    bodyImage: boolean;
-    bodyCaption: boolean;
-    bodyMainLink: boolean;
-    bodySecondLink: boolean;
-    bodyButton: boolean;
+    disabled: boolean
+    header: boolean
+    headerProgressIndicator: boolean
+    headerEmoji: boolean
+    headerTitle: boolean
+    headerImage: boolean
+    body: boolean
+    bodyTitle: boolean
+    bodyDescription: boolean
+    bodyImage: boolean
+    bodyCaption: boolean
+    bodyMainLink: boolean
+    bodySecondLink: boolean
+    bodyButton: boolean
 }
 
 export default {

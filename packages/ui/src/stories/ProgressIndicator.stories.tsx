@@ -5,10 +5,10 @@ import { ProgressIndicator, ProgressIndicatorProps, ProgressIndicatorStep } from
 import type { StoryFn, Meta, StoryObj } from '@storybook/react'
 
 type MetaProps = {
-    firstStep: ProgressIndicatorStep,
-    secondStep: ProgressIndicatorStep | undefined,
-    thirdStep: ProgressIndicatorStep | undefined,
-    fourthStep: ProgressIndicatorStep | undefined,
+    firstStep: ProgressIndicatorStep
+    secondStep: ProgressIndicatorStep | undefined
+    thirdStep: ProgressIndicatorStep | undefined
+    fourthStep: ProgressIndicatorStep | undefined
 }
 
 const stepMeta = {

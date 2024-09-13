@@ -9,24 +9,24 @@ import type { Meta, StoryFn, StoryObj } from '@storybook/react'
 const CardButton = Component.CardButton
 
 type StoryProps = ComponentProps<typeof CardButton> & {
-    accent: boolean;
-    disabled: boolean;
-    headerTag: boolean;
-    header: boolean;
-    headerProgressIndicator: boolean;
-    headerEmoji: boolean;
-    headerTitle: boolean;
-    headerMainLink: boolean;
-    headerSecondLink: boolean;
-    headerImage: boolean;
-    body: boolean;
-    bodyTitle: boolean;
-    bodyDescription: boolean;
-    bodyImage: boolean;
-    bodyCaption: boolean;
-    bodyMainLink: boolean;
-    bodySecondLink: boolean;
-    bodyButton: boolean;
+    accent: boolean
+    disabled: boolean
+    headerTag: boolean
+    header: boolean
+    headerProgressIndicator: boolean
+    headerEmoji: boolean
+    headerTitle: boolean
+    headerMainLink: boolean
+    headerSecondLink: boolean
+    headerImage: boolean
+    body: boolean
+    bodyTitle: boolean
+    bodyDescription: boolean
+    bodyImage: boolean
+    bodyCaption: boolean
+    bodyMainLink: boolean
+    bodySecondLink: boolean
+    bodyButton: boolean
 }
 
 export default {

@@ -12,7 +12,7 @@ const REMARK_PLUGINS = [
 ]
 
 export type MarkdownProps = {
-    children: string,
+    children: string
 }
 
 const MARKDOWN_CLASS_PREFIX = 'condo-markdown'
