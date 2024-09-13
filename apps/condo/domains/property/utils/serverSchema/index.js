@@ -9,28 +9,28 @@ const { generateServerUtils } = require('@open-condo/codegen/generate.server.uti
 const {
     Property: PropertyGQL,
     PropertyIdOnly: PropertyIdOnlyGQL,
-    PropertyOrganizationId: PropertyOrganizationIdGQL,
-    PropertyAddressAndAddressKey: PropertyAddressAndAddressKeyGQL,
-    PropertyAddressAndMap: PropertyAddressAndMapGQL,
-    PropertyForDiscoverServiceConsumersService: PropertyForDiscoverServiceConsumersServiceGQL,
+    PropertyOrganizationIdOnly: PropertyOrganizationIdOnlyGQL,
+    PropertyAddressAndAddressKeyOnly: PropertyAddressAndAddressKeyOnlyGQL,
+    PropertyAddressAndMap: PropertyIdAndAddressAndMapOnlyGQL,
+    PropertyOrganizationIdAndAddressOnly: PropertyOrganizationIdAndAddressOnlyGQL,
 } = require('@condo/domains/property/gql')
 
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Property = generateServerUtils(PropertyGQL)
 const PropertyIdOnly = generateServerUtils(PropertyIdOnlyGQL)
-const PropertyOrganizationId = generateServerUtils(PropertyOrganizationIdGQL)
-const PropertyAddressAndAddressKey = generateServerUtils(PropertyAddressAndAddressKeyGQL)
-const PropertyAddressAndMap = generateServerUtils(PropertyAddressAndMapGQL)
-const PropertyForDiscoverServiceConsumersService = generateServerUtils(PropertyForDiscoverServiceConsumersServiceGQL)
+const PropertyOrganizationIdOnly = generateServerUtils(PropertyOrganizationIdOnlyGQL)
+const PropertyAddressAndAddressKeyOnly = generateServerUtils(PropertyAddressAndAddressKeyOnlyGQL)
+const PropertyIdAndAddressAndMapOnly = generateServerUtils(PropertyIdAndAddressAndMapOnlyGQL)
+const PropertyOrganizationIdAndAddressOnly = generateServerUtils(PropertyOrganizationIdAndAddressOnlyGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     Property,
     PropertyIdOnly,
-    PropertyOrganizationId,
-    PropertyAddressAndAddressKey,
-    PropertyAddressAndMap,
-    PropertyForDiscoverServiceConsumersService,
+    PropertyOrganizationIdOnly,
+    PropertyAddressAndAddressKeyOnly,
+    PropertyIdAndAddressAndMapOnly,
+    PropertyOrganizationIdAndAddressOnly,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -21,14 +21,14 @@ const Property = generateGqlQueries('Property', PROPERTY_FIELDS)
 const PropertyTable = generateGqlQueries('Property', PROPERTY_TABLE_FIELDS)
 const PROPERTY_ID_ONLY_FIELDS = '{ id }'
 const PropertyIdOnly = generateGqlQueries('Property', PROPERTY_ID_ONLY_FIELDS)
-const PROPERTY_ORGANIZATION_ID_FIELDS = '{ id organization { id } }'
-const PropertyOrganizationId = generateGqlQueries('Property', PROPERTY_ORGANIZATION_ID_FIELDS)
+const PROPERTY_ORGANIZATION_ID_FIELDS = '{ organization { id } }'
+const PropertyOrganizationIdOnly = generateGqlQueries('Property', PROPERTY_ORGANIZATION_ID_FIELDS)
 const PROPERTY_ADDRESS_AND_ADDRESS_KEY_FIELDS = '{ id address addressKey }'
-const PropertyAddressAndAddressKey = generateGqlQueries('Property', PROPERTY_ADDRESS_AND_ADDRESS_KEY_FIELDS)
+const PropertyAddressAndAddressKeyOnly = generateGqlQueries('Property', PROPERTY_ADDRESS_AND_ADDRESS_KEY_FIELDS)
 const PROPERTY_ADDRESS_AND_MAP = `{ id address map { ${PROPERTY_MAP_JSON_FIELDS} } }`
-const PropertyAddressAndMap = generateGqlQueries('Property', PROPERTY_ADDRESS_AND_MAP)
-const PROPERTY_FOR_DISCOVER_SERVICE_CONSUMER = '{ organization { id } address }'
-const PropertyForDiscoverServiceConsumersService = generateGqlQueries('Property', PROPERTY_FOR_DISCOVER_SERVICE_CONSUMER)
+const PropertyIdAndAddressAndMapOnly = generateGqlQueries('Property', PROPERTY_ADDRESS_AND_MAP)
+const PROPERTY_ORGANIZATION_ID_AND_ADDRESS_ONLY_FIELDS = '{ organization { id } address }'
+const PropertyOrganizationIdAndAddressOnly = generateGqlQueries('Property', PROPERTY_ORGANIZATION_ID_AND_ADDRESS_ONLY_FIELDS)
 
 const PROPERTY_MAP_GRAPHQL_TYPES = `
     enum BuildingMapEntityType {
@@ -126,10 +126,10 @@ module.exports = {
     Property,
     PropertyTable,
     PropertyIdOnly,
-    PropertyOrganizationId,
-    PropertyAddressAndAddressKey,
-    PropertyAddressAndMap,
-    PropertyForDiscoverServiceConsumersService,
+    PropertyOrganizationIdOnly,
+    PropertyAddressAndAddressKeyOnly,
+    PropertyIdAndAddressAndMapOnly,
+    PropertyOrganizationIdAndAddressOnly,
     PROPERTY_MAP_GRAPHQL_TYPES,
     EXPORT_PROPERTIES_TO_EXCEL,
     PROPERTY_MAP_JSON_FIELDS,
