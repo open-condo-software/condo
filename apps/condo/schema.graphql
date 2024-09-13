@@ -77681,7 +77681,7 @@ input RegisterResidentInvoiceInput {
   paymentType: InvoicePaymentType!
 }
 
-input FindOrganizationsForAddressInput {
+input FindOrganizationsByAddressInput {
   addressKey: String!
   unitName: String
   unitType: String
@@ -77689,26 +77689,30 @@ input FindOrganizationsForAddressInput {
   accountNumber: String
 }
 
-type FindOrganizationForAddressOrganizationType {
+type FindOrganizationByAddressOrganizationType {
   id: ID!
   name: String!
   tin: String!
   type: OrganizationTypeType!
 }
 
-type FindOrganizationForAddressAccountType {
-  number: String!
+type FindOrganizationByAddressReceiptType {
+  number: String
   category: ID!
   balance: String
-  routingNumber: String!
-  bankAccountNumber: String!
+  routingNumber: String
+  bankAccountNumber: String
 }
 
-type FindOrganizationForAddressOutput {
-  organization: FindOrganizationForAddressOrganizationType!
-  account: FindOrganizationForAddressAccountType
-  hasMeters: Boolean!
-  hasBillingData: Boolean!
+type FindOrganizationByAddressMeterType {
+  number: String
+  resource: ID!
+}
+
+type FindOrganizationByAddressOutput {
+  organization: FindOrganizationByAddressOrganizationType!
+  receipt: FindOrganizationByAddressReceiptType
+  meter: FindOrganizationByAddressMeterType
 }
 
 input SuggestServiceProviderInput {
@@ -82307,7 +82311,7 @@ type Query {
   predictTransactionClassification(data: PredictTransactionClassificationInput!): PredictTransactionClassificationOutput
   predictTicketClassification(data: PredictTicketClassificationInput!): TicketClassifier
   getResidentExistenceByPhoneAndAddress(data: GetResidentExistenceByPhoneAndAddressInput!): GetResidentExistenceByPhoneAndAddressOutput
-  findOrganizationsForAddress(data: FindOrganizationsForAddressInput!): [FindOrganizationForAddressOutput]
+  findOrganizationsByAddress(data: FindOrganizationsByAddressInput!): [FindOrganizationByAddressOutput]
   suggestServiceProvider(data: SuggestServiceProviderInput!): [SuggestServiceProviderOutput]
   exportMeterReadings(data: ExportMeterReadingsInput!): ExportMeterReadingsOutput
 

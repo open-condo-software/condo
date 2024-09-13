@@ -24902,32 +24902,37 @@ export type File = {
   publicUrl?: Maybe<Scalars['String']>;
 };
 
-export type FindOrganizationForAddressAccountType = {
-  __typename?: 'FindOrganizationForAddressAccountType';
-  number: Scalars['String'];
+export type FindOrganizationByAddressReceiptType = {
+  __typename?: 'FindOrganizationByAddressReceiptType';
+  number?: Scalars['String'];
   category: Scalars['ID'];
   balance?: Maybe<Scalars['String']>;
-  routingNumber: Scalars['String'];
-  bankAccountNumber: Scalars['String'];
+  routingNumber?: Scalars['String'];
+  bankAccountNumber?: Scalars['String'];
 };
 
-export type FindOrganizationForAddressOrganizationType = {
-  __typename?: 'FindOrganizationForAddressOrganizationType';
+export type FindOrganizationByAddressMeterType = {
+    __typename?: 'FindOrganizationByAddressMeterType';
+    number?: Scalars['String'];
+    resource: Scalars['ID'];
+};
+
+export type FindOrganizationByAddressOrganizationType = {
+  __typename?: 'FindOrganizationByAddressOrganizationType';
   id: Scalars['ID'];
   name: Scalars['String'];
   tin: Scalars['String'];
   type: OrganizationTypeType;
 };
 
-export type FindOrganizationForAddressOutput = {
-  __typename?: 'FindOrganizationForAddressOutput';
-  organization: FindOrganizationForAddressOrganizationType;
-  account?: Maybe<FindOrganizationForAddressAccountType>;
-  hasMeters: Scalars['Boolean'];
-  hasBillingData: Scalars['Boolean'];
+export type FindOrganizationByAddressOutput = {
+  __typename?: 'FindOrganizationByAddressOutput';
+  organization: FindOrganizationByAddressOrganizationType;
+  receipt?: Maybe<FindOrganizationByAddressReceiptType>;
+  meter?: Maybe<FindOrganizationByAddressMeterType>;
 };
 
-export type FindOrganizationsForAddressInput = {
+export type FindOrganizationsByAddressInput = {
   addressKey: Scalars['String'];
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
@@ -66165,7 +66170,7 @@ export type Query = {
   predictTransactionClassification?: Maybe<PredictTransactionClassificationOutput>;
   predictTicketClassification?: Maybe<TicketClassifier>;
   getResidentExistenceByPhoneAndAddress?: Maybe<GetResidentExistenceByPhoneAndAddressOutput>;
-  findOrganizationsForAddress?: Maybe<Array<Maybe<FindOrganizationForAddressOutput>>>;
+  findOrganizationsByAddress?: Maybe<Array<Maybe<FindOrganizationByAddressOutput>>>;
   suggestServiceProvider?: Maybe<Array<Maybe<SuggestServiceProviderOutput>>>;
   exportMeterReadings?: Maybe<ExportMeterReadingsOutput>;
   /**
@@ -72865,8 +72870,8 @@ export type QueryGetResidentExistenceByPhoneAndAddressArgs = {
 };
 
 
-export type QueryFindOrganizationsForAddressArgs = {
-  data: FindOrganizationsForAddressInput;
+export type QueryFindOrganizationsByAddressArgs = {
+  data: FindOrganizationsByAddressInput;
 };
 
 

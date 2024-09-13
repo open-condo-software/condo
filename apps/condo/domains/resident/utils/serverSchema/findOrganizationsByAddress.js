@@ -2,7 +2,7 @@
 const Big = require('big.js')
 const { get } = require('lodash')
 
-const { find, itemsQuery } = require('@open-condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 
 const {
     CONTEXT_FINISHED_STATUS: ACQUIRING_CONTEXT_FINISHED_STATUS,
@@ -13,57 +13,95 @@ const {
 const { getAccountsWithOnlineInteractionUrl } = require('@condo/domains/billing/utils/serverSchema/checkAccountNumberWithOnlineInteractionUrl')
 const { CONTEXT_FINISHED_STATUS: BILLING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 
-async function findBillingReceiptsForOrganizations (organizations, billingInformation, accountQuery = {}) {
-    const receipts = await Promise.all(organizations.map(async ({ id, tin }) => {
-        const contextId = get(billingInformation[id], 'id')
+async function findMetersForOrganizations (organizations, addressKey, accountNumber) {
+    const meters = await find('Meter', {
+        organization: { id_in: organizations.map(({ id }) => id) },
+        deletedAt: null,
+        property: { addressKey, deletedAt: null },
+        accountNumber,
+    })
+
+    const organizationIndex = Object.fromEntries(organizations.map(organization => [organization.id, organization]))
+
+    return meters.map(({ organization, resource, accountNumber }) => {
+        const organizationFromIndex = organizationIndex[organization]
+        const meter = { resource }
+
+        if (organizationFromIndex?.canRevealPersonalAccount) {
+            meter.number = accountNumber
+        }
+
+        return { organizationId: organization, meter }
+    })
+}
+
+
+async function findBillingReceiptsForOrganizations (organizations, billingInformation, receiptQuery = {}) {
+    const receipts = await Promise.all(organizations.map(async ({ id, tin, canRevealPersonalAccount }) => {
+        const billingInfo = billingInformation[id]
+
+        if (!billingInfo){
+            return []
+        }
+
+        const { id: contextId, period, checkAccountNumberUrl } = billingInfo
+
         if (!contextId) {
             return []
         }
-        const period = get(billingInformation[id], 'period')
-        const checkAccountNumberUrl = get(billingInformation[id], 'checkAccountNumberUrl')
+
         let receipts = []
-        if (period) {
-            const billingAccounts = await find('BillingAccount', { context: { id: contextId }, deletedAt: null, ...accountQuery })
-            console.error({ context: { id: contextId }, deletedAt: null, ...accountQuery })
-            console.error(billingAccounts)
+
+        if (period){
+            const billingAccounts = await find('BillingAccount', {
+                context: { id: contextId },
+                deletedAt: null,
+                ...receiptQuery,
+            })
+
             if (billingAccounts.length) {
-                const billingAccountsNumbersIndex = Object.fromEntries(billingAccounts.map(account => ([account.id, account.number])))
+                const billingAccountsNumbersIndex = Object.fromEntries(billingAccounts.map(account => [account.id, account.number]))
+
                 const billingReceipts = await find('BillingReceipt', {
                     context: { id: contextId },
                     deletedAt: null,
                     period,
                     account: { id_in: Object.keys(billingAccountsNumbersIndex) },
                 })
+
                 if (billingReceipts.length) {
                     receipts = billingReceipts.map(receipt => ({
-                        organizationId: id,
-                        number: billingAccountsNumbersIndex[receipt.account],
                         category: receipt.category,
-                        balance: Big(receipt.toPay).toFixed(2),
-                        routingNumber: get(receipt, 'recipient.bic'),
-                        bankAccountNumber: get(receipt, 'recipient.bankAccount'),
+                        ...(canRevealPersonalAccount && {
+                            organizationId: id,
+                            number: billingAccountsNumbersIndex[receipt.account],
+                            balance: Big(receipt.toPay).toFixed(2),
+                            routingNumber: get(receipt, 'recipient.bic'),
+                            bankAccountNumber: get(receipt, 'recipient.bankAccount'),
+                        }),
                     }))
                 }
             }
         }
-        const accountNumber = accountQuery.number
-        if (!receipts.length && checkAccountNumberUrl && accountNumber) {
-            const { status, services } = await getAccountsWithOnlineInteractionUrl(checkAccountNumberUrl, tin, accountNumber)
+
+        if (!receipts.length && checkAccountNumberUrl && receiptQuery.number) {
+            const { status, services } = await getAccountsWithOnlineInteractionUrl(checkAccountNumberUrl, tin, receiptQuery.number)
             if (status === ONLINE_INTERACTION_CHECK_ACCOUNT_SUCCESS_STATUS) {
-                receipts = services.map(service => {
-                    const { category, account: { number }, bankAccount: { number: bankAccountNumber, routingNumber } } = service
-                    return {
+                receipts = services.map(service => ({
+                    category: service.category,
+                    ...(canRevealPersonalAccount && {
                         organizationId: id,
-                        category,
-                        number,
-                        routingNumber,
-                        bankAccountNumber,
-                    }
-                })
+                        number: service.account.number,
+                        routingNumber: service.bankAccount.routingNumber,
+                        bankAccountNumber: service.bankAccount.number,
+                    }),
+                }))
             }
         }
+
         return receipts
     }))
+
     return receipts.flat()
 }
 
@@ -94,15 +132,13 @@ async function getBillingInformationForOrganizations (organizations) {
     }))
 }
 
-async function getOrganizationsWithMeters (organizationIds, query = {}) {
-    const organizationsWithMeters = await Promise.all(organizationIds.map(async id => {
-        const [meter] = await itemsQuery('Meter', {
-            where: { organization: { id }, deletedAt: null, ...query },
-            first: 1,
-        })
-        return meter ? id : null
-    }))
-    return new Set(organizationsWithMeters.filter(Boolean))
+async function getOrganizationsWithMeters (organizationIds) {
+    const meterResourceOwners = await find('MeterResourceOwner', {
+        organization: { id_in: organizationIds },
+        deletedAt: null,
+    })
+
+    return new Set(meterResourceOwners.map(owner => owner.organization))
 }
 
 async function getOrganizationsWithAcquiring (organizationIds) {
@@ -119,4 +155,5 @@ module.exports = {
     getOrganizationsWithAcquiring,
     getBillingInformationForOrganizations,
     findBillingReceiptsForOrganizations,
+    findMetersForOrganizations,
 }

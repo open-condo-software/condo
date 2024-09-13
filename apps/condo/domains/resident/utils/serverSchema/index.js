@@ -17,7 +17,7 @@ const { REGISTER_CONSUMER_SERVICE_MUTATION } = require('@condo/domains/resident/
 const { SEND_MESSAGE_TO_RESIDENT_SCOPES_MUTATION } = require('@condo/domains/resident/gql')
 const { DISCOVER_SERVICE_CONSUMERS_MUTATION } = require('@condo/domains/resident/gql')
 const { GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_MUTATION } = require('@condo/domains/resident/gql')
-const { FIND_ORGANIZATIONS_FOR_ADDRESS_QUERY } = require('@condo/domains/resident/gql')
+const { FIND_ORGANIZATIONS_BY_ADDRESS_QUERY } = require('@condo/domains/resident/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const logger = getLogger('resident/serverSchema')
@@ -114,13 +114,13 @@ async function registerResidentInvoice (context, data) {
     })
 }
 
-async function findOrganizationsForAddress (context, data) {
+async function findOrganizationsByAddress (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     return await execGqlWithoutAccess(context, {
-        query: FIND_ORGANIZATIONS_FOR_ADDRESS_QUERY,
+        query: FIND_ORGANIZATIONS_BY_ADDRESS_QUERY,
         variables: { data: data },
-        errorMessage: '[error] Unable to findOrganizationsForAddress',
+        errorMessage: '[error] Unable to findOrganizationsByAddress',
         dataPath: 'result',
     })
 }
@@ -147,7 +147,7 @@ module.exports = {
     discoverServiceConsumers,
     getResidentExistenceByPhoneAndAddress,
     registerResidentInvoice,
-    findOrganizationsForAddress,
+    findOrganizationsByAddress,
     suggestServiceProvider,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
