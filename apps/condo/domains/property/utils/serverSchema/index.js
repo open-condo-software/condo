@@ -11,7 +11,7 @@ const {
     PropertyIdOnly: PropertyIdOnlyGQL,
     PropertyOrganizationIdOnly: PropertyOrganizationIdOnlyGQL,
     PropertyAddressAndAddressKeyOnly: PropertyAddressAndAddressKeyOnlyGQL,
-    PropertyAddressAndMap: PropertyIdAndAddressAndMapOnlyGQL,
+    PropertyIdAndAddressAndMapOnly: PropertyIdAndAddressAndMapOnlyGQL,
     PropertyOrganizationIdAndAddressOnly: PropertyOrganizationIdAndAddressOnlyGQL,
 } = require('@condo/domains/property/gql')
 
