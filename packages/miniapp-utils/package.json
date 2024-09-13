@@ -42,6 +42,12 @@
       "helpers/environment": [
         "dist/types/helpers/environment.d.ts"
       ],
+      "helpers/sender": [
+        "dist/types/helpers/sender.d.ts"
+      ],
+      "helpers/uuid": [
+        "dist/types/helpers/uuid.d.ts"
+      ],
       "hooks/useEffectOnce": [
         "dist/types/hooks/useEffectOnce.d.ts"
       ],
@@ -60,6 +66,16 @@
       "types": "./dist/types/helpers/environment.d.ts",
       "require": "./dist/cjs/helpers/environment.js",
       "import": "./dist/esm/helpers/environment.js"
+    },
+    "./helpers/sender": {
+      "types": "./dist/types/helpers/sender.d.ts",
+      "require": "./dist/cjs/helpers/sender.js",
+      "import": "./dist/esm/helpers/sender.js"
+    },
+    "./helpers/uuid": {
+      "types": "./dist/types/helpers/uuid.d.ts",
+      "require": "./dist/cjs/helpers/uuid.js",
+      "import": "./dist/esm/helpers/uuid.js"
     },
     "./hooks/useEffectOnce": {
       "types": "./dist/types/hooks/useEffectOnce.d.ts",
@@ -101,6 +117,7 @@
     "typescript": "^5.5.4"
   },
   "dependencies": {
-    "cookie": "^0.6.0"
+    "cookie": "^0.6.0",
+    "cookies-next": "^4.2.1"
   }
 }

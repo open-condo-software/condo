@@ -1,10 +1,23 @@
 import cookie from 'cookie'
+import { setCookie } from 'cookies-next'
 
 import { FINGERPRINT_ID_COOKIE_NAME, generateFingerprint } from './sender'
 import { generateUUIDv4 } from './uuid'
 
-
 import type { DefaultContext, RequestHandler } from '@apollo/client'
+import type { IncomingMessage, ServerResponse } from 'http'
+
+
+
+type RequestWithCookies = IncomingMessage & {
+    cookies: Partial<Record<string, string>>
+}
+
+type Response = ServerResponse
+
+type SSRContext = {
+    headers: Record<string, string>
+}
 
 const SSR_DEFAULT_FINGERPRINT = 'webAppSSR'
 const COOKIE_HEADER_NAME = 'cookie'
@@ -55,9 +68,9 @@ export function getTracingMiddleware (options: TracingMiddlewareOptions): Reques
 
                 // No cookie? Create one
                 if (!clientCookies[FINGERPRINT_ID_COOKIE_NAME]) {
-                    const userId = generateFingerprint()
-                    clientCookies[FINGERPRINT_ID_COOKIE_NAME] = userId
-                    document.cookie = [document.cookie, cookie.serialize(FINGERPRINT_ID_COOKIE_NAME, userId)]
+                    const fingerprint = generateFingerprint()
+                    clientCookies[FINGERPRINT_ID_COOKIE_NAME] = fingerprint
+                    document.cookie = [document.cookie, cookie.serialize(FINGERPRINT_ID_COOKIE_NAME, fingerprint)]
                         .filter(Boolean)
                         .join(';')
                 }
@@ -83,6 +96,26 @@ export function getTracingMiddleware (options: TracingMiddlewareOptions): Reques
     }
 }
 
-// export function extractSSRHeaders () {
-//
-// }
+export function prepareSSRContext (req: RequestWithCookies, res: Response): SSRContext {
+    const requestCookies = {
+        ...req.cookies,
+    }
+
+    if (!requestCookies[FINGERPRINT_ID_COOKIE_NAME]) {
+        const fingerprint = generateFingerprint()
+        requestCookies[FINGERPRINT_ID_COOKIE_NAME] = fingerprint
+        setCookie(FINGERPRINT_ID_COOKIE_NAME, fingerprint, { req, res })
+
+    }
+
+    const cookieHeader = Object.entries(req.cookies)
+        .map(([name, value]) => value ? cookie.serialize(name, value) : null)
+        .filter(Boolean)
+        .join(';')
+
+    return {
+        headers: {
+            cookie: cookieHeader,
+        },
+    }
+}
