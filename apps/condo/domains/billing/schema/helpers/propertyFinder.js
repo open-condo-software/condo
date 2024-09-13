@@ -1,5 +1,5 @@
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
-const { Property } = require('@condo/domains/property/utils/serverSchema')
+const { PropertyAddressAndAddressKeyOnly } = require('@condo/domains/property/utils/serverSchema')
 
 const SYMBOLS_TO_REMOVE_REGEXP = /[!@#$%^&*)(+=_:"'`[\]]/g
 const SPLITTERS_REGEXP = /[,;. -/]/
@@ -52,7 +52,7 @@ async function findPropertyByOrganizationAndAddress (context, organizationId, ad
 
     await loadListByChunks({
         context,
-        list: Property,
+        list: PropertyAddressAndAddressKeyOnly,
         where: { organization: { id: organizationId }, deletedAt: null },
         chunkSize: 50,
         chunkProcessor: (/** @type {Property[]} */ chunk) => {

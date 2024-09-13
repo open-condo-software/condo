@@ -19,6 +19,16 @@ const PROPERTY_FIELDS = `{ name address addressMeta { ${ADDRESS_META_SUBFIELDS_Q
 const PROPERTY_TABLE_FIELDS = `{ ${COMMON_FIELDS} unitsCount uninhabitedUnitsCount addressMeta { ${ADDRESS_META_SUBFIELDS_TABLE_LIST} }  ticketsInWork }`
 const Property = generateGqlQueries('Property', PROPERTY_FIELDS)
 const PropertyTable = generateGqlQueries('Property', PROPERTY_TABLE_FIELDS)
+const PROPERTY_ID_ONLY_FIELDS = '{ id }'
+const PropertyIdOnly = generateGqlQueries('Property', PROPERTY_ID_ONLY_FIELDS)
+const PROPERTY_ORGANIZATION_ID_FIELDS = '{ organization { id } }'
+const PropertyOrganizationIdOnly = generateGqlQueries('Property', PROPERTY_ORGANIZATION_ID_FIELDS)
+const PROPERTY_ADDRESS_AND_ADDRESS_KEY_FIELDS = '{ id address addressKey }'
+const PropertyAddressAndAddressKeyOnly = generateGqlQueries('Property', PROPERTY_ADDRESS_AND_ADDRESS_KEY_FIELDS)
+const PROPERTY_ADDRESS_AND_MAP = `{ id address map { ${PROPERTY_MAP_JSON_FIELDS} } }`
+const PropertyIdAndAddressAndMapOnly = generateGqlQueries('Property', PROPERTY_ADDRESS_AND_MAP)
+const PROPERTY_ORGANIZATION_ID_AND_ADDRESS_ONLY_FIELDS = '{ organization { id } address }'
+const PropertyOrganizationIdAndAddressOnly = generateGqlQueries('Property', PROPERTY_ORGANIZATION_ID_AND_ADDRESS_ONLY_FIELDS)
 
 const PROPERTY_MAP_GRAPHQL_TYPES = `
     enum BuildingMapEntityType {
@@ -115,6 +125,11 @@ const EXPORT_PROPERTIES_TO_EXCEL =  gql`
 module.exports = {
     Property,
     PropertyTable,
+    PropertyIdOnly,
+    PropertyOrganizationIdOnly,
+    PropertyAddressAndAddressKeyOnly,
+    PropertyIdAndAddressAndMapOnly,
+    PropertyOrganizationIdAndAddressOnly,
     PROPERTY_MAP_GRAPHQL_TYPES,
     EXPORT_PROPERTIES_TO_EXCEL,
     PROPERTY_MAP_JSON_FIELDS,

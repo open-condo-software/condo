@@ -5,8 +5,7 @@
 const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
-const { GQLCustomSchema, getSchemaCtx } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const access = require('@condo/domains/notification/access/_internalSendNotificationNewMobileAppVersionService')
@@ -19,7 +18,7 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 const { compareMobileAppVersions } = require('@condo/domains/notification/helpers/compareMobileAppVersion')
 const { MessageBatch, RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
-const { Property } = require('@condo/domains/property/utils/serverSchema')
+const { PropertyIdOnly } = require('@condo/domains/property/utils/serverSchema')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 
@@ -84,7 +83,7 @@ const _internalSendNotificationNewMobileAppVersionService = new GQLCustomSchema(
                 } else {    //The case when a push is sent to suitable devices of a specific or several organizations
                     const propertyIds = await loadListByChunks({
                         context: context,
-                        list: Property,
+                        list: PropertyIdOnly,
                         where: {
                             organization: {
                                 id_in: organizationIds,

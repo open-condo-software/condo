@@ -19,7 +19,7 @@ const { WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
-const { Property } = require('@condo/domains/property/utils/serverSchema')
+const { PropertyOrganizationIdOnly } = require('@condo/domains/property/utils/serverSchema')
 const access = require('@condo/domains/resident/access/RegisterServiceConsumerService')
 const { resetUserResidentCache } = require('@condo/domains/resident/utils/accessSchema')
 const { ServiceConsumer, Resident } = require('@condo/domains/resident/utils/serverSchema')
@@ -114,7 +114,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                     ? { addressKey: resident.addressKey }
                     : { address_i: resident.address }
 
-                const residentProperties = await Property.getAll(context, propertyWhere)
+                const residentProperties = await PropertyOrganizationIdOnly.getAll(context, propertyWhere)
 
                 let organizations = await Organization.getAll(context, {
                     id_in: uniq(residentProperties.map(property => property.organization.id)), deletedAt: null,
