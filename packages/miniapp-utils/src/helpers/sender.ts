@@ -1,6 +1,13 @@
+import { getCookie, setCookie } from 'cookies-next'
+
 import { generateUUIDv4 } from './uuid'
 
-export const FINGERPRINT_ID_COOKIE_NAME = 'userId'
+type SenderInfo = {
+    dv: number,
+    fingerprint: string
+}
+
+export const FINGERPRINT_ID_COOKIE_NAME = 'fingerprint'
 export const FINGERPRINT_ID_LENGTH = 12
 
 function makeId (length: number): string {
@@ -11,4 +18,21 @@ function makeId (length: number): string {
 
 export function generateFingerprint (): string {
     return makeId(FINGERPRINT_ID_LENGTH)
+}
+
+export function getClientSideFingerprint (): string {
+    let fingerprint = getCookie(FINGERPRINT_ID_COOKIE_NAME)
+    if (!fingerprint) {
+        fingerprint = generateFingerprint()
+        setCookie(FINGERPRINT_ID_COOKIE_NAME, fingerprint)
+    }
+
+    return fingerprint
+}
+
+export function getClientSideSenderInfo (): SenderInfo {
+    return {
+        dv: 1,
+        fingerprint: getClientSideFingerprint(),
+    }
 }

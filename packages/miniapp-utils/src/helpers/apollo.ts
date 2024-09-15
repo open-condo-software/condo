@@ -1,12 +1,15 @@
-import cookie from 'cookie'
+import { parse as parseCookieString, serialize as serializeCookie } from 'cookie'
 import { setCookie } from 'cookies-next'
 
-import { FINGERPRINT_ID_COOKIE_NAME, generateFingerprint } from './sender'
+import {
+    FINGERPRINT_ID_COOKIE_NAME,
+    generateFingerprint,
+    getClientSideFingerprint,
+} from './sender'
 import { generateUUIDv4 } from './uuid'
 
 import type { DefaultContext, RequestHandler } from '@apollo/client'
 import type { IncomingMessage, ServerResponse } from 'http'
-
 
 
 type RequestWithCookies = IncomingMessage & {
@@ -64,20 +67,9 @@ export function getTracingMiddleware (options: TracingMiddlewareOptions): Reques
 
             // NOTE: CSR
             if (typeof document !== 'undefined' && document.cookie) {
-                const clientCookies = cookie.parse(document.cookie)
-
-                // No cookie? Create one
-                if (!clientCookies[FINGERPRINT_ID_COOKIE_NAME]) {
-                    const fingerprint = generateFingerprint()
-                    clientCookies[FINGERPRINT_ID_COOKIE_NAME] = fingerprint
-                    document.cookie = [document.cookie, cookie.serialize(FINGERPRINT_ID_COOKIE_NAME, fingerprint)]
-                        .filter(Boolean)
-                        .join(';')
-                }
-
-                headers[REMOTE_CLIENT_HEADER_NANE] = clientCookies[FINGERPRINT_ID_COOKIE_NAME]
+                headers[REMOTE_CLIENT_HEADER_NANE] = getClientSideFingerprint()
             } else if (headers[COOKIE_HEADER_NAME]) {
-                const ssrCookies = cookie.parse(headers[COOKIE_HEADER_NAME])
+                const ssrCookies = parseCookieString(headers[COOKIE_HEADER_NAME])
 
                 headers[REMOTE_CLIENT_HEADER_NANE] = ssrCookies[FINGERPRINT_ID_COOKIE_NAME] || SSR_DEFAULT_FINGERPRINT
             }
@@ -85,10 +77,7 @@ export function getTracingMiddleware (options: TracingMiddlewareOptions): Reques
 
             return {
                 ...previousContext,
-                headers: {
-                    ...headers,
-
-                },
+                headers,
             }
         })
 
@@ -104,12 +93,12 @@ export function prepareSSRContext (req: RequestWithCookies, res: Response): SSRC
     if (!requestCookies[FINGERPRINT_ID_COOKIE_NAME]) {
         const fingerprint = generateFingerprint()
         requestCookies[FINGERPRINT_ID_COOKIE_NAME] = fingerprint
+        // NOTE: req and res are used to operate "set-cookie" headers
         setCookie(FINGERPRINT_ID_COOKIE_NAME, fingerprint, { req, res })
-
     }
 
     const cookieHeader = Object.entries(req.cookies)
-        .map(([name, value]) => value ? cookie.serialize(name, value) : null)
+        .map(([name, value]) => value ? serializeCookie(name, value) : null)
         .filter(Boolean)
         .join(';')
 
