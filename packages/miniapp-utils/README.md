@@ -10,18 +10,22 @@
 
 ## Table of contents
 - [Installation](#installation)
-  - [Peer dependencies](#peer-dependencies)
-  - [Installing package](#installing-package)
+    - [Peer dependencies](#peer-dependencies)
+    - [Installing packages](#installing-packages)
+        - [NPM](#install-all-npm)
+        - [Yarn](#install-all-yarn)
 - [Usage](#usage)
 
 ## Installation
 
 ### Peer dependencies
 > **NOTE**: This package uses `react` / `react-dom` and `@apollo/client` as its peer dependencies,
-> so make sure you've got ones installed. You should have no trouble with any react version having a hooks,
-> but we're testing on versions >=16. 
+> so make sure you've got ones installed. 
 > 
-> Any apollo 3.x.x should be fine too, but all utils are tested on `^3.11.8`
+> You should have no trouble with any react version having a hooks,
+> but we're testing on versions `>=16`. 
+> 
+> Any apollo `3.x.x` should be fine too, but all utils are tested on `^3.11.8`
 > 
 > - `react` / `react-dom` are required for `/hooks/**` and `/components/**` entry points
 > - `@apollo/client` is required for `/helpers/apollo.ts`
@@ -29,24 +33,16 @@
 > You can skip installing them if you don't use these utilities, as each utility is built separately, 
 > but we highly recommend leaving them installed
 
-To install peer dependencies run the following command if you're using npm as your package manager:
+### Installing packages
+
+#### Install all (NPM)
 ```bash
 npm i @open-condo/miniapp-utils react react-dom @apollo/client
 ```
-or it's yarn alternative
-```bash
-yarn add @open-condo/miniapp-utils react react-dom  @apollo/client
-```
 
-### Installing package
-
-To install package simply run the following command if you're using npm as your package manager:
+#### Install all (Yarn)
 ```bash
-npm i @open-condo/miniapp-utils
-```
-or it's yarn alternative
-```bash
-yarn add @open-condo/miniapp-utils
+yarn add @open-condo/miniapp-utils react react-dom @apollo/client
 ```
 
 ## Usage
