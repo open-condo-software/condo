@@ -42,11 +42,11 @@ yarn add @open-condo/miniapp-utils react react-dom  @apollo/client
 
 To install package simply run the following command if you're using npm as your package manager:
 ```bash
-npm i @open-condo/miniapp-utils react react-dom
+npm i @open-condo/miniapp-utils
 ```
 or it's yarn alternative
 ```bash
-yarn add @open-condo/miniapp-utils react react-dom
+yarn add @open-condo/miniapp-utils
 ```
 
 ## Usage
