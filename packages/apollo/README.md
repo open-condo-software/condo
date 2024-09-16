@@ -7,14 +7,21 @@
 
 ## Table of contents
 - [Installation](#installation)
-  - [Peer dependencies](#peer-dependencies)
-  - [Installing packages](#installing-packages)
-    - [NPM](#install-all-npm)
-    - [Yarn](#install-all-yarn)
+    - [Peer dependencies](#peer-dependencies)
+    - [Installing packages](#installing-packages)
+        - [NPM](#install-all-npm)
+        - [Yarn](#install-all-yarn)
 - [Usage](#usage)
-  - [Basic setup](#basic-setup)
-  - [List pagination helpers](#list-pagination-helpers)
-  - 
+    - [Basic setup](#basic-setup)
+        1. [Init utils](#init-utils)
+        2. [Init apollo client in your _app.tsx](#init-apollo-client-in-your-pages_apptsx)
+        3. [Client usage](#client-usage)
+        4. [SSR usage](#ssr-usage)
+    - [List pagination helpers](#list-pagination-helpers)
+    - [Dynamic API uri](#dynamic-api-uri)
+    - [Middlewares](#middlewares)
+    - [Cache invalidation](#cache-invalidation)
+    - [Cache identity](#cache-identity)
 
 ## Installation
 
@@ -43,10 +50,10 @@ yarn add @open-condo/apollo react react-dom  @apollo/client
 
 ### Basic setup
 
-#### 1. Init utils
+#### Init utils
 
 To start using `@open-condo/apollo` in your application, you must first configure `ApolloHelper`
-and generate the necessary utilities. To do this, use the following code somewhere in your application:
+and generate the necessary utilities. To do this, paste the following code somewhere in your application:
 
 ```typescript
 // ./lib/apollo.ts
@@ -74,9 +81,9 @@ export const initializeApollo: InitializeApollo<ApolloClient<NormalizedCacheObje
 export const useApollo: UseApollo<ApolloClient<NormalizedCacheObject>> = apolloHelper.generateUseApolloHook()
 ```
 
-#### 2. Init apollo client in your `pages/_app.tsx`:
+#### Init apollo client in your `pages/_app.tsx`:
 
-Then, simply use generated `useApollo` hook to obtain `client` and `cachePersistor`, 
+Then, simply use generated `useApollo` hook to obtain `client` and `cachePersistor`,
 which you can pass to your apps child components via standard `ApolloProvider`:
 
 ```typescript jsx
@@ -104,14 +111,38 @@ export default function App ({ Component, pageProps, router }: AppProps): ReactN
 
 After that, you can use any Apollo functions / hooks / utilities as you did before! 🥳
 
-#### 3. SSR usage
+#### Client usage
 
-To use apollo in SSR environment, use generate `initializeApollo` to obtain fresh client 
+Nothing additional is required to use Apollo in client components.
+cachePersistor can be obtained from the provided `useCachePersistor` hook
+to avoid requests while the cache is being loaded.
+
+```typescript jsx
+import React from 'react'
+
+import { useQuery } from '@apollo/client'
+import { useCachePersistor } from '@open-condo/apollo'
+
+const MyComponent: React.FC = () => {
+    const { persistor } = useCachePersistor()
+    const { data, loading } = useQuery({
+        query: ...,
+        variables: {},
+        skip: !persistor,
+    })
+    // ...
+}
+```
+
+#### SSR usage
+
+To use apollo in SSR environment, use generated `initializeApollo` to obtain fresh client
 and `extractApolloState` to pass prefetched data to the client:
 
 ```typescript
 import React from 'react'
 import { extractApolloState } from '@open-condo/apollo'
+import { prepareSSRContext } from '@open-condo/miniapp-utils/helpers/apollo'
 
 import { initializeApollo } from '@/lib/apollo'
 
@@ -124,13 +155,16 @@ const MyPage: React.FC = () => {
 export default MyPage
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
-    // NOTE: You should implement this function yourself depending on your business logic
-    const headers = getRequiredHeader(req, res)
-    
+    // NOTE: You should implement this function yourself depending on your business logic, 
+    // Common pattern is to extract cookies to "cookie" header, or create Authorization header and so on
+    const { headers } = prepareSSRContext(req, res)
+
+    // Init new apollo with initial headers, which will be sent with each request
     const client = initializeApollo({ headers })
-    
+
     await client.query({ ... })
-    
+
+    // Extract fetched data to pageProps
     return extractApolloState(client, {
         props: { ... }
     })
@@ -139,7 +173,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
 
 ### List pagination helpers
 
-`@open-condo/apollo` also provides a set of utilities to make it easier for you to work with list pagination. 
+`@open-condo/apollo` also provides a set of utilities to make it easier for you to work with list pagination.
 To use them, initialise the `ListHelper` class in your `cacheConfig` like so:
 
 ```typescript
@@ -154,10 +188,10 @@ const serverUrl = process.env.SERVER_URL || 'http://localhost:3000'
 const cacheConfig: InitCacheConfig = (cacheOptions) => {
     // Default helper, use skip / first as pagination arguments
     const listHelper = new ListHelper({ cacheOptions })
-    
+
     // You can override pagination args like so
     const customListHelper = new ListHelper({ cacheOptions, skipArgName: 'offset', firstArgName: 'limit' })
-    
+
     return {
         typePolicies: {
             Query: {
@@ -197,10 +231,135 @@ export const useApollo: UseApollo<ApolloClient<NormalizedCacheObject>> = apolloH
 
 ### Dynamic API uri
 
+`ApolloHelper` can accept a function as `uri`. This function is called when the client is initialised
+(via initializeApollo or useApollo)
+
+```typescript
+// ./lib/apollo.ts
+
+import getConfig from 'next/config'
+
+import { ApolloHelper } from '@open-condo/apollo'
+import type { InitializeApollo, UseApollo } from '@open-condo/apollo'
+import type { NormalizedCacheObject, ApolloClient } from '@apollo/client'
+
+const { publicRuntimeConfig: { serviceUrl } } = getConfig()
+
+/**
+ * Gets API url.
+ * If it's in SSR / production the absolute url is used
+ * In dev mode relative url is allowed on a client,
+ * so you can debug app on another device sharing the same network
+ */
+function getApiUrl () {
+    if (isDebug() && !isSSR()) {
+        return '/api/graphql'
+    }
+
+    return `${serviceUrl}/api/graphql`
+}
+
+const apolloHelper = new ApolloHelper({
+    uri: getApiUrl,
+})
+
+export const initializeApollo: InitializeApollo<ApolloClient<NormalizedCacheObject>> = apolloHelper.initializeApollo
+export const useApollo: UseApollo<ApolloClient<NormalizedCacheObject>> = apolloHelper.generateUseApolloHook()
+```
+
 ### Middlewares
+
+`ApolloHelper` can accept a set of middlewares representing an `ApolloLink | RequestHandler` type from `@apollo/client`,
+from which a common link is subsequently assembled using the `from` utility from `@apollo/client`.
+
+This can be useful if your logic requires additional processing of all requests (headers / error handling, etc. etc.).
+You can see more details [here](https://www.apollographql.com/docs/react/networking/advanced-http-networking/#customizing-request-logic)
+
+```typescript
+// ./lib/apollo.ts
+
+import getConfig from 'next/config'
+
+import { ApolloHelper } from '@open-condo/apollo'
+import type { InitializeApollo, UseApollo } from '@open-condo/apollo'
+import type { NormalizedCacheObject, ApolloClient } from '@apollo/client'
+
+const { publicRuntimeConfig: { serviceUrl, revision } } = getConfig()
+
+const apolloHelper = new ApolloHelper({
+    uri: `${serviceUrl}/api/graphql`,
+    middlewares: [
+        getTracingMiddleware({
+            serviceUrl,
+            codeVersion: revision,
+        }),
+    ],
+})
+
+export const initializeApollo: InitializeApollo<ApolloClient<NormalizedCacheObject>> = apolloHelper.initializeApollo
+export const useApollo: UseApollo<ApolloClient<NormalizedCacheObject>> = apolloHelper.generateUseApolloHook()
+```
 
 ### Cache invalidation
 
+Cache from `@open-condo/apollo` are extended from
+[@nerdwallet/apollo-cache-policies](https://github.com/NerdWalletOSS/apollo-cache-policies),
+so you can freely explore and use their TTL mechanism.
+
+```typescript
+const cacheConfig: InitCacheConfig = (cacheOptions) => {
+    const listHelper = new ListHelper({ cacheOptions })
+
+    return {
+        typePolicies: {
+            Query: {
+                fields: {
+                    allMeters: {
+                        keyArgs: ['where'],
+                        merge: listHelper.mergeLists,
+                        read: listHelper.getReadFunction('paginate'),
+                    },
+                    allResidents: {
+                        keyArgs: ['where'],
+                        merge: listHelper.mergeLists,
+                        read: listHelper.getReadFunction('showAll'),
+                    },
+                    allServiceConsumers: {
+                        keyArgs: ['where'],
+                        merge: listHelper.mergeLists,
+                        read: listHelper.getReadFunction('showAll'),
+                    },
+                },
+            },
+        },
+        invalidationPolicies: {
+            timeToLive: 15 * 60 * 1000, // 15 minutes in milliseconds,
+            types: {
+                Contact: {
+                    timeToLive: 2 * 60 * 60 * 1000, // 2 hours in milliseconds,
+                },
+            },
+        },
+    }
+}
+```
+
 ### Cache identity
 
-### Integrations with [`@open-condo/miniapp-utils`](https://www.npmjs.com/package/@open-condo/miniapp-utils)
+`@open-condo/apollo` also provides a cache identification mechanism.
+It allows not loading cache from `localStorage` if its identity does not match the current clients cache
+(obtained from SSR / CSR). By default, all caches are compared at the following path:
+```typescript
+const DEFAULT_IDENTITY_PATH = ['ROOT_QUERY', 'authenticatedUser', '__ref']
+```
+
+To override it - pass the `cacheIdentityKey` parameter to the cache configuration:
+```typescript
+const cacheConfig: InitCacheConfig = (cacheOptions) => {
+    const listHelper = new ListHelper({ cacheOptions })
+
+    return {
+        cacheIdentityKey: ['ROOT_QUERY', 'me', 'id'],
+    }
+}
+```
