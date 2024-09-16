@@ -1,0 +1,123 @@
+{
+  "name": "@open-condo/miniapp-utils",
+  "version": "0.0.0-development",
+  "description": "A set of helper functions / components / hooks used to build new condo apps fast",
+  "keywords": [
+    "condo",
+    "open-condo-software",
+    "miniapps",
+    "utils",
+    "React"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/open-condo-software/condo.git",
+    "directory": "packages/miniapp-utils"
+  },
+  "bugs": {
+    "url": "https://github.com/open-condo-software/condo/issues"
+  },
+  "homepage": "https://github.com/open-condo-software/condo/blob/main/packages/miniapp-utils/README.md",
+  "author": {
+    "name": "Matthew Savelev",
+    "email": "matthew@doma.ai",
+    "url": "https://github.com/SavelevMatthew"
+  },
+  "license": "MIT",
+  "scripts": {
+    "build:deps": "turbo build --filter=miniapp-utils^...",
+    "build:code": "NODE_ENV=production rollup -c",
+    "build:types": "tsc --declaration --emitDeclarationOnly",
+    "build": "rimraf dist && yarn build:code && yarn build:types",
+    "dev": "rimraf dist && yarn build:deps &&(rollup -c -w & tsc --declaration --emitDeclarationOnly --watch)"
+  },
+  "files": [
+    "dist"
+  ],
+  "typesVersions": {
+    "*": {
+      "helpers/apollo": [
+        "dist/types/helpers/apollo.d.ts"
+      ],
+      "helpers/environment": [
+        "dist/types/helpers/environment.d.ts"
+      ],
+      "helpers/sender": [
+        "dist/types/helpers/sender.d.ts"
+      ],
+      "helpers/uuid": [
+        "dist/types/helpers/uuid.d.ts"
+      ],
+      "hooks/useEffectOnce": [
+        "dist/types/hooks/useEffectOnce.d.ts"
+      ],
+      "hooks/usePrevious": [
+        "dist/types/hooks/usePrevious.d.ts"
+      ]
+    }
+  },
+  "exports": {
+    "./helpers/apollo": {
+      "types": "./dist/types/helpers/apollo.d.ts",
+      "require": "./dist/cjs/helpers/apollo.js",
+      "import": "./dist/esm/helpers/apollo.js"
+    },
+    "./helpers/environment": {
+      "types": "./dist/types/helpers/environment.d.ts",
+      "require": "./dist/cjs/helpers/environment.js",
+      "import": "./dist/esm/helpers/environment.js"
+    },
+    "./helpers/sender": {
+      "types": "./dist/types/helpers/sender.d.ts",
+      "require": "./dist/cjs/helpers/sender.js",
+      "import": "./dist/esm/helpers/sender.js"
+    },
+    "./helpers/uuid": {
+      "types": "./dist/types/helpers/uuid.d.ts",
+      "require": "./dist/cjs/helpers/uuid.js",
+      "import": "./dist/esm/helpers/uuid.js"
+    },
+    "./hooks/useEffectOnce": {
+      "types": "./dist/types/hooks/useEffectOnce.d.ts",
+      "require": "./dist/cjs/hooks/useEffectOnce.js",
+      "import": "./dist/esm/hooks/useEffectOnce.js"
+    },
+    "./hooks/usePrevious": {
+      "types": "./dist/types/hooks/usePrevious.d.ts",
+      "require": "./dist/cjs/hooks/usePrevious.js",
+      "import": "./dist/esm/hooks/usePrevious.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@apollo/client": ">=3.0.0",
+    "react": ">=16.0.0",
+    "react-dom": ">=16.0.0"
+  },
+  "devDependencies": {
+    "@apollo/client": "^3.11.8",
+    "@babel/preset-react": "^7.24.7",
+    "@open-condo/tsconfig": "workspace:^",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-commonjs": "^26.0.1",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "@types/react": "18.0.27",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^9.1.3",
+    "graphql": "^16.8.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "rimraf": "^6.0.1",
+    "rollup": "^4.21.2",
+    "rollup-plugin-peer-deps-external": "^2.2.4",
+    "rollup-plugin-uglify": "^6.0.4",
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "cookie": "^0.6.0",
+    "cookies-next": "^4.2.1"
+  }
+}

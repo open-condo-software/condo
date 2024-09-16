@@ -94,7 +94,7 @@ let createApolloClient: CreateApolloClient = (initialState, ctx, apolloCacheConf
             mode: 'cors',
         },
         fetch: (isOnClientSide && window.fetch) ? window.fetch : fetch,
-        headers: (ctx && ctx.req) ? ctx.req.headers : undefined,  // allow to use client cookies on server side requests
+        headers: (ctx && ctx.req) ? ctx.req.headers as Record<string, string> : undefined,  // allow to use client cookies on server side requests
     }
 
     const uploadLink = createUploadLink(linkPayload)
@@ -104,7 +104,11 @@ let createApolloClient: CreateApolloClient = (initialState, ctx, apolloCacheConf
         batchInterval: 10,
     })
 
+
     const apolloLink = apolloBatchingEnabled
+        // NOTE: same package in different locations type mismatch
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         ? ApolloLink.split(operation => hasFiles(get(operation, 'variables', {})), uploadLink, batchLink)
         : uploadLink
 
@@ -113,6 +117,9 @@ let createApolloClient: CreateApolloClient = (initialState, ctx, apolloCacheConf
     return new ApolloClient({
         // connectToDevTools: !Boolean(ctx),
         ssrMode: Boolean(ctx),
+        // NOTE: same package in different locations type mismatch
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         link: apolloLink,
         cache: new InMemoryCache(apolloCacheConfig).restore(initialState || {}),
         ...apolloClientConfig,

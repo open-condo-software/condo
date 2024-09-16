@@ -1,0 +1,87 @@
+{
+  "name": "@open-condo/apollo",
+  "version": "0.0.0-development",
+  "description": "A wrapper over @apollo/client that allows you to use persistent cache from local storage, configure TTL, invalidate cache, and use a single configuration for getServerSideProps, SSR, and CSR",
+  "keywords": [
+    "condo",
+    "open-condo-software",
+    "miniapps",
+    "cache",
+    "apollo",
+    "@apollo/client",
+    "react"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/open-condo-software/condo.git",
+    "directory": "packages/apollo"
+  },
+  "bugs": {
+    "url": "https://github.com/open-condo-software/condo/issues"
+  },
+  "homepage": "https://github.com/open-condo-software/condo/blob/main/packages/apollo/README.md",
+  "author": {
+    "name": "Matthew Savelev",
+    "email": "matthew@doma.ai",
+    "url": "https://github.com/SavelevMatthew"
+  },
+  "license": "MIT",
+  "scripts": {
+    "build:deps": "turbo build --filter=apollo^...",
+    "build:code": "NODE_ENV=production rollup -c",
+    "build:types": "tsc --declaration --emitDeclarationOnly",
+    "build": "rimraf dist && yarn build:code && yarn build:types",
+    "dev": "rimraf dist && yarn build:deps &&(rollup -c -w & tsc --declaration --emitDeclarationOnly --watch)"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "types": "dist/types/index.d.ts",
+  "main": "dist/cjs/index.js",
+  "module": "/dist/esm/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "require": "./dist/cjs/index.js",
+      "import": "./dist/esm/index.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@apollo/client": "*",
+    "react": ">=16.0.0",
+    "react-dom": ">=16.0.0"
+  },
+  "devDependencies": {
+    "@apollo/client": "^3.11.8",
+    "@babel/preset-react": "^7.24.7",
+    "@open-condo/tsconfig": "workspace:^",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-commonjs": "^26.0.1",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "@types/apollo-upload-client": "^17.0.0",
+    "@types/lodash": "^4.17.7",
+    "@types/react": "18.0.27",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^9.1.3",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "rimraf": "^6.0.1",
+    "rollup": "^4.21.2",
+    "rollup-plugin-peer-deps-external": "^2.2.4",
+    "rollup-plugin-uglify": "^6.0.4",
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "@nerdwallet/apollo-cache-policies": "^3.3.3",
+    "@open-condo/miniapp-utils": "workspace:^",
+    "apollo-upload-client": "^17.0.0",
+    "apollo3-cache-persist": "^0.15.0",
+    "deepmerge": "^4.3.1",
+    "lodash": "^4.17.21"
+  }
+}
