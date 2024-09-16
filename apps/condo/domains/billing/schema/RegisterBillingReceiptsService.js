@@ -25,6 +25,7 @@ const {
     ReceiptResolver,
 } = require('@condo/domains/billing/schema/resolvers')
 const { sortPeriodFunction } = require('@condo/domains/billing/schema/resolvers/utils')
+const { connectPaymentsToBillingReceiptsForOrganizations } = require('@condo/domains/billing/tasks')
 const { BillingAccount, BillingProperty, BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 const { BillingIntegrationOrganizationContext: BillingContextApi } = require('@condo/domains/billing/utils/serverSchema')
 const { getAddressSuggestions } = require('@condo/domains/common/utils/serverSideAddressApi')
@@ -352,6 +353,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                             })
                         }
                     }
+                    await connectPaymentsToBillingReceiptsForOrganizations.delay(dv, sender, [billingContext.organization.id])
                     return Object.values({ ...receiptIndex, ...errorsIndex }).map(idOrError => {
                         const id = get(idOrError, 'id')
                         if (id) {

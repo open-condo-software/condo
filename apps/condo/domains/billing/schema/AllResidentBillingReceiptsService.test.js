@@ -7,6 +7,8 @@ const { basename } = require('path')
 const { faker } = require('@faker-js/faker')
 const Big = require('big.js')
 
+const { waitFor } = require('@open-condo/keystone/test.utils')
+
 const { ResidentBillingReceipt, PUBLIC_FILE, PRIVATE_FILE } = require('@condo/domains/billing/utils/testSchema')
 const {
     TestUtils,
@@ -323,11 +325,14 @@ describe('AllResidentBillingReceiptsService', () => {
             await utils.createServiceConsumer(resident, accountNumber)
             await utils.partialPayForReceipt(jsonReceipt, partialPay)
             const [[{ id: receiptId }]] = await utils.createReceipts([jsonReceipt])
-            const receiptsAfterPayment = await ResidentBillingReceipt.getAll(utils.clients.resident, {
-                serviceConsumer: { resident: { id: resident.id } },
+
+            await waitFor(async () => {
+                const receiptsAfterPayment = await ResidentBillingReceipt.getAll(utils.clients.resident, {
+                    serviceConsumer: { resident: { id: resident.id } },
+                })
+                const receiptAfterPayment = receiptsAfterPayment.find(({ id }) => id === receiptId )
+                expect(Big(receiptAfterPayment.paid).toFixed(2)).toEqual(Big(partialPay).toFixed(2))
             })
-            const receiptAfterPayment = receiptsAfterPayment.find(({ id }) => id === receiptId )
-            expect(Big(receiptAfterPayment.paid).toFixed(2)).toEqual(Big(partialPay).toFixed(2))
         })
 
         test('paid field calculated when several payments was made', async () => {

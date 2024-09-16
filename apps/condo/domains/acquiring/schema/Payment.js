@@ -160,9 +160,13 @@ const Payment = new GQLListSchema('Payment', {
             isRequired: false,
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
             hooks: {
-                validateInput: ({ resolvedData, addFieldValidationError, fieldPath }) => {
-                    if (resolvedData[fieldPath] && !resolvedData['frozenReceipt']) {
+                validateInput: ({ operation, existingItem, resolvedData, addFieldValidationError, fieldPath }) => {
+                    // We need to connect receipt, if it was not present on creation
+                    if (operation === 'create' && resolvedData[fieldPath] && !resolvedData['frozenReceipt']) {
                         addFieldValidationError(PAYMENT_NO_PAIRED_FROZEN_RECEIPT)
+                    }
+                    if (operation === 'update' && existingItem[fieldPath]) {
+                        addFieldValidationError(`${PAYMENT_FROZEN_FIELD_INCLUDED} (${fieldPath})`)
                     }
                 },
             },
@@ -381,6 +385,10 @@ const Payment = new GQLListSchema('Payment', {
                 }
                 const frozenFields = PAYMENT_FROZEN_FIELDS[oldStatus]
                 for (const field of frozenFields) {
+                    // We need to connect receipt after it's creation, if payment was made for virtual receipt
+                    if (field === 'receipt' && !existingItem.receipt) {
+                        continue
+                    }
                     if (resolvedData.hasOwnProperty(field)) {
                         addValidationError(`${PAYMENT_FROZEN_FIELD_INCLUDED} (${field})`)
                     }

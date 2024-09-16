@@ -6,9 +6,10 @@ const Big = require('big.js')
 const dayjs = require('dayjs')
 
 const {
-    catchErrorFrom, expectToThrowAuthenticationErrorToResult, expectToThrowAccessDeniedErrorToResult,
+    catchErrorFrom, expectToThrowAuthenticationErrorToResult, expectToThrowAccessDeniedErrorToResult, waitFor,
 } = require('@open-condo/keystone/test.utils')
 
+const { Payment } = require('@condo/domains/acquiring/utils/testSchema')
 const {
     BILLING_ACCOUNT_OWNER_TYPE_COMPANY,
     BILLING_ACCOUNT_OWNER_TYPE_PERSON,
@@ -19,6 +20,8 @@ const {
 const { registerBillingReceiptsByTestClient } = require('@condo/domains/billing/utils/testSchema')
 const { generateServicesData } = require('@condo/domains/billing/utils/testSchema')
 const { createTestBillingCategory, BillingIntegrationOrganizationContext: BillingContext } = require('@condo/domains/billing/utils/testSchema')
+const { AcquiringTestMixin } = require('@condo/domains/billing/utils/testSchema/mixins/acquiring')
+const { ResidentTestMixin } = require('@condo/domains/billing/utils/testSchema/mixins/resident')
 const {
     TestUtils,
     BillingTestMixin,
@@ -551,6 +554,44 @@ describe('RegisterBillingReceiptsService', () => {
                 })
             })
 
+        })
+
+        describe('Worker', () => {
+
+            let utilsExtended = new TestUtils([BillingTestMixin, AcquiringTestMixin, ResidentTestMixin])
+            beforeEach(async () => {
+                await utilsExtended.init()
+            })
+
+            test('should connect virtual payment to new receipt', async () => {
+                const accountNumber = faker.random.alphaNumeric(12)
+                const total = '5000.00'
+                const partialPay = '2600.00'
+                const jsonReceipt = utilsExtended.createJSONReceipt({ accountNumber, toPay: total })
+                const resident = await utilsExtended.createResident()
+                await utilsExtended.createServiceConsumer(resident, accountNumber)
+                const multiPaymentId = await utilsExtended.partialPayForReceipt(jsonReceipt, partialPay)
+
+                const paymentsBeforeReceipt = await Payment.getAll(utilsExtended.clients.admin, {
+                    multiPayment: { id: multiPaymentId },
+                    deletedAt: null,
+                })
+
+                expect(paymentsBeforeReceipt).toHaveLength(1)
+                expect(paymentsBeforeReceipt[0].receipt).toBeNull()
+
+                const [[receipt]] = await utilsExtended.createReceipts([jsonReceipt])
+
+                await waitFor(async () => {
+                    const payments = await Payment.getAll(utilsExtended.clients.admin, {
+                        multiPayment: { id: multiPaymentId },
+                        deletedAt: null,
+                    })
+                    expect(payments).toHaveLength(1)
+                    expect(payments[0].receipt).not.toBeNull()
+                    expect(payments[0].receipt.id).toBe(receipt.id)
+                })
+            })
         })
     })
 
