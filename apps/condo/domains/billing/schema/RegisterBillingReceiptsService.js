@@ -24,7 +24,7 @@ const {
     PeriodResolver,
     ReceiptResolver,
 } = require('@condo/domains/billing/schema/resolvers')
-const { sortPeriodFunction, updateLastReport } = require('@condo/domains/billing/schema/resolvers/utils')
+const { sortPeriodFunction, buildLastReportForBillingContext } = require('@condo/domains/billing/schema/resolvers/utils')
 const { BillingAccount, BillingProperty, BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 const { BillingIntegrationOrganizationContext: BillingContextApi } = require('@condo/domains/billing/utils/serverSchema')
 const { getAddressSuggestions } = require('@condo/domains/common/utils/serverSideAddressApi')
@@ -339,7 +339,18 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     const receiptsIndex = Object.fromEntries(receipts.map(receipt => ([receipt.id, receipt])))
                     if (receiptsPeriods.length) {
                         const newestPeriodFromReceipts = receiptsPeriods.sort(sortPeriodFunction).pop()
-                        await updateLastReport(context, { dv, sender, billingContextInput, period: newestPeriodFromReceipts })
+                        const newerReceiptsCount = await BillingReceipt.count(context, {
+                            context: billingContextInput,
+                            period_gt: newestPeriodFromReceipts,
+                        })
+                        if (!newerReceiptsCount) {
+                            await buildLastReportForBillingContext({
+                                dv,
+                                sender,
+                                billingContextId: billingContextInput.id,
+                                period: newestPeriodFromReceipts,
+                            })
+                        }
                     }
                     return Object.values({ ...receiptIndex, ...errorsIndex }).map(idOrError => {
                         const id = get(idOrError, 'id')
