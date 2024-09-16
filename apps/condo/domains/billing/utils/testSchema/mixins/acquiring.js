@@ -43,10 +43,10 @@ const AcquiringTestMixin = {
     },
 
     async payForReceipt (receiptId, consumerId) {
-        const [ { multiPaymentId } ] = await registerMultiPaymentByTestClient(this.clients.resident, {
+        const [ { multiPaymentId } ] = await registerMultiPaymentByTestClient(this.clients.resident, [{
             serviceConsumer: { id: consumerId },
             receipts: [{ id: receiptId }],
-        })
+        }])
         await this.completeMultiPayment(multiPaymentId)
     },
 

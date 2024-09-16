@@ -348,6 +348,47 @@ describe('AllResidentBillingReceiptsService', () => {
             expect(Big(receiptAfterPayment.paid).toFixed(2)).toEqual(paidAmounts.reduce((sum, amount) => Big(sum).add(Big(amount)).toFixed(2), '0.00'))
             expect(receiptAfterPayment.isPayable).toBeTruthy()
         })
+
+        test('paid field calculated when organization bank info changed', async () => {
+            const accountNumber = faker.random.alphaNumeric(12)
+            const total = '5000.00'
+            const jsonReceipt = utils.createJSONReceipt({ accountNumber, toPay: total })
+            const [[{ id: receiptId }]] = await utils.createReceipts([jsonReceipt])
+            const resident = await utils.createResident()
+            const [serviceConsumer] = await utils.createServiceConsumer(resident, accountNumber)
+            const receiptsBeforePayment = await ResidentBillingReceipt.getAll(utils.clients.resident, {
+                serviceConsumer: { resident: { id: resident.id } },
+            })
+            const receiptBeforePayment = receiptsBeforePayment.find(({ id }) => id === receiptId )
+            expect(Big(receiptBeforePayment.toPay).toFixed(2)).toEqual(Big(total).toFixed(2))
+            expect(receiptBeforePayment.isPayable).toBeTruthy()
+
+            await utils.payForReceipt(receiptId, serviceConsumer.id)
+            const receiptsAfterPayment = await ResidentBillingReceipt.getAll(utils.clients.resident, {
+                serviceConsumer: { resident: { id: resident.id } },
+            })
+            const receiptAfterPayment = receiptsAfterPayment.find(({ id }) => id === receiptId )
+            expect(Big(receiptAfterPayment.paid).toFixed(2)).toEqual(Big(total).toFixed(2))
+            expect(receiptAfterPayment.isPayable).toBeTruthy()
+
+            const jsonReceiptNewBankInfo = utils.createJSONReceipt({
+                importId: jsonReceipt.importId,
+                month: jsonReceipt.month,
+                year: jsonReceipt.year,
+                toPay: total,
+                address: jsonReceipt.address,
+                services: jsonReceipt.services,
+                tin: jsonReceipt.tin,
+                accountNumber,
+            })
+            const [[{id: receiptNewBankInfoId}]] = await utils.createReceipts([jsonReceiptNewBankInfo])
+            const receiptsAfterBankInfoChange = await ResidentBillingReceipt.getAll(utils.clients.resident, {
+                serviceConsumer: { resident: { id: resident.id } },
+            })
+            const receiptAfterBankInfoChange = receiptsAfterBankInfoChange.find(({ id }) => id === receiptNewBankInfoId )
+            expect(Big(receiptAfterBankInfoChange.paid).toFixed(2)).toEqual(Big(total).toFixed(2))
+            expect(receiptAfterBankInfoChange.isPayable).toBeTruthy()
+        })
     })
 
 })
