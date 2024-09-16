@@ -24,7 +24,7 @@ const {
     PeriodResolver,
     ReceiptResolver,
 } = require('@condo/domains/billing/schema/resolvers')
-const { sortPeriodFunction } = require('@condo/domains/billing/schema/resolvers/utils')
+const { sortPeriodFunction, updateLastReport } = require('@condo/domains/billing/schema/resolvers/utils')
 const { BillingAccount, BillingProperty, BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 const { BillingIntegrationOrganizationContext: BillingContextApi } = require('@condo/domains/billing/utils/serverSchema')
 const { getAddressSuggestions } = require('@condo/domains/common/utils/serverSideAddressApi')
@@ -339,18 +339,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     const receiptsIndex = Object.fromEntries(receipts.map(receipt => ([receipt.id, receipt])))
                     if (receiptsPeriods.length) {
                         const newestPeriodFromReceipts = receiptsPeriods.sort(sortPeriodFunction).pop()
-                        const newerReceiptsCount = await BillingReceipt.count(context, { context: billingContextInput, period_gt: newestPeriodFromReceipts })
-                        if (!newerReceiptsCount) {
-                            const currentPeriodReceiptsCount = await BillingReceipt.count(context, { context: billingContextInput, period: newestPeriodFromReceipts })
-                            await BillingContextApi.update(context, billingContextId, {
-                                dv, sender,
-                                lastReport: {
-                                    period: newestPeriodFromReceipts,
-                                    finishTime: new Date().toISOString(),
-                                    totalReceipts: currentPeriodReceiptsCount,
-                                },
-                            })
-                        }
+                        await updateLastReport(context, { dv, sender, billingContextInput, period: newestPeriodFromReceipts })
                     }
                     return Object.values({ ...receiptIndex, ...errorsIndex }).map(idOrError => {
                         const id = get(idOrError, 'id')

@@ -109,14 +109,33 @@ describe('RegisterBillingReceiptsService', () => {
     })
 
     describe('ReportCreat', () => {
-
+        test('should update lastReport categories without duplicates', async () => {
+            const currentMonthPeriod = dayjs().add(5, 'year').format('YYYY-MM-01')
+            const [currentYear, currentMonth] = currentMonthPeriod.split('-').map(Number)
+            const OVERHAUL_CATEGORY = 'c0b9db6a-c351-4bf4-aa35-8e5a500d0195'
+            const HOUSING_CATEGORY = '928c97ef-5289-4daa-b80e-4b9fed50c629'
+            await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [
+                    utils.createJSONReceipt({ month: currentMonth, year: currentYear, category: { id: HOUSING_CATEGORY } }),
+                    utils.createJSONReceipt({ month: currentMonth, year: currentYear, category: { id: HOUSING_CATEGORY } }),
+                    utils.createJSONReceipt({ month: currentMonth, year: currentYear, category: { id: OVERHAUL_CATEGORY } }),
+                    utils.createJSONReceipt({ month: currentMonth, year: currentYear, category: { id: OVERHAUL_CATEGORY } }),
+                ],
+            })
+            const context = await BillingContext.getOne(utils.clients.admin, { id: utils.billingContext.id })
+            console.error(context)
+            expect(new Set(context.lastReport.categories).size).toEqual(context.lastReport.categories.length)
+            expect(context.lastReport.categories[0]).toEqual(HOUSING_CATEGORY)
+            expect(context.lastReport.categories[1]).toEqual(OVERHAUL_CATEGORY)
+        })
         test('should update lastReport for BillingContext if new period was loaded', async () => {
             const currentMonthPeriod = dayjs().add(5, 'year').format('YYYY-MM-01')
             const nextMonthPeriod = dayjs().add(5, 'year').add(1, 'month').format('YYYY-MM-01')
             const [currentYear, currentMonth] = currentMonthPeriod.split('-').map(Number)
             await registerBillingReceiptsByTestClient(utils.clients.admin, {
                 context: { id: utils.billingContext.id },
-                receipts: [utils.createJSONReceipt({ month: currentMonth, year: currentYear })],
+                receipts: [utils.createJSONReceipt({ month: currentMonth, year: currentYear, category: '2cb28e7d-c03f-4ec6-9a65-4110f6f0c655' })],
             })
             const contextBefore = await BillingContext.getOne(utils.clients.admin, { id: utils.billingContext.id })
             expect(contextBefore.lastReport.period).toEqual(currentMonthPeriod)
