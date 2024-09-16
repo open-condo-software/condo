@@ -13829,7 +13829,7 @@ __metadata:
     rollup-plugin-uglify: ^6.0.4
     typescript: ^5.5.4
   peerDependencies:
-    "@apollo/client": ^3.11.8
+    "@apollo/client": "*"
     react: ">=16.0.0"
     react-dom: ">=16.0.0"
   languageName: unknown
@@ -14080,7 +14080,7 @@ __metadata:
     rollup-plugin-uglify: ^6.0.4
     typescript: ^5.5.4
   peerDependencies:
-    "@apollo/client": ^3.11.8
+    "@apollo/client": ">=3.0.0"
     react: ">=16.0.0"
     react-dom: ">=16.0.0"
   languageName: unknown
