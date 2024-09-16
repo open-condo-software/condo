@@ -109,62 +109,62 @@ describe('RegisterBillingReceiptsService', () => {
     })
 
     describe('ReportCreat', () => {
-        test('should update lastReport categories without duplicates', async () => {
-            const currentMonthPeriod = dayjs().add(5, 'year').format('YYYY-MM-01')
-            const [currentYear, currentMonth] = currentMonthPeriod.split('-').map(Number)
-            const OVERHAUL_CATEGORY = 'c0b9db6a-c351-4bf4-aa35-8e5a500d0195'
-            const HOUSING_CATEGORY = '928c97ef-5289-4daa-b80e-4b9fed50c629'
-            await registerBillingReceiptsByTestClient(utils.clients.admin, {
-                context: { id: utils.billingContext.id },
-                receipts: [
-                    utils.createJSONReceipt({ month: currentMonth, year: currentYear, category: { id: HOUSING_CATEGORY } }),
-                    utils.createJSONReceipt({ month: currentMonth, year: currentYear, category: { id: HOUSING_CATEGORY } }),
-                    utils.createJSONReceipt({ month: currentMonth, year: currentYear, category: { id: OVERHAUL_CATEGORY } }),
-                    utils.createJSONReceipt({ month: currentMonth, year: currentYear, category: { id: OVERHAUL_CATEGORY } }),
-                ],
-            })
-            const context = await BillingContext.getOne(utils.clients.admin, { id: utils.billingContext.id })
-            console.error(context)
-            expect(new Set(context.lastReport.categories).size).toEqual(context.lastReport.categories.length)
-            expect(context.lastReport.categories[0]).toEqual(HOUSING_CATEGORY)
-            expect(context.lastReport.categories[1]).toEqual(OVERHAUL_CATEGORY)
-        })
         test('should update lastReport for BillingContext if new period was loaded', async () => {
             const currentMonthPeriod = dayjs().add(5, 'year').format('YYYY-MM-01')
             const nextMonthPeriod = dayjs().add(5, 'year').add(1, 'month').format('YYYY-MM-01')
             const [currentYear, currentMonth] = currentMonthPeriod.split('-').map(Number)
+            const OVERHAUL_CATEGORY = 'c0b9db6a-c351-4bf4-aa35-8e5a500d0195'
+            const HOUSING_CATEGORY = '928c97ef-5289-4daa-b80e-4b9fed50c629'
+            const ELECTRICITY_CATEGORY =  '9c29b499-6594-4479-a2a7-b6553587d6e2'
             await registerBillingReceiptsByTestClient(utils.clients.admin, {
                 context: { id: utils.billingContext.id },
-                receipts: [utils.createJSONReceipt({ month: currentMonth, year: currentYear })],
+                receipts: [ OVERHAUL_CATEGORY, OVERHAUL_CATEGORY, HOUSING_CATEGORY, HOUSING_CATEGORY ].map(category => utils.createJSONReceipt({ month: currentMonth, year: currentYear, category: { id : category } })),
             })
             const contextBefore = await BillingContext.getOne(utils.clients.admin, { id: utils.billingContext.id })
             expect(contextBefore.lastReport.period).toEqual(currentMonthPeriod)
+            expect(contextBefore.lastReport.categories).toContain(OVERHAUL_CATEGORY)
+            expect(contextBefore.lastReport.categories).toContain(HOUSING_CATEGORY)
+            expect(new Set(contextBefore.lastReport.categories).size).toEqual(contextBefore.lastReport.categories.length)
             const [nextYear, nextMonth] = nextMonthPeriod.split('-').map(Number)
             await registerBillingReceiptsByTestClient(utils.clients.admin, {
                 context: { id: utils.billingContext.id },
-                receipts: [utils.createJSONReceipt({ month: nextMonth, year: nextYear })],
+                receipts: [ ELECTRICITY_CATEGORY, HOUSING_CATEGORY ].map(category => utils.createJSONReceipt({ month: nextMonth, year: nextYear, category: { id : category } })),
             })
             const contextAfter = await BillingContext.getOne(utils.clients.admin, { id: utils.billingContext.id })
             expect(contextAfter.lastReport.period).toEqual(nextMonthPeriod)
+            expect(contextAfter.lastReport.categories).toContain(ELECTRICITY_CATEGORY)
+            expect(contextAfter.lastReport.categories).not.toContain(OVERHAUL_CATEGORY)
+            expect(contextAfter.lastReport.categories).toContain(HOUSING_CATEGORY)
+            expect(new Set(contextAfter.lastReport.categories).size).toEqual(contextAfter.lastReport.categories.length)
         })
 
         test('should not update lastReport if older receipts was loaded', async () => {
             const currentMonthPeriod = dayjs().add(6, 'year').format('YYYY-MM-01')
             const nextMonthPeriod = dayjs().add(6, 'year').add(1, 'month').format('YYYY-MM-01')
             const [nextYear, nextMonth] = nextMonthPeriod.split('-').map(Number)
+            const OVERHAUL_CATEGORY = 'c0b9db6a-c351-4bf4-aa35-8e5a500d0195'
+            const HOUSING_CATEGORY = '928c97ef-5289-4daa-b80e-4b9fed50c629'
+            const ELECTRICITY_CATEGORY =  '9c29b499-6594-4479-a2a7-b6553587d6e2'
             await registerBillingReceiptsByTestClient(utils.clients.admin, {
                 context: { id: utils.billingContext.id },
-                receipts: [utils.createJSONReceipt({ month: nextMonth, year: nextYear })],
+                receipts: [ OVERHAUL_CATEGORY, HOUSING_CATEGORY ].map(category => utils.createJSONReceipt({ month: nextMonth, year: nextYear, category: { id : category } })),
             })
             const contextBefore = await BillingContext.getOne(utils.clients.admin, { id: utils.billingContext.id })
             expect(contextBefore.lastReport.period).toEqual(nextMonthPeriod)
+            expect(contextBefore.lastReport.categories).toContain(OVERHAUL_CATEGORY)
+            expect(contextBefore.lastReport.categories).toContain(HOUSING_CATEGORY)
+            expect(new Set(contextBefore.lastReport.categories).size).toEqual(contextBefore.lastReport.categories.length)
             const [currentYear, currentMonth] = currentMonthPeriod.split('-').map(Number)
             await registerBillingReceiptsByTestClient(utils.clients.admin, {
                 context: { id: utils.billingContext.id },
-                receipts: [utils.createJSONReceipt({ month: currentMonth, year: currentYear })],
+                receipts: [ ELECTRICITY_CATEGORY, ELECTRICITY_CATEGORY ].map(category => utils.createJSONReceipt({ month: currentMonth, year: currentYear, category: { id : category } })),
             })
             const contextAfter = await BillingContext.getOne(utils.clients.admin, { id: utils.billingContext.id })
             expect(contextAfter.lastReport.period).toEqual(nextMonthPeriod)
+            expect(contextAfter.lastReport.categories).toContain(OVERHAUL_CATEGORY)
+            expect(contextAfter.lastReport.categories).toContain(HOUSING_CATEGORY)
+            expect(contextAfter.lastReport.categories).not.toContain(ELECTRICITY_CATEGORY)
+            expect(new Set(contextAfter.lastReport.categories).size).toEqual(contextAfter.lastReport.categories.length)
         })
 
     })

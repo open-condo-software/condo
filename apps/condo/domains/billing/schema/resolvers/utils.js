@@ -59,28 +59,25 @@ const normalizePropertyGlobalId = (rawFiasCode) => {
 
 const sortPeriodFunction = (periodA, periodB) => (dayjs(periodA, 'YYYY-MM-DD').isAfter(dayjs(periodB, 'YYYY-MM-DD')) ? 1 : -1)
 
-const updateLastReport = async (context, { dv, sender,  billingContextInput, period }) => {
-    const newerReceiptsCount = await BillingReceipt.count(context, { context: billingContextInput, period_gt: period })
-    if (!newerReceiptsCount) {
-        const currentPeriodReceiptsCount = await BillingReceipt.count(context, { context: billingContextInput, period: period })
-        const { keystone } = getSchemaCtx('BillingReceipt')
-        const { knex } = getDatabaseAdapter(keystone)
-        const categories = await knex('BillingReceipt')
-            .select(knex.raw('DISTINCT category'))
-            .where('deletedAt', 'is', null)
-            .where('period', '=', period)
-            .where('context', '=', billingContextInput.id)
-        
-        await BillingIntegrationOrganizationContext.update(context, billingContextInput.id, {
-            dv, sender,
-            lastReport: {
-                period: period,
-                finishTime: new Date().toISOString(),
-                totalReceipts: currentPeriodReceiptsCount,
-                categories: categories.map(({ category }) => category),
-            },
-        })
-    }
+const buildLastReportForBillingContext = async ({ dv, sender, billingContextId, period }) => {
+    const { keystone: context } = getSchemaCtx('BillingReceipt')
+    const { knex } = getDatabaseAdapter(context)
+    const currentPeriodReceiptsCount = await BillingReceipt.count(context, { context: { id: billingContextId }, period: period, deletedAt: null })
+    const categories = await knex('BillingReceipt')
+        .select(knex.raw('DISTINCT category'))
+        .where('deletedAt', 'is', null)
+        .where('period', '=', period)
+        .where('context', '=', billingContextId)
+
+    await BillingIntegrationOrganizationContext.update(context, billingContextId, {
+        dv, sender,
+        lastReport: {
+            period: period,
+            finishTime: new Date().toISOString(),
+            totalReceipts: currentPeriodReceiptsCount,
+            categories: categories.map(({ category }) => category),
+        },
+    })
 }
 
 module.exports = {
@@ -89,5 +86,5 @@ module.exports = {
     isValidFias,
     sortPeriodFunction,
     normalizePropertyGlobalId,
-    updateLastReport,
+    buildLastReportForBillingContext,
 }
