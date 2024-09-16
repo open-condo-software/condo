@@ -60,7 +60,8 @@ async function registerBillingReceipts (context, data) {
 }
 
 /**
- * Sums up all DONE or WITHDRAWN payments for billingReceipt for <organization> with <accountNumber> and <period>
+ * Sums up all DONE or WITHDRAWN payments for billingReceipt for <receiptId> or <organization> with <accountNumber> and <period>
+ * @param receiptId {string}
  * @param context {Object}
  * @param organizationId {string}
  * @param accountNumber {string}
@@ -69,15 +70,39 @@ async function registerBillingReceipts (context, data) {
  * @param period {string}
  * @return {Promise<*>}
  */
-const getPaymentsSum = async (context, organizationId, accountNumber, period, bic, bankAccount) => {
-    const payments = await  find('Payment', {
-        organization: { id: organizationId },
-        accountNumber: accountNumber,
-        period: period,
-        status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS],
-        recipientBic: bic,
-        recipientBankAccount: bankAccount,
-    })
+const getPaymentsSum = async (context, receiptId, organizationId, accountNumber, period, bic, bankAccount) => {
+    const directReceiptIdWhere = { AND: [
+            { receipt: { id: receiptId } },
+            { receipt_is_null: false },
+        ]
+    }
+
+    // TODO: create task to connect receipt to early payment after receipt creation
+    // TODO: remove this check after upper todo
+    const oldWhereByOrganizationCredentials = { AND: [
+            { organization: { id: organizationId } },
+            { accountNumber },
+            { period },
+            { receipt_is_null: true },
+            { recipientBic: bic },
+            { recipientBankAccount: bankAccount },
+        ]
+    }
+
+    const condition = {
+        AND: [
+            { status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS] },
+            { deletedAt: null },
+            {
+                OR: [
+                    directReceiptIdWhere,
+                    oldWhereByOrganizationCredentials,
+                ]
+            }
+        ]
+    }
+
+    const payments = await  find('Payment', condition)
     return payments.reduce((total, current) => (Big(total).plus(current.amount)), 0).toFixed(8).toString()
 }
 

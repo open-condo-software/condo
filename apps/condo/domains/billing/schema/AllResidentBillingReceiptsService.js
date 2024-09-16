@@ -187,11 +187,12 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                     const billingCategory = get(receipt, ['category']) || {}
                     const paid = await getPaymentsSum(
                         context,
+                        get(receipt, 'id', null),
                         organizationId,
                         accountNumber,
                         get(receipt, 'period', null),
-                        get(receipt, ['recipient', 'bic'], null),
-                        get(receipt, ['recipient', 'bankAccount'], null)
+                        get(receipt, ['receiver', 'bic'], null),
+                        get(receipt, ['receiver', 'bankAccount'], null)
                     )
                     const acquiringContextId = get(receipt, ['serviceConsumer', 'acquiringIntegrationContext'], null)
                     const toPay = get(receipt, ['toPay'], 0)

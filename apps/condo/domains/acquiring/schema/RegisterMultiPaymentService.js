@@ -581,7 +581,8 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                                 const period = get(frozenReceipt, ['data', 'period'])
                                 const routingNumber = get(frozenReceipt, ['data', 'recipient', 'bic'])
                                 const bankAccount = get(frozenReceipt, ['data', 'recipient', 'bankAccount'])
-                                const paidAmount = await getPaymentsSum(context, organizationId, billingAccountNumber, period, routingNumber, bankAccount)
+                                const receiptId = get(frozenReceipt, 'id', null)
+                                const paidAmount = await getPaymentsSum(context, receiptId, organizationId, billingAccountNumber, period, routingNumber, bankAccount)
                                 amount = String(Big(receipt.toPay).minus(Big(paidAmount)))
                             }
 

@@ -160,6 +160,7 @@ async function notifyResidentsOnPayday () {
                     const toPay = Number(get(receipt, ['toPay']))
                     const paid = Number(await getPaymentsSum(
                         context,
+                        get(receipt, 'id', null),
                         organizationId,
                         accountNumber,
                         get(receipt, 'period', null),
