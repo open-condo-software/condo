@@ -10,7 +10,7 @@ const fetch = require('node-fetch')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { MAX_REQUESTS_IN_BATCH, MAX_MODIFY_OPERATIONS_IN_REQUEST, MAX_RETRIES_ON_NETWORK_ERROR, LOAD_CHUNK_SIZE } = require('./constants')
-const { SIGNIN_BY_EMAIL_MUTATION, SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } = require('./lib/gql')
+const { SIGNIN_BY_EMAIL_MUTATION, SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, SIGNOUT_MUTATION } = require('./lib/gql')
 
 if (!globalThis.fetch) {
     globalThis.fetch = fetch
@@ -135,6 +135,13 @@ class ApolloServerClient {
         } else {
             await this.singInByEmailAndPassword()
         }
+    }
+
+    async signOut () {
+        return await this.client.mutate({
+            mutation: SIGNOUT_MUTATION,
+            variables: { },
+        })
     }
 
     /**
