@@ -381,7 +381,7 @@ describe('AllResidentBillingReceiptsService', () => {
                 tin: jsonReceipt.tin,
                 accountNumber,
             })
-            const [[{id: receiptNewBankInfoId}]] = await utils.createReceipts([jsonReceiptNewBankInfo])
+            const [[{ id: receiptNewBankInfoId }]] = await utils.createReceipts([jsonReceiptNewBankInfo])
             const receiptsAfterBankInfoChange = await ResidentBillingReceipt.getAll(utils.clients.resident, {
                 serviceConsumer: { resident: { id: resident.id } },
             })

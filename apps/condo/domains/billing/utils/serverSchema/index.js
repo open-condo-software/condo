@@ -72,21 +72,21 @@ async function registerBillingReceipts (context, data) {
  */
 const getPaymentsSum = async (context, receiptId, organizationId, accountNumber, period, bic, bankAccount) => {
     const directReceiptIdWhere = { AND: [
-            { receipt: { id: receiptId } },
-            { receipt_is_null: false },
-        ]
+        { receipt: { id: receiptId } },
+        { receipt_is_null: false },
+    ],
     }
 
     // TODO: create task to connect receipt to early payment after receipt creation
     // TODO: remove this check after upper todo
     const oldWhereByOrganizationCredentials = { AND: [
-            { organization: { id: organizationId } },
-            { accountNumber },
-            { period },
-            { receipt_is_null: true },
-            { recipientBic: bic },
-            { recipientBankAccount: bankAccount },
-        ]
+        { organization: { id: organizationId } },
+        { accountNumber },
+        { period },
+        { receipt_is_null: true },
+        { recipientBic: bic },
+        { recipientBankAccount: bankAccount },
+    ],
     }
 
     const condition = {
@@ -97,9 +97,9 @@ const getPaymentsSum = async (context, receiptId, organizationId, accountNumber,
                 OR: [
                     directReceiptIdWhere,
                     oldWhereByOrganizationCredentials,
-                ]
-            }
-        ]
+                ],
+            },
+        ],
     }
 
     const payments = await  find('Payment', condition)
