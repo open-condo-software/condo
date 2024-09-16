@@ -22,11 +22,12 @@
 
  */
 
+const util = require('util')
+
 const {
     isInstance: isKeystoneErrorInstance,
 } = require('apollo-errors')
 const { ApolloError, AuthenticationError } = require('apollo-server-errors')
-const ensureError = require('ensure-error')
 const { printError } = require('graphql')
 const { pick, pickBy, identity, toArray, _, toString, get, set, isArray } = require('lodash')
 
@@ -101,6 +102,21 @@ function _extractInnerGQLError (error) {
     return innerErrors.find(err => get(err, 'name') === 'GQLError')
 }
 
+class NonError extends Error {
+    constructor (message) {
+        super(util.inspect(message))
+        this.name = 'NonError'
+        Error.captureStackTrace(this, NonError)
+    }
+}
+
+function _ensureError (error) {
+    if (!(error instanceof Error)) {
+        return new NonError(error)
+    }
+    return error
+}
+
 /**
  * Use it if you need to safely prepare error for logging or ApolloServer result
  * @param {Error} error -- any error
@@ -113,7 +129,7 @@ const safeFormatError = (error, hideInternals = false, applyPatches = true) => {
 
     // error keyst: message, name, stack
     const pickKeys1 = (hideInternals) ? ['message', 'name'] : ['message', 'name', 'stack']
-    Object.assign(result, pick(ensureError(error), pickKeys1))
+    Object.assign(result, pick(_ensureError(error), pickKeys1))
 
     // keystoneError keys: time_thrown, message, data, internalData, locations, path
     if (isKeystoneErrorInstance(error)) {
@@ -145,7 +161,7 @@ const safeFormatError = (error, hideInternals = false, applyPatches = true) => {
     }
 
     let originalError = get(error, 'originalError')
-    const originalErrorClassNames = originalError ?  _getClassList(originalError) : []
+    const originalErrorClassNames = originalError ? _getClassList(originalError) : []
     // NOTE 1: If GQLError is thrown at ASYNC field hook, it will be wrapped like following:
     // GraphQLError + Wrapper: {
     //      originalError (Error): {
