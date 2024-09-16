@@ -73,12 +73,10 @@ async function registerBillingReceipts (context, data) {
 const getPaymentsSum = async (context, receiptId, organizationId, accountNumber, period, bic, bankAccount) => {
     const directReceiptIdWhere = { AND: [
         { receipt: { id: receiptId } },
-        { receipt_is_null: false },
     ],
     }
 
-    // TODO: create task to connect receipt to early payment after receipt creation
-    // TODO: remove this check after upper todo
+    // TODO(YEgorLu): DOMA-10222 create task to connect receipt to early payment after receipt creation and remove this check
     const oldWhereByOrganizationCredentials = { AND: [
         { organization: { id: organizationId } },
         { accountNumber },
