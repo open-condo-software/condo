@@ -135,7 +135,7 @@ describe('RegisterBillingReceiptsService', () => {
             const [currentYear, currentMonth] = currentMonthPeriod.split('-').map(Number)
             await registerBillingReceiptsByTestClient(utils.clients.admin, {
                 context: { id: utils.billingContext.id },
-                receipts: [utils.createJSONReceipt({ month: currentMonth, year: currentYear, category: '2cb28e7d-c03f-4ec6-9a65-4110f6f0c655' })],
+                receipts: [utils.createJSONReceipt({ month: currentMonth, year: currentYear })],
             })
             const contextBefore = await BillingContext.getOne(utils.clients.admin, { id: utils.billingContext.id })
             expect(contextBefore.lastReport.period).toEqual(currentMonthPeriod)
