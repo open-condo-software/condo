@@ -149,6 +149,9 @@ class GQLError extends ApolloError {
         Object.defineProperty(this, 'name', { value: 'GQLError' })
         this.reqId = get(context, 'req.id')
         this.uid = cuid()
+        // NOTE(pahaz): cleanup field copy
+        delete extensions.message
+        delete extensions.name
     }
 }
 

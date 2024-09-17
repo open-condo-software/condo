@@ -4,6 +4,7 @@ const { GraphQLError } = require('graphql')
 const { Source, parse } = require('graphql/language')
 
 const { safeFormatError } = require('./apolloErrorFormatter')
+const { GQLError } = require('./errors')
 
 const GQL_SOURCE_EXAMPLE = new Source(`
   {
@@ -20,6 +21,11 @@ const NestedError = createError('NestedError', {
     },
 })
 
+const AccessDeniedError = createError('AccessDeniedError', {
+    message: 'You do not have access to this resource',
+    options: { showPath: true },
+})
+
 class MyApolloError extends ApolloError {
     constructor (message) {
         super(message, 'MY_ERROR_CODE')
@@ -29,18 +35,17 @@ class MyApolloError extends ApolloError {
 
 function toGraphQLFormat (safeFormattedError) {
     const result = {
+        name: safeFormattedError.name,
         message: safeFormattedError.message || 'no message',
+        locations: safeFormattedError.locations || null,
+        path: safeFormattedError.path || null,
+        originalError: safeFormattedError.originalError || null,
         extensions: {
-            ...safeFormattedError,
+            code: safeFormattedError?.extensions?.code || 'INTERNAL_SERVER_ERROR',
             ...(safeFormattedError.extensions ? safeFormattedError.extensions : {}),
         },
-        path: safeFormattedError.path || null,
-        locations: safeFormattedError.locations || null,
     }
-    delete result.extensions.extensions
-    delete result.extensions.path
-    delete result.extensions.locations
-    delete result.extensions.message
+    delete result.extensions.exception
     return result
 }
 
@@ -200,35 +205,41 @@ describe('safeFormatError hide=false', () => {
     test('safeFormatError(new GraphQLError) with printable GQL_SOURCE_EXAMPLE case1', () => {
         const error = new GraphQLError('msg1', [GQL_FIELD_NODE_EXAMPLE])
         const result = safeFormatError(error)
+        const nodes = result?.nodes
+        const source = result?.source
+        const positions = result?.positions
         expect(result).toEqual({
+            nodes, source, positions,
             'message': 'msg1',
             'name': 'GraphQLError',
             'stack': expect.stringMatching(/^GraphQLError: msg1/),
-            'developerMessage': 'msg1\n\nGraphQL request:3:5\n2 |   {\n3 |     field\n  |     ^\n4 |   }',
             'locations': [
                 {
                     'column': 5,
                     'line': 3,
                 },
             ],
-            'extensions': {},
+            'extensions': {
+                'messageForDeveloper': 'msg1\n\nGraphQL request:3:5\n2 |   {\n3 |     field\n  |     ^\n4 |   }',
+            },
         })
     })
     test('safeFormatError(new GraphQLError) with printable GQL_SOURCE_EXAMPLE case2', () => {
         const error = new GraphQLError('msg2', null, GQL_SOURCE_EXAMPLE, [9])
         const result = safeFormatError(error)
+        const source = result?.source
+        const positions = result?.positions
         expect(result).toEqual({
+            source, positions,
             'message': 'msg2',
             'name': 'GraphQLError',
             'stack': expect.stringMatching(/^GraphQLError: msg2/),
-            'developerMessage': 'msg2\n\nGraphQL request:3:5\n2 |   {\n3 |     field\n  |     ^\n4 |   }',
             'locations': [
                 {
                     'column': 5,
                     'line': 3,
                 },
             ],
-            'extensions': {},
         })
     })
     test('safeFormatError(new GraphQLError) with path', () => {
@@ -249,7 +260,6 @@ describe('safeFormatError hide=false', () => {
                 'to',
                 'field',
             ],
-            'extensions': {},
         })
     })
     test('safeFormatError(new GraphQLError) based on keystone error', () => {
@@ -265,7 +275,6 @@ describe('safeFormatError hide=false', () => {
                 'name': 'Error',
                 'stack': expect.stringMatching(/^Error: original/),
             },
-            'extensions': {},
         })
     })
     test('safeFormatError(new GraphQLError) with original error', () => {
@@ -273,9 +282,6 @@ describe('safeFormatError hide=false', () => {
         const error = new GraphQLError('msg4', null, null, null, null, original)
         const result = safeFormatError(error)
         expect(result).toEqual({
-            'data': {  // keystone specific
-                'bar': '33',
-            },
             'message': 'msg4',
             'name': 'NestedError',  // keystone specific
             'stack': expect.stringMatching(/^NestedError: Hello/),
@@ -287,13 +293,40 @@ describe('safeFormatError hide=false', () => {
                 'data': { bar: '33' },
                 'time_thrown': expect.stringMatching(/^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/),
             },
-            'extensions': {},
         })
     })
     test('safeFormatError(null)', () => {
         expect(safeFormatError(null)).toMatchObject({
             'message': 'null',
             'name': 'NonError',
+        })
+    })
+    test('safeFormatError(KeystoneAccessDeniedError)', () => {
+        const data = { type: 'query', target: 'user' }
+        const internalData = {
+            authedId: '2b657cb4-c4d1-4743-aa3b-aef527fe16e4',
+            authedListKey: 'User',
+            itemId: '55b21bb3-d4b4-45fe-917f-58614b69bbca',
+        }
+        const original = new AccessDeniedError({ data, internalData })
+        const error = new GraphQLError('GraphQLError1', [GQL_FIELD_NODE_EXAMPLE], GQL_SOURCE_EXAMPLE, null, ['field'], original, {})
+        expect(safeFormatError(error)).toEqual({
+            'locations': [{ column: 5, line: 3 }],
+            'message': 'GraphQLError1',
+            'path': ['field'],
+            'name': 'AccessDeniedError',
+            'stack': expect.stringMatching(/^AccessDeniedError: You do not have access to this resource/),
+            'originalError': {
+                'name': 'AccessDeniedError',
+                'stack': expect.stringMatching(/^AccessDeniedError: You do not have access to this resource/),
+                'message': 'You do not have access to this resource',
+                'data': data,
+                'internalData': internalData,
+                'time_thrown': expect.stringMatching(/^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/),
+            },
+            'extensions': {
+                'messageForDeveloper': 'GraphQLError1\n\nGraphQL request:3:5\n2 |   {\n3 |     field\n  |     ^\n4 |   }',
+            },
         })
     })
 })
@@ -322,7 +355,6 @@ describe('safeFormatError hide=true', () => {
             'message': 'Hello',
             'name': 'NestedError',
             'data': {},
-            'time_thrown': expect.stringMatching(/^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/),
         })
     })
     test('safeFormatError(new MyApolloError)', () => {
@@ -359,7 +391,6 @@ describe('safeFormatError hide=true', () => {
             'message': 'Hello',
             'name': 'NestedError',
             'data': { bar: 'no' },
-            'time_thrown': expect.stringMatching(/^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/),
         })
     })
     test('safeFormatError(new Error) errors = null', () => {
@@ -387,12 +418,6 @@ describe('safeFormatError hide=true', () => {
         expect(result).toEqual({
             'message': 'Hello',
             'name': 'Error',
-            'errors': [
-                expect.objectContaining({
-                    'message': 'World',
-                    'name': 'Error',
-                }),
-            ],
         })
     })
     test('safeFormatError(new Error) errors = [ new Error ]', () => {
@@ -402,12 +427,6 @@ describe('safeFormatError hide=true', () => {
         expect(result).toEqual({
             'message': 'Hello',
             'name': 'Error',
-            'errors': [
-                expect.objectContaining({
-                    'message': 'World',
-                    'name': 'Error',
-                }),
-            ],
         })
     })
     test('safeFormatError(new NestedError) nested', () => {
@@ -416,7 +435,6 @@ describe('safeFormatError hide=true', () => {
             'message': 'Hello',
             'name': 'NestedError',
             'data': {},
-            'time_thrown': expect.stringMatching(/^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/),
         })
     })
     test('safeFormatError(new GraphQLError) with printable GQL_SOURCE_EXAMPLE case1', () => {
@@ -425,14 +443,15 @@ describe('safeFormatError hide=true', () => {
         expect(result).toEqual({
             'message': 'msg1',
             'name': 'GraphQLError',
-            'developerMessage': 'msg1\n\nGraphQL request:3:5\n2 |   {\n3 |     field\n  |     ^\n4 |   }',
             'locations': [
                 {
                     'column': 5,
                     'line': 3,
                 },
             ],
-            'extensions': {},
+            'extensions': {
+                'messageForDeveloper': 'msg1\n\nGraphQL request:3:5\n2 |   {\n3 |     field\n  |     ^\n4 |   }',
+            },
         })
     })
     test('safeFormatError(new GraphQLError) with printable GQL_SOURCE_EXAMPLE case2', () => {
@@ -441,14 +460,12 @@ describe('safeFormatError hide=true', () => {
         expect(result).toEqual({
             'message': 'msg2',
             'name': 'GraphQLError',
-            'developerMessage': 'msg2\n\nGraphQL request:3:5\n2 |   {\n3 |     field\n  |     ^\n4 |   }',
             'locations': [
                 {
                     'column': 5,
                     'line': 3,
                 },
             ],
-            'extensions': {},
         })
     })
     test('safeFormatError(new GraphQLError) with path', () => {
@@ -468,7 +485,6 @@ describe('safeFormatError hide=true', () => {
                 'to',
                 'field',
             ],
-            'extensions': {},
         })
     })
     test('safeFormatError(new GraphQLError) based on keystone error', () => {
@@ -478,11 +494,6 @@ describe('safeFormatError hide=true', () => {
         expect(result).toEqual({
             'message': 'msg5',
             'name': 'GraphQLError',
-            'extensions': {},
-            'originalError': {
-                'message': 'original',
-                'name': 'Error',
-            },
         })
     })
     test('safeFormatError(new GraphQLError) with original error', () => {
@@ -490,20 +501,8 @@ describe('safeFormatError hide=true', () => {
         const error = new GraphQLError('msg4', null, null, null, null, original)
         const result = safeFormatError(error, true)
         expect(result).toEqual({
-            'data': {  // keystone specific
-                'bar': '33',
-            },
             'message': 'msg4',
             'name': 'NestedError',
-            'extensions': {},
-            'originalError': {
-                'data': {
-                    'bar': '33',
-                },
-                'message': 'Hello',
-                'name': 'NestedError',
-                'time_thrown': expect.stringContaining(''),
-            },
         })
     })
 })
@@ -517,43 +516,10 @@ describe('toGraphQLFormat', () => {
         const error = new GraphQLError('msg', [GQL_FIELD_NODE_EXAMPLE], null, null, ['path', 'field'], original)
         const result = toGraphQLFormat(safeFormatError(error))
         expect(result).toEqual({
+            'name': 'GraphQLError',
             'extensions': {
-                'developerMessage': 'msg\n\nGraphQL request:3:5\n2 |   {\n3 |     field\n  |     ^\n4 |   }',
-                'name': 'GraphQLError',
-                'originalError': {
-                    'errors': [
-                        {
-                            'extensions': {
-                                'bar': '22',
-                                'code': 'CODE1',
-                                'foo': [
-                                    1,
-                                ],
-                            },
-                            'message': 'something happened!',
-                            'name': 'Error',
-                            'stack': expect.stringMatching(/^Error: something happened!/),
-                        },
-                        {
-                            'data': {
-                                'bar': '33',
-                            },
-                            'internalData': {
-                                'foo': [
-                                    2,
-                                ],
-                            },
-                            'message': 'Hello',
-                            'name': 'NestedError',
-                            'stack': expect.stringMatching(/^NestedError: Hello/),
-                            'time_thrown': expect.stringMatching(/^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/),
-                        },
-                    ],
-                    'message': 'original',
-                    'name': 'Error',
-                    'stack': expect.stringMatching(/^Error: original/),
-                },
-                'stack': expect.stringMatching(/^Error: original/),
+                'code': 'INTERNAL_SERVER_ERROR',
+                'messageForDeveloper': 'msg\n\nGraphQL request:3:5\n2 |   {\n3 |     field\n  |     ^\n4 |   }',
             },
             'locations': [
                 {
@@ -566,6 +532,39 @@ describe('toGraphQLFormat', () => {
                 'path',
                 'field',
             ],
+            'originalError': {
+                'errors': [
+                    {
+                        'extensions': {
+                            'bar': '22',
+                            'code': 'CODE1',
+                            'foo': [
+                                1,
+                            ],
+                        },
+                        'message': 'something happened!',
+                        'name': 'Error',
+                        'stack': expect.stringMatching(/^Error: something happened!/),
+                    },
+                    {
+                        'data': {
+                            'bar': '33',
+                        },
+                        'internalData': {
+                            'foo': [
+                                2,
+                            ],
+                        },
+                        'message': 'Hello',
+                        'name': 'NestedError',
+                        'stack': expect.stringMatching(/^NestedError: Hello/),
+                        'time_thrown': expect.stringMatching(/^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/),
+                    },
+                ],
+                'message': 'original',
+                'name': 'Error',
+                'stack': expect.stringMatching(/^Error: original/),
+            },
         })
     })
     test('toGraphQLFormat(GraphQLError) hide', () => {
@@ -576,34 +575,10 @@ describe('toGraphQLFormat', () => {
         const error = new GraphQLError('msg', [GQL_FIELD_NODE_EXAMPLE], null, null, ['path', 'field'], original)
         const result = toGraphQLFormat(safeFormatError(error, true))
         expect(result).toEqual({
+            'name': 'GraphQLError',
             'extensions': {
-                'developerMessage': 'msg\n\nGraphQL request:3:5\n2 |   {\n3 |     field\n  |     ^\n4 |   }',
-                'name': 'GraphQLError',
-                'originalError': {
-                    'errors': [
-                        {
-                            'extensions': {
-                                'bar': '22',
-                                'code': 'CODE1',
-                                'foo': [
-                                    1,
-                                ],
-                            },
-                            'message': 'something happened!',
-                            'name': 'Error',
-                        },
-                        {
-                            'data': {
-                                'bar': '33',
-                            },
-                            'message': 'Hello',
-                            'name': 'NestedError',
-                            'time_thrown': expect.stringContaining(''),
-                        },
-                    ],
-                    'message': 'original',
-                    'name': 'Error',
-                },
+                'code': 'INTERNAL_SERVER_ERROR',
+                'messageForDeveloper': 'msg\n\nGraphQL request:3:5\n2 |   {\n3 |     field\n  |     ^\n4 |   }',
             },
             'locations': [
                 {
@@ -616,6 +591,68 @@ describe('toGraphQLFormat', () => {
                 'path',
                 'field',
             ],
+            'originalError': null,
+        })
+    })
+    test('toGraphQLFormat(GQLError) no hide', () => {
+        const message1 = Date.now().toString()
+        const message2 = 'GQL' + (Date.now() % 100).toString()
+        const name1 = 'Name' + (Date.now() % 100).toString()
+        const original = new GQLError({
+            code: 'UNAUTHENTICATED',
+            type: 'NOT_FOUND',
+            message: message1,
+            name: name1,
+        })
+        const error = new GraphQLError(message2, null, null, null, null, original, {})
+        const result = toGraphQLFormat(safeFormatError(error))
+        const uid = result?.originalError?.uid
+        expect(result).toEqual({
+            'name': name1,
+            'message': message2,
+            'extensions': {
+                'message': message1,
+                'code': 'UNAUTHENTICATED',
+                'type': 'NOT_FOUND',
+            },
+            'locations': null,
+            'path': null,
+            'originalError': {
+                uid,
+                'name': name1,
+                'message': message1,
+                'stack': expect.stringMatching(new RegExp(`^${name1}: ${message1}`)),
+                'extensions': {
+                    code: 'UNAUTHENTICATED',
+                    type: 'NOT_FOUND',
+                    message: message1,
+                },
+            },
+        })
+    })
+    test('toGraphQLFormat(GQLError) hide', () => {
+        const message1 = Date.now().toString()
+        const message2 = 'GQL' + (Date.now() % 100).toString()
+        const name1 = 'Name' + (Date.now() % 100).toString()
+        const original = new GQLError({
+            code: 'UNAUTHENTICATED',
+            type: 'NOT_FOUND',
+            message: message1,
+            name: name1,
+        })
+        const error = new GraphQLError(message2, null, null, null, null, original, {})
+        const result = toGraphQLFormat(safeFormatError(error, true))
+        expect(result).toEqual({
+            'name': name1,
+            'message': message2,
+            'extensions': {
+                'message': message1,
+                'code': 'UNAUTHENTICATED',
+                'type': 'NOT_FOUND',
+            },
+            'locations': null,
+            'path': null,
+            'originalError': null,
         })
     })
 })
