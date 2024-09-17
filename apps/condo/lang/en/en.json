@@ -2782,6 +2782,8 @@
   "excelExport.headers.contacts.email": "Email",
   "excelExport.headers.contacts.role": "Role",
   "excelExport.headers.contacts.isVerified": "Verified",
+  "excelExport.headers.meters.title": "Meter readings for all time",
+  "excelExport.headers.meters.forPeriod.title": "Meter readings for the period",
   "excelExport.headers.meters.date": "Reading date",
   "excelExport.headers.meters.address": "Address",
   "excelExport.headers.meters.unitName": "Unit",
