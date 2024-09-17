@@ -17,6 +17,8 @@ const { setLocaleForKeystoneContext } = require('@condo/domains/common/utils/ser
 const { MeterReadingExportTask, MeterReading, loadMetersForExcelExport } = require('@condo/domains/meter/utils/serverSchema')
 const { buildMeterReadingsLoader, MeterResource, MeterReadingSource } = require('@condo/domains/meter/utils/serverSchema')
 
+const { findAllByKey } = require('../../common/utils/ecmascript.utils')
+
 
 const BASE_ATTRIBUTES = { dv: 1, sender: { dv: 1, fingerprint: TASK_WORKER_FINGERPRINT } }
 const MAX_XLSX_FILE_ROWS = 10000
@@ -52,11 +54,19 @@ const meterReadingToRow = async ({ task, meterReading }) => {
 }
 
 const buildExportFile = async ({ task, rows }) => {
-    const { id, locale } = task
+    const { id, locale, where, timeZone } = task
+
+    const dateGte = where.date_gte
+    const dateLte = where.date_lte
+
+    const headerMessage = dateGte && dateLte
+        ? `${i18n('excelExport.headers.meters.forPeriod.title', { locale })} ${formatDate(dateGte, timeZone)} — ${formatDate(dateLte, timeZone)}`
+        : i18n('excelExport.headers.incidents.title', { locale })
 
     const { stream } = await buildExportExcelFile({
         templatePath: './domains/meter/templates/MeterReadingsExportTemplate.xlsx',
         replaces: {
+            header: headerMessage,
             meter: rows,
             i18n: {
                 ...getHeadersTranslations(EXPORT_TYPE_METERS, locale),
@@ -97,6 +107,8 @@ async function exportMeterReadings (taskId) {
 
     const { where, sortBy, format, locale } = task
 
+    console.log('where in task', where)
+
     try {
         if (!locale) {
             throw new Error(`MeterReadingExportTask with id "${taskId}" does not have value for "locale" field!`)
@@ -106,12 +118,15 @@ async function exportMeterReadings (taskId) {
 
         const totalRecordsCount = await MeterReading.count(context, where)
 
+        console.log('totalRecordsCount', totalRecordsCount)
+
         const meterReadingsLoader = await buildMeterReadingsLoader({ where, sortBy })
         const meterResources = await MeterResource.getAll(context, {})
         const meterReadingSources = await MeterReadingSource.getAll(context, {})
 
         const loadRecordsBatch = async (offset, limit) => {
             const meterReadings = await meterReadingsLoader.loadChunk(offset, limit)
+            console.log('meterReadings', meterReadings.length)
             const meterIds = uniq(meterReadings.map(reading => get(reading, 'meter')).filter(Boolean))
             const meters = await loadMetersForExcelExport({ where: { id_in: meterIds } })
 
@@ -148,29 +163,16 @@ async function exportMeterReadings (taskId) {
 
         switch (format) {
             case EXCEL: {
-                if (totalRecordsCount > MAX_XLSX_FILE_ROWS) {
-                    await exportRecordsAsCsvFile({
-                        context,
-                        loadRecordsBatch,
-                        convertRecordToFileRow,
-                        baseAttrs: BASE_ATTRIBUTES,
-                        taskServerUtils: MeterReadingExportTask,
-                        totalRecordsCount,
-                        taskId,
-                        registry: EXPORT_TYPE_METERS,
-                    })
-                } else {
-                    await exportRecordsAsXlsxFile({
-                        context,
-                        loadRecordsBatch,
-                        convertRecordToFileRow,
-                        buildExportFile: (rows) => buildExportFile({ rows, task }),
-                        baseAttrs: BASE_ATTRIBUTES,
-                        taskServerUtils: MeterReadingExportTask,
-                        totalRecordsCount,
-                        taskId,
-                    })
-                }
+                await exportRecordsAsXlsxFile({
+                    context,
+                    loadRecordsBatch,
+                    convertRecordToFileRow,
+                    buildExportFile: (rows) => buildExportFile({ rows, task }),
+                    baseAttrs: BASE_ATTRIBUTES,
+                    taskServerUtils: MeterReadingExportTask,
+                    totalRecordsCount,
+                    taskId,
+                })
             }
         }
     } catch (err) {
@@ -178,6 +180,8 @@ async function exportMeterReadings (taskId) {
             ...BASE_ATTRIBUTES,
             status: ERROR,
         })
+
+        console.log('err', err)
 
         taskLogger.error({
             msg: 'Failed to export meter readings',

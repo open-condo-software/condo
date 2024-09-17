@@ -2768,6 +2768,8 @@
   "excelExport.headers.contacts.email": "Почта",
   "excelExport.headers.contacts.role": "Роль",
   "excelExport.headers.contacts.isVerified": "Верифицирован",
+  "excelExport.headers.meters.title": "Выгрузка показаний ИПУ за все время",
+  "excelExport.headers.meters.forPeriod.title": "Выгрузка показаний ИПУ за период",
   "excelExport.headers.meters.date": "Дата снятия",
   "excelExport.headers.meters.address": "Адрес",
   "excelExport.headers.meters.unitName": "Помещение",
