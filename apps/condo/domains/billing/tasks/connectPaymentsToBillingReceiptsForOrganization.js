@@ -1,11 +1,8 @@
-const { getLogger } = require('@open-condo/keystone/logging')
 const { find, getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { Payment } = require('@condo/domains/acquiring/utils/serverSchema')
 
 const { PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS } = require('../../acquiring/constants/payment')
-
-const logger = getLogger()
 
 function getUnconnectedPayments (organizationId) {
     return find('Payment', {
@@ -17,8 +14,8 @@ function getUnconnectedPayments (organizationId) {
     })
 }
 
-function getReceiptsByBankInfo ({ organization, recipientBankAccount, recipientBic, period, accountNumber }) {
-    return find('BillingReceipt', {
+async function getReceiptByBankInfo ({ organization, recipientBankAccount, recipientBic, period, accountNumber }) {
+    const [receipt] = await find('BillingReceipt', {
         context: {
             organization: { id: organization },
         },
@@ -32,6 +29,7 @@ function getReceiptsByBankInfo ({ organization, recipientBankAccount, recipientB
         },
         deletedAt: null,
     })
+    return receipt
 }
 
 async function connectPaymentsToBillingReceiptsForOrganization (dv, sender, organizationIds) {
@@ -40,15 +38,9 @@ async function connectPaymentsToBillingReceiptsForOrganization (dv, sender, orga
     for (const organizationId of organizationIds) {
         const payments = await getUnconnectedPayments(organizationId)
         for (const payment of payments) {
-            const receipts = await getReceiptsByBankInfo(payment)
-            if (receipts.length > 1) {
-                logger.warn({ msg: `Multiple receipts for payment ${payment.id}` })
-                continue
-            }
-            if (receipts.length === 0) {
-                continue
-            }
-            await Payment.update(context, payment.id, { dv, sender, receipt: { connect: { id: receipts[0].id } } })
+            const receipt = await getReceiptByBankInfo(payment)
+            if (!receipt) continue
+            await Payment.update(context, payment.id, { dv, sender, receipt: { connect: { id: receipt.id } } })
         }
     }
 }
