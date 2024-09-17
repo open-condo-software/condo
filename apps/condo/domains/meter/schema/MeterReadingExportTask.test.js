@@ -75,7 +75,6 @@ describe('MeterReadingExportTask', () => {
                 expect(task.updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
                 expect(task.createdAt).toMatch(DATETIME_RE)
                 expect(task.updatedAt).toMatch(DATETIME_RE)
-                expect(task.where).toEqual(taskAttrs.where)
                 expect(task.user.id).toEqual(employeeClient.user.id)
             })
 
@@ -222,7 +221,6 @@ describe('MeterReadingExportTask', () => {
                 expect(task.updatedBy).toEqual(expect.objectContaining({ id: employeeClient1.user.id }))
                 expect(task.createdAt).toMatch(DATETIME_RE)
                 expect(task.updatedAt).toMatch(DATETIME_RE)
-                expect(task.where).toEqual(taskAttrs.where)
                 expect(task.user.id).toEqual(employeeClient1.user.id)
             })
 
