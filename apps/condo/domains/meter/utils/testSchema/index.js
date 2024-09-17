@@ -14,7 +14,6 @@ const { MeterResource: MeterResourceGQL } = require('@condo/domains/meter/gql')
 const { MeterReadingSource: MeterReadingSourceGQL } = require('@condo/domains/meter/gql')
 const { Meter: MeterGQL } = require('@condo/domains/meter/gql')
 const { MeterReading: MeterReadingGQL } = require('@condo/domains/meter/gql')
-const { EXPORT_METER_READINGS_QUERY } = require('@condo/domains/meter/gql')
 const { MeterReadingFilterTemplate: MeterReadingFilterTemplateGQL } = require('@condo/domains/meter/gql')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
@@ -190,21 +189,6 @@ async function updateTestMeterReading (client, id, extraAttrs = {}) {
     }
     const obj = await MeterReading.update(client, id, attrs)
     return [obj, attrs]
-}
-
-async function exportMeterReadingsByTestClient(client, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        timeZone: DEFAULT_ORGANIZATION_TIMEZONE,
-        ...extraAttrs,
-    }
-    const { data, errors } = await client.query(EXPORT_METER_READINGS_QUERY, { data: attrs })
-    throwIfError(data, errors)
-    return [data.result, attrs]
 }
 
 async function createTestMeterReadingFilterTemplate (client, employee, extraAttrs = {}) {
@@ -529,7 +513,6 @@ module.exports = {
     MeterReadingSource, createTestMeterReadingSource, updateTestMeterReadingSource,
     Meter, createTestMeter, updateTestMeter,
     MeterReading, createTestMeterReading, updateTestMeterReading,
-    exportMeterReadingsByTestClient,
     MeterReadingFilterTemplate, createTestMeterReadingFilterTemplate, updateTestMeterReadingFilterTemplate,
     makeClientWithResidentAndMeter,
     _internalDeleteMeterAndMeterReadingsByTestClient,

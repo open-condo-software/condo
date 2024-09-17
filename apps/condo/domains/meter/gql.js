@@ -37,12 +37,6 @@ const MeterReadingForOrganization = generateGqlQueries('MeterReading', `{
     }`
 )
 
-const EXPORT_METER_READINGS_QUERY = gql`
-    query exportMeterReadings ($data: ExportMeterReadingsInput!) {
-        result: exportMeterReadings (data: $data) { status, linkToFile }
-    }
-`
-
 const METER_READING_FILTERS_FIELDS = '{ organization address accountNumber place number unitName resource clientName createdAt date verificationDate installationDate commissioningDate sealingDate controlReadingsDate }'
 const METER_READING_FILTER_TEMPLATE_FIELDS = `{ name employee { id } fields ${METER_READING_FILTERS_FIELDS} ${COMMON_FIELDS} }`
 const MeterReadingFilterTemplate = generateGqlQueries('MeterReadingFilterTemplate', METER_READING_FILTER_TEMPLATE_FIELDS)
@@ -98,7 +92,6 @@ module.exports = {
     MeterForOrganization,
     MeterReading,
     MeterReadingForOrganization,
-    EXPORT_METER_READINGS_QUERY,
     MeterReadingFilterTemplate,
     PropertyMeter,
     PropertyMeterReading,

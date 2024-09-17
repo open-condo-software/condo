@@ -22,13 +22,13 @@ export type UseMeterReadingExportToExcelInputType = {
     user: UserType
 }
 
-type ExportButtonInputType = {
+type MeterReadingExportButtonInputType = {
     disabled?: boolean
     id?: string
 }
 
 type UseMeterReadingExportToExcelReturnType = {
-    ExportButton: React.FC<ExportButtonInputType>
+    ExportButton: React.FC<MeterReadingExportButtonInputType>
 }
 
 export const useMeterReadingExportToExcelTask = (props: UseMeterReadingExportToExcelInputType): UseMeterReadingExportToExcelReturnType => {
@@ -38,11 +38,13 @@ export const useMeterReadingExportToExcelTask = (props: UseMeterReadingExportToE
     const { label, where, sortBy, user } = props
 
     const locale = intl.locale
-    const timeZone = useMemo(() => intl.formatters.getDateTimeFormat().resolvedOptions().timeZone, [intl.formatters])
+    const timeZone = useMemo(() =>
+        intl.formatters.getDateTimeFormat().resolvedOptions().timeZone,
+    [intl.formatters])
 
-    const { MeterReadingExportTask: TaskUIInterface } = useMeterReadingExportTaskUIInterface()
+    const { MeterReadingExportTask: ExportMeterReadingTaskUIInterface } = useMeterReadingExportTaskUIInterface()
 
-    const { loading, handleRunTask } = useTaskLauncher(TaskUIInterface, {
+    const { loading, handleRunTask } = useTaskLauncher(ExportMeterReadingTaskUIInterface, {
         dv: 1,
         sender: getClientSideSenderInfo(),
         where,
@@ -53,15 +55,15 @@ export const useMeterReadingExportToExcelTask = (props: UseMeterReadingExportToE
         user: { connect: { id: get(user, 'id', null) } },
     })
 
-    const ExportButton: React.FC<ExportButtonInputType> = useCallback(({ disabled = false, id = 'exportToExcel' }) => (
+    const ExportButton: React.FC<MeterReadingExportButtonInputType> = useCallback(({ disabled = false, id = 'exportToExcel' }) => (
         <Button
+            id={id}
             type='secondary'
-            loading={loading}
-            onClick={handleRunTask}
+            icon={<Sheet size='medium' />}
             disabled={loading || disabled}
             children={label || ExportAsExcelLabel}
-            icon={<Sheet size='medium' />}
-            id={id}
+            loading={loading}
+            onClick={handleRunTask}
         />
     ), [ExportAsExcelLabel, handleRunTask, label, loading])
 
