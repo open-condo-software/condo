@@ -27,6 +27,17 @@ const NewsItemTemplate = new GQLListSchema('NewsItemTemplate', {
             kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
         },
 
+        name: {
+            schemaDoc: 'Name of template the news item',
+            type: 'Text',
+            isRequired: true,
+        },
+
+        category: {
+            schemaDoc: 'Category of template of the news item ',
+            type: 'Text',  
+        },
+
         title: {
             schemaDoc: 'The title of a future news item',
             type: 'Text',
