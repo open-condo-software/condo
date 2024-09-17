@@ -24,7 +24,6 @@
 
 const util = require('util')
 
-const { AuthenticationError } = require('apollo-server-errors')
 const { printError } = require('graphql')
 const { pick, toArray, toString, get, set, isArray, isEmpty, omitBy, isUndefined } = require('lodash')
 

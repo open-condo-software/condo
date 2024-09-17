@@ -13,6 +13,13 @@ const GQL_SOURCE_EXAMPLE = new Source(`
 `)
 const GQL_AST_EXAMPLE = parse(GQL_SOURCE_EXAMPLE)
 const GQL_FIELD_NODE_EXAMPLE = GQL_AST_EXAMPLE.definitions[0].selectionSet.selections[0]
+const GQL_KEYSTONE_INTERNAL_DATA_EXAMPLE = {
+    // nosemgrep: generic.secrets.gitleaks.generic-api-key.generic-api-key
+    authedId: '2b657cb4-c4d1-4743-aa3b-aef527fe16e4',
+    authedListKey: 'User',
+    // nosemgrep: generic.secrets.gitleaks.generic-api-key.generic-api-key
+    itemId: '55b21bb3-d4b4-45fe-917f-58614b69bbca',
+}
 
 const NestedError = createError('NestedError', {
     message: 'Nested errors occurred',
@@ -303,11 +310,7 @@ describe('safeFormatError hide=false', () => {
     })
     test('safeFormatError(KeystoneAccessDeniedError)', () => {
         const data = { type: 'query', target: 'user' }
-        const internalData = {
-            authedId: '2b657cb4-c4d1-4743-aa3b-aef527fe16e4',
-            authedListKey: 'User',
-            itemId: '55b21bb3-d4b4-45fe-917f-58614b69bbca',
-        }
+        const internalData = { ...GQL_KEYSTONE_INTERNAL_DATA_EXAMPLE }
         const original = new AccessDeniedError({ data, internalData })
         const error = new GraphQLError('GraphQLError1', [GQL_FIELD_NODE_EXAMPLE], GQL_SOURCE_EXAMPLE, null, ['field'], original, {})
         expect(safeFormatError(error)).toEqual({
@@ -505,6 +508,21 @@ describe('safeFormatError hide=true', () => {
             'name': 'NestedError',
         })
     })
+    test('safeFormatError(KeystoneAccessDeniedError)', () => {
+        const data = { type: 'query', target: 'user' }
+        const internalData = { ...GQL_KEYSTONE_INTERNAL_DATA_EXAMPLE }
+        const original = new AccessDeniedError({ data, internalData })
+        const error = new GraphQLError('GraphQLError1', [GQL_FIELD_NODE_EXAMPLE], GQL_SOURCE_EXAMPLE, null, ['field'], original, {})
+        expect(safeFormatError(error, true)).toEqual({
+            'locations': [{ column: 5, line: 3 }],
+            'message': 'GraphQLError1',
+            'path': ['field'],
+            'name': 'AccessDeniedError',
+            'extensions': {
+                'messageForDeveloper': 'GraphQLError1\n\nGraphQL request:3:5\n2 |   {\n3 |     field\n  |     ^\n4 |   }',
+            },
+        })
+    })
 })
 
 describe('toGraphQLFormat', () => {
@@ -611,7 +629,6 @@ describe('toGraphQLFormat', () => {
             'name': name1,
             'message': message2,
             'extensions': {
-                'message': message1,
                 'code': 'UNAUTHENTICATED',
                 'type': 'NOT_FOUND',
             },
@@ -625,7 +642,6 @@ describe('toGraphQLFormat', () => {
                 'extensions': {
                     code: 'UNAUTHENTICATED',
                     type: 'NOT_FOUND',
-                    message: message1,
                 },
             },
         })
@@ -646,7 +662,6 @@ describe('toGraphQLFormat', () => {
             'name': name1,
             'message': message2,
             'extensions': {
-                'message': message1,
                 'code': 'UNAUTHENTICATED',
                 'type': 'NOT_FOUND',
             },
