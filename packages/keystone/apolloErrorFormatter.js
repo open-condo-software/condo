@@ -30,6 +30,8 @@ const { pick, toArray, toString, get, set, isArray, isEmpty, omitBy, isUndefined
 
 const conf = require('@open-condo/config')
 
+const { GQLError, GQLErrorCode } = require('./errors')
+
 const IS_HIDE_INTERNALS = conf.NODE_ENV === 'production'
 const COMMON_ERROR_CASES = {}
 
@@ -205,8 +207,12 @@ const formatError = error => {
 
 // NEW GraphQL Error standard
 
-function throwAuthenticationError () {
-    throw new AuthenticationError('No or incorrect authentication credentials')
+function throwAuthenticationError (context) {
+    throw new GQLError({
+        name: 'AuthenticationError',
+        code: GQLErrorCode.UNAUTHENTICATED,
+        message: 'No or incorrect authentication credentials',
+    })
 }
 
 module.exports = {

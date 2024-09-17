@@ -61,7 +61,6 @@
  * ```
  */
 
-const { ApolloError } = require('apollo-server-errors')
 const cuid = require('cuid')
 const { cloneDeep, get, template, templateSettings, isArray, isEmpty, isObject } = require('lodash')
 
@@ -72,13 +71,15 @@ const { getTranslations } = require('@open-condo/locales/loader')
 // Matches placeholder `{name}` in string, we are going to interpolate
 templateSettings.interpolate = /{([\s\S]+?)}/g
 
+// Generic error, that something went wrong at server side, though user input was correct
+const INTERNAL_ERROR = 'INTERNAL_ERROR'
+// No auth token or incorrect authentication or not authenticated
+const UNAUTHENTICATED = 'UNAUTHENTICATED'
+// Access denied
+const FORBIDDEN = 'FORBIDDEN'
 // User input cannot be processed by server by following reasons:
 // wrong format, not enough data, conflicts with data storage constraints (duplicates etc)
 const BAD_USER_INPUT = 'BAD_USER_INPUT'
-// Generic error, that something went wrong at server side, though user input was correct
-const INTERNAL_ERROR = 'INTERNAL_ERROR'
-// Access denied
-const FORBIDDEN = 'FORBIDDEN'
 // Too Many Requests
 const TOO_MANY_REQUESTS = 'TOO_MANY_REQUESTS'
 
@@ -92,10 +93,11 @@ const TOO_MANY_REQUESTS = 'TOO_MANY_REQUESTS'
  * @enum {String}
  */
 const GQLErrorCode = {
-    BAD_USER_INPUT,
-    INTERNAL_ERROR,
-    FORBIDDEN,
-    TOO_MANY_REQUESTS,
+    INTERNAL_ERROR,     // ??
+    UNAUTHENTICATED,    // Need to authenticate or something wrong with token!
+    FORBIDDEN,          // Don't have an access (maybe need to logIn or reLogIn user)
+    BAD_USER_INPUT,     // Need to process by user form!
+    TOO_MANY_REQUESTS,  // Need to process by user client to wait some time!
 }
 
 
@@ -115,7 +117,7 @@ const GQLErrorCode = {
  * @property {Object} [data] - any kind of data, that will help to figure out a cause of the error
  */
 
-class GQLError extends ApolloError {
+class GQLError extends Error {
     /**
      * @param {GQLError} fields
      * @param context - Keystone custom resolver context, used to determine request language
@@ -124,7 +126,7 @@ class GQLError extends ApolloError {
     constructor (fields, context) {
         if (isEmpty(fields) || !fields) throw new Error('GQLError: wrong fields argument')
         if (!fields.code) throw new Error('GQLError: you need to set fields.code')
-        if (!fields.type) throw new Error('GQLError: you need to set fields.type')
+        if (!fields.type && fields.code !== UNAUTHENTICATED) throw new Error('GQLError: you need to set fields.type')
         if (!fields.message) throw new Error('GQLError: you need to set fields.message')
         if (typeof fields.variable !== 'undefined' && !isArray(fields.variable)) throw new Error('GQLError: wrong argument type! fields.variable should be a list')
         if (typeof fields.query !== 'undefined' && typeof fields.query !== 'string') throw new Error('GQLError: wrong query argument type! fields.query should be a string')
@@ -142,11 +144,17 @@ class GQLError extends ApolloError {
             const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
             const translations = getTranslations(locale)
             const translatedMessage = translations[fields.messageForUser]
-            const interpolatedMessageForUser = template(translatedMessage)(fields.messageInterpolation)
-            extensions.messageForUser = interpolatedMessageForUser
+            extensions.messageForUser = template(translatedMessage)(fields.messageInterpolation)
+            if (!isEmpty(fields.messageInterpolation)) {
+                extensions.messageForUserTemplate = translatedMessage
+            }
         }
-        super(message, fields.code, extensions)
-        Object.defineProperty(this, 'name', { value: 'GQLError' })
+        if (!isEmpty(fields.messageInterpolation)) {
+            extensions.messageTemplate = fields.message
+        }
+        super(message)
+        this.name = extensions?.name || 'GQLError'
+        this.extensions = extensions
         this.reqId = get(context, 'req.id')
         this.uid = cuid()
         // NOTE(pahaz): cleanup field copy
