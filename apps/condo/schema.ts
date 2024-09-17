@@ -24036,20 +24036,6 @@ export type DocumentsUpdateInput = {
   data?: Maybe<DocumentUpdateInput>;
 };
 
-export type ExportMeterReadingsInput = {
-  dv: Scalars['Int'];
-  sender: SenderFieldInput;
-  where: MeterReadingWhereInput;
-  sortBy?: Maybe<Array<SortMeterReadingsBy>>;
-  timeZone: Scalars['String'];
-};
-
-export type ExportMeterReadingsOutput = {
-  __typename?: 'ExportMeterReadingsOutput';
-  status: Scalars['String'];
-  linkToFile: Scalars['String'];
-};
-
 export type ExportPaymentsToExcelInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
@@ -66924,7 +66910,6 @@ export type Query = {
   getResidentExistenceByPhoneAndAddress?: Maybe<GetResidentExistenceByPhoneAndAddressOutput>;
   findOrganizationsForAddress?: Maybe<Array<Maybe<FindOrganizationForAddressOutput>>>;
   suggestServiceProvider?: Maybe<Array<Maybe<SuggestServiceProviderOutput>>>;
-  exportMeterReadings?: Maybe<ExportMeterReadingsOutput>;
   /**
    * Export of property meters readings. A link to the file is returned
    *
@@ -73679,11 +73664,6 @@ export type QueryFindOrganizationsForAddressArgs = {
 
 export type QuerySuggestServiceProviderArgs = {
   data: SuggestServiceProviderInput;
-};
-
-
-export type QueryExportMeterReadingsArgs = {
-  data: ExportMeterReadingsInput;
 };
 
 
