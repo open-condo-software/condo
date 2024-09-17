@@ -60,23 +60,17 @@ async function registerBillingReceipts (context, data) {
 }
 
 /**
- * Sums up all DONE or WITHDRAWN payments for billingReceipt for <organization> with <accountNumber> and <period>
- * @param context {Object}
- * @param organizationId {string}
- * @param accountNumber {string}
- * @param bic {string}
- * @param bankAccount {string}
- * @param period {string}
+ * Sums up all DONE or WITHDRAWN payments for billingReceipt, connected by receiptId
+ * @param receiptId {string}
  * @return {Promise<*>}
  */
-const getPaymentsSum = async (context, organizationId, accountNumber, period, bic, bankAccount) => {
-    const payments = await  find('Payment', {
-        organization: { id: organizationId },
-        accountNumber: accountNumber,
-        period: period,
-        status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS],
-        recipientBic: bic,
-        recipientBankAccount: bankAccount,
+const getPaymentsSum = async (receiptId) => {
+    const payments = await find('Payment', {
+        AND: [
+            { status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS] },
+            { deletedAt: null },
+            { receipt: { id: receiptId } },
+        ],
     })
     return payments.reduce((total, current) => (Big(total).plus(current.amount)), 0).toFixed(8).toString()
 }

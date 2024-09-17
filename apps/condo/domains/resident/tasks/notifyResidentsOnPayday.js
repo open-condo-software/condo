@@ -156,16 +156,8 @@ async function notifyResidentsOnPayday () {
 
                 let isAllPaid = true
                 for (const receipt of payableReceipts) {
-                    const organizationId = get(receipt, ['context', 'organization', 'id'])
                     const toPay = Number(get(receipt, ['toPay']))
-                    const paid = Number(await getPaymentsSum(
-                        context,
-                        organizationId,
-                        accountNumber,
-                        get(receipt, 'period', null),
-                        get(receipt, ['recipient', 'bic'], null),
-                        get(receipt, ['recipient', 'bankAccount'], null)
-                    ))
+                    const paid = Number(await getPaymentsSum(receipt.id))
                     if (paid < toPay) isAllPaid = false
                 }
 
