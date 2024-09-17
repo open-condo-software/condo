@@ -1,5 +1,11 @@
 const dayjs = require('dayjs')
 
+const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
+
+const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
+const { BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/serverSchema')
+
 const NOT_USED_WORDS_IN_ACCOUNT_NUMBER_REGEXP = /(л\/с|лс|№)/gi
 const FIO_REGEXP = /^[А-ЯЁ][а-яё]*([-' .][А-ЯЁ][а-яё]*){0,2}\s+[IVА-ЯЁ][a-zа-яё.]*([- .'ёЁ][IVА-ЯЁ][a-zа-яё.]*)*$/
 const FIO_ENDINGS = 'оглы|кызы'
@@ -53,10 +59,32 @@ const normalizePropertyGlobalId = (rawFiasCode) => {
 
 const sortPeriodFunction = (periodA, periodB) => (dayjs(periodA, 'YYYY-MM-DD').isAfter(dayjs(periodB, 'YYYY-MM-DD')) ? 1 : -1)
 
+const buildLastReportForBillingContext = async ({ dv, sender, billingContextId, period }) => {
+    const { keystone: context } = getSchemaCtx('BillingReceipt')
+    const { knex } = getDatabaseAdapter(context)
+    const currentPeriodReceiptsCount = await BillingReceipt.count(context, { context: { id: billingContextId }, period: period, deletedAt: null })
+    const categories = await knex('BillingReceipt')
+        .select(knex.raw('DISTINCT category'))
+        .where('deletedAt', 'is', null)
+        .where('period', '=', period)
+        .where('context', '=', billingContextId)
+
+    await BillingIntegrationOrganizationContext.update(context, billingContextId, {
+        dv, sender,
+        lastReport: {
+            period: period,
+            finishTime: new Date().toISOString(),
+            totalReceipts: currentPeriodReceiptsCount,
+            categories: categories.map(({ category }) => category),
+        },
+    })
+}
+
 module.exports = {
     clearAccountNumber,
     isPerson,
     isValidFias,
     sortPeriodFunction,
     normalizePropertyGlobalId,
+    buildLastReportForBillingContext,
 }
