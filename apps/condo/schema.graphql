@@ -78593,19 +78593,6 @@ type SyncTourStepsOutput {
   ok: String!
 }
 
-input ExportMeterReadingsInput {
-  dv: Int!
-  sender: SenderFieldInput!
-  where: MeterReadingWhereInput!
-  sortBy: [SortMeterReadingsBy!]
-  timeZone: String!
-}
-
-type ExportMeterReadingsOutput {
-  status: String!
-  linkToFile: String!
-}
-
 input _internalDeleteMeterAndMeterReadingsInput {
   dv: Int!
   sender: SenderFieldInput!
@@ -83203,7 +83190,6 @@ type Query {
   getResidentExistenceByPhoneAndAddress(data: GetResidentExistenceByPhoneAndAddressInput!): GetResidentExistenceByPhoneAndAddressOutput
   findOrganizationsForAddress(data: FindOrganizationsForAddressInput!): [FindOrganizationForAddressOutput]
   suggestServiceProvider(data: SuggestServiceProviderInput!): [SuggestServiceProviderOutput]
-  exportMeterReadings(data: ExportMeterReadingsInput!): ExportMeterReadingsOutput
 
   """
   Export of property meters readings. A link to the file is returned
