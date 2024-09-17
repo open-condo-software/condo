@@ -37,6 +37,7 @@ const {
     PAYMENT_DONE_STATUS,
     PAYMENT_WITHDRAWN_STATUS,
 } = require('@condo/domains/acquiring/constants/payment')
+const { PAYMENT_FIELDS_FROZEN_IF_NOT_NULL } = require('@condo/domains/acquiring/constants/payment')
 const { ACQUIRING_CONTEXT_FIELD } = require('@condo/domains/acquiring/schema/fields/relations')
 const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
 const { PERIOD_FIELD } = require('@condo/domains/billing/schema/fields/common')
@@ -160,13 +161,9 @@ const Payment = new GQLListSchema('Payment', {
             isRequired: false,
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
             hooks: {
-                validateInput: ({ operation, existingItem, resolvedData, addFieldValidationError, fieldPath }) => {
-                    // We need to connect receipt, if it was not present on creation
-                    if (operation === 'create' && resolvedData[fieldPath] && !resolvedData['frozenReceipt']) {
+                validateInput: ({ resolvedData, addFieldValidationError, fieldPath }) => {
+                    if (resolvedData[fieldPath] && !resolvedData['frozenReceipt']) {
                         addFieldValidationError(PAYMENT_NO_PAIRED_FROZEN_RECEIPT)
-                    }
-                    if (operation === 'update' && existingItem[fieldPath]) {
-                        addFieldValidationError(`${PAYMENT_FROZEN_FIELD_INCLUDED} (${fieldPath})`)
                     }
                 },
             },
@@ -385,11 +382,13 @@ const Payment = new GQLListSchema('Payment', {
                 }
                 const frozenFields = PAYMENT_FROZEN_FIELDS[oldStatus]
                 for (const field of frozenFields) {
-                    // We need to connect receipt after it's creation, if payment was made for virtual receipt
-                    if (field === 'receipt' && !existingItem.receipt) {
-                        continue
-                    }
                     if (resolvedData.hasOwnProperty(field)) {
+                        addValidationError(`${PAYMENT_FROZEN_FIELD_INCLUDED} (${field})`)
+                    }
+                }
+                
+                for (const field of PAYMENT_FIELDS_FROZEN_IF_NOT_NULL) {
+                    if (resolvedData.hasOwnProperty(field) && existingItem[field]) {
                         addValidationError(`${PAYMENT_FROZEN_FIELD_INCLUDED} (${field})`)
                     }
                 }
