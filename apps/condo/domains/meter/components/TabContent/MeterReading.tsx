@@ -6,6 +6,7 @@ import { Meter as MeterType, MeterResource as MeterResourceType } from '@app/con
 import { Col, Row, RowProps } from 'antd'
 import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
 import { TableRowSelection } from 'antd/lib/table/interface'
+import dayjs, { Dayjs } from 'dayjs'
 import chunk from 'lodash/chunk'
 import get from 'lodash/get'
 import uniqBy from 'lodash/uniqBy'
@@ -61,9 +62,9 @@ type MetersTableContentProps = {
     filtersMeta: FiltersMeta<MeterReadingWhereInput>[]
     baseSearchQuery: MeterReadingWhereInput
     canManageMeterReadings: boolean
-    isAutomatic?: boolean,
-    meter?: MeterType | PropertyMeter,
-    resource?: MeterResourceType,
+    isAutomatic?: boolean
+    meter?: MeterType | PropertyMeter
+    resource?: MeterResourceType
     sortableProperties?: string[]
     mutationErrorsToMessages?: Record<string, string>
     loading?: boolean
@@ -247,6 +248,17 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     const handleCreateMeterReadings = useCallback(() => router.push(`/meter/create?tab=${METER_TAB_TYPES.meterReading}`), [router])
     const handleCloseUpdateReadingModal = useCallback(() => setIsShowUpdateReadingModal(false), [])
 
+    const [selectedDates, setSelectedDates] = useState<[Dayjs, Dayjs]>()
+    const disabledDate = (current) => {
+        if (!selectedDates) {
+            return current > dayjs()
+        }
+
+        const tooLate = current > dayjs() || (selectedDates[0] && current.diff(selectedDates[0], 'months', true) > 2)
+        const tooEarly = selectedDates[1] && selectedDates[1].diff(current, 'months', true) > 2
+        return !!tooEarly || !!tooLate
+    }
+
     return (
         <>
             <Row
@@ -273,6 +285,8 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                                                 value={dateRange}
                                                 onChange={handleDateChange}
                                                 placeholder={[StartDateMessage, EndDateMessage]}
+                                                onCalendarChange={val => setSelectedDates(val)}
+                                                disabledDate={disabledDate}
                                                 style={FULL_WIDTH_DATE_RANGE_STYLE}
                                             />
                                         </Col>
