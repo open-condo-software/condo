@@ -12,16 +12,13 @@ const { TASK_WORKER_FINGERPRINT } = require('@condo/domains/common/constants/tas
 const { EXCEL_FILE_META, buildExportFile: buildExportExcelFile } = require('@condo/domains/common/utils/createExportFile')
 const { getHeadersTranslations } = require('@condo/domains/common/utils/exportToExcel')
 const { EXPORT_TYPE_METERS } = require('@condo/domains/common/utils/exportToExcel')
-const { exportRecordsAsCsvFile, exportRecordsAsXlsxFile } = require('@condo/domains/common/utils/serverSchema/export')
+const { exportRecordsAsXlsxFile } = require('@condo/domains/common/utils/serverSchema/export')
 const { setLocaleForKeystoneContext } = require('@condo/domains/common/utils/serverSchema/setLocaleForKeystoneContext')
 const { MeterReadingExportTask, MeterReading, loadMetersForExcelExport } = require('@condo/domains/meter/utils/serverSchema')
 const { buildMeterReadingsLoader, MeterResource, MeterReadingSource } = require('@condo/domains/meter/utils/serverSchema')
 
-const { findAllByKey } = require('../../common/utils/ecmascript.utils')
-
 
 const BASE_ATTRIBUTES = { dv: 1, sender: { dv: 1, fingerprint: TASK_WORKER_FINGERPRINT } }
-const MAX_XLSX_FILE_ROWS = 10000
 const DATE_FORMAT = 'DD.MM.YYYY'
 
 const taskLogger = getLogger('exportMeterReadings')
