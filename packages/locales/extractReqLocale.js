@@ -14,7 +14,7 @@ const ACCEPT_LOCALES = ['ru', 'en']
  * @returns {string | null}
  */
 const extractReqLocale = (req) => {
-    if (!req) return null
+    if (!req) return undefined
     try {
         const cookies = nextCookie({ req })
         // NOTE: Used in KS apps
@@ -48,9 +48,9 @@ const extractReqLocale = (req) => {
             return reqLocale
         }
 
-        return null
+        return undefined
     } catch {
-        return null
+        return undefined
     }
 }
 
