@@ -14,7 +14,7 @@ const {
 
 const {
     REGISTER_BILLING_RECEIPT_FILE_CREATED_STATUS,
-    REGISTER_BILLING_RECEIPT_FILE_UPDATED_STATUS,
+    REGISTER_BILLING_RECEIPT_FILE_SKIPPED_STATUS,
 } = require('@condo/domains/billing/constants')
 const { registerBillingReceiptFileByTestClient, PUBLIC_FILE } = require('@condo/domains/billing/utils/testSchema')
 const { BillingReceiptFile } = require('@condo/domains/billing/utils/testSchema')
@@ -115,7 +115,7 @@ describe('RegisterBillingReceiptFileService', () => {
             const [data] = await registerBillingReceiptFileByTestClient(utils.clients.admin, payload)
             expect(data.status).toEqual(REGISTER_BILLING_RECEIPT_FILE_CREATED_STATUS)
         })
-        test(`Will send status ${REGISTER_BILLING_RECEIPT_FILE_UPDATED_STATUS} if the same file was send`, async () => {
+        test(`Will send status ${REGISTER_BILLING_RECEIPT_FILE_SKIPPED_STATUS} if the same file was send`, async () => {
             const [[receipt]] = await utils.createReceipts()
             const payload = {
                 context: { id: receipt.context.id },
@@ -124,9 +124,9 @@ describe('RegisterBillingReceiptFileService', () => {
             const [dataCreated] = await registerBillingReceiptFileByTestClient(utils.clients.admin, payload)
             const [dataUpdated] = await registerBillingReceiptFileByTestClient(utils.clients.admin, payload)
             expect(dataCreated.id).toEqual(dataUpdated.id)
-            expect(dataUpdated.status).toEqual(REGISTER_BILLING_RECEIPT_FILE_UPDATED_STATUS)
+            expect(dataUpdated.status).toEqual(REGISTER_BILLING_RECEIPT_FILE_SKIPPED_STATUS)
         })
-        test(`Will send status ${REGISTER_BILLING_RECEIPT_FILE_UPDATED_STATUS} if new file was send`, async () => {
+        test(`Will send status ${REGISTER_BILLING_RECEIPT_FILE_SKIPPED_STATUS} if new file was send`, async () => {
             const [[receipt]] = await utils.createReceipts()
             const payload = {
                 context: { id: receipt.context.id },
@@ -138,7 +138,7 @@ describe('RegisterBillingReceiptFileService', () => {
                 base64EncodedPDF: readFileSync(PUBLIC_FILE).toString('base64'),
             })
             expect(dataCreated.id).toEqual(dataUpdated.id)
-            expect(dataUpdated.status).toEqual(REGISTER_BILLING_RECEIPT_FILE_UPDATED_STATUS)
+            expect(dataUpdated.status).toEqual(REGISTER_BILLING_RECEIPT_FILE_SKIPPED_STATUS)
         })
     })
 

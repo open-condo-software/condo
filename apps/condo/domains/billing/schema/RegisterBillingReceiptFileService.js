@@ -3,7 +3,7 @@
  */
 const { Readable } = require('stream')
 
-const { get } = require('lodash')
+const { get, isEmpty } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT  } } = require('@open-condo/keystone/errors')
@@ -14,6 +14,7 @@ const access = require('@condo/domains/billing/access/RegisterBillingReceiptFile
 const {
     REGISTER_BILLING_RECEIPT_FILE_CREATED_STATUS,
     REGISTER_BILLING_RECEIPT_FILE_UPDATED_STATUS,
+    REGISTER_BILLING_RECEIPT_FILE_SKIPPED_STATUS,
     REGISTER_BILLING_RECEIPT_FILE_STATUSES,
 } = require('@condo/domains/billing/constants')
 const { BillingReceiptFileIdOnly } = require('@condo/domains/billing/utils/serverSchema')
@@ -78,6 +79,12 @@ const RegisterBillingReceiptFileService = new GQLCustomSchema('RegisterBillingRe
                 }
                 const account = await getById('BillingAccount', receipt.account)
                 const [receiptFile] = await find('BillingReceiptFile', { receipt: { id: receipt.id }, deletedAt: null })
+
+                // for cases when we have a pdf receipt file bound to receipt
+                // that means we can skip processing such request
+                if (!isEmpty(get(receiptFile, 'receipt'))) {
+                    return { id: receiptFile.id, status: REGISTER_BILLING_RECEIPT_FILE_SKIPPED_STATUS }
+                }
 
                 // since control sum for local file adapter not going to be resolved exactly as for s3 one
                 // let's calculate it in order to keep compatibility for tests purposes
