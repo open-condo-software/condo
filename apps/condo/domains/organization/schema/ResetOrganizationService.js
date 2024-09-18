@@ -4,7 +4,7 @@
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
-const { GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, getById, find } = require('@open-condo/keystone/schema')
 
 const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
 const { BankIntegrationOrganizationContext } = require('@condo/domains/banking/utils/serverSchema')
@@ -112,6 +112,15 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
                 })
                 for (let organizationLink of organizationLinks) {
                     await OrganizationLink.softDelete(context, organizationLink.id, DV_SENDER)
+                }
+
+                // Удалить Meter, MeterResourceOwners, PropertyMeter, MeterReportingPeriod
+
+                const Meters = await find('Meter', {
+                    organization: { id: organizationId },
+                })
+                for (let Meter of Meters) {
+                    await Meter.softDelete()
                 }
 
                 const MeterResourceOwners = await loadListByChunks({
