@@ -27,7 +27,7 @@ const NewsItemTemplate = new GQLListSchema('NewsItemTemplate', {
             ref: 'Organization',
             kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
         },
-        // Какое дефолтное имя для поля name? Пусткая строка ''?
+
         name: {
             schemaDoc: 'Name of template the news item',
             type: 'Text',
