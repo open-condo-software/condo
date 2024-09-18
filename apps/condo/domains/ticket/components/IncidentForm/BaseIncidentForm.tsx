@@ -322,7 +322,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const { breakpoints } = useLayoutContext()
     const isSmallWindow = !breakpoints.TABLET_LARGE
     const { requiredValidator } = useValidations()
-    const Details = useInputWithCounter(TextArea, 500)
+    const Details = useInputWithCounter(TextArea, 1500)
     const TextForResident = useInputWithCounter(TextArea, 500)
 
     const createIncidentProperty = IncidentProperty.useCreate({})
