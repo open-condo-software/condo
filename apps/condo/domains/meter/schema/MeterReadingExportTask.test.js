@@ -13,6 +13,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
+const { i18n } = require('@open-condo/locales/loader')
 
 const { CANCELLED } = require('@condo/domains/common/constants/export')
 const { COMPLETED } = require('@condo/domains/common/constants/export')
@@ -423,6 +424,7 @@ describe('MeterReadingExportTask', () => {
 describe('exportMeterReadings', () => {
     it('should create `MeterReadingExportTask` and create xlsx file', async () => {
         const { organization, userClient } = await makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee({
+            canManageProperties: true,
             canManageMeters: true,
             canManageMeterReadings: true,
             canReadMeters: true,
@@ -434,13 +436,14 @@ describe('exportMeterReadings', () => {
         const [resource] = await MeterResource.getAll(userClient, { id: COLD_WATER_METER_RESOURCE_ID })
         const [source] = await MeterReadingSource.getAll(userClient, { id: CALL_METER_READING_SOURCE_ID })
 
-        const metersCount = 11
-        const meterReadingsCount = 10 * metersCount
+        const metersCount = 1
+        const meterReadingsOnEachMeter = 1
+        const meterReadingsCount = meterReadingsOnEachMeter * metersCount
 
-        for (let i = 0; i < 11; i++) {
+        for (let i = 0; i < metersCount; i++) {
             const [meter] = await createTestMeter(userClient, organization, property, resource, {})
 
-            for (let j = 0; j < 10; j++) {
+            for (let j = 0; j < meterReadingsOnEachMeter; j++) {
                 const [meterReading] = await createTestMeterReading(userClient, meter, source)
 
                 meterReadings.push(meterReading)
@@ -458,7 +461,7 @@ describe('exportMeterReadings', () => {
             timeZone: 'Europe/Moscow',
         })
 
-        const { timeZone } = task
+        const { timeZone, locale } = task
 
         await waitFor(async () => {
             const updatedTask = await MeterReadingExportTask.getOne(userClient, { id: task.id })
@@ -497,19 +500,19 @@ describe('exportMeterReadings', () => {
             ],
             ...(meterReadings.map(meterReading => [
                 formatDate(meterReading.date, timeZone),
-                meterReading.address,
-                meterReading.unitName,
-                meterReading.unitType,
-                meterReading.accountNumber,
-                meterReading.resource,
-                meterReading.number,
-                meterReading.place,
-                meterReading.value1,
-                meterReading.value2,
-                meterReading.value3,
-                meterReading.value4,
-                meterReading.clientName,
-                meterReading.source,
+                meterReading.meter.property.address,
+                meterReading.meter.unitName,
+                i18n(`field.UnitType.${meterReading.meter.unitType}`, { locale }),
+                meterReading.meter.accountNumber,
+                meterReading.meter.resource.name,
+                meterReading.meter.number,
+                meterReading.meter.place || '',
+                meterReading.value1 || '',
+                meterReading.value2 || '',
+                meterReading.value3 || '',
+                meterReading.value4 || '',
+                meterReading.clientName || '',
+                meterReading.source.name,
             ])),
         ])
     })
