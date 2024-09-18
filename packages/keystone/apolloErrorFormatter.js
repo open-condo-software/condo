@@ -83,6 +83,30 @@ function _ensureError (error) {
     return error
 }
 
+function _buildCombinedStacks (stack, errors) {
+    if (!errors || !isArray(errors)) return stack
+    const result = (stack) ? [stack] : []
+    const length = errors.length
+    errors.forEach((err, index) => {
+        const prefix = (length === 1) ? '^- Caused By: ' : `^- Caused By many errors [${index + 1}/${length}]: `
+        const error = (err.originalError) ? err.originalError : err
+        result.push(prefix + error.stack)
+        if (isArray(error.errors)) {
+            // NOTE(pahaz): keystone has some wrapper with parent .errors array and we also can throw nested error. Lets support it
+            // TODO(pahaz): what about cycle recursion?
+            const nested = _buildCombinedStacks(undefined, error.errors)
+            result.push(nested)
+        }
+    })
+    return result.join('\n')
+}
+
+function _fullstack (err) {
+    if (!err) return '<undefined>'
+    const error = err?.originalError || err
+    return _buildCombinedStacks(error.stack, error.errors)
+}
+
 /**
  * Use it if you need to safely prepare error for logging or ApolloServer result.
  * Call Cases:
@@ -122,11 +146,19 @@ function _ensureError (error) {
  * @param {Boolean} applyPatches -- do you need to apply a common error message patches
  * @returns {import('graphql').GraphQLFormattedError}
  */
-const safeFormatError = (errorIn, hideInternals = false, applyPatches = true) => {
+const safeFormatError = (errorIn, hideInternals = false, applyPatches = true, _isRecursionCall = false) => {
     const error = _ensureError(errorIn)
+    const errorName = error?.constructor?.name
     const extensions = {}
     const originalError = error?.originalError
+    const originalErrorName = originalError?.constructor?.name
     const result = {}
+
+    if (!hideInternals && !_isRecursionCall) {
+        // NOTE(pahaz): we want to restore a fullstack if any GQLError thrown
+        const fullstack = _fullstack(error)
+        if (fullstack !== error['stack']) result['fullstack'] = fullstack
+    }
 
     // [1] base error fields
     const pickKeys1 = (hideInternals) ? ['message', 'name'] : ['message', 'name', 'stack']
@@ -154,11 +186,11 @@ const safeFormatError = (errorIn, hideInternals = false, applyPatches = true) =>
         result.extensions = extensions
         // we already have more details inside originalError object and don't need this
         if (result.extensions.exception) delete result.extensions.exception
-        if (result.extensions.name) delete result.extensions.name  // NODE: we don't have in at the moment!
-        if (result.extensions.message && result.extensions.message === result.message) delete result.extensions.message
+        if (result.extensions.name) delete result.extensions.name
+        if (result.extensions.context) delete result.extensions.context
     }
     if (!hideInternals && originalError) {
-        result.originalError = safeFormatError(originalError, hideInternals, false)
+        result.originalError = safeFormatError(originalError, hideInternals, false, true)
     }
 
     // [3] keystone fields: time_thrown, data, internalData (really it's old ApolloServer keys)
@@ -168,25 +200,59 @@ const safeFormatError = (errorIn, hideInternals = false, applyPatches = true) =>
     // NOTE(pahaz): if has (nodes) or has (source and location) => can use printError
     if (error.nodes || (error.source && error.location)) {
         const messageForDeveloper = printError(error)
-        extensions.messageForDeveloper = messageForDeveloper
-        result.extensions = extensions
+        if (messageForDeveloper !== error.message) {
+            extensions.messageForDeveloper = messageForDeveloper
+            result.extensions = extensions
+        }
     }
 
-    if (originalError) {
-        // KeystoneJS hotfixes! Taken from KeystoneJS sources. Probably useless in a future but we already have a tests for that!
-        if (originalError.name && originalError.name !== 'Error') {
-            result.name = originalError.name
+    // NOTE(pahaz): KeystoneJS compatibility! We already have lots of test with that names.
+    // We need to use more specific name inside the GQL errors
+    if (originalErrorName && originalErrorName !== 'Error') {
+        result.name = originalError.name
+    }
+
+    // NOTE(pahaz): We want to replace the current error if we understand that by calling internal functions, we received a GQLError.
+    // For example, we are writing the logic for GQLService, and during the execution of this request, there was a call to User.create(),
+    // which threw a validation error. We want to propagate this error to the top of the response.
+    if (errorName === 'GraphQLError' && originalErrorName === 'GQLError') {
+        const code = originalError?.extensions?.code
+        const type = originalError?.extensions?.type
+        // We have an error during subquery! For example in custom GQLService we can call User.update subquery
+        if (code === 'INTERNAL_ERROR' && type === 'SUB_GQL_ERROR') {
+            const subQueryErrors = originalError?.errors
+            // We have an exact one sub query error and it is GQLError
+            if (subQueryErrors && isArray(subQueryErrors) && subQueryErrors.length === 1) {
+                // Unwrap from GraphQLError
+                const internalErrorDuringSubQuery = (subQueryErrors[0]?.originalError) ? subQueryErrors[0]?.originalError : subQueryErrors[0]
+                const internalErrorName = internalErrorDuringSubQuery?.constructor?.name
+                // If we found internal GQLError error
+                if (internalErrorName === 'GQLError' && internalErrorDuringSubQuery.extensions) {
+                    // Propagate this error fields to extensions!
+                    Object.assign(extensions, internalErrorDuringSubQuery.extensions)
+                } else if (internalErrorName === 'Error' && internalErrorDuringSubQuery?.errors) {
+                    // Keystone wrapper (new Error).errors case
+                    const keystoneLikeErrors = internalErrorDuringSubQuery?.errors
+                    if (keystoneLikeErrors && isArray(keystoneLikeErrors) && keystoneLikeErrors.length === 1) {
+                        const internalKeystoneError = (keystoneLikeErrors[0]?.originalError) ? keystoneLikeErrors[0]?.originalError : keystoneLikeErrors[0]
+                        const internalKeystoneErrorName = internalKeystoneError?.constructor?.name
+                        if (internalKeystoneErrorName === 'GQLError' && internalKeystoneError.extensions) {
+                            Object.assign(extensions, internalKeystoneError.extensions)
+                        }
+                    }
+                }
+            }
         }
     }
 
     // save error uid
-    if (error && error.uid) {
+    if (error.uid) {
         result.uid = toString(error.uid)
     }
 
     // nested errors support
-    if (!hideInternals && error && error.errors) {
-        const nestedErrors = toArray(error.errors).map((err) => safeFormatError(err, hideInternals, false))
+    if (!hideInternals && error.errors) {
+        const nestedErrors = toArray(error.errors).map((err) => safeFormatError(err, hideInternals, false, true))
         if (nestedErrors.length) result.errors = nestedErrors
     }
 

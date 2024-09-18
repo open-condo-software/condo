@@ -67,6 +67,7 @@ const PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS = 'PASSWORD_CONSISTS_OF_SMALL
 
 const GQL_ERRORS = {
     TOO_MANY_REQUESTS: {
+        // TODO(pahaz): it' looks like a wrong code. Use TOO_MANY_REQUESTS
         code: 'BAD_USER_INPUT',
         type: TOO_MANY_REQUESTS,
         message: 'You have to wait {secondsRemaining} seconds to be able to send request again',
@@ -105,7 +106,7 @@ const GQL_ERRORS = {
         variable: ['data', 'password'],
         code: 'BAD_USER_INPUT',
         type: INVALID_PASSWORD_LENGTH,
-        message: `Password length must be between ${MIN_PASSWORD_LENGTH} and ${MAX_PASSWORD_LENGTH} characters`,
+        message: 'Password length must be between {min} and {max} characters',
         messageForUser: 'api.user.INVALID_PASSWORD_LENGTH',
         messageInterpolation: {
             min: MIN_PASSWORD_LENGTH,
@@ -137,7 +138,7 @@ const GQL_ERRORS = {
         variable: ['data', 'password'],
         code: 'BAD_USER_INPUT',
         type: PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS,
-        message: `Password must contain at least ${MIN_COUNT_OF_DIFFERENT_CHARACTERS_IN_PASSWORD} different characters`,
+        message: 'Password must contain at least {min} different characters',
         messageForUser: 'api.user.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS',
         messageInterpolation: {
             min: MIN_COUNT_OF_DIFFERENT_CHARACTERS_IN_PASSWORD,

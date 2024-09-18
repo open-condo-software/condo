@@ -62,7 +62,7 @@
  */
 
 const cuid = require('cuid')
-const { cloneDeep, get, template, templateSettings, isArray, isEmpty, isObject } = require('lodash')
+const { cloneDeep, template, templateSettings, isArray, isEmpty, isObject, isError, every } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
@@ -83,7 +83,6 @@ const BAD_USER_INPUT = 'BAD_USER_INPUT'
 // Too Many Requests
 const TOO_MANY_REQUESTS = 'TOO_MANY_REQUESTS'
 
-
 /**
  * First level of error classification, used in custom GraphQL queries or mutations
  * Second level of classification will be specific to domain in question
@@ -99,7 +98,6 @@ const GQLErrorCode = {
     BAD_USER_INPUT,     // Need to process by user form!
     TOO_MANY_REQUESTS,  // Need to process by user client to wait some time!
 }
-
 
 /**
  * Error object, that can be thrown in a custom GraphQL mutation or query
@@ -121,9 +119,10 @@ class GQLError extends Error {
     /**
      * @param {GQLError} fields
      * @param context - Keystone custom resolver context, used to determine request language
+     * @param parentErrors - Array of parent errors or parent error
      * @see https://www.apollographql.com/docs/apollo-server/data/errors/#custom-errors
      */
-    constructor (fields, context) {
+    constructor (fields, context, parentErrors) {
         if (isEmpty(fields) || !fields) throw new Error('GQLError: wrong fields argument')
         if (!fields.code) throw new Error('GQLError: you need to set fields.code')
         if (!fields.type && fields.code !== UNAUTHENTICATED) throw new Error('GQLError: you need to set fields.type')
@@ -135,30 +134,53 @@ class GQLError extends Error {
         if (typeof fields.messageInterpolation !== 'undefined' && (isEmpty(fields.messageInterpolation) || !isObject(fields.messageInterpolation))) throw new Error('GQLError: wrong messageInterpolation argument type! fields.messageInterpolation should be an object')
         if (typeof fields.correctExample !== 'undefined' && typeof fields.correctExample !== 'string') throw new Error('GQLError: wrong correctExample argument type! fields.correctExample should be a string')
         if (typeof fields.context !== 'undefined') throw new Error('GQLError: wrong context argument position! You should pass it as the second argument')
+        if (typeof parentErrors !== 'undefined' && !isArray(parentErrors) && !isError(parentErrors)) throw new Error('GQLError: wrong parent errors argument type')
+        if (isArray(parentErrors) && !every(parentErrors, isError)) throw new Error('GQLError: wrong parent errors array element type')
+        const errors = (parentErrors && !isArray(parentErrors)) ? [parentErrors] : parentErrors
+        if (typeof parentErrors !== 'undefined' && (!isArray(errors) || errors.length <= 0)) throw new Error('GQLError: internal error! this.errors should be undefined or not empty error')
         // We need a clone to avoid modification of original errors declaration, that will cause
         // second calling of this constructor to work with changed fields
         const extensions = cloneDeep(fields)
-        const message = template(fields.message)(fields.messageInterpolation)
-        if (context && fields.messageForUser) {
+        extensions.message = template(fields.message)(fields.messageInterpolation)
+        if (fields.messageForUser) {
+            if (!fields.messageForUser.startsWith('api.')) throw new Error('GQLError: wrong `messageForUser` field argument. Should starts with `api.`')
+            if (!context) throw new Error('GQLError: no context for messageForUser')
             // todo use i18n from apps/condo/domains/common/utils/localesLoader.js
             const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
             const translations = getTranslations(locale)
             const translatedMessage = translations[fields.messageForUser]
             extensions.messageForUser = template(translatedMessage)(fields.messageInterpolation)
-            if (!isEmpty(fields.messageInterpolation)) {
-                extensions.messageForUserTemplate = translatedMessage
+            extensions.messageForUserTemplateKey = fields.messageForUser
+            if (extensions.messageForUser) {
+                if (!isEmpty(fields.messageInterpolation) && translatedMessage) {
+                    extensions.messageForUserTemplate = translatedMessage
+                }
+            } else {
+                // TODO(pahaz): we should log it. looks like missed translation key!
+                delete extensions.messageForUser
+            }
+            if (extensions.messageForUser === extensions.messageForUserTemplateKey) {
+                throw new Error(
+                    'GQLError: it loos like you already hardcode localised message inside messageForUser. ' +
+                    'Could you please use translation key here!',
+                )
             }
         }
         if (!isEmpty(fields.messageInterpolation)) {
             extensions.messageTemplate = fields.message
+            if (fields.message === extensions.message) throw new Error(
+                'GQLError: looks like you already include `messageInterpolation` values inside `message`. ' +
+                'Please use templated string like `{name}` inside the message field',
+            )
         }
-        super(message)
+        super(extensions.message)
         this.name = extensions?.name || 'GQLError'
         this.extensions = extensions
-        this.reqId = get(context, 'req.id')
+        this.reqId = context?.req?.id
         this.uid = cuid()
+        this.errors = errors
         // NOTE(pahaz): cleanup field copy
-        delete extensions.message
+        delete extensions.context
         delete extensions.name
     }
 }

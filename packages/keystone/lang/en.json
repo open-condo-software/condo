@@ -1,0 +1,3 @@
+{
+  "api.user.INVALID_PASSWORD_LENGTH": "Password length must be between {min} and {max} characters"
+}

@@ -188,6 +188,7 @@ describe('safeFormatError hide=false', () => {
         expect(result).toEqual({
             'message': 'Hello',
             'name': 'Error',
+            'fullstack': expect.stringMatching(/^Error: Hello(.*?)Caused By: Error: World(.*?)$/s),
             'stack': expect.stringMatching(/^Error: Hello/),
             'errors': [
                 expect.objectContaining({
@@ -303,9 +304,10 @@ describe('safeFormatError hide=false', () => {
         })
     })
     test('safeFormatError(null)', () => {
-        expect(safeFormatError(null)).toMatchObject({
+        expect(safeFormatError(null)).toEqual({
             'message': 'null',
             'name': 'NonError',
+            'stack': expect.stringMatching(/^NonError: null/),
         })
     })
     test('safeFormatError(KeystoneAccessDeniedError)', () => {
@@ -329,6 +331,541 @@ describe('safeFormatError hide=false', () => {
             },
             'extensions': {
                 'messageForDeveloper': 'GraphQLError1\n\nGraphQL request:3:5\n2 |   {\n3 |     field\n  |     ^\n4 |   }',
+            },
+        })
+    })
+    test('safeFormatError(GQLError)', () => {
+        const message1 = Date.now().toString()
+        const message2 = 'GQL' + (Date.now() % 100).toString()
+        const original = new GQLError({
+            code: 'INTERNAL_ERROR',
+            type: 'SUB_GQL_ERROR',
+            message: message1,
+        })
+        const error = new GraphQLError(message2, null, null, null, null, original, {})
+        const result = safeFormatError(error)
+        const uid = result?.originalError?.uid
+        expect(result).toEqual({
+            'name': 'GQLError',
+            'message': message2,
+            'stack': expect.stringMatching(new RegExp(`^GQLError: ${message1}`)),
+            'extensions': {
+                'code': 'INTERNAL_ERROR',
+                'type': 'SUB_GQL_ERROR',
+                'message': message1,
+            },
+            'originalError': {
+                uid,
+                'name': 'GQLError',
+                'message': message1,
+                'stack': expect.stringMatching(new RegExp(`^GQLError: ${message1}`)),
+                'extensions': {
+                    'code': 'INTERNAL_ERROR',
+                    'type': 'SUB_GQL_ERROR',
+                    'message': message1,
+                },
+            },
+        })
+    })
+    test('safeFormatError(GQLError) with context', () => {
+        const message1 = Date.now().toString()
+        const message2 = 'GQL' + (Date.now() % 100).toString()
+        const reqId = 'req' + (Date.now() % 500).toString()
+        const original = new GQLError({
+            code: 'INTERNAL_ERROR',
+            type: 'SUB_GQL_ERROR',
+            message: message1,
+        }, { req: { id: reqId }, name: 'context1' })
+        const error = new GraphQLError(message2, null, null, null, null, original, {})
+        const result = safeFormatError(error)
+        const uid = result?.originalError?.uid
+        expect(result).toEqual({
+            'name': 'GQLError',
+            'message': message2,
+            'stack': expect.stringMatching(new RegExp(`^GQLError: ${message1}`)),
+            'extensions': {
+                'code': 'INTERNAL_ERROR',
+                'type': 'SUB_GQL_ERROR',
+                'message': message1,
+            },
+            'originalError': {
+                uid,
+                'name': 'GQLError',
+                'message': message1,
+                'stack': expect.stringMatching(new RegExp(`^GQLError: ${message1}`)),
+                'extensions': {
+                    'code': 'INTERNAL_ERROR',
+                    'type': 'SUB_GQL_ERROR',
+                    'message': message1,
+                },
+            },
+        })
+    })
+    test('safeFormatError(GQLError) with errors = [new Error]', () => {
+        const message1 = Date.now().toString()
+        const message2 = 'GQL' + (Date.now() % 100).toString()
+        const errors = [new Error('World')]
+        const fields = {
+            code: 'INTERNAL_ERROR',
+            type: 'SUB_GQL_ERROR',
+        }
+        const original = new GQLError({ ...fields, message: message1 }, null, errors)
+        const error = new GraphQLError(message2, null, null, null, null, original, {})
+        const result = safeFormatError(error)
+        const uid = result?.originalError?.uid
+        expect(result).toEqual({
+            'name': 'GQLError',
+            'message': message2,
+            'fullstack': expect.stringMatching(new RegExp(`^GQLError: ${message1}(.*?)Caused By: Error: World`, 's')),
+            'stack': expect.stringMatching(new RegExp(`^GQLError: ${message1}`)),
+            'extensions': { ...fields, 'message': message1 },
+            'originalError': {
+                uid,
+                'name': 'GQLError',
+                'message': message1,
+                'stack': expect.stringMatching(new RegExp(`^GQLError: ${message1}`)),
+                'extensions': { ...fields, 'message': message1 },
+                'errors': [
+                    {
+                        'message': 'World',
+                        'name': 'Error',
+                        'stack': expect.stringMatching(new RegExp('^Error: World')),
+                    },
+                ],
+            },
+        })
+    })
+    test('safeFormatError(GQLError) with errors = [new GQLError]', () => {
+        const message1 = Date.now().toString()
+        const message2 = 'GQL' + (Date.now() % 100).toString()
+        const message3 = 'ERR' + (Date.now() % 800).toString()
+        const fields2 = {
+            code: 'INTERNAL_ERROR',
+            type: 'SUB_GQL_ERROR',
+        }
+        const errors = [new GQLError({ ...fields2, message: message3 }, null, new Error('World'))]
+        const fields1 = {
+            code: 'INTERNAL_ERROR',
+            type: 'SUB_GQL_ERROR',
+        }
+        const original = new GQLError({ ...fields1, message: message1 }, null, errors)
+        const error = new GraphQLError(message2, null, null, null, null, original, {})
+        const result = safeFormatError(error)
+        const uid = result?.originalError?.uid
+        expect(result).toEqual({
+            'name': 'GQLError',
+            'message': message2,
+            'fullstack': expect.stringMatching(new RegExp(`^GQLError: ${message1}(.*?)Caused By: GQLError: ${message3}(.*?)Caused By: Error: World`, 's')),
+            'stack': expect.stringMatching(new RegExp(`^GQLError: ${message1}`)),
+            'extensions': { ...fields1, 'message': message3 },
+            'originalError': {
+                uid,
+                'name': 'GQLError',
+                'message': message1,
+                'stack': expect.stringMatching(new RegExp(`^GQLError: ${message1}`)),
+                'extensions': { ...fields1, 'message': message1 },
+                'errors': [
+                    {
+                        'uid': expect.anything(),
+                        'name': 'GQLError',
+                        'message': message3,
+                        'stack': expect.stringMatching(new RegExp(`^GQLError: ${message3}`)),
+                        'extensions': { ...fields2, 'message': message3 },
+                        'errors': [{
+                            'message': 'World',
+                            'name': 'Error',
+                            'stack': expect.stringMatching(new RegExp('^Error: World')),
+                        }],
+                    },
+                ],
+            },
+        })
+    })
+    test('safeFormatError(GQLError) with nested errors', () => {
+        const message1 = Date.now().toString()
+        const message2 = 'GQL' + (Date.now() % 100).toString()
+        const message3 = 'ERR' + (Date.now() % 800).toString()
+        const message4 = 'XXX' + (Date.now() % 900).toString()
+        const fields2 = {
+            code: 'BAD_USER_INPUT',
+            type: 'WRONG_FORMAT',
+        }
+        const fields1 = {
+            code: 'INTERNAL_ERROR',
+            type: 'SUB_GQL_ERROR',
+        }
+        const original2 = new Error('InError')
+        original2.errors = [new GQLError({ ...fields1, message: message4 }, null)]
+        const validation = new Error('KeystoneValidation')
+        validation.errors = [new GraphQLError(message1, null, null, null, null, new GQLError({ ...fields2, message: message3 }, null, original2), {})]
+        const error = new GraphQLError(message2, null, null, null, null, validation, {})
+        const result = safeFormatError(error)
+        expect(result).toEqual({
+            'name': 'GraphQLError',
+            'message': message2,
+            'stack': expect.stringMatching(new RegExp('^Error: KeystoneValidation')),
+            'fullstack': expect.stringMatching(new RegExp(`^Error: KeystoneValidation(.*?)Caused By: GQLError: ${message3}(.*?)Caused By: Error: InError(.*?)Caused By: GQLError: ${message4}`, 's')),
+            'originalError': {
+                'message': 'KeystoneValidation',
+                'name': 'Error',
+                'stack': expect.stringMatching(new RegExp('^Error: KeystoneValidation')),
+                'errors': [
+                    {
+                        'extensions': { ...fields2, 'message': message3 },
+                        'name': 'GQLError',
+                        'message': message1,
+                        'stack': expect.stringMatching(new RegExp(`^GQLError: ${message3}`)),
+                        'originalError': {
+                            'errors': [
+                                {
+                                    'errors': [
+                                        {
+                                            'extensions': { ...fields1, 'message': message4 },
+                                            'message': message4,
+                                            'name': 'GQLError',
+                                            'stack': expect.stringMatching(new RegExp(`^GQLError: ${message4}`)),
+                                            'uid': expect.anything(),
+                                        },
+                                    ],
+                                    'message': 'InError',
+                                    'name': 'Error',
+                                    'stack': expect.stringMatching(new RegExp('^Error: InError')),
+                                },
+                            ],
+                            'extensions': { ...fields2, message: message3 },
+                            message: message3,
+                            name: 'GQLError',
+                            'stack': expect.stringMatching(new RegExp(`^GQLError: ${message3}`)),
+                            'uid': expect.anything(),
+                        },
+                    },
+                ],
+            },
+        })
+    })
+    test('safeFormatError(GQLError) change user password real case', () => {
+        const internalErrorMessage = '[error] Update User internal error'
+        const fields1 = {
+            'code': 'INTERNAL_ERROR',
+            'type': 'SUB_GQL_ERROR',
+        }
+        const passwordLengthErrorMessage = 'Password length must be between 8 and 128 characters'
+        const fields2 = {
+            'variable': [
+                'data',
+                'password',
+            ],
+            'code': 'BAD_USER_INPUT',
+            'type': 'INVALID_PASSWORD_LENGTH',
+            'message': 'Password length must be between {min} and {max} characters',
+            'messageForUser': 'api.user.INVALID_PASSWORD_LENGTH',
+            'messageInterpolation': {
+                'min': 8,
+                'max': 128,
+            },
+        }
+        const gqlError2 = new GQLError(fields2, {})
+        const wrappedGQLError2 = new GraphQLError(passwordLengthErrorMessage, null, null, null, null, gqlError2, {})
+        const gqlError1 = new GQLError({ ...fields1, message: internalErrorMessage }, {}, [wrappedGQLError2])
+        const wrappedGQLError1 = new GraphQLError(internalErrorMessage, null, null, null, null, gqlError1, {})
+
+        const result = safeFormatError(wrappedGQLError1)
+        expect(result).toEqual({
+            'name': 'GQLError',
+            'message': '[error] Update User internal error',
+            'extensions': {
+                'code': 'BAD_USER_INPUT',
+                'type': 'INVALID_PASSWORD_LENGTH',
+                'messageForUser': 'Password length must be between 8 and 128 characters',
+                'messageForUserTemplate': 'Password length must be between {min} and {max} characters',
+                'messageForUserTemplateKey': 'api.user.INVALID_PASSWORD_LENGTH',
+                'messageInterpolation': {
+                    'max': 128,
+                    'min': 8,
+                },
+                'message': 'Password length must be between 8 and 128 characters',
+                'messageTemplate': 'Password length must be between {min} and {max} characters',
+                'variable': [
+                    'data',
+                    'password',
+                ],
+            },
+            'stack': expect.stringMatching(new RegExp('^GQLError: \\[error\\] Update User internal error(.*?)$', 's')),
+            'fullstack': expect.stringMatching(new RegExp(`^GQLError: \\[error\\] Update User internal error(.*?)Caused By: GQLError: ${passwordLengthErrorMessage}(.*?)`, 's')),
+            'originalError': {
+                'errors': [
+                    {
+                        'extensions': {
+                            'code': 'BAD_USER_INPUT',
+                            'type': 'INVALID_PASSWORD_LENGTH',
+                            'messageForUser': 'Password length must be between 8 and 128 characters',
+                            'messageForUserTemplate': 'Password length must be between {min} and {max} characters',
+                            'messageForUserTemplateKey': 'api.user.INVALID_PASSWORD_LENGTH',
+                            'messageInterpolation': {
+                                'max': 128,
+                                'min': 8,
+                            },
+                            'message': passwordLengthErrorMessage,
+                            'messageTemplate': 'Password length must be between {min} and {max} characters',
+                            'variable': [
+                                'data',
+                                'password',
+                            ],
+                        },
+                        'message': passwordLengthErrorMessage,
+                        'name': 'GQLError',
+                        'originalError': {
+                            'extensions': {
+                                'code': 'BAD_USER_INPUT',
+                                'type': 'INVALID_PASSWORD_LENGTH',
+                                'messageForUser': 'Password length must be between 8 and 128 characters',
+                                'messageForUserTemplate': 'Password length must be between {min} and {max} characters',
+                                'messageForUserTemplateKey': 'api.user.INVALID_PASSWORD_LENGTH',
+                                'messageInterpolation': {
+                                    'max': 128,
+                                    'min': 8,
+                                },
+                                'message': 'Password length must be between 8 and 128 characters',
+                                'messageTemplate': 'Password length must be between {min} and {max} characters',
+                                'variable': [
+                                    'data',
+                                    'password',
+                                ],
+                            },
+                            'message': passwordLengthErrorMessage,
+                            'name': 'GQLError',
+                            'stack': expect.stringMatching(new RegExp(`^GQLError: ${passwordLengthErrorMessage}(.*?)`)),
+                            'uid': expect.anything(),
+                        },
+                        'stack': expect.stringMatching(new RegExp(`^GQLError: ${passwordLengthErrorMessage}(.*?)`)),
+                    },
+                ],
+                'name': 'GQLError',
+                'message': '[error] Update User internal error',
+                'stack': expect.stringMatching(new RegExp('^GQLError: \\[error\\] Update User internal error(.*?)')),
+                'extensions': {
+                    'code': 'INTERNAL_ERROR',
+                    'type': 'SUB_GQL_ERROR',
+                    'message': '[error] Update User internal error',
+                },
+                'uid': expect.anything(),
+            },
+        })
+    })
+    test('safeFormatError(GQLError) change user password keystone case', () => {
+        const internalErrorMessage = '[error] Update User internal error'
+        const fields1 = {
+            'code': 'INTERNAL_ERROR',
+            'type': 'SUB_GQL_ERROR',
+        }
+        const passwordLengthErrorMessage = 'Password length must be between 8 and 128 characters'
+        const fields2 = {
+            'variable': [
+                'data',
+                'password',
+            ],
+            'code': 'BAD_USER_INPUT',
+            'type': 'INVALID_PASSWORD_LENGTH',
+            'message': 'Password length must be between {min} and {max} characters',
+            'messageForUser': 'api.user.INVALID_PASSWORD_LENGTH',
+            'messageInterpolation': {
+                'min': 8,
+                'max': 128,
+            },
+        }
+        const gqlError2 = new GQLError(fields2, {})
+        const keystoneError = new Error('keystone error')
+        keystoneError.errors = [gqlError2]
+        // const wrappedGQLError2 = new GraphQLError(passwordLengthErrorMessage, null, null, null, null, gqlError2, {})
+        // keystoneError.errors = [wrappedGQLError2]
+        const gqlError1 = new GQLError({ ...fields1, message: internalErrorMessage }, {}, [keystoneError])
+        const wrappedGQLError1 = new GraphQLError(internalErrorMessage, null, null, null, null, gqlError1, {})
+
+        const result = safeFormatError(wrappedGQLError1)
+        expect(result).toEqual({
+            'name': 'GQLError',
+            'message': '[error] Update User internal error',
+            'extensions': {
+                'code': 'BAD_USER_INPUT',
+                'type': 'INVALID_PASSWORD_LENGTH',
+                'messageForUser': 'Password length must be between 8 and 128 characters',
+                'messageForUserTemplate': 'Password length must be between {min} and {max} characters',
+                'messageForUserTemplateKey': 'api.user.INVALID_PASSWORD_LENGTH',
+                'messageInterpolation': {
+                    'max': 128,
+                    'min': 8,
+                },
+                'message': 'Password length must be between 8 and 128 characters',
+                'messageTemplate': 'Password length must be between {min} and {max} characters',
+                'variable': [
+                    'data',
+                    'password',
+                ],
+            },
+            'stack': expect.stringMatching(new RegExp('^GQLError: \\[error\\] Update User internal error(.*?)$', 's')),
+            'fullstack': expect.stringMatching(new RegExp(`^GQLError: \\[error\\] Update User internal error(.*?)Caused By: Error: keystone error(.*?)Caused By: GQLError: ${passwordLengthErrorMessage}(.*?)`, 's')),
+            'originalError': {
+                'errors': [
+                    {
+                        'errors': [
+                            {
+
+                                'extensions': {
+                                    'code': 'BAD_USER_INPUT',
+                                    'type': 'INVALID_PASSWORD_LENGTH',
+                                    'messageForUser': 'Password length must be between 8 and 128 characters',
+                                    'messageForUserTemplate': 'Password length must be between {min} and {max} characters',
+                                    'messageForUserTemplateKey': 'api.user.INVALID_PASSWORD_LENGTH',
+                                    'messageInterpolation': {
+                                        'max': 128,
+                                        'min': 8,
+                                    },
+                                    'message': passwordLengthErrorMessage,
+                                    'messageTemplate': 'Password length must be between {min} and {max} characters',
+                                    'variable': [
+                                        'data',
+                                        'password',
+                                    ],
+                                },
+                                'message': passwordLengthErrorMessage,
+                                'name': 'GQLError',
+                                'stack': expect.stringMatching(new RegExp(`^GQLError: ${passwordLengthErrorMessage}(.*?)`)),
+                                'uid': expect.anything(),
+                            },
+                        ],
+                        'message': 'keystone error',
+                        'name': 'Error',
+                        'stack': expect.stringMatching(new RegExp('^Error: keystone error')),
+                    },
+                ],
+                'name': 'GQLError',
+                'message': '[error] Update User internal error',
+                'stack': expect.stringMatching(new RegExp('^GQLError: \\[error\\] Update User internal error(.*?)')),
+                'extensions': {
+                    'code': 'INTERNAL_ERROR',
+                    'type': 'SUB_GQL_ERROR',
+                    'message': '[error] Update User internal error',
+                },
+                'uid': expect.anything(),
+            },
+        })
+    })
+    test('safeFormatError(GQLError) change user password keystone with sub error case', () => {
+        const internalErrorMessage = '[error] Update User internal error'
+        const fields1 = {
+            'code': 'INTERNAL_ERROR',
+            'type': 'SUB_GQL_ERROR',
+        }
+        const passwordLengthErrorMessage = 'Password length must be between 8 and 128 characters'
+        const fields2 = {
+            'variable': [
+                'data',
+                'password',
+            ],
+            'code': 'BAD_USER_INPUT',
+            'type': 'INVALID_PASSWORD_LENGTH',
+            'message': 'Password length must be between {min} and {max} characters',
+            'messageForUser': 'api.user.INVALID_PASSWORD_LENGTH',
+            'messageInterpolation': {
+                'min': 8,
+                'max': 128,
+            },
+        }
+        const gqlError2 = new GQLError(fields2, {})
+        const wrappedGQLError2 = new GraphQLError(passwordLengthErrorMessage, null, null, null, null, gqlError2, {})
+        const keystoneError = new Error('keystone error')
+        keystoneError.errors = [wrappedGQLError2]
+        const gqlError1 = new GQLError({ ...fields1, message: internalErrorMessage }, {}, [keystoneError])
+        const wrappedGQLError1 = new GraphQLError(internalErrorMessage, null, null, null, null, gqlError1, {})
+
+        const result = safeFormatError(wrappedGQLError1)
+        expect(result).toEqual({
+            'name': 'GQLError',
+            'message': '[error] Update User internal error',
+            'extensions': {
+                'code': 'BAD_USER_INPUT',
+                'type': 'INVALID_PASSWORD_LENGTH',
+                'messageForUser': 'Password length must be between 8 and 128 characters',
+                'messageForUserTemplate': 'Password length must be between {min} and {max} characters',
+                'messageForUserTemplateKey': 'api.user.INVALID_PASSWORD_LENGTH',
+                'messageInterpolation': {
+                    'max': 128,
+                    'min': 8,
+                },
+                'message': 'Password length must be between 8 and 128 characters',
+                'messageTemplate': 'Password length must be between {min} and {max} characters',
+                'variable': [
+                    'data',
+                    'password',
+                ],
+            },
+            'stack': expect.stringMatching(new RegExp('^GQLError: \\[error\\] Update User internal error(.*?)$', 's')),
+            'fullstack': expect.stringMatching(new RegExp(`^GQLError: \\[error\\] Update User internal error(.*?)Caused By: Error: keystone error(.*?)Caused By: GQLError: ${passwordLengthErrorMessage}(.*?)`, 's')),
+            'originalError': {
+                'errors': [
+                    {
+                        'errors': [
+                            {
+
+                                'extensions': {
+                                    'code': 'BAD_USER_INPUT',
+                                    'type': 'INVALID_PASSWORD_LENGTH',
+                                    'messageForUser': 'Password length must be between 8 and 128 characters',
+                                    'messageForUserTemplate': 'Password length must be between {min} and {max} characters',
+                                    'messageForUserTemplateKey': 'api.user.INVALID_PASSWORD_LENGTH',
+                                    'messageInterpolation': {
+                                        'max': 128,
+                                        'min': 8,
+                                    },
+                                    'message': passwordLengthErrorMessage,
+                                    'messageTemplate': 'Password length must be between {min} and {max} characters',
+                                    'variable': [
+                                        'data',
+                                        'password',
+                                    ],
+                                },
+                                'message': passwordLengthErrorMessage,
+                                'name': 'GQLError',
+                                'stack': expect.stringMatching(new RegExp(`^GQLError: ${passwordLengthErrorMessage}(.*?)`)),
+                                'originalError': {
+                                    'extensions': {
+                                        'code': 'BAD_USER_INPUT',
+                                        'message': 'Password length must be between 8 and 128 characters',
+                                        'messageForUser': 'Password length must be between 8 and 128 characters',
+                                        'messageForUserTemplate': 'Password length must be between {min} and {max} characters',
+                                        'messageForUserTemplateKey': 'api.user.INVALID_PASSWORD_LENGTH',
+                                        'messageInterpolation': {
+                                            'max': 128,
+                                            'min': 8,
+                                        },
+                                        'messageTemplate': 'Password length must be between {min} and {max} characters',
+                                        'type': 'INVALID_PASSWORD_LENGTH',
+                                        'variable': [
+                                            'data',
+                                            'password',
+                                        ],
+                                    },
+                                    'message': 'Password length must be between 8 and 128 characters',
+                                    'name': 'GQLError',
+                                    'stack': expect.stringMatching(new RegExp(`^GQLError: ${passwordLengthErrorMessage}(.*?)`)),
+                                    'uid': expect.anything(),
+                                },
+                            },
+                        ],
+                        'message': 'keystone error',
+                        'name': 'Error',
+                        'stack': expect.stringMatching(new RegExp('^Error: keystone error')),
+                    },
+                ],
+                'name': 'GQLError',
+                'message': '[error] Update User internal error',
+                'stack': expect.stringMatching(new RegExp('^GQLError: \\[error\\] Update User internal error(.*?)')),
+                'extensions': {
+                    'code': 'INTERNAL_ERROR',
+                    'type': 'SUB_GQL_ERROR',
+                    'message': '[error] Update User internal error',
+                },
+                'uid': expect.anything(),
             },
         })
     })
@@ -508,6 +1045,12 @@ describe('safeFormatError hide=true', () => {
             'name': 'NestedError',
         })
     })
+    test('safeFormatError(null)', () => {
+        expect(safeFormatError(null, true)).toEqual({
+            'message': 'null',
+            'name': 'NonError',
+        })
+    })
     test('safeFormatError(KeystoneAccessDeniedError)', () => {
         const data = { type: 'query', target: 'user' }
         const internalData = { ...GQL_KEYSTONE_INTERNAL_DATA_EXAMPLE }
@@ -631,6 +1174,7 @@ describe('toGraphQLFormat', () => {
             'extensions': {
                 'code': 'UNAUTHENTICATED',
                 'type': 'NOT_FOUND',
+                'message': message1,
             },
             'locations': null,
             'path': null,
@@ -642,6 +1186,7 @@ describe('toGraphQLFormat', () => {
                 'extensions': {
                     code: 'UNAUTHENTICATED',
                     type: 'NOT_FOUND',
+                    'message': message1,
                 },
             },
         })
@@ -664,6 +1209,7 @@ describe('toGraphQLFormat', () => {
             'extensions': {
                 'code': 'UNAUTHENTICATED',
                 'type': 'NOT_FOUND',
+                'message': message1,
             },
             'locations': null,
             'path': null,
