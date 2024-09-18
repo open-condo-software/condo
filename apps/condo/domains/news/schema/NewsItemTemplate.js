@@ -6,6 +6,7 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/news/access/NewsItemTemplate')
+const { NEWS_CATEGORIES } = require('@condo/domains/news/constants/newsCategory')
 const { NEWS_TYPES } = require('@condo/domains/news/constants/newsTypes')
 
 
@@ -26,7 +27,7 @@ const NewsItemTemplate = new GQLListSchema('NewsItemTemplate', {
             ref: 'Organization',
             kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
         },
-
+        // Какое дефолтное имя для поля name? Пусткая строка ''?
         name: {
             schemaDoc: 'Name of template the news item',
             type: 'Text',
@@ -35,7 +36,9 @@ const NewsItemTemplate = new GQLListSchema('NewsItemTemplate', {
 
         category: {
             schemaDoc: 'Category of template of the news item ',
-            type: 'Text',  
+            type: 'Select',
+            options: NEWS_CATEGORIES,
+            isRequired: false,
         },
 
         title: {
