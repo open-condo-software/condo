@@ -17,7 +17,6 @@ const { flattenDeep, fromPairs, toPairs, get, set, isFunction, isEmpty, template
 const fetch = require('node-fetch')
 const { CookieJar, Cookie } = require('tough-cookie')
 
-
 const conf = require('@open-condo/config')
 const { getTranslations } = require('@open-condo/locales/loader')
 
@@ -558,7 +557,15 @@ const catchErrorFrom = async (testFunc, inspect) => {
         thrownError = e
     }
     if (!thrownError) throw new Error(`catchErrorFrom() no caught error for: ${testFunc}`)
-    return inspect(thrownError)
+    try {
+        return inspect(thrownError)
+    } catch (e) {
+        // NOTE(pahaz): We will catch the validation error from Jest,
+        // and if it occurs, we want to see the stack and use click to file
+        // and understand what's happen.
+        console.error(thrownError)
+        throw e
+    }
 }
 
 /**
