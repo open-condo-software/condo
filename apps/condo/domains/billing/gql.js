@@ -46,6 +46,7 @@ const BILLING_RECEIPT_ADMIN_FIELDS = `{ ${BILLING_RECEIPT_COMMON_FIELDS} file { 
 
 const BillingReceipt = generateGqlQueries('BillingReceipt', BILLING_RECEIPT_FIELDS)
 const BillingReceiptAdmin = generateGqlQueries('BillingReceipt', BILLING_RECEIPT_ADMIN_FIELDS)
+const BillingReceiptIdOnly = generateGqlQueries('BillingReceipt', '{ id }')
 
 const RESIDENT_BILLING_RECEIPTS_FIELDS = `{ id ${BILLING_RECEIPT_RECIPIENT_FIELDS} period toPay paid toPayDetails { ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS} } ${BILLING_RECEIPT_SERVICE_FIELDS} printableNumber serviceConsumer { id paymentCategory } currencyCode category { id name } isPayable file { file { id originalFilename publicUrl mimetype } controlSum } }`
 const ResidentBillingReceipt = generateGqlQueries('ResidentBillingReceipt', RESIDENT_BILLING_RECEIPTS_FIELDS)
@@ -67,6 +68,7 @@ const BillingReceiptForOrganization = generateGqlQueries('BillingReceipt', `{
 
 const BILLING_RECEIPT_FILE_FIELDS = `{ file { id originalFilename publicUrl mimetype } context { id } receipt { id } controlSum ${COMMON_FIELDS} }`
 const BillingReceiptFile = generateGqlQueries('BillingReceiptFile', BILLING_RECEIPT_FILE_FIELDS)
+const BillingReceiptFileIdOnly = generateGqlQueries('BillingReceiptFile', '{ id }')
 
 const REGISTER_BILLING_RECEIPTS_MUTATION = gql`
     mutation registerBillingReceipts ($data: RegisterBillingReceiptsInput!) {
@@ -116,8 +118,9 @@ module.exports = {
     BillingProperty,
     BillingAccount,
     BillingReceipt,
-    BillingReceiptForOrganization,
     BillingReceiptAdmin,
+    BillingReceiptIdOnly,
+    BillingReceiptForOrganization,
     ResidentBillingReceipt,
     ResidentBillingVirtualReceipt,
     RESIDENT_BILLING_RECEIPTS_FIELDS,
@@ -127,6 +130,7 @@ module.exports = {
 
     SEND_NEW_RECEIPT_MESSAGES_TO_RESIDENT_SCOPES_MUTATION,
     BillingReceiptFile,
+    BillingReceiptFileIdOnly,
     VALIDATE_QRCODE_MUTATION,
     SEND_NEW_BILLING_RECEIPT_FILES_NOTIFICATIONS_MUTATION,
     SUM_BILLING_RECEIPTS_QUERY,
