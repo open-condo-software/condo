@@ -13,6 +13,7 @@ ALTER TABLE "NewsItemTemplate" ADD COLUMN "category" varchar(50) NULL;
 --
 ALTER TABLE "NewsItemTemplate" ADD COLUMN "name" text DEFAULT 'Temp' NOT NULL;
 ALTER TABLE "NewsItemTemplate" ALTER COLUMN "name" DROP DEFAULT;
+UPDATE "NewsItemTemplate" SET name = title WHERE name = 'Temp';
 --
 -- Add field category to newsitemtemplatehistoryrecord
 --
