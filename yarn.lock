@@ -13816,15 +13816,15 @@ __metadata:
     "@rollup/plugin-typescript": ^11.1.6
     "@types/apollo-upload-client": ^17.0.0
     "@types/lodash": ^4.17.7
-    "@types/react": 18.0.27
+    "@types/react": ^16.14.61
     apollo-upload-client: ^17.0.0
     apollo3-cache-persist: ^0.15.0
     babel-core: ^6.26.3
     babel-loader: ^9.1.3
     deepmerge: ^4.3.1
     lodash: ^4.17.21
-    react: 18.2.0
-    react-dom: 18.2.0
+    react: ^16.14.0
+    react-dom: ^16.14.0
     rimraf: ^6.0.1
     rollup: ^4.21.2
     rollup-plugin-peer-deps-external: ^2.2.4
@@ -14068,14 +14068,14 @@ __metadata:
     "@rollup/plugin-commonjs": ^26.0.1
     "@rollup/plugin-node-resolve": ^15.2.3
     "@rollup/plugin-typescript": ^11.1.6
-    "@types/react": 18.0.27
+    "@types/react": ^16.14.61
     babel-core: ^6.26.3
     babel-loader: ^9.1.3
     cookie: ^0.6.0
     cookies-next: ^4.2.1
     graphql: ^16.8.1
-    react: 18.2.0
-    react-dom: 18.2.0
+    react: ^16.14.0
+    react-dom: ^16.14.0
     rimraf: ^6.0.1
     rollup: ^4.21.2
     rollup-plugin-peer-deps-external: ^2.2.4
@@ -19348,6 +19348,17 @@ __metadata:
     "@types/prop-types": "*"
     csstype: ^2.2.0
   checksum: 1d6598e6f070013498195a1bcce3090328f5ac6e64cd99a95ebbfa6494ac187ada03af317ba1230756b9c729d853a40fca58f39b150e2da9103a454291edf37d
+  languageName: node
+  linkType: hard
+
+"@types/react@npm:^16.14.61":
+  version: 16.14.61
+  resolution: "@types/react@npm:16.14.61"
+  dependencies:
+    "@types/prop-types": "*"
+    "@types/scheduler": ^0.16
+    csstype: ^3.0.2
+  checksum: b873d026fda1cdace4eaa1817d16c75cf2de5d8b54383e927b7669659937599cc18512a752c8989da1f441f2e332488d8c9858945172db3eea62d8411f2d6a61
   languageName: node
   linkType: hard
 
@@ -46659,7 +46670,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dom@npm:^16.13.1":
+"react-dom@npm:^16.13.1, react-dom@npm:^16.14.0":
   version: 16.14.0
   resolution: "react-dom@npm:16.14.0"
   dependencies:
@@ -47448,7 +47459,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react@npm:^16.13.1":
+"react@npm:^16.13.1, react@npm:^16.14.0":
   version: 16.14.0
   resolution: "react@npm:16.14.0"
   dependencies:
