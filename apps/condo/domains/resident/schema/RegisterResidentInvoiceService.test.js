@@ -3,6 +3,7 @@
  */
 
 const { faker } = require('@faker-js/faker')
+const Big = require('big.js')
 const { pick } = require('lodash')
 
 const {
@@ -202,7 +203,7 @@ describe('RegisterResidentInvoiceService', () => {
             }, 'result')
         })
 
-        test('can\'t create invoice with items from other organization', async () => {
+        test('can create invoice with items from other organization', async () => {
             const [o10n1] = await createTestOrganization(adminClient)
             const [o10n2] = await createTestOrganization(adminClient)
 
@@ -229,19 +230,67 @@ describe('RegisterResidentInvoiceService', () => {
             const [itemPrice] = await createTestMarketItemPrice(adminClient, marketItem)
             const [priceScope] = await createTestMarketPriceScope(adminClient, itemPrice, property2)
 
-            await expectToThrowGQLError(async () => await registerResidentInvoiceByTestClient(
+
+            const [invoice] = await registerResidentInvoiceByTestClient(
                 residentClient,
                 pick(resident, 'id'),
                 [{
                     priceScope: pick(priceScope, 'id'),
                     count: 1,
                 }],
+            )
+
+            expect(invoice).toBeTruthy()
+            expect(Big(invoice.toPay).toFixed(2)).toEqual(Big(itemPrice.price[0].price).toFixed(2))
+        })
+
+        test('can\'t create invoice with items from different organizations', async () => {
+            const [o10n1] = await createTestOrganization(adminClient)
+            const [o10n2] = await createTestOrganization(adminClient)
+
+            await createTestAcquiringIntegrationContext(adminClient, o10n1, acquiringIntegration, { invoiceStatus: CONTEXT_FINISHED_STATUS })
+            await createTestAcquiringIntegrationContext(adminClient, o10n2, acquiringIntegration, { invoiceStatus: CONTEXT_FINISHED_STATUS })
+
+            const [property1] = await createTestProperty(adminClient, o10n1)
+            const [property2] = await createTestProperty(adminClient, o10n2)
+
+            const residentClient = await makeClientWithResidentUser()
+            const unitType = FLAT_UNIT_TYPE
+            const unitName = faker.lorem.word()
+            const [resident] = await registerResidentByTestClient(
+                residentClient,
+                {
+                    address: property1.address,
+                    addressMeta: property1.addressMeta,
+                    unitType,
+                    unitName,
+                })
+
+            const [marketCategory] = await createTestMarketCategory(adminClient)
+            
+            const [marketItem_o10n1] = await createTestMarketItem(adminClient, marketCategory, o10n1)
+            const [itemPrice_o10n1] = await createTestMarketItemPrice(adminClient, marketItem_o10n1)
+            const [priceScope_o10n1] = await createTestMarketPriceScope(adminClient, itemPrice_o10n1, property1)
+            
+            const [marketItem_o10n2] = await createTestMarketItem(adminClient, marketCategory, o10n2)
+            const [itemPrice_o10n2] = await createTestMarketItemPrice(adminClient, marketItem_o10n2)
+            const [priceScope_o10n2] = await createTestMarketPriceScope(adminClient, itemPrice_o10n2, property2)
+
+            await expectToThrowGQLError(async () => await registerResidentInvoiceByTestClient(
+                residentClient,
+                pick(resident, 'id'),
+                [{
+                    priceScope: pick(priceScope_o10n1, 'id'),
+                    count: 1,
+                }, {
+                    priceScope: pick(priceScope_o10n2, 'id'),
+                    count: 1,
+                }],
             ), {
                 code: 'BAD_USER_INPUT',
-                type: 'ITEM_FROM_OTHER_ORGANIZATION',
-                message: 'Item from other organization. Check line 1',
-                messageForUser: 'api.marketplace.registerInvoice.error.itemFromOtherOrganization',
-                messageInterpolation: { rowNumber: 1 },
+                type: 'ITEMS_FROM_DIFFERENT_ORGANIZATIONS',
+                message: 'Items should be from one organization',
+                messageForUser: 'api.marketplace.registerInvoice.error.itemsFromDifferentOrganizations',
             }, 'result')
         })
 

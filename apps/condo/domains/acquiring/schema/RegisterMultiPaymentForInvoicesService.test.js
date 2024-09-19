@@ -30,7 +30,14 @@ const {
 } = require('@condo/domains/billing/utils/testSchema/testUtils')
 const { INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
 const { createTestInvoice, updateTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
+const {
+    createTestMarketCategory,
+    createTestMarketItem,
+    createTestMarketItemPrice,
+    createTestMarketPriceScope,
+} = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { registerResidentInvoiceByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('RegisterMultiPaymentForInvoicesService', () => {
@@ -364,6 +371,72 @@ describe('RegisterMultiPaymentForInvoicesService', () => {
                 expect.objectContaining({
                     amount: invoice2Sum.toFixed(8),
                     invoice: expect.objectContaining({ id: invoice2.id }),
+                }),
+            ]))
+        })
+
+        test('register multiPayment for invoice from different organization', async () => {
+            const utils1 = new TestUtils([ResidentTestMixin])
+            const utils2 = new TestUtils([ResidentTestMixin])
+            await utils1.init()
+            await utils2.init()
+
+            await utils2.updateAcquiringContext({
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceImplicitFeeDistributionSchema: [{
+                    recipient: 'organization',
+                    percent: '5',
+                }],
+                invoiceRecipient: createTestRecipient(),
+            })
+
+            const resident = await utils1.createResident()
+
+            const [marketCategory] = await createTestMarketCategory(utils2.clients.admin)
+            const [marketItem] = await createTestMarketItem(utils2.clients.admin, marketCategory, utils2.organization)
+            const [itemPrice] = await createTestMarketItemPrice(utils2.clients.admin, marketItem)
+            const [priceScope] = await createTestMarketPriceScope(utils2.clients.admin, itemPrice, utils2.property)
+
+            let [invoice] = await registerResidentInvoiceByTestClient(
+                utils1.clients.resident,
+                pick(resident, 'id'),
+                [{
+                    priceScope: pick(priceScope, 'id'),
+                    count: 1,
+                }],
+            );
+
+            [invoice] = await updateTestInvoice(utils2.clients.admin, invoice.id, { status: INVOICE_STATUS_PUBLISHED })
+
+            const [result] = await registerMultiPaymentForInvoicesByTestClient(adminClient, {
+                invoices: [pick(invoice, 'id')],
+            })
+
+            expect(result).toBeDefined()
+            expect(result).toHaveProperty('multiPaymentId')
+
+            const multiPaymentId = result.multiPaymentId
+            const hostUrl = utils2.acquiringIntegration.hostUrl
+            expect(result).toMatchObject({
+                dv: 1,
+                webViewUrl: `${hostUrl}/pay/${multiPaymentId}`,
+                feeCalculationUrl: `${hostUrl}/api/fee/${multiPaymentId}`,
+                directPaymentUrl: `${hostUrl}/api/pay/${multiPaymentId}`,
+                anonymousPaymentUrl: `${hostUrl}/api/anonymous/pay/${multiPaymentId}`,
+            })
+
+            const multiPayment = await MultiPayment.getOne(adminClient, { id: multiPaymentId })
+            const invoiceSum = invoice.rows.reduce((sum, { toPay, count }) => sum.plus(Big(toPay).mul(count)), Big(0))
+
+            expect(multiPayment).toBeDefined()
+            expect(multiPayment).toHaveProperty('amount', invoiceSum.toString())
+            expect(multiPayment.payments).toHaveLength(1)
+
+            const payments = await Payment.getAll(adminClient, { id_in: multiPayment.payments.map(({ id }) => id) })
+            expect(payments).toEqual(expect.arrayContaining([
+                expect.objectContaining({
+                    amount: invoiceSum.toFixed(8),
+                    invoice: expect.objectContaining({ id: invoice.id }),
                 }),
             ]))
         })
