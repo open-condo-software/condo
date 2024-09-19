@@ -6,6 +6,11 @@ const config: CodegenConfig = {
     schema: 'schema.graphql',
     documents: 'domains/**/*.graphql',
     generates: {
+        'schema.ts': {
+            plugins: [
+                'typescript',
+            ],
+        },
         'codegen/graphql/operation.types.ts': {
             preset: 'import-types',
             presetConfig: {
