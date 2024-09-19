@@ -1,4 +1,4 @@
-import * as Types from '@app/condo/schema'
+import * as Types from '@/schema'
 
 export type AuthenticatedUserQueryVariables = Types.Exact<{ [key: string]: never }>
 

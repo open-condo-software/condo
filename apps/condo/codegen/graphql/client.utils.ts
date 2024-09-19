@@ -1,7 +1,8 @@
 
 import { gql } from '@apollo/client'
 import * as Apollo from '@apollo/client'
-import * as Types from '@condo/codegen/graphql/operation.types'
+
+import * as Types from '@/codegen/graphql/operation.types'
 const defaultOptions = {} as const
 
 export const AuthenticatedUserDocument = gql`

@@ -14,7 +14,7 @@ const config: CodegenConfig = {
         'codegen/graphql/operation.types.ts': {
             preset: 'import-types',
             presetConfig: {
-                typesPath: '@app/condo/schema',
+                typesPath: '@/schema',
             },
             plugins: [
                 'typescript-operations',
@@ -23,7 +23,7 @@ const config: CodegenConfig = {
         'codegen/graphql/client.utils.ts': {
             preset: 'import-types',
             presetConfig: {
-                typesPath: '@condo/codegen/graphql/operation.types',
+                typesPath: '@/codegen/graphql/operation.types',
             },
             plugins: [
                 'typescript-react-apollo',

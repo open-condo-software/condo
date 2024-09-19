@@ -28,7 +28,6 @@
     "@ant-design/colors": "^6.0.0",
     "@ant-design/icons": "^4.7.0",
     "@apollo/client": "^3.11.8",
-    "@condo/codegen": "link:./codegen",
     "@condo/domains": "link:./domains",
     "@emotion/babel-plugin": "^11.10.0",
     "@emotion/core": "^10.1.1",
