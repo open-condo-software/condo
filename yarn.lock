@@ -790,7 +790,6 @@ __metadata:
     "@keystonejs/list-plugins": ^8.1.0
     "@keystonejs/server-side-graphql-client": ^2.1.0
     "@keystonejs/utils": ^6.1.0
-    "@open-condo/apollo": "workspace:^"
     "@open-condo/bridge": "workspace:^"
     "@open-condo/cli": "workspace:^"
     "@open-condo/codegen": "workspace:^"
@@ -799,7 +798,6 @@ __metadata:
     "@open-condo/icons": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@open-condo/locales": "workspace:^"
-    "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
     "@open-condo/webhooks": "workspace:^"
