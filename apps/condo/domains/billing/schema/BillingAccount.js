@@ -105,6 +105,7 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
     },
     kmigratorOptions: {
         indexes: [
+            // used in allResidentBillingReceipts getting BillingReceipts
             {
                 type: 'BTreeIndex',
                 fields: ['number', 'deletedAt'],
