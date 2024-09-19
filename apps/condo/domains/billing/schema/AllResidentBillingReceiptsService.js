@@ -137,6 +137,8 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                     'OR': receiptsQuery,
                 }
 
+                // NOTE: we have an index for this query called "billingAccount_number_deletedAt"
+                // if you modify the query you should make sure that the index is still being used
                 const receiptsForConsumer = await BillingReceiptAdmin.getAll(
                     context,
                     joinedReceiptsQuery,
