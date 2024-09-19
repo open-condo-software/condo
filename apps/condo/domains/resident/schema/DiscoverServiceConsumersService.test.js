@@ -54,6 +54,8 @@ const {
     makeClientWithServiceUser,
 } = require('@condo/domains/user/utils/testSchema')
 
+const addUnitToAddress = (address, unitName) => `${address}, ${unitName}`
+
 describe('DiscoverServiceConsumersService', () => {
     let admin
     let support
@@ -240,7 +242,7 @@ describe('DiscoverServiceConsumersService', () => {
                 context: { id: billingIntegrationContext.id },
                 receipts: [
                     createRegisterBillingReceiptsPayload({
-                        address: billingProperty.address,
+                        address: addUnitToAddress(billingProperty.address, resident1.unitName),
                         unitType: resident1.unitType,
                         unitName: resident1.unitName,
                         accountNumber: billingAccount1.number,
@@ -358,7 +360,7 @@ describe('DiscoverServiceConsumersService', () => {
                 context: { id: billingIntegrationContext1.id },
                 receipts: [
                     createRegisterBillingReceiptsPayload({
-                        address: billingProperty1.address,
+                        address: addUnitToAddress(billingProperty1.address, unitName1),
                         unitType: unitType1,
                         unitName: unitName1,
                         accountNumber: billingAccount1.number,
@@ -372,7 +374,7 @@ describe('DiscoverServiceConsumersService', () => {
                 context: { id: billingIntegrationContext2.id },
                 receipts: [
                     createRegisterBillingReceiptsPayload({
-                        address: billingProperty2.address,
+                        address: addUnitToAddress(billingProperty2.address, unitName1),
                         unitType: unitType1,
                         unitName: unitName1,
                         accountNumber: billingAccount2.number,
@@ -489,7 +491,7 @@ describe('DiscoverServiceConsumersService', () => {
                 context: { id: billingIntegrationContext1.id },
                 receipts: [
                     createRegisterBillingReceiptsPayload({
-                        address: billingProperty1.address,
+                        address: addUnitToAddress(billingProperty1.address, unitName1),
                         unitType: unitType1,
                         unitName: unitName1,
                         accountNumber: billingAccount1.number,
@@ -503,7 +505,7 @@ describe('DiscoverServiceConsumersService', () => {
                 context: { id: billingIntegrationContext2.id },
                 receipts: [
                     createRegisterBillingReceiptsPayload({
-                        address: billingProperty2.address,
+                        address: addUnitToAddress(billingProperty2.address, unitName1),
                         unitType: unitType1,
                         unitName: unitName1,
                         accountNumber: billingAccount2.number,
@@ -648,7 +650,7 @@ describe('DiscoverServiceConsumersService', () => {
                 context: { id: billingIntegrationContext1.id },
                 receipts: [
                     createRegisterBillingReceiptsPayload({
-                        address: billingProperty1.address,
+                        address: addUnitToAddress(billingProperty1.address, resident1.unitName),
                         unitType: resident1.unitType,
                         unitName: resident1.unitName,
                         accountNumber: billingAccount1.number,
@@ -663,7 +665,7 @@ describe('DiscoverServiceConsumersService', () => {
                 context: { id: billingIntegrationContext3.id },
                 receipts: [
                     createRegisterBillingReceiptsPayload({
-                        address: billingProperty3.address,
+                        address: addUnitToAddress(billingProperty3.address, resident3.unitName),
                         unitType: resident3.unitType,
                         unitName: resident3.unitName,
                         accountNumber: billingAccount3.number,
@@ -781,7 +783,7 @@ describe('DiscoverServiceConsumersService', () => {
                 context: { id: billingIntegrationContext1.id },
                 receipts: [
                     createRegisterBillingReceiptsPayload({
-                        address: billingProperty1.address,
+                        address: addUnitToAddress(billingProperty1.address, resident1.unitName),
                         unitType: resident1.unitType,
                         unitName: resident1.unitName,
                         accountNumber: billingAccount1.number,
@@ -789,7 +791,7 @@ describe('DiscoverServiceConsumersService', () => {
                         month: Number(now.format('MM')),
                     }),
                     createRegisterBillingReceiptsPayload({
-                        address: billingProperty1.address,
+                        address: addUnitToAddress(billingProperty1.address, resident1.unitName),
                         unitType: resident1.unitType,
                         unitName: resident1.unitName,
                         accountNumber: billingAccount1.number,
@@ -882,7 +884,7 @@ describe('DiscoverServiceConsumersService', () => {
                     context: { id: billingIntegrationContext.id },
                     receipts: [
                         createRegisterBillingReceiptsPayload({
-                            address: billingProperty.address,
+                            address: addUnitToAddress(billingProperty.address, resident.unitName),
                             unitType: resident.unitType,
                             unitName: resident.unitName,
                             accountNumber: billingAccount.number,
@@ -946,7 +948,7 @@ describe('DiscoverServiceConsumersService', () => {
                 context: { id: billingIntegrationContext1.id },
                 receipts: [
                     createRegisterBillingReceiptsPayload({
-                        address: user1.property.address,
+                        address: addUnitToAddress(user1.property.address, unitName1),
                         unitType: unitType1,
                         unitName: unitName1,
                         accountNumber: number,
@@ -1062,7 +1064,7 @@ describe('DiscoverServiceConsumersService', () => {
                 receipts: [
                     // One of receipts is for resident1
                     createRegisterBillingReceiptsPayload({
-                        address: user.property.address,
+                        address: addUnitToAddress(user.property.address, unitName1),
                         unitType: unitType1,
                         unitName: unitName1,
                         accountNumber,
@@ -1160,7 +1162,7 @@ describe('DiscoverServiceConsumersService', () => {
                     context: { id: billingIntegrationContext.id },
                     receipts: [
                         createRegisterBillingReceiptsPayload({
-                            address: billingProperty.address,
+                            address: addUnitToAddress(billingProperty.address, resident.unitName),
                             unitType: resident.unitType,
                             unitName: resident.unitName,
                             accountNumber: billingAccount.number,
@@ -1199,7 +1201,7 @@ describe('DiscoverServiceConsumersService', () => {
                 context: { id: billingIntegrationContext.id },
                 receipts: [
                     createRegisterBillingReceiptsPayload({
-                        address: billingProperty.address,
+                        address: addUnitToAddress(billingProperty.address, nextResident.unitName),
                         unitType: nextResident.unitType,
                         unitName: nextResident.unitName,
                         accountNumber: nextBillingAccount.number,
@@ -1257,7 +1259,7 @@ describe('DiscoverServiceConsumersService', () => {
                 context: { id: billingContext.id },
                 receipts: [
                     createRegisterBillingReceiptsPayload({
-                        address: residentClient1.property.address,
+                        address: addUnitToAddress(residentClient1.property.address, unitName1),
                         unitType: unitType1,
                         unitName: unitName1,
                         year: Number(now.format('YYYY')),
@@ -1327,7 +1329,7 @@ describe('DiscoverServiceConsumersService', () => {
                 context: { id: billingContext.id },
                 receipts: [
                     createRegisterBillingReceiptsPayload({
-                        address: residentClient1.property.address,
+                        address: addUnitToAddress(residentClient1.property.address, unitName1),
                         unitType: unitType1,
                         unitName: unitName1,
                         year: Number(now.format('YYYY')),
@@ -1393,12 +1395,12 @@ describe('DiscoverServiceConsumersService', () => {
                 context: { id: billingContext.id },
                 receipts: [
                     createRegisterBillingReceiptsPayload({
-                        address: residentClient1.property.address,
+                        address: addUnitToAddress(residentClient1.property.address, unitName1),
                         unitType: unitType1,
                         unitName: unitName1,
                     }),
                     createRegisterBillingReceiptsPayload({
-                        address: residentClient1.property.address,
+                        address: addUnitToAddress(residentClient1.property.address, unitName1),
                         unitType: unitType1,
                         unitName: unitName1,
                     }),
@@ -1460,7 +1462,7 @@ describe('DiscoverServiceConsumersService', () => {
                 context: { id: billingContext.id },
                 receipts: [
                     createRegisterBillingReceiptsPayload({
-                        address: residentClient1.property.address,
+                        address: addUnitToAddress(residentClient1.property.address, unitName1),
                         unitType: unitType1,
                         unitName: unitName1,
                         category: category1,
@@ -1468,7 +1470,7 @@ describe('DiscoverServiceConsumersService', () => {
                         month: Number(now.format('MM')),
                     }),
                     createRegisterBillingReceiptsPayload({
-                        address: residentClient1.property.address,
+                        address: addUnitToAddress(residentClient1.property.address, unitName1),
                         unitType: unitType1,
                         unitName: unitName1,
                         category: category2,
@@ -1540,7 +1542,7 @@ describe('DiscoverServiceConsumersService', () => {
                 context: { id: billingContext.id },
                 receipts: [
                     createRegisterBillingReceiptsPayload({
-                        address: residentClient1.property.address,
+                        address: addUnitToAddress(residentClient1.property.address, unitName1),
                         unitType: unitType1,
                         unitName: unitName1,
                         year: Number(now.format('YYYY')),
@@ -1548,7 +1550,7 @@ describe('DiscoverServiceConsumersService', () => {
                         category: category1,
                     }),
                     createRegisterBillingReceiptsPayload({
-                        address: residentClient1.property.address,
+                        address: addUnitToAddress(residentClient1.property.address, unitName1),
                         unitType: unitType1,
                         unitName: unitName1,
                         year: Number(past.format('YYYY')),
@@ -1639,7 +1641,7 @@ describe('DiscoverServiceConsumersService', () => {
                 receipts: [
                     // One of receipts is for resident1
                     createRegisterBillingReceiptsPayload({
-                        address: address1,
+                        address: addUnitToAddress(address1, unitName1),
                         unitType: unitType1,
                         unitName: unitName1,
                         accountNumber: resident1ManagingAccountNumber,
@@ -1681,7 +1683,7 @@ describe('DiscoverServiceConsumersService', () => {
                 receipts: [
                     // One of receipts is for resident1
                     createRegisterBillingReceiptsPayload({
-                        address: address1,
+                        address: addUnitToAddress(address1, unitName1),
                         unitType: unitType1,
                         unitName: unitName1,
                         accountNumber: resident1ManagingAccountNumber,
@@ -1742,7 +1744,7 @@ describe('DiscoverServiceConsumersService', () => {
                 receipts: [
                     // One of receipts is for resident1
                     createRegisterBillingReceiptsPayload({
-                        address: address1,
+                        address: addUnitToAddress(address1, unitName1),
                         unitType: unitType1,
                         unitName: unitName1,
                         accountNumber: resident1ManagingAccountNumber,
@@ -1752,7 +1754,7 @@ describe('DiscoverServiceConsumersService', () => {
                     }),
                     // Another is for resident2
                     createRegisterBillingReceiptsPayload({
-                        address: address2,
+                        address: addUnitToAddress(address2, unitName2),
                         unitType: unitType2,
                         unitName: unitName2,
                         accountNumber: resident2ManagingAccountNumber,
@@ -1777,7 +1779,7 @@ describe('DiscoverServiceConsumersService', () => {
                 receipts: [
                     // One of receipts is for resident1
                     createRegisterBillingReceiptsPayload({
-                        address: address2,
+                        address: addUnitToAddress(address2, unitName2),
                         unitType: unitType2,
                         unitName: unitName2,
                         accountNumber: resident2ServiceAccountNumber,
@@ -1869,7 +1871,7 @@ describe('DiscoverServiceConsumersService', () => {
                 receipts: [
                     // One of receipts is for resident1
                     createRegisterBillingReceiptsPayload({
-                        address: address1,
+                        address: addUnitToAddress(address1, unitName1),
                         unitType: unitType1,
                         unitName: unitName1,
                         accountNumber: resident1ManagingAccountNumber,
@@ -1879,7 +1881,7 @@ describe('DiscoverServiceConsumersService', () => {
                     }),
                     // Another is for resident2
                     createRegisterBillingReceiptsPayload({
-                        address: address2,
+                        address: addUnitToAddress(address2, unitName2),
                         unitType: unitType2,
                         unitName: unitName2,
                         accountNumber: resident2ManagingAccountNumber,
@@ -1977,7 +1979,7 @@ describe('DiscoverServiceConsumersService', () => {
                 receipts: [
                     // One of receipts is for resident2 and resident4
                     createRegisterBillingReceiptsPayload({
-                        address: address2,
+                        address: addUnitToAddress(address2, unitName2),
                         unitType: unitType2,
                         unitName: unitName2,
                         year: Number(now.format('YYYY')),
@@ -1985,7 +1987,7 @@ describe('DiscoverServiceConsumersService', () => {
                     }),
                     // Another ones are for resident1 and resident3
                     createRegisterBillingReceiptsPayload({
-                        address: address1,
+                        address: addUnitToAddress(address1, unitName1),
                         unitType: unitType1,
                         unitName: unitName1,
                         category: category5,
@@ -1994,7 +1996,7 @@ describe('DiscoverServiceConsumersService', () => {
                         month: Number(now.format('MM')),
                     }),
                     createRegisterBillingReceiptsPayload({
-                        address: address1,
+                        address: addUnitToAddress(address1, unitName1),
                         unitType: unitType1,
                         unitName: unitName1,
                         category: category5,
@@ -2063,7 +2065,7 @@ describe('DiscoverServiceConsumersService', () => {
                 context: { id: billingContext2.id },
                 receipts: [
                     createRegisterBillingReceiptsPayload({
-                        address: address2a,
+                        address: addUnitToAddress(address2a, unitName5),
                         unitType: unitType5,
                         unitName: unitName5,
                         year: Number(now.format('YYYY')),
@@ -2195,7 +2197,7 @@ describe('DiscoverServiceConsumersService', () => {
                     context: { id: billingContext.id },
                     receipts: [
                         createRegisterBillingReceiptsPayload({
-                            address, unitType, unitName,
+                            address: addUnitToAddress(address, unitName), unitType, unitName,
                             year: Number(now.format('YYYY')),
                             month: Number(now.format('MM')),
                         }),
