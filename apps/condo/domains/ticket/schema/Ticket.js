@@ -984,7 +984,7 @@ const Ticket = new GQLListSchema('Ticket', {
             {
                 type: 'BTreeIndex',
                 fields: ['organization', 'assignee', 'executor', 'deletedAt'],
-                name: 'ticket_org_ass_execut_deletedAt',
+                name: 'ticket_org_assign_exec_deletedAt',
             },
             // NOTE: popular filter on /ticket page
             {
