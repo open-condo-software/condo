@@ -180,6 +180,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@graphql-codegen/add": "^5.0.3",
     "@graphql-codegen/cli": "^5.0.2",
     "@graphql-codegen/import-types-preset": "^3.0.0",
     "@graphql-codegen/typescript": "^4.0.9",
