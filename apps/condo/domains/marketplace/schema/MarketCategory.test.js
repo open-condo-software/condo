@@ -2,7 +2,7 @@
 * @jest-environment node
 */
 
-const { makeLoggedInAdminClient, makeClient, expectValuesOfCommonFields, expectToThrowGQLError, expectToThrowInternalError } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, expectValuesOfCommonFields, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,

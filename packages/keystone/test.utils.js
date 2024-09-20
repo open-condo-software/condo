@@ -13,7 +13,7 @@ const express = require('express')
 const falsey = require('falsey')
 const FormData = require('form-data')
 const { gql } = require('graphql-tag')
-const { flattenDeep, fromPairs, toPairs, get, set, isFunction, isEmpty, template } = require('lodash')
+const { flattenDeep, fromPairs, toPairs, get, isFunction, isEmpty, template, pick } = require('lodash')
 const fetch = require('node-fetch')
 const { CookieJar, Cookie } = require('tough-cookie')
 
@@ -137,7 +137,7 @@ function setAllFeatureFlags (value) {
 function setFakeClientMode (entryPoint, prepareKeystoneOptions = {}) {
     if (__expressApp !== null) return
     if (__isAwaiting) return
-    console.warn('setFakeClientMode(): you changed the test execution mode to FAKE client! Your test will not really make a request to remote server! Use it only for local debugging or .spec.js tests cases')
+    // console.warn('setFakeClientMode(): you changed the test execution mode to FAKE client! Your test will not really make a request to remote server! Use it only for local debugging or .spec.js tests cases')
     const module = (typeof entryPoint === 'string') ? require(entryPoint) : entryPoint
     let mode = null
     if (module.hasOwnProperty('keystone') && module.hasOwnProperty('apps')) {
@@ -592,9 +592,9 @@ const expectToThrowAccessDeniedError = async (testFunc, path) => {
     if (!path) throw new Error('path is not specified')
 
     await catchErrorFrom(testFunc, (caught) => {
-        expect(caught).toMatchObject({
+        expect(pick(caught, ['name', 'data', 'errors'])).toEqual({
             name: 'TestClientResponseError',
-            data: set({}, path, null),
+            data: { [path]: null },
             errors: [expect.objectContaining({
                 'message': 'You do not have access to this resource',
                 'name': 'AccessDeniedError',
@@ -605,6 +605,7 @@ const expectToThrowAccessDeniedError = async (testFunc, path) => {
                 })],
                 'extensions': {
                     'code': 'INTERNAL_SERVER_ERROR',
+                    'messageForDeveloper': expect.stringMatching(/^You do not have access to this resource/),
                 },
             })],
         })
@@ -647,7 +648,7 @@ const expectToThrowAccessDeniedErrorToCount = async (testFunc) => {
 const expectToThrowAuthenticationError = async (testFunc, path) => {
     if (!path) throw new Error('path argument is not specified')
     await catchErrorFrom(testFunc, (caught) => {
-        expect(caught).toMatchObject({
+        expect(pick(caught, ['name', 'data', 'errors'])).toEqual({
             name: 'TestClientResponseError',
             data: { [path]: null },
             errors: [expect.objectContaining({
@@ -656,6 +657,8 @@ const expectToThrowAuthenticationError = async (testFunc, path) => {
                 'path': [path],
                 'extensions': {
                     'code': 'UNAUTHENTICATED',
+                    'message': 'No or incorrect authentication credentials',
+                    'messageForDeveloper': expect.stringMatching(/^No or incorrect authentication credentials/),
                 },
             })],
         })
@@ -677,7 +680,7 @@ const expectToThrowAuthenticationErrorToResult = async (testFunc) => {
 const expectToThrowValidationFailureError = async (testFunc, message, path = 'obj') => {
     if (!message) throw new Error('expectToThrowValidationFailureError(): no message argument')
     await catchErrorFrom(testFunc, (caught) => {
-        expect(caught).toMatchObject({
+        expect(pick(caught, ['name', 'data', 'errors'])).toEqual({
             name: 'TestClientResponseError',
             data: { [path]: null },
             errors: [expect.objectContaining({
@@ -690,19 +693,10 @@ const expectToThrowValidationFailureError = async (testFunc, message, path = 'ob
                 })],
                 'extensions': {
                     'code': 'INTERNAL_SERVER_ERROR',
+                    'messageForDeveloper': expect.stringMatching(/^You attempted to perform an invalid mutation/),
+                    'message': expect.stringContaining(message),
                 },
             })],
-        })
-
-        // TODO(pahaz): you really don't have access to originalError in production! need to change this check!
-        expect(caught.errors[0]).toMatchObject({
-            originalError: {
-                data: {
-                    messages: expect.arrayContaining([
-                        expect.stringContaining(message),
-                    ]),
-                },
-            },
         })
     })
 }
@@ -710,7 +704,7 @@ const expectToThrowValidationFailureError = async (testFunc, message, path = 'ob
 const expectToThrowInternalError = async (testFunc, message, path = 'obj') => {
     if (!message) throw new Error('expectToThrowInternalError(): no message argument')
     await catchErrorFrom(testFunc, (caught) => {
-        expect(caught).toMatchObject({
+        expect(pick(caught, ['name', 'data', 'errors'])).toEqual({
             name: 'TestClientResponseError',
             data: { [path]: null },
             errors: [expect.objectContaining({
@@ -723,57 +717,94 @@ const expectToThrowInternalError = async (testFunc, message, path = 'obj') => {
                 })],
                 'extensions': {
                     'code': 'INTERNAL_SERVER_ERROR',
+                    'messageForDeveloper': expect.stringContaining(message),
+                    'message': expect.stringContaining(message),
                 },
             })],
         })
     })
 }
 
+/**
+ * @example
+ * @param template {string}
+ * @param eol {boolean} use end of line in result regexp
+ * @param sol {boolean} use start of line in result regexp
+ * @returns {RegExp}
+ * @example
+ *   const template = "You have to wait {secondsRemaining} seconds";
+ *   const str = "You have to wait 10 seconds";
+ *   const regex = createRegExByTemplate(template);
+ *   console.log(regex.test(str)); // Output: true
+ *   const values = str.match(regex).groups;
+ *   console.log(values); // Output: { secondsRemaining: '10' }
+ */
+function createRegExByTemplate (template, { eol = true, sol = true } = {}) {
+    let regexString = template.replace(/([.*+?^$()|\]\[\\])/g, '\\$1') // escape regexp chars
+    if (template.includes('{')) {
+        // replace template string `{secondsRemaining}` to RegExp
+        regexString = regexString.replace(/{(\w+)}/g, '(?<$1>.*?)') // named group
+    }
+    return new RegExp((sol) ? '^' : '' + `${regexString}` + (eol) ? '$' : '')
+}
+
+/**
+ * @param testFunc {() => Promise<void>}
+ * @param errorFields {{[key: string]: string}}
+ * @param path {string}
+ * @returns {Promise<void>}
+ */
 const expectToThrowGQLError = async (testFunc, errorFields, path = 'obj') => {
     if (isEmpty(errorFields) || typeof errorFields !== 'object') throw new Error('expectToThrowGQLError(): wrong errorFields argument')
     if (!errorFields.code || !errorFields.type) throw new Error('expectToThrowGQLError(): errorFields argument: no code or no type')
-    let interpolatedMessageForUser
+    if (!errorFields.message) throw new Error('expectToThrowGQLError(): errorFields message argument is required')
+    const fieldsToCheck = { ...errorFields }
+    if (errorFields.messageInterpolation) {
+        fieldsToCheck['message'] = template(errorFields.message)(errorFields.messageInterpolation)
+        fieldsToCheck['messageTemplate'] = errorFields.message
+    }
     if (errorFields.messageForUser) {
         const locale = conf.DEFAULT_LOCALE
         const translations = getTranslations(locale)
         const translatedMessage = translations[errorFields.messageForUser]
-        interpolatedMessageForUser = template(translatedMessage)(errorFields.messageInterpolation)
+        if (errorFields.messageInterpolation) fieldsToCheck['messageForUserTemplate'] = translatedMessage
+        const interpolatedMessageForUser = template(translatedMessage)(errorFields.messageInterpolation)
         if (!interpolatedMessageForUser) throw new Error(`expectToThrowGQLError(): you need to set ${errorFields.messageForUser} for locale=${locale}`)
+        fieldsToCheck['messageForUser'] = interpolatedMessageForUser
     }
-    const message = template(errorFields.message)(errorFields.messageInterpolation)
-    // NOTE: In case where only type and code provided message should not be checked
-    const messageFields = message ? { message } : {}
-    // NOTE: In case where is no errorFields.messageForUser interpolatedMessageForUser becomes undefined,
-    // so we should not check it
-    const messageForUserFields = interpolatedMessageForUser ? { messageForUser: interpolatedMessageForUser } : {}
+
+    let message = fieldsToCheck['message']
+    delete fieldsToCheck['message']
+
+    // NOTE(pahaz): if we have a template `{secondsRemaining}` inside message without messageInterpolation
+    //  it means we want to use RegExp for our tests. Check @examples
+    if (errorFields.message.includes('{')) {
+        message = expect.stringMatching(createRegExByTemplate(message))
+        fieldsToCheck['messageTemplate'] = errorFields.message
+    }
+
+    fieldsToCheck['messageForDeveloper'] = expect.stringMatching(createRegExByTemplate(errorFields.message, { eol: false }))
 
     await catchErrorFrom(testFunc, (caught) => {
-        expect(caught).toMatchObject({
+        expect(pick(caught, ['name', 'data', 'errors'])).toEqual({
             name: 'TestClientResponseError',
             data: { [path]: null },
             errors: [expect.objectContaining({
-                ...messageFields,
-                'name': 'GQLError',
-                'path': [path],
-                'locations': [expect.objectContaining({
-                    line: expect.anything(),
-                    column: expect.anything(),
-                })],
-                'extensions': expect.objectContaining({
-                    ...errorFields,
-                    ...messageForUserFields,
-                }),
+                message,
+                name: 'GQLError',
+                path: [path],
+                locations: [expect.objectContaining({ line: expect.anything(), column: expect.anything() })],
+                extensions: expect.objectContaining({ ...fieldsToCheck }),
             })],
         })
+        // TODO(pahaz): check another fields too
     })
 }
 
 const expectToThrowGraphQLRequestError = async (testFunc, message) => {
     if (!message) throw new Error('expectToThrowGraphQLRequestError(): no message argument')
     await catchErrorFrom(testFunc, (caught) => {
-        expect(caught).toMatchObject({
-            name: 'TestClientResponseError',
-        })
+        expect(caught?.name).toEqual('TestClientResponseError')
 
         const { errors, data } = caught
         expect(data).toBeUndefined()
@@ -783,7 +814,7 @@ const expectToThrowGraphQLRequestError = async (testFunc, message) => {
         //  ValidationError - The GraphQL operation is not valid against the server's schema.
         //  UserInputError - The GraphQL operation includes an invalid value for a field argument.
         //  SyntaxError - The GraphQL operation string contains a syntax error.
-        expect(errors[0].name).toMatch(/(UserInputError|ValidationError|SyntaxError)/)
+        expect(errors[0].name).toMatch(/(UserInputError|ValidationError|SyntaxError|GraphQLError)/)
     })
 }
 
@@ -813,7 +844,6 @@ const actualDatabaseEntityName = (name) => {
     return name.slice(0, NAMEDATALEN)
 }
 
-
 /**
  * Handles maximum characters count of Postgres for naming of database entities while checking violation of a specified unique constraint
  * @param testFunc
@@ -840,7 +870,7 @@ const expectToThrowAccessDeniedToFieldError = async (testFunc, path, field, coun
     if (!field) throw new Error('field is not specified')
 
     await catchErrorFrom(testFunc, (caught) => {
-        expect(caught).toMatchObject({
+        expect(pick(caught, ['name', 'data', 'errors'])).toMatchObject({
             name: 'TestClientResponseError',
             data: { [path]: Array(count).fill(null) },
             errors: Array(count).fill(null).map((v, i) => expect.objectContaining({

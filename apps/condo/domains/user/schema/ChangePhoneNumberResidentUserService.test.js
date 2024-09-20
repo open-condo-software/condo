@@ -3,7 +3,7 @@ const { faker } = require('@faker-js/faker')
 const {
     makeLoggedInAdminClient,
     makeClient,
-    expectToThrowInternalError,
+    expectToThrowGQLError,
     catchErrorFrom,
     expectToThrowAccessDeniedErrorToResult,
     expectToThrowAuthenticationErrorToResult,
@@ -21,7 +21,6 @@ const {
     createTestUserExternalIdentity,
     changePhoneNumberResidentUserByTestClient,
 } = require('@condo/domains/user/utils/testSchema')
-
 
 describe('ChangePhoneNumberResidentUserService', () => {
     describe('Anonymous', () => {
@@ -72,9 +71,15 @@ describe('ChangePhoneNumberResidentUserService', () => {
                 const client = await makeClientWithResidentUser({ type: RESIDENT, isPhoneVerified: true })
                 await createTestUser(admin, { phone: phone, type: RESIDENT })
 
-                await expectToThrowInternalError(async () => {
-                    await changePhoneNumberResidentUserByTestClient(client, { token })
-                }, '[error] Update User internal error', 'result')
+                await expectToThrowGQLError(
+                    async () => await changePhoneNumberResidentUserByTestClient(client, { token }),
+                    {
+                        code: 'INTERNAL_ERROR',
+                        type: 'SUB_GQL_ERROR',
+                        message: '[error] Update User internal error',
+                    },
+                    'result',
+                )
             })
             it('can not change phone with expired token', async () => {
                 const admin = await makeLoggedInAdminClient()

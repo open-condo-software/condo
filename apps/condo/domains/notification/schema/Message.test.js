@@ -200,7 +200,7 @@ describe('Message', () => {
 
             await expectToThrowInternalError(
                 async () => await createTestMessage(admin, { user: { connect: { id: user.user.id } }, uniqKey }),
-                DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE,
+                `${DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE} "message_unique_user_type_uniqKey"`,
             )
         })
 
@@ -214,7 +214,7 @@ describe('Message', () => {
 
             await expectToThrowInternalError(
                 async () => await createTestMessage(admin, { user: null, uniqKey }),
-                DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE,
+                `${DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE} "message_unique_type_uniqKey"`,
             )
         })
 
@@ -233,12 +233,12 @@ describe('Message', () => {
 
             await expectToThrowInternalError(
                 async () => await createTestMessage(admin, { user: { connect: { id: user.user.id } }, uniqKey }),
-                DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE,
+                `${DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE} "message_unique_user_type_uniqKey"`,
             )
 
             await expectToThrowInternalError(
                 async () => await createTestMessage(admin, { uniqKey }),
-                DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE,
+                `${DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE} "message_unique_type_uniqKey"`,
             )
         })
 
