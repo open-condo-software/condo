@@ -23,7 +23,9 @@ const {
 } = require('@condo/domains/billing/schema/resolvers')
 const { sortPeriodFunction } = require('@condo/domains/billing/schema/resolvers/utils')
 const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
-const { BillingIntegrationOrganizationContext: BillingContextApi } = require('@condo/domains/billing/utils/serverSchema')
+const {
+    BillingIntegrationOrganizationContextForRegisterBillingReceiptsService: BillingContextApi,
+} = require('@condo/domains/billing/utils/serverSchema')
 
 const appLogger = getLogger('condo')
 const registerReceiptLogger = appLogger.child({ module: 'register-billing-receipts' })
