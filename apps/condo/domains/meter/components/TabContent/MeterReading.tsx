@@ -38,6 +38,7 @@ import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/
 import { MetersImportWrapper } from '@condo/domains/meter/components/Import/Index'
 import ActionBarForSingleMeter from '@condo/domains/meter/components/Meters/ActionBarForSingleMeter'
 import UpdateMeterReadingModal from '@condo/domains/meter/components/Meters/UpdateMeterReadingModal'
+import { EXPORT_METER_READINGS_MONTHS_LIMIT } from '@condo/domains/meter/constants/constants'
 import { useMeterReadingExportToExcelTask } from '@condo/domains/meter/hooks/useMeterReadingExportToExcelTask'
 import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
 import {
@@ -250,12 +251,9 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
 
     const [selectedDates, setSelectedDates] = useState<[Dayjs, Dayjs]>()
     const disabledDate = (current) => {
-        if (!selectedDates) {
-            return current > dayjs()
-        }
-
-        const tooLate = current > dayjs() || (selectedDates[0] && current.diff(selectedDates[0], 'months', true) > 2)
-        const tooEarly = selectedDates[1] && selectedDates[1].diff(current, 'months', true) > 2
+        if (current > dayjs()) return true
+        const tooLate = selectedDates && selectedDates[0] && current.diff(selectedDates[0], 'months', true) > EXPORT_METER_READINGS_MONTHS_LIMIT
+        const tooEarly = selectedDates && selectedDates[1] && selectedDates[1].diff(current, 'months', true) > EXPORT_METER_READINGS_MONTHS_LIMIT
         return !!tooEarly || !!tooLate
     }
 
