@@ -88,11 +88,6 @@ let __expressServer = null
 let __keystone = null
 let __isAwaiting = false
 
-/**
- * Something looks like an ip address. Need to test calls limit from one ip address.
- * @type {string}
- */
-let __x_forwarder_for_header
 
 /**
  * @type {Map<string, any>}
