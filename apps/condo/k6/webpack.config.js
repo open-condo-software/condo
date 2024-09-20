@@ -8,6 +8,7 @@ module.exports = {
         'news.test': path.join(__dirname, 'src/news.test.ts'),
         'payment.test': path.join(__dirname, 'src/payment.test.ts'),
         'registerBillingReceiptFile.test': path.join(__dirname, 'src/registerBillingReceiptFile.test.ts'),
+        'registerBillingReceipt.test': path.join(__dirname, 'src/registerBillingReceipt.test.ts'),
     },
     output: {
         path: path.join(__dirname, 'dist'),
