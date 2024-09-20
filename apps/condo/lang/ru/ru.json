@@ -3123,7 +3123,6 @@
   "api.marketplace.MarketItemPrice.error.ORGANIZATION_IN_PROPERTY_AND_MARKET_ITEM_PRICE_NOT_MATCHED": "Невозможно создать область видимости списка услуг с домом из одной организации и услугой из другой организации.",
   "api.marketplace.registerInvoice.error.noAcquiringContext": "Не выполнена настройка со стороны организации",
   "api.marketplace.registerInvoice.error.itemFromOtherOrganization": "Позиция из другой организации. Проверьте строку {rowNumber}",
-  "api.marketplace.registerInvoice.error.itemsFromDifferentOrganizations": "Позиции должны быть из одной организации",
   "marketplace.invoice.newTicket.details": "Заказана платная услуга",
   "api.marketplace.invoice.error.NoFinishedAcquiringContext": "Организация не завершила настройку маркетплейса",
   "api.marketplace.invoice.error.editPublishedForbidden": "У счета в статусе \"Готов к оплате\" можно обновить только статус в значения \"Отменен\" или \"Оплачен\"",

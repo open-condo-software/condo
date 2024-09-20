@@ -21,7 +21,6 @@ const {
 const {
     ERROR_NO_ACQUIRING_CONTEXT,
     ERROR_ITEM_FROM_OTHER_ORGANIZATION,
-    ERROR_ITEMS_FROM_DIFFERENT_ORGANIZATIONS,
 } = require('@condo/domains/marketplace/constants')
 const { Invoice, MarketPriceScope, MarketSetting } = require('@condo/domains/marketplace/utils/serverSchema')
 const access = require('@condo/domains/resident/access/RegisterResidentInvoiceService')
@@ -33,12 +32,6 @@ const ERRORS = {
         type: ERROR_NO_ACQUIRING_CONTEXT,
         message: 'The organization hasn\'t set up the marketplace',
         messageForUser: 'api.marketplace.registerInvoice.error.noAcquiringContext',
-    },
-    ITEMS_FROM_DIFFERENT_ORGANIZATIONS: {
-        code: BAD_USER_INPUT,
-        type: ERROR_ITEMS_FROM_DIFFERENT_ORGANIZATIONS,
-        message: 'Items should be from one organization',
-        messageForUser: 'api.marketplace.registerInvoice.error.itemsFromDifferentOrganizations',
     },
     ITEM_FROM_OTHER_ORGANIZATION: (rowNumber) => ({
         code: BAD_USER_INPUT,
@@ -109,14 +102,6 @@ const RegisterResidentInvoiceService = new GQLCustomSchema('RegisterResidentInvo
 
                 if (priceScopes.length === 0) {
                     throw new GQLError(ERRORS.EMPTY_ROWS, context)
-                }
-
-                const uniqueOrganizationIds = uniq(priceScopes
-                    .map(priceScope => get(priceScope, ['marketItemPrice', 'marketItem', 'organization', 'id']))
-                )
-
-                if (uniqueOrganizationIds.length > 1) {
-                    throw new GQLError(ERRORS.ITEMS_FROM_DIFFERENT_ORGANIZATIONS, context)
                 }
 
                 const organization = get(priceScopes, [0, 'marketItemPrice', 'marketItem', 'organization'])
