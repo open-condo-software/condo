@@ -2378,7 +2378,7 @@
   "tasks.IncidentExportTask.progress.description.completed.link.label": "Download",
   "tasks.MeterReadingExportTask.progress.title": "Exporting meter readings",
   "tasks.MeterReadingExportTask.progress.description.preparing": "Preparing to export meter readings",
-  "tasks.MeterReadingExportTask.progress.description.processing": "Incidents exported: {exported} of {total}",
+  "tasks.MeterReadingExportTask.progress.description.processing": "Meter readings exported: {exported} of {total}",
   "tasks.MeterReadingExportTask.progress.description.completed": "File has been created",
   "tasks.MeterReadingExportTask.progress.description.completed.link.label": "Download",
   "tasks.MeterReadingsImportTask.progress.title": "Import meter readings",

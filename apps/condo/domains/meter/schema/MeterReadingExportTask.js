@@ -15,8 +15,7 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 
 const { WRONG_VALUE } = require('@condo/domains/common/constants/errors')
-const { COMPLETED, ERROR } = require('@condo/domains/common/constants/export')
-const { EXPORT_STATUS_VALUES, PROCESSING, EXCEL } = require('@condo/domains/common/constants/export')
+const { COMPLETED, ERROR, EXPORT_STATUS_VALUES, PROCESSING, EXCEL } = require('@condo/domains/common/constants/export')
 const { findAllByKey } = require('@condo/domains/common/utils/ecmascript.utils')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const access = require('@condo/domains/meter/access/MeterReadingExportTask')
@@ -75,7 +74,7 @@ const MeterReadingExportTask = new GQLListSchema('MeterReadingExportTask', {
             access: {
                 create: true,
                 read: true,
-                update: canOnlyServerSideWithoutUserRequest,
+                update: false,
             },
         },
 

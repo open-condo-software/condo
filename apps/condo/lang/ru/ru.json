@@ -2376,7 +2376,7 @@
   "tasks.IncidentExportTask.progress.description.processing": "Экспортированно записей: {exported} из {total}",
   "tasks.IncidentExportTask.progress.description.completed": "Файл сформирован",
   "tasks.IncidentExportTask.progress.description.completed.link.label": "Скачать",
-  "tasks.MeterReadingExportTask.progress.title": "Выгрузка ИПУ",
+  "tasks.MeterReadingExportTask.progress.title": "Выгрузка показаний ИПУ",
   "tasks.MeterReadingExportTask.progress.description.preparing": "Подготовка к экспорту",
   "tasks.MeterReadingExportTask.progress.description.processing": "Экспортированно записей: {exported} из {total}",
   "tasks.MeterReadingExportTask.progress.description.completed": "Файл сформирован",

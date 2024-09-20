@@ -58,7 +58,7 @@ const buildExportFile = async ({ task, rows }) => {
 
     const headerMessage = dateGte && dateLte
         ? `${i18n('excelExport.headers.meters.forPeriod.title', { locale })} ${formatDate(dateGte, timeZone)} — ${formatDate(dateLte, timeZone)}`
-        : i18n('excelExport.headers.incidents.title', { locale })
+        : i18n('excelExport.headers.meters.title', { locale })
 
     const { stream } = await buildExportExcelFile({
         templatePath: './domains/meter/templates/MeterReadingsExportTemplate.xlsx',
@@ -104,8 +104,6 @@ async function exportMeterReadings (taskId) {
 
     const { where, sortBy, format, locale } = task
 
-    console.log('where in task', where)
-
     try {
         if (!locale) {
             throw new Error(`MeterReadingExportTask with id "${taskId}" does not have value for "locale" field!`)
@@ -115,15 +113,12 @@ async function exportMeterReadings (taskId) {
 
         const totalRecordsCount = await MeterReading.count(context, where)
 
-        console.log('totalRecordsCount', totalRecordsCount)
-
         const meterReadingsLoader = await buildMeterReadingsLoader({ where, sortBy })
         const meterResources = await MeterResource.getAll(context, {})
         const meterReadingSources = await MeterReadingSource.getAll(context, {})
 
         const loadRecordsBatch = async (offset, limit) => {
             const meterReadings = await meterReadingsLoader.loadChunk(offset, limit)
-            console.log('meterReadings', meterReadings.length)
             const meterIds = uniq(meterReadings.map(reading => get(reading, 'meter')).filter(Boolean))
             const meters = await loadMetersForExcelExport({ where: { id_in: meterIds } })
 
@@ -177,8 +172,6 @@ async function exportMeterReadings (taskId) {
             ...BASE_ATTRIBUTES,
             status: ERROR,
         })
-
-        console.log('err', err)
 
         taskLogger.error({
             msg: 'Failed to export meter readings',
