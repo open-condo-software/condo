@@ -33,11 +33,20 @@ const AccessDeniedError = createError('AccessDeniedError', {
     options: { showPath: true },
 })
 
+const ValidationFailureError = createError('ValidationFailureError', {
+    message: 'You attempted to perform an invalid mutation',
+    options: { showPath: true },
+})
+
 class MyApolloError extends ApolloError {
     constructor (message) {
         super(message, 'MY_ERROR_CODE')
         Object.defineProperty(this, 'name', { value: 'MyApolloError' })
     }
+}
+
+class DatabaseError extends Error {
+    name = 'error'
 }
 
 function toGraphQLFormat (safeFormattedError) {
@@ -89,7 +98,6 @@ describe('safeFormatError hide=false', () => {
             'message': 'Hello',
             'name': 'Error',
             'stack': expect.stringMatching(/^Error: Hello/),
-            'uid': 'nfiqwjfqf',
         })
     })
     test('safeFormatError(new NestedError)', () => {
@@ -459,14 +467,12 @@ describe('safeFormatError hide=false', () => {
             'stack': expect.stringMatching(new RegExp(`^GQLError: ${message1}`)),
             'extensions': { ...fields1, 'message': message3 },
             'originalError': {
-                uid,
                 'name': 'GQLError',
                 'message': message1,
                 'stack': expect.stringMatching(new RegExp(`^GQLError: ${message1}`)),
                 'extensions': { ...fields1, 'message': message1 },
                 'errors': [
                     {
-                        'uid': expect.anything(),
                         'name': 'GQLError',
                         'message': message3,
                         'stack': expect.stringMatching(new RegExp(`^GQLError: ${message3}`)),
@@ -512,7 +518,7 @@ describe('safeFormatError hide=false', () => {
                 'errors': [
                     {
                         'extensions': { ...fields2, 'message': message3 },
-                        'name': 'GQLError',
+                        'name': 'GraphQLError',
                         'message': message1,
                         'stack': expect.stringMatching(new RegExp(`^GQLError: ${message3}`)),
                         'originalError': {
@@ -524,7 +530,6 @@ describe('safeFormatError hide=false', () => {
                                             'message': message4,
                                             'name': 'GQLError',
                                             'stack': expect.stringMatching(new RegExp(`^GQLError: ${message4}`)),
-                                            'uid': expect.anything(),
                                         },
                                     ],
                                     'message': 'InError',
@@ -536,7 +541,6 @@ describe('safeFormatError hide=false', () => {
                             message: message3,
                             name: 'GQLError',
                             'stack': expect.stringMatching(new RegExp(`^GQLError: ${message3}`)),
-                            'uid': expect.anything(),
                         },
                     },
                 ],
@@ -613,7 +617,7 @@ describe('safeFormatError hide=false', () => {
                             ],
                         },
                         'message': passwordLengthErrorMessage,
-                        'name': 'GQLError',
+                        'name': 'GraphQLError',
                         'originalError': {
                             'extensions': {
                                 'code': 'BAD_USER_INPUT',
@@ -635,7 +639,6 @@ describe('safeFormatError hide=false', () => {
                             'message': passwordLengthErrorMessage,
                             'name': 'GQLError',
                             'stack': expect.stringMatching(new RegExp(`^GQLError: ${passwordLengthErrorMessage}(.*?)`)),
-                            'uid': expect.anything(),
                         },
                         'stack': expect.stringMatching(new RegExp(`^GQLError: ${passwordLengthErrorMessage}(.*?)`)),
                     },
@@ -648,11 +651,10 @@ describe('safeFormatError hide=false', () => {
                     'type': 'SUB_GQL_ERROR',
                     'message': '[error] Update User internal error',
                 },
-                'uid': expect.anything(),
             },
         })
     })
-    test('safeFormatError(GQLError) change user password keystone case', () => {
+    test('safeFormatError(GQLError(Error)) change user password keystone case', () => {
         const internalErrorMessage = '[error] Update User internal error'
         const fields1 = {
             'code': 'INTERNAL_ERROR',
@@ -730,7 +732,6 @@ describe('safeFormatError hide=false', () => {
                                 'message': passwordLengthErrorMessage,
                                 'name': 'GQLError',
                                 'stack': expect.stringMatching(new RegExp(`^GQLError: ${passwordLengthErrorMessage}(.*?)`)),
-                                'uid': expect.anything(),
                             },
                         ],
                         'message': 'keystone error',
@@ -746,11 +747,10 @@ describe('safeFormatError hide=false', () => {
                     'type': 'SUB_GQL_ERROR',
                     'message': '[error] Update User internal error',
                 },
-                'uid': expect.anything(),
             },
         })
     })
-    test('safeFormatError(GQLError) change user password keystone with sub error case', () => {
+    test('safeFormatError(GQLError(Error)) change user password keystone with sub error case', () => {
         const internalErrorMessage = '[error] Update User internal error'
         const fields1 = {
             'code': 'INTERNAL_ERROR',
@@ -825,7 +825,7 @@ describe('safeFormatError hide=false', () => {
                                     ],
                                 },
                                 'message': passwordLengthErrorMessage,
-                                'name': 'GQLError',
+                                'name': 'GraphQLError',
                                 'stack': expect.stringMatching(new RegExp(`^GQLError: ${passwordLengthErrorMessage}(.*?)`)),
                                 'originalError': {
                                     'extensions': {
@@ -848,7 +848,6 @@ describe('safeFormatError hide=false', () => {
                                     'message': 'Password length must be between 8 and 128 characters',
                                     'name': 'GQLError',
                                     'stack': expect.stringMatching(new RegExp(`^GQLError: ${passwordLengthErrorMessage}(.*?)`)),
-                                    'uid': expect.anything(),
                                 },
                             },
                         ],
@@ -865,7 +864,184 @@ describe('safeFormatError hide=false', () => {
                     'type': 'SUB_GQL_ERROR',
                     'message': '[error] Update User internal error',
                 },
-                'uid': expect.anything(),
+            },
+        })
+    })
+    test('safeFormatError(ValidationFailureError)', () => {
+        const error = new ValidationFailureError({
+            data: {
+                messages: ['[app:noAppUrl] If the app is global, it must have appUrl field'],
+                errors: [{}],
+                listKey: 'B2BApp',
+                operation: 'create',
+            },
+            internalData: {
+                errors: [{}],
+                data: {
+                    'name': 'ONDRICKA-- ROGAHN B2B APP',
+                    'developer': 'Russel Group',
+                    'appUrl': null,
+                    'isHidden': true,
+                    'isGlobal': true,
+                    'dv': 1,
+                    'sender': {
+                        'dv': 1,
+                        'fingerprint': 'phqlacfs',
+                    },
+                },
+            },
+        })
+        const graphQLError = new GraphQLError(error.message, null, null, null, null, error, {
+            'code': 'INTERNAL_SERVER_ERROR',
+        })
+        expect(safeFormatError(graphQLError)).toEqual({
+            'stack': expect.stringMatching(new RegExp(`^ValidationFailureError: ${error.message}(.*?)`, 's')),
+            'message': 'You attempted to perform an invalid mutation',
+            'name': 'ValidationFailureError',
+            'extensions': {
+                'code': 'INTERNAL_SERVER_ERROR',
+                'message': '[app:noAppUrl] If the app is global, it must have appUrl field',
+            },
+            'originalError': {
+                'message': 'You attempted to perform an invalid mutation',
+                'name': 'ValidationFailureError',
+                'stack': expect.stringMatching(new RegExp(`^ValidationFailureError: ${error.message}(.*?)`, 's')),
+                'data': {
+                    'messages': [
+                        '[app:noAppUrl] If the app is global, it must have appUrl field',
+                    ],
+                    'errors': [
+                        {},
+                    ],
+                    'listKey': 'B2BApp',
+                    'operation': 'create',
+                },
+                'time_thrown': expect.anything(),
+                'internalData': {
+                    'errors': [
+                        {},
+                    ],
+                    'data': {
+                        'name': 'ONDRICKA-- ROGAHN B2B APP',
+                        'developer': 'Russel Group',
+                        'appUrl': null,
+                        'isHidden': true,
+                        'isGlobal': true,
+                        'dv': 1,
+                        'sender': {
+                            'dv': 1,
+                            'fingerprint': 'phqlacfs',
+                        },
+                    },
+                },
+            },
+        })
+    })
+    test('safeFormatError(GQLError(ValidationFailureError))', () => {
+        const error = new ValidationFailureError({
+            data: {
+                messages: ['[app:noAppUrl] If the app is global, it must have appUrl field'],
+                errors: [{}],
+                listKey: 'B2BApp',
+                operation: 'create',
+            },
+            internalData: {
+                errors: [{}],
+                data: {
+                    'name': 'ONDRICKA-- ROGAHN B2B APP',
+                    'developer': 'Russel Group',
+                    'appUrl': null,
+                    'isHidden': true,
+                    'isGlobal': true,
+                    'dv': 1,
+                    'sender': {
+                        'dv': 1,
+                        'fingerprint': 'phqlacfs',
+                    },
+                },
+            },
+        })
+        const gqlError = new GQLError({
+            'code': 'INTERNAL_ERROR',
+            'type': 'SUB_GQL_ERROR',
+            'message': '[error] Update B2BApp internal error',
+        }, null, error)
+        const graphQLError = new GraphQLError(gqlError.message, null, null, null, null, gqlError, {
+            'code': 'INTERNAL_SERVER_ERROR',
+        })
+        expect(safeFormatError(graphQLError)).toEqual({
+            'stack': expect.stringMatching(new RegExp('^GQLError: \\[error\\] Update B2BApp internal error(.*?)', 's')),
+            'fullstack': expect.stringMatching(new RegExp('^GQLError: \\[error\\] Update B2BApp internal error(.*?)Caused By: ValidationFailureError: You attempted to perform an invalid mutation', 's')),
+            'message': '[error] Update B2BApp internal error',
+            'name': 'GQLError',
+            'extensions': {
+                'code': 'INTERNAL_ERROR',
+                'type': 'SUB_GQL_ERROR',
+                'message': '[app:noAppUrl] If the app is global, it must have appUrl field',
+            },
+            'originalError': {
+                'errors': [{
+                    'message': 'You attempted to perform an invalid mutation',
+                    'name': 'ValidationFailureError',
+                    'stack': expect.stringMatching(new RegExp('^ValidationFailureError: You attempted to perform an invalid mutation(.*?)', 's')),
+                    'data': {
+                        'messages': [
+                            '[app:noAppUrl] If the app is global, it must have appUrl field',
+                        ],
+                        'errors': [
+                            {},
+                        ],
+                        'listKey': 'B2BApp',
+                        'operation': 'create',
+                    },
+                    'time_thrown': expect.anything(),
+                    'internalData': {
+                        'errors': [
+                            {},
+                        ],
+                        'data': {
+                            'name': 'ONDRICKA-- ROGAHN B2B APP',
+                            'developer': 'Russel Group',
+                            'appUrl': null,
+                            'isHidden': true,
+                            'isGlobal': true,
+                            'dv': 1,
+                            'sender': {
+                                'dv': 1,
+                                'fingerprint': 'phqlacfs',
+                            },
+                        },
+                    },
+                }],
+                'message': '[error] Update B2BApp internal error',
+                'name': 'GQLError',
+                'stack': expect.stringMatching(new RegExp('^GQLError: \\[error\\] Update B2BApp internal error(.*?)', 's')),
+                'extensions': {
+                    'code': 'INTERNAL_ERROR',
+                    'message': '[error] Update B2BApp internal error',
+                    'type': 'SUB_GQL_ERROR',
+                },
+            },
+        })
+    })
+    test('safeFormatError(DatabaseError)', () => {
+        const message = 'insert into "public"."Message" ("createdAt", "createdBy", "dv", "email", "id", "lang", "meta", "sender", "status", "type", "uniqKey", "updatedAt", "updatedBy", "user", "v") values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) returning * - duplicate key value violates unique constraint "message_unique_user_type_uniqKey"'
+        const error = new DatabaseError(message)
+        const graphQLError = new GraphQLError(error.message, null, null, null, null, error, {
+            'code': 'INTERNAL_SERVER_ERROR',
+        })
+        expect(safeFormatError(graphQLError)).toEqual({
+            'stack': expect.stringContaining(message),
+            'message': message,
+            'name': 'GraphQLError',
+            'extensions': {
+                'code': 'INTERNAL_SERVER_ERROR',
+                'message': message,
+            },
+            'originalError': {
+                'message': message,
+                'name': 'error',
+                'stack': expect.stringContaining(message),
             },
         })
     })
@@ -886,7 +1062,6 @@ describe('safeFormatError hide=true', () => {
         expect(result).toEqual({
             'message': 'Hello',
             'name': 'Error',
-            'uid': 'nfiqwjfqf',
         })
     })
     test('safeFormatError(new NestedError)', () => {

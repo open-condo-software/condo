@@ -107,6 +107,35 @@ function _fullstack (err) {
     return _buildCombinedStacks(error.stack, error.errors)
 }
 
+function _handleValidationErrorCase (extensions, originalError) {
+    // TODO(pahaz): it looks like we need to transform it to GQLError but in a future. Need to change code, type, ...
+    const messages = originalError?.data?.messages
+    if (messages && isArray(messages) && messages.length > 0) {
+        extensions.message = messages.join(';\n')
+    }
+}
+
+function _handleKnexError (extensions, originalError) {
+    // TODO(pahaz): it looks like we need to transform it to GQLError but in a future. Need to change code, type, ...
+    extensions.message = originalError.message
+}
+
+function _updateExtensionsForKnownErrorCases (extensions, originalError) {
+    // NOTE(pahaz): we want to extract messages from ValidationFailureError Keystone v5 error
+    if (originalError?.name === 'ValidationFailureError') {
+        _handleValidationErrorCase(extensions, originalError)
+        return
+    }
+
+    // NOTE(pahaz): we want to extract internal knex error messages from violates constraint cases
+    const hasDBUniqConstrain = originalError && originalError?.message?.includes('duplicate key value violates unique constraint')
+    const hasDBCheckConstrain = originalError && originalError?.message?.includes('violates check constraint')
+    if (hasDBUniqConstrain || hasDBCheckConstrain) {
+        _handleKnexError(extensions, originalError)
+        return
+    }
+}
+
 /**
  * Use it if you need to safely prepare error for logging or ApolloServer result.
  * Call Cases:
@@ -148,112 +177,117 @@ function _fullstack (err) {
  */
 const safeFormatError = (errorIn, hideInternals = false, applyPatches = true, _isRecursionCall = false) => {
     const error = _ensureError(errorIn)
-    const errorName = error?.constructor?.name
+    const errorCName = error?.constructor?.name
     const extensions = {}
     const originalError = error?.originalError
-    const originalErrorName = originalError?.constructor?.name
+    const originalErrorCName = originalError?.constructor?.name
     const result = {}
 
-    if (!hideInternals && !_isRecursionCall) {
-        // NOTE(pahaz): we want to restore a fullstack if any GQLError thrown
-        const fullstack = _fullstack(error)
-        if (fullstack !== error['stack']) result['fullstack'] = fullstack
-    }
-
-    // [1] base error fields
+    // [1] base error fields: name, message, stack
     const pickKeys1 = (hideInternals) ? ['message', 'name'] : ['message', 'name', 'stack']
     Object.assign(result, pick(error, pickKeys1))
 
-    // [2] base graphql fields:
-    //  - locations - array of { line, column } locations
-    //  - path - array describing the JSON-path
-    //  - positions - array of character offsets within the source GraphQL document
-    //  - nodes - array of GraphQL AST Nodes corresponding to this error
-    //  - source - source GraphQL document corresponding to this error
-    //  - extensions - fields to add to the formatted error
-    //  - originalError - original error thrown from a field resolver during execution
-    const pickKeys3 = ['locations', 'path']  // only this fields are visible
+    // [2] base graphql fields: locations, path
+    //  - `locations` - array of { line, column } locations
+    //  - `path` - array describing the JSON-path
+    const pickKeys3 = ['locations', 'path']
     Object.assign(result, pick(error, pickKeys3))
+
+    // [3] graphql extensions field
     const hasErrorExtensions = error.extensions && !isEmpty(error.extensions)
     const hasOriginalErrorExtensions = originalError && !isEmpty(originalError.extensions)
     if (hasErrorExtensions || hasOriginalErrorExtensions) {
-        if (hasOriginalErrorExtensions) {
-            Object.assign(extensions, originalError.extensions)
-        }
         if (hasErrorExtensions) {
             Object.assign(extensions, error.extensions)
         }
-        result.extensions = extensions
-        // we already have more details inside originalError object and don't need this
-        if (result.extensions.exception) delete result.extensions.exception
-        if (result.extensions.name) delete result.extensions.name
-        if (result.extensions.context) delete result.extensions.context
-    }
-    if (!hideInternals && originalError) {
-        result.originalError = safeFormatError(originalError, hideInternals, false, true)
+        if (hasOriginalErrorExtensions) {
+            Object.assign(extensions, originalError.extensions)
+        }
     }
 
-    // [3] keystone fields: time_thrown, data, internalData (really it's old ApolloServer keys)
+    // [4] apollo/keystone error fields: time_thrown, data, internalData (it's old ApolloServer keys)
     const pickKeys2 = (hideInternals) ? ['data'] : ['data', 'time_thrown', 'internalData']
     Object.assign(result, pick(error, pickKeys2))
 
-    // NOTE(pahaz): if has (nodes) or has (source and location) => can use printError
-    if (error.nodes || (error.source && error.location)) {
+    // [5] add messageForDeveloper field: if has (nodes) or has (source and location) => can use printError
+    if (!_isRecursionCall && (error.nodes || (error.source && error.location))) {
         const messageForDeveloper = printError(error)
         if (messageForDeveloper !== error.message) {
             extensions.messageForDeveloper = messageForDeveloper
-            result.extensions = extensions
         }
     }
 
-    // NOTE(pahaz): KeystoneJS compatibility! We already have lots of test with that names.
-    // We need to use more specific name inside the GQL errors
-    if (originalErrorName && originalErrorName !== 'Error') {
-        result.name = originalError.name
-    }
-
-    // NOTE(pahaz): We want to replace the current error if we understand that by calling internal functions, we received a GQLError.
-    // For example, we are writing the logic for GQLService, and during the execution of this request, there was a call to User.create(),
-    // which threw a validation error. We want to propagate this error to the top of the response.
-    if (errorName === 'GraphQLError' && originalErrorName === 'GQLError') {
-        const code = originalError?.extensions?.code
-        const type = originalError?.extensions?.type
-        // We have an error during subquery! For example in custom GQLService we can call User.update subquery
-        if (code === 'INTERNAL_ERROR' && type === 'SUB_GQL_ERROR') {
-            const subQueryErrors = originalError?.errors
-            // We have an exact one sub query error and it is GQLError
-            if (subQueryErrors && isArray(subQueryErrors) && subQueryErrors.length === 1) {
-                // Unwrap from GraphQLError
-                const internalErrorDuringSubQuery = (subQueryErrors[0]?.originalError) ? subQueryErrors[0]?.originalError : subQueryErrors[0]
-                const internalErrorName = internalErrorDuringSubQuery?.constructor?.name
+    // NOTE(pahaz): ApolloServer wraps all errors by GraphQLError. We want to change the results based on the wrapped error
+    // It's backward API compatibility fixes. Really you should always use `GQLError` but at the moment we have some old throw error code.
+    if (!_isRecursionCall && errorCName === 'GraphQLError') {
+        // NOTE(pahaz): We want to replace the current error if we determine that we received a GQLError.
+        // For example, when implementing the logic for GQLCustomSchema, if a call to User.create() occurs during the execution of a query
+        // which triggers a GQLError validation error, we want to pass this error up in the response so that it is visible to the user.
+        if (originalErrorCName === 'GQLError') {
+            const code = originalError?.extensions?.code
+            const type = originalError?.extensions?.type
+            const parentErrors = originalError?.errors
+            // We have an exact one parent gqlError.errors, and it is GQLError({ code: INTERNAL_ERROR, type: SUB_GQL_ERROR })
+            if (code === 'INTERNAL_ERROR' && type === 'SUB_GQL_ERROR' && isArray(parentErrors) && parentErrors.length === 1) {
+                // Unwrap from GraphQLError or any other wrapper
+                const internalError = (parentErrors[0]?.originalError) ? parentErrors[0]?.originalError : parentErrors[0]
+                const internalErrorCName = internalError?.constructor?.name
                 // If we found internal GQLError error
-                if (internalErrorName === 'GQLError' && internalErrorDuringSubQuery.extensions) {
+                if (internalErrorCName === 'GQLError' && internalError.extensions) {
                     // Propagate this error fields to extensions!
-                    Object.assign(extensions, internalErrorDuringSubQuery.extensions)
-                } else if (internalErrorName === 'Error' && internalErrorDuringSubQuery?.errors) {
+                    Object.assign(extensions, internalError.extensions)
+                } else if (internalErrorCName === 'Error' && internalError?.errors) {
                     // Keystone wrapper (new Error).errors case
-                    const keystoneLikeErrors = internalErrorDuringSubQuery?.errors
+                    const keystoneLikeErrors = internalError?.errors
                     if (keystoneLikeErrors && isArray(keystoneLikeErrors) && keystoneLikeErrors.length === 1) {
                         const internalKeystoneError = (keystoneLikeErrors[0]?.originalError) ? keystoneLikeErrors[0]?.originalError : keystoneLikeErrors[0]
-                        const internalKeystoneErrorName = internalKeystoneError?.constructor?.name
-                        if (internalKeystoneErrorName === 'GQLError' && internalKeystoneError.extensions) {
+                        const internalKeystoneErrorCName = internalKeystoneError?.constructor?.name
+                        if (internalKeystoneErrorCName === 'GQLError' && internalKeystoneError.extensions) {
                             Object.assign(extensions, internalKeystoneError.extensions)
                         }
                     }
+                } else {
+                    _updateExtensionsForKnownErrorCases(extensions, internalError)
                 }
             }
         }
+
+        _updateExtensionsForKnownErrorCases(extensions, originalError)
+
+        // NOTE(pahaz): KeystoneJS v5 compatibility! We already have lots of test with that names.
+        // We need to use more specific name instead of the 'GraphQLError'.
+        // If you want to change it you probably want to change API compatibility.
+        if (originalError && originalError?.name?.toLowerCase() !== 'error') {
+            result.name = originalError.name
+        }
     }
 
-    // save error uid
-    if (error.uid) {
-        result.uid = toString(error.uid)
+    // TODO(pahaz): think about errId / uid and add it here
+
+    // fullstack error
+    if (!_isRecursionCall && !hideInternals) {
+        // NOTE(pahaz): we want to restore a fullstack if any GQLError thrown
+        const fullstack = _fullstack(error)
+        if (fullstack !== error['stack']) result['fullstack'] = fullstack
     }
 
     // nested errors support
     if (!hideInternals && error.errors) {
         const nestedErrors = toArray(error.errors).map((err) => safeFormatError(err, hideInternals, false, true))
         if (nestedErrors.length) result.errors = nestedErrors
+    }
+
+    // nested originalError support
+    if (!hideInternals && originalError) {
+        result.originalError = safeFormatError(originalError, hideInternals, false, true)
+    }
+
+    if (!isEmpty(extensions)) {
+        result.extensions = extensions
+        // we already have more details inside originalError object and don't need this
+        if (result.extensions.exception) delete result.extensions.exception
+        if (result.extensions.name) delete result.extensions.name
+        if (result.extensions.context) delete result.extensions.context
     }
 
     if (applyPatches) _patchKnownErrorCases(error, result)
