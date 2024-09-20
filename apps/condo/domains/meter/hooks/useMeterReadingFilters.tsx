@@ -52,12 +52,9 @@ export function useMeterReadingFilters (meterType: MeterTypes): Array<FiltersMet
 
     const [selectedDates, setSelectedDates] = useState<[Dayjs, Dayjs]>()
     const disabledDate = (current) => {
-        if (!selectedDates) {
-            return current > dayjs()
-        }
-
-        const tooLate = current > dayjs() || (selectedDates[0] && current.diff(selectedDates[0], 'months', true) > EXPORT_METER_READINGS_MONTHS_LIMIT)
-        const tooEarly = selectedDates[1] && selectedDates[1].diff(current, 'months', true) > EXPORT_METER_READINGS_MONTHS_LIMIT
+        if (current > dayjs()) return true
+        const tooLate = selectedDates && selectedDates[0] && current.diff(selectedDates[0], 'months', true) > EXPORT_METER_READINGS_MONTHS_LIMIT
+        const tooEarly = selectedDates && selectedDates[1] && selectedDates[1].diff(current, 'months', true) > EXPORT_METER_READINGS_MONTHS_LIMIT
         return !!tooEarly || !!tooLate
     }
 

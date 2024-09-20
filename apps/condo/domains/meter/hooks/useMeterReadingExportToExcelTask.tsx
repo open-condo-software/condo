@@ -1,7 +1,7 @@
 import {
     MeterReadingWhereInput, SortMeterReadingsBy, User as UserType,
 } from '@app/condo/schema'
-import { get } from 'lodash'
+import get from 'lodash/get'
 import React, { useCallback, useMemo } from 'react'
 
 import { Sheet } from '@open-condo/icons'
