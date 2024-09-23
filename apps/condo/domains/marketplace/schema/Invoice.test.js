@@ -354,64 +354,76 @@ describe('Invoice', () => {
             })
 
             test('staff can read invoices from residents of different organization', async () => {
-                const [o10n1] = await createTestOrganization(adminClient)
-                const [o10n2] = await createTestOrganization(adminClient)
+                const [organization] = await createTestOrganization(adminClient)
+                const [anotherOrganization] = await createTestOrganization(adminClient)
 
-                await createTestAcquiringIntegrationContext(adminClient, o10n1, dummyAcquiringIntegration, {
+                const staff = await makeClientWithNewRegisteredAndLoggedInUser()
+                const anotherStaff = await makeClientWithNewRegisteredAndLoggedInUser()
+
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                    canReadInvoices: true,
+                    canManageProperties: true,
+                })
+                await createTestOrganizationEmployee(adminClient, organization, staff.user, role)
+
+                const [anotherRole] = await createTestOrganizationEmployeeRole(adminClient, anotherOrganization, {
+                    canReadInvoices: true,
+                    canManageProperties: true,
+                    canReadMarketItems: true,
+                    canManageMarketItems: true,
+                    canReadMarketItemPrices: true,
+                    canManageMarketItemPrices: true,
+                    canReadMarketPriceScopes: true,
+                    canManageMarketPriceScopes: true,
+                })
+                await createTestOrganizationEmployee(adminClient, anotherOrganization, anotherStaff.user, anotherRole)
+
+                await createTestAcquiringIntegrationContext(adminClient, organization, dummyAcquiringIntegration, {
                     invoiceStatus: CONTEXT_FINISHED_STATUS,
                     invoiceRecipient: createTestRecipient(),
                 })
-                await createTestAcquiringIntegrationContext(adminClient, o10n2, dummyAcquiringIntegration, {
+                await createTestAcquiringIntegrationContext(adminClient, anotherOrganization, dummyAcquiringIntegration, {
                     invoiceStatus: CONTEXT_FINISHED_STATUS,
                     invoiceRecipient: createTestRecipient(),
                 })
 
-                const [property1] = await createTestProperty(adminClient, o10n1)
-                const [property2] = await createTestProperty(adminClient, o10n2)
+                const [property] = await createTestProperty(staff, organization)
+                const [anotherProperty] = await createTestProperty(anotherStaff, anotherOrganization)
 
                 const unitType = FLAT_UNIT_TYPE
                 const unitName = faker.lorem.word()
                 const [resident] = await registerResidentByTestClient(
                     residentClient,
                     {
-                        address: property1.address,
-                        addressMeta: property1.addressMeta,
+                        address: property.address,
+                        addressMeta: property.addressMeta,
                         unitType,
                         unitName,
                     })
 
                 const [marketCategory] = await createTestMarketCategory(adminClient)
 
-                const [marketItem_o10n2] = await createTestMarketItem(adminClient, marketCategory, o10n2)
-                const [itemPrice_o10n2] = await createTestMarketItemPrice(adminClient, marketItem_o10n2)
-                const [priceScope_o10n2] = await createTestMarketPriceScope(adminClient, itemPrice_o10n2, property2)
+                const [anotherMarketItem] = await createTestMarketItem(anotherStaff, marketCategory, anotherOrganization)
+                const [anotherItemPrice] = await createTestMarketItemPrice(anotherStaff, anotherMarketItem)
+                const [anotherPriceScope] = await createTestMarketPriceScope(anotherStaff, anotherItemPrice, anotherProperty)
 
                 const [invoice] = await registerResidentInvoiceByTestClient(
                     residentClient,
                     pick(resident, 'id'),
                     [{
-                        priceScope: pick(priceScope_o10n2, 'id'),
+                        priceScope: pick(anotherPriceScope, 'id'),
                         count: 1,
                     }],
                 )
 
-                const client1 = await makeClientWithNewRegisteredAndLoggedInUser()
-                const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
+                const invoices = await Invoice.getAll(staff, {}, { sortBy: ['updatedAt_DESC'] })
+                const anotherInvoices = await Invoice.getAll(anotherStaff, {}, { sortBy: ['updatedAt_DESC'] })
 
-                const [role1] = await createTestOrganizationEmployeeRole(adminClient, o10n1, { canReadInvoices: true })
-                await createTestOrganizationEmployee(adminClient, o10n1, client1.user, role1)
+                expect(invoices).not.toEqual([expect.objectContaining({ id: invoice.id })])
+                expect(anotherInvoices).toEqual([expect.objectContaining({ id: invoice.id })])
 
-                const [role2] = await createTestOrganizationEmployeeRole(adminClient, o10n2, { canReadInvoices: true })
-                await createTestOrganizationEmployee(adminClient, o10n2, client2.user, role2)
-
-                const objs1 = await Invoice.getAll(client1, {}, { sortBy: ['updatedAt_DESC'] })
-                const objs2 = await Invoice.getAll(client2, {}, { sortBy: ['updatedAt_DESC'] })
-
-                expect(objs1).not.toEqual([expect.objectContaining({ id: invoice.id })])
-                expect(objs2).toEqual([expect.objectContaining({ id: invoice.id })])
-
-                const invoicesForCertainProperty2 = await Invoice.getAll(client2, { property: { id: property2.id } }, { sortBy: ['updatedAt_DESC'] })
-                expect(invoicesForCertainProperty2).toEqual([expect.objectContaining({ id: invoice.id })])
+                const invoicesForCertainProperty = await Invoice.getAll(anotherStaff, { property: { id: anotherProperty.id } }, { sortBy: ['updatedAt_DESC'] })
+                expect(invoicesForCertainProperty).toEqual([expect.objectContaining({ id: invoice.id })])
             })
 
             test('anonymous can\'t', async () => {
