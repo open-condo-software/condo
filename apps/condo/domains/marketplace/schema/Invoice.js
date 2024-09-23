@@ -571,11 +571,14 @@ const Invoice = new GQLListSchema('Invoice', {
                         const nextUnitType = get(nextData, 'unitType')
                         const nextUnitName = get(nextData, 'unitName')
 
-                        const property = await getById('Property', nextProperty)
+                        const property = await getByCondition('Property', {
+                            id: nextProperty,
+                            deletedAt: null,
+                        })
 
                         const resident = await getByCondition('Resident', {
                             user: { phone: contact.phone },
-                            property: { addressKey: property.addressKey },
+                            addressKey: property.addressKey,
                             unitType: nextUnitType,
                             unitName: nextUnitName,
                             deletedAt: null,

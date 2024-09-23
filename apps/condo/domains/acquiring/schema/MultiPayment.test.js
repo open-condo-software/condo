@@ -897,19 +897,18 @@ describe('MultiPayment', () => {
         test('mobile resident can see his public data in his own MultiPayments', async () => {
             const { admin, payments, acquiringIntegration, client } = await makePayerAndPayments()
             const [createdMultiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
-            let multiPayments = await MultiPaymentResident.getAll(client, {})
-            expect(multiPayments).toBeDefined()
-            expect(multiPayments).toHaveLength(1)
-            const retrievedMultiPayment = multiPayments[0]
-            expect(retrievedMultiPayment.id).toBe(createdMultiPayment.id)
-            expect(retrievedMultiPayment.implicitFee).toBeUndefined()
-            expect(retrievedMultiPayment.transactionId).toBeUndefined()
-            expect(retrievedMultiPayment.meta).toBeUndefined()
+            const multiPayment = await MultiPaymentResident.getOne(client, { id: createdMultiPayment.id })
+            expect(multiPayment).toBeDefined()
+            expect(multiPayment.id).toBe(createdMultiPayment.id)
+            expect(multiPayment.implicitFee).toBeUndefined()
+            expect(multiPayment.transactionId).toBeUndefined()
+            expect(multiPayment.meta).toBeUndefined()
         })
         test('mobile resident can\'t see his sensitive data in his own MultiPayments', async () => {
             const { admin, payments, acquiringIntegration, client } = await makePayerAndPayments()
-            await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
-            const { errors } = await MultiPayment.getAll(client, {}, { raw: true })
+            const [createdMultiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
+            // using getAll to receive raw errors
+            const { errors } = await MultiPayment.getAll(client, { id: createdMultiPayment.id }, { raw: true })
 
             const sensitiveFields = ['transactionId', 'meta', 'implicitFee']
             const checkErrorObjects = sensitiveFields.map(sensitiveField =>

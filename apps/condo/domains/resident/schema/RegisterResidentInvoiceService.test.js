@@ -204,14 +204,35 @@ describe('RegisterResidentInvoiceService', () => {
         })
 
         test('can create invoice with items from other organization', async () => {
-            const [o10n1] = await createTestOrganization(adminClient)
-            const [o10n2] = await createTestOrganization(adminClient)
+            const [organization] = await createTestOrganization(adminClient)
+            const [anotherOrganization] = await createTestOrganization(adminClient)
 
-            await createTestAcquiringIntegrationContext(adminClient, o10n1, acquiringIntegration, { invoiceStatus: CONTEXT_FINISHED_STATUS })
-            await createTestAcquiringIntegrationContext(adminClient, o10n2, acquiringIntegration, { invoiceStatus: CONTEXT_FINISHED_STATUS })
+            await createTestAcquiringIntegrationContext(adminClient, organization, acquiringIntegration, { invoiceStatus: CONTEXT_FINISHED_STATUS })
+            await createTestAcquiringIntegrationContext(adminClient, anotherOrganization, acquiringIntegration, { invoiceStatus: CONTEXT_FINISHED_STATUS })
 
-            const [property1] = await createTestProperty(adminClient, o10n1)
-            const [property2] = await createTestProperty(adminClient, o10n2)
+            const staffClient = await makeClientWithStaffUser()
+            const anotherStaffClient = await makeClientWithStaffUser()
+
+            const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                canManageProperties: true,
+                canReadInvoices: true,
+            })
+            await createTestOrganizationEmployee(adminClient, organization, staffClient.user, role)
+
+            const [anotherRole] = await createTestOrganizationEmployeeRole(adminClient, anotherOrganization, {
+                canManageProperties: true,
+                canReadInvoices: true,
+                canReadMarketItems: true,
+                canManageMarketItems: true,
+                canReadMarketItemPrices: true,
+                canManageMarketItemPrices: true,
+                canReadMarketPriceScopes: true,
+                canManageMarketPriceScopes: true,
+            })
+            await createTestOrganizationEmployee(adminClient, anotherOrganization, anotherStaffClient.user, anotherRole)
+
+            const [property] = await createTestProperty(staffClient, organization)
+            const [anotherProperty] = await createTestProperty(anotherStaffClient, anotherOrganization)
 
             const residentClient = await makeClientWithResidentUser()
             const unitType = FLAT_UNIT_TYPE
@@ -219,16 +240,16 @@ describe('RegisterResidentInvoiceService', () => {
             const [resident] = await registerResidentByTestClient(
                 residentClient,
                 {
-                    address: property1.address,
-                    addressMeta: property1.addressMeta,
+                    address: property.address,
+                    addressMeta: property.addressMeta,
                     unitType,
                     unitName,
                 })
 
             const [marketCategory] = await createTestMarketCategory(adminClient)
-            const [marketItem] = await createTestMarketItem(adminClient, marketCategory, o10n2)
-            const [itemPrice] = await createTestMarketItemPrice(adminClient, marketItem)
-            const [priceScope] = await createTestMarketPriceScope(adminClient, itemPrice, property2)
+            const [marketItem] = await createTestMarketItem(anotherStaffClient, marketCategory, anotherOrganization)
+            const [itemPrice] = await createTestMarketItemPrice(anotherStaffClient, marketItem)
+            const [priceScope] = await createTestMarketPriceScope(anotherStaffClient, itemPrice, anotherProperty)
 
 
             const [invoice] = await registerResidentInvoiceByTestClient(
@@ -245,14 +266,45 @@ describe('RegisterResidentInvoiceService', () => {
         })
 
         test('can\'t create invoice with items from different organizations', async () => {
-            const [o10n1] = await createTestOrganization(adminClient)
-            const [o10n2] = await createTestOrganization(adminClient)
+            const [organization] = await createTestOrganization(adminClient)
+            const [anotherOrganization] = await createTestOrganization(adminClient)
 
-            await createTestAcquiringIntegrationContext(adminClient, o10n1, acquiringIntegration, { invoiceStatus: CONTEXT_FINISHED_STATUS })
-            await createTestAcquiringIntegrationContext(adminClient, o10n2, acquiringIntegration, { invoiceStatus: CONTEXT_FINISHED_STATUS })
+            await createTestAcquiringIntegrationContext(adminClient, organization, acquiringIntegration, { invoiceStatus: CONTEXT_FINISHED_STATUS })
+            await createTestAcquiringIntegrationContext(adminClient, anotherOrganization, acquiringIntegration, { invoiceStatus: CONTEXT_FINISHED_STATUS })
 
-            const [property1] = await createTestProperty(adminClient, o10n1)
-            const [property2] = await createTestProperty(adminClient, o10n2)
+            const staffClient = await makeClientWithStaffUser()
+            const anotherStaffClient = await makeClientWithStaffUser()
+
+            const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                canManageProperties: true,
+                canReadInvoices: true,
+                canReadMarketItems: true,
+                canManageMarketItems: true,
+                canReadMarketItemPrices: true,
+                canManageMarketItemPrices: true,
+                canReadMarketPriceScopes: true,
+                canManageMarketPriceScopes: true,
+            })
+            await createTestOrganizationEmployee(adminClient, organization, staffClient.user, role)
+
+            const [anotherRole] = await createTestOrganizationEmployeeRole(adminClient, anotherOrganization, {
+                canManageProperties: true,
+                canReadInvoices: true,
+                canReadMarketItems: true,
+                canManageMarketItems: true,
+                canReadMarketItemPrices: true,
+                canManageMarketItemPrices: true,
+                canReadMarketPriceScopes: true,
+                canManageMarketPriceScopes: true,
+            })
+            await createTestOrganizationEmployee(adminClient, anotherOrganization, anotherStaffClient.user, anotherRole)
+
+
+            const [property] = await createTestProperty(staffClient, organization)
+            const [anotherProperty] = await createTestProperty(anotherStaffClient, anotherOrganization, {
+                address: property.address,
+                addressMeta: property.addressMeta,
+            })
 
             const residentClient = await makeClientWithResidentUser()
             const unitType = FLAT_UNIT_TYPE
@@ -260,37 +312,38 @@ describe('RegisterResidentInvoiceService', () => {
             const [resident] = await registerResidentByTestClient(
                 residentClient,
                 {
-                    address: property1.address,
-                    addressMeta: property1.addressMeta,
+                    address: property.address,
+                    addressMeta: property.addressMeta,
                     unitType,
                     unitName,
                 })
 
             const [marketCategory] = await createTestMarketCategory(adminClient)
             
-            const [marketItem_o10n1] = await createTestMarketItem(adminClient, marketCategory, o10n1)
-            const [itemPrice_o10n1] = await createTestMarketItemPrice(adminClient, marketItem_o10n1)
-            const [priceScope_o10n1] = await createTestMarketPriceScope(adminClient, itemPrice_o10n1, property1)
+            const [marketItem] = await createTestMarketItem(staffClient, marketCategory, organization)
+            const [itemPrice] = await createTestMarketItemPrice(staffClient, marketItem)
+            const [priceScope] = await createTestMarketPriceScope(staffClient, itemPrice, property)
             
-            const [marketItem_o10n2] = await createTestMarketItem(adminClient, marketCategory, o10n2)
-            const [itemPrice_o10n2] = await createTestMarketItemPrice(adminClient, marketItem_o10n2)
-            const [priceScope_o10n2] = await createTestMarketPriceScope(adminClient, itemPrice_o10n2, property2)
+            const [anotherMarketItem] = await createTestMarketItem(anotherStaffClient, marketCategory, anotherOrganization)
+            const [anotherItemPrice] = await createTestMarketItemPrice(anotherStaffClient, anotherMarketItem)
+            const [anotherPriceScope] = await createTestMarketPriceScope(anotherStaffClient, anotherItemPrice, anotherProperty)
 
             await expectToThrowGQLError(async () => await registerResidentInvoiceByTestClient(
                 residentClient,
                 pick(resident, 'id'),
                 [{
-                    priceScope: pick(priceScope_o10n1, 'id'),
+                    priceScope: pick(priceScope, 'id'),
                     count: 1,
                 }, {
-                    priceScope: pick(priceScope_o10n2, 'id'),
+                    priceScope: pick(anotherPriceScope, 'id'),
                     count: 1,
                 }],
             ), {
                 code: 'BAD_USER_INPUT',
-                type: 'ITEMS_FROM_DIFFERENT_ORGANIZATIONS',
-                message: 'Items should be from one organization',
-                messageForUser: 'api.marketplace.registerInvoice.error.itemsFromDifferentOrganizations',
+                type: 'ITEM_FROM_OTHER_ORGANIZATION',
+                message: 'Item from other organization. Check line 2',
+                messageForUser: 'api.marketplace.registerInvoice.error.itemFromOtherOrganization',
+                messageInterpolation: { rowNumber: 2 },
             }, 'result')
         })
 

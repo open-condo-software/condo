@@ -388,7 +388,10 @@ describe('Invoice', () => {
                 })
 
                 const [property] = await createTestProperty(staff, organization)
-                const [anotherProperty] = await createTestProperty(anotherStaff, anotherOrganization)
+                const [anotherProperty] = await createTestProperty(anotherStaff, anotherOrganization, {
+                    address: property.address,
+                    addressMeta: property.addressMeta,
+                })
 
                 const unitType = FLAT_UNIT_TYPE
                 const unitName = faker.lorem.word()
@@ -407,7 +410,7 @@ describe('Invoice', () => {
                 const [anotherItemPrice] = await createTestMarketItemPrice(anotherStaff, anotherMarketItem)
                 const [anotherPriceScope] = await createTestMarketPriceScope(anotherStaff, anotherItemPrice, anotherProperty)
 
-                const [invoice] = await registerResidentInvoiceByTestClient(
+                const [createdInvoice] = await registerResidentInvoiceByTestClient(
                     residentClient,
                     pick(resident, 'id'),
                     [{
@@ -416,14 +419,17 @@ describe('Invoice', () => {
                     }],
                 )
 
-                const invoices = await Invoice.getAll(staff, {}, { sortBy: ['updatedAt_DESC'] })
-                const anotherInvoices = await Invoice.getAll(anotherStaff, {}, { sortBy: ['updatedAt_DESC'] })
+                const invoice = await Invoice.getOne(staff, { id: createdInvoice.id })
+                const anotherInvoice = await Invoice.getAll(anotherStaff, { id: createdInvoice.id })
 
-                expect(invoices).not.toEqual([expect.objectContaining({ id: invoice.id })])
-                expect(anotherInvoices).toEqual([expect.objectContaining({ id: invoice.id })])
+                expect(invoice).toBeUndefined()
+                expect(anotherInvoice).toBeDefined()
 
-                const invoicesForCertainProperty = await Invoice.getAll(anotherStaff, { property: { id: anotherProperty.id } }, { sortBy: ['updatedAt_DESC'] })
-                expect(invoicesForCertainProperty).toEqual([expect.objectContaining({ id: invoice.id })])
+                const invoicesForCertainPropertyById = await Invoice.getAll(anotherStaff, { property: { id: anotherProperty.id } }, { sortBy: ['updatedAt_DESC'] })
+                expect(invoicesForCertainPropertyById).toHaveLength(0)
+
+                const invoicesForCertainPropertyByAddressKey = await Invoice.getAll(anotherStaff, { property: { addressKey: anotherProperty.addressKey } }, { sortBy: ['updatedAt_DESC'] })
+                expect(invoicesForCertainPropertyByAddressKey).toEqual([expect.objectContaining({ id: createdInvoice.id })])
             })
 
             test('anonymous can\'t', async () => {
@@ -683,10 +689,13 @@ describe('Invoice', () => {
         })
 
         test('resident can see invoices created for other organization', async () => {
-            const [o10n1] = await createTestOrganization(adminClient)
-            const [o10n2] = await createTestOrganization(adminClient)
-            const [property1] = await createTestProperty(adminClient, o10n1)
-            const [property2] = await createTestProperty(adminClient, o10n2)
+            const [organization] = await createTestOrganization(adminClient)
+            const [otherOrganization] = await createTestOrganization(adminClient)
+            const [property] = await createTestProperty(adminClient, organization)
+            const [otherProperty] = await createTestProperty(adminClient, otherOrganization, {
+                address: property.address,
+                addressMeta: property.addressMeta,
+            })
 
             const residentClient = await makeClientWithResidentUser()
             const unitType = FLAT_UNIT_TYPE
@@ -695,21 +704,27 @@ describe('Invoice', () => {
             const [resident] = await registerResidentByTestClient(
                 residentClient,
                 {
-                    address: property1.address,
-                    addressMeta: property1.addressMeta,
+                    address: property.address,
+                    addressMeta: property.addressMeta,
                     unitType,
                     unitName,
                 })
 
-            const staffClient = await makeClientWithStaffUser()
-            const [role] = await createTestOrganizationEmployeeRole(adminClient, o10n1, {
+            const otherStaffClient = await makeClientWithStaffUser()
+            const [role] = await createTestOrganizationEmployeeRole(adminClient, otherOrganization, {
                 canManageInvoices: true,
                 canManageContacts: true,
+                canReadMarketItems: true,
+                canManageMarketItems: true,
+                canReadMarketItemPrices: true,
+                canManageMarketItemPrices: true,
+                canReadMarketPriceScopes: true,
+                canManageMarketPriceScopes: true,
             })
-            //await createTestOrganizationEmployee(adminClient, o10n1, staffClient.user, role)
+            await createTestOrganizationEmployee(adminClient, otherOrganization, otherStaffClient.user, role)
 
             const implicitFeePercent = '5'
-            await createTestAcquiringIntegrationContext(adminClient, o10n2, dummyAcquiringIntegration, {
+            await createTestAcquiringIntegrationContext(adminClient, otherOrganization, dummyAcquiringIntegration, {
                 invoiceStatus: CONTEXT_FINISHED_STATUS,
                 invoiceRecipient: createTestRecipient(),
                 invoiceImplicitFeeDistributionSchema: [{
@@ -719,11 +734,11 @@ describe('Invoice', () => {
             })
 
             const [marketCategory] = await createTestMarketCategory(adminClient)
-            const [marketItem] = await createTestMarketItem(adminClient, marketCategory, o10n2)
-            const [itemPrice] = await createTestMarketItemPrice(adminClient, marketItem)
-            const [priceScope] = await createTestMarketPriceScope(adminClient, itemPrice, property2)
+            const [marketItem] = await createTestMarketItem(otherStaffClient, marketCategory, otherOrganization)
+            const [itemPrice] = await createTestMarketItemPrice(otherStaffClient, marketItem)
+            const [priceScope] = await createTestMarketPriceScope(otherStaffClient, itemPrice, otherProperty)
 
-            let [invoice] = await registerResidentInvoiceByTestClient(
+            let [createdInvoice] = await registerResidentInvoiceByTestClient(
                 residentClient,
                 pick(resident, 'id'),
                 [{
@@ -732,17 +747,19 @@ describe('Invoice', () => {
                 }],
             );
 
-            [invoice] = await updateTestInvoice(adminClient, invoice.id, { status: INVOICE_STATUS_PUBLISHED })
+            [createdInvoice] = await updateTestInvoice(otherStaffClient, createdInvoice.id, { status: INVOICE_STATUS_PUBLISHED })
 
-            const invoices = await Invoice.getAll(residentClient, {}, { sortBy: ['updatedAt_DESC'] })
-            expect(invoices).toEqual(expect.arrayContaining([
-                expect.objectContaining({ id: invoice.id }),
-            ]))
+            const invoice = await Invoice.getOne(residentClient, { id: createdInvoice.id }, { sortBy: ['updatedAt_DESC'] })
+            expect(invoice).toEqual(expect.objectContaining({ id: createdInvoice.id }))
 
-            const invoicesForCertainProperty = await Invoice.getAll(residentClient, { property: { id: property1.id } }, { sortBy: ['updatedAt_DESC'] })
-            expect(invoicesForCertainProperty).toEqual(expect.arrayContaining([
-                expect.objectContaining({ id: invoice.id }),
-            ]))
+            const invoiceForOtherPropertyById = await Invoice.getOne(residentClient, { property: { id: otherProperty.id } }, { sortBy: ['updatedAt_DESC'] })
+            expect(invoiceForOtherPropertyById).toBeUndefined()
+
+            const invoiceForPropertyById = await Invoice.getOne(residentClient, { property: { id: property.id } }, { sortBy: ['updatedAt_DESC'] })
+            expect(invoiceForPropertyById).toEqual(expect.objectContaining({ id: createdInvoice.id }))
+
+            const invoiceForCertainPropertyByAddressKey = await Invoice.getOne(residentClient, { property: { addressKey: otherProperty.addressKey } }, { sortBy: ['updatedAt_DESC'] })
+            expect(invoiceForCertainPropertyByAddressKey).toEqual(expect.objectContaining({ id: createdInvoice.id }))
         })
     })
 

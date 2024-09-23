@@ -38,6 +38,7 @@ const {
 } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { registerResidentInvoiceByTestClient } = require('@condo/domains/resident/utils/testSchema')
+const { MultiPaymentResident } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('RegisterMultiPaymentForInvoicesService', () => {
@@ -438,7 +439,7 @@ describe('RegisterMultiPaymentForInvoicesService', () => {
                 anonymousPaymentUrl: `${hostUrl}/api/anonymous/pay/${multiPaymentId}`,
             })
 
-            const multiPaymentFromResident = await MultiPayment.getOne(organizationUtils.clients.resident, { id: multiPaymentId })
+            const multiPaymentFromResident = await MultiPaymentResident.getOne(organizationUtils.clients.resident, { id: multiPaymentId })
             expect(multiPaymentFromResident).not.toBeDefined()
 
             const paymentsFromResident = await Payment.getAll(organizationUtils.clients.resident, { multiPayment: { id: multiPaymentId } })

@@ -104,6 +104,18 @@ const RegisterResidentInvoiceService = new GQLCustomSchema('RegisterResidentInvo
                     throw new GQLError(ERRORS.EMPTY_ROWS, context)
                 }
 
+                let someOrganizationId
+                const getOrganizationFromPriceScopes = (i) => get(priceScopes, [i, 'marketItemPrice', 'marketItem', 'organization', 'id'])
+                for (let i = 0; i < priceScopes.length; i++) {
+                    if (!someOrganizationId) {
+                        someOrganizationId = getOrganizationFromPriceScopes(i)
+                        continue
+                    }
+                    if (getOrganizationFromPriceScopes(i) !== someOrganizationId) {
+                        throw new GQLError(ERRORS.ITEM_FROM_OTHER_ORGANIZATION(i + 1), context)
+                    }
+                }
+
                 const organization = get(priceScopes, [0, 'marketItemPrice', 'marketItem', 'organization'])
 
                 const [acquiringContext] = await find('AcquiringIntegrationContext', {

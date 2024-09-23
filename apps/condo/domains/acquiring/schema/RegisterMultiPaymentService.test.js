@@ -1732,16 +1732,24 @@ describe('RegisterMultiPaymentService', () => {
 
             const invoiceSum = invoice.rows.reduce((sum, { toPay, count }) => sum.plus(Big(toPay).mul(count)), Big(0))
 
-            for (const client of [residentClient, staffClient]) {
-                const invoices = await Invoice.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
 
-                expect(invoices).toEqual([
-                    expect.objectContaining({
-                        id: invoice.id,
-                        client: expect.objectContaining({ id: resident.user.id, name: resident.user.name }),
-                    }),
-                ])
-            }
+            const invoicesFromResident = await Invoice.getAll(residentClient, {}, { sortBy: ['updatedAt_DESC'] })
+
+            expect(invoicesFromResident).toEqual([
+                expect.objectContaining({
+                    id: invoice.id,
+                    client: expect.objectContaining({ id: resident.user.id, name: resident.user.name }),
+                }),
+            ])
+
+            const invoicesFromStaff = await Invoice.getAll(staffClient, {}, { sortBy: ['updatedAt_DESC'] })
+
+            expect(invoicesFromStaff).toEqual([
+                expect.objectContaining({
+                    id: invoice.id,
+                    client: expect.objectContaining({ id: resident.user.id, name: resident.user.name }),
+                }),
+            ])
 
             const [result] = await registerMultiPaymentByTestClient(residentClient, null, {
                 invoices: [{ id: invoice.id }],
