@@ -19,6 +19,7 @@ import { BillingDescriptionModalContent } from './BillingDescriptionModalContent
 import type { BillingIntegration as BillingIntegrationType } from '@app/condo/schema'
 import type { RowProps } from 'antd'
 
+
 const CARD_GAP = 40
 const MAX_CARDS = 4
 const FULL_SPAN = 24
@@ -73,7 +74,7 @@ export const SelectBilling: React.FC = () => {
     // NOTE: If already connected billing = skip to final step
     useEffect(() => {
         if (!ctxLoading && !ctxError && connectedContextId) {
-            router.replace({ query: { ...router.query, step: 2 } })
+            router.replace({ query: { ...router.query, step: 2 } }, undefined, { shallow: true })
         }
     }, [router, ctxLoading, ctxError, connectedContextId])
 

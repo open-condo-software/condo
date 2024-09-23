@@ -26,6 +26,7 @@ import {
 import { BaseInvoiceForm } from './BaseInvoiceForm'
 import { getPaymentLinkNotification } from './CopyButton'
 
+
 type UpdateInvoiceFormProps = {
     invoice: InvoiceType
     organizationId: string
@@ -117,7 +118,6 @@ export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({
     return (
         <BaseInvoiceForm
             organizationId={organizationId}
-            role={link}
             action={action || handleUpdateInvoice}
             initialValues={formInitialValues}
             isCreatedByResident={get(invoice, 'createdBy.type') === UserTypeType.Resident || ticketCreatedByResident}

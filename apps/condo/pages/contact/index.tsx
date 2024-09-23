@@ -27,6 +27,7 @@ import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { PageComponentType } from '@condo/domains/common/types'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { ContactsReadPermissionRequired } from '@condo/domains/contact/components/PageAccess'
@@ -38,6 +39,7 @@ import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { CONTACT_PAGE_SIZE, IFilters } from '@condo/domains/contact/utils/helpers'
 import { PROPERTY_PAGE_SIZE } from '@condo/domains/property/utils/helpers'
 
+
 const ADD_CONTACT_ROUTE = '/contact/create/'
 const ROW_VERTICAL_GUTTERS: [Gutter, Gutter] = [0, 40]
 const SORTABLE_PROPERTIES = ['name', 'unitName', 'phone', 'email', 'role']
@@ -46,7 +48,7 @@ type ContactPageContentProps = {
     filterMeta: FiltersMeta<ContactWhereInput>[]
     tableColumns: ColumnsType
     baseSearchQuery: ContactWhereInput
-    role: OrganizationEmployeeRole
+    role?: Pick<OrganizationEmployeeRole, 'canManageContacts'>
     loading: boolean
 }
 
@@ -288,7 +290,7 @@ export const ContactPageContentWrapper: React.FC<ContactPageContentProps> = (pro
     )
 }
 
-const ContactsPage = () => {
+const ContactsPage: PageComponentType = () => {
     const filterMeta = useContactsTableFilters()
     const tableColumns = useTableColumns(filterMeta)
     const { organization, link, isLoading } = useOrganization()

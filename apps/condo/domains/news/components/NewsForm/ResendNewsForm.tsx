@@ -16,6 +16,7 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 import { BaseNewsFormProps, SendPeriodType } from './BaseNewsForm'
 import { BaseNewsFormByFeatureFlag } from './BaseNewsFormByFeatureFlag'
 
+
 export interface IResendNewsForm {
     id: string
 }

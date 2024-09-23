@@ -4,19 +4,166 @@
 
 import { gql } from '@apollo/client'
 import * as Apollo from '@apollo/client'
+import * as Types from '@app/condo/gql/operation.types'
 
-import * as Types from '@/gql/operation.types'
-
-export * from '@/gql/operation.types'
+export * from '@app/condo/gql/operation.types'
 
 const defaultOptions = {} as const
 
+export const GetActiveOrganizationEmployeeDocument = gql`
+    query getActiveOrganizationEmployee($userId: ID!, $employeeId: ID) {
+  employees: allOrganizationEmployees(
+    where: {id: $employeeId, organization: {type_in: [MANAGING_COMPANY, SERVICE_PROVIDER]}, user: {id: $userId, type: staff}, isAccepted: true, isBlocked: false, isRejected: false}
+    first: 1
+    skip: 0
+    sortBy: [createdAt_DESC]
+  ) {
+    id
+    name
+    email
+    phone
+    hasAllSpecializations
+    isRejected
+    isAccepted
+    isBlocked
+    position
+    organization {
+      id
+      country
+      name
+      type
+      tin
+      features
+      statusTransitions
+      importId
+      importRemoteSystem
+    }
+    role {
+      id
+      isEditable
+      isDefault
+      statusTransitions
+      ticketVisibilityType
+      canReadAnalytics
+      canManageOrganization
+      canManageCallRecords
+      canDownloadCallRecords
+      canReadEmployees
+      canManageEmployees
+      canInviteNewOrganizationEmployees
+      canManageRoles
+      canManageTicketPropertyHints
+      canManageIntegrations
+      canImportBillingReceipts
+      canReadBillingReceipts
+      canReadPayments
+      canManageProperties
+      canReadProperties
+      canReadDocuments
+      canManageDocuments
+      canReadTickets
+      canManageTickets
+      canReadContacts
+      canManageContacts
+      canManageContactRoles
+      canManageTicketComments
+      canManagePropertyScopes
+      canShareTickets
+      canBeAssignedAsResponsible
+      canBeAssignedAsExecutor
+      canManageMeters
+      canManageMeterReadings
+      canManageBankAccounts
+      canManageBankContractorAccounts
+      canManageBankIntegrationAccountContexts
+      canManageBankIntegrationOrganizationContexts
+      canManageBankTransactions
+      canManageBankAccountReports
+      canManageBankAccountReportTasks
+      canManageBankAccountReports
+      canReadIncidents
+      canManageIncidents
+      canReadNewsItems
+      canManageNewsItems
+      canManageNewsItemTemplates
+      canManageMobileFeatureConfigs
+      canManageB2BApps
+      canReadMeters
+      canReadSettings
+      canReadExternalReports
+      canReadServices
+      canReadCallRecords
+      canReadInvoices
+      canManageInvoices
+      canReadMarketItems
+      canManageMarketItems
+      canManageMarketItemPrices
+      canReadMarketItemPrices
+      canReadMarketPriceScopes
+      canManageMarketPriceScopes
+      canReadMarketplace
+      canManageMarketplace
+      canReadPaymentsWithInvoices
+      canReadTour
+      canManageTour
+      canReadMarketSetting
+      canManageMarketSetting
+      canManageTicketAutoAssignments
+    }
+  }
+}
+    `
+
+/**
+ * __useGetActiveOrganizationEmployeeQuery__
+ *
+ * To run a query within a React component, call `useGetActiveOrganizationEmployeeQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetActiveOrganizationEmployeeQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetActiveOrganizationEmployeeQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *      employeeId: // value for 'employeeId'
+ *   },
+ * });
+ */
+export function useGetActiveOrganizationEmployeeQuery (baseOptions: Apollo.QueryHookOptions<Types.GetActiveOrganizationEmployeeQuery, Types.GetActiveOrganizationEmployeeQueryVariables> & ({ variables: Types.GetActiveOrganizationEmployeeQueryVariables, skip?: boolean } | { skip: boolean }) ) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useQuery<Types.GetActiveOrganizationEmployeeQuery, Types.GetActiveOrganizationEmployeeQueryVariables>(GetActiveOrganizationEmployeeDocument, options)
+}
+export function useGetActiveOrganizationEmployeeLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<Types.GetActiveOrganizationEmployeeQuery, Types.GetActiveOrganizationEmployeeQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useLazyQuery<Types.GetActiveOrganizationEmployeeQuery, Types.GetActiveOrganizationEmployeeQueryVariables>(GetActiveOrganizationEmployeeDocument, options)
+}
+export function useGetActiveOrganizationEmployeeSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetActiveOrganizationEmployeeQuery, Types.GetActiveOrganizationEmployeeQueryVariables>) {
+    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+    return Apollo.useSuspenseQuery<Types.GetActiveOrganizationEmployeeQuery, Types.GetActiveOrganizationEmployeeQueryVariables>(GetActiveOrganizationEmployeeDocument, options)
+}
+export type GetActiveOrganizationEmployeeQueryHookResult = ReturnType<typeof useGetActiveOrganizationEmployeeQuery>
+export type GetActiveOrganizationEmployeeLazyQueryHookResult = ReturnType<typeof useGetActiveOrganizationEmployeeLazyQuery>
+export type GetActiveOrganizationEmployeeSuspenseQueryHookResult = ReturnType<typeof useGetActiveOrganizationEmployeeSuspenseQuery>
+export type GetActiveOrganizationEmployeeQueryResult = Apollo.QueryResult<Types.GetActiveOrganizationEmployeeQuery, Types.GetActiveOrganizationEmployeeQueryVariables>
 export const AuthenticatedUserDocument = gql`
     query authenticatedUser {
   authenticatedUser {
     id
     name
-    type
+    avatar {
+      publicUrl
+    }
+    phone
+    email
+    isAdmin
+    isSupport
+    rightsSet {
+      id
+    }
+    locale
+    showGlobalHints
   }
 }
     `
@@ -52,3 +199,35 @@ export type AuthenticatedUserQueryHookResult = ReturnType<typeof useAuthenticate
 export type AuthenticatedUserLazyQueryHookResult = ReturnType<typeof useAuthenticatedUserLazyQuery>
 export type AuthenticatedUserSuspenseQueryHookResult = ReturnType<typeof useAuthenticatedUserSuspenseQuery>
 export type AuthenticatedUserQueryResult = Apollo.QueryResult<Types.AuthenticatedUserQuery, Types.AuthenticatedUserQueryVariables>
+export const SignOutDocument = gql`
+    mutation signOut {
+  unauthenticateUser {
+    success
+  }
+}
+    `
+export type SignOutMutationFn = Apollo.MutationFunction<Types.SignOutMutation, Types.SignOutMutationVariables>
+
+/**
+ * __useSignOutMutation__
+ *
+ * To run a mutation, you first call `useSignOutMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSignOutMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [signOutMutation, { data, loading, error }] = useSignOutMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useSignOutMutation (baseOptions?: Apollo.MutationHookOptions<Types.SignOutMutation, Types.SignOutMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<Types.SignOutMutation, Types.SignOutMutationVariables>(SignOutDocument, options)
+}
+export type SignOutMutationHookResult = ReturnType<typeof useSignOutMutation>
+export type SignOutMutationResult = Apollo.MutationResult<Types.SignOutMutation>
+export type SignOutMutationOptions = Apollo.BaseMutationOptions<Types.SignOutMutation, Types.SignOutMutationVariables>

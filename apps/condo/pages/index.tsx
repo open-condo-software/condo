@@ -6,6 +6,7 @@ import React, { useEffect, useMemo } from 'react'
 
 import { useOrganization } from '@open-condo/next/organization'
 
+import { PageComponentType } from '@condo/domains/common/types'
 import { SECOND_LEVEL_STEPS } from '@condo/domains/onboarding/constants/steps'
 import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
@@ -25,7 +26,7 @@ const ACCESS_REDIRECTS = {
     canReadBillingReceipts: '/billing',
 }
 
-const IndexPage = () => {
+const IndexPage: PageComponentType = () => {
     const router = useRouter()
     const organization = useOrganization()
     const organizationId = useMemo(() => get(organization, 'organization.id', null), [])

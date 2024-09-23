@@ -15,6 +15,7 @@ import { useBillingAndAcquiringContexts } from './ContextProvider'
 import { EmptyContent } from './EmptyContent'
 import { PaymentsTab } from './PaymentsTab'
 
+
 type MainContentProps = {
     uploadComponent?: React.ReactElement
 }

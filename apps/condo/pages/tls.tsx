@@ -24,6 +24,7 @@ import { LoginWithSBBOLButton } from '@condo/domains/common/components/LoginWith
 import { Logo } from '@condo/domains/common/components/Logo'
 import { Poster } from '@condo/domains/common/components/Poster'
 import { LOCALES } from '@condo/domains/common/constants/locale'
+import { PageComponentType } from '@condo/domains/common/types'
 import { PosterWrapper } from '@condo/domains/user/components/containers/styles'
 
 import type { GetServerSideProps } from 'next'
@@ -431,7 +432,7 @@ type TlsPageProps = {
     guidesContent: GuidesContent
 }
 
-function TlsPage ({ guidesContent }: TlsPageProps): React.ReactElement {
+const TlsPage: PageComponentType<TlsPageProps> = ({ guidesContent }) => {
     return (
         <Space direction='vertical' size={20}>
             <Header/>
@@ -450,6 +451,7 @@ TlsPage.container = (props) => (
         style={{ height: 'auto', padding: '60px', background: 'white' }}
     />
 )
+TlsPage.skipUserPrefetch = true
 
 type Result = {
     guidesContent: GuidesContent

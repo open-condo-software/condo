@@ -60,6 +60,7 @@ import {
 import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { PageComponentType } from '@condo/domains/common/types'
 import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -87,11 +88,6 @@ import { CallRecordFragment, Ticket, TicketFilterTemplate } from '@condo/domains
 import { GET_TICKETS_COUNT_QUERY } from '@condo/domains/ticket/utils/clientSchema/search'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 
-
-interface ITicketIndexPage extends React.FC {
-    headerAction?: JSX.Element
-    requiredAccess?: React.FC
-}
 
 type TicketType = 'all' | 'own' | 'favorite'
 
@@ -176,6 +172,7 @@ const TicketTable = ({
         await updateQuery(router, { newParameters: { selectedTicketIds: selectedTicketKeys } }, {
             routerAction: 'replace',
             resetOldParameters: false,
+            shallow: true,
         })
     }, DEBOUNCE_TIMEOUT), [])
 
@@ -943,7 +940,7 @@ export const TicketTypeFilterSwitch = ({ ticketFilterQuery }) => {
             }
         }
         const newParameters = getFiltersQueryData(newFilters)
-        await updateQuery(router, { newParameters }, { routerAction: 'replace' })
+        await updateQuery(router, { newParameters }, { routerAction: 'replace', shallow: true })
     }, [filters, logEvent, router])
 
     return (
@@ -982,7 +979,7 @@ export const TicketTypeFilterSwitch = ({ ticketFilterQuery }) => {
     )
 }
 
-const TicketsPage: ITicketIndexPage = () => {
+const TicketsPage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
     const CallRecordsLogMessage = intl.formatMessage({ id: 'callRecord.index.title' })
@@ -1085,4 +1082,5 @@ const TicketsPage: ITicketIndexPage = () => {
 }
 
 TicketsPage.requiredAccess = TicketReadPermissionRequired
+
 export default TicketsPage

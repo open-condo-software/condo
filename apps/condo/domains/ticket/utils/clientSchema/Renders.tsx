@@ -33,6 +33,7 @@ import {
 
 import { UserFavoriteTicket } from './index'
 
+
 const NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL: CSSProperties = {
     position: 'absolute', left: '-102px', top: '50%', transform: 'translateY(-50%)', zIndex: 999,
 }

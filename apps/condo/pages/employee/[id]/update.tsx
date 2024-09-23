@@ -5,12 +5,14 @@ import React, { CSSProperties } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageComponentType } from '@condo/domains/common/types'
 import { UpdateEmployeeForm } from '@condo/domains/organization/components/EmployeeForm/UpdateEmployeeForm'
 import { EmployeesReadAndManagePermissionRequired } from '@condo/domains/organization/components/PageAccess'
 
+
 const TITLE_STYLES: CSSProperties = { margin: 0, fontWeight: 'bold' }
 
-export const EmployeeUpdatePage = () => {
+export const EmployeeUpdatePage: PageComponentType = () => {
     const intl = useIntl()
     const UpdateEmployeeMessage = intl.formatMessage({ id: 'employee.UpdateTitle' })
 

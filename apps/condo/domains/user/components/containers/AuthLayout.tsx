@@ -5,7 +5,7 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
-import { useIntl, FormattedMessage } from '@open-condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 import { FROM_INPUT_CSS } from '@condo/domains/common/components/containers/BaseLayout/components/styles'
 import { HCaptchaProvider } from '@condo/domains/common/components/HCaptcha'
@@ -16,11 +16,6 @@ import { colors } from '@condo/domains/common/constants/style'
 import { AuthLayoutContextProvider } from './AuthLayoutContext'
 import { PosterLayout } from './PosterLayout'
 
-
-export interface AuthPage extends React.FC {
-    headerAction?: React.ReactElement
-    container: React.FC
-}
 
 interface IAuthLayoutProps {
     headerAction: React.ReactElement

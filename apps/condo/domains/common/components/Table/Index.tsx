@@ -132,7 +132,7 @@ export const Table: React.FC<ITableProps> = ({
         }
         else {
             const newParameters = getFiltersQueryData(newFilters, newSorters, newOffset)
-            return updateQuery(router, { newParameters }, { resetOldParameters: false })
+            return updateQuery(router, { newParameters }, { resetOldParameters: false, shallow: true })
         }
     }, 400), [applyQuery, filters, router, rowsPerPage, sorters])
 

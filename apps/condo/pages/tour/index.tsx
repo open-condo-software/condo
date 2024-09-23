@@ -26,6 +26,7 @@ import {
     useLayoutContext,
 } from '@condo/domains/common/components/containers/BaseLayout'
 import { Loader } from '@condo/domains/common/components/Loader'
+import { PageComponentType } from '@condo/domains/common/types'
 import { ResidentAppCard, TechnicAppCard } from '@condo/domains/onboarding/components/TourPage/AppCards'
 import { TourStepCard } from '@condo/domains/onboarding/components/TourPage/TourStepCard'
 import {
@@ -271,7 +272,7 @@ const TourPageContent = () => {
     )
 }
 
-const TourPage = () => {
+const TourPage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'tour.title' })
 

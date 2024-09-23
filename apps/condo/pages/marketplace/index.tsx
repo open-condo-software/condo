@@ -10,6 +10,7 @@ import { AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clie
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
+import { PageComponentType } from '@condo/domains/common/types'
 import { MarketplacePageContent } from '@condo/domains/marketplace/components/MarketplacePageContent'
 import {
     AcquiringContext as AcquiringContextProvider,
@@ -18,11 +19,7 @@ import { MarketplaceReadPermissionRequired } from '@condo/domains/marketplace/co
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
 
 
-type PageType = React.FC & {
-    requiredAccess: React.FC
-}
-
-const MarketplacePage: PageType = () => {
+const MarketplacePage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'pages.condo.marketplace.title' })
 

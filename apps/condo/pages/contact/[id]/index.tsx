@@ -19,6 +19,7 @@ import { FieldPairRow as BaseFieldPairRow, FieldPairRowProps } from '@condo/doma
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { TicketCardList } from '@condo/domains/common/components/TicketCard/TicketCardList'
 import { fontSizes } from '@condo/domains/common/constants/style'
+import { PageComponentType } from '@condo/domains/common/types'
 import { ContactsReadPermissionRequired } from '@condo/domains/contact/components/PageAccess'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
@@ -203,8 +204,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
     )
 }
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-const ContactInfoPage = () => {
+const ContactInfoPage: PageComponentType = () => {
     const intl = useIntl()
     const ErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
