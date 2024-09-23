@@ -23,8 +23,10 @@ const FEE_DISTRIBUTION_FIELDS = 'recipient percent minAmount maxAmount category'
 const ACQUIRING_INTEGRATION_CONTEXT_FIELDS = `{ status invoiceStatus integration { id name setupUrl hostUrl explicitFeeDistributionSchema { ${FEE_DISTRIBUTION_FIELDS} } } organization { id } state settings ${COMMON_FIELDS} implicitFeeDistributionSchema { ${FEE_DISTRIBUTION_FIELDS} } invoiceImplicitFeeDistributionSchema { ${FEE_DISTRIBUTION_FIELDS} } email invoiceEmails reason invoiceReason recipient { bic bankAccount iec tin } invoiceRecipient { bic bankAccount iec tin } invoiceTaxRegime invoiceVatPercent invoiceSalesTaxPercent }`
 const AcquiringIntegrationContext = generateGqlQueries('AcquiringIntegrationContext', ACQUIRING_INTEGRATION_CONTEXT_FIELDS)
 
-const MULTI_PAYMENT_FIELDS = `{ amount explicitFee explicitServiceCharge implicitFee amountWithoutExplicitFee currencyCode withdrawnAt cardNumber paymentWay serviceCategory payerEmail serviceCategory transactionId meta status payments { id } integration { id } recurrentPaymentContext { id } ${COMMON_FIELDS} }`
-const MultiPayment = generateGqlQueries('MultiPayment', MULTI_PAYMENT_FIELDS)
+const MULTI_PAYMENT_PUBLIC_FIELDS = `amount explicitFee explicitServiceCharge amountWithoutExplicitFee currencyCode withdrawnAt cardNumber paymentWay serviceCategory payerEmail serviceCategory status payments { id } integration { id } recurrentPaymentContext { id } ${COMMON_FIELDS}`
+const MULTI_PAYMENT_PRIVATE_FIELDS = 'implicitFee transactionId meta'
+const MultiPayment = generateGqlQueries('MultiPayment', `{ ${MULTI_PAYMENT_PUBLIC_FIELDS} ${MULTI_PAYMENT_PRIVATE_FIELDS} }`)
+const MultiPaymentPublic = generateGqlQueries('MultiPayment', `{ ${MULTI_PAYMENT_PUBLIC_FIELDS} }`)
 
 const PAYMENT_FIELDS = `{ amount explicitFee explicitServiceCharge implicitFee currencyCode advancedAt depositedDate transferDate accountNumber purpose frozenReceipt receipt { id property { id address addressKey } account { unitName } } invoice { id organization { id name } status property { id address addressKey } number ticket { id number } } frozenInvoice multiPayment { id transactionId } context { id integration { id name } } status order ${COMMON_FIELDS} period organization { id } recipientBic recipientBankAccount }`
 const Payment = generateGqlQueries('Payment', PAYMENT_FIELDS)
@@ -101,6 +103,7 @@ module.exports = {
     AcquiringIntegrationAccessRight,
     AcquiringIntegrationContext,
     MultiPayment,
+    MultiPaymentPublic,
     Payment,
     REGISTER_MULTI_PAYMENT_MUTATION,
     EXPORT_PAYMENTS_TO_EXCEL,
