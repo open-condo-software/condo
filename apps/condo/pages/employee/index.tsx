@@ -29,6 +29,12 @@ import { useTableFilters } from '@condo/domains/organization/hooks/useTableFilte
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { IFilters } from '@condo/domains/organization/utils/helpers'
 
+import type { GetServerSideProps } from 'next'
+
+import { initializeApollo, prepareSSRContext } from '@/lib/apollo'
+import { prefetchAuth } from '@/lib/auth'
+import { extractSSRState } from '@/lib/ssr'
+
 
 const ADD_EMPLOYEE_ROUTE = '/employee/create/'
 const SORTABLE_PROPERTIES = ['name', 'role', 'position', 'phone']
@@ -182,3 +188,24 @@ const EmployeesPage = () => {
 EmployeesPage.requiredAccess = EmployeesReadPermissionRequired
 
 export default EmployeesPage
+
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+    // @ts-ignore In Next 9 the types (only!) do not match the expected types
+    const { headers } = prepareSSRContext(req, res)
+    const client = initializeApollo({ headers })
+
+    const user = await prefetchAuth(client)
+
+    if (!user) {
+        return {
+            unstable_redirect: {
+                destination: '/auth/signin',
+                permanent: false,
+            },
+        }
+    }
+
+    return extractSSRState(client, req, res, {
+        props: {},
+    })
+}

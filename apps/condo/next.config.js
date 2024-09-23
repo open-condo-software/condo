@@ -19,6 +19,8 @@ const withTM = withTMModule([
     '@open-condo/next',
     '@open-condo/featureflags',
     '@open-condo/keystone',
+    '@open-condo/apollo',
+    '@open-condo/miniapp-utils',
     'rc-table',
     '@condo/domains',
     '@emotion/styled',

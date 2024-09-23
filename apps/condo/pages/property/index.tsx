@@ -26,6 +26,12 @@ import BuildingsTable from '@condo/domains/property/components/BuildingsTable'
 import { useTableColumns as usePropertiesTableColumns } from '@condo/domains/property/hooks/useTableColumns'
 import { useTableFilters as usePropertyTableFilters } from '@condo/domains/property/hooks/useTableFilters'
 
+import type { GetServerSideProps } from 'next'
+
+import { initializeApollo, prepareSSRContext } from '@/lib/apollo'
+import { prefetchAuth } from '@/lib/auth'
+import { extractSSRState } from '@/lib/ssr'
+
 
 interface IPropertiesPage extends React.FC {
     headerAction?: JSX.Element
@@ -107,3 +113,24 @@ const PropertiesPage: IPropertiesPage = () => {
 PropertiesPage.requiredAccess = OrganizationRequired
 
 export default PropertiesPage
+
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+    // @ts-ignore In Next 9 the types (only!) do not match the expected types
+    const { headers } = prepareSSRContext(req, res)
+    const client = initializeApollo({ headers })
+
+    const user = await prefetchAuth(client)
+
+    if (!user) {
+        return {
+            unstable_redirect: {
+                destination: '/auth/signin',
+                permanent: false,
+            },
+        }
+    }
+
+    return extractSSRState(client, req, res, {
+        props: {},
+    })
+}

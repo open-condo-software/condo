@@ -15,6 +15,12 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
+import type { GetServerSideProps } from 'next'
+
+import { initializeApollo, prepareSSRContext } from '@/lib/apollo'
+import { prefetchAuth } from '@/lib/auth'
+import { extractSSRState } from '@/lib/ssr'
+
 const LAYOUT_STYLE: React.CSSProperties = { height: '100%' }
 const IFRAME_STYLE: React.CSSProperties = { border: 'none', width: '100%', height: '100%' }
 
@@ -87,3 +93,24 @@ const ExternalReportDetailPage = () => {
 ExternalReportDetailPage.requiredAccess = OrganizationRequired
 
 export default ExternalReportDetailPage
+
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+    // @ts-ignore In Next 9 the types (only!) do not match the expected types
+    const { headers } = prepareSSRContext(req, res)
+    const client = initializeApollo({ headers })
+
+    const user = await prefetchAuth(client)
+
+    if (!user) {
+        return {
+            unstable_redirect: {
+                destination: '/auth/signin',
+                permanent: false,
+            },
+        }
+    }
+
+    return extractSSRState(client, req, res, {
+        props: {},
+    })
+}
