@@ -11,6 +11,77 @@ export * from '@/gql/operation.types'
 
 const defaultOptions = {} as const
 
+export const GetAllContactsDocument = gql`
+    query getAllContacts($where: ContactWhereInput, $first: Int = 100, $skip: Int, $sortBy: [SortContactsBy!]) {
+  objs: allContacts(where: $where, first: $first, skip: $skip, sortBy: $sortBy) {
+    organization {
+      id
+      name
+    }
+    property {
+      id
+      address
+    }
+    name
+    phone
+    unitName
+    unitType
+    email
+    role {
+      id
+      name
+    }
+    quota
+    isVerified
+    id
+    deletedAt
+    createdBy {
+      id
+      name
+    }
+    updatedBy {
+      id
+      name
+    }
+    createdAt
+    updatedAt
+  }
+  meta: _allContactsMeta(where: $where) {
+    count
+  }
+}
+    `
+
+/**
+ * __useGetAllContactsQuery__
+ *
+ * To run a query within a React component, call `useGetAllContactsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAllContactsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAllContactsQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *      first: // value for 'first'
+ *      skip: // value for 'skip'
+ *      sortBy: // value for 'sortBy'
+ *   },
+ * });
+ */
+export function useGetAllContactsQuery (baseOptions?: Apollo.QueryHookOptions<Types.GetAllContactsQuery, Types.GetAllContactsQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useQuery<Types.GetAllContactsQuery, Types.GetAllContactsQueryVariables>(GetAllContactsDocument, options)
+}
+export function useGetAllContactsLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<Types.GetAllContactsQuery, Types.GetAllContactsQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useLazyQuery<Types.GetAllContactsQuery, Types.GetAllContactsQueryVariables>(GetAllContactsDocument, options)
+}
+export type GetAllContactsQueryHookResult = ReturnType<typeof useGetAllContactsQuery>
+export type GetAllContactsLazyQueryHookResult = ReturnType<typeof useGetAllContactsLazyQuery>
+export type GetAllContactsQueryResult = Apollo.QueryResult<Types.GetAllContactsQuery, Types.GetAllContactsQueryVariables>
 export const AuthenticatedUserDocument = gql`
     query authenticatedUser {
   authenticatedUser {

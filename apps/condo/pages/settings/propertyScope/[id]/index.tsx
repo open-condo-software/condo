@@ -31,6 +31,12 @@ import {
 import { SettingsReadPermissionRequired } from '@condo/domains/settings/components/PageAccess'
 import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 
+import type { GetServerSideProps } from 'next'
+
+import { initializeApollo, prepareSSRContext } from '@/lib/apollo'
+import { prefetchAuth } from '@/lib/auth'
+import { extractSSRState } from '@/lib/ssr'
+
 
 const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
 const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
@@ -228,3 +234,24 @@ const PropertyScopeIdPage = () => {
 PropertyScopeIdPage.requiredAccess = SettingsReadPermissionRequired
 
 export default PropertyScopeIdPage
+
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+    // @ts-ignore In Next 9 the types (only!) do not match the expected types
+    const { headers } = prepareSSRContext(req, res)
+    const client = initializeApollo({ headers })
+
+    const user = await prefetchAuth(client)
+
+    if (!user) {
+        return {
+            unstable_redirect: {
+                destination: '/auth/signin',
+                permanent: false,
+            },
+        }
+    }
+
+    return extractSSRState(client, req, res, {
+        props: {},
+    })
+}

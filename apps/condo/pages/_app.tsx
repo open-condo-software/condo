@@ -1,3 +1,4 @@
+import { ApolloProvider } from '@apollo/client'
 import { CacheProvider } from '@emotion/core'
 import { ConfigProvider } from 'antd'
 import enUS from 'antd/lib/locale/en_US'
@@ -11,18 +12,17 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'
 
+import { CachePersistorContext, useCachePersistor } from '@open-condo/apollo'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useFeatureFlags, FeaturesReady, withFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import * as AllIcons from '@open-condo/icons'
 import { extractReqLocale } from '@open-condo/locales/extractReqLocale'
-import { withApollo, WithApolloProps } from '@open-condo/next/apollo'
 import { useAuth, withAuth } from '@open-condo/next/auth'
 import { useIntl, withIntl } from '@open-condo/next/intl'
 import { useOrganization, withOrganization } from '@open-condo/next/organization'
 
 import { useBankReportTaskUIInterface } from '@condo/domains/banking/hooks/useBankReportTaskUIInterface'
 import { useBankSyncTaskUIInterface } from '@condo/domains/banking/hooks/useBankSyncTaskUIInterface'
-import { BILLING_RECEIPT_SERVICE_FIELD_NAME } from '@condo/domains/billing/constants/constants'
 import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/domains/billing/utils/clientSchema'
 import BaseLayout, { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
@@ -86,6 +86,10 @@ import {
 import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useTicketExportTaskUIInterface'
 import { CookieAgreement } from '@condo/domains/user/components/CookieAgreement'
 import { USER_QUERY } from '@condo/domains/user/gql'
+
+import { useApollo } from '../lib/apollo'
+import { SSRCookiesContext, useVitalCookies } from '../lib/ssr'
+
 import '@condo/domains/common/components/wdyr'
 import '@open-condo/ui/dist/styles.min.css'
 import '@open-condo/ui/dist/style-vars/variables.css'
@@ -469,6 +473,9 @@ const MyApp = ({ Component, pageProps }) => {
         EndTrialSubscriptionReminderPopup,
         isEndTrialSubscriptionReminderPopupVisible,
     } = useEndTrialSubscriptionReminderPopup()
+    const { persistor } = useCachePersistor()
+
+    if (!persistor) return <div>null app</div>
 
     const shouldDisplayCookieAgreement = router.pathname.match(/\/auth\/.*/)
 
@@ -527,37 +534,42 @@ const MyApp = ({ Component, pageProps }) => {
     )
 }
 
-/*
-    Configuration for `InMemoryCache` of Apollo
-    Add fields, related to pagination strategies of Apollo.
-    Items of some GraphQL global fields needs to be appended to list,
-    when paginated, rather than to be displayed as a slice of data, —
-    its like "Infinite scrolling" UI pattern. For example, fetching
-    more changes of a ticket on button click.
-    For those items, we need to set `concatPagination` strategy.
-    https://www.apollographql.com/docs/react/pagination/core-api/
- */
-const apolloCacheConfig: WithApolloProps['apolloCacheConfig'] = {
-    typePolicies: {
-        [BILLING_RECEIPT_SERVICE_FIELD_NAME]: {
-            // avoiding of building cache from ID on client, since Service ID is not UUID and will be repeated
-            keyFields: false,
-        },
-        BuildingSection: {
-            keyFields: false,
-        },
-        BuildingFloor: {
-            keyFields: false,
-        },
-        BuildingUnit: {
-            keyFields: false,
-        },
-    },
+// TODO: We need to get away from "with..."
+const withApollo = () => PageComponent => {
+    const WithApollo = (props) => {
+        const { client, cachePersistor } = useApollo(props.pageProps)
+
+        if (!cachePersistor) return null
+        // const ssrCookies = useVitalCookies(pageProps)
+
+        console.log('::WithApollo:: >>>', {
+            props,
+        })
+
+        return (
+            // <SSRCookiesContext.Provider value={ssrCookies}>
+            <ApolloProvider client={client}>
+                <CachePersistorContext.Provider value={{ persistor: cachePersistor }}>
+                    <PageComponent {...props} />
+                </CachePersistorContext.Provider>
+            </ApolloProvider>
+            // </SSRCookiesContext.Provider>
+        )
+    }
+
+    // Set the correct displayName in development
+    if (process.env.NODE_ENV !== 'production') {
+        const displayName =
+            PageComponent.displayName || PageComponent.name || 'Component'
+        WithApollo.displayName = `withApollo(${displayName})`
+    }
+
+    return WithApollo
 }
 
 export default (
-    withIntl({ ssr: !IS_SSR_DISABLED, messagesImporter, extractReqLocale, defaultLocale })(
-        withApollo({ ssr: !IS_SSR_DISABLED, apolloCacheConfig })(
+    withApollo()(
+        withIntl({ ssr: !IS_SSR_DISABLED, messagesImporter, extractReqLocale, defaultLocale })(
             withAuth({ ssr: !IS_SSR_DISABLED, USER_QUERY })(
                 withOrganization({
                     ssr: !IS_SSR_DISABLED,

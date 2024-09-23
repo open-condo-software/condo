@@ -36,6 +36,12 @@ import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSc
 import { TicketAutoAssignment } from '@condo/domains/ticket/utils/clientSchema'
 import { ClassifiersQueryLocal } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 
+import type { GetServerSideProps } from 'next'
+
+import { initializeApollo, prepareSSRContext } from '@/lib/apollo'
+import { prefetchAuth } from '@/lib/auth'
+import { extractSSRState } from '@/lib/ssr'
+
 
 interface ITicketAutoAssignmentPage extends React.FC {
     headerAction?: JSX.Element
@@ -619,3 +625,24 @@ const TicketAutoAssignmentPermissionRequired: React.FC = ({ children }) => {
 TicketAutoAssignmentPage.requiredAccess = TicketAutoAssignmentPermissionRequired
 
 export default TicketAutoAssignmentPage
+
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+    // @ts-ignore In Next 9 the types (only!) do not match the expected types
+    const { headers } = prepareSSRContext(req, res)
+    const client = initializeApollo({ headers })
+
+    const user = await prefetchAuth(client)
+
+    if (!user) {
+        return {
+            unstable_redirect: {
+                destination: '/auth/signin',
+                permanent: false,
+            },
+        }
+    }
+
+    return extractSSRState(client, req, res, {
+        props: {},
+    })
+}

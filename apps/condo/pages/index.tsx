@@ -1,3 +1,4 @@
+import { initializeApollo, prepareSSRContext } from '@app/condo/lib/apollo'
 import { TourStepStatusType, TourStepTypeType } from '@app/condo/schema'
 import get from 'lodash/get'
 import pickBy from 'lodash/pickBy'
@@ -10,6 +11,11 @@ import { SECOND_LEVEL_STEPS } from '@condo/domains/onboarding/constants/steps'
 import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
+
+import { prefetchAuth } from '../lib/auth'
+
+import type { GetServerSideProps } from 'next'
+
 
 
 // Equality of read access name of OrganizationEmployeeRole and page url sorted by menu items order
@@ -71,3 +77,29 @@ const IndexPage = () => {
 IndexPage.requiredAccess = OrganizationRequired
 
 export default IndexPage
+
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+    // @ts-ignore In Next 9 the types (only!) do not match the expected types
+    const { headers } = prepareSSRContext(req, res)
+    const client = initializeApollo({ headers })
+
+    const user = await prefetchAuth(client)
+
+    if (!user) {
+        return {
+            unstable_redirect: {
+                destination: '/auth/signin',
+                permanent: false,
+            },
+        }
+    }
+
+    // TODO(INFRA-517): update redirect
+    return {
+        unstable_redirect: {
+            destination: '/apollo',
+            permanent: false,
+        },
+    }
+}
+

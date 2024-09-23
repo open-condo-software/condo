@@ -23,6 +23,12 @@ import { ContactsReadPermissionRequired } from '@condo/domains/contact/component
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 
+import type { GetServerSideProps } from 'next'
+
+import { initializeApollo, prepareSSRContext } from '@/lib/apollo'
+import { prefetchAuth } from '@/lib/auth'
+import { extractSSRState } from '@/lib/ssr'
+
 
 const VALUE_FIELD_WRAPPER_STYLE = { width: '100%' }
 const CONTACT_FIELD_PAIR_PROPS: Partial<FieldPairRowProps> = {
@@ -252,3 +258,24 @@ const ContactInfoPage = () => {
 ContactInfoPage.requiredAccess = ContactsReadPermissionRequired
 
 export default ContactInfoPage
+
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+    // @ts-ignore In Next 9 the types (only!) do not match the expected types
+    const { headers } = prepareSSRContext(req, res)
+    const client = initializeApollo({ headers })
+
+    const user = await prefetchAuth(client)
+
+    if (!user) {
+        return {
+            unstable_redirect: {
+                destination: '/auth/signin',
+                permanent: false,
+            },
+        }
+    }
+
+    return extractSSRState(client, req, res, {
+        props: {},
+    })
+}

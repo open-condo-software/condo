@@ -12,6 +12,12 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { UpdateMeterForm } from '@condo/domains/meter/components/Meters/UpdateMeterForm'
 import { METER_TAB_TYPES, PropertyMeter } from '@condo/domains/meter/utils/clientSchema'
 
+import type { GetServerSideProps } from 'next'
+
+import { initializeApollo, prepareSSRContext } from '@/lib/apollo'
+import { prefetchAuth } from '@/lib/auth'
+import { extractSSRState } from '@/lib/ssr'
+
 const UpdatePropertyMeterPage = (): JSX.Element => {
     const intl = useIntl()
     const UpdateMeterPageTitle = intl.formatMessage({ id: 'pages.condo.meter.propertyMeterId.update.PageTitle' })
@@ -58,3 +64,24 @@ const UpdatePropertyMeterPage = (): JSX.Element => {
 }
 
 export default UpdatePropertyMeterPage
+
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+    // @ts-ignore In Next 9 the types (only!) do not match the expected types
+    const { headers } = prepareSSRContext(req, res)
+    const client = initializeApollo({ headers })
+
+    const user = await prefetchAuth(client)
+
+    if (!user) {
+        return {
+            unstable_redirect: {
+                destination: '/auth/signin',
+                permanent: false,
+            },
+        }
+    }
+
+    return extractSSRState(client, req, res, {
+        props: {},
+    })
+}
