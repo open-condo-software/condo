@@ -75,8 +75,8 @@ export const IconsSubsection: React.FC<{ id: string }> = ({ id }) => {
 
     const { data } = useGetB2CAppQuery({ variables: { id } })
 
-    const name = get(data, ['app', 'name'], '')
-    const logo = get(data, ['app', 'logo', 'publicUrl'], DEFAULT_B2C_LOGO_URL)
+    const name = get(data, ['app', 'name'], '') as string
+    const logo = get(data, ['app', 'logo', 'publicUrl'], DEFAULT_B2C_LOGO_URL) as string
 
     const [form] = Form.useForm()
 
@@ -131,28 +131,30 @@ export const IconsSubsection: React.FC<{ id: string }> = ({ id }) => {
                 <Col span={FULL_COL_SPAN}>
                     <Row gutter={ICON_WARNING_ROW_GUTTER}>
                         <Col span={FULL_COL_SPAN} className={styles.subSectionContainer}>
-                            <B2CAppCard name={name} logo={logo}/>
-                            <Row gutter={ROW_ICONS_CONTENT_GUTTER}>
-                                <Col span={FULL_COL_SPAN}>
-                                    <Typography.Title type='secondary' level={4}>{MainIconTitle}</Typography.Title>
-                                </Col>
-                                <Col span={FULL_COL_SPAN}>
-                                    <Typography.Paragraph size='medium'>{MainIconDescription}</Typography.Paragraph>
-                                    <Typography.Paragraph size='medium'>{IconGuideText}</Typography.Paragraph>
-                                </Col>
-                                <Col span={FULL_COL_SPAN}>
-                                    <Form.Item name='mainIcon' valuePropName='fileList' getValueFromEvent={getFormFile}>
-                                        <Upload
-                                            listType='picture'
-                                            beforeUpload={beforeUpload}
-                                            maxCount={1}
-                                            multiple={false}
-                                        >
-                                            <UploadText>{UploadImageMessage}</UploadText>
-                                        </Upload>
-                                    </Form.Item>
-                                </Col>
-                            </Row>
+                            <div className={styles.subSectionContainer}>
+                                <B2CAppCard name={name} logo={logo}/>
+                                <Row gutter={ROW_ICONS_CONTENT_GUTTER}>
+                                    <Col span={FULL_COL_SPAN}>
+                                        <Typography.Title type='secondary' level={4}>{MainIconTitle}</Typography.Title>
+                                    </Col>
+                                    <Col span={FULL_COL_SPAN}>
+                                        <Typography.Paragraph size='medium'>{MainIconDescription}</Typography.Paragraph>
+                                        <Typography.Paragraph size='medium'>{IconGuideText}</Typography.Paragraph>
+                                    </Col>
+                                    <Col span={FULL_COL_SPAN}>
+                                        <Form.Item name='mainIcon' valuePropName='fileList' getValueFromEvent={getFormFile}>
+                                            <Upload
+                                                listType='picture'
+                                                beforeUpload={beforeUpload}
+                                                maxCount={1}
+                                                multiple={false}
+                                            >
+                                                <UploadText>{UploadImageMessage}</UploadText>
+                                            </Upload>
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+                            </div>
                         </Col>
                         <Col span={FULL_COL_SPAN}>
                             <Alert
