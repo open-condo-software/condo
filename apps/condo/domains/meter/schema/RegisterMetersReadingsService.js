@@ -304,29 +304,34 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
 
                 const startDate = Date.now()
 
-                // const findMetersTime = Date.now()
-                // const meterNumbers = uniq(
-                //     readings.map(reading => reading.meterNumber.trim())
-                // )
-                // const meters = await find('Meter', {
-                //     organization,
-                //     number_in: meterNumbers,
-                //     deletedAt: null,
-                // })
-                // const endFindMetersTime = Date.now()
+                const findMetersTime = Date.now()
+                const meterNumbers = uniq(
+                    readings.map(reading => reading.meterNumber.trim())
+                )
+                const meters = await find('Meter', {
+                    organization,
+                    number_in: meterNumbers,
+                    deletedAt: null,
+                })
+                // console.log('meters', meters)
+                const endFindMetersTime = Date.now()
                 // console.log('time to find meters', endFindMetersTime - findMetersTime)
 
                 for (const reading of readings) {
-                    console.log('--- ITER ---')
+                    // console.log('--- ITER ---')
                     const meterNumber = reading.meterNumber.trim()
                     const accountNumber = reading.accountNumber.trim()
                     const unitType = get(reading, ['addressInfo', 'unitType'], get(resolvedAddresses, [reading.address, 'addressResolve', 'unitType'], '')).trim() || null
                     const unitName = get(reading, ['addressInfo', 'unitName'], get(resolvedAddresses, [reading.address, 'addressResolve', 'unitName'], '')).trim() || null
                     const addressKey = get(resolvedAddresses, [reading.address, 'addressResolve', 'propertyAddress', 'addressKey'])
                     let readingSource = get(reading, 'readingSource')
+
+                    console.log('reading', reading)
+
                     if (isNil(readingSource)) {
                         readingSource = { id: OTHER_METER_READING_SOURCE_ID }
                     }
+                    console.log('readingSource', readingSource)
 
                     if (isEmpty(accountNumber)) {
                         resultRows.push(new GQLError(ERRORS.INVALID_ACCOUNT_NUMBER, context))
@@ -351,28 +356,14 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     }
 
                     let meterId
-                    const findMetersTime = Date.now()
-                    const foundMeters = await find('Meter', {
-                        organization,
-                        property: { id: property.id },
-                        unitType,
-                        unitName,
-                        accountNumber,
-                        number: meterNumber,
-                        resource: reading.meterResource,
-                        deletedAt: null,
-                    })
-                    const endFindMetersTime = Date.now()
-                    console.log('time to find meters', endFindMetersTime - findMetersTime)
-                    // const foundMeters = meters.filter(meter =>
-                    //     meter.organization === organization &&
-                    //     meter.property === property.id &&
-                    //     meter.unitType === unitType &&
-                    //     meter.unitName === unitName &&
-                    //     meter.accountNumber === accountNumber &&
-                    //     meter.number === meterNumber &&
-                    //     meter.resource === reading.meterResource &&
-                    // )
+                    const foundMeters = meters.filter(meter =>
+                        meter.property === property.id &&
+                        meter.unitType === unitType &&
+                        meter.unitName === unitName &&
+                        meter.accountNumber === accountNumber &&
+                        meter.number === meterNumber &&
+                        meter.resource === reading.meterResource.id
+                    )
 
                     if (foundMeters.length > 1) {
                         resultRows.push(new GQLError(ERRORS.MULTIPLE_METERS_FOUND(foundMeters.length), context))
@@ -456,7 +447,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                         continue
                     }
                     const endCreateOrUpdate = Date.now()
-                    console.log('create or update meter time', endCreateOrUpdate - startCreateOrUpdate)
+                    // console.log('create or update meter time', endCreateOrUpdate - startCreateOrUpdate)
 
                     try {
                         const findDuplicatesTime = Date.now()
@@ -468,7 +459,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                             ...values,
                         })
                         const findDuplicatesEndTime = Date.now()
-                        console.log('find duplicates time', findDuplicatesEndTime - findDuplicatesTime)
+                        // console.log('find duplicates time', findDuplicatesEndTime - findDuplicatesTime)
 
                         if (duplicates.length === 0) {
                             const createMeterReadingTime = Date.now()
@@ -482,7 +473,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                                 ...values,
                             })
                             const createMeterReadingsEndTime = Date.now()
-                            console.log('create meter readings time', createMeterReadingsEndTime - createMeterReadingTime)
+                            // console.log('create meter readings time', createMeterReadingsEndTime - createMeterReadingTime)
 
                             resultRows.push(meterReadingAsResult(createdMeterReading))
                         } else {
