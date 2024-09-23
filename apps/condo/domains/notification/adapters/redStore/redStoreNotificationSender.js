@@ -1,8 +1,8 @@
 const { get } = require('lodash')
 
-const { fetch } = require('@open-condo/keystone/fetch')
 
 const { APS_RESPONSE_STATUS_SUCCESS } = require('../apple/constants')
+const { fetch } = require('@open-condo/keystone/fetch')
 
 
 class RedStoreNotificationSender {
@@ -20,14 +20,19 @@ class RedStoreNotificationSender {
         this.sendPush = this.sendPush.bind(this)
     }
 
-    async sendPush (token, notification) {
-        await fetch(this.#url, {
-            ...notification,
+    async sendPush (token, notification, data) {
+        return await fetch(this.#url, {
+            body: JSON.stringify({
+                token,
+                notification,
+                data,
+            }),
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${this.#serviceToken}`,
             },
-        })
+        })        
     }
 
     async sendAll (notifications) {
@@ -37,9 +42,9 @@ class RedStoreNotificationSender {
         for (let idx = 0; idx < notifications.length; idx++) {
             const { token, data: pushData = {}, notification  = {}, type, appId } = notifications[idx]
 
-            const response = await this.sendPush(token, { data: pushData, notification })
-            responses.push(response)
-
+            const response = await this.sendPush(token, notification, pushData)
+            responses.push(await response.json())
+            
             if (response instanceof Error) {
                 failureCount += 1
             } else {

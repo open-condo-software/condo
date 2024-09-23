@@ -43,11 +43,8 @@ class RedStoreAdapter {
     #config = null
 
     constructor (config = REDSTORE_CONFIG) {
-        this.projectId = get(config, 'project_id', null)
         try {
             if (isEmpty(config)) throw new Error(`Valid ${REDSTORE_CONFIG_ENV} should be provided within .helm (.env)`)
-            if (isNil(this.projectId)) throw new Error('Provided projectId is null or undefined')
-            if (isNil(config.url)) throw new Error('Provided url is null or undefined')
         } catch (err) {
             // For CI/local tests config is useless because of emulation via FAKE tokens
             logger.error({ msg: 'redStore adapter error', err })
@@ -56,7 +53,6 @@ class RedStoreAdapter {
         this.#config = config
         // not user input. No ReDoS regexp expected
         // nosemreg: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
-        this.messageIdPrefixRegexp = new RegExp(`projects/${this.projectId}/messages`)
     }
 
     /**
@@ -67,9 +63,8 @@ class RedStoreAdapter {
      */
     static validateAndPrepareNotification ({ title, body } = {}) {
         if (!title || !body || isEmpty(title) || isEmpty(body)) throw new Error('Missing notification.title or notification.body')
-        const image = 'CondoImage' // надо сюды вставить урл на иконку домов, чтобы не приходило голое уведомление
 
-        return { title, body, image }
+        return { title, body }
     }
 
     /**
@@ -91,24 +86,13 @@ class RedStoreAdapter {
             const pushType = pushTypes[pushToken] || PUSH_TYPE_DEFAULT
             const preparedData = prepareData(data, pushToken)
             console.log('prepareBatchData', 'appId', appIds[pushToken])
-            const pushData = pushType === PUSH_TYPE_SILENT_DATA
-                ? {
-                    token: pushToken,
-                    data: {
-                        ...preparedData,
-                        'title': notification.title,
-                        'body': notification.body,
-                    },
-                    appId: appIds[pushToken],
-                    ...DEFAULT_PUSH_SETTINGS,
-                }
-                : {
-                    token: pushToken,
-                    data: preparedData,
-                    notification,
-                    appId: appIds[pushToken],
-                    ...DEFAULT_PUSH_SETTINGS,
-                }
+            const pushData = {
+                token: pushToken,
+                data: preparedData,
+                notification,
+                appId: appIds[pushToken],
+                ...DEFAULT_PUSH_SETTINGS,
+            }
 
             if (!APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.app)) notifications.push(pushData)
 
@@ -184,7 +168,7 @@ class RedStoreAdapter {
 
                 const app = new RedStoreNotificationSender(configForApp)
                 try {
-                    const result = await app.sendAll(notificationsBatchForApp)
+                    result = await app.sendAll(notificationsBatchForApp)
 
                     if (!isEmpty(result.responses)) {
                         result.responses = result.responses.map(
@@ -199,8 +183,6 @@ class RedStoreAdapter {
 
                 } catch (error) {
                     logger.error({ msg: 'sendNotification error', error })
-
-                    result = { state: 'error', error }
                 }
             }
         }
