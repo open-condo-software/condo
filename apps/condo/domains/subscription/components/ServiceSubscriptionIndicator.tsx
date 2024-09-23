@@ -13,7 +13,6 @@ import { colors } from '@condo/domains/common/constants/style'
 import { useServiceSubscriptionContext } from './SubscriptionContext'
 
 
-
 const DaysLeftContainer = styled.div`
   width: 36px;
   height: 36px;

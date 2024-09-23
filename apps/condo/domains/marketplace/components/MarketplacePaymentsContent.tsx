@@ -191,9 +191,10 @@ const MarketplacePaymentsTableContent = () => {
             { ...filtersFromQuery, createdAt }
         )
         updateQuery(router, {
-            newParameters: { ...newParameters, tab: MARKETPLACE_PAGE_TYPES.payments } },
-        { routerAction: 'replace', resetOldParameters: false }
-        )
+            newParameters: { ...newParameters, tab: MARKETPLACE_PAGE_TYPES.payments },
+        }, {
+            routerAction: 'replace', resetOldParameters: false, shallow: true,
+        })
     }, [])
     
     const disabledDate = useCallback((currentDate) => {

@@ -10,6 +10,7 @@ import { useOrganization } from '@open-condo/next/organization'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
+import { PageComponentType } from '@condo/domains/common/types'
 import { MarketItemForm } from '@condo/domains/marketplace/components/MarketItem/MarketItemForm'
 import { MarketItemReadAndManagePermissionRequired } from '@condo/domains/marketplace/components/PageAccess'
 import { MarketItem } from '@condo/domains/marketplace/utils/clientSchema'
@@ -17,7 +18,7 @@ import { MarketItem } from '@condo/domains/marketplace/utils/clientSchema'
 
 const UPDATE_INVOICE_PAGE_GUTTER: [Gutter, Gutter] = [12, 60]
 
-const UpdateInvoicePage = () => {
+const UpdateInvoicePage: PageComponentType = () => {
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     const UpdateMarketItemTitle = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.update.title' })

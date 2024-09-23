@@ -15,6 +15,7 @@ import {
 import { TicketSubmittingSettingCard } from '@condo/domains/settings/components/ticketSubmitting/TicketSubmittingSettingCard'
 import { MobileFeatureConfig as MobileFeatureConfigAPI } from '@condo/domains/settings/utils/clientSchema'
 
+
 const CONTENT_GUTTER: Gutter | [Gutter, Gutter] = [0, 40]
 
 export const MobileFeatureConfigContent: React.FC = () => {

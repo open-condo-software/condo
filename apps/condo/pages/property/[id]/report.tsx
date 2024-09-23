@@ -48,6 +48,7 @@ import { TableFiltersContainer } from '@condo/domains/common/components/TableFil
 import { PROPERTY_REPORT_DELETE_ENTITIES, PROPERTY_BANK_ACCOUNT } from '@condo/domains/common/constants/featureflags'
 import { useDateRangeSearch } from '@condo/domains/common/hooks/useDateRangeSearch'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { PageComponentType } from '@condo/domains/common/types'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
@@ -94,7 +95,7 @@ interface IPropertyImportBankTransactions {
 }
 interface IPropertyReport {
     ({ bankAccount, propertyId, role }: Pick<BaseBankReportProps, 'bankAccount'>
-    & { propertyId: string, role?: OrganizationEmployeeRoleType }
+    & { propertyId: string, role?: Pick<OrganizationEmployeeRoleType, 'canManageBankAccountReportTasks' | 'canManageBankAccounts'> }
     ): React.ReactElement
 }
 
@@ -308,7 +309,7 @@ const PropertyReport: IPropertyReport = ({ bankAccount, propertyId, role }) => {
             await router.push({
                 pathname: router.pathname,
                 query: { ...router.query, offset: 0 },
-            })
+            }, undefined, { shallow: true })
         }
         setTab(tab)
     }, [handleClearSelection, router])
@@ -542,11 +543,11 @@ const PropertyReportPageContent: IPropertyReportPageContent = ({ property }) => 
                             <BankAccountReport
                                 bankAccountReports={bankAccountReports}
                                 bankAccount={bankAccount}
-                                role={link.role}
+                                role={get(link, 'role')}
                             />
                         </Col>
                         <Col span={24}>
-                            <PropertyReport bankAccount={bankAccount} propertyId={property.id} role={link.role} />
+                            <PropertyReport bankAccount={bankAccount} propertyId={property.id} role={get(link, 'role')} />
                         </Col>
                     </>
                 )}
@@ -566,7 +567,7 @@ const PropertyReportPageContent: IPropertyReportPageContent = ({ property }) => 
     )
 }
 
-const PropertyReportPage = (): React.ReactElement => {
+const PropertyReportPage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'pages.condo.property.report.pageImportTitle' })
     const ServerErrorTitle = intl.formatMessage({ id: 'ServerError' })

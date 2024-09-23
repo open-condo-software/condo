@@ -52,6 +52,7 @@ import {
     getQueryToValueProcessorByType,
 } from '../utils/filters.utils'
 
+
 interface IFilterComponentProps<T> {
     name: string
     label?: string
@@ -341,7 +342,7 @@ const ResetFiltersModalButton: React.FC<ResetFiltersModalButtonProps> = ({
     const { setSelectedFiltersTemplate } = useMultipleFilterContext()
 
     const handleReset = useCallback(async () => {
-        router.replace({ query: omit(router.query, ['filters', 'sort', 'offset']) })
+        router.replace({ query: omit(router.query, ['filters', 'sort', 'offset']) }, undefined, { shallow: true })
         setSelectedFiltersTemplate(null)
 
         if (isFunction(handleResetFromProps)) {
@@ -544,7 +545,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         }
 
         const newParameters = getFiltersQueryData(filtersValue)
-        await updateQuery(router, { newParameters: { ...newParameters, ...extraQueryParameters } }, { routerAction: 'replace' })
+        await updateQuery(router, { newParameters: { ...newParameters, ...extraQueryParameters } }, { routerAction: 'replace', shallow: true })
         setIsMultipleFiltersModalVisible(false)
     }, [searchFilter, onSubmit, router, setIsMultipleFiltersModalVisible])
 

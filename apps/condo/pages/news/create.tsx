@@ -10,15 +10,12 @@ import { AccessDeniedPage } from '@condo/domains/common/components/containers/Ac
 import { PageHeader, PageWrapper, PageContent } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
+import { PageComponentType } from '@condo/domains/common/types'
 import { NewsForm } from '@condo/domains/news/components/NewsForm'
 import { NewsReadAndManagePermissionRequired } from '@condo/domains/news/components/PageAccess'
 import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
-export interface ICreateNewsPage extends React.FC {
-    headerAction?: JSX.Element
-    requiredAccess?: React.FC
-}
 
 interface ICreateNewsPageContentProps {
     propertiesCount?: number
@@ -58,7 +55,7 @@ const CreateNewsPageContent: React.FC<ICreateNewsPageContentProps> = ({ properti
     )
 }
 
-const CreateNewsPage: ICreateNewsPage = () => {
+const CreateNewsPage: PageComponentType = () => {
     const { canManage, isLoading: isAccessLoading } = useNewsItemsAccess()
 
     const intl = useIntl()

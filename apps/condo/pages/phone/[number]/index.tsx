@@ -33,6 +33,7 @@ import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table
 import { Tag } from '@condo/domains/common/components/Tag'
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { colors, gradients, shadows, transitions } from '@condo/domains/common/constants/style'
+import { PageComponentType } from '@condo/domains/common/types'
 import { renderPhone } from '@condo/domains/common/utils/Renders'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { ClientType, getClientCardTabKey, redirectToForm } from '@condo/domains/contact/utils/clientCard'
@@ -766,7 +767,7 @@ const ClientCardPageContent = ({
         setActiveTab(newKey)
         const newRoute = `${router.route.replace('[number]', phoneNumber)}?tab=${newKey}`
 
-        return router.push(newRoute)
+        return router.push(newRoute, undefined, { shallow: true })
     }, [phoneNumber, router])
 
     const handleAddAddressClick = useCallback(() => handleTabChange(ADD_ADDRESS_TAB_KEY), [handleTabChange])
@@ -938,7 +939,7 @@ export const ClientCardPageContentWrapper = ({
     )
 }
 
-const ClientCardPage = () => {
+const ClientCardPage: PageComponentType = () => {
     const { organization, link } = useOrganization()
     const organizationId = get(organization, 'id', null)
     const canManageContacts = !!get(link, 'role.canManageContacts')

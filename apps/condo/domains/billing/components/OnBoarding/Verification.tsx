@@ -45,13 +45,13 @@ export const Verification: React.FC = () => {
     useEffect(() => {
         // If no billing = redirect to step 0
         if (!billingCtxLoading && !billingCtxError && !billingCtxId) {
-            router.replace({ query: { step: 0 } })
+            router.replace({ query: { step: 0 } }, undefined, { shallow: true })
 
         } else if (!acquiringCtxLoading && !acquiringCtxError && !acquiringCtxId) {
             // At this stage billing is connected 100%,
             // but if acquiring was also connected -> we should not see self-service (and this step at all)
             // so if there's no acquiring in verification step = need to connect it = should go to step 2
-            router.replace({ query: { step: 2 } })
+            router.replace({ query: { step: 2 } }, undefined, { shallow: true })
         }
     }, [
         billingCtxLoading,

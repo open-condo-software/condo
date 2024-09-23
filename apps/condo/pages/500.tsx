@@ -1,4 +1,3 @@
-import styled from '@emotion/styled'
 import { Col, Row, Typography } from 'antd'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
@@ -9,7 +8,9 @@ import { useIntl } from '@open-condo/next/intl'
 
 import { Logo } from '@condo/domains/common/components/Logo'
 import { colors, fontSizes } from '@condo/domains/common/constants/style'
+import { PageComponentType } from '@condo/domains/common/types'
 import { PosterLayout } from '@condo/domains/user/components/containers/PosterLayout'
+
 
 const LOGO_HEADER_STYLES = { width: '100%', justifyContent: 'space-between' }
 const HEADER_LOGO_STYLE: React.CSSProperties = { cursor: 'pointer' }
@@ -22,7 +23,7 @@ const {
 const DESCRIPTION_TEXT_STYLE = { fontSize: fontSizes.content }
 const Src500 = { poster: '/500Poster.webp', placeholder: '/500PosterPlaceholder.jpg' }
 
-export default function Custom500 (): React.ReactElement {
+const Custom500: PageComponentType = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage( { id: 'pages.condo.error.PageTitle' })
     const DescriptionMessage = intl.formatMessage({ id: 'pages.condo.error.Description' })
@@ -95,3 +96,6 @@ const Error500Layout = (props): React.ReactElement => <PosterLayout
 
 Custom500.container = Error500Layout
 Custom500.isError = true
+Custom500.skipUserPrefetch = true
+
+export default Custom500

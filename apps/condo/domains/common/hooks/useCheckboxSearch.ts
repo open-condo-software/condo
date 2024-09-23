@@ -33,7 +33,7 @@ export const useCheckboxSearch = <F> (fieldName: string): UseCheckboxSearchOutpu
         }
 
         const newParameters = getFiltersQueryData(newFilters)
-        await updateQuery(router, { newParameters }, { routerAction: 'replace' })
+        await updateQuery(router, { newParameters }, { routerAction: 'replace', shallow: true })
     }, 400), [fieldName, filtersFromQuery, router])
 
     const handleChange: UseCheckboxSearchOutputType['handleChange'] = useCallback(async (isChecked: boolean) => {

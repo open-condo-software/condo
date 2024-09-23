@@ -12,6 +12,7 @@ import { Typography } from '@open-condo/ui'
 
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
+import { PageComponentType } from '@condo/domains/common/types'
 import { AppCard } from '@condo/domains/miniapp/components/AppCard'
 import { B2BAppContext, B2BApp } from '@condo/domains/miniapp/utils/clientSchema'
 import { NewsCardGrid } from '@condo/domains/news/components/NewsForm/NewsCardGrid'
@@ -20,14 +21,10 @@ import {
 } from '@condo/domains/news/components/PageAccess'
 import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess'
 
-interface INewsIndexPage extends React.FC {
-    headerAction?: JSX.Element
-    requiredAccess?: React.FC
-}
 
 const SHARING_APP_FALLBACK_ICON = '/news/sharingAppIconPlaceholder.svg'
 
-const NewsSettingsPage: INewsIndexPage = () => {
+const NewsSettingsPage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitleLabel = intl.formatMessage({ id: 'pages.condo.news.settings.pageTitle' })
     const SharingAppSettingsTitleLabel = intl.formatMessage({ id: 'pages.condo.news.settings.sharingAppSettingsTitle' })
@@ -119,4 +116,5 @@ const NewsSettingsPage: INewsIndexPage = () => {
 }
 
 NewsSettingsPage.requiredAccess = NewsReadAndManagePermissionRequired
+
 export default NewsSettingsPage

@@ -59,7 +59,7 @@ const guideModalCardReviews = JSON.parse(conf['GUIDE_MODAL_CARD_REVIEWS'] || '{}
 const guideIntroduceAppMaterials = JSON.parse(conf['GUIDE_INTRODUCE_APP_MATERIALS'] || '{}')
 const importInstructionUrl = JSON.parse(conf['IMPORT_INSTRUCTION_URL'] || '{}')
 const telegramEmployeeBotName = conf['TELEGRAM_EMPLOYEE_BOT_NAME']
-const disableSSR = conf['DISABLE_SSR']
+const isDisabledSsr = conf['DISABLE_SSR'] === 'true'
 const termsOfUseUrl = conf['LEGAL_TERMS_OF_USE_URL']
 const privacyPolicyUrl = conf['LEGAL_PRIVACY_POLICY_URL']
 const dataProcessingConsentUrl = conf['LEGAL_DATA_PROCESSING_CONSENT_URL']
@@ -102,7 +102,7 @@ let nextConfig = withTM(withLess(withCSS({
         guideIntroduceAppMaterials,
         importInstructionUrl,
         telegramEmployeeBotName,
-        disableSSR,
+        isDisabledSsr,
         termsOfUseUrl,
         privacyPolicyUrl,
         dataProcessingConsentUrl,

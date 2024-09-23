@@ -14,7 +14,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
-
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -31,6 +30,7 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
+import { PageComponentType } from '@condo/domains/common/types'
 import { NewsReadPermissionRequired } from '@condo/domains/news/components/PageAccess'
 import { RecipientCounter } from '@condo/domains/news/components/RecipientCounter'
 import { NewsItemScopeNoInstanceType } from '@condo/domains/news/components/types'
@@ -41,6 +41,7 @@ import { NewsItem, NewsItemScope, NewsItemSharing } from '@condo/domains/news/ut
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
+
 
 const { publicRuntimeConfig: { newsItemsSendingDelay } } = getConfig()
 
@@ -406,7 +407,7 @@ const NewsItemCard: React.FC = () => {
     )
 }
 
-const NewsItemCardPage = () => {
+const NewsItemCardPage: PageComponentType = () => {
     const { canRead, isLoading: isAccessLoading } = useNewsItemsAccess()
 
     if (isAccessLoading) {
@@ -419,6 +420,7 @@ const NewsItemCardPage = () => {
 
     return <NewsItemCard/>
 }
+
 NewsItemCardPage.requiredAccess = NewsReadPermissionRequired
 
 export default NewsItemCardPage

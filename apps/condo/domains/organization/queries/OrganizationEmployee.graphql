@@ -1,0 +1,103 @@
+query getActiveOrganizationEmployee($userId: ID!, $employeeId: ID) {
+    employees: allOrganizationEmployees(where: {
+        id: $employeeId,
+        organization: { type_in: [MANAGING_COMPANY, SERVICE_PROVIDER] },
+        user: { id: $userId, type: staff },
+        isAccepted: true,
+        isBlocked: false,
+        isRejected: false,
+    }, first: 1, skip: 0, sortBy: [createdAt_DESC]) {
+        id
+        name
+        email
+        phone
+        hasAllSpecializations
+        isRejected
+        isAccepted
+        isBlocked
+        position
+        organization {
+            id
+            country
+            name
+            type
+            tin
+            features
+            statusTransitions
+            importId
+            importRemoteSystem
+        }
+        role {
+            id
+            isEditable
+            isDefault
+            statusTransitions
+            ticketVisibilityType
+            canReadAnalytics
+            canManageOrganization
+            canManageCallRecords
+            canDownloadCallRecords
+            canReadEmployees
+            canManageEmployees
+            canInviteNewOrganizationEmployees
+            canManageRoles
+            canManageTicketPropertyHints
+            canManageIntegrations
+            canImportBillingReceipts
+            canReadBillingReceipts
+            canReadPayments
+            canManageProperties
+            canReadProperties
+            canReadDocuments
+            canManageDocuments
+            canReadTickets
+            canManageTickets
+            canReadContacts
+            canManageContacts
+            canManageContactRoles
+            canManageTicketComments
+            canManagePropertyScopes
+            canShareTickets
+            canBeAssignedAsResponsible
+            canBeAssignedAsExecutor
+            canManageMeters
+            canManageMeterReadings
+            canManageBankAccounts
+            canManageBankContractorAccounts
+            canManageBankIntegrationAccountContexts
+            canManageBankIntegrationOrganizationContexts
+            canManageBankTransactions
+            canManageBankAccountReports
+            canManageBankAccountReportTasks
+            canManageBankAccountReports
+            canReadIncidents
+            canManageIncidents
+            canReadNewsItems
+            canManageNewsItems
+            canManageNewsItemTemplates
+            canManageMobileFeatureConfigs
+            canManageB2BApps
+            canReadMeters
+            canReadSettings
+            canReadExternalReports
+            canReadServices
+            canReadCallRecords
+            canReadInvoices
+            canManageInvoices
+            canReadMarketItems
+            canManageMarketItems
+            canManageMarketItemPrices
+            canReadMarketItemPrices
+            canReadMarketPriceScopes
+            canManageMarketPriceScopes
+            canReadMarketplace
+            canManageMarketplace
+            canReadPaymentsWithInvoices
+            canReadTour
+            canManageTour
+            canReadMarketSetting
+            canManageMarketSetting
+            canManageTicketAutoAssignments
+        }
+    }
+}

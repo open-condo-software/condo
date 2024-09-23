@@ -6,11 +6,13 @@ import React from 'react'
 import { useIntl } from '@open-condo/next/intl'
 
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageComponentType } from '@condo/domains/common/types'
 import { SettingsReadPermissionRequired } from '@condo/domains/settings/components/PageAccess'
 import {
     TicketDeadlineSettingsAbout,
 } from '@condo/domains/ticket/components/TicketOrganizationDeadline/TicketDeadlineSettingsAbout'
 import { TicketDeadlineSettingsForm } from '@condo/domains/ticket/components/TicketOrganizationDeadline/TicketDeadlineSettingsForm'
+
 
 const ROW_GUTTER: [Gutter, Gutter] = [0, 60]
 
@@ -33,7 +35,7 @@ const TicketDeadlinesContent: React.FC = () => {
     )
 }
 
-const TicketDeadlinesPage = () => {
+const TicketDeadlinesPage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'pages.condo.settings.ticketDeadlines.pageTitle' })
 

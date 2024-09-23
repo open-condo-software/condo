@@ -2,15 +2,14 @@ import { Organization } from '@app/condo/schema'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 
-import { IconProps, Sber } from '@open-condo/icons'
+import { Sber } from '@open-condo/icons'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { colors } from '@condo/domains/common/constants/style'
 import { SBBOL_IMPORT_NAME } from '@condo/domains/organization/integrations/sbbol/constants'
 
 type SBBOLIndicatorProps = {
-    organization: Organization
-    size?: IconProps['size']
+    organization: Pick<Organization, 'importId' | 'importRemoteSystem'>
 }
 
 export const SBBOLIndicator: React.FC<SBBOLIndicatorProps> = ({ organization }) => {

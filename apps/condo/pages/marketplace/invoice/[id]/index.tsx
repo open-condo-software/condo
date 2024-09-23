@@ -17,6 +17,7 @@ import { PageContent, PageWrapper } from '@condo/domains/common/components/conta
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
+import { PageComponentType } from '@condo/domains/common/types'
 import { getObjectCreatedMessage } from '@condo/domains/common/utils/date.utils'
 import { getAddressDetails } from '@condo/domains/common/utils/helpers'
 import { CopyButton } from '@condo/domains/marketplace/components/Invoice/CopyButton'
@@ -340,7 +341,7 @@ const InvoiceActionBar = ({
     )
 }
 
-const InvoiceIdPage = () => {
+const InvoiceIdPage: PageComponentType = () => {
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     const RawInvoiceTitle = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.update.title' })

@@ -14,12 +14,13 @@ import { AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clie
 import { useOnboardingProgress } from '@condo/domains/billing/hooks/useOnboardingProgress'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
+import { PageComponentType } from '@condo/domains/common/types'
 import { OfferSetupPage } from '@condo/domains/marketplace/components/MarketplaceOnboarding/OfferSetupPage'
 import { RequisitesSetup } from '@condo/domains/marketplace/components/MarketplaceOnboarding/RequisitesSetup'
 import {
-    MarketplaceReadPermissionRequired,
     MarketplaceSetupPermissionRequired,
 } from '@condo/domains/marketplace/components/PageAccess'
+
 
 const STEPS_GUTTER: RowProps['gutter'] = [60, 60]
 const FULL_COL_SPAN = 24
@@ -29,11 +30,7 @@ type MarketplaceOnboardingPageProps = {
     withVerification?: boolean
 }
 
-interface IMarketplaceOnboardingPage extends React.FC<MarketplaceOnboardingPageProps> {
-    requiredAccess: React.FC
-}
-
-const MarketplaceOnboardingPage: IMarketplaceOnboardingPage = ({ onFinish, withVerification }) => {
+const MarketplaceOnboardingPage: PageComponentType<MarketplaceOnboardingPageProps> = ({ onFinish, withVerification }) => {
     const intl = useIntl()
 
     const PageTitle = intl.formatMessage({ id: 'pages.condo.marketplace.settings.mainTitle' })
@@ -82,7 +79,7 @@ const MarketplaceOnboardingPage: IMarketplaceOnboardingPage = ({ onFinish, withV
     ])
 
     const handleReturn = useCallback((newStep: number) => {
-        router.push({ query: { ...router.query, step: newStep } })
+        router.push({ query: { ...router.query, step: newStep } }, undefined, { shallow: true })
     }, [router])
 
     const currentScreen = useMemo(() => {

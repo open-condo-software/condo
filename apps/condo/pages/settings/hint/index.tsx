@@ -7,12 +7,14 @@ import { useOrganization } from '@open-condo/next/organization'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
+import { PageComponentType } from '@condo/domains/common/types'
 import { SettingsReadPermissionRequired } from '@condo/domains/settings/components/PageAccess'
 import {
     SettingsContent as TicketPropertyHintSettings,
 } from '@condo/domains/ticket/components/TicketPropertyHint/SettingsContent'
 
-const PropertyHintsPage = () => {
+
+const PropertyHintsPage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'Hint' })
 

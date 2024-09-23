@@ -18,13 +18,15 @@ import {
 import { Loader } from '@condo/domains/common/components/Loader'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { SETTINGS_TAB_CONTACT_ROLES } from '@condo/domains/common/constants/settingsTabs'
+import { PageComponentType } from '@condo/domains/common/types'
 import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
 import { SettingsReadPermissionRequired } from '@condo/domains/settings/components/PageAccess'
+
 
 const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
 const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
 
-const TheContactRolePage = (): JSX.Element => {
+const TheContactRolePage: PageComponentType = () => {
     const intl = useIntl()
     const contactRoleTitleMessage = intl.formatMessage({ id: 'ContactRole' })
     const NameMessage = intl.formatMessage({ id: 'ContactRoles.name' })

@@ -6,9 +6,11 @@ import { useAuth } from '@open-condo/next/auth'
 
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageComponentType } from '@condo/domains/common/types'
 import { UserProfileForm } from '@condo/domains/user/components/UserProfileForm'
 
-export const UserInfoPage = () => {
+
+export const UserInfoPage: PageComponentType = () => {
     const { user } = useAuth()
     const name = get(user, 'name')
 

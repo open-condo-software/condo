@@ -5,6 +5,7 @@ import { useAuth } from '@open-condo/next/auth'
 
 import { UserFavoriteTicket } from '@condo/domains/ticket/utils/clientSchema'
 
+
 interface IFavoriteTicketsContext {
     userFavoriteTickets: TUserFavoriteTicket[]
     userFavoriteTicketsCount: number

@@ -25,7 +25,7 @@ export const useDateRangeSearch = <F> (
                     ...filtersFromQuery,
                     [filterKey]: searchString,
                 })
-                await updateQuery(router, { newParameters }, { resetOldParameters: false })
+                await updateQuery(router, { newParameters }, { resetOldParameters: false, shallow: true })
             },
             400,
         ),
