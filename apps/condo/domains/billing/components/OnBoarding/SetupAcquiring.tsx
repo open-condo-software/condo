@@ -19,6 +19,7 @@ import { SBBOL_IMPORT_NAME } from '@condo/domains/organization/integrations/sbbo
 
 import type { RowProps } from 'antd'
 
+
 type SetupAcquiringProps = {
     onFinish: () => void
 }
@@ -87,7 +88,6 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
             status_in: [CONTEXT_VERIFICATION_STATUS],
         },
     })
-
 
 
     const billingCtxId = get(billingCtx, 'id', null)

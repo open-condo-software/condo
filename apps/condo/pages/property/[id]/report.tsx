@@ -8,6 +8,8 @@ import React, { useCallback, useMemo, useState, useEffect } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
+import { prepareSSRContext } from '@open-condo/miniapp-utils'
+import { initializeApollo } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -48,6 +50,9 @@ import { TableFiltersContainer } from '@condo/domains/common/components/TableFil
 import { PROPERTY_REPORT_DELETE_ENTITIES, PROPERTY_BANK_ACCOUNT } from '@condo/domains/common/constants/featureflags'
 import { useDateRangeSearch } from '@condo/domains/common/hooks/useDateRangeSearch'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
+import { extractSSRState } from '@condo/domains/common/utils/next/ssr'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
@@ -61,6 +66,7 @@ import type {
 } from '@app/condo/schema'
 import type { FormatDateOptions } from '@formatjs/intl/src/types'
 import type { RowProps } from 'antd'
+import type { GetServerSideProps } from 'next'
 
 
 const PROPERTY_REPORT_PAGE_ROW_GUTTER: RowProps['gutter'] = [24, 20]
@@ -94,7 +100,7 @@ interface IPropertyImportBankTransactions {
 }
 interface IPropertyReport {
     ({ bankAccount, propertyId, role }: Pick<BaseBankReportProps, 'bankAccount'>
-    & { propertyId: string, role?: OrganizationEmployeeRoleType }
+    & { propertyId: string, role?: Pick<OrganizationEmployeeRoleType, 'canManageBankAccountReportTasks' | 'canManageBankAccounts'> }
     ): React.ReactElement
 }
 
@@ -542,11 +548,11 @@ const PropertyReportPageContent: IPropertyReportPageContent = ({ property }) => 
                             <BankAccountReport
                                 bankAccountReports={bankAccountReports}
                                 bankAccount={bankAccount}
-                                role={link.role}
+                                role={get(link, 'role')}
                             />
                         </Col>
                         <Col span={24}>
-                            <PropertyReport bankAccount={bankAccount} propertyId={property.id} role={link.role} />
+                            <PropertyReport bankAccount={bankAccount} propertyId={property.id} role={get(link, 'role')} />
                         </Col>
                     </>
                 )}
@@ -629,3 +635,20 @@ const PropertyReportPage = (): React.ReactElement => {
 PropertyReportPage.requiredAccess = OrganizationRequired
 
 export default PropertyReportPage
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const { req, res } = context
+
+    // @ts-ignore In Next 9 the types (only!) do not match the expected types
+    const { headers } = prepareSSRContext(req, res)
+    const client = initializeApollo({ headers })
+
+    const { redirect, user } = await prefetchAuthOrRedirect(client, context)
+    if (redirect) return redirect
+
+    await prefetchOrganizationEmployee({ client, context, userId: user.id })
+
+    return extractSSRState(client, req, res, {
+        props: {},
+    })
+}

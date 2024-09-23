@@ -3,6 +3,8 @@ import get from 'lodash/get'
 import Head from 'next/head'
 import React, { CSSProperties, useMemo } from 'react'
 
+import { prepareSSRContext } from '@open-condo/miniapp-utils'
+import { initializeApollo } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { TabItem } from '@open-condo/ui'
@@ -23,6 +25,9 @@ import {
     SETTINGS_TAB_MOBILE_FEATURE_CONFIG,
     SETTINGS_TAB_MARKETPLACE,
 } from '@condo/domains/common/constants/settingsTabs'
+import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
+import { extractSSRState } from '@condo/domains/common/utils/next/ssr'
 import { ContactRolesSettingsContent } from '@condo/domains/contact/components/contactRoles/ContactRolesSettingsContent'
 import { CONTEXT_FINISHED_STATUS } from '@condo/domains/miniapp/constants'
 import {
@@ -36,6 +41,8 @@ import { SettingsReadPermissionRequired } from '@condo/domains/settings/componen
 import { SubscriptionPane } from '@condo/domains/subscription/components/SubscriptionPane'
 
 import MarketplaceSettingsPage from './marketplace'
+
+import type { GetServerSideProps } from 'next'
 
 
 const TITLE_STYLES: CSSProperties = { margin: 0 }
@@ -151,3 +158,20 @@ const SettingsPage = () => {
 SettingsPage.requiredAccess = SettingsReadPermissionRequired
 
 export default SettingsPage
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const { req, res } = context
+
+    // @ts-ignore In Next 9 the types (only!) do not match the expected types
+    const { headers } = prepareSSRContext(req, res)
+    const client = initializeApollo({ headers })
+
+    const { redirect, user } = await prefetchAuthOrRedirect(client, context)
+    if (redirect) return redirect
+
+    await prefetchOrganizationEmployee({ client, context, userId: user.id })
+
+    return extractSSRState(client, req, res, {
+        props: {},
+    })
+}

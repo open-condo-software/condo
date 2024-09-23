@@ -11,6 +11,7 @@ import { Logo } from '@condo/domains/common/components/Logo'
 import { colors, fontSizes } from '@condo/domains/common/constants/style'
 import { PosterLayout } from '@condo/domains/user/components/containers/PosterLayout'
 
+
 const LOGO_HEADER_STYLES = { width: '100%', justifyContent: 'space-between' }
 const HEADER_LOGO_STYLE: React.CSSProperties = { cursor: 'pointer' }
 const TYPOGRAPHY_CONTACT_STYLE: React.CSSProperties = { color: colors.black }

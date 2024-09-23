@@ -13,6 +13,7 @@ import { PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS, CONTEXT_IN_PROGRESS_STATUS } from '
 
 import type { RowProps } from 'antd'
 
+
 type BillingDescriptionModalContentProps = {
     id: string
     name: string

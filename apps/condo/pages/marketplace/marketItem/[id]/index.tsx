@@ -8,6 +8,8 @@ import { useRouter } from 'next/router'
 import { useCallback, useMemo, useState } from 'react'
 
 import { ChevronDown, ChevronUp } from '@open-condo/icons'
+import { prepareSSRContext } from '@open-condo/miniapp-utils'
+import { initializeApollo } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Typography } from '@open-condo/ui'
@@ -23,12 +25,17 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { getObjectCreatedMessage } from '@condo/domains/common/utils/date.utils'
 import { getAddressDetails } from '@condo/domains/common/utils/helpers'
+import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
+import { extractSSRState } from '@condo/domains/common/utils/next/ssr'
 import { MarketItemReadPermissionRequired } from '@condo/domains/marketplace/components/PageAccess'
 import { MarketItem, MarketItemFile, MarketPriceScope } from '@condo/domains/marketplace/utils/clientSchema'
 import { getMoneyRender } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
 import { convertFilesToUploadType } from '@condo/domains/marketplace/utils/clientSchema/MarketItem'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
+
+import type { GetServerSideProps } from 'next'
 
 
 const MARKET_ITEM_CONTENT_VERTICAL_GUTTER: RowProps['gutter'] = [0, 60]
@@ -407,3 +414,20 @@ const MarketItemIdPage = () => {
 MarketItemIdPage.requiredPermission = MarketItemReadPermissionRequired
 
 export default MarketItemIdPage
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const { req, res } = context
+
+    // @ts-ignore In Next 9 the types (only!) do not match the expected types
+    const { headers } = prepareSSRContext(req, res)
+    const client = initializeApollo({ headers })
+
+    const { redirect, user } = await prefetchAuthOrRedirect(client, context)
+    if (redirect) return redirect
+
+    await prefetchOrganizationEmployee({ client, context, userId: user.id })
+
+    return extractSSRState(client, req, res, {
+        props: {},
+    })
+}

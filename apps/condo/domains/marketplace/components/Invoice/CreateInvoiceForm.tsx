@@ -5,7 +5,6 @@ import omit from 'lodash/omit'
 import React, { ComponentProps, useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Tooltip } from '@open-condo/ui'
 
 import { BaseModalForm } from '@condo/domains/common/components/containers/FormList'
@@ -39,8 +38,6 @@ export const CreateInvoiceForm: React.FC<CreateInvoiceFormProps> = ({ organizati
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
     const CancelLabel = intl.formatMessage({ id: 'Cancel' })
-
-    const { link } = useOrganization()
 
     const isModalForm = useMemo(() => !isEmpty(modalFormProps), [modalFormProps])
 
@@ -94,7 +91,6 @@ export const CreateInvoiceForm: React.FC<CreateInvoiceFormProps> = ({ organizati
             isCreateForm
             action={action ? action : handleCreateInvoice}
             organizationId={organizationId}
-            role={link}
             initialValues={formInitialValues}
             OnCompletedMsg={null}
             modalFormProps={modalProps}

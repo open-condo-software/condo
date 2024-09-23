@@ -22,6 +22,7 @@ import { MARKETPLACE_PAGE_TYPES } from '@condo/domains/marketplace/utils/clientS
 
 import { useAcquiringContext } from './ContextProvider'
 
+
 const StyledPageWrapper = styled(PageWrapper)`
   & .condo-promo-block:not(.condo-promo-block-no-image) {
     & .condo-promo-block-image-container {

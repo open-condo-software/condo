@@ -8,7 +8,6 @@ import { FormattedMessage } from '@open-condo/next/intl'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
-
 import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import {
@@ -17,6 +16,7 @@ import {
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
 import type { OrganizationWhereInput } from '@app/condo/schema'
+
 
 interface IOrganizationInvitesHookResult {
     loading: boolean

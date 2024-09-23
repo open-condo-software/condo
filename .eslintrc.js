@@ -149,6 +149,7 @@ module.exports = {
                 },
             },
         ],
+        '@typescript-eslint/no-empty-interface': 'off',
         'no-restricted-imports': [
             'warn',
             {

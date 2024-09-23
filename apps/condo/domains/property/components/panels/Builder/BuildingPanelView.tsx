@@ -25,9 +25,6 @@ import { MapView, MapViewMode } from './MapConstructor'
 
 
 
-
-
-
 interface IBuildingPanelViewProps extends Pick<IPropertyMapFormProps, 'canManageProperties'> {
     map: BuildingMap
 }

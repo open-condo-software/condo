@@ -1,3 +1,7 @@
+import {
+    AuthenticatedUserDocument,
+    GetActiveOrganizationEmployeeDocument,
+} from '@app/condo/gql'
 import { CacheProvider } from '@emotion/core'
 import { ConfigProvider } from 'antd'
 import enUS from 'antd/lib/locale/en_US'
@@ -15,14 +19,13 @@ import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEf
 import { useFeatureFlags, FeaturesReady, withFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import * as AllIcons from '@open-condo/icons'
 import { extractReqLocale } from '@open-condo/locales/extractReqLocale'
-import { withApollo, WithApolloProps } from '@open-condo/next/apollo'
+import { withApollo } from '@open-condo/next/apollo'
 import { useAuth, withAuth } from '@open-condo/next/auth'
 import { useIntl, withIntl } from '@open-condo/next/intl'
 import { useOrganization, withOrganization } from '@open-condo/next/organization'
 
 import { useBankReportTaskUIInterface } from '@condo/domains/banking/hooks/useBankReportTaskUIInterface'
 import { useBankSyncTaskUIInterface } from '@condo/domains/banking/hooks/useBankSyncTaskUIInterface'
-import { BILLING_RECEIPT_SERVICE_FIELD_NAME } from '@condo/domains/billing/constants/constants'
 import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/domains/billing/utils/clientSchema'
 import BaseLayout, { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
@@ -56,6 +59,8 @@ import {
 import { useHotCodeReload } from '@condo/domains/common/hooks/useHotCodeReload'
 import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
 import { messagesImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
+import { apolloHelperOptions } from '@condo/domains/common/utils/next/apollo'
+import { useVitalCookies, SSRCookiesContext, useSSRCookiesContext } from '@condo/domains/common/utils/next/ssr'
 import { useContactExportTaskUIInterface } from '@condo/domains/contact/hooks/useContactExportTaskUIInterface'
 import { useMeterReadingExportTaskUIInterface } from '@condo/domains/meter/hooks/useMeterReadingExportTaskUIInterface'
 import { useMeterReadingsImportTaskUIInterface } from '@condo/domains/meter/hooks/useMeterReadingsImportTaskUIInterface'
@@ -69,7 +74,6 @@ import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess
 import { TourProvider } from '@condo/domains/onboarding/contexts/TourContext'
 import { useNoOrganizationToolTip } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
-import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
 import {
     SubscriptionProvider,
     useServiceSubscriptionContext,
@@ -85,11 +89,12 @@ import {
 } from '@condo/domains/ticket/hooks/useTicketDocumentGenerationTaskUIInterface'
 import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useTicketExportTaskUIInterface'
 import { CookieAgreement } from '@condo/domains/user/components/CookieAgreement'
-import { USER_QUERY } from '@condo/domains/user/gql'
+
 import '@condo/domains/common/components/wdyr'
 import '@open-condo/ui/dist/styles.min.css'
 import '@open-condo/ui/dist/style-vars/variables.css'
 import '@condo/domains/common/components/containers/global-styles.css'
+
 
 const { publicRuntimeConfig: { defaultLocale, sppConfig, disableSSR } } = getConfig()
 
@@ -527,44 +532,44 @@ const MyApp = ({ Component, pageProps }) => {
     )
 }
 
-/*
-    Configuration for `InMemoryCache` of Apollo
-    Add fields, related to pagination strategies of Apollo.
-    Items of some GraphQL global fields needs to be appended to list,
-    when paginated, rather than to be displayed as a slice of data, —
-    its like "Infinite scrolling" UI pattern. For example, fetching
-    more changes of a ticket on button click.
-    For those items, we need to set `concatPagination` strategy.
-    https://www.apollographql.com/docs/react/pagination/core-api/
- */
-const apolloCacheConfig: WithApolloProps['apolloCacheConfig'] = {
-    typePolicies: {
-        [BILLING_RECEIPT_SERVICE_FIELD_NAME]: {
-            // avoiding of building cache from ID on client, since Service ID is not UUID and will be repeated
-            keyFields: false,
-        },
-        BuildingSection: {
-            keyFields: false,
-        },
-        BuildingFloor: {
-            keyFields: false,
-        },
-        BuildingUnit: {
-            keyFields: false,
-        },
-    },
+export const withCookies = () => (PageComponent) => {
+    const WithCookies = (props) => {
+
+        const ssrCookies = useVitalCookies(props?.pageProps)
+
+        return (
+            <SSRCookiesContext.Provider value={ssrCookies}>
+                <PageComponent {...props} />
+            </SSRCookiesContext.Provider>
+        )
+    }
+
+    // Set the correct displayName in development
+    if (process.env.NODE_ENV !== 'production') {
+        const displayName =
+            PageComponent.displayName || PageComponent.name || 'Component'
+        WithCookies.displayName = `withCookies(${displayName})`
+    }
+
+    WithCookies.getInitialProps = PageComponent.getInitialProps
+
+    return WithCookies
+}
+
+const useInitialEmployeeId = () => {
+    const { organizationLinkId: employeeId } = useSSRCookiesContext()
+    return { employeeId }
 }
 
 export default (
-    withIntl({ ssr: !IS_SSR_DISABLED, messagesImporter, extractReqLocale, defaultLocale })(
-        withApollo({ ssr: !IS_SSR_DISABLED, apolloCacheConfig })(
-            withAuth({ ssr: !IS_SSR_DISABLED, USER_QUERY })(
-                withOrganization({
-                    ssr: !IS_SSR_DISABLED,
-                    GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY: GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,
-                })(
-                    withFeatureFlags({ ssr: !IS_SSR_DISABLED })(
-                        MyApp
+    withCookies()(
+        withApollo({ legacy: false, apolloHelperOptions })(
+            withAuth({ legacy: false, USER_QUERY: AuthenticatedUserDocument })(
+                withOrganization({ legacy: false, GET_ORGANIZATION_EMPLOYEE_QUERY: GetActiveOrganizationEmployeeDocument, useInitialEmployeeId })(
+                    withIntl({ ssr: !IS_SSR_DISABLED, messagesImporter, extractReqLocale, defaultLocale })(
+                        withFeatureFlags({ ssr: !IS_SSR_DISABLED })(
+                            MyApp
+                        )
                     )
                 )
             )

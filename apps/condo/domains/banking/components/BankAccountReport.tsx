@@ -24,6 +24,7 @@ import type { BankAccount as BankAccountType } from '@app/condo/schema'
 import type { RowProps } from 'antd'
 import type { EChartsOption, EChartsReactProps } from 'echarts-for-react'
 
+
 const BANK_ACCOUNT_REPORT_ROW_GUTTER: RowProps['gutter'] = [40, 40]
 const LABEL_TRUNCATE_LENGTH = 17
 const CHART_COLOR_SET = ['#E45241', '#9036AA', '#4154AE', '#4595EC', '#51B7D1', '#419488', '#96C15B', '#D1DB58', '#FBE960', '#F5C244', '#F29B38']
@@ -395,7 +396,7 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
 type BankAccountReportProps = {
     bankAccountReports: Array<BankAccountReportType>
     bankAccount: BankAccountType
-    role: OrganizationEmployeeRoleType
+    role: Pick<OrganizationEmployeeRoleType, 'canManageBankAccountReportTasks'>
 }
 
 interface IBankAccountReport {

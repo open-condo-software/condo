@@ -2,6 +2,7 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect } from 'react'
 
+
 import { useOrganization } from '@open-condo/next/organization'
 
 import { AcquiringIntegrationContext as AcquiringIntegrationContextApi } from '@condo/domains/acquiring/utils/clientSchema'
@@ -9,6 +10,7 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
 import { MARKETPLACE_SETUP_URL_PATH } from '@condo/domains/marketplace/constants'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
+
 
 type SetupAcquiringProps = {
     onFinish: () => void

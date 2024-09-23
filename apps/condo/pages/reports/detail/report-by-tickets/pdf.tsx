@@ -8,9 +8,12 @@ import { useRouter } from 'next/router'
 import React, { useEffect, useRef, useState } from 'react'
 
 
+import { prepareSSRContext } from '@open-condo/miniapp-utils'
 import { useLazyQuery } from '@open-condo/next/apollo'
+import { initializeApollo } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+
 
 import TicketChart, { TicketSelectTypes, ViewModeTypes } from '@condo/domains/analytics/components/TicketChart'
 import TicketChartView from '@condo/domains/analytics/components/TicketChartView'
@@ -19,6 +22,9 @@ import { TICKET_ANALYTICS_REPORT_QUERY } from '@condo/domains/analytics/gql'
 import { filterToQuery, getAggregatedData, GroupTicketsByTypes } from '@condo/domains/analytics/utils/helpers'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { Logo } from '@condo/domains/common/components/Logo'
+import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
+import { extractSSRState } from '@condo/domains/common/utils/next/ssr'
 import { createPdfWithPageBreaks } from '@condo/domains/common/utils/pdf'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import {
@@ -26,6 +32,8 @@ import {
     PDF_REPORT_WIDTH,
     TICKET_REPORT_TABLE_MAIN_GROUP,
 } from '@condo/domains/ticket/constants/common'
+
+import type { GetServerSideProps } from 'next'
 
 
 const PdfView = () => {
@@ -562,3 +570,20 @@ AnalyticsPdfPage.container = ({ children }) => (
 AnalyticsPdfPage.requiredAccess = OrganizationRequired
 
 export default AnalyticsPdfPage
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const { req, res } = context
+
+    // @ts-ignore In Next 9 the types (only!) do not match the expected types
+    const { headers } = prepareSSRContext(req, res)
+    const client = initializeApollo({ headers })
+
+    const { redirect, user } = await prefetchAuthOrRedirect(client, context)
+    if (redirect) return redirect
+
+    await prefetchOrganizationEmployee({ client, context, userId: user.id })
+
+    return extractSSRState(client, req, res, {
+        props: {},
+    })
+}

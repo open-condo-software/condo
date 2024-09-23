@@ -23,6 +23,7 @@ import { STAFF } from '@condo/domains/user/constants/common'
 
 import type { RequestHandler } from './types'
 
+
 type OpenModalRecord = {
     destroy: () => void
     update: (opts: ModalProps) => void

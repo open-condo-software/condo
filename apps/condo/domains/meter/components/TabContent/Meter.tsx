@@ -36,7 +36,6 @@ import {
 } from '@condo/domains/meter/utils/clientSchema'
 
 
-
 const METERS_PAGE_CONTENT_ROW_GUTTERS: RowProps['gutter'] = [0, 40]
 const FILTERS_CONTAINER_GUTTER: RowProps['gutter'] = [16, 16]
 const QUICK_FILTERS_COL_STYLE: CSSProperties = { alignSelf: 'center' }

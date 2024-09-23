@@ -2,14 +2,12 @@ import { Form, Typography } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
-import omit from 'lodash/omit'
 import pick from 'lodash/pick'
 import reduce from 'lodash/reduce'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button } from '@open-condo/ui'
 
 import { Loader } from '@condo/domains/common/components/Loader'
@@ -101,7 +99,6 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
     const { obj, loading: ticketLoading, refetch, error } = Ticket.useObject({ where: { id } })
     const { objs: files, refetch: refetchFiles } = TicketFile.useObjects({ where: { ticket: { id } } })
     const { objs: invoices, loading: invoicesLoading } = Invoice.useObjects({ where: { ticket: { id } } })
-    const { link } = useOrganization()
 
     // no redirect after mutation as we need to wait for ticket files to save
     const action = Ticket.useUpdate({})
@@ -205,7 +202,6 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
             action={updateAction}
             initialValues={initialValues}
             organization={get(obj, 'organization')}
-            role={link.role}
             files={files}
             afterActionCompleted={(ticket) => {
                 replace(`/ticket/${ticket.id}`)

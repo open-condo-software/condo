@@ -1,7 +1,6 @@
 import {
     BuildingUnitSubType,
     Organization,
-    OrganizationEmployeeRole,
     PropertyWhereInput,
     Ticket,
     TicketFile as TicketFileType,
@@ -670,8 +669,7 @@ const CAN_READ_BY_RESIDENT_WRAPPER_STYLE: CSSProperties = { display: 'flex', gap
 const CAN_READ_BY_RESIDENT_ICON_WRAPPER_STYLE: CSSProperties = { padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }
 
 export interface ITicketFormProps {
-    organization?: Organization
-    role?: OrganizationEmployeeRole
+    organization?: Pick<Organization, 'id'>
     initialValues?: ITicketFormState
     action?: (...args) => Promise<Ticket>
     files?: TicketFileType[]
@@ -703,7 +701,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         action: _action,
         initialValues,
         organization,
-        role,
         afterActionCompleted,
         files,
         autoAssign,
@@ -775,8 +772,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     })
 
     const { ContactsEditorComponent } = useContactsEditorHook({
-        role,
-        allowLandLine: true,
         initialQuery: { organization: { id: organization.id } },
     })
 

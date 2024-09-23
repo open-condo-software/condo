@@ -45,7 +45,6 @@ export const UpdateMeterForm = (props: UpdateMeterProps): JSX.Element => {
     const disabledFields = useMemo(() => !canManageMeters, [canManageMeters])
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>(get(initialRecord, ['property', 'id']))
     const [selectedUnitName, setSelectedUnitName] = useState<string>(get(initialRecord, 'unitName'))
-    const [isMatchSelectedProperty] = useState(true)
 
     const { obj: property, loading: propertyLoading } = Property.useObject({ where: { id: selectedPropertyId } },
         { skip: !selectedPropertyId }
@@ -126,7 +125,7 @@ export const UpdateMeterForm = (props: UpdateMeterProps): JSX.Element => {
                                     form={form}
                                     getHandleSelectPropertyAddress={getHandleSelectPropertyAddress}
                                     handleDeselectPropertyAddress={handleDeselectPropertyAddress}
-                                    isMatchSelectedProperty={isMatchSelectedProperty}
+                                    isMatchSelectedProperty
                                     meterType={meterType}
                                     organizationId={organizationId}
                                     selectedPropertyId={selectedPropertyId}
