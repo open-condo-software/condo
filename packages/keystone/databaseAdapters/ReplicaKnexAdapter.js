@@ -1,10 +1,13 @@
 const { KnexAdapter } = require('@keystonejs/adapter-knex')
 const { knex } = require('knex')
-const { get, omit } = require('lodash')
+const get = require('lodash/get')
+const omit = require('lodash/omit')
 
+const { _internalGetAsyncLocalStorage } = require('@open-condo/keystone/executionContext')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const logger = getLogger('replicaKnexAdapter')
+const graphqlCtx = _internalGetAsyncLocalStorage('graphqlCtx')
 
 const IMMUTABLE_OPERATIONS = ['select', 'show']
 
@@ -54,6 +57,18 @@ class ReplicaKnexAdapter extends KnexAdapter {
 
         //override runner method
         this.knex.client.runner = (builder) => {
+            const graphqlContext = graphqlCtx.getStore()
+
+            const operationType = get(graphqlContext, ['info', 'operation', 'operation'])
+
+            // NOTE: any DB calls inside mutation => master, any other calls routed by SQL operation.
+            // Probably we want to pass function (builder => { replicaSet: string, master: boolean }) later in constructor,
+            // but for now "hard-coded" solution seems fine
+            if (operationType === 'mutation') {
+                return this.knexWrite.client.runner(builder)
+            }
+
+            // TODO(SavelevMatthew): think about removing this block later
             if (builder._queryContext && builder._queryContext.useMaster === true) {
                 return this.knexWrite.client.runner(builder)
             } else if (
