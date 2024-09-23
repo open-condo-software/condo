@@ -50,6 +50,8 @@ export type AcquiringIntegration = {
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
   /**  The minimum payment amount that can be accepted  */
   minimumPaymentAmount?: Maybe<Scalars['String']>;
+  /**  The maximum payment amount that can be accepted  */
+  maximumPaymentAmount?: Maybe<Scalars['String']>;
   /**  Contains information about the default distribution of explicit fee. Each part is paid by the user on top of original amount if there is no part with the same name in the integration context. Otherwise, the part is ignored as it is paid by recipient  */
   explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionField>>;
   /**  Status, which context will have by default after creation if no overwriting option provided  */
@@ -1138,6 +1140,7 @@ export type AcquiringIntegrationCreateInput = {
   hostUrl?: Maybe<Scalars['String']>;
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
   minimumPaymentAmount?: Maybe<Scalars['String']>;
+  maximumPaymentAmount?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   contextDefaultStatus?: Maybe<AcquiringIntegrationContextDefaultStatusType>;
   vatPercentOptions?: Maybe<Scalars['String']>;
@@ -1170,6 +1173,7 @@ export type AcquiringIntegrationHistoryRecord = {
   hostUrl?: Maybe<Scalars['String']>;
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
   minimumPaymentAmount?: Maybe<Scalars['String']>;
+  maximumPaymentAmount?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   vatPercentOptions?: Maybe<Scalars['String']>;
@@ -1196,6 +1200,7 @@ export type AcquiringIntegrationHistoryRecordCreateInput = {
   hostUrl?: Maybe<Scalars['String']>;
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
   minimumPaymentAmount?: Maybe<Scalars['String']>;
+  maximumPaymentAmount?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   vatPercentOptions?: Maybe<Scalars['String']>;
@@ -1227,6 +1232,7 @@ export type AcquiringIntegrationHistoryRecordUpdateInput = {
   hostUrl?: Maybe<Scalars['String']>;
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
   minimumPaymentAmount?: Maybe<Scalars['String']>;
+  maximumPaymentAmount?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   vatPercentOptions?: Maybe<Scalars['String']>;
@@ -1331,6 +1337,14 @@ export type AcquiringIntegrationHistoryRecordWhereInput = {
   minimumPaymentAmount_gte?: Maybe<Scalars['String']>;
   minimumPaymentAmount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   minimumPaymentAmount_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  maximumPaymentAmount?: Maybe<Scalars['String']>;
+  maximumPaymentAmount_not?: Maybe<Scalars['String']>;
+  maximumPaymentAmount_lt?: Maybe<Scalars['String']>;
+  maximumPaymentAmount_lte?: Maybe<Scalars['String']>;
+  maximumPaymentAmount_gt?: Maybe<Scalars['String']>;
+  maximumPaymentAmount_gte?: Maybe<Scalars['String']>;
+  maximumPaymentAmount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  maximumPaymentAmount_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   explicitFeeDistributionSchema_not?: Maybe<Scalars['JSON']>;
   explicitFeeDistributionSchema_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -1478,6 +1492,7 @@ export type AcquiringIntegrationUpdateInput = {
   hostUrl?: Maybe<Scalars['String']>;
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
   minimumPaymentAmount?: Maybe<Scalars['String']>;
+  maximumPaymentAmount?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   contextDefaultStatus?: Maybe<AcquiringIntegrationContextDefaultStatusType>;
   vatPercentOptions?: Maybe<Scalars['String']>;
@@ -1585,6 +1600,14 @@ export type AcquiringIntegrationWhereInput = {
   minimumPaymentAmount_gte?: Maybe<Scalars['String']>;
   minimumPaymentAmount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   minimumPaymentAmount_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  maximumPaymentAmount?: Maybe<Scalars['String']>;
+  maximumPaymentAmount_not?: Maybe<Scalars['String']>;
+  maximumPaymentAmount_lt?: Maybe<Scalars['String']>;
+  maximumPaymentAmount_lte?: Maybe<Scalars['String']>;
+  maximumPaymentAmount_gt?: Maybe<Scalars['String']>;
+  maximumPaymentAmount_gte?: Maybe<Scalars['String']>;
+  maximumPaymentAmount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  maximumPaymentAmount_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   explicitFeeDistributionSchema_not?: Maybe<Array<FeeDistributionFieldInput>>;
   explicitFeeDistributionSchema_in?: Maybe<Array<Maybe<Array<FeeDistributionFieldInput>>>>;
@@ -76906,6 +76929,8 @@ export enum SortAcquiringIntegrationHistoryRecordsBy {
   SupportedBillingIntegrationsGroupDesc = 'supportedBillingIntegrationsGroup_DESC',
   MinimumPaymentAmountAsc = 'minimumPaymentAmount_ASC',
   MinimumPaymentAmountDesc = 'minimumPaymentAmount_DESC',
+  MaximumPaymentAmountAsc = 'maximumPaymentAmount_ASC',
+  MaximumPaymentAmountDesc = 'maximumPaymentAmount_DESC',
   ContextDefaultStatusAsc = 'contextDefaultStatus_ASC',
   ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
   VatPercentOptionsAsc = 'vatPercentOptions_ASC',
@@ -76945,6 +76970,8 @@ export enum SortAcquiringIntegrationsBy {
   SupportedBillingIntegrationsGroupDesc = 'supportedBillingIntegrationsGroup_DESC',
   MinimumPaymentAmountAsc = 'minimumPaymentAmount_ASC',
   MinimumPaymentAmountDesc = 'minimumPaymentAmount_DESC',
+  MaximumPaymentAmountAsc = 'maximumPaymentAmount_ASC',
+  MaximumPaymentAmountDesc = 'maximumPaymentAmount_DESC',
   ContextDefaultStatusAsc = 'contextDefaultStatus_ASC',
   ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
   VatPercentOptionsAsc = 'vatPercentOptions_ASC',

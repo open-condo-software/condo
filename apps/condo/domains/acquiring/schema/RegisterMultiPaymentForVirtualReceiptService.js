@@ -196,7 +196,7 @@ const RegisterMultiPaymentForVirtualReceiptService = new GQLCustomSchema('Regist
                 const amountToPay = Big(amount)
                     .add(Big(paymentCommissionFields.explicitServiceCharge))
                     .add(Big(paymentCommissionFields.explicitFee))
-                console.error('anchor', amountToPay.toString(), acquiringIntegration)
+
                 if (acquiringIntegration.minimumPaymentAmount && Big(amountToPay).lt(acquiringIntegration.minimumPaymentAmount)) {
                     throw new GQLError({
                         ...ERRORS.PAYMENT_AMOUNT_LESS_THAN_MINIMUM,

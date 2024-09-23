@@ -436,9 +436,9 @@ describe('RegisterMultiPaymentForOneReceiptService', () => {
 
         test('Payment amount is equal to the maximum payment amount required by the acquiring integration', async () => {
             const [[receipt]] = await utils.createReceipts([
-                utils.createJSONReceipt({ toPay: '1000' }),
+                utils.createJSONReceipt({ toPay: '10' }),
             ])
-            await utils.updateAcquiringIntegration({ maximumPaymentAmount: Big(receipt.toPay).mul(1.012).toFixed(2) })
+            await utils.updateAcquiringIntegration({ maximumPaymentAmount: '10.12' })
             const [result] = await registerMultiPaymentForOneReceiptByTestClient(utils.clients.admin, { id: receipt.id }, { id: utils.acquiringContext.id })
             expect(result).toHaveProperty('multiPaymentId')
         })
@@ -447,7 +447,7 @@ describe('RegisterMultiPaymentForOneReceiptService', () => {
             const [[receipt]] = await utils.createReceipts([
                 utils.createJSONReceipt({ toPay: '1000' }),
             ])
-            const maximumPaymentAmount = Big(receipt.toPay).toString()
+            const maximumPaymentAmount = Big(receipt.toPay).minus(100).toString()
             await utils.updateAcquiringIntegration({ maximumPaymentAmount })
             await expectToThrowGQLError(async () => {
                 await registerMultiPaymentForOneReceiptByTestClient(utils.clients.admin, { id: receipt.id }, { id: utils.acquiringContext.id })
@@ -476,9 +476,9 @@ describe('RegisterMultiPaymentForOneReceiptService', () => {
 
         test('Payment amount is equal to the minimum payment amount required by the acquiring integration', async () => {
             const [[receipt]] = await utils.createReceipts([
-                utils.createJSONReceipt({ toPay: '1000' }),
+                utils.createJSONReceipt({ toPay: '10' }),
             ])
-            await utils.updateAcquiringIntegration({ minimumPaymentAmount: Big(receipt.toPay).mul(1.012).toFixed(2) })
+            await utils.updateAcquiringIntegration({ minimumPaymentAmount: '10.12' })
             const [result] = await registerMultiPaymentForOneReceiptByTestClient(utils.clients.admin, { id: receipt.id }, { id: utils.acquiringContext.id })
             expect(result).toHaveProperty('multiPaymentId')
         })

@@ -52885,6 +52885,7 @@ type AcquiringIntegrationHistoryRecord {
   hostUrl: String
   supportedBillingIntegrationsGroup: String
   minimumPaymentAmount: String
+  maximumPaymentAmount: String
   explicitFeeDistributionSchema: JSON
   contextDefaultStatus: String
   vatPercentOptions: String
@@ -52990,6 +52991,14 @@ input AcquiringIntegrationHistoryRecordWhereInput {
   minimumPaymentAmount_gte: String
   minimumPaymentAmount_in: [String]
   minimumPaymentAmount_not_in: [String]
+  maximumPaymentAmount: String
+  maximumPaymentAmount_not: String
+  maximumPaymentAmount_lt: String
+  maximumPaymentAmount_lte: String
+  maximumPaymentAmount_gt: String
+  maximumPaymentAmount_gte: String
+  maximumPaymentAmount_in: [String]
+  maximumPaymentAmount_not_in: [String]
   explicitFeeDistributionSchema: JSON
   explicitFeeDistributionSchema_not: JSON
   explicitFeeDistributionSchema_in: [JSON]
@@ -53127,6 +53136,8 @@ enum SortAcquiringIntegrationHistoryRecordsBy {
   supportedBillingIntegrationsGroup_DESC
   minimumPaymentAmount_ASC
   minimumPaymentAmount_DESC
+  maximumPaymentAmount_ASC
+  maximumPaymentAmount_DESC
   contextDefaultStatus_ASC
   contextDefaultStatus_DESC
   vatPercentOptions_ASC
@@ -53157,6 +53168,7 @@ input AcquiringIntegrationHistoryRecordUpdateInput {
   hostUrl: String
   supportedBillingIntegrationsGroup: String
   minimumPaymentAmount: String
+  maximumPaymentAmount: String
   explicitFeeDistributionSchema: JSON
   contextDefaultStatus: String
   vatPercentOptions: String
@@ -53187,6 +53199,7 @@ input AcquiringIntegrationHistoryRecordCreateInput {
   hostUrl: String
   supportedBillingIntegrationsGroup: String
   minimumPaymentAmount: String
+  maximumPaymentAmount: String
   explicitFeeDistributionSchema: JSON
   contextDefaultStatus: String
   vatPercentOptions: String
@@ -53275,6 +53288,9 @@ type AcquiringIntegration {
 
   """ The minimum payment amount that can be accepted """
   minimumPaymentAmount: String
+
+  """ The maximum payment amount that can be accepted """
+  maximumPaymentAmount: String
 
   """ Contains information about the default distribution of explicit fee. Each part is paid by the user on top of original amount if there is no part with the same name in the integration context. Otherwise, the part is ignored as it is paid by recipient 
   """
@@ -53405,6 +53421,14 @@ input AcquiringIntegrationWhereInput {
   minimumPaymentAmount_gte: String
   minimumPaymentAmount_in: [String]
   minimumPaymentAmount_not_in: [String]
+  maximumPaymentAmount: String
+  maximumPaymentAmount_not: String
+  maximumPaymentAmount_lt: String
+  maximumPaymentAmount_lte: String
+  maximumPaymentAmount_gt: String
+  maximumPaymentAmount_gte: String
+  maximumPaymentAmount_in: [String]
+  maximumPaymentAmount_not_in: [String]
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   explicitFeeDistributionSchema_not: [FeeDistributionFieldInput!]
   explicitFeeDistributionSchema_in: [[FeeDistributionFieldInput!]]
@@ -53510,6 +53534,8 @@ enum SortAcquiringIntegrationsBy {
   supportedBillingIntegrationsGroup_DESC
   minimumPaymentAmount_ASC
   minimumPaymentAmount_DESC
+  maximumPaymentAmount_ASC
+  maximumPaymentAmount_DESC
   contextDefaultStatus_ASC
   contextDefaultStatus_DESC
   vatPercentOptions_ASC
@@ -53541,6 +53567,7 @@ input AcquiringIntegrationUpdateInput {
   hostUrl: String
   supportedBillingIntegrationsGroup: String
   minimumPaymentAmount: String
+  maximumPaymentAmount: String
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   contextDefaultStatus: AcquiringIntegrationContextDefaultStatusType
   vatPercentOptions: String
@@ -53569,6 +53596,7 @@ input AcquiringIntegrationCreateInput {
   hostUrl: String
   supportedBillingIntegrationsGroup: String
   minimumPaymentAmount: String
+  maximumPaymentAmount: String
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   contextDefaultStatus: AcquiringIntegrationContextDefaultStatusType
   vatPercentOptions: String
