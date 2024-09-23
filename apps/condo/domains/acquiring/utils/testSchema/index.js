@@ -28,7 +28,6 @@ const { AcquiringIntegration: AcquiringIntegrationGQL } = require('@condo/domain
 const { AcquiringIntegrationAccessRight: AcquiringIntegrationAccessRightGQL } = require('@condo/domains/acquiring/gql')
 const { AcquiringIntegrationContext: AcquiringIntegrationContextGQL } = require('@condo/domains/acquiring/gql')
 const { MultiPayment: MultiPaymentGQL } = require('@condo/domains/acquiring/gql')
-const { MultiPaymentPublic: MultiPaymentPublicGQL } = require('@condo/domains/acquiring/gql')
 const { Payment: PaymentGQL } = require('@condo/domains/acquiring/gql')
 
 const dayjs = require('dayjs')
@@ -62,7 +61,6 @@ const AcquiringIntegration = generateGQLTestUtils(AcquiringIntegrationGQL)
 const AcquiringIntegrationAccessRight = generateGQLTestUtils(AcquiringIntegrationAccessRightGQL)
 const AcquiringIntegrationContext = generateGQLTestUtils(AcquiringIntegrationContextGQL)
 const MultiPayment = generateGQLTestUtils(MultiPaymentGQL)
-const MultiPaymentPublic = generateGQLTestUtils(MultiPaymentPublicGQL)
 const Payment = generateGQLTestUtils(PaymentGQL)
 const PaymentsFilterTemplate = generateGQLTestUtils(PaymentsFilterTemplateGQL)
 const RecurrentPaymentContext = generateGQLTestUtils(RecurrentPaymentContextGQL)
@@ -781,7 +779,6 @@ module.exports = {
     AcquiringIntegrationAccessRight, createTestAcquiringIntegrationAccessRight, updateTestAcquiringIntegrationAccessRight,
     AcquiringIntegrationContext, createTestAcquiringIntegrationContext, updateTestAcquiringIntegrationContext,
     MultiPayment, createTestMultiPayment, updateTestMultiPayment, addAcquiringIntegrationAndContext,
-    MultiPaymentPublic,
     makeAcquiringContext,
     makeAcquiringContextAndIntegrationAccount,
     makeAcquiringContextAndIntegrationManager,

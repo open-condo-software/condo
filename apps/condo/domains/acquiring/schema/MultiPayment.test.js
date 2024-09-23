@@ -54,7 +54,6 @@ const {
 const {
     Payment,
     MultiPayment,
-    MultiPaymentPublic,
     createTestMultiPayment,
     updateTestMultiPayment,
     createTestAcquiringIntegration,
@@ -71,6 +70,7 @@ const {
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
 const { createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
+const { MultiPaymentResident } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('MultiPayment', () => {
@@ -897,7 +897,7 @@ describe('MultiPayment', () => {
         test('mobile resident can see his public data in his own MultiPayments', async () => {
             const { admin, payments, acquiringIntegration, client } = await makePayerAndPayments()
             const [createdMultiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
-            let multiPayments = await MultiPaymentPublic.getAll(client, {})
+            let multiPayments = await MultiPaymentResident.getAll(client, {})
             expect(multiPayments).toBeDefined()
             expect(multiPayments).toHaveLength(1)
             const retrievedMultiPayment = multiPayments[0]

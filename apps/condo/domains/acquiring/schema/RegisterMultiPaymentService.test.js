@@ -46,7 +46,7 @@ const {
     updateTestAcquiringIntegration, updateTestPayment, updateTestMultiPayment,
     getRandomHiddenCard,
     MultiPayment,
-    Payment, MultiPaymentPublic,
+    Payment,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const {
     createTestBillingCategory,
@@ -95,6 +95,7 @@ const {
     createTestResident,
     createTestServiceConsumer,
     registerResidentInvoiceByTestClient,
+    MultiPaymentResident,
 } = require('@condo/domains/resident/utils/testSchema')
 const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const {
@@ -1755,7 +1756,7 @@ describe('RegisterMultiPaymentService', () => {
                 getCardTokensUrl: `${dummyAcquiringIntegration.hostUrl}/api/clients/${residentClient.user.id}/card-tokens`,
             })
 
-            const multiPaymentFromResident = await MultiPaymentPublic.getAll(residentClient, { id: result.multiPaymentId })
+            const multiPaymentFromResident = await MultiPaymentResident.getAll(residentClient, { id: result.multiPaymentId })
             expect(multiPaymentFromResident).toBeDefined()
             expect(multiPaymentFromResident).toEqual([expect.objectContaining({
                 currencyCode: DEFAULT_CURRENCY_CODE,

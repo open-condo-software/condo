@@ -34,9 +34,11 @@ const {
 } = require('@condo/domains/resident/gql')
 const { makeClientWithResidentUser } = require(
     '@condo/domains/user/utils/testSchema')
+const { MultiPaymentResident: MultiPaymentResidentGQL } = require("@condo/domains/resident/gql");
 
 const Resident = generateGQLTestUtils(ResidentGQL)
 const ServiceConsumer = generateGQLTestUtils(ServiceConsumerGQL)
+const MultiPaymentResident = generateGQLTestUtils(MultiPaymentResidentGQL)
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -278,5 +280,6 @@ module.exports = {
     registerResidentInvoiceByTestClient,
     findOrganizationsForAddressByTestClient,
     suggestServiceProviderByTestClient,
+    MultiPaymentResident,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

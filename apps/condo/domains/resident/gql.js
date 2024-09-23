@@ -8,6 +8,7 @@ const { gql } = require('graphql-tag')
 
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
+const { MULTI_PAYMENT_FIELDS } = require('@condo/domains/acquiring/gql')
 const { INVOICE_FIELDS } = require('@condo/domains/marketplace/gql')
 const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
 
@@ -19,6 +20,10 @@ const ORGANIZATION_FEATURES_FIELDS = 'hasBillingData hasMeters'
 const PAYMENT_CATEGORIES_FIELDS = 'id categoryName billingName acquiringName'
 const RESIDENT_FIELDS = `{ user { id name locale } organization { id name tin country } residentOrganization { ${RESIDENT_ORGANIZATION_FIELDS} } property { id createdAt deletedAt address addressKey  } residentProperty { ${RESIDENT_PROPERTY_FIELDS} } address addressKey addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitName unitType ${COMMON_FIELDS} organizationFeatures { ${ORGANIZATION_FEATURES_FIELDS} } paymentCategories { ${PAYMENT_CATEGORIES_FIELDS} } }`
 const Resident = generateGqlQueries('Resident', RESIDENT_FIELDS)
+
+const MULTI_PAYMENT_SENSITIVE_FIELDS = ['meta', 'implicitFee', 'transactionId']
+const MULTI_PAYMENT_RESIDENT_FIELDS = MULTI_PAYMENT_FIELDS.split(' ').filter(field => !MULTI_PAYMENT_SENSITIVE_FIELDS.includes(field)).join(' ')
+const MultiPaymentResident = generateGqlQueries('MultiPayment', `{ ${MULTI_PAYMENT_RESIDENT_FIELDS} }`)
 
 const REGISTER_RESIDENT_MUTATION = gql`
     mutation registerResident ($data: RegisterResidentInput!) {
@@ -94,5 +99,6 @@ module.exports = {
     REGISTER_RESIDENT_INVOICE_MUTATION,
     FIND_ORGANIZATIONS_FOR_ADDRESS_QUERY,
     SUGGEST_SERVICE_PROVIDER_QUERY,
+    MultiPaymentResident,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
