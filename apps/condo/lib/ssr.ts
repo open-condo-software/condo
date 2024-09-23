@@ -1,0 +1,78 @@
+import { getCookie } from 'cookies-next'
+import { createContext, useContext } from 'react'
+
+import { extractApolloState } from '@open-condo/apollo'
+import { extractReqLocale } from '@open-condo/locales/extractReqLocale'
+
+import { messagesImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
+
+import type { NormalizedCacheObject, ApolloClient } from '@apollo/client'
+import type { GetServerSidePropsContext } from 'next'
+
+const COOKIE_STATE_PROP_NAME = '__SSR_COOKIE_EXTRACTOR__'
+
+// NOTE: put here only cookies needed in SRR (hydration)
+const VITAL_COOKIES = ['residentId'] as const
+
+type SSRRequest = GetServerSidePropsContext['req']
+type SSRResponse = GetServerSidePropsContext['res']
+
+type SSRCookiesContextType = Record<typeof VITAL_COOKIES[number], string | null>
+
+
+type SSRResult<PropsType> = {
+    props: PropsType & {
+        [COOKIE_STATE_PROP_NAME]?: SSRCookiesContextType
+    }
+}
+
+const DEFAULT_COOKIES_VALUES: SSRCookiesContextType =
+    Object.assign({}, ...VITAL_COOKIES.map(key => ({ [key]: null })))
+
+export function extractVitalCookies<PropsType> (req: SSRRequest, res: SSRResponse, pageParams: SSRResult<PropsType>): SSRResult<PropsType> {
+
+    // @ts-ignore
+    // console.log('::extractVitalCookies:: >>> ', pageParams.props.__APOLLO_STATE__.invalidation.entitiesById['ROOT_QUERY.allContacts'].storeFieldNames.entries)
+
+    const cookies: SSRCookiesContextType =
+        Object.assign({}, ...VITAL_COOKIES.map(key => ({
+            [key]: getCookie(key, { req, res }) || null,
+        })))
+
+    if (pageParams?.props) {
+        pageParams.props[COOKIE_STATE_PROP_NAME] = cookies
+    }
+
+    return pageParams
+}
+
+export function useVitalCookies<PropsType> (pageProps: SSRResult<PropsType>['props']): SSRCookiesContextType {
+    return pageProps[COOKIE_STATE_PROP_NAME] || DEFAULT_COOKIES_VALUES
+}
+
+// async function extractMessages (req, res, pageParams) {
+//     const locale = extractReqLocale(req) || 'ru'
+//     const messages = await messagesImporter(locale)
+//
+//     if (pageParams?.props) {
+//         pageParams.props.locale = locale
+//         pageParams.props.messages = messages
+//     }
+//
+//     return pageParams
+// }
+
+export function extractSSRState<PropsType> (
+    client: ApolloClient<NormalizedCacheObject>,
+    req: SSRRequest,
+    res: SSRResponse,
+    pageParams: SSRResult<PropsType>
+): SSRResult<PropsType> {
+    return extractVitalCookies(req, res,
+        extractApolloState(client, pageParams)
+    )
+}
+
+export const SSRCookiesContext = createContext<SSRCookiesContextType>(DEFAULT_COOKIES_VALUES)
+
+export const useSSRCookiesContext = (): SSRCookiesContextType => useContext(SSRCookiesContext)

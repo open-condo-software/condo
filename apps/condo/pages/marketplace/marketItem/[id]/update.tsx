@@ -14,6 +14,12 @@ import { MarketItemForm } from '@condo/domains/marketplace/components/MarketItem
 import { MarketItemReadAndManagePermissionRequired } from '@condo/domains/marketplace/components/PageAccess'
 import { MarketItem } from '@condo/domains/marketplace/utils/clientSchema'
 
+import type { GetServerSideProps } from 'next'
+
+import { initializeApollo, prepareSSRContext } from '@/lib/apollo'
+import { prefetchAuth } from '@/lib/auth'
+import { extractSSRState } from '@/lib/ssr'
+
 
 const UPDATE_INVOICE_PAGE_GUTTER: [Gutter, Gutter] = [12, 60]
 
@@ -76,3 +82,24 @@ const UpdateInvoicePage = () => {
 UpdateInvoicePage.requiredAccess = MarketItemReadAndManagePermissionRequired
 
 export default UpdateInvoicePage
+
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+    // @ts-ignore In Next 9 the types (only!) do not match the expected types
+    const { headers } = prepareSSRContext(req, res)
+    const client = initializeApollo({ headers })
+
+    const user = await prefetchAuth(client)
+
+    if (!user) {
+        return {
+            unstable_redirect: {
+                destination: '/auth/signin',
+                permanent: false,
+            },
+        }
+    }
+
+    return extractSSRState(client, req, res, {
+        props: {},
+    })
+}

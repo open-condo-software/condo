@@ -3,6 +3,16 @@
 
 import * as Types from '@/schema'
 
+export type GetAllContactsQueryVariables = Types.Exact<{
+    where?: Types.InputMaybe<Types.ContactWhereInput>
+    first?: Types.InputMaybe<Types.Scalars['Int']['input']>
+    skip?: Types.InputMaybe<Types.Scalars['Int']['input']>
+    sortBy?: Types.InputMaybe<Array<Types.SortContactsBy> | Types.SortContactsBy>
+}>
+
+
+export type GetAllContactsQuery = { __typename?: 'Query', objs?: Array<{ __typename?: 'Contact', name?: string | null, phone?: string | null, unitName?: string | null, unitType?: Types.ContactUnitTypeType | null, email?: string | null, quota?: string | null, isVerified?: boolean | null, id: string, deletedAt?: string | null, createdAt?: string | null, updatedAt?: string | null, organization?: { __typename?: 'Organization', id: string, name?: string | null } | null, property?: { __typename?: 'Property', id: string, address?: string | null } | null, role?: { __typename?: 'ContactRole', id: string, name?: string | null } | null, createdBy?: { __typename?: 'User', id: string, name?: string | null } | null, updatedBy?: { __typename?: 'User', id: string, name?: string | null } | null } | null> | null, meta?: { __typename?: '_QueryMeta', count?: number | null } | null }
+
 export type AuthenticatedUserQueryVariables = Types.Exact<{ [key: string]: never }>
 
 

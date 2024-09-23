@@ -47,6 +47,12 @@ import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibi
 import { useClientCardTicketTableColumns } from '@condo/domains/ticket/hooks/useClientCardTicketTableColumns'
 import { CallRecordFragment, Ticket } from '@condo/domains/ticket/utils/clientSchema'
 
+import type { GetServerSideProps } from 'next'
+
+import { initializeApollo, prepareSSRContext } from '@/lib/apollo'
+import { prefetchAuth } from '@/lib/auth'
+import { extractSSRState } from '@/lib/ssr'
+
 
 //#region Constants, types and styles
 const ADDRESS_STREET_ONE_ROW_HEIGHT = 25
@@ -64,15 +70,15 @@ const HINTS_COL_PROPS: ColProps = { span: 24 }
 
 interface IClientContactProps {
     phone: string
-    lastTicket: TicketType,
+    lastTicket: TicketType
     contact?: ContactType
     showOrganizationMessage?: boolean
 }
 
 type TabDataType = {
-    type: ClientType,
-    property: Property,
-    unitName: string,
+    type: ClientType
+    property: Property
+    unitName: string
     unitType: string
     organization: OrganizationType
 }
@@ -960,3 +966,24 @@ const ClientCardPage = () => {
 ClientCardPage.requiredAccess = TicketReadPermissionRequired
 
 export default ClientCardPage
+
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+    // @ts-ignore In Next 9 the types (only!) do not match the expected types
+    const { headers } = prepareSSRContext(req, res)
+    const client = initializeApollo({ headers })
+
+    const user = await prefetchAuth(client)
+
+    if (!user) {
+        return {
+            unstable_redirect: {
+                destination: '/auth/signin',
+                permanent: false,
+            },
+        }
+    }
+
+    return extractSSRState(client, req, res, {
+        props: {},
+    })
+}

@@ -87,6 +87,12 @@ import { CallRecordFragment, Ticket, TicketFilterTemplate } from '@condo/domains
 import { GET_TICKETS_COUNT_QUERY } from '@condo/domains/ticket/utils/clientSchema/search'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 
+import type { GetServerSideProps } from 'next'
+
+import { initializeApollo, prepareSSRContext } from '@/lib/apollo'
+import { prefetchAuth } from '@/lib/auth'
+import { extractSSRState } from '@/lib/ssr'
+
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -1086,3 +1092,26 @@ const TicketsPage: ITicketIndexPage = () => {
 
 TicketsPage.requiredAccess = TicketReadPermissionRequired
 export default TicketsPage
+
+// export const getServerSideProps: GetServerSideProps = async ({ req, res, ...otherr }) => {
+//     // @ts-ignore In Next 9 the types (only!) do not match the expected types
+//     const { headers } = prepareSSRContext(req, res)
+//     const client = initializeApollo({ headers })
+//
+//     console.log(':::getServerSideProps:Ticket::: >>>', otherr)
+//
+//     const user = await prefetchAuth(client)
+//
+//     if (!user) {
+//         return {
+//             unstable_redirect: {
+//                 destination: '/auth/signin',
+//                 permanent: false,
+//             },
+//         }
+//     }
+//
+//     return extractSSRState(client, req, res, {
+//         props: {},
+//     })
+// }

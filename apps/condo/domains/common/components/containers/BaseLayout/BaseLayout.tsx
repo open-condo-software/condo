@@ -42,7 +42,7 @@ const BaseLayout: React.FC<IBaseLayoutProps> = (props) => {
         className,
         menuData,
         headerAction,
-        onLogoClick = () => Router.push('/'),
+        onLogoClick = () => Router.push('/apollo'),
         TopMenuItems,
     } = props
 
