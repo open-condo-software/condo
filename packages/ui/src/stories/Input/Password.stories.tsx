@@ -1,17 +1,16 @@
-import { StoryFn, Meta } from '@storybook/react'
-import React from 'react'
-
 import { Input } from '@open-condo/ui/src'
+
+import type { Meta, StoryObj } from '@storybook/react'
+
+const Component = Input.Password
 
 export default {
     title: 'Components/Input',
-    component: Input.Password,
+    component: Component,
     args: {
         placeholder: 'Placeholder',
         disabled: false,
     },
-} as Meta<typeof Input.Password>
+} as Meta<typeof Component>
 
-const Template: StoryFn<typeof Input.Password> = (props) => <Input.Password {...props}/>
-
-export const Password = Template.bind({})
+export const Password: StoryObj<typeof Component> = {}

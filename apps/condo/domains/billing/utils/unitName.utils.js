@@ -9,10 +9,18 @@ const EMOJI_REGEXP = /[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{1F680}-\u{1F6C5}
 const DELIMITER_IN_RESULT = '-'
 
 const UNIT_NAME_NORMALIZATION_STEPS = [
+    convertToString,
     addSpaceBetweenWordsAndNumbers,
     replaceUnwantedSymbolsWithDelimiter,
     joinToOneLowercaseWordWithDelimiter,
 ]
+
+function convertToString (input) {
+    if (!input) {
+        return ''
+    }
+    return input.toString()
+}
 
 function addSpaceBetweenWordsAndNumbers (str) {
     return str.replace(NUMBER_REGEXP, ' $1 ')

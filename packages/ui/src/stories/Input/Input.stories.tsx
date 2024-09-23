@@ -1,7 +1,6 @@
-import { StoryFn, Meta } from '@storybook/react'
-import React from 'react'
-
 import { Input as Component } from '@open-condo/ui/src'
+
+import type { Meta, StoryObj } from '@storybook/react'
 
 export default {
     title: 'Components/Input',
@@ -15,6 +14,4 @@ export default {
     },
 } as Meta<typeof Component>
 
-const Template: StoryFn<typeof Component> = (props) => <Component {...props}/>
-
-export const Input = Template.bind({})
+export const Input: StoryObj<typeof Component> = {}

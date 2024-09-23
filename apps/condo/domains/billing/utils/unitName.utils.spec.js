@@ -123,4 +123,18 @@ describe('normalizeUnitName', () => {
         }
     })
 
+    describe('invalid input params', () => {
+        const cases = [
+            ['', ''],
+            [null, ''],
+            [undefined, ''],
+            [34, '34'],
+            [{ someObj: true }, 'object-object'],
+        ]
+        test.each(cases)('Should convert "%s" to %s',
+            (invalidInput, expectedOutput) => {
+                expect(normalizeUnitName(invalidInput)).toEqual(expectedOutput)
+            })
+    })
+
 })

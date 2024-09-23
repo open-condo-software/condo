@@ -1,10 +1,10 @@
-import { StoryFn, Meta } from '@storybook/react'
 import React from 'react'
 
 import type { IconProps } from '@open-condo/icons'
 import * as AllIcons from '@open-condo/icons'
-import { Space } from '@open-condo/ui/src'
-import { Typography } from '@open-condo/ui/src'
+import { Space, Typography } from '@open-condo/ui/src'
+
+import type { Meta, StoryObj } from '@storybook/react'
 
 type IconBlockProps = {
     name: string
@@ -18,7 +18,7 @@ const IconBlock: React.FC<IconBlockProps> = ({ name, icon, iconProps }) => {
     return (
         <Space direction='vertical' size={8} align='center' width={120}>
             <div style={{ fontSize: 32 }}>
-                <Icon {...iconProps}/>
+                <Icon {...iconProps} />
             </div>
             <Typography.Text type='secondary' size='small'>
                 {name}
@@ -31,7 +31,7 @@ const IconsStory: React.FC<IconProps> = (props) => {
     return (
         <Space direction='horizontal' wrap size={[20, 40]}>
             {Object.entries(AllIcons).map(([key, value]) => (
-                <IconBlock key={key} name={key} icon={value} iconProps={props}/>
+                <IconBlock key={key} name={key} icon={value} iconProps={props} />
             ))}
         </Space>
     )
@@ -53,5 +53,4 @@ export default {
     },
 } as Meta<typeof IconsStory>
 
-const Template: StoryFn<typeof IconsStory> = (args) => <IconsStory {...args}/>
-export const Icons = Template.bind({})
+export const Icons: StoryObj<typeof IconsStory> = {}

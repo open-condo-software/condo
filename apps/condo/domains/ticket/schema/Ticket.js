@@ -974,21 +974,25 @@ const Ticket = new GQLListSchema('Ticket', {
     },
     kmigratorOptions: {
         indexes: [
+            // NOTE: popular filter on /ticket page
             {
                 type: 'BTreeIndex',
                 fields: ['unitName'],
                 name: 'ticket_unitName',
             },
+            // NOTE: used on /ticket page for "Own Tickets" fitler
             {
                 type: 'BTreeIndex',
-                fields: ['assignee', 'executor', 'organization'],
-                name: 'ticket_assignee_exec_org',
+                fields: ['organization', 'assignee', 'executor', 'deletedAt'],
+                name: 'ticket_org_assign_exec_deletedAt',
             },
+            // NOTE: popular filter on /ticket page
             {
                 type: 'BTreeIndex',
                 fields: ['organization', 'status'],
                 name: 'ticket_organization_status',
             },
+            // NOTE: default CRM sorting on /ticket page 
             {
                 type: 'BTreeIndex',
                 fields: ['order', '-createdAt'],

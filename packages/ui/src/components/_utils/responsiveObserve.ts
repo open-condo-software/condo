@@ -40,7 +40,7 @@ const responsiveObserve = {
         [prop: string]: {
             mql: MediaQueryList
             listener: MediaQueryListListener
-        };
+        }
     },
     dispatch (pointMap: ScreenMap): boolean {
         screens = pointMap

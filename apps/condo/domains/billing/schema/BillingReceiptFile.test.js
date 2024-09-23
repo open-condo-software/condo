@@ -5,9 +5,7 @@
 const path = require('path')
 
 const { makeClient, UUID_RE, DATETIME_RE, expectValuesOfCommonFields,
-    expectToThrowValidationFailureError,
-} = require('@open-condo/keystone/test.utils')
-const {
+    expectToThrowValidationFailureError, catchErrorFrom, expectToThrowGQLError,
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
@@ -370,9 +368,16 @@ describe('BillingReceiptFile', () => {
             expect(file.sender).toEqual(attrs.sender)
         })
         test('Cannot create file with incorrect receipt context', async () => {
-            await expectToThrowValidationFailureError(async () => {
-                await createTestBillingReceiptFile(admin, receiptByAdmin, anotherContext)
-            }, 'Context is not equal to receipt.context')
+            await expectToThrowGQLError(
+                async () => await createTestBillingReceiptFile(admin, receiptByAdmin, anotherContext),
+                {
+                    mutation: 'createBillingReceiptFile',
+                    code: 'BAD_USER_INPUT',
+                    type: 'CONTEXT_IS_NOT_EQUAL',
+                    message: 'Context is not equal to receipt.context',
+                },
+                'obj',
+            )
         })
     })
 

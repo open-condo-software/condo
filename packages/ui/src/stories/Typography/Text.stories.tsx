@@ -1,4 +1,3 @@
-import { StoryFn, Meta } from '@storybook/react'
 import { styled } from '@storybook/theming'
 import get from 'lodash/get'
 import React from 'react'
@@ -6,6 +5,8 @@ import React from 'react'
 import { Typography, Space } from '@open-condo/ui/src'
 import type { TypographyTextProps } from '@open-condo/ui/src'
 import { colors } from '@open-condo/ui/src/colors'
+
+import type { StoryFn, Meta, StoryObj } from '@storybook/react'
 
 const getArticle = (str?: string) => {
     if (!str) return 'a'
@@ -45,13 +46,11 @@ export default {
     argTypes: {
         children: { type: 'string' },
         size: {
-            defaultValue: 'undefined',
             options: [undefined, 'large', 'medium', 'small'],
             mapping: ['undefined', 'large', 'medium', 'small'],
             control: 'select',
         },
         direction: {
-            defaultValue: 'undefined',
             options: [undefined, 'ltr', 'rtl'],
             mapping: ['undefined', 'ltr', 'rtl'],
             control: 'select',
@@ -60,7 +59,6 @@ export default {
 } as Meta<typeof Typography.Text>
 
 const Template: StoryFn<typeof Typography.Text> = (args) => {
-
     return (
         <Space direction='vertical' size={20}>
             {AVAILABLE_TYPES.map(type => {
@@ -73,7 +71,7 @@ const Template: StoryFn<typeof Typography.Text> = (args) => {
                 if (type === 'inverted') {
                     return (
                         <InvertedBackground>
-                            <Typography.Text {...props}/>
+                            <Typography.Text {...props} />
                         </InvertedBackground>
                     )
                 }
@@ -97,4 +95,6 @@ const Template: StoryFn<typeof Typography.Text> = (args) => {
     )
 }
 
-export const Text = Template.bind({})
+export const Text: StoryObj<typeof Typography.Paragraph> = {
+    render: Template,
+}

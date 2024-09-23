@@ -23,7 +23,7 @@ const { buildUploadInputFrom } = require('@condo/domains/common/utils/serverSche
 const { queryFindResidentsByOrganizationAndScopes } = require('@condo/domains/news/utils/accessSchema')
 const { NewsItemRecipientsExportTask } = require('@condo/domains/news/utils/serverSchema')
 const { getUnitsFromProperty } = require('@condo/domains/news/utils/serverSchema/recipientsCounterUtils')
-const { Property } = require('@condo/domains/property/utils/serverSchema')
+const { PropertyIdAndAddressAndMapOnly } = require('@condo/domains/property/utils/serverSchema')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 
 const logger = getLogger('exportNewsItemRecipients')
@@ -125,7 +125,7 @@ async function exportRecipients (taskId) {
         if (isAllOrganization) {
             await loadListByChunks({
                 context,
-                list: Property,
+                list: PropertyIdAndAddressAndMapOnly,
                 chunkSize: 50,
                 where: {
                     organization: {
@@ -158,7 +158,7 @@ async function exportRecipients (taskId) {
             const propertiesIds = new Set()
             for (let newsItemScope of compactedNewsItemScopes) {
                 if (get(newsItemScope, 'property.id')) {
-                    const property = await Property.getOne(context, {
+                    const property = await PropertyIdAndAddressAndMapOnly.getOne(context, {
                         id: newsItemScope.property.id,
                         deletedAt: null,
                     })
