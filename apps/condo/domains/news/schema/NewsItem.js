@@ -241,7 +241,7 @@ const NewsItem = new GQLListSchema('NewsItem', {
             return resolvedData
         },
         validateInput: async (args) => {
-            const { resolvedData, existingItem, context, operation } = args
+            const { resolvedData, originalInput, existingItem, context, operation } = args
             const resultItemData = { ...existingItem, ...resolvedData }
 
             const sendAt = get(resolvedData, 'sendAt')
@@ -261,8 +261,12 @@ const NewsItem = new GQLListSchema('NewsItem', {
 
             if (operation === 'update') {
                 // You can update only validBefore field if news item was already sent
-                if (sentAt && (Object.keys(resolvedData) > 1 || isEmpty(get(resolvedData, 'validBefore') ))) {
-                    throw new GQLError(ERRORS.EDIT_DENIED_ALREADY_SENT, context)
+                const updatedFields = Object.keys(originalInput).filter(fieldName => !['dv', 'sender'].includes(fieldName))
+
+                if (sentAt) {
+                    if (updatedFields.length !== 1 || updatedFields[0] !== 'validBefore' || isEmpty(get(resolvedData, 'validBefore'))) {
+                        throw new GQLError(ERRORS.EDIT_DENIED_ALREADY_SENT, context)
+                    }
                 }
 
                 if (isPublished) {

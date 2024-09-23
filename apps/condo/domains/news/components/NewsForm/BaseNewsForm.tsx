@@ -20,7 +20,7 @@ import styled from '@emotion/styled'
 import { Col, Form, FormInstance, notification, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { ArgsProps } from 'antd/lib/notification'
-import dayjs from 'dayjs'
+import dayjs, { Dayjs } from 'dayjs'
 import chunk from 'lodash/chunk'
 import difference from 'lodash/difference'
 import flattenDeep from 'lodash/flattenDeep'
@@ -92,12 +92,12 @@ type NewsItemSharingClientUtilsType = IGenerateHooksResult<INewsItemSharing, INe
 type NewsFormStepType = 'selectApps' | 'condoApp' | 'sharingApp' | 'review'
 
 type StepData = {
-    type: NewsFormStepType,
-    title: string,
+    type: NewsFormStepType
+    title: string
 
     sharingAppData?: {
-        id: string,
-        app: IB2BApp,
+        id: string
+        app: IB2BApp
         ctx: IB2BAppContext
         newsSharingConfig: IB2BAppNewsSharingConfig
     }
@@ -112,29 +112,29 @@ export type BaseNewsFormProps = {
     newsItemSharingAction: (values: INewsItemSharingCreateInput | INewsItemSharingUpdateInput) => ReturnType<ReturnType<NewsItemSharingClientUtilsType['useCreate']>>
     initialValues?: Partial<INewsItem>
     & Partial<{
-        newsItemScopes: INewsItemScope[],
-        hasAllProperties: boolean,
-        sendPeriod: SendPeriodType,
-        properties?: IProperty[],
-    }>,
+        newsItemScopes: INewsItemScope[]
+        hasAllProperties: boolean
+        sendPeriod: SendPeriodType
+        properties?: IProperty[]
+    }>
     templates: { [key: string]: { title: string, body: string, type: string | null, id?: string, label?: string, category?: string } }
-    afterAction?: () => void,
-    newsItem?: INewsItem,
-    OnCompletedMsg: (INewsItem) => ArgsProps | null,
-    allNews: INewsItem[],
-    actionName: ActionNameProps,
-    totalProperties: number,
-    autoFocusBody?: boolean,
-    sharingAppContexts: IB2BAppContext[],
+    afterAction?: () => void
+    newsItem?: INewsItem
+    OnCompletedMsg: (INewsItem) => ArgsProps | null
+    allNews: INewsItem[]
+    actionName: ActionNameProps
+    totalProperties: number
+    autoFocusBody?: boolean
+    sharingAppContexts: IB2BAppContext[]
     createNewsItemSharingAction?: (values: INewsItemSharingCreateInput) => ReturnType<ReturnType<NewsItemSharingClientUtilsType['useCreate']>>
 }
 
 type CondoFormValues = {
-    title: string,
-    body: string,
+    title: string
+    body: string
     properties: any
     property: any
-    hasAllProperties: boolean,
+    hasAllProperties: boolean
     unitNames: Array<string>
     sectionIds: Array<string>
 }
@@ -167,6 +167,7 @@ const EXTRA_SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 10]
 const BIG_HORIZONTAL_GUTTER: [Gutter, Gutter] = [50, 0]
 const ALL_SQUARE_BRACKETS_OCCURRENCES_REGEX = /\[[^\]]*?\]/g
 const ADDITIONAL_DISABLED_MINUTES_COUNT = 5
+const DATE_FORMAT = 'DD MMMM YYYY HH:mm'
 
 const DOMA_APP_ICON_URL = '/homeWithSun.svg'
 const SHARING_APP_FALLBACK_ICON = '/news/sharingAppIconPlaceholder.svg'
@@ -493,6 +494,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
 
     const [selectedType, setSelectedType] = useState<string>(get(initialValues, 'type', NEWS_TYPE_COMMON))
     const [selectedValidBeforeText, setSelectedValidBeforeText] = useState<string>(initialValidBefore)
+    const [selectedValidBefore, setSelectedValidBefore] = useState<Dayjs>(dayjs(initialValidBefore, DATE_FORMAT))
 
     const [selectedTitle, setSelectedTitle] = useState<string>(get(initialValues, 'title', ''))
     const [selectedBody, setSelectedBody] = useState<string>(get(initialValues, 'body', ''))
@@ -503,8 +505,6 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const [isAllPropertiesChecked, setIsAllPropertiesChecked] = useState(initialHasAllProperties)
     const [selectedSectionKeys, setSelectedSectionKeys] = useState(initialSectionIds)
     const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false)
-
-
 
     // Select apps form values
     const [selectAppsFormValues, setSelectAppsFormValues] = useState<SelectAppsFormValues | null>(null)
@@ -543,10 +543,6 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     }, [handleSetSendDate])
 
     const handleTypeChange = useCallback((form) => (e) => {
-        if (e.target.value === NEWS_TYPE_COMMON) {
-            setIsValidBeforeAfterSendAt(true)
-            form.setFieldValue('validBefore', null)
-        }
         setSelectedType(e.target.value)
     }, [])
 
@@ -562,6 +558,9 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         const handleChangeDateEvent = handleChangeDate(form, fieldName, setIsValidBeforeAfterSendAt)
         handleChangeDateEvent(value, dateString)
 
+        console.log('Handle valid before change', dateString, value)
+
+        setSelectedValidBefore(value)
         setSelectedValidBeforeText(dateString)
     }, [])
 
@@ -1218,33 +1217,35 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                 </RadioGroup>
                                                             </Form.Item>
                                                         </Col>
-                                                        {selectedType === NEWS_TYPE_EMERGENCY && (
-                                                            <Col span={isMediumWindow ? 24 : 12}>
-                                                                <Form.Item
-                                                                    label={(
-                                                                        <LabelWithInfo
-                                                                            title={ValidBeforeTitle}
-                                                                            message={ValidBeforeLabel} />
-                                                                    )}
-                                                                    labelCol={FORM_FILED_COL_PROPS}
-                                                                    name='validBefore'
-                                                                    required={selectedType === NEWS_TYPE_EMERGENCY}
-                                                                    rules={selectedType === NEWS_TYPE_EMERGENCY ? [finishWorkRule, commonRule, dateRule] : [finishWorkRule, dateRule]}
-                                                                    validateFirst={true}
-                                                                >
-                                                                    <DatePicker
-                                                                        style={FULL_WIDTH_STYLE}
-                                                                        format='DD MMMM YYYY HH:mm'
-                                                                        showTime={SHOW_TIME_CONFIG}
-                                                                        minuteStep={15}
-                                                                        onChange={handleValidBeforeChange(form, 'validBefore')}
-                                                                        placeholder={SelectPlaceholder}
-                                                                        disabledDate={isDateDisabled}
-                                                                        disabledTime={isTimeDisabled}
-                                                                        showNow={false} />
-                                                                </Form.Item>
-                                                            </Col>
-                                                        )}
+                                                        <Col span={isMediumWindow ? 24 : 12}>
+                                                            <Form.Item
+                                                                label={(
+                                                                    <LabelWithInfo
+                                                                        title={ValidBeforeTitle}
+                                                                        message={ValidBeforeLabel}
+                                                                    />
+                                                                )}
+                                                                labelCol={FORM_FILED_COL_PROPS}
+                                                                name='validBefore'
+                                                                required={selectedType === NEWS_TYPE_EMERGENCY}
+                                                                rules={selectedType === NEWS_TYPE_EMERGENCY ? [finishWorkRule, commonRule, dateRule] : [finishWorkRule, dateRule]}
+                                                                validateFirst={true}
+                                                            >
+                                                                <DatePicker
+                                                                    value={selectedValidBefore}
+                                                                    style={FULL_WIDTH_STYLE}
+                                                                    format={DATE_FORMAT}
+                                                                    showTime={SHOW_TIME_CONFIG}
+                                                                    minuteStep={15}
+                                                                    onChange={handleValidBeforeChange(form, 'validBefore')}
+                                                                    placeholder={SelectPlaceholder}
+                                                                    disabledDate={isDateDisabled}
+                                                                    disabledTime={isTimeDisabled}
+                                                                    showNow={false}
+                                                                    allowClear={true}
+                                                                />
+                                                            </Form.Item>
+                                                        </Col>
                                                     </Row>
                                                 </Col>
                                             </Row>
@@ -1546,7 +1547,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                     >
                                                                         <DatePicker
                                                                             style={FULL_WIDTH_STYLE}
-                                                                            format='DD MMMM YYYY HH:mm'
+                                                                            format={DATE_FORMAT}
                                                                             showTime={SHOW_TIME_CONFIG}
                                                                             minuteStep={15}
                                                                             onChange={handleSendAtChange(form, 'sendAt')}
