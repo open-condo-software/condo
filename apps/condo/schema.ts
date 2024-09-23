@@ -74990,6 +74990,7 @@ export type ResidentBillingReceiptOutput = {
   category: BillingCategory;
   isPayable: Scalars['Boolean'];
   file?: Maybe<ResidentBillingReceiptFile>;
+  updatedAt?: Maybe<Scalars['String']>;
 };
 
 export type ResidentBillingReceiptWhereInput = {

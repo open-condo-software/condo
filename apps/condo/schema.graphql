@@ -77198,6 +77198,7 @@ type ResidentBillingReceiptOutput {
   category: BillingCategory!
   isPayable: Boolean!
   file: ResidentBillingReceiptFile
+  updatedAt: String
 }
 
 input RegisterBillingReceiptAddressMetaInput {
