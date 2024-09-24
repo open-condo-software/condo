@@ -115,9 +115,6 @@ class RedStoreAdapter {
 
         const [notifications, pushContext] = RedStoreAdapter.prepareBatchData(notification, data, tokens, pushTypes, appIds, isVoIP)
         let result
-        console.log('insideRedStoreAdapter', 'logNotifications', notifications)
-
-        console.log('insideRedStoreAdapter', 'EmptyNotifications', !isNull(this._config) && !isEmpty(notifications))
 
         if (!isNull(this._config) && !isEmpty(notifications)) {
             const notificationsByAppId = {}
@@ -132,7 +129,6 @@ class RedStoreAdapter {
                     logger.error({ msg: 'Unknown appId. Config was not found', appId })
                     continue
                 }
-                console.log('insideRedStoreAdapter', 'notificationsBatchForApp', appId, notificationsBatchForApp)
 
                 const app = new RedStoreNotificationSender(configForApp)
                 try {
