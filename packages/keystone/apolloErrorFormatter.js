@@ -20,6 +20,35 @@
      - AuthenticationError -- failed to authenticate (401)
      - ForbiddenError -- unauthorized to access (403)
 
+    `formatError` call cases:
+      1) inside logging plugin to log errors
+      2) inside apollo-server before { errors } rendering!
+
+    To understand where the `formatError` function called by ApolloServer look at this trace (1):
+
+          at ../../node_modules/apollo-server-core/node_modules/apollo-server-errors/src/index.ts:287:28
+              at Array.map (<anonymous>)
+          at Object.formatApolloErrors (../../node_modules/apollo-server-core/node_modules/apollo-server-errors/src/index.ts:285:25)
+          at formatErrors (../../node_modules/apollo-server-core/src/requestPipeline.ts:665:12)
+          at Object.<anonymous> (../../node_modules/apollo-server-core/src/requestPipeline.ts:482:34)
+          at fulfilled (../../node_modules/apollo-server-core/dist/requestPipeline.js:5:58)
+
+     To understand where the `formatError` is also called (2):
+
+          at Object.safeFormatError [as didEncounterErrors] (../../packages/keystone/logging/GraphQLLoggerApp.js:94:70)
+          at ../../node_modules/apollo-server-core/src/utils/dispatcher.ts:20:23
+              at Array.map (<anonymous>)
+          at Dispatcher.callTargets (../../node_modules/apollo-server-core/src/utils/dispatcher.ts:17:20)
+          at Dispatcher.<anonymous> (../../node_modules/apollo-server-core/src/utils/dispatcher.ts:30:12)
+          at ../../node_modules/apollo-server-core/dist/utils/dispatcher.js:8:71
+          at Object.<anonymous>.__awaiter (../../node_modules/apollo-server-core/dist/utils/dispatcher.js:4:12)
+          at Dispatcher.invokeHookAsync (../../node_modules/apollo-server-core/dist/utils/dispatcher.js:26:16)
+          at ../../node_modules/apollo-server-core/src/requestPipeline.ts:631:29
+          at ../../node_modules/apollo-server-core/dist/requestPipeline.js:8:71
+          at Object.<anonymous>.__awaiter (../../node_modules/apollo-server-core/dist/requestPipeline.js:4:12)
+          at didEncounterErrors (../../node_modules/apollo-server-core/dist/requestPipeline.js:286:20)
+          at Object.<anonymous> (../../node_modules/apollo-server-core/src/requestPipeline.ts:477:17)
+          at fulfilled (../../node_modules/apollo-server-core/dist/requestPipeline.js:5:58)
  */
 
 const util = require('util')
@@ -136,46 +165,7 @@ function _updateExtensionsForKnownErrorCases (extensions, originalError) {
     }
 }
 
-/**
- * Use it if you need to safely prepare error for logging or ApolloServer result.
- * Call Cases:
- *   1) inside logging plugin to log errors
- *   2) inside apollo-server before { errors } rendering!
- * Format cases:
- *   1)
- *
- * To understand where this function called by ApolloServer look at this trace:
- *
- *       at ../../node_modules/apollo-server-core/node_modules/apollo-server-errors/src/index.ts:287:28
- *           at Array.map (<anonymous>)
- *       at Object.formatApolloErrors (../../node_modules/apollo-server-core/node_modules/apollo-server-errors/src/index.ts:285:25)
- *       at formatErrors (../../node_modules/apollo-server-core/src/requestPipeline.ts:665:12)
- *       at Object.<anonymous> (../../node_modules/apollo-server-core/src/requestPipeline.ts:482:34)
- *       at fulfilled (../../node_modules/apollo-server-core/dist/requestPipeline.js:5:58)
- *
- *  To understand where it also called:
- *
- *       at Object.safeFormatError [as didEncounterErrors] (../../packages/keystone/logging/GraphQLLoggerApp.js:94:70)
- *       at ../../node_modules/apollo-server-core/src/utils/dispatcher.ts:20:23
- *           at Array.map (<anonymous>)
- *       at Dispatcher.callTargets (../../node_modules/apollo-server-core/src/utils/dispatcher.ts:17:20)
- *       at Dispatcher.<anonymous> (../../node_modules/apollo-server-core/src/utils/dispatcher.ts:30:12)
- *       at ../../node_modules/apollo-server-core/dist/utils/dispatcher.js:8:71
- *       at Object.<anonymous>.__awaiter (../../node_modules/apollo-server-core/dist/utils/dispatcher.js:4:12)
- *       at Dispatcher.invokeHookAsync (../../node_modules/apollo-server-core/dist/utils/dispatcher.js:26:16)
- *       at ../../node_modules/apollo-server-core/src/requestPipeline.ts:631:29
- *       at ../../node_modules/apollo-server-core/dist/requestPipeline.js:8:71
- *       at Object.<anonymous>.__awaiter (../../node_modules/apollo-server-core/dist/requestPipeline.js:4:12)
- *       at didEncounterErrors (../../node_modules/apollo-server-core/dist/requestPipeline.js:286:20)
- *       at Object.<anonymous> (../../node_modules/apollo-server-core/src/requestPipeline.ts:477:17)
- *       at fulfilled (../../node_modules/apollo-server-core/dist/requestPipeline.js:5:58)
- *
- * @param {Error} error -- any error
- * @param {Boolean} hideInternals -- do you need to hide some internal error fields
- * @param {Boolean} applyPatches -- do you need to apply a common error message patches
- * @returns {import('graphql').GraphQLFormattedError}
- */
-const safeFormatError = (errorIn, hideInternals = false, applyPatches = true, _isRecursionCall = false) => {
+function _safeFormatErrorRecursion (errorIn, hideInternals = false, applyPatches = true, _isRecursionCall = false) {
     const error = _ensureError(errorIn)
     const errorCName = error?.constructor?.name
     const extensions = {}
@@ -273,13 +263,13 @@ const safeFormatError = (errorIn, hideInternals = false, applyPatches = true, _i
 
     // nested errors support
     if (!hideInternals && error.errors) {
-        const nestedErrors = toArray(error.errors).map((err) => safeFormatError(err, hideInternals, false, true))
+        const nestedErrors = toArray(error.errors).map((err) => _safeFormatErrorRecursion(err, hideInternals, false, true))
         if (nestedErrors.length) result.errors = nestedErrors
     }
 
     // nested originalError support
     if (!hideInternals && originalError) {
-        result.originalError = safeFormatError(originalError, hideInternals, false, true)
+        result.originalError = _safeFormatErrorRecursion(originalError, hideInternals, false, true)
     }
 
     if (!isEmpty(extensions)) {
@@ -296,11 +286,22 @@ const safeFormatError = (errorIn, hideInternals = false, applyPatches = true, _i
 }
 
 /**
+ * Use it if you need to safely prepare error for logging or ApolloServer result.
+ * @param {Error} error -- any error
+ * @param {Boolean} hideInternals -- do you need to hide some internal error fields
+ * @param {Boolean} applyPatches -- do you need to apply a common error message patches
+ * @returns {import('graphql').GraphQLFormattedError}
+ */
+function safeFormatError (error, hideInternals = false, applyPatches = true) {
+    return _safeFormatErrorRecursion(error, hideInternals, applyPatches)
+}
+
+/**
  * ApolloServer.formatError function
  * @param {import('graphql').GraphQLError} error - any apollo server catched error
  * @returns {import('graphql').GraphQLFormattedError}
  */
-const formatError = error => {
+function formatError (error) {
     return safeFormatError(error, IS_HIDE_INTERNALS, true)
 }
 
@@ -311,7 +312,7 @@ function throwAuthenticationError (context) {
         name: 'AuthenticationError',
         code: GQLErrorCode.UNAUTHENTICATED,
         message: 'No or incorrect authentication credentials',
-    })
+    }, context)
 }
 
 module.exports = {

@@ -118,8 +118,8 @@ const GQLErrorCode = {
 class GQLError extends Error {
     /**
      * @param {GQLError} fields
-     * @param context - Keystone custom resolver context, used to determine request language
-     * @param parentErrors - Array of parent errors or parent error
+     * @param {undefined|Object} context - Keystone custom resolver context, used to determine request language
+     * @param {undefined|Array<Error>?} parentErrors - Array of parent errors or parent error
      * @see https://www.apollographql.com/docs/apollo-server/data/errors/#custom-errors
      */
     constructor (fields, context, parentErrors) {
@@ -141,7 +141,13 @@ class GQLError extends Error {
         // We need a clone to avoid modification of original errors declaration, that will cause
         // second calling of this constructor to work with changed fields
         const extensions = cloneDeep(fields)
-        extensions.message = template(fields.message)(fields.messageInterpolation)
+        try {
+            extensions.message = template(fields.message)(fields.messageInterpolation)
+        } catch (e) {
+            const error = new Error(`GQLError: template rendering error: ${e.message}`)
+            error.fields = fields
+            throw error
+        }
         if (fields.messageForUser) {
             if (!fields.messageForUser.startsWith('api.')) throw new Error('GQLError: wrong `messageForUser` field argument. Should starts with `api.`')
             if (!context) throw new Error('GQLError: no context for messageForUser')
