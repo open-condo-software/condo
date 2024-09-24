@@ -367,8 +367,8 @@ describe('User utils', () => {
         }), {
             'code': 'BAD_USER_INPUT',
             'type': 'WRONG_FORMAT',
-            'correctExample': '{ dv: 1, fingerprint: \'example-fingerprint-alphanumeric-value\'}',
             'message': 'Invalid format of "sender" field value. {details}',
+            'correctExample': '{ "dv": 1, "fingerprint": "uniq-device-or-container-id" }',
             'mutation': 'createUser',
             'messageInterpolation': { 'details': 'fingerprint: [\'Fingerprint is invalid\'], dv: [\'Dv must be equal to 1\']' },
             'variable': ['data', 'sender'],
