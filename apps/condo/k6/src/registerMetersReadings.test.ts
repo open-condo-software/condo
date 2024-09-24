@@ -1,4 +1,9 @@
+import { faker } from '@faker-js/faker/locale/ru'
+import dayjs from 'dayjs'
 import { check } from 'k6'
+
+import { COLD_WATER_METER_RESOURCE_ID } from '@condo/domains/meter/constants/constants'
+import { FLAT_UNIT_TYPE } from '@condo/domains/property/constants/common'
 
 import {
     createOrganization,
@@ -13,11 +18,13 @@ const DURATION = '60s'
 export const options = {
     tags: { testid: 'registerMetersReadings', serverUrl: __ENV.BASE_URL },
     scenarios: {
-        registerBillingReceiptFile: {
+        registerMetersReadings: {
             exec: 'registerMetersReadings',
-            executor: 'constant-vus',
+            executor: 'constant-arrival-rate',
             duration: DURATION,
-            vus: 1,
+            rate: 5,
+            timeUnit: '1s',
+            preAllocatedVUs: 7,
         },
     },
     thresholds: {
@@ -26,6 +33,25 @@ export const options = {
     },
 }
 
+const createTestReadingData = (property, extraAttrs = {}) => ({
+    address: property.address,
+    addressInfo: {
+        unitType: FLAT_UNIT_TYPE,
+        unitName: faker.random.alphaNumeric(4),
+        globalId: faker.datatype.uuid(),
+    },
+    accountNumber: faker.random.alphaNumeric(12),
+    meterNumber: faker.random.numeric(8),
+    meterResource: { id: COLD_WATER_METER_RESOURCE_ID },
+    date: dayjs().toISOString(),
+    value1: faker.random.numeric(3),
+    value2: faker.random.numeric(4),
+    meterMeta: {
+        numberOfTariffs: 2,
+    },
+    ...extraAttrs,
+})
+
 export function setup () {
     const { token } = setupCondoAuth(true)
 
@@ -33,12 +59,20 @@ export function setup () {
     const organizationId = createdOrganization.json('data.obj.id')
 
     getOrganizationEmployeeId({ token, organizationId })
-    const createdProperty = createProperty({ token, organizationId })
+    const createdPropertyResponse = createProperty({ token, organizationId })
+    const property = createdPropertyResponse.json('data.obj')
+
+    const readings = []
+    for (let i = 0; i < 500; i++) {
+        const reading = createTestReadingData(property)
+        readings.push(reading)
+    }
 
     return {
         token,
         organizationId,
-        propertyId: createdProperty.json('data.obj.id'),
+        propertyId: createdPropertyResponse.json('data.obj.id'),
+        readings,
     }
 }
 

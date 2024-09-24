@@ -302,20 +302,12 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
 
                 const resultRows = []
 
-                const startDate = Date.now()
-
-                const findMetersTime = Date.now()
-                const meterNumbers = uniq(
-                    readings.map(reading => reading.meterNumber.trim())
-                )
+                const meterNumbers = uniq(readings.map(reading => reading.meterNumber.trim()))
                 const meters = await find('Meter', {
                     organization,
                     number_in: meterNumbers,
                     deletedAt: null,
                 })
-                // console.log('meters', meters)
-                const endFindMetersTime = Date.now()
-                // console.log('time to find meters', endFindMetersTime - findMetersTime)
 
                 const readingsWithValidDates = readings.filter(reading => isDateValid(reading.date))
                 // Собираем все meterId и даты до цикла
@@ -325,8 +317,8 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                 }))
 
                 const meterReadings = await MeterReading.getAll(context, {
-                    meter: { id_in: meters.map(meter => meter.id) }, // используем все найденные meters
-                    date_in: uniq(meterDatePairs.map(pair => pair.date)), // используем все даты
+                    meter: { id_in: meters.map(meter => meter.id) },
+                    date_in: uniq(meterDatePairs.map(pair => pair.date)),
                 })
                 // Строим объект для быстрого поиска дубликатов по meterId и дате
                 const meterReadingMap = meterReadings.reduce((acc, reading) => {
@@ -336,7 +328,6 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                 }, {})
 
                 for (const reading of readings) {
-                    // console.log('--- ITER ---')
                     const meterNumber = reading.meterNumber.trim()
                     const accountNumber = reading.accountNumber.trim()
                     const unitType = get(reading, ['addressInfo', 'unitType'], get(resolvedAddresses, [reading.address, 'addressResolve', 'unitType'], '')).trim() || null
@@ -414,7 +405,6 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                         continue
                     }
 
-                    const startCreateOrUpdate = Date.now()
                     try {
                         if (foundMeter) {
                             meterId = foundMeter.id
@@ -467,8 +457,6 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                         resultRows.push(e)
                         continue
                     }
-                    const endCreateOrUpdate = Date.now()
-                    // console.log('create or update meter time', endCreateOrUpdate - startCreateOrUpdate)
 
                     try {
                         // Проверяем на дубликат, используя заранее созданную карту meterReadingMap
@@ -476,7 +464,6 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                         const duplicateReading = meterReadingMap[key]
 
                         if (!duplicateReading) {
-                            const createMeterReadingTime = Date.now()
                             const createdMeterReading = await MeterReading.create(context, {
                                 dv,
                                 sender,
@@ -485,8 +472,6 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                                 date: toISO(reading.date),
                                 ...values,
                             })
-                            const createMeterReadingsEndTime = Date.now()
-                            // console.log('create meter readings time', createMeterReadingsEndTime - createMeterReadingTime)
 
                             meterReadingMap[key] = createdMeterReading
                             resultRows.push(meterReadingAsResult(createdMeterReading))
@@ -497,10 +482,6 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                         resultRows.push(e)
                     }
                 }
-
-                const endDate = Date.now()
-
-                console.log('end processing meters', endDate - startDate)
 
                 return resultRows
             },
