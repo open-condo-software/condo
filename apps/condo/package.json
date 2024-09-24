@@ -210,7 +210,7 @@
     "pluralize": "^8.0.0",
     "raw-loader": "^4.0.2",
     "typescript": "^5.5.4",
-    "webpack": "^4.46.0"
+    "webpack": "^4.47.0"
   },
   "peerDependencies": {
     "dd-trace": "^4.46.0"
