@@ -228,9 +228,11 @@ describe('redStore adapter utils', () => {
                 type: 'notification',
             },
             appIds: {
-                [PUSH_FAKE_TOKEN_SUCCESS]: 'condo.app.clients',
+                [PUSH_FAKE_TOKEN_FAIL]: 'condo.app.clients',
+                [PUSH_FAKE_TOKEN_FAIL]: 'condo',
             },
             pushTypes: {
+                [PUSH_FAKE_TOKEN_FAIL]: PUSH_TYPE_DEFAULT,
                 [PUSH_FAKE_TOKEN_SUCCESS]: PUSH_TYPE_DEFAULT,
             },
         }
