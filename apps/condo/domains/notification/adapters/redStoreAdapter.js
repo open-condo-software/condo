@@ -1,18 +1,14 @@
-const { isEmpty, isNull, isNil, get, isObject } = require('lodash')
+const { isEmpty, isNull, get } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { RedStoreNotificationSender } = require('@condo/domains/notification/adapters/redStore/redStoreNotificationSender')
 const {
-    PUSH_FAKE_TOKEN_SUCCESS,
-    PUSH_FAKE_TOKEN_FAIL,
     REDSTORE_CONFIG_ENV,
     PUSH_TYPE_DEFAULT,
-    PUSH_TYPE_SILENT_DATA,
     APPS_WITH_DISABLED_NOTIFICATIONS_ENV,
 } = require('@condo/domains/notification/constants/constants')
-const { getEmptyResult, getFakeSuccessResponse, getFakeErrorResponse } = require('@condo/domains/notification/utils/testSchema/utils')
 
 const REDSTORE_CONFIG = conf[REDSTORE_CONFIG_ENV] ? JSON.parse(conf[REDSTORE_CONFIG_ENV]) : null
 const APPS_WITH_DISABLED_NOTIFICATIONS = conf[APPS_WITH_DISABLED_NOTIFICATIONS_ENV] ? JSON.parse(conf[APPS_WITH_DISABLED_NOTIFICATIONS_ENV]) : []
@@ -21,7 +17,7 @@ const DEFAULT_PUSH_SETTINGS = {}
 const logger = getLogger('redStoreAdapter')
 
 /**
- * Firebase rejects push if any of data fields is not a string, so we should convert all non-string fields to strings
+ * RedStore rejects push if any of data fields is not a string, so we should convert all non-string fields to strings
  * @param data
  */
 function prepareData (data = {}, token) {
@@ -65,7 +61,7 @@ class RedStoreAdapter {
     }
 
     /**
-     * Prepares notification for either/both sending to redStore and/or emulation if FAKE tokens present
+     * Prepares notification for either/both sending to redStore
      * Converts single notification to notifications array (for multiple tokens provided) for batch request
      * @param notificationRaw
      * @param data
@@ -100,10 +96,6 @@ class RedStoreAdapter {
 
     /**
      * Manages to send notification to all available pushTokens of the user.
-     * Also supports PUSH_FAKE_TOKEN_SUCCESS and PUSH_FAKE_TOKEN_FAIL for testing purposes
-     * Would try to send request to redStore only if redStore is initialized and `tokens` array contains real (non-fake) items.
-     * Would succeed if at least one real token succeeds in delivering notification through redStore, or
-     * PUSH_FAKE_TOKEN_SUCCESS provided within tokens
      * @param notification
      * @param tokens
      * @param data
@@ -145,8 +137,8 @@ class RedStoreAdapter {
                         )
                     }
 
-                } catch (error) {
-                    logger.error({ msg: 'sendNotification error', error })
+                } catch (err) {
+                    logger.error({ msg: 'sendNotification error', err })
                 }
             }
         }

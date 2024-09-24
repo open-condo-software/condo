@@ -1,6 +1,5 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
-const isEmpty = require('lodash/isEmpty')
 
 const conf = require('@open-condo/config')
 
