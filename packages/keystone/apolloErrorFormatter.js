@@ -54,7 +54,7 @@
 const util = require('util')
 
 const { printError } = require('graphql')
-const { pick, toArray, toString, get, set, isArray, isEmpty, omitBy, isUndefined } = require('lodash')
+const { pick, toArray, get, set, isArray, isEmpty, omitBy, isUndefined } = require('lodash')
 
 const conf = require('@open-condo/config')
 

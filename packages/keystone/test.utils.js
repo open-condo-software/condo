@@ -474,8 +474,8 @@ const makeLoggedInAdminClient = async () => {
  * Used for async action waiting in tests. Pass in callback and options.
  * Will retry executing callback again and again each $interval ms for $timeout ms.
  * You can also set $delay before trying callback if you sure that async action won't take less.
- * @param callback
- * @param options { timeout: 15000, interval: 150, delay: 0 }
+ * @param {() => Promise<any>} callback
+ * @param {{ timeout:number, interval:number, delay:number }|null} options - default: timeout: 15000, interval: 150, delay: 0
  * @returns {Promise<unknown>}
  */
 async function waitFor (callback, options = null) {
@@ -735,7 +735,7 @@ const expectToThrowInternalError = async (testFunc, message, path = 'obj') => {
  *   console.log(values); // Output: { secondsRemaining: '10' }
  */
 function createRegExByTemplate (template, { eol = true, sol = true } = {}) {
-    let regexString = template.replace(/([.*+?^$()|\]\[\\])/g, '\\$1') // escape regexp chars
+    let regexString = template.replace(/([.*+?^$()|\][\\])/g, '\\$1') // escape regexp chars
     if (template.includes('{')) {
         // replace template string `{secondsRemaining}` to RegExp
         regexString = regexString.replace(/{(\w+)}/g, '(?<$1>.*?)') // named group
