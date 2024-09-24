@@ -39,8 +39,7 @@ function prepareData (data = {}, token) {
  * Attempts to send push notifications to devices, connected through different projects will fail.
  */
 class RedStoreAdapter {
-    projectId = null
-    #config = null
+    _config = null
 
     constructor (config = REDSTORE_CONFIG) {
         try {
@@ -50,9 +49,7 @@ class RedStoreAdapter {
             logger.error({ msg: 'redStore adapter error', err })
         }
 
-        this.#config = config
-        // not user input. No ReDoS regexp expected
-        // nosemreg: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
+        this._config = config
     }
 
     /**
@@ -94,37 +91,12 @@ class RedStoreAdapter {
                 ...DEFAULT_PUSH_SETTINGS,
             }
 
-            if (!APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.app)) notifications.push(pushData)
+            if (!APPS_WITH_DISABLED_NOTIFICATIONS.includes(pushData.appId)) notifications.push(pushData)
 
             if (!pushContext[pushType]) pushContext[pushType] = pushData
         })
 
         return [notifications, pushContext]
-    }
-
-    /**
-     * For testing purpose we have to emulate redStore response for predefined FAKE tokens,
-     * because it's almost impossible to get real redStore push token in automated way.
-     * @param result
-     * @param fakeNotifications
-     * @returns {*}
-     */
-    static injectFakeResults (result, fakeNotifications) {
-        const mixed = !isObject(result) || isEmpty(result) ? getEmptyResult() : JSON.parse(JSON.stringify(result))
-
-        fakeNotifications.forEach(({ token }) => {
-            if (token.startsWith(PUSH_FAKE_TOKEN_SUCCESS)) {
-                mixed.successCount++
-                mixed.responses.push(getFakeSuccessResponse())
-            }
-
-            if (token.startsWith(PUSH_FAKE_TOKEN_FAIL)) {
-                mixed.failureCount++
-                mixed.responses.push(getFakeErrorResponse())
-            }
-        })
-
-        return mixed
     }
 
     /**
@@ -146,9 +118,9 @@ class RedStoreAdapter {
         let result
         console.log('insideRedStoreAdapter', 'logNotifications', notifications)
 
-        console.log('insideRedStoreAdapter', 'EmptyNotifications', !isNull(this.#config) && !isEmpty(notifications))
+        console.log('insideRedStoreAdapter', 'EmptyNotifications', !isNull(this._config) && !isEmpty(notifications))
 
-        if (!isNull(this.#config) && !isEmpty(notifications)) {
+        if (!isNull(this._config) && !isEmpty(notifications)) {
             const notificationsByAppId = {}
             for (const notification of notifications) {
                 const appId = notification.appId
@@ -158,7 +130,7 @@ class RedStoreAdapter {
             }
             console.log('insideRedStoreAdapter', 'notificationsByAppId', notificationsByAppId)
             for (const [appId, notificationsBatchForApp] of Object.entries(notificationsByAppId)) {
-                const configForApp = this.#config[appId]
+                const configForApp = this._config[appId]
                 console.log('insideRedStoreAdapter', 'configForApp', appId, configForApp)
                 if (!configForApp) {
                     logger.error({ msg: 'Unknown appId. Config was not found', appId })

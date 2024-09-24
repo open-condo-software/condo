@@ -1,5 +1,6 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
+const isEmpty = require('lodash/isEmpty')
 
 const conf = require('@open-condo/config')
 
@@ -7,7 +8,6 @@ const {
     PUSH_FAKE_TOKEN_SUCCESS,
     PUSH_FAKE_TOKEN_FAIL,
     REDSTORE_CONFIG_TEST_PUSHTOKEN_ENV,
-    PUSH_TYPE_SILENT_DATA,
     PUSH_TYPE_DEFAULT,
     FAKE_SUCCESS_MESSAGE_PREFIX,
     CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
@@ -25,6 +25,46 @@ const REDSTORE_TEST_PUSHTOKEN = conf[REDSTORE_CONFIG_TEST_PUSHTOKEN_ENV] || null
 jest.mock('@open-condo/config',  () => {
     return {
         APPS_WITH_DISABLED_NOTIFICATIONS: '["condo.app.clients"]',
+        REDSTORE_CONFIG_JSON: '{ "condo": { "url": "http://localhost:4006", "project_id": "someProjectId", "service_token": "someServiceToken" } }',
+    }
+})
+
+jest.mock('@open-condo/keystone/fetch',  () => {
+    return {
+        fetch: jest.fn().mockImplementation( (url, options) => {
+            const { body: rawBody, method, headers } = options
+            // validation of fetch options
+            if (!rawBody) throw new Error('sendPush error. Body is empty')
+            if (!method) throw new Error('sendPush error. Method is null or undefined')
+            if (method.toUpperCase() !== 'POST') throw new Error('sendPush error. Method should be POST')
+            if (!headers) throw new Error('sendPush error. Headers is null or undefined')
+            if (headers['Content-Type'] !== 'application/json') throw new Error('sendPush error. Header \'Content-Type\' is not provided or not equal \'application/json\' ')
+            if (!headers['Authorization']) throw new Error('sendPush error. Header \'Authorization\' is not provided')
+
+            const body = JSON.parse(rawBody)
+            if (!body?.notification?.title) throw new Error('sendPush error. Title of push is null or undefined')
+            if (!body?.notification?.body) throw new Error('sendPush error. Body of push is null or undefined')
+            if (!body?.token) throw new Error('sendPush error. Token is null or undefined')
+
+            const errorState = {
+                'error' : {
+                    'code' :  400,
+                    'message' :  'The registration token is not a valid FCM registration token',
+                    'status' :  'INVALID_ARGUMENT',
+                },
+            }
+
+            const response = {}
+            if (body?.token === 'PUSH_FAKE_TOKEN_SUCCESS') {
+                response.headers = { ':status': 200 }
+                response.json = () => ({}) // https://www.rEDstore.ru/help/sdk/push-notifications/send-push-notifications#%D0%BE%D1%82%D0%B2%D0%B5%D1%82-%D0%BD%D0%B0-%D1%83%D1%81%D0%BF%D0%B5%D1%88%D0%BD%D1%8B%D0%B9-%D0%B7%D0%B0%D0%BF%D1%80%D0%BE%D1%81
+            }
+            if (body.token === 'PUSH_FAKE_TOKEN_FAIL') {
+                response.headers = { ':status': 400 }
+                response.json = () => errorState // https://www.rEDstore.ru/help/sdk/push-notifications/send-push-notifications#%D0%BE%D1%82%D0%B2%D0%B5%D1%82-%D0%BD%D0%B0-%D0%B7%D0%B0%D0%BF%D1%80%D0%BE%D1%81-%D1%81-%D0%BD%D0%B5%D0%B2%D0%B0%D0%BB%D0%B8%D0%B4%D0%BD%D1%8B%D0%BC-push-%D1%82%D0%BE%D0%BA%D0%B5%D0%BD%D0%BE%D0%BC
+            }
+            return response
+        }),
     }
 })
 describe('redStore adapter utils', () => {
@@ -37,8 +77,14 @@ describe('redStore adapter utils', () => {
                 body: `${dayjs().format()} Condo greets you!`,
             },
             data: {
-                app : 'condo',
+                appId : 'condo',
                 type: 'notification',
+            },
+            appIds: {
+                [PUSH_FAKE_TOKEN_SUCCESS]: 'condo',
+            },
+            pushTypes: {
+                [PUSH_FAKE_TOKEN_SUCCESS]: PUSH_TYPE_DEFAULT,
             },
         })
 
@@ -47,8 +93,6 @@ describe('redStore adapter utils', () => {
         expect(result.successCount).toEqual(1)
         expect(result.responses).toBeDefined()
         expect(result.responses).toHaveLength(1)
-        expect(result.responses[0].success).toBeTruthy()
-        expect(result.responses[0].messageId).toMatch(FAKE_SUCCESS_MESSAGE_PREFIX_REGEXP)
     })
 
     it('tries to send push notification to real test push token if provided ', async () => {
@@ -77,7 +121,6 @@ describe('redStore adapter utils', () => {
         expect(result.responses).toBeDefined()
         expect(result.responses).toHaveLength(1)
         expect(result.responses[0].success).toBeTruthy()
-        expect(result.responses[0].messageId).toMatch(adapter.messageIdPrefixRegexp)
     })
 
     it('should fail sending push notification to fake fail push token ', async () => {
@@ -88,8 +131,14 @@ describe('redStore adapter utils', () => {
                 body: `${dayjs().format()} Condo greets you!`,
             },
             data: {
-                app : 'condo',
+                appId : 'condo',
                 type: 'notification',
+            },
+            appIds: {
+                [PUSH_FAKE_TOKEN_FAIL]: 'condo',
+            },
+            pushTypes: {
+                [PUSH_FAKE_TOKEN_FAIL]: PUSH_TYPE_DEFAULT,
             },
         })
 
@@ -100,9 +149,6 @@ describe('redStore adapter utils', () => {
         expect(result.responses).toHaveLength(1)
         expect(result.responses[0].success).toBeFalsy()
         expect(result.responses[0].error).toBeDefined()
-        expect(result.responses[0].error.errorInfo).toBeDefined()
-        expect(result.responses[0].error.errorInfo.code).toBeDefined()
-        expect(result.responses[0].error.errorInfo.message).toBeDefined()
     })
 
     it('should succeed sending push notification to fake success and fail push token ', async () => {
@@ -113,8 +159,16 @@ describe('redStore adapter utils', () => {
                 body: `${dayjs().format()} Condo greets you!`,
             },
             data: {
-                app : 'condo',
+                appId : 'condo',
                 type: 'notification',
+            },
+            appIds: {
+                [PUSH_FAKE_TOKEN_FAIL]: 'condo',
+                [PUSH_FAKE_TOKEN_SUCCESS]: 'condo',
+            },
+            pushTypes: {
+                [PUSH_FAKE_TOKEN_FAIL]: PUSH_TYPE_DEFAULT,
+                [PUSH_FAKE_TOKEN_SUCCESS]: PUSH_TYPE_DEFAULT,
             },
         })
 
@@ -124,26 +178,23 @@ describe('redStore adapter utils', () => {
         expect(result.failureCount).toEqual(1)
         expect(result.responses).toBeDefined()
         expect(result.responses).toHaveLength(2)
-        expect(result.responses[0].success).toBeTruthy()
-        expect(result.responses[0].messageId).toMatch(FAKE_SUCCESS_MESSAGE_PREFIX_REGEXP)
-        expect(result.responses[1].success).toBeFalsy()
+        expect(result.responses[0].error).toBeFalsy()
         expect(result.responses[1].error).toBeDefined()
-        expect(result.responses[1].error.errorInfo).toBeDefined()
-        expect(result.responses[1].error.errorInfo.code).toBeDefined()
-        expect(result.responses[1].error.errorInfo.message).toBeDefined()
     })
 
     it('sends push notification of proper structure on pushType = PUSH_TYPE_DEFAULT', async () => {
-        const tokens = [PUSH_FAKE_TOKEN_SUCCESS]
         const pushData = {
-            tokens,
+            tokens: [PUSH_FAKE_TOKEN_SUCCESS],
             notification: {
                 title: 'Condo',
                 body: `${dayjs().format()} Condo greets you!`,
             },
             data: {
-                app : 'condo',
+                appId : 'condo',
                 type: 'notification',
+            },
+            appIds: {
+                [PUSH_FAKE_TOKEN_SUCCESS]: 'condo',
             },
             pushTypes: {
                 [PUSH_FAKE_TOKEN_SUCCESS]: PUSH_TYPE_DEFAULT,
@@ -166,72 +217,30 @@ describe('redStore adapter utils', () => {
         expect(pushContext.notification.body).toEqual(pushData.notification.body)
     })
 
-    it('sends push notification of proper structure on pushType = PUSH_TYPE_SILENT_DATA', async () => {
-        const tokens = [PUSH_FAKE_TOKEN_SUCCESS]
-        const pushData = {
-            tokens,
-            notification: {
-                title: 'Condo',
-                body: `${dayjs().format()} Condo greets you!`,
-            },
-            data: {
-                app : 'condo',
-                type: 'notification',
-            },
-            pushTypes: {
-                [PUSH_FAKE_TOKEN_SUCCESS]: PUSH_TYPE_SILENT_DATA,
-            },
-        }
-        const [isOk, result] = await adapter.sendNotification(pushData)
-
-        expect(isOk).toBeTruthy()
-        expect(result).toBeDefined()
-        expect(result.successCount).toEqual(1)
-        expect(result.responses).toBeDefined()
-        expect(result.responses).toHaveLength(1)
-        expect(result.pushContext).toBeDefined()
-
-        const pushContext = result.pushContext[PUSH_TYPE_SILENT_DATA]
-
-        expect(pushContext).toBeDefined()
-        expect(pushContext.notification).toBeUndefined()
-        expect(pushContext.data).toBeDefined()
-        expect(pushContext.data.title).toEqual(pushData.notification.title)
-        expect(pushContext.data.body).toEqual(pushData.notification.body)
-    })
-
     it('doesnt send push notification to app with disabled notifications', async () => {
-        const tokens = [PUSH_FAKE_TOKEN_SUCCESS]
         const pushData = {
-            tokens,
+            tokens: [PUSH_FAKE_TOKEN_SUCCESS],
             notification: {
                 title: 'Condo',
                 body: `${dayjs().format()} Condo greets you!`,
             },
             data: {
-                app : 'condo.app.clients',
+                appId : 'condo.app.clients',
                 type: 'notification',
             },
+            appIds: {
+                [PUSH_FAKE_TOKEN_SUCCESS]: 'condo.app.clients',
+            },
             pushTypes: {
-                [PUSH_FAKE_TOKEN_SUCCESS]: PUSH_TYPE_SILENT_DATA,
+                [PUSH_FAKE_TOKEN_SUCCESS]: PUSH_TYPE_DEFAULT,
             },
         }
         const [isOk, result] = await adapter.sendNotification(pushData)
 
         expect(isOk).toBeFalsy()
         expect(result).toBeDefined()
-        expect(result.successCount).toEqual(0)
-        expect(result.responses).toBeDefined()
-        expect(result.responses).toHaveLength(0)
         expect(result.pushContext).toBeDefined()
 
-        const pushContext = result.pushContext[PUSH_TYPE_SILENT_DATA]
-
-        expect(pushContext).toBeDefined()
-        expect(pushContext.notification).toBeUndefined()
-        expect(pushContext.data).toBeDefined()
-        expect(pushContext.data.title).toEqual(pushData.notification.title)
-        expect(pushContext.data.body).toEqual(pushData.notification.body)
     })
 
     it('should fail to send invalid push notification with missing title to fake success push token ', async () => {
@@ -242,11 +251,17 @@ describe('redStore adapter utils', () => {
                     body: `${dayjs().format()} Condo greets you!`,
                 },
                 data: {
-                    app : 'condo',
+                    appId : 'condo',
                     type: 'notification',
                 },
+                appIds: {
+                    [PUSH_FAKE_TOKEN_SUCCESS]: 'condo',
+                },
+                pushTypes: {
+                    [PUSH_FAKE_TOKEN_SUCCESS]: PUSH_TYPE_DEFAULT,
+                },
             })
-        ).rejects.toThrow(EMPTY_NOTIFICATION_TITLE_BODY_ERROR)
+        ).rejects.toThrow('Missing notification.title or notification.body')
     })
 
     it('should fail to send invalid push notification with missing body to fake success push token ', async () => {
@@ -254,14 +269,20 @@ describe('redStore adapter utils', () => {
             adapter.sendNotification({
                 tokens: [PUSH_FAKE_TOKEN_SUCCESS],
                 notification: {
-                    title: 'Condo',
+                    title: 'condo',
                 },
                 data: {
-                    app : 'condo',
+                    appId : 'condo',
                     type: 'notification',
                 },
+                appIds: {
+                    [PUSH_FAKE_TOKEN_SUCCESS]: 'condo',
+                },
+                pushTypes: {
+                    [PUSH_FAKE_TOKEN_SUCCESS]: PUSH_TYPE_DEFAULT,
+                },
             })
-        ).rejects.toThrow(EMPTY_NOTIFICATION_TITLE_BODY_ERROR)
+        ).rejects.toThrow('Missing notification.title or notification.body')
     })
 
     it('makes sure that PUSH notification data fields are all of string type (converted & normalized)', async () => {

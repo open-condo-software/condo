@@ -1,27 +1,28 @@
 const { get } = require('lodash')
 
 
-const { APS_RESPONSE_STATUS_SUCCESS } = require('../apple/constants')
 const { fetch } = require('@open-condo/keystone/fetch')
+
+const { APS_RESPONSE_STATUS_SUCCESS } = require('../apple/constants')
 
 
 class RedStoreNotificationSender {
-    #projectId = null
-    #serviceToken = null
-    #url = null
+    _projectId = null
+    _serviceToken = null
+    _url = null
 
     /**
      * @param config
      */
     constructor (config) {
-        this.#projectId = config['project_id']
-        this.#serviceToken = config['service_token']
-        this.#url = config['url']
+        this._projectId = config['project_id']
+        this._serviceToken = config['service_token']
+        this._url = config['url']
         this.sendPush = this.sendPush.bind(this)
     }
 
     async sendPush (token, notification, data) {
-        return await fetch(this.#url, {
+        return await fetch(this._url, {
             body: JSON.stringify({
                 token,
                 notification,
@@ -30,7 +31,7 @@ class RedStoreNotificationSender {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${this.#serviceToken}`,
+                'Authorization': `Bearer ${this._serviceToken}`,
             },
         })        
     }
