@@ -66,18 +66,11 @@ class PropertyResolver extends Resolver {
     }
 
     async init () {
-        // We need to load properties cache in case we do not use addressService for address normalize
-        // Let's select first 5000 properties - will take 15 mb approx to store them
-        // Exception is isCottageVillage - we have to load all properties for such organisations
-        const firstCondition = this.isCottageVillage ? {} : { first: 5000 }
-        this.organizationProperties = await itemsQuery('Property', {
-            where: { organization: { id: this.organizationId }, deletedAt: null },
-            ...firstCondition,
-        })
-
         if (this.isCottageVillage) {
-            // init property finder for cottage village address resolving
-            this.propertyFinder.init(this.organizationProperties)
+            // We still need to load all properties in case we do not use addressService for address normalize
+            const organizationProperties = await find('Property', { organization: { id: this.organizationId }, deletedAt: null })
+            this.organizationProperties = Object.fromEntries(organizationProperties.map(({ addressKey, address }) => ([addressKey, address])))
+            this.propertyFinder.init(organizationProperties)
         }
     }
 
