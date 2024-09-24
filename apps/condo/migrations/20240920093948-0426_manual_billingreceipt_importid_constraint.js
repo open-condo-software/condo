@@ -1,4 +1,4 @@
-// KMIGRATOR:0409_manual_insert_meter_resource
+// KMIGRATOR:0426_manual_modify_billingReceipt_constraint
 
 exports.up = async (knex) => {
     await knex.raw(`
