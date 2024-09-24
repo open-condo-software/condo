@@ -1,8 +1,9 @@
-const { KnexAdapter } = require('@keystonejs/adapter-knex')
 const { knex } = require('knex')
 const { get, omit } = require('lodash')
 
 const { getLogger } = require('@open-condo/keystone/logging')
+
+const { KnexAdapter } = require('./KnexAdapter')
 
 const logger = getLogger('replicaKnexAdapter')
 

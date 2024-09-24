@@ -1,4 +1,3 @@
-const { KnexAdapter } = require('@keystonejs/adapter-knex')
 const { MongooseAdapter } = require('@keystonejs/adapter-mongoose')
 const connectRedis = require('connect-redis')
 const session = require('express-session')
@@ -7,7 +6,12 @@ const { v5: uuidv5 } = require('uuid')
 
 const conf = require('@open-condo/config')
 
-const { FakeDatabaseAdapter, ScalableDatabaseAdapter, wrapToCheckOnlyPublicApi } = require('./databaseAdapters')
+const {
+    FakeDatabaseAdapter,
+    KnexAdapter,
+    ScalableDatabaseAdapter,
+    wrapToCheckOnlyPublicApi,
+} = require('./databaseAdapters')
 
 const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
 

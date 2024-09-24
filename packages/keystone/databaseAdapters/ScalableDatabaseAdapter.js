@@ -1,8 +1,8 @@
-const { KnexAdapter } = require('@keystonejs/adapter-knex')
 const { BaseKeystoneAdapter } = require('@keystonejs/keystone')
 const { find, mapValues } = require('lodash')
 
 const { FakeDatabaseAdapter } = require('./FakeDatabaseAdapter')
+const { KnexAdapter } = require('./KnexAdapter')
 const { ReplicaKnexAdapter } = require('./ReplicaKnexAdapter')
 const { parseDatabaseUrl, parseDatabaseMapping, matchDatabase } = require('./utils')
 
