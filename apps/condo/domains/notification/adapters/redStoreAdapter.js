@@ -82,7 +82,6 @@ class RedStoreAdapter {
         tokens.forEach((pushToken) => {
             const pushType = pushTypes[pushToken] || PUSH_TYPE_DEFAULT
             const preparedData = prepareData(data, pushToken)
-            console.log('prepareBatchData', 'appId', appIds[pushToken])
             const pushData = {
                 token: pushToken,
                 data: preparedData,
@@ -124,14 +123,11 @@ class RedStoreAdapter {
             const notificationsByAppId = {}
             for (const notification of notifications) {
                 const appId = notification.appId
-                console.log('insideRedStoreAdapter', 'appId', appId)
                 notificationsByAppId[appId] ||= []
                 notificationsByAppId[appId].push(notification)
             }
-            console.log('insideRedStoreAdapter', 'notificationsByAppId', notificationsByAppId)
             for (const [appId, notificationsBatchForApp] of Object.entries(notificationsByAppId)) {
                 const configForApp = this._config[appId]
-                console.log('insideRedStoreAdapter', 'configForApp', appId, configForApp)
                 if (!configForApp) {
                     logger.error({ msg: 'Unknown appId. Config was not found', appId })
                     continue
