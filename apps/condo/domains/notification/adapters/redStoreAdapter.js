@@ -141,6 +141,8 @@ class RedStoreAdapter {
                     logger.error({ msg: 'sendNotification error', err })
                 }
             }
+        } else {
+            throw new Error('config and notifications cannot be empty')
         }
 
         const isOk = !isEmpty(result) && result.successCount > 0
