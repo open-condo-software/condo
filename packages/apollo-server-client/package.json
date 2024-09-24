@@ -6,7 +6,7 @@
   "author": "Dmitry Koviazin <dkovyazin@doma.ai>",
   "license": "MIT",
   "dependencies": {
-    "@apollo/client": "^3.6.9",
+    "@apollo/client": "^3.11.8",
     "apollo-link-error": "^1.1.13",
     "apollo-upload-client": "^17.0.0",
     "graphql": "^16.6.0",
