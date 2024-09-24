@@ -14,7 +14,8 @@ ALTER TABLE "NewsItemTemplate" ADD COLUMN "category" varchar(50) NULL;
 ALTER TABLE "NewsItemTemplate" ADD COLUMN "name" text DEFAULT 'Temp' NOT NULL;
 ALTER TABLE "NewsItemTemplate" ALTER COLUMN "name" DROP DEFAULT;
 --
--- [CUSTOM] Set "name" = "title" in old records
+-- [CUSTOM] The value of the "name" field for old records must be dynamic. Therefore, the required "name" field in old records is set to "Temp".
+-- [CUSTOM] Then the static value of "Temp" is overwritten and the dynamic value name = title is set.
 --
 UPDATE "NewsItemTemplate" SET name = title WHERE name = 'Temp';
 --
