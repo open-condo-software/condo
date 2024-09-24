@@ -41,9 +41,9 @@ jest.mock('@open-condo/keystone/fetch',  () => {
             if (!headers['Authorization']) throw new Error('sendPush error. Header \'Authorization\' is not provided')
 
             const body = JSON.parse(rawBody)
-            if (!body?.notification?.title) throw new Error('sendPush error. Title of push is null or undefined')
-            if (!body?.notification?.body) throw new Error('sendPush error. Body of push is null or undefined')
-            if (!body?.token) throw new Error('sendPush error. Token is null or undefined')
+            if (!body?.message?.notification?.title) throw new Error('sendPush error. Title of push is null or undefined')
+            if (!body?.message?.notification?.body) throw new Error('sendPush error. Body of push is null or undefined')
+            if (!body?.message?.token) throw new Error('sendPush error. Token is null or undefined')
 
             const errorState = {
                 'error' : {
@@ -54,11 +54,11 @@ jest.mock('@open-condo/keystone/fetch',  () => {
             }
 
             const response = {}
-            if (body?.token === 'PUSH_FAKE_TOKEN_SUCCESS') {
+            if (body?.message?.token === 'PUSH_FAKE_TOKEN_SUCCESS') {
                 response.headers = { ':status': 200 }
                 response.json = () => ({}) // https://www.rEDstore.ru/help/sdk/push-notifications/send-push-notifications#%D0%BE%D1%82%D0%B2%D0%B5%D1%82-%D0%BD%D0%B0-%D1%83%D1%81%D0%BF%D0%B5%D1%88%D0%BD%D1%8B%D0%B9-%D0%B7%D0%B0%D0%BF%D1%80%D0%BE%D1%81
             }
-            if (body.token === 'PUSH_FAKE_TOKEN_FAIL') {
+            if (body?.message?.token === 'PUSH_FAKE_TOKEN_FAIL') {
                 response.headers = { ':status': 400 }
                 response.json = () => errorState // https://www.rEDstore.ru/help/sdk/push-notifications/send-push-notifications#%D0%BE%D1%82%D0%B2%D0%B5%D1%82-%D0%BD%D0%B0-%D0%B7%D0%B0%D0%BF%D1%80%D0%BE%D1%81-%D1%81-%D0%BD%D0%B5%D0%B2%D0%B0%D0%BB%D0%B8%D0%B4%D0%BD%D1%8B%D0%BC-push-%D1%82%D0%BE%D0%BA%D0%B5%D0%BD%D0%BE%D0%BC
             }

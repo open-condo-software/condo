@@ -24,9 +24,11 @@ class RedStoreNotificationSender {
     async sendPush (token, notification, data) {
         return await fetch(this._url, {
             body: JSON.stringify({
-                token,
-                notification,
-                data,
+                message: {
+                    token,
+                    notification,
+                    data,
+                },
             }),
             method: 'POST',
             headers: {
