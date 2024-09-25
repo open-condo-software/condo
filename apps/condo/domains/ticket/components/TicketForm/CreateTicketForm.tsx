@@ -8,9 +8,7 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState, useEffect } from 'react'
 
 import { useApolloClient } from '@open-condo/next/apollo'
-import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Space, Typography, Tour } from '@open-condo/ui'
 
 import { getObjectValueFromQuery } from '@condo/domains/common/utils/query'
@@ -28,6 +26,9 @@ import { REQUIRED_TICKET_FIELDS } from '@condo/domains/ticket/constants/common'
 import { useCacheUtils } from '@condo/domains/ticket/hooks/useCacheUtils'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
+
+import { useAuth } from '@/lib/auth'
+import { useOrganization } from '@/lib/organization'
 
 
 dayjs.extend(isToday)
@@ -250,7 +251,9 @@ export const CreateTicketForm: React.FC = () => {
             <BaseTicketForm
                 action={createAction}
                 initialValues={initialValues}
+                // @ts-ignore TODO(INFRA-517) fix organization
                 organization={organization}
+                // @ts-ignore TODO(INFRA-517) fix role
                 role={link.role}
                 autoAssign
                 OnCompletedMsg={null}

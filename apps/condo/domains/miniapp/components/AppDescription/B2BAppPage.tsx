@@ -4,7 +4,6 @@ import Head from 'next/head'
 import React, { useCallback, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 
 import { PageWrapper, PageContent as PageContentWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -13,6 +12,8 @@ import { B2BApp, B2BAppContext, B2BAppRole } from '@condo/domains/miniapp/utils/
 
 import { ConnectModal } from './ConnectModal'
 import { PageContent } from './PageContent'
+
+import { useOrganization } from '@/lib/organization'
 
 
 type B2BPageProps = {

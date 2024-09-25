@@ -9,7 +9,6 @@ import React, { useCallback, useMemo } from 'react'
 
 import { PlusCircle, Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
@@ -27,6 +26,8 @@ import {
 } from '@condo/domains/ticket/hooks/useTicketPropertyHintTableFilters'
 import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
+
+import { useOrganization } from '@/lib/organization'
 
 
 const SORTABLE_PROPERTIES = ['name']

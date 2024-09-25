@@ -12,7 +12,6 @@ import React, { CSSProperties, useCallback } from 'react'
 import conf from '@open-condo/config'
 import { QuestionCircle } from '@open-condo/icons'
 import { extractReqLocale } from '@open-condo/locales/extractReqLocale'
-import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Card, Markdown, Space, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
@@ -27,6 +26,8 @@ import { LOCALES } from '@condo/domains/common/constants/locale'
 import { PosterWrapper } from '@condo/domains/user/components/containers/styles'
 
 import type { GetServerSideProps } from 'next'
+
+import { useAuth } from '@/lib/auth'
 
 
 const LOGO_HEADER_STYLES = { width: '100%', justifyContent: 'space-between' }

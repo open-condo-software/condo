@@ -3,12 +3,13 @@ import React, { CSSProperties } from 'react'
 
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Space, Typography, Button } from '@open-condo/ui'
 
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 
 import { useBillingAndAcquiringContexts } from './ContextProvider'
+
+import { useOrganization } from '@/lib/organization'
 
 const BLOCK_GAP = 24
 const BLOCK_CONTENT_GAP = 16

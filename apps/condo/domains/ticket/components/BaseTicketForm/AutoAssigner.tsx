@@ -3,7 +3,6 @@ import get from 'lodash/get'
 import React, { useMemo, useState } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
-import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 
 import {
@@ -11,6 +10,8 @@ import {
     getPropertyScopeNameByEmployee, isEmployeeSpecializationAndPropertyMatchesToScope,
 } from '@condo/domains/scope/utils/clientSchema/utils'
 import { TicketAutoAssignment } from '@condo/domains/ticket/utils/clientSchema'
+
+import { useAuth } from '@/lib/auth'
 
 
 const selectUserByAutoAssignmentRule = (rule, employees, key: 'assignee' | 'executor') => {

@@ -5,7 +5,6 @@ import get from 'lodash/get'
 import React, { ComponentProps, useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import Select from '@condo/domains/common/components/antd/Select'
@@ -29,6 +28,8 @@ import { BaseMeterModalFormItem } from './BaseMeterModalFormItem'
 
 import type { MeterResource } from '@app/condo/schema'
 
+import { useOrganization } from '@/lib/organization'
+
 type InitialMeterFormValuesType = {
     propertyId?: string
     unitName?: string
@@ -46,9 +47,9 @@ type InitialMeterFormValuesType = {
 }
 
 type BaseMeterModalFormProps = ComponentProps<typeof BaseModalForm> & {
-    handleSubmit: (values: unknown) => void,
-    initialValues: InitialMeterFormValuesType,
-    ModalTitleMsg: JSX.Element | string,
+    handleSubmit: (values: unknown) => void
+    initialValues: InitialMeterFormValuesType
+    ModalTitleMsg: JSX.Element | string
     ModalSaveButtonLabelMsg: JSX.Element | string
     modalNotification?: JSX.Element | string
     disabled?: boolean

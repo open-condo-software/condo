@@ -19,7 +19,6 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Meters } from '@open-condo/icons'
-import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { Tour, Typography } from '@open-condo/ui'
 
@@ -46,6 +45,8 @@ import {
 } from '@condo/domains/meter/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { ContactsInfo } from '@condo/domains/ticket/components/BaseTicketForm'
+
+import { useAuth } from '@/lib/auth'
 
 
 export const LAYOUT = {
@@ -100,10 +101,10 @@ function getTableData (meters: MeterType[] | PropertyMeterType[], meterReadings)
 }
 
 type MetersTableProps = {
-    handleSave: () => void,
-    selectedPropertyId: string,
+    handleSave: () => void
+    selectedPropertyId: string
     tableColumns: Record<string, unknown>[] | ColumnsType<any>,
-    newMeterReadings: Array<unknown> | unknown,
+    newMeterReadings: Array<unknown> | unknown
     setNewMeterReadings: (readings) => void
     selectedUnitName: string
     selectedUnitType: MeterUnitTypeType
@@ -235,7 +236,7 @@ const FORM_ROW_MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 20]
 type CreateMeterReadingsFormProps = {
     organization: Organization
     canManageMeterReadings: boolean
-    role: OrganizationEmployeeRole,
+    role: OrganizationEmployeeRole
 }
 
 export const CreateMeterReadingsForm = ({ organization, role, canManageMeterReadings }: CreateMeterReadingsFormProps): JSX.Element => {
@@ -454,10 +455,10 @@ export const CreateMeterReadingsForm = ({ organization, role, canManageMeterRead
 }
 
 type PropertyMetersTableProps = {
-    handleSave: () => void,
-    selectedPropertyId: string,
+    handleSave: () => void
+    selectedPropertyId: string
     tableColumns: Record<string, unknown>[] | ColumnsType<any>,
-    newMeterReadings: Array<unknown> | unknown,
+    newMeterReadings: Array<unknown> | unknown
     setNewMeterReadings: (readings) => void
 }
 

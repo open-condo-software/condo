@@ -4,7 +4,6 @@ import get from 'lodash/get'
 import uniqBy from 'lodash/uniqBy'
 import React, { useCallback, useMemo } from 'react'
 
-import { useOrganization } from '@open-condo/next/organization'
 
 import { Loader } from '@condo/domains/common/components/Loader'
 import { B2BAppContext, B2BAppPermission, B2BAppRole } from '@condo/domains/miniapp/utils/clientSchema'
@@ -12,6 +11,8 @@ import { UseEmployeeRolesPermissionsGroups } from '@condo/domains/organization/h
 import { OrganizationEmployeeRole as EmployeeRole } from '@condo/domains/organization/utils/clientSchema'
 
 import { BaseEmployeeRoleForm, BaseEmployeeRoleFormPropsType } from './BaseEmployeeRoleForm'
+
+import { useOrganization } from '@/lib/organization'
 
 
 type CreateEmployeeRoleFormProps = {

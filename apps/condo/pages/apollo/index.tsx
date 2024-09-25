@@ -1,6 +1,5 @@
 import { NetworkStatus } from '@apollo/client'
 import { initializeApollo, prepareSSRContext } from '@app/condo/lib/apollo'
-import { prefetchAuth } from '@app/condo/lib/auth'
 import { useRouter } from 'next/router'
 import React, { useMemo, useState } from 'react'
 
@@ -15,6 +14,8 @@ import {
     GetAllContactsQueryVariables,
     useGetAllContactsQuery,
 } from '@/gql'
+import { prefetchAuthOrRedirect } from '@/lib/auth'
+import { prefetchOrganizationEmployee } from '@/lib/organization'
 import { extractSSRState } from '@/lib/ssr'
 import { SortContactsBy } from '@/schema'
 
@@ -141,22 +142,17 @@ const ApolloPage = () => {
 
 export default ApolloPage
 
-export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const { req, res } = context
+
     // @ts-ignore In Next 9 the types (only!) do not match the expected types
     const { headers } = prepareSSRContext(req, res)
     const client = initializeApollo({ headers })
 
-    const user = await prefetchAuth(client)
-    console.log('::user:: >>> ', user)
+    const { redirect, user } = await prefetchAuthOrRedirect(client, context)
+    if (redirect) return redirect
 
-    if (!user) {
-        return {
-            unstable_redirect: {
-                destination: '/auth/signin',
-                permanent: false,
-            },
-        }
-    }
+    const { activeEmployee } = await prefetchOrganizationEmployee({ client, context, userId: user.id })
 
     const result = await client.query<GetAllContactsQuery, GetAllContactsQueryVariables>({
         query: GetAllContactsDocument,

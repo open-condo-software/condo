@@ -5,7 +5,6 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useEffect } from 'react'
 
 import { Close } from '@open-condo/icons'
-import { useOrganization } from '@open-condo/next/organization'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
@@ -13,6 +12,8 @@ import {
     MobileMenuItemsContainer,
     MobileSideNavHeader,
 } from '../styles'
+
+import { useOrganization } from '@/lib/organization'
 
 interface ISideNavProps {
     menuData?: React.ElementType

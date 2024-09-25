@@ -32,7 +32,6 @@ import {
 } from '@open-condo/codegen/generate.hooks'
 import { Close } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, ActionBarProps, Button, Checkbox, Tooltip } from '@open-condo/ui'
 
 import {
@@ -52,17 +51,19 @@ import {
 import { OrganizationEmployeeRole } from '@condo/domains/organization/utils/clientSchema'
 import { getRelatedPermissionsTranslations } from '@condo/domains/organization/utils/roles.utils'
 
+import { useOrganization } from '@/lib/organization'
+
 
 const MEDIUM_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 
 type EmployeeRolesTableProps = {
-    connectedB2BApps: B2BApp[],
-    employeeRoles: OrganizationEmployeeRoleType[],
-    b2BAppRoles: B2BAppRoleType[],
-    b2BAppPermissions: B2BAppPermissionType[],
-    loading: boolean,
+    connectedB2BApps: B2BApp[]
+    employeeRoles: OrganizationEmployeeRoleType[]
+    b2BAppRoles: B2BAppRoleType[]
+    b2BAppPermissions: B2BAppPermissionType[]
+    loading: boolean
     createB2BAppRoleAction: IUseCreateActionType<B2BAppRoleType, B2BAppRoleCreateInput>,
-    softDeleteB2BAppRoleAction: IUseSoftDeleteActionType<B2BAppRoleType>,
+    softDeleteB2BAppRoleAction: IUseSoftDeleteActionType<B2BAppRoleType>
     updateB2BAppRoleAction: IUseUpdateActionType<B2BAppRoleType, B2BAppRoleUpdateInput>,
     updateOrganizationEmployeeRoleAction: IUseUpdateActionType<OrganizationEmployeeRoleType, OrganizationEmployeeRoleUpdateInput>
     refetchEmployeeRoles
@@ -72,13 +73,13 @@ type EmployeeRolesTableProps = {
 type PermissionsType = { [permissionKey: string]: boolean }
 
 type B2BAppPermissionsState = {
-    roleId?: string,
+    roleId?: string
     permissions: PermissionsType
 }
 
 type PermissionsState = {
     [roleId: string]: {
-        organizationPermissions: PermissionsType,
+        organizationPermissions: PermissionsType
         b2bAppRoles: {
             [b2bAppId: string]: B2BAppPermissionsState
         }

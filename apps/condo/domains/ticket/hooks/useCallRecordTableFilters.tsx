@@ -5,7 +5,6 @@ import get from 'lodash/get'
 import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 
 import { ComponentType, FilterComponentSize, FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import {
@@ -19,6 +18,8 @@ import {
     getCallRecordPhoneFilter,
     getIsIncomingCallFilter,
 } from '@condo/domains/ticket/utils/tables.utils'
+
+import { useOrganization } from '@/lib/organization'
 
 
 const filterTicketNumber = getNumberFilter(['ticket', 'number'])

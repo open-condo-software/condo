@@ -1,0 +1,234 @@
+import { ApolloClient, ApolloQueryResult, NormalizedCacheObject } from '@apollo/client'
+import { setCookie, getCookie, deleteCookie } from 'cookies-next'
+import cookie from 'js-cookie'
+import get from 'lodash/get'
+import { GetServerSideProps } from 'next'
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
+
+import { useCachePersistor } from '@open-condo/apollo'
+
+import {
+    useGetOrganizationEmployeeByIdQuery,
+    GetOrganizationEmployeeByIdQuery,
+    GetOrganizationEmployeeByIdDocument,
+    GetOrganizationEmployeesByUserIdQuery,
+    GetOrganizationEmployeesByUserIdDocument,
+    useGetOrganizationEmployeesQuery,
+    GetOrganizationEmployeesQuery,
+    GetOrganizationEmployeesDocument,
+    GetOrganizationEmployeesQueryVariables,
+} from '@/gql'
+import { useAuth } from '@/lib/auth'
+
+type OrganizationContextType = {
+    /** @deprecated TODO(INFRA-517): rename to setActiveEmployee */
+    selectLink: (linkItem: { id: string }) => (Promise<void> | Promise<ApolloQueryResult<GetOrganizationEmployeeByIdQuery>>)
+    isLoading: boolean
+    /** @deprecated TODO(INFRA-517): rename to activeEmployee */
+    link?: GetOrganizationEmployeesQuery['employees'][number] | null
+    organization?: GetOrganizationEmployeesQuery['employees'][number]['organization'] | null
+}
+
+const OrganizationContext = createContext<OrganizationContextType>({
+    isLoading: false,
+    link: null,
+    organization: null,
+    selectLink: () => Promise.resolve(),
+})
+
+export const useOrganization = (): OrganizationContextType => useContext(OrganizationContext)
+
+const ACTIVE_EMPLOYEE_COOKIE_NAME = 'organizationLinkId'
+
+const setCookieLinkId = (value) => {
+    if (typeof window !== 'undefined') {
+        cookie.set(ACTIVE_EMPLOYEE_COOKIE_NAME, value, { expires: 365 })
+    }
+}
+
+const getLinkId = () => {
+    let state = null
+    if (typeof window !== 'undefined') {
+        try {
+            state = cookie.get(ACTIVE_EMPLOYEE_COOKIE_NAME) || null
+        } catch (e) {
+            state = null
+        }
+    }
+    return state
+}
+
+const DEBUG_RERENDERS = false
+
+export const OrganizationProvider: React.FC = ({ children }) => {
+    const auth = useAuth()
+    const cookieEmployee = getLinkId()
+    const [activeEmployeeId, setActiveEmployeeId] = useState<string | null>(cookieEmployee)
+
+    const onError = useCallback((error) => {
+        // console.log('OrganizationProvider:onError:: >>>', error)
+        // NOTE: In case, when organization from cookie left from old user, and we don't have access to it
+        // We'll reset cookie without showing explicit error
+        if (error.message.includes('You do not have access to this resource')) {
+            setCookieLinkId('')
+            setActiveEmployeeId(null)
+            setActiveEmployee(null)
+        } else {
+            throw error
+        }
+    }, [])
+
+    const { loading: employeeLoading, refetch, data } = useGetOrganizationEmployeesQuery({
+        variables: {
+            where: {
+                id: activeEmployeeId,
+                isAccepted: true,
+                isBlocked: false,
+                isRejected: false,
+            },
+        },
+        skip: auth.isLoading || !auth.user || !activeEmployeeId,
+        onError,
+    })
+
+    const isLoading = auth.isLoading || employeeLoading
+
+    const [activeEmployee, setActiveEmployee] = useState<GetOrganizationEmployeesQuery['employees'][number] | null>(get(data, ['employees', 0]) || null)
+
+    const handleSelectItem = useCallback((linkItem) => {
+        console.log('OrganizationProvider:handleSelectItem:: >>>', {
+            linkItem,
+        })
+        if (linkItem && linkItem.id) {
+            const newId = linkItem.id
+            setActiveEmployeeId(newId)
+            return refetch({ where: { id: newId } })
+        } else {
+            setCookieLinkId('')
+            setActiveEmployeeId(null)
+            setActiveEmployee(null)
+            return Promise.resolve()
+        }
+    }, [])
+
+    useEffect(() => {
+        console.log('OrganizationProvider:if (!cookieEmployee) {:: >>>', { cookieEmployee })
+        if (!cookieEmployee) {
+            setActiveEmployeeId(null)
+        }
+    }, [cookieEmployee])
+
+    useEffect(() => {
+        const employee = get(data, ['employees', 0])
+        if (!employee) return
+
+        if (JSON.stringify(employee) === JSON.stringify(activeEmployee)) return
+        if (DEBUG_RERENDERS) console.log('OrganizationProvider() newState', employee)
+
+        const isEmployeeActive = !employee.isRejected && !employee.isBlocked && employee.isAccepted
+
+
+        console.log('OrganizationProvider:if (!isEmployeeActive) {:: >>>', { isEmployeeActive, employee, data })
+
+        if (!isEmployeeActive) {
+            setCookieLinkId('')
+            setActiveEmployeeId(null)
+            setActiveEmployee(null)
+        } else {
+            setCookieLinkId(employee.id)
+            setActiveEmployeeId(employee.id)
+            setActiveEmployee(employee)
+        }
+    }, [data, activeEmployee])
+
+    useEffect(() => {
+        if (auth.isLoading) return
+        if (!auth.user && activeEmployee !== null) setActiveEmployee(null)
+    }, [auth.user])
+
+    if (DEBUG_RERENDERS) console.log('OrganizationProvider()', activeEmployee, 'loading', employeeLoading, 'skip', (auth.isLoading || !auth.user || !activeEmployeeId))
+
+    console.log('OrganizationProvider::: >>>', {
+        loading: employeeLoading, data,
+        skip: auth.isLoading || !auth.user || !activeEmployeeId,
+        variables: { id: activeEmployeeId },
+        auth,
+        activeEmployeeId,
+        cookieEmployee,
+
+        selectLink: handleSelectItem,
+        isLoading: (!auth.user || !activeEmployeeId) ? false : isLoading,
+        link: (activeEmployee && activeEmployee.id) ? activeEmployee : null,
+        organization: (activeEmployee && activeEmployee.organization) ? activeEmployee.organization : null,
+    })
+
+    return (
+        <OrganizationContext.Provider
+            value={{
+                selectLink: handleSelectItem,
+                isLoading: (!auth.user || !activeEmployeeId) ? false : isLoading,
+                link: (activeEmployee && activeEmployee.id) ? activeEmployee : null,
+                organization: (activeEmployee && activeEmployee.organization) ? activeEmployee.organization : null,
+            }}
+            children={children}
+        />
+    )
+}
+
+type Args = {
+    client: ApolloClient<NormalizedCacheObject>
+    context: Parameters<GetServerSideProps>[0]
+    userId: string
+}
+
+export async function prefetchOrganizationEmployee (args: Args) {
+    const { client, context, userId } = args
+
+    const activeEmployeeId = getCookie(ACTIVE_EMPLOYEE_COOKIE_NAME, { req: context.req, res: context.res })
+
+    console.log('prefetchOrganizationEmployee:activeEmployeeId:: >>>', {
+        activeEmployeeId, userId,
+    })
+
+    if (!activeEmployeeId) {
+        const response = await client.query<GetOrganizationEmployeesQuery, GetOrganizationEmployeesQueryVariables>({
+            query: GetOrganizationEmployeesDocument,
+            variables: {
+                where: {
+                    user: { id: userId },
+                    isAccepted: true,
+                    isBlocked: false,
+                    isRejected: false,
+                },
+            },
+        })
+
+        console.log('prefetchOrganizationEmployee:!activeEmployeeId:: >>>', {
+            response,
+            activeEmployee: get(response, ['data', 'employees', 0]) || null,
+        })
+
+        const activeEmployee = get(response, ['data', 'employees', 0]) || null
+
+        return { activeEmployee }
+    }
+
+    const response = await client.query<GetOrganizationEmployeesQuery, GetOrganizationEmployeesQueryVariables>({
+        query: GetOrganizationEmployeesDocument,
+        variables: {
+            where: {
+                id: activeEmployeeId,
+                isAccepted: true,
+                isBlocked: false,
+                isRejected: false,
+            },
+        },
+    })
+
+    console.log('prefetchOrganizationEmployee:response:: >>>', {
+        response,
+        activeEmployee: get(response, ['data', 'employees', 0]) || null,
+    })
+
+    return { activeEmployee: get(response, ['data', 'employees', 0]) || null }
+}

@@ -9,7 +9,6 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button } from '@open-condo/ui'
 
 import { Loader } from '@condo/domains/common/components/Loader'
@@ -20,6 +19,8 @@ import { useTicketFormContext } from '@condo/domains/ticket/components/TicketFor
 import { REQUIRED_TICKET_FIELDS, TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/common'
 import { Ticket, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
+
+import { useOrganization } from '@/lib/organization'
 
 
 export const ApplyChangesActionBar = ({ handleSave, isLoading, form }) => {
@@ -205,6 +206,7 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
             action={updateAction}
             initialValues={initialValues}
             organization={get(obj, 'organization')}
+            // @ts-ignore TODO(INFRA-517) fix role
             role={link.role}
             files={files}
             afterActionCompleted={(ticket) => {

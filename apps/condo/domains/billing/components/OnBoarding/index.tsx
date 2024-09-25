@@ -5,7 +5,6 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Steps } from '@open-condo/ui'
 import type { StepItem } from '@open-condo/ui'
 
@@ -20,6 +19,8 @@ import { Verification } from './Verification'
 import { WelcomeModal } from './WelcomeModal'
 
 import type { RowProps } from 'antd'
+
+import { useOrganization } from '@/lib/organization'
 
 
 const STEPS_GUTTER: RowProps['gutter'] = [60, 60]

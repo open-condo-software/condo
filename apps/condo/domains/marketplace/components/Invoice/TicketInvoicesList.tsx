@@ -6,7 +6,6 @@ import React, { useCallback, useState } from 'react'
 
 import { Edit } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Space, Tag, Typography } from '@open-condo/ui'
 
 import { INVOICE_STATUS_COLORS } from '@condo/domains/marketplace/constants'
@@ -15,6 +14,8 @@ import { InvoiceFormValuesType } from '@condo/domains/marketplace/utils/clientSc
 
 import { InvoiceRowsTable } from './InvoiceRowsTable'
 import { UpdateInvoiceForm } from './UpdateInvoiceForm'
+
+import { useOrganization } from '@/lib/organization'
 
 
 type TicketInvoiceCardPropsType = {

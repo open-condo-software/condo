@@ -20,7 +20,6 @@ import { Options } from 'scroll-into-view-if-needed'
 
 import { Close, Filter } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Modal as DefaultModal, Button, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
@@ -52,13 +51,15 @@ import {
     getQueryToValueProcessorByType,
 } from '../utils/filters.utils'
 
+import { useOrganization } from '@/lib/organization'
+
 interface IFilterComponentProps<T> {
     name: string
     label?: string
     size?: FilterComponentSize
-    queryToValueProcessor?: (a: QueryArgType) => T | T[],
+    queryToValueProcessor?: (a: QueryArgType) => T | T[]
     formItemProps?: FormItemProps
-    filters: IFilters,
+    filters: IFilters
     children: React.ReactNode
 }
 

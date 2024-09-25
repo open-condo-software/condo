@@ -8,7 +8,6 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Select } from '@open-condo/ui'
 
 import Input from '@condo/domains/common/components/antd/Input'
@@ -26,6 +25,8 @@ import { useMarketplaceServicesFilters } from '@condo/domains/marketplace/hooks/
 import { useMarketplaceServicesTableColumns } from '@condo/domains/marketplace/hooks/useMarketplaceServicesTableColumns'
 import { MarketItem, MarketPriceScope, MarketCategory } from '@condo/domains/marketplace/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
+
+import { useOrganization } from '@/lib/organization'
 
 
 const TableContent = () => {

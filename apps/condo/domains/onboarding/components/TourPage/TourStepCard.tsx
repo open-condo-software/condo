@@ -6,7 +6,6 @@ import React, { useMemo } from 'react'
 
 import { Settings } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Card, Space, Tooltip, Typography } from '@open-condo/ui'
 
 import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
@@ -16,6 +15,8 @@ import {
     COMPLETED_STEP_LINK,
     TOUR_STEP_ACTION_PERMISSION,
 } from '@condo/domains/onboarding/utils/clientSchema/constants'
+
+import { useOrganization } from '@/lib/organization'
 
 
 type TourStepCardProps = {

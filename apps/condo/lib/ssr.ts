@@ -2,9 +2,6 @@ import { getCookie } from 'cookies-next'
 import { createContext, useContext } from 'react'
 
 import { extractApolloState } from '@open-condo/apollo'
-import { extractReqLocale } from '@open-condo/locales/extractReqLocale'
-
-import { messagesImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
 
 import type { NormalizedCacheObject, ApolloClient } from '@apollo/client'
 import type { GetServerSidePropsContext } from 'next'
@@ -49,18 +46,6 @@ export function extractVitalCookies<PropsType> (req: SSRRequest, res: SSRRespons
 export function useVitalCookies<PropsType> (pageProps: SSRResult<PropsType>['props']): SSRCookiesContextType {
     return pageProps[COOKIE_STATE_PROP_NAME] || DEFAULT_COOKIES_VALUES
 }
-
-// async function extractMessages (req, res, pageParams) {
-//     const locale = extractReqLocale(req) || 'ru'
-//     const messages = await messagesImporter(locale)
-//
-//     if (pageParams?.props) {
-//         pageParams.props.locale = locale
-//         pageParams.props.messages = messages
-//     }
-//
-//     return pageParams
-// }
 
 export function extractSSRState<PropsType> (
     client: ApolloClient<NormalizedCacheObject>,

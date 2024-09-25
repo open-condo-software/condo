@@ -3,7 +3,7 @@ import isNull from 'lodash/isNull'
 import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
-import { useAuth } from '@open-condo/next/auth'
+
 
 import FileImportButton from '@condo/domains/banking/components/FileImportButton'
 import { _1C_CLIENT_BANK_EXCHANGE } from '@condo/domains/banking/constants'
@@ -13,6 +13,8 @@ import { useTaskLauncher } from '@condo/domains/common/components/tasks/TaskLaun
 import type { BankAccount as BankAccountType } from '@app/condo/schema'
 import type { FileImportProps } from '@condo/domains/banking/components/FileImportButton'
 import type { UploadRequestOption } from 'rc-upload/lib/interface'
+
+import { useAuth } from '@/lib/auth'
 
 type FileImportHookProps = {
     propertyId: string
@@ -24,9 +26,9 @@ type WrappedComponentType = (props: Pick<FileImportProps, 'type' | 'children' | 
 
 interface IUseFileImport {
     ({ propertyId, bankAccount, organizationId }: FileImportHookProps): ({
-        Component: WrappedComponentType,
-        file: UploadRequestOption['file'],
-        loading: boolean,
+        Component: WrappedComponentType
+        file: UploadRequestOption['file']
+        loading: boolean
     })
 }
 

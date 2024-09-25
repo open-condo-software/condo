@@ -24,7 +24,6 @@ import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEf
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { PlusCircle, QuestionCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Alert, Space, Tooltip } from '@open-condo/ui'
 
 import { CONTEXT_FINISHED_STATUS } from '@condo/domains/acquiring/constants/context'
@@ -75,6 +74,8 @@ import { TicketAssignments } from './TicketAssignments'
 import { TicketDeadlineField } from './TicketDeadlineField'
 import { TicketDeferredDateField } from './TicketDeferredDateField'
 import { useTicketValidations } from './useTicketValidations'
+
+import { useOrganization } from '@/lib/organization'
 
 
 const HINTS_COL_PROPS: ColProps = { span: 24 }
@@ -673,11 +674,11 @@ export interface ITicketFormProps {
     organization?: Organization
     role?: OrganizationEmployeeRole
     initialValues?: ITicketFormState
-    action?: (...args) => Promise<Ticket>,
-    files?: TicketFileType[],
-    afterActionCompleted?: (ticket: Ticket) => void,
-    OnCompletedMsg?: OnCompletedMsgType<Ticket>,
-    autoAssign?: boolean,
+    action?: (...args) => Promise<Ticket>
+    files?: TicketFileType[]
+    afterActionCompleted?: (ticket: Ticket) => void
+    OnCompletedMsg?: OnCompletedMsgType<Ticket>
+    autoAssign?: boolean
     isExisted?: boolean
 }
 

@@ -3,14 +3,15 @@ import { Typography } from 'antd'
 import get from 'lodash/get'
 import React, { useMemo } from 'react'
 
-import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Loader } from '@condo/domains/common/components/Loader'
+
+import { useAuth } from '@/lib/auth'
+import { useOrganization } from '@/lib/organization'
 
 
 const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions?: boolean }> = ({ children, withEmployeeRestrictions }) => {

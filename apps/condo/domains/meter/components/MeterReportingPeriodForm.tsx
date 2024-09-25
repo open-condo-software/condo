@@ -10,7 +10,6 @@ import { Rule } from 'rc-field-form/lib/interface'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Select } from '@open-condo/ui'
 
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
@@ -25,6 +24,8 @@ import { DAY_SELECT_OPTIONS } from '@condo/domains/meter/constants/constants'
 import { MeterReportingPeriod } from '@condo/domains/meter/utils/clientSchema'
 import { usePropertyValidations } from '@condo/domains/property/components/BasePropertyForm/usePropertyValidations'
 import { searchOrganizationPropertyWithoutPropertyHint } from '@condo/domains/ticket/utils/clientSchema/search'
+
+import { useOrganization } from '@/lib/organization'
 
 
 const INPUT_LAYOUT_PROPS = {
@@ -50,9 +51,9 @@ const ADDRESS_SEARCH_WRAPPER_COL = { span: 14 }
 const DESCRIPTION_TEXT_STYLE = { alignSelf: 'start' }
 
 interface IMeterReportingPeriodForm {
-    mode: 'create' | 'update',
-    action: (data: any) => Promise<MeterReportingPeriodType> | Promise<void>,
-    reportingPeriodRecord?: MeterReportingPeriodType,
+    mode: 'create' | 'update'
+    action: (data: any) => Promise<MeterReportingPeriodType> | Promise<void>
+    reportingPeriodRecord?: MeterReportingPeriodType
 }
 
 export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ mode, reportingPeriodRecord, action }) => {

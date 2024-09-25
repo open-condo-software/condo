@@ -14,7 +14,6 @@ import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import { Button } from '@condo/domains/common/components/Button'
@@ -28,6 +27,8 @@ import { ContactOption } from './ContactOption'
 import { NEW_CONTACT_PHONE_FORM_ITEM_NAME, NewContactFields } from './NewContactFields'
 import { NotResidentFields } from './NotResidentFields'
 
+import { useOrganization } from '@/lib/organization'
+
 const DEBOUNCE_TIMEOUT = 800
 
 /**
@@ -39,37 +40,37 @@ const ErrorContainerOfHiddenControl = styled.div`
   }
 `
 export type ContactFields = {
-    name: string,
-    phone: string,
+    name: string
+    phone: string
 }
 export type ContactValue = ContactFields & {
-    id?: string,
+    id?: string
 }
 export type FieldsType = {
-    id: string,
-    phone: string,
-    name: string,
+    id: string
+    phone: string
+    name: string
 }
 
 export interface IContactEditorProps {
-    form: FormInstance<any>,
+    form: FormInstance<any>
     // Customizeable field names of the provided `form`, where editor component will be mounted
     // Fields `clientName` and `clientPhone` are not hardcoded to make this component
     // usable in any form, where contact information fields may be different.
     // Also, this makes usage of the component explicitly, — it's clear, what fields will be set.
-    fields: FieldsType,
-    value?: ContactValue,
+    fields: FieldsType
+    value?: ContactValue
     onChange?: (contact: ContactFields, isNew: boolean) => void,
 
     // Composite scope of organization, property and unitName, used to
     // fetch contacts for autocomplete fields.
-    organization?: string,
+    organization?: string
     role?: Record<string, boolean>,
-    property?: string,
-    unitName?: string,
-    unitType?: BuildingUnitSubType,
-    clientPhone?: string,
-    allowLandLine?: boolean,
+    property?: string
+    unitName?: string
+    unitType?: BuildingUnitSubType
+    clientPhone?: string
+    allowLandLine?: boolean
     disabled?: boolean
     initialQuery?
     hasNotResidentTab?: boolean

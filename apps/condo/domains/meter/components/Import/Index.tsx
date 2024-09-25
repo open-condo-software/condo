@@ -2,9 +2,7 @@ import { File } from '@app/condo/schema'
 import { isNil, isFunction } from 'lodash'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Button } from '@open-condo/ui'
 
 import { ActiveModalType, BaseImportWrapper } from '@condo/domains/common/components/Import/BaseImportWrapper'
@@ -16,6 +14,9 @@ import {
 import { MetersDataImporter } from '@condo/domains/meter/components/MetersDataImporter'
 import { TOnMetersUpload } from '@condo/domains/meter/components/MetersDataImporterTypes'
 import { useMeterReadingsImportTask } from '@condo/domains/meter/hooks/useMeterReadingsImportTaskUIInterface'
+
+import { useAuth } from '@/lib/auth'
+import { useOrganization } from '@/lib/organization'
 
 export type IMetersImportWrapperProps = Pick<IImportWrapperProps, 'accessCheck' | 'onFinish' | 'uploadButtonLabel' | 'importCardButton'>
 

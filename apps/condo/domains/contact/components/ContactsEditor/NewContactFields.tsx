@@ -8,7 +8,6 @@ import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 
 
 import { MinusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Radio, Space } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
@@ -20,15 +19,17 @@ import { normalizePhone } from '@condo/domains/common/utils/phone'
 
 import { CONTACT_TYPE, ContactValue, FieldsType } from './index'
 
+import { useOrganization } from '@/lib/organization'
+
 
 interface INewContactFieldsFieldsProps {
-    initialValueWithoutContact?: Partial<ContactType>,
-    onChange: (contact: ContactValue) => void,
-    onChecked?: () => void,
-    checked?: boolean,
-    contacts: ContactType[],
-    displayMinusButton?: boolean,
-    onClickMinusButton?: () => void,
+    initialValueWithoutContact?: Partial<ContactType>
+    onChange: (contact: ContactValue) => void
+    onChecked?: () => void
+    checked?: boolean
+    contacts: ContactType[]
+    displayMinusButton?: boolean
+    onClickMinusButton?: () => void
     fields: FieldsType
     activeTab: CONTACT_TYPE
     contactsLoading?: boolean
@@ -36,7 +37,7 @@ interface INewContactFieldsFieldsProps {
     newContactPhoneFormItemProps?: FormItemProps
     newContactNameFormItemProps?: FormItemProps
     disabled?: boolean
-    form: FormInstance,
+    form: FormInstance
 }
 
 const FIELD_WRAPPER_COL = { span: 24 }

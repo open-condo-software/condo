@@ -6,7 +6,6 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Alert, Button, Radio, RadioGroup, Select, SelectProps, Space } from '@open-condo/ui'
 
 import { TAX_REGIME_GENEGAL, TAX_REGIME_SIMPLE, CONTEXT_IN_PROGRESS_STATUS } from '@condo/domains/acquiring/constants/context'
@@ -21,6 +20,8 @@ import {
     ERROR_BANK_NOT_FOUND,
     ERROR_ORGANIZATION_NOT_FOUND,
 } from '@condo/domains/marketplace/constants'
+
+import { useOrganization } from '@/lib/organization'
 
 const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
 const VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]

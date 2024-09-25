@@ -10,7 +10,6 @@ import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
-import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 
 import { colors, shadows, fontSizes } from '@condo/domains/common/constants/style'
@@ -20,13 +19,15 @@ import { Button } from '../Button'
 
 import { CommentWithFiles } from './index'
 
+import { useAuth } from '@/lib/auth'
+
 const { RESIDENT, STAFF, SERVICE } = require('@condo/domains/user/constants/common')
 
 
 interface ICommentProps {
-    comment: CommentWithFiles,
+    comment: CommentWithFiles
     setEditableComment: React.Dispatch<React.SetStateAction<CommentWithFiles>>
-    deleteAction?: (obj: CommentWithFiles) => Promise<TicketComment>,
+    deleteAction?: (obj: CommentWithFiles) => Promise<TicketComment>
 }
 
 const DeleteButtonStyle = css`

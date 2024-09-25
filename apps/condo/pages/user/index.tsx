@@ -11,9 +11,7 @@ import Link from 'next/link'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Edit, Info } from '@open-condo/icons'
-import { useAuth } from '@open-condo/next/auth'
 import { LocaleContext, useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Select, Tooltip, Typography } from '@open-condo/ui'
 
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
@@ -28,7 +26,10 @@ import type { OrganizationEmployeeWhereInput } from '@app/condo/schema'
 import type { GetServerSideProps } from 'next'
 
 import { initializeApollo, prepareSSRContext } from '@/lib/apollo'
-import { prefetchAuth } from '@/lib/auth'
+import { useAuth } from '@/lib/auth'
+import { prefetchAuthOrRedirect } from '@/lib/auth'
+import { prefetchOrganizationEmployee } from '@/lib/organization'
+import { useOrganization } from '@/lib/organization'
 import { extractSSRState } from '@/lib/ssr'
 
 
@@ -290,21 +291,17 @@ UserInfoPage.requiredAccess = AuthRequired
 
 export default UserInfoPage
 
-export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const { req, res } = context
+
     // @ts-ignore In Next 9 the types (only!) do not match the expected types
     const { headers } = prepareSSRContext(req, res)
     const client = initializeApollo({ headers })
 
-    const user = await prefetchAuth(client)
+    const { redirect, user } = await prefetchAuthOrRedirect(client, context)
+    if (redirect) return redirect
 
-    if (!user) {
-        return {
-            unstable_redirect: {
-                destination: '/auth/signin',
-                permanent: false,
-            },
-        }
-    }
+    const { activeEmployee } = await prefetchOrganizationEmployee({ client, context, userId: user.id })
 
     return extractSSRState(client, req, res, {
         props: {},

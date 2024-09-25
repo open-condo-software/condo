@@ -2,7 +2,6 @@ import get from 'lodash/get'
 import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Tabs } from '@open-condo/ui'
 import type { TabItem } from '@open-condo/ui'
 
@@ -14,6 +13,8 @@ import { AccrualsTab } from './AccrualsTab'
 import { useBillingAndAcquiringContexts } from './ContextProvider'
 import { EmptyContent } from './EmptyContent'
 import { PaymentsTab } from './PaymentsTab'
+
+import { useOrganization } from '@/lib/organization'
 
 type MainContentProps = {
     uploadComponent?: React.ReactElement

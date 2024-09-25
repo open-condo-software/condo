@@ -2,8 +2,6 @@ import { Ticket, TicketWhereInput } from '@app/condo/schema'
 import get from 'lodash/get'
 import { createContext, useCallback, useContext } from 'react'
 
-import { useAuth } from '@open-condo/next/auth'
-import { useOrganization } from '@open-condo/next/organization'
 
 import {
     ORGANIZATION_TICKET_VISIBILITY,
@@ -18,10 +16,13 @@ import {
     PropertyScopeProperty,
 } from '@condo/domains/scope/utils/clientSchema'
 
+import { useAuth } from '@/lib/auth'
+import { useOrganization } from '@/lib/organization'
+
 
 interface ITicketVisibilityContext {
-    ticketFilterQuery: TicketWhereInput,
-    ticketFilterQueryLoading: boolean,
+    ticketFilterQuery: TicketWhereInput
+    ticketFilterQueryLoading: boolean
     canEmployeeReadTicket: (ticket: Ticket) => boolean
 }
 

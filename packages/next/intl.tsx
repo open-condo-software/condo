@@ -143,6 +143,9 @@ const withIntl: WithIntl = ({ ssr = false, ...opts }: WithIntlProps = {}) => Pag
     const onIntlError = opts.hideErrors ? (() => { }) : undefined
 
     const WithIntl = ({ locale, messages, ...pageProps }) => {
+        // console.log('WithIntl >>> ', {
+        //     locale, messages, pageProps,
+        // })
         // in there is no locale and no messages => client side rerender (we should use some client side cache)
         if (!locale) locale = getLocale()
         if (!messages) messages = {}
@@ -164,7 +167,7 @@ const withIntl: WithIntl = ({ ssr = false, ...opts }: WithIntlProps = {}) => Pag
 
     if (ssr || PageComponent.getInitialProps) {
         WithIntl.getInitialProps = async ctx => {
-            if (DEBUG_RERENDERS) console.log('WithIntl.getInitialProps()', ctx)
+            // console.log('WithIntl.getInitialProps()', ctx)
             const isOnServerSide = typeof window === 'undefined'
             const { locale, messages } = await initOnRestore(ctx)
             const pageProps = await getContextIndependentWrappedInitialProps(PageComponent, ctx)

@@ -4,9 +4,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useEffect } from 'react'
 
-import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Typography } from '@open-condo/ui'
 
 import { PageContent, PageWrapper, PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
@@ -14,6 +12,9 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 import { B2BAppContext, B2BAppRole } from '@condo/domains/miniapp/utils/clientSchema'
+
+import { useAuth } from '@/lib/auth'
+import { useOrganization } from '@/lib/organization'
 
 
 type B2BAppPageProps = {

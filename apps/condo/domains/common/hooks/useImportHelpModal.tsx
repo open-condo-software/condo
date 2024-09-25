@@ -7,9 +7,7 @@ import getConfig from 'next/config'
 import React, { Dispatch, SetStateAction, useCallback, useMemo, useState } from 'react'
 
 import { ArrowLeft, Phone } from '@open-condo/icons'
-import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Alert, Button, Card, Modal, Typography } from '@open-condo/ui'
 
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
@@ -19,6 +17,9 @@ import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { UserHelpRequest, UserHelpRequestFile } from '@condo/domains/onboarding/utils/clientSchema'
 
 import { useValidations } from './useValidations'
+
+import { useAuth } from '@/lib/auth'
+import { useOrganization } from '@/lib/organization'
 
 
 const { publicRuntimeConfig: { importInstructionUrl } } = getConfig()
