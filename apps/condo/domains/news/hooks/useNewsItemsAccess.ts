@@ -1,6 +1,7 @@
 import get from 'lodash/get'
 
-import { useOrganization } from '@open-condo/next/organization'
+import { useOrganization } from '@/lib/organization'
+
 
 type TUseNewsItemsAccess = {
     canRead: boolean

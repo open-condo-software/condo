@@ -8,7 +8,6 @@ import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
 import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react'
 
-import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { Tabs, Card, Typography, Select, SelectProps, Space } from '@open-condo/ui'
 import type { TypographyTitleProps } from '@open-condo/ui'
@@ -23,6 +22,8 @@ import type { BankAccountReport as BankAccountReportType, OrganizationEmployeeRo
 import type { BankAccount as BankAccountType } from '@app/condo/schema'
 import type { RowProps } from 'antd'
 import type { EChartsOption, EChartsReactProps } from 'echarts-for-react'
+
+import { useAuth } from '@/lib/auth'
 
 const BANK_ACCOUNT_REPORT_ROW_GUTTER: RowProps['gutter'] = [40, 40]
 const LABEL_TRUNCATE_LENGTH = 17

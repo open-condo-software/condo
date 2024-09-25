@@ -8,7 +8,6 @@ import React, { useCallback, useState } from 'react'
 import { Search } from '@open-condo/icons'
 import { useQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Modal, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
@@ -38,6 +37,8 @@ import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 
 import type { SortPaymentsBy } from '@app/condo/schema'
+
+import { useOrganization } from '@/lib/organization'
 
 
 

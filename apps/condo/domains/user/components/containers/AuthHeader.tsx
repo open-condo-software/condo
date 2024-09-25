@@ -2,12 +2,13 @@ import { Row, Col } from 'antd'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 
-import { useAuth } from '@open-condo/next/auth'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Logo } from '@condo/domains/common/components/Logo'
 
 import { ActionContainer, Header, MobileHeader } from './styles'
+
+import { useAuth } from '@/lib/auth'
 
 
 const LOGO_HEADER_STYLES = { width: '100%', justifyContent: 'space-between' }

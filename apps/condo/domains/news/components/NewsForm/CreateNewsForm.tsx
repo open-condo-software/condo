@@ -8,7 +8,6 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { IntlShape } from 'react-intl/src/types'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Typography } from '@open-condo/ui'
 
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -18,6 +17,8 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import { BaseNewsFormProps } from './BaseNewsForm'
 import { BaseNewsFormByFeatureFlag } from './BaseNewsFormByFeatureFlag'
+
+import { useOrganization } from '@/lib/organization'
 
 
 const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 28]

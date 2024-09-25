@@ -7,7 +7,6 @@ import React, { useCallback, useMemo } from 'react'
 
 import { PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Button } from '@open-condo/ui'
 import { Tabs, Typography } from '@open-condo/ui'
 
@@ -20,6 +19,8 @@ import { EXPORT_PROPERTY_SCOPE_QUERY } from '@condo/domains/scope/gql'
 import { usePropertyScopeColumns } from '@condo/domains/scope/hooks/useTableColumns'
 import { usePropertyScopeTableFilters } from '@condo/domains/scope/hooks/useTableFilters'
 import { PropertyScope } from '@condo/domains/scope/utils/clientSchema'
+
+import { useOrganization } from '@/lib/organization'
 
 
 const SORTABLE_PROPERTIES = ['name']

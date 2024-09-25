@@ -5,8 +5,6 @@ import React, { useRef, useEffect, useState, useCallback } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
-import { useAuth } from '@open-condo/next/auth'
-import { useOrganization } from '@open-condo/next/organization'
 
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
@@ -16,6 +14,9 @@ import {
     useGlobalAppsFeaturesContext,
     IRequestFeatureHandler,
 } from './GlobalAppsFeaturesContext'
+
+import { useAuth } from '@/lib/auth'
+import { useOrganization } from '@/lib/organization'
 
 const REQUEST_FEATURE_MESSAGE_NAME = 'CondoWebAppFeatureRequest'
 const ORGANIZATION_CHANGE_MESSAGE_NAME = 'CondoWebAppOrganizationChange'

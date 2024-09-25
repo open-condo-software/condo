@@ -10,7 +10,6 @@ import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 
 
 import { Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Button, Modal, Checkbox, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 import { useBreakpoints } from '@open-condo/ui/dist/hooks'
@@ -36,6 +35,8 @@ import { getFiltersFromQuery, getPageIndexFromOffset, parseQuery } from '@condo/
 import { useMarketplacePaymentsFilters } from '@condo/domains/marketplace/hooks/useMarketplacePaymentsFilters'
 import { useMarketplacePaymentTableColumns } from '@condo/domains/marketplace/hooks/useMarketplacePaymentTableColumns'
 import { MARKETPLACE_PAGE_TYPES } from '@condo/domains/marketplace/utils/clientSchema'
+
+import { useOrganization } from '@/lib/organization'
 
 
 const ROW_GUTTERS: RowProps['gutter'] = [16, 16]

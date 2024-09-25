@@ -9,7 +9,6 @@ import React, { useCallback, useMemo, useState } from 'react'
 
 import { Building, Guide, IconProps, LayoutList, Meters, Unlock, Wallet } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Button, Modal, Space, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
@@ -18,6 +17,8 @@ import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
 import { GUIDE_LINK } from '@condo/domains/onboarding/utils/clientSchema/constants'
+
+import { useOrganization } from '@/lib/organization'
 
 
 type ButtonClickType = () => void

@@ -4,7 +4,6 @@ import Router, { useRouter } from 'next/router'
 import React, { useState, useEffect, useContext, useCallback } from 'react'
 
 import { useLazyQuery, useMutation } from '@open-condo/next/apollo'
-import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@open-condo/ui'
 import { Typography } from '@open-condo/ui'
@@ -20,6 +19,8 @@ import { AuthLayoutContext } from '@condo/domains/user/components/containers/Aut
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
 import { CHANGE_PASSWORD_WITH_TOKEN_MUTATION, GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY } from '@condo/domains/user/gql'
+
+import { useAuth } from '@/lib/auth'
 
 
 const ROW_STYLES: React.CSSProperties = {

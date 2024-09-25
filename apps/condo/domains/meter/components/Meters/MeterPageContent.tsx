@@ -1,12 +1,11 @@
 import { MeterReportingPeriod, MeterResource, PropertyMeter as PropertyMeterType } from '@app/condo/schema'
-import { Meter as MeterType } from '@app/condo/schema' 
+import { Meter as MeterType } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Alert } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
@@ -23,6 +22,8 @@ import { useMeterReadingFilters } from '@condo/domains/meter/hooks/useMeterReadi
 import { Meter, MeterTypes, METER_TAB_TYPES, METER_TYPES, PropertyMeter } from '@condo/domains/meter/utils/clientSchema'
 import { getMeterTitleMessage } from '@condo/domains/meter/utils/helpers'
 import { TicketPropertyField } from '@condo/domains/ticket/components/TicketId/TicketPropertyField'
+
+import { useOrganization } from '@/lib/organization'
 
 
 const METER_STATUSES = { active: 'active', archived: 'archived' }

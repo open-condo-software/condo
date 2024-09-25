@@ -5,7 +5,6 @@ import omit from 'lodash/omit'
 import React, { ComponentProps, useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Tooltip } from '@open-condo/ui'
 
 import { BaseModalForm } from '@condo/domains/common/components/containers/FormList'
@@ -24,6 +23,8 @@ import {
 
 import { BaseInvoiceForm } from './BaseInvoiceForm'
 import { getPaymentLinkNotification } from './CopyButton'
+
+import { useOrganization } from '@/lib/organization'
 
 
 type CreateInvoiceFormProps = {
@@ -94,6 +95,8 @@ export const CreateInvoiceForm: React.FC<CreateInvoiceFormProps> = ({ organizati
             isCreateForm
             action={action ? action : handleCreateInvoice}
             organizationId={organizationId}
+
+            // @ts-ignore TODO(INFRA-517) fix role
             role={link}
             initialValues={formInitialValues}
             OnCompletedMsg={null}

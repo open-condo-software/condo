@@ -4,7 +4,6 @@ import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Banner, Markdown, Space, Typography, Button } from '@open-condo/ui'
 
 import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/domains/billing/utils/clientSchema'
@@ -12,6 +11,8 @@ import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import { PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS, CONTEXT_IN_PROGRESS_STATUS } from '@condo/domains/miniapp/constants'
 
 import type { RowProps } from 'antd'
+
+import { useOrganization } from '@/lib/organization'
 
 type BillingDescriptionModalContentProps = {
     id: string

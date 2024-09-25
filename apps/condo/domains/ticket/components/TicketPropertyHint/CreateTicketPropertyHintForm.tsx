@@ -2,12 +2,13 @@ import { get } from 'lodash'
 import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button } from '@open-condo/ui'
 
 import { TicketPropertyHint } from '@condo/domains/ticket/utils/clientSchema'
 
 import { BaseTicketPropertyHintForm } from './BaseTicketPropertyHintForm'
+
+import { useOrganization } from '@/lib/organization'
 
 export const CreateTicketPropertyHintForm = () => {
     const intl = useIntl()

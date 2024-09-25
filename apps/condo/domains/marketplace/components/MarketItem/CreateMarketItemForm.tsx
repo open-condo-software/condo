@@ -5,7 +5,6 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Tooltip } from '@open-condo/ui'
 
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -23,6 +22,8 @@ import {
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import { BaseMarketItemForm } from './BaseMarketItemForm'
+
+import { useOrganization } from '@/lib/organization'
 
 
 export const CreateMarketItemForm = () => {

@@ -8,9 +8,7 @@ import React, { useCallback, useMemo, CSSProperties } from 'react'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { ChevronDown, PlusCircle } from '@open-condo/icons'
-import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Space, Typography } from '@open-condo/ui'
 import type { TypographyTextProps } from '@open-condo/ui'
 
@@ -22,6 +20,9 @@ import { SBBOLIndicator } from './SBBOLIndicator'
 
 import type { OrganizationEmployee as OrganizationEmployeeType } from '@app/condo/schema'
 import type { DropdownProps } from 'antd'
+
+import { useAuth } from '@/lib/auth'
+import { useOrganization } from '@/lib/organization'
 
 
 function compareEmployees (lhs: OrganizationEmployeeType, rhs: OrganizationEmployeeType) {

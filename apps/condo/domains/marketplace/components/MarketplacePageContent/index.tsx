@@ -5,7 +5,6 @@ import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { TabItem, Tabs, Tag } from '@open-condo/ui'
 import { Button } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
@@ -21,6 +20,8 @@ import { useQueryTab } from '@condo/domains/marketplace/hooks/useQueryTab'
 import { MARKETPLACE_PAGE_TYPES } from '@condo/domains/marketplace/utils/clientSchema'
 
 import { useAcquiringContext } from './ContextProvider'
+
+import { useOrganization } from '@/lib/organization'
 
 const StyledPageWrapper = styled(PageWrapper)`
   & .condo-promo-block:not(.condo-promo-block-no-image) {

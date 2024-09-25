@@ -10,7 +10,6 @@ import React, { useCallback, useMemo } from 'react'
 
 import { PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button } from '@open-condo/ui'
 
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
@@ -18,6 +17,8 @@ import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useContactRolesTableColumns } from '@condo/domains/contact/hooks/useContactRolesTableColumns'
 import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
+
+import { useOrganization } from '@/lib/organization'
 
 const SORTABLE_PROPERTIES = ['name']
 const DEFAULT_SORT_BY = ['createdAt_DESC']

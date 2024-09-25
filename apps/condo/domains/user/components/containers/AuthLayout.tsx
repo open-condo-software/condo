@@ -4,7 +4,6 @@ import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo } from 'react'
 
-import { useAuth } from '@open-condo/next/auth'
 import { useIntl, FormattedMessage } from '@open-condo/next/intl'
 
 import { FROM_INPUT_CSS } from '@condo/domains/common/components/containers/BaseLayout/components/styles'
@@ -15,6 +14,8 @@ import { colors } from '@condo/domains/common/constants/style'
 
 import { AuthLayoutContextProvider } from './AuthLayoutContext'
 import { PosterLayout } from './PosterLayout'
+
+import { useAuth } from '@/lib/auth'
 
 
 export interface AuthPage extends React.FC {

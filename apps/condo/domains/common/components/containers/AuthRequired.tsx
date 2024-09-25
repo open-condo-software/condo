@@ -5,11 +5,12 @@ import Router, { useRouter } from 'next/router'
 import qs from 'qs'
 import React, { useEffect } from 'react'
 
-import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 
 import { isFunction } from '../../utils/ecmascript.utils'
 import { Loader } from '../Loader'
+
+import { useAuth } from '@/lib/auth'
 
 function RedirectToLogin () {
     const intl = useIntl()

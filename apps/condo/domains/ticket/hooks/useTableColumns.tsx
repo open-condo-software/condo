@@ -7,7 +7,6 @@ import map from 'lodash/map'
 import { useRouter } from 'next/router'
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo } from 'react'
 
-import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
@@ -32,6 +31,8 @@ import {
     getUnitRender,
 } from '@condo/domains/ticket/utils/clientSchema/Renders'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
+
+import { useAuth } from '@/lib/auth'
 
 
 const COLUMNS_WIDTH = {

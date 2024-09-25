@@ -1,9 +1,10 @@
 import get from 'lodash/get'
 import { useEffect, useState } from 'react'
 
-import { useOrganization } from '@open-condo/next/organization'
 
 import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
+
+import { useOrganization } from '@/lib/organization'
 
 type UseExistingContactRoles = () => Set<string>
 

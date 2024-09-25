@@ -6,9 +6,7 @@ import isFunction from 'lodash/isFunction'
 import getConfig from 'next/config'
 import React, { useState, Dispatch, SetStateAction, useCallback, useMemo } from 'react'
 
-import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Radio, RadioGroup, Space } from '@open-condo/ui'
 
 import Input from '@condo/domains/common/components/antd/Input'
@@ -18,6 +16,9 @@ import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/org
 import { EMPTY_NAME_ERROR, TIN_TOO_SHORT_ERROR, TIN_VALUE_INVALID } from '@condo/domains/organization/constants/errors'
 import { REGISTER_NEW_ORGANIZATION_MUTATION } from '@condo/domains/organization/gql'
 import { convertUIStateToGQLItem, OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
+
+import { useAuth } from '@/lib/auth'
+import { useOrganization } from '@/lib/organization'
 
 
 interface ICreateOrganizationModalFormResult {

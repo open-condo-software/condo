@@ -7,7 +7,6 @@ import React, { useCallback, useEffect, useMemo } from 'react'
 
 import { Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 import { useBreakpoints } from '@open-condo/ui/dist/hooks'
@@ -27,6 +26,8 @@ import { getFiltersFromQuery, getPageIndexFromOffset, parseQuery } from '@condo/
 import { useMarketplaceInvoicesFilters } from '@condo/domains/marketplace/hooks/useMarketplaceInvoicesFilters'
 import { useMarketplaceInvoicesTableColumns } from '@condo/domains/marketplace/hooks/useMarketplaceInvoicesTableColumns'
 import { Invoice, MARKETPLACE_PAGE_TYPES } from '@condo/domains/marketplace/utils/clientSchema'
+
+import { useOrganization } from '@/lib/organization'
 
 const TableContent = () => {
     const intl = useIntl()

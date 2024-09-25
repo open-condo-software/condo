@@ -3,7 +3,6 @@ import { useRouter } from 'next/router'
 import React, { useEffect } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 
 import { Button } from '@condo/domains/common/components/Button'
 import { Loader } from '@condo/domains/common/components/Loader'
@@ -11,6 +10,8 @@ import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import BasePropertyForm from '../BasePropertyForm'
+
+import { useOrganization } from '@/lib/organization'
 
 interface IUpdatePropertyForm {
     id: string

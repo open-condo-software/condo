@@ -4,14 +4,15 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React from 'react'
 
-import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Button, Space, Tour } from '@open-condo/ui'
 
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import BasePropertyForm from '@condo/domains/property/components/BasePropertyForm'
 import { Property } from '@condo/domains/property/utils/clientSchema'
+
+import { useAuth } from '@/lib/auth'
+import { useOrganization } from '@/lib/organization'
 
 
 const DEFAULT_PROPERTY_TYPE = PropertyTypeType.Building

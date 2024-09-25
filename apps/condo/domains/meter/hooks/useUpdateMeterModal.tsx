@@ -4,7 +4,6 @@ import pick from 'lodash/pick'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 
 import {
     DeleteButtonWithConfirmModal,
@@ -12,6 +11,8 @@ import {
 import { AutoSourceAlert } from '@condo/domains/meter/components/BaseMeterModal/AutoSourceAlert'
 import { BaseMeterModalForm } from '@condo/domains/meter/components/BaseMeterModal/BaseMeterModalForm'
 import { Meter, PropertyMeter, METER_TAB_TYPES, MeterPageTypes } from '@condo/domains/meter/utils/clientSchema'
+
+import { useOrganization } from '@/lib/organization'
 
 
 const INITIAL_METER_VALUES_KEYS = [

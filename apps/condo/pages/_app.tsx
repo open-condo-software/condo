@@ -17,9 +17,8 @@ import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEf
 import { useFeatureFlags, FeaturesReady, withFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import * as AllIcons from '@open-condo/icons'
 import { extractReqLocale } from '@open-condo/locales/extractReqLocale'
-import { useAuth, withAuth } from '@open-condo/next/auth'
+import { DEBUG_RERENDERS, getContextIndependentWrappedInitialProps, preventInfinityLoop } from '@open-condo/next/_utils'
 import { useIntl, withIntl } from '@open-condo/next/intl'
-import { useOrganization, withOrganization } from '@open-condo/next/organization'
 
 import { useBankReportTaskUIInterface } from '@condo/domains/banking/hooks/useBankReportTaskUIInterface'
 import { useBankSyncTaskUIInterface } from '@condo/domains/banking/hooks/useBankSyncTaskUIInterface'
@@ -87,13 +86,19 @@ import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useT
 import { CookieAgreement } from '@condo/domains/user/components/CookieAgreement'
 import { USER_QUERY } from '@condo/domains/user/gql'
 
-import { useApollo } from '../lib/apollo'
-import { SSRCookiesContext, useVitalCookies } from '../lib/ssr'
+
+import { useApollo } from '@/lib/apollo'
+import { useAuth } from '@/lib/auth'
+import { AuthProvider } from '@/lib/auth'
+import { useOrganization } from '@/lib/organization'
+import { OrganizationProvider } from '@/lib/organization'
+import { SSRCookiesContext, useVitalCookies } from '@/lib/ssr'
 
 import '@condo/domains/common/components/wdyr'
 import '@open-condo/ui/dist/styles.min.css'
 import '@open-condo/ui/dist/style-vars/variables.css'
 import '@condo/domains/common/components/containers/global-styles.css'
+// import { withApollo } from '@open-condo/next/apollo'
 
 const { publicRuntimeConfig: { defaultLocale, sppConfig, disableSSR } } = getConfig()
 
@@ -327,6 +332,10 @@ const MenuItems: React.FC = () => {
         },
     ]), [hasAccessToAnalytics, isManagingCompany, hasAccessToTickets, hasAccessToIncidents, hasAccessToNewsItems, hasAccessToProperties, hasAccessToContacts, hasAccessToEmployees, isMarketplaceEnabled, hasAccessToMarketplace, isSPPOrg, hasAccessToBilling, anyReceiptsLoaded, sppBillingId, hasAccessToMeters, hasAccessToServices, connectedAppsIds, hasAccessToSettings])
 
+    console.log({
+        menuCategoriesData, link, organization,
+    })
+
     return (
         <div>
             {menuCategoriesData.map((category) => (
@@ -475,12 +484,27 @@ const MyApp = ({ Component, pageProps }) => {
     } = useEndTrialSubscriptionReminderPopup()
     const { persistor } = useCachePersistor()
 
-    if (!persistor) return <div>null app</div>
-
     const shouldDisplayCookieAgreement = router.pathname.match(/\/auth\/.*/)
 
     return (
         <>
+            {/*{*/}
+            {/*    !persistor && (*/}
+            {/*        <div*/}
+            {/*            style={{*/}
+            {/*                position: 'absolute',*/}
+            {/*                left: 0,*/}
+            {/*                right: 0,*/}
+            {/*                top: 0,*/}
+            {/*                bottom: 0,*/}
+            {/*                backgroundColor: 'red',*/}
+            {/*                zIndex: 99999,*/}
+            {/*            }}*/}
+            {/*        >*/}
+            {/*            null app*/}
+            {/*        </div>*/}
+            {/*    )*/}
+            {/*}*/}
             <Head>
                 <meta
                     name='viewport'
@@ -537,14 +561,15 @@ const MyApp = ({ Component, pageProps }) => {
 // TODO: We need to get away from "with..."
 const withApollo = () => PageComponent => {
     const WithApollo = (props) => {
+
+        // console.log('::WithApollo:: >>>', {
+        //     props,
+        // })
+
         const { client, cachePersistor } = useApollo(props.pageProps)
 
-        if (!cachePersistor) return null
+        // if (!cachePersistor) return null
         // const ssrCookies = useVitalCookies(pageProps)
-
-        console.log('::WithApollo:: >>>', {
-            props,
-        })
 
         return (
             // <SSRCookiesContext.Provider value={ssrCookies}>
@@ -564,17 +589,59 @@ const withApollo = () => PageComponent => {
         WithApollo.displayName = `withApollo(${displayName})`
     }
 
+    WithApollo.getInitialProps = PageComponent.getInitialProps
+
     return WithApollo
+}
+
+const withAuth = () => PageComponent => {
+    const WithAuth = (props) => {
+        return (
+            <AuthProvider>
+                <PageComponent {...props} />
+            </AuthProvider>
+        )
+    }
+
+    // Set the correct displayName in development
+    if (process.env.NODE_ENV !== 'production') {
+        const displayName =
+            PageComponent.displayName || PageComponent.name || 'Component'
+        WithAuth.displayName = `WithAuth(${displayName})`
+    }
+
+    WithAuth.getInitialProps = PageComponent.getInitialProps
+
+    return WithAuth
+}
+
+
+const withOrganization = () => PageComponent => {
+    const WithOrganization = (props) => {
+        return (
+            <OrganizationProvider>
+                <PageComponent {...props} />
+            </OrganizationProvider>
+        )
+    }
+
+    // Set the correct displayName in development
+    if (process.env.NODE_ENV !== 'production') {
+        const displayName =
+            PageComponent.displayName || PageComponent.name || 'Component'
+        WithOrganization.displayName = `WithOrganization(${displayName})`
+    }
+
+    WithOrganization.getInitialProps = PageComponent.getInitialProps
+
+    return WithOrganization
 }
 
 export default (
     withApollo()(
         withIntl({ ssr: !IS_SSR_DISABLED, messagesImporter, extractReqLocale, defaultLocale })(
-            withAuth({ ssr: !IS_SSR_DISABLED, USER_QUERY })(
-                withOrganization({
-                    ssr: !IS_SSR_DISABLED,
-                    GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY: GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,
-                })(
+            withAuth()(
+                withOrganization()(
                     withFeatureFlags({ ssr: !IS_SSR_DISABLED })(
                         MyApp
                     )

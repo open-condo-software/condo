@@ -209,8 +209,12 @@ const withApollo: WillApollo = ({ ssr = false, ...opts } = {}) => PageComponent 
     const apolloCacheConfig = opts.apolloCacheConfig ? opts.apolloCacheConfig : {}
     const apolloClientConfig = opts.apolloClientConfig ? opts.apolloClientConfig : {}
 
-    const WithApollo = ({ apolloClient, apolloState, ...pageProps }) => {
+    const WithApollo = (props) => {
+        const { apolloClient, apolloState, ...pageProps } = props
         if (DEBUG_RERENDERS) console.log('WithApollo()', apolloState)
+        console.log('::@open-condo/WithApollo::>>>', {
+            props,
+        })
         let client
         if (apolloClient) {
             // Happens on: getDataFromTree && next.js ssr
