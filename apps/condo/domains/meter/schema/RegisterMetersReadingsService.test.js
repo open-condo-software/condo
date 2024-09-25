@@ -975,6 +975,69 @@ describe('RegisterMetersReadingsService', () => {
         expect(data2[0].id).toBe(metersReadings[0].id)
     })
 
+    test('prevent to create readings duplicates in one input', async () => {
+        const [o10n] = await createTestOrganization(adminClient)
+        const [property] = await createTestPropertyWithMap(adminClient, o10n)
+        const readingData = createTestReadingData(property)
+        const duplicateReadings = [readingData, readingData]
+
+        const [data] = await registerMetersReadingsByTestClient(adminClient, o10n, duplicateReadings)
+
+        expect(data).toEqual(expect.arrayContaining([expect.objectContaining({
+            id: expect.stringMatching(UUID_REGEXP),
+            meter: expect.objectContaining({
+                id: expect.stringMatching(UUID_REGEXP),
+                property: expect.objectContaining({
+                    id: property.id,
+                    address: property.address,
+                    addressKey: property.addressKey,
+                }),
+                unitType: duplicateReadings[0].addressInfo.unitType,
+                unitName: duplicateReadings[0].addressInfo.unitName,
+                accountNumber: duplicateReadings[0].accountNumber,
+                number: duplicateReadings[0].meterNumber,
+            }),
+        })]))
+
+        const meters = await Meter.getAll(adminClient, {
+            organization: { id: o10n.id },
+            property: { id: property.id },
+        })
+        expect(meters).toHaveLength(1)
+        expect(meters[0].number).toBe(duplicateReadings[0].meterNumber)
+
+        const metersReadings = await MeterReading.getAll(adminClient, { meter: { id_in: map(meters, 'id') } })
+        expect(metersReadings).toHaveLength(1)
+    })
+
+    test('update meter if it present in input two times with different values', async () => {
+        const [o10n] = await createTestOrganization(adminClient)
+        const [property] = await createTestPropertyWithMap(adminClient, o10n)
+        const readingData = createTestReadingData(property)
+        const placeValue = faker.datatype.string(4)
+
+        const duplicateReadings = [readingData, {
+            ...readingData,
+            meterMeta: {
+                numberOfTariffs: 2,
+                place: placeValue,
+            },
+        }]
+
+        await registerMetersReadingsByTestClient(adminClient, o10n, duplicateReadings)
+
+        const meters = await Meter.getAll(adminClient, {
+            organization: { id: o10n.id },
+            property: { id: property.id },
+        })
+
+        expect(meters).toHaveLength(1)
+        expect(meters[0].number).toBe(duplicateReadings[0].meterNumber)
+        expect(meters[0].place).toBe(placeValue)
+        expect(meters[0].nextVerificationDate).toBeFalsy()
+        expect(meters[0].isAutomatic).toBe(false)
+    })
+
     test('can update existing meter via this mutation', async () => {
         const [o10n] = await createTestOrganization(adminClient)
         const [property] = await createTestPropertyWithMap(adminClient, o10n)

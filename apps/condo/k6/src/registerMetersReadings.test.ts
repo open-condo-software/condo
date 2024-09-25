@@ -20,11 +20,9 @@ export const options = {
     scenarios: {
         registerMetersReadings: {
             exec: 'registerMetersReadings',
-            executor: 'constant-arrival-rate',
+            executor: 'constant-vus',
             duration: DURATION,
-            rate: 5,
-            timeUnit: '1s',
-            preAllocatedVUs: 7,
+            vus: 1,
         },
     },
     thresholds: {
@@ -63,7 +61,7 @@ export function setup () {
     const property = createdPropertyResponse.json('data.obj')
 
     const readings = []
-    for (let i = 0; i < 500; i++) {
+    for (let i = 0; i < 250; i++) {
         const reading = createTestReadingData(property)
         readings.push(reading)
     }
@@ -85,9 +83,7 @@ export function registerMetersReadings (data) {
                 dv: 1,
                 sender: { dv: 1, fingerprint: 'k6-load-test' },
                 organization: { id: data.organizationId },
-                readings: [
-
-                ],
+                readings: data.readings,
             },
         },
     }
