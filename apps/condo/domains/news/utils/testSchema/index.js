@@ -132,6 +132,7 @@ async function createTestNewsItemTemplate (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
+    const name = faker.lorem.words(1)
     const title = faker.lorem.words(3)
     const body = faker.lorem.words(19)
     const type = NEWS_TYPE_COMMON
@@ -139,6 +140,7 @@ async function createTestNewsItemTemplate (client, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         sender,
+        name,
         title,
         body,
         type,
@@ -153,12 +155,14 @@ async function updateTestNewsItemTemplate (client, id, extraAttrs = {}) {
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
+    const name = faker.lorem.words(1)
     const title = faker.lorem.words(3)
     const body = faker.lorem.words(19)
 
     const attrs = {
         dv: 1,
         sender,
+        name,
         title,
         body,
         ...extraAttrs,
