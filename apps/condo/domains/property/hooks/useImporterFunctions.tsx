@@ -35,7 +35,7 @@ const createPropertyUnitsMap = (units, sections, floors, minFloor = 1) => {
             name,
             unitsOnFloor,
             minFloor,
-            maxFloor: floors,
+            maxFloor: floors + (minFloor - 1),
         })
     }
 
