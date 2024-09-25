@@ -132,6 +132,7 @@ async function execGqlWithoutAccess (context, { query, variables, errorMessage =
         context: {
             req: context.req,
             ...context.createContext({ skipAccessControl: true }),
+            skipResolveRelations: true,
         },
         variables: pickBy(variables, isNotUndefined),
         query,
