@@ -18,11 +18,16 @@ const PropertyTestMixin = {
     },
 
     createAddressWithUnit () {
-        return `${faker.address.cityName()} ${faker.address.streetAddress(true)}`
+        return createAddressWithUnit()
     },
 
 }
 
+function createAddressWithUnit () {
+    return `${faker.address.cityName()} ${faker.address.streetAddress(true)}`
+}
+
 module.exports = {
     PropertyTestMixin,
+    createAddressWithUnit,
 }

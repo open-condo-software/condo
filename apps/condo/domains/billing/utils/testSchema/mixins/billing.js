@@ -14,7 +14,7 @@ const {
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 
 const { OrganizationTestMixin } = require('./organization')
-const { PropertyTestMixin } = require('./property')
+const { PropertyTestMixin, createAddressWithUnit} = require('./property')
 
 
 /**
@@ -62,9 +62,7 @@ const BillingTestMixin = {
     },
 
     randomNumber (numDigits) {
-        const min = 10 ** (numDigits - 1)
-        const max = 10 ** numDigits - 1
-        return faker.datatype.number({ min, max })
+        return randomNumber(numDigits)
     },
 
     createValidELS () {
@@ -72,28 +70,11 @@ const BillingTestMixin = {
     },
 
     createRecipient (extra = {}) {
-        return {
-            tin: faker.random.numeric(8),
-            routingNumber: faker.random.numeric(5),
-            bankAccount: faker.random.numeric(12),
-            ...extra,
-        }
+        return createRecipient(extra)
     },
 
     createJSONReceipt (extra = {}) {
-        const [month, year] = dayjs().add(-1, 'month').format('MM-YYYY').split('-').map(Number)
-        return Object.fromEntries(Object.entries({
-            importId: faker.datatype.uuid(),
-            address: this.createAddressWithUnit(),
-            accountNumber: this.randomNumber(10).toString(),
-            toPay: faker.finance.amount(-100, 5000),
-            month,
-            year,
-            services: generateServicesData(faker.datatype.number({ min: 3, max: 5 })),
-            ...this.createRecipient(),
-            raw: extra,
-            ...extra,
-        }).filter(([, value]) => !!value))
+        return createJSONReceipt(extra)
     },
 
     async createReceipts (jsonReceipts) {
@@ -120,6 +101,40 @@ const BillingTestMixin = {
 
 }
 
+function randomNumber (numDigits) {
+    const min = 10 ** (numDigits - 1)
+    const max = 10 ** numDigits - 1
+    return faker.datatype.number({ min, max })
+}
+
+function createRecipient (extra = {}) {
+    return {
+        tin: faker.random.numeric(8),
+        routingNumber: faker.random.numeric(5),
+        bankAccount: faker.random.numeric(12),
+        ...extra,
+    }
+}
+
+function createJSONReceipt (extra = {}) {
+    const [month, year] = dayjs().add(-1, 'month').format('MM-YYYY').split('-').map(Number)
+    return Object.fromEntries(Object.entries({
+        importId: faker.datatype.uuid(),
+        address: createAddressWithUnit(),
+        accountNumber: randomNumber(10).toString(),
+        toPay: faker.finance.amount(-100, 5000),
+        month,
+        year,
+        services: generateServicesData(faker.datatype.number({ min: 3, max: 5 })),
+        ...createRecipient(),
+        raw: extra,
+        ...extra,
+    }).filter(([, value]) => !!value))
+}
+
 module.exports = {
     BillingTestMixin,
+    createJSONReceipt,
+    randomNumber,
+    createRecipient,
 }
