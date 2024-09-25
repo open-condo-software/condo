@@ -6,6 +6,7 @@ const { get } = require('lodash')
 
 const { GQLError } = require('@open-condo/keystone/errors')
 const { getLogger } = require('@open-condo/keystone/logging')
+const { getRedisClient } = require('@open-condo/keystone/redis')
 const { find, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/RegisterBillingReceiptsService')
@@ -24,9 +25,13 @@ const {
 const { sortPeriodFunction } = require('@condo/domains/billing/schema/resolvers/utils')
 const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 const { BillingIntegrationOrganizationContext: BillingContextApi } = require('@condo/domains/billing/utils/serverSchema')
+const { ReceiptInputCache } = require('@condo/domains/billing/utils/serverSchema/receiptInputCache')
 
 const appLogger = getLogger('condo')
 const registerReceiptLogger = appLogger.child({ module: 'register-billing-receipts' })
+
+const redisClient = getRedisClient('register-billing-receipts', 'cache')
+const getRedisKey = (billingContextId, importId, controlSum) => `register-billing-receipt:${billingContextId}:${importId}:${controlSum}`
 
 const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingReceiptsService', {
     types: [
@@ -115,10 +120,22 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
 
                 // preserve order for response
                 // errors are critical and receipt will be skipped, problems can be fixed later
-                let receiptIndex = Object.fromEntries(receiptsInput.map((receiptInput, index) =>
-                    ([index, { ...receiptInput, error: null, problems: [] }])
-                ))
+                let receiptIndex = {}
                 let errorsIndex = {}
+                let unchangedIndex = {}
+                const cache = new ReceiptInputCache(redisClient, getRedisKey, billingContextId)
+
+                for (let index = 0; index < receiptsInput.length; index++) {
+                    const receiptInput = receiptsInput[index]
+                    const cachedId = await cache.getReceiptId(receiptInput, index)
+
+                    if (cachedId) {
+                        unchangedIndex[index] = { id: cachedId }
+                    } else {
+                        receiptIndex[index] = { ...receiptInput, error: null, problems: [] }
+                    }
+                }
+                
                 const debug = []
                 const resolvers = [PeriodResolver, RecipientResolver, PropertyResolver, AccountResolver, CategoryResolver, ReceiptResolver]
                 let receiptsPeriods = []
@@ -143,7 +160,13 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     context: billingContextInput,
                     receiptsCount: receiptsInput.length,
                 })
-                const receiptIds = Object.values(receiptIndex).map(({ id }) => id)
+
+                for (const index of Object.keys(receiptIndex)) {
+                    const id = get(receiptIndex, [index, 'id'])
+                    await cache.setReceiptControlSum(null, index, id)
+                }
+
+                const receiptIds = Object.values(receiptIndex).concat(Object.values(unchangedIndex)).map(({ id }) => id)
                 const receipts = receiptIds.length ? await find('BillingReceipt', { id_in: receiptIds }) : []
                 const receiptsIndex = Object.fromEntries(receipts.map(receipt => ([receipt.id, receipt])))
                 if (receiptsPeriods.length) {
@@ -167,7 +190,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                         })
                     }
                 }
-                return Object.values({ ...receiptIndex, ...errorsIndex }).map(idOrError => {
+                return Object.values({ ...receiptIndex, ...unchangedIndex, ...errorsIndex }).map(idOrError => {
                     const id = get(idOrError, 'id')
                     if (id) {
                         return Promise.resolve(receiptsIndex[id])

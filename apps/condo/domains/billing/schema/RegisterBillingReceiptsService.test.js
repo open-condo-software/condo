@@ -527,8 +527,10 @@ describe('RegisterBillingReceiptsService', () => {
                     context: { id: utils.billingContext.id },
                     receipts: [createInput],
                 })
+
                 expect(createdReceipt.id).toEqual(updatedReceipt.id)
                 expect(createdReceipt.v).toEqual(updatedReceipt.v)
+                expect(createdReceipt.updatedAt).toEqual(updatedReceipt.updatedAt)
             })
         })
         describe('Resolvers tests', () => {
