@@ -7,7 +7,6 @@ import { Rule } from 'rc-field-form/lib/interface'
 import React, { useCallback, useEffect, useMemo } from 'react'
 
 import { useApolloClient } from '@open-condo/next/apollo'
-import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Alert, Button } from '@open-condo/ui'
 
@@ -27,6 +26,8 @@ import {
     TicketClassifierTypes,
 } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
+
+import { useAuth } from '@/lib/auth'
 
 
 const INPUT_LAYOUT_PROPS = {

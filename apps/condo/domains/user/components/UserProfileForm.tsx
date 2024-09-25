@@ -5,7 +5,6 @@ import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 
 
-import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button } from '@open-condo/ui'
 
@@ -19,6 +18,8 @@ import { EMAIL_ALREADY_REGISTERED_ERROR } from '@condo/domains/user/constants/er
 import { User } from '@condo/domains/user/utils/clientSchema'
 
 import { UserAvatar } from './UserAvatar'
+
+import { useAuth } from '@/lib/auth'
 
 
 const INPUT_LAYOUT_PROPS = {

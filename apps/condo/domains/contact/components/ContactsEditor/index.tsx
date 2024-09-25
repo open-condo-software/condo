@@ -14,7 +14,6 @@ import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import { Button } from '@condo/domains/common/components/Button'
@@ -27,6 +26,8 @@ import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSc
 import { ContactOption } from './ContactOption'
 import { NEW_CONTACT_PHONE_FORM_ITEM_NAME, NewContactFields } from './NewContactFields'
 import { NotResidentFields } from './NotResidentFields'
+
+import { useOrganization } from '@/lib/organization'
 
 const DEBOUNCE_TIMEOUT = 800
 

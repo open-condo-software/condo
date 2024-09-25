@@ -9,9 +9,7 @@ import {
 import get from 'lodash/get'
 import React, { useMemo } from 'react'
 
-import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 
 import { getSelectFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import {
@@ -48,6 +46,9 @@ import {
     FilterModalPlaceClassifierSelect,
     FilterModalProblemClassifierSelect,
 } from './useModalFilterClassifiers'
+
+import { useAuth } from '@/lib/auth'
+import { useOrganization } from '@/lib/organization'
 
 
 const filterNumber = getNumberFilter('number')

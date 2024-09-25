@@ -3,7 +3,6 @@ import { useRouter } from 'next/router'
 import React, { CSSProperties, useEffect } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Typography } from '@open-condo/ui'
 
 import { CONTEXT_VERIFICATION_STATUS } from '@condo/domains/acquiring/constants/context'
@@ -12,6 +11,8 @@ import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { CONTEXT_FINISHED_STATUS as BILLING_FINISHED_STATUS } from '@condo/domains/miniapp/constants'
+
+import { useOrganization } from '@/lib/organization'
 
 
 const IMAGE_STYLES: CSSProperties = { marginBottom: 32 }

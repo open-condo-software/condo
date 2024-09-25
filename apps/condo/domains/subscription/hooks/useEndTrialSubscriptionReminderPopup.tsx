@@ -6,15 +6,16 @@ import cookie from 'js-cookie'
 import { get } from 'lodash'
 import React, { useState, Dispatch, SetStateAction, useEffect } from 'react'
 
-import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { FormattedMessage } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Modal, Button, Typography } from '@open-condo/ui'
 
 import { fontSizes } from '@condo/domains/common/constants/style'
 
 import { ServiceSubscription } from '../utils/clientSchema'
+
+import { useAuth } from '@/lib/auth'
+import { useOrganization } from '@/lib/organization'
 
 
 interface IEndTrialSubscriptionReminderPopup {

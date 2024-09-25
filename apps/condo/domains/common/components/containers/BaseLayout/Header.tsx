@@ -5,8 +5,6 @@ import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 
 import { Menu } from '@open-condo/icons'
-import { useAuth } from '@open-condo/next/auth'
-import { useOrganization } from '@open-condo/next/organization'
 import { Space } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
@@ -19,6 +17,9 @@ import { useOrganizationInvites } from '@condo/domains/organization/hooks/useOrg
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
 
 import { ITopMenuItemsProps, TopMenuItems } from './components/TopMenuItems'
+
+import { useAuth } from '@/lib/auth'
+import { useOrganization } from '@/lib/organization'
 
 
 const ORGANIZATION_FILTER: OrganizationWhereInput = {
@@ -57,6 +58,7 @@ export const Header: React.FC<IHeaderProps> = (props) => {
                     <Layout.Header className='header mobile-header'>
                         <div className='context-bar'>
                             <Space direction='horizontal' size={4}>
+                                {/*@ts-ignore TODO(INFRA-517) fix organization*/}
                                 <SBBOLIndicator organization={organization} />
                                 <InlineOrganizationSelect/>
                             </Space>

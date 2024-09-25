@@ -5,7 +5,6 @@ import uniq from 'lodash/uniq'
 import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { B2BAppContext } from '@condo/domains/miniapp/utils/clientSchema'
@@ -15,6 +14,8 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import { BaseNewsFormProps, SendPeriodType } from './BaseNewsForm'
 import { BaseNewsFormByFeatureFlag } from './BaseNewsFormByFeatureFlag'
+
+import { useOrganization } from '@/lib/organization'
 
 export interface IResendNewsForm {
     id: string

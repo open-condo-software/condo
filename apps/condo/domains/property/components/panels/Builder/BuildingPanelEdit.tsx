@@ -23,7 +23,6 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import ScrollContainer from 'react-indiana-drag-scroll'
 
-import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Tour } from '@open-condo/ui'
 
@@ -54,6 +53,8 @@ import {
 } from './BuildingPanelCommon'
 import { FullscreenHeader, FullscreenWrapper } from './Fullscreen'
 import { MapEdit, MapEditMode, MapViewMode } from './MapConstructor'
+
+import { useAuth } from '@/lib/auth'
 
 
 const DEBOUNCE_TIMEOUT = 800

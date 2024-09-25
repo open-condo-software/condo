@@ -7,7 +7,6 @@ import { Rule } from 'rc-field-form/lib/interface'
 import React, { CSSProperties, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button } from '@open-condo/ui'
 
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
@@ -29,6 +28,8 @@ import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/componen
 import { UNABLE_TO_CREATE_CONTACT_DUPLICATE, UNABLE_TO_UPDATE_CONTACT_DUPLICATE } from '@condo/domains/user/constants/errors'
 
 import { ButtonWithDisabledTooltip } from '../../common/components/ButtonWithDisabledTooltip'
+
+import { useOrganization } from '@/lib/organization'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {

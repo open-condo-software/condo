@@ -5,7 +5,6 @@ import React, { useCallback, useEffect, useState } from 'react'
 
 import { useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Markdown, Carousel, Typography } from '@open-condo/ui'
 
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
@@ -19,6 +18,8 @@ import { AppCard, MIN_CARD_WIDTH } from '../AppCard'
 
 import type { B2BAppLabelType, MiniAppOutput } from '@app/condo/schema'
 import type { RowProps, ColProps } from 'antd'
+
+import { useOrganization } from '@/lib/organization'
 
 
 const CAROUSEL_GAP = 40

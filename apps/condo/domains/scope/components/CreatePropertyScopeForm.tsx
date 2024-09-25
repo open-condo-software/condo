@@ -2,12 +2,13 @@ import { get } from 'lodash'
 import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button } from '@open-condo/ui'
 
 import { PropertyScope } from '@condo/domains/scope/utils/clientSchema'
 
 import { BasePropertyScopeForm } from './BasePropertyScopeForm'
+
+import { useOrganization } from '@/lib/organization'
 
 
 export const CreatePropertyScopeForm = () => {

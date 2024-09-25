@@ -2,12 +2,13 @@ import get from 'lodash/get'
 import React, { ComponentProps, useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button } from '@open-condo/ui'
 
 import { Incident } from '@condo/domains/ticket/utils/clientSchema'
 
 import { BaseIncidentForm, BaseIncidentFormProps } from './BaseIncidentForm'
+
+import { useOrganization } from '@/lib/organization'
 
 
 export const CreateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormProps['ActionBar']>> = (props) => {

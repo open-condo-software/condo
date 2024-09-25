@@ -8,9 +8,7 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { AlertCircle, PlusCircle, Search } from '@open-condo/icons'
-import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Checkbox, Space, Tooltip } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
@@ -41,7 +39,10 @@ import { PROPERTY_PAGE_SIZE } from '@condo/domains/property/utils/helpers'
 import type { GetServerSideProps } from 'next'
 
 import { initializeApollo, prepareSSRContext } from '@/lib/apollo'
-import { prefetchAuth } from '@/lib/auth'
+import { useAuth } from '@/lib/auth'
+import { prefetchAuthOrRedirect } from '@/lib/auth'
+import { prefetchOrganizationEmployee } from '@/lib/organization'
+import { useOrganization } from '@/lib/organization'
 import { extractSSRState } from '@/lib/ssr'
 
 const ADD_CONTACT_ROUTE = '/contact/create/'
@@ -313,6 +314,7 @@ const ContactsPage = () => {
             filterMeta={filterMeta}
             baseSearchQuery={baseSearchQuery}
             tableColumns={tableColumns}
+            // @ts-ignore TODO(INFRA-517) fix role
             role={role}
             loading={isLoading}
         />
@@ -323,21 +325,17 @@ ContactsPage.requiredAccess = ContactsReadPermissionRequired
 
 export default ContactsPage
 
-export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const { req, res } = context
+
     // @ts-ignore In Next 9 the types (only!) do not match the expected types
     const { headers } = prepareSSRContext(req, res)
     const client = initializeApollo({ headers })
 
-    const user = await prefetchAuth(client)
+    const { redirect, user } = await prefetchAuthOrRedirect(client, context)
+    if (redirect) return redirect
 
-    if (!user) {
-        return {
-            unstable_redirect: {
-                destination: '/auth/signin',
-                permanent: false,
-            },
-        }
-    }
+    const { activeEmployee } = await prefetchOrganizationEmployee({ client, context, userId: user.id })
 
     return extractSSRState(client, req, res, {
         props: {},

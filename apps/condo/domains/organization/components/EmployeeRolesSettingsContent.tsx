@@ -32,7 +32,6 @@ import {
 } from '@open-condo/codegen/generate.hooks'
 import { Close } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, ActionBarProps, Button, Checkbox, Tooltip } from '@open-condo/ui'
 
 import {
@@ -51,6 +50,8 @@ import {
 } from '@condo/domains/organization/hooks/useEmployeeRolesTableColumns'
 import { OrganizationEmployeeRole } from '@condo/domains/organization/utils/clientSchema'
 import { getRelatedPermissionsTranslations } from '@condo/domains/organization/utils/roles.utils'
+
+import { useOrganization } from '@/lib/organization'
 
 
 const MEDIUM_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]

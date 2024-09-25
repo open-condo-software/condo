@@ -19,7 +19,6 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { Meters } from '@open-condo/icons'
-import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { Tour, Typography } from '@open-condo/ui'
 
@@ -46,6 +45,8 @@ import {
 } from '@condo/domains/meter/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { ContactsInfo } from '@condo/domains/ticket/components/BaseTicketForm'
+
+import { useAuth } from '@/lib/auth'
 
 
 export const LAYOUT = {

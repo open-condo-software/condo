@@ -4,7 +4,6 @@ import get from 'lodash/get'
 import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 
 import {
     ComponentType,
@@ -18,6 +17,8 @@ import {
 } from '@condo/domains/common/utils/tables.utils'
 import { MeterResource, MeterTypes, METER_TYPES } from '@condo/domains/meter/utils/clientSchema'
 import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
+
+import { useOrganization } from '@/lib/organization'
 
 
 export function useMeterFilters (meterType: MeterTypes): Array<FiltersMeta<MeterReadingWhereInput>>  {

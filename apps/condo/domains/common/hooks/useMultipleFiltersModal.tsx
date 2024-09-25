@@ -20,7 +20,6 @@ import { Options } from 'scroll-into-view-if-needed'
 
 import { Close, Filter } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Modal as DefaultModal, Button, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
@@ -51,6 +50,8 @@ import {
     getFiltersQueryData,
     getQueryToValueProcessorByType,
 } from '../utils/filters.utils'
+
+import { useOrganization } from '@/lib/organization'
 
 interface IFilterComponentProps<T> {
     name: string

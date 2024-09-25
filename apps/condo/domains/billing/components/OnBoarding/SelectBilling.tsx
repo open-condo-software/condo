@@ -3,7 +3,6 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect } from 'react'
 
-import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Modal } from '@open-condo/ui'
 
 
@@ -18,6 +17,8 @@ import { BillingDescriptionModalContent } from './BillingDescriptionModalContent
 
 import type { BillingIntegration as BillingIntegrationType } from '@app/condo/schema'
 import type { RowProps } from 'antd'
+
+import { useOrganization } from '@/lib/organization'
 
 const CARD_GAP = 40
 const MAX_CARDS = 4

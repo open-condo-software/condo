@@ -4,7 +4,6 @@ import { useCallback, useMemo } from 'react'
 
 import { Download, Play } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Space, Tag, Tooltip } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
@@ -16,6 +15,8 @@ import { formatPhone, getFilteredValue } from '@condo/domains/common/utils/helpe
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 
 import type { Organization, Contact } from '@app/condo/schema'
+
+import { useOrganization } from '@/lib/organization'
 
 interface IFilters extends Pick<Contact, 'name' | 'phone' | 'email'> {
     search?: string

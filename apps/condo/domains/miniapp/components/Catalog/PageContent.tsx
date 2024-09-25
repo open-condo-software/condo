@@ -8,7 +8,6 @@ import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEf
 import { Search } from '@open-condo/icons'
 import { useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Carousel, Banner } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
@@ -26,6 +25,8 @@ import { CardGrid } from './CardGrid'
 import type { TabContent } from './CardGrid'
 import type { MiniAppOutput } from '@app/condo/schema'
 import type { RowProps, ColProps } from 'antd'
+
+import { useOrganization } from '@/lib/organization'
 
 const SECTION_SPACING: RowProps['gutter'] = [0, 40]
 const CONTENT_SPACING: RowProps['gutter'] = [40, 40]

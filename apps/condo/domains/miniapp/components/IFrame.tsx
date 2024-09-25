@@ -1,9 +1,7 @@
 import get from 'lodash/get'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Typography } from '@open-condo/ui'
 
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
@@ -13,6 +11,9 @@ import { extractOrigin } from '@condo/domains/common/utils/url.utils'
 
 import type { IBasicEmptyListProps } from '@condo/domains/common/components/EmptyListView'
 import type { RequestHandler } from '@condo/domains/common/components/PostMessageProvider/types'
+
+import { useAuth } from '@/lib/auth'
+import { useOrganization } from '@/lib/organization'
 
 
 const DEFAULT_FRAME_HEIGHT = 700

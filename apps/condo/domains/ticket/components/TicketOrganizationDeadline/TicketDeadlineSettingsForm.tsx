@@ -5,7 +5,6 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button } from '@open-condo/ui'
 
 import Select from '@condo/domains/common/components/antd/Select'
@@ -14,6 +13,8 @@ import { useNotificationMessages } from '@condo/domains/common/hooks/useNotifica
 import { MIN_TICKET_DEADLINE_DURATION, MAX_TICKET_DEADLINE_DURATION } from '@condo/domains/ticket/constants/common'
 import { TicketOrganizationSetting as TicketSetting } from '@condo/domains/ticket/utils/clientSchema'
 import { convertDurationToDays } from '@condo/domains/ticket/utils/helpers'
+
+import { useOrganization } from '@/lib/organization'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {

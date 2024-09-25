@@ -3,10 +3,8 @@ import { get } from 'lodash'
 import React from 'react'
 
 import { useMutation } from '@open-condo/next/apollo'
-import { useAuth } from '@open-condo/next/auth'
 import { FormattedMessage } from '@open-condo/next/intl'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 
 
 import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
@@ -17,6 +15,9 @@ import {
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
 import type { OrganizationWhereInput } from '@app/condo/schema'
+
+import { useAuth } from '@/lib/auth'
+import { useOrganization } from '@/lib/organization'
 
 interface IOrganizationInvitesHookResult {
     loading: boolean

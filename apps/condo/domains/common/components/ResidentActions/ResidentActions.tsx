@@ -6,7 +6,6 @@ import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import { Readings, NewAppeal, Smartphone, Plus } from '@open-condo/icons'
 import type { IconProps } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Button } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
@@ -15,6 +14,8 @@ import { fontSizes } from '@condo/domains/common/constants/style'
 import { useSearchByPhoneModal } from '@condo/domains/common/hooks/useSearchByPhoneModal'
 import { searchByPhone } from '@condo/domains/contact/utils/clientCard'
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
+
+import { useOrganization } from '@/lib/organization'
 
 export const StyledMenu = styled(Menu)`
   box-sizing: border-box;

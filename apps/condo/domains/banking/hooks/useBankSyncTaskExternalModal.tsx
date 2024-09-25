@@ -2,7 +2,6 @@ import get from 'lodash/get'
 import isNull from 'lodash/isNull'
 import React, { useCallback, useState, useMemo, useEffect } from 'react'
 
-import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { Modal, Button, Typography, Space, Alert } from '@open-condo/ui'
 
@@ -13,6 +12,8 @@ import { useTaskLauncher } from '@condo/domains/common/components/tasks/TaskLaun
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 
 import type { BankAccount } from '@app/condo/schema'
+
+import { useAuth } from '@/lib/auth'
 
 const BANK_SYNC_TASK_DATE_FORMAT = 'YYYY-MM-DD'
 

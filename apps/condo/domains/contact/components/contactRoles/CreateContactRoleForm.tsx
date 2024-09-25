@@ -2,12 +2,13 @@ import { get } from 'lodash'
 import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button } from '@open-condo/ui'
 
 import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
 
 import { BaseContactRoleForm } from './BaseContactRoleForm'
+
+import { useOrganization } from '@/lib/organization'
 
 export const CreateContactRoleForm = () => {
     const intl = useIntl()

@@ -5,13 +5,14 @@ import React, { useCallback } from 'react'
 
 import { useMutation } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 
 import { Button } from '@condo/domains/common/components/Button'
 import { CountDownTimer } from '@condo/domains/common/components/CountDownTimer'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { REINVITE_ORGANIZATION_EMPLOYEE_MUTATION } from '@condo/domains/organization/gql'
+
+import { useOrganization } from '@/lib/organization'
 interface IEmployeeInviteRetryButtonProps {
     employee: OrganizationEmployee
 }

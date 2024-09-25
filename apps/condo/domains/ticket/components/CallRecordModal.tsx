@@ -7,7 +7,6 @@ import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { Download } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Modal, Button, Typography, Space } from '@open-condo/ui'
 
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
@@ -17,6 +16,8 @@ import { CallRecordFragment } from '@condo/domains/ticket/utils/clientSchema'
 import { getOrganizationTickets } from '@condo/domains/ticket/utils/clientSchema/search'
 
 import { CallRecordCard } from './CallRecordCard'
+
+import { useOrganization } from '@/lib/organization'
 
 
 const DROPDOWN_POPUP_CONTAINER_ID = 'attach-tickets-to-call-record'

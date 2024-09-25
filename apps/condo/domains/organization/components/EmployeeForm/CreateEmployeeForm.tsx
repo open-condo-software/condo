@@ -9,7 +9,6 @@ import React, { useEffect, useMemo } from 'react'
 
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Alert, Button } from '@open-condo/ui'
 
 import Input from '@condo/domains/common/components/antd/Input'
@@ -28,6 +27,8 @@ import {
     ClassifiersQueryRemote,
     TicketClassifierTypes,
 } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
+
+import { useOrganization } from '@/lib/organization'
 
 
 const INPUT_LAYOUT_PROPS = {

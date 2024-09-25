@@ -4,7 +4,6 @@ import get from 'lodash/get'
 import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 
 import { getDateRangeFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import {
@@ -20,6 +19,8 @@ import {
 import { MeterReadingDatePicker } from '@condo/domains/meter/components/MeterReadingDatePicker'
 import { MeterReadingSource, MeterResource, MeterTypes, METER_TYPES } from '@condo/domains/meter/utils/clientSchema'
 import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
+
+import { useOrganization } from '@/lib/organization'
 
 
 export function useMeterReadingFilters (meterType: MeterTypes): Array<FiltersMeta<MeterReadingWhereInput>>  {

@@ -5,16 +5,18 @@ import pickBy from 'lodash/pickBy'
 import { useRouter } from 'next/router'
 import React, { useEffect, useMemo } from 'react'
 
-import { useOrganization } from '@open-condo/next/organization'
 
 import { SECOND_LEVEL_STEPS } from '@condo/domains/onboarding/constants/steps'
 import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
 
-import { prefetchAuth } from '../lib/auth'
-
 import type { GetServerSideProps } from 'next'
+
+import { prefetchAuthOrRedirect } from '@/lib/auth'
+import { prefetchOrganizationEmployee } from '@/lib/organization'
+import { useOrganization } from '@/lib/organization'
+
 
 
 
@@ -78,21 +80,17 @@ IndexPage.requiredAccess = OrganizationRequired
 
 export default IndexPage
 
-export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const { req, res } = context
+
     // @ts-ignore In Next 9 the types (only!) do not match the expected types
     const { headers } = prepareSSRContext(req, res)
     const client = initializeApollo({ headers })
 
-    const user = await prefetchAuth(client)
+    const { redirect, user } = await prefetchAuthOrRedirect(client, context)
+    if (redirect) return redirect
 
-    if (!user) {
-        return {
-            unstable_redirect: {
-                destination: '/auth/signin',
-                permanent: false,
-            },
-        }
-    }
+    const { activeEmployee } = await prefetchOrganizationEmployee({ client, context, userId: user.id })
 
     // TODO(INFRA-517): update redirect
     return {

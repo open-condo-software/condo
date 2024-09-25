@@ -4,12 +4,13 @@ import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 
-import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 
 import { Logo } from '@condo/domains/common/components/Logo'
 import { colors, fontSizes } from '@condo/domains/common/constants/style'
 import { PosterLayout } from '@condo/domains/user/components/containers/PosterLayout'
+
+import { useAuth } from '@/lib/auth'
 
 const LOGO_HEADER_STYLES = { width: '100%', justifyContent: 'space-between' }
 const HEADER_LOGO_STYLE: React.CSSProperties = { cursor: 'pointer' }

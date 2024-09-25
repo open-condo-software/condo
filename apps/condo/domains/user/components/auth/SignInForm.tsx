@@ -4,7 +4,6 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { useMutation } from '@open-condo/next/apollo'
-import { useAuth } from '@open-condo/next/auth'
 import { FormattedMessage } from '@open-condo/next/intl'
 import { useIntl } from '@open-condo/next/intl'
 
@@ -18,6 +17,8 @@ import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 import { WRONG_PASSWORD_ERROR, WRONG_PHONE_ERROR } from '@condo/domains/user/constants/errors'
 import { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } from '@condo/domains/user/gql'
+
+import { useAuth } from '@/lib/auth'
 
 
 const ROW_STYLES: React.CSSProperties = {

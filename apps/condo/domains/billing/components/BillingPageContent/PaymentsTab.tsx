@@ -3,13 +3,14 @@ import get from 'lodash/get'
 import React, { CSSProperties } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Typography } from '@open-condo/ui'
 
 import PaymentsTable from '@condo/domains/acquiring/components/payments/PaymentsTable'
 import { Payment } from '@condo/domains/acquiring/utils/clientSchema'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Loader } from '@condo/domains/common/components/Loader'
+
+import { useOrganization } from '@/lib/organization'
 
 
 const SEARCHING_DINO_IMG = 'dino/searching@2x.png'
