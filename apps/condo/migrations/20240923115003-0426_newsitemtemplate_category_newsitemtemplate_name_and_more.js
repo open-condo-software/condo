@@ -11,13 +11,13 @@ ALTER TABLE "NewsItemTemplate" ADD COLUMN "category" varchar(50) NULL;
 --
 -- Add field name to newsitemtemplate
 --
-ALTER TABLE "NewsItemTemplate" ADD COLUMN "name" text DEFAULT 'Temp' NOT NULL;
+ALTER TABLE "NewsItemTemplate" ADD COLUMN "name" text DEFAULT '' NOT NULL;
 ALTER TABLE "NewsItemTemplate" ALTER COLUMN "name" DROP DEFAULT;
 --
--- [CUSTOM] The value of the "name" field for old records must be dynamic. Therefore, the required "name" field in old records is set to "Temp".
--- [CUSTOM] Then the static value of "Temp" is overwritten and the dynamic value name = title is set.
+-- [CUSTOM] The value of the "name" field for old records must be dynamic. Therefore, the required "name" field in old records is set to "".
+-- [CUSTOM] Then the static value of "" is overwritten and the dynamic value name = title is set.
 --
-UPDATE "NewsItemTemplate" SET name = title WHERE name = 'Temp';
+UPDATE "NewsItemTemplate" SET name = title;
 --
 -- Add field category to newsitemtemplatehistoryrecord
 --

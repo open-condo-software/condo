@@ -35,7 +35,7 @@ const NewsItemTemplate = new GQLListSchema('NewsItemTemplate', {
         },
 
         category: {
-            schemaDoc: 'Category of template of the news item. Example `WATER` or any other select value. News item does not necessarily have a category',
+            schemaDoc: 'Category of template of the news item. Example `Water` or any other select value. News item does not necessarily have a category',
             type: 'Select',
             options: ALL_NEWS_CATEGORIES,
             isRequired: false,
