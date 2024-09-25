@@ -3141,6 +3141,7 @@
   "acquiringReceipt.invoice.row.vatPercent": "НДС",
   "acquiringReceipt.invoice.row.amount": "Стоимость",
   "api.acquiring.multiPayment.error.receiptsWithInvoices": "Квитанции и счета не могут быть в одном платеже, увы. Но мы над этим работаем.",
-  "api.acquiring.payment.error.paymentAmountLessThanMinimum": "Сумма оплаты должна быть не меньше чем {minimumPaymentAmount}"
+  "api.acquiring.payment.error.paymentAmountLessThanMinimum": "Сумма оплаты должна быть не меньше чем {minimumPaymentAmount}",
+  "api.acquiring.payment.error.paymentAmountGreaterThanMaximum": "Сумма оплаты не должна превышать {maximumPaymentAmount}"
 }
 
