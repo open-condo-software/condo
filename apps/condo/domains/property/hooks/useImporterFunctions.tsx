@@ -53,7 +53,6 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const SectionLabel = intl.formatMessage({ id: 'property.import.column.Sections' })
     const FloorLabel = intl.formatMessage({ id: 'property.import.column.Floors' })
     const minFloorLabel = intl.formatMessage({ id: 'property.import.column.MinFloor' })
-    console.log(minFloorLabel)
 
     const userOrganization = useOrganization()
     const client = useApolloClient()
@@ -125,7 +124,6 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
 
     const propertyCreator: ObjectCreator = async (row) => {
         if (!row) return
-        console.log(row)
         const [, units, sections, floors, minFloor] = row.row
         const property = get(row.addons, ['suggestion'])
         const value = get(property, 'value')
