@@ -11,6 +11,12 @@ const RECEIPT_INPUT_FIELDS_FOR_CACHE = {
 }
 
 class ReceiptInputCache {
+
+    /**
+     * @param redisClient
+     * @param getRedisKey {function(billingContextId:string, importId:string, controlSum:string):string}
+     * @param billingContextId
+     */
     constructor (redisClient, getRedisKey, billingContextId) {
         this.cacheKeyDatas = {}
         this.redisClient = redisClient
@@ -47,10 +53,12 @@ class ReceiptInputCache {
         receiptInput = this.pickReceiptInputFieldsForCache(receiptInput)
         const controlSum = md5(JSON.stringify(receiptInput))
 
+        const cacheKeyData = { controlSum, importId }
         if (typeof index === 'number' || typeof index === 'string') {
-            this.cacheKeyDatas[index] = { controlSum, importId }
+            this.cacheKeyDatas[index] = cacheKeyData
+            return this.cacheKeyDatas[index]
         }
-        return this.cacheKeyDatas[index]
+        return cacheKeyData
     }
 
     pickReceiptInputFieldsForCache (receiptInput) {

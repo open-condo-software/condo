@@ -5,6 +5,7 @@ const { faker  } = require('@faker-js/faker/locale/ru')
 const Big = require('big.js')
 const dayjs = require('dayjs')
 
+const { getRedisClient } = require('@open-condo/keystone/redis')
 const {
     catchErrorFrom, expectToThrowAuthenticationErrorToResult, expectToThrowAccessDeniedErrorToResult,
 } = require('@open-condo/keystone/test.utils')
@@ -554,6 +555,50 @@ describe('RegisterBillingReceiptsService', () => {
             })
 
         })
+    })
+
+    describe('Cache', () => {
+        const REDIS_CLIENT_NAME = 'register-billing-receipt'
+        const redisClient = getRedisClient(REDIS_CLIENT_NAME, 'cache')
+
+        async function getRedisKeys (billingContextId, importId) {
+            return redisClient.keys(`${REDIS_CLIENT_NAME}:${billingContextId}:${importId}:*`)
+        }
+
+        test('Stores receipt in cache after successful registration', async () => {
+            const receiptInput = utils.createJSONReceipt()
+            const [[createdReceipt]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [receiptInput],
+            })
+
+            const { id: receiptId, importId } = createdReceipt
+            const keysForReceipt = await getRedisKeys(utils.billingContext.id, importId)
+
+            expect(keysForReceipt).toBeDefined()
+            expect(keysForReceipt).toHaveLength(1)
+
+            const cachedId = await redisClient.get(keysForReceipt[0])
+            expect(cachedId).toEqual(receiptId)
+        })
+
+        test('Does not store receipt in cache if receipt errors', async () => {
+            const receiptInput = utils.createJSONReceipt({ year: 23 })
+
+            await catchErrorFrom(async () => {
+                await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                    context: { id: utils.billingContext.id },
+                    receipts: [receiptInput],
+                })
+            }, (e) => {
+                expect(e.errors[0].extensions.code).toEqual(ERRORS.WRONG_YEAR.code)
+                expect(e.errors[0].extensions.type).toEqual(ERRORS.WRONG_YEAR.type)
+            })
+
+            const keysForReceipt = await getRedisKeys(utils.billingContext.id, receiptInput.importId)
+            expect(keysForReceipt).toHaveLength(0)
+        })
+
     })
 
 })
