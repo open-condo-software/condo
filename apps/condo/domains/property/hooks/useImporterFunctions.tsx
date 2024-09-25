@@ -14,7 +14,7 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 import { searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
 
-const createPropertyUnitsMap = (units, sections, floors) => {
+const createPropertyUnitsMap = (units, sections, floors, minFloor = 1) => {
     const unitsOnFloor = Math.ceil(units / (floors * sections))
     if (!unitsOnFloor) {
         return
@@ -34,7 +34,7 @@ const createPropertyUnitsMap = (units, sections, floors) => {
         mapEditor.addSection({
             name,
             unitsOnFloor,
-            minFloor: 1,
+            minFloor,
             maxFloor: floors,
         })
     }
@@ -52,6 +52,8 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const UnitLabel = intl.formatMessage({ id: 'property.import.column.Units' })
     const SectionLabel = intl.formatMessage({ id: 'property.import.column.Sections' })
     const FloorLabel = intl.formatMessage({ id: 'property.import.column.Floors' })
+    const minFloorLabel = intl.formatMessage({ id: 'property.import.column.MinFloor' })
+    console.log(minFloorLabel)
 
     const userOrganization = useOrganization()
     const client = useApolloClient()
@@ -70,6 +72,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         { name: UnitLabel, type: 'number', required: true },
         { name: SectionLabel, type: 'number', required: true },
         { name: FloorLabel, type: 'number', required: true },
+        { name: minFloorLabel, type: 'number', required: false },
     ]
 
     const propertyNormalizer: RowNormalizer = async (row) => {
@@ -122,10 +125,11 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
 
     const propertyCreator: ObjectCreator = async (row) => {
         if (!row) return
-        const [, units, sections, floors] = row.row
+        console.log(row)
+        const [, units, sections, floors, minFloor] = row.row
         const property = get(row.addons, ['suggestion'])
         const value = get(property, 'value')
-        const map = createPropertyUnitsMap(units.value, sections.value, floors.value)
+        const map = createPropertyUnitsMap(units.value, sections.value, floors.value, minFloor.value)
         return await createPropertyAction({
             dv: 1,
             type: PropertyTypeType.Building,
