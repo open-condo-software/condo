@@ -54519,7 +54519,7 @@ export type NewsItemTemplate = {
   organization?: Maybe<Organization>;
   /**  Name of template the news item. Example `Heating outage due to repairs` or any other text value  */
   name?: Maybe<Scalars['String']>;
-  /**  Category of template of the news item. Example `WATER` or any other select value. News item does not necessarily have a category  */
+  /**  Category of template of the news item. Example `Water` or any other select value. News item does not necessarily have a category  */
   category?: Maybe<NewsItemTemplateCategoryType>;
   /**  The title of a future news item  */
   title?: Maybe<Scalars['String']>;

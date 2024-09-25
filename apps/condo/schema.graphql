@@ -61784,7 +61784,7 @@ type NewsItemTemplate {
   """
   name: String
 
-  """ Category of template of the news item. Example `WATER` or any other select value. News item does not necessarily have a category 
+  """ Category of template of the news item. Example `Water` or any other select value. News item does not necessarily have a category 
   """
   category: NewsItemTemplateCategoryType
 
