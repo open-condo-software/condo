@@ -22,6 +22,7 @@ const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testS
 const {
     Resident: ResidentGQL,
     ServiceConsumer: ServiceConsumerGQL,
+    MultiPaymentResident: MultiPaymentResidentGQL,
     REGISTER_RESIDENT_MUTATION,
     REGISTER_RESIDENT_INVOICE_MUTATION,
     REGISTER_RESIDENT_SERVICE_CONSUMERS_MUTATION,
@@ -34,7 +35,6 @@ const {
 } = require('@condo/domains/resident/gql')
 const { makeClientWithResidentUser } = require(
     '@condo/domains/user/utils/testSchema')
-const { MultiPaymentResident: MultiPaymentResidentGQL } = require("@condo/domains/resident/gql");
 
 const Resident = generateGQLTestUtils(ResidentGQL)
 const ServiceConsumer = generateGQLTestUtils(ServiceConsumerGQL)
