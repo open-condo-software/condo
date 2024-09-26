@@ -17,6 +17,7 @@ const {
 const {
     ERRORS,
 } = require('@condo/domains/billing/constants/registerBillingReceiptService')
+const { ReceiptInputCache } = require('@condo/domains/billing/utils/serverSchema/receiptInputCache')
 const { registerBillingReceiptsByTestClient } = require('@condo/domains/billing/utils/testSchema')
 const { generateServicesData } = require('@condo/domains/billing/utils/testSchema')
 const { createTestBillingCategory, BillingIntegrationOrganizationContext: BillingContext } = require('@condo/domains/billing/utils/testSchema')
@@ -560,26 +561,23 @@ describe('RegisterBillingReceiptsService', () => {
     describe('Cache', () => {
         const REDIS_CLIENT_NAME = 'register-billing-receipt'
         const redisClient = getRedisClient(REDIS_CLIENT_NAME, 'cache')
+        const getRedisKey = (billingContextId, controlSum) => `register-billing-receipt:${billingContextId}:${controlSum}`
 
-        async function getRedisKeys (billingContextId, importId) {
-            return redisClient.keys(`${REDIS_CLIENT_NAME}:${billingContextId}:${importId}:*`)
-        }
+        let cacheHelper
+        beforeEach(() => {
+            cacheHelper = new ReceiptInputCache(redisClient, getRedisKey, utils.billingContext.id)
+        })
 
         test('Stores receipt in cache after successful registration', async () => {
             const receiptInput = utils.createJSONReceipt()
-            const [[createdReceipt]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+            await registerBillingReceiptsByTestClient(utils.clients.admin, {
                 context: { id: utils.billingContext.id },
                 receipts: [receiptInput],
             })
+            const { importId } = receiptInput
 
-            const { id: receiptId, importId } = createdReceipt
-            const keysForReceipt = await getRedisKeys(utils.billingContext.id, importId)
-
-            expect(keysForReceipt).toBeDefined()
-            expect(keysForReceipt).toHaveLength(1)
-
-            const cachedId = await redisClient.get(keysForReceipt[0])
-            expect(cachedId).toEqual(receiptId)
+            const cachedImportId = await cacheHelper.getReceiptImportId(receiptInput)
+            expect(cachedImportId).toEqual(importId)
         })
 
         test('Does not store receipt in cache if receipt errors', async () => {
@@ -595,8 +593,22 @@ describe('RegisterBillingReceiptsService', () => {
                 expect(e.errors[0].extensions.type).toEqual(ERRORS.WRONG_YEAR.type)
             })
 
-            const keysForReceipt = await getRedisKeys(utils.billingContext.id, receiptInput.importId)
-            expect(keysForReceipt).toHaveLength(0)
+            const cachedImportId = await cacheHelper.getReceiptImportId(receiptInput)
+            expect(cachedImportId).toBeNull()
+        })
+
+        test('Does not store receipt in cache if it has no importId', async () => {
+            const receiptInput = utils.createJSONReceipt()
+            receiptInput.importId = undefined
+
+            await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [receiptInput],
+            })
+
+            const cachedImportId = await cacheHelper.getReceiptImportId(receiptInput)
+            expect(cachedImportId).toBeNull()
+            expect(Object.values(cacheHelper.cacheKeyDatas)).toHaveLength(0)
         })
 
     })

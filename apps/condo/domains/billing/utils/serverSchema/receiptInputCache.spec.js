@@ -10,7 +10,7 @@ const { createJSONReceipt } = require('@condo/domains/billing/utils/testSchema/m
 const REDIS_CLIENT_NAME = 'receipt-input-cache-test'
     
 describe('receiptInputCache', () => {
-    const getRedisKey = (billingContextId, importId, controlSum) => `${REDIS_CLIENT_NAME}:${billingContextId}:${importId}:${controlSum}`
+    const getRedisKey = (billingContextId, controlSum) => `${REDIS_CLIENT_NAME}:${billingContextId}:${controlSum}`
     const redisClient = getRedisClient(REDIS_CLIENT_NAME, 'cache')
     const billingContextId = faker.random.alphaNumeric(10)
 
@@ -22,11 +22,14 @@ describe('receiptInputCache', () => {
     describe('hash', () => {
         it('gives same hash for same receipt', () => {
             const receiptInput = createJSONReceipt()
+            const anotherCache = new ReceiptInputCache(redisClient, getRedisKey, billingContextId)
 
             const controlSums = []
-            for (let i = 0; i < 10; i++) {
-                const { controlSum } = cache.getReceiptCacheKeyData(receiptInput)
-                controlSums.push(controlSum)
+            for (const cacheHelper of [cache, anotherCache]) {
+                for (let i = 0; i < 10; i++) {
+                    const { controlSum } = cacheHelper.getReceiptCacheKeyData(receiptInput)
+                    controlSums.push(controlSum)
+                }
             }
             const uniqueControlSums = uniq(controlSums)
             expect(uniqueControlSums).toHaveLength(1)
@@ -48,22 +51,45 @@ describe('receiptInputCache', () => {
             expect(controlSum).not.toEqual(anotherControlSum)
             expect(changedControlSum).not.toEqual(anotherControlSum)
         })
+
+        describe('order', () => {
+            it('calculates same hash if order of fields is different', () => {
+                let receiptInput = createJSONReceipt()
+                const { controlSum } = cache.getReceiptCacheKeyData(receiptInput)
+
+                let entries = Object.entries(receiptInput)
+                entries = faker.helpers.shuffle(entries)
+                receiptInput = Object.fromEntries(entries)
+                const { controlSum: shuffledControlSum } = cache.getReceiptCacheKeyData(receiptInput)
+
+                expect(shuffledControlSum).toEqual(controlSum)
+            })
+
+            it('calculates different hash if order of services is different', () => {
+                const receiptInput = createJSONReceipt()
+                const { controlSum } = cache.getReceiptCacheKeyData(receiptInput)
+
+                faker.helpers.shuffle(receiptInput.services)
+                const { controlSum: shuffledControlSum } = cache.getReceiptCacheKeyData(receiptInput)
+
+                expect(shuffledControlSum).not.toEqual(controlSum)
+            })
+        })
     })
     
     describe('cache', () => {
 
-        it('stores receipt id in cache by context, importId and controlSum', async () => {
+        it('stores receipt importId in cache by context and controlSum', async () => {
             const receiptInput = createJSONReceipt()
-            const receiptId = faker.random.alphaNumeric(10)
             const importId = receiptInput.importId
 
             const { controlSum } = cache.getReceiptCacheKeyData(receiptInput)
-            await cache.setReceiptControlSum(receiptInput, null, receiptId)
-            const cachedIdFromClient = await redisClient.get(getRedisKey(billingContextId, importId, controlSum))
-            const cachedIdFromCache = await cache.getReceiptId(receiptInput)
+            await cache.setReceiptImportId(receiptInput, null)
+            const cachedImportIdFromClient = await redisClient.get(getRedisKey(billingContextId, controlSum))
+            const cachedImportIdFromCache = await cache.getReceiptImportId(receiptInput)
 
-            expect(cachedIdFromClient).toEqual(receiptId)
-            expect(cachedIdFromCache).toEqual(receiptId)
+            expect(cachedImportIdFromClient).toEqual(importId)
+            expect(cachedImportIdFromCache).toEqual(importId)
         })
 
         it('stores checkSum and importId by index', () => {
@@ -85,24 +111,35 @@ describe('receiptInputCache', () => {
         it('can save stored data by index', async () => {
             const receiptCount = 10
             const receiptInputs = []
-            const receiptIds = []
-
+            const receiptImportIds = []
 
             for (let index = 0; index < receiptCount; index++) {
                 const receiptInput = createJSONReceipt()
                 receiptInputs.push(receiptInput)
-                receiptIds.push(faker.random.alphaNumeric(10))
+                receiptImportIds.push(receiptInput.importId)
                 cache.getReceiptCacheKeyData(receiptInput, index)
             }
 
             for (let index = 0; index < receiptCount; index++) {
-                await cache.setReceiptControlSum(null, index, receiptIds[index])
+                await cache.setReceiptImportId(null, index)
             }
 
             for (let index = 0; index < receiptCount; index++) {
-                const cachedId = await cache.getReceiptId(receiptInputs[index])
-                expect(cachedId).toEqual(receiptIds[index])
+                const cachedImportId = await cache.getReceiptImportId(receiptInputs[index])
+                expect(cachedImportId).toEqual(receiptImportIds[index])
             }
+        })
+
+        it('does not store receipts with no importId', async () => {
+            const receiptInput = createJSONReceipt()
+            receiptInput.importId = null
+
+            const cacheKeyData = cache.getReceiptCacheKeyData(receiptInput)
+            expect(cacheKeyData).toBeNull()
+
+            await cache.setReceiptImportId(receiptInput, null)
+            const cachedImportIdFromCache = await cache.getReceiptImportId(receiptInput)
+            expect(cachedImportIdFromCache).toBeNull()
         })
 
     })

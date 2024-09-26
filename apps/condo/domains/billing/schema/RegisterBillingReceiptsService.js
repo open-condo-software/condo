@@ -33,7 +33,7 @@ const appLogger = getLogger('condo')
 const registerReceiptLogger = appLogger.child({ module: 'register-billing-receipts' })
 
 const redisClient = getRedisClient('register-billing-receipts', 'cache')
-const getRedisKey = (billingContextId, importId, controlSum) => `register-billing-receipt:${billingContextId}:${importId}:${controlSum}`
+const getRedisKey = (billingContextId, controlSum) => `register-billing-receipt:${billingContextId}:${controlSum}`
 
 const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingReceiptsService', {
     types: [
@@ -129,10 +129,10 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
 
                 for (let index = 0; index < receiptsInput.length; index++) {
                     const receiptInput = receiptsInput[index]
-                    const cachedId = await cache.getReceiptId(receiptInput, index)
+                    const cachedImportId = await cache.getReceiptImportId(receiptInput, index)
 
-                    if (cachedId) {
-                        unchangedIndex[index] = { id: cachedId }
+                    if (cachedImportId) {
+                        unchangedIndex[index] = { importId: cachedImportId }
                     } else {
                         receiptIndex[index] = { ...receiptInput, error: null, problems: [] }
                     }
@@ -164,13 +164,26 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                 })
 
                 for (const index of Object.keys(receiptIndex)) {
-                    const id = get(receiptIndex, [index, 'id'])
-                    await cache.setReceiptControlSum(null, index, id)
+                    await cache.setReceiptImportId(null, index)
                 }
 
-                const receiptIds = Object.values(receiptIndex).concat(Object.values(unchangedIndex)).map(({ id }) => id)
-                const receipts = receiptIds.length ? await find('BillingReceipt', { id_in: receiptIds }) : []
+                const receiptsFindData = {
+                    ids: Object.values(receiptIndex).map(({ id }) => id),
+                    importIds: Object.values(unchangedIndex).map(({ importId }) => importId),
+                }
+
+                let receipts = []
+                if (Object.values(receiptsFindData).some(findData => findData.length)) {
+                    receipts = await find('BillingReceipt', {
+                        OR: [
+                            { id_in: receiptsFindData.ids },
+                            { importId_in: receiptsFindData.importIds },
+                        ],
+                    })
+                }
+
                 const receiptsIndex = Object.fromEntries(receipts.map(receipt => ([receipt.id, receipt])))
+                const importIdToId = Object.fromEntries(receipts.map(receipt => ([receipt.importId, receipt.id])))
                 if (receiptsPeriods.length) {
                     const newestPeriodFromReceipts = receiptsPeriods.sort(sortPeriodFunction).pop()
                     const newerReceiptsCount = await BillingReceipt.count(context, {
@@ -194,8 +207,12 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                 }
                 return Object.values({ ...receiptIndex, ...unchangedIndex, ...errorsIndex }).map(idOrError => {
                     const id = get(idOrError, 'id')
+                    const importId = get(idOrError, 'importId')
+
                     if (id) {
                         return Promise.resolve(receiptsIndex[id])
+                    } else if (importId) {
+                        return Promise.resolve(receiptsIndex[importIdToId[importId]])
                     } else {
                         return Promise.reject(idOrError)
                     }
