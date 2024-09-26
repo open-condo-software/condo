@@ -5,7 +5,7 @@ const { getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const { NOT_FOUND, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/organization/access/AcceptOrRejectOrganizationInviteService')
-const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
+const { OrganizationEmployeeIdOnly } = require('@condo/domains/organization/utils/serverSchema')
 
 const ERRORS = {
     acceptOrRejectOrganizationInviteById: {
@@ -64,12 +64,12 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
                 isRejected = isRejected || false
                 isAccepted = isAccepted || false
 
-                let employee = await OrganizationEmployee.getOne(context, { id, deletedAt: null })
+                let employee = await OrganizationEmployeeIdOnly.getOne(context, { id, deletedAt: null })
                 if (!employee) throw new GQLError({ ...ERRORS.acceptOrRejectOrganizationInviteById.INVITE_NOT_FOUND, messageInterpolation: { id } })
 
                 // if the user accepts the invitation, then update the name, phone number and email address of the employee
                 if (isAccepted) {
-                    employee = await OrganizationEmployee.update(context, employee.id, {
+                    employee = await OrganizationEmployeeIdOnly.update(context, employee.id, {
                         dv: 1,
                         sender,
                         isRejected,
@@ -79,7 +79,7 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
                         email: authedItem.email ? authedItem.email : null,
                     })
                 } else {
-                    employee = await OrganizationEmployee.update(context, employee.id, {
+                    employee = await OrganizationEmployeeIdOnly.update(context, employee.id, {
                         dv: 1,
                         sender,
                         isRejected,
@@ -102,7 +102,7 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
                 isRejected = isRejected || false
                 isAccepted = isAccepted || false
 
-                let employee = await OrganizationEmployee.getOne(context, { inviteCode, user_is_null: true, deletedAt: null })
+                let employee = await OrganizationEmployeeIdOnly.getOne(context, { inviteCode, user_is_null: true, deletedAt: null })
                 if (!employee) throw new GQLError({ ...ERRORS.acceptOrRejectOrganizationInviteByCode.INVITE_NOT_FOUND, messageInterpolation: { inviteCode } })
 
                 // if the user accepts the invitation, then update the name, phone number and email address of the employee
@@ -111,7 +111,7 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
                     phone: get(authedItem, 'phone', null),
                     email: get(authedItem, 'email', null),
                 } : {}
-                employee = await OrganizationEmployee.update(context, employee.id, {
+                employee = await OrganizationEmployeeIdOnly.update(context, employee.id, {
                     dv: 1,
                     sender,
                     user: { connect: { id: context.authedItem.id } },
