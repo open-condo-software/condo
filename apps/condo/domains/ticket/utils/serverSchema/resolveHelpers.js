@@ -6,7 +6,6 @@ const { find } = require('@open-condo/keystone/schema')
 const { getById, getByCondition } = require('@open-condo/keystone/schema')
 
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
-const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 const { FLAT_UNIT_TYPE, SECTION_SECTION_TYPE, PARKING_UNIT_TYPE, PARKING_SECTION_TYPE } = require('@condo/domains/property/constants/common')
 const { PropertyIdAndAddressAndMapOnly } = require('@condo/domains/property/utils/serverSchema')
 const { COMPLETED_STATUS_TYPE, NEW_OR_REOPENED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
@@ -17,7 +16,7 @@ const { PREDICT_TICKET_CLASSIFICATION_QUERY } = require('@condo/domains/ticket/g
 const { TicketPropertyHintProperty } = require('@condo/domains/ticket/utils/serverSchema')
 const { getSectionAndFloorByUnitName } = require('@condo/domains/ticket/utils/unit')
 
-const hasEmployee = (id, employees) => id && employees.some(employee => get(employee, ['user', 'id'], null) === id)
+const hasEmployee = (id, employees) => id && employees.some(employee => get(employee, 'user', null) === id)
 
 function calculateTicketOrder (resolvedData, statusId) {
     if (statusId === STATUS_IDS.OPEN) {
@@ -38,12 +37,12 @@ async function resetDismissedEmployees (existingItem, resolvedData, existedStatu
     if (executorId) employeeIds.push(executorId)
 
     if (!isEmpty(employeeIds)) {
-        const employees = await OrganizationEmployee.getAll(context, {
+        const employees = await find('OrganizationEmployee', {
             user: { id_in: employeeIds },
             organization: { id: organizationId },
             isBlocked: false,
             deletedAt: null,
-        }, {})
+        })
 
         if (!hasEmployee(assigneeId, employees)) {
             resolvedData['assignee'] = null
