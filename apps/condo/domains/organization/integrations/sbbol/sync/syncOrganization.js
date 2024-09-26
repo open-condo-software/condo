@@ -3,8 +3,8 @@ const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { itemsQuery } = require('@open-condo/keystone/schema')
 
-const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { CUSTOMER_IMPORTANT_NOTE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { REGISTER_NEW_ORGANIZATION_MUTATION } = require('@condo/domains/organization/gql')
@@ -76,11 +76,7 @@ const syncOrganization = async ({ context, user, userData, organizationInfo, dvS
         importRemoteSystem: organizationInfo.importRemoteSystem,
     }
 
-    const employees = await loadListByChunks({
-        context: adminContext,
-        list: OrganizationEmployee,
-        chunkSize: 30,
-        limit: 10000,
+    const employees = await itemsQuery('OrganizationEmployee', {
         where: {
             user: { id: user.id },
             deletedAt: null,
