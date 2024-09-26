@@ -188,6 +188,14 @@ const Contact = new GQLListSchema('Contact', {
                 name: 'contact_unique_property_unitName_unitType_phone',
             },
         ],
+        indexes: [
+            // NOTE: used in AllResidentBillingReceiptsService (154)
+            {
+                type: 'BTreeIndex',
+                fields: ['phone', 'isVerified'],
+                name: 'contact_phone_isverified',
+            },
+        ],
     },
     plugins: [
         uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked(),
