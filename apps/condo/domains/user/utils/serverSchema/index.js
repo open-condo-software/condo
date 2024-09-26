@@ -9,6 +9,7 @@ const has = require('lodash/has')
 const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
 const conf = require('@open-condo/config')
+const { find } = require('@open-condo/keystone/schema')
 
 const { REGISTER_NEW_USER_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
@@ -130,7 +131,7 @@ const generateSmsCode = (phone) => {
 
 const updateEmployeesRelatedToUser = async (context, user) => {
     if (!user || !user.id) throw new Error('updateEmployeesRelatedToUser(): without user.id')
-    const acceptedInviteEmployees = await OrganizationEmployee.getAll(context, { user: { id: user.id }, isAccepted: true })
+    const acceptedInviteEmployees = await find('OrganizationEmployee', { user: { id: user.id }, isAccepted: true })
     const readyToUpdateEmployees = acceptedInviteEmployees.filter(employee => !employee.deletedAt)
     if (readyToUpdateEmployees.length > 0) {
         await Promise.all(readyToUpdateEmployees.map(employee => {
