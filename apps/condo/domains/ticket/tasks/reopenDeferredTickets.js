@@ -3,9 +3,9 @@ const { isEmpty, get } = require('lodash')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 const { createCronTask } = require('@open-condo/keystone/tasks')
 
-const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 
@@ -14,7 +14,7 @@ const CHUNK_SIZE = 50
 const appLogger = getLogger('condo')
 const taskLogger = appLogger.child({ module: 'reopenDeferredTickets' })
 
-const hasEmployee = (id, employees) => id && !employees.some(employee => get(employee, ['user', 'id'], null) === id)
+const hasEmployee = (id, employees) => id && !employees.some(employee => get(employee, 'user', null) === id)
 
 /**
  * Opens tickets that are in the "deferred" status and the date they are deferring has expired.
@@ -58,12 +58,12 @@ const reopenDeferredTickets = async () => {
                 if (executorId) employeeIds.push(executorId)
 
                 if (!isEmpty(employeeIds)) {
-                    const employees = await OrganizationEmployee.getAll(keystone, {
+                    const employees = await find('OrganizationEmployee', {
                         user: { id_in: employeeIds },
                         organization: { id: organizationId },
                         isBlocked: false,
                         deletedAt: null,
-                    }, {})
+                    })
 
                     if (hasEmployee(assigneeId, employees)) {
                         updatedData.assignee = { disconnectAll: true }
