@@ -14,10 +14,14 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 import { searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
 
-const createPropertyUnitsMap = (units, sections, floors, minFloor = 1) => {
+const createPropertyUnitsMap = (units, sections, floors, minFloor) => {
     const unitsOnFloor = Math.ceil(units / (floors * sections))
     if (!unitsOnFloor) {
         return
+    }
+
+    if (!minFloor) {
+        minFloor = 1
     }
 
     const propertyUnitsMap = {
