@@ -4,7 +4,7 @@ const { createInstance } = require('@open-condo/clients/address-service-client')
 const { AddressFromStringParser } = require('@open-condo/clients/address-service-client/utils/parseAddressesFromString')
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
-const { find } = require('@open-condo/keystone/schema')
+const { find, itemsQuery } = require('@open-condo/keystone/schema')
 
 const {
     ERRORS,
@@ -26,6 +26,7 @@ class PropertyResolver extends Resolver {
     constructor ({ billingContext, context }) {
         super(billingContext, context, { name: 'property' })
         this.organizationProperties = []
+        this.missingOrganizationPropertiesIndex = {}
         this.transform = new AddressTransform()
         this.propertyFinder = new PropertyFinder()
         this.parser = new AddressFromStringParser()
@@ -49,9 +50,17 @@ class PropertyResolver extends Resolver {
         if (loaded) {
             return loaded
         }
+
+        const knownMissingProperty = this.missingOrganizationPropertiesIndex[addressKey]
+        if (knownMissingProperty) {
+            return loaded
+        }
+
         const [property] = await find('Property', { addressKey, organization: { id: this.organizationId }, deletedAt: null })
         if (property) {
             this.organizationProperties.push(property)
+        } else {
+            this.missingOrganizationPropertiesIndex[addressKey] = true
         }
         return property
     }

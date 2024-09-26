@@ -3,7 +3,7 @@ const { isEmpty, get } = require('lodash')
 const { getOrganizationInfo, getBankInfo } = require('@open-condo/clients/finance-info-client')
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
-const { getById, find } = require('@open-condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 
 const {
     ERRORS,
@@ -21,7 +21,6 @@ class RecipientResolver extends Resolver {
     }
     async init () {
         await this.loadExistingRecipients()
-        this.organization = await getById('Organization', get(this.billingContext, 'organization.id'))
     }
 
     async loadExistingRecipients () {
@@ -32,7 +31,7 @@ class RecipientResolver extends Resolver {
         if (!existing) {
             try {
                 const newRecipient = await BillingRecipientApi.create(this.context, this.buildCreateInput(data, ['context']))
-                await this.loadExistingRecipients()
+                this.recipients.push(newRecipient)
                 return newRecipient
             } catch (error) {
                 return { error: ERRORS.RECIPIENT_SAVE_FAILED }
@@ -42,7 +41,7 @@ class RecipientResolver extends Resolver {
             if (!isEmpty(updateInput)) {
                 try {
                     const updatedRecipient = await BillingRecipientApi.update(this.context, existing.id, updateInput)
-                    await this.loadExistingRecipients()
+                    this.recipients.push(updatedRecipient)
                     return updatedRecipient
                 } catch (error) {
                     return { error: ERRORS.RECIPIENT_SAVE_FAILED }
