@@ -7,7 +7,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
-import { Columns, RowNormalizer, RowValidator, ObjectCreator } from '@condo/domains/common/utils/importer'
+import { Columns, RowNormalizer, RowValidator, ObjectCreator, TableRow } from '@condo/domains/common/utils/importer'
 import { MapEdit } from '@condo/domains/property/components/panels/Builder/MapConstructor'
 import { validHouseTypes } from '@condo/domains/property/constants/property'
 import { Property } from '@condo/domains/property/utils/clientSchema'
@@ -15,13 +15,13 @@ import { searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
 
 const createPropertyUnitsMap = (units, sections, floors, minFloor) => {
-    const unitsOnFloor = Math.ceil(units / (floors * sections))
-    if (!unitsOnFloor) {
-        return
-    }
-
     if (!minFloor) {
         minFloor = 1
+    }
+
+    const unitsOnFloor = Math.ceil(units / ((floors - (minFloor - 1)) * sections))
+    if (!unitsOnFloor) {
+        return
     }
 
     const propertyUnitsMap = {
@@ -39,7 +39,7 @@ const createPropertyUnitsMap = (units, sections, floors, minFloor) => {
             name,
             unitsOnFloor,
             minFloor,
-            maxFloor: floors + (minFloor - 1),
+            maxFloor: floors,
         })
     }
 
