@@ -76377,6 +76377,7 @@ enum WebhookSubscriptionModelType {
   Organization
   Ticket
   TicketComment
+  TicketCommentFile
   Contact
   UserHelpRequest
   AcquiringIntegrationContext

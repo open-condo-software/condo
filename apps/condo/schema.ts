@@ -99405,6 +99405,7 @@ export enum WebhookSubscriptionModelType {
   Organization = 'Organization',
   Ticket = 'Ticket',
   TicketComment = 'TicketComment',
+  TicketCommentFile = 'TicketCommentFile',
   Contact = 'Contact',
   UserHelpRequest = 'UserHelpRequest',
   AcquiringIntegrationContext = 'AcquiringIntegrationContext',
