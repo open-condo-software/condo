@@ -22,7 +22,7 @@ const hasEmployee = (id, employees) => id && !employees.some(employee => get(emp
  * The check happens every hour.
  */
 const reopenDeferredTickets = async () => {
-    const { keystone } = await getSchemaCtx('Ticket')
+    const { keystone } = getSchemaCtx('Ticket')
     const context = await keystone.createContext()
     const currentDate = dayjs().toISOString()
     const ticketWhere = {
