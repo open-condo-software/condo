@@ -1,8 +1,6 @@
 import { faker } from '@faker-js/faker/locale/ru'
 import dayjs from 'dayjs'
 import { check } from 'k6'
-import crypto from 'k6/crypto'
-import encoding from 'k6/encoding'
 
 import {
     setupCondoAuth,
@@ -10,7 +8,6 @@ import {
     createBillingIntegration,
     createBillingIntegrationOrganizationContext,
     sendAuthorizedRequest,
-    registerBillingReceiptFile,
 } from './utils'
 
 const RECEIPT_PER_ACCOUNT_NUMBER = 50
@@ -24,8 +21,6 @@ export const options = {
             exec: 'registerBillingReceipt',
             executor: 'constant-vus',
             duration: DURATION,
-            // executor: 'per-vu-iterations',
-            // iterations: 1,
             vus: 1,
         },
     },
