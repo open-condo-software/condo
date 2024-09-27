@@ -29,6 +29,7 @@ const {
     makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee, createTestOrganizationEmployeeRole,
 } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { LOCALE_EN } = require('@condo/domains/user/constants/common')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 
@@ -459,8 +460,8 @@ describe('exportMeterReadings', () => {
                 },
             },
             sortBy: 'createdAt_ASC',
-            locale: 'ru',
-            timeZone: 'Europe/Moscow',
+            timeZone: 'Europe/London',
+            locale: LOCALE_EN,
         })
 
         const { timeZone, locale } = task
@@ -485,20 +486,20 @@ describe('exportMeterReadings', () => {
 
         expectDataFormat(data,  [
             [
-                'Дата снятия',
-                'Адрес',
-                'Помещение',
-                'Тип помещения',
-                'Лицевой счет',
-                'Услуга',
-                'Номер прибора',
-                'Место',
-                'Показание по тарифу №1',
-                'Показание по тарифу №2',
-                'Показание по тарифу №3',
-                'Показание по тарифу №4',
-                'Житель',
-                'Источник',
+                'Reading date',
+                'Address',
+                'Unit',
+                'Unit type',
+                'Account number',
+                'Service',
+                'Meter number',
+                'Place',
+                'Reading from tariff №1',
+                'Reading from tariff №2',
+                'Reading from tariff №3',
+                'Reading from tariff №4',
+                'Contact',
+                'Source',
             ],
             ...(meterReadings.map(meterReading => [
                 formatDate(meterReading.date, timeZone),

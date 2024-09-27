@@ -46,6 +46,7 @@ const { COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants
 const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 const { EXCEL } = require('@condo/domains/common/constants/export')
+const { LOCALE_EN } = require('@condo/domains/user/constants/common')
 
 
 async function createTestMeterResource (client, extraAttrs = {}) {
@@ -483,8 +484,8 @@ async function createTestMeterReadingExportTask (client, user, extraAttrs = {}) 
         format: EXCEL,
         where: {},
         sortBy: ['createdAt_DESC'],
-        locale: faker.random.locale(),
-        timeZone: 'Europe/Moscow',
+        locale: LOCALE_EN,
+        timeZone: 'Europe/London',
         user: { connect: { id: user.id } },
         ...extraAttrs,
     }
