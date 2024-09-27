@@ -1,6 +1,7 @@
 const dayjs = require('dayjs')
 const get = require('lodash/get')
 const uniq = require('lodash/uniq')
+const uniqBy = require('lodash/uniqBy')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
@@ -15,7 +16,7 @@ const { EXPORT_TYPE_METERS } = require('@condo/domains/common/utils/exportToExce
 const { exportRecordsAsXlsxFile } = require('@condo/domains/common/utils/serverSchema/export')
 const { setLocaleForKeystoneContext } = require('@condo/domains/common/utils/serverSchema/setLocaleForKeystoneContext')
 const { MeterReadingExportTask, MeterReading, loadMetersForExcelExport } = require('@condo/domains/meter/utils/serverSchema')
-const { buildMeterReadingsLoader, MeterResource, MeterReadingSource } = require('@condo/domains/meter/utils/serverSchema')
+const { loadMeterReadingsForExcelExport, MeterResource, MeterReadingSource } = require('@condo/domains/meter/utils/serverSchema')
 
 
 const BASE_ATTRIBUTES = { dv: 1, sender: { dv: 1, fingerprint: TASK_WORKER_FINGERPRINT } }
@@ -113,41 +114,39 @@ async function exportMeterReadings (taskId) {
 
         const totalRecordsCount = await MeterReading.count(context, where)
 
-        const meterReadingsLoader = await buildMeterReadingsLoader({ where, sortBy })
+        const meterReadings = await loadMeterReadingsForExcelExport({ where, sortBy })
+        const lastReadingsByMeter = uniqBy(meterReadings.sort((a, b) => (a.date < b.date ? 1 : -1)), (reading => get(reading, 'meter')))
+
         const meterResources = await MeterResource.getAll(context, {})
         const meterReadingSources = await MeterReadingSource.getAll(context, {})
+        const meterIds = uniq(lastReadingsByMeter.map(meterReading => meterReading.meter))
+        const meters = await loadMetersForExcelExport({ where: { id_in: meterIds } })
+
+        const mappedMeterReadings = lastReadingsByMeter.map(meterReading => {
+            const source = meterReadingSources.find(meterReadingSource => meterReadingSource.id === meterReading.source)
+            const sourceName = get(source, 'name')
+            const meter = meters.find(meter => meter.id === meterReading.meter)
+            if (!meter) return
+
+            const resource = meterResources.find(meterResource => meterResource.id === meter.resource)
+            const resourceName = get(resource, 'name')
+
+            meterReading.source = sourceName
+            meterReading.resource = resourceName
+            meterReading.unitName = meter.unitName
+            meterReading.unitType = meter.unitType
+            meterReading.accountNumber = meter.accountNumber
+            meterReading.number = meter.number
+            meterReading.place = meter.place
+            meterReading.address = meter.property
+
+            return meterReading
+        }).filter(Boolean)
 
         const loadRecordsBatch = async (offset, limit) => {
-            const meterReadings = await meterReadingsLoader.loadChunk(offset, limit)
-            const meterIds = uniq(meterReadings.map(reading => get(reading, 'meter')).filter(Boolean))
-            const meters = await loadMetersForExcelExport({ where: { id_in: meterIds } })
-
-            const mappedMeterReadings = meterReadings.map(meterReading => {
-                const source = meterReadingSources.find(meterReadingSource => meterReadingSource.id === meterReading.source)
-                const sourceName = get(source, 'name')
-                const meter = meters.find(meter => meter.id === meterReading.meter)
-                if (!meter) return
-
-                const resource = meterResources.find(meterResource => meterResource.id === meter.resource)
-                const resourceName = get(resource, 'name')
-
-                meterReading.source = sourceName
-                meterReading.resource = resourceName
-                meterReading.unitName = meter.unitName
-                meterReading.unitType = meter.unitType
-                meterReading.accountNumber = meter.accountNumber
-                meterReading.number = meter.number
-                meterReading.place = meter.place
-                meterReading.address = meter.property
-
-                return meterReading
-            }).filter(Boolean)
-
             this.progress(Math.floor(offset / totalRecordsCount * 100))
-
-            return mappedMeterReadings
+            return mappedMeterReadings.slice(offset, limit)
         }
-
         const convertRecordToFileRow = async (meterReading) => await meterReadingToRow({
             task,
             meterReading,
@@ -168,6 +167,7 @@ async function exportMeterReadings (taskId) {
             }
         }
     } catch (err) {
+        console.log('err', err)
         await MeterReadingExportTask.update(context, taskId, {
             ...BASE_ATTRIBUTES,
             status: ERROR,
