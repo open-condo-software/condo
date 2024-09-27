@@ -24,10 +24,6 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
     let admin
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
-        jest.setTimeout(10000) // set 10s timeout for async calls
-    })
-    afterAll(() => {
-        jest.setTimeout(5000) // set default 5s timeout for async calls
     })
     describe('notifications', () => {
         it('sends notification of BILLING_RECEIPT_ADDED_TYPE for toPay > 0', async () => {
