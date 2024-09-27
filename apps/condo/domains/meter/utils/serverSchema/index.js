@@ -178,8 +178,8 @@ const loadMetersForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'
     return await metersLoader.load()
 }
 
-const buildMeterReadingsLoader = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
-    return new GqlWithKnexLoadList({
+const loadMeterReadingsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
+    const meterReadingsLoader = new GqlWithKnexLoadList({
         listKey: 'MeterReading',
         fields: 'id date value1 value2 value3 value4 clientName',
         singleRelations: [
@@ -189,6 +189,8 @@ const buildMeterReadingsLoader = async ({ where = {}, sortBy = ['createdAt_DESC'
         sortBy,
         where,
     })
+
+    return await meterReadingsLoader.load()
 }
 
 const loadPropertyMetersForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
@@ -239,6 +241,6 @@ module.exports = {
     registerMetersReadings,
     MeterReadingsImportTask,
     MeterReadingExportTask,
-    buildMeterReadingsLoader,
+    loadMeterReadingsForExcelExport,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

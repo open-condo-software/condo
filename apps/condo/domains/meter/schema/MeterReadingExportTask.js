@@ -127,6 +127,7 @@ const MeterReadingExportTask = new GQLListSchema('MeterReadingExportTask', {
         where: {
             schemaDoc: 'Filtering conditions for records to export',
             type: 'Json',
+            graphQLInputType: 'MeterReadingWhereInput',
             isRequired: true,
             access: {
                 read: true,
@@ -157,6 +158,7 @@ const MeterReadingExportTask = new GQLListSchema('MeterReadingExportTask', {
         sortBy: {
             schemaDoc: 'Sorting parameters for records to export',
             type: 'Json',
+            graphQLInputType: '[SortMeterReadingsBy]',
             isRequired: true,
             access: {
                 read: true,
