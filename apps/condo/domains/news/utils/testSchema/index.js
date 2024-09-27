@@ -134,7 +134,7 @@ async function createTestNewsItemTemplate (client, extraAttrs = {}) {
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const name = faker.lorem.words(1)
-    const category = Math.floor(Math.random() * ALL_NEWS_CATEGORIES.length)
+    const category = ALL_NEWS_CATEGORIES[Math.floor(Math.random() * ALL_NEWS_CATEGORIES.length)]
     const title = faker.lorem.words(3)
     const body = faker.lorem.words(19)
     const type = NEWS_TYPE_COMMON
@@ -159,7 +159,7 @@ async function updateTestNewsItemTemplate (client, id, extraAttrs = {}) {
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const name = faker.lorem.words(1)
-    const category = Math.floor(Math.random() * ALL_NEWS_CATEGORIES.length)
+    const category = ALL_NEWS_CATEGORIES[Math.floor(Math.random() * ALL_NEWS_CATEGORIES.length)]
     const title = faker.lorem.words(3)
     const body = faker.lorem.words(19)
 
