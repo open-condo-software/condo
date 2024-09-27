@@ -17,6 +17,7 @@ const { i18n } = require('@open-condo/locales/loader')
 
 const { CANCELLED } = require('@condo/domains/common/constants/export')
 const { COMPLETED } = require('@condo/domains/common/constants/export')
+const { EXCEL } = require('@condo/domains/common/constants/export')
 const { getTmpFile, downloadFile, readXlsx, expectDataFormat } = require('@condo/domains/common/utils/testSchema/file')
 const { COLD_WATER_METER_RESOURCE_ID, CALL_METER_READING_SOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const { ERRORS } = require('@condo/domains/meter/schema/MeterReadingExportTask')
@@ -77,6 +78,7 @@ describe('MeterReadingExportTask', () => {
                 expect(task.createdAt).toMatch(DATETIME_RE)
                 expect(task.updatedAt).toMatch(DATETIME_RE)
                 expect(task.user.id).toEqual(employeeClient.user.id)
+                expect(task.format).toEqual(EXCEL)
             })
 
             test('can read any tasks', async () => {
@@ -89,7 +91,7 @@ describe('MeterReadingExportTask', () => {
             })
 
             test('can update any tasks', async () => {
-                const [createdAdminTask] = await createTestMeterReadingExportTask(admin, admin.user, {
+                const [createdAdminTask] = await createTestMeterReadingExportTask(admin, employeeClient.user, {
                     where: {
                         organization: {
                             id: organization.id,
@@ -146,7 +148,7 @@ describe('MeterReadingExportTask', () => {
                 adminTask = createdAdminTask
             })
 
-            test('cannot create', async () => {
+            test('cannot create for other user task', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await createTestMeterReadingExportTask(support, employeeClient.user, {
                         where: {
@@ -158,14 +160,14 @@ describe('MeterReadingExportTask', () => {
                 })
             })
 
-            test('cannot read', async () => {
+            test('cannot read for other user task', async () => {
                 const tasks = await MeterReadingExportTask.getAll(support, {
                     id: adminTask.id,
                 })
                 expect(tasks).toHaveLength(0)
             })
 
-            test('cannot update', async () => {
+            test('cannot update task for other user', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await updateTestMeterReadingExportTask(support, adminTask.id, {
                         status: CANCELLED,
@@ -436,8 +438,8 @@ describe('exportMeterReadings', () => {
         const [resource] = await MeterResource.getAll(userClient, { id: COLD_WATER_METER_RESOURCE_ID })
         const [source] = await MeterReadingSource.getAll(userClient, { id: CALL_METER_READING_SOURCE_ID })
 
-        const metersCount = 1
-        const meterReadingsOnEachMeter = 1
+        const metersCount = 10
+        const meterReadingsOnEachMeter = 10
         const meterReadingsCount = meterReadingsOnEachMeter * metersCount
 
         for (let i = 0; i < metersCount; i++) {
