@@ -1,3 +1,4 @@
+const dayjs = require('dayjs')
 const get = require('lodash/get')
 const { default: Redlock } = require('redlock')
 
@@ -27,7 +28,7 @@ const sendBillingReceiptsAddedNotifications = async (resendFromDt = null, taskId
             retryJitter: 1000,
         }) // 0.5 sec
         try {
-            if (await redisClient.get(REDIS_LAST_DATE_KEY) > createdAt) {
+            if (dayjs(await redisClient.get(REDIS_LAST_DATE_KEY)).isAfter(dayjs(createdAt))) {
                 return
             }
             await redisClient.set(REDIS_LAST_DATE_KEY, createdAt)
@@ -52,15 +53,15 @@ const sendBillingReceiptsAddedNotifications = async (resendFromDt = null, taskId
     if (!lastSync) throw new Error(`Invalid last sync date: ${lastDt}`)
     // After synchronization with integrations (RegisterBillingReceiptsService), the context is updated to put the lastReport:JSON field. 
     // Therefore, we understand that according to the context updated after the date of the last notification mailing, there are new receipts and we fetch such contexts.
-    const BIOContexts = await find('BillingIntegrationOrganizationContext', {
+    const BillingContexts = await find('BillingIntegrationOrganizationContext', {
         updatedAt_gte: lastSync,
         status: CONTEXT_FINISHED_STATUS,
         deletedAt: null,
     })
 
-    BIOContexts.forEach((context) => {
+    BillingContexts.forEach((context) => {
         const lastReport = get(context, 'lastReport.finishTime')
-        if ( lastReport > lastSync) {
+        if (dayjs(lastReport).isAfter(dayjs(lastSync))) {
             sendBillingReceiptsAddedNotificationForOrganizationContextTask.delay(context, lastSync, handleLastDtChange, taskId)
         }
     })
