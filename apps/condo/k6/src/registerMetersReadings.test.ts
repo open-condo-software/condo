@@ -31,6 +31,8 @@ export const options = {
     },
 }
 
+const METER_READINGS_COUNT = 500
+
 const createTestReadingData = (property, extraAttrs = {}) => ({
     address: property.address,
     addressInfo: {
@@ -61,7 +63,7 @@ export function setup () {
     const property = createdPropertyResponse.json('data.obj')
 
     const readings = []
-    for (let i = 0; i < 250; i++) {
+    for (let i = 0; i < METER_READINGS_COUNT; i++) {
         const reading = createTestReadingData(property)
         readings.push(reading)
     }
@@ -91,5 +93,14 @@ export function registerMetersReadings (data) {
 
     check(response, {
         'registerMetersReadings status is 200': (res) => res.status === 200,
+        'registerMetersReadings response provided': (res) => {
+            const result = res.json('data.result')
+
+            if (Array.isArray(result)) {
+                return result.length === METER_READINGS_COUNT
+            }
+
+            return false
+        },
     })
 }
