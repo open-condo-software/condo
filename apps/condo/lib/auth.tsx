@@ -49,10 +49,10 @@ export const AuthProvider: React.FC = ({ children }) => {
 
     const [user, setUser] = useState<AuthenticatedUserType>(get(authenticatedUser, 'authenticatedUser', null))
 
-    const refetchAuth = useCallback(async (withClearStore = true) => {
-        if (withClearStore) await apolloClient.clearStore()
+    const refetchAuth = useCallback(async () => {
+        // if (withClearStore) await apolloClient.clearStore()
         await refetch()
-    }, [apolloClient, refetch])
+    }, [refetch])
 
     const [signOutMutation, { loading: signOutLoading }] = useSignOutMutation({
         onCompleted: async (data) => {
