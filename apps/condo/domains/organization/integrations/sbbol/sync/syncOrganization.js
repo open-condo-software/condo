@@ -3,7 +3,6 @@ const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { itemsQuery } = require('@open-condo/keystone/schema')
 
 const { CUSTOMER_IMPORTANT_NOTE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
@@ -76,13 +75,10 @@ const syncOrganization = async ({ context, user, userData, organizationInfo, dvS
         importRemoteSystem: organizationInfo.importRemoteSystem,
     }
 
-    const employees = await itemsQuery('OrganizationEmployee', {
-        where: {
-            user: { id: user.id },
-            deletedAt: null,
-        },
-        sortBy: ['updatedAt_DESC'],
-    })
+    const employees = await OrganizationEmployee.getAll(adminContext, {
+        user: { id: user.id },
+        deletedAt: null,
+    }, {  sortBy: ['updatedAt_DESC'] })
 
     const [importedOrganization] = await Organization.getAll(adminContext, {
         ...importInfo,
