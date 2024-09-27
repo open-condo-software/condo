@@ -52728,14 +52728,14 @@ input MeterReadingExportTaskWhereInput {
   meta_not: JSON
   meta_in: [JSON]
   meta_not_in: [JSON]
-  where: JSON
-  where_not: JSON
-  where_in: [JSON]
-  where_not_in: [JSON]
-  sortBy: JSON
-  sortBy_not: JSON
-  sortBy_in: [JSON]
-  sortBy_not_in: [JSON]
+  where: MeterReadingWhereInput
+  where_not: MeterReadingWhereInput
+  where_in: [MeterReadingWhereInput]
+  where_not_in: [MeterReadingWhereInput]
+  sortBy: [SortMeterReadingsBy]
+  sortBy_not: [SortMeterReadingsBy]
+  sortBy_in: [[SortMeterReadingsBy]]
+  sortBy_not_in: [[SortMeterReadingsBy]]
   locale: MeterReadingExportTaskLocaleType
   locale_not: MeterReadingExportTaskLocaleType
   locale_in: [MeterReadingExportTaskLocaleType]
@@ -52862,8 +52862,8 @@ input MeterReadingExportTaskUpdateInput {
   totalRecordsCount: Int
   file: Upload
   meta: JSON
-  where: JSON
-  sortBy: JSON
+  where: MeterReadingWhereInput
+  sortBy: [SortMeterReadingsBy]
   locale: MeterReadingExportTaskLocaleType
   timeZone: String
   user: UserRelateToOneInput
@@ -52890,8 +52890,8 @@ input MeterReadingExportTaskCreateInput {
   totalRecordsCount: Int
   file: Upload
   meta: JSON
-  where: JSON
-  sortBy: JSON
+  where: MeterReadingWhereInput
+  sortBy: [SortMeterReadingsBy]
   locale: MeterReadingExportTaskLocaleType
   timeZone: String
   user: UserRelateToOneInput
