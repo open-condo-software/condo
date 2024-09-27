@@ -52616,6 +52616,11 @@ enum MeterReadingExportTaskFormatType {
   excel
 }
 
+enum MeterReadingExportTaskLocaleType {
+  ru
+  en
+}
+
 """ Stores requested export format, status of export job, link to exported file and information about progress of export job 
 """
 type MeterReadingExportTask {
@@ -52657,7 +52662,7 @@ type MeterReadingExportTask {
   sortBy: JSON
 
   """ Requested export locale, in that the resulting file will be rendered """
-  locale: String
+  locale: MeterReadingExportTaskLocaleType
 
   """ To requested timeZone all datetime fields will be converted """
   timeZone: String
@@ -52731,24 +52736,10 @@ input MeterReadingExportTaskWhereInput {
   sortBy_not: JSON
   sortBy_in: [JSON]
   sortBy_not_in: [JSON]
-  locale: String
-  locale_not: String
-  locale_contains: String
-  locale_not_contains: String
-  locale_starts_with: String
-  locale_not_starts_with: String
-  locale_ends_with: String
-  locale_not_ends_with: String
-  locale_i: String
-  locale_not_i: String
-  locale_contains_i: String
-  locale_not_contains_i: String
-  locale_starts_with_i: String
-  locale_not_starts_with_i: String
-  locale_ends_with_i: String
-  locale_not_ends_with_i: String
-  locale_in: [String]
-  locale_not_in: [String]
+  locale: MeterReadingExportTaskLocaleType
+  locale_not: MeterReadingExportTaskLocaleType
+  locale_in: [MeterReadingExportTaskLocaleType]
+  locale_not_in: [MeterReadingExportTaskLocaleType]
   timeZone: String
   timeZone_not: String
   timeZone_contains: String
@@ -52873,7 +52864,7 @@ input MeterReadingExportTaskUpdateInput {
   meta: JSON
   where: JSON
   sortBy: JSON
-  locale: String
+  locale: MeterReadingExportTaskLocaleType
   timeZone: String
   user: UserRelateToOneInput
   v: Int
@@ -52901,7 +52892,7 @@ input MeterReadingExportTaskCreateInput {
   meta: JSON
   where: JSON
   sortBy: JSON
-  locale: String
+  locale: MeterReadingExportTaskLocaleType
   timeZone: String
   user: UserRelateToOneInput
   v: Int

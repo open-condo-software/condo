@@ -33621,7 +33621,7 @@ export type MeterReadingExportTask = {
   /**  Sorting parameters for records to export  */
   sortBy?: Maybe<Scalars['JSON']>;
   /**  Requested export locale, in that the resulting file will be rendered  */
-  locale?: Maybe<Scalars['String']>;
+  locale?: Maybe<MeterReadingExportTaskLocaleType>;
   /**  To requested timeZone all datetime fields will be converted  */
   timeZone?: Maybe<Scalars['String']>;
   /**  User that requested this exporting operation. Will be used for read access checks to display all exported tasks somewhere and to display progress indicator of ongoing exporting task for current user  */
@@ -33651,7 +33651,7 @@ export type MeterReadingExportTaskCreateInput = {
   meta?: Maybe<Scalars['JSON']>;
   where?: Maybe<Scalars['JSON']>;
   sortBy?: Maybe<Scalars['JSON']>;
-  locale?: Maybe<Scalars['String']>;
+  locale?: Maybe<MeterReadingExportTaskLocaleType>;
   timeZone?: Maybe<Scalars['String']>;
   user?: Maybe<UserRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
@@ -33966,6 +33966,11 @@ export type MeterReadingExportTaskHistoryRecordsUpdateInput = {
   data?: Maybe<MeterReadingExportTaskHistoryRecordUpdateInput>;
 };
 
+export enum MeterReadingExportTaskLocaleType {
+  Ru = 'ru',
+  En = 'en'
+}
+
 export enum MeterReadingExportTaskStatusType {
   Processing = 'processing',
   Completed = 'completed',
@@ -33982,7 +33987,7 @@ export type MeterReadingExportTaskUpdateInput = {
   meta?: Maybe<Scalars['JSON']>;
   where?: Maybe<Scalars['JSON']>;
   sortBy?: Maybe<Scalars['JSON']>;
-  locale?: Maybe<Scalars['String']>;
+  locale?: Maybe<MeterReadingExportTaskLocaleType>;
   timeZone?: Maybe<Scalars['String']>;
   user?: Maybe<UserRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
@@ -34039,24 +34044,10 @@ export type MeterReadingExportTaskWhereInput = {
   sortBy_not?: Maybe<Scalars['JSON']>;
   sortBy_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   sortBy_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  locale?: Maybe<Scalars['String']>;
-  locale_not?: Maybe<Scalars['String']>;
-  locale_contains?: Maybe<Scalars['String']>;
-  locale_not_contains?: Maybe<Scalars['String']>;
-  locale_starts_with?: Maybe<Scalars['String']>;
-  locale_not_starts_with?: Maybe<Scalars['String']>;
-  locale_ends_with?: Maybe<Scalars['String']>;
-  locale_not_ends_with?: Maybe<Scalars['String']>;
-  locale_i?: Maybe<Scalars['String']>;
-  locale_not_i?: Maybe<Scalars['String']>;
-  locale_contains_i?: Maybe<Scalars['String']>;
-  locale_not_contains_i?: Maybe<Scalars['String']>;
-  locale_starts_with_i?: Maybe<Scalars['String']>;
-  locale_not_starts_with_i?: Maybe<Scalars['String']>;
-  locale_ends_with_i?: Maybe<Scalars['String']>;
-  locale_not_ends_with_i?: Maybe<Scalars['String']>;
-  locale_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  locale_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  locale?: Maybe<MeterReadingExportTaskLocaleType>;
+  locale_not?: Maybe<MeterReadingExportTaskLocaleType>;
+  locale_in?: Maybe<Array<Maybe<MeterReadingExportTaskLocaleType>>>;
+  locale_not_in?: Maybe<Array<Maybe<MeterReadingExportTaskLocaleType>>>;
   timeZone?: Maybe<Scalars['String']>;
   timeZone_not?: Maybe<Scalars['String']>;
   timeZone_contains?: Maybe<Scalars['String']>;

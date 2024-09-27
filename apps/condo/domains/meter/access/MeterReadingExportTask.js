@@ -36,6 +36,8 @@ async function canManageMeterReadingExportTasks ({ authentication: { item: user 
 
         return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationIds, 'canReadMeters')
     } else if (operation === 'update') {
+        if (!itemId) return false
+
         const task = await getById('MeterReadingExportTask', itemId)
         if (task.deletedAt) {
             return false
