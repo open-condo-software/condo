@@ -3,10 +3,13 @@
  */
 
 const index = require('@app/condo/index')
+const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
 const { setFakeClientMode, makeLoggedInAdminClient, waitFor } = require('@open-condo/keystone/test.utils')
 
+const { TestUtils, ResidentTestMixin, ContactTestMixin } = require('@condo/domains/billing/utils/testSchema/testUtils')
+const { _internalScheduleTaskByNameByTestClient } = require('@condo/domains/common/utils/testSchema')
 const {
     BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
     BILLING_RECEIPT_ADDED_TYPE,
@@ -206,4 +209,39 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
         })
     })
 
+    describe('Real-life test cases', () => {
+        let environment
+        beforeAll(async () => {
+            environment = new TestUtils([ResidentTestMixin])
+            await environment.init()
+        })
+
+        it('send push after RegisterBillingReceipts', async () => {
+            jest.setTimeout(10000000)
+            const accountNumber = faker.random.alphaNumeric(12)
+            const [[{ id: receiptId }]] = await environment.createReceipts([
+                environment.createJSONReceipt({ accountNumber }),
+            ])
+            const resident = await environment.createResident()
+            const [{ id: serviceConsumerId }] = await environment.createServiceConsumer(resident, accountNumber)
+
+            await waitFor(async () => {
+                const [res] = await _internalScheduleTaskByNameByTestClient(admin, { taskName: 'sendBillingReceiptNotificationsWorkDaysTask' })
+                expect(res.id).toBeDefined()
+            }, { delay: 2 * 1000 })
+
+            const messageWhere = {
+                user: { id: resident.user.id },
+                type: BILLING_RECEIPT_ADDED_TYPE,
+            }
+            await waitFor(async () => {
+                const message = await Message.getOne(admin, messageWhere)
+                expect(message.id).toBeDefined()
+                expect(message.id).toBeDefined()
+            }, { delay: 2 * 1000 })
+            const message = await Message.getOne(admin, messageWhere)
+            console.log(message)
+        })
+
+    })
 })
