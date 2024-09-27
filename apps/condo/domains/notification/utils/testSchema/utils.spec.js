@@ -1,7 +1,7 @@
 const { faker } = require('@faker-js/faker')
 const sample = require('lodash/sample')
 
-const { getRandomTokenData } = require('./utils')
+const { getRandomTokenData } = require('@condo/domains/notification/utils/testSchema/utils')
 
 const { PUSH_TRANSPORT_TYPES } = require('@condo/domains/notification/constants/constants')
 
