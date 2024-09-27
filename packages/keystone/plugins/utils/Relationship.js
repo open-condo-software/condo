@@ -9,8 +9,8 @@ const { get, isEmpty } = require('lodash')
 async function internalResolveNestedOperations (
     resolveNestedOperations, operations, item, context, getItem, mutationState
 ) {
-    // we have a special case for skipResolveRelations flag
-    // in case if we are upsert relation field and skipResolveRelations is set up
+    // we have a special case for skipAccessControl flag
+    // in case if we are upsert relation field and skipAccessControl is set up
     // let's skip resolving nested connect operation
     const connectId = get(operations, 'connect.id')
     if (context.skipAccessControl && Object.keys(operations).length === 1 && !isEmpty(connectId)) {
