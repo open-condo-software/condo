@@ -10,7 +10,7 @@ const { PUSH_TYPE_SILENT_DATA } = require('@condo/domains/notification/constants
 const {
     RemoteClient, syncRemoteClientByTestClient,
 } = require('@condo/domains/notification/utils/testSchema')
-const { getRandomTokenData } = require('@condo/domains/notification/utils/testSchema/helpers')
+const { getRandomTokenData } = require('@condo/domains/notification/utils/testSchema/utils')
 
 describe('SyncRemoteClientService', () => {
     describe('Anonymous', () => {

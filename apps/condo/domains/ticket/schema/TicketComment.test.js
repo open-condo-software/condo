@@ -18,7 +18,7 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 const { Message, syncRemoteClientByTestClient } = require('@condo/domains/notification/utils/testSchema')
 const { syncRemoteClientWithPushTokenByTestClient, updateTestMessage } = require('@condo/domains/notification/utils/testSchema')
-const { getRandomTokenData, getRandomFakeSuccessToken } = require('@condo/domains/notification/utils/testSchema/helpers')
+const { getRandomTokenData, getRandomFakeSuccessToken } = require('@condo/domains/notification/utils/testSchema/utils')
 const { updateTestOrganizationEmployee, updateTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')

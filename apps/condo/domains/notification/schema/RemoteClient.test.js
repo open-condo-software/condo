@@ -15,7 +15,7 @@ const {
 
 const { DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE } = require('@condo/domains/common/constants/errors')
 const { RemoteClient, createTestRemoteClient, updateTestRemoteClient } = require('@condo/domains/notification/utils/testSchema')
-const { getRandomTokenData } = require('@condo/domains/notification/utils/testSchema/helpers')
+const { getRandomTokenData } = require('@condo/domains/notification/utils/testSchema/utils')
 
 describe('RemoteClient', () => {
     describe('Anonymous', () => {

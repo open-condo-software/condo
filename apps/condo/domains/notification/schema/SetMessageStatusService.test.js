@@ -18,7 +18,7 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 const { setMessageStatusByTestClient, syncRemoteClientByTestClient } = require('@condo/domains/notification/utils/testSchema')
 const { Message, sendMessageByTestClient } = require('@condo/domains/notification/utils/testSchema')
-const { getRandomTokenData } = require('@condo/domains/notification/utils/testSchema/helpers')
+const { getRandomTokenData } = require('@condo/domains/notification/utils/testSchema/utils')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('SetMessageStatusService', () => {

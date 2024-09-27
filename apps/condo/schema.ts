@@ -63955,7 +63955,8 @@ export type PropertyWhereUniqueInput = {
 export enum PushTransportType {
   Firebase = 'firebase',
   Apple = 'apple',
-  Huawei = 'huawei'
+  Huawei = 'huawei',
+  Redstore = 'redstore'
 }
 
 export enum PushType {
@@ -74642,13 +74643,15 @@ export type RemoteClientHistoryRecordsUpdateInput = {
 export enum RemoteClientPushTransportType {
   Firebase = 'firebase',
   Apple = 'apple',
-  Huawei = 'huawei'
+  Huawei = 'huawei',
+  Redstore = 'redstore'
 }
 
 export enum RemoteClientPushTransportVoIpType {
   Firebase = 'firebase',
   Apple = 'apple',
-  Huawei = 'huawei'
+  Huawei = 'huawei',
+  Redstore = 'redstore'
 }
 
 export enum RemoteClientPushTypeType {

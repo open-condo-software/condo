@@ -39119,6 +39119,7 @@ enum RemoteClientPushTransportType {
   firebase
   apple
   huawei
+  redstore
 }
 
 enum RemoteClientDevicePlatformType {
@@ -39136,6 +39137,7 @@ enum RemoteClientPushTransportVoIPType {
   firebase
   apple
   huawei
+  redstore
 }
 
 enum RemoteClientPushTypeVoIPType {
@@ -77602,6 +77604,7 @@ enum PushTransportType {
   firebase
   apple
   huawei
+  redstore
 }
 
 enum DevicePlatformType {

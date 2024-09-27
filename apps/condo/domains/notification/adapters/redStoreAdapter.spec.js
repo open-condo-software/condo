@@ -6,28 +6,67 @@ const conf = require('@open-condo/config')
 const {
     PUSH_FAKE_TOKEN_SUCCESS,
     PUSH_FAKE_TOKEN_FAIL,
-    FIREBASE_CONFIG_TEST_PUSHTOKEN_ENV,
-    PUSH_TYPE_SILENT_DATA,
+    REDSTORE_CONFIG_TEST_PUSHTOKEN_ENV,
     PUSH_TYPE_DEFAULT,
     FAKE_SUCCESS_MESSAGE_PREFIX,
     CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 
 const {
-    FirebaseAdapter,
-    EMPTY_NOTIFICATION_TITLE_BODY_ERROR,
-} = require('./firebaseAdapter')
+    RedStoreAdapter,
+    redStoreAdapterPrepareData,
+} = require('./redStoreAdapter')
 
-const adapter = new FirebaseAdapter()
+const adapter = new RedStoreAdapter()
 const FAKE_SUCCESS_MESSAGE_PREFIX_REGEXP = new RegExp(`^${FAKE_SUCCESS_MESSAGE_PREFIX}`)
-const FIREBASE_TEST_PUSHTOKEN = conf[FIREBASE_CONFIG_TEST_PUSHTOKEN_ENV] || null
+const REDSTORE_TEST_PUSHTOKEN = conf[REDSTORE_CONFIG_TEST_PUSHTOKEN_ENV] || null
 
 jest.mock('@open-condo/config',  () => {
     return {
         APPS_WITH_DISABLED_NOTIFICATIONS: '["condo.app.clients"]',
+        REDSTORE_CONFIG_JSON: '{ "condo": { "url": "http://localhost:4006", "project_id": "someProjectId", "service_token": "someServiceToken" } }',
     }
 })
-describe('Firebase adapter utils', () => {
+
+jest.mock('@open-condo/keystone/fetch',  () => {
+    return {
+        fetch: jest.fn().mockImplementation( (url, options) => {
+            const { body: rawBody, method, headers } = options
+            // validation of fetch options
+            if (!rawBody) throw new Error('sendPush error. Body is empty')
+            if (!method) throw new Error('sendPush error. Method is null or undefined')
+            if (method.toUpperCase() !== 'POST') throw new Error('sendPush error. Method should be POST')
+            if (!headers) throw new Error('sendPush error. Headers is null or undefined')
+            if (headers['Content-Type'] !== 'application/json') throw new Error('sendPush error. Header \'Content-Type\' is not provided or not equal \'application/json\' ')
+            if (!headers['Authorization']) throw new Error('sendPush error. Header \'Authorization\' is not provided')
+
+            const body = JSON.parse(rawBody)
+            if (!body?.message?.notification?.title) throw new Error('sendPush error. Title of push is null or undefined')
+            if (!body?.message?.notification?.body) throw new Error('sendPush error. Body of push is null or undefined')
+            if (!body?.message?.token) throw new Error('sendPush error. Token is null or undefined')
+
+            const errorState = {
+                'error' : {
+                    'code' :  400,
+                    'message' :  'The registration token is not a valid FCM registration token',
+                    'status' :  'INVALID_ARGUMENT',
+                },
+            }
+
+            const response = {}
+            if (body?.message?.token === 'PUSH_FAKE_TOKEN_SUCCESS') {
+                response.headers = { ':status': 200 }
+                response.json = () => ({})
+            }
+            if (body?.message?.token === 'PUSH_FAKE_TOKEN_FAIL') {
+                response.headers = { ':status': 400 }
+                response.json = () => errorState
+            }
+            return response
+        }),
+    }
+})
+describe('redStore adapter utils', () => {
     it('should succeed sending push notification to fake success push token ', async () => {
         const tokens = [PUSH_FAKE_TOKEN_SUCCESS]
         const [isOk, result] = await adapter.sendNotification({
@@ -37,8 +76,14 @@ describe('Firebase adapter utils', () => {
                 body: `${dayjs().format()} Condo greets you!`,
             },
             data: {
-                app : 'condo',
+                appId : 'condo',
                 type: 'notification',
+            },
+            appIds: {
+                [PUSH_FAKE_TOKEN_SUCCESS]: 'condo',
+            },
+            pushTypes: {
+                [PUSH_FAKE_TOKEN_SUCCESS]: PUSH_TYPE_DEFAULT,
             },
         })
 
@@ -47,14 +92,12 @@ describe('Firebase adapter utils', () => {
         expect(result.successCount).toEqual(1)
         expect(result.responses).toBeDefined()
         expect(result.responses).toHaveLength(1)
-        expect(result.responses[0].success).toBeTruthy()
-        expect(result.responses[0].messageId).toMatch(FAKE_SUCCESS_MESSAGE_PREFIX_REGEXP)
     })
 
     it('tries to send push notification to real test push token if provided ', async () => {
-        if (!FIREBASE_TEST_PUSHTOKEN) return
+        if (!REDSTORE_TEST_PUSHTOKEN) return
 
-        const tokens = [FIREBASE_TEST_PUSHTOKEN]
+        const tokens = [REDSTORE_TEST_PUSHTOKEN]
         const [isOk, result] = await adapter.sendNotification({
             type: CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
             tokens,
@@ -66,7 +109,7 @@ describe('Firebase adapter utils', () => {
                 // app: 'condo',
                 // type: 'notification',
                 recurrentPaymentContextId: faker.datatype.uuid(),
-                recurrentPaymentContext: { id: 'faker.datatype.uuid()' },
+                recurrentPaymentContext: { id: faker.datatype.uuid() },
                 errorCode: 'test2',
             },
         })
@@ -77,7 +120,6 @@ describe('Firebase adapter utils', () => {
         expect(result.responses).toBeDefined()
         expect(result.responses).toHaveLength(1)
         expect(result.responses[0].success).toBeTruthy()
-        expect(result.responses[0].messageId).toMatch(adapter.messageIdPrefixRegexp)
     })
 
     it('should fail sending push notification to fake fail push token ', async () => {
@@ -88,8 +130,14 @@ describe('Firebase adapter utils', () => {
                 body: `${dayjs().format()} Condo greets you!`,
             },
             data: {
-                app : 'condo',
+                appId : 'condo',
                 type: 'notification',
+            },
+            appIds: {
+                [PUSH_FAKE_TOKEN_FAIL]: 'condo',
+            },
+            pushTypes: {
+                [PUSH_FAKE_TOKEN_FAIL]: PUSH_TYPE_DEFAULT,
             },
         })
 
@@ -100,9 +148,6 @@ describe('Firebase adapter utils', () => {
         expect(result.responses).toHaveLength(1)
         expect(result.responses[0].success).toBeFalsy()
         expect(result.responses[0].error).toBeDefined()
-        expect(result.responses[0].error.errorInfo).toBeDefined()
-        expect(result.responses[0].error.errorInfo.code).toBeDefined()
-        expect(result.responses[0].error.errorInfo.message).toBeDefined()
     })
 
     it('should succeed sending push notification to fake success and fail push token ', async () => {
@@ -113,8 +158,16 @@ describe('Firebase adapter utils', () => {
                 body: `${dayjs().format()} Condo greets you!`,
             },
             data: {
-                app : 'condo',
+                appId : 'condo',
                 type: 'notification',
+            },
+            appIds: {
+                [PUSH_FAKE_TOKEN_FAIL]: 'condo',
+                [PUSH_FAKE_TOKEN_SUCCESS]: 'condo',
+            },
+            pushTypes: {
+                [PUSH_FAKE_TOKEN_FAIL]: PUSH_TYPE_DEFAULT,
+                [PUSH_FAKE_TOKEN_SUCCESS]: PUSH_TYPE_DEFAULT,
             },
         })
 
@@ -124,26 +177,23 @@ describe('Firebase adapter utils', () => {
         expect(result.failureCount).toEqual(1)
         expect(result.responses).toBeDefined()
         expect(result.responses).toHaveLength(2)
-        expect(result.responses[0].success).toBeTruthy()
-        expect(result.responses[0].messageId).toMatch(FAKE_SUCCESS_MESSAGE_PREFIX_REGEXP)
-        expect(result.responses[1].success).toBeFalsy()
+        expect(result.responses[0].error).toBeFalsy()
         expect(result.responses[1].error).toBeDefined()
-        expect(result.responses[1].error.errorInfo).toBeDefined()
-        expect(result.responses[1].error.errorInfo.code).toBeDefined()
-        expect(result.responses[1].error.errorInfo.message).toBeDefined()
     })
 
     it('sends push notification of proper structure on pushType = PUSH_TYPE_DEFAULT', async () => {
-        const tokens = [PUSH_FAKE_TOKEN_SUCCESS]
         const pushData = {
-            tokens,
+            tokens: [PUSH_FAKE_TOKEN_SUCCESS],
             notification: {
                 title: 'Condo',
                 body: `${dayjs().format()} Condo greets you!`,
             },
             data: {
-                app : 'condo',
+                appId : 'condo',
                 type: 'notification',
+            },
+            appIds: {
+                [PUSH_FAKE_TOKEN_SUCCESS]: 'condo',
             },
             pushTypes: {
                 [PUSH_FAKE_TOKEN_SUCCESS]: PUSH_TYPE_DEFAULT,
@@ -166,72 +216,32 @@ describe('Firebase adapter utils', () => {
         expect(pushContext.notification.body).toEqual(pushData.notification.body)
     })
 
-    it('sends push notification of proper structure on pushType = PUSH_TYPE_SILENT_DATA', async () => {
-        const tokens = [PUSH_FAKE_TOKEN_SUCCESS]
-        const pushData = {
-            tokens,
-            notification: {
-                title: 'Condo',
-                body: `${dayjs().format()} Condo greets you!`,
-            },
-            data: {
-                app : 'condo',
-                type: 'notification',
-            },
-            pushTypes: {
-                [PUSH_FAKE_TOKEN_SUCCESS]: PUSH_TYPE_SILENT_DATA,
-            },
-        }
-        const [isOk, result] = await adapter.sendNotification(pushData)
-
-        expect(isOk).toBeTruthy()
-        expect(result).toBeDefined()
-        expect(result.successCount).toEqual(1)
-        expect(result.responses).toBeDefined()
-        expect(result.responses).toHaveLength(1)
-        expect(result.pushContext).toBeDefined()
-
-        const pushContext = result.pushContext[PUSH_TYPE_SILENT_DATA]
-
-        expect(pushContext).toBeDefined()
-        expect(pushContext.notification).toBeUndefined()
-        expect(pushContext.data).toBeDefined()
-        expect(pushContext.data._title).toEqual(pushData.notification.title)
-        expect(pushContext.data._body).toEqual(pushData.notification.body)
-    })
-
     it('doesnt send push notification to app with disabled notifications', async () => {
-        const tokens = [PUSH_FAKE_TOKEN_SUCCESS]
         const pushData = {
-            tokens,
+            tokens: [PUSH_FAKE_TOKEN_SUCCESS],
             notification: {
                 title: 'Condo',
                 body: `${dayjs().format()} Condo greets you!`,
             },
             data: {
-                app : 'condo.app.clients',
+                appId : 'condo.app.clients',
                 type: 'notification',
             },
+            appIds: {
+                [PUSH_FAKE_TOKEN_FAIL]: 'condo.app.clients',
+                [PUSH_FAKE_TOKEN_FAIL]: 'condo',
+            },
             pushTypes: {
-                [PUSH_FAKE_TOKEN_SUCCESS]: PUSH_TYPE_SILENT_DATA,
+                [PUSH_FAKE_TOKEN_FAIL]: PUSH_TYPE_DEFAULT,
+                [PUSH_FAKE_TOKEN_SUCCESS]: PUSH_TYPE_DEFAULT,
             },
         }
         const [isOk, result] = await adapter.sendNotification(pushData)
 
         expect(isOk).toBeFalsy()
         expect(result).toBeDefined()
-        expect(result.successCount).toEqual(0)
-        expect(result.responses).toBeDefined()
-        expect(result.responses).toHaveLength(0)
         expect(result.pushContext).toBeDefined()
 
-        const pushContext = result.pushContext[PUSH_TYPE_SILENT_DATA]
-
-        expect(pushContext).toBeDefined()
-        expect(pushContext.notification).toBeUndefined()
-        expect(pushContext.data).toBeDefined()
-        expect(pushContext.data._title).toEqual(pushData.notification.title)
-        expect(pushContext.data._body).toEqual(pushData.notification.body)
     })
 
     it('should fail to send invalid push notification with missing title to fake success push token ', async () => {
@@ -242,11 +252,17 @@ describe('Firebase adapter utils', () => {
                     body: `${dayjs().format()} Condo greets you!`,
                 },
                 data: {
-                    app : 'condo',
+                    appId : 'condo',
                     type: 'notification',
                 },
+                appIds: {
+                    [PUSH_FAKE_TOKEN_SUCCESS]: 'condo',
+                },
+                pushTypes: {
+                    [PUSH_FAKE_TOKEN_SUCCESS]: PUSH_TYPE_DEFAULT,
+                },
             })
-        ).rejects.toThrow(EMPTY_NOTIFICATION_TITLE_BODY_ERROR)
+        ).rejects.toThrow('Missing notification.title or notification.body')
     })
 
     it('should fail to send invalid push notification with missing body to fake success push token ', async () => {
@@ -254,14 +270,20 @@ describe('Firebase adapter utils', () => {
             adapter.sendNotification({
                 tokens: [PUSH_FAKE_TOKEN_SUCCESS],
                 notification: {
-                    title: 'Condo',
+                    title: 'condo',
                 },
                 data: {
-                    app : 'condo',
+                    appId : 'condo',
                     type: 'notification',
                 },
+                appIds: {
+                    [PUSH_FAKE_TOKEN_SUCCESS]: 'condo',
+                },
+                pushTypes: {
+                    [PUSH_FAKE_TOKEN_SUCCESS]: PUSH_TYPE_DEFAULT,
+                },
             })
-        ).rejects.toThrow(EMPTY_NOTIFICATION_TITLE_BODY_ERROR)
+        ).rejects.toThrow('Missing notification.title or notification.body')
     })
 
     it('makes sure that PUSH notification data fields are all of string type (converted & normalized)', async () => {
@@ -270,7 +292,7 @@ describe('Firebase adapter utils', () => {
             ticketNumber: faker.datatype.number(8), // number type
             userId: faker.datatype.uuid(),
         }
-        const preparedData = FirebaseAdapter.prepareData(data)
+        const preparedData = redStoreAdapterPrepareData(data)
 
         expect(typeof preparedData.ticketNumber).toEqual('string')
     })
