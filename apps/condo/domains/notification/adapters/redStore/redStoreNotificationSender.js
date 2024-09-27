@@ -12,10 +12,10 @@ class RedStoreNotificationSender {
     _url = null
 
     constructor (config) {
+        if (!config['project_id'] || !config['service_token'] || !config['url']) throw Error('Config is invalid. Check fields project_id, service_token, url')
         this._projectId = config['project_id']
         this._serviceToken = config['service_token']
         this._url = config['url']
-        if (!this._projectId || !this._serviceToken || !this._url) throw Error('Config is invalid. Check fields project_id, service_token, url')
     }
 
     async sendPush (token, notification, data) {

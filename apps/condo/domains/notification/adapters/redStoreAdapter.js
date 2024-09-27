@@ -37,12 +37,7 @@ class RedStoreAdapter {
     _config = null
 
     constructor (config = REDSTORE_CONFIG) {
-        try {
-            if (isEmpty(config)) throw new Error(`Valid ${REDSTORE_CONFIG_ENV} should be provided within .helm (.env)`)
-        } catch (err) {
-            // For CI/local tests config is useless because of emulation via FAKE tokens
-            logger.error({ msg: 'redStore adapter error', err })
-        }
+        if (isEmpty(config)) logger.error({ msg: 'redStore adapter error', errorMessage: `Valid ${REDSTORE_CONFIG_ENV} should be provided within .helm (.env)` })
 
         this._config = config
     }
@@ -130,7 +125,7 @@ class RedStoreAdapter {
                 }
             }
         } else {
-            throw new Error('config and notifications cannot be empty')
+            logger.error({ msg: 'config and notifications cannot be empty' })
         }
 
         const isOk = !isEmpty(result) && result.successCount > 0
