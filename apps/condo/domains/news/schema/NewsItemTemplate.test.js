@@ -87,7 +87,7 @@ describe('NewsItemTemplate', () => {
                 expect(obj.updatedAt).toMatch(DATETIME_RE)
                 expect(obj.organization).toBeNull()
                 expect(obj.name).toEqual(attrs.name)
-                expect(obj.category).toBeNull()
+                expect(obj.category).toEqual(attrs.category)
                 expect(obj.title).toEqual(attrs.title)
                 expect(obj.body).toEqual(attrs.body)
                 expect(obj.type).toEqual(attrs.type)
