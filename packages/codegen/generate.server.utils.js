@@ -153,11 +153,11 @@ async function execGqlWithoutAccess (context, { query, variables, errorMessage =
 }
 
 /** @deprecated use generateServerUtils with schemaName parameter */
-function generateServerUtilsDeprecated (gql) {
+function _generateServerUtilsDeprecated (gql) {
     if (!gql) throw new Error('you are trying to generateServerUtils without gql argument')
 
     // note developers that they are using deprecated generateServerUtils
-    console.log(`Generation of server utils by provided GQL object ${gql.PLURAL_FORM} going to be deprecated soon`)
+    console.warn(`Generation of server utils by provided GQL object ${gql.PLURAL_FORM} going to be deprecated soon`)
 
     async function getAll (context, where, { sortBy, first, skip } = {}, options = {}) {
         if (!context) throw new Error('no context')
@@ -198,14 +198,14 @@ function generateServerUtilsDeprecated (gql) {
         }
     }
 
-    async function count (context, where, { sortBy, first, skip } = {}, options = {}) {
+    async function count (context, where, options = {}) {
         if (!context) throw new Error('no context')
         if (!where) throw new Error('no where')
         _checkOptions(options)
         return await execGqlWithoutAccess(context, {
             query: gql.GET_COUNT_OBJS_QUERY,
             variables: {
-                where, sortBy, first, skip,
+                where,
             },
             errorMessage: `[error] Unable to query ${gql.PLURAL_FORM}`,
             dataPath: 'meta.count',
@@ -354,7 +354,7 @@ function generateServerUtils (gqlOrSchemaName) {
 
     // check if this is deprecated server utils generation by provided gql object
     if (!isSchemaNameProvided) {
-        return generateServerUtilsDeprecated(gqlOrSchemaName)
+        return _generateServerUtilsDeprecated(gqlOrSchemaName)
     }
 
     // make decision to use defaultGql or not
@@ -574,14 +574,15 @@ function generateServerUtils (gqlOrSchemaName) {
      * @param id - object id
      * @param fields - returning fields in gql notation
      * @param extraAttrs - can hold additional data for an update operation
+     * @param options - server side tuning options
      * @returns {Promise<*>} - model stored object
      */
-    async function softDelete (context, id, fields, extraAttrs = {}) {
+    async function softDelete (context, id, fields, extraAttrs = {}, options = {}) {
         const attrs = {
             deletedAt: 'true',
             ...extraAttrs,
         }
-        return await update(context, id, attrs, fields)
+        return await update(context, id, attrs, fields, options)
     }
 
     /**
@@ -590,9 +591,10 @@ function generateServerUtils (gqlOrSchemaName) {
      * @param ids - objects ids
      * @param fields - returning fields in gql notation
      * @param extraAttrs - can hold additional data for an update operation
+     * @param options - server side tuning options
      * @returns {Promise<[*]>} - model stored objects
      */
-    async function softDeleteMany (context, ids, fields, extraAttrs = {}) {
+    async function softDeleteMany (context, ids, fields, extraAttrs = {}, options = {}) {
         const data = ids.map(id => ({
             id,
             data: {
@@ -600,7 +602,7 @@ function generateServerUtils (gqlOrSchemaName) {
                 ...extraAttrs,
             },
         }))
-        return await updateMany(context, data, fields)
+        return await updateMany(context, data, fields, options)
     }
 
     /**
