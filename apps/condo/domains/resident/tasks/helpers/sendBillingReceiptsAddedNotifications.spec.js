@@ -3,8 +3,9 @@
  */
 
 const index = require('@app/condo/index')
+const dayjs = require('dayjs')
 
-const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+const { setFakeClientMode, makeLoggedInAdminClient, waitFor } = require('@open-condo/keystone/test.utils')
 
 const {
     BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
@@ -13,47 +14,54 @@ const {
 const { Message } = require('@condo/domains/notification/utils/testSchema')
 const { Resident } = require('@condo/domains/resident/utils/testSchema')
 
-const { makeMessageKey, makeAccountKey, getMessageTypeAndDebt, sendBillingReceiptsAddedNotificationsForPeriod } = require('./sendBillingReceiptsAddedNotifications')
 const { makeBillingReceiptWithResident } = require('./spec.helpers')
+
+const { makeMessageKey, makeAccountKey, getMessageTypeAndDebt, sendBillingReceiptsAddedNotificationForOrganizationContext } = require('../sendBillingReceiptsAddedNotificationForOrganizationContextTask')
 
 
 describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
     setFakeClientMode(index)
-
+    let admin
+    beforeAll(async () => {
+        admin = await makeLoggedInAdminClient()
+        jest.setTimeout(10000) // set 10s timeout for async calls
+    })
+    afterAll(() => {
+        jest.setTimeout(5000) // set default 5s timeout for async calls
+    })
     describe('notifications', () => {
         it('sends notification of BILLING_RECEIPT_ADDED_TYPE for toPay > 0', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const { receipt, resident } = await makeBillingReceiptWithResident({ toPay: '10000', toPayDetails: { charge: '1000', formula: '', balance: '9000', penalty: '0' } } )
+            const { receipt, resident, billingContext } = await makeBillingReceiptWithResident({ toPay: '10000', toPayDetails: { charge: '1000', formula: '', balance: '9000', penalty: '0' } } )
+
             let lastDt
             const setLastDt = (dt) => lastDt = dt
 
-            await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] }, setLastDt)
+            await sendBillingReceiptsAddedNotificationForOrganizationContext(billingContext, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString(), setLastDt, 'testTaskId')
 
-            const notificationKey = makeMessageKey(receipt.period, receipt.account.number, receipt.category.id, resident.id)
+            const notificationKey = makeMessageKey('testTaskId', receipt.period, receipt.account.number, receipt.category.id, resident.id)
             const messageWhere = {
                 type: BILLING_RECEIPT_ADDED_TYPE,
                 uniqKey: notificationKey,
             }
             const message = await Message.getOne(admin, messageWhere)
-
             expect(message).not.toBeUndefined()
-            expect(lastDt).toEqual(receipt.createdAt)
+            expect(lastDt.toISOString()).toEqual(receipt.createdAt)
             expect(message.organization.id).toEqual(resident.organization.id)
         })
 
         it('sends only one notification of BILLING_RECEIPT_ADDED_TYPE for same user but multiple billing receipts', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const { receipt, resident, residentUser } = await makeBillingReceiptWithResident({ toPay: '10000', toPayDetails: { charge: '1000', formula: '', balance: '9000', penalty: '0' } } )
-            const { receipt: receipt1, resident: resident1 } = await makeBillingReceiptWithResident({ toPay: '10000', toPayDetails: { charge: '1000', formula: '', balance: '9000', penalty: '0' } }, undefined, residentUser)
+            const { receipt, resident, billingContext, residentUser } = await makeBillingReceiptWithResident({ toPay: '10000', toPayDetails: { charge: '1000', formula: '', balance: '9000', penalty: '0' } } )
+            const { receipt: receipt1, resident: resident1, billingContext: billingContext1 } = await makeBillingReceiptWithResident({ toPay: '10000', toPayDetails: { charge: '1000', formula: '', balance: '9000', penalty: '0' } }, undefined, residentUser)
 
             expect(resident.user.id).toEqual(resident1.user.id)
 
             let lastDt
             const setLastDt = (dt) => lastDt = dt
 
-            await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] }, setLastDt)
+            await sendBillingReceiptsAddedNotificationForOrganizationContext(billingContext, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString(), setLastDt, 'testTaskId')
+            await sendBillingReceiptsAddedNotificationForOrganizationContext(billingContext1, dayjs(receipt1.createdAt).subtract(1, 'hour').toISOString(), setLastDt, 'testTaskId')
 
-            const notificationKey = makeMessageKey(receipt.period, receipt.account.number, receipt.category.id, resident.id)
+            const notificationKey = makeMessageKey('testTaskId', receipt.period, receipt.account.number, receipt.category.id, resident.id)
             const notificationKey1 = makeMessageKey(receipt1.period, receipt1.account.number, receipt1.category.id, resident1.id)
             const messageWhere = {
                 type: BILLING_RECEIPT_ADDED_TYPE,
@@ -61,21 +69,20 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
             }
             const messages = await Message.getAll(admin, messageWhere)
 
+            expect(lastDt.toISOString()).toEqual(receipt1.createdAt)
             expect(messages).toHaveLength(1)
-            expect(lastDt).toEqual(receipt.createdAt)
             expect(messages[0].organization.id).toEqual(resident.organization.id)
         })
 
 
         it('sends notification of BILLING_RECEIPT_ADDED_TYPE for toPay > 0 and missing toPayDetails', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const { receipt, resident } = await makeBillingReceiptWithResident({ toPay: '10000' } )
+            const { receipt, resident, billingContext } = await makeBillingReceiptWithResident({ toPay: '10000' } )
             let lastDt
             const setLastDt = (dt) => lastDt = dt
 
-            await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] }, setLastDt)
+            await sendBillingReceiptsAddedNotificationForOrganizationContext(billingContext, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString(), setLastDt, 'testTaskId')
 
-            const notificationKey = makeMessageKey(receipt.period, receipt.account.number, receipt.category.id, resident.id)
+            const notificationKey = makeMessageKey('testTaskId', receipt.period, receipt.account.number, receipt.category.id, resident.id)
             const messageWhere = {
                 type: BILLING_RECEIPT_ADDED_TYPE,
                 uniqKey: notificationKey,
@@ -83,17 +90,16 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
             const message = await Message.getOne(admin, messageWhere)
 
             expect(message).not.toBeUndefined()
-            expect(lastDt).toEqual(receipt.createdAt)
+            expect(lastDt.toISOString()).toEqual(receipt.createdAt)
             expect(message.organization.id).toEqual(resident.organization.id)
         })
 
         it('does not send notification of BILLING_RECEIPT_ADDED_WITH_NO_DEBT for toPay = 0.0', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const { receipt, resident } = await makeBillingReceiptWithResident({ toPay: '0.0' })
+            const { receipt, resident, billingContext } = await makeBillingReceiptWithResident({ toPay: '0.0' })
 
-            await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] })
+            await sendBillingReceiptsAddedNotificationForOrganizationContext(billingContext, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString(), undefined, 'testTaskId')
 
-            const notificationKey = makeMessageKey(receipt.period, receipt.account.number, receipt.category.id, resident.id)
+            const notificationKey = makeMessageKey('testTaskId', receipt.period, receipt.account.number, receipt.category.id, resident.id)
             const messageWhere = {
                 type: BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
                 uniqKey: notificationKey,
@@ -104,12 +110,11 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
         })
 
         it('does not send notification of BILLING_RECEIPT_ADDED_WITH_NO_DEBT for toPay < 0', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const { receipt, resident } = await makeBillingReceiptWithResident({ toPay: '-1.0' })
+            const { receipt, resident, billingContext } = await makeBillingReceiptWithResident({ toPay: '-1.0' })
 
-            await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] })
+            await sendBillingReceiptsAddedNotificationForOrganizationContext(billingContext, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString(), undefined, 'testTaskId')
 
-            const notificationKey = makeMessageKey(receipt.period, receipt.account.number, receipt.category.id, resident.id)
+            const notificationKey = makeMessageKey('testTaskId', receipt.period, receipt.account.number, receipt.category.id, resident.id)
             const messageWhere = {
                 type: BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
                 uniqKey: notificationKey,
@@ -120,13 +125,12 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
         })
 
         it('sends only one notification for same receipt', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const { receipt, resident } = await makeBillingReceiptWithResident()
+            const { receipt, resident, billingContext } = await makeBillingReceiptWithResident()
 
-            await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] })
-            await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] })
+            await sendBillingReceiptsAddedNotificationForOrganizationContext(billingContext, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString(), undefined, 'testTaskId')
+            await sendBillingReceiptsAddedNotificationForOrganizationContext(billingContext, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString(), undefined, 'testTaskId')
 
-            const notificationKey = makeMessageKey(receipt.period, receipt.account.number, receipt.category.id, resident.id)
+            const notificationKey = makeMessageKey('testTaskId', receipt.period, receipt.account.number, receipt.category.id, resident.id)
             const messageWhere = {
                 type: BILLING_RECEIPT_ADDED_TYPE,
                 uniqKey: notificationKey,
@@ -138,12 +142,11 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
         })
 
         it('sends nothing for receipt with no ServiceConsumer record', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const { receipt, resident } = await makeBillingReceiptWithResident({}, true)
+            const { receipt, resident, billingContext } = await makeBillingReceiptWithResident({}, true)
 
-            await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] })
+            await sendBillingReceiptsAddedNotificationForOrganizationContext(billingContext, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString(), undefined, 'testTaskId')
 
-            const notificationKey = makeMessageKey(receipt.period, receipt.account.number, receipt.category.id, resident.id)
+            const notificationKey = makeMessageKey('testTaskId', receipt.period, receipt.account.number, receipt.category.id, resident.id)
             const messageWhere = {
                 type: BILLING_RECEIPT_ADDED_TYPE,
                 uniqKey: notificationKey,
@@ -154,8 +157,7 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
         })
 
         it('sends nothing to deleted resident', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const { receipt, resident } = await makeBillingReceiptWithResident({ toPay: '10000', toPayDetails: { charge: '1000', formula: '', balance: '9000', penalty: '0' } } )
+            const { receipt, resident, billingContext } = await makeBillingReceiptWithResident({ toPay: '10000', toPayDetails: { charge: '1000', formula: '', balance: '9000', penalty: '0' } } )
             const resident1 = await Resident.softDelete(admin, resident.id)
 
             expect(resident1.deletedAt).not.toBeNull()
@@ -163,9 +165,9 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
             let lastDt
             const setLastDt = (dt) => lastDt = dt
 
-            await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] }, setLastDt)
+            await sendBillingReceiptsAddedNotificationForOrganizationContext(billingContext, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString(), setLastDt, 'testTaskId')
 
-            const notificationKey = makeMessageKey(receipt.period, receipt.account.number, receipt.category.id, resident.id)
+            const notificationKey = makeMessageKey('testTaskId', receipt.period, receipt.account.number, receipt.category.id, resident.id)
             const messageWhere = {
                 type: BILLING_RECEIPT_ADDED_TYPE,
                 uniqKey: notificationKey,
