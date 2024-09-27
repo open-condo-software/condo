@@ -150,6 +150,8 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                 // cache verified contacts for authed user
                 // in order to determinate if user can see
                 // a sensitive version of primary file
+                // NOTE: there is a "contact_phone_isverified" index for this query,
+                // if you change it make sure to modify the index so it still works
                 const contacts = await Contact.getAll(context, {
                     phone: context.authedItem.phone,
                     isVerified: true,
