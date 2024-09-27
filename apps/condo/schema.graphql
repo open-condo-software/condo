@@ -61465,6 +61465,8 @@ type NewsItemTemplateHistoryRecord {
   _label_: String
   type: String
   organization: String
+  name: String
+  category: String
   title: String
   body: String
   id: ID!
@@ -61507,6 +61509,42 @@ input NewsItemTemplateHistoryRecordWhereInput {
   organization_not: String
   organization_in: [String]
   organization_not_in: [String]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  category: String
+  category_not: String
+  category_contains: String
+  category_not_contains: String
+  category_starts_with: String
+  category_not_starts_with: String
+  category_ends_with: String
+  category_not_ends_with: String
+  category_i: String
+  category_not_i: String
+  category_contains_i: String
+  category_not_contains_i: String
+  category_starts_with_i: String
+  category_not_starts_with_i: String
+  category_ends_with_i: String
+  category_not_ends_with_i: String
+  category_in: [String]
+  category_not_in: [String]
   title: String
   title_not: String
   title_contains: String
@@ -61628,6 +61666,10 @@ input NewsItemTemplateHistoryRecordWhereUniqueInput {
 enum SortNewsItemTemplateHistoryRecordsBy {
   type_ASC
   type_DESC
+  name_ASC
+  name_DESC
+  category_ASC
+  category_DESC
   title_ASC
   title_DESC
   body_ASC
@@ -61653,6 +61695,8 @@ enum SortNewsItemTemplateHistoryRecordsBy {
 input NewsItemTemplateHistoryRecordUpdateInput {
   type: String
   organization: String
+  name: String
+  category: String
   title: String
   body: String
   v: Int
@@ -61677,6 +61721,8 @@ input NewsItemTemplateHistoryRecordsUpdateInput {
 input NewsItemTemplateHistoryRecordCreateInput {
   type: String
   organization: String
+  name: String
+  category: String
   title: String
   body: String
   v: Int
@@ -61702,6 +61748,22 @@ enum NewsItemTemplateTypeType {
   emergency
 }
 
+enum NewsItemTemplateCategoryType {
+  WATER
+  HEATING
+  ELECTRICITY
+  UTILITIES
+  ELECTRICITY_AND_ELEVATORS
+  ELEVATORS
+  TELEPHONE
+  METERS
+  GAS
+  CLEANING
+  INTERCOM
+  SNOW
+  OTHER
+}
+
 """ The news item template for quick composing a news item """
 type NewsItemTemplate {
   """
@@ -61719,6 +61781,14 @@ type NewsItemTemplate {
   """ Organization who creates the template. A common template if there is no organization 
   """
   organization: Organization
+
+  """ Name of template the news item. Example `Heating outage due to repairs` or any other text value 
+  """
+  name: String
+
+  """ Category of template of the news item. Example `Water` or any other select value. News item does not necessarily have a category 
+  """
+  category: NewsItemTemplateCategoryType
 
   """ The title of a future news item """
   title: String
@@ -61757,6 +61827,28 @@ input NewsItemTemplateWhereInput {
   type_not_in: [NewsItemTemplateTypeType]
   organization: OrganizationWhereInput
   organization_is_null: Boolean
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  category: NewsItemTemplateCategoryType
+  category_not: NewsItemTemplateCategoryType
+  category_in: [NewsItemTemplateCategoryType]
+  category_not_in: [NewsItemTemplateCategoryType]
   title: String
   title_not: String
   title_contains: String
@@ -61860,6 +61952,10 @@ enum SortNewsItemTemplatesBy {
   type_DESC
   organization_ASC
   organization_DESC
+  name_ASC
+  name_DESC
+  category_ASC
+  category_DESC
   title_ASC
   title_DESC
   body_ASC
@@ -61885,6 +61981,8 @@ enum SortNewsItemTemplatesBy {
 input NewsItemTemplateUpdateInput {
   type: NewsItemTemplateTypeType
   organization: OrganizationRelateToOneInput
+  name: String
+  category: NewsItemTemplateCategoryType
   title: String
   body: String
   v: Int
@@ -61906,6 +62004,8 @@ input NewsItemTemplatesUpdateInput {
 input NewsItemTemplateCreateInput {
   type: NewsItemTemplateTypeType
   organization: OrganizationRelateToOneInput
+  name: String
+  category: NewsItemTemplateCategoryType
   title: String
   body: String
   v: Int

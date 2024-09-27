@@ -54517,6 +54517,10 @@ export type NewsItemTemplate = {
   type?: Maybe<NewsItemTemplateTypeType>;
   /**  Organization who creates the template. A common template if there is no organization  */
   organization?: Maybe<Organization>;
+  /**  Name of template the news item. Example `Heating outage due to repairs` or any other text value  */
+  name?: Maybe<Scalars['String']>;
+  /**  Category of template of the news item. Example `Water` or any other select value. News item does not necessarily have a category  */
+  category?: Maybe<NewsItemTemplateCategoryType>;
   /**  The title of a future news item  */
   title?: Maybe<Scalars['String']>;
   /**  A future news item's body  */
@@ -54537,9 +54541,27 @@ export type NewsItemTemplate = {
   sender?: Maybe<SenderField>;
 };
 
+export enum NewsItemTemplateCategoryType {
+  Water = 'WATER',
+  Heating = 'HEATING',
+  Electricity = 'ELECTRICITY',
+  Utilities = 'UTILITIES',
+  ElectricityAndElevators = 'ELECTRICITY_AND_ELEVATORS',
+  Elevators = 'ELEVATORS',
+  Telephone = 'TELEPHONE',
+  Meters = 'METERS',
+  Gas = 'GAS',
+  Cleaning = 'CLEANING',
+  Intercom = 'INTERCOM',
+  Snow = 'SNOW',
+  Other = 'OTHER'
+}
+
 export type NewsItemTemplateCreateInput = {
   type?: Maybe<NewsItemTemplateTypeType>;
   organization?: Maybe<OrganizationRelateToOneInput>;
+  name?: Maybe<Scalars['String']>;
+  category?: Maybe<NewsItemTemplateCategoryType>;
   title?: Maybe<Scalars['String']>;
   body?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -54566,6 +54588,8 @@ export type NewsItemTemplateHistoryRecord = {
   _label_?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  category?: Maybe<Scalars['String']>;
   title?: Maybe<Scalars['String']>;
   body?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
@@ -54586,6 +54610,8 @@ export type NewsItemTemplateHistoryRecord = {
 export type NewsItemTemplateHistoryRecordCreateInput = {
   type?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  category?: Maybe<Scalars['String']>;
   title?: Maybe<Scalars['String']>;
   body?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -54611,6 +54637,8 @@ export enum NewsItemTemplateHistoryRecordHistoryActionType {
 export type NewsItemTemplateHistoryRecordUpdateInput = {
   type?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  category?: Maybe<Scalars['String']>;
   title?: Maybe<Scalars['String']>;
   body?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -54652,6 +54680,42 @@ export type NewsItemTemplateHistoryRecordWhereInput = {
   organization_not?: Maybe<Scalars['String']>;
   organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  category?: Maybe<Scalars['String']>;
+  category_not?: Maybe<Scalars['String']>;
+  category_contains?: Maybe<Scalars['String']>;
+  category_not_contains?: Maybe<Scalars['String']>;
+  category_starts_with?: Maybe<Scalars['String']>;
+  category_not_starts_with?: Maybe<Scalars['String']>;
+  category_ends_with?: Maybe<Scalars['String']>;
+  category_not_ends_with?: Maybe<Scalars['String']>;
+  category_i?: Maybe<Scalars['String']>;
+  category_not_i?: Maybe<Scalars['String']>;
+  category_contains_i?: Maybe<Scalars['String']>;
+  category_not_contains_i?: Maybe<Scalars['String']>;
+  category_starts_with_i?: Maybe<Scalars['String']>;
+  category_not_starts_with_i?: Maybe<Scalars['String']>;
+  category_ends_with_i?: Maybe<Scalars['String']>;
+  category_not_ends_with_i?: Maybe<Scalars['String']>;
+  category_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  category_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   title?: Maybe<Scalars['String']>;
   title_not?: Maybe<Scalars['String']>;
   title_contains?: Maybe<Scalars['String']>;
@@ -54787,6 +54851,8 @@ export enum NewsItemTemplateTypeType {
 export type NewsItemTemplateUpdateInput = {
   type?: Maybe<NewsItemTemplateTypeType>;
   organization?: Maybe<OrganizationRelateToOneInput>;
+  name?: Maybe<Scalars['String']>;
+  category?: Maybe<NewsItemTemplateCategoryType>;
   title?: Maybe<Scalars['String']>;
   body?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -54809,6 +54875,28 @@ export type NewsItemTemplateWhereInput = {
   type_not_in?: Maybe<Array<Maybe<NewsItemTemplateTypeType>>>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  category?: Maybe<NewsItemTemplateCategoryType>;
+  category_not?: Maybe<NewsItemTemplateCategoryType>;
+  category_in?: Maybe<Array<Maybe<NewsItemTemplateCategoryType>>>;
+  category_not_in?: Maybe<Array<Maybe<NewsItemTemplateCategoryType>>>;
   title?: Maybe<Scalars['String']>;
   title_not?: Maybe<Scalars['String']>;
   title_contains?: Maybe<Scalars['String']>;
@@ -81528,6 +81616,10 @@ export enum SortNewsItemSharingsBy {
 export enum SortNewsItemTemplateHistoryRecordsBy {
   TypeAsc = 'type_ASC',
   TypeDesc = 'type_DESC',
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  CategoryAsc = 'category_ASC',
+  CategoryDesc = 'category_DESC',
   TitleAsc = 'title_ASC',
   TitleDesc = 'title_DESC',
   BodyAsc = 'body_ASC',
@@ -81555,6 +81647,10 @@ export enum SortNewsItemTemplatesBy {
   TypeDesc = 'type_DESC',
   OrganizationAsc = 'organization_ASC',
   OrganizationDesc = 'organization_DESC',
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  CategoryAsc = 'category_ASC',
+  CategoryDesc = 'category_DESC',
   TitleAsc = 'title_ASC',
   TitleDesc = 'title_DESC',
   BodyAsc = 'body_ASC',
