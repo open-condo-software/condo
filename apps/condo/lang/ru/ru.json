@@ -1699,6 +1699,7 @@
   "property.import.column.Units": "Помещений",
   "property.import.column.Sections": "Подъездов",
   "property.import.column.Floors": "Этажей",
+  "property.import.column.MinFloor": "Минимальный этаж",
   "EmployeeRoles": "Роли сотрудников",
   "EmployeeRoles.availableTickets": "Какие заявки видит сотрудник",
   "EmployeeRoles.availableTickets.allTickets": "все заявки",

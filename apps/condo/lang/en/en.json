@@ -1699,6 +1699,7 @@
   "property.import.column.Units": "Units",
   "property.import.column.Sections": "Sections",
   "property.import.column.Floors": "Floors",
+  "property.import.column.MinFloor": "Minimal Floor",
   "EmployeeRoles": "Employee roles",
   "EmployeeRoles.availableTickets": "Which tickets the employee sees",
   "EmployeeRoles.availableTickets.allTickets": "all tickets",
