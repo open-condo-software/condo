@@ -3,7 +3,7 @@ const { get } = require('lodash')
 
 const { fetch } = require('@open-condo/keystone/fetch')
 
-const { APS_RESPONSE_STATUS_SUCCESS } = require('../apple/constants')
+const { APS_RESPONSE_STATUS_SUCCESS } = require('@condo/domains/notification/adapters/apple/constants')
 
 
 class RedStoreNotificationSender {
@@ -11,14 +11,11 @@ class RedStoreNotificationSender {
     _serviceToken = null
     _url = null
 
-    /**
-     * @param config
-     */
     constructor (config) {
         this._projectId = config['project_id']
         this._serviceToken = config['service_token']
         this._url = config['url']
-        this.sendPush = this.sendPush.bind(this)
+        if (!this._projectId || !this._serviceToken || !this._url) throw Error('Config is invalid. Check fields project_id, service_token, url')
     }
 
     async sendPush (token, notification, data) {
@@ -35,7 +32,7 @@ class RedStoreNotificationSender {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${this._serviceToken}`,
             },
-        })        
+        })
     }
 
     async sendAll (notifications) {
@@ -46,11 +43,11 @@ class RedStoreNotificationSender {
             const { token, data: pushData = {}, notification  = {}, type, appId } = notifications[idx]
 
             const response = await this.sendPush(token, notification, pushData)
-            responses.push(await response.json())
             
             if (response instanceof Error) {
                 failureCount += 1
             } else {
+                responses.push(await response.json())
                 const status = get(response, ['headers', ':status'])
 
                 if (status === APS_RESPONSE_STATUS_SUCCESS) {

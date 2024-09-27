@@ -18,7 +18,6 @@ const logger = getLogger('redStoreAdapter')
 
 /**
  * RedStore rejects push if any of data fields is not a string, so we should convert all non-string fields to strings
- * @param data
  */
 function prepareData (data = {}, token) {
     const result = { token }
@@ -50,8 +49,8 @@ class RedStoreAdapter {
 
     /**
      * Validates and prepares notification significant fields
-     * @param title
-     * @param body
+     * @param {string} title
+     * @param {string} body
      * @returns {{title, body}}
      */
     static validateAndPrepareNotification ({ title, body } = {}) {
@@ -63,12 +62,6 @@ class RedStoreAdapter {
     /**
      * Prepares notification for either/both sending to redStore
      * Converts single notification to notifications array (for multiple tokens provided) for batch request
-     * @param notificationRaw
-     * @param data
-     * @param tokens
-     * @param pushTypes
-     * @param isVoIP
-     * @returns {*[][]}
      */
     static prepareBatchData (notificationRaw, data, tokens = [], pushTypes = {}, appIds = {}, isVoIP = false) {
         const notification = RedStoreAdapter.validateAndPrepareNotification(notificationRaw)
@@ -96,11 +89,6 @@ class RedStoreAdapter {
 
     /**
      * Manages to send notification to all available pushTokens of the user.
-     * @param notification
-     * @param tokens
-     * @param data
-     * @param pushTypes
-     * @returns {Promise<null|(boolean|T|{state: string, error: *})[]>}
      */
     async sendNotification ({ notification, data, tokens, pushTypes, appIds } = {}, isVoIP = false) {
         if (!tokens || isEmpty(tokens)) return [false, { error: 'No pushTokens available.' }]
