@@ -3,6 +3,8 @@
  */
 
 const dayjs = require('dayjs')
+const get = require('lodash/get')
+const uniqBy = require('lodash/uniqBy')
 
 const conf = require('@open-condo/config')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor,
@@ -21,7 +23,7 @@ const { EXCEL } = require('@condo/domains/common/constants/export')
 const { getTmpFile, downloadFile, readXlsx, expectDataFormat } = require('@condo/domains/common/utils/testSchema/file')
 const { COLD_WATER_METER_RESOURCE_ID, CALL_METER_READING_SOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const { ERRORS } = require('@condo/domains/meter/schema/MeterReadingExportTask')
-const { MeterReadingExportTask, updateTestMeterReadingExportTask } = require('@condo/domains/meter/utils/testSchema')
+const { MeterReadingExportTask, updateTestMeterReadingExportTask, MeterReading } = require('@condo/domains/meter/utils/testSchema')
 const { createTestMeterReadingExportTask, MeterResource, MeterReadingSource, createTestMeter, createTestMeterReading } = require('@condo/domains/meter/utils/testSchema')
 const {
     createTestOrganization,
@@ -432,34 +434,38 @@ describe('exportMeterReadings', () => {
             canManageMeterReadings: true,
             canReadMeters: true,
         })
+
         const [property] = await createTestProperty(userClient, organization)
-        
-        const meterReadings = []
 
         const [resource] = await MeterResource.getAll(userClient, { id: COLD_WATER_METER_RESOURCE_ID })
         const [source] = await MeterReadingSource.getAll(userClient, { id: CALL_METER_READING_SOURCE_ID })
 
-        const metersCount = 10
+        const metersCount = 5
         const meterReadingsOnEachMeter = 10
-        const meterReadingsCount = meterReadingsOnEachMeter * metersCount
 
         for (let i = 0; i < metersCount; i++) {
             const [meter] = await createTestMeter(userClient, organization, property, resource, {})
 
             for (let j = 0; j < meterReadingsOnEachMeter; j++) {
-                const [meterReading] = await createTestMeterReading(userClient, meter, source)
-
-                meterReadings.push(meterReading)
+                await createTestMeterReading(userClient, meter, source)
             }
         }
 
-        const [task] = await createTestMeterReadingExportTask(userClient, userClient.user, {
-            where: {
-                organization: {
-                    id: organization.id,
-                },
+        const exportWhere = {
+            organization: {
+                id: organization.id,
             },
-            sortBy: 'createdAt_ASC',
+        }
+        const exportSortBy = 'createdAt_ASC'
+
+        const meterReadings = await MeterReading.getAll(userClient, exportWhere, {
+            sortBy: exportSortBy,
+        })
+        const lastReadingsByMeter = uniqBy(meterReadings.sort((a, b) => (a.date < b.date ? 1 : -1)), (reading => get(reading, 'meter.id')))
+
+        const [task] = await createTestMeterReadingExportTask(userClient, userClient.user, {
+            where: exportWhere,
+            sortBy: exportSortBy,
             timeZone: 'Europe/London',
             locale: LOCALE_EN,
         })
@@ -471,9 +477,8 @@ describe('exportMeterReadings', () => {
 
             expect(updatedTask.file).toBeDefined()
             expect(updatedTask.file.publicUrl.length).toBeGreaterThan(1)
-            expect(updatedTask).toHaveProperty('exportedRecordsCount', meterReadingsCount)
-            expect(updatedTask).toHaveProperty('totalRecordsCount', meterReadingsCount)
-            expect(updatedTask.exportedRecordsCount).toEqual(meterReadings.length)
+            expect(updatedTask).toHaveProperty('exportedRecordsCount', lastReadingsByMeter.length)
+            expect(updatedTask).toHaveProperty('totalRecordsCount', lastReadingsByMeter.length)
             expect(updatedTask).toHaveProperty('v', 3)
             expect(updatedTask).toHaveProperty('status', COMPLETED)
         })
@@ -484,7 +489,7 @@ describe('exportMeterReadings', () => {
         await downloadFile(url, filename)
         const data = await readXlsx(filename)
 
-        expectDataFormat(data,  [
+        const expectedData = [
             [
                 'Reading date',
                 'Address',
@@ -501,13 +506,13 @@ describe('exportMeterReadings', () => {
                 'Contact',
                 'Source',
             ],
-            ...(meterReadings.map(meterReading => [
+            ...(lastReadingsByMeter.map(meterReading => [
                 formatDate(meterReading.date, timeZone),
                 meterReading.meter.property.address,
                 meterReading.meter.unitName,
                 i18n(`field.UnitType.${meterReading.meter.unitType}`, { locale }),
                 meterReading.meter.accountNumber,
-                meterReading.meter.resource.name,
+                i18n('meterResource.ColdWater.name', { locale }),
                 meterReading.meter.number,
                 meterReading.meter.place || '',
                 meterReading.value1 || '',
@@ -515,8 +520,10 @@ describe('exportMeterReadings', () => {
                 meterReading.value3 || '',
                 meterReading.value4 || '',
                 meterReading.clientName || '',
-                meterReading.source.name,
+                i18n('meterReadingSource.Call.name', { locale }),
             ])),
-        ])
+        ]
+
+        expectDataFormat(data, expectedData)
     })
 })

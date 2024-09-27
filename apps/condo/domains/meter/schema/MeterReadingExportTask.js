@@ -21,8 +21,7 @@ const access = require('@condo/domains/meter/access/MeterReadingExportTask')
 const { EXPORT_METER_READINGS_MONTHS_LIMIT } = require('@condo/domains/meter/constants/constants')
 const { exportMeterReadings } = require('@condo/domains/meter/tasks/exportMeterReadings')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
-
-const { LOCALES } = require('../../user/constants/common')
+const { LOCALES } = require('@condo/domains/user/constants/common')
 
 
 const { getFileMetaAfterChange } = FileAdapter
@@ -173,7 +172,11 @@ const MeterReadingExportTask = new GQLListSchema('MeterReadingExportTask', {
             options: LOCALES,
             isRequired: true,
             hooks: {
-                resolveInput: async ({ context }) => {
+                resolveInput: async ({ context, resolvedData, fieldPath }) => {
+                    if (resolvedData[fieldPath]) {
+                        return resolvedData[fieldPath]
+                    }
+
                     return extractReqLocale(context.req) || conf.DEFAULT_LOCALE
                 },
             },

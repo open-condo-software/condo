@@ -167,7 +167,6 @@ async function exportMeterReadings (taskId) {
             }
         }
     } catch (err) {
-        console.log('err', err)
         await MeterReadingExportTask.update(context, taskId, {
             ...BASE_ATTRIBUTES,
             status: ERROR,
