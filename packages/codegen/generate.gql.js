@@ -245,4 +245,11 @@ module.exports = {
     generateGqlQueries,
     generateQueryWhereInput,
     generateQuerySortBy,
+    genGetAllGQL,
+    genGetCountGQL,
+    genCreateGQL,
+    genCreateManyGQL,
+    genUpdateGQL,
+    genUpdateManyGQL,
+    genDeleteGQL,
 }
