@@ -429,7 +429,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 // NOTE: Here using serverSchema to get many relation
                 const [acquiringIntegration] = await AcquiringIntegration.getAll(context, {
                     id: Array.from(acquiringIntegrations)[0],
-                })
+                }, 'id canGroupReceipts supportedBillingIntegrationsGroup explicitFeeDistributionSchema minimumPaymentAmount maximumPaymentAmount hostUrl deletedAt')
                 if (acquiringIntegration.deletedAt) {
                     throw new GQLError({ ...ERRORS.ACQUIRING_INTEGRATION_IS_DELETED, messageInterpolation: { id: acquiringIntegration.id } }, context)
                 }

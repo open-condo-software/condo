@@ -158,7 +158,7 @@ const RegisterMultiPaymentForOneReceiptService = new GQLCustomSchema('RegisterMu
 
                 const acquiringIntegration = await AcquiringIntegration.getOne(context, {
                     id: acquiringContext.integration,
-                })
+                }, 'id supportedBillingIntegrationsGroup minimumPaymentAmount maximumPaymentAmount hostUrl deletedAt')
 
                 if (acquiringIntegration.deletedAt) {
                     throw new GQLError({

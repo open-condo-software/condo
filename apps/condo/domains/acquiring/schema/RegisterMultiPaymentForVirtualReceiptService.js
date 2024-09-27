@@ -140,7 +140,7 @@ const RegisterMultiPaymentForVirtualReceiptService = new GQLCustomSchema('Regist
 
                 const acquiringIntegration = await AcquiringIntegration.getOne(context, {
                     id: acquiringContext.integration,
-                })
+                }, 'id minimumPaymentAmount maximumPaymentAmount hostUrl deletedAt')
 
                 if (acquiringIntegration.deletedAt) {
                     throw new GQLError({
