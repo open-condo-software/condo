@@ -677,7 +677,16 @@ describe('BillingReceipt', () => {
             test('Receipt with same importId cannot exist in same context', async () => {
                 await expectToThrowInternalError(async () => {
                     await createTestBillingReceipt(admin, context, property, account, { importId })
-                }, 'BillingReceipt_importId_9da6acbf_uniq')
+                }, 'billingReceipt_unique_context_and_importId')
+            })
+            test('Two identical importIds are allowed in one context if one of the receipts is deleted', async () => {
+                importId = faker.datatype.uuid()
+                const [firstReceipt] = await createTestBillingReceipt(admin, context, property, account, { importId })
+                await updateTestBillingReceipt(admin, firstReceipt.id, { deletedAt: faker.date.past() })
+                const [anotherReceipt] = await createTestBillingReceipt(admin, context, property, account, { importId })
+
+                expect(firstReceipt).toHaveProperty('importId', importId)
+                expect(anotherReceipt).toHaveProperty('importId', importId)
             })
         })
     })

@@ -17,7 +17,7 @@ const {
 const {
     getRandomTokenData,
     getRandomFakeSuccessToken,
-} = require('@condo/domains/notification/utils/testSchema/helpers')
+} = require('@condo/domains/notification/utils/testSchema/utils')
 
 const {
     Message: MessageGQL,

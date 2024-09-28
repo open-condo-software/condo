@@ -290,6 +290,14 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                 condition: 'Q(deletedAt__isnull=True)',
             },
         ],
+        constraints: [
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['context', 'importId'],
+                condition: 'Q(deletedAt__isnull=True)',
+                name: 'billingReceipt_unique_context_and_importId',
+            },
+        ],
     },
     hooks: {
         validateInput: async ({ resolvedData, addValidationError, existingItem }) => {

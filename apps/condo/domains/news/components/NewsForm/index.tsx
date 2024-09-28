@@ -7,7 +7,7 @@ import { UpdateNewsForm } from './UpdateNewsForm'
 
 interface INewsFormProps {
     id?: string
-    actionName: 'create' | 'update';
+    actionName: 'create' | 'update'
 }
 
 export const NewsForm: React.FC<INewsFormProps> = ({ id, actionName }) => {

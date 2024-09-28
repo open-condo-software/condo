@@ -27,7 +27,7 @@ const {
     PUSH_TRANSPORT_APPLE,
 } = require('@condo/domains/notification/constants/constants')
 const { syncRemoteClientByTestClient } = require('@condo/domains/notification/utils/testSchema')
-const { getRandomTokenData, getRandomFakeSuccessToken } = require('@condo/domains/notification/utils/testSchema/helpers')
+const { getRandomTokenData, getRandomFakeSuccessToken } = require('@condo/domains/notification/utils/testSchema/utils')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')

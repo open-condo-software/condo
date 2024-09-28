@@ -23,9 +23,17 @@ type IUseCountQueryReturnType = {
     meta?: { count?: number }
 }
 export type IRefetchType<GQLObject, QueryVariables> = (variables?: Partial<QueryVariables>) => Promise<ApolloQueryResult<IUseObjectsQueryReturnType<GQLObject>>>
-type IFetchMoreType<GQLObject, QueryVariables> = (<K extends keyof QueryVariables>(fetchMoreOptions: FetchMoreQueryOptions<QueryVariables, K, IUseObjectsQueryReturnType<GQLObject>> & FetchMoreOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>) => Promise<ApolloQueryResult<IUseObjectsQueryReturnType<GQLObject>>>) & (<TData2, TVariables2, K extends keyof TVariables2>(fetchMoreOptions: {
-    query?: DocumentNode | TypedDocumentNode<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>;
-} & FetchMoreQueryOptions<TVariables2, K, QueryVariables> & FetchMoreOptions<TData2, TVariables2>) => Promise<ApolloQueryResult<TData2>>)
+type IFetchMoreType<GQLObject, QueryVariables> = (
+    (
+        fetchMoreOptions: FetchMoreQueryOptions<QueryVariables, IUseObjectsQueryReturnType<GQLObject>> & FetchMoreOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>
+    ) => Promise<ApolloQueryResult<IUseObjectsQueryReturnType<GQLObject>>>
+) & (
+    <TData2, TVariables2>(
+        fetchMoreOptions: {
+            query?: DocumentNode | TypedDocumentNode<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>
+        } & FetchMoreQueryOptions<TVariables2, TData2> & FetchMoreOptions<TData2, TVariables2>
+    ) => Promise<ApolloQueryResult<TData2>>
+)
 type IStopPollingType = () => void
 type IBasicUseQueryResult<GQLObject, QueryVariables> = {
     loading: boolean

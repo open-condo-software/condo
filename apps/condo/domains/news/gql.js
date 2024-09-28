@@ -18,7 +18,7 @@ const NewsItem = generateGqlQueries('NewsItem', NEWS_ITEM_FIELDS)
 const NEWS_ITEM_SCOPE_FIELDS = `{ type newsItem { id organization { id } number isPublished } property { id address addressMeta { ${ADDRESS_META_SUBFIELDS_TABLE_LIST} } } unitType unitName ${COMMON_FIELDS} }`
 const NewsItemScope = generateGqlQueries('NewsItemScope', NEWS_ITEM_SCOPE_FIELDS)
 
-const NEWS_ITEM_TEMPLATE_FIELDS = `{ organization { id } title body type ${COMMON_FIELDS} }`
+const NEWS_ITEM_TEMPLATE_FIELDS = `{ organization { id } name category title body type ${COMMON_FIELDS} }`
 const NewsItemTemplate = generateGqlQueries('NewsItemTemplate', NEWS_ITEM_TEMPLATE_FIELDS)
 
 const NEWS_ITEM_USER_READ_FIELDS = `{ newsItem { id } user { id } ${COMMON_FIELDS} }`

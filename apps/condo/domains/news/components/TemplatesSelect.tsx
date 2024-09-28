@@ -13,9 +13,9 @@ interface Template {
 }
 
 interface INewsFormProps {
-    items: Template[],
+    items: Template[]
     onChange?: (value: string) => void
-    hasCategories?: boolean,
+    hasCategories?: boolean
 }
 
 export const TemplatesSelect: React.FC<INewsFormProps> = ({ items, onChange, hasCategories }) => {

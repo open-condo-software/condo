@@ -8,12 +8,14 @@ const { find, getSchemaCtx } = require('@open-condo/keystone/schema')
 const { AppleAdapter } = require('@condo/domains/notification/adapters/appleAdapter')
 const { FirebaseAdapter } = require('@condo/domains/notification/adapters/firebaseAdapter')
 const HCMAdapter = require('@condo/domains/notification/adapters/hcmAdapter')
+const { RedStoreAdapter } = require('@condo/domains/notification/adapters/redStoreAdapter')
 const {
     PUSH_TRANSPORT,
     PUSH_TRANSPORT_TYPES,
     PUSH_TRANSPORT_FIREBASE,
     PUSH_TRANSPORT_APPLE,
     PUSH_TRANSPORT_HUAWEI,
+    PUSH_TRANSPORT_REDSTORE,
 } = require('@condo/domains/notification/constants/constants')
 const { renderTemplate } = require('@condo/domains/notification/templates')
 const { RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
@@ -22,6 +24,7 @@ const logger = getLogger('messaging/sendNotification')
 
 const ADAPTERS = {
     [PUSH_TRANSPORT_FIREBASE]: new FirebaseAdapter(),
+    [PUSH_TRANSPORT_REDSTORE]: new RedStoreAdapter(),
     [PUSH_TRANSPORT_HUAWEI]: new HCMAdapter(),
     [PUSH_TRANSPORT_APPLE]: new AppleAdapter(),
 }
@@ -66,6 +69,7 @@ async function getTokens (ownerId, remoteClientId, isVoIP = false) {
     const remoteClients =  await find('RemoteClient', conditions)
     const tokensByTransport = {
         [PUSH_TRANSPORT_FIREBASE]: [],
+        [PUSH_TRANSPORT_REDSTORE]: [],
         [PUSH_TRANSPORT_HUAWEI]: [],
         [PUSH_TRANSPORT_APPLE]: [],
     }

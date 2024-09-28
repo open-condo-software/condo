@@ -50,10 +50,10 @@ export const CreateNewsActionBar: React.FC<{ handleSave: () => void, isLoading: 
 }
 
 interface IButtonWithCountdownProps {
-    notificationKey: string,
-    action: () => void,
-    intl: IntlShape,
-    initialCountdown: number,
+    notificationKey: string
+    action: () => void
+    intl: IntlShape
+    initialCountdown: number
 }
 
 const ButtonWithCountdown = ({ notificationKey, action, intl, initialCountdown }: IButtonWithCountdownProps) => {

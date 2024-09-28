@@ -12,7 +12,7 @@ const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema'
 const access = require('@condo/domains/acquiring/access/RegisterMultiPaymentForInvoicesService')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const {
-    GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM },
+    GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM, PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM },
     ACQUIRING_INTEGRATION_IS_DELETED,
     INVOICES_ARE_NOT_PUBLISHED,
     INVOICE_CONTEXT_NOT_FINISHED,
@@ -68,6 +68,10 @@ const ERRORS = {
     },
     PAYMENT_AMOUNT_LESS_THAN_MINIMUM: {
         ...PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
+        mutation: 'registerMultiPaymentForOneReceiptService',
+    },
+    PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM: {
+        ...PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM,
         mutation: 'registerMultiPaymentForOneReceiptService',
     },
     ACQUIRING_INTEGRATION_IS_DELETED: (id) => ({
@@ -237,10 +241,18 @@ const RegisterMultiPaymentForInvoicesService = new GQLCustomSchema('RegisterMult
                 const amountToPay = Big(totalAmount.amountWithoutExplicitFee)
                     .add(Big(totalAmount.explicitServiceCharge))
                     .add(Big(totalAmount.explicitFee))
+
                 if (acquiringIntegration.minimumPaymentAmount && Big(amountToPay).lt(acquiringIntegration.minimumPaymentAmount)) {
                     throw new GQLError({
                         ...ERRORS.PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
                         messageInterpolation: { minimumPaymentAmount: Big(acquiringIntegration.minimumPaymentAmount).toString() },
+                    }, context)
+                }
+
+                if (acquiringIntegration.maximumPaymentAmount && Big(amountToPay).gt(acquiringIntegration.maximumPaymentAmount)) {
+                    throw new GQLError({
+                        ...ERRORS.PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM,
+                        messageInterpolation: { maximumPaymentAmount: Big(acquiringIntegration.maximumPaymentAmount).toString() },
                     }, context)
                 }
 

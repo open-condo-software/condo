@@ -19,6 +19,7 @@ const {
     NewsItemRecipientsExportTask: NewsItemRecipientsExportTaskGQL,
 } = require('@condo/domains/news/gql')
 const { NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
+const { ALL_NEWS_CATEGORIES } = require('@condo/domains/news/constants/newsCategory') 
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { NewsItemSharing: NewsItemSharingGQL } = require('@condo/domains/news/gql')
 const { GET_NEWS_SHARING_RECIPIENTS_COUNTERS_QUERY } = require('@condo/domains/news/gql')
@@ -132,6 +133,8 @@ async function createTestNewsItemTemplate (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
+    const name = faker.lorem.words(1)
+    const category = ALL_NEWS_CATEGORIES[2]
     const title = faker.lorem.words(3)
     const body = faker.lorem.words(19)
     const type = NEWS_TYPE_COMMON
@@ -139,6 +142,8 @@ async function createTestNewsItemTemplate (client, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         sender,
+        name,
+        category,
         title,
         body,
         type,
@@ -153,12 +158,16 @@ async function updateTestNewsItemTemplate (client, id, extraAttrs = {}) {
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
+    const name = faker.lorem.words(1)
+    const category = ALL_NEWS_CATEGORIES[2]
     const title = faker.lorem.words(3)
     const body = faker.lorem.words(19)
 
     const attrs = {
         dv: 1,
         sender,
+        name,
+        category,
         title,
         body,
         ...extraAttrs,

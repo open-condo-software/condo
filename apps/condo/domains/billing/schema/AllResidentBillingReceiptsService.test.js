@@ -7,6 +7,8 @@ const { basename } = require('path')
 const { faker } = require('@faker-js/faker')
 const Big = require('big.js')
 
+const { DATETIME_RE } = require('@open-condo/keystone/test.utils')
+
 const { ResidentBillingReceipt, PUBLIC_FILE, PRIVATE_FILE } = require('@condo/domains/billing/utils/testSchema')
 const {
     TestUtils,
@@ -123,6 +125,7 @@ describe('AllResidentBillingReceiptsService', () => {
                 currencyCode: expect.any(String),
                 category: { id: expect.any(String), name: expect.any(String) },
                 isPayable: expect.any(Boolean),
+                updatedAt: expect.stringMatching(DATETIME_RE),
             })
         })
 

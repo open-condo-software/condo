@@ -27,7 +27,7 @@ const {
     createTestMessageBatch,
     updateTestMessageBatch, createTestRemoteClient, syncRemoteClientWithPushTokenByTestClient,
 } = require('@condo/domains/notification/utils/testSchema')
-const { getRandomFakeSuccessToken } = require('@condo/domains/notification/utils/testSchema/helpers')
+const { getRandomFakeSuccessToken } = require('@condo/domains/notification/utils/testSchema/utils')
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,

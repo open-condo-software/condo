@@ -8,8 +8,8 @@ import type { RowProps } from 'antd'
 type NewsCardGridProps = {
     children: React.ReactNode
     minColWidth?: number
-    gap?: number,
-    minCols?: number,
+    gap?: number
+    minCols?: number
     maxCols?: number
 }
 

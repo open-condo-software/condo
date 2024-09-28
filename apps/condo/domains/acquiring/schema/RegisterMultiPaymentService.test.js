@@ -20,7 +20,7 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/acquiring/constants/context')
-const { GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM } } = require('@condo/domains/acquiring/constants/errors')
+const { GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM, PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM } } = require('@condo/domains/acquiring/constants/errors')
 const {
     FEE_CALCULATION_PATH,
     WEB_VIEW_PATH,
@@ -1264,39 +1264,59 @@ describe('RegisterMultiPaymentService', () => {
                 })
             })
         })
-        describe('RegisterMultiPayment check minimum amount', () => {
+        describe('RegisterMultiPayment check minimum and maximum amount', () => {
 
             let utils
 
             beforeAll(async () => {
                 utils = new TestUtils([ResidentTestMixin])
                 await utils.init()
+                await utils.updateAcquiringIntegration({
+                    explicitFeeDistributionSchema: [
+                        { 'recipient':'acquiring', 'percent':'1.0' },
+                        { 'recipient':'service', 'percent':'0.2' },
+                    ],
+                })
             })
 
             afterEach(async () => {
-                await utils.updateAcquiringIntegration({ minimumPaymentAmount: null })
+                await utils.updateAcquiringIntegration({ minimumPaymentAmount: null, maximumPaymentAmount: null })
             })
 
-            describe('Payment amount is equal to minimum payment amount required by the acquiring integration', () => {
-                test('For partial payment', async () => {
+            describe('For partial payment', () => {
+                test('Payment amount is equal to minimum payment amount required by the acquiring integration', async () => {
                     const accountNumber = faker.random.alphaNumeric(12)
                     const resident = await utils.createResident()
                     const [consumer] = await utils.createServiceConsumer(resident, accountNumber)
                     const [[receipt]] = await utils.createReceipts([
                         utils.createJSONReceipt({ accountNumber, toPay: '0.10' }),
                     ])
-                    await utils.updateAcquiringIntegration({ minimumPaymentAmount: '5' })
+                    await utils.updateAcquiringIntegration({ minimumPaymentAmount: '10.12' })
                     const [result] = await registerMultiPaymentByTestClient(utils.clients.resident, [{
                         serviceConsumer: { id: consumer.id },
                         receipts: [{ id: receipt.id }],
-                        amountDistribution: [{ receipt: { id: receipt.id }, amount: '5' }],
+                        amountDistribution: [{ receipt: { id: receipt.id }, amount: '10' }],
                     }])
                     expect(result).toHaveProperty('multiPaymentId')
                 })
-            })
 
-            describe('Payment amount is greater than minimum payment amount required by the acquiring integration', () => {
-                test('For partial payment', async () => {
+                test('Payment amount is equal to maximum payment amount required by the acquiring integration', async () => {
+                    const accountNumber = faker.random.alphaNumeric(12)
+                    const resident = await utils.createResident()
+                    const [consumer] = await utils.createServiceConsumer(resident, accountNumber)
+                    const [[receipt]] = await utils.createReceipts([
+                        utils.createJSONReceipt({ accountNumber, toPay: '0.10' }),
+                    ])
+                    await utils.updateAcquiringIntegration({ maximumPaymentAmount: '10.12' })
+                    const [result] = await registerMultiPaymentByTestClient(utils.clients.resident, [{
+                        serviceConsumer: { id: consumer.id },
+                        receipts: [{ id: receipt.id }],
+                        amountDistribution: [{ receipt: { id: receipt.id }, amount: '10' }],
+                    }])
+                    expect(result).toHaveProperty('multiPaymentId')
+                })
+
+                test('Payment amount is greater than minimum payment amount required by the acquiring integration', async () => {
                     const accountNumber = faker.random.alphaNumeric(12)
                     const resident = await utils.createResident()
                     const [consumer] = await utils.createServiceConsumer(resident, accountNumber)
@@ -1311,11 +1331,68 @@ describe('RegisterMultiPaymentService', () => {
                     }])
                     expect(result).toHaveProperty('multiPaymentId')
                 })
+
+                test('Payment amount is greater than maximum payment amount required by the acquiring integration', async () => {
+                    const accountNumber = faker.random.alphaNumeric(12)
+                    const resident = await utils.createResident()
+                    const [consumer] = await utils.createServiceConsumer(resident, accountNumber)
+                    const [[receipt]] = await utils.createReceipts([
+                        utils.createJSONReceipt({ accountNumber, toPay: '1000' }),
+                    ])
+                    const maximumPaymentAmount = Big(100).toString()
+                    await utils.updateAcquiringIntegration({ maximumPaymentAmount })
+                    await expectToThrowGQLError(async () => {
+                        await registerMultiPaymentByTestClient(utils.clients.resident, [{
+                            serviceConsumer: { id: consumer.id },
+                            receipts: [{ id: receipt.id }],
+                            amountDistribution: [{ receipt: { id: receipt.id }, amount: '500' }],
+                        }])
+                    }, {
+                        ...PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM,
+                        messageInterpolation: { maximumPaymentAmount },
+                    }, 'result')
+                })
+
+                test('Payment amount is less than minimum payment amount required by the acquiring integration', async () => {
+                    const accountNumber = faker.random.alphaNumeric(12)
+                    const resident = await utils.createResident()
+                    const [consumer] = await utils.createServiceConsumer(resident, accountNumber)
+                    const [[receipt]] = await utils.createReceipts([
+                        utils.createJSONReceipt({ accountNumber, toPay: '1000' }),
+                    ])
+                    const minimumPaymentAmount = Big(100).toString()
+                    await utils.updateAcquiringIntegration({ minimumPaymentAmount })
+                    await expectToThrowGQLError(async () => {
+                        await registerMultiPaymentByTestClient(utils.clients.resident, [{
+                            serviceConsumer: { id: consumer.id },
+                            receipts: [{ id: receipt.id }],
+                            amountDistribution: [{ receipt: { id: receipt.id }, amount: '50' }],
+                        }])
+                    }, {
+                        ...PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
+                        messageInterpolation: { minimumPaymentAmount },
+                    }, 'result')
+                })
+
+                test('Payment amount is less than maximum payment amount required by the acquiring integration', async () => {
+                    const accountNumber = faker.random.alphaNumeric(12)
+                    const resident = await utils.createResident()
+                    const [consumer] = await utils.createServiceConsumer(resident, accountNumber)
+                    const [[receipt]] = await utils.createReceipts([
+                        utils.createJSONReceipt({ accountNumber, toPay: '0.10' }),
+                    ])
+                    await utils.updateAcquiringIntegration({ maximumPaymentAmount: '50' })
+                    const [result] = await registerMultiPaymentByTestClient(utils.clients.resident, [{
+                        serviceConsumer: { id: consumer.id },
+                        receipts: [{ id: receipt.id }],
+                        amountDistribution: [{ receipt: { id: receipt.id }, amount: '10' }],
+                    }])
+                    expect(result).toHaveProperty('multiPaymentId')
+                })
             })
 
-            describe('Payment amount is less than minimum payment amount required by the acquiring integration', () => {
-
-                test('For complete payment', async () => {
+            describe('For complete payment', () => {
+                test('Payment amount is less than minimum payment amount required by the acquiring integration', async () => {
                     const accountNumber = faker.random.alphaNumeric(12)
                     const resident = await utils.createResident()
                     const [consumer] = await utils.createServiceConsumer(resident, accountNumber)
@@ -1335,24 +1412,23 @@ describe('RegisterMultiPaymentService', () => {
                     }, 'result')
                 })
 
-                test('For partial payment', async () => {
+                test('Payment amount is greater than maximum payment amount required by the acquiring integration', async () => {
                     const accountNumber = faker.random.alphaNumeric(12)
                     const resident = await utils.createResident()
                     const [consumer] = await utils.createServiceConsumer(resident, accountNumber)
                     const [[receipt]] = await utils.createReceipts([
-                        utils.createJSONReceipt({ accountNumber, toPay: '1000' }),
+                        utils.createJSONReceipt({ accountNumber, toPay: '5000' }),
                     ])
-                    const minimumPaymentAmount = Big(100).toString()
-                    await utils.updateAcquiringIntegration({ minimumPaymentAmount })
+                    const maximumPaymentAmount = Big(500).toString()
+                    await utils.updateAcquiringIntegration({ maximumPaymentAmount })
                     await expectToThrowGQLError(async () => {
                         await registerMultiPaymentByTestClient(utils.clients.resident, [{
                             serviceConsumer: { id: consumer.id },
                             receipts: [{ id: receipt.id }],
-                            amountDistribution: [{ receipt: { id: receipt.id }, amount: '50' }],
                         }])
                     }, {
-                        ...PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
-                        messageInterpolation: { minimumPaymentAmount },
+                        ...PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM,
+                        messageInterpolation: { maximumPaymentAmount },
                     }, 'result')
                 })
             })

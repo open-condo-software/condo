@@ -18,7 +18,7 @@ const {
     MESSAGE_SENT_STATUS,
 } = require('@condo/domains/notification/constants/constants')
 const { syncRemoteClientByTestClient, Message } = require('@condo/domains/notification/utils/testSchema')
-const { getRandomTokenData, getRandomFakeSuccessToken } = require('@condo/domains/notification/utils/testSchema/helpers')
+const { getRandomTokenData, getRandomFakeSuccessToken } = require('@condo/domains/notification/utils/testSchema/utils')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')

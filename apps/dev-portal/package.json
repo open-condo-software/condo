@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@ant-design/cssinjs": "^1.18.5",
-    "@apollo/client": "^3.10.1",
+    "@apollo/client": "^3.11.8",
     "@babel/core": "7.20.12",
     "@babel/preset-env": "7.20.2",
     "@babel/preset-typescript": "7.18.6",

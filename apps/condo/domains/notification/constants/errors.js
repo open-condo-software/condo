@@ -1,4 +1,4 @@
-const { FIREBASE_CONFIG_ENV, HCM_CONFIG_ENV, APPLE_CONFIG_ENV } = require('./constants')
+const { FIREBASE_CONFIG_ENV, HCM_CONFIG_ENV, APPLE_CONFIG_ENV } = require('@condo/domains/notification/constants/constants')
 
 const EMPTY_FIREBASE_CONFIG_ERROR = `Valid ${FIREBASE_CONFIG_ENV} should be provided within .helm (.env), and can be retrieved from https://console.firebase.google.com/project/__PROJECT_ID__/settings/serviceaccounts/adminsdk`
 const EMPTY_HCM_CONFIG_ERROR = `Valid ${HCM_CONFIG_ENV} should be provided within .helm (.env), and can be retrieved from ...`

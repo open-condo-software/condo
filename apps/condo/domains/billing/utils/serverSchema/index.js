@@ -14,6 +14,7 @@ const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domain
 const { BillingIntegration: BillingIntegrationGQL } = require('@condo/domains/billing/gql')
 const { BillingIntegrationAccessRight: BillingIntegrationAccessRightGQL } = require('@condo/domains/billing/gql')
 const { BillingIntegrationOrganizationContext: BillingIntegrationOrganizationContextGQL } = require('@condo/domains/billing/gql')
+const { BillingIntegrationOrganizationContextForRegisterBillingReceiptsService: BillingIntegrationOrganizationContextForRegisterBillingReceiptsServiceGQL } = require('@condo/domains/billing/gql')
 const { BillingIntegrationProblem: BillingIntegrationProblemGQL } = require('@condo/domains/billing/gql')
 const { BillingProperty: BillingPropertyGQL } = require('@condo/domains/billing/gql')
 const { BillingAccount: BillingAccountGQL } = require('@condo/domains/billing/gql')
@@ -37,6 +38,7 @@ const { SEND_RESIDENT_MESSAGE_MUTATION } = require('@condo/domains/resident/gql'
 const BillingIntegration = generateServerUtils(BillingIntegrationGQL)
 const BillingIntegrationAccessRight = generateServerUtils(BillingIntegrationAccessRightGQL)
 const BillingIntegrationOrganizationContext = generateServerUtils(BillingIntegrationOrganizationContextGQL)
+const BillingIntegrationOrganizationContextForRegisterBillingReceiptsService = generateServerUtils(BillingIntegrationOrganizationContextForRegisterBillingReceiptsServiceGQL)
 const BillingIntegrationProblem = generateServerUtils(BillingIntegrationProblemGQL)
 const BillingProperty = generateServerUtils(BillingPropertyGQL)
 const BillingAccount = generateServerUtils(BillingAccountGQL)
@@ -155,6 +157,7 @@ module.exports = {
     BillingIntegration,
     BillingIntegrationAccessRight,
     BillingIntegrationOrganizationContext,
+    BillingIntegrationOrganizationContextForRegisterBillingReceiptsService,
     BillingIntegrationProblem,
     BillingProperty,
     BillingAccount,

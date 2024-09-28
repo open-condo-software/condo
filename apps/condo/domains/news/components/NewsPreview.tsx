@@ -20,14 +20,14 @@ enum NewsPreviewTabTypes {
 }
 
 type NewsItemData = ({
-    title: string,
-    body: string,
-    validBefore?: string,
+    title: string
+    body: string
+    validBefore?: string
 })
 
 interface INewsItemPushPreview {
-    appName: string,
-    appIcon: string,
+    appName: string
+    appIcon: string
     newsItemData: Omit<NewsItemData, 'validBefore'>
 }
 
@@ -289,16 +289,16 @@ const CondoNewsPreview: React.FC<NewsItemData> = ({ title, body, validBefore }) 
 export const MemoizedCondoNewsPreview = React.memo(CondoNewsPreview)
 
 interface ISharingAppNewsPreview {
-    hasPush?: boolean,
+    hasPush?: boolean
 
-    appName: string,
-    appIcon: string,
+    appName: string
+    appIcon: string
 
     iFrameUrl: string
     iFrameRef: React.Ref<HTMLIFrameElement>
 
-    title: string,
-    body: string,
+    title: string
+    body: string
     validBefore?: string
 }
 

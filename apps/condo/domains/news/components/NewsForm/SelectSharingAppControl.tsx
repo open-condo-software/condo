@@ -40,8 +40,8 @@ const PROMO_APP_PREVIEW_ICON = '/news/promoAppPreviewIcon.png'
 const CardCheckbox = Card.CardCheckbox
 
 interface ISelectSharingAppControl {
-    sharingAppContexts: IB2BAppContext[],
-    selectedSharingApps: Set<string>,
+    sharingAppContexts: IB2BAppContext[]
+    selectedSharingApps: Set<string>
     handleSelectSharingApp: ({ value, checked }: { value: string, checked: boolean }) => void
 }
 

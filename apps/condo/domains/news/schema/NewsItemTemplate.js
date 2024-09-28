@@ -6,6 +6,7 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/news/access/NewsItemTemplate')
+const { ALL_NEWS_CATEGORIES } = require('@condo/domains/news/constants/newsCategory')
 const { NEWS_TYPES } = require('@condo/domains/news/constants/newsTypes')
 
 
@@ -25,6 +26,19 @@ const NewsItemTemplate = new GQLListSchema('NewsItemTemplate', {
             type: 'Relationship',
             ref: 'Organization',
             kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
+        },
+
+        name: {
+            schemaDoc: 'Name of template the news item. Example `Heating outage due to repairs` or any other text value',
+            type: 'Text',
+            isRequired: true,
+        },
+
+        category: {
+            schemaDoc: 'Category of template of the news item. Example `Water` or any other select value. News item does not necessarily have a category',
+            type: 'Select',
+            options: ALL_NEWS_CATEGORIES,
+            isRequired: false,
         },
 
         title: {

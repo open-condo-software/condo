@@ -16,7 +16,7 @@ const {
     catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 
-const { GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM } } = require('@condo/domains/acquiring/constants/errors')
+const { GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM, PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM } } = require('@condo/domains/acquiring/constants/errors')
 const {
     FEE_CALCULATION_PATH,
     WEB_VIEW_PATH,
@@ -408,60 +408,102 @@ describe('RegisterMultiPaymentForOneReceiptService', () => {
         })
     })
 
-
-    describe('RegisterMultiPaymentForOneReceiptService check minimum amount', () => {
-
+    describe('RegisterMultiPaymentForOneReceiptService check minimum and maximum payment amount', () => {
         let utils
 
         beforeAll(async () => {
             utils = new TestUtils([ResidentTestMixin])
             await utils.init()
+            await utils.updateAcquiringIntegration({
+                explicitFeeDistributionSchema: [
+                    { 'recipient':'acquiring', 'percent':'1.0' },
+                    { 'recipient':'service', 'percent':'0.2' },
+                ],
+            })
         })
 
         afterEach(async () => {
-            await utils.updateAcquiringIntegration({ minimumPaymentAmount: null })
+            await utils.updateAcquiringIntegration({ minimumPaymentAmount: null, maximumPaymentAmount: null })
         })
 
-        describe('Check minimum payment amount from acquiring integration', () => {
-            test('Payment for acquiring with no set the minimum payment amount', async () => {
-                const [[receipt]] = await utils.createReceipts([
-                    utils.createJSONReceipt({ toPay: '0.01' }),
-                ])
-                const [result] = await registerMultiPaymentForOneReceiptByTestClient(utils.clients.admin, { id: receipt.id }, { id: utils.acquiringContext.id })
-                expect(result).toHaveProperty('multiPaymentId')
-            })
+        test('Payment for acquiring with no set the maximum payment amount', async () => {
+            const [[receipt]] = await utils.createReceipts([
+                utils.createJSONReceipt({ toPay: '0.01' }),
+            ])
+            const [result] = await registerMultiPaymentForOneReceiptByTestClient(utils.clients.admin, { id: receipt.id }, { id: utils.acquiringContext.id })
+            expect(result).toHaveProperty('multiPaymentId')
+        })
 
-            test('Payment amount is equal to the minimum payment amount required by the acquiring integration', async () => {
-                const [[receipt]] = await utils.createReceipts([
-                    utils.createJSONReceipt({ toPay: '1000' }),
-                ])
-                await utils.updateAcquiringIntegration({ minimumPaymentAmount: Big(receipt.toPay) })
-                const [result] = await registerMultiPaymentForOneReceiptByTestClient(utils.clients.admin, { id: receipt.id }, { id: utils.acquiringContext.id })
-                expect(result).toHaveProperty('multiPaymentId')
-            })
+        test('Payment amount is equal to the maximum payment amount required by the acquiring integration', async () => {
+            const [[receipt]] = await utils.createReceipts([
+                utils.createJSONReceipt({ toPay: '10' }),
+            ])
+            await utils.updateAcquiringIntegration({ maximumPaymentAmount: '10.12' })
+            const [result] = await registerMultiPaymentForOneReceiptByTestClient(utils.clients.admin, { id: receipt.id }, { id: utils.acquiringContext.id })
+            expect(result).toHaveProperty('multiPaymentId')
+        })
 
-            test('Payment amount is greater than the minimum payment amount required by the acquiring integration', async () => {
-                const [[receipt]] = await utils.createReceipts([
-                    utils.createJSONReceipt({ toPay: '1000' }),
-                ])
-                await utils.updateAcquiringIntegration({ minimumPaymentAmount: Big(receipt.toPay).minus(1) })
-                const [result] = await registerMultiPaymentForOneReceiptByTestClient(utils.clients.admin, { id: receipt.id }, { id: utils.acquiringContext.id })
-                expect(result).toHaveProperty('multiPaymentId')
-            })
+        test('Payment amount is greater than the maximum payment amount required by the acquiring integration', async () => {
+            const [[receipt]] = await utils.createReceipts([
+                utils.createJSONReceipt({ toPay: '1000' }),
+            ])
+            const maximumPaymentAmount = Big(receipt.toPay).minus(100).toString()
+            await utils.updateAcquiringIntegration({ maximumPaymentAmount })
+            await expectToThrowGQLError(async () => {
+                await registerMultiPaymentForOneReceiptByTestClient(utils.clients.admin, { id: receipt.id }, { id: utils.acquiringContext.id })
+            }, {
+                ...PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM,
+                messageInterpolation: { maximumPaymentAmount },
+            }, 'result')
+        })
 
-            test('Payment amount is less than the minimum payment amount required by the acquiring integration', async () => {
-                const [[receipt]] = await utils.createReceipts([
-                    utils.createJSONReceipt({ toPay: '1000' }),
-                ])
-                const minimumPaymentAmount = Big(receipt.toPay).add(100).toString()
-                await utils.updateAcquiringIntegration({ minimumPaymentAmount })
-                await expectToThrowGQLError(async () => {
-                    await registerMultiPaymentForOneReceiptByTestClient(utils.clients.admin, { id: receipt.id }, { id: utils.acquiringContext.id })
-                }, {
-                    ...PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
-                    messageInterpolation: { minimumPaymentAmount },
-                }, 'result')
-            })
+        test('Payment amount is less than the maximum payment amount required by the acquiring integration', async () => {
+            const [[receipt]] = await utils.createReceipts([
+                utils.createJSONReceipt({ toPay: '1000' }),
+            ])
+            await utils.updateAcquiringIntegration({ maximumPaymentAmount: Big(receipt.toPay).add(100) })
+            const [result] = await registerMultiPaymentForOneReceiptByTestClient(utils.clients.admin, { id: receipt.id }, { id: utils.acquiringContext.id })
+            expect(result).toHaveProperty('multiPaymentId')
+        })
+
+        test('Payment for acquiring with no set the minimum payment amount', async () => {
+            const [[receipt]] = await utils.createReceipts([
+                utils.createJSONReceipt({ toPay: '0.01' }),
+            ])
+            const [result] = await registerMultiPaymentForOneReceiptByTestClient(utils.clients.admin, { id: receipt.id }, { id: utils.acquiringContext.id })
+            expect(result).toHaveProperty('multiPaymentId')
+        })
+
+        test('Payment amount is equal to the minimum payment amount required by the acquiring integration', async () => {
+            const [[receipt]] = await utils.createReceipts([
+                utils.createJSONReceipt({ toPay: '10' }),
+            ])
+            await utils.updateAcquiringIntegration({ minimumPaymentAmount: '10.12' })
+            const [result] = await registerMultiPaymentForOneReceiptByTestClient(utils.clients.admin, { id: receipt.id }, { id: utils.acquiringContext.id })
+            expect(result).toHaveProperty('multiPaymentId')
+        })
+
+        test('Payment amount is greater than the minimum payment amount required by the acquiring integration', async () => {
+            const [[receipt]] = await utils.createReceipts([
+                utils.createJSONReceipt({ toPay: '1000' }),
+            ])
+            await utils.updateAcquiringIntegration({ minimumPaymentAmount: Big(receipt.toPay).minus(1) })
+            const [result] = await registerMultiPaymentForOneReceiptByTestClient(utils.clients.admin, { id: receipt.id }, { id: utils.acquiringContext.id })
+            expect(result).toHaveProperty('multiPaymentId')
+        })
+
+        test('Payment amount is less than the minimum payment amount required by the acquiring integration', async () => {
+            const [[receipt]] = await utils.createReceipts([
+                utils.createJSONReceipt({ toPay: '1000' }),
+            ])
+            const minimumPaymentAmount = Big(receipt.toPay).add(100).toString()
+            await utils.updateAcquiringIntegration({ minimumPaymentAmount })
+            await expectToThrowGQLError(async () => {
+                await registerMultiPaymentForOneReceiptByTestClient(utils.clients.admin, { id: receipt.id }, { id: utils.acquiringContext.id })
+            }, {
+                ...PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
+                messageInterpolation: { minimumPaymentAmount },
+            }, 'result')
         })
     })
 })

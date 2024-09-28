@@ -5,7 +5,7 @@ import { NewsItemRecipientsExportTask as NewsItemRecipientsExportTaskApi } from 
 
 export const useNewsItemRecipientsExportTaskUIInterface = () => {
     const { TaskUIInterface } = useExportTaskUIInterface<NewsItemRecipientsExportTask & {
-        exportedRecordsCount: number,
+        exportedRecordsCount: number
         totalRecordsCount: number
     }>({
         schemaName: 'NewsItemRecipientsExportTask',

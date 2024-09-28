@@ -16,6 +16,8 @@ class SignedDecimal extends Decimal.implementation {
 
     async validateInput (args) {
         const { resolvedData, fieldPath, addFieldValidationError } = args
+        // Admin UI cannot explicitly pass null, so we treat an empty string as null for values where an empty string is not allowed.
+        if (resolvedData[fieldPath] === '') resolvedData[fieldPath] = null
         if (resolvedData.hasOwnProperty(fieldPath) && resolvedData[fieldPath] !== null) {
             const decimal = Big(resolvedData[fieldPath])
             let checkPassed = false
@@ -34,8 +36,7 @@ class SignedDecimal extends Decimal.implementation {
                     break
             }
             if (!checkPassed) {
-                addFieldValidationError(`[${fieldPath}:${this.decimalType}] Specified number has an invalid sign. Field value should be ${this.decimalType}`)
-            }
+                addFieldValidationError(`[${fieldPath}:${this.decimalType}] Specified number has an invalid sign. Field value should be ${this.decimalType}`)            }
         }
         await super.validateInput(args)
     }

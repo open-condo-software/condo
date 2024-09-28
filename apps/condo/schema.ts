@@ -50,6 +50,8 @@ export type AcquiringIntegration = {
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
   /**  The minimum payment amount that can be accepted  */
   minimumPaymentAmount?: Maybe<Scalars['String']>;
+  /**  The maximum payment amount that can be accepted  */
+  maximumPaymentAmount?: Maybe<Scalars['String']>;
   /**  Contains information about the default distribution of explicit fee. Each part is paid by the user on top of original amount if there is no part with the same name in the integration context. Otherwise, the part is ignored as it is paid by recipient  */
   explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionField>>;
   /**  Status, which context will have by default after creation if no overwriting option provided  */
@@ -1138,6 +1140,7 @@ export type AcquiringIntegrationCreateInput = {
   hostUrl?: Maybe<Scalars['String']>;
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
   minimumPaymentAmount?: Maybe<Scalars['String']>;
+  maximumPaymentAmount?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   contextDefaultStatus?: Maybe<AcquiringIntegrationContextDefaultStatusType>;
   vatPercentOptions?: Maybe<Scalars['String']>;
@@ -1170,6 +1173,7 @@ export type AcquiringIntegrationHistoryRecord = {
   hostUrl?: Maybe<Scalars['String']>;
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
   minimumPaymentAmount?: Maybe<Scalars['String']>;
+  maximumPaymentAmount?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   vatPercentOptions?: Maybe<Scalars['String']>;
@@ -1196,6 +1200,7 @@ export type AcquiringIntegrationHistoryRecordCreateInput = {
   hostUrl?: Maybe<Scalars['String']>;
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
   minimumPaymentAmount?: Maybe<Scalars['String']>;
+  maximumPaymentAmount?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   vatPercentOptions?: Maybe<Scalars['String']>;
@@ -1227,6 +1232,7 @@ export type AcquiringIntegrationHistoryRecordUpdateInput = {
   hostUrl?: Maybe<Scalars['String']>;
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
   minimumPaymentAmount?: Maybe<Scalars['String']>;
+  maximumPaymentAmount?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   contextDefaultStatus?: Maybe<Scalars['String']>;
   vatPercentOptions?: Maybe<Scalars['String']>;
@@ -1331,6 +1337,14 @@ export type AcquiringIntegrationHistoryRecordWhereInput = {
   minimumPaymentAmount_gte?: Maybe<Scalars['String']>;
   minimumPaymentAmount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   minimumPaymentAmount_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  maximumPaymentAmount?: Maybe<Scalars['String']>;
+  maximumPaymentAmount_not?: Maybe<Scalars['String']>;
+  maximumPaymentAmount_lt?: Maybe<Scalars['String']>;
+  maximumPaymentAmount_lte?: Maybe<Scalars['String']>;
+  maximumPaymentAmount_gt?: Maybe<Scalars['String']>;
+  maximumPaymentAmount_gte?: Maybe<Scalars['String']>;
+  maximumPaymentAmount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  maximumPaymentAmount_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
   explicitFeeDistributionSchema_not?: Maybe<Scalars['JSON']>;
   explicitFeeDistributionSchema_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -1478,6 +1492,7 @@ export type AcquiringIntegrationUpdateInput = {
   hostUrl?: Maybe<Scalars['String']>;
   supportedBillingIntegrationsGroup?: Maybe<Scalars['String']>;
   minimumPaymentAmount?: Maybe<Scalars['String']>;
+  maximumPaymentAmount?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   contextDefaultStatus?: Maybe<AcquiringIntegrationContextDefaultStatusType>;
   vatPercentOptions?: Maybe<Scalars['String']>;
@@ -1585,6 +1600,14 @@ export type AcquiringIntegrationWhereInput = {
   minimumPaymentAmount_gte?: Maybe<Scalars['String']>;
   minimumPaymentAmount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   minimumPaymentAmount_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  maximumPaymentAmount?: Maybe<Scalars['String']>;
+  maximumPaymentAmount_not?: Maybe<Scalars['String']>;
+  maximumPaymentAmount_lt?: Maybe<Scalars['String']>;
+  maximumPaymentAmount_lte?: Maybe<Scalars['String']>;
+  maximumPaymentAmount_gt?: Maybe<Scalars['String']>;
+  maximumPaymentAmount_gte?: Maybe<Scalars['String']>;
+  maximumPaymentAmount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  maximumPaymentAmount_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
   explicitFeeDistributionSchema_not?: Maybe<Array<FeeDistributionFieldInput>>;
   explicitFeeDistributionSchema_in?: Maybe<Array<Maybe<Array<FeeDistributionFieldInput>>>>;
@@ -54494,6 +54517,10 @@ export type NewsItemTemplate = {
   type?: Maybe<NewsItemTemplateTypeType>;
   /**  Organization who creates the template. A common template if there is no organization  */
   organization?: Maybe<Organization>;
+  /**  Name of template the news item. Example `Heating outage due to repairs` or any other text value  */
+  name?: Maybe<Scalars['String']>;
+  /**  Category of template of the news item. Example `Water` or any other select value. News item does not necessarily have a category  */
+  category?: Maybe<NewsItemTemplateCategoryType>;
   /**  The title of a future news item  */
   title?: Maybe<Scalars['String']>;
   /**  A future news item's body  */
@@ -54514,9 +54541,27 @@ export type NewsItemTemplate = {
   sender?: Maybe<SenderField>;
 };
 
+export enum NewsItemTemplateCategoryType {
+  Water = 'WATER',
+  Heating = 'HEATING',
+  Electricity = 'ELECTRICITY',
+  Utilities = 'UTILITIES',
+  ElectricityAndElevators = 'ELECTRICITY_AND_ELEVATORS',
+  Elevators = 'ELEVATORS',
+  Telephone = 'TELEPHONE',
+  Meters = 'METERS',
+  Gas = 'GAS',
+  Cleaning = 'CLEANING',
+  Intercom = 'INTERCOM',
+  Snow = 'SNOW',
+  Other = 'OTHER'
+}
+
 export type NewsItemTemplateCreateInput = {
   type?: Maybe<NewsItemTemplateTypeType>;
   organization?: Maybe<OrganizationRelateToOneInput>;
+  name?: Maybe<Scalars['String']>;
+  category?: Maybe<NewsItemTemplateCategoryType>;
   title?: Maybe<Scalars['String']>;
   body?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -54543,6 +54588,8 @@ export type NewsItemTemplateHistoryRecord = {
   _label_?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  category?: Maybe<Scalars['String']>;
   title?: Maybe<Scalars['String']>;
   body?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
@@ -54563,6 +54610,8 @@ export type NewsItemTemplateHistoryRecord = {
 export type NewsItemTemplateHistoryRecordCreateInput = {
   type?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  category?: Maybe<Scalars['String']>;
   title?: Maybe<Scalars['String']>;
   body?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -54588,6 +54637,8 @@ export enum NewsItemTemplateHistoryRecordHistoryActionType {
 export type NewsItemTemplateHistoryRecordUpdateInput = {
   type?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  category?: Maybe<Scalars['String']>;
   title?: Maybe<Scalars['String']>;
   body?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -54629,6 +54680,42 @@ export type NewsItemTemplateHistoryRecordWhereInput = {
   organization_not?: Maybe<Scalars['String']>;
   organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  category?: Maybe<Scalars['String']>;
+  category_not?: Maybe<Scalars['String']>;
+  category_contains?: Maybe<Scalars['String']>;
+  category_not_contains?: Maybe<Scalars['String']>;
+  category_starts_with?: Maybe<Scalars['String']>;
+  category_not_starts_with?: Maybe<Scalars['String']>;
+  category_ends_with?: Maybe<Scalars['String']>;
+  category_not_ends_with?: Maybe<Scalars['String']>;
+  category_i?: Maybe<Scalars['String']>;
+  category_not_i?: Maybe<Scalars['String']>;
+  category_contains_i?: Maybe<Scalars['String']>;
+  category_not_contains_i?: Maybe<Scalars['String']>;
+  category_starts_with_i?: Maybe<Scalars['String']>;
+  category_not_starts_with_i?: Maybe<Scalars['String']>;
+  category_ends_with_i?: Maybe<Scalars['String']>;
+  category_not_ends_with_i?: Maybe<Scalars['String']>;
+  category_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  category_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   title?: Maybe<Scalars['String']>;
   title_not?: Maybe<Scalars['String']>;
   title_contains?: Maybe<Scalars['String']>;
@@ -54764,6 +54851,8 @@ export enum NewsItemTemplateTypeType {
 export type NewsItemTemplateUpdateInput = {
   type?: Maybe<NewsItemTemplateTypeType>;
   organization?: Maybe<OrganizationRelateToOneInput>;
+  name?: Maybe<Scalars['String']>;
+  category?: Maybe<NewsItemTemplateCategoryType>;
   title?: Maybe<Scalars['String']>;
   body?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -54786,6 +54875,28 @@ export type NewsItemTemplateWhereInput = {
   type_not_in?: Maybe<Array<Maybe<NewsItemTemplateTypeType>>>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  category?: Maybe<NewsItemTemplateCategoryType>;
+  category_not?: Maybe<NewsItemTemplateCategoryType>;
+  category_in?: Maybe<Array<Maybe<NewsItemTemplateCategoryType>>>;
+  category_not_in?: Maybe<Array<Maybe<NewsItemTemplateCategoryType>>>;
   title?: Maybe<Scalars['String']>;
   title_not?: Maybe<Scalars['String']>;
   title_contains?: Maybe<Scalars['String']>;
@@ -63932,7 +64043,8 @@ export type PropertyWhereUniqueInput = {
 export enum PushTransportType {
   Firebase = 'firebase',
   Apple = 'apple',
-  Huawei = 'huawei'
+  Huawei = 'huawei',
+  Redstore = 'redstore'
 }
 
 export enum PushType {
@@ -74619,13 +74731,15 @@ export type RemoteClientHistoryRecordsUpdateInput = {
 export enum RemoteClientPushTransportType {
   Firebase = 'firebase',
   Apple = 'apple',
-  Huawei = 'huawei'
+  Huawei = 'huawei',
+  Redstore = 'redstore'
 }
 
 export enum RemoteClientPushTransportVoIpType {
   Firebase = 'firebase',
   Apple = 'apple',
-  Huawei = 'huawei'
+  Huawei = 'huawei',
+  Redstore = 'redstore'
 }
 
 export enum RemoteClientPushTypeType {
@@ -74990,6 +75104,7 @@ export type ResidentBillingReceiptOutput = {
   category: BillingCategory;
   isPayable: Scalars['Boolean'];
   file?: Maybe<ResidentBillingReceiptFile>;
+  updatedAt?: Maybe<Scalars['String']>;
 };
 
 export type ResidentBillingReceiptWhereInput = {
@@ -76905,6 +77020,8 @@ export enum SortAcquiringIntegrationHistoryRecordsBy {
   SupportedBillingIntegrationsGroupDesc = 'supportedBillingIntegrationsGroup_DESC',
   MinimumPaymentAmountAsc = 'minimumPaymentAmount_ASC',
   MinimumPaymentAmountDesc = 'minimumPaymentAmount_DESC',
+  MaximumPaymentAmountAsc = 'maximumPaymentAmount_ASC',
+  MaximumPaymentAmountDesc = 'maximumPaymentAmount_DESC',
   ContextDefaultStatusAsc = 'contextDefaultStatus_ASC',
   ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
   VatPercentOptionsAsc = 'vatPercentOptions_ASC',
@@ -76944,6 +77061,8 @@ export enum SortAcquiringIntegrationsBy {
   SupportedBillingIntegrationsGroupDesc = 'supportedBillingIntegrationsGroup_DESC',
   MinimumPaymentAmountAsc = 'minimumPaymentAmount_ASC',
   MinimumPaymentAmountDesc = 'minimumPaymentAmount_DESC',
+  MaximumPaymentAmountAsc = 'maximumPaymentAmount_ASC',
+  MaximumPaymentAmountDesc = 'maximumPaymentAmount_DESC',
   ContextDefaultStatusAsc = 'contextDefaultStatus_ASC',
   ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
   VatPercentOptionsAsc = 'vatPercentOptions_ASC',
@@ -81497,6 +81616,10 @@ export enum SortNewsItemSharingsBy {
 export enum SortNewsItemTemplateHistoryRecordsBy {
   TypeAsc = 'type_ASC',
   TypeDesc = 'type_DESC',
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  CategoryAsc = 'category_ASC',
+  CategoryDesc = 'category_DESC',
   TitleAsc = 'title_ASC',
   TitleDesc = 'title_DESC',
   BodyAsc = 'body_ASC',
@@ -81524,6 +81647,10 @@ export enum SortNewsItemTemplatesBy {
   TypeDesc = 'type_DESC',
   OrganizationAsc = 'organization_ASC',
   OrganizationDesc = 'organization_DESC',
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  CategoryAsc = 'category_ASC',
+  CategoryDesc = 'category_DESC',
   TitleAsc = 'title_ASC',
   TitleDesc = 'title_DESC',
   BodyAsc = 'body_ASC',
@@ -99377,6 +99504,7 @@ export enum WebhookSubscriptionModelType {
   Organization = 'Organization',
   Ticket = 'Ticket',
   TicketComment = 'TicketComment',
+  TicketCommentFile = 'TicketCommentFile',
   Contact = 'Contact',
   UserHelpRequest = 'UserHelpRequest',
   AcquiringIntegrationContext = 'AcquiringIntegrationContext',
