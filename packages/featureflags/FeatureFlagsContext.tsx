@@ -49,11 +49,11 @@ const useFeatureFlags = (): IFeatureFlagsContext => useContext(FeatureFlagsConte
 
 type FeatureFlagsProviderWrapperProps = {
     initFeatures?: FeatureDefinitions
-    useAuth: () => {
+    useAuth?: () => {
         user?: unknown
         isLoading?: boolean
     }
-    useOrganization: () => {
+    useOrganization?: () => {
         organization?: unknown
         isLoading?: boolean
     }
