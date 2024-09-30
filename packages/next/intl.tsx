@@ -6,7 +6,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { IntlProvider, useIntl, FormattedMessage } from 'react-intl'
 
 import { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } from './_utils'
-import { useAuth } from './auth'
+import { useAuth as useAuthHook } from './auth'
 
 
 interface ILocaleContext {
@@ -86,7 +86,17 @@ const initOnRestore = async (ctx) => {
     return { locale, messages }
 }
 
-const Intl = ({ children, initialLocale, initialMessages, onError }) => {
+type IntlProps = {
+    initialLocale?: string
+    initialMessages?: Record<string, string>
+    onError?
+    useAuth?: () => {
+        user?: unknown
+        isLoading?: boolean
+    }
+}
+
+const Intl: React.FC<IntlProps> = ({ children, initialLocale, initialMessages, onError, useAuth = useAuthHook }) => {
     const { user, isLoading: isUserLoading } = useAuth()
     const [locale, setLocale] = useState(initialLocale)
     const [messages, setMessages] = useState(initialMessages)
@@ -119,6 +129,7 @@ const Intl = ({ children, initialLocale, initialMessages, onError }) => {
     )
 }
 
+// @ts-ignore
 if (DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER) Intl.whyDidYouRender = true
 
 type WithIntlProps = {
@@ -129,10 +140,11 @@ type WithIntlProps = {
     getMessages?: GetMessages
     getLocale?: GetLocale
     hideErrors?: boolean
+    useAuth?: IntlProps['useAuth']
 }
 export type WithIntl = (props: WithIntlProps) => (PageComponent: NextPage<any>) => NextPage<any>
 
-const withIntl: WithIntl = ({ ssr = false, ...opts }: WithIntlProps = {}) => PageComponent => {
+const withIntl: WithIntl = ({ ssr = false, useAuth, ...opts }: WithIntlProps = {}) => PageComponent => {
     // TODO(pahaz): refactor it. No need to patch globals here!
     defaultLocale = opts.defaultLocale || defaultLocale
     extractReqLocale = opts.extractReqLocale || extractReqLocale
@@ -151,7 +163,7 @@ const withIntl: WithIntl = ({ ssr = false, ...opts }: WithIntlProps = {}) => Pag
         if (!messages) messages = {}
         if (DEBUG_RERENDERS) console.log('WithIntl()', locale)
         return (
-            <Intl initialLocale={locale} initialMessages={messages} onError={onIntlError}>
+            <Intl initialLocale={locale} initialMessages={messages} onError={onIntlError} useAuth={useAuth}>
                 <PageComponent {...pageProps} />
             </Intl>
         )
@@ -167,7 +179,7 @@ const withIntl: WithIntl = ({ ssr = false, ...opts }: WithIntlProps = {}) => Pag
 
     if (ssr || PageComponent.getInitialProps) {
         WithIntl.getInitialProps = async ctx => {
-            // console.log('WithIntl.getInitialProps()', ctx)
+            if (DEBUG_RERENDERS) console.log('WithIntl.getInitialProps()', ctx)
             const isOnServerSide = typeof window === 'undefined'
             const { locale, messages } = await initOnRestore(ctx)
             const pageProps = await getContextIndependentWrappedInitialProps(PageComponent, ctx)
