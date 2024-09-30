@@ -1,4 +1,3 @@
-import { ApolloProvider } from '@apollo/client'
 import { CacheProvider } from '@emotion/core'
 import { ConfigProvider } from 'antd'
 import enUS from 'antd/lib/locale/en_US'
@@ -12,12 +11,10 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'
 
-import { CachePersistorContext, useCachePersistor } from '@open-condo/apollo'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useFeatureFlags, FeaturesReady, withFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import * as AllIcons from '@open-condo/icons'
 import { extractReqLocale } from '@open-condo/locales/extractReqLocale'
-import { DEBUG_RERENDERS, getContextIndependentWrappedInitialProps, preventInfinityLoop } from '@open-condo/next/_utils'
 import { useIntl, withIntl } from '@open-condo/next/intl'
 
 import { useBankReportTaskUIInterface } from '@condo/domains/banking/hooks/useBankReportTaskUIInterface'
@@ -68,7 +65,6 @@ import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess
 import { TourProvider } from '@condo/domains/onboarding/contexts/TourContext'
 import { useNoOrganizationToolTip } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
-import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
 import {
     SubscriptionProvider,
     useServiceSubscriptionContext,
@@ -84,21 +80,15 @@ import {
 } from '@condo/domains/ticket/hooks/useTicketDocumentGenerationTaskUIInterface'
 import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useTicketExportTaskUIInterface'
 import { CookieAgreement } from '@condo/domains/user/components/CookieAgreement'
-import { USER_QUERY } from '@condo/domains/user/gql'
 
-
-import { useApollo } from '@/lib/apollo'
-import { useAuth } from '@/lib/auth'
-import { AuthProvider } from '@/lib/auth'
-import { useOrganization } from '@/lib/organization'
-import { OrganizationProvider } from '@/lib/organization'
-import { SSRCookiesContext, useVitalCookies } from '@/lib/ssr'
+import { withApollo } from '@/lib/apollo'
+import { useAuth, withAuth } from '@/lib/auth'
+import { useOrganization, withOrganization } from '@/lib/organization'
 
 import '@condo/domains/common/components/wdyr'
 import '@open-condo/ui/dist/styles.min.css'
 import '@open-condo/ui/dist/style-vars/variables.css'
 import '@condo/domains/common/components/containers/global-styles.css'
-// import { withApollo } from '@open-condo/next/apollo'
 
 const { publicRuntimeConfig: { defaultLocale, sppConfig, disableSSR } } = getConfig()
 
@@ -482,29 +472,11 @@ const MyApp = ({ Component, pageProps }) => {
         EndTrialSubscriptionReminderPopup,
         isEndTrialSubscriptionReminderPopupVisible,
     } = useEndTrialSubscriptionReminderPopup()
-    const { persistor } = useCachePersistor()
 
     const shouldDisplayCookieAgreement = router.pathname.match(/\/auth\/.*/)
 
     return (
         <>
-            {/*{*/}
-            {/*    !persistor && (*/}
-            {/*        <div*/}
-            {/*            style={{*/}
-            {/*                position: 'absolute',*/}
-            {/*                left: 0,*/}
-            {/*                right: 0,*/}
-            {/*                top: 0,*/}
-            {/*                bottom: 0,*/}
-            {/*                backgroundColor: 'red',*/}
-            {/*                zIndex: 99999,*/}
-            {/*            }}*/}
-            {/*        >*/}
-            {/*            null app*/}
-            {/*        </div>*/}
-            {/*    )*/}
-            {/*}*/}
             <Head>
                 <meta
                     name='viewport'
@@ -558,91 +530,12 @@ const MyApp = ({ Component, pageProps }) => {
     )
 }
 
-// TODO: We need to get away from "with..."
-const withApollo = () => PageComponent => {
-    const WithApollo = (props) => {
-
-        // console.log('::WithApollo:: >>>', {
-        //     props,
-        // })
-
-        const { client, cachePersistor } = useApollo(props.pageProps)
-
-        // if (!cachePersistor) return null
-        // const ssrCookies = useVitalCookies(pageProps)
-
-        return (
-            // <SSRCookiesContext.Provider value={ssrCookies}>
-            <ApolloProvider client={client}>
-                <CachePersistorContext.Provider value={{ persistor: cachePersistor }}>
-                    <PageComponent {...props} />
-                </CachePersistorContext.Provider>
-            </ApolloProvider>
-            // </SSRCookiesContext.Provider>
-        )
-    }
-
-    // Set the correct displayName in development
-    if (process.env.NODE_ENV !== 'production') {
-        const displayName =
-            PageComponent.displayName || PageComponent.name || 'Component'
-        WithApollo.displayName = `withApollo(${displayName})`
-    }
-
-    WithApollo.getInitialProps = PageComponent.getInitialProps
-
-    return WithApollo
-}
-
-const withAuth = () => PageComponent => {
-    const WithAuth = (props) => {
-        return (
-            <AuthProvider>
-                <PageComponent {...props} />
-            </AuthProvider>
-        )
-    }
-
-    // Set the correct displayName in development
-    if (process.env.NODE_ENV !== 'production') {
-        const displayName =
-            PageComponent.displayName || PageComponent.name || 'Component'
-        WithAuth.displayName = `WithAuth(${displayName})`
-    }
-
-    WithAuth.getInitialProps = PageComponent.getInitialProps
-
-    return WithAuth
-}
-
-
-const withOrganization = () => PageComponent => {
-    const WithOrganization = (props) => {
-        return (
-            <OrganizationProvider>
-                <PageComponent {...props} />
-            </OrganizationProvider>
-        )
-    }
-
-    // Set the correct displayName in development
-    if (process.env.NODE_ENV !== 'production') {
-        const displayName =
-            PageComponent.displayName || PageComponent.name || 'Component'
-        WithOrganization.displayName = `WithOrganization(${displayName})`
-    }
-
-    WithOrganization.getInitialProps = PageComponent.getInitialProps
-
-    return WithOrganization
-}
-
 export default (
     withApollo()(
-        withIntl({ ssr: !IS_SSR_DISABLED, messagesImporter, extractReqLocale, defaultLocale })(
-            withAuth()(
-                withOrganization()(
-                    withFeatureFlags({ ssr: !IS_SSR_DISABLED })(
+        withAuth()(
+            withOrganization()(
+                withIntl({ ssr: !IS_SSR_DISABLED, messagesImporter, extractReqLocale, defaultLocale, useAuth })(
+                    withFeatureFlags({ ssr: !IS_SSR_DISABLED, useAuth, useOrganization })(
                         MyApp
                     )
                 )

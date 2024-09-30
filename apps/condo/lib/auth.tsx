@@ -3,7 +3,7 @@
 import { ApolloClient, NormalizedCacheObject, useApolloClient } from '@apollo/client'
 import cookie from 'js-cookie'
 import get from 'lodash/get'
-import { GetServerSideProps, GetServerSidePropsResult } from 'next'
+import { GetServerSideProps, NextPage } from 'next'
 import { useRouter } from 'next/router'
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
 
@@ -35,6 +35,27 @@ const AuthContext = createContext<AuthContextType>({
 })
 
 export const useAuth = (): AuthContextType => useContext(AuthContext)
+
+export const withAuth = () => (PageComponent: NextPage): NextPage => {
+    const WithAuth = (props) => {
+        return (
+            <AuthProvider>
+                <PageComponent {...props} />
+            </AuthProvider>
+        )
+    }
+
+    // Set the correct displayName in development
+    if (process.env.NODE_ENV !== 'production') {
+        const displayName =
+            PageComponent.displayName || PageComponent.name || 'Component'
+        WithAuth.displayName = `WithAuth(${displayName})`
+    }
+
+    WithAuth.getInitialProps = PageComponent.getInitialProps
+
+    return WithAuth
+}
 
 
 export const AuthProvider: React.FC = ({ children }) => {
@@ -77,6 +98,12 @@ export const AuthProvider: React.FC = ({ children }) => {
     const signOut = useCallback(async () => {
         await signOutMutation()
     }, [signOutMutation])
+
+    console.log('AuthProvider::: >>>', {
+        isLoading: userLoading || signOutLoading,
+        isAuthenticated: !!user,
+        user,
+    })
 
     return (
         <AuthContext.Provider

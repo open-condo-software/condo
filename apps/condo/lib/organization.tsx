@@ -1,11 +1,9 @@
 import { ApolloClient, ApolloQueryResult, NormalizedCacheObject } from '@apollo/client'
-import { setCookie, getCookie, deleteCookie } from 'cookies-next'
+import { getCookie } from 'cookies-next'
 import cookie from 'js-cookie'
 import get from 'lodash/get'
-import { GetServerSideProps } from 'next'
+import { GetServerSideProps, NextPage } from 'next'
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
-
-import { useCachePersistor } from '@open-condo/apollo'
 
 import {
     useGetOrganizationEmployeeByIdQuery,
@@ -72,6 +70,7 @@ export const OrganizationProvider: React.FC = ({ children }) => {
         if (error.message.includes('You do not have access to this resource')) {
             setCookieLinkId('')
             setActiveEmployeeId(null)
+            console.log('OrganizationProvider:ERROR to null: >>>', { error })
             setActiveEmployee(null)
         } else {
             throw error
@@ -106,6 +105,7 @@ export const OrganizationProvider: React.FC = ({ children }) => {
         } else {
             setCookieLinkId('')
             setActiveEmployeeId(null)
+            console.log('OrganizationProvider:handleSelectItem:to null: >>>', { linkItem })
             setActiveEmployee(null)
             return Promise.resolve()
         }
@@ -133,6 +133,7 @@ export const OrganizationProvider: React.FC = ({ children }) => {
         if (!isEmployeeActive) {
             setCookieLinkId('')
             setActiveEmployeeId(null)
+            console.log('OrganizationProvider:if (!isEmployeeActive) {:to null: >>>', { isEmployeeActive, activeEmployee, employee, data })
             setActiveEmployee(null)
         } else {
             setCookieLinkId(employee.id)
@@ -143,7 +144,10 @@ export const OrganizationProvider: React.FC = ({ children }) => {
 
     useEffect(() => {
         if (auth.isLoading) return
-        if (!auth.user && activeEmployee !== null) setActiveEmployee(null)
+        if (!auth.user && activeEmployee !== null) {
+            console.log('OrganizationProvider:change auth.user:: >>>', { auth, activeEmployee })
+            setActiveEmployee(null)
+        }
     }, [auth.user])
 
     if (DEBUG_RERENDERS) console.log('OrganizationProvider()', activeEmployee, 'loading', employeeLoading, 'skip', (auth.isLoading || !auth.user || !activeEmployeeId))
@@ -155,6 +159,8 @@ export const OrganizationProvider: React.FC = ({ children }) => {
         auth,
         activeEmployeeId,
         cookieEmployee,
+
+        activeEmployee,
 
         selectLink: handleSelectItem,
         isLoading: (!auth.user || !activeEmployeeId) ? false : isLoading,
@@ -175,13 +181,34 @@ export const OrganizationProvider: React.FC = ({ children }) => {
     )
 }
 
-type Args = {
+export const withOrganization = () => (PageComponent: NextPage): NextPage => {
+    const WithOrganization = (props) => {
+        return (
+            <OrganizationProvider>
+                <PageComponent {...props} />
+            </OrganizationProvider>
+        )
+    }
+
+    // Set the correct displayName in development
+    if (process.env.NODE_ENV !== 'production') {
+        const displayName =
+            PageComponent.displayName || PageComponent.name || 'Component'
+        WithOrganization.displayName = `WithOrganization(${displayName})`
+    }
+
+    WithOrganization.getInitialProps = PageComponent.getInitialProps
+
+    return WithOrganization
+}
+
+type PrefetchOrganizationEmployeeArgs = {
     client: ApolloClient<NormalizedCacheObject>
     context: Parameters<GetServerSideProps>[0]
     userId: string
 }
 
-export async function prefetchOrganizationEmployee (args: Args) {
+export async function prefetchOrganizationEmployee (args: PrefetchOrganizationEmployeeArgs) {
     const { client, context, userId } = args
 
     const activeEmployeeId = getCookie(ACTIVE_EMPLOYEE_COOKIE_NAME, { req: context.req, res: context.res })

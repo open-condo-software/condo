@@ -1,8 +1,10 @@
-import { ApolloClient, NormalizedCacheObject, useApolloClient } from '@apollo/client'
+import { ApolloClient, ApolloProvider, NormalizedCacheObject, useApolloClient } from '@apollo/client'
+import { NextPage } from 'next'
 import getConfig from 'next/config'
+import React from 'react'
 
 import {
-    ApolloHelper,
+    ApolloHelper, CachePersistorContext,
     InitializeApollo,
     ListHelper,
     UseApollo,
@@ -83,3 +85,38 @@ const apolloHelper = new ApolloHelper({
 // NOTE: Type casting is used for apollo type mismatch
 export const initializeApollo = apolloHelper.initializeApollo as unknown as InitializeApollo<ApolloClient<NormalizedCacheObject>>
 export const useApollo = apolloHelper.generateUseApolloHook() as unknown as UseApollo<ApolloClient<NormalizedCacheObject>>
+
+export const withApollo = () => (PageComponent: NextPage): NextPage => {
+    const WithApollo = (props) => {
+
+        // console.log('::WithApollo:: >>>', {
+        //     props,
+        // })
+
+        const { client, cachePersistor } = useApollo(props.pageProps)
+
+        // if (!cachePersistor) return null
+        // const ssrCookies = useVitalCookies(pageProps)
+
+        return (
+            // <SSRCookiesContext.Provider value={ssrCookies}>
+            <ApolloProvider client={client}>
+                <CachePersistorContext.Provider value={{ persistor: cachePersistor }}>
+                    <PageComponent {...props} />
+                </CachePersistorContext.Provider>
+            </ApolloProvider>
+            // </SSRCookiesContext.Provider>
+        )
+    }
+
+    // Set the correct displayName in development
+    if (process.env.NODE_ENV !== 'production') {
+        const displayName =
+            PageComponent.displayName || PageComponent.name || 'Component'
+        WithApollo.displayName = `withApollo(${displayName})`
+    }
+
+    WithApollo.getInitialProps = PageComponent.getInitialProps
+
+    return WithApollo
+}
