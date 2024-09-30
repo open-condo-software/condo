@@ -1589,6 +1589,7 @@
   "pages.condo.marketplace.invoice.id.field.paymentLink.copy": "Скопировать ссылку",
   "pages.condo.marketplace.invoice.id.title.payerData": "Данные плательщика",
   "pages.condo.marketplace.invoice.id.field.address": "Адрес",
+  "pages.condo.marketplace.invoice.id.field.unitName": "Помещение",
   "pages.condo.marketplace.invoice.id.field.contact": "Контакт",
   "pages.condo.marketplace.invoice.id.ticketAlert.message": "Счет привязан к заявке №{number}",
   "pages.condo.marketplace.invoice.id.ticketAlert.description": "Посмотреть заявку",

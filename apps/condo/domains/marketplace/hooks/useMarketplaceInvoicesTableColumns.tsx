@@ -18,6 +18,8 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
     const intl = useIntl()
     const DateTitle = intl.formatMessage({ id: 'Date' })
     const InvoiceNumberTitle = intl.formatMessage({ id: 'pages.condo.marketplace.payments.invoiceNumber' })
+    const AddressTitle = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.field.address' })
+    const UnitTitle = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.field.unitName' })
     const RowsTitle = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.title.order' })
     const PaymentTypeTitle = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.field.paymentType' })
     const StatusTitle = intl.formatMessage({ id: 'Status' })
@@ -79,10 +81,53 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
             filterIcon: getFilterIcon,
         },
         {
+            title: AddressTitle,
+            key: 'address',
+            dataIndex: 'address',
+            width: '15%',
+            render: (address) => {
+                if (!address) {
+                    return '—'
+                }
+
+                // const renderTicketNumber = getTableCellRenderer({ search, href: `/ticket/${ticket.id}`, target: '_blank' })
+
+                // return renderTicketNumber(`№${ticket.number}`)
+            },
+            sorter: true,
+            sortOrder: get(sorterMap, 'property'),
+            filteredValue: getFilteredValue(filters, 'address'),
+            filterDropdown: getFilterDropdownByKey(filtersMeta, 'address'),
+            filterIcon: getFilterIcon,
+
+
+        },
+        {
+            title: UnitTitle,
+            key: 'unit',
+            dataIndex: 'unit',
+            width: '15%',
+            render: (unit) => {
+                if (!unit) {
+                    return '—'
+                }
+
+                // const renderTicketNumber = getTableCellRenderer({ search, href: `/ticket/${ticket.id}`, target: '_blank' })
+
+                // return renderTicketNumber(`№${ticket.number}`)
+            },
+            sorter: true,
+            sortOrder: get(sorterMap, 'unitName'),
+            filteredValue: getFilteredValue(filters, 'unitName'),
+            filterDropdown: getFilterDropdownByKey(filtersMeta, 'unitName'),
+            filterIcon: getFilterIcon,
+
+        },
+        {
             title: RowsTitle,
             key: 'rows',
             dataIndex: 'rows',
-            width: '25%',
+            width: '15%',
             render: (rows) => {
                 const joinedRows = rows.map((row, index) => {
                     const name = row.name
@@ -149,5 +194,5 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
             filterDropdown: getFilterDropdownByKey(filtersMeta, 'toPay'),
             filterIcon: getFilterIcon,
         },
-    ], [ContractPriceMessage, DateTitle, InvoiceNumberTitle, PaymentTypeTitle, RowsTitle, StatusTitle, SumTitle, TicketNumber, filters, filtersMeta, intl, render, search, sorterMap])
+    ], [ContractPriceMessage, DateTitle, InvoiceNumberTitle, PaymentTypeTitle, RowsTitle, AddressTitle, UnitTitle, StatusTitle, SumTitle, TicketNumber, filters, filtersMeta, intl, render, search, sorterMap])
 }

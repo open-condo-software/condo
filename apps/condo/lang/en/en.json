@@ -1589,6 +1589,7 @@
   "pages.condo.marketplace.invoice.id.field.paymentLink.copy": "Copy link",
   "pages.condo.marketplace.invoice.id.title.payerData": "Payer data",
   "pages.condo.marketplace.invoice.id.field.address": "Address",
+  "pages.condo.marketplace.invoice.id.field.unitName": "Unit",
   "pages.condo.marketplace.invoice.id.field.contact": "Contact",
   "pages.condo.marketplace.invoice.id.ticketAlert.message": "Invoice connected to ticket №{number}",
   "pages.condo.marketplace.invoice.id.ticketAlert.description": "View ticket",
