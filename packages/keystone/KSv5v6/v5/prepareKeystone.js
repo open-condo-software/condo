@@ -232,7 +232,6 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
                     req['startId'] = req.headers[startRequestIdHeaderName] = startReqId
 
                     res.setHeader(requestIdHeaderName, reqId)
-                    res.setHeader(startRequestIdHeaderName, startReqId)
                     next()
                 })
             })
