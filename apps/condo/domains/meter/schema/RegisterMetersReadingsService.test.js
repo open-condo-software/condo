@@ -776,7 +776,7 @@ describe('RegisterMetersReadingsService', () => {
         const cases = [
             { input: '2024-06-17', output: '2024-06-17' },
             { input: '17.06.2024', output: '2024-06-17' },
-            { input: '2024-06', output: '2024-06-01' },
+            { input: '2024-06', output: '2024-06' },
             { input: '06-2024', output: '2024-06-01' },
             { input: '2024.06', output: '2024-06-01' },
             { input: '06.2024', output: '2024-06-01' },
@@ -785,10 +785,7 @@ describe('RegisterMetersReadingsService', () => {
             { input: '2024-06-17 18:44:13', output: '2024-06-17 18:44:13' },
             { input: '17.06.2024 18:44:13', output: '2024-06-17 18:44:13' },
             { input: '17/06/2024 18:44:13', output: '2024-06-17 18:44:13' },
-            { input: '17/06/2024 18-44-13', output: '2024-06-17 18:44:13' },
-            { input: '17-06-2024 18/44/13', output: '2024-06-17 18:44:13' },
-            { input: '17/06/2024 18/44/13', output: '2024-06-17 18:44:13' },
-            { input: '17-06-2024 18-44-13', output: '2024-06-17 18:44:13' },
+            { input: '2024-06-17T18:44:13.539Z', output: '2024-06-17T18:44:13.539Z' },
         ]
 
         test.each(cases)('$input should parsed as $output', async ({ input, output }) => {
@@ -808,7 +805,7 @@ describe('RegisterMetersReadingsService', () => {
     })
 
     describe('error on invalid submission date', () => {
-        const cases = ['[]', '12_23', 'hello moto', '2024.28.05']
+        const cases = ['[]', '12_23', 'hello moto', '2024.28.05', '2024.05.28 13-13-13']
 
         test.each(cases)('%p should cause an error', async (date) => {
             const [o10n] = await createTestOrganization(adminClient)

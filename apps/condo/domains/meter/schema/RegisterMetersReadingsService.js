@@ -3,34 +3,38 @@
  */
 const dayjs = require('dayjs')
 const customParseFormat = require('dayjs/plugin/customParseFormat')
-const { get, isUndefined, isEmpty, isNumber, isString, isNil, pick, set } = require('lodash')
-const uniq = require('lodash/uniq')
+const utc = require('dayjs/plugin/utc')
+const { get, isEmpty, isNil, set, uniq } = require('lodash')
 
 const conf = require('@open-condo/config')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { GQLError } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { i18n } = require('@open-condo/locales/loader')
 
 const { PropertyResolver } = require('@condo/domains/billing/schema/resolvers')
+const { isDateStrValid, clearDateStr, isDateStrInUTCFormat } = require('@condo/domains/common/utils/date')
 const access = require('@condo/domains/meter/access/RegisterMetersReadingsService')
 const { OTHER_METER_READING_SOURCE_ID } = require('@condo/domains/meter/constants/constants')
-const {
-    TOO_MUCH_READINGS,
-    ORGANIZATION_NOT_FOUND,
-    PROPERTY_NOT_FOUND,
-    INVALID_METER_VALUES,
-    MULTIPLE_METERS_FOUND,
-    INVALID_ACCOUNT_NUMBER,
-    INVALID_METER_NUMBER,
-    INVALID_DATE,
-} = require('@condo/domains/meter/constants/errors')
-const { ERRORS, READINGS_LIMIT } = require('@condo/domains/meter/constants/registerMetersReadingsService')
-const { isDateValid, toISO } = require('@condo/domains/meter/utils/date.utils')
+const { ERRORS, READINGS_LIMIT, DATE_PARSING_FORMATS, ISO_DATE_FORMAT, EUROPEAN_DATE_FORMAT } = require('@condo/domains/meter/constants/registerMetersReadingsService')
 const { validateMeterValue, shouldUpdateMeter, meterReadingAsResult, normalizeMeterValue } = require('@condo/domains/meter/utils/meter.utils')
 const { Meter, MeterReading } = require('@condo/domains/meter/utils/serverSchema')
 
 dayjs.extend(customParseFormat)
+dayjs.extend(utc)
+
+function toISO (dateStr) {
+    dateStr = clearDateStr(dateStr)
+
+    let dateFunc = dayjs
+    if (isDateStrInUTCFormat(dateStr)) {
+        dateFunc = dayjs.utc
+    }
+
+    // At this stage we don't really care if date is in different format so try parse anything
+    const date = dateFunc(dateStr, DATE_PARSING_FORMATS, false)
+    return date.isValid() ? date.toISOString() : undefined
+}
 
 const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReadingsService', {
     types: [
@@ -144,7 +148,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     deletedAt: null,
                 })
 
-                const readingsWithValidDates = readings.filter(reading => isDateValid(reading.date))
+                const readingsWithValidDates = readings.filter(reading => isDateStrValid(clearDateStr(reading.date)))
                 const plainMeterReadings = await find('MeterReading', {
                     meter: { id_in: meters.map(meter => meter.id) },
                     date_in: uniq(readingsWithValidDates.map(reading => toISO(reading.date))),
@@ -192,7 +196,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                         continue
                     }
 
-                    if (!isDateValid(reading.date)) {
+                    if (!isDateStrValid(clearDateStr(reading.date), { formats: DATE_PARSING_FORMATS, strict: true })) {
                         resultRows.push(new GQLError({
                             ...ERRORS.INVALID_DATE,
                             messageInterpolation: {
