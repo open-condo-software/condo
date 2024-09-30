@@ -99,6 +99,21 @@ const GQLErrorCode = {
     TOO_MANY_REQUESTS,  // Need to process by user client to wait some time!
 }
 
+// This error type is specifically used to indicate that during the execution of a GraphQL query,
+// a nested GraphQL query was executed, and an error occurred within that nested query.
+// It helps to differentiate between errors that occur at the top level and those that arise from
+// deeper, nested queries, providing better context for debugging and error handling.
+const SUB_GQL_ERROR = 'SUB_GQL_ERROR'
+
+/**
+ * Some reserve types for INTERNAL_ERROR codes
+ * @readonly
+ * @enum {String}
+ */
+const GQLInternalErrorTypes = {
+    SUB_GQL_ERROR,
+}
+
 /**
  * Error object, that can be thrown in a custom GraphQL mutation or query
  *
@@ -194,4 +209,5 @@ class GQLError extends Error {
 module.exports = {
     GQLError,
     GQLErrorCode,
+    GQLInternalErrorTypes,
 }
