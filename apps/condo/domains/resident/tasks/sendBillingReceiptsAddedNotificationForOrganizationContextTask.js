@@ -149,7 +149,7 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
     }
 
     const serviceConsumerWhere = {
-        organization: { id: context.organization.id, deletedAt: null },
+        organization: { id: context.organization, deletedAt: null },
         accountNumber_in: accountsNumbers.filter(Boolean),
         deletedAt: null,
     }
