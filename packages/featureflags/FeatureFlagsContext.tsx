@@ -1,10 +1,16 @@
-import { GrowthBook, GrowthBookProvider, useGrowthBook, FeaturesReady } from '@growthbook/growthbook-react'
+import {
+    GrowthBook,
+    GrowthBookProvider,
+    useGrowthBook,
+    FeaturesReady,
+    FeatureDefinitions,
+} from '@growthbook/growthbook-react'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
 import { NextPage } from 'next'
 import getConfig from 'next/config'
-import { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
 
 import {
     DEBUG_RERENDERS,
@@ -12,8 +18,8 @@ import {
     getContextIndependentWrappedInitialProps,
     preventInfinityLoop,
 } from '@open-condo/next/_utils'
-import { useAuth } from '@open-condo/next/auth'
-import { useOrganization } from '@open-condo/next/organization'
+import { useAuth as useAuthHook } from '@open-condo/next/auth'
+import { useOrganization as useOrganizationHook } from '@open-condo/next/organization'
 
 
 const {
@@ -41,7 +47,19 @@ const FeatureFlagsContext = createContext<IFeatureFlagsContext>({
 
 const useFeatureFlags = (): IFeatureFlagsContext => useContext(FeatureFlagsContext)
 
-const FeatureFlagsProviderWrapper = ({ children, initFeatures = null }) => {
+type FeatureFlagsProviderWrapperProps = {
+    initFeatures?: FeatureDefinitions
+    useAuth: () => {
+        user?: unknown
+        isLoading?: boolean
+    }
+    useOrganization: () => {
+        organization?: unknown
+        isLoading?: boolean
+    }
+}
+
+const FeatureFlagsProviderWrapper: React.FC<FeatureFlagsProviderWrapperProps> = ({ children, initFeatures = null, useAuth = useAuthHook, useOrganization = useOrganizationHook }) => {
     const growthbook = useGrowthBook()
     const { user, isLoading: userIsLoading  } = useAuth()
     const { organization, isLoading: organizationIsLoading } = useOrganization()
@@ -113,10 +131,12 @@ const FeatureFlagsProviderWrapper = ({ children, initFeatures = null }) => {
     )
 }
 
-const FeatureFlagsProvider: React.FC<{ initFeatures? }> = ({ children, initFeatures = null }) => {
+type FeatureFlagsProviderProps = FeatureFlagsProviderWrapperProps
+
+const FeatureFlagsProvider: React.FC<FeatureFlagsProviderProps> = ({ children, initFeatures = null, useAuth, useOrganization }) => {
     return (
         <GrowthBookProvider growthbook={growthbook}>
-            <FeatureFlagsProviderWrapper initFeatures={initFeatures}>
+            <FeatureFlagsProviderWrapper initFeatures={initFeatures} useAuth={useAuth} useOrganization={useOrganization}>
                 {children}
             </FeatureFlagsProviderWrapper>
         </GrowthBookProvider>
@@ -145,15 +165,15 @@ const initOnRestore = async (ctx) => {
 
 type WithFeatureFlagsProps = {
     ssr?: boolean
-}
+} & Pick<FeatureFlagsProviderProps, 'useAuth' | 'useOrganization'>
 export type WithFeatureFlags = (props: WithFeatureFlagsProps) => (PageComponent: NextPage<any>) => NextPage<any>
 
-const withFeatureFlags: WithFeatureFlags = ({ ssr = false }) => PageComponent => {
+const withFeatureFlags: WithFeatureFlags = ({ ssr = false, useOrganization, useAuth }) => PageComponent => {
     const WithFeatureFlags = ({ features, ...pageProps }) => {
         if (DEBUG_RERENDERS) console.log('WithFeatureFlags()', features)
 
         return (
-            <FeatureFlagsProvider initFeatures={features}>
+            <FeatureFlagsProvider initFeatures={features} useOrganization={useOrganization} useAuth={useAuth}>
                 <PageComponent {...pageProps} />
             </FeatureFlagsProvider>
         )
