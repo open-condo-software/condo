@@ -1,8 +1,19 @@
-const { get, isEmpty, isEqual, isNil, has } = require('lodash')
+const { get, isEqual, isNil, has } = require('lodash')
+
+const { ExcelParser } = require('@open-condo/keystone/file/file-types/excel')
 
 const { AbstractMetersImporter } = require('./AbstractMetersImporter')
 const { TransformRowError } = require('./MetersDataImporterTypes')
 
+const DATE_COLUMN_INDEXES = [
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+]
 
 class DomaMetersImporter extends AbstractMetersImporter {
     hasColumnsHeaders () {
@@ -45,6 +56,13 @@ class DomaMetersImporter extends AbstractMetersImporter {
         if (errors.length > 0) {
             throw new TransformRowError(errors)
         }
+
+        // date can be os type text or excel date type, which parses number
+        DATE_COLUMN_INDEXES
+            .filter(index => ExcelParser.isExcelDate(row[index]))
+            .forEach(index => {
+                row[index] = ExcelParser.parseExcelDate(row[index])
+            })
 
         return {
             address: row[0],

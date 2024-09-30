@@ -26,6 +26,61 @@ class ExcelParser {
         return true
     }
 
+    /**
+     * Excel stores date types as numbers <days from epoch>.<time data>
+     * @param serial {number} date from excel parser
+     * @returns {string} YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS
+     */
+    static parseExcelDate (serial) {
+        const withTime = String(serial).includes('.')
+
+        // milliseconds since 1899-12-31T00:00:00Z, corresponds to Excel serial 0.
+        const xlSerialOffset = -2209075200000
+
+        let elapsedDays
+        // each serial up to 60 corresponds to a valid calendar date.
+        // serial 60 is 1900-02-29. This date does not exist on the calendar.
+        // we choose to interpret serial 60 (as well as 61) both as 1900-03-01
+        // so, if the serial is 61 or over, we have to subtract 1.
+        if (serial < 61) {
+            elapsedDays = serial
+        }
+        else {
+            elapsedDays = serial - 1
+        }
+
+        // javascript dates ignore leap seconds
+        // each day corresponds to a fixed number of milliseconds:
+        // 24 hrs * 60 mins * 60 s * 1000 ms
+        const millisPerDay = 86400000
+
+        const jsTimestamp = xlSerialOffset + elapsedDays * millisPerDay
+        const date = new Date(jsTimestamp)
+        const year = date.getFullYear()
+        const month = (date.getMonth() + 1).toString().padStart(2, '0')
+        const day = date.getDate().toString().padStart(2, '0')
+
+        let dateString = `${year}-${month}-${day}`
+        if (withTime) {
+            const hours = date.getHours().toString().padStart(2, '0')
+            const minutes = date.getMinutes().toString().padStart(2, '0')
+            const seconds = date.getSeconds().toString().padStart(2, '0')
+
+            dateString += `T${hours}:${minutes}:${seconds}`
+        }
+        return dateString
+    }
+
+    static isExcelDate (serial) {
+        if (typeof serial !== 'number' && !serial) {
+            return false
+        }
+        const [daysFromEpoch] = serial.toString().split('.')
+
+        // 2020-10-31 stands for 44927 days from epoch, so must be enough to not mistake with YYYY.MM
+        return daysFromEpoch && daysFromEpoch.length > 4
+    }
+
     async parse () {
         const workbook = excel.read(this.buffer, { type: 'buffer' })
         const rows = []
