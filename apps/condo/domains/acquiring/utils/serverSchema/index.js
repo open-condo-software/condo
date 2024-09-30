@@ -6,7 +6,6 @@
 
 const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
-const { AcquiringIntegrationAccessRight: AcquiringIntegrationAccessRightGQL } = require('@condo/domains/acquiring/gql')
 const { AcquiringIntegrationContext: AcquiringIntegrationContextGQL } = require('@condo/domains/acquiring/gql')
 const { MultiPayment: MultiPaymentGQL } = require('@condo/domains/acquiring/gql')
 const { Payment: PaymentGQL } = require('@condo/domains/acquiring/gql')
@@ -25,7 +24,7 @@ const { CALCULATE_FEE_FOR_RECEIPT_QUERY } = require('@condo/domains/acquiring/gq
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateServerUtils('AcquiringIntegration')
-const AcquiringIntegrationAccessRight = generateServerUtils(AcquiringIntegrationAccessRightGQL)
+const AcquiringIntegrationAccessRight = generateServerUtils('AcquiringIntegrationAccessRight')
 const AcquiringIntegrationContext = generateServerUtils(AcquiringIntegrationContextGQL)
 const MultiPayment = generateServerUtils(MultiPaymentGQL)
 const Payment = generateServerUtils(PaymentGQL)
