@@ -114,6 +114,29 @@ function sanitizeDateStr (dateStr) {
     return sanitizedDateStr
 }
 
+function monthIsLoweOrEqualTwelve (dateStr) {
+    const [dateData] = dateStr.split(/T|\s/, 1)
+    const items = dateData.split(/[/\\\-.]/)
+
+    // YYYY MM || MM YYYY
+    if (items.length === 2) {
+        const [month] = items.sort((a, b) => a.length - b.length)
+        if (Number(month) > 12) {
+            return false
+        }
+    }
+
+    // YYYY MM DD || DD MM YYYY ...
+    if (items.length === 3) {
+        const month = items[1]
+        if (Number(month) > 12) {
+            return false
+        }
+    }
+
+    return true
+}
+
 /**
  * @param {string} dateStr
  * @return {undefined|string}
@@ -124,7 +147,6 @@ function toISO (dateStr) {
     if (isEmpty(sanitizedDateStr)) {
         return undefined
     }
-
     return dayjs(sanitizedDateStr, DATE_PARSING_FORMATS).toISOString()
 }
 
@@ -134,7 +156,7 @@ function toISO (dateStr) {
  */
 function isDateValid (dateStr) {
     const sanitizedStr = sanitizeDateStr(dateStr)
-    return dayjs(sanitizedStr, DATE_PARSING_FORMATS).isValid()
+    return dayjs(sanitizedStr, DATE_PARSING_FORMATS).isValid() && monthIsLoweOrEqualTwelve(sanitizedStr)
 }
 
 /**

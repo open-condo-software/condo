@@ -808,7 +808,7 @@ describe('RegisterMetersReadingsService', () => {
     })
 
     describe('error on invalid submission date', () => {
-        const cases = ['[]', '12_23', 'hello moto']
+        const cases = ['[]', '12_23', 'hello moto', '2024.28.05']
 
         test.each(cases)('%p should cause an error', async (date) => {
             const [o10n] = await createTestOrganization(adminClient)
