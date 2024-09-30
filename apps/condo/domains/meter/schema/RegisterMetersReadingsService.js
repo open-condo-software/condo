@@ -7,7 +7,7 @@ const utc = require('dayjs/plugin/utc')
 const { get, isEmpty, isNil, set, uniq } = require('lodash')
 
 const conf = require('@open-condo/config')
-const { GQLError } = require('@open-condo/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { i18n } = require('@open-condo/locales/loader')
@@ -16,12 +16,87 @@ const { PropertyResolver } = require('@condo/domains/billing/schema/resolvers')
 const { isDateStrValid, clearDateStr, isDateStrInUTCFormat } = require('@condo/domains/common/utils/date')
 const access = require('@condo/domains/meter/access/RegisterMetersReadingsService')
 const { OTHER_METER_READING_SOURCE_ID } = require('@condo/domains/meter/constants/constants')
-const { ERRORS, READINGS_LIMIT, DATE_PARSING_FORMATS, ISO_DATE_FORMAT, EUROPEAN_DATE_FORMAT } = require('@condo/domains/meter/constants/registerMetersReadingsService')
+const {
+    TOO_MUCH_READINGS,
+    ORGANIZATION_NOT_FOUND,
+    PROPERTY_NOT_FOUND,
+    INVALID_METER_VALUES,
+    MULTIPLE_METERS_FOUND,
+    INVALID_ACCOUNT_NUMBER,
+    INVALID_METER_NUMBER,
+    INVALID_DATE,
+} = require('@condo/domains/meter/constants/errors')
+const { READINGS_LIMIT, DATE_PARSING_FORMATS, ISO_DATE_FORMAT, EUROPEAN_DATE_FORMAT } = require('@condo/domains/meter/constants/registerMetersReadingsService')
 const { validateMeterValue, shouldUpdateMeter, meterReadingAsResult, normalizeMeterValue } = require('@condo/domains/meter/utils/meter.utils')
 const { Meter, MeterReading } = require('@condo/domains/meter/utils/serverSchema')
 
 dayjs.extend(customParseFormat)
 dayjs.extend(utc)
+
+const ERRORS = {
+    TOO_MUCH_READINGS: {
+        code: BAD_USER_INPUT,
+        type: TOO_MUCH_READINGS,
+        message: `Too much readings. Maximum is ${READINGS_LIMIT}.`,
+        messageForUser: 'api.meter.registerMetersReadings.TOO_MUCH_READINGS',
+    },
+    ORGANIZATION_NOT_FOUND: {
+        code: BAD_USER_INPUT,
+        type: ORGANIZATION_NOT_FOUND,
+        message: 'Organization not found',
+        messageForUser: 'api.meter.registerMetersReadings.ORGANIZATION_NOT_FOUND',
+    },
+    PROPERTY_NOT_FOUND: {
+        code: BAD_USER_INPUT,
+        type: PROPERTY_NOT_FOUND,
+        message: 'Property not found',
+        messageForUser: 'api.meter.registerMetersReadings.PROPERTY_NOT_FOUND',
+    },
+    INVALID_METER_VALUES: {
+        code: BAD_USER_INPUT,
+        type: INVALID_METER_VALUES,
+        message: 'Invalid meter values',
+        messageForUser: 'api.meter.registerMetersReadings.INVALID_METER_VALUES',
+    },
+    MULTIPLE_METERS_FOUND: {
+        code: BAD_USER_INPUT,
+        type: MULTIPLE_METERS_FOUND,
+        message: 'Multiple meters found',
+        messageForUser: 'api.meter.registerMetersReadings.MULTIPLE_METERS_FOUND',
+    },
+    INVALID_ACCOUNT_NUMBER: {
+        code: BAD_USER_INPUT,
+        type: INVALID_ACCOUNT_NUMBER,
+        message: 'Invalid account number',
+        messageForUser: 'meter.import.error.AccountNumberInvalidValue',
+    },
+    INVALID_METER_NUMBER: {
+        code: BAD_USER_INPUT,
+        type: INVALID_METER_NUMBER,
+        message: 'Invalid meter number',
+        messageForUser: 'meter.import.error.MeterNumberInvalidValue',
+    },
+    INVALID_DATE: {
+        code: BAD_USER_INPUT,
+        type: INVALID_DATE,
+        message: 'Invalid date',
+        messageForUser: 'meter.import.error.WrongDateFormatMessage',
+    },
+}
+
+function transformToPlainObject (input) {
+    let result = {}
+
+    for (let key in input) {
+        if (typeof input[key] === 'object' && input[key] !== null && input[key].id) {
+            result[key] = input[key].id
+        } else {
+            result[key] = input[key]
+        }
+    }
+
+    return result
+}
 
 function toISO (dateStr) {
     dateStr = clearDateStr(dateStr)
