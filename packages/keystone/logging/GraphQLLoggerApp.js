@@ -1,7 +1,5 @@
 const cuid = require('cuid')
-const ensureError = require('ensure-error')
 const { get } = require('lodash')
-const { serializeError } = require('serialize-error')
 
 const { getLogger } = require('./getLogger')
 const { getReqLoggerContext } = require('./getReqLoggerContext')
@@ -93,10 +91,9 @@ class GraphQLLoggerPlugin {
                         error.uid = get(error, 'uid') || get(error, 'originalError.uid') || cuid()
                         graphqlErrorLogger.info({ apolloFormatError: safeFormatError(error), ...logData })
                     }
-                } catch (formatErrorError) {
+                } catch (err) {
                     // NOTE(pahaz): Something went wrong with formatting above, so we log the errors
-                    graphqlErrorLogger.error({ formatErrorError: serializeError(ensureError(formatErrorError)), ...logData })
-                    graphqlErrorLogger.error({ serializedErrors: errors.map(error => serializeError(ensureError(error))), ...logData })
+                    graphqlErrorLogger.error({ msg: 'safeFormatError error', err, ...logData })
                 }
             },
         }
