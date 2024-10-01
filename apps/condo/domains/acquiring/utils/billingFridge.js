@@ -6,6 +6,8 @@ const {
     BillingRecipient,
 } = require('@condo/domains/billing/utils/serverSchema')
 
+const BILLING_RECIPIENT_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId context { id } '
+    + 'importId tin iec bic bankAccount purpose isApproved meta name classificationCode'
 
 // TODO(savelevMatthew): Replace with single request from serverSchema after gql refactoring
 /**
@@ -28,7 +30,7 @@ async function freezeBillingReceipt (context, flatReceipt) {
     // we have to use gql in order to resolve virtual field isApproved
     const receiver = await BillingRecipient.getOne(context, {
         id: flatReceipt.receiver,
-    })
+    }, BILLING_RECIPIENT_FIELDS)
 
     return {
         dv: 1,
