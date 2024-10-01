@@ -740,7 +740,9 @@ function createRegExByTemplate (template, { eol = true, sol = true } = {}) {
         // replace template string `{secondsRemaining}` to RegExp
         regexString = regexString.replace(/{(\w+)}/g, '(?<$1>.*?)') // named group
     }
-    return new RegExp((sol ? '^' : '') + `${regexString}` + (eol ? '$' : ''))
+    // Not a ReDoS case. We generate a specific RE
+    // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
+    return new RegExp((sol ? '^' : '') + regexString + (eol ? '$' : ''))
 }
 
 /**

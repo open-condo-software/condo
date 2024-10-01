@@ -24,31 +24,20 @@
       1) inside logging plugin to log errors
       2) inside apollo-server before { errors } rendering!
 
-    To understand where the `formatError` function called by ApolloServer look at this trace (1):
+    To understand where the `safeFormatError` function called by ApolloServer look at this trace (1):
 
           at ../../node_modules/apollo-server-core/node_modules/apollo-server-errors/src/index.ts:287:28
               at Array.map (<anonymous>)
           at Object.formatApolloErrors (../../node_modules/apollo-server-core/node_modules/apollo-server-errors/src/index.ts:285:25)
-          at formatErrors (../../node_modules/apollo-server-core/src/requestPipeline.ts:665:12)
-          at Object.<anonymous> (../../node_modules/apollo-server-core/src/requestPipeline.ts:482:34)
-          at fulfilled (../../node_modules/apollo-server-core/dist/requestPipeline.js:5:58)
 
-     To understand where the `formatError` is also called (2):
+     To understand where the `safeFormatError` is also called (2):
 
           at Object.safeFormatError [as didEncounterErrors] (../../packages/keystone/logging/GraphQLLoggerApp.js:94:70)
           at ../../node_modules/apollo-server-core/src/utils/dispatcher.ts:20:23
               at Array.map (<anonymous>)
           at Dispatcher.callTargets (../../node_modules/apollo-server-core/src/utils/dispatcher.ts:17:20)
           at Dispatcher.<anonymous> (../../node_modules/apollo-server-core/src/utils/dispatcher.ts:30:12)
-          at ../../node_modules/apollo-server-core/dist/utils/dispatcher.js:8:71
-          at Object.<anonymous>.__awaiter (../../node_modules/apollo-server-core/dist/utils/dispatcher.js:4:12)
-          at Dispatcher.invokeHookAsync (../../node_modules/apollo-server-core/dist/utils/dispatcher.js:26:16)
-          at ../../node_modules/apollo-server-core/src/requestPipeline.ts:631:29
-          at ../../node_modules/apollo-server-core/dist/requestPipeline.js:8:71
-          at Object.<anonymous>.__awaiter (../../node_modules/apollo-server-core/dist/requestPipeline.js:4:12)
-          at didEncounterErrors (../../node_modules/apollo-server-core/dist/requestPipeline.js:286:20)
-          at Object.<anonymous> (../../node_modules/apollo-server-core/src/requestPipeline.ts:477:17)
-          at fulfilled (../../node_modules/apollo-server-core/dist/requestPipeline.js:5:58)
+
  */
 
 const util = require('util')
@@ -191,14 +180,12 @@ function _safeFormatErrorRecursion (errorIn, hideInternals = false, applyPatches
     const result = {}
 
     // [1] base error fields: name, message, stack
-    const pickKeys1 = (hideInternals) ? ['message', 'name'] : ['message', 'name', 'stack']
-    Object.assign(result, pick(error, pickKeys1))
+    Object.assign(result, pick(error, (hideInternals) ? ['message', 'name'] : ['message', 'name', 'stack']))
 
     // [2] base graphql fields: locations, path
     //  - `locations` - array of { line, column } locations
     //  - `path` - array describing the JSON-path
-    const pickKeys3 = ['locations', 'path']
-    Object.assign(result, pick(error, pickKeys3))
+    Object.assign(result, pick(error, ['locations', 'path']))
 
     // [3] graphql extensions field
     const hasErrorExtensions = error.extensions && !isEmpty(error.extensions)
@@ -213,11 +200,10 @@ function _safeFormatErrorRecursion (errorIn, hideInternals = false, applyPatches
     }
 
     // [4] apollo/keystone error fields: time_thrown, data, internalData (it's old ApolloServer keys)
-    const pickKeys2 = (hideInternals) ? ['data'] : ['data', 'time_thrown', 'internalData']
-    Object.assign(result, pick(error, pickKeys2))
+    Object.assign(result, pick(error, (hideInternals) ? ['data'] : ['data', 'time_thrown', 'internalData']))
 
     // [5] add messageForDeveloper field: if has (nodes) or has (source and location) => can use printError
-    if (!_isRecursionCall && (error.nodes || (error.source && error.location))) {
+    if (!_isRecursionCall && (error?.nodes || (error?.source && error?.location))) {
         const messageForDeveloper = printError(error)
         if (messageForDeveloper !== error.message) {
             extensions.messageForDeveloper = messageForDeveloper
