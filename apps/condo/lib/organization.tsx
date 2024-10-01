@@ -1,22 +1,19 @@
 import { ApolloClient, ApolloQueryResult, NormalizedCacheObject } from '@apollo/client'
-import { getCookie } from 'cookies-next'
+import { getCookie, setCookie, deleteCookie } from 'cookies-next'
 import cookie from 'js-cookie'
 import get from 'lodash/get'
 import { GetServerSideProps, NextPage } from 'next'
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
 
 import {
-    useGetOrganizationEmployeeByIdQuery,
     GetOrganizationEmployeeByIdQuery,
-    GetOrganizationEmployeeByIdDocument,
-    GetOrganizationEmployeesByUserIdQuery,
-    GetOrganizationEmployeesByUserIdDocument,
-    useGetOrganizationEmployeesQuery,
-    GetOrganizationEmployeesQuery,
     GetOrganizationEmployeesDocument,
+    GetOrganizationEmployeesQuery,
     GetOrganizationEmployeesQueryVariables,
+    useGetOrganizationEmployeesQuery,
 } from '@/gql'
 import { useAuth } from '@/lib/auth'
+import { OrganizationTypeType, UserTypeType } from '@/schema'
 
 type OrganizationContextType = {
     /** @deprecated TODO(INFRA-517): rename to setActiveEmployee */
@@ -36,7 +33,7 @@ const OrganizationContext = createContext<OrganizationContextType>({
 
 export const useOrganization = (): OrganizationContextType => useContext(OrganizationContext)
 
-const ACTIVE_EMPLOYEE_COOKIE_NAME = 'organizationLinkId'
+export const ACTIVE_EMPLOYEE_COOKIE_NAME = 'organizationLinkId'
 
 const setCookieLinkId = (value) => {
     if (typeof window !== 'undefined') {
@@ -80,6 +77,8 @@ export const OrganizationProvider: React.FC = ({ children }) => {
     const { loading: employeeLoading, refetch, data } = useGetOrganizationEmployeesQuery({
         variables: {
             where: {
+                organization: { type: OrganizationTypeType.ManagingCompany },
+                user: { id: auth.user.id, type: UserTypeType.Staff },
                 id: activeEmployeeId,
                 isAccepted: true,
                 isBlocked: false,
@@ -217,12 +216,14 @@ export async function prefetchOrganizationEmployee (args: PrefetchOrganizationEm
         activeEmployeeId, userId,
     })
 
-    if (!activeEmployeeId) {
+    if (activeEmployeeId) {
         const response = await client.query<GetOrganizationEmployeesQuery, GetOrganizationEmployeesQueryVariables>({
             query: GetOrganizationEmployeesDocument,
             variables: {
                 where: {
-                    user: { id: userId },
+                    id: activeEmployeeId,
+                    organization: { type: OrganizationTypeType.ManagingCompany },
+                    user: { id: userId, type: UserTypeType.Staff },
                     isAccepted: true,
                     isBlocked: false,
                     isRejected: false,
@@ -230,32 +231,44 @@ export async function prefetchOrganizationEmployee (args: PrefetchOrganizationEm
             },
         })
 
-        console.log('prefetchOrganizationEmployee:!activeEmployeeId:: >>>', {
+        console.log('prefetchOrganizationEmployee:response:: >>>', {
             response,
             activeEmployee: get(response, ['data', 'employees', 0]) || null,
         })
 
         const activeEmployee = get(response, ['data', 'employees', 0]) || null
 
-        return { activeEmployee }
+        if (activeEmployee) {
+            return { activeEmployee }
+        }
     }
 
     const response = await client.query<GetOrganizationEmployeesQuery, GetOrganizationEmployeesQueryVariables>({
         query: GetOrganizationEmployeesDocument,
         variables: {
             where: {
-                id: activeEmployeeId,
+                organization: { type: OrganizationTypeType.ManagingCompany },
+                user: { id: userId, type: UserTypeType.Staff },
                 isAccepted: true,
                 isBlocked: false,
                 isRejected: false,
             },
+            first: 1,
         },
     })
 
-    console.log('prefetchOrganizationEmployee:response:: >>>', {
+    console.log('prefetchOrganizationEmployee:!activeEmployeeId:: >>>', {
         response,
         activeEmployee: get(response, ['data', 'employees', 0]) || null,
     })
 
-    return { activeEmployee: get(response, ['data', 'employees', 0]) || null }
+    const activeEmployee = get(response, ['data', 'employees', 0]) || null
+
+    if (activeEmployee) {
+        setCookie(ACTIVE_EMPLOYEE_COOKIE_NAME, get(activeEmployee, 'id', null), { req: context.req, res: context.res })
+    } else {
+        deleteCookie(ACTIVE_EMPLOYEE_COOKIE_NAME, { req: context.req, res: context.res })
+    }
+
+    return { activeEmployee }
 }
