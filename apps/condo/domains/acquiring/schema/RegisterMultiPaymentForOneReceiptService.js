@@ -280,7 +280,7 @@ const RegisterMultiPaymentForOneReceiptService = new GQLCustomSchema('RegisterMu
                     recipientBic: billingReceipt.recipient.bic,
                     recipientBankAccount: billingReceipt.recipient.bankAccount,
                     ...paymentCommissionFields,
-                })
+                }, 'id amount explicitFee explicitServiceCharge implicitFee')
                 const payment = { ...paymentModel, serviceFee: paymentCommissionFields.serviceFee }
 
                 const totalAmount = {
