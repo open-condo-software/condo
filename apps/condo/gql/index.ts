@@ -79,8 +79,13 @@ export function useGetAllContactsLazyQuery (baseOptions?: Apollo.LazyQueryHookOp
     const options = { ...defaultOptions, ...baseOptions }
     return Apollo.useLazyQuery<Types.GetAllContactsQuery, Types.GetAllContactsQueryVariables>(GetAllContactsDocument, options)
 }
+export function useGetAllContactsSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetAllContactsQuery, Types.GetAllContactsQueryVariables>) {
+    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+    return Apollo.useSuspenseQuery<Types.GetAllContactsQuery, Types.GetAllContactsQueryVariables>(GetAllContactsDocument, options)
+}
 export type GetAllContactsQueryHookResult = ReturnType<typeof useGetAllContactsQuery>
 export type GetAllContactsLazyQueryHookResult = ReturnType<typeof useGetAllContactsLazyQuery>
+export type GetAllContactsSuspenseQueryHookResult = ReturnType<typeof useGetAllContactsSuspenseQuery>
 export type GetAllContactsQueryResult = Apollo.QueryResult<Types.GetAllContactsQuery, Types.GetAllContactsQueryVariables>
 export const GetOrganizationEmployeeByIdDocument = gql`
     query getOrganizationEmployeeById($id: ID!) {
@@ -270,7 +275,7 @@ export const GetOrganizationEmployeeByIdDocument = gql`
  *   },
  * });
  */
-export function useGetOrganizationEmployeeByIdQuery (baseOptions: Apollo.QueryHookOptions<Types.GetOrganizationEmployeeByIdQuery, Types.GetOrganizationEmployeeByIdQueryVariables>) {
+export function useGetOrganizationEmployeeByIdQuery (baseOptions: Apollo.QueryHookOptions<Types.GetOrganizationEmployeeByIdQuery, Types.GetOrganizationEmployeeByIdQueryVariables> & ({ variables: Types.GetOrganizationEmployeeByIdQueryVariables, skip?: boolean } | { skip: boolean }) ) {
     const options = { ...defaultOptions, ...baseOptions }
     return Apollo.useQuery<Types.GetOrganizationEmployeeByIdQuery, Types.GetOrganizationEmployeeByIdQueryVariables>(GetOrganizationEmployeeByIdDocument, options)
 }
@@ -278,8 +283,13 @@ export function useGetOrganizationEmployeeByIdLazyQuery (baseOptions?: Apollo.La
     const options = { ...defaultOptions, ...baseOptions }
     return Apollo.useLazyQuery<Types.GetOrganizationEmployeeByIdQuery, Types.GetOrganizationEmployeeByIdQueryVariables>(GetOrganizationEmployeeByIdDocument, options)
 }
+export function useGetOrganizationEmployeeByIdSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetOrganizationEmployeeByIdQuery, Types.GetOrganizationEmployeeByIdQueryVariables>) {
+    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+    return Apollo.useSuspenseQuery<Types.GetOrganizationEmployeeByIdQuery, Types.GetOrganizationEmployeeByIdQueryVariables>(GetOrganizationEmployeeByIdDocument, options)
+}
 export type GetOrganizationEmployeeByIdQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeByIdQuery>
 export type GetOrganizationEmployeeByIdLazyQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeByIdLazyQuery>
+export type GetOrganizationEmployeeByIdSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeByIdSuspenseQuery>
 export type GetOrganizationEmployeeByIdQueryResult = Apollo.QueryResult<Types.GetOrganizationEmployeeByIdQuery, Types.GetOrganizationEmployeeByIdQueryVariables>
 export const GetOrganizationEmployeesByUserIdDocument = gql`
     query getOrganizationEmployeesByUserId($userId: ID!, $first: Int = 10, $skip: Int = 0) {
@@ -476,7 +486,7 @@ export const GetOrganizationEmployeesByUserIdDocument = gql`
  *   },
  * });
  */
-export function useGetOrganizationEmployeesByUserIdQuery (baseOptions: Apollo.QueryHookOptions<Types.GetOrganizationEmployeesByUserIdQuery, Types.GetOrganizationEmployeesByUserIdQueryVariables>) {
+export function useGetOrganizationEmployeesByUserIdQuery (baseOptions: Apollo.QueryHookOptions<Types.GetOrganizationEmployeesByUserIdQuery, Types.GetOrganizationEmployeesByUserIdQueryVariables> & ({ variables: Types.GetOrganizationEmployeesByUserIdQueryVariables, skip?: boolean } | { skip: boolean }) ) {
     const options = { ...defaultOptions, ...baseOptions }
     return Apollo.useQuery<Types.GetOrganizationEmployeesByUserIdQuery, Types.GetOrganizationEmployeesByUserIdQueryVariables>(GetOrganizationEmployeesByUserIdDocument, options)
 }
@@ -484,8 +494,13 @@ export function useGetOrganizationEmployeesByUserIdLazyQuery (baseOptions?: Apol
     const options = { ...defaultOptions, ...baseOptions }
     return Apollo.useLazyQuery<Types.GetOrganizationEmployeesByUserIdQuery, Types.GetOrganizationEmployeesByUserIdQueryVariables>(GetOrganizationEmployeesByUserIdDocument, options)
 }
+export function useGetOrganizationEmployeesByUserIdSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetOrganizationEmployeesByUserIdQuery, Types.GetOrganizationEmployeesByUserIdQueryVariables>) {
+    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+    return Apollo.useSuspenseQuery<Types.GetOrganizationEmployeesByUserIdQuery, Types.GetOrganizationEmployeesByUserIdQueryVariables>(GetOrganizationEmployeesByUserIdDocument, options)
+}
 export type GetOrganizationEmployeesByUserIdQueryHookResult = ReturnType<typeof useGetOrganizationEmployeesByUserIdQuery>
 export type GetOrganizationEmployeesByUserIdLazyQueryHookResult = ReturnType<typeof useGetOrganizationEmployeesByUserIdLazyQuery>
+export type GetOrganizationEmployeesByUserIdSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationEmployeesByUserIdSuspenseQuery>
 export type GetOrganizationEmployeesByUserIdQueryResult = Apollo.QueryResult<Types.GetOrganizationEmployeesByUserIdQuery, Types.GetOrganizationEmployeesByUserIdQueryVariables>
 export const GetOrganizationEmployeesDocument = gql`
     query getOrganizationEmployees($where: OrganizationEmployeeWhereInput!, $first: Int = 10, $skip: Int = 0, $sortBy: [SortOrganizationEmployeesBy!] = [createdAt_DESC]) {
@@ -683,7 +698,7 @@ export const GetOrganizationEmployeesDocument = gql`
  *   },
  * });
  */
-export function useGetOrganizationEmployeesQuery (baseOptions: Apollo.QueryHookOptions<Types.GetOrganizationEmployeesQuery, Types.GetOrganizationEmployeesQueryVariables>) {
+export function useGetOrganizationEmployeesQuery (baseOptions: Apollo.QueryHookOptions<Types.GetOrganizationEmployeesQuery, Types.GetOrganizationEmployeesQueryVariables> & ({ variables: Types.GetOrganizationEmployeesQueryVariables, skip?: boolean } | { skip: boolean }) ) {
     const options = { ...defaultOptions, ...baseOptions }
     return Apollo.useQuery<Types.GetOrganizationEmployeesQuery, Types.GetOrganizationEmployeesQueryVariables>(GetOrganizationEmployeesDocument, options)
 }
@@ -691,8 +706,13 @@ export function useGetOrganizationEmployeesLazyQuery (baseOptions?: Apollo.LazyQ
     const options = { ...defaultOptions, ...baseOptions }
     return Apollo.useLazyQuery<Types.GetOrganizationEmployeesQuery, Types.GetOrganizationEmployeesQueryVariables>(GetOrganizationEmployeesDocument, options)
 }
+export function useGetOrganizationEmployeesSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetOrganizationEmployeesQuery, Types.GetOrganizationEmployeesQueryVariables>) {
+    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+    return Apollo.useSuspenseQuery<Types.GetOrganizationEmployeesQuery, Types.GetOrganizationEmployeesQueryVariables>(GetOrganizationEmployeesDocument, options)
+}
 export type GetOrganizationEmployeesQueryHookResult = ReturnType<typeof useGetOrganizationEmployeesQuery>
 export type GetOrganizationEmployeesLazyQueryHookResult = ReturnType<typeof useGetOrganizationEmployeesLazyQuery>
+export type GetOrganizationEmployeesSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationEmployeesSuspenseQuery>
 export type GetOrganizationEmployeesQueryResult = Apollo.QueryResult<Types.GetOrganizationEmployeesQuery, Types.GetOrganizationEmployeesQueryVariables>
 export const AuthenticatedUserDocument = gql`
     query authenticatedUser {
@@ -738,8 +758,13 @@ export function useAuthenticatedUserLazyQuery (baseOptions?: Apollo.LazyQueryHoo
     const options = { ...defaultOptions, ...baseOptions }
     return Apollo.useLazyQuery<Types.AuthenticatedUserQuery, Types.AuthenticatedUserQueryVariables>(AuthenticatedUserDocument, options)
 }
+export function useAuthenticatedUserSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.AuthenticatedUserQuery, Types.AuthenticatedUserQueryVariables>) {
+    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+    return Apollo.useSuspenseQuery<Types.AuthenticatedUserQuery, Types.AuthenticatedUserQueryVariables>(AuthenticatedUserDocument, options)
+}
 export type AuthenticatedUserQueryHookResult = ReturnType<typeof useAuthenticatedUserQuery>
 export type AuthenticatedUserLazyQueryHookResult = ReturnType<typeof useAuthenticatedUserLazyQuery>
+export type AuthenticatedUserSuspenseQueryHookResult = ReturnType<typeof useAuthenticatedUserSuspenseQuery>
 export type AuthenticatedUserQueryResult = Apollo.QueryResult<Types.AuthenticatedUserQuery, Types.AuthenticatedUserQueryVariables>
 export const SignOutDocument = gql`
     mutation signOut {

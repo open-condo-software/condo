@@ -17,7 +17,7 @@ import { OrganizationTypeType, UserTypeType } from '@/schema'
 
 type OrganizationContextType = {
     /** @deprecated TODO(INFRA-517): rename to setActiveEmployee */
-    selectLink: (linkItem: { id: string }) => (Promise<void> | Promise<ApolloQueryResult<GetOrganizationEmployeeByIdQuery>>)
+    selectLink: (linkItem: { id: string }) => (Promise<void> | Promise<ApolloQueryResult<GetOrganizationEmployeesQuery>>)
     isLoading: boolean
     /** @deprecated TODO(INFRA-517): rename to activeEmployee */
     link?: GetOrganizationEmployeesQuery['employees'][number] | null
@@ -93,7 +93,7 @@ export const OrganizationProvider: React.FC = ({ children }) => {
 
     const [activeEmployee, setActiveEmployee] = useState<GetOrganizationEmployeesQuery['employees'][number] | null>(get(data, ['employees', 0]) || null)
 
-    const handleSelectItem = useCallback((linkItem) => {
+    const handleSelectItem: OrganizationContextType['selectLink'] = useCallback((linkItem) => {
         console.log('OrganizationProvider:handleSelectItem:: >>>', {
             linkItem,
         })
