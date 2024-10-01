@@ -4,6 +4,7 @@ import { FetchMoreQueryOptions } from '@apollo/client/core/watchQueryOptions'
 import { TypedDocumentNode } from '@graphql-typed-document-node/core'
 import dayjs from 'dayjs'
 import { DocumentNode } from 'graphql'
+import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -379,7 +380,11 @@ export function generateReactHooks<
     }
 
     function useAllObjects (variables: QueryVariables, options?: QueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>) {
-        const { objs, count, error, loading, refetch: _refetch, fetchMore, stopPolling } = useObjects(variables, options)
+        const fetchPolicy = get(options, 'fetchPolicy')
+        const { objs, count, error, loading, refetch: _refetch, fetchMore, stopPolling } = useObjects(variables, {
+            ...options,
+            fetchPolicy: fetchPolicy && fetchPolicy !== 'no-cache' ? fetchPolicy : 'network-only',
+        })
         const [data, setData] = useState(objs)
         const [fetchMoreError, setFetchMoreError] = useState()
         const innerLoadingRef = useRef(false)
@@ -416,6 +421,14 @@ export function generateReactHooks<
             fetchMore({
                 variables: {
                     skip: data.length,
+                },
+                updateQuery (previousData: IUseObjectsQueryReturnType<GQLObject>, { fetchMoreResult, variables: { skip } }) {
+                    // Slicing is necessary because the existing data is immutable, and frozen in development.
+                    const updatedObjs = previousData.objs.slice(0)
+                    for (let i = 0; i < fetchMoreResult.objs.length; ++i) {
+                        updatedObjs[skip + i] = fetchMoreResult.objs[i]
+                    }
+                    return { ...previousData, objs: updatedObjs, meta: fetchMoreResult.meta }
                 },
             })
                 // @ts-ignore
