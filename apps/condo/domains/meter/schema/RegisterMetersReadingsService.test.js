@@ -535,7 +535,7 @@ describe('RegisterMetersReadingsService', () => {
                         originalError: expect.objectContaining({
                             message: '[error] Create Meter internal error',
                             errors: [expect.objectContaining({
-                                message: 'Unable to connect a Meter.resource<MeterResource>',
+                                message: expect.stringContaining('insert or update on table "Meter" violates foreign key constraint'),
                             })],
                         }),
                     }),
