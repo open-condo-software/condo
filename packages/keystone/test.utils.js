@@ -740,7 +740,7 @@ function createRegExByTemplate (template, { eol = true, sol = true } = {}) {
         // replace template string `{secondsRemaining}` to RegExp
         regexString = regexString.replace(/{(\w+)}/g, '(?<$1>.*?)') // named group
     }
-    return new RegExp((sol) ? '^' : '' + `${regexString}` + (eol) ? '$' : '')
+    return new RegExp((sol ? '^' : '') + `${regexString}` + (eol ? '$' : ''))
 }
 
 /**
