@@ -54,13 +54,13 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: ACTION_NOT_FOUND,
         message: 'ConfirmEmailAction with the specified ID is expired, or does not exist',
-        messageForUser: 'errors.ACTION_NOT_FOUND.code.message',
+        messageForUser: 'api.user.confirmPhoneAction.ACTION_NOT_FOUND',
     },
     INVALID_CODE: {
         code: BAD_USER_INPUT,
         type: INVALID_CODE,
         message: 'Invalid verification code',
-        messageForUser: 'errors.INVALID_CODE.message',
+        messageForUser: 'api.user.confirmPhoneAction.INVALID_CODE',
     },
 }
 

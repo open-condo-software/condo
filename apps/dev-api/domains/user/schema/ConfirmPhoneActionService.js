@@ -33,25 +33,25 @@ const ERRORS = {
         code: TOO_MANY_REQUESTS,
         type: SMS_DAILY_LIMIT_REACHED,
         message: 'Your IP address has exceeded the daily SMS request limit',
-        messageForUser: 'errors.SMS_DAILY_LIMIT_REACHED.ip.message',
+        messageForUser: 'api.user.confirmPhoneAction.SMS_FOR_IP_DAY_LIMIT_REACHED',
     },
     SMS_FOR_PHONE_DAY_LIMIT_REACHED: {
         code: TOO_MANY_REQUESTS,
         type: SMS_DAILY_LIMIT_REACHED,
         message: 'The specified phone has exceeded the daily SMS request limit',
-        messageForUser: 'errors.SMS_DAILY_LIMIT_REACHED.phone.message',
+        messageForUser: 'api.user.confirmPhoneAction.SMS_FOR_PHONE_DAY_LIMIT_REACHED',
     },
     ACTION_NOT_FOUND: {
         code: BAD_USER_INPUT,
         type: ACTION_NOT_FOUND,
         message: 'ConfirmPhoneAction with the specified ID is expired, or does not exist',
-        messageForUser: 'errors.ACTION_NOT_FOUND.code.message',
+        messageForUser: 'api.user.confirmPhoneAction.ACTION_NOT_FOUND',
     },
     INVALID_CODE: {
         code: BAD_USER_INPUT,
         type: INVALID_CODE,
         message: 'Invalid verification code',
-        messageForUser: 'errors.INVALID_CODE.message',
+        messageForUser: 'api.user.confirmPhoneAction.INVALID_CODE',
     },
 }
 

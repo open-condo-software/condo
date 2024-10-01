@@ -57,14 +57,14 @@ const ERRORS = {
         variable: ['data', 'name'],
         type: 'ROLE_NAME_ALREADY_EXIST',
         message: 'The role name is similar to the default role name',
-        messageForUser: 'api.organization.OrganizationEmployeeRole.ROLE_NAME_ALREADY_EXIST',
+        messageForUser: 'api.organization.organizationEmployeeRole.ROLE_NAME_ALREADY_EXIST',
     },
     INVALID_ROLE_NAME_LENGTH: {
         code: BAD_USER_INPUT,
         variable: ['data', 'name'],
         type: 'INVALID_ROLE_NAME_LENGTH',
         message: `Role name length must be between ${MIN_ROLE_NAME_LENGTH} and ${MAX_ROLE_NAME_LENGTH} characters`,
-        messageForUser: 'api.organization.OrganizationEmployeeRole.INVALID_ROLE_NAME_LENGTH',
+        messageForUser: 'api.organization.organizationEmployeeRole.INVALID_ROLE_NAME_LENGTH',
         messageInterpolation: {
             min: MIN_ROLE_NAME_LENGTH,
             max: MAX_ROLE_NAME_LENGTH,
@@ -75,7 +75,7 @@ const ERRORS = {
         variable: ['data', 'description'],
         type: 'INVALID_ROLE_DESCRIPTION_LENGTH',
         message: `Role description length cannot be more than ${MAX_ROLE_NAME_LENGTH} characters`,
-        messageForUser: 'api.organization.OrganizationEmployeeRole.INVALID_ROLE_DESCRIPTION_LENGTH',
+        messageForUser: 'api.organization.organizationEmployeeRole.INVALID_ROLE_DESCRIPTION_LENGTH',
         messageInterpolation: {
             max: MAX_ROLE_NAME_LENGTH,
         },

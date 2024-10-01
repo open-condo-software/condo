@@ -18,7 +18,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: OIDC_CLIENT_NOT_FOUND,
         message: 'OIDC client for the specified application was not found',
-        messageForUser: 'errors.OIDC_CLIENT_NOT_FOUND.message',
+        messageForUser: 'api.miniapp.OIDC_CLIENT_NOT_FOUND',
     },
 }
 

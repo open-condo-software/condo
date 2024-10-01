@@ -137,8 +137,10 @@ describe('Meter', () => {
                     async () => await createTestMeter(client, client.organization, client.property, resource, {
                         accountNumber,
                         unitName: unitName2,
-                    }),
-                    METER_ERRORS.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT(`${firstMeter.unitType} ${firstMeter.unitName}`),
+                    }), {
+                        ...METER_ERRORS.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT,
+                        messageInterpolation: { unitsCsv: `${firstMeter.unitType} ${firstMeter.unitName}` },
+                    }
                 )
             })
 
@@ -161,8 +163,10 @@ describe('Meter', () => {
                         accountNumber,
                         unitName,
                         unitType: PARKING_UNIT_TYPE,
-                    }),
-                    METER_ERRORS.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT(`${firstMeter.unitType} ${firstMeter.unitName}`),
+                    }), {
+                        ...METER_ERRORS.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT,
+                        messageInterpolation: { unitsCsv: `${firstMeter.unitType} ${firstMeter.unitName}` },
+                    }
                 )
             })
 
@@ -293,7 +297,10 @@ describe('Meter', () => {
 
                 await expectToThrowGQLError(
                     async () => await createTestMeter(client, client.organization, client.property, resource, { number }),
-                    METER_ERRORS.SAME_NUMBER_AND_RESOURCE_EXISTS_IN_ORGANIZATION(firstMeter.accountNumber),
+                    {
+                        ...METER_ERRORS.SAME_NUMBER_AND_RESOURCE_EXISTS_IN_ORGANIZATION,
+                        messageInterpolation: { accountNumbersCsv: firstMeter.accountNumber },
+                    },
                 )
             })
 
@@ -414,8 +421,10 @@ describe('Meter', () => {
                 await expectToThrowGQLError(
                     async () => await updateTestMeter(client, meter.id, {
                         accountNumber,
-                    }),
-                    METER_ERRORS.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT(`${firstMeter.unitType} ${firstMeter.unitName}`),
+                    }), {
+                        ...METER_ERRORS.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT,
+                        messageInterpolation: { unitsCsv: `${firstMeter.unitType} ${firstMeter.unitName}` },
+                    }
                 )
             })
 
@@ -440,8 +449,10 @@ describe('Meter', () => {
                         accountNumber,
                         unitName,
                         unitType: PARKING_UNIT_TYPE,
-                    }),
-                    METER_ERRORS.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT(`${firstMeter.unitType} ${firstMeter.unitName}`),
+                    }), {
+                        ...METER_ERRORS.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT,
+                        messageInterpolation: { unitsCsv: `${firstMeter.unitType} ${firstMeter.unitName}` },
+                    }
                 )
             })
 
