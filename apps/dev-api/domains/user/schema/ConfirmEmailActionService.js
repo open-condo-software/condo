@@ -36,19 +36,19 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: INVALID_EMAIL,
         message: 'The provided email is in the wrong format',
-        messageForUser: 'errors.INVALID_EMAIL.message',
+        messageForUser: 'api.user.confirmEmailAction.INVALID_EMAIL',
     },
     EMAILS_FOR_USER_DAY_LIMIT_REACHED: {
         code: TOO_MANY_REQUESTS,
         type: EMAILS_DAILY_LIMIT_REACHED,
         message: 'You exceeded the daily email request limit',
-        messageForUser: 'errors.EMAILS_DAILY_LIMIT_REACHED.user.message',
+        messageForUser: 'api.user.confirmEmailAction.EMAILS_DAILY_LIMIT_REACHED',
     },
     EMAILS_FOR_ADDRESS_DAY_LIMIT_REACHED: {
         code: TOO_MANY_REQUESTS,
         type: EMAILS_DAILY_LIMIT_REACHED,
         message: 'The specified email has exceeded the daily SMS request limit',
-        messageForUser: 'errors.EMAILS_DAILY_LIMIT_REACHED.email.message',
+        messageForUser: 'api.user.confirmEmailAction.EMAILS_DAILY_LIMIT_REACHED',
     },
     ACTION_NOT_FOUND: {
         code: BAD_USER_INPUT,
