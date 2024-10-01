@@ -44,7 +44,7 @@ const ERRORS = {
         query: 'createProperty',
         code: BAD_USER_INPUT,
         type: PROPERTY_ALREADY_EXISTS,
-        message: 'Property with the same address (id=${existingPropertyId}) already exists in current organization',
+        message: 'Property with the same address (id={existingPropertyId}) already exists in current organization',
         messageForUser: 'api.property.property.SAME_ADDRESS',
     },
 }
