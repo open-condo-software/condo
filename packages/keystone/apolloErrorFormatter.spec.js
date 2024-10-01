@@ -322,6 +322,9 @@ describe('safeFormatError hide=false', () => {
         const data = { type: 'query', target: 'user' }
         const internalData = { ...GQL_KEYSTONE_INTERNAL_DATA_EXAMPLE }
         const original = new AccessDeniedError({ data, internalData })
+        // NOTE(pahaz): in real world case the error will accept `original.message` as argument like so `new GraphQLError(original.message, ...)`
+        //  but here we want to test that the result message taken from the GraphQLError.message and the original.message shown inside
+        //  originalError field
         const error = new GraphQLError('GraphQLError1', [GQL_FIELD_NODE_EXAMPLE], GQL_SOURCE_EXAMPLE, null, ['field'], original, {})
         expect(safeFormatError(error)).toEqual({
             'locations': [{ column: 5, line: 3 }],

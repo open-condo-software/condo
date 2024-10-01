@@ -59,7 +59,6 @@ const { GQL_CUSTOM_SCHEMA_TYPE } = require('../schema')
  * Formats error for documentation of GraphQL API in human readable way
  * @param {GQLError} errorConfig
  * @return {string}
- * TODO: localize error message
  */
 const formatError = (errorConfig) => {
     const error = new GQLError(errorConfig, {})  // render error with DEFAULT_LOCALE

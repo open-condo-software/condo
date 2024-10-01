@@ -97,6 +97,11 @@ function _patchKnownErrorCases (error, result) {
     }
 }
 
+/**
+ * Internal error class for cases when someone trying to call safeFormatError(err) with non an error type argument.
+ * Inspired by npm ensure-error package.
+ * @private
+ */
 class NonError extends Error {
     constructor (message) {
         super(util.inspect(message))
@@ -105,6 +110,13 @@ class NonError extends Error {
     }
 }
 
+/**
+ * Hardcoded simplified version of https://github.com/sindresorhus/ensure-error/blob/01864b2c3b1857e59052736ece4ce0958593fc35/index.js
+ * NPM [ensure-error](https://www.npmjs.com/package/ensure-error) package
+ * @param error {Error|any}
+ * @returns {Error}
+ * @private
+ */
 function _ensureError (error) {
     if (!(error instanceof Error)) {
         return new NonError(error)
