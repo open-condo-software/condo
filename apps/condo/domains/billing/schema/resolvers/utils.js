@@ -1,6 +1,8 @@
 const dayjs = require('dayjs')
 
 const { getRedisClient } = require('@open-condo/keystone/redis')
+const { find } = require('@open-condo/keystone/schema')
+
 
 const {
     RECEIPTS_CACHE_CONTROL_SUM_TTL_IN_MS,
@@ -111,15 +113,19 @@ class ReceiptsRedisCache {
 async function loadReceiptsFromCache (contextId, receiptsIndex) {
     const RedisCache = new ReceiptsRedisCache(contextId)
     const cacheResult = {}
+    const ids = []
     for (const [index, receipt] of Object.entries(receiptsIndex)) {
         if (receipt.importId) {
             const cache = await RedisCache.getCachedValue(receipt.importId, receipt)
             if (cache) {
                 cacheResult[index] = { id: cache.id }
+                ids.push(cache.id)
             }
         }
     }
-    return cacheResult
+    const deletedReceipts = await find('BillingReceipt', { id_in: ids, deletedAt_not: null })
+    const deletedReceiptIds = new Set(deletedReceipts.map(({ id }) => id))
+    return Object.fromEntries(Object.entries(cacheResult).filter(([, { id }]) => !deletedReceiptIds.has(id)))
 }
 
 async function saveReceiptsToCache (contextId, receipts){

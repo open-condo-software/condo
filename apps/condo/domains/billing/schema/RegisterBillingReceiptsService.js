@@ -112,15 +112,15 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                 let receiptIndex = Object.fromEntries(receiptsInput.map((receiptInput, index) =>
                     ([index, { ...receiptInput, error: null, problems: [] }])
                 ))
+                let errorsIndex = {}
                 const skipUsingCache = !!get(context, 'settings.ignoreCache', false)
                 let ignoreReceipts = {}
                 if (!skipUsingCache) {
                     ignoreReceipts = await loadReceiptsFromCache(context.id, receiptIndex)
                     if (!isEmpty(ignoreReceipts)) {
-                        receiptIndex = Object.fromEntries(Object.entries(receiptIndex).filter(([key]) => !skipUsingCache.has(key)))
+                        receiptIndex = Object.fromEntries(Object.entries(receiptIndex).filter(([key]) => !ignoreReceipts.has(key)))
                     }
                 }
-                let errorsIndex = {}
                 const debug = []
                 const resolvers = [PeriodResolver, RecipientResolver, PropertyResolver, AccountResolver, CategoryResolver, ReceiptResolver]
                 let receiptsPeriods = []
