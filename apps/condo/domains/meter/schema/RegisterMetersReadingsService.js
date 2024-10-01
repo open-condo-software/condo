@@ -325,12 +325,23 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                 })
 
                 const readingsWithValidDates = readings.filter(reading => isDateValid(reading.date))
-                const meterReadings = await MeterReading.getAll(context, {
+                const plainMeterReadings = await find('MeterReading', {
                     meter: { id_in: meters.map(meter => meter.id) },
                     date_in: uniq(readingsWithValidDates.map(reading => toISO(reading.date))),
                 })
+                const meterReadings = plainMeterReadings.map(reading => {
+                    const meter = meters.find(meter => meter.id === reading.meter)
+                    const meterProperty = properties.find(property => property.id === meter.property)
+                    const meterWithProperty = { ...meter, property: meterProperty }
+
+                    return {
+                        ...reading,
+                        meter: meterWithProperty,
+                    }
+                })
+
                 const meterReadingByDate = meterReadings.reduce((acc, reading) => {
-                    const key = `${reading.meter.id}-${reading.date}`
+                    const key = `${reading.meter.id}-${reading.date.toISOString()}`
                     acc[key] = reading
                     return acc
                 }, {})
