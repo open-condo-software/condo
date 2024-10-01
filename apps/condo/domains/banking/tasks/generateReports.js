@@ -147,7 +147,7 @@ const generateReports = async (taskId) => {
         id: bankAccountId,
         organization: { id: organization.id },
         deletedAt: null,
-    })
+    }, 'id integrationContext { id }')
 
     if (!bankAccount) {
         throw new Error(`Cannot find BankAccount by id="${bankAccountId}"`)
