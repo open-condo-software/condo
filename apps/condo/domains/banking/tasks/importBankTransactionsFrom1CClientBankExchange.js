@@ -63,7 +63,9 @@ async function throwErrorAndSetErrorStatusToTask (context, task, errorMessage) {
 const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
     if (!taskId) throw new Error('taskId is undefined')
     const { keystone: context } = await getSchemaCtx('BankSyncTask')
-    let task = await BankSyncTask.getOne(context, { id: taskId })
+    let task = await BankSyncTask.getOne(context, { id: taskId },
+        'id meta status account { id } integrationContext { id } organization { id } property { id } file { id originalFilename publicUrl mimetype }'
+    )
     if (!task) {
         throw new Error(`Cannot find BankSyncTask by id="${taskId}"`)
     }
@@ -81,7 +83,7 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
     const existingIntegrationOrganizationContext = await BankIntegrationOrganizationContext.getOne(context, {
         integration: { id: integration.id },
         organization: { id: organization.id },
-    })
+    }, 'id enabled')
     // Check for manually disabled integration context
     // At this stage there is no matter, when it does not exist
     if (existingIntegrationOrganizationContext && !existingIntegrationOrganizationContext.enabled) {
@@ -236,7 +238,7 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
     for (let i = 0; i < bankTransactionsData.length; i++) {
 
         // User can cancel the task at any time, in this all operations should be stopped
-        task = await BankSyncTask.getOne(context, { id: taskId })
+        task = await BankSyncTask.getOne(context, { id: taskId }, 'id status')
         const taskStatus = get(task, 'status')
         if (!task || taskStatus !== TASK_PROCESSING_STATUS) {
             logger.info({ msg: 'status != processing. Aborting processing bank transactions loop', taskStatus, taskSchemaName: BankSyncTask.gql.SINGULAR_FORM, taskId })

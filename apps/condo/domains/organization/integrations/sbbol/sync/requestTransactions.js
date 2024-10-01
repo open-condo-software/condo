@@ -30,7 +30,7 @@ const dvSenderFieldsBankSyncTask = {
 async function isTaskCancelled (context, taskId) {
     const task = await BankSyncTask.getOne(context, {
         id: taskId,
-    })
+    }, 'id status')
     return task.status === BANK_SYNC_TASK_STATUS.CANCELLED
 }
 /**
@@ -207,7 +207,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
             const bankIntegrationAccountContextId = get(bankAccount, 'integrationContext.id')
             const bankIntegrationAccountContext = BankIntegrationAccountContext.getOne(context, {
                 id: bankIntegrationAccountContextId,
-            })
+            }, 'id meta')
 
             const meta = {}
             if (transactionException || summaryException) {
@@ -343,7 +343,7 @@ async function requestTransactions ({ dateInterval, userId, organization, bankSy
             totalCount,
             processedCount,
             ...dvSenderFieldsBankSyncTask,
-        })
+        }, 'id account { id }')
         bankAccounts = await BankAccount.getAll(context, {
             id: bankSyncTask.account.id,
         }, 'id number integrationContext { id }')
