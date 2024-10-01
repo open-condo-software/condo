@@ -204,6 +204,7 @@ const Resident = new GQLListSchema('Resident', {
                         if (category.canGetAcquiringFromOrganization && item.organization) {
                             const [acquiringCtx] = await AcquiringIntegrationContext.getAll(
                                 context, { organization: { id: item.organization, deletedAt: null }, deletedAt: null },
+                                'integration { name }'
                             )
                             acquiringName = get(acquiringCtx, ['integration', 'name'], DEFAULT_ACQUIRING_INTEGRATION_NAME)
                         }

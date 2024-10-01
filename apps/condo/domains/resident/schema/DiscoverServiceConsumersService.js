@@ -6,10 +6,9 @@ const { set, get, filter, flatMap, map, omit, pick, uniq } = require('lodash')
 
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { getLogger } = require('@open-condo/keystone/logging')
-const { GQLCustomSchema } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
-const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
 const { BILLING_ACCOUNT_OWNER_TYPE_COMPANY } = require('@condo/domains/billing/constants/constants')
 const { BillingAccount, BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 const { DISABLE_DISCOVER_SERVICE_CONSUMERS } = require('@condo/domains/common/constants/featureflags')
@@ -150,29 +149,21 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                 // The organization must have the finished acquiring context
                 /** @type {Object<string, string[]>} */
                 let organizationsToAcquiringContextsMap = {}
-                await loadListByChunks({
-                    context,
-                    list: AcquiringIntegrationContext,
-                    chunkSize: 50,
-                    where: {
-                        deletedAt: null,
-                        organization: { id_in: map(billingAccountItemsData, 'organizationId') },
-                        status: CONTEXT_FINISHED_STATUS,
-                    },
-                    chunkProcessor: (chunk) => {
-                        chunk.forEach((row) => {
-                            const organizationId = get(row, ['organization', 'id'])
-                            const acquiringContextId = get(row, 'id')
-                            organizationsToAcquiringContextsMap = {
-                                ...organizationsToAcquiringContextsMap,
-                                [organizationId]: [
-                                    ...(organizationsToAcquiringContextsMap[organizationId] || []),
-                                    acquiringContextId,
-                                ],
-                            }
-                        })
-                        return []
-                    },
+                const allAcquiringIntegrationContext = find('AcquiringIntegrationContext', {
+                    deletedAt: null,
+                    organization: { id_in: map(billingAccountItemsData, 'organizationId') },
+                    status: CONTEXT_FINISHED_STATUS,
+                })
+                allAcquiringIntegrationContext.forEach((acquiringContext) => {
+                    const organizationId = get(acquiringContext, ['organization'])
+                    const acquiringContextId = get(acquiringContext, 'id')
+                    organizationsToAcquiringContextsMap = {
+                        ...organizationsToAcquiringContextsMap,
+                        [organizationId]: [
+                            ...(organizationsToAcquiringContextsMap[organizationId] || []),
+                            acquiringContextId,
+                        ],
+                    }
                 })
 
                 billingAccountItemsData = billingAccountItemsData.filter((item) => !!get(organizationsToAcquiringContextsMap, item.organizationId))

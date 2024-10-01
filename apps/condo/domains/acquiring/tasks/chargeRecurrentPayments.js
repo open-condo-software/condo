@@ -34,7 +34,7 @@ async function chargeByRecurrentPaymentAndPaymentAdapter (context, recurrentPaym
     const { recurrentPaymentContext: { id: recurrentContextId } } = recurrentPayment
     const { settings: { cardId } } = await RecurrentPaymentContext.getOne(context, {
         id: recurrentContextId,
-    })
+    }, 'settings { cardId }')
 
     // check card token validity
     const cardTokenValidity = await paymentAdapter.checkCardToken(cardId)

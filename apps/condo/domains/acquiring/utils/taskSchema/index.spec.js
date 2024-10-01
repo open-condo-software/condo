@@ -579,7 +579,7 @@ describe('task schema queries', () => {
                 multiPayment: {
                     id: result.multiPaymentId,
                 },
-            })
+            }, 'id receipt { id }')
             expect(payments).toBeDefined()
             expect(payments).toHaveLength(billingReceipts.length)
 
@@ -618,7 +618,7 @@ describe('task schema queries', () => {
                 multiPayment: {
                     id: result.multiPaymentId,
                 },
-            })
+            }, 'id receipt { id }')
             expect(payments).toBeDefined()
             expect(payments).toHaveLength(billingReceipts.length)
 
@@ -662,7 +662,7 @@ describe('task schema queries', () => {
                 multiPayment: {
                     id: result.multiPaymentId,
                 },
-            })
+            }, 'id receipt { id }')
             expect(payments).toBeDefined()
             expect(payments).toHaveLength(billingReceipts.length)
 
