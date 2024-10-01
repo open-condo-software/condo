@@ -309,12 +309,21 @@ function safeFormatError (error, hideInternals = false, applyPatches = true) {
 }
 
 /**
- * ApolloServer.formatError function
- * @param {import('graphql').GraphQLError} error - any apollo server catched error
+ * `ApolloServer.formatError` function. If you want to use it in any other place please use `safeFormatError`
+ * @param {import('graphql').GraphQLError} error - any apollo server caught error
+ * @returns {import('graphql').GraphQLFormattedError}
+ */
+function safeApolloErrorFormatter (error) {
+    return safeFormatError(error, IS_HIDE_INTERNALS, true)
+}
+
+/**
+ * @deprecated use `safeApolloErrorFormatter` instead it's some legacy name!
+ * @param error {import('graphql').GraphQLError}
  * @returns {import('graphql').GraphQLFormattedError}
  */
 function formatError (error) {
-    return safeFormatError(error, IS_HIDE_INTERNALS, true)
+    return safeApolloErrorFormatter(error)
 }
 
 // NEW GraphQL Error standard
@@ -329,6 +338,7 @@ function throwAuthenticationError (context) {
 
 module.exports = {
     safeFormatError,
+    safeApolloErrorFormatter,
     formatError,
     throwAuthenticationError,
 }
