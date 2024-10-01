@@ -221,6 +221,7 @@ describe('SendMessageService', () => {
 
             describe('with INVITE_NEW_EMPLOYEE message type', () => {
                 it('throws error when "inviteCode" is not specified in meta', async () => {
+                    // TODO(pahaz): use expectToThrowGQLError check here
                     await catchErrorFrom(async () => {
                         await sendMessageByTestClient(admin, {
                             meta: {
@@ -236,7 +237,7 @@ describe('SendMessageService', () => {
                                 variable: ['data', 'meta'],
                                 code: 'BAD_USER_INPUT',
                                 type: 'REQUIRED',
-                                message: 'Missing value for required "meta.{attr}" attribute',
+                                message: 'Missing value for required "meta.inviteCode" attribute',
                             },
                         }])
                         expect(data).toEqual({ 'result': null })
@@ -244,6 +245,7 @@ describe('SendMessageService', () => {
                 })
 
                 it('throws error when unregistered attribute is provided in "meta"', async () => {
+                    // TODO(pahaz): use expectToThrowGQLError check here
                     await catchErrorFrom(async () => {
                         await sendMessageByTestClient(admin, {
                             meta: {
@@ -261,7 +263,7 @@ describe('SendMessageService', () => {
                                 variable: ['data', 'meta'],
                                 code: 'BAD_USER_INPUT',
                                 type: 'UNKNOWN_ATTRIBUTE',
-                                message: 'Unknown attribute "{attr}" provided to "meta" variable',
+                                message: 'Unknown attribute "unregisteredAttrName" provided to "meta" variable',
                             },
                         }])
                         expect(data).toEqual({ 'result': null })

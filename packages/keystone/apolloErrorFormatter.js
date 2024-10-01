@@ -255,7 +255,7 @@ function _safeFormatErrorRecursion (errorIn, hideInternals = false, applyPatches
         }
     }
 
-    // TODO(pahaz): think about errId / uid and add it here
+    // TODO(pahaz): DOMA-10354 think about errId / uid and add it here
 
     // fullstack error
     if (!_isRecursionCall && !hideInternals) {

@@ -183,14 +183,14 @@ const ERRORS = {
     WRONG_COUNT: (rowNumber) => ({
         code: BAD_USER_INPUT,
         type: ERROR_INVOICE_ROW_WRONG_COUNT,
-        message: `Count at line ${rowNumber} can't be less than 1`,
+        message: 'Count at line {rowNumber} can\'t be less than 1',
         messageForUser: 'api.marketplace.invoice.error.rows.count',
         messageInterpolation: { rowNumber },
     }),
     WRONG_PRICE: (rowNumber) => ({
         code: BAD_USER_INPUT,
         type: ERROR_INVOICE_ROW_WRONG_PRICE,
-        message: `Price at line ${rowNumber} can't be less than 0`,
+        message: 'Price at line {rowNumber} can\'t be less than 0',
         messageForUser: 'api.marketplace.invoice.error.rows.toPay',
         messageInterpolation: { rowNumber },
     }),

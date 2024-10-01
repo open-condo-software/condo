@@ -185,18 +185,24 @@ class GQLError extends Error {
                 delete extensions.messageForUser
             }
             if (extensions.messageForUser === extensions.messageForUserTemplateKey) {
-                throw new Error(
+                // TODO(pahaz): DOMA-10345 throw error for that cases! Waiting for apps refactoring
+                console.warn(
                     'GQLError: it loos like you already hardcode localised message inside messageForUser. ' +
-                    'Could you please use translation key here!',
+                    'Could you please use translation key here! messageForUser =',
+                    extensions.messageForUser,
                 )
             }
         }
         if (!isEmpty(fields.messageInterpolation)) {
             extensions.messageTemplate = fields.message
-            if (fields.message === extensions.message) throw new Error(
-                'GQLError: looks like you already include `messageInterpolation` values inside `message`. ' +
-                'Please use templated string like `{name}` inside the message field',
-            )
+            if (fields.message === extensions.message) {
+                // TODO(pahaz): DOMA-10345 throw error for that cases! Waiting for apps refactoring
+                console.warn(
+                    'GQLError: looks like you already include `messageInterpolation` values inside `message`. ' +
+                    'Please use templated string like `{name}` inside the message field. message =',
+                    fields.message,
+                )
+            }
         }
         super(extensions.message)
         this.name = extensions?.name || 'GQLError'
