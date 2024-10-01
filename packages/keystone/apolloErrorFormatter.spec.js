@@ -4,7 +4,7 @@ const { GraphQLError } = require('graphql')
 const { Source, parse } = require('graphql/language')
 
 const { safeFormatError } = require('./apolloErrorFormatter')
-const { GQLError } = require('./errors')
+const { GQLError, GQLErrorCode, GQLInternalErrorTypes } = require('./errors')
 
 const GQL_SOURCE_EXAMPLE = new Source(`
   {
@@ -349,8 +349,8 @@ describe('safeFormatError hide=false', () => {
         const message1 = Date.now().toString()
         const message2 = 'GQL' + (Date.now() % 100).toString()
         const original = new GQLError({
-            code: 'INTERNAL_ERROR',
-            type: 'SUB_GQL_ERROR',
+            code: GQLErrorCode.INTERNAL_ERROR,
+            type: GQLInternalErrorTypes.SUB_GQL_ERROR,
             message: message1,
         })
         const error = new GraphQLError(message2, null, null, null, null, original, {})
@@ -361,8 +361,8 @@ describe('safeFormatError hide=false', () => {
             'message': message2,
             'stack': expect.stringMatching(new RegExp(`^GQLError: ${message1}`)),
             'extensions': {
-                'code': 'INTERNAL_ERROR',
-                'type': 'SUB_GQL_ERROR',
+                code: GQLErrorCode.INTERNAL_ERROR,
+                type: GQLInternalErrorTypes.SUB_GQL_ERROR,
                 'message': message1,
             },
             'originalError': {
@@ -371,8 +371,8 @@ describe('safeFormatError hide=false', () => {
                 'message': message1,
                 'stack': expect.stringMatching(new RegExp(`^GQLError: ${message1}`)),
                 'extensions': {
-                    'code': 'INTERNAL_ERROR',
-                    'type': 'SUB_GQL_ERROR',
+                    code: GQLErrorCode.INTERNAL_ERROR,
+                    type: GQLInternalErrorTypes.SUB_GQL_ERROR,
                     'message': message1,
                 },
             },
@@ -383,8 +383,8 @@ describe('safeFormatError hide=false', () => {
         const message2 = 'GQL' + (Date.now() % 100).toString()
         const reqId = 'req' + (Date.now() % 500).toString()
         const original = new GQLError({
-            code: 'INTERNAL_ERROR',
-            type: 'SUB_GQL_ERROR',
+            code: GQLErrorCode.INTERNAL_ERROR,
+            type: GQLInternalErrorTypes.SUB_GQL_ERROR,
             message: message1,
         }, { req: { id: reqId }, name: 'context1' })
         const error = new GraphQLError(message2, null, null, null, null, original, {})
@@ -395,8 +395,8 @@ describe('safeFormatError hide=false', () => {
             'message': message2,
             'stack': expect.stringMatching(new RegExp(`^GQLError: ${message1}`)),
             'extensions': {
-                'code': 'INTERNAL_ERROR',
-                'type': 'SUB_GQL_ERROR',
+                code: GQLErrorCode.INTERNAL_ERROR,
+                type: GQLInternalErrorTypes.SUB_GQL_ERROR,
                 'message': message1,
             },
             'originalError': {
@@ -405,8 +405,8 @@ describe('safeFormatError hide=false', () => {
                 'message': message1,
                 'stack': expect.stringMatching(new RegExp(`^GQLError: ${message1}`)),
                 'extensions': {
-                    'code': 'INTERNAL_ERROR',
-                    'type': 'SUB_GQL_ERROR',
+                    code: GQLErrorCode.INTERNAL_ERROR,
+                    type: GQLInternalErrorTypes.SUB_GQL_ERROR,
                     'message': message1,
                 },
             },
@@ -417,8 +417,8 @@ describe('safeFormatError hide=false', () => {
         const message2 = 'GQL' + (Date.now() % 100).toString()
         const errors = [new Error('World')]
         const fields = {
-            code: 'INTERNAL_ERROR',
-            type: 'SUB_GQL_ERROR',
+            code: GQLErrorCode.INTERNAL_ERROR,
+            type: GQLInternalErrorTypes.SUB_GQL_ERROR,
         }
         const original = new GQLError({ ...fields, message: message1 }, null, errors)
         const error = new GraphQLError(message2, null, null, null, null, original, {})
@@ -451,18 +451,17 @@ describe('safeFormatError hide=false', () => {
         const message2 = 'GQL' + (Date.now() % 100).toString()
         const message3 = 'ERR' + (Date.now() % 800).toString()
         const fields2 = {
-            code: 'INTERNAL_ERROR',
-            type: 'SUB_GQL_ERROR',
+            code: GQLErrorCode.INTERNAL_ERROR,
+            type: GQLInternalErrorTypes.SUB_GQL_ERROR,
         }
         const errors = [new GQLError({ ...fields2, message: message3 }, null, new Error('World'))]
         const fields1 = {
-            code: 'INTERNAL_ERROR',
-            type: 'SUB_GQL_ERROR',
+            code: GQLErrorCode.INTERNAL_ERROR,
+            type: GQLInternalErrorTypes.SUB_GQL_ERROR,
         }
         const original = new GQLError({ ...fields1, message: message1 }, null, errors)
         const error = new GraphQLError(message2, null, null, null, null, original, {})
         const result = safeFormatError(error)
-        const uid = result?.originalError?.uid
         expect(result).toEqual({
             'name': 'GQLError',
             'message': message2,
@@ -500,8 +499,8 @@ describe('safeFormatError hide=false', () => {
             type: 'WRONG_FORMAT',
         }
         const fields1 = {
-            code: 'INTERNAL_ERROR',
-            type: 'SUB_GQL_ERROR',
+            code: GQLErrorCode.INTERNAL_ERROR,
+            type: GQLInternalErrorTypes.SUB_GQL_ERROR,
         }
         const original2 = new Error('InError')
         original2.errors = [new GQLError({ ...fields1, message: message4 }, null)]
@@ -553,8 +552,8 @@ describe('safeFormatError hide=false', () => {
     test('safeFormatError(GQLError) change user password real case', () => {
         const internalErrorMessage = '[error] Update User internal error'
         const fields1 = {
-            'code': 'INTERNAL_ERROR',
-            'type': 'SUB_GQL_ERROR',
+            code: GQLErrorCode.INTERNAL_ERROR,
+            type: GQLInternalErrorTypes.SUB_GQL_ERROR,
         }
         const passwordLengthErrorMessage = 'Password length must be between 8 and 128 characters'
         const fields2 = {
@@ -650,8 +649,8 @@ describe('safeFormatError hide=false', () => {
                 'message': '[error] Update User internal error',
                 'stack': expect.stringMatching(new RegExp('^GQLError: \\[error\\] Update User internal error(.*?)')),
                 'extensions': {
-                    'code': 'INTERNAL_ERROR',
-                    'type': 'SUB_GQL_ERROR',
+                    code: GQLErrorCode.INTERNAL_ERROR,
+                    type: GQLInternalErrorTypes.SUB_GQL_ERROR,
                     'message': '[error] Update User internal error',
                 },
             },
@@ -660,8 +659,8 @@ describe('safeFormatError hide=false', () => {
     test('safeFormatError(GQLError(Error)) change user password keystone case', () => {
         const internalErrorMessage = '[error] Update User internal error'
         const fields1 = {
-            'code': 'INTERNAL_ERROR',
-            'type': 'SUB_GQL_ERROR',
+            code: GQLErrorCode.INTERNAL_ERROR,
+            type: GQLInternalErrorTypes.SUB_GQL_ERROR,
         }
         const passwordLengthErrorMessage = 'Password length must be between 8 and 128 characters'
         const fields2 = {
@@ -746,8 +745,8 @@ describe('safeFormatError hide=false', () => {
                 'message': '[error] Update User internal error',
                 'stack': expect.stringMatching(new RegExp('^GQLError: \\[error\\] Update User internal error(.*?)')),
                 'extensions': {
-                    'code': 'INTERNAL_ERROR',
-                    'type': 'SUB_GQL_ERROR',
+                    code: GQLErrorCode.INTERNAL_ERROR,
+                    type: GQLInternalErrorTypes.SUB_GQL_ERROR,
                     'message': '[error] Update User internal error',
                 },
             },
@@ -756,8 +755,8 @@ describe('safeFormatError hide=false', () => {
     test('safeFormatError(GQLError(Error)) change user password keystone with sub error case', () => {
         const internalErrorMessage = '[error] Update User internal error'
         const fields1 = {
-            'code': 'INTERNAL_ERROR',
-            'type': 'SUB_GQL_ERROR',
+            code: GQLErrorCode.INTERNAL_ERROR,
+            type: GQLInternalErrorTypes.SUB_GQL_ERROR,
         }
         const passwordLengthErrorMessage = 'Password length must be between 8 and 128 characters'
         const fields2 = {
@@ -863,8 +862,8 @@ describe('safeFormatError hide=false', () => {
                 'message': '[error] Update User internal error',
                 'stack': expect.stringMatching(new RegExp('^GQLError: \\[error\\] Update User internal error(.*?)')),
                 'extensions': {
-                    'code': 'INTERNAL_ERROR',
-                    'type': 'SUB_GQL_ERROR',
+                    code: GQLErrorCode.INTERNAL_ERROR,
+                    type: GQLInternalErrorTypes.SUB_GQL_ERROR,
                     'message': '[error] Update User internal error',
                 },
             },
@@ -965,8 +964,8 @@ describe('safeFormatError hide=false', () => {
             },
         })
         const gqlError = new GQLError({
-            'code': 'INTERNAL_ERROR',
-            'type': 'SUB_GQL_ERROR',
+            code: GQLErrorCode.INTERNAL_ERROR,
+            type: GQLInternalErrorTypes.SUB_GQL_ERROR,
             'message': '[error] Update B2BApp internal error',
         }, null, error)
         const graphQLError = new GraphQLError(gqlError.message, null, null, null, null, gqlError, {
@@ -978,8 +977,8 @@ describe('safeFormatError hide=false', () => {
             'message': '[error] Update B2BApp internal error',
             'name': 'GQLError',
             'extensions': {
-                'code': 'INTERNAL_ERROR',
-                'type': 'SUB_GQL_ERROR',
+                code: GQLErrorCode.INTERNAL_ERROR,
+                type: GQLInternalErrorTypes.SUB_GQL_ERROR,
                 'message': '[app:noAppUrl] If the app is global, it must have appUrl field',
             },
             'originalError': {
@@ -1020,9 +1019,9 @@ describe('safeFormatError hide=false', () => {
                 'name': 'GQLError',
                 'stack': expect.stringMatching(new RegExp('^GQLError: \\[error\\] Update B2BApp internal error(.*?)', 's')),
                 'extensions': {
-                    'code': 'INTERNAL_ERROR',
+                    code: GQLErrorCode.INTERNAL_ERROR,
+                    type: GQLInternalErrorTypes.SUB_GQL_ERROR,
                     'message': '[error] Update B2BApp internal error',
-                    'type': 'SUB_GQL_ERROR',
                 },
             },
         })

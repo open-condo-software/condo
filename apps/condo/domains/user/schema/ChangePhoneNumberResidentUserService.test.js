@@ -1,5 +1,6 @@
 const { faker } = require('@faker-js/faker')
 
+const { GQLInternalErrorTypes, GQLErrorCode } = require('@open-condo/keystone/errors')
 const {
     makeLoggedInAdminClient,
     makeClient,
@@ -74,8 +75,8 @@ describe('ChangePhoneNumberResidentUserService', () => {
                 await expectToThrowGQLError(
                     async () => await changePhoneNumberResidentUserByTestClient(client, { token }),
                     {
-                        code: 'INTERNAL_ERROR',
-                        type: 'SUB_GQL_ERROR',
+                        code: GQLErrorCode.INTERNAL_ERROR,
+                        type: GQLInternalErrorTypes.SUB_GQL_ERROR,
                         message: '[error] Update User internal error',
                     },
                     'result',
