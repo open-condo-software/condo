@@ -58,7 +58,7 @@ const { pick, toArray, get, set, isArray, isEmpty, omitBy, isUndefined } = requi
 
 const conf = require('@open-condo/config')
 
-const { GQLError, GQLErrorCode } = require('./errors')
+const { GQLError, GQLErrorCode: { INTERNAL_ERROR, UNAUTHENTICATED }, GQLInternalErrorTypes: { SUB_GQL_ERROR } } = require('./errors')
 
 const IS_HIDE_INTERNALS = conf.NODE_ENV === 'production'
 const COMMON_ERROR_CASES = {}
@@ -230,7 +230,7 @@ function _safeFormatErrorRecursion (errorIn, hideInternals = false, applyPatches
             const type = originalError?.extensions?.type
             const parentErrors = originalError?.errors
             // We have an exact one parent gqlError.errors, and it is GQLError({ code: INTERNAL_ERROR, type: SUB_GQL_ERROR })
-            if (code === 'INTERNAL_ERROR' && type === 'SUB_GQL_ERROR' && isArray(parentErrors) && parentErrors.length === 1) {
+            if (code === INTERNAL_ERROR && type === SUB_GQL_ERROR && isArray(parentErrors) && parentErrors.length === 1) {
                 // Unwrap from GraphQLError or any other wrapper
                 const internalError = (parentErrors[0]?.originalError) ? parentErrors[0]?.originalError : parentErrors[0]
                 const internalErrorCName = internalError?.constructor?.name
@@ -331,7 +331,7 @@ function formatError (error) {
 function throwAuthenticationError (context) {
     throw new GQLError({
         name: 'AuthenticationError',
-        code: GQLErrorCode.UNAUTHENTICATED,
+        code: UNAUTHENTICATED,
         message: 'No or incorrect authentication credentials',
     }, context)
 }

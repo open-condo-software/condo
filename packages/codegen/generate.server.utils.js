@@ -1,7 +1,7 @@
 const { pickBy, get, isEmpty, isObject } = require('lodash')
 
 const conf = require('@open-condo/config')
-const { GQLError, GQLErrorCode } = require('@open-condo/keystone/errors')
+const { GQLError, GQLErrorCode, GQLInternalErrorTypes } = require('@open-condo/keystone/errors')
 const { getById } = require('@open-condo/keystone/schema')
 
 const IS_DEBUG = conf.NODE_ENV === 'development'
@@ -51,7 +51,7 @@ function _throwIfError (context, errors, data, errorMessage, errorMapping) {
          */
         const fields = {
             code: GQLErrorCode.INTERNAL_ERROR,
-            type: 'SUB_GQL_ERROR',
+            type: GQLInternalErrorTypes.SUB_GQL_ERROR,
             message: errorMessage,
         }
         if (errorMapping && isObject(errorMapping)) {
