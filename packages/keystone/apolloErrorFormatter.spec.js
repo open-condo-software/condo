@@ -900,6 +900,16 @@ describe('safeFormatError hide=false', () => {
             'stack': expect.stringMatching(new RegExp(`^ValidationFailureError: ${error.message}(.*?)`, 's')),
             'message': 'You attempted to perform an invalid mutation',
             'name': 'ValidationFailureError',
+            // NOTE(pahaz): check Address.test.js: `throw an error if try to override with empty object`
+            //   we already support `data` field for ValidationFailureError and we should extract it at the top.
+            //   We need to drop this mess in a future, but now it's backward compatibility
+            // TODO(pahaz): DOMA-10348 drop this support
+            'data': {
+                'errors': [{}],
+                'listKey': 'B2BApp',
+                'messages': ['[app:noAppUrl] If the app is global, it must have appUrl field'],
+                'operation': 'create',
+            },
             'extensions': {
                 'code': 'INTERNAL_SERVER_ERROR',
                 'message': '[app:noAppUrl] If the app is global, it must have appUrl field',
@@ -976,6 +986,16 @@ describe('safeFormatError hide=false', () => {
             'fullstack': expect.stringMatching(new RegExp('^GQLError: \\[error\\] Update B2BApp internal error(.*?)Caused By: ValidationFailureError: You attempted to perform an invalid mutation', 's')),
             'message': '[error] Update B2BApp internal error',
             'name': 'GQLError',
+            // NOTE(pahaz): check Address.test.js: `throw an error if try to override with empty object`
+            //   we already support `data` field for ValidationFailureError and we should extract it at the top.
+            //   We need to drop this mess in a future, but now it's backward compatibility
+            // TODO(pahaz): DOMA-10348 drop this support
+            'data': {
+                'errors': [{}],
+                'listKey': 'B2BApp',
+                'messages': ['[app:noAppUrl] If the app is global, it must have appUrl field'],
+                'operation': 'create',
+            },
             'extensions': {
                 code: GQLErrorCode.INTERNAL_ERROR,
                 type: GQLInternalErrorTypes.SUB_GQL_ERROR,

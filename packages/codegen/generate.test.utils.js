@@ -18,7 +18,8 @@ class TestClientResponseError extends Error {
 
     get errors () {
         // NOTE(pahaz): we want to use only public error fields during the rests
-        return map(toArray(this._constructor?.errors), error => pick(error, ['message', 'name', 'locations', 'path', 'extensions']))
+        // TODO(pahaz): DOMA-10348 drop `doma` compatibility
+        return map(toArray(this._constructor?.errors), error => pick(error, ['message', 'name', 'locations', 'path', 'extensions', 'data']))
     }
 }
 

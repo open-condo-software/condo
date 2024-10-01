@@ -148,23 +148,28 @@ function _fullstack (err) {
     return _buildCombinedStacks(error.stack, error.errors)
 }
 
-function _handleValidationErrorCase (extensions, originalError) {
+function _handleValidationErrorCase (result, extensions, originalError) {
     // TODO(pahaz): it looks like we need to transform it to GQLError but in a future. Need to change code, type, ...
     const messages = originalError?.data?.messages
     if (messages && isArray(messages) && messages.length > 0) {
         extensions.message = messages.join(';\n')
     }
+    // TODO(pahaz): drop this undocumented backward compatibility ...
+    const data = originalError?.data
+    if (data) {
+        result.data = data
+    }
 }
 
-function _handleKnexError (extensions, originalError) {
+function _handleKnexError (result, extensions, originalError) {
     // TODO(pahaz): it looks like we need to transform it to GQLError but in a future. Need to change code, type, ...
     extensions.message = originalError.message
 }
 
-function _updateExtensionsForKnownErrorCases (extensions, originalError) {
+function _updateExtensionsForKnownErrorCases (result, extensions, originalError) {
     // NOTE(pahaz): we want to extract messages from ValidationFailureError Keystone v5 error
     if (originalError?.name === 'ValidationFailureError') {
-        _handleValidationErrorCase(extensions, originalError)
+        _handleValidationErrorCase(result, extensions, originalError)
         return
     }
 
@@ -172,7 +177,7 @@ function _updateExtensionsForKnownErrorCases (extensions, originalError) {
     const hasDBUniqConstrain = originalError && originalError?.message?.includes('duplicate key value violates unique constraint')
     const hasDBCheckConstrain = originalError && originalError?.message?.includes('violates check constraint')
     if (hasDBUniqConstrain || hasDBCheckConstrain) {
-        _handleKnexError(extensions, originalError)
+        _handleKnexError(result, extensions, originalError)
         return
     }
 }
@@ -249,12 +254,12 @@ function _safeFormatErrorRecursion (errorIn, hideInternals = false, applyPatches
                         }
                     }
                 } else {
-                    _updateExtensionsForKnownErrorCases(extensions, internalError)
+                    _updateExtensionsForKnownErrorCases(result, extensions, internalError)
                 }
             }
         }
 
-        _updateExtensionsForKnownErrorCases(extensions, originalError)
+        _updateExtensionsForKnownErrorCases(result, extensions, originalError)
 
         // NOTE(pahaz): KeystoneJS v5 compatibility! We already have lots of test with that names.
         // We need to use more specific name instead of the 'GraphQLError'.
