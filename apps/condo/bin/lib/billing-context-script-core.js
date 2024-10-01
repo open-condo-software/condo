@@ -68,7 +68,11 @@ class BillingContextScriptCore extends ScriptCore {
      */
     async loadContextData () {
         try {
-            const billingContext = await BillingIntegrationOrganizationContext.getOne(this.context, { id: this.billingContextId, status: CONTEXT_FINISHED_STATUS })
+            const billingContext = await BillingIntegrationOrganizationContext.getOne(
+                this.context,
+                { id: this.billingContextId, status: CONTEXT_FINISHED_STATUS },
+                'id organization { id }'
+            )
 
             if (isEmpty(billingContext)) throw new Error(`Provided billingContextId not found or status is not ${CONTEXT_FINISHED_STATUS}`)
 

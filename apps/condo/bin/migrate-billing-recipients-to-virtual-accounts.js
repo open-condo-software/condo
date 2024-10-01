@@ -82,7 +82,7 @@ async function main () {
                 context: {
                     deletedAt: null,
                 },
-            })
+            }, 'id tin bic bankAccount context { id }')
         }))).filter(recipient => recipient != null && !recipient.isApproved)
 
         // for each recipient with not wrongly not approved state -> let's create a bank account

@@ -38,7 +38,7 @@ async function syncServiceProviderProfileState ({ context, organization }) {
     const billingContexts = await BillingContext.getAll(adminContext, {
         organization: { id: orgId },
         deletedAt: null,
-    })
+    }, 'id status integration { id }')
     const activeBillingContext = billingContexts.find(ctx => ctx.status === CONTEXT_FINISHED_STATUS)
     const existingBillingContext = billingContexts.find(ctx => get(ctx, ['integration', 'id']) === billingId)
     const activeBillingIntegrationId = get(activeBillingContext, ['integration', 'id'])

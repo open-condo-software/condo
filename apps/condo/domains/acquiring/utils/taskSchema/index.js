@@ -190,7 +190,7 @@ async function getReceiptsForServiceConsumer (context, date, serviceConsumer, bi
         ...periodCondition,
         ...extraArgs,
         deletedAt: null,
-    })
+    }, 'id period toPay account { id number } receiver { id } category { id } ')
 
     // let's create a map for receipt concatenated identifiers -> receipt
     // in order to deduplicate same receipts for different periods
@@ -247,7 +247,7 @@ async function filterPaidBillingReceipts (context, billingReceipts) {
         id_in: notPaidBillsIds,
         toPay_gt: '0',
         deletedAt: null,
-    })
+    }, 'id toPay category { id }')
 }
 
 async function isLimitExceedForBillingReceipts (context, recurrentPaymentContext, billingReceipts) {

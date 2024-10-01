@@ -197,6 +197,7 @@ const Resident = new GQLListSchema('Resident', {
                         if (category.canGetBillingFromOrganization && item.organization) {
                             const [billingCtx] = await BillingIntegrationOrganizationContext.getAll(
                                 context, { organization: { id: item.organization, deletedAt: null }, deletedAt: null },
+                                'id integration { name }'
                             )
                             billingName = get(billingCtx, ['integration', 'name'], DEFAULT_BILLING_INTEGRATION_NAME)
                         }
