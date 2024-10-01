@@ -30,7 +30,6 @@ const {
     makeRegisteredAndLoggedInUser,
 } = require('@dev-api/domains/user/utils/testSchema')
 
-
 describe('B2CAppPublishRequest', () => {
     let admin
     let support
@@ -141,11 +140,11 @@ describe('B2CAppPublishRequest', () => {
                     deletedAt: dayjs().toISOString(),
                 })
             })
-            test('Admin can read all', async ()=> {
+            test('Admin can read all', async () => {
                 const requests = await B2CAppPublishRequest.getAll(admin, { id_in: [appRequest.id, anotherRequest.id] })
                 expect(requests).toHaveLength(2)
             })
-            test('Support can read all', async ()=> {
+            test('Support can read all', async () => {
                 const requests = await B2CAppPublishRequest.getAll(support, { id_in: [appRequest.id, anotherRequest.id] })
                 expect(requests).toHaveLength(2)
             })
@@ -235,6 +234,7 @@ describe('B2CAppPublishRequest', () => {
             }, {
                 code: BAD_USER_INPUT,
                 type: APPROVE_NOT_ALLOWED,
+                message: `Cannot change status to "${PUBLISH_REQUEST_APPROVED_STATUS}" until all prerequisites are met`,
             })
             for (let i = 0; i < prerequisitesFields.length; i++) {
                 const field = prerequisitesFields[i]
@@ -251,6 +251,7 @@ describe('B2CAppPublishRequest', () => {
                     }, {
                         code: BAD_USER_INPUT,
                         type: APPROVE_NOT_ALLOWED,
+                        message: `Cannot change status to "${PUBLISH_REQUEST_APPROVED_STATUS}" until all prerequisites are met`,
                     })
                 } else {
                     const [approvedRequest] = await updateTestB2CAppPublishRequest(support, request.id, {
