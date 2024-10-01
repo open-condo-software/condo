@@ -164,7 +164,11 @@ class GQLError extends Error {
             throw error
         }
         if (fields.messageForUser) {
-            if (!fields.messageForUser.startsWith('api.')) throw new Error('GQLError: wrong `messageForUser` field argument. Should starts with `api.`')
+            if (!fields.messageForUser.startsWith('api.')) {
+                console.warn('WRONG `messageForUser` field argument! It should starts with `api.` prefix! messageForUser = ', fields.messageForUser)
+                // TODO(pahaz): DOMA-10345 throw error for that cases! Waiting for apps refactoring
+                // throw new Error('GQLError: wrong `messageForUser` field argument. Should starts with `api.`')
+            }
             if (!context) throw new Error('GQLError: no context for messageForUser')
             // todo use i18n from apps/condo/domains/common/utils/localesLoader.js
             const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
