@@ -346,7 +346,7 @@ async function requestTransactions ({ dateInterval, userId, organization, bankSy
         })
         bankAccounts = await BankAccount.getAll(context, {
             id: bankSyncTask.account.id,
-        })
+        }, 'id number integrationContext { id }')
     } else {
         // TODO(VKislov): DOMA-5239 Should not receive deleted instances with admin context
         bankAccounts = await BankAccount.getAll(context, {
@@ -358,7 +358,7 @@ async function requestTransactions ({ dateInterval, userId, organization, bankSy
                 },
             },
             deletedAt: null,
-        })
+        }, 'id number integrationContext { id }')
     }
 
     for (const statementDate of dateInterval) {
