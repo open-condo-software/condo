@@ -137,7 +137,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                         organization: { id_in: residentOrganizationIds },
                         deletedAt: null,
                         status: CONTEXT_FINISHED_STATUS,
-                    })
+                    }, 'id organization { id }')
                     const billingAccounts = await BillingAccount.getAll(context, {
                         context: { id_in: billingIntegrationContexts.map(context => context.id) },
                         deletedAt: null,
