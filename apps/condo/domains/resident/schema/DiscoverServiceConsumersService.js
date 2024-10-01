@@ -275,7 +275,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                         const [lastReceipt] = await BillingReceipt.getAll(context, { account: { id_in: billingAccountsIds } }, {
                             sortBy: 'period_DESC',
                             first: 1,
-                        })
+                        }, 'id account { id }')
                         if (lastReceipt) {
                             billingReceiptsIdsWithoutDuplicates.push(lastReceipt.account.id)
                         } else {
@@ -328,7 +328,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                             unitName: item.unitName,
                             number: item.number,
                         },
-                    }, { sortBy: ['period_DESC'], first: 1 })
+                    }, 'id category { id }', { sortBy: ['period_DESC'], first: 1 })
 
                     if (receipts.length === 0) {
                         // if no receipts found - not create service consumer

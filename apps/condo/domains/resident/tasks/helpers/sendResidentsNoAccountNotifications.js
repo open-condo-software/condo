@@ -188,9 +188,10 @@ const sendResidentsNoAccountNotificationsForPeriod = async (period, billingConte
         status: CONTEXT_FINISHED_STATUS,
         deletedAt: null,
     }
+    const fields = 'id integration { id skipNoAccountNotifications } organization { id }'
     const billingContexts = billingContextId
-        ? [ await BillingIntegrationOrganizationContext.getOne(context, { id: billingContextId, ...contextWhere }) ]
-        : await loadListByChunks({ context, list: BillingIntegrationOrganizationContext, where: contextWhere })
+        ? [ await BillingIntegrationOrganizationContext.getOne(context, { id: billingContextId, ...contextWhere }, fields) ]
+        : await loadListByChunks({ context, list: BillingIntegrationOrganizationContext, where: contextWhere, fields })
 
     if (isEmpty(billingContexts) || isEmpty(billingContexts[0])) throw new Error(INVALID_CONTEXT_PROVIDED_ERROR)
 

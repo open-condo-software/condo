@@ -93,12 +93,17 @@ const validateAndNormalizeData = async (context, data) => {
     if (isEmpty(scopes)) throw new GQLError(ERRORS.SCOPES_IS_EMPTY, context)
 
     /** Validate category id */
-    const categoryData = await BillingCategory.getOne(context, { id: category.id, deletedAt: null })
+    const categoryData = await BillingCategory.getOne(context, { id: category.id, deletedAt: null },
+        'id name nameNonLocalized',
+    )
 
     if (isEmpty(categoryData)) throw new GQLError(ERRORS.INVALID_BILLING_CATEGORY_PROVIDED, context)
 
     /** Validate billing context id */
-    const contextData = await BillingIntegrationOrganizationContext.getOne(context, { id: billingIntegrationContext.id, deletedAt: null, status: CONTEXT_FINISHED_STATUS })
+    const contextData = await BillingIntegrationOrganizationContext.getOne(
+        context, { id: billingIntegrationContext.id, deletedAt: null, status: CONTEXT_FINISHED_STATUS },
+        'id organization { id }'
+    )
     const organizationId = get(contextData, 'organization.id')
 
     /** Validate organization id */

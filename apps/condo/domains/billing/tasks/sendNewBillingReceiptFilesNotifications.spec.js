@@ -106,7 +106,7 @@ describe('sendNewBillingReceiptFilesNotifications', () => {
 
         it('success case', async () => {
             const watermark = dayjs().toISOString()
-            const billingReceiptFile = await createBillingReceiptFile(adminContext, receiptByAdmin, context)
+            await createBillingReceiptFile(adminContext, receiptByAdmin, context)
             const [contact] = await createTestContact(admin, organization, organizationProperty, {
                 unitName: account.unitName,
                 unitType: account.unitType,
@@ -173,7 +173,7 @@ describe('sendNewBillingReceiptFilesNotifications', () => {
 
         it('Watermark filtering out files', async () => {
             const watermark = dayjs().add(1, 'hours').toISOString()
-            const billingReceiptFile = await createBillingReceiptFile(adminContext, receiptByAdmin, context)
+            await createBillingReceiptFile(adminContext, receiptByAdmin, context)
             const [contact] = await createTestContact(admin, organization, organizationProperty, {
                 unitName: account.unitName,
                 unitType: account.unitType,
@@ -202,7 +202,7 @@ describe('sendNewBillingReceiptFilesNotifications', () => {
             const watermark = dayjs().toISOString()
             const [billingProperty] = await createTestBillingProperty(admin, context)
             const [billingReceipt] = await createTestBillingReceipt(admin, context, billingProperty, account)
-            const billingReceiptFile = await createBillingReceiptFile(adminContext, billingReceipt, context)
+            await createBillingReceiptFile(adminContext, billingReceipt, context)
             const [orgProperty] = await createTestProperty(admin, organization, {
                 address: billingProperty.address,
                 addressMeta: billingProperty.addressMeta,
@@ -240,7 +240,7 @@ describe('sendNewBillingReceiptFilesNotifications', () => {
             const watermark = dayjs().toISOString()
             const [billingProperty] = await createTestBillingProperty(admin, context)
             const [billingReceipt] = await createTestBillingReceipt(admin, context, billingProperty, account)
-            const billingReceiptFile = await createBillingReceiptFile(adminContext, billingReceipt, context)
+            await createBillingReceiptFile(adminContext, billingReceipt, context)
             const [orgProperty] = await createTestProperty(admin, organization, {
                 address: billingProperty.address,
                 addressMeta: billingProperty.addressMeta,
