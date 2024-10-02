@@ -381,6 +381,7 @@ export function generateReactHooks<
 
     function useAllObjects (variables: QueryVariables, options?: QueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>) {
         const fetchPolicy = get(options, 'fetchPolicy')
+        const skip = get(options, 'skip')
         const { objs, count, error, loading, refetch: _refetch, fetchMore, stopPolling } = useObjects(variables, {
             ...options,
             fetchPolicy: fetchPolicy && fetchPolicy !== 'no-cache' ? fetchPolicy : 'network-only',
@@ -414,20 +415,22 @@ export function generateReactHooks<
         }, [fetchMore])
 
         useEffect(() => {
+            if (skip) return
             if (!loading && !firstPageLoaded) {
                 setData(objs)
                 setFirstPageLoaded(true)
             }
-        }, [objs, loading, firstPageLoaded])
+        }, [objs, loading, firstPageLoaded, skip])
 
         useEffect(() => {
+            if (skip) return
             if (!firstPageLoaded) return
             if (data.length === 0) return
             if (count <= data.length) return
             if (error || fetchMoreError) return
 
             loadMore(data.length)
-        }, [count, data.length, error, fetchMoreError, firstPageLoaded, loadMore])
+        }, [count, data.length, error, fetchMoreError, firstPageLoaded, loadMore, skip])
 
         return {
             loading,
