@@ -186,6 +186,7 @@ describe('MarketCategory', () => {
                 {
                     code: 'BAD_USER_INPUT',
                     type: 'INVALID_MOBILE_SETTINGS',
+                    message: '"mobileSettings" field validation error. JSON was not in the correct format',
                     variable: ['data', 'mobileSettings'],
                 },
                 'obj'

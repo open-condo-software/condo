@@ -4,10 +4,9 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
-
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, makeLoggedInClient, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, makeLoggedInClient } = require('@open-condo/keystone/test.utils')
 const {
-    catchErrorFrom,
+    expectToThrowGQLError,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObj,
@@ -36,12 +35,12 @@ const {
     SOME_RANDOM_LETTERS,
 } = require('@condo/domains/organization/utils/tin.utils.spec')
 const { DEFAULT_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithServiceUser, makeClientWithSupportUser, createTestUser,
+const {
+    makeClientWithNewRegisteredAndLoggedInUser, makeClientWithServiceUser, makeClientWithSupportUser, createTestUser,
     createTestUserRightsSet, updateTestUser,
 } = require('@condo/domains/user/utils/testSchema')
 
 const { ERRORS } = require('./Organization')
-
 
 describe('Organization', () => {
     let admin
@@ -110,7 +109,7 @@ describe('Organization', () => {
                 expect(organizations).toEqual([expect.objectContaining({
                     id: userClient.organization.id,
                     name: userClient.organization.name,
-                    description:userClient.organization.description,
+                    description: userClient.organization.description,
                 })])
             })
             test('User can read all organizations if custom access is provided', async () => {
@@ -290,29 +289,15 @@ describe('Organization', () => {
                 [SOME_RANDOM_LETTERS, RUSSIA_COUNTRY],
             ]
             test.each(INVALID_CASES)('TIN: %p, Country: %p', async (tin, country) => {
-                await catchErrorFrom(async () => {
+                await expectToThrowGQLError(async () => {
                     await registerNewOrganization(user, {
                         tin,
                         country,
                     })
-                }, ({ errors }) => {
-                    console.log(errors[0])
-                    console.log(errors[0].originalError.errors[0].data.messages)
-                    expect(errors).toEqual(expect.objectContaining([
-                        expect.objectContaining({
-                            name: 'GraphQLError',
-                            path: ['obj'],
-                            originalError: expect.objectContaining({
-                                errors: expect.arrayContaining([
-                                    expect.objectContaining({
-                                        data: expect.objectContaining({
-                                            messages: expect.arrayContaining(['Tin field has not a valid values supplied']),
-                                        }),
-                                    }),
-                                ]),
-                            }),
-                        }),
-                    ]))
+                }, {
+                    'code': 'INTERNAL_ERROR',
+                    'type': 'SUB_GQL_ERROR',
+                    'message': 'Tin field has not a valid values supplied',
                 })
             })
         })
@@ -476,7 +461,7 @@ describe('Organization', () => {
 
                 await expectToThrowGQLError(
                     async () => await createTestOrganization(admin, { phone: '42' }),
-                    { ...COMMON_ERRORS.WRONG_PHONE_FORMAT, variable: ['data', 'phone'] }
+                    { ...COMMON_ERRORS.WRONG_PHONE_FORMAT, variable: ['data', 'phone'] },
                 )
             })
         })
@@ -493,41 +478,41 @@ describe('Organization', () => {
             })
             test('cannot be includes emails or url', async () => {
                 await expectToThrowGQLError(async () => {
-                    await createTestOrganization(admin, { name:  `${faker.lorem.sentence(5)}. ${faker.internet.url()}` })
+                    await createTestOrganization(admin, { name: `${faker.lorem.sentence(5)}. ${faker.internet.url()}` })
                 }, ERRORS.NAME_IS_INVALID)
                 await expectToThrowGQLError(async () => {
-                    await createTestOrganization(admin, { name:  `${faker.lorem.sentence(5)}. ${faker.internet.email()}` })
+                    await createTestOrganization(admin, { name: `${faker.lorem.sentence(5)}. ${faker.internet.email()}` })
                 }, ERRORS.NAME_IS_INVALID)
 
                 const [org] = await createTestOrganization(admin)
                 await expectToThrowGQLError(async () => {
-                    await updateTestOrganization(admin, org.id, { name:  `${faker.lorem.sentence(5)}. ${faker.internet.url()}` })
+                    await updateTestOrganization(admin, org.id, { name: `${faker.lorem.sentence(5)}. ${faker.internet.url()}` })
                 }, ERRORS.NAME_IS_INVALID)
                 await expectToThrowGQLError(async () => {
-                    await updateTestOrganization(admin, org.id, { name:  `${faker.lorem.sentence(5)}. ${faker.internet.email()}` })
+                    await updateTestOrganization(admin, org.id, { name: `${faker.lorem.sentence(5)}. ${faker.internet.email()}` })
                 }, ERRORS.NAME_IS_INVALID)
             })
             test('cannot be includes emails or url - repeated requests', async () => {
                 await expectToThrowGQLError(async () => {
-                    await createTestOrganization(admin, { name:  `${faker.lorem.sentence(5)}. ${faker.internet.url()}` })
+                    await createTestOrganization(admin, { name: `${faker.lorem.sentence(5)}. ${faker.internet.url()}` })
                 }, ERRORS.NAME_IS_INVALID)
                 await expectToThrowGQLError(async () => {
-                    await createTestOrganization(admin, { name:  `${faker.lorem.sentence(5)}. ${faker.internet.url()}` })
+                    await createTestOrganization(admin, { name: `${faker.lorem.sentence(5)}. ${faker.internet.url()}` })
                 }, ERRORS.NAME_IS_INVALID)
 
                 await expectToThrowGQLError(async () => {
-                    await createTestOrganization(admin, { name:  `${faker.lorem.sentence(5)}. ${faker.internet.email()}` })
+                    await createTestOrganization(admin, { name: `${faker.lorem.sentence(5)}. ${faker.internet.email()}` })
                 }, ERRORS.NAME_IS_INVALID)
                 await expectToThrowGQLError(async () => {
-                    await createTestOrganization(admin, { name:  `${faker.lorem.sentence(5)}. ${faker.internet.email()}` })
+                    await createTestOrganization(admin, { name: `${faker.lorem.sentence(5)}. ${faker.internet.email()}` })
                 }, ERRORS.NAME_IS_INVALID)
             })
             test('cannot be includes cyrillic url', async () => {
                 await expectToThrowGQLError(async () => {
-                    await createTestOrganization(admin, { name:  'http://КАКОЙ-ТО-САЙТ.РФ' })
+                    await createTestOrganization(admin, { name: 'http://КАКОЙ-ТО-САЙТ.РФ' })
                 }, ERRORS.NAME_IS_INVALID)
                 await expectToThrowGQLError(async () => {
-                    await createTestOrganization(admin, { name:  'https://кликни-на-меня.рф' })
+                    await createTestOrganization(admin, { name: 'https://кликни-на-меня.рф' })
                 }, ERRORS.NAME_IS_INVALID)
             })
             test('can be simple name', async () => {

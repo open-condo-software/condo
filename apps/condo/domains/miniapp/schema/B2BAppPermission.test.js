@@ -5,7 +5,7 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
-const { makeLoggedInAdminClient, makeClient, expectToThrowAccessDeniedErrorToObjects } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
@@ -36,7 +36,6 @@ const {
     makeClientWithServiceUser,
 } = require('@condo/domains/user/utils/testSchema')
 
-
 describe('B2BAppPermission', () => {
     let admin
     let support
@@ -66,7 +65,7 @@ describe('B2BAppPermission', () => {
         await createTestB2BAppContext(manager, app, org)
     })
     describe('CRUD tests', () => {
-        describe('Create',  () =>  {
+        describe('Create', () => {
             let permission
             afterEach(async () => {
                 if (permission) {
@@ -328,7 +327,7 @@ describe('B2BAppPermission', () => {
                 })
             })
         })
-        describe('key',  () => {
+        describe('key', () => {
             describe('Must follow OrganizationEmployeeRole rules', () => {
                 let permission
                 afterEach(async () => {
@@ -376,6 +375,7 @@ describe('B2BAppPermission', () => {
                         }, {
                             code: 'BAD_USER_INPUT',
                             type: PERMISSION_KEY_WRONG_FORMAT_ERROR,
+                            message: 'Incorrect key format. The key must start with the prefix "can", have lowerCamelCase and answer the question: "what is allowed to the user with this key?". Example: canManagePasses, canReadConfig, etc.',
                         });
                         [permission] = await createTestB2BAppPermission(admin, app)
                         await expectToThrowGQLError(async () => {
@@ -385,6 +385,7 @@ describe('B2BAppPermission', () => {
                         }, {
                             code: 'BAD_USER_INPUT',
                             type: PERMISSION_KEY_WRONG_FORMAT_ERROR,
+                            message: 'Incorrect key format. The key must start with the prefix "can", have lowerCamelCase and answer the question: "what is allowed to the user with this key?". Example: canManagePasses, canReadConfig, etc.',
                         })
                     })
                 })
@@ -440,6 +441,7 @@ describe('B2BAppPermission', () => {
                     }, {
                         code: 'BAD_USER_INPUT',
                         type: PERMISSION_NAME_INVALID_LENGTH_ERROR,
+                        message: 'Permission name was too long. Make sure its following the guidelines provided in the field docs',
                     })
 
                     const [permission] = await createTestB2BAppPermission(admin, app)
@@ -451,6 +453,7 @@ describe('B2BAppPermission', () => {
                     }, {
                         code: 'BAD_USER_INPUT',
                         type: PERMISSION_NAME_INVALID_LENGTH_ERROR,
+                        message: 'Permission name was too long. Make sure its following the guidelines provided in the field docs',
                     })
 
                     await updateTestB2BAppPermission(admin, permission.id, {

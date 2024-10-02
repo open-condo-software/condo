@@ -319,6 +319,7 @@ describe('MarketItemFile', () => {
             }, {
                 code: 'BAD_USER_INPUT',
                 type: 'FORBIDDEN_FILE_TYPE',
+                message: 'Expected file to be one of the following mimetypes: "image/jpeg", "image/png", "image/heic". But got: text/plain',
             })
         })
     })
