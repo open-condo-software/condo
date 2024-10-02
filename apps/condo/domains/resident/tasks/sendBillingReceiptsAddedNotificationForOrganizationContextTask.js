@@ -1,12 +1,13 @@
+const dayjs = require('dayjs')
 const get = require('lodash/get')
 const groupBy = require('lodash/groupBy')
 const isEmpty = require('lodash/isEmpty')
-const isFunction = require('lodash/isFunction')
 const isNull = require('lodash/isNull')
 const { v4: uuid } = require('uuid')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
+const { getRedisClient } = require('@open-condo/keystone/redis')
 const { find, getById, getSchemaCtx } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
 const { getLocalized } = require('@open-condo/locales/loader')
@@ -90,16 +91,24 @@ const prepareAndSendNotification = async (context, receipt, resident, parentTask
  * Prepares data for sendMessage to resident on available billing receipt, then tries to send the message
  * @param {BillingIntegrationOrganizationContext} context
  * @param {string} lastSync
- * @param {Function} onLastDtChange
  * @param {uuid} parentTaskId
  * @returns {Promise<void>}
  */
-async function sendBillingReceiptsAddedNotificationForOrganizationContext (context, lastSync, onLastDtChange, parentTaskId) {
+async function sendBillingReceiptsAddedNotificationForOrganizationContext (context, lastSync, parentTaskId) {
     const contextId = get(context, 'id')
     if (!contextId) throw new Error(`Invalid BillingIntegrationOrganizationContext, cannot get context.id. Context: ${context}`)
     const { prevMonthStart, thisMonthStart } = getStartDates()
     const { keystone } = getSchemaCtx('Message')
-
+    const redisClient = getRedisClient()
+    const handleLastDtChange = async (createdAt) => {
+        const redisKey = `LAST_SEND_BILLING_RECEIPT_NOTIFICATION_CREATED_AT:${context.id}`
+        const lastSyncDate = await redisClient.get(redisKey)
+        if (!!lastSyncDate && dayjs(lastSyncDate).isAfter(dayjs(createdAt))) {
+            return
+        }
+        await redisClient.set(redisKey, dayjs(createdAt).toISOString())
+    }
+    
     const receiptsWhere = {
         period_in: [prevMonthStart, thisMonthStart],
         createdAt_gt: lastSync,
@@ -210,10 +219,9 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
 
 
     // Store receipt.createdAt as lastDt in order to continue from this point on next execution
-    if (isFunction(onLastDtChange) && !isEmpty(lastReceipt)) await onLastDtChange(lastReceipt.createdAt)
+    if (!isEmpty(lastReceipt)) await handleLastDtChange(lastReceipt.createdAt)
 
     logger.info({ msg: 'sent billing receipts', successCount, parentTaskId, contextId })
-    
 }
 
 const taskName = 'sendBillingReceiptsAddedNotificationForOrganizationContextTask'
