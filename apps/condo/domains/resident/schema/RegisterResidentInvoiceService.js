@@ -36,7 +36,7 @@ const ERRORS = {
     ITEM_FROM_OTHER_ORGANIZATION: {
         code: BAD_USER_INPUT,
         type: ERROR_ITEM_FROM_OTHER_ORGANIZATION,
-        message: 'Item from other organization. Check line ${rowNumber}',
+        message: 'Item from other organization. Check line {rowNumber}',
         messageForUser: 'api.resident.registerResidentInvoice.ITEM_FROM_OTHER_ORGANIZATION',
     },
     EMPTY_ROWS: {

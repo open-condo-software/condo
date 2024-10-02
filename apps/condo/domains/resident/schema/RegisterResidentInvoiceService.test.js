@@ -239,7 +239,7 @@ describe('RegisterResidentInvoiceService', () => {
             ), {
                 code: 'BAD_USER_INPUT',
                 type: 'ITEM_FROM_OTHER_ORGANIZATION',
-                message: 'Item from other organization. Check line 1',
+                message: 'Item from other organization. Check line {rowNumber}',
                 messageForUser: 'api.resident.registerResidentInvoice.ITEM_FROM_OTHER_ORGANIZATION',
                 messageInterpolation: { rowNumber: 1 },
             }, 'result')
