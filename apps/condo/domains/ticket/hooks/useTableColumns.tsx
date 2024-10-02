@@ -15,6 +15,7 @@ import { getOptionFilterDropdown, getFilterIcon } from '@condo/domains/common/co
 import {
     getAddressRender,
     getDateRender,
+    getFullUnitRender,
     getTableCellRenderer,
 } from '@condo/domains/common/components/Table/Renders'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
@@ -223,7 +224,7 @@ export function useTableColumns<T> (
                 key: 'unitName',
                 sorter: true,
                 width: COLUMNS_WIDTH.unitName,
-                render: getUnitRender(intl, search),
+                render: getFullUnitRender(intl, search),
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'unitName'),
                 filterIcon: getFilterIcon,
                 ellipsis: true,
