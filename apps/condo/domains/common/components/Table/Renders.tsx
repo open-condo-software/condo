@@ -269,7 +269,7 @@ const getUnitMessage = (unit, unitNamePrefix, postfix) => {
 
 const getUnitExtraTitle = (unit, unitType, sectionName, sectionType, floorName, intl): string => {
     const SectionTypeMessage = intl.formatMessage({ id: `field.sectionType.${sectionType}` })
-    const UnitTypeMessage = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${unitType}` })
+    const UnitTypeMessage = intl.formatMessage({ id: `field.UnitType.${unitType}` })
     const FloorMessage = intl.formatMessage({ id: 'field.floorName' })
 
     const sectionNameTitle = sectionName ? `${SectionTypeMessage} ${sectionName}` : ''
