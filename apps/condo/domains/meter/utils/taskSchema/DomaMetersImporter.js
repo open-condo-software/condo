@@ -61,7 +61,7 @@ class DomaMetersImporter extends AbstractMetersImporter {
         DATE_COLUMN_INDEXES
             .filter(index => ExcelParser.isExcelDate(row[index]))
             .forEach(index => {
-                row[index] = ExcelParser.parseExcelDate(row[index])
+                row[index] = ExcelParser.parseExcelDate(+row[index])
             })
 
         return {

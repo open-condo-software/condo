@@ -292,9 +292,9 @@ describe('DomaMetersImporter', () => {
     test('Transforms excel dates to format YYYY-MM-DD', () => {
         // see packages/keystone/file/file-types/excel for more info about strange dates
         const excelDate = '45532'
-        const expectedDate = '2024-08-28'
+        const expectedDate = '2024-08-28T00:00:00.000Z'
         const excelDateWithTime = '45557.16903935185'
-        const expectedDateWithTime = '2024-09-22T09:03:25'
+        const expectedDateWithTime = '2024-09-22T04:03:25.000Z'
 
         const fakeAddress = faker.address.streetAddress()
         const rows = [
