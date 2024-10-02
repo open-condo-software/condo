@@ -72,7 +72,7 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
             access: access.canResetUser,
             schema: 'resetUser(data: ResetUserInput!): ResetUserOutput',
             doc: {
-                summary: 'Used by QA for cleaning existing test user record to avoid utilizing every time new phone and email, which is hard to obtain again and again for every manual testing procedure',
+                summary: 'Used for cleaning existing user to avoid utilizing every time new phone and email',
                 errors: ERRORS,
             },
             resolver: async (parent, args, context) => {
