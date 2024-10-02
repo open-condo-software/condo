@@ -1,5 +1,7 @@
 const excel = require('xlsx')
 
+const FIVE_OR_MORE_DIGITS_IN_STRING = /^\d{5,}$/
+
 class ExcelParser {
 
     constructor (buffer) {
@@ -82,7 +84,7 @@ class ExcelParser {
         const [daysFromEpoch] = serial.toString().split('.')
 
         // 2020-10-31 stands for 44927 days from epoch, so must be enough to not mistake with YYYY.MM
-        return daysFromEpoch && daysFromEpoch.length > 4
+        return daysFromEpoch && FIVE_OR_MORE_DIGITS_IN_STRING.test(daysFromEpoch)
     }
 
     async parse () {
