@@ -6,7 +6,7 @@ import dayjs from 'dayjs'
 import { DocumentNode } from 'graphql'
 import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useMutation, useQuery } from '@open-condo/next/apollo'
@@ -381,25 +381,18 @@ export function generateReactHooks<
 
     function useAllObjects (variables: QueryVariables, options?: QueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>) {
         const fetchPolicy = get(options, 'fetchPolicy')
+        const skip = get(options, 'skip')
         const { objs, count, error, loading, refetch: _refetch, fetchMore, stopPolling } = useObjects(variables, {
             ...options,
             fetchPolicy: fetchPolicy && fetchPolicy !== 'no-cache' ? fetchPolicy : 'network-only',
         })
         const [data, setData] = useState(objs)
         const [fetchMoreError, setFetchMoreError] = useState()
-        const innerLoadingRef = useRef(false)
-
-        useEffect(() => {
-            innerLoadingRef.current = loading
-        }, [loading])
+        const [firstPageLoaded, setFirstPageLoaded] = useState<boolean>(false)
 
         // NOTE: returns only the first part of the data
         const refetch: IRefetchType<GQLObject, QueryVariables> = useCallback((...args) => {
             setData([])
-            // NOTE: refetch from Apollo does not immediately update loading status.
-            // Because of this, the resulting array contains outdated data that has already been loaded
-            // That's why we make our own loading indicator to prevent this from happening.
-            innerLoadingRef.current = true
             return _refetch(...args)
         }, [_refetch])
 
@@ -407,34 +400,37 @@ export function generateReactHooks<
             setData([])
         }, [variables])
 
-        useEffect(() => {
-            const isAllDataLoaded = objs.length === count || data.length === count
-            if (isAllDataLoaded || loading || error || fetchMoreError || innerLoadingRef.current) {
-                return
-            }
-
-            if (data.length === 0) {
-                setData(objs)
-                return
-            }
-
-            fetchMore({
-                variables: {
-                    skip: data.length,
-                },
-                updateQuery (previousData: IUseObjectsQueryReturnType<GQLObject>, { fetchMoreResult, variables: { skip } }) {
-                    // Slicing is necessary because the existing data is immutable, and frozen in development.
-                    const updatedObjs = previousData.objs.slice(0)
-                    for (let i = 0; i < fetchMoreResult.objs.length; ++i) {
-                        updatedObjs[skip + i] = fetchMoreResult.objs[i]
-                    }
-                    return { ...previousData, objs: updatedObjs, meta: fetchMoreResult.meta }
-                },
-            })
+        const loadMore = useCallback(async (skip) => {
+            try {
+                const { data: fetchedData } = await fetchMore({
+                    variables: {
+                        skip: skip,
+                    },
+                })
                 // @ts-ignore
-                .then(({ data }) => setData(prevData => [...prevData, ...data.objs]))
-                .catch(e => setFetchMoreError(e))
-        }, [loading, data.length])
+                setData(prevData => [...prevData, ...fetchedData.objs])
+            } catch (error) {
+                setFetchMoreError(error)
+            }
+        }, [fetchMore])
+
+        useEffect(() => {
+            if (skip) return
+            if (!loading && !firstPageLoaded) {
+                setData(objs)
+                setFirstPageLoaded(true)
+            }
+        }, [objs, loading, firstPageLoaded, skip])
+
+        useEffect(() => {
+            if (skip) return
+            if (!firstPageLoaded) return
+            if (data.length === 0) return
+            if (count <= data.length) return
+            if (error || fetchMoreError) return
+
+            loadMore(data.length)
+        }, [count, data.length, error, fetchMoreError, firstPageLoaded, loadMore, skip])
 
         return {
             loading,
