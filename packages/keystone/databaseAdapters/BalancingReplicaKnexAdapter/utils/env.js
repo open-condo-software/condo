@@ -4,13 +4,14 @@ const ajv = new Ajv()
 
 const DB_URL_PROTOCOL_PREFIX = 'custom:'
 const DB_URL_PATTERN = new RegExp(`${DB_URL_PROTOCOL_PREFIX}{.+}`)
+const ANY_CHAR_PATTERNS = '^.+$'
 
 const DB_URL_SCHEMA = {
     type: 'object',
     minProperties: 1,
     additionalProperties: false,
     patternProperties: {
-        '^.+$': {
+        [ANY_CHAR_PATTERNS]: {
             type: 'string',
             pattern: '^postgresql://.+',
         },
@@ -31,7 +32,7 @@ const validateDBConfig = ajv.compile(DB_URL_SCHEMA)
  */
 function getNamedDBs (databaseUrl) {
     if (!databaseUrl || typeof databaseUrl !== 'string' || !DB_URL_PATTERN.test(databaseUrl)) {
-        throw new Error('Invalid DB url. Expected prefix "custom:" followed by stringified connection-string dictionary')
+        throw new TypeError('Invalid DB url. Expected prefix "custom:" followed by stringified connection-string dictionary')
     }
 
     const parsedDBs = JSON.parse(databaseUrl.substring(DB_URL_PROTOCOL_PREFIX.length))
@@ -40,9 +41,56 @@ function getNamedDBs (databaseUrl) {
         return parsedDBs
     }
 
-    throw new Error(`Invalid DB config inside databaseUrl. ${ajv.errorsText(validateDBConfig.errors)}`)
+    throw new TypeError(`Invalid DB config inside databaseUrl. ${ajv.errorsText(validateDBConfig.errors)}`)
+}
+
+function _createBasicReplicaPoolsSchema (availableDatabases) {
+    return {
+        type: 'object',
+        minProperties: 1,
+        additionalProperties: false,
+        patternProperties: {
+            '^.+$': {
+                type: 'object',
+                properties: {
+                    databases: {
+                        type: 'array',
+                        items: {
+                            enum: availableDatabases,
+                        },
+                        minItems: 1,
+                    },
+                    writable: { type: 'boolean' },
+                },
+                required: ['databases', 'writable'],
+                additionalProperties: false,
+            },
+        },
+    }
+}
+
+function getReplicaPoolsConfig (configString, availableDatabases) {
+    if (!configString || typeof configString !== 'string') {
+        throw new TypeError(`Invalid DB pools config passed. String was expected, but got ${typeof configString}`)
+    }
+    const parsedConfig = JSON.parse(configString)
+    const validationSchema = _createBasicReplicaPoolsSchema(availableDatabases)
+    const validateConfig = ajv.compile(validationSchema)
+
+    const isValidConfig = validateConfig(parsedConfig)
+
+    if (!isValidConfig) {
+        throw new TypeError(`Invalid DB pools config. ${ajv.errorsText(validateConfig.errors)}`)
+    }
+
+    if (!Object.values(parsedConfig).some(poolConfig => poolConfig.writable)) {
+        throw new TypeError('Invalid DB pools config. Expected at least 1 pool to be writable')
+    }
+
+    return parsedConfig
 }
 
 module.exports = {
     getNamedDBs,
+    getReplicaPoolsConfig,
 }
