@@ -56,18 +56,22 @@ class ExcelParser {
 
         const jsTimestamp = xlSerialOffset + elapsedDays * millisPerDay
         const date = new Date(jsTimestamp)
-        const year = date.getFullYear()
-        const month = (date.getMonth() + 1).toString().padStart(2, '0')
-        const day = date.getDate().toString().padStart(2, '0')
+        const year = date.getUTCFullYear()
+        const month = (date.getUTCMonth() + 1).toString().padStart(2, '0')
+        const day = date.getUTCDate().toString().padStart(2, '0')
 
         let dateString = `${year}-${month}-${day}`
+        let hours = '00'
+        let minutes = '00'
+        let seconds = '00'
+        let milliseconds = '000'
         if (withTime) {
-            const hours = date.getHours().toString().padStart(2, '0')
-            const minutes = date.getMinutes().toString().padStart(2, '0')
-            const seconds = date.getSeconds().toString().padStart(2, '0')
-
-            dateString += `T${hours}:${minutes}:${seconds}`
+            hours = date.getUTCHours().toString().padStart(2, '0')
+            minutes = date.getUTCMinutes().toString().padStart(2, '0')
+            seconds = date.getUTCSeconds().toString().padStart(2, '0')
+            milliseconds = date.getUTCMilliseconds().toString().padStart(3, '0')
         }
+        dateString += `T${hours}:${minutes}:${seconds}.${milliseconds}Z`
         return dateString
     }
 
