@@ -1,43 +1,18 @@
 const dayjs = require('dayjs')
 const get = require('lodash/get')
-const { default: Redlock } = require('redlock')
 
 const { getLogger } = require('@open-condo/keystone/logging')
-const { getRedisClient } = require('@open-condo/keystone/redis')
 const { find } = require('@open-condo/keystone/schema')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { getMonthStart } = require('@condo/domains/common/utils/date')
 const { sendBillingReceiptsAddedNotificationForOrganizationContextTask } = require('@condo/domains/resident/tasks/sendBillingReceiptsAddedNotificationForOrganizationContextTask')
 
-
-const REDIS_LAST_DATE_KEY = 'LAST_SEND_BILLING_RECEIPT_NOTIFICATION_CREATED_AT'
-const rLock = new Redlock([getRedisClient()])
-
 const logger = getLogger('sendBillingReceiptsAddedNotifications')
 
 
 const sendBillingReceiptsAddedNotifications = async (resendFromDt = null, taskId) => {
     const thisMonthStart = getMonthStart()
-    const redisClient = getRedisClient()
-    const handleLastDtChange = async (createdAt) => {
-        let lock = await rLock.acquire([REDIS_LAST_DATE_KEY], 500, {
-            retryDelay: 1000,
-            retryCount: 30,
-            automaticExtensionThreshold: 100,
-            retryJitter: 1000,
-        }) // 0.5 sec
-        try {
-            if (dayjs(await redisClient.get(REDIS_LAST_DATE_KEY)).isAfter(dayjs(createdAt))) {
-                return
-            }
-            await redisClient.set(REDIS_LAST_DATE_KEY, createdAt)
-        }
-        finally {
-            await lock.release()
-        }
-
-    }
 
     /**
      * This represents min value for billingReceipt createdAt to start processing from
@@ -45,9 +20,9 @@ const sendBillingReceiptsAddedNotifications = async (resendFromDt = null, taskId
      * 2. Use createdAt value from last success script execution stored in Redis, else
      * 3. Use thisMonthStart
      */
-    const lastDt = resendFromDt ? resendFromDt.replace(' ', 'T') : await redisClient.get(REDIS_LAST_DATE_KEY) || thisMonthStart
+    const lastDt = resendFromDt ? resendFromDt.replace(' ', 'T') : thisMonthStart
 
-    logger.info({ msg: 'stored date', storedDt: await redisClient.get(REDIS_LAST_DATE_KEY), taskId })
+    logger.info({ msg: 'stored date', storedDt: lastDt, taskId })
 
     const lastSync = new Date(lastDt).toISOString()
     if (!lastSync) throw new Error(`Invalid last sync date: ${lastDt}`)
@@ -62,7 +37,7 @@ const sendBillingReceiptsAddedNotifications = async (resendFromDt = null, taskId
     BillingContexts.forEach((context) => {
         const lastReport = get(context, 'lastReport.finishTime')
         if (dayjs(lastReport).isAfter(dayjs(lastSync))) {
-            sendBillingReceiptsAddedNotificationForOrganizationContextTask.delay(context, lastSync, handleLastDtChange, taskId)
+            sendBillingReceiptsAddedNotificationForOrganizationContextTask.delay(context, lastSync, taskId)
         }
     })
 }
