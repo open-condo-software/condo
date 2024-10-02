@@ -52659,7 +52659,7 @@ type MeterReadingExportTask {
   where: JSON
 
   """ Sorting parameters for records to export """
-  sortBy: JSON
+  sortBy: [SortMeterReadingsBy]
 
   """ Requested export locale, in that the resulting file will be rendered """
   locale: MeterReadingExportTaskLocaleType

@@ -33619,7 +33619,7 @@ export type MeterReadingExportTask = {
   /**  Filtering conditions for records to export  */
   where?: Maybe<Scalars['JSON']>;
   /**  Sorting parameters for records to export  */
-  sortBy?: Maybe<Scalars['JSON']>;
+  sortBy?: Maybe<Array<Maybe<SortMeterReadingsBy>>>;
   /**  Requested export locale, in that the resulting file will be rendered  */
   locale?: Maybe<MeterReadingExportTaskLocaleType>;
   /**  To requested timeZone all datetime fields will be converted  */
