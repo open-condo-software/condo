@@ -33,7 +33,8 @@ const ERRORS = {
         variable: ['data', 'emailFrom'],
         code: BAD_USER_INPUT,
         type: WRONG_FORMAT,
-        message: 'api.user.sendMessageToSupport.WRONG_EMAIL_FORMAT',
+        message: 'Wrong format of specified email',
+        messageForUser: 'api.user.sendMessageToSupport.WRONG_EMAIL_FORMAT',
     },
 }
 
@@ -57,6 +58,10 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
         {
             access: access.canSendMessageToSupport,
             schema: 'sendMessageToSupport(data: SendMessageToSupportInput!): SendMessageToSupportOutput',
+            doc: {
+                summary: 'If you have any problem you can use this to notify our support team',
+                errors: ERRORS,
+            },
             resolver: async (parent, args, context) => {
                 const { data } = args
                 const { dv, sender, text, emailFrom, attachments = [], os, appVersion, lang } = data

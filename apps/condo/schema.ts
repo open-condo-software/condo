@@ -41901,9 +41901,25 @@ export type Mutation = {
    */
   signinAsUser?: Maybe<SigninAsUserOutput>;
   registerNewServiceUser?: Maybe<RegisterNewServiceUserOutput>;
+  /**
+   * If you have any problem you can use this to notify our support team
+   *
+   *
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "code": "BAD_USER_INPUT",
+   *   "type": "WRONG_FORMAT",
+   *   "message": "Wrong format of specified email",
+   *   "messageForUser": "Wrong format of specified email"
+   * }`
+   */
   sendMessageToSupport?: Maybe<SendMessageToSupportOutput>;
   /**
-   * Used by QA for cleaning existing test user record to avoid utilizing every time new phone and email, which is hard to obtain again and again for every manual testing procedure
+   * Used for cleaning existing user to avoid utilizing every time new phone and email
    *
    *
    *
