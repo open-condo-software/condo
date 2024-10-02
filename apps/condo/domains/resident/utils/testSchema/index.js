@@ -22,6 +22,7 @@ const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testS
 const {
     Resident: ResidentGQL,
     ServiceConsumer: ServiceConsumerGQL,
+    MultiPaymentResident: MultiPaymentResidentGQL,
     REGISTER_RESIDENT_MUTATION,
     REGISTER_RESIDENT_INVOICE_MUTATION,
     REGISTER_RESIDENT_SERVICE_CONSUMERS_MUTATION,
@@ -37,6 +38,7 @@ const { makeClientWithResidentUser } = require(
 
 const Resident = generateGQLTestUtils(ResidentGQL)
 const ServiceConsumer = generateGQLTestUtils(ServiceConsumerGQL)
+const MultiPaymentResident = generateGQLTestUtils(MultiPaymentResidentGQL)
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -278,5 +280,6 @@ module.exports = {
     registerResidentInvoiceByTestClient,
     findOrganizationsForAddressByTestClient,
     suggestServiceProviderByTestClient,
+    MultiPaymentResident,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

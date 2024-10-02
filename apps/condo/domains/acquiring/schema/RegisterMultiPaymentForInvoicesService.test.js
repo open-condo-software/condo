@@ -30,7 +30,15 @@ const {
 } = require('@condo/domains/billing/utils/testSchema/testUtils')
 const { INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
 const { createTestInvoice, updateTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
+const {
+    createTestMarketCategory,
+    createTestMarketItem,
+    createTestMarketItemPrice,
+    createTestMarketPriceScope,
+} = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { registerResidentInvoiceByTestClient } = require('@condo/domains/resident/utils/testSchema')
+const { MultiPaymentResident } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('RegisterMultiPaymentForInvoicesService', () => {
@@ -366,6 +374,82 @@ describe('RegisterMultiPaymentForInvoicesService', () => {
                     invoice: expect.objectContaining({ id: invoice2.id }),
                 }),
             ]))
+        })
+
+        test('register multiPayment for invoice from different organization', async () => {
+            const organizationUtils = new TestUtils([ResidentTestMixin])
+            const anotherOrganizationUtils = new TestUtils([ResidentTestMixin])
+            await organizationUtils.init()
+            await anotherOrganizationUtils.init()
+
+            await anotherOrganizationUtils.updateAcquiringContext({
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceImplicitFeeDistributionSchema: [{
+                    recipient: 'organization',
+                    percent: '5',
+                }],
+                invoiceRecipient: createTestRecipient(),
+            })
+
+            const resident = await organizationUtils.createResident()
+
+            await anotherOrganizationUtils.createEmployee('Manager', {
+                canReadMarketItems: true,
+                canManageMarketItems: true,
+                canReadMarketItemPrices: true,
+                canManageMarketItemPrices: true,
+                canReadMarketPriceScopes: true,
+                canManageMarketPriceScopes: true,
+                canReadPaymentsWithInvoices: true,
+                canReadInvoices: true,
+                canManageInvoices: true,
+            })
+            const anotherOrganizationManagerClient = anotherOrganizationUtils.clients.employee['Manager']
+            const [marketCategory] = await createTestMarketCategory(anotherOrganizationUtils.clients.support)
+            const [marketItem] = await createTestMarketItem(anotherOrganizationManagerClient, marketCategory, anotherOrganizationUtils.organization)
+            const [itemPrice] = await createTestMarketItemPrice(anotherOrganizationManagerClient, marketItem)
+            const [priceScope] = await createTestMarketPriceScope(anotherOrganizationManagerClient, itemPrice, anotherOrganizationUtils.property)
+
+            let [invoice] = await registerResidentInvoiceByTestClient(
+                organizationUtils.clients.resident,
+                pick(resident, 'id'),
+                [{
+                    priceScope: pick(priceScope, 'id'),
+                    count: 1,
+                }],
+            );
+
+            // TODO(YEgorLu): DOMA-10269 add tests of express handler for this payments
+            [invoice] = await updateTestInvoice(anotherOrganizationManagerClient, invoice.id, { status: INVOICE_STATUS_PUBLISHED })
+
+            const [result] = await registerMultiPaymentForInvoicesByTestClient(organizationUtils.clients.admin, {
+                invoices: [pick(invoice, 'id')],
+            })
+
+            expect(result).toBeDefined()
+            expect(result).toHaveProperty('multiPaymentId')
+
+            const multiPaymentId = result.multiPaymentId
+            const hostUrl = anotherOrganizationUtils.acquiringIntegration.hostUrl
+            expect(result).toMatchObject({
+                dv: 1,
+                webViewUrl: `${hostUrl}/pay/${multiPaymentId}`,
+                feeCalculationUrl: `${hostUrl}/api/fee/${multiPaymentId}`,
+                directPaymentUrl: `${hostUrl}/api/pay/${multiPaymentId}`,
+                anonymousPaymentUrl: `${hostUrl}/api/anonymous/pay/${multiPaymentId}`,
+            })
+
+            const multiPaymentFromResident = await MultiPaymentResident.getOne(organizationUtils.clients.resident, { id: multiPaymentId })
+            expect(multiPaymentFromResident).not.toBeDefined()
+
+            const paymentsFromResident = await Payment.getAll(organizationUtils.clients.resident, { multiPayment: { id: multiPaymentId } })
+            expect(paymentsFromResident).toHaveLength(0)
+
+            const paymentFromStaff = await Payment.getOne(anotherOrganizationManagerClient, { multiPayment: { id: multiPaymentId } })
+            expect(paymentFromStaff).toBeDefined()
+            expect(paymentFromStaff).toMatchObject({
+                invoice: expect.objectContaining({ id: invoice.id }),
+            })
         })
     })
 })

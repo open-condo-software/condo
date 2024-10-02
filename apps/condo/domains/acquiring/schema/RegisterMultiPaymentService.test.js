@@ -46,6 +46,7 @@ const {
     updateTestAcquiringIntegration, updateTestPayment, updateTestMultiPayment,
     getRandomHiddenCard,
     MultiPayment,
+    Payment,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const {
     createTestBillingCategory,
@@ -76,6 +77,12 @@ const {
     generateInvoiceRow,
 } = require('@condo/domains/marketplace/utils/testSchema')
 const { Invoice } = require('@condo/domains/marketplace/utils/testSchema')
+const {
+    createTestMarketCategory,
+    createTestMarketItem,
+    createTestMarketItemPrice,
+    createTestMarketPriceScope,
+} = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const {
     createTestOrganizationEmployeeRole,
@@ -87,6 +94,8 @@ const {
     updateTestServiceConsumer,
     createTestResident,
     createTestServiceConsumer,
+    registerResidentInvoiceByTestClient,
+    MultiPaymentResident,
 } = require('@condo/domains/resident/utils/testSchema')
 const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const {
@@ -1658,6 +1667,115 @@ describe('RegisterMultiPaymentService', () => {
                 integration: { id: dummyAcquiringIntegration.id },
                 amount: invoiceSum.toString(),
                 implicitFee: Big(invoiceSum).mul(implicitFeePercent).div(100).toFixed(8),
+            })
+        })
+
+        test('Invoices for different organizations are supported', async () => {
+            const [organization] = await createTestOrganization(adminClient)
+            const [anotherOrganization] = await createTestOrganization(adminClient)
+            const [property] = await createTestProperty(adminClient, organization)
+            const [anotherProperty] = await createTestProperty(adminClient, anotherOrganization)
+
+            const residentClient = await makeClientWithResidentUser()
+            const unitType = FLAT_UNIT_TYPE
+            const unitName = faker.lorem.word()
+
+            const [resident] = await registerResidentByTestClient(
+                residentClient,
+                {
+                    address: property.address,
+                    addressMeta: property.addressMeta,
+                    unitType,
+                    unitName,
+                })
+
+            const staffClient = await makeClientWithStaffUser()
+            const [role] = await createTestOrganizationEmployeeRole(adminClient, anotherOrganization, {
+                canReadMarketItems: true,
+                canManageMarketItems: true,
+                canReadMarketItemPrices: true,
+                canManageMarketItemPrices: true,
+                canReadMarketPriceScopes: true,
+                canManageMarketPriceScopes: true,
+                canReadPaymentsWithInvoices: true,
+                canReadInvoices: true,
+                canManageInvoices: true,
+            })
+            await createTestOrganizationEmployee(adminClient, anotherOrganization, staffClient.user, role)
+
+            const implicitFeePercent = '5'
+            await createTestAcquiringIntegrationContext(adminClient, anotherOrganization, dummyAcquiringIntegration, {
+                invoiceStatus: CONTEXT_FINISHED_STATUS,
+                invoiceRecipient: createTestRecipient(),
+                invoiceImplicitFeeDistributionSchema: [{
+                    recipient: 'organization',
+                    percent: implicitFeePercent,
+                }],
+            })
+
+            // TODO (YEgorLu): think about adding MarketplaceMixin for TestUtils
+            const [marketCategory] = await createTestMarketCategory(adminClient)
+            const [marketItem] = await createTestMarketItem(staffClient, marketCategory, anotherOrganization)
+            const [itemPrice] = await createTestMarketItemPrice(staffClient, marketItem)
+            const [priceScope] = await createTestMarketPriceScope(staffClient, itemPrice, anotherProperty)
+
+            let [invoice] = await registerResidentInvoiceByTestClient(
+                residentClient,
+                pick(resident, 'id'),
+                [{
+                    priceScope: pick(priceScope, 'id'),
+                    count: 1,
+                }],
+            );
+
+            [invoice] = await updateTestInvoice(staffClient, invoice.id, { status: INVOICE_STATUS_PUBLISHED })
+
+            const invoiceSum = invoice.rows.reduce((sum, { toPay, count }) => sum.plus(Big(toPay).mul(count)), Big(0))
+
+
+            const invoicesFromResident = await Invoice.getAll(residentClient, {}, { sortBy: ['updatedAt_DESC'] })
+
+            expect(invoicesFromResident).toEqual([
+                expect.objectContaining({
+                    id: invoice.id,
+                    client: expect.objectContaining({ id: resident.user.id, name: resident.user.name }),
+                }),
+            ])
+
+            const invoicesFromStaff = await Invoice.getAll(staffClient, {}, { sortBy: ['updatedAt_DESC'] })
+
+            expect(invoicesFromStaff).toEqual([
+                expect.objectContaining({
+                    id: invoice.id,
+                    client: expect.objectContaining({ id: resident.user.id, name: resident.user.name }),
+                }),
+            ])
+
+            const [result] = await registerMultiPaymentByTestClient(residentClient, null, {
+                invoices: [{ id: invoice.id }],
+            })
+
+            expect(result).toMatchObject({
+                dv: 1,
+                multiPaymentId: expect.stringMatching(UUID_RE),
+                webViewUrl: `${dummyAcquiringIntegration.hostUrl}/pay/${result.multiPaymentId}`,
+                feeCalculationUrl: `${dummyAcquiringIntegration.hostUrl}/api/fee/${result.multiPaymentId}`,
+                directPaymentUrl: `${dummyAcquiringIntegration.hostUrl}/api/pay/${result.multiPaymentId}`,
+                getCardTokensUrl: `${dummyAcquiringIntegration.hostUrl}/api/clients/${residentClient.user.id}/card-tokens`,
+            })
+
+            const multiPaymentFromResident = await MultiPaymentResident.getAll(residentClient, { id: result.multiPaymentId })
+            expect(multiPaymentFromResident).toBeDefined()
+            expect(multiPaymentFromResident).toEqual([expect.objectContaining({
+                currencyCode: DEFAULT_CURRENCY_CODE,
+                integration: { id: dummyAcquiringIntegration.id },
+                amount: invoiceSum.toString(),
+            })])
+
+            const paymentFromStaff = await Payment.getOne(staffClient, { multiPayment: { id: result.multiPaymentId } })
+            expect(paymentFromStaff).toBeDefined()
+            expect(paymentFromStaff).toMatchObject({
+                invoice: { id: invoice.id  },
             })
         })
 

@@ -70,6 +70,7 @@ const {
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
 const { createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
+const { MultiPaymentResident } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('MultiPayment', () => {
@@ -893,18 +894,35 @@ describe('MultiPayment', () => {
                 expect(multiPayment).toHaveProperty('status', MULTIPAYMENT_DONE_STATUS)
             })
         })
+        test('mobile resident can see his public data in his own MultiPayments', async () => {
+            const { admin, payments, acquiringIntegration, client } = await makePayerAndPayments()
+            const [createdMultiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
+            const multiPayment = await MultiPaymentResident.getOne(client, { id: createdMultiPayment.id })
+            expect(multiPayment).toBeDefined()
+            expect(multiPayment.id).toBe(createdMultiPayment.id)
+            expect(multiPayment.implicitFee).toBeUndefined()
+            expect(multiPayment.transactionId).toBeUndefined()
+            expect(multiPayment.meta).toBeUndefined()
+        })
         test('mobile resident can\'t see his sensitive data in his own MultiPayments', async () => {
             const { admin, payments, acquiringIntegration, client } = await makePayerAndPayments()
             const [createdMultiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
-            // We use raw: true because when using field access, all fields that are not permitted result in error which stops the test
-            let { data: { objs: multiPayments } } = await MultiPayment.getAll(client, {}, { raw: true })
-            expect(multiPayments).toBeDefined()
-            expect(multiPayments).toHaveLength(1)
-            const retrievedMultiPayment = multiPayments[0]
-            expect(retrievedMultiPayment.id).toBe(createdMultiPayment.id)
-            expect(retrievedMultiPayment.implicitFee).toBeNull()
-            expect(retrievedMultiPayment.transactionId).toBeNull()
-            expect(retrievedMultiPayment.meta).toBeNull()
+            // using getAll to receive raw errors
+            const { errors } = await MultiPayment.getAll(client, { id: createdMultiPayment.id }, { raw: true })
+
+            const sensitiveFields = ['transactionId', 'meta', 'implicitFee']
+            const checkErrorObjects = sensitiveFields.map(sensitiveField =>
+                expect.objectContaining({
+                    'message': 'You do not have access to this resource',
+                    'name': 'AccessDeniedError',
+                    'extensions': {
+                        'code': 'INTERNAL_SERVER_ERROR',
+                    },
+                    'path': ['objs', 0, sensitiveField],
+                })
+            )
+            expect(errors).toEqual(expect.arrayContaining(checkErrorObjects))
         })
+        
     })
 })

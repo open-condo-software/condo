@@ -82,28 +82,13 @@ const RegisterResidentInvoiceService = new GQLCustomSchema('RegisterResidentInvo
                 const { dv, sender } = data
                 const userId = get(context, ['authedItem', 'id'])
 
+                if (data.invoiceRows.length === 0) {
+                    throw new GQLError(ERRORS.EMPTY_ROWS, context)
+                }
+
                 const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
 
                 const resident = await getByCondition('Resident', { deletedAt: null, id: data.resident.id })
-
-                const [acquiringContext] = await find('AcquiringIntegrationContext', {
-                    organization: { id: resident.organization },
-                    invoiceStatus: CONTEXT_FINISHED_STATUS,
-                    deletedAt: null,
-                })
-
-                if (!acquiringContext) {
-                    throw new GQLError(ERRORS.NO_ACQUIRING_CONTEXT, context)
-                }
-
-                const [marketSetting] = await MarketSetting.getAll(context, {
-                    organization: { id: resident.organization },
-                    deletedAt: null,
-                }, { first: 1 })
-
-                if (resident && marketSetting && !get(marketSetting, 'residentAllowedPaymentTypes', []).includes(data.paymentType)) {
-                    throw new GQLError(ERRORS.PROHIBITED_INVOICE_PAYMENT_TYPE, context)
-                }
 
                 const priceScopesCounts = {}
                 const priceScopesIds = data.invoiceRows.map((row) => {
@@ -115,10 +100,41 @@ const RegisterResidentInvoiceService = new GQLCustomSchema('RegisterResidentInvo
 
                 const priceScopes = await MarketPriceScope.getAll(context, { deletedAt: null, id_in: priceScopesIds })
 
+                if (priceScopes.length === 0) {
+                    throw new GQLError(ERRORS.EMPTY_ROWS, context)
+                }
+
+                let someOrganizationId
+                const getOrganizationFromPriceScopes = (i) => get(priceScopes, [i, 'marketItemPrice', 'marketItem', 'organization', 'id'])
                 for (let i = 0; i < priceScopes.length; i++) {
-                    if (get(priceScopes, [i, 'marketItemPrice', 'marketItem', 'organization', 'id']) !== resident.organization) {
+                    if (!someOrganizationId) {
+                        someOrganizationId = getOrganizationFromPriceScopes(i)
+                        continue
+                    }
+                    if (getOrganizationFromPriceScopes(i) !== someOrganizationId) {
                         throw new GQLError(ERRORS.ITEM_FROM_OTHER_ORGANIZATION(i + 1), context)
                     }
+                }
+
+                const organization = get(priceScopes, [0, 'marketItemPrice', 'marketItem', 'organization'])
+
+                const [acquiringContext] = await find('AcquiringIntegrationContext', {
+                    organization: { id: organization.id },
+                    invoiceStatus: CONTEXT_FINISHED_STATUS,
+                    deletedAt: null,
+                })
+
+                if (!acquiringContext) {
+                    throw new GQLError(ERRORS.NO_ACQUIRING_CONTEXT, context)
+                }
+
+                const [marketSetting] = await MarketSetting.getAll(context, {
+                    organization: { id: organization.id },
+                    deletedAt: null,
+                }, { first: 1 })
+
+                if (resident && marketSetting && !get(marketSetting, 'residentAllowedPaymentTypes', []).includes(data.paymentType)) {
+                    throw new GQLError(ERRORS.PROHIBITED_INVOICE_PAYMENT_TYPE, context)
                 }
 
                 const hasMinPrice = priceScopes.some((priceScope) => get(priceScope, ['marketItemPrice', 'price', 0, 'isMin'], false))
@@ -141,7 +157,7 @@ const RegisterResidentInvoiceService = new GQLCustomSchema('RegisterResidentInvo
                 const ticket = await Ticket.create(context, {
                     dv,
                     sender,
-                    organization: { connect: { id: resident.organization } },
+                    organization: { connect: { id: organization.id } },
                     client: { connect: { id: userId } },
                     details: i18n('marketplace.invoice.newTicket.details', { locale }),
                     isPayable: true,
@@ -155,7 +171,7 @@ const RegisterResidentInvoiceService = new GQLCustomSchema('RegisterResidentInvo
                 const invoice = await Invoice.create(context, {
                     dv,
                     sender,
-                    organization: { connect: { id: resident.organization } },
+                    organization: { connect: { id: organization.id } },
                     property: { connect: { id: resident.property } },
                     unitType: resident.unitType,
                     unitName: resident.unitName,
