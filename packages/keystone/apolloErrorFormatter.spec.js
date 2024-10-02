@@ -412,7 +412,7 @@ describe('safeFormatError hide=false', () => {
             },
         })
     })
-    test('safeFormatError(GQLError) with errors = [new Error]', () => {
+    test('safeFormatError(GQLError) with parentErrors = [new Error]', () => {
         const message1 = Date.now().toString()
         const message2 = 'GQL' + (Date.now() % 100).toString()
         const errors = [new Error('World')]
@@ -446,7 +446,7 @@ describe('safeFormatError hide=false', () => {
             },
         })
     })
-    test('safeFormatError(GQLError) with errors = [new GQLError]', () => {
+    test('safeFormatError(GQLError) with parentErrors = [new GQLError]', () => {
         const message1 = Date.now().toString()
         const message2 = 'GQL' + (Date.now() % 100).toString()
         const message3 = 'ERR' + (Date.now() % 800).toString()
@@ -489,7 +489,97 @@ describe('safeFormatError hide=false', () => {
             },
         })
     })
-    test('safeFormatError(GQLError) with nested errors', () => {
+    test('safeFormatError(GQLError) with nested errors level 1', () => {
+        const graphqlMessage = 'GQL' + (Date.now() % 100).toString()
+        const gqlMessage = 'ERR' + (Date.now() % 800).toString()
+        const gqlFields = {
+            code: 'BAD_USER_INPUT',
+            type: 'WRONG_FORMAT',
+            message: gqlMessage,
+        }
+        const validation1 = new Error('KeystoneValidationLevel1')
+        validation1.errors = [new GQLError({ ...gqlFields }, null)]
+        const error = new GraphQLError(graphqlMessage, null, null, null, null, validation1, {})
+        const result = safeFormatError(error)
+        expect(result).toEqual({
+            'name': 'GQLError',
+            'message': graphqlMessage,
+            'extensions': { ...gqlFields },
+            'stack': expect.stringMatching(new RegExp('^Error: KeystoneValidationLevel1')),
+            'fullstack': expect.stringMatching(new RegExp(`^Error: KeystoneValidationLevel1(.*?)Caused By: GQLError: ${gqlMessage}(.*?)`, 's')),
+            'originalError': {
+                'message': 'KeystoneValidationLevel1',
+                'name': 'Error',
+                'stack': expect.stringMatching(new RegExp('^Error: KeystoneValidationLevel1')),
+                'errors': [
+                    {
+                        'extensions': { ...gqlFields },
+                        message: gqlMessage,
+                        name: 'GQLError',
+                        'stack': expect.stringMatching(new RegExp(`^GQLError: ${gqlMessage}`)),
+                    },
+                ],
+            },
+        })
+    })
+    test('safeFormatError(GQLError) with nested errors level 2', () => {
+        const graphqlMessage = 'GQL' + (Date.now() % 100).toString()
+        const gqlF2Message = 'XXX' + (Date.now() % 900).toString()
+        const gqlFields2 = {
+            code: 'BAD_USER_INPUT',
+            type: 'WRONG_FORMAT',
+            message: gqlF2Message,
+        }
+        const gqlF1Message = 'ERR' + (Date.now() % 800).toString()
+        const gqlFields1 = {
+            code: GQLErrorCode.INTERNAL_ERROR,
+            type: GQLInternalErrorTypes.SUB_GQL_ERROR,
+            message: gqlF1Message,
+        }
+        const validation2 = new Error('KeystoneValidationLevel2')
+        validation2.errors = [new GQLError({ ...gqlFields2 }, null)]
+        const validation1 = new Error('KeystoneValidationLevel1')
+        validation1.errors = [new GQLError({ ...gqlFields1 }, null, validation2)]
+        const error = new GraphQLError(graphqlMessage, null, null, null, null, validation1, {})
+        const result = safeFormatError(error)
+        expect(result).toEqual({
+            'name': 'GQLError',
+            'message': graphqlMessage,
+            // NOTE(pahaz): only level 1 should be shown to user!
+            'extensions': { ...gqlFields1 },
+            'stack': expect.stringMatching(new RegExp('^Error: KeystoneValidationLevel1')),
+            'fullstack': expect.stringMatching(new RegExp(`^Error: KeystoneValidationLevel1(.*?)Caused By: GQLError: ${gqlF1Message}(.*?)`, 's')),
+            'originalError': {
+                'message': 'KeystoneValidationLevel1',
+                'name': 'Error',
+                'stack': expect.stringMatching(new RegExp('^Error: KeystoneValidationLevel1')),
+                'errors': [
+                    {
+                        'extensions': { ...gqlFields1 },
+                        'name': 'GQLError',
+                        'message': gqlF1Message,
+                        'stack': expect.stringMatching(new RegExp(`^GQLError: ${gqlF1Message}`)),
+                        'errors': [
+                            {
+                                'errors': [
+                                    {
+                                        'extensions': { ...gqlFields2 },
+                                        'message': gqlF2Message,
+                                        'name': 'GQLError',
+                                        'stack': expect.stringMatching(new RegExp(`^GQLError: ${gqlF2Message}`)),
+                                    },
+                                ],
+                                'message': 'KeystoneValidationLevel2',
+                                'name': 'Error',
+                                'stack': expect.stringMatching(new RegExp('^Error: KeystoneValidationLevel2')),
+                            },
+                        ],
+                    },
+                ],
+            },
+        })
+    })
+    test('safeFormatError(GQLError) with nested wrapped errors', () => {
         const message1 = Date.now().toString()
         const message2 = 'GQL' + (Date.now() % 100).toString()
         const message3 = 'ERR' + (Date.now() % 800).toString()
@@ -509,8 +599,9 @@ describe('safeFormatError hide=false', () => {
         const error = new GraphQLError(message2, null, null, null, null, validation, {})
         const result = safeFormatError(error)
         expect(result).toEqual({
-            'name': 'GraphQLError',
+            'name': 'GQLError',
             'message': message2,
+            'extensions': { ...fields2, message: message3 },
             'stack': expect.stringMatching(new RegExp('^Error: KeystoneValidation')),
             'fullstack': expect.stringMatching(new RegExp(`^Error: KeystoneValidation(.*?)Caused By: GQLError: ${message3}(.*?)Caused By: Error: InError(.*?)Caused By: GQLError: ${message4}`, 's')),
             'originalError': {

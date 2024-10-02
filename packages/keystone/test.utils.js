@@ -770,13 +770,9 @@ const expectToThrowGQLError = async (testFunc, errorFields, path = 'obj') => {
         fieldsToCheck['messageForUser'] = interpolatedMessageForUser
     }
 
-    let message = fieldsToCheck['message']
-    delete fieldsToCheck['message']
-
     // NOTE(pahaz): if we have a template `{secondsRemaining}` inside message without messageInterpolation
     //  it means we want to use RegExp for our tests. Check @examples
     if (errorFields.message.includes('{')) {
-        message = expect.stringMatching(createRegExByTemplate(message))
         fieldsToCheck['messageTemplate'] = errorFields.message
     }
 
@@ -787,7 +783,7 @@ const expectToThrowGQLError = async (testFunc, errorFields, path = 'obj') => {
             name: 'TestClientResponseError',
             data: { [path]: null },
             errors: [expect.objectContaining({
-                message,
+                message: expect.anything(),
                 name: 'GQLError',
                 path: [path],
                 locations: [expect.objectContaining({ line: expect.anything(), column: expect.anything() })],

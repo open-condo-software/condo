@@ -150,9 +150,15 @@ function _handleValidationErrorCase (result, extensions, originalError) {
     }
 }
 
-function _handleKnexError (result, extensions, originalError) {
+function _handleKnexErrorCase (result, extensions, originalError) {
     // TODO(pahaz): it looks like we need to transform it to GQLError but in a future. Need to change code, type, ...
     extensions.message = originalError.message
+}
+
+function _handleGQLErrorCase (result, extensions, originalError) {
+    // Propagate this error fields to extensions!
+    result.name = 'GQLError'
+    Object.assign(extensions, originalError.extensions)
 }
 
 function _updateExtensionsForKnownErrorCases (result, extensions, originalError) {
@@ -163,10 +169,24 @@ function _updateExtensionsForKnownErrorCases (result, extensions, originalError)
     }
 
     // NOTE(pahaz): we want to extract internal knex error messages from violates constraint cases
+    // TODO(pahaz): we need to hide sql queries!
     const hasDBUniqConstrain = originalError && originalError?.message?.includes('duplicate key value violates unique constraint')
     const hasDBCheckConstrain = originalError && originalError?.message?.includes('violates check constraint')
     if (hasDBUniqConstrain || hasDBCheckConstrain) {
-        _handleKnexError(result, extensions, originalError)
+        _handleKnexErrorCase(result, extensions, originalError)
+        return
+    }
+
+    // NOTE(pahaz): we have an exact one parent originalError.errors, and it is GQLError
+    const parentErrors = originalError?.errors
+    const hasExactOneParentError = parentErrors && isArray(parentErrors) && parentErrors.length === 1
+    if (hasExactOneParentError) {
+        // Unwrap from GraphQLError or any other wrapper
+        const internalError = (parentErrors[0]?.originalError) ? parentErrors[0]?.originalError : parentErrors[0]
+        const internalErrorCName = internalError?.constructor?.name
+        if (internalErrorCName === 'GQLError' && internalError.extensions) {
+            _handleGQLErrorCase(result, extensions, internalError)
+        }
         return
     }
 }
@@ -229,16 +249,6 @@ function _safeFormatErrorRecursion (errorIn, hideInternals = false, applyPatches
                 if (internalErrorCName === 'GQLError' && internalError.extensions) {
                     // Propagate this error fields to extensions!
                     Object.assign(extensions, internalError.extensions)
-                } else if (internalErrorCName === 'Error' && internalError?.errors) {
-                    // Keystone wrapper (new Error).errors case
-                    const keystoneLikeErrors = internalError?.errors
-                    if (keystoneLikeErrors && isArray(keystoneLikeErrors) && keystoneLikeErrors.length === 1) {
-                        const internalKeystoneError = (keystoneLikeErrors[0]?.originalError) ? keystoneLikeErrors[0]?.originalError : keystoneLikeErrors[0]
-                        const internalKeystoneErrorCName = internalKeystoneError?.constructor?.name
-                        if (internalKeystoneErrorCName === 'GQLError' && internalKeystoneError.extensions) {
-                            Object.assign(extensions, internalKeystoneError.extensions)
-                        }
-                    }
                 } else {
                     _updateExtensionsForKnownErrorCases(result, extensions, internalError)
                 }
