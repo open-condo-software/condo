@@ -6,6 +6,7 @@ const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
+const { getRedisClient } = require('@open-condo/keystone/redis')
 const { setFakeClientMode, makeLoggedInAdminClient, waitFor } = require('@open-condo/keystone/test.utils')
 
 const { TestUtils, ResidentTestMixin } = require('@condo/domains/billing/utils/testSchema/testUtils')
@@ -23,7 +24,7 @@ const { makeBillingReceiptWithResident } = require('./spec.helpers')
 const { makeMessageKey, makeAccountKey, getMessageTypeAndDebt, sendBillingReceiptsAddedNotificationForOrganizationContext } = require('../sendBillingReceiptsAddedNotificationForOrganizationContextTask')
 
 
-describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
+describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
     setFakeClientMode(index)
     let admin
     beforeAll(async () => {
@@ -211,10 +212,12 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
     })
 
     describe('Real-life test cases', () => {
-        let environment
+        let environment, redisClient
         beforeAll(async () => {
             environment = new TestUtils([ResidentTestMixin])
             await environment.init()
+            redisClient = getRedisClient()
+            jest.setTimeout(100000)
         })
 
         it('send push after RegisterBillingReceipts', async () => {
@@ -240,6 +243,10 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
             await waitFor(async () => {
                 const message = await Message.getOne(admin, messageWhere)
                 expect(message.id).toBeDefined()
+            }, { delay: 2 * 1000 })
+            await waitFor(async () => {
+                const lastSync = await redisClient.get(`LAST_SEND_BILLING_RECEIPT_NOTIFICATION_CREATED_AT:${receipt[0].context.id}`)
+                expect(dayjs(lastSync).toISOString()).toEqual(dayjs(receipt[0].createdAt).toISOString())
             }, { delay: 2 * 1000 })
         })
 
