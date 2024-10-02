@@ -18,21 +18,21 @@ const ERRORS = {
     INVALID_SALES_TAX_PERCENT: (rowNumber) => ({
         code: BAD_USER_INPUT,
         type: 'INVALID_SALES_TAX_PERCENT',
-        messageForUser: 'api.marketplace.MarketItemPrice.error.INVALID_SALES_TAX_PERCENT',
+        messageForUser: 'api.marketplace.marketItemPrice.INVALID_SALES_TAX_PERCENT',
         messageInterpolation: { rowNumber },
         message: `Invalid sales tax percent on line ${rowNumber}. Must be greater or equal to 0 and less or equal to 100.`,
     }),
     INVALID_PRICE: (rowNumber) => ({
         code: BAD_USER_INPUT,
         type: 'INVALID_PRICE',
-        messageForUser: 'api.marketplace.MarketItemPrice.error.INVALID_PRICE',
+        messageForUser: 'api.marketplace.marketItemPrice.INVALID_PRICE',
         messageInterpolation: { rowNumber },
         message: `Invalid price on line ${rowNumber}. Must be greater or equal to 0.`,
     }),
     EMPTY_PRICE: {
         code: BAD_USER_INPUT,
         type: 'EMPTY_PRICE',
-        messageForUser: 'api.marketplace.MarketItemPrice.error.EMPTY_PRICE',
+        messageForUser: 'api.marketplace.marketItemPrice.EMPTY_PRICE',
         message: 'Price cannot be empty.',
     },
 }

@@ -628,7 +628,7 @@ describe('OrganizationEmployee', () => {
                 type: 'NOT_FOUND',
                 variable: ['data', 'role'],
                 message: 'Role not found for the specified organization',
-                messageForUser: 'api.organizationEmployee.NOT_FOUND_ROLE',
+                messageForUser: 'api.organization.organizationEmployee.NOT_FOUND_ROLE',
             })
         })
         test('cannot create employee with deleted role', async () => {
@@ -674,7 +674,7 @@ describe('OrganizationEmployee', () => {
                 type: 'NOT_FOUND',
                 variable: ['data', 'role'],
                 message: 'Role not found for the specified organization',
-                messageForUser: 'api.organizationEmployee.NOT_FOUND_ROLE',
+                messageForUser: 'api.organization.organizationEmployee.NOT_FOUND_ROLE',
             })
         })
         test('cannot update an employee\'s role to a deleted role', async () => {

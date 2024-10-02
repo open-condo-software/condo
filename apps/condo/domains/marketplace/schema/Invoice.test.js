@@ -1481,7 +1481,7 @@ describe('Invoice', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'INVOICE_ALREADY_PAID',
                 message: 'Changing of paid invoice is forbidden',
-                messageForUser: 'api.marketplace.invoice.error.alreadyPaid',
+                messageForUser: 'api.marketplace.invoice.ALREADY_PAID',
             })
         })
 
@@ -1506,7 +1506,7 @@ describe('Invoice', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'INVOICE_ALREADY_CANCELED',
                 message: 'Changing of canceled invoice is forbidden',
-                messageForUser: 'api.marketplace.invoice.error.alreadyCanceled',
+                messageForUser: 'api.marketplace.invoice.ALREADY_CANCELED',
             })
         })
 
@@ -1519,7 +1519,7 @@ describe('Invoice', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'EMPTY_ROWS',
                 message: 'The invoice contains no rows',
-                messageForUser: 'api.marketplace.invoice.error.emptyRows',
+                messageForUser: 'api.marketplace.invoice.EMPTY_ROWS',
             })
         })
 
@@ -1556,7 +1556,7 @@ describe('Invoice', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'WRONG_COUNT',
                 message: 'Count at line 2 can\'t be less than 1',
-                messageForUser: 'api.marketplace.invoice.error.rows.count',
+                messageForUser: 'api.marketplace.invoice.WRONG_COUNT',
                 messageInterpolation: { rowNumber: 2 },
             })
         })
@@ -1568,7 +1568,7 @@ describe('Invoice', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'WRONG_PRICE',
                 message: 'Price at line 1 can\'t be less than 0',
-                messageForUser: 'api.marketplace.invoice.error.rows.toPay',
+                messageForUser: 'api.marketplace.invoice.WRONG_PRICE',
                 messageInterpolation: { rowNumber: 1 },
             })
         })
@@ -1584,7 +1584,7 @@ describe('Invoice', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'NO_FINISHED_ACQUIRING_CONTEXT',
                 message: 'The organization has no AcquiringIntegrationContext in finished status for invoices',
-                messageForUser: 'api.marketplace.invoice.error.NoFinishedAcquiringContext',
+                messageForUser: 'api.marketplace.invoice.NO_FINISHED_ACQUIRING_CONTEXT',
             })
         })
 
@@ -1606,7 +1606,7 @@ describe('Invoice', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'FORBID_EDIT_PUBLISHED',
                 message: `Only the status ${INVOICE_STATUS_CANCELED} and ${INVOICE_STATUS_PAID} can be updated by the published invoice`,
-                messageForUser: 'api.marketplace.invoice.error.editPublishedForbidden',
+                messageForUser: 'api.marketplace.invoice.FORBID_EDIT_PUBLISHED',
             })
         })
 
@@ -1684,7 +1684,7 @@ describe('Invoice', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'FORBID_UPDATE_TICKET',
                 message: 'You cannot update ticket in invoice that is already linked to the ticket',
-                messageForUser: 'api.marketplace.invoice.error.forbidUpdateTicket',
+                messageForUser: 'api.marketplace.invoice.FORBID_UPDATE_TICKET',
             })
         })
 
@@ -1705,7 +1705,7 @@ describe('Invoice', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'CLIENT_DATA_DOES_NOT_MATCH_TICKET',
                 message: `Fields ${CLIENT_DATA_FIELDS.join(', ')} must match same fields in connected ticket`,
-                messageForUser: 'api.marketplace.invoice.error.clientDataDoesNotMatchTicket',
+                messageForUser: 'api.marketplace.invoice.CLIENT_DATA_DOES_NOT_MATCH_TICKET',
             })
         })
 
@@ -1794,7 +1794,7 @@ describe('Invoice', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'PUBLISHING_WITHOUT_DEFINED_PRICES_FORBIDDEN',
                 message: 'Can\'t publish invoice without defined prices',
-                messageForUser: 'api.marketplace.invoice.error.PublishingWithoutDefinedPricesForbidden',
+                messageForUser: 'api.marketplace.invoice.PUBLISHING_WITHOUT_DEFINED_PRICES_FORBIDDEN',
             })
         })
 

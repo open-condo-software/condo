@@ -28,7 +28,7 @@ const ERRORS = {
         code: FORBIDDEN,
         type: OPERATION_FORBIDDEN,
         message: 'Your organization do not have access to this feature',
-        messageForUser: 'api.analytics.overviewDashboard.FEATURE_IS_DISABLED',
+        messageForUser: 'api.analytics.getOverviewDashboard.FEATURE_IS_DISABLED',
     },
 }
 

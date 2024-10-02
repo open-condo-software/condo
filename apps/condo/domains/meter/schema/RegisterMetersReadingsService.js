@@ -40,13 +40,12 @@ const DATE_PARSING_FORMATS = [
 const READINGS_LIMIT = 500
 
 const ERRORS = {
-    TOO_MUCH_READINGS: (sentCount) => ({
+    TOO_MUCH_READINGS: {
         code: BAD_USER_INPUT,
         type: TOO_MUCH_READINGS,
         message: `Too much readings. Maximum is ${READINGS_LIMIT}.`,
         messageForUser: 'api.meter.registerMetersReadings.TOO_MUCH_READINGS',
-        messageInterpolation: { limit: READINGS_LIMIT, sentCount },
-    }),
+    },
     ORGANIZATION_NOT_FOUND: {
         code: BAD_USER_INPUT,
         type: ORGANIZATION_NOT_FOUND,
@@ -59,39 +58,36 @@ const ERRORS = {
         message: 'Property not found',
         messageForUser: 'api.meter.registerMetersReadings.PROPERTY_NOT_FOUND',
     },
-    INVALID_METER_VALUES: (valuesList) => ({
+    INVALID_METER_VALUES: {
         code: BAD_USER_INPUT,
         type: INVALID_METER_VALUES,
         message: 'Invalid meter values',
         messageForUser: 'api.meter.registerMetersReadings.INVALID_METER_VALUES',
-        messageInterpolation: { valuesList },
-    }),
-    MULTIPLE_METERS_FOUND: (count) => ({
+    },
+    MULTIPLE_METERS_FOUND: {
         code: BAD_USER_INPUT,
         type: MULTIPLE_METERS_FOUND,
         message: 'Multiple meters found',
         messageForUser: 'api.meter.registerMetersReadings.MULTIPLE_METERS_FOUND',
-        messageInterpolation: { count },
-    }),
+    },
     INVALID_ACCOUNT_NUMBER: {
         code: BAD_USER_INPUT,
         type: INVALID_ACCOUNT_NUMBER,
         message: 'Invalid account number',
-        messageForUser: 'meter.import.error.AccountNumberInvalidValue',
+        messageForUser: 'api.meter.registerMetersReadings.INVALID_ACCOUNT_NUMBER',
     },
     INVALID_METER_NUMBER: {
         code: BAD_USER_INPUT,
         type: INVALID_METER_NUMBER,
         message: 'Invalid meter number',
-        messageForUser: 'meter.import.error.MeterNumberInvalidValue',
+        messageForUser: 'api.meter.registerMetersReadings.INVALID_METER_NUMBER',
     },
-    INVALID_DATE: (columnName) => ({
+    INVALID_DATE: {
         code: BAD_USER_INPUT,
         type: INVALID_DATE,
         message: 'Invalid date',
-        messageForUser: 'meter.import.error.WrongDateFormatMessage',
-        messageInterpolation: { columnName, format: [ISO_DATE_FORMAT, EUROPEAN_DATE_FORMAT].join('", "') },
-    }),
+        messageForUser: 'api.meter.registerMetersReadings.INVALID_DATE:',
+    },
 }
 
 const SYMBOLS_TO_CUT_FROM_DATES_REGEXP = /[^-_:.,( )/\d]/g
@@ -263,7 +259,10 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                 const { data: { dv, sender, organization, readings } } = args
 
                 if (readings.length > READINGS_LIMIT) {
-                    throw new GQLError(ERRORS.TOO_MUCH_READINGS(readings.length), context)
+                    throw new GQLError({
+                        ...ERRORS.TOO_MUCH_READINGS,
+                        messageInterpolation: { limit: READINGS_LIMIT, sentCount: readings.length },
+                    }, context)
                 }
 
                 /** @type Organization */
@@ -320,7 +319,12 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     }
 
                     if (!isDateValid(reading.date)) {
-                        resultRows.push(new GQLError(ERRORS.INVALID_DATE(i18n('meter.import.column.meterReadingSubmissionDate', { locale })), context))
+                        resultRows.push(new GQLError({
+                            ...ERRORS.INVALID_DATE,
+                            messageInterpolation: {
+                                columnName: i18n('meter.import.column.meterReadingSubmissionDate', { locale }),
+                                format: [ISO_DATE_FORMAT, EUROPEAN_DATE_FORMAT].join('", "') },
+                        }, context))
                         continue
                     }
 
@@ -344,7 +348,10 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     })
 
                     if (foundMeters.length > 1) {
-                        resultRows.push(new GQLError(ERRORS.MULTIPLE_METERS_FOUND(foundMeters.length), context))
+                        resultRows.push(new GQLError({
+                            ...ERRORS.MULTIPLE_METERS_FOUND,
+                            messageInterpolation: { count: foundMeters.length },
+                        }, context))
                         continue
                     }
 
@@ -368,9 +375,14 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
 
                     if (Object.keys(errorValues).length > 0) {
                         const errorValuesKeys = Object.keys(errorValues)
-                        resultRows.push(new GQLError(
-                            ERRORS.INVALID_METER_VALUES(errorValuesKeys.map((errKey) => `"${i18n(`meter.import.column.${errKey}`, { locale })}"="${errorValues[errKey]}"`)),
-                            context,
+                        const valuesList = errorValuesKeys.map((errKey) => {
+                            const column = i18n(`meter.import.column.${errKey}`, { locale })
+                            return `"${column}"="${errorValues[errKey]}"`
+                        })
+                        resultRows.push(new GQLError({
+                            ...ERRORS.INVALID_METER_VALUES,
+                            messageInterpolation: { valuesList },
+                        }, context,
                         ))
                         continue
                     }

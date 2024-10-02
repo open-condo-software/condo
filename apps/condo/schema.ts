@@ -42304,7 +42304,7 @@ export type Mutation = {
    *   "code": "BAD_USER_INPUT",
    *   "type": "ORGANIZATION_NOT_FOUND",
    *   "message": "Organization not found",
-   *   "messageForUser": "api.organization.ReplaceOrganizationEmployeeRole.ORGANIZATION_NOT_FOUND"
+   *   "messageForUser": "api.organization.replaceOrganizationEmployeeRole.ORGANIZATION_NOT_FOUND"
    * }`
    *
    * `{
@@ -42316,7 +42316,7 @@ export type Mutation = {
    *   "code": "BAD_USER_INPUT",
    *   "type": "OLD_ROLE_NOT_FOUND",
    *   "message": "Old role not found in specified organization",
-   *   "messageForUser": "api.organization.ReplaceOrganizationEmployeeRole.OLD_ROLE_NOT_FOUND"
+   *   "messageForUser": "api.organization.replaceOrganizationEmployeeRole.OLD_ROLE_NOT_FOUND"
    * }`
    *
    * `{
@@ -42328,7 +42328,7 @@ export type Mutation = {
    *   "code": "BAD_USER_INPUT",
    *   "type": "NEW_ROLE_NOT_FOUND",
    *   "message": "New role not found in specified organization",
-   *   "messageForUser": "api.organization.ReplaceOrganizationEmployeeRole.NEW_ROLE_NOT_FOUND"
+   *   "messageForUser": "api.organization.replaceOrganizationEmployeeRole.NEW_ROLE_NOT_FOUND"
    * }`
    *
    * `{
@@ -42339,7 +42339,7 @@ export type Mutation = {
    *   "code": "BAD_USER_INPUT",
    *   "type": "DEFAULT_ROLE_CANNOT_BE_DELETED",
    *   "message": "The default role cannot be deleted",
-   *   "messageForUser": "api.organization.ReplaceOrganizationEmployeeRole.DEFAULT_ROLE_CANNOT_BE_DELETED"
+   *   "messageForUser": "api.organization.replaceOrganizationEmployeeRole.DEFAULT_ROLE_CANNOT_BE_DELETED"
    * }`
    *
    * `{
@@ -42350,7 +42350,7 @@ export type Mutation = {
    *   "code": "BAD_USER_INPUT",
    *   "type": "ROLES_MUST_BE_DIFFERENT",
    *   "message": "The old role and new role must be different",
-   *   "messageForUser": "api.organization.ReplaceOrganizationEmployeeRole.ROLES_MUST_BE_DIFFERENT"
+   *   "messageForUser": "api.organization.replaceOrganizationEmployeeRole.ROLES_MUST_BE_DIFFERENT"
    * }`
    *
    * `{
@@ -42361,7 +42361,7 @@ export type Mutation = {
    *   "code": "TOO_MANY_REQUESTS",
    *   "type": "ROLES_ARE_BEING_PROCESSED",
    *   "message": "These roles are already being processed. Please try again a little later",
-   *   "messageForUser": "api.organization.ReplaceOrganizationEmployeeRole.ROLES_ARE_BEING_PROCESSED"
+   *   "messageForUser": "api.organization.replaceOrganizationEmployeeRole.ROLES_ARE_BEING_PROCESSED"
    * }`
    */
   replaceOrganizationEmployeeRole?: Maybe<ReplaceOrganizationEmployeeRoleOutput>;
@@ -44217,7 +44217,7 @@ export type Mutation = {
    *   "code": "BAD_USER_INPUT",
    *   "type": "NOT_FOUND",
    *   "message": "Can't find billingAccount and any meters with this accountNumber, unitName and address",
-   *   "messageForUser": "api.resident.RegisterServiceConsumerService.BILLING_ACCOUNT_OR_METER_NOT_FOUND"
+   *   "messageForUser": "api.resident.registerServiceConsumers.BILLING_ACCOUNT_OR_METER_NOT_FOUND"
    * }`
    *
    * `{
@@ -44229,7 +44229,7 @@ export type Mutation = {
    *   "code": "BAD_USER_INPUT",
    *   "type": "NOT_FOUND",
    *   "message": "Can't find billingAccount and any meters with this accountNumber, unitName and organization combination",
-   *   "messageForUser": "api.resident.RegisterServiceConsumerService.BILLING_ACCOUNT_NOT_FOUND"
+   *   "messageForUser": "api.resident.registerServiceConsumers.BILLING_ACCOUNT_NOT_FOUND"
    * }`
    *
    * `{
@@ -44296,7 +44296,7 @@ export type Mutation = {
    *   "code": "BAD_USER_INPUT",
    *   "type": "NOT_FOUND",
    *   "message": "Can't find billingAccount and any meters with this accountNumber, unitName and address",
-   *   "messageForUser": "api.resident.RegisterServiceConsumerService.BILLING_ACCOUNT_OR_METER_NOT_FOUND"
+   *   "messageForUser": "api.resident.registerServiceConsumers.BILLING_ACCOUNT_OR_METER_NOT_FOUND"
    * }`
    *
    * `{
@@ -44308,7 +44308,7 @@ export type Mutation = {
    *   "code": "BAD_USER_INPUT",
    *   "type": "NOT_FOUND",
    *   "message": "Can't find billingAccount and any meters with this accountNumber, unitName and organization combination",
-   *   "messageForUser": "api.resident.RegisterServiceConsumerService.BILLING_ACCOUNT_NOT_FOUND"
+   *   "messageForUser": "api.resident.registerServiceConsumers.BILLING_ACCOUNT_NOT_FOUND"
    * }`
    *
    * `{
@@ -66211,7 +66211,7 @@ export type Query = {
    *   "code": "INTERNAL_ERROR",
    *   "type": "REFRESH_TOKEN_EXPIRED",
    *   "message": "SBBOL user refreshToken expired",
-   *   "messageForUser": "api.user.getAccessTokenByUserIdService.REFRESH_TOKEN_EXPIRED"
+   *   "messageForUser": "api.user.getAccessTokenByUserId.REFRESH_TOKEN_EXPIRED"
    * }`
    *
    * `{
@@ -66219,7 +66219,7 @@ export type Query = {
    *   "code": "BAD_USER_INPUT",
    *   "type": "INVALID_USER_ID",
    *   "message": "Received userId must be uuid",
-   *   "messageForUser": "api.user.getAccessTokenByUserIdService.INVALID_USER_ID"
+   *   "messageForUser": "api.user.getAccessTokenByUserId.INVALID_USER_ID"
    * }`
    *
    * `{
@@ -66227,7 +66227,7 @@ export type Query = {
    *   "code": "INTERNAL_ERROR",
    *   "type": "ERROR_GETTING_ACCESS_TOKEN",
    *   "message": "Unresolved error in getAccessTokenForUser",
-   *   "messageForUser": "api.user.getAccessTokenByUserIdService.ERROR_GETTING_ACCESS_TOKEN"
+   *   "messageForUser": "api.user.getAccessTokenByUserId.ERROR_GETTING_ACCESS_TOKEN"
    * }`
    */
   getAccessTokenByUserId?: Maybe<GetAccessTokenByUserIdOutput>;

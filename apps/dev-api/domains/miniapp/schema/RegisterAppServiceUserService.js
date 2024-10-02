@@ -25,25 +25,25 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: ACTION_NOT_FOUND,
         message: 'ConfirmEmailAction with the specified ID is not verified, expired, or does not exist',
-        messageForUser: 'errors.ACTION_NOT_FOUND.email.message',
+        messageForUser: 'api.miniapp.registerAppServiceUser.APP_NOT_FOUND',
     },
     APP_NOT_FOUND: {
         code: BAD_USER_INPUT,
         type: APP_NOT_FOUND,
         message: 'The application with the specified ID was not found',
-        messageForUser: 'errors.APP_NOT_FOUND.message',
+        messageForUser: 'api.miniapp.B2CApp.APP_NOT_FOUND',
     },
     CONDO_USER_ALREADY_EXISTS: {
         code: BAD_USER_INPUT,
         type: CONDO_USER_ALREADY_EXISTS,
         message: 'Service user with specified email already exists',
-        messageForUser: 'errors.CONDO_USER_ALREADY_EXISTS.message',
+        messageForUser: 'api.miniapp.registerAppServiceUser.CONDO_USER_ALREADY_EXISTS',
     },
     ACCESS_RIGHT_ALREADY_EXISTS: {
         code: BAD_USER_INPUT,
         type: ACCESS_RIGHT_ALREADY_EXISTS,
         message: 'Another service user is already linked to specified app',
-        messageForUser: 'errors.ACCESS_RIGHT_ALREADY_EXISTS.message',
+        messageForUser: 'api.miniapp.registerAppServiceUser.ACCESS_RIGHT_ALREADY_EXISTS',
     },
 }
 

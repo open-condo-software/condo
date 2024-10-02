@@ -31,15 +31,15 @@ const INCORRECT_PROPERTY_ID = 'INCORRECT_PROPERTY_ID'
 const EMPTY_BANK_ACCOUNT_REQUEST_EMAIL_TARGET_VALUE = 'EMPTY_BANK_ACCOUNT_REQUEST_EMAIL_TARGET_VALUE'
 const WRONG_INTEGRATION = {
     message: 'BankAccount connected to another integration',
-    messageForUser: 'api.banking.BankSyncTask.WRONG_INTEGRATION',
+    messageForUser: 'api.banking.bankSyncTask.WRONG_INTEGRATION',
 }
 const INVALID_DATE = {
     message: 'Invalid options.dateTo or options.DateFrom',
-    messageForUser: 'api.banking.BankSyncTask.INVALID_DATE',
+    messageForUser: 'api.banking.bankSyncTask.INVALID_DATE',
 }
 const TRANSACTIONS_NOT_ADDED = {
     message: 'Transactions not added to BankAccount',
-    messageForUser: 'api.banking.BankSyncTask.TRANSACTIONS_NOT_ADDED',
+    messageForUser: 'api.banking.bankSyncTask.TRANSACTIONS_NOT_ADDED',
 }
 
 const CLASSIFICATION_CODE_IS_INVALID = 'CLASSIFICATION_CODE_IS_INVALID'

@@ -17,19 +17,19 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: OIDC_CLIENT_NOT_FOUND,
         message: 'OIDC client for the specified application was not found',
-        messageForUser: 'errors.OIDC_CLIENT_NOT_FOUND.message',
+        messageForUser: 'api.miniapp.OIDC_CLIENT_NOT_FOUND',
     },
     INVALID_URL: {
         code: BAD_USER_INPUT,
         type: INVALID_URL,
         message: 'The specified redirectUri is not a valid URL',
-        messageForUser: 'errors.INVALID_URL.message',
+        messageForUser: 'api.miniapp.updateOIDCClientUrl.INVALID_URL',
     },
     HTTPS_ONLY: {
         code: BAD_USER_INPUT,
         type: HTTPS_ONLY,
         message: 'The URL has a non-valid protocol. Only https is allowed for the selected environment',
-        messageForUser: 'errors.HTTPS_ONLY.message',
+        messageForUser: 'api.miniapp.updateOIDCClientUrl.HTTPS_ONLY',
     },
 }
 

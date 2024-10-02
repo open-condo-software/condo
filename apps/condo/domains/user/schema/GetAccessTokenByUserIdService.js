@@ -17,21 +17,21 @@ const ERRORS = {
         code: INTERNAL_ERROR,
         type: 'REFRESH_TOKEN_EXPIRED',
         message: 'SBBOL user refreshToken expired',
-        messageForUser: 'api.user.getAccessTokenByUserIdService.REFRESH_TOKEN_EXPIRED',
+        messageForUser: 'api.user.getAccessTokenByUserId.REFRESH_TOKEN_EXPIRED',
     },
     INVALID_USER_ID: {
         query: 'GetAccessTokenByUserIdService',
         code: BAD_USER_INPUT,
         type: 'INVALID_USER_ID',
         message: 'Received userId must be uuid',
-        messageForUser: 'api.user.getAccessTokenByUserIdService.INVALID_USER_ID',
+        messageForUser: 'api.user.getAccessTokenByUserId.INVALID_USER_ID',
     },
     ERROR_GETTING_ACCESS_TOKEN: {
         query: 'GetAccessTokenByUserIdService',
         code: INTERNAL_ERROR,
         type: 'ERROR_GETTING_ACCESS_TOKEN',
         message: 'Unresolved error in getAccessTokenForUser',
-        messageForUser: 'api.user.getAccessTokenByUserIdService.ERROR_GETTING_ACCESS_TOKEN',
+        messageForUser: 'api.user.getAccessTokenByUserId.ERROR_GETTING_ACCESS_TOKEN',
     },
 }
 

@@ -110,13 +110,13 @@ const GQL_ERRORS = {
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
         message: 'Payment amount is less than the minimum amount from acquiring integration',
-        messageForUser: 'api.acquiring.payment.error.paymentAmountLessThanMinimum',
+        messageForUser: 'api.acquiring.payment.PAYMENT_AMOUNT_LESS_THAN_MINIMUM',
     },
     PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM: {
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
         message: 'Payment amount is greater than the maximum amount from acquiring integration',
-        messageForUser: 'api.acquiring.payment.error.paymentAmountGreaterThanMaximum',
+        messageForUser: 'api.acquiring.payment.PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM',
     },
     MORE_THAN_ONE_ACQUIRING_CONTEXTS: {
         code: BAD_USER_INPUT,

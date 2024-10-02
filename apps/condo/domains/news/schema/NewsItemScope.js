@@ -24,13 +24,13 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: EDIT_DENIED_PUBLISHED,
         message: 'The published news item is restricted from editing',
-        messageForUser: 'api.newsItem.EDIT_DENIED_PUBLISHED',
+        messageForUser: 'api.news.newsItem.EDIT_DENIED_PUBLISHED',
     },
     EDIT_DENIED_ALREADY_SENT: {
         code: BAD_USER_INPUT,
         type: EDIT_DENIED_ALREADY_SENT,
         message: 'The sent news item is restricted from editing',
-        messageForUser: 'api.newsItem.EDIT_DENIED_ALREADY_SENT',
+        messageForUser: 'api.news.newsItem.EDIT_DENIED_ALREADY_SENT',
     },
 }
 

@@ -818,7 +818,7 @@ describe('NewsItems', () => {
                     message: 'The date the news item valid before is empty',
                     mutation: 'createNewsItem',
                     variable: ['data', 'validBefore'],
-                    messageForUser: 'api.newsItem.EMPTY_VALID_BEFORE_DATE',
+                    messageForUser: 'api.news.newsItem.EMPTY_VALID_BEFORE_DATE',
                 },
             )
         })
@@ -834,7 +834,7 @@ describe('NewsItems', () => {
                     type: 'VALIDITY_DATE_LESS_THAN_SEND_DATE',
                     message: 'The validity date is less than send date',
                     mutation: 'updateNewsItem',
-                    messageForUser: 'api.newsItem.VALIDITY_DATE_LESS_THAN_SEND_DATE',
+                    messageForUser: 'api.news.newsItem.VALIDITY_DATE_LESS_THAN_SEND_DATE',
                 },
             )
         })
@@ -876,7 +876,7 @@ describe('NewsItems', () => {
                         type: 'EDIT_DENIED_ALREADY_SENT',
                         message: 'The sent news item is restricted from editing',
                         mutation: 'updateNewsItem',
-                        messageForUser: 'api.newsItem.EDIT_DENIED_ALREADY_SENT',
+                        messageForUser: 'api.news.newsItem.EDIT_DENIED_ALREADY_SENT',
                     },
                 )
             })
@@ -907,7 +907,7 @@ describe('NewsItems', () => {
                         type: 'EDIT_DENIED_PUBLISHED',
                         message: 'The published news item is restricted from editing',
                         mutation: 'updateNewsItem',
-                        messageForUser: 'api.newsItem.EDIT_DENIED_PUBLISHED',
+                        messageForUser: 'api.news.newsItem.EDIT_DENIED_PUBLISHED',
                     },
                 )
             })
@@ -922,7 +922,7 @@ describe('NewsItems', () => {
                     code: 'BAD_USER_INPUT',
                     type: 'PROFANITY_TITLE_DETECTED_MOT_ERF_KER',
                     message: 'Profanity in title detected',
-                    messageForUser: 'api.newsItem.PROFANITY_TITLE_DETECTED_MOT_ERF_KER',
+                    messageForUser: 'api.news.newsItem.PROFANITY_TITLE_DETECTED_MOT_ERF_KER',
                     badWords: expect.any(String),
                 },
             )
@@ -944,7 +944,7 @@ describe('NewsItems', () => {
                     code: 'BAD_USER_INPUT',
                     type: 'PROFANITY_BODY_DETECTED_MOT_ERF_KER',
                     message: 'Profanity in body detected',
-                    messageForUser: 'api.newsItem.PROFANITY_BODY_DETECTED_MOT_ERF_KER',
+                    messageForUser: 'api.news.newsItem.PROFANITY_BODY_DETECTED_MOT_ERF_KER',
                     badWords: expect.any(String),
                 },
             )
@@ -976,7 +976,7 @@ describe('NewsItems', () => {
                     code: 'BAD_USER_INPUT',
                     type: 'WRONG_SEND_DATE',
                     message: 'Wrong send date',
-                    messageForUser: 'api.newsItem.WRONG_SEND_DATE',
+                    messageForUser: 'api.news.newsItem.WRONG_SEND_DATE',
                 },
             )
         })
@@ -986,7 +986,7 @@ describe('NewsItems', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'NO_NEWS_ITEM_SCOPES',
                 message: 'The news item without scopes publishing is forbidden',
-                messageForUser: 'api.newsItem.NO_NEWS_ITEM_SCOPES',
+                messageForUser: 'api.news.newsItem.NO_NEWS_ITEM_SCOPES',
             }
 
             await expectToThrowGQLError(

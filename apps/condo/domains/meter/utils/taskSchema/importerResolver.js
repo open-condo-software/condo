@@ -191,7 +191,7 @@ async function getErrors (keystone, format, locale, columns, mappers) {
 
 function getMutationError (locale) {
     const MeterAccountNumberExistInOtherUnitMessage = i18n('meter.import.error.MeterAccountNumberExistInOtherUnit', locale)
-    const MeterResourceOwnedByAnotherOrganizationMessage = i18n('api.meter.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION', locale)
+    const MeterResourceOwnedByAnotherOrganizationMessage = i18n('api.meter.meter.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION', locale)
     const MeterNumberExistInOrganizationMessage = i18n('meter.import.error.MeterNumberExistInOrganization', locale)
 
     return {

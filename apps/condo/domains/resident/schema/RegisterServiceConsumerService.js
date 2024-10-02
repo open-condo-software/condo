@@ -53,7 +53,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'Can\'t find billingAccount and any meters with this accountNumber, unitName and address',
-        messageForUser: 'api.resident.RegisterServiceConsumerService.BILLING_ACCOUNT_OR_METER_NOT_FOUND',
+        messageForUser: 'api.resident.registerServiceConsumers.BILLING_ACCOUNT_OR_METER_NOT_FOUND',
     },
     BILLING_ACCOUNT_NOT_FOUND: {
         mutation: 'registerServiceConsumer',
@@ -61,7 +61,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'Can\'t find billingAccount and any meters with this accountNumber, unitName and organization combination',
-        messageForUser: 'api.resident.RegisterServiceConsumerService.BILLING_ACCOUNT_NOT_FOUND',
+        messageForUser: 'api.resident.registerServiceConsumers.BILLING_ACCOUNT_NOT_FOUND',
     },
     ACCOUNT_NUMBER_IS_NOT_SPECIFIED: {
         mutation: 'registerServiceConsumer',

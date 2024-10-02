@@ -24,21 +24,21 @@ const ERRORS = {
         code: INTERNAL_ERROR,
         type: NOT_FOUND,
         message: 'ticket classifier rule not found',
-        messageForUser: 'api.user.predictTicketClassification.TICKET_RULE_NOT_FOUND',
+        messageForUser: 'api.ticket.predictTicketClassification.TICKET_RULE_NOT_FOUND',
     },
     TICKET_PREDICT_REQUEST_FAILED: {
         query: 'predictTicketClassification',
         code: INTERNAL_ERROR,
         type: NOT_FOUND,
         message: 'ML server response is not successful',
-        messageForUser: 'api.user.predictTicketClassification.TICKET_RULE_NOT_FOUND',
+        messageForUser: 'api.ticket.predictTicketClassification.TICKET_RULE_NOT_FOUND',
     },
     ML_SPACE_NOT_CONFIGURED: {
         query: 'predictTicketClassification',
         code: INTERNAL_ERROR,
         type: NOT_FOUND,
         message: 'ML_SPACE_TICKET_CLASSIFIER env variable needs to have endpoint, authKey, workspace',
-        messageForUser: 'api.user.predictTicketClassification.ML_SPACE_NOT_CONFIGURED',
+        messageForUser: 'api.ticket.predictTicketClassification.ML_SPACE_NOT_CONFIGURED',
     },
 }
 

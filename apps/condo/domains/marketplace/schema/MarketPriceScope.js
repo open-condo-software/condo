@@ -21,7 +21,7 @@ const ERRORS = {
     ORGANIZATION_IN_PROPERTY_AND_MARKET_ITEM_PRICE_NOT_MATCHED: {
         code: BAD_USER_INPUT,
         type: 'ORGANIZATION_IN_PROPERTY_AND_MARKET_ITEM_PRICE_NOT_MATCHED',
-        messageForUser: 'api.marketplace.MarketItemPrice.error.ORGANIZATION_IN_PROPERTY_AND_MARKET_ITEM_PRICE_NOT_MATCHED',
+        messageForUser: 'api.marketplace.marketItemPrice.ORGANIZATION_IN_PROPERTY_AND_MARKET_ITEM_PRICE_NOT_MATCHED',
         message: 'Cannot create scope with property from one organization and market item from another organization.',
     },
 }

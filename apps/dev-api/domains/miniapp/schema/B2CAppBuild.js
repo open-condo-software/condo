@@ -21,7 +21,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: INVALID_BUILD_VERSION,
         message: 'The build version must be semantically correct and be in X.Y.Z format',
-        messageForUser: 'errors.INVALID_BUILD_VERSION.message',
+        messageForUser: 'api.miniapp.B2CAppBuild.INVALID_BUILD_VERSION',
     },
 }
 const BUILD_FILE_ADAPTER = new FileAdapter('B2CApps/builds', true)

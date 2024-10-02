@@ -36,7 +36,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: ALREADY_EXISTS_ERROR,
         message: 'Provided receipt already paid',
-        messageForUser: 'api.billing.error.alreadyPaid',
+        messageForUser: 'api.billing.billingReceipt.RECEIPT_ALREADY_PAID_ERROR',
     },
 }
 

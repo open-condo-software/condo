@@ -859,7 +859,7 @@ describe('RegisterMetersReadingsService', () => {
                             extensions: expect.objectContaining({
                                 type: 'INVALID_DATE',
                                 message: 'Invalid date',
-                                messageForUser: i18n('meter.import.error.WrongDateFormatMessage', {
+                                messageForUser: i18n('api.meter.registerMetersReadings.INVALID_DATE:', {
                                     locale,
                                     meta: {
                                         columnName: i18n('meter.import.column.meterReadingSubmissionDate', { locale }),

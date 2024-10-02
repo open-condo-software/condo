@@ -17,28 +17,28 @@ const ERRORS = {
         variable: ['data', 'notifyEndDay'],
         type: 'INVALID_FINISH',
         message: 'The "notifyEndDay" field can take values in the range from 1 to 31',
-        messageForUser: 'api.meter.MeterReportingPeriod.INVALID_FINISH',
+        messageForUser: 'api.meter.meterReportingPeriod.INVALID_FINISH',
     },
     INVALID_START: {
         code: BAD_USER_INPUT,
         variable: ['data', 'notifyStartDay'],
         type: 'INVALID_START',
         message: 'The "notifyStartDay" field can take values in the range from 1 to 31',
-        messageForUser: 'api.meter.MeterReportingPeriod.INVALID_START',
+        messageForUser: 'api.meter.meterReportingPeriod.INVALID_START',
     },
     ORGANIZATION_IS_REQUIRED: {
         code: BAD_USER_INPUT,
         variable: ['data', 'organization'],
         type: 'ORGANIZATION_IS_REQUIRED',
         message: 'The organization is required to create',
-        messageForUser: 'api.meter.MeterReportingPeriod.ORGANIZATION_IS_REQUIRED',
+        messageForUser: 'api.meter.meterReportingPeriod.ORGANIZATION_IS_REQUIRED',
     },
     PROPERTY_NOT_FOUND: {
         code: BAD_USER_INPUT,
         variable: ['data', 'property'],
         type: 'PROPERTY_NOT_FOUND',
         message: 'There is no such property in the specified organization',
-        messageForUser: 'api.meter.MeterReportingPeriod.PROPERTY_NOT_FOUND',
+        messageForUser: 'api.meter.meterReportingPeriod.PROPERTY_NOT_FOUND',
     },
 }
 

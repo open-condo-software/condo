@@ -4,14 +4,13 @@ const { NUMBER_OF_TARIFFS_NOT_VALID } = require('@condo/domains/meter/constants/
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 const ERRORS = {
-    NUMBER_OF_TARIFFS_NOT_VALID: (value) => ({
+    NUMBER_OF_TARIFFS_NOT_VALID: {
         code: BAD_USER_INPUT,
         type: NUMBER_OF_TARIFFS_NOT_VALID,
         message: 'Provided number of tariffs is not valid. Must be an integer from 1 to 4.',
         messageForUser: 'api.meter.NUMBER_OF_TARIFFS_NOT_VALID',
-        messageInterpolation: { value },
         variable: ['data', 'numberOfTariffs'],
-    }),
+    },
 }
 
 const resolveNumberOfTariffs = (valuesCount) => ({
@@ -21,7 +20,10 @@ const resolveNumberOfTariffs = (valuesCount) => ({
         validateInput: ({ context, resolvedData, fieldPath }) => {
             const value = Number(resolvedData[fieldPath])
             if (value < 1 || value > valuesCount) {
-                throw new GQLError(ERRORS.NUMBER_OF_TARIFFS_NOT_VALID(resolvedData[fieldPath]), context)
+                throw new GQLError({
+                    ...ERRORS.NUMBER_OF_TARIFFS_NOT_VALID,
+                    messageInterpolation: { value: resolvedData[fieldPath] },
+                }, context)
             }
         },
     },

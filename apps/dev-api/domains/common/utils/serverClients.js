@@ -27,7 +27,7 @@ const ERRORS = {
         code: INTERNAL_ERROR,
         type: MULTIPLE_FOUND,
         message: 'Unable to determine the object to update because multiple objects were found for the specified importID and exportId',
-        messageForUser: 'errors.MULTIPLE_FOUND.message',
+        messageForUser: 'api.common.MULTIPLE_FOUND',
     },
 }
 
