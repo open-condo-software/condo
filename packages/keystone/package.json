@@ -38,6 +38,7 @@
     "@keystonejs/utils": "^6.1.0",
     "@open-condo/config": "workspace:^",
     "@open-condo/locales": "workspace:^",
+    "ajv": "8.11.0",
     "apollo-errors": "^1.9.0",
     "apollo-server-errors": "^3.1.0",
     "apollo-upload-client": "^14.1.3",
@@ -84,6 +85,7 @@
   },
   "repository": "https://github.com/open-condo-software/condo/tree/main/packages/keystone",
   "devDependencies": {
+    "@faker-js/faker": "^7",
     "babel-jest": "^29.7.0"
   }
 }
