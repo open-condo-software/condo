@@ -297,7 +297,17 @@ export const getFullUnitRender = (intl, search: FilterValue) => {
         const property = get(model, 'property')
         const unitType = get(model, 'unitType')
 
-        const { sectionName, floorName, sectionType } = getSectionAndFloorByUnitName(property, unit, unitType)
+        let sectionName = null
+        let floorName = null
+        let sectionType = null 
+
+        if (get(model, ['property', 'map'])) {
+            ({ sectionName, sectionType, floorName } = getSectionAndFloorByUnitName(property, unit, unitType))
+        } else {
+            sectionName = get(model, 'sectionName')
+            sectionType = get(model, 'sectionType')
+            floorName = get(model, 'floorName')
+        }
 
         let unitNamePrefix = null
         const sectionNameMessage = sectionName ? `${ShortSectionNameMessage} ${sectionName}` : ''
