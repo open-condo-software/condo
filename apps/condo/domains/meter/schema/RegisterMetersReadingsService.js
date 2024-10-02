@@ -329,17 +329,21 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     meter: { id_in: meters.map(meter => meter.id) },
                     date_in: uniq(readingsWithValidDates.map(reading => toISO(reading.date))),
                 })
-                const meterReadings = plainMeterReadings.map(reading => {
-                    const meter = meters.find(meter => meter.id === reading.meter)
-                    const meterProperty = properties.find(property => property.id === meter.property)
-                    const meterWithProperty = { ...meter, property: meterProperty }
-
-                    return {
-                        ...reading,
-                        meter: meterWithProperty,
+                const propertyByIdMap = properties.reduce((acc, property) => {
+                    acc[property.id] = property
+                    return acc
+                }, {})
+                const metersWithPropertyByIdMap = meters.reduce((acc, meter) => {
+                    acc[meter.id] = {
+                        ...meter,
+                        property: propertyByIdMap[meter.property],
                     }
-                })
-
+                    return acc
+                }, {})
+                const meterReadings = plainMeterReadings.map(reading => ({
+                    ...reading,
+                    meter: metersWithPropertyByIdMap[reading.meter],
+                }))
                 const meterReadingByDate = meterReadings.reduce((acc, reading) => {
                     const key = `${reading.meter.id}-${reading.date.toISOString()}`
                     acc[key] = reading
