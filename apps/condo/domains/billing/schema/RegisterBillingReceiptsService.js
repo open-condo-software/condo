@@ -116,9 +116,9 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                 const skipUsingCache = !!get(context, 'settings.ignoreCache', false)
                 let ignoreReceipts = {}
                 if (!skipUsingCache) {
-                    ignoreReceipts = await loadReceiptsFromCache(context.id, receiptIndex)
+                    ignoreReceipts = await loadReceiptsFromCache(billingContextId, receiptsInput)
                     if (!isEmpty(ignoreReceipts)) {
-                        receiptIndex = Object.fromEntries(Object.entries(receiptIndex).filter(([key]) => !ignoreReceipts.has(key)))
+                        receiptIndex = Object.fromEntries(Object.entries(receiptIndex).filter(([key]) => !ignoreReceipts.hasOwnProperty(key)))
                     }
                 }
                 const debug = []
@@ -139,7 +139,9 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                         registerReceiptLogger.error({ msg: 'Resolver fail', payload: { error } })
                     }
                 }
-                await saveReceiptsToCache(context.id, Object.entries(receiptIndex).map(([index, receipt]) => ({ id: receipt.id, ...receiptsInput[index] })))
+                if (!isEmpty(receiptIndex)) {
+                    await saveReceiptsToCache(billingContextId, Object.entries(receiptIndex).map(([index, receipt]) => ({ id: receipt.id, ...receiptsInput[index] })))
+                }
                 registerReceiptLogger.info({ msg: 'register-receipts-profiler', debug, context: billingContextInput, receiptsCount: receiptsInput.length })
                 receiptIndex = { ...receiptIndex, ...ignoreReceipts }
                 const receiptIds = Object.values(receiptIndex).map(({ id }) => id)

@@ -5,7 +5,7 @@ const { find } = require('@open-condo/keystone/schema')
 
 
 const {
-    RECEIPTS_CACHE_CONTROL_SUM_TTL_IN_MS,
+    RECEIPTS_CACHE_CONTROL_SUM_TTL_IN_SECONDS,
 } = require('@condo/domains/billing/constants/registerBillingReceiptService')
 const { md5 } = require('@condo/domains/common/utils/crypto')
 
@@ -105,7 +105,7 @@ class ReceiptsRedisCache {
             id,
             hash: md5(canonicalizeJSON(receipt)),
         }
-        await this.redis.set(this.getRedisKey(importId), JSON.stringify(data), 'EX', RECEIPTS_CACHE_CONTROL_SUM_TTL_IN_MS)
+        await this.redis.set(this.getRedisKey(importId), JSON.stringify(data), 'EX', RECEIPTS_CACHE_CONTROL_SUM_TTL_IN_SECONDS)
     }
 
 }
