@@ -150,7 +150,7 @@ const RegisterMultiPaymentForInvoicesService = new GQLCustomSchema('RegisterMult
 
                 const [acquiringIntegrationModel] = await AcquiringIntegration.getAll(context, {
                     id: Array.from(acquiringIntegrations)[0],
-                })
+                }, 'id hostUrl deletedAt')
                 if (acquiringIntegrationModel.deletedAt) {
                     throw new GQLError(ERRORS.ACQUIRING_INTEGRATION_IS_DELETED(acquiringIntegrationModel.id), context)
                 }
