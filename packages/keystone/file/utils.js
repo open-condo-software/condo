@@ -1,8 +1,37 @@
-const { createReadStream, readFileSync } = require('fs')
+const { createReadStream } = require('fs')
 const path = require('path')
 const { Duplex } = require('stream')
 
+const iconv = require('iconv-lite')
+const jschardet = require('jschardet')
+
 const INVISIBLE_CHARS_REGEXP = new RegExp('[\u200B-\u200D\uFEFF]', 'g')
+const FORCE_ENCODING_CHANGE = {
+    'X-MAC-CYRILLIC': 'WINDOWS-1251',
+    'KOI8-R': 'WINDOWS-1251', // TODO: Find why KOI8 detected on WINDOWS-1251
+    'ISO-8859-2': 'WINDOWS-1251',
+}
+
+const detectEncoding = (buffer) => {
+    const { encoding: detectedEncoding } = jschardet.detect(buffer)
+    if (detectedEncoding) {
+        const encoding = detectedEncoding.toUpperCase()
+        return FORCE_ENCODING_CHANGE[encoding] || encoding
+    }
+    return null
+}
+const encode = (buffer, encoding) => {
+    if (!encoding) {
+        return null
+    }
+    if (encoding === 'UTF-8') {
+        return buffer.toString()
+    }
+    return iconv.decode(buffer, encoding).toString()
+}
+const convertEncoding = (buffer, encoding) => {
+    return encode(buffer, encoding)
+}
 
 const clearString = (cell) => {
     if (!cell) {
@@ -100,4 +129,7 @@ module.exports = {
     getObjectStream,
     bufferToStream,
     toRanges,
+    detectEncoding,
+    encode,
+    convertEncoding,
 }
