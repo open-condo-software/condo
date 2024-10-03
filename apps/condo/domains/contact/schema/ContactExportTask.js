@@ -16,7 +16,7 @@ const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const access = require('@condo/domains/contact/access/ContactExportTask')
 const { exportContacts } = require('@condo/domains/contact/tasks')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
-const { LOCALES } = require('../../user/constants/common')
+const { LOCALES } = require('@condo/domains/user/constants/common')
 
 const ContactExportTaskFileAdapter = new FileAdapter('ContactExportTask')
 const setFileMetaAfterChange = getFileMetaAfterChange(ContactExportTaskFileAdapter, 'file')
