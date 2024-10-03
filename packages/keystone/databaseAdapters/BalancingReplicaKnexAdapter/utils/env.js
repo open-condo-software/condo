@@ -1,6 +1,6 @@
 const Ajv = require('ajv')
 
-const ajv = new Ajv()
+const ajv = new Ajv({ useDefaults: true })
 
 const DB_URL_PROTOCOL_PREFIX = 'custom:'
 const DB_URL_PATTERN = new RegExp(`${DB_URL_PROTOCOL_PREFIX}{.+}`)
@@ -16,6 +16,10 @@ const DB_URL_SCHEMA = {
             pattern: '^postgresql://.+',
         },
     },
+}
+
+const BALANCER_OPTIONS_SCHEMAS = {
+    'RoundRobin': null,
 }
 
 const validateDBConfig = ajv.compile(DB_URL_SCHEMA)
@@ -56,14 +60,41 @@ function _createBasicReplicaPoolsSchema (availableDatabases) {
                     databases: {
                         type: 'array',
                         items: {
+                            type: 'string',
                             enum: availableDatabases,
                         },
                         minItems: 1,
                     },
                     writable: { type: 'boolean' },
+                    balancer: {
+                        type: 'string',
+                        enum: Object.keys(BALANCER_OPTIONS_SCHEMAS),
+                        default: 'RoundRobin', // default balancer
+                    },
+                    balancerOptions: { type: 'object' }, // will be redefined based on balancer value
                 },
-                required: ['databases', 'writable'],
+                required: ['databases', 'writable', 'balancer'],
                 additionalProperties: false,
+                oneOf: [
+                    ...Object.entries(BALANCER_OPTIONS_SCHEMAS)
+                        .map(([balancerName, optionsSchema]) => optionsSchema
+                            ? {
+                                properties: {
+                                    balancer: { const: balancerName },
+                                    balancerOptions: optionsSchema,
+                                },
+                                required: ['databases', 'writable', 'balancer', 'balancerOptions'],
+                            }
+                            : {
+                                properties: {
+                                    balancer: { const: balancerName },
+                                    balancerOptions: { not: {} },
+                                },
+                                required: ['databases', 'writable'],
+                            }
+                        ),
+
+                ],
             },
         },
     }
@@ -73,7 +104,7 @@ function getReplicaPoolsConfig (configString, availableDatabases) {
     if (!configString || typeof configString !== 'string') {
         throw new TypeError(`Invalid DB pools config passed. String was expected, but got ${typeof configString}`)
     }
-    const parsedConfig = JSON.parse(configString)
+    let parsedConfig = JSON.parse(configString)
     const validationSchema = _createBasicReplicaPoolsSchema(availableDatabases)
     const validateConfig = ajv.compile(validationSchema)
 
