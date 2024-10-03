@@ -1,13 +1,13 @@
 const { pickBy, get, isEmpty, isObject } = require('lodash')
 
 const {
-    genGetAllGQL,
-    genGetCountGQL,
-    genCreateGQL,
-    genCreateManyGQL,
-    genUpdateGQL,
-    genUpdateManyGQL,
-    genDeleteGQL,
+    generateGetAllGQL,
+    generateGetCountGQL,
+    generateCreateGQL,
+    generateCreateManyGQL,
+    generateUpdateGQL,
+    generateUpdateManyGQL,
+    generateDeleteGQL,
     generateGqlQueries,
 } = require('@open-condo/codegen/generate.gql')
 const conf = require('@open-condo/config')
@@ -365,19 +365,19 @@ function generateServerUtils (gqlOrSchemaName) {
     // prepare a query resolver helper
     const queryResolver = {
         getAll: (fields) => isDefaultGql(fields)
-            ? defaultGql.GET_ALL_OBJS_QUERY : genGetAllGQL(gqlOrSchemaName, `{ ${fields} }`),
+            ? defaultGql.GET_ALL_OBJS_QUERY : generateGetAllGQL(gqlOrSchemaName, `{ ${fields} }`),
         count: (fields) => isDefaultGql(fields)
-            ? defaultGql.GET_COUNT_OBJS_QUERY : genGetCountGQL(gqlOrSchemaName, `{ ${fields} }`),
+            ? defaultGql.GET_COUNT_OBJS_QUERY : generateGetCountGQL(gqlOrSchemaName, `{ ${fields} }`),
         create: (fields) => isDefaultGql(fields)
-            ? defaultGql.CREATE_OBJ_MUTATION : genCreateGQL(gqlOrSchemaName, `{ ${fields} }`),
+            ? defaultGql.CREATE_OBJ_MUTATION : generateCreateGQL(gqlOrSchemaName, `{ ${fields} }`),
         createMany: (fields) => isDefaultGql(fields)
-            ? defaultGql.CREATE_OBJS_MUTATION : genCreateManyGQL(gqlOrSchemaName, `{ ${fields} }`),
+            ? defaultGql.CREATE_OBJS_MUTATION : generateCreateManyGQL(gqlOrSchemaName, `{ ${fields} }`),
         update: (fields) => isDefaultGql(fields)
-            ? defaultGql.UPDATE_OBJ_MUTATION : genUpdateGQL(gqlOrSchemaName, `{ ${fields} }`),
+            ? defaultGql.UPDATE_OBJ_MUTATION : generateUpdateGQL(gqlOrSchemaName, `{ ${fields} }`),
         updateMany: (fields) => isDefaultGql(fields)
-            ? defaultGql.UPDATE_OBJS_MUTATION : genUpdateManyGQL(gqlOrSchemaName, `{ ${fields} }`),
+            ? defaultGql.UPDATE_OBJS_MUTATION : generateUpdateManyGQL(gqlOrSchemaName, `{ ${fields} }`),
         delete: (fields) => isDefaultGql(fields)
-            ? defaultGql.DELETE_OBJ_MUTATION : genDeleteGQL(gqlOrSchemaName, `{ ${fields} }`),
+            ? defaultGql.DELETE_OBJ_MUTATION : generateDeleteGQL(gqlOrSchemaName, `{ ${fields} }`),
     }
 
     /**
