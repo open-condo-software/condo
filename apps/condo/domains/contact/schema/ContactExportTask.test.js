@@ -297,6 +297,7 @@ describe('ContactExportTask', () => {
 
 describe('exportContacts', () => {
     it('should create `ContactExportTask` and create xlsx file', async () => {
+        // NOTE(pahaz): you also need to switch userClient locale. look at `TicketExportTask` example
         const locale = 'ru'
         const timeZone = 'Europe/Moscow'
         const adminClient = await makeLoggedInAdminClient()

@@ -428,6 +428,8 @@ describe('exportTickets', () => {
         const timeZone = 'Europe/Moscow'
         const adminClient = await makeLoggedInAdminClient()
         const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+        // NOTE(pahaz): we need to switch our test client to test locale!
+        userClient.setHeaders({ 'accept-language': locale })
         const [organization] = await createTestOrganization(adminClient)
         const [property] = await createTestProperty(adminClient, organization)
         const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
@@ -439,6 +441,7 @@ describe('exportTickets', () => {
         const ticketsCountFor2Chunks = Math.floor(EXPORT_PROCESSING_BATCH_SIZE * 1.5)
         const tickets = []
         for (let i = ticketsCountFor2Chunks; i > 0; i--) {
+            // NOTE(pahaz): really you will get the result in test locale because { 'accept-language': locale }
             const [ticket] = await createTestTicket(userClient, organization, property)
             tickets.push(ticket)
         }

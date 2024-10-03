@@ -13,6 +13,7 @@ const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { IMPORT_FORMAT_VALUES, IMPORT_STATUS_VALUES, PROCESSING, METER_READINGS_IMPORT_TASK_FOLDER_NAME } = require('@condo/domains/common/constants/import')
 const access = require('@condo/domains/meter/access/MeterReadingsImportTask')
 const { importMeters } = require('@condo/domains/meter/tasks/index')
+const { LOCALES } = require('@condo/domains/user/constants/common')
 
 const MeterReadingsImportTaskFileAdapter = new FileAdapter(METER_READINGS_IMPORT_TASK_FOLDER_NAME)
 const setFileMetaAfterChange = getFileMetaAfterChange(MeterReadingsImportTaskFileAdapter, 'file')
@@ -148,8 +149,14 @@ const MeterReadingsImportTask = new GQLListSchema('MeterReadingsImportTask', {
             type: 'Text',
             isRequired: true,
             hooks: {
-                resolveInput: async ({ context }) => {
-                    return extractReqLocale(context.req) || conf.DEFAULT_LOCALE
+                resolveInput: async ({ context, resolvedData, fieldPath, operation }) => {
+                    if (operation === 'create') {
+                        // NOTE(pahaz): resolveInput called every update/create! And we need to use it only on create!
+                        const resolvedValue = resolvedData[fieldPath]
+                        // TODO(pahaz): DOMA-10348 we need to throw validation error here!
+                        if (resolvedValue && LOCALES.includes(resolvedValue)) return resolvedValue
+                        return extractReqLocale(context.req) || conf.DEFAULT_LOCALE
+                    }
                 },
             },
             access: {
