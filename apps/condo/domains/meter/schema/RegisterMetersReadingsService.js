@@ -37,7 +37,7 @@ const ERRORS = {
     TOO_MUCH_READINGS: {
         code: BAD_USER_INPUT,
         type: TOO_MUCH_READINGS,
-        message: `Too much readings. Maximum is ${READINGS_LIMIT}.`,
+        message: 'Too much readings. Maximum is {limit}.',
         messageForUser: 'api.meter.registerMetersReadings.TOO_MUCH_READINGS',
     },
     ORGANIZATION_NOT_FOUND: {
@@ -68,19 +68,19 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: INVALID_ACCOUNT_NUMBER,
         message: 'Invalid account number',
-        messageForUser: 'meter.import.error.AccountNumberInvalidValue',
+        messageForUser: 'api.meter.registerMetersReadings.INVALID_ACCOUNT_NUMBER',
     },
     INVALID_METER_NUMBER: {
         code: BAD_USER_INPUT,
         type: INVALID_METER_NUMBER,
         message: 'Invalid meter number',
-        messageForUser: 'meter.import.error.MeterNumberInvalidValue',
+        messageForUser: 'api.meter.registerMetersReadings.INVALID_METER_NUMBER',
     },
     INVALID_DATE: {
         code: BAD_USER_INPUT,
         type: INVALID_DATE,
         message: 'Invalid date',
-        messageForUser: 'meter.import.error.WrongDateFormatMessage',
+        messageForUser: 'api.meter.registerMetersReadings.INVALID_DATE',
     },
 }
 
@@ -223,7 +223,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     deletedAt: null,
                 })
 
-                const readingsWithValidDates = readings.filter(reading => isDateStrValid(clearDateStr(reading.date)))
+                const readingsWithValidDates = readings.filter(reading => isDateStrValid(clearDateStr(reading.date), { formats: DATE_PARSING_FORMATS, strict: true }))
                 const plainMeterReadings = await find('MeterReading', {
                     meter: { id_in: meters.map(meter => meter.id) },
                     date_in: uniq(readingsWithValidDates.map(reading => toISO(reading.date))),
