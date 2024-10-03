@@ -11,7 +11,7 @@ const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
 const { createTestBankIntegrationAccountContext, createTestBankIntegrationOrganizationContext, BankIntegrationOrganizationContext } = require('@condo/domains/banking/utils/testSchema')
 const { createTestBillingIntegrationOrganizationContext, createTestBillingIntegration, BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
 const { COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
-const { MeterResource, Meter, createTestMeter } = require('@condo/domains/meter/utils/testSchema')
+const { MeterResource, Meter, MeterResourceOwner, PropertyMeter, MeterReportingPeriod, createTestMeter, createTestPropertyMeter, createTestMeterReportingPeriod } = require('@condo/domains/meter/utils/testSchema')
 const { createTestB2BAppContext, B2BAppContext, createTestB2BApp } = require('@condo/domains/miniapp/utils/testSchema')
 const { DELETED_ORGANIZATION_NAME, HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { resetOrganizationByTestClient, createTestOrganization, Organization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole, createTestOrganizationLink, OrganizationLink } = require('@condo/domains/organization/utils/testSchema')
@@ -132,11 +132,12 @@ describe('ResetOrganizationService', () => {
 
         const [parentOrganization] = await createTestOrganization(admin, { type: HOLDING_TYPE })
         const [createdLink] = await createTestOrganizationLink(admin, parentOrganization, createdOrganization)
-
+        // Is it necessary to test the case with another MeterSource? Example HOT_WATER?
         const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
         // Here I create one meter. I probably need to create many meters. Make createTestMeter in a loop?
-        const [createdMeter] = await createTestMeter(admin, createdOrganization, createdProperty, resource, {})
-        // const [meterResourceOwner] = await createTestMeterResourceOwner(admin)
+        await createTestMeter(admin, createdOrganization, createdProperty, resource)
+        await createTestPropertyMeter(admin, createdOrganization, createdProperty, resource)
+        await createTestMeterReportingPeriod(admin, createdOrganization)
 
         const [billingIntegration] = await createTestBillingIntegration(admin)
         const [createdBillingIntegrationOrgCtx] = await createTestBillingIntegrationOrganizationContext(admin, createdOrganization, billingIntegration)
@@ -164,10 +165,23 @@ describe('ResetOrganizationService', () => {
         const linkTo = await OrganizationLink.getAll(admin, { id: createdLink.id })
         expect(linkTo).toHaveLength(0)
 
-        const meter = await Meter.getAll(admin, { id: createdMeter.id })
+        const meter = await Meter.getAll(admin, { 
+            organization: { id: createdOrganization.id },
+        })
         expect(meter).toHaveLength(0)
-        // const meterOwner = await MeterResourceOwner.getAll(admin, { id: createdLink.id })
-        // expect(meterOwner).toHaveLength(0)
+        // MeterResourceOwner is created at the time of meter creation 
+        const meterResourceOwner = await MeterResourceOwner.getAll(admin, { 
+            organization: { id: createdOrganization.id },
+        })
+        expect(meterResourceOwner).toHaveLength(0)
+        const propertyMeter = await PropertyMeter.getAll(admin, { 
+            organization: { id: createdOrganization.id },
+        })
+        expect(propertyMeter).toHaveLength(0)
+        const meterReportingPeriod = await MeterReportingPeriod.getAll(admin, {
+            organization: { id: createdOrganization.id },
+        })
+        expect(meterReportingPeriod).toHaveLength(0)
 
         const billingIntegrationOrgCtx = await BillingIntegrationOrganizationContext.getAll(admin, { id: createdBillingIntegrationOrgCtx.id })
         expect(billingIntegrationOrgCtx).toHaveLength(0)
