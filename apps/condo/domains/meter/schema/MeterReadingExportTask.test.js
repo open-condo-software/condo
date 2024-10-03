@@ -31,7 +31,6 @@ const {
     makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee, createTestOrganizationEmployeeRole,
 } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { LOCALE_EN } = require('@condo/domains/user/constants/common')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 
@@ -53,7 +52,6 @@ describe('MeterReadingExportTask', () => {
     describe('Accesses', () => {
         describe('Admin', () => {
             let task, taskAttrs, organization, employeeClient
-
             beforeAll(async () => {
                 const { organization: createdOrg, userClient } = await makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee({
                     canReadMeters: true,
@@ -466,8 +464,6 @@ describe('exportMeterReadings', () => {
         const [task] = await createTestMeterReadingExportTask(userClient, userClient.user, {
             where: exportWhere,
             sortBy: exportSortBy,
-            timeZone: 'Europe/London',
-            locale: LOCALE_EN,
         })
 
         const { timeZone, locale } = task
@@ -491,20 +487,20 @@ describe('exportMeterReadings', () => {
 
         const expectedData = [
             [
-                'Reading date',
-                'Address',
-                'Unit',
-                'Unit type',
-                'Account number',
-                'Service',
-                'Meter number',
-                'Place',
-                'Reading from tariff №1',
-                'Reading from tariff №2',
-                'Reading from tariff №3',
-                'Reading from tariff №4',
-                'Contact',
-                'Source',
+                i18n('excelExport.headers.meters.date', { locale }),
+                i18n('excelExport.headers.meters.address', { locale }),
+                i18n('excelExport.headers.meters.unitName', { locale }),
+                i18n('excelExport.headers.meters.unitType', { locale }),
+                i18n('excelExport.headers.meters.accountNumber', { locale }),
+                i18n('excelExport.headers.meters.resource', { locale }),
+                i18n('excelExport.headers.meters.number', { locale }),
+                i18n('excelExport.headers.meters.place', { locale }),
+                i18n('excelExport.headers.meters.value1', { locale }),
+                i18n('excelExport.headers.meters.value2', { locale }),
+                i18n('excelExport.headers.meters.value3', { locale }),
+                i18n('excelExport.headers.meters.value4', { locale }),
+                i18n('excelExport.headers.meters.clientName', { locale }),
+                i18n('excelExport.headers.meters.source', { locale }),
             ],
             ...(lastReadingsByMeter.map(meterReading => [
                 formatDate(meterReading.date, timeZone),

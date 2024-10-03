@@ -484,8 +484,6 @@ async function createTestMeterReadingExportTask (client, user, extraAttrs = {}) 
         format: EXCEL,
         where: {},
         sortBy: ['createdAt_DESC'],
-        locale: LOCALE_EN,
-        timeZone: 'Europe/London',
         user: { connect: { id: user.id } },
         ...extraAttrs,
     }
