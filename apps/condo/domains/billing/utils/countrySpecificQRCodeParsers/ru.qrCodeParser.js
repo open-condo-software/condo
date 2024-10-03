@@ -1,5 +1,4 @@
-const iconv = require('iconv-lite')
-const jschardet = require('jschardet')
+const { convertEncoding, detectEncoding } = require('@open-condo/keystone/file/utils')
 
 /**
  * @typedef {Object} TRUQRCodeFields
@@ -18,13 +17,7 @@ const jschardet = require('jschardet')
  */
 function parseRUReceiptQRCode (qrStr) {
     const buffer = Buffer.from(qrStr, 'base64')
-    const { encoding: detectedEncoding } = jschardet.detect(buffer)
-
-    // In Russia, only two formats are used: utf and windows-1251. Therefore, here we strictly control the formats
-    const encoding = detectedEncoding && detectedEncoding.toUpperCase() === 'UTF-8' ? 'UTF-8' : 'WINDOWS-1251'
-
-    // Skip decoding for utf string
-    const decodedRequisitesStr = encoding === 'UTF-8' ? buffer.toString() : iconv.decode(buffer, encoding)
+    const decodedRequisitesStr = convertEncoding(buffer, detectEncoding(buffer))
 
     const matches = /^ST(?<version>\d{4})(?<encodingTag>\d)\|(?<requisitesStr>.*)$/g.exec(decodedRequisitesStr)
 

@@ -41,6 +41,8 @@ const {
     createTestRecipient,
 } = require('./testSchema')
 
+const TEST_STRING = 'ST00011|Name=ООО «УК ЭкоГрад»|PersonalAcc=40902830202010056769|BankName=ПАО СБЕРБАНК|BIC=048073601|CorrespAcc=30102110300320000206|PayeeINN=0524967340|persAcc=5018435412|payerAddress=ул.Ивана Спатара, д.14, кв.32|lastName=Иванов|firstName=Иван|middleName=Иванович|Sum=12351'
+
 describe('receiptQRCodeUtils', () => {
 
     const parseRUReceiptQRCode = getCountrySpecificQRCodeParser(RUSSIA_COUNTRY)
@@ -53,22 +55,27 @@ describe('receiptQRCodeUtils', () => {
     })
 
     describe('RU QR-codes decoded correctly', () => {
-        const cases = [
-            [1, 'АТМОСФЕРА', 'windows-1251'], // Got from real QR-code
-            // Got from conversion (https://convertcyrillic.com/)
-            // curl 'https://convertcyrillic.com/api/conversionservice' --data-raw '={"sourceEncoding":"Russian.Unicode","targetEncoding":"Russian.KOI8","text":"Привет"}'
-            [2, 'Привет', 'UTF-8'],
-            // curl 'https://convertcyrillic.com/api/conversionservice' --data-raw '={"sourceEncoding":"Russian.Unicode","targetEncoding":"Russian.CP1251","text":"Привет"}'
-            [3, 'Привет', 'CP1251'],
+        const cases = [ // Got from real QR-code
+            [iconv.encode(TEST_STRING, 'UTF-8').toString('base64')], // UTF-8
+            [iconv.encode(TEST_STRING, 'cp1251').toString('base64')], // cp-1251
         ]
 
-        test.each(cases)('%p %p -> %p', (tag, expectedData, encoding) => {
-            const qrStr = iconv.encode(`ST0001${tag}|field1=Hello|Field2=мир|foo=${expectedData}`, encoding).toString('base64')
+        test.each(cases)('%p %p -> %p', (qrStr) => {
             const parsed = parseRUReceiptQRCode(qrStr)
             expect(parsed).toEqual({
-                field1: 'Hello',
-                Field2: 'мир',
-                foo: expectedData,
+                'ST00011': undefined,
+                'Name': 'ООО «УК ЭкоГрад»',
+                'PersonalAcc': '40902830202010056769',
+                'BankName': 'ПАО СБЕРБАНК',
+                'BIC': '048073601',
+                'CorrespAcc': '30102110300320000206',
+                'PayeeINN': '0524967340',
+                'persAcc': '5018435412',
+                'payerAddress': 'ул.Ивана Спатара, д.14, кв.32',
+                'lastName': 'Иванов',
+                'firstName': 'Иван',
+                'middleName': 'Иванович',
+                'Sum': '12351',
             })
         })
     })
