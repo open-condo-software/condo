@@ -169,9 +169,12 @@ class GQLError extends Error {
                 // TODO(pahaz): DOMA-10345 throw error for that cases! Waiting for apps refactoring
                 // throw new Error('GQLError: wrong `messageForUser` field argument. Should starts with `api.`')
             }
-            if (!context) throw new Error('GQLError: no context for messageForUser')
-            // todo use i18n from apps/condo/domains/common/utils/localesLoader.js
-            const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
+            if (!context) {
+                console.warn('WRONG `messageForUser` without context argument! Important to pass GQLError({ .. }, context) argument!')
+                // TODO(pahaz): DOMA-10345 throw error for that cases! Waiting for apps refactoring
+                // throw new Error('GQLError: no context for messageForUser. You can use `{ req }` as context')
+            }
+            const locale = extractReqLocale(context?.req) || conf.DEFAULT_LOCALE
             const translations = getTranslations(locale)
             const translatedMessage = translations[fields.messageForUser]
             extensions.messageForUser = template(translatedMessage)(fields.messageInterpolation)

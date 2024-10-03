@@ -421,6 +421,79 @@ describe('safeFormatError hide=false', () => {
             },
         })
     })
+    test('safeFormatError(GQLError) with context and wrong messageForUser', () => {
+        const message1 = Date.now().toString()
+        const message2 = 'GQL' + (Date.now() % 100).toString()
+        const reqId = 'req' + (Date.now() % 500).toString()
+        const original = new GQLError({
+            code: 'INTERNAL_ERROR',
+            type: 'WRONG_FORMAT',
+            message: message1,
+            messageForUser: 'api.UNKNOWN_KEY',
+        }, { req: { id: reqId }, name: 'context1' })
+        const error = new GraphQLError(message2, null, null, null, null, original, {})
+        const result = safeFormatError(error)
+        const uid = result?.originalError?.uid
+        expect(result).toEqual({
+            'name': 'GQLError',
+            'message': message2,
+            'stack': expect.stringMatching(new RegExp(`^GQLError: ${message1}`)),
+            'extensions': {
+                code: 'INTERNAL_ERROR',
+                type: 'WRONG_FORMAT',
+                'messageForUserTemplateKey': 'api.UNKNOWN_KEY',
+                'message': message1,
+            },
+            'originalError': {
+                uid,
+                'name': 'GQLError',
+                'message': message1,
+                'stack': expect.stringMatching(new RegExp(`^GQLError: ${message1}`)),
+                'extensions': {
+                    code: 'INTERNAL_ERROR',
+                    type: 'WRONG_FORMAT',
+                    'messageForUserTemplateKey': 'api.UNKNOWN_KEY',
+                    'message': message1,
+                },
+            },
+        })
+    })
+    test('safeFormatError(GQLError) without context and wrong messageForUser', () => {
+        const message1 = Date.now().toString()
+        const message2 = 'GQL' + (Date.now() % 100).toString()
+        const original = new GQLError({
+            code: 'INTERNAL_ERROR',
+            type: 'WRONG_FORMAT',
+            message: message1,
+            messageForUser: 'api.UNKNOWN_KEY',
+        })
+        const error = new GraphQLError(message2, null, null, null, null, original, {})
+        const result = safeFormatError(error)
+        const uid = result?.originalError?.uid
+        expect(result).toEqual({
+            'name': 'GQLError',
+            'message': message2,
+            'stack': expect.stringMatching(new RegExp(`^GQLError: ${message1}`)),
+            'extensions': {
+                code: 'INTERNAL_ERROR',
+                type: 'WRONG_FORMAT',
+                'messageForUserTemplateKey': 'api.UNKNOWN_KEY',
+                'message': message1,
+            },
+            'originalError': {
+                uid,
+                'name': 'GQLError',
+                'message': message1,
+                'stack': expect.stringMatching(new RegExp(`^GQLError: ${message1}`)),
+                'extensions': {
+                    code: 'INTERNAL_ERROR',
+                    type: 'WRONG_FORMAT',
+                    'messageForUserTemplateKey': 'api.UNKNOWN_KEY',
+                    'message': message1,
+                },
+            },
+        })
+    })
     test('safeFormatError(GQLError) with parentErrors = [new Error]', () => {
         const message1 = Date.now().toString()
         const message2 = 'GQL' + (Date.now() % 100).toString()
