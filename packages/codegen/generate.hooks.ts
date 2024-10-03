@@ -432,9 +432,11 @@ export function generateReactHooks<
             loadMore(data.length)
         }, [count, data.length, error, fetchMoreError, firstPageLoaded, loadMore, skip])
 
+        const allDataLoaded = data.length === 0 ? objs.length === count : data.length === count
         return {
-            loading,
-            allDataLoaded: data.length === 0 ? objs.length === count : data.length === count,
+            loading: !allDataLoaded,
+            /** @deprecated use loading field instead */
+            allDataLoaded,
             objs: data.length === 0 ? objs : data,
             count,
             error: error || fetchMoreError,
