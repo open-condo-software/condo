@@ -44,6 +44,7 @@ const {
     makeClientWithServiceUser,
 } = require('@condo/domains/user/utils/testSchema')
 
+
 describe('RegisterMetersReadingsService', () => {
 
     let adminClient, supportClient, residentClient, anonymousClient
