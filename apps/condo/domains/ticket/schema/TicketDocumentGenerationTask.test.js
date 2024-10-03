@@ -8,7 +8,7 @@ const {
     makeLoggedInAdminClient, makeClient, DATETIME_RE,
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects, waitFor, expectToThrowGQLError,
-    catchErrorFrom, expectToThrowGraphQLRequestError,
+    expectToThrowGraphQLRequestError,
 } = require('@open-condo/keystone/test.utils')
 
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')

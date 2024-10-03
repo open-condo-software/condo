@@ -40,7 +40,6 @@ const {
     makeClientWithStaffUser,
     makeClientWithServiceUser,
 } = require('@condo/domains/user/utils/testSchema')
-const { WRONG_FORMAT } = require('../../common/constants/errors')
 
 function generateQRCode (qrCodeData = {}, { version = '0001', encodingTag = '2' } = {}) {
     const bic = createValidRuRoutingNumber()

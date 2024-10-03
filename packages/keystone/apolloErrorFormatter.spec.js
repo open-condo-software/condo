@@ -1220,6 +1220,8 @@ describe('safeFormatError hide=false', () => {
         })
     })
     test('safeFormatError(GQLError(GraphQLError(Error(Error(AccessDeniedError))))) RegisterMetersReadingsService case with fake MeterResource id', () => {
+        // nosemgrep: generic.secrets.gitleaks.generic-api-key.generic-api-key
+        const authedId = '5b1aab29-ab90-4c79-b6ea-0dadf0eab6eb'
         // throwAccessDenied
         const accessDenied = new AccessDeniedError({
             path: ['connect'],
@@ -1228,9 +1230,9 @@ describe('safeFormatError hide=false', () => {
                 'target': 'MeterResource',
             },
             internalData: {
-                'authedId': '5b9a0b19-ab90-4c79-b6ea-0dddf0eab6eb',
+                'authedId': authedId,
                 'authedListKey': 'User',
-                'itemId': '44743ac7-dcff-479a-a2ae-8a24c57f3a1f',
+                'itemId': authedId,
             },
         })
         // resolveNestedSingle
@@ -1285,9 +1287,9 @@ describe('safeFormatError hide=false', () => {
                                             'type': 'query',
                                         },
                                         'internalData': {
-                                            'authedId': '5b9a0b19-ab90-4c79-b6ea-0dddf0eab6eb',
+                                            'authedId': authedId,
                                             'authedListKey': 'User',
-                                            'itemId': '44743ac7-dcff-479a-a2ae-8a24c57f3a1f',
+                                            'itemId': authedId,
                                         },
                                         'message': 'You do not have access to this resource',
                                         'name': 'AccessDeniedError',
