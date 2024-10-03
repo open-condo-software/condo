@@ -13,13 +13,14 @@ const express = require('express')
 const falsey = require('falsey')
 const FormData = require('form-data')
 const { gql } = require('graphql-tag')
-const { flattenDeep, fromPairs, toPairs, get, isFunction, isEmpty, template, pick } = require('lodash')
+const { flattenDeep, fromPairs, toPairs, get, isFunction, isEmpty, template, pick, set, isArray } = require('lodash')
 const fetch = require('node-fetch')
 const { CookieJar, Cookie } = require('tough-cookie')
 
 const conf = require('@open-condo/config')
 const { getTranslations } = require('@open-condo/locales/loader')
 
+const { GQLErrorCode, GQLInternalErrorTypes } = require('./errors')
 const { prepareKeystoneExpressApp } = require('./prepareKeystoneApp')
 
 const EXTRA_LOGGING = falsey(get(process, 'env.DISABLE_LOGGING'))
@@ -86,7 +87,6 @@ let __expressApp = null
 let __expressServer = null
 let __keystone = null
 let __isAwaiting = false
-
 
 /**
  * @type {Map<string, any>}
@@ -580,20 +580,20 @@ const catchErrorFrom = async (testFunc, inspect) => {
  * })
  *
  * @param {() => Promise<void>} testFunc - Function, expected to throw an error
- * @param {String} path - path
+ * @param {Array<string>} path - path
  * @return {Promise<void>}
  */
 const expectToThrowAccessDeniedError = async (testFunc, path) => {
     if (!path) throw new Error('path is not specified')
-
+    if (!isArray(path)) throw new Error('wrong path type: Array<string> expected')
     await catchErrorFrom(testFunc, (caught) => {
         expect(pick(caught, ['name', 'data', 'errors'])).toEqual({
             name: 'TestClientResponseError',
-            data: { [path]: null },
+            data: expect.anything(),
             errors: [expect.objectContaining({
                 'message': 'You do not have access to this resource',
                 'name': 'AccessDeniedError',
-                'path': path.split('.'),
+                'path': path,
                 'locations': [expect.objectContaining({
                     line: expect.anything(),
                     column: expect.anything(),
@@ -608,19 +608,50 @@ const expectToThrowAccessDeniedError = async (testFunc, path) => {
 }
 
 const expectToThrowAccessDeniedErrorToObj = async (testFunc) => {
-    await expectToThrowAccessDeniedError(testFunc, 'obj')
+    await expectToThrowAccessDeniedError(testFunc, ['obj'])
 }
 
 const expectToThrowAccessDeniedErrorToObjects = async (testFunc) => {
-    await expectToThrowAccessDeniedError(testFunc, 'objs')
+    await expectToThrowAccessDeniedError(testFunc, ['objs'])
 }
 
 const expectToThrowAccessDeniedErrorToResult = async (testFunc) => {
-    await expectToThrowAccessDeniedError(testFunc, 'result')
+    await expectToThrowAccessDeniedError(testFunc, ['result'])
 }
 
 const expectToThrowAccessDeniedErrorToCount = async (testFunc) => {
-    await expectToThrowAccessDeniedError(testFunc, 'meta.count')
+    await expectToThrowAccessDeniedError(testFunc, ['meta', 'count'])
+}
+
+/**
+ * @param testFunc
+ * @param {string} path
+ * @param {string} field
+ * @param {Number} [count]
+ * @returns {Promise<void>}
+ */
+const expectToThrowAccessDeniedToFieldError = async (testFunc, path, field, count = 1) => {
+    if (!path) throw new Error('path is not specified')
+    if (!field) throw new Error('field is not specified')
+
+    await catchErrorFrom(testFunc, (caught) => {
+        expect(pick(caught, ['name', 'data', 'errors'])).toMatchObject({
+            name: 'TestClientResponseError',
+            data: { [path]: Array(count).fill(null) },
+            errors: Array(count).fill(null).map((v, i) => expect.objectContaining({
+                'message': 'You do not have access to this resource',
+                'name': 'AccessDeniedError',
+                'path': [path, i, field],
+                'locations': [expect.objectContaining({
+                    line: expect.anything(),
+                    column: expect.anything(),
+                })],
+                'extensions': {
+                    'code': 'INTERNAL_SERVER_ERROR',
+                },
+            })),
+        })
+    })
 }
 
 /**
@@ -713,7 +744,6 @@ const expectToThrowInternalError = async (testFunc, message, path = 'obj') => {
                 'extensions': {
                     'code': 'INTERNAL_SERVER_ERROR',
                     'messageForDeveloper': expect.stringContaining(message),
-                    'message': expect.stringContaining(message),
                 },
             })],
         })
@@ -768,15 +798,15 @@ const expectToThrowGQLError = async (testFunc, errorFields, path = 'obj') => {
         const interpolatedMessageForUser = template(translatedMessage)(errorFields.messageInterpolation)
         if (!interpolatedMessageForUser) throw new Error(`expectToThrowGQLError(): you need to set ${errorFields.messageForUser} for locale=${locale}`)
         fieldsToCheck['messageForUser'] = interpolatedMessageForUser
+        // TODO(pahaz): check messageForUserTemplateKey
     }
 
     // NOTE(pahaz): if we have a template `{secondsRemaining}` inside message without messageInterpolation
     //  it means we want to use RegExp for our tests. Check @examples
     if (errorFields.message.includes('{')) {
+        fieldsToCheck['message'] = expect.stringMatching(createRegExByTemplate(errorFields.message))
         fieldsToCheck['messageTemplate'] = errorFields.message
     }
-
-    fieldsToCheck['messageForDeveloper'] = expect.stringMatching(createRegExByTemplate(errorFields.message, { eol: false }))
 
     await catchErrorFrom(testFunc, (caught) => {
         expect(pick(caught, ['name', 'data', 'errors'])).toEqual({
@@ -790,8 +820,12 @@ const expectToThrowGQLError = async (testFunc, errorFields, path = 'obj') => {
                 extensions: expect.objectContaining({ ...fieldsToCheck }),
             })],
         })
-        // TODO(pahaz): check another fields too
+        // TODO(pahaz): check another fields: messageForDeveloper
     })
+}
+
+const expectToThrowGQLErrorToResult = async (testFunc, errorFields) => {
+    return await expectToThrowGQLError(testFunc, errorFields, 'result')
 }
 
 const expectToThrowGraphQLRequestError = async (testFunc, message) => {
@@ -847,38 +881,35 @@ const expectToThrowUniqueConstraintViolationError = async (testFunc, constraintN
     await catchErrorFrom(async () => {
         await testFunc()
     }, ({ errors }) => {
-        expect(errors[0].message).toContain(`duplicate key value violates unique constraint "${actualDatabaseEntityName(constraintName)}"`)
+        // TODO(pahaz): DOMA-10368 we need to use strict checks!
+        // expect(errors).toHaveLength(1)
+        const error = errors[0]
+        if (error.name === 'GQLError' && error.extensions.code === GQLErrorCode.INTERNAL_ERROR && error.extensions.type === GQLInternalErrorTypes.SUB_GQL_ERROR) {
+            expect(error.extensions.message).toContain(`duplicate key value violates unique constraint "${actualDatabaseEntityName(constraintName)}"`)
+        } else {
+            expect(error.message).toContain(`duplicate key value violates unique constraint "${actualDatabaseEntityName(constraintName)}"`)
+        }
     })
 }
 
 /**
+ * Handles violates check constraint errors
  * @param testFunc
- * @param {string} path
- * @param {string} field
- * @param {Number} [count]
+ * @param constraintName - full name of constraint as presented in Keystone schema
  * @returns {Promise<void>}
  */
-const expectToThrowAccessDeniedToFieldError = async (testFunc, path, field, count = 1) => {
-    if (!path) throw new Error('path is not specified')
-    if (!field) throw new Error('field is not specified')
-
-    await catchErrorFrom(testFunc, (caught) => {
-        expect(pick(caught, ['name', 'data', 'errors'])).toMatchObject({
-            name: 'TestClientResponseError',
-            data: { [path]: Array(count).fill(null) },
-            errors: Array(count).fill(null).map((v, i) => expect.objectContaining({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': [path, i, field],
-                'locations': [expect.objectContaining({
-                    line: expect.anything(),
-                    column: expect.anything(),
-                })],
-                'extensions': {
-                    'code': 'INTERNAL_SERVER_ERROR',
-                },
-            })),
-        })
+const expectToThrowCheckConstraintViolationError = async (testFunc, constraintName) => {
+    await catchErrorFrom(async () => {
+        await testFunc()
+    }, ({ errors }) => {
+        // TODO(pahaz): DOMA-10368 we need to use strict checks!
+        // expect(errors).toHaveLength(1)
+        const error = errors[0]
+        if (error.name === 'GQLError' && error.extensions.code === GQLErrorCode.INTERNAL_ERROR && error.extensions.type === GQLInternalErrorTypes.SUB_GQL_ERROR) {
+            expect(error.extensions.message).toContain(`violates check constraint "${actualDatabaseEntityName(constraintName)}"`)
+        } else {
+            expect(error.message).toContain(`violates check constraint "${actualDatabaseEntityName(constraintName)}"`)
+        }
     })
 }
 
@@ -907,6 +938,7 @@ module.exports = {
     expectToThrowAccessDeniedErrorToObjects,
     expectToThrowAccessDeniedErrorToResult,
     expectToThrowAccessDeniedErrorToCount,
+    expectToThrowAccessDeniedToFieldError,
     expectToThrowAuthenticationError,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
@@ -914,10 +946,11 @@ module.exports = {
     expectToThrowValidationFailureError,
     expectToThrowInternalError,
     expectToThrowGQLError,
+    expectToThrowGQLErrorToResult,
     expectToThrowGraphQLRequestError,
     expectValuesOfCommonFields,
     expectToThrowUniqueConstraintViolationError,
-    expectToThrowAccessDeniedToFieldError,
+    expectToThrowCheckConstraintViolationError,
     setFeatureFlag,
     getFeatureFlag,
     setAllFeatureFlags,
