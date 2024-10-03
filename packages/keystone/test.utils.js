@@ -589,7 +589,7 @@ const expectToThrowAccessDeniedError = async (testFunc, path) => {
     await catchErrorFrom(testFunc, (caught) => {
         expect(pick(caught, ['name', 'data', 'errors'])).toEqual({
             name: 'TestClientResponseError',
-            data: expect.anything(),
+            data: expect.anything(),  // TODO(pahaz): DOMA-10368 don't improve
             errors: [expect.objectContaining({
                 'message': 'You do not have access to this resource',
                 'name': 'AccessDeniedError',
@@ -727,16 +727,26 @@ const expectToThrowValidationFailureError = async (testFunc, message, path = 'ob
     })
 }
 
-const expectToThrowInternalError = async (testFunc, message, path = 'obj') => {
+/**
+ *
+ * @param testFunc
+ * @param message
+ * @param {Array<string>} path - path
+ * @returns {Promise<void>}
+ */
+const expectToThrowInternalError = async (testFunc, message, path) => {
     if (!message) throw new Error('expectToThrowInternalError(): no message argument')
+    if (!isArray(path)) throw new Error('wrong path type: Array<string> expected')
+    const data = {}
+    set(data, path, null)
     await catchErrorFrom(testFunc, (caught) => {
         expect(pick(caught, ['name', 'data', 'errors'])).toEqual({
             name: 'TestClientResponseError',
-            data: { [path]: null },
+            data,
             errors: [expect.objectContaining({
                 'message': expect.stringContaining(message),
                 'name': 'GraphQLError',
-                'path': [path],
+                path,
                 'locations': [expect.objectContaining({
                     line: expect.anything(),
                     column: expect.anything(),

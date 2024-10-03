@@ -3,8 +3,15 @@ const { ApolloError } = require('apollo-server-errors')
 const { GraphQLError } = require('graphql')
 const { Source, parse } = require('graphql/language')
 
+const loader = require('@open-condo/locales/loader')
+
 const { safeFormatError } = require('./apolloErrorFormatter')
 const { GQLError, GQLErrorCode, GQLInternalErrorTypes } = require('./errors')
+
+jest.mock('@open-condo/locales/loader')
+loader.getTranslations.mockReturnValue({
+    'api.user.INVALID_PASSWORD_LENGTH': 'Password length must be between {min} and {max} characters',
+})
 
 const GQL_SOURCE_EXAMPLE = new Source(`
   {
