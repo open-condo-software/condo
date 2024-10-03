@@ -44,6 +44,7 @@ const {
     makeClientWithServiceUser,
 } = require('@condo/domains/user/utils/testSchema')
 
+
 describe('RegisterMetersReadingsService', () => {
 
     let adminClient, supportClient, residentClient, anonymousClient
@@ -57,17 +58,17 @@ describe('RegisterMetersReadingsService', () => {
 
     describe('access to execution', () => {
 
-        let o10n
+        let organization
 
         beforeAll(async () => {
-            [o10n] = await createTestOrganization(adminClient)
+            [organization] = await createTestOrganization(adminClient)
         })
 
         test('admin can', async () => {
-            const [o10n] = await createTestOrganization(adminClient)
-            const [property] = await createTestPropertyWithMap(adminClient, o10n)
+            const [organization] = await createTestOrganization(adminClient)
+            const [property] = await createTestPropertyWithMap(adminClient, organization)
             const readings = [createTestReadingData(property)]
-            const [data] = await registerMetersReadingsByTestClient(adminClient, o10n, readings)
+            const [data] = await registerMetersReadingsByTestClient(adminClient, organization, readings)
 
             expect(data).toEqual([expect.objectContaining({
                 id: expect.stringMatching(UUID_REGEXP),
@@ -86,7 +87,7 @@ describe('RegisterMetersReadingsService', () => {
             })])
 
             const meters = await Meter.getAll(adminClient, {
-                organization: { id: o10n.id },
+                organization: { id: organization.id },
                 property: { id: property.id },
             })
             expect(meters).toHaveLength(1)
@@ -97,10 +98,10 @@ describe('RegisterMetersReadingsService', () => {
         })
 
         test('support can', async () => {
-            const [o10n] = await createTestOrganization(adminClient)
-            const [property] = await createTestPropertyWithMap(adminClient, o10n)
+            const [organization] = await createTestOrganization(adminClient)
+            const [property] = await createTestPropertyWithMap(adminClient, organization)
             const readings = [createTestReadingData(property)]
-            const [data] = await registerMetersReadingsByTestClient(supportClient, o10n, readings)
+            const [data] = await registerMetersReadingsByTestClient(supportClient, organization, readings)
 
             expect(data).toEqual([expect.objectContaining({
                 id: expect.stringMatching(UUID_REGEXP),
@@ -119,7 +120,7 @@ describe('RegisterMetersReadingsService', () => {
             })])
 
             const meters = await Meter.getAll(adminClient, {
-                organization: { id: o10n.id },
+                organization: { id: organization.id },
                 property: { id: property.id },
             })
             expect(meters).toHaveLength(1)
@@ -199,11 +200,11 @@ describe('RegisterMetersReadingsService', () => {
         describe('service user', () => {
             test('with access rights can', async () => {
                 const serviceClient = await makeClientWithServiceUser()
-                const [o10n] = await createTestOrganization(adminClient)
-                const [property] = await createTestPropertyWithMap(adminClient, o10n)
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestPropertyWithMap(adminClient, organization)
 
                 const [app] = await createTestB2BApp(adminClient)
-                await createTestB2BAppContext(adminClient, app, o10n, { status: 'Finished' })
+                await createTestB2BAppContext(adminClient, app, organization, { status: 'Finished' })
                 const [accessRightSet] = await createTestB2BAppAccessRightSet(adminClient, app, {
                     canExecuteRegisterMetersReadings: true,
                     canReadMeters: true,
@@ -214,7 +215,7 @@ describe('RegisterMetersReadingsService', () => {
                 await createTestB2BAppAccessRight(adminClient, serviceClient.user, app, accessRightSet)
 
                 const readings = [createTestReadingData(property)]
-                const [data] = await registerMetersReadingsByTestClient(serviceClient, o10n, readings)
+                const [data] = await registerMetersReadingsByTestClient(serviceClient, organization, readings)
 
                 expect(data).toEqual([expect.objectContaining({
                     id: expect.stringMatching(UUID_REGEXP),
@@ -233,7 +234,7 @@ describe('RegisterMetersReadingsService', () => {
                 })])
 
                 const meters = await Meter.getAll(adminClient, {
-                    organization: { id: o10n.id },
+                    organization: { id: organization.id },
                     property: { id: property.id },
                 })
                 expect(meters).toHaveLength(1)
@@ -245,33 +246,33 @@ describe('RegisterMetersReadingsService', () => {
 
             test('without permissions can\'t', async () => {
                 const serviceClient = await makeClientWithServiceUser()
-                const [o10n] = await createTestOrganization(adminClient)
+                const [organization] = await createTestOrganization(adminClient)
 
                 await expectToThrowAccessDeniedErrorToResult(async () => {
-                    await registerMetersReadingsByTestClient(serviceClient, o10n, [])
+                    await registerMetersReadingsByTestClient(serviceClient, organization, [])
                 })
             })
         })
 
         test('resident can\'t execute', async () => {
             await expectToThrowAccessDeniedErrorToResult(async () => {
-                await registerMetersReadingsByTestClient(residentClient, o10n, [])
+                await registerMetersReadingsByTestClient(residentClient, organization, [])
             })
         })
 
         test('anonymous can\'t execute', async () => {
             await expectToThrowAuthenticationError(async () => {
-                await registerMetersReadingsByTestClient(anonymousClient, o10n, [])
+                await registerMetersReadingsByTestClient(anonymousClient, organization, [])
             }, 'result')
         })
     })
 
     test('error on too much items', async () => {
-        const [o10n] = await createTestOrganization(adminClient)
+        const [organization] = await createTestOrganization(adminClient)
         await expectToThrowGQLError(
             async () => await registerMetersReadingsByTestClient(
                 adminClient,
-                o10n,
+                organization,
                 flatten(Array(501).fill(createTestReadingData({ address: faker.address.streetAddress(true) }))),
             ),
             {
@@ -286,23 +287,23 @@ describe('RegisterMetersReadingsService', () => {
     })
 
     test('Check for Meter model error: cannot create Meter if Meter with same accountNumber exist in user organization in other unit', async () => {
-        const [o10n] = await createTestOrganization(adminClient)
-        const [property1] = await createTestPropertyWithMap(adminClient, o10n)
-        const [property2] = await createTestPropertyWithMap(adminClient, o10n)
+        const [organization] = await createTestOrganization(adminClient)
+        const [property1] = await createTestPropertyWithMap(adminClient, organization)
+        const [property2] = await createTestPropertyWithMap(adminClient, organization)
 
         const accountNumber = faker.random.alphaNumeric(12)
 
         const readings1 = [createTestReadingData(property1)]
         readings1[0].accountNumber = accountNumber
 
-        await registerMetersReadingsByTestClient(adminClient, o10n, readings1)
+        await registerMetersReadingsByTestClient(adminClient, organization, readings1)
 
         const readings2 = [createTestReadingData(property2)]
         readings2[0].accountNumber = accountNumber
 
         await catchErrorFrom(
             async () => {
-                await registerMetersReadingsByTestClient(adminClient, o10n, readings2)
+                await registerMetersReadingsByTestClient(adminClient, organization, readings2)
             },
             ({ data: { result }, errors }) => {
                 expect(result).toEqual([null])
@@ -343,9 +344,9 @@ describe('RegisterMetersReadingsService', () => {
     })
 
     test('error for row if trying to add meter reading for property which not added to organization', async () => {
-        const [o10n] = await createTestOrganization(adminClient)
-        const [property1] = await createTestPropertyWithMap(adminClient, o10n)
-        const [property2] = await createTestPropertyWithMap(adminClient, o10n)
+        const [organization] = await createTestOrganization(adminClient)
+        const [property1] = await createTestPropertyWithMap(adminClient, organization)
+        const [property2] = await createTestPropertyWithMap(adminClient, organization)
 
         const readings = [
             createTestReadingData(property1),
@@ -355,7 +356,7 @@ describe('RegisterMetersReadingsService', () => {
 
         await catchErrorFrom(
             async () => {
-                await registerMetersReadingsByTestClient(adminClient, o10n, readings)
+                await registerMetersReadingsByTestClient(adminClient, organization, readings)
             },
             ({ data: { result }, errors }) => {
                 expect(result).toEqual([
@@ -407,8 +408,8 @@ describe('RegisterMetersReadingsService', () => {
     })
 
     test('error on invalid meter value', async () => {
-        const [o10n] = await createTestOrganization(adminClient)
-        const [property] = await createTestPropertyWithMap(adminClient, o10n)
+        const [organization] = await createTestOrganization(adminClient)
+        const [property] = await createTestPropertyWithMap(adminClient, organization)
 
         const badReading1 = createTestReadingData(property, {
             meterResource: { id: GAS_SUPPLY_METER_RESOURCE_ID },
@@ -437,7 +438,7 @@ describe('RegisterMetersReadingsService', () => {
 
         await catchErrorFrom(
             async () => {
-                await registerMetersReadingsByTestClient(adminClient, o10n, readings)
+                await registerMetersReadingsByTestClient(adminClient, organization, readings)
             },
             (err) => {
                 const { data: { result }, errors } = err
@@ -495,8 +496,8 @@ describe('RegisterMetersReadingsService', () => {
     })
 
     test('error on invalid meter resource', async () => {
-        const [o10n] = await createTestOrganization(adminClient)
-        const [property1] = await createTestPropertyWithMap(adminClient, o10n)
+        const [organization] = await createTestOrganization(adminClient)
+        const [property1] = await createTestPropertyWithMap(adminClient, organization)
 
         const badReading = createTestReadingData(property1)
         badReading.meterResource = { id: faker.datatype.uuid() }
@@ -508,7 +509,7 @@ describe('RegisterMetersReadingsService', () => {
 
         await catchErrorFrom(
             async () => {
-                await registerMetersReadingsByTestClient(adminClient, o10n, readings)
+                await registerMetersReadingsByTestClient(adminClient, organization, readings)
             },
             ({ data: { result }, errors }) => {
                 expect(result).toEqual([
@@ -545,8 +546,8 @@ describe('RegisterMetersReadingsService', () => {
     })
 
     test('error on invalid number of tariffs passed', async () => {
-        const [o10n] = await createTestOrganization(adminClient)
-        const [property1] = await createTestPropertyWithMap(adminClient, o10n)
+        const [organization] = await createTestOrganization(adminClient)
+        const [property1] = await createTestPropertyWithMap(adminClient, organization)
 
         const badReading = createTestReadingData(property1)
         badReading.meterMeta.numberOfTariffs = 5
@@ -558,7 +559,7 @@ describe('RegisterMetersReadingsService', () => {
 
         await catchErrorFrom(
             async () => {
-                await registerMetersReadingsByTestClient(adminClient, o10n, readings)
+                await registerMetersReadingsByTestClient(adminClient, organization, readings)
             },
             ({ data: { result }, errors }) => {
                 expect(result).toEqual([
@@ -595,13 +596,13 @@ describe('RegisterMetersReadingsService', () => {
     })
 
     test('number of tariffs calculated correctly', async () => {
-        const [o10n] = await createTestOrganization(adminClient)
-        const [property] = await createTestPropertyWithMap(adminClient, o10n)
+        const [organization] = await createTestOrganization(adminClient)
+        const [property] = await createTestPropertyWithMap(adminClient, organization)
         const reading = createTestReadingData(property)
         reading.value3 = faker.random.numeric(3)
         reading.meterMeta.numberOfTariffs = undefined
 
-        const [data] = await registerMetersReadingsByTestClient(adminClient, o10n, [reading])
+        const [data] = await registerMetersReadingsByTestClient(adminClient, organization, [reading])
 
         expect(data).toEqual([expect.objectContaining({
             id: expect.stringMatching(UUID_REGEXP),
@@ -620,7 +621,7 @@ describe('RegisterMetersReadingsService', () => {
         })])
 
         const meters = await Meter.getAll(adminClient, {
-            organization: { id: o10n.id },
+            organization: { id: organization.id },
             property: { id: property.id },
         })
         expect(meters).toEqual([
@@ -629,8 +630,8 @@ describe('RegisterMetersReadingsService', () => {
     })
 
     test('possible import with un-existing unit', async () => {
-        const [o10n] = await createTestOrganization(adminClient)
-        const [property1] = await createTestPropertyWithMap(adminClient, o10n)
+        const [organization] = await createTestOrganization(adminClient)
+        const [property1] = await createTestPropertyWithMap(adminClient, organization)
 
         const normalReading = createTestReadingData(property1)
 
@@ -647,7 +648,7 @@ describe('RegisterMetersReadingsService', () => {
             readingWithBadParking,
         ]
 
-        const [result] = await registerMetersReadingsByTestClient(adminClient, o10n, readings)
+        const [result] = await registerMetersReadingsByTestClient(adminClient, organization, readings)
 
         expect(result).toEqual([
             expect.objectContaining({ meter: expect.objectContaining({ unitType: normalReading.addressInfo.unitType, unitName: normalReading.addressInfo.unitName }) }),
@@ -657,15 +658,15 @@ describe('RegisterMetersReadingsService', () => {
     })
 
     test('unitType, unitName, meterNumber and accountNumber are trimmed correctly', async () => {
-        const [o10n] = await createTestOrganization(adminClient)
-        const [property] = await createTestPropertyWithMap(adminClient, o10n)
+        const [organization] = await createTestOrganization(adminClient)
+        const [property] = await createTestPropertyWithMap(adminClient, organization)
         const reading = createTestReadingData(property)
         reading.accountNumber = `  ${reading.accountNumber}\n`
         reading.meterNumber = `\t${reading.meterNumber}  `
         reading.addressInfo.unitType = `${reading.addressInfo.unitType} \t `
         reading.addressInfo.unitName = `\t ${reading.addressInfo.unitName} \n `
 
-        const [data] = await registerMetersReadingsByTestClient(adminClient, o10n, [reading])
+        const [data] = await registerMetersReadingsByTestClient(adminClient, organization, [reading])
 
         expect(data).toEqual([expect.objectContaining({
             id: expect.stringMatching(UUID_REGEXP),
@@ -685,8 +686,8 @@ describe('RegisterMetersReadingsService', () => {
     })
 
     test('error on empty account number', async () => {
-        const [o10n] = await createTestOrganization(adminClient)
-        const [property] = await createTestPropertyWithMap(adminClient, o10n)
+        const [organization] = await createTestOrganization(adminClient)
+        const [property] = await createTestPropertyWithMap(adminClient, organization)
 
         const readingWithBadAccountNumber1 = createTestReadingData(property)
         readingWithBadAccountNumber1.accountNumber = '\t  \n'
@@ -701,7 +702,7 @@ describe('RegisterMetersReadingsService', () => {
 
         await catchErrorFrom(
             async () => {
-                await registerMetersReadingsByTestClient(adminClient, o10n, readings)
+                await registerMetersReadingsByTestClient(adminClient, organization, readings)
             },
             ({ data: { result }, errors }) => {
                 expect(result).toEqual([
@@ -743,8 +744,8 @@ describe('RegisterMetersReadingsService', () => {
     })
 
     test('error on empty meter number', async () => {
-        const [o10n] = await createTestOrganization(adminClient)
-        const [property] = await createTestPropertyWithMap(adminClient, o10n)
+        const [organization] = await createTestOrganization(adminClient)
+        const [property] = await createTestPropertyWithMap(adminClient, organization)
 
         const readingWithBadMeterNumber1 = createTestReadingData(property)
         readingWithBadMeterNumber1.meterNumber = '\t  \n'
@@ -759,7 +760,7 @@ describe('RegisterMetersReadingsService', () => {
 
         await catchErrorFrom(
             async () => {
-                await registerMetersReadingsByTestClient(adminClient, o10n, readings)
+                await registerMetersReadingsByTestClient(adminClient, organization, readings)
             },
             ({ data: { result }, errors }) => {
                 expect(result).toEqual([
@@ -820,11 +821,11 @@ describe('RegisterMetersReadingsService', () => {
         ]
 
         test.each(cases)('$input should parsed as $output', async ({ input, output }) => {
-            const [o10n] = await createTestOrganization(adminClient)
-            const [property] = await createTestPropertyWithMap(adminClient, o10n)
+            const [organization] = await createTestOrganization(adminClient)
+            const [property] = await createTestPropertyWithMap(adminClient, organization)
 
             const reading = createTestReadingData(property, { date: input })
-            const [data] = await registerMetersReadingsByTestClient(adminClient, o10n, [reading])
+            const [data] = await registerMetersReadingsByTestClient(adminClient, organization, [reading])
 
             expect(data).toHaveLength(1)
 
@@ -840,14 +841,14 @@ describe('RegisterMetersReadingsService', () => {
 
         test.each(cases)('%p should cause an error', async (date) => {
             const locale = 'ru'
-            const [o10n] = await createTestOrganization(adminClient)
-            const [property] = await createTestPropertyWithMap(adminClient, o10n)
+            const [organization] = await createTestOrganization(adminClient)
+            const [property] = await createTestPropertyWithMap(adminClient, organization)
 
             const reading = createTestReadingData(property, { date })
 
             await catchErrorFrom(
                 async () => {
-                    await registerMetersReadingsByTestClient(adminClient, o10n, [reading])
+                    await registerMetersReadingsByTestClient(adminClient, organization, [reading])
                 },
                 ({ data: { result }, errors }) => {
                     expect(result).toEqual([
@@ -902,8 +903,8 @@ describe('RegisterMetersReadingsService', () => {
         ]
 
         test.each(cases)('$input should parsed as $output', async ({ input, output }) => {
-            const [o10n] = await createTestOrganization(adminClient)
-            const [property] = await createTestPropertyWithMap(adminClient, o10n)
+            const [organization] = await createTestOrganization(adminClient)
+            const [property] = await createTestPropertyWithMap(adminClient, organization)
 
             const reading = createTestReadingData(property)
             reading.meterMeta = {
@@ -915,7 +916,7 @@ describe('RegisterMetersReadingsService', () => {
                 sealingDate: input,
                 controlReadingsDate: input,
             }
-            const [data] = await registerMetersReadingsByTestClient(adminClient, o10n, [reading])
+            const [data] = await registerMetersReadingsByTestClient(adminClient, organization, [reading])
 
             expect(data).toHaveLength(1)
 
@@ -932,10 +933,10 @@ describe('RegisterMetersReadingsService', () => {
     })
 
     test('prevent to create readings duplicates', async () => {
-        const [o10n] = await createTestOrganization(adminClient)
-        const [property] = await createTestPropertyWithMap(adminClient, o10n)
+        const [organization] = await createTestOrganization(adminClient)
+        const [property] = await createTestPropertyWithMap(adminClient, organization)
         const readings = [createTestReadingData(property)]
-        const [data] = await registerMetersReadingsByTestClient(adminClient, o10n, readings)
+        const [data] = await registerMetersReadingsByTestClient(adminClient, organization, readings)
 
         expect(data).toEqual([expect.objectContaining({
             id: expect.stringMatching(UUID_REGEXP),
@@ -954,7 +955,7 @@ describe('RegisterMetersReadingsService', () => {
         })])
 
         const meters = await Meter.getAll(adminClient, {
-            organization: { id: o10n.id },
+            organization: { id: organization.id },
             property: { id: property.id },
         })
         expect(meters).toHaveLength(1)
@@ -964,7 +965,7 @@ describe('RegisterMetersReadingsService', () => {
         expect(metersReadings).toHaveLength(1)
 
         // send same data
-        const [data2] = await registerMetersReadingsByTestClient(adminClient, o10n, readings)
+        const [data2] = await registerMetersReadingsByTestClient(adminClient, organization, readings)
 
         // be sure that we have the same result
         expect(data2).toEqual(data)
@@ -975,20 +976,85 @@ describe('RegisterMetersReadingsService', () => {
         expect(data2[0].id).toBe(metersReadings[0].id)
     })
 
+    test('prevent to create readings duplicates in one input', async () => {
+        const [organization] = await createTestOrganization(adminClient)
+        const [property] = await createTestPropertyWithMap(adminClient, organization)
+        const readingData = createTestReadingData(property)
+        const duplicateReadings = [readingData, readingData]
+
+        const [data] = await registerMetersReadingsByTestClient(adminClient, organization, duplicateReadings)
+
+        expect(data).toHaveLength(2)
+        expect(data[0].id).toEqual(data[1].id)
+        expect(data).toEqual(expect.arrayContaining([expect.objectContaining({
+            id: expect.stringMatching(UUID_REGEXP),
+            meter: expect.objectContaining({
+                id: expect.stringMatching(UUID_REGEXP),
+                property: expect.objectContaining({
+                    id: property.id,
+                    address: property.address,
+                    addressKey: property.addressKey,
+                }),
+                unitType: duplicateReadings[0].addressInfo.unitType,
+                unitName: duplicateReadings[0].addressInfo.unitName,
+                accountNumber: duplicateReadings[0].accountNumber,
+                number: duplicateReadings[0].meterNumber,
+            }),
+        })]))
+
+        const meters = await Meter.getAll(adminClient, {
+            organization: { id: organization.id },
+            property: { id: property.id },
+        })
+        expect(meters).toHaveLength(1)
+        expect(meters[0].number).toBe(duplicateReadings[0].meterNumber)
+
+        const metersReadings = await MeterReading.getAll(adminClient, { meter: { id_in: map(meters, 'id') } })
+        expect(metersReadings).toHaveLength(1)
+    })
+
+    test('update meter with data from last reading with same meter', async () => {
+        const [organization] = await createTestOrganization(adminClient)
+        const [property] = await createTestPropertyWithMap(adminClient, organization)
+        const readingData = createTestReadingData(property)
+        const placeValue = faker.datatype.string(4)
+
+        const duplicateReadings = [readingData, {
+            ...readingData,
+            meterMeta: {
+                numberOfTariffs: 2,
+                place: placeValue,
+            },
+        }]
+
+        await registerMetersReadingsByTestClient(adminClient, organization, duplicateReadings)
+
+        const meters = await Meter.getAll(adminClient, {
+            organization: { id: organization.id },
+            property: { id: property.id },
+        })
+
+        expect(meters).toHaveLength(1)
+        expect(meters[0].number).toBe(duplicateReadings[0].meterNumber)
+        expect(meters[0].place).toBe(placeValue)
+        expect(meters[0].nextVerificationDate).toBeFalsy()
+        expect(meters[0].isAutomatic).toBe(false)
+    })
+
     test('can update existing meter via this mutation', async () => {
-        const [o10n] = await createTestOrganization(adminClient)
-        const [property] = await createTestPropertyWithMap(adminClient, o10n)
+        const [organization] = await createTestOrganization(adminClient)
+        const [property] = await createTestPropertyWithMap(adminClient, organization)
         const readings = [createTestReadingData(property, {
             meterMeta: {
                 numberOfTariffs: 2,
                 place: 'place1',
             },
         })]
-        const [firstAttempt] = await registerMetersReadingsByTestClient(adminClient, o10n, readings)
+        const [firstAttempt] = await registerMetersReadingsByTestClient(adminClient, organization, readings)
 
         // be sure that meter and meter reading was created successfully
         const meters = await Meter.getAll(adminClient, {
-            organization: { id: o10n.id },
+            organization: { id: organization.id },
             property: { id: property.id },
         })
         expect(meters).toHaveLength(1)
@@ -1014,12 +1080,12 @@ describe('RegisterMetersReadingsService', () => {
                 isAutomatic: true,
             },
         }]
-        const [secondAttempt] = await registerMetersReadingsByTestClient(adminClient, o10n, anotherReadings)
+        const [secondAttempt] = await registerMetersReadingsByTestClient(adminClient, organization, anotherReadings)
         expect(firstAttempt[0].meter.id).toBe(secondAttempt[0].meter.id)
 
         // be sure that meter has changed place and nextVerificationDate
         const updatedMeters = await Meter.getAll(adminClient, {
-            organization: { id: o10n.id },
+            organization: { id: organization.id },
             property: { id: property.id },
         })
         expect(updatedMeters).toHaveLength(1)
@@ -1037,11 +1103,11 @@ describe('RegisterMetersReadingsService', () => {
             value2: faker.random.numeric(4),
             meterMeta: undefined,
         }]
-        const [thirdAttempt] = await registerMetersReadingsByTestClient(adminClient, o10n, thirdReadings)
+        const [thirdAttempt] = await registerMetersReadingsByTestClient(adminClient, organization, thirdReadings)
         expect(firstAttempt[0].meter.id).toBe(thirdAttempt[0].meter.id)
 
         const updatedMeters2 = await Meter.getAll(adminClient, {
-            organization: { id: o10n.id },
+            organization: { id: organization.id },
             property: { id: property.id },
         })
         expect(updatedMeters2).toHaveLength(1)
@@ -1057,17 +1123,17 @@ describe('RegisterMetersReadingsService', () => {
     })
 
     test('meter not updated if no fields changed', async () => {
-        const [o10n] = await createTestOrganization(adminClient)
-        const [property] = await createTestPropertyWithMap(adminClient, o10n)
+        const [organization] = await createTestOrganization(adminClient)
+        const [property] = await createTestPropertyWithMap(adminClient, organization)
         const readings = [createTestReadingData(property, {
             meterMeta: {
                 numberOfTariffs: 2,
                 place: 'place1',
             },
         })]
-        await registerMetersReadingsByTestClient(adminClient, o10n, readings)
+        await registerMetersReadingsByTestClient(adminClient, organization, readings)
         const meters = await Meter.getAll(adminClient, {
-            organization: { id: o10n.id },
+            organization: { id: organization.id },
             property: { id: property.id },
         })
 
@@ -1080,11 +1146,11 @@ describe('RegisterMetersReadingsService', () => {
                 place: 'place1', // keep same place
             },
         }]
-        await registerMetersReadingsByTestClient(adminClient, o10n, anotherReadings)
+        await registerMetersReadingsByTestClient(adminClient, organization, anotherReadings)
 
         // be sure that meter has changed place and nextVerificationDate
         const notUpdatedMeters = await Meter.getAll(adminClient, {
-            organization: { id: o10n.id },
+            organization: { id: organization.id },
             property: { id: property.id },
         })
         expect(notUpdatedMeters).toHaveLength(1)
@@ -1094,18 +1160,20 @@ describe('RegisterMetersReadingsService', () => {
     })
 
     test('default reading source if not passed', async () => {
-        const [o10n] = await createTestOrganization(adminClient)
-        const [property] = await createTestPropertyWithMap(adminClient, o10n)
+        const [organization] = await createTestOrganization(adminClient)
+        const [property] = await createTestPropertyWithMap(adminClient, organization)
         const readings = [
             createTestReadingData(property),
             createTestReadingData(property, { readingSource: { id: REMOTE_SYSTEM_METER_READING_SOURCE_ID } }),
         ]
-        const [data] = await registerMetersReadingsByTestClient(adminClient, o10n, readings)
-
+        const [data] = await registerMetersReadingsByTestClient(adminClient, organization, readings)
         const metersReadings = await MeterReading.getAll(adminClient, { meter: { id_in: data.map((row) => row.meter.id) } })
-        expect(metersReadings).toEqual([
+
+        expect(metersReadings).toEqual(expect.arrayContaining([
             expect.objectContaining({ source: expect.objectContaining({ id: OTHER_METER_READING_SOURCE_ID }) }),
+        ]))
+        expect(metersReadings).toEqual(expect.arrayContaining([
             expect.objectContaining({ source: expect.objectContaining({ id: REMOTE_SYSTEM_METER_READING_SOURCE_ID }) }),
-        ])
+        ]))
     })
 })
