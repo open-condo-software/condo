@@ -313,6 +313,7 @@ describe('B2BAppPermission', () => {
                 const [permission] = await createTestB2BAppPermission(admin, app)
                 expect(permission).toBeDefined()
 
+                // TODO(pahaz): DOMA-10368 use expectToThrowGraphQLRequestError
                 await catchErrorFrom(async () => {
                     await updateTestB2BAppPermission(admin, permission.id, {
                         app: { connect: { id: anotherApp.id } },
@@ -402,6 +403,7 @@ describe('B2BAppPermission', () => {
                 })
                 expect(anotherAppPermission).toHaveProperty('key', key)
 
+                // TODO(pahaz): DOMA-10368 use Violate
                 await catchErrorFrom(async () => {
                     await createTestB2BAppPermission(admin, app, {
                         key,

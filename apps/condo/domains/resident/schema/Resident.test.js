@@ -177,6 +177,7 @@ describe('Resident', () => {
             }
             await createTestResident(adminClient, userClient.user, userClient.property, duplicatedFields)
 
+            // TODO(pahaz): DOMA-10368 use expectToThrow Validation
             await catchErrorFrom(async () => {
                 await createTestResident(adminClient, userClient.user, userClient.property, duplicatedFields)
             }, ({ errors, data }) => {
@@ -200,6 +201,7 @@ describe('Resident', () => {
                 unitName: fields.unitName.toUpperCase(),
             }
 
+            // TODO(pahaz): DOMA-10368 use expectToThrow Validation
             await catchErrorFrom(async () => {
                 await createTestResident(adminClient, userClient.user, userClient.property, duplicatedFields)
             }, ({ errors, data }) => {
@@ -229,6 +231,7 @@ describe('Resident', () => {
                 addressMeta: addressMetaWithFlat,
             }
 
+            // TODO(pahaz): DOMA-10368 use expectToThrow Validation or GQLError
             await catchErrorFrom(async () => {
                 await createTestResident(adminClient, userClient.user, userClient.property, duplicatedFieldsWithFlatInAddress)
             }, ({ errors, data }) => {

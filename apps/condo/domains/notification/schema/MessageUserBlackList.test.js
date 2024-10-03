@@ -13,7 +13,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAccessDeniedErrorToObjects,
-    expectToThrowInternalError,
+    expectToThrowUniqueConstraintViolationError,
     expectToThrowValidationFailureError,
 } = require('@open-condo/keystone/test.utils')
 
@@ -218,12 +218,12 @@ describe('MessageUserBlackList', () => {
                 user: { connect: { id: client.user.id } },
             })
 
-            await expectToThrowInternalError(async () => {
+            await expectToThrowUniqueConstraintViolationError(async () => {
                 await createTestMessageUserBlackList(admin, {
                     type: DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE,
                     user: { connect: { id: client.user.id } },
                 })
-            }, `${UNIQUE_CONSTRAINT_ERROR} "message_user_black_list_unique_user_and_type"`)
+            }, 'message_user_black_list_unique_user_and_type')
         })
 
         it('unique phone and type', async () => {
@@ -234,12 +234,12 @@ describe('MessageUserBlackList', () => {
                 phone,
             })
 
-            await expectToThrowInternalError(async () => {
+            await expectToThrowUniqueConstraintViolationError(async () => {
                 await createTestMessageUserBlackList(admin, {
                     type: DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE,
                     phone,
                 })
-            }, `${UNIQUE_CONSTRAINT_ERROR} "message_user_black_list_unique_phone_and_type"`)
+            }, 'message_user_black_list_unique_phone_and_type')
         })
 
         it('unique email and type', async () => {
@@ -250,12 +250,12 @@ describe('MessageUserBlackList', () => {
                 email,
             })
 
-            await expectToThrowInternalError(async () => {
+            await expectToThrowUniqueConstraintViolationError(async () => {
                 await createTestMessageUserBlackList(admin, {
                     type: DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE,
                     email,
                 })
-            }, `${UNIQUE_CONSTRAINT_ERROR} "message_user_black_list_unique_email_and_type"`)
+            }, 'message_user_black_list_unique_email_and_type')
         })
     })
 

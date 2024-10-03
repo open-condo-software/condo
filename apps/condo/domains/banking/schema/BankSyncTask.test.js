@@ -280,6 +280,7 @@ describe('BankSyncTask', () => {
                     file: new UploadingFile(pathToCorrectFile),
                 })
 
+                // TODO(pahaz): DOMA-10368 use expectToThrowGraphQLRequestError
                 await catchErrorFrom(async () => {
                     await updateTestBankSyncTask(adminClient, objCreated.id, {
                         file: new UploadingFile(pathToCorrectFile),
@@ -519,6 +520,7 @@ describe('BankSyncTask', () => {
             const [anotherOrganization] = await createTestOrganization(adminClient)
             const [propertyFromAnotherOrganization] = await createTestProperty(adminClient, anotherOrganization)
 
+            // TODO(pahaz): DOMA-10368 use expectToThrowValidation
             await catchErrorFrom(async () => {
                 await createTestBankSyncTask(adminClient, organization, {
                     account: { connect: { id: account.id } },

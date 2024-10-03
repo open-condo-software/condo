@@ -343,6 +343,7 @@ describe('B2BAppRole', () => {
                 const [role] = await createTestB2BAppRole(manager, connectedApp, employee.role)
                 const [anotherOrgRole] = await createTestOrganizationEmployeeRole(admin, manager.organization)
 
+                // TODO(pahaz): DOMA-10368 use expectToThrowGraphQLRequestError
                 await catchErrorFrom(async () => {
                     await updateTestB2BAppRole(admin, role.id, {
                         role: { connect: { id: anotherOrgRole.id } },

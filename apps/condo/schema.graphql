@@ -82284,7 +82284,7 @@ type Query {
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
     "message": "Invalid format of \"sender\" field value",
-    "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}"
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
   }`
   """
   checkUserExistence(data: CheckUserExistenceInput!): CheckUserExistenceOutput
@@ -82374,7 +82374,7 @@ type Query {
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
     "message": "Invalid format of \"sender\" field value",
-    "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}"
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
   }`
   
   `{
@@ -87355,7 +87355,7 @@ type Mutation {
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
     "message": "Invalid format of \"sender\" field value",
-    "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}"
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
   }`
   """
   changePasswordWithToken(data: ChangePasswordWithTokenInput!): ChangePasswordWithTokenOutput
@@ -89701,7 +89701,7 @@ type Mutation {
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
     "message": "Invalid format of \"sender\" field value",
-    "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}"
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
   }`
   """
   _internalDeleteMeterAndMeterReadings(data: _internalDeleteMeterAndMeterReadingsInput!): _internalDeleteMeterAndMeterReadingsOutput
@@ -89727,7 +89727,7 @@ type Mutation {
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
     "message": "Invalid format of \"sender\" field value",
-    "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}"
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
   }`
   
   `{

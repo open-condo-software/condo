@@ -82,6 +82,7 @@ describe('SumPaymentsService', () => {
             await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
 
             const where = { organization: { id: organization.id } }
+            // TODO(pahaz): DOMA-10368 use expectToThrowAccessDenied
             await catchErrorFrom(async () => {
                 await sumPaymentsByTestClient(employeeClient, where)
             }, ({ errors }) => {

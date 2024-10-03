@@ -395,6 +395,7 @@ describe('OrganizationEmployee', () => {
         const [invitedEmployee] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs, role)
         await acceptOrRejectOrganizationInviteById(client2, invitedEmployee)
 
+        // TODO(pahaz): DOMA-10368 use expectToThrowGQLError
         await catchErrorFrom(async () => {
             await updateTestOrganizationEmployee(admin, invitedEmployee.id, {
                 phone: client1.userAttrs.phone,
@@ -422,6 +423,7 @@ describe('OrganizationEmployee', () => {
         const [invitedEmployee] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs, role)
         await acceptOrRejectOrganizationInviteById(client2, invitedEmployee)
 
+        // TODO(pahaz): DOMA-10368 use expectToThrowGQLError
         await catchErrorFrom(async () => {
             await updateTestOrganizationEmployee(admin, invitedEmployee.id, {
                 email: client1.userAttrs.email,
@@ -640,6 +642,7 @@ describe('OrganizationEmployee', () => {
             await replaceOrganizationEmployeeRoleByTestClient(admin, organization, deletedRole, role, true)
             const { user } = await makeClientWithNewRegisteredAndLoggedInUser()
 
+            // TODO(pahaz): DOMA-10368 use expectToThrowGraphQLRequestError
             await catchErrorFrom(async () => {
                 await createTestOrganizationEmployee(admin, organization, user, deletedRole)
             }, ({ errors }) => {

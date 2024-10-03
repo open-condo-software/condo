@@ -47,7 +47,7 @@ class RedisGuard {
      * @param {Object | undefined} context - Keystone context
      * @return {Promise<void>}
      */
-    async checkCustomLimitCounters (variable, windowSize, counterLimit, context = undefined) {
+    async checkCustomLimitCounters (variable, windowSize, counterLimit, context) {
         const expiryAnchorDate = dayjs().add(windowSize, 'second')
         const counter = await this.incrementCustomCounter(variable, expiryAnchorDate)
         if (counter > counterLimit) {

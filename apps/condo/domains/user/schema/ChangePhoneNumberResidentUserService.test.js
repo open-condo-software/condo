@@ -5,7 +5,6 @@ const {
     makeLoggedInAdminClient,
     makeClient,
     expectToThrowGQLError,
-    catchErrorFrom,
     expectToThrowAccessDeniedErrorToResult,
     expectToThrowAuthenticationErrorToResult,
 } = require('@open-condo/keystone/test.utils')
@@ -152,22 +151,17 @@ describe('ChangePhoneNumberResidentUserService', () => {
                     },
                 })
 
-                await catchErrorFrom(async () => {
-                    await changePhoneNumberResidentUserByTestClient(client, { token })
-                }, ({ errors }) => {
-                    expect(errors).toMatchObject([{
+                await expectToThrowGQLError(
+                    async () => await changePhoneNumberResidentUserByTestClient(client, { token }),
+                    {
+                        code: 'BAD_USER_INPUT',
+                        type: 'WRONG_VALUE',
+                        mutation: 'changePhoneNumberResidentUser',
                         message: 'Unable to change phone number since user has external identity and phone number are different',
-                        name: 'GQLError',
-                        path: ['result'],
-                        extensions: {
-                            code: 'BAD_USER_INPUT',
-                            type: 'WRONG_VALUE',
-                            mutation: 'changePhoneNumberResidentUser',
-                            message: 'Unable to change phone number since user has external identity and phone number are different',
-                            variable: ['data', 'token'],
-                        },
-                    }])
-                })
+                        variable: ['data', 'token'],
+                    },
+                    'result',
+                )
             })
             it('can change phone with connected external identity pointed to another phone if remove flag provided', async () => {
                 const admin = await makeLoggedInAdminClient()

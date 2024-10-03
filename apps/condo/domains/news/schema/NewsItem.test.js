@@ -1025,6 +1025,7 @@ describe('NewsItems', () => {
         test('error on trying to edit publishedAt field', async () => {
             const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
             await createTestNewsItemScope(adminClient, newsItem)
+            // TODO(pahaz): DOMA-10368 use expectToThrowGraphQLRequestError
             await catchErrorFrom(
                 async () => await updateTestNewsItem(adminClient, newsItem.id, { publishedAt: dayjs().toISOString() }),
                 (caught) => {

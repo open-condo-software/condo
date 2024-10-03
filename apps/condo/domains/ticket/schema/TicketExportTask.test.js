@@ -9,7 +9,7 @@ const conf = require('@open-condo/config')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAccessDeniedErrorToObj,
-    expectToThrowAuthenticationErrorToObjects, catchErrorFrom, expectToThrowValidationFailureError,
+    expectToThrowAuthenticationErrorToObjects, expectToThrowValidationFailureError,
 } = require('@open-condo/keystone/test.utils')
 const { i18n } = require('@open-condo/locales/loader')
 
@@ -344,14 +344,8 @@ describe('TicketExportTask', () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const [obj] = await createTestTicketExportTask(adminClient, adminClient.user)
-            await catchErrorFrom(async () => {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestTicketExportTask(userClient, obj.id, { [field]: forbiddenFieldsToUpdateByUser[field] })
-            }, ({ errors }) => {
-                // TODO(antonal): figure out how to get name of restricted field
-                expect(errors).toMatchObject([{
-                    message: 'You do not have access to this resource',
-                    name: 'AccessDeniedError',
-                }])
             })
         })
 

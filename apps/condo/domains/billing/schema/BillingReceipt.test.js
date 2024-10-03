@@ -13,7 +13,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAccessDeniedErrorToObjects,
-    expectToThrowInternalError,
+    expectToThrowUniqueConstraintViolationError,
     expectToThrowValidationFailureError,
     expectToThrowGraphQLRequestError,
     catchErrorFrom,
@@ -675,7 +675,7 @@ describe('BillingReceipt', () => {
                 expect(anotherReceipt).toHaveProperty('importId', importId)
             })
             test('Receipt with same importId cannot exist in same context', async () => {
-                await expectToThrowInternalError(async () => {
+                await expectToThrowUniqueConstraintViolationError(async () => {
                     await createTestBillingReceipt(admin, context, property, account, { importId })
                 }, 'BillingReceipt_importId_9da6acbf_uniq')
             })
@@ -853,6 +853,7 @@ describe('BillingReceipt', () => {
             ]
 
             test.each(cases)('Field %p cannot be created directly', async (field, value, error) => {
+                // TODO(pahaz): DOMA-10368 use expectToThrowGraphQLRequestError
                 await catchErrorFrom(async () => {
                     await createTestBillingReceipt(admin, context, property, account, {
                         [field]: value,
@@ -866,6 +867,7 @@ describe('BillingReceipt', () => {
 
             test.each(cases)('Field %p cannot be updated directly', async (field, value, error) => {
                 const [receipt] = await createTestBillingReceipt(admin, context, property, account)
+                // TODO(pahaz): DOMA-10368 use expectToThrowGraphQLRequestError
                 await catchErrorFrom(async () => {
                     await updateTestBillingReceipt(admin, receipt.id, {
                         [field]: value,

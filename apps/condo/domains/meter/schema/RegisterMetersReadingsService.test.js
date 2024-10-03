@@ -5,13 +5,14 @@ const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 const { map, flatten } = require('lodash')
 
+const { GQLErrorCode, GQLInternalErrorTypes } = require('@open-condo/keystone/errors')
 const {
     makeLoggedInAdminClient,
     makeClient,
     expectToThrowAuthenticationError,
     expectToThrowAccessDeniedErrorToResult, expectToThrowGQLError, catchErrorFrom,
+    expectToThrowGQLErrorToResult,
 } = require('@open-condo/keystone/test.utils')
-const { i18n } = require('@open-condo/locales/loader')
 
 const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
 const {
@@ -300,7 +301,7 @@ describe('RegisterMetersReadingsService', () => {
         const readings2 = [createTestReadingData(property2)]
         readings2[0].accountNumber = accountNumber
 
-        await catchErrorFrom(
+        await expectToThrowGQLErrorToResult(
             async () => {
                 await registerMetersReadingsByTestClient(adminClient, o10n, readings2)
             },
@@ -319,6 +320,7 @@ describe('RegisterMetersReadingsService', () => {
                                     code: 'BAD_USER_INPUT',
                                     type: 'SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT',
                                     message: 'Meter with same account number exist in current organization in other unit',
+                                    messageForUser: 'api.meter.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT',
                                     messageInterpolation: { unitsCsv: `${readings1[0].addressInfo.unitType} ${readings1[0].addressInfo.unitName}` },
                                 }),
                             })],
@@ -506,6 +508,7 @@ describe('RegisterMetersReadingsService', () => {
             badReading,
         ]
 
+        // TODO(pahaz): use GQLError check
         await catchErrorFrom(
             async () => {
                 await registerMetersReadingsByTestClient(adminClient, o10n, readings)
@@ -532,11 +535,10 @@ describe('RegisterMetersReadingsService', () => {
                 expect(errors).toEqual([
                     expect.objectContaining({
                         message: '[error] Create Meter internal error',
-                        originalError: expect.objectContaining({
-                            message: '[error] Create Meter internal error',
-                            errors: [expect.objectContaining({
-                                message: 'Unable to connect a Meter.resource<MeterResource>',
-                            })],
+                        extensions: expect.objectContaining({
+                            code: GQLErrorCode.INTERNAL_ERROR,
+                            type: GQLInternalErrorTypes.SUB_GQL_ERROR,
+                            message: 'Unable to connect a Meter.resource<MeterResource>',
                         }),
                     }),
                 ])
@@ -582,11 +584,10 @@ describe('RegisterMetersReadingsService', () => {
                 expect(errors).toEqual([
                     expect.objectContaining({
                         message: '[error] Create Meter internal error',
-                        originalError: expect.objectContaining({
-                            message: '[error] Create Meter internal error',
-                            errors: [expect.objectContaining({
-                                message: 'Provided number of tariffs is not valid. Must be an integer from 1 to 4.',
-                            })],
+                        extensions: expect.objectContaining({
+                            code: GQLErrorCode.INTERNAL_ERROR,
+                            type: GQLInternalErrorTypes.SUB_GQL_ERROR,
+                            message: 'Provided number of tariffs is not valid. Must be an integer from 1 to 4.',
                         }),
                     }),
                 ])
@@ -715,26 +716,12 @@ describe('RegisterMetersReadingsService', () => {
                             type: 'INVALID_ACCOUNT_NUMBER',
                             message: 'Invalid account number',
                         }),
-                        originalError: expect.objectContaining({
-                            message: 'Invalid account number',
-                            extensions: expect.objectContaining({
-                                type: 'INVALID_ACCOUNT_NUMBER',
-                                message: 'Invalid account number',
-                            }),
-                        }),
                     }),
                     expect.objectContaining({
                         message: 'Invalid account number',
                         extensions: expect.objectContaining({
                             type: 'INVALID_ACCOUNT_NUMBER',
                             message: 'Invalid account number',
-                        }),
-                        originalError: expect.objectContaining({
-                            message: 'Invalid account number',
-                            extensions: expect.objectContaining({
-                                type: 'INVALID_ACCOUNT_NUMBER',
-                                message: 'Invalid account number',
-                            }),
                         }),
                     }),
                 ])
@@ -773,26 +760,12 @@ describe('RegisterMetersReadingsService', () => {
                             type: 'INVALID_METER_NUMBER',
                             message: 'Invalid meter number',
                         }),
-                        originalError: expect.objectContaining({
-                            message: 'Invalid meter number',
-                            extensions: expect.objectContaining({
-                                type: 'INVALID_METER_NUMBER',
-                                message: 'Invalid meter number',
-                            }),
-                        }),
                     }),
                     expect.objectContaining({
                         message: 'Invalid meter number',
                         extensions: expect.objectContaining({
                             type: 'INVALID_METER_NUMBER',
                             message: 'Invalid meter number',
-                        }),
-                        originalError: expect.objectContaining({
-                            message: 'Invalid meter number',
-                            extensions: expect.objectContaining({
-                                type: 'INVALID_METER_NUMBER',
-                                message: 'Invalid meter number',
-                            }),
                         }),
                     }),
                 ])
@@ -839,43 +812,22 @@ describe('RegisterMetersReadingsService', () => {
         const cases = ['[]', '12_23', 'hello moto']
 
         test.each(cases)('%p should cause an error', async (date) => {
-            const locale = 'ru'
             const [o10n] = await createTestOrganization(adminClient)
             const [property] = await createTestPropertyWithMap(adminClient, o10n)
 
             const reading = createTestReadingData(property, { date })
 
-            await catchErrorFrom(
-                async () => {
-                    await registerMetersReadingsByTestClient(adminClient, o10n, [reading])
-                },
-                ({ data: { result }, errors }) => {
-                    expect(result).toEqual([
-                        null,
-                    ])
-                    expect(errors).toEqual([
-                        expect.objectContaining({
-                            message: 'Invalid date',
-                            extensions: expect.objectContaining({
-                                type: 'INVALID_DATE',
-                                message: 'Invalid date',
-                                messageForUser: i18n('meter.import.error.WrongDateFormatMessage', {
-                                    locale,
-                                    meta: {
-                                        columnName: i18n('meter.import.column.meterReadingSubmissionDate', { locale }),
-                                        format: ['YYYY-MM-DD', 'DD.MM.YYYY'].join('", "'),
-                                    },
-                                }),
-                            }),
-                            originalError: expect.objectContaining({
-                                message: 'Invalid date',
-                                extensions: expect.objectContaining({
-                                    type: 'INVALID_DATE',
-                                    message: 'Invalid date',
-                                }),
-                            }),
-                        }),
-                    ])
+            await expectToThrowGQLErrorToResult(
+                async () => await registerMetersReadingsByTestClient(adminClient, o10n, [reading]),
+                {
+                    'code': 'BAD_USER_INPUT',
+                    'type': 'INVALID_DATE',
+                    'message': 'Invalid date',
+                    'messageForUser': 'meter.import.error.WrongDateFormatMessage',
+                    'messageInterpolation': {
+                        'columnName': 'Reading submission date',
+                        'format': 'YYYY-MM-DD", "DD.MM.YYYY',
+                    },
                 },
             )
         })

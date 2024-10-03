@@ -181,6 +181,7 @@ describe('B2CAppPublishRequest', () => {
             [request] = await createTestB2CAppPublishRequest(admin, app)
             const [anotherApp] = await createTestB2CApp(anotherUser)
 
+            // TODO(pahaz): DOMA-10368 use expectToThrowGraphQLRequestError
             await catchErrorFrom(async () => {
                 await updateTestB2CAppPublishRequest(admin, request.id, {
                     app: { connect: { id: anotherApp.id } },

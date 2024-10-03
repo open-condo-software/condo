@@ -8,8 +8,9 @@ const { createTestPhone } = require('@condo/domains/user/utils/testSchema')
 
 const { passwordValidations } = require('./validateHelpers')
 
-
+/** @deprecated */
 const expectToThrowError = async (func, error) => {
+    // TODO(pahaz): DOMA-10368 use expectToThrow ?? !!
     await catchErrorFrom(func, ({ extensions }) => {
         expect(extensions.message).toEqual(error.message)
         expect(extensions.type).toEqual(error.type)

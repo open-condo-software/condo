@@ -41665,7 +41665,7 @@ export type Mutation = {
    *   "code": "BAD_USER_INPUT",
    *   "type": "WRONG_FORMAT",
    *   "message": "Invalid format of \"sender\" field value",
-   *   "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}"
+   *   "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
    * }`
    */
   changePasswordWithToken?: Maybe<ChangePasswordWithTokenOutput>;
@@ -43993,7 +43993,7 @@ export type Mutation = {
    *   "code": "BAD_USER_INPUT",
    *   "type": "WRONG_FORMAT",
    *   "message": "Invalid format of \"sender\" field value",
-   *   "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}"
+   *   "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
    * }`
    */
   _internalDeleteMeterAndMeterReadings?: Maybe<_InternalDeleteMeterAndMeterReadingsOutput>;
@@ -44018,7 +44018,7 @@ export type Mutation = {
    *   "code": "BAD_USER_INPUT",
    *   "type": "WRONG_FORMAT",
    *   "message": "Invalid format of \"sender\" field value",
-   *   "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}"
+   *   "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
    * }`
    *
    * `{
@@ -65742,7 +65742,7 @@ export type Query = {
    *   "code": "BAD_USER_INPUT",
    *   "type": "WRONG_FORMAT",
    *   "message": "Invalid format of \"sender\" field value",
-   *   "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}"
+   *   "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
    * }`
    */
   checkUserExistence?: Maybe<CheckUserExistenceOutput>;
@@ -65829,7 +65829,7 @@ export type Query = {
    *   "code": "BAD_USER_INPUT",
    *   "type": "WRONG_FORMAT",
    *   "message": "Invalid format of \"sender\" field value",
-   *   "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}"
+   *   "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
    * }`
    *
    * `{
