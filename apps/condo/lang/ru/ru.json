@@ -1814,7 +1814,7 @@
   "meter.import.error.MeterNumberExistInOrganization": "Прибор учета с таким номером уже существует в вашей организации",
   "meter.import.error.MeterResourceNotFound": "Не найден тип счётчика по указанной аббревиатуре",
   "meter.import.error.MeterValueInvalid": "Неверное значение в столбце \"{columnName}\", должно быть положительное число",
-  "api.meter.registerMetersReadings.INVALID_DATE:": "Неверное значение даты в столбце \"{columnName}\". Используйте значение с типом Строка в формате \"{format}\", либо значение с типом Дата",
+  "api.meter.registerMetersReadings.INVALID_DATE": "Неверное значение даты в столбце \"{columnName}\". Используйте значение с типом Строка в формате \"{format}\", либо значение с типом Дата",
   "meter.import.error.WrongDateOrMonthFormatMessage": "Неверное значение даты в столбце \"{columnName}\". Используйте значение с типом Строка в форматах \"{dateFormat}\" или \"{monthFormat}\" (для указания только месяца); либо значение с типом Дата",
   "meter.import.error.unknownResourceType": "Неизвестный тип счетчика. Используйте один из списка: {knownList}",
   "meter.import.error.unknownUnitType": "Неизвестный тип помещения. Используйте один из списка: {knownList}",

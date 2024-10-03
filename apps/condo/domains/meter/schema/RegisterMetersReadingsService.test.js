@@ -278,7 +278,7 @@ describe('RegisterMetersReadingsService', () => {
             {
                 code: 'BAD_USER_INPUT',
                 type: 'TOO_MUCH_READINGS',
-                message: 'Too much readings. Maximum is 500.',
+                message: 'Too much readings. Maximum is {limit}.',
                 messageForUser: 'api.meter.registerMetersReadings.TOO_MUCH_READINGS',
                 messageInterpolation: { limit: 500, sentCount: 501 },
             },
@@ -857,7 +857,7 @@ describe('RegisterMetersReadingsService', () => {
                             extensions: expect.objectContaining({
                                 type: 'INVALID_DATE',
                                 message: 'Invalid date',
-                                messageForUser: i18n('api.meter.registerMetersReadings.INVALID_DATE:', {
+                                messageForUser: i18n('api.meter.registerMetersReadings.INVALID_DATE', {
                                     locale,
                                     meta: {
                                         columnName: i18n('meter.import.column.meterReadingSubmissionDate', { locale }),
