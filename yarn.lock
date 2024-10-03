@@ -765,7 +765,6 @@ __metadata:
     "@graphql-codegen/add": ^5.0.3
     "@graphql-codegen/cli": ^5.0.2
     "@graphql-codegen/import-types-preset": ^3.0.0
-    "@graphql-codegen/near-operation-file-preset": ^3.0.0
     "@graphql-codegen/typescript": ^4.0.9
     "@graphql-codegen/typescript-operations": ^4.2.3
     "@graphql-codegen/typescript-react-apollo": ^4.3.2
@@ -10258,22 +10257,6 @@ __metadata:
   peerDependencies:
     graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
   checksum: 1f4d45d5e940fca12a063f032a0d555f89fd337144be5c1d12316caccd295549366250a8dce23b5fc5534948319460e972b001d84490d9786373080f466c3eb0
-  languageName: node
-  linkType: hard
-
-"@graphql-codegen/near-operation-file-preset@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "@graphql-codegen/near-operation-file-preset@npm:3.0.0"
-  dependencies:
-    "@graphql-codegen/add": ^3.2.1
-    "@graphql-codegen/plugin-helpers": ^3.0.0
-    "@graphql-codegen/visitor-plugin-common": 2.13.1
-    "@graphql-tools/utils": ^10.0.0
-    parse-filepath: ^1.0.2
-    tslib: ~2.6.0
-  peerDependencies:
-    graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
-  checksum: e72ef7e80b9ba8f66bc31526cd94555eafed85003d36bfb345c1e5a8dec5c7cc5bf908061f6f7d57a4708e8e88cb7d5cd2dd79bd6603efbb5d22225f7230fb12
   languageName: node
   linkType: hard
 

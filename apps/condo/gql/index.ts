@@ -44,6 +44,11 @@ export function useAuthenticatedUserLazyQuery (baseOptions?: Apollo.LazyQueryHoo
     const options = { ...defaultOptions, ...baseOptions }
     return Apollo.useLazyQuery<Types.AuthenticatedUserQuery, Types.AuthenticatedUserQueryVariables>(AuthenticatedUserDocument, options)
 }
+export function useAuthenticatedUserSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.AuthenticatedUserQuery, Types.AuthenticatedUserQueryVariables>) {
+    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+    return Apollo.useSuspenseQuery<Types.AuthenticatedUserQuery, Types.AuthenticatedUserQueryVariables>(AuthenticatedUserDocument, options)
+}
 export type AuthenticatedUserQueryHookResult = ReturnType<typeof useAuthenticatedUserQuery>
 export type AuthenticatedUserLazyQueryHookResult = ReturnType<typeof useAuthenticatedUserLazyQuery>
+export type AuthenticatedUserSuspenseQueryHookResult = ReturnType<typeof useAuthenticatedUserSuspenseQuery>
 export type AuthenticatedUserQueryResult = Apollo.QueryResult<Types.AuthenticatedUserQuery, Types.AuthenticatedUserQueryVariables>
