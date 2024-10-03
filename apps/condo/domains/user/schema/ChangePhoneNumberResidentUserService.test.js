@@ -4,7 +4,7 @@ const { GQLInternalErrorTypes, GQLErrorCode } = require('@open-condo/keystone/er
 const {
     makeLoggedInAdminClient,
     makeClient,
-    expectToThrowGQLError,
+    expectToThrowGQLErrorToResult,
     expectToThrowAccessDeniedErrorToResult,
     expectToThrowAuthenticationErrorToResult,
 } = require('@open-condo/keystone/test.utils')
@@ -71,14 +71,13 @@ describe('ChangePhoneNumberResidentUserService', () => {
                 const client = await makeClientWithResidentUser({ type: RESIDENT, isPhoneVerified: true })
                 await createTestUser(admin, { phone: phone, type: RESIDENT })
 
-                await expectToThrowGQLError(
+                await expectToThrowGQLErrorToResult(
                     async () => await changePhoneNumberResidentUserByTestClient(client, { token }),
                     {
                         code: GQLErrorCode.INTERNAL_ERROR,
                         type: GQLInternalErrorTypes.SUB_GQL_ERROR,
                         message: '[error] Update User internal error',
                     },
-                    'result',
                 )
             })
             it('can not change phone with expired token', async () => {
@@ -151,7 +150,7 @@ describe('ChangePhoneNumberResidentUserService', () => {
                     },
                 })
 
-                await expectToThrowGQLError(
+                await expectToThrowGQLErrorToResult(
                     async () => await changePhoneNumberResidentUserByTestClient(client, { token }),
                     {
                         code: 'BAD_USER_INPUT',
@@ -160,7 +159,6 @@ describe('ChangePhoneNumberResidentUserService', () => {
                         message: 'Unable to change phone number since user has external identity and phone number are different',
                         variable: ['data', 'token'],
                     },
-                    'result',
                 )
             })
             it('can change phone with connected external identity pointed to another phone if remove flag provided', async () => {
