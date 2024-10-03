@@ -87,17 +87,18 @@ describe('Config validation utils', () => {
                 ['non object #1', 'pool'],
                 ['non object #2', 123],
                 ['empty object', {}],
-                ['databases missing', { writeable: true }],
-                ['writeable missing', { databases: ['master'] }],
-                ['non-boolean writeable', { databases: ['master'], writeable: 'true' }],
-                ['empty databases', { databases: [], writeable: true }],
-                ['non-existing database', { databases: ['db'], writeable: true }],
-                ['partial non-existing database', { databases: ['master', 'db'], writeable: true }],
+                ['databases missing', { writable: true, balancer: 'RoundRobin' }],
+                ['writable missing', { databases: ['master'], balancer: 'RoundRobin' }],
+                ['invalid balancer', { databases: ['master'], writable: true, balancer: 'SquaredJack' }],
+                ['non-boolean writable', { databases: ['master'], writable: 'true', balancer: 'RoundRobin' }],
+                ['empty databases', { databases: [], writable: true }],
+                ['non-existing database', { databases: ['db'], writable: true }],
+                ['partial non-existing database', { databases: ['master', 'db'], writable: true }],
             ]
             test.each(cases)('%p', (_, pool) => {
                 const configString = JSON.stringify({ pool })
                 expect(() => getReplicaPoolsConfig(configString, ['master']))
-                    .toThrow('Invalid DB pools config.')
+                    .toThrow('Invalid DB pools config')
             })
         })
         test('Must throw if all pools are non-writable', () => {
@@ -115,8 +116,13 @@ describe('Config validation utils', () => {
         describe('Must parse correct config', () => {
             const cases = [
                 [
-                    'simple',
+                    'simple with implicit balancer',
                     { main: { databases: ['main'], writable: true } },
+                    ['main'],
+                ],
+                [
+                    'simple with explicit balancer',
+                    { main: { databases: ['main'], writable: true, balancer: 'RoundRobin' } },
                     ['main'],
                 ],
                 [
@@ -145,7 +151,7 @@ describe('Config validation utils', () => {
                     ['main', 'asyncReplica1', 'asyncReplica2', 'syncReplica1', 'syncReplica2'],
                 ],
                 [
-                    'with multiple writeable DBs',
+                    'with multiple writable DBs',
                     {
                         write: { databases: ['master1', 'master2'], writable: true },
                         asyncReplicas: { databases: ['asyncReplica1', 'asyncReplica2'], writable: false },
@@ -154,7 +160,7 @@ describe('Config validation utils', () => {
                     ['master1', 'master2', 'asyncReplica1', 'asyncReplica2', 'syncReplica1', 'syncReplica2'],
                 ],
                 [
-                    'with multiple db clusters',
+                    'with multiple writable pools',
                     {
                         write: { databases: ['master'], writable: true },
                         asyncReplicas: { databases: ['asyncReplica1', 'asyncReplica2'], writable: false },
@@ -164,7 +170,7 @@ describe('Config validation utils', () => {
                     ['master', 'asyncReplica1', 'asyncReplica2', 'syncReplica1', 'syncReplica2', 'billing'],
                 ],
                 [
-                    'with multiple db clusters with replicas',
+                    'with multiple DB clusters with own replicas',
                     {
                         write: { databases: ['master'], writable: true },
                         asyncReplicas: { databases: ['asyncReplica1', 'asyncReplica2'], writable: false },
@@ -187,7 +193,21 @@ describe('Config validation utils', () => {
 
             test.each(cases)('%p', (_, config, allDatabases) => {
                 const configString = JSON.stringify(config)
-                expect(getReplicaPoolsConfig(configString, allDatabases)).toEqual(config)
+                const expectedConfig = Object.fromEntries(
+                    Object.entries(config).map(([name, pool]) => [
+                        name,
+                        pool.balancer ? pool : { ...pool, balancer: 'RoundRobin' },
+                    ])
+                )
+                expect(getReplicaPoolsConfig(configString, allDatabases)).toEqual(expectedConfig)
+            })
+        })
+        test('Must add RoundRobin as default balancer if not specified', () => {
+            const simpleConfig = { main: { databases: ['main'], writable: true } }
+            const result = getReplicaPoolsConfig(JSON.stringify(simpleConfig), ['main'])
+
+            expect(result).toEqual({
+                main: { ...simpleConfig.main, balancer: 'RoundRobin' },
             })
         })
     })
