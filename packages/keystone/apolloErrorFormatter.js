@@ -144,9 +144,8 @@ function _handleValidationErrorCase (result, extensions, originalError) {
         extensions.message = messages.join(';\n')
     }
     // TODO(pahaz): drop this undocumented backward compatibility ...
-    const data = originalError?.data
-    if (data) {
-        result.data = data
+    if (originalError && originalError?.data && !result.data) {
+        result.data = originalError?.data
     }
 }
 
@@ -252,6 +251,13 @@ function _safeFormatErrorRecursion (errorIn, hideInternals = false, applyPatches
                 } else {
                     _updateExtensionsForKnownErrorCases(result, extensions, internalError)
                 }
+
+                // NOTE(pahaz): propagate SUB_GQL_ERROR message to extensions
+                //  if (we don't have extension.message || we have the same message for message and extension.message)
+                //  then we want to propagate original message to improve developer experience
+                if (internalError.message !== result.message && (!extensions.message || result.message === extensions.message)) {
+                    extensions.message = internalError.message
+                }
             }
         }
 
@@ -262,6 +268,12 @@ function _safeFormatErrorRecursion (errorIn, hideInternals = false, applyPatches
         // If you want to change it you probably want to change API compatibility.
         if (originalError && originalError?.name?.toLowerCase() !== 'error') {
             result.name = originalError.name
+        }
+
+        // NOTE(pahaz): KeystoneJS v5 data field from errors
+        // TODO(pahaz): drop this undocumented backward compatibility ...
+        if (originalError && originalError?.data && !result.data) {
+            result.data = originalError.data
         }
     }
 

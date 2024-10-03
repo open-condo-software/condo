@@ -301,6 +301,7 @@ describe('safeFormatError hide=false', () => {
             'message': 'msg4',
             'name': 'NestedError',  // keystone specific
             'stack': expect.stringMatching(/^NestedError: Hello/),
+            'data': { bar: '33' },  // backward compatibility, drop it
             'originalError': {
                 'message': 'Hello',
                 'name': 'NestedError',
@@ -332,6 +333,7 @@ describe('safeFormatError hide=false', () => {
             'path': ['field'],
             'name': 'AccessDeniedError',
             'stack': expect.stringMatching(/^AccessDeniedError: You do not have access to this resource/),
+            'data': data,  // backward compatibility, drop it
             'originalError': {
                 'name': 'AccessDeniedError',
                 'stack': expect.stringMatching(/^AccessDeniedError: You do not have access to this resource/),
@@ -1137,6 +1139,99 @@ describe('safeFormatError hide=false', () => {
             },
         })
     })
+    test('safeFormatError(GQLError(GraphQLError(Error(Error(AccessDeniedError))))) RegisterMetersReadingsService case with fake MeterResource id', () => {
+        // throwAccessDenied
+        const accessDenied = new AccessDeniedError({
+            path: ['connect'],
+            data: {
+                'type': 'query',
+                'target': 'MeterResource',
+            },
+            internalData: {
+                'authedId': '5b9a0b19-ab90-4c79-b6ea-0dddf0eab6eb',
+                'authedListKey': 'User',
+                'itemId': '44743ac7-dcff-479a-a2ae-8a24c57f3a1f',
+            },
+        })
+        // resolveNestedSingle
+        const internalError = new Error('Unable to connect a Meter.resource<MeterResource>')
+        internalError.path = ['resource']
+        internalError.errors = [accessDenied]
+        // mapToFields
+        const realError = new Error('Unable to connect a Meter.resource<MeterResource>')
+        realError.errors = [internalError]
+        // GQLError (Meter.create())
+        const gqlParentError = new GraphQLError('Unable to connect a Meter.resource<MeterResource>', null, null, null, ['obj'], realError)
+        const gqlError = new GQLError({
+            code: GQLErrorCode.INTERNAL_ERROR,
+            type: GQLInternalErrorTypes.SUB_GQL_ERROR,
+            'message': '[error] Create Meter internal error',
+        }, null, gqlParentError)
+        const graphQLError = new GraphQLError(gqlError.message, null, null, null, null, gqlError, {
+            'code': 'INTERNAL_SERVER_ERROR',
+        })
+        expect(safeFormatError(graphQLError)).toEqual({
+            'name': 'GQLError',
+            'message': '[error] Create Meter internal error',
+            'stack': expect.stringMatching(new RegExp('^GQLError: \\[error\\] Create Meter internal error(.*?)', 's')),
+            'fullstack': expect.stringMatching(new RegExp('^GQLError: \\[error\\] Create Meter internal error(.*?)Caused By: Error: Unable to connect a Meter.resource<MeterResource>(.*?)Caused By: Error: Unable to connect a Meter.resource<MeterResource>(.*?)Caused By: AccessDeniedError: You do not have access to this resource', 's')),
+            'extensions': {
+                code: GQLErrorCode.INTERNAL_ERROR,
+                type: GQLInternalErrorTypes.SUB_GQL_ERROR,
+                'message': 'Unable to connect a Meter.resource<MeterResource>',
+            },
+            'originalError': {
+                'name': 'GQLError',
+                'message': '[error] Create Meter internal error',
+                'stack': expect.stringMatching(new RegExp('^GQLError: \\[error\\] Create Meter internal error(.*?)', 's')),
+                'extensions': {
+                    code: GQLErrorCode.INTERNAL_ERROR,
+                    type: GQLInternalErrorTypes.SUB_GQL_ERROR,
+                    'message': '[error] Create Meter internal error',
+                },
+                'errors': [
+                    {
+                        'message': 'Unable to connect a Meter.resource<MeterResource>',
+                        'name': 'GraphQLError',
+                        'originalError': {
+                            'message': 'Unable to connect a Meter.resource<MeterResource>',
+                            'name': 'Error',
+                            'stack': expect.stringMatching(new RegExp('^Error: Unable to connect a Meter.resource(.*?)', 's')),
+                            'errors': [{
+                                'errors': [
+                                    {
+                                        'data': {
+                                            'target': 'MeterResource',
+                                            'type': 'query',
+                                        },
+                                        'internalData': {
+                                            'authedId': '5b9a0b19-ab90-4c79-b6ea-0dddf0eab6eb',
+                                            'authedListKey': 'User',
+                                            'itemId': '44743ac7-dcff-479a-a2ae-8a24c57f3a1f',
+                                        },
+                                        'message': 'You do not have access to this resource',
+                                        'name': 'AccessDeniedError',
+                                        'stack': expect.stringMatching(new RegExp('^AccessDeniedError: You do not have access to this resource(.*?)', 's')),
+                                        'time_thrown': expect.stringMatching(/^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/),
+                                    },
+                                ],
+                                'message': 'Unable to connect a Meter.resource<MeterResource>',
+                                'name': 'Error',
+                                'path': [
+                                    'resource',
+                                ],
+                                'stack': expect.stringMatching(new RegExp('^Error: Unable to connect a Meter.resource(.*?)', 's')),
+                            }],
+                        },
+                        'path': [
+                            'obj',
+                        ],
+                        'stack': expect.stringMatching(new RegExp('^Error: Unable to connect a Meter.resource(.*?)', 's')),
+                    },
+                ],
+            },
+        })
+    })
     test('safeFormatError(DatabaseError)', () => {
         const message = 'insert into "public"."Message" ("createdAt", "createdBy", "dv", "email", "id", "lang", "meta", "sender", "status", "type", "uniqKey", "updatedAt", "updatedBy", "user", "v") values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) returning * - duplicate key value violates unique constraint "message_unique_user_type_uniqKey"'
         const error = new DatabaseError(message)
@@ -1331,6 +1426,7 @@ describe('safeFormatError hide=true', () => {
         expect(result).toEqual({
             'message': 'msg4',
             'name': 'NestedError',
+            data: { bar: '33' },
         })
     })
     test('safeFormatError(null)', () => {
@@ -1349,6 +1445,7 @@ describe('safeFormatError hide=true', () => {
             'message': 'GraphQLError1',
             'path': ['field'],
             'name': 'AccessDeniedError',
+            data,  // backward compatibility, drop it
             'extensions': {
                 'messageForDeveloper': 'GraphQLError1\n\nGraphQL request:3:5\n2 |   {\n3 |     field\n  |     ^\n4 |   }',
             },
