@@ -648,6 +648,7 @@ const expectToThrowAccessDeniedToFieldError = async (testFunc, path, field, coun
                 })],
                 'extensions': {
                     'code': 'INTERNAL_SERVER_ERROR',
+                    'messageForDeveloper': expect.stringMatching(/^You do not have access to this resource/),
                 },
             })),
         })
