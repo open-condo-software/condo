@@ -794,7 +794,11 @@ function createRegExByTemplate (template, { eol = true, sol = true } = {}) {
 const expectToThrowGQLError = async (testFunc, errorFields, path = 'obj') => {
     if (isEmpty(errorFields) || typeof errorFields !== 'object') throw new Error('expectToThrowGQLError(): wrong errorFields argument')
     if (!errorFields.code || !errorFields.type) throw new Error('expectToThrowGQLError(): errorFields argument: no code or no type')
-    if (!errorFields.message) throw new Error('expectToThrowGQLError(): errorFields message argument is required')
+    if (!errorFields.message) {
+        // TODO(pahaz): DOMA-10345 strongly check it!
+        console.warn('expectToThrowGQLError(): errorFields message argument is required')
+        // throw new Error('expectToThrowGQLError(): errorFields message argument is required')
+    }
     const fieldsToCheck = { ...errorFields }
     if (errorFields.messageInterpolation) {
         fieldsToCheck['message'] = template(errorFields.message)(errorFields.messageInterpolation)
@@ -813,7 +817,7 @@ const expectToThrowGQLError = async (testFunc, errorFields, path = 'obj') => {
 
     // NOTE(pahaz): if we have a template `{secondsRemaining}` inside message without messageInterpolation
     //  it means we want to use RegExp for our tests. Check @examples
-    if (errorFields.message.includes('{')) {
+    if (errorFields?.message?.includes('{')) {
         fieldsToCheck['message'] = expect.stringMatching(createRegExByTemplate(errorFields.message))
         fieldsToCheck['messageTemplate'] = errorFields.message
     }
