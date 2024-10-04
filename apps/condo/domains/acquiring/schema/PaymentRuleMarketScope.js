@@ -9,9 +9,13 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/PaymentRuleMarketScope')
+const {
+    PAYMENT_RULE_MARKET_SCOPE_INVALID_SKU_IDS,
+    PAYMENT_RULE_MARKET_SCOPE_MISSING_ALL_FIELDS,
+    PAYMENT_RULE_MARKET_SCOPE_PROPERTY_AND_PAYMENT_RULE_ORGANIZATIONS_DOES_NOT_MATCH, 
+} = require('@condo/domains/acquiring/constants/errors')
 const { getGQLErrorValidator } = require('@condo/domains/common/schema/json.utils')
 
-const { PAYMENT_RULE_MARKET_SCOPE_INVALID_SKU_IDS, PAYMENT_RULE_MARKET_SCOPE_MISSING_ALL_FIELDS, PAYMENT_RULE_MARKET_SCOPE_PROPERTY_AND_PAYMENT_RULE_ORGANIZATIONS_DOES_NOT_MATCH } = require('../constants/errors')
 
 const ajv = new Ajv()
 

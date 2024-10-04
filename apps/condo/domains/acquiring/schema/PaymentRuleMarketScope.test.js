@@ -11,12 +11,11 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { PaymentRuleMarketScope, createTestPaymentRuleMarketScope, updateTestPaymentRuleMarketScope } = require('@condo/domains/acquiring/utils/testSchema')
+const { addAcquiringIntegrationAndContext, createTestPaymentRule } = require('@condo/domains/acquiring/utils/testSchema')
+const { createTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
+const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
-
-const { createTestBankAccount } = require('../../banking/utils/testSchema')
-const { createTestOrganization } = require('../../organization/utils/testSchema')
-const { createTestProperty } = require('../../property/utils/testSchema')
-const { addAcquiringIntegrationAndContext, createTestPaymentRule } = require('../utils/testSchema')
 
 
 function expectedFields (client, paymentRuleMarketScope, paymentRule, attrs) {
