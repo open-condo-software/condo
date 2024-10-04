@@ -1518,6 +1518,8 @@
   "pages.condo.marketplace.bankAccountErrorMessage": "Ошибка в номере расчетного счета",
   "pages.condo.marketplace.tinValidationErrorMessage": "Ошибка при проверке ИНН",
   "pages.condo.marketplace.routingNumberValidationErrorMessage": "БИК задан не верно",
+  "pages.condo.marketplace.invoice.filters.EnterAddress": "Введите адрес",
+  "pages.condo.marketplace.invoice.filters.EnterUnitName": "Введите номер помещения",
   "pages.condo.marketplace.invoice.create.title": "Новый счет",
   "pages.condo.marketplace.invoice.update.title": "Счет № {number}",
   "pages.condo.marketplace.invoice.form.property": "Адрес",

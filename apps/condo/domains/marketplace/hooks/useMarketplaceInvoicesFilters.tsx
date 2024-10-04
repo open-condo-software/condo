@@ -47,9 +47,9 @@ export function useMarketplaceInvoicesFilters (): Array<FiltersMeta<InvoiceWhere
     const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
     const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
     const SelectMessage = intl.formatMessage({ id: 'Select' })
-    const EnterAddressMessage = intl.formatMessage({ id: 'pages.condo.meter.EnterAddress' })
+    const EnterAddressMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.filters.EnterAddress' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
-    const EnterUnitNameMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.EnterUnitName' })
+    const EnterUnitNameMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.filters.EnterUnitName' })
     const UnitMessage = intl.formatMessage({ id: 'field.FlatNumber' })
 
     const userOrganization = useOrganization()

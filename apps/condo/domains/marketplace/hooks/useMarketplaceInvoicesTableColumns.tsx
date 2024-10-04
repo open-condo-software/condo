@@ -38,8 +38,8 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
         return getAddressRender(property, null, search)
     }, [search])
 
-    const renderUnitName = useCallback((text, contact) => {
-        return getUnitNameRender(intl, text, contact, search)
+    const renderUnitName = useCallback((text, invoice) => {
+        return getUnitNameRender(intl, text, invoice, search)
     }, [search])
 
     return useMemo(() => [
@@ -56,7 +56,7 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
             title: InvoiceNumberTitle,
             key: 'number',
             dataIndex: 'number',
-            width: '15%',
+            width: '10%',
             render: (number, invoice) => {
                 const renderInvoiceNumber = getTableCellRenderer({ search, href: `/marketplace/invoice/${invoice.id}`, target: '_blank' })
 
@@ -72,7 +72,7 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
             title: TicketNumber,
             key: 'ticket',
             dataIndex: 'ticket',
-            width: '15%',
+            width: '10%',
             render: (ticket) => {
                 if (!ticket) {
                     return '—'
@@ -104,7 +104,7 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
             title: UnitTitle,
             key: 'unitName',
             dataIndex: 'unitName',
-            width: '10%',
+            width: '9%',
             render: renderUnitName,
             sorter: true,
             sortOrder: get(sorterMap, 'unitName'),
@@ -117,7 +117,7 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
             title: RowsTitle,
             key: 'rows',
             dataIndex: 'rows',
-            width: '20%',
+            width: '13%',
             render: (rows) => {
                 const joinedRows = rows.map((row, index) => {
                     const name = row.name
@@ -133,7 +133,7 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
             title: PaymentTypeTitle,
             key: 'paymentType',
             dataIndex: 'paymentType',
-            width: '15%',
+            width: '10%',
             render: (paymentType) => {
                 const label = intl.formatMessage({ id: `pages.condo.marketplace.invoice.invoiceList.payment.${paymentType}` as FormatjsIntl.Message['ids'] })
 
@@ -168,7 +168,7 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
             title: SumTitle,
             key: 'toPay',
             dataIndex: 'rows',
-            width: '15%',
+            width: '13%',
             render: (rows) => {
                 const totalPrice = rows.filter(row => row.toPay !== '0').reduce((acc, row) => acc + Number(row.toPay) * row.count, 0)
                 const hasMinPrice = rows.some(row => row.isMin)

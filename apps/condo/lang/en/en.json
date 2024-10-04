@@ -1518,6 +1518,8 @@
   "pages.condo.marketplace.bankAccountErrorMessage": "Bank account validation failed",
   "pages.condo.marketplace.tinValidationErrorMessage": "TIN validation failed",
   "pages.condo.marketplace.routingNumberValidationErrorMessage": "RoutingNumber is in a wrong format",
+  "pages.condo.marketplace.invoice.filters.EnterAddress": "Enter address",
+  "pages.condo.marketplace.invoice.filters.EnterUnitName": "Enter unit name",
   "pages.condo.marketplace.invoice.create.title": "New invoice",
   "pages.condo.marketplace.invoice.update.title": "Invoice № {number}",
   "pages.condo.marketplace.invoice.form.property": "Address",
