@@ -10,6 +10,7 @@ const {
     catchErrorFrom,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowGraphQLRequestError,
+    expectToThrowGraphQLRequestErrors,
 } = require('@open-condo/keystone/test.utils')
 const { makeLoggedInAdminClient, makeClient, DATETIME_RE } = require('@open-condo/keystone/test.utils')
 const { i18n } = require('@open-condo/locales/loader')
@@ -300,9 +301,9 @@ describe('TicketChange', () => {
                 ticket: { id: ticket.id },
             })
 
-            await expectToThrowGraphQLRequestError(
+            await expectToThrowGraphQLRequestErrors(
                 async () => await updateTestTicketChange(client, objCreated.id),
-                'Unknown type "TicketChangeUpdateInput"',
+                ['Unknown type "TicketChangeUpdateInput"', 'Cannot query field "updateTicketChange" on type "Mutation"'],
             )
         })
 

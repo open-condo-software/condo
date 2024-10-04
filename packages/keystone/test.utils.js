@@ -587,9 +587,9 @@ const expectToThrowAccessDeniedError = async (testFunc, path) => {
     if (!path) throw new Error('path is not specified')
     if (!isArray(path)) throw new Error('wrong path type: Array<string> expected')
     await catchErrorFrom(testFunc, (caught) => {
-        expect(pick(caught, ['name', 'data', 'errors'])).toEqual({
+        // TODO(pahaz): DOMA-10368 check 'data'
+        expect(pick(caught, ['name', 'errors'])).toEqual({
             name: 'TestClientResponseError',
-            data: expect.anything(),  // TODO(pahaz): DOMA-10368 don't improve
             errors: [expect.objectContaining({
                 'message': 'You do not have access to this resource',
                 'name': 'AccessDeniedError',
@@ -840,18 +840,30 @@ const expectToThrowGQLErrorToResult = async (testFunc, errorFields) => {
 
 const expectToThrowGraphQLRequestError = async (testFunc, message) => {
     if (!message) throw new Error('expectToThrowGraphQLRequestError(): no message argument')
+    if (typeof message !== 'string') throw new Error('expectToThrowGraphQLRequestError(): message argument is not a string type')
+
+    await expectToThrowGraphQLRequestErrors(testFunc, [message])
+}
+
+const expectToThrowGraphQLRequestErrors = async (testFunc, messages) => {
+    if (!messages) throw new Error('expectToThrowGraphQLRequestErrors(): no message argument')
+    if (!isArray(messages)) throw new Error('expectToThrowGraphQLRequestErrors(): message argument is not an Array<strings> type')
+
+    // NOTE(pahaz):
+    //  ValidationError - The GraphQL operation is not valid against the server's schema.
+    //  UserInputError - The GraphQL operation includes an invalid value for a field argument.
+    //  SyntaxError - The GraphQL operation string contains a syntax error.
+    const matcher = messages.map(message => expect.objectContaining({
+        message: expect.stringMatching(message),
+        name: expect.stringMatching(/(UserInputError|ValidationError|SyntaxError|GraphQLError)/)
+    }))
+
     await catchErrorFrom(testFunc, (caught) => {
         expect(caught?.name).toEqual('TestClientResponseError')
-
         const { errors, data } = caught
         expect(data).toBeUndefined()
-        expect(errors).toHaveLength(1)
-        expect(errors[0].message).toMatch(message)
-        // NOTE(pahaz):
-        //  ValidationError - The GraphQL operation is not valid against the server's schema.
-        //  UserInputError - The GraphQL operation includes an invalid value for a field argument.
-        //  SyntaxError - The GraphQL operation string contains a syntax error.
-        expect(errors[0].name).toMatch(/(UserInputError|ValidationError|SyntaxError|GraphQLError)/)
+        expect(errors).toEqual(matcher)
+        expect(errors).toHaveLength(messages.length)
     })
 }
 
@@ -958,6 +970,7 @@ module.exports = {
     expectToThrowGQLError,
     expectToThrowGQLErrorToResult,
     expectToThrowGraphQLRequestError,
+    expectToThrowGraphQLRequestErrors,
     expectValuesOfCommonFields,
     expectToThrowUniqueConstraintViolationError,
     expectToThrowCheckConstraintViolationError,

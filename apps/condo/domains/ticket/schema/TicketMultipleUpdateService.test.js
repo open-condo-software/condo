@@ -4,7 +4,7 @@
 
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, expectToThrowAccessDeniedErrorToResult } = require('@open-condo/keystone/test.utils')
 
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
@@ -32,29 +32,6 @@ const validTicketStatusUpdateData = [
         sender,
     },
 ]
-
-const expectToThrowAccessDeniedErrorWithNullData = async (testFunc, path = 'result') => {
-    if (!path) throw new Error('path is not specified')
-
-    await catchErrorFrom(testFunc, (caught) => {
-        expect(caught).toMatchObject({
-            name: 'TestClientResponseError',
-            data: null,
-            errors: [expect.objectContaining({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': [path],
-                'locations': [expect.objectContaining({
-                    line: expect.anything(),
-                    column: expect.anything(),
-                })],
-                'extensions': {
-                    'code': 'INTERNAL_SERVER_ERROR',
-                },
-            })],
-        })
-    })
-}
 
 const expectToThrowAuthenticationErrorWithNullData = async (testFunc, path = 'result') => {
     await catchErrorFrom(testFunc, ({ errors, data }) => {
@@ -139,7 +116,7 @@ describe('TicketMultipleUpdateService', () => {
 
             describe('not from ticket organization', () => {
                 it('cannot execute', async () => {
-                    await expectToThrowAccessDeniedErrorWithNullData(async () => {
+                    await expectToThrowAccessDeniedErrorToResult(async () => {
                         await ticketMultipleUpdateByTestClient(notEmployeeUser, {
                             id: ticket.id,
                             data: validTicketStatusUpdateData,
