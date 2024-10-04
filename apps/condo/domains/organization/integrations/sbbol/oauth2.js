@@ -44,7 +44,7 @@ class SbbolOauth2Api {
                     https: {
                         pfx: Buffer.from(this.pfx.certificate, 'base64'),
                         passphrase: this.pfx.passphrase,
-                        ...(sbbolPfx.https || {}),
+                        ...(this.pfx.https || {}),
                     },
                 }
             }
