@@ -80,11 +80,7 @@ const PaymentRuleMarketScope = new GQLListSchema('PaymentRuleMarketScope', {
         validateInput: async ({ resolvedData, addValidationError }) => {
             const notRequiredFields = Object.keys(pick(resolvedData, ['skuIds', 'property']))
             const notEmptyNotRequiredFields = notRequiredFields.filter(field => !!resolvedData[field])
-            console.error({
-                notRequiredFields,
-                notEmptyNotRequiredFields,
-                resolvedData,
-            })
+
             if (!notEmptyNotRequiredFields.length) {
                 return addValidationError(PAYMENT_RULE_MARKET_SCOPE_MISSING_ALL_FIELDS)
             }
