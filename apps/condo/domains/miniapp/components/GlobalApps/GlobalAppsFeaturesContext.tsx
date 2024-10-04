@@ -5,14 +5,14 @@ import React, { createContext, useCallback, useState, useContext } from 'react'
 
 // Specify all data needed for specific feature
 type MapGenerationFeatureContext = {
-    feature: B2BAppGlobalFeature.PropertyMapGeneration,
-    propertyId: Scalars['ID']
+    feature: B2BAppGlobalFeature.PropertyMapGeneration
+    propertyId: Scalars['ID']['input']
 }
 
 type AttachCallRecordToTicketFeatureContext = {
-    feature: B2BAppGlobalFeature.AttachCallRecordToTicket,
-    ticketId: Scalars['ID'],
-    ticketOrganizationId: Scalars['ID'],
+    feature: B2BAppGlobalFeature.AttachCallRecordToTicket
+    ticketId: Scalars['ID']['input']
+    ticketOrganizationId: Scalars['ID']['input']
 }
 
 // Group all features contexts using |
@@ -31,8 +31,8 @@ type IGlobalAppsFeaturesContext = {
     features: IFeaturesType
     registerFeatures: IRegisterFeaturesType
     requestFeature: IRequestFeatureAction
-    addFeatureHandler: (handler: IRequestFeatureHandler) => void,
-    removeFeatureHandler: (handler: IRequestFeatureHandler) => void,
+    addFeatureHandler: (handler: IRequestFeatureHandler) => void
+    removeFeatureHandler: (handler: IRequestFeatureHandler) => void
 }
 
 const GlobalAppsFeaturesContext = createContext<IGlobalAppsFeaturesContext>({
