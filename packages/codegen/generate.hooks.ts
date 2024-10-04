@@ -393,11 +393,15 @@ export function generateReactHooks<
         // NOTE: returns only the first part of the data
         const refetch: IRefetchType<GQLObject, QueryVariables> = useCallback((...args) => {
             setData([])
+            setFirstPageLoaded(false)
+            setFetchMoreError(null)
             return _refetch(...args)
         }, [_refetch])
 
         useDeepCompareEffect(() => {
             setData([])
+            setFirstPageLoaded(false)
+            setFetchMoreError(null)
         }, [variables])
 
         const loadMore = useCallback(async (skip) => {
@@ -416,11 +420,12 @@ export function generateReactHooks<
 
         useEffect(() => {
             if (skip) return
-            if (!loading && !firstPageLoaded) {
-                setData(objs)
-                setFirstPageLoaded(true)
-            }
-        }, [objs, loading, firstPageLoaded, skip])
+            if (loading) return
+            if (firstPageLoaded) return
+
+            setData(objs)
+            setFirstPageLoaded(true)
+        }, [objs, loading, skip])
 
         useEffect(() => {
             if (skip) return
@@ -430,7 +435,8 @@ export function generateReactHooks<
             if (error || fetchMoreError) return
 
             loadMore(data.length)
-        }, [count, data.length, error, fetchMoreError, firstPageLoaded, loadMore, skip])
+        }, [count, data.length, firstPageLoaded, loadMore, skip])
+
 
         const allDataLoaded = data.length === 0 ? objs.length === count : data.length === count
         return {
