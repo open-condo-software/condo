@@ -441,18 +441,17 @@ function generateServerUtils (gqlOrSchemaName) {
      * Count objects by provided where statement.
      * @param context - keystone execution context
      * @param where - gql where statement
-     * @param { sortBy, first, skip } - pagination parameters
      * @param options - server side tuning options
      * @returns {Promise<Number>} - count of model stored objects
      */
-    async function count (context, where, { sortBy, first, skip } = {}, options = {}) {
+    async function count (context, where, options = {}) {
         if (!context) throw new Error('no context')
         if (!where) throw new Error('no where')
         _checkOptions(options)
         return await execGqlWithoutAccess(context, {
             query: queryResolver.count(),
             variables: {
-                where, sortBy, first, skip,
+                where,
             },
             errorMessage: `[error] Unable to query ${pluralForm}`,
             dataPath: 'meta.count',
@@ -641,6 +640,7 @@ function generateServerUtils (gqlOrSchemaName) {
         delete: delete_,
         softDelete,
         softDeleteMany,
+        hasFieldsParam: true, // TODO INFRA-538 remove this once migration to new server utils to be done
     }
 }
 
