@@ -5,10 +5,10 @@
 
 const { _internalDeleteMeterAndMeterReadingsService } = require('./_internalDeleteMeterAndMeterReadingsService')
 const { _internalDeleteMeterReadingsService } = require('./_internalDeleteMeterReadingsService')
-const { ExportMeterReadingsService } = require('./ExportMeterReadingsService')
 const { ExportPropertyMeterReadingsService } = require('./ExportPropertyMeterReadingsService')
 const { Meter } = require('./Meter')
 const { MeterReading } = require('./MeterReading')
+const { MeterReadingExportTask } = require('./MeterReadingExportTask')
 const { MeterReadingFilterTemplate } = require('./MeterReadingFilterTemplate')
 const { MeterReadingsImportTask } = require('./MeterReadingsImportTask')
 const { MeterReadingSource } = require('./MeterReadingSource')
@@ -25,7 +25,6 @@ module.exports = {
     MeterReadingSource,
     MeterReading,
     Meter,
-    ExportMeterReadingsService,
     MeterReadingFilterTemplate,
     PropertyMeter,
     PropertyMeterReading,
@@ -36,5 +35,6 @@ module.exports = {
     ExportPropertyMeterReadingsService,
     RegisterMetersReadingsService,
     MeterReadingsImportTask,
+    MeterReadingExportTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

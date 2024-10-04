@@ -21,6 +21,7 @@ const { MeterReportingPeriod: MeterReportingPeriodGQL } = require('@condo/domain
 const { MeterResourceOwner: MeterResourceOwnerGQL } = require('@condo/domains/meter/gql')
 const { REGISTER_METERS_READINGS_MUTATION } = require('@condo/domains/meter/gql')
 const { MeterReadingsImportTask: MeterReadingsImportTaskGQL } = require('@condo/domains/meter/gql')
+const { MeterReadingExportTask: MeterReadingExportTaskGQL } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateServerUtils(MeterResourceGQL)
@@ -48,6 +49,7 @@ async function registerMetersReadings (context, data) {
 }
 
 const MeterReadingsImportTask = generateServerUtils(MeterReadingsImportTaskGQL)
+const MeterReadingExportTask = generateServerUtils(MeterReadingExportTaskGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 /**
@@ -176,7 +178,6 @@ const loadMetersForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'
     return await metersLoader.load()
 }
 
-
 const loadMeterReadingsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
     const meterReadingsLoader = new GqlWithKnexLoadList({
         listKey: 'MeterReading',
@@ -230,7 +231,6 @@ module.exports = {
     getAvailableResidentMeters,
     getAvailableResidentMeterReportCondition,
     loadMetersForExcelExport,
-    loadMeterReadingsForExcelExport,
     loadPropertyMeterReadingsForExcelExport,
     loadPropertyMetersForExcelExport,
     MeterReadingFilterTemplate,
@@ -240,5 +240,7 @@ module.exports = {
     MeterResourceOwner,
     registerMetersReadings,
     MeterReadingsImportTask,
+    MeterReadingExportTask,
+    loadMeterReadingsForExcelExport,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

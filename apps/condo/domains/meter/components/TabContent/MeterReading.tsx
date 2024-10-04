@@ -6,6 +6,7 @@ import { Meter as MeterType, MeterResource as MeterResourceType } from '@app/con
 import { Col, Row, RowProps } from 'antd'
 import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
 import { TableRowSelection } from 'antd/lib/table/interface'
+import dayjs, { Dayjs } from 'dayjs'
 import chunk from 'lodash/chunk'
 import get from 'lodash/get'
 import uniqBy from 'lodash/uniqBy'
@@ -13,6 +14,7 @@ import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { PlusCircle, Search } from '@open-condo/icons'
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button, Checkbox, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
@@ -21,7 +23,6 @@ import Input from '@condo/domains/common/components/antd/Input'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
-import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 import { Loader } from '@condo/domains/common/components/Loader'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
@@ -37,7 +38,8 @@ import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/
 import { MetersImportWrapper } from '@condo/domains/meter/components/Import/Index'
 import ActionBarForSingleMeter from '@condo/domains/meter/components/Meters/ActionBarForSingleMeter'
 import UpdateMeterReadingModal from '@condo/domains/meter/components/Meters/UpdateMeterReadingModal'
-import { EXPORT_METER_READINGS_QUERY } from '@condo/domains/meter/gql'
+import { EXPORT_METER_READINGS_MONTHS_LIMIT } from '@condo/domains/meter/constants/constants'
+import { useMeterReadingExportToExcelTask } from '@condo/domains/meter/hooks/useMeterReadingExportToExcelTask'
 import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
 import {
     MeterReadingForOrganization,
@@ -47,7 +49,6 @@ import {
     MeterTypes,
 } from '@condo/domains/meter/utils/clientSchema'
 import { getInitialSelectedReadingKeys } from '@condo/domains/meter/utils/helpers'
-
 
 
 const METERS_PAGE_CONTENT_ROW_GUTTERS: RowProps['gutter'] = [0, 40]
@@ -62,9 +63,9 @@ type MetersTableContentProps = {
     filtersMeta: FiltersMeta<MeterReadingWhereInput>[]
     baseSearchQuery: MeterReadingWhereInput
     canManageMeterReadings: boolean
-    isAutomatic?: boolean,
-    meter?: MeterType | PropertyMeter,
-    resource?: MeterResourceType,
+    isAutomatic?: boolean
+    meter?: MeterType | PropertyMeter
+    resource?: MeterResourceType
     sortableProperties?: string[]
     mutationErrorsToMessages?: Record<string, string>
     loading?: boolean
@@ -98,6 +99,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     const DeleteMessage = intl.formatMessage({ id: 'Delete' })
     const DontDeleteMessage = intl.formatMessage({ id: 'DontDelete' })
 
+    const { user } = useAuth()
     const router = useRouter()
     const { filters, offset, sorters, tab } = parseQuery(router.query)
     const type = get(router.query, 'type')
@@ -141,6 +143,12 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
 
     const tableColumnsForSingleMeter = useTableColumns(filtersMeta, METER_TAB_TYPES.meterReading, METER_TYPES.unit, true, meterReadings)
     const tableColumnsForMeterReadings = useTableColumns(filtersMeta, METER_TAB_TYPES.meterReading, METER_TYPES.unit as MeterTypes)
+
+    const { ExportButton } = useMeterReadingExportToExcelTask({
+        where: searchMeterReadingsQuery,
+        sortBy,
+        user,
+    })
 
     const [search, handleSearchChange, handleSearchReset] = useSearch()
     const [selectedReadingKeys, setSelectedReadingKeys] = useState<string[]>(() => getInitialSelectedReadingKeys(router))
@@ -241,6 +249,14 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     const handleCreateMeterReadings = useCallback(() => router.push(`/meter/create?tab=${METER_TAB_TYPES.meterReading}`), [router])
     const handleCloseUpdateReadingModal = useCallback(() => setIsShowUpdateReadingModal(false), [])
 
+    const [selectedDates, setSelectedDates] = useState<[Dayjs, Dayjs]>()
+    const disabledDate = (current) => {
+        if (current > dayjs()) return true
+        const tooLate = selectedDates && selectedDates[0] && current.diff(selectedDates[0], 'months', true) > EXPORT_METER_READINGS_MONTHS_LIMIT
+        const tooEarly = selectedDates && selectedDates[1] && selectedDates[1].diff(current, 'months', true) > EXPORT_METER_READINGS_MONTHS_LIMIT
+        return !!tooEarly || !!tooLate
+    }
+
     return (
         <>
             <Row
@@ -267,6 +283,8 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                                                 value={dateRange}
                                                 onChange={handleDateChange}
                                                 placeholder={[StartDateMessage, EndDateMessage]}
+                                                onCalendarChange={val => setSelectedDates(val)}
+                                                disabledDate={disabledDate}
                                                 style={FULL_WIDTH_DATE_RANGE_STYLE}
                                             />
                                         </Col>
@@ -344,10 +362,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                 }
                 {selectedReadingKeys.length < 1 && !meter && (
                     <Col span={24}>
-                        <ExportToExcelActionBar
-                            searchObjectsQuery={searchMeterReadingsQuery}
-                            exportToExcelQuery={EXPORT_METER_READINGS_QUERY}
-                            sortBy={sortBy}
+                        <ActionBar
                             actions={[
                                 canManageMeterReadings && (
                                     <Button
@@ -366,6 +381,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                                         onFinish={refetch}
                                     />
                                 ),
+                                <ExportButton key='export' id='exportToExcelMeterReadings' />,
                             ]}
                         />
                     </Col>
