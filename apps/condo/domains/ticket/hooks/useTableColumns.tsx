@@ -30,6 +30,7 @@ import {
     getTicketDetailsRender,
     getTicketNumberRender,
     getTicketUserNameRender,
+    getUnitRender,
 } from '@condo/domains/ticket/utils/clientSchema/Renders'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 
