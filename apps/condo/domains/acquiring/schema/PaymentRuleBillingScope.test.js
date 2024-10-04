@@ -132,7 +132,7 @@ describe('PaymentRuleBillingScope', () => {
 
                 const client = await makeClient()
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await updateTestPaymentRuleBillingScope(client, objCreated.id, { bankAccountNumber: '001' })  // TODO(codegen): write 'anonymous: update PaymentRuleBillingScope' test
+                    await updateTestPaymentRuleBillingScope(client, objCreated.id, { bankAccountNumber: '001' })
                 })
             })
         })
@@ -250,7 +250,4 @@ describe('PaymentRuleBillingScope', () => {
         })
     })
 
-    describe('notifications', () => {
-        // TODO(codegen): write notifications tests if you have any sendMessage calls or drop this block!
-    })
 })

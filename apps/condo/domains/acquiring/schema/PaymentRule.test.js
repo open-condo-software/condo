@@ -67,7 +67,7 @@ describe('PaymentRule', () => {
             })
 
             test('user can\'t', async () => {
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()  // TODO(codegen): create USER client!
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 await expectToThrowAccessDeniedErrorToObj(async () =>
                     await createTestPaymentRule(client, acquiringIntegrationContext, bankAccount)
@@ -115,7 +115,7 @@ describe('PaymentRule', () => {
 
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestPaymentRule(client, objCreated.id)  // TODO(codegen): write 'anonymous: update PaymentRule' test
+                    await updateTestPaymentRule(client, objCreated.id)
                 })
             })
 
@@ -125,7 +125,7 @@ describe('PaymentRule', () => {
 
                 const client = await makeClient()
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await updateTestPaymentRule(client, objCreated.id)  // TODO(codegen): write 'anonymous: update PaymentRule' test
+                    await updateTestPaymentRule(client, objCreated.id)
                 })
             })
         })
@@ -136,7 +136,7 @@ describe('PaymentRule', () => {
                 const [objCreated] = await createTestPaymentRule(admin, acquiringIntegrationContext, bankAccount)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await PaymentRule.delete(admin, objCreated.id)  // TODO(codegen): write 'admin: delete PaymentRule' test
+                    await PaymentRule.delete(admin, objCreated.id)
                 })
             })
 
@@ -144,9 +144,9 @@ describe('PaymentRule', () => {
                 const admin = await makeLoggedInAdminClient()
                 const [objCreated] = await createTestPaymentRule(admin, acquiringIntegrationContext, bankAccount)
 
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()  // TODO(codegen): create USER client!
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await PaymentRule.delete(client, objCreated.id)  // TODO(codegen): write 'user: delete PaymentRule' test
+                    await PaymentRule.delete(client, objCreated.id)
                 })
             })
 
@@ -156,7 +156,7 @@ describe('PaymentRule', () => {
 
                 const client = await makeClient()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await PaymentRule.delete(client, objCreated.id)  // TODO(codegen): write 'anonymous: delete PaymentRule' test
+                    await PaymentRule.delete(client, objCreated.id)
                 })
             })
         })
@@ -188,9 +188,9 @@ describe('PaymentRule', () => {
             test('user can\'t', async () => {
                 await createTestPaymentRule(admin, acquiringIntegrationContext, bankAccount)
 
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()  // TODO(codegen): create USER client!
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 await expectToThrowAccessDeniedErrorToObjects(async () => {
-                    await PaymentRule.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })  // TODO(codegen): write 'anonymous: read PaymentRule' test
+                    await PaymentRule.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
                 })
             })
 
@@ -199,7 +199,7 @@ describe('PaymentRule', () => {
 
                 const client = await makeClient()
                 await expectToThrowAuthenticationErrorToObjects(async () => {
-                    await PaymentRule.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })  // TODO(codegen): write 'anonymous: read PaymentRule' test
+                    await PaymentRule.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
                 })
             })
         })

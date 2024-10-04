@@ -191,7 +191,7 @@ describe('PaymentRuleMarketScope', () => {
                 await createTestPaymentRuleMarketScope(admin, paymentRule, { skuIds: ['1'] })
                 const client = await makeClient()
                 await expectToThrowAuthenticationErrorToObjects(async () => {
-                    await PaymentRuleMarketScope.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })  // TODO(codegen): write 'anonymous: read PaymentRuleMarketScope' test
+                    await PaymentRuleMarketScope.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
                 })
             })
         })
@@ -232,7 +232,4 @@ describe('PaymentRuleMarketScope', () => {
         })
     })
 
-    describe('notifications', () => {
-        // TODO(codegen): write notifications tests if you have any sendMessage calls or drop this block!
-    })
 })

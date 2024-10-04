@@ -62,7 +62,6 @@ const PaymentRuleBillingScope = new GQLListSchema('PaymentRuleBillingScope', {
         },
 
         category: {
-            // TODO(codegen): write doc for PaymentRuleBillingScope.category field!
             schemaDoc: 'Determinate if payment rule is working on the specific billing category',
             type: 'Relationship',
             ref: 'BillingCategory',

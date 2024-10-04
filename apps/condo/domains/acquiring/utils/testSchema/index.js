@@ -546,7 +546,6 @@ async function createTestPaymentRule (client, context, bankAccount, extraAttrs =
     if (!context || !context.id) throw new Error('no context.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): write createTestPaymentRule logic for generate fields
 
     const attrs = {
         dv: 1,
@@ -564,7 +563,6 @@ async function updateTestPaymentRule (client, id, extraAttrs = {}) {
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): check the updateTestPaymentRule logic for generate fields
 
     const attrs = {
         dv: 1,
@@ -580,7 +578,6 @@ async function createTestPaymentRuleBillingScope (client, paymentRule, extraAttr
     if (!paymentRule || !paymentRule.id) throw new Error('no paymentRule.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): write createTestPaymentRuleBillingScope logic for generate fields
 
     const attrs = {
         dv: 1,
@@ -596,8 +593,6 @@ async function updateTestPaymentRuleBillingScope (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestPaymentRuleBillingScope logic for generate fields
 
     const attrs = {
         dv: 1,
