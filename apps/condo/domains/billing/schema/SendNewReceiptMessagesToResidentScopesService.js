@@ -113,7 +113,10 @@ const validateAndNormalizeData = async (context, data) => {
     const billingPropertyIds = scopes.map(scope => scope.billingProperty.id)
     const uniqBillingPropertyIds = uniq(compact(billingPropertyIds))
     const billingPropertiesWhere = { context: { id: billingIntegrationContext.id }, id_in: uniqBillingPropertyIds, deletedAt: null }
-    const billingProperties = await loadListByChunks({ context, list: BillingProperty, where: billingPropertiesWhere })
+    const billingProperties = await loadListByChunks({
+        context, list: BillingProperty, where: billingPropertiesWhere,
+        fields: 'id address addressKey',
+    })
     const loadedBillingPropertyIds = billingProperties.map(billingProperty => billingProperty.id)
     const loadedBillingPropertyUniqIds = uniq(compact(loadedBillingPropertyIds))
     const propertiesMapping = {}
