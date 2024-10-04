@@ -76,7 +76,7 @@ describe('ChangePhoneNumberResidentUserService', () => {
                     {
                         code: GQLErrorCode.INTERNAL_ERROR,
                         type: GQLInternalErrorTypes.SUB_GQL_ERROR,
-                        message: '[error] Update User internal error',
+                        message: '[unique:phone:multipleFound] user already exists',
                     },
                 )
             })
