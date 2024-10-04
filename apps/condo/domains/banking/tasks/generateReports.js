@@ -185,6 +185,7 @@ const generateReports = async (taskId) => {
             organization: { id: organization.id },
             account: { id: bankAccount.id },
         },
+        fields: 'id date contractorAccount { costItem { id name category { id name } } } amount isOutcome',
     })
 
     for (let transaction of allTransactions) {

@@ -19,7 +19,8 @@ const access = require('@condo/domains/resident/access/DiscoverServiceConsumersS
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 
 const MAX_RESIDENTS_COUNT_FOR_USER_PROPERTY = 6
-
+const BILLING_ACCOUNT_FIELDS = ' id unitName unitType number'
+    + 'context { id organization { id type} } property { id address addressKey }'
 const logger = getLogger('DiscoverServiceConsumersMutation')
 
 /**
@@ -125,6 +126,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                         isClosed: false,
                         ownerType_not: BILLING_ACCOUNT_OWNER_TYPE_COMPANY,
                     },
+                    fields: BILLING_ACCOUNT_FIELDS,
                     chunkProcessor: async (/** @type {BillingAccount[]} */ chunk) => {
                         for (const billingAccount of chunk) {
                             const organizationId = get(billingAccount, ['context', 'organization', 'id'], null)
@@ -237,6 +239,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                         })),
                     },
                     chunkSize: 50,
+                    fields: BILLING_ACCOUNT_FIELDS,
                     chunkProcessor: (chunk) => {
                         return chunk.map(extractDataFromBillingAccount)
                     },

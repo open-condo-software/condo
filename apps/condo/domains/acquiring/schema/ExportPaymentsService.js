@@ -8,7 +8,7 @@ const { get } = require('lodash')
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
-const { GQLCustomSchema } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { i18n } = require('@open-condo/locales/loader')
 
@@ -23,6 +23,10 @@ const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm'
+const PAYMENT_FIELDS = 'id status order amount accountNumber advancedAt '
+    + 'context { integration { name } } multiPayment { transactionId } '
+    + 'invoice { property { address } contact { property { address } unitName } unitName } '
+    + 'receipt { property { address } account { unitName } } '
 
 const ERRORS = {
     DV_VERSION_MISMATCH: {
@@ -85,6 +89,7 @@ const ExportPaymentsService = new GQLCustomSchema('ExportPaymentsService', {
                     list: Payment,
                     where,
                     sortBy,
+                    fields: PAYMENT_FIELDS,
                 })
 
                 if (objs.length === 0) {
