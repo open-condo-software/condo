@@ -23,7 +23,7 @@ const { REGISTER_MULTI_PAYMENT_FOR_INVOICES_MUTATION } = require('@condo/domains
 const { CALCULATE_FEE_FOR_RECEIPT_QUERY } = require('@condo/domains/acquiring/gql')
 const { PaymentRule: PaymentRuleGQL } = require('@condo/domains/acquiring/gql')
 const { PaymentRuleBillingScope: PaymentRuleBillingScopeGQL } = require('@condo/domains/acquiring/gql')
-const { PaymentRuleMarketPlaceScope: PaymentRuleMarketPlaceScopeGQL } = require('@condo/domains/acquiring/gql')
+const { PaymentRuleMarketScope: PaymentRuleMarketScopeGQL } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateServerUtils('AcquiringIntegration')
@@ -129,7 +129,7 @@ async function calculateFeeForReceipt (context, data) {
 
 const PaymentRule = generateServerUtils(PaymentRuleGQL)
 const PaymentRuleBillingScope = generateServerUtils(PaymentRuleBillingScopeGQL)
-const PaymentRuleMarketPlaceScope = generateServerUtils(PaymentRuleMarketPlaceScopeGQL)
+const PaymentRuleMarketScope = generateServerUtils(PaymentRuleMarketScopeGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -150,6 +150,6 @@ module.exports = {
     calculateFeeForReceipt,
     PaymentRule,
     PaymentRuleBillingScope,
-    PaymentRuleMarketPlaceScope,
+    PaymentRuleMarketScope,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

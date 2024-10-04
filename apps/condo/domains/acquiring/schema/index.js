@@ -12,6 +12,9 @@ const { ExportPaymentsService } = require('./ExportPaymentsService')
 const { GeneratePaymentLinkService } = require('./GeneratePaymentLinkService')
 const { MultiPayment } = require('./MultiPayment')
 const { Payment } = require('./Payment')
+const { PaymentRule } = require('./PaymentRule')
+const { PaymentRuleBillingScope } = require('./PaymentRuleBillingScope')
+const { PaymentRuleMarketScope } = require('./PaymentRuleMarketScope')
 const { PaymentsFilterTemplate } = require('./PaymentsFilterTemplate')
 const { RecurrentPayment } = require('./RecurrentPayment')
 const { RecurrentPaymentContext } = require('./RecurrentPaymentContext')
@@ -20,9 +23,6 @@ const { RegisterMultiPaymentForOneReceiptService } = require('./RegisterMultiPay
 const { RegisterMultiPaymentForVirtualReceiptService } = require('./RegisterMultiPaymentForVirtualReceiptService')
 const { RegisterMultiPaymentService } = require('./RegisterMultiPaymentService')
 const { SumPaymentsService } = require('./SumPaymentsService')
-const { PaymentRule } = require('./PaymentRule')
-const { PaymentRuleBillingScope } = require('./PaymentRuleBillingScope')
-const { PaymentRuleMarketPlaceScope } = require('./PaymentRuleMarketPlaceScope')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -45,6 +45,6 @@ module.exports = {
     CalculateFeeForReceiptService,
     PaymentRule,
     PaymentRuleBillingScope,
-    PaymentRuleMarketPlaceScope,
+    PaymentRuleMarketScope,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

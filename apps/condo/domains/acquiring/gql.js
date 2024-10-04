@@ -95,7 +95,7 @@ const PAYMENT_RULE_BILLING_SCOPE_FIELDS = `{ paymentRule { id } property { id } 
 const PaymentRuleBillingScope = generateGqlQueries('PaymentRuleBillingScope', PAYMENT_RULE_BILLING_SCOPE_FIELDS)
 
 const PAYMENT_RULE_MARKET_PLACE_SCOPE_FIELDS = `{ paymentRule { id } property { id } skuIds ${COMMON_FIELDS} }`
-const PaymentRuleMarketPlaceScope = generateGqlQueries('PaymentRuleMarketPlaceScope', PAYMENT_RULE_MARKET_PLACE_SCOPE_FIELDS)
+const PaymentRuleMarketScope = generateGqlQueries('PaymentRuleMarketScope', PAYMENT_RULE_MARKET_PLACE_SCOPE_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -125,6 +125,6 @@ module.exports = {
     CALCULATE_FEE_FOR_RECEIPT_QUERY,
     PaymentRule,
     PaymentRuleBillingScope,
-    PaymentRuleMarketPlaceScope,
+    PaymentRuleMarketScope,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

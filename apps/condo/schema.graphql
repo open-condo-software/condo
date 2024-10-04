@@ -60208,20 +60208,20 @@ input PaymentRuleBillingScopesCreateInput {
   data: PaymentRuleBillingScopeCreateInput
 }
 
-enum PaymentRuleMarketPlaceScopeHistoryRecordHistoryActionType {
+enum PaymentRuleMarketScopeHistoryRecordHistoryActionType {
   c
   u
   d
 }
 
 """ A keystone list """
-type PaymentRuleMarketPlaceScopeHistoryRecord {
+type PaymentRuleMarketScopeHistoryRecord {
   """
   This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the PaymentRuleMarketPlaceScopeHistoryRecord List config, or
-   2. As an alias to the field set on 'labelField' in the PaymentRuleMarketPlaceScopeHistoryRecord List config, or
-   3. As an alias to a 'name' field on the PaymentRuleMarketPlaceScopeHistoryRecord List (if one exists), or
-   4. As an alias to the 'id' field on the PaymentRuleMarketPlaceScopeHistoryRecord List.
+   1. Execution of 'labelResolver' set on the PaymentRuleMarketScopeHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the PaymentRuleMarketScopeHistoryRecord List config, or
+   3. As an alias to a 'name' field on the PaymentRuleMarketScopeHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the PaymentRuleMarketScopeHistoryRecord List.
   """
   _label_: String
   paymentRule: String
@@ -60238,13 +60238,13 @@ type PaymentRuleMarketPlaceScopeHistoryRecord {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: PaymentRuleMarketPlaceScopeHistoryRecordHistoryActionType
+  history_action: PaymentRuleMarketScopeHistoryRecordHistoryActionType
   history_id: String
 }
 
-input PaymentRuleMarketPlaceScopeHistoryRecordWhereInput {
-  AND: [PaymentRuleMarketPlaceScopeHistoryRecordWhereInput]
-  OR: [PaymentRuleMarketPlaceScopeHistoryRecordWhereInput]
+input PaymentRuleMarketScopeHistoryRecordWhereInput {
+  AND: [PaymentRuleMarketScopeHistoryRecordWhereInput]
+  OR: [PaymentRuleMarketScopeHistoryRecordWhereInput]
   paymentRule: String
   paymentRule_not: String
   paymentRule_in: [String]
@@ -60325,21 +60325,21 @@ input PaymentRuleMarketPlaceScopeHistoryRecordWhereInput {
   history_date_gte: String
   history_date_in: [String]
   history_date_not_in: [String]
-  history_action: PaymentRuleMarketPlaceScopeHistoryRecordHistoryActionType
-  history_action_not: PaymentRuleMarketPlaceScopeHistoryRecordHistoryActionType
-  history_action_in: [PaymentRuleMarketPlaceScopeHistoryRecordHistoryActionType]
-  history_action_not_in: [PaymentRuleMarketPlaceScopeHistoryRecordHistoryActionType]
+  history_action: PaymentRuleMarketScopeHistoryRecordHistoryActionType
+  history_action_not: PaymentRuleMarketScopeHistoryRecordHistoryActionType
+  history_action_in: [PaymentRuleMarketScopeHistoryRecordHistoryActionType]
+  history_action_not_in: [PaymentRuleMarketScopeHistoryRecordHistoryActionType]
   history_id: String
   history_id_not: String
   history_id_in: [String]
   history_id_not_in: [String]
 }
 
-input PaymentRuleMarketPlaceScopeHistoryRecordWhereUniqueInput {
+input PaymentRuleMarketScopeHistoryRecordWhereUniqueInput {
   id: ID!
 }
 
-enum SortPaymentRuleMarketPlaceScopeHistoryRecordsBy {
+enum SortPaymentRuleMarketScopeHistoryRecordsBy {
   id_ASC
   id_DESC
   v_ASC
@@ -60358,7 +60358,7 @@ enum SortPaymentRuleMarketPlaceScopeHistoryRecordsBy {
   history_action_DESC
 }
 
-input PaymentRuleMarketPlaceScopeHistoryRecordUpdateInput {
+input PaymentRuleMarketScopeHistoryRecordUpdateInput {
   paymentRule: String
   property: String
   skuIds: JSON
@@ -60372,16 +60372,16 @@ input PaymentRuleMarketPlaceScopeHistoryRecordUpdateInput {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: PaymentRuleMarketPlaceScopeHistoryRecordHistoryActionType
+  history_action: PaymentRuleMarketScopeHistoryRecordHistoryActionType
   history_id: String
 }
 
-input PaymentRuleMarketPlaceScopeHistoryRecordsUpdateInput {
+input PaymentRuleMarketScopeHistoryRecordsUpdateInput {
   id: ID!
-  data: PaymentRuleMarketPlaceScopeHistoryRecordUpdateInput
+  data: PaymentRuleMarketScopeHistoryRecordUpdateInput
 }
 
-input PaymentRuleMarketPlaceScopeHistoryRecordCreateInput {
+input PaymentRuleMarketScopeHistoryRecordCreateInput {
   paymentRule: String
   property: String
   skuIds: JSON
@@ -60395,22 +60395,22 @@ input PaymentRuleMarketPlaceScopeHistoryRecordCreateInput {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: PaymentRuleMarketPlaceScopeHistoryRecordHistoryActionType
+  history_action: PaymentRuleMarketScopeHistoryRecordHistoryActionType
   history_id: String
 }
 
-input PaymentRuleMarketPlaceScopeHistoryRecordsCreateInput {
-  data: PaymentRuleMarketPlaceScopeHistoryRecordCreateInput
+input PaymentRuleMarketScopeHistoryRecordsCreateInput {
+  data: PaymentRuleMarketScopeHistoryRecordCreateInput
 }
 
 """ Conditions to match paymentRule with the marketplace invoices """
-type PaymentRuleMarketPlaceScope {
+type PaymentRuleMarketScope {
   """
   This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the PaymentRuleMarketPlaceScope List config, or
-   2. As an alias to the field set on 'labelField' in the PaymentRuleMarketPlaceScope List config, or
-   3. As an alias to a 'name' field on the PaymentRuleMarketPlaceScope List (if one exists), or
-   4. As an alias to the 'id' field on the PaymentRuleMarketPlaceScope List.
+   1. Execution of 'labelResolver' set on the PaymentRuleMarketScope List config, or
+   2. As an alias to the field set on 'labelField' in the PaymentRuleMarketScope List config, or
+   3. As an alias to a 'name' field on the PaymentRuleMarketScope List (if one exists), or
+   4. As an alias to the 'id' field on the PaymentRuleMarketScope List.
   """
   _label_: String
 
@@ -60446,9 +60446,9 @@ type PaymentRuleMarketPlaceScope {
   sender: SenderField
 }
 
-input PaymentRuleMarketPlaceScopeWhereInput {
-  AND: [PaymentRuleMarketPlaceScopeWhereInput]
-  OR: [PaymentRuleMarketPlaceScopeWhereInput]
+input PaymentRuleMarketScopeWhereInput {
+  AND: [PaymentRuleMarketScopeWhereInput]
+  OR: [PaymentRuleMarketScopeWhereInput]
   paymentRule: PaymentRuleWhereInput
   paymentRule_is_null: Boolean
   property: PropertyWhereInput
@@ -60515,11 +60515,11 @@ input PaymentRuleMarketPlaceScopeWhereInput {
   sender_not_in: [SenderFieldInput]
 }
 
-input PaymentRuleMarketPlaceScopeWhereUniqueInput {
+input PaymentRuleMarketScopeWhereUniqueInput {
   id: ID!
 }
 
-enum SortPaymentRuleMarketPlaceScopesBy {
+enum SortPaymentRuleMarketScopesBy {
   paymentRule_ASC
   paymentRule_DESC
   property_ASC
@@ -60542,7 +60542,7 @@ enum SortPaymentRuleMarketPlaceScopesBy {
   dv_DESC
 }
 
-input PaymentRuleMarketPlaceScopeUpdateInput {
+input PaymentRuleMarketScopeUpdateInput {
   paymentRule: PaymentRuleRelateToOneInput
   property: PropertyRelateToOneInput
   skuIds: JSON
@@ -60557,12 +60557,12 @@ input PaymentRuleMarketPlaceScopeUpdateInput {
   sender: SenderFieldInput
 }
 
-input PaymentRuleMarketPlaceScopesUpdateInput {
+input PaymentRuleMarketScopesUpdateInput {
   id: ID!
-  data: PaymentRuleMarketPlaceScopeUpdateInput
+  data: PaymentRuleMarketScopeUpdateInput
 }
 
-input PaymentRuleMarketPlaceScopeCreateInput {
+input PaymentRuleMarketScopeCreateInput {
   paymentRule: PaymentRuleRelateToOneInput
   property: PropertyRelateToOneInput
   skuIds: JSON
@@ -60577,8 +60577,8 @@ input PaymentRuleMarketPlaceScopeCreateInput {
   sender: SenderFieldInput
 }
 
-input PaymentRuleMarketPlaceScopesCreateInput {
-  data: PaymentRuleMarketPlaceScopeCreateInput
+input PaymentRuleMarketScopesCreateInput {
+  data: PaymentRuleMarketScopeCreateInput
 }
 
 enum ExternalReportHistoryRecordHistoryActionType {
@@ -83345,36 +83345,35 @@ type Query {
   """ Retrieve the meta-data for the PaymentRuleBillingScope list. """
   _PaymentRuleBillingScopesMeta: _ListMeta
 
-  """ Search for all PaymentRuleMarketPlaceScopeHistoryRecord items which match the where clause. 
+  """ Search for all PaymentRuleMarketScopeHistoryRecord items which match the where clause. 
   """
-  allPaymentRuleMarketPlaceScopeHistoryRecords(where: PaymentRuleMarketPlaceScopeHistoryRecordWhereInput, search: String, sortBy: [SortPaymentRuleMarketPlaceScopeHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [PaymentRuleMarketPlaceScopeHistoryRecord]
+  allPaymentRuleMarketScopeHistoryRecords(where: PaymentRuleMarketScopeHistoryRecordWhereInput, search: String, sortBy: [SortPaymentRuleMarketScopeHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [PaymentRuleMarketScopeHistoryRecord]
 
-  """ Search for the PaymentRuleMarketPlaceScopeHistoryRecord item with the matching ID. 
+  """ Search for the PaymentRuleMarketScopeHistoryRecord item with the matching ID. 
   """
-  PaymentRuleMarketPlaceScopeHistoryRecord(where: PaymentRuleMarketPlaceScopeHistoryRecordWhereUniqueInput!): PaymentRuleMarketPlaceScopeHistoryRecord
+  PaymentRuleMarketScopeHistoryRecord(where: PaymentRuleMarketScopeHistoryRecordWhereUniqueInput!): PaymentRuleMarketScopeHistoryRecord
 
-  """ Perform a meta-query on all PaymentRuleMarketPlaceScopeHistoryRecord items which match the where clause. 
+  """ Perform a meta-query on all PaymentRuleMarketScopeHistoryRecord items which match the where clause. 
   """
-  _allPaymentRuleMarketPlaceScopeHistoryRecordsMeta(where: PaymentRuleMarketPlaceScopeHistoryRecordWhereInput, search: String, sortBy: [SortPaymentRuleMarketPlaceScopeHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+  _allPaymentRuleMarketScopeHistoryRecordsMeta(where: PaymentRuleMarketScopeHistoryRecordWhereInput, search: String, sortBy: [SortPaymentRuleMarketScopeHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
-  """ Retrieve the meta-data for the PaymentRuleMarketPlaceScopeHistoryRecord list. 
+  """ Retrieve the meta-data for the PaymentRuleMarketScopeHistoryRecord list. 
   """
-  _PaymentRuleMarketPlaceScopeHistoryRecordsMeta: _ListMeta
+  _PaymentRuleMarketScopeHistoryRecordsMeta: _ListMeta
 
-  """ Search for all PaymentRuleMarketPlaceScope items which match the where clause. 
+  """ Search for all PaymentRuleMarketScope items which match the where clause. 
   """
-  allPaymentRuleMarketPlaceScopes(where: PaymentRuleMarketPlaceScopeWhereInput, search: String, sortBy: [SortPaymentRuleMarketPlaceScopesBy!], orderBy: String, first: Int, skip: Int): [PaymentRuleMarketPlaceScope]
+  allPaymentRuleMarketScopes(where: PaymentRuleMarketScopeWhereInput, search: String, sortBy: [SortPaymentRuleMarketScopesBy!], orderBy: String, first: Int, skip: Int): [PaymentRuleMarketScope]
 
-  """ Search for the PaymentRuleMarketPlaceScope item with the matching ID. 
+  """ Search for the PaymentRuleMarketScope item with the matching ID. """
+  PaymentRuleMarketScope(where: PaymentRuleMarketScopeWhereUniqueInput!): PaymentRuleMarketScope
+
+  """ Perform a meta-query on all PaymentRuleMarketScope items which match the where clause. 
   """
-  PaymentRuleMarketPlaceScope(where: PaymentRuleMarketPlaceScopeWhereUniqueInput!): PaymentRuleMarketPlaceScope
+  _allPaymentRuleMarketScopesMeta(where: PaymentRuleMarketScopeWhereInput, search: String, sortBy: [SortPaymentRuleMarketScopesBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
-  """ Perform a meta-query on all PaymentRuleMarketPlaceScope items which match the where clause. 
-  """
-  _allPaymentRuleMarketPlaceScopesMeta(where: PaymentRuleMarketPlaceScopeWhereInput, search: String, sortBy: [SortPaymentRuleMarketPlaceScopesBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
-
-  """ Retrieve the meta-data for the PaymentRuleMarketPlaceScope list. """
-  _PaymentRuleMarketPlaceScopesMeta: _ListMeta
+  """ Retrieve the meta-data for the PaymentRuleMarketScope list. """
+  _PaymentRuleMarketScopesMeta: _ListMeta
 
   """ Search for all ExternalReportHistoryRecord items which match the where clause. 
   """
@@ -88241,43 +88240,41 @@ type Mutation {
   """ Delete multiple PaymentRuleBillingScope items by ID. """
   deletePaymentRuleBillingScopes(ids: [ID!]): [PaymentRuleBillingScope]
 
-  """ Create a single PaymentRuleMarketPlaceScopeHistoryRecord item. """
-  createPaymentRuleMarketPlaceScopeHistoryRecord(data: PaymentRuleMarketPlaceScopeHistoryRecordCreateInput): PaymentRuleMarketPlaceScopeHistoryRecord
+  """ Create a single PaymentRuleMarketScopeHistoryRecord item. """
+  createPaymentRuleMarketScopeHistoryRecord(data: PaymentRuleMarketScopeHistoryRecordCreateInput): PaymentRuleMarketScopeHistoryRecord
 
-  """ Create multiple PaymentRuleMarketPlaceScopeHistoryRecord items. """
-  createPaymentRuleMarketPlaceScopeHistoryRecords(data: [PaymentRuleMarketPlaceScopeHistoryRecordsCreateInput]): [PaymentRuleMarketPlaceScopeHistoryRecord]
+  """ Create multiple PaymentRuleMarketScopeHistoryRecord items. """
+  createPaymentRuleMarketScopeHistoryRecords(data: [PaymentRuleMarketScopeHistoryRecordsCreateInput]): [PaymentRuleMarketScopeHistoryRecord]
 
-  """ Update a single PaymentRuleMarketPlaceScopeHistoryRecord item by ID. """
-  updatePaymentRuleMarketPlaceScopeHistoryRecord(id: ID!, data: PaymentRuleMarketPlaceScopeHistoryRecordUpdateInput): PaymentRuleMarketPlaceScopeHistoryRecord
+  """ Update a single PaymentRuleMarketScopeHistoryRecord item by ID. """
+  updatePaymentRuleMarketScopeHistoryRecord(id: ID!, data: PaymentRuleMarketScopeHistoryRecordUpdateInput): PaymentRuleMarketScopeHistoryRecord
 
-  """ Update multiple PaymentRuleMarketPlaceScopeHistoryRecord items by ID. 
-  """
-  updatePaymentRuleMarketPlaceScopeHistoryRecords(data: [PaymentRuleMarketPlaceScopeHistoryRecordsUpdateInput]): [PaymentRuleMarketPlaceScopeHistoryRecord]
+  """ Update multiple PaymentRuleMarketScopeHistoryRecord items by ID. """
+  updatePaymentRuleMarketScopeHistoryRecords(data: [PaymentRuleMarketScopeHistoryRecordsUpdateInput]): [PaymentRuleMarketScopeHistoryRecord]
 
-  """ Delete a single PaymentRuleMarketPlaceScopeHistoryRecord item by ID. """
-  deletePaymentRuleMarketPlaceScopeHistoryRecord(id: ID!): PaymentRuleMarketPlaceScopeHistoryRecord
+  """ Delete a single PaymentRuleMarketScopeHistoryRecord item by ID. """
+  deletePaymentRuleMarketScopeHistoryRecord(id: ID!): PaymentRuleMarketScopeHistoryRecord
 
-  """ Delete multiple PaymentRuleMarketPlaceScopeHistoryRecord items by ID. 
-  """
-  deletePaymentRuleMarketPlaceScopeHistoryRecords(ids: [ID!]): [PaymentRuleMarketPlaceScopeHistoryRecord]
+  """ Delete multiple PaymentRuleMarketScopeHistoryRecord items by ID. """
+  deletePaymentRuleMarketScopeHistoryRecords(ids: [ID!]): [PaymentRuleMarketScopeHistoryRecord]
 
-  """ Create a single PaymentRuleMarketPlaceScope item. """
-  createPaymentRuleMarketPlaceScope(data: PaymentRuleMarketPlaceScopeCreateInput): PaymentRuleMarketPlaceScope
+  """ Create a single PaymentRuleMarketScope item. """
+  createPaymentRuleMarketScope(data: PaymentRuleMarketScopeCreateInput): PaymentRuleMarketScope
 
-  """ Create multiple PaymentRuleMarketPlaceScope items. """
-  createPaymentRuleMarketPlaceScopes(data: [PaymentRuleMarketPlaceScopesCreateInput]): [PaymentRuleMarketPlaceScope]
+  """ Create multiple PaymentRuleMarketScope items. """
+  createPaymentRuleMarketScopes(data: [PaymentRuleMarketScopesCreateInput]): [PaymentRuleMarketScope]
 
-  """ Update a single PaymentRuleMarketPlaceScope item by ID. """
-  updatePaymentRuleMarketPlaceScope(id: ID!, data: PaymentRuleMarketPlaceScopeUpdateInput): PaymentRuleMarketPlaceScope
+  """ Update a single PaymentRuleMarketScope item by ID. """
+  updatePaymentRuleMarketScope(id: ID!, data: PaymentRuleMarketScopeUpdateInput): PaymentRuleMarketScope
 
-  """ Update multiple PaymentRuleMarketPlaceScope items by ID. """
-  updatePaymentRuleMarketPlaceScopes(data: [PaymentRuleMarketPlaceScopesUpdateInput]): [PaymentRuleMarketPlaceScope]
+  """ Update multiple PaymentRuleMarketScope items by ID. """
+  updatePaymentRuleMarketScopes(data: [PaymentRuleMarketScopesUpdateInput]): [PaymentRuleMarketScope]
 
-  """ Delete a single PaymentRuleMarketPlaceScope item by ID. """
-  deletePaymentRuleMarketPlaceScope(id: ID!): PaymentRuleMarketPlaceScope
+  """ Delete a single PaymentRuleMarketScope item by ID. """
+  deletePaymentRuleMarketScope(id: ID!): PaymentRuleMarketScope
 
-  """ Delete multiple PaymentRuleMarketPlaceScope items by ID. """
-  deletePaymentRuleMarketPlaceScopes(ids: [ID!]): [PaymentRuleMarketPlaceScope]
+  """ Delete multiple PaymentRuleMarketScope items by ID. """
+  deletePaymentRuleMarketScopes(ids: [ID!]): [PaymentRuleMarketScope]
 
   """ Create a single ExternalReportHistoryRecord item. """
   createExternalReportHistoryRecord(data: ExternalReportHistoryRecordCreateInput): ExternalReportHistoryRecord
