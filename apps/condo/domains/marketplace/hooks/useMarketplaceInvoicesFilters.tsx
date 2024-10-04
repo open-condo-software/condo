@@ -82,7 +82,7 @@ export function useMarketplaceInvoicesFilters (): Array<FiltersMeta<InvoiceWhere
         return [
             {
                 keyword: 'search',
-                filters: [createdAtRangeFilter, numberFilter, propertyFilter, unitFilter, paymentTypeSearchFilter, statusSearchFilter, ticketNumberFilter],
+                filters: [createdAtRangeFilter, numberFilter, paymentTypeSearchFilter, statusSearchFilter, ticketNumberFilter],
                 combineType: 'OR',
             },
             {
