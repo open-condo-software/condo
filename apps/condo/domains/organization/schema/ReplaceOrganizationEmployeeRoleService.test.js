@@ -147,7 +147,7 @@ describe('ReplaceOrganizationEmployeeRoleService', () => {
                 await replaceOrganizationEmployeeRoleByTestClient(admin, employeeUser.organization, oldRole, newRole, false, {
                     sender: { dv: 1, fingerprint: '-' },
                 })
-            }, omit(ERRORS.WRONG_SENDER_FORMAT, 'message'), 'result')
+            }, ERRORS.WRONG_SENDER_FORMAT, 'result')
         })
 
         test('should throw error if the new and old role are the same', async () => {
