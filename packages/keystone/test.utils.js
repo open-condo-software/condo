@@ -854,8 +854,8 @@ const expectToThrowGraphQLRequestErrors = async (testFunc, messages) => {
     //  UserInputError - The GraphQL operation includes an invalid value for a field argument.
     //  SyntaxError - The GraphQL operation string contains a syntax error.
     const matcher = messages.map(message => expect.objectContaining({
-        message: expect.stringMatching(message),
-        name: expect.stringMatching(/(UserInputError|ValidationError|SyntaxError|GraphQLError)/)
+        message: expect.stringContaining(message),
+        name: expect.stringMatching(/(UserInputError|ValidationError|SyntaxError|GraphQLError)/),
     }))
 
     await catchErrorFrom(testFunc, (caught) => {
