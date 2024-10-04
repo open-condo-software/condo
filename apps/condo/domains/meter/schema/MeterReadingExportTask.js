@@ -6,6 +6,7 @@ const dayjs = require('dayjs')
 const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
+const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { canOnlyServerSideWithoutUserRequest } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
@@ -22,7 +23,6 @@ const { EXPORT_METER_READINGS_MONTHS_LIMIT } = require('@condo/domains/meter/con
 const { exportMeterReadings } = require('@condo/domains/meter/tasks/exportMeterReadings')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { LOCALES } = require('@condo/domains/user/constants/common')
-
 
 const { getFileMetaAfterChange } = FileAdapter
 
@@ -134,19 +134,20 @@ const MeterReadingExportTask = new GQLListSchema('MeterReadingExportTask', {
                 update: false,
             },
             hooks: {
-                resolveInput: ({ resolvedData, fieldPath, operation }) => {
+                resolveInput: async ({ context, resolvedData, fieldPath, operation }) => {
                     if (operation !== 'create') return resolvedData[fieldPath]
 
+                    const exportMeterReadingsMonthsLimit = await featureToggleManager.getFeatureValue(context, 'export-meter-readings-months-limit', EXPORT_METER_READINGS_MONTHS_LIMIT)
                     const baseWhere = resolvedData[fieldPath]
 
                     const now = dayjs()
-                    const dateFrom = now.subtract(EXPORT_METER_READINGS_MONTHS_LIMIT, 'months')
+                    const dateFrom = now.subtract(exportMeterReadingsMonthsLimit, 'months')
 
                     const dateLte = get(findAllByKey(baseWhere, 'date_lte'), '0', now.toISOString())
                     let dateGte = get(findAllByKey(baseWhere, 'date_gte'), '0', dateFrom.toISOString())
 
-                    if (dayjs(dateLte).diff(dayjs(dateGte), 'months') > EXPORT_METER_READINGS_MONTHS_LIMIT) {
-                        dateGte = dayjs(dateLte).subtract(EXPORT_METER_READINGS_MONTHS_LIMIT, 'months')
+                    if (dayjs(dateLte).diff(dayjs(dateGte), 'months') > exportMeterReadingsMonthsLimit) {
+                        dateGte = dayjs(dateLte).subtract(exportMeterReadingsMonthsLimit, 'months')
                     }
 
                     return { ...baseWhere, date_gte: dateGte, date_lte: dateLte }
