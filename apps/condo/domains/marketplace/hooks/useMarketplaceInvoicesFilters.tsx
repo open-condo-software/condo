@@ -82,7 +82,7 @@ export function useMarketplaceInvoicesFilters (): Array<FiltersMeta<InvoiceWhere
         return [
             {
                 keyword: 'search',
-                filters: [createdAtRangeFilter, numberFilter, paymentTypeSearchFilter, statusSearchFilter, ticketNumberFilter],
+                filters: [createdAtRangeFilter, numberFilter, propertyFilter, unitFilter, paymentTypeSearchFilter, statusSearchFilter, ticketNumberFilter],
                 combineType: 'OR',
             },
             {
@@ -177,5 +177,5 @@ export function useMarketplaceInvoicesFilters (): Array<FiltersMeta<InvoiceWhere
                 },
             },
         ]
-    }, [EndDateMessage, NumberMessage, SelectMessage, StartDateMessage, paymentTypeOptions, statusOptions, AddressMessage, EnterAddressMessage, EnterUnitNameMessage, UnitMessage])
+    }, [EndDateMessage, NumberMessage, SelectMessage, StartDateMessage, userOrganizationId, paymentTypeOptions, statusOptions, AddressMessage, EnterAddressMessage, EnterUnitNameMessage, UnitMessage])
 }

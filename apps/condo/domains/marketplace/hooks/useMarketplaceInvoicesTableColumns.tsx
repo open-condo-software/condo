@@ -6,7 +6,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { Tag } from '@open-condo/ui'
 
 import { getFilterIcon } from '@condo/domains/common/components/Table/Filters'
-import { getDateRender, getAddressRender, getTableCellRenderer, getFullUnitRender } from '@condo/domains/common/components/Table/Renders'
+import { getDateRender, getAddressRender, getTableCellRenderer, getUnitNameRender } from '@condo/domains/common/components/Table/Renders'
 import { getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -36,6 +36,10 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
 
     const renderAddress = useCallback((property) => {
         return getAddressRender(property, null, search)
+    }, [search])
+
+    const renderUnitName = useCallback((text, contact) => {
+        return getUnitNameRender(intl, text, contact, search)
     }, [search])
 
     return useMemo(() => [
@@ -101,7 +105,7 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
             key: 'unitName',
             dataIndex: 'unitName',
             width: '10%',
-            render: getFullUnitRender(intl, search),
+            render: renderUnitName,
             sorter: true,
             sortOrder: get(sorterMap, 'unitName'),
             filteredValue: getFilteredValue(filters, 'unitName'),
@@ -180,5 +184,5 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
             filterDropdown: getFilterDropdownByKey(filtersMeta, 'toPay'),
             filterIcon: getFilterIcon,
         },
-    ], [ContractPriceMessage, DateTitle, InvoiceNumberTitle, PaymentTypeTitle, RowsTitle, AddressTitle, renderAddress, UnitTitle, StatusTitle, SumTitle, TicketNumber, filters, filtersMeta, intl, render, search, sorterMap])
+    ], [ContractPriceMessage, DateTitle, InvoiceNumberTitle, PaymentTypeTitle, RowsTitle, AddressTitle, renderAddress, renderUnitName, UnitTitle, StatusTitle, SumTitle, TicketNumber, filters, filtersMeta, intl, render, search, sorterMap])
 }

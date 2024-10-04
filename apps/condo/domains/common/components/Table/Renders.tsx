@@ -4,7 +4,7 @@ import { FilterValue } from 'antd/es/table/interface'
 import { EllipsisConfig } from 'antd/es/typography/Base'
 import { TextProps } from 'antd/es/typography/Text'
 import dayjs from 'dayjs'
-import { isEmpty, get } from 'lodash'
+import get from 'lodash/get'
 import isBoolean from 'lodash/isBoolean'
 import isNull from 'lodash/isNull'
 import isString from 'lodash/isString'
@@ -24,7 +24,6 @@ import { ELLIPSIS_ROWS } from '@condo/domains/common/constants/style'
 import { getAddressDetails } from '@condo/domains/common/utils/helpers'
 import { renderLink } from '@condo/domains/common/utils/Renders'
 import { ELECTRICITY_METER_RESOURCE_ID } from '@condo/domains/meter/constants/constants'
-import { getSectionAndFloorByUnitName } from '@condo/domains/ticket/utils/unit'
 
 
 export type RenderReturnType = string | React.ReactNode
@@ -242,89 +241,6 @@ export const getAddressRender = (property: Pick<Property, 'addressMeta' | 'addre
             { ...POSTFIX_PROPS, ...ONE_LINE_POSTFIX_STYLE } : { ...POSTFIX_PROPS, ...NEW_LINE_POSTFIX_STYLE },
     })(streetPart)
 }
-
-const getUnitPostfix = (unit, sectionNameMessage, floorNameMessage) => {
-    let postfixMessage = unit ? '\n' : ''
-
-    if (!isEmpty(sectionNameMessage) && !isEmpty(floorNameMessage)) {
-        postfixMessage += `${sectionNameMessage},\n${floorNameMessage}`
-    } else if (!isEmpty(sectionNameMessage)) {
-        return `${sectionNameMessage}`
-    }
-
-    return postfixMessage
-}
-
-const getUnitMessage = (unit, unitNamePrefix, postfix) => {
-    if (!isEmpty(unit)) {
-        if (!isEmpty(unitNamePrefix)) {
-            return `${unitNamePrefix} ${unit}`
-        } else {
-            return unit
-        }
-    } else if (!isEmpty(postfix)) {
-        return '\n'
-    }
-}
-
-const getUnitExtraTitle = (unit, unitType, sectionName, sectionType, floorName, intl): string => {
-    const SectionTypeMessage = intl.formatMessage({ id: `field.sectionType.${sectionType}` })
-    const UnitTypeMessage = intl.formatMessage({ id: `field.UnitType.${unitType}` })
-    const FloorMessage = intl.formatMessage({ id: 'field.floorName' })
-
-    const sectionNameTitle = sectionName ? `${SectionTypeMessage} ${sectionName}` : ''
-    const floorNameTitle = floorName ? `${FloorMessage} ${floorName}` : ''
-
-    let result = ''
-    if (!isEmpty(unit)) {
-        result += `${UnitTypeMessage} ${unit}\n`
-    }
-    if (!isEmpty(sectionName)) {
-        result += `${sectionNameTitle}`
-        if (!isEmpty(floorNameTitle)) {
-            result += `\n${floorNameTitle}`
-        }
-    }
-
-    return result
-}
-
-export const getFullUnitRender = (intl, search: FilterValue) => {
-    const ShortSectionNameMessage = intl.formatMessage({ id: 'field.ShortSectionName' })
-    const ShortFloorNameMessage = intl.formatMessage({ id: 'field.ShortFloorName' })
-
-    return function render (unit, model) {
-        const property = get(model, 'property')
-        const unitType = get(model, 'unitType')
-
-        let sectionName = null
-        let floorName = null
-        let sectionType = null 
-
-        if (get(model, ['property', 'map'])) {
-            ({ sectionName, sectionType, floorName } = getSectionAndFloorByUnitName(property, unit, unitType))
-        } else {
-            sectionName = get(model, 'sectionName')
-            sectionType = get(model, 'sectionType')
-            floorName = get(model, 'floorName')
-        }
-
-        let unitNamePrefix = null
-        const sectionNameMessage = sectionName ? `${ShortSectionNameMessage} ${sectionName}` : ''
-        const floorNameMessage = floorName ? `${ShortFloorNameMessage} ${floorName}` : ''
-        if (unit) {
-            if (unitType !== 'flat') {
-                unitNamePrefix = intl.formatMessage({ id: `field.UnitType.prefix.${unitType}` })
-            }
-        }
-
-        const postfix = getUnitPostfix(unit, sectionNameMessage, floorNameMessage)
-        const extraTitle = getUnitExtraTitle(unit, unitType, sectionName, sectionType, floorName, intl)
-        const unitName = getUnitMessage(unit, unitNamePrefix, postfix)
-
-        return getTableCellRenderer({ search, ellipsis: true, postfix, extraPostfixProps: { ...POSTFIX_PROPS, ...NEW_LINE_POSTFIX_STYLE }, extraTitle })(unitName)
-    }
-} 
 
 export const getUnitNameRender = <T extends Record<string, unknown>>(intl, text: string, record: T, search?: FilterValue | string) => {
     let unitNamePrefix = null
