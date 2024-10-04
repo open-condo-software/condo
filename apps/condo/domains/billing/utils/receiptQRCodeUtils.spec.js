@@ -56,14 +56,13 @@ describe('receiptQRCodeUtils', () => {
 
     describe('RU QR-codes decoded correctly', () => {
         const cases = [ // Got from real QR-code
-            [iconv.encode(TEST_STRING, 'UTF-8').toString('base64')], // UTF-8
-            [iconv.encode(TEST_STRING, 'cp1251').toString('base64')], // cp-1251
+            [iconv.encode(TEST_STRING, 'UTF-8').toString('base64')],
+            [iconv.encode(TEST_STRING, 'cp1251').toString('base64')],
         ]
 
         test.each(cases)('%p %p -> %p', (qrStr) => {
             const parsed = parseRUReceiptQRCode(qrStr)
             expect(parsed).toEqual({
-                'ST00011': undefined,
                 'Name': 'ООО «УК ЭкоГрад»',
                 'PersonalAcc': '40902830202010056769',
                 'BankName': 'ПАО СБЕРБАНК',

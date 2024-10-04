@@ -5,6 +5,7 @@ const Big = require('big.js')
 const { get, pick } = require('lodash')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
+const { getLogger } = require('@open-condo/keystone/logging')
 const { GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
 
 const {
@@ -34,6 +35,7 @@ const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 const redisGuard = new RedisGuard()
 
+const logger = getLogger('ValidateQRCodeService')
 /**
  * List of possible errors, that this custom schema can throw
  * They will be rendered in documentation section in GraphiQL for this custom schema
@@ -150,7 +152,7 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
                 let qrCodeFields
                 try {
                     // For now, we have only single implementation for parsing qr-codes, so place 'ru' directly
-                    qrCodeFields = getCountrySpecificQRCodeParser(RUSSIA_COUNTRY)(qrCode)
+                    qrCodeFields = getCountrySpecificQRCodeParser(RUSSIA_COUNTRY)(qrCode, logger)
                 } catch (err) {
                     throw new GQLError(ERRORS.INVALID_QR_CODE_STRING, context)
                 }
