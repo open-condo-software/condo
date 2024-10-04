@@ -1,5 +1,5 @@
 const { getItems } = require('@keystonejs/server-side-graphql-client')
-const { isFunction } = require('lodash')
+const { isFunction, isNil } = require('lodash')
 const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
@@ -192,6 +192,7 @@ class GqlWithKnexLoadList {
  * @param {Number} chunkSize
  * @param {Number} limit
  * @param {function(Array): Array | Promise<Array>} chunkProcessor A place to use or/and modify just loaded chunk
+ * @param fields - returning fields in gql notation
  * @returns {Promise<*[]>}
  * @deprecated you should use find
  */
@@ -203,6 +204,7 @@ const loadListByChunks = async ({
     chunkSize = 100,
     limit = 100000,
     chunkProcessor = (chunk) => chunk,
+    fields,
 }) => {
     if (chunkSize < 1 || limit < 1) throw new Error('Both chunkSize and limit should be > 0')
     if (chunkSize > 100) throw new Error('chunkSize is too large, max 100 allowed')
@@ -234,7 +236,16 @@ const loadListByChunks = async ({
             throw new Error('Operation timed out')
         }
 
-        newChunk = await list.getAll(context, where, { sortBy, first: chunkSize, skip: skip })
+        // TODO INFRA-538 remove this condition once migration to new server utils to be done
+        const resolvedFields = !isNil(fields) ? fields : 'id'
+        if (get(list, 'hasFieldsParam') && isNil(fields)) {
+            // the case when we migrate model to use new server utils, but loadListByChunks use it in old way
+            console.trace('Provide required fields parameter for loadListByChunks util')
+        }
+
+        newChunk = !get(list, 'hasFieldsParam')
+            ? await list.getAll(context, where, { sortBy, first: chunkSize, skip: skip })
+            : await list.getAll(context, where, resolvedFields, { sortBy, first: chunkSize, skip: skip })
         newChunkLength = newChunk.length
 
         if (newChunkLength > 0) {
