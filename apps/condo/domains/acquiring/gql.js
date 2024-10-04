@@ -88,6 +88,15 @@ const CALCULATE_FEE_FOR_RECEIPT_QUERY = gql`
     }
 `
 
+const PAYMENT_RULE_FIELDS = `{ context { id } explicitFee explicitServiceCharge implicitFee bankAccount { id } ${COMMON_FIELDS} }`
+const PaymentRule = generateGqlQueries('PaymentRule', PAYMENT_RULE_FIELDS)
+
+const PAYMENT_RULE_BILLING_SCOPE_FIELDS = `{ paymentRule { id } property { id } category { id } bankAccountNumber serviceIds ${COMMON_FIELDS} }`
+const PaymentRuleBillingScope = generateGqlQueries('PaymentRuleBillingScope', PAYMENT_RULE_BILLING_SCOPE_FIELDS)
+
+const PAYMENT_RULE_MARKET_PLACE_SCOPE_FIELDS = `{ paymentRule { id } property { id } skuIds ${COMMON_FIELDS} }`
+const PaymentRuleMarketPlaceScope = generateGqlQueries('PaymentRuleMarketPlaceScope', PAYMENT_RULE_MARKET_PLACE_SCOPE_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const EXPORT_PAYMENTS_TO_EXCEL =  gql`
@@ -114,5 +123,8 @@ module.exports = {
     PAYMENT_BY_LINK_MUTATION,
     REGISTER_MULTI_PAYMENT_FOR_INVOICES_MUTATION,
     CALCULATE_FEE_FOR_RECEIPT_QUERY,
+    PaymentRule,
+    PaymentRuleBillingScope,
+    PaymentRuleMarketPlaceScope,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

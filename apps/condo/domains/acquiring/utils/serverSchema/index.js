@@ -21,6 +21,9 @@ const { RecurrentPayment: RecurrentPaymentGQL } = require('@condo/domains/acquir
 const { PAYMENT_BY_LINK_MUTATION } = require('@condo/domains/acquiring/gql')
 const { REGISTER_MULTI_PAYMENT_FOR_INVOICES_MUTATION } = require('@condo/domains/acquiring/gql')
 const { CALCULATE_FEE_FOR_RECEIPT_QUERY } = require('@condo/domains/acquiring/gql')
+const { PaymentRule: PaymentRuleGQL } = require('@condo/domains/acquiring/gql')
+const { PaymentRuleBillingScope: PaymentRuleBillingScopeGQL } = require('@condo/domains/acquiring/gql')
+const { PaymentRuleMarketPlaceScope: PaymentRuleMarketPlaceScopeGQL } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateServerUtils('AcquiringIntegration')
@@ -124,6 +127,9 @@ async function calculateFeeForReceipt (context, data) {
     })
 }
 
+const PaymentRule = generateServerUtils(PaymentRuleGQL)
+const PaymentRuleBillingScope = generateServerUtils(PaymentRuleBillingScopeGQL)
+const PaymentRuleMarketPlaceScope = generateServerUtils(PaymentRuleMarketPlaceScopeGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -142,5 +148,8 @@ module.exports = {
     createPaymentByLink,
     registerMultiPaymentForInvoices,
     calculateFeeForReceipt,
+    PaymentRule,
+    PaymentRuleBillingScope,
+    PaymentRuleMarketPlaceScope,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

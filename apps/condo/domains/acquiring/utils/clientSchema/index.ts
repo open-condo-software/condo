@@ -9,4 +9,7 @@ export * as AcquiringIntegrationContext from './AcquiringIntegrationContext'
 export * as MultiPayment from './MultiPayment'
 export * as Payment from './Payment'
 export * as PaymentsFilterTemplate from './PaymentsFilterTemplate'
+export * as PaymentRule from './PaymentRule'
+export * as PaymentRuleBillingScope from './PaymentRuleBillingScope'
+export * as PaymentRuleMarketPlaceScope from './PaymentRuleMarketPlaceScope'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

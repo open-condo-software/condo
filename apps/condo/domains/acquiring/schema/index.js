@@ -20,6 +20,9 @@ const { RegisterMultiPaymentForOneReceiptService } = require('./RegisterMultiPay
 const { RegisterMultiPaymentForVirtualReceiptService } = require('./RegisterMultiPaymentForVirtualReceiptService')
 const { RegisterMultiPaymentService } = require('./RegisterMultiPaymentService')
 const { SumPaymentsService } = require('./SumPaymentsService')
+const { PaymentRule } = require('./PaymentRule')
+const { PaymentRuleBillingScope } = require('./PaymentRuleBillingScope')
+const { PaymentRuleMarketPlaceScope } = require('./PaymentRuleMarketPlaceScope')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -40,5 +43,8 @@ module.exports = {
     CreatePaymentByLinkService,
     RegisterMultiPaymentForInvoicesService,
     CalculateFeeForReceiptService,
+    PaymentRule,
+    PaymentRuleBillingScope,
+    PaymentRuleMarketPlaceScope,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
