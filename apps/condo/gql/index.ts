@@ -11,561 +11,39 @@ export * from '@/gql/operation.types'
 
 const defaultOptions = {} as const
 
-export const GetAllContactsDocument = gql`
-    query getAllContacts($where: ContactWhereInput, $first: Int = 100, $skip: Int, $sortBy: [SortContactsBy!]) {
-  objs: allContacts(where: $where, first: $first, skip: $skip, sortBy: $sortBy) {
-    organization {
-      id
-      name
-    }
-    property {
-      id
-      address
-    }
-    name
-    phone
-    unitName
-    unitType
-    email
-    role {
-      id
-      name
-    }
-    quota
-    isVerified
-    id
-    deletedAt
-    createdBy {
-      id
-      name
-    }
-    updatedBy {
-      id
-      name
-    }
-    createdAt
-    updatedAt
-  }
-  meta: _allContactsMeta(where: $where) {
-    count
-  }
-}
-    `
-
-/**
- * __useGetAllContactsQuery__
- *
- * To run a query within a React component, call `useGetAllContactsQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetAllContactsQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetAllContactsQuery({
- *   variables: {
- *      where: // value for 'where'
- *      first: // value for 'first'
- *      skip: // value for 'skip'
- *      sortBy: // value for 'sortBy'
- *   },
- * });
- */
-export function useGetAllContactsQuery (baseOptions?: Apollo.QueryHookOptions<Types.GetAllContactsQuery, Types.GetAllContactsQueryVariables>) {
-    const options = { ...defaultOptions, ...baseOptions }
-    return Apollo.useQuery<Types.GetAllContactsQuery, Types.GetAllContactsQueryVariables>(GetAllContactsDocument, options)
-}
-export function useGetAllContactsLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<Types.GetAllContactsQuery, Types.GetAllContactsQueryVariables>) {
-    const options = { ...defaultOptions, ...baseOptions }
-    return Apollo.useLazyQuery<Types.GetAllContactsQuery, Types.GetAllContactsQueryVariables>(GetAllContactsDocument, options)
-}
-export function useGetAllContactsSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetAllContactsQuery, Types.GetAllContactsQueryVariables>) {
-    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
-    return Apollo.useSuspenseQuery<Types.GetAllContactsQuery, Types.GetAllContactsQueryVariables>(GetAllContactsDocument, options)
-}
-export type GetAllContactsQueryHookResult = ReturnType<typeof useGetAllContactsQuery>
-export type GetAllContactsLazyQueryHookResult = ReturnType<typeof useGetAllContactsLazyQuery>
-export type GetAllContactsSuspenseQueryHookResult = ReturnType<typeof useGetAllContactsSuspenseQuery>
-export type GetAllContactsQueryResult = Apollo.QueryResult<Types.GetAllContactsQuery, Types.GetAllContactsQueryVariables>
-export const GetOrganizationEmployeeByIdDocument = gql`
-    query getOrganizationEmployeeById($id: ID!) {
-  employee: allOrganizationEmployees(where: {id: $id}) {
-    organization {
-      country
-      name
-      type
-      description
-      avatar {
-        publicUrl
-      }
-      meta
-      tin
-      features
-      statusTransitions
-      defaultEmployeeRoleStatusTransitions
-      importId
-      importRemoteSystem
-      phone
-      phoneNumberPrefix
-      isApproved
-      id
-      dv
-      sender {
-        dv
-        fingerprint
-      }
-      v
-      deletedAt
-      newId
-      createdBy {
-        id
-        name
-      }
-      updatedBy {
-        id
-        name
-      }
-      createdAt
-      updatedAt
-    }
-    user {
-      id
-      name
-    }
-    name
-    email
-    phone
-    role {
-      isEditable
-      isDefault
-      organization {
-        id
-      }
-      name
-      nameNonLocalized
-      description
-      descriptionNonLocalized
-      statusTransitions
-      canReadAnalytics
-      canManageOrganization
-      canManageCallRecords
-      canDownloadCallRecords
-      canReadEmployees
-      canManageEmployees
-      canInviteNewOrganizationEmployees
-      canManageRoles
-      canManageTicketPropertyHints
-      canManageIntegrations
-      canImportBillingReceipts
-      canReadBillingReceipts
-      canReadPayments
-      canManageProperties
-      canReadProperties
-      canReadDocuments
-      canManageDocuments
-      canReadTickets
-      canManageTickets
-      canReadContacts
-      canManageContacts
-      canManageContactRoles
-      canManageTicketComments
-      canManagePropertyScopes
-      canShareTickets
-      canBeAssignedAsResponsible
-      canBeAssignedAsExecutor
-      canManageMeters
-      canManageMeterReadings
-      ticketVisibilityType
-      canManageBankAccounts
-      canManageBankContractorAccounts
-      canManageBankIntegrationAccountContexts
-      canManageBankIntegrationOrganizationContexts
-      canManageBankTransactions
-      canManageBankAccountReports
-      canManageBankAccountReportTasks
-      canManageBankAccountReports
-      canReadIncidents
-      canManageIncidents
-      canReadNewsItems
-      canManageNewsItems
-      canManageNewsItemTemplates
-      canManageMobileFeatureConfigs
-      canManageB2BApps
-      canReadMeters
-      canReadSettings
-      canReadExternalReports
-      canReadServices
-      canReadCallRecords
-      canReadInvoices
-      canManageInvoices
-      canReadMarketItems
-      canManageMarketItems
-      canManageMarketItemPrices
-      canReadMarketItemPrices
-      canReadMarketPriceScopes
-      canManageMarketPriceScopes
-      canReadMarketplace
-      canManageMarketplace
-      canReadPaymentsWithInvoices
-      canReadTour
-      canManageTour
-      canReadMarketSetting
-      canManageMarketSetting
-      canManageTicketAutoAssignments
-      id
-      dv
-      sender {
-        dv
-        fingerprint
-      }
-      v
-      deletedAt
-      newId
-      createdBy {
-        id
-        name
-      }
-      updatedBy {
-        id
-        name
-      }
-      createdAt
-      updatedAt
-    }
-    hasAllSpecializations
-    isRejected
-    isAccepted
-    isBlocked
-    id
-    dv
-    sender {
-      dv
-      fingerprint
-    }
-    v
-    createdBy {
-      id
-      name
-    }
-    updatedBy {
-      id
-      name
-    }
-    position
-    createdAt
-    deletedAt
-    updatedAt
-  }
-}
-    `
-
-/**
- * __useGetOrganizationEmployeeByIdQuery__
- *
- * To run a query within a React component, call `useGetOrganizationEmployeeByIdQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetOrganizationEmployeeByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetOrganizationEmployeeByIdQuery({
- *   variables: {
- *      id: // value for 'id'
- *   },
- * });
- */
-export function useGetOrganizationEmployeeByIdQuery (baseOptions: Apollo.QueryHookOptions<Types.GetOrganizationEmployeeByIdQuery, Types.GetOrganizationEmployeeByIdQueryVariables> & ({ variables: Types.GetOrganizationEmployeeByIdQueryVariables, skip?: boolean } | { skip: boolean }) ) {
-    const options = { ...defaultOptions, ...baseOptions }
-    return Apollo.useQuery<Types.GetOrganizationEmployeeByIdQuery, Types.GetOrganizationEmployeeByIdQueryVariables>(GetOrganizationEmployeeByIdDocument, options)
-}
-export function useGetOrganizationEmployeeByIdLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<Types.GetOrganizationEmployeeByIdQuery, Types.GetOrganizationEmployeeByIdQueryVariables>) {
-    const options = { ...defaultOptions, ...baseOptions }
-    return Apollo.useLazyQuery<Types.GetOrganizationEmployeeByIdQuery, Types.GetOrganizationEmployeeByIdQueryVariables>(GetOrganizationEmployeeByIdDocument, options)
-}
-export function useGetOrganizationEmployeeByIdSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetOrganizationEmployeeByIdQuery, Types.GetOrganizationEmployeeByIdQueryVariables>) {
-    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
-    return Apollo.useSuspenseQuery<Types.GetOrganizationEmployeeByIdQuery, Types.GetOrganizationEmployeeByIdQueryVariables>(GetOrganizationEmployeeByIdDocument, options)
-}
-export type GetOrganizationEmployeeByIdQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeByIdQuery>
-export type GetOrganizationEmployeeByIdLazyQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeByIdLazyQuery>
-export type GetOrganizationEmployeeByIdSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeByIdSuspenseQuery>
-export type GetOrganizationEmployeeByIdQueryResult = Apollo.QueryResult<Types.GetOrganizationEmployeeByIdQuery, Types.GetOrganizationEmployeeByIdQueryVariables>
-export const GetOrganizationEmployeesByUserIdDocument = gql`
-    query getOrganizationEmployeesByUserId($userId: ID!, $first: Int = 10, $skip: Int = 0) {
-  employees: allOrganizationEmployees(
-    where: {user: {id: $userId}}
-    first: $first
-    skip: $skip
-    sortBy: createdAt_DESC
-  ) {
-    organization {
-      country
-      name
-      type
-      description
-      avatar {
-        publicUrl
-      }
-      meta
-      tin
-      features
-      statusTransitions
-      defaultEmployeeRoleStatusTransitions
-      importId
-      importRemoteSystem
-      phone
-      phoneNumberPrefix
-      isApproved
-      id
-      dv
-      sender {
-        dv
-        fingerprint
-      }
-      v
-      deletedAt
-      newId
-      createdBy {
-        id
-        name
-      }
-      updatedBy {
-        id
-        name
-      }
-      createdAt
-      updatedAt
-    }
-    user {
-      id
-      name
-    }
-    name
-    email
-    phone
-    role {
-      isEditable
-      isDefault
-      organization {
-        id
-      }
-      name
-      nameNonLocalized
-      description
-      descriptionNonLocalized
-      statusTransitions
-      canReadAnalytics
-      canManageOrganization
-      canManageCallRecords
-      canDownloadCallRecords
-      canReadEmployees
-      canManageEmployees
-      canInviteNewOrganizationEmployees
-      canManageRoles
-      canManageTicketPropertyHints
-      canManageIntegrations
-      canImportBillingReceipts
-      canReadBillingReceipts
-      canReadPayments
-      canManageProperties
-      canReadProperties
-      canReadDocuments
-      canManageDocuments
-      canReadTickets
-      canManageTickets
-      canReadContacts
-      canManageContacts
-      canManageContactRoles
-      canManageTicketComments
-      canManagePropertyScopes
-      canShareTickets
-      canBeAssignedAsResponsible
-      canBeAssignedAsExecutor
-      canManageMeters
-      canManageMeterReadings
-      ticketVisibilityType
-      canManageBankAccounts
-      canManageBankContractorAccounts
-      canManageBankIntegrationAccountContexts
-      canManageBankIntegrationOrganizationContexts
-      canManageBankTransactions
-      canManageBankAccountReports
-      canManageBankAccountReportTasks
-      canManageBankAccountReports
-      canReadIncidents
-      canManageIncidents
-      canReadNewsItems
-      canManageNewsItems
-      canManageNewsItemTemplates
-      canManageMobileFeatureConfigs
-      canManageB2BApps
-      canReadMeters
-      canReadSettings
-      canReadExternalReports
-      canReadServices
-      canReadCallRecords
-      canReadInvoices
-      canManageInvoices
-      canReadMarketItems
-      canManageMarketItems
-      canManageMarketItemPrices
-      canReadMarketItemPrices
-      canReadMarketPriceScopes
-      canManageMarketPriceScopes
-      canReadMarketplace
-      canManageMarketplace
-      canReadPaymentsWithInvoices
-      canReadTour
-      canManageTour
-      canReadMarketSetting
-      canManageMarketSetting
-      canManageTicketAutoAssignments
-      id
-      dv
-      sender {
-        dv
-        fingerprint
-      }
-      v
-      deletedAt
-      newId
-      createdBy {
-        id
-        name
-      }
-      updatedBy {
-        id
-        name
-      }
-      createdAt
-      updatedAt
-    }
-    hasAllSpecializations
-    isRejected
-    isAccepted
-    isBlocked
-    id
-    dv
-    sender {
-      dv
-      fingerprint
-    }
-    v
-    createdBy {
-      id
-      name
-    }
-    updatedBy {
-      id
-      name
-    }
-    position
-    createdAt
-    deletedAt
-    updatedAt
-  }
-}
-    `
-
-/**
- * __useGetOrganizationEmployeesByUserIdQuery__
- *
- * To run a query within a React component, call `useGetOrganizationEmployeesByUserIdQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetOrganizationEmployeesByUserIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
- * you can use to render your UI.
- *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
- *
- * @example
- * const { data, loading, error } = useGetOrganizationEmployeesByUserIdQuery({
- *   variables: {
- *      userId: // value for 'userId'
- *      first: // value for 'first'
- *      skip: // value for 'skip'
- *   },
- * });
- */
-export function useGetOrganizationEmployeesByUserIdQuery (baseOptions: Apollo.QueryHookOptions<Types.GetOrganizationEmployeesByUserIdQuery, Types.GetOrganizationEmployeesByUserIdQueryVariables> & ({ variables: Types.GetOrganizationEmployeesByUserIdQueryVariables, skip?: boolean } | { skip: boolean }) ) {
-    const options = { ...defaultOptions, ...baseOptions }
-    return Apollo.useQuery<Types.GetOrganizationEmployeesByUserIdQuery, Types.GetOrganizationEmployeesByUserIdQueryVariables>(GetOrganizationEmployeesByUserIdDocument, options)
-}
-export function useGetOrganizationEmployeesByUserIdLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<Types.GetOrganizationEmployeesByUserIdQuery, Types.GetOrganizationEmployeesByUserIdQueryVariables>) {
-    const options = { ...defaultOptions, ...baseOptions }
-    return Apollo.useLazyQuery<Types.GetOrganizationEmployeesByUserIdQuery, Types.GetOrganizationEmployeesByUserIdQueryVariables>(GetOrganizationEmployeesByUserIdDocument, options)
-}
-export function useGetOrganizationEmployeesByUserIdSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetOrganizationEmployeesByUserIdQuery, Types.GetOrganizationEmployeesByUserIdQueryVariables>) {
-    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
-    return Apollo.useSuspenseQuery<Types.GetOrganizationEmployeesByUserIdQuery, Types.GetOrganizationEmployeesByUserIdQueryVariables>(GetOrganizationEmployeesByUserIdDocument, options)
-}
-export type GetOrganizationEmployeesByUserIdQueryHookResult = ReturnType<typeof useGetOrganizationEmployeesByUserIdQuery>
-export type GetOrganizationEmployeesByUserIdLazyQueryHookResult = ReturnType<typeof useGetOrganizationEmployeesByUserIdLazyQuery>
-export type GetOrganizationEmployeesByUserIdSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationEmployeesByUserIdSuspenseQuery>
-export type GetOrganizationEmployeesByUserIdQueryResult = Apollo.QueryResult<Types.GetOrganizationEmployeesByUserIdQuery, Types.GetOrganizationEmployeesByUserIdQueryVariables>
-export const GetOrganizationEmployeesDocument = gql`
-    query getOrganizationEmployees($where: OrganizationEmployeeWhereInput!, $first: Int = 10, $skip: Int = 0, $sortBy: [SortOrganizationEmployeesBy!] = [createdAt_DESC]) {
+export const GetActiveOrganizationEmployeeDocument = gql`
+    query getActiveOrganizationEmployee($where: OrganizationEmployeeWhereInput!) {
   employees: allOrganizationEmployees(
     where: $where
-    first: $first
-    skip: $skip
-    sortBy: $sortBy
+    first: 1
+    skip: 0
+    sortBy: [createdAt_DESC]
   ) {
-    organization {
-      country
-      name
-      type
-      description
-      avatar {
-        publicUrl
-      }
-      meta
-      tin
-      features
-      statusTransitions
-      defaultEmployeeRoleStatusTransitions
-      importId
-      importRemoteSystem
-      phone
-      phoneNumberPrefix
-      isApproved
-      id
-      dv
-      sender {
-        dv
-        fingerprint
-      }
-      v
-      deletedAt
-      newId
-      createdBy {
-        id
-        name
-      }
-      updatedBy {
-        id
-        name
-      }
-      createdAt
-      updatedAt
-    }
-    user {
-      id
-      name
-    }
+    id
     name
     email
     phone
+    hasAllSpecializations
+    isRejected
+    isAccepted
+    isBlocked
+    position
+    organization {
+      id
+      country
+      name
+      type
+      tin
+      features
+      statusTransitions
+      importId
+      importRemoteSystem
+    }
     role {
+      id
       isEditable
       isDefault
-      organization {
-        id
-      }
-      name
-      nameNonLocalized
-      description
-      descriptionNonLocalized
-      statusTransitions
+      ticketVisibilityType
       canReadAnalytics
       canManageOrganization
       canManageCallRecords
@@ -595,7 +73,6 @@ export const GetOrganizationEmployeesDocument = gql`
       canBeAssignedAsExecutor
       canManageMeters
       canManageMeterReadings
-      ticketVisibilityType
       canManageBankAccounts
       canManageBankContractorAccounts
       canManageBankIntegrationAccountContexts
@@ -632,88 +109,43 @@ export const GetOrganizationEmployeesDocument = gql`
       canReadMarketSetting
       canManageMarketSetting
       canManageTicketAutoAssignments
-      id
-      dv
-      sender {
-        dv
-        fingerprint
-      }
-      v
-      deletedAt
-      newId
-      createdBy {
-        id
-        name
-      }
-      updatedBy {
-        id
-        name
-      }
-      createdAt
-      updatedAt
     }
-    hasAllSpecializations
-    isRejected
-    isAccepted
-    isBlocked
-    id
-    dv
-    sender {
-      dv
-      fingerprint
-    }
-    v
-    createdBy {
-      id
-      name
-    }
-    updatedBy {
-      id
-      name
-    }
-    position
-    createdAt
-    deletedAt
-    updatedAt
   }
 }
     `
 
 /**
- * __useGetOrganizationEmployeesQuery__
+ * __useGetActiveOrganizationEmployeeQuery__
  *
- * To run a query within a React component, call `useGetOrganizationEmployeesQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetOrganizationEmployeesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetActiveOrganizationEmployeeQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetActiveOrganizationEmployeeQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetOrganizationEmployeesQuery({
+ * const { data, loading, error } = useGetActiveOrganizationEmployeeQuery({
  *   variables: {
  *      where: // value for 'where'
- *      first: // value for 'first'
- *      skip: // value for 'skip'
- *      sortBy: // value for 'sortBy'
  *   },
  * });
  */
-export function useGetOrganizationEmployeesQuery (baseOptions: Apollo.QueryHookOptions<Types.GetOrganizationEmployeesQuery, Types.GetOrganizationEmployeesQueryVariables> & ({ variables: Types.GetOrganizationEmployeesQueryVariables, skip?: boolean } | { skip: boolean }) ) {
+export function useGetActiveOrganizationEmployeeQuery (baseOptions: Apollo.QueryHookOptions<Types.GetActiveOrganizationEmployeeQuery, Types.GetActiveOrganizationEmployeeQueryVariables> & ({ variables: Types.GetActiveOrganizationEmployeeQueryVariables, skip?: boolean } | { skip: boolean }) ) {
     const options = { ...defaultOptions, ...baseOptions }
-    return Apollo.useQuery<Types.GetOrganizationEmployeesQuery, Types.GetOrganizationEmployeesQueryVariables>(GetOrganizationEmployeesDocument, options)
+    return Apollo.useQuery<Types.GetActiveOrganizationEmployeeQuery, Types.GetActiveOrganizationEmployeeQueryVariables>(GetActiveOrganizationEmployeeDocument, options)
 }
-export function useGetOrganizationEmployeesLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<Types.GetOrganizationEmployeesQuery, Types.GetOrganizationEmployeesQueryVariables>) {
+export function useGetActiveOrganizationEmployeeLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<Types.GetActiveOrganizationEmployeeQuery, Types.GetActiveOrganizationEmployeeQueryVariables>) {
     const options = { ...defaultOptions, ...baseOptions }
-    return Apollo.useLazyQuery<Types.GetOrganizationEmployeesQuery, Types.GetOrganizationEmployeesQueryVariables>(GetOrganizationEmployeesDocument, options)
+    return Apollo.useLazyQuery<Types.GetActiveOrganizationEmployeeQuery, Types.GetActiveOrganizationEmployeeQueryVariables>(GetActiveOrganizationEmployeeDocument, options)
 }
-export function useGetOrganizationEmployeesSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetOrganizationEmployeesQuery, Types.GetOrganizationEmployeesQueryVariables>) {
+export function useGetActiveOrganizationEmployeeSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetActiveOrganizationEmployeeQuery, Types.GetActiveOrganizationEmployeeQueryVariables>) {
     const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
-    return Apollo.useSuspenseQuery<Types.GetOrganizationEmployeesQuery, Types.GetOrganizationEmployeesQueryVariables>(GetOrganizationEmployeesDocument, options)
+    return Apollo.useSuspenseQuery<Types.GetActiveOrganizationEmployeeQuery, Types.GetActiveOrganizationEmployeeQueryVariables>(GetActiveOrganizationEmployeeDocument, options)
 }
-export type GetOrganizationEmployeesQueryHookResult = ReturnType<typeof useGetOrganizationEmployeesQuery>
-export type GetOrganizationEmployeesLazyQueryHookResult = ReturnType<typeof useGetOrganizationEmployeesLazyQuery>
-export type GetOrganizationEmployeesSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationEmployeesSuspenseQuery>
-export type GetOrganizationEmployeesQueryResult = Apollo.QueryResult<Types.GetOrganizationEmployeesQuery, Types.GetOrganizationEmployeesQueryVariables>
+export type GetActiveOrganizationEmployeeQueryHookResult = ReturnType<typeof useGetActiveOrganizationEmployeeQuery>
+export type GetActiveOrganizationEmployeeLazyQueryHookResult = ReturnType<typeof useGetActiveOrganizationEmployeeLazyQuery>
+export type GetActiveOrganizationEmployeeSuspenseQueryHookResult = ReturnType<typeof useGetActiveOrganizationEmployeeSuspenseQuery>
+export type GetActiveOrganizationEmployeeQueryResult = Apollo.QueryResult<Types.GetActiveOrganizationEmployeeQuery, Types.GetActiveOrganizationEmployeeQueryVariables>
 export const AuthenticatedUserDocument = gql`
     query authenticatedUser {
   authenticatedUser {
