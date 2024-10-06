@@ -669,7 +669,7 @@ const CAN_READ_BY_RESIDENT_WRAPPER_STYLE: CSSProperties = { display: 'flex', gap
 const CAN_READ_BY_RESIDENT_ICON_WRAPPER_STYLE: CSSProperties = { padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }
 
 export interface ITicketFormProps {
-    organization?: Organization
+    organization?: Pick<Organization, 'id'>
     initialValues?: ITicketFormState
     action?: (...args) => Promise<Ticket>
     files?: TicketFileType[]
