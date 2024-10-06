@@ -1,7 +1,6 @@
 import {
     BuildingUnitSubType,
     Organization,
-    OrganizationEmployeeRole,
     PropertyWhereInput,
     Ticket,
     TicketFile as TicketFileType,
@@ -26,6 +25,7 @@ import { PlusCircle, QuestionCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Alert, Space, Tooltip } from '@open-condo/ui'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { CONTEXT_FINISHED_STATUS } from '@condo/domains/acquiring/constants/context'
 import { AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
@@ -74,8 +74,6 @@ import { TicketAssignments } from './TicketAssignments'
 import { TicketDeadlineField } from './TicketDeadlineField'
 import { TicketDeferredDateField } from './TicketDeferredDateField'
 import { useTicketValidations } from './useTicketValidations'
-
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const HINTS_COL_PROPS: ColProps = { span: 24 }
@@ -672,7 +670,6 @@ const CAN_READ_BY_RESIDENT_ICON_WRAPPER_STYLE: CSSProperties = { padding: '4px',
 
 export interface ITicketFormProps {
     organization?: Organization
-    role?: OrganizationEmployeeRole
     initialValues?: ITicketFormState
     action?: (...args) => Promise<Ticket>
     files?: TicketFileType[]
@@ -704,7 +701,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         action: _action,
         initialValues,
         organization,
-        role,
         afterActionCompleted,
         files,
         autoAssign,
@@ -776,8 +772,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     })
 
     const { ContactsEditorComponent } = useContactsEditorHook({
-        role,
-        allowLandLine: true,
         initialQuery: { organization: { id: organization.id } },
     })
 

@@ -11,6 +11,8 @@ import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Space, Typography, Tour } from '@open-condo/ui'
 
+import { useAuth } from '@/domains/common/utils/next/auth'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { getObjectValueFromQuery } from '@condo/domains/common/utils/query'
 import { ClientType, getClientCardTabKey } from '@condo/domains/contact/utils/clientCard'
 import { CopyButton } from '@condo/domains/marketplace/components/Invoice/CopyButton'
@@ -26,9 +28,6 @@ import { REQUIRED_TICKET_FIELDS } from '@condo/domains/ticket/constants/common'
 import { useCacheUtils } from '@condo/domains/ticket/hooks/useCacheUtils'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
-
-import { useAuth } from '@/domains/common/utils/next/auth'
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 dayjs.extend(isToday)
@@ -122,7 +121,7 @@ export const CreateTicketForm: React.FC = () => {
     const CopiedLinkMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.create.notification.copiedLink' })
     const SuccessNotificationWithPaymentLinkDescription = intl.formatMessage({ id: 'pages.condo.ticket.notification.success.description.withPaymentLink' })
 
-    const { organization, link } = useOrganization()
+    const { organization } = useOrganization()
     const router = useRouter()
     const auth = useAuth() as { user: { id: string } }
     const client = useApolloClient()
@@ -253,8 +252,6 @@ export const CreateTicketForm: React.FC = () => {
                 initialValues={initialValues}
                 // @ts-ignore TODO(INFRA-517) fix organization
                 organization={organization}
-                // @ts-ignore TODO(INFRA-517) fix role
-                role={link.role}
                 autoAssign
                 OnCompletedMsg={null}
                 isExisted={false}
@@ -262,5 +259,5 @@ export const CreateTicketForm: React.FC = () => {
                 {({ handleSave, isLoading, form }) => <CreateTicketActionBar handleSave={handleSave} isLoading={isLoading} form={form} />}
             </BaseTicketForm>
         </Tour.Provider>
-    ), [createAction, initialValues, link.role, organization])
+    ), [createAction, initialValues, organization])
 }
