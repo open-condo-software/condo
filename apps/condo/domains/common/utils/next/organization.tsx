@@ -5,6 +5,8 @@ import get from 'lodash/get'
 import { GetServerSideProps, NextPage } from 'next'
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
 
+import { useAuth } from '@/domains/common/utils/next/auth'
+
 import {
     GetOrganizationEmployeeByIdQuery,
     GetOrganizationEmployeesDocument,
@@ -12,7 +14,6 @@ import {
     GetOrganizationEmployeesQueryVariables,
     useGetOrganizationEmployeesQuery,
 } from '@/gql'
-import { useAuth } from '@/domains/common/utils/next/auth'
 import { OrganizationTypeType, UserTypeType } from '@/schema'
 
 type OrganizationContextType = {

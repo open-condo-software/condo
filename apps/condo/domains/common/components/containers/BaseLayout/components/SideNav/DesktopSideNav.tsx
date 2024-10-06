@@ -6,6 +6,7 @@ import React from 'react'
 
 import { ChevronLeft, ChevronRight } from '@open-condo/icons'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Logo } from '@condo/domains/common/components/Logo'
 import { ResidentActions } from '@condo/domains/common/components/ResidentActions/ResidentActions'
@@ -17,7 +18,6 @@ import {
     COLLAPSED_SIDE_MENU_WIDTH,
 } from '../styles'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 interface ISideNavProps {
     onLogoClick: (...args) => void
     menuData?: React.ElementType

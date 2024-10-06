@@ -6,6 +6,7 @@ import React, { ComponentProps, useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import Input from '@condo/domains/common/components/antd/Input'
 import Select from '@condo/domains/common/components/antd/Select'
 import { BaseModalForm } from '@condo/domains/common/components/containers/FormList'
@@ -28,7 +29,6 @@ import { BaseMeterModalFormItem } from './BaseMeterModalFormItem'
 
 import type { MeterResource } from '@app/condo/schema'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 type InitialMeterFormValuesType = {
     propertyId?: string

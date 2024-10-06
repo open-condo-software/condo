@@ -7,6 +7,11 @@ import React, { useEffect, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
+import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
+import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
+import { extractSSRState } from '@/domains/common/utils/next/ssr'
 import { GET_EXTERNAL_REPORT_IFRAME_URL_QUERY } from '@condo/domains/analytics/gql'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
@@ -16,11 +21,6 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 
 import type { GetServerSideProps } from 'next'
 
-import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
-import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
-import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
-import { useOrganization } from '@/domains/common/utils/next/organization'
-import { extractSSRState } from '@/domains/common/utils/next/ssr'
 
 const LAYOUT_STYLE: React.CSSProperties = { height: '100%' }
 const IFRAME_STYLE: React.CSSProperties = { border: 'none', width: '100%', height: '100%' }

@@ -12,13 +12,13 @@ import { PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button } from '@open-condo/ui'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useContactRolesTableColumns } from '@condo/domains/contact/hooks/useContactRolesTableColumns'
 import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 const SORTABLE_PROPERTIES = ['name']
 const DEFAULT_SORT_BY = ['createdAt_DESC']

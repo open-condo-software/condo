@@ -9,6 +9,7 @@ import { Download } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Modal, Button, Typography, Space } from '@open-condo/ui'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { getAddressRender } from '@condo/domains/common/components/Table/Renders'
 import { useDownloadFileFromServer } from '@condo/domains/common/hooks/useDownloadFileFromServer'
@@ -17,7 +18,6 @@ import { getOrganizationTickets } from '@condo/domains/ticket/utils/clientSchema
 
 import { CallRecordCard } from './CallRecordCard'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const DROPDOWN_POPUP_CONTAINER_ID = 'attach-tickets-to-call-record'

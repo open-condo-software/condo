@@ -8,6 +8,7 @@ import { Edit } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Space, Tag, Typography } from '@open-condo/ui'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { INVOICE_STATUS_COLORS } from '@condo/domains/marketplace/constants'
 import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 import { InvoiceFormValuesType } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
@@ -15,7 +16,6 @@ import { InvoiceFormValuesType } from '@condo/domains/marketplace/utils/clientSc
 import { InvoiceRowsTable } from './InvoiceRowsTable'
 import { UpdateInvoiceForm } from './UpdateInvoiceForm'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 type TicketInvoiceCardPropsType = {

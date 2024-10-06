@@ -8,6 +8,7 @@ import React, { useCallback } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button } from '@open-condo/ui'
 
+import { useAuth } from '@/domains/common/utils/next/auth'
 import Input from '@condo/domains/common/components/antd/Input'
 import { Button as DeprecatedButton } from '@condo/domains/common/components/Button'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
@@ -19,7 +20,6 @@ import { User } from '@condo/domains/user/utils/clientSchema'
 
 import { UserAvatar } from './UserAvatar'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
 
 
 const INPUT_LAYOUT_PROPS = {

@@ -4,11 +4,11 @@ import React, { useMemo } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button } from '@open-condo/ui'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
 
 import { BaseContactRoleForm } from './BaseContactRoleForm'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 export const CreateContactRoleForm = () => {
     const intl = useIntl()

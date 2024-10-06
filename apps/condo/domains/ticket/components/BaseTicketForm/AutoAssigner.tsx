@@ -5,13 +5,13 @@ import React, { useMemo, useState } from 'react'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useIntl } from '@open-condo/next/intl'
 
+import { useAuth } from '@/domains/common/utils/next/auth'
 import {
     getEmployeesSortedByTicketVisibilityType,
     getPropertyScopeNameByEmployee, isEmployeeSpecializationAndPropertyMatchesToScope,
 } from '@condo/domains/scope/utils/clientSchema/utils'
 import { TicketAutoAssignment } from '@condo/domains/ticket/utils/clientSchema'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
 
 
 const selectUserByAutoAssignmentRule = (rule, employees, key: 'assignee' | 'executor') => {

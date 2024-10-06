@@ -11,6 +11,8 @@ import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
+import { useAuth } from '@/domains/common/utils/next/auth'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { getSelectFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import {
     ComponentType,
@@ -47,8 +49,6 @@ import {
     FilterModalProblemClassifierSelect,
 } from './useModalFilterClassifiers'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const filterNumber = getNumberFilter('number')

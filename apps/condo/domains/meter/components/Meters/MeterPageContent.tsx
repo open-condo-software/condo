@@ -9,6 +9,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { Typography, Alert } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import Select from '@condo/domains/common/components/antd/Select'
 import { PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
 import { ShowMoreFieldsButton } from '@condo/domains/common/components/ShowMoreFieldsButton'
@@ -23,7 +24,6 @@ import { Meter, MeterTypes, METER_TAB_TYPES, METER_TYPES, PropertyMeter } from '
 import { getMeterTitleMessage } from '@condo/domains/meter/utils/helpers'
 import { TicketPropertyField } from '@condo/domains/ticket/components/TicketId/TicketPropertyField'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const METER_STATUSES = { active: 'active', archived: 'archived' }

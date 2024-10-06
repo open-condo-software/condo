@@ -5,6 +5,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { Tabs } from '@open-condo/ui'
 import type { TabItem } from '@open-condo/ui'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { ACCRUALS_TAB_KEY, PAYMENTS_TAB_KEY, EXTENSION_TAB_KEY } from '@condo/domains/billing/constants/constants'
 import { useQueryTab } from '@condo/domains/billing/hooks/useQueryTab'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
@@ -14,7 +15,6 @@ import { useBillingAndAcquiringContexts } from './ContextProvider'
 import { EmptyContent } from './EmptyContent'
 import { PaymentsTab } from './PaymentsTab'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 type MainContentProps = {
     uploadComponent?: React.ReactElement

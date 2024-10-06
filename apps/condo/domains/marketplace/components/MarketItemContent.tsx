@@ -10,6 +10,7 @@ import React, { useCallback, useMemo } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button, Select } from '@open-condo/ui'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import Input from '@condo/domains/common/components/antd/Input'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -26,7 +27,6 @@ import { useMarketplaceServicesTableColumns } from '@condo/domains/marketplace/h
 import { MarketItem, MarketPriceScope, MarketCategory } from '@condo/domains/marketplace/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const TableContent = () => {

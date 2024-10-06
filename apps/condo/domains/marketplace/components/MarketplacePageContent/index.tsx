@@ -9,6 +9,7 @@ import { TabItem, Tabs, Tag } from '@open-condo/ui'
 import { Button } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { CONTEXT_FINISHED_STATUS } from '@condo/domains/acquiring/constants/context'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
@@ -21,7 +22,6 @@ import { MARKETPLACE_PAGE_TYPES } from '@condo/domains/marketplace/utils/clientS
 
 import { useAcquiringContext } from './ContextProvider'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 const StyledPageWrapper = styled(PageWrapper)`
   & .condo-promo-block:not(.condo-promo-block-no-image) {

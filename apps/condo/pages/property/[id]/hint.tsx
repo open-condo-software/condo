@@ -9,6 +9,10 @@ import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
+import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
+import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
+import { extractSSRState } from '@/domains/common/utils/next/ssr'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
@@ -18,10 +22,6 @@ import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/t
 
 import type { GetServerSideProps } from 'next'
 
-import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
-import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
-import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
-import { extractSSRState } from '@/domains/common/utils/next/ssr'
 
 const BIG_HORIZONTAL_GUTTER: [Gutter, Gutter] = [0, 40]
 

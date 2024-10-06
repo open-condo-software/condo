@@ -6,6 +6,7 @@ import React, { useCallback, useEffect } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Space } from '@open-condo/ui'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS, CONTEXT_VERIFICATION_STATUS } from '@condo/domains/acquiring/constants/context'
 import { AcquiringIntegrationContext as AcquiringContext, AcquiringIntegration } from '@condo/domains/acquiring/utils/clientSchema'
 import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/domains/billing/utils/clientSchema'
@@ -18,7 +19,6 @@ import { SBBOL_IMPORT_NAME } from '@condo/domains/organization/integrations/sbbo
 
 import type { RowProps } from 'antd'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 type SetupAcquiringProps = {
     onFinish: () => void

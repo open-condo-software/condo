@@ -4,12 +4,12 @@ import { useEffect } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 
+import { useAuth } from '@/domains/common/utils/next/auth'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { SHOW_TELEGRAM_NOTIFICATIONS_BANNER, MAX_EMPLOYEE_SIZE_IN_ORGANIZATION_TO_TELEGRAM_NOTIFICATIONS } from '@condo/domains/common/constants/featureflags'
 import { TelegramUserChat } from '@condo/domains/notification/utils/clientSchema'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 // By default, we use the value 0 so that if there is no feature flag, the banner will not be allowed to be displayed
 const DEFAULT_MAX_EMPLOYEE_SIZE = 0

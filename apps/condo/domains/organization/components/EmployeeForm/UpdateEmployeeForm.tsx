@@ -10,6 +10,7 @@ import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Alert, Button } from '@open-condo/ui'
 
+import { useAuth } from '@/domains/common/utils/next/auth'
 import Input from '@condo/domains/common/components/antd/Input'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -27,7 +28,6 @@ import {
 } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
 
 
 const INPUT_LAYOUT_PROPS = {

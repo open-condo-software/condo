@@ -8,6 +8,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { Typography, Steps } from '@open-condo/ui'
 import type { StepItem } from '@open-condo/ui'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { useOnboardingProgress } from '@condo/domains/billing/hooks/useOnboardingProgress'
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import { PageHeader, PageWrapper, TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
@@ -20,7 +21,6 @@ import { WelcomeModal } from './WelcomeModal'
 
 import type { RowProps } from 'antd'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const STEPS_GUTTER: RowProps['gutter'] = [60, 60]

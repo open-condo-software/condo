@@ -7,6 +7,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { Space, Tag, Tooltip } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { getFilterIcon } from '@condo/domains/common/components/Table/Filters'
 import { getAddressRender, getDateRender, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { useDownloadFileFromServer } from '@condo/domains/common/hooks/useDownloadFileFromServer'
@@ -16,7 +17,6 @@ import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.uti
 
 import type { Organization, Contact } from '@app/condo/schema'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 interface IFilters extends Pick<Contact, 'name' | 'phone' | 'email'> {
     search?: string

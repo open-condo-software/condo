@@ -5,6 +5,7 @@ import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import {
     ComponentType,
     convertToOptions,
@@ -18,7 +19,6 @@ import {
 import { MeterResource, MeterTypes, METER_TYPES } from '@condo/domains/meter/utils/clientSchema'
 import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 export function useMeterFilters (meterType: MeterTypes): Array<FiltersMeta<MeterReadingWhereInput>>  {

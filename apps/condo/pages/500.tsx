@@ -6,11 +6,11 @@ import React, { useCallback } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
+import { useAuth } from '@/domains/common/utils/next/auth'
 import { Logo } from '@condo/domains/common/components/Logo'
 import { colors, fontSizes } from '@condo/domains/common/constants/style'
 import { PosterLayout } from '@condo/domains/user/components/containers/PosterLayout'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
 
 const LOGO_HEADER_STYLES = { width: '100%', justifyContent: 'space-between' }
 const HEADER_LOGO_STYLE: React.CSSProperties = { cursor: 'pointer' }

@@ -5,6 +5,7 @@ import React, { useCallback, useState, useMemo, useEffect } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Modal, Button, Typography, Space, Alert } from '@open-condo/ui'
 
+import { useAuth } from '@/domains/common/utils/next/auth'
 import { SBBOL } from '@condo/domains/banking/constants'
 import { useBankSyncTaskUIInterface } from '@condo/domains/banking/hooks/useBankSyncTaskUIInterface'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
@@ -13,7 +14,6 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 
 import type { BankAccount } from '@app/condo/schema'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
 
 const BANK_SYNC_TASK_DATE_FORMAT = 'YYYY-MM-DD'
 

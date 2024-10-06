@@ -2,16 +2,16 @@ import Error from 'next/error'
 import { useRouter } from 'next/router'
 import React from 'react'
 
+import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
+import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
+import { extractSSRState } from '@/domains/common/utils/next/ssr'
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import { B2BAppPage } from '@condo/domains/miniapp/components/AppDescription'
 import { ServicesReadPermissionRequired } from '@condo/domains/miniapp/components/PageAccess'
 
 import type { GetServerSideProps } from 'next'
 
-import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
-import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
-import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
-import { extractSSRState } from '@/domains/common/utils/next/ssr'
 
 
 type PageType = React.FC & {
