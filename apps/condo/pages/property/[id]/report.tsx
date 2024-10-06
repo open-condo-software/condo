@@ -11,6 +11,12 @@ import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Button, Checkbox, ActionBar } from '@open-condo/ui'
 
+import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
+import { useAuth } from '@/domains/common/utils/next/auth'
+import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
+import { extractSSRState } from '@/domains/common/utils/next/ssr'
 import { BankAccountReport } from '@condo/domains/banking/components/BankAccountReport'
 import { BankAccountVisibilitySelect } from '@condo/domains/banking/components/BankAccountVisibilitySelect'
 import {
@@ -61,13 +67,6 @@ import type { FormatDateOptions } from '@formatjs/intl/src/types'
 import type { RowProps } from 'antd'
 import type { GetServerSideProps } from 'next'
 
-import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
-import { useAuth } from '@/domains/common/utils/next/auth'
-import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
-import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
-import { useOrganization } from '@/domains/common/utils/next/organization'
-import { extractSSRState } from '@/domains/common/utils/next/ssr'
-
 
 const PROPERTY_REPORT_PAGE_ROW_GUTTER: RowProps['gutter'] = [24, 20]
 const PROPERTY_REPORT_PAGE_ROW_TABLE_GUTTER: RowProps['gutter'] = [0, 40]
@@ -100,7 +99,7 @@ interface IPropertyImportBankTransactions {
 }
 interface IPropertyReport {
     ({ bankAccount, propertyId, role }: Pick<BaseBankReportProps, 'bankAccount'>
-    & { propertyId: string, role?: OrganizationEmployeeRoleType }
+    & { propertyId: string, role?: Pick<OrganizationEmployeeRoleType, 'canManageBankAccountReportTasks' | 'canManageBankAccounts'> }
     ): React.ReactElement
 }
 
@@ -548,13 +547,11 @@ const PropertyReportPageContent: IPropertyReportPageContent = ({ property }) => 
                             <BankAccountReport
                                 bankAccountReports={bankAccountReports}
                                 bankAccount={bankAccount}
-                                // @ts-ignore TODO(INFRA-517) fix role
-                                role={link.role}
+                                role={get(link, 'role')}
                             />
                         </Col>
                         <Col span={24}>
-                            {/* @ts-ignore TODO(INFRA-517) fix role*/}
-                            <PropertyReport bankAccount={bankAccount} propertyId={property.id} role={link.role} />
+                            <PropertyReport bankAccount={bankAccount} propertyId={property.id} role={get(link, 'role')} />
                         </Col>
                     </>
                 )}
