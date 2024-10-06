@@ -6,17 +6,14 @@ import React, { useEffect, useMemo } from 'react'
 
 import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
 import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
-import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
-import { useOrganization } from '@/domains/common/utils/next/organization'
+import { prefetchOrganizationEmployee, useOrganization } from '@/domains/common/utils/next/organization'
+import { extractSSRState } from '@/domains/common/utils/next/ssr'
 import { SECOND_LEVEL_STEPS } from '@condo/domains/onboarding/constants/steps'
 import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
 
 import type { GetServerSideProps } from 'next'
-
-
-
 
 
 // Equality of read access name of OrganizationEmployeeRole and page url sorted by menu items order
@@ -91,12 +88,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     const { activeEmployee } = await prefetchOrganizationEmployee({ client, context, userId: user.id })
 
-    // TODO(INFRA-517): update redirect
-    return {
-        unstable_redirect: {
-            destination: '/apollo',
-            permanent: false,
-        },
-    }
+    return extractSSRState(client, req, res, {
+        props: {},
+    })
 }
-
