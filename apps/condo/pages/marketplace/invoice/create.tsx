@@ -5,16 +5,16 @@ import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
+import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
+import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
+import { extractSSRState } from '@/domains/common/utils/next/ssr'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { InvoiceForm } from '@condo/domains/marketplace/components/Invoice/InvoiceForm'
 import { InvoiceReadAndManagePermissionRequired } from '@condo/domains/marketplace/components/PageAccess'
 
 import type { GetServerSideProps } from 'next'
 
-import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
-import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
-import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
-import { extractSSRState } from '@/domains/common/utils/next/ssr'
 
 
 const CREATE_INVOICE_PAGE_GUTTER: [Gutter, Gutter] = [12, 60]

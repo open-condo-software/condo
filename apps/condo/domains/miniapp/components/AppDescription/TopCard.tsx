@@ -12,6 +12,7 @@ import type { ButtonProps, CarouselRef } from '@open-condo/ui'
 // TODO(DOMA-4844): Replace with @open-condo/ui/colors
 import { colors } from '@open-condo/ui/dist/colors'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import { CONTEXT_IN_PROGRESS_STATUS } from '@condo/domains/miniapp/constants'
 
@@ -20,7 +21,6 @@ import { AppLabelTag } from '../AppLabelTag'
 import type { B2BAppLabelType } from '@app/condo/schema'
 import type { RowProps, ColProps } from 'antd'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 const CAROUSEL_CHANGE_DELAY_IN_MS = 6000 // 6 sec
 const CAROUSEL_CHANGE_SPEED_IN_MS = 800 // 0.8 sec

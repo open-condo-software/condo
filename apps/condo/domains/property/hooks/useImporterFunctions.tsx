@@ -5,6 +5,7 @@ import { useEffect, useRef } from 'react'
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import { Columns, RowNormalizer, RowValidator, ObjectCreator, TableRow } from '@condo/domains/common/utils/importer'
 import { MapEdit } from '@condo/domains/property/components/panels/Builder/MapConstructor'
@@ -12,7 +13,6 @@ import { validHouseTypes } from '@condo/domains/property/constants/property'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const createPropertyUnitsMap = (units, sections, floors, minFloor) => {

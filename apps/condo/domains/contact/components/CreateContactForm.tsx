@@ -9,6 +9,7 @@ import React, { CSSProperties, useEffect, useMemo, useRef, useState } from 'reac
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button } from '@open-condo/ui'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
@@ -29,7 +30,6 @@ import { UNABLE_TO_CREATE_CONTACT_DUPLICATE, UNABLE_TO_UPDATE_CONTACT_DUPLICATE 
 
 import { ButtonWithDisabledTooltip } from '../../common/components/ButtonWithDisabledTooltip'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {

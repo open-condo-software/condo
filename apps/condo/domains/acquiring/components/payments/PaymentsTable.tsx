@@ -11,6 +11,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { Modal, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { PaymentsSumTable } from '@condo/domains/acquiring/components/payments/PaymentsSumTable'
 import { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } from '@condo/domains/acquiring/constants/payment'
 import { EXPORT_PAYMENTS_TO_EXCEL, SUM_PAYMENTS_QUERY } from '@condo/domains/acquiring/gql'
@@ -38,7 +39,6 @@ import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/
 
 import type { SortPaymentsBy } from '@app/condo/schema'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 

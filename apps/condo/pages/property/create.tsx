@@ -5,16 +5,16 @@ import React from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Tour } from '@open-condo/ui'
 
+import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
+import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
+import { extractSSRState } from '@/domains/common/utils/next/ssr'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { PropertyForm } from '@condo/domains/property/components/PropertyForm'
 
 import type { GetServerSideProps } from 'next'
 
-import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
-import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
-import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
-import { extractSSRState } from '@/domains/common/utils/next/ssr'
 
 const PROPERTY_CREATE_PAGE_GUTTER: RowProps['gutter'] = [0, 40]
 const PROPERTY_CREATE_PAGE_TITLE_STYLE: React.CSSProperties = { margin: 0 }

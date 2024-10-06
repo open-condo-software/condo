@@ -19,6 +19,12 @@ import { useIntl } from '@open-condo/next/intl'
 import { Typography, Checkbox, Button, ActionBar } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
+import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
+import { useAuth } from '@/domains/common/utils/next/auth'
+import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
+import { extractSSRState } from '@/domains/common/utils/next/ssr'
 import Input from '@condo/domains/common/components/antd/Input'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
@@ -44,12 +50,6 @@ import { getFilterAddressForSearch } from '@condo/domains/ticket/utils/tables.ut
 
 import type { GetServerSideProps } from 'next'
 
-import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
-import { useAuth } from '@/domains/common/utils/next/auth'
-import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
-import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
-import { useOrganization } from '@/domains/common/utils/next/organization'
-import { extractSSRState } from '@/domains/common/utils/next/ssr'
 
 
 export interface IIncidentIndexPage extends React.FC {

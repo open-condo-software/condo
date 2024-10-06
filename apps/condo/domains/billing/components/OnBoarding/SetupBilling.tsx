@@ -6,6 +6,7 @@ import React, { useCallback, useEffect, useMemo } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Markdown, Space, Button } from '@open-condo/ui'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/domains/billing/utils/clientSchema'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
@@ -15,7 +16,6 @@ import { CONTEXT_FINISHED_STATUS } from '@condo/domains/miniapp/constants'
 
 import type { RowProps } from 'antd'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 const INSTRUCTION_FOOTER_GUTTER: RowProps['gutter'] = [0, 40]
 const COL_FULL_SPAN = 24

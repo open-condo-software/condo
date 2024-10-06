@@ -2,9 +2,9 @@ import get from 'lodash/get'
 import { useEffect, useState } from 'react'
 
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 type UseExistingContactRoles = () => Set<string>
 

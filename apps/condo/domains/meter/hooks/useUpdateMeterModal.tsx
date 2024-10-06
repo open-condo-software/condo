@@ -5,6 +5,7 @@ import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import {
     DeleteButtonWithConfirmModal,
 } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
@@ -12,7 +13,6 @@ import { AutoSourceAlert } from '@condo/domains/meter/components/BaseMeterModal/
 import { BaseMeterModalForm } from '@condo/domains/meter/components/BaseMeterModal/BaseMeterModalForm'
 import { Meter, PropertyMeter, METER_TAB_TYPES, MeterPageTypes } from '@condo/domains/meter/utils/clientSchema'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const INITIAL_METER_VALUES_KEYS = [

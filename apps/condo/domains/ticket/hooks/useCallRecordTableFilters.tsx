@@ -6,6 +6,7 @@ import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { ComponentType, FilterComponentSize, FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import {
     getDateTimeGteFilter, getDateTimeLteFilter,
@@ -19,7 +20,6 @@ import {
     getIsIncomingCallFilter,
 } from '@condo/domains/ticket/utils/tables.utils'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const filterTicketNumber = getNumberFilter(['ticket', 'number'])

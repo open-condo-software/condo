@@ -12,6 +12,7 @@ import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
+import { useAuth } from '@/domains/common/utils/next/auth'
 import { colors, shadows, fontSizes } from '@condo/domains/common/constants/style'
 import { getIconByMimetype } from '@condo/domains/common/utils/clientSchema/files'
 
@@ -19,7 +20,6 @@ import { Button } from '../Button'
 
 import { CommentWithFiles } from './index'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
 
 const { RESIDENT, STAFF, SERVICE } = require('@condo/domains/user/constants/common')
 

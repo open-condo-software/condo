@@ -14,6 +14,7 @@ import { Button, Modal, Checkbox, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 import { useBreakpoints } from '@open-condo/ui/dist/hooks'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { PaymentsSumTable } from '@condo/domains/acquiring/components/payments/PaymentsSumTable'
 import { EXPORT_PAYMENTS_TO_EXCEL, SUM_PAYMENTS_QUERY } from '@condo/domains/acquiring/gql'
 import { Payment } from '@condo/domains/acquiring/utils/clientSchema'
@@ -36,7 +37,6 @@ import { useMarketplacePaymentsFilters } from '@condo/domains/marketplace/hooks/
 import { useMarketplacePaymentTableColumns } from '@condo/domains/marketplace/hooks/useMarketplacePaymentTableColumns'
 import { MARKETPLACE_PAGE_TYPES } from '@condo/domains/marketplace/utils/clientSchema'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const ROW_GUTTERS: RowProps['gutter'] = [16, 16]

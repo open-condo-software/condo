@@ -11,6 +11,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { Typography, Carousel, Banner } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import Input from '@condo/domains/common/components/antd/Input'
 import { PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
@@ -26,7 +27,6 @@ import type { TabContent } from './CardGrid'
 import type { MiniAppOutput } from '@app/condo/schema'
 import type { RowProps, ColProps } from 'antd'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 const SECTION_SPACING: RowProps['gutter'] = [0, 40]
 const CONTENT_SPACING: RowProps['gutter'] = [40, 40]

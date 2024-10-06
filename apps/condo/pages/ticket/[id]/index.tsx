@@ -23,6 +23,12 @@ import { FormattedMessage } from '@open-condo/next/intl'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Alert, Button } from '@open-condo/ui'
 
+import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
+import { useAuth } from '@/domains/common/utils/next/auth'
+import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
+import { extractSSRState } from '@/domains/common/utils/next/ssr'
 import { ChangeHistory } from '@condo/domains/common/components/ChangeHistory'
 import { HistoricalChange } from '@condo/domains/common/components/ChangeHistory/HistoricalChange'
 import { Comments } from '@condo/domains/common/components/Comments'
@@ -95,12 +101,6 @@ import { RESIDENT } from '@condo/domains/user/constants/common'
 
 import type { GetServerSideProps } from 'next'
 
-import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
-import { useAuth } from '@/domains/common/utils/next/auth'
-import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
-import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
-import { useOrganization } from '@/domains/common/utils/next/organization'
-import { extractSSRState } from '@/domains/common/utils/next/ssr'
 
 
 const TICKET_CONTENT_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]

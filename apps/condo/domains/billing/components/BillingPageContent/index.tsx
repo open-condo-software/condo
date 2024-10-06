@@ -8,13 +8,13 @@ import { useIntl } from '@open-condo/next/intl'
 import { Typography, Tag, Button } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import { PageWrapper, PageHeader, TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 
 import { useBillingAndAcquiringContexts } from './ContextProvider'
 import { MainContent } from './MainContent'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 export const BillingPageContent: React.FC = () => {

@@ -4,11 +4,11 @@ import React, { useMemo } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button } from '@open-condo/ui'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { TicketPropertyHint } from '@condo/domains/ticket/utils/clientSchema'
 
 import { BaseTicketPropertyHintForm } from './BaseTicketPropertyHintForm'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 export const CreateTicketPropertyHintForm = () => {
     const intl = useIntl()

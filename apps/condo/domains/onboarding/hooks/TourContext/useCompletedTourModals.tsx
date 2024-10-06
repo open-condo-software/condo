@@ -12,13 +12,13 @@ import { useIntl } from '@open-condo/next/intl'
 import { Button, Modal, Space, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
 import { GUIDE_LINK } from '@condo/domains/onboarding/utils/clientSchema/constants'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 type ButtonClickType = () => void

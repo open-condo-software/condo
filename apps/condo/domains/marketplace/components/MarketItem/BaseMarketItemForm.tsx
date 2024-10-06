@@ -15,6 +15,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { Radio, RadioGroup, Space, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import {
     GraphQlSearchInputWithCheckAll,
@@ -45,7 +46,6 @@ import {
     useMarketItemFormContext,
 } from './BaseMarketItemFormContext'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const GROUP_OUTER_GUTTER: RowProps['gutter'] = [0, 40]

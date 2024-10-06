@@ -11,6 +11,7 @@ import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Alert, Button } from '@open-condo/ui'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import Input from '@condo/domains/common/components/antd/Input'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -28,7 +29,6 @@ import {
     TicketClassifierTypes,
 } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const INPUT_LAYOUT_PROPS = {

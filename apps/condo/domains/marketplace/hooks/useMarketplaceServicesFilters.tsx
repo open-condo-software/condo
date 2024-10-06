@@ -7,6 +7,7 @@ import { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { ComponentType, FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { getStringContainsFilter } from '@condo/domains/common/utils/tables.utils'
@@ -14,7 +15,6 @@ import { MarketPriceScope } from '@condo/domains/marketplace/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const skuFilter = getStringContainsFilter(['sku'])

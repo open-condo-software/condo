@@ -6,6 +6,7 @@ import React, { useCallback, useEffect, useMemo } from 'react'
 
 import { useIntl, FormattedMessage } from '@open-condo/next/intl'
 
+import { useAuth } from '@/domains/common/utils/next/auth'
 import { FROM_INPUT_CSS } from '@condo/domains/common/components/containers/BaseLayout/components/styles'
 import { HCaptchaProvider } from '@condo/domains/common/components/HCaptcha'
 import { Logo } from '@condo/domains/common/components/Logo'
@@ -15,7 +16,6 @@ import { colors } from '@condo/domains/common/constants/style'
 import { AuthLayoutContextProvider } from './AuthLayoutContext'
 import { PosterLayout } from './PosterLayout'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
 
 
 export interface AuthPage extends React.FC {

@@ -7,6 +7,7 @@ import { useMutation } from '@open-condo/next/apollo'
 import { FormattedMessage } from '@open-condo/next/intl'
 import { useIntl } from '@open-condo/next/intl'
 
+import { useAuth } from '@/domains/common/utils/next/auth'
 import Input from '@condo/domains/common/components/antd/Input'
 import { Button } from '@condo/domains/common/components/Button'
 import { LoginWithSBBOLButton } from '@condo/domains/common/components/LoginWithSBBOLButton'
@@ -18,7 +19,6 @@ import { ResponsiveCol } from '@condo/domains/user/components/containers/Respons
 import { WRONG_PASSWORD_ERROR, WRONG_PHONE_ERROR } from '@condo/domains/user/constants/errors'
 import { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } from '@condo/domains/user/gql'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
 
 
 const ROW_STYLES: React.CSSProperties = {

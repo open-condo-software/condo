@@ -18,6 +18,11 @@ import { useApolloClient, useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button } from '@open-condo/ui'
 
+import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
+import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
+import { extractSSRState } from '@/domains/common/utils/next/ssr'
 import TicketChart, { TicketSelectTypes, ViewModeTypes } from '@condo/domains/analytics/components/TicketChart'
 import TicketChartView from '@condo/domains/analytics/components/TicketChartView'
 import TicketListView from '@condo/domains/analytics/components/TicketListView'
@@ -58,11 +63,6 @@ import {
 
 import type { GetServerSideProps } from 'next'
 
-import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
-import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
-import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
-import { useOrganization } from '@/domains/common/utils/next/organization'
-import { extractSSRState } from '@/domains/common/utils/next/ssr'
 
 dayjs.extend(quarterOfYear)
 

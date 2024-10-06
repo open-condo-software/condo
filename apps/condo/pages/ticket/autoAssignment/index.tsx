@@ -26,6 +26,12 @@ import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useQuery, useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 
+import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
+import { useAuth } from '@/domains/common/utils/next/auth'
+import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
+import { extractSSRState } from '@/domains/common/utils/next/ssr'
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { TICKET_AUTO_ASSIGNMENT_MANAGEMENT } from '@condo/domains/common/constants/featureflags'
@@ -36,12 +42,6 @@ import { ClassifiersQueryLocal } from '@condo/domains/ticket/utils/clientSchema/
 
 import type { GetServerSideProps } from 'next'
 
-import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
-import { useAuth } from '@/domains/common/utils/next/auth'
-import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
-import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
-import { useOrganization } from '@/domains/common/utils/next/organization'
-import { extractSSRState } from '@/domains/common/utils/next/ssr'
 
 
 interface ITicketAutoAssignmentPage extends React.FC {

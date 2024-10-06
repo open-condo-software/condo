@@ -8,6 +8,7 @@ import { useEffect, useRef } from 'react'
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import {
     Columns,
@@ -21,7 +22,6 @@ import { STATUS_IDS } from '@condo/domains/ticket/constants/statusTransitions'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const normalizeIsResidentTicket = (value: string, yes: string, no: string) => {

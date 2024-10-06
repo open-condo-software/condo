@@ -26,6 +26,7 @@ import ScrollContainer from 'react-indiana-drag-scroll'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Tour } from '@open-condo/ui'
 
+import { useAuth } from '@/domains/common/utils/next/auth'
 import Select from '@condo/domains/common/components/antd/Select'
 import { Button as OldButton } from '@condo/domains/common/components/Button'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
@@ -54,7 +55,6 @@ import {
 import { FullscreenHeader, FullscreenWrapper } from './Fullscreen'
 import { MapEdit, MapEditMode, MapViewMode } from './MapConstructor'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
 
 
 const DEBOUNCE_TIMEOUT = 800

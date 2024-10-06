@@ -10,12 +10,12 @@ import React, { useContext, useEffect, useState, createContext } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Modal, Button, Typography } from '@open-condo/ui'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 
 import { ServiceSubscription as ServiceSubscriptionUtil } from '../utils/clientSchema'
 import { isExpired } from '../utils/helpers'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 dayjs.extend(relativeTime)
 dayjs.extend(duration)

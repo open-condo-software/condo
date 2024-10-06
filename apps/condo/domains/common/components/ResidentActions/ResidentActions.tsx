@@ -8,6 +8,7 @@ import type { IconProps } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@open-condo/ui'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { MenuItem } from '@condo/domains/common/components/MenuItem'
 import { fontSizes } from '@condo/domains/common/constants/style'
@@ -15,7 +16,6 @@ import { useSearchByPhoneModal } from '@condo/domains/common/hooks/useSearchByPh
 import { searchByPhone } from '@condo/domains/contact/utils/clientCard'
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 export const StyledMenu = styled(Menu)`
   box-sizing: border-box;

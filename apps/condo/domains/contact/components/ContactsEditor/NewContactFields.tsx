@@ -10,6 +10,7 @@ import { MinusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Radio, Space } from '@open-condo/ui'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { SPECIAL_CHAR_REGEXP } from '@condo/domains/common/constants/regexps'
@@ -19,7 +20,6 @@ import { normalizePhone } from '@condo/domains/common/utils/phone'
 
 import { CONTACT_TYPE, ContactValue, FieldsType } from './index'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 interface INewContactFieldsFieldsProps {

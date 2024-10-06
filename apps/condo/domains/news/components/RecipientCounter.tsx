@@ -17,6 +17,8 @@ import { useIntl } from '@open-condo/next/intl'
 import { Card, Space, Typography, TypographyTitleProps } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
+import { useAuth } from '@/domains/common/utils/next/auth'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import {
@@ -27,8 +29,6 @@ import { useNewsItemRecipientsExportToExcelTask } from '@condo/domains/news/hook
 
 import { NewsItemScopeNoInstanceType, TUnit } from './types'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 interface CounterProps {
     label: string

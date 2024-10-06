@@ -7,6 +7,7 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button, Tooltip } from '@open-condo/ui'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import {
     MarketItem,
@@ -23,7 +24,6 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import { BaseMarketItemForm } from './BaseMarketItemForm'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 export const CreateMarketItemForm = () => {

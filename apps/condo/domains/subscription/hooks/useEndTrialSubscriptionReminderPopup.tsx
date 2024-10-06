@@ -10,12 +10,12 @@ import { useIntl } from '@open-condo/next/intl'
 import { FormattedMessage } from '@open-condo/next/intl'
 import { Modal, Button, Typography } from '@open-condo/ui'
 
+import { useAuth } from '@/domains/common/utils/next/auth'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
 import { ServiceSubscription } from '../utils/clientSchema'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 interface IEndTrialSubscriptionReminderPopup {

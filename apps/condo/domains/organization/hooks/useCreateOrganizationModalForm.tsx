@@ -9,6 +9,8 @@ import React, { useState, Dispatch, SetStateAction, useCallback, useMemo } from 
 import { useIntl } from '@open-condo/next/intl'
 import { Radio, RadioGroup, Space } from '@open-condo/ui'
 
+import { useAuth } from '@/domains/common/utils/next/auth'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import Input from '@condo/domains/common/components/antd/Input'
 import { BaseModalForm } from '@condo/domains/common/components/containers/FormList'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
@@ -17,8 +19,6 @@ import { EMPTY_NAME_ERROR, TIN_TOO_SHORT_ERROR, TIN_VALUE_INVALID } from '@condo
 import { REGISTER_NEW_ORGANIZATION_MUTATION } from '@condo/domains/organization/gql'
 import { convertUIStateToGQLItem, OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 interface ICreateOrganizationModalFormResult {

@@ -7,10 +7,11 @@ import React, { useEffect } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
+import { useAuth } from '@/domains/common/utils/next/auth'
+
 import { isFunction } from '../../utils/ecmascript.utils'
 import { Loader } from '../Loader'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
 
 function RedirectToLogin () {
     const intl = useIntl()

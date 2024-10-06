@@ -4,11 +4,11 @@ import React, { useMemo } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button } from '@open-condo/ui'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { PropertyScope } from '@condo/domains/scope/utils/clientSchema'
 
 import { BasePropertyScopeForm } from './BasePropertyScopeForm'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 export const CreatePropertyScopeForm = () => {
