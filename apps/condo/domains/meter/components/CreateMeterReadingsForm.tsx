@@ -101,7 +101,7 @@ function getTableData (meters: MeterType[] | PropertyMeterType[], meterReadings)
 type MetersTableProps = {
     handleSave: () => void
     selectedPropertyId: string
-    tableColumns: Record<string, unknown>[] | ColumnsType<any>,
+    tableColumns: Record<string, unknown>[] | ColumnsType<any>
     newMeterReadings: Array<unknown> | unknown
     setNewMeterReadings: (readings) => void
     selectedUnitName: string
@@ -232,7 +232,7 @@ const FORM_ROW_LARGE_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
 const FORM_ROW_MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 20]
 
 type CreateMeterReadingsFormProps = {
-    organization: Organization
+    organization: Pick<Organization, 'id'>
     canManageMeterReadings: boolean
 }
 
@@ -543,7 +543,7 @@ export const PropertyMetersTable = ({
 
 
 type CreatePropertyMeterReadingsFormProps = {
-    organization: Organization
+    organization: Pick<Organization, 'id'>
     canManageMeterReadings: boolean
 }
 

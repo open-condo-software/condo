@@ -70,7 +70,6 @@ const CreateMeterPage: ICreateMeterPage = () => {
     }, [PageTitleAddMeterReadings, PageTitleAddMeters, PageTitleAddPropertyMeterReadings, PageTitleAddPropertyMeters, tab])
 
 
-
     return (
         <>
             <Head>
@@ -86,21 +85,19 @@ const CreateMeterPage: ICreateMeterPage = () => {
                             {
                                 tab === METER_TAB_TYPES.propertyMeterReading ? (
                                     <CreatePropertyMeterReadingsForm
-                                        // @ts-ignore TODO(INFRA-517) fix organization
                                         organization={organization}
                                         canManageMeterReadings={canManageMeterReadings}
                                     />
                                 ) : tab === METER_TAB_TYPES.meterReading ? (
                                     <Tour.Provider>
                                         <CreateMeterReadingsForm
-                                            // @ts-ignore TODO(INFRA-517) fix organization
                                             organization={organization}
                                             canManageMeterReadings={canManageMeterReadings}
                                         />
                                     </Tour.Provider>
                                 ) : tab === METER_TAB_TYPES.meter ? (
                                     <Tour.Provider>
-                                        <CreateMeterForm 
+                                        <CreateMeterForm
                                             organizationId={get(organization, 'id')}
                                             meterType={METER_TAB_TYPES.meter}
                                             canManageMeters={canManageMeters}
@@ -108,7 +105,7 @@ const CreateMeterPage: ICreateMeterPage = () => {
                                     </Tour.Provider>
                                 ) : (
                                     <Tour.Provider>
-                                        <CreateMeterForm 
+                                        <CreateMeterForm
                                             organizationId={get(organization, 'id')}
                                             meterType={METER_TAB_TYPES.propertyMeter}
                                             canManageMeters={canManageMeters}
