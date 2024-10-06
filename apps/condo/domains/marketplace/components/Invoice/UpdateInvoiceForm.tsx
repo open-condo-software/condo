@@ -8,6 +8,7 @@ import React, { ComponentProps, useCallback, useMemo, useState } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button, Tooltip } from '@open-condo/ui'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { BaseModalForm } from '@condo/domains/common/components/containers/FormList'
 import {
     INVOICE_STATUS_PUBLISHED,
@@ -25,7 +26,6 @@ import {
 import { BaseInvoiceForm } from './BaseInvoiceForm'
 import { getPaymentLinkNotification } from './CopyButton'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 type UpdateInvoiceFormProps = {
     invoice: InvoiceType
@@ -118,8 +118,6 @@ export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({
     return (
         <BaseInvoiceForm
             organizationId={organizationId}
-            // @ts-ignore TODO(INFRA-517) fix role
-            role={link}
             action={action || handleUpdateInvoice}
             initialValues={formInitialValues}
             isCreatedByResident={get(invoice, 'createdBy.type') === UserTypeType.Resident || ticketCreatedByResident}

@@ -6,7 +6,6 @@ import {
     SortPropertyMeterReadingsBy,
     MeterUnitTypeType,
     Organization,
-    OrganizationEmployeeRole,
 } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
@@ -22,6 +21,7 @@ import { Meters } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Tour, Typography } from '@open-condo/ui'
 
+import { useAuth } from '@/domains/common/utils/next/auth'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
@@ -45,8 +45,6 @@ import {
 } from '@condo/domains/meter/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { ContactsInfo } from '@condo/domains/ticket/components/BaseTicketForm'
-
-import { useAuth } from '@/domains/common/utils/next/auth'
 
 
 export const LAYOUT = {
@@ -236,10 +234,9 @@ const FORM_ROW_MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 20]
 type CreateMeterReadingsFormProps = {
     organization: Organization
     canManageMeterReadings: boolean
-    role: OrganizationEmployeeRole
 }
 
-export const CreateMeterReadingsForm = ({ organization, role, canManageMeterReadings }: CreateMeterReadingsFormProps): JSX.Element => {
+export const CreateMeterReadingsForm = ({ organization, canManageMeterReadings }: CreateMeterReadingsFormProps): JSX.Element => {
     const intl = useIntl()
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.HelpMessage' })
@@ -256,7 +253,6 @@ export const CreateMeterReadingsForm = ({ organization, role, canManageMeterRead
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>(propertyIdFromQuery as string || null)
     const [selectedUnitName, setSelectedUnitName] = useState<string>(unitNameFromQuery as string || null)
     const [selectedUnitType, setSelectedUnitType] = useState<MeterUnitTypeType>(unitTypeFromQuery as MeterUnitTypeType || MeterUnitTypeType.Flat)
-    const [isMatchSelectedProperty, setIsMatchSelectedProperty] = useState(true)
     const selectPropertyIdRef = useRef(selectedPropertyId)
     const selectedUnitNameRef = useRef(selectedUnitName)
     const selectedUnitTypeRef = useRef(selectedUnitType)
@@ -268,7 +264,6 @@ export const CreateMeterReadingsForm = ({ organization, role, canManageMeterRead
     }, [selectedUnitType])
 
     const { ContactsEditorComponent } = useContactsEditorHook({
-        role,
         initialQuery: { organization: { id: organization.id } },
     })
 
@@ -411,7 +406,7 @@ export const CreateMeterReadingsForm = ({ organization, role, canManageMeterRead
                                                     form={form}
                                                     getHandleSelectPropertyAddress={getHandleSelectPropertyAddress}
                                                     handleDeselectPropertyAddress={handleDeselectPropertyAddress}
-                                                    isMatchSelectedProperty={isMatchSelectedProperty}
+                                                    isMatchSelectedProperty={true}
                                                     meterType={METER_TAB_TYPES.meter}
                                                     selectedPropertyId={selectedPropertyId}
                                                     isNoMeterForAddress={isNoMeterForAddress}
@@ -457,7 +452,7 @@ export const CreateMeterReadingsForm = ({ organization, role, canManageMeterRead
 type PropertyMetersTableProps = {
     handleSave: () => void
     selectedPropertyId: string
-    tableColumns: Record<string, unknown>[] | ColumnsType<any>,
+    tableColumns: Record<string, unknown>[] | ColumnsType<any>
     newMeterReadings: Array<unknown> | unknown
     setNewMeterReadings: (readings) => void
 }
@@ -563,7 +558,6 @@ export const CreatePropertyMeterReadingsForm = ({ organization, canManageMeterRe
     const propertyIdFromQuery = get(router.query, 'propertyId')
 
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>(propertyIdFromQuery as string || null)
-    const [isMatchSelectedProperty, setIsMatchSelectedProperty] = useState(true)
     const selectPropertyIdRef = useRef(selectedPropertyId)
     const organizationId = get(organization, 'id')
 
@@ -670,7 +664,7 @@ export const CreatePropertyMeterReadingsForm = ({ organization, canManageMeterRe
                                     form={form}
                                     getHandleSelectPropertyAddress={getHandleSelectPropertyAddress}
                                     handleDeselectPropertyAddress={handleDeselectPropertyAddress}
-                                    isMatchSelectedProperty={isMatchSelectedProperty}
+                                    isMatchSelectedProperty={true}
                                     meterType={METER_TAB_TYPES.propertyMeter}
                                     organizationId={organizationId}
                                     selectedPropertyId={selectedPropertyId}

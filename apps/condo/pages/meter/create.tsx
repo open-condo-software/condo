@@ -8,6 +8,11 @@ import React, { useCallback, useEffect, useMemo } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Tour, Typography } from '@open-condo/ui'
 
+import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
+import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
+import { extractSSRState } from '@/domains/common/utils/next/ssr'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -23,11 +28,6 @@ import { METER_TAB_TYPES, MeterPageTypes } from '@condo/domains/meter/utils/clie
 
 import type { GetServerSideProps } from 'next'
 
-import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
-import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
-import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
-import { useOrganization } from '@/domains/common/utils/next/organization'
-import { extractSSRState } from '@/domains/common/utils/next/ssr'
 
 interface ICreateMeterPage extends React.FC {
     headerAction?: JSX.Element
@@ -95,8 +95,6 @@ const CreateMeterPage: ICreateMeterPage = () => {
                                         <CreateMeterReadingsForm
                                             // @ts-ignore TODO(INFRA-517) fix organization
                                             organization={organization}
-                                            // @ts-ignore TODO(INFRA-517) fix role
-                                            role={role}
                                             canManageMeterReadings={canManageMeterReadings}
                                         />
                                     </Tour.Provider>
