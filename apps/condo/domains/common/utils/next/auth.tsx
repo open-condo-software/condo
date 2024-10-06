@@ -18,10 +18,7 @@ type AuthContextType = {
     isAuthenticated: boolean
     isLoading: boolean
     refetch: () => Promise<void>
-    /** @deprecated TODO(INFRA-517): should be removed */
-    signin?: () => void
-    /** @deprecated TODO(INFRA-517): rename to signOut */
-    signout: () => void
+    signOut: () => void
     user?: AuthenticatedUserType | null
 }
 
@@ -29,8 +26,7 @@ const AuthContext = createContext<AuthContextType>({
     isAuthenticated: false,
     isLoading: false,
     refetch: () => Promise.resolve(),
-    signin: () => ({}),
-    signout: () => ({}),
+    signOut: () => ({}),
     user: null,
 })
 
@@ -112,7 +108,7 @@ export const AuthProvider: React.FC = ({ children }) => {
                 isAuthenticated: !!user,
                 user,
                 refetch: refetchAuth,
-                signout: signOut,
+                signOut: signOut,
             }}
             children={children}
         />
