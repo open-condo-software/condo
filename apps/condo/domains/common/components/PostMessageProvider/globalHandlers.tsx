@@ -12,6 +12,8 @@ import { useIntl } from '@open-condo/next/intl'
 import { Modal } from '@open-condo/ui'
 import type { ModalProps } from '@open-condo/ui'
 
+import { useAuth } from '@/domains/common/utils/next/auth'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { TASK_STATUS, TasksContext } from '@condo/domains/common/components/tasks'
 import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
@@ -21,8 +23,6 @@ import { STAFF } from '@condo/domains/user/constants/common'
 
 import type { RequestHandler } from './types'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 type OpenModalRecord = {
     destroy: () => void
@@ -154,7 +154,7 @@ export const useShowProgressBarHandler: () => RequestHandler<'CondoWebAppShowPro
     const createTaskOp = miniAppTaskUIInterface.storage.useCreateTask({}, (record) => {
         addTask({
             ...miniAppTaskUIInterface,
-            // TODO(INFRA-5171): Fix types
+            // TODO(DOMA-5171): Fix types
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             record,
@@ -183,7 +183,7 @@ export const useShowProgressBarHandler: () => RequestHandler<'CondoWebAppShowPro
         createTaskOp(taskRecord)
 
         return { barId: id }
-        // TODO(INFRA-5171): Adding miniAppTaskUIInterface in deps causing rerender hell!
+        // TODO(DOMA-5171): Adding miniAppTaskUIInterface in deps causing rerender hell!
     }, [userId])
 }
 
@@ -219,7 +219,7 @@ export const useUpdateProgressBarHandler: () => RequestHandler<'CondoWebAppUpdat
     const userId = get(user, 'id', null)
 
     const updateTaskOperation = miniAppTaskUIInterface.storage.useUpdateTask({}, (record) => {
-        // TODO(INFRA-5171): Fix types
+        // TODO(DOMA-5171): Fix types
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         updateTask(record)
@@ -242,7 +242,7 @@ export const useUpdateProgressBarHandler: () => RequestHandler<'CondoWebAppUpdat
         updateTaskOperation(pickBy(taskRecord, value => value !== undefined), { id: barId })
 
         return { updated: true }
-        // TODO(INFRA-5171): Adding miniAppTaskUIInterface in deps causing rerender hell!
+        // TODO(DOMA-5171): Adding miniAppTaskUIInterface in deps causing rerender hell!
     }, [userId])
 }
 
