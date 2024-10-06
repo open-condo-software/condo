@@ -2,7 +2,6 @@ import { Form, Typography } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
-import omit from 'lodash/omit'
 import pick from 'lodash/pick'
 import reduce from 'lodash/reduce'
 import { useRouter } from 'next/router'
@@ -19,8 +18,6 @@ import { useTicketFormContext } from '@condo/domains/ticket/components/TicketFor
 import { REQUIRED_TICKET_FIELDS, TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/common'
 import { Ticket, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
-
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 export const ApplyChangesActionBar = ({ handleSave, isLoading, form }) => {
@@ -102,7 +99,6 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
     const { obj, loading: ticketLoading, refetch, error } = Ticket.useObject({ where: { id } })
     const { objs: files, refetch: refetchFiles } = TicketFile.useObjects({ where: { ticket: { id } } })
     const { objs: invoices, loading: invoicesLoading } = Invoice.useObjects({ where: { ticket: { id } } })
-    const { link } = useOrganization()
 
     // no redirect after mutation as we need to wait for ticket files to save
     const action = Ticket.useUpdate({})
@@ -206,8 +202,6 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
             action={updateAction}
             initialValues={initialValues}
             organization={get(obj, 'organization')}
-            // @ts-ignore TODO(INFRA-517) fix role
-            role={link.role}
             files={files}
             afterActionCompleted={(ticket) => {
                 replace(`/ticket/${ticket.id}`)

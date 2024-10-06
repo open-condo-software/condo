@@ -24,8 +24,6 @@ import {
 import { BaseInvoiceForm } from './BaseInvoiceForm'
 import { getPaymentLinkNotification } from './CopyButton'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
-
 
 type CreateInvoiceFormProps = {
     organizationId: string
@@ -40,8 +38,6 @@ export const CreateInvoiceForm: React.FC<CreateInvoiceFormProps> = ({ organizati
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
     const CancelLabel = intl.formatMessage({ id: 'Cancel' })
-
-    const { link } = useOrganization()
 
     const isModalForm = useMemo(() => !isEmpty(modalFormProps), [modalFormProps])
 
@@ -95,9 +91,6 @@ export const CreateInvoiceForm: React.FC<CreateInvoiceFormProps> = ({ organizati
             isCreateForm
             action={action ? action : handleCreateInvoice}
             organizationId={organizationId}
-
-            // @ts-ignore TODO(INFRA-517) fix role
-            role={link}
             initialValues={formInitialValues}
             OnCompletedMsg={null}
             modalFormProps={modalProps}

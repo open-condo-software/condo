@@ -15,6 +15,7 @@ import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useIntl } from '@open-condo/next/intl'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import Input from '@condo/domains/common/components/antd/Input'
 import { Button } from '@condo/domains/common/components/Button'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
@@ -27,7 +28,6 @@ import { ContactOption } from './ContactOption'
 import { NEW_CONTACT_PHONE_FORM_ITEM_NAME, NewContactFields } from './NewContactFields'
 import { NotResidentFields } from './NotResidentFields'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 const DEBOUNCE_TIMEOUT = 800
 
@@ -60,26 +60,22 @@ export interface IContactEditorProps {
     // Also, this makes usage of the component explicitly, — it's clear, what fields will be set.
     fields: FieldsType
     value?: ContactValue
-    onChange?: (contact: ContactFields, isNew: boolean) => void,
-
+    onChange?: (contact: ContactFields, isNew: boolean) => void
     // Composite scope of organization, property and unitName, used to
     // fetch contacts for autocomplete fields.
     organization?: string
-    role?: Record<string, boolean>,
     property?: string
     unitName?: string
     unitType?: BuildingUnitSubType
-    clientPhone?: string
-    allowLandLine?: boolean
-    disabled?: boolean
-    initialQuery?
     hasNotResidentTab?: boolean
+    initialQuery?
     residentTitle?: string
     hideFocusContainer?: boolean
     hideTabBar?: boolean
     contactFormItemProps?: FormItemProps
     newContactPhoneFormItemProps?: FormItemProps
     newContactNameFormItemProps?: FormItemProps
+    disabled?: boolean
 }
 
 const ContactsInfoFocusContainer = styled(FocusContainer)`
