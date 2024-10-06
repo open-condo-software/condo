@@ -12,6 +12,11 @@ import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
+import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
+import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
+import { extractSSRState } from '@/domains/common/utils/next/ssr'
 import {
     PageHeader,
     PageWrapper,
@@ -27,12 +32,6 @@ import { useTableFilters as usePropertyTableFilters } from '@condo/domains/prope
 
 import type { GetServerSideProps } from 'next'
 
-import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
-import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
-import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
-import { useOrganization } from '@/domains/common/utils/next/organization'
-import { extractSSRState } from '@/domains/common/utils/next/ssr'
-
 
 interface IPropertiesPage extends React.FC {
     headerAction?: JSX.Element
@@ -40,7 +39,7 @@ interface IPropertiesPage extends React.FC {
 }
 
 type PropertiesContentProps = {
-    role: OrganizationEmployeeRole
+    role: Pick<OrganizationEmployeeRole, 'canManageProperties' | 'canReadProperties'>
     baseSearchQuery: PropertyWhereInput
     propertiesTableColumns: ColumnsType
     propertyFilterMeta: FiltersMeta<PropertyWhereInput>[]
@@ -88,7 +87,7 @@ export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
 
 const PropertiesPage: IPropertiesPage = () => {
     const { link, organization } = useOrganization()
-    const role = get(link, 'role', {}) || {}
+    const role = get(link, 'role', {})
     const employeeId = get(link, 'id')
 
     usePreviousSortAndFilters({ employeeSpecificKey: employeeId })
@@ -106,7 +105,6 @@ const PropertiesPage: IPropertiesPage = () => {
             baseSearchQuery={baseSearchQuery}
             propertiesTableColumns={propertiesTableColumns}
             propertyFilterMeta={propertyFilterMeta}
-            // @ts-ignore TODO(INFRA-517) fix role
             role={role}
         />
     )
