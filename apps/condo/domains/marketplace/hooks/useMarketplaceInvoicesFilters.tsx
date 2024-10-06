@@ -1,16 +1,20 @@
 import { InvoiceWhereInput } from '@app/condo/schema'
+import get from 'lodash/get'
 import { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 
 import {
     ComponentType,
     FiltersMeta,
+    FilterComponentSize,
 } from '@condo/domains/common/utils/filters.utils'
 import {
     getDayRangeFilter, getFilter, getNumberFilter,
 } from '@condo/domains/common/utils/tables.utils'
 import { INVOICE_PAYMENT_TYPES, INVOICE_STATUSES } from '@condo/domains/marketplace/constants'
+import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
 
 const createdAtRangeFilter = getDayRangeFilter('createdAt')
@@ -18,6 +22,8 @@ const numberFilter = getNumberFilter('number')
 const paymentTypeFilter = getFilter('paymentType', 'array', 'string', 'in')
 const statusFilter = getFilter('status', 'array', 'string', 'in')
 const ticketNumberFilter = getNumberFilter(['ticket', 'number'])
+const propertyFilter = getFilter(['property', 'id'], 'array', 'string', 'in')
+const unitFilter = getFilter('unitName', 'array', 'string', 'in')
 
 const getTranslationToValueFilter = (field, fieldTranslationsToValueMap) => (search) => {
     if (!search) return
@@ -41,6 +47,13 @@ export function useMarketplaceInvoicesFilters (): Array<FiltersMeta<InvoiceWhere
     const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
     const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
     const SelectMessage = intl.formatMessage({ id: 'Select' })
+    const EnterAddressMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.filters.EnterAddress' })
+    const AddressMessage = intl.formatMessage({ id: 'field.Address' })
+    const EnterUnitNameMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.filters.EnterUnitName' })
+    const UnitMessage = intl.formatMessage({ id: 'field.FlatNumber' })
+
+    const userOrganization = useOrganization()
+    const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
     const paymentTypeOptions = useMemo(() => INVOICE_PAYMENT_TYPES.map(type => ({
         label: intl.formatMessage({ id: `pages.condo.marketplace.invoice.invoiceList.payment.${type}` as FormatjsIntl.Message['ids'] }),
@@ -103,6 +116,41 @@ export function useMarketplaceInvoicesFilters (): Array<FiltersMeta<InvoiceWhere
                 },
             },
             {
+                keyword: 'property',
+                filters: [propertyFilter],
+                component: {
+                    type: ComponentType.GQLSelect,
+                    props: {
+                        search: searchOrganizationProperty(userOrganizationId),
+                        mode: 'multiple',
+                        showArrow: true,
+                        placeholder: EnterAddressMessage,
+                        infinityScroll: true,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: AddressMessage,
+                        size: FilterComponentSize.MediumLarge,
+                    },
+                    columnFilterComponentWrapper: {
+                        width: '400px',
+                    },
+                },
+            },
+            {
+                keyword: 'unitName',
+                filters: [unitFilter],
+                component: {
+                    type: ComponentType.TagsSelect,
+                    props: {
+                        placeholder: EnterUnitNameMessage,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: UnitMessage,
+                        size: FilterComponentSize.Small,
+                    },
+                },
+            },
+            {
                 keyword: 'paymentType',
                 filters: [paymentTypeFilter],
                 component: {
@@ -129,5 +177,5 @@ export function useMarketplaceInvoicesFilters (): Array<FiltersMeta<InvoiceWhere
                 },
             },
         ]
-    }, [EndDateMessage, NumberMessage, SelectMessage, StartDateMessage, paymentTypeOptions, statusOptions])
+    }, [EndDateMessage, NumberMessage, SelectMessage, StartDateMessage, userOrganizationId, paymentTypeOptions, statusOptions, AddressMessage, EnterAddressMessage, EnterUnitNameMessage, UnitMessage])
 }

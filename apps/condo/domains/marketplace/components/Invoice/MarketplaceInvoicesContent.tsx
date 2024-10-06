@@ -42,7 +42,7 @@ const TableContent = () => {
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
     const filtersMeta = useMarketplaceInvoicesFilters()
     const columns = useMarketplaceInvoicesTableColumns({ filtersMeta })
-    const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, ['createdAt', 'number', 'toPay'])
+    const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, ['createdAt', 'number', 'toPay', 'property', 'unitName'])
     const sortBy = useMemo(() => sortersToSortBy(sorters) as SortInvoicesBy[], [sorters, sortersToSortBy])
 
     const handleRowAction = useCallback((record) => {
