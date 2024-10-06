@@ -12,6 +12,7 @@ import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Select } from '@open-condo/ui'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import { ButtonWithDisabledTooltip } from '@condo/domains/common/components/ButtonWithDisabledTooltip'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
@@ -25,7 +26,6 @@ import { MeterReportingPeriod } from '@condo/domains/meter/utils/clientSchema'
 import { usePropertyValidations } from '@condo/domains/property/components/BasePropertyForm/usePropertyValidations'
 import { searchOrganizationPropertyWithoutPropertyHint } from '@condo/domains/ticket/utils/clientSchema/search'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const INPUT_LAYOUT_PROPS = {

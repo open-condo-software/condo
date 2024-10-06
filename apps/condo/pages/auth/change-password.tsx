@@ -8,6 +8,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@open-condo/ui'
 import { Typography } from '@open-condo/ui'
 
+import { useAuth } from '@/domains/common/utils/next/auth'
 import Input from '@condo/domains/common/components/antd/Input'
 import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'
 import { Loader } from '@condo/domains/common/components/Loader'
@@ -20,7 +21,6 @@ import { ResponsiveCol } from '@condo/domains/user/components/containers/Respons
 import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
 import { CHANGE_PASSWORD_WITH_TOKEN_MUTATION, GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY } from '@condo/domains/user/gql'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
 
 
 const ROW_STYLES: React.CSSProperties = {

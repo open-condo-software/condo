@@ -6,6 +6,7 @@ import React, { useCallback, useEffect } from 'react'
 import { Typography, Modal } from '@open-condo/ui'
 
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { BillingIntegrationOrganizationContext as BillingContext, BillingIntegration } from '@condo/domains/billing/utils/clientSchema'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
@@ -18,7 +19,6 @@ import { BillingDescriptionModalContent } from './BillingDescriptionModalContent
 import type { BillingIntegration as BillingIntegrationType } from '@app/condo/schema'
 import type { RowProps } from 'antd'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 const CARD_GAP = 40
 const MAX_CARDS = 4

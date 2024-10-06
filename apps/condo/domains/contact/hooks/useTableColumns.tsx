@@ -7,6 +7,7 @@ import { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { getOptionFilterDropdown, getFilterIcon } from '@condo/domains/common/components/Table/Filters'
 import {
     getAddressRender,
@@ -19,7 +20,6 @@ import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.uti
 import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
 import { IFilters } from '@condo/domains/contact/utils/helpers'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 type UseTableColumns = (filterMetas: Array<FiltersMeta<ContactWhereInput>>) => ColumnsType<Contact>
 export const useTableColumns: UseTableColumns = (filterMetas) => {

@@ -9,6 +9,7 @@ import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo } from
 
 import { useIntl } from '@open-condo/next/intl'
 
+import { useAuth } from '@/domains/common/utils/next/auth'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { getOptionFilterDropdown, getFilterIcon } from '@condo/domains/common/components/Table/Filters'
 import {
@@ -32,7 +33,6 @@ import {
 } from '@condo/domains/ticket/utils/clientSchema/Renders'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
 
 
 const COLUMNS_WIDTH = {

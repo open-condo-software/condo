@@ -8,6 +8,7 @@ import { Settings } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Card, Space, Tooltip, Typography } from '@open-condo/ui'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import { SECOND_LEVEL_STEPS, STEP_TRANSITIONS } from '@condo/domains/onboarding/constants/steps'
 import { useTourContext } from '@condo/domains/onboarding/contexts/TourContext'
@@ -16,7 +17,6 @@ import {
     TOUR_STEP_ACTION_PERMISSION,
 } from '@condo/domains/onboarding/utils/clientSchema/constants'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 type TourStepCardProps = {

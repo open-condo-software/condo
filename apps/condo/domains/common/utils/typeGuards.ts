@@ -1,9 +1,9 @@
 interface typeMap {
-    string: string;
-    number: number;
-    boolean: boolean;
+    string: string
+    number: number
+    boolean: boolean
     // eslint-disable-next-line @typescript-eslint/ban-types
-    function: Function;
+    function: Function
 }
 
 type PrimitiveOrConstructor = // 'string' | 'number' | 'boolean' | constructor
@@ -12,7 +12,7 @@ type PrimitiveOrConstructor = // 'string' | 'number' | 'boolean' | constructor
 
 // infer the guarded type from a specific case of PrimitiveOrConstructor
 type GuardedType<T extends PrimitiveOrConstructor> = T extends {
-    new(...args: any[]): infer U;
+    new(...args: any[]): infer U
 } ? U : T extends keyof typeMap ? typeMap[T] : never
 
 // finally, guard ALL the types!

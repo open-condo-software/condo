@@ -12,6 +12,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import Input from '@condo/domains/common/components/antd/Input'
 import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
@@ -27,7 +28,6 @@ import {
 import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const SORTABLE_PROPERTIES = ['name']

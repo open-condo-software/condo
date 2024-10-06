@@ -10,6 +10,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@open-condo/ui'
 import { Tabs, Typography } from '@open-condo/ui'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
@@ -20,7 +21,6 @@ import { usePropertyScopeColumns } from '@condo/domains/scope/hooks/useTableColu
 import { usePropertyScopeTableFilters } from '@condo/domains/scope/hooks/useTableFilters'
 import { PropertyScope } from '@condo/domains/scope/utils/clientSchema'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const SORTABLE_PROPERTIES = ['name']

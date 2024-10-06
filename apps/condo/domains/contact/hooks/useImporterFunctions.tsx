@@ -5,6 +5,7 @@ import { useEffect, useRef } from 'react'
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import { SPECIAL_CHAR_REGEXP } from '@condo/domains/common/constants/regexps'
 import { Columns, ObjectCreator, RowNormalizer, RowValidator } from '@condo/domains/common/utils/importer'
@@ -19,7 +20,6 @@ import {
 } from '@condo/domains/property/constants/common'
 import { searchContacts, searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')

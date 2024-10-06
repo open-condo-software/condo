@@ -17,9 +17,9 @@ import { GraphQlSearchInputOption, GraphQlSearchInput } from './GraphQlSearchInp
 export type InputWithCheckAllProps = {
     onCheckBoxChange?: (value: boolean) => void
     selectFormItemProps: FormItemProps & Required<Pick<FormItemProps, 'name'>>
-    checkAllFieldName: FormItemProps['name'],
-    checkAllInitialValue: boolean,
-    CheckAllMessage: string,
+    checkAllFieldName: FormItemProps['name']
+    checkAllInitialValue: boolean
+    CheckAllMessage: string
     selectProps: ComponentProps<typeof GraphQlSearchInput>
     checkBoxOffset?: number
     form: FormInstance

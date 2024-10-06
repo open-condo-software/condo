@@ -32,6 +32,12 @@ import { ActionBar, Typography, Button, RadioGroup, Radio, Space } from '@open-c
 import { colors } from '@open-condo/ui/dist/colors'
 
 
+import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
+import { useAuth } from '@/domains/common/utils/next/auth'
+import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
+import { extractSSRState } from '@/domains/common/utils/next/ssr'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
 import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
@@ -90,12 +96,6 @@ import { IFilters } from '@condo/domains/ticket/utils/helpers'
 
 import type { GetServerSideProps } from 'next'
 
-import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
-import { useAuth } from '@/domains/common/utils/next/auth'
-import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
-import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
-import { useOrganization } from '@/domains/common/utils/next/organization'
-import { extractSSRState } from '@/domains/common/utils/next/ssr'
 
 
 interface ITicketIndexPage extends React.FC {

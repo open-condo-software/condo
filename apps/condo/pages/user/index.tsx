@@ -14,6 +14,12 @@ import { Edit, Info } from '@open-condo/icons'
 import { LocaleContext, useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button, Select, Tooltip, Typography } from '@open-condo/ui'
 
+import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
+import { useAuth } from '@/domains/common/utils/next/auth'
+import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
+import { extractSSRState } from '@/domains/common/utils/next/ssr'
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
 import { PageContent, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { FeatureFlagsController } from '@condo/domains/common/components/containers/FeatureFlag'
@@ -25,12 +31,6 @@ import { User } from '@condo/domains/user/utils/clientSchema'
 import type { OrganizationEmployeeWhereInput } from '@app/condo/schema'
 import type { GetServerSideProps } from 'next'
 
-import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
-import { useAuth } from '@/domains/common/utils/next/auth'
-import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
-import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
-import { useOrganization } from '@/domains/common/utils/next/organization'
-import { extractSSRState } from '@/domains/common/utils/next/ssr'
 
 
 const ROW_GUTTER_BIG: [Gutter, Gutter] = [0, 60]

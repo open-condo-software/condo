@@ -39,7 +39,7 @@ interface ShareProps {
     number: string
     details: string
     id: string
-    date: string;
+    date: string
 }
 
 interface IShareProps extends React.FC<ShareProps> {

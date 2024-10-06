@@ -13,12 +13,12 @@ import { useIntl } from '@open-condo/next/intl'
 import { Modal, Select, Alert, Button, Typography, Space } from '@open-condo/ui'
 import type { SelectProps } from '@open-condo/ui'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { BankAccount as BankAccountGQL } from '@condo/domains/banking/gql'
 import { BankAccount } from '@condo/domains/banking/utils/clientSchema'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 const MODAL_ROW_GUTTER: React.ComponentProps<typeof Row>['gutter'] = [16, 24]
 

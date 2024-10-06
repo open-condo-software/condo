@@ -8,6 +8,7 @@ import uniqBy from 'lodash/uniqBy'
 import React, { useEffect, useState, useReducer, useRef } from 'react'
 
 
+import { useAuth } from '@/domains/common/utils/next/auth'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
 
@@ -15,7 +16,6 @@ import { closeTasksProgress, displayTasksProgress } from './TaskProgress'
 
 import { ITask, ITasksContext, ITaskTrackableItem, TaskRecord, TasksContext, TASK_REMOVE_STRATEGY } from './index'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
 
 
 // Map of task schema name to its UI interface implementation

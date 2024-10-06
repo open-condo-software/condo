@@ -11,6 +11,7 @@ import { ActionBar, Button } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 import { useBreakpoints } from '@open-condo/ui/dist/hooks'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import Input from '@condo/domains/common/components/antd/Input'
 import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
 import { Loader } from '@condo/domains/common/components/Loader'
@@ -27,7 +28,6 @@ import { useMarketplaceInvoicesFilters } from '@condo/domains/marketplace/hooks/
 import { useMarketplaceInvoicesTableColumns } from '@condo/domains/marketplace/hooks/useMarketplaceInvoicesTableColumns'
 import { Invoice, MARKETPLACE_PAGE_TYPES } from '@condo/domains/marketplace/utils/clientSchema'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 const TableContent = () => {
     const intl = useIntl()

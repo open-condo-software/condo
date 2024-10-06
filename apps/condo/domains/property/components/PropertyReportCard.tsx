@@ -115,9 +115,9 @@ const PropertyCardBalanceContent: IPropertyCardBalanceContent = ({ bankAccount, 
 
 interface IPropertyCardInfoContent {
     ({ hasAccess, featureEnabled, setupButtonClick, organizationId, propertyId }: {
-        hasAccess: boolean,
-        featureEnabled: boolean,
-        setupButtonClick: () => void,
+        hasAccess: boolean
+        featureEnabled: boolean
+        setupButtonClick: () => void
         organizationId: string
         propertyId: string
     }): React.ReactElement

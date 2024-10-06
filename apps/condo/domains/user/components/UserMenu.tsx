@@ -8,11 +8,11 @@ import { useIntl } from '@open-condo/next/intl'
 import { Space, Typography } from '@open-condo/ui'
 import type { TypographyTextProps } from '@open-condo/ui'
 
+import { useAuth } from '@/domains/common/utils/next/auth'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
 import type { DropdownProps } from 'antd'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
 
 function formatUserName (name) {
     const splittedName = name.split(' ')

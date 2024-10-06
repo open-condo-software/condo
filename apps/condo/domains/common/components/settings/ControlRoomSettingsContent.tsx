@@ -6,13 +6,13 @@ import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { CardsContainer } from '@condo/domains/common/components/Card/CardsContainer'
 import { SettingCard, SettingCardSkeleton } from '@condo/domains/common/components/settings/SettingCard'
 import { PropertyScope } from '@condo/domains/scope/utils/clientSchema'
 import { TicketDeadlineSettingCard } from '@condo/domains/ticket/components/TicketOrganizationDeadline/TicketDeadlineSettingCard'
 import { TicketOrganizationSetting as TicketSetting, TicketPropertyHint } from '@condo/domains/ticket/utils/clientSchema'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const CONTENT_GUTTER: Gutter | [Gutter, Gutter] = [0, 40]

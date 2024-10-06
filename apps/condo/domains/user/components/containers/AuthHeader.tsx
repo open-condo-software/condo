@@ -3,12 +3,12 @@ import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 
 
+import { useAuth } from '@/domains/common/utils/next/auth'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Logo } from '@condo/domains/common/components/Logo'
 
 import { ActionContainer, Header, MobileHeader } from './styles'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
 
 
 const LOGO_HEADER_STYLES = { width: '100%', justifyContent: 'space-between' }

@@ -10,6 +10,7 @@ import { IntlShape } from 'react-intl/src/types'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button, Typography } from '@open-condo/ui'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { B2BAppContext } from '@condo/domains/miniapp/utils/clientSchema'
 import { NewsItem, NewsItemTemplate, NewsItemSharing } from '@condo/domains/news/utils/clientSchema'
@@ -18,7 +19,6 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 import { BaseNewsFormProps } from './BaseNewsForm'
 import { BaseNewsFormByFeatureFlag } from './BaseNewsFormByFeatureFlag'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 28]

@@ -19,15 +19,15 @@ import {
 const SLEEP_INTERVAL_BEFORE_QUERIES = 1000
 
 interface IUseImporterProps {
-    columns: Columns,
-    rowNormalizer: RowNormalizer,
-    rowValidator: RowValidator,
-    objectCreator: ObjectCreator,
-    setTotalRows: (number) => void,
-    setSuccessRows: () => void,
-    handleRowError: (row: ProcessedRow) => void,
-    onFinish: () => void,
-    onError: () => void,
+    columns: Columns
+    rowNormalizer: RowNormalizer
+    rowValidator: RowValidator
+    objectCreator: ObjectCreator
+    setTotalRows: (number) => void
+    setSuccessRows: () => void
+    handleRowError: (row: ProcessedRow) => void
+    onFinish: () => void
+    onError: () => void
     mutationErrorsToMessages?: MutationErrorsToMessagesType
 }
 

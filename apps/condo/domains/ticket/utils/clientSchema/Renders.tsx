@@ -14,6 +14,7 @@ import { Star, StarFilled } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { colors } from '@open-condo/ui/dist/colors'
 
+import { useAuth } from '@/domains/common/utils/next/auth'
 import { getHighlightedContents, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
@@ -32,7 +33,6 @@ import {
 
 import { UserFavoriteTicket } from './index'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
 
 const NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL: CSSProperties = {
     position: 'absolute', left: '-102px', top: '50%', transform: 'translateY(-50%)', zIndex: 999,

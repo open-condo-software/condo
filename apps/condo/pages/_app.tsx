@@ -17,6 +17,9 @@ import * as AllIcons from '@open-condo/icons'
 import { extractReqLocale } from '@open-condo/locales/extractReqLocale'
 import { useIntl, withIntl } from '@open-condo/next/intl'
 
+import { withApollo } from '@/domains/common/utils/next/apollo'
+import { useAuth, withAuth } from '@/domains/common/utils/next/auth'
+import { useOrganization, withOrganization } from '@/domains/common/utils/next/organization'
 import { useBankReportTaskUIInterface } from '@condo/domains/banking/hooks/useBankReportTaskUIInterface'
 import { useBankSyncTaskUIInterface } from '@condo/domains/banking/hooks/useBankSyncTaskUIInterface'
 import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/domains/billing/utils/clientSchema'
@@ -81,9 +84,6 @@ import {
 import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useTicketExportTaskUIInterface'
 import { CookieAgreement } from '@condo/domains/user/components/CookieAgreement'
 
-import { withApollo } from '@/domains/common/utils/next/apollo'
-import { useAuth, withAuth } from '@/domains/common/utils/next/auth'
-import { useOrganization, withOrganization } from '@/domains/common/utils/next/organization'
 
 import '@condo/domains/common/components/wdyr'
 import '@open-condo/ui/dist/styles.min.css'

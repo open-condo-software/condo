@@ -10,6 +10,8 @@ import { ArrowLeft, Phone } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Alert, Button, Card, Modal, Typography } from '@open-condo/ui'
 
+import { useAuth } from '@/domains/common/utils/next/auth'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
@@ -18,8 +20,6 @@ import { UserHelpRequest, UserHelpRequestFile } from '@condo/domains/onboarding/
 
 import { useValidations } from './useValidations'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const { publicRuntimeConfig: { importInstructionUrl } } = getConfig()

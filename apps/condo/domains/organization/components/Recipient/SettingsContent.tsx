@@ -7,11 +7,11 @@ import React from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { colors } from '@open-condo/ui/dist/colors'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { BankingInfo } from '@condo/domains/banking/components/BankAccountInfo'
 import { BankAccount } from '@condo/domains/banking/utils/clientSchema'
 import { CardsContainer, CardsPerRowType } from '@condo/domains/common/components/Card/CardsContainer'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]

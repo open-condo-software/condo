@@ -34,6 +34,7 @@ import { Close } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, ActionBarProps, Button, Checkbox, Tooltip } from '@open-condo/ui'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import {
     EXPANDABLE_COLUMN_STUB,
     ExpandableTable,
@@ -51,7 +52,6 @@ import {
 import { OrganizationEmployeeRole } from '@condo/domains/organization/utils/clientSchema'
 import { getRelatedPermissionsTranslations } from '@condo/domains/organization/utils/roles.utils'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const MEDIUM_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]

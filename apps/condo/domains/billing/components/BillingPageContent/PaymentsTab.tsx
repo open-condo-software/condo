@@ -5,12 +5,12 @@ import React, { CSSProperties } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import PaymentsTable from '@condo/domains/acquiring/components/payments/PaymentsTable'
 import { Payment } from '@condo/domains/acquiring/utils/clientSchema'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Loader } from '@condo/domains/common/components/Loader'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const SEARCHING_DINO_IMG = 'dino/searching@2x.png'

@@ -24,9 +24,9 @@ enum IncidentChangeFieldMessageType {
 }
 
 interface IIncidentChangeFieldMessages {
-    add?: FormatjsIntl.Message['ids'],
-    change?: FormatjsIntl.Message['ids'],
-    remove?: FormatjsIntl.Message['ids'],
+    add?: FormatjsIntl.Message['ids']
+    change?: FormatjsIntl.Message['ids']
+    remove?: FormatjsIntl.Message['ids']
 }
 
 type UseIncidentChangedFieldMessagesOfType =

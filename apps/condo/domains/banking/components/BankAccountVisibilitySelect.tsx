@@ -19,7 +19,7 @@ enum BankAccountVisibility {
 
 interface IBankAccountVisibilitySelect {
     ({ bankAccountReports, refetch }: {
-        bankAccountReports: Array<BankAccountReportType>,
+        bankAccountReports: Array<BankAccountReportType>
         refetch: () => void
     }): React.ReactElement
 }

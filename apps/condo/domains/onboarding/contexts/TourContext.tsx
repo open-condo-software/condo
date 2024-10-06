@@ -4,6 +4,7 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useR
 
 import { MUTATION_RESULT_EVENT, MutationEmitter } from '@open-condo/next/_useEmitterMutation'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { IMPORT_EVENT, ImportEmitter } from '@condo/domains/common/components/Import/Index'
 import { ACTIVE_STEPS_STORAGE_KEY, FIRST_LEVEL_STEPS, STEP_TYPES } from '@condo/domains/onboarding/constants/steps'
 import { useCompletedTourModals } from '@condo/domains/onboarding/hooks/TourContext/useCompletedTourModals'
@@ -11,7 +12,6 @@ import { useSyncSteps } from '@condo/domains/onboarding/hooks/TourContext/useSyn
 import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
 import { MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/common'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 type ActiveTourStepType = typeof FIRST_LEVEL_STEPS[number] | null

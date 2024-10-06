@@ -5,6 +5,7 @@ import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 
 
+import { useAuth } from '@/domains/common/utils/next/auth'
 import FileImportButton from '@condo/domains/banking/components/FileImportButton'
 import { _1C_CLIENT_BANK_EXCHANGE } from '@condo/domains/banking/constants'
 import { useBankSyncTaskUIInterface } from '@condo/domains/banking/hooks/useBankSyncTaskUIInterface'
@@ -14,7 +15,6 @@ import type { BankAccount as BankAccountType } from '@app/condo/schema'
 import type { FileImportProps } from '@condo/domains/banking/components/FileImportButton'
 import type { UploadRequestOption } from 'rc-upload/lib/interface'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
 
 type FileImportHookProps = {
     propertyId: string

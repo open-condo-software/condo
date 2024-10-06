@@ -17,6 +17,7 @@ import { Button, Card, Markdown, Space, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { ConvertToUTF8 } from '../domains/banking/utils/serverSchema/converters/convertToUTF8'
+import { useAuth } from '@/domains/common/utils/next/auth'
 import EmptyLayout from '@condo/domains/common/components/containers/EmptyLayout'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { LoginWithSBBOLButton } from '@condo/domains/common/components/LoginWithSBBOLButton'
@@ -27,7 +28,6 @@ import { PosterWrapper } from '@condo/domains/user/components/containers/styles'
 
 import type { GetServerSideProps } from 'next'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
 
 
 const LOGO_HEADER_STYLES = { width: '100%', justifyContent: 'space-between' }
