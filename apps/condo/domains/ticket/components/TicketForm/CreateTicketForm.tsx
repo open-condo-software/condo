@@ -63,7 +63,7 @@ export const CreateTicketActionBar = ({ handleSave, isLoading, form }) => {
         <Form.Item noStyle shouldUpdate>
             {
                 ({ getFieldsValue, getFieldError }) => {
-                    const { property, details, placeClassifier, categoryClassifier, assignee, deadline } = getFieldsValue(REQUIRED_TICKET_FIELDS)
+                    const { property, details, placeClassifier, categoryClassifier, deadline } = getFieldsValue(REQUIRED_TICKET_FIELDS)
                     const propertyMismatchError = getFieldError('property').find((error)=>error.includes(AddressNotSelected))
                     const isPayable = form.getFieldValue('isPayable')
                     const isEmergency = form.getFieldValue('isEmergency')
@@ -250,7 +250,6 @@ export const CreateTicketForm: React.FC = () => {
             <BaseTicketForm
                 action={createAction}
                 initialValues={initialValues}
-                // @ts-ignore TODO(INFRA-517) fix organization
                 organization={organization}
                 autoAssign
                 OnCompletedMsg={null}
