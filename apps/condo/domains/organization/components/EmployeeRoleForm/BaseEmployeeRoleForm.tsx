@@ -129,7 +129,7 @@ export type BaseEmployeeRoleFormPropsType = {
     b2BAppPermissions?: Array<IB2BAppPermission>
     b2bAppRoles?: Array<IB2BAppRole>
     employeeRoleToUpdate?: IEmployeeRole
-    currentEmployeeRole?: IEmployeeRole
+    currentEmployeeRole?: Pick<IEmployeeRole, 'id'>
     createOrUpdateEmployeeRole: (values: IEmployeeRoleCreateInput | IEmployeeRoleUpdateInput) => ReturnType<ReturnType<EmployeeRoleClientUtilsType['useCreate' | 'useUpdate']>>
     employeeRoles?: Array<IEmployeeRole>
     useEmployeeRolesPermissionsGroups?: UseEmployeeRolesPermissionsGroups
