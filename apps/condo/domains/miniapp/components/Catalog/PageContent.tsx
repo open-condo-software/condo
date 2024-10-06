@@ -26,7 +26,7 @@ import type { TabContent } from './CardGrid'
 import type { MiniAppOutput } from '@app/condo/schema'
 import type { RowProps, ColProps } from 'antd'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 const SECTION_SPACING: RowProps['gutter'] = [0, 40]
 const CONTENT_SPACING: RowProps['gutter'] = [40, 40]

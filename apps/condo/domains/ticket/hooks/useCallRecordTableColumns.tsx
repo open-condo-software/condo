@@ -16,7 +16,7 @@ import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.uti
 
 import type { Organization, Contact } from '@app/condo/schema'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 interface IFilters extends Pick<Contact, 'name' | 'phone' | 'email'> {
     search?: string

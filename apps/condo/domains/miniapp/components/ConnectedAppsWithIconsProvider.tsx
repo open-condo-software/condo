@@ -11,7 +11,7 @@ import { ALL_MINI_APPS_QUERY } from '@condo/domains/miniapp/gql'
 
 import type { MiniAppOutput } from '@app/condo/schema'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 type AppsByCategories = Record<string, Array<MiniAppOutput>>
 

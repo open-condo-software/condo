@@ -10,7 +10,7 @@ import { BillingIntegrationOrganizationContext } from '@condo/domains/billing/ut
 import { PageContent, PageWrapper, PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 type BillingAppPageProps = {

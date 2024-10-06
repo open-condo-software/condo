@@ -14,7 +14,7 @@ import {
 import { TicketSubmittingSettingCard } from '@condo/domains/settings/components/ticketSubmitting/TicketSubmittingSettingCard'
 import { MobileFeatureConfig as MobileFeatureConfigAPI } from '@condo/domains/settings/utils/clientSchema'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 const CONTENT_GUTTER: Gutter | [Gutter, Gutter] = [0, 40]
 

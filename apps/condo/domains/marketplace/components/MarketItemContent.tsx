@@ -26,7 +26,7 @@ import { useMarketplaceServicesTableColumns } from '@condo/domains/marketplace/h
 import { MarketItem, MarketPriceScope, MarketCategory } from '@condo/domains/marketplace/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const TableContent = () => {

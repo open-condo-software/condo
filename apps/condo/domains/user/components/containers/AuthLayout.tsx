@@ -15,7 +15,7 @@ import { colors } from '@condo/domains/common/constants/style'
 import { AuthLayoutContextProvider } from './AuthLayoutContext'
 import { PosterLayout } from './PosterLayout'
 
-import { useAuth } from '@/lib/auth'
+import { useAuth } from '@/domains/common/utils/next/auth'
 
 
 export interface AuthPage extends React.FC {

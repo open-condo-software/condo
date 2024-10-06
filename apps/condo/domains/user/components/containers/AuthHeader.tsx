@@ -8,7 +8,7 @@ import { Logo } from '@condo/domains/common/components/Logo'
 
 import { ActionContainer, Header, MobileHeader } from './styles'
 
-import { useAuth } from '@/lib/auth'
+import { useAuth } from '@/domains/common/utils/next/auth'
 
 
 const LOGO_HEADER_STYLES = { width: '100%', justifyContent: 'space-between' }

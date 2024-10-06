@@ -14,7 +14,7 @@ import { MIN_TICKET_DEADLINE_DURATION, MAX_TICKET_DEADLINE_DURATION } from '@con
 import { TicketOrganizationSetting as TicketSetting } from '@condo/domains/ticket/utils/clientSchema'
 import { convertDurationToDays } from '@condo/domains/ticket/utils/helpers'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {

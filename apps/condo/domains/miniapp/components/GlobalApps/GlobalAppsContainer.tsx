@@ -15,8 +15,8 @@ import {
     IRequestFeatureHandler,
 } from './GlobalAppsFeaturesContext'
 
-import { useAuth } from '@/lib/auth'
-import { useOrganization } from '@/lib/organization'
+import { useAuth } from '@/domains/common/utils/next/auth'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 const REQUEST_FEATURE_MESSAGE_NAME = 'CondoWebAppFeatureRequest'
 const ORGANIZATION_CHANGE_MESSAGE_NAME = 'CondoWebAppOrganizationChange'

@@ -15,7 +15,7 @@ import { CONTEXT_FINISHED_STATUS } from '@condo/domains/miniapp/constants'
 
 import type { RowProps } from 'antd'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 const INSTRUCTION_FOOTER_GUTTER: RowProps['gutter'] = [0, 40]
 const COL_FULL_SPAN = 24

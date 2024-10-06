@@ -11,7 +11,7 @@ import {
 } from '@condo/domains/scope/utils/clientSchema/utils'
 import { TicketAutoAssignment } from '@condo/domains/ticket/utils/clientSchema'
 
-import { useAuth } from '@/lib/auth'
+import { useAuth } from '@/domains/common/utils/next/auth'
 
 
 const selectUserByAutoAssignmentRule = (rule, employees, key: 'assignee' | 'executor') => {

@@ -3,7 +3,7 @@ import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
-import { useAuth } from '@/lib/auth'
+import { useAuth } from '@/domains/common/utils/next/auth'
 
 // TODO(Dimitreee):move to global defs
 interface IUser {

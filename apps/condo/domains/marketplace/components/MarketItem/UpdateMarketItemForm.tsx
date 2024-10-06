@@ -26,7 +26,7 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import { BaseMarketItemForm } from './BaseMarketItemForm'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 export const UpdateMarketItemForm = ({ marketItem }) => {

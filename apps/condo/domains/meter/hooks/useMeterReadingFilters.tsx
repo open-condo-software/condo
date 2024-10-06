@@ -20,7 +20,7 @@ import { MeterReadingDatePicker } from '@condo/domains/meter/components/MeterRea
 import { MeterReadingSource, MeterResource, MeterTypes, METER_TYPES } from '@condo/domains/meter/utils/clientSchema'
 import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 export function useMeterReadingFilters (meterType: MeterTypes): Array<FiltersMeta<MeterReadingWhereInput>>  {

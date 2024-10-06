@@ -14,7 +14,7 @@ import { useBillingAndAcquiringContexts } from './ContextProvider'
 import { EmptyContent } from './EmptyContent'
 import { PaymentsTab } from './PaymentsTab'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 type MainContentProps = {
     uploadComponent?: React.ReactElement

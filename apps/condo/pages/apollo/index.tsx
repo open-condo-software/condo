@@ -1,5 +1,5 @@
 import { NetworkStatus } from '@apollo/client'
-import { initializeApollo, prepareSSRContext } from '@app/condo/lib/apollo'
+import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
 import { useRouter } from 'next/router'
 import React, { useMemo, useState } from 'react'
 
@@ -14,9 +14,9 @@ import {
     GetAllContactsQueryVariables,
     useGetAllContactsQuery,
 } from '@/gql'
-import { prefetchAuthOrRedirect } from '@/lib/auth'
-import { prefetchOrganizationEmployee } from '@/lib/organization'
-import { extractSSRState } from '@/lib/ssr'
+import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
+import { extractSSRState } from '@/domains/common/utils/next/ssr'
 import { SortContactsBy } from '@/schema'
 
 

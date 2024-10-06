@@ -11,10 +11,10 @@ import { TicketPropertyHintForm } from '@condo/domains/ticket/components/TicketP
 
 import type { GetServerSideProps } from 'next'
 
-import { initializeApollo, prepareSSRContext } from '@/lib/apollo'
-import { prefetchAuthOrRedirect } from '@/lib/auth'
-import { prefetchOrganizationEmployee } from '@/lib/organization'
-import { extractSSRState } from '@/lib/ssr'
+import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
+import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
+import { extractSSRState } from '@/domains/common/utils/next/ssr'
 
 const TITLE_STYLES: CSSProperties = { margin: 0 }
 const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]

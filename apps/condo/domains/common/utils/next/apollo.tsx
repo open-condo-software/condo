@@ -12,10 +12,10 @@ import {
 import type { InitCacheConfig } from '@open-condo/apollo'
 import { getTracingMiddleware } from '@open-condo/miniapp-utils/helpers/apollo'
 
-import { BILLING_RECEIPT_SERVICE_FIELD_NAME } from '@condo/domains/billing/constants/constants'
+import { BILLING_RECEIPT_SERVICE_FIELD_NAME } from '@/domains/billing/constants/constants'
 
 // TODO(INFRA-517): не работает @open-condo/miniapp-utils/helpers/apollo
-export { prepareSSRContext } from '@open-condo/miniapp-utils/src/helpers/apollo'
+export { prepareSSRContext } from '../../../../../../packages/miniapp-utils/src/helpers/apollo'
 
 
 const { publicRuntimeConfig: { apolloGraphQLUrl, serverUrl } } = getConfig()

@@ -51,7 +51,7 @@ import {
     getQueryToValueProcessorByType,
 } from '../utils/filters.utils'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 interface IFilterComponentProps<T> {
     name: string

@@ -9,7 +9,7 @@ import { extractOrigin } from '@condo/domains/common/utils/url.utils'
 import { MARKETPLACE_SETUP_URL_PATH } from '@condo/domains/marketplace/constants'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 type SetupAcquiringProps = {
     onFinish: () => void

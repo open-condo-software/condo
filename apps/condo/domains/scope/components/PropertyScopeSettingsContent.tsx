@@ -20,7 +20,7 @@ import { usePropertyScopeColumns } from '@condo/domains/scope/hooks/useTableColu
 import { usePropertyScopeTableFilters } from '@condo/domains/scope/hooks/useTableFilters'
 import { PropertyScope } from '@condo/domains/scope/utils/clientSchema'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const SORTABLE_PROPERTIES = ['name']

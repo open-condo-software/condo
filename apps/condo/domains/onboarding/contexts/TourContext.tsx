@@ -11,7 +11,7 @@ import { useSyncSteps } from '@condo/domains/onboarding/hooks/TourContext/useSyn
 import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
 import { MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/common'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 type ActiveTourStepType = typeof FIRST_LEVEL_STEPS[number] | null

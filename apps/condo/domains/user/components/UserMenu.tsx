@@ -12,7 +12,7 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 
 import type { DropdownProps } from 'antd'
 
-import { useAuth } from '@/lib/auth'
+import { useAuth } from '@/domains/common/utils/next/auth'
 
 function formatUserName (name) {
     const splittedName = name.split(' ')

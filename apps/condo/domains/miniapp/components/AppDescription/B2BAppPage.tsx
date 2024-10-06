@@ -13,7 +13,7 @@ import { B2BApp, B2BAppContext, B2BAppRole } from '@condo/domains/miniapp/utils/
 import { ConnectModal } from './ConnectModal'
 import { PageContent } from './PageContent'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 type B2BPageProps = {
