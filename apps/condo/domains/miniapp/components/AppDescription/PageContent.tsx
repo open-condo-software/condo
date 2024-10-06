@@ -19,7 +19,7 @@ import { AppCard, MIN_CARD_WIDTH } from '../AppCard'
 import type { B2BAppLabelType, MiniAppOutput } from '@app/condo/schema'
 import type { RowProps, ColProps } from 'antd'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const CAROUSEL_GAP = 40

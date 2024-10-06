@@ -19,7 +19,7 @@ import {
     getIsIncomingCallFilter,
 } from '@condo/domains/ticket/utils/tables.utils'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const filterTicketNumber = getNumberFilter(['ticket', 'number'])

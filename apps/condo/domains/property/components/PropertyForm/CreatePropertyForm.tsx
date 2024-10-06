@@ -11,8 +11,8 @@ import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import BasePropertyForm from '@condo/domains/property/components/BasePropertyForm'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
-import { useAuth } from '@/lib/auth'
-import { useOrganization } from '@/lib/organization'
+import { useAuth } from '@/domains/common/utils/next/auth'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const DEFAULT_PROPERTY_TYPE = PropertyTypeType.Building

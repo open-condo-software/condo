@@ -3,7 +3,7 @@ import { createContext, useContext } from 'react'
 
 import { UserFavoriteTicket } from '@condo/domains/ticket/utils/clientSchema'
 
-import { useAuth } from '@/lib/auth'
+import { useAuth } from '@/domains/common/utils/next/auth'
 
 
 interface IFavoriteTicketsContext {

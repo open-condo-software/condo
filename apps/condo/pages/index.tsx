@@ -1,4 +1,4 @@
-import { initializeApollo, prepareSSRContext } from '@app/condo/lib/apollo'
+import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
 import { TourStepStatusType, TourStepTypeType } from '@app/condo/schema'
 import get from 'lodash/get'
 import pickBy from 'lodash/pickBy'
@@ -13,9 +13,9 @@ import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/org
 
 import type { GetServerSideProps } from 'next'
 
-import { prefetchAuthOrRedirect } from '@/lib/auth'
-import { prefetchOrganizationEmployee } from '@/lib/organization'
-import { useOrganization } from '@/lib/organization'
+import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 

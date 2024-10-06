@@ -38,7 +38,7 @@ import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/
 
 import type { SortPaymentsBy } from '@app/condo/schema'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 

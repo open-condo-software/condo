@@ -18,7 +18,7 @@ import { SBBOL_IMPORT_NAME } from '@condo/domains/organization/integrations/sbbo
 
 import type { RowProps } from 'antd'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 type SetupAcquiringProps = {
     onFinish: () => void

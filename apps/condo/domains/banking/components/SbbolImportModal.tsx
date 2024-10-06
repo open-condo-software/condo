@@ -18,7 +18,7 @@ import { BankAccount } from '@condo/domains/banking/utils/clientSchema'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 const MODAL_ROW_GUTTER: React.ComponentProps<typeof Row>['gutter'] = [16, 24]
 

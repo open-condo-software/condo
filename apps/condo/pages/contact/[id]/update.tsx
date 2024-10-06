@@ -9,10 +9,10 @@ import { ContactsReadAndManagePermissionRequired } from '@condo/domains/contact/
 
 import type { GetServerSideProps } from 'next'
 
-import { initializeApollo, prepareSSRContext } from '@/lib/apollo'
-import { prefetchAuthOrRedirect } from '@/lib/auth'
-import { prefetchOrganizationEmployee } from '@/lib/organization'
-import { extractSSRState } from '@/lib/ssr'
+import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
+import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
+import { extractSSRState } from '@/domains/common/utils/next/ssr'
 
 
 const ContactUpdatePage = () => {

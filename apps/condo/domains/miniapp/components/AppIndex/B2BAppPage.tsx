@@ -13,8 +13,8 @@ import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 import { B2BAppContext, B2BAppRole } from '@condo/domains/miniapp/utils/clientSchema'
 
-import { useAuth } from '@/lib/auth'
-import { useOrganization } from '@/lib/organization'
+import { useAuth } from '@/domains/common/utils/next/auth'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 type B2BAppPageProps = {

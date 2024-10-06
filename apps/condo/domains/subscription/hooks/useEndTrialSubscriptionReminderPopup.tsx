@@ -14,8 +14,8 @@ import { fontSizes } from '@condo/domains/common/constants/style'
 
 import { ServiceSubscription } from '../utils/clientSchema'
 
-import { useAuth } from '@/lib/auth'
-import { useOrganization } from '@/lib/organization'
+import { useAuth } from '@/domains/common/utils/next/auth'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 interface IEndTrialSubscriptionReminderPopup {

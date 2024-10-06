@@ -15,7 +15,7 @@ import { useSearchByPhoneModal } from '@condo/domains/common/hooks/useSearchByPh
 import { searchByPhone } from '@condo/domains/contact/utils/clientCard'
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 export const StyledMenu = styled(Menu)`
   box-sizing: border-box;

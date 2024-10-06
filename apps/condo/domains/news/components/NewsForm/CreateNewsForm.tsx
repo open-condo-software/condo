@@ -18,7 +18,7 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 import { BaseNewsFormProps } from './BaseNewsForm'
 import { BaseNewsFormByFeatureFlag } from './BaseNewsFormByFeatureFlag'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 28]

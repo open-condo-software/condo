@@ -20,7 +20,7 @@ import { WelcomeModal } from './WelcomeModal'
 
 import type { RowProps } from 'antd'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const STEPS_GUTTER: RowProps['gutter'] = [60, 60]

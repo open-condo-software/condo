@@ -10,7 +10,7 @@ import { Payment } from '@condo/domains/acquiring/utils/clientSchema'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Loader } from '@condo/domains/common/components/Loader'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const SEARCHING_DINO_IMG = 'dino/searching@2x.png'

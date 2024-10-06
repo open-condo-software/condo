@@ -15,7 +15,7 @@ import { closeTasksProgress, displayTasksProgress } from './TaskProgress'
 
 import { ITask, ITasksContext, ITaskTrackableItem, TaskRecord, TasksContext, TASK_REMOVE_STRATEGY } from './index'
 
-import { useAuth } from '@/lib/auth'
+import { useAuth } from '@/domains/common/utils/next/auth'
 
 
 // Map of task schema name to its UI interface implementation

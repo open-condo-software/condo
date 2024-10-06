@@ -13,7 +13,7 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 
 import type { BankAccount } from '@app/condo/schema'
 
-import { useAuth } from '@/lib/auth'
+import { useAuth } from '@/domains/common/utils/next/auth'
 
 const BANK_SYNC_TASK_DATE_FORMAT = 'YYYY-MM-DD'
 

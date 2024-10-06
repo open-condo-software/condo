@@ -8,7 +8,7 @@ import { PropertyScope } from '@condo/domains/scope/utils/clientSchema'
 
 import { BasePropertyScopeForm } from './BasePropertyScopeForm'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 export const CreatePropertyScopeForm = () => {

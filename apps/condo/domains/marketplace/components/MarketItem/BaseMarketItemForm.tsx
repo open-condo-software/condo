@@ -45,7 +45,7 @@ import {
     useMarketItemFormContext,
 } from './BaseMarketItemFormContext'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const GROUP_OUTER_GUTTER: RowProps['gutter'] = [0, 40]

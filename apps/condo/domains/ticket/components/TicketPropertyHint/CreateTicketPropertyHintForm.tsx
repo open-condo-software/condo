@@ -8,7 +8,7 @@ import { TicketPropertyHint } from '@condo/domains/ticket/utils/clientSchema'
 
 import { BaseTicketPropertyHintForm } from './BaseTicketPropertyHintForm'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 export const CreateTicketPropertyHintForm = () => {
     const intl = useIntl()

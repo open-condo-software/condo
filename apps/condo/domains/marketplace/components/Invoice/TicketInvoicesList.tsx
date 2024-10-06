@@ -15,7 +15,7 @@ import { InvoiceFormValuesType } from '@condo/domains/marketplace/utils/clientSc
 import { InvoiceRowsTable } from './InvoiceRowsTable'
 import { UpdateInvoiceForm } from './UpdateInvoiceForm'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 type TicketInvoiceCardPropsType = {

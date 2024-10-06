@@ -16,8 +16,8 @@ import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSc
 
 import type { OrganizationWhereInput } from '@app/condo/schema'
 
-import { useAuth } from '@/lib/auth'
-import { useOrganization } from '@/lib/organization'
+import { useAuth } from '@/domains/common/utils/next/auth'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 interface IOrganizationInvitesHookResult {
     loading: boolean

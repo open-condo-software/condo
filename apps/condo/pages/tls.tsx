@@ -27,7 +27,7 @@ import { PosterWrapper } from '@condo/domains/user/components/containers/styles'
 
 import type { GetServerSideProps } from 'next'
 
-import { useAuth } from '@/lib/auth'
+import { useAuth } from '@/domains/common/utils/next/auth'
 
 
 const LOGO_HEADER_STYLES = { width: '100%', justifyContent: 'space-between' }

@@ -12,7 +12,7 @@ import { OrganizationEmployeeRole as EmployeeRole } from '@condo/domains/organiz
 
 import { BaseEmployeeRoleForm, BaseEmployeeRoleFormPropsType } from './BaseEmployeeRoleForm'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 type CreateEmployeeRoleFormProps = {

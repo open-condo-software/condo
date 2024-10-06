@@ -15,7 +15,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { Banner, Carousel, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
-import { useAuth } from '@/lib/auth'
+import { useAuth } from '@/domains/common/utils/next/auth'
 
 
 interface HintI18n {

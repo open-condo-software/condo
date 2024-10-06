@@ -21,7 +21,7 @@ import { STATUS_IDS } from '@condo/domains/ticket/constants/statusTransitions'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const normalizeIsResidentTicket = (value: string, yes: string, no: string) => {

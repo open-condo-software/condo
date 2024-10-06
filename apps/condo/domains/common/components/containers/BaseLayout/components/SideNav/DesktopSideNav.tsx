@@ -17,7 +17,7 @@ import {
     COLLAPSED_SIDE_MENU_WIDTH,
 } from '../styles'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 interface ISideNavProps {
     onLogoClick: (...args) => void
     menuData?: React.ElementType

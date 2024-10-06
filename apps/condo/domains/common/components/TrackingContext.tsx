@@ -16,8 +16,8 @@ import TrackerInstance, { ITrackerLogEventType } from './trackers/TrackerInstanc
 
 import type { RequestHandler } from './PostMessageProvider/types'
 
-import { useAuth } from '@/lib/auth'
-import { useOrganization } from '@/lib/organization'
+import { useAuth } from '@/domains/common/utils/next/auth'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 const TRACKING_INITIAL_VALUE = {
     // Here you should create app related tracker instances

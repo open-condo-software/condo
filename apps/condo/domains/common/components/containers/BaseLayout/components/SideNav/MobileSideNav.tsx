@@ -13,7 +13,7 @@ import {
     MobileSideNavHeader,
 } from '../styles'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 interface ISideNavProps {
     menuData?: React.ElementType

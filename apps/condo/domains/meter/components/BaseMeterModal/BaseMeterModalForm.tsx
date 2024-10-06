@@ -28,7 +28,7 @@ import { BaseMeterModalFormItem } from './BaseMeterModalFormItem'
 
 import type { MeterResource } from '@app/condo/schema'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 type InitialMeterFormValuesType = {
     propertyId?: string

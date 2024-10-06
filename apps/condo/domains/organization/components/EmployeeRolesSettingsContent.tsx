@@ -51,7 +51,7 @@ import {
 import { OrganizationEmployeeRole } from '@condo/domains/organization/utils/clientSchema'
 import { getRelatedPermissionsTranslations } from '@condo/domains/organization/utils/roles.utils'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const MEDIUM_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
