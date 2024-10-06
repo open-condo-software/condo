@@ -13,6 +13,7 @@ import { Tabs, Card, Typography, Select, SelectProps, Space } from '@open-condo/
 import type { TypographyTitleProps } from '@open-condo/ui'
 import type { CardProps } from '@open-condo/ui'
 
+import { useAuth } from '@/domains/common/utils/next/auth'
 import { useBankReportTaskButton } from '@condo/domains/banking/hooks/useBankReportTaskUIInterface'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { TotalBalanceIcon, BalanceOutIcon, BalanceInIcon } from '@condo/domains/common/components/icons/TotalBalance'
@@ -23,7 +24,6 @@ import type { BankAccount as BankAccountType } from '@app/condo/schema'
 import type { RowProps } from 'antd'
 import type { EChartsOption, EChartsReactProps } from 'echarts-for-react'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
 
 const BANK_ACCOUNT_REPORT_ROW_GUTTER: RowProps['gutter'] = [40, 40]
 const LABEL_TRUNCATE_LENGTH = 17
@@ -396,7 +396,7 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
 type BankAccountReportProps = {
     bankAccountReports: Array<BankAccountReportType>
     bankAccount: BankAccountType
-    role: OrganizationEmployeeRoleType
+    role: Pick<OrganizationEmployeeRoleType, 'canManageBankAccountReportTasks'>
 }
 
 interface IBankAccountReport {
