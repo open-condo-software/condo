@@ -8,28 +8,33 @@ import React, { createContext, useCallback, useContext, useEffect, useState } fr
 import { useAuth } from '@/domains/common/utils/next/auth'
 
 import {
-    GetOrganizationEmployeeByIdQuery,
-    GetOrganizationEmployeesDocument,
-    GetOrganizationEmployeesQuery,
-    GetOrganizationEmployeesQueryVariables,
-    useGetOrganizationEmployeesQuery,
+    GetActiveOrganizationEmployeeDocument,
+    GetActiveOrganizationEmployeeQuery,
+    GetActiveOrganizationEmployeeQueryVariables,
+    useGetActiveOrganizationEmployeeQuery,
 } from '@/gql'
 import { OrganizationTypeType, UserTypeType } from '@/schema'
 
 type OrganizationContextType = {
-    /** @deprecated TODO(INFRA-517): rename to setActiveEmployee */
-    selectLink: (linkItem: { id: string }) => (Promise<void> | Promise<ApolloQueryResult<GetOrganizationEmployeesQuery>>)
+    /** @deprecated Use selectEmployee */
+    selectLink: (linkItem: { id: string }) => (Promise<void> | Promise<ApolloQueryResult<GetActiveOrganizationEmployeeQuery>>)
+    selectEmployee: (employeeId: string) => (Promise<void> | Promise<ApolloQueryResult<GetActiveOrganizationEmployeeQuery>>)
     isLoading: boolean
-    /** @deprecated TODO(INFRA-517): rename to activeEmployee */
-    link?: GetOrganizationEmployeesQuery['employees'][number] | null
-    organization?: GetOrganizationEmployeesQuery['employees'][number]['organization'] | null
+    /** @deprecated Use employee, role or organization */
+    link?: GetActiveOrganizationEmployeeQuery['employees'][number] | null
+    employee?: Omit<GetActiveOrganizationEmployeeQuery['employees'][number], 'role' | 'organization'> | null
+    organization?: GetActiveOrganizationEmployeeQuery['employees'][number]['organization'] | null
+    role?: GetActiveOrganizationEmployeeQuery['employees'][number]['role'] | null
 }
 
 const OrganizationContext = createContext<OrganizationContextType>({
     isLoading: false,
     link: null,
+    employee: null,
     organization: null,
+    role: null,
     selectLink: () => Promise.resolve(),
+    selectEmployee: () => Promise.resolve(),
 })
 
 export const useOrganization = (): OrganizationContextType => useContext(OrganizationContext)
@@ -75,7 +80,7 @@ export const OrganizationProvider: React.FC = ({ children }) => {
         }
     }, [])
 
-    const { loading: employeeLoading, refetch, data } = useGetOrganizationEmployeesQuery({
+    const { loading: employeeLoading, refetch, data } = useGetActiveOrganizationEmployeeQuery({
         variables: {
             where: {
                 organization: { type: OrganizationTypeType.ManagingCompany },
@@ -92,7 +97,7 @@ export const OrganizationProvider: React.FC = ({ children }) => {
 
     const isLoading = auth.isLoading || employeeLoading
 
-    const [activeEmployee, setActiveEmployee] = useState<GetOrganizationEmployeesQuery['employees'][number] | null>(get(data, ['employees', 0]) || null)
+    const [activeEmployee, setActiveEmployee] = useState<GetActiveOrganizationEmployeeQuery['employees'][number] | null>(get(data, ['employees', 0]) || null)
 
     const handleSelectItem: OrganizationContextType['selectLink'] = useCallback((linkItem) => {
         console.log('OrganizationProvider:handleSelectItem:: >>>', {
@@ -110,6 +115,10 @@ export const OrganizationProvider: React.FC = ({ children }) => {
             return Promise.resolve()
         }
     }, [])
+
+    const handleSelectEmployee: OrganizationContextType['selectEmployee'] = useCallback((employeeId) => {
+        return handleSelectItem({ id: employeeId })
+    }, [handleSelectItem])
 
     useEffect(() => {
         console.log('OrganizationProvider:if (!cookieEmployee) {:: >>>', { cookieEmployee })
@@ -165,16 +174,21 @@ export const OrganizationProvider: React.FC = ({ children }) => {
         selectLink: handleSelectItem,
         isLoading: (!auth.user || !activeEmployeeId) ? false : isLoading,
         link: (activeEmployee && activeEmployee.id) ? activeEmployee : null,
+        employee: (activeEmployee && activeEmployee.id) ? activeEmployee : null,
         organization: (activeEmployee && activeEmployee.organization) ? activeEmployee.organization : null,
+        role: (activeEmployee && activeEmployee.role) ? activeEmployee.role : null,
     })
 
     return (
         <OrganizationContext.Provider
             value={{
                 selectLink: handleSelectItem,
+                selectEmployee: handleSelectEmployee,
                 isLoading: (!auth.user || !activeEmployeeId) ? false : isLoading,
                 link: (activeEmployee && activeEmployee.id) ? activeEmployee : null,
+                employee: (activeEmployee && activeEmployee.id) ? activeEmployee : null,
                 organization: (activeEmployee && activeEmployee.organization) ? activeEmployee.organization : null,
+                role: (activeEmployee && activeEmployee.role) ? activeEmployee.role : null,
             }}
             children={children}
         />
@@ -218,8 +232,8 @@ export async function prefetchOrganizationEmployee (args: PrefetchOrganizationEm
     })
 
     if (activeEmployeeId) {
-        const response = await client.query<GetOrganizationEmployeesQuery, GetOrganizationEmployeesQueryVariables>({
-            query: GetOrganizationEmployeesDocument,
+        const response = await client.query<GetActiveOrganizationEmployeeQuery, GetActiveOrganizationEmployeeQueryVariables>({
+            query: GetActiveOrganizationEmployeeDocument,
             variables: {
                 where: {
                     id: activeEmployeeId,
@@ -244,8 +258,8 @@ export async function prefetchOrganizationEmployee (args: PrefetchOrganizationEm
         }
     }
 
-    const response = await client.query<GetOrganizationEmployeesQuery, GetOrganizationEmployeesQueryVariables>({
-        query: GetOrganizationEmployeesDocument,
+    const response = await client.query<GetActiveOrganizationEmployeeQuery, GetActiveOrganizationEmployeeQueryVariables>({
+        query: GetActiveOrganizationEmployeeDocument,
         variables: {
             where: {
                 organization: { type: OrganizationTypeType.ManagingCompany },
@@ -254,7 +268,6 @@ export async function prefetchOrganizationEmployee (args: PrefetchOrganizationEm
                 isBlocked: false,
                 isRejected: false,
             },
-            first: 1,
         },
     })
 
