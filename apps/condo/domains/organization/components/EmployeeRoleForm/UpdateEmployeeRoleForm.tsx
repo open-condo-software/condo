@@ -6,14 +6,13 @@ import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
+import { useOrganization } from '@/domains/common/utils/next/organization'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { B2BAppContext, B2BAppPermission, B2BAppRole } from '@condo/domains/miniapp/utils/clientSchema'
 import { UseEmployeeRolesPermissionsGroups } from '@condo/domains/organization/hooks/useEmployeeRolesPermissionsGroups'
 import { OrganizationEmployeeRole as EmployeeRole } from '@condo/domains/organization/utils/clientSchema'
 
 import { BaseEmployeeRoleForm, BaseEmployeeRoleFormPropsType } from './BaseEmployeeRoleForm'
-
-import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 type UpdateEmployeeRoleFormProps = {
@@ -107,7 +106,6 @@ export const UpdateEmployeeRoleForm: React.FC<UpdateEmployeeRoleFormProps> = ({
             createOrUpdateEmployeeRole={action}
             employeeRoles={employeeRoles}
             employeeRoleToUpdate={roleToUpdate}
-            // @ts-ignore TODO(INFRA-517) fix role
             currentEmployeeRole={currentEmployeeRole}
             useEmployeeRolesPermissionsGroups={useEmployeeRolesPermissionsGroups}
             employeeRolesCount={employeeRolesCount}
