@@ -23,11 +23,11 @@ import { METER_TAB_TYPES, MeterPageTypes } from '@condo/domains/meter/utils/clie
 
 import type { GetServerSideProps } from 'next'
 
-import { initializeApollo, prepareSSRContext } from '@/lib/apollo'
-import { prefetchAuthOrRedirect } from '@/lib/auth'
-import { prefetchOrganizationEmployee } from '@/lib/organization'
-import { useOrganization } from '@/lib/organization'
-import { extractSSRState } from '@/lib/ssr'
+import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
+import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
+import { extractSSRState } from '@/domains/common/utils/next/ssr'
 
 interface ICreateMeterPage extends React.FC {
     headerAction?: JSX.Element

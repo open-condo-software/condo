@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 
 import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 type UseExistingContactRoles = () => Set<string>
 

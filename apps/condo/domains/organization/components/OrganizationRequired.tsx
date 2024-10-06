@@ -10,8 +10,8 @@ import { AuthRequired } from '@condo/domains/common/components/containers/AuthRe
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Loader } from '@condo/domains/common/components/Loader'
 
-import { useAuth } from '@/lib/auth'
-import { useOrganization } from '@/lib/organization'
+import { useAuth } from '@/domains/common/utils/next/auth'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions?: boolean }> = ({ children, withEmployeeRestrictions }) => {

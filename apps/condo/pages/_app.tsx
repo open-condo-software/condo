@@ -81,9 +81,9 @@ import {
 import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useTicketExportTaskUIInterface'
 import { CookieAgreement } from '@condo/domains/user/components/CookieAgreement'
 
-import { withApollo } from '@/lib/apollo'
-import { useAuth, withAuth } from '@/lib/auth'
-import { useOrganization, withOrganization } from '@/lib/organization'
+import { withApollo } from '@/domains/common/utils/next/apollo'
+import { useAuth, withAuth } from '@/domains/common/utils/next/auth'
+import { useOrganization, withOrganization } from '@/domains/common/utils/next/organization'
 
 import '@condo/domains/common/components/wdyr'
 import '@open-condo/ui/dist/styles.min.css'

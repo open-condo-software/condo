@@ -46,7 +46,7 @@ import {
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { ContactsInfo } from '@condo/domains/ticket/components/BaseTicketForm'
 
-import { useAuth } from '@/lib/auth'
+import { useAuth } from '@/domains/common/utils/next/auth'
 
 
 export const LAYOUT = {

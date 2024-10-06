@@ -18,7 +18,7 @@ import { ResponsiveCol } from '@condo/domains/user/components/containers/Respons
 import { WRONG_PASSWORD_ERROR, WRONG_PHONE_ERROR } from '@condo/domains/user/constants/errors'
 import { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } from '@condo/domains/user/gql'
 
-import { useAuth } from '@/lib/auth'
+import { useAuth } from '@/domains/common/utils/next/auth'
 
 
 const ROW_STYLES: React.CSSProperties = {

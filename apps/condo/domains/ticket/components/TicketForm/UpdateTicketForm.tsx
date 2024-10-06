@@ -20,7 +20,7 @@ import { REQUIRED_TICKET_FIELDS, TICKET_SOURCE_TYPES } from '@condo/domains/tick
 import { Ticket, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 export const ApplyChangesActionBar = ({ handleSave, isLoading, form }) => {

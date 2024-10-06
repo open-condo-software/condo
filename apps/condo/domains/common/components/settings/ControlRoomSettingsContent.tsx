@@ -12,7 +12,7 @@ import { PropertyScope } from '@condo/domains/scope/utils/clientSchema'
 import { TicketDeadlineSettingCard } from '@condo/domains/ticket/components/TicketOrganizationDeadline/TicketDeadlineSettingCard'
 import { TicketOrganizationSetting as TicketSetting, TicketPropertyHint } from '@condo/domains/ticket/utils/clientSchema'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const CONTENT_GUTTER: Gutter | [Gutter, Gutter] = [0, 40]

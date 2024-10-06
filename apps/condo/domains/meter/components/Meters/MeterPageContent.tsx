@@ -23,7 +23,7 @@ import { Meter, MeterTypes, METER_TAB_TYPES, METER_TYPES, PropertyMeter } from '
 import { getMeterTitleMessage } from '@condo/domains/meter/utils/helpers'
 import { TicketPropertyField } from '@condo/domains/ticket/components/TicketId/TicketPropertyField'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const METER_STATUSES = { active: 'active', archived: 'archived' }

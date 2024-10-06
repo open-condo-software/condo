@@ -15,8 +15,8 @@ import { MetersDataImporter } from '@condo/domains/meter/components/MetersDataIm
 import { TOnMetersUpload } from '@condo/domains/meter/components/MetersDataImporterTypes'
 import { useMeterReadingsImportTask } from '@condo/domains/meter/hooks/useMeterReadingsImportTaskUIInterface'
 
-import { useAuth } from '@/lib/auth'
-import { useOrganization } from '@/lib/organization'
+import { useAuth } from '@/domains/common/utils/next/auth'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 export type IMetersImportWrapperProps = Pick<IImportWrapperProps, 'accessCheck' | 'onFinish' | 'uploadButtonLabel' | 'importCardButton'>
 

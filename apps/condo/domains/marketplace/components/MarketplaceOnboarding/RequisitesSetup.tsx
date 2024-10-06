@@ -21,7 +21,7 @@ import {
     ERROR_ORGANIZATION_NOT_FOUND,
 } from '@condo/domains/marketplace/constants'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
 const VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]

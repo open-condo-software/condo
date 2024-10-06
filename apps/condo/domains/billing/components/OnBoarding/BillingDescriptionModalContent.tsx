@@ -12,7 +12,7 @@ import { PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS, CONTEXT_IN_PROGRESS_STATUS } from '
 
 import type { RowProps } from 'antd'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 type BillingDescriptionModalContentProps = {
     id: string

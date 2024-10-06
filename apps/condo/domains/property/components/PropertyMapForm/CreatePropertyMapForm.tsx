@@ -11,7 +11,7 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import BasePropertyMapForm from '@condo/domains/property/components/BasePropertyMapForm'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 interface ICreatePropertyForm {
     id: string

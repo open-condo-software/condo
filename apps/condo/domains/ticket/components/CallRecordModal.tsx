@@ -17,7 +17,7 @@ import { getOrganizationTickets } from '@condo/domains/ticket/utils/clientSchema
 
 import { CallRecordCard } from './CallRecordCard'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const DROPDOWN_POPUP_CONTAINER_ID = 'attach-tickets-to-call-record'

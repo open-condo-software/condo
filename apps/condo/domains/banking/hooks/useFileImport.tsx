@@ -14,7 +14,7 @@ import type { BankAccount as BankAccountType } from '@app/condo/schema'
 import type { FileImportProps } from '@condo/domains/banking/components/FileImportButton'
 import type { UploadRequestOption } from 'rc-upload/lib/interface'
 
-import { useAuth } from '@/lib/auth'
+import { useAuth } from '@/domains/common/utils/next/auth'
 
 type FileImportHookProps = {
     propertyId: string

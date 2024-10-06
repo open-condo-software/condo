@@ -27,7 +27,7 @@ import {
 } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 
-import { useAuth } from '@/lib/auth'
+import { useAuth } from '@/domains/common/utils/next/auth'
 
 
 const INPUT_LAYOUT_PROPS = {

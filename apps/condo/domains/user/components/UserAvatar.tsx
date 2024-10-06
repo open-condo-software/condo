@@ -6,7 +6,7 @@ import React from 'react'
 
 import { colors } from '@condo/domains/common/constants/style'
 
-import { useAuth } from '@/lib/auth'
+import { useAuth } from '@/domains/common/utils/next/auth'
 
 
 

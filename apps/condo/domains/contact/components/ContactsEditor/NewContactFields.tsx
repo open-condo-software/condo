@@ -19,7 +19,7 @@ import { normalizePhone } from '@condo/domains/common/utils/phone'
 
 import { CONTACT_TYPE, ContactValue, FieldsType } from './index'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 interface INewContactFieldsFieldsProps {

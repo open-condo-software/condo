@@ -27,8 +27,8 @@ import { useCacheUtils } from '@condo/domains/ticket/hooks/useCacheUtils'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
 
-import { useAuth } from '@/lib/auth'
-import { useOrganization } from '@/lib/organization'
+import { useAuth } from '@/domains/common/utils/next/auth'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 dayjs.extend(isToday)

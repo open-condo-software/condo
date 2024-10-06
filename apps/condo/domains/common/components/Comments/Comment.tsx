@@ -19,7 +19,7 @@ import { Button } from '../Button'
 
 import { CommentWithFiles } from './index'
 
-import { useAuth } from '@/lib/auth'
+import { useAuth } from '@/domains/common/utils/next/auth'
 
 const { RESIDENT, STAFF, SERVICE } = require('@condo/domains/user/constants/common')
 

@@ -9,7 +9,7 @@ import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListVi
 
 import { useBillingAndAcquiringContexts } from './ContextProvider'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 const BLOCK_GAP = 24
 const BLOCK_CONTENT_GAP = 16

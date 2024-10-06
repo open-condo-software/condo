@@ -12,7 +12,7 @@ import {
     GetOrganizationEmployeesQueryVariables,
     useGetOrganizationEmployeesQuery,
 } from '@/gql'
-import { useAuth } from '@/lib/auth'
+import { useAuth } from '@/domains/common/utils/next/auth'
 import { OrganizationTypeType, UserTypeType } from '@/schema'
 
 type OrganizationContextType = {

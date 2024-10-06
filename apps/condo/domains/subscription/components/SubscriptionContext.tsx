@@ -15,7 +15,7 @@ import { hasFeature } from '@condo/domains/common/components/containers/FeatureF
 import { ServiceSubscription as ServiceSubscriptionUtil } from '../utils/clientSchema'
 import { isExpired } from '../utils/helpers'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 dayjs.extend(relativeTime)
 dayjs.extend(duration)

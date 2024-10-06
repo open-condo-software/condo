@@ -11,7 +11,7 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import BasePropertyForm from '../BasePropertyForm'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 interface IUpdatePropertyForm {
     id: string

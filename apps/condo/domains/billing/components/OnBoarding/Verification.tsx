@@ -12,7 +12,7 @@ import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListVi
 import { Loader } from '@condo/domains/common/components/Loader'
 import { CONTEXT_FINISHED_STATUS as BILLING_FINISHED_STATUS } from '@condo/domains/miniapp/constants'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const IMAGE_STYLES: CSSProperties = { marginBottom: 32 }

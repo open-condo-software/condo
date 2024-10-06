@@ -14,7 +14,7 @@ import { PageWrapper, PageHeader, TablePageContent } from '@condo/domains/common
 import { useBillingAndAcquiringContexts } from './ContextProvider'
 import { MainContent } from './MainContent'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 export const BillingPageContent: React.FC = () => {

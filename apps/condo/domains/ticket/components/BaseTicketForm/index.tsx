@@ -75,7 +75,7 @@ import { TicketDeadlineField } from './TicketDeadlineField'
 import { TicketDeferredDateField } from './TicketDeferredDateField'
 import { useTicketValidations } from './useTicketValidations'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const HINTS_COL_PROPS: ColProps = { span: 24 }

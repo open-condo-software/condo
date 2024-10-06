@@ -12,7 +12,7 @@ import { AutoSourceAlert } from '@condo/domains/meter/components/BaseMeterModal/
 import { BaseMeterModalForm } from '@condo/domains/meter/components/BaseMeterModal/BaseMeterModalForm'
 import { Meter, PropertyMeter, METER_TAB_TYPES, MeterPageTypes } from '@condo/domains/meter/utils/clientSchema'
 
-import { useOrganization } from '@/lib/organization'
+import { useOrganization } from '@/domains/common/utils/next/organization'
 
 
 const INITIAL_METER_VALUES_KEYS = [
