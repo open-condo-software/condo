@@ -15299,6 +15299,7 @@ type BankAccountHistoryRecord {
   bankName: String
   meta: JSON
   classificationCode: String
+  name: String
   id: ID!
   v: Int
   createdAt: String
@@ -15517,6 +15518,24 @@ input BankAccountHistoryRecordWhereInput {
   classificationCode_not_ends_with_i: String
   classificationCode_in: [String]
   classificationCode_not_in: [String]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -15622,6 +15641,8 @@ enum SortBankAccountHistoryRecordsBy {
   bankName_DESC
   classificationCode_ASC
   classificationCode_DESC
+  name_ASC
+  name_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -15659,6 +15680,7 @@ input BankAccountHistoryRecordUpdateInput {
   bankName: String
   meta: JSON
   classificationCode: String
+  name: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -15697,6 +15719,7 @@ input BankAccountHistoryRecordCreateInput {
   bankName: String
   meta: JSON
   classificationCode: String
+  name: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -15984,6 +16007,9 @@ type BankAccount {
 
   """ Budget classification code, used for state-funded organizations """
   classificationCode: String
+
+  """ Bank account name to display """
+  name: String
   id: ID!
   v: Int
   createdAt: String
@@ -16174,6 +16200,24 @@ input BankAccountWhereInput {
   classificationCode_not_ends_with_i: String
   classificationCode_in: [String]
   classificationCode_not_in: [String]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -16267,6 +16311,8 @@ enum SortBankAccountsBy {
   bankName_DESC
   classificationCode_ASC
   classificationCode_DESC
+  name_ASC
+  name_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -16304,6 +16350,7 @@ input BankAccountUpdateInput {
   bankName: String
   meta: JSON
   classificationCode: String
+  name: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -16339,6 +16386,7 @@ input BankAccountCreateInput {
   bankName: String
   meta: JSON
   classificationCode: String
+  name: String
   v: Int
   createdAt: String
   updatedAt: String

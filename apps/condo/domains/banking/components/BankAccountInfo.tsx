@@ -1,6 +1,7 @@
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
+import isNil from 'lodash/isNil'
 import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -45,6 +46,18 @@ export const BankingInfo: React.FC<IBankAccountInfo> = ({ bankAccount }) => {
         return { width: breakpoints.MOBILE_SMALL && !breakpoints.DESKTOP_LARGE ? '100%' : '425px' }
     }, [breakpoints])
 
+    const bankAccountName = useMemo(() => {
+        const bankAccountName: string | undefined = get(bankAccount, 'name')
+        const organizationName: string | undefined = get(bankAccount, 'organization.name')
+        if (!isNil(bankAccountName)) {
+            return bankAccountName
+        }
+        if (!isNil(organizationName)) {
+            return organizationName
+        }
+        return '-'
+    }, [bankAccount])
+
     return (
         <RequisitesContainer style={containerStyle}>
             <Row gutter={[0, 22]}>
@@ -57,7 +70,7 @@ export const BankingInfo: React.FC<IBankAccountInfo> = ({ bankAccount }) => {
                     </Tag>
                 </Col>
                 <Col span={24}>
-                    <Typography.Title level={3}>{get(bankAccount, 'organization.name', '-')}</Typography.Title>
+                    <Typography.Title level={3}>{bankAccountName}</Typography.Title>
                 </Col>
                 <Row gutter={GUTTER}>
                     <Col span={24}>
