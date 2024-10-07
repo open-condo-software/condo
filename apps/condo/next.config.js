@@ -60,6 +60,9 @@ const guideIntroduceAppMaterials = JSON.parse(conf['GUIDE_INTRODUCE_APP_MATERIAL
 const importInstructionUrl = JSON.parse(conf['IMPORT_INSTRUCTION_URL'] || '{}')
 const telegramEmployeeBotName = conf['TELEGRAM_EMPLOYEE_BOT_NAME']
 const disableSSR = conf['DISABLE_SSR']
+const termsOfUseUrl = conf['LEGAL_TERMS_OF_USE_URL']
+const privacyPolicyUrl = conf['LEGAL_PRIVACY_POLICY_URL']
+const dataProcessingConsentUrl = conf['LEGAL_DATA_PROCESSING_CONSENT_URL']
 
 let nextConfig = withTM(withLess(withCSS({
     publicRuntimeConfig: {
@@ -100,6 +103,9 @@ let nextConfig = withTM(withLess(withCSS({
         importInstructionUrl,
         telegramEmployeeBotName,
         disableSSR,
+        termsOfUseUrl,
+        privacyPolicyUrl,
+        dataProcessingConsentUrl,
     },
     lessLoaderOptions: {
         javascriptEnabled: true,
