@@ -5,6 +5,7 @@ const ajv = new Ajv({ useDefaults: true })
 const DB_URL_PROTOCOL_PREFIX = 'custom:'
 const DB_URL_PATTERN = new RegExp(`${DB_URL_PROTOCOL_PREFIX}{.+}`)
 const ANY_CHAR_PATTERNS = '^.+$'
+const IMMUTABLE_OPERATIONS = new Set(['select', 'show'])
 
 const DB_URL_SCHEMA = {
     type: 'object',
@@ -48,7 +49,14 @@ function getNamedDBs (databaseUrl) {
     throw new TypeError(`Invalid DB config inside databaseUrl. ${ajv.errorsText(validateDBConfig.errors)}`)
 }
 
-function _createBasicReplicaPoolsSchema (availableDatabases) {
+/**
+ * Generates ajv validation schema for replica pools based on available databases (obtained from getNamedDBs)
+ * NOTE: for internal use only
+ * @param {Array<string>} availableDatabases - name of databases, which are available for use in adapter
+ * @returns {JSON}
+ * @private
+ */
+function _createReplicaPoolsSchema (availableDatabases) {
     return {
         type: 'object',
         minProperties: 1,
@@ -100,12 +108,20 @@ function _createBasicReplicaPoolsSchema (availableDatabases) {
     }
 }
 
-function getReplicaPoolsConfig (configString, availableDatabases) {
-    if (!configString || typeof configString !== 'string') {
-        throw new TypeError(`Invalid DB pools config passed. String was expected, but got ${typeof configString}`)
+/**
+ * Parses replica pool config from env string or from object itself.
+ * Validates it correctness and fills default values when necessary
+ * @param {Object | string} config - pools configuration, for examples refer to env.spec.js
+ * @param {Array<string>} availableDatabases - name of databases, which are available for use in adapter
+ * @returns {Object}
+ */
+function getReplicaPoolsConfig (config, availableDatabases) {
+    if (!config || (typeof config !== 'string' && typeof config !== 'object')) {
+        throw new TypeError(`Invalid DB pools config passed. Object or its stringified representation was expected, but got ${typeof config}`)
     }
-    let parsedConfig = JSON.parse(configString)
-    const validationSchema = _createBasicReplicaPoolsSchema(availableDatabases)
+
+    const parsedConfig = typeof config === 'string' ? JSON.parse(config) : config
+    const validationSchema = _createReplicaPoolsSchema(availableDatabases)
     const validateConfig = ajv.compile(validationSchema)
 
     const isValidConfig = validateConfig(parsedConfig)
@@ -121,7 +137,106 @@ function getReplicaPoolsConfig (configString, availableDatabases) {
     return parsedConfig
 }
 
+function _createRoutingRulesSchema (availablePools) {
+    return {
+        type: 'array',
+        items: {
+            type: 'object',
+            properties: {
+                gqlOperationType: { type: 'string', enum: ['query', 'mutation'] },  // which INITIAL GQL operation type triggered SQL query
+                gqlOperationName: { type: 'string' },                               // which INITIAL GQL operation triggered SQL query, can be string or regex
+                sqlOperationName: { type: 'string' },                               // which SQL method is triggered (select, update etc.)
+                tableName: { type: 'string' },                                      // which table is being interacted with, can be string or regex
+                target: { type: 'string', enum: availablePools },                   // to which pool the request must go
+            },
+            required: ['target'],
+            additionalProperties: false,
+        },
+        minItems: 1,
+    }
+}
+
+function _isDefaultRule (rule) {
+    const keys = Object.keys(rule)
+    return keys.length === 1 && keys[0] === 'target'
+}
+
+// TODO: JSDoc + Regexp
+function getQueryRoutingRules (routingConfig, poolsConfig) {
+    if (!routingConfig || (typeof routingConfig !== 'string' && !Array.isArray(routingConfig))) {
+        throw new TypeError(`Invalid routing rules provided. Expect array of rules or its string representation, but got ${typeof routingConfig}`)
+    }
+
+    const availablePools = Object.keys(poolsConfig)
+
+    const parsedRules = typeof routingConfig === 'string' ? JSON.parse(routingConfig) : routingConfig
+    const validationSchema = _createRoutingRulesSchema(availablePools)
+    const validateConfig = ajv.compile(validationSchema)
+
+    const isValidConfig = validateConfig(parsedRules)
+
+    if (!isValidConfig) {
+        throw new TypeError(`Invalid routing rules config. ${ajv.errorsText(validateConfig.errors)}`)
+    }
+
+
+    parsedRules.forEach((rule, idx) => {
+        const { gqlOperationType, target, sqlOperationName, tableName } = rule
+
+        const commonErrorPrefix = `[${idx + 1}/${parsedRules.length}] Routing rule configuration error. `
+
+        // GQL-level guard
+        if (gqlOperationType === 'mutation' && !poolsConfig[target].writable) {
+            // NOTE: if table not specified and sqlOperation is mutable or not specified -> requests should go to writeable
+            if (!(sqlOperationName && IMMUTABLE_OPERATIONS.has(sqlOperationName)) && !tableName) {
+                throw new TypeError(
+                    commonErrorPrefix +
+                    '"gqlOperationType" is set to "mutation", while target pool is not writable. ' +
+                    'You should change target or add more conditions, like "sqlOperationName" or "tableName"'
+                )
+            }
+        }
+
+        // SQL-level guards
+        if (sqlOperationName && !IMMUTABLE_OPERATIONS.has(sqlOperationName) && !poolsConfig[target].writable) {
+            throw new TypeError(
+                commonErrorPrefix +
+                `"sqlOperationName" is set to "${sqlOperationName}", while target pool is not writable`
+            )
+        }
+
+        // Default rule guards
+
+        // Non-filter rule { target: "name" } must go to writable pool
+        if (_isDefaultRule(rule) && !poolsConfig[target].writable) {
+            throw new TypeError(
+                commonErrorPrefix +
+                'Rule with no filters must point to writable target'
+            )
+        }
+
+        if (_isDefaultRule(rule) && idx !== parsedRules.length - 1) {
+            throw new TypeError(
+                commonErrorPrefix +
+                'Rule with no filters must be at the end of the rule chain'
+            )
+        }
+
+        if (idx === parsedRules.length - 1 && !_isDefaultRule(rule)) {
+            throw new TypeError(
+                commonErrorPrefix +
+                'Latest rule in chain must contains no filters'
+            )
+        }
+    })
+
+    return parsedRules
+}
+
+
+
 module.exports = {
     getNamedDBs,
     getReplicaPoolsConfig,
+    getQueryRoutingRules,
 }
