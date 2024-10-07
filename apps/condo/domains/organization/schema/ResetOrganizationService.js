@@ -15,7 +15,7 @@ const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { B2BAppContext } = require('@condo/domains/miniapp/utils/serverSchema')
 const access = require('@condo/domains/organization/access/ResetOrganizationService')
 const { DELETED_ORGANIZATION_NAME } = require('@condo/domains/organization/constants/common')
-const { Organization, OrganizationLink, OrganizationEmployeeIdOnly } = require('@condo/domains/organization/utils/serverSchema')
+const { Organization, OrganizationLink, OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 const { PropertyIdOnly } = require('@condo/domains/property/utils/serverSchema')
 
 /**
@@ -94,7 +94,7 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
                     organization: { id: organizationId },
                 })
                 for (let employee of employees) {
-                    await OrganizationEmployeeIdOnly.softDelete(context, employee.id, DV_SENDER)
+                    await OrganizationEmployee.softDelete(context, employee.id, 'id', DV_SENDER)
                 }
 
                 const organizationLinks = await OrganizationLink.getAll(context, {

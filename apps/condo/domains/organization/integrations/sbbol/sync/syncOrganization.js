@@ -78,7 +78,7 @@ const syncOrganization = async ({ context, user, userData, organizationInfo, dvS
     const employees = await OrganizationEmployee.getAll(adminContext, {
         user: { id: user.id },
         deletedAt: null,
-    }, {  sortBy: ['updatedAt_DESC'] })
+    }, 'id organization { id tin meta deletedAt }', { sortBy: ['updatedAt_DESC'] })
 
     const [importedOrganization] = await Organization.getAll(adminContext, {
         ...importInfo,
@@ -100,7 +100,7 @@ const syncOrganization = async ({ context, user, userData, organizationInfo, dvS
             })
             const employee = await OrganizationEmployee.getOne(adminContext, {
                 organization: { id: organization.id },
-            })
+            }, 'id')
             await sendToCustomer({ organization })
 
             return { organization, employee }

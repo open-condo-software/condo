@@ -15,7 +15,7 @@ const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/con
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { B2BAppRole } = require('@condo/domains/miniapp/utils/serverSchema')
 const access = require('@condo/domains/organization/access/ReplaceOrganizationEmployeeRoleService')
-const { OrganizationEmployeeIdOnly, OrganizationEmployeeRole } = require('@condo/domains/organization/utils/serverSchema')
+const { OrganizationEmployee, OrganizationEmployeeRole } = require('@condo/domains/organization/utils/serverSchema')
 
 
 const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
@@ -163,7 +163,7 @@ const ReplaceOrganizationEmployeeRoleService = new GQLCustomSchema('ReplaceOrgan
                             role: { connect: { id: newRoleId } },
                         },
                     }))
-                    await OrganizationEmployeeIdOnly.updateMany(context, payloadToUpdate)
+                    await OrganizationEmployee.updateMany(context, payloadToUpdate, 'id')
 
                     if (withDeletionOldRole) {
                         await loadListByChunks({

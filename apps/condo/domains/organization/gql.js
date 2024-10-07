@@ -19,9 +19,6 @@ const OrganizationEmployeeRole = generateGqlQueries('OrganizationEmployeeRole', 
 const ORGANIZATION_EMPLOYEE_FIELDS = `{ organization ${ORGANIZATION_FIELDS} user { id name } name email phone role ${ORGANIZATION_EMPLOYEE_ROLE_FIELDS} hasAllSpecializations isRejected isAccepted isBlocked id dv sender { dv fingerprint } v createdBy { id name } updatedBy { id name } position createdAt deletedAt updatedAt }`
 const OrganizationEmployee = generateGqlQueries('OrganizationEmployee', ORGANIZATION_EMPLOYEE_FIELDS)
 
-const ORGANIZATION_EMPLOYEE_ID_ONLY_FIELDS = '{ id }'
-const OrganizationEmployeeIdOnly = generateGqlQueries('OrganizationEmployee', ORGANIZATION_EMPLOYEE_ID_ONLY_FIELDS)
-
 const ORGANIZATION_LINK_FIELDS = `{ from ${ORGANIZATION_FIELDS} to { id name } ${COMMON_FIELDS} }`
 const OrganizationLink = generateGqlQueries('OrganizationLink', ORGANIZATION_LINK_FIELDS)
 
@@ -114,7 +111,6 @@ module.exports = {
     Organization,
     OrganizationEmployeeRole,
     OrganizationEmployee,
-    OrganizationEmployeeIdOnly,
     OrganizationLink,
     GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,
     UPDATE_ORGANIZATION_BY_ID_MUTATION,

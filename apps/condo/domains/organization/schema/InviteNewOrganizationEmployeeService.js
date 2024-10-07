@@ -14,7 +14,7 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 const access = require('@condo/domains/organization/access/InviteNewOrganizationEmployeeService')
 const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { ALREADY_ACCEPTED_INVITATION, ALREADY_INVITED_EMAIL, ALREADY_INVITED_PHONE, UNABLE_TO_REGISTER_USER } = require('@condo/domains/organization/constants/errors')
-const { Organization, OrganizationEmployeeIdOnly, OrganizationEmployeeSpecialization } = require('@condo/domains/organization/utils/serverSchema')
+const { Organization, OrganizationEmployee, OrganizationEmployeeSpecialization } = require('@condo/domains/organization/utils/serverSchema')
 const guards = require('@condo/domains/organization/utils/serverSchema/guards')
 const { createUserAndSendLoginData } = require('@condo/domains/user/utils/serverSchema')
 
@@ -183,7 +183,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                     user = await createUserAndSendLoginData({ context, userData })
                 }
 
-                const employee = await OrganizationEmployeeIdOnly.create(context, {
+                const employee = await OrganizationEmployee.create(context, {
                     user: { connect: { id: user.id } },
                     organization: { connect: { id: userOrganization.id } },
                     role: { connect: { id: role.id } },
@@ -193,7 +193,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                     phone,
                     hasAllSpecializations,
                     ...dvSenderData,
-                })
+                }, 'id')
 
                 for (const specializationIdObj of specializations) {
                     await OrganizationEmployeeSpecialization.create(context, {
