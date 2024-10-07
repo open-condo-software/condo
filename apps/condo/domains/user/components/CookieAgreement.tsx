@@ -94,9 +94,11 @@ export const CookieAgreement: React.FC = () => {
                         <Typography.Paragraph>
                             <Typography.Text type='secondary' size='medium'>{CookieAgreementDescriptionMsg} </Typography.Text>
                             { privacyPolicyUrl && (
-                                <Typography.Text type='secondary' size='medium'>
-                                    {CookieExpandActionMsg} <Link href={privacyPolicyUrl}>{privacyPolicyUrl}</Link>
-                                </Typography.Text>
+                                <>
+                                    <Typography.Text type='secondary' size='medium'>
+                                        {CookieExpandActionMsg} <Typography.Link href={privacyPolicyUrl} target='_blank'>{privacyPolicyUrl}</Typography.Link>
+                                    </Typography.Text>
+                                </>
                             ) }
                         </Typography.Paragraph>
                     }
