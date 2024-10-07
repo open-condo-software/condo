@@ -5,6 +5,7 @@
 const dayjs = require('dayjs')
 const get = require('lodash/get')
 
+const { safeFormatError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, getByCondition } = require('@open-condo/keystone/schema')
 
@@ -60,12 +61,9 @@ async function registerCondoUser (serverClient, data, context) {
     } catch (err) {
         const graphQLErrors = get(err, 'graphQLErrors', [])
         for (const graphQLError of graphQLErrors) {
-            const gqlErrors = get(graphQLError, ['originalError', 'errors'], [])
-            for (const gqlError of gqlErrors) {
-                const messages = get(gqlError, ['data', 'messages'], [])
-                if (messages.some(message => message.includes(EMAIL_ALREADY_REGISTERED_ERROR))) {
-                    throw new GQLError(ERRORS.CONDO_USER_ALREADY_EXISTS, context)
-                }
+            const errorString = JSON.stringify(safeFormatError(graphQLError))
+            if (errorString.includes(EMAIL_ALREADY_REGISTERED_ERROR)) {
+                throw new GQLError(ERRORS.CONDO_USER_ALREADY_EXISTS, context)
             }
         }
 
