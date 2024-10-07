@@ -171,7 +171,7 @@ describe('B2CAppBuild', () => {
                     }, {
                         code: 'BAD_USER_INPUT',
                         type: INVALID_BUILD_VERSION,
-                        message: 'Attached file have invalid mimetype',
+                        message: 'The build version must be semantically correct and be in X.Y.Z format',
                     })
                 })
             })
