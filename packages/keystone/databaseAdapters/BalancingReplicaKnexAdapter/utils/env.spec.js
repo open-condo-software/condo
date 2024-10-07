@@ -1,6 +1,6 @@
 const { faker } = require('@faker-js/faker')
 
-const { getNamedDBs, getReplicaPoolsConfig } = require('./env')
+const { getNamedDBs, getReplicaPoolsConfig, getQueryRoutingRules } = require('./env')
 
 function generateValidConnectionString () {
     return `postgresql://${faker.internet.userName()}:${faker.internet.password()}@${faker.internet.domainName()}:${faker.internet.port()}/${faker.random.word()}`
@@ -63,19 +63,14 @@ describe('Config validation utils', () => {
         })
     })
     describe('getReplicaPoolsConfig', () => {
-        const basicConfig = {
-            master: { databases: ['master'], writable: true },
-            asyncReplicas: { databases: ['asyncReplica1', 'asyncReplica2'], writable: false },
-        }
         describe('Must throw error on incorrect input type', () => {
             const cases = [
                 undefined,
                 123,
-                basicConfig, // Raw string expected
             ]
             test.each(cases)('%p', (input) => {
                 expect(() => getReplicaPoolsConfig(input, ['master']))
-                    .toThrow(/Invalid DB pools config passed\. String was expected/)
+                    .toThrow(/Invalid DB pools config passed\. Object or its stringified representation was expected/)
             })
         })
         test('Must throw error on empty configuration', () => {
@@ -191,16 +186,30 @@ describe('Config validation utils', () => {
                 ],
             ]
 
-            test.each(cases)('%p', (_, config, allDatabases) => {
-                const configString = JSON.stringify(config)
-                const expectedConfig = Object.fromEntries(
-                    Object.entries(config).map(([name, pool]) => [
-                        name,
-                        pool.balancer ? pool : { ...pool, balancer: 'RoundRobin' },
-                    ])
-                )
-                expect(getReplicaPoolsConfig(configString, allDatabases)).toEqual(expectedConfig)
+            describe('passed as objects', () => {
+                test.each(cases)('%p', (_, config, allDatabases) => {
+                    const expectedConfig = Object.fromEntries(
+                        Object.entries(config).map(([name, pool]) => [
+                            name,
+                            pool.balancer ? pool : { ...pool, balancer: 'RoundRobin' },
+                        ])
+                    )
+                    expect(getReplicaPoolsConfig(config, allDatabases)).toEqual(expectedConfig)
+                })
             })
+            describe('passed as stringified (from env)', () => {
+                test.each(cases)('%p', (_, config, allDatabases) => {
+                    const expectedConfig = Object.fromEntries(
+                        Object.entries(config).map(([name, pool]) => [
+                            name,
+                            pool.balancer ? pool : { ...pool, balancer: 'RoundRobin' },
+                        ])
+                    )
+                    expect(getReplicaPoolsConfig(JSON.stringify(config), allDatabases)).toEqual(expectedConfig)
+                })
+            })
+
+
         })
         test('Must add RoundRobin as default balancer if not specified', () => {
             const simpleConfig = { main: { databases: ['main'], writable: true } }
@@ -208,6 +217,217 @@ describe('Config validation utils', () => {
 
             expect(result).toEqual({
                 main: { ...simpleConfig.main, balancer: 'RoundRobin' },
+            })
+        })
+    })
+    describe('getQueryRoutingRules', () => {
+        const availableDatabases = ['main', 'asyncReplica1']
+        const basicPoolConfig = getReplicaPoolsConfig({
+            main: { databases: ['main'], writable: true },
+            replicas: { databases: ['asyncReplica1'], writable: false },
+        }, availableDatabases)
+
+        describe('Must throw error on incorrect input type', () => {
+            const cases = [
+                undefined,
+                123,
+                basicPoolConfig,
+            ]
+            test.each(cases)('%p', (input) => {
+                expect(() => getQueryRoutingRules(input, basicPoolConfig))
+                    .toThrow(/Invalid routing rules provided\. Expect array of rules or its string representation/)
+            })
+        })
+        test('Must throw if no rules present', () => {
+            expect(() => getQueryRoutingRules([], basicPoolConfig))
+                .toThrow('Invalid routing rules config. data must NOT have fewer than 1 items')
+        })
+        describe('Must throw on invalid rule shape', () => {
+            const cases = [
+                ['target pool not exists', [{ target: 'flatEarth' }]],
+                ['gqlOperationType is not string', [{ target: 'main', gqlOperationType: 123 }]],
+                ['gqlOperationType is not mutation / query', [{ target: 'main', gqlOperationType: 'tripleFlip' }]],
+                ['gqlOperationName is not string', [{ target: 'main', gqlOperationName: ['createUser', 'createUsers'] }]],
+                ['sqlOperationName is not string', [{ target: 'main', sqlOperationName: ['select', 'show'] }]],
+                ['tableName is not string', [{ target: 'main', tableName: ['User', 'Contact'] }]],
+                ['unknown properties present', [{ target: 'main', listOperations: true }]],
+            ]
+
+            test.each(cases)('%p', (_, routingConfig) => {
+                expect(() => getQueryRoutingRules(routingConfig, basicPoolConfig))
+                    .toThrow(/Invalid routing rules config/)
+            })
+        })
+        describe('Rules static analysis', () => {
+            describe('Must protect GQL mutations from going to readonly pool', () => {
+                const invalidCases = [
+                    [
+                        'mutation with no extra filters and readonly target',
+                        [{ gqlOperationType: 'mutation', target: 'replicas' }, { target: 'main' }],
+                    ],
+                    [
+                        'mutation with mutable sqlOperationName and readonly target',
+                        [
+                            { gqlOperationType: 'mutation', sqlOperationName: 'insert', target: 'replicas' },
+                            { target: 'main' },
+                        ],
+                    ],
+                ]
+                const validCases = [
+                    [
+                        'query with no extra filters and readonly target',
+                        [{ gqlOperationType: 'query', target: 'replicas' }, { target: 'main' }],
+                    ],
+                    [
+                        'mutation with immutable sqlOperationName and readonly target',
+                        [
+                            { gqlOperationType: 'mutation', sqlOperationName: 'select', target: 'replicas' },
+                            { target: 'main' },
+                        ],
+                    ],
+                    [
+                        'unnamed mutation with tableName and readonly target',
+                        [
+                            { gqlOperationType: 'mutation', tableName: 'User', target: 'replicas' },
+                            { target: 'main' },
+                        ],
+                    ],
+                    [
+                        'named mutation with tableName and readonly target',
+                        [
+                            { gqlOperationType: 'mutation', gqlOperationName: 'allContacts', tableName: 'User', target: 'replicas' },
+                            { target: 'main' },
+                        ],
+                    ],
+                    [
+                        'named gqlOperation without type',
+                        [{ gqlOperationName: 'queryOrMutationName', target: 'replicas' }, { target: 'main' }],
+                    ],
+                ]
+                test.each(invalidCases)('Must throw on %p', (_, input) => {
+                    expect(() => getQueryRoutingRules(input, basicPoolConfig))
+                        .toThrow(/"gqlOperationType" is set to "mutation", while target pool is not writable/)
+                })
+                test.each(validCases)('Must correctly parse config for %p', (_, input) => {
+                    expect(getQueryRoutingRules(input, basicPoolConfig)).toEqual(input)
+                })
+            })
+            describe('Must protect mutable SQL operations from going to readonly pool', () => {
+                const mutableOperations = ['insert', 'create', 'update', 'delete', 'drop']
+                // Select not really immutable in case of "select into", but this is not static analysis
+                const immutableOperations = ['show', 'select']
+
+                test.each(mutableOperations)('Must throw on %p sqlOperationName', (sqlOperationName) => {
+                    const routingConfig = [
+                        { target: 'replicas', sqlOperationName: sqlOperationName },
+                        { target: 'main' },
+                    ]
+
+                    expect(() => getQueryRoutingRules(routingConfig, basicPoolConfig))
+                        .toThrow(`"sqlOperationName" is set to "${sqlOperationName}", while target pool is not writable`)
+                })
+                test.each(immutableOperations)('Must pass checks on %p sqlOperationName', (sqlOperationName) => {
+                    const routingConfig = [
+                        { target: 'replicas', sqlOperationName: sqlOperationName },
+                        { target: 'main' },
+                    ]
+
+                    expect(getQueryRoutingRules(routingConfig, basicPoolConfig)).toEqual(routingConfig)
+                })
+            })
+            describe('Must have default rule', () => {
+                test('Default rule must point at writable pool', () => {
+                    expect(() => getQueryRoutingRules([{ target: 'replicas' }], basicPoolConfig))
+                        .toThrow(/Rule with no filters must point to writable target/)
+                })
+                describe('Default rule must be at the bottom of chain', () => {
+                    test('Placement in the middle case', () => {
+                        const input = [
+                            { target: 'main' },
+                            { target: 'main', gqlOperationType: 'mutation' },
+                        ]
+                        expect(() => getQueryRoutingRules(input, basicPoolConfig))
+                            .toThrow(/Rule with no filters must be at the end of the rule chain/)
+                    })
+                    test('Middle case', () => {
+                        const input = [
+                            { target: 'replicas', gqlOperationType: 'query' },
+                            { target: 'main', gqlOperationType: 'mutation' },
+                        ]
+                        expect(() => getQueryRoutingRules(input, basicPoolConfig))
+                            .toThrow(/Latest rule in chain must contains no filters/)
+                    })
+                })
+            })
+        })
+        describe('Must parse correct configs', () => {
+            const availableDatabases = ['main', 'asyncReplica1', 'asyncReplica2', 'syncBillingReplica', 'hr']
+            const pools = getReplicaPoolsConfig({
+                main: { databases: ['main'], writable: true },
+                asyncReplicas: { databases: ['asyncReplica1', 'asyncReplica2'], writable: false },
+                billingReplica: { databases: ['syncBillingReplica'], writable: false },
+                historical: { databases: ['hr'], writable: true },
+            }, availableDatabases)
+            const cases = [
+                [
+                    'single db',
+                    [
+                        { target: 'main' },
+                    ],
+                    [],
+                ],
+                [
+                    'with select from replicas',
+                    [
+                        { target: 'asyncReplicas', sqlOperationName: 'select' },
+                        { target: 'asyncReplicas', sqlOperationName: 'show' },
+                        { target: 'main' },
+                    ],
+                    [],
+                ],
+                [
+                    'with select from replicas and mutations',
+                    [
+                        { target: 'main', gqlOperationType: 'mutation' },
+                        { target: 'asyncReplicas', sqlOperationName: 'select' },
+                        { target: 'asyncReplicas', sqlOperationName: 'show' },
+                        { target: 'main' },
+                    ],
+                    [],
+                ],
+                [
+                    'with separate replica for some data',
+                    [
+                        { target: 'billingReplica', sqlOperationName: 'select', tableName: '^Billing.+$' },
+                        { target: 'main', gqlOperationType: 'mutation' },
+                        { target: 'asyncReplicas', sqlOperationName: 'select' },
+                        { target: 'asyncReplicas', sqlOperationName: 'show' },
+                        { target: 'main' },
+                    ],
+                    [],
+                ],
+                [
+                    'with separate db for some data',
+                    [
+                        { target: 'historical', tableName: '^.+HistoryRecord$' },
+                        { target: 'billingReplica', sqlOperationName: 'select', tableName: '^Billing.+$' },
+                        { target: 'main', gqlOperationType: 'mutation' },
+                        { target: 'asyncReplicas', sqlOperationName: 'select' },
+                        { target: 'asyncReplicas', sqlOperationName: 'show' },
+                        { target: 'main' },
+                    ],
+                    [],
+                ],
+            ]
+            describe('passed as objects', () => {
+                test.each(cases)('%p', (_, config) => {
+                    expect(getQueryRoutingRules(config, pools)).toEqual(config)
+                })
+            })
+            describe('passed as stringified objects', () => {
+                test.each(cases)('%p', (_, config) => {
+                    expect(getQueryRoutingRules(JSON.stringify(config), pools)).toEqual(config)
+                })
             })
         })
     })
