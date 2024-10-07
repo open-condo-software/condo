@@ -6,6 +6,8 @@ const DB_URL_PROTOCOL_PREFIX = 'custom:'
 const DB_URL_PATTERN = new RegExp(`${DB_URL_PROTOCOL_PREFIX}{.+}`)
 const ANY_CHAR_PATTERNS = '^.+$'
 const IMMUTABLE_OPERATIONS = new Set(['select', 'show'])
+// NOTE: detects names of pg tables / queries / mutations
+const SIMPLE_NAME_PATTERN = /^[a-z\d_+]+$/i
 
 const DB_URL_SCHEMA = {
     type: 'object',
@@ -144,9 +146,9 @@ function _createRoutingRulesSchema (availablePools) {
             type: 'object',
             properties: {
                 gqlOperationType: { type: 'string', enum: ['query', 'mutation'] },  // which INITIAL GQL operation type triggered SQL query
-                gqlOperationName: { type: 'string' },                               // which INITIAL GQL operation triggered SQL query, can be string or regex
+                gqlOperationName: { type: 'string' },                               // which INITIAL GQL operation triggered SQL query, can be string or regexp
                 sqlOperationName: { type: 'string' },                               // which SQL method is triggered (select, update etc.)
-                tableName: { type: 'string' },                                      // which table is being interacted with, can be string or regex
+                tableName: { type: 'string' },                                      // which table is being interacted with, can be string or regexp
                 target: { type: 'string', enum: availablePools },                   // to which pool the request must go
             },
             required: ['target'],
@@ -159,6 +161,10 @@ function _createRoutingRulesSchema (availablePools) {
 function _isDefaultRule (rule) {
     const keys = Object.keys(rule)
     return keys.length === 1 && keys[0] === 'target'
+}
+
+function _isRegExpPattern (name) {
+    return !SIMPLE_NAME_PATTERN.test(name)
 }
 
 // TODO: JSDoc + Regexp
@@ -179,8 +185,22 @@ function getQueryRoutingRules (routingConfig, poolsConfig) {
         throw new TypeError(`Invalid routing rules config. ${ajv.errorsText(validateConfig.errors)}`)
     }
 
+    // Rules type conversions
+    const modifiedRules = parsedRules.map(rule => {
+        const copiedRule = { ...rule }
+        if (copiedRule.gqlOperationName && _isRegExpPattern(copiedRule.gqlOperationName)) {
+            copiedRule.gqlOperationName = new RegExp(copiedRule.gqlOperationName)
+        }
+        if (copiedRule.tableName && _isRegExpPattern(copiedRule.tableName)) {
+            copiedRule.tableName = new RegExp(copiedRule.tableName)
+        }
 
-    parsedRules.forEach((rule, idx) => {
+        return copiedRule
+    })
+
+
+    // Rules validation
+    modifiedRules.forEach((rule, idx) => {
         const { gqlOperationType, target, sqlOperationName, tableName } = rule
 
         const commonErrorPrefix = `[${idx + 1}/${parsedRules.length}] Routing rule configuration error. `
@@ -215,6 +235,7 @@ function getQueryRoutingRules (routingConfig, poolsConfig) {
             )
         }
 
+        // Default rule must be at the end of the chain
         if (_isDefaultRule(rule) && idx !== parsedRules.length - 1) {
             throw new TypeError(
                 commonErrorPrefix +
@@ -222,6 +243,7 @@ function getQueryRoutingRules (routingConfig, poolsConfig) {
             )
         }
 
+        // Default rule must be at the end of the chain
         if (idx === parsedRules.length - 1 && !_isDefaultRule(rule)) {
             throw new TypeError(
                 commonErrorPrefix +
@@ -230,7 +252,7 @@ function getQueryRoutingRules (routingConfig, poolsConfig) {
         }
     })
 
-    return parsedRules
+    return modifiedRules
 }
 
 

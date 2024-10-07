@@ -32,8 +32,6 @@ function _getContextResolver (originalResolver) {
     }
 }
 
-const basicRegex = /^[a-z\d_+]+$/i
-
 class Keystone extends DefaultKeystone {
     getResolvers ({ schemaName }) {
         const { Query, Mutation, ...restResolvers } = super.getResolvers({ schemaName })
