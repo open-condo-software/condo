@@ -22,6 +22,9 @@ const { MeterReadingsImportTask, MeterReading } = require('@condo/domains/meter/
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestPropertyWithMap } = require('@condo/domains/property/utils/testSchema')
 
+// NOTE(pahaz): we call this task directly in this specs
+jest.mock('@condo/domains/meter/tasks/index')
+
 const { keystone } = index
 const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint: faker.datatype.uuid() } }
 
@@ -120,7 +123,9 @@ describe('importMeters', () => {
     })
 
     it('import meters csv all lines success case', async () => {
+        const locale = 'ru'
         const adminClient = await makeLoggedInAdminClient()
+        adminClient.setHeaders({ 'Accept-Language': locale })
         const [o10n] = await createTestOrganization(adminClient)
         const [property] = await createTestPropertyWithMap(adminClient, o10n)
 
@@ -132,6 +137,7 @@ describe('importMeters', () => {
             file: generateCsvFile(validLines, invalidLines, fatalLines, property),
             user: { connect: { id: adminClient.user.id } },
             organization: { connect: { id: o10n.id } },
+            locale,
         })
 
         // run import
@@ -142,6 +148,7 @@ describe('importMeters', () => {
         expect(task).toMatchObject({
             format: CSV,
             file: expect.objectContaining({ mimetype: 'text/csv' }),
+            errorFile: null,
             errorMessage: null,
             totalRecordsCount: validLines + invalidLines + fatalLines,
             importedRecordsCount: validLines,
@@ -186,6 +193,7 @@ describe('importMeters', () => {
             importedRecordsCount: validLines,
             processedRecordsCount: validLines + invalidLines,
         })
+        // TODO(pahaz): you should check that errorFile contains exact errors!
         const readings = await MeterReading.getAll(keystone, {
             organization: { id: o10n.id },
         })
@@ -258,7 +266,9 @@ describe('importMeters', () => {
     })
 
     it('import meters excel all lines success case', async () => {
+        const locale = 'ru'
         const adminClient = await makeLoggedInAdminClient()
+        adminClient.setHeaders({ 'Accept-Language': locale })
         const [o10n] = await createTestOrganization(adminClient)
         const [property] = await createTestPropertyWithMap(adminClient, o10n)
 
@@ -270,6 +280,7 @@ describe('importMeters', () => {
             file: await generateExcelFile(validLines, invalidLines, fatalLines, property),
             user: { connect: { id: adminClient.user.id } },
             organization: { connect: { id: o10n.id } },
+            locale,
         })
 
         // run import
@@ -281,6 +292,7 @@ describe('importMeters', () => {
             format: DOMA_EXCEL,
             file: expect.objectContaining({ mimetype: EXCEL_FILE_META.mimetype }),
             errorMessage: null,
+            errorFile: null,
             totalRecordsCount: validLines + invalidLines + fatalLines,
             importedRecordsCount: validLines,
             processedRecordsCount: validLines + invalidLines,
@@ -295,7 +307,9 @@ describe('importMeters', () => {
     })
 
     it('import meters excel has failed line case', async () => {
+        const locale = 'ru'
         const adminClient = await makeLoggedInAdminClient()
+        adminClient.setHeaders({ 'Accept-Language': locale })
         const [o10n] = await createTestOrganization(adminClient)
         const [property] = await createTestPropertyWithMap(adminClient, o10n)
 
@@ -307,6 +321,7 @@ describe('importMeters', () => {
             file: await generateExcelFile(validLines, invalidLines, fatalLines, property),
             user: { connect: { id: adminClient.user.id } },
             organization: { connect: { id: o10n.id } },
+            locale,
         })
 
         // run import
@@ -334,7 +349,9 @@ describe('importMeters', () => {
     })
 
     it('import meters excel has fatal line case', async () => {
+        const locale = 'ru'
         const adminClient = await makeLoggedInAdminClient()
+        adminClient.setHeaders({ 'Accept-Language': locale })
         const [o10n] = await createTestOrganization(adminClient)
         const [property] = await createTestPropertyWithMap(adminClient, o10n)
 
@@ -346,6 +363,7 @@ describe('importMeters', () => {
             file: await generateExcelFile(validLines, invalidLines, fatalLines, property),
             user: { connect: { id: adminClient.user.id } },
             organization: { connect: { id: o10n.id } },
+            locale,
         })
 
         // run import
@@ -366,6 +384,7 @@ describe('importMeters', () => {
             importedRecordsCount: validLines,
             processedRecordsCount: validLines + invalidLines + fatalLines,
         })
+        // TODO(pahaz): check this error messages!
         const readings = await MeterReading.getAll(keystone, {
             organization: { id: o10n.id },
         })
