@@ -10,26 +10,11 @@ exports.up = async (knex) => {
 ALTER TABLE "BankAccount" ADD COLUMN "name" text NULL;
 
 --
--- Populate BankAccount.name with name of organization
---
-UPDATE "BankAccount"
-SET "name" = "Organization"."name"
-FROM "Organization" "O"
-WHERE "BankAccount"."organization" = "Organization"."id";
-
---
 -- Add field name to bankaccounthistoryrecord
 --
 ALTER TABLE "BankAccountHistoryRecord" ADD COLUMN "name" text NULL;
-
---
--- Populate BankAccountHistoryRecord.name with name of organization
---
-UPDATE "BankAccountHistoryRecord"
-SET "name" = "Organization"."name"
-FROM "Organization"
-WHERE "BankAccountHistoryRecord"."organization" = "Organization"."id";
 COMMIT;
+
     `)
 }
 

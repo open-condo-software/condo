@@ -46,6 +46,7 @@ export const BankingInfo: React.FC<IBankAccountInfo> = ({ bankAccount }) => {
         return { width: breakpoints.MOBILE_SMALL && !breakpoints.DESKTOP_LARGE ? '100%' : '425px' }
     }, [breakpoints])
 
+    // Note(YEgorLu): could use just bankAccount.name after migrating organization names to empty bankAccount names
     const bankAccountName = useMemo(() => {
         const bankAccountName: string | undefined = get(bankAccount, 'name')
         const organizationName: string | undefined = get(bankAccount, 'organization.name')
