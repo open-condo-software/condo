@@ -10,7 +10,6 @@ const { createUploadLink } = require('apollo-upload-client')
 const axiosLib = require('axios')
 const axiosCookieJarSupportLib = require('axios-cookiejar-support')
 const express = require('express')
-const falsey = require('falsey')
 const FormData = require('form-data')
 const { gql } = require('graphql-tag')
 const { flattenDeep, fromPairs, toPairs, get, isFunction, isEmpty, template, pick, set, isArray } = require('lodash')
@@ -22,8 +21,6 @@ const { getTranslations } = require('@open-condo/locales/loader')
 
 const { GQLErrorCode, GQLInternalErrorTypes } = require('./errors')
 const { prepareKeystoneExpressApp } = require('./prepareKeystoneApp')
-
-const EXTRA_LOGGING = falsey(get(process, 'env.DISABLE_LOGGING'))
 
 const urlParse = urlLib.parse
 const axios = axiosLib.default
@@ -41,11 +38,7 @@ const DEFAULT_TEST_USER_SECRET = conf.DEFAULT_TEST_USER_SECRET
 const DEFAULT_TEST_ADMIN_IDENTITY = conf.DEFAULT_TEST_ADMIN_IDENTITY
 const DEFAULT_TEST_ADMIN_SECRET = conf.DEFAULT_TEST_ADMIN_SECRET
 const TESTS_TLS_IGNORE_UNAUTHORIZED = conf.TESTS_TLS_IGNORE_UNAUTHORIZED === 'true'
-const TESTS_LOG_REQUEST_RESPONSE = conf.TESTS_LOG_REQUEST_RESPONSE
-// TODO(pahaz): remove this old consts! we have TESTS_LOG_REQUEST_RESPONSE
-const TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS = conf.TESTS_FAKE_CLIENT_MODE && conf.TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS
-const TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS = !conf.TESTS_FAKE_CLIENT_MODE && conf.TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS
-const TESTS_REAL_CLIENT_REMOTE_API_URL = conf.TESTS_REAL_CLIENT_REMOTE_API_URL || `${conf.SERVER_URL}${API_PATH}`
+const TESTS_LOG_REQUEST_RESPONSE = conf.TESTS_LOG_REQUEST_RESPONSE === 'true'
 
 const SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION = gql`
     mutation authenticateUserWithPhoneAndPassword ($phone: String!, $password: String!) {
@@ -384,23 +377,28 @@ const makeApolloClient = (serverUrl, opts = {}) => {
 
 const makeClient = async (opts = { generateIP: true, serverUrl: undefined }) => {
     // Data for real client
-    let serverUrl = new URL(TESTS_REAL_CLIENT_REMOTE_API_URL).origin
-    let logErrors = TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS
+    let serverUrl
     const customHeaders = {}
     if (opts.generateIP) {
         customHeaders['x-forwarded-for'] = faker.internet.ip()
     }
 
     if (__expressApp) {
+        // NOTE(pahaz): it's fake client mode
         const port = __expressServer.address().port
         const protocol = __expressApp instanceof https.Server ? 'https' : 'http'
 
         // Overriding with data for fake client
         serverUrl = protocol + '://127.0.0.1:' + port
-        logErrors = TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS
+    } else {
+        // NOTE(pahaz): it's real client mode
+        serverUrl = conf.SERVER_URL
     }
 
-    return makeApolloClient(opts.serverUrl ? opts.serverUrl : serverUrl, { logRequestResponse: TESTS_LOG_REQUEST_RESPONSE || logErrors, customHeaders })
+    return makeApolloClient(
+        new URL(opts.serverUrl ? opts.serverUrl : serverUrl).origin,
+        { logRequestResponse: TESTS_LOG_REQUEST_RESPONSE, customHeaders },
+    )
 }
 
 const createAxiosClientWithCookie = (options = {}, cookie = '', cookieDomain = '') => {
@@ -548,7 +546,6 @@ const catchErrorFrom = async (testFunc, inspect) => {
     try {
         await testFunc()
     } catch (e) {
-        if (EXTRA_LOGGING) console.warn('catchErrorFrom() caught error:', e)
         thrownError = e
     }
     if (!thrownError) throw new Error(`catchErrorFrom() no caught error for: ${testFunc}`)
@@ -558,7 +555,11 @@ const catchErrorFrom = async (testFunc, inspect) => {
         // NOTE(pahaz): We will catch the validation error from Jest,
         // and if it occurs, we want to see the stack and use click to file
         // and understand what's happen.
-        console.error(thrownError)
+        if (typeof jasmine !== 'undefined') {
+            // eslint-disable-next-line
+            const testName = `[${get(jasmine, ['currentTest', 'fullName'], jasmine['testPath'].split('/').pop().split('.')[0])}]`
+            console.error(`[catchError !!!]${testName}:`, thrownError)
+        }
         throw e
     }
 }
