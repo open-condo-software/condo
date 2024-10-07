@@ -2,9 +2,9 @@ const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
 const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { expectToThrowGQLError, makeClient, catchErrorFrom } = require('@open-condo/keystone/test.utils')
+const { expectToThrowGQLError, makeClient, expectToThrowGQLErrorToResult } = require('@open-condo/keystone/test.utils')
 
-const { USER_ALREADY_EXISTS, ACTION_NOT_FOUND, PASSWORD_TOO_SIMPLE } = require('@dev-api/domains/user/constants/errors')
+const { USER_ALREADY_EXISTS, ACTION_NOT_FOUND } = require('@dev-api/domains/user/constants/errors')
 const {
     ConfirmPhoneAction,
     startConfirmPhoneActionByTestClient,
@@ -43,6 +43,7 @@ describe('RegisterNewUserService', () => {
         }, {
             code: BAD_USER_INPUT,
             type: USER_ALREADY_EXISTS,
+            message: 'User with specified phone number is already registered',
         }, 'result')
     })
     test('Cannot register user with non-verified phone', async () => {
@@ -55,6 +56,7 @@ describe('RegisterNewUserService', () => {
         }, {
             code: BAD_USER_INPUT,
             type: ACTION_NOT_FOUND,
+            message: 'ConfirmPhoneAction with the specified ID is not verified, expired, or does not exist',
         }, 'result')
     })
     test('Cannot use same ConfirmPhoneAction twice', async () => {
@@ -66,7 +68,7 @@ describe('RegisterNewUserService', () => {
         const [{ status }] = await completeConfirmPhoneActionByTestClient(actionId, { code }, client)
         expect(status).toEqual('success')
 
-        const [user, { phone }] =  await registerNewTestUser({ actionId }, client)
+        const [user, { phone }] = await registerNewTestUser({ actionId }, client)
         expect(user).toHaveProperty('id')
 
         await expectToThrowGQLError(async () => {
@@ -74,6 +76,7 @@ describe('RegisterNewUserService', () => {
         }, {
             code: BAD_USER_INPUT,
             type: ACTION_NOT_FOUND,
+            message: 'ConfirmPhoneAction with the specified ID is not verified, expired, or does not exist',
         }, 'result')
 
         const action = await ConfirmPhoneAction.getOne(adminClient, { id: actionId })
@@ -84,10 +87,9 @@ describe('RegisterNewUserService', () => {
         const [{ actionId }] = await startConfirmPhoneActionByTestClient({}, client)
         const { code } = await ConfirmPhoneAction.getOne(adminClient, { id: actionId })
         expect(code).toBeDefined()
-        
+
         const [{ status }] = await completeConfirmPhoneActionByTestClient(actionId, { code }, client)
         expect(status).toEqual('success')
-
 
         await updateTestConfirmPhoneAction(adminClient, actionId, {
             expiresAt: dayjs().toISOString(),
@@ -98,6 +100,7 @@ describe('RegisterNewUserService', () => {
         }, {
             code: BAD_USER_INPUT,
             type: ACTION_NOT_FOUND,
+            message: 'ConfirmPhoneAction with the specified ID is not verified, expired, or does not exist',
         }, 'result')
     })
     test('Cannot register with deleted ConfirmPhoneAction', async () => {
@@ -118,9 +121,10 @@ describe('RegisterNewUserService', () => {
         }, {
             code: BAD_USER_INPUT,
             type: ACTION_NOT_FOUND,
+            message: 'ConfirmPhoneAction with the specified ID is not verified, expired, or does not exist',
         }, 'result')
     })
-    describe('Cannot register user with short / simple password',  () => {
+    describe('Cannot register user with short / simple password', () => {
         const phone = createTestPhone()
         const cases = [
             ['short password', faker.internet.password(8)],
@@ -129,21 +133,15 @@ describe('RegisterNewUserService', () => {
         ]
 
         test.each(cases)('%p', async (_, password) => {
-            await catchErrorFrom(async () => {
-                await registerNewTestUser({
-                    phone,
-                    password,
-                })
-            }, ({ errors }) => {
-                expect(errors).toHaveLength(1)
-                expect(errors[0]).toHaveProperty(['originalError', 'errors'])
-                const originalErrors = errors[0].originalError.errors
-                expect(originalErrors).toHaveLength(1)
-                expect(originalErrors[0]).toHaveProperty('path', ['obj'])
-                expect(originalErrors[0]).toHaveProperty('name', 'GQLError')
-                expect(originalErrors[0]).toHaveProperty(['extensions', 'code'], BAD_USER_INPUT)
-                expect(originalErrors[0]).toHaveProperty(['extensions', 'type'], PASSWORD_TOO_SIMPLE)
-            })
+            await expectToThrowGQLErrorToResult(
+                async () => await registerNewTestUser({ phone, password }),
+                {
+                    'type': 'PASSWORD_TOO_SIMPLE',
+                    'code': 'BAD_USER_INPUT',
+                    'message': 'The provided password is too simple',
+                    'messageForUser': 'errors.PASSWORD_TOO_SIMPLE.message',
+                },
+            )
         })
     })
 })
