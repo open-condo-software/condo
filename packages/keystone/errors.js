@@ -134,10 +134,10 @@ class GQLError extends Error {
     /**
      * @param {GQLError} fields
      * @param {undefined|Object} context - Keystone custom resolver context, used to determine request language
-     * @param {undefined|Array<Error>?} parentErrors - Array of parent errors or parent error
+     * @param {undefined|Array<Error>?} originalErrors - Array of parent errors or parent error
      * @see https://www.apollographql.com/docs/apollo-server/data/errors/#custom-errors
      */
-    constructor (fields, context, parentErrors) {
+    constructor (fields, context, originalErrors) {
         if (isEmpty(fields) || !fields) throw new Error('GQLError: wrong fields argument')
         if (!fields.code) throw new Error('GQLError: you need to set fields.code')
         if (!fields.type && fields.code !== UNAUTHENTICATED) throw new Error('GQLError: you need to set fields.type')
@@ -149,10 +149,10 @@ class GQLError extends Error {
         if (typeof fields.messageInterpolation !== 'undefined' && (isEmpty(fields.messageInterpolation) || !isObject(fields.messageInterpolation))) throw new Error('GQLError: wrong messageInterpolation argument type! fields.messageInterpolation should be an object')
         if (typeof fields.correctExample !== 'undefined' && typeof fields.correctExample !== 'string') throw new Error('GQLError: wrong correctExample argument type! fields.correctExample should be a string')
         if (typeof fields.context !== 'undefined') throw new Error('GQLError: wrong context argument position! You should pass it as the second argument')
-        if (typeof parentErrors !== 'undefined' && !isArray(parentErrors) && !isError(parentErrors)) throw new Error('GQLError: wrong parent errors argument type')
-        if (isArray(parentErrors) && !every(parentErrors, isError)) throw new Error('GQLError: wrong parent errors array element type')
-        const errors = (parentErrors && !isArray(parentErrors)) ? [parentErrors] : parentErrors
-        if (typeof parentErrors !== 'undefined' && (!isArray(errors) || errors.length <= 0)) throw new Error('GQLError: internal error! this.errors should be undefined or not empty error')
+        if (typeof originalErrors !== 'undefined' && !isArray(originalErrors) && !isError(originalErrors)) throw new Error('GQLError: wrong parent errors argument type')
+        if (isArray(originalErrors) && !every(originalErrors, isError)) throw new Error('GQLError: wrong parent errors array element type')
+        const errors = (originalErrors && !isArray(originalErrors)) ? [originalErrors] : originalErrors
+        if (typeof originalErrors !== 'undefined' && (!isArray(errors) || errors.length <= 0)) throw new Error('GQLError: internal error! this.errors should be undefined or not empty error')
         // We need a clone to avoid modification of original errors declaration, that will cause
         // second calling of this constructor to work with changed fields
         const extensions = cloneDeep(fields)
