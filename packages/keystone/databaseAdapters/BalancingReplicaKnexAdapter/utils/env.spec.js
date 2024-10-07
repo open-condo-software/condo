@@ -374,7 +374,6 @@ describe('Config validation utils', () => {
                     [
                         { target: 'main' },
                     ],
-                    [],
                 ],
                 [
                     'with select from replicas',
@@ -383,7 +382,6 @@ describe('Config validation utils', () => {
                         { target: 'asyncReplicas', sqlOperationName: 'show' },
                         { target: 'main' },
                     ],
-                    [],
                 ],
                 [
                     'with select from replicas and mutations',
@@ -393,7 +391,6 @@ describe('Config validation utils', () => {
                         { target: 'asyncReplicas', sqlOperationName: 'show' },
                         { target: 'main' },
                     ],
-                    [],
                 ],
                 [
                     'with separate replica for some data',
@@ -404,7 +401,6 @@ describe('Config validation utils', () => {
                         { target: 'asyncReplicas', sqlOperationName: 'show' },
                         { target: 'main' },
                     ],
-                    [],
                 ],
                 [
                     'with separate db for some data',
@@ -416,17 +412,93 @@ describe('Config validation utils', () => {
                         { target: 'asyncReplicas', sqlOperationName: 'show' },
                         { target: 'main' },
                     ],
-                    [],
                 ],
             ]
             describe('passed as objects', () => {
                 test.each(cases)('%p', (_, config) => {
-                    expect(getQueryRoutingRules(config, pools)).toEqual(config)
+                    const expected = config.map(rule => rule.tableName
+                        ? { ...rule, tableName: new RegExp(rule.tableName) }
+                        : rule
+                    )
+
+                    expect(getQueryRoutingRules(config, pools)).toEqual(expected)
                 })
             })
             describe('passed as stringified objects', () => {
                 test.each(cases)('%p', (_, config) => {
-                    expect(getQueryRoutingRules(JSON.stringify(config), pools)).toEqual(config)
+                    const expected = config.map(rule => rule.tableName
+                        ? { ...rule, tableName: new RegExp(rule.tableName) }
+                        : rule
+                    )
+
+                    expect(getQueryRoutingRules(JSON.stringify(config), pools)).toEqual(expected)
+                })
+            })
+        })
+        describe('Must detect and replace RegExps', () => {
+            describe('In "tableName" field', () => {
+                const regexpCases = [
+                    '^.+HistoryRecord$',
+                    '^Billing.+$',
+                    '(Billing|Acquiring).+',
+                ]
+                const stringCases = [
+                    'User',
+                    'B2BApp',
+                    'pg_attribute',
+                ]
+                test.each(regexpCases)('%p', (pattern) => {
+                    const basicRules = [
+                        { target: 'replicas', tableName: pattern },
+                        { target: 'main' },
+                    ]
+                    const expected = [
+                        { target: 'replicas', tableName: new RegExp(pattern) },
+                        { target: 'main' },
+                    ]
+
+                    expect(getQueryRoutingRules(basicRules, basicPoolConfig)).toEqual(expected)
+                })
+                test.each(stringCases)('%p', (pattern) => {
+                    const basicRules = [
+                        { target: 'replicas', tableName: pattern },
+                        { target: 'main' },
+                    ]
+
+                    expect(getQueryRoutingRules(basicRules, basicPoolConfig)).toEqual(basicRules)
+                })
+            })
+            describe('In "gqlOperationName" field', () => {
+                const regexpCases = [
+                    '^create.+$',
+                    '^_internal.+$',
+                    'create(User|Contact)',
+                ]
+                const stringCases = [
+                    'registerNewServiceUser',
+                    '_internalScheduleTaskByName',
+                    'createB2BApp',
+                    '_allB2BAppsMeta',
+                ]
+                test.each(regexpCases)('%p', (pattern) => {
+                    const basicRules = [
+                        { target: 'replicas', gqlOperationName: pattern },
+                        { target: 'main' },
+                    ]
+                    const expected = [
+                        { target: 'replicas', gqlOperationName: new RegExp(pattern) },
+                        { target: 'main' },
+                    ]
+
+                    expect(getQueryRoutingRules(basicRules, basicPoolConfig)).toEqual(expected)
+                })
+                test.each(stringCases)('%p', (pattern) => {
+                    const basicRules = [
+                        { target: 'replicas', gqlOperationName: pattern },
+                        { target: 'main' },
+                    ]
+
+                    expect(getQueryRoutingRules(basicRules, basicPoolConfig)).toEqual(basicRules)
                 })
             })
         })
