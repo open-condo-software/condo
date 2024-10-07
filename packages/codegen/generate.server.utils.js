@@ -1,10 +1,7 @@
-const { pickBy, get, isEmpty, isObject } = require('lodash')
+const { pickBy, get, isObject } = require('lodash')
 
-const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode, GQLInternalErrorTypes } = require('@open-condo/keystone/errors')
 const { getById } = require('@open-condo/keystone/schema')
-
-const IS_DEBUG = conf.NODE_ENV === 'development'
 
 const isNotUndefined = (x) => typeof x !== 'undefined'
 const ALLOWED_OPTIONS = ['errorMapping', 'doesNotExistError', 'multipleObjectsError']
@@ -20,12 +17,6 @@ function _getAllErrorMessages (errors) {
 
 function _throwIfError (context, errors, data, errorMessage, errorMapping) {
     if (errors) {
-        if (IS_DEBUG) {
-            const errorsToShow = errors.filter(error => get(error, 'originalError.data') || get(error, 'originalError.internalData'))
-            if (!isEmpty(errorsToShow)) errorsToShow.forEach((error) => console.warn(get(error, 'originalError.data'), '\n', get(error, 'originalError.internalData')))
-            console.error(errors)
-        }
-
         /** NOTE(pahaz): you can use it like so:
          *
          *    const ERRORS = {
