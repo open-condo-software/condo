@@ -206,7 +206,7 @@ const NewsItemCard: React.FC = () => {
         // To deprecate news item now you need to send validBefore = now
         // If user has broken time settings in their OS, result of Date.now() will be wrong
         // This might result in an error when validBefore is less than sentAt
-        const deprecateDatetime = newsItem.sentAt //|| dayjs().toISOString()
+        const deprecateDatetime = newsItem.sentAt || dayjs().toISOString()
         await updateNewsAction({ validBefore: deprecateDatetime }, newsItem)
     }, [ updateNewsAction, newsItem ])
 
