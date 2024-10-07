@@ -1,4 +1,7 @@
 /** @jsx jsx */
+import {
+    NewsItem as INewsItem,
+} from '@app/condo/schema'
 import { jsx } from '@emotion/react'
 import { Col, notification, Row, RowProps } from 'antd'
 import dayjs from 'dayjs'
@@ -47,8 +50,8 @@ const HORIZONTAL_ROW_GUTTER: RowProps['gutter'] = [0, 24]
 const HEADER_STYLES: React.CSSProperties = { paddingBottom: '20px' }
 
 interface IFieldPairRowProps {
-    fieldTitle: string,
-    fieldValue: string | React.ReactNode,
+    fieldTitle: string
+    fieldValue: string | React.ReactNode
 }
 const FieldPairRow: React.FC<IFieldPairRowProps> = (props) => {
     const {
@@ -198,10 +201,13 @@ const NewsItemCard: React.FC = () => {
     }, [softDeleteNewsAction, newsItem])
 
     const updateNewsAction = NewsItem.useUpdate({}, () => refetchNews())
-    const handleDeprecateButtonClick = useCallback(async () => {
+    const handleDeprecateNowButtonClick = useCallback(async (newsItem: INewsItem) => {
         notification.close(newsItem.id)
-        const now = dayjs().toISOString()
-        await updateNewsAction({ validBefore: now }, newsItem)
+        // To deprecate news item now you need to send validBefore = now
+        // If user has broken time settings in their OS, result of Date.now() will be wrong
+        // This might result in an error when validBefore is less than sentAt
+        const deprecateDatetime = newsItem.sentAt || dayjs().toISOString()
+        await updateNewsAction({ validBefore: deprecateDatetime }, newsItem)
     }, [ updateNewsAction, newsItem ])
 
     const CreatedByLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.author' }, {
@@ -380,7 +386,7 @@ const NewsItemCard: React.FC = () => {
                                                 title={ConfirmDeprecateTitle}
                                                 message={ConfirmDeprecateMessage}
                                                 okButtonLabel={DeprecateTitle}
-                                                action={handleDeprecateButtonClick}
+                                                action={() => handleDeprecateNowButtonClick(newsItem)}
                                                 buttonContent={DeprecateTitle}
                                                 showCancelButton={true}
                                                 cancelMessage={CancelMessage}

@@ -809,6 +809,29 @@ describe('NewsItems', () => {
             expect(updatedObj.type).toMatch(NEWS_TYPE_COMMON)
         })
 
+        test('must allow to set validBefore equal to sentAt on published and even sent news items', async () => {
+            const [o10n] = await createTestOrganization(adminClient)
+            const [newsItem] = await createTestNewsItem(adminClient, o10n)
+            await createTestNewsItemScope(adminClient, newsItem)
+            await publishTestNewsItem(adminClient, newsItem.id)
+
+            await waitFor(async () => {
+                const [res] = await _internalScheduleTaskByNameByTestClient(adminClient, { taskName: 'notifyResidentsAboutDelayedNewsItems' })
+                expect(res.id).toBeDefined()
+            }, { delay: (SENDING_DELAY_SEC + 2) * 1000 })
+
+            await waitFor(async () => {
+                const sentNewsItem = await NewsItem.getOne(adminClient, { id: newsItem.id })
+                expect(sentNewsItem.sentAt).not.toBeNull()
+            })
+
+            const sentNewsItem = await NewsItem.getOne(adminClient, { id: newsItem.id })
+            const sentAt = sentNewsItem.sentAt
+
+            const [updatedObj] = await updateTestNewsItem(adminClient, newsItem.id, { validBefore: sentAt })
+            expect(updatedObj.type).toMatch(NEWS_TYPE_COMMON)
+        })
+
         test('must throw an error if there is no validity date for emergency news item', async () => {
             await expectToThrowGQLError(
                 async () => await createTestNewsItem(adminClient, dummyO10n, { type: NEWS_TYPE_EMERGENCY }),
