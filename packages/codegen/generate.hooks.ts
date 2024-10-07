@@ -380,35 +380,35 @@ export function generateReactHooks<
     }
 
     function useAllObjects (variables: QueryVariables, options?: QueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>) {
-        const fetchPolicy = get(options, 'fetchPolicy')
         const skip = get(options, 'skip')
         const { objs, count, error, loading, refetch: _refetch, fetchMore, stopPolling } = useObjects(variables, {
             ...options,
-            fetchPolicy: fetchPolicy && fetchPolicy !== 'no-cache' ? fetchPolicy : 'network-only',
         })
-        const [data, setData] = useState(objs)
-        const [fetchMoreError, setFetchMoreError] = useState()
-        const [firstPageLoaded, setFirstPageLoaded] = useState<boolean>(false)
+        const [fetchMoreError, setFetchMoreError] = useState(null)
 
         // NOTE: returns only the first part of the data
         const refetch: IRefetchType<GQLObject, QueryVariables> = useCallback((...args) => {
-            setData([])
+            setFetchMoreError(null)
             return _refetch(...args)
         }, [_refetch])
 
         useDeepCompareEffect(() => {
-            setData([])
+            setFetchMoreError(null)
         }, [variables])
 
         const loadMore = useCallback(async (skip) => {
             try {
-                const { data: fetchedData } = await fetchMore({
+                await fetchMore({
                     variables: {
                         skip: skip,
                     },
+                    updateQuery (previousData, { fetchMoreResult }) {
+                        // @ts-ignore
+                        const updatedObjs = [...previousData.objs, ...fetchMoreResult.objs]
+                        // @ts-ignore
+                        return { ...previousData, objs: updatedObjs, count: fetchMoreResult.count }
+                    },
                 })
-                // @ts-ignore
-                setData(prevData => [...prevData, ...fetchedData.objs])
             } catch (error) {
                 setFetchMoreError(error)
             }
@@ -416,28 +416,22 @@ export function generateReactHooks<
 
         useEffect(() => {
             if (skip) return
-            if (!loading && !firstPageLoaded) {
-                setData(objs)
-                setFirstPageLoaded(true)
-            }
-        }, [objs, loading, firstPageLoaded, skip])
-
-        useEffect(() => {
-            if (skip) return
-            if (!firstPageLoaded) return
-            if (data.length === 0) return
-            if (count <= data.length) return
+            if (loading) return
             if (error || fetchMoreError) return
 
-            loadMore(data.length)
-        }, [count, data.length, error, fetchMoreError, firstPageLoaded, loadMore, skip])
+            if (objs.length >= count) {
+                return
+            }
 
-        const allDataLoaded = data.length === 0 ? objs.length === count : data.length === count
+            loadMore(objs.length)
+        }, [loadMore, objs.length, count])
+
+        const allDataLoaded = objs.length >= count && !loading
         return {
             loading: !allDataLoaded,
             /** @deprecated use loading field instead */
             allDataLoaded,
-            objs: data.length === 0 ? objs : data,
+            objs,
             count,
             error: error || fetchMoreError,
             refetch,
