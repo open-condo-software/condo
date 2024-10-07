@@ -3,7 +3,6 @@ const v8 = require('v8')
 
 const { AdminUIApp } = require('@keystonejs/app-admin-ui')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
-const { Keystone } = require('@keystonejs/keystone')
 const cuid = require('cuid')
 const { json, urlencoded } = require('express')
 const { get, identity } = require('lodash')
@@ -29,6 +28,7 @@ const { prepareDefaultKeystoneConfig } = require('@open-condo/keystone/setup.uti
 const { registerTasks, registerTaskQueues, taskQueues } = require('@open-condo/keystone/tasks')
 const { KeystoneTracingApp } = require('@open-condo/keystone/tracing')
 
+const { Keystone } = require('./keystone')
 const { validateHeaders } = require('./validateHeaders')
 
 const IS_BUILD_PHASE = conf.PHASE === 'build'
