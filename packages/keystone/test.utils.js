@@ -384,7 +384,7 @@ const makeApolloClient = (serverUrl, opts = {}) => {
 
 const makeClient = async (opts = { generateIP: true, serverUrl: undefined }) => {
     // Data for real client
-    let serverUrl = opts.serverUrl ? opts.serverUrl : new URL(TESTS_REAL_CLIENT_REMOTE_API_URL).origin
+    let serverUrl = new URL(TESTS_REAL_CLIENT_REMOTE_API_URL).origin
     let logErrors = TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS
     const customHeaders = {}
     if (opts.generateIP) {
@@ -400,7 +400,7 @@ const makeClient = async (opts = { generateIP: true, serverUrl: undefined }) => 
         logErrors = TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS
     }
 
-    return makeApolloClient(serverUrl, { logRequestResponse: TESTS_LOG_REQUEST_RESPONSE || logErrors, customHeaders })
+    return makeApolloClient(opts.serverUrl ? opts.serverUrl : serverUrl, { logRequestResponse: TESTS_LOG_REQUEST_RESPONSE || logErrors, customHeaders })
 }
 
 const createAxiosClientWithCookie = (options = {}, cookie = '', cookieDomain = '') => {
