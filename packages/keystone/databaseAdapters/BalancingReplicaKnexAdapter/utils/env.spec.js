@@ -472,6 +472,7 @@ describe('Config validation utils', () => {
                 const regexpCases = [
                     '^create.+$',
                     '^_internal.+$',
+                    'register.*',
                     'create(User|Contact)',
                 ]
                 const stringCases = [
