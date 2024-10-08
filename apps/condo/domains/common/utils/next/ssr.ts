@@ -8,9 +8,9 @@ import type { GetServerSidePropsContext } from 'next'
 
 const COOKIE_STATE_PROP_NAME = '__SSR_COOKIE_EXTRACTOR__'
 
-// TODO(INFRA-517): NOTE: put here only cookies needed in SRR (hydration)
+// NOTE: put here only cookies needed in SRR (hydration)
 const VITAL_COOKIES = [
-    // 'residentId'
+    'organizationLinkId',
 ] as const
 
 type SSRRequest = GetServerSidePropsContext['req']
