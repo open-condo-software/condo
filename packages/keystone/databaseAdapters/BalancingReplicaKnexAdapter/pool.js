@@ -7,10 +7,10 @@ class KnexPool {
         this.balancer = initBalancer(balancer, this._clients, balancerOptions)
     }
 
-    async run (builder) {
+    getQueryRunner (builder) {
         const executor = this.balancer.selectExecutor()
-        const dd =  executor.client.runner(builder)
-        return dd
+
+        return executor.client.runner(builder)
     }
 }
 
