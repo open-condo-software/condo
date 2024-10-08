@@ -158,7 +158,7 @@ function _createRoutingRulesSchema (availablePools) {
     }
 }
 
-function _isDefaultRule (rule) {
+function isDefaultRule (rule) {
     const keys = Object.keys(rule)
     return keys.length === 1 && keys[0] === 'target'
 }
@@ -228,7 +228,7 @@ function getQueryRoutingRules (routingConfig, poolsConfig) {
         // Default rule guards
 
         // Non-filter rule { target: "name" } must go to writable pool
-        if (_isDefaultRule(rule) && !poolsConfig[target].writable) {
+        if (isDefaultRule(rule) && !poolsConfig[target].writable) {
             throw new TypeError(
                 commonErrorPrefix +
                 'Rule with no filters must point to writable target'
@@ -236,7 +236,7 @@ function getQueryRoutingRules (routingConfig, poolsConfig) {
         }
 
         // Default rule must be at the end of the chain
-        if (_isDefaultRule(rule) && idx !== parsedRules.length - 1) {
+        if (isDefaultRule(rule) && idx !== parsedRules.length - 1) {
             throw new TypeError(
                 commonErrorPrefix +
                 'Rule with no filters must be at the end of the rule chain'
@@ -244,7 +244,7 @@ function getQueryRoutingRules (routingConfig, poolsConfig) {
         }
 
         // Default rule must be at the end of the chain
-        if (idx === parsedRules.length - 1 && !_isDefaultRule(rule)) {
+        if (idx === parsedRules.length - 1 && !isDefaultRule(rule)) {
             throw new TypeError(
                 commonErrorPrefix +
                 'Latest rule in chain must contains no filters'
@@ -258,6 +258,7 @@ function getQueryRoutingRules (routingConfig, poolsConfig) {
 
 
 module.exports = {
+    isDefaultRule,
     getNamedDBs,
     getReplicaPoolsConfig,
     getQueryRoutingRules,

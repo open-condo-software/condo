@@ -1,8 +1,10 @@
 const { KnexAdapter } = require('@keystonejs/adapter-knex')
+const omit = require('lodash/omit')
 
 const conf = require('@open-condo/config')
 
-const { getNamedDBs, getReplicaPoolsConfig, getQueryRoutingRules } = require('./utils/env')
+const { KnexPool } = require('./pool')
+const { getNamedDBs, getReplicaPoolsConfig, getQueryRoutingRules, isDefaultRule } = require('./utils/env')
 const { initKnexClient } = require('./utils/knex')
 
 
@@ -16,7 +18,7 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         this._routingRules = getQueryRoutingRules(routingRules || conf['DATABASE_ROUTING_RULES'], this._replicaPoolsConfig)
     }
 
-    async _connect () {
+    async _initKnexClients () {
         const dbNames = Object.keys(this._dbConnections)
         const connectionResults = await Promise.allSettled(
             dbNames.map(dbName => initKnexClient({
@@ -36,10 +38,61 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
             throw new Error(`One or more databases failed to connect.\n${errorDetails}`)
         }
 
-        this._knexClients = Object.fromEntries(dbNames.map((name, idx) => [name, connectionResults[idx].value]))
+        return Object.fromEntries(dbNames.map((name, idx) => [name, connectionResults[idx].value]))
     }
 
-    async
+    _selectTargetPool (sql) {
+        
+    }
+
+    async _connect () {
+        this._knexClients = await this._initKnexClients()
+        this._replicaPools = Object.fromEntries(
+            Object.entries(this._replicaPoolsConfig).map(([name, config]) => [
+                name,
+                new KnexPool({
+                    ...omit(config, ['databases']),
+                    knexClients: config.databases.map((dbName) => this._knexClients[dbName]),
+                }),
+            ])
+        )
+
+
+        const defaultRule = this._routingRules.find(rule => isDefaultRule(rule))
+        this._defaultPool = this._replicaPools[defaultRule.target]
+
+        // NOTE: We need to initialize this.knex to be compatible with KS.
+        // Even though it won't execute requests by itself, it needs some connection-string to initialize it.
+        // We can get it from any of the default pool databases.
+        const defaultWritableDatabase = this._replicaPoolsConfig[defaultRule.target].databases[0]
+        const fallbackConnection = this._dbConnections[defaultWritableDatabase]
+
+        this.knex = await initKnexClient({
+            client: 'postgres',
+            pool: { min: 0, max: 1 },
+            connection: fallbackConnection,
+        })
+
+        this.knex.client.runner = (builder) => {
+            try {
+                const sql = builder.toSQL()
+
+                if (Array.isArray(sql)) {
+                    return this._defaultPool.getQueryRunner(builder)
+                }
+
+                const selectedPool = this._selectTargetPool(sql)
+
+                return selectedPool.getQueryRunner(builder)
+            } catch (err) {
+                // TODO: log, error?
+            }
+
+            // TODO: log, error?
+        }
+    }
+
+    // TODO: disconnect
 }
 
 module.exports = {
