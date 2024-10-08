@@ -56,9 +56,9 @@ interface IFilterComponentProps<T> {
     name: string
     label?: string
     size?: FilterComponentSize
-    queryToValueProcessor?: (a: QueryArgType) => T | T[],
+    queryToValueProcessor?: (a: QueryArgType) => T | T[]
     formItemProps?: FormItemProps
-    filters: IFilters,
+    filters: IFilters
     children: React.ReactNode
 }
 
@@ -150,10 +150,17 @@ const TAGS_SELECT_DROPDOWN_STYLE = { display: 'none' }
 
 export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string, component: FilterComponentType, form: FormInstance): React.ReactElement => {
     const type = get(component, 'type')
+    const getModalFilterComponentProps = get(component, 'getModalFilterComponentProps')
+    let componentProps = get(component, 'props', {})
+
+    if (isFunction(getModalFilterComponentProps)) {
+        componentProps = getModalFilterComponentProps(form)
+    }
+
     const props = {
         // It is necessary so that dropdowns do not go along with the screen when scrolling the modal window
         getPopupContainer: getFiltersModalPopupContainer,
-        ...get(component, 'props', {}),
+        ...componentProps,
     }
 
     switch (type) {

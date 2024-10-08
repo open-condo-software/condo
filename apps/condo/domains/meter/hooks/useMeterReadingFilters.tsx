@@ -6,6 +6,7 @@ import React, { useMemo } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
+import { getDateRangeFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import {
     ComponentType,
     convertToOptions,
@@ -17,6 +18,7 @@ import {
     getStringContainsFilter,
 } from '@condo/domains/common/utils/tables.utils'
 import { MeterReadingDatePicker } from '@condo/domains/meter/components/MeterReadingDatePicker'
+import { useMeterReadingsDateRangeProps } from '@condo/domains/meter/hooks/useMeterReadingsDateRangeProps'
 import { MeterReadingSource, MeterResource, MeterTypes, METER_TYPES } from '@condo/domains/meter/utils/clientSchema'
 import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
@@ -108,6 +110,8 @@ export function useMeterReadingFilters (meterType: MeterTypes): Array<FiltersMet
     const controlReadingsDateRangeFilter = getDayRangeFilter(['meter', 'controlReadingsDate'])
     const sourceFilter = getFilter(['source', 'id'], 'array', 'string', 'in')
     const resourceFilter = getFilter(['meter', 'resource', 'id'], 'array', 'string', 'in')
+
+    const getMeterReadingsDateProps = useMeterReadingsDateRangeProps()
 
     return useMemo(() => {
         return compact([
@@ -226,31 +230,24 @@ export function useMeterReadingFilters (meterType: MeterTypes): Array<FiltersMet
             {
                 keyword: 'date',
                 filters: [readingDateRangeFilter],
-                component: {
-                    type: ComponentType.Custom,
-                    modalFilterComponent: (form) => <MeterReadingDatePicker filtersModalForm={form} />,
-                    modalFilterComponentWrapper: {
-                        label: MeterReadingDateMessage,
-                        size: FilterComponentSize.Medium,
-                    },
-                    // getComponentFilterDropdown: getDateRangeFilterDropdown({
-                    //     datePickerProps: { ...props, id },
-                    //     containerStyles: columnFilterComponentWrapperStyles,
-                    // }),
-                },
                 // component: {
-                //     type: ComponentType.DateRange,
-                //     props: {
-                //         placeholder: [StartDateMessage, EndDateMessage],
-                //         onCalendarChange,
-                //         onOpenChange,
-                //         disabledDate,
-                //     },
+                //     type: ComponentType.Custom,
+                //     modalFilterComponent: (form) => <MeterReadingDatePicker filtersModalForm={form} />,
                 //     modalFilterComponentWrapper: {
                 //         label: MeterReadingDateMessage,
                 //         size: FilterComponentSize.Medium,
                 //     },
+                //     getComponentFilterDropdown: getDateRangeFilterDropdown(),
                 // },
+                component: {
+                    type: ComponentType.DateRange,
+                    props: getMeterReadingsDateProps(),
+                    getModalFilterComponentProps: form => getMeterReadingsDateProps(form),
+                    modalFilterComponentWrapper: {
+                        label: MeterReadingDateMessage,
+                        size: FilterComponentSize.Medium,
+                    },
+                },
             },
             isPropertyMeter ? null : {
                 keyword: 'place',
@@ -365,5 +362,5 @@ export function useMeterReadingFilters (meterType: MeterTypes): Array<FiltersMet
         ])
         
 
-    }, [addressFilter, userOrganizationId, EnterAddressMessage, AddressMessage, isPropertyMeter, unitNameFilter, EnterUnitNameLabel, UnitMessage, accountNumberFilter, EnterAccountNumberMessage, AccountNumberMessage, clientNameFilter, FullNameMessage, ContactMessage, resourceFilter, resourcesOptions, resourcesLoading, ChooseServiceMessage, ServiceMessage, sourceFilter, sourcesOptions, SelectMessage, SourceMessage, numberFilter, EnterMeterNumberMessage, MeterNumberMessage, readingDateRangeFilter, StartDateMessage, EndDateMessage, MeterReadingDateMessage, placeFilter, EnterPlaceMessage, PlaceMessage, nextVerificationDateRangeFilter, VerificationDateMessage, installationDateRangeFilter, InstallationDateMessage, commissioningDateRangeFilter, CommissioningDateMessage, sealingDateRangeFilter, SealingDateMessage, controlReadingsDateRangeFilter, ControlReadingsDate, archiveDateRangeFilter, ArchiveDate, addressStringContainsFilter, resourceStringContainsFilter, unitNameStringContainsFilter])
+    }, [addressFilter, userOrganizationId, EnterAddressMessage, AddressMessage, isPropertyMeter, unitNameFilter, EnterUnitNameLabel, UnitMessage, accountNumberFilter, EnterAccountNumberMessage, AccountNumberMessage, clientNameFilter, FullNameMessage, ContactMessage, resourceFilter, resourcesOptions, resourcesLoading, ChooseServiceMessage, ServiceMessage, sourceFilter, sourcesOptions, SelectMessage, SourceMessage, numberFilter, EnterMeterNumberMessage, MeterNumberMessage, readingDateRangeFilter, getMeterReadingsDateProps, MeterReadingDateMessage, placeFilter, EnterPlaceMessage, PlaceMessage, nextVerificationDateRangeFilter, StartDateMessage, EndDateMessage, VerificationDateMessage, installationDateRangeFilter, InstallationDateMessage, commissioningDateRangeFilter, CommissioningDateMessage, sealingDateRangeFilter, SealingDateMessage, controlReadingsDateRangeFilter, ControlReadingsDate, archiveDateRangeFilter, ArchiveDate, addressStringContainsFilter, resourceStringContainsFilter, unitNameStringContainsFilter])
 }

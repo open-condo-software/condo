@@ -45,45 +45,52 @@ type CommonFilterComponentType = {
         label?: string
         size?: FilterComponentSize
         formItemProps?: FormItemProps
-    },
+    }
     columnFilterComponentWrapper?: CSSProperties
 }
 
 type GQLSelectFilterType = {
     type: ComponentType.GQLSelect
     props?: ISearchInputProps
+    getModalFilterComponentProps?: (form: FormInstance) => ISearchInputProps
 }
 
 type InputFilterType = {
     type: ComponentType.Input
     props?: InputProps
+    getModalFilterComponentProps?: (form: FormInstance) => InputProps
 }
 
 type CheckboxGroupFilterType = {
     type: ComponentType.CheckboxGroup
     options: OptionType[]
     props?: CheckboxGroupProps
+    getModalFilterComponentProps?: (form: FormInstance) => CheckboxGroupProps
 }
 
 type SelectFilterType = {
     type: ComponentType.Select
     options: OptionType[]
     props?: SelectProps<string>
+    getModalFilterComponentProps?: (form: FormInstance) => SelectProps<string>
 }
 
 type TagsSelectFilterType = {
     type: ComponentType.TagsSelect
     props?: SelectProps<string>
+    getModalFilterComponentProps?: (form: FormInstance) => SelectProps<string>
 }
 
 type DateFilterType = {
     type: ComponentType.Date
     props?: DatePickerProps
+    getModalFilterComponentProps?: (form: FormInstance) => DatePickerProps
 }
 
 type DateRangeFilterType = {
     type: ComponentType.DateRange
     props?: RangePickerProps<Dayjs>
+    getModalFilterComponentProps?: (form: FormInstance) => RangePickerProps<Dayjs>
 }
 
 type CustomFilterType<RecordType> = {
@@ -98,7 +105,7 @@ export type FilterComponentType<RecordType = unknown> = CommonFilterComponentTyp
 )
 
 export type FiltersMeta<FilterType, RecordType = unknown> = QueryMeta<FilterType> & {
-    component?: FilterComponentType<RecordType>,
+    component?: FilterComponentType<RecordType>
 }
 
 export const getQueryToValueProcessorByType = (type: ComponentType) => {
