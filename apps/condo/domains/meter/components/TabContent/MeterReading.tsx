@@ -11,8 +11,9 @@ import chunk from 'lodash/chunk'
 import get from 'lodash/get'
 import uniqBy from 'lodash/uniqBy'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
+import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { PlusCircle, Search } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -250,26 +251,30 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     const handleCloseUpdateReadingModal = useCallback(() => setIsShowUpdateReadingModal(false), [])
 
     const [selectedDates, setSelectedDates] = useState<[Dayjs, Dayjs]>()
-    const disabledDate = (current) => {
+    const disabledDate = useCallback((current) => {
         if (current > dayjs()) return true
         if (!selectedDates) return false
 
         const startDate = selectedDates[0]
         const endDate = selectedDates[1]
-
         const tooLate = startDate && current.diff(startDate, 'months', true) > EXPORT_METER_READINGS_MONTHS_LIMIT
         const tooEarly = endDate && endDate.diff(current, 'months', true) > EXPORT_METER_READINGS_MONTHS_LIMIT
+
         return !!tooEarly || !!tooLate
-    }
-    const onOpenChange = (open: boolean) => {
+    }, [selectedDates])
+
+    const onOpenChange = useCallback((open: boolean) => {
         if (open || !selectedDates) {
             return
         }
-
         if (!selectedDates[0] || !selectedDates[1]) {
             setSelectedDates(null)
         }
-    }
+    }, [selectedDates])
+
+    useDeepCompareEffect(() => {
+        setSelectedDates(dateRange)
+    }, [dateRange])
 
     return (
         <>
