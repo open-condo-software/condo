@@ -252,9 +252,23 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     const [selectedDates, setSelectedDates] = useState<[Dayjs, Dayjs]>()
     const disabledDate = (current) => {
         if (current > dayjs()) return true
-        const tooLate = selectedDates && selectedDates[0] && current.diff(selectedDates[0], 'months', true) > EXPORT_METER_READINGS_MONTHS_LIMIT
-        const tooEarly = selectedDates && selectedDates[1] && selectedDates[1].diff(current, 'months', true) > EXPORT_METER_READINGS_MONTHS_LIMIT
+        if (!selectedDates) return false
+
+        const startDate = selectedDates[0]
+        const endDate = selectedDates[1]
+
+        const tooLate = startDate && current.diff(startDate, 'months', true) > EXPORT_METER_READINGS_MONTHS_LIMIT
+        const tooEarly = endDate && endDate.diff(current, 'months', true) > EXPORT_METER_READINGS_MONTHS_LIMIT
         return !!tooEarly || !!tooLate
+    }
+    const onOpenChange = (open: boolean) => {
+        if (open || !selectedDates) {
+            return
+        }
+
+        if (!selectedDates[0] || !selectedDates[1]) {
+            setSelectedDates(null)
+        }
     }
 
     return (
@@ -283,9 +297,10 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                                                 value={dateRange}
                                                 onChange={handleDateChange}
                                                 placeholder={[StartDateMessage, EndDateMessage]}
-                                                onCalendarChange={val => setSelectedDates(val)}
                                                 disabledDate={disabledDate}
                                                 style={FULL_WIDTH_DATE_RANGE_STYLE}
+                                                onCalendarChange={val => setSelectedDates(val)}
+                                                onOpenChange={onOpenChange}
                                             />
                                         </Col>
                                     </Row>
