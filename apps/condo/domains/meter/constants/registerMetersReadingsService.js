@@ -21,8 +21,12 @@ const DATE_PARSING_FORMATS = [
     ...DATE_TIME_FORMATS,
     ...DATE_FORMATS,
 
-    'YYYY-MM-DDTHH:mm:ss.SSSZ', // The result of dayjs().toISOString()
+    'YYYY-MM-DDTHH:mm:ss.SSS[Z]', // The result of dayjs().toISOString()
+    'YYYY-MM-DDTHH:mm:ss.SSSZ',
     'YYYY-MM-DDTHH:mm:ss.SSS',
+    'YYYY-MM-DDTHH:mm:ssZZ',
+    'YYYY-MM-DDTHH:mm:ssZ',
+    'YYYY-MM-DDTHH:mm:ss',
 ].sort((a, b) => b.length - a.length) // Order matters! see "Differences to moment" https://day.js.org/docs/en/parse/string-format
 
 const READINGS_LIMIT = 500
