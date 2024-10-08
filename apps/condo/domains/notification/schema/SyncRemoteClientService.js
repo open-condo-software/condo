@@ -42,12 +42,13 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
                         pushTokenVoIP, pushTransportVoIP, pushTypeVoIP,
                     },
                 } = args
-
+                console.log('rustore payload', args)
                 /**
                  * Clear already used pushToken to avoid collisions
                  */
                 if (pushToken) {
                     const presentRemoteClient = await getByCondition('RemoteClient', { pushToken })
+                    console.log('rustore presentRemoteClient', presentRemoteClient)
 
                     if (get(presentRemoteClient, 'id')) {
                         await RemoteClient.update(context, presentRemoteClient.id, { dv, sender, pushToken: null })
@@ -73,7 +74,10 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
                     pushTokenVoIP, pushTransportVoIP, pushTypeVoIP,
                 }
                 const where = { deviceId, appId }
+                console.log('rustore before updateOrCreate', 'attrs', JSON.stringify(attrs))
+
                 const data = await RemoteClient.updateOrCreate(context, where, attrs)
+                console.log('rustore after updateOrCreate', 'attrs', JSON.stringify(data))
 
                 return await getById('RemoteClient', data.id)
             },
