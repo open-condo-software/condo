@@ -4,6 +4,7 @@
 const dayjs = require('dayjs')
 const customParseFormat = require('dayjs/plugin/customParseFormat')
 const { get, isUndefined, isEmpty, isNumber, isString, isNil, pick, set } = require('lodash')
+const uniq = require('lodash/uniq')
 
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
@@ -40,13 +41,12 @@ const DATE_PARSING_FORMATS = [
 const READINGS_LIMIT = 500
 
 const ERRORS = {
-    TOO_MUCH_READINGS: (sentCount) => ({
+    TOO_MUCH_READINGS: {
         code: BAD_USER_INPUT,
         type: TOO_MUCH_READINGS,
         message: `Too much readings. Maximum is ${READINGS_LIMIT}.`,
         messageForUser: 'api.meter.registerMetersReadings.TOO_MUCH_READINGS',
-        messageInterpolation: { limit: READINGS_LIMIT, sentCount },
-    }),
+    },
     ORGANIZATION_NOT_FOUND: {
         code: BAD_USER_INPUT,
         type: ORGANIZATION_NOT_FOUND,
@@ -59,39 +59,36 @@ const ERRORS = {
         message: 'Property not found',
         messageForUser: 'api.meter.registerMetersReadings.PROPERTY_NOT_FOUND',
     },
-    INVALID_METER_VALUES: (valuesList) => ({
+    INVALID_METER_VALUES: {
         code: BAD_USER_INPUT,
         type: INVALID_METER_VALUES,
         message: 'Invalid meter values',
         messageForUser: 'api.meter.registerMetersReadings.INVALID_METER_VALUES',
-        messageInterpolation: { valuesList },
-    }),
-    MULTIPLE_METERS_FOUND: (count) => ({
+    },
+    MULTIPLE_METERS_FOUND: {
         code: BAD_USER_INPUT,
         type: MULTIPLE_METERS_FOUND,
         message: 'Multiple meters found',
         messageForUser: 'api.meter.registerMetersReadings.MULTIPLE_METERS_FOUND',
-        messageInterpolation: { count },
-    }),
+    },
     INVALID_ACCOUNT_NUMBER: {
         code: BAD_USER_INPUT,
         type: INVALID_ACCOUNT_NUMBER,
         message: 'Invalid account number',
-        messageForUser: 'meter.import.error.AccountNumberInvalidValue',
+        messageForUser: 'api.meter.registerMetersReadings.INVALID_ACCOUNT_NUMBER',
     },
     INVALID_METER_NUMBER: {
         code: BAD_USER_INPUT,
         type: INVALID_METER_NUMBER,
         message: 'Invalid meter number',
-        messageForUser: 'meter.import.error.MeterNumberInvalidValue',
+        messageForUser: 'api.meter.registerMetersReadings.INVALID_METER_NUMBER',
     },
-    INVALID_DATE: (columnName) => ({
+    INVALID_DATE: {
         code: BAD_USER_INPUT,
         type: INVALID_DATE,
         message: 'Invalid date',
-        messageForUser: 'meter.import.error.WrongDateFormatMessage',
-        messageInterpolation: { columnName, format: [ISO_DATE_FORMAT, EUROPEAN_DATE_FORMAT].join('", "') },
-    }),
+        messageForUser: 'api.meter.registerMetersReadings.INVALID_DATE:',
+    },
 }
 
 const SYMBOLS_TO_CUT_FROM_DATES_REGEXP = /[^-_:.,( )/\d]/g
@@ -173,6 +170,21 @@ function meterReadingAsResult (meterReading) {
         },
     }
 }
+
+function transformToPlainObject (input) {
+    let result = {}
+
+    for (let key in input) {
+        if (typeof input[key] === 'object' && input[key] !== null && input[key].id) {
+            result[key] = input[key].id
+        } else {
+            result[key] = input[key]
+        }
+    }
+
+    return result
+}
+
 
 /**
  * @param {Meter} meter
@@ -263,7 +275,10 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                 const { data: { dv, sender, organization, readings } } = args
 
                 if (readings.length > READINGS_LIMIT) {
-                    throw new GQLError(ERRORS.TOO_MUCH_READINGS(readings.length), context)
+                    throw new GQLError({
+                        ...ERRORS.TOO_MUCH_READINGS,
+                        messageInterpolation: { limit: READINGS_LIMIT, sentCount: readings.length },
+                    }, context)
                 }
 
                 /** @type Organization */
@@ -287,7 +302,10 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     },
                 }), {}))
 
-                const addressesKeys = readings.map((reading) => get(resolvedAddresses, [reading.address, 'addressResolve', 'propertyAddress', 'addressKey'])).filter(Boolean)
+                const addressesKeys = uniq(
+                    readings.map((reading) => get(resolvedAddresses, [reading.address, 'addressResolve', 'propertyAddress', 'addressKey']))
+                        .filter(Boolean)
+                )
 
                 /** @type Property[] */
                 const properties = await find('Property', {
@@ -298,6 +316,39 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
 
                 const resultRows = []
 
+                const meterNumbers = uniq(readings.map(reading => reading.meterNumber.trim()))
+                const meters = await find('Meter', {
+                    organization,
+                    number_in: meterNumbers,
+                    deletedAt: null,
+                })
+
+                const readingsWithValidDates = readings.filter(reading => isDateValid(reading.date))
+                const plainMeterReadings = await find('MeterReading', {
+                    meter: { id_in: meters.map(meter => meter.id) },
+                    date_in: uniq(readingsWithValidDates.map(reading => toISO(reading.date))),
+                })
+                const propertyByIdMap = properties.reduce((acc, property) => {
+                    acc[property.id] = property
+                    return acc
+                }, {})
+                const metersWithPropertyByIdMap = meters.reduce((acc, meter) => {
+                    acc[meter.id] = {
+                        ...meter,
+                        property: propertyByIdMap[meter.property],
+                    }
+                    return acc
+                }, {})
+                const meterReadings = plainMeterReadings.map(reading => ({
+                    ...reading,
+                    meter: metersWithPropertyByIdMap[reading.meter],
+                }))
+                const meterReadingByDate = meterReadings.reduce((acc, reading) => {
+                    const key = `${reading.meter.id}-${reading.date.toISOString()}`
+                    acc[key] = reading
+                    return acc
+                }, {})
+
                 for (const reading of readings) {
                     const meterNumber = reading.meterNumber.trim()
                     const accountNumber = reading.accountNumber.trim()
@@ -305,6 +356,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     const unitName = get(reading, ['addressInfo', 'unitName'], get(resolvedAddresses, [reading.address, 'addressResolve', 'unitName'], '')).trim() || null
                     const addressKey = get(resolvedAddresses, [reading.address, 'addressResolve', 'propertyAddress', 'addressKey'])
                     let readingSource = get(reading, 'readingSource')
+
                     if (isNil(readingSource)) {
                         readingSource = { id: OTHER_METER_READING_SOURCE_ID }
                     }
@@ -320,10 +372,16 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     }
 
                     if (!isDateValid(reading.date)) {
-                        resultRows.push(new GQLError(ERRORS.INVALID_DATE(i18n('meter.import.column.meterReadingSubmissionDate', { locale })), context))
+                        resultRows.push(new GQLError({
+                            ...ERRORS.INVALID_DATE,
+                            messageInterpolation: {
+                                columnName: i18n('meter.import.column.meterReadingSubmissionDate', { locale }),
+                                format: [ISO_DATE_FORMAT, EUROPEAN_DATE_FORMAT].join('", "') },
+                        }, context))
                         continue
                     }
 
+                    const dateISO = toISO(reading.date)
                     const property = properties.find((p) => p.addressKey === addressKey)
 
                     if (!property) {
@@ -332,19 +390,20 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     }
 
                     let meterId
-                    const foundMeters = await find('Meter', {
-                        organization,
-                        property: { id: property.id },
-                        unitType,
-                        unitName,
-                        accountNumber,
-                        number: meterNumber,
-                        resource: reading.meterResource,
-                        deletedAt: null,
-                    })
+                    const foundMeters = meters.filter(meter =>
+                        meter.property === property.id &&
+                        meter.unitType === unitType &&
+                        meter.unitName === unitName &&
+                        meter.accountNumber === accountNumber &&
+                        meter.number === meterNumber &&
+                        meter.resource === reading.meterResource.id
+                    )
 
                     if (foundMeters.length > 1) {
-                        resultRows.push(new GQLError(ERRORS.MULTIPLE_METERS_FOUND(foundMeters.length), context))
+                        resultRows.push(new GQLError({
+                            ...ERRORS.MULTIPLE_METERS_FOUND,
+                            messageInterpolation: { count: foundMeters.length },
+                        }, context))
                         continue
                     }
 
@@ -368,12 +427,18 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
 
                     if (Object.keys(errorValues).length > 0) {
                         const errorValuesKeys = Object.keys(errorValues)
-                        resultRows.push(new GQLError(
-                            ERRORS.INVALID_METER_VALUES(errorValuesKeys.map((errKey) => `"${i18n(`meter.import.column.${errKey}`, { locale })}"="${errorValues[errKey]}"`)),
-                            context,
+                        const valuesList = errorValuesKeys.map((errKey) => {
+                            const column = i18n(`meter.import.column.${errKey}`, { locale })
+                            return `"${column}"="${errorValues[errKey]}"`
+                        })
+                        resultRows.push(new GQLError({
+                            ...ERRORS.INVALID_METER_VALUES,
+                            messageInterpolation: { valuesList },
+                        }, context,
                         ))
                         continue
                     }
+
                     try {
                         if (foundMeter) {
                             meterId = foundMeter.id
@@ -390,7 +455,9 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                                 isAutomatic: get(reading, ['meterMeta', 'isAutomatic']),
                             }
                             if (shouldUpdateMeter(foundMeter, fieldsToUpdate)) {
-                                await Meter.update(context, foundMeter.id, { dv, sender, ...fieldsToUpdate })
+                                const updatedMeter = await Meter.update(context, foundMeter.id, { dv, sender, ...fieldsToUpdate })
+                                const meterIndex = meters.indexOf(meter => meter.id === updatedMeter.id)
+                                meters[meterIndex] = transformToPlainObject(updatedMeter)
                             }
                         } else {
                             const rawControlReadingsDate = get(reading, ['meterMeta', 'controlReadingsDate'])
@@ -415,6 +482,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                                 isAutomatic: get(reading, ['meterMeta', 'isAutomatic']),
                             })
                             meterId = createdMeter.id
+                            meters.push(transformToPlainObject(createdMeter))
                         }
                     } catch (e) {
                         resultRows.push(e)
@@ -422,13 +490,10 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     }
 
                     try {
-                        const duplicates = await MeterReading.getAll(context, {
-                            meter: { id: meterId },
-                            date: toISO(reading.date),
-                            ...values,
-                        })
+                        const key = `${meterId}-${dateISO}`
+                        const duplicateReading = meterReadingByDate[key]
 
-                        if (duplicates.length === 0) {
+                        if (!duplicateReading) {
                             const createdMeterReading = await MeterReading.create(context, {
                                 dv,
                                 sender,
@@ -438,9 +503,10 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                                 ...values,
                             })
 
+                            meterReadingByDate[key] = createdMeterReading
                             resultRows.push(meterReadingAsResult(createdMeterReading))
                         } else {
-                            resultRows.push(meterReadingAsResult(duplicates[0]))
+                            resultRows.push(meterReadingAsResult(duplicateReading))
                         }
                     } catch (e) {
                         resultRows.push(e)

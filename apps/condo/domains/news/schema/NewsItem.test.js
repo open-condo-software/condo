@@ -789,37 +789,7 @@ describe('NewsItems', () => {
             expect(updatedObj.type).toMatch(NEWS_TYPE_COMMON)
         })
 
-        test('must throw an error if there is no validity date for emergency news item', async () => {
-            await expectToThrowGQLError(
-                async () => await createTestNewsItem(adminClient, dummyO10n, { type: NEWS_TYPE_EMERGENCY }),
-                {
-                    code: 'BAD_USER_INPUT',
-                    type: 'EMPTY_VALID_BEFORE_DATE',
-                    message: 'The date the news item valid before is empty',
-                    mutation: 'createNewsItem',
-                    variable: ['data', 'validBefore'],
-                    messageForUser: 'api.newsItem.EMPTY_VALID_BEFORE_DATE',
-                },
-            )
-        })
-
-        test('must throw an error if validity date is less than send date', async () => {
-            await expectToThrowGQLError(
-                async () => await createTestNewsItem(adminClient, dummyO10n, {
-                    sendAt: dayjs().add(1, 'hour').toISOString(),
-                    validBefore: dayjs().add(57, 'minutes').toISOString(),
-                }),
-                {
-                    code: 'BAD_USER_INPUT',
-                    type: 'VALIDITY_DATE_LESS_THAN_SEND_DATE',
-                    message: 'The validity date is less than send date',
-                    mutation: 'updateNewsItem',
-                    messageForUser: 'api.newsItem.VALIDITY_DATE_LESS_THAN_SEND_DATE',
-                },
-            )
-        })
-
-        test('must throw an error on user trying to edit the news item which already been sent', async () => {
+        test('must allow to set validBefore on published and even sent news items', async () => {
             const [o10n] = await createTestOrganization(adminClient)
             const [newsItem] = await createTestNewsItem(adminClient, o10n)
             await createTestNewsItemScope(adminClient, newsItem)
@@ -835,16 +805,104 @@ describe('NewsItems', () => {
                 expect(sentNewsItem.sentAt).not.toBeNull()
             })
 
+            const [updatedObj] = await updateTestNewsItem(adminClient, newsItem.id, { validBefore: dayjs().toISOString() })
+            expect(updatedObj.type).toMatch(NEWS_TYPE_COMMON)
+        })
+
+        test('must allow to set validBefore equal to sentAt on published and even sent news items', async () => {
+            const [o10n] = await createTestOrganization(adminClient)
+            const [newsItem] = await createTestNewsItem(adminClient, o10n)
+            await createTestNewsItemScope(adminClient, newsItem)
+            await publishTestNewsItem(adminClient, newsItem.id)
+
+            await waitFor(async () => {
+                const [res] = await _internalScheduleTaskByNameByTestClient(adminClient, { taskName: 'notifyResidentsAboutDelayedNewsItems' })
+                expect(res.id).toBeDefined()
+            }, { delay: (SENDING_DELAY_SEC + 2) * 1000 })
+
+            await waitFor(async () => {
+                const sentNewsItem = await NewsItem.getOne(adminClient, { id: newsItem.id })
+                expect(sentNewsItem.sentAt).not.toBeNull()
+            })
+
+            const sentNewsItem = await NewsItem.getOne(adminClient, { id: newsItem.id })
+            const sentAt = sentNewsItem.sentAt
+
+            const [updatedObj] = await updateTestNewsItem(adminClient, newsItem.id, { validBefore: sentAt })
+            expect(updatedObj.type).toMatch(NEWS_TYPE_COMMON)
+        })
+
+        test('must throw an error if there is no validity date for emergency news item', async () => {
             await expectToThrowGQLError(
-                async () => await updateTestNewsItem(adminClient, newsItem.id, { title: faker.lorem.words(3) }),
+                async () => await createTestNewsItem(adminClient, dummyO10n, { type: NEWS_TYPE_EMERGENCY }),
                 {
                     code: 'BAD_USER_INPUT',
-                    type: 'EDIT_DENIED_ALREADY_SENT',
-                    message: 'The sent news item is restricted from editing',
-                    mutation: 'updateNewsItem',
-                    messageForUser: 'api.newsItem.EDIT_DENIED_ALREADY_SENT',
+                    type: 'EMPTY_VALID_BEFORE_DATE',
+                    message: 'The date the news item valid before is empty',
+                    mutation: 'createNewsItem',
+                    variable: ['data', 'validBefore'],
+                    messageForUser: 'api.news.newsItem.EMPTY_VALID_BEFORE_DATE',
                 },
             )
+        })
+
+        test('must throw an error if validity date is less than send date', async () => {
+            await expectToThrowGQLError(
+                async () => await createTestNewsItem(adminClient, dummyO10n, {
+                    sendAt: dayjs().add(1, 'hour').toISOString(),
+                    validBefore: dayjs().add(57, 'minutes').toISOString(),
+                }),
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'VALIDITY_DATE_LESS_THAN_SEND_DATE',
+                    message: 'The validity date is less than send date',
+                    mutation: 'updateNewsItem',
+                    messageForUser: 'api.news.newsItem.VALIDITY_DATE_LESS_THAN_SEND_DATE',
+                },
+            )
+        })
+
+        describe('must throw an error on user trying to edit the news item which already been sent', () => {
+            const payloads = [
+                { title: faker.lorem.words(3) },
+                { body: faker.lorem.words(3) },
+                { type: NEWS_TYPE_EMERGENCY },
+                { sendAt: faker.date.soon().toISOString() },
+            ]
+
+            let newsItemId
+
+            beforeAll(async () => {
+                const [o10n] = await createTestOrganization(adminClient)
+                const [newsItem] = await createTestNewsItem(adminClient, o10n)
+                await createTestNewsItemScope(adminClient, newsItem)
+                await publishTestNewsItem(adminClient, newsItem.id)
+
+                await waitFor(async () => {
+                    const [res] = await _internalScheduleTaskByNameByTestClient(adminClient, { taskName: 'notifyResidentsAboutDelayedNewsItems' })
+                    expect(res.id).toBeDefined()
+                }, { delay: (SENDING_DELAY_SEC + 2) * 1000 })
+
+                await waitFor(async () => {
+                    const sentNewsItem = await NewsItem.getOne(adminClient, { id: newsItem.id })
+                    expect(sentNewsItem.sentAt).not.toBeNull()
+                })
+
+                newsItemId = newsItem.id
+            })
+
+            test.each(payloads)('%p', async (payload) => {
+                await expectToThrowGQLError(
+                    async () => await updateTestNewsItem(adminClient, newsItemId, payload),
+                    {
+                        code: 'BAD_USER_INPUT',
+                        type: 'EDIT_DENIED_ALREADY_SENT',
+                        message: 'The sent news item is restricted from editing',
+                        mutation: 'updateNewsItem',
+                        messageForUser: 'api.news.newsItem.EDIT_DENIED_ALREADY_SENT',
+                    },
+                )
+            })
         })
 
         describe('must throw an error on trying to edit the published news item', () => {
@@ -872,7 +930,7 @@ describe('NewsItems', () => {
                         type: 'EDIT_DENIED_PUBLISHED',
                         message: 'The published news item is restricted from editing',
                         mutation: 'updateNewsItem',
-                        messageForUser: 'api.newsItem.EDIT_DENIED_PUBLISHED',
+                        messageForUser: 'api.news.newsItem.EDIT_DENIED_PUBLISHED',
                     },
                 )
             })
@@ -887,7 +945,7 @@ describe('NewsItems', () => {
                     code: 'BAD_USER_INPUT',
                     type: 'PROFANITY_TITLE_DETECTED_MOT_ERF_KER',
                     message: 'Profanity in title detected',
-                    messageForUser: 'api.newsItem.PROFANITY_TITLE_DETECTED_MOT_ERF_KER',
+                    messageForUser: 'api.news.newsItem.PROFANITY_TITLE_DETECTED_MOT_ERF_KER',
                     badWords: expect.any(String),
                 },
             )
@@ -909,7 +967,7 @@ describe('NewsItems', () => {
                     code: 'BAD_USER_INPUT',
                     type: 'PROFANITY_BODY_DETECTED_MOT_ERF_KER',
                     message: 'Profanity in body detected',
-                    messageForUser: 'api.newsItem.PROFANITY_BODY_DETECTED_MOT_ERF_KER',
+                    messageForUser: 'api.news.newsItem.PROFANITY_BODY_DETECTED_MOT_ERF_KER',
                     badWords: expect.any(String),
                 },
             )
@@ -941,7 +999,7 @@ describe('NewsItems', () => {
                     code: 'BAD_USER_INPUT',
                     type: 'WRONG_SEND_DATE',
                     message: 'Wrong send date',
-                    messageForUser: 'api.newsItem.WRONG_SEND_DATE',
+                    messageForUser: 'api.news.newsItem.WRONG_SEND_DATE',
                 },
             )
         })
@@ -951,7 +1009,7 @@ describe('NewsItems', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'NO_NEWS_ITEM_SCOPES',
                 message: 'The news item without scopes publishing is forbidden',
-                messageForUser: 'api.newsItem.NO_NEWS_ITEM_SCOPES',
+                messageForUser: 'api.news.newsItem.NO_NEWS_ITEM_SCOPES',
             }
 
             await expectToThrowGQLError(

@@ -204,7 +204,7 @@ export const BaseEmployeeRoleForm: React.FC<BaseEmployeeRoleFormPropsType> = ({
     const PermissionsSectionTitle = intl.formatMessage({ id: 'pages.condo.employeeRole.form.permissions.title' })
     const NotEditableRoleTooltip = intl.formatMessage({ id: 'pages.condo.employeeRole.tooltip.notEditableRole' }, { role: get(employeeRoleToUpdate, 'name') })
     const RoleCreationLimitReachedTooltip = intl.formatMessage({ id: 'pages.condo.settings.employeeRoles.roleCreationLimitReachedTooltip' }, { max: MAX_ROLE_COUNT })
-    const RoleNameAlreadyExistErrorMessage = intl.formatMessage({ id: 'api.organization.OrganizationEmployeeRole.ROLE_NAME_ALREADY_EXIST' })
+    const RoleNameAlreadyExistErrorMessage = intl.formatMessage({ id: 'api.organization.organizationEmployeeRole.ROLE_NAME_ALREADY_EXIST' })
     const CancelMessage = intl.formatMessage({ id: 'Cancel' })
     const SaveMessage = intl.formatMessage({ id: 'Save' })
 

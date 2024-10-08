@@ -13,13 +13,13 @@ const ERRORS = {
     ASSIGNEE_NOT_FOUND: {
         code: BAD_USER_INPUT,
         type: 'ASSIGNEE_NOT_FOUND',
-        messageForUser: 'api.ticket.TicketAutoAssignment.error.ASSIGNEE_NOT_FOUND',
+        messageForUser: 'api.ticket.ticketAutoAssignment.ASSIGNEE_NOT_FOUND',
         message: 'There is no such employee (assignee) in the organization',
     },
     EXECUTOR_NOT_FOUND: {
         code: BAD_USER_INPUT,
         type: 'EXECUTOR_NOT_FOUND',
-        messageForUser: 'api.ticket.TicketAutoAssignment.error.EXECUTOR_NOT_FOUND',
+        messageForUser: 'api.ticket.ticketAutoAssignment.EXECUTOR_NOT_FOUND',
         message: 'There is no such employee (executor) in the organization',
     },
 }

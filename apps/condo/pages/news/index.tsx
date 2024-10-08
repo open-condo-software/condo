@@ -221,7 +221,6 @@ const NewsPage: INewsIndexPage = () => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.news.index.pageTitle' })
 
-
     const { link, organization }  = useOrganization()
     const employeeId = get(link, 'id')
     const { isLoading: isAccessLoading } = useNewsItemsAccess()

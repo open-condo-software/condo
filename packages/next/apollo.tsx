@@ -8,8 +8,8 @@ import {
     useSubscription,
     ApolloLink,
     NormalizedCacheObject,
+    InMemoryCacheConfig,
 } from '@apollo/client'
-import { InMemoryCacheConfig } from '@apollo/client/cache/inmemory/inMemoryCache'
 import { ApolloClientOptions } from '@apollo/client/core/ApolloClient'
 import { BatchHttpLink } from '@apollo/client/link/batch-http'
 import { createUploadLink } from 'apollo-upload-client'

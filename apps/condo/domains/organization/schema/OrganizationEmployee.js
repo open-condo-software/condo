@@ -28,7 +28,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: ALREADY_INVITED_EMAIL,
         message: 'Employee with same email already invited into the organization',
-        messageForUser: 'api.organizationEmployee.ALREADY_INVITED_EMAIL',
+        messageForUser: 'api.organization.organizationEmployee.ALREADY_INVITED_EMAIL',
         variable: ['email'],
     },
     ALREADY_INVITED_PHONE: {
@@ -36,7 +36,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: ALREADY_INVITED_PHONE,
         message: 'Employee with same phone already invited into the organization',
-        messageForUser: 'api.organizationEmployee.ALREADY_INVITED_PHONE',
+        messageForUser: 'api.organization.organizationEmployee.ALREADY_INVITED_PHONE',
         variable: ['phone'],
     },
     NOT_FOUND_ROLE: {
@@ -44,7 +44,7 @@ const ERRORS = {
         type: NOT_FOUND,
         variable: ['data', 'role'],
         message: 'Role not found for the specified organization',
-        messageForUser: 'api.organizationEmployee.NOT_FOUND_ROLE',
+        messageForUser: 'api.organization.organizationEmployee.NOT_FOUND_ROLE',
     },
 }
 

@@ -39119,6 +39119,7 @@ enum RemoteClientPushTransportType {
   firebase
   apple
   huawei
+  redstore
 }
 
 enum RemoteClientDevicePlatformType {
@@ -39136,6 +39137,7 @@ enum RemoteClientPushTransportVoIPType {
   firebase
   apple
   huawei
+  redstore
 }
 
 enum RemoteClientPushTypeVoIPType {
@@ -52276,6 +52278,638 @@ input MeterReadingsImportTasksCreateInput {
   data: MeterReadingsImportTaskCreateInput
 }
 
+enum MeterReadingExportTaskHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type MeterReadingExportTaskHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the MeterReadingExportTaskHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the MeterReadingExportTaskHistoryRecord List config, or
+   3. As an alias to a 'name' field on the MeterReadingExportTaskHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the MeterReadingExportTaskHistoryRecord List.
+  """
+  _label_: String
+  status: String
+  format: String
+  exportedRecordsCount: Int
+  totalRecordsCount: Int
+  file: JSON
+  meta: JSON
+  where: JSON
+  sortBy: JSON
+  locale: String
+  timeZone: String
+  user: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: MeterReadingExportTaskHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input MeterReadingExportTaskHistoryRecordWhereInput {
+  AND: [MeterReadingExportTaskHistoryRecordWhereInput]
+  OR: [MeterReadingExportTaskHistoryRecordWhereInput]
+  status: String
+  status_not: String
+  status_contains: String
+  status_not_contains: String
+  status_starts_with: String
+  status_not_starts_with: String
+  status_ends_with: String
+  status_not_ends_with: String
+  status_i: String
+  status_not_i: String
+  status_contains_i: String
+  status_not_contains_i: String
+  status_starts_with_i: String
+  status_not_starts_with_i: String
+  status_ends_with_i: String
+  status_not_ends_with_i: String
+  status_in: [String]
+  status_not_in: [String]
+  format: String
+  format_not: String
+  format_contains: String
+  format_not_contains: String
+  format_starts_with: String
+  format_not_starts_with: String
+  format_ends_with: String
+  format_not_ends_with: String
+  format_i: String
+  format_not_i: String
+  format_contains_i: String
+  format_not_contains_i: String
+  format_starts_with_i: String
+  format_not_starts_with_i: String
+  format_ends_with_i: String
+  format_not_ends_with_i: String
+  format_in: [String]
+  format_not_in: [String]
+  exportedRecordsCount: Int
+  exportedRecordsCount_not: Int
+  exportedRecordsCount_lt: Int
+  exportedRecordsCount_lte: Int
+  exportedRecordsCount_gt: Int
+  exportedRecordsCount_gte: Int
+  exportedRecordsCount_in: [Int]
+  exportedRecordsCount_not_in: [Int]
+  totalRecordsCount: Int
+  totalRecordsCount_not: Int
+  totalRecordsCount_lt: Int
+  totalRecordsCount_lte: Int
+  totalRecordsCount_gt: Int
+  totalRecordsCount_gte: Int
+  totalRecordsCount_in: [Int]
+  totalRecordsCount_not_in: [Int]
+  file: JSON
+  file_not: JSON
+  file_in: [JSON]
+  file_not_in: [JSON]
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
+  where: JSON
+  where_not: JSON
+  where_in: [JSON]
+  where_not_in: [JSON]
+  sortBy: JSON
+  sortBy_not: JSON
+  sortBy_in: [JSON]
+  sortBy_not_in: [JSON]
+  locale: String
+  locale_not: String
+  locale_contains: String
+  locale_not_contains: String
+  locale_starts_with: String
+  locale_not_starts_with: String
+  locale_ends_with: String
+  locale_not_ends_with: String
+  locale_i: String
+  locale_not_i: String
+  locale_contains_i: String
+  locale_not_contains_i: String
+  locale_starts_with_i: String
+  locale_not_starts_with_i: String
+  locale_ends_with_i: String
+  locale_not_ends_with_i: String
+  locale_in: [String]
+  locale_not_in: [String]
+  timeZone: String
+  timeZone_not: String
+  timeZone_contains: String
+  timeZone_not_contains: String
+  timeZone_starts_with: String
+  timeZone_not_starts_with: String
+  timeZone_ends_with: String
+  timeZone_not_ends_with: String
+  timeZone_i: String
+  timeZone_not_i: String
+  timeZone_contains_i: String
+  timeZone_not_contains_i: String
+  timeZone_starts_with_i: String
+  timeZone_not_starts_with_i: String
+  timeZone_ends_with_i: String
+  timeZone_not_ends_with_i: String
+  timeZone_in: [String]
+  timeZone_not_in: [String]
+  user: String
+  user_not: String
+  user_in: [String]
+  user_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: MeterReadingExportTaskHistoryRecordHistoryActionType
+  history_action_not: MeterReadingExportTaskHistoryRecordHistoryActionType
+  history_action_in: [MeterReadingExportTaskHistoryRecordHistoryActionType]
+  history_action_not_in: [MeterReadingExportTaskHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input MeterReadingExportTaskHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortMeterReadingExportTaskHistoryRecordsBy {
+  status_ASC
+  status_DESC
+  format_ASC
+  format_DESC
+  exportedRecordsCount_ASC
+  exportedRecordsCount_DESC
+  totalRecordsCount_ASC
+  totalRecordsCount_DESC
+  locale_ASC
+  locale_DESC
+  timeZone_ASC
+  timeZone_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input MeterReadingExportTaskHistoryRecordUpdateInput {
+  status: String
+  format: String
+  exportedRecordsCount: Int
+  totalRecordsCount: Int
+  file: JSON
+  meta: JSON
+  where: JSON
+  sortBy: JSON
+  locale: String
+  timeZone: String
+  user: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: MeterReadingExportTaskHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input MeterReadingExportTaskHistoryRecordsUpdateInput {
+  id: ID!
+  data: MeterReadingExportTaskHistoryRecordUpdateInput
+}
+
+input MeterReadingExportTaskHistoryRecordCreateInput {
+  status: String
+  format: String
+  exportedRecordsCount: Int
+  totalRecordsCount: Int
+  file: JSON
+  meta: JSON
+  where: JSON
+  sortBy: JSON
+  locale: String
+  timeZone: String
+  user: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: MeterReadingExportTaskHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input MeterReadingExportTaskHistoryRecordsCreateInput {
+  data: MeterReadingExportTaskHistoryRecordCreateInput
+}
+
+enum MeterReadingExportTaskStatusType {
+  processing
+  completed
+  error
+  cancelled
+}
+
+enum MeterReadingExportTaskFormatType {
+  excel
+}
+
+enum MeterReadingExportTaskLocaleType {
+  ru
+  en
+}
+
+""" Stores requested export format, status of export job, link to exported file and information about progress of export job 
+"""
+type MeterReadingExportTask {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the MeterReadingExportTask List config, or
+   2. As an alias to the field set on 'labelField' in the MeterReadingExportTask List config, or
+   3. As an alias to a 'name' field on the MeterReadingExportTask List (if one exists), or
+   4. As an alias to the 'id' field on the MeterReadingExportTask List.
+  """
+  _label_: String
+
+  """ Status of the job. Used at client side progress information component 
+  """
+  status: MeterReadingExportTaskStatusType
+
+  """ Requested export file format """
+  format: MeterReadingExportTaskFormatType
+
+  """ How many records at the moment are exported """
+  exportedRecordsCount: Int
+
+  """ Total records to export that will be determined at server side in export operation 
+  """
+  totalRecordsCount: Int
+
+  """ Meta information about file, saved outside of database somewhere. Shape of meta information JSON object is specific to file adapter, used by saving a file. 
+  """
+  file: File
+
+  """ Stores information about query and ids of exported and failed records 
+  """
+  meta: JSON
+
+  """ Filtering conditions for records to export """
+  where: JSON
+
+  """ Sorting parameters for records to export """
+  sortBy: [SortMeterReadingsBy]
+
+  """ Requested export locale, in that the resulting file will be rendered """
+  locale: MeterReadingExportTaskLocaleType
+
+  """ To requested timeZone all datetime fields will be converted """
+  timeZone: String
+
+  """ User that requested this exporting operation. Will be used for read access checks to display all exported tasks somewhere and to display progress indicator of ongoing exporting task for current user 
+  """
+  user: User
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input MeterReadingExportTaskWhereInput {
+  AND: [MeterReadingExportTaskWhereInput]
+  OR: [MeterReadingExportTaskWhereInput]
+  status: MeterReadingExportTaskStatusType
+  status_not: MeterReadingExportTaskStatusType
+  status_in: [MeterReadingExportTaskStatusType]
+  status_not_in: [MeterReadingExportTaskStatusType]
+  format: MeterReadingExportTaskFormatType
+  format_not: MeterReadingExportTaskFormatType
+  format_in: [MeterReadingExportTaskFormatType]
+  format_not_in: [MeterReadingExportTaskFormatType]
+  exportedRecordsCount: Int
+  exportedRecordsCount_not: Int
+  exportedRecordsCount_lt: Int
+  exportedRecordsCount_lte: Int
+  exportedRecordsCount_gt: Int
+  exportedRecordsCount_gte: Int
+  exportedRecordsCount_in: [Int]
+  exportedRecordsCount_not_in: [Int]
+  totalRecordsCount: Int
+  totalRecordsCount_not: Int
+  totalRecordsCount_lt: Int
+  totalRecordsCount_lte: Int
+  totalRecordsCount_gt: Int
+  totalRecordsCount_gte: Int
+  totalRecordsCount_in: [Int]
+  totalRecordsCount_not_in: [Int]
+  file: String
+  file_not: String
+  file_in: [String]
+  file_not_in: [String]
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
+  where: MeterReadingWhereInput
+  where_not: MeterReadingWhereInput
+  where_in: [MeterReadingWhereInput]
+  where_not_in: [MeterReadingWhereInput]
+  sortBy: [SortMeterReadingsBy]
+  sortBy_not: [SortMeterReadingsBy]
+  sortBy_in: [[SortMeterReadingsBy]]
+  sortBy_not_in: [[SortMeterReadingsBy]]
+  locale: MeterReadingExportTaskLocaleType
+  locale_not: MeterReadingExportTaskLocaleType
+  locale_in: [MeterReadingExportTaskLocaleType]
+  locale_not_in: [MeterReadingExportTaskLocaleType]
+  timeZone: String
+  timeZone_not: String
+  timeZone_contains: String
+  timeZone_not_contains: String
+  timeZone_starts_with: String
+  timeZone_not_starts_with: String
+  timeZone_ends_with: String
+  timeZone_not_ends_with: String
+  timeZone_i: String
+  timeZone_not_i: String
+  timeZone_contains_i: String
+  timeZone_not_contains_i: String
+  timeZone_starts_with_i: String
+  timeZone_not_starts_with_i: String
+  timeZone_ends_with_i: String
+  timeZone_not_ends_with_i: String
+  timeZone_in: [String]
+  timeZone_not_in: [String]
+  user: UserWhereInput
+  user_is_null: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input MeterReadingExportTaskWhereUniqueInput {
+  id: ID!
+}
+
+enum SortMeterReadingExportTasksBy {
+  status_ASC
+  status_DESC
+  format_ASC
+  format_DESC
+  exportedRecordsCount_ASC
+  exportedRecordsCount_DESC
+  totalRecordsCount_ASC
+  totalRecordsCount_DESC
+  locale_ASC
+  locale_DESC
+  timeZone_ASC
+  timeZone_DESC
+  user_ASC
+  user_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input MeterReadingExportTaskUpdateInput {
+  status: MeterReadingExportTaskStatusType
+  format: MeterReadingExportTaskFormatType
+  exportedRecordsCount: Int
+  totalRecordsCount: Int
+  file: Upload
+  meta: JSON
+  where: MeterReadingWhereInput
+  sortBy: [SortMeterReadingsBy]
+  locale: MeterReadingExportTaskLocaleType
+  timeZone: String
+  user: UserRelateToOneInput
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input MeterReadingExportTasksUpdateInput {
+  id: ID!
+  data: MeterReadingExportTaskUpdateInput
+}
+
+input MeterReadingExportTaskCreateInput {
+  status: MeterReadingExportTaskStatusType
+  format: MeterReadingExportTaskFormatType
+  exportedRecordsCount: Int
+  totalRecordsCount: Int
+  file: Upload
+  meta: JSON
+  where: MeterReadingWhereInput
+  sortBy: [SortMeterReadingsBy]
+  locale: MeterReadingExportTaskLocaleType
+  timeZone: String
+  user: UserRelateToOneInput
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input MeterReadingExportTasksCreateInput {
+  data: MeterReadingExportTaskCreateInput
+}
+
 enum ServiceSubscriptionHistoryRecordHistoryActionType {
   c
   u
@@ -52885,6 +53519,7 @@ type AcquiringIntegrationHistoryRecord {
   hostUrl: String
   supportedBillingIntegrationsGroup: String
   minimumPaymentAmount: String
+  maximumPaymentAmount: String
   explicitFeeDistributionSchema: JSON
   contextDefaultStatus: String
   vatPercentOptions: String
@@ -52990,6 +53625,14 @@ input AcquiringIntegrationHistoryRecordWhereInput {
   minimumPaymentAmount_gte: String
   minimumPaymentAmount_in: [String]
   minimumPaymentAmount_not_in: [String]
+  maximumPaymentAmount: String
+  maximumPaymentAmount_not: String
+  maximumPaymentAmount_lt: String
+  maximumPaymentAmount_lte: String
+  maximumPaymentAmount_gt: String
+  maximumPaymentAmount_gte: String
+  maximumPaymentAmount_in: [String]
+  maximumPaymentAmount_not_in: [String]
   explicitFeeDistributionSchema: JSON
   explicitFeeDistributionSchema_not: JSON
   explicitFeeDistributionSchema_in: [JSON]
@@ -53127,6 +53770,8 @@ enum SortAcquiringIntegrationHistoryRecordsBy {
   supportedBillingIntegrationsGroup_DESC
   minimumPaymentAmount_ASC
   minimumPaymentAmount_DESC
+  maximumPaymentAmount_ASC
+  maximumPaymentAmount_DESC
   contextDefaultStatus_ASC
   contextDefaultStatus_DESC
   vatPercentOptions_ASC
@@ -53157,6 +53802,7 @@ input AcquiringIntegrationHistoryRecordUpdateInput {
   hostUrl: String
   supportedBillingIntegrationsGroup: String
   minimumPaymentAmount: String
+  maximumPaymentAmount: String
   explicitFeeDistributionSchema: JSON
   contextDefaultStatus: String
   vatPercentOptions: String
@@ -53187,6 +53833,7 @@ input AcquiringIntegrationHistoryRecordCreateInput {
   hostUrl: String
   supportedBillingIntegrationsGroup: String
   minimumPaymentAmount: String
+  maximumPaymentAmount: String
   explicitFeeDistributionSchema: JSON
   contextDefaultStatus: String
   vatPercentOptions: String
@@ -53275,6 +53922,9 @@ type AcquiringIntegration {
 
   """ The minimum payment amount that can be accepted """
   minimumPaymentAmount: String
+
+  """ The maximum payment amount that can be accepted """
+  maximumPaymentAmount: String
 
   """ Contains information about the default distribution of explicit fee. Each part is paid by the user on top of original amount if there is no part with the same name in the integration context. Otherwise, the part is ignored as it is paid by recipient 
   """
@@ -53405,6 +54055,14 @@ input AcquiringIntegrationWhereInput {
   minimumPaymentAmount_gte: String
   minimumPaymentAmount_in: [String]
   minimumPaymentAmount_not_in: [String]
+  maximumPaymentAmount: String
+  maximumPaymentAmount_not: String
+  maximumPaymentAmount_lt: String
+  maximumPaymentAmount_lte: String
+  maximumPaymentAmount_gt: String
+  maximumPaymentAmount_gte: String
+  maximumPaymentAmount_in: [String]
+  maximumPaymentAmount_not_in: [String]
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   explicitFeeDistributionSchema_not: [FeeDistributionFieldInput!]
   explicitFeeDistributionSchema_in: [[FeeDistributionFieldInput!]]
@@ -53510,6 +54168,8 @@ enum SortAcquiringIntegrationsBy {
   supportedBillingIntegrationsGroup_DESC
   minimumPaymentAmount_ASC
   minimumPaymentAmount_DESC
+  maximumPaymentAmount_ASC
+  maximumPaymentAmount_DESC
   contextDefaultStatus_ASC
   contextDefaultStatus_DESC
   vatPercentOptions_ASC
@@ -53541,6 +54201,7 @@ input AcquiringIntegrationUpdateInput {
   hostUrl: String
   supportedBillingIntegrationsGroup: String
   minimumPaymentAmount: String
+  maximumPaymentAmount: String
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   contextDefaultStatus: AcquiringIntegrationContextDefaultStatusType
   vatPercentOptions: String
@@ -53569,6 +54230,7 @@ input AcquiringIntegrationCreateInput {
   hostUrl: String
   supportedBillingIntegrationsGroup: String
   minimumPaymentAmount: String
+  maximumPaymentAmount: String
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   contextDefaultStatus: AcquiringIntegrationContextDefaultStatusType
   vatPercentOptions: String
@@ -61435,6 +62097,8 @@ type NewsItemTemplateHistoryRecord {
   _label_: String
   type: String
   organization: String
+  name: String
+  category: String
   title: String
   body: String
   id: ID!
@@ -61477,6 +62141,42 @@ input NewsItemTemplateHistoryRecordWhereInput {
   organization_not: String
   organization_in: [String]
   organization_not_in: [String]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  category: String
+  category_not: String
+  category_contains: String
+  category_not_contains: String
+  category_starts_with: String
+  category_not_starts_with: String
+  category_ends_with: String
+  category_not_ends_with: String
+  category_i: String
+  category_not_i: String
+  category_contains_i: String
+  category_not_contains_i: String
+  category_starts_with_i: String
+  category_not_starts_with_i: String
+  category_ends_with_i: String
+  category_not_ends_with_i: String
+  category_in: [String]
+  category_not_in: [String]
   title: String
   title_not: String
   title_contains: String
@@ -61598,6 +62298,10 @@ input NewsItemTemplateHistoryRecordWhereUniqueInput {
 enum SortNewsItemTemplateHistoryRecordsBy {
   type_ASC
   type_DESC
+  name_ASC
+  name_DESC
+  category_ASC
+  category_DESC
   title_ASC
   title_DESC
   body_ASC
@@ -61623,6 +62327,8 @@ enum SortNewsItemTemplateHistoryRecordsBy {
 input NewsItemTemplateHistoryRecordUpdateInput {
   type: String
   organization: String
+  name: String
+  category: String
   title: String
   body: String
   v: Int
@@ -61647,6 +62353,8 @@ input NewsItemTemplateHistoryRecordsUpdateInput {
 input NewsItemTemplateHistoryRecordCreateInput {
   type: String
   organization: String
+  name: String
+  category: String
   title: String
   body: String
   v: Int
@@ -61672,6 +62380,22 @@ enum NewsItemTemplateTypeType {
   emergency
 }
 
+enum NewsItemTemplateCategoryType {
+  WATER
+  HEATING
+  ELECTRICITY
+  UTILITIES
+  ELECTRICITY_AND_ELEVATORS
+  ELEVATORS
+  TELEPHONE
+  METERS
+  GAS
+  CLEANING
+  INTERCOM
+  SNOW
+  OTHER
+}
+
 """ The news item template for quick composing a news item """
 type NewsItemTemplate {
   """
@@ -61689,6 +62413,14 @@ type NewsItemTemplate {
   """ Organization who creates the template. A common template if there is no organization 
   """
   organization: Organization
+
+  """ Name of template the news item. Example `Heating outage due to repairs` or any other text value 
+  """
+  name: String
+
+  """ Category of template of the news item. Example `Water` or any other select value. News item does not necessarily have a category 
+  """
+  category: NewsItemTemplateCategoryType
 
   """ The title of a future news item """
   title: String
@@ -61727,6 +62459,28 @@ input NewsItemTemplateWhereInput {
   type_not_in: [NewsItemTemplateTypeType]
   organization: OrganizationWhereInput
   organization_is_null: Boolean
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  category: NewsItemTemplateCategoryType
+  category_not: NewsItemTemplateCategoryType
+  category_in: [NewsItemTemplateCategoryType]
+  category_not_in: [NewsItemTemplateCategoryType]
   title: String
   title_not: String
   title_contains: String
@@ -61830,6 +62584,10 @@ enum SortNewsItemTemplatesBy {
   type_DESC
   organization_ASC
   organization_DESC
+  name_ASC
+  name_DESC
+  category_ASC
+  category_DESC
   title_ASC
   title_DESC
   body_ASC
@@ -61855,6 +62613,8 @@ enum SortNewsItemTemplatesBy {
 input NewsItemTemplateUpdateInput {
   type: NewsItemTemplateTypeType
   organization: OrganizationRelateToOneInput
+  name: String
+  category: NewsItemTemplateCategoryType
   title: String
   body: String
   v: Int
@@ -61876,6 +62636,8 @@ input NewsItemTemplatesUpdateInput {
 input NewsItemTemplateCreateInput {
   type: NewsItemTemplateTypeType
   organization: OrganizationRelateToOneInput
+  name: String
+  category: NewsItemTemplateCategoryType
   title: String
   body: String
   v: Int
@@ -76349,6 +77111,7 @@ enum WebhookSubscriptionModelType {
   Organization
   Ticket
   TicketComment
+  TicketCommentFile
   Contact
   UserHelpRequest
   AcquiringIntegrationContext
@@ -77198,6 +77961,7 @@ type ResidentBillingReceiptOutput {
   category: BillingCategory!
   isPayable: Boolean!
   file: ResidentBillingReceiptFile
+  updatedAt: String
 }
 
 input RegisterBillingReceiptAddressMetaInput {
@@ -77572,6 +78336,7 @@ enum PushTransportType {
   firebase
   apple
   huawei
+  redstore
 }
 
 enum DevicePlatformType {
@@ -77817,19 +78582,6 @@ input SyncTourStepsInput {
 
 type SyncTourStepsOutput {
   ok: String!
-}
-
-input ExportMeterReadingsInput {
-  dv: Int!
-  sender: SenderFieldInput!
-  where: MeterReadingWhereInput!
-  sortBy: [SortMeterReadingsBy!]
-  timeZone: String!
-}
-
-type ExportMeterReadingsOutput {
-  status: String!
-  linkToFile: String!
 }
 
 input _internalDeleteMeterAndMeterReadingsInput {
@@ -80923,6 +81675,36 @@ type Query {
   """ Retrieve the meta-data for the MeterReadingsImportTask list. """
   _MeterReadingsImportTasksMeta: _ListMeta
 
+  """ Search for all MeterReadingExportTaskHistoryRecord items which match the where clause. 
+  """
+  allMeterReadingExportTaskHistoryRecords(where: MeterReadingExportTaskHistoryRecordWhereInput, search: String, sortBy: [SortMeterReadingExportTaskHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [MeterReadingExportTaskHistoryRecord]
+
+  """ Search for the MeterReadingExportTaskHistoryRecord item with the matching ID. 
+  """
+  MeterReadingExportTaskHistoryRecord(where: MeterReadingExportTaskHistoryRecordWhereUniqueInput!): MeterReadingExportTaskHistoryRecord
+
+  """ Perform a meta-query on all MeterReadingExportTaskHistoryRecord items which match the where clause. 
+  """
+  _allMeterReadingExportTaskHistoryRecordsMeta(where: MeterReadingExportTaskHistoryRecordWhereInput, search: String, sortBy: [SortMeterReadingExportTaskHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the MeterReadingExportTaskHistoryRecord list. 
+  """
+  _MeterReadingExportTaskHistoryRecordsMeta: _ListMeta
+
+  """ Search for all MeterReadingExportTask items which match the where clause. 
+  """
+  allMeterReadingExportTasks(where: MeterReadingExportTaskWhereInput, search: String, sortBy: [SortMeterReadingExportTasksBy!], orderBy: String, first: Int, skip: Int): [MeterReadingExportTask]
+
+  """ Search for the MeterReadingExportTask item with the matching ID. """
+  MeterReadingExportTask(where: MeterReadingExportTaskWhereUniqueInput!): MeterReadingExportTask
+
+  """ Perform a meta-query on all MeterReadingExportTask items which match the where clause. 
+  """
+  _allMeterReadingExportTasksMeta(where: MeterReadingExportTaskWhereInput, search: String, sortBy: [SortMeterReadingExportTasksBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the MeterReadingExportTask list. """
+  _MeterReadingExportTasksMeta: _ListMeta
+
   """ Search for all ServiceSubscriptionHistoryRecord items which match the where clause. 
   """
   allServiceSubscriptionHistoryRecords(where: ServiceSubscriptionHistoryRecordWhereInput, search: String, sortBy: [SortServiceSubscriptionHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [ServiceSubscriptionHistoryRecord]
@@ -82216,17 +82998,25 @@ type Query {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
+    "variable": [
+      "data",
+      "captcha"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "CAPTCHA_CHECK_FAILED",
     "message": "Failed to check CAPTCHA",
-    "messageForUser": "The operation could not be completed. Please update the application"
+    "messageForUser": "api.user.CAPTCHA_CHECK_FAILED"
   }`
   
   `{
+    "variable": [
+      "data",
+      "token"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "UNABLE_TO_FIND_CONFIRM_PHONE_ACTION",
     "message": "Confirm phone action was expired or it could not be found. Try to initiate phone confirmation again",
-    "messageForUser": "Unable to verify your phone number. Try again or ask our support"
+    "messageForUser": "api.user.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION"
   }`
   """
   getPhoneByConfirmPhoneActionToken(data: GetPhoneByConfirmPhoneActionTokenInput!): GetPhoneByConfirmPhoneActionTokenOutput
@@ -82239,21 +83029,27 @@ type Query {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
+    "query": "GetAccessTokenByUserIdService",
     "code": "INTERNAL_ERROR",
     "type": "REFRESH_TOKEN_EXPIRED",
-    "message": "SBBOL user refreshToken expired"
+    "message": "SBBOL user refreshToken expired",
+    "messageForUser": "api.user.getAccessTokenByUserId.REFRESH_TOKEN_EXPIRED"
   }`
   
   `{
+    "query": "GetAccessTokenByUserIdService",
     "code": "BAD_USER_INPUT",
     "type": "INVALID_USER_ID",
-    "message": "Received userId must be uuid"
+    "message": "Received userId must be uuid",
+    "messageForUser": "api.user.getAccessTokenByUserId.INVALID_USER_ID"
   }`
   
   `{
+    "query": "GetAccessTokenByUserIdService",
     "code": "INTERNAL_ERROR",
     "type": "ERROR_GETTING_ACCESS_TOKEN",
-    "message": "Unresolved error in getAccessTokenForUser"
+    "message": "Unresolved error in getAccessTokenForUser",
+    "messageForUser": "api.user.getAccessTokenByUserId.ERROR_GETTING_ACCESS_TOKEN"
   }`
   """
   getAccessTokenByUserId(data: GetAccessTokenByUserIdInput!): GetAccessTokenByUserIdOutput
@@ -82269,22 +83065,37 @@ type Query {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
+    "query": "checkUserExistence",
+    "variable": [
+      "data",
+      "token"
+    ],
     "code": "NOT_FOUND",
     "type": "TOKEN_NOT_FOUND",
     "message": "Token not found"
   }`
   
   `{
+    "variable": [
+      "data",
+      "dv"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "DV_VERSION_MISMATCH",
-    "message": "Wrong value for data version number"
+    "message": "Wrong value for data version number",
+    "query": "checkUserExistence"
   }`
   
   `{
+    "variable": [
+      "data",
+      "sender"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
     "message": "Invalid format of \"sender\" field value",
-    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+    "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}",
+    "query": "checkUserExistence"
   }`
   """
   checkUserExistence(data: CheckUserExistenceInput!): CheckUserExistenceOutput
@@ -82301,12 +83112,21 @@ type Query {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
+    "mutation": "_allBillingReceiptsSum",
+    "variable": [
+      "data"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "WRONG_VALUE",
     "message": "You must specify one of two values: tin or organization"
   }`
   
   `{
+    "mutation": "_allBillingReceiptsSum",
+    "variable": [
+      "data",
+      "period"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "WRONG_VALUE",
     "message": "Bad period format, must be YYYY-MM-01. Example: 2022-02-01"
@@ -82325,27 +83145,35 @@ type Query {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
+    "query": "predictTransactionClassification",
     "code": "INTERNAL_ERROR",
     "type": "NOT_FOUND",
-    "message": "Bank cost item not found"
+    "message": "Bank cost item not found",
+    "messageForUser": "api.user.predictTransactionClassification.COST_ITEM_NOT_FOUND"
   }`
   
   `{
+    "query": "predictTransactionClassification",
     "code": "INTERNAL_ERROR",
     "type": "NOT_FOUND",
-    "message": "Bank cost item isOutcome field not equal isOutcome field from transaction"
+    "message": "Bank cost item isOutcome field not equal isOutcome field from transaction",
+    "messageForUser": "api.user.predictTransactionClassification.COST_ITEM_IS_OUTCOME_NOT_EQUAL"
   }`
   
   `{
+    "query": "predictTransactionClassification",
     "code": "INTERNAL_ERROR",
     "type": "NOT_FOUND",
-    "message": "ML server response is not successful"
+    "message": "ML server response is not successful",
+    "messageForUser": "api.user.predictTransactionClassification.COST_ITEM_NOT_FOUND"
   }`
   
   `{
+    "query": "predictTransactionClassification",
     "code": "INTERNAL_ERROR",
     "type": "NOT_FOUND",
-    "message": "ML_SPACE_TRANSACTION_CLASSIFIER env variable needs to have endpoint, authKey, workspace"
+    "message": "ML_SPACE_TRANSACTION_CLASSIFIER env variable needs to have endpoint, authKey, workspace",
+    "messageForUser": "api.user.predictTransactionClassification.ML_SPACE_NOT_CONFIGURED"
   }`
   """
   predictTransactionClassification(data: PredictTransactionClassificationInput!): PredictTransactionClassificationOutput
@@ -82353,7 +83181,6 @@ type Query {
   getResidentExistenceByPhoneAndAddress(data: GetResidentExistenceByPhoneAndAddressInput!): GetResidentExistenceByPhoneAndAddressOutput
   findOrganizationsForAddress(data: FindOrganizationsForAddressInput!): [FindOrganizationForAddressOutput]
   suggestServiceProvider(data: SuggestServiceProviderInput!): [SuggestServiceProviderOutput]
-  exportMeterReadings(data: ExportMeterReadingsInput!): ExportMeterReadingsOutput
 
   """
   Export of property meters readings. A link to the file is returned
@@ -82365,23 +83192,34 @@ type Query {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
+    "mutation": "exportPropertyMeterReadings",
+    "variable": [
+      "data",
+      "dv"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "DV_VERSION_MISMATCH",
     "message": "Wrong value for data version number"
   }`
   
   `{
+    "mutation": "exportPropertyMeterReadings",
+    "variable": [
+      "data",
+      "sender"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
     "message": "Invalid format of \"sender\" field value",
-    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+    "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}"
   }`
   
   `{
+    "query": "exportPropertyMeterReadings",
     "code": "BAD_USER_INPUT",
     "type": "NOTHING_TO_EXPORT",
     "message": "Could not found property meter readings to export for specified organization",
-    "messageForUser": "No meter readings to export for specified organization"
+    "messageForUser": "api.meter.exportMeterReadings.NOTHING_TO_EXPORT"
   }`
   """
   exportPropertyMeterReadings(data: ExportPropertyMeterReadingsInput!): ExportPropertyMeterReadingsOutput
@@ -85558,6 +86396,42 @@ type Mutation {
   """ Delete multiple MeterReadingsImportTask items by ID. """
   deleteMeterReadingsImportTasks(ids: [ID!]): [MeterReadingsImportTask]
 
+  """ Create a single MeterReadingExportTaskHistoryRecord item. """
+  createMeterReadingExportTaskHistoryRecord(data: MeterReadingExportTaskHistoryRecordCreateInput): MeterReadingExportTaskHistoryRecord
+
+  """ Create multiple MeterReadingExportTaskHistoryRecord items. """
+  createMeterReadingExportTaskHistoryRecords(data: [MeterReadingExportTaskHistoryRecordsCreateInput]): [MeterReadingExportTaskHistoryRecord]
+
+  """ Update a single MeterReadingExportTaskHistoryRecord item by ID. """
+  updateMeterReadingExportTaskHistoryRecord(id: ID!, data: MeterReadingExportTaskHistoryRecordUpdateInput): MeterReadingExportTaskHistoryRecord
+
+  """ Update multiple MeterReadingExportTaskHistoryRecord items by ID. """
+  updateMeterReadingExportTaskHistoryRecords(data: [MeterReadingExportTaskHistoryRecordsUpdateInput]): [MeterReadingExportTaskHistoryRecord]
+
+  """ Delete a single MeterReadingExportTaskHistoryRecord item by ID. """
+  deleteMeterReadingExportTaskHistoryRecord(id: ID!): MeterReadingExportTaskHistoryRecord
+
+  """ Delete multiple MeterReadingExportTaskHistoryRecord items by ID. """
+  deleteMeterReadingExportTaskHistoryRecords(ids: [ID!]): [MeterReadingExportTaskHistoryRecord]
+
+  """ Create a single MeterReadingExportTask item. """
+  createMeterReadingExportTask(data: MeterReadingExportTaskCreateInput): MeterReadingExportTask
+
+  """ Create multiple MeterReadingExportTask items. """
+  createMeterReadingExportTasks(data: [MeterReadingExportTasksCreateInput]): [MeterReadingExportTask]
+
+  """ Update a single MeterReadingExportTask item by ID. """
+  updateMeterReadingExportTask(id: ID!, data: MeterReadingExportTaskUpdateInput): MeterReadingExportTask
+
+  """ Update multiple MeterReadingExportTask items by ID. """
+  updateMeterReadingExportTasks(data: [MeterReadingExportTasksUpdateInput]): [MeterReadingExportTask]
+
+  """ Delete a single MeterReadingExportTask item by ID. """
+  deleteMeterReadingExportTask(id: ID!): MeterReadingExportTask
+
+  """ Delete multiple MeterReadingExportTask items by ID. """
+  deleteMeterReadingExportTasks(ids: [ID!]): [MeterReadingExportTask]
+
   """ Create a single ServiceSubscriptionHistoryRecord item. """
   createServiceSubscriptionHistoryRecord(data: ServiceSubscriptionHistoryRecordCreateInput): ServiceSubscriptionHistoryRecord
 
@@ -87204,81 +88078,134 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
+    "mutation": "registerNewUser",
+    "variable": [
+      "data",
+      "confirmPhoneActionToken"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "UNABLE_TO_FIND_CONFIRM_PHONE_ACTION",
     "message": "Unable to find confirm phone action",
-    "messageForUser": "Something went wrong during phone confirmation :( Try again or ask our support"
+    "messageForUser": "api.user.registerNewUser.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION"
   }`
   
   `{
+    "mutation": "registerNewUser",
+    "variable": [
+      "data",
+      "phone"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "WRONG_PHONE_FORMAT",
     "message": "Wrong format of provided phone number",
-    "messageForUser": "Wrong phone number format",
+    "messageForUser": "api.common.WRONG_PHONE_FORMAT",
     "correctExample": "+79991234567"
   }`
   
   `{
+    "mutation": "registerNewUser",
+    "variable": [
+      "data",
+      "confirmPhoneActionToken"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "NO_CONFIRM_PHONE_ACTION_TOKEN",
     "message": "\"confirmPhoneActionToken\" cannot be empty",
-    "messageForUser": "Something went wrong during phone confirmation :( Try again or ask our support"
+    "messageForUser": "api.user.registerNewUser.NO_CONFIRM_PHONE_ACTION_TOKEN"
   }`
   
   `{
+    "variable": [
+      "data",
+      "password"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "INVALID_PASSWORD_LENGTH",
     "message": "Password length must be between 8 and 128 characters",
-    "messageForUser": "Password length must be between 8 and 128 characters"
+    "messageForUser": "api.user.INVALID_PASSWORD_LENGTH",
+    "messageInterpolation": {
+      "min": 8,
+      "max": 128
+    }
   }`
   
   `{
+    "variable": [
+      "data",
+      "password"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "PASSWORD_CONTAINS_EMAIL",
     "message": "Password must not contain email",
-    "messageForUser": "Password must not contain email"
+    "messageForUser": "api.user.PASSWORD_CONTAINS_EMAIL"
   }`
   
   `{
+    "variable": [
+      "data",
+      "password"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "PASSWORD_CONTAINS_PHONE",
     "message": "Password must not contain phone",
-    "messageForUser": "Password must not contain phone"
+    "messageForUser": "api.user.PASSWORD_CONTAINS_PHONE"
   }`
   
   `{
+    "variable": [
+      "data",
+      "password"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "PASSWORD_IS_FREQUENTLY_USED",
     "message": "The password is too simple. We found it in the list of stolen passwords. You need to use something more secure",
-    "messageForUser": "This password is weak or too obvious please choose something more secure"
+    "messageForUser": "api.user.PASSWORD_IS_FREQUENTLY_USED"
   }`
   
   `{
+    "variable": [
+      "data",
+      "password"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS",
     "message": "Password must contain at least 4 different characters",
-    "messageForUser": "Password must contain at least 4 different characters"
+    "messageForUser": "api.user.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS",
+    "messageInterpolation": {
+      "min": 4
+    }
   }`
   
   `{
+    "mutation": "registerNewUser",
+    "variable": [
+      "data",
+      "phone"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_UNIQUE",
     "message": "User with specified phone already exists",
-    "messageForUser": "User with specified phone number already exists. Try to login or reset password"
+    "messageForUser": "api.user.registerNewUser.USER_WITH_SPECIFIED_PHONE_ALREADY_EXISTS"
   }`
   
   `{
+    "mutation": "registerNewUser",
+    "variable": [
+      "data",
+      "email"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_UNIQUE",
     "message": "User with specified email already exists",
-    "messageForUser": "User with specified email number already exists. Try to login or reset password"
+    "messageForUser": "api.user.registerNewUser.USER_WITH_SPECIFIED_EMAIL_ALREADY_EXISTS"
   }`
   
   `{
+    "mutation": "registerNewUser",
     "code": "INTERNAL_ERROR",
     "type": "UNABLE_TO_CREATE_USER",
     "message": "Unable to create user",
-    "messageForUser": "Something went wrong during registration :( Try again or ask our support"
+    "messageForUser": "api.user.registerNewUser.UNABLE_TO_CREATE_USER"
   }`
   """
   registerNewUser(data: RegisterNewUserInput!): User
@@ -87290,72 +88217,123 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
+    "variable": [
+      "data",
+      "password"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "WRONG_PASSWORD_FORMAT",
     "message": "Password must be in string format",
-    "messageForUser": "Password must be in string format"
+    "messageForUser": "api.user.WRONG_PASSWORD_FORMAT"
   }`
   
   `{
+    "variable": [
+      "data",
+      "password"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "INVALID_PASSWORD_LENGTH",
     "message": "Password length must be between 8 and 128 characters",
-    "messageForUser": "Password length must be between 8 and 128 characters"
+    "messageForUser": "api.user.INVALID_PASSWORD_LENGTH",
+    "messageInterpolation": {
+      "min": 8,
+      "max": 128
+    }
   }`
   
   `{
+    "variable": [
+      "data",
+      "password"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "PASSWORD_CONTAINS_EMAIL",
     "message": "Password must not contain email",
-    "messageForUser": "Password must not contain email"
+    "messageForUser": "api.user.PASSWORD_CONTAINS_EMAIL"
   }`
   
   `{
+    "variable": [
+      "data",
+      "password"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "PASSWORD_CONTAINS_PHONE",
     "message": "Password must not contain phone",
-    "messageForUser": "Password must not contain phone"
+    "messageForUser": "api.user.PASSWORD_CONTAINS_PHONE"
   }`
   
   `{
+    "variable": [
+      "data",
+      "password"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "PASSWORD_IS_FREQUENTLY_USED",
     "message": "The password is too simple. We found it in the list of stolen passwords. You need to use something more secure",
-    "messageForUser": "This password is weak or too obvious please choose something more secure"
+    "messageForUser": "api.user.PASSWORD_IS_FREQUENTLY_USED"
   }`
   
   `{
+    "variable": [
+      "data",
+      "password"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS",
     "message": "Password must contain at least 4 different characters",
-    "messageForUser": "Password must contain at least 4 different characters"
+    "messageForUser": "api.user.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS",
+    "messageInterpolation": {
+      "min": 4
+    }
   }`
   
   `{
+    "mutation": "changePasswordWithToken",
+    "variable": [
+      "data",
+      "token"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "TOKEN_NOT_FOUND",
     "message": "Unable to find non-expired ConfirmPhoneAction by specified token",
-    "messageForUser": "Unable to find non-expired ConfirmPhoneAction by specified token"
+    "messageForUser": "api.user.changePasswordWithToken.TOKEN_NOT_FOUND"
   }`
   
   `{
+    "mutation": "changePasswordWithToken",
+    "variable": [
+      "data",
+      "phone"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "USER_NOT_FOUND",
     "message": "Unable to find user with specified phone",
-    "messageForUser": "Unable to find user with specified phone"
+    "messageForUser": "api.user.changePasswordWithToken.USER_NOT_FOUND"
   }`
   
   `{
+    "variable": [
+      "data",
+      "dv"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "DV_VERSION_MISMATCH",
-    "message": "Wrong value for data version number"
+    "message": "Wrong value for data version number",
+    "query": "checkUserExistence"
   }`
   
   `{
+    "variable": [
+      "data",
+      "sender"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
     "message": "Invalid format of \"sender\" field value",
-    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+    "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}",
+    "query": "checkUserExistence"
   }`
   """
   changePasswordWithToken(data: ChangePasswordWithTokenInput!): ChangePasswordWithTokenOutput
@@ -87370,25 +88348,34 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
+    "variable": [
+      "data",
+      "captcha"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "CAPTCHA_CHECK_FAILED",
     "message": "Failed to check CAPTCHA",
-    "messageForUser": "The operation could not be completed. Please update the application"
+    "messageForUser": "api.user.CAPTCHA_CHECK_FAILED"
   }`
   
   `{
+    "mutation": "startConfirmPhoneAction",
+    "variable": [
+      "data",
+      "phone"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "WRONG_PHONE_FORMAT",
     "message": "Wrong format of provided phone number",
-    "messageForUser": "Wrong phone number format",
-    "correctExample": "+79991234567"
+    "correctExample": "+79991234567",
+    "messageForUser": "api.common.WRONG_PHONE_FORMAT"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "TOO_MANY_REQUESTS",
-    "message": "You have to wait 5000 seconds to be able to send request again",
-    "messageForUser": "You have to wait 5000 sec. to be able to send request again"
+    "message": "You have to wait {secondsRemaining} seconds to be able to send request again",
+    "messageForUser": "api.user.TOO_MANY_REQUESTS"
   }`
   
   `{
@@ -87415,24 +88402,32 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
+    "variable": [
+      "data",
+      "captcha"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "CAPTCHA_CHECK_FAILED",
     "message": "Failed to check CAPTCHA",
-    "messageForUser": "The operation could not be completed. Please update the application"
+    "messageForUser": "api.user.CAPTCHA_CHECK_FAILED"
   }`
   
   `{
+    "variable": [
+      "data",
+      "token"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "UNABLE_TO_FIND_CONFIRM_PHONE_ACTION",
     "message": "Confirm phone action was expired or it could not be found. Try to initiate phone confirmation again",
-    "messageForUser": "Unable to verify your phone number. Try again or ask our support"
+    "messageForUser": "api.user.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "TOO_MANY_REQUESTS",
-    "message": "You have to wait 5000 seconds to be able to send request again",
-    "messageForUser": "You have to wait 5000 sec. to be able to send request again"
+    "message": "You have to wait {secondsRemaining} seconds to be able to send request again",
+    "messageForUser": "api.user.TOO_MANY_REQUESTS"
   }`
   
   `{
@@ -87459,45 +88454,68 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
+    "variable": [
+      "data",
+      "captcha"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "CAPTCHA_CHECK_FAILED",
     "message": "Failed to check CAPTCHA",
-    "messageForUser": "The operation could not be completed. Please update the application"
+    "messageForUser": "api.user.CAPTCHA_CHECK_FAILED"
   }`
   
   `{
+    "variable": [
+      "data",
+      "token"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "UNABLE_TO_FIND_CONFIRM_PHONE_ACTION",
     "message": "Confirm phone action was expired or it could not be found. Try to initiate phone confirmation again",
-    "messageForUser": "Unable to verify your phone number. Try again or ask our support"
+    "messageForUser": "api.user.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION"
   }`
   
   `{
+    "mutation": "completeConfirmPhoneAction",
+    "variable": [
+      "data",
+      "smsCode"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "SMS_CODE_EXPIRED",
     "message": "SMS code expired. Try to initiate phone confirmation again",
-    "messageForUser": "SMS code expired, try to verify phone number again"
+    "messageForUser": "api.user.completeConfirmPhoneAction.SMS_CODE_EXPIRED"
   }`
   
   `{
+    "mutation": "completeConfirmPhoneAction",
+    "variable": [
+      "data",
+      "smsCode"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "SMS_CODE_MAX_RETRIES_REACHED",
     "message": "Max retries reached for SMS code confirmation. Try to initiate phone confirmation again",
-    "messageForUser": "Max retries reached for SMS code confirmation. Try to initiate phone confirmation again"
+    "messageForUser": "api.user.completeConfirmPhoneAction.SMS_CODE_MAX_RETRIES_REACHED"
   }`
   
   `{
+    "mutation": "completeConfirmPhoneAction",
+    "variable": [
+      "data",
+      "smsCode"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "SMS_CODE_VERIFICATION_FAILED",
     "message": "SMS code verification mismatch",
-    "messageForUser": "SMS code verification mismatch"
+    "messageForUser": "api.user.completeConfirmPhoneAction.SMS_CODE_VERIFICATION_FAILED"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "TOO_MANY_REQUESTS",
-    "message": "You have to wait 5000 seconds to be able to send request again",
-    "messageForUser": "You have to wait 5000 sec. to be able to send request again"
+    "message": "You have to wait {secondsRemaining} seconds to be able to send request again",
+    "messageForUser": "api.user.TOO_MANY_REQUESTS"
   }`
   """
   completeConfirmPhoneAction(data: CompleteConfirmPhoneActionInput!): CompleteConfirmPhoneActionOutput
@@ -87512,17 +88530,23 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
+    "mutation": "signinResidentUser",
+    "variable": [
+      "data",
+      "token"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "TOKEN_NOT_FOUND",
     "message": "Unable to find a non-expired confirm phone action, that corresponds to provided token",
-    "messageForUser": "Something went wrong during authentication :( Try again or ask our support"
+    "messageForUser": "api.user.signinResidentUser.TOKEN_NOT_FOUND"
   }`
   
   `{
     "code": "INTERNAL_ERROR",
     "type": "UNABLE_TO_CREATE_USER",
+    "mutation": "signinResidentUser",
     "message": "Something went wrong while trying to create a User record",
-    "messageForUser": "Something went wrong during registration :( Try again or ask our support"
+    "messageForUser": "api.user.signinResidentUser.UNABLE_TO_CREATE_USER"
   }`
   """
   signinResidentUser(data: SigninResidentUserInput!): SigninResidentUserOutput
@@ -87537,30 +88561,50 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
+    "mutation": "changePhoneNumberResidentUser",
+    "variable": [
+      "data",
+      "dv"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "DV_VERSION_MISMATCH",
     "message": "Wrong value for data version number"
   }`
   
   `{
+    "mutation": "changePhoneNumberResidentUser",
+    "variable": [
+      "data",
+      "sender"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
-    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
-    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+    "message": "Invalid format of \"sender\" field value. {details}",
+    "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
+    "mutation": "changePhoneNumberResidentUser",
     "message": "Unable to find a non-expired confirm phone action, that corresponds to provided token",
-    "messageForUser": "Could not find token to change phone or it was expired. Try to start phone changing procedure from scratch."
+    "variable": [
+      "data",
+      "token"
+    ],
+    "messageForUser": "api.user.changePhoneNumberResidentUser.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "WRONG_VALUE",
+    "mutation": "changePhoneNumberResidentUser",
     "message": "Unable to change phone number since user has external identity and phone number are different",
-    "messageForUser": "Unable to change phone number since user has authorization with different phone number."
+    "variable": [
+      "data",
+      "token"
+    ],
+    "messageForUser": "api.user.changePhoneNumberResidentUser.USER_HAS_CONNECTED_EXTERNAL_IDENTITY_WITH_DIFFERENT_PHONE"
   }`
   """
   changePhoneNumberResidentUser(data: ChangePhoneNumberResidentUserInput!): ChangePhoneNumberResidentUserOutput
@@ -87575,49 +88619,35 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
+    "mutation": "signinAsUser",
     "code": "BAD_USER_INPUT",
     "type": "USER_NOT_FOUND",
     "message": "Could not find a user with a specified id",
-    "messageForUser": "User not found"
+    "messageForUser": "api.user.signinAsUser.USER_NOT_FOUND"
   }`
   
   `{
+    "mutation": "signinAsUser",
     "code": "FORBIDDEN",
     "type": "DENIED_FOR_ADMIN",
     "message": "You cannot authenticate for an another admin user",
-    "messageForUser": "You cannot authenticate for an another admin user"
+    "messageForUser": "api.user.signinAsUser.DENIED_FOR_ADMIN"
   }`
   
   `{
+    "mutation": "signinAsUser",
     "code": "FORBIDDEN",
     "type": "DENIED_FOR_SUPPORT",
     "message": "You cannot authenticate for an another support user",
-    "messageForUser": "You cannot authenticate for an another support user"
+    "messageForUser": "api.user.signinAsUser.DENIED_FOR_SUPPORT"
   }`
   """
   signinAsUser(data: SigninAsUserInput!): SigninAsUserOutput
   registerNewServiceUser(data: RegisterNewServiceUserInput!): RegisterNewServiceUserOutput
-
-  """
-  If you have any problem you can use this to notify our support team
-  
-  
-  
-  **Errors**
-  
-  Following objects will be presented in `extensions` property of thrown error
-  
-  `{
-    "code": "BAD_USER_INPUT",
-    "type": "WRONG_FORMAT",
-    "message": "Wrong format of specified email",
-    "messageForUser": "Wrong format of specified email"
-  }`
-  """
   sendMessageToSupport(data: SendMessageToSupportInput!): SendMessageToSupportOutput
 
   """
-  Used for cleaning existing user to avoid utilizing every time new phone and email
+  Used by QA for cleaning existing test user record to avoid utilizing every time new phone and email, which is hard to obtain again and again for every manual testing procedure
   
   
   
@@ -87626,18 +88656,35 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
+    "mutation": "resetUser",
+    "variable": [
+      "data",
+      "dv"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "DV_VERSION_MISMATCH",
     "message": "Unsupported value for dv"
   }`
   
   `{
+    "mutation": "resetUser",
+    "variable": [
+      "data",
+      "user",
+      "id"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "USER_NOT_FOUND",
     "message": "Could not find User by provided id"
   }`
   
   `{
+    "mutation": "resetUser",
+    "variable": [
+      "data",
+      "user",
+      "id"
+    ],
     "code": "FORBIDDEN",
     "type": "CANNOT_RESET_ADMIN_USER",
     "message": "You cannot reset admin user"
@@ -87664,34 +88711,49 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
+    "mutation": "inviteNewOrganizationEmployee",
     "code": "BAD_USER_INPUT",
     "type": "ALREADY_INVITED_EMAIL",
     "message": "Employee with same email already invited into the organization",
-    "messageForUser": "Employee with same email is already in the organization"
+    "messageForUser": "api.organization.inviteNewOrganizationEmployee.ALREADY_INVITED_EMAIL",
+    "variable": [
+      "email"
+    ]
   }`
   
   `{
+    "mutation": "inviteNewOrganizationEmployee",
     "code": "BAD_USER_INPUT",
     "type": "ALREADY_INVITED_PHONE",
     "message": "Employee with same phone already invited into the organization",
-    "messageForUser": "Employee with same phone is already in the organization"
+    "messageForUser": "api.organization.inviteNewOrganizationEmployee.ALREADY_INVITED_PHONE",
+    "variable": [
+      "phone"
+    ]
   }`
   
   `{
+    "mutation": "inviteNewOrganizationEmployee",
     "code": "BAD_USER_INPUT",
     "type": "WRONG_PHONE_FORMAT",
     "message": "Wrong phone format",
-    "messageForUser": "Wrong phone number format"
+    "messageForUser": "api.common.WRONG_PHONE_FORMAT"
   }`
   
   `{
+    "mutation": "inviteNewOrganizationEmployee",
     "code": "INTERNAL_ERROR",
     "type": "UNABLE_TO_REGISTER_USER",
     "message": "Unable to register user",
-    "messageForUser": "Unable to register user"
+    "messageForUser": "api.organization.inviteNewOrganizationEmployee.UNABLE_TO_REGISTER_USER"
   }`
   
   `{
+    "mutation": "inviteNewOrganizationEmployee",
+    "variable": [
+      "data",
+      "dv"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "DV_VERSION_MISMATCH",
     "message": "Wrong value for data version number"
@@ -87709,38 +88771,43 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
+    "mutation": "reInviteOrganizationEmployee",
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
     "message": "Wrong phone format",
-    "messageForUser": "Wrong phone number format"
+    "messageForUser": "api.common.WRONG_PHONE_FORMAT"
   }`
   
   `{
+    "mutation": "reInviteOrganizationEmployee",
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Could not find Organization by specified search criteria",
-    "messageForUser": "Could not find organization to which this employee belongs"
+    "messageForUser": "api.organization.reInviteOrganizationEmployee.ORGANIZATION_NOT_FOUND"
   }`
   
   `{
+    "mutation": "reInviteOrganizationEmployee",
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Could not find User by specified phone or email",
-    "messageForUser": "Could not find user using specified contacts"
+    "messageForUser": "api.organization.reInviteOrganizationEmployee.USER_NOT_FOUND"
   }`
   
   `{
+    "mutation": "reInviteOrganizationEmployee",
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Could not find OrganizationEmployee that has not accepted invitation for found User",
-    "messageForUser": "Could not employee using specified contacts"
+    "messageForUser": "api.organization.reInviteOrganizationEmployee.EMPLOYEE_NOT_FOUND"
   }`
   
   `{
+    "mutation": "reInviteOrganizationEmployee",
     "code": "BAD_USER_INPUT",
     "type": "ALREADY_ACCEPTED_INVITATION",
     "message": "Corresponding OrganizationEmployee has already accepted invitation",
-    "messageForUser": "Specified employee has already accepted invitation"
+    "messageForUser": "api.organization.reInviteOrganizationEmployee.ALREADY_ACCEPTED_INVITATION"
   }`
   """
   reInviteOrganizationEmployee(data: ReInviteOrganizationEmployeeInput!): OrganizationEmployee
@@ -87758,58 +88825,95 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
+    "mutation": "replaceOrganizationEmployeeRole",
+    "variable": [
+      "data",
+      "dv"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "DV_VERSION_MISMATCH",
     "message": "Wrong value for data version number"
   }`
   
   `{
+    "mutation": "replaceOrganizationEmployeeRole",
+    "variable": [
+      "data",
+      "sender"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
-    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
-    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+    "message": "Invalid format of \"sender\" field value. {details}",
+    "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}"
   }`
   
   `{
+    "mutation": "replaceOrganizationEmployeeRole",
+    "variable": [
+      "data",
+      "organization"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "ORGANIZATION_NOT_FOUND",
     "message": "Organization not found",
-    "messageForUser": "Organization not found"
+    "messageForUser": "api.organization.replaceOrganizationEmployeeRole.ORGANIZATION_NOT_FOUND"
   }`
   
   `{
+    "mutation": "replaceOrganizationEmployeeRole",
+    "variable": [
+      "data",
+      "oldRole"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "OLD_ROLE_NOT_FOUND",
     "message": "Old role not found in specified organization",
-    "messageForUser": "Old role not found in your organization"
+    "messageForUser": "api.organization.replaceOrganizationEmployeeRole.OLD_ROLE_NOT_FOUND"
   }`
   
   `{
+    "mutation": "replaceOrganizationEmployeeRole",
+    "variable": [
+      "data",
+      "newRole"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "NEW_ROLE_NOT_FOUND",
     "message": "New role not found in specified organization",
-    "messageForUser": "New role not found in your organization"
+    "messageForUser": "api.organization.replaceOrganizationEmployeeRole.NEW_ROLE_NOT_FOUND"
   }`
   
   `{
+    "mutation": "replaceOrganizationEmployeeRole",
+    "variable": [
+      "data"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "DEFAULT_ROLE_CANNOT_BE_DELETED",
     "message": "The default role cannot be deleted",
-    "messageForUser": "The default role cannot be deleted"
+    "messageForUser": "api.organization.replaceOrganizationEmployeeRole.DEFAULT_ROLE_CANNOT_BE_DELETED"
   }`
   
   `{
+    "mutation": "replaceOrganizationEmployeeRole",
+    "variable": [
+      "data"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "ROLES_MUST_BE_DIFFERENT",
     "message": "The old role and new role must be different",
-    "messageForUser": "The new and old roles cannot be the same"
+    "messageForUser": "api.organization.replaceOrganizationEmployeeRole.ROLES_MUST_BE_DIFFERENT"
   }`
   
   `{
+    "mutation": "replaceOrganizationEmployeeRole",
+    "variable": [
+      "data"
+    ],
     "code": "TOO_MANY_REQUESTS",
     "type": "ROLES_ARE_BEING_PROCESSED",
     "message": "These roles are already being processed. Please try again a little later",
-    "messageForUser": "These roles are already being processed. Please try again a little later"
+    "messageForUser": "api.organization.replaceOrganizationEmployeeRole.ROLES_ARE_BEING_PROCESSED"
   }`
   """
   replaceOrganizationEmployeeRole(data: ReplaceOrganizationEmployeeRoleInput!): ReplaceOrganizationEmployeeRoleOutput
@@ -87826,38 +88930,63 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
+    "mutation": "sendNewReceiptMessagesToResidentScopes",
+    "variable": [
+      "data",
+      "context"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Please provide proper period not before start of previous and not later than start of current month, valid format is YYYY-MM-DD",
-    "messageForUser": "Please provide proper period not before start of previous and not later than start of current month, valid format is YYYY-MM-DD"
+    "messageForUser": "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_PERIOD_PROVIDED"
   }`
   
   `{
+    "mutation": "sendNewReceiptMessagesToResidentScopes",
+    "variable": [
+      "data",
+      "context"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Please provide existing non-deleted billing integration organization context id",
-    "messageForUser": "Please provide existing non-deleted billing integration organization context id"
+    "messageForUser": "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_BILLING_CONTEXT_PROVIDED"
   }`
   
   `{
+    "mutation": "sendNewReceiptMessagesToResidentScopes",
+    "variable": [
+      "data",
+      "category"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Please provide existing non-deleted billing category id",
-    "messageForUser": "Please provide existing non-deleted billing category id"
+    "messageForUser": "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_BILLING_CATEGORY_PROVIDED"
   }`
   
   `{
+    "mutation": "sendNewReceiptMessagesToResidentScopes",
+    "variable": [
+      "data",
+      "scopes"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Scopes could not be empty",
-    "messageForUser": "Scopes could not be empty"
+    "messageForUser": "api.billing.sendNewReceiptMessagesToResidentScopes.SCOPES_IS_EMPTY"
   }`
   
   `{
+    "mutation": "sendNewReceiptMessagesToResidentScopes",
+    "variable": [
+      "data",
+      "scopes"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "All provided billing properties in scopes should be non-deleted & connected to organization of the billing context",
-    "messageForUser": "All provided billing properties in scopes should be non-deleted & connected to organization of the billing context"
+    "messageForUser": "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_BILLING_PROPERTY_PROVIDED"
   }`
   """
   sendNewReceiptMessagesToResidentScopes(data: SendNewReceiptMessagesToResidentScopesInput!): SendNewReceiptMessagesToResidentScopesOutput
@@ -89515,36 +90644,67 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
+    "mutation": "sendMessage",
+    "variable": [
+      "data",
+      "to",
+      "email"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "REQUIRED",
     "message": "You can not use emailFrom without to.email"
   }`
   
   `{
+    "mutation": "sendMessage",
+    "variable": [
+      "data"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "REQUIRED",
     "message": "You should provide either \"user\", \"email\", \"phone\" or \"remoteClient\" attribute"
   }`
   
   `{
+    "mutation": "sendMessage",
+    "variable": [
+      "data",
+      "meta"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "UNKNOWN_ATTRIBUTE",
-    "message": "Unknown attribute \"<attr-name>\" provided to \"meta\" variable"
+    "message": "Unknown attribute \"{attr}\" provided to \"meta\" variable"
   }`
   
   `{
+    "mutation": "sendMessage",
+    "variable": [
+      "data",
+      "meta"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "REQUIRED",
-    "message": "Missing value for required \"meta.<name>\" attribute"
+    "message": "Missing value for required \"meta.{attr}\" attribute"
   }`
   
   `{
+    "mutation": "sendMessage",
+    "variable": [
+      "data",
+      "meta"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "WRONG_VALUE",
-    "message": "Unknown value \"<type-name>\" provided for message type"
+    "message": "Unknown value \"{type}\" provided for message type"
   }`
   
   `{
+    "mutation": "sendMessage",
+    "variable": [
+      "data",
+      "meta",
+      "dv"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "DV_VERSION_MISMATCH",
     "message": "Wrong value for data version number"
@@ -89570,38 +90730,69 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
+    "mutation": "registerServiceConsumer",
+    "variable": [
+      "data",
+      "residentId"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Cannot find Resident for current user"
   }`
   
   `{
+    "mutation": "registerServiceConsumer",
+    "variable": [
+      "data",
+      "organizationId"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Cannot find Organization for current user"
   }`
   
   `{
+    "mutation": "registerResidentServiceConsumers",
+    "variable": [
+      "data",
+      "resident",
+      "id"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Cannot find Organization for current resident"
   }`
   
   `{
+    "mutation": "registerResidentServiceConsumers",
+    "variable": [
+      "data",
+      "accountNumber"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Can't find billingAccount and any meters with this accountNumber, unitName and address",
-    "messageForUser": "No receipts or meters related to the entered account number were found. Please contact the management company."
+    "messageForUser": "api.resident.registerServiceConsumers.BILLING_ACCOUNT_OR_METER_NOT_FOUND"
   }`
   
   `{
+    "mutation": "registerServiceConsumer",
+    "variable": [
+      "data",
+      "accountNumber"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Can't find billingAccount and any meters with this accountNumber, unitName and organization combination",
-    "messageForUser": "No receipts or meters related to the entered account number were found. Please contact the management company."
+    "messageForUser": "api.resident.registerServiceConsumers.BILLING_ACCOUNT_NOT_FOUND"
   }`
   
   `{
+    "mutation": "registerServiceConsumer",
+    "variable": [
+      "data",
+      "accountNumber"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
     "message": "Argument \"accountNumber\" is null or empty"
@@ -89619,38 +90810,69 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
+    "mutation": "registerServiceConsumer",
+    "variable": [
+      "data",
+      "residentId"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Cannot find Resident for current user"
   }`
   
   `{
+    "mutation": "registerServiceConsumer",
+    "variable": [
+      "data",
+      "organizationId"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Cannot find Organization for current user"
   }`
   
   `{
+    "mutation": "registerResidentServiceConsumers",
+    "variable": [
+      "data",
+      "resident",
+      "id"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Cannot find Organization for current resident"
   }`
   
   `{
+    "mutation": "registerResidentServiceConsumers",
+    "variable": [
+      "data",
+      "accountNumber"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Can't find billingAccount and any meters with this accountNumber, unitName and address",
-    "messageForUser": "No receipts or meters related to the entered account number were found. Please contact the management company."
+    "messageForUser": "api.resident.registerServiceConsumers.BILLING_ACCOUNT_OR_METER_NOT_FOUND"
   }`
   
   `{
+    "mutation": "registerServiceConsumer",
+    "variable": [
+      "data",
+      "accountNumber"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Can't find billingAccount and any meters with this accountNumber, unitName and organization combination",
-    "messageForUser": "No receipts or meters related to the entered account number were found. Please contact the management company."
+    "messageForUser": "api.resident.registerServiceConsumers.BILLING_ACCOUNT_NOT_FOUND"
   }`
   
   `{
+    "mutation": "registerServiceConsumer",
+    "variable": [
+      "data",
+      "accountNumber"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
     "message": "Argument \"accountNumber\" is null or empty"
@@ -89668,10 +90890,15 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
+    "mutation": "sendMessageToResidentScopes",
+    "variable": [
+      "data",
+      "scopes"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Scopes could not be empty",
-    "messageForUser": "Scopes could not be empty"
+    "messageForUser": "api.resident.sendMessageToResidentScopes.SCOPES_IS_EMPTY"
   }`
   """
   sendMessageToResidentScopes(data: SendMessageToResidentScopesServiceInput!): SendMessageToResidentScopesServiceOutput
@@ -89692,16 +90919,26 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
+    "query": "_internalDeleteMeterAndMeterReadingsService",
+    "variable": [
+      "data",
+      "dv"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "DV_VERSION_MISMATCH",
     "message": "Wrong value for data version number"
   }`
   
   `{
+    "query": "_internalDeleteMeterAndMeterReadingsService",
+    "variable": [
+      "data",
+      "sender"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
     "message": "Invalid format of \"sender\" field value",
-    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+    "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}"
   }`
   """
   _internalDeleteMeterAndMeterReadings(data: _internalDeleteMeterAndMeterReadingsInput!): _internalDeleteMeterAndMeterReadingsOutput
@@ -89718,31 +90955,56 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
+    "query": "_internalDeleteMeterReadingsService",
+    "variable": [
+      "data",
+      "dv"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "DV_VERSION_MISMATCH",
     "message": "Wrong value for data version number"
   }`
   
   `{
+    "query": "_internalDeleteMeterReadingsService",
+    "variable": [
+      "data",
+      "sender"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
     "message": "Invalid format of \"sender\" field value",
-    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+    "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}"
   }`
   
   `{
+    "query": "_internalDeleteMeterReadingsService",
+    "variable": [
+      "data",
+      "startDateTime"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "INVALID_START_DATE_TIME",
     "message": "Invalid startDateTime. Should be in format DD.MM.YYYY HH:mm:ss"
   }`
   
   `{
+    "query": "_internalDeleteMeterReadingsService",
+    "variable": [
+      "data",
+      "endDateTime"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "INVALID_END_DATE_TIME",
     "message": "invalid endDateTime. Should be in format DD.MM.YYYY HH:mm:ss"
   }`
   
   `{
+    "query": "_internalDeleteMeterReadingsService",
+    "variable": [
+      "data",
+      "startDateTime"
+    ],
     "code": "BAD_USER_INPUT",
     "type": "INVALID_PERIOD",
     "message": "The start date cannot be greater than the end date"

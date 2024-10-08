@@ -14,7 +14,7 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { RemoteClient, createTestRemoteClient, updateTestRemoteClient } = require('@condo/domains/notification/utils/testSchema')
-const { getRandomTokenData } = require('@condo/domains/notification/utils/testSchema/helpers')
+const { getRandomTokenData } = require('@condo/domains/notification/utils/testSchema/utils')
 
 describe('RemoteClient', () => {
     describe('Anonymous', () => {

@@ -101,6 +101,14 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
         ...extendedKeystoneConfig,
     })
 
+    // patch access control handler to store skipAccessControl flag in context
+    const accessControlContextHandler = keystone._getAccessControlContext
+    keystone._getAccessControlContext = args => {
+        const context = accessControlContextHandler(args)
+        context.skipAccessControl = args.skipAccessControl
+        return context
+    }
+
     const globalPreprocessors = schemasPreprocessors ? schemasPreprocessors() : []
     globalPreprocessors.push(...[schemaDocPreprocessor, adminDocPreprocessor, escapeSearchPreprocessor, customAccessPostProcessor])
     // We need to register all schemas as they will appear in admin ui
@@ -232,7 +240,6 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
                     req['startId'] = req.headers[startRequestIdHeaderName] = startReqId
 
                     res.setHeader(requestIdHeaderName, reqId)
-                    res.setHeader(startRequestIdHeaderName, startReqId)
                     next()
                 })
             })

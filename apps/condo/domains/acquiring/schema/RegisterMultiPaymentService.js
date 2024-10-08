@@ -19,7 +19,7 @@ const {
     ACQUIRING_INTEGRATION_IS_DELETED, RECEIPTS_CANNOT_BE_GROUPED_BY_ACQUIRING_INTEGRATION,
     CANNOT_FIND_ALL_BILLING_RECEIPTS, ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
     INVOICES_ARE_NOT_PUBLISHED, INVOICES_FOR_THIRD_USER, INVOICE_CONTEXT_NOT_FINISHED,
-    MULTIPAYMENT_RECEIPTS_WITH_INVOICES_FORBIDDEN, GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM },
+    MULTIPAYMENT_RECEIPTS_WITH_INVOICES_FORBIDDEN, GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM, PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM },
 } = require('@condo/domains/acquiring/constants/errors')
 const {
     FEE_CALCULATION_PATH,
@@ -106,6 +106,10 @@ const ERRORS = {
     },
     PAYMENT_AMOUNT_LESS_THAN_MINIMUM: {
         ...PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
+        mutation: 'registerMultiPayment',
+    },
+    PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM: {
+        ...PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM,
         mutation: 'registerMultiPayment',
     },
     DUPLICATED_INVOICE: {
@@ -274,7 +278,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: MULTIPAYMENT_RECEIPTS_WITH_INVOICES_FORBIDDEN,
         message: 'Receipts and invoices are forbidden to be together',
-        messageForUser: 'api.acquiring.multiPayment.error.receiptsWithInvoices',
+        messageForUser: 'api.acquiring.multiPayment.RECEIPTS_WITH_INVOICES_FORBIDDEN',
     },
 }
 
@@ -426,7 +430,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 // NOTE: Here using serverSchema to get many relation
                 const [acquiringIntegration] = await AcquiringIntegration.getAll(context, {
                     id: Array.from(acquiringIntegrations)[0],
-                })
+                }, 'id canGroupReceipts supportedBillingIntegrationsGroup explicitFeeDistributionSchema minimumPaymentAmount maximumPaymentAmount hostUrl deletedAt')
                 if (acquiringIntegration.deletedAt) {
                     throw new GQLError({ ...ERRORS.ACQUIRING_INTEGRATION_IS_DELETED, messageInterpolation: { id: acquiringIntegration.id } }, context)
                 }
@@ -696,10 +700,18 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 const amountToPay = Big(totalAmount.amountWithoutExplicitFee)
                     .add(Big(totalAmount.explicitServiceCharge))
                     .add(Big(totalAmount.explicitFee))
+
                 if (acquiringIntegration.minimumPaymentAmount && Big(amountToPay).lt(acquiringIntegration.minimumPaymentAmount)) {
                     throw new GQLError({
                         ...ERRORS.PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
                         messageInterpolation: { minimumPaymentAmount: Big(acquiringIntegration.minimumPaymentAmount).toString() },
+                    }, context)
+                }
+
+                if (acquiringIntegration.maximumPaymentAmount && Big(amountToPay).gt(acquiringIntegration.maximumPaymentAmount)) {
+                    throw new GQLError({
+                        ...ERRORS.PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM,
+                        messageInterpolation: { maximumPaymentAmount: Big(acquiringIntegration.maximumPaymentAmount).toString() },
                     }, context)
                 }
 

@@ -6,13 +6,11 @@ const {
     Float,
     Integer,
     Password,
-    Relationship,
     Slug,
     Url,
     Uuid,
     Virtual,
 } = require('@keystonejs/fields')
-const { AuthedRelationship } = require('@keystonejs/fields-authed-relationship')
 const { Markdown } = require('@keystonejs/fields-markdown')
 const { Wysiwyg } = require('@keystonejs/fields-wysiwyg-tinymce')
 const { get, isObject, isString } = require('lodash')
@@ -29,6 +27,7 @@ const {
     Text,
 } = require('../../fields')
 const { HiddenRelationship } = require('../../plugins/utils/HiddenRelationship')
+const { AuthedRelationship, Relationship } = require('../../plugins/utils/Relationship')
 const { GQL_SCHEMA_TYPES, GQL_CUSTOM_SCHEMA_TYPE, GQL_LIST_SCHEMA_TYPE } = require('../../schema')
 
 function _defaultAdminUiColumns (fields) {

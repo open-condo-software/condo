@@ -18,13 +18,13 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: USER_ALREADY_EXISTS,
         message: 'User with specified phone number is already registered',
-        messageForUser: 'errors.USER_ALREADY_EXISTS.message',
+        messageForUser: 'api.user.registerNewUser.USER_ALREADY_EXISTS',
     },
     ACTION_NOT_FOUND: {
         code: BAD_USER_INPUT,
         type: ACTION_NOT_FOUND,
         message: 'ConfirmPhoneAction with the specified ID is not verified, expired, or does not exist',
-        messageForUser: 'errors.ACTION_NOT_FOUND.phone.message',
+        messageForUser: 'api.user.registerNewUser.ACTION_NOT_FOUND',
     },
 }
 

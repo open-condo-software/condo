@@ -35,37 +35,35 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: METER_NUMBER_HAVE_INVALID_VALUE,
         message: 'value of "number" field must be non-empty string',
-        messageForUser: 'api.meter.METER_NUMBER_HAVE_INVALID_VALUE',
+        messageForUser: 'api.meter.meter.METER_NUMBER_HAVE_INVALID_VALUE',
         variable: ['data', 'number'],
     },
     ACCOUNT_NUMBER_HAVE_INVALID_VALUE: {
         code: BAD_USER_INPUT,
         type: METER_ACCOUNT_NUMBER_HAVE_INVALID_VALUE,
         message: 'value of "accountNumber" field must be non-empty string',
-        messageForUser: 'api.meter.METER_ACCOUNT_NUMBER_HAVE_INVALID_VALUE',
+        messageForUser: 'api.meter.meter.METER_ACCOUNT_NUMBER_HAVE_INVALID_VALUE',
         variable: ['data', 'accountNumber'],
     },
     METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION: {
         code: BAD_USER_INPUT,
         type: METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION,
         message: 'Provided meter resource belongs to another organization',
-        messageForUser: 'api.meter.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION',
+        messageForUser: 'api.meter.meter.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION',
         variable: ['data', 'resource'],
     },
-    SAME_NUMBER_AND_RESOURCE_EXISTS_IN_ORGANIZATION: (accountNumbersCsv) => ({
+    SAME_NUMBER_AND_RESOURCE_EXISTS_IN_ORGANIZATION: {
         code: BAD_USER_INPUT,
         type: SAME_NUMBER_AND_RESOURCE_EXISTS_IN_ORGANIZATION,
         message: 'Meter with same number and resource exist in current organization and linked with other account number',
-        messageForUser: 'api.meter.SAME_NUMBER_AND_RESOURCE_EXISTS_IN_ORGANIZATION',
-        messageInterpolation: { accountNumbersCsv },
-    }),
-    SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT: (unitsCsv) => ({
+        messageForUser: 'api.meter.meter.SAME_NUMBER_AND_RESOURCE_EXISTS_IN_ORGANIZATION',
+    },
+    SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT: {
         code: BAD_USER_INPUT,
         type: SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT,
         message: 'Meter with same account number exist in current organization in other unit',
-        messageForUser: 'api.meter.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT',
-        messageInterpolation: { unitsCsv },
-    }),
+        messageForUser: 'api.meter.meter.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT',
+    },
 }
 
 // TODO(DOMA-6195): replace 'addFieldValidationError' and 'addValidationError' to 'GQLError'
@@ -131,11 +129,10 @@ const Meter = new GQLListSchema('Meter', {
                     }
 
                     if (metersWithSameResourceAndNumberInOrganization && metersWithSameResourceAndNumberInOrganization.length > 0) {
-                        throw new GQLError(
-                            ERRORS.SAME_NUMBER_AND_RESOURCE_EXISTS_IN_ORGANIZATION(
-                                metersWithSameResourceAndNumberInOrganization.map(({ accountNumber }) => accountNumber).join(', '),
-                            ),
-                            context,
+                        throw new GQLError({
+                            ...ERRORS.SAME_NUMBER_AND_RESOURCE_EXISTS_IN_ORGANIZATION,
+                            messageInterpolation: { accountNumbersCsv: metersWithSameResourceAndNumberInOrganization.map(({ accountNumber }) => accountNumber).join(', ') },
+                        }, context,
                         )
                     }
                 },
@@ -173,11 +170,10 @@ const Meter = new GQLListSchema('Meter', {
                         })
 
                         if (metersWithSameAccountNumberInOtherUnit && metersWithSameAccountNumberInOtherUnit.length > 0) {
-                            throw new GQLError(
-                                ERRORS.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT(
-                                    metersWithSameAccountNumberInOtherUnit.map((meter) => `${meter.unitType} ${meter.unitName}`).join(', ')
-                                ),
-                                context,
+                            throw new GQLError({
+                                ...ERRORS.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT,
+                                messageInterpolation: { unitsCsv: metersWithSameAccountNumberInOtherUnit.map((meter) => `${meter.unitType} ${meter.unitName}`).join(', ') },
+                            }, context
                             )
                         }
                     }

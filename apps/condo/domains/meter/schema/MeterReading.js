@@ -22,27 +22,24 @@ const { addOrganizationFieldPlugin } = require('@condo/domains/organization/sche
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 const ERRORS = {
-    METER_READING_DATE_IN_FUTURE: (givenDate) => ({
+    METER_READING_DATE_IN_FUTURE: {
         code: BAD_USER_INPUT,
         type: METER_READING_DATE_IN_FUTURE,
         message: 'Meter reading date can not be from the future',
-        messageForUser: 'api.meterReading.METER_READING_DATE_IN_FUTURE',
-        messageInterpolation: { givenDate },
-    }),
-    METER_READING_FEW_VALUES: (meterNumber, numberOfTariffs, fieldsNames) => ({
+        messageForUser: 'api.meter.meterReading.METER_READING_DATE_IN_FUTURE',
+    },
+    METER_READING_FEW_VALUES: {
         code: BAD_USER_INPUT,
         type: METER_READING_FEW_VALUES,
         message: 'Wrong values count: few values',
-        messageForUser: 'api.meterReading.METER_READING_FEW_VALUES',
-        messageInterpolation: { meterNumber, numberOfTariffs, fieldsNames },
-    }),
-    METER_READING_EXTRA_VALUES: (meterNumber, numberOfTariffs, fieldsNames) => ({
+        messageForUser: 'api.meter.meterReading.METER_READING_FEW_VALUES',
+    },
+    METER_READING_EXTRA_VALUES: {
         code: BAD_USER_INPUT,
         type: METER_READING_EXTRA_VALUES,
         message: 'Wrong values count: extra values',
-        messageForUser: 'api.meterReading.METER_READING_EXTRA_VALUES',
-        messageInterpolation: { meterNumber, numberOfTariffs, fieldsNames },
-    }),
+        messageForUser: 'api.meter.meterReading.METER_READING_EXTRA_VALUES',
+    },
     BILLING_STATUS_MESSAGE_WITHOUT_BILLING_STATUS: {
         code: BAD_USER_INPUT,
         type: BILLING_STATUS_MESSAGE_WITHOUT_BILLING_STATUS,
@@ -63,7 +60,10 @@ const MeterReading = new GQLListSchema('MeterReading', {
                         const now = dayjs()
                         const readingDate = dayjs(date)
                         if (readingDate.isAfter(now)) {
-                            throw new GQLError(ERRORS.METER_READING_DATE_IN_FUTURE(date), context)
+                            throw new GQLError({
+                                ...ERRORS.METER_READING_DATE_IN_FUTURE,
+                                messageInterpolation: { givenDate: date },
+                            }, context)
                         }
                     }
                 },
@@ -187,7 +187,14 @@ const MeterReading = new GQLListSchema('MeterReading', {
             }
             if (emptyFieldsNames.length > 0) {
                 const localizedFieldsNames = emptyFieldsNames.map((fieldName) => i18n(`meter.import.column.${fieldName}`, { locale }))
-                throw new GQLError(ERRORS.METER_READING_FEW_VALUES(meter.number, meter.numberOfTariffs, localizedFieldsNames.join(', ')), context)
+                throw new GQLError({
+                    ...ERRORS.METER_READING_FEW_VALUES,
+                    messageInterpolation: {
+                        meterNumber: meter.number,
+                        numberOfTariffs: meter.numberOfTariffs,
+                        fieldsNames: localizedFieldsNames.join(', '),
+                    },
+                }, context)
             }
 
             const extraFieldsNames = []
@@ -199,7 +206,14 @@ const MeterReading = new GQLListSchema('MeterReading', {
             }
             if (extraFieldsNames.length > 0) {
                 const localizedFieldsNames = extraFieldsNames.map((fieldName) => i18n(`meter.import.column.${fieldName}`, { locale }))
-                throw new GQLError(ERRORS.METER_READING_EXTRA_VALUES(meter.number, meter.numberOfTariffs, localizedFieldsNames.join(', ')), context)
+                throw new GQLError({
+                    ...ERRORS.METER_READING_EXTRA_VALUES,
+                    messageInterpolation: {
+                        meterNumber: meter.number,
+                        numberOfTariffs: meter.numberOfTariffs,
+                        fieldsNames: localizedFieldsNames.join(', '),
+                    },
+                }, context)
             }
         },
     },

@@ -220,7 +220,7 @@ describe('NewsItemRecipientsExportTask', () => {
                     type: 'WRONG_VALUE',
                     message: 'Status is already completed',
                     variable: ['data', 'status'],
-                    messageForUser: 'api.newsItemRecipientsExportTask.STATUS_IS_ALREADY_COMPLETED',
+                    messageForUser: 'api.news.newsItemRecipientsExportTask.STATUS_IS_ALREADY_COMPLETED',
                 })
         })
 

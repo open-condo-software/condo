@@ -59,7 +59,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
         message: 'Provided b2bApp does not support NewsSharing',
-        messageForUser: 'api.newsItem.getNewsSharingRecipients.NOT_NEWS_SHARING_APP',
+        messageForUser: 'api.news.getNewsSharingRecipients.NOT_NEWS_SHARING_APP',
     },
     NEWS_SHARING_APP_REQUEST_FAILED: {
         query: 'getNewsSharingRecipients',
@@ -67,7 +67,7 @@ const ERRORS = {
         code: INTERNAL_ERROR,
         type: NETWORK_ERROR,
         message: 'Could not get a successful response from NewsSharing miniapp',
-        messageForUser: 'api.newsItem.getNewsSharingRecipients.NEWS_SHARING_APP_REQUEST_FAILED',
+        messageForUser: 'api.news.getNewsSharingRecipients.NEWS_SHARING_APP_REQUEST_FAILED',
     },
     NEWS_SHARING_APP_REQUEST_BAD_RESPONSE: {
         query: 'getNewsSharingRecipients',
@@ -75,7 +75,7 @@ const ERRORS = {
         code: INTERNAL_ERROR,
         type: WRONG_VALUE,
         message: 'Response from NewsSharing miniapp was successful, but the data format was incorrect',
-        messageForUser: 'api.newsItem.getNewsSharingRecipients.NEWS_SHARING_APP_REQUEST_BAD_RESPONSE',
+        messageForUser: 'api.news.getNewsSharingRecipients.NEWS_SHARING_APP_REQUEST_BAD_RESPONSE',
     },
 }
 

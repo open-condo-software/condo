@@ -50,7 +50,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'ORGANIZATION_NOT_FOUND',
         message: 'Organization not found',
-        messageForUser: 'api.organization.ReplaceOrganizationEmployeeRole.ORGANIZATION_NOT_FOUND',
+        messageForUser: 'api.organization.replaceOrganizationEmployeeRole.ORGANIZATION_NOT_FOUND',
     },
     OLD_ROLE_NOT_FOUND: {
         mutation: 'replaceOrganizationEmployeeRole',
@@ -58,7 +58,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'OLD_ROLE_NOT_FOUND',
         message: 'Old role not found in specified organization',
-        messageForUser: 'api.organization.ReplaceOrganizationEmployeeRole.OLD_ROLE_NOT_FOUND',
+        messageForUser: 'api.organization.replaceOrganizationEmployeeRole.OLD_ROLE_NOT_FOUND',
     },
     NEW_ROLE_NOT_FOUND: {
         mutation: 'replaceOrganizationEmployeeRole',
@@ -66,7 +66,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'NEW_ROLE_NOT_FOUND',
         message: 'New role not found in specified organization',
-        messageForUser: 'api.organization.ReplaceOrganizationEmployeeRole.NEW_ROLE_NOT_FOUND',
+        messageForUser: 'api.organization.replaceOrganizationEmployeeRole.NEW_ROLE_NOT_FOUND',
     },
     DEFAULT_ROLE_CANNOT_BE_DELETED: {
         mutation: 'replaceOrganizationEmployeeRole',
@@ -74,7 +74,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'DEFAULT_ROLE_CANNOT_BE_DELETED',
         message: 'The default role cannot be deleted',
-        messageForUser: 'api.organization.ReplaceOrganizationEmployeeRole.DEFAULT_ROLE_CANNOT_BE_DELETED',
+        messageForUser: 'api.organization.replaceOrganizationEmployeeRole.DEFAULT_ROLE_CANNOT_BE_DELETED',
     },
     ROLES_MUST_BE_DIFFERENT: {
         mutation: 'replaceOrganizationEmployeeRole',
@@ -82,7 +82,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'ROLES_MUST_BE_DIFFERENT',
         message: 'The old role and new role must be different',
-        messageForUser: 'api.organization.ReplaceOrganizationEmployeeRole.ROLES_MUST_BE_DIFFERENT',
+        messageForUser: 'api.organization.replaceOrganizationEmployeeRole.ROLES_MUST_BE_DIFFERENT',
     },
     ROLES_ARE_BEING_PROCESSED: {
         mutation: 'replaceOrganizationEmployeeRole',
@@ -90,7 +90,7 @@ const ERRORS = {
         code: TOO_MANY_REQUESTS,
         type: 'ROLES_ARE_BEING_PROCESSED',
         message: 'These roles are already being processed. Please try again a little later',
-        messageForUser: 'api.organization.ReplaceOrganizationEmployeeRole.ROLES_ARE_BEING_PROCESSED',
+        messageForUser: 'api.organization.replaceOrganizationEmployeeRole.ROLES_ARE_BEING_PROCESSED',
     },
 }
 

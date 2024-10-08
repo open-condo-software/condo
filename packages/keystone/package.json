@@ -16,7 +16,7 @@
     "./*": "./*.js"
   },
   "dependencies": {
-    "@apollo/client": "3.3.20",
+    "@apollo/client": "^3.11.8",
     "@keystonejs/adapter-knex": "^13.2.0",
     "@keystonejs/adapter-mongoose": "^11.2.0",
     "@keystonejs/adapter-prisma": "^3.2.0",

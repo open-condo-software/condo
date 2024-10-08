@@ -160,26 +160,26 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
         message: '"feedbackValue" must be specified if there is "feedbackAdditionalOptions" or "feedbackComment"',
-        messageForUser: 'api.ticket.FEEDBACK_VALUE_MUST_BE_SPECIFIED',
+        messageForUser: 'api.ticket.ticket.FEEDBACK_VALUE_MUST_BE_SPECIFIED',
     },
     QUALITY_CONTROL_VALUE_MUST_BE_SPECIFIED: {
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
         message: '"qualityControlValue" must be specified if there is "qualityControlAdditionalOptions" or "qualityControlComment"',
-        messageForUser: 'api.ticket.QUALITY_CONTROL_VALUE_MUST_BE_SPECIFIED',
+        messageForUser: 'api.ticket.ticket.QUALITY_CONTROL_VALUE_MUST_BE_SPECIFIED',
     },
     TICKET_FOR_PHONE_DAY_LIMIT_REACHED: {
         code: 'BAD_USER_INPUT',
         type: 'TICKET_FOR_PHONE_DAY_LIMIT_REACHED',
         message: 'Please try again tomorrow. You can not create more tickets!',
-        messageForUser: 'api.ticket.TICKET_FOR_PHONE_DAY_LIMIT_REACHED',
+        messageForUser: 'api.ticket.ticket.TICKET_FOR_PHONE_DAY_LIMIT_REACHED',
         messageInterpolation: { ticketLimit: DAILY_TICKET_LIMIT },
     },
     SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED: {
         code: 'BAD_USER_INPUT',
         type: 'SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED',
         message: 'You already sent this ticket! You can not create more tickets!',
-        messageForUser: 'api.ticket.SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED',
+        messageForUser: 'api.ticket.ticket.SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED',
     },
 }
 

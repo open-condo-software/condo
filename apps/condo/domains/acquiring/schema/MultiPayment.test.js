@@ -409,7 +409,7 @@ describe('MultiPayment', () => {
                     code: 'BAD_USER_INPUT',
                     type: 'MULTIPAYMENT_RECEIPTS_WITH_INVOICES_FORBIDDEN',
                     message: 'Receipts and invoices are forbidden to be together',
-                    messageForUser: 'api.acquiring.multiPayment.error.receiptsWithInvoices',
+                    messageForUser: 'api.acquiring.multiPayment.RECEIPTS_WITH_INVOICES_FORBIDDEN',
                 })
             })
         })

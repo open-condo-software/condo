@@ -4,8 +4,9 @@ import { FetchMoreQueryOptions } from '@apollo/client/core/watchQueryOptions'
 import { TypedDocumentNode } from '@graphql-typed-document-node/core'
 import dayjs from 'dayjs'
 import { DocumentNode } from 'graphql'
+import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useMutation, useQuery } from '@open-condo/next/apollo'
@@ -23,9 +24,17 @@ type IUseCountQueryReturnType = {
     meta?: { count?: number }
 }
 export type IRefetchType<GQLObject, QueryVariables> = (variables?: Partial<QueryVariables>) => Promise<ApolloQueryResult<IUseObjectsQueryReturnType<GQLObject>>>
-type IFetchMoreType<GQLObject, QueryVariables> = (<K extends keyof QueryVariables>(fetchMoreOptions: FetchMoreQueryOptions<QueryVariables, K, IUseObjectsQueryReturnType<GQLObject>> & FetchMoreOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>) => Promise<ApolloQueryResult<IUseObjectsQueryReturnType<GQLObject>>>) & (<TData2, TVariables2, K extends keyof TVariables2>(fetchMoreOptions: {
-    query?: DocumentNode | TypedDocumentNode<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>;
-} & FetchMoreQueryOptions<TVariables2, K, QueryVariables> & FetchMoreOptions<TData2, TVariables2>) => Promise<ApolloQueryResult<TData2>>)
+type IFetchMoreType<GQLObject, QueryVariables> = (
+    (
+        fetchMoreOptions: FetchMoreQueryOptions<QueryVariables, IUseObjectsQueryReturnType<GQLObject>> & FetchMoreOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>
+    ) => Promise<ApolloQueryResult<IUseObjectsQueryReturnType<GQLObject>>>
+) & (
+    <TData2, TVariables2>(
+        fetchMoreOptions: {
+            query?: DocumentNode | TypedDocumentNode<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>
+        } & FetchMoreQueryOptions<TVariables2, TData2> & FetchMoreOptions<TData2, TVariables2>
+    ) => Promise<ApolloQueryResult<TData2>>
+)
 type IStopPollingType = () => void
 type IBasicUseQueryResult<GQLObject, QueryVariables> = {
     loading: boolean
@@ -371,54 +380,58 @@ export function generateReactHooks<
     }
 
     function useAllObjects (variables: QueryVariables, options?: QueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>) {
-        const { objs, count, error, loading, refetch: _refetch, fetchMore, stopPolling } = useObjects(variables, options)
-        const [data, setData] = useState(objs)
-        const [fetchMoreError, setFetchMoreError] = useState()
-        const innerLoadingRef = useRef(false)
-
-        useEffect(() => {
-            innerLoadingRef.current = loading
-        }, [loading])
+        const skip = get(options, 'skip')
+        const { objs, count, error, loading, refetch: _refetch, fetchMore, stopPolling } = useObjects(variables, {
+            ...options,
+        })
+        const [fetchMoreError, setFetchMoreError] = useState(null)
 
         // NOTE: returns only the first part of the data
         const refetch: IRefetchType<GQLObject, QueryVariables> = useCallback((...args) => {
-            setData([])
-            // NOTE: refetch from Apollo does not immediately update loading status.
-            // Because of this, the resulting array contains outdated data that has already been loaded
-            // That's why we make our own loading indicator to prevent this from happening.
-            innerLoadingRef.current = true
+            setFetchMoreError(null)
             return _refetch(...args)
         }, [_refetch])
 
         useDeepCompareEffect(() => {
-            setData([])
+            setFetchMoreError(null)
         }, [variables])
 
+        const loadMore = useCallback(async (skip) => {
+            try {
+                await fetchMore({
+                    variables: {
+                        skip: skip,
+                    },
+                    updateQuery (previousData, { fetchMoreResult }) {
+                        // @ts-ignore
+                        const updatedObjs = [...previousData.objs, ...fetchMoreResult.objs]
+                        // @ts-ignore
+                        return { ...previousData, objs: updatedObjs, count: fetchMoreResult.count }
+                    },
+                })
+            } catch (error) {
+                setFetchMoreError(error)
+            }
+        }, [fetchMore])
+
         useEffect(() => {
-            const isAllDataLoaded = objs.length === count || data.length === count
-            if (isAllDataLoaded || loading || error || fetchMoreError || innerLoadingRef.current) {
+            if (skip) return
+            if (loading) return
+            if (error || fetchMoreError) return
+
+            if (objs.length >= count) {
                 return
             }
 
-            if (data.length === 0) {
-                setData(objs)
-                return
-            }
+            loadMore(objs.length)
+        }, [loadMore, objs.length, count])
 
-            fetchMore({
-                variables: {
-                    skip: data.length,
-                },
-            })
-                // @ts-ignore
-                .then(({ data }) => setData(prevData => [...prevData, ...data.objs]))
-                .catch(e => setFetchMoreError(e))
-        }, [loading, data.length])
-
+        const allDataLoaded = objs.length >= count && !loading
         return {
-            loading,
-            allDataLoaded: data.length === 0 ? objs.length === count : data.length === count,
-            objs: data.length === 0 ? objs : data,
+            loading: !allDataLoaded,
+            /** @deprecated use loading field instead */
+            allDataLoaded,
+            objs,
             count,
             error: error || fetchMoreError,
             refetch,

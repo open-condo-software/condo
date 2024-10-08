@@ -79,7 +79,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
         },
         {
             access: true,
-            type: `type ResidentBillingReceiptOutput { dv: String!, recipient: ${BILLING_RECEIPT_RECIPIENT_FIELD_NAME}!, id: ID!, period: String!, toPay: String!, paid: String!, explicitFee: String!, printableNumber: String, toPayDetails: ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME}, services: ${BILLING_RECEIPT_SERVICES_FIELD}, serviceConsumer: ServiceConsumer! currencyCode: String! category: BillingCategory! isPayable: Boolean! file: ResidentBillingReceiptFile }`,
+            type: `type ResidentBillingReceiptOutput { dv: String!, recipient: ${BILLING_RECEIPT_RECIPIENT_FIELD_NAME}!, id: ID!, period: String!, toPay: String!, paid: String!, explicitFee: String!, printableNumber: String, toPayDetails: ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME}, services: ${BILLING_RECEIPT_SERVICES_FIELD}, serviceConsumer: ServiceConsumer! currencyCode: String! category: BillingCategory! isPayable: Boolean! file: ResidentBillingReceiptFile updatedAt: String }`,
         },
     ],
 
@@ -150,6 +150,8 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                 // cache verified contacts for authed user
                 // in order to determinate if user can see
                 // a sensitive version of primary file
+                // NOTE: there is a "contact_phone_isverified" index for this query,
+                // if you change it make sure to modify the index so it still works
                 const contacts = await Contact.getAll(context, {
                     phone: context.authedItem.phone,
                     isVerified: true,
@@ -176,6 +178,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                         currencyCode: get(receipt, ['context', 'integration', 'currencyCode'], null),
                         file,
                         isPayable: receipt.isPayable,
+                        updatedAt: receipt.updatedAt,
                     })
                 })
 

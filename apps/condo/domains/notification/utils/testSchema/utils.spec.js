@@ -1,13 +1,13 @@
 const { faker } = require('@faker-js/faker')
 const sample = require('lodash/sample')
 
-const { getRandomTokenData } = require('./helpers')
+const { getRandomTokenData } = require('@condo/domains/notification/utils/testSchema/utils')
 
-const { PUSH_TRANSPORT_TYPES } = require('../../constants/constants')
+const { PUSH_TRANSPORT_TYPES } = require('@condo/domains/notification/constants/constants')
 
 const UUID_LENGTH = 36
 
-describe('helpers', () => {
+describe('utils', () => {
     describe('getRandomTokenData', () => {
         it('generates random device data of valid structure', async () => {
             const device = getRandomTokenData()
