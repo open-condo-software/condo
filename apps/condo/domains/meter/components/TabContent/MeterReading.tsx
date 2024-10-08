@@ -251,6 +251,9 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     const handleCloseUpdateReadingModal = useCallback(() => setIsShowUpdateReadingModal(false), [])
 
     const [selectedDates, setSelectedDates] = useState<[Dayjs, Dayjs]>()
+
+    const onCalendarChange = useCallback(dates => setSelectedDates(dates), [])
+
     const disabledDate = useCallback((current) => {
         if (current > dayjs()) return true
         if (!selectedDates) return false
@@ -304,7 +307,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                                                 placeholder={[StartDateMessage, EndDateMessage]}
                                                 disabledDate={disabledDate}
                                                 style={FULL_WIDTH_DATE_RANGE_STYLE}
-                                                onCalendarChange={val => setSelectedDates(val)}
+                                                onCalendarChange={onCalendarChange}
                                                 onOpenChange={onOpenChange}
                                             />
                                         </Col>

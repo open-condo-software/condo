@@ -2,11 +2,13 @@ import { MeterReadingWhereInput, MeterReadingSource as MeterReadingSourceType, M
 import dayjs, { Dayjs } from 'dayjs'
 import compact from 'lodash/compact'
 import get from 'lodash/get'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
+import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
+import { useDateRangeSearch } from '@condo/domains/common/hooks/useDateRangeSearch'
 import {
     ComponentType,
     convertToOptions,
@@ -50,13 +52,35 @@ export function useMeterReadingFilters (meterType: MeterTypes): Array<FiltersMet
     const EnterUnitNameLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.EnterUnitName' })
     const UnitMessage = intl.formatMessage({ id: 'field.FlatNumber' })
 
+    const [dateRange] = useDateRangeSearch('date')
     const [selectedDates, setSelectedDates] = useState<[Dayjs, Dayjs]>()
-    const disabledDate = (current) => {
+
+    const onCalendarChange = useCallback(dates => setSelectedDates(dates), [])
+
+    const disabledDate = useCallback((current) => {
         if (current > dayjs()) return true
-        const tooLate = selectedDates && selectedDates[0] && current.diff(selectedDates[0], 'months', true) > EXPORT_METER_READINGS_MONTHS_LIMIT
-        const tooEarly = selectedDates && selectedDates[1] && selectedDates[1].diff(current, 'months', true) > EXPORT_METER_READINGS_MONTHS_LIMIT
+        if (!selectedDates) return false
+
+        const startDate = selectedDates[0]
+        const endDate = selectedDates[1]
+        const tooLate = startDate && current.diff(startDate, 'months', true) > EXPORT_METER_READINGS_MONTHS_LIMIT
+        const tooEarly = endDate && endDate.diff(current, 'months', true) > EXPORT_METER_READINGS_MONTHS_LIMIT
+
         return !!tooEarly || !!tooLate
-    }
+    }, [selectedDates])
+
+    const onOpenChange = useCallback((open: boolean) => {
+        if (open || !selectedDates) {
+            return
+        }
+        if (!selectedDates[0] || !selectedDates[1]) {
+            setSelectedDates(null)
+        }
+    }, [selectedDates])
+
+    useDeepCompareEffect(() => {
+        setSelectedDates(dateRange)
+    }, [dateRange])
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
@@ -210,7 +234,8 @@ export function useMeterReadingFilters (meterType: MeterTypes): Array<FiltersMet
                     type: ComponentType.DateRange,
                     props: {
                         placeholder: [StartDateMessage, EndDateMessage],
-                        onCalendarChange: val => setSelectedDates(val),
+                        onCalendarChange,
+                        onOpenChange,
                         disabledDate,
                     },
                     modalFilterComponentWrapper: {
