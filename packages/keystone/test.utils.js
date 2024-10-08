@@ -558,6 +558,7 @@ const catchErrorFrom = async (testFunc, inspect) => {
         if (typeof jasmine !== 'undefined') {
             // eslint-disable-next-line
             const testName = `[${get(jasmine, ['currentTest', 'fullName'], jasmine['testPath'].split('/').pop().split('.')[0])}]`
+            // nosemgrep: javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring
             console.error(`[catchError !!!]${testName}:`, thrownError)
         }
         throw e
