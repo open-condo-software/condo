@@ -1,14 +1,11 @@
 import { MeterReadingWhereInput, MeterReadingSource as MeterReadingSourceType, MeterResource as MeterResourceType } from '@app/condo/schema'
-import dayjs, { Dayjs } from 'dayjs'
 import compact from 'lodash/compact'
 import get from 'lodash/get'
-import { useCallback, useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 
-import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
-import { useDateRangeSearch } from '@condo/domains/common/hooks/useDateRangeSearch'
 import {
     ComponentType,
     convertToOptions,
@@ -19,7 +16,7 @@ import {
     getDayRangeFilter, getFilter,
     getStringContainsFilter,
 } from '@condo/domains/common/utils/tables.utils'
-import { EXPORT_METER_READINGS_MONTHS_LIMIT } from '@condo/domains/meter/constants/constants'
+import { MeterReadingDatePicker } from '@condo/domains/meter/components/MeterReadingDatePicker'
 import { MeterReadingSource, MeterResource, MeterTypes, METER_TYPES } from '@condo/domains/meter/utils/clientSchema'
 import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
@@ -52,35 +49,35 @@ export function useMeterReadingFilters (meterType: MeterTypes): Array<FiltersMet
     const EnterUnitNameLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.EnterUnitName' })
     const UnitMessage = intl.formatMessage({ id: 'field.FlatNumber' })
 
-    const [dateRange] = useDateRangeSearch('date')
-    const [selectedDates, setSelectedDates] = useState<[Dayjs, Dayjs]>()
+    // const [dateRange] = useDateRangeSearch('date')
+    // const [selectedDates, setSelectedDates] = useState<[Dayjs, Dayjs]>()
 
-    const onCalendarChange = useCallback(dates => setSelectedDates(dates), [])
-
-    const disabledDate = useCallback((current) => {
-        if (current > dayjs()) return true
-        if (!selectedDates) return false
-
-        const startDate = selectedDates[0]
-        const endDate = selectedDates[1]
-        const tooLate = startDate && current.diff(startDate, 'months', true) > EXPORT_METER_READINGS_MONTHS_LIMIT
-        const tooEarly = endDate && endDate.diff(current, 'months', true) > EXPORT_METER_READINGS_MONTHS_LIMIT
-
-        return !!tooEarly || !!tooLate
-    }, [selectedDates])
-
-    const onOpenChange = useCallback((open: boolean) => {
-        if (open || !selectedDates) {
-            return
-        }
-        if (!selectedDates[0] || !selectedDates[1]) {
-            setSelectedDates(null)
-        }
-    }, [selectedDates])
-
-    useDeepCompareEffect(() => {
-        setSelectedDates(dateRange)
-    }, [dateRange])
+    // const onCalendarChange = useCallback(dates => setSelectedDates(dates), [])
+    //
+    // const disabledDate = useCallback((current) => {
+    //     if (current > dayjs()) return true
+    //     if (!selectedDates) return false
+    //
+    //     const startDate = selectedDates[0]
+    //     const endDate = selectedDates[1]
+    //     const tooLate = startDate && current.diff(startDate, 'months', true) > EXPORT_METER_READINGS_MONTHS_LIMIT
+    //     const tooEarly = endDate && endDate.diff(current, 'months', true) > EXPORT_METER_READINGS_MONTHS_LIMIT
+    //
+    //     return !!tooEarly || !!tooLate
+    // }, [selectedDates])
+    //
+    // const onOpenChange = useCallback((open: boolean) => {
+    //     if (open || !selectedDates) {
+    //         return
+    //     }
+    //     if (!selectedDates[0] || !selectedDates[1]) {
+    //         setSelectedDates(null)
+    //     }
+    // }, [selectedDates])
+    //
+    // useDeepCompareEffect(() => {
+    //     setSelectedDates(dateRange)
+    // }, [dateRange])
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
@@ -113,7 +110,6 @@ export function useMeterReadingFilters (meterType: MeterTypes): Array<FiltersMet
     const resourceFilter = getFilter(['meter', 'resource', 'id'], 'array', 'string', 'in')
 
     return useMemo(() => {
-
         return compact([
             {
                 keyword: 'address',
@@ -231,18 +227,30 @@ export function useMeterReadingFilters (meterType: MeterTypes): Array<FiltersMet
                 keyword: 'date',
                 filters: [readingDateRangeFilter],
                 component: {
-                    type: ComponentType.DateRange,
-                    props: {
-                        placeholder: [StartDateMessage, EndDateMessage],
-                        onCalendarChange,
-                        onOpenChange,
-                        disabledDate,
-                    },
+                    type: ComponentType.Custom,
+                    modalFilterComponent: (form) => <MeterReadingDatePicker filtersModalForm={form} />,
                     modalFilterComponentWrapper: {
                         label: MeterReadingDateMessage,
                         size: FilterComponentSize.Medium,
                     },
+                    // getComponentFilterDropdown: getDateRangeFilterDropdown({
+                    //     datePickerProps: { ...props, id },
+                    //     containerStyles: columnFilterComponentWrapperStyles,
+                    // }),
                 },
+                // component: {
+                //     type: ComponentType.DateRange,
+                //     props: {
+                //         placeholder: [StartDateMessage, EndDateMessage],
+                //         onCalendarChange,
+                //         onOpenChange,
+                //         disabledDate,
+                //     },
+                //     modalFilterComponentWrapper: {
+                //         label: MeterReadingDateMessage,
+                //         size: FilterComponentSize.Medium,
+                //     },
+                // },
             },
             isPropertyMeter ? null : {
                 keyword: 'place',
