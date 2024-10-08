@@ -1,7 +1,6 @@
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
-import isNil from 'lodash/isNil'
 import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -48,15 +47,12 @@ export const BankingInfo: React.FC<IBankAccountInfo> = ({ bankAccount }) => {
 
     // Note(YEgorLu): could use just bankAccount.name after migrating organization names to empty bankAccount names
     const bankAccountName = useMemo(() => {
-        const bankAccountName: string | undefined = get(bankAccount, 'name')
-        const organizationName: string | undefined = get(bankAccount, 'organization.name')
-        if (!isNil(bankAccountName)) {
+        const bankAccountName: string = get(bankAccount, 'name', '')
+        const organizationName: string = get(bankAccount, 'organization.name', '-')
+        if (bankAccountName) {
             return bankAccountName
         }
-        if (!isNil(organizationName)) {
-            return organizationName
-        }
-        return '-'
+        return organizationName
     }, [bankAccount])
 
     return (
