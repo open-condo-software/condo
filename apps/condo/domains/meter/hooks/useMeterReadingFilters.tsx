@@ -6,6 +6,7 @@ import React, { useMemo } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
+import { getDateRangeFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import {
     ComponentType,
     convertToOptions,
@@ -48,36 +49,6 @@ export function useMeterReadingFilters (meterType: MeterTypes): Array<FiltersMet
     const ArchiveDate = intl.formatMessage({ id: 'pages.condo.meter.ArchiveDate' })
     const EnterUnitNameLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.EnterUnitName' })
     const UnitMessage = intl.formatMessage({ id: 'field.FlatNumber' })
-
-    // const [dateRange] = useDateRangeSearch('date')
-    // const [selectedDates, setSelectedDates] = useState<[Dayjs, Dayjs]>()
-
-    // const onCalendarChange = useCallback(dates => setSelectedDates(dates), [])
-    //
-    // const disabledDate = useCallback((current) => {
-    //     if (current > dayjs()) return true
-    //     if (!selectedDates) return false
-    //
-    //     const startDate = selectedDates[0]
-    //     const endDate = selectedDates[1]
-    //     const tooLate = startDate && current.diff(startDate, 'months', true) > EXPORT_METER_READINGS_MONTHS_LIMIT
-    //     const tooEarly = endDate && endDate.diff(current, 'months', true) > EXPORT_METER_READINGS_MONTHS_LIMIT
-    //
-    //     return !!tooEarly || !!tooLate
-    // }, [selectedDates])
-    //
-    // const onOpenChange = useCallback((open: boolean) => {
-    //     if (open || !selectedDates) {
-    //         return
-    //     }
-    //     if (!selectedDates[0] || !selectedDates[1]) {
-    //         setSelectedDates(null)
-    //     }
-    // }, [selectedDates])
-    //
-    // useDeepCompareEffect(() => {
-    //     setSelectedDates(dateRange)
-    // }, [dateRange])
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
@@ -233,24 +204,10 @@ export function useMeterReadingFilters (meterType: MeterTypes): Array<FiltersMet
                         label: MeterReadingDateMessage,
                         size: FilterComponentSize.Medium,
                     },
-                    // getComponentFilterDropdown: getDateRangeFilterDropdown({
-                    //     datePickerProps: { ...props, id },
-                    //     containerStyles: columnFilterComponentWrapperStyles,
-                    // }),
+                    getComponentFilterDropdown: getDateRangeFilterDropdown({
+                        Component: MeterReadingDatePicker,
+                    }),
                 },
-                // component: {
-                //     type: ComponentType.DateRange,
-                //     props: {
-                //         placeholder: [StartDateMessage, EndDateMessage],
-                //         onCalendarChange,
-                //         onOpenChange,
-                //         disabledDate,
-                //     },
-                //     modalFilterComponentWrapper: {
-                //         label: MeterReadingDateMessage,
-                //         size: FilterComponentSize.Medium,
-                //     },
-                // },
             },
             isPropertyMeter ? null : {
                 keyword: 'place',

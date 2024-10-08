@@ -16,7 +16,7 @@ type MeterReadingDatePickerProps = {
     filtersModalForm?: FormInstance
 }
 
-export const MeterReadingDatePicker: FC<MeterReadingDatePickerProps> = ({ filtersModalForm }) => {
+export const MeterReadingDatePicker: FC<MeterReadingDatePickerProps> = ({ filtersModalForm, ...props }) => {
     const intl = useIntl()
     const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
     const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
