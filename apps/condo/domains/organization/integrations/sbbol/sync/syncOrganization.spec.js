@@ -43,7 +43,7 @@ describe('syncOrganization from SBBOL', () => {
 
             const [connectedEmployee] = await OrganizationEmployeeApi.getAll(adminContext, {
                 user: { id: user.id },
-            }, 'id')
+            })
             await OrganizationEmployeeApi.softDelete(adminContext, connectedEmployee.id, 'id', { ...dvSenderFields })
 
             await syncOrganization({
@@ -202,7 +202,7 @@ describe('syncOrganization from SBBOL', () => {
             const existingOrganizationEmployee = await OrganizationEmployeeApi.getOne(adminContext, {
                 user: { id: userClient.user.id },
                 organization: { id: existingOrganization.id },
-            }, 'id')
+            })
             organizationData.meta.inn = userClient.organization.tin
             await OrganizationApi.update(adminContext, existingOrganization.id, {
                 importId: organizationData.importId,

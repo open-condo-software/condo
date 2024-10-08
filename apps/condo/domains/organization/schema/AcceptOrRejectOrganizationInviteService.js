@@ -64,7 +64,7 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
                 isRejected = isRejected || false
                 isAccepted = isAccepted || false
 
-                let employee = await OrganizationEmployee.getOne(context, { id, deletedAt: null }, 'id')
+                let employee = await OrganizationEmployee.getOne(context, { id, deletedAt: null })
                 if (!employee) throw new GQLError({ ...ERRORS.acceptOrRejectOrganizationInviteById.INVITE_NOT_FOUND, messageInterpolation: { id } })
 
                 // if the user accepts the invitation, then update the name, phone number and email address of the employee
@@ -77,14 +77,14 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
                         name: authedItem.name ? authedItem.name : null,
                         phone: authedItem.phone ? authedItem.phone : null,
                         email: authedItem.email ? authedItem.email : null,
-                    }, 'id')
+                    })
                 } else {
                     employee = await OrganizationEmployee.update(context, employee.id, {
                         dv: 1,
                         sender,
                         isRejected,
                         isAccepted,
-                    }, 'id')
+                    })
                 }
 
                 return await getById('OrganizationEmployee', employee.id)
@@ -102,7 +102,7 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
                 isRejected = isRejected || false
                 isAccepted = isAccepted || false
 
-                let employee = await OrganizationEmployee.getOne(context, { inviteCode, user_is_null: true, deletedAt: null }, 'id')
+                let employee = await OrganizationEmployee.getOne(context, { inviteCode, user_is_null: true, deletedAt: null })
                 if (!employee) throw new GQLError({ ...ERRORS.acceptOrRejectOrganizationInviteByCode.INVITE_NOT_FOUND, messageInterpolation: { inviteCode } })
 
                 // if the user accepts the invitation, then update the name, phone number and email address of the employee
@@ -118,7 +118,7 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
                     isRejected,
                     isAccepted,
                     ...needToUpdateUserData,
-                }, 'id')
+                })
 
                 return await getById('OrganizationEmployee', employee.id)
             },

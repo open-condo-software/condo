@@ -163,7 +163,7 @@ const ReplaceOrganizationEmployeeRoleService = new GQLCustomSchema('ReplaceOrgan
                             role: { connect: { id: newRoleId } },
                         },
                     }))
-                    await OrganizationEmployee.updateMany(context, payloadToUpdate, 'id')
+                    await OrganizationEmployee.updateMany(context, payloadToUpdate)
 
                     if (withDeletionOldRole) {
                         await loadListByChunks({

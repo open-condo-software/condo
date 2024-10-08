@@ -193,7 +193,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                     phone,
                     hasAllSpecializations,
                     ...dvSenderData,
-                }, 'id')
+                })
 
                 for (const specializationIdObj of specializations) {
                     await OrganizationEmployeeSpecialization.create(context, {

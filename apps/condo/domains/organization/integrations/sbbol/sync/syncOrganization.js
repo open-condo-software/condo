@@ -100,7 +100,7 @@ const syncOrganization = async ({ context, user, userData, organizationInfo, dvS
             })
             const employee = await OrganizationEmployee.getOne(adminContext, {
                 organization: { id: organization.id },
-            }, 'id')
+            })
             await sendToCustomer({ organization })
 
             return { organization, employee }
