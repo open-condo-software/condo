@@ -327,6 +327,7 @@ describe('ReplaceOrganizationEmployeeRoleService', () => {
                                 name: 'GQLError',
                                 path: ['result'],
                                 message: ERRORS.ROLES_ARE_BEING_PROCESSED.message,
+                                // TODO(pahaz): you should refactor it somehow! it's a bad example!
                                 extensions: expect.objectContaining(omit(ERRORS.ROLES_ARE_BEING_PROCESSED, 'messageForUser')),
                             }),
                         ],

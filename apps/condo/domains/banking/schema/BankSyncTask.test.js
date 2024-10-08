@@ -902,6 +902,7 @@ describe('BankSyncTask', () => {
 
                 const updatedTask2 = await BankSyncTask.getOne(adminClient, { id: task2.id })
                 expect(updatedTask2.status).toEqual(TASK_ERROR_STATUS)
+                // TODO(pahaz): refactor this code it's locale specific!
                 expect(updatedTask2.meta.errorMessage).toEqual(i18n(TRANSACTIONS_NOT_ADDED.messageForUser))
                 expect(updatedTask2.meta).toBeTruthy()
                 expect(updatedTask2.meta).toMatchObject({

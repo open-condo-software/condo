@@ -197,7 +197,6 @@ class GQLError extends Error {
             }
         }
         if (!isEmpty(fields.messageInterpolation)) {
-            if (fields.message.includes('{')) extensions.messageTemplate = fields.message
             if (fields.message === extensions.message) {
                 // TODO(pahaz): DOMA-10345 throw error for that cases! Waiting for apps refactoring
                 console.warn(

@@ -797,20 +797,29 @@ function createRegExByTemplate (template, { eol = true, sol = true } = {}) {
 const expectToThrowGQLError = async (testFunc, errorFields, path = 'obj') => {
     if (isEmpty(errorFields) || typeof errorFields !== 'object') throw new Error('expectToThrowGQLError(): wrong errorFields argument')
     if (!errorFields.code || !errorFields.type) throw new Error('expectToThrowGQLError(): errorFields argument: no code or no type')
+    if (errorFields.messageForUserTemplateKey) throw new Error('expectToThrowGQLError(): you do not really need to use `messageForUserTemplateKey` key! You should pass it as `messageForUser` value! Look like a developer error!')
+    if (errorFields.messageForUserTemplate) throw new Error('expectToThrowGQLError(): you do not really need to use `messageForUserTemplate` key! You should pass right `messageForUser` value! Look like a developer error!')
+    if (errorFields.messageForUser && !errorFields.messageForUser.startsWith('api.')) {
+        // TODO(pahaz): DOMA-10345 strongly check it and throw error!
+        console.warn('expectToThrowGQLError(): developer error! `messageForUser` should starts with `api.`')
+    }
     if (!errorFields.message) {
         // TODO(pahaz): DOMA-10345 strongly check it!
         console.warn('expectToThrowGQLError(): errorFields message argument is required')
         // throw new Error('expectToThrowGQLError(): errorFields message argument is required')
     }
     const fieldsToCheck = { ...errorFields }
-    if (errorFields.messageInterpolation) {
+    if (!isEmpty(errorFields.messageInterpolation)) {
         fieldsToCheck['message'] = template(errorFields.message)(errorFields.messageInterpolation)
-        fieldsToCheck['messageTemplate'] = errorFields.message
     }
     if (errorFields.messageForUser) {
         const locale = conf.DEFAULT_LOCALE
         const translations = getTranslations(locale)
         const translatedMessage = translations[errorFields.messageForUser]
+        if (!translatedMessage) {
+            // TODO(pahaz): DOMA-10345 throw new error!
+            console.warn('expectToThrowGQLError! you do not have translation key', errorFields.messageForUser)
+        }
         if (errorFields.messageInterpolation) fieldsToCheck['messageForUserTemplate'] = translatedMessage
         const interpolatedMessageForUser = template(translatedMessage)(errorFields.messageInterpolation)
         if (!interpolatedMessageForUser) throw new Error(`expectToThrowGQLError(): you need to set ${errorFields.messageForUser} for locale=${locale}`)
@@ -822,7 +831,6 @@ const expectToThrowGQLError = async (testFunc, errorFields, path = 'obj') => {
     //  it means we want to use RegExp for our tests. Check @examples
     if (errorFields?.message?.includes('{')) {
         fieldsToCheck['message'] = expect.stringMatching(createRegExByTemplate(errorFields.message))
-        fieldsToCheck['messageTemplate'] = errorFields.message
     }
 
     await catchErrorFrom(testFunc, (caught) => {

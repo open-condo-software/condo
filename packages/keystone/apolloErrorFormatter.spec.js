@@ -406,7 +406,6 @@ describe('safeFormatError hide=false', () => {
                 code: 'INTERNAL_ERROR',
                 type: 'SOME_TYPE',
                 'message': 'string and 1',
-                'messageTemplate': message1,
                 messageInterpolation: {
                     foo: 'string',
                     bar: 1,
@@ -790,7 +789,6 @@ describe('safeFormatError hide=false', () => {
                     'min': 8,
                 },
                 'message': 'Password length must be between 8 and 128 characters',
-                'messageTemplate': 'Password length must be between {min} and {max} characters',
                 'variable': [
                     'data',
                     'password',
@@ -812,7 +810,6 @@ describe('safeFormatError hide=false', () => {
                                 'min': 8,
                             },
                             'message': passwordLengthErrorMessage,
-                            'messageTemplate': 'Password length must be between {min} and {max} characters',
                             'variable': [
                                 'data',
                                 'password',
@@ -832,7 +829,6 @@ describe('safeFormatError hide=false', () => {
                                     'min': 8,
                                 },
                                 'message': 'Password length must be between 8 and 128 characters',
-                                'messageTemplate': 'Password length must be between {min} and {max} characters',
                                 'variable': [
                                     'data',
                                     'password',
@@ -900,7 +896,6 @@ describe('safeFormatError hide=false', () => {
                     'min': 8,
                 },
                 'message': 'Password length must be between 8 and 128 characters',
-                'messageTemplate': 'Password length must be between {min} and {max} characters',
                 'variable': [
                     'data',
                     'password',
@@ -925,7 +920,6 @@ describe('safeFormatError hide=false', () => {
                                         'min': 8,
                                     },
                                     'message': passwordLengthErrorMessage,
-                                    'messageTemplate': 'Password length must be between {min} and {max} characters',
                                     'variable': [
                                         'data',
                                         'password',
@@ -995,7 +989,6 @@ describe('safeFormatError hide=false', () => {
                     'min': 8,
                 },
                 'message': 'Password length must be between 8 and 128 characters',
-                'messageTemplate': 'Password length must be between {min} and {max} characters',
                 'variable': [
                     'data',
                     'password',
@@ -1020,7 +1013,6 @@ describe('safeFormatError hide=false', () => {
                                         'min': 8,
                                     },
                                     'message': passwordLengthErrorMessage,
-                                    'messageTemplate': 'Password length must be between {min} and {max} characters',
                                     'variable': [
                                         'data',
                                         'password',
@@ -1040,7 +1032,6 @@ describe('safeFormatError hide=false', () => {
                                             'max': 128,
                                             'min': 8,
                                         },
-                                        'messageTemplate': 'Password length must be between {min} and {max} characters',
                                         'type': 'INVALID_PASSWORD_LENGTH',
                                         'variable': [
                                             'data',

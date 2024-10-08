@@ -139,7 +139,7 @@ describe('RegisterNewUserService', () => {
                     'type': 'PASSWORD_TOO_SIMPLE',
                     'code': 'BAD_USER_INPUT',
                     'message': 'The provided password is too simple',
-                    'messageForUser': 'errors.PASSWORD_TOO_SIMPLE.message',
+                    'messageForUser': 'api.user.user.PASSWORD_TOO_SIMPLE',
                 },
             )
         })
