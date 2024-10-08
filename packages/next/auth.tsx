@@ -13,8 +13,8 @@ interface IAuthContext {
     isAuthenticated: boolean
     isLoading: boolean
     refetch: () => Promise<void>
-    signin: ReturnType<typeof useMutation>[0]
-    signout: ReturnType<typeof useMutation>[0]
+    signIn: ReturnType<typeof useMutation>[0]
+    signOut: ReturnType<typeof useMutation>[0]
     user?: any | null
 }
 /**
@@ -27,8 +27,8 @@ const AuthContext = createContext<IAuthContext>({
     isAuthenticated: false,
     isLoading: false,
     refetch: () => Promise.resolve(),
-    signin: () => Promise.resolve({}),
-    signout: () => Promise.resolve({}),
+    signIn: () => Promise.resolve({}),
+    signOut: () => Promise.resolve({}),
 })
 
 /**
@@ -98,13 +98,13 @@ const AuthProvider = ({ children, initialUserValue }) => {
         setIsUserLoading(userLoading)
     }, [userLoading])
 
-    const [signin, { loading: signinLoading }] = useMutation(SIGNIN_MUTATION, {
+    const [signIn, { loading: signinLoading }] = useMutation(SIGNIN_MUTATION, {
         onCompleted: async (data) => {
             const error = get(data, 'error')
             const item = get(data, 'authenticateUserWithPassword.item')
 
             if (error) { return onError(error) }
-            if (DEBUG_RERENDERS) console.log('AuthProvider() signin()')
+            if (DEBUG_RERENDERS) console.log('AuthProvider() signIn()')
 
             if (item) {
                 await client.clearStore()
@@ -114,13 +114,13 @@ const AuthProvider = ({ children, initialUserValue }) => {
         },
     })
 
-    const [signout, { loading: signoutLoading }] = useMutation(SIGNOUT_MUTATION, {
+    const [signOut, { loading: signoutLoading }] = useMutation(SIGNOUT_MUTATION, {
         onCompleted: async (data) => {
             const error = get(data, 'error')
             const success = get(data, 'unauthenticateUser.success')
 
             if (error) { return onError(error) }
-            if (DEBUG_RERENDERS) console.log('AuthProvider() signout()')
+            if (DEBUG_RERENDERS) console.log('AuthProvider() signOut()')
             setCookieLinkId('')
             if (success) {
                 setUser(null)
@@ -159,8 +159,8 @@ const AuthProvider = ({ children, initialUserValue }) => {
                 isAuthenticated: !!user,
                 isLoading: isUserLoading || signinLoading || signoutLoading,
                 refetch: refetchUserData,
-                signin,
-                signout,
+                signIn,
+                signOut,
                 user,
             }}
         >
