@@ -23,7 +23,6 @@ import { TablePageContent } from '@condo/domains/common/components/containers/Ba
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
 import { Loader } from '@condo/domains/common/components/Loader'
-import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
@@ -39,7 +38,6 @@ import { MeterReadingDatePicker } from '@condo/domains/meter/components/MeterRea
 import ActionBarForSingleMeter from '@condo/domains/meter/components/Meters/ActionBarForSingleMeter'
 import UpdateMeterReadingModal from '@condo/domains/meter/components/Meters/UpdateMeterReadingModal'
 import { useMeterReadingExportToExcelTask } from '@condo/domains/meter/hooks/useMeterReadingExportToExcelTask'
-import { useMeterReadingsDateRangeProps } from '@condo/domains/meter/hooks/useMeterReadingsDateRangeProps'
 import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
 import {
     MeterReadingForOrganization,
@@ -242,9 +240,6 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     const handleCreateMeterReadings = useCallback(() => router.push(`/meter/create?tab=${METER_TAB_TYPES.meterReading}`), [router])
     const handleCloseUpdateReadingModal = useCallback(() => setIsShowUpdateReadingModal(false), [])
 
-    const getMeterReadingsDateProps = useMeterReadingsDateRangeProps()
-    const dateRangeProps = useMemo(() => getMeterReadingsDateProps(), [getMeterReadingsDateProps])
-
     return (
         <>
             <Row
@@ -267,7 +262,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                                 <Col xs={24} sm={24} md={16}>
                                     <Row justify='start' gutter={FILTERS_CONTAINER_GUTTER} style={{ flexWrap: 'nowrap' }}>
                                         <Col style={QUICK_FILTERS_COL_STYLE} xs={24} sm={11}>
-                                            <DateRangePicker {...dateRangeProps}/>
+                                            <MeterReadingDatePicker/>
                                         </Col>
                                     </Row>
                                 </Col>
