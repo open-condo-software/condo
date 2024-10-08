@@ -15,20 +15,20 @@ const { PRICE_FIELD } = require('@condo/domains/marketplace/schema/fields/price'
 const { MarketPriceScope } = require('@condo/domains/marketplace/utils/serverSchema')
 
 const ERRORS = {
-    INVALID_SALES_TAX_PERCENT: (rowNumber) => ({
+    INVALID_SALES_TAX_PERCENT: {
         code: BAD_USER_INPUT,
         type: 'INVALID_SALES_TAX_PERCENT',
         messageForUser: 'api.marketplace.marketItemPrice.INVALID_SALES_TAX_PERCENT',
-        messageInterpolation: { rowNumber },
-        message: `Invalid sales tax percent on line ${rowNumber}. Must be greater or equal to 0 and less or equal to 100.`,
-    }),
-    INVALID_PRICE: (rowNumber) => ({
+        message: 'Invalid sales tax percent on line {rowNumber}. Must be greater or equal to 0 and less or equal to 100.',
+        messageInterpolation: { rowNumber: '?' },
+    },
+    INVALID_PRICE: {
         code: BAD_USER_INPUT,
         type: 'INVALID_PRICE',
         messageForUser: 'api.marketplace.marketItemPrice.INVALID_PRICE',
-        messageInterpolation: { rowNumber },
-        message: `Invalid price on line ${rowNumber}. Must be greater or equal to 0.`,
-    }),
+        message: 'Invalid price on line {rowNumber}. Must be greater or equal to 0.',
+        messageInterpolation: { rowNumber: '?' },
+    },
     EMPTY_PRICE: {
         code: BAD_USER_INPUT,
         type: 'EMPTY_PRICE',
@@ -62,10 +62,16 @@ const MarketItemPrice = new GQLListSchema('MarketItemPrice', {
             for (let i = 0; i < prices.length; i++) {
                 const salesTaxPercent = Number(get(prices[i], 'salesTaxPercent', null))
                 if (salesTaxPercent < 0 || salesTaxPercent > 100) {
-                    throw new GQLError(ERRORS.INVALID_SALES_TAX_PERCENT(i + 1), context)
+                    throw new GQLError({
+                        ...ERRORS.INVALID_SALES_TAX_PERCENT,
+                        messageInterpolation: { rowNumber: String(i + 1) },
+                    }, context)
                 }
                 if (Number(get(prices[i], 'price', null)) < 0) {
-                    throw new GQLError(ERRORS.INVALID_PRICE(i + 1), context)
+                    throw new GQLError({
+                        ...ERRORS.INVALID_PRICE,
+                        messageInterpolation: { rowNumber: String(i + 1) },
+                    }, context)
                 }
             }
         },

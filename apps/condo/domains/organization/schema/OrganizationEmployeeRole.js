@@ -19,7 +19,6 @@ const { resetOrganizationEmployeesCache } = require('@condo/domains/organization
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const { COUNTRY_RELATED_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
 
-
 const ROLE_NAME_TRANSLATION_KEYS = [
     'Administrator',
     'Contractor',
@@ -46,12 +45,15 @@ const ERRORS = {
         type: 'CANNOT_DELETE_DEFAULT_ROLE',
         message: 'Default role cannot be deleted',
     },
-    CANNOT_UPDATE_FIELD_FOR_DEFAULT_ROLE: (fieldName) => ({
+    CANNOT_UPDATE_FIELD_FOR_DEFAULT_ROLE: {
         code: BAD_USER_INPUT,
-        variable: ['data', fieldName],
+        variable: ['data', '?'],
         type: 'CANNOT_UPDATE_FIELD_FOR_DEFAULT_ROLE',
-        message: `"${fieldName}" field cannot be updated for default role`,
-    }),
+        message: '"{fieldName}" field cannot be updated for default role',
+        messageInterpolation: {
+            fieldName: '?',
+        },
+    },
     ROLE_NAME_ALREADY_EXIST: {
         code: BAD_USER_INPUT,
         variable: ['data', 'name'],
@@ -63,7 +65,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         variable: ['data', 'name'],
         type: 'INVALID_ROLE_NAME_LENGTH',
-        message: `Role name length must be between ${MIN_ROLE_NAME_LENGTH} and ${MAX_ROLE_NAME_LENGTH} characters`,
+        message: 'Role name length must be between {min} and {max} characters',
         messageForUser: 'api.organization.organizationEmployeeRole.INVALID_ROLE_NAME_LENGTH',
         messageInterpolation: {
             min: MIN_ROLE_NAME_LENGTH,
@@ -74,26 +76,32 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         variable: ['data', 'description'],
         type: 'INVALID_ROLE_DESCRIPTION_LENGTH',
-        message: `Role description length cannot be more than ${MAX_ROLE_NAME_LENGTH} characters`,
+        message: 'Role description length cannot be more than {max} characters',
         messageForUser: 'api.organization.organizationEmployeeRole.INVALID_ROLE_DESCRIPTION_LENGTH',
         messageInterpolation: {
             max: MAX_ROLE_NAME_LENGTH,
         },
     },
-    EMPLOYEES_WITH_THIS_ROLE_WERE_FOUND: (employeeCount) => ({
+    EMPLOYEES_WITH_THIS_ROLE_WERE_FOUND: {
         code: BAD_USER_INPUT,
-        variable: ['data', 'description'],
         type: 'EMPLOYEES_WITH_THIS_ROLE_WERE_FOUND',
-        message: `${employeeCount} employees with this role were found. ` + 'This role must be revoked from all employees before it can be deleted. ' +
+        variable: ['data', 'description'],
+        message: '{employeeCount} employees with this role were found. This role must be revoked from all employees before it can be deleted. ' +
             'You can use the "replaceOrganizationEmployeeRole" mutation to avoid having to do this manually.',
-    }),
-    B2B_APP_ROLES_WITH_THIS_ROLE_WERE_FOUND: (employeeCount) => ({
+        messageInterpolation: {
+            employeeCount: '?', // runtime
+        },
+    },
+    B2B_APP_ROLES_WITH_THIS_ROLE_WERE_FOUND: {
         code: BAD_USER_INPUT,
         variable: ['data', 'description'],
         type: 'B2B_APP_ROLES_WITH_THIS_ROLE_WERE_FOUND',
-        message: `${employeeCount} B2BAppRoles with this role were found. ` + 'This role must be revoked from all B2BAppRoles before it can be deleted. ' +
+        message: '{employeeCount} B2BAppRoles with this role were found. This role must be revoked from all B2BAppRoles before it can be deleted. ' +
             'You can use the "replaceOrganizationEmployeeRole" mutation to avoid having to do this manually.',
-    }),
+        messageInterpolation: {
+            employeeCount: '?', // runtime
+        },
+    },
 }
 
 const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
@@ -142,7 +150,13 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
                     const name = get(resolvedData, fieldPath) || ''
 
                     if (isUpdateOperation && isDefaultRole) {
-                        throw new GQLError(ERRORS.CANNOT_UPDATE_FIELD_FOR_DEFAULT_ROLE(fieldPath), context)
+                        throw new GQLError({
+                            ...ERRORS.CANNOT_UPDATE_FIELD_FOR_DEFAULT_ROLE,
+                            variable: ['data', fieldPath],
+                            messageInterpolation: {
+                                fieldName: fieldPath,
+                            },
+                        }, context)
                     }
 
                     if (name.length < MIN_ROLE_NAME_LENGTH || name.length > MAX_ROLE_NAME_LENGTH) {
@@ -176,7 +190,13 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
                     const description = get(resolvedData, fieldPath) || ''
 
                     if (isUpdateOperation && isDefaultRole) {
-                        throw new GQLError(ERRORS.CANNOT_UPDATE_FIELD_FOR_DEFAULT_ROLE(fieldPath), context)
+                        throw new GQLError({
+                            ...ERRORS.CANNOT_UPDATE_FIELD_FOR_DEFAULT_ROLE,
+                            variable: ['data', fieldPath],
+                            messageInterpolation: {
+                                fieldName: fieldPath,
+                            },
+                        }, context)
                     }
 
                     if (description.length > MAX_ROLE_DESCRIPTION_LENGTH) {
@@ -258,7 +278,13 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
                     const isDefaultRole = get(newItem, 'isDefault', false)
 
                     if (isUpdateOperation && isDefaultRole) {
-                        throw new GQLError(ERRORS.CANNOT_UPDATE_FIELD_FOR_DEFAULT_ROLE(fieldPath), context)
+                        throw new GQLError({
+                            ...ERRORS.CANNOT_UPDATE_FIELD_FOR_DEFAULT_ROLE,
+                            variable: ['data', fieldPath],
+                            messageInterpolation: {
+                                fieldName: fieldPath,
+                            },
+                        }, context)
                     }
                 },
             },
@@ -332,7 +358,12 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
                 }, { meta: true })
 
                 if (organizationEmployeeCount) {
-                    throw new GQLError(ERRORS.EMPLOYEES_WITH_THIS_ROLE_WERE_FOUND(organizationEmployeeCount), context)
+                    throw new GQLError({
+                        ...ERRORS.EMPLOYEES_WITH_THIS_ROLE_WERE_FOUND,
+                        messageInterpolation: {
+                            employeeCount: organizationEmployeeCount,
+                        },
+                    }, context)
                 }
 
                 const { count: b2bAppRoleCount } = await itemsQuery('B2BAppRole', {
@@ -343,7 +374,12 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
                 }, { meta: true })
 
                 if (b2bAppRoleCount) {
-                    throw new GQLError(ERRORS.B2B_APP_ROLES_WITH_THIS_ROLE_WERE_FOUND(b2bAppRoleCount), context)
+                    throw new GQLError({
+                        ...ERRORS.B2B_APP_ROLES_WITH_THIS_ROLE_WERE_FOUND,
+                        messageInterpolation: {
+                            employeeCount: b2bAppRoleCount,
+                        },
+                    }, context)
                 }
             }
         },
