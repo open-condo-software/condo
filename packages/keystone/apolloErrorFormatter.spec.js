@@ -387,6 +387,33 @@ describe('safeFormatError hide=false', () => {
             },
         })
     })
+    test('safeFormatError(GQLError) with messageInterpolation with existing keys', () => {
+        const message1 = '{foo} and {bar}'
+        const error = new GQLError({
+            code: 'INTERNAL_ERROR',
+            type: 'SOME_TYPE',
+            message: message1,
+            messageInterpolation: {
+                foo: 'string',
+                bar: 1,
+            },
+        })
+        expect(safeFormatError(error)).toEqual({
+            'name': 'GQLError',
+            'message': 'string and 1',
+            'stack': expect.stringMatching(new RegExp('^GQLError: string and 1')),
+            'extensions': {
+                code: 'INTERNAL_ERROR',
+                type: 'SOME_TYPE',
+                'message': 'string and 1',
+                'messageTemplate': message1,
+                messageInterpolation: {
+                    foo: 'string',
+                    bar: 1,
+                },
+            },
+        })
+    })
     test('safeFormatError(GQLError) with context', () => {
         const message1 = Date.now().toString()
         const message2 = 'GQL' + (Date.now() % 100).toString()

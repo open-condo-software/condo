@@ -435,7 +435,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                         const valuesList = errorValuesKeys.map((errKey) => {
                             const column = i18n(`meter.import.column.${errKey}`, { locale })
                             return `"${column}"="${errorValues[errKey]}"`
-                        })
+                        }).join(', ')
                         resultRows.push(new GQLError(
                             { ...ERRORS.INVALID_METER_VALUES, messageInterpolation: { valuesList } },
                             context,

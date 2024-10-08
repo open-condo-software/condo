@@ -208,7 +208,7 @@ class GQLError extends Error {
             }
             for (const [key, value] of Object.entries(fields.messageInterpolation)) {
                 if (typeof key !== 'string') throw new Error(`GQLError: messageInterpolation key is not a string; key = ${key}`)
-                if (typeof value !== 'string' && typeof value !== 'number') throw new Error(`GQLError: messageInterpolation value is not a string|number; key = ${key}; value = ${value}`)
+                if (typeof value !== 'string' && typeof value !== 'number') throw new Error(`GQLError: messageInterpolation value is not a string|number; key = ${key}; value = ${value}; type = ${typeof value}`)
             }
         }
         super(extensions.message)
