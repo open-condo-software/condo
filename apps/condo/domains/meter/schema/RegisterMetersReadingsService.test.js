@@ -787,6 +787,8 @@ describe('RegisterMetersReadingsService', () => {
             { input: '17.06.2024 18:44:13', output: '2024-06-17 18:44:13' },
             { input: '17/06/2024 18:44:13', output: '2024-06-17 18:44:13' },
             { input: '2024-06-17T18:44:13.539Z', output: '2024-06-17T18:44:13.539Z' },
+            { input: '2021-12-20T00:00:00.000Z', output: '2021-12-20T00:00:00.000Z' },
+            { input: '2019-03-06T08:00:00+08:00', output: '2019-03-06T00:00:00Z' },
         ]
 
         test.each(cases)('$input should parsed as $output', async ({ input, output }) => {
