@@ -16,7 +16,7 @@ const { BankIntegrationOrganizationContext } = require('@condo/domains/banking/u
 const { BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/serverSchema')
 const { DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
-const { Meter, MeterResourceOwner, PropertyMeter, MeterReportingPeriod } = require('@condo/domains/meter/utils/serverSchema')
+const { MeterResourceOwner, MeterReportingPeriod } = require('@condo/domains/meter/utils/serverSchema')
 const { B2BAppContext } = require('@condo/domains/miniapp/utils/serverSchema')
 const access = require('@condo/domains/organization/access/ResetOrganizationService')
 const { DELETED_ORGANIZATION_NAME } = require('@condo/domains/organization/constants/common')
@@ -112,29 +112,13 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
                 for (let organizationLink of organizationLinks) {
                     await OrganizationLink.softDelete(context, organizationLink.id, DV_SENDER)
                 }
-
-                const meters = await find('Meter', {
-                    deletedAt: null,
-                    organization: { id: organizationId },
-                })
-                for (let meter of meters) {
-                    await Meter.softDelete(context, meter.id, DV_SENDER)
-                }
-
+                // TODO(DOMA-10423): add deleting meter and propertyMeter to a separate, asynchronous task
                 const meterResourceOwners = await find('MeterResourceOwner', {
                     deletedAt: null,
                     organization: { id: organizationId },
                 })
                 for (let meterResourceOwner of meterResourceOwners) {
                     await MeterResourceOwner.softDelete(context, meterResourceOwner.id, DV_SENDER)
-                }
-
-                const propertyMeters = await find('PropertyMeter', {
-                    deletedAt: null,
-                    organization: { id: organizationId },
-                })
-                for (let propertyMeter of propertyMeters) {
-                    await PropertyMeter.softDelete(context, propertyMeter.id, DV_SENDER)
                 }
 
                 const meterReportingPeriods = await find('MeterReportingPeriod', {
