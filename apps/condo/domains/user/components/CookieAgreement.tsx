@@ -1,5 +1,7 @@
 import styled from '@emotion/styled'
 import cookie from 'js-cookie'
+import getConfig from 'next/config'
+import Link from 'next/link'
 import React, { useState, useCallback } from 'react'
 
 import { ChevronDown, ChevronUp } from '@open-condo/icons'
@@ -39,6 +41,8 @@ const toggleMoreTextStyle: React.CSSProperties = {
 
 // When width will be less than this value, layout of auth-pages turns to vertical mode
 const MIN_CONTENT_WIDTH_FOR_DESKTOP_MODE = 990
+
+const { publicRuntimeConfig: { privacyPolicyUrl } } = getConfig()
 
 export const CookieAgreement: React.FC = () => {
     const intl = useIntl()
@@ -88,7 +92,14 @@ export const CookieAgreement: React.FC = () => {
                     </Space>
                     {displayMore &&
                         <Typography.Paragraph>
-                            <Typography.Text type='secondary' size='medium'>{CookieAgreementDescriptionMsg}</Typography.Text>
+                            <Typography.Text type='secondary' size='medium'>{CookieAgreementDescriptionMsg} </Typography.Text>
+                            { privacyPolicyUrl && (
+                                <>
+                                    <Typography.Text type='secondary' size='medium'>
+                                        {CookieExpandActionMsg} <Typography.Link href={privacyPolicyUrl} target='_blank'>{privacyPolicyUrl}</Typography.Link>
+                                    </Typography.Text>
+                                </>
+                            ) }
                         </Typography.Paragraph>
                     }
                 </Space>
