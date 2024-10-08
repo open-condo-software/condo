@@ -6,6 +6,7 @@ import { GetServerSideProps, NextPage } from 'next'
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
 
 import { useAuth } from '@/domains/common/utils/next/auth'
+import { useSSRCookiesContext } from '@/domains/common/utils/next/ssr'
 
 import {
     GetActiveOrganizationEmployeeDocument,
@@ -47,24 +48,12 @@ const setCookieLinkId = (value) => {
     }
 }
 
-const getLinkId = () => {
-    let state = null
-    if (typeof window !== 'undefined') {
-        try {
-            state = cookie.get(ACTIVE_EMPLOYEE_COOKIE_NAME) || null
-        } catch (e) {
-            state = null
-        }
-    }
-    return state
-}
-
 const DEBUG_RERENDERS = false
 
 export const OrganizationProvider: React.FC = ({ children }) => {
     const auth = useAuth()
-    const cookieEmployee = getLinkId()
-    const [activeEmployeeId, setActiveEmployeeId] = useState<string | null>(cookieEmployee)
+    const { organizationLinkId } = useSSRCookiesContext()
+    const [activeEmployeeId, setActiveEmployeeId] = useState<string | null>(organizationLinkId)
 
     const onError = useCallback((error) => {
         // console.log('OrganizationProvider:onError:: >>>', error)
@@ -91,7 +80,7 @@ export const OrganizationProvider: React.FC = ({ children }) => {
                 isRejected: false,
             },
         },
-        skip: auth.isLoading || !auth.user || !activeEmployeeId,
+        skip: auth.isLoading || !auth.user || !auth.user.id || !activeEmployeeId,
         onError,
     })
 
@@ -119,13 +108,6 @@ export const OrganizationProvider: React.FC = ({ children }) => {
     const handleSelectEmployee: OrganizationContextType['selectEmployee'] = useCallback((employeeId) => {
         return handleSelectItem({ id: employeeId })
     }, [handleSelectItem])
-
-    useEffect(() => {
-        console.log('OrganizationProvider:if (!cookieEmployee) {:: >>>', { cookieEmployee })
-        if (!cookieEmployee) {
-            setActiveEmployeeId(null)
-        }
-    }, [cookieEmployee])
 
     useEffect(() => {
         const employee = get(data, ['employees', 0])
@@ -167,7 +149,7 @@ export const OrganizationProvider: React.FC = ({ children }) => {
         variables: { id: activeEmployeeId },
         auth,
         activeEmployeeId,
-        cookieEmployee,
+        organizationLinkId,
 
         activeEmployee,
 

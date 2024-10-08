@@ -14,6 +14,8 @@ import { getTracingMiddleware } from '@open-condo/miniapp-utils/helpers/apollo'
 
 import { BILLING_RECEIPT_SERVICE_FIELD_NAME } from '@/domains/billing/constants/constants'
 
+import { SSRCookiesContext, useVitalCookies } from './ssr'
+
 // TODO(INFRA-517): не работает @open-condo/miniapp-utils/helpers/apollo
 // export { prepareSSRContext } from '@open-condo/miniapp-utils/helpers/apollo'
 export { prepareSSRContext } from '../../../../../../packages/miniapp-utils/src/helpers/apollo'
@@ -97,16 +99,16 @@ export const withApollo = () => (PageComponent: NextPage): NextPage => {
         const { client, cachePersistor } = useApollo(props.pageProps)
 
         // if (!cachePersistor) return null
-        // const ssrCookies = useVitalCookies(pageProps)
+        const ssrCookies = useVitalCookies(props?.pageProps)
 
         return (
-            // <SSRCookiesContext.Provider value={ssrCookies}>
-            <ApolloProvider client={client}>
-                <CachePersistorContext.Provider value={{ persistor: cachePersistor }}>
-                    <PageComponent {...props} />
-                </CachePersistorContext.Provider>
-            </ApolloProvider>
-            // </SSRCookiesContext.Provider>
+            <SSRCookiesContext.Provider value={ssrCookies}>
+                <ApolloProvider client={client}>
+                    <CachePersistorContext.Provider value={{ persistor: cachePersistor }}>
+                        <PageComponent {...props} />
+                    </CachePersistorContext.Provider>
+                </ApolloProvider>
+            </SSRCookiesContext.Provider>
         )
     }
 
