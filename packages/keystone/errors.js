@@ -180,7 +180,7 @@ class GQLError extends Error {
             extensions.messageForUser = template(translatedMessage)(fields.messageInterpolation)
             extensions.messageForUserTemplateKey = fields.messageForUser
             if (extensions.messageForUser) {
-                if (!isEmpty(fields.messageInterpolation) && translatedMessage) {
+                if (!isEmpty(fields.messageInterpolation) && translatedMessage?.includes('{')) {
                     extensions.messageForUserTemplate = translatedMessage
                 }
             } else {
@@ -197,7 +197,7 @@ class GQLError extends Error {
             }
         }
         if (!isEmpty(fields.messageInterpolation)) {
-            extensions.messageTemplate = fields.message
+            if (fields.message.includes('{')) extensions.messageTemplate = fields.message
             if (fields.message === extensions.message) {
                 // TODO(pahaz): DOMA-10345 throw error for that cases! Waiting for apps refactoring
                 console.warn(

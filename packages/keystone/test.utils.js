@@ -942,6 +942,26 @@ const expectToThrowCheckConstraintViolationError = async (testFunc, constraintNa
     })
 }
 
+/**
+ * Handles violates check constraint errors
+ * @param testFunc
+ * @param constraintName - full name of constraint as presented in Keystone schema
+ * @returns {Promise<void>}
+ */
+const expectToThrowForeignKeyConstraintViolationError = async (testFunc, tableName, constraintName) => {
+    await catchErrorFrom(async () => {
+        await testFunc()
+    }, ({ errors }) => {
+        expect(errors).toHaveLength(1)
+        const error = errors[0]
+        if (error.name === 'GQLError' && error.extensions.code === GQLErrorCode.INTERNAL_ERROR && error.extensions.type === GQLInternalErrorTypes.SUB_GQL_ERROR) {
+            expect(error.extensions.message).toContain(`on table "${tableName}" violates foreign key constraint "${actualDatabaseEntityName(constraintName)}"`)
+        } else {
+            expect(error.message).toContain(`on table "${tableName}" violates foreign key constraint "${actualDatabaseEntityName(constraintName)}"`)
+        }
+    })
+}
+
 module.exports = {
     waitFor,
     isPostgres, isMongo,
@@ -981,6 +1001,7 @@ module.exports = {
     expectValuesOfCommonFields,
     expectToThrowUniqueConstraintViolationError,
     expectToThrowCheckConstraintViolationError,
+    expectToThrowForeignKeyConstraintViolationError,
     setFeatureFlag,
     getFeatureFlag,
     setAllFeatureFlags,

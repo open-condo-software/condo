@@ -277,7 +277,7 @@ describe('RegisterMetersReadingsService', () => {
             {
                 code: 'BAD_USER_INPUT',
                 type: 'TOO_MUCH_READINGS',
-                message: 'Too much readings. Maximum is 500.',
+                message: 'Too much readings. {sentCount} sent, limit is {limit}.',
                 messageForUser: 'api.meter.registerMetersReadings.TOO_MUCH_READINGS',
                 messageInterpolation: { limit: 500, sentCount: 501 },
             },
@@ -315,7 +315,9 @@ describe('RegisterMetersReadingsService', () => {
                             code: 'BAD_USER_INPUT',
                             type: 'SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT',
                             message: 'Meter with same account number exist in current organization in other unit',
-                            messageForUserTemplateKey: 'api.meter.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT',
+                            messageForUser: 'Meter with same account number exist in current organization in unit flat 1',
+                            messageForUserTemplate: 'Meter with same account number exist in current organization in unit {unitsCsv}',
+                            messageForUserTemplateKey: 'api.meter.meter.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT',
                             messageInterpolation: { unitsCsv: `${readings1[0].addressInfo.unitType} ${readings1[0].addressInfo.unitName}` },
                         }),
                     }),
@@ -531,7 +533,7 @@ describe('RegisterMetersReadingsService', () => {
                         extensions: expect.objectContaining({
                             code: GQLErrorCode.INTERNAL_ERROR,
                             type: GQLInternalErrorTypes.SUB_GQL_ERROR,
-                            message: 'Unable to connect a Meter.resource<MeterResource>',
+                            message: expect.stringContaining('insert or update on table "Meter" violates foreign key constraint "Meter_resource_33ab2a27_fk_MeterResource_id"'),
                         }),
                     }),
                 ])
@@ -823,6 +825,7 @@ describe('RegisterMetersReadingsService', () => {
                         expect.objectContaining({
                             name: 'GQLError',
                             message: 'Invalid date',
+                            path: ['result', 0],
                             extensions: expect.objectContaining({
                                 'code': 'BAD_USER_INPUT',
                                 'type': 'INVALID_DATE',
@@ -830,7 +833,7 @@ describe('RegisterMetersReadingsService', () => {
                                 'messageForUserTemplateKey': 'api.meter.registerMetersReadings.INVALID_DATE',
                                 'messageInterpolation': {
                                     'columnName': 'Reading submission date',
-                                    'format': ['YYYY-MM-DD', 'DD.MM.YYYY'].join('", "'),
+                                    'format': 'YYYY-MM-DD", "DD.MM.YYYY',
                                 },
                             }),
                         }),
