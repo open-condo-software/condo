@@ -91,33 +91,8 @@ const AuthLayout: React.FC<IAuthLayoutProps> = (props) => {
                     </Typography.Link>
                 </Typography.Paragraph>
             }
-            <Typography.Paragraph type='secondary' style={SUPPORT_TEXT_STYLE}>
-                <FormattedMessage
-                    id='pages.auth.register.info.RecaptchaPrivacyPolicyContent'
-                    values={{
-                        PrivacyPolicy: (
-                            <Typography.Link
-                                style={TYPOGRAPHY_CONTACT_STYLE}
-                                target='_blank'
-                                href='//policies.google.com/privacy'
-                                rel='noreferrer'>
-                                {PrivacyPolicy}
-                            </Typography.Link>
-                        ),
-                        TermsOfService: (
-                            <Typography.Link
-                                style={TYPOGRAPHY_CONTACT_STYLE}
-                                target='_blank'
-                                href='//policies.google.com/terms'
-                                rel='noreferrer'>
-                                {TermsOfService}
-                            </Typography.Link>
-                        ),
-                    }}
-                />
-            </Typography.Paragraph>
         </div>
-    ), [PrivacyPolicy, TermsOfService])
+    ), [])
 
     return (
         <HCaptchaProvider>

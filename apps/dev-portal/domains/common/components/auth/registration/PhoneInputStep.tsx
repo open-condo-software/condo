@@ -1,4 +1,5 @@
 import { Col, Form, Row } from 'antd'
+import getConfig from 'next/config'
 import React, { useCallback, useState } from 'react'
 import { useIntl } from 'react-intl'
 
@@ -19,6 +20,8 @@ const START_CONFIRM_PHONE_ACTION_ERRORS_TO_FIELDS_MAP = {
     [INVALID_PHONE]: 'phone',
 }
 
+const { publicRuntimeConfig: { termsOfUseUrl, privacyPolicyUrl, dataProcessingConsentUrl } } = getConfig()
+
 type PhoneFormValues = {
     phone: string
 }
@@ -34,18 +37,7 @@ export const PhoneInputStep: React.FC<PhoneInputStepProps> = ({ onComplete }) =>
     const PrivacyPolicyText = intl.formatMessage({ id: 'global.registerForm.info.personalDataProcessing.privacyPolicy' })
     const UserAgreementText = intl.formatMessage({ id: 'global.registerForm.info.personalDataProcessing.userAgreement' })
     const ConsentText = intl.formatMessage({ id: 'global.registerForm.info.personalDataProcessing.consent' })
-    const PersonalDataProcessingMessage = intl.formatMessage({ id: 'global.registerForm.info.personalDataProcessing.message' }, {
-        signUpButton: SignUpButtonLabel,
-        userAgreementLink: (
-            <Typography.Link href='/user-docs/ru/agreement.pdf' target='_blank'>{UserAgreementText}</Typography.Link>
-        ),
-        privacyPolicyLink: (
-            <Typography.Link href='/user-docs/ru/policy.pdf' target='_blank'>{PrivacyPolicyText}</Typography.Link>
-        ),
-        consentLink: (
-            <Typography.Link href='/user-docs/ru/pdpc.pdf' target='_blank'>{ConsentText}</Typography.Link>
-        ),
-    })
+    
     const [formattedPhone, setFormattedPhone] = useState<string | undefined>(undefined)
     const { phoneFormatValidator } = useValidations()
     const [form] = Form.useForm()
@@ -96,11 +88,26 @@ export const PhoneInputStep: React.FC<PhoneInputStepProps> = ({ onComplete }) =>
                         <Input.Phone onChange={onPhoneInputChange}/>
                     </Form.Item>
                 </Col>
-                <Col span={FULL_SPAN_COL}>
-                    <Typography.Paragraph type='secondary' size='small'>
-                        {PersonalDataProcessingMessage}
-                    </Typography.Paragraph>
-                </Col>
+                { ( termsOfUseUrl && privacyPolicyUrl && dataProcessingConsentUrl ) && (
+                    <Col span={FULL_SPAN_COL}>
+                        <Typography.Paragraph type='secondary' size='small'>
+                            {
+                                intl.formatMessage({ id: 'global.registerForm.info.personalDataProcessing.message' }, {
+                                    signUpButton: SignUpButtonLabel,
+                                    userAgreementLink: (
+                                        <Typography.Link href={termsOfUseUrl} target='_blank'>{UserAgreementText}</Typography.Link>
+                                    ),
+                                    privacyPolicyLink: (
+                                        <Typography.Link href={privacyPolicyUrl} target='_blank'>{PrivacyPolicyText}</Typography.Link>
+                                    ),
+                                    consentLink: (
+                                        <Typography.Link href={dataProcessingConsentUrl} target='_blank'>{ConsentText}</Typography.Link>
+                                    ),
+                                })
+                            }
+                        </Typography.Paragraph>
+                    </Col>
+                )}
                 <Col span={FULL_SPAN_COL} className={styles.submitButtonCol}>
                     <Button type='primary' block htmlType='submit'>
                         {SignUpButtonLabel}

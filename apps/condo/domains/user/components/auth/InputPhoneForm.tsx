@@ -27,7 +27,7 @@ const ROW_STYLES: React.CSSProperties = {
     justifyContent: 'center',
 }
 const FORM_PARAGRAPH_STYLES: React.CSSProperties = {
-    margin: '28px 0 40px',
+    margin: '28px 0 12px',
     fontSize: '12px',
 }
 const FORM_TYPOGRAPHY_STYLES: React.CSSProperties = {
@@ -58,7 +58,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
 
     const REGISTER_PHONE_LABEL = <label style={{ alignSelf: 'flex-end' }}>{PhoneMsg}</label>
 
-    const { publicRuntimeConfig: { hasSbbolAuth } } = getConfig()
+    const { publicRuntimeConfig: { hasSbbolAuth, termsOfUseUrl, privacyPolicyUrl, dataProcessingConsentUrl } } = getConfig()
 
     const router = useRouter()
     const { query: { next } } = router
@@ -147,7 +147,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
                     requiredMark={false}
                     layout='vertical'
                 >
-                    <Row style={ROW_STYLES}>
+                    <Row style={ROW_STYLES} gutter={[0, 28]}>
                         <ResponsiveCol span={24}>
                             <Row>
                                 <Col span={24}>
@@ -164,44 +164,48 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
                                         />
                                     </Form.Item>
                                 </Col>
-                                <Col span={24}>
-                                    <Typography.Paragraph type='secondary' style={FORM_PARAGRAPH_STYLES}>
-                                        <FormattedMessage
-                                            id='pages.auth.register.info.PersonalDataProcessingConsent'
-                                            values={{
-                                                termsOfUse: (
-                                                    <Typography.Link
-                                                        style={{ color: colors.black }}
-                                                        target='_blank'
-                                                        href='/termsofuse.pdf'
-                                                        rel='noreferrer'
-                                                    >
-                                                        {TermsOfUseContent}
-                                                    </Typography.Link>
-                                                ),
-                                                consentLink: (
-                                                    <Typography.Link
-                                                        style={{ color: colors.black }}
-                                                        target='_blank'
-                                                        href='/pdpc.pdf'
-                                                        rel='noreferrer'>
-                                                        {ConsentContent}
-                                                    </Typography.Link>
-                                                ),
-                                                privacyPolicyLink: (
-                                                    <Typography.Link
-                                                        style={{ color: colors.black }}
-                                                        target='_blank'
-                                                        href='/policy.pdf'
-                                                        rel='noreferrer'>
-                                                        {PrivacyPolicyContent}
-                                                    </Typography.Link>
-                                                ),
-                                            }}
-                                        />
-                                    </Typography.Paragraph>
-                                </Col>
+                                { ( termsOfUseUrl && privacyPolicyUrl && dataProcessingConsentUrl ) && (
+                                    <Col span={24}>
+                                        <Typography.Paragraph type='secondary' style={FORM_PARAGRAPH_STYLES}>
+                                            <FormattedMessage
+                                                id='pages.auth.register.info.PersonalDataProcessingConsent'
+                                                values={{
+                                                    termsOfUse: (
+                                                        <Typography.Link
+                                                            style={{ color: colors.black }}
+                                                            target='_blank'
+                                                            href={termsOfUseUrl}
+                                                            rel='noreferrer'
+                                                        >
+                                                            {TermsOfUseContent}
+                                                        </Typography.Link>
+                                                    ),
+                                                    consentLink: (
+                                                        <Typography.Link
+                                                            style={{ color: colors.black }}
+                                                            target='_blank'
+                                                            href={dataProcessingConsentUrl}
+                                                            rel='noreferrer'>
+                                                            {ConsentContent}
+                                                        </Typography.Link>
+                                                    ),
+                                                    privacyPolicyLink: (
+                                                        <Typography.Link
+                                                            style={{ color: colors.black }}
+                                                            target='_blank'
+                                                            href={privacyPolicyUrl}
+                                                            rel='noreferrer'>
+                                                            {PrivacyPolicyContent}
+                                                        </Typography.Link>
+                                                    ),
+                                                }}
+                                            />
+                                        </Typography.Paragraph>
+                                    </Col>
+                                ) }
                             </Row>
+                        </ResponsiveCol>
+                        <ResponsiveCol span={24}>
                             <Row gutter={FORM_BUTTONS_GUTTER}>
                                 <Col span={24}>
                                     <Form.Item>
