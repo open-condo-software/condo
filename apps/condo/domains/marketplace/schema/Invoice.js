@@ -375,7 +375,9 @@ const Invoice = new GQLListSchema('Invoice', {
                     deletedAt: null,
                     invoiceStatus: CONTEXT_FINISHED_STATUS,
                 })
-                const integration = await getById('AcquiringIntegration', get(acquiringContext, 'integration'))
+                const integrationId = get(acquiringContext, 'integration')
+                if (!integrationId) return null
+                const integration = await getById('AcquiringIntegration', integrationId)
                 return get(integration, 'hostUrl', null)
             },
             access: { create: false, read: true, update: false },
@@ -391,7 +393,9 @@ const Invoice = new GQLListSchema('Invoice', {
                     deletedAt: null,
                     invoiceStatus: CONTEXT_FINISHED_STATUS,
                 })
-                const integration = await getById('AcquiringIntegration', acquiringContext.integration)
+                const integrationId = get(acquiringContext, 'integration')
+                if (!integrationId) return null
+                const integration = await getById('AcquiringIntegration', integrationId)
                 return get(integration, 'canGroupReceipts', null)
             },
             access: { create: false, read: true, update: false },

@@ -1,4 +1,4 @@
-const { pickBy, get, isObject } = require('lodash')
+const { pickBy, get, isEmpty, isObject } = require('lodash')
 
 const {
     generateGetAllGQL,
@@ -10,7 +10,6 @@ const {
     generateDeleteGQL,
     generateGqlQueries,
 } = require('@open-condo/codegen/generate.gql')
-const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode, GQLInternalErrorTypes } = require('@open-condo/keystone/errors')
 const { getById } = require('@open-condo/keystone/schema')
 
