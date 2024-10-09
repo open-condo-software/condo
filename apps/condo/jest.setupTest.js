@@ -12,7 +12,8 @@ if (conf.TESTS_FAKE_CLIENT_MODE) setFakeClientMode(index, { excludeApps: ['NextA
 if (conf.TESTS_FAKE_WORKER_MODE) console.warn('The Tasks will be executed inside this node process with setTimeout instead of being sent to the queue!')
 if (TESTS_LOG_REQUEST_RESPONSE) {
     beforeEach(() => console.log(`[TEST BEGIN][${get(jasmine, ['currentTest', 'fullName'], jasmine['testPath'].split('/').pop().split('.')[0])}]`)) // eslint-disable-line
-    afterEach(() => console.log(`[TEST END][${get(jasmine, ['currentTest', 'fullName'], jasmine['testPath'].split('/').pop().split('.')[0])}]`)) // eslint-disable-line
+    // nosemgrep: javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring
+    afterEach(() => console.log(`[TEST END][${get(jasmine, ['currentTest', 'fullName'], jasmine['testPath'].split('/').pop().split('.')[0])}]`, get(jasmine, ['currentTest', 'failedExpectations'], []).map(x => x.stack))) // eslint-disable-line
 }
 
 // Patch tests to include their own name
