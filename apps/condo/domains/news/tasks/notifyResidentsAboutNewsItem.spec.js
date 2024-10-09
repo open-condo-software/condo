@@ -60,7 +60,7 @@ describe('notifyResidentsAboutNewsItem', () => {
                 {
                     title: newsItemTitle,
                     body: newsItemBody,
-                }
+                },
             )
 
             await createTestNewsItemScope(adminClient, newsItem1, {
@@ -173,7 +173,7 @@ describe('notifyResidentsAboutNewsItem', () => {
                 {
                     title: newsItemTitle,
                     body: newsItemBody,
-                }
+                },
             )
 
             // create NewsItemScopes without Residents, that testing pushing newsItem in big scope
@@ -268,7 +268,7 @@ describe('notifyResidentsAboutNewsItem', () => {
                 {
                     title: newsItemTitle,
                     body: newsItemBody,
-                }
+                },
             )
 
             // create NewsItemScopes without Residents, that testing pushing newsItem in big scope
@@ -288,6 +288,7 @@ describe('notifyResidentsAboutNewsItem', () => {
             })
 
             const payload = getRandomTokenData({
+                pushTransport: 'redstore',
                 devicePlatform: DEVICE_PLATFORM_ANDROID,
                 appId: APP_RESIDENT_ID_ANDROID,
                 pushToken: getRandomFakeSuccessToken(),
@@ -370,7 +371,7 @@ describe('notifyResidentsAboutNewsItem', () => {
                 {
                     title: newsItemTitle,
                     body: newsItemBody,
-                }
+                },
             )
 
             await createTestNewsItemScope(adminClient, newsItem, {
