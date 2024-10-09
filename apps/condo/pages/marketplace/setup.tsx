@@ -10,7 +10,6 @@ import { useOrganization } from '@open-condo/next/organization'
 import { StepItem } from '@open-condo/ui'
 import { Typography, Steps } from '@open-condo/ui'
 
-import { extractSSRState } from '@/domains/common/utils/next/ssr'
 import { CONTEXT_FINISHED_STATUS } from '@condo/domains/acquiring/constants/context'
 import { AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
 import { useOnboardingProgress } from '@condo/domains/billing/hooks/useOnboardingProgress'
@@ -19,6 +18,7 @@ import { TablePageContent } from '@condo/domains/common/components/containers/Ba
 import { prepareSSRContext } from '@condo/domains/common/utils/next/apollo'
 import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
 import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
+import { extractSSRState } from '@condo/domains/common/utils/next/ssr'
 import { OfferSetupPage } from '@condo/domains/marketplace/components/MarketplaceOnboarding/OfferSetupPage'
 import { RequisitesSetup } from '@condo/domains/marketplace/components/MarketplaceOnboarding/RequisitesSetup'
 import {

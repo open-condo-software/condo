@@ -7,11 +7,11 @@ import { initializeApollo } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 
 
-import { extractSSRState } from '@/domains/common/utils/next/ssr'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { prepareSSRContext } from '@condo/domains/common/utils/next/apollo'
 import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
 import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
+import { extractSSRState } from '@condo/domains/common/utils/next/ssr'
 import { InvoiceForm } from '@condo/domains/marketplace/components/Invoice/InvoiceForm'
 import { InvoiceReadAndManagePermissionRequired } from '@condo/domains/marketplace/components/PageAccess'
 

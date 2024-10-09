@@ -1,4 +1,7 @@
-import { AuthenticatedUserDocument, GetActiveOrganizationEmployeeDocument, SignOutDocument } from '@app/condo/gql'
+import {
+    AuthenticatedUserDocument,
+    GetActiveOrganizationEmployeeDocument,
+} from '@app/condo/gql'
 import { CacheProvider } from '@emotion/core'
 import { ConfigProvider } from 'antd'
 import enUS from 'antd/lib/locale/en_US'
@@ -12,12 +15,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'
 
-import {
-    ApolloHelper, CachePersistorContext,
-    InitializeApollo,
-    ListHelper,
-    UseApollo,
-} from '@open-condo/apollo'
+import { ListHelper } from '@open-condo/apollo'
 import type { InitCacheConfig } from '@open-condo/apollo'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useFeatureFlags, FeaturesReady, withFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
@@ -28,7 +26,6 @@ import { useAuth, withAuth } from '@open-condo/next/auth'
 import { useIntl, withIntl } from '@open-condo/next/intl'
 import { useOrganization, withOrganization } from '@open-condo/next/organization'
 
-import { useVitalCookies, SSRCookiesContext, useSSRCookiesContext } from '@/domains/common/utils/next/ssr'
 import { useBankReportTaskUIInterface } from '@condo/domains/banking/hooks/useBankReportTaskUIInterface'
 import { useBankSyncTaskUIInterface } from '@condo/domains/banking/hooks/useBankSyncTaskUIInterface'
 import { BILLING_RECEIPT_SERVICE_FIELD_NAME } from '@condo/domains/billing/constants/constants'
@@ -65,6 +62,7 @@ import {
 import { useHotCodeReload } from '@condo/domains/common/hooks/useHotCodeReload'
 import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
 import { messagesImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
+import { useVitalCookies, SSRCookiesContext, useSSRCookiesContext } from '@condo/domains/common/utils/next/ssr'
 import { useContactExportTaskUIInterface } from '@condo/domains/contact/hooks/useContactExportTaskUIInterface'
 import { useMeterReadingExportTaskUIInterface } from '@condo/domains/meter/hooks/useMeterReadingExportTaskUIInterface'
 import { useMeterReadingsImportTaskUIInterface } from '@condo/domains/meter/hooks/useMeterReadingsImportTaskUIInterface'
@@ -626,25 +624,11 @@ const useOrganizationLinkId = () => {
 
 export default (
     withCookies()(
-        withApollo({ apolloHelperOptions })(
-            withAuth({
-                legacy: false,
-                USER_QUERY: AuthenticatedUserDocument,
-            })(
-                withOrganization({
-                    legacy: false,
-                    GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY: GetActiveOrganizationEmployeeDocument,
-                    useOrganizationLinkId,
-                })(
-                    withIntl({
-                        ssr: !IS_SSR_DISABLED,
-                        messagesImporter,
-                        extractReqLocale,
-                        defaultLocale,
-                    })(
-                        withFeatureFlags({
-                            ssr: !IS_SSR_DISABLED,
-                        })(
+        withApollo({ legacy: false, apolloHelperOptions })(
+            withAuth({ legacy: false, USER_QUERY: AuthenticatedUserDocument })(
+                withOrganization({ legacy: false, GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY: GetActiveOrganizationEmployeeDocument, useOrganizationLinkId })(
+                    withIntl({ ssr: !IS_SSR_DISABLED, messagesImporter, extractReqLocale, defaultLocale })(
+                        withFeatureFlags({ ssr: !IS_SSR_DISABLED })(
                             MyApp
                         )
                     )

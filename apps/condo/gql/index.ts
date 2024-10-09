@@ -4,10 +4,9 @@
 
 import { gql } from '@apollo/client'
 import * as Apollo from '@apollo/client'
+import * as Types from '@app/condo/gql/operation.types'
 
-import * as Types from '@/gql/operation.types'
-
-export * from '@/gql/operation.types'
+export * from '@app/condo/gql/operation.types'
 
 const defaultOptions = {} as const
 
