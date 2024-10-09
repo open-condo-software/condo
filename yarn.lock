@@ -675,6 +675,7 @@ __metadata:
     "@ant-design/icons": ^4.7.0
     "@apollo/client": ^3.11.8
     "@app/condo": "workspace:^"
+    "@callcenter/domains": "link:./domains"
     "@condo/domains": "link:../condo/domains"
     "@emotion/babel-plugin": ^11.10.0
     "@emotion/core": ^10.1.1
@@ -7846,6 +7847,12 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@callcenter/domains@link:./domains::locator=%40app%2Fcallcenter%40workspace%3Aapps%2Fcallcenter":
+  version: 0.0.0-use.local
+  resolution: "@callcenter/domains@link:./domains::locator=%40app%2Fcallcenter%40workspace%3Aapps%2Fcallcenter"
+  languageName: node
+  linkType: soft
+
 "@colors/colors@npm:1.5.0":
   version: 1.5.0
   resolution: "@colors/colors@npm:1.5.0"
@@ -14114,6 +14121,7 @@ __metadata:
   resolution: "@open-condo/next@workspace:packages/next"
   dependencies:
     "@apollo/client": ^3.11.8
+    "@open-condo/apollo": "workspace:^"
     "@open-condo/tsconfig": "workspace:^"
     apollo-upload-client: ^14.1.3
     eventemitter3: ^4.0.0
