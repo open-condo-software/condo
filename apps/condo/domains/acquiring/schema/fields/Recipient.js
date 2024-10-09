@@ -9,7 +9,7 @@ const RECIPIENT_FIELDS_DEFINITION = {
     offsettingAccount: 'String',
     tin: 'String!',
     iec: 'String',
-    // NOTE(YEgorLu): rename to routingNumber
+    // TODO(YEgorLu): DOMA-10442 rename to routingNumber
     bic: 'String!',
     bankAccount: 'String!',
     classificationCode: 'String',
