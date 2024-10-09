@@ -7,6 +7,7 @@ import Head from 'next/head'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { ChevronDown, ChevronUp, Download, ExternalLink } from '@open-condo/icons'
+import { prepareSSRContext } from '@open-condo/miniapp-utils'
 import { initializeApollo } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Card, Modal, Space, Typography } from '@open-condo/ui'
@@ -21,7 +22,6 @@ import {
     PageWrapper,
     useLayoutContext,
 } from '@condo/domains/common/components/containers/BaseLayout'
-import { prepareSSRContext } from '@condo/domains/common/utils/next/apollo'
 import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
 import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
 import { extractSSRState } from '@condo/domains/common/utils/next/ssr'

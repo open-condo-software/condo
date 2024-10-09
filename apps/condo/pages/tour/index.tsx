@@ -11,6 +11,7 @@ import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo } from 'react'
 
 import { ArrowLeft } from '@open-condo/icons'
+import { prepareSSRContext } from '@open-condo/miniapp-utils'
 import { initializeApollo } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -27,7 +28,6 @@ import {
     useLayoutContext,
 } from '@condo/domains/common/components/containers/BaseLayout'
 import { Loader } from '@condo/domains/common/components/Loader'
-import { prepareSSRContext } from '@condo/domains/common/utils/next/apollo'
 import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
 import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
 import { extractSSRState } from '@condo/domains/common/utils/next/ssr'
