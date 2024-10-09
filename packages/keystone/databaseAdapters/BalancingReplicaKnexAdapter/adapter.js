@@ -1,4 +1,5 @@
 const { KnexAdapter } = require('@keystonejs/adapter-knex')
+const get = require('lodash/get')
 const omit = require('lodash/omit')
 
 const conf = require('@open-condo/config')
@@ -45,14 +46,21 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         return Object.fromEntries(dbNames.map((name, idx) => [name, connectionResults[idx].value]))
     }
 
-    _selectTargetPool (sqlQueryObject) {
+    _selectTargetPool (sql) {
         const gqlContext = graphqlCtx.getStore()
-        const operationType = 1
+        const operationType = get(gqlContext, ['info', 'operation', 'operation'])
 
         for (const rule of this._routingRules) {
-            // TODO: POOL
-            return rule.target
+            if (rule.gqlOperationType && operationType !== rule.gqlOperationType) {
+                continue
+            }
+
+            // if (rule.sqlOperationName && )
+
+            return this._replicaPools[rule.target]
         }
+
+        // TODO: throw here?
     }
 
     async _connect () {
@@ -85,13 +93,13 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
 
         this.knex.client.runner = (builder) => {
             try {
-                const sql = builder.toSQL()
+                const sqlObject = builder.toSQL()
 
-                if (Array.isArray(sql)) {
+                if (Array.isArray(sqlObject)) {
                     return this._defaultPool.getQueryRunner(builder)
                 }
 
-                const selectedPool = this._selectTargetPool(sql)
+                const selectedPool = this._selectTargetPool(sqlObject.sql)
 
                 return selectedPool.getQueryRunner(builder)
             } catch (err) {
