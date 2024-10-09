@@ -359,9 +359,7 @@ const _withAuth: WithAuth = (opts) => (PageComponent: NextPage): NextPage => {
     return WithAuth
 }
 
-type mergedWithAuthProps = Either<WithAuthProps, WithAuthLegacyProps> & {
-    legacy?: boolean
-}
+type mergedWithAuthProps = Either<WithAuthProps & { legacy: false }, WithAuthLegacyProps & { legacy?: true }>
 type mergedWithAuth = (props: mergedWithAuthProps) => (PageComponent: NextPage) => NextPage
 const withAuth: mergedWithAuth = ({ legacy = true, ...opts }) => (PageComponent: NextPage): NextPage => {
     if (legacy) {
