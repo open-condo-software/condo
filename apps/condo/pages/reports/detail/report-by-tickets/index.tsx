@@ -14,6 +14,7 @@ import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRe
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { Edit, PlusCircle, Print } from '@open-condo/icons'
+import { prepareSSRContext } from '@open-condo/miniapp-utils'
 import { useApolloClient, useLazyQuery } from '@open-condo/next/apollo'
 import { initializeApollo } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
@@ -45,7 +46,6 @@ import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangeP
 import RadioGroupWithIcon from '@condo/domains/common/components/RadioGroupWithIcon'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { fontSizes } from '@condo/domains/common/constants/style'
-import { prepareSSRContext } from '@condo/domains/common/utils/next/apollo'
 import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
 import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
 import { extractSSRState } from '@condo/domains/common/utils/next/ssr'
