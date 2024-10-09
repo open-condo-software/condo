@@ -10,7 +10,7 @@ const logger = getLogger('firebaseResponseResolver')
 
 const responseResolver = async (result, isVoIP) => {
     const responses = get(result, 'responses', [])
-    if (responses.length) {
+    if (responses && responses.length) {
         for (const response of responses) {
             const context = getSchemaCtx('RemoteClient')
             if (get(response, 'error.code') === 'messaging/registration-token-not-registered') {
