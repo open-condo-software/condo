@@ -616,17 +616,27 @@ export const withCookies = () => (PageComponent) => {
     return WithCookies
 }
 
-const useOrganizationLinkId = () => {
-    const { organizationLinkId } = useSSRCookiesContext()
-    console.log({ organizationLinkId })
-    return { organizationLinkId }
+const useEmployeeId = () => {
+    const { organizationLinkId: employeeId } = useSSRCookiesContext()
+    console.log('useEmployeeId >> ', { employeeId })
+    return { employeeId }
+}
+
+const getEmployeeWhere = (userId: string) => {
+    return {
+        organization: { type: 'MANAGING_COMPANY' },
+        user: { id: userId, type: 'staff' },
+        isAccepted: true,
+        isBlocked: false,
+        isRejected: false,
+    }
 }
 
 export default (
     withCookies()(
         withApollo({ legacy: false, apolloHelperOptions })(
             withAuth({ legacy: false, USER_QUERY: AuthenticatedUserDocument })(
-                withOrganization({ legacy: false, GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY: GetActiveOrganizationEmployeeDocument, useOrganizationLinkId })(
+                withOrganization({ legacy: false, GET_ORGANIZATION_EMPLOYEE_QUERY: GetActiveOrganizationEmployeeDocument, useEmployeeId, getEmployeeWhere })(
                     withIntl({ ssr: !IS_SSR_DISABLED, messagesImporter, extractReqLocale, defaultLocale })(
                         withFeatureFlags({ ssr: !IS_SSR_DISABLED })(
                             MyApp
