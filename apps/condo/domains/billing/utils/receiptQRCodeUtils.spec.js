@@ -60,7 +60,7 @@ describe('receiptQRCodeUtils', () => {
             [iconv.encode(TEST_STRING, 'cp1251').toString('base64')],
         ]
 
-        test.each(cases)('%p %p -> %p', (qrStr) => {
+        test.each(cases)('%p %p', (qrStr) => {
             const parsed = parseRUReceiptQRCode(qrStr)
             expect(parsed).toEqual({
                 'Name': 'ООО «УК ЭкоГрад»',

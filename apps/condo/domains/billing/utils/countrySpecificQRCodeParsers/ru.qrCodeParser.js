@@ -1,4 +1,8 @@
 const { convertEncoding, detectEncoding } = require('@open-condo/keystone/file/utils')
+const { getLogger } = require('@open-condo/keystone/logging')
+
+
+const logger = getLogger('parseRUReceiptQRCode')
 
 /**
  * @typedef {Object} TRUQRCodeFields
@@ -16,7 +20,7 @@ const { convertEncoding, detectEncoding } = require('@open-condo/keystone/file/u
  * @param {function} logger ValidateQRCodeService logger
  * @return {TRUQRCodeFields}
  */
-function parseRUReceiptQRCode (qrStr, logger) {
+function parseRUReceiptQRCode (qrStr) {
     const buffer = Buffer.from(qrStr, 'base64')
     const detectedEncoding = detectEncoding(buffer)
     const decodedRequisitesStr = convertEncoding(buffer, detectedEncoding)
