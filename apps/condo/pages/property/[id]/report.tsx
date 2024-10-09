@@ -14,7 +14,6 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Button, Checkbox, ActionBar } from '@open-condo/ui'
 
-import { extractSSRState } from '@/domains/common/utils/next/ssr'
 import { BankAccountReport } from '@condo/domains/banking/components/BankAccountReport'
 import { BankAccountVisibilitySelect } from '@condo/domains/banking/components/BankAccountVisibilitySelect'
 import {
@@ -53,6 +52,7 @@ import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { prepareSSRContext } from '@condo/domains/common/utils/next/apollo'
 import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
 import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
+import { extractSSRState } from '@condo/domains/common/utils/next/ssr'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
