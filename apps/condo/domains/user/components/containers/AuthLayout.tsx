@@ -4,9 +4,9 @@ import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo } from 'react'
 
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl, FormattedMessage } from '@open-condo/next/intl'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
 import { FROM_INPUT_CSS } from '@condo/domains/common/components/containers/BaseLayout/components/styles'
 import { HCaptchaProvider } from '@condo/domains/common/components/HCaptcha'
 import { Logo } from '@condo/domains/common/components/Logo'

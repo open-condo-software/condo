@@ -4,14 +4,17 @@ import get from 'lodash/get'
 import Head from 'next/head'
 import React from 'react'
 
+import { initializeApollo } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 
-import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
-import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
-import { prefetchOrganizationEmployee, useOrganization } from '@/domains/common/utils/next/organization'
+
 import { extractSSRState } from '@/domains/common/utils/next/ssr'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { Loader } from '@condo/domains/common/components/Loader'
+import { prepareSSRContext } from '@condo/domains/common/utils/next/apollo'
+import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
 import { SettingsReadPermissionRequired } from '@condo/domains/settings/components/PageAccess'
 import {
     OnlyProgressionMeterReadingsForm,

@@ -2,10 +2,10 @@ import get from 'lodash/get'
 import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Tabs } from '@open-condo/ui'
 import type { TabItem } from '@open-condo/ui'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import { ACCRUALS_TAB_KEY, PAYMENTS_TAB_KEY, EXTENSION_TAB_KEY } from '@condo/domains/billing/constants/constants'
 import { useQueryTab } from '@condo/domains/billing/hooks/useQueryTab'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'

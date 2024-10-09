@@ -2,10 +2,10 @@ import get from 'lodash/get'
 import isNull from 'lodash/isNull'
 import React, { useCallback, useState, useMemo, useEffect } from 'react'
 
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { Modal, Button, Typography, Space, Alert } from '@open-condo/ui'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
 import { SBBOL } from '@condo/domains/banking/constants'
 import { useBankSyncTaskUIInterface } from '@condo/domains/banking/hooks/useBankSyncTaskUIInterface'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'

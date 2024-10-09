@@ -2,17 +2,20 @@ import get from 'lodash/get'
 import Head from 'next/head'
 import React, { useMemo } from 'react'
 
+import { initializeApollo } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 
-import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
-import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
-import { prefetchOrganizationEmployee, useOrganization } from '@/domains/common/utils/next/organization'
+
 import { extractSSRState } from '@/domains/common/utils/next/ssr'
 import { CONTEXT_FINISHED_STATUS } from '@condo/domains/acquiring/constants/context'
 import { AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
+import { prepareSSRContext } from '@condo/domains/common/utils/next/apollo'
+import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
 import { MarketplacePageContent } from '@condo/domains/marketplace/components/MarketplacePageContent'
 import {
     AcquiringContext as AcquiringContextProvider,

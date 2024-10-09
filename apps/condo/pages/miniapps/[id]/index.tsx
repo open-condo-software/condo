@@ -2,10 +2,13 @@ import Error from 'next/error'
 import { useRouter } from 'next/router'
 import React from 'react'
 
-import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
-import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
-import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
+import { initializeApollo } from '@open-condo/next/apollo'
+
+
 import { extractSSRState } from '@/domains/common/utils/next/ssr'
+import { prepareSSRContext } from '@condo/domains/common/utils/next/apollo'
+import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import { B2BAppPage } from '@condo/domains/miniapp/components/AppIndex'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'

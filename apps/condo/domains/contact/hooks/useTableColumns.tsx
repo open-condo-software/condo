@@ -6,8 +6,8 @@ import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import { getOptionFilterDropdown, getFilterIcon } from '@condo/domains/common/components/Table/Filters'
 import {
     getAddressRender,

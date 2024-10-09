@@ -9,9 +9,9 @@ import React, { useEffect, useMemo } from 'react'
 
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Alert, Button } from '@open-condo/ui'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import Input from '@condo/domains/common/components/antd/Input'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'

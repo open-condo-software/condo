@@ -10,11 +10,11 @@ import get from 'lodash/get'
 import Head from 'next/head'
 import React, { useMemo } from 'react'
 
+import { initializeApollo } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 
-import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
-import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
-import { prefetchOrganizationEmployee, useOrganization } from '@/domains/common/utils/next/organization'
+
 import { extractSSRState } from '@/domains/common/utils/next/ssr'
 import {
     PageHeader,
@@ -24,6 +24,9 @@ import { TablePageContent } from '@condo/domains/common/components/containers/Ba
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
+import { prepareSSRContext } from '@condo/domains/common/utils/next/apollo'
+import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import BuildingsTable from '@condo/domains/property/components/BuildingsTable'
 import { useTableColumns as usePropertiesTableColumns } from '@condo/domains/property/hooks/useTableColumns'

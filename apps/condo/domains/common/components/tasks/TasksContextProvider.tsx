@@ -8,7 +8,8 @@ import uniqBy from 'lodash/uniqBy'
 import React, { useEffect, useState, useReducer, useRef } from 'react'
 
 
-import { useAuth } from '@/domains/common/utils/next/auth'
+import { useAuth } from '@open-condo/next/auth'
+
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
 

@@ -23,9 +23,9 @@ import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEf
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { PlusCircle, QuestionCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Alert, Space, Tooltip } from '@open-condo/ui'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import { CONTEXT_FINISHED_STATUS } from '@condo/domains/acquiring/constants/context'
 import { AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'

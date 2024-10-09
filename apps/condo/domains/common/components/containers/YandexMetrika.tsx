@@ -7,8 +7,9 @@ import { useEffect } from 'react'
 import ym, { YMInitializer } from 'react-yandex-metrika'
 
 
-import { useAuth } from '@/domains/common/utils/next/auth'
-import { useOrganization } from '@/domains/common/utils/next/organization'
+import { useAuth } from '@open-condo/next/auth'
+import { useOrganization } from '@open-condo/next/organization'
+
 
 
 const YandexMetrika = () => {

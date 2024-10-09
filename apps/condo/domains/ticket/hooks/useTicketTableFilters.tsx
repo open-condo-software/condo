@@ -9,10 +9,10 @@ import {
 import get from 'lodash/get'
 import React, { useMemo } from 'react'
 
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import { getSelectFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import {
     ComponentType,

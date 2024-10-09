@@ -7,8 +7,8 @@ import { useEffect, useRef } from 'react'
 
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import {
     Columns,

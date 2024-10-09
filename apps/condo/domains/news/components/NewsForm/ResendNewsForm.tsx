@@ -5,8 +5,8 @@ import uniq from 'lodash/uniq'
 import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { B2BAppContext } from '@condo/domains/miniapp/utils/clientSchema'
 import { CreateNewsActionBar, getCompletedNotification } from '@condo/domains/news/components/NewsForm/CreateNewsForm'

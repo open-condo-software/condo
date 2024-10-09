@@ -7,10 +7,10 @@ import React, { useCallback, useMemo } from 'react'
 
 import { PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Button } from '@open-condo/ui'
 import { Tabs, Typography } from '@open-condo/ui'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'

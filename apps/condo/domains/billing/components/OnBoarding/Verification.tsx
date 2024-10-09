@@ -3,9 +3,9 @@ import { useRouter } from 'next/router'
 import React, { CSSProperties, useEffect } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Typography } from '@open-condo/ui'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import { CONTEXT_VERIFICATION_STATUS } from '@condo/domains/acquiring/constants/context'
 import { AcquiringIntegrationContext as AcquiringContext } from '@condo/domains/acquiring/utils/clientSchema'
 import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/domains/billing/utils/clientSchema'

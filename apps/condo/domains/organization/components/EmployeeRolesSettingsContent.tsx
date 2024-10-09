@@ -32,9 +32,9 @@ import {
 } from '@open-condo/codegen/generate.hooks'
 import { Close } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, ActionBarProps, Button, Checkbox, Tooltip } from '@open-condo/ui'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import {
     EXPANDABLE_COLUMN_STUB,
     ExpandableTable,

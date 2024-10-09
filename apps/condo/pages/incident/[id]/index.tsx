@@ -12,12 +12,11 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
+import { initializeApollo } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Tag, Typography } from '@open-condo/ui'
 
-import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
-import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
-import { prefetchOrganizationEmployee, useOrganization } from '@/domains/common/utils/next/organization'
 import { extractSSRState } from '@/domains/common/utils/next/ssr'
 import { ChangeHistory } from '@condo/domains/common/components/ChangeHistory'
 import { HistoricalChange } from '@condo/domains/common/components/ChangeHistory/HistoricalChange'
@@ -25,6 +24,9 @@ import { PageHeader, PageWrapper, PageContent } from '@condo/domains/common/comp
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { getTimeLeftMessage, getTimeLeftMessageType } from '@condo/domains/common/utils/date.utils'
+import { prepareSSRContext } from '@condo/domains/common/utils/next/apollo'
+import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
 import { IncidentReadPermissionRequired } from '@condo/domains/ticket/components/PageAccess'
 import {
     INCIDENT_STATUS_COLORS,

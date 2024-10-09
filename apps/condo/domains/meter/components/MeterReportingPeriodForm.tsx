@@ -10,9 +10,9 @@ import { Rule } from 'rc-field-form/lib/interface'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Select } from '@open-condo/ui'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import { ButtonWithDisabledTooltip } from '@condo/domains/common/components/ButtonWithDisabledTooltip'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'

@@ -5,9 +5,9 @@ import { useRouter } from 'next/router'
 import React, { useEffect } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button } from '@open-condo/ui'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import { Loader } from '@condo/domains/common/components/Loader'
 import BasePropertyMapForm from '@condo/domains/property/components/BasePropertyMapForm'
 import { Property } from '@condo/domains/property/utils/clientSchema'

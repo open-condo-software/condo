@@ -15,12 +15,11 @@ import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRe
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { Edit, PlusCircle, Print } from '@open-condo/icons'
 import { useApolloClient, useLazyQuery } from '@open-condo/next/apollo'
+import { initializeApollo } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button } from '@open-condo/ui'
 
-import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
-import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
-import { prefetchOrganizationEmployee, useOrganization } from '@/domains/common/utils/next/organization'
 import { extractSSRState } from '@/domains/common/utils/next/ssr'
 import TicketChart, { TicketSelectTypes, ViewModeTypes } from '@condo/domains/analytics/components/TicketChart'
 import TicketChartView from '@condo/domains/analytics/components/TicketChartView'
@@ -47,6 +46,9 @@ import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangeP
 import RadioGroupWithIcon from '@condo/domains/common/components/RadioGroupWithIcon'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { fontSizes } from '@condo/domains/common/constants/style'
+import { prepareSSRContext } from '@condo/domains/common/utils/next/apollo'
+import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import {
     DATE_DISPLAY_FORMAT,

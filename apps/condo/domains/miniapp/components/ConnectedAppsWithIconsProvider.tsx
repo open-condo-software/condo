@@ -3,8 +3,8 @@ import get from 'lodash/get'
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
 
 import { useLazyQuery } from '@open-condo/next/apollo'
+import { useOrganization } from '@open-condo/next/organization'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import { ALL_MENU_CATEGORIES, DEFAULT_MENU_CATEGORY } from '@condo/domains/common/constants/menuCategories'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { ALL_MINI_APPS_QUERY } from '@condo/domains/miniapp/gql'

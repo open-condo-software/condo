@@ -9,11 +9,11 @@ import React, { useEffect, useRef, useState } from 'react'
 
 
 import { useLazyQuery } from '@open-condo/next/apollo'
+import { initializeApollo } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 
-import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
-import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
-import { prefetchOrganizationEmployee, useOrganization } from '@/domains/common/utils/next/organization'
+
 import { extractSSRState } from '@/domains/common/utils/next/ssr'
 import TicketChart, { TicketSelectTypes, ViewModeTypes } from '@condo/domains/analytics/components/TicketChart'
 import TicketChartView from '@condo/domains/analytics/components/TicketChartView'
@@ -22,6 +22,9 @@ import { TICKET_ANALYTICS_REPORT_QUERY } from '@condo/domains/analytics/gql'
 import { filterToQuery, getAggregatedData, GroupTicketsByTypes } from '@condo/domains/analytics/utils/helpers'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { Logo } from '@condo/domains/common/components/Logo'
+import { prepareSSRContext } from '@condo/domains/common/utils/next/apollo'
+import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
 import { createPdfWithPageBreaks } from '@condo/domains/common/utils/pdf'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import {

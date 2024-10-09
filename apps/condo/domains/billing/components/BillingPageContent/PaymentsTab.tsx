@@ -3,9 +3,9 @@ import get from 'lodash/get'
 import React, { CSSProperties } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Typography } from '@open-condo/ui'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import PaymentsTable from '@condo/domains/acquiring/components/payments/PaymentsTable'
 import { Payment } from '@condo/domains/acquiring/utils/clientSchema'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'

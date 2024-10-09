@@ -5,9 +5,9 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button } from '@open-condo/ui'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import Select from '@condo/domains/common/components/antd/Select'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { useNotificationMessages } from '@condo/domains/common/hooks/useNotificationMessages'

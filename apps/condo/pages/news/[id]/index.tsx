@@ -15,14 +15,13 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
 
+import { initializeApollo } from '@open-condo/next/apollo'
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar } from '@open-condo/ui'
 import { Typography, Button } from '@open-condo/ui'
 
-import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
-import { useAuth } from '@/domains/common/utils/next/auth'
-import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
-import { prefetchOrganizationEmployee, useOrganization } from '@/domains/common/utils/next/organization'
 import { extractSSRState } from '@/domains/common/utils/next/ssr'
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import {
@@ -34,6 +33,9 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
+import { prepareSSRContext } from '@condo/domains/common/utils/next/apollo'
+import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
 import { NewsReadPermissionRequired } from '@condo/domains/news/components/PageAccess'
 import { RecipientCounter } from '@condo/domains/news/components/RecipientCounter'
 import { NewsItemScopeNoInstanceType } from '@condo/domains/news/components/types'

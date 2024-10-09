@@ -13,7 +13,8 @@
     "lodash": "^4.17.21",
     "next": "^9.5.5",
     "next-cookies": "^2.0.3",
-    "react-intl": "5.25.1"
+    "react-intl": "5.25.1",
+    "@open-condo/apollo": "workspace:^"
   },
   "devDependencies": {
     "@open-condo/tsconfig": "workspace:^"

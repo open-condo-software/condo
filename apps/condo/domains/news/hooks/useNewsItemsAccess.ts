@@ -1,6 +1,6 @@
 import get from 'lodash/get'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
+import { useOrganization } from '@open-condo/next/organization'
 
 
 type TUseNewsItemsAccess = {

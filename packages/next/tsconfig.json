@@ -6,7 +6,7 @@
       "dom.iterable",
       "esnext"
     ],
-    "module": "esnext",
+    "module": "ES2022",
     "strict": false,
     "noEmit": true,
   },

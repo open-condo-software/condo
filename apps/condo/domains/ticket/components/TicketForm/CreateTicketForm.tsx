@@ -8,11 +8,11 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState, useEffect } from 'react'
 
 import { useApolloClient } from '@open-condo/next/apollo'
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Space, Typography, Tour } from '@open-condo/ui'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import { getObjectValueFromQuery } from '@condo/domains/common/utils/query'
 import { ClientType, getClientCardTabKey } from '@condo/domains/contact/utils/clientCard'
 import { CopyButton } from '@condo/domains/marketplace/components/Invoice/CopyButton'

@@ -10,9 +10,9 @@ import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
 import { colors, shadows, fontSizes } from '@condo/domains/common/constants/style'
 import { getIconByMimetype } from '@condo/domains/common/utils/clientSchema/files'
 
