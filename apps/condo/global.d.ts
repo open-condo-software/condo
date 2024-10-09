@@ -9,6 +9,8 @@ type MessagesKeysType = keyof typeof translations[number]
 
 type LinkExtendsType = GetActiveOrganizationEmployeeQuery['employees'][number]
 type OrganizationExtendsType = GetActiveOrganizationEmployeeQuery['employees'][number]['organization']
+type EmployeeExtendsType = Omit<GetActiveOrganizationEmployeeQuery['employees'][number], 'organization' | 'role'>
+type RoleExtendsType = Pick<GetActiveOrganizationEmployeeQuery['employees'][number], 'role'>
 type UserExtendsType = AuthenticatedUserQuery['authenticatedUser']
 
 declare global {
@@ -29,6 +31,12 @@ declare global {
 
         // eslint-disable-next-line @typescript-eslint/no-empty-interface
         interface OrganizationType extends OrganizationExtendsType {}
+
+        // eslint-disable-next-line @typescript-eslint/no-empty-interface
+        interface EmployeeType extends EmployeeExtendsType {}
+
+        // eslint-disable-next-line @typescript-eslint/no-empty-interface
+        interface RoleType extends RoleExtendsType {}
 
         // eslint-disable-next-line @typescript-eslint/no-empty-interface
         interface UserType extends UserExtendsType {}
