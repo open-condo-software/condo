@@ -12,11 +12,38 @@ import { useQuery } from './apollo'
 import { useAuth } from './auth'
 
 
-type OrganizationContextType<GetActiveOrganizationEmployeeQuery = any, Link = any, Organization = any> = {
-    selectLink: (linkItem: { id: string }) => (Promise<ApolloQueryResult<GetActiveOrganizationEmployeeQuery>> | Promise<void>)
+// NOTE: OpenCondoNext is defined as a global namespace so the library user can override the default types
+declare global {
+    // eslint-disable-next-line @typescript-eslint/no-namespace
+    namespace OpenCondoNext {
+        // eslint-disable-next-line @typescript-eslint/no-empty-interface
+        interface GetActiveOrganizationEmployeeQueryType {}
+        // eslint-disable-next-line @typescript-eslint/no-empty-interface
+        interface LinkType {}
+        // eslint-disable-next-line @typescript-eslint/no-empty-interface
+        interface OrganizationType {}
+    }
+}
+
+type LinkType = keyof OpenCondoNext.LinkType extends never
+    ? any
+    : OpenCondoNext.LinkType
+type OrganizationType = keyof OpenCondoNext.OrganizationType extends never
+    ? any
+    : OpenCondoNext.OrganizationType
+type GetActiveOrganizationEmployeeQueryType = keyof OpenCondoNext.GetActiveOrganizationEmployeeQueryType extends never
+    ? any
+    : OpenCondoNext.GetActiveOrganizationEmployeeQueryType
+
+// TODO(INFRA-574): add new props / mark legacy props
+type OrganizationContextType = {
+    selectLink: (linkItem: { id: string }) => (Promise<ApolloQueryResult<GetActiveOrganizationEmployeeQueryType>> | Promise<void>)
+    // selectEmployee: (employeeId: string) => (Promise<void> | Promise<ApolloQueryResult<GetActiveOrganizationEmployeeQuery>>)
     isLoading: boolean
-    link?: Link | null
-    organization?: Organization | null
+    link?: LinkType | null
+    organization?: OrganizationType | null
+    // employee?: Omit<GetActiveOrganizationEmployeeQuery['employees'][number], 'role' | 'organization'> | null
+    // role?: GetActiveOrganizationEmployeeQuery['employees'][number]['role'] | null
 }
 
 const OrganizationContext = createContext<OrganizationContextType>({
@@ -24,7 +51,8 @@ const OrganizationContext = createContext<OrganizationContextType>({
     selectLink: () => Promise.resolve(),
 })
 
-const useOrganization = <GetActiveOrganizationEmployeeQuery = any, Link = any, Organization = any> (): OrganizationContextType<GetActiveOrganizationEmployeeQuery, Link, Organization> => useContext(OrganizationContext)
+type UseOrganization = () => OrganizationContextType
+const useOrganization: UseOrganization = () => useContext(OrganizationContext)
 
 const organizationToUserFragment = `
     id
@@ -281,7 +309,7 @@ const OrganizationProvider: React.FC<{ useOrganizationLinkId: () => { organizati
 
     const isLoading = auth.isLoading || employeeLoading
 
-    const [activeEmployee, setActiveEmployee] = useState(get(data, ['employees', 0]) || null) // TODO(INFRA-574)
+    const [activeEmployee, setActiveEmployee] = useState(get(data, ['employees', 0]) || null) // TODO(INFRA-574) get data from props
 
     const handleSelectItem: OrganizationContextType['selectLink'] = useCallback((linkItem) => {
         console.log('OrganizationProvider:handleSelectItem:: >>>', {
@@ -305,7 +333,7 @@ const OrganizationProvider: React.FC<{ useOrganizationLinkId: () => { organizati
     // }, [handleSelectItem])
 
     useEffect(() => {
-        const employee = get(data, ['employees', 0]) // TODO(INFRA-574)
+        const employee = get(data, ['employees', 0]) // TODO(INFRA-574) get data from props
         if (!employee) return
 
         if (JSON.stringify(employee) === JSON.stringify(activeEmployee)) return

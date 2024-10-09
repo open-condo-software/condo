@@ -9,7 +9,20 @@ import { useApolloClient, useMutation, useQuery } from './apollo'
 import { setCookieLinkId } from './organization'
 
 
-interface IAuthContext <UserType = any> {
+// NOTE: OpenCondoNext is defined as a global namespace so the library user can override the default types
+declare global {
+    // eslint-disable-next-line @typescript-eslint/no-namespace
+    namespace OpenCondoNext {
+        // eslint-disable-next-line @typescript-eslint/no-empty-interface
+        interface UserType {}
+    }
+}
+
+type UserType = keyof OpenCondoNext.UserType extends never
+    ? any
+    : OpenCondoNext.UserType
+
+type IAuthContext = {
     isAuthenticated: boolean
     isLoading: boolean
     refetch: () => Promise<void>
@@ -36,7 +49,7 @@ const AuthContext = createContext<IAuthContext>({
  * -------
  * A hook which provides access to the AuthContext
  */
-const useAuth = <UserType = any> (): IAuthContext<UserType> => useContext(AuthContext)
+const useAuth = (): IAuthContext => useContext(AuthContext)
 
 const userFragment = `
   id
@@ -253,7 +266,7 @@ const AuthProvider: React.FC = ({ children }) => {
         refetch,
     } = useQuery(USER_QUERY)
 
-    const [user, setUser] = useState(get(authenticatedUser, 'authenticatedUser', null)) // TODO(INFRA-574)
+    const [user, setUser] = useState(get(authenticatedUser, 'authenticatedUser', null)) // TODO(INFRA-574) get data from props
 
     const refetchAuth = useCallback(async () => {
         // if (withClearStore) await apolloClient.clearStore()
