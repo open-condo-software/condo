@@ -285,12 +285,12 @@ const Payment = new GQLListSchema('Payment', {
 
         recipient: {
             ...RECIPIENT_FIELD,
-            schemaDoc: 'Recipient. Should contain all meta information to identify the organization',
+            schemaDoc: 'Recipient. Should contain all meta information to identify the organization and bank account',
             isRequired: false,
         },
 
         rawAddress: {
-            schemaDoc: 'Address as it was imported.',
+            schemaDoc: 'Non-normalized address that was imported from the organization',
             type: 'Text',
             isRequired: false,
         },
