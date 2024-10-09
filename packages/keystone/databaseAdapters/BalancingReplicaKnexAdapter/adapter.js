@@ -2,10 +2,14 @@ const { KnexAdapter } = require('@keystonejs/adapter-knex')
 const omit = require('lodash/omit')
 
 const conf = require('@open-condo/config')
+const { _internalGetAsyncLocalStorage } = require('@open-condo/keystone/executionContext')
 
 const { KnexPool } = require('./pool')
 const { getNamedDBs, getReplicaPoolsConfig, getQueryRoutingRules, isDefaultRule } = require('./utils/env')
 const { initKnexClient } = require('./utils/knex')
+
+
+const graphqlCtx = _internalGetAsyncLocalStorage('graphqlCtx')
 
 
 class BalancingReplicaKnexAdapter extends KnexAdapter {
@@ -41,8 +45,14 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         return Object.fromEntries(dbNames.map((name, idx) => [name, connectionResults[idx].value]))
     }
 
-    _selectTargetPool (sql) {
-        
+    _selectTargetPool (sqlQueryObject) {
+        const gqlContext = graphqlCtx.getStore()
+        const operationType = 1
+
+        for (const rule of this._routingRules) {
+            // TODO: POOL
+            return rule.target
+        }
     }
 
     async _connect () {
