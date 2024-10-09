@@ -40,6 +40,14 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
             const errorDetails = failedIdx
                 .map(i => `${' '.repeat(4)}^ ${dbNames[i]}: ${String(connectionResults[i].reason)}`)
                 .join('\n')
+
+            // NOTE: Gracefully remove connected clients on partial fail
+            await Promise.all(
+                connectionResults
+                    .filter(result => result.status === 'fulfilled')
+                    .map(result => result.value.destroy())
+            )
+
             throw new Error(`One or more databases failed to connect.\n${errorDetails}`)
         }
 
@@ -60,6 +68,7 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
             return this._replicaPools[rule.target]
         }
 
+        throw new Error('FINAL SELECT')
         // TODO: throw here?
     }
 
@@ -104,13 +113,22 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
                 return selectedPool.getQueryRunner(builder)
             } catch (err) {
                 // TODO: log, error?
+                throw new Error('CATCH')
             }
 
             // TODO: log, error?
+            throw new Error('FINAL')
         }
     }
 
-    // TODO: disconnect
+    async disconnect () {
+        if (this.knex) {
+            await this.knex.destroy()
+        }
+        if (this._knexClients) {
+            await Promise.all(Object.values(this._knexClients).map(client => client.destroy()))
+        }
+    }
 }
 
 module.exports = {
