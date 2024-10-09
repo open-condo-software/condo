@@ -3,6 +3,7 @@ import get from 'lodash/get'
 import Head from 'next/head'
 import React, { CSSProperties, useMemo } from 'react'
 
+import { prepareSSRContext } from '@open-condo/miniapp-utils'
 import { initializeApollo } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -24,7 +25,6 @@ import {
     SETTINGS_TAB_MOBILE_FEATURE_CONFIG,
     SETTINGS_TAB_MARKETPLACE,
 } from '@condo/domains/common/constants/settingsTabs'
-import { prepareSSRContext } from '@condo/domains/common/utils/next/apollo'
 import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
 import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
 import { extractSSRState } from '@condo/domains/common/utils/next/ssr'

@@ -3,12 +3,12 @@ import { Gutter } from 'antd/es/grid/row'
 import Head from 'next/head'
 import React from 'react'
 
+import { prepareSSRContext } from '@open-condo/miniapp-utils'
 import { initializeApollo } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 
 
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { prepareSSRContext } from '@condo/domains/common/utils/next/apollo'
 import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
 import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
 import { extractSSRState } from '@condo/domains/common/utils/next/ssr'

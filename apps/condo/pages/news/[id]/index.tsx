@@ -15,6 +15,7 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
 
+import { prepareSSRContext } from '@open-condo/miniapp-utils'
 import { initializeApollo } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -32,7 +33,6 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
-import { prepareSSRContext } from '@condo/domains/common/utils/next/apollo'
 import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
 import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
 import { extractSSRState } from '@condo/domains/common/utils/next/ssr'

@@ -2,10 +2,10 @@ import Error from 'next/error'
 import { useRouter } from 'next/router'
 import React from 'react'
 
+import { prepareSSRContext } from '@open-condo/miniapp-utils'
 import { initializeApollo } from '@open-condo/next/apollo'
 
 
-import { prepareSSRContext } from '@condo/domains/common/utils/next/apollo'
 import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
 import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
 import { extractSSRState } from '@condo/domains/common/utils/next/ssr'
