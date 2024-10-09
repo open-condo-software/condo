@@ -104,13 +104,13 @@ const GetNewsSharingRecipientsService = new GQLCustomSchema('GetNewsSharingRecip
                 const b2bApp = await getById('B2BApp', b2bAppContextData.app)
 
                 if (!b2bApp.newsSharingConfig) {
-                    throw new GQLError(ERRORS.NOT_NEWS_SHARING_APP)
+                    throw new GQLError(ERRORS.NOT_NEWS_SHARING_APP, context)
                 }
 
                 const newsSharingConfig = await getById('B2BAppNewsSharingConfig', b2bApp.newsSharingConfig)
 
                 if (!newsSharingConfig) {
-                    throw new GQLError(ERRORS.NOT_NEWS_SHARING_APP)
+                    throw new GQLError(ERRORS.NOT_NEWS_SHARING_APP, context)
                 }
 
                 const getRecipientsUrl = newsSharingConfig.getRecipientsUrl
@@ -125,12 +125,12 @@ const GetNewsSharingRecipientsService = new GQLCustomSchema('GetNewsSharingRecip
                     })
                 }
                 catch (err) {
-                    throw new GQLError(ERRORS.NEWS_SHARING_APP_REQUEST_FAILED)
+                    throw new GQLError(ERRORS.NEWS_SHARING_APP_REQUEST_FAILED, context)
                 }
 
                 // If status code of response is not 200, we need to raise an error
                 if (getRecipientsResult.status !== 200) {
-                    throw new GQLError(ERRORS.NEWS_SHARING_APP_REQUEST_FAILED)
+                    throw new GQLError(ERRORS.NEWS_SHARING_APP_REQUEST_FAILED, context)
                 }
 
                 // Check that result data is in good shape
@@ -139,11 +139,11 @@ const GetNewsSharingRecipientsService = new GQLCustomSchema('GetNewsSharingRecip
                 try {
                     getRecipientsResultData = await getRecipientsResult.json()
                 } catch (err) {
-                    throw new GQLError(ERRORS.NEWS_SHARING_APP_REQUEST_BAD_RESPONSE)
+                    throw new GQLError(ERRORS.NEWS_SHARING_APP_REQUEST_BAD_RESPONSE, context)
                 }
 
                 if (!validateSchema(getRecipientsResultData)) {
-                    throw new GQLError(ERRORS.NEWS_SHARING_APP_REQUEST_BAD_RESPONSE)
+                    throw new GQLError(ERRORS.NEWS_SHARING_APP_REQUEST_BAD_RESPONSE, context)
                 }
 
                 return getRecipientsResultData

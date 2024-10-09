@@ -5,10 +5,9 @@
 const { makeLoggedInAdminClient, makeClient, UUID_RE } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
-    expectToThrowAccessDeniedErrorToObj, expectToThrowInternalError,
+    expectToThrowAccessDeniedErrorToObj, expectToThrowUniqueConstraintViolationError,
 } = require('@open-condo/keystone/test.utils')
 
-const { UNIQUE_CONSTRAINT_ERROR } = require('@condo/domains/common/constants/errors')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty, updateTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { TicketPropertyHintProperty, createTestTicketPropertyHintProperty, updateTestTicketPropertyHintProperty, createTestTicketPropertyHint, updateTestTicketPropertyHint } = require('@condo/domains/ticket/utils/testSchema')
@@ -266,11 +265,11 @@ describe('TicketPropertyHintProperty', () => {
 
             await createTestTicketPropertyHintProperty(admin, ticketPropertyHint, property)
 
-            await expectToThrowInternalError(async () => {
+            await expectToThrowUniqueConstraintViolationError(async () => {
                 const [ticketPropertyHint1] = await createTestTicketPropertyHint(admin, organization)
 
                 await createTestTicketPropertyHintProperty(admin, ticketPropertyHint1, property)
-            }, `${UNIQUE_CONSTRAINT_ERROR} "TicketPropertyHintProperty_unique_property"`)
+            }, 'TicketPropertyHintProperty_unique_property')
         })
     })
 

@@ -249,6 +249,7 @@ describe('BankAccountReportTask', () => {
 
                 const [objCreated] = await createTestBankAccountReportTask(userClient, account, organization, userClient.user.id)
 
+                // TODO(pahaz): DOMA-10368 use expectToThrowGraphQLRequestError
                 await catchErrorFrom(async () => {
                     await updateTestBankAccountReportTask(userClient, objCreated.id, {
                         organization: { disconnectAll: true },
@@ -256,6 +257,7 @@ describe('BankAccountReportTask', () => {
                 }, ({ errors }) => {
                     expect(errors[0].message).toContain('Field "organization" is not defined by type "BankAccountReportTaskUpdateInput"')
                 })
+                // TODO(pahaz): DOMA-10368 use expectToThrowGraphQLRequestError
                 await catchErrorFrom(async () => {
                     await updateTestBankAccountReportTask(userClient, objCreated.id, {
                         account: { disconnectAll: true },

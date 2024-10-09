@@ -44,8 +44,12 @@ const ERRORS = {
     TOO_MUCH_READINGS: {
         code: BAD_USER_INPUT,
         type: TOO_MUCH_READINGS,
-        message: `Too much readings. Maximum is ${READINGS_LIMIT}.`,
+        message: 'Too much readings. {sentCount} sent, limit is {limit}.',
         messageForUser: 'api.meter.registerMetersReadings.TOO_MUCH_READINGS',
+        messageInterpolation: {
+            limit: READINGS_LIMIT,
+            sentCount: '??',  // runtime value
+        },
     },
     ORGANIZATION_NOT_FOUND: {
         code: BAD_USER_INPUT,
@@ -87,7 +91,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: INVALID_DATE,
         message: 'Invalid date',
-        messageForUser: 'api.meter.registerMetersReadings.INVALID_DATE:',
+        messageForUser: 'api.meter.registerMetersReadings.INVALID_DATE',
     },
 }
 
@@ -184,7 +188,6 @@ function transformToPlainObject (input) {
 
     return result
 }
-
 
 /**
  * @param {Meter} meter
@@ -303,7 +306,8 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                 }), {}))
 
                 const addressesKeys = uniq(
-                    readings.map((reading) => get(resolvedAddresses, [reading.address, 'addressResolve', 'propertyAddress', 'addressKey']))
+                    readings
+                        .map((reading) => get(resolvedAddresses, [reading.address, 'addressResolve', 'propertyAddress', 'addressKey']))
                         .filter(Boolean)
                 )
 
@@ -376,7 +380,8 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                             ...ERRORS.INVALID_DATE,
                             messageInterpolation: {
                                 columnName: i18n('meter.import.column.meterReadingSubmissionDate', { locale }),
-                                format: [ISO_DATE_FORMAT, EUROPEAN_DATE_FORMAT].join('", "') },
+                                format: [ISO_DATE_FORMAT, EUROPEAN_DATE_FORMAT].join('", "'),
+                            },
                         }, context))
                         continue
                     }
@@ -390,14 +395,14 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     }
 
                     let meterId
-                    const foundMeters = meters.filter(meter =>
-                        meter.property === property.id &&
-                        meter.unitType === unitType &&
-                        meter.unitName === unitName &&
-                        meter.accountNumber === accountNumber &&
-                        meter.number === meterNumber &&
-                        meter.resource === reading.meterResource.id
-                    )
+                    const foundMeters = meters.filter(meter => {
+                        return meter.property === property.id &&
+                            meter.unitType === unitType &&
+                            meter.unitName === unitName &&
+                            meter.accountNumber === accountNumber &&
+                            meter.number === meterNumber &&
+                            meter.resource === reading.meterResource.id
+                    })
 
                     if (foundMeters.length > 1) {
                         resultRows.push(new GQLError({
@@ -430,11 +435,10 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                         const valuesList = errorValuesKeys.map((errKey) => {
                             const column = i18n(`meter.import.column.${errKey}`, { locale })
                             return `"${column}"="${errorValues[errKey]}"`
-                        })
-                        resultRows.push(new GQLError({
-                            ...ERRORS.INVALID_METER_VALUES,
-                            messageInterpolation: { valuesList },
-                        }, context,
+                        }).join(', ')
+                        resultRows.push(new GQLError(
+                            { ...ERRORS.INVALID_METER_VALUES, messageInterpolation: { valuesList } },
+                            context,
                         ))
                         continue
                     }

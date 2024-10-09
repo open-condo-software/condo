@@ -1,7 +1,7 @@
 const { faker } = require('@faker-js/faker')
 
 const { makeClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
-const { catchErrorFrom } = require('@open-condo/keystone/test.utils')
+const { expectToThrowGQLErrorToResult } = require('@open-condo/keystone/test.utils')
 
 const { CONFIRM_PHONE_SMS_MAX_RETRIES } = require('@condo/domains/user/constants/common')
 const {
@@ -18,7 +18,6 @@ const {
     createTestConfirmPhoneAction,
     ConfirmPhoneAction,
 } = require('@condo/domains/user/utils/testSchema')
-
 
 const { completeConfirmPhoneActionByTestClient } = require('../utils/testSchema')
 
@@ -44,20 +43,14 @@ describe('ConfirmPhoneActionService', () => {
             const [{ token }] = await createTestConfirmPhoneAction(admin, {})
             const wrongLengthSmsCode = 11111
             const attrs = { token, smsCode: wrongLengthSmsCode, captcha: captcha() }
-            await catchErrorFrom(async () => {
+            await expectToThrowGQLErrorToResult(async () => {
                 await completeConfirmPhoneActionByTestClient(client, attrs)
-            }, ({ errors }) => {
-                expect(errors).toMatchObject([{
-                    message: 'SMS code verification mismatch',
-                    path: ['result'],
-                    extensions: {
-                        mutation: 'completeConfirmPhoneAction',
-                        variable: ['data', 'smsCode'],
-                        code: 'BAD_USER_INPUT',
-                        type: 'SMS_CODE_VERIFICATION_FAILED',
-                        message: 'SMS code verification mismatch',
-                    },
-                }])
+            }, {
+                mutation: 'completeConfirmPhoneAction',
+                variable: ['data', 'smsCode'],
+                code: 'BAD_USER_INPUT',
+                type: 'SMS_CODE_VERIFICATION_FAILED',
+                message: 'SMS code verification mismatch',
             })
         })
 
@@ -68,7 +61,7 @@ describe('ConfirmPhoneActionService', () => {
             const wrongLengthSmsCode = 11111
             const completeInput = { token, dv: 1, sender: { dv: 1, fingerprint: 'tests' }, smsCode: wrongLengthSmsCode, captcha: captcha() }
             await client.mutate(COMPLETE_CONFIRM_PHONE_MUTATION, { data: completeInput })
-            const [actionAfter] = await ConfirmPhoneAction.getAll(admin, { token, dv:1, sender: { dv: 1, fingerprint: 'tests' } })
+            const [actionAfter] = await ConfirmPhoneAction.getAll(admin, { token, dv: 1, sender: { dv: 1, fingerprint: 'tests' } })
             expect(actionAfter.retries).toBe(1)
         })
 
@@ -91,21 +84,16 @@ describe('ConfirmPhoneActionService', () => {
             const [actionBefore] = await ConfirmPhoneAction.getAll(admin, { token })
             await ConfirmPhoneAction.update(admin, actionBefore.id, { dv: 1, sender: actionBefore.sender, retries: CONFIRM_PHONE_SMS_MAX_RETRIES + 1 })
             const attrs = { token, smsCode: actionBefore.smsCode, captcha: captcha() }
-            await catchErrorFrom(async () => {
-                await completeConfirmPhoneActionByTestClient(client, attrs)
-            }, ({ errors }) => {
-                expect(errors).toMatchObject([{
+            await expectToThrowGQLErrorToResult(
+                async () => await completeConfirmPhoneActionByTestClient(client, attrs),
+                {
+                    mutation: 'completeConfirmPhoneAction',
+                    variable: ['data', 'smsCode'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'SMS_CODE_MAX_RETRIES_REACHED',
                     message: 'Max retries reached for SMS code confirmation. Try to initiate phone confirmation again',
-                    path: ['result'],
-                    extensions: {
-                        mutation: 'completeConfirmPhoneAction',
-                        variable: ['data', 'smsCode'],
-                        code: 'BAD_USER_INPUT',
-                        type: 'SMS_CODE_MAX_RETRIES_REACHED',
-                        message: 'Max retries reached for SMS code confirmation. Try to initiate phone confirmation again',
-                    },
-                }])
-            })
+                },
+            )
         })
 
         it('throws error when sms code ttl expires', async () => {
@@ -115,21 +103,16 @@ describe('ConfirmPhoneActionService', () => {
             const [actionBefore] = await ConfirmPhoneAction.getAll(admin, { token })
             await ConfirmPhoneAction.update(admin, actionBefore.id, { dv: 1, sender: { dv: 1, fingerprint: 'tests' }, smsCodeExpiresAt: actionBefore.smsCodeRequestedAt })
             const attrs = { token, smsCode: actionBefore.smsCode, captcha: captcha() }
-            await catchErrorFrom(async () => {
-                await completeConfirmPhoneActionByTestClient(client, attrs)
-            }, ({ errors }) => {
-                expect(errors).toMatchObject([{
+            await expectToThrowGQLErrorToResult(
+                async () => await completeConfirmPhoneActionByTestClient(client, attrs),
+                {
+                    mutation: 'completeConfirmPhoneAction',
+                    variable: ['data', 'smsCode'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'SMS_CODE_EXPIRED',
                     message: 'SMS code expired. Try to initiate phone confirmation again',
-                    path: ['result'],
-                    extensions: {
-                        mutation: 'completeConfirmPhoneAction',
-                        variable: ['data', 'smsCode'],
-                        code: 'BAD_USER_INPUT',
-                        type: 'SMS_CODE_EXPIRED',
-                        message: 'SMS code expired. Try to initiate phone confirmation again',
-                    },
-                }])
-            })
+                },
+            )
         })
 
         it('throws error when confirm phone action expires', async () => {
@@ -139,21 +122,16 @@ describe('ConfirmPhoneActionService', () => {
             const [actionBefore] = await ConfirmPhoneAction.getAll(admin, { token })
             await ConfirmPhoneAction.update(admin, actionBefore.id, { dv: 1, sender: { dv: 1, fingerprint: 'tests' }, expiresAt: actionBefore.requestedAt })
             const attrs = { token, smsCode: actionBefore.smsCode, captcha: captcha() }
-            await catchErrorFrom(async () => {
-                await completeConfirmPhoneActionByTestClient(client, attrs)
-            }, ({ errors }) => {
-                expect(errors).toMatchObject([{
+            await expectToThrowGQLErrorToResult(
+                async () => await completeConfirmPhoneActionByTestClient(client, attrs),
+                {
+                    mutation: 'completeConfirmPhoneAction',
+                    variable: ['data', 'token'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'UNABLE_TO_FIND_CONFIRM_PHONE_ACTION',
                     message: 'Confirm phone action was expired or it could not be found. Try to initiate phone confirmation again',
-                    path: ['result'],
-                    extensions: {
-                        mutation: 'completeConfirmPhoneAction',
-                        variable: ['data', 'token'],
-                        code: 'BAD_USER_INPUT',
-                        type: 'UNABLE_TO_FIND_CONFIRM_PHONE_ACTION',
-                        message: 'Confirm phone action was expired or it could not be found. Try to initiate phone confirmation again',
-                    },
-                }])
-            })
+                },
+            )
         })
     })
 

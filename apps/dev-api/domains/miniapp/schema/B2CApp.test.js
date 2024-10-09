@@ -220,6 +220,7 @@ describe('B2CApp', () => {
                 }, {
                     code: 'BAD_USER_INPUT',
                     type: INVALID_MIMETYPE,
+                    message: 'Attached file have invalid mimetype',
                 })
             })
         })

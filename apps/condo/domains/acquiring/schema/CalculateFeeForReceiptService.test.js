@@ -5,7 +5,7 @@
 const { faker } = require('@faker-js/faker')
 const Big = require('big.js')
 
-const { expectToThrowGQLError, catchErrorFrom } = require('@open-condo/keystone/test.utils')
+const { expectToThrowGQLError, expectToThrowGQLErrorToResult } = require('@open-condo/keystone/test.utils')
 
 const { GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM } } = require('@condo/domains/acquiring/constants/errors')
 const { calculateFeeForReceiptByTestClient } = require('@condo/domains/acquiring/utils/testSchema')
@@ -19,8 +19,8 @@ describe('CalculateFeeForReceiptService', () => {
         await utils.init()
         await utils.updateAcquiringIntegration({
             explicitFeeDistributionSchema: [
-                { 'recipient':'acquiring', 'percent':'1.0' },
-                { 'recipient':'service', 'percent':'0.2' },
+                { 'recipient': 'acquiring', 'percent': '1.0' },
+                { 'recipient': 'service', 'percent': '0.2' },
             ],
         })
     })
@@ -38,7 +38,7 @@ describe('CalculateFeeForReceiptService', () => {
         test('Check calculations for implicit fees', async () => {
             const [[receipt]] = await utils.createReceipts()
             await utils.updateAcquiringContext({
-                implicitFeeDistributionSchema: [{ 'recipient':'organization', 'percent':'1.2' }],
+                implicitFeeDistributionSchema: [{ 'recipient': 'organization', 'percent': '1.2' }],
             })
             const amount = '300'
             const [result] = await calculateFeeForReceiptByTestClient(utils.clients.resident, { receipt: { id: receipt.id }, amount })
@@ -51,20 +51,17 @@ describe('CalculateFeeForReceiptService', () => {
         test('Receipt must exist', async () => {
             const missingReceiptId = faker.datatype.uuid()
             const amount = '300'
-            await catchErrorFrom(async () => {
+            await expectToThrowGQLErrorToResult(async () => {
                 await calculateFeeForReceiptByTestClient(utils.clients.resident, { receipt: { id: missingReceiptId }, amount })
-            }, ({ errors }) => {
-                expect(errors).toMatchObject([{
-                    message: `Cannot find specified BillingReceipt with id ${missingReceiptId}`,
-                    path: ['result'],
-                    extensions: {
-                        query: 'calculateFeeForReceipt',
-                        variable: ['data', 'receipt', 'id'],
-                        code: 'BAD_USER_INPUT',
-                        type: 'CANNOT_FIND_ALL_BILLING_RECEIPTS',
-                        message: 'Cannot find specified BillingReceipt with id {missingReceiptId}',
-                    },
-                }])
+            }, {
+                query: 'calculateFeeForReceipt',
+                variable: ['data', 'receipt', 'id'],
+                code: 'BAD_USER_INPUT',
+                type: 'CANNOT_FIND_ALL_BILLING_RECEIPTS',
+                message: 'Cannot find specified BillingReceipt with id {missingReceiptId}',
+                messageInterpolation: {
+                    missingReceiptId,
+                },
             })
         })
     })

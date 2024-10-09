@@ -7,8 +7,7 @@ const path = require('path')
 const { faker } = require('@faker-js/faker')
 
 const conf = require('@open-condo/config')
-const { makeLoggedInAdminClient, UploadingFile } = require('@open-condo/keystone/test.utils')
-const { catchErrorFrom } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, UploadingFile, expectToThrowGQLErrorToResult } = require('@open-condo/keystone/test.utils')
 
 const { RU_LOCALE } = require('@condo/domains/common/constants/locale')
 const { MESSAGE_SENDING_STATUS } = require('@condo/domains/notification/constants/constants')
@@ -21,8 +20,6 @@ const { createTestResident, createTestServiceConsumer } = require('@condo/domain
 const { supportSendMessageToSupportByTestClient } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { addResidentAccess } = require('@condo/domains/user/utils/testSchema')
-
-
 
 const EMAIL_FROM = 'doma-test-message-to-support@mailforspam.com'
 
@@ -67,21 +64,17 @@ describe('SendMessageToSupportService', () => {
             meta: {},
         }
 
-        await catchErrorFrom(async () => {
-            await supportSendMessageToSupportByTestClient(userClient, payload)
-        }, ({ errors }) => {
-            expect(errors).toMatchObject([{
-                message: 'api.user.sendMessageToSupport.WRONG_EMAIL_FORMAT',
-                path: ['result'],
-                extensions: {
-                    mutation: 'sendMessageToSupport',
-                    variable: ['data', 'emailFrom'],
-                    code: 'BAD_USER_INPUT',
-                    type: 'WRONG_FORMAT',
-                    message: 'api.user.sendMessageToSupport.WRONG_EMAIL_FORMAT',
-                },
-            }])
-        })
+        await expectToThrowGQLErrorToResult(
+            async () => await supportSendMessageToSupportByTestClient(userClient, payload),
+            {
+                mutation: 'sendMessageToSupport',
+                variable: ['data', 'emailFrom'],
+                code: 'BAD_USER_INPUT',
+                type: 'WRONG_FORMAT',
+                message: 'Wrong format of specified email',
+                messageForUser: 'api.user.sendMessageToSupport.WRONG_EMAIL_FORMAT',
+            },
+        )
     })
 
     test('no attachments', async () => {

@@ -33,7 +33,7 @@ const WRONG_SENDER_FORMAT_ERROR = {
     code: BAD_USER_INPUT,
     type: 'WRONG_FORMAT',
     message: 'Invalid format of "sender" field value. {details}',
-    correctExample: '{ dv: 1, fingerprint: \'example-fingerprint-alphanumeric-value\'}',
+    correctExample: '{ "dv": 1, "fingerprint": "uniq-device-or-container-id" }',
 }
 
 function checkDvAndSender (data, dvError, senderError, context) {
@@ -51,9 +51,9 @@ function checkDvAndSender (data, dvError, senderError, context) {
 
     const senderErrors = validate(sender, SENDER_FIELD_CONSTRAINTS)
     if (senderErrors && Object.keys(senderErrors).length) {
-        const details = Object.keys(senderErrors).map(field => {
-            return `${field}: [${senderErrors[field].map(error => `'${error}'`).join(', ')}]`
-        }).join(', ')
+        const details = Object.keys(senderErrors)
+            .map(field => `${field}: ${senderErrors[field].map(error => `'${error}'`).join('; ')}`)
+            .join(', ')
 
         throw new GQLError({ ...WRONG_SENDER_FORMAT_ERROR, messageInterpolation: { details }, ...senderError }, context)
     }

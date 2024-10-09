@@ -61,7 +61,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: logs
+          name: logs-${{ inputs.domain_name }}-${{ env.GITHUB_RUN_ID }}-${{ env.GITHUB_RUN_NUMBER }}
           path: |
             ./test_logs/*
             *.log

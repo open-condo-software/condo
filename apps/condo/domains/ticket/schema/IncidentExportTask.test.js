@@ -442,7 +442,7 @@ describe('exportIncidents', () => {
                 },
             },
             sortBy: 'createdAt_ASC',
-            locale: 'ru',
+            locale: 'ru',  // NOTE(pahaz): look at `TicketExportTask` probably you also need to switch client locale!
             timeZone: 'Europe/Moscow',
         })
 

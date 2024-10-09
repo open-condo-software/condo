@@ -61,9 +61,8 @@
  * ```
  */
 
-const { ApolloError } = require('apollo-server-errors')
 const cuid = require('cuid')
-const { cloneDeep, get, template, templateSettings, isArray, isEmpty, isObject } = require('lodash')
+const { cloneDeep, template, templateSettings, isArray, isEmpty, isObject, isError, every } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
@@ -72,16 +71,17 @@ const { getTranslations } = require('@open-condo/locales/loader')
 // Matches placeholder `{name}` in string, we are going to interpolate
 templateSettings.interpolate = /{([\s\S]+?)}/g
 
+// Generic error, that something went wrong at server side, though user input was correct
+const INTERNAL_ERROR = 'INTERNAL_ERROR'
+// No auth token or incorrect authentication or not authenticated
+const UNAUTHENTICATED = 'UNAUTHENTICATED'
+// Access denied
+const FORBIDDEN = 'FORBIDDEN'
 // User input cannot be processed by server by following reasons:
 // wrong format, not enough data, conflicts with data storage constraints (duplicates etc)
 const BAD_USER_INPUT = 'BAD_USER_INPUT'
-// Generic error, that something went wrong at server side, though user input was correct
-const INTERNAL_ERROR = 'INTERNAL_ERROR'
-// Access denied
-const FORBIDDEN = 'FORBIDDEN'
 // Too Many Requests
 const TOO_MANY_REQUESTS = 'TOO_MANY_REQUESTS'
-
 
 /**
  * First level of error classification, used in custom GraphQL queries or mutations
@@ -92,12 +92,27 @@ const TOO_MANY_REQUESTS = 'TOO_MANY_REQUESTS'
  * @enum {String}
  */
 const GQLErrorCode = {
-    BAD_USER_INPUT,
-    INTERNAL_ERROR,
-    FORBIDDEN,
-    TOO_MANY_REQUESTS,
+    INTERNAL_ERROR,     // ??
+    UNAUTHENTICATED,    // Need to authenticate or something wrong with token!
+    FORBIDDEN,          // Don't have an access (maybe need to logIn or reLogIn user)
+    BAD_USER_INPUT,     // Need to process by user form!
+    TOO_MANY_REQUESTS,  // Need to process by user client to wait some time!
 }
 
+// This error type is specifically used to indicate that during the execution of a GraphQL query,
+// a nested GraphQL query was executed, and an error occurred within that nested query.
+// It helps to differentiate between errors that occur at the top level and those that arise from
+// deeper, nested queries, providing better context for debugging and error handling.
+const SUB_GQL_ERROR = 'SUB_GQL_ERROR'
+
+/**
+ * Some reserve types for INTERNAL_ERROR codes
+ * @readonly
+ * @enum {String}
+ */
+const GQLInternalErrorTypes = {
+    SUB_GQL_ERROR,
+}
 
 /**
  * Error object, that can be thrown in a custom GraphQL mutation or query
@@ -115,16 +130,17 @@ const GQLErrorCode = {
  * @property {Object} [data] - any kind of data, that will help to figure out a cause of the error
  */
 
-class GQLError extends ApolloError {
+class GQLError extends Error {
     /**
      * @param {GQLError} fields
-     * @param context - Keystone custom resolver context, used to determine request language
+     * @param {undefined|Object} context - Keystone custom resolver context, used to determine request language
+     * @param {undefined|Array<Error>?} originalErrors - Array of parent errors or parent error
      * @see https://www.apollographql.com/docs/apollo-server/data/errors/#custom-errors
      */
-    constructor (fields, context) {
+    constructor (fields, context, originalErrors) {
         if (isEmpty(fields) || !fields) throw new Error('GQLError: wrong fields argument')
         if (!fields.code) throw new Error('GQLError: you need to set fields.code')
-        if (!fields.type) throw new Error('GQLError: you need to set fields.type')
+        if (!fields.type && fields.code !== UNAUTHENTICATED) throw new Error('GQLError: you need to set fields.type')
         if (!fields.message) throw new Error('GQLError: you need to set fields.message')
         if (typeof fields.variable !== 'undefined' && !isArray(fields.variable)) throw new Error('GQLError: wrong argument type! fields.variable should be a list')
         if (typeof fields.query !== 'undefined' && typeof fields.query !== 'string') throw new Error('GQLError: wrong query argument type! fields.query should be a string')
@@ -133,26 +149,82 @@ class GQLError extends ApolloError {
         if (typeof fields.messageInterpolation !== 'undefined' && (isEmpty(fields.messageInterpolation) || !isObject(fields.messageInterpolation))) throw new Error('GQLError: wrong messageInterpolation argument type! fields.messageInterpolation should be an object')
         if (typeof fields.correctExample !== 'undefined' && typeof fields.correctExample !== 'string') throw new Error('GQLError: wrong correctExample argument type! fields.correctExample should be a string')
         if (typeof fields.context !== 'undefined') throw new Error('GQLError: wrong context argument position! You should pass it as the second argument')
+        if (typeof originalErrors !== 'undefined' && !isArray(originalErrors) && !isError(originalErrors)) throw new Error('GQLError: wrong parent errors argument type')
+        if (isArray(originalErrors) && !every(originalErrors, isError)) throw new Error('GQLError: wrong parent errors array element type')
+        const errors = (originalErrors && !isArray(originalErrors)) ? [originalErrors] : originalErrors
+        if (typeof originalErrors !== 'undefined' && (!isArray(errors) || errors.length <= 0)) throw new Error('GQLError: internal error! this.errors should be undefined or not empty error')
         // We need a clone to avoid modification of original errors declaration, that will cause
         // second calling of this constructor to work with changed fields
         const extensions = cloneDeep(fields)
-        const message = template(fields.message)(fields.messageInterpolation)
-        if (context && fields.messageForUser) {
-            // todo use i18n from apps/condo/domains/common/utils/localesLoader.js
-            const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
+        try {
+            extensions.message = template(fields.message)(fields.messageInterpolation)
+        } catch (e) {
+            const error = new Error(`GQLError: template rendering error: ${e.message}`)
+            error.fields = fields
+            throw error
+        }
+        if (fields.messageForUser) {
+            if (!fields.messageForUser.startsWith('api.')) {
+                console.warn('WRONG `messageForUser` field argument! It should starts with `api.` prefix! messageForUser = ', fields.messageForUser)
+                // TODO(pahaz): DOMA-10345 throw error for that cases! Waiting for apps refactoring
+                // throw new Error('GQLError: wrong `messageForUser` field argument. Should starts with `api.`')
+            }
+            if (!context) {
+                console.warn('WRONG `messageForUser` without context argument! Important to pass GQLError({ .. }, context) argument!')
+                // TODO(pahaz): DOMA-10345 throw error for that cases! Waiting for apps refactoring
+                // throw new Error('GQLError: no context for messageForUser. You can use `{ req }` as context')
+            }
+            const locale = extractReqLocale(context?.req) || conf.DEFAULT_LOCALE
             const translations = getTranslations(locale)
             const translatedMessage = translations[fields.messageForUser]
-            const interpolatedMessageForUser = template(translatedMessage)(fields.messageInterpolation)
-            extensions.messageForUser = interpolatedMessageForUser
+            extensions.messageForUser = template(translatedMessage)(fields.messageInterpolation)
+            extensions.messageForUserTemplateKey = fields.messageForUser
+            if (extensions.messageForUser) {
+                if (!isEmpty(fields.messageInterpolation) && translatedMessage?.includes('{')) {
+                    extensions.messageForUserTemplate = translatedMessage
+                }
+            } else {
+                // TODO(pahaz): we should log it. looks like missed translation key!
+                delete extensions.messageForUser
+            }
+            if (extensions.messageForUser === extensions.messageForUserTemplateKey) {
+                // TODO(pahaz): DOMA-10345 throw error for that cases! Waiting for apps refactoring
+                console.warn(
+                    'GQLError: it loos like you already hardcode localised message inside messageForUser. ' +
+                    'Could you please use translation key here! messageForUser =',
+                    extensions.messageForUser,
+                )
+            }
         }
-        super(message, fields.code, extensions)
-        Object.defineProperty(this, 'name', { value: 'GQLError' })
-        this.reqId = get(context, 'req.id')
+        if (!isEmpty(fields.messageInterpolation)) {
+            if (fields.message === extensions.message) {
+                // TODO(pahaz): DOMA-10345 throw error for that cases! Waiting for apps refactoring
+                console.warn(
+                    'GQLError: looks like you already include `messageInterpolation` values inside `message`. ' +
+                    'Please use templated string like `{name}` inside the message field. message =',
+                    fields.message,
+                )
+            }
+            for (const [key, value] of Object.entries(fields.messageInterpolation)) {
+                // TODO(pahaz): DOMA-10345 throw error
+                if (typeof key !== 'string') console.warn(`GQLError: messageInterpolation key is not a string; key = ${key}`)
+                if (typeof value !== 'string' && typeof value !== 'number') console.warn(`GQLError: messageInterpolation value is not a string|number; key = ${key}; value = ${value}; type = ${typeof value}`)
+            }
+        }
+        super(extensions.message)
+        this.name = extensions?.name || 'GQLError'
+        this.extensions = extensions
+        this.reqId = context?.req?.id
         this.uid = cuid()
+        this.errors = errors
+        // NOTE(pahaz): cleanup field copy
+        delete extensions.context
+        delete extensions.name
     }
 }
 
 module.exports = {
     GQLError,
     GQLErrorCode,
+    GQLInternalErrorTypes,
 }

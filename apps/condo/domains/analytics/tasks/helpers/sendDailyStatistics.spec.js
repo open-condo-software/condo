@@ -26,18 +26,12 @@ const { UserDailyStatistics, sendDailyMessageToUserSafely } = require('./sendDai
 
 
 describe('sendDailyStatistics helpers', () => {
-    let admin, statuses,
-        allowedIncidentClassifiers, notAllowedIncidentClassifiers
-
+    let admin, allowedIncidentClassifiers, notAllowedIncidentClassifiers
     setFakeClientMode(index)
-    jest.setTimeout(10000)
-
 
     beforeAll(async () => {
         setFeatureFlag(RETENTION_LOOPS_ENABLED, true)
-
         admin = await makeLoggedInAdminClient()
-        statuses = await TicketStatus.getAll(admin, {})
 
         allowedIncidentClassifiers = await IncidentClassifier.getAll(admin, {
             category: {
@@ -120,10 +114,10 @@ describe('sendDailyStatistics helpers', () => {
                 describe('must correctly calculate the number of tickets for each organization in which the user is a member and has the "canManageOrganization" right, and their total count', () => {
                     test('must count the number of tickets in the status "in process"', async () => {
                         const generateTicketsForEveryStatus = async (organization, property) => {
-                            for (const status of statuses) {
-                                const [ticket] = await createTestTicket(userData.client, organization, property, {
-                                    status: { connect: { id: status.id } },
-                                    ...status.id === STATUS_IDS.DEFERRED ? { deferredUntil: dayjs().add(1, 'day') } : undefined,
+                            for (const status of Object.values(STATUS_IDS)) {
+                                await createTestTicket(userData.client, organization, property, {
+                                    status: { connect: { id: status } },
+                                    ...status === STATUS_IDS.DEFERRED ? { deferredUntil: dayjs().add(1, 'day') } : undefined,
                                 })
                             }
                         }
@@ -172,15 +166,15 @@ describe('sendDailyStatistics helpers', () => {
 
                     test('must count the number of emergency tickets in the status "open"', async () => {
                         const generateTicketsForEveryStatus = async (organization, property) => {
-                            for (const status of statuses) {
-                                const [emergency] = await createTestTicket(userData.client, organization, property, {
-                                    status: { connect: { id: status.id } },
-                                    ...status.id === STATUS_IDS.DEFERRED ? { deferredUntil: dayjs().add(1, 'day') } : undefined,
+                            for (const status of Object.values(STATUS_IDS)) {
+                                await createTestTicket(userData.client, organization, property, {
+                                    status: { connect: { id: status } },
+                                    ...status === STATUS_IDS.DEFERRED ? { deferredUntil: dayjs().add(1, 'day') } : undefined,
                                     isEmergency: true,
                                 })
-                                const [notEmergency] = await createTestTicket(userData.client, organization, property, {
-                                    status: { connect: { id: status.id } },
-                                    ...status.id === STATUS_IDS.DEFERRED ? { deferredUntil: dayjs().add(1, 'day') } : undefined,
+                                await createTestTicket(userData.client, organization, property, {
+                                    status: { connect: { id: status } },
+                                    ...status === STATUS_IDS.DEFERRED ? { deferredUntil: dayjs().add(1, 'day') } : undefined,
                                     isEmergency: false,
                                 })
                             }
@@ -231,18 +225,18 @@ describe('sendDailyStatistics helpers', () => {
 
                     test('must count the number of returned tickets in the status "open"', async () => {
                         const generateTicketsForEveryStatus = async (organization, property) => {
-                            for (const status of statuses) {
+                            for (const status of Object.values(STATUS_IDS)) {
                                 const [ticket] = await createTestTicket(userData.client, organization, property, {
                                     status: { connect: { id: STATUS_IDS.COMPLETED } },
                                 })
-                                let [returned] = await updateTestTicket(userData.client, ticket.id, {
+                                await updateTestTicket(userData.client, ticket.id, {
                                     status: { connect: { id: STATUS_IDS.OPEN } },
                                 })
 
-                                if (status.id !== STATUS_IDS.OPEN) {
-                                    [returned] = await updateTestTicket(userData.client, ticket.id, {
-                                        status: { connect: { id: status.id } },
-                                        ...status.id === STATUS_IDS.DEFERRED ? { deferredUntil: dayjs().add(1, 'day') } : undefined,
+                                if (status !== STATUS_IDS.OPEN) {
+                                    await updateTestTicket(userData.client, ticket.id, {
+                                        status: { connect: { id: status } },
+                                        ...status === STATUS_IDS.DEFERRED ? { deferredUntil: dayjs().add(1, 'day') } : undefined,
                                     })
                                 }
                             }
@@ -293,15 +287,15 @@ describe('sendDailyStatistics helpers', () => {
 
                     test('must count the number of expired tickets in the status "open", "in process" and "postponed"', async () => {
                         const generateTicketsForEveryStatus = async (organization, property) => {
-                            for (const status of statuses) {
-                                const [expired] = await createTestTicket(userData.client, organization, property, {
-                                    status: { connect: { id: status.id } },
-                                    ...status.id === STATUS_IDS.DEFERRED ? { deferredUntil: dayjs().add(1, 'day') } : undefined,
+                            for (const status of Object.values(STATUS_IDS)) {
+                                await createTestTicket(userData.client, organization, property, {
+                                    status: { connect: { id: status } },
+                                    ...status === STATUS_IDS.DEFERRED ? { deferredUntil: dayjs().add(1, 'day') } : undefined,
                                     deadline: dayjs().subtract(1, 'day'),
                                 })
-                                const [notExpired] = await createTestTicket(userData.client, organization, property, {
-                                    status: { connect: { id: status.id } },
-                                    ...status.id === STATUS_IDS.DEFERRED ? { deferredUntil: dayjs().add(1, 'day') } : undefined,
+                                await createTestTicket(userData.client, organization, property, {
+                                    status: { connect: { id: status } },
+                                    ...status === STATUS_IDS.DEFERRED ? { deferredUntil: dayjs().add(1, 'day') } : undefined,
                                     deadline: dayjs().add(1, 'day'),
                                 })
                             }
@@ -352,24 +346,24 @@ describe('sendDailyStatistics helpers', () => {
 
                     test('must count the number of tickets without an executor or responsible person in the status "open"', async () => {
                         const generateTicketsForEveryStatus = async (organization, property) => {
-                            for (const status of statuses) {
-                                const [noExecutorAndAssignee] = await createTestTicket(userData.client, organization, property, {
-                                    status: { connect: { id: status.id } },
-                                    ...status.id === STATUS_IDS.DEFERRED ? { deferredUntil: dayjs().add(1, 'day') } : undefined,
+                            for (const status of Object.values(STATUS_IDS)) {
+                                await createTestTicket(userData.client, organization, property, {
+                                    status: { connect: { id: status } },
+                                    ...status === STATUS_IDS.DEFERRED ? { deferredUntil: dayjs().add(1, 'day') } : undefined,
                                 })
-                                const [noAssignee] = await createTestTicket(userData.client, organization, property, {
-                                    status: { connect: { id: status.id } },
-                                    ...status.id === STATUS_IDS.DEFERRED ? { deferredUntil: dayjs().add(1, 'day') } : undefined,
+                                await createTestTicket(userData.client, organization, property, {
+                                    status: { connect: { id: status } },
+                                    ...status === STATUS_IDS.DEFERRED ? { deferredUntil: dayjs().add(1, 'day') } : undefined,
                                     executor: { connect: { id: userData.client.user.id } },
                                 })
-                                const [noExecutor] = await createTestTicket(userData.client, organization, property, {
-                                    status: { connect: { id: status.id } },
-                                    ...status.id === STATUS_IDS.DEFERRED ? { deferredUntil: dayjs().add(1, 'day') } : undefined,
+                                await createTestTicket(userData.client, organization, property, {
+                                    status: { connect: { id: status } },
+                                    ...status === STATUS_IDS.DEFERRED ? { deferredUntil: dayjs().add(1, 'day') } : undefined,
                                     assignee: { connect: { id: userData.client.user.id } },
                                 })
-                                const [hasBoth] = await createTestTicket(userData.client, organization, property, {
-                                    status: { connect: { id: status.id } },
-                                    ...status.id === STATUS_IDS.DEFERRED ? { deferredUntil: dayjs().add(1, 'day') } : undefined,
+                                await createTestTicket(userData.client, organization, property, {
+                                    status: { connect: { id: status } },
+                                    ...status === STATUS_IDS.DEFERRED ? { deferredUntil: dayjs().add(1, 'day') } : undefined,
                                     assignee: { connect: { id: userData.client.user.id } },
                                     executor: { connect: { id: userData.client.user.id } },
                                 })

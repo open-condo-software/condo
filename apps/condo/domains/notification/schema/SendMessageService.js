@@ -39,6 +39,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: UNKNOWN_ATTRIBUTE,
         message: 'Unknown attribute "{attr}" provided to "meta" variable',
+        messageInterpolation: { attr: '<attr-name>' },
     },
     MISSING_VALUE_FOR_REQUIRED_META_ATTRIBUTE: {
         mutation: 'sendMessage',
@@ -46,6 +47,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: REQUIRED,
         message: 'Missing value for required "meta.{attr}" attribute',
+        messageInterpolation: { attr: '<name>' },
     },
     UNKNOWN_MESSAGE_TYPE: {
         mutation: 'sendMessage',
@@ -53,6 +55,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
         message: 'Unknown value "{type}" provided for message type',
+        messageInterpolation: { type: '<type-name>' },
     },
     DV_VERSION_MISMATCH: {
         mutation: 'sendMessage',

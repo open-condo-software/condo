@@ -38,11 +38,12 @@ const ERRORS = {
 
 const redisGuard = new RedisGuard()
 
-const checkLimits = async (userId) => {
+const checkLimits = async (userId, context) => {
     await redisGuard.checkCustomLimitCounters(
         `calculate_fee_for_receipt:user:${userId}`,
         RESIDENT_CALCULATE_FEE_FOR_RECEIPT_WINDOW_IN_SEC,
         MAX_RESIDENT_CALCULATE_FEE_FOR_RECEIPT_WINDOW_IN_SEC_CALLS_BY_WINDOW_SEC,
+        context,
     )
 }
 

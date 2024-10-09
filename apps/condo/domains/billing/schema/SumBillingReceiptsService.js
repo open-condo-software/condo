@@ -50,14 +50,14 @@ const SumBillingReceiptsService = new GQLCustomSchema('SumBillingReceiptsService
                 description: 'Calculate sum of organizations billing receipts by organizationId or tin and period',
                 errors: ERRORS,
             },
-            resolver: async (parent, args) => {
+            resolver: async (parent, args, context) => {
                 const { data: { period, tin, organization, importRemoteSystem } } = args
 
                 if (!tin && !organization) {
-                    throw new GQLError(ERRORS.TIN_OR_ORGANIZATION_ID_MUST_BE_SPECIFIED)
+                    throw new GQLError(ERRORS.TIN_OR_ORGANIZATION_ID_MUST_BE_SPECIFIED, context)
                 }
                 if (!PERIOD_REGEX.test(period)) {
-                    throw new GQLError(ERRORS.BAD_PERIOD_FORMAT)
+                    throw new GQLError(ERRORS.BAD_PERIOD_FORMAT, context)
                 }
 
                 const { keystone } = getSchemaCtx('BillingReceipt')

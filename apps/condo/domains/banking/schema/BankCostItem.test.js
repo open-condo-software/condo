@@ -169,6 +169,7 @@ describe('BankCostItem', () => {
         it('requires category', async () => {
             const [objCreated] = await createTestBankCostItem(admin, category)
 
+            // TODO(pahaz): DOMA-10368 use expectToThrow??
             await catchErrorFrom(async () => {
                 await updateTestBankCostItem(admin, objCreated.id, {
                     category: { disconnect: { id: category.id } },

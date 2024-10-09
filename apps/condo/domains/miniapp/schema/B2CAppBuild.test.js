@@ -238,6 +238,7 @@ describe('B2CAppBuild', () => {
             }, {
                 code: 'BAD_USER_INPUT',
                 type: NON_ZIP_FILE_ERROR,
+                message: 'Expected file to be one of the following mimetypes: "application/zip", "application/x-zip-compressed", "application/zip-compressed". But got: image/png',
             })
         })
         test('Service account cannot create build linked to non-permitted app or change link to another app', async () => {

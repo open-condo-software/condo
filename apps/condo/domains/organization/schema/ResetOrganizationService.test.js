@@ -82,6 +82,7 @@ describe('ResetOrganizationService', () => {
     test('support cant reset non existing user', async () => {
         const orgId = faker.datatype.uuid()
 
+        // TODO(pahaz): DOMA-10368 use expectToThrowGQLError
         await catchErrorFrom(async () => {
             await resetOrganizationByTestClient(support, { organizationId: orgId })
         }, ({ errors }) => {

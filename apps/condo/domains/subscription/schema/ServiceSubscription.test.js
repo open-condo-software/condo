@@ -47,6 +47,7 @@ describe('ServiceSubscription', () => {
                 currency: 'RUB',
             }
 
+            // TODO(pahaz): DOMA-10368 use expectToThrow CheckConstrain
             await catchErrorFrom(async () => {
                 await createTestServiceSubscription(adminClient, organization, wrongValuesWithZeroUnitPrice)
             }, ({ errors, data }) => {
@@ -76,6 +77,7 @@ describe('ServiceSubscription', () => {
                 finishAt: dayjs().subtract(1, 'day'),
             }
 
+            // TODO(pahaz): DOMA-10368 use expectToThrow Check Constraint
             await catchErrorFrom(async () => {
                 await createTestServiceSubscription(adminClient, organization, attrs)
             }, ({ errors, data }) => {
@@ -93,6 +95,7 @@ describe('ServiceSubscription', () => {
                 unitPrice: 'asdf',
             }
 
+            // TODO(pahaz): DOMA-10368 use expectToThrow ??
             await catchErrorFrom(async () => {
                 await createTestServiceSubscription(adminClient, organization, attrs)
             }, ({ errors, data }) => {

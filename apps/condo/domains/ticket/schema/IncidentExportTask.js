@@ -16,6 +16,7 @@ const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const access = require('@condo/domains/ticket/access/IncidentExportTask')
 const { exportIncidents } = require('@condo/domains/ticket/tasks/exportIncidents')
+const { LOCALES } = require('@condo/domains/user/constants/common')
 
 const { getFileMetaAfterChange } = FileAdapter
 
@@ -144,8 +145,14 @@ const IncidentExportTask = new GQLListSchema('IncidentExportTask', {
             type: 'Text',
             isRequired: true,
             hooks: {
-                resolveInput: async ({ context }) => {
-                    return extractReqLocale(context.req) || conf.DEFAULT_LOCALE
+                resolveInput: async ({ context, resolvedData, fieldPath, operation }) => {
+                    if (operation === 'create') {
+                        // NOTE(pahaz): resolveInput called every update/create! And we need to use it only on create!
+                        const resolvedValue = resolvedData[fieldPath]
+                        // TODO(pahaz): DOMA-10348 we need to throw validation error here!
+                        if (resolvedValue && LOCALES.includes(resolvedValue)) return resolvedValue
+                        return extractReqLocale(context.req) || conf.DEFAULT_LOCALE
+                    }
                 },
             },
             access: {

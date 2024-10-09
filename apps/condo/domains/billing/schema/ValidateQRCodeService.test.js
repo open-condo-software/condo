@@ -415,18 +415,15 @@ describe('ValidateQRCodeService', () => {
 
             for await (const i of Array.from(Array(MAX_CLIENT_VALIDATE_QR_CODE_BY_WINDOW + 1).keys())) {
                 if (i === MAX_CLIENT_VALIDATE_QR_CODE_BY_WINDOW) {
-                    await catchErrorFrom(async () => {
-                        await validateQRCodeByTestClient(anonymousClient, { qrCode: qrCodeString })
-                    }, ({ errors }) => {
-                        expect(errors).toMatchObject([{
-                            path: ['result'],
-                            extensions: {
-                                code: 'BAD_USER_INPUT',
-                                type: 'TOO_MANY_REQUESTS',
-                                message: 'You have to wait {secondsRemaining} seconds to be able to send request again',
-                            },
-                        }])
-                    })
+                    await expectToThrowGQLError(
+                        async () => await validateQRCodeByTestClient(anonymousClient, { qrCode: qrCodeString }),
+                        {
+                            code: 'BAD_USER_INPUT',
+                            type: 'TOO_MANY_REQUESTS',
+                            message: 'You have to wait {secondsRemaining} seconds to be able to send request again',
+                        },
+                        'result'
+                    )
                 } else {
                     await validateQRCodeByTestClient(anonymousClient, { qrCode: qrCodeString })
                 }

@@ -8,7 +8,7 @@ const {
     makeLoggedInAdminClient, makeClient, DATETIME_RE,
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects, waitFor, expectToThrowGQLError,
-    catchErrorFrom,
+    expectToThrowGraphQLRequestError,
 } = require('@open-condo/keystone/test.utils')
 
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
@@ -25,7 +25,6 @@ const {
 const { makeClientWithResidentUser, makeClientWithServiceUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 const { ERRORS } = require('./TicketDocumentGenerationTask')
-
 
 describe('TicketDocumentGenerationTask', () => {
     let admin, support, staff, secondStaff, resident, serviceUser, anonymous,
@@ -261,21 +260,17 @@ describe('TicketDocumentGenerationTask', () => {
                     documentType: TICKET_DOCUMENT_TYPE.COMPLETION_WORKS,
                 })
 
-                await catchErrorFrom(async () => {
+                await expectToThrowGraphQLRequestError(async () => {
                     await updateTestTicketDocumentGenerationTask(staff, task.id, {
                         ticket: { connect: { id: ticketFromO10nWithoutAccess.id } },
                     })
-                }, (e) => {
-                    expect(e.errors[0].message).toContain('Field "ticket" is not defined by type "TicketDocumentGenerationTaskUpdateInput"')
-                })
+                }, 'Field "ticket" is not defined by type "TicketDocumentGenerationTaskUpdateInput"')
 
-                await catchErrorFrom(async () => {
+                await expectToThrowGraphQLRequestError(async () => {
                     await updateTestTicketDocumentGenerationTask(staff, task.id, {
                         format: TICKET_DOCUMENT_GENERATION_TASK_FORMAT.DOCX,
                     })
-                }, (e) => {
-                    expect(e.errors[0].message).toContain('Field "format" is not defined by type "TicketDocumentGenerationTaskUpdateInput"')
-                })
+                }, 'Field "format" is not defined by type "TicketDocumentGenerationTaskUpdateInput"')
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await updateTestTicketDocumentGenerationTask(staff, task.id, {
@@ -283,21 +278,17 @@ describe('TicketDocumentGenerationTask', () => {
                     })
                 })
 
-                await catchErrorFrom(async () => {
+                await expectToThrowGraphQLRequestError(async () => {
                     await updateTestTicketDocumentGenerationTask(staff, task.id, {
                         user: { connect: { id: secondStaff.user.id } },
                     })
-                }, (e) => {
-                    expect(e.errors[0].message).toContain('Field "user" is not defined by type "TicketDocumentGenerationTaskUpdateInput"')
-                })
+                }, 'Field "user" is not defined by type "TicketDocumentGenerationTaskUpdateInput"')
 
-                await catchErrorFrom(async () => {
+                await expectToThrowGraphQLRequestError(async () => {
                     await updateTestTicketDocumentGenerationTask(staff, task.id, {
                         timeZone: 'America/Toronto',
                     })
-                }, (e) => {
-                    expect(e.errors[0].message).toContain('Field "timeZone" is not defined by type "TicketDocumentGenerationTaskUpdateInput"')
-                })
+                }, 'Field "timeZone" is not defined by type "TicketDocumentGenerationTaskUpdateInput"')
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await updateTestTicketDocumentGenerationTask(staff, task.id, {
@@ -305,13 +296,11 @@ describe('TicketDocumentGenerationTask', () => {
                     })
                 })
 
-                await catchErrorFrom(async () => {
+                await expectToThrowGraphQLRequestError(async () => {
                     await updateTestTicketDocumentGenerationTask(staff, task.id, {
                         documentType: TICKET_DOCUMENT_TYPE.COMPLETION_WORKS,
                     })
-                }, (e) => {
-                    expect(e.errors[0].message).toContain('Field "documentType" is not defined by type "TicketDocumentGenerationTaskUpdateInput"')
-                })
+                }, 'Field "documentType" is not defined by type "TicketDocumentGenerationTaskUpdateInput"')
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await updateTestTicketDocumentGenerationTask(staff, task.id, {

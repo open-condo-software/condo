@@ -143,6 +143,7 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
                         `validate-QR-code-${ip}`,
                         BILLING_VALIDATE_QR_CODE_WINDOW,
                         MAX_CLIENT_VALIDATE_QR_CODE_BY_WINDOW,
+                        context,
                     )
                 }
 

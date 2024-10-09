@@ -208,6 +208,7 @@ describe('IncidentProperty', () => {
 
     describe('Validations', () => {
         test('Constraint: unique incident + property', async () => {
+            // TODO(pahaz): DOMA-10368 use expectToThrow UniqConstraint
             await catchErrorFrom(async () => {
                 await createTestIncidentProperty(admin, incidentByAdmin, property)
             }, ({ errors }) => {
@@ -220,6 +221,7 @@ describe('IncidentProperty', () => {
         test('Incident and property should not belong to different organizations', async () => {
             const [organization] = await createTestOrganization(admin)
             const [property] = await createTestProperty(admin, organization)
+            // TODO(pahaz): DOMA-10368 use expectToThrowGQLError
             await catchErrorFrom(async () => {
                 await createTestIncidentProperty(admin, incidentByAdmin, property)
             }, ({ errors }) => {

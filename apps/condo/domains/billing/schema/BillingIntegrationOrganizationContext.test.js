@@ -50,11 +50,13 @@ describe('BillingIntegrationOrganizationContext', () => {
             })
             expect(updatedContext).toHaveProperty('status', CONTEXT_FINISHED_STATUS)
 
+            // TODO(pahaz): DOMA-10368 use GQL
             await catchErrorFrom(async () => {
                 await createTestBillingIntegrationOrganizationContext(admin, organization, integration, {
                     status: CONTEXT_FINISHED_STATUS,
                 })
             }, (e) => {
+                // TODO(pahaz): DOMA-10368 you con't use .errors its private!
                 expect(e.errors[0].data.messages[0]).toContain('Can\'t create two BillingIntegrationOrganizationContexts')
             })
 

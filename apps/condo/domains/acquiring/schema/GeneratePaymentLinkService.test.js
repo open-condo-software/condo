@@ -7,7 +7,7 @@ const { map, pick } = require('lodash')
 
 const conf = require('@open-condo/config')
 const {
-    catchErrorFrom, expectToThrowAccessDeniedError, expectToThrowGQLError, makeLoggedInAdminClient,
+    catchErrorFrom, expectToThrowGQLError, makeLoggedInAdminClient, expectToThrowAccessDeniedErrorToResult, expectToThrowGQLErrorToResult,
 } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
@@ -78,9 +78,9 @@ describe('GeneratePaymentLinkService', () => {
                 const receipt = { id: billingReceipts[0].id }
                 const acquiringIntegrationContext = { id: acquiringContext.id }
                 const callbackUrls = callbacks()
-                await expectToThrowAccessDeniedError(async () => {
-                    await generatePaymentLinkByTestClient(client, receipt, null, acquiringIntegrationContext, callbackUrls)
-                }, 'result')
+                await expectToThrowAccessDeniedErrorToResult(
+                    async () => await generatePaymentLinkByTestClient(client, receipt, null, acquiringIntegrationContext, callbackUrls),
+                )
             })
             test('From receipt data', async () => {
                 const {
@@ -89,9 +89,9 @@ describe('GeneratePaymentLinkService', () => {
                 } = await makePayer()
                 const acquiringIntegrationContext = { id: acquiringContext.id }
                 const receipt = receiptData()
-                await expectToThrowAccessDeniedError(async () => {
-                    await generatePaymentLinkByTestClient(client, null, receipt, acquiringIntegrationContext, callbacks())
-                }, 'result')
+                await expectToThrowAccessDeniedErrorToResult(
+                    async () => await generatePaymentLinkByTestClient(client, null, receipt, acquiringIntegrationContext, callbacks()),
+                )
             })
         })
         describe('Admin user', () => {
@@ -270,20 +270,17 @@ describe('GeneratePaymentLinkService', () => {
                 const missingReceiptId = faker.datatype.uuid()
                 const receipt = { id: missingReceiptId }
                 const acquiringIntegrationContext = { id: acquiringContext.id }
-                await catchErrorFrom(async () => {
+                await expectToThrowGQLErrorToResult(async () => {
                     await generatePaymentLinkByTestClient(admin, receipt, null, acquiringIntegrationContext, callbacks())
-                }, ({ errors }) => {
-                    expect(errors).toMatchObject([{
-                        message: `Cannot find specified BillingReceipt with id ${missingReceiptId}`,
-                        path: ['result'],
-                        extensions: {
-                            mutation: 'generatePaymentLink',
-                            variable: ['data', 'receipt', 'id'],
-                            code: 'BAD_USER_INPUT',
-                            type: 'CANNOT_FIND_ALL_BILLING_RECEIPTS',
-                            message: 'Cannot find specified BillingReceipt with id {missingReceiptId}',
-                        },
-                    }])
+                }, {
+                    mutation: 'generatePaymentLink',
+                    variable: ['data', 'receipt', 'id'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'CANNOT_FIND_ALL_BILLING_RECEIPTS',
+                    message: 'Cannot find specified BillingReceipt with id {missingReceiptId}',
+                    messageInterpolation: {
+                        missingReceiptId,
+                    },
                 })
             })
             describe('Cannot generate link for receipts with negative toPay', () => {
@@ -329,20 +326,17 @@ describe('GeneratePaymentLinkService', () => {
                 await updateTestBillingReceipt(admin, deletedReceiptId, {
                     deletedAt: dayjs().toISOString(),
                 })
-                await catchErrorFrom(async () => {
+                await expectToThrowGQLErrorToResult(async () => {
                     await generatePaymentLinkByTestClient(admin, receipt, null, acquiringIntegrationContext, callbacks())
-                }, ({ errors }) => {
-                    expect(errors).toMatchObject([{
-                        message: `Cannot generate payment link with deleted receipt ${deletedReceiptId}`,
-                        path: ['result'],
-                        extensions: {
-                            mutation: 'generatePaymentLink',
-                            variable: ['data', 'receipt', 'id'],
-                            code: 'BAD_USER_INPUT',
-                            type: 'RECEIPTS_ARE_DELETED',
-                            message: 'Cannot generate payment link with deleted receipt {id}',
-                        },
-                    }])
+                }, {
+                    mutation: 'generatePaymentLink',
+                    variable: ['data', 'receipt', 'id'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'RECEIPTS_ARE_DELETED',
+                    message: 'Cannot generate payment link with deleted receipt {id}',
+                    messageInterpolation: {
+                        id: deletedReceiptId,
+                    },
                 })
             })
             test('Should not be able to generate link for consumer with deleted acquiring context', async () => {

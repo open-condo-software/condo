@@ -268,6 +268,7 @@ describe('B2BAppContext', () => {
             const [organization] = await registerNewOrganization(admin)
             const [context] = await createTestB2BAppContext(admin, app, organization)
             expect(context).toBeDefined()
+            // TODO(pahaz): DOMA-10368 use
             await catchErrorFrom(async () => {
                 await createTestB2BAppContext(admin, app, organization)
             }, ({ errors }) => {

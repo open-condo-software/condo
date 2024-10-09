@@ -396,6 +396,7 @@ describe('Property', () => {
             // Update
             const [anotherProperty] = await createTestProperty(user, user.organization)
             expect(anotherProperty).toBeDefined()
+            // TODO(pahaz): DOMA-10368 use expectToThrow??
             await catchErrorFrom(async () => {
                 await updateTestProperty(user, anotherProperty.id, { address: user.property.address })
             }, ({ errors, data }) => {

@@ -4,7 +4,8 @@
 
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, expectToThrowUniqueConstraintViolationError,
+const {
+    makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, expectToThrowUniqueConstraintViolationError,
     expectToThrowGQLError, expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 const { getTranslations, getAvailableLocales } = require('@open-condo/locales/loader')
@@ -28,7 +29,6 @@ const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/u
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 const { ERRORS } = require('./OrganizationEmployeeRole')
-
 
 describe('OrganizationEmployeeRole', () => {
     let admin, support, employeeUser, employeeUserWithoutPermissions, notEmployeeUser, anonymous
@@ -278,7 +278,16 @@ describe('OrganizationEmployeeRole', () => {
             const [employee] = await createTestOrganizationEmployee(admin, organization, employeeClient.user, role, { isAccepted: true })
             await expectToThrowGQLError(async () => {
                 await OrganizationEmployeeRole.softDelete(admin, role.id)
-            }, ERRORS.EMPLOYEES_WITH_THIS_ROLE_WERE_FOUND(1))
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'EMPLOYEES_WITH_THIS_ROLE_WERE_FOUND',
+                variable: ['data', 'description'],
+                message: '{employeeCount} employees with this role were found. This role must be revoked from all employees before it can be deleted. ' +
+                    'You can use the "replaceOrganizationEmployeeRole" mutation to avoid having to do this manually.',
+                messageInterpolation: {
+                    employeeCount: 1,
+                },
+            })
 
             await OrganizationEmployee.softDelete(admin, employee.id)
             const [deletedRole] = await OrganizationEmployeeRole.softDelete(admin, role.id)
@@ -293,7 +302,16 @@ describe('OrganizationEmployeeRole', () => {
 
             await expectToThrowGQLError(async () => {
                 await OrganizationEmployeeRole.softDelete(admin, role.id)
-            }, ERRORS.B2B_APP_ROLES_WITH_THIS_ROLE_WERE_FOUND(1))
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'B2B_APP_ROLES_WITH_THIS_ROLE_WERE_FOUND',
+                variable: ['data', 'description'],
+                message: '{employeeCount} B2BAppRoles with this role were found. This role must be revoked from all B2BAppRoles before it can be deleted. ' +
+                    'You can use the "replaceOrganizationEmployeeRole" mutation to avoid having to do this manually.',
+                messageInterpolation: {
+                    employeeCount: 1,
+                },
+            })
 
             await B2BAppRole.softDelete(admin, b2bAppRole.id)
             const [deletedRole] = await OrganizationEmployeeRole.softDelete(admin, role.id)
@@ -311,17 +329,41 @@ describe('OrganizationEmployeeRole', () => {
 
             await expectToThrowGQLError(async () => {
                 await updateTestOrganizationEmployeeRole(admin, role.id, { name: faker.lorem.word(3) })
-            }, ERRORS.CANNOT_UPDATE_FIELD_FOR_DEFAULT_ROLE('name'))
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'CANNOT_UPDATE_FIELD_FOR_DEFAULT_ROLE',
+                variable: ['data', 'name'],
+                message: '"{fieldName}" field cannot be updated for default role',
+                messageInterpolation: {
+                    fieldName: 'name',
+                },
+            })
 
             await expectToThrowGQLError(async () => {
                 // updateTestOrganizationEmployeeRole update name because we pass name: undefined
                 await updateTestOrganizationEmployeeRole(admin, role.id, { description: faker.lorem.word(3), name: undefined })
-            }, ERRORS.CANNOT_UPDATE_FIELD_FOR_DEFAULT_ROLE('description'))
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'CANNOT_UPDATE_FIELD_FOR_DEFAULT_ROLE',
+                variable: ['data', 'description'],
+                message: '"{fieldName}" field cannot be updated for default role',
+                messageInterpolation: {
+                    fieldName: 'description',
+                },
+            })
 
             await expectToThrowGQLError(async () => {
                 // updateTestOrganizationEmployeeRole update name because we pass name: undefined
                 await updateTestOrganizationEmployeeRole(admin, role.id, { ticketVisibilityType: PROPERTY_TICKET_VISIBILITY, name: undefined })
-            }, ERRORS.CANNOT_UPDATE_FIELD_FOR_DEFAULT_ROLE('ticketVisibilityType'))
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'CANNOT_UPDATE_FIELD_FOR_DEFAULT_ROLE',
+                variable: ['data', 'ticketVisibilityType'],
+                message: '"{fieldName}" field cannot be updated for default role',
+                messageInterpolation: {
+                    fieldName: 'ticketVisibilityType',
+                },
+            })
         })
 
         test('you cannot update a role if "isEditable" is false', async () => {

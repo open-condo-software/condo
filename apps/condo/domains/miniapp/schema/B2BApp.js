@@ -121,10 +121,12 @@ const B2BApp = new GQLListSchema('B2BApp', {
             const newItem = { ...existingItem, ...resolvedData }
             if (newItem.isGlobal) {
                 if (!newItem.appUrl) {
+                    // TODO(pahaz): DOMA-6195 use GQLError
                     return addValidationError(GLOBAL_APP_NO_APP_URL_ERROR)
                 }
             } else {
                 if (newItem.features) {
+                    // TODO(pahaz): DOMA-6195 use GQLError
                     return addValidationError(NON_GLOBAL_APP_WITH_FEATURES_ERROR)
                 }
             }

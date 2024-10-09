@@ -6,13 +6,12 @@ const { faker } = require('@faker-js/faker')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, waitFor,
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects,
-    expectToThrowInternalError,
+    expectToThrowUniqueConstraintViolationError,
 } = require('@open-condo/keystone/test.utils')
 
-const { UNIQUE_CONSTRAINT_ERROR } = require('@condo/domains/common/constants/errors')
 const {
     DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE,
-    MESSAGE_ERROR_STATUS, MESSAGE_BLACKLISTED_STATUS,
+    MESSAGE_BLACKLISTED_STATUS,
 } = require('@condo/domains/notification/constants/constants')
 const { MESSAGE_TYPE_IN_ORGANIZATION_BLACK_LIST } = require('@condo/domains/notification/constants/errors')
 const {
@@ -207,12 +206,12 @@ describe('MessageOrganizationBlackList', () => {
                 organization: { connect: { id: client.organization.id } },
             })
 
-            await expectToThrowInternalError(async () => {
+            await expectToThrowUniqueConstraintViolationError(async () => {
                 await createTestMessageOrganizationBlackList(admin, {
                     type: DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE,
                     organization: { connect: { id: client.organization.id } },
                 })
-            }, `${UNIQUE_CONSTRAINT_ERROR} "message_organization_black_list_unique_organization_and_type"`)
+            }, 'message_organization_black_list_unique_organization_and_type')
         })
     })
 })

@@ -4,11 +4,12 @@
 
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, catchErrorFrom } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
+    expectToThrowUniqueConstraintViolationError,
 } = require('@open-condo/keystone/test.utils')
 
 const {
@@ -209,14 +210,9 @@ describe('IncidentClassifierIncident', () => {
 
     describe('Validations', () => {
         test('Constraint: unique incident + classifier', async () => {
-            await catchErrorFrom(async () => {
+            await expectToThrowUniqueConstraintViolationError(async () => {
                 await createTestIncidentClassifierIncident(admin, incidentByAdmin, CLASSIFIER)
-            }, ({ errors }) => {
-                expect(errors).toHaveLength(1)
-                expect(errors[0]).toEqual(expect.objectContaining({
-                    message: expect.stringContaining('unique constraint'),
-                }))
-            })
+            }, 'incident_classifier_unique_incident_and_classifier')
         })
     })
 })

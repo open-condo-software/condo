@@ -13,6 +13,7 @@ const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } 
 
 
 const expectToThrowAccessDeniedErrorToDeleteObj = async (testFunction) => {
+    // TODO(pahaz): DOMA-10368 use expectToThrowGraphQLRequestError
     await catchErrorFrom(async () => {
         await testFunction()
     }, ({ errors }) => {

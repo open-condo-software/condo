@@ -110,6 +110,7 @@ const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrat
                 })
 
                 if (contextsInThisOrganization.length > 0) {
+                    // TODO(pahaz): DOMA-10368 use GQLError
                     addValidationError('Can\'t create two BillingIntegrationOrganizationContexts in same organization!')
                 }
             }

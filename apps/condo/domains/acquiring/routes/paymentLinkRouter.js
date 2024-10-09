@@ -245,6 +245,7 @@ class PaymentLinkRouter {
             ip,
             PAYMENT_LINK_WINDOW_SIZE,
             MAX_PAYMENT_LINK_REQUEST_BY_WINDOW,
+            { req },
         )
     }
 

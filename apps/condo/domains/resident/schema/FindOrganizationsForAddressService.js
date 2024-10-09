@@ -20,11 +20,12 @@ const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 const redisGuard = new RedisGuard()
 
-const checkLimits = async (uniqueField) => {
+const checkLimits = async (uniqueField, context) => {
     await redisGuard.checkCustomLimitCounters(
         `find-organizations-by-address-${uniqueField}`,
         RESIDENT_FIND_ORGANIZATIONS_WINDOW_SEC,
         MAX_RESIDENT_FIND_ORGANIZATIONS_BY_WINDOW_SEC,
+        context,
     )
 }
 
@@ -56,7 +57,7 @@ const FindOrganizationsForAddressService = new GQLCustomSchema('FindOrganization
                 const { data } = args
                 const { addressKey, unitName, unitType, tin, accountNumber } = data
                 if (context.authedItem.type === RESIDENT) {
-                    await checkLimits(context.authedItem.id)
+                    await checkLimits(context.authedItem.id, context)
                 }
                 const properties = await find('Property', { addressKey, deletedAt: null })
                 if (!properties) {

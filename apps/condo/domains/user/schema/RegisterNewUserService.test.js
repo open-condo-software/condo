@@ -208,6 +208,7 @@ describe('RegisterNewUserService', () => {
     test('register with no token', async () => {
         const client = await makeClient()
 
+        // TODO(pahaz): DOMA-10368 use expectToThrowGQLError
         await catchErrorFrom(async () => {
             await registerNewUser(client, { confirmPhoneActionToken: null })
         }, ({ errors }) => {

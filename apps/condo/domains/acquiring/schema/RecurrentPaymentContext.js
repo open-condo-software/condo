@@ -45,16 +45,16 @@ const RecurrentPaymentContext = new GQLListSchema('RecurrentPaymentContext', {
             type: 'Integer',
             isRequired: false,
             hooks: {
-                validateInput: ({ resolvedData }) => {
+                validateInput: ({ resolvedData, context }) => {
                     // check that only one trigger are set up
                     if (resolvedData['autoPayReceipts'] && resolvedData['paymentDay']) {
-                        throw new GQLError(GQL_ERRORS.RECURRENT_PAYMENT_CONTEXT_BOTH_TRIGGER_SET_UP_ERROR)
+                        throw new GQLError(GQL_ERRORS.RECURRENT_PAYMENT_CONTEXT_BOTH_TRIGGER_SET_UP_ERROR, context)
                     }
 
                     // check payment day is in range 1-31
                     if (!resolvedData['autoPayReceipts'] && !isNil(resolvedData['paymentDay'])
                         && (resolvedData['paymentDay'] < 1 || resolvedData['paymentDay'] > 31)) {
-                        throw new GQLError(GQL_ERRORS.RECURRENT_PAYMENT_CONTEXT_PAYMENT_DAY_WRONG_RANGE_ERROR)
+                        throw new GQLError(GQL_ERRORS.RECURRENT_PAYMENT_CONTEXT_PAYMENT_DAY_WRONG_RANGE_ERROR, context)
                     }
                 },
             },
@@ -99,12 +99,12 @@ const RecurrentPaymentContext = new GQLListSchema('RecurrentPaymentContext', {
         auth: true,
     },
     hooks: {
-        validateInput: async ({ resolvedData, existingItem }) => {
+        validateInput: async ({ resolvedData, existingItem, context }) => {
             const newItem = { ...existingItem, ...resolvedData }
 
             //check at least one trigger are set
             if (!newItem['autoPayReceipts'] && isNil(newItem['paymentDay'])) {
-                throw new GQLError(GQL_ERRORS.RECURRENT_PAYMENT_CONTEXT_NO_TRIGGER_SET_UP_ERROR)
+                throw new GQLError(GQL_ERRORS.RECURRENT_PAYMENT_CONTEXT_NO_TRIGGER_SET_UP_ERROR, context)
             }
         },
 

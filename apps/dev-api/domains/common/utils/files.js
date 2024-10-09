@@ -21,7 +21,7 @@ function getMimeTypesValidator ({ allowedTypes }) {
         if (!allowedTypes.includes(mimeType)) {
             throw new GQLError({
                 ...ERRORS.INVALID_MIMETYPE,
-                messageInterpolation: { types: allowedTypes },
+                messageInterpolation: { types: allowedTypes.join(', ') },
             }, context)
         }
     }

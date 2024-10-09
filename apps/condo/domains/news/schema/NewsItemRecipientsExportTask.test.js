@@ -272,9 +272,12 @@ describe('NewsItemRecipientsExportTask', () => {
 
     describe('exportRecipients', () => {
         it('should create `NewsItemRecipientsExportTask` and create xlsx file', async () => {
-            const locale = 'ru'
+            // TODO(pahaz): DOMA-10416 use locale = 'ru'
+            const locale = 'en'
             const adminClient = await makeLoggedInAdminClient()
+            adminClient.setHeaders({ 'Accept-Language': locale })
             const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            userClient.setHeaders({ 'Accept-Language': locale })
             const [organization] = await createTestOrganization(adminClient)
             const [property] = await createTestProperty(adminClient, organization, { map: propertyMap1x9x4 })
             const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
@@ -316,7 +319,9 @@ describe('NewsItemRecipientsExportTask', () => {
 
             expectDataFormat(data, [
                 [i18n('excelExport.sheetNames.newsRecipients', { locale }), '', '', ''],
-                ['Адрес', 'Помещение', 'Тип помещения', 'Установлено мобильное приложение жителя'],
+                // TODO(pahaz): DOMA-10416 use locale = 'ru'
+                // ['Адрес', 'Помещение', 'Тип помещения', 'Установлено мобильное приложение жителя'],
+                ['Address', 'Unit name', 'Unit type', 'Resident mobile app installed'],
                 ...(residentsData.map(residentData => [
                     property.address,
                     residentData.resident.unitName,

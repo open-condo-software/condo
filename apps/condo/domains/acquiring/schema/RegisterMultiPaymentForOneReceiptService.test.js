@@ -13,6 +13,7 @@ const {
 const {
     expectToThrowAuthenticationError,
     expectToThrowAccessDeniedErrorToResult,
+    expectToThrowGQLErrorToResult,
     catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 
@@ -160,20 +161,17 @@ describe('RegisterMultiPaymentForOneReceiptService', () => {
                 const missingReceiptId = faker.datatype.uuid()
                 const receipt = { id: missingReceiptId }
                 const acquiringIntegrationContext = { id: acquiringContext.id }
-                await catchErrorFrom(async () => {
+                await expectToThrowGQLErrorToResult(async () => {
                     await registerMultiPaymentForOneReceiptByTestClient(admin, receipt, acquiringIntegrationContext)
-                }, ({ errors }) => {
-                    expect(errors).toMatchObject([{
-                        message: `Cannot find specified BillingReceipt with id ${missingReceiptId}`,
-                        path: ['result'],
-                        extensions: {
-                            mutation: 'registerMultiPaymentForOneReceipt',
-                            variable: ['data', 'receipt', 'id'],
-                            code: 'BAD_USER_INPUT',
-                            type: 'CANNOT_FIND_ALL_BILLING_RECEIPTS',
-                            message: 'Cannot find specified BillingReceipt with id {missingReceiptId}',
-                        },
-                    }])
+                }, {
+                    mutation: 'registerMultiPaymentForOneReceipt',
+                    variable: ['data', 'receipt', 'id'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'CANNOT_FIND_ALL_BILLING_RECEIPTS',
+                    message: 'Cannot find specified BillingReceipt with id {missingReceiptId}',
+                    messageInterpolation: {
+                        missingReceiptId,
+                    },
                 })
             })
             test('Should be linked to BillingIntegration which supported by acquiring', async () => {
@@ -192,20 +190,17 @@ describe('RegisterMultiPaymentForOneReceiptService', () => {
                     supportedBillingIntegrationsGroup: groupName,
                 })
 
-                await catchErrorFrom(async () => {
+                await expectToThrowGQLErrorToResult(async () => {
                     await registerMultiPaymentForOneReceiptByTestClient(admin, receipt, acquiringIntegrationContext)
-                }, ({ errors }) => {
-                    expect(errors).toMatchObject([{
-                        message: `AcquiringIntegration does not supports following BillingReceipt's BillingIntegration: ${billingIntegration.id}`,
-                        path: ['result'],
-                        extensions: {
-                            mutation: 'registerMultiPaymentForOneReceipt',
-                            variable: ['data', 'receipt', 'id'],
-                            code: 'BAD_USER_INPUT',
-                            type: 'ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION',
-                            message: 'AcquiringIntegration does not supports following BillingReceipt\'s BillingIntegration: {unsupportedBillingIntegration}',
-                        },
-                    }])
+                }, {
+                    mutation: 'registerMultiPaymentForOneReceipt',
+                    variable: ['data', 'receipt', 'id'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION',
+                    message: 'AcquiringIntegration does not supports following BillingReceipt\'s BillingIntegration: {unsupportedBillingIntegration}',
+                    messageInterpolation: {
+                        unsupportedBillingIntegration: billingIntegration.id,
+                    },
                 })
             })
             describe('Cannot pay for receipts with negative toPay', () => {
@@ -221,20 +216,17 @@ describe('RegisterMultiPaymentForOneReceiptService', () => {
                     await updateTestBillingReceipt(admin, receipt.id, {
                         toPay,
                     })
-                    await catchErrorFrom(async () => {
+                    await expectToThrowGQLErrorToResult(async () => {
                         await registerMultiPaymentForOneReceiptByTestClient(admin, receipt, acquiringIntegrationContext)
-                    }, ({ errors }) => {
-                        expect(errors).toMatchObject([{
-                            message: `Cannot pay for BillingReceipt ${receipt.id} with negative "toPay" value`,
-                            path: ['result'],
-                            extensions: {
-                                mutation: 'registerMultiPaymentForOneReceipt',
-                                variable: ['data', 'receipt', 'id'],
-                                code: 'BAD_USER_INPUT',
-                                type: 'RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE',
-                                message: 'Cannot pay for BillingReceipt {id} with negative "toPay" value',
-                            },
-                        }])
+                    }, {
+                        mutation: 'registerMultiPaymentForOneReceipt',
+                        variable: ['data', 'receipt', 'id'],
+                        code: 'BAD_USER_INPUT',
+                        type: 'RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE',
+                        message: 'Cannot pay for BillingReceipt {id} with negative "toPay" value',
+                        messageInterpolation: {
+                            id: receipt.id,
+                        },
                     })
                 })
             })
@@ -252,20 +244,17 @@ describe('RegisterMultiPaymentForOneReceiptService', () => {
                 await updateTestBillingReceipt(admin, deletedReceiptId, {
                     deletedAt: dayjs().toISOString(),
                 })
-                await catchErrorFrom(async () => {
+                await expectToThrowGQLErrorToResult(async () => {
                     await registerMultiPaymentForOneReceiptByTestClient(admin, receipt, acquiringIntegrationContext)
-                }, ({ errors }) => {
-                    expect(errors).toMatchObject([{
-                        message: `Cannot pay for deleted receipt ${deletedReceiptId}`,
-                        path: ['result'],
-                        extensions: {
-                            mutation: 'registerMultiPaymentForOneReceipt',
-                            variable: ['data', 'receipt', 'id'],
-                            code: 'BAD_USER_INPUT',
-                            type: 'RECEIPTS_ARE_DELETED',
-                            message: 'Cannot pay for deleted receipt {id}',
-                        },
-                    }])
+                }, {
+                    mutation: 'registerMultiPaymentForOneReceipt',
+                    variable: ['data', 'receipt', 'id'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'RECEIPTS_ARE_DELETED',
+                    message: 'Cannot pay for deleted receipt {id}',
+                    messageInterpolation: {
+                        id: deletedReceiptId,
+                    },
                 })
             })
             test('Should not be able to pay for consumer with deleted acquiring context', async () => {
@@ -307,20 +296,17 @@ describe('RegisterMultiPaymentForOneReceiptService', () => {
                 await updateTestAcquiringIntegration(admin, acquiringIntegration.id, {
                     deletedAt: dayjs().toISOString(),
                 })
-                await catchErrorFrom(async () => {
+                await expectToThrowGQLErrorToResult(async () => {
                     await registerMultiPaymentForOneReceiptByTestClient(admin, receipt, acquiringIntegrationContext)
-                }, ({ errors }) => {
-                    expect(errors).toMatchObject([{
-                        message: `Cannot pay via deleted acquiring integration with id "${acquiringIntegration.id}"`,
-                        path: ['result'],
-                        extensions: {
-                            mutation: 'registerMultiPaymentForOneReceipt',
-                            variable: ['data', 'acquiringIntegrationContext', 'id'],
-                            code: 'BAD_USER_INPUT',
-                            type: 'ACQUIRING_INTEGRATION_IS_DELETED',
-                            message: 'Cannot pay via deleted acquiring integration with id "{id}"',
-                        },
-                    }])
+                }, {
+                    mutation: 'registerMultiPaymentForOneReceipt',
+                    variable: ['data', 'acquiringIntegrationContext', 'id'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'ACQUIRING_INTEGRATION_IS_DELETED',
+                    message: 'Cannot pay via deleted acquiring integration with id "{id}"',
+                    messageInterpolation: {
+                        id: acquiringIntegration.id,
+                    },
                 })
             })
             test('Should not be able to pay for receipt with deleted BillingIntegrationOrganizationContext', async () => {

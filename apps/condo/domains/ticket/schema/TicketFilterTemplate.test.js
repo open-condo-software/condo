@@ -81,6 +81,7 @@ describe('TicketFilterTemplate', () => {
                 number: wrongFieldValue,
             }
 
+            // TODO(pahaz): DOMA-10368 use expectToThrowGraphQLRequestError !!
             await catchErrorFrom(async () => {
                 await createTestTicketFilterTemplate(user, employee, {
                     fields: wrongFilters,

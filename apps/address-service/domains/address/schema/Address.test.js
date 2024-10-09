@@ -16,6 +16,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAccessDeniedErrorToObjects,
+    expectToThrowValidationFailureError,
 } = require('@open-condo/keystone/test.utils')
 
 const { OVERRIDING_ROOT } = require('@address-service/domains/address/constants')
@@ -201,7 +202,7 @@ describe('Address', () => {
 
     describe('Overriding', () => {
         test('throw an error if no field to override', async () => {
-            await catchErrorFrom(
+            await expectToThrowValidationFailureError(
                 async () => {
                     await createTestAddress(
                         adminClient,
@@ -211,23 +212,12 @@ describe('Address', () => {
                         },
                     )
                 },
-                (caught) => {
-                    expect(caught).toEqual(expect.objectContaining({
-                        errors: [expect.objectContaining({
-                            name: 'ValidationFailureError',
-                            path: ['obj'],
-                            data: expect.objectContaining({
-                                messages: ['meta.data does not contains "nonExistingField" field'],
-                            }),
-                        })],
-                        data: { obj: null },
-                    }))
-                },
+                'meta.data does not contains "nonExistingField" field',
             )
         })
 
         test('throw an error if try to override with the same value', async () => {
-            await catchErrorFrom(
+            await expectToThrowValidationFailureError(
                 async () => {
                     await createTestAddress(
                         adminClient,
@@ -237,23 +227,12 @@ describe('Address', () => {
                         },
                     )
                 },
-                (caught) => {
-                    expect(caught).toEqual(expect.objectContaining({
-                        errors: [expect.objectContaining({
-                            name: 'ValidationFailureError',
-                            path: ['obj'],
-                            data: expect.objectContaining({
-                                messages: ['You trying to override field meta.data.someField with the same value'],
-                            }),
-                        })],
-                        data: { obj: null },
-                    }))
-                },
+                'You trying to override field meta.data.someField with the same value',
             )
         })
 
         test('throw an error if try to override with array', async () => {
-            await catchErrorFrom(
+            await expectToThrowValidationFailureError(
                 async () => {
                     await createTestAddress(
                         adminClient,
@@ -263,23 +242,12 @@ describe('Address', () => {
                         },
                     )
                 },
-                (caught) => {
-                    expect(caught).toEqual(expect.objectContaining({
-                        errors: [expect.objectContaining({
-                            name: 'ValidationFailureError',
-                            path: ['obj'],
-                            data: expect.objectContaining({
-                                messages: ['The "overrides" field must be an object'],
-                            }),
-                        })],
-                        data: { obj: null },
-                    }))
-                },
+                'The "overrides" field must be an object',
             )
         })
 
         test('throw an error if try to override with string', async () => {
-            await catchErrorFrom(
+            await expectToThrowValidationFailureError(
                 async () => {
                     await createTestAddress(
                         adminClient,
@@ -289,23 +257,12 @@ describe('Address', () => {
                         },
                     )
                 },
-                (caught) => {
-                    expect(caught).toEqual(expect.objectContaining({
-                        errors: [expect.objectContaining({
-                            name: 'ValidationFailureError',
-                            path: ['obj'],
-                            data: expect.objectContaining({
-                                messages: ['The "overrides" field must be an object'],
-                            }),
-                        })],
-                        data: { obj: null },
-                    }))
-                },
+                'The "overrides" field must be an object',
             )
         })
 
         test('throw an error if try to override with number', async () => {
-            await catchErrorFrom(
+            await expectToThrowValidationFailureError(
                 async () => {
                     await createTestAddress(
                         adminClient,
@@ -315,18 +272,7 @@ describe('Address', () => {
                         },
                     )
                 },
-                (caught) => {
-                    expect(caught).toEqual(expect.objectContaining({
-                        errors: [expect.objectContaining({
-                            name: 'ValidationFailureError',
-                            path: ['obj'],
-                            data: expect.objectContaining({
-                                messages: ['The "overrides" field must be an object'],
-                            }),
-                        })],
-                        data: { obj: null },
-                    }))
-                },
+                'The "overrides" field must be an object',
             )
         })
 
@@ -342,6 +288,7 @@ describe('Address', () => {
                     )
                 },
                 (caught) => {
+                    // TODO(pahaz): DOMA-10348 refactor and use `expectToThrowValidationFailureError`
                     expect(caught).toEqual(expect.objectContaining({
                         errors: [expect.objectContaining({
                             name: 'ValidationFailureError',

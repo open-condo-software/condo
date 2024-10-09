@@ -280,6 +280,7 @@ describe('BankSyncTask', () => {
                     file: new UploadingFile(pathToCorrectFile),
                 })
 
+                // TODO(pahaz): DOMA-10368 use expectToThrowGraphQLRequestError
                 await catchErrorFrom(async () => {
                     await updateTestBankSyncTask(adminClient, objCreated.id, {
                         file: new UploadingFile(pathToCorrectFile),
@@ -519,6 +520,7 @@ describe('BankSyncTask', () => {
             const [anotherOrganization] = await createTestOrganization(adminClient)
             const [propertyFromAnotherOrganization] = await createTestProperty(adminClient, anotherOrganization)
 
+            // TODO(pahaz): DOMA-10368 use expectToThrowValidation
             await catchErrorFrom(async () => {
                 await createTestBankSyncTask(adminClient, organization, {
                     account: { connect: { id: account.id } },
@@ -900,6 +902,7 @@ describe('BankSyncTask', () => {
 
                 const updatedTask2 = await BankSyncTask.getOne(adminClient, { id: task2.id })
                 expect(updatedTask2.status).toEqual(TASK_ERROR_STATUS)
+                // TODO(pahaz): refactor this code it's locale specific!
                 expect(updatedTask2.meta.errorMessage).toEqual(i18n(TRANSACTIONS_NOT_ADDED.messageForUser))
                 expect(updatedTask2.meta).toBeTruthy()
                 expect(updatedTask2.meta).toMatchObject({

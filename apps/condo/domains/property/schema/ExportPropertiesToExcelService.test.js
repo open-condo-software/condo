@@ -32,6 +32,7 @@ describe('ExportPropertiesToExcelService', () => {
         it('throws error when no properties for export exist', async () => {
             if (isObsConfigured()) {
                 const client = await makeClientWithRegisteredOrganization()
+                // TODO(pahaz): DOMA-10368 use expectToThrowGQLError
                 await catchErrorFrom(async () => {
                     await exportPropertiesToExcelByTestClient(client, { where: { organization: { id: client.organization.id } }, sortBy: 'id_ASC' })
                 }, ({ errors }) => {

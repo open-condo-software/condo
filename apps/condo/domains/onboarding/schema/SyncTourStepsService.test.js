@@ -138,6 +138,7 @@ describe('SyncTourStepsService', () => {
         it('throws TOUR_STEPS_NOT_FOUND error if no steps in organization', async () => {
             const [organization] = await createTestOrganization(admin)
 
+            // TODO(pahaz): DOMA-10368 use expectToThrowGQLError
             await catchErrorFrom(async () => {
                 await syncTourStepsByTestClient(admin, organization)
             }, ({ errors }) => {

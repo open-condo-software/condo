@@ -860,7 +860,7 @@ async function validateQRCodeByTestClient (client, extraAttrs = {}) {
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(VALIDATE_QRCODE_MUTATION, { data: attrs })
-    throwIfError(data, errors)
+    throwIfError(data, errors, { query: VALIDATE_QRCODE_MUTATION, variables: { data: attrs } })
     return [data.result, attrs]
 }
 

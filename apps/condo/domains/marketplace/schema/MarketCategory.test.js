@@ -2,7 +2,7 @@
 * @jest-environment node
 */
 
-const { makeLoggedInAdminClient, makeClient, expectValuesOfCommonFields, expectToThrowGQLError, expectToThrowInternalError } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, expectValuesOfCommonFields, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
@@ -186,6 +186,7 @@ describe('MarketCategory', () => {
                 {
                     code: 'BAD_USER_INPUT',
                     type: 'INVALID_MOBILE_SETTINGS',
+                    message: '"mobileSettings" field validation error. JSON was not in the correct format',
                     variable: ['data', 'mobileSettings'],
                 },
                 'obj'

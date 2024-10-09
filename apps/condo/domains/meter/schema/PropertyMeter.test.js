@@ -279,6 +279,7 @@ describe('PropertyMeter', () => {
             })
             expect(meter.id).toMatch(UUID_RE)
 
+            // TODO(pahaz): DOMA-10368
             await catchErrorFrom(async () => {
                 await createTestPropertyMeter(client, organization, property2, resource, {
                     number,

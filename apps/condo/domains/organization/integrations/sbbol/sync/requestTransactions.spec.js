@@ -75,6 +75,7 @@ jest.mock('@condo/domains/organization/integrations/sbbol/utils/getAccessTokenFo
 describe('syncBankTransaction from SBBOL', () => {
     setFakeClientMode(index)
     jest.setTimeout(60000)
+
     let adminClient, commonClient, adminContext, context, commonOrganization, commonBankAccount
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()

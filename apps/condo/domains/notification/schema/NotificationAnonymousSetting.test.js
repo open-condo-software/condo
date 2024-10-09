@@ -183,6 +183,7 @@ describe('NotificationAnonymousSetting', () => {
             const admin = await makeLoggedInAdminClient()
 
             // 2) action
+            // TODO(pahaz): DOMA-10368 use expectToThrowGraphQLRequestError
             await catchErrorFrom(async () => {
                 await createTestNotificationAnonymousSetting(admin, {
                     phone: null,
@@ -206,6 +207,7 @@ describe('NotificationAnonymousSetting', () => {
             const admin = await makeLoggedInAdminClient()
 
             // 2) action
+            // TODO(pahaz): DOMA-10368 use expectToThrowGraphQLRequestError
             await catchErrorFrom(async () => {
                 await createTestNotificationAnonymousSetting(admin, {
                     isEnabled: true,

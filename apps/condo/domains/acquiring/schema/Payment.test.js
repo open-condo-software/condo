@@ -303,6 +303,7 @@ describe('Payment', () => {
                 const payload = {
                     organization: { connect: newOrganization.id },
                 }
+                // TODO(pahaz): DOMA-10368 use expectToThrowGraphQLRequestError
                 await catchErrorFrom(async () => {
                     await updateTestPayment(admin, payment.id, payload)
                 }, (e) => {
@@ -316,6 +317,7 @@ describe('Payment', () => {
                 const payload = {
                     organization: { disconnectAll: true },
                 }
+                // TODO(pahaz): DOMA-10368 use expectToThrowGraphQLRequestError
                 await catchErrorFrom(async () => {
                     await updateTestPayment(admin, payment.id, payload)
                 }, (e) => {

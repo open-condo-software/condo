@@ -76,6 +76,7 @@ describe('User', () => {
                     expect(readUser.phone).not.toBeNull()
                 })
                 test('No access to sensitive fields of others', async () => {
+                    // TODO(pahaz): DOMA-10368 use expectToThrow AccessDenied
                     await catchErrorFrom(async () => {
                         await User.getOne(user, { id: anotherUser.user.id })
                     }, ({ errors, data }) => {
@@ -120,6 +121,7 @@ describe('User', () => {
                         password: faker.internet.password(),
                     })
                 })
+                // TODO(pahaz): DOMA-10368 use expectToThrowGraphQLRequestError
                 await catchErrorFrom(async () => {
                     await updateTestUser(admin, userToUpdate.user.id, {
                         phone: createTestPhone(),
@@ -152,6 +154,7 @@ describe('User', () => {
                     })
                 }
 
+                // TODO(pahaz): DOMA-10368 use expectToThrowGraphQLRequestError
                 await catchErrorFrom(async () => {
                     await updateTestUser(support, userToUpdate.user.id, {
                         phone: createTestPhone(),

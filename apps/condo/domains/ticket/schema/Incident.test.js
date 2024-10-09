@@ -5,7 +5,7 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
-const { makeLoggedInAdminClient, makeClient, catchErrorFrom, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
@@ -21,7 +21,6 @@ const { INCIDENT_STATUS_ACTUAL, INCIDENT_STATUS_NOT_ACTUAL } = require('@condo/d
 const { ERRORS: INCIDENT_ERRORS } = require('@condo/domains/ticket/schema/Incident')
 const { Incident, createTestIncident, updateTestIncident } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
-
 
 const INCIDENT_PAYLOAD = {
     details: faker.lorem.sentence(),
@@ -128,7 +127,7 @@ describe('Incident', () => {
             })
             test('can read by employee with canReadIncidents', async () => {
                 const incident = await Incident.getOne(employeeUser, { id: incidentByAdmin.id })
-                
+
                 expect(incident).toBeDefined()
                 expect(incident).toHaveProperty('id', incidentByAdmin.id)
             })
@@ -227,16 +226,13 @@ describe('Incident', () => {
                 expect(incident).toHaveProperty('workFinish', incidentByAdmin.workStart)
             })
             test('workFinish should not be early then workStart when update workFinish', async () => {
-                await catchErrorFrom(async () => {
-                    await updateTestIncident(admin, incidentByAdmin.id, {
+
+                await expectToThrowGQLError(
+                    async () => await updateTestIncident(admin, incidentByAdmin.id, {
                         workFinish: dayjs(incidentByAdmin.workStart).subtract(1, 'minute').toISOString(),
-                    })
-                }, ({ errors }) => {
-                    expect(errors).toHaveLength(1)
-                    expect(errors[0]).toEqual(expect.objectContaining({
-                        message: INCIDENT_ERRORS.WORK_FINISHED_EARLIER_THEN_WORK_STARTED.message,
-                    }))
-                })
+                    }),
+                    INCIDENT_ERRORS.WORK_FINISHED_EARLIER_THEN_WORK_STARTED,
+                )
             })
             test('workFinish should not be early then workStart when update workStart', async () => {
                 const [incident] = await createTestIncident(admin, organization, {
@@ -244,16 +240,10 @@ describe('Incident', () => {
                     workStart: dayjs('2023-01-01').toISOString(),
                     workFinish: dayjs('2023-01-02').toISOString(),
                 })
-                await catchErrorFrom(async () => {
-                    await updateTestIncident(admin, incident.id, {
-                        workStart: dayjs('2023-01-03').toISOString(),
-                    })
-                }, ({ errors }) => {
-                    expect(errors).toHaveLength(1)
-                    expect(errors[0]).toEqual(expect.objectContaining({
-                        message: INCIDENT_ERRORS.WORK_FINISHED_EARLIER_THEN_WORK_STARTED.message,
-                    }))
-                })
+                await expectToThrowGQLError(
+                    async () => await updateTestIncident(admin, incident.id, { workStart: dayjs('2023-01-03').toISOString() }),
+                    INCIDENT_ERRORS.WORK_FINISHED_EARLIER_THEN_WORK_STARTED,
+                )
             })
             test('"workFinish" field should be specified if the incident has status not actual', async () => {
                 const [testIncident] = await createTestIncident(admin, organization, INCIDENT_PAYLOAD)

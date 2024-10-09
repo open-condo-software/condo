@@ -343,6 +343,7 @@ describe('B2BAppRole', () => {
                 const [role] = await createTestB2BAppRole(manager, connectedApp, employee.role)
                 const [anotherOrgRole] = await createTestOrganizationEmployeeRole(admin, manager.organization)
 
+                // TODO(pahaz): DOMA-10368 use expectToThrowGraphQLRequestError
                 await catchErrorFrom(async () => {
                     await updateTestB2BAppRole(admin, role.id, {
                         role: { connect: { id: anotherOrgRole.id } },
@@ -389,6 +390,7 @@ describe('B2BAppRole', () => {
                     }, {
                         code: 'BAD_USER_INPUT',
                         type: INVALID_PERMISSIONS_ERROR,
+                        message: '"permissions" field validation error. JSON was not in the correct format',
                     })
 
                     const correctPayload = {
@@ -407,6 +409,7 @@ describe('B2BAppRole', () => {
                     }, {
                         code: 'BAD_USER_INPUT',
                         type: INVALID_PERMISSIONS_ERROR,
+                        message: '"permissions" field validation error. JSON was not in the correct format',
                     })
 
                     const [deleted] = await updateTestB2BAppRole(manager, role.id, {
@@ -441,6 +444,7 @@ describe('B2BAppRole', () => {
             }, {
                 code: 'BAD_USER_INPUT',
                 type: APP_NOT_CONNECTED_ERROR,
+                message: 'B2BApp must be connected in organization, which role belongs to',
             })
             const [inProgressCtx] = await createTestB2BAppContext(support, anotherApp, manager.organization, {
                 status: CONTEXT_IN_PROGRESS_STATUS,
@@ -450,6 +454,7 @@ describe('B2BAppRole', () => {
             }, {
                 code: 'BAD_USER_INPUT',
                 type: APP_NOT_CONNECTED_ERROR,
+                message: 'B2BApp must be connected in organization, which role belongs to',
             })
             await updateTestB2BAppContext(support, inProgressCtx.id, {
                 status: CONTEXT_FINISHED_STATUS,
@@ -460,6 +465,7 @@ describe('B2BAppRole', () => {
             }, {
                 code: 'BAD_USER_INPUT',
                 type: APP_NOT_CONNECTED_ERROR,
+                message: 'B2BApp must be connected in organization, which role belongs to',
             })
         })
     })

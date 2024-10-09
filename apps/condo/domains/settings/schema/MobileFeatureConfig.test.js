@@ -9,7 +9,7 @@ const {
     makeClient,
     UUID_RE,
     expectValuesOfCommonFields,
-    catchErrorFrom,
+    expectToThrowUniqueConstraintViolationError,
     expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 const {
@@ -177,7 +177,6 @@ describe('MobileFeatureConfig', () => {
                 })
             })
 
-
             describe('employee', () => {
                 test('can create', async () => {
                     const client = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -327,14 +326,10 @@ describe('MobileFeatureConfig', () => {
                     ticketSubmittingIsDisabled: false,
                 })
 
-                await catchErrorFrom(async () => {
-                    await createTestMobileFeatureConfig(admin, organization, {
-                        ticketSubmittingIsDisabled: false,
-                    })
-                }, ({ errors, data }) => {
-                    expect(errors[0].message).toMatch('duplicate key value violates unique constraint "mobilefeatureconfig_unique_organization"')
-                    expect(data).toEqual({ 'obj': null })
-                })
+                await expectToThrowUniqueConstraintViolationError(
+                    async () => await createTestMobileFeatureConfig(admin, organization, { ticketSubmittingIsDisabled: false }),
+                    'mobilefeatureconfig_unique_organization',
+                )
             })
 
             test('TICKET_SUBMITTING_PHONES_NOT_CONFIGURED', async () => {

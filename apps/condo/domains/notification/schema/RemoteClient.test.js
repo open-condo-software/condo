@@ -10,10 +10,9 @@ const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowGraphQLRequestError,
-    expectToThrowInternalError,
+    expectToThrowUniqueConstraintViolationError,
 } = require('@open-condo/keystone/test.utils')
 
-const { DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE } = require('@condo/domains/common/constants/errors')
 const { RemoteClient, createTestRemoteClient, updateTestRemoteClient } = require('@condo/domains/notification/utils/testSchema')
 const { getRandomTokenData } = require('@condo/domains/notification/utils/testSchema/utils')
 
@@ -263,9 +262,9 @@ describe('RemoteClient', () => {
             const [objCreated] = await createTestRemoteClient(admin)
             const extraAttrs = { deviceId: objCreated.deviceId, appId: objCreated.appId }
 
-            await expectToThrowInternalError(
+            await expectToThrowUniqueConstraintViolationError(
                 async () => await createTestRemoteClient(admin1, extraAttrs),
-                DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE,
+                'remote_client_unique_deviceId_appId',
             )
         })
 
@@ -276,9 +275,9 @@ describe('RemoteClient', () => {
 
             await createTestRemoteClient(admin, extraAttrs)
 
-            await expectToThrowInternalError(
+            await expectToThrowUniqueConstraintViolationError(
                 async () => await createTestRemoteClient(admin1, extraAttrs),
-                DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE,
+                'Device_pushToken_key',
             )
         })
 

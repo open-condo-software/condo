@@ -445,6 +445,7 @@ describe('BankAccount', () => {
             test('approvedAt field is not creatable', async () => {
                 const [organization] = await createTestOrganization(adminClient)
 
+                // TODO(pahaz): DOMA-10368 use expectToThrowGraphQLRequestError
                 await catchErrorFrom(
                     async () => {
                         await createTestBankAccount(adminClient, organization, {
@@ -462,6 +463,7 @@ describe('BankAccount', () => {
 
                 const [createdObj] = await createTestBankAccount(adminClient, organization)
 
+                // TODO(pahaz): DOMA-10368 use expectToThrowGraphQLRequestError
                 await catchErrorFrom(
                     async () => {
                         await updateTestBankAccount(adminClient, createdObj.id, {
@@ -479,6 +481,7 @@ describe('BankAccount', () => {
             test('approvedBy field is not creatable', async () => {
                 const [organization] = await createTestOrganization(adminClient)
 
+                // TODO(pahaz): DOMA-10368 use expectToThrowGraphQLRequestError
                 await catchErrorFrom(
                     async () => {
                         await createTestBankAccount(adminClient, organization, { approvedBy: { connect: { id: adminClient.user.id } } })
@@ -494,6 +497,7 @@ describe('BankAccount', () => {
 
                 const [createdObj] = await createTestBankAccount(adminClient, organization)
 
+                // TODO(pahaz): DOMA-10368 use expectToThrowGraphQLRequestError
                 await catchErrorFrom(
                     async () => {
                         await updateTestBankAccount(adminClient, createdObj.id, { approvedBy: { connect: { id: adminClient.user.id } } })

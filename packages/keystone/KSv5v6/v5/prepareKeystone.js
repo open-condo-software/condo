@@ -12,7 +12,7 @@ const { v4 } = require('uuid')
 
 
 const conf = require('@open-condo/config')
-const { formatError } = require('@open-condo/keystone/apolloErrorFormatter')
+const { safeApolloErrorFormatter } = require('@open-condo/keystone/apolloErrorFormatter')
 const { ExtendedPasswordAuthStrategy } = require('@open-condo/keystone/authStrategy/passwordAuth')
 const { parseCorsSettings } = require('@open-condo/keystone/cors.utils')
 const { _internalGetExecutionContextAsyncLocalStorage } = require('@open-condo/keystone/executionContext')
@@ -186,7 +186,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
             ...((apps) ? apps() : []),
             new GraphQLApp({
                 apollo: {
-                    formatError,
+                    formatError: safeApolloErrorFormatter,
                     debug: IS_ENABLE_APOLLO_DEBUG,
                     introspection: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
                     playground: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,

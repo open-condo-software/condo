@@ -25,6 +25,7 @@ let adminClient, adminContext, context, commonOrganization
 
 describe('syncBankAccount from SBBOL', () => {
     setFakeClientMode(index)
+
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
         adminContext = await keystone.createContext({ skipAccessControl: true })
