@@ -4,7 +4,7 @@ import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
+import { useOrganization } from '@open-condo/next/organization'
 
 import { CreateInvoiceForm } from './CreateInvoiceForm'
 import { UpdateInvoiceForm } from './UpdateInvoiceForm'

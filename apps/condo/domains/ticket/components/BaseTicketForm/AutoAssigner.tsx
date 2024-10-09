@@ -3,9 +3,9 @@ import get from 'lodash/get'
 import React, { useMemo, useState } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
 import {
     getEmployeesSortedByTicketVisibilityType,
     getPropertyScopeNameByEmployee, isEmployeeSpecializationAndPropertyMatchesToScope,

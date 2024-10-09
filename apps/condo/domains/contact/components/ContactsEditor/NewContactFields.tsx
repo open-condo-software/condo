@@ -8,9 +8,9 @@ import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 
 
 import { MinusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Radio, Space } from '@open-condo/ui'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { SPECIAL_CHAR_REGEXP } from '@condo/domains/common/constants/regexps'

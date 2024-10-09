@@ -5,9 +5,9 @@ import React, { useRef, useEffect, useState, useCallback } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
+import { useAuth } from '@open-condo/next/auth'
+import { useOrganization } from '@open-condo/next/organization'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 import { B2BApp } from '@condo/domains/miniapp/utils/clientSchema'

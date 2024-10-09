@@ -1,7 +1,8 @@
 import { UserFavoriteTicket as TUserFavoriteTicket } from '@app/condo/schema'
 import { createContext, useContext } from 'react'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
+import { useAuth } from '@open-condo/next/auth'
+
 import { UserFavoriteTicket } from '@condo/domains/ticket/utils/clientSchema'
 
 

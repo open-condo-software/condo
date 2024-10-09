@@ -3,9 +3,9 @@ import React, { CSSProperties } from 'react'
 
 
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Space, Typography, Button } from '@open-condo/ui'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 
 import { useBillingAndAcquiringContexts } from './ContextProvider'

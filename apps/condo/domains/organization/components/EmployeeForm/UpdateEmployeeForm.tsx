@@ -7,10 +7,10 @@ import { Rule } from 'rc-field-form/lib/interface'
 import React, { useCallback, useEffect, useMemo } from 'react'
 
 import { useApolloClient } from '@open-condo/next/apollo'
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Alert, Button } from '@open-condo/ui'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
 import Input from '@condo/domains/common/components/antd/Input'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'

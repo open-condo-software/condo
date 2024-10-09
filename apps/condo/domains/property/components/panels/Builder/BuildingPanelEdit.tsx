@@ -23,10 +23,10 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import ScrollContainer from 'react-indiana-drag-scroll'
 
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Tour } from '@open-condo/ui'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
 import Select from '@condo/domains/common/components/antd/Select'
 import { Button as OldButton } from '@condo/domains/common/components/Button'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'

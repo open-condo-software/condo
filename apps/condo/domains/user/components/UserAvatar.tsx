@@ -4,7 +4,8 @@ import styled from '@emotion/styled'
 import get from 'lodash/get'
 import React from 'react'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
+import { useAuth } from '@open-condo/next/auth'
+
 import { colors } from '@condo/domains/common/constants/style'
 
 

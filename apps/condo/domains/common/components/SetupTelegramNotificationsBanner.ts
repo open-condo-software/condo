@@ -3,9 +3,9 @@ import get from 'lodash/get'
 import { useEffect } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
+import { useAuth } from '@open-condo/next/auth'
+import { useOrganization } from '@open-condo/next/organization'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import { SHOW_TELEGRAM_NOTIFICATIONS_BANNER, MAX_EMPLOYEE_SIZE_IN_ORGANIZATION_TO_TELEGRAM_NOTIFICATIONS } from '@condo/domains/common/constants/featureflags'
 import { TelegramUserChat } from '@condo/domains/notification/utils/clientSchema'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'

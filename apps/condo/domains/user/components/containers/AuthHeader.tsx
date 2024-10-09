@@ -3,7 +3,8 @@ import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 
 
-import { useAuth } from '@/domains/common/utils/next/auth'
+import { useAuth } from '@open-condo/next/auth'
+
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Logo } from '@condo/domains/common/components/Logo'
 

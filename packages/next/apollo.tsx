@@ -21,6 +21,13 @@ import Head from 'next/head'
 import React from 'react'
 
 import {
+    ApolloHelper,
+    CachePersistorContext,
+    InitializeApollo,
+    UseApollo,
+} from '@open-condo/apollo'
+
+import {
     _useEmitterMutation,
     MutationEmitter,
     MUTATION_RESULT_EVENT,
@@ -201,7 +208,7 @@ export type WillApollo = (props: WithApolloProps) => (PageComponent: NextPage<an
  * that provides the apolloContext
  * to a next.js Page or AppTree.
  */
-const withApollo: WillApollo = ({ ssr = false, ...opts } = {}) => PageComponent => {
+const _withApolloLegacy: WillApollo = ({ ssr = false, ...opts } = {}) => (PageComponent: NextPage): NextPage => {
     // TODO(pahaz): refactor it. No need to patch globals here!
     getApolloClientConfig = opts.getApolloClientConfig ? opts.getApolloClientConfig : getApolloClientConfig
     createApolloClient = opts.createApolloClient ? opts.createApolloClient : createApolloClient
@@ -307,6 +314,46 @@ const withApollo: WillApollo = ({ ssr = false, ...opts } = {}) => PageComponent 
     return WithApollo
 }
 
+let initializeApollo: InitializeApollo<ApolloClient<NormalizedCacheObject>>
+
+const _withApollo = ({ apolloHelperOptions }) => (PageComponent: NextPage): NextPage => {
+
+    const apolloHelper = new ApolloHelper(apolloHelperOptions)
+    const useApollo = apolloHelper.generateUseApolloHook() as unknown as UseApollo<ApolloClient<NormalizedCacheObject>>
+    initializeApollo = apolloHelper.initializeApollo as unknown as InitializeApollo<ApolloClient<NormalizedCacheObject>>
+
+    const WithApollo = (props) => {
+        const { client, cachePersistor } = useApollo(props.pageProps)
+
+        return (
+            <ApolloProvider client={client}>
+                <CachePersistorContext.Provider value={{ persistor: cachePersistor }}>
+                    <PageComponent {...props} />
+                </CachePersistorContext.Provider>
+            </ApolloProvider>
+        )
+    }
+
+    // Set the correct displayName in development
+    if (process.env.NODE_ENV !== 'production') {
+        const displayName =
+            PageComponent.displayName || PageComponent.name || 'Component'
+        WithApollo.displayName = `withApollo(${displayName})`
+    }
+
+    WithApollo.getInitialProps = PageComponent.getInitialProps
+
+    return WithApollo
+}
+
+const withApollo = ({ legacy = true, ...props }: any) => (PageComponent: NextPage): NextPage => {
+    if (legacy) {
+        return _withApolloLegacy(props)(PageComponent)
+    }
+
+    return _withApollo(props)(PageComponent)
+}
+
 const useMutation: typeof _useEmitterMutation = (mutation, options) =>  {
     return _useEmitterMutation(mutation, options)
 }
@@ -320,4 +367,5 @@ export {
     useMutation,
     MutationEmitter,
     MUTATION_RESULT_EVENT,
+    initializeApollo,
 }

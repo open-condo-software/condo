@@ -11,10 +11,10 @@ import React, { CSSProperties, useCallback, useEffect, useRef, useState } from '
 
 
 import { Star, StarFilled } from '@open-condo/icons'
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { colors } from '@open-condo/ui/dist/colors'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
 import { getHighlightedContents, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { useTracking } from '@condo/domains/common/components/TrackingContext'

@@ -1,3 +1,4 @@
+import { AuthenticatedUserDocument, GetActiveOrganizationEmployeeDocument, SignOutDocument } from '@app/condo/gql'
 import { CacheProvider } from '@emotion/core'
 import { ConfigProvider } from 'antd'
 import enUS from 'antd/lib/locale/en_US'
@@ -11,17 +12,26 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'
 
+import {
+    ApolloHelper, CachePersistorContext,
+    InitializeApollo,
+    ListHelper,
+    UseApollo,
+} from '@open-condo/apollo'
+import type { InitCacheConfig } from '@open-condo/apollo'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useFeatureFlags, FeaturesReady, withFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import * as AllIcons from '@open-condo/icons'
 import { extractReqLocale } from '@open-condo/locales/extractReqLocale'
+import { withApollo } from '@open-condo/next/apollo'
+import { useAuth, withAuth } from '@open-condo/next/auth'
 import { useIntl, withIntl } from '@open-condo/next/intl'
+import { useOrganization, withOrganization } from '@open-condo/next/organization'
 
-import { withApollo } from '@/domains/common/utils/next/apollo'
-import { useAuth, withAuth } from '@/domains/common/utils/next/auth'
-import { useOrganization, withOrganization } from '@/domains/common/utils/next/organization'
+import { useVitalCookies, SSRCookiesContext, useSSRCookiesContext } from '@/domains/common/utils/next/ssr'
 import { useBankReportTaskUIInterface } from '@condo/domains/banking/hooks/useBankReportTaskUIInterface'
 import { useBankSyncTaskUIInterface } from '@condo/domains/banking/hooks/useBankSyncTaskUIInterface'
+import { BILLING_RECEIPT_SERVICE_FIELD_NAME } from '@condo/domains/billing/constants/constants'
 import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/domains/billing/utils/clientSchema'
 import BaseLayout, { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
@@ -90,7 +100,7 @@ import '@open-condo/ui/dist/styles.min.css'
 import '@open-condo/ui/dist/style-vars/variables.css'
 import '@condo/domains/common/components/containers/global-styles.css'
 
-const { publicRuntimeConfig: { defaultLocale, sppConfig, disableSSR } } = getConfig()
+const { publicRuntimeConfig: { defaultLocale, sppConfig, disableSSR, apolloGraphQLUrl } } = getConfig()
 
 const IS_SSR_DISABLED = Boolean(disableSSR && disableSSR === 'true')
 
@@ -530,13 +540,113 @@ const MyApp = ({ Component, pageProps }) => {
     )
 }
 
+const cacheConfig: InitCacheConfig = (cacheOptions) => {
+    const listHelper = new ListHelper({ cacheOptions })
+
+    return {
+        typePolicies: {
+            Query: {
+                fields: {
+                    allContacts: {
+                        keyArgs: ['where'],
+                        merge: listHelper.mergeLists,
+                        read: listHelper.getReadFunction('paginate'),
+                    },
+                },
+            },
+
+            // NOTE: legacy
+            //     Configuration for `InMemoryCache` of Apollo
+            //     Add fields, related to pagination strategies of Apollo.
+            //     Items of some GraphQL global fields needs to be appended to list,
+            //     when paginated, rather than to be displayed as a slice of data, —
+            //     its like "Infinite scrolling" UI pattern. For example, fetching
+            //     more changes of a ticket on button click.
+            //     For those items, we need to set `concatPagination` strategy.
+            //     https://www.apollographql.com/docs/react/pagination/core-api/
+            [BILLING_RECEIPT_SERVICE_FIELD_NAME]: {
+                // avoiding of building cache from ID on client, since Service ID is not UUID and will be repeated
+                keyFields: false,
+            },
+            BuildingSection: {
+                keyFields: false,
+            },
+            BuildingFloor: {
+                keyFields: false,
+            },
+            BuildingUnit: {
+                keyFields: false,
+            },
+        },
+        invalidationPolicies: {
+            timeToLive: 100 * 15 * 60 * 1000, // 15 minutes in milliseconds
+        },
+
+    }
+}
+
+function getApiUrl () {
+    return apolloGraphQLUrl
+}
+
+const apolloHelperOptions = {
+    uri: getApiUrl,
+    cacheConfig,
+}
+
+export const withCookies = () => (PageComponent) => {
+    const WithCookies = (props) => {
+
+        const ssrCookies = useVitalCookies(props?.pageProps)
+
+        return (
+            <SSRCookiesContext.Provider value={ssrCookies}>
+                <PageComponent {...props} />
+            </SSRCookiesContext.Provider>
+        )
+    }
+
+    // Set the correct displayName in development
+    if (process.env.NODE_ENV !== 'production') {
+        const displayName =
+            PageComponent.displayName || PageComponent.name || 'Component'
+        WithCookies.displayName = `withCookies(${displayName})`
+    }
+
+    WithCookies.getInitialProps = PageComponent.getInitialProps
+
+    return WithCookies
+}
+
+const useOrganizationLinkId = () => {
+    const { organizationLinkId } = useSSRCookiesContext()
+    console.log({ organizationLinkId })
+    return { organizationLinkId }
+}
+
 export default (
-    withApollo()(
-        withAuth()(
-            withOrganization()(
-                withIntl({ ssr: !IS_SSR_DISABLED, messagesImporter, extractReqLocale, defaultLocale, useAuth })(
-                    withFeatureFlags({ ssr: !IS_SSR_DISABLED, useAuth, useOrganization })(
-                        MyApp
+    withCookies()(
+        withApollo({ apolloHelperOptions })(
+            withAuth({
+                legacy: false,
+                USER_QUERY: AuthenticatedUserDocument,
+            })(
+                withOrganization({
+                    legacy: false,
+                    GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY: GetActiveOrganizationEmployeeDocument,
+                    useOrganizationLinkId,
+                })(
+                    withIntl({
+                        ssr: !IS_SSR_DISABLED,
+                        messagesImporter,
+                        extractReqLocale,
+                        defaultLocale,
+                    })(
+                        withFeatureFlags({
+                            ssr: !IS_SSR_DISABLED,
+                        })(
+                            MyApp
+                        )
                     )
                 )
             )

@@ -5,13 +5,16 @@ import React from 'react'
 
 
 
-import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
-import { useAuth } from '@/domains/common/utils/next/auth'
-import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
-import { prefetchOrganizationEmployee } from '@/domains/common/utils/next/organization'
+import { initializeApollo } from '@open-condo/next/apollo'
+import { useAuth } from '@open-condo/next/auth'
+
+
 import { extractSSRState } from '@/domains/common/utils/next/ssr'
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { prepareSSRContext } from '@condo/domains/common/utils/next/apollo'
+import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
 import { UserProfileForm } from '@condo/domains/user/components/UserProfileForm'
 
 import type { GetServerSideProps } from 'next'

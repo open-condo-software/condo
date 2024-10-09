@@ -4,8 +4,8 @@ import get from 'lodash/get'
 import React, { useMemo } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
+import { useOrganization } from '@open-condo/next/organization'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import { CardsContainer } from '@condo/domains/common/components/Card/CardsContainer'
 import { SettingCardSkeleton } from '@condo/domains/common/components/settings/SettingCard'
 import { TICKET_SUBMITTING_FORM_RESIDENT_MOBILE_APP } from '@condo/domains/common/constants/featureflags'

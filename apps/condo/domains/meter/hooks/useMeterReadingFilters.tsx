@@ -4,8 +4,8 @@ import get from 'lodash/get'
 import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import { getDateRangeFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import {
     ComponentType,

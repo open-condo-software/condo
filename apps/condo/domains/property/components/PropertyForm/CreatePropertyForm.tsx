@@ -4,11 +4,11 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React from 'react'
 
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Button, Space, Tour } from '@open-condo/ui'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import BasePropertyForm from '@condo/domains/property/components/BasePropertyForm'
 import { Property } from '@condo/domains/property/utils/clientSchema'

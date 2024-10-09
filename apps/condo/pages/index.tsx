@@ -4,10 +4,14 @@ import pickBy from 'lodash/pickBy'
 import { useRouter } from 'next/router'
 import React, { useEffect, useMemo } from 'react'
 
-import { initializeApollo, prepareSSRContext } from '@/domains/common/utils/next/apollo'
-import { prefetchAuthOrRedirect } from '@/domains/common/utils/next/auth'
-import { prefetchOrganizationEmployee, useOrganization } from '@/domains/common/utils/next/organization'
+import { initializeApollo } from '@open-condo/next/apollo'
+import { useOrganization } from '@open-condo/next/organization'
+
+
 import { extractSSRState } from '@/domains/common/utils/next/ssr'
+import { prepareSSRContext } from '@condo/domains/common/utils/next/apollo'
+import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
 import { SECOND_LEVEL_STEPS } from '@condo/domains/onboarding/constants/steps'
 import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'

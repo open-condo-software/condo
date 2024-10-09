@@ -1,9 +1,9 @@
 import get from 'lodash/get'
 import React from 'react'
 
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
 
 // TODO(Dimitreee):move to global defs
 interface IUser {
