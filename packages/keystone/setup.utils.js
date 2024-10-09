@@ -7,7 +7,7 @@ const { v5: uuidv5 } = require('uuid')
 
 const conf = require('@open-condo/config')
 
-const { FakeDatabaseAdapter, ScalableDatabaseAdapter, wrapToCheckOnlyPublicApi } = require('./databaseAdapters')
+const { FakeDatabaseAdapter, BalancingReplicaKnexAdapter } = require('./databaseAdapters')
 
 const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
 
@@ -45,7 +45,7 @@ function getCookieSecret (cookieSecret) {
 }
 
 /** @deprecated use prepareKeystone */
-function getAdapter (databaseUrl, databaseMapping) {
+function getAdapter (databaseUrl) {
     if (!databaseUrl) throw new TypeError('getAdapter() call without databaseUrl')
     if (typeof databaseUrl !== 'string') throw new TypeError('getAdapter() databaseUrl is not a string')
     if (databaseUrl.startsWith('mongodb')) {
@@ -56,7 +56,7 @@ function getAdapter (databaseUrl, databaseMapping) {
         // NOTE: case for build time!
         return new FakeDatabaseAdapter()
     } else if (databaseUrl.startsWith('custom')) {
-        return wrapToCheckOnlyPublicApi(new ScalableDatabaseAdapter({ url: databaseUrl, mapping: databaseMapping }), ScalableDatabaseAdapter.PUBLIC_API)
+        return new BalancingReplicaKnexAdapter({ databaseUrl })
     } else {
         throw new Error(`getAdapter() call with unknown schema: ${databaseUrl}`)
     }
@@ -89,7 +89,7 @@ function prepareDefaultKeystoneConfig (conf) {
         config.sessionStore = sessionStore
     }
 
-    config.adapter = getAdapter(conf.DATABASE_URL || 'undefined', conf.DATABASE_MAPPING || undefined)
+    config.adapter = getAdapter(conf.DATABASE_URL || 'undefined')
 
     return config
 }
