@@ -314,28 +314,17 @@ const _withOrganizationLegacy: WithOrganizationLegacy = ({ ssr = false, ...opts 
 }
 
 type OrganizationProviderProps = {
-    // NOTE: legacy cookie name "organizationLinkId"
-    getInitialEmployeeId: () => { organizationLinkId?: string | null }
-    getEmployeeWhere?: (activeEmployeeId: string, userId: string) => Record<string, unknown>
+    useEmployeeId?: () => { employeeId?: string | null }
+    getEmployeeWhere?: (userId: string) => Record<string, unknown>
 }
 const OrganizationProvider: React.FC<OrganizationProviderProps> = ({
     children,
-    getInitialEmployeeId,
-    getEmployeeWhere = (userId) => {
-        return {
-            organization: { type: 'MANAGING_COMPANY' }, // or 'HOLDING
-            user: { id: userId, type: 'staff' },
-            isAccepted: true,
-            isBlocked: false,
-            isRejected: false,
-        }
-    },
+    useEmployeeId = () => null,
+    getEmployeeWhere,
 }) => {
     const auth = useAuth()
-    const [activeEmployeeId, setActiveEmployeeId] = useState<string | null>(() => {
-        const { organizationLinkId: initialEmployeeId } = getInitialEmployeeId()
-        return initialEmployeeId
-    })
+    const { employeeId } = useEmployeeId()
+    const [activeEmployeeId, setActiveEmployeeId] = useState<string | null>(employeeId)
 
     const onError = useCallback((error) => {
         // console.log('OrganizationProvider:onError:: >>>', error)
@@ -352,8 +341,10 @@ const OrganizationProvider: React.FC<OrganizationProviderProps> = ({
     }, [])
 
     const employeeWhere = useMemo(() => {
+        if (!getEmployeeWhere) return { id: activeEmployeeId }
+
         return {
-            ...getEmployeeWhere(activeEmployeeId, get(auth, ['user', 'id'], null)),
+            ...getEmployeeWhere(get(auth, ['user', 'id'], null)),
             id: activeEmployeeId,
         }
     }, [activeEmployeeId, auth, getEmployeeWhere])
@@ -460,18 +451,18 @@ const OrganizationProvider: React.FC<OrganizationProviderProps> = ({
 
 
 type WithOrganizationProps = {
-    getInitialEmployeeId?: OrganizationProviderProps['getInitialEmployeeId']
+    useEmployeeId?: OrganizationProviderProps['useEmployeeId']
     getEmployeeWhere?: OrganizationProviderProps['getEmployeeWhere']
     GET_ORGANIZATION_EMPLOYEE_QUERY?: DocumentNode
 }
 type WithOrganization = (props: WithOrganizationProps) => (PageComponent: NextPage) => NextPage
 
-const _withOrganization: WithOrganization = ({ getInitialEmployeeId, getEmployeeWhere, ...opts }) => (PageComponent) => {
+const _withOrganization: WithOrganization = (opts) => (PageComponent) => {
     GET_ORGANIZATION_EMPLOYEE_QUERY = opts.GET_ORGANIZATION_EMPLOYEE_QUERY ? opts.GET_ORGANIZATION_EMPLOYEE_QUERY : GET_ORGANIZATION_EMPLOYEE_QUERY
 
     const WithOrganization = (props) => {
         return (
-            <OrganizationProvider getInitialEmployeeId={getInitialEmployeeId} getEmployeeWhere={getEmployeeWhere}>
+            <OrganizationProvider useEmployeeId={opts?.useEmployeeId} getEmployeeWhere={opts?.getEmployeeWhere}>
                 <PageComponent {...props} />
             </OrganizationProvider>
         )
@@ -489,11 +480,9 @@ const _withOrganization: WithOrganization = ({ getInitialEmployeeId, getEmployee
     return WithOrganization
 }
 
-type mergedWithOrganizationProps = Either<WithOrganizationProps, WithOrganizationLegacyProps> & {
-    legacy?: boolean
-}
+type mergedWithOrganizationProps = Either<WithOrganizationProps & { legacy: false }, WithOrganizationLegacyProps & { legacy?: true }>
 type mergedWithOrganization = (props: mergedWithOrganizationProps) => (PageComponent: NextPage) => NextPage
-const withOrganization: mergedWithOrganization = ({ legacy = true, ...opts } = {}) => (PageComponent: NextPage): NextPage => {
+const withOrganization: mergedWithOrganization = ({ legacy = true, ...opts }) => (PageComponent: NextPage): NextPage => {
     if (legacy) {
         return _withOrganizationLegacy(opts)(PageComponent)
     }
