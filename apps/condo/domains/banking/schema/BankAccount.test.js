@@ -507,7 +507,9 @@ describe('BankAccount', () => {
                     }
                 )
             })
+
         })
+
     })
 
     describe('constraints', () => {
