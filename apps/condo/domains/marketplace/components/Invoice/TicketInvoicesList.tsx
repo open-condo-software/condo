@@ -6,9 +6,9 @@ import React, { useCallback, useState } from 'react'
 
 import { Edit } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Space, Tag, Typography } from '@open-condo/ui'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import { INVOICE_STATUS_COLORS } from '@condo/domains/marketplace/constants'
 import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 import { InvoiceFormValuesType } from '@condo/domains/marketplace/utils/clientSchema/Invoice'

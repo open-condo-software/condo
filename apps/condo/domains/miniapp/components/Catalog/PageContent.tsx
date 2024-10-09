@@ -8,10 +8,10 @@ import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEf
 import { Search } from '@open-condo/icons'
 import { useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Carousel, Banner } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import Input from '@condo/domains/common/components/antd/Input'
 import { PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'

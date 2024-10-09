@@ -8,12 +8,12 @@ import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
 import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react'
 
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { Tabs, Card, Typography, Select, SelectProps, Space } from '@open-condo/ui'
 import type { TypographyTitleProps } from '@open-condo/ui'
 import type { CardProps } from '@open-condo/ui'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
 import { useBankReportTaskButton } from '@condo/domains/banking/hooks/useBankReportTaskUIInterface'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { TotalBalanceIcon, BalanceOutIcon, BalanceInIcon } from '@condo/domains/common/components/icons/TotalBalance'

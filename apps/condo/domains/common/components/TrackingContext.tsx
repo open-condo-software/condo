@@ -8,8 +8,9 @@ import { useRouter } from 'next/router'
 import React, { createContext, useContext, useEffect, useLayoutEffect, useRef, useCallback } from 'react'
 
 
-import { useAuth } from '@/domains/common/utils/next/auth'
-import { useOrganization } from '@/domains/common/utils/next/organization'
+import { useAuth } from '@open-condo/next/auth'
+import { useOrganization } from '@open-condo/next/organization'
+
 import { TRACKING_USER_FIELDS } from '@condo/domains/user/constants'
 
 import { usePostMessageContext } from './PostMessageProvider'

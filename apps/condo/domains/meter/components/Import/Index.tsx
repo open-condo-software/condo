@@ -2,11 +2,11 @@ import { File } from '@app/condo/schema'
 import { isNil, isFunction } from 'lodash'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Button } from '@open-condo/ui'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import { ActiveModalType, BaseImportWrapper } from '@condo/domains/common/components/Import/BaseImportWrapper'
 import {
     IImportWrapperProps,

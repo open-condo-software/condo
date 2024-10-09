@@ -8,9 +8,9 @@ import Router, { useRouter } from 'next/router'
 import React, { useContext, useEffect, useState, createContext } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Modal, Button, Typography } from '@open-condo/ui'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 
 import { ServiceSubscription as ServiceSubscriptionUtil } from '../utils/clientSchema'

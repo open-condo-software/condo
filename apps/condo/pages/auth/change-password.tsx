@@ -4,11 +4,11 @@ import Router, { useRouter } from 'next/router'
 import React, { useState, useEffect, useContext, useCallback } from 'react'
 
 import { useLazyQuery, useMutation } from '@open-condo/next/apollo'
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@open-condo/ui'
 import { Typography } from '@open-condo/ui'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
 import Input from '@condo/domains/common/components/antd/Input'
 import { useHCaptcha } from '@condo/domains/common/components/HCaptcha'
 import { Loader } from '@condo/domains/common/components/Loader'

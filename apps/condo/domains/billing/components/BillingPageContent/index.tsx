@@ -5,10 +5,10 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import bridge from '@open-condo/bridge'
 import type { CondoBridgeSubscriptionListener } from '@open-condo/bridge'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Tag, Button } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import { PageWrapper, PageHeader, TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 

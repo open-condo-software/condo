@@ -3,10 +3,10 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect } from 'react'
 
+import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Modal } from '@open-condo/ui'
 
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import { BillingIntegrationOrganizationContext as BillingContext, BillingIntegration } from '@condo/domains/billing/utils/clientSchema'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'

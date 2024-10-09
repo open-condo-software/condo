@@ -15,7 +15,8 @@ import React, {
 import ReactPhoneInput, { PhoneInputProps } from 'react-phone-input-2'
 
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
+import { useOrganization } from '@open-condo/next/organization'
+
 import { colors } from '@condo/domains/common/constants/style'
 
 import 'react-phone-input-2/lib/style.css'

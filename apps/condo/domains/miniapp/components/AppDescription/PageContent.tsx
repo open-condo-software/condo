@@ -5,9 +5,9 @@ import React, { useCallback, useEffect, useState } from 'react'
 
 import { useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Markdown, Carousel, Typography } from '@open-condo/ui'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { ALL_MINI_APPS_QUERY } from '@condo/domains/miniapp/gql'

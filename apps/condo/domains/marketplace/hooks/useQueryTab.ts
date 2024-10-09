@@ -3,9 +3,8 @@ import { useRouter } from 'next/router'
 import { useCallback, useState } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
+import { useOrganization } from '@open-condo/next/organization'
 
-
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import { MarketplacePageTypes, MARKETPLACE_PAGE_TYPES } from '@condo/domains/marketplace/utils/clientSchema'
 
 

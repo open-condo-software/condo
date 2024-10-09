@@ -6,9 +6,9 @@ import React, { useMemo } from 'react'
 
 import { Settings } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Card, Space, Tooltip, Typography } from '@open-condo/ui'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import { SECOND_LEVEL_STEPS, STEP_TRANSITIONS } from '@condo/domains/onboarding/constants/steps'
 import { useTourContext } from '@condo/domains/onboarding/contexts/TourContext'

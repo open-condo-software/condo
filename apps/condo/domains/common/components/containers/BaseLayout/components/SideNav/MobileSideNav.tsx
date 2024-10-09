@@ -5,8 +5,8 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useEffect } from 'react'
 
 import { Close } from '@open-condo/icons'
+import { useOrganization } from '@open-condo/next/organization'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
 import {

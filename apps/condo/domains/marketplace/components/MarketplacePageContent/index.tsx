@@ -5,11 +5,11 @@ import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { TabItem, Tabs, Tag } from '@open-condo/ui'
 import { Button } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import { CONTEXT_FINISHED_STATUS } from '@condo/domains/acquiring/constants/context'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'

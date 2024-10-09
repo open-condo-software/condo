@@ -9,10 +9,10 @@ import React, { useCallback, useMemo, useState } from 'react'
 
 import { Building, Guide, IconProps, LayoutList, Meters, Unlock, Wallet } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Button, Modal, Space, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { LinkWithIcon } from '@condo/domains/common/components/LinkWithIcon'
 import { useTracking } from '@condo/domains/common/components/TrackingContext'

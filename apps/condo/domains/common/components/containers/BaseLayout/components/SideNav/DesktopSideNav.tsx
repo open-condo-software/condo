@@ -5,8 +5,8 @@ import get from 'lodash/get'
 import React from 'react'
 
 import { ChevronLeft, ChevronRight } from '@open-condo/icons'
+import { useOrganization } from '@open-condo/next/organization'
 
-import { useOrganization } from '@/domains/common/utils/next/organization'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Logo } from '@condo/domains/common/components/Logo'
 import { ResidentActions } from '@condo/domains/common/components/ResidentActions/ResidentActions'

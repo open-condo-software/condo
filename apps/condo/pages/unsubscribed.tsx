@@ -4,9 +4,9 @@ import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 
-import { useAuth } from '@/domains/common/utils/next/auth'
 import { Logo } from '@condo/domains/common/components/Logo'
 import { colors, fontSizes } from '@condo/domains/common/constants/style'
 import { PosterLayout } from '@condo/domains/user/components/containers/PosterLayout'
