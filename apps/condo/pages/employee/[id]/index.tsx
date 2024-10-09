@@ -14,7 +14,6 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Alert, Button, Tag, Typography } from '@open-condo/ui'
 
-import { extractSSRState } from '@/domains/common/utils/next/ssr'
 import {
     PageContent,
     PageWrapper,
@@ -27,6 +26,7 @@ import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayer
 import { prepareSSRContext } from '@condo/domains/common/utils/next/apollo'
 import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
 import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
+import { extractSSRState } from '@condo/domains/common/utils/next/ssr'
 import { EmployeeInviteRetryButton } from '@condo/domains/organization/components/EmployeeInviteRetryButton'
 import { EmployeesReadPermissionRequired } from '@condo/domains/organization/components/PageAccess'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'

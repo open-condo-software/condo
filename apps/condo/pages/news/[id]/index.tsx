@@ -22,7 +22,6 @@ import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar } from '@open-condo/ui'
 import { Typography, Button } from '@open-condo/ui'
 
-import { extractSSRState } from '@/domains/common/utils/next/ssr'
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import {
     PageContent,
@@ -36,6 +35,7 @@ import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { prepareSSRContext } from '@condo/domains/common/utils/next/apollo'
 import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
 import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
+import { extractSSRState } from '@condo/domains/common/utils/next/ssr'
 import { NewsReadPermissionRequired } from '@condo/domains/news/components/PageAccess'
 import { RecipientCounter } from '@condo/domains/news/components/RecipientCounter'
 import { NewsItemScopeNoInstanceType } from '@condo/domains/news/components/types'

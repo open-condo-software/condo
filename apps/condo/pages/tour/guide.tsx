@@ -14,7 +14,6 @@ import { colors } from '@open-condo/ui/dist/colors'
 
 
 
-import { extractSSRState } from '@/domains/common/utils/next/ssr'
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
 import {
     PageContent,
@@ -25,6 +24,7 @@ import {
 import { prepareSSRContext } from '@condo/domains/common/utils/next/apollo'
 import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
 import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
+import { extractSSRState } from '@condo/domains/common/utils/next/ssr'
 
 import type { GetServerSideProps } from 'next'
 
