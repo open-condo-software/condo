@@ -1,4 +1,3 @@
-const { faker } = require('@faker-js/faker')
 const { isEmpty, isNull, get, isObject } = require('lodash')
 
 const conf = require('@open-condo/config')
@@ -98,7 +97,7 @@ class AppleAdapter {
             state: 'error',
             error: {
                 reason: 'fake-error',
-                'apns-id': `fake-error-message/${faker.datatype.uuid()}`,
+                'apns-id': `fake-error-message/${Date.now()}`,
             },
         }
     }
@@ -114,7 +113,7 @@ class AppleAdapter {
             status: APS_RESPONSE_STATUS_SUCCESS,
             headers: {
                 ':status': APS_RESPONSE_STATUS_SUCCESS,
-                'apns-id': `fake-success-message/${faker.datatype.uuid()}`,
+                'apns-id': `fake-success-message/${Date.now()}`,
             },
         }
     }
