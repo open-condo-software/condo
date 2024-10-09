@@ -1,3 +1,5 @@
+const get = require('lodash/get')
+
 const { convertEncoding, detectEncoding } = require('@open-condo/keystone/file/utils')
 const { getLogger } = require('@open-condo/keystone/logging')
 
@@ -17,26 +19,23 @@ const logger = getLogger('parseRUReceiptQRCode')
 
 /**
  * @param {string} qrStr The QR code string got from the picture
- * @param {function} logger ValidateQRCodeService logger
  * @return {TRUQRCodeFields}
  */
 function parseRUReceiptQRCode (qrStr) {
     const buffer = Buffer.from(qrStr, 'base64')
     const detectedEncoding = detectEncoding(buffer)
-    const decodedRequisitesStr = convertEncoding(buffer, detectedEncoding)
+    const decodedQrStr = convertEncoding(buffer, detectedEncoding)
 
-    const matches = /^ST(?<version>\d{4})(?<encodingTag>\d)\|(?<requisitesStr>.*)$/g.exec(decodedRequisitesStr)
+    const matches = /^ST(?<version>\d{4})(?<encodingTag>\d)\|(?<requisitesStr>.*)$/g.exec(decodedQrStr)
 
     if (!matches) {
-        logger.error({ msg:'Error qr-code parsing', data: { qrStr, decodedRequisitesStr, detectedEncoding }, step: 'decoded' })
+        logger.error({ msg:'Error qr-code parsing', data: { qrStr, decodedQrStr, detectedEncoding } })
         throw new Error('Invalid QR code')
     }
-    logger.info({ msg:'Parsed qr-code', data: { qrStr, decodedRequisitesStr, detectedEncoding }, step: 'decoded' })
+    logger.info({ msg:'Parsed qr-code', data: { qrStr, decodedQrStr, detectedEncoding } })
 
-    return Object.fromEntries(
-        decodedRequisitesStr.slice(8) // rm tag ST
-            .split('|').map((part) => part.split('=', 2))
-    )
+    const requisitesStr = get(matches, ['groups', 'requisitesStr'], '')
+    return Object.fromEntries(requisitesStr.split('|').map((part) => part.split('=', 2)))
 }
 
 module.exports = parseRUReceiptQRCode
