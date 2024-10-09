@@ -7,7 +7,7 @@ class RoundRobinBalancer {
 
     selectExecutor () {
         const executor = this._knexClients[this._pointer]
-        this._pointer = (this._pointer + 1) % this._pointer
+        this._pointer = (this._pointer + 1) % this._knexClients.length
 
         return executor
     }
