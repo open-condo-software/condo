@@ -230,6 +230,13 @@ const BankAccount = new GQLListSchema('BankAccount', {
                 },
             },
         },
+
+        name: {
+            schemaDoc: 'Bank account name to display',
+            type: 'Text',
+            isRequired: false,
+        },
+
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
