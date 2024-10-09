@@ -6,7 +6,8 @@ import React, { createContext, useContext, useEffect, useState, useCallback } fr
 
 import { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } from './_utils'
 import { useApolloClient, useMutation, useQuery } from './apollo'
-import { setCookieLinkId } from './organization'
+import { removeCookieEmployeeId } from './organization'
+import { Either } from './types'
 
 
 // NOTE: OpenCondoNext is defined as a global namespace so the library user can override the default types
@@ -71,7 +72,7 @@ let USER_QUERY = gql`
 `
 
 let SIGNIN_MUTATION = gql`
-    mutation signin($email: String, $password: String) {
+    mutation signIn($email: String, $password: String) {
         authenticateUserWithPassword(email: $email, password: $password) {
             item {
                 ${userFragment}
@@ -88,12 +89,7 @@ let SIGNOUT_MUTATION = gql`
     }
 `
 
-/**
- * AuthProviderLegacy
- * ------------
- * AuthProviderLegacy is a component which keeps track of the user's
- * authenticated state and provides methods for managing the auth state.
- */
+/** @deprecated */
 const AuthProviderLegacy = ({ children, initialUserValue }) => {
     const client = useApolloClient()
     const [user, setUser] = useState(initialUserValue)
@@ -134,7 +130,7 @@ const AuthProviderLegacy = ({ children, initialUserValue }) => {
 
             if (error) { return onError(error) }
             if (DEBUG_RERENDERS) console.log('AuthProviderLegacy() signOut()')
-            setCookieLinkId('')
+            removeCookieEmployeeId()
             if (success) {
                 setUser(null)
             }
@@ -203,15 +199,16 @@ const initOnRestore = async (ctx) => {
     return { user }
 }
 
-type WithAuthProps = {
+type WithAuthLegacyProps = {
     ssr?: boolean
     USER_QUERY?: DocumentNode
     SIGNIN_MUTATION?: DocumentNode
     SIGNOUT_MUTATION?: DocumentNode
 }
-type WithAuth = (props: WithAuthProps) => (PageComponent: NextPage) => NextPage
+type WithAuthLegacy = (props: WithAuthLegacyProps) => (PageComponent: NextPage) => NextPage
 
-const _withAuthLegacy: WithAuth = ({ ssr = false, ...opts }: WithAuthProps = {}) => PageComponent => {
+/** @deprecated */
+const _withAuthLegacy: WithAuthLegacy = ({ ssr = false, ...opts } = {}) => PageComponent => {
     // TODO(pahaz): refactor it. No need to patch globals here!
     USER_QUERY = opts.USER_QUERY ? opts.USER_QUERY : USER_QUERY
     SIGNIN_MUTATION = opts.SIGNIN_MUTATION ? opts.SIGNIN_MUTATION : SIGNIN_MUTATION
@@ -256,32 +253,46 @@ const _withAuthLegacy: WithAuth = ({ ssr = false, ...opts }: WithAuthProps = {})
 }
 
 
+/**
+ * AuthProvider
+ * ------------
+ * AuthProvider is a component which keeps track of the user's
+ * authenticated state and provides methods for managing the auth state.
+ */
 const AuthProvider: React.FC = ({ children }) => {
     const apolloClient = useApolloClient()
-    // const router = useRouter()
 
-    const {
-        data: authenticatedUser,
-        loading: userLoading,
-        refetch,
-    } = useQuery(USER_QUERY)
+    const { data, loading: userLoading, refetch } = useQuery(USER_QUERY)
 
-    const [user, setUser] = useState(get(authenticatedUser, 'authenticatedUser', null)) // TODO(INFRA-574) get data from props
+    const [user, setUser] = useState(get(data, 'authenticatedUser', null))
 
     const refetchAuth = useCallback(async () => {
-        // if (withClearStore) await apolloClient.clearStore()
         await refetch()
     }, [refetch])
+
+    const [signInMutation, { loading: signInLoading }] = useMutation(SIGNIN_MUTATION, {
+        onCompleted: async (data) => {
+            const item = get(data, 'authenticateUserWithPassword.item')
+
+            if (DEBUG_RERENDERS) console.log('AuthProviderLegacy() signIn()')
+
+            if (item) {
+                await apolloClient.clearStore()
+                setUser(item)
+            }
+        },
+        onError: (error) => {
+            console.error(error)
+        },
+    })
 
     const [signOutMutation, { loading: signOutLoading }] = useMutation(SIGNOUT_MUTATION, {
         onCompleted: async (data) => {
             const success = get(data, ['unauthenticateUser', 'success'])
             if (success) setUser(null)
 
-            // cookie.remove('organizationLinkId')
-            setCookieLinkId('')
+            removeCookieEmployeeId()
             await apolloClient.clearStore()
-            // await router.push('/')
         },
         onError: (error) => {
             console.error(error)
@@ -290,13 +301,9 @@ const AuthProvider: React.FC = ({ children }) => {
 
     useEffect(() => {
         if (!userLoading) {
-            setUser(get(authenticatedUser, 'authenticatedUser', null))
+            setUser(get(data, 'authenticatedUser', null))
         }
-    }, [authenticatedUser, userLoading])
-
-    const signOut = useCallback(async () => {
-        await signOutMutation()
-    }, [signOutMutation])
+    }, [data, userLoading])
 
     console.log('AuthProvider::: >>>', {
         isLoading: userLoading || signOutLoading,
@@ -307,12 +314,12 @@ const AuthProvider: React.FC = ({ children }) => {
     return (
         <AuthContext.Provider
             value={{
-                isLoading: userLoading || signOutLoading,
+                isLoading: userLoading || signOutLoading || signInLoading,
                 isAuthenticated: !!user,
                 user,
                 refetch: refetchAuth,
-                signIn: () => ({}) as any, // TODO(INFRA-574) add signIn
-                signOut: signOut as any, // TODO(INFRA-574) update signOut as mutation
+                signIn: signInMutation,
+                signOut: signOutMutation,
             }}
             children={children}
         />
@@ -320,7 +327,14 @@ const AuthProvider: React.FC = ({ children }) => {
 }
 
 
-const _withAuth = (opts) => (PageComponent: NextPage): NextPage => {
+type WithAuthProps = {
+    USER_QUERY?: DocumentNode
+    SIGNIN_MUTATION?: DocumentNode
+    SIGNOUT_MUTATION?: DocumentNode
+}
+type WithAuth = (props: WithAuthProps) => (PageComponent: NextPage) => NextPage
+
+const _withAuth: WithAuth = (opts) => (PageComponent: NextPage): NextPage => {
     USER_QUERY = opts.USER_QUERY ? opts.USER_QUERY : USER_QUERY
     SIGNIN_MUTATION = opts.SIGNIN_MUTATION ? opts.SIGNIN_MUTATION : SIGNIN_MUTATION
     SIGNOUT_MUTATION = opts.SIGNOUT_MUTATION ? opts.SIGNOUT_MUTATION : SIGNOUT_MUTATION
@@ -345,7 +359,11 @@ const _withAuth = (opts) => (PageComponent: NextPage): NextPage => {
     return WithAuth
 }
 
-const withAuth = ({ legacy = true, ...opts }) => (PageComponent: NextPage): NextPage => {
+type mergedWithAuthProps = Either<WithAuthProps, WithAuthLegacyProps> & {
+    legacy?: boolean
+}
+type mergedWithAuth = (props: mergedWithAuthProps) => (PageComponent: NextPage) => NextPage
+const withAuth: mergedWithAuth = ({ legacy = true, ...opts }) => (PageComponent: NextPage): NextPage => {
     if (legacy) {
         return _withAuthLegacy(opts)(PageComponent)
     }
