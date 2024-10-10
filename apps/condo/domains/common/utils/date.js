@@ -1,7 +1,4 @@
 const dayjs = require('dayjs')
-const customParseFormat = require('dayjs/plugin/customParseFormat')
-
-dayjs.extend(customParseFormat)
 
 const DATE_FORMAT = 'YYYY-MM-DD'
 const DATE_FORMAT_Z = 'YYYY-MM-DDTHH:mm:ss.SSSZZ'
