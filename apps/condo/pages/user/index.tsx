@@ -38,7 +38,7 @@ const {
 } = getConfig()
 
 interface IUserInfoPageContentProps {
-    organizationEmployeesQuery: { where: OrganizationEmployeeWhereInput },
+    organizationEmployeesQuery: { where: OrganizationEmployeeWhereInput }
 }
 
 export const UserInfoPageContent: React.FC<IUserInfoPageContentProps> = ({ organizationEmployeesQuery }) => {

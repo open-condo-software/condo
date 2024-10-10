@@ -19,7 +19,7 @@ export type TTextHighlighterProps = {
     search: string
     renderPart: TTextHighlighterRenderPartFN
     type?: BaseType
-    style?: React.CSSProperties,
+    style?: React.CSSProperties
     title?: string
 }
 

@@ -40,14 +40,14 @@ type InitialMeterFormValuesType = {
 }
 
 type BaseMetersFormFieldsProps = {
-    handleSubmit: (values: unknown) => void,
-    form: FormInstance,
+    handleSubmit: (values: unknown) => void
+    form: FormInstance
     organizationId: string
     meterType: MeterPageTypes
-    propertyId: string,
-    addressKey: string,
+    propertyId: string
+    addressKey: string
     disabledFields: boolean
-    initialValues?: InitialMeterFormValuesType,
+    initialValues?: InitialMeterFormValuesType
     submitButtonProps?: ComponentProps<typeof Button>
     disabled?: boolean
 }

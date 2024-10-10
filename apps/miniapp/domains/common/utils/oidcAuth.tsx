@@ -20,8 +20,8 @@ interface IUseOidcAuthHookValue {
         name: string
         isAdmin: boolean
         organizationId: string
-    },
-    isLoading?: boolean,
+    }
+    isLoading?: boolean
 }
 
 const OIDC_AUTH_URL = `${serverUrl || ''}/oidc/auth`

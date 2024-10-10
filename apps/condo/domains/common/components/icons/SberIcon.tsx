@@ -2,8 +2,8 @@ import Icon from '@ant-design/icons'
 import React from 'react'
 
 interface ISberIcon {
-    width?: number,
-    height?: number,
+    width?: number
+    height?: number
 }
 
 export const SberIcon: React.FC<ISberIcon> = ({ width = 109, height = 17 }) => {

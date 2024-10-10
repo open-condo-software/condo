@@ -22,12 +22,12 @@ const CATEGORY_MODAL_ROW_GUTTER: RowProps['gutter'] = [0, 40]
 
 interface IUseCategoryModal {
     ({ bankTransactions, bankContractorAccounts, type }: {
-        bankTransactions?: Array<BankTransactionType>,
-        bankContractorAccounts?: Array<BankContractorAccountType>,
+        bankTransactions?: Array<BankTransactionType>
+        bankContractorAccounts?: Array<BankContractorAccountType>
         type: PropertyReportTypes
         updateSelected: UpdateSelectedTransactions | UpdateSelectedContractors
     }): {
-        CategoryModal: React.ReactElement,
+        CategoryModal: React.ReactElement
         setOpen: React.Dispatch<React.SetStateAction<boolean>>
     }
 }

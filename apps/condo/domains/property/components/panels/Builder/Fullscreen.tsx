@@ -5,7 +5,7 @@ import styled from '@emotion/styled'
 import { colors, DEFAULT_BORDER_RADIUS } from '@condo/domains/common/constants/style'
 
 export const FullscreenWrapper = styled.div<{
-    mode?: 'view' | 'edit';
+    mode?: 'view' | 'edit'
 }>`
   border-radius: ${DEFAULT_BORDER_RADIUS};
   padding: 24px;

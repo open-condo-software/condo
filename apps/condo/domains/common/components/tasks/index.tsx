@@ -36,7 +36,7 @@ export type TaskRecord = {
     // - return all tasks in Keystone admin section
     // - return only his own tasks in "public" section
     user: {
-        id: string,
+        id: string
     }
 
     // Used to find appropriate `ITask` interface implementation for this record
@@ -75,9 +75,9 @@ type UseDeleteTaskFunction = (attrs: unknown, onComplete: OnCompleteFunc) => (at
 
 
 type TasksWhereCondition = {
-    status: TASK_STATUS,
+    status: TASK_STATUS
     // Helps to avoid displaying tasks, not completed for some reason, created on previous days
-    today?: boolean,
+    today?: boolean
 }
 
 /**
@@ -86,9 +86,9 @@ type TasksWhereCondition = {
 export interface ITasksStorage {
     useTasks: (where: TasksWhereCondition, user: User) => { records: TaskRecord[] }
     useTask: (id: string) => { record: TaskRecord, stopPolling: StopPollingFunction }
-    useCreateTask: UseCreateTaskFunction,
-    useUpdateTask: UseUpdateTaskFunction,
-    useDeleteTask: UseDeleteTaskFunction,
+    useCreateTask: UseCreateTaskFunction
+    useUpdateTask: UseUpdateTaskFunction
+    useDeleteTask: UseDeleteTaskFunction
 }
 
 // Depending on implementation, some tasks should be removed only from panel but kept in storage (for example, tasks known to condo),
