@@ -41,37 +41,37 @@ export type EchartsSeries = {
 }
 
 export type AxisData = {
-    type: string,
-    data: null | string[],
+    type: string
+    data: null | string[]
     axisLabel?: Record<string, unknown>
 }
 
 export type ChartConfigResult = {
-    legend: string[],
-    series: EchartsSeries[],
+    legend: string[]
+    series: EchartsSeries[]
     axisData?: {
-        xAxis: Array<AxisData> | AxisData,
+        xAxis: Array<AxisData> | AxisData
         yAxis: Array<AxisData> | AxisData
-    },
+    }
     tooltip?: {
-        trigger: string,
+        trigger: string
         axisPointer: { type: string }
         show?: boolean
-    },
+    }
     color?: string[]
 }
 
 interface IGetChartConfig extends IGetBaseChartConfig<ViewModeTypes, TicketGroupedCounter[], ChartConfigResult>{
     (viewMode: ViewModeTypes, data: TicketGroupedCounter[]): {
-        legend,
-        series,
+        legend
+        series
         axisData?: {
-            xAxis: Array<AxisData> | AxisData,
+            xAxis: Array<AxisData> | AxisData
             yAxis: Array<AxisData> | AxisData
-        },
+        }
         tooltip?: {
-            trigger,
-            axisPointer: { type },
+            trigger
+            axisPointer: { type }
             show?: boolean
         }
         color?: string[]
@@ -79,8 +79,8 @@ interface IGetChartConfig extends IGetBaseChartConfig<ViewModeTypes, TicketGroup
 }
 
 type RestTableOptionsType = {
-    translations: unknown;
-    filters?: unknown;
+    translations: unknown
+    filters?: unknown
 }
 type TableConfigResult = {
     dataSource: TableProps<TicketGroupedCounter[]>['dataSource']
@@ -95,9 +95,9 @@ TableConfigResult>{
 }
 
 export type ChartConfigMapType = {
-    bar?: { chart: IGetChartConfig; table: IGetTableConfig; };
-    line?: { chart: IGetChartConfig; table: IGetTableConfig; };
-    pie?: { chart: IGetChartConfig; table: IGetTableConfig; };
+    bar?: { chart: IGetChartConfig, table: IGetTableConfig }
+    line?: { chart: IGetChartConfig, table: IGetTableConfig }
+    pie?: { chart: IGetChartConfig, table: IGetTableConfig }
 }
 
 class TicketChart extends BaseChart<ChartConfigMapType, ChartConfigResult, TableConfigResult, ViewModeTypes,

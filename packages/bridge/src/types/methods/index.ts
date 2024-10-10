@@ -31,7 +31,7 @@ export type RequestMethodsParamsMap = {
     CondoWebAppGetActiveProgressBars: GetActiveProgressBarsParams
     CondoWebAppGetLaunchParams: GetLaunchParamsParams
     CondoWebAppRedirect: RedirectParams
-    CondoWebAppRequestAuth: RequestAuthParams,
+    CondoWebAppRequestAuth: RequestAuthParams
     CondoWebAppResizeWindow: ResizeWindowParams
     CondoWebAppShowModalWindow: ShowModalWindowParams
     CondoWebAppShowNotification: ShowNotificationParams
@@ -47,7 +47,7 @@ export type ResultResponseDataMap = {
     CondoWebAppCloseModalWindow: CloseModalWindowData
     CondoWebAppGetActiveProgressBars: GetActiveProgressBarsData
     CondoWebAppGetLaunchParams: GetLaunchParamsData
-    CondoWebAppRequestAuth: RequestAuthData,
+    CondoWebAppRequestAuth: RequestAuthData
     CondoWebAppRedirect: RedirectData
     CondoWebAppResizeWindow: ResizeWindowData
     CondoWebAppShowModalWindow: ShowModalWindowData

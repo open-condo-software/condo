@@ -3,7 +3,7 @@ import { getCookie, setCookie } from 'cookies-next'
 import { generateUUIDv4 } from './uuid'
 
 type SenderInfo = {
-    dv: number,
+    dv: number
     fingerprint: string
 }
 
