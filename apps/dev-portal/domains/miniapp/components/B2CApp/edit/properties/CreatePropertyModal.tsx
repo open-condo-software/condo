@@ -27,7 +27,7 @@ type CreatePropertyModalProps = {
 }
 
 type Suggestion = {
-    value: string,
+    value: string
     type: 'building' | 'village' | null
 }
 

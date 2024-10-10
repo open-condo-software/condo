@@ -13,9 +13,9 @@ import { BaseMeterModalFormItem } from './BaseMeterModalFormItem'
 import { METER_MODAL_FORM_ITEM_SPAN } from '../../constants/constants'
 
 interface ICreateMeterModalDatePickerProps {
-    label: string,
-    name: string,
-    rules?: Rule[],
+    label: string
+    name: string
+    rules?: Rule[]
     dependencies?: string[]
     onChange?: (value: Dayjs, dateString: string) => void
     initialValue?

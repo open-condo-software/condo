@@ -18,7 +18,7 @@ const BANK_SYNC_TASK_DATE_FORMAT = 'YYYY-MM-DD'
 
 interface IUseBankSyncTaskExternalModal {
     ({ propertyId, bankAccount }: { propertyId: string, bankAccount: BankAccount }): ({
-        ModalComponent: React.ReactElement,
+        ModalComponent: React.ReactElement
         handleOpen: () => void
     })
 }

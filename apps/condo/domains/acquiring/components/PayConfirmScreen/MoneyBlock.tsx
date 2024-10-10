@@ -9,10 +9,10 @@ import { useIntl } from '@open-condo/next/intl'
 import { getMoneyRender } from '@condo/domains/common/components/Table/Renders'
 
 interface IMoneyBlockProps {
-    titleDescriptor: MessageDescriptor,
-    amount: string,
-    currencyCode: string,
-    hideOnZero?: boolean,
+    titleDescriptor: MessageDescriptor
+    amount: string
+    currencyCode: string
+    hideOnZero?: boolean
 }
 
 const TITLE_STYLES: CSSProperties = {

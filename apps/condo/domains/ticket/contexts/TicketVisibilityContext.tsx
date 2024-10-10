@@ -20,8 +20,8 @@ import {
 
 
 interface ITicketVisibilityContext {
-    ticketFilterQuery: TicketWhereInput,
-    ticketFilterQueryLoading: boolean,
+    ticketFilterQuery: TicketWhereInput
+    ticketFilterQueryLoading: boolean
     canEmployeeReadTicket: (ticket: Ticket) => boolean
 }
 

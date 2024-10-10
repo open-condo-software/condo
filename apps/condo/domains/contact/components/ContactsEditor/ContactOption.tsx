@@ -10,9 +10,9 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 
 interface IContactFieldsDisplayProps {
-    contact: ContactType,
-    onSelect: (contact: ContactType) => void,
-    selected: boolean,
+    contact: ContactType
+    onSelect: (contact: ContactType) => void
+    selected: boolean
     contactFormItemProps?: FormItemProps
     disabled?: boolean
 }

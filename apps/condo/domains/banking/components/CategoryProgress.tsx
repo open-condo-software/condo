@@ -17,8 +17,8 @@ const CATEGORY_PROGRESS_ICON_WRAPPER_STYLE: React.CSSProperties = { display: 'fl
 
 interface ICategoryProgress {
     ({ totalRows, entity, emptyRows }: {
-        totalRows: number,
-        entity: PropertyReportTypes,
+        totalRows: number
+        entity: PropertyReportTypes
         emptyRows?: number
     }): React.ReactElement
 }

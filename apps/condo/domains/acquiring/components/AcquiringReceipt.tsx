@@ -16,40 +16,40 @@ import { createWrappedPdf } from '@condo/domains/common/utils/pdf'
 dayjs.extend(utc)
 
 type PrintingOption = {
-    key: string,
-    value: string,
+    key: string
+    value: string
 }
 
 type ReceiptPrintingSectionRow = {
-    name: string,
+    name: string
     toPay: string
 }
 
 type ReceiptPrintingSection = {
-    title?: string,
-    info: Array<PrintingOption>,
-    amount?: string,
-    rows: Array<ReceiptPrintingSectionRow>,
-    explicitFee?: string,
+    title?: string
+    info: Array<PrintingOption>
+    amount?: string
+    rows: Array<ReceiptPrintingSectionRow>
+    explicitFee?: string
     explicitServiceCharge?: string
 }
 
 type InvoicePrintingSectionRow = {
-    name: string,
-    toPay: string,
-    count: number,
-    vatPercent: string,
+    name: string
+    toPay: string
+    count: number
+    vatPercent: string
     amount: string
 }
 
 type InvoicePrintingSection = {
-    number: string,
-    date: string,
-    amount: string,
+    number: string
+    date: string
+    amount: string
     vatAmount?: Record<string, string>,
-    taxRegime: string,
-    rows: Array<InvoicePrintingSectionRow>,
-    info: Array<PrintingOption>,
+    taxRegime: string
+    rows: Array<InvoicePrintingSectionRow>
+    info: Array<PrintingOption>
 }
 
 // This colors are mobile oriented and dont match antd / CRM DS defaults
@@ -58,29 +58,29 @@ const STATUS_SUCCESS_COLOR = '#4CD174'
 const STATUS_ERROR_COLOR = '#FF3B30'
 
 interface IAcquiringReceiptProps {
-    paymentDateTime: string,
-    documentNumber: string,
-    documentTitle: string,
-    status: MultiPaymentStatusType,
-    payerInfo: Array<PrintingOption>,
+    paymentDateTime: string
+    documentNumber: string
+    documentTitle: string
+    status: MultiPaymentStatusType
+    payerInfo: Array<PrintingOption>
     totalSum: {
-        amountWithExplicits: string,
-        currencyCode: string,
-        explicitFee?: string,
-        explicitServiceCharge?: string,
+        amountWithExplicits: string
+        currencyCode: string
+        explicitFee?: string
+        explicitServiceCharge?: string
     }
-    receipts: Array<ReceiptPrintingSection>,
+    receipts: Array<ReceiptPrintingSection>
     invoices: Array<InvoicePrintingSection>
 }
 
 interface IReceiptSectionProps {
     section: ReceiptPrintingSection
-    currencyCode: string,
+    currencyCode: string
 }
 
 interface IInvoiceSectionProps {
-    section: InvoicePrintingSection,
-    currencyCode: string,
+    section: InvoicePrintingSection
+    currencyCode: string
 }
 
 interface IInfoRowProps {

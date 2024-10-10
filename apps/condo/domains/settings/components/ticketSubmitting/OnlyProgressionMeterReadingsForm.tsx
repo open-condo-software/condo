@@ -30,8 +30,8 @@ const MIDDLE_ROW_GUTTERS: [Gutter, Gutter] = [0, 40]
 const SMALL_ROW_GUTTERS: [Gutter, Gutter] = [0, 20]
 
 interface ITicketSubmittingSettingsForm {
-    mobileConfig?: MobileFeatureConfigType,
-    userOrganizationId: string,
+    mobileConfig?: MobileFeatureConfigType
+    userOrganizationId: string
 }
 
 export const OnlyProgressionMeterReadingsForm: React.FC<ITicketSubmittingSettingsForm> = ({ mobileConfig, userOrganizationId }) => {

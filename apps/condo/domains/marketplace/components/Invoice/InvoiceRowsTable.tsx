@@ -105,7 +105,7 @@ const useInvoiceRowsTableColumns = (currencyCode, marketItems) => {
 }
 
 type InvoiceRowsTableProps = {
-    invoice: Invoice,
+    invoice: Invoice
 }
 
 export const InvoiceRowsTable: React.FC<InvoiceRowsTableProps> = ({ invoice }) => {

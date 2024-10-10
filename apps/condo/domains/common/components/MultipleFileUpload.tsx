@@ -102,7 +102,7 @@ interface IMultipleFileUploadHookArgs {
 }
 
 interface IMultipleFileUploadHookResult {
-    UploadComponent: React.FC<IUploadComponentProps>,
+    UploadComponent: React.FC<IUploadComponentProps>
     syncModifiedFiles: (id: string) => Promise<void>
     resetModifiedFiles: () => Promise<void>
     filesCount: number

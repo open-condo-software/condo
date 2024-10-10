@@ -7,11 +7,11 @@ import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 
 
 export type FieldPairRowProps = {
-    fieldTitle: string,
-    fieldValue: string,
-    href?: string,
-    titleColProps?: ColProps,
-    valueColProps?: ColProps,
+    fieldTitle: string
+    fieldValue: string
+    href?: string
+    titleColProps?: ColProps
+    valueColProps?: ColProps
 }
 
 export const FieldPairRow: React.FC<FieldPairRowProps> = (props) => {

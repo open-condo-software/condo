@@ -11,10 +11,10 @@ import { LOCALES } from '../../constants/locale'
 
 
 type TTicket = {
-    id: string,
-    details: string,
-    createdAt: string,
-    number: number,
+    id: string
+    details: string
+    createdAt: string
+    number: number
     status: string
 }
 

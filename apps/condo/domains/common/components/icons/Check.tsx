@@ -4,7 +4,7 @@ import React from 'react'
 interface CheckIconProps {
     width?: number | string
     height?: number | string
-    fill?: string,
+    fill?: string
 }
 
 export const CheckIconSvg: React.FC<CheckIconProps> = () => {

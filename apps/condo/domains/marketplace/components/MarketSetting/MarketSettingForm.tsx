@@ -37,7 +37,7 @@ const SMALL_ROW_GUTTERS: [Gutter, Gutter] = [0, 20]
 const IS_CASH_PAYMENT_TYPE_BLOCKED = 'isPaymentCashTypeBlocked'
 
 interface IMarketSettingForm {
-    marketSetting?: MarketSettingType,
+    marketSetting?: MarketSettingType
     userOrganizationId: string
     loading: boolean
 }

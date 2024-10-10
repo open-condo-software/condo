@@ -30,7 +30,7 @@ export interface IUnitNameInputProps extends Pick<CustomSelectProps<string>, 'on
 }
 interface IGetOptionGroupBySectionType {
     units: BuildingUnit[]
-    unitType: BuildingUnitSubType,
+    unitType: BuildingUnitSubType
     groupLabel: string
 }
 

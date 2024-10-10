@@ -35,7 +35,7 @@ const EDIT_CLIENT_FORM_ERRORS_TO_FIELDS_MAP = {
 type EditClientFormProps = {
     id: string
     environment: AppEnvironment
-    client: OidcClient,
+    client: OidcClient
 }
 
 type EditOIDCClientFormValues = {

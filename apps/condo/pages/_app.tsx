@@ -101,11 +101,11 @@ const ANT_LOCALES = {
 }
 
 interface IMenuItemData {
-    id?: string,
-    path: string,
-    icon: React.FC,
-    label: string,
-    access?: boolean,
+    id?: string
+    path: string
+    icon: React.FC
+    label: string
+    access?: boolean
     excludePaths?: Array<RegExp>
 }
 

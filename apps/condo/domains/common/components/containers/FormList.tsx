@@ -215,10 +215,10 @@ function useCreateAndEditModalForm () {
 type IFormValuesType = Record<string, string | number | { id: string } | { disconnectId: string }>
 
 type IFormWithActionChildrenArgs = {
-    handleSave: () => void,
-    isLoading: boolean,
-    form: FormInstance,
-    handleSubmit?: (values: any) => void,
+    handleSave: () => void
+    isLoading: boolean
+    form: FormInstance
+    handleSubmit?: (values: any) => void
 }
 
 export type IFormWithActionChildren = (args: IFormWithActionChildrenArgs) => JSX.Element
@@ -230,7 +230,7 @@ export type OnCompletedMsgType<T> = string | OnCompletedMsgFunctionType<T>
 interface IFormWithAction<TRecordFormState, TRecordUIState> extends FormProps {
     action?: (formValues) => Promise<TRecordUIState>
     mutation?: Document.Node
-    initialValues?: TRecordFormState,
+    initialValues?: TRecordFormState
     onChange?: (changedValues: Record<string, unknown>, allValues: Record<string, unknown>) => void
     handleSubmit?: (values) => void
     validateTrigger?: string | string[]
@@ -247,9 +247,9 @@ interface IFormWithAction<TRecordFormState, TRecordUIState> extends FormProps {
     mutationExtraData?: Record<string, unknown>
     formValuesToMutationDataPreprocessorContext?: Record<string, unknown>
     OnErrorMsg?: string
-    OnCompletedMsg?: OnCompletedMsgType<TRecordUIState>,
-    onMutationCompleted?: (result) => void,
-    style?: CSSProperties,
+    OnCompletedMsg?: OnCompletedMsgType<TRecordUIState>
+    onMutationCompleted?: (result) => void
+    style?: CSSProperties
     children: IFormWithActionChildren
     formInstance?: FormInstance
     scrollToFirstError?: Options | boolean

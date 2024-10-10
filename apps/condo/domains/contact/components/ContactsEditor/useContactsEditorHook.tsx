@@ -7,8 +7,8 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { ContactsEditor, IContactEditorProps } from './index'
 
 interface IContactsEditorHookArgs {
-    role?: OrganizationEmployeeRole,
-    allowLandLine?: boolean,
+    role?: OrganizationEmployeeRole
+    allowLandLine?: boolean
     initialQuery?: Pick<ContactWhereInput, 'organization'>
     loading?: boolean
 }
