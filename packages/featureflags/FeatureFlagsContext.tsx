@@ -18,8 +18,8 @@ import {
     getContextIndependentWrappedInitialProps,
     preventInfinityLoop,
 } from '@open-condo/next/_utils'
-import { useAuth as useAuthHook } from '@open-condo/next/auth'
-import { useOrganization as useOrganizationHook } from '@open-condo/next/organization'
+import { useAuth } from '@open-condo/next/auth'
+import { useOrganization } from '@open-condo/next/organization'
 
 
 const {
@@ -49,17 +49,9 @@ const useFeatureFlags = (): IFeatureFlagsContext => useContext(FeatureFlagsConte
 
 type FeatureFlagsProviderWrapperProps = {
     initFeatures?: FeatureDefinitions
-    useAuth?: () => {
-        user?: unknown
-        isLoading?: boolean
-    }
-    useOrganization?: () => {
-        organization?: unknown
-        isLoading?: boolean
-    }
 }
 
-const FeatureFlagsProviderWrapper: React.FC<FeatureFlagsProviderWrapperProps> = ({ children, initFeatures = null, useAuth = useAuthHook, useOrganization = useOrganizationHook }) => {
+const FeatureFlagsProviderWrapper: React.FC<FeatureFlagsProviderWrapperProps> = ({ children, initFeatures = null }) => {
     const growthbook = useGrowthBook()
     const { user, isLoading: userIsLoading  } = useAuth()
     const { organization, isLoading: organizationIsLoading } = useOrganization()
@@ -133,10 +125,10 @@ const FeatureFlagsProviderWrapper: React.FC<FeatureFlagsProviderWrapperProps> = 
 
 type FeatureFlagsProviderProps = FeatureFlagsProviderWrapperProps
 
-const FeatureFlagsProvider: React.FC<FeatureFlagsProviderProps> = ({ children, initFeatures = null, useAuth, useOrganization }) => {
+const FeatureFlagsProvider: React.FC<FeatureFlagsProviderProps> = ({ children, initFeatures = null }) => {
     return (
         <GrowthBookProvider growthbook={growthbook}>
-            <FeatureFlagsProviderWrapper initFeatures={initFeatures} useAuth={useAuth} useOrganization={useOrganization}>
+            <FeatureFlagsProviderWrapper initFeatures={initFeatures}>
                 {children}
             </FeatureFlagsProviderWrapper>
         </GrowthBookProvider>
@@ -165,15 +157,15 @@ const initOnRestore = async (ctx) => {
 
 type WithFeatureFlagsProps = {
     ssr?: boolean
-} & Pick<FeatureFlagsProviderProps, 'useAuth' | 'useOrganization'>
-export type WithFeatureFlags = (props: WithFeatureFlagsProps) => (PageComponent: NextPage<any>) => NextPage<any>
+}
+export type WithFeatureFlags = (props: WithFeatureFlagsProps) => (PageComponent: NextPage) => NextPage
 
-const withFeatureFlags: WithFeatureFlags = ({ ssr = false, useOrganization, useAuth }) => PageComponent => {
+const withFeatureFlags: WithFeatureFlags = ({ ssr = false }) => PageComponent => {
     const WithFeatureFlags = ({ features, ...pageProps }) => {
         if (DEBUG_RERENDERS) console.log('WithFeatureFlags()', features)
 
         return (
-            <FeatureFlagsProvider initFeatures={features} useOrganization={useOrganization} useAuth={useAuth}>
+            <FeatureFlagsProvider initFeatures={features}>
                 <PageComponent {...pageProps} />
             </FeatureFlagsProvider>
         )
