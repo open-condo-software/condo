@@ -139,7 +139,7 @@ const OrganizationProviderLegacy = ({ children, initialEmployee }) => {
     const auth = useAuth()
     const cookieEmployee = getCookieEmployeeId()
     const [employeeIdState, setEmployeeIdState] = useState(initialEmployee && initialEmployee.id || cookieEmployee)
-    const [employee, setEmployee] = useState(initialEmployee)
+    const [activeEmployee, setActiveEmployee] = useState(initialEmployee)
 
     useEffect(() => {
         if (!(initialEmployee && initialEmployee.id || cookieEmployee)) {
@@ -157,25 +157,25 @@ const OrganizationProviderLegacy = ({ children, initialEmployee }) => {
         if (!data) return
 
         const employee = data.obj
-        if (JSON.stringify(employee) === JSON.stringify(employee)) return
-        if (DEBUG_RERENDERS) console.log('OrganizationProviderLegacy() newState', employee)
+        if (JSON.stringify(employee) === JSON.stringify(activeEmployee)) return
+        if (DEBUG_RERENDERS) console.log('OrganizationProvider() newState', employee)
 
         const isEmployeeActive = !employee.isRejected && !employee.isBlocked && employee.isAccepted
 
         if (!isEmployeeActive) {
             setCookieEmployeeId('')
             setEmployeeIdState(null)
-            setEmployee(null)
+            setActiveEmployee(null)
         } else {
             setCookieEmployeeId(employee.id)
             setEmployeeIdState(employee.id)
-            setEmployee(employee)
+            setActiveEmployee(employee)
         }
-    }, [data, employee])
+    }, [data, activeEmployee])
 
     useEffect(() => {
         if (auth.isLoading) return
-        if (!auth.user && employee !== null) setEmployee(null)
+        if (!auth.user && activeEmployee !== null) setActiveEmployee(null)
     }, [auth.user])
 
     function onError (error) {
@@ -184,7 +184,7 @@ const OrganizationProviderLegacy = ({ children, initialEmployee }) => {
         if (error.message.includes('You do not have access to this resource')) {
             setCookieEmployeeId('')
             setEmployeeIdState(null)
-            setEmployee(null)
+            setActiveEmployee(null)
         } else {
             throw error
         }
@@ -198,7 +198,7 @@ const OrganizationProviderLegacy = ({ children, initialEmployee }) => {
         } else {
             setCookieEmployeeId('')
             setEmployeeIdState(null)
-            setEmployee(null)
+            setActiveEmployee(null)
             return Promise.resolve()
         }
     }
@@ -207,7 +207,7 @@ const OrganizationProviderLegacy = ({ children, initialEmployee }) => {
         return handleSelectLink({ id: employeeId })
     }, [handleSelectLink])
 
-    if (DEBUG_RERENDERS) console.log('OrganizationProviderLegacy()', employee, 'loading', employeeLoading, 'skip', (auth.isLoading || !auth.user || !employeeIdState))
+    if (DEBUG_RERENDERS) console.log('OrganizationProviderLegacy()', activeEmployee, 'loading', employeeLoading, 'skip', (auth.isLoading || !auth.user || !employeeIdState))
 
     const isLoading = auth.isLoading || employeeLoading
 
@@ -217,8 +217,8 @@ const OrganizationProviderLegacy = ({ children, initialEmployee }) => {
                 selectLink: handleSelectLink,
                 selectEmployee: handleSelectEmployee,
                 isLoading: (!auth.user || !employeeIdState) ? false : isLoading,
-                link: (employee && employee.id) ? employee : null,
-                organization: (employee && employee.organization) ? employee.organization : null,
+                link: (activeEmployee && activeEmployee.id) ? activeEmployee : null,
+                organization: (activeEmployee && activeEmployee.organization) ? activeEmployee.organization : null,
             }}
         >
             {children}
