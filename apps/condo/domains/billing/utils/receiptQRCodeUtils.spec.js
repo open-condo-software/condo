@@ -5,6 +5,7 @@ const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
 const Big = require('big.js')
 const dayjs = require('dayjs')
+const iconv = require('iconv-lite')
 
 const { getById } = require('@open-condo/keystone/schema')
 const { catchErrorFrom, setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
@@ -40,6 +41,8 @@ const {
     createTestRecipient,
 } = require('./testSchema')
 
+const TEST_STRING = 'ST00011|Name=ООО «УК ЭкоГрад»|PersonalAcc=40902830202010056769|BankName=ПАО СБЕРБАНК|BIC=048073601|CorrespAcc=30102110300320000206|PayeeINN=0524967340|persAcc=5018435412|payerAddress=ул.Ивана Спатара, д.14, кв.32|lastName=Иванов|firstName=Иван|middleName=Иванович|Sum=12351'
+
 describe('receiptQRCodeUtils', () => {
 
     const parseRUReceiptQRCode = getCountrySpecificQRCodeParser(RUSSIA_COUNTRY)
@@ -52,23 +55,26 @@ describe('receiptQRCodeUtils', () => {
     })
 
     describe('RU QR-codes decoded correctly', () => {
-        const cases = [
-            [1, 'ÀÒÌÎÑÔÅÐÀ', 'АТМОСФЕРА'], // Got from real QR-code
-            // Got from conversion (https://convertcyrillic.com/)
-            // curl 'https://convertcyrillic.com/api/conversionservice' --data-raw '={"sourceEncoding":"Russian.Unicode","targetEncoding":"Russian.KOI8","text":"Привет"}'
-            [1, 'Ïðèâåò', 'Привет'],
-            [2, 'Привет', 'Привет'],
-            // curl 'https://convertcyrillic.com/api/conversionservice' --data-raw '={"sourceEncoding":"Russian.Unicode","targetEncoding":"Russian.CP1251","text":"Привет"}'
-            [3, 'ðÒÉ×ÅÔ', 'Привет'],
+        const cases = [ // Got from real QR-code
+            [iconv.encode(TEST_STRING, 'UTF-8').toString('base64')],
+            [iconv.encode(TEST_STRING, 'cp1251').toString('base64')],
         ]
 
-        test.each(cases)('%p %p -> %p', (tag, dataFromQRCode, expectedData) => {
-            const qrStr = `ST0001${tag}|field1=Hello|Field2=world|foo=${dataFromQRCode}`
+        test.each(cases)('%p %p', (qrStr) => {
             const parsed = parseRUReceiptQRCode(qrStr)
             expect(parsed).toEqual({
-                field1: 'Hello',
-                Field2: 'world',
-                foo: expectedData,
+                'Name': 'ООО «УК ЭкоГрад»',
+                'PersonalAcc': '40902830202010056769',
+                'BankName': 'ПАО СБЕРБАНК',
+                'BIC': '048073601',
+                'CorrespAcc': '30102110300320000206',
+                'PayeeINN': '0524967340',
+                'persAcc': '5018435412',
+                'payerAddress': 'ул.Ивана Спатара, д.14, кв.32',
+                'lastName': 'Иванов',
+                'firstName': 'Иван',
+                'middleName': 'Иванович',
+                'Sum': '12351',
             })
         })
     })
@@ -76,7 +82,7 @@ describe('receiptQRCodeUtils', () => {
     test('must throw an error on invalid QR-code', async () => {
         await catchErrorFrom(
             async () => {
-                parseRUReceiptQRCode('ST0012|field1=Hello|Field2=world')
+                parseRUReceiptQRCode(iconv.encode('ST0012|field1=Hello|Field2=world', 'UTF-8').toString('base64'))
             },
             (err) => {
                 expect(err).toEqual(expect.objectContaining({ message: 'Invalid QR code' }))
@@ -85,7 +91,7 @@ describe('receiptQRCodeUtils', () => {
     })
 
     test('can get field case-insensitively', () => {
-        const qrStr = 'ST00012|field1=Hello|Field2=world|someField=!!'
+        const qrStr = Buffer.from('ST00012|field1=Hello|Field2=world|someField=!!').toString('base64')
         const parsed = parseRUReceiptQRCode(qrStr)
         expect(parsed).toEqual({
             field1: 'Hello',
@@ -98,7 +104,7 @@ describe('receiptQRCodeUtils', () => {
     })
 
     test('Fields returned as requested', () => {
-        const qrStr = 'ST00012|field1=Hello|Field2=world|someField=!!|paymPeriod=01.2024'
+        const qrStr = Buffer.from('ST00012|field1=Hello|Field2=world|someField=!!|paymPeriod=01.2024').toString('base64')
         const parsed = parseRUReceiptQRCode(qrStr)
         const fields = getQRCodeFields(parsed, ['field1', 'FIELD2', 'somefield', 'PaymPeriod'])
 
@@ -111,14 +117,14 @@ describe('receiptQRCodeUtils', () => {
     })
 
     test('check for required fields', () => {
-        const parsed = parseRUReceiptQRCode('ST00012|field1=Hello|Field2=world|foo=bar baz')
+        const parsed = parseRUReceiptQRCode(Buffer.from('ST00012|field1=Hello|Field2=world|foo=bar baz').toString('base64'))
         const missedFields = getQRCodeMissedFields(parsed)
 
         expect(missedFields).toEqual(['BIC', 'PayerAddress', 'Sum', 'PersAcc', 'PayeeINN', 'PersonalAcc'])
     })
 
     test('check for required fields except one', () => {
-        const parsed = parseRUReceiptQRCode('ST00012|field1=Hello|Field2=world|foo=bar baz|persAcc=01.2024')
+        const parsed = parseRUReceiptQRCode(Buffer.from('ST00012|field1=Hello|Field2=world|foo=bar baz|persAcc=01.2024').toString('base64'))
         const missedFields = getQRCodeMissedFields(parsed)
 
         expect(missedFields).toEqual(['BIC', 'PayerAddress', 'Sum', 'PayeeINN', 'PersonalAcc'])

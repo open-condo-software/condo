@@ -1,19 +1,13 @@
-const iconv = require('iconv-lite')
 const jschardet = require('jschardet')
 
 const { DBFParser, CSVParser, ExcelParser } = require('./file-types')
-const { clearString } = require('./utils')
+const { clearString, encode, detectEncoding, convertEncoding } = require('./utils')
 
 const TYPES = {
     DBF: 'DBF',
     CSV: 'CSV',
     EXCEL: 'EXCEL',
     UNSUPPORTED: 'NOT SUPPORTED FILE',
-}
-
-const FORCE_ENCODING_CHANGE = {
-    'X-MAC-CYRILLIC': 'WINDOWS-1251',
-    'KOI8-R': 'WINDOWS-1251', // TODO: Find why KOI8 detected on WINDOWS-1251
 }
 
 
@@ -68,26 +62,15 @@ class ConvertFileToTable {
     }
 
     async encode (encoding) {
-        if (!encoding) {
-            return null
-        }
-        if (encoding === 'UTF-8') {
-            return this.buffer.toString()
-        }
-        return iconv.decode(this.buffer, encoding).toString()
+        return await encode(encoding)
     }
 
     detectEncoding () {
-        const { encoding: detectedEncoding } = jschardet.detect(this.buffer)
-        if (detectedEncoding) {
-            const encoding = detectedEncoding.toUpperCase()
-            return FORCE_ENCODING_CHANGE[encoding] || encoding
-        }
-        return null
+        return detectEncoding(this.buffer)
     }
 
     async convertEncoding (encoding) {
-        return await this.encode(encoding)
+        return convertEncoding(this.buffer, encoding)
     }
 
     async getData () {
