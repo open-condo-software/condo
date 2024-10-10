@@ -616,9 +616,9 @@ export const withCookies = () => (PageComponent) => {
     return WithCookies
 }
 
-const useEmployeeId = () => {
+const useInitialEmployeeId = () => {
     const { organizationLinkId: employeeId } = useSSRCookiesContext()
-    console.log('useEmployeeId >> ', { employeeId })
+    console.log('useInitialEmployeeId >> ', { employeeId })
     return { employeeId }
 }
 
@@ -636,7 +636,7 @@ export default (
     withCookies()(
         withApollo({ legacy: false, apolloHelperOptions })(
             withAuth({ legacy: false, USER_QUERY: AuthenticatedUserDocument })(
-                withOrganization({ legacy: false, GET_ORGANIZATION_EMPLOYEE_QUERY: GetActiveOrganizationEmployeeDocument, useEmployeeId, getEmployeeWhere })(
+                withOrganization({ legacy: false, GET_ORGANIZATION_EMPLOYEE_QUERY: GetActiveOrganizationEmployeeDocument, useInitialEmployeeId, getEmployeeWhere })(
                     withIntl({ ssr: !IS_SSR_DISABLED, messagesImporter, extractReqLocale, defaultLocale })(
                         withFeatureFlags({ ssr: !IS_SSR_DISABLED })(
                             MyApp
