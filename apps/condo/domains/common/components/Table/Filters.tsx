@@ -43,7 +43,10 @@ type GetGQLSelectFilterDropdownType = GetCommonFilterDropdownType<{ gqlSelectPro
 
 type GetDateFilterDropdownType = GetCommonFilterDropdownType<{ datePickerProps?: PickerProps<Dayjs> } & CommonFilterDropdownProps>
 
-type GetDateRangeFilterDropdownType = GetCommonFilterDropdownType<{ datePickerProps?: RangePickerProps<Dayjs> } & CommonFilterDropdownProps>
+type GetDateRangeFilterDropdownType = GetCommonFilterDropdownType<{
+    Component?: React.FC
+    datePickerProps?: RangePickerProps<Dayjs>
+} & CommonFilterDropdownProps>
 
 interface IFilterContainerProps {
     clearFilters: () => void
@@ -331,7 +334,7 @@ export const getDateFilterDropdown: GetDateFilterDropdownType = ({ datePickerPro
     }
 }
 
-export const getDateRangeFilterDropdown: GetDateRangeFilterDropdownType = ({ datePickerProps: outerPickerProps, containerStyles } = {}) => {
+export const getDateRangeFilterDropdown: GetDateRangeFilterDropdownType = ({ Component, datePickerProps: outerPickerProps, containerStyles } = {}) => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         const handleClear = useCallback(() => {
             isFunction(clearFilters) && clearFilters()
@@ -357,7 +360,10 @@ export const getDateRangeFilterDropdown: GetDateRangeFilterDropdownType = ({ dat
                 showClearButton={selectedKeys && selectedKeys.length > 0}
                 style={containerStyles}
             >
-                <DateRangePicker {...outerPickerProps} {...innerPickerProps} />
+                {
+                    Component ? <Component /> :
+                        <DateRangePicker {...outerPickerProps} {...innerPickerProps} />
+                }
             </FilterContainer>
         )
     }
