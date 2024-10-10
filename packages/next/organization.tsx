@@ -322,13 +322,11 @@ const OrganizationProvider: React.FC<OrganizationProviderProps> = ({
     const [activeEmployeeId, setActiveEmployeeId] = useState<string | null>(employeeId)
 
     const onError = useCallback((error) => {
-        // console.log('OrganizationProvider:onError:: >>>', error)
         // NOTE: In case, when organization from cookie left from old user, and we don't have access to it
         // We'll reset cookie without showing explicit error
         if (error.message.includes('You do not have access to this resource')) {
             setCookieEmployeeId('')
             setActiveEmployeeId(null)
-            console.log('OrganizationProvider:ERROR to null: >>>', { error })
             setActiveEmployee(null)
         } else {
             throw error
@@ -358,9 +356,6 @@ const OrganizationProvider: React.FC<OrganizationProviderProps> = ({
 
     /** @deprecated */
     const handleSelectLink: OrganizationContextType['selectLink'] = useCallback((newEmployee) => {
-        console.log('OrganizationProvider:handleSelectEmployee:: >>>', {
-            newEmployee,
-        })
         if (newEmployee && newEmployee.id) {
             const newId = newEmployee.id
             setActiveEmployeeId(newId)
@@ -368,7 +363,6 @@ const OrganizationProvider: React.FC<OrganizationProviderProps> = ({
         } else {
             setCookieEmployeeId('')
             setActiveEmployeeId(null)
-            console.log('OrganizationProvider:handleSelectEmployee:to null: >>>', { newEmployee })
             setActiveEmployee(null)
             return Promise.resolve()
         }
@@ -387,12 +381,9 @@ const OrganizationProvider: React.FC<OrganizationProviderProps> = ({
 
         const isEmployeeActive = !employee.isRejected && !employee.isBlocked && employee.isAccepted
 
-        console.log('OrganizationProvider:if (!isEmployeeActive) {:: >>>', { isEmployeeActive, employee, data })
-
         if (!isEmployeeActive) {
             setCookieEmployeeId('')
             setActiveEmployeeId(null)
-            console.log('OrganizationProvider:if (!isEmployeeActive) {:to null: >>>', { isEmployeeActive, activeEmployee, employee, data })
             setActiveEmployee(null)
         } else {
             setCookieEmployeeId(employee.id)
@@ -404,29 +395,11 @@ const OrganizationProvider: React.FC<OrganizationProviderProps> = ({
     useEffect(() => {
         if (auth.isLoading) return
         if (!auth.user && activeEmployee !== null) {
-            console.log('OrganizationProvider:change auth.user:: >>>', { auth, activeEmployee })
             setActiveEmployee(null)
         }
     }, [auth.user])
 
     if (DEBUG_RERENDERS) console.log('OrganizationProvider()', activeEmployee, 'loading', employeeLoading, 'skip', (auth.isLoading || !auth.user || !activeEmployeeId))
-
-    console.log('OrganizationProvider::: >>>', {
-        loading: employeeLoading, data,
-        skip: auth.isLoading || !auth.user || !activeEmployeeId,
-        variables: { id: activeEmployeeId },
-        auth,
-        activeEmployeeId,
-
-        activeEmployee,
-
-        selectLink: handleSelectEmployee,
-        isLoading: (!auth.user || !activeEmployeeId) ? false : isLoading,
-        link: (activeEmployee && activeEmployee.id) ? activeEmployee : null,
-        employee: (activeEmployee && activeEmployee.id) ? activeEmployee : null,
-        organization: (activeEmployee && activeEmployee.organization) ? activeEmployee.organization : null,
-        role: (activeEmployee && activeEmployee.role) ? activeEmployee.role : null,
-    })
 
     return (
         <OrganizationContext.Provider

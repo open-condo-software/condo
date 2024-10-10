@@ -304,12 +304,6 @@ const AuthProvider: React.FC = ({ children }) => {
         }
     }, [data, userLoading])
 
-    console.log('AuthProvider::: >>>', {
-        isLoading: userLoading || signOutLoading,
-        isAuthenticated: !!user,
-        user,
-    })
-
     return (
         <AuthContext.Provider
             value={{

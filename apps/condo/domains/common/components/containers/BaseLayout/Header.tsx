@@ -43,7 +43,7 @@ export const Header: React.FC<IHeaderProps> = (props) => {
 
     const handleLogoClick = useCallback(() => {
         if (isAuthenticated) {
-            router.push('/apollo')
+            router.push('/')
         } else {
             router.push('/auth/signin')
         }

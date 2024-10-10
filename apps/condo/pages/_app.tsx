@@ -330,10 +330,6 @@ const MenuItems: React.FC = () => {
         },
     ]), [hasAccessToAnalytics, isManagingCompany, hasAccessToTickets, hasAccessToIncidents, hasAccessToNewsItems, hasAccessToProperties, hasAccessToContacts, hasAccessToEmployees, isMarketplaceEnabled, hasAccessToMarketplace, isSPPOrg, hasAccessToBilling, anyReceiptsLoaded, sppBillingId, hasAccessToMeters, hasAccessToServices, connectedAppsIds, hasAccessToSettings])
 
-    console.log({
-        menuCategoriesData, link, organization,
-    })
-
     return (
         <div>
             {menuCategoriesData.map((category) => (
@@ -608,7 +604,6 @@ export const withCookies = () => (PageComponent) => {
 
 const useInitialEmployeeId = () => {
     const { organizationLinkId: employeeId } = useSSRCookiesContext()
-    console.log('useInitialEmployeeId >> ', { employeeId })
     return { employeeId }
 }
 
