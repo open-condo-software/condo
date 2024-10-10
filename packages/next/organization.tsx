@@ -158,7 +158,7 @@ const OrganizationProviderLegacy = ({ children, initialEmployee }) => {
 
         const employee = data.obj
         if (JSON.stringify(employee) === JSON.stringify(activeEmployee)) return
-        if (DEBUG_RERENDERS) console.log('OrganizationProvider() newState', employee)
+        if (DEBUG_RERENDERS) console.log('OrganizationProviderLegacy() newState', employee)
 
         const isEmployeeActive = !employee.isRejected && !employee.isBlocked && employee.isAccepted
 
