@@ -130,7 +130,7 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
                     sender,
                 }
 
-                const createdAction = await ConfirmEmailAction.create(context, actionPayload)
+                const createdAction = await ConfirmEmailAction.create(context, actionPayload, 'id email')
 
                 const locale = extractReqLocale(context.req)
                 const subject = getLocalizedMessage('messages.confirmEmailAction.subject', { locale })
@@ -159,7 +159,7 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
                     expiresAt_gt: currentTime,
                     deletedAt: null,
                     isVerified: false,
-                })
+                }, 'id attempts code')
 
                 if (!requestedAction) {
                     throw new GQLError(ERRORS.ACTION_NOT_FOUND, context)
@@ -177,7 +177,7 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
                     if (attempts >= CONFIRM_EMAIL_ACTION_MAX_ATTEMPTS) {
                         updateAttrs.deletedAt = currentTime
                     }
-                    await ConfirmEmailAction.update(context, requestedAction.id,  updateAttrs)
+                    await ConfirmEmailAction.update(context, requestedAction.id, updateAttrs)
 
                     throw new GQLError(ERRORS.INVALID_CODE, context)
                 }

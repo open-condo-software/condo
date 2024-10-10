@@ -106,7 +106,7 @@ const RegisterAppServiceUserService = new GQLCustomSchema('RegisterAppServiceUse
                     expiresAt_gte: currentTime,
                     deletedAt: null,
                     isVerified: true,
-                })
+                }, 'id email')
 
                 if (!confirmAction) {
                     throw new GQLError(ERRORS.ACTION_NOT_FOUND, context)

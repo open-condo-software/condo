@@ -34,6 +34,7 @@ const {
     B2C_APP_DEFAULT_LOGO_PATH,
     PUBLISH_REQUEST_APPROVED_STATUS,
 } = require('@dev-api/domains/miniapp/constants/publishing')
+const { EXPORT_FIELDS } = require('@dev-api/domains/miniapp/gql')
 const {
     B2CApp,
     B2CAppBuild,
@@ -238,7 +239,7 @@ async function addAccessRight ({ args, serverClient, context, condoApp }) {
         app: { id },
         environment,
         deletedAt: null,
-    })
+    }, 'id condoUserId')
 
     if (accessRight) {
         logger.info({ msg: 'Access right found for app', appId: id, environment, meta: { accessRightId: accessRight.id } })
@@ -320,7 +321,11 @@ const PublishB2CAppService = new GQLCustomSchema('PublishB2CAppService', {
             resolver: async (parent, args, context) => {
                 const { data: { app: { id }, options, environment } } = args
 
-                const app = await B2CApp.getOne(context, { id, deletedAt: null })
+                const app = await B2CApp.getOne(
+                    context,
+                    { id, deletedAt: null },
+                    `id ${EXPORT_FIELDS} name developer createdBy { name } logo { publicUrl originalFilename }`
+                )
                 if (!app) {
                     throw new GQLError(ERRORS.APP_NOT_FOUND, context)
                 }
@@ -375,7 +380,7 @@ const PublishB2CAppService = new GQLCustomSchema('PublishB2CAppService', {
                         id: options.build.id,
                         deletedAt: null,
                         app: { id: app.id },
-                    })
+                    }, `id ${EXPORT_FIELDS} version data { publicUrl originalFilename mimetype encoding }`)
                     if (!build) {
                         throw new GQLError(ERRORS.BUILD_NOT_FOUND, context)
                     }

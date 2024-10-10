@@ -48,7 +48,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     expiresAt_gte: currentTime,
                     deletedAt: null,
                     isVerified: true,
-                })
+                }, 'id phone')
 
                 if (!confirmAction) {
                     throw new GQLError(ERRORS.ACTION_NOT_FOUND, context)

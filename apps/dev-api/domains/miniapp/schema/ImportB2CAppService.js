@@ -163,7 +163,7 @@ async function _importBuildFromClient ({ serverClient, remoteAppId, versionSuffi
             app: { id: appId },
             deletedAt: null,
             version_in: builds.map(build => `${build.version}-${versionSuffix}`),
-        })
+        }, 'version')
         const existingSuffixedVersions = new Set(existingSuffixedBuilds.map(build => build.version))
 
         const devApiCreatePayload = []
@@ -191,7 +191,7 @@ async function _importBuildFromClient ({ serverClient, remoteAppId, versionSuffi
                 },
             })
         }
-        const createdBuilds = await B2CAppBuild.createMany(context, devApiCreatePayload)
+        const createdBuilds = await B2CAppBuild.createMany(context, devApiCreatePayload, 'id version')
         const condoUpdatePayload = createdBuilds.map(build => ({
             id: build[exportField],
             data: {
