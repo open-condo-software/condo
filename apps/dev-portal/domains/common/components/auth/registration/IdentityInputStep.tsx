@@ -30,7 +30,7 @@ type IdentityFormValues = {
 
 type IdentityInputStepProps = {
     phone: string
-    actionId: string,
+    actionId: string
     onComplete: () => void
 }
 

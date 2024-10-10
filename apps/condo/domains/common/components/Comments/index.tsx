@@ -75,7 +75,7 @@ const EmptyContainer = styled.div`
 
 type ActionsForComment = {
     updateAction?: (values: Partial<TicketUpdateInput>, obj: TicketComment) => Promise<TicketComment>,
-    deleteAction?: (obj: TicketComment) => Promise<TicketComment>,
+    deleteAction?: (obj: TicketComment) => Promise<TicketComment>
 }
 
 const CommentsTabsContainer = styled.div<{ isTitleHidden: boolean }>`
@@ -114,10 +114,10 @@ const EmptyCommentsContainer = ({ PromptTitleMessage, PromptDescriptionMessage }
 )
 
 type CommentsTabContentProps = {
-    comments: CommentWithFiles[],
-    PromptTitleMessage: string,
-    PromptDescriptionMessage: string,
-    actionsFor: (comment: CommentWithFiles) => ActionsForComment,
+    comments: CommentWithFiles[]
+    PromptTitleMessage: string
+    PromptDescriptionMessage: string
+    actionsFor: (comment: CommentWithFiles) => ActionsForComment
     editableComment: CommentWithFiles
     setEditableComment: React.Dispatch<React.SetStateAction<CommentWithFiles>>
     handleBodyScroll: UIEventHandler<HTMLDivElement>
@@ -207,20 +207,20 @@ export type CommentWithFiles = TicketComment & {
 }
 
 interface ICommentsListProps {
-    ticket: Ticket,
-    comments: CommentWithFiles[],
-    createAction?: (formValues) => Promise<TicketComment>,
+    ticket: Ticket
+    comments: CommentWithFiles[]
+    createAction?: (formValues) => Promise<TicketComment>
     updateAction?: (attrs, obj: CommentWithFiles) => Promise<TicketComment>
     // Place for abilities check. If action of given type is not returned, appropriate button will not be displayed
-    actionsFor: (comment: CommentWithFiles) => ActionsForComment,
-    canCreateComments: boolean,
-    refetchComments,
-    FileModel: Module,
+    actionsFor: (comment: CommentWithFiles) => ActionsForComment
+    canCreateComments: boolean
+    refetchComments
+    FileModel: Module
     ticketCommentsTime
-    fileModelRelationField: string,
-    userTicketCommentReadTime,
-    createUserTicketCommentReadTime,
-    updateUserTicketCommentReadTime,
+    fileModelRelationField: string
+    userTicketCommentReadTime
+    createUserTicketCommentReadTime
+    updateUserTicketCommentReadTime
     loadingUserTicketCommentReadTime: boolean
 }
 

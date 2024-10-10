@@ -3,8 +3,8 @@ import styled from '@emotion/styled'
 import { colors } from '../constants/style'
 
 interface IFrontLayerContainerProps {
-    showLayer?: boolean,
-    isSelectable?: boolean,
+    showLayer?: boolean
+    isSelectable?: boolean
 }
 
 export const FrontLayerContainer = styled.div<IFrontLayerContainerProps>`

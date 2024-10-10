@@ -20,13 +20,13 @@ import { CONTACT_TYPE, ContactValue } from './index'
 const DEBOUNCE_TIMEOUT_IN_MS = 800
 
 interface INotResidentFieldsFieldsProps {
-    refetch,
-    initialQuery?,
-    initialValue?: Partial<OrganizationEmployeeType>,
-    onChange: (contact: ContactValue) => void,
+    refetch
+    initialQuery?
+    initialValue?: Partial<OrganizationEmployeeType>
+    onChange: (contact: ContactValue) => void
     // Used for autocomplete
-    employees: OrganizationEmployeeType[],
-    activeTab: CONTACT_TYPE,
+    employees: OrganizationEmployeeType[]
+    activeTab: CONTACT_TYPE
 }
 
 const FIELD_ROW_GUTTER: RowProps['gutter'] = [16, 0]

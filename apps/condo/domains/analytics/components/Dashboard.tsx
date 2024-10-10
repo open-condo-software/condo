@@ -184,7 +184,7 @@ const PerformanceCard = ({ organizationId, paymentSum, propertyData, residentsDa
 }
 
 type DashboardCardType = ({ count, loading }: {
-    count: string,
+    count: string
     loading: boolean
 }) => React.ReactElement
 

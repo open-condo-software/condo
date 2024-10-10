@@ -57,11 +57,11 @@ type PropertyMetersTableContentProps = {
     filtersMeta: FiltersMeta<PropertyMeterReadingWhereInput>[]
     baseSearchQuery: PropertyMeterReadingWhereInput
     canManageMeterReadings: boolean
-    isAutomatic?: boolean,
+    isAutomatic?: boolean
     sortableProperties?: string[]
     loading?: boolean
-    meter?: Meter | PropertyMeter,
-    resource?: MeterResource,
+    meter?: Meter | PropertyMeter
+    resource?: MeterResource
     refetchReadingsCount?: () => void
 }
 

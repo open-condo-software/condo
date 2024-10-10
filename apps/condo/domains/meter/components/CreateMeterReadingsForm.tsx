@@ -100,10 +100,10 @@ function getTableData (meters: MeterType[] | PropertyMeterType[], meterReadings)
 }
 
 type MetersTableProps = {
-    handleSave: () => void,
-    selectedPropertyId: string,
+    handleSave: () => void
+    selectedPropertyId: string
     tableColumns: Record<string, unknown>[] | ColumnsType<any>,
-    newMeterReadings: Array<unknown> | unknown,
+    newMeterReadings: Array<unknown> | unknown
     setNewMeterReadings: (readings) => void
     selectedUnitName: string
     selectedUnitType: MeterUnitTypeType
@@ -235,7 +235,7 @@ const FORM_ROW_MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 20]
 type CreateMeterReadingsFormProps = {
     organization: Organization
     canManageMeterReadings: boolean
-    role: OrganizationEmployeeRole,
+    role: OrganizationEmployeeRole
 }
 
 export const CreateMeterReadingsForm = ({ organization, role, canManageMeterReadings }: CreateMeterReadingsFormProps): JSX.Element => {
@@ -454,10 +454,10 @@ export const CreateMeterReadingsForm = ({ organization, role, canManageMeterRead
 }
 
 type PropertyMetersTableProps = {
-    handleSave: () => void,
-    selectedPropertyId: string,
+    handleSave: () => void
+    selectedPropertyId: string
     tableColumns: Record<string, unknown>[] | ColumnsType<any>,
-    newMeterReadings: Array<unknown> | unknown,
+    newMeterReadings: Array<unknown> | unknown
     setNewMeterReadings: (readings) => void
 }
 

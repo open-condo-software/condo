@@ -14,7 +14,7 @@ interface ITicketAnalyticsPageListViewProps extends ITicketAnalyticsPageWidgetPr
 }
 
 export const getScrollConfig = (isSmall: boolean) => {
-    const config: RcTableProps['scroll'] & { scrollToFirstRowOnChange?: boolean; } = {
+    const config: RcTableProps['scroll'] & { scrollToFirstRowOnChange?: boolean } = {
         scrollToFirstRowOnChange: true,
     }
 

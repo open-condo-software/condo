@@ -98,12 +98,12 @@ const MarketItemFields = ({ marketItem }) => {
 }
 
 type AddressesPriceType = {
-    price: string,
+    price: string
     addresses: string[]
 }
 
 type PriceScopePropsType = {
-    addressesPrice: AddressesPriceType,
+    addressesPrice: AddressesPriceType
     closable: boolean
 }
 

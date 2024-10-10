@@ -3,7 +3,7 @@ import { File } from '@app/condo/schema'
 export type TOnMetersUpload = (blob: File) => void
 
 export interface IMeterDataImporterProps {
-    onUpload: TOnMetersUpload,
+    onUpload: TOnMetersUpload
 }
 
 export type TMeterImporterMappers = {

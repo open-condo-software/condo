@@ -673,11 +673,11 @@ export interface ITicketFormProps {
     organization?: Organization
     role?: OrganizationEmployeeRole
     initialValues?: ITicketFormState
-    action?: (...args) => Promise<Ticket>,
-    files?: TicketFileType[],
-    afterActionCompleted?: (ticket: Ticket) => void,
-    OnCompletedMsg?: OnCompletedMsgType<Ticket>,
-    autoAssign?: boolean,
+    action?: (...args) => Promise<Ticket>
+    files?: TicketFileType[]
+    afterActionCompleted?: (ticket: Ticket) => void
+    OnCompletedMsg?: OnCompletedMsgType<Ticket>
+    autoAssign?: boolean
     isExisted?: boolean
 }
 

@@ -7,9 +7,9 @@ import dayjs from 'dayjs'
  * @param startWithDate Date in ISO format
  */
 export const getTimeLeftMessageType: (props: {
-    deadline?: string,
+    deadline?: string
     isDefault?: boolean
-    startWithDate?: string,
+    startWithDate?: string
 }) => 'warning' | 'danger' | null = ({ deadline, isDefault, startWithDate }) => {
     if (isDefault) return null
     const startWith = startWithDate ? dayjs(startWithDate) : dayjs()
@@ -27,8 +27,8 @@ export const getTimeLeftMessageType: (props: {
  * @param startWithDate Date in ISO format
  */
 export const getTimeLeftMessage: (props: {
-    show: boolean,
-    deadline?: string,
+    show: boolean
+    deadline?: string
     startWithDate?: string
     TimeLeftMessage: string
     OverdueMessage: string

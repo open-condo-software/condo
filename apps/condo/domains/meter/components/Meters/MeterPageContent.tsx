@@ -229,11 +229,11 @@ export const MeterContent = ({ meter, resource, meterType }) => {
 }
 
 type MeterPageContentProps = {
-    meter: MeterType | PropertyMeterType,
-    possibleReportingPeriods: Array<MeterReportingPeriod>,
-    resource: MeterResource,
-    refetchMeter: () => void,
-    meterType: MeterTypes,
+    meter: MeterType | PropertyMeterType
+    possibleReportingPeriods: Array<MeterReportingPeriod>
+    resource: MeterResource
+    refetchMeter: () => void
+    meterType: MeterTypes
 }
 
 export const MeterPageContent = ({ meter, possibleReportingPeriods, resource, refetchMeter, meterType }: MeterPageContentProps): JSX.Element => {

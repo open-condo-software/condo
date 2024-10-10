@@ -5,17 +5,17 @@ import { useIntl } from '@open-condo/next/intl'
 
 
 export type PermissionRow = {
-    key: string,
-    name: string,
-    relatedCheckPermissions?: string[],
+    key: string
+    name: string
+    relatedCheckPermissions?: string[]
     relatedUncheckPermissions?: string[]
 }
 
 export type PermissionsGroup = {
-    key: string,
-    b2bAppId?: string,
-    groupName: string,
-    permissions: PermissionRow[],
+    key: string
+    b2bAppId?: string
+    groupName: string
+    permissions: PermissionRow[]
 }
 
 

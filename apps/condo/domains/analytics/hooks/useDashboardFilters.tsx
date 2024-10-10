@@ -44,7 +44,7 @@ const useSearchInput: UseSearchInputType = ({ placeholder, search }) => {
 }
 
 type UseFilterType = ({ organizationId }: { organizationId: string }) => {
-    values: Array<string>,
+    values: Array<string>
     SearchInput: React.ReactElement
 }
 

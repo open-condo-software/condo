@@ -7,7 +7,7 @@ const LARGE_ICON_SIZE = 24
 type IconSize = 'large' | 'medium' | 'small' | 'auto'
 
 export type IconProps = {
-    size?: IconSize,
+    size?: IconSize
     color?: CSSProperties['color']
     svgProps?: Pick<SVGProps<SVGSVGElement>, 'onClick'>
     className?: string

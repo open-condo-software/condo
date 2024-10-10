@@ -40,15 +40,15 @@ export interface ITopNotificationAction {
 }
 
 export interface ITopNotification {
-    id: string,
+    id: string
     actions: ITopNotificationAction[]
     message: string | JSX.Element
     type: AlertProps['type']
 }
 
 interface ITopNotificationHookResult {
-    TopNotificationComponent: React.FC,
-    addNotification: (notification: ITopNotification) => void,
+    TopNotificationComponent: React.FC
+    addNotification: (notification: ITopNotification) => void
 }
 
 export const useTopNotificationsHook = (serviceProblemsAlert?: React.ReactNode): ITopNotificationHookResult => {

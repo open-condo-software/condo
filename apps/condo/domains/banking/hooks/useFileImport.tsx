@@ -24,9 +24,9 @@ type WrappedComponentType = (props: Pick<FileImportProps, 'type' | 'children' | 
 
 interface IUseFileImport {
     ({ propertyId, bankAccount, organizationId }: FileImportHookProps): ({
-        Component: WrappedComponentType,
-        file: UploadRequestOption['file'],
-        loading: boolean,
+        Component: WrappedComponentType
+        file: UploadRequestOption['file']
+        loading: boolean
     })
 }
 
