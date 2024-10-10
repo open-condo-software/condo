@@ -12,7 +12,7 @@ const WELCOME_MODAL_PIC_STYLE: CSSProperties = { borderRadius: 12 }
 const WELCOME_MODAL_TEXT_GAP = 16
 
 type WelcomeModalProps = {
-    open: boolean,
+    open: boolean
     onCancel: () => void
 }
 

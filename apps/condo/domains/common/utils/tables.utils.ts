@@ -43,8 +43,8 @@ type StringFilter = {
 }
 
 export type OptionType = {
-    label: string,
-    value: string,
+    label: string
+    value: string
 }
 
 type StringOptionFilter = {
@@ -54,11 +54,11 @@ type StringOptionFilter = {
 }
 
 type DateFilter = {
-    type: 'date',
+    type: 'date'
 }
 
 type CustomFilter = {
-    type: 'custom',
+    type: 'custom'
     filterDropdown: (props: FilterDropdownProps) => React.ReactNode
 }
 
@@ -85,7 +85,7 @@ export type QueryMeta<F> = {
 }
 
 export type SorterColumn = {
-    columnKey: string,
+    columnKey: string
     order: 'ascend' | 'descend'
 }
 export type Sorters = { [column: string]: 'ascend' | 'descend' }

@@ -1,5 +1,5 @@
 import { MeterReportingPeriod, MeterResource, PropertyMeter as PropertyMeterType } from '@app/condo/schema'
-import { Meter as MeterType } from '@app/condo/schema' 
+import { Meter as MeterType } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
@@ -23,6 +23,7 @@ import { useMeterReadingFilters } from '@condo/domains/meter/hooks/useMeterReadi
 import { Meter, MeterTypes, METER_TAB_TYPES, METER_TYPES, PropertyMeter } from '@condo/domains/meter/utils/clientSchema'
 import { getMeterTitleMessage } from '@condo/domains/meter/utils/helpers'
 import { TicketPropertyField } from '@condo/domains/ticket/components/TicketId/TicketPropertyField'
+
 
 
 const METER_STATUSES = { active: 'active', archived: 'archived' }
@@ -229,11 +230,11 @@ export const MeterContent = ({ meter, resource, meterType }) => {
 }
 
 type MeterPageContentProps = {
-    meter: MeterType | PropertyMeterType,
-    possibleReportingPeriods: Array<MeterReportingPeriod>,
-    resource: MeterResource,
-    refetchMeter: () => void,
-    meterType: MeterTypes,
+    meter: MeterType | PropertyMeterType
+    possibleReportingPeriods: Array<MeterReportingPeriod>
+    resource: MeterResource
+    refetchMeter: () => void
+    meterType: MeterTypes
 }
 
 export const MeterPageContent = ({ meter, possibleReportingPeriods, resource, refetchMeter, meterType }: MeterPageContentProps): JSX.Element => {

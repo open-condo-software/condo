@@ -5,8 +5,8 @@ import { useCallback, useState } from 'react'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useOrganization } from '@open-condo/next/organization'
 
-
 import { MarketplacePageTypes, MARKETPLACE_PAGE_TYPES } from '@condo/domains/marketplace/utils/clientSchema'
+
 
 type TabUpdateHandler = (key: string) => void
 

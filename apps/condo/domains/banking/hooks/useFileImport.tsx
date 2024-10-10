@@ -14,6 +14,7 @@ import type { BankAccount as BankAccountType } from '@app/condo/schema'
 import type { FileImportProps } from '@condo/domains/banking/components/FileImportButton'
 import type { UploadRequestOption } from 'rc-upload/lib/interface'
 
+
 type FileImportHookProps = {
     propertyId: string
     organizationId: string
@@ -24,9 +25,9 @@ type WrappedComponentType = (props: Pick<FileImportProps, 'type' | 'children' | 
 
 interface IUseFileImport {
     ({ propertyId, bankAccount, organizationId }: FileImportHookProps): ({
-        Component: WrappedComponentType,
-        file: UploadRequestOption['file'],
-        loading: boolean,
+        Component: WrappedComponentType
+        file: UploadRequestOption['file']
+        loading: boolean
     })
 }
 

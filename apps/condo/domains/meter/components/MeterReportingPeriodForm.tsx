@@ -27,6 +27,7 @@ import { usePropertyValidations } from '@condo/domains/property/components/BaseP
 import { searchOrganizationPropertyWithoutPropertyHint } from '@condo/domains/ticket/utils/clientSchema/search'
 
 
+
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
         span: 8,
@@ -50,9 +51,9 @@ const ADDRESS_SEARCH_WRAPPER_COL = { span: 14 }
 const DESCRIPTION_TEXT_STYLE = { alignSelf: 'start' }
 
 interface IMeterReportingPeriodForm {
-    mode: 'create' | 'update',
-    action: (data: any) => Promise<MeterReportingPeriodType> | Promise<void>,
-    reportingPeriodRecord?: MeterReportingPeriodType,
+    mode: 'create' | 'update'
+    action: (data: any) => Promise<MeterReportingPeriodType> | Promise<void>
+    reportingPeriodRecord?: MeterReportingPeriodType
 }
 
 export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ mode, reportingPeriodRecord, action }) => {

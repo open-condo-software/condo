@@ -12,8 +12,8 @@ interface IErrorsContainerProps {
     isLoading: boolean
     disabledCondition: boolean
     property: string
-    details: string,
-    placeClassifier: string,
+    details: string
+    placeClassifier: string
     categoryClassifier: string
     deadline: string
     propertyMismatchError: string

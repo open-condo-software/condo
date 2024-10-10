@@ -29,6 +29,7 @@ import { PosterWrapper } from '@condo/domains/user/components/containers/styles'
 import type { GetServerSideProps } from 'next'
 
 
+
 const LOGO_HEADER_STYLES = { width: '100%', justifyContent: 'space-between' }
 const HEADER_LOGO_STYLE: React.CSSProperties = { cursor: 'pointer' }
 const TEXT_CENTER_STYLE: React.CSSProperties = { textAlign: 'center' }

@@ -14,11 +14,12 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 
 import type { BankAccount } from '@app/condo/schema'
 
+
 const BANK_SYNC_TASK_DATE_FORMAT = 'YYYY-MM-DD'
 
 interface IUseBankSyncTaskExternalModal {
     ({ propertyId, bankAccount }: { propertyId: string, bankAccount: BankAccount }): ({
-        ModalComponent: React.ReactElement,
+        ModalComponent: React.ReactElement
         handleOpen: () => void
     })
 }

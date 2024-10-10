@@ -17,6 +17,7 @@ import { InvoiceRowsTable } from './InvoiceRowsTable'
 import { UpdateInvoiceForm } from './UpdateInvoiceForm'
 
 
+
 type TicketInvoiceCardPropsType = {
     organizationId: string
     invoiceIndex?: number

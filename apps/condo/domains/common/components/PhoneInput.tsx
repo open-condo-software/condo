@@ -14,9 +14,11 @@ import React, {
 } from 'react'
 import ReactPhoneInput, { PhoneInputProps } from 'react-phone-input-2'
 
+
 import { useOrganization } from '@open-condo/next/organization'
 
 import { colors } from '@condo/domains/common/constants/style'
+
 import 'react-phone-input-2/lib/style.css'
 
 interface IPhoneInputProps extends Omit<PhoneInputProps, 'onChange'> {
@@ -25,7 +27,7 @@ interface IPhoneInputProps extends Omit<PhoneInputProps, 'onChange'> {
     /*
         Make this component compatible with `AutoComplete` component, when used as a custom input.
      */
-    compatibilityWithAntAutoComplete?: boolean,
+    compatibilityWithAntAutoComplete?: boolean
     masks?: { ru?: string }
 
     style?: CSSProperties
@@ -37,8 +39,8 @@ interface IPhoneInputProps extends Omit<PhoneInputProps, 'onChange'> {
 
 type PhoneInputRef = {
     numberInputRef: {
-        focus: () => void,
-    } & ComponentProps<'input'>,
+        focus: () => void
+    } & ComponentProps<'input'>
 }
 
 const { publicRuntimeConfig: { defaultLocale } } = getConfig()

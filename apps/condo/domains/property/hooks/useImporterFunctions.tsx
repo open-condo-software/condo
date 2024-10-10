@@ -14,6 +14,7 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 import { searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
 
+
 const createPropertyUnitsMap = (units, sections, floors, minFloor) => {
     if (!minFloor) {
         minFloor = 1

@@ -12,7 +12,7 @@ import { getAddressDetails } from '@condo/domains/common/utils/helpers'
 export const PROPERTY_PAGE_SIZE = 10
 
 type SorterColumn = {
-    columnKey: string,
+    columnKey: string
     order: 'ascend' | 'descend'
 }
 

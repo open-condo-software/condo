@@ -21,14 +21,15 @@ import { normalizePhone } from '@condo/domains/common/utils/phone'
 import { CONTACT_TYPE, ContactValue, FieldsType } from './index'
 
 
+
 interface INewContactFieldsFieldsProps {
-    initialValueWithoutContact?: Partial<ContactType>,
-    onChange: (contact: ContactValue) => void,
-    onChecked?: () => void,
-    checked?: boolean,
-    contacts: ContactType[],
-    displayMinusButton?: boolean,
-    onClickMinusButton?: () => void,
+    initialValueWithoutContact?: Partial<ContactType>
+    onChange: (contact: ContactValue) => void
+    onChecked?: () => void
+    checked?: boolean
+    contacts: ContactType[]
+    displayMinusButton?: boolean
+    onClickMinusButton?: () => void
     fields: FieldsType
     activeTab: CONTACT_TYPE
     contactsLoading?: boolean
@@ -36,7 +37,7 @@ interface INewContactFieldsFieldsProps {
     newContactPhoneFormItemProps?: FormItemProps
     newContactNameFormItemProps?: FormItemProps
     disabled?: boolean
-    form: FormInstance,
+    form: FormInstance
 }
 
 const FIELD_WRAPPER_COL = { span: 24 }

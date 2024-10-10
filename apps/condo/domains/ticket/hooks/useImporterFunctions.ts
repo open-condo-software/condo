@@ -23,6 +23,7 @@ import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
 
+
 const normalizeIsResidentTicket = (value: string, yes: string, no: string) => {
     const VALID_VALUES = [yes, no, '']
     const valueInLowerCase = value.toLowerCase()

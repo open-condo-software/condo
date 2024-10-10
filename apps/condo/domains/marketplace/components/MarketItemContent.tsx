@@ -28,6 +28,7 @@ import { MarketItem, MarketPriceScope, MarketCategory } from '@condo/domains/mar
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
 
+
 const TableContent = () => {
     const intl = useIntl()
     const AddServicesButtonText = intl.formatMessage({ id: 'pages.condo.marketplace.services.actionBar.createMarketItemButton' })

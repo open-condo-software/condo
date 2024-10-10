@@ -22,6 +22,7 @@ import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
 import { CHANGE_PASSWORD_WITH_TOKEN_MUTATION, GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY } from '@condo/domains/user/gql'
 
 
+
 const ROW_STYLES: React.CSSProperties = {
     justifyContent: 'center',
 }

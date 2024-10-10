@@ -17,6 +17,7 @@ import { Banner, Carousel, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 
+
 interface HintI18n {
     title: string
     description: string

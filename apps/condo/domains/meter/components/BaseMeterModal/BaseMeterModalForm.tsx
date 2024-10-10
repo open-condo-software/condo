@@ -29,6 +29,7 @@ import { BaseMeterModalFormItem } from './BaseMeterModalFormItem'
 
 import type { MeterResource } from '@app/condo/schema'
 
+
 type InitialMeterFormValuesType = {
     propertyId?: string
     unitName?: string
@@ -46,9 +47,9 @@ type InitialMeterFormValuesType = {
 }
 
 type BaseMeterModalFormProps = ComponentProps<typeof BaseModalForm> & {
-    handleSubmit: (values: unknown) => void,
-    initialValues: InitialMeterFormValuesType,
-    ModalTitleMsg: JSX.Element | string,
+    handleSubmit: (values: unknown) => void
+    initialValues: InitialMeterFormValuesType
+    ModalTitleMsg: JSX.Element | string
     ModalSaveButtonLabelMsg: JSX.Element | string
     modalNotification?: JSX.Element | string
     disabled?: boolean

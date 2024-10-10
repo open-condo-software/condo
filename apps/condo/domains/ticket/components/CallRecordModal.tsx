@@ -19,6 +19,7 @@ import { getOrganizationTickets } from '@condo/domains/ticket/utils/clientSchema
 import { CallRecordCard } from './CallRecordCard'
 
 
+
 const DROPDOWN_POPUP_CONTAINER_ID = 'attach-tickets-to-call-record'
 function getPopupContainer (): HTMLElement {
     if (typeof document !== 'undefined') {
