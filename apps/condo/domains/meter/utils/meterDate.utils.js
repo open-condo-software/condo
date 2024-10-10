@@ -11,6 +11,7 @@ dayjs.extend(utc)
 const SYMBOLS_TO_CUT_FROM_DATES_REGEXP = /[^+\-TZ_:.,( )/\d]/gi // -_:.,()/ recognizable by dayjs https://day.js.org/docs/en/parse/string-format
 const DATE_WITH_OFFSET_REGEXP = /([T\s]\d{2}:\d{2}:\d{2}(\.\d{1,3})?)[+-](\d{2}):?(\d{2})$/ // +5000 | +50:00
 const UTC_STRING_FORMAT = 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'
+const DEFAULT_PARSING_OPTIONS = { formats: DATE_PARSING_FORMATS, utc: true, offsets: true }
 
 /**
  * Clear bad user input
@@ -35,19 +36,24 @@ function clearDateStr (dateStr) {
 /**
  * Validates dates in formats: ISO, with offsets, or in custom formats
  * @param {string} dateStr
- * @param {Array<string>=DATE_PARSING_FORMATS} formats - defaults to supported meter dates formats
+ * @param options - change default formats, disable utc or offset formats
+ * @param {Array<string>?} options.formats - date parsing formats
+ * @param {boolean?} options.utc - process utc or not
+ * @param {boolean?} options.offsets - process date with offsets or not
  * @return {boolean}
  */
-function isDateStrValid (dateStr, formats = DATE_PARSING_FORMATS) {
+function isDateStrValid (dateStr, options = DEFAULT_PARSING_OPTIONS) {
     if (!dateStr || !isString(dateStr)) {
         return false
     }
 
-    if (dateStr.endsWith('Z')) {
+    options = { DEFAULT_PARSING_OPTIONS, ...options }
+
+    if (options.utc && dateStr.endsWith('Z')) {
         return dayjs.utc(dateStr, UTC_STRING_FORMAT, true).isValid()
     }
 
-    if (DATE_WITH_OFFSET_REGEXP.test(dateStr)) {
+    if (options.offsets && DATE_WITH_OFFSET_REGEXP.test(dateStr)) {
         // remove +HH:mm | +HHmm part, it does not matter
         const maybeSemicolon = dateStr[dateStr.length - 3]
         let offsetStartIndex = dateStr.length - 5
@@ -57,7 +63,7 @@ function isDateStrValid (dateStr, formats = DATE_PARSING_FORMATS) {
         dateStr = dateStr.substring(0, offsetStartIndex)
     }
 
-    return dayjs(dateStr, formats, true).isValid()
+    return dayjs(dateStr, options.formats, true).isValid()
 }
 
 /**
@@ -67,7 +73,9 @@ function isDateStrValid (dateStr, formats = DATE_PARSING_FORMATS) {
  * @returns {string|undefined} dateString in UTC or undefined for invalid date
  */
 function tryToISO (dateStr, formats = DATE_PARSING_FORMATS) {
-    dateStr = clearDateStr(dateStr)
+    if (!dateStr || !isString(dateStr)) {
+        return undefined
+    }
 
     /** @type {dayjs.Dayjs} */
     let date

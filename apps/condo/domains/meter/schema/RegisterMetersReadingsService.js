@@ -25,10 +25,13 @@ const {
     INVALID_METER_NUMBER,
     INVALID_DATE,
 } = require('@condo/domains/meter/constants/errors')
-const { READINGS_LIMIT, ISO_DATE_FORMAT, EUROPEAN_DATE_FORMAT } = require('@condo/domains/meter/constants/registerMetersReadingsService')
+const { READINGS_LIMIT, DATE_FIELD_PATH_TO_TRANSLATION, DATE_FIELD_PATHS } = require('@condo/domains/meter/constants/registerMetersReadingsService')
 const { validateMeterValue, shouldUpdateMeter, meterReadingAsResult, normalizeMeterValue } = require('@condo/domains/meter/utils/meter.utils')
-const { isDateStrValid, clearDateStr, tryToISO } = require('@condo/domains/meter/utils/meterDate.utils')
+const { isDateStrValid: isDateStrValidUtils, tryToISO: tryToISOUtils } = require('@condo/domains/meter/utils/meterDate.utils')
 const { Meter, MeterReading } = require('@condo/domains/meter/utils/serverSchema')
+
+const DATE_FORMAT = 'YYYY-MM-DD'
+const UTC_DATE_FORMAT = 'YYYY-MM-DDTHH:mm:ss.SSSZ'
 
 
 dayjs.extend(customParseFormat)
@@ -38,8 +41,12 @@ const ERRORS = {
     TOO_MUCH_READINGS: {
         code: BAD_USER_INPUT,
         type: TOO_MUCH_READINGS,
-        message: 'Too much readings. Maximum is {limit}.',
+        message: 'Too much readings. {sentCount} sent, limit is {limit}.',
         messageForUser: 'api.meter.registerMetersReadings.TOO_MUCH_READINGS',
+        messageInterpolation: {
+            limit: READINGS_LIMIT,
+            sentCount: '??',  // runtime value
+        },
     },
     ORGANIZATION_NOT_FOUND: {
         code: BAD_USER_INPUT,
@@ -97,6 +104,41 @@ function transformToPlainObject (input) {
     }
 
     return result
+}
+
+const isDateStrValid = (dateStr) => {
+    return isDateStrValidUtils(dateStr, { utc: true, formats: [DATE_FORMAT] })
+}
+
+const tryToISO = (dateStr) => {
+    return tryToISOUtils(dateStr, [DATE_FORMAT])
+}
+
+function getDateStrValidationError (context, locale, reading) {
+    const getError = (datePath) => new GQLError({
+        ...ERRORS.INVALID_DATE,
+        messageInterpolation: {
+            columnName: i18n(DATE_FIELD_PATH_TO_TRANSLATION[datePath], { locale }),
+            format: [UTC_DATE_FORMAT, DATE_FORMAT].join('", "'),
+        },
+    }, context)
+
+    for (const { path, nullable } of DATE_FIELD_PATHS) {
+        const dateStr = get(reading, path)
+
+        if (!nullable && isNil(dateStr)) {
+            return getError(path)
+        }
+
+        if (nullable && isNil(dateStr)) {
+            continue
+        }
+
+        if (!isDateStrValid(dateStr)) {
+            return getError(path)
+        }
+    }
+    return null
 }
 
 const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReadingsService', {
@@ -157,6 +199,11 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
     mutations: [
         {
             access: access.canRegisterMetersReadings,
+            doc: {
+                summary: 'Create meter readings and, if not exists, meters.',
+                description: 'Use dates in UTC format (YYYY-MM-DDTHH:mm:ss.SSSZ) or in YYYY-MM-DD. You should prefer UTC.',
+                errors: ERRORS,
+            },
             schema: 'registerMetersReadings(data: RegisterMetersReadingsInput!): [RegisterMetersReadingsOutput]',
             resolver: async (parent, /**{ data: RegisterMetersReadingsInput }*/args, context) => {
                 const { data: { dv, sender, organization, readings } } = args
@@ -211,7 +258,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     deletedAt: null,
                 })
 
-                const readingsWithValidDates = readings.filter(reading => isDateStrValid(clearDateStr(reading.date)))
+                const readingsWithValidDates = readings.filter(reading => isDateStrValid(reading.date))
                 const plainMeterReadings = await find('MeterReading', {
                     meter: { id_in: meters.map(meter => meter.id) },
                     date_in: uniq(readingsWithValidDates.map(reading => tryToISO(reading.date))),
@@ -259,17 +306,9 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                         continue
                     }
 
-                    if (!isDateStrValid(clearDateStr(reading.date))) {
-                        resultRows.push(new GQLError({
-                            ...ERRORS.INVALID_DATE,
-                            messageInterpolation: {
-                                columnName: i18n('meter.import.column.meterReadingSubmissionDate', { locale }),
-                                format: [
-                                    i18n('iso.date.format', { locale }),
-                                    i18n('european.date.format', { locale }),
-                                ].join('", "'),
-                            },
-                        }, context))
+                    const dateValidationError = getDateStrValidationError(context, locale, reading)
+                    if (dateValidationError) {
+                        resultRows.push(dateValidationError)
                         continue
                     }
 

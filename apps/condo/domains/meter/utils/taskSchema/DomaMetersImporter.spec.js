@@ -1,7 +1,7 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
-const { DomaMetersImporter } = require('./DomaMetersImporter')
+const { DomaMetersImporter } = require('@condo/domains/meter/utils/taskSchema/DomaMetersImporter')
 
 class ImporterWrapper extends DomaMetersImporter {
     mappers = {
@@ -48,11 +48,13 @@ class ImporterWrapper extends DomaMetersImporter {
 }
 
 describe('DomaMetersImporter', () => {
+
     test('Rows transformation must work', () => {
         const fakeAddress = faker.address.streetAddress()
-        const date = dayjs().format('DD.MM.YYYY')
-        const verificationDate = dayjs().format('DD.MM.YYYY')
-        const sealingDate = dayjs().format('DD.MM.YYYY')
+        const format = 'DD.MM.YYYY'
+        const date = dayjs().format(format)
+        const verificationDate = dayjs().format(format)
+        const sealingDate = dayjs().format(format)
         const rows = [
             // address, unitName, unitType, accountNumber, meterType, meterNumber, tariffs, v1, v2, v3, v4, date, verificationDate, nextVerificationDate, installationDate, commissioningDate, sealingDate, controlReadingsDate, place, isAutomatic
             [

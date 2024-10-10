@@ -1820,6 +1820,7 @@
   "meter.import.error.unknownUnitType": "Unknown unit type. Please use one of the following: {knownList} at column \"Unit type\"",
   "meter.import.error.unknownIsAutomatic": "Unknown value for Automatic. Please use one of the following: {knownList}",
   "meter.import.error.ZeroValuesSpecified": "At least one of values must be specified",
+  "meter.import.error.InvalidDate": "Incorrect date format in column \"{columnName}\". Use either value of \"Text\" type in format: \"{format}\", or value of Date type",
   "api.meter.registerMetersReadings.INVALID_ACCOUNT_NUMBER": "Account number field is filled incorrectly",
   "api.meter.registerMetersReadings.INVALID_METER_NUMBER": "Meter number field is filled incorrectly",
   "meter.import.value.meterResourceType.hotWater": "HW",
