@@ -172,8 +172,8 @@ export function registerBillingReceiptFileCase (data) {
         data.base64EncodedPDF,
     )
     const registerResponse = response.json('data.obj') as {
-        id: string,
-        status: string,
+        id: string
+        status: string
     }
 
     check(response, {

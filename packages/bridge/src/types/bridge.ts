@@ -9,7 +9,7 @@ export type RequestIdType = string | number
 export type RequestId = { requestId?: RequestIdType }
 
 export type BaseResponseEvent<ResponseType extends string, Data> = {
-    type: ResponseType,
+    type: ResponseType
     data: Data
 }
 
@@ -17,9 +17,9 @@ export type ResultResponseEventName<Method extends AnyRequestMethodName> = Respo
 export type ResultResponseData<Method extends AnyResponseMethodName> = ResultResponseDataMap[Method]
 export type ErrorResponseEventName<Method extends AnyResponseMethodName> = ResponseEventNamesMap[Method]['error']
 export type ClientErrorResponseData<Reason extends ErrorReason> = {
-    errorType: 'client',
+    errorType: 'client'
     errorReason: Reason
-    errorCode: ErrorCode<Reason>,
+    errorCode: ErrorCode<Reason>
     errorMessage: string
 }
 export type ErrorResponseData = ClientErrorResponseData<ErrorReason>

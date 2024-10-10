@@ -45,7 +45,7 @@ type CommonFilterComponentType = {
         label?: string
         size?: FilterComponentSize
         formItemProps?: FormItemProps
-    },
+    }
     columnFilterComponentWrapper?: CSSProperties
 }
 
@@ -98,7 +98,7 @@ export type FilterComponentType<RecordType = unknown> = CommonFilterComponentTyp
 )
 
 export type FiltersMeta<FilterType, RecordType = unknown> = QueryMeta<FilterType> & {
-    component?: FilterComponentType<RecordType>,
+    component?: FilterComponentType<RecordType>
 }
 
 export const getQueryToValueProcessorByType = (type: ComponentType) => {
