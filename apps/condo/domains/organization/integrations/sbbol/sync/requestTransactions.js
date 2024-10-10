@@ -44,7 +44,7 @@ async function isTaskCancelled (context, taskId) {
 async function requestTransactionsForDate ({ userId, bankAccounts, context, statementDate, organizationId }) {
     let sbbolFintechClient, accessTokens, accessTokenIndex = 0, transactionException, summaryException
 
-    sbbolFintechClient = await initSbbolFintechApi(userId, true)
+    sbbolFintechClient = await initSbbolFintechApi(userId, organizationId, true)
 
     accessTokens = await getAllAccessTokensByOrganization(context, organizationId)
 

@@ -16,7 +16,7 @@ async function canGetAccessTokenByUserId ({ authentication: { item: user }, data
     if (user.type === SERVICE) {
         const tokenAccessRights = await ExternalTokenAccessRight.getOne(context, {
             deletedAt: null,
-            type: get(data, 'type'),
+            type: data.type,
             user: { id: user.id },
         })
 

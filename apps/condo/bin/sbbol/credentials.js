@@ -56,8 +56,8 @@ const workerJob = async () => {
     if (command === COMMAND.CHANGE_CLIENT_SECRET) {
         await keystoneConnect()
         const sbbolSecretStorage = getSbbolSecretStorage()
-        let clientId, currentClientSecret, newClientSecret, userId, withExtendedConfig
-        [clientId, currentClientSecret, newClientSecret, userId, withExtendedConfig] = process.argv.slice(3)
+        let clientId, currentClientSecret, newClientSecret, accessToken, withExtendedConfig
+        [clientId, currentClientSecret, newClientSecret, accessToken, withExtendedConfig] = process.argv.slice(3)
         const useExtendedConfig = withExtendedConfig === 'true'
         if (!clientId && !currentClientSecret && !newClientSecret) {
             currentClientSecret = await sbbolSecretStorage.getClientSecret(useExtendedConfig)
@@ -76,14 +76,14 @@ const workerJob = async () => {
             }
         }
 
-        await changeClientSecret({ clientId, currentClientSecret, newClientSecret, userId, useExtendedConfig })
+        await changeClientSecret({ clientId, currentClientSecret, newClientSecret, accessToken, useExtendedConfig })
     }
 
     if (command === COMMAND.GET) {
-        const [userId, withExtendedConfig] = process.argv.slice(3)
+        const [userId, organizationId, withExtendedConfig] = process.argv.slice(3)
         const useExtendedConfig = withExtendedConfig === 'true'
         const sbbolSecretStorage = getSbbolSecretStorage(useExtendedConfig)
-        const values = await sbbolSecretStorage.getRawKeyValues(userId)
+        const values = await sbbolSecretStorage.getRawKeyValues(userId, organizationId)
         console.log('SbbolSecretStorage values: ', JSON.stringify(values, null, 2))
     }
 
@@ -114,24 +114,27 @@ const workerJob = async () => {
                 userId: {
                     type: 'string',
                 },
+                organizationId: {
+                    type: 'string',
+                },
             },
         })
         if (!validate(values)) {
-            throw new Error('Invalid values object provided. Valid values object is { clientSecret, accessToken, refreshToken }. It may contain only needed keys', values)
+            throw new Error('Invalid values object provided. Valid values object is { clientSecret, accessToken, refreshToken, organizationId }. It may contain only needed keys', values)
         }
         console.debug('Values to be set', values)
         const sbbolSecretStorage = getSbbolSecretStorage(useExtendedConfig)
-        const { clientSecret, accessToken, refreshToken, userId } = values
+        const { clientSecret, accessToken, refreshToken, userId, organizationId } = values
         if (clientSecret) {
             await sbbolSecretStorage.setClientSecret(clientSecret)
             console.debug('Set clientSecret', clientSecret)
         }
         if (accessToken) {
-            await sbbolSecretStorage.setAccessToken(accessToken, userId)
+            await sbbolSecretStorage.setAccessToken(accessToken, userId, organizationId)
             console.debug('Set accessToken', accessToken, 'for userId', userId)
         }
         if (refreshToken) {
-            await sbbolSecretStorage.setRefreshToken(refreshToken, userId)
+            await sbbolSecretStorage.setRefreshToken(refreshToken, userId, organizationId)
             console.debug('Set refreshToken', refreshToken, 'for userId', userId)
         }
         console.log('Done.')
