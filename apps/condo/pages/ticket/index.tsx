@@ -24,7 +24,6 @@ import React, { CSSProperties, Key, useCallback, useEffect, useMemo, useRef, use
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { Search, Close, Phone } from '@open-condo/icons'
-import { extractReqLocale } from '@open-condo/locales/extractReqLocale'
 import { prepareSSRContext } from '@open-condo/miniapp-utils'
 import { useLazyQuery } from '@open-condo/next/apollo'
 import { initializeApollo } from '@open-condo/next/apollo'
@@ -64,7 +63,6 @@ import {
 import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
-import { messagesImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
 import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
@@ -1098,37 +1096,19 @@ const TicketsPage: ITicketIndexPage = () => {
 TicketsPage.requiredAccess = TicketReadPermissionRequired
 export default TicketsPage
 
-async function extractMessages (req, res) {
-    const locale = extractReqLocale(req) || 'ru'
-    const messages = await messagesImporter(locale)
-
-    return { locale, messages }
-}
-
 export const getServerSideProps: GetServerSideProps = async (context) => {
-    const { req, res, ...otherr } = context
+    const { req, res } = context
 
-    console.log('!!! RUN FUCKING SSR !!!')
     // @ts-ignore In Next 9 the types (only!) do not match the expected types
     const { headers } = prepareSSRContext(req, res)
     const client = initializeApollo({ headers })
-
-    console.log(':::getServerSideProps:Ticket::: >>>', otherr)
 
     const { redirect, user } = await prefetchAuthOrRedirect(client, context)
     if (redirect) return redirect
 
     const { activeEmployee } = await prefetchOrganizationEmployee({ client, context, userId: user.id })
 
-    // const tickets = await client.query()
-
-    // const intlProps = await extractMessages(req, res)
-
-    // console.log(':::getServerSideProps:intlProps::: >>>', intlProps)
-
     return extractSSRState(client, req, res, {
-        props: {
-            // ...intlProps,
-        },
+        props: {},
     })
 }

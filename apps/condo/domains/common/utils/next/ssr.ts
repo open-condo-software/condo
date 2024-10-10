@@ -29,10 +29,6 @@ const DEFAULT_COOKIES_VALUES: SSRCookiesContextType =
     Object.assign({}, ...VITAL_COOKIES.map(key => ({ [key]: null })))
 
 export function extractVitalCookies<PropsType> (req: SSRRequest, res: SSRResponse, pageParams: SSRResult<PropsType>): SSRResult<PropsType> {
-
-    // @ts-ignore
-    // console.log('::extractVitalCookies:: >>> ', pageParams.props.__APOLLO_STATE__.invalidation.entitiesById['ROOT_QUERY.allContacts'].storeFieldNames.entries)
-
     const cookies: SSRCookiesContextType =
         Object.assign({}, ...VITAL_COOKIES.map(key => ({
             [key]: getCookie(key, { req, res }) || null,

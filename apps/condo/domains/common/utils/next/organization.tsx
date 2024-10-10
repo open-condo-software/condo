@@ -21,10 +21,6 @@ export async function prefetchOrganizationEmployee (args: PrefetchOrganizationEm
 
     const activeEmployeeId = getCookie(ACTIVE_EMPLOYEE_COOKIE_NAME, { req: context.req, res: context.res })
 
-    console.log('prefetchOrganizationEmployee:activeEmployeeId:: >>>', {
-        activeEmployeeId, userId,
-    })
-
     if (activeEmployeeId) {
         const response = await client.query<GetActiveOrganizationEmployeeQuery, GetActiveOrganizationEmployeeQueryVariables>({
             query: GetActiveOrganizationEmployeeDocument,
@@ -38,11 +34,6 @@ export async function prefetchOrganizationEmployee (args: PrefetchOrganizationEm
                     isRejected: false,
                 },
             },
-        })
-
-        console.log('prefetchOrganizationEmployee:response:: >>>', {
-            response,
-            activeEmployee: get(response, ['data', 'employees', 0]) || null,
         })
 
         const activeEmployee = get(response, ['data', 'employees', 0]) || null
@@ -63,11 +54,6 @@ export async function prefetchOrganizationEmployee (args: PrefetchOrganizationEm
                 isRejected: false,
             },
         },
-    })
-
-    console.log('prefetchOrganizationEmployee:!activeEmployeeId:: >>>', {
-        response,
-        activeEmployee: get(response, ['data', 'employees', 0]) || null,
     })
 
     const activeEmployee = get(response, ['data', 'employees', 0]) || null

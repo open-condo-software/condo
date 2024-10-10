@@ -24,9 +24,6 @@ const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions
 
 
     const { isLoading, link } = organization
-    console.log('OrganizationRequiredAfterAuthRequired >>>', {
-        isLoadingAuth, user, isLoading, link,
-    })
 
     let pageView = children
 
