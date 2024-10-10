@@ -15,8 +15,6 @@ export async function prefetchAuthOrRedirect (client: ApolloClient<NormalizedCac
     const result: { user: Awaited<ReturnType<typeof prefetchAuth>> | null, redirect: null | Awaited<ReturnType<GetServerSideProps>> } = { user: null, redirect: null }
     const user = await prefetchAuth(client)
 
-    console.log('prefetchAuthOrRedirect::: >>>', { user })
-
     if (user) {
         result.user = user
     } else {
