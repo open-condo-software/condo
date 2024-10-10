@@ -28,7 +28,7 @@ const buildExportWordFile = async ({ task, documentData, locale, timeZone }) => 
 
     return {
         stream,
-        filename: `completion_works_ticket_${ticket.id}_${formatDate(undefined, timeZone, 'DD_MM_YYYY')}.docx`,
+        filename: `paid_works_ticket_${ticket.id}_${formatDate(undefined, timeZone, 'DD_MM_YYYY')}.docx`,
         mimetype: DOCX_FILE_META.mimetype,
         encoding: DOCX_FILE_META.encoding,
         meta: {
@@ -53,7 +53,7 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
     const printDate = dayjs().tz(timeZone).locale(locale)
 
     const property = await getById('Property', ticket.property)
-    const { renderData, streetPart, settlement, cityType, cityName, houseName, block } = getAddressDetails(get(property, 'addressMeta', ticket.propertyAddressMeta))
+    const { renderData, streetPart, settlement } = getAddressDetails(get(property, 'addressMeta', ticket.propertyAddressMeta))
 
     const contact = ticket.contact
         ? await getById('Contact', ticket.contact)
@@ -73,47 +73,53 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
     }, {
         sortBy: ['createdAt_ASC'],
     })
+    console.log('This is invoices 1', invoices)
 
     const currencyCode = get(invoices, '0.currencyCode') || DEFAULT_INVOICE_CURRENCY_CODE
+    let totalPrice, totalVAT
 
     const listOfWorks = invoices.reduce((acc, invoice) => {
         const rows = Array.isArray(invoice.rows) ? invoice.rows : []
-        acc.push(...rows.map(row => {
-            const price = parseFloat(!row.isMin ? row.toPay : null)
+        acc.push(...rows.map((row, index) => {
+            const primePrice = parseFloat(!row.isMin ? row.toPay : null)
+            const price = renderMoney(primePrice, currencyCode, locale)
+            totalPrice += price
+            const sum = renderMoney(price * row.count, currencyCode, locale)
+            const vat =  renderMoney(sum * (row.vatPercent / 100), currencyCode, locale)
+            totalVAT += vat
+
+            const total = sum + vat
 
             return {
                 name: row.name || '',
+                index: index + 1 || '', 
                 count: String(row.count) || '',
-                price: !Number.isNaN(price) ? renderMoney(price, currencyCode, locale) : '',
-                sum: !Number.isNaN(price) ? renderMoney(price * row.count, currencyCode, locale) : '',
+                price: !Number.isNaN(price) ? price : '',
+                sum: !Number.isNaN(price) ? sum : '',
+                vat:  !Number.isNaN(price) ? vat : '',
+                total: !Number.isNaN(price) ? total : '',
             }
         }))
 
         return acc
     }, [])
 
+    const totalPriceWithVAT = `${totalPrice + totalVAT}`
+
     const documentData = {
-        city: {
-            name: cityName || '',
-            type: cityType || '',
-        },
-        printDate: {
-            general: printDate.format('DD_MM_YYYY'),
+        print: {
+            generalDate: printDate.format('DD.MM.YYYY'),
+            numberTicket: ticket.number || '',
         },
         property: {
             fullAddress: [renderData, streetPart].filter(Boolean).join(' '),
             address: [renderData, settlement].filter(Boolean).join(' '),
-            number: [houseName, block].filter(Boolean).join(''),
         },
         client: {
             name: get(contact, 'name') || '',
         },
-        unit: {
-            name: get(ticket, 'unitName') || '',
-        },
         company: {
             name: get(organization, 'name') || '',
-            tin: get(organization, 'tin') || '',
         },
         executor: {
             name: get(employee, 'name') || '',
@@ -124,12 +130,15 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
             accountNumber: get(invoices, '0.accountNumber') || '',
             bankAccount: get(invoices, '0.recipient.bankAccount') || '',
             bic: get(invoices, '0.recipient.bic') || '',
+            tin: get(invoices, '0.recipient.tin') || '',
             iec: get(invoices, '0.recipient.iec') || '',
             bankName: get(invoices, '0.recipient.bankName') || '',
         },
         listOfWorks,
         sum: {
-            toPay: get(invoices, '0.toPay') || '',
+            totalPrice: totalPrice,
+            totalVAT: totalVAT,
+            totalPriceWithVAT: totalPriceWithVAT,
         },
     }
 
