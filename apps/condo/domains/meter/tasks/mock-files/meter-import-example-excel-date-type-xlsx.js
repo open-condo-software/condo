@@ -1,13 +1,4 @@
-const {buildFakeAddressMeta} = require("@condo/domains/property/utils/testSchema/factories");
-const TESTING_DATES_FORMATS = [
-    'excel date with time',
-    'YYYY-MM-DD',
-    'DD-MM-YYYY',
-    'YYYY.MM.DD',
-    'YYYY/MM/DD',
-    'YYYY-MM',
-    'YYYY-MM-DD HH:mm:ss',
-]
+const { buildFakeAddressMeta } = require('@condo/domains/property/utils/testSchema/factories')
 
 const TEST_ADDRESS = 'г Москва, ул Тверская, д 1'
 
