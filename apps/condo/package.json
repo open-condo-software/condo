@@ -104,7 +104,7 @@
     "ensure-error": "^3.0.1",
     "esdk-obs-nodejs": "3.21.6",
     "eventemitter3": "^4.0.7",
-    "express": "^4.17.1",
+    "express": "^4.20.0",
     "facepaint": "^1.2.1",
     "falsey": "^1.0.0",
     "firebase": "^10.13.1",
