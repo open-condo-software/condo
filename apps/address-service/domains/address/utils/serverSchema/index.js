@@ -6,14 +6,11 @@
 
 const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
 
-const { Address: AddressGQL } = require('@address-service/domains/address/gql')
-const { AddressInjection: AddressInjectionGQL } = require('@address-service/domains/address/gql')
-const { AddressSource: AddressSourceGQL } = require('@address-service/domains/address/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const Address = generateServerUtils(AddressGQL)
-const AddressInjection = generateServerUtils(AddressInjectionGQL)
-const AddressSource = generateServerUtils(AddressSourceGQL)
+const Address = generateServerUtils('Address')
+const AddressInjection = generateServerUtils('AddressInjection')
+const AddressSource = generateServerUtils('AddressSource')
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {

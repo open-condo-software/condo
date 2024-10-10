@@ -24,7 +24,11 @@ class SearchBySource extends AbstractSearchPlugin {
             return null
         }
 
-        const addressFoundBySource = await Address.getOne(godContext, { id: addressSource.address, deletedAt: null })
+        const addressFoundBySource = await Address.getOne(
+            godContext,
+            { id: addressSource.address, deletedAt: null },
+            'id address key meta overrides'
+        )
 
         return addressFoundBySource ? addressFoundBySource : null
     }
