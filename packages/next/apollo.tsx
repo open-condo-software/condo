@@ -25,6 +25,7 @@ import {
     CachePersistorContext,
     InitializeApollo,
     UseApollo,
+    ApolloHelperOptions,
 } from '@open-condo/apollo'
 
 import {
@@ -33,6 +34,7 @@ import {
     MUTATION_RESULT_EVENT,
 } from './_useEmitterMutation'
 import { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } from './_utils'
+import { Either } from './types'
 
 
 type GetApolloClientConfig = () => { serverUrl, apolloGraphQLUrl, apolloBatchingEnabled }
@@ -194,21 +196,17 @@ const initOnRestore: InitOnRestore = async (ctx, apolloCacheConfig) => {
     return { apolloClient }
 }
 
-export type WithApolloProps = {
+export type WithApolloLegacyProps = {
     ssr?: boolean
     getApolloClientConfig?: GetApolloClientConfig
     createApolloClient?: CreateApolloClient
     apolloCacheConfig?: InMemoryCacheConfig
     apolloClientConfig?: Partial<ApolloClientOptions<NormalizedCacheObject>>
 }
-export type WillApollo = (props: WithApolloProps) => (PageComponent: NextPage<any>) => NextPage<any>
+export type WillApolloLegacy = (props: WithApolloLegacyProps) => (PageComponent: NextPage) => NextPage
 
-/**
- * Creates a withApollo HOC
- * that provides the apolloContext
- * to a next.js Page or AppTree.
- */
-const _withApolloLegacy: WillApollo = ({ ssr = false, ...opts } = {}) => (PageComponent: NextPage): NextPage => {
+/** @deprecated */
+const _withApolloLegacy: WillApolloLegacy = ({ ssr = false, ...opts } = {}) => (PageComponent: NextPage): NextPage => {
     // TODO(pahaz): refactor it. No need to patch globals here!
     getApolloClientConfig = opts.getApolloClientConfig ? opts.getApolloClientConfig : getApolloClientConfig
     createApolloClient = opts.createApolloClient ? opts.createApolloClient : createApolloClient
@@ -316,7 +314,16 @@ const _withApolloLegacy: WillApollo = ({ ssr = false, ...opts } = {}) => (PageCo
 
 let initializeApollo: InitializeApollo<ApolloClient<NormalizedCacheObject>>
 
-const _withApollo = ({ apolloHelperOptions }) => (PageComponent: NextPage): NextPage => {
+export type WithApolloProps = {
+    apolloHelperOptions: ApolloHelperOptions
+}
+export type WillApollo = (props: WithApolloProps) => (PageComponent: NextPage) => NextPage
+/**
+ * Creates a withApollo HOC
+ * that provides the apolloContext
+ * to a next.js Page or AppTree.
+ */
+const _withApollo: WillApollo = ({ apolloHelperOptions }) => (PageComponent: NextPage): NextPage => {
 
     const apolloHelper = new ApolloHelper(apolloHelperOptions)
     const useApollo = apolloHelper.generateUseApolloHook() as unknown as UseApollo<ApolloClient<NormalizedCacheObject>>
@@ -346,12 +353,14 @@ const _withApollo = ({ apolloHelperOptions }) => (PageComponent: NextPage): Next
     return WithApollo
 }
 
-const withApollo = ({ legacy = true, ...props }: any) => (PageComponent: NextPage): NextPage => {
-    if (legacy) {
+type mergedWithApolloProps = Either<WithApolloProps & { legacy: false }, WithApolloLegacyProps & { legacy?: true }>
+type mergedWithApollo = (props: mergedWithApolloProps) => (PageComponent: NextPage) => NextPage
+const withApollo: mergedWithApollo = (props) => (PageComponent: NextPage): NextPage => {
+    if (props.legacy === false) {
+        return _withApollo(props)(PageComponent)
+    } else {
         return _withApolloLegacy(props)(PageComponent)
     }
-
-    return _withApollo(props)(PageComponent)
 }
 
 const useMutation: typeof _useEmitterMutation = (mutation, options) =>  {

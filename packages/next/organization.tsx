@@ -309,16 +309,16 @@ const _withOrganizationLegacy: WithOrganizationLegacy = ({ ssr = false, ...opts 
 }
 
 type OrganizationProviderProps = {
-    useEmployeeId?: () => { employeeId?: string | null }
+    useInitialEmployeeId: () => { employeeId?: string | null }
     getEmployeeWhere?: (userId: string) => Record<string, unknown>
 }
 const OrganizationProvider: React.FC<OrganizationProviderProps> = ({
     children,
-    useEmployeeId = () => null,
+    useInitialEmployeeId,
     getEmployeeWhere,
 }) => {
     const auth = useAuth()
-    const { employeeId } = useEmployeeId()
+    const { employeeId } = useInitialEmployeeId()
     const [activeEmployeeId, setActiveEmployeeId] = useState<string | null>(employeeId)
 
     const onError = useCallback((error) => {
@@ -446,7 +446,7 @@ const OrganizationProvider: React.FC<OrganizationProviderProps> = ({
 
 
 type WithOrganizationProps = {
-    useEmployeeId?: OrganizationProviderProps['useEmployeeId']
+    useInitialEmployeeId: OrganizationProviderProps['useInitialEmployeeId']
     getEmployeeWhere?: OrganizationProviderProps['getEmployeeWhere']
     GET_ORGANIZATION_EMPLOYEE_QUERY?: DocumentNode
 }
@@ -457,7 +457,7 @@ const _withOrganization: WithOrganization = (opts) => (PageComponent) => {
 
     const WithOrganization = (props) => {
         return (
-            <OrganizationProvider useEmployeeId={opts?.useEmployeeId} getEmployeeWhere={opts?.getEmployeeWhere}>
+            <OrganizationProvider useInitialEmployeeId={opts.useInitialEmployeeId} getEmployeeWhere={opts?.getEmployeeWhere}>
                 <PageComponent {...props} />
             </OrganizationProvider>
         )
@@ -477,12 +477,12 @@ const _withOrganization: WithOrganization = (opts) => (PageComponent) => {
 
 type mergedWithOrganizationProps = Either<WithOrganizationProps & { legacy: false }, WithOrganizationLegacyProps & { legacy?: true }>
 type mergedWithOrganization = (props: mergedWithOrganizationProps) => (PageComponent: NextPage) => NextPage
-const withOrganization: mergedWithOrganization = ({ legacy = true, ...opts }) => (PageComponent: NextPage): NextPage => {
-    if (legacy) {
+const withOrganization: mergedWithOrganization = (opts) => (PageComponent: NextPage): NextPage => {
+    if (opts.legacy === false) {
+        return _withOrganization(opts)(PageComponent)
+    } else {
         return _withOrganizationLegacy(opts)(PageComponent)
     }
-
-    return _withOrganization(opts)(PageComponent)
 }
 
 export {

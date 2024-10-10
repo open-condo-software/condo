@@ -360,12 +360,12 @@ const _withAuth: WithAuth = (opts) => (PageComponent: NextPage): NextPage => {
 
 type mergedWithAuthProps = Either<WithAuthProps & { legacy: false }, WithAuthLegacyProps & { legacy?: true }>
 type mergedWithAuth = (props: mergedWithAuthProps) => (PageComponent: NextPage) => NextPage
-const withAuth: mergedWithAuth = ({ legacy = true, ...opts }) => (PageComponent: NextPage): NextPage => {
-    if (legacy) {
+const withAuth: mergedWithAuth = (opts) => (PageComponent: NextPage): NextPage => {
+    if (opts.legacy === false) {
+        return _withAuth(opts)(PageComponent)
+    } else {
         return _withAuthLegacy(opts)(PageComponent)
     }
-
-    return _withAuth(opts)(PageComponent)
 }
 
 export {
