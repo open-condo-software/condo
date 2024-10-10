@@ -41,6 +41,7 @@ const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint: faker.datatype.uuid()
 const MOCK_FOLDER = 'mock-files'
 
 const readMockFile = (fileName) => {
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     return fs.readFileSync(path.join(__dirname, MOCK_FOLDER, fileName))
 }
 
