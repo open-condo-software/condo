@@ -28,6 +28,10 @@ class ImporterWrapper extends AbstractMetersImporter {
             ...DATE_FIELD_PATH_TO_TRANSLATION,
         }
     }
+
+    transformRow (row) {
+        return super.transformRow
+    }
 }
 
 
@@ -131,7 +135,7 @@ describe('AbstractMetersImporter', () => {
                 expect(row.errors).toEqual([
                     'invalidDate on "meter.import.column.meterReadingSubmissionDate", "meter.import.column.VerificationDate",' +
                     ' "meter.import.column.NextVerificationDate", "meter.import.column.NextVerificationDate",' +
-                    ' "meter.import.column.CommissioningDate", "meter.import.column.SealingDate", "meter.import.column.ControlReadingsDate"'
+                    ' "meter.import.column.CommissioningDate", "meter.import.column.SealingDate", "meter.import.column.ControlReadingsDate"',
                 ])
             )
         })
