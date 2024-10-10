@@ -47,23 +47,23 @@ class PaymentLinkRouter {
     }
 
     async checkReceiptAlreadyPaid ({ billingReceiptId }) {
-        const payments = await Payment.getAll(this.context, {
+        const paymentsCount = await Payment.count(this.context, {
             receipt: { id: billingReceiptId },
             status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS],
             deletedAt: null,
         })
 
-        return payments.length > 0
+        return paymentsCount > 0
     }
 
     async checkInvoicesAlreadyPaid ({ invoicesIdsStr }) {
-        const payments = await Payment.getAll(this.context, {
+        const paymentsCount = await Payment.count(this.context, {
             invoice: { id_in: invoicesIdsStr.split(',') },
             status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS],
             deletedAt: null,
         })
 
-        return payments.length > 0
+        return paymentsCount > 0
     }
 
     async createMultiPaymentByReceipt (params) {

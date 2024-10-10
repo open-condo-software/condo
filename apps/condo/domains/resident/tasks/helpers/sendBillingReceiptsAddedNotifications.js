@@ -20,6 +20,9 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 const { ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 
 
+const BILLING_RECEIPT_FIELDS = 'id period toPay toPayDetails { charge } createdAt '
+    + 'context { id organization { id } integration { id currencyCode } } '
+    + 'account { id number } property { id address } category { id  nameNonLocalized }'
 const REDIS_LAST_DATE_KEY = 'LAST_SEND_BILLING_RECEIPT_NOTIFICATION_CREATED_AT'
 const CHUNK_SIZE = 20
 
@@ -107,7 +110,11 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
     let lastReceipt
 
     while (skip < receiptsCount) {
-        const receipts = await BillingReceipt.getAll(context, receiptsWhere, { sortBy: ['createdAt_ASC'], first: CHUNK_SIZE, skip })
+        const receipts = await BillingReceipt.getAll(
+            context, receiptsWhere,
+            BILLING_RECEIPT_FIELDS,
+            { sortBy: ['createdAt_ASC'], first: CHUNK_SIZE, skip },
+        )
 
         if (isEmpty(receipts)) break
 

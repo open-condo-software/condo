@@ -540,7 +540,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
 
                     const recurrentContexts = await RecurrentPaymentContext.getAll(context, {
                         id: recurrentPaymentContextId,
-                    })
+                    }, 'id deletedAt')
 
                     if (recurrentContexts.length === 0) {
                         throw new GQLError({
