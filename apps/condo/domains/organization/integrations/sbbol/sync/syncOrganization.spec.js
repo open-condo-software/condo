@@ -44,7 +44,7 @@ describe('syncOrganization from SBBOL', () => {
             const [connectedEmployee] = await OrganizationEmployeeApi.getAll(adminContext, {
                 user: { id: user.id },
             })
-            await OrganizationEmployeeApi.softDelete(adminContext, connectedEmployee.id, { ...dvSenderFields })
+            await OrganizationEmployeeApi.softDelete(adminContext, connectedEmployee.id, 'id', { ...dvSenderFields })
 
             await syncOrganization({
                 context,
@@ -63,7 +63,7 @@ describe('syncOrganization from SBBOL', () => {
             const [existedEmployee] = await OrganizationEmployeeApi.getAll(adminContext, {
                 organization: { id: newOrganization.id },
                 user: { id: user.id },
-            })
+            }, 'isAccepted role { canManageEmployees } phone')
             expect(existedEmployee).toBeDefined()
             expect(existedEmployee.isAccepted).toBeTruthy()
             expect(existedEmployee.role.canManageEmployees).toBeTruthy()
@@ -97,7 +97,7 @@ describe('syncOrganization from SBBOL', () => {
             const [ existedEmployee ] = await OrganizationEmployeeApi.getAll(adminContext, {
                 organization: { id: newOrganization.id },
                 user: { id: user.id },
-            })
+            }, 'isAccepted role { canManageEmployees }')
             expect(existedEmployee).toBeDefined()
             expect(existedEmployee.isAccepted).toBeTruthy()
             expect(existedEmployee.role.canManageEmployees).toBeTruthy()
@@ -161,10 +161,10 @@ describe('syncOrganization from SBBOL', () => {
                 organizationInfo: organizationData,
             })
 
-            const [ existedEmployee ] = await OrganizationEmployeeApi.getAll(adminContext, {
+            const [existedEmployee] = await OrganizationEmployeeApi.getAll(adminContext, {
                 organization: { id: existedOrganizationClient.organization.id },
                 user: { id: newUserClient1.user.id },
-            })
+            }, 'isAccepted role { canManageEmployees }')
             expect(existedEmployee).toBeDefined()
             expect(existedEmployee.isAccepted).toBeTruthy()
             expect(existedEmployee.role.canManageEmployees).toBeTruthy()
@@ -179,10 +179,10 @@ describe('syncOrganization from SBBOL', () => {
                 organizationInfo: organizationData,
             })
 
-            const [ existedEmployee2 ] = await OrganizationEmployeeApi.getAll(adminContext, {
+            const [existedEmployee2] = await OrganizationEmployeeApi.getAll(adminContext, {
                 organization: { id: existedOrganizationClient.organization.id },
                 user: { id: newUserClient2.user.id },
-            })
+            }, 'isAccepted role { canManageEmployees }')
             expect(existedEmployee2).toBeDefined()
             expect(existedEmployee2.isAccepted).toBeTruthy()
             expect(existedEmployee2.role.canManageEmployees).toBeTruthy()

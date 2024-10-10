@@ -18,6 +18,7 @@
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, FORBIDDEN } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 
 const { removeOrphansRecurrentPaymentContexts } = require('@condo/domains/acquiring/tasks')
 const { DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
@@ -25,7 +26,6 @@ const { OrganizationEmployee } = require('@condo/domains/organization/utils/serv
 const access = require('@condo/domains/user/access/ResetUserService')
 const { DELETED_USER_NAME } = require('@condo/domains/user/constants')
 const { User } = require('@condo/domains/user/utils/serverSchema')
-
 
 const { USER_NOT_FOUND, CANNOT_RESET_ADMIN_USER } = require('../constants/errors')
 const { UserExternalIdentity } = require('../utils/serverSchema')
@@ -111,9 +111,9 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
 
                 await User.update(context, user.id, newUserData)
 
-                const employees = await OrganizationEmployee.getAll(context, { user: { id: user.id }, deletedAt: null })
+                const employees = await find('OrganizationEmployee', { user: { id: user.id }, deletedAt: null })
                 for (const employee of employees) {
-                    await OrganizationEmployee.softDelete(context, employee.id, { dv: 1, sender })
+                    await OrganizationEmployee.softDelete(context, employee.id, 'id', { dv: 1, sender })
                 }
 
                 const accordingUserExternalIdentity = await UserExternalIdentity.getAll(context, {

@@ -9,7 +9,7 @@ const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, TOO_MANY_REQUESTS } } = require('@open-condo/keystone/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { getRedisClient } = require('@open-condo/keystone/redis')
-const { GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, getById, find } = require('@open-condo/keystone/schema')
 
 const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
@@ -150,30 +150,20 @@ const ReplaceOrganizationEmployeeRoleService = new GQLCustomSchema('ReplaceOrgan
                         retryCount: 0,
                     })
 
-                    await loadListByChunks({
-                        context,
-                        list: OrganizationEmployee,
-                        chunkSize: 20,
-                        where: {
-                            organization: { id: organizationId, deletedAt: null },
-                            role: { id: oldRoleId },
-                            deletedAt: null,
-                        },
-                        sortBy: ['createdAt_ASC', 'id_ASC'],
-                        chunkProcessor: async (chunk) => {
-                            const payload = chunk.map(employee => ({
-                                id: employee.id,
-                                data: {
-                                    dv,
-                                    sender,
-                                    role: { connect: { id: newRoleId } },
-                                },
-                            }))
-                            await OrganizationEmployee.updateMany(context, payload)
-
-                            return []
-                        },
+                    const employees = await find('OrganizationEmployee', {
+                        organization: { id: organizationId, deletedAt: null },
+                        role: { id: oldRoleId },
+                        deletedAt: null,
                     })
+                    const payloadToUpdate = employees.map(employee => ({
+                        id: employee.id,
+                        data: {
+                            dv,
+                            sender,
+                            role: { connect: { id: newRoleId } },
+                        },
+                    }))
+                    await OrganizationEmployee.updateMany(context, payloadToUpdate)
 
                     if (withDeletionOldRole) {
                         await loadListByChunks({
