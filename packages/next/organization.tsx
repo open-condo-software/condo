@@ -17,15 +17,10 @@ import { Either } from './types'
 declare global {
     // eslint-disable-next-line @typescript-eslint/no-namespace
     namespace OpenCondoNext {
-        // eslint-disable-next-line @typescript-eslint/no-empty-interface
         interface GetActiveOrganizationEmployeeQueryType {}
-        // eslint-disable-next-line @typescript-eslint/no-empty-interface
         interface LinkType {}
-        // eslint-disable-next-line @typescript-eslint/no-empty-interface
         interface OrganizationType {}
-        // eslint-disable-next-line @typescript-eslint/no-empty-interface
         interface EmployeeType {}
-        // eslint-disable-next-line @typescript-eslint/no-empty-interface
         interface RoleType {}
     }
 }

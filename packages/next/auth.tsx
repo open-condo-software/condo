@@ -14,7 +14,6 @@ import { Either } from './types'
 declare global {
     // eslint-disable-next-line @typescript-eslint/no-namespace
     namespace OpenCondoNext {
-        // eslint-disable-next-line @typescript-eslint/no-empty-interface
         interface UserType {}
     }
 }

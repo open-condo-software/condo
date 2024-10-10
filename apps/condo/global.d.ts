@@ -23,22 +23,11 @@ declare global {
 
     // NOTE: Override global interface allows us to use autocomplete in useOrganization/useAuth from '@open-condo/next'
     namespace OpenCondoNext {
-        // eslint-disable-next-line @typescript-eslint/no-empty-interface
         interface GetActiveOrganizationEmployeeQueryType extends GetActiveOrganizationEmployeeQuery {}
-
-        // eslint-disable-next-line @typescript-eslint/no-empty-interface
         interface LinkType extends LinkExtendsType {}
-
-        // eslint-disable-next-line @typescript-eslint/no-empty-interface
         interface OrganizationType extends OrganizationExtendsType {}
-
-        // eslint-disable-next-line @typescript-eslint/no-empty-interface
         interface EmployeeType extends EmployeeExtendsType {}
-
-        // eslint-disable-next-line @typescript-eslint/no-empty-interface
         interface RoleType extends RoleExtendsType {}
-
-        // eslint-disable-next-line @typescript-eslint/no-empty-interface
         interface UserType extends UserExtendsType {}
     }
 }
