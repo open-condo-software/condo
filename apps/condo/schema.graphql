@@ -56701,6 +56701,8 @@ type PaymentHistoryRecord {
   order: String
   recipientBic: String
   recipientBankAccount: String
+  recipient: JSON
+  rawAddress: String
   importId: String
   id: ID!
   v: Int
@@ -56946,6 +56948,28 @@ input PaymentHistoryRecordWhereInput {
   recipientBankAccount_not_ends_with_i: String
   recipientBankAccount_in: [String]
   recipientBankAccount_not_in: [String]
+  recipient: JSON
+  recipient_not: JSON
+  recipient_in: [JSON]
+  recipient_not_in: [JSON]
+  rawAddress: String
+  rawAddress_not: String
+  rawAddress_contains: String
+  rawAddress_not_contains: String
+  rawAddress_starts_with: String
+  rawAddress_not_starts_with: String
+  rawAddress_ends_with: String
+  rawAddress_not_ends_with: String
+  rawAddress_i: String
+  rawAddress_not_i: String
+  rawAddress_contains_i: String
+  rawAddress_not_contains_i: String
+  rawAddress_starts_with_i: String
+  rawAddress_not_starts_with_i: String
+  rawAddress_ends_with_i: String
+  rawAddress_not_ends_with_i: String
+  rawAddress_in: [String]
+  rawAddress_not_in: [String]
   importId: String
   importId_not: String
   importId_contains: String
@@ -57079,6 +57103,8 @@ enum SortPaymentHistoryRecordsBy {
   recipientBic_DESC
   recipientBankAccount_ASC
   recipientBankAccount_DESC
+  rawAddress_ASC
+  rawAddress_DESC
   importId_ASC
   importId_DESC
   id_ASC
@@ -57123,6 +57149,8 @@ input PaymentHistoryRecordUpdateInput {
   order: String
   recipientBic: String
   recipientBankAccount: String
+  recipient: JSON
+  rawAddress: String
   importId: String
   v: Int
   createdAt: String
@@ -57167,6 +57195,8 @@ input PaymentHistoryRecordCreateInput {
   order: String
   recipientBic: String
   recipientBankAccount: String
+  recipient: JSON
+  rawAddress: String
   importId: String
   v: Int
   createdAt: String
@@ -57476,13 +57506,20 @@ type Payment {
   """
   order: String
 
-  """ Bic of recipient organization, used for matching payments with receipts in case of multiple receipts per account + address 
+  """ @deprecated --use "recipient" Bic of recipient organization, used for matching payments with receipts in case of multiple receipts per account + address 
   """
   recipientBic: String
 
-  """ Bank account number of recipient organization, used for matching payments with receipts in case of multiple receipts per account + address 
+  """ @deprecated --use "recipient" Bank account number of recipient organization, used for matching payments with receipts in case of multiple receipts per account + address 
   """
   recipientBankAccount: String
+
+  """ Recipient. Should contain all meta information to identify the organization and bank account 
+  """
+  recipient: RecipientField
+
+  """ Non-normalized address that was imported from the organization """
+  rawAddress: String
 
   """ Id of object in external service which represents current item. Mostly used for internal needs of integration services for matching our objects with theirs 
   """
@@ -57701,6 +57738,28 @@ input PaymentWhereInput {
   recipientBankAccount_not_ends_with_i: String
   recipientBankAccount_in: [String]
   recipientBankAccount_not_in: [String]
+  recipient: RecipientFieldInput
+  recipient_not: RecipientFieldInput
+  recipient_in: [RecipientFieldInput]
+  recipient_not_in: [RecipientFieldInput]
+  rawAddress: String
+  rawAddress_not: String
+  rawAddress_contains: String
+  rawAddress_not_contains: String
+  rawAddress_starts_with: String
+  rawAddress_not_starts_with: String
+  rawAddress_ends_with: String
+  rawAddress_not_ends_with: String
+  rawAddress_i: String
+  rawAddress_not_i: String
+  rawAddress_contains_i: String
+  rawAddress_not_contains_i: String
+  rawAddress_starts_with_i: String
+  rawAddress_not_starts_with_i: String
+  rawAddress_ends_with_i: String
+  rawAddress_not_ends_with_i: String
+  rawAddress_in: [String]
+  rawAddress_not_in: [String]
   importId: String
   importId_not: String
   importId_contains: String
@@ -57824,6 +57883,8 @@ enum SortPaymentsBy {
   recipientBic_DESC
   recipientBankAccount_ASC
   recipientBankAccount_DESC
+  rawAddress_ASC
+  rawAddress_DESC
   importId_ASC
   importId_DESC
   id_ASC
@@ -57868,6 +57929,8 @@ input PaymentUpdateInput {
   order: String
   recipientBic: String
   recipientBankAccount: String
+  recipient: RecipientFieldInput
+  rawAddress: String
   importId: String
   v: Int
   createdAt: String
@@ -57909,6 +57972,8 @@ input PaymentCreateInput {
   order: String
   recipientBic: String
   recipientBankAccount: String
+  recipient: RecipientFieldInput
+  rawAddress: String
   importId: String
   v: Int
   createdAt: String
