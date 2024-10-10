@@ -6,7 +6,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { IntlProvider, useIntl, FormattedMessage } from 'react-intl'
 
 import { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } from './_utils'
-import { useAuth as useAuthHook } from './auth'
+import { useAuth } from './auth'
 
 
 interface ILocaleContext {
@@ -90,13 +90,9 @@ type IntlProps = {
     initialLocale?: string
     initialMessages?: Record<string, string>
     onError?
-    useAuth?: () => {
-        user?: unknown
-        isLoading?: boolean
-    }
 }
 
-const Intl: React.FC<IntlProps> = ({ children, initialLocale, initialMessages, onError, useAuth = useAuthHook }) => {
+const Intl: React.FC<IntlProps> = ({ children, initialLocale, initialMessages, onError }) => {
     const { user, isLoading: isUserLoading } = useAuth()
     const [locale, setLocale] = useState(initialLocale)
     const [messages, setMessages] = useState(initialMessages)
@@ -140,11 +136,10 @@ type WithIntlProps = {
     getMessages?: GetMessages
     getLocale?: GetLocale
     hideErrors?: boolean
-    useAuth?: IntlProps['useAuth']
 }
 export type WithIntl = (props: WithIntlProps) => (PageComponent: NextPage<any>) => NextPage<any>
 
-const withIntl: WithIntl = ({ ssr = false, useAuth, ...opts }: WithIntlProps = {}) => PageComponent => {
+const withIntl: WithIntl = ({ ssr = false, ...opts }: WithIntlProps = {}) => PageComponent => {
     // TODO(pahaz): refactor it. No need to patch globals here!
     defaultLocale = opts.defaultLocale || defaultLocale
     extractReqLocale = opts.extractReqLocale || extractReqLocale
@@ -163,7 +158,7 @@ const withIntl: WithIntl = ({ ssr = false, useAuth, ...opts }: WithIntlProps = {
         if (!messages) messages = {}
         if (DEBUG_RERENDERS) console.log('WithIntl()', locale)
         return (
-            <Intl initialLocale={locale} initialMessages={messages} onError={onIntlError} useAuth={useAuth}>
+            <Intl initialLocale={locale} initialMessages={messages} onError={onIntlError}>
                 <PageComponent {...pageProps} />
             </Intl>
         )
