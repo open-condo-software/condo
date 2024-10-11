@@ -47,7 +47,7 @@ export async function prefetchOrganizationEmployee (args: PrefetchOrganizationEm
         query: GetActiveOrganizationEmployeeDocument,
         variables: {
             where: {
-                organization: { type: OrganizationTypeType.ManagingCompany },
+                organization: { type_in: [OrganizationTypeType.ManagingCompany, OrganizationTypeType.ServiceProvider] },
                 user: { id: userId, type: UserTypeType.Staff },
                 isAccepted: true,
                 isBlocked: false,
