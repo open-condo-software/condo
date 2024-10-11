@@ -78536,6 +78536,16 @@ type _internalSendHashedResidentPhonesOutput {
   taskId: ID!
 }
 
+type _internalSyncContactsWithResidentsForOrganizationOutputRow {
+  name: String!
+  unitType: String!
+  unitName: String!
+  phone: String!
+  email: String!
+  address: String!
+  isVerified: Boolean!
+}
+
 input _internalSyncContactsWithResidentsForOrganizationInput {
   dv: Int!
   sender: SenderFieldInput!
@@ -90830,7 +90840,7 @@ type Mutation {
   setMessageStatus(data: SetMessageStatusInput!): SetMessageStatusOutput
   _internalSendNotificationNewMobileAppVersion(data: _internalSendNotificationNewMobileAppVersionInput!): _internalSendNotificationNewMobileAppVersionOutput
   _internalSendHashedResidentPhones(data: _internalSendHashedResidentPhonesInput!): _internalSendHashedResidentPhonesOutput
-  _internalSyncContactsWithResidentsForOrganization(data: _internalSyncContactsWithResidentsForOrganizationInput!): [Contact]
+  _internalSyncContactsWithResidentsForOrganization(data: _internalSyncContactsWithResidentsForOrganizationInput!): [_internalSyncContactsWithResidentsForOrganizationOutputRow!]
   registerResident(data: RegisterResidentInput!): Resident
 
   """

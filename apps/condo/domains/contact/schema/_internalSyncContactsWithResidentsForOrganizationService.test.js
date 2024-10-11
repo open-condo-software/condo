@@ -22,13 +22,14 @@ const {
 } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident, Resident } = require('@condo/domains/resident/utils/testSchema')
 const {
+    User,
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
 } = require('@condo/domains/user/utils/testSchema')
 
 const { ERRORS } = require('./_internalSyncContactsWithResidentsForOrganizationService')
 
- 
+
 describe('_internalSyncContactsWithResidentsForOrganizationService', () => {
     describe('Logic', () => {
         test('sync single contact', async () => {
@@ -39,11 +40,14 @@ describe('_internalSyncContactsWithResidentsForOrganizationService', () => {
             expect(contacts).toHaveLength(1)
             const contact = contacts[0]
             const userData = userClient.userAttrs
-            expect(contact.phone).toEqual(userData.phone)
-            expect(contact.name).toEqual(userData.name)
-            expect(contact.email).toEqual(userData.email)
-            expect(contact.organization.id).toEqual(resident.organization.id)
-            expect(contact.property.id).toEqual(resident.property.id)
+
+            expect(contact.name).toBe(userData.name)
+            expect(contact.phone).toBe(userData.phone)
+            expect(contact.email).toBe(userData.email)
+            expect(contact.unitType).toBe(resident.unitType)
+            expect(contact.unitName).toBe(resident.unitName)
+            expect(contact.address).toBe(resident.property.address)
+            expect(contact.isVerified).toBe(false)
         })
         test('sync multiple contact', async () => {
             const adminClient = await makeLoggedInAdminClient()
@@ -67,10 +71,14 @@ describe('_internalSyncContactsWithResidentsForOrganizationService', () => {
                 const userClient = userClients.find(user => user.userAttrs.phone === contact.phone)
                 const resident = residents.find(resident => resident.user.id === userClient.user.id)
                 const userData = userClient.userAttrs
-                expect(contact.name).toEqual(userData.name)
-                expect(contact.email).toEqual(userData.email)
-                expect(contact.organization.id).toEqual(resident.organization.id)
-                expect(contact.property.id).toEqual(resident.property.id)
+
+                expect(contact.name).toBe(userData.name)
+                expect(contact.phone).toBe(userData.phone)
+                expect(contact.email).toBe(userData.email)
+                expect(contact.unitType).toBe(resident.unitType)
+                expect(contact.unitName).toBe(resident.unitName)
+                expect(contact.address).toBe(resident.property.address)
+                expect(contact.isVerified).toBe(false)
             }
         })
         test('sync single contact if already exist', async () => {
@@ -126,11 +134,14 @@ describe('_internalSyncContactsWithResidentsForOrganizationService', () => {
 
                 const contact = contacts[0]
                 const userData = userClient2.userAttrs
-                expect(contact.phone).toEqual(userData.phone)
-                expect(contact.name).toEqual(userData.name)
-                expect(contact.email).toEqual(userData.email)
-                expect(contact.organization.id).toEqual(resident2.organization.id)
-                expect(contact.property.id).toEqual(resident2.property.id)
+
+                expect(contact.name).toBe(userData.name)
+                expect(contact.phone).toBe(userData.phone)
+                expect(contact.email).toBe(userData.email)
+                expect(contact.unitType).toBe(resident2.unitType)
+                expect(contact.unitName).toBe(resident2.unitName)
+                expect(contact.address).toBe(resident2.property.address)
+                expect(contact.isVerified).toBe(false)
             })
             test('should not sync deleted residents', async () => {
                 const userClient = await makeClientWithProperty()
@@ -144,11 +155,36 @@ describe('_internalSyncContactsWithResidentsForOrganizationService', () => {
 
                 const contact = contacts[0]
                 const userData = userClient2.userAttrs
-                expect(contact.phone).toEqual(userData.phone)
-                expect(contact.name).toEqual(userData.name)
-                expect(contact.email).toEqual(userData.email)
-                expect(contact.organization.id).toEqual(resident2.organization.id)
-                expect(contact.property.id).toEqual(resident2.property.id)
+
+                expect(contact.name).toBe(userData.name)
+                expect(contact.phone).toBe(userData.phone)
+                expect(contact.email).toBe(userData.email)
+                expect(contact.unitType).toBe(resident2.unitType)
+                expect(contact.unitName).toBe(resident2.unitName)
+                expect(contact.address).toBe(resident2.property.address)
+                expect(contact.isVerified).toBe(false)
+            })
+            test('should not sync deleted users', async () => {
+                const userClient = await makeClientWithProperty()
+                const userClient2 = await makeClientWithProperty()
+                const [property2] = await createTestProperty(adminClient, userClient.organization)
+                const [resident] = await createTestResident(adminClient, userClient.user, userClient.property)
+                const [resident2] = await createTestResident(adminClient, userClient2.user, property2) // second resident in other property
+                await User.softDelete(adminClient, userClient.user.id)
+
+                const [contacts] = await _internalSyncContactsWithResidentsForOrganizationByTestClient(adminClient, { organization: { id: resident.organization.id } })
+                expect(contacts).toHaveLength(1)
+
+                const contact = contacts[0]
+                const userData = userClient2.userAttrs
+
+                expect(contact.name).toBe(userData.name)
+                expect(contact.phone).toBe(userData.phone)
+                expect(contact.email).toBe(userData.email)
+                expect(contact.unitType).toBe(resident2.unitType)
+                expect(contact.unitName).toBe(resident2.unitName)
+                expect(contact.address).toBe(resident2.property.address)
+                expect(contact.isVerified).toBe(false)
             })
             test('should create contact if old contact with same phone was deleted', async () => {
                 const userClient = await makeClientWithProperty()
@@ -169,11 +205,14 @@ describe('_internalSyncContactsWithResidentsForOrganizationService', () => {
 
                 const contact = contacts2[0]
                 const userData = userClient.userAttrs
-                expect(contact.phone).toEqual(userData.phone)
-                expect(contact.name).toEqual(userData.name)
-                expect(contact.email).toEqual(userData.email)
-                expect(contact.organization.id).toEqual(resident.organization.id)
-                expect(contact.property.id).toEqual(resident.property.id)
+
+                expect(contact.name).toBe(userData.name)
+                expect(contact.phone).toBe(userData.phone)
+                expect(contact.email).toBe(userData.email)
+                expect(contact.unitType).toBe(resident.unitType)
+                expect(contact.unitName).toBe(resident.unitName)
+                expect(contact.address).toBe(resident.property.address)
+                expect(contact.isVerified).toBe(false)
             })
         })
 
