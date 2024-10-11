@@ -37,6 +37,7 @@ const {
     PAYMENT_DONE_STATUS,
     PAYMENT_WITHDRAWN_STATUS,
 } = require('@condo/domains/acquiring/constants/payment')
+const { RECIPIENT_FIELD } = require('@condo/domains/acquiring/schema/fields/Recipient')
 const { ACQUIRING_CONTEXT_FIELD } = require('@condo/domains/acquiring/schema/fields/relations')
 const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
 const { PERIOD_FIELD } = require('@condo/domains/billing/schema/fields/common')
@@ -271,15 +272,27 @@ const Payment = new GQLListSchema('Payment', {
         },
 
         recipientBic: {
-            schemaDoc: 'Bic of recipient organization, used for matching payments with receipts in case of multiple receipts per account + address',
+            schemaDoc: '@deprecated --use "recipient" Bic of recipient organization, used for matching payments with receipts in case of multiple receipts per account + address',
             type: 'Text',
             isRequired: true,
         },
 
         recipientBankAccount: {
-            schemaDoc: 'Bank account number of recipient organization, used for matching payments with receipts in case of multiple receipts per account + address',
+            schemaDoc: '@deprecated --use "recipient" Bank account number of recipient organization, used for matching payments with receipts in case of multiple receipts per account + address',
             type: 'Text',
             isRequired: true,
+        },
+
+        recipient: {
+            ...RECIPIENT_FIELD,
+            schemaDoc: 'Recipient. Should contain all meta information to identify the organization and bank account',
+            isRequired: false,
+        },
+
+        rawAddress: {
+            schemaDoc: 'Non-normalized address that was imported from the organization',
+            type: 'Text',
+            isRequired: false,
         },
 
         importId: IMPORT_ID_FIELD,
