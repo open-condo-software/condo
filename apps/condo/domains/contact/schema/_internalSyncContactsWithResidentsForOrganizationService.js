@@ -60,6 +60,11 @@ const _internalSyncContactsWithResidentsForOrganizationService = new GQLCustomSc
 
                 for (const resident of residents) {
                     const user = await getById('User', resident.user)
+
+                    if (user.deletedAt) {
+                        continue
+                    }
+
                     const { unitType, unitName, property } = resident
                     const { phone, email, name } = user
 

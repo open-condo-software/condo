@@ -22,6 +22,7 @@ const {
 } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident, Resident } = require('@condo/domains/resident/utils/testSchema')
 const {
+    User,
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
 } = require('@condo/domains/user/utils/testSchema')
@@ -150,6 +151,28 @@ describe('_internalSyncContactsWithResidentsForOrganizationService', () => {
                 await Resident.softDelete(adminClient, resident.id)
                 const [contacts] = await _internalSyncContactsWithResidentsForOrganizationByTestClient(adminClient, { organization: { id: resident2.organization.id } })
 
+                expect(contacts).toHaveLength(1)
+
+                const contact = contacts[0]
+                const userData = userClient2.userAttrs
+
+                expect(contact.name).toBe(userData.name)
+                expect(contact.phone).toBe(userData.phone)
+                expect(contact.email).toBe(userData.email)
+                expect(contact.unitType).toBe(resident2.unitType)
+                expect(contact.unitName).toBe(resident2.unitName)
+                expect(contact.address).toBe(resident2.property.address)
+                expect(contact.isVerified).toBe(false)
+            })
+            test('should not sync deleted users', async () => {
+                const userClient = await makeClientWithProperty()
+                const userClient2 = await makeClientWithProperty()
+                const [property2] = await createTestProperty(adminClient, userClient.organization)
+                const [resident] = await createTestResident(adminClient, userClient.user, userClient.property)
+                const [resident2] = await createTestResident(adminClient, userClient2.user, property2) // second resident in other property
+                await User.softDelete(adminClient, userClient.user.id)
+
+                const [contacts] = await _internalSyncContactsWithResidentsForOrganizationByTestClient(adminClient, { organization: { id: resident.organization.id } })
                 expect(contacts).toHaveLength(1)
 
                 const contact = contacts[0]
