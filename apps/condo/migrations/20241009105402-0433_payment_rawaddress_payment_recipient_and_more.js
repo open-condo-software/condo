@@ -5,6 +5,10 @@ exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
 --
+-- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
+--
+SET statement_timeout = '1500s';
+--
 -- Add field rawAddress to payment
 --
 ALTER TABLE "Payment" ADD COLUMN "rawAddress" text NULL;
@@ -20,6 +24,10 @@ ALTER TABLE "PaymentHistoryRecord" ADD COLUMN "rawAddress" text NULL;
 -- Add field recipient to paymenthistoryrecord
 --
 ALTER TABLE "PaymentHistoryRecord" ADD COLUMN "recipient" jsonb NULL;
+--
+-- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
+--
+SET statement_timeout = '10s';
 COMMIT;
 
     `)
