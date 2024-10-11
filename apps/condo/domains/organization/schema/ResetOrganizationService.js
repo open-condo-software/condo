@@ -117,7 +117,7 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
                     deletedAt: null,
                     organization: { id: organizationId },
                 })
-                for (let meterResourceOwner of meterResourceOwners) {
+                for (const meterResourceOwner of meterResourceOwners) {
                     await MeterResourceOwner.softDelete(context, meterResourceOwner.id, DV_SENDER)
                 }
 
@@ -125,7 +125,7 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
                     deletedAt: null,
                     organization: { id: organizationId },
                 })
-                for (let meterReportingPeriod of meterReportingPeriods) {
+                for (const meterReportingPeriod of meterReportingPeriods) {
                     await MeterReportingPeriod.softDelete(context, meterReportingPeriod.id, DV_SENDER)
                 }
 

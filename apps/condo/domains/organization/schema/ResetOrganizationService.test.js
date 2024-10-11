@@ -6,7 +6,7 @@ const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
-const { makeLoggedInAdminClient, makeClient, catchErrorFrom, expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, catchErrorFrom, expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult, waitFor } = require('@open-condo/keystone/test.utils')
 
 const { createTestAcquiringIntegrationContext, createTestAcquiringIntegration, AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
 const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
@@ -19,7 +19,7 @@ const { createTestB2BAppContext, B2BAppContext, createTestB2BApp } = require('@c
 const {
     METER_SUBMIT_READINGS_REMINDER_END_PERIOD_TYPE,
 } = require('@condo/domains/notification/constants/constants')
-const { Message: MessageApi } = require('@condo/domains/notification/utils/serverSchema')
+const { Message } = require('@condo/domains/notification/utils/testSchema')
 const { DELETED_ORGANIZATION_NAME, HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { resetOrganizationByTestClient, createTestOrganization, Organization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole, createTestOrganizationLink, OrganizationLink } = require('@condo/domains/organization/utils/testSchema')
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
@@ -28,7 +28,6 @@ const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
 
-const { keystone } = index
 
 describe('ResetOrganizationService', () => {
     let support, admin
@@ -208,7 +207,6 @@ describe('ResetOrganizationService', () => {
     })
 
     test('notification not send for deleted meterReportingPeriod', async () => {
-        // This test is not completely valid, because if you delete the address, the push notifications will no longer be sent.
         const client = await makeClientWithServiceConsumer()
         const { property, organization, serviceConsumer, resident } = client
         const [resource] = await MeterResource.getAll(admin, {})
@@ -229,14 +227,16 @@ describe('ResetOrganizationService', () => {
 
         await sendSubmitMeterReadingsPushNotifications()
 
-        const messages = await MessageApi.getAll(keystone, {
-            user: { id: client.user.id },
-            type_in: [
-                METER_SUBMIT_READINGS_REMINDER_END_PERIOD_TYPE,
-            ],
+        await waitFor(async () => {
+            const messages = await Message.getAll(admin, {
+                user: { id: client.user.id },
+                type_in: [
+                    METER_SUBMIT_READINGS_REMINDER_END_PERIOD_TYPE,
+                ],
+            })
+            
+            messages.filter(message => message.meta.data.meterId === meter.id)
+            expect(messages).toHaveLength(0)
         })
-        
-        messages.filter(message => message.meta.data.meterId === meter.id)
-        expect(messages).toHaveLength(0)
     })
 })
