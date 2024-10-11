@@ -5,6 +5,7 @@
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 
 const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
 const { BankIntegrationOrganizationContext } = require('@condo/domains/banking/utils/serverSchema')
@@ -88,18 +89,12 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
                     await PropertyIdOnly.softDelete(context, property.id, DV_SENDER)
                 }
 
-                const employees = await loadListByChunks({
-                    context,
-                    list: OrganizationEmployee,
-                    chunkSize: 20,
-                    limit: 100000,
-                    where: {
-                        deletedAt: null,
-                        organization: { id: organizationId },
-                    },
+                const employees = await find('OrganizationEmployee', {
+                    deletedAt: null,
+                    organization: { id: organizationId },
                 })
                 for (let employee of employees) {
-                    await OrganizationEmployee.softDelete(context, employee.id, DV_SENDER)
+                    await OrganizationEmployee.softDelete(context, employee.id, 'id', DV_SENDER)
                 }
 
                 const organizationLinks = await OrganizationLink.getAll(context, {

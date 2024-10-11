@@ -48,7 +48,7 @@ async function syncSbbolTransactions (dateInterval) {
                 deletedAt: null,
             },
             deletedAt: null,
-        }, { first: 1 })
+        },  'organization { id tin }', { first: 1 })
 
         if (employee) {
             const organization = get(employee, 'organization')

@@ -33,6 +33,7 @@ export const useOrganizationInvites = (organizationFilter?: OrganizationWhereInp
     const { selectLink } = useOrganization()
     const { objs: userInvites, refetch, loading } = OrganizationEmployee.useObjects(
         { where: { user: { id: userId }, isAccepted: false, isRejected: false, isBlocked: false, organization: organizationFilter } },
+        { skip: !userId },
     )
     const { addNotification } = useLayoutContext()
     const [acceptOrReject] = useMutation(ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION)

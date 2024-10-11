@@ -7,7 +7,6 @@
 const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
 const { Organization: OrganizationGQL } = require('@condo/domains/organization/gql')
-const { OrganizationEmployee: OrganizationEmployeeGQL } = require('@condo/domains/organization/gql')
 const { OrganizationEmployeeRole: OrganizationEmployeeRoleGQL } = require('@condo/domains/organization/gql')
 const { OrganizationLink: OrganizationLinkGQL } = require('@condo/domains/organization/gql')
 const { OrganizationEmployeeSpecialization: OrganizationEmployeeSpecializationGQL } = require('@condo/domains/organization/gql')
@@ -16,7 +15,7 @@ const { REPLACE_ORGANIZATION_EMPLOYEE_ROLE_MUTATION } = require('@condo/domains/
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Organization = generateServerUtils(OrganizationGQL)
-const OrganizationEmployee = generateServerUtils(OrganizationEmployeeGQL)
+const OrganizationEmployee = generateServerUtils('OrganizationEmployee')
 const OrganizationEmployeeRole = generateServerUtils(OrganizationEmployeeRoleGQL)
 const OrganizationLink = generateServerUtils(OrganizationLinkGQL)
 const OrganizationEmployeeSpecialization = generateServerUtils(OrganizationEmployeeSpecializationGQL)

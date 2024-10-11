@@ -1,12 +1,12 @@
 import { MeterReadingWhereInput, MeterReadingSource as MeterReadingSourceType, MeterResource as MeterResourceType } from '@app/condo/schema'
-import dayjs, { Dayjs } from 'dayjs'
 import compact from 'lodash/compact'
 import get from 'lodash/get'
-import { useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
+import { getDateRangeFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import {
     ComponentType,
     convertToOptions,
@@ -17,7 +17,7 @@ import {
     getDayRangeFilter, getFilter,
     getStringContainsFilter,
 } from '@condo/domains/common/utils/tables.utils'
-import { EXPORT_METER_READINGS_MONTHS_LIMIT } from '@condo/domains/meter/constants/constants'
+import { MeterReadingDatePicker } from '@condo/domains/meter/components/MeterReadingDatePicker'
 import { MeterReadingSource, MeterResource, MeterTypes, METER_TYPES } from '@condo/domains/meter/utils/clientSchema'
 import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
@@ -50,14 +50,6 @@ export function useMeterReadingFilters (meterType: MeterTypes): Array<FiltersMet
     const EnterUnitNameLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.EnterUnitName' })
     const UnitMessage = intl.formatMessage({ id: 'field.FlatNumber' })
 
-    const [selectedDates, setSelectedDates] = useState<[Dayjs, Dayjs]>()
-    const disabledDate = (current) => {
-        if (current > dayjs()) return true
-        const tooLate = selectedDates && selectedDates[0] && current.diff(selectedDates[0], 'months', true) > EXPORT_METER_READINGS_MONTHS_LIMIT
-        const tooEarly = selectedDates && selectedDates[1] && selectedDates[1].diff(current, 'months', true) > EXPORT_METER_READINGS_MONTHS_LIMIT
-        return !!tooEarly || !!tooLate
-    }
-
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
@@ -89,7 +81,6 @@ export function useMeterReadingFilters (meterType: MeterTypes): Array<FiltersMet
     const resourceFilter = getFilter(['meter', 'resource', 'id'], 'array', 'string', 'in')
 
     return useMemo(() => {
-
         return compact([
             {
                 keyword: 'address',
@@ -207,16 +198,15 @@ export function useMeterReadingFilters (meterType: MeterTypes): Array<FiltersMet
                 keyword: 'date',
                 filters: [readingDateRangeFilter],
                 component: {
-                    type: ComponentType.DateRange,
-                    props: {
-                        placeholder: [StartDateMessage, EndDateMessage],
-                        onCalendarChange: val => setSelectedDates(val),
-                        disabledDate,
-                    },
+                    type: ComponentType.Custom,
+                    modalFilterComponent: (form) => <MeterReadingDatePicker filtersModalForm={form} />,
                     modalFilterComponentWrapper: {
                         label: MeterReadingDateMessage,
                         size: FilterComponentSize.Medium,
                     },
+                    getComponentFilterDropdown: getDateRangeFilterDropdown({
+                        Component: MeterReadingDatePicker,
+                    }),
                 },
             },
             isPropertyMeter ? null : {

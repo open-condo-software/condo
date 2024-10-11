@@ -46,7 +46,7 @@ async function syncSbbolBankAccounts () {
             deletedAt: null,
             isRejected: false,
             isBlocked: false,
-        }, { first: 1 })
+        }, 'organization { id tin name }', { first: 1 })
 
         if (employee) {
             const organization = get(employee, 'organization')
