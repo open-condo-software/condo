@@ -62,12 +62,12 @@ function isDateStrValid (dateStr, options = DEFAULT_PARSING_OPTIONS) {
 }
 
 /**
- *
+ * Parses strings in UTC format always. Extra formats can be passed.
  * @param {string} dateStr
- * @param {Array<string>=DATE_PARSING_FORMATS} formats - defaults to meter dates formats
+ * @param {Array<string>=DATE_PARSING_FORMATS} extraFormats - defaults to meter dates formats
  * @returns {string|undefined} dateString in UTC or undefined for invalid date
  */
-function tryToISO (dateStr, formats = DATE_PARSING_FORMATS) {
+function tryToISO (dateStr, extraFormats = DATE_PARSING_FORMATS) {
     if (!dateStr || !isString(dateStr)) {
         return undefined
     }
@@ -77,7 +77,7 @@ function tryToISO (dateStr, formats = DATE_PARSING_FORMATS) {
     if (dateStr.endsWith('Z')) {
         date = dayjs.utc(dateStr, UTC_STRING_FORMAT, false)
     } else {
-        date = dayjs(dateStr, formats, false)
+        date = dayjs(dateStr, extraFormats, false)
     }
     // undefined needed to not update invalid dates to null
     return date.isValid() ? date.toISOString() : undefined
