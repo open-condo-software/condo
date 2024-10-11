@@ -107,7 +107,7 @@ function transformToPlainObject (input) {
 }
 
 function isDateStrValid (dateStr) {
-    return isDateStrValidUtils(dateStr, { formats: [DATE_FORMAT, UTC_DATE_FORMAT] })
+    return isDateStrValidUtils(dateStr, { offsets: false, formats: [DATE_FORMAT, UTC_DATE_FORMAT] })
 }
 
 function tryToISO (dateStr) {
