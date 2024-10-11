@@ -140,9 +140,7 @@ describe('ResetOrganizationService', () => {
 
         const [parentOrganization] = await createTestOrganization(admin, { type: HOLDING_TYPE })
         const [createdLink] = await createTestOrganizationLink(admin, parentOrganization, createdOrganization)
-        // Is it necessary to test the case with another MeterSource? Example HOT_WATER?
         const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-        // Here I create one meterResourceOwner. I probably need to create many meterResourceOwner. Make createTestMeter in a loop?
         await createTestMeterResourceOwner(admin, createdOrganization, resource, {
             address: createdProperty.address,
         })
@@ -174,7 +172,6 @@ describe('ResetOrganizationService', () => {
         const linkTo = await OrganizationLink.getAll(admin, { id: createdLink.id })
         expect(linkTo).toHaveLength(0)
 
-        // MeterResourceOwner is created at the time of meter creation 
         const meterResourceOwner = await MeterResourceOwner.getAll(admin, {
             organization: { id: createdOrganization.id },
         })
