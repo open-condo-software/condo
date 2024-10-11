@@ -90103,6 +90103,72 @@ type Mutation {
   }`
   """
   _internalDeleteMeterReadings(data: _internalDeleteMeterReadingsInput!): _internalDeleteMeterReadingsOutput
+
+  """
+  Create meter readings and, if not exists, meters.
+  
+  Use dates in UTC format (YYYY-MM-DDTHH:mm:ss.SSSZ) or in YYYY-MM-DD. You should prefer UTC.
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "TOO_MUCH_READINGS",
+    "message": "Too much readings. Maximum is {limit}.",
+    "messageForUser": "api.meter.registerMetersReadings.TOO_MUCH_READINGS"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "ORGANIZATION_NOT_FOUND",
+    "message": "Organization not found",
+    "messageForUser": "api.meter.registerMetersReadings.ORGANIZATION_NOT_FOUND"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "PROPERTY_NOT_FOUND",
+    "message": "Property not found",
+    "messageForUser": "api.meter.registerMetersReadings.PROPERTY_NOT_FOUND"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_METER_VALUES",
+    "message": "Invalid meter values",
+    "messageForUser": "api.meter.registerMetersReadings.INVALID_METER_VALUES"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "MULTIPLE_METERS_FOUND",
+    "message": "Multiple meters found",
+    "messageForUser": "api.meter.registerMetersReadings.MULTIPLE_METERS_FOUND"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_ACCOUNT_NUMBER",
+    "message": "Invalid account number",
+    "messageForUser": "api.meter.registerMetersReadings.INVALID_ACCOUNT_NUMBER"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_METER_NUMBER",
+    "message": "Invalid meter number",
+    "messageForUser": "api.meter.registerMetersReadings.INVALID_METER_NUMBER"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_DATE",
+    "message": "Invalid date",
+    "messageForUser": "api.meter.registerMetersReadings.INVALID_DATE"
+  }`
+  """
   registerMetersReadings(data: RegisterMetersReadingsInput!): [RegisterMetersReadingsOutput]
   registerMultiPayment(data: RegisterMultiPaymentInput!): RegisterMultiPaymentOutput
   registerMultiPaymentForOneReceipt(data: RegisterMultiPaymentForOneReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
