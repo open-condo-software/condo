@@ -91,6 +91,7 @@ import {
 } from '@condo/domains/ticket/hooks/useTicketDocumentGenerationTaskUIInterface'
 import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useTicketExportTaskUIInterface'
 import { CookieAgreement } from '@condo/domains/user/components/CookieAgreement'
+import { STAFF } from '@condo/domains/user/constants/common'
 
 
 import '@condo/domains/common/components/wdyr'
@@ -609,8 +610,8 @@ const useInitialEmployeeId = () => {
 
 const getEmployeeWhere = (userId: string) => {
     return {
-        organization: { type: 'MANAGING_COMPANY' },
-        user: { id: userId, type: 'staff' },
+        organization: { type_in: [SERVICE_PROVIDER_TYPE, MANAGING_COMPANY_TYPE] },
+        user: { id: userId, type: STAFF },
         isAccepted: true,
         isBlocked: false,
         isRejected: false,
