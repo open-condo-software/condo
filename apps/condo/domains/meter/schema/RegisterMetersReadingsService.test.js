@@ -1168,11 +1168,8 @@ describe('RegisterMetersReadingsService', () => {
         ]
         const [data] = await registerMetersReadingsByTestClient(adminClient, organization, readings)
         const metersReadings = await MeterReading.getAll(adminClient, { meter: { id_in: data.map((row) => row.meter.id) } })
-
         expect(metersReadings).toEqual(expect.arrayContaining([
             expect.objectContaining({ source: expect.objectContaining({ id: OTHER_METER_READING_SOURCE_ID }) }),
-        ]))
-        expect(metersReadings).toEqual(expect.arrayContaining([
             expect.objectContaining({ source: expect.objectContaining({ id: REMOTE_SYSTEM_METER_READING_SOURCE_ID }) }),
         ]))
     })
