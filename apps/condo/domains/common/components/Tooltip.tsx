@@ -4,7 +4,7 @@ import React from 'react'
 
 import { colors } from '../constants/style'
 
-type TooltipProps = DefaultTooltipProps & { textColor?: string }
+export type TooltipProps = DefaultTooltipProps & { textColor?: string }
 const MOUSE_ENTER_DELAY_IN_SECONDS = 0.15
 
 /** @deprecated use Tooltip from @open-condo/ui **/
