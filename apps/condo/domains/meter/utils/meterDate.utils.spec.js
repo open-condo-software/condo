@@ -81,7 +81,6 @@ describe('meterDateUtils', () => {
             expect(isDateStrValid('2024-06-17T18:44:13.539+05:45')).toBe( true)
         })
 
-        // Test invalid date strings
         it('should return false for invalid date string with wrong format', () => {
             expect(isDateStrValid('invalid-date-string')).toBe( false)
         })
@@ -98,7 +97,6 @@ describe('meterDateUtils', () => {
             expect(isDateStrValid('2024-06-17 random text')).toBe( false)
         })
 
-        // Test valid date formats (without time component)
         it('should return true for valid European date format DD-MM-YYYY', () => {
             expect(isDateStrValid('17-06-2024')).toBe( true)
         })
@@ -107,13 +105,16 @@ describe('meterDateUtils', () => {
             expect(isDateStrValid('17/2024/06')).toBe( false)
         })
 
-        // Test cases with missing time or date components
         it('should return false for date string with only time component', () => {
             expect(isDateStrValid('18:44:13')).toBe( false)
         })
 
         it('should return false for missing time in date-time string', () => {
             expect(isDateStrValid('2024-06-17T')).toBe( false)
+        })
+
+        it('should return false for date string with time-zone offset if this format disabled', () => {
+            expect(isDateStrValid('2024-06-17T18:44:13.539+08:00', { offsets: false })).toBe(false)
         })
     })
 })
