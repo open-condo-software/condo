@@ -76,35 +76,39 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
     console.log('This is invoices 1', invoices)
 
     const currencyCode = get(invoices, '0.currencyCode') || DEFAULT_INVOICE_CURRENCY_CODE
-    let totalPrice, totalVAT
+    let totalSum = 0, totalVAT = 0
 
     const listOfWorks = invoices.reduce((acc, invoice) => {
         const rows = Array.isArray(invoice.rows) ? invoice.rows : []
         acc.push(...rows.map((row, index) => {
-            const primePrice = parseFloat(!row.isMin ? row.toPay : null)
-            const price = renderMoney(primePrice, currencyCode, locale)
-            totalPrice += price
-            const sum = renderMoney(price * row.count, currencyCode, locale)
-            const vat =  renderMoney(sum * (row.vatPercent / 100), currencyCode, locale)
+            const price = parseFloat(!row.isMin ? row.toPay : null)
+            const sum = price * row.count
+            totalSum += sum
+            const vat = sum * (row.vatPercent / 100)
             totalVAT += vat
 
-            const total = sum + vat
+            const sumWithVAT = sum + vat
+
+            const renderPrice = renderMoney(price, currencyCode, locale)
+            const renderSum = renderMoney(sum, currencyCode, locale)
+            const renderVat = renderMoney(vat, currencyCode, locale)
+            const renderTotalPrice = renderMoney(sumWithVAT, currencyCode, locale)
 
             return {
                 name: row.name || '',
                 index: index + 1 || '', 
                 count: String(row.count) || '',
-                price: !Number.isNaN(price) ? price : '',
-                sum: !Number.isNaN(price) ? sum : '',
-                vat:  !Number.isNaN(price) ? vat : '',
-                total: !Number.isNaN(price) ? total : '',
+                price: !Number.isNaN(price) ? renderPrice : '',
+                sum: !Number.isNaN(price) ? renderSum : '',
+                vat:  !Number.isNaN(price) ? renderVat : '',
+                total: !Number.isNaN(price) ? renderTotalPrice : '',
             }
         }))
 
         return acc
     }, [])
 
-    const totalPriceWithVAT = `${totalPrice + totalVAT}`
+    const totalSumWithVAT = `${+totalSum + +totalVAT}`
 
     const documentData = {
         print: {
@@ -123,7 +127,6 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
         },
         executor: {
             name: get(employee, 'name') || '',
-            position: get(employee, 'position') || '',
             phone: get(employee, 'phone') || '',
         },
         recipientRequisites: {
@@ -136,9 +139,9 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
         },
         listOfWorks,
         sum: {
-            totalPrice: totalPrice,
+            totalSum: totalSum,
             totalVAT: totalVAT,
-            totalPriceWithVAT: totalPriceWithVAT,
+            totalSumWithVAT: totalSumWithVAT,
         },
     }
 
