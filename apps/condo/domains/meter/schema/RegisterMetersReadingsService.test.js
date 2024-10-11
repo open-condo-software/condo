@@ -879,7 +879,7 @@ describe('RegisterMetersReadingsService', () => {
                                 'messageForUserTemplateKey': 'api.meter.registerMetersReadings.INVALID_DATE',
                                 'messageInterpolation': {
                                     'columnName': DATE_FIELD_PATH_TO_TRANSLATION[dateFieldPath],
-                                    'format': 'YYYY-MM-DDTHH:mm:ss.SSSZ", "YYYY-MM-DD',
+                                    'format': 'YYYY-MM-DDTHH:mm:ss.SSS[Z]", "YYYY-MM-DD',
                                 },
                             }),
                         }),

@@ -38,7 +38,6 @@ function clearDateStr (dateStr) {
  * @param {string} dateStr
  * @param options - change default formats, disable utc or offset formats
  * @param {Array<string>?} options.formats - date parsing formats
- * @param {boolean?} options.utc - process utc or not
  * @param {boolean?} options.offsets - process date with offsets or not
  * @return {boolean}
  */
@@ -48,10 +47,6 @@ function isDateStrValid (dateStr, options = DEFAULT_PARSING_OPTIONS) {
     }
 
     options = { DEFAULT_PARSING_OPTIONS, ...options }
-
-    if (options.utc && dateStr.endsWith('Z')) {
-        return dayjs.utc(dateStr, UTC_STRING_FORMAT, true).isValid()
-    }
 
     if (options.offsets && DATE_WITH_OFFSET_REGEXP.test(dateStr)) {
         // remove +HH:mm | +HHmm part, it does not matter
