@@ -31,7 +31,7 @@ const { isDateStrValid: isDateStrValidUtils, tryToISO: tryToISOUtils } = require
 const { Meter, MeterReading } = require('@condo/domains/meter/utils/serverSchema')
 
 const DATE_FORMAT = 'YYYY-MM-DD'
-const UTC_DATE_FORMAT = 'YYYY-MM-DDTHH:mm:ss.SSSZ'
+const UTC_DATE_FORMAT = 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'
 
 
 dayjs.extend(customParseFormat)
@@ -107,7 +107,7 @@ function transformToPlainObject (input) {
 }
 
 function isDateStrValid (dateStr) {
-    return isDateStrValidUtils(dateStr, { utc: true, formats: [DATE_FORMAT] })
+    return isDateStrValidUtils(dateStr, { formats: [DATE_FORMAT, UTC_DATE_FORMAT] })
 }
 
 function tryToISO (dateStr) {
