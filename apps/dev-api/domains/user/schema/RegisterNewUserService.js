@@ -68,7 +68,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     sender,
                     phone: confirmAction.phone,
                     password,
-                }, {
+                }, 'id', {
                     errorMapping: {
                         'duplicate key value violates unique constraint "user_unique_phone"': ERRORS.USER_ALREADY_EXISTS,
                     },
