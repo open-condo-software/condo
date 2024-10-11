@@ -34,7 +34,7 @@ const hasChanges = (user, userInfo) => {
  *
  * @param keystone - instance of Keystone app
  * @param {OIDCCondoUserInfo} userInfo
- * @return {Promise<void>}
+ * @return {Promise<{ id: string }>}
  */
 const createOrUpdateUser = async (keystone, userInfo) => {
     const context = await keystone.createContext()
@@ -61,7 +61,8 @@ const createOrUpdateUser = async (keystone, userInfo) => {
             isAdmin: userInfo.isAdmin,
         })
         // UserCreateInput does not have `id` field, so, update it manually
-        return await keystone.lists.User.adapter.update(createdUser.id, { id: userInfo.sub })
+        const user = await keystone.lists.User.adapter.update(createdUser.id, { id: userInfo.sub })
+        return { id: user.id }
     }
 }
 

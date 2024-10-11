@@ -6,10 +6,9 @@
 
 const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
 
-const { User: UserGQL } = require('@{{name}}/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const User = generateServerUtils(UserGQL)
+const User = generateServerUtils('User')
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
