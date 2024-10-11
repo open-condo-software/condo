@@ -106,11 +106,11 @@ function transformToPlainObject (input) {
     return result
 }
 
-const isDateStrValid = (dateStr) => {
+function isDateStrValid (dateStr) {
     return isDateStrValidUtils(dateStr, { utc: true, formats: [DATE_FORMAT] })
 }
 
-const tryToISO = (dateStr) => {
+function tryToISO (dateStr) {
     return tryToISOUtils(dateStr, [DATE_FORMAT])
 }
 
