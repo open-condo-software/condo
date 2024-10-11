@@ -33,13 +33,13 @@ export type UpdateSelectedContractors = (args: BaseMutationArgs<MutationUpdateBa
 
 interface IUseBankContractorAccountTable {
     ({ bankAccount, categoryNotSet }: {
-        categoryNotSet: boolean,
+        categoryNotSet: boolean
         bankAccount: BankAccount
     }): {
-        Component: React.FC,
-        loading: boolean,
-        selectedRows: Array<BankContractorAccountType>,
-        clearSelection: () => void,
+        Component: React.FC
+        loading: boolean
+        selectedRows: Array<BankContractorAccountType>
+        clearSelection: () => void
         updateSelected: UpdateSelectedContractors
     }
 }

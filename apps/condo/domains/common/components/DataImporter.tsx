@@ -19,8 +19,8 @@ type UploadDataItem = {
 
 type OnUpload = (
     data: {
-        cols: Array<UploadCols>,
-        data: Array<Array<UploadDataItem>>,
+        cols: Array<UploadCols>
+        data: Array<Array<UploadDataItem>>
     }
 ) => void
 
@@ -77,7 +77,7 @@ const useUploadConfig = (onUpload: OnUpload) => {
 }
 
 interface IDataImporterProps {
-    onUpload: OnUpload,
+    onUpload: OnUpload
 }
 
 const FILE_EXTENSIONS = TABLE_UPLOAD_ACCEPT_FILES.map(function (x) {

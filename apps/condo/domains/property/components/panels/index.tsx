@@ -12,7 +12,7 @@ interface IPropertyPanels extends Pick<IPropertyMapFormProps, 'canManageProperti
     mode: 'view' | 'edit'
     updateMap?(map: BuildingMap): void
     handleSave?(): void
-    address?: string,
+    address?: string
     mapValidationError?: string
 }
 

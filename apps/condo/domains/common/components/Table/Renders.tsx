@@ -60,9 +60,9 @@ export const renderHighlightedPart: TTextHighlighterRenderPartFN = (
 
 
 type GetTitleMessageType = (props: {
-    text?: string,
-    extraTitle?: string,
-    postfix?: string | React.ReactElement,
+    text?: string
+    extraTitle?: string
+    postfix?: string | React.ReactElement
 }) => string | null
 
 const getTitleMessage: GetTitleMessageType = ({ text, extraTitle, postfix }) => {
@@ -85,11 +85,11 @@ const getTitleMessage: GetTitleMessageType = ({ text, extraTitle, postfix }) => 
  * Type for getHighlightedContents fn
  */
 type GetHighlightedContentsType = (props: {
-    search?: FilterValue | string,
-    postfix?: string | React.ReactElement,
-    extraProps?: Partial<TTextHighlighterProps>,
-    extraPostfixProps?: TextProps,
-    extraTitle?: string,
+    search?: FilterValue | string
+    postfix?: string | React.ReactElement
+    extraProps?: Partial<TTextHighlighterProps>
+    extraPostfixProps?: TextProps
+    extraTitle?: string
 }) => (text?: string) => React.ReactElement | string
 
 /**
@@ -135,15 +135,15 @@ export const getHighlightedContents: GetHighlightedContentsType = ({
  * Type for getTableCellRenderer fn
  */
 type GetTableCellRendererType = (props?: {
-    search?: FilterValue | string,
-    ellipsis?: boolean | EllipsisConfig,
-    postfix?: string | React.ReactElement,
-    extraHighlighterProps?: Partial<TTextHighlighterProps>,
-    extraPostfixProps?: TextProps,
-    extraTitle?: string,
-    href?: string,
-    target?: TypographyLinkProps['target'],
-    underline?: boolean,
+    search?: FilterValue | string
+    ellipsis?: boolean | EllipsisConfig
+    postfix?: string | React.ReactElement
+    extraHighlighterProps?: Partial<TTextHighlighterProps>
+    extraPostfixProps?: TextProps
+    extraTitle?: string
+    href?: string
+    target?: TypographyLinkProps['target']
+    underline?: boolean
     Icon?: React.FC<IconProps>
 }) => (text?: string) => React.ReactElement
 

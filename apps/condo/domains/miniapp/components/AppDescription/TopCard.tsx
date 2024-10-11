@@ -59,7 +59,7 @@ type TopCardProps = {
 }
 
 type ArrowProps = HtmlHTMLAttributes<HTMLDivElement> & {
-    size?: 'medium' | 'large';
+    size?: 'medium' | 'large'
 }
 
 const ArrowWrapper = styled.div`

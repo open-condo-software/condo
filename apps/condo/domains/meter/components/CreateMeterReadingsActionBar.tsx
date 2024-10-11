@@ -13,16 +13,16 @@ const PROPERTY_DEPENDENCY = ['property']
 const handleShouldUpdate = (prev, next) => prev.unitName !== next.unitName
 
 interface ICreateMeterReadingsActionBarPropsMeter {
-    id: string,
-    numberOfTariffs?: number,
+    id: string
+    numberOfTariffs?: number
 }
 
 type CreateMeterReadingsActionBarProps = {
     handleSave: () => void
-    isLoading: boolean,
+    isLoading: boolean
     newMeterReadings: Array<unknown> | unknown
-    meterType: MeterPageTypes,
-    meters: Array<ICreateMeterReadingsActionBarPropsMeter>,
+    meterType: MeterPageTypes
+    meters: Array<ICreateMeterReadingsActionBarPropsMeter>
 }
 
 export const CreateMeterReadingsActionBar = ({

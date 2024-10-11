@@ -5,7 +5,7 @@ import React from 'react'
 type BehaviourRecordingEngine = 'plerdy'
 
 type Props = {
-    engine: BehaviourRecordingEngine;
+    engine: BehaviourRecordingEngine
 }
 
 /**
@@ -41,8 +41,8 @@ const BehaviorRecorder = ({ engine }: Props) => {
 }
 
 type PlerdyParams = {
-    site_hash_code: string;
-    suid: number;
+    site_hash_code: string
+    suid: number
 }
 
 export const parseParamsFor = {

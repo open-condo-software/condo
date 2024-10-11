@@ -43,11 +43,11 @@ const ROW_VERTICAL_GUTTERS: [Gutter, Gutter] = [0, 40]
 const SORTABLE_PROPERTIES = ['name', 'unitName', 'phone', 'email', 'role']
 
 type ContactPageContentProps = {
-    filterMeta: FiltersMeta<ContactWhereInput>[],
-    tableColumns: ColumnsType,
-    baseSearchQuery: ContactWhereInput,
-    role: OrganizationEmployeeRole,
-    loading: boolean,
+    filterMeta: FiltersMeta<ContactWhereInput>[]
+    tableColumns: ColumnsType
+    baseSearchQuery: ContactWhereInput
+    role: OrganizationEmployeeRole
+    loading: boolean
 }
 
 

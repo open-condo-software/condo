@@ -16,13 +16,13 @@ const UPDATE_READINGS_MODAL_ROW_GUTTER: [Gutter, Gutter] = [0, 16]
 const FORM_ITEM_WRAPPER_COLUMN_STYLE: ColProps = { style: { width: '100%', padding: 0 } }
 
 type UpdateMeterReadingModalProps = {
-    meter: Meter | PropertyMeter,
-    isShowUpdateReadingModal: boolean,
+    meter: Meter | PropertyMeter
+    isShowUpdateReadingModal: boolean
     handleCloseUpdateReadingModal: () => void
-    resource: MeterResourceType,
-    refetch: () => void,
-    chosenMeterReadingId: string,
-    meterType: MeterPageTypes,
+    resource: MeterResourceType
+    refetch: () => void
+    chosenMeterReadingId: string
+    meterType: MeterPageTypes
 }
 
 const UpdateMeterReadingModal = ({

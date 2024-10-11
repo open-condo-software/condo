@@ -56,9 +56,9 @@ interface IFilterComponentProps<T> {
     name: string
     label?: string
     size?: FilterComponentSize
-    queryToValueProcessor?: (a: QueryArgType) => T | T[],
+    queryToValueProcessor?: (a: QueryArgType) => T | T[]
     formItemProps?: FormItemProps
-    filters: IFilters,
+    filters: IFilters
     children: React.ReactNode
 }
 

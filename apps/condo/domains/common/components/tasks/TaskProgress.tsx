@@ -45,7 +45,7 @@ const InfiniteSpinningStyle = css`
 `
 
 type ICircularProgressProps = {
-    progress: TaskRecordProgress,
+    progress: TaskRecordProgress
 }
 
 /**
