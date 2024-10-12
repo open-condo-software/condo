@@ -183,14 +183,14 @@ const ERRORS = {
     WRONG_COUNT: (rowNumber) => ({
         code: BAD_USER_INPUT,
         type: ERROR_INVOICE_ROW_WRONG_COUNT,
-        message: `Count at line ${rowNumber} can't be less than 1`,
+        message: 'Count at line {rowNumber} can\'t be less than 1',
         messageForUser: 'api.marketplace.invoice.WRONG_COUNT',
         messageInterpolation: { rowNumber },
     }),
     WRONG_PRICE: (rowNumber) => ({
         code: BAD_USER_INPUT,
         type: ERROR_INVOICE_ROW_WRONG_PRICE,
-        message: `Price at line ${rowNumber} can't be less than 0`,
+        message: 'Price at line {rowNumber} can\'t be less than 0',
         messageForUser: 'api.marketplace.invoice.WRONG_PRICE',
         messageInterpolation: { rowNumber },
     }),
@@ -375,7 +375,9 @@ const Invoice = new GQLListSchema('Invoice', {
                     deletedAt: null,
                     invoiceStatus: CONTEXT_FINISHED_STATUS,
                 })
-                const integration = await getById('AcquiringIntegration', get(acquiringContext, 'integration'))
+                const integrationId = get(acquiringContext, 'integration')
+                if (!integrationId) return null
+                const integration = await getById('AcquiringIntegration', integrationId)
                 return get(integration, 'hostUrl', null)
             },
             access: { create: false, read: true, update: false },
@@ -391,7 +393,9 @@ const Invoice = new GQLListSchema('Invoice', {
                     deletedAt: null,
                     invoiceStatus: CONTEXT_FINISHED_STATUS,
                 })
-                const integration = await getById('AcquiringIntegration', acquiringContext.integration)
+                const integrationId = get(acquiringContext, 'integration')
+                if (!integrationId) return null
+                const integration = await getById('AcquiringIntegration', integrationId)
                 return get(integration, 'canGroupReceipts', null)
             },
             access: { create: false, read: true, update: false },

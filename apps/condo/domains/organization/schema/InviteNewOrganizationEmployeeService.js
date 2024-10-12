@@ -18,7 +18,6 @@ const { Organization, OrganizationEmployee, OrganizationEmployeeSpecialization }
 const guards = require('@condo/domains/organization/utils/serverSchema/guards')
 const { createUserAndSendLoginData } = require('@condo/domains/user/utils/serverSchema')
 
-
 const ERRORS = {
     inviteNewOrganizationEmployee: {
         ALREADY_INVITED_EMAIL: {
@@ -129,7 +128,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
 
                 phone = normalizePhone(phone)
                 email = normalizeEmail(email)
-                if (dvSenderData.dv !== 1) throw new GQLError(ERRORS.inviteNewOrganizationEmployee.DV_VERSION_MISMATCH)
+                if (dvSenderData.dv !== 1) throw new GQLError(ERRORS.inviteNewOrganizationEmployee.DV_VERSION_MISMATCH, context)
                 if (!phone) throw new GQLError(ERRORS.inviteNewOrganizationEmployee.WRONG_PHONE_FORMAT, context)
                 const userOrganization = await Organization.getOne(context, { id: organization.id })
                 let user = await guards.checkStaffUserExistency(context, email, phone)

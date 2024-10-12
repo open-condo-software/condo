@@ -42,7 +42,7 @@ const GetNewsItemsRecipientsCountersService = new GQLCustomSchema('GetNewsItemsR
         {
             access: access.canGetNewsItemsRecipientsCounters,
             schema: 'getNewsItemsRecipientsCounters(data: GetNewsItemsRecipientsCountersInput!): GetNewsItemsRecipientsCountersOutput',
-            resolver: async (parent, args) => {
+            resolver: async (parent, args, context) => {
                 const { data: { newsItemScopes, organization: { id: organizationId } } } = args
 
                 // todo (DOMA-10129) move to addressKey in scopes + finish rebuilding this query
@@ -167,7 +167,7 @@ const GetNewsItemsRecipientsCountersService = new GQLCustomSchema('GetNewsItemsR
                     return { propertiesCount, unitsCount, receiversCount }
                 }
 
-                throw new GQLError(ERRORS.SCOPE_NOT_SUPPORTED)
+                throw new GQLError(ERRORS.SCOPE_NOT_SUPPORTED, context)
             },
         },
     ],

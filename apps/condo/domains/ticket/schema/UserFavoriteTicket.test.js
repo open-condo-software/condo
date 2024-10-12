@@ -4,12 +4,8 @@
 
 const dayjs = require('dayjs')
 
-const { UUID_RE, expectToThrowInternalError } = require('@open-condo/keystone/test.utils')
-const {
-    expectToThrowAccessDeniedErrorToObj,
-} = require('@open-condo/keystone/test.utils')
+const { UUID_RE, expectToThrowAccessDeniedErrorToObj, expectToThrowUniqueConstraintViolationError } = require('@open-condo/keystone/test.utils')
 
-const { UNIQUE_CONSTRAINT_ERROR } = require('@condo/domains/common/constants/errors')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { UserFavoriteTicket, createTestUserFavoriteTicket, updateTestUserFavoriteTicket, createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 
@@ -44,9 +40,9 @@ describe('UserFavoriteTicket', () => {
             const [ticket] = await createTestTicket(clientWithProperty1, clientWithProperty1.organization, clientWithProperty1.property)
             await createTestUserFavoriteTicket(clientWithProperty1, clientWithProperty1.user, ticket)
 
-            await expectToThrowInternalError(async () => {
+            await expectToThrowUniqueConstraintViolationError(async () => {
                 await createTestUserFavoriteTicket(clientWithProperty1, clientWithProperty1.user, ticket)
-            }, `${UNIQUE_CONSTRAINT_ERROR} "user_favorite_ticket_unique_user_and_ticket"`)
+            }, 'user_favorite_ticket_unique_user_and_ticket')
         })
     })
 

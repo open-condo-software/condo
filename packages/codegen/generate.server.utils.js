@@ -10,11 +10,8 @@ const {
     generateDeleteGQL,
     generateGqlQueries,
 } = require('@open-condo/codegen/generate.gql')
-const conf = require('@open-condo/config')
-const { GQLError } = require('@open-condo/keystone/errors')
+const { GQLError, GQLErrorCode, GQLInternalErrorTypes } = require('@open-condo/keystone/errors')
 const { getById } = require('@open-condo/keystone/schema')
-
-const IS_DEBUG = conf.NODE_ENV === 'development'
 
 const isNotUndefined = (x) => typeof x !== 'undefined'
 const ALLOWED_OPTIONS = ['errorMapping', 'doesNotExistError', 'multipleObjectsError']
@@ -30,14 +27,6 @@ function _getAllErrorMessages (errors) {
 
 function _throwIfError (context, errors, data, errorMessage, errorMapping) {
     if (errors) {
-        if (IS_DEBUG) {
-            const errorsToShow = errors.filter(error => get(error, 'originalError.data') || get(error, 'originalError.internalData'))
-            if (!isEmpty(errorsToShow)) errorsToShow.forEach((error) => console.warn(get(error, 'originalError.data'), '\n', get(error, 'originalError.internalData')))
-            console.error(errors)
-        }
-
-        let error = new Error(errorMessage)
-
         /** NOTE(pahaz): you can use it like so:
          *
          *    const ERRORS = {
@@ -61,20 +50,22 @@ function _throwIfError (context, errors, data, errorMessage, errorMapping) {
          *    })
          *
          */
+        const fields = {
+            code: GQLErrorCode.INTERNAL_ERROR,
+            type: GQLInternalErrorTypes.SUB_GQL_ERROR,
+            message: errorMessage,
+        }
         if (errorMapping && isObject(errorMapping)) {
             const message = _getAllErrorMessages(errors).join(' -- ')
             for (const key in errorMapping) {
                 if (message.includes(key)) {
-                    error = new GQLError(errorMapping[key], context)
+                    Object.assign(fields, errorMapping[key])
                     break
                 }
             }
         }
 
-        // NOTE(pahaz): we will see this nested result at the ApolloErrorFormatter
-        error.errors = errors
-        error.reqId = get(context, 'req.id')
-        throw error
+        throw new GQLError(fields, context, errors)
     }
     if (!data || typeof data !== 'object') {
         throw new Error('wrong query result')

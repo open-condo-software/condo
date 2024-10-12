@@ -8,7 +8,7 @@ const { isObject, get } = require('lodash')
 const { generators, Issuer } = require('openid-client') // certified openid client will all checks
 
 const conf = require('@open-condo/config')
-const { formatError } = require('@open-condo/keystone/apolloErrorFormatter')
+const { safeApolloErrorFormatter } = require('@open-condo/keystone/apolloErrorFormatter')
 const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSchema')
 const { prepareDefaultKeystoneConfig } = require('@open-condo/keystone/setup.utils')
 const { EmptyApp } = require('@open-condo/keystone/test.utils')
@@ -156,7 +156,7 @@ module.exports = {
         new CondoOIDCMiddleware(),
         new GraphQLApp({
             apollo: {
-                formatError,
+                formatError: safeApolloErrorFormatter,
                 debug: IS_ENABLE_APOLLO_DEBUG,
                 introspection: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
                 playground: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,

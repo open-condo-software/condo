@@ -1,4 +1,4 @@
-const index = require('@app/dev-api/index')
+const index = require('@app/miniapp/index')
 const { get } = require('lodash')
 
 const conf = require('@open-condo/config')

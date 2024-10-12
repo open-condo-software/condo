@@ -111,7 +111,7 @@ async function prepare () {
             const env = {
                 COOKIE_SECRET: `${app.name}-secret`,
                 DATABASE_URL: `${LOCAL_PG_DB_PREFIX}/${app.pgName}`,
-                REDIS_URL:`${LOCAL_REDIS_DB_PREFIX}/${app.redisIndex}`,
+                REDIS_URL: `${LOCAL_REDIS_DB_PREFIX}/${app.redisIndex}`,
                 PORT: String(app.port),
                 SPORT: String(app.sport),
                 SERVER_URL: app.serviceUrl,

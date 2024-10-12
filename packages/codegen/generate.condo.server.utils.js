@@ -1,12 +1,9 @@
-const { get, isEmpty, isObject, isArray } = require('lodash')
+const { get, isObject, isArray } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { GQLError } = require('@open-condo/keystone/errors')
 const { makeRemoteExecutor } = require('@open-condo/keystone/stitchSchema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
-
-
-const IS_DEBUG = conf.NODE_ENV === 'development'
 
 const CONDO_API_URL = `${conf.CONDO_DOMAIN}/admin/api`
 const DEFAULT_LOCALE = conf.DEFAULT_LOCALE || 'en'
@@ -14,9 +11,7 @@ const CONDO_ACCESS_TOKEN_KEY = conf.CONDO_ACCESS_TOKEN_KEY || 'condoAccessToken'
 const ACCEPT_LANGUAGE = conf.ACCEPT_LANGUAGE || 'accept-language'
 const CONDO_REFRESH_TOKEN_KEY = conf.CONDO_REFRESH_TOKEN_KEY || 'condoRefreshToken'
 
-
 const client = makeRemoteExecutor(CONDO_API_URL, CONDO_ACCESS_TOKEN_KEY)
-
 
 function getRequestContext (context) {
     return {
@@ -37,12 +32,6 @@ function _getAllErrorMessages (errors) {
 
 function _throwIfError (context, errors, data, errorMessage, errorMapping, status, statusText) {
     if (errors) {
-        if (IS_DEBUG) {
-            const errorsToShow = errors.filter(error => get(error, 'originalError.data') || get(error, 'originalError.internalData'))
-            if (!isEmpty(errorsToShow)) errorsToShow.forEach((error) => console.warn(get(error, 'originalError.data'), '\n', get(error, 'originalError.internalData')))
-            console.error(errors)
-        }
-
         const reason = String(errors.map(error => get(error, 'message')))
         let error = new Error(`${errorMessage}: ${reason}`)
 

@@ -1,16 +1,25 @@
 const { faker } = require('@faker-js/faker')
 const { print } = require('graphql')
-const { get, isEmpty } = require('lodash')
+const { get, isEmpty, pick, map, toArray } = require('lodash')
 
 const { normalizeQuery } = require('@open-condo/keystone/logging/normalize')
 
 class TestClientResponseError extends Error {
     constructor (data, errors, context = {}) {
         super(`Test client caught GraphQL response with not empty errors body! ${_renderDeveloperFriendlyErrorMessage(data, errors, context)}`)
-        this.errors = errors
-        this.data = data
-        this.context = context
+        // NOTE(pahaz): we don't want to display all this fields during console.error
+        this._constructor = { data, errors, context }
         this.name = 'TestClientResponseError'
+    }
+
+    get data () {
+        return this._constructor?.data
+    }
+
+    get errors () {
+        // NOTE(pahaz): we want to use only public error fields during the rests
+        // TODO(pahaz): DOMA-10348 drop `data` field compatibility
+        return map(toArray(this._constructor?.errors), error => pick(error, ['message', 'name', 'locations', 'path', 'extensions', 'data']))
     }
 }
 
@@ -77,6 +86,17 @@ function _renderDeveloperFriendlyErrorMessage (data, errors, context) {
         msg.push('ERRORS: no or empty')
     }
 
+    if (errors) {
+        msg.push('--stack--')
+        const length = errors.length
+        errors.forEach((error, index) => {
+            const prefix = (length === 1) ? '' : `STACK[${index + 1}/${length}]: `
+            const stack = error?.fullstack || error.stack
+            msg.push(prefix + stack)
+        })
+    }
+
+    msg.push('--end--\n')
     return msg.join('\n')
 }
 
@@ -126,7 +146,7 @@ function generateGQLTestUtils (gql) {
 
     async function createMany (client, attrsArray = [], { raw = false } = {}) {
         _checkClient(client)
-        const { data, errors } = await  client.mutate(gql.CREATE_OBJS_MUTATION, {
+        const { data, errors } = await client.mutate(gql.CREATE_OBJS_MUTATION, {
             data: [...attrsArray],
         })
         if (raw) return { data, errors }
@@ -147,7 +167,7 @@ function generateGQLTestUtils (gql) {
     async function updateMany (client, attrsArray = [], { raw = false } = {}) {
         _checkClient(client)
         const { data, errors } = await client.mutate(gql.UPDATE_OBJS_MUTATION, {
-            data: [ ...attrsArray ],
+            data: [...attrsArray],
         })
         if (raw) return { data, errors }
         throwIfError(data, errors, { query: gql.UPDATE_OBJS_MUTATION, variables: { data: [...attrsArray] } })

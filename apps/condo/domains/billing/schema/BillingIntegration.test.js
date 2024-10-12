@@ -81,6 +81,7 @@ describe('BillingIntegration', () => {
                     },
                 }
 
+                // TODO(pahaz): DOMA-10368 use ???
                 await catchErrorFrom(async () => {
                     await updateTestBillingIntegration(admin, billingIntegrationId,
                         payload)
@@ -197,6 +198,7 @@ describe('BillingIntegration', () => {
         test('admin can\'t create BillingIntegration.accessRights field', async () => {
             const [integration] = await createTestBillingIntegration(admin)
             const [accessRight] = await createTestBillingIntegrationAccessRight(admin, integration, serviceUser.user)
+            // TODO(pahaz): DOMA-10368 use expectToThrowGraphQLRequestError
             await catchErrorFrom(async () => {
                 await createTestBillingIntegration(support, {
                     accessRights: { connect: accessRight.id },
@@ -232,6 +234,7 @@ describe('BillingIntegration', () => {
         test('admin can\'t update BillingIntegration.accessRights field', async () => {
             const [integration] = await createTestBillingIntegration(admin)
             const [accessRight] = await createTestBillingIntegrationAccessRight(admin, integration, serviceUser.user)
+            // TODO(pahaz): DOMA-10368 use expectToThrowGraphQLRequestError
             await catchErrorFrom(async () => {
                 await updateTestBillingIntegration(support, integration.id, {
                     accessRights: { connect: accessRight.id },

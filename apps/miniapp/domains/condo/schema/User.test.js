@@ -3,13 +3,9 @@
  */
 
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, makeLoggedInClient, getRandomString } = require('@open-condo/keystone/test.utils')
+const { expectToThrowAuthenticationErrorToObjects, expectToThrowAuthenticationErrorToObj, expectToThrowAccessDeniedErrorToObj } = require('@open-condo/keystone/test.utils')
 
-const { expectToThrowAuthenticationErrorToObjects } = require('@miniapp/domains/common/utils/testSchema')
-const { expectToThrowAuthenticationErrorToObj } = require('@miniapp/domains/common/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj } = require('@miniapp/domains/common/utils/testSchema')
-const { User, createTestUser, updateTestUser } = require('@miniapp/domains/condo/utils/testSchema')
-
-const { makeClientWithStaffUser } = require('../utils/testSchema')
+const { User, createTestUser, updateTestUser, makeClientWithStaffUser } = require('@miniapp/domains/condo/utils/testSchema')
 
 describe('User', () => {
     test('user: create User', async () => {

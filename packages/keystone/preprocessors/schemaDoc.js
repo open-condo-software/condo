@@ -2,8 +2,9 @@
  * Takes each custom schema and embeds documentation, that will be displayed in GraphiQL.
  * Documentation should be specified in a `doc` property of custom query or mutation configuration.
  */
-const values = require('lodash/values')
+const { values, pick } = require('lodash')
 
+const { GQLError } = require('../errors')
 const { GQL_CUSTOM_SCHEMA_TYPE } = require('../schema')
 
 /**
@@ -58,11 +59,12 @@ const { GQL_CUSTOM_SCHEMA_TYPE } = require('../schema')
  * Formats error for documentation of GraphQL API in human readable way
  * @param {GQLError} errorConfig
  * @return {string}
- * TODO: localize error message
  */
-const formatError = (errorConfig) => (
-    '`' + JSON.stringify(errorConfig, null, 2) + '`'
-)
+const formatError = (errorConfig) => {
+    const error = new GQLError(errorConfig, {})  // render error with DEFAULT_LOCALE
+    const errorFields = pick(error.extensions, ['code', 'type', 'message', 'messageForUser', 'correctExample'])
+    return '`' + JSON.stringify(errorFields, null, 2) + '`'
+}
 
 /**
  * Formats documentation in human readable way
@@ -132,7 +134,7 @@ const schemaDocPreprocessor = (schemaType, name, schema) => {
     if (schema.hasOwnProperty('mutations')) {
         schema.mutations = schema.mutations.map(injectDocumentation)
     }
-    if (schema.hasOwnProperty('queries')){
+    if (schema.hasOwnProperty('queries')) {
         schema.queries = schema.queries.map(injectDocumentation)
     }
     return result

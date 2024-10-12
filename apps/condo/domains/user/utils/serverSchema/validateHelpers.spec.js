@@ -1,5 +1,6 @@
 const { faker } = require('@faker-js/faker')
 
+const { GQLError } = require('@open-condo/keystone/errors')
 const { catchErrorFrom } = require('@open-condo/keystone/test.utils')
 
 const { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
@@ -8,11 +9,14 @@ const { createTestPhone } = require('@condo/domains/user/utils/testSchema')
 
 const { passwordValidations } = require('./validateHelpers')
 
-
-const expectToThrowError = async (func, error) => {
-    await catchErrorFrom(func, ({ extensions }) => {
-        expect(extensions.message).toEqual(error.message)
-        expect(extensions.type).toEqual(error.type)
+/** @deprecated */
+const expectToThrowError = async (func, checkError) => {
+    await catchErrorFrom(func, (result) => {
+        expect(result.type).toEqual(checkError.type)
+        expect(result.message).toEqual(checkError.message)
+        expect(result.extensions.message).toEqual(checkError.message)
+        expect(result.extensions.message).toEqual(checkError.extensions.message)
+        expect(result.extensions.type).toEqual(checkError.extensions.type)
     })
 }
 
@@ -59,9 +63,10 @@ describe('Validate helpers', () => {
                 ]
 
                 test.each(invalidCases)('%s', async (caseName, password, error) => {
-                    await expectToThrowError(async () => {
-                        await passwordValidations({}, password)
-                    }, error)
+                    await expectToThrowError(
+                        async () => await passwordValidations({}, password),
+                        new GQLError(error, {}),
+                    )
                 })
             })
 
@@ -75,9 +80,10 @@ describe('Validate helpers', () => {
                 ]
 
                 test.each(invalidCases)('%s', async (caseName, password, error) => {
-                    await expectToThrowError(async () => {
-                        await passwordValidations({}, password, email)
-                    }, error)
+                    await expectToThrowError(
+                        async () => await passwordValidations({}, password, email),
+                        new GQLError(error, {}),
+                    )
                 })
             })
 
@@ -91,9 +97,10 @@ describe('Validate helpers', () => {
                 ]
 
                 test.each(invalidCases)('%s', async (caseName, password, error) => {
-                    await expectToThrowError(async () => {
-                        await passwordValidations({}, password, null, phone)
-                    }, error)
+                    await expectToThrowError(
+                        async () => await passwordValidations({}, password, null, phone),
+                        new GQLError(error, {}),
+                    )
                 })
             })
         })

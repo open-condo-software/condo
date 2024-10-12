@@ -17,6 +17,7 @@ const {
     METER_READINGS_IMPORT_TASK_FOLDER_NAME,
 } = require('@condo/domains/common/constants/import')
 const { EXCEL_FILE_META } = require('@condo/domains/common/utils/createExportFile')
+const { setLocaleForKeystoneContext } = require('@condo/domains/common/utils/serverSchema/setLocaleForKeystoneContext')
 const { MeterReadingsImportTask } = require('@condo/domains/meter/utils/serverSchema')
 const { getImporter } = require('@condo/domains/meter/utils/taskSchema')
 
@@ -85,6 +86,10 @@ async function importMeters (taskId) {
     // since we would like to catch all errors and immediately tell to user about them
     // let's wrap whole proceeding code body into try catch
     try {
+        if (!locale) throw new Error(`MeterReadingsImportTask with id "${taskId}" does not have value for "locale" field!`)
+
+        setLocaleForKeystoneContext(context, locale)
+
         // download file
         const contentStream = await getObjectStream(file, fileAdapter)
         if (isEmpty(contentStream)) {

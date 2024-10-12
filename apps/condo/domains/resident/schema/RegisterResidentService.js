@@ -28,11 +28,12 @@ const redisGuard = new RedisGuard()
 
 const logger = getLogger('registerResident')
 
-const checkLimits = async (uniqueField) => {
+const checkLimits = async (uniqueField, context) => {
     await redisGuard.checkCustomLimitCounters(
         `discover-service-consumers-${uniqueField}`,
         RESIDENT_DISCOVER_CONSUMERS_WINDOW_SEC,
         MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW_SEC,
+        context,
     )
 }
 
@@ -116,8 +117,7 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
 
 
                 try {
-                    // checkLimits throws an error if the limit was reached
-                    await checkLimits(context.authedItem.id)
+                    await checkLimits(context.authedItem.id, context)
                     const billingAccounts = await BillingAccount.getAll(
                         context,
                         {

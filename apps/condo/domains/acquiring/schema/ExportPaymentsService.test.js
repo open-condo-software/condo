@@ -4,6 +4,7 @@
 
 const { faker } = require('@faker-js/faker')
 
+const conf = require('@open-condo/config')
 const { makeClient } = require('@open-condo/keystone/test.utils')
 const { i18n } = require('@open-condo/locales/loader')
 
@@ -90,6 +91,7 @@ describe('ExportPaymentsService', () => {
     it('check payments export', async () => {
         const locale = 'ru'
         const { admin, billingReceipts, acquiringContext, acquiringIntegration, organization } = await makePayer()
+        admin.setHeaders({ 'Accept-Language': locale })
         const [receiptPayment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
         await updateTestAcquiringIntegrationContext(admin, acquiringContext.id, {
             invoiceStatus: CONTEXT_FINISHED_STATUS,
@@ -107,8 +109,9 @@ describe('ExportPaymentsService', () => {
             { sortBy: 'advancedAt_DESC', timeZone: DEFAULT_ORGANIZATION_TIMEZONE }
         )
 
+        const url = linkToFile.replace(conf.SERVER_URL, admin.serverUrl)
         const filename = getTmpFile('xlsx')
-        await downloadFile(linkToFile, filename)
+        await downloadFile(url, filename)
         const data = await readXlsx(filename)
 
         expectDataFormat(data, [
@@ -134,8 +137,9 @@ describe('ExportPaymentsService', () => {
             { sortBy: 'advancedAt_DESC', timeZone: DEFAULT_ORGANIZATION_TIMEZONE }
         )
 
+        const url2 = linkToFile2.replace(conf.SERVER_URL, admin.serverUrl)
         const filename2 = getTmpFile('xlsx')
-        await downloadFile(linkToFile2, filename2)
+        await downloadFile(url2, filename2)
         const data2 = await readXlsx(filename2)
 
         expectDataFormat(data2, [

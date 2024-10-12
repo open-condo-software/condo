@@ -279,6 +279,7 @@ describe('TourStep', () => {
 
             const otherStep = steps.find(step => step.type !== CREATE_PROPERTY_STEP_TYPE)
 
+            // TODO(pahaz): DOMA-10368 use expectToThrowGraphQLRequestError
             await catchErrorFrom(async () => {
                 await updateTestTourStep(admin, otherStep.id, {
                     type: CREATE_PROPERTY_STEP_TYPE,

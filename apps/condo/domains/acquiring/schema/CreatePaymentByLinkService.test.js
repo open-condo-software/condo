@@ -8,7 +8,7 @@ const dayjs = require('dayjs')
 
 const {
     makeLoggedInAdminClient, makeClient, expectToThrowAuthenticationErrorToResult, catchErrorFrom,
-    expectToThrowAccessDeniedErrorToResult,
+    expectToThrowAccessDeniedErrorToResult, expectToThrowGQLErrorToResult,
 } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
@@ -431,26 +431,13 @@ describe('CreatePaymentByLinkService', () => {
 
         const payload = { qrCode }
 
-        await catchErrorFrom(async () => {
+        await expectToThrowGQLErrorToResult(async () => {
             await createPaymentByLinkByTestClient(user, payload)
-        }, (error) => {
-            const { errors } = error
-            expect(errors).toEqual([
-                expect.objectContaining({
-                    message: '[error] Unable to validateQRCode',
-                    originalError: expect.objectContaining({
-                        errors: [expect.objectContaining({
-                            name: 'GQLError',
-                            message: 'Provided bank account is not in the system',
-                            extensions: expect.objectContaining({
-                                mutation: 'validateQRCode',
-                                code: 'BAD_USER_INPUT',
-                                message: 'Provided bank account is not in the system',
-                            }),
-                        })],
-                    }),
-                }),
-            ])
+        }, {
+            mutation: 'validateQRCode',
+            code: 'BAD_USER_INPUT',
+            type: 'WRONG_FORMAT',
+            message: 'Provided bank account is not in the system',
         })
 
     })
@@ -522,6 +509,7 @@ describe('CreatePaymentByLinkService', () => {
                 advancedAt: dayjs().toISOString(),
             })
 
+            // TODO(pahaz): DOMA-10368 use expectToThrowGQLErrorToResult
             await catchErrorFrom(async () => {
                 await createPaymentByLinkByTestClient(admin, { qrCode })
             }, (error) => {
@@ -570,6 +558,7 @@ describe('CreatePaymentByLinkService', () => {
                 advancedAt: dayjs().toISOString(),
             })
 
+            // TODO(pahaz): DOMA-10368 use expectToThrowGQLErrorToResult
             await catchErrorFrom(async () => {
                 await createPaymentByLinkByTestClient(admin, { qrCode })
             }, (error) => {
@@ -618,6 +607,7 @@ describe('CreatePaymentByLinkService', () => {
                 advancedAt: dayjs().toISOString(),
             })
 
+            // TODO(pahaz): DOMA-10368 use expectToThrowGQLErrorToResult
             await catchErrorFrom(async () => {
                 await createPaymentByLinkByTestClient(admin, { qrCode })
             }, (error) => {
@@ -682,6 +672,7 @@ describe('CreatePaymentByLinkService', () => {
                 advancedAt: dayjs().toISOString(),
             })
 
+            // TODO(pahaz): DOMA-10368 use expectToThrowGQLErrorToResult
             await catchErrorFrom(async () => {
                 await createPaymentByLinkByTestClient(admin, { qrCode })
             }, (error) => {

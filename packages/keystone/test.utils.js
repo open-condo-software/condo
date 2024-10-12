@@ -10,20 +10,17 @@ const { createUploadLink } = require('apollo-upload-client')
 const axiosLib = require('axios')
 const axiosCookieJarSupportLib = require('axios-cookiejar-support')
 const express = require('express')
-const falsey = require('falsey')
 const FormData = require('form-data')
 const { gql } = require('graphql-tag')
-const { flattenDeep, fromPairs, toPairs, get, set, isFunction, isEmpty, template } = require('lodash')
+const { flattenDeep, fromPairs, toPairs, get, isFunction, isEmpty, template, pick, set, isArray } = require('lodash')
 const fetch = require('node-fetch')
 const { CookieJar, Cookie } = require('tough-cookie')
-
 
 const conf = require('@open-condo/config')
 const { getTranslations } = require('@open-condo/locales/loader')
 
+const { GQLErrorCode, GQLInternalErrorTypes } = require('./errors')
 const { prepareKeystoneExpressApp } = require('./prepareKeystoneApp')
-
-const EXTRA_LOGGING = falsey(get(process, 'env.DISABLE_LOGGING'))
 
 const urlParse = urlLib.parse
 const axios = axiosLib.default
@@ -36,16 +33,12 @@ const NUMBER_RE = /^[1-9][0-9]*$/i
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
 const API_PATH = '/admin/api'
-const DEFAULT_TEST_USER_IDENTITY = conf.DEFAULT_TEST_USER_IDENTITY || 'user@example.com'
-const DEFAULT_TEST_USER_SECRET = conf.DEFAULT_TEST_USER_SECRET || '1a92b3a07c78'
-const DEFAULT_TEST_ADMIN_IDENTITY = conf.DEFAULT_TEST_ADMIN_IDENTITY || 'admin@example.com'
-const DEFAULT_TEST_ADMIN_SECRET = conf.DEFAULT_TEST_ADMIN_SECRET || '3a74b3f07978'
+const DEFAULT_TEST_USER_IDENTITY = conf.DEFAULT_TEST_USER_IDENTITY
+const DEFAULT_TEST_USER_SECRET = conf.DEFAULT_TEST_USER_SECRET
+const DEFAULT_TEST_ADMIN_IDENTITY = conf.DEFAULT_TEST_ADMIN_IDENTITY
+const DEFAULT_TEST_ADMIN_SECRET = conf.DEFAULT_TEST_ADMIN_SECRET
 const TESTS_TLS_IGNORE_UNAUTHORIZED = conf.TESTS_TLS_IGNORE_UNAUTHORIZED === 'true'
-const TESTS_LOG_REQUEST_RESPONSE = conf.TESTS_LOG_REQUEST_RESPONSE
-// TODO(pahaz): remove this old consts! we have TESTS_LOG_REQUEST_RESPONSE
-const TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS = conf.TESTS_FAKE_CLIENT_MODE && conf.TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS
-const TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS = !conf.TESTS_FAKE_CLIENT_MODE && conf.TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS
-const TESTS_REAL_CLIENT_REMOTE_API_URL = conf.TESTS_REAL_CLIENT_REMOTE_API_URL || `${conf.SERVER_URL}${API_PATH}`
+const TESTS_LOG_REQUEST_RESPONSE = conf.TESTS_LOG_REQUEST_RESPONSE === 'true'
 
 const SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION = gql`
     mutation authenticateUserWithPhoneAndPassword ($phone: String!, $password: String!) {
@@ -87,7 +80,6 @@ let __expressApp = null
 let __expressServer = null
 let __keystone = null
 let __isAwaiting = false
-
 
 /**
  * @type {Map<string, any>}
@@ -385,23 +377,28 @@ const makeApolloClient = (serverUrl, opts = {}) => {
 
 const makeClient = async (opts = { generateIP: true, serverUrl: undefined }) => {
     // Data for real client
-    let serverUrl = opts.serverUrl ? opts.serverUrl : new URL(TESTS_REAL_CLIENT_REMOTE_API_URL).origin
-    let logErrors = TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS
+    let serverUrl
     const customHeaders = {}
     if (opts.generateIP) {
         customHeaders['x-forwarded-for'] = faker.internet.ip()
     }
 
     if (__expressApp) {
+        // NOTE(pahaz): it's fake client mode
         const port = __expressServer.address().port
         const protocol = __expressApp instanceof https.Server ? 'https' : 'http'
 
         // Overriding with data for fake client
         serverUrl = protocol + '://127.0.0.1:' + port
-        logErrors = TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS
+    } else {
+        // NOTE(pahaz): it's real client mode
+        serverUrl = conf.SERVER_URL
     }
 
-    return makeApolloClient(serverUrl, { logRequestResponse: TESTS_LOG_REQUEST_RESPONSE || logErrors, customHeaders })
+    return makeApolloClient(
+        new URL(opts.serverUrl ? opts.serverUrl : serverUrl).origin,
+        { logRequestResponse: TESTS_LOG_REQUEST_RESPONSE, customHeaders },
+    )
 }
 
 const createAxiosClientWithCookie = (options = {}, cookie = '', cookieDomain = '') => {
@@ -475,8 +472,8 @@ const makeLoggedInAdminClient = async () => {
  * Used for async action waiting in tests. Pass in callback and options.
  * Will retry executing callback again and again each $interval ms for $timeout ms.
  * You can also set $delay before trying callback if you sure that async action won't take less.
- * @param callback
- * @param options { timeout: 15000, interval: 150, delay: 0 }
+ * @param {() => Promise<any>} callback
+ * @param {{ timeout:number, interval:number, delay:number }|null} options - default: timeout: 15000, interval: 150, delay: 0
  * @returns {Promise<unknown>}
  */
 async function waitFor (callback, options = null) {
@@ -549,11 +546,23 @@ const catchErrorFrom = async (testFunc, inspect) => {
     try {
         await testFunc()
     } catch (e) {
-        if (EXTRA_LOGGING) console.warn('catchErrorFrom() caught error:', e)
         thrownError = e
     }
     if (!thrownError) throw new Error(`catchErrorFrom() no caught error for: ${testFunc}`)
-    return inspect(thrownError)
+    try {
+        return inspect(thrownError)
+    } catch (e) {
+        // NOTE(pahaz): We will catch the validation error from Jest,
+        // and if it occurs, we want to see the stack and use click to file
+        // and understand what's happen.
+        if (typeof jasmine !== 'undefined') {
+            // eslint-disable-next-line
+            const testName = `[${get(jasmine, ['currentTest', 'fullName'], jasmine['testPath'].split('/').pop().split('.')[0])}]`
+            // nosemgrep: javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring
+            console.error(`[catchError !!!]${testName}:`, thrownError)
+        }
+        throw e
+    }
 }
 
 /**
@@ -573,26 +582,27 @@ const catchErrorFrom = async (testFunc, inspect) => {
  * })
  *
  * @param {() => Promise<void>} testFunc - Function, expected to throw an error
- * @param {String} path - path
+ * @param {Array<string>} path - path
  * @return {Promise<void>}
  */
 const expectToThrowAccessDeniedError = async (testFunc, path) => {
     if (!path) throw new Error('path is not specified')
-
+    if (!isArray(path)) throw new Error('wrong path type: Array<string> expected')
     await catchErrorFrom(testFunc, (caught) => {
-        expect(caught).toMatchObject({
+        // TODO(pahaz): DOMA-10368 check 'data'
+        expect(pick(caught, ['name', 'errors'])).toEqual({
             name: 'TestClientResponseError',
-            data: set({}, path, null),
             errors: [expect.objectContaining({
                 'message': 'You do not have access to this resource',
                 'name': 'AccessDeniedError',
-                'path': path.split('.'),
+                'path': path,
                 'locations': [expect.objectContaining({
                     line: expect.anything(),
                     column: expect.anything(),
                 })],
                 'extensions': {
                     'code': 'INTERNAL_SERVER_ERROR',
+                    'messageForDeveloper': expect.stringMatching(/^You do not have access to this resource/),
                 },
             })],
         })
@@ -600,19 +610,51 @@ const expectToThrowAccessDeniedError = async (testFunc, path) => {
 }
 
 const expectToThrowAccessDeniedErrorToObj = async (testFunc) => {
-    await expectToThrowAccessDeniedError(testFunc, 'obj')
+    await expectToThrowAccessDeniedError(testFunc, ['obj'])
 }
 
 const expectToThrowAccessDeniedErrorToObjects = async (testFunc) => {
-    await expectToThrowAccessDeniedError(testFunc, 'objs')
+    await expectToThrowAccessDeniedError(testFunc, ['objs'])
 }
 
 const expectToThrowAccessDeniedErrorToResult = async (testFunc) => {
-    await expectToThrowAccessDeniedError(testFunc, 'result')
+    await expectToThrowAccessDeniedError(testFunc, ['result'])
 }
 
 const expectToThrowAccessDeniedErrorToCount = async (testFunc) => {
-    await expectToThrowAccessDeniedError(testFunc, 'meta.count')
+    await expectToThrowAccessDeniedError(testFunc, ['meta', 'count'])
+}
+
+/**
+ * @param testFunc
+ * @param {string} path
+ * @param {string} field
+ * @param {Number} [count]
+ * @returns {Promise<void>}
+ */
+const expectToThrowAccessDeniedToFieldError = async (testFunc, path, field, count = 1) => {
+    if (!path) throw new Error('path is not specified')
+    if (!field) throw new Error('field is not specified')
+
+    await catchErrorFrom(testFunc, (caught) => {
+        expect(pick(caught, ['name', 'data', 'errors'])).toMatchObject({
+            name: 'TestClientResponseError',
+            data: { [path]: Array(count).fill(null) },
+            errors: Array(count).fill(null).map((v, i) => expect.objectContaining({
+                'message': 'You do not have access to this resource',
+                'name': 'AccessDeniedError',
+                'path': [path, i, field],
+                'locations': [expect.objectContaining({
+                    line: expect.anything(),
+                    column: expect.anything(),
+                })],
+                'extensions': {
+                    'code': 'INTERNAL_SERVER_ERROR',
+                    'messageForDeveloper': expect.stringMatching(/^You do not have access to this resource/),
+                },
+            })),
+        })
+    })
 }
 
 /**
@@ -635,7 +677,7 @@ const expectToThrowAccessDeniedErrorToCount = async (testFunc) => {
 const expectToThrowAuthenticationError = async (testFunc, path) => {
     if (!path) throw new Error('path argument is not specified')
     await catchErrorFrom(testFunc, (caught) => {
-        expect(caught).toMatchObject({
+        expect(pick(caught, ['name', 'data', 'errors'])).toEqual({
             name: 'TestClientResponseError',
             data: { [path]: null },
             errors: [expect.objectContaining({
@@ -644,6 +686,8 @@ const expectToThrowAuthenticationError = async (testFunc, path) => {
                 'path': [path],
                 'extensions': {
                     'code': 'UNAUTHENTICATED',
+                    'message': 'No or incorrect authentication credentials',
+                    'messageForDeveloper': expect.stringMatching(/^No or incorrect authentication credentials/),
                 },
             })],
         })
@@ -665,7 +709,7 @@ const expectToThrowAuthenticationErrorToResult = async (testFunc) => {
 const expectToThrowValidationFailureError = async (testFunc, message, path = 'obj') => {
     if (!message) throw new Error('expectToThrowValidationFailureError(): no message argument')
     await catchErrorFrom(testFunc, (caught) => {
-        expect(caught).toMatchObject({
+        expect(pick(caught, ['name', 'data', 'errors'])).toEqual({
             name: 'TestClientResponseError',
             data: { [path]: null },
             errors: [expect.objectContaining({
@@ -678,100 +722,163 @@ const expectToThrowValidationFailureError = async (testFunc, message, path = 'ob
                 })],
                 'extensions': {
                     'code': 'INTERNAL_SERVER_ERROR',
+                    'messageForDeveloper': expect.stringMatching(/^You attempted to perform an invalid mutation/),
+                    'message': expect.stringContaining(message),
                 },
             })],
-        })
-
-        // TODO(pahaz): you really don't have access to originalError in production! need to change this check!
-        expect(caught.errors[0]).toMatchObject({
-            originalError: {
-                data: {
-                    messages: expect.arrayContaining([
-                        expect.stringContaining(message),
-                    ]),
-                },
-            },
         })
     })
 }
 
-const expectToThrowInternalError = async (testFunc, message, path = 'obj') => {
+/**
+ *
+ * @param testFunc
+ * @param message
+ * @param {Array<string>} path - path
+ * @returns {Promise<void>}
+ */
+const expectToThrowInternalError = async (testFunc, message, path) => {
     if (!message) throw new Error('expectToThrowInternalError(): no message argument')
+    if (!isArray(path)) throw new Error('wrong path type: Array<string> expected')
+    const data = {}
+    set(data, path, null)
     await catchErrorFrom(testFunc, (caught) => {
-        expect(caught).toMatchObject({
+        expect(pick(caught, ['name', 'data', 'errors'])).toEqual({
             name: 'TestClientResponseError',
-            data: { [path]: null },
+            data,
             errors: [expect.objectContaining({
                 'message': expect.stringContaining(message),
                 'name': 'GraphQLError',
-                'path': [path],
+                path,
                 'locations': [expect.objectContaining({
                     line: expect.anything(),
                     column: expect.anything(),
                 })],
                 'extensions': {
                     'code': 'INTERNAL_SERVER_ERROR',
+                    'messageForDeveloper': expect.stringContaining(message),
                 },
             })],
         })
     })
 }
 
+/**
+ * @example
+ * @param template {string}
+ * @param eol {boolean} use end of line in result regexp
+ * @param sol {boolean} use start of line in result regexp
+ * @returns {RegExp}
+ * @example
+ *   const template = "You have to wait {secondsRemaining} seconds";
+ *   const str = "You have to wait 10 seconds";
+ *   const regex = createRegExByTemplate(template);
+ *   console.log(regex.test(str)); // Output: true
+ *   const values = str.match(regex).groups;
+ *   console.log(values); // Output: { secondsRemaining: '10' }
+ */
+function createRegExByTemplate (template, { eol = true, sol = true } = {}) {
+    let regexString = template.replace(/([.*+?^$()|\][\\])/g, '\\$1') // escape regexp chars
+    if (template.includes('{')) {
+        // replace template string `{secondsRemaining}` to RegExp
+        regexString = regexString.replace(/{(\w+)}/g, '(?<$1>.*?)') // named group
+    }
+    // Not a ReDoS case. We generate a specific RE
+    // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
+    return new RegExp((sol ? '^' : '') + regexString + (eol ? '$' : ''))
+}
+
+/**
+ * @param testFunc {() => Promise<void>}
+ * @param errorFields {{[key: string]: string}}
+ * @param path {string}
+ * @returns {Promise<void>}
+ */
 const expectToThrowGQLError = async (testFunc, errorFields, path = 'obj') => {
     if (isEmpty(errorFields) || typeof errorFields !== 'object') throw new Error('expectToThrowGQLError(): wrong errorFields argument')
     if (!errorFields.code || !errorFields.type) throw new Error('expectToThrowGQLError(): errorFields argument: no code or no type')
-    let interpolatedMessageForUser
+    if (errorFields.messageForUserTemplateKey) throw new Error('expectToThrowGQLError(): you do not really need to use `messageForUserTemplateKey` key! You should pass it as `messageForUser` value! Look like a developer error!')
+    if (errorFields.messageForUserTemplate) throw new Error('expectToThrowGQLError(): you do not really need to use `messageForUserTemplate` key! You should pass right `messageForUser` value! Look like a developer error!')
+    if (errorFields.messageForUser && !errorFields.messageForUser.startsWith('api.')) {
+        // TODO(pahaz): DOMA-10345 strongly check it and throw error!
+        console.warn('expectToThrowGQLError(): developer error! `messageForUser` should starts with `api.`')
+    }
+    if (!errorFields.message) {
+        // TODO(pahaz): DOMA-10345 strongly check it!
+        console.warn('expectToThrowGQLError(): errorFields message argument is required')
+        // throw new Error('expectToThrowGQLError(): errorFields message argument is required')
+    }
+    const fieldsToCheck = { ...errorFields }
+    if (!isEmpty(errorFields.messageInterpolation)) {
+        fieldsToCheck['message'] = template(errorFields.message)(errorFields.messageInterpolation)
+    }
     if (errorFields.messageForUser) {
         const locale = conf.DEFAULT_LOCALE
         const translations = getTranslations(locale)
         const translatedMessage = translations[errorFields.messageForUser]
-        interpolatedMessageForUser = template(translatedMessage)(errorFields.messageInterpolation)
+        if (!translatedMessage) {
+            // TODO(pahaz): DOMA-10345 throw new error!
+            console.warn('expectToThrowGQLError! you do not have translation key', errorFields.messageForUser)
+        }
+        if (errorFields.messageInterpolation) fieldsToCheck['messageForUserTemplate'] = translatedMessage
+        const interpolatedMessageForUser = template(translatedMessage)(errorFields.messageInterpolation)
         if (!interpolatedMessageForUser) throw new Error(`expectToThrowGQLError(): you need to set ${errorFields.messageForUser} for locale=${locale}`)
+        fieldsToCheck['messageForUser'] = interpolatedMessageForUser
+        // TODO(pahaz): check messageForUserTemplateKey
     }
-    const message = template(errorFields.message)(errorFields.messageInterpolation)
-    // NOTE: In case where only type and code provided message should not be checked
-    const messageFields = message ? { message } : {}
-    // NOTE: In case where is no errorFields.messageForUser interpolatedMessageForUser becomes undefined,
-    // so we should not check it
-    const messageForUserFields = interpolatedMessageForUser ? { messageForUser: interpolatedMessageForUser } : {}
+
+    // NOTE(pahaz): if we have a template `{secondsRemaining}` inside message without messageInterpolation
+    //  it means we want to use RegExp for our tests. Check @examples
+    if (errorFields?.message?.includes('{')) {
+        fieldsToCheck['message'] = expect.stringMatching(createRegExByTemplate(errorFields.message))
+    }
 
     await catchErrorFrom(testFunc, (caught) => {
-        expect(caught).toMatchObject({
+        expect(pick(caught, ['name', 'data', 'errors'])).toEqual({
             name: 'TestClientResponseError',
             data: { [path]: null },
             errors: [expect.objectContaining({
-                ...messageFields,
-                'name': 'GQLError',
-                'path': [path],
-                'locations': [expect.objectContaining({
-                    line: expect.anything(),
-                    column: expect.anything(),
-                })],
-                'extensions': expect.objectContaining({
-                    ...errorFields,
-                    ...messageForUserFields,
-                }),
+                message: expect.anything(),
+                name: 'GQLError',
+                path: [path],
+                locations: [expect.objectContaining({ line: expect.anything(), column: expect.anything() })],
+                extensions: expect.objectContaining({ ...fieldsToCheck }),
             })],
         })
+        // TODO(pahaz): check another fields: messageForDeveloper
     })
+}
+
+const expectToThrowGQLErrorToResult = async (testFunc, errorFields) => {
+    return await expectToThrowGQLError(testFunc, errorFields, 'result')
 }
 
 const expectToThrowGraphQLRequestError = async (testFunc, message) => {
     if (!message) throw new Error('expectToThrowGraphQLRequestError(): no message argument')
-    await catchErrorFrom(testFunc, (caught) => {
-        expect(caught).toMatchObject({
-            name: 'TestClientResponseError',
-        })
+    if (typeof message !== 'string') throw new Error('expectToThrowGraphQLRequestError(): message argument is not a string type')
 
+    await expectToThrowGraphQLRequestErrors(testFunc, [message])
+}
+
+const expectToThrowGraphQLRequestErrors = async (testFunc, messages) => {
+    if (!messages) throw new Error('expectToThrowGraphQLRequestErrors(): no message argument')
+    if (!isArray(messages)) throw new Error('expectToThrowGraphQLRequestErrors(): message argument is not an Array<strings> type')
+
+    // NOTE(pahaz):
+    //  ValidationError - The GraphQL operation is not valid against the server's schema.
+    //  UserInputError - The GraphQL operation includes an invalid value for a field argument.
+    //  SyntaxError - The GraphQL operation string contains a syntax error.
+    const matcher = messages.map(message => expect.objectContaining({
+        message: expect.stringContaining(message),
+        name: expect.stringMatching(/(UserInputError|ValidationError|SyntaxError|GraphQLError)/),
+    }))
+
+    await catchErrorFrom(testFunc, (caught) => {
+        expect(caught?.name).toEqual('TestClientResponseError')
         const { errors, data } = caught
         expect(data).toBeUndefined()
-        expect(errors).toHaveLength(1)
-        expect(errors[0].message).toMatch(message)
-        // NOTE(pahaz):
-        //  ValidationError - The GraphQL operation is not valid against the server's schema.
-        //  UserInputError - The GraphQL operation includes an invalid value for a field argument.
-        //  SyntaxError - The GraphQL operation string contains a syntax error.
-        expect(errors[0].name).toMatch(/(UserInputError|ValidationError|SyntaxError)/)
+        expect(errors).toEqual(matcher)
+        expect(errors).toHaveLength(messages.length)
     })
 }
 
@@ -801,7 +908,6 @@ const actualDatabaseEntityName = (name) => {
     return name.slice(0, NAMEDATALEN)
 }
 
-
 /**
  * Handles maximum characters count of Postgres for naming of database entities while checking violation of a specified unique constraint
  * @param testFunc
@@ -812,38 +918,55 @@ const expectToThrowUniqueConstraintViolationError = async (testFunc, constraintN
     await catchErrorFrom(async () => {
         await testFunc()
     }, ({ errors }) => {
-        expect(errors[0].message).toContain(`duplicate key value violates unique constraint "${actualDatabaseEntityName(constraintName)}"`)
+        // TODO(pahaz): DOMA-10368 we need to use strict checks!
+        // expect(errors).toHaveLength(1)
+        const error = errors[0]
+        if (error.name === 'GQLError' && error.extensions.code === GQLErrorCode.INTERNAL_ERROR && error.extensions.type === GQLInternalErrorTypes.SUB_GQL_ERROR) {
+            expect(error.extensions.message).toContain(`duplicate key value violates unique constraint "${actualDatabaseEntityName(constraintName)}"`)
+        } else {
+            expect(error.message).toContain(`duplicate key value violates unique constraint "${actualDatabaseEntityName(constraintName)}"`)
+        }
     })
 }
 
 /**
+ * Handles violates check constraint errors
  * @param testFunc
- * @param {string} path
- * @param {string} field
- * @param {Number} [count]
+ * @param constraintName - full name of constraint as presented in Keystone schema
  * @returns {Promise<void>}
  */
-const expectToThrowAccessDeniedToFieldError = async (testFunc, path, field, count = 1) => {
-    if (!path) throw new Error('path is not specified')
-    if (!field) throw new Error('field is not specified')
+const expectToThrowCheckConstraintViolationError = async (testFunc, constraintName) => {
+    await catchErrorFrom(async () => {
+        await testFunc()
+    }, ({ errors }) => {
+        // TODO(pahaz): DOMA-10368 we need to use strict checks!
+        // expect(errors).toHaveLength(1)
+        const error = errors[0]
+        if (error.name === 'GQLError' && error.extensions.code === GQLErrorCode.INTERNAL_ERROR && error.extensions.type === GQLInternalErrorTypes.SUB_GQL_ERROR) {
+            expect(error.extensions.message).toContain(`violates check constraint "${actualDatabaseEntityName(constraintName)}"`)
+        } else {
+            expect(error.message).toContain(`violates check constraint "${actualDatabaseEntityName(constraintName)}"`)
+        }
+    })
+}
 
-    await catchErrorFrom(testFunc, (caught) => {
-        expect(caught).toMatchObject({
-            name: 'TestClientResponseError',
-            data: { [path]: Array(count).fill(null) },
-            errors: Array(count).fill(null).map((v, i) => expect.objectContaining({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': [path, i, field],
-                'locations': [expect.objectContaining({
-                    line: expect.anything(),
-                    column: expect.anything(),
-                })],
-                'extensions': {
-                    'code': 'INTERNAL_SERVER_ERROR',
-                },
-            })),
-        })
+/**
+ * Handles violates check constraint errors
+ * @param testFunc
+ * @param constraintName - full name of constraint as presented in Keystone schema
+ * @returns {Promise<void>}
+ */
+const expectToThrowForeignKeyConstraintViolationError = async (testFunc, tableName, constraintName) => {
+    await catchErrorFrom(async () => {
+        await testFunc()
+    }, ({ errors }) => {
+        expect(errors).toHaveLength(1)
+        const error = errors[0]
+        if (error.name === 'GQLError' && error.extensions.code === GQLErrorCode.INTERNAL_ERROR && error.extensions.type === GQLInternalErrorTypes.SUB_GQL_ERROR) {
+            expect(error.extensions.message).toContain(`on table "${tableName}" violates foreign key constraint "${actualDatabaseEntityName(constraintName)}"`)
+        } else {
+            expect(error.message).toContain(`on table "${tableName}" violates foreign key constraint "${actualDatabaseEntityName(constraintName)}"`)
+        }
     })
 }
 
@@ -872,6 +995,7 @@ module.exports = {
     expectToThrowAccessDeniedErrorToObjects,
     expectToThrowAccessDeniedErrorToResult,
     expectToThrowAccessDeniedErrorToCount,
+    expectToThrowAccessDeniedToFieldError,
     expectToThrowAuthenticationError,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
@@ -879,10 +1003,13 @@ module.exports = {
     expectToThrowValidationFailureError,
     expectToThrowInternalError,
     expectToThrowGQLError,
+    expectToThrowGQLErrorToResult,
     expectToThrowGraphQLRequestError,
+    expectToThrowGraphQLRequestErrors,
     expectValuesOfCommonFields,
     expectToThrowUniqueConstraintViolationError,
-    expectToThrowAccessDeniedToFieldError,
+    expectToThrowCheckConstraintViolationError,
+    expectToThrowForeignKeyConstraintViolationError,
     setFeatureFlag,
     getFeatureFlag,
     setAllFeatureFlags,

@@ -83121,25 +83121,17 @@ type Query {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
-    "variable": [
-      "data",
-      "captcha"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "CAPTCHA_CHECK_FAILED",
     "message": "Failed to check CAPTCHA",
-    "messageForUser": "api.user.CAPTCHA_CHECK_FAILED"
+    "messageForUser": "The operation could not be completed. Please update the application"
   }`
   
   `{
-    "variable": [
-      "data",
-      "token"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "UNABLE_TO_FIND_CONFIRM_PHONE_ACTION",
     "message": "Confirm phone action was expired or it could not be found. Try to initiate phone confirmation again",
-    "messageForUser": "api.user.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION"
+    "messageForUser": "Unable to verify your phone number. Try again or ask our support"
   }`
   """
   getPhoneByConfirmPhoneActionToken(data: GetPhoneByConfirmPhoneActionTokenInput!): GetPhoneByConfirmPhoneActionTokenOutput
@@ -83152,27 +83144,21 @@ type Query {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
-    "query": "GetAccessTokenByUserIdService",
     "code": "INTERNAL_ERROR",
     "type": "REFRESH_TOKEN_EXPIRED",
-    "message": "SBBOL user refreshToken expired",
-    "messageForUser": "api.user.getAccessTokenByUserId.REFRESH_TOKEN_EXPIRED"
+    "message": "SBBOL user refreshToken expired"
   }`
   
   `{
-    "query": "GetAccessTokenByUserIdService",
     "code": "BAD_USER_INPUT",
     "type": "INVALID_USER_ID",
-    "message": "Received userId must be uuid",
-    "messageForUser": "api.user.getAccessTokenByUserId.INVALID_USER_ID"
+    "message": "Received userId must be uuid"
   }`
   
   `{
-    "query": "GetAccessTokenByUserIdService",
     "code": "INTERNAL_ERROR",
     "type": "ERROR_GETTING_ACCESS_TOKEN",
-    "message": "Unresolved error in getAccessTokenForUser",
-    "messageForUser": "api.user.getAccessTokenByUserId.ERROR_GETTING_ACCESS_TOKEN"
+    "message": "Unresolved error in getAccessTokenForUser"
   }`
   """
   getAccessTokenByUserId(data: GetAccessTokenByUserIdInput!): GetAccessTokenByUserIdOutput
@@ -83188,37 +83174,22 @@ type Query {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
-    "query": "checkUserExistence",
-    "variable": [
-      "data",
-      "token"
-    ],
     "code": "NOT_FOUND",
     "type": "TOKEN_NOT_FOUND",
     "message": "Token not found"
   }`
   
   `{
-    "variable": [
-      "data",
-      "dv"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "DV_VERSION_MISMATCH",
-    "message": "Wrong value for data version number",
-    "query": "checkUserExistence"
+    "message": "Wrong value for data version number"
   }`
   
   `{
-    "variable": [
-      "data",
-      "sender"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
     "message": "Invalid format of \"sender\" field value",
-    "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}",
-    "query": "checkUserExistence"
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
   }`
   """
   checkUserExistence(data: CheckUserExistenceInput!): CheckUserExistenceOutput
@@ -83235,21 +83206,12 @@ type Query {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
-    "mutation": "_allBillingReceiptsSum",
-    "variable": [
-      "data"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "WRONG_VALUE",
     "message": "You must specify one of two values: tin or organization"
   }`
   
   `{
-    "mutation": "_allBillingReceiptsSum",
-    "variable": [
-      "data",
-      "period"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "WRONG_VALUE",
     "message": "Bad period format, must be YYYY-MM-01. Example: 2022-02-01"
@@ -83268,35 +83230,27 @@ type Query {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
-    "query": "predictTransactionClassification",
     "code": "INTERNAL_ERROR",
     "type": "NOT_FOUND",
-    "message": "Bank cost item not found",
-    "messageForUser": "api.user.predictTransactionClassification.COST_ITEM_NOT_FOUND"
+    "message": "Bank cost item not found"
   }`
   
   `{
-    "query": "predictTransactionClassification",
     "code": "INTERNAL_ERROR",
     "type": "NOT_FOUND",
-    "message": "Bank cost item isOutcome field not equal isOutcome field from transaction",
-    "messageForUser": "api.user.predictTransactionClassification.COST_ITEM_IS_OUTCOME_NOT_EQUAL"
+    "message": "Bank cost item isOutcome field not equal isOutcome field from transaction"
   }`
   
   `{
-    "query": "predictTransactionClassification",
     "code": "INTERNAL_ERROR",
     "type": "NOT_FOUND",
-    "message": "ML server response is not successful",
-    "messageForUser": "api.user.predictTransactionClassification.COST_ITEM_NOT_FOUND"
+    "message": "ML server response is not successful"
   }`
   
   `{
-    "query": "predictTransactionClassification",
     "code": "INTERNAL_ERROR",
     "type": "NOT_FOUND",
-    "message": "ML_SPACE_TRANSACTION_CLASSIFIER env variable needs to have endpoint, authKey, workspace",
-    "messageForUser": "api.user.predictTransactionClassification.ML_SPACE_NOT_CONFIGURED"
+    "message": "ML_SPACE_TRANSACTION_CLASSIFIER env variable needs to have endpoint, authKey, workspace"
   }`
   """
   predictTransactionClassification(data: PredictTransactionClassificationInput!): PredictTransactionClassificationOutput
@@ -83315,34 +83269,23 @@ type Query {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
-    "mutation": "exportPropertyMeterReadings",
-    "variable": [
-      "data",
-      "dv"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "DV_VERSION_MISMATCH",
     "message": "Wrong value for data version number"
   }`
   
   `{
-    "mutation": "exportPropertyMeterReadings",
-    "variable": [
-      "data",
-      "sender"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
     "message": "Invalid format of \"sender\" field value",
-    "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}"
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
   }`
   
   `{
-    "query": "exportPropertyMeterReadings",
     "code": "BAD_USER_INPUT",
     "type": "NOTHING_TO_EXPORT",
     "message": "Could not found property meter readings to export for specified organization",
-    "messageForUser": "api.meter.exportMeterReadings.NOTHING_TO_EXPORT"
+    "messageForUser": "No meter readings to export for specified organization"
   }`
   """
   exportPropertyMeterReadings(data: ExportPropertyMeterReadingsInput!): ExportPropertyMeterReadingsOutput
@@ -88201,134 +88144,81 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
-    "mutation": "registerNewUser",
-    "variable": [
-      "data",
-      "confirmPhoneActionToken"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "UNABLE_TO_FIND_CONFIRM_PHONE_ACTION",
     "message": "Unable to find confirm phone action",
-    "messageForUser": "api.user.registerNewUser.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION"
+    "messageForUser": "Something went wrong during phone confirmation :( Try again or ask our support"
   }`
   
   `{
-    "mutation": "registerNewUser",
-    "variable": [
-      "data",
-      "phone"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "WRONG_PHONE_FORMAT",
     "message": "Wrong format of provided phone number",
-    "messageForUser": "api.common.WRONG_PHONE_FORMAT",
+    "messageForUser": "Wrong phone number format",
     "correctExample": "+79991234567"
   }`
   
   `{
-    "mutation": "registerNewUser",
-    "variable": [
-      "data",
-      "confirmPhoneActionToken"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "NO_CONFIRM_PHONE_ACTION_TOKEN",
     "message": "\"confirmPhoneActionToken\" cannot be empty",
-    "messageForUser": "api.user.registerNewUser.NO_CONFIRM_PHONE_ACTION_TOKEN"
+    "messageForUser": "Something went wrong during phone confirmation :( Try again or ask our support"
   }`
   
   `{
-    "variable": [
-      "data",
-      "password"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "INVALID_PASSWORD_LENGTH",
     "message": "Password length must be between 8 and 128 characters",
-    "messageForUser": "api.user.INVALID_PASSWORD_LENGTH",
-    "messageInterpolation": {
-      "min": 8,
-      "max": 128
-    }
+    "messageForUser": "Password length must be between 8 and 128 characters"
   }`
   
   `{
-    "variable": [
-      "data",
-      "password"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "PASSWORD_CONTAINS_EMAIL",
     "message": "Password must not contain email",
-    "messageForUser": "api.user.PASSWORD_CONTAINS_EMAIL"
+    "messageForUser": "Password must not contain email"
   }`
   
   `{
-    "variable": [
-      "data",
-      "password"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "PASSWORD_CONTAINS_PHONE",
     "message": "Password must not contain phone",
-    "messageForUser": "api.user.PASSWORD_CONTAINS_PHONE"
+    "messageForUser": "Password must not contain phone"
   }`
   
   `{
-    "variable": [
-      "data",
-      "password"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "PASSWORD_IS_FREQUENTLY_USED",
     "message": "The password is too simple. We found it in the list of stolen passwords. You need to use something more secure",
-    "messageForUser": "api.user.PASSWORD_IS_FREQUENTLY_USED"
+    "messageForUser": "This password is weak or too obvious please choose something more secure"
   }`
   
   `{
-    "variable": [
-      "data",
-      "password"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS",
     "message": "Password must contain at least 4 different characters",
-    "messageForUser": "api.user.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS",
-    "messageInterpolation": {
-      "min": 4
-    }
+    "messageForUser": "Password must contain at least 4 different characters"
   }`
   
   `{
-    "mutation": "registerNewUser",
-    "variable": [
-      "data",
-      "phone"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_UNIQUE",
     "message": "User with specified phone already exists",
-    "messageForUser": "api.user.registerNewUser.USER_WITH_SPECIFIED_PHONE_ALREADY_EXISTS"
+    "messageForUser": "User with specified phone number already exists. Try to login or reset password"
   }`
   
   `{
-    "mutation": "registerNewUser",
-    "variable": [
-      "data",
-      "email"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_UNIQUE",
     "message": "User with specified email already exists",
-    "messageForUser": "api.user.registerNewUser.USER_WITH_SPECIFIED_EMAIL_ALREADY_EXISTS"
+    "messageForUser": "User with specified email number already exists. Try to login or reset password"
   }`
   
   `{
-    "mutation": "registerNewUser",
     "code": "INTERNAL_ERROR",
     "type": "UNABLE_TO_CREATE_USER",
     "message": "Unable to create user",
-    "messageForUser": "api.user.registerNewUser.UNABLE_TO_CREATE_USER"
+    "messageForUser": "Something went wrong during registration :( Try again or ask our support"
   }`
   """
   registerNewUser(data: RegisterNewUserInput!): User
@@ -88340,123 +88230,72 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
-    "variable": [
-      "data",
-      "password"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "WRONG_PASSWORD_FORMAT",
     "message": "Password must be in string format",
-    "messageForUser": "api.user.WRONG_PASSWORD_FORMAT"
+    "messageForUser": "Password must be in string format"
   }`
   
   `{
-    "variable": [
-      "data",
-      "password"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "INVALID_PASSWORD_LENGTH",
     "message": "Password length must be between 8 and 128 characters",
-    "messageForUser": "api.user.INVALID_PASSWORD_LENGTH",
-    "messageInterpolation": {
-      "min": 8,
-      "max": 128
-    }
+    "messageForUser": "Password length must be between 8 and 128 characters"
   }`
   
   `{
-    "variable": [
-      "data",
-      "password"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "PASSWORD_CONTAINS_EMAIL",
     "message": "Password must not contain email",
-    "messageForUser": "api.user.PASSWORD_CONTAINS_EMAIL"
+    "messageForUser": "Password must not contain email"
   }`
   
   `{
-    "variable": [
-      "data",
-      "password"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "PASSWORD_CONTAINS_PHONE",
     "message": "Password must not contain phone",
-    "messageForUser": "api.user.PASSWORD_CONTAINS_PHONE"
+    "messageForUser": "Password must not contain phone"
   }`
   
   `{
-    "variable": [
-      "data",
-      "password"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "PASSWORD_IS_FREQUENTLY_USED",
     "message": "The password is too simple. We found it in the list of stolen passwords. You need to use something more secure",
-    "messageForUser": "api.user.PASSWORD_IS_FREQUENTLY_USED"
+    "messageForUser": "This password is weak or too obvious please choose something more secure"
   }`
   
   `{
-    "variable": [
-      "data",
-      "password"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS",
     "message": "Password must contain at least 4 different characters",
-    "messageForUser": "api.user.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS",
-    "messageInterpolation": {
-      "min": 4
-    }
+    "messageForUser": "Password must contain at least 4 different characters"
   }`
   
   `{
-    "mutation": "changePasswordWithToken",
-    "variable": [
-      "data",
-      "token"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "TOKEN_NOT_FOUND",
     "message": "Unable to find non-expired ConfirmPhoneAction by specified token",
-    "messageForUser": "api.user.changePasswordWithToken.TOKEN_NOT_FOUND"
+    "messageForUser": "Unable to find non-expired ConfirmPhoneAction by specified token"
   }`
   
   `{
-    "mutation": "changePasswordWithToken",
-    "variable": [
-      "data",
-      "phone"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "USER_NOT_FOUND",
     "message": "Unable to find user with specified phone",
-    "messageForUser": "api.user.changePasswordWithToken.USER_NOT_FOUND"
+    "messageForUser": "Unable to find user with specified phone"
   }`
   
   `{
-    "variable": [
-      "data",
-      "dv"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "DV_VERSION_MISMATCH",
-    "message": "Wrong value for data version number",
-    "query": "checkUserExistence"
+    "message": "Wrong value for data version number"
   }`
   
   `{
-    "variable": [
-      "data",
-      "sender"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
     "message": "Invalid format of \"sender\" field value",
-    "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}",
-    "query": "checkUserExistence"
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
   }`
   """
   changePasswordWithToken(data: ChangePasswordWithTokenInput!): ChangePasswordWithTokenOutput
@@ -88471,34 +88310,25 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
-    "variable": [
-      "data",
-      "captcha"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "CAPTCHA_CHECK_FAILED",
     "message": "Failed to check CAPTCHA",
-    "messageForUser": "api.user.CAPTCHA_CHECK_FAILED"
+    "messageForUser": "The operation could not be completed. Please update the application"
   }`
   
   `{
-    "mutation": "startConfirmPhoneAction",
-    "variable": [
-      "data",
-      "phone"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "WRONG_PHONE_FORMAT",
     "message": "Wrong format of provided phone number",
-    "correctExample": "+79991234567",
-    "messageForUser": "api.common.WRONG_PHONE_FORMAT"
+    "messageForUser": "Wrong phone number format",
+    "correctExample": "+79991234567"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "TOO_MANY_REQUESTS",
-    "message": "You have to wait {secondsRemaining} seconds to be able to send request again",
-    "messageForUser": "api.user.TOO_MANY_REQUESTS"
+    "message": "You have to wait 5000 seconds to be able to send request again",
+    "messageForUser": "You have to wait 5000 sec. to be able to send request again"
   }`
   
   `{
@@ -88525,32 +88355,24 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
-    "variable": [
-      "data",
-      "captcha"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "CAPTCHA_CHECK_FAILED",
     "message": "Failed to check CAPTCHA",
-    "messageForUser": "api.user.CAPTCHA_CHECK_FAILED"
+    "messageForUser": "The operation could not be completed. Please update the application"
   }`
   
   `{
-    "variable": [
-      "data",
-      "token"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "UNABLE_TO_FIND_CONFIRM_PHONE_ACTION",
     "message": "Confirm phone action was expired or it could not be found. Try to initiate phone confirmation again",
-    "messageForUser": "api.user.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION"
+    "messageForUser": "Unable to verify your phone number. Try again or ask our support"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "TOO_MANY_REQUESTS",
-    "message": "You have to wait {secondsRemaining} seconds to be able to send request again",
-    "messageForUser": "api.user.TOO_MANY_REQUESTS"
+    "message": "You have to wait 5000 seconds to be able to send request again",
+    "messageForUser": "You have to wait 5000 sec. to be able to send request again"
   }`
   
   `{
@@ -88577,68 +88399,45 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
-    "variable": [
-      "data",
-      "captcha"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "CAPTCHA_CHECK_FAILED",
     "message": "Failed to check CAPTCHA",
-    "messageForUser": "api.user.CAPTCHA_CHECK_FAILED"
+    "messageForUser": "The operation could not be completed. Please update the application"
   }`
   
   `{
-    "variable": [
-      "data",
-      "token"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "UNABLE_TO_FIND_CONFIRM_PHONE_ACTION",
     "message": "Confirm phone action was expired or it could not be found. Try to initiate phone confirmation again",
-    "messageForUser": "api.user.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION"
+    "messageForUser": "Unable to verify your phone number. Try again or ask our support"
   }`
   
   `{
-    "mutation": "completeConfirmPhoneAction",
-    "variable": [
-      "data",
-      "smsCode"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "SMS_CODE_EXPIRED",
     "message": "SMS code expired. Try to initiate phone confirmation again",
-    "messageForUser": "api.user.completeConfirmPhoneAction.SMS_CODE_EXPIRED"
+    "messageForUser": "SMS code expired, try to verify phone number again"
   }`
   
   `{
-    "mutation": "completeConfirmPhoneAction",
-    "variable": [
-      "data",
-      "smsCode"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "SMS_CODE_MAX_RETRIES_REACHED",
     "message": "Max retries reached for SMS code confirmation. Try to initiate phone confirmation again",
-    "messageForUser": "api.user.completeConfirmPhoneAction.SMS_CODE_MAX_RETRIES_REACHED"
+    "messageForUser": "Max retries reached for SMS code confirmation. Try to initiate phone confirmation again"
   }`
   
   `{
-    "mutation": "completeConfirmPhoneAction",
-    "variable": [
-      "data",
-      "smsCode"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "SMS_CODE_VERIFICATION_FAILED",
     "message": "SMS code verification mismatch",
-    "messageForUser": "api.user.completeConfirmPhoneAction.SMS_CODE_VERIFICATION_FAILED"
+    "messageForUser": "SMS code verification mismatch"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "TOO_MANY_REQUESTS",
-    "message": "You have to wait {secondsRemaining} seconds to be able to send request again",
-    "messageForUser": "api.user.TOO_MANY_REQUESTS"
+    "message": "You have to wait 5000 seconds to be able to send request again",
+    "messageForUser": "You have to wait 5000 sec. to be able to send request again"
   }`
   """
   completeConfirmPhoneAction(data: CompleteConfirmPhoneActionInput!): CompleteConfirmPhoneActionOutput
@@ -88653,23 +88452,17 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
-    "mutation": "signinResidentUser",
-    "variable": [
-      "data",
-      "token"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "TOKEN_NOT_FOUND",
     "message": "Unable to find a non-expired confirm phone action, that corresponds to provided token",
-    "messageForUser": "api.user.signinResidentUser.TOKEN_NOT_FOUND"
+    "messageForUser": "Something went wrong during authentication :( Try again or ask our support"
   }`
   
   `{
     "code": "INTERNAL_ERROR",
     "type": "UNABLE_TO_CREATE_USER",
-    "mutation": "signinResidentUser",
     "message": "Something went wrong while trying to create a User record",
-    "messageForUser": "api.user.signinResidentUser.UNABLE_TO_CREATE_USER"
+    "messageForUser": "Something went wrong during registration :( Try again or ask our support"
   }`
   """
   signinResidentUser(data: SigninResidentUserInput!): SigninResidentUserOutput
@@ -88684,50 +88477,30 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
-    "mutation": "changePhoneNumberResidentUser",
-    "variable": [
-      "data",
-      "dv"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "DV_VERSION_MISMATCH",
     "message": "Wrong value for data version number"
   }`
   
   `{
-    "mutation": "changePhoneNumberResidentUser",
-    "variable": [
-      "data",
-      "sender"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
-    "message": "Invalid format of \"sender\" field value. {details}",
-    "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}"
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
-    "mutation": "changePhoneNumberResidentUser",
     "message": "Unable to find a non-expired confirm phone action, that corresponds to provided token",
-    "variable": [
-      "data",
-      "token"
-    ],
-    "messageForUser": "api.user.changePhoneNumberResidentUser.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION"
+    "messageForUser": "Could not find token to change phone or it was expired. Try to start phone changing procedure from scratch."
   }`
   
   `{
     "code": "BAD_USER_INPUT",
     "type": "WRONG_VALUE",
-    "mutation": "changePhoneNumberResidentUser",
     "message": "Unable to change phone number since user has external identity and phone number are different",
-    "variable": [
-      "data",
-      "token"
-    ],
-    "messageForUser": "api.user.changePhoneNumberResidentUser.USER_HAS_CONNECTED_EXTERNAL_IDENTITY_WITH_DIFFERENT_PHONE"
+    "messageForUser": "Unable to change phone number since user has authorization with different phone number."
   }`
   """
   changePhoneNumberResidentUser(data: ChangePhoneNumberResidentUserInput!): ChangePhoneNumberResidentUserOutput
@@ -88742,35 +88515,31 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
-    "mutation": "signinAsUser",
     "code": "BAD_USER_INPUT",
     "type": "USER_NOT_FOUND",
     "message": "Could not find a user with a specified id",
-    "messageForUser": "api.user.signinAsUser.USER_NOT_FOUND"
+    "messageForUser": "User not found"
   }`
   
   `{
-    "mutation": "signinAsUser",
     "code": "FORBIDDEN",
     "type": "DENIED_FOR_ADMIN",
     "message": "You cannot authenticate for an another admin user",
-    "messageForUser": "api.user.signinAsUser.DENIED_FOR_ADMIN"
+    "messageForUser": "You cannot authenticate for an another admin user"
   }`
   
   `{
-    "mutation": "signinAsUser",
     "code": "FORBIDDEN",
     "type": "DENIED_FOR_SUPPORT",
     "message": "You cannot authenticate for an another support user",
-    "messageForUser": "api.user.signinAsUser.DENIED_FOR_SUPPORT"
+    "messageForUser": "You cannot authenticate for an another support user"
   }`
   """
   signinAsUser(data: SigninAsUserInput!): SigninAsUserOutput
   registerNewServiceUser(data: RegisterNewServiceUserInput!): RegisterNewServiceUserOutput
-  sendMessageToSupport(data: SendMessageToSupportInput!): SendMessageToSupportOutput
 
   """
-  Used by QA for cleaning existing test user record to avoid utilizing every time new phone and email, which is hard to obtain again and again for every manual testing procedure
+  If you have any problem you can use this to notify our support team
   
   
   
@@ -88779,35 +88548,36 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
-    "mutation": "resetUser",
-    "variable": [
-      "data",
-      "dv"
-    ],
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Wrong format of specified email",
+    "messageForUser": "Wrong format of specified email"
+  }`
+  """
+  sendMessageToSupport(data: SendMessageToSupportInput!): SendMessageToSupportOutput
+
+  """
+  Used for cleaning existing user to avoid utilizing every time new phone and email
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
     "code": "BAD_USER_INPUT",
     "type": "DV_VERSION_MISMATCH",
     "message": "Unsupported value for dv"
   }`
   
   `{
-    "mutation": "resetUser",
-    "variable": [
-      "data",
-      "user",
-      "id"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "USER_NOT_FOUND",
     "message": "Could not find User by provided id"
   }`
   
   `{
-    "mutation": "resetUser",
-    "variable": [
-      "data",
-      "user",
-      "id"
-    ],
     "code": "FORBIDDEN",
     "type": "CANNOT_RESET_ADMIN_USER",
     "message": "You cannot reset admin user"
@@ -88834,49 +88604,34 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
-    "mutation": "inviteNewOrganizationEmployee",
     "code": "BAD_USER_INPUT",
     "type": "ALREADY_INVITED_EMAIL",
     "message": "Employee with same email already invited into the organization",
-    "messageForUser": "api.organization.inviteNewOrganizationEmployee.ALREADY_INVITED_EMAIL",
-    "variable": [
-      "email"
-    ]
+    "messageForUser": "Employee with same email is already in the organization"
   }`
   
   `{
-    "mutation": "inviteNewOrganizationEmployee",
     "code": "BAD_USER_INPUT",
     "type": "ALREADY_INVITED_PHONE",
     "message": "Employee with same phone already invited into the organization",
-    "messageForUser": "api.organization.inviteNewOrganizationEmployee.ALREADY_INVITED_PHONE",
-    "variable": [
-      "phone"
-    ]
+    "messageForUser": "Employee with same phone is already in the organization"
   }`
   
   `{
-    "mutation": "inviteNewOrganizationEmployee",
     "code": "BAD_USER_INPUT",
     "type": "WRONG_PHONE_FORMAT",
     "message": "Wrong phone format",
-    "messageForUser": "api.common.WRONG_PHONE_FORMAT"
+    "messageForUser": "Wrong phone number format"
   }`
   
   `{
-    "mutation": "inviteNewOrganizationEmployee",
     "code": "INTERNAL_ERROR",
     "type": "UNABLE_TO_REGISTER_USER",
     "message": "Unable to register user",
-    "messageForUser": "api.organization.inviteNewOrganizationEmployee.UNABLE_TO_REGISTER_USER"
+    "messageForUser": "Unable to register user"
   }`
   
   `{
-    "mutation": "inviteNewOrganizationEmployee",
-    "variable": [
-      "data",
-      "dv"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "DV_VERSION_MISMATCH",
     "message": "Wrong value for data version number"
@@ -88894,43 +88649,38 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
-    "mutation": "reInviteOrganizationEmployee",
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
     "message": "Wrong phone format",
-    "messageForUser": "api.common.WRONG_PHONE_FORMAT"
+    "messageForUser": "Wrong phone number format"
   }`
   
   `{
-    "mutation": "reInviteOrganizationEmployee",
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Could not find Organization by specified search criteria",
-    "messageForUser": "api.organization.reInviteOrganizationEmployee.ORGANIZATION_NOT_FOUND"
+    "messageForUser": "Could not find organization to which this employee belongs"
   }`
   
   `{
-    "mutation": "reInviteOrganizationEmployee",
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Could not find User by specified phone or email",
-    "messageForUser": "api.organization.reInviteOrganizationEmployee.USER_NOT_FOUND"
+    "messageForUser": "Could not find user using specified contacts"
   }`
   
   `{
-    "mutation": "reInviteOrganizationEmployee",
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Could not find OrganizationEmployee that has not accepted invitation for found User",
-    "messageForUser": "api.organization.reInviteOrganizationEmployee.EMPLOYEE_NOT_FOUND"
+    "messageForUser": "Could not employee using specified contacts"
   }`
   
   `{
-    "mutation": "reInviteOrganizationEmployee",
     "code": "BAD_USER_INPUT",
     "type": "ALREADY_ACCEPTED_INVITATION",
     "message": "Corresponding OrganizationEmployee has already accepted invitation",
-    "messageForUser": "api.organization.reInviteOrganizationEmployee.ALREADY_ACCEPTED_INVITATION"
+    "messageForUser": "Specified employee has already accepted invitation"
   }`
   """
   reInviteOrganizationEmployee(data: ReInviteOrganizationEmployeeInput!): OrganizationEmployee
@@ -88948,95 +88698,58 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
-    "mutation": "replaceOrganizationEmployeeRole",
-    "variable": [
-      "data",
-      "dv"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "DV_VERSION_MISMATCH",
     "message": "Wrong value for data version number"
   }`
   
   `{
-    "mutation": "replaceOrganizationEmployeeRole",
-    "variable": [
-      "data",
-      "sender"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
-    "message": "Invalid format of \"sender\" field value. {details}",
-    "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}"
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
   }`
   
   `{
-    "mutation": "replaceOrganizationEmployeeRole",
-    "variable": [
-      "data",
-      "organization"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "ORGANIZATION_NOT_FOUND",
     "message": "Organization not found",
-    "messageForUser": "api.organization.replaceOrganizationEmployeeRole.ORGANIZATION_NOT_FOUND"
+    "messageForUser": "Organization not found"
   }`
   
   `{
-    "mutation": "replaceOrganizationEmployeeRole",
-    "variable": [
-      "data",
-      "oldRole"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "OLD_ROLE_NOT_FOUND",
     "message": "Old role not found in specified organization",
-    "messageForUser": "api.organization.replaceOrganizationEmployeeRole.OLD_ROLE_NOT_FOUND"
+    "messageForUser": "Old role not found in your organization"
   }`
   
   `{
-    "mutation": "replaceOrganizationEmployeeRole",
-    "variable": [
-      "data",
-      "newRole"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "NEW_ROLE_NOT_FOUND",
     "message": "New role not found in specified organization",
-    "messageForUser": "api.organization.replaceOrganizationEmployeeRole.NEW_ROLE_NOT_FOUND"
+    "messageForUser": "New role not found in your organization"
   }`
   
   `{
-    "mutation": "replaceOrganizationEmployeeRole",
-    "variable": [
-      "data"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "DEFAULT_ROLE_CANNOT_BE_DELETED",
     "message": "The default role cannot be deleted",
-    "messageForUser": "api.organization.replaceOrganizationEmployeeRole.DEFAULT_ROLE_CANNOT_BE_DELETED"
+    "messageForUser": "The default role cannot be deleted"
   }`
   
   `{
-    "mutation": "replaceOrganizationEmployeeRole",
-    "variable": [
-      "data"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "ROLES_MUST_BE_DIFFERENT",
     "message": "The old role and new role must be different",
-    "messageForUser": "api.organization.replaceOrganizationEmployeeRole.ROLES_MUST_BE_DIFFERENT"
+    "messageForUser": "The new and old roles cannot be the same"
   }`
   
   `{
-    "mutation": "replaceOrganizationEmployeeRole",
-    "variable": [
-      "data"
-    ],
     "code": "TOO_MANY_REQUESTS",
     "type": "ROLES_ARE_BEING_PROCESSED",
     "message": "These roles are already being processed. Please try again a little later",
-    "messageForUser": "api.organization.replaceOrganizationEmployeeRole.ROLES_ARE_BEING_PROCESSED"
+    "messageForUser": "These roles are already being processed. Please try again a little later"
   }`
   """
   replaceOrganizationEmployeeRole(data: ReplaceOrganizationEmployeeRoleInput!): ReplaceOrganizationEmployeeRoleOutput
@@ -89053,63 +88766,38 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
-    "mutation": "sendNewReceiptMessagesToResidentScopes",
-    "variable": [
-      "data",
-      "context"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Please provide proper period not before start of previous and not later than start of current month, valid format is YYYY-MM-DD",
-    "messageForUser": "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_PERIOD_PROVIDED"
+    "messageForUser": "Please provide proper period not before start of previous and not later than start of current month, valid format is YYYY-MM-DD"
   }`
   
   `{
-    "mutation": "sendNewReceiptMessagesToResidentScopes",
-    "variable": [
-      "data",
-      "context"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Please provide existing non-deleted billing integration organization context id",
-    "messageForUser": "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_BILLING_CONTEXT_PROVIDED"
+    "messageForUser": "Please provide existing non-deleted billing integration organization context id"
   }`
   
   `{
-    "mutation": "sendNewReceiptMessagesToResidentScopes",
-    "variable": [
-      "data",
-      "category"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Please provide existing non-deleted billing category id",
-    "messageForUser": "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_BILLING_CATEGORY_PROVIDED"
+    "messageForUser": "Please provide existing non-deleted billing category id"
   }`
   
   `{
-    "mutation": "sendNewReceiptMessagesToResidentScopes",
-    "variable": [
-      "data",
-      "scopes"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Scopes could not be empty",
-    "messageForUser": "api.billing.sendNewReceiptMessagesToResidentScopes.SCOPES_IS_EMPTY"
+    "messageForUser": "Scopes could not be empty"
   }`
   
   `{
-    "mutation": "sendNewReceiptMessagesToResidentScopes",
-    "variable": [
-      "data",
-      "scopes"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "All provided billing properties in scopes should be non-deleted & connected to organization of the billing context",
-    "messageForUser": "api.billing.sendNewReceiptMessagesToResidentScopes.INVALID_BILLING_PROPERTY_PROVIDED"
+    "messageForUser": "All provided billing properties in scopes should be non-deleted & connected to organization of the billing context"
   }`
   """
   sendNewReceiptMessagesToResidentScopes(data: SendNewReceiptMessagesToResidentScopesInput!): SendNewReceiptMessagesToResidentScopesOutput
@@ -90767,67 +90455,36 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
-    "mutation": "sendMessage",
-    "variable": [
-      "data",
-      "to",
-      "email"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "REQUIRED",
     "message": "You can not use emailFrom without to.email"
   }`
   
   `{
-    "mutation": "sendMessage",
-    "variable": [
-      "data"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "REQUIRED",
     "message": "You should provide either \"user\", \"email\", \"phone\" or \"remoteClient\" attribute"
   }`
   
   `{
-    "mutation": "sendMessage",
-    "variable": [
-      "data",
-      "meta"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "UNKNOWN_ATTRIBUTE",
-    "message": "Unknown attribute \"{attr}\" provided to \"meta\" variable"
+    "message": "Unknown attribute \"<attr-name>\" provided to \"meta\" variable"
   }`
   
   `{
-    "mutation": "sendMessage",
-    "variable": [
-      "data",
-      "meta"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "REQUIRED",
-    "message": "Missing value for required \"meta.{attr}\" attribute"
+    "message": "Missing value for required \"meta.<name>\" attribute"
   }`
   
   `{
-    "mutation": "sendMessage",
-    "variable": [
-      "data",
-      "meta"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "WRONG_VALUE",
-    "message": "Unknown value \"{type}\" provided for message type"
+    "message": "Unknown value \"<type-name>\" provided for message type"
   }`
   
   `{
-    "mutation": "sendMessage",
-    "variable": [
-      "data",
-      "meta",
-      "dv"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "DV_VERSION_MISMATCH",
     "message": "Wrong value for data version number"
@@ -90853,69 +90510,38 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
-    "mutation": "registerServiceConsumer",
-    "variable": [
-      "data",
-      "residentId"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Cannot find Resident for current user"
   }`
   
   `{
-    "mutation": "registerServiceConsumer",
-    "variable": [
-      "data",
-      "organizationId"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Cannot find Organization for current user"
   }`
   
   `{
-    "mutation": "registerResidentServiceConsumers",
-    "variable": [
-      "data",
-      "resident",
-      "id"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Cannot find Organization for current resident"
   }`
   
   `{
-    "mutation": "registerResidentServiceConsumers",
-    "variable": [
-      "data",
-      "accountNumber"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Can't find billingAccount and any meters with this accountNumber, unitName and address",
-    "messageForUser": "api.resident.registerServiceConsumers.BILLING_ACCOUNT_OR_METER_NOT_FOUND"
+    "messageForUser": "No receipts or meters related to the entered account number were found. Please contact the management company."
   }`
   
   `{
-    "mutation": "registerServiceConsumer",
-    "variable": [
-      "data",
-      "accountNumber"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Can't find billingAccount and any meters with this accountNumber, unitName and organization combination",
-    "messageForUser": "api.resident.registerServiceConsumers.BILLING_ACCOUNT_NOT_FOUND"
+    "messageForUser": "No receipts or meters related to the entered account number were found. Please contact the management company."
   }`
   
   `{
-    "mutation": "registerServiceConsumer",
-    "variable": [
-      "data",
-      "accountNumber"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
     "message": "Argument \"accountNumber\" is null or empty"
@@ -90933,69 +90559,38 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
-    "mutation": "registerServiceConsumer",
-    "variable": [
-      "data",
-      "residentId"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Cannot find Resident for current user"
   }`
   
   `{
-    "mutation": "registerServiceConsumer",
-    "variable": [
-      "data",
-      "organizationId"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Cannot find Organization for current user"
   }`
   
   `{
-    "mutation": "registerResidentServiceConsumers",
-    "variable": [
-      "data",
-      "resident",
-      "id"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Cannot find Organization for current resident"
   }`
   
   `{
-    "mutation": "registerResidentServiceConsumers",
-    "variable": [
-      "data",
-      "accountNumber"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Can't find billingAccount and any meters with this accountNumber, unitName and address",
-    "messageForUser": "api.resident.registerServiceConsumers.BILLING_ACCOUNT_OR_METER_NOT_FOUND"
+    "messageForUser": "No receipts or meters related to the entered account number were found. Please contact the management company."
   }`
   
   `{
-    "mutation": "registerServiceConsumer",
-    "variable": [
-      "data",
-      "accountNumber"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Can't find billingAccount and any meters with this accountNumber, unitName and organization combination",
-    "messageForUser": "api.resident.registerServiceConsumers.BILLING_ACCOUNT_NOT_FOUND"
+    "messageForUser": "No receipts or meters related to the entered account number were found. Please contact the management company."
   }`
   
   `{
-    "mutation": "registerServiceConsumer",
-    "variable": [
-      "data",
-      "accountNumber"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
     "message": "Argument \"accountNumber\" is null or empty"
@@ -91013,15 +90608,10 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
-    "mutation": "sendMessageToResidentScopes",
-    "variable": [
-      "data",
-      "scopes"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "NOT_FOUND",
     "message": "Scopes could not be empty",
-    "messageForUser": "api.resident.sendMessageToResidentScopes.SCOPES_IS_EMPTY"
+    "messageForUser": "Scopes could not be empty"
   }`
   """
   sendMessageToResidentScopes(data: SendMessageToResidentScopesServiceInput!): SendMessageToResidentScopesServiceOutput
@@ -91042,26 +90632,16 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
-    "query": "_internalDeleteMeterAndMeterReadingsService",
-    "variable": [
-      "data",
-      "dv"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "DV_VERSION_MISMATCH",
     "message": "Wrong value for data version number"
   }`
   
   `{
-    "query": "_internalDeleteMeterAndMeterReadingsService",
-    "variable": [
-      "data",
-      "sender"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
     "message": "Invalid format of \"sender\" field value",
-    "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}"
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
   }`
   """
   _internalDeleteMeterAndMeterReadings(data: _internalDeleteMeterAndMeterReadingsInput!): _internalDeleteMeterAndMeterReadingsOutput
@@ -91078,56 +90658,31 @@ type Mutation {
   Following objects will be presented in `extensions` property of thrown error
   
   `{
-    "query": "_internalDeleteMeterReadingsService",
-    "variable": [
-      "data",
-      "dv"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "DV_VERSION_MISMATCH",
     "message": "Wrong value for data version number"
   }`
   
   `{
-    "query": "_internalDeleteMeterReadingsService",
-    "variable": [
-      "data",
-      "sender"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
     "message": "Invalid format of \"sender\" field value",
-    "correctExample": "{ dv: 1, fingerprint: 'example-fingerprint-alphanumeric-value'}"
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
   }`
   
   `{
-    "query": "_internalDeleteMeterReadingsService",
-    "variable": [
-      "data",
-      "startDateTime"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "INVALID_START_DATE_TIME",
     "message": "Invalid startDateTime. Should be in format DD.MM.YYYY HH:mm:ss"
   }`
   
   `{
-    "query": "_internalDeleteMeterReadingsService",
-    "variable": [
-      "data",
-      "endDateTime"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "INVALID_END_DATE_TIME",
     "message": "invalid endDateTime. Should be in format DD.MM.YYYY HH:mm:ss"
   }`
   
   `{
-    "query": "_internalDeleteMeterReadingsService",
-    "variable": [
-      "data",
-      "startDateTime"
-    ],
     "code": "BAD_USER_INPUT",
     "type": "INVALID_PERIOD",
     "message": "The start date cannot be greater than the end date"

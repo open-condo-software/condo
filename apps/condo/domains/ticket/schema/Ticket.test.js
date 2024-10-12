@@ -15,7 +15,7 @@ const {
     expectToThrowValidationFailureError,
     expectToThrowGQLError,
     expectValuesOfCommonFields,
-    setAllFeatureFlags, catchErrorFrom,
+    setAllFeatureFlags,
 } = require('@open-condo/keystone/test.utils')
 
 const { WRONG_VALUE } = require('@app/condo/domains/common/constants/errors')
@@ -96,7 +96,6 @@ const {
     createTestPhone,
     makeClientWithSupportUser,
 } = require('@condo/domains/user/utils/testSchema')
-
 
 const FEEDBACK_VALUES_WITHOUT_RETURNED = FEEDBACK_VALUES.filter(item => item !== FEEDBACK_VALUES_BY_KEY.RETURNED)
 // TODO(DOMA-5833): delete REVIEW_VALUES_WITHOUT_RETURNED when the mobile app will use 'feedback*' fields
@@ -929,11 +928,10 @@ describe('Ticket', () => {
             const [objCreated] = await createTestTicket(client, client.organization, client.property)
             const payload = { number: objCreated.number }
 
-            await catchErrorFrom(async () => {
-                await updateTestTicket(client, objCreated.id, payload)
-            }, (e) => {
-                expect(e.errors[0].message).toContain('Field "number" is not defined by type "TicketUpdateInput"')
-            })
+            await expectToThrowGraphQLRequestError(
+                async () => await updateTestTicket(client, objCreated.id, payload),
+                'Field "number" is not defined by type "TicketUpdateInput"',
+            )
         })
 
         test('anonymous: update Ticket', async () => {
@@ -1089,7 +1087,6 @@ describe('Ticket', () => {
                 qualityControlAdditionalOptions: faker.helpers.arrayElements(QUALITY_CONTROL_ADDITIONAL_OPTIONS),
             }
             const [updatedTicket] = await updateTestTicket(client, ticket.id, payload)
-
 
             expect(updatedTicket.qualityControlValue).toEqual(payload.qualityControlValue)
             expect(updatedTicket.qualityControlAdditionalOptions).toEqual(payload.qualityControlAdditionalOptions.sort())
@@ -3588,7 +3585,6 @@ describe('Ticket', () => {
 
                 await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.IN_PROGRESS } } })
 
-
                 await waitFor(async () => {
                     const messageWhere = { user: { id: residentClient.user.id }, type: TICKET_STATUS_IN_PROGRESS_TYPE }
                     const messageCount = await Message.count(admin, messageWhere)
@@ -3653,7 +3649,6 @@ describe('Ticket', () => {
                 expect(ticket.client).toEqual(null)
 
                 await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.COMPLETED } } })
-
 
                 await waitFor(async () => {
                     const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_COMPLETED_TYPE }

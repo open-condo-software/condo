@@ -1,4 +1,3 @@
-const { faker } = require('@faker-js/faker')
 const { isEmpty, isObject, isNull, get } = require('lodash')
 
 const conf = require('@open-condo/config')
@@ -36,9 +35,6 @@ const CONFIG_VALIDATED_FIELDS = [APP_MASTER_KEY, APP_RESIDENT_KEY, `${APP_MASTER
 const IS_LOCAL_ENV = conf.SERVER_URL.includes('localhost')
 
 const logger = getLogger('HCMAdapter')
-
-/** Generates randomly filled string of digits */
-const getRandomNumeric = (count) => faker.phone.number(''.padStart(count, '#'))
 
 /**
  * HCM is Huawei Cloud Messaging
@@ -144,7 +140,7 @@ class HCMAdapter {
             type: 'Fake',
             pushToken: token,
             appType,
-            requestId: getRandomNumeric(24),
+            requestId: Date.now(),
         }
     }
 
@@ -159,7 +155,7 @@ class HCMAdapter {
             type: 'Fake',
             pushToken: token,
             appType,
-            requestId: getRandomNumeric(24),
+            requestId: Date.now(),
         }
 
     }

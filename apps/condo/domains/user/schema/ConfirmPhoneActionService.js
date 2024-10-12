@@ -51,7 +51,8 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: WRONG_FORMAT,
         message: 'Invalid format of "sender" field value. {details}',
-        correctExample: '{ dv: 1, fingerprint: \'example-fingerprint-alphanumeric-value\'}',
+        correctExample: '{ "dv": 1, "fingerprint": "uniq-device-or-container-id" }',
+        messageInterpolation: { details: 'Please, check the example for details' },
     },
     CAPTCHA_CHECK_FAILED: {
         variable: ['data', 'captcha'],
@@ -108,15 +109,15 @@ const maxSmsForIpByDay = Number(conf['MAX_SMS_FOR_IP_BY_DAY']) || MAX_SMS_FOR_IP
 const maxSmsForPhoneByDay = Number(conf['MAX_SMS_FOR_PHONE_BY_DAY']) || MAX_SMS_FOR_PHONE_BY_DAY
 const APP_ID_HEADER = 'x-request-app'
 
-const checkSMSDayLimitCounters = async (phone, rawIp) => {
+const checkSMSDayLimitCounters = async (phone, rawIp, context) => {
     const ip = rawIp.split(':').pop()
     const byPhoneCounter = await redisGuard.incrementDayCounter(phone)
     if (byPhoneCounter > maxSmsForPhoneByDay && !phoneWhiteList.includes(phone)) {
-        throw new GQLError(GQL_ERRORS.SMS_FOR_PHONE_DAY_LIMIT_REACHED)
+        throw new GQLError(GQL_ERRORS.SMS_FOR_PHONE_DAY_LIMIT_REACHED, context)
     }
     const byIpCounter = await redisGuard.incrementDayCounter(ip)
     if (byIpCounter > maxSmsForIpByDay && !ipWhiteList.includes(ip)) {
-        throw new GQLError(GQL_ERRORS.SMS_FOR_IP_DAY_LIMIT_REACHED)
+        throw new GQLError(GQL_ERRORS.SMS_FOR_IP_DAY_LIMIT_REACHED, context)
     }
 }
 
@@ -215,7 +216,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 if (!phone) {
                     throw new GQLError(ERRORS.WRONG_PHONE_FORMAT, context)
                 }
-                await checkSMSDayLimitCounters(phone, context.req.ip)
+                await checkSMSDayLimitCounters(phone, context.req.ip, context)
                 await redisGuard.checkLock(phone, 'sendsms', context)
                 await redisGuard.lock(phone, 'sendsms', SMS_CODE_TTL)
                 const token = uuid()
@@ -291,7 +292,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     throw new GQLError({ ...ERRORS.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, mutation: 'resendConfirmPhoneActionSms' }, context)
                 }
                 const { id, phone } = actions[0]
-                await checkSMSDayLimitCounters(phone, context.req.ip)
+                await checkSMSDayLimitCounters(phone, context.req.ip, context)
                 await redisGuard.checkLock(phone, 'sendsms', context)
                 await redisGuard.lock(phone, 'sendsms', SMS_CODE_TTL)
                 const newSmsCode = generateSmsCode(phone)

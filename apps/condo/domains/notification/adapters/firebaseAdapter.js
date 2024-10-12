@@ -1,4 +1,3 @@
-const { faker } = require('@faker-js/faker')
 const admin = require('firebase-admin')
 const { isEmpty, isNull, get, isObject } = require('lodash')
 
@@ -112,7 +111,7 @@ class FirebaseAdapter {
         return {
             success: true,
             type: 'Fake',
-            messageId: `fake-success-message/${faker.datatype.uuid()}`,
+            messageId: `fake-success-message/${Date.now()}`,
         }
     }
 

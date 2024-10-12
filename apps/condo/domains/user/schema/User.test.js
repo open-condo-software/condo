@@ -20,6 +20,7 @@ const {
     expectToThrowAccessDeniedErrorToCount,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAccessDeniedError,
     expectToThrowGQLError,
     catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
@@ -50,7 +51,6 @@ const {
     createTestEmail,
     makeClientWithResidentUser,
 } = require('@condo/domains/user/utils/testSchema')
-
 
 describe('SIGNIN', () => {
     test('anonymous: SIGNIN_MUTATION', async () => {
@@ -367,10 +367,10 @@ describe('User utils', () => {
         }), {
             'code': 'BAD_USER_INPUT',
             'type': 'WRONG_FORMAT',
-            'correctExample': '{ dv: 1, fingerprint: \'example-fingerprint-alphanumeric-value\'}',
             'message': 'Invalid format of "sender" field value. {details}',
+            'correctExample': '{ "dv": 1, "fingerprint": "uniq-device-or-container-id" }',
             'mutation': 'createUser',
-            'messageInterpolation': { 'details': 'fingerprint: [\'Fingerprint is invalid\'], dv: [\'Dv must be equal to 1\']' },
+            'messageInterpolation': { 'details': 'fingerprint: \'Fingerprint is invalid\', dv: \'Dv must be equal to 1\'' },
             'variable': ['data', 'sender'],
         })
     })
@@ -385,10 +385,10 @@ describe('User utils', () => {
         }), {
             'code': 'BAD_USER_INPUT',
             'type': 'WRONG_FORMAT',
-            'correctExample': '{ dv: 1, fingerprint: \'example-fingerprint-alphanumeric-value\'}',
+            'correctExample': '{ "dv": 1, "fingerprint": "uniq-device-or-container-id" }',
             'message': 'Invalid format of "sender" field value. {details}',
             'mutation': 'createUser',
-            'messageInterpolation': { 'details': 'fingerprint: [\'Fingerprint is invalid\']' },
+            'messageInterpolation': { 'details': 'fingerprint: \'Fingerprint is invalid\'' },
             'variable': ['data', 'sender'],
         })
     })
@@ -586,7 +586,6 @@ describe('Custom access rights', () => {
             id: user.id,
         }, { raw: true })
 
-
         expect(data.objs[0]).toHaveProperty('email', userAttrs.email)
         expect(data.objs[0]).toHaveProperty('id', user.id)
 
@@ -641,6 +640,7 @@ describe('Validations', () => {
             const admin = await makeLoggedInAdminClient()
             const password = '123456789'
 
+            // TODO(pahaz): use ValidationErrorCheck
             await catchErrorFrom(
                 async () => await createTestUser(admin, { password }),
                 ({ errors }) => {
@@ -656,14 +656,9 @@ describe('Validations', () => {
             const admin = await makeLoggedInAdminClient()
             const password = faker.internet.password(MIN_PASSWORD_LENGTH - 1)
 
-            await catchErrorFrom(
+            await expectToThrowGQLError(
                 async () => await createTestUser(admin, { password }),
-                ({ errors }) => {
-                    expect(errors).toHaveLength(1)
-                    expect(errors[0]).toEqual(expect.objectContaining({
-                        message: ERRORS.INVALID_PASSWORD_LENGTH.message,
-                    }))
-                },
+                ERRORS.INVALID_PASSWORD_LENGTH,
             )
         })
 
@@ -679,14 +674,9 @@ describe('Validations', () => {
             const admin = await makeLoggedInAdminClient()
             const password = faker.internet.password(MAX_PASSWORD_LENGTH + 1)
 
-            await catchErrorFrom(
+            await expectToThrowGQLError(
                 async () => await createTestUser(admin, { password }),
-                ({ errors }) => {
-                    expect(errors).toHaveLength(1)
-                    expect(errors[0]).toEqual(expect.objectContaining({
-                        message: ERRORS.INVALID_PASSWORD_LENGTH.message,
-                    }))
-                },
+                ERRORS.INVALID_PASSWORD_LENGTH,
             )
         })
 
@@ -695,14 +685,9 @@ describe('Validations', () => {
             const [user, userAttrs] = await createTestUser(admin)
             const password = userAttrs.email + faker.internet.password()
 
-            await catchErrorFrom(
+            await expectToThrowGQLError(
                 async () => await updateTestUser(admin, user.id, { password }),
-                ({ errors }) => {
-                    expect(errors).toHaveLength(1)
-                    expect(errors[0]).toEqual(expect.objectContaining({
-                        message: ERRORS.PASSWORD_CONTAINS_EMAIL.message,
-                    }))
-                },
+                ERRORS.PASSWORD_CONTAINS_EMAIL,
             )
         })
 
@@ -711,14 +696,9 @@ describe('Validations', () => {
             const [user, userAttrs] = await createTestUser(admin)
             const password = userAttrs.phone + faker.internet.password()
 
-            await catchErrorFrom(
+            await expectToThrowGQLError(
                 async () => await updateTestUser(admin, user.id, { password }),
-                ({ errors }) => {
-                    expect(errors).toHaveLength(1)
-                    expect(errors[0]).toEqual(expect.objectContaining({
-                        message: ERRORS.PASSWORD_CONTAINS_PHONE.message,
-                    }))
-                },
+                ERRORS.PASSWORD_CONTAINS_PHONE,
             )
         })
 
@@ -736,14 +716,9 @@ describe('Validations', () => {
             const admin = await makeLoggedInAdminClient()
             const password = '12331212312123'
 
-            await catchErrorFrom(
+            await expectToThrowGQLError(
                 async () => await createTestUser(admin, { password }),
-                ({ errors }) => {
-                    expect(errors).toHaveLength(1)
-                    expect(errors[0]).toEqual(expect.objectContaining({
-                        message: ERRORS.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS.message,
-                    }))
-                },
+                ERRORS.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS,
             )
         })
     })
@@ -796,7 +771,7 @@ describe('Sensitive data search', () => {
             })
             await expectToThrowAccessDeniedErrorToCount(async () => {
                 await User.count(user, where)
-            }, ['meta'])
+            })
         })
     })
     test('Email address of service users can be read by another service users with direct access', async () => {
@@ -827,30 +802,9 @@ describe('Sensitive data search', () => {
         ]
 
         for (const [client, target] of accessDeniedCases) {
-            await catchErrorFrom(async () => {
+            await expectToThrowAccessDeniedError(async () => {
                 await UserWithEmail.getOne(client, { id: target.user.id })
-            }, (caught) => {
-                expect(caught).toMatchObject({
-                    name: 'TestClientResponseError',
-                    data: {
-                        objs: [
-                            {
-                                deletedAt: null,
-                                email: null,
-                                id: target.user.id,
-                            },
-                        ],
-                    },
-                    errors: [expect.objectContaining({
-                        'message': 'You do not have access to this resource',
-                        'name': 'AccessDeniedError',
-                        'path': ['objs', 0, 'email'],
-                        'extensions': {
-                            'code': 'INTERNAL_SERVER_ERROR',
-                        },
-                    })],
-                })
-            })
+            }, ['objs', 0, 'email'])
         }
     })
 })

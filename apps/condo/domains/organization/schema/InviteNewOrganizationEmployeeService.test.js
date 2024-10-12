@@ -183,6 +183,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
                         phone: createTestPhone(),
                     }
 
+                    // TODO(pahaz): DOMA-10368 use expectToThrowGQLError
                     await catchErrorFrom(async () => {
                         await inviteNewOrganizationEmployee(client, client.organization, secondUserAttrs, role)
                     }, ({ errors }) => {
@@ -214,6 +215,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
                         email: createTestEmail(),
                     }
 
+                    // TODO(pahaz): DOMA-10368 use expectToThrowGQLError
                     await catchErrorFrom(async () => {
                         await inviteNewOrganizationEmployee(client, client.organization, secondUserAttrs, role)
                     }, ({ errors }) => {
@@ -529,6 +531,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
                         isRejected: false,
                     }))
 
+                    // TODO(pahaz): DOMA-10368 use expectToThrowGQLError
                     await catchErrorFrom(async () => {
                         await reInviteNewOrganizationEmployee(client1, client1.organization, employee, {})
                     }, ({ errors }) => {

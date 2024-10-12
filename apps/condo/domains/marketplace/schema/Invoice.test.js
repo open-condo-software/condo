@@ -1555,7 +1555,7 @@ describe('Invoice', () => {
             }, {
                 code: 'BAD_USER_INPUT',
                 type: 'WRONG_COUNT',
-                message: 'Count at line 2 can\'t be less than 1',
+                message: 'Count at line {rowNumber} can\'t be less than 1',
                 messageForUser: 'api.marketplace.invoice.WRONG_COUNT',
                 messageInterpolation: { rowNumber: 2 },
             })
@@ -1567,7 +1567,7 @@ describe('Invoice', () => {
             }, {
                 code: 'BAD_USER_INPUT',
                 type: 'WRONG_PRICE',
-                message: 'Price at line 1 can\'t be less than 0',
+                message: 'Price at line {rowNumber} can\'t be less than 0',
                 messageForUser: 'api.marketplace.invoice.WRONG_PRICE',
                 messageInterpolation: { rowNumber: 1 },
             })
