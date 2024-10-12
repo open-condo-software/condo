@@ -610,7 +610,7 @@ const useInitialEmployeeId = () => {
 
 const getEmployeeWhere = (userId: string) => {
     return {
-        organization: { type_in: [SERVICE_PROVIDER_TYPE, MANAGING_COMPANY_TYPE] },
+        organization: { type_in: [MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE] },
         user: { id: userId, type: STAFF },
         isAccepted: true,
         isBlocked: false,
