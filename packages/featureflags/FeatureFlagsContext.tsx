@@ -29,7 +29,6 @@ const {
     },
 } = getConfig()
 
-let GROWTHBOOK_INSTANCE = null
 const FEATURES_RE_FETCH_INTERVAL_IN_MS = 60 * 1000 // 1 min
 
 type UseFlagValueType = <T>(name: string) => T | null
@@ -130,8 +129,8 @@ const FeatureFlagsProvider: React.FC<FeatureFlagsProviderProps> = ({ children, i
     const { user, isLoading: userIsLoading  } = useAuth()
     const { organization, isLoading: organizationIsLoading } = useOrganization()
 
-    // NOTE: We need to fill the growthbook during server rendering so that the correct page is generated
-    if (GROWTHBOOK_INSTANCE === null) {
+    const [growthbookInstance] = useState(() => {
+        // NOTE: We need to fill the growthbook during server rendering so that the correct page is generated
         const isSupport = get(user, 'isSupport', false)
         const isAdmin = get(user, 'isAdmin', false)
         const userId = get(user, 'id', null)
@@ -152,11 +151,11 @@ const FeatureFlagsProvider: React.FC<FeatureFlagsProviderProps> = ({ children, i
             userId,
         }
 
-        GROWTHBOOK_INSTANCE = new GrowthBook(context)
-    }
+        return new GrowthBook(context)
+    })
 
     return (
-        <GrowthBookProvider growthbook={GROWTHBOOK_INSTANCE}>
+        <GrowthBookProvider growthbook={growthbookInstance}>
             <FeatureFlagsProviderWrapper initFeatures={initFeatures}>
                 {children}
             </FeatureFlagsProviderWrapper>
