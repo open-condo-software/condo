@@ -217,9 +217,6 @@ const _withApolloLegacy: WillApolloLegacy = ({ ssr = false, ...opts } = {}) => (
     const WithApollo = (props) => {
         const { apolloClient, apolloState, ...pageProps } = props
         if (DEBUG_RERENDERS) console.log('WithApollo()', apolloState)
-        console.log('::@open-condo/WithApollo::>>>', {
-            props,
-        })
         let client
         if (apolloClient) {
             // Happens on: getDataFromTree && next.js ssr
