@@ -94,7 +94,7 @@ function getListAdapters (keystone) {
     if (databaseUrl.startsWith('postgres')) {
         return keystone.adapter.listAdapters
     } else if (databaseUrl.startsWith('custom')) {
-        return keystone.adapter.__listMappingAdapters
+        return keystone.adapter.listAdapters
     } else {
         throw new Error('Unsupported database adapter')
     }
