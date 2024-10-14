@@ -1506,6 +1506,7 @@ __metadata:
     "@keystonejs/adapter-prisma": ^3.2.0
     "@keystonejs/app-admin-ui": ^7.5.0
     "@keystonejs/app-graphql": ^6.3.0
+    "@keystonejs/app-graphql-playground": ^5.2.2
     "@keystonejs/app-next": ^5.2.3
     "@keystonejs/app-static": ^5.2.0
     "@keystonejs/auth-password": ^6.1.0
@@ -1513,18 +1514,17 @@ __metadata:
     "@keystonejs/fields-color": ^1.1.0
     "@keystonejs/fields-content": ^9.1.0
     "@keystonejs/fields-location-google": ^3.4.0
+    "@keystonejs/fields-markdown": ^5.3.2
     "@keystonejs/fields-wysiwyg-tinymce": ^5.4.0
     "@keystonejs/file-adapters": ^7.1.0
-    "@keystonejs/keystone": 19.3.4
+    "@keystonejs/keystone": ^19.3.1
     "@keystonejs/list-plugins": ^8.1.0
     "@keystonejs/server-side-graphql-client": ^2.1.0
     "@keystonejs/utils": ^6.1.0
     "@miniapp/domains": "link:./domains"
     "@open-condo/bridge": "workspace:^"
-    "@open-condo/cli": "workspace:^"
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
-    "@open-condo/icons": "workspace:^"
     "@open-condo/keystone": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@open-condo/ui": "workspace:^"
@@ -1540,6 +1540,7 @@ __metadata:
     antd-dayjs-webpack-plugin: ^1.0.6
     babel-jest: ^29.7.0
     classnames: 2.2.6
+    cross-env: ^7.0.3
     css-loader: 1.0.1
     dayjs: ^1.10.6
     emotion: ^10.0.27
@@ -1548,8 +1549,7 @@ __metadata:
     extracted-loader: ^1.0.7
     facepaint: ^1.2.1
     get-contrast: ^2.0.0
-    graphql: ^15.6.1
-    graphql-tag: ^2.12.6
+    graphql-upload: ^15.0.1
     identity-obj-proxy: ^3.0.0
     ignore-loader: 0.1.2
     immer: 9.0.13
@@ -1563,18 +1563,17 @@ __metadata:
     next: ^9.5.5
     next-transpile-modules: ^4.1.0
     numeral: 2.0.6
-    openid-client: 4.7.4
     pluralize: ^8.0.0
-    qs: 6.11.0
+    qs: ^6.9.4
     raw-loader: ^4.0.2
     rc-queue-anim: ^1.8.5
-    rc-table: ~7.25.3
     react: ^16.13.1
     react-dom: ^16.13.1
     react-fittext: ^1.0.0
     react-markdown: ^4.3.1
     react-responsive: ^8.1.0
     react-test-renderer: ^16.13.1
+    tslib: ^2.5.3
     typescript: ^5.5.4
     use-immer: ^0.4.1
     uuid: ^8.3.0
