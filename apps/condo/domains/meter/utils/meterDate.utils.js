@@ -3,15 +3,12 @@ const customParseFormat = require('dayjs/plugin/customParseFormat')
 const utc = require('dayjs/plugin/utc')
 const { isEmpty, isString } = require('lodash')
 
-const { DATE_PARSING_FORMATS } = require('@condo/domains/meter/constants/registerMetersReadingsService')
-
 dayjs.extend(customParseFormat)
 dayjs.extend(utc)
 
 const SYMBOLS_TO_CUT_FROM_DATES_REGEXP = /[^+\-TZ_:.,( )/\d]/gi // -_:.,()/ recognizable by dayjs https://day.js.org/docs/en/parse/string-format
 const DATE_WITH_OFFSET_REGEXP = /([T\s]\d{2}:\d{2}:\d{2}(\.\d{1,3})?)[+-](\d{2}):?(\d{2})$/ // +5000 | +50:00
 const UTC_STRING_FORMAT = 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'
-const DEFAULT_PARSING_OPTIONS = { formats: DATE_PARSING_FORMATS, offsets: true }
 
 /**
  * Clear bad user input
@@ -36,17 +33,15 @@ function clearDateStr (dateStr) {
 /**
  * Validates dates in formats: ISO, with offsets, or in custom formats
  * @param {string} dateStr
- * @param options - change default formats, disable utc or offset formats
- * @param {Array<string>?} options.formats - date parsing formats
+ * @param options - set parsing formats, disable utc or offset formats
+ * @param {Array<string>?} options.formats - date parsing formats. Must be not empty array
  * @param {boolean?} options.offsets - enable check for dates like 2024-01-20T00:00:00 with +00:00 or +0000
  * @return {boolean}
  */
-function isDateStrValid (dateStr, options = DEFAULT_PARSING_OPTIONS) {
+function isDateStrValid (dateStr, options = {}) {
     if (!dateStr || !isString(dateStr)) {
         return false
     }
-
-    options = { ...DEFAULT_PARSING_OPTIONS, ...options }
 
     if (options.offsets && DATE_WITH_OFFSET_REGEXP.test(dateStr)) {
         // we need to pass dateStr to dayjs in strict mode to check valid values in MM, DD, HH, mm...
@@ -75,10 +70,10 @@ function isDateStrValid (dateStr, options = DEFAULT_PARSING_OPTIONS) {
 /**
  * Parses strings in UTC format always. Extra formats can be passed.
  * @param {string} dateStr
- * @param {Array<string>=DATE_PARSING_FORMATS} extraFormats - defaults to meter dates formats
+ * @param {Array<string>} extraFormats - valid input formats. Must be not empty array
  * @returns {string|undefined} dateString in UTC or undefined for invalid date
  */
-function tryToISO (dateStr, extraFormats = DATE_PARSING_FORMATS) {
+function tryToISO (dateStr, extraFormats) {
     if (!dateStr || !isString(dateStr)) {
         return undefined
     }

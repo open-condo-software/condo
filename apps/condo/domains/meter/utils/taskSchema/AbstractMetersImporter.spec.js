@@ -2,7 +2,8 @@ const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 const cloneDeep = require('lodash/cloneDeep')
 
-const { DATE_PARSING_FORMATS, DATE_FIELD_PATH_TO_TRANSLATION } = require('@condo/domains/meter/constants/registerMetersReadingsService')
+const { DATE_PARSING_FORMATS } = require('@condo/domains/meter/constants/importMeters')
+const { DATE_FIELD_PATH_TO_TRANSLATION } = require('@condo/domains/meter/constants/registerMetersReadingsService')
 const { tryToISO } = require('@condo/domains/meter/utils/meterDate.utils')
 
 const { AbstractMetersImporter } = require('./AbstractMetersImporter')
@@ -69,7 +70,12 @@ const defaultReading = {
 }
 
 describe('AbstractMetersImporter', () => {
-    let abstractMetersImporter = new ImporterWrapper()
+    let abstractMetersImporter
+
+    beforeEach(() => {
+        abstractMetersImporter = new ImporterWrapper()
+    })
+
     describe('Row preparing', () => {
         it('Converts valid dates in utc', () => {
             const dates = generateValidDatesByFormats(DATE_PARSING_FORMATS)
@@ -88,7 +94,7 @@ describe('AbstractMetersImporter', () => {
             for (let i = 0; i < readings.length; i += 1) {
                 const reading = readings[i]
                 const rawDate = dates[i]
-                const utcDate = tryToISO(rawDate)
+                const utcDate = tryToISO(rawDate, DATE_PARSING_FORMATS)
                 abstractMetersImporter.prepareReading(reading, [], [], new Map(), 0, 0)
 
                 expect(reading.date).toEqual(utcDate)
@@ -107,8 +113,6 @@ describe('AbstractMetersImporter', () => {
             const dates = [
                 '2024-28-05',
                 '2024-28',
-                'dasd',
-                '[]',
                 '!7260-3!1-2',
             ]
 
@@ -136,6 +140,39 @@ describe('AbstractMetersImporter', () => {
                     'invalidDate on "meter.import.column.meterReadingSubmissionDate", "meter.import.column.VerificationDate",' +
                     ' "meter.import.column.NextVerificationDate", "meter.import.column.NextVerificationDate",' +
                     ' "meter.import.column.CommissioningDate", "meter.import.column.SealingDate", "meter.import.column.ControlReadingsDate"',
+                ])
+            )
+        })
+
+        it('Allows invalid dates in not required fields, if they are clering to empty string', () => {
+            const dates = [
+                '!!!',
+                '[]',
+                'dasd',
+            ]
+
+            const readings = dates.map(date => {
+                const reading = cloneDeep(defaultReading)
+                reading.date = date
+                reading.meterMeta.controlReadingsDate = date
+                reading.meterMeta.commissioningDate = date
+                reading.meterMeta.installationDate = date
+                reading.meterMeta.nextVerificationDate = date
+                reading.meterMeta.verificationDate = date
+                reading.meterMeta.sealingDate = date
+                return reading
+            })
+
+            for (let i = 0; i < readings.length; i += 1) {
+                const row = [i]
+                const reading = readings[i]
+                abstractMetersImporter.prepareReading(reading, row, [], new Map(), 0, 0)
+            }
+
+            expect(abstractMetersImporter.failedRows).toHaveLength(readings.length)
+            abstractMetersImporter.failedRows.forEach((row) =>
+                expect(row.errors).toEqual([
+                    'invalidDate on "meter.import.column.meterReadingSubmissionDate"',
                 ])
             )
         })

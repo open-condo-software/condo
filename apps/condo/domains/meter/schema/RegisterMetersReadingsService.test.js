@@ -21,7 +21,7 @@ const {
     OTHER_METER_READING_SOURCE_ID,
     REMOTE_SYSTEM_METER_READING_SOURCE_ID,
 } = require('@condo/domains/meter/constants/constants')
-const { DATE_FIELD_PATHS, DATE_FIELD_PATH_TO_TRANSLATION } = require('@condo/domains/meter/constants/registerMetersReadingsService')
+const { DATE_FIELD_PATHS } = require('@condo/domains/meter/constants/registerMetersReadingsService')
 const {
     registerMetersReadingsByTestClient,
     Meter,
