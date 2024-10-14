@@ -3,7 +3,7 @@ const get = require('lodash/get')
 const omit = require('lodash/omit')
 
 const conf = require('@open-condo/config')
-const { _internalGetAsyncLocalStorage } = require('@open-condo/keystone/executionContext')
+const { _internalGetAsyncLocalStorage, getExecutionContext } = require('@open-condo/keystone/executionContext')
 
 const { KnexPool } = require('./pool')
 const { getNamedDBs, getReplicaPoolsConfig, getQueryRoutingRules, isDefaultRule } = require('./utils/env')
@@ -11,7 +11,6 @@ const { initKnexClient } = require('./utils/knex')
 
 
 const graphqlCtx = _internalGetAsyncLocalStorage('graphqlCtx')
-
 
 class BalancingReplicaKnexAdapter extends KnexAdapter {
     constructor ({ databaseUrl, replicaPools, routingRules }) {
@@ -57,11 +56,14 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
     _selectTargetPool (sql) {
         const gqlContext = graphqlCtx.getStore()
         const operationType = get(gqlContext, ['info', 'operation', 'operation'])
+        const operationName = get(gqlContext, ['info', 'fieldName'])
+        const exc = getExecutionContext()
 
         for (const rule of this._routingRules) {
             if (rule.gqlOperationType && operationType !== rule.gqlOperationType) {
                 continue
             }
+
 
             // if (rule.sqlOperationName && )
 
@@ -91,8 +93,8 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         // NOTE: We need to initialize this.knex to be compatible with KS.
         // Even though it won't execute requests by itself, it needs some connection-string to initialize it.
         // We can get it from any of the default pool databases.
-        const defaultWritableDatabase = this._replicaPoolsConfig[defaultRule.target].databases[0]
-        const fallbackConnection = this._dbConnections[defaultWritableDatabase]
+        const defaultWritableDatabaseName = this._replicaPoolsConfig[defaultRule.target].databases[0]
+        const fallbackConnection = this._dbConnections[defaultWritableDatabaseName]
 
         this.knex = await initKnexClient({
             client: 'postgres',
@@ -100,15 +102,30 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
             connection: fallbackConnection,
         })
 
+        // NOTE: All migrations and other transactions should go to default pool
+        this.knex.context.transaction = (...args) => {
+            const defaultClient = this._defaultPool.getKnexClient()
+
+            return defaultClient.context.transaction(...args)
+        }
+
         this.knex.client.runner = (builder) => {
+            const gqlContext = graphqlCtx.getStore()
             try {
                 const sqlObject = builder.toSQL()
 
+                // NOTE: Right now partial routing is not implemented.
+                // In real life there's no array cases at all, except few occurrences in migrations with length === 1
+                // So for safe behaviour we'll redirect any batched queries to default writable pool
                 if (Array.isArray(sqlObject)) {
                     return this._defaultPool.getQueryRunner(builder)
                 }
 
-                const selectedPool = this._selectTargetPool(sqlObject.sql)
+                // NOTE: builder.toSQL() in single-query case will return object of shape:
+                // { method: "<knex-method>", sql: "select * from ... limit ?", bindings: [100] }
+                // parser cannot understand bindings, so we need to insert it in query by using toString method
+                const sqlQueryWithBindings = builder.toString()
+                const selectedPool = this._selectTargetPool(sqlQueryWithBindings)
 
                 return selectedPool.getQueryRunner(builder)
             } catch (err) {
