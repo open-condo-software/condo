@@ -344,10 +344,6 @@ const OrganizationProvider: React.FC<OrganizationProviderProps> = ({
 
     const [activeEmployee, setActiveEmployee] = useState(get(data, ['employees', 0]) || null)
 
-    console.log('org', {
-        activeEmployee, employeeLoading, isLoading,
-    })
-
     /** @deprecated */
     const handleSelectLink: OrganizationContextType['selectLink'] = useCallback((newEmployee) => {
         if (newEmployee && newEmployee.id) {
