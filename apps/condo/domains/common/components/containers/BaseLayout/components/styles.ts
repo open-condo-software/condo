@@ -67,6 +67,7 @@ export const LAYOUT_CSS = css`
   height: 100%;
   display: flex;
   align-items: stretch;
+  flex-direction: row;
 `
 
 export const SUB_LAYOUT_CSS = css`
