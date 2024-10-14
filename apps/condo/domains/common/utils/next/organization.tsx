@@ -5,7 +5,6 @@ import {
     GetActiveOrganizationEmployeeQueryVariables,
     GetActiveOrganizationEmployeeQueryResult,
 } from '@app/condo/gql'
-import { OrganizationTypeType, UserTypeType } from '@app/condo/schema'
 import { getCookie, setCookie, deleteCookie } from 'cookies-next'
 import get from 'lodash/get'
 import { GetServerSideProps } from 'next'
@@ -29,14 +28,8 @@ export const prefetchOrganizationEmployee: PrefetchOrganizationEmployeeType = as
         const response = await client.query<GetActiveOrganizationEmployeeQuery, GetActiveOrganizationEmployeeQueryVariables>({
             query: GetActiveOrganizationEmployeeDocument,
             variables: {
-                where: {
-                    id: activeEmployeeId,
-                    organization: { type_in: [OrganizationTypeType.ManagingCompany, OrganizationTypeType.ServiceProvider] },
-                    user: { id: userId, type: UserTypeType.Staff },
-                    isAccepted: true,
-                    isBlocked: false,
-                    isRejected: false,
-                },
+                id: activeEmployeeId,
+                userId,
             },
         })
 
@@ -50,13 +43,8 @@ export const prefetchOrganizationEmployee: PrefetchOrganizationEmployeeType = as
     const response = await client.query<GetActiveOrganizationEmployeeQuery, GetActiveOrganizationEmployeeQueryVariables>({
         query: GetActiveOrganizationEmployeeDocument,
         variables: {
-            where: {
-                organization: { type_in: [OrganizationTypeType.ManagingCompany, OrganizationTypeType.ServiceProvider] },
-                user: { id: userId, type: UserTypeType.Staff },
-                isAccepted: true,
-                isBlocked: false,
-                isRejected: false,
-            },
+            id: null,
+            userId,
         },
     })
 

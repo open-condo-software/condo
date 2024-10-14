@@ -1,5 +1,12 @@
-query getActiveOrganizationEmployee($where: OrganizationEmployeeWhereInput!) {
-    employees: allOrganizationEmployees(where: $where, first: 1, skip: 0, sortBy: [createdAt_DESC]) {
+query getActiveOrganizationEmployee($userId: ID!, $id: ID) {
+    employees: allOrganizationEmployees(where: {
+        id: $id,
+        organization: { type_in: [MANAGING_COMPANY, SERVICE_PROVIDER] },
+        user: { id: $userId, type: staff },
+        isAccepted: true,
+        isBlocked: false,
+        isRejected: false,
+    }, first: 1, skip: 0, sortBy: [createdAt_DESC]) {
         id
         name
         email
