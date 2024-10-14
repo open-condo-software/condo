@@ -5,7 +5,7 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
-const { makeLoggedInAdminClient, makeClient, catchErrorFrom, expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult, waitFor } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, catchErrorFrom, expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult, waitFor, setAllFeatureFlags } = require('@open-condo/keystone/test.utils')
 
 const { createTestAcquiringIntegrationContext, createTestAcquiringIntegration, AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
 const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
@@ -220,10 +220,10 @@ describe('ResetOrganizationService', () => {
         })
 
         await waitFor(async () => {
+            setAllFeatureFlags(true)
             const [res] = await _internalScheduleTaskByNameByTestClient(admin, { taskName: 'sendSubmitMeterReadingsPushNotifications' })
-            console.log(res)
             expect(res.id).toBeDefined()
-        }, { delay: (10) * 1000 })
+        })
 
         await resetOrganizationByTestClient(admin, { organizationId: organization.id })
 
@@ -237,6 +237,6 @@ describe('ResetOrganizationService', () => {
 
             messages.filter(message => message.meta.data.meterId === meter.id)
             expect(messages).toHaveLength(0)
-        })
+        }, { delay: 10000 })
     })
 })
