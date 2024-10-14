@@ -6,6 +6,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { i18n } = require('@open-condo/locales/loader')
 
 const { IMPORT_CONDO_METER_READING_SOURCE_ID } = require('@condo/domains/meter/constants/constants')
+const { DATE_PARSING_FORMATS } = require('@condo/domains/meter/constants/importMeters')
 const { DATE_FIELD_PATHS } = require('@condo/domains/meter/constants/registerMetersReadingsService')
 const { clearDateStr, isDateStrValid, tryToISO } = require('@condo/domains/meter/utils/meterDate.utils')
 
@@ -74,16 +75,19 @@ class AbstractMetersImporter {
     getInvalidDatesPaths (reading) {
         return DATE_FIELD_PATHS.reduce((datesPaths, { path, nullable }) => {
             const dateStr = get(reading, path)
-            if (nullable && isNil(dateStr)) {
-                return datesPaths
-            }
 
             if (!nullable && isNil(dateStr)) {
                 datesPaths.push(path)
                 return datesPaths
             }
 
-            if (!isDateStrValid(clearDateStr(dateStr))) {
+            const clearedDate = clearDateStr(dateStr)
+            const dateIsEmpty = isNil(dateStr) || !clearedDate
+            if (nullable && dateIsEmpty) {
+                return datesPaths
+            }
+
+            if (!isDateStrValid(clearedDate, { offsets: false, formats: DATE_PARSING_FORMATS })) {
                 datesPaths.push(path)
                 return datesPaths
             }
@@ -118,7 +122,7 @@ class AbstractMetersImporter {
     convertDatesToISOOrUndefined (data) {
         DATE_FIELD_PATHS.forEach(({ path }) => {
             const date = get(data, path)
-            set(data, path, tryToISO(clearDateStr(date)))
+            set(data, path, tryToISO(clearDateStr(date), DATE_PARSING_FORMATS))
         })
     }
 

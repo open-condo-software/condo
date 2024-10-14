@@ -509,6 +509,7 @@ describe('importMeters', () => {
     describe('Mock files', () => {
 
         it('Imports excel date format', async () => {
+            const locale = 'ru'
             const expectedDates = {
                 reading: { date: '2021-12-20T00:00:00.000Z' },
                 meter: {
@@ -522,6 +523,7 @@ describe('importMeters', () => {
             }
 
             const adminClient = await makeLoggedInAdminClient()
+            adminClient.setHeaders({ 'Accept-Language': locale })
             const [organization] = await createTestOrganization(adminClient)
             await createTestProperty(adminClient, organization, {
                 map: buildPropertyMap(),
@@ -541,6 +543,7 @@ describe('importMeters', () => {
                 file: upload,
                 user: { connect: { id: adminClient.user.id } },
                 organization: { connect: { id: organization.id } },
+                locale,
             })
             await importMeters(meterReadingsImportTask.id)
             const task = await MeterReadingsImportTask.getOne(context, { id: meterReadingsImportTask.id })
