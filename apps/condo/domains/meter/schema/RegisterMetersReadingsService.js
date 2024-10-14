@@ -65,12 +65,14 @@ const ERRORS = {
         type: INVALID_METER_VALUES,
         message: 'Invalid meter values',
         messageForUser: 'api.meter.registerMetersReadings.INVALID_METER_VALUES',
+        messageInterpolation: { valuesList: '"{column}"="{errorValue}"' },
     },
     MULTIPLE_METERS_FOUND: {
         code: BAD_USER_INPUT,
         type: MULTIPLE_METERS_FOUND,
         message: 'Multiple meters found',
         messageForUser: 'api.meter.registerMetersReadings.MULTIPLE_METERS_FOUND',
+        messageInterpolation: { count: '??' },
     },
     INVALID_ACCOUNT_NUMBER: {
         code: BAD_USER_INPUT,
@@ -89,6 +91,7 @@ const ERRORS = {
         type: INVALID_DATE,
         message: 'Invalid date',
         messageForUser: 'api.meter.registerMetersReadings.INVALID_DATE',
+        messageInterpolation: { columnName: 'columnName', format: [UTC_DATE_FORMAT, DATE_FORMAT].join('", "') },
     },
 }
 

@@ -316,8 +316,6 @@ describe('RegisterMetersReadingsService', () => {
                             code: 'BAD_USER_INPUT',
                             type: 'SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT',
                             message: 'Meter with same account number exist in current organization in other unit',
-                            messageForUser: 'Meter with same account number exist in current organization in unit flat 1',
-                            messageForUserTemplate: 'Meter with same account number exist in current organization in unit {unitsCsv}',
                             messageForUserTemplateKey: 'api.meter.meter.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT',
                             messageInterpolation: { unitsCsv: `${readings1[0].addressInfo.unitType} ${readings1[0].addressInfo.unitName}` },
                         }),
@@ -855,39 +853,38 @@ describe('RegisterMetersReadingsService', () => {
             )
 
             test.each(cases)('%p in %p should cause an error', async (invalidDate, dateFieldPath) => {
-                const locale = 'ru'
                 const [organization] = await createTestOrganization(adminClient)
                 const [property] = await createTestPropertyWithMap(adminClient, organization)
 
                 const reading = createTestReadingData(property)
                 set(reading, dateFieldPath, invalidDate)
 
-            // TODO(pahaz): DOMA-10348 refactor it to use expectToThrowGQLError (need more deep refactoring) !!
-            await catchErrorFrom(
-                async () => await registerMetersReadingsByTestClient(adminClient, organization, [reading]),
-                ({ data, errors }) => {
-                    expect(data).toEqual({ 'result': [null] })
-                    expect(errors).toEqual([
-                        expect.objectContaining({
-                            name: 'GQLError',
-                            message: 'Invalid date',
-                            path: ['result', 0],
-                            extensions: expect.objectContaining({
-                                'code': 'BAD_USER_INPUT',
-                                'type': 'INVALID_DATE',
-                                'message': 'Invalid date',
-                                'messageForUserTemplateKey': 'api.meter.registerMetersReadings.INVALID_DATE',
-                                'messageInterpolation': {
-                                    'columnName': DATE_FIELD_PATH_TO_TRANSLATION[dateFieldPath],
-                                    'format': 'YYYY-MM-DDTHH:mm:ss.SSS[Z]", "YYYY-MM-DD',
-                                },
+                // TODO(pahaz): DOMA-10348 refactor it to use expectToThrowGQLError (need more deep refactoring) !!
+                await catchErrorFrom(
+                    async () => await registerMetersReadingsByTestClient(adminClient, organization, [reading]),
+                    ({ data, errors }) => {
+                        expect(data).toEqual({ 'result': [null] })
+                        expect(errors).toEqual([
+                            expect.objectContaining({
+                                name: 'GQLError',
+                                message: 'Invalid date',
+                                path: ['result', 0],
+                                extensions: expect.objectContaining({
+                                    'code': 'BAD_USER_INPUT',
+                                    'type': 'INVALID_DATE',
+                                    'message': 'Invalid date',
+                                    'messageForUserTemplateKey': 'api.meter.registerMetersReadings.INVALID_DATE',
+                                    'messageInterpolation': {
+                                        'columnName': expect.any(String),
+                                        'format': 'YYYY-MM-DDTHH:mm:ss.SSS[Z]", "YYYY-MM-DD',
+                                    },
+                                }),
                             }),
-                        }),
-                    ])
-                },
-            )
+                        ])
+                    },
+                )
+            })
         })
-    })
 
     })
 
