@@ -3,6 +3,7 @@ import {
     GetActiveOrganizationEmployeeDocument,
     GetActiveOrganizationEmployeeQuery,
     GetActiveOrganizationEmployeeQueryVariables,
+    GetActiveOrganizationEmployeeQueryResult,
 } from '@app/condo/gql'
 import { OrganizationTypeType, UserTypeType } from '@app/condo/schema'
 import { getCookie, setCookie, deleteCookie } from 'cookies-next'
@@ -15,8 +16,11 @@ type PrefetchOrganizationEmployeeArgs = {
     context: Parameters<GetServerSideProps>[0]
     userId: string
 }
+type PrefetchOrganizationEmployeeType = (args: PrefetchOrganizationEmployeeArgs) => Promise<{
+    activeEmployee: GetActiveOrganizationEmployeeQueryResult['data']['employees'][number]
+}>
 
-export async function prefetchOrganizationEmployee (args: PrefetchOrganizationEmployeeArgs) {
+export const prefetchOrganizationEmployee: PrefetchOrganizationEmployeeType = async (args) => {
     const { client, context, userId } = args
 
     const activeEmployeeId = getCookie(ACTIVE_EMPLOYEE_COOKIE_NAME, { req: context.req, res: context.res })
