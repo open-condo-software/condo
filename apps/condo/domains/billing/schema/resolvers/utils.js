@@ -59,25 +59,27 @@ const normalizePropertyGlobalId = (rawFiasCode) => {
 
 const sortPeriodFunction = (periodA, periodB) => (dayjs(periodA, 'YYYY-MM-DD').isAfter(dayjs(periodB, 'YYYY-MM-DD')) ? 1 : -1)
 
-const buildLastReportForBillingContext = async ({ dv, sender, billingContextId, period }) => {
-    const { keystone: context } = getSchemaCtx('BillingReceipt')
-    const { knex } = getDatabaseAdapter(context)
-    const currentPeriodReceiptsCount = await BillingReceipt.count(context, { context: { id: billingContextId }, period: period, deletedAt: null })
-    const categories = await knex('BillingReceipt')
-        .select(knex.raw('DISTINCT category'))
-        .where('deletedAt', 'is', null)
-        .where('period', '=', period)
-        .where('context', '=', billingContextId)
+const buildLastReportForBillingContext = async ({ dv, sender, context, billingContext, receiptsPeriods, receiptsCategories }) => {
+    if (receiptsPeriods.length) {
+        const newestPeriodFromReceipts = receiptsPeriods.sort(sortPeriodFunction).pop()
+        const newerReceiptsCount = await BillingReceipt.count(context, {
+            context: billingContext,
+            period_gt: newestPeriodFromReceipts,
+        })
+        if (!newerReceiptsCount) {
+            const currentPeriodReceiptsCount = await BillingReceipt.count(context, { context: { id: billingContext.id }, period: newestPeriodFromReceipts, deletedAt: null })
 
-    await BillingIntegrationOrganizationContext.update(context, billingContextId, {
-        dv, sender,
-        lastReport: {
-            period: period,
-            finishTime: new Date().toISOString(),
-            totalReceipts: currentPeriodReceiptsCount,
-            categories: categories.map(({ category }) => category),
-        },
-    })
+            await BillingIntegrationOrganizationContext.update(context, billingContext.id, {
+                dv, sender,
+                lastReport: {
+                    period: newestPeriodFromReceipts,
+                    finishTime: new Date().toISOString(),
+                    totalReceipts: currentPeriodReceiptsCount,
+                    categories: receiptsCategories,
+                },
+            })
+        }
+    }
 }
 
 module.exports = {
