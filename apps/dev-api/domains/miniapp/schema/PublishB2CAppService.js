@@ -34,7 +34,6 @@ const {
     B2C_APP_DEFAULT_LOGO_PATH,
     PUBLISH_REQUEST_APPROVED_STATUS,
 } = require('@dev-api/domains/miniapp/constants/publishing')
-const { EXPORT_FIELDS } = require('@dev-api/domains/miniapp/gql')
 const {
     B2CApp,
     B2CAppBuild,
@@ -324,7 +323,7 @@ const PublishB2CAppService = new GQLCustomSchema('PublishB2CAppService', {
                 const app = await B2CApp.getOne(
                     context,
                     { id, deletedAt: null },
-                    `id ${EXPORT_FIELDS} name developer createdBy { name } logo { publicUrl originalFilename }`
+                    'id developmentExportId productionExportId name developer createdBy { name } logo { publicUrl originalFilename }'
                 )
                 if (!app) {
                     throw new GQLError(ERRORS.APP_NOT_FOUND, context)
@@ -380,7 +379,7 @@ const PublishB2CAppService = new GQLCustomSchema('PublishB2CAppService', {
                         id: options.build.id,
                         deletedAt: null,
                         app: { id: app.id },
-                    }, `id ${EXPORT_FIELDS} version data { publicUrl originalFilename mimetype encoding }`)
+                    }, 'id developmentExportId productionExportId version data { publicUrl originalFilename mimetype encoding }')
                     if (!build) {
                         throw new GQLError(ERRORS.BUILD_NOT_FOUND, context)
                     }
