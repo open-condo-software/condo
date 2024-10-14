@@ -9,8 +9,6 @@ const {
     },
 } = require('@miniapp/domains/condo/gql')
 
-
-const { User: UserGQL } = require('@miniapp/domains/condo/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const B2BAppRole = generateCondoServerUtils(B2BAppRoleGQL)
