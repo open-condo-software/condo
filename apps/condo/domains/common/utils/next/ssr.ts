@@ -1,3 +1,5 @@
+// TODO(INFRA-614): move it inside miniapp-utils
+
 import { getCookie } from 'cookies-next'
 import { createContext, useContext } from 'react'
 
