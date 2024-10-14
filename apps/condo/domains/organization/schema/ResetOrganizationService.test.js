@@ -11,8 +11,8 @@ const { createTestAcquiringIntegrationContext, createTestAcquiringIntegration, A
 const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
 const { createTestBankIntegrationAccountContext, createTestBankIntegrationOrganizationContext, BankIntegrationOrganizationContext } = require('@condo/domains/banking/utils/testSchema')
 const { createTestBillingIntegrationOrganizationContext, createTestBillingIntegration, BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
+const { _internalScheduleTaskByNameByTestClient } = require('@condo/domains/common/utils/testSchema')
 const { COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
-const { sendSubmitMeterReadingsPushNotifications } = require('@condo/domains/meter/tasks/sendSubmitMeterReadingsPushNotifications')
 const { MeterResource, MeterResourceOwner, MeterReportingPeriod, createTestMeterReportingPeriod, createTestMeterResourceOwner, createTestMeter } = require('@condo/domains/meter/utils/testSchema')
 const { createTestB2BAppContext, B2BAppContext, createTestB2BApp } = require('@condo/domains/miniapp/utils/testSchema')
 const {
@@ -219,9 +219,13 @@ describe('ResetOrganizationService', () => {
             notifyEndDay: Number(dayjs().format('DD')),
         })
 
-        await resetOrganizationByTestClient(admin, { organizationId: organization.id })
+        await waitFor(async () => {
+            const [res] = await _internalScheduleTaskByNameByTestClient(admin, { taskName: 'sendSubmitMeterReadingsPushNotifications' })
+            console.log(res)
+            expect(res.id).toBeDefined()
+        }, { delay: (10) * 1000 })
 
-        await sendSubmitMeterReadingsPushNotifications()
+        await resetOrganizationByTestClient(admin, { organizationId: organization.id })
 
         await waitFor(async () => {
             const messages = await Message.getAll(admin, {
@@ -230,7 +234,7 @@ describe('ResetOrganizationService', () => {
                     METER_SUBMIT_READINGS_REMINDER_END_PERIOD_TYPE,
                 ],
             })
-            
+
             messages.filter(message => message.meta.data.meterId === meter.id)
             expect(messages).toHaveLength(0)
         })
