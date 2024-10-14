@@ -61,7 +61,9 @@ const { GQL_CUSTOM_SCHEMA_TYPE } = require('../schema')
  * @return {string}
  */
 const formatError = (errorConfig) => {
-    const error = new GQLError(errorConfig, {})  // render error with DEFAULT_LOCALE
+    // NOTE: If you want to force 'en' locale then use context like: { req: { locale: 'en' } }
+    //   Otherwise the DEFAULT_LOCALE will be used for error rendering
+    const error = new GQLError(errorConfig, {})
     const errorFields = pick(error.extensions, ['code', 'type', 'message', 'messageForUser', 'correctExample'])
     return '`' + JSON.stringify(errorFields, null, 2) + '`'
 }
