@@ -191,7 +191,7 @@ async function _importBuildFromClient ({ serverClient, remoteAppId, versionSuffi
                 },
             })
         }
-        const createdBuilds = await B2CAppBuild.createMany(context, devApiCreatePayload, 'id version')
+        const createdBuilds = await B2CAppBuild.createMany(context, devApiCreatePayload, `id version ${exportField}`)
         const condoUpdatePayload = createdBuilds.map(build => ({
             id: build[exportField],
             data: {
