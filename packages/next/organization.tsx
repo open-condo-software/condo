@@ -5,7 +5,7 @@ import cookie from 'js-cookie'
 import get from 'lodash/get'
 import { NextPage } from 'next'
 import nextCookie from 'next-cookies'
-import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react'
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
 
 import { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } from './_utils'
 import { useQuery } from './apollo'
@@ -92,8 +92,8 @@ let GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY_LEGACY = gql`
 `
 
 let GET_ORGANIZATION_EMPLOYEE_QUERY = gql`
-    query getOrganizationEmployee($where: OrganizationEmployeeWhereInput!) {
-        employee: OrganizationEmployee (where: $where) {
+    query getOrganizationEmployee($id: ID! $userId: ID!) {
+        employee: OrganizationEmployee (where: { id: $id, user: { id: $userId } }) {
             ${organizationToUserFragment}
         }
     }
@@ -310,12 +310,10 @@ const _withOrganizationLegacy: WithOrganizationLegacy = ({ ssr = false, ...opts 
 
 type OrganizationProviderProps = {
     useInitialEmployeeId: () => { employeeId?: string | null }
-    getEmployeeWhere?: (userId: string) => Record<string, unknown>
 }
 const OrganizationProvider: React.FC<OrganizationProviderProps> = ({
     children,
     useInitialEmployeeId,
-    getEmployeeWhere,
 }) => {
     const auth = useAuth()
     const { employeeId } = useInitialEmployeeId()
@@ -333,18 +331,10 @@ const OrganizationProvider: React.FC<OrganizationProviderProps> = ({
         }
     }, [])
 
-    const employeeWhere = useMemo(() => {
-        if (!getEmployeeWhere) return { id: activeEmployeeId }
-
-        return {
-            ...getEmployeeWhere(get(auth, ['user', 'id'], null)),
-            id: activeEmployeeId,
-        }
-    }, [activeEmployeeId, auth, getEmployeeWhere])
-
     const { loading: employeeLoading, refetch, data } = useQuery(GET_ORGANIZATION_EMPLOYEE_QUERY, {
         variables: {
-            where: employeeWhere,
+            userId: get(auth, ['user', 'id'], null),
+            id: activeEmployeeId,
         },
         skip: auth.isLoading || !auth.user || !auth.user.id || !activeEmployeeId,
         onError,
@@ -353,6 +343,10 @@ const OrganizationProvider: React.FC<OrganizationProviderProps> = ({
     const isLoading = auth.isLoading || employeeLoading
 
     const [activeEmployee, setActiveEmployee] = useState(get(data, ['employees', 0]) || null)
+
+    console.log('org', {
+        activeEmployee, employeeLoading, isLoading,
+    })
 
     /** @deprecated */
     const handleSelectLink: OrganizationContextType['selectLink'] = useCallback((newEmployee) => {
@@ -420,7 +414,6 @@ const OrganizationProvider: React.FC<OrganizationProviderProps> = ({
 
 type WithOrganizationProps = {
     useInitialEmployeeId: OrganizationProviderProps['useInitialEmployeeId']
-    getEmployeeWhere?: OrganizationProviderProps['getEmployeeWhere']
     GET_ORGANIZATION_EMPLOYEE_QUERY?: DocumentNode
 }
 type WithOrganization = (props: WithOrganizationProps) => (PageComponent: NextPage) => NextPage
@@ -430,7 +423,7 @@ const _withOrganization: WithOrganization = (opts) => (PageComponent) => {
 
     const WithOrganization = (props) => {
         return (
-            <OrganizationProvider useInitialEmployeeId={opts.useInitialEmployeeId} getEmployeeWhere={opts?.getEmployeeWhere}>
+            <OrganizationProvider useInitialEmployeeId={opts.useInitialEmployeeId}>
                 <PageComponent {...props} />
             </OrganizationProvider>
         )
