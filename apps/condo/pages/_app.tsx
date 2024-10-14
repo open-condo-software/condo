@@ -608,21 +608,11 @@ const useInitialEmployeeId = () => {
     return { employeeId }
 }
 
-const getEmployeeWhere = (userId: string) => {
-    return {
-        organization: { type_in: [MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE] },
-        user: { id: userId, type: STAFF },
-        isAccepted: true,
-        isBlocked: false,
-        isRejected: false,
-    }
-}
-
 export default (
     withCookies()(
         withApollo({ legacy: false, apolloHelperOptions })(
             withAuth({ legacy: false, USER_QUERY: AuthenticatedUserDocument })(
-                withOrganization({ legacy: false, GET_ORGANIZATION_EMPLOYEE_QUERY: GetActiveOrganizationEmployeeDocument, useInitialEmployeeId, getEmployeeWhere })(
+                withOrganization({ legacy: false, GET_ORGANIZATION_EMPLOYEE_QUERY: GetActiveOrganizationEmployeeDocument, useInitialEmployeeId })(
                     withIntl({ ssr: !IS_SSR_DISABLED, messagesImporter, extractReqLocale, defaultLocale })(
                         withFeatureFlags({ ssr: !IS_SSR_DISABLED })(
                             MyApp
