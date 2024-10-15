@@ -1,3 +1,7 @@
+import {
+    useGetActualOrganizationEmployeesQuery,
+    useGetFirstInvitationQuery,
+} from '@app/condo/gql'
 import { OrganizationEmployeeWhereInput, OrganizationTypeType } from '@app/condo/schema'
 import { Dropdown } from 'antd'
 import get from 'lodash/get'
@@ -15,7 +19,6 @@ import type { TypographyTextProps } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { useCreateOrganizationModalForm } from '@condo/domains/organization/hooks/useCreateOrganizationModalForm'
-import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
 import { SBBOLIndicator } from './SBBOLIndicator'
 
@@ -51,26 +54,22 @@ export const InlineOrganizationSelect: React.FC = () => {
 
     const { user } = useAuth()
     const { link, selectLink, isLoading: organizationLoading } = useOrganization()
-    const userId = get(user, 'id', null)
+    const userId = get(user, 'id') || null
 
-    const { objs: userEmployees, allDataLoaded: employeesLoaded } = OrganizationEmployee.useAllObjects({
-        where: {
-            user: { id: userId },
-            isAccepted: true,
-            ...ORGANIZATION_EMPLOYEE_WHERE_QUERY,
-        },
-    }, { skip: !userId })
+    const { data: actualEmployeesData, loading: isActualEmployeeLoading } = useGetActualOrganizationEmployeesQuery({
+        variables: { userId },
+        skip: !userId,
+    })
+    const actualEmployees = actualEmployeesData?.actualEmployees?.length ? actualEmployeesData.actualEmployees : []
 
-    const { count: hasInvites, loading: isInvitesLoading } = OrganizationEmployee.useCount({
-        where: {
-            user: { id: userId },
-            isAccepted: false,
-            ...ORGANIZATION_EMPLOYEE_WHERE_QUERY,
-        },
-    }, { skip: !userId })
+    const { data: invitationData, loading: isInvitationLoading } = useGetFirstInvitationQuery({
+        variables: { userId },
+        skip: !userId,
+    })
+    const hasInvites = invitationData?.invitations?.length > 0
 
     // Note: Filter case where organization was deleted
-    const filteredEmployees = uniqBy(userEmployees.filter(employee => employee.organization), employee => employee.organization.id)
+    const filteredEmployees = uniqBy(actualEmployees.filter(employee => employee.organization), employee => employee.organization.id)
 
     const { setIsVisible: showCreateOrganizationModal, ModalForm: CreateOrganizationModalForm } = useCreateOrganizationModalForm({
         onFinish: async (createdOrganization) => {
@@ -94,7 +93,7 @@ export const InlineOrganizationSelect: React.FC = () => {
     }, [selectLink])
 
     useDeepCompareEffect(() => {
-        if (employeesLoaded && !isInvitesLoading && user) {
+        if (!isActualEmployeeLoading && !isInvitationLoading && user) {
             // Note: no current organization selected
             if (!link) {
                 // But has organizations to select -> select first one
@@ -109,7 +108,7 @@ export const InlineOrganizationSelect: React.FC = () => {
                 selectLink(null)
             }
         }
-    }, [employeesLoaded, user, link, filteredEmployees, selectLink, showCreateModal, isInvitesLoading, hasInvites])
+    }, [isActualEmployeeLoading, user, link, filteredEmployees, selectLink, showCreateModal, isInvitationLoading, hasInvites])
 
     const menu = useMemo<DropdownProps['menu']>(() => {
         // Note: spread for sort, since it readonly array
@@ -144,7 +143,7 @@ export const InlineOrganizationSelect: React.FC = () => {
         }
     }, [filteredEmployees, selectEmployee, AddOrganizationTitle, showCreateModal])
 
-    if (organizationLoading || !employeesLoaded) {
+    if (organizationLoading || isActualEmployeeLoading) {
         return null
     }
 
