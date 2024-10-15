@@ -49,7 +49,12 @@ const renderMoney = (amount, currencyCode, locale) => {
 
 const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, locale, ticket, organization }) => {
     const dadata = new FinanceInfoClient()
-    const { psrn } = await dadata.getOrganization(organization.tin)
+    let psrn = null
+    try {
+        ({ psrn } = await dadata.getOrganization(organization.tin))
+    } catch (error) {
+        console.error(error)
+    }
     const { format, timeZone: timeZoneFromUser } = task
 
     const timeZone = normalizeTimeZone(timeZoneFromUser) || DEFAULT_ORGANIZATION_TIMEZONE
@@ -62,7 +67,7 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
             status: CONTEXT_FINISHED_STATUS,
         })
         : null
-    const property = billingOrganizationContext.id
+    const address = billingOrganizationContext.id
         ? await getByCondition('BillingProperty', {
             context: { id: billingOrganizationContext.id },
             deletedAt: null,
@@ -71,7 +76,6 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
     const contact = ticket.contact
         ? await getById('Contact', ticket.contact)
         : null
-
     const employee = organization.id && ticket.executor
         ? await getByCondition('OrganizationEmployee', {
             organization: { id: organization.id },
@@ -88,7 +92,7 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
     })
 
     const currencyCode = get(invoices, '0.currencyCode') || DEFAULT_INVOICE_CURRENCY_CODE
-    let totalSum = 0, totalVAT = 0, totalSumInWords = null, totalVATInWords = null
+    let totalSum = 0, totalVAT = 0
 
     const listOfWorks = invoices.reduce((acc, invoice) => {
         const rows = Array.isArray(invoice.rows) ? invoice.rows : []
@@ -107,13 +111,13 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
             const renderTotalPrice = renderMoney(sumWithVAT, currencyCode, locale)
 
             return {
+                number: index + 1 || '',
                 name: row.name || '',
-                index: index + 1 || '',
                 count: String(row.count) || '',
-                price: !Number.isNaN(price) ? renderPrice : '',
-                sum: !Number.isNaN(price) ? renderSum : '',
-                vat: !Number.isNaN(price) ? renderVat : '',
-                total: !Number.isNaN(price) ? renderTotalPrice : '',
+                price: !Number.isNaN(price) ? renderPrice : '____',
+                sum: !Number.isNaN(sum) ? renderSum : '',
+                vat: !Number.isNaN(vat) ? renderVat : '',
+                total: !Number.isNaN(sumWithVAT) ? renderTotalPrice : '',
             }
         }))
 
@@ -121,41 +125,41 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
     }, [])
 
     const totalSumWithVAT = `${+totalSum + +totalVAT}`
+    let totalSumInWords, totalVATInWords
 
     const documentData = {
-        print: {
+        header: {
             generalDate: printDate.format('DD.MM.YYYY'),
-            numberTicket: ticket.number || '',
+            numberTicket: '     ', // Нужна ли пустая строка или сам документ переделывать? 
         },
-        property: {
-            address: get(property, 'normalizedAddress'),
+        company: {
+            name: get(organization, 'name') || '',
+            psrn: psrn || '', // Не уверен, что infoClient его найдет
+            tin: get(invoices, '0.recipient.tin') || '', // Или лучше из организции взять? Или из infoClient
+            iec: get(invoices, '0.recipient.iec') || '', // Можно взять из infoClient
+            address: get(address, 'normalizedAddress') || '', // Не лучший путь получения
+            phone: '', 
+
+        },
+        bankDetails: {
+            accountNumber: get(invoices, '0.accountNumber') || '',
+            bankName: get(invoices, '0.recipient.bankName') || '',
+            bankAccount: get(invoices, '0.recipient.bankAccount') || '',
+            bic: get(invoices, '0.recipient.bic') || '',
         },
         client: {
             name: get(contact, 'name') || '',
         },
-        company: {
-            name: get(organization, 'name') || '',
-            psrn: psrn || '',
+        listOfWorks,
+        sum: {
+            totalSum: !Number.isNaN(totalSum) ? totalSum : '',
+            totalVAT: !Number.isNaN(totalSum) ? totalVAT : '',
+            totalSumWithVAT: !Number.isNaN(totalSum) ? totalSumWithVAT : '',
+            totalSumInWords: totalSumInWords || '',
+            totalVATInWords: totalVATInWords || '',
         },
         executor: {
             name: get(employee, 'name') || '',
-            phone: get(employee, 'phone') || '',
-        },
-        recipientRequisites: {
-            accountNumber: get(invoices, '0.accountNumber') || '',
-            bankAccount: get(invoices, '0.recipient.bankAccount') || '',
-            bic: get(invoices, '0.recipient.bic') || '',
-            tin: get(invoices, '0.recipient.tin') || '',
-            iec: get(invoices, '0.recipient.iec') || '',
-            bankName: get(invoices, '0.recipient.bankName') || '',
-        },
-        listOfWorks,
-        sum: {
-            totalSum: totalSum,
-            totalVAT: totalVAT,
-            totalSumWithVAT: totalSumWithVAT,
-            totalSumInWords: totalSumInWords,
-            totalVATInWords: totalVATInWords,
         },
     }
 
