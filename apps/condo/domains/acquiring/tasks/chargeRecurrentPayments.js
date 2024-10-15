@@ -63,7 +63,7 @@ async function chargeRecurrentPayments () {
     logger.info({ msg: 'Start processing recurrent payment tasks', taskId })
 
     // prepare context
-    const { keystone } = await getSchemaCtx('RecurrentPaymentContext')
+    const { keystone } = getSchemaCtx('RecurrentPaymentContext')
     const context = await keystone.createContext({ skipAccessControl: true })
 
     // prepare vars

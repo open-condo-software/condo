@@ -58,7 +58,9 @@ async function sendNewBillingReceiptFilesNotifications ({ organizationId, organi
             context: { organization: { id: organizationId } },
             createdAt_gte: watermark,
             deletedAt: null,
-        }, sortBy: 'createdAt_ASC',
+        },
+        sortBy: 'createdAt_ASC',
+        fields: 'id',
     })
 
     /**

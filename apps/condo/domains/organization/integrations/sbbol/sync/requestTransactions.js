@@ -257,7 +257,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                     importId: transactionAttrs.importId,
                     importRemoteSystem: SBBOL_IMPORT_NAME,
                     deletedAt: null,
-                }, { first: 1 })
+                }, 'id', { first: 1 })
 
                 let bankContractorAccount
                 // in mvp we will keep the contractor account for debit payments as well. Dividing them into individuals and legal entities

@@ -1,5 +1,3 @@
-const { omit } = require('lodash')
-
 const { getById } = require('@open-condo/keystone/schema')
 
 const {

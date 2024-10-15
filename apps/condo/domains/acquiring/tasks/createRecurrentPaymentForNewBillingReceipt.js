@@ -80,7 +80,7 @@ async function createRecurrentPaymentForNewBillingReceipt () {
     logger.info({ msg: 'Start processing new billing receipts for recurrentPaymentContext tasks', taskId })
 
     // prepare context
-    const { keystone } = await getSchemaCtx('RecurrentPaymentContext')
+    const { keystone } = getSchemaCtx('RecurrentPaymentContext')
     const context = await keystone.createContext({ skipAccessControl: true })
 
     // prepare vars
