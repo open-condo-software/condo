@@ -1,9 +1,9 @@
-import { ServiceSubscriptionTypeType } from '@app/condo/schema'
+import { useGetTrialServiceSubscriptionQuery } from '@app/condo/gql'
 import styled from '@emotion/styled'
 import { Col, Row } from 'antd'
 import dayjs from 'dayjs'
 import cookie from 'js-cookie'
-import { get } from 'lodash'
+import get from 'lodash/get'
 import React, { useState, Dispatch, SetStateAction, useEffect } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
@@ -12,9 +12,8 @@ import { FormattedMessage } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Modal, Button, Typography } from '@open-condo/ui'
 
+import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import { fontSizes } from '@condo/domains/common/constants/style'
-
-import { ServiceSubscription } from '../utils/clientSchema'
 
 
 interface IEndTrialSubscriptionReminderPopup {
@@ -35,6 +34,8 @@ export const useEndTrialSubscriptionReminderPopup = (): IEndTrialSubscriptionRem
     const GratitudeMessage = intl.formatMessage({ id: 'subscription.modal.newClient.gratitude' })
     const CompleteActionMessage = intl.formatMessage({ id: 'subscription.modal.complete.action' })
 
+    const hasSubscriptionFeature = hasFeature('subscription')
+
     const [isEndTrialSubscriptionReminderPopupVisible, setIsSEndTrialSubscriptionReminderPopupVisible] = useState<boolean>(false)
 
     const organizationInfo = useOrganization()
@@ -50,19 +51,18 @@ export const useEndTrialSubscriptionReminderPopup = (): IEndTrialSubscriptionRem
     const endTrialSubscriptionReminderPopupConfirmedInfo = cookieEndTrialSubscriptionReminderPopupConfirmedInfo ?
         JSON.parse(cookieEndTrialSubscriptionReminderPopupConfirmedInfo) : []
 
-    const { objs: subscriptions, loading: subscriptionsLoading } = ServiceSubscription.useObjects({
-        where: {
-            organization: { id: organizationId },
-            type: ServiceSubscriptionTypeType.Sbbol,
-            isTrial: true,
-            finishAt_lte: threeDaysLater,
-            finishAt_gte: thisMinute,
+    const { data, loading: subscriptionsLoading } = useGetTrialServiceSubscriptionQuery({
+        variables: {
+            organizationId,
+            finishAtLte: threeDaysLater,
+            finishAtGte: thisMinute,
         },
+        skip: !hasSubscriptionFeature || !organizationId,
     })
 
     useEffect(() => {
         if (
-            subscriptions.length > 0 &&
+            data?.subscriptions?.length > 0 &&
             !subscriptionsLoading &&
             !isEndTrialSubscriptionReminderPopupVisible &&
             !endTrialSubscriptionReminderPopupConfirmedInfo.find(info =>
@@ -71,7 +71,7 @@ export const useEndTrialSubscriptionReminderPopup = (): IEndTrialSubscriptionRem
             setIsSEndTrialSubscriptionReminderPopupVisible(true)
     }, [subscriptionsLoading])
 
-    const subscription = subscriptions && subscriptions.length > 0 && subscriptions[0]
+    const subscription = data?.subscriptions?.length ? data.subscriptions[0] : null
 
     const handleCloseModal = () => {
         setIsSEndTrialSubscriptionReminderPopupVisible(false)
