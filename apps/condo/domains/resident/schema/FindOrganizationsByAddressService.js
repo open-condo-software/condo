@@ -119,5 +119,5 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
 })
 
 module.exports = {
-    FindOrganizationsByAddressService: FindOrganizationsByAddressService,
+    FindOrganizationsByAddressService,
 }
