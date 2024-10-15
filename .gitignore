@@ -18,6 +18,7 @@ codegen.yaml
 
 schema.graphql
 !apps/condo/schema.graphql
+!apps/miniapp/schema.graphql
 !apps/dev-api/schema.graphql
 
 # yarn + npm

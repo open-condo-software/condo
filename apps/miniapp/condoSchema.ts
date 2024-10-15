@@ -449,6 +449,12 @@ export enum B2BAppMenuCategoryType {
   Settings = 'SETTINGS'
 }
 
+export enum B2BAppNewsSharingConfigPushNotificationSettingType {
+  OnlyEmergency = 'ONLY_EMERGENCY',
+  Enabled = 'ENABLED',
+  Disabled = 'DISABLED'
+}
+
 export type B2BAppNewsSharingConfigWhereInput = {
   AND?: Maybe<Array<Maybe<B2BAppNewsSharingConfigWhereInput>>>;
   OR?: Maybe<Array<Maybe<B2BAppNewsSharingConfigWhereInput>>>;
@@ -470,6 +476,18 @@ export type B2BAppNewsSharingConfigWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  icon?: Maybe<Scalars['String']>;
+  icon_not?: Maybe<Scalars['String']>;
+  icon_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  icon_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  previewPicture?: Maybe<Scalars['String']>;
+  previewPicture_not?: Maybe<Scalars['String']>;
+  previewPicture_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  previewPicture_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  pushNotificationSettings?: Maybe<B2BAppNewsSharingConfigPushNotificationSettingType>;
+  pushNotificationSettings_not?: Maybe<B2BAppNewsSharingConfigPushNotificationSettingType>;
+  pushNotificationSettings_in?: Maybe<Array<Maybe<B2BAppNewsSharingConfigPushNotificationSettingType>>>;
+  pushNotificationSettings_not_in?: Maybe<Array<Maybe<B2BAppNewsSharingConfigPushNotificationSettingType>>>;
   publishUrl?: Maybe<Scalars['String']>;
   publishUrl_not?: Maybe<Scalars['String']>;
   publishUrl_contains?: Maybe<Scalars['String']>;
@@ -488,14 +506,6 @@ export type B2BAppNewsSharingConfigWhereInput = {
   publishUrl_not_ends_with_i?: Maybe<Scalars['String']>;
   publishUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   publishUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  icon?: Maybe<Scalars['String']>;
-  icon_not?: Maybe<Scalars['String']>;
-  icon_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  icon_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  previewPicture?: Maybe<Scalars['String']>;
-  previewPicture_not?: Maybe<Scalars['String']>;
-  previewPicture_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  previewPicture_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   previewUrl?: Maybe<Scalars['String']>;
   previewUrl_not?: Maybe<Scalars['String']>;
   previewUrl_contains?: Maybe<Scalars['String']>;
@@ -550,6 +560,24 @@ export type B2BAppNewsSharingConfigWhereInput = {
   customFormUrl_not_ends_with_i?: Maybe<Scalars['String']>;
   customFormUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   customFormUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  getRecipientsCountersUrl?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_not?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_contains?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_not_contains?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_starts_with?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_not_starts_with?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_ends_with?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_not_ends_with?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_i?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_not_i?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_contains_i?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_not_contains_i?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_starts_with_i?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_not_starts_with_i?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_ends_with_i?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_not_ends_with_i?: Maybe<Scalars['String']>;
+  getRecipientsCountersUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  getRecipientsCountersUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -1274,6 +1302,8 @@ export type OrganizationEmployeeRoleWhereInput = {
   canReadMarketSetting_not?: Maybe<Scalars['Boolean']>;
   canManageMarketSetting?: Maybe<Scalars['Boolean']>;
   canManageMarketSetting_not?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments?: Maybe<Scalars['Boolean']>;
+  canManageTicketAutoAssignments_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -2646,6 +2676,17 @@ export type _InternalSyncContactsWithResidentsForOrganizationInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
   organization: OrganizationWhereUniqueInput;
+};
+
+export type _InternalSyncContactsWithResidentsForOrganizationOutputRow = {
+  __typename?: '_internalSyncContactsWithResidentsForOrganizationOutputRow';
+  name: Scalars['String'];
+  unitType: Scalars['String'];
+  unitName: Scalars['String'];
+  phone: Scalars['String'];
+  email: Scalars['String'];
+  address: Scalars['String'];
+  isVerified: Scalars['Boolean'];
 };
 
 export type _KsListsMetaInput = {
