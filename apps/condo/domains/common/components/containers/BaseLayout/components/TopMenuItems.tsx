@@ -16,22 +16,21 @@ export interface ITopMenuItemsProps {
 
 export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
     const auth = useAuth()
-    const { isLoading, organization } = useOrganization()
+    const { organization } = useOrganization()
 
-    if (!isLoading && !auth.isLoading) {
-        return (
-            <>
-                { props.headerAction ? props.headerAction : null }
-                <Space direction='horizontal' size={12} className='top-menu-items'>
-                    <SBBOLIndicator organization={organization} />
-                    <ServiceSubscriptionIndicator/>
-                    <Space size={40}>
-                        <InlineOrganizationSelect/>
-                        <UserMenu/>
-                    </Space>
+    if (auth.isLoading) return null
+
+    return (
+        <>
+            {props.headerAction ? props.headerAction : null}
+            <Space direction='horizontal' size={12} className='top-menu-items'>
+                <SBBOLIndicator organization={organization} />
+                <ServiceSubscriptionIndicator />
+                <Space size={40}>
+                    <InlineOrganizationSelect />
+                    <UserMenu />
                 </Space>
-            </>
-        )
-    }
-    return null
+            </Space>
+        </>
+    )
 }
