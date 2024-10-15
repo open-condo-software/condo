@@ -5,10 +5,10 @@ const XLSX = require('xlsx')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { i18n } = require('@open-condo/locales/loader')
 
+const { DEFAULT_DATE_PARSING_FORMATS } = require('@condo/domains/common/constants/import')
+const { clearDateStr, isDateStrValid, tryToISO } = require('@condo/domains/common/utils/importDate.utils')
 const { IMPORT_CONDO_METER_READING_SOURCE_ID } = require('@condo/domains/meter/constants/constants')
-const { DATE_PARSING_FORMATS } = require('@condo/domains/meter/constants/importMeters')
 const { DATE_FIELD_PATHS } = require('@condo/domains/meter/constants/registerMetersReadingsService')
-const { clearDateStr, isDateStrValid, tryToISO } = require('@condo/domains/meter/utils/meterDate.utils')
 
 const READINGS_CHUNK_SIZE = 100
 const READING_SOURCE = { id: IMPORT_CONDO_METER_READING_SOURCE_ID }
@@ -87,7 +87,7 @@ class AbstractMetersImporter {
                 return datesPaths
             }
 
-            if (!isDateStrValid(clearedDate, { offsets: false, formats: DATE_PARSING_FORMATS })) {
+            if (!isDateStrValid(clearedDate)) {
                 datesPaths.push(path)
                 return datesPaths
             }
@@ -122,7 +122,7 @@ class AbstractMetersImporter {
     convertDatesToISOOrUndefined (data) {
         DATE_FIELD_PATHS.forEach(({ path }) => {
             const date = get(data, path)
-            set(data, path, tryToISO(clearDateStr(date), DATE_PARSING_FORMATS))
+            set(data, path, tryToISO(clearDateStr(date)))
         })
     }
 

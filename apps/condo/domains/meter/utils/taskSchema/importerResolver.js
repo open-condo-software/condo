@@ -10,6 +10,7 @@ const {
     ERROR,
 } = require('@condo/domains/common/constants/import')
 const { DEFAULT_RECORDS_LIMIT_FOR_IMPORT } = require('@condo/domains/common/constants/import')
+const { ISO_DATE_FORMAT, EUROPEAN_DATE_FORMAT } = require('@condo/domains/common/constants/import')
 const {
     HOT_WATER_METER_RESOURCE_ID,
     COLD_WATER_METER_RESOURCE_ID,
@@ -24,7 +25,6 @@ const {
     EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION,
     METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION,
 } = require('@condo/domains/meter/constants/errors')
-const { ISO_DATE_FORMAT, EUROPEAN_DATE_FORMAT } = require('@condo/domains/meter/constants/importMeters')
 const { DATE_FIELD_PATH_TO_TRANSLATION } = require('@condo/domains/meter/constants/registerMetersReadingsService')
 const { MeterReadingsImportTask, registerMetersReadings } = require('@condo/domains/meter/utils/serverSchema')
 const { DomaMetersImporter } = require('@condo/domains/meter/utils/taskSchema/DomaMetersImporter')

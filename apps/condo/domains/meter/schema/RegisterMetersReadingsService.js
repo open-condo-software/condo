@@ -13,6 +13,7 @@ const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { i18n } = require('@open-condo/locales/loader')
 
 const { PropertyResolver } = require('@condo/domains/billing/schema/resolvers')
+const { isDateStrValid: isDateStrValidUtils, tryToISO: tryToISOUtils } = require('@condo/domains/common/utils/importDate.utils')
 const access = require('@condo/domains/meter/access/RegisterMetersReadingsService')
 const { OTHER_METER_READING_SOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const {
@@ -27,7 +28,6 @@ const {
 } = require('@condo/domains/meter/constants/errors')
 const { READINGS_LIMIT, DATE_FIELD_PATH_TO_TRANSLATION, DATE_FIELD_PATHS } = require('@condo/domains/meter/constants/registerMetersReadingsService')
 const { validateMeterValue, shouldUpdateMeter, meterReadingAsResult, normalizeMeterValue } = require('@condo/domains/meter/utils/meter.utils')
-const { isDateStrValid: isDateStrValidUtils, tryToISO: tryToISOUtils } = require('@condo/domains/meter/utils/meterDate.utils')
 const { Meter, MeterReading } = require('@condo/domains/meter/utils/serverSchema')
 
 const DATE_FORMAT = 'YYYY-MM-DD'

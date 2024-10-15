@@ -3,12 +3,15 @@ const customParseFormat = require('dayjs/plugin/customParseFormat')
 const utc = require('dayjs/plugin/utc')
 const { isEmpty, isString } = require('lodash')
 
+const { DEFAULT_DATE_PARSING_FORMATS } = require('@condo/domains/common/constants/import')
+
 dayjs.extend(customParseFormat)
 dayjs.extend(utc)
 
 const SYMBOLS_TO_CUT_FROM_DATES_REGEXP = /[^+\-TZ_:.,( )/\d]/gi // -_:.,()/ recognizable by dayjs https://day.js.org/docs/en/parse/string-format
 const DATE_WITH_OFFSET_REGEXP = /([T\s]\d{2}:\d{2}:\d{2}(\.\d{1,3})?)[+-](\d{2}):?(\d{2})$/ // +5000 | +50:00
 const UTC_STRING_FORMAT = 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'
+const DEFAULT_DATE_VALIDATION_OPTIONS = { offsets: false, formats: DEFAULT_DATE_PARSING_FORMATS }
 
 /**
  * Clear bad user input
@@ -31,9 +34,9 @@ function clearDateStr (dateStr) {
 }
 
 /**
- * Validates dates in formats: ISO, with offsets, or in custom formats
+ * Validates date strings
  * @param {string} dateStr
- * @param options - set parsing formats, disable utc or offset formats
+ * @param options - set parsing formats, enable offset formats
  * @param {Array<string>?} options.formats - date parsing formats. Must be not empty array
  * @param {boolean?} options.offsets - enable check for dates like 2024-01-20T00:00:00 with +00:00 or +0000
  * @return {boolean}
@@ -42,6 +45,8 @@ function isDateStrValid (dateStr, options = {}) {
     if (!dateStr || !isString(dateStr)) {
         return false
     }
+
+    options = { ...DEFAULT_DATE_VALIDATION_OPTIONS, ...options }
 
     if (options.offsets && DATE_WITH_OFFSET_REGEXP.test(dateStr)) {
         // we need to pass dateStr to dayjs in strict mode to check valid values in MM, DD, HH, mm...
@@ -70,10 +75,10 @@ function isDateStrValid (dateStr, options = {}) {
 /**
  * Parses strings in UTC format always. Extra formats can be passed.
  * @param {string} dateStr
- * @param {Array<string>} extraFormats - valid input formats. Must be not empty array
+ * @param {Array<string>} overrideFormats - valid input formats. Must be not empty array
  * @returns {string|undefined} dateString in UTC or undefined for invalid date
  */
-function tryToISO (dateStr, extraFormats) {
+function tryToISO (dateStr, overrideFormats = DEFAULT_DATE_PARSING_FORMATS) {
     if (!dateStr || !isString(dateStr)) {
         return undefined
     }
@@ -83,7 +88,7 @@ function tryToISO (dateStr, extraFormats) {
     if (dateStr.endsWith('Z')) {
         date = dayjs.utc(dateStr, UTC_STRING_FORMAT, false)
     } else {
-        date = dayjs(dateStr, extraFormats, false)
+        date = dayjs(dateStr, overrideFormats, false)
     }
     // undefined needed to not update invalid dates to null
     return date.isValid() ? date.toISOString() : undefined

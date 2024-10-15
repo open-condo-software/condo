@@ -28,9 +28,3 @@ const DATE_PARSING_FORMATS = [
     'YYYY-MM-DDTHH:mm:ssZ',
     'YYYY-MM-DDTHH:mm:ss',
 ].sort((a, b) => b.length - a.length) // Order matters! see "Differences to moment" https://day.js.org/docs/en/parse/string-format
-
-module.exports = {
-    DATE_PARSING_FORMATS,
-    ISO_DATE_FORMAT,
-    EUROPEAN_DATE_FORMAT,
-}
