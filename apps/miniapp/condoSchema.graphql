@@ -215,6 +215,16 @@ type _internalSendHashedResidentPhonesOutput {
   taskId: ID!
 }
 
+type _internalSyncContactsWithResidentsForOrganizationOutputRow {
+  name: String!
+  unitType: String!
+  unitName: String!
+  phone: String!
+  email: String!
+  address: String!
+  isVerified: Boolean!
+}
+
 input _internalSyncContactsWithResidentsForOrganizationInput {
   dv: Int!
   sender: SenderFieldInput!
@@ -1128,6 +1138,8 @@ input OrganizationEmployeeRoleWhereInput {
   canReadMarketSetting_not: Boolean
   canManageMarketSetting: Boolean
   canManageMarketSetting_not: Boolean
+  canManageTicketAutoAssignments: Boolean
+  canManageTicketAutoAssignments_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -1822,6 +1834,18 @@ input B2BAppNewsSharingConfigWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
+  icon: String
+  icon_not: String
+  icon_in: [String]
+  icon_not_in: [String]
+  previewPicture: String
+  previewPicture_not: String
+  previewPicture_in: [String]
+  previewPicture_not_in: [String]
+  pushNotificationSettings: B2BAppNewsSharingConfigPushNotificationSettingType
+  pushNotificationSettings_not: B2BAppNewsSharingConfigPushNotificationSettingType
+  pushNotificationSettings_in: [B2BAppNewsSharingConfigPushNotificationSettingType]
+  pushNotificationSettings_not_in: [B2BAppNewsSharingConfigPushNotificationSettingType]
   publishUrl: String
   publishUrl_not: String
   publishUrl_contains: String
@@ -1840,14 +1864,6 @@ input B2BAppNewsSharingConfigWhereInput {
   publishUrl_not_ends_with_i: String
   publishUrl_in: [String]
   publishUrl_not_in: [String]
-  icon: String
-  icon_not: String
-  icon_in: [String]
-  icon_not_in: [String]
-  previewPicture: String
-  previewPicture_not: String
-  previewPicture_in: [String]
-  previewPicture_not_in: [String]
   previewUrl: String
   previewUrl_not: String
   previewUrl_contains: String
@@ -1902,6 +1918,24 @@ input B2BAppNewsSharingConfigWhereInput {
   customFormUrl_not_ends_with_i: String
   customFormUrl_in: [String]
   customFormUrl_not_in: [String]
+  getRecipientsCountersUrl: String
+  getRecipientsCountersUrl_not: String
+  getRecipientsCountersUrl_contains: String
+  getRecipientsCountersUrl_not_contains: String
+  getRecipientsCountersUrl_starts_with: String
+  getRecipientsCountersUrl_not_starts_with: String
+  getRecipientsCountersUrl_ends_with: String
+  getRecipientsCountersUrl_not_ends_with: String
+  getRecipientsCountersUrl_i: String
+  getRecipientsCountersUrl_not_i: String
+  getRecipientsCountersUrl_contains_i: String
+  getRecipientsCountersUrl_not_contains_i: String
+  getRecipientsCountersUrl_starts_with_i: String
+  getRecipientsCountersUrl_not_starts_with_i: String
+  getRecipientsCountersUrl_ends_with_i: String
+  getRecipientsCountersUrl_not_ends_with_i: String
+  getRecipientsCountersUrl_in: [String]
+  getRecipientsCountersUrl_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -2576,6 +2610,12 @@ enum SortB2BAppRolesBy {
   deletedAt_DESC
   dv_ASC
   dv_DESC
+}
+
+enum B2BAppNewsSharingConfigPushNotificationSettingType {
+  ONLY_EMERGENCY
+  ENABLED
+  DISABLED
 }
 
 enum MobileApp {
