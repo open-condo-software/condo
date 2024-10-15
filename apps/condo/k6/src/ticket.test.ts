@@ -125,6 +125,8 @@ export function queryBasicEntities (data) {
 
     const allTicketsResponse = sendAuthorizedRequest(data, allTicketsPayload)
 
+    console.log('allTicketsResponse ', JSON.stringify(allTicketsResponse.json()))
+
     check(allTicketsResponse, {
         'all tickets status is 200': (res) => res.status === 200,
         'all tickets response ok': (res) => {
@@ -158,7 +160,7 @@ export function queryBasicEntities (data) {
 
 export function createTickets (data) {
     const response = createTicket(data)
-
+    console.log('create ticket ', JSON.stringify(response.json()))
     check(response, {
         'create ticket status is 200': (res) => res.status === 200,
         'ticket is created': (res) => res.json('data.obj.id') !== undefined,
