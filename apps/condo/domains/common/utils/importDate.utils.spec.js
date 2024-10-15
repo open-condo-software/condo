@@ -25,7 +25,7 @@ const invalidDateStrings = [
 ]
 
 describe('importDate.utils', () => {
-    // Test clearDateStr
+
     describe('clearDateStr', () => {
         it('should remove invalid characters and return sanitized date string', () => {
             expect(clearDateStr('2024-01-01**')).toBe('2024-01-01')
@@ -65,7 +65,6 @@ describe('importDate.utils', () => {
         })
     })
 
-    // Test tryToISO
     describe('tryToISO', () => {
         it('should return ISO string for valid date strings', () => {
             expect(tryToISO('2024-01-01T00:00:00.000Z')).toBe('2024-01-01T00:00:00.000Z')
