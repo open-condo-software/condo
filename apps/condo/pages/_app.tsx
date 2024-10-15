@@ -91,7 +91,6 @@ import {
 } from '@condo/domains/ticket/hooks/useTicketDocumentGenerationTaskUIInterface'
 import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useTicketExportTaskUIInterface'
 import { CookieAgreement } from '@condo/domains/user/components/CookieAgreement'
-import { STAFF } from '@condo/domains/user/constants/common'
 
 
 import '@condo/domains/common/components/wdyr'
