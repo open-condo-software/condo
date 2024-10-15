@@ -1,7 +1,6 @@
 const dayjs = require('dayjs')
 
-const { getDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/utils')
-const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 
 const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 const { BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/serverSchema')
@@ -60,42 +59,74 @@ const normalizePropertyGlobalId = (rawFiasCode) => {
 const sortPeriodFunction = (periodA, periodB) => (dayjs(periodA, 'YYYY-MM-DD').isAfter(dayjs(periodB, 'YYYY-MM-DD')) ? 1 : -1)
 
 const buildLastReportForBillingContext = async ({ dv, sender, context, billingContext, receipts }) => {
-    let receiptsPeriods = []
-    let receiptsCategories = []
-
-    if (!receiptsCategories.length) {
-        receiptsCategories = [...new Set(Object.values(receipts).map(({ category }) => {
-            if (typeof category === 'string') return category
-            if (category && category.id) return category.id
-        }).filter(Boolean))]
+    if (!receipts.length) {
+        return
     }
+
+    const receiptsCategories = [...new Set(receipts.map(({ category }) => category).filter(Boolean))]
+    const receiptsPeriods = [...new Set(receipts.map(({ period }) => period).filter(Boolean))]
 
     if (!receiptsPeriods.length) {
-        receiptsPeriods = [...new Set(Object.values(receipts).map(({ period }) => period).filter(Boolean))]
+        return
     }
 
-    if (receiptsPeriods.length) {
-        const newestPeriodFromReceipts = receiptsPeriods.sort(sortPeriodFunction).pop()
-        const newerReceiptsCount = await BillingReceipt.count(context, {
-            context: billingContext,
-            period_gt: newestPeriodFromReceipts,
-        })
+    const newestPeriodFromReceipts = receiptsPeriods.sort(sortPeriodFunction).pop()
+    const newerReceiptsCount = await BillingReceipt.count(context, {
+        context: billingContext,
+        period_gt: newestPeriodFromReceipts,
+    })
 
-        if (!newerReceiptsCount) {
-            const currentPeriodReceiptsCount = await BillingReceipt.count(context, { context: { id: billingContext.id }, period: newestPeriodFromReceipts, deletedAt: null })
+    if (newerReceiptsCount) {
+        return
+    }
 
+    const currentPeriodReceiptsCount = await BillingReceipt.count(context, {
+        context: { id: billingContext.id },
+        period: newestPeriodFromReceipts,
+        deletedAt: null,
+    })
+
+    const { lastReport: existingLastReport } = await find('BillingIntegrationOrganizationContext', {
+        id: billingContext.id,
+    })
+
+    const lastReport = {
+        period: newestPeriodFromReceipts,
+        finishTime: new Date().toISOString(),
+        totalReceipts: currentPeriodReceiptsCount,
+        categories: [],
+    }
+
+    if (existingLastReport) {
+        const existingPeriod = dayjs(existingLastReport.period, 'YYYY-MM-DD')
+        lastReport.categories = dayjs(newestPeriodFromReceipts, 'YYYY-MM-DD').isAfter(existingPeriod)
+            ? receiptsCategories
+            : [...new Set([...receiptsCategories, existingLastReport.categories])]
+
+        const existingCategories = existingLastReport.categories
+        const hasDifferentCategories = ![...receiptsCategories].every(item => existingCategories.includes(item))
+
+        if (
+            !newestPeriodFromReceipts.isEqual(existingPeriod) ||
+            hasDifferentCategories ||
+            currentPeriodReceiptsCount !== existingLastReport.totalReceipts
+        ) {
             await BillingIntegrationOrganizationContext.update(context, billingContext.id, {
-                dv, sender,
-                lastReport: {
-                    period: newestPeriodFromReceipts,
-                    finishTime: new Date().toISOString(),
-                    totalReceipts: currentPeriodReceiptsCount,
-                    categories: receiptsCategories,
-                },
+                dv,
+                sender,
+                lastReport,
             })
         }
+    } else {
+        lastReport.categories = receiptsCategories
+        await BillingIntegrationOrganizationContext.update(context, billingContext.id, {
+            dv,
+            sender,
+            lastReport,
+        })
     }
 }
+
 
 module.exports = {
     clearAccountNumber,
