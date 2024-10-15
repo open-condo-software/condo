@@ -78658,7 +78658,7 @@ input RegisterResidentInvoiceInput {
   paymentType: InvoicePaymentType!
 }
 
-input FindOrganizationsForAddressInput {
+input FindOrganizationsByAddressInput {
   addressKey: String!
   unitName: String
   unitType: String
@@ -78666,14 +78666,14 @@ input FindOrganizationsForAddressInput {
   accountNumber: String
 }
 
-type FindOrganizationForAddressOrganizationType {
+type FindOrganizationByAddressOrganizationType {
   id: ID!
   name: String!
   tin: String!
   type: OrganizationTypeType!
 }
 
-type FindOrganizationForAddressAccountType {
+type FindOrganizationByAddressAccountType {
   number: String!
   category: ID!
   balance: String
@@ -78681,9 +78681,9 @@ type FindOrganizationForAddressAccountType {
   bankAccountNumber: String!
 }
 
-type FindOrganizationForAddressOutput {
-  organization: FindOrganizationForAddressOrganizationType!
-  account: FindOrganizationForAddressAccountType
+type FindOrganizationByAddressOutput {
+  organization: FindOrganizationByAddressOrganizationType!
+  account: FindOrganizationByAddressAccountType
   hasMeters: Boolean!
   hasBillingData: Boolean!
 }
@@ -83256,7 +83256,7 @@ type Query {
   predictTransactionClassification(data: PredictTransactionClassificationInput!): PredictTransactionClassificationOutput
   predictTicketClassification(data: PredictTicketClassificationInput!): TicketClassifier
   getResidentExistenceByPhoneAndAddress(data: GetResidentExistenceByPhoneAndAddressInput!): GetResidentExistenceByPhoneAndAddressOutput
-  findOrganizationsForAddress(data: FindOrganizationsForAddressInput!): [FindOrganizationForAddressOutput]
+  findOrganizationsByAddress(data: FindOrganizationsByAddressInput!): [FindOrganizationByAddressOutput]
   suggestServiceProvider(data: SuggestServiceProviderInput!): [SuggestServiceProviderOutput]
 
   """
