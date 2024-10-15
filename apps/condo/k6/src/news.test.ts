@@ -118,5 +118,6 @@ export async function createNewsViaBrowser (data) {
         })
     } finally {
         await page.close()
+        await context.close()
     }
 }

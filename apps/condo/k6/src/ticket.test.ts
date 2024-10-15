@@ -287,5 +287,6 @@ export async function checkFrontend (data) {
 
     } finally {
         await page.close()
+        await context.close()
     }
 }
