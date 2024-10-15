@@ -21,7 +21,7 @@ const {
 const { EXCEL_FILE_META } = require('@condo/domains/common/utils/createExportFile')
 const { IMPORT_CONDO_METER_READING_SOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const { importMeters, createUpload } = require('@condo/domains/meter/tasks/importMeters')
-const { TEST_ADDRESS, TEST_ADDRESS_META } = require('@condo/domains/meter/tasks/mock-files/meter-import-example-excel-date-type-xlsx')
+const { TEST_ADDRESS, TEST_ADDRESS_META } = require('@condo/domains/meter/tasks/mock-files/meter-import-example-excel-date-type-en-xlsx')
 const { MeterReadingsImportTask, MeterReading, Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestPropertyWithMap, createTestProperty } = require('@condo/domains/property/utils/testSchema')
@@ -407,7 +407,7 @@ describe('importMeters', () => {
     describe('Mock files', () => {
 
         it('Imports excel date format', async () => {
-            const locale = 'ru'
+            const locale = 'en'
             const expectedDates = {
                 reading: { date: '2021-12-20T00:00:00.000Z' },
                 meter: {
@@ -429,7 +429,7 @@ describe('importMeters', () => {
                 addressMeta: TEST_ADDRESS_META,
             })
 
-            const fileName = 'meter-import-example-excel-date-type.xlsx'
+            const fileName = 'meter-import-example-excel-date-type-en.xlsx'
             const content = readMockFile(fileName)
             const upload = createUpload(content, fileName, EXCEL_FILE_META.mimetype)
 
