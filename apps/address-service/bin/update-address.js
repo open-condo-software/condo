@@ -36,7 +36,7 @@ async function main (args) {
 
     const { keystone: context } = await prepareKeystoneExpressApp(path.resolve('./index.js'), { excludeApps: ['NextApp', 'AdminUIApp'] })
 
-    let addressItem = await Address.getOne(context, { id: addressId })
+    let addressItem = await Address.getOne(context, { id: addressId }, 'id key address')
 
     if (!addressItem) {
         throw new Error(`Can not find address by id=${addressId}`)
@@ -93,11 +93,11 @@ async function main (args) {
             sender,
             deletedAt: null, // Restore deleted address on demand
             ...addressDataWithoutKey,
-        })
+        }, 'address')
 
         console.log(`Address model updated. New address: ${updatedAddressItem.address}`)
 
-        const addressSourceItem = await AddressSource.getOne(context, { source: searchString.toLowerCase() })
+        const addressSourceItem = await AddressSource.getOne(context, { source: searchString.toLowerCase() }, 'id address { id }')
 
         if (addressSourceItem) {
             console.log(`Found address source with id=${addressSourceItem.id}`)
@@ -107,7 +107,7 @@ async function main (args) {
                 source: searchString,
                 address: { connect: { id: addressItem.id } },
                 deletedAt: null, // Restore deleted address source on demand
-            })
+            }, 'address { id }')
             console.log(`Address source linked to address ${updatedAddressSourceItem.address.id} (was ${addressSourceItem.address.id})`)
         } else {
             const createdAddressSourceItem = await AddressSource.create(
@@ -118,6 +118,7 @@ async function main (args) {
                     source: searchString,
                     address: { connect: { id: addressItem.id } },
                 },
+                'source address { id }'
             )
             console.log(`New address source "${createdAddressSourceItem.source}" was created and linked to address ${createdAddressSourceItem.address.id}`)
         }

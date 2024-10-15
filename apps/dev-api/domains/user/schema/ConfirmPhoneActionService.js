@@ -118,7 +118,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     sender,
                 }
 
-                const createdAction = await ConfirmPhoneAction.create(context, actionPayload)
+                const createdAction = await ConfirmPhoneAction.create(context, actionPayload, 'id phone')
 
                 const locale =  extractReqLocale(context.req)
                 const message = getLocalizedMessage('messages.confirmPhoneAction.body', {
@@ -146,7 +146,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     expiresAt_gt: currentTime,
                     deletedAt: null,
                     isVerified: false,
-                })
+                }, 'id attempts code')
 
                 if (!requestedAction) {
                     throw new GQLError(ERRORS.ACTION_NOT_FOUND, context)

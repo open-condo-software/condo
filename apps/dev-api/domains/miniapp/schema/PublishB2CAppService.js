@@ -238,7 +238,7 @@ async function addAccessRight ({ args, serverClient, context, condoApp }) {
         app: { id },
         environment,
         deletedAt: null,
-    })
+    }, 'id condoUserId')
 
     if (accessRight) {
         logger.info({ msg: 'Access right found for app', appId: id, environment, meta: { accessRightId: accessRight.id } })
@@ -320,7 +320,11 @@ const PublishB2CAppService = new GQLCustomSchema('PublishB2CAppService', {
             resolver: async (parent, args, context) => {
                 const { data: { app: { id }, options, environment } } = args
 
-                const app = await B2CApp.getOne(context, { id, deletedAt: null })
+                const app = await B2CApp.getOne(
+                    context,
+                    { id, deletedAt: null },
+                    'id developmentExportId productionExportId name developer createdBy { name } logo { publicUrl originalFilename }'
+                )
                 if (!app) {
                     throw new GQLError(ERRORS.APP_NOT_FOUND, context)
                 }
@@ -375,7 +379,7 @@ const PublishB2CAppService = new GQLCustomSchema('PublishB2CAppService', {
                         id: options.build.id,
                         deletedAt: null,
                         app: { id: app.id },
-                    })
+                    }, 'id developmentExportId productionExportId version data { publicUrl originalFilename mimetype encoding }')
                     if (!build) {
                         throw new GQLError(ERRORS.BUILD_NOT_FOUND, context)
                     }

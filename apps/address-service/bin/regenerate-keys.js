@@ -38,7 +38,7 @@ async function main (args) {
             first: pageSize,
             skip: offset,
             sortBy: ['createdAt_ASC'],
-        })
+        }, 'id meta key')
 
         for (const address of addresses) {
             const t1 = Date.now()
