@@ -2,9 +2,9 @@ const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 const cloneDeep = require('lodash/cloneDeep')
 
-const { DATE_PARSING_FORMATS } = require('@condo/domains/meter/constants/importMeters')
+const { DEFAULT_DATE_PARSING_FORMATS } = require('@condo/domains/common/constants/import')
+const { tryToISO } = require('@condo/domains/common/utils/importDate.utils')
 const { DATE_FIELD_PATH_TO_TRANSLATION } = require('@condo/domains/meter/constants/registerMetersReadingsService')
-const { tryToISO } = require('@condo/domains/meter/utils/meterDate.utils')
 
 const { AbstractMetersImporter } = require('./AbstractMetersImporter')
 
@@ -78,7 +78,7 @@ describe('AbstractMetersImporter', () => {
 
     describe('Row preparing', () => {
         it('Converts valid dates in utc', () => {
-            const dates = generateValidDatesByFormats(DATE_PARSING_FORMATS)
+            const dates = generateValidDatesByFormats(DEFAULT_DATE_PARSING_FORMATS)
             const readings = dates.map(date => {
                 const reading = cloneDeep(defaultReading)
                 reading.date = date
@@ -94,7 +94,7 @@ describe('AbstractMetersImporter', () => {
             for (let i = 0; i < readings.length; i += 1) {
                 const reading = readings[i]
                 const rawDate = dates[i]
-                const utcDate = tryToISO(rawDate, DATE_PARSING_FORMATS)
+                const utcDate = tryToISO(rawDate)
                 abstractMetersImporter.prepareReading(reading, [], [], new Map(), 0, 0)
 
                 expect(reading.date).toEqual(utcDate)
