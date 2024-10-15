@@ -150,7 +150,7 @@ const sync = async ({ keystone, userInfo, tokenSet, features, useExtendedConfig 
                 options: {
                     type: SBBOL,
                 },
-            }, { first: 1 })
+            }, 'id', { first: 1 })
             /*
                 If this account has already been loading transactions, then I do not do it again.
                 Without this check, each time the user logs in, there will be spam from a large number of progressBars.
