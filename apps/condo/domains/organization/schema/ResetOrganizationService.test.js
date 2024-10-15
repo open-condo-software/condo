@@ -5,12 +5,13 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
-const { makeLoggedInAdminClient, makeClient, catchErrorFrom, expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult, waitFor, setAllFeatureFlags } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, catchErrorFrom, expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult, waitFor, setFeatureFlag } = require('@open-condo/keystone/test.utils')
 
 const { createTestAcquiringIntegrationContext, createTestAcquiringIntegration, AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
 const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
 const { createTestBankIntegrationAccountContext, createTestBankIntegrationOrganizationContext, BankIntegrationOrganizationContext } = require('@condo/domains/banking/utils/testSchema')
 const { createTestBillingIntegrationOrganizationContext, createTestBillingIntegration, BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
+const { SEND_SUBMIT_METER_READINGS_PUSH_NOTIFICATIONS_TASK } = require('@condo/domains/common/constants/featureflags')
 const { _internalScheduleTaskByNameByTestClient } = require('@condo/domains/common/utils/testSchema')
 const { COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const { MeterResource, MeterResourceOwner, MeterReportingPeriod, createTestMeterReportingPeriod, createTestMeterResourceOwner, createTestMeter } = require('@condo/domains/meter/utils/testSchema')
@@ -219,11 +220,9 @@ describe('ResetOrganizationService', () => {
             notifyEndDay: Number(dayjs().format('DD')),
         })
 
-        await waitFor(async () => {
-            setAllFeatureFlags(true)
-            const [res] = await _internalScheduleTaskByNameByTestClient(admin, { taskName: 'sendSubmitMeterReadingsPushNotifications' })
-            expect(res.id).toBeDefined()
-        })
+        setFeatureFlag(SEND_SUBMIT_METER_READINGS_PUSH_NOTIFICATIONS_TASK, true)
+        await _internalScheduleTaskByNameByTestClient(admin, { taskName: 'sendSubmitMeterReadingsPushNotifications' })
+        setFeatureFlag(SEND_SUBMIT_METER_READINGS_PUSH_NOTIFICATIONS_TASK, false)
 
         await resetOrganizationByTestClient(admin, { organizationId: organization.id })
 
