@@ -125,17 +125,16 @@ query getActualOrganizationEmployees($userId: ID!) {
     }
 }
 
-query getFirstInvitation($userId: ID!) {
-    invitations: allOrganizationEmployees(
+query getInviteCount($userId: ID!) {
+    meta: _allOrganizationEmployeesMeta(
         where: {
             user: { id: $userId },
             isAccepted: false,
             isRejected: false,
             isBlocked: false,
             organization: { type_in: [MANAGING_COMPANY, SERVICE_PROVIDER] },
-        },
-        first: 1,
+        }
     ) {
-        id
+        count
     }
 }
