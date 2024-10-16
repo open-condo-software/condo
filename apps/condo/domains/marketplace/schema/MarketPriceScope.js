@@ -90,10 +90,10 @@ const MarketPriceScope = new GQLListSchema('MarketPriceScope', {
                 const marketItemPriceId = get(nextData, 'marketItemPrice', null)
                 const marketItemPrice = await MarketItemPrice.getOne(context, {
                     id: marketItemPriceId,
-                })
+                }, 'marketItem { id }')
                 const marketItem = await MarketItem.getOne(context, {
                     id: get(marketItemPrice, 'marketItem.id', null),
-                })
+                }, 'organization { id }')
 
                 const property = await PropertyOrganizationIdOnly.getOne(context, {
                     id: propertyId,
