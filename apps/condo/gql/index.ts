@@ -195,49 +195,48 @@ export type GetActualOrganizationEmployeesQueryHookResult = ReturnType<typeof us
 export type GetActualOrganizationEmployeesLazyQueryHookResult = ReturnType<typeof useGetActualOrganizationEmployeesLazyQuery>
 export type GetActualOrganizationEmployeesSuspenseQueryHookResult = ReturnType<typeof useGetActualOrganizationEmployeesSuspenseQuery>
 export type GetActualOrganizationEmployeesQueryResult = Apollo.QueryResult<Types.GetActualOrganizationEmployeesQuery, Types.GetActualOrganizationEmployeesQueryVariables>
-export const GetFirstInvitationDocument = gql`
-    query getFirstInvitation($userId: ID!) {
-  invitations: allOrganizationEmployees(
+export const GetInviteCountDocument = gql`
+    query getInviteCount($userId: ID!) {
+  meta: _allOrganizationEmployeesMeta(
     where: {user: {id: $userId}, isAccepted: false, isRejected: false, isBlocked: false, organization: {type_in: [MANAGING_COMPANY, SERVICE_PROVIDER]}}
-    first: 1
   ) {
-    id
+    count
   }
 }
     `
 
 /**
- * __useGetFirstInvitationQuery__
+ * __useGetInviteCountQuery__
  *
- * To run a query within a React component, call `useGetFirstInvitationQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetFirstInvitationQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetInviteCountQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetInviteCountQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetFirstInvitationQuery({
+ * const { data, loading, error } = useGetInviteCountQuery({
  *   variables: {
  *      userId: // value for 'userId'
  *   },
  * });
  */
-export function useGetFirstInvitationQuery (baseOptions: Apollo.QueryHookOptions<Types.GetFirstInvitationQuery, Types.GetFirstInvitationQueryVariables> & ({ variables: Types.GetFirstInvitationQueryVariables, skip?: boolean } | { skip: boolean }) ) {
+export function useGetInviteCountQuery (baseOptions: Apollo.QueryHookOptions<Types.GetInviteCountQuery, Types.GetInviteCountQueryVariables> & ({ variables: Types.GetInviteCountQueryVariables, skip?: boolean } | { skip: boolean }) ) {
     const options = { ...defaultOptions, ...baseOptions }
-    return Apollo.useQuery<Types.GetFirstInvitationQuery, Types.GetFirstInvitationQueryVariables>(GetFirstInvitationDocument, options)
+    return Apollo.useQuery<Types.GetInviteCountQuery, Types.GetInviteCountQueryVariables>(GetInviteCountDocument, options)
 }
-export function useGetFirstInvitationLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<Types.GetFirstInvitationQuery, Types.GetFirstInvitationQueryVariables>) {
+export function useGetInviteCountLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<Types.GetInviteCountQuery, Types.GetInviteCountQueryVariables>) {
     const options = { ...defaultOptions, ...baseOptions }
-    return Apollo.useLazyQuery<Types.GetFirstInvitationQuery, Types.GetFirstInvitationQueryVariables>(GetFirstInvitationDocument, options)
+    return Apollo.useLazyQuery<Types.GetInviteCountQuery, Types.GetInviteCountQueryVariables>(GetInviteCountDocument, options)
 }
-export function useGetFirstInvitationSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetFirstInvitationQuery, Types.GetFirstInvitationQueryVariables>) {
+export function useGetInviteCountSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetInviteCountQuery, Types.GetInviteCountQueryVariables>) {
     const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
-    return Apollo.useSuspenseQuery<Types.GetFirstInvitationQuery, Types.GetFirstInvitationQueryVariables>(GetFirstInvitationDocument, options)
+    return Apollo.useSuspenseQuery<Types.GetInviteCountQuery, Types.GetInviteCountQueryVariables>(GetInviteCountDocument, options)
 }
-export type GetFirstInvitationQueryHookResult = ReturnType<typeof useGetFirstInvitationQuery>
-export type GetFirstInvitationLazyQueryHookResult = ReturnType<typeof useGetFirstInvitationLazyQuery>
-export type GetFirstInvitationSuspenseQueryHookResult = ReturnType<typeof useGetFirstInvitationSuspenseQuery>
-export type GetFirstInvitationQueryResult = Apollo.QueryResult<Types.GetFirstInvitationQuery, Types.GetFirstInvitationQueryVariables>
+export type GetInviteCountQueryHookResult = ReturnType<typeof useGetInviteCountQuery>
+export type GetInviteCountLazyQueryHookResult = ReturnType<typeof useGetInviteCountLazyQuery>
+export type GetInviteCountSuspenseQueryHookResult = ReturnType<typeof useGetInviteCountSuspenseQuery>
+export type GetInviteCountQueryResult = Apollo.QueryResult<Types.GetInviteCountQuery, Types.GetInviteCountQueryVariables>
 export const GetServiceSubscriptionDocument = gql`
     query getServiceSubscription($organizationId: ID!) {
   subscriptions: allServiceSubscriptions(

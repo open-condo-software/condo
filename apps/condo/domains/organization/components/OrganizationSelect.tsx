@@ -1,8 +1,8 @@
 import {
     useGetActualOrganizationEmployeesQuery,
-    useGetFirstInvitationQuery,
+    useGetInviteCountQuery,
 } from '@app/condo/gql'
-import { OrganizationEmployeeWhereInput, OrganizationTypeType } from '@app/condo/schema'
+import { OrganizationTypeType } from '@app/condo/schema'
 import { Dropdown } from 'antd'
 import get from 'lodash/get'
 import uniqBy from 'lodash/uniqBy'
@@ -18,6 +18,7 @@ import { Space, Typography } from '@open-condo/ui'
 import type { TypographyTextProps } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { nonNull } from '@condo/domains/common/utils/nonNull'
 import { useCreateOrganizationModalForm } from '@condo/domains/organization/hooks/useCreateOrganizationModalForm'
 
 import { SBBOLIndicator } from './SBBOLIndicator'
@@ -59,13 +60,16 @@ export const InlineOrganizationSelect: React.FC = () => {
         variables: { userId },
         skip: !userId,
     })
-    const actualEmployees = actualEmployeesData?.actualEmployees?.length ? actualEmployeesData.actualEmployees : []
+    const actualEmployees = useMemo(
+        () => Array.isArray(actualEmployeesData?.actualEmployees) ? actualEmployeesData.actualEmployees.filter(nonNull) : []
+        , [actualEmployeesData]
+    )
 
-    const { data: invitationData, loading: isInvitationLoading } = useGetFirstInvitationQuery({
+    const { data: invites, loading: isInvitesLoading } = useGetInviteCountQuery({
         variables: { userId },
         skip: !userId,
     })
-    const hasInvites = invitationData?.invitations?.length > 0
+    const hasInvites = invites?.meta?.count > 0
 
     // Note: Filter case where organization was deleted
     const filteredEmployees = uniqBy(actualEmployees.filter(employee => employee.organization), employee => employee.organization.id)
@@ -73,7 +77,7 @@ export const InlineOrganizationSelect: React.FC = () => {
     const { setIsVisible: showCreateOrganizationModal, ModalForm: CreateOrganizationModalForm } = useCreateOrganizationModalForm({
         onFinish: async (createdOrganization) => {
             const organizationType = get(createdOrganization, 'type')
-            
+
             // The slash will only be there if we have just registered and we don't have any additional parameters in the address bar.
             if (organizationType === OrganizationTypeType.ManagingCompany && router.route === '/') {
                 await router.push('/tour')
@@ -86,7 +90,7 @@ export const InlineOrganizationSelect: React.FC = () => {
     }, [showCreateOrganizationModal])
 
     useDeepCompareEffect(() => {
-        if (!isActualEmployeeLoading && !isInvitationLoading && user) {
+        if (!isActualEmployeeLoading && !isInvitesLoading && user) {
             // Note: no current organization selected
             if (!activeEmployee) {
                 // But has organizations to select -> select first one
@@ -101,7 +105,7 @@ export const InlineOrganizationSelect: React.FC = () => {
                 setActiveEmployee(null)
             }
         }
-    }, [isActualEmployeeLoading, user, activeEmployee, filteredEmployees, setActiveEmployee, showCreateModal, isInvitationLoading, hasInvites])
+    }, [isActualEmployeeLoading, user, activeEmployee, filteredEmployees, setActiveEmployee, showCreateModal, isInvitesLoading, hasInvites])
 
     const handleClickOrganization = useCallback((employeeId: string) => {
         return () => setActiveEmployee(employeeId)
