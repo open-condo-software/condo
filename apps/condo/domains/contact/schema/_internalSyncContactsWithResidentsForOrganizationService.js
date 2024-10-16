@@ -29,7 +29,7 @@ const _internalSyncContactsWithResidentsForOrganizationService = new GQLCustomSc
     types: [
         {
             access: true,
-            type: 'type _internalSyncContactsWithResidentsForOrganizationOutputRow { name: String!, unitType: String!, unitName: String!, phone: String!, email: String!, address: String!, isVerified: Boolean! }',
+            type: 'type _internalSyncContactsWithResidentsForOrganizationOutputRow { name: String!, unitType: String, unitName: String, phone: String!, email: String, address: String!, isVerified: Boolean }',
         },
         {
             access: true,
