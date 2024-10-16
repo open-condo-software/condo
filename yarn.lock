@@ -929,6 +929,7 @@ __metadata:
     react-yandex-metrika: ^2.6.0
     recheck: ^4.4.5
     redlock: ^5.0.0-beta.2
+    rubles: ^0.2.0
     serialize-error: ^8.1.0
     slugify: ^1.6.6
     swr: ^1.3.0
@@ -49421,6 +49422,13 @@ __metadata:
     typescript: ^5.5.4
   languageName: unknown
   linkType: soft
+
+"rubles@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "rubles@npm:0.2.0"
+  checksum: 8e2810ee6f78e55fd362c96f8000488a2b0c70a3c64e3dd436208c7e6d2090f080e80587a1b22dc0f1630a3eba573a8631e4028353c0960595f6f3116e6637d7
+  languageName: node
+  linkType: hard
 
 "run-async@npm:^2.2.0, run-async@npm:^2.4.0":
   version: 2.4.1
