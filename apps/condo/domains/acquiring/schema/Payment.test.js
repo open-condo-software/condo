@@ -5,7 +5,7 @@ const { faker } = require('@faker-js/faker')
 const axiosLib = require('axios')
 const Big = require('big.js')
 const dayjs = require('dayjs')
-const { pick } = require('lodash')
+const { pick, set } = require('lodash')
 
 const {
     makeClient,
@@ -464,6 +464,25 @@ describe('Payment', () => {
                 expect(payment).toHaveProperty(missingField)
                 expect(Big(payment[specifiedField]).eq('50')).toBeTruthy()
                 expect(Big(payment[missingField]).eq('0')).toBeTruthy()
+            })
+        })
+
+        describe('Should resolve rawAddress from passed frozenReceipt', () => {
+            const rawDatePaths = [
+                'raw.data.raw.address',
+                'raw.raw.address',
+                'raw.data.address',
+                'raw.address',
+            ]
+
+            test.each(rawDatePaths)('raw address in receipt on path %p', async (rawAddressPath) => {
+                const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
+                const [billingReceipt] = billingReceipts
+                const rawAddress = faker.random.words(5)
+                set(billingReceipt, rawAddressPath, rawAddress)
+                const [payment] = await createTestPayment(admin, organization, billingReceipt, acquiringContext)
+                expect(payment).toBeDefined()
+                expect(payment).toHaveProperty('rawAddress', rawAddress)
             })
         })
     })
