@@ -1,22 +1,23 @@
+import { useApolloClient } from '@apollo/client'
+import { GetActualOrganizationEmployeesDocument } from '@app/condo/gql'
+import { OrganizationEmployee as OrganizationEmployeeType, OrganizationTypeType } from '@app/condo/schema'
 import { notification } from 'antd'
 import { get } from 'lodash'
 import React from 'react'
 
 import { useMutation } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
-import { FormattedMessage } from '@open-condo/next/intl'
-import { useIntl } from '@open-condo/next/intl'
+import { FormattedMessage, useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import {
-    ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION,
-} from '@condo/domains/organization/gql'
+import { ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION } from '@condo/domains/organization/gql'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
-import type { OrganizationWhereInput } from '@app/condo/schema'
+import { nonNull } from '../../common/utils/nonNull'
 
+import type { OrganizationWhereInput } from '@app/condo/schema'
 
 interface IOrganizationInvitesHookResult {
     loading: boolean
@@ -36,7 +37,24 @@ export const useOrganizationInvites = (organizationFilter?: OrganizationWhereInp
         { skip: !userId },
     )
     const { addNotification } = useLayoutContext()
-    const [acceptOrReject] = useMutation(ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION)
+    const client = useApolloClient()
+    const [acceptOrReject] = useMutation(ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION, {
+        onCompleted: (result: { obj: OrganizationEmployeeType }) => {
+            if (result?.obj && result.obj.isAccepted && !result.obj.isBlocked && !result.obj.isRejected && [OrganizationTypeType.ManagingCompany, OrganizationTypeType.ServiceProvider].includes(result.obj.organization.type)) {
+                const queryData = {
+                    query: GetActualOrganizationEmployeesDocument,
+                    variables: { userId: userId },
+                }
+                const cachedData = client.readQuery(queryData)
+                client.writeQuery({
+                    ...queryData,
+                    data: {
+                        actualEmployees: [result.obj, ...cachedData.actualEmployees.filter(nonNull)],
+                    },
+                })
+            }
+        },
+    })
     const handleAcceptOrReject = async (item, action) => {
         let data = {}
         if (action === 'accept') {
