@@ -49,9 +49,9 @@ const renderMoney = (amount, currencyCode, locale) => {
 
 const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, locale, ticket, organization }) => {
     const dadata = new FinanceInfoClient()
-    let psrn = null, organizationAddress = null
+    let psrn = null, organizationAddress = null, iec = null
     try {
-        ({ psrn, organizationAddress } = await dadata.getOrganization(organization.tin))
+        ({ iec, psrn, organizationAddress } = await dadata.getOrganization(organization.tin))
     } catch (error) {
         console.error(error)
     }
@@ -112,7 +112,7 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
             name: get(organization, 'name') || '_______________________',
             psrn: psrn || '_______________________',
             tin: get(organization, 'tin') || '_______________________', 
-            iec: get(invoices, '0.recipient.iec') || '_______________________',
+            iec: iec || '_______________________',
             address: organizationAddress || '_______________________',
             phone: '_______________________', 
 
