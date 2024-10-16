@@ -173,6 +173,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                 'meterNumber: String!,' +
                 'meterResource: MeterResourceWhereUniqueInput!,' +
                 'date: String!,' +
+                // TODO(YEgorLu): DOMA-10497 allow values only in decimal with dot
                 'value1: String!,' +
                 'value2: String,' +
                 'value3: String,' +

@@ -2,7 +2,6 @@ const dayjs = require('dayjs')
 
 const { clearDateStr, isDateStrValid, tryToISO } = require('@condo/domains/common/utils/importDate.utils') // Adjust the path to your module
 
-// Mock some common date formats used for validation
 const validDateStrings = [
     '2024-01-01',
     '01/01/2024',
@@ -41,14 +40,14 @@ describe('importDate.utils', () => {
     })
 
     describe('isDateStrValid', () => {
-        it('should return true for valid date strings with default formats', () => {
-            validDateStrings.forEach(dateStr => {
+        describe('should return true for valid date strings with default formats', () => {
+            it.each(validDateStrings)('%p', dateStr => {
                 expect(isDateStrValid(dateStr)).toBe(true)
             })
         })
 
-        it('should return false for invalid date strings', () => {
-            invalidDateStrings.forEach(dateStr => {
+        describe('should return false for invalid date strings', () => {
+            it.each(invalidDateStrings)('%p', dateStr => {
                 expect(isDateStrValid(dateStr)).toBe(false)
             })
         })
@@ -71,12 +70,12 @@ describe('importDate.utils', () => {
             expect(tryToISO('2024-01-01')).toBe(dayjs('2024-01-01T00:00:00').toISOString()) // Default to UTC start
         })
 
-        it('should return undefined for invalid date strings', () => {
+        describe('should return undefined for invalid date strings', () => {
             const invalidDatesOrNotForFormat = [
-                '[]',
-                '2024-01-01',
+                ['[]'],
+                ['2024-01-01'],
             ]
-            invalidDatesOrNotForFormat.forEach(dateStr => {
+            it.each(invalidDatesOrNotForFormat)('%p', dateStr => {
                 expect(tryToISO(dateStr, ['DD-MM-YYYY'])).toBeUndefined()
             })
         })
