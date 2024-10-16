@@ -3,7 +3,7 @@ const dayjs = require('dayjs')
 const cloneDeep = require('lodash/cloneDeep')
 
 const { DEFAULT_DATE_PARSING_FORMATS } = require('@condo/domains/common/constants/import')
-const { tryToISO } = require('@condo/domains/common/utils/importDate.utils')
+const { tryToISO } = require('@condo/domains/common/utils/import/importDate.utils')
 const { DATE_FIELD_PATH_TO_TRANSLATION } = require('@condo/domains/meter/constants/registerMetersReadingsService')
 
 const { AbstractMetersImporter } = require('./AbstractMetersImporter')
