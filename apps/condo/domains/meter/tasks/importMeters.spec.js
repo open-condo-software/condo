@@ -114,6 +114,9 @@ const generateExcelFile = async (validLinesSize, invalidLinesSize, fatalLinesSiz
     return createUpload(content, `${faker.datatype.uuid()}.xlsx`, EXCEL_FILE_META.mimetype)
 }
 
+const METER_READINGS_IMPORT_TASK_FIELDS = 'status format file { mimetype } errorFile { originalFilename mimetype filename } errorMessage ' +
+    'totalRecordsCount importedRecordsCount processedRecordsCount'
+
 describe('importMeters', () => {
     let context
     setFakeClientMode(index)
@@ -144,7 +147,9 @@ describe('importMeters', () => {
         await importMeters(meterReadingsImportTask.id)
 
         // assert
-        const task = await MeterReadingsImportTask.getOne(context, { id: meterReadingsImportTask.id })
+        const task = await MeterReadingsImportTask.getOne(context, { id: meterReadingsImportTask.id },
+            METER_READINGS_IMPORT_TASK_FIELDS
+        )
         expect(task).toMatchObject({
             format: CSV,
             file: expect.objectContaining({ mimetype: 'text/csv' }),
@@ -156,7 +161,7 @@ describe('importMeters', () => {
         })
         const readings = await MeterReading.getAll(keystone, {
             organization: { id: o10n.id },
-        })
+        }, 'source { id }')
         expect(readings).toHaveLength(validLines)
         for (const reading of readings) {
             expect(reading.source.id).toBe(IMPORT_CONDO_METER_READING_SOURCE_ID)
@@ -182,7 +187,7 @@ describe('importMeters', () => {
         await importMeters(meterReadingsImportTask.id)
 
         // assert
-        const task = await MeterReadingsImportTask.getOne(context, { id: meterReadingsImportTask.id })
+        const task = await MeterReadingsImportTask.getOne(context, { id: meterReadingsImportTask.id }, METER_READINGS_IMPORT_TASK_FIELDS)
         expect(task).toMatchObject({
             status: ERROR,
             format: CSV,
@@ -219,7 +224,7 @@ describe('importMeters', () => {
         await importMeters(meterReadingsImportTask.id)
 
         // assert
-        const task = await MeterReadingsImportTask.getOne(context, { id: meterReadingsImportTask.id })
+        const task = await MeterReadingsImportTask.getOne(context, { id: meterReadingsImportTask.id }, METER_READINGS_IMPORT_TASK_FIELDS)
         expect(task).toMatchObject({
             status: ERROR,
             format: CSV,
@@ -252,7 +257,7 @@ describe('importMeters', () => {
         await importMeters(meterReadingsImportTask.id)
 
         // assert
-        const task = await MeterReadingsImportTask.getOne(context, { id: meterReadingsImportTask.id })
+        const task = await MeterReadingsImportTask.getOne(context, { id: meterReadingsImportTask.id }, METER_READINGS_IMPORT_TASK_FIELDS)
         expect(task).toMatchObject({
             status: CANCELLED,
             format: CSV,
@@ -287,7 +292,7 @@ describe('importMeters', () => {
         await importMeters(meterReadingsImportTask.id)
 
         // assert
-        const task = await MeterReadingsImportTask.getOne(context, { id: meterReadingsImportTask.id })
+        const task = await MeterReadingsImportTask.getOne(context, { id: meterReadingsImportTask.id }, METER_READINGS_IMPORT_TASK_FIELDS)
         expect(task).toMatchObject({
             format: DOMA_EXCEL,
             file: expect.objectContaining({ mimetype: EXCEL_FILE_META.mimetype }),
@@ -299,7 +304,7 @@ describe('importMeters', () => {
         })
         const readings = await MeterReading.getAll(keystone, {
             organization: { id: o10n.id },
-        })
+        }, 'source { id }')
         expect(readings).toHaveLength(validLines)
         for (const reading of readings) {
             expect(reading.source.id).toBe(IMPORT_CONDO_METER_READING_SOURCE_ID)
@@ -328,7 +333,7 @@ describe('importMeters', () => {
         await importMeters(meterReadingsImportTask.id)
 
         // assert
-        const task = await MeterReadingsImportTask.getOne(context, { id: meterReadingsImportTask.id })
+        const task = await MeterReadingsImportTask.getOne(context, { id: meterReadingsImportTask.id }, METER_READINGS_IMPORT_TASK_FIELDS)
         expect(task).toMatchObject({
             status: ERROR,
             format: DOMA_EXCEL,
@@ -370,7 +375,7 @@ describe('importMeters', () => {
         await importMeters(meterReadingsImportTask.id)
 
         // assert
-        const task = await MeterReadingsImportTask.getOne(context, { id: meterReadingsImportTask.id })
+        const task = await MeterReadingsImportTask.getOne(context, { id: meterReadingsImportTask.id }, METER_READINGS_IMPORT_TASK_FIELDS)
         expect(task).toMatchObject({
             status: ERROR,
             format: DOMA_EXCEL,
