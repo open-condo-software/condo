@@ -1,5 +1,5 @@
 import { check } from 'k6'
-import { browser } from 'k6/experimental/browser'
+import { browser } from 'k6/browser'
 import http from 'k6/http'
 
 import {
@@ -60,10 +60,10 @@ export function healthcheck () {
 }
 
 export async function createNewsViaBrowser (data) {
-    const context = browser.newContext()
-    const page = context.newPage()
+    const context = await browser.newContext()
+    const page = await context.newPage()
 
-    context.addCookies([
+    await context.addCookies([
         {
             name: 'keystone.sid',
             value: data.cookie,
@@ -91,20 +91,23 @@ export async function createNewsViaBrowser (data) {
             page.goto(BASE_APP_URL),
             page.waitForNavigation(),
         ])
-        page.waitForSelector('[data-cy="news__create-title-input"] textarea').isVisible()
-        page.locator('[data-cy="news__create-title-input"] textarea').type('Some title here')
-        page.locator('[data-cy="news__create-body-input"] textarea').type('Some long description here')
+        const textArea = await page.waitForSelector('[data-cy="news__create-title-input"] textarea')
+        await textArea.isVisible()
+        await page.locator('[data-cy="news__create-title-input"] textarea').type('Some title here')
+        await page.locator('[data-cy="news__create-body-input"] textarea').type('Some long description here')
 
-        page.waitForSelector('[data-cy="news__create-property-section-search"] .ant-select-selector').isVisible()
+        const propertyDropdown = await page.waitForSelector('[data-cy="news__create-property-section-search"] .ant-select-selector')
+        await propertyDropdown.isVisible()
         await page.locator('[data-cy="news__create-property-section-search"] .ant-select-selector').click()
-        page.keyboard.down('Enter')
+        await page.keyboard.down('Enter')
 
         for (let i = 0; i < 3; i++) {
-            page.keyboard.down('ArrowDown')
-            page.keyboard.down('Enter')
+            await page.keyboard.down('ArrowDown')
+            await page.keyboard.down('Enter')
         }
 
-        page.waitForSelector('button.condo-btn.condo-btn-primary').isVisible()
+        const mainButton = await page.waitForSelector('button.condo-btn.condo-btn-primary')
+        await mainButton.isVisible()
 
         await page.locator('button.condo-btn.condo-btn-primary').click()
 
@@ -114,6 +117,7 @@ export async function createNewsViaBrowser (data) {
             'news items created & redirected to table ': () => page.url() !== BASE_APP_URL && page.url() === __ENV.BASE_URL + '/news',
         })
     } finally {
-        page.close()
+        await page.close()
+        await context.close()
     }
 }
