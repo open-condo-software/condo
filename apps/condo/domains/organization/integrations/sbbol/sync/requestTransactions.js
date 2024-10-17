@@ -330,7 +330,7 @@ async function requestTransactions ({ dateInterval, userId, organization, bankSy
     if (!dateInterval) return logger.error('dateInterval is required')
     if (bankSyncTaskId && !uuidValidate(bankSyncTaskId)) return logger.error(`passed bankSyncTaskId is not a valid uuid. bankSyncTaskId: ${bankSyncTaskId}`)
 
-    const { keystone: context } = await getSchemaCtx('Organization')
+    const { keystone: context } = getSchemaCtx('Organization')
     const today = dayjs().format('YYYY-MM-DD')
     const transactions = []
     const totalCount = dateInterval.length

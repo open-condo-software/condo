@@ -205,7 +205,8 @@ const getAcquiringIntegrationContextFormula = async (context, acquiringContextId
     } = await AcquiringIntegrationContextApi.getOne(
         context,
         { id: acquiringContextId },
-        'integration { explicitFeeDistributionSchema } implicitFeeDistributionSchema',
+        'integration { explicitFeeDistributionSchema { recipient percent minAmount maxAmount category } } ' +
+        'implicitFeeDistributionSchema { recipient percent minAmount maxAmount category }',
     )
     if (!Array.isArray(acquiringDistributionSchema)) {
         acquiringDistributionSchema = []

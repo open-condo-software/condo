@@ -26,9 +26,10 @@ const {
 
 const Adapter = new FileAdapter(BILLING_RECEIPT_FILE_FOLDER_NAME)
 
-const BILLING_RECEIPT_FIELDS = BILLING_RECEIPT_COMMON_FIELDS 
-    + 'file { id sensitiveDataFile { id filename originalFilename publicUrl mimetype } ' 
-    + 'publicDataFile { id filename originalFilename publicUrl mimetype } controlSum } isPayable }'
+const BILLING_RECEIPT_FIELDS = BILLING_RECEIPT_COMMON_FIELDS + ' file { id ' +
+    'sensitiveDataFile { id filename originalFilename publicUrl mimetype } ' +
+    'publicDataFile { id filename originalFilename publicUrl mimetype } controlSum } isPayable'
+
 const ALL_RESIDENT_BILLING_RECEIPTS_FIELDS = {
     id: 'ID',
     period: 'String',
