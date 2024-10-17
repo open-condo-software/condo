@@ -31,7 +31,7 @@ export const useOrganizationInvites = (organizationFilter?: OrganizationWhereInp
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     const { user, isAuthenticated } = useAuth()
     const userId = get(user, 'id', null)
-    const { selectLink, selectEmployee } = useOrganization()
+    const { selectEmployee } = useOrganization()
     const { objs: userInvites, refetch, loading } = OrganizationEmployee.useObjects(
         { where: { user: { id: userId }, isAccepted: false, isRejected: false, isBlocked: false, organization: organizationFilter } },
         { skip: !userId },
@@ -40,16 +40,24 @@ export const useOrganizationInvites = (organizationFilter?: OrganizationWhereInp
     const client = useApolloClient()
     const [acceptOrReject] = useMutation(ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION, {
         onCompleted: (result: { obj: OrganizationEmployeeType }) => {
-            if (result?.obj && result.obj.isAccepted && !result.obj.isBlocked && !result.obj.isRejected && [OrganizationTypeType.ManagingCompany, OrganizationTypeType.ServiceProvider].includes(result.obj.organization.type)) {
+            const isAcceptedInvite = result?.obj
+                && result.obj.isAccepted
+                && !result.obj.isBlocked
+                && !result.obj.isRejected
+                && [OrganizationTypeType.ManagingCompany, OrganizationTypeType.ServiceProvider].includes(result.obj.organization.type)
+
+            if (isAcceptedInvite) {
                 const queryData = {
                     query: GetActualOrganizationEmployeesDocument,
                     variables: { userId: userId },
                 }
                 const cachedData = client.readQuery(queryData)
+                const cachedActualEmployees = Array.isArray(cachedData?.actualEmployees) ? cachedData.actualEmployees.filter(nonNull) : []
+
                 client.writeQuery({
                     ...queryData,
                     data: {
-                        actualEmployees: [result.obj, ...cachedData.actualEmployees.filter(nonNull)],
+                        actualEmployees: [result.obj, ...cachedActualEmployees],
                     },
                 })
             }
