@@ -2,6 +2,7 @@ import { Ticket, TicketWhereInput } from '@app/condo/schema'
 import get from 'lodash/get'
 import { createContext, useCallback, useContext } from 'react'
 
+
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 
@@ -17,6 +18,7 @@ import {
     PropertyScopeOrganizationEmployee,
     PropertyScopeProperty,
 } from '@condo/domains/scope/utils/clientSchema'
+
 
 
 interface ITicketVisibilityContext {

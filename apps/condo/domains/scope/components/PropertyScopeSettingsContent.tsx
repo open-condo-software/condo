@@ -22,6 +22,7 @@ import { usePropertyScopeTableFilters } from '@condo/domains/scope/hooks/useTabl
 import { PropertyScope } from '@condo/domains/scope/utils/clientSchema'
 
 
+
 const SORTABLE_PROPERTIES = ['name']
 const PROPERTY_SCOPES_DEFAULT_SORT_BY = ['createdAt_DESC']
 

@@ -12,6 +12,7 @@ import { PageContent, PageWrapper, PageHeader } from '@condo/domains/common/comp
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 
 
+
 type BillingAppPageProps = {
     id: string
 }

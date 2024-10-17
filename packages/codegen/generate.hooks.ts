@@ -96,6 +96,10 @@ type IGQLType = {
     GET_COUNT_OBJS_QUERY: DocumentNode
 }
 
+function nonNull<TVal> (val: TVal): val is NonNullable<TVal> {
+    return val !== null && val !== undefined
+}
+
 export function generateReactHooks<
     GQLObject,
     GQLCreateInput,
@@ -355,7 +359,7 @@ export function generateReactHooks<
             ...(typeof options === 'object' && 'fetchPolicy' in options ? null : { fetchPolicy: 'no-cache' }),
         })
 
-        const objs: GQLObject[] = (data && data.objs) ? data.objs : []
+        const objs: GQLObject[] = (data && data.objs) ? data.objs.filter(nonNull) : []
         const count = (data && data.meta) ? data.meta.count : null
         const typedRefetch: IRefetchType<GQLObject, QueryVariables> = refetch
         const typedFetchMore: IFetchMoreType<GQLObject, QueryVariables> = fetchMore
@@ -404,9 +408,11 @@ export function generateReactHooks<
                     },
                     updateQuery (previousData, { fetchMoreResult }) {
                         // @ts-ignore
-                        const updatedObjs = [...previousData.objs, ...fetchMoreResult.objs]
+                        const updatedObjs = [...(previousData?.objs.filter(nonNull) || []), ...(fetchMoreResult?.objs?.filter(nonNull) || [])]
                         // @ts-ignore
-                        return { ...previousData, objs: updatedObjs, count: fetchMoreResult.count }
+                        const updatedCount = fetchMoreResult?.meta?.count || previousData?.meta?.count || 0
+                        // @ts-ignore
+                        return { ...previousData, objs: updatedObjs, count: updatedCount }
                     },
                 })
             } catch (error) {

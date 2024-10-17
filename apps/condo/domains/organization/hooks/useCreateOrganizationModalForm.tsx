@@ -20,6 +20,7 @@ import { REGISTER_NEW_ORGANIZATION_MUTATION } from '@condo/domains/organization/
 import { convertUIStateToGQLItem, OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
 
+
 interface ICreateOrganizationModalFormResult {
     ModalForm: React.FC
     setIsVisible: Dispatch<SetStateAction<boolean>>

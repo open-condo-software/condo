@@ -15,6 +15,7 @@ import type { IBasicEmptyListProps } from '@condo/domains/common/components/Empt
 import type { RequestHandler } from '@condo/domains/common/components/PostMessageProvider/types'
 
 
+
 const DEFAULT_FRAME_HEIGHT = 700
 
 const EMPTY_LIST_PROPS: IBasicEmptyListProps = {

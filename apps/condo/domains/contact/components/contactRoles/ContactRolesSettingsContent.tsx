@@ -19,6 +19,7 @@ import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/
 import { useContactRolesTableColumns } from '@condo/domains/contact/hooks/useContactRolesTableColumns'
 import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
 
+
 const SORTABLE_PROPERTIES = ['name']
 const DEFAULT_SORT_BY = ['createdAt_DESC']
 

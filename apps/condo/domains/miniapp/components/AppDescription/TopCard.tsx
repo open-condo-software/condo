@@ -21,6 +21,7 @@ import { AppLabelTag } from '../AppLabelTag'
 import type { B2BAppLabelType } from '@app/condo/schema'
 import type { RowProps, ColProps } from 'antd'
 
+
 const CAROUSEL_CHANGE_DELAY_IN_MS = 6000 // 6 sec
 const CAROUSEL_CHANGE_SPEED_IN_MS = 800 // 0.8 sec
 const ROW_GUTTER: RowProps['gutter'] = [40, 40]

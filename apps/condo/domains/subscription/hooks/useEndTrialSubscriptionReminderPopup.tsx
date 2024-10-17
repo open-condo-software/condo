@@ -17,6 +17,7 @@ import { fontSizes } from '@condo/domains/common/constants/style'
 import { ServiceSubscription } from '../utils/clientSchema'
 
 
+
 interface IEndTrialSubscriptionReminderPopup {
     EndTrialSubscriptionReminderPopup: React.FC
     setIsSEndTrialSubscriptionReminderPopupVisible: Dispatch<SetStateAction<boolean>>

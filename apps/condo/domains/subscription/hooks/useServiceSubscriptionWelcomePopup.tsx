@@ -16,6 +16,7 @@ import { fontSizes } from '@condo/domains/common/constants/style'
 import { ServiceSubscription } from '../utils/clientSchema'
 
 
+
 interface IServiceSubscriptionWelcomePopup {
     ServiceSubscriptionWelcomePopup: React.FC
     setIsServiceSubscriptionWelcomePopupVisible: Dispatch<SetStateAction<boolean>>

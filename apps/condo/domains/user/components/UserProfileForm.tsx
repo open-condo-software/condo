@@ -21,6 +21,7 @@ import { User } from '@condo/domains/user/utils/clientSchema'
 import { UserAvatar } from './UserAvatar'
 
 
+
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
         span: 9,

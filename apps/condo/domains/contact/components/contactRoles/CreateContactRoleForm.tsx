@@ -9,6 +9,7 @@ import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
 
 import { BaseContactRoleForm } from './BaseContactRoleForm'
 
+
 export const CreateContactRoleForm = () => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
