@@ -539,6 +539,16 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
 
     return {
         typePolicies: {
+            Query: {
+                fields: {
+                    allOrganizationEmployees: {
+                        keyArgs: ['where'],
+                        read: listHelper.getReadFunction('paginate'),
+                        merge: listHelper.mergeLists,
+                    },
+                },
+            },
+
             // NOTE: legacy
             // Configuration for `InMemoryCache` of Apollo
             // Add fields, related to pagination strategies of Apollo.
@@ -563,7 +573,12 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
             },
         },
         invalidationPolicies: {
-            timeToLive: 100 * 15 * 60 * 1000, // 15 minutes in milliseconds
+            timeToLive: 15 * 60 * 1000, // 15 minutes in milliseconds
+            types: {
+                OrganizationEmployee: {
+                    timeToLive: 60 * 1000, // 1 minute in milliseconds
+                },
+            },
         },
 
     }
