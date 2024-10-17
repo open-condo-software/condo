@@ -335,7 +335,7 @@ function _generateServerUtilsDeprecated (gql) {
     }
 }
 
-function wrapIfNeeded (fields) {
+function _addBracesIfMissing (fields) {
     const trimmed = fields.trim()
     return trimmed.startsWith('{') ? trimmed : `{ ${trimmed} }`
 }
@@ -361,19 +361,19 @@ function generateServerUtils (gqlOrSchemaName) {
     // prepare a query resolver helper
     const queryResolver = {
         getAll: (fields) => isDefaultGql(fields)
-            ? defaultGql.GET_ALL_OBJS_QUERY : generateGetAllGQL(gqlOrSchemaName, wrapIfNeeded(fields)),
+            ? defaultGql.GET_ALL_OBJS_QUERY : generateGetAllGQL(gqlOrSchemaName, _addBracesIfMissing(fields)),
         count: (fields) => isDefaultGql(fields)
-            ? defaultGql.GET_COUNT_OBJS_QUERY : generateGetCountGQL(gqlOrSchemaName, wrapIfNeeded(fields)),
+            ? defaultGql.GET_COUNT_OBJS_QUERY : generateGetCountGQL(gqlOrSchemaName, _addBracesIfMissing(fields)),
         create: (fields) => isDefaultGql(fields)
-            ? defaultGql.CREATE_OBJ_MUTATION : generateCreateGQL(gqlOrSchemaName, wrapIfNeeded(fields)),
+            ? defaultGql.CREATE_OBJ_MUTATION : generateCreateGQL(gqlOrSchemaName, _addBracesIfMissing(fields)),
         createMany: (fields) => isDefaultGql(fields)
-            ? defaultGql.CREATE_OBJS_MUTATION : generateCreateManyGQL(gqlOrSchemaName, wrapIfNeeded(fields)),
+            ? defaultGql.CREATE_OBJS_MUTATION : generateCreateManyGQL(gqlOrSchemaName, _addBracesIfMissing(fields)),
         update: (fields) => isDefaultGql(fields)
-            ? defaultGql.UPDATE_OBJ_MUTATION : generateUpdateGQL(gqlOrSchemaName, wrapIfNeeded(fields)),
+            ? defaultGql.UPDATE_OBJ_MUTATION : generateUpdateGQL(gqlOrSchemaName, _addBracesIfMissing(fields)),
         updateMany: (fields) => isDefaultGql(fields)
-            ? defaultGql.UPDATE_OBJS_MUTATION : generateUpdateManyGQL(gqlOrSchemaName, wrapIfNeeded(fields)),
+            ? defaultGql.UPDATE_OBJS_MUTATION : generateUpdateManyGQL(gqlOrSchemaName, _addBracesIfMissing(fields)),
         delete: (fields) => isDefaultGql(fields)
-            ? defaultGql.DELETE_OBJ_MUTATION : generateDeleteGQL(gqlOrSchemaName, wrapIfNeeded(fields)),
+            ? defaultGql.DELETE_OBJ_MUTATION : generateDeleteGQL(gqlOrSchemaName, _addBracesIfMissing(fields)),
     }
 
     /**
