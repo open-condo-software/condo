@@ -55,6 +55,8 @@ async function throwErrorAndSetErrorStatusToTask (context, task, errorMessage) {
     throw new Error(errorMessage)
 }
 
+const BANK_ACCOUNT_FIELDS = 'id property { id } integrationContext { id enabled integration { id } }'
+
 /**
  * Imports bank transactions according to specified BankSyncTask
  * @param taskId
@@ -62,7 +64,7 @@ async function throwErrorAndSetErrorStatusToTask (context, task, errorMessage) {
  */
 const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
     if (!taskId) throw new Error('taskId is undefined')
-    const { keystone: context } = await getSchemaCtx('BankSyncTask')
+    const { keystone: context } = getSchemaCtx('BankSyncTask')
     let task = await BankSyncTask.getOne(context, { id: taskId },
         'id meta status account { id } integrationContext { id } organization { id } property { id } file { id originalFilename publicUrl mimetype }'
     )
@@ -113,7 +115,7 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
         number: bankAccountData.number,
         organization: { id: organization.id },
         deletedAt: null,
-    }, 'id property { id } integrationContext { id enabled integration { id }}')
+    }, BANK_ACCOUNT_FIELDS)
     if (property) {
         const adminContext = await context.createContext({ skipAccessControl: true })
         const accountByProperty = await BankAccount.getAll(adminContext, {
@@ -172,7 +174,7 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
         }
 
         if (property) data.property = { connect: { id: property.id } }
-        bankAccount = await BankAccount.create(context, data)
+        bankAccount = await BankAccount.create(context, data, BANK_ACCOUNT_FIELDS)
     } else {
         const bankAccountUpdatePayload = {
             meta: bankAccountData.meta,
@@ -201,7 +203,7 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
         bankAccount = await BankAccount.update(context, bankAccount.id, {
             ...DV_SENDER,
             ...bankAccountUpdatePayload,
-        })
+        }, BANK_ACCOUNT_FIELDS)
         await BankIntegrationAccountContext.update(context, bankAccount.integrationContext.id, {
             ...DV_SENDER,
             meta: bankAccountData.meta,
@@ -213,7 +215,6 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
             ...DV_SENDER,
             integration: { connect: { id: integration.id } },
             organization: { connect: { id: organization.id } },
-
         })
     }
 
@@ -229,7 +230,6 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
         taskUpdatePayload.integrationContext = { connect: { id: integrationContext.id } }
     }
     await BankSyncTask.update(context, taskId, taskUpdatePayload)
-
 
     let lastProgress = Date.now()
     const transactions = []

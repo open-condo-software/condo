@@ -210,7 +210,7 @@ const BankSyncTask = new GQLListSchema('BankSyncTask', {
             if (operation === 'create') {
                 if (type === SBBOL) {
                     const account = await BankAccount.getOne(context, { id: resolvedData.account },
-                        'id integrationContext { integration: { id } }',
+                        'id integrationContext { integration { id } }',
                     )
                     const integration = get(account, 'integrationContext.integration.id')
                     if (!integration) {
