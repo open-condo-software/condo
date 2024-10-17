@@ -563,7 +563,7 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
             },
         },
         invalidationPolicies: {
-            timeToLive: 100 * 15 * 60 * 1000, // 15 minutes in milliseconds
+            timeToLive: 15 * 60 * 1000, // 15 minutes in milliseconds
         },
 
     }
