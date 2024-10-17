@@ -50,13 +50,6 @@ const {
 const { INVOICE_STATUS_PUBLISHED, INVOICE_STATUS_PAID } = require('@condo/domains/marketplace/constants')
 const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 
-const PATHS_TO_RAW_ADDRESS_IN_FROZEN_RECEIPT = [
-    'data.raw.data.raw.address',
-    'data.raw.raw.address',
-    'data.raw.data.address',
-    'data.raw.address',
-]
-
 const ERRORS = {
     PAYMENT_NO_PAIRED_FROZEN_INVOICE: {
         code: BAD_USER_INPUT,
@@ -321,18 +314,7 @@ const Payment = new GQLListSchema('Payment', {
                 resolvedData['explicitFee'] = '0'
             }
             if (operation === 'create') {
-                const receipt = resolvedData['frozenReceipt']
-
-                if (receipt) {
-                    let rawAddress
-                    for (const pathToAddress of PATHS_TO_RAW_ADDRESS_IN_FROZEN_RECEIPT) {
-                        rawAddress = get(receipt, pathToAddress)
-                        if (rawAddress) {
-                            break
-                        }
-                    }
-                    resolvedData['rawAddress'] = rawAddress
-                }
+                resolvedData['rawAddress'] = get(resolvedData, ['frozenReceipt', 'data', 'raw', 'address'])
             }
             return resolvedData
         },
