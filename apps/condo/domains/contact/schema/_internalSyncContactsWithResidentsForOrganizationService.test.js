@@ -24,19 +24,25 @@ const { createTestResident, Resident } = require('@condo/domains/resident/utils/
 const {
     User,
     makeClientWithNewRegisteredAndLoggedInUser,
-    makeClientWithSupportUser,
+    makeClientWithSupportUser, updateTestUser,
 } = require('@condo/domains/user/utils/testSchema')
 
 const { ERRORS } = require('./_internalSyncContactsWithResidentsForOrganizationService')
 
 
 describe('_internalSyncContactsWithResidentsForOrganizationService', () => {
+    let adminClient, supportClient
+
+    beforeAll(async () => {
+        adminClient = await makeLoggedInAdminClient()
+        supportClient = await makeClientWithSupportUser()
+    })
+
     describe('Logic', () => {
         test('sync single contact', async () => {
             const userClient = await makeClientWithProperty()
-            const adminClient = await makeLoggedInAdminClient()
             const [resident] = await createTestResident(adminClient, userClient.user, userClient.property)
-            const [contacts] = await _internalSyncContactsWithResidentsForOrganizationByTestClient(adminClient, { organization: { id: resident.organization.id } })
+            const [contacts] = await _internalSyncContactsWithResidentsForOrganizationByTestClient(supportClient, { organization: { id: resident.organization.id } })
             expect(contacts).toHaveLength(1)
             const contact = contacts[0]
             const userData = userClient.userAttrs
@@ -50,7 +56,6 @@ describe('_internalSyncContactsWithResidentsForOrganizationService', () => {
             expect(contact.isVerified).toBe(false)
         })
         test('sync multiple contact', async () => {
-            const adminClient = await makeLoggedInAdminClient()
             const total = 10
             const initialUserClient = await makeClientWithProperty()
             const userClients = [initialUserClient]
@@ -65,7 +70,7 @@ describe('_internalSyncContactsWithResidentsForOrganizationService', () => {
                 const [resident] = await createTestResident(adminClient, userClient.user, userClient.property)
                 residents.push(resident)
             }
-            const [contacts] = await _internalSyncContactsWithResidentsForOrganizationByTestClient(adminClient, { organization: { id: initialUserClient.organization.id } })
+            const [contacts] = await _internalSyncContactsWithResidentsForOrganizationByTestClient(supportClient, { organization: { id: initialUserClient.organization.id } })
             expect(contacts).toHaveLength(total)
             for (const contact of contacts) {
                 const userClient = userClients.find(user => user.userAttrs.phone === contact.phone)
@@ -83,42 +88,51 @@ describe('_internalSyncContactsWithResidentsForOrganizationService', () => {
         })
         test('sync single contact if already exist', async () => {
             const userClient = await makeClientWithProperty()
-            const adminClient = await makeLoggedInAdminClient()
             const [resident] = await createTestResident(adminClient, userClient.user, userClient.property)
             const duplicatedFields = {
                 phone: userClient.userAttrs.phone,
             }
             await createTestContact(adminClient, resident.organization, resident.property, duplicatedFields)
-            const [contacts] = await _internalSyncContactsWithResidentsForOrganizationByTestClient(adminClient, { organization: { id: resident.organization.id } })
+            const [contacts] = await _internalSyncContactsWithResidentsForOrganizationByTestClient(supportClient, { organization: { id: resident.organization.id } })
             expect(contacts).toHaveLength(0)
         })
         test('sync single contact if few contacts already exist', async () => {
             const userClient = await makeClientWithProperty()
-            const adminClient = await makeLoggedInAdminClient()
             const [resident] = await createTestResident(adminClient, userClient.user, userClient.property)
             const duplicatedFields = {
                 phone: userClient.userAttrs.phone,
             }
             await createTestContact(adminClient, resident.organization, resident.property, duplicatedFields)
             await createTestContact(adminClient, resident.organization, resident.property, duplicatedFields)
-            const [contacts] = await _internalSyncContactsWithResidentsForOrganizationByTestClient(adminClient, { organization: { id: resident.organization.id } })
+            const [contacts] = await _internalSyncContactsWithResidentsForOrganizationByTestClient(supportClient, { organization: { id: resident.organization.id } })
             expect(contacts).toHaveLength(0)
+        })
+        test('sync contact for user without email', async () => {
+            const userClient = await makeClientWithProperty()
+            await updateTestUser(userClient, userClient.user.id, { email: null })
+            const [resident] = await createTestResident(adminClient, userClient.user, userClient.property)
+            const [contacts] = await _internalSyncContactsWithResidentsForOrganizationByTestClient(supportClient, { organization: { id: resident.organization.id } })
+            expect(contacts).toHaveLength(1)
+            const contact = contacts[0]
+            const userData = userClient.userAttrs
+
+            expect(contact.name).toBe(userData.name)
+            expect(contact.phone).toBe(userData.phone)
+            expect(contact.email).toBe(null)
+            expect(contact.unitType).toBe(resident.unitType)
+            expect(contact.unitName).toBe(resident.unitName)
+            expect(contact.address).toBe(resident.property.address)
+            expect(contact.isVerified).toBe(false)
         })
 
         describe('cases with deleted records', () => {
-            let adminClient
-
-            beforeAll(async () => {
-                adminClient = await makeLoggedInAdminClient()
-            })
-
             test('should throw error if organization is not found', async () => {
                 const userClient = await makeClientWithProperty()
                 const [resident] = await createTestResident(adminClient, userClient.user, userClient.property)
                 await Organization.softDelete(adminClient, resident.organization.id)
 
                 await expectToThrowGQLError(async () => {
-                    await _internalSyncContactsWithResidentsForOrganizationByTestClient(adminClient, { organization: { id: resident.organization.id } })
+                    await _internalSyncContactsWithResidentsForOrganizationByTestClient(supportClient, { organization: { id: resident.organization.id } })
                 }, ERRORS.ORGANIZATION_NOT_FOUND, 'result')
             })
             test('should not sync deleted properties', async () => {
@@ -129,7 +143,7 @@ describe('_internalSyncContactsWithResidentsForOrganizationService', () => {
                 const [resident2] = await createTestResident(adminClient, userClient2.user, property2) // second resident in other property
                 await Property.softDelete(adminClient, userClient.property.id)
 
-                const [contacts] = await _internalSyncContactsWithResidentsForOrganizationByTestClient(adminClient, { organization: { id: resident.organization.id } })
+                const [contacts] = await _internalSyncContactsWithResidentsForOrganizationByTestClient(supportClient, { organization: { id: resident.organization.id } })
                 expect(contacts).toHaveLength(1)
 
                 const contact = contacts[0]
@@ -149,7 +163,7 @@ describe('_internalSyncContactsWithResidentsForOrganizationService', () => {
                 const [resident] = await createTestResident(adminClient, userClient.user, userClient.property)
                 const [resident2] = await createTestResident(adminClient, userClient2.user, userClient.property)
                 await Resident.softDelete(adminClient, resident.id)
-                const [contacts] = await _internalSyncContactsWithResidentsForOrganizationByTestClient(adminClient, { organization: { id: resident2.organization.id } })
+                const [contacts] = await _internalSyncContactsWithResidentsForOrganizationByTestClient(supportClient, { organization: { id: resident2.organization.id } })
 
                 expect(contacts).toHaveLength(1)
 
@@ -172,7 +186,7 @@ describe('_internalSyncContactsWithResidentsForOrganizationService', () => {
                 const [resident2] = await createTestResident(adminClient, userClient2.user, property2) // second resident in other property
                 await User.softDelete(adminClient, userClient.user.id)
 
-                const [contacts] = await _internalSyncContactsWithResidentsForOrganizationByTestClient(adminClient, { organization: { id: resident.organization.id } })
+                const [contacts] = await _internalSyncContactsWithResidentsForOrganizationByTestClient(supportClient, { organization: { id: resident.organization.id } })
                 expect(contacts).toHaveLength(1)
 
                 const contact = contacts[0]
@@ -193,13 +207,13 @@ describe('_internalSyncContactsWithResidentsForOrganizationService', () => {
                 const duplicatedFields = { phone: userClient.userAttrs.phone }
                 const [createdContact] = await createTestContact(adminClient, resident.organization, resident.property, duplicatedFields)
 
-                const [contacts] = await _internalSyncContactsWithResidentsForOrganizationByTestClient(adminClient, { organization: { id: resident.organization.id } })
+                const [contacts] = await _internalSyncContactsWithResidentsForOrganizationByTestClient(supportClient, { organization: { id: resident.organization.id } })
                 // Contact already exists
                 expect(contacts).toHaveLength(0)
 
                 await Contact.softDelete(adminClient, createdContact.id)
 
-                const [contacts2] = await _internalSyncContactsWithResidentsForOrganizationByTestClient(adminClient, { organization: { id: resident.organization.id } })
+                const [contacts2] = await _internalSyncContactsWithResidentsForOrganizationByTestClient(supportClient, { organization: { id: resident.organization.id } })
                 // The contact has been deleted, you need to create it again
                 expect(contacts2).toHaveLength(1)
 
@@ -227,7 +241,6 @@ describe('_internalSyncContactsWithResidentsForOrganizationService', () => {
         })
         test('support: can execute', async () => {
             const userClient = await makeClientWithProperty()
-            const adminClient = await makeLoggedInAdminClient()
             const supportClient = await makeClientWithSupportUser()
             const [resident] = await createTestResident(adminClient, userClient.user, userClient.property)
             const [contacts] = await _internalSyncContactsWithResidentsForOrganizationByTestClient(supportClient, { organization: { id: resident.organization.id } })
@@ -235,7 +248,6 @@ describe('_internalSyncContactsWithResidentsForOrganizationService', () => {
         })
         test('user: cannot execute', async () => {
             const userClient = await makeClientWithProperty()
-            const adminClient = await makeLoggedInAdminClient()
             const [resident] = await createTestResident(adminClient, userClient.user, userClient.property)
             await expectToThrowAccessDeniedErrorToResult(async () => {
                 await _internalSyncContactsWithResidentsForOrganizationByTestClient(userClient, { organization: { id: resident.organization.id } })
@@ -244,12 +256,10 @@ describe('_internalSyncContactsWithResidentsForOrganizationService', () => {
         test('anonymous: cannot execute', async () => {
             const client = await makeClient()
             const userClient = await makeClientWithProperty()
-            const adminClient = await makeLoggedInAdminClient()
             const [resident] = await createTestResident(adminClient, userClient.user, userClient.property)
             await expectToThrowAuthenticationErrorToResult(async () => {
                 await _internalSyncContactsWithResidentsForOrganizationByTestClient(client, { organization: { id: resident.organization.id } })
             })
-
         })
     })
 })

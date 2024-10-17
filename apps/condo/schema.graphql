@@ -78538,12 +78538,12 @@ type _internalSendHashedResidentPhonesOutput {
 
 type _internalSyncContactsWithResidentsForOrganizationOutputRow {
   name: String!
-  unitType: String!
-  unitName: String!
+  unitType: String
+  unitName: String
   phone: String!
-  email: String!
+  email: String
   address: String!
-  isVerified: Boolean!
+  isVerified: Boolean
 }
 
 input _internalSyncContactsWithResidentsForOrganizationInput {
