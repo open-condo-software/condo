@@ -359,7 +359,7 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
     const tableData: PermissionsGroup[] = useEmployeeRolesTableData(connectedB2BApps, b2BAppPermissions)
     const tableColumns = useEmployeeRolesTableColumns(employeeRoles)
 
-    const { selectLink, link } = useOrganization()
+    const { selectEmployee, employee } = useOrganization()
     const router = useRouter()
 
     const [initialPermissionsState, setInitialPermissionsState] = useState<PermissionsState>()
@@ -457,8 +457,8 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
         setInitialPermissionsState(cloneDeep(permissionsState))
         setSubmitActionProcessing(false)
 
-        await selectLink(link)
-    }, [b2BAppPermissions, b2BAppRoles, createB2BAppRoleAction, employeeRoles, initialPermissionsState, intl, link, permissionsState, refetchEmployeeRoles, selectLink, softDeleteB2BAppRoleAction, updateB2BAppRoleAction, updateOrganizationEmployeeRoleAction])
+        await selectEmployee(employee?.id)
+    }, [b2BAppPermissions, b2BAppRoles, createB2BAppRoleAction, employeeRoles, initialPermissionsState, intl, employee, permissionsState, refetchEmployeeRoles, selectEmployee, softDeleteB2BAppRoleAction, updateB2BAppRoleAction, updateOrganizationEmployeeRoleAction])
 
     const getExpandedRowRender = useCallback((permissionsGroup: PermissionsGroup) => (
         <ExpandableRow

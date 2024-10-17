@@ -777,7 +777,7 @@ const TicketIdPage = () => {
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
 
     const { user } = useAuth()
-    const { link, organization, selectLink } = useOrganization()
+    const { link, organization, selectEmployee } = useOrganization()
 
     const router = useRouter()
 
@@ -810,7 +810,7 @@ const TicketIdPage = () => {
             ticketOrganizationEmployeeOrganizationId &&
             ticketOrganizationEmployeeOrganizationId !== currentEmployeeOrganization
         ) {
-            selectLink(ticketOrganizationEmployee)
+            selectEmployee(ticketOrganizationEmployee?.id)
         }
     }, [ticketOrganizationEmployeeOrganizationId, currentEmployeeOrganization])
 
