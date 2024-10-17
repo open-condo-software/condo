@@ -61,7 +61,7 @@ export function healthcheck () {
 
 export async function createNewsViaBrowser (data) {
     const context = await browser.newContext()
-    const page = await browser.newPage()
+    const page = await context.newPage()
 
     await context.addCookies([
         {
