@@ -92,8 +92,8 @@ let GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY_LEGACY = gql`
 `
 
 let GET_ORGANIZATION_EMPLOYEE_QUERY = gql`
-    query getOrganizationEmployee($id: ID! $userId: ID!) {
-        employee: OrganizationEmployee (where: { id: $id, user: { id: $userId } }) {
+    query getOrganizationEmployee($userId: ID!, $employeeId: ID!) {
+        employee: OrganizationEmployee (where: { id: $employeeId, user: { id: $userId } }) {
             ${organizationToUserFragment}
         }
     }
@@ -333,8 +333,8 @@ const OrganizationProvider: React.FC<OrganizationProviderProps> = ({
 
     const { loading: employeeLoading, refetch, data } = useQuery(GET_ORGANIZATION_EMPLOYEE_QUERY, {
         variables: {
-            userId: get(auth, ['user', 'id'], null),
-            id: activeEmployeeId,
+            userId: get(auth, ['user', 'id']) || null,
+            employeeId: activeEmployeeId,
         },
         skip: auth.isLoading || !auth.user || !auth.user.id || !activeEmployeeId,
         onError,
