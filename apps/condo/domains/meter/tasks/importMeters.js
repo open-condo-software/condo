@@ -78,13 +78,13 @@ async function failWithErrorFile (context, taskId, content, format) {
  */
 async function importMeters (taskId) {
     if (!taskId) throw new Error('taskId is undefined')
-    const { keystone: context } = await getSchemaCtx('MeterReadingsImportTask')
+    const { keystone: context } = getSchemaCtx('MeterReadingsImportTask')
 
     // get task definition
     const { file, user, organization, locale } = await MeterReadingsImportTask.getOne(
         context,
         { id: taskId },
-        'file { id originalFilename publicUrl mimetype } user { id } organization { id } locale'
+        'file { id originalFilename filename publicUrl mimetype } user { id } organization { id } locale'
     )
 
     // since we would like to catch all errors and immediately tell to user about them
