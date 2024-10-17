@@ -185,7 +185,9 @@ const generateReports = async (taskId) => {
             organization: { id: organization.id },
             account: { id: bankAccount.id },
         },
-        fields: 'id date contractorAccount { costItem { id name category { id name } } } amount isOutcome',
+        fields: 'account { id number } contractorAccount { id name costItem { id name category { id name } } } ' +
+            'costItem { id name category { id name } } integrationContext { id enabled } organization { id } ' +
+            'number date amount isOutcome currencyCode purpose meta importId importRemoteSystem',
     })
 
     for (let transaction of allTransactions) {
