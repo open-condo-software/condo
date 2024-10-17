@@ -3,18 +3,28 @@
  */
 
 const { faker } = require('@faker-js/faker')
+const dayjs = require('dayjs')
 
-const { makeLoggedInAdminClient, makeClient, catchErrorFrom, expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, catchErrorFrom, expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult, waitFor, setFeatureFlag } = require('@open-condo/keystone/test.utils')
 
 const { createTestAcquiringIntegrationContext, createTestAcquiringIntegration, AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
 const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
 const { createTestBankIntegrationAccountContext, createTestBankIntegrationOrganizationContext, BankIntegrationOrganizationContext } = require('@condo/domains/banking/utils/testSchema')
 const { createTestBillingIntegrationOrganizationContext, createTestBillingIntegration, BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
+const { SEND_SUBMIT_METER_READINGS_PUSH_NOTIFICATIONS_TASK } = require('@condo/domains/common/constants/featureflags')
+const { _internalScheduleTaskByNameByTestClient } = require('@condo/domains/common/utils/testSchema')
+const { COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
+const { MeterResource, MeterResourceOwner, MeterReportingPeriod, createTestMeterReportingPeriod, createTestMeterResourceOwner, createTestMeter } = require('@condo/domains/meter/utils/testSchema')
 const { createTestB2BAppContext, B2BAppContext, createTestB2BApp } = require('@condo/domains/miniapp/utils/testSchema')
+const {
+    METER_SUBMIT_READINGS_REMINDER_END_PERIOD_TYPE,
+} = require('@condo/domains/notification/constants/constants')
+const { Message } = require('@condo/domains/notification/utils/testSchema')
 const { DELETED_ORGANIZATION_NAME, HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { resetOrganizationByTestClient, createTestOrganization, Organization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole, createTestOrganizationLink, OrganizationLink } = require('@condo/domains/organization/utils/testSchema')
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty, Property } = require('@condo/domains/property/utils/testSchema')
+const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -130,6 +140,11 @@ describe('ResetOrganizationService', () => {
 
         const [parentOrganization] = await createTestOrganization(admin, { type: HOLDING_TYPE })
         const [createdLink] = await createTestOrganizationLink(admin, parentOrganization, createdOrganization)
+        const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+        await createTestMeterResourceOwner(admin, createdOrganization, resource, {
+            address: createdProperty.address,
+        })
+        await createTestMeterReportingPeriod(admin, createdOrganization)
 
         const [billingIntegration] = await createTestBillingIntegration(admin)
         const [createdBillingIntegrationOrgCtx] = await createTestBillingIntegrationOrganizationContext(admin, createdOrganization, billingIntegration)
@@ -157,6 +172,15 @@ describe('ResetOrganizationService', () => {
         const linkTo = await OrganizationLink.getAll(admin, { id: createdLink.id })
         expect(linkTo).toHaveLength(0)
 
+        const meterResourceOwner = await MeterResourceOwner.getAll(admin, {
+            organization: { id: createdOrganization.id },
+        })
+        expect(meterResourceOwner).toHaveLength(0)
+        const meterReportingPeriod = await MeterReportingPeriod.getAll(admin, {
+            organization: { id: createdOrganization.id },
+        })
+        expect(meterReportingPeriod).toHaveLength(0)
+
         const billingIntegrationOrgCtx = await BillingIntegrationOrganizationContext.getAll(admin, { id: createdBillingIntegrationOrgCtx.id })
         expect(billingIntegrationOrgCtx).toHaveLength(0)
 
@@ -179,4 +203,39 @@ describe('ResetOrganizationService', () => {
 
     })
 
+    test('notification not send to resident after reset organization', async () => {
+        const client = await makeClientWithServiceConsumer()
+        const { property, organization, serviceConsumer, resident } = client
+        const [resource] = await MeterResource.getAll(admin, {})
+
+        const [meter] = await createTestMeter(admin, organization, property, resource, {
+            accountNumber: serviceConsumer.accountNumber,
+            unitName: resident.unitName,
+            verificationDate: dayjs().add(-1, 'year').toISOString(),
+            nextVerificationDate: undefined,
+        })
+
+        await createTestMeterReportingPeriod(admin, organization, {
+            notifyStartDay: 1,
+            notifyEndDay: Number(dayjs().format('DD')),
+        })
+
+        setFeatureFlag(SEND_SUBMIT_METER_READINGS_PUSH_NOTIFICATIONS_TASK, true)
+        await _internalScheduleTaskByNameByTestClient(admin, { taskName: 'sendSubmitMeterReadingsPushNotifications' })
+        setFeatureFlag(SEND_SUBMIT_METER_READINGS_PUSH_NOTIFICATIONS_TASK, false)
+
+        await resetOrganizationByTestClient(admin, { organizationId: organization.id })
+
+        await waitFor(async () => {
+            const messages = await Message.getAll(admin, {
+                user: { id: client.user.id },
+                type_in: [
+                    METER_SUBMIT_READINGS_REMINDER_END_PERIOD_TYPE,
+                ],
+            })
+
+            messages.filter(message => message.meta.data.meterId === meter.id)
+            expect(messages).toHaveLength(0)
+        }, { delay: 10000 })
+    })
 })

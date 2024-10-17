@@ -4,14 +4,14 @@
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
-const { GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
-const { find } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, getById, find } = require('@open-condo/keystone/schema')
 
 const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
 const { BankIntegrationOrganizationContext } = require('@condo/domains/banking/utils/serverSchema')
 const { BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/serverSchema')
 const { DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
+const { MeterResourceOwner, MeterReportingPeriod } = require('@condo/domains/meter/utils/serverSchema')
 const { B2BAppContext } = require('@condo/domains/miniapp/utils/serverSchema')
 const access = require('@condo/domains/organization/access/ResetOrganizationService')
 const { DELETED_ORGANIZATION_NAME } = require('@condo/domains/organization/constants/common')
@@ -57,7 +57,7 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
             type: 'type ResetOrganizationOutput { status: String! }',
         },
     ],
-    
+
     mutations: [
         {
             access: access.canResetOrganization,
@@ -107,6 +107,22 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
                 for (let organizationLink of organizationLinks) {
                     await OrganizationLink.softDelete(context, organizationLink.id, DV_SENDER)
                 }
+                // TODO(DOMA-10423): add deleting meter and propertyMeter to a separate, asynchronous task
+                const meterResourceOwners = await find('MeterResourceOwner', {
+                    deletedAt: null,
+                    organization: { id: organizationId },
+                })
+                for (const meterResourceOwner of meterResourceOwners) {
+                    await MeterResourceOwner.softDelete(context, meterResourceOwner.id, DV_SENDER)
+                }
+
+                const meterReportingPeriods = await find('MeterReportingPeriod', {
+                    deletedAt: null,
+                    organization: { id: organizationId },
+                })
+                for (const meterReportingPeriod of meterReportingPeriods) {
+                    await MeterReportingPeriod.softDelete(context, meterReportingPeriod.id, DV_SENDER)
+                }
 
                 const billingOrgCtxs = await BillingIntegrationOrganizationContext.getAll(context, {
                     deletedAt: null,
@@ -153,11 +169,11 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
                 await Organization.update(context, organizationId, newOrganizationData)
 
                 return { status: 'ok' }
-                
+
             },
         },
     ],
-    
+
 })
 
 module.exports = {
