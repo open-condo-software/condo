@@ -29,7 +29,7 @@ env:
 jobs:
   authorize:
     name: Authorize PR
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     environment:
       ${{ github.event_name == 'pull_request_target' &&
       github.event.pull_request.head.repo.full_name != github.repository && 
@@ -116,7 +116,7 @@ jobs:
   detect-changes:
     name: Define job list based on changed files
     needs: authorize
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     outputs:
       address-service: ${{ steps.detect-changes.outputs.address-service }}
       dev-api: ${{ steps.detect-changes.outputs.dev-api }}
@@ -152,7 +152,7 @@ jobs:
   lint:
     name: Lint source code
     needs: authorize
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout code with submodules
         uses: actions/checkout@v4
@@ -186,7 +186,7 @@ jobs:
   security:
     name: Semgrep vulnerabilities check
     needs: authorize
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     container:
       image: returntocorp/semgrep
     # Skip any PR created by dependabot to avoid permission issues
@@ -204,7 +204,7 @@ jobs:
 
   run-address-service-tests:
     name: Address-Service Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs:
       - authorize
       - build-image
@@ -283,7 +283,7 @@ jobs:
 
   run-condorb-tests:
     name: CondoRB Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs:
       - authorize
       - build-image
@@ -325,7 +325,7 @@ jobs:
 
   run-dev-api-tests:
     name: DEV-API Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs:
       - authorize
       - build-image
@@ -383,7 +383,7 @@ jobs:
 
   run-webhooks-tests:
     name: Webhooks Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs:
       - authorize
       - detect-changes
