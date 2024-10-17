@@ -57,9 +57,10 @@ const {
     makePayerAndPayments, generatePaymentLinkByTestClient,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const {
-    createTestBillingIntegration,
+    createTestBillingIntegration, BillingProperty,
 } = require('@condo/domains/billing/utils/testSchema')
 const { createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
+const { TestUtils, ResidentTestMixin } = require('@condo/domains/billing/utils/testSchema/testUtils')
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const {
     INVOICE_STATUS_PUBLISHED,
@@ -883,6 +884,28 @@ describe('Payment', () => {
 
             expect(updatedInvoice.status).toBe(INVOICE_STATUS_PAID)
             expect(updatedInvoice.client).toEqual(expect.objectContaining({ id: residentClient.user.id }))
+        })
+
+
+        test('Should fill rawAddress field if paying for receipt', async () => {
+            const utils = new TestUtils([ResidentTestMixin])
+            await utils.init()
+            const accountNumber = faker.random.alphaNumeric(12)
+            const notNormalizedAddress = utils.createAddressWithUnit() + ',,,,'
+            const jsonReceipt = utils.createJSONReceipt({ accountNumber, address: notNormalizedAddress, toPay: faker.finance.amount(100, 5000) })
+            const [[{ id: receiptId, property: { id: propertyId } }]] = await utils.createReceipts([jsonReceipt])
+
+            const property = await BillingProperty.getOne(utils.clients.admin, { id: propertyId })
+            expect(property).toBeDefined()
+            expect(property.address).not.toEqual(notNormalizedAddress)
+
+            const resident = await utils.createResident()
+            const [{ id: serviceConsumerId }] = await utils.createServiceConsumer(resident, accountNumber)
+            await utils.payForReceipt(receiptId, serviceConsumerId)
+
+            const payments = await Payment.getAll(utils.clients.admin, { receipt: { id: receiptId } })
+            expect(payments).toHaveLength(1)
+            expect(payments[0]).toHaveProperty('rawAddress', notNormalizedAddress)
         })
     })
 })
