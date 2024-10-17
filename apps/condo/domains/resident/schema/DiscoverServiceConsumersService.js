@@ -19,8 +19,8 @@ const access = require('@condo/domains/resident/access/DiscoverServiceConsumersS
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 
 const MAX_RESIDENTS_COUNT_FOR_USER_PROPERTY = 6
-const BILLING_ACCOUNT_FIELDS = ' id unitName unitType number'
-    + 'context { id organization { id type} } property { id address addressKey }'
+const BILLING_ACCOUNT_FIELDS = 'id unitName unitType number '
+    + 'context { id organization { id type } } property { id address addressKey }'
 const logger = getLogger('DiscoverServiceConsumersMutation')
 
 /**
