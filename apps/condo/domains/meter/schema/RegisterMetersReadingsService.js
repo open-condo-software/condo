@@ -380,7 +380,10 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                             ...ERRORS.INVALID_DATE,
                             messageInterpolation: {
                                 columnName: i18n('meter.import.column.meterReadingSubmissionDate', { locale }),
-                                format: [ISO_DATE_FORMAT, EUROPEAN_DATE_FORMAT].join('", "'),
+                                format: [
+                                    i18n('ISO_DATE_FORMAT', { locale }),
+                                    i18n('EUROPEAN_DATE_FORMAT', { locale }),
+                                ].join('", "'),
                             },
                         }, context))
                         continue
