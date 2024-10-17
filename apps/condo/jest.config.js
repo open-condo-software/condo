@@ -9,7 +9,6 @@ module.exports = {
                 `${__dirname}/schema/**/*.test.js`,
                 `${__dirname}/domains/**/schema/*.test.js`,
             ],
-            setupFiles: [`${__dirname}/jest.mocksSetup.js`],
             setupFilesAfterEnv: [`${__dirname}/jest.setupTest.js`],
             // NOTE: need to pass uuid export syntax through babel
             transformIgnorePatterns: ['/node_modules/(?!(uuid|msgpackr)/)'],
@@ -21,7 +20,6 @@ module.exports = {
             testMatch: [
                 `${__dirname}/domains/**/schema/**/*.spec.js`,
             ],
-            setupFiles: [`${__dirname}/jest.mocksSetup.js`],
             setupFilesAfterEnv: [`${__dirname}/jest.setupSpec.js`],
             // NOTE: need to pass uuid export syntax through babel
             transformIgnorePatterns: ['/node_modules/(?!(uuid|bull|msgpackr)/)'],
@@ -41,7 +39,6 @@ module.exports = {
             transform: {
                 '\\.[jt]sx?$': 'babel-jest',
             },
-            setupFiles: [`${__dirname}/jest.mocksSetup.js`],
             setupFilesAfterEnv: [`${__dirname}/jest.setupSpec.js`],
             // NOTE: need to pass uuid export syntax through babel
             transformIgnorePatterns: ['/node_modules/(?!(uuid|nanoid|msgpackr)/)'],

@@ -4,7 +4,8 @@ async function updateAppEnvAddressSuggestionConfig (serviceName) {
     const addressServiceUrl = await getAppServerUrl('address-service')
     await updateAppEnvFile(serviceName, 'ADDRESS_SERVICE_URL', addressServiceUrl)
     // NOTE: address-service must be in fake mode by default to pass tests. Later we should prepare address-service instead to work locally!
-    await updateAppEnvFile(serviceName, 'JEST_MOCKS_ENABLED', 'true')
+    await updateAppEnvFile(serviceName, 'FAKE_ADDRESS_SERVICE_CLIENT', 'true')
+    await updateAppEnvFile(serviceName, 'FAKE_FINANCE_INFO_CLIENT', 'true')
 }
 
 async function main () {

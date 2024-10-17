@@ -2,8 +2,8 @@ const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
 
+const { getBankInfo: fakeGetBankInfo, getOrganizationInfo: fakeGetOrganizationInfo } = require('./FakeFinanceInfoClient')
 const { FinanceInfoClient } = require('./FinanceInfoClient')
-const { getBankInfo: mockedGetBankInfo, getOrganizationInfo: mockedGetOrganizationInfo } = require('./mocked')
 
 /**
  * @typedef {Object} BankInfoResult
@@ -49,11 +49,11 @@ async function getBankInfo (routingNumber) {
     }
 }
 
-if (get(conf, 'JEST_MOCKS_ENABLED') === 'true') {
-    console.log('🥸 The mocked FinanceInfoClient is used')
+if (get(conf, 'FAKE_FINANCE_INFO_CLIENT') === 'true') {
+    console.log('🥸 The fake FinanceInfoClient is used.')
     module.exports = {
-        getOrganizationInfo: mockedGetOrganizationInfo,
-        getBankInfo: mockedGetBankInfo,
+        getOrganizationInfo: fakeGetOrganizationInfo,
+        getBankInfo: fakeGetBankInfo,
     }
 } else {
     module.exports = {
