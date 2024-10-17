@@ -463,7 +463,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                                     context,
                                     foundMeter.id,
                                     { dv, sender, ...fieldsToUpdate },
-                                    'property { id } unitType unitType accountNumber number resource { id }'
+                                    'id property { id } unitName unitType accountNumber number resource { id }'
                                 )
                                 const meterIndex = meters.indexOf(meter => meter.id === updatedMeter.id)
                                 meters[meterIndex] = transformToPlainObject(updatedMeter)
@@ -489,7 +489,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                                 sealingDate: toISO(get(reading, ['meterMeta', 'sealingDate'])),
                                 controlReadingsDate: rawControlReadingsDate ? toISO(rawControlReadingsDate) : dayjs().toISOString(),
                                 isAutomatic: get(reading, ['meterMeta', 'isAutomatic']),
-                            }, 'property { id } unitType unitType accountNumber number resource { id }')
+                            }, 'id property { id } unitName unitType accountNumber number resource { id }')
                             meterId = createdMeter.id
                             meters.push(transformToPlainObject(createdMeter))
                         }
@@ -510,7 +510,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                                 source: { connect: readingSource },
                                 date: toISO(reading.date),
                                 ...values,
-                            }, 'id meter { unitType unitName accountNumber number property { id address addressKey } }')
+                            }, 'id meter { id unitType unitName accountNumber number property { id address addressKey } }')
 
                             meterReadingByDate[key] = createdMeterReading
                             resultRows.push(meterReadingAsResult(createdMeterReading))
