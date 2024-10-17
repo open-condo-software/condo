@@ -1814,8 +1814,8 @@
   "meter.import.error.MeterNumberExistInOrganization": "Meter with this number already exists in your organization",
   "meter.import.error.MeterResourceNotFound": "Meter type was not found according to specified abbreviation in \"Type\" column",
   "meter.import.error.MeterValueInvalid": "Incorrect format in column \"{columnName}\", must be a positive numeric value",
-  "api.meter.registerMetersReadings.INVALID_DATE:": "Incorrect date format in column \"{columnName}\". Use either value of String type in format: \"{format}\", or value of Date type",
-  "meter.import.error.WrongDateOrMonthFormatMessage": "Wrong date format in column \"{columnName}\". Use either value of String formats \"{dateFormat}\" or \"{monthFormat}\" (for month-only); or value of Date type",
+  "api.meter.registerMetersReadings.INVALID_DATE:": "Incorrect date format in column \"{columnName}\". Use either value of \"Text\" type in format: \"{format}\"",
+  "meter.import.error.WrongDateOrMonthFormatMessage": "Wrong date format in column \"{columnName}\". Use either value of \"Text\" formats \"{dateFormat}\" or \"{monthFormat}\" (for month-only)",
   "meter.import.error.unknownResourceType": "Unknown resource type. Please use one of the following: {knownList}",
   "meter.import.error.unknownUnitType": "Unknown unit type. Please use one of the following: {knownList}",
   "meter.import.error.unknownIsAutomatic": "Unknown value for Automatic. Please use one of the following: {knownList}",
@@ -3168,6 +3168,8 @@
   "acquiringReceipt.invoice.row.amount": "Amount",
   "api.acquiring.multiPayment.RECEIPTS_WITH_INVOICES_FORBIDDEN": "Receipts and invoices are forbidden to be together",
   "api.acquiring.payment.PAYMENT_AMOUNT_LESS_THAN_MINIMUM": "Payment amount must be at least {minimumPaymentAmount}",
-  "api.acquiring.payment.PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM": "Payment amount must not exceed {maximumPaymentAmount}"
+  "api.acquiring.payment.PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM": "Payment amount must not exceed {maximumPaymentAmount}",
+  "ISO_DATE_FORMAT": "YYYY-MM-DD",
+  "EUROPEAN_DATE_FORMAT": "DD.MM.YYYY"
 }
 

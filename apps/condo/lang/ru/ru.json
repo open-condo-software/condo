@@ -1814,8 +1814,8 @@
   "meter.import.error.MeterNumberExistInOrganization": "Прибор учета с таким номером уже существует в вашей организации",
   "meter.import.error.MeterResourceNotFound": "Не найден тип счётчика по указанной аббревиатуре",
   "meter.import.error.MeterValueInvalid": "Неверное значение в столбце \"{columnName}\", должно быть положительное число",
-  "api.meter.registerMetersReadings.INVALID_DATE:": "Неверное значение даты в столбце \"{columnName}\". Используйте значение с типом Строка в формате \"{format}\", либо значение с типом Дата",
-  "meter.import.error.WrongDateOrMonthFormatMessage": "Неверное значение даты в столбце \"{columnName}\". Используйте значение с типом Строка в форматах \"{dateFormat}\" или \"{monthFormat}\" (для указания только месяца); либо значение с типом Дата",
+  "api.meter.registerMetersReadings.INVALID_DATE:": "Неверное значение даты в столбце \"{columnName}\". Используйте значение с типом ячейки \"Текстовый\" в формате \"{format}\"",
+  "meter.import.error.WrongDateOrMonthFormatMessage": "Неверное значение даты в столбце \"{columnName}\". Используйте значение с типом ячейки \"Текстовый\" в форматах \"{dateFormat}\" или \"{monthFormat}\" (для указания только месяца)",
   "meter.import.error.unknownResourceType": "Неизвестный тип счетчика. Используйте один из списка: {knownList}",
   "meter.import.error.unknownUnitType": "Неизвестный тип помещения. Используйте один из списка: {knownList}",
   "meter.import.error.unknownIsAutomatic": "Неизвестное значение в поле \"Автоматический\". Используйте одно из списка: {knownList}",
@@ -3168,6 +3168,8 @@
   "acquiringReceipt.invoice.row.amount": "Стоимость",
   "api.acquiring.multiPayment.RECEIPTS_WITH_INVOICES_FORBIDDEN": "Квитанции и счета не могут быть в одном платеже, увы. Но мы над этим работаем.",
   "api.acquiring.payment.PAYMENT_AMOUNT_LESS_THAN_MINIMUM": "Сумма оплаты должна быть не меньше чем {minimumPaymentAmount}",
-  "api.acquiring.payment.PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM": "Сумма оплаты не должна превышать {maximumPaymentAmount}"
+  "api.acquiring.payment.PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM": "Сумма оплаты не должна превышать {maximumPaymentAmount}",
+  "ISO_DATE_FORMAT": "ГГГГ-ММ-ДД",
+  "EUROPEAN_DATE_FORMAT": "ДД.ММ.ГГГГ"
 }
 
