@@ -98,18 +98,18 @@ const ExportPaymentsService = new GQLCustomSchema('ExportPaymentsService', {
 
                 const excelRows = objs.map(obj => {
                     const address = isInvoicePayments ?
-                        get(obj, ['invoice', 'property', 'address'], get(obj, ['invoice', 'contact', 'property', 'address'], '-')) :
+                        get(obj, ['invoice', 'property', 'address'], get(obj, ['invoice', 'contact', 'property', 'address'])) :
                         get(obj, ['receipt', 'property', 'address'], '')
 
                     const unitName = isInvoicePayments ?
-                        get(obj, ['invoice', 'unitName'], get(obj, ['invoice', 'contact', 'unitName'], '-')) :
+                        get(obj, ['invoice', 'unitName'], get(obj, ['invoice', 'contact', 'unitName'])) :
                         get(obj, ['receipt', 'account', 'unitName'], '')
 
                     return {
                         date: formatDate(obj.advancedAt),
                         account: obj.accountNumber,
-                        address,
-                        unitName,
+                        address: address || '-',
+                        unitName: unitName || '-',
                         type: get(obj, ['context', 'integration', 'name'], ''),
                         transaction: get(obj, ['multiPayment', 'transactionId'], ''),
                         status: i18n('payment.status.' + get(obj, 'status'), { locale }),
