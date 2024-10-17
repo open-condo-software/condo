@@ -2,16 +2,9 @@ const { faker } = require('@faker-js/faker')
 
 const { AddressFromStringParser } = require('@open-condo/clients/address-service-client/utils')
 
-class MockedAddressServiceClient {
+class FakeAddressServiceClient {
     addressKeysToSearchResultsMapping = new Map()
     addressSourcesToAddressKeyMapping = new Map()
-
-    /**
-     * @param {string} url The address service url (root)
-     */
-    constructor (url) {
-        console.log(`🥸 The mocked AddressServiceClient is used. All calls to ${url} will be mocked.`)
-    }
 
     /**
      * @param {string} s
@@ -194,4 +187,4 @@ class MockedAddressServiceClient {
     }
 }
 
-module.exports = { MockedAddressServiceClient }
+module.exports = { FakeAddressServiceClient }

@@ -66,8 +66,9 @@ jobs:
           export WORKER_CONCURRENCY=50
           export APOLLO_BATCHING_ENABLED=true
 
-          echo 'JEST_MOCKS_ENABLED=true' >> .env
           echo 'DISABLE_CAPTCHA=true' >> .env
+          echo 'FAKE_ADDRESS_SERVICE_CLIENT=true' >> .env
+          echo 'FAKE_FINANCE_INFO_CLIENT=true' >> .env
   
           yarn workspace @app/condo start &
           node bin/wait-apps-apis.js -f condo
