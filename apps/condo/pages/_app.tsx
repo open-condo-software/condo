@@ -15,8 +15,6 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'
 
-import { ListHelper } from '@open-condo/apollo'
-import type { InitCacheConfig } from '@open-condo/apollo'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useFeatureFlags, FeaturesReady, withFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import * as AllIcons from '@open-condo/icons'
@@ -28,7 +26,6 @@ import { useOrganization, withOrganization } from '@open-condo/next/organization
 
 import { useBankReportTaskUIInterface } from '@condo/domains/banking/hooks/useBankReportTaskUIInterface'
 import { useBankSyncTaskUIInterface } from '@condo/domains/banking/hooks/useBankSyncTaskUIInterface'
-import { BILLING_RECEIPT_SERVICE_FIELD_NAME } from '@condo/domains/billing/constants/constants'
 import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/domains/billing/utils/clientSchema'
 import BaseLayout, { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
@@ -62,6 +59,7 @@ import {
 import { useHotCodeReload } from '@condo/domains/common/hooks/useHotCodeReload'
 import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
 import { messagesImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
+import { apolloHelperOptions } from '@condo/domains/common/utils/next/apollo'
 import { useVitalCookies, SSRCookiesContext, useSSRCookiesContext } from '@condo/domains/common/utils/next/ssr'
 import { useContactExportTaskUIInterface } from '@condo/domains/contact/hooks/useContactExportTaskUIInterface'
 import { useMeterReadingExportTaskUIInterface } from '@condo/domains/meter/hooks/useMeterReadingExportTaskUIInterface'
@@ -92,13 +90,13 @@ import {
 import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useTicketExportTaskUIInterface'
 import { CookieAgreement } from '@condo/domains/user/components/CookieAgreement'
 
-
 import '@condo/domains/common/components/wdyr'
 import '@open-condo/ui/dist/styles.min.css'
 import '@open-condo/ui/dist/style-vars/variables.css'
 import '@condo/domains/common/components/containers/global-styles.css'
 
-const { publicRuntimeConfig: { defaultLocale, sppConfig, disableSSR, apolloGraphQLUrl } } = getConfig()
+
+const { publicRuntimeConfig: { defaultLocale, sppConfig, disableSSR } } = getConfig()
 
 const IS_SSR_DISABLED = Boolean(disableSSR && disableSSR === 'true')
 
@@ -532,50 +530,6 @@ const MyApp = ({ Component, pageProps }) => {
             <UseDeskWidget/>
         </>
     )
-}
-
-const cacheConfig: InitCacheConfig = (cacheOptions) => {
-    const listHelper = new ListHelper({ cacheOptions })
-
-    return {
-        typePolicies: {
-            // NOTE: legacy
-            // Configuration for `InMemoryCache` of Apollo
-            // Add fields, related to pagination strategies of Apollo.
-            // Items of some GraphQL global fields needs to be appended to list,
-            // when paginated, rather than to be displayed as a slice of data, —
-            // its like "Infinite scrolling" UI pattern. For example, fetching
-            // more changes of a ticket on button click.
-            // For those items, we need to set `concatPagination` strategy.
-            // https://www.apollographql.com/docs/react/pagination/core-api/
-            [BILLING_RECEIPT_SERVICE_FIELD_NAME]: {
-                // avoiding of building cache from ID on client, since Service ID is not UUID and will be repeated
-                keyFields: false,
-            },
-            BuildingSection: {
-                keyFields: false,
-            },
-            BuildingFloor: {
-                keyFields: false,
-            },
-            BuildingUnit: {
-                keyFields: false,
-            },
-        },
-        invalidationPolicies: {
-            timeToLive: 15 * 60 * 1000, // 15 minutes in milliseconds
-        },
-
-    }
-}
-
-function getApiUrl () {
-    return apolloGraphQLUrl
-}
-
-const apolloHelperOptions = {
-    uri: getApiUrl,
-    cacheConfig,
 }
 
 export const withCookies = () => (PageComponent) => {
