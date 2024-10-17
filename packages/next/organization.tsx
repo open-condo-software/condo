@@ -349,7 +349,7 @@ const OrganizationProvider: React.FC<OrganizationProviderProps> = ({
         if (newEmployee && newEmployee.id) {
             const newId = newEmployee.id
             setActiveEmployeeId(newId)
-            return refetch({ where: { id: newId } })
+            return refetch({ id: newId })
         } else {
             setCookieEmployeeId('')
             setActiveEmployeeId(null)
