@@ -6,12 +6,10 @@
 
 const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
 
-const { DocumentCategory: DocumentCategoryGQL } = require('@condo/domains/document/gql')
-const { Document: DocumentGQL } = require('@condo/domains/document/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const DocumentCategory = generateServerUtils(DocumentCategoryGQL)
-const Document = generateServerUtils(DocumentGQL)
+const DocumentCategory = generateServerUtils('DocumentCategory')
+const Document = generateServerUtils('Document')
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {

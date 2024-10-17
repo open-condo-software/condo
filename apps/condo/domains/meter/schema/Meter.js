@@ -125,7 +125,7 @@ const Meter = new GQLListSchema('Meter', {
                             organization: { id: organization },
                             resource: { id: resource },
                             deletedAt: null,
-                        })
+                        }, 'accountNumber')
                     }
 
                     if (metersWithSameResourceAndNumberInOrganization && metersWithSameResourceAndNumberInOrganization.length > 0) {
@@ -167,7 +167,7 @@ const Meter = new GQLListSchema('Meter', {
                                 { unitType_not: newItem.unitType },
                                 { property: { id_not: newItem.property } },
                             ],
-                        })
+                        }, 'unitType unitName')
 
                         if (metersWithSameAccountNumberInOtherUnit && metersWithSameAccountNumberInOtherUnit.length > 0) {
                             throw new GQLError({
@@ -263,7 +263,7 @@ const Meter = new GQLListSchema('Meter', {
                         addressKey: property.addressKey,
                         resource: { id: newItem.resource },
                         deletedAt: null,
-                    })
+                    }, 'organization { id }')
 
                     if (meterResourceOwner && meterResourceOwner.organization.id !== newItem.organization) {
                         throw new GQLError(ERRORS.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION, context)

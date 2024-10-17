@@ -152,7 +152,7 @@ const MeterReading = new GQLListSchema('MeterReading', {
 
             const meter = await Meter.getOne(context, {
                 id: get(resolvedData, 'meter', null),
-            })
+            }, 'organization { id } property { id } unitName unitType')
             if (meter && resolvedData.clientName && resolvedData.clientPhone) {
                 const contactCreationData = {
                     ...resolvedData,

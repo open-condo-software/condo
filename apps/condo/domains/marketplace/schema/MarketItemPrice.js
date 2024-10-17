@@ -87,7 +87,7 @@ const MarketItemPrice = new GQLListSchema('MarketItemPrice', {
                 const chunks = chunk(map(priceScopes, 'id'), 50)
 
                 for (const chunk of chunks) {
-                    await MarketPriceScope.softDeleteMany(context, chunk, pick(existingItem, ['dv', 'sender']))
+                    await MarketPriceScope.softDeleteMany(context, chunk, 'id', pick(existingItem, ['dv', 'sender']))
                 }
             }
         },

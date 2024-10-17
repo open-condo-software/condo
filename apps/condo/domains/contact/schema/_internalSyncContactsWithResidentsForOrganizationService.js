@@ -88,7 +88,11 @@ const _internalSyncContactsWithResidentsForOrganizationService = new GQLCustomSc
                             name,
                         }
 
-                        const contact = await Contact.create(context, contactProps)
+                        const contact = await Contact.create(
+                            context,
+                            contactProps,
+                            'name unitType unitName phone email isVerified property { address }'
+                        )
                         createdContacts.push({
                             ...pick(contact, ['name', 'unitType', 'unitName', 'phone', 'email', 'isVerified']),
                             address: contact.property.address,

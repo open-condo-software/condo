@@ -69,7 +69,7 @@ class MeterReadingsCleaner {
         if (answer === 'Y') {
             for (const reading of meterReadings) {
                 console.info(`Deleting meter reading (id = "${reading.id}")`)
-                await MeterReading.softDelete(this.context, reading.id, {
+                await MeterReading.softDelete(this.context, reading.id, 'id', {
                     dv: 1,
                     sender: { dv: 1, fingerprint: 'delete-meter-readings-by-property-ids' },
                 })

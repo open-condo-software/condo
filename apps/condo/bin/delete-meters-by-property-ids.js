@@ -47,7 +47,7 @@ class DeleteMeters {
         if (answer === 'Y') {
             for (const meter of meters) {
                 console.info(`Deleting Meter (id = "${meter.id}")`)
-                await Meter.softDelete(this.context, meter.id, {
+                await Meter.softDelete(this.context, meter.id, 'id', {
                     dv: 1,
                     sender: { dv: 1, fingerprint: 'delete-meters-by-property-ids' },
                 })

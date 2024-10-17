@@ -156,7 +156,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                     phone: context.authedItem.phone,
                     isVerified: true,
                     deletedAt: null,
-                })
+                }, 'unitName unitType property { address }')
 
                 receiptsForConsumer.forEach(receipt => {
                     const file = getFile(receipt, contacts)

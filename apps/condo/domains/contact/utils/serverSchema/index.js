@@ -7,14 +7,11 @@
 const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
 
 const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
-const { Contact: ContactGQL } = require('@condo/domains/contact/gql')
-const { ContactRole: ContactRoleGQL } = require('@condo/domains/contact/gql')
-const { ContactExportTask: ContactExportTaskGQL } = require('@condo/domains/contact/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const Contact = generateServerUtils(ContactGQL)
-const ContactRole = generateServerUtils(ContactRoleGQL)
-const ContactExportTask = generateServerUtils(ContactExportTaskGQL)
+const Contact = generateServerUtils('Contact')
+const ContactRole = generateServerUtils('ContactRole')
+const ContactExportTask = generateServerUtils('ContactExportTask')
 /* AUTOGENERATE MARKER <CONST> */
 
 const buildContactsLoader = ({ where = {}, sortBy = ['createdAt_DESC'] }) => {

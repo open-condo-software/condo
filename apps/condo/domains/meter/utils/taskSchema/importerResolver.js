@@ -226,7 +226,7 @@ async function importRows (keystone, userId, organizationId, rows) {
 }
 
 async function breakProcessChecker (keystone, id) {
-    const task = await MeterReadingsImportTask.getOne(keystone, { id })
+    const task = await MeterReadingsImportTask.getOne(keystone, { id }, 'status')
     return task.status === CANCELLED
 }
 

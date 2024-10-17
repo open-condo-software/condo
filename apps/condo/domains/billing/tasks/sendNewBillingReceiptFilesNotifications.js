@@ -102,7 +102,7 @@ async function sendNewBillingReceiptFilesNotifications ({ organizationId, organi
             unitType,
             isVerified: true,
             deletedAt: null,
-        })
+        }, 'id email')
 
         // set contacts
         contacts.forEach(contact => {

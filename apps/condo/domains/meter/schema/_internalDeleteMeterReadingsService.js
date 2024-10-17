@@ -168,7 +168,7 @@ const _internalDeleteMeterReadingsService = new GQLCustomSchema('_internalDelete
                     })
 
                     try {
-                        await MeterReading.softDeleteMany(context, meterReadingIdsToDelete, { dv, sender })
+                        await MeterReading.softDeleteMany(context, meterReadingIdsToDelete, 'id',  { dv, sender })
                         numberOfDeleted += meterReadingIdsToDelete.length
                     } catch (error) {
                         logger.error({

@@ -31,7 +31,10 @@ const readMetersPage = async ({ context, offset, pageSize, date, searchWindowDay
             nextVerificationDate_gte: startWindowDate,
             nextVerificationDate_lte: endWindowDate,
             isAutomatic: false,
-        }, {
+        },
+        'id resource { nameNonLocalized } accountNumber verificationDate nextVerificationDate ' +
+        'organization { id } property { id } unitName unitType',
+        {
             sortBy: 'id_ASC',
             first: pageSize,
             skip: offset,
@@ -233,7 +236,7 @@ const sendVerificationDateReminder = async ({ date, searchWindowDaysShift, daysC
     const reminderWindowSize = searchWindowDaysShift + daysCount
 
     // initialize context stuff
-    const { keystone: context } = await getSchemaCtx('Meter')
+    const { keystone: context } = getSchemaCtx('Meter')
 
     // let's proceed meters page by page
     const pageSize = 100

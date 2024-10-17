@@ -95,7 +95,7 @@ async function exportMeterReadings (taskId) {
 
     const { keystone: context } = getSchemaCtx('MeterReadingExportTask')
 
-    const task = await MeterReadingExportTask.getOne(context, { id: taskId })
+    const task = await MeterReadingExportTask.getOne(context, { id: taskId }, 'id timeZone format where sortBy locale')
     if (!task) {
         taskLogger.error({
             msg: `No task with id "${taskId}"`,
@@ -117,8 +117,8 @@ async function exportMeterReadings (taskId) {
         const meterReadings = await loadMeterReadingsForExcelExport({ where, sortBy })
         const lastReadingsByMeter = uniqBy(meterReadings.sort((a, b) => (a.date < b.date ? 1 : -1)), (reading => get(reading, 'meter')))
 
-        const meterResources = await MeterResource.getAll(context, {})
-        const meterReadingSources = await MeterReadingSource.getAll(context, {})
+        const meterResources = await MeterResource.getAll(context, {}, 'id name')
+        const meterReadingSources = await MeterReadingSource.getAll(context, {}, 'id name')
         const meterIds = uniq(lastReadingsByMeter.map(meterReading => meterReading.meter))
         const meters = await loadMetersForExcelExport({ where: { id_in: meterIds } })
 

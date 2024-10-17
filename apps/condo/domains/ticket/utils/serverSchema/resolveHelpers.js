@@ -136,7 +136,7 @@ async function getOrCreateContactByClientData (context, resolvedData, existingIt
         unitName,
         unitType,
         deletedAt: null,
-    })
+    }, 'id name phone')
 
     if (contact) return contact
 
@@ -153,7 +153,7 @@ async function getOrCreateContactByClientData (context, resolvedData, existingIt
         phone: clientPhone,
         name: clientName,
         email: clientEmail,
-    })
+    }, 'id name phone')
 }
 
 async function setSectionAndFloorFieldsByDataFromPropertyMap (context, resolvedData) {

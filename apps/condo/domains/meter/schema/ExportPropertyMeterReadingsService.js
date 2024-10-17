@@ -90,8 +90,8 @@ const ExportPropertyMeterReadingsService = new GQLCustomSchema('ExportPropertyMe
 
                 const meterIds = uniq(lastReadingsByMeter.map(meterReading => meterReading.meter))
                 const meters = await loadPropertyMetersForExcelExport({ where: { id_in: meterIds } })
-                const meterResources = await MeterResource.getAll(context, {})
-                const meterReadingSources = await MeterReadingSource.getAll(context, {})
+                const meterResources = await MeterResource.getAll(context, {}, 'id name')
+                const meterReadingSources = await MeterReadingSource.getAll(context, {}, 'id name')
 
                 const mappedMeterReadings = lastReadingsByMeter.map(meterReading => {
                     const source = meterReadingSources.find(meterReadingSource => meterReadingSource.id === meterReading.source)

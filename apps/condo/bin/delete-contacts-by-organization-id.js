@@ -39,7 +39,7 @@ class DeleteContactsByOrganizationId{
         if (isEmpty(contacts)) return
 
         for (const contact of contacts) {
-            await Contact.softDelete(this.context, contact.id, {
+            await Contact.softDelete(this.context, contact.id, 'id', {
                 dv: 1,
                 sender: { dv: 1, fingerprint: 'deleteIncorrectContactsScript' },
             })

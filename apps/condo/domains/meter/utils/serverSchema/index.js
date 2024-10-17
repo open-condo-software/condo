@@ -3,36 +3,24 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
-const get = require('lodash/get')
 const uniq = require('lodash/uniq')
 
 const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
 const { find } = require('@open-condo/keystone/schema')
 
 const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
-const { MeterResource: MeterResourceGQL } = require('@condo/domains/meter/gql')
-const { MeterReadingSource: MeterReadingSourceGQL } = require('@condo/domains/meter/gql')
-const { Meter: MeterGQL } = require('@condo/domains/meter/gql')
-const { MeterReading: MeterReadingGQL } = require('@condo/domains/meter/gql')
-const { MeterReadingFilterTemplate: MeterReadingFilterTemplateGQL } = require('@condo/domains/meter/gql')
-const { PropertyMeter: PropertyMeterGQL } = require('@condo/domains/meter/gql')
-const { PropertyMeterReading: PropertyMeterReadingGQL } = require('@condo/domains/meter/gql')
-const { MeterReportingPeriod: MeterReportingPeriodGQL } = require('@condo/domains/meter/gql')
-const { MeterResourceOwner: MeterResourceOwnerGQL } = require('@condo/domains/meter/gql')
 const { REGISTER_METERS_READINGS_MUTATION } = require('@condo/domains/meter/gql')
-const { MeterReadingsImportTask: MeterReadingsImportTaskGQL } = require('@condo/domains/meter/gql')
-const { MeterReadingExportTask: MeterReadingExportTaskGQL } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const MeterResource = generateServerUtils(MeterResourceGQL)
-const MeterReadingSource = generateServerUtils(MeterReadingSourceGQL)
-const Meter = generateServerUtils(MeterGQL)
-const MeterReading = generateServerUtils(MeterReadingGQL)
-const MeterReadingFilterTemplate = generateServerUtils(MeterReadingFilterTemplateGQL)
-const PropertyMeter = generateServerUtils(PropertyMeterGQL)
-const PropertyMeterReading = generateServerUtils(PropertyMeterReadingGQL)
-const MeterReportingPeriod = generateServerUtils(MeterReportingPeriodGQL)
-const MeterResourceOwner = generateServerUtils(MeterResourceOwnerGQL)
+const MeterResource = generateServerUtils('MeterResource')
+const MeterReadingSource = generateServerUtils('MeterReadingSource')
+const Meter = generateServerUtils('Meter')
+const MeterReading = generateServerUtils('MeterReading')
+const MeterReadingFilterTemplate = generateServerUtils('MeterReadingFilterTemplate')
+const PropertyMeter = generateServerUtils('PropertyMeter')
+const PropertyMeterReading = generateServerUtils('PropertyMeterReading')
+const MeterReportingPeriod = generateServerUtils('MeterReportingPeriod')
+const MeterResourceOwner = generateServerUtils('MeterResourceOwner')
 async function registerMetersReadings (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
@@ -48,8 +36,8 @@ async function registerMetersReadings (context, data) {
     })
 }
 
-const MeterReadingsImportTask = generateServerUtils(MeterReadingsImportTaskGQL)
-const MeterReadingExportTask = generateServerUtils(MeterReadingExportTaskGQL)
+const MeterReadingsImportTask = generateServerUtils('MeterReadingsImportTask')
+const MeterReadingExportTask = generateServerUtils('MeterReadingExportTask')
 /* AUTOGENERATE MARKER <CONST> */
 
 /**
