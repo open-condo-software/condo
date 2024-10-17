@@ -1,6 +1,6 @@
-query getActiveOrganizationEmployee($userId: ID!, $id: ID) {
+query getActiveOrganizationEmployee($userId: ID!, $employeeId: ID) {
     employees: allOrganizationEmployees(where: {
-        id: $id,
+        id: $employeeId,
         organization: { type_in: [MANAGING_COMPANY, SERVICE_PROVIDER] },
         user: { id: $userId, type: staff },
         isAccepted: true,

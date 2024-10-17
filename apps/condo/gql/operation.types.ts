@@ -5,7 +5,7 @@ import * as Types from '@app/condo/schema'
 
 export type GetActiveOrganizationEmployeeQueryVariables = Types.Exact<{
     userId: Types.Scalars['ID']['input']
-    id?: Types.InputMaybe<Types.Scalars['ID']['input']>
+    employeeId?: Types.InputMaybe<Types.Scalars['ID']['input']>
 }>
 
 

@@ -11,9 +11,9 @@ export * from '@app/condo/gql/operation.types'
 const defaultOptions = {} as const
 
 export const GetActiveOrganizationEmployeeDocument = gql`
-    query getActiveOrganizationEmployee($userId: ID!, $id: ID) {
+    query getActiveOrganizationEmployee($userId: ID!, $employeeId: ID) {
   employees: allOrganizationEmployees(
-    where: {id: $id, organization: {type_in: [MANAGING_COMPANY, SERVICE_PROVIDER]}, user: {id: $userId, type: staff}, isAccepted: true, isBlocked: false, isRejected: false}
+    where: {id: $employeeId, organization: {type_in: [MANAGING_COMPANY, SERVICE_PROVIDER]}, user: {id: $userId, type: staff}, isAccepted: true, isBlocked: false, isRejected: false}
     first: 1
     skip: 0
     sortBy: [createdAt_DESC]
@@ -126,7 +126,7 @@ export const GetActiveOrganizationEmployeeDocument = gql`
  * const { data, loading, error } = useGetActiveOrganizationEmployeeQuery({
  *   variables: {
  *      userId: // value for 'userId'
- *      id: // value for 'id'
+ *      employeeId: // value for 'employeeId'
  *   },
  * });
  */

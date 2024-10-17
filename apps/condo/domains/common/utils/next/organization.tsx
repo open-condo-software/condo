@@ -28,7 +28,7 @@ export async function prefetchOrganizationEmployee (args: PrefetchOrganizationEm
         const response = await client.query<GetActiveOrganizationEmployeeQuery, GetActiveOrganizationEmployeeQueryVariables>({
             query: GetActiveOrganizationEmployeeDocument,
             variables: {
-                id: activeEmployeeId,
+                employeeId: activeEmployeeId,
                 userId,
             },
         })
@@ -43,7 +43,7 @@ export async function prefetchOrganizationEmployee (args: PrefetchOrganizationEm
     const response = await client.query<GetActiveOrganizationEmployeeQuery, GetActiveOrganizationEmployeeQueryVariables>({
         query: GetActiveOrganizationEmployeeDocument,
         variables: {
-            id: null,
+            employeeId: null,
             userId,
         },
     })
