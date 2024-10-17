@@ -2,10 +2,8 @@ import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import { AuthenticatedUserQuery, AuthenticatedUserDocument, AuthenticatedUserQueryResult } from '@app/condo/gql'
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 
-
-type PrefetchAuthType = (client: ApolloClient<NormalizedCacheObject>) => Promise<AuthenticatedUserQueryResult['data']['authenticatedUser']>
-
-export const prefetchAuth: PrefetchAuthType = async (client) => {
+type PrefetchAuthReturnType = Promise<AuthenticatedUserQueryResult['data']['authenticatedUser']>
+export async function prefetchAuth (client: ApolloClient<NormalizedCacheObject>): PrefetchAuthReturnType {
     const response = await client.query<AuthenticatedUserQuery>({
         query: AuthenticatedUserDocument,
     })
@@ -17,12 +15,11 @@ export const prefetchAuth: PrefetchAuthType = async (client) => {
 type Redirect = { user: null, redirect: Awaited<ReturnType<GetServerSideProps>> }
 type AuthData = { user: Awaited<ReturnType<typeof prefetchAuth>>, redirect: null }
 type RedirectOrAuthDataType = Redirect | AuthData
-type PrefetchAuthOrRedirectType = (
-    client: ApolloClient<NormalizedCacheObject>,
-    context: GetServerSidePropsContext
-) => Promise<RedirectOrAuthDataType>
 
-export const prefetchAuthOrRedirect: PrefetchAuthOrRedirectType = async (client, context) =>{
+export async function prefetchAuthOrRedirect (
+    client: ApolloClient<NormalizedCacheObject>,
+    context: GetServerSidePropsContext,
+): Promise<RedirectOrAuthDataType> {
     const result: RedirectOrAuthDataType = { user: null, redirect: null }
     const user = await prefetchAuth(client)
 

@@ -15,11 +15,11 @@ type PrefetchOrganizationEmployeeArgs = {
     context: Parameters<GetServerSideProps>[0]
     userId: string
 }
-type PrefetchOrganizationEmployeeType = (args: PrefetchOrganizationEmployeeArgs) => Promise<{
+type PrefetchOrganizationEmployeeReturnType = Promise<{
     activeEmployee: GetActiveOrganizationEmployeeQueryResult['data']['employees'][number]
 }>
 
-export const prefetchOrganizationEmployee: PrefetchOrganizationEmployeeType = async (args) => {
+export async function prefetchOrganizationEmployee (args: PrefetchOrganizationEmployeeArgs): PrefetchOrganizationEmployeeReturnType {
     const { client, context, userId } = args
 
     const activeEmployeeId = getCookie(ACTIVE_EMPLOYEE_COOKIE_NAME, { req: context.req, res: context.res })
