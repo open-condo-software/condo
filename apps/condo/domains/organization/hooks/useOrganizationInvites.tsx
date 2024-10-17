@@ -31,7 +31,7 @@ export const useOrganizationInvites = (organizationFilter?: OrganizationWhereInp
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     const { user, isAuthenticated } = useAuth()
     const userId = get(user, 'id', null)
-    const { selectLink } = useOrganization()
+    const { selectLink, selectEmployee } = useOrganization()
     const { objs: userInvites, refetch, loading } = OrganizationEmployee.useObjects(
         { where: { user: { id: userId }, isAccepted: false, isRejected: false, isBlocked: false, organization: organizationFilter } },
         { skip: !userId },
@@ -87,7 +87,7 @@ export const useOrganizationInvites = (organizationFilter?: OrganizationWhereInp
                     },
                     {
                         action: () => handleAcceptOrReject(invite, 'accept').then(() => {
-                            selectLink({ id: invite.id })
+                            selectEmployee(invite.id)
                         }),
                         title: AcceptMessage,
                     },

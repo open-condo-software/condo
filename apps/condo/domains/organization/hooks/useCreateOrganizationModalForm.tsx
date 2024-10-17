@@ -106,7 +106,7 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
     )
 
     const [isVisible, setIsVisible] = useState<boolean>(false)
-    const { selectLink, organization } = useOrganization()
+    const { selectEmployee, organization } = useOrganization()
     const { user } = useAuth()
     const userId = get(user, 'id')
     const locale = get(organization, 'country', defaultLocale)
@@ -133,8 +133,8 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
         if (id) {
             const newLink = findPropByValue(userLinks, ['organization', 'id'], id)
 
-            if (newLink) {
-                await selectLink(newLink)
+            if (newLink && newLink.id) {
+                await selectEmployee(newLink.id)
                 setIsVisible(false)
             }
         }
@@ -142,7 +142,7 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
         if (isFunction(onFinish)) onFinish(get(createResult, 'data.obj'))
 
         return null
-    }, [userId, selectLink, setIsVisible, refetch, onFinish])
+    }, [userId, selectEmployee, setIsVisible, refetch, onFinish])
 
     const handleMutationCompleted = React.useCallback(async (result) => {
         setIsVisible(false)
