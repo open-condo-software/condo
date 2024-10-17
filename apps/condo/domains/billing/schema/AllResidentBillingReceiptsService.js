@@ -5,6 +5,7 @@
 const Big = require('big.js')
 const { pick, get, isNil } = require('lodash')
 
+const { normalizeUnitName } = require('@open-condo/clients/address-service-client/utils/normalizeUnitName')
 const { generateQuerySortBy } = require('@open-condo/codegen/generate.gql')
 const { generateQueryWhereInput } = require('@open-condo/codegen/generate.gql')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
