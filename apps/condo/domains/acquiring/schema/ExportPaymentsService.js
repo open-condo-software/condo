@@ -23,6 +23,10 @@ const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm'
+const PAYMENT_FIELDS = 'id status order amount accountNumber advancedAt '
+    + 'context { integration { name } } multiPayment { transactionId } '
+    + 'invoice { property { address } contact { property { address } unitName } unitName } '
+    + 'receipt { property { address } account { unitName } } '
 
 const ERRORS = {
     DV_VERSION_MISMATCH: {
@@ -85,6 +89,7 @@ const ExportPaymentsService = new GQLCustomSchema('ExportPaymentsService', {
                     list: Payment,
                     where,
                     sortBy,
+                    fields: PAYMENT_FIELDS,
                 })
 
                 if (objs.length === 0) {
@@ -93,18 +98,18 @@ const ExportPaymentsService = new GQLCustomSchema('ExportPaymentsService', {
 
                 const excelRows = objs.map(obj => {
                     const address = isInvoicePayments ?
-                        get(obj, ['invoice', 'property', 'address'], get(obj, ['invoice', 'contact', 'property', 'address'], '-')) :
+                        get(obj, ['invoice', 'property', 'address'], get(obj, ['invoice', 'contact', 'property', 'address'])) :
                         get(obj, ['receipt', 'property', 'address'], '')
 
                     const unitName = isInvoicePayments ?
-                        get(obj, ['invoice', 'unitName'], get(obj, ['invoice', 'contact', 'unitName'], '-')) :
+                        get(obj, ['invoice', 'unitName'], get(obj, ['invoice', 'contact', 'unitName'])) :
                         get(obj, ['receipt', 'account', 'unitName'], '')
 
                     return {
                         date: formatDate(obj.advancedAt),
                         account: obj.accountNumber,
-                        address,
-                        unitName,
+                        address: address || '-',
+                        unitName: unitName || '-',
                         type: get(obj, ['context', 'integration', 'name'], ''),
                         transaction: get(obj, ['multiPayment', 'transactionId'], ''),
                         status: i18n('payment.status.' + get(obj, 'status'), { locale }),

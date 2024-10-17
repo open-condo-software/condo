@@ -129,7 +129,7 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
                     organization: { id: organizationId },
                 })
                 for (let billingOrgCtx of billingOrgCtxs) {
-                    await BillingIntegrationOrganizationContext.softDelete(context, billingOrgCtx.id, DV_SENDER)
+                    await BillingIntegrationOrganizationContext.softDelete(context, billingOrgCtx.id, 'id', DV_SENDER)
                 }
 
                 const acquiringIntegrationCtxs = await AcquiringIntegrationContext.getAll(context, {
@@ -137,7 +137,7 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
                     organization: { id: organizationId },
                 })
                 for (let acquiringIntegrationCtx of acquiringIntegrationCtxs) {
-                    await AcquiringIntegrationContext.softDelete(context, acquiringIntegrationCtx.id, DV_SENDER)
+                    await AcquiringIntegrationContext.softDelete(context, acquiringIntegrationCtx.id, 'id', DV_SENDER)
                 }
 
                 const b2BAppCtxs = await B2BAppContext.getAll(context, {
@@ -154,7 +154,7 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
                     organization: { id: organizationId },
                 })
                 for (let bankIntegrationOrganizationContext of bankIntegrationOrganizationContexts) {
-                    await BankIntegrationOrganizationContext.softDelete(context, bankIntegrationOrganizationContext.id, DV_SENDER)
+                    await BankIntegrationOrganizationContext.softDelete(context, bankIntegrationOrganizationContext.id, 'id', DV_SENDER)
                 }
 
                 const newOrganizationData = {

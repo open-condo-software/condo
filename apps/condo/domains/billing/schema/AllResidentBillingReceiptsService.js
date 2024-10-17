@@ -13,7 +13,8 @@ const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 const { getAcquiringIntegrationContextFormula, FeeDistribution } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const access = require('@condo/domains/billing/access/AllResidentBillingReceipts')
 const { BILLING_RECEIPT_FILE_FOLDER_NAME } = require('@condo/domains/billing/constants/constants')
-const { BillingReceiptAdmin, getPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
+const { BILLING_RECEIPT_COMMON_FIELDS } = require('@condo/domains/billing/gql')
+const { BillingReceipt, getPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
 const { normalizeUnitName } = require('@condo/domains/billing/utils/unitName.utils')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 
@@ -24,6 +25,10 @@ const {
 } = require('../constants/constants')
 
 const Adapter = new FileAdapter(BILLING_RECEIPT_FILE_FOLDER_NAME)
+
+const BILLING_RECEIPT_FIELDS = BILLING_RECEIPT_COMMON_FIELDS + ' file { id ' +
+    'sensitiveDataFile { id filename originalFilename publicUrl mimetype } ' +
+    'publicDataFile { id filename originalFilename publicUrl mimetype } controlSum } isPayable'
 
 const ALL_RESIDENT_BILLING_RECEIPTS_FIELDS = {
     id: 'ID',
@@ -139,9 +144,10 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
 
                 // NOTE: we have an index for this query called "billingAccount_number_deletedAt"
                 // if you modify the query you should make sure that the index is still being used
-                const receiptsForConsumer = await BillingReceiptAdmin.getAll(
+                const receiptsForConsumer = await BillingReceipt.getAll(
                     context,
                     joinedReceiptsQuery,
+                    BILLING_RECEIPT_FIELDS,
                     {
                         sortBy, first, skip,
                     }

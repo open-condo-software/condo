@@ -8,7 +8,6 @@ const {
     BillingCurrency,
     BillingIntegrationAccessRight,
 } = require('@condo/domains/billing/utils/serverSchema')
-const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const { User } = require('@condo/domains/user/utils/serverSchema')
 
 

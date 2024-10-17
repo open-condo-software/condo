@@ -76,7 +76,8 @@ class ReceiptsGenerator {
                 globalId: faker.datatype.uuid(),
                 meta: {},
                 raw: {},
-            }
+            },
+            'id address'
         )
     }
 	
@@ -100,7 +101,8 @@ class ReceiptsGenerator {
                     unitName: (i + 1).toString(),
                     meta: BASE_JSON,
                     raw: BASE_JSON,
-                }
+                },
+                'id property { id }'
             )
             billingAccounts.push(billingAccount)
         }

@@ -2,8 +2,6 @@ const path = require('path')
 
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 
-const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
-
 class ScriptCore {
     context = null
 
@@ -15,17 +13,6 @@ class ScriptCore {
         await keystone.prepare({ apps: [apps[graphqlIndex]], distDir, dev: true })
         await keystone.connect()
         this.context = await keystone.createContext({ skipAccessControl: true })
-    }
-
-    async loadListByChunks (list, where, sortBy, chunkSize, limit) {
-        return await loadListByChunks({
-            context: this.context,
-            list,
-            where,
-            sortBy,
-            chunkSize,
-            limit,
-        })
     }
 
     async proceed () {

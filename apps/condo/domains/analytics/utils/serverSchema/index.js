@@ -6,12 +6,11 @@
 
 const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
-const { ExternalReport: ExternalReportGQL } = require('@condo/domains/analytics/gql')
 const { GET_EXTERNAL_REPORT_IFRAME_URL_QUERY } = require('@condo/domains/analytics/gql')
 const { GET_OVERVIEW_DASHBOARD_MUTATION } = require('@condo/domains/analytics/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const ExternalReport = generateServerUtils(ExternalReportGQL)
+const ExternalReport = generateServerUtils('ExternalReport')
 
 async function getExternalReportIframeUrl (context, data) {
     if (!context) throw new Error('no context')

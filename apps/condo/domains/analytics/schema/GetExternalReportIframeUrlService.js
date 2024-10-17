@@ -56,7 +56,7 @@ const GetExternalReportIframeUrlService = new GQLCustomSchema('GetExternalReport
                 let iframeUrl = null
                 const { data: { id, organizationId } } = args
 
-                const externalReport = await ExternalReport.getOne(context, { id })
+                const externalReport = await ExternalReport.getOne(context, { id }, 'id type title meta')
 
                 switch (externalReport.type) {
                     case 'metabase':
