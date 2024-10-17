@@ -344,23 +344,22 @@ const OrganizationProvider: React.FC<OrganizationProviderProps> = ({
 
     const [activeEmployee, setActiveEmployee] = useState(get(data, ['employees', 0]) || null)
 
-    /** @deprecated */
-    const handleSelectLink: OrganizationContextType['selectLink'] = useCallback((newEmployee) => {
-        if (newEmployee && newEmployee.id) {
-            const newId = newEmployee.id
-            setActiveEmployeeId(newId)
-            return refetch({ id: newId })
+    const handleSelectEmployee: OrganizationContextType['selectEmployee'] = useCallback((employeeId) => {
+        if (employeeId) {
+            setActiveEmployeeId(employeeId)
+            return refetch({ employeeId })
         } else {
             setCookieEmployeeId('')
             setActiveEmployeeId(null)
             setActiveEmployee(null)
             return Promise.resolve()
         }
-    }, [])
+    }, [refetch])
 
-    const handleSelectEmployee: OrganizationContextType['selectEmployee'] = useCallback((employeeId) => {
-        return handleSelectLink({ id: employeeId })
-    }, [handleSelectLink])
+    /** @deprecated */
+    const handleSelectLink: OrganizationContextType['selectLink'] = useCallback((newEmployee) => {
+        return handleSelectEmployee(newEmployee?.id || null)
+    }, [handleSelectEmployee])
 
     useEffect(() => {
         const employee = get(data, ['employees', 0])
