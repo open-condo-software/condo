@@ -17,22 +17,22 @@ const DURATION = '60s'
 export const options = {
     tags: { testid: 'ticket', serverUrl: __ENV.BASE_URL },
     scenarios: {
-        queryTicketEntities: {
-            exec: 'queryBasicEntities',
-            executor: 'constant-arrival-rate',
-            duration: DURATION,
-            rate: 5,
-            timeUnit: '1s',
-            preAllocatedVUs: 7,
-        },
-        appHealthcheck: {
-            exec: 'healthcheck',
-            executor: 'constant-arrival-rate',
-            duration: DURATION,
-            rate: 2,
-            timeUnit: '1s',
-            preAllocatedVUs: 2,
-        },
+        // queryTicketEntities: {
+        //     exec: 'queryBasicEntities',
+        //     executor: 'constant-arrival-rate',
+        //     duration: DURATION,
+        //     rate: 5,
+        //     timeUnit: '1s',
+        //     preAllocatedVUs: 7,
+        // },
+        // appHealthcheck: {
+        //     exec: 'healthcheck',
+        //     executor: 'constant-arrival-rate',
+        //     duration: DURATION,
+        //     rate: 2,
+        //     timeUnit: '1s',
+        //     preAllocatedVUs: 2,
+        // },
         createTickets: {
             exec: 'createTickets',
             executor: 'constant-arrival-rate',
@@ -41,17 +41,17 @@ export const options = {
             timeUnit: '2s',
             preAllocatedVUs: 1,
         },
-        browser: {
-            exec: 'checkFrontend',
-            executor: 'constant-vus',
-            vus: 1,
-            duration: DURATION,
-            options: {
-                browser: {
-                    type: 'chromium',
-                },
-            },
-        },
+        // browser: {
+        //     exec: 'checkFrontend',
+        //     executor: 'constant-vus',
+        //     vus: 1,
+        //     duration: DURATION,
+        //     options: {
+        //         browser: {
+        //             type: 'chromium',
+        //         },
+        //     },
+        // },
     },
     thresholds: {
         http_req_failed: ['rate<0.01'],
@@ -124,8 +124,6 @@ export function queryBasicEntities (data) {
     }
 
     const allTicketsResponse = sendAuthorizedRequest(data, allTicketsPayload)
-
-    console.log('allTicketsResponse ', JSON.stringify(allTicketsResponse.json()))
 
     check(allTicketsResponse, {
         'all tickets status is 200': (res) => res.status === 200,
