@@ -78,11 +78,18 @@ async function canReadOrganizations (args) {
             deletedAt: null,
         })
 
-        const serviceOrganizationIds = uniq(billingContexts
+        const allowedOrganizations = get(user, 'extra.allowedOrganizations')
+
+        let serviceOrganizationIds = uniq(billingContexts
             .map(({ organization }) => organization )
             .concat(acquiringContexts.map(({ organization }) => organization )))
             .concat(bankIntegrationOrganizationContext.map(({ organization }) => organization))
             .concat(get(accessFilterForB2BAppServiceUser, 'id_in', []) || [])
+
+        if (allowedOrganizations) {
+            serviceOrganizationIds = serviceOrganizationIds.filter(id => allowedOrganizations.includes(id))
+        }
+
         if (serviceOrganizationIds.length) {
             accessConditions.push({ id_in: serviceOrganizationIds })
         }
