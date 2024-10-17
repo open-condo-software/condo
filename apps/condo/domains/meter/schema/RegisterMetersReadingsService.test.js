@@ -3,7 +3,7 @@
  */
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
-const { map, flatten } = require('lodash')
+const { map, flatten, set, zip } = require('lodash')
 
 const { GQLErrorCode, GQLInternalErrorTypes } = require('@open-condo/keystone/errors')
 const {
@@ -21,6 +21,7 @@ const {
     OTHER_METER_READING_SOURCE_ID,
     REMOTE_SYSTEM_METER_READING_SOURCE_ID,
 } = require('@condo/domains/meter/constants/constants')
+const { DATE_FIELD_PATHS } = require('@condo/domains/meter/constants/registerMetersReadingsService')
 const {
     registerMetersReadingsByTestClient,
     Meter,
@@ -315,8 +316,6 @@ describe('RegisterMetersReadingsService', () => {
                             code: 'BAD_USER_INPUT',
                             type: 'SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT',
                             message: 'Meter with same account number exist in current organization in other unit',
-                            messageForUser: 'Meter with same account number exist in current organization in unit flat 1',
-                            messageForUserTemplate: 'Meter with same account number exist in current organization in unit {unitsCsv}',
                             messageForUserTemplateKey: 'api.meter.meter.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT',
                             messageInterpolation: { unitsCsv: `${readings1[0].addressInfo.unitType} ${readings1[0].addressInfo.unitName}` },
                         }),
@@ -772,111 +771,158 @@ describe('RegisterMetersReadingsService', () => {
         )
     })
 
-    describe('submission date', () => {
-        const cases = [
-            { input: '2024-06-17', output: '2024-06-17' },
-            { input: '17.06.2024', output: '2024-06-17' },
-            { input: '2024-06', output: '2024-06-01' },
-            { input: '06-2024', output: '2024-06-01' },
-            { input: '2024.06', output: '2024-06-01' },
-            { input: '06.2024', output: '2024-06-01' },
-            { input: '2024-06-17 18:44', output: '2024-06-17 18:44' },
-            { input: '17.06.2024 18:44', output: '2024-06-17 18:44' },
-            { input: '2024-06-17 18:44:13', output: '2024-06-17 18:44:13' },
-            { input: '17.06.2024 18:44:13', output: '2024-06-17 18:44:13' },
-            { input: '17/06/2024 18:44:13', output: '2024-06-17 18:44:13' },
-            { input: '17/06/2024 18-44-13', output: '2024-06-17 18:44:13' },
-            { input: '17-06-2024 18/44/13', output: '2024-06-17 18:44:13' },
-            { input: '17/06/2024 18/44/13', output: '2024-06-17 18:44:13' },
-            { input: '17-06-2024 18-44-13', output: '2024-06-17 18:44:13' },
-        ]
+    describe('Dates parsing', () => {
 
-        test.each(cases)('$input should parsed as $output', async ({ input, output }) => {
-            const [organization] = await createTestOrganization(adminClient)
-            const [property] = await createTestPropertyWithMap(adminClient, organization)
+        describe('valid dates', () => {
+            const dates = [
+                { input: '2024-06-17', output: dayjs('2024-06-17').toISOString() },
+                { input: '2024-06-17T18:44:13.539Z', output: '2024-06-17T18:44:13.539Z' },
+                { input: '2021-12-20T00:00:00.000Z', output: '2021-12-20T00:00:00.000Z' },
+            ]
 
-            const reading = createTestReadingData(property, { date: input })
-            const [data] = await registerMetersReadingsByTestClient(adminClient, organization, [reading])
+            const cases = dates.flatMap(date =>
+                DATE_FIELD_PATHS.map(({ path }) => ({
+                    input: date.input,
+                    output: date.output,
+                    path,
+                })))
 
-            expect(data).toHaveLength(1)
+            test.each(cases)('$input in $path should parsed as $output', async ({ input, output, path }) => {
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestPropertyWithMap(adminClient, organization)
 
-            const row = data[0]
+                const reading = createTestReadingData(property)
+                set(reading, path, input)
+                const [data] = await registerMetersReadingsByTestClient(adminClient, organization, [reading])
 
-            const metersReading = await MeterReading.getOne(adminClient, { id: row.id })
-            expect(metersReading.date).toBe(dayjs(output).toISOString())
+                expect(data).toHaveLength(1)
+
+                const row = data[0]
+
+                if (path.startsWith('meterMeta')) {
+                    path = path.substring('meterMeta.'.length)
+                    const meter = await Meter.getOne(adminClient, { id: row.meter.id })
+                    expect(meter).toHaveProperty(path, dayjs(output).toISOString())
+                } else {
+                    const metersReading = await MeterReading.getOne(adminClient, { id: row.id })
+                    expect(metersReading).toHaveProperty(path, dayjs(output).toISOString())
+                }
+            })
         })
-    })
 
-    describe('error on invalid submission date', () => {
-        const cases = ['[]', '12_23', 'hello moto']
+        describe('error on invalid dates', () => {
+            const invalidDates = [
+                '[]',
+                '12_23',
+                'hello moto',
+                '2024.28.05',
+                '2024.05.28 13-13-13',
+                '!2024-06-17',
+                '2024-06',
+                '06-2024',
+                '2024.06',
+                '06.2024',
+                '2024-06-17 18:44',
+                '17.06.2024 18:44',
+                '2024-06-17 18:44:13',
+                '17.06.2024 18:44:13',
+                '17/06/2024 18:44:13',
+                '2019-03-06T08:00:00+08:00',
+                '!2042-06-17',
+                '[]17.06.2042',
+                '(2042-06',
+                'hello06-2042',
+                ']2042.06',
+                '06.2042',
+                '2042-06-17 18:44',
+                '17.06.2042 18:44',
+                '2042-06-17 18:44:13',
+                '17.06.2042 18:44:13',
+                '17/06/2042 18:44:13',
+                '17/06/2042 18-44-13',
+                '17-06-2042 18/44/13',
+                '17/06/2042 18/44/13',
+                '17-06-2042 18-44-13',
+                '2024-09-22T09:03:25',
+                '2024-22-09T09:03:25.000Z',
+                '2024-22-09',
+            ]
 
-        test.each(cases)('%p should cause an error', async (date) => {
-            const [o10n] = await createTestOrganization(adminClient)
-            const [property] = await createTestPropertyWithMap(adminClient, o10n)
-
-            const reading = createTestReadingData(property, { date })
-
-            // TODO(pahaz): DOMA-10348 refactor it to use expectToThrowGQLError (need more deep refactoring) !!
-            await catchErrorFrom(
-                async () => await registerMetersReadingsByTestClient(adminClient, o10n, [reading]),
-                ({ data, errors }) => {
-                    expect(data).toEqual({ 'result': [null] })
-                    expect(errors).toEqual([
-                        expect.objectContaining({
-                            name: 'GQLError',
-                            message: 'Invalid date',
-                            path: ['result', 0],
-                            extensions: expect.objectContaining({
-                                'code': 'BAD_USER_INPUT',
-                                'type': 'INVALID_DATE',
-                                'message': 'Invalid date',
-                                'messageForUserTemplateKey': 'api.meter.registerMetersReadings.INVALID_DATE',
-                                'messageInterpolation': {
-                                    'columnName': 'Reading submission date',
-                                    'format': 'YYYY-MM-DD", "DD.MM.YYYY',
-                                },
-                            }),
-                        }),
-                    ])
-                },
+            const cases = invalidDates.flatMap((date) =>
+                DATE_FIELD_PATHS.map(({ path }) => [date, path])
             )
+
+            test.each(cases)('%p in %p should cause an error', async (invalidDate, dateFieldPath) => {
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestPropertyWithMap(adminClient, organization)
+
+                const reading = createTestReadingData(property)
+                set(reading, dateFieldPath, invalidDate)
+
+                // TODO(pahaz): DOMA-10348 refactor it to use expectToThrowGQLError (need more deep refactoring) !!
+                await catchErrorFrom(
+                    async () => await registerMetersReadingsByTestClient(adminClient, organization, [reading]),
+                    ({ data, errors }) => {
+                        expect(data).toEqual({ 'result': [null] })
+                        expect(errors).toEqual([
+                            expect.objectContaining({
+                                name: 'GQLError',
+                                message: 'Invalid date',
+                                path: ['result', 0],
+                                extensions: expect.objectContaining({
+                                    'code': 'BAD_USER_INPUT',
+                                    'type': 'INVALID_DATE',
+                                    'message': 'Invalid date',
+                                    'messageForUserTemplateKey': 'api.meter.registerMetersReadings.INVALID_DATE',
+                                    'messageInterpolation': {
+                                        'columnName': expect.any(String),
+                                        'format': 'YYYY-MM-DDTHH:mm:ss.SSS[Z]", "YYYY-MM-DD',
+                                    },
+                                }),
+                            }),
+                        ])
+                    },
+                )
+            })
         })
+
     })
 
-    describe('Meter info dates sanitizing', () => {
-        const cases = [
-            { input: '!2042-06-17', output: '2042-06-17' },
-            { input: '[]17.06.2042', output: '2042-06-17' },
-            { input: '(2042-06', output: '2042-06-01' },
-            { input: 'hello06-2042', output: '2042-06-01' },
-            { input: ']2042.06', output: '2042-06-01' },
-            { input: '06.2042', output: '2042-06-01' },
-            { input: '2042-06-17 18:44', output: '2042-06-17 18:44' },
-            { input: '17.06.2042 18:44', output: '2042-06-17 18:44' },
-            { input: '2042-06-17 18:44:13', output: '2042-06-17 18:44:13' },
-            { input: '17.06.2042 18:44:13', output: '2042-06-17 18:44:13' },
-            { input: '17/06/2042 18:44:13', output: '2042-06-17 18:44:13' },
-            { input: '17/06/2042 18-44-13', output: '2042-06-17 18:44:13' },
-            { input: '17-06-2042 18/44/13', output: '2042-06-17 18:44:13' },
-            { input: '17/06/2042 18/44/13', output: '2042-06-17 18:44:13' },
-            { input: '17-06-2042 18-44-13', output: '2042-06-17 18:44:13' },
-            { input: '[]', output: null },
+    test('Meter info controlReadingsDate should take todays date on empty input if meter is being created', async () => {
+        const [organization] = await createTestOrganization(adminClient)
+        const [property] = await createTestPropertyWithMap(adminClient, organization)
+
+        const reading = createTestReadingData(property)
+        reading.meterMeta.controlReadingsDate = undefined
+        const [data] = await registerMetersReadingsByTestClient(adminClient, organization, [reading])
+
+        expect(data).toHaveLength(1)
+
+        const row = data[0]
+
+        const meter = await Meter.getOne(adminClient, { id: row.meter.id })
+        expect(meter.controlReadingsDate).toBeTruthy()
+    })
+
+    describe('Meter info dates saves as empty on empty input', () => {
+        const dateFields = [
+            'verificationDate',
+            'nextVerificationDate',
+            'installationDate',
+            'commissioningDate',
+            'sealingDate',
         ]
 
-        test.each(cases)('$input should parsed as $output', async ({ input, output }) => {
+        const emptyValues = [ null, undefined ]
+
+        const cases = zip(dateFields, emptyValues)
+
+        test.each(cases)('%p = %p should be saved as empty date', async (dateField, emptyValue) => {
             const [organization] = await createTestOrganization(adminClient)
             const [property] = await createTestPropertyWithMap(adminClient, organization)
 
             const reading = createTestReadingData(property)
-            reading.meterMeta = {
-                ...reading.meterMeta,
-                verificationDate: input,
-                nextVerificationDate: input,
-                installationDate: input,
-                commissioningDate: input,
-                sealingDate: input,
-                controlReadingsDate: input,
-            }
+            reading.meterMeta[dateField] = emptyValue
             const [data] = await registerMetersReadingsByTestClient(adminClient, organization, [reading])
 
             expect(data).toHaveLength(1)
@@ -884,12 +930,7 @@ describe('RegisterMetersReadingsService', () => {
             const row = data[0]
 
             const meter = await Meter.getOne(adminClient, { id: row.meter.id })
-            expect(meter.verificationDate).toBe(output ? dayjs(output).toISOString() : output)
-            expect(meter.nextVerificationDate).toBe(output ? dayjs(output).toISOString() : output)
-            expect(meter.installationDate).toBe(output ? dayjs(output).toISOString() : output)
-            expect(meter.commissioningDate).toBe(output ? dayjs(output).toISOString() : output)
-            expect(meter.sealingDate).toBe(output ? dayjs(output).toISOString() : output)
-            expect(meter.controlReadingsDate).toBe(output ? dayjs(output).toISOString() : output)
+            expect(meter).toHaveProperty(dateField, null)
         })
     })
 
