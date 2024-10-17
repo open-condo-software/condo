@@ -33,7 +33,8 @@ const readMetersPage = async ({ context, offset, pageSize }) => {
             deletedAt: null,
         },
     },
-    'id property { id } organization { id } accountNumber nextVerificationDate resource { nameNonLocalized }',
+    'id property { id } unitName unitType organization { id } ' +
+        'accountNumber nextVerificationDate resource { nameNonLocalized }',
     {
         sortBy: 'id_ASC',
         first: pageSize,
@@ -128,7 +129,7 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
 
     logger.info('Start sending submit meter notifications')
     // initialize context stuff
-    const { keystone: context } = await getSchemaCtx('Meter')
+    const { keystone: context } = getSchemaCtx('Meter')
 
     // let's load meters page by page
     const state = {
