@@ -13,6 +13,7 @@ const {
     BILLING_ACCOUNT_OWNER_TYPE_COMPANY,
     BILLING_ACCOUNT_OWNER_TYPE_PERSON,
 } = require('@condo/domains/billing/constants/constants')
+const { HOUSING_CATEGORY_ID, REPAIR_CATEGORY_ID, ELECTRICITY_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
 const {
     ERRORS,
 } = require('@condo/domains/billing/constants/registerBillingReceiptService')
@@ -24,7 +25,6 @@ const {
     BillingTestMixin,
 } = require('@condo/domains/billing/utils/testSchema/testUtils')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { HOUSING_CATEGORY_ID, REPAIR_CATEGORY_ID, ELECTRICITY_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
 
 describe('RegisterBillingReceiptsService', () => {
 
@@ -132,7 +132,7 @@ describe('RegisterBillingReceiptsService', () => {
             expect(contextAfter.lastReport.categories).not.toContain(REPAIR_CATEGORY_ID)
         })
 
-        test('should not update lastReport if older receipts was loaded', async () => {
+        test('should not update lastReport if older receipts were loaded', async () => {
             const currentMonthPeriod = dayjs().add(6, 'year').format('YYYY-MM-01')
             const nextMonthPeriod = dayjs().add(6, 'year').add(1, 'month').format('YYYY-MM-01')
             const [nextYear, nextMonth] = nextMonthPeriod.split('-').map(Number)
