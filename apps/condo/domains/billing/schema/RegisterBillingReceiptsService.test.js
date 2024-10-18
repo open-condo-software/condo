@@ -108,6 +108,12 @@ describe('RegisterBillingReceiptsService', () => {
     })
 
     describe('ReportCreat', () => {
+        const utils = new TestUtils([BillingTestMixin])
+
+        beforeEach(async () => {
+            await utils.init()
+        })
+
         test('should update lastReport for BillingContext if new period was loaded', async () => {
             const currentMonthPeriod = dayjs().add(5, 'year').format('YYYY-MM-01')
             const nextMonthPeriod = dayjs().add(5, 'year').add(1, 'month').format('YYYY-MM-01')
@@ -120,6 +126,7 @@ describe('RegisterBillingReceiptsService', () => {
             expect(contextBefore.lastReport.period).toEqual(currentMonthPeriod)
             expect(contextBefore.lastReport.categories).toContain(REPAIR_CATEGORY_ID)
             expect(contextBefore.lastReport.categories).toContain(HOUSING_CATEGORY_ID)
+            expect(contextBefore.lastReport.totalReceipts).toEqual(2)
             const [nextYear, nextMonth] = nextMonthPeriod.split('-').map(Number)
             await registerBillingReceiptsByTestClient(utils.clients.admin, {
                 context: { id: utils.billingContext.id },
@@ -130,6 +137,7 @@ describe('RegisterBillingReceiptsService', () => {
             expect(contextAfter.lastReport.categories).toContain(ELECTRICITY_CATEGORY_ID)
             expect(contextAfter.lastReport.categories).toContain(HOUSING_CATEGORY_ID)
             expect(contextAfter.lastReport.categories).not.toContain(REPAIR_CATEGORY_ID)
+            expect(contextBefore.lastReport.totalReceipts).toEqual(2)
         })
 
         test('should not update lastReport if older receipts were loaded', async () => {
@@ -144,6 +152,7 @@ describe('RegisterBillingReceiptsService', () => {
             expect(contextBefore.lastReport.period).toEqual(nextMonthPeriod)
             expect(contextBefore.lastReport.categories).toContain(REPAIR_CATEGORY_ID)
             expect(contextBefore.lastReport.categories).toContain(HOUSING_CATEGORY_ID)
+            expect(contextBefore.lastReport.totalReceipts).toEqual(2)
             const [currentYear, currentMonth] = currentMonthPeriod.split('-').map(Number)
             await registerBillingReceiptsByTestClient(utils.clients.admin, {
                 context: { id: utils.billingContext.id },
@@ -154,6 +163,29 @@ describe('RegisterBillingReceiptsService', () => {
             expect(contextAfter.lastReport.categories).toContain(REPAIR_CATEGORY_ID)
             expect(contextAfter.lastReport.categories).toContain(HOUSING_CATEGORY_ID)
             expect(contextAfter.lastReport.categories).not.toContain(ELECTRICITY_CATEGORY_ID)
+            expect(contextBefore.lastReport.totalReceipts).toEqual(2)
+        })
+
+        test('should update lastReport if categories were changed during the same period', async () => {
+            const currentMonthPeriod = dayjs().add(5, 'year').format('YYYY-MM-01')
+            const [currentYear, currentMonth] = currentMonthPeriod.split('-').map(Number)
+            await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [ REPAIR_CATEGORY_ID ].map(category => utils.createJSONReceipt({ month: currentMonth, year: currentYear, category: { id : category } })),
+            })
+            const contextBefore = await BillingContext.getOne(utils.clients.admin, { id: utils.billingContext.id })
+            expect(contextBefore.lastReport.period).toEqual(currentMonthPeriod)
+            expect(contextBefore.lastReport.categories).toContain(REPAIR_CATEGORY_ID)
+            expect(contextBefore.lastReport.totalReceipts).toEqual(1)
+            await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [ ELECTRICITY_CATEGORY_ID ].map(category => utils.createJSONReceipt({ month: currentMonth, year: currentYear, category: { id : category } })),
+            })
+            const contextAfter = await BillingContext.getOne(utils.clients.admin, { id: utils.billingContext.id })
+            expect(contextAfter.lastReport.period).toEqual(currentMonthPeriod)
+            expect(contextAfter.lastReport.categories).toContain(ELECTRICITY_CATEGORY_ID)
+            expect(contextAfter.lastReport.categories).toContain(REPAIR_CATEGORY_ID)
+            expect(contextAfter.lastReport.totalReceipts).toEqual(2)
         })
     })
 
