@@ -24,9 +24,7 @@ const {
     BillingTestMixin,
 } = require('@condo/domains/billing/utils/testSchema/testUtils')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const HOUSING_CATEGORY_ID = '928c97ef-5289-4daa-b80e-4b9fed50c629'
-const REPAIR_CATEGORY_ID = 'c0b9db6a-c351-4bf4-aa35-8e5a500d0195'
-const ELECTRICITY_CATEGORY_ID =  '9c29b499-6594-4479-a2a7-b6553587d6e2'
+const { HOUSING_CATEGORY_ID, REPAIR_CATEGORY_ID, ELECTRICITY_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
 
 describe('RegisterBillingReceiptsService', () => {
 
