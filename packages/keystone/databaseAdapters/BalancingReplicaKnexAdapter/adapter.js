@@ -1,4 +1,5 @@
 const { KnexAdapter } = require('@keystonejs/adapter-knex')
+const { versionGreaterOrEqualTo } = require('@keystonejs/utils')
 const get = require('lodash/get')
 const omit = require('lodash/omit')
 
@@ -142,6 +143,46 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         }
         if (this._knexClients) {
             await Promise.all(Object.values(this._knexClients).map(client => client.destroy()))
+        }
+    }
+
+    async checkDatabaseVersion () {
+        // Original KnexAdapter implementation
+        async function checkKnexDBVersion (knex, minVersion) {
+            let version
+            try {
+                const result = await knex.raw('SHOW server_version;')
+                version = result.rows[0].server_version
+            } catch (err) {
+                throw new Error(`Error reading version from postgresql: ${err}`)
+            }
+
+            if (!versionGreaterOrEqualTo(version, minVersion)) {
+                throw new Error(
+                    `postgresql version ${version} is incompatible. Version ${minVersion} or later is required.`
+                )
+            }
+        }
+
+        const dbNames = Object.keys(this._knexClients)
+        const results = await Promise.allSettled(
+            dbNames.map((dbName) => checkKnexDBVersion(this._knexClients[dbName], this.minVer))
+        )
+
+        const failedIdx = Array
+            .from({ length: dbNames.length }, (_, i) => i)
+            .filter(i => results[i].status === 'rejected')
+
+        if (failedIdx.length) {
+            const errorDetails = failedIdx
+                .map(i => `${' '.repeat(4)}^ ${dbNames[i]}: ${String(results[i].reason)}`)
+                .join('\n')
+
+            // Close connections gracefully
+            await this.knex.destroy()
+            await Promise.all(Object.values(this._knexClients).map(knex => knex.destroy()))
+
+            throw new Error(`One or more databases has non-supported versions.\n${errorDetails}`)
         }
     }
 }
