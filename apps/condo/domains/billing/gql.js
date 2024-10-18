@@ -19,7 +19,7 @@ const BILLING_INTEGRATION_ACCESS_RIGHT_FIELDS = `{ integration { id name } user 
 const BillingIntegrationAccessRight = generateGqlQueries('BillingIntegrationAccessRight', BILLING_INTEGRATION_ACCESS_RIGHT_FIELDS)
 
 const BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS = `{ integration { id name appUrl checkAccountNumberUrl billingPageTitle setupUrl instruction instructionExtraLink connectedMessage uploadUrl uploadMessage extendsBillingPage billingPageTitle currencyCode dataFormat ${BILLING_INTEGRATION_DATA_FORMAT_FIELDS} skipNoAccountNotifications } organization { id tin name country type } settings state status lastReport currentProblem { id title message } ${COMMON_FIELDS} }`
-const BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FOR_REGISTER_BILLING_RECEIPTS_SERVICE_FIELDS = '{ id organization { id tin name country type } settings }'
+const BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FOR_REGISTER_BILLING_RECEIPTS_SERVICE_FIELDS = '{ id organization { id tin name country type } settings lastReport }'
 const BillingIntegrationOrganizationContext = generateGqlQueries('BillingIntegrationOrganizationContext', BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS)
 const BillingIntegrationOrganizationContextForRegisterBillingReceiptsService = generateGqlQueries('BillingIntegrationOrganizationContext', BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FOR_REGISTER_BILLING_RECEIPTS_SERVICE_FIELDS)
 
