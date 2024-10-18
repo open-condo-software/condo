@@ -151,7 +151,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                 // The organization must have the finished acquiring context
                 /** @type {Object<string, string[]>} */
                 let organizationsToAcquiringContextsMap = {}
-                const allAcquiringIntegrationContexts = find('AcquiringIntegrationContext', {
+                const allAcquiringIntegrationContexts = await find('AcquiringIntegrationContext', {
                     deletedAt: null,
                     organization: { id_in: map(billingAccountItemsData, 'organizationId') },
                     status: CONTEXT_FINISHED_STATUS,
