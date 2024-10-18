@@ -81,9 +81,9 @@ const buildExportFile = async ({ rows, task }) => {
 
 async function exportContacts (taskId) {
     if (!taskId) throw new Error('taskId is required')
-    const { keystone: context } = await getSchemaCtx('ContactExportTask')
+    const { keystone: context } = getSchemaCtx('ContactExportTask')
 
-    const task = await ContactExportTask.getOne(context, { id: taskId })
+    const task = await ContactExportTask.getOne(context, { id: taskId }, 'id timeZone format where sortBy locale')
     const { format, where, sortBy } = task
 
     const baseAttrs = { dv: 1, sender: TASK_DV_AND_SENDER }
@@ -110,7 +110,7 @@ async function exportContacts (taskId) {
                 { organization_is_null: true },
                 { organization: { id: where.organization.id } },
             ],
-        })
+        }, 'id name')
         const translatedRolesMap = Object.fromEntries(allRoles.map(role => ([role.id, role.name])))
 
         const contactLoader = await buildContactsLoader({ where, sortBy })

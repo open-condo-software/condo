@@ -98,7 +98,7 @@ const RegisterResidentInvoiceService = new GQLCustomSchema('RegisterResidentInvo
                 const [marketSetting] = await MarketSetting.getAll(context, {
                     organization: { id: resident.organization },
                     deletedAt: null,
-                }, { first: 1 })
+                }, 'residentAllowedPaymentTypes', { first: 1 })
 
                 if (resident && marketSetting && !get(marketSetting, 'residentAllowedPaymentTypes', []).includes(data.paymentType)) {
                     throw new GQLError(ERRORS.PROHIBITED_INVOICE_PAYMENT_TYPE, context)
@@ -112,7 +112,12 @@ const RegisterResidentInvoiceService = new GQLCustomSchema('RegisterResidentInvo
                     return id
                 })
 
-                const priceScopes = await MarketPriceScope.getAll(context, { deletedAt: null, id_in: priceScopesIds })
+                const priceScopes = await MarketPriceScope.getAll(
+                    context,
+                    { deletedAt: null, id_in: priceScopesIds },
+                    'id marketItemPrice { price { vatPercent salesTaxPercent price isMin } ' +
+                    'marketItem { name sku organization { id } } }'
+                )
 
                 for (let i = 0; i < priceScopes.length; i++) {
                     if (get(priceScopes, [i, 'marketItemPrice', 'marketItem', 'organization', 'id']) !== resident.organization) {

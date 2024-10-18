@@ -610,7 +610,7 @@ const Invoice = new GQLListSchema('Invoice', {
                     organization: { id: get(nextData, 'organization') },
                     sku_in: map(nextRows, 'sku'),
                     deletedAt: null,
-                })
+                }, 'sku marketCategory { parentCategory { image { publicUrl } mobileSettings { bgColor } } }')
 
                 resolvedData['rows'] = nextRows.map((nextRow) => {
                     const marketItem = _find(marketItems, { sku: nextRow.sku })

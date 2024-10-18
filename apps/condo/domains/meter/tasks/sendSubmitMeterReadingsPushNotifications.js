@@ -1,5 +1,4 @@
 const dayjs = require('dayjs')
-const locale_ru = require('dayjs/locale/ru')
 const isBetween = require('dayjs/plugin/isBetween')
 const { get, uniq, isNull, isEmpty, isNil } = require('lodash')
 
@@ -24,22 +23,23 @@ dayjs.extend(isBetween)
 const logger = getLogger('meter/sendSubmitMeterReadingsPushNotifications')
 
 const readMetersPage = async ({ context, offset, pageSize }) => {
-    return await Meter.getAll(
-        context, {
-            isAutomatic: false,
+    return await Meter.getAll(context, {
+        isAutomatic: false,
+        deletedAt: null,
+        organization: {
             deletedAt: null,
-            organization: {
-                deletedAt: null,
-            },
-            property: {
-                deletedAt: null,
-            },
-        }, {
-            sortBy: 'id_ASC',
-            first: pageSize,
-            skip: offset,
-        }
-    )
+        },
+        property: {
+            deletedAt: null,
+        },
+    },
+    'id property { id } unitName unitType organization { id } ' +
+        'accountNumber nextVerificationDate resource { nameNonLocalized }',
+    {
+        sortBy: 'id_ASC',
+        first: pageSize,
+        skip: offset,
+    })
 }
 
 const readMeterReadings = async ({ context, meters }) => {
@@ -65,6 +65,7 @@ const readMeterReadings = async ({ context, meters }) => {
             },
             deletedAt: null,
         },
+        fields: 'date meter { id }',
     })
 }
 
@@ -94,6 +95,7 @@ const readMeterReportingPeriods = async ({ context, organizations }) => {
             },
             deletedAt: null,
         },
+        fields: 'organization { id } property { id } notifyStartDay notifyEndDay',
     })
 }
 
@@ -127,7 +129,7 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
 
     logger.info('Start sending submit meter notifications')
     // initialize context stuff
-    const { keystone: context } = await getSchemaCtx('Meter')
+    const { keystone: context } = getSchemaCtx('Meter')
 
     // let's load meters page by page
     const state = {
@@ -157,7 +159,7 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
         })
         const organizations = await readOrganizations({ context, meters })
         const reportingPeriods = await readMeterReportingPeriods({ context, organizations })
-        const meterReadings = await readMeterReadings({ context, meters, reportingPeriods })
+        const meterReadings = await readMeterReadings({ context, meters })
 
         const metersWithoutReadings = []
         const periodsByProperty = []
