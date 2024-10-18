@@ -306,12 +306,15 @@ const Payment = new GQLListSchema('Payment', {
         auth: true,
     },
     hooks: {
-        resolveInput: async ({ resolvedData }) => {
+        resolveInput: async ({ operation, resolvedData }) => {
             if (resolvedData['explicitFee'] && !resolvedData['explicitServiceCharge']) {
                 resolvedData['explicitServiceCharge'] = '0'
             }
             if (resolvedData['explicitServiceCharge'] && !resolvedData['explicitFee']) {
                 resolvedData['explicitFee'] = '0'
+            }
+            if (operation === 'create') {
+                resolvedData['rawAddress'] = get(resolvedData, ['frozenReceipt', 'data', 'raw', 'address'])
             }
             return resolvedData
         },
