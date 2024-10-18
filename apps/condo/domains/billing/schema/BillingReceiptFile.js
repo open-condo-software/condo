@@ -12,7 +12,7 @@ const { GQLListSchema, getById, find, getByCondition } = require('@open-condo/ke
 const access = require('@condo/domains/billing/access/BillingReceiptFile')
 const { BILLING_RECEIPT_FILE_FOLDER_NAME } = require('@condo/domains/billing/constants/constants')
 const { CONTEXT_IS_NOT_EQUAL } = require('@condo/domains/billing/constants/errors')
-const { BillingReceiptIdOnly } = require('@condo/domains/billing/utils/serverSchema')
+const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 const ERRORS = {
@@ -196,7 +196,7 @@ const BillingReceiptFile = new GQLListSchema('BillingReceiptFile', {
                 }
             }
             if (operation === 'create') {
-                await BillingReceiptIdOnly.update(context, updatedItem.receipt, {
+                await BillingReceipt.update(context, updatedItem.receipt, {
                     dv: 1,
                     sender: { dv: 1, fingerprint: 'connect-receipt-file' },
                     file: { connect: { id: updatedItem.id } },
@@ -209,7 +209,7 @@ const BillingReceiptFile = new GQLListSchema('BillingReceiptFile', {
 
             // in case if receipt was resolved not by importId (see receipt field hook) - let's validate it
             if (!shouldResolveReceiptByImportId(operation, get(resolvedData, ['receipt']), get(resolvedData, ['importId']))) {
-                const receiptsExists = await BillingReceiptIdOnly.count(context, {
+                const receiptsExists = await BillingReceipt.count(context, {
                     id: receiptId, context: { id: contextId },
                 })
 
