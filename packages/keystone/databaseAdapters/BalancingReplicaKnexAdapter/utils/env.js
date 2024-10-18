@@ -1,5 +1,7 @@
 const Ajv = require('ajv')
 
+const { SUPPORTED_PG_OPERATIONS } = require('./sql')
+
 const ajv = new Ajv({ useDefaults: true })
 
 const DB_URL_PROTOCOL_PREFIX = 'custom:'
@@ -55,7 +57,7 @@ function getNamedDBs (databaseUrl) {
  * Generates ajv validation schema for replica pools based on available databases (obtained from getNamedDBs)
  * NOTE: for internal use only
  * @param {Array<string>} availableDatabases - name of databases, which are available for use in adapter
- * @returns {JSON}
+ * @returns {Object}
  * @private
  */
 function _createReplicaPoolsSchema (availableDatabases) {
@@ -139,17 +141,24 @@ function getReplicaPoolsConfig (config, availableDatabases) {
     return parsedConfig
 }
 
+/**
+ * Generates ajv validation schema for routing rules based on available pools (obtained from getReplicaPoolsConfig)
+ * NOTE: for internal use only
+ * @param {Array<string>} availablePools - name of pools, which are available for use in adapter
+ * @returns {Object}
+ * @private
+ */
 function _createRoutingRulesSchema (availablePools) {
     return {
         type: 'array',
         items: {
             type: 'object',
             properties: {
-                gqlOperationType: { type: 'string', enum: ['query', 'mutation'] },  // which INITIAL GQL operation type triggered SQL query
-                gqlOperationName: { type: 'string' },                               // which INITIAL GQL operation triggered SQL query, can be string or regexp
-                sqlOperationName: { type: 'string' },                               // which SQL method is triggered (select, update etc.)
-                tableName: { type: 'string' },                                      // which table is being interacted with, can be string or regexp
-                target: { type: 'string', enum: availablePools },                   // to which pool the request must go
+                gqlOperationType: { type: 'string', enum: ['query', 'mutation'] },          // which INITIAL GQL operation type triggered SQL query
+                gqlOperationName: { type: 'string' },                                       // which INITIAL GQL operation triggered SQL query, can be string or regexp
+                sqlOperationName: { type: 'string', enum: [...SUPPORTED_PG_OPERATIONS] },   // which SQL method is triggered (select, update etc.)
+                tableName: { type: 'string' },                                              // which table is being interacted with, can be string or regexp
+                target: { type: 'string', enum: availablePools },                           // to which pool the request must go
             },
             required: ['target'],
             additionalProperties: false,
@@ -158,16 +167,41 @@ function _createRoutingRulesSchema (availablePools) {
     }
 }
 
+/**
+ * Helper util to determine default rule.
+ * Default rule - rule without any conditions, so only target is presented
+ * @param {Object} rule
+ * @returns {boolean}
+ */
 function isDefaultRule (rule) {
     const keys = Object.keys(rule)
     return keys.length === 1 && keys[0] === 'target'
 }
 
+/**
+ * Helper util that determines if the passed string is a RegExp
+ * @param {string} name
+ * @returns {boolean}
+ * @private
+ */
 function _isRegExpPattern (name) {
     return !SIMPLE_NAME_PATTERN.test(name)
 }
 
-// TODO: JSDoc + Regexp
+/**
+ * Parses routing rules config, validates its correctness, converts types from JSON and returns parsed result
+ *
+ * Config is correct if:
+ * 1. It ends with default rule
+ * 2. Default rule points to writable target
+ * 3. All pools from rule's target exists
+ * 4. No sql operations except of select and show goes to read-only pool
+ * 5. All mutations are going to writeable pools
+
+ * @param {Object | string} routingConfig - routing configuration, for examples refer to env.spec.js
+ * @param {Object} poolsConfig - pools config obtained from getReplicaPoolsConfig
+ * @returns {Object}
+ */
 function getQueryRoutingRules (routingConfig, poolsConfig) {
     if (!routingConfig || (typeof routingConfig !== 'string' && !Array.isArray(routingConfig))) {
         throw new TypeError(`Invalid routing rules provided. Expect array of rules or its string representation, but got ${typeof routingConfig}`)

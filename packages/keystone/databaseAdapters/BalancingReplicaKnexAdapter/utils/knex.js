@@ -5,7 +5,7 @@ const { knex } = require('knex')
  * same as in default knex adapter:
  * https://github.com/keystonejs/keystone-5/blob/ee00f7fbac9e25364f2d96f4105e02e236fcf5a0/packages/adapter-knex/lib/adapter-knex.js#L47
  * @param options - knex options
- * @returns {Promise<Knex<any, unknown[]>>}
+ * @returns {Promise<import('knex').knex<any, unknown[]>>}
  */
 async function initKnexClient (options) {
     const client = knex(options)

@@ -13,6 +13,13 @@ class RoundRobinBalancer {
     }
 }
 
+/**
+ * Initializes pool's load balancer based on its configuration
+ * @param {string} type - load balancer type
+ * @param {Array<import('knex').Knex>} knexClients - a set of knex clients between which the load should be balanced
+ * @param {unknown} options - additional balancer configuration
+ * @returns {RoundRobinBalancer}
+ */
 function initBalancer (type, knexClients, options) {
     if (type === 'RoundRobin') {
         return new RoundRobinBalancer({ knexClients, options })

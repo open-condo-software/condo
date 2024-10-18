@@ -249,6 +249,9 @@ describe('Config validation utils', () => {
                 ['gqlOperationType is not mutation / query', [{ target: 'main', gqlOperationType: 'tripleFlip' }]],
                 ['gqlOperationName is not string', [{ target: 'main', gqlOperationName: ['createUser', 'createUsers'] }]],
                 ['sqlOperationName is not string', [{ target: 'main', sqlOperationName: ['select', 'show'] }]],
+                ['sqlOperationName is not CRUD #1', [{ target: 'main', sqlOperationName: 'drop' }]],
+                ['sqlOperationName is not CRUD #2', [{ target: 'main', sqlOperationName: 'create' }]],
+                ['sqlOperationName is not CRUD #3', [{ target: 'main', sqlOperationName: 'alter' }]],
                 ['tableName is not string', [{ target: 'main', tableName: ['User', 'Contact'] }]],
                 ['unknown properties present', [{ target: 'main', listOperations: true }]],
             ]
@@ -313,7 +316,7 @@ describe('Config validation utils', () => {
                 })
             })
             describe('Must protect mutable SQL operations from going to readonly pool', () => {
-                const mutableOperations = ['insert', 'create', 'update', 'delete', 'drop']
+                const mutableOperations = ['insert', 'update', 'delete']
                 // Select not really immutable in case of "select into", but this is not static analysis
                 const immutableOperations = ['show', 'select']
 
