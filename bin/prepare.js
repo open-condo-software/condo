@@ -128,8 +128,8 @@ async function prepare () {
                 })
                 env.DATABASE_ROUTING_RULES = JSON.stringify([
                     { target: 'main', gqlOperationType: 'mutation' },
-                    // { target: 'replicas', sqlOperationName: 'select' },
-                    // { target: 'replicas', sqlOperationName: 'show' },
+                    { target: 'replicas', sqlOperationName: 'select' },
+                    { target: 'replicas', sqlOperationName: 'show' },
                     { target: 'main' },
                 ])
             }
