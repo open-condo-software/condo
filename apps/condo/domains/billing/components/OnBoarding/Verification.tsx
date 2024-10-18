@@ -14,6 +14,7 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { CONTEXT_FINISHED_STATUS as BILLING_FINISHED_STATUS } from '@condo/domains/miniapp/constants'
 
 
+
 const IMAGE_STYLES: CSSProperties = { marginBottom: 32 }
 
 export const Verification: React.FC = () => {

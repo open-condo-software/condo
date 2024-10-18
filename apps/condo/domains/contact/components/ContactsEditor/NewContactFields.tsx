@@ -21,6 +21,7 @@ import { normalizePhone } from '@condo/domains/common/utils/phone'
 import { CONTACT_TYPE, ContactValue, FieldsType } from './index'
 
 
+
 interface INewContactFieldsFieldsProps {
     initialValueWithoutContact?: Partial<ContactType>
     onChange: (contact: ContactValue) => void

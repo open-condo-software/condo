@@ -22,6 +22,7 @@ import { WelcomeModal } from './WelcomeModal'
 import type { RowProps } from 'antd'
 
 
+
 const STEPS_GUTTER: RowProps['gutter'] = [60, 60]
 const FULL_COL_SPAN = 24
 const MODAL_STORAGE_KEY = 'isBillingModalShown'

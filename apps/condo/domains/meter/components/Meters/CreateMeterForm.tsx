@@ -49,7 +49,6 @@ export const CreateMeterForm = (props: CreateMeterProps): JSX.Element => {
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>(propertyIdFromQuery as string || null)
     const [selectedUnitName, setSelectedUnitName] = useState<string>(unitNameFromQuery as string || null)
     const [selectedUnitType, setSelectedUnitType] = useState<MeterUnitTypeType>(unitTypeFromQuery as MeterUnitTypeType || MeterUnitTypeType.Flat)
-    const [isMatchSelectedProperty] = useState(true)
 
     const { obj: property, loading: propertyLoading } = Property.useObject({ where: { id: selectedPropertyId } },
         { skip: !selectedPropertyId }
@@ -126,7 +125,7 @@ export const CreateMeterForm = (props: CreateMeterProps): JSX.Element => {
                                     form={form}
                                     getHandleSelectPropertyAddress={getHandleSelectPropertyAddress}
                                     handleDeselectPropertyAddress={handleDeselectPropertyAddress}
-                                    isMatchSelectedProperty={isMatchSelectedProperty}
+                                    isMatchSelectedProperty={true}
                                     meterType={meterType}
                                     organizationId={organizationId}
                                     selectedPropertyId={selectedPropertyId}

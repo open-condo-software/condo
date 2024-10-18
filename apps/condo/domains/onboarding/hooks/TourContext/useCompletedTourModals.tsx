@@ -20,6 +20,7 @@ import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
 import { GUIDE_LINK } from '@condo/domains/onboarding/utils/clientSchema/constants'
 
 
+
 type ButtonClickType = () => void
 
 type CompletedStepModalDataValueType = {

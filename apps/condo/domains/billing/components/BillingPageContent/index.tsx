@@ -16,6 +16,7 @@ import { useBillingAndAcquiringContexts } from './ContextProvider'
 import { MainContent } from './MainContent'
 
 
+
 export const BillingPageContent: React.FC = () => {
     const { billingContext, refetchBilling } = useBillingAndAcquiringContexts()
     const billingName = get(billingContext, ['integration', 'name'], '')

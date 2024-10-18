@@ -34,7 +34,7 @@ import { PropertyTable } from '@condo/domains/property/utils/clientSchema'
 import { IFilters, PROPERTY_PAGE_SIZE } from '@condo/domains/property/utils/helpers'
 
 type BuildingTableProps = {
-    role: OrganizationEmployeeRole
+    role: Pick<OrganizationEmployeeRole, 'canManageProperties' | 'canReadProperties'>
     baseSearchQuery: PropertyWhereInput
     tableColumns: ColumnsType
     propertyFilterMeta: FiltersMeta<PropertyWhereInput>[]

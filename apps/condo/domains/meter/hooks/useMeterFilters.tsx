@@ -20,6 +20,7 @@ import { MeterResource, MeterTypes, METER_TYPES } from '@condo/domains/meter/uti
 import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
 
+
 export function useMeterFilters (meterType: MeterTypes): Array<FiltersMeta<MeterReadingWhereInput>>  {
     const intl = useIntl()
     const EnterAddressMessage = intl.formatMessage({ id: 'pages.condo.meter.EnterAddress' })

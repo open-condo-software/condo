@@ -86,7 +86,13 @@ const initOnRestore = async (ctx) => {
     return { locale, messages }
 }
 
-const Intl = ({ children, initialLocale, initialMessages, onError }) => {
+type IntlProps = {
+    initialLocale?: string
+    initialMessages?: Record<string, string>
+    onError?
+}
+
+const Intl: React.FC<IntlProps> = ({ children, initialLocale, initialMessages, onError }) => {
     const { user, isLoading: isUserLoading } = useAuth()
     const [locale, setLocale] = useState(initialLocale)
     const [messages, setMessages] = useState(initialMessages)
@@ -119,6 +125,7 @@ const Intl = ({ children, initialLocale, initialMessages, onError }) => {
     )
 }
 
+// @ts-ignore
 if (DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER) Intl.whyDidYouRender = true
 
 type WithIntlProps = {
@@ -143,6 +150,9 @@ const withIntl: WithIntl = ({ ssr = false, ...opts }: WithIntlProps = {}) => Pag
     const onIntlError = opts.hideErrors ? (() => { }) : undefined
 
     const WithIntl = ({ locale, messages, ...pageProps }) => {
+        // console.log('WithIntl >>> ', {
+        //     locale, messages, pageProps,
+        // })
         // in there is no locale and no messages => client side rerender (we should use some client side cache)
         if (!locale) locale = getLocale()
         if (!messages) messages = {}

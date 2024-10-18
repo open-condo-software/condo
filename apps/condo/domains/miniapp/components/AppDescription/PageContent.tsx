@@ -21,6 +21,7 @@ import type { B2BAppLabelType, MiniAppOutput } from '@app/condo/schema'
 import type { RowProps, ColProps } from 'antd'
 
 
+
 const CAROUSEL_GAP = 40
 const SECTION_SPACING: RowProps['gutter'] = [0, 60]
 const SMALL_SECTION_SPACING: RowProps['gutter'] = [40, 40]

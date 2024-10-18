@@ -118,9 +118,9 @@ export class ListHelper {
         existing: ReadonlyArray<TData> | undefined,
         incoming: ReadonlyArray<TData>,
         options: TOptions
-    ): Array<TData> {
+    ): Array<TData | null> {
         // Copy array, so it's not ReadOnly anymore
-        const merged = existing ? existing.slice(0) : []
+        const merged: Array<TData | null> = existing ? existing.slice(0) : []
 
         const skip = get(options, ['args', this.skipArgName], 0)
         const first = get(options, ['args', this.firstArgName], 0)
@@ -130,8 +130,8 @@ export class ListHelper {
             merged.length = skip + first
         }
 
-        for (let i = 0; i < incoming.length; i++) {
-            merged[skip + i] = incoming[i]
+        for (let i = 0; i < Math.max(incoming.length, first); i++) {
+            merged[skip + i] = i < incoming.length ? incoming[i] : null
         }
 
         return merged
