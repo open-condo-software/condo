@@ -113,7 +113,7 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
                     organization: { id: organizationId },
                 })
                 for (const meterResourceOwner of meterResourceOwners) {
-                    await MeterResourceOwner.softDelete(context, meterResourceOwner.id, DV_SENDER)
+                    await MeterResourceOwner.softDelete(context, meterResourceOwner.id, 'id', DV_SENDER)
                 }
 
                 const meterReportingPeriods = await find('MeterReportingPeriod', {
@@ -121,7 +121,7 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
                     organization: { id: organizationId },
                 })
                 for (const meterReportingPeriod of meterReportingPeriods) {
-                    await MeterReportingPeriod.softDelete(context, meterReportingPeriod.id, DV_SENDER)
+                    await MeterReportingPeriod.softDelete(context, meterReportingPeriod.id, 'id', DV_SENDER)
                 }
 
                 const billingOrgCtxs = await BillingIntegrationOrganizationContext.getAll(context, {
