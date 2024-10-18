@@ -7,6 +7,13 @@ const SUPPORTED_PG_OPERATIONS = new Set(['insert', 'select', 'update', 'delete',
 
 const parser = new Parser()
 
+/**
+ * Helper util to extract tableName by "from" argument in node-sql-parser's AST
+ * Used in "SELECT FROM <Table>" and "DELETE FROM <Table>" queries
+ * @param ast - node-sql-parser's AST
+ * @returns {string | undefined}
+ * @private
+ */
 function _extractTableByFromArgument (ast) {
     const from = get(ast, 'from', []) || []
     const nonJoinedTable = from.find(table => !table.join)
@@ -14,6 +21,13 @@ function _extractTableByFromArgument (ast) {
     return get(nonJoinedTable, 'table')
 }
 
+/**
+ * Helper util to extract tableName by "table" argument in node-sql-parser's AST
+ * Used in "UPDATE <Table>" and "INSERT INTO <Table>" queries
+ * @param ast - node-sql-parser's AST
+ * @returns {string | undefined}
+ * @private
+ */
 function _extractTableByTableArgument (sqlString, ast) {
     const tables = get(ast, 'table', [])
 
@@ -29,6 +43,12 @@ function _extractTableByTableArgument (sqlString, ast) {
     return tables[0].table
 }
 
+/**
+ * Analyzes sql query and extracts its metadata for CRUD (+show) operations
+ * Non-CRUD operations must be a part of migration (transaction), so they're skipped here
+ * @param sqlString - SQL query
+ * @returns {{sqlOperationName: string | undefined, tableName: string | undefined}}
+ */
 function extractCRUDQueryData (sqlString) {
     let ast
     try {
@@ -49,30 +69,27 @@ function extractCRUDQueryData (sqlString) {
 
         ast = ast[0]
     }
-    const operation = get(ast, 'type')
+    const sqlOperationName = get(ast, 'type')
 
-    if (!SUPPORTED_PG_OPERATIONS.has(operation)) {
-        logger.error({ msg: 'Unsupported operation provided', sqlQuery: sqlString, sqlOperation: operation })
+    if (!SUPPORTED_PG_OPERATIONS.has(sqlOperationName)) {
+        logger.error({ msg: 'Unsupported operation provided', sqlQuery: sqlString, sqlOperationName: sqlOperationName })
         throw new Error(
             'Unsupported operation provided. ' +
             `Expected to be one of the following: [${[...SUPPORTED_PG_OPERATIONS].join(', ')}], ` +
-            `but got: ${operation}`
+            `but got: ${sqlOperationName}`
         )
     }
 
-    let table = undefined
+    let tableName = undefined
 
-    if (operation === 'select') {
-        table = _extractTableByFromArgument(ast)
-    } else if (operation === 'insert' || operation === 'update') {
-        table = _extractTableByTableArgument(sqlString, ast)
-    } else if (operation === 'delete') {
-        table = _extractTableByFromArgument(ast)
+    if (sqlOperationName === 'select' || sqlOperationName === 'delete') {
+        tableName = _extractTableByFromArgument(ast)
+    } else if (sqlOperationName === 'insert' || sqlOperationName === 'update') {
+        tableName = _extractTableByTableArgument(sqlString, ast)
     }
 
-    return { operation, table }
+    return { sqlOperationName, tableName }
 }
-
 
 
 module.exports = {

@@ -1466,12 +1466,6 @@ __metadata:
   resolution: "@app/meters-billing-integration@workspace:apps/meters-billing-integration"
   dependencies:
     "@faker-js/faker": ^8.4.1
-    "@graphql-codegen/add": ^5.0.3
-    "@graphql-codegen/cli": ^5.0.2
-    "@graphql-codegen/import-types-preset": ^3.0.0
-    "@graphql-codegen/typescript": ^4.0.9
-    "@graphql-codegen/typescript-operations": ^4.2.3
-    "@graphql-codegen/typescript-react-apollo": ^4.3.2
     "@keystonejs/keystone": ^19.3.1
     "@meters-billing-integration/domains": "link:./domains"
     "@open-condo/keystone": "workspace:^"
@@ -14053,7 +14047,7 @@ __metadata:
     ms: ^2.1.3
     next-cookies: ^2.0.3
     node-fetch: ^2.6.7
-    node-sql-parser: ^5.3.2
+    node-sql-parser: ^5.3.3
     ow: ^0.19.0
     pino: ^6.13.3
     react: ^16.13.1
@@ -41233,13 +41227,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-sql-parser@npm:^5.3.2":
-  version: 5.3.2
-  resolution: "node-sql-parser@npm:5.3.2"
+"node-sql-parser@npm:^5.3.3":
+  version: 5.3.3
+  resolution: "node-sql-parser@npm:5.3.3"
   dependencies:
     "@types/pegjs": ^0.10.0
     big-integer: ^1.6.48
-  checksum: 068479bd1aa59685cd6152364b51058c4ba65acbdea822a5a608ccea352ad8d7bcb06d6fe5b6c39eb55ea3f75cd9836ad0e074cb5a8fa6d3c38d46d906dbc509
+  checksum: f0bf18607d47fa2c074914918f7468a63bcf039fd3bfe2d18c3d5edf9888b3a5e386b73a69bff2b1a190e174805caa2492c9430cada63699d3b9ff13c155a5e5
   languageName: node
   linkType: hard
 
