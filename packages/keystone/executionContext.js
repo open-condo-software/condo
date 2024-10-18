@@ -57,5 +57,6 @@ function _internalGetAsyncLocalStorage (name = 'default') {
 
 module.exports = {
     _internalGetExecutionContextAsyncLocalStorage,
+    _internalGetAsyncLocalStorage,
     getExecutionContext,
 }
