@@ -3,11 +3,14 @@ const get = require('lodash/get')
 const omit = require('lodash/omit')
 
 const conf = require('@open-condo/config')
-const { _internalGetAsyncLocalStorage, getExecutionContext } = require('@open-condo/keystone/executionContext')
+const { _internalGetAsyncLocalStorage } = require('@open-condo/keystone/executionContext')
 
 const { KnexPool } = require('./pool')
 const { getNamedDBs, getReplicaPoolsConfig, getQueryRoutingRules, isDefaultRule } = require('./utils/env')
 const { initKnexClient } = require('./utils/knex')
+const { logger } = require('./utils/logger')
+const { isRuleMatching } = require('./utils/rules')
+const { extractCRUDQueryData } = require('./utils/sql')
 
 
 const graphqlCtx = _internalGetAsyncLocalStorage('graphqlCtx')
@@ -55,23 +58,22 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
 
     _selectTargetPool (sql) {
         const gqlContext = graphqlCtx.getStore()
-        const operationType = get(gqlContext, ['info', 'operation', 'operation'])
-        const operationName = get(gqlContext, ['info', 'fieldName'])
-        const exc = getExecutionContext()
+        const gqlOperationType = get(gqlContext, 'gqlOperationType')
+        const gqlOperationName = get(gqlContext, 'gqlOperationName')
+
+        const { sqlOperationName, tableName } = extractCRUDQueryData(sql)
+
+        const context = { gqlOperationType, gqlOperationName, sqlOperationName, tableName }
 
         for (const rule of this._routingRules) {
-            if (rule.gqlOperationType && operationType !== rule.gqlOperationType) {
-                continue
+            if (isRuleMatching(rule, context)) {
+                return this._replicaPools[rule.target]
             }
-
-
-            // if (rule.sqlOperationName && )
-
-            return this._replicaPools[rule.target]
         }
 
-        throw new Error('FINAL SELECT')
-        // TODO: throw here?
+        // NOTE: Should never throw because of default rule
+        logger.error({ msg: 'None of routing rule matched SQL-query', sqlQuery: sql, meta: context })
+        throw new Error('None of routing rule matched SQL-query')
     }
 
     async _connect () {
@@ -110,7 +112,6 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
         }
 
         this.knex.client.runner = (builder) => {
-            const gqlContext = graphqlCtx.getStore()
             try {
                 const sqlObject = builder.toSQL()
 
@@ -129,12 +130,9 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
 
                 return selectedPool.getQueryRunner(builder)
             } catch (err) {
-                // TODO: log, error?
-                throw new Error('CATCH')
+                logger.error({ msg: 'Unexpected error happened during SQL query routing', err })
+                throw new Error(`Unexpected error happened during SQL query routing: ${String(err)}`)
             }
-
-            // TODO: log, error?
-            throw new Error('FINAL')
         }
     }
 
