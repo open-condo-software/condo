@@ -102,7 +102,6 @@ export function setup () {
         organizationId,
         organizationLinkId: organizationEmployee.json('data.allOrganizationEmployees.0.id'),
         propertyId: createdProperty.json('data.obj.id'),
-        organizationForCheckFrontend: setupOrganizationForCheckFrontend(),
     }
 }
 
@@ -168,7 +167,7 @@ export async function checkFrontend (data) {
     const context = await browser.newContext()
     const page = await context.newPage()
 
-    const organizationForCheckFrontend = data.organizationForCheckFrontend
+    const organizationForCheckFrontend = setupOrganizationForCheckFrontend()
     let cookie
     let organizationLinkId
 
