@@ -35,4 +35,5 @@ describe('Date helper tests', () => {
             expect(nextMonthStart).toStrictEqual('2022-02-01')
         })
     })
+
 })
