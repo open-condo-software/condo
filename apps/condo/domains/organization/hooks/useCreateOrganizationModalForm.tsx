@@ -1,4 +1,5 @@
-import { BaseQueryOptions } from '@apollo/client'
+import { useApolloClient } from '@apollo/client'
+import { GetActualOrganizationEmployeesDocument } from '@app/condo/gql'
 import { Organization } from '@app/condo/schema'
 import { Form } from 'antd'
 import get from 'lodash/get'
@@ -14,6 +15,7 @@ import { Radio, RadioGroup, Space } from '@open-condo/ui'
 import Input from '@condo/domains/common/components/antd/Input'
 import { BaseModalForm } from '@condo/domains/common/components/containers/FormList'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { nonNull } from '@condo/domains/common/utils/nonNull'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
 import { EMPTY_NAME_ERROR, TIN_TOO_SHORT_ERROR, TIN_VALUE_INVALID } from '@condo/domains/organization/constants/errors'
 import { REGISTER_NEW_ORGANIZATION_MUTATION } from '@condo/domains/organization/gql'
@@ -33,7 +35,6 @@ interface IUseCreateOrganizationModalFormProps {
 const MODAL_VALIDATE_TRIGGERS = ['onBlur', 'onSubmit']
 const FORM_ITEM_STYLES = { width: '60%' }
 const ORGANIZATION_TYPE_FORM_ITEM_STYLES = { marginBottom: 8 }
-const FETCH_OPTIONS: BaseQueryOptions = { fetchPolicy: 'network-only' }
 const { publicRuntimeConfig: { defaultLocale } } = getConfig()
 const MUTATION_EXTRA_DATA = { country: defaultLocale }
 
@@ -47,22 +48,6 @@ const adaptOrganizationMeta = (values) => {
         type: type || MANAGING_COMPANY_TYPE,
     })
 }
-const findPropByValue = (list, path, value) => list.find(item => get(item, path) === value)
-const prepareFetchParams = userId => ({
-    user: {
-        id: userId,
-    },
-    isRejected: false,
-    isBlocked: false,
-})
-const prepareFinishFetchParams = ({ id, userId }) => ({
-    where: {
-        organization: { id },
-        user: {
-            id: userId,
-        },
-    },
-})
 const prepareValidationErrorsMapping = ({ ValueIsTooShortMsg, TinTooShortMsg, TinValueIsInvalid }) => ({
     [EMPTY_NAME_ERROR]: {
         name: 'name',
@@ -121,21 +106,42 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
         [requiredValidator, tinValidator, trimValidator, locale],
     )
 
-    const fetchParams = React.useMemo(() => ({ where: userId ? prepareFetchParams(userId) : {} }), [userId])
-    const { refetch } = OrganizationEmployee.useObjects(fetchParams, FETCH_OPTIONS)
+    const { refetch } = OrganizationEmployee.useObjects({}, { skip: true })
+
+    const client = useApolloClient()
 
     const handleFinish = useCallback(async (createResult) => {
         const id = get(createResult, 'data.obj.id')
-        const data = await refetch(prepareFinishFetchParams({ id, userId }))
-        const userLinks = get(data, 'data.objs', [])
+        const data = await refetch({
+            where: {
+                organization: { id },
+                user: {
+                    id: userId,
+                },
+                isRejected: false,
+                isBlocked: false,
+                isAccepted: true,
+            },
+            first: 1,
+        })
+        const employee = get(data, ['data', 'objs', 0]) || null
 
-        if (id) {
-            const newLink = findPropByValue(userLinks, ['organization', 'id'], id)
-
-            if (newLink && newLink.id) {
-                await selectEmployee(newLink.id)
-                setIsVisible(false)
+        if (id && employee?.id) {
+            const queryData = {
+                query: GetActualOrganizationEmployeesDocument,
+                variables: { userId: userId },
             }
+            const cachedData = client.readQuery(queryData)
+            const cachedActualEmployees = Array.isArray(cachedData?.actualEmployees) ? cachedData.actualEmployees.filter(nonNull) : []
+            client.writeQuery({
+                ...queryData,
+                data: {
+                    actualEmployees: [employee, ...cachedActualEmployees],
+                },
+            })
+
+            await selectEmployee(employee?.id)
+            setIsVisible(false)
         }
 
         if (isFunction(onFinish)) onFinish(get(createResult, 'data.obj'))

@@ -1,4 +1,4 @@
-import { MeterReadingWhereInput, MeterResource as MeterResourceType } from '@app/condo/schema'
+import { MeterReadingWhereInput } from '@app/condo/schema'
 import compact from 'lodash/compact'
 import get from 'lodash/get'
 import { useMemo } from 'react'
@@ -48,7 +48,7 @@ export function useMeterFilters (meterType: MeterTypes): Array<FiltersMeta<Meter
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
     const { objs: resources, loading: resourcesLoading } = MeterResource.useObjects({})
-    const resourcesOptions = convertToOptions<MeterResourceType>(resources, 'name', 'id')
+    const resourcesOptions = convertToOptions(resources, 'name', 'id')
 
     const isPropertyMeter = meterType === METER_TYPES.property
 
