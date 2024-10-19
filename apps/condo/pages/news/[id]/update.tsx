@@ -79,7 +79,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const { redirect, user } = await prefetchAuthOrRedirect(client, context)
     if (redirect) return redirect
 
-    const { activeEmployee } = await prefetchOrganizationEmployee({ client, context, userId: user.id })
+    await prefetchOrganizationEmployee({ client, context, userId: user.id })
 
     return extractSSRState(client, req, res, {
         props: {},
