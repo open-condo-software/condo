@@ -8,6 +8,8 @@ import {
 import { getCookie, setCookie, deleteCookie } from 'cookies-next'
 import get from 'lodash/get'
 import { GetServerSideProps } from 'next'
+
+
 export const ACTIVE_EMPLOYEE_COOKIE_NAME = 'organizationLinkId'
 
 type PrefetchOrganizationEmployeeArgs = {
@@ -43,15 +45,30 @@ export async function prefetchOrganizationEmployee (args: PrefetchOrganizationEm
     const response = await client.query<GetActiveOrganizationEmployeeQuery, GetActiveOrganizationEmployeeQueryVariables>({
         query: GetActiveOrganizationEmployeeDocument,
         variables: {
-            employeeId: null,
             userId,
         },
+    })
+    // NOTE:It is assumed that "prefetchOrganizationEmployee" will be executed
+    // at the beginning of the "getServerSideProps" call,
+    // so we can ignore the arguments and clear all "allOrganizationEmployees" requests
+    client.cache.evict({
+        id: 'ROOT_QUERY',
+        fieldName: 'allOrganizationEmployees',
     })
 
     const activeEmployee = get(response, ['data', 'employees', 0]) || null
 
     if (activeEmployee) {
-        setCookie(ACTIVE_EMPLOYEE_COOKIE_NAME, get(activeEmployee, 'id', null), { req: context.req, res: context.res })
+        client.writeQuery({
+            query: GetActiveOrganizationEmployeeDocument,
+            variables: {
+                employeeId: activeEmployee.id,
+                userId,
+            },
+            data: response.data,
+        })
+
+        setCookie(ACTIVE_EMPLOYEE_COOKIE_NAME, activeEmployee.id, { req: context.req, res: context.res })
     } else {
         deleteCookie(ACTIVE_EMPLOYEE_COOKIE_NAME, { req: context.req, res: context.res })
     }
