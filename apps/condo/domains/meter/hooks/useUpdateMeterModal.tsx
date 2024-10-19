@@ -14,7 +14,6 @@ import { BaseMeterModalForm } from '@condo/domains/meter/components/BaseMeterMod
 import { Meter, PropertyMeter, METER_TAB_TYPES, MeterPageTypes } from '@condo/domains/meter/utils/clientSchema'
 
 
-
 const INITIAL_METER_VALUES_KEYS = [
     'accountNumber', 'number', 'resource', 'place', 'numberOfTariffs', 'installationDate',
     'commissioningDate', 'sealingDate', 'verificationDate', 'nextVerificationDate', 'controlReadingsDate',

@@ -19,7 +19,6 @@ import { SettingsReadPermissionRequired } from '@condo/domains/settings/componen
 import type { GetServerSideProps } from 'next'
 
 
-
 const TITLE_STYLES: CSSProperties = { margin: 0 }
 const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
 

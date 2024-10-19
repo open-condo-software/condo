@@ -16,7 +16,6 @@ import { ContactsReadAndManagePermissionRequired } from '@condo/domains/contact/
 import type { GetServerSideProps } from 'next'
 
 
-
 const ContactUpdatePage = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'EditingContact' })

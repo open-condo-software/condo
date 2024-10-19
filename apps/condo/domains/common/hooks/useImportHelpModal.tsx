@@ -21,7 +21,6 @@ import { UserHelpRequest, UserHelpRequestFile } from '@condo/domains/onboarding/
 import { useValidations } from './useValidations'
 
 
-
 const { publicRuntimeConfig: { importInstructionUrl } } = getConfig()
 
 const CardsWrapper = styled.div<{ hasInstructionCard: boolean }>`

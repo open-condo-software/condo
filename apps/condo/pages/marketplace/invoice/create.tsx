@@ -18,7 +18,6 @@ import { InvoiceReadAndManagePermissionRequired } from '@condo/domains/marketpla
 import type { GetServerSideProps } from 'next'
 
 
-
 const CREATE_INVOICE_PAGE_GUTTER: [Gutter, Gutter] = [12, 60]
 
 const CreateInvoicePage = () => {

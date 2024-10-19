@@ -17,7 +17,6 @@ import { AuthLayoutContextProvider } from './AuthLayoutContext'
 import { PosterLayout } from './PosterLayout'
 
 
-
 export interface AuthPage extends React.FC {
     headerAction?: React.ReactElement
     container: React.FC

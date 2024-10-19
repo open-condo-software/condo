@@ -36,7 +36,6 @@ import {
 import type { GetServerSideProps } from 'next'
 
 
-
 const PdfView = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.PageTitle' })

@@ -49,7 +49,6 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 import type { GetServerSideProps } from 'next'
 
 
-
 const {
     publicRuntimeConfig,
 } = getConfig()

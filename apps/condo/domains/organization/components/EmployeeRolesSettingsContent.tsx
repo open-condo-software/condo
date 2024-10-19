@@ -53,7 +53,6 @@ import { OrganizationEmployeeRole } from '@condo/domains/organization/utils/clie
 import { getRelatedPermissionsTranslations } from '@condo/domains/organization/utils/roles.utils'
 
 
-
 const MEDIUM_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 
 type EmployeeRolesTableProps = {

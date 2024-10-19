@@ -96,7 +96,6 @@ import { IFilters } from '@condo/domains/ticket/utils/helpers'
 import type { GetServerSideProps } from 'next'
 
 
-
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
     requiredAccess?: React.FC

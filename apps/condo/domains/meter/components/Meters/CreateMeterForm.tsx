@@ -21,7 +21,6 @@ import { PropertyMeter, Meter, MeterPageTypes, METER_TAB_TYPES } from '@condo/do
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
 
-
 type CreateMeterProps = {
     organizationId: string
     meterType: MeterPageTypes

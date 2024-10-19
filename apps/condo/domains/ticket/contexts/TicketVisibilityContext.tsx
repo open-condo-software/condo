@@ -20,7 +20,6 @@ import {
 } from '@condo/domains/scope/utils/clientSchema'
 
 
-
 interface ITicketVisibilityContext {
     ticketFilterQuery: TicketWhereInput
     ticketFilterQueryLoading: boolean

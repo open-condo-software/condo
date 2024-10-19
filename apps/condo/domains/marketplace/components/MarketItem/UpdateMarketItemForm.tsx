@@ -28,7 +28,6 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 import { BaseMarketItemForm } from './BaseMarketItemForm'
 
 
-
 export const UpdateMarketItemForm = ({ marketItem }) => {
     const intl = useIntl()
     const UpdateMessage = intl.formatMessage({ id: 'Save' })

@@ -103,7 +103,6 @@ import { RESIDENT } from '@condo/domains/user/constants/common'
 import type { GetServerSideProps } from 'next'
 
 
-
 const TICKET_CONTENT_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 const BIG_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 const MEDIUM_VERTICAL_GUTTER: RowProps['gutter'] = [0, 24]

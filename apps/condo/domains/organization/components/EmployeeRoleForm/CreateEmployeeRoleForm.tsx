@@ -15,7 +15,6 @@ import { OrganizationEmployeeRole as EmployeeRole } from '@condo/domains/organiz
 import { BaseEmployeeRoleForm, BaseEmployeeRoleFormPropsType } from './BaseEmployeeRoleForm'
 
 
-
 type CreateEmployeeRoleFormProps = {
     useEmployeeRolesPermissionsGroups?: UseEmployeeRolesPermissionsGroups
     withoutB2BApps?: boolean

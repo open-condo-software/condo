@@ -24,7 +24,6 @@ import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSc
 import type { GetServerSideProps } from 'next'
 
 
-
 const PropertyMeterInfoPage = (): JSX.Element => {
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })

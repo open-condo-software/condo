@@ -38,7 +38,6 @@ import { useMarketplacePaymentTableColumns } from '@condo/domains/marketplace/ho
 import { MARKETPLACE_PAGE_TYPES } from '@condo/domains/marketplace/utils/clientSchema'
 
 
-
 const ROW_GUTTERS: RowProps['gutter'] = [16, 16]
 const SUM_BAR_COL_GUTTER: RowProps['gutter'] = [40, 0]
 const QUICK_FILTERS_COL_STYLE: CSSProperties = { alignSelf: 'center' }

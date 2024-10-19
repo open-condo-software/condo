@@ -41,7 +41,6 @@ import { IFilters } from '@condo/domains/ticket/utils/helpers'
 import type { GetServerSideProps } from 'next'
 
 
-
 interface INewsIndexPage extends React.FC {
     headerAction?: JSX.Element
     requiredAccess?: React.FC

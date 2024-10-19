@@ -45,7 +45,6 @@ import MarketplaceSettingsPage from './marketplace'
 import type { GetServerSideProps } from 'next'
 
 
-
 const TITLE_STYLES: CSSProperties = { margin: 0 }
 
 const ALWAYS_AVAILABLE_TABS = []

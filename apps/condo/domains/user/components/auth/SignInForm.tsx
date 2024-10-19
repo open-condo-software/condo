@@ -20,7 +20,6 @@ import { WRONG_PASSWORD_ERROR, WRONG_PHONE_ERROR } from '@condo/domains/user/con
 import { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } from '@condo/domains/user/gql'
 
 
-
 const ROW_STYLES: React.CSSProperties = {
     justifyContent: 'center',
 }

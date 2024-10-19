@@ -45,7 +45,6 @@ import { RESIDENT } from '@condo/domains/user/constants/common'
 import type { GetServerSideProps } from 'next'
 
 
-
 const INVOICE_CONTENT_VERTICAL_GUTTER: RowProps['gutter'] = [0, 60]
 const MEDIUM_VERTICAL_GUTTER: RowProps['gutter'] = [0, 24]
 const SMALL_VERTICAL_GUTTER: RowProps['gutter'] = [0, 20]

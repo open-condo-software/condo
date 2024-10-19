@@ -41,7 +41,6 @@ import type { SortPaymentsBy } from '@app/condo/schema'
 
 
 
-
 const SORTABLE_PROPERTIES = ['advancedAt', 'amount']
 const PAYMENTS_DEFAULT_SORT_BY = ['advancedAt_DESC']
 const DEFAULT_CURRENCY_CODE = 'RUB'

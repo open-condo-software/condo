@@ -13,7 +13,6 @@ import {
 import { TicketAutoAssignment } from '@condo/domains/ticket/utils/clientSchema'
 
 
-
 const selectUserByAutoAssignmentRule = (rule, employees, key: 'assignee' | 'executor') => {
     if (!rule) return null
 

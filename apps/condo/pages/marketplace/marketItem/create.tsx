@@ -18,7 +18,6 @@ import { MarketItemReadAndManagePermissionRequired } from '@condo/domains/market
 import type { GetServerSideProps } from 'next'
 
 
-
 const CREATE_MARKET_ITEM_PAGE_GUTTER: [Gutter, Gutter] = [12, 60]
 
 const CreateInvoicePage = () => {

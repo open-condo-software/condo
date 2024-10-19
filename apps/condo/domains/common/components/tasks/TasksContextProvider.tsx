@@ -18,7 +18,6 @@ import { closeTasksProgress, displayTasksProgress } from './TaskProgress'
 import { ITask, ITasksContext, ITaskTrackableItem, TaskRecord, TasksContext, TASK_REMOVE_STRATEGY } from './index'
 
 
-
 // Map of task schema name to its UI interface implementation
 type TaskUIInterfacesMap = Record<string, ITask>
 

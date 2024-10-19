@@ -36,7 +36,6 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 import type { GetServerSideProps } from 'next'
 
 
-
 const PROPERTY_PAGE_CONTENT_ROW_GUTTER: RowProps['gutter'] = [12, 40]
 const PROPERTY_PAGE_CONTENT_ROW_INFO_BLOCK_GUTTER: RowProps['gutter'] = [52, 24]
 const PROPERTY_PAGE_CONTENT_ROW_INFO_BLOCK_STYLE: React.CSSProperties = { marginTop: '80px', marginRight: '-20px' }

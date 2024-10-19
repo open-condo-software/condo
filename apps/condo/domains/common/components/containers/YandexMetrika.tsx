@@ -11,7 +11,6 @@ import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 
 
-
 const YandexMetrika = () => {
     const { publicRuntimeConfig } = getConfig()
     const { yandexMetrikaID } = publicRuntimeConfig

@@ -34,7 +34,6 @@ import {
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 
 
-
 const COLUMNS_WIDTH = {
     commentsIndicator: '0%',
     favorite: '4%',

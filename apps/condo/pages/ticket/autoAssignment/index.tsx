@@ -45,7 +45,6 @@ import { ClassifiersQueryLocal } from '@condo/domains/ticket/utils/clientSchema/
 import type { GetServerSideProps } from 'next'
 
 
-
 interface ITicketAutoAssignmentPage extends React.FC {
     headerAction?: JSX.Element
     requiredAccess?: React.FC

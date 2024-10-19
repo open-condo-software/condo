@@ -16,7 +16,6 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import type { GetServerSideProps } from 'next'
 
 
-
 type PageType = React.FC & {
     requiredAccess: React.ReactNode
 }

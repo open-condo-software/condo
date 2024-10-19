@@ -13,7 +13,6 @@ import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
 import { MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/common'
 
 
-
 type ActiveTourStepType = typeof FIRST_LEVEL_STEPS[number] | null
 
 type TourContextType = {

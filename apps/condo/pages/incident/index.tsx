@@ -52,7 +52,6 @@ import { getFilterAddressForSearch } from '@condo/domains/ticket/utils/tables.ut
 import type { GetServerSideProps } from 'next'
 
 
-
 export interface IIncidentIndexPage extends React.FC {
     headerAction?: JSX.Element
     requiredAccess?: React.FC

@@ -4,7 +4,6 @@ import React from 'react'
 
 
 
-
 import { prepareSSRContext } from '@open-condo/miniapp-utils'
 import { initializeApollo } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'

@@ -26,7 +26,6 @@ import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/org
 import type { GetServerSideProps } from 'next'
 
 
-
 type PageType = React.FC & {
     requiredAccess: React.FC
 }

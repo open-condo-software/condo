@@ -25,7 +25,6 @@ import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 import type { GetServerSideProps } from 'next'
 
 
-
 const UPDATE_INVOICE_PAGE_GUTTER: [Gutter, Gutter] = [12, 60]
 
 const UpdateInvoicePage = () => {

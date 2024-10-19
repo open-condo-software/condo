@@ -13,7 +13,6 @@ import { BankAccount } from '@condo/domains/banking/utils/clientSchema'
 import { CardsContainer, CardsPerRowType } from '@condo/domains/common/components/Card/CardsContainer'
 
 
-
 const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
 
 const StyledAlert = styled(Alert)`

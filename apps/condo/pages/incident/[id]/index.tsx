@@ -42,7 +42,6 @@ import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import type { GetServerSideProps } from 'next'
 
 
-
 export interface IIncidentIdPage extends React.FC {
     headerAction?: JSX.Element
     requiredAccess?: React.FC

@@ -29,7 +29,6 @@ import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/t
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 
 
-
 const SORTABLE_PROPERTIES = ['name']
 const TICKET_HINTS_DEFAULT_SORT_BY = ['createdAt_DESC']
 

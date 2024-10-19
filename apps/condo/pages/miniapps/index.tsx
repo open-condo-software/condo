@@ -16,7 +16,6 @@ import { ServicesReadPermissionRequired } from '@condo/domains/miniapp/component
 import type { GetServerSideProps } from 'next'
 
 
-
 type PageType = React.FC & {
     requiredAccess: React.ReactNode
 }

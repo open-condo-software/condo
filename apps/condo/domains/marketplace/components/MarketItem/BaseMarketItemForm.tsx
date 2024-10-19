@@ -47,7 +47,6 @@ import {
 } from './BaseMarketItemFormContext'
 
 
-
 const GROUP_OUTER_GUTTER: RowProps['gutter'] = [0, 40]
 const GROUP_INNER_GUTTER: RowProps['gutter'] = [0, 40]
 

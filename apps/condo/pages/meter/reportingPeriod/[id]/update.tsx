@@ -20,7 +20,6 @@ import { METER_TAB_TYPES, MeterReportingPeriod, METER_TYPES } from '@condo/domai
 import type { GetServerSideProps } from 'next'
 
 
-
 const CREATE_REPORTING_PERIOD_PAGE_GUTTER: RowProps['gutter'] = [0, 16]
 
 const MeterReportingPeriodUpdatePage = (): JSX.Element => {

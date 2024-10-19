@@ -11,7 +11,6 @@ import { Logo } from '@condo/domains/common/components/Logo'
 import { ActionContainer, Header, MobileHeader } from './styles'
 
 
-
 const LOGO_HEADER_STYLES = { width: '100%', justifyContent: 'space-between' }
 const HEADER_ACTION_STYLES = { alignSelf:'center', marginTop: '10px' }
 const HEADER_LOGO_STYLE: React.CSSProperties = { cursor: 'pointer' }

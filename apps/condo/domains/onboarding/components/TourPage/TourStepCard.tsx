@@ -18,7 +18,6 @@ import {
 } from '@condo/domains/onboarding/utils/clientSchema/constants'
 
 
-
 type TourStepCardProps = {
     step: TourStepType
     steps: TourStepType[]

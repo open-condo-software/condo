@@ -55,7 +55,6 @@ import { CallRecordFragment, Ticket } from '@condo/domains/ticket/utils/clientSc
 import type { GetServerSideProps } from 'next'
 
 
-
 //#region Constants, types and styles
 const ADDRESS_STREET_ONE_ROW_HEIGHT = 25
 const ADDRESS_POSTFIX_ONE_ROW_HEIGHT = 22

@@ -31,7 +31,6 @@ import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import type { GetServerSideProps } from 'next'
 
 
-
 const VALUE_FIELD_WRAPPER_STYLE = { width: '100%' }
 const CONTACT_FIELD_PAIR_PROPS: Partial<FieldPairRowProps> = {
     titleColProps: { span: 8 },

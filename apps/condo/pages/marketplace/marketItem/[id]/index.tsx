@@ -38,7 +38,6 @@ import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import type { GetServerSideProps } from 'next'
 
 
-
 const MARKET_ITEM_CONTENT_VERTICAL_GUTTER: RowProps['gutter'] = [0, 60]
 const MEDIUM_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 const SMALL_VERTICAL_GUTTER: RowProps['gutter'] = [0, 24]

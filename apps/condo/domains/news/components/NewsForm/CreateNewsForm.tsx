@@ -20,7 +20,6 @@ import { BaseNewsFormProps } from './BaseNewsForm'
 import { BaseNewsFormByFeatureFlag } from './BaseNewsFormByFeatureFlag'
 
 
-
 const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 28]
 
 // TODO DOMA-7397 This function use only in OldBaseNewsForm. In BaseNewsForm this function is not nedeed

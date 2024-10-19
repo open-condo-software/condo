@@ -33,7 +33,6 @@ import type { OrganizationEmployeeWhereInput } from '@app/condo/schema'
 import type { GetServerSideProps } from 'next'
 
 
-
 const ROW_GUTTER_BIG: [Gutter, Gutter] = [0, 60]
 const ROW_GUTTER_MID: [Gutter, Gutter] = [0, 40]
 const ROW_GUTTER_SMALL: [Gutter, Gutter] = [0, 24]

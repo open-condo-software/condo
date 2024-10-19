@@ -29,7 +29,6 @@ import {
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 
 
-
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
         span: 8,

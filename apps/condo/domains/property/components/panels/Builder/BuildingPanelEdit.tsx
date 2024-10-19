@@ -56,7 +56,6 @@ import { FullscreenHeader, FullscreenWrapper } from './Fullscreen'
 import { MapEdit, MapEditMode, MapViewMode } from './MapConstructor'
 
 
-
 const DEBOUNCE_TIMEOUT = 800
 const INSTANT_ACTIONS = ['addBasement', 'addAttic']
 

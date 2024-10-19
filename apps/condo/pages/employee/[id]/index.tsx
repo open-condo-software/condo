@@ -37,7 +37,6 @@ import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import type { GetServerSideProps } from 'next'
 
 
-
 const ReInviteActionAlert = ({ employee }) => {
     const intl = useIntl()
     const EmployeeDidntEnteredMessage = intl.formatMessage({ id: 'employee.EmployeeDidntEntered' })

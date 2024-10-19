@@ -17,7 +17,6 @@ import { ContactsReadAndManagePermissionRequired } from '@condo/domains/contact/
 import type { GetServerSideProps } from 'next'
 
 
-
 interface ICreateContactPage extends React.FC {
     headerAction?: JSX.Element
     requiredAccess?: React.FC

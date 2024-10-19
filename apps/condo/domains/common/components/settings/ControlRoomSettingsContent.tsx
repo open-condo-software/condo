@@ -14,7 +14,6 @@ import { TicketDeadlineSettingCard } from '@condo/domains/ticket/components/Tick
 import { TicketOrganizationSetting as TicketSetting, TicketPropertyHint } from '@condo/domains/ticket/utils/clientSchema'
 
 
-
 const CONTENT_GUTTER: Gutter | [Gutter, Gutter] = [0, 40]
 
 export const ControlRoomSettingsContent: React.FC = () => {

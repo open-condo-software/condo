@@ -16,7 +16,6 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
 
-
 const skuFilter = getStringContainsFilter(['sku'])
 const nameFilter = getStringContainsFilter(['name'])
 const marketCategoryFilter = (categoryId: string) => {

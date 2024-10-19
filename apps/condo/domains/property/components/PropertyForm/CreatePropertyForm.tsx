@@ -14,7 +14,6 @@ import BasePropertyForm from '@condo/domains/property/components/BasePropertyFor
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
 
-
 const DEFAULT_PROPERTY_TYPE = PropertyTypeType.Building
 const FORM_DEPENDENCIES = ['address']
 

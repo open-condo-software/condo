@@ -10,7 +10,6 @@ import { Incident } from '@condo/domains/ticket/utils/clientSchema'
 import { BaseIncidentForm, BaseIncidentFormProps } from './BaseIncidentForm'
 
 
-
 export const CreateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormProps['ActionBar']>> = (props) => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'incident.form.save.label' })

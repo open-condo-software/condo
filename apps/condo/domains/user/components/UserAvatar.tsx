@@ -10,7 +10,6 @@ import { colors } from '@condo/domains/common/constants/style'
 
 
 
-
 interface IResponsiveAvatarProps {
     src: string
     borderRadius: number

@@ -90,7 +90,6 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
     })
 
 
-
     const billingCtxId = get(billingCtx, 'id', null)
     const acquiringCtxId = get(acquiringCtx, 'id', null)
     const connectedCtxId = get(connectedCtx, 'id', null)

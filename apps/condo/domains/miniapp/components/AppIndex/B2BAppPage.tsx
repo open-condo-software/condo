@@ -16,7 +16,6 @@ import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 import { B2BAppContext, B2BAppRole } from '@condo/domains/miniapp/utils/clientSchema'
 
 
-
 type B2BAppPageProps = {
     id: string
 }

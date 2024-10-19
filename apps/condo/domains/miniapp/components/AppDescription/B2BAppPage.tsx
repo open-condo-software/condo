@@ -15,7 +15,6 @@ import { ConnectModal } from './ConnectModal'
 import { PageContent } from './PageContent'
 
 
-
 type B2BPageProps = {
     id: string
 }

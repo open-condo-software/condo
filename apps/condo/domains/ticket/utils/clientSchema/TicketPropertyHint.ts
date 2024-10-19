@@ -23,7 +23,6 @@ const {
 } = generateReactHooks<TicketPropertyHint, TicketPropertyHintCreateInput, TicketPropertyHintUpdateInput, QueryAllTicketPropertyHintsArgs>(TicketPropertyHintGQL)
 
 
-
 export {
     useCount,
     useObject,

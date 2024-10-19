@@ -25,7 +25,6 @@ import { getMeterTitleMessage } from '@condo/domains/meter/utils/helpers'
 import { TicketPropertyField } from '@condo/domains/ticket/components/TicketId/TicketPropertyField'
 
 
-
 const METER_STATUSES = { active: 'active', archived: 'archived' }
 
 

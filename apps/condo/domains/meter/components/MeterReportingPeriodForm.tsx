@@ -27,7 +27,6 @@ import { usePropertyValidations } from '@condo/domains/property/components/BaseP
 import { searchOrganizationPropertyWithoutPropertyHint } from '@condo/domains/ticket/utils/clientSchema/search'
 
 
-
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
         span: 8,

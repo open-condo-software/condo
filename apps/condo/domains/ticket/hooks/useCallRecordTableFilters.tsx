@@ -21,7 +21,6 @@ import {
 } from '@condo/domains/ticket/utils/tables.utils'
 
 
-
 const filterTicketNumber = getNumberFilter(['ticket', 'number'])
 const filterAddress = getStringContainsFilter(['ticket', 'property', 'address'])
 const filterTalkTime = getNumberFilter(['callRecord', 'talkTime'])

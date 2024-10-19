@@ -17,7 +17,6 @@ import { EmployeeRolesReadAndManagePermissionRequired } from '@condo/domains/set
 import type { GetServerSideProps } from 'next'
 
 
-
 const CreateEmployeeRolePage: IPage = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'pages.condo.employeeRole.create.title' })

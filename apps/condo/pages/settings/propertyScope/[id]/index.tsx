@@ -39,7 +39,6 @@ import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Rende
 import type { GetServerSideProps } from 'next'
 
 
-
 const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
 const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
 const PARAGRAPH_STYLES: CSSProperties = { margin: 0 }

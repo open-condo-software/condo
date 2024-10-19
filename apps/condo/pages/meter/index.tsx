@@ -36,7 +36,6 @@ import { METER_TAB_TYPES, METER_TYPES, MeterTypes } from '@condo/domains/meter/u
 import type { GetServerSideProps } from 'next'
 
 
-
 interface IMeterIndexPage extends React.FC {
     headerAction?: JSX.Element
     requiredAccess?: React.FC
