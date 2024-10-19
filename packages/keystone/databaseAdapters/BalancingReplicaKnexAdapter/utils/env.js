@@ -36,7 +36,7 @@ const validateDBConfig = ajv.compile(DB_URL_SCHEMA)
  * Flat connection string is good, but it can contain query parameters for configuration,
  * and required to be the same across all others env values, so assigning a name to it is easier to maintain
  *
- * @param {string | undefined} databaseUrl - custom db url. Example: 'custom:{"write": "postgresql://postgres:postgres@127.0.0.1:5433/local-condo", "async_replica": "postgresql://postgres:postgres@127.0.0.1:5432/local-condo"}'
+ * @param {string | undefined} databaseUrl - custom db url. Example: 'custom:{"main": "postgresql://****:****@127.0.0.1:5433/local-condo", "async_replica": "postgresql://****:****@127.0.0.1:5432/local-condo"}'
  * @returns {Record<string, string>} - parsed dictionary of form Record<db_name, connection_string>.
  */
 function getNamedDBs (databaseUrl) {
