@@ -223,9 +223,13 @@ function getQueryRoutingRules (routingConfig, poolsConfig) {
     const modifiedRules = parsedRules.map(rule => {
         const copiedRule = { ...rule }
         if (copiedRule.gqlOperationName && _isRegExpPattern(copiedRule.gqlOperationName)) {
+            // NOTE: Input is taken from .env and checked via code-review, so it's not applicable
+            // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
             copiedRule.gqlOperationName = new RegExp(copiedRule.gqlOperationName)
         }
         if (copiedRule.tableName && _isRegExpPattern(copiedRule.tableName)) {
+            // NOTE: Input is taken from .env and checked via code-review, so it's not applicable
+            // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
             copiedRule.tableName = new RegExp(copiedRule.tableName)
         }
 

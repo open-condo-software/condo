@@ -420,6 +420,8 @@ describe('Config validation utils', () => {
             describe('passed as objects', () => {
                 test.each(cases)('%p', (_, config) => {
                     const expected = config.map(rule => rule.tableName
+                        // NOTE: controlled tests environment
+                        // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
                         ? { ...rule, tableName: new RegExp(rule.tableName) }
                         : rule
                     )
@@ -430,6 +432,8 @@ describe('Config validation utils', () => {
             describe('passed as stringified objects', () => {
                 test.each(cases)('%p', (_, config) => {
                     const expected = config.map(rule => rule.tableName
+                        // NOTE: controlled tests environment
+                        // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
                         ? { ...rule, tableName: new RegExp(rule.tableName) }
                         : rule
                     )
@@ -456,6 +460,8 @@ describe('Config validation utils', () => {
                         { target: 'main' },
                     ]
                     const expected = [
+                        // NOTE: controlled tests environment
+                        // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
                         { target: 'replicas', tableName: new RegExp(pattern) },
                         { target: 'main' },
                     ]
@@ -490,6 +496,8 @@ describe('Config validation utils', () => {
                         { target: 'main' },
                     ]
                     const expected = [
+                        // NOTE: controlled tests environment
+                        // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
                         { target: 'replicas', gqlOperationName: new RegExp(pattern) },
                         { target: 'main' },
                     ]
