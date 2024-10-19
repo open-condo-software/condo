@@ -9,6 +9,7 @@ import uniqBy from 'lodash/uniqBy'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, CSSProperties } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { ChevronDown, PlusCircle } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
@@ -42,6 +43,7 @@ export const InlineOrganizationSelect: React.FC = () => {
     const ChooseOrganizationMessage = intl.formatMessage({ id: 'pages.organizations.ChooseOrganizationLabel' })
     const AddOrganizationTitle = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationButtonLabel' })
 
+    const { persistor } = useCachePersistor()
     const router = useRouter()
 
     const { breakpoints } = useLayoutContext()
@@ -54,11 +56,11 @@ export const InlineOrganizationSelect: React.FC = () => {
         selectEmployee: setActiveEmployee,
         isLoading: organizationLoading,
     } = useOrganization()
-    const userId = get(user, 'id') || null
+    const userId = user?.id || null
 
     const { data: actualEmployeesData, loading: isActualEmployeeLoading } = useGetActualOrganizationEmployeesQuery({
         variables: { userId },
-        skip: !userId,
+        skip: !userId || !persistor,
     })
     const actualEmployees = useMemo(
         () => Array.isArray(actualEmployeesData?.actualEmployees) ? actualEmployeesData.actualEmployees.filter(nonNull) : []
@@ -67,7 +69,7 @@ export const InlineOrganizationSelect: React.FC = () => {
 
     const { data: invites, loading: isInvitesLoading } = useGetInviteCountQuery({
         variables: { userId },
-        skip: !userId,
+        skip: !userId || !persistor,
     })
     const hasInvites = invites?.meta?.count > 0
 
@@ -90,22 +92,24 @@ export const InlineOrganizationSelect: React.FC = () => {
     }, [showCreateOrganizationModal])
 
     useDeepCompareEffect(() => {
-        if (!isActualEmployeeLoading && !isInvitesLoading && user) {
-            // Note: no current organization selected
-            if (!activeEmployee) {
-                // But has organizations to select -> select first one
-                if (filteredEmployees.length) {
-                    setActiveEmployee(filteredEmployees[0].id)
-                    // No organization -> show modal for creation directly
-                } else if (!hasInvites) {
-                    showCreateModal()
-                }
-                // Note: organization in cookie, but value is invalid
-            } else if (!filteredEmployees.some(employee => employee.id === activeEmployee.id)) {
-                setActiveEmployee(null)
+        if (!persistor) return
+        if (!user) return
+        if (isActualEmployeeLoading || isInvitesLoading) return
+
+        // Note: no current organization selected
+        if (!activeEmployee) {
+            // But has organizations to select -> select first one
+            if (filteredEmployees.length) {
+                setActiveEmployee(filteredEmployees[0].id)
+                // No organization -> show modal for creation directly
+            } else if (!hasInvites) {
+                showCreateModal()
             }
+            // Note: organization in cookie, but value is invalid
+        } else if (!filteredEmployees.some(employee => employee.id === activeEmployee.id)) {
+            setActiveEmployee(null)
         }
-    }, [isActualEmployeeLoading, user, activeEmployee, filteredEmployees, setActiveEmployee, showCreateModal, isInvitesLoading, hasInvites])
+    }, [isActualEmployeeLoading, user, activeEmployee, filteredEmployees, setActiveEmployee, showCreateModal, isInvitesLoading, hasInvites, persistor])
 
     const handleClickOrganization = useCallback((employeeId: string) => {
         return () => setActiveEmployee(employeeId)

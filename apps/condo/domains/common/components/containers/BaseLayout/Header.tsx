@@ -1,10 +1,13 @@
-import { OrganizationTypeType, OrganizationWhereInput } from '@app/condo/schema'
+import { useApolloClient } from '@apollo/client'
+import { GetActualOrganizationEmployeesDocument } from '@app/condo/gql'
+import { OrganizationTypeType } from '@app/condo/schema'
 import { Layout } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 
 import { Menu } from '@open-condo/icons'
+import { useMutation } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 import { Space } from '@open-condo/ui'
@@ -12,18 +15,18 @@ import { Space } from '@open-condo/ui'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Logo } from '@condo/domains/common/components/Logo'
 import { ResidentActions } from '@condo/domains/common/components/ResidentActions/ResidentActions'
+import { nonNull } from '@condo/domains/common/utils/nonNull'
 import { InlineOrganizationSelect } from '@condo/domains/organization/components/OrganizationSelect'
 import { SBBOLIndicator } from '@condo/domains/organization/components/SBBOLIndicator'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
+import { ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION } from '@condo/domains/organization/gql'
 import { useOrganizationInvites } from '@condo/domains/organization/hooks/useOrganizationInvites'
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
 
 import { ITopMenuItemsProps, TopMenuItems } from './components/TopMenuItems'
 
 
-const ORGANIZATION_FILTER: OrganizationWhereInput = {
-    type_not: OrganizationTypeType.Holding,
-}
+const ORGANIZATION_TYPES: Array<OrganizationTypeType> = [OrganizationTypeType.Holding]
 
 interface IHeaderProps {
     headerAction?: React.ElementType
@@ -31,15 +34,44 @@ interface IHeaderProps {
 }
 
 export const Header: React.FC<IHeaderProps> = (props) => {
+    const client = useApolloClient()
     const { breakpoints, toggleCollapsed } = useLayoutContext()
     const router = useRouter()
-    const { isAuthenticated } = useAuth()
 
+    const { user, isAuthenticated } = useAuth()
     const { organization } = useOrganization()
+
+    const userId = get(user, 'id') || null
 
     const hasAccessToAppeals = get(organization, 'type', MANAGING_COMPANY_TYPE) !== SERVICE_PROVIDER_TYPE
 
-    useOrganizationInvites(ORGANIZATION_FILTER)
+    const [acceptOrReject] = useMutation(ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION, {
+        onCompleted: (result) => {
+            const isAcceptedInvite = result?.obj
+                && result.obj.isAccepted
+                && !result.obj.isBlocked
+                && !result.obj.isRejected
+                && [OrganizationTypeType.ManagingCompany, OrganizationTypeType.ServiceProvider].includes(result.obj.organization.type)
+
+            if (isAcceptedInvite) {
+                const queryData = {
+                    query: GetActualOrganizationEmployeesDocument,
+                    variables: { userId: userId },
+                }
+                const cachedData = client.readQuery(queryData)
+                const cachedActualEmployees = Array.isArray(cachedData?.actualEmployees) ? cachedData.actualEmployees.filter(nonNull) : []
+
+                client.writeQuery({
+                    ...queryData,
+                    data: {
+                        actualEmployees: [result.obj, ...cachedActualEmployees],
+                    },
+                })
+            }
+        },
+    })
+
+    useOrganizationInvites(ORGANIZATION_TYPES, acceptOrReject)
 
     const handleLogoClick = useCallback(() => {
         if (isAuthenticated) {

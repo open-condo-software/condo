@@ -1,68 +1,44 @@
-import { useApolloClient } from '@apollo/client'
-import { GetActualOrganizationEmployeesDocument } from '@app/condo/gql'
 import { OrganizationEmployee as OrganizationEmployeeType, OrganizationTypeType } from '@app/condo/schema'
 import { notification } from 'antd'
 import { get } from 'lodash'
 import React from 'react'
 
-import { useMutation } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { FormattedMessage, useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import { ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION } from '@condo/domains/organization/gql'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
-import { nonNull } from '../../common/utils/nonNull'
+import type { MutationTuple } from '@apollo/client/react/types/types'
 
-import type { OrganizationWhereInput } from '@app/condo/schema'
-
-interface IOrganizationInvitesHookResult {
+type OrganizationInvitesReturnType = {
     loading: boolean
 }
 
-export const useOrganizationInvites = (organizationFilter?: OrganizationWhereInput): IOrganizationInvitesHookResult => {
+export const useOrganizationInvites = (organizationTypes: Array<OrganizationTypeType>, acceptOrRejectMutation: MutationTuple<{ obj: OrganizationEmployeeType }, any>[0]): OrganizationInvitesReturnType => {
     const intl = useIntl()
     const AcceptMessage = intl.formatMessage({ id: 'Accept' })
     const RejectMessage = intl.formatMessage({ id: 'Reject' })
     const DoneMessage = intl.formatMessage({ id: 'OperationCompleted' })
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     const { user, isAuthenticated } = useAuth()
-    const userId = get(user, 'id', null)
+    const userId = get(user, 'id') || null
     const { selectEmployee } = useOrganization()
-    const { objs: userInvites, refetch, loading } = OrganizationEmployee.useObjects(
-        { where: { user: { id: userId }, isAccepted: false, isRejected: false, isBlocked: false, organization: organizationFilter } },
-        { skip: !userId },
-    )
-    const { addNotification } = useLayoutContext()
-    const client = useApolloClient()
-    const [acceptOrReject] = useMutation(ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION, {
-        onCompleted: (result: { obj: OrganizationEmployeeType }) => {
-            const isAcceptedInvite = result?.obj
-                && result.obj.isAccepted
-                && !result.obj.isBlocked
-                && !result.obj.isRejected
-                && [OrganizationTypeType.ManagingCompany, OrganizationTypeType.ServiceProvider].includes(result.obj.organization.type)
-
-            if (isAcceptedInvite) {
-                const queryData = {
-                    query: GetActualOrganizationEmployeesDocument,
-                    variables: { userId: userId },
-                }
-                const cachedData = client.readQuery(queryData)
-                const cachedActualEmployees = Array.isArray(cachedData?.actualEmployees) ? cachedData.actualEmployees.filter(nonNull) : []
-
-                client.writeQuery({
-                    ...queryData,
-                    data: {
-                        actualEmployees: [result.obj, ...cachedActualEmployees],
-                    },
-                })
-            }
+    const { objs: userInvites, refetch, loading } = OrganizationEmployee.useObjects({
+        where: {
+            user: { id: userId },
+            isAccepted: false,
+            isRejected: false,
+            isBlocked: false,
+            organization: { type_in: organizationTypes },
         },
+    }, {
+        skip: !userId || !organizationTypes || organizationTypes.length < 1,
     })
+    const { addNotification } = useLayoutContext()
+
     const handleAcceptOrReject = async (item, action) => {
         let data = {}
         if (action === 'accept') {
@@ -74,7 +50,7 @@ export const useOrganizationInvites = (organizationFilter?: OrganizationWhereInp
         }
         const sender = getClientSideSenderInfo()
         try {
-            await acceptOrReject({ variables: { id: item.id, data: { ...data, dv: 1, sender } } })
+            await acceptOrRejectMutation({ variables: { id: item.id, data: { ...data, dv: 1, sender } } })
             notification.success({ message: DoneMessage })
         } catch (error) {
             notification.error({

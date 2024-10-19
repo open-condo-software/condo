@@ -274,9 +274,7 @@ const useAllOrganizationEmployee = () => {
             isAccepted: true,
             organization: { type_not: OrganizationTypeType.Holding },
         },
-    },
-    { fetchPolicy: 'network-only', skip: !userId }
-    )
+    }, { skip: !userId })
 }
 
 const UserInfoPage: React.FC & { requiredAccess?: React.FC } = () => {

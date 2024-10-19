@@ -169,8 +169,6 @@ const EmployeesPage = () => {
         where: searchEmployeeQuery,
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
         first: DEFAULT_PAGE_SIZE,
-    }, {
-        fetchPolicy: 'network-only',
     })
 
     const tableColumns = useTableColumns(filtersMeta, userOrganizationId, employees)
