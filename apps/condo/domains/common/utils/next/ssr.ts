@@ -31,10 +31,11 @@ const DEFAULT_COOKIES_VALUES: SSRCookiesContextType =
     Object.assign({}, ...VITAL_COOKIES.map(key => ({ [key]: null })))
 
 export function extractVitalCookies<PropsType> (req: SSRRequest, res: SSRResponse, pageParams: SSRResult<PropsType>): SSRResult<PropsType> {
-    const cookies: SSRCookiesContextType =
-        Object.assign({}, ...VITAL_COOKIES.map(key => ({
+    const cookies: SSRCookiesContextType = Object.assign({},
+        ...VITAL_COOKIES.map(key => ({
             [key]: getCookie(key, { req, res }) || null,
-        })))
+        }))
+    )
 
     if (pageParams?.props) {
         pageParams.props[COOKIE_STATE_PROP_NAME] = cookies

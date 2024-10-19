@@ -406,7 +406,7 @@ export const CreateMeterReadingsForm = ({ organization, canManageMeterReadings }
                                                     form={form}
                                                     getHandleSelectPropertyAddress={getHandleSelectPropertyAddress}
                                                     handleDeselectPropertyAddress={handleDeselectPropertyAddress}
-                                                    isMatchSelectedProperty={true}
+                                                    isMatchSelectedProperty
                                                     meterType={METER_TAB_TYPES.meter}
                                                     selectedPropertyId={selectedPropertyId}
                                                     isNoMeterForAddress={isNoMeterForAddress}
@@ -664,7 +664,7 @@ export const CreatePropertyMeterReadingsForm = ({ organization, canManageMeterRe
                                     form={form}
                                     getHandleSelectPropertyAddress={getHandleSelectPropertyAddress}
                                     handleDeselectPropertyAddress={handleDeselectPropertyAddress}
-                                    isMatchSelectedProperty={true}
+                                    isMatchSelectedProperty
                                     meterType={METER_TAB_TYPES.propertyMeter}
                                     organizationId={organizationId}
                                     selectedPropertyId={selectedPropertyId}

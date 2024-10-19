@@ -19,9 +19,8 @@ const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions
     const EmployeeRestrictedTitle = intl.formatMessage({ id: 'employee.emptyList.title' })
     const EmployeeRestrictedDescription = intl.formatMessage({ id: 'employee.emptyList.description' })
     const SelectOrganizationRequiredMessage = intl.formatMessage({ id: 'SelectOrganizationRequired' })
-    const { isLoading: isLoadingAuth, user } = useAuth()
+    const { isLoading: isLoadingAuth } = useAuth()
     const organization = useOrganization()
-
 
     const { isLoading, link } = organization
 

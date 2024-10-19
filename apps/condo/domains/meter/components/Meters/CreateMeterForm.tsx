@@ -125,7 +125,7 @@ export const CreateMeterForm = (props: CreateMeterProps): JSX.Element => {
                                     form={form}
                                     getHandleSelectPropertyAddress={getHandleSelectPropertyAddress}
                                     handleDeselectPropertyAddress={handleDeselectPropertyAddress}
-                                    isMatchSelectedProperty={true}
+                                    isMatchSelectedProperty
                                     meterType={meterType}
                                     organizationId={organizationId}
                                     selectedPropertyId={selectedPropertyId}

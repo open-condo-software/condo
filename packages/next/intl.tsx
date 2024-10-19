@@ -8,6 +8,8 @@ import { IntlProvider, useIntl, FormattedMessage } from 'react-intl'
 import { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } from './_utils'
 import { useAuth } from './auth'
 
+import type { OnErrorFn } from '@formatjs/intl'
+
 
 interface ILocaleContext {
     locale
@@ -89,7 +91,7 @@ const initOnRestore = async (ctx) => {
 type IntlProps = {
     initialLocale?: string
     initialMessages?: Record<string, string>
-    onError?
+    onError?: OnErrorFn
 }
 
 const Intl: React.FC<IntlProps> = ({ children, initialLocale, initialMessages, onError }) => {
@@ -146,13 +148,9 @@ const withIntl: WithIntl = ({ ssr = false, ...opts }: WithIntlProps = {}) => Pag
     messagesImporter = opts.messagesImporter ? opts.messagesImporter : messagesImporter
     getMessages = opts.getMessages ? opts.getMessages : getMessages
     getLocale = opts.getLocale ? opts.getLocale : getLocale
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    const onIntlError = opts.hideErrors ? (() => { }) : undefined
+    const onIntlError = opts.hideErrors ? (() => ({})) : undefined
 
     const WithIntl = ({ locale, messages, ...pageProps }) => {
-        // console.log('WithIntl >>> ', {
-        //     locale, messages, pageProps,
-        // })
         // in there is no locale and no messages => client side rerender (we should use some client side cache)
         if (!locale) locale = getLocale()
         if (!messages) messages = {}
