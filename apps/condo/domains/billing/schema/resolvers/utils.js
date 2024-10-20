@@ -1,6 +1,6 @@
 const dayjs = require('dayjs')
 
-const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { getSchemaCtx, itemsQuery } = require('@open-condo/keystone/schema')
 
 const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 const { BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/serverSchema')
@@ -66,12 +66,16 @@ const buildLastReportForBillingContext = async (receipts, { dv, sender, billingC
     const receiptsPeriods = [...new Set(receipts.map(({ period }) => period).filter(Boolean))]
 
     const newestPeriodFromReceipts = receiptsPeriods.sort(sortPeriodFunction).pop()
-    const newerReceiptsCount = await BillingReceipt.count(context, {
-        context: billingContext,
-        period_gt: newestPeriodFromReceipts,
+    const newerReciepts = await itemsQuery('BillingReceipt',{
+        where: {
+            context: { id: billingContext.id },
+            period_gt: newestPeriodFromReceipts,
+            deletedAt: null,
+        },
+        first: 1,
     })
 
-    if (newerReceiptsCount) return
+    if (newerReciepts.length) return
 
     const currentPeriodReceiptsCount = await BillingReceipt.count(context, {
         context: { id: billingContext.id },
