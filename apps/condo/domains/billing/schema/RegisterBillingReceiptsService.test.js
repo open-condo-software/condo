@@ -108,13 +108,9 @@ describe('RegisterBillingReceiptsService', () => {
     })
 
     describe('ReportCreat', () => {
-        const utils = new TestUtils([BillingTestMixin])
-
-        beforeEach(async () => {
-            await utils.init()
-        })
-
         test('should update lastReport for BillingContext if new period was loaded', async () => {
+            const utils = new TestUtils([BillingTestMixin])
+            await utils.init()
             const currentMonthPeriod = dayjs().add(5, 'year').format('YYYY-MM-01')
             const nextMonthPeriod = dayjs().add(5, 'year').add(1, 'month').format('YYYY-MM-01')
             const [currentYear, currentMonth] = currentMonthPeriod.split('-').map(Number)
@@ -141,6 +137,8 @@ describe('RegisterBillingReceiptsService', () => {
         })
 
         test('should not update lastReport if older receipts were loaded', async () => {
+            const utils = new TestUtils([BillingTestMixin])
+            await utils.init()
             const currentMonthPeriod = dayjs().add(6, 'year').format('YYYY-MM-01')
             const nextMonthPeriod = dayjs().add(6, 'year').add(1, 'month').format('YYYY-MM-01')
             const [nextYear, nextMonth] = nextMonthPeriod.split('-').map(Number)
@@ -167,6 +165,8 @@ describe('RegisterBillingReceiptsService', () => {
         })
 
         test('should update lastReport if categories were changed during the same period', async () => {
+            const utils = new TestUtils([BillingTestMixin])
+            await utils.init()
             const currentMonthPeriod = dayjs().add(5, 'year').format('YYYY-MM-01')
             const [currentYear, currentMonth] = currentMonthPeriod.split('-').map(Number)
             await registerBillingReceiptsByTestClient(utils.clients.admin, {
