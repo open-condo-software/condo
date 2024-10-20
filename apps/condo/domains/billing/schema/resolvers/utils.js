@@ -66,7 +66,7 @@ const buildLastReportForBillingContext = async (receipts, { dv, sender, billingC
     const receiptsPeriods = [...new Set(receipts.map(({ period }) => period).filter(Boolean))]
 
     const newestPeriodFromReceipts = receiptsPeriods.sort(sortPeriodFunction).pop()
-    const newerReciepts = await itemsQuery('BillingReceipt',{
+    const newerReciepts = await itemsQuery('BillingReceipt', {
         where: {
             context: { id: billingContext.id },
             period_gt: newestPeriodFromReceipts,
