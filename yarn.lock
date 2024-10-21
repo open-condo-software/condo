@@ -821,6 +821,7 @@ __metadata:
     "@types/react": 16.9.17
     "@types/react-infinite-scroller": ^1.2.3
     "@types/wavesurfer.js": ^6.0.6
+    "@vicimpa/rubles": ^0.1.18
     "@welldone-software/why-did-you-render": ^5.0.0-alpha.1
     "@zeit/next-css": ^1.0.1
     "@zeit/next-less": ^1.0.1
@@ -929,7 +930,6 @@ __metadata:
     react-yandex-metrika: ^2.6.0
     recheck: ^4.4.5
     redlock: ^5.0.0-beta.2
-    rubles: ^0.2.0
     serialize-error: ^8.1.0
     slugify: ^1.6.6
     swr: ^1.3.0
@@ -19914,6 +19914,13 @@ __metadata:
     "@typescript-eslint/types": 4.33.0
     eslint-visitor-keys: ^2.0.0
   checksum: 59953e474ad4610c1aa23b2b1a964445e2c6201521da6367752f37939d854352bbfced5c04ea539274065e012b1337ba3ffa49c2647a240a4e87155378ba9873
+  languageName: node
+  linkType: hard
+
+"@vicimpa/rubles@npm:^0.1.18":
+  version: 0.1.18
+  resolution: "@vicimpa/rubles@npm:0.1.18"
+  checksum: 824db6bde298368134891092edf050189033a207533afeeb2493252aa105a07e434fd7cd1d208b469feb2855df52bfa428913c6791475887b8c78c16ff827d5f
   languageName: node
   linkType: hard
 
@@ -49422,13 +49429,6 @@ __metadata:
     typescript: ^5.5.4
   languageName: unknown
   linkType: soft
-
-"rubles@npm:^0.2.0":
-  version: 0.2.0
-  resolution: "rubles@npm:0.2.0"
-  checksum: 8e2810ee6f78e55fd362c96f8000488a2b0c70a3c64e3dd436208c7e6d2090f080e80587a1b22dc0f1630a3eba573a8631e4028353c0960595f6f3116e6637d7
-  languageName: node
-  linkType: hard
 
 "run-async@npm:^2.2.0, run-async@npm:^2.4.0":
   version: 2.4.1

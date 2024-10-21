@@ -23,7 +23,7 @@ const MOBILE_DROPDOWN_TRIGGER: DropdownProps['trigger'] = ['hover', 'click']
 export const useTicketDocumentGenerationTask = ({ invoices, ticket, user, timeZone }) => {
     const intl = useIntl()
     const CompletionWorksLabel = intl.formatMessage({ id: 'pages.condo.ticket.generateDocument.completionWorks.label' })
-    const PaidWorksLabel = intl.formatMessage({ id: 'pages.condo.ticket.generateDocument.paidWorks.label' })
+    const PaidCompletionWorks = intl.formatMessage({ id: 'pages.condo.ticket.generateDocument.paidWorks.label' })
     const GenerateDocumentLabel = intl.formatMessage({ id: 'pages.condo.ticket.generateDocument.label' })
     const locale = intl.locale
 
@@ -54,12 +54,12 @@ export const useTicketDocumentGenerationTask = ({ invoices, ticket, user, timeZo
                 onClick: getHandleClick(TICKET_DOCUMENT_TYPE.COMPLETION_WORKS),
             },
             ticket.isPaid && get(invoices, '0') && isSupportedDocumentTypeByLocale(TICKET_DOCUMENT_TYPE.PAID_WORKS, locale) && {
-                label: PaidWorksLabel,
+                label: PaidCompletionWorks,
                 key: 'generate-document-of-paid-works',
                 onClick: getHandleClick(TICKET_DOCUMENT_TYPE.PAID_WORKS),
             },
         ].filter(Boolean)
-    }, [CompletionWorksLabel, PaidWorksLabel, invoices, ticket.isPaid, getHandleClick, locale])
+    }, [CompletionWorksLabel, PaidCompletionWorks, invoices, ticket.isPaid, getHandleClick, locale])
 
     const TicketDocumentGenerationButton = useCallback(() => {
         if (buttonItems.length < 1) return null
