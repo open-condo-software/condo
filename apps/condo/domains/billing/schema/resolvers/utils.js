@@ -1,5 +1,14 @@
 const dayjs = require('dayjs')
 
+const { getRedisClient } = require('@open-condo/keystone/redis')
+const { find } = require('@open-condo/keystone/schema')
+
+
+const {
+    RECEIPTS_CACHE_CONTROL_SUM_TTL_IN_SECONDS,
+} = require('@condo/domains/billing/constants/registerBillingReceiptService')
+const { md5 } = require('@condo/domains/common/utils/crypto')
+
 const NOT_USED_WORDS_IN_ACCOUNT_NUMBER_REGEXP = /(л\/с|лс|№)/gi
 const FIO_REGEXP = /^[А-ЯЁ][а-яё]*([-' .][А-ЯЁ][а-яё]*){0,2}\s+[IVА-ЯЁ][a-zа-яё.]*([- .'ёЁ][IVА-ЯЁ][a-zа-яё.]*)*$/
 const FIO_ENDINGS = 'оглы|кызы'
@@ -53,10 +62,88 @@ const normalizePropertyGlobalId = (rawFiasCode) => {
 
 const sortPeriodFunction = (periodA, periodB) => (dayjs(periodA, 'YYYY-MM-DD').isAfter(dayjs(periodB, 'YYYY-MM-DD')) ? 1 : -1)
 
+function canonicalizeJSON (value) {
+    if (Array.isArray(value)) {
+        return `[${value.map(canonicalizeJSON).join(',')}]`
+    } else if (value !== null && value !== undefined && typeof value === 'object') {
+        const keys = Object.keys(value).sort()
+        const serializedKeyValues = keys.map(key => `"${key}":${canonicalizeJSON(value[key])}`).join(',')
+        return `{${serializedKeyValues}}`
+    } else {
+        return JSON.stringify(value)
+    }
+}
+
+
+class ReceiptsRedisCache {
+    constructor (contextId) {
+        this.contextId = contextId
+        this.redis = getRedisClient('register-billing-receipts', 'cache')
+    }
+
+    getRedisKey (importId) {
+        return `register-billing-receipt:${this.contextId}:${importId}`
+    }
+
+    async getCachedValue (importId, receipt) {
+        const data = await this.redis.get(this.getRedisKey(importId))
+        if (!data) {
+            return null
+        }
+        try {
+            const { id, hash } = JSON.parse(data)
+            if (hash === md5(canonicalizeJSON(receipt))) {
+                return { id }
+            }
+        } catch {
+            return null
+        }
+    }
+
+    async setCache (importId, id, receipt) {
+        const data = {
+            id,
+            hash: md5(canonicalizeJSON(receipt)),
+        }
+        await this.redis.set(this.getRedisKey(importId), JSON.stringify(data), 'EX', RECEIPTS_CACHE_CONTROL_SUM_TTL_IN_SECONDS)
+    }
+
+}
+
+async function loadReceiptsFromCache (contextId, receiptsIndex) {
+    const RedisCache = new ReceiptsRedisCache(contextId)
+    const cacheResult = {}
+    const ids = []
+    for (const [index, receipt] of Object.entries(receiptsIndex)) {
+        if (receipt.importId) {
+            const cache = await RedisCache.getCachedValue(receipt.importId, receipt)
+            if (cache) {
+                cacheResult[index] = { id: cache.id }
+                ids.push(cache.id)
+            }
+        }
+    }
+    const deletedReceipts = await find('BillingReceipt', { id_in: ids, deletedAt_not: null })
+    const deletedReceiptIds = new Set(deletedReceipts.map(({ id }) => id))
+    return Object.fromEntries(Object.entries(cacheResult).filter(([, { id }]) => !deletedReceiptIds.has(id)))
+}
+
+async function saveReceiptsToCache (contextId, receipts){
+    const RedisCache = new ReceiptsRedisCache(contextId)
+    for (const { id, ...receipt } of receipts) {
+        if (receipt.importId) {
+            await RedisCache.setCache(receipt.importId, id, receipt)
+        }
+    }
+}
+
 module.exports = {
     clearAccountNumber,
     isPerson,
     isValidFias,
     sortPeriodFunction,
     normalizePropertyGlobalId,
+    loadReceiptsFromCache,
+    saveReceiptsToCache,
+    canonicalizeJSON,
 }
