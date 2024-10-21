@@ -29,6 +29,9 @@ const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions
         pageView = <Loader fill size='large'/>
     }
 
+    console.log('OrganizationRequiredAfterAuthRequired:1', {
+        isLoading, link,
+    })
     if (!link && !isLoading) {
         pageView = (
             <>

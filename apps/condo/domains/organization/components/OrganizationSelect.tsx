@@ -1,10 +1,15 @@
-import { OrganizationEmployeeWhereInput, OrganizationTypeType } from '@app/condo/schema'
+import {
+    useGetActualOrganizationEmployeesQuery,
+    useGetInviteCountQuery,
+} from '@app/condo/gql'
+import { OrganizationTypeType } from '@app/condo/schema'
 import { Dropdown } from 'antd'
 import get from 'lodash/get'
 import uniqBy from 'lodash/uniqBy'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, CSSProperties } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { ChevronDown, PlusCircle } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
@@ -14,8 +19,8 @@ import { Space, Typography } from '@open-condo/ui'
 import type { TypographyTextProps } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { nonNull } from '@condo/domains/common/utils/nonNull'
 import { useCreateOrganizationModalForm } from '@condo/domains/organization/hooks/useCreateOrganizationModalForm'
-import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
 import { SBBOLIndicator } from './SBBOLIndicator'
 
@@ -33,49 +38,48 @@ function compareEmployees (lhs: OrganizationEmployeeType, rhs: OrganizationEmplo
 
 const DROPDOWN_OVERLAY_STYLES: CSSProperties = { maxWidth: 300, width: '100%' }
 
-const ORGANIZATION_EMPLOYEE_WHERE_QUERY: OrganizationEmployeeWhereInput = {
-    isRejected: false,
-    isBlocked: false,
-    organization: { type_not: OrganizationTypeType.Holding },
-}
-
 export const InlineOrganizationSelect: React.FC = () => {
     const intl = useIntl()
     const ChooseOrganizationMessage = intl.formatMessage({ id: 'pages.organizations.ChooseOrganizationLabel' })
     const AddOrganizationTitle = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationButtonLabel' })
 
+    const { persistor } = useCachePersistor()
     const router = useRouter()
 
     const { breakpoints } = useLayoutContext()
     const textSize: TypographyTextProps['size'] = !breakpoints.TABLET_LARGE ? 'small' : 'medium'
 
     const { user } = useAuth()
-    const { link, selectLink, isLoading: organizationLoading } = useOrganization()
-    const userId = get(user, 'id', null)
+    const {
+        employee: activeEmployee,
+        organization,
+        selectEmployee: setActiveEmployee,
+        isLoading: organizationLoading,
+    } = useOrganization()
+    const userId = user?.id || null
 
-    const { objs: userEmployees, allDataLoaded: employeesLoaded } = OrganizationEmployee.useAllObjects({
-        where: {
-            user: { id: userId },
-            isAccepted: true,
-            ...ORGANIZATION_EMPLOYEE_WHERE_QUERY,
-        },
-    }, { skip: !userId })
+    const { data: actualEmployeesData, loading: isActualEmployeeLoading } = useGetActualOrganizationEmployeesQuery({
+        variables: { userId },
+        skip: !userId || !persistor,
+    })
+    const actualEmployees = useMemo(
+        () => Array.isArray(actualEmployeesData?.actualEmployees) ? actualEmployeesData.actualEmployees.filter(nonNull) : []
+        , [actualEmployeesData]
+    )
 
-    const { count: hasInvites, loading: isInvitesLoading } = OrganizationEmployee.useCount({
-        where: {
-            user: { id: userId },
-            isAccepted: false,
-            ...ORGANIZATION_EMPLOYEE_WHERE_QUERY,
-        },
-    }, { skip: !userId })
+    const { data: invites, loading: isInvitesLoading } = useGetInviteCountQuery({
+        variables: { userId },
+        skip: !userId || !persistor,
+    })
+    const hasInvites = invites?.meta?.count > 0
 
     // Note: Filter case where organization was deleted
-    const filteredEmployees = uniqBy(userEmployees.filter(employee => employee.organization), employee => employee.organization.id)
+    const filteredEmployees = uniqBy(actualEmployees.filter(employee => employee.organization), employee => employee.organization.id)
 
     const { setIsVisible: showCreateOrganizationModal, ModalForm: CreateOrganizationModalForm } = useCreateOrganizationModalForm({
         onFinish: async (createdOrganization) => {
             const organizationType = get(createdOrganization, 'type')
-            
+
             // The slash will only be there if we have just registered and we don't have any additional parameters in the address bar.
             if (organizationType === OrganizationTypeType.ManagingCompany && router.route === '/') {
                 await router.push('/tour')
@@ -87,29 +91,29 @@ export const InlineOrganizationSelect: React.FC = () => {
         showCreateOrganizationModal(true)
     }, [showCreateOrganizationModal])
 
-    const selectEmployee = useCallback((id: string) => {
-        return function () {
-            selectLink({ id })
-        }
-    }, [selectLink])
-
     useDeepCompareEffect(() => {
-        if (employeesLoaded && !isInvitesLoading && user) {
-            // Note: no current organization selected
-            if (!link) {
-                // But has organizations to select -> select first one
-                if (filteredEmployees.length) {
-                    selectLink({ id: filteredEmployees[0].id })
-                    // No organization -> show modal for creation directly
-                } else if (!hasInvites) {
-                    showCreateModal()
-                }
-                // Note: organization in cookie, but value is invalid
-            } else if (!filteredEmployees.some(employee => employee.id === link.id)) {
-                selectLink(null)
+        if (!persistor) return
+        if (!user) return
+        if (isActualEmployeeLoading || isInvitesLoading) return
+
+        // Note: no current organization selected
+        if (!activeEmployee) {
+            // But has organizations to select -> select first one
+            if (filteredEmployees.length) {
+                setActiveEmployee(filteredEmployees[0].id)
+                // No organization -> show modal for creation directly
+            } else if (!hasInvites) {
+                showCreateModal()
             }
+            // Note: organization in cookie, but value is invalid
+        } else if (!filteredEmployees.some(employee => employee.id === activeEmployee.id)) {
+            setActiveEmployee(null)
         }
-    }, [employeesLoaded, user, link, filteredEmployees, selectLink, showCreateModal, isInvitesLoading, hasInvites])
+    }, [isActualEmployeeLoading, user, activeEmployee, filteredEmployees, setActiveEmployee, showCreateModal, isInvitesLoading, hasInvites, persistor])
+
+    const handleClickOrganization = useCallback((employeeId: string) => {
+        return () => setActiveEmployee(employeeId)
+    }, [setActiveEmployee])
 
     const menu = useMemo<DropdownProps['menu']>(() => {
         // Note: spread for sort, since it readonly array
@@ -125,7 +129,7 @@ export const InlineOrganizationSelect: React.FC = () => {
                     </Typography.Paragraph>
                 </Space>
             ),
-            onClick: selectEmployee(employee.id),
+            onClick: handleClickOrganization(employee.id),
         }))
 
         items.push({
@@ -142,39 +146,42 @@ export const InlineOrganizationSelect: React.FC = () => {
         return {
             items: items,
         }
-    }, [filteredEmployees, selectEmployee, AddOrganizationTitle, showCreateModal])
+    }, [filteredEmployees, AddOrganizationTitle, showCreateModal, handleClickOrganization])
 
-    if (organizationLoading || !employeesLoaded) {
+    if (organizationLoading || isActualEmployeeLoading) {
         return null
     }
 
-    const currentOrgName = get(link, ['organization', 'name'], ChooseOrganizationMessage)
+    const currentOrgName = get(organization, 'name', ChooseOrganizationMessage)
 
     return (
         <>
-            {!link && !filteredEmployees.length ? (
-                <Typography.Link onClick={showCreateModal} size={textSize}>
-                    <Space size={4} direction='horizontal'>
-                        <PlusCircle size='small'/>
-                        {AddOrganizationTitle}
-                    </Space>
-                </Typography.Link>
-            ) : (
-                <Dropdown
-                    menu={menu}
-                    placement='bottomRight'
-                    className='organization-dropdown'
-                    overlayStyle={DROPDOWN_OVERLAY_STYLES}
-                    overlayClassName='organization-dropdown-overlay'
-                >
-                    <Space size={8} direction='horizontal' className='organization-selector'>
-                        <Typography.Text size={textSize}>
-                            {currentOrgName}
-                        </Typography.Text>
-                        <ChevronDown size='small' className='arrow-icon'/>
-                    </Space>
-                </Dropdown>
-            )}
+            {
+                !activeEmployee && !filteredEmployees.length
+                    ? (
+                        <Typography.Link onClick={showCreateModal} size={textSize}>
+                            <Space size={4} direction='horizontal'>
+                                <PlusCircle size='small'/>
+                                {AddOrganizationTitle}
+                            </Space>
+                        </Typography.Link>
+                    ) : (
+                        <Dropdown
+                            menu={menu}
+                            placement='bottomRight'
+                            className='organization-dropdown'
+                            overlayStyle={DROPDOWN_OVERLAY_STYLES}
+                            overlayClassName='organization-dropdown-overlay'
+                        >
+                            <Space size={8} direction='horizontal' className='organization-selector'>
+                                <Typography.Text size={textSize}>
+                                    {currentOrgName}
+                                </Typography.Text>
+                                <ChevronDown size='small' className='arrow-icon'/>
+                            </Space>
+                        </Dropdown>
+                    )
+            }
             <CreateOrganizationModalForm />
         </>
     )
