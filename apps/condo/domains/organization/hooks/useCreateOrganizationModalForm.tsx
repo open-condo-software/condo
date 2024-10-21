@@ -133,12 +133,19 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
             }
             const cachedData = client.readQuery(queryData)
             const cachedActualEmployees = Array.isArray(cachedData?.actualEmployees) ? cachedData.actualEmployees.filter(nonNull) : []
-            client.writeQuery({
-                ...queryData,
-                data: {
-                    actualEmployees: [employee, ...cachedActualEmployees],
-                },
-            })
+
+            if (!cachedActualEmployees.length) {
+                client.refetchQueries({
+                    include: [GetActualOrganizationEmployeesDocument],
+                })
+            } else {
+                client.writeQuery({
+                    ...queryData,
+                    data: {
+                        actualEmployees: [employee, ...cachedActualEmployees],
+                    },
+                })
+            }
 
             await selectEmployee(employee?.id)
             setIsVisible(false)
