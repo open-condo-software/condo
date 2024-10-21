@@ -17,7 +17,7 @@
     "migrate": "./../../bin/kmigrator.py migrate",
     "migrate:down": "./../../bin/kmigrator.py down",
     "migrate:unlock": "./../../bin/kmigrator.py unlock",
-    "maketypes": "mkdirp dist/admin && DISABLE_NEXT_APP=true node ./../../bin/create-graphql-schema.js && graphql-codegen -c codegen.ts",
+    "maketypes": "mkdirp dist/admin && DEFAULT_LOCALE=en node ./../../bin/create-graphql-schema.js && graphql-codegen -c codegen.ts",
     "types:watch": "graphql-codegen -c codegen.ts --watch",
     "createservice": "node ./../../bin/createservice",
     "createschema": "node ./../../bin/createschema",
