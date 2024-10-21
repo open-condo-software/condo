@@ -29,6 +29,7 @@ const { prepareDefaultKeystoneConfig } = require('@open-condo/keystone/setup.uti
 const { registerTasks, registerTaskQueues, taskQueues } = require('@open-condo/keystone/tasks')
 const { KeystoneTracingApp } = require('@open-condo/keystone/tracing')
 
+const { contextRequestExecutor } = require('./executor')
 const { validateHeaders } = require('./validateHeaders')
 
 const IS_BUILD_PHASE = conf.PHASE === 'build'
@@ -191,6 +192,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
                     introspection: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
                     playground: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
                     plugins: apolloPlugins,
+                    executor: contextRequestExecutor,
                 },
                 ...(graphql || {}),
             }),
