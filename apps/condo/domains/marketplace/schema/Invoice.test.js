@@ -6,7 +6,7 @@ const { faker } = require('@faker-js/faker')
 const Big = require('big.js')
 const dayjs = require('dayjs')
 const isSameOrAfter = require('dayjs/plugin/isSameOrAfter')
-const { omit, pick, get } = require('lodash')
+const { omit, pick, get, isNil } = require('lodash')
 
 const conf = require('@open-condo/config')
 const {
@@ -41,7 +41,7 @@ const {
     createTestMarketCategory,
     createTestMarketItem,
     createTestMarketItemPrice,
-    createTestMarketPriceScope,
+    createTestMarketPriceScope, MarketItemPrice, MarketPriceScope,
 } = require('@condo/domains/marketplace/utils/testSchema')
 const {
     MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE,
@@ -57,8 +57,8 @@ const {
     makeClientWithRegisteredOrganization,
 } = require('@condo/domains/organization/utils/testSchema')
 const { FLAT_UNIT_TYPE, COMMERCIAL_UNIT_TYPE } = require('@condo/domains/property/constants/common')
-const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { registerResidentByTestClient, registerResidentInvoiceByTestClient } = require('@condo/domains/resident/utils/testSchema')
+const { makeClientWithProperty, createTestProperty, createTestPropertyWithMap } = require('@condo/domains/property/utils/testSchema')
+const { registerResidentByTestClient, registerResidentInvoiceByTestClient, Resident } = require('@condo/domains/resident/utils/testSchema')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { createTestTicket, updateTestTicket, TicketStatus } = require('@condo/domains/ticket/utils/testSchema')
 const {
@@ -70,6 +70,34 @@ const {
 
 
 dayjs.extend(isSameOrAfter)
+
+async function getItemPrice (client, marketItem, property) {
+    const priceScopes = await MarketPriceScope.getAll(client, {
+        OR: [
+            { property: { id: property.id } },
+            { property_is_null: true },
+        ],
+        marketItemPrice: { marketItem: { id: marketItem.id } },
+        deletedAt: null,
+    })
+
+    if (!priceScopes.length) {
+        return null
+    }
+
+    if (priceScopes.length > 2) {
+        throw new Error('Something went wrong, there is too many price scopes for property. ' +
+            'Expected to have at max 2: default and property-specific')
+    }
+
+    let specificScope = priceScopes.find(scope => !isNil(scope.property))
+    if (!specificScope) {
+        specificScope = priceScopes.find(scope => isNil(scope.property))
+    }
+
+    return specificScope ? specificScope.marketItemPrice : null
+}
+
 
 let adminClient, supportClient, anonymousClient
 let dummyOrganization, dummyAcquiringIntegration
@@ -1893,6 +1921,322 @@ describe('Invoice', () => {
                 type: 'canceled',
             })
             await updateTestTicket(client, ticket.id, { status: { connect: { id: status.id } } })
+        })
+    })
+
+    describe('Real life cases', () => {
+
+        describe('Rows not related to marketplace', () => {
+            test('Can create invoice with rows not related to marketplace', async () => {
+                // 1. Add acquiring context
+                const [residentOrganization] = await createTestOrganization(adminClient)
+                await createTestAcquiringIntegrationContext(adminClient, residentOrganization, dummyAcquiringIntegration, {
+                    invoiceStatus: CONTEXT_FINISHED_STATUS,
+                    invoiceRecipient: createTestRecipient(),
+                })
+
+                // 2. Make resident
+                const clientName = faker.name.firstName()
+                const clientPhone = createTestPhone()
+                const residentClient = await makeClientWithResidentUser({}, { name: clientName, phone: clientPhone })
+                const [property] = await createTestPropertyWithMap(adminClient, residentOrganization)
+                const [{ id: residentId }] = await registerResidentByTestClient(residentClient, {
+                    unitName: '1',
+                    unitType: 'flat',
+                    address: property.address,
+                    addressMeta: property.addressMeta,
+                }, true)
+                const resident = await Resident.getOne(adminClient, { id: residentId })
+
+                // 3. Make staff
+                const staff = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, residentOrganization, {
+                    canManageContacts: true,
+                    canReadProperties: true,
+                    canReadInvoices: true,
+                    canManageInvoices: true,
+                })
+                await createTestOrganizationEmployee(adminClient, residentOrganization, staff.user, role)
+
+                // 4. Make invoice
+                const row = {
+                    name: faker.commerce.productName(),
+                    toPay: '1000',
+                    count: 1,
+                    isMin: false,
+                }
+
+                const [invoice] = await createTestInvoice(staff, residentOrganization, {
+                    clientName,
+                    clientPhone,
+                    unitName: resident.unitName,
+                    unitType: resident.unitType,
+                    property: { connect: { id: property.id } },
+                    rows: [row],
+                })
+
+                expect(invoice).toBeDefined()
+                expect(invoice.rows).toEqual([expect.objectContaining(row)])
+                expect(invoice.client).toBeDefined()
+                expect(invoice.client.id).toEqual(residentClient.user.id)
+
+                const [staffInvoice] = await Invoice.getAll(staff, {}, { sortBy: ['createdAt_DESC'], first: 1 })
+                expect(staffInvoice).toBeDefined()
+                expect(staffInvoice.rows).toEqual([expect.objectContaining(row)])
+
+                await updateTestInvoice(staff, invoice.id, { status: INVOICE_STATUS_PUBLISHED })
+
+                const [residentInvoice] = await Invoice.getAll(residentClient, {}, { sortBy: ['createdAt_DESC'], first: 1 })
+                expect(residentInvoice).toBeDefined()
+                expect(residentInvoice.rows).toEqual([expect.objectContaining(row)])
+            })
+        })
+
+        describe('Marketplace usage as template for rows', () => {
+            test('Can use marketplace item and price as template for invoice rows', async () => {
+                // 1. Make acquiring context
+                const [residentOrganization] = await createTestOrganization(adminClient)
+                await createTestAcquiringIntegrationContext(adminClient, residentOrganization, dummyAcquiringIntegration, {
+                    invoiceStatus: CONTEXT_FINISHED_STATUS,
+                    invoiceRecipient: createTestRecipient(),
+                })
+
+                // 2. Make resident
+                const clientName = faker.name.firstName()
+                const clientPhone = createTestPhone()
+                const residentClient = await makeClientWithResidentUser({}, { name: clientName, phone: clientPhone })
+                const [property] = await createTestPropertyWithMap(adminClient, residentOrganization)
+                const [{ id: residentId }] = await registerResidentByTestClient(residentClient, {
+                    unitName: '1',
+                    unitType: 'flat',
+                    address: property.address,
+                    addressMeta: property.addressMeta,
+                }, true)
+                const resident = await Resident.getOne(adminClient, { id: residentId })
+
+                // 3. Make staff
+                const staff = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, residentOrganization, {
+                    canManageContacts: true,
+                    canReadProperties: true,
+                    canReadInvoices: true,
+                    canManageInvoices: true,
+                    canReadMarketplace: true,
+                    canReadMarketItems: true,
+                    canManageMarketItems: true,
+                    canReadMarketItemPrices: true,
+                    canManageMarketItemPrices: true,
+                })
+                await createTestOrganizationEmployee(adminClient, residentOrganization, staff.user, role)
+
+                // 4. Add marketplace
+                const [marketCategory] = await createTestMarketCategory(adminClient)
+                const [marketItem] = await createTestMarketItem(staff, marketCategory, residentOrganization)
+
+                await createTestMarketItemPrice(staff, marketItem, {
+                    price: [{
+                        type: 'variant',
+                        name: faker.commerce.productName(),
+                        price: '100',
+                        isMin: true,
+                    }],
+                })
+
+                // 5. Make invoice with saved item price
+                const itemPrice = await MarketItemPrice.getOne(staff, { marketItem: { id: marketItem.id } })
+                expect(itemPrice).toBeDefined()
+
+                const someCountOfItem = +faker.random.numeric(1, { bannedDigits: ['0'] })
+                const row = {
+                    name: itemPrice.price[0].name,
+                    toPay: itemPrice.price[0].price,
+                    count: someCountOfItem,
+                    isMin: false,
+                }
+
+                const expectedSum = Big(row.toPay).mul(row.count)
+
+                const [invoice] = await createTestInvoice(staff, residentOrganization, {
+                    clientName,
+                    clientPhone,
+                    unitName: resident.unitName,
+                    unitType: resident.unitType,
+                    property: { connect: { id: property.id } },
+                    rows: [row],
+                })
+
+                expect(invoice).toBeDefined()
+                expect(invoice.rows).toEqual([expect.objectContaining(row)])
+                expect(Big(invoice.toPay)).toEqual(expectedSum)
+                expect(invoice.client).toBeDefined()
+                expect(invoice.client.id).toEqual(residentClient.user.id)
+
+                const [staffInvoice] = await Invoice.getAll(staff, {}, { sortBy: ['createdAt_DESC'], first: 1 })
+                expect(staffInvoice).toBeDefined()
+                expect(staffInvoice.rows).toEqual([expect.objectContaining(row)])
+
+                await updateTestInvoice(staff, invoice.id, { status: INVOICE_STATUS_PUBLISHED })
+
+                const [residentInvoice] = await Invoice.getAll(residentClient, {}, { sortBy: ['createdAt_DESC'], first: 1 })
+                expect(residentInvoice).toBeDefined()
+                expect(residentInvoice.rows).toEqual([expect.objectContaining(row)])
+            })
+
+            test('Can use marketplace price scope to make specific price for property', async () => {
+                // 1. Make acquiring context
+                const [residentOrganization] = await createTestOrganization(adminClient)
+                await createTestAcquiringIntegrationContext(adminClient, residentOrganization, dummyAcquiringIntegration, {
+                    invoiceStatus: CONTEXT_FINISHED_STATUS,
+                    invoiceRecipient: createTestRecipient(),
+                })
+
+                // 2. Register residents and properties
+                const clientName = faker.name.firstName()
+                const clientPhone = createTestPhone()
+                const residentClient = await makeClientWithResidentUser({}, { name: clientName, phone: clientPhone })
+                const [property] = await createTestPropertyWithMap(adminClient, residentOrganization)
+                const [{ id: residentId }] = await registerResidentByTestClient(residentClient, {
+                    unitName: '1',
+                    unitType: 'flat',
+                    address: property.address,
+                    addressMeta: property.addressMeta,
+                }, true)
+                const resident = await Resident.getOne(adminClient, { id: residentId })
+
+                const anotherClientName = faker.name.firstName()
+                const anotherClientPhone = createTestPhone()
+                const anotherResidentClient = await makeClientWithResidentUser({}, { name: anotherClientName, phone: anotherClientPhone })
+                const [anotherProperty] = await createTestPropertyWithMap(adminClient, residentOrganization)
+                const [{ id: anotherResidentId }] = await registerResidentByTestClient(anotherResidentClient, {
+                    unitName: '1',
+                    unitType: 'flat',
+                    address: anotherProperty.address,
+                    addressMeta: anotherProperty.addressMeta,
+                }, true)
+                const anotherResident = await Resident.getOne(adminClient, { id: anotherResidentId })
+
+                // 3. Make staff
+                const staff = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, residentOrganization, {
+                    canManageContacts: true,
+                    canReadProperties: true,
+                    canReadInvoices: true,
+                    canManageInvoices: true,
+                    canReadMarketplace: true,
+                    canReadMarketItems: true,
+                    canManageMarketItems: true,
+                    canReadMarketItemPrices: true,
+                    canManageMarketItemPrices: true,
+                    canReadMarketPriceScopes: true,
+                    canManageMarketPriceScopes: true,
+                })
+                await createTestOrganizationEmployee(adminClient, residentOrganization, staff.user, role)
+
+                // 4. Add marketplace, item and prices
+                const [marketCategory] = await createTestMarketCategory(adminClient)
+                const [marketItem] = await createTestMarketItem(staff, marketCategory, residentOrganization)
+                const someCountOfItem = +faker.random.numeric(1, { bannedDigits: ['0'] })
+
+                // global
+                const [defaultItemPrice] = await createTestMarketItemPrice(staff, marketItem, {
+                    price: [{
+                        type: 'variant',
+                        name: faker.commerce.productName(),
+                        price: '100',
+                        isMin: true,
+                    }],
+                })
+                const [itemPriceForAnotherProperty] = await createTestMarketItemPrice(staff, marketItem, {
+                    price: [{
+                        type: 'variant',
+                        name: faker.commerce.productName(),
+                        price: '200',
+                        isMin: true,
+                    }],
+                })
+                await createTestMarketPriceScope(staff, defaultItemPrice, property, { property: null })
+                await createTestMarketPriceScope(staff, itemPriceForAnotherProperty, anotherProperty)
+
+                
+
+
+                // 5. Make invoice for property
+                const marketItemPrice = await getItemPrice(staff, marketItem, property)
+                expect(marketItemPrice).toBeDefined()
+
+                const row = {
+                    name: marketItemPrice.price[0].name,
+                    toPay: marketItemPrice.price[0].price,
+                    count: someCountOfItem,
+                    isMin: false,
+                }
+                const expectedSum = Big(row.toPay).mul(row.count)
+
+                const [invoice] = await createTestInvoice(staff, residentOrganization, {
+                    clientName,
+                    clientPhone,
+                    unitName: resident.unitName,
+                    unitType: resident.unitType,
+                    property: { connect: { id: property.id } },
+                    rows: [row],
+                })
+
+                expect(invoice).toBeDefined()
+                expect(invoice.rows).toEqual([expect.objectContaining(row)])
+                expect(Big(invoice.toPay)).toEqual(expectedSum)
+                expect(invoice.client).toBeDefined()
+                expect(invoice.client.id).toEqual(residentClient.user.id)
+
+                const [staffInvoice] = await Invoice.getAll(staff, {}, { sortBy: ['createdAt_DESC'], first: 1 })
+                expect(staffInvoice).toBeDefined()
+                expect(staffInvoice.rows).toEqual([expect.objectContaining(row)])
+
+                await updateTestInvoice(staff, invoice.id, { status: INVOICE_STATUS_PUBLISHED })
+
+                const [residentInvoice] = await Invoice.getAll(residentClient, {}, { sortBy: ['createdAt_DESC'], first: 1 })
+                expect(residentInvoice).toBeDefined()
+                expect(residentInvoice.rows).toEqual([expect.objectContaining(row)])
+
+                // 6. Create invoice for another property with their specific price
+                const anotherMarketItemPrice = await getItemPrice(staff, marketItem, anotherProperty)
+                expect(anotherMarketItemPrice).toBeDefined()
+                expect(anotherMarketItemPrice.price[0].price).not.toEqual(marketItemPrice.price[0].price)
+
+                const anotherRow = {
+                    name: anotherMarketItemPrice.price[0].name,
+                    toPay: anotherMarketItemPrice.price[0].price,
+                    count: someCountOfItem,
+                    isMin: false,
+                }
+                const anotherExpectedSum = Big(anotherRow.toPay).mul(anotherRow.count)
+
+                const [anotherInvoice] = await createTestInvoice(staff, residentOrganization, {
+                    clientName: anotherClientName,
+                    clientPhone: anotherClientPhone,
+                    unitName: anotherResident.unitName,
+                    unitType: anotherResident.unitType,
+                    property: { connect: { id: anotherProperty.id } },
+                    rows: [anotherRow],
+                })
+
+                expect(anotherInvoice).toBeDefined()
+                expect(anotherInvoice.rows).toEqual([expect.objectContaining(anotherRow)])
+                expect(Big(anotherInvoice.toPay)).toEqual(anotherExpectedSum)
+                expect(anotherInvoice.client).toBeDefined()
+                expect(anotherInvoice.client.id).toEqual(anotherResidentClient.user.id)
+
+                const [anotherStaffInvoice] = await Invoice.getAll(staff, {}, { sortBy: ['createdAt_DESC'], first: 1 })
+                expect(anotherStaffInvoice).toBeDefined()
+                expect(anotherStaffInvoice.rows).toEqual([expect.objectContaining(anotherRow)])
+
+                await updateTestInvoice(staff, anotherInvoice.id, { status: INVOICE_STATUS_PUBLISHED })
+
+                const [anotherResidentInvoice] = await Invoice.getAll(anotherResidentClient, {}, { sortBy: ['createdAt_DESC'], first: 1 })
+                expect(anotherResidentInvoice).toBeDefined()
+                expect(anotherResidentInvoice.rows).toEqual([expect.objectContaining(anotherRow)])
+
+                expect(expectedSum).not.toEqual(anotherExpectedSum)
+            })
         })
     })
 })
