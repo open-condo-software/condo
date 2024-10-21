@@ -108,6 +108,7 @@ async function checkUserExistence (context, data) {
     })
 }
 
+const AccessToken = generateServerUtils('AccessToken')
 /* AUTOGENERATE MARKER <CONST> */
 
 const whiteList = conf.SMS_WHITE_LIST ? JSON.parse(conf.SMS_WHITE_LIST) : {}
@@ -182,5 +183,6 @@ module.exports = {
     getAccessTokenByUserId,
     UserRightsSet,
     checkUserExistence,
+    AccessToken,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

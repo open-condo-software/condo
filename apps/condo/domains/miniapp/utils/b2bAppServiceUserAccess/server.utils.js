@@ -14,7 +14,7 @@ const { generateGqlQueryToOrganizationId, getFilterByOrganizationIds } = require
 /**
  * @return {Promise<Record<string, any>|false>}
  */
-const canReadByServiceUser = async ({ authentication: { item: user }, args, listKey }, schemaConfig) => {
+const canReadByServiceUser = async ({ authentication: { item: user }, args, listKey, context }, schemaConfig) => {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -27,7 +27,13 @@ const canReadByServiceUser = async ({ authentication: { item: user }, args, list
         ...buildB2BAppContextCommonConditions(user, { [`canRead${pluralize.plural(listKey)}`]: true }),
     })
 
-    const organizationIds = B2BAppContexts.map(ctx => ctx.organization)
+    let organizationIds = B2BAppContexts.map(ctx => ctx.organization)
+
+    const allowedOrganizations = get(user, 'extra.allowedOrganizations')
+
+    if (allowedOrganizations) {
+        organizationIds = organizationIds.filter(id => allowedOrganizations.includes(id))
+    }
 
     if (!organizationIds || isEmpty(organizationIds)) return false
 
@@ -100,6 +106,11 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
 
     if (!organizationId) return false
 
+    const allowedOrganizations = get(user, 'extra.allowedOrganizations')
+    if (allowedOrganizations && !allowedOrganizations.includes(organizationId)) {
+        return false
+    }
+
     const B2BAppContexts = await find('B2BAppContext', {
         organization: { id: organizationId, deletedAt: null },
         ...buildB2BAppContextCommonConditions(user, { [`canManage${pluralize.plural(listKey)}`]: true }),
@@ -122,6 +133,11 @@ const canExecuteByServiceUser = async (params, serviceConfig) => {
     const organizationId = get(args, pathToOrganizationId)
 
     if (!organizationId) return false
+
+    const allowedOrganizations = get(user, 'extra.allowedOrganizations')
+    if (allowedOrganizations && !allowedOrganizations.includes(organizationId)) {
+        return false
+    }
 
     const B2BAppContexts = await find('B2BAppContext', {
         organization: { id: organizationId, deletedAt: null },

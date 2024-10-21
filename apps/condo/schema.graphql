@@ -3865,6 +3865,385 @@ input UserRightsSetsCreateInput {
   data: UserRightsSetCreateInput
 }
 
+enum AccessTokenHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type AccessTokenHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the AccessTokenHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the AccessTokenHistoryRecord List config, or
+   3. As an alias to a 'name' field on the AccessTokenHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the AccessTokenHistoryRecord List.
+  """
+  _label_: String
+  token: ID
+  user: String
+  allowedOrganizations: JSON
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: AccessTokenHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input AccessTokenHistoryRecordWhereInput {
+  AND: [AccessTokenHistoryRecordWhereInput]
+  OR: [AccessTokenHistoryRecordWhereInput]
+  token: ID
+  token_not: ID
+  token_in: [ID]
+  token_not_in: [ID]
+  user: String
+  user_not: String
+  user_in: [String]
+  user_not_in: [String]
+  allowedOrganizations: JSON
+  allowedOrganizations_not: JSON
+  allowedOrganizations_in: [JSON]
+  allowedOrganizations_not_in: [JSON]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: AccessTokenHistoryRecordHistoryActionType
+  history_action_not: AccessTokenHistoryRecordHistoryActionType
+  history_action_in: [AccessTokenHistoryRecordHistoryActionType]
+  history_action_not_in: [AccessTokenHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input AccessTokenHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortAccessTokenHistoryRecordsBy {
+  token_ASC
+  token_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input AccessTokenHistoryRecordUpdateInput {
+  token: ID
+  user: String
+  allowedOrganizations: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: AccessTokenHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input AccessTokenHistoryRecordsUpdateInput {
+  id: ID!
+  data: AccessTokenHistoryRecordUpdateInput
+}
+
+input AccessTokenHistoryRecordCreateInput {
+  token: ID
+  user: String
+  allowedOrganizations: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: AccessTokenHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input AccessTokenHistoryRecordsCreateInput {
+  data: AccessTokenHistoryRecordCreateInput
+}
+
+""" TODO DOC! """
+type AccessToken {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the AccessToken List config, or
+   2. As an alias to the field set on 'labelField' in the AccessToken List config, or
+   3. As an alias to a 'name' field on the AccessToken List (if one exists), or
+   4. As an alias to the 'id' field on the AccessToken List.
+  """
+  _label_: String
+
+  """ Actual unsigned token """
+  token: ID
+
+  """ Signed token ready for use """
+  signedToken: String
+
+  """ Service user, for which token was created """
+  user: User
+
+  """ List of organizations ids, which service user is allowed to use """
+  allowedOrganizations: JSON
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input AccessTokenWhereInput {
+  AND: [AccessTokenWhereInput]
+  OR: [AccessTokenWhereInput]
+  token: ID
+  token_not: ID
+  token_in: [ID]
+  token_not_in: [ID]
+  user: UserWhereInput
+  user_is_null: Boolean
+  allowedOrganizations: JSON
+  allowedOrganizations_not: JSON
+  allowedOrganizations_in: [JSON]
+  allowedOrganizations_not_in: [JSON]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input AccessTokenWhereUniqueInput {
+  id: ID!
+}
+
+enum SortAccessTokensBy {
+  token_ASC
+  token_DESC
+  user_ASC
+  user_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input AccessTokenUpdateInput {
+  token: ID
+  user: UserRelateToOneInput
+  allowedOrganizations: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input AccessTokensUpdateInput {
+  id: ID!
+  data: AccessTokenUpdateInput
+}
+
+input AccessTokenCreateInput {
+  token: ID
+  user: UserRelateToOneInput
+  allowedOrganizations: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input AccessTokensCreateInput {
+  data: AccessTokenCreateInput
+}
+
 enum OrganizationHistoryRecordHistoryActionType {
   c
   u
@@ -78971,6 +79350,33 @@ type Query {
   """ Retrieve the meta-data for the UserRightsSet list. """
   _UserRightsSetsMeta: _ListMeta
 
+  """ Search for all AccessTokenHistoryRecord items which match the where clause. 
+  """
+  allAccessTokenHistoryRecords(where: AccessTokenHistoryRecordWhereInput, search: String, sortBy: [SortAccessTokenHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [AccessTokenHistoryRecord]
+
+  """ Search for the AccessTokenHistoryRecord item with the matching ID. """
+  AccessTokenHistoryRecord(where: AccessTokenHistoryRecordWhereUniqueInput!): AccessTokenHistoryRecord
+
+  """ Perform a meta-query on all AccessTokenHistoryRecord items which match the where clause. 
+  """
+  _allAccessTokenHistoryRecordsMeta(where: AccessTokenHistoryRecordWhereInput, search: String, sortBy: [SortAccessTokenHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the AccessTokenHistoryRecord list. """
+  _AccessTokenHistoryRecordsMeta: _ListMeta
+
+  """ Search for all AccessToken items which match the where clause. """
+  allAccessTokens(where: AccessTokenWhereInput, search: String, sortBy: [SortAccessTokensBy!], orderBy: String, first: Int, skip: Int): [AccessToken]
+
+  """ Search for the AccessToken item with the matching ID. """
+  AccessToken(where: AccessTokenWhereUniqueInput!): AccessToken
+
+  """ Perform a meta-query on all AccessToken items which match the where clause. 
+  """
+  _allAccessTokensMeta(where: AccessTokenWhereInput, search: String, sortBy: [SortAccessTokensBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the AccessToken list. """
+  _AccessTokensMeta: _ListMeta
+
   """ Search for all OrganizationHistoryRecord items which match the where clause. 
   """
   allOrganizationHistoryRecords(where: OrganizationHistoryRecordWhereInput, search: String, sortBy: [SortOrganizationHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [OrganizationHistoryRecord]
@@ -82975,6 +83381,42 @@ type Mutation {
 
   """ Delete multiple UserRightsSet items by ID. """
   deleteUserRightsSets(ids: [ID!]): [UserRightsSet]
+
+  """ Create a single AccessTokenHistoryRecord item. """
+  createAccessTokenHistoryRecord(data: AccessTokenHistoryRecordCreateInput): AccessTokenHistoryRecord
+
+  """ Create multiple AccessTokenHistoryRecord items. """
+  createAccessTokenHistoryRecords(data: [AccessTokenHistoryRecordsCreateInput]): [AccessTokenHistoryRecord]
+
+  """ Update a single AccessTokenHistoryRecord item by ID. """
+  updateAccessTokenHistoryRecord(id: ID!, data: AccessTokenHistoryRecordUpdateInput): AccessTokenHistoryRecord
+
+  """ Update multiple AccessTokenHistoryRecord items by ID. """
+  updateAccessTokenHistoryRecords(data: [AccessTokenHistoryRecordsUpdateInput]): [AccessTokenHistoryRecord]
+
+  """ Delete a single AccessTokenHistoryRecord item by ID. """
+  deleteAccessTokenHistoryRecord(id: ID!): AccessTokenHistoryRecord
+
+  """ Delete multiple AccessTokenHistoryRecord items by ID. """
+  deleteAccessTokenHistoryRecords(ids: [ID!]): [AccessTokenHistoryRecord]
+
+  """ Create a single AccessToken item. """
+  createAccessToken(data: AccessTokenCreateInput): AccessToken
+
+  """ Create multiple AccessToken items. """
+  createAccessTokens(data: [AccessTokensCreateInput]): [AccessToken]
+
+  """ Update a single AccessToken item by ID. """
+  updateAccessToken(id: ID!, data: AccessTokenUpdateInput): AccessToken
+
+  """ Update multiple AccessToken items by ID. """
+  updateAccessTokens(data: [AccessTokensUpdateInput]): [AccessToken]
+
+  """ Delete a single AccessToken item by ID. """
+  deleteAccessToken(id: ID!): AccessToken
+
+  """ Delete multiple AccessToken items by ID. """
+  deleteAccessTokens(ids: [ID!]): [AccessToken]
 
   """ Create a single OrganizationHistoryRecord item. """
   createOrganizationHistoryRecord(data: OrganizationHistoryRecordCreateInput): OrganizationHistoryRecord
