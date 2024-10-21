@@ -222,8 +222,8 @@ describe('FindOrganizationsByAddress', () => {
                     unitType,
                 })
                 const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
-                expect(found.meters[0]).toMatchObject({ resource: expect.any(String)})
-                expect(found.receipts[0]).toMatchObject({ category: expect.any(String)})
+                expect(found.meters[0]).toMatchObject({ resource: expect.any(String) })
+                expect(found.receipts[0]).toMatchObject({ category: expect.any(String) })
                 expect(found.id).toEqual(utils.organization.id)
                 expect(found.name).toEqual(utils.organization.name)
                 expect(found.tin).toEqual(utils.organization.tin)

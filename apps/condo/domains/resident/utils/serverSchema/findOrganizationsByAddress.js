@@ -8,76 +8,20 @@ const {
     ONLINE_INTERACTION_CHECK_ACCOUNT_SUCCESS_STATUS,
 } = require('@condo/domains/billing/constants/onlineInteraction')
 const { getAccountsWithOnlineInteractionUrl } = require('@condo/domains/billing/utils/serverSchema/checkAccountNumberWithOnlineInteractionUrl')
-const { CONTEXT_FINISHED_STATUS: BILLING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
+const { DISABLE_DISCOVER_SERVICE_CONSUMERS } = require('@condo/domains/common/constants/featureflags')
 
-const { DISABLE_DISCOVER_SERVICE_CONSUMERS } = require('../../../common/constants/featureflags')
-
-async function findOrganizationsByAddressKey ({ addressKey }) {
-    const properties = await find('Property', { addressKey, deletedAt: null })
-
-    if (!properties.length) {
-        return []
-    }
-
-    let organizations = await find('Organization', {
-        id_in: [...new Set(properties.map(({ organization }) => organization))],
-        deletedAt: null,
-    })
-
-    if (!organizations.length) {
-        return []
-    }
-
-    const [withAcquiring, withMeters] = await Promise.all([
-        getOrganizationIdsWithAcquiring(organizations),
-        getOrganizationIdsWithMeters(organizations),
-    ])
-
-    organizations = organizations.filter(({ id }) => withAcquiring.has(id) || withMeters.has(id))
-
-    const billingContexts = await find('BillingIntegrationOrganizationContext', {
-        status: BILLING_CONTEXT_FINISHED_STATUS,
-        deletedAt: null,
-        organization: { id_in: organizations.map(({ id }) => id) },
-    })
-
-    if (!billingContexts.length){
-        return []
-    }
-
-    const billingContextIndex = billingContexts.reduce((acc, billingContext) => {
-        acc[billingContext.organization] = billingContext
-
-        return acc
-    }, {})
-
-    organizations = organizations.filter(({ id }) => billingContextIndex[id])
+async function findOrganizationsByAddressKey (organizations, billingContextIndex, { addressKey }) {
     //TODO: check this after lastReportBuilder deploy
-    const groupedReceipts = billingContexts.reduce((acc, { organization, lastReport }) => {
+    const groupedReceipts = organizations.reduce((acc, { id }) => {
+        const lastReport = billingContextIndex[id]
+
         if (lastReport?.categories)
-            acc[organization] = lastReport.categories.map(category => ({ category }))
+            acc[id] = lastReport.categories.map(category => ({ category }))
 
         return acc
     }, {})
 
-    let meters = await find('Meter', {
-        organization: { id_in: organizations.map(({ id }) => id) },
-        deletedAt: null,
-        property: { addressKey, deletedAt: null },
-    })
-
-    const groupedMeters = meters.reduce((acc, meter) => {
-        const formedMeter = {
-            resource: meter.resource,
-        }
-        if (acc[meter.organization]) {
-            acc[meter.organization].push(formedMeter)
-        } else {
-            acc[meter.organization] = [formedMeter]
-        }
-
-        return acc
-    }, {})
+    const groupedMeters = await getOrganizationGroupedMeters(organizations, addressKey)
 
     return organizations.map(organization => ({
         id: organization.id,
@@ -89,44 +33,7 @@ async function findOrganizationsByAddressKey ({ addressKey }) {
     }))
 }
 
-async function findOrganizationsByAddressKeyUnitNameUnitType (context, { addressKey, unitName, unitType }) {
-    const properties = await find('Property', { addressKey, deletedAt: null })
-
-    if (!properties.length) {
-        return []
-    }
-
-    let organizations = await find('Organization', {
-        id_in: [...new Set(properties.map(({ organization }) => organization))],
-        deletedAt: null,
-    })
-
-    if (!organizations.length) {
-        return []
-    }
-
-    const [withAcquiring, withMeters] = await Promise.all([
-        getOrganizationIdsWithAcquiring(organizations),
-        getOrganizationIdsWithMeters(organizations),
-    ])
-
-    organizations = organizations.filter(({ id }) => withAcquiring.has(id) || withMeters.has(id))
-
-    const billingContexts = await find('BillingIntegrationOrganizationContext', {
-        status: BILLING_CONTEXT_FINISHED_STATUS,
-        deletedAt: null,
-        organization: { id_in: organizations.map(({ id }) => id) },
-    })
-
-    if (!billingContexts.length) {
-        return []
-    }
-
-    const billingContextIndex = billingContexts.reduce((acc, billingContext) => {
-        acc[billingContext.organization] = billingContext
-
-        return acc
-    }, {})
+async function findOrganizationsByAddressKeyUnitNameUnitType (organizations, billingContextIndex, context, { addressKey, unitName, unitType }) {
     const blackList = await Promise.all(
         organizations.map(organization => {
             return featureToggleManager.isFeatureEnabled(
@@ -183,37 +90,8 @@ async function findOrganizationsByAddressKeyUnitNameUnitType (context, { address
             return acc
         }, {})
 
-    const meters = await find('Meter', {
-        organization: { id_in: organizations.map(({ id }) => id) },
-        deletedAt: null,
-        property: { addressKey, deletedAt: null },
-        unitName,
-        unitType,
-    })
-    const meterReadings = await find('MeterReading', {
-        meter: { id_in: meters.map(({ id }) => id) },
-    })
-    const meterReadingIndex = meterReadings.reduce((acc, { meter, value1, value2, value3, value4 }) => {
-        acc[meter] = [value1, value2, value3, value4].filter(Boolean).join(',')
+    const groupedMeters = await getOrganizationGroupedMeters(organizations, addressKey, { unitName, unitType })
 
-        return acc
-    }, {})
-
-    const groupedMeters = meters.reduce((acc, meter) => {
-        const formedMeter = {
-            resource: meter.resource,
-            account: meter.accountNumber,
-            number: meter.number,
-            value: meterReadingIndex?.[meter.id],
-        }
-        if (acc[meter.organization]) {
-            acc[meter.organization].push(formedMeter)
-        } else {
-            acc[meter.organization] = [formedMeter]
-        }
-
-        return acc
-    }, {})
     return organizations.map(organization => {
         let receipts = groupedReceipts[organization.id]
         let meters = groupedMeters[organization.id]
@@ -221,11 +99,11 @@ async function findOrganizationsByAddressKeyUnitNameUnitType (context, { address
         if (receipts?.length) {
             const cleanedReceipts = {}
 
-            for (let i = 0; i < receipts.length; i++){
-                if (!cleanedReceipts[receipts[i].category]){
-                    cleanedReceipts[receipts[i].category] = receipts[i]
+            for (const receipt of receipts) {
+                if (!cleanedReceipts[receipt.category]){
+                    cleanedReceipts[receipt.category] = receipt
                 } else {
-                    cleanedReceipts[receipts[i].category] = { category: receipts[i].category }
+                    cleanedReceipts[receipt.category] = { category: receipt.category }
                 }
             }
 
@@ -252,48 +130,9 @@ async function findOrganizationsByAddressKeyUnitNameUnitType (context, { address
     })
 }
 
-async function findOrganizationsByAddressKeyTinAccountNumber ({ addressKey, tin, accountNumber }) {
-    const properties = await find('Property', { addressKey, deletedAt: null })
-
-    if (!properties.length) {
-        return []
-    }
-
-    let organizations = await find('Organization', {
-        id_in: [...new Set(properties.map(({ organization }) => organization))],
-        tin,
-        deletedAt: null,
-    })
-
-    if (!organizations.length) {
-        return []
-    }
-
-    const [withAcquiring, withMeters] = await Promise.all([
-        getOrganizationIdsWithAcquiring(organizations),
-        getOrganizationIdsWithMeters(organizations),
-    ])
-    organizations = organizations.filter(({ id }) => withAcquiring.has(id) || withMeters.has(id))
-    const billingContexts = await find('BillingIntegrationOrganizationContext', {
-        status: BILLING_CONTEXT_FINISHED_STATUS,
-        deletedAt: null,
-        organization: { id_in: organizations.map(({ id }) => id) },
-    })
-
-    if (!billingContexts.length){
-        return []
-    }
-
-    const billingContextIndex = billingContexts.reduce((acc, billingContext) => {
-        acc[billingContext.organization] = billingContext
-
-        return acc
-    }, {})
-
-    organizations = organizations.filter(({ id }) => billingContextIndex[id])
-
+async function findOrganizationsByAddressKeyTinAccountNumber (organizations, billingContextIndex, { addressKey, tin, accountNumber }) {
     const billingIntegrationsWithRemoteInteraction = await find('BillingIntegration', {
-        id_in: billingContexts.map(({ integration }) => integration),
+        id_in: Object.values(billingContextIndex).map(({ integration }) => integration),
         checkAccountNumberUrl_not: null,
     })
 
@@ -319,20 +158,18 @@ async function findOrganizationsByAddressKeyTinAccountNumber ({ addressKey, tin,
             })
         }
 
-        if (context) {
-            const checkAccountNumberUrl = remoteInteractions[context.integration]
+        const checkAccountNumberUrl = remoteInteractions[context.integration]
 
-            if (!receipts.length && checkAccountNumberUrl) {
-                const { status, services } = await getAccountsWithOnlineInteractionUrl(checkAccountNumberUrl, tin, accountNumber)
+        if (!receipts.length && checkAccountNumberUrl) {
+            const { status, services } = await getAccountsWithOnlineInteractionUrl(checkAccountNumberUrl, tin, accountNumber)
 
-                if (status === ONLINE_INTERACTION_CHECK_ACCOUNT_SUCCESS_STATUS) {
-                    receipts = services.map(service => ({
-                        category: service.category,
-                        number: service.account.number,
-                        routingNumber: service.bankAccount.routingNumber,
-                        bankAccountNumber: service.bankAccount.number,
-                    }))
-                }
+            if (status === ONLINE_INTERACTION_CHECK_ACCOUNT_SUCCESS_STATUS) {
+                receipts = services.map(service => ({
+                    category: service.category,
+                    number: service.account.number,
+                    routingNumber: service.bankAccount.routingNumber,
+                    bankAccountNumber: service.bankAccount.number,
+                }))
             }
         }
 
@@ -360,21 +197,36 @@ async function findOrganizationsByAddressKeyTinAccountNumber ({ addressKey, tin,
             return acc
         }, {})
 
-    let meters = await find('Meter', {
+    const groupedMeters = await getOrganizationGroupedMeters(organizations, addressKey, { accountNumber })
+
+    return organizations.map(organization => ({
+        id: organization.id,
+        name: organization.name,
+        tin: organization.tin,
+        type: organization.type,
+        receipts: groupedReceipts[organization.id],
+        meters: groupedMeters[organization.id],
+    })).filter(organization => organization.receipts || organization.meters)
+}
+
+async function getOrganizationGroupedMeters (organizations, addressKey, query = {}){
+    const meters = await find('Meter', {
         organization: { id_in: organizations.map(({ id }) => id) },
         deletedAt: null,
         property: { addressKey, deletedAt: null },
-        accountNumber,
+        ...query,
     })
     const meterReadings = await find('MeterReading', {
         meter: { id_in: meters.map(({ id }) => id) },
+        deletedAt: null,
     })
     const meterReadingIndex = meterReadings.reduce((acc, { meter, value1, value2, value3, value4 }) => {
         acc[meter] = [value1, value2, value3, value4].filter(Boolean).join(',')
 
         return acc
     }, {})
-    const groupedMeters = meters.reduce((acc, meter) => {
+
+    return meters.reduce((acc, meter) => {
         const formedMeter = {
             resource: meter.resource,
             account: meter.accountNumber,
@@ -389,15 +241,6 @@ async function findOrganizationsByAddressKeyTinAccountNumber ({ addressKey, tin,
 
         return acc
     }, {})
-
-    return organizations.map(organization => ({
-        id: organization.id,
-        name: organization.name,
-        tin: organization.tin,
-        type: organization.type,
-        receipts: groupedReceipts[organization.id],
-        meters: groupedMeters[organization.id],
-    })).filter(organization => organization.receipts || organization.meters)
 }
 
 async function getOrganizationIdsWithMeters (organizations) {
@@ -420,6 +263,8 @@ async function getOrganizationIdsWithAcquiring (organizations) {
 }
 
 module.exports = {
+    getOrganizationIdsWithMeters,
+    getOrganizationIdsWithAcquiring,
     findOrganizationsByAddressKeyTinAccountNumber,
     findOrganizationsByAddressKeyUnitNameUnitType,
     findOrganizationsByAddressKey,
