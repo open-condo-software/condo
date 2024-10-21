@@ -1,7 +1,10 @@
 const { isString, isNumber, isUndefined,
     isEmpty, get, pick } = require('lodash')
 
+// TODO(YEgorLu): DOMA-10497 values in RegisterMetersReadings should not be processed like that. Move in to import or rewrite.
+
 /**
+ * @deprecated
  * @param value
  * @return {undefined|string|null}
  */
@@ -15,6 +18,7 @@ function normalizeMeterValue (value) {
 }
 
 /**
+ * @deprecated
  * @param {string | null | undefined} value
  * @return {boolean}
  */
@@ -26,6 +30,7 @@ function validateMeterValue (value) {
 }
 
 /**
+ * @deprecated
  * @param {MeterReading} meterReading
  * @return {Object}
  */
@@ -40,6 +45,7 @@ function meterReadingAsResult (meterReading) {
 }
 
 /**
+ * @deprecated
  * @param {Meter} meter
  * @param {RegisterMetersReadingsMeterMetaInput} changedFields
  * @return {boolean}
