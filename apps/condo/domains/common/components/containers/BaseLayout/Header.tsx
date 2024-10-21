@@ -61,12 +61,18 @@ export const Header: React.FC<IHeaderProps> = (props) => {
                 const cachedData = client.readQuery(queryData)
                 const cachedActualEmployees = Array.isArray(cachedData?.actualEmployees) ? cachedData.actualEmployees.filter(nonNull) : []
 
-                client.writeQuery({
-                    ...queryData,
-                    data: {
-                        actualEmployees: [result.obj, ...cachedActualEmployees],
-                    },
-                })
+                if (!cachedActualEmployees.length) {
+                    client.refetchQueries({
+                        include: [GetActualOrganizationEmployeesDocument],
+                    })
+                } else {
+                    client.writeQuery({
+                        ...queryData,
+                        data: {
+                            actualEmployees: [result.obj, ...cachedActualEmployees],
+                        },
+                    })
+                }
             }
         },
     })
