@@ -161,7 +161,7 @@ const generateDomaExcelFileWithGivenData = async (rows) => {
     return createUpload(content, `${faker.datatype.uuid()}.xlsx`, EXCEL_FILE_META.mimetype)
 }
 
-const METER_READINGS_IMPORT_TASK_FIELDS = 'status format file { mimetype } errorFile { originalFilename mimetype filename } errorMessage ' +
+const METER_READINGS_IMPORT_TASK_FIELDS = 'status format file { mimetype } errorFile { originalFilename mimetype filename publicUrl } errorMessage ' +
     'totalRecordsCount importedRecordsCount processedRecordsCount'
 
 describe('importMeters', () => {
@@ -470,7 +470,7 @@ describe('importMeters', () => {
         await importMeters(meterReadingsImportTask.id)
 
         // assert
-        const task = await MeterReadingsImportTask.getOne(context, { id: meterReadingsImportTask.id })
+        const task = await MeterReadingsImportTask.getOne(context, { id: meterReadingsImportTask.id }, METER_READINGS_IMPORT_TASK_FIELDS)
         expect(task).toMatchObject({
             format: DOMA_EXCEL,
             file: expect.objectContaining({ mimetype: EXCEL_FILE_META.mimetype }),
