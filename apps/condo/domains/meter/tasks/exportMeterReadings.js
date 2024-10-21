@@ -145,7 +145,7 @@ async function exportMeterReadings (taskId) {
 
         const loadRecordsBatch = async (offset, limit) => {
             this.progress(Math.floor(offset / totalRecordsCount * 100))
-            return mappedMeterReadings.slice(offset, limit)
+            return mappedMeterReadings.slice(offset, offset + limit)
         }
         const convertRecordToFileRow = async (meterReading) => await meterReadingToRow({
             task,
