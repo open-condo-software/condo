@@ -11,14 +11,14 @@ import isString from 'lodash/isString'
 import React from 'react'
 
 import { IconProps } from '@open-condo/icons'
-import { Tag, TypographyLinkProps } from '@open-condo/ui'
+import { Space, Tag, TypographyLinkProps } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { PAYMENT_WITHDRAWN_STATUS } from '@condo/domains/acquiring/constants/payment'
 import { EmptyTableCell } from '@condo/domains/common/components/Table/EmptyTableCell'
 import { TTextHighlighterRenderPartFN } from '@condo/domains/common/components/TextHighlighter'
 import { TextHighlighter, TTextHighlighterProps } from '@condo/domains/common/components/TextHighlighter'
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
+import { Tooltip, TooltipProps } from '@condo/domains/common/components/Tooltip'
 import { LOCALES } from '@condo/domains/common/constants/locale'
 import { ELLIPSIS_ROWS } from '@condo/domains/common/constants/style'
 import { getAddressDetails } from '@condo/domains/common/utils/helpers'
@@ -141,10 +141,12 @@ type GetTableCellRendererType = (props?: {
     extraHighlighterProps?: Partial<TTextHighlighterProps>
     extraPostfixProps?: TextProps
     extraTitle?: string
+    extraTooltipProps?: TooltipProps
     href?: string
     target?: TypographyLinkProps['target']
     underline?: boolean
     Icon?: React.FC<IconProps>
+    iconProps?: IconProps
 }) => (text?: string) => React.ReactElement
 
 /**
@@ -156,10 +158,12 @@ type GetTableCellRendererType = (props?: {
  * @param extraHighlighterProps
  * @param extraPostfixProps
  * @param extraTitle
+ * @param extraTooltipProps
  * @param href
  * @param target
  * @param underline
  * @param Icon
+ * @param iconProps
  * @return cell contents renderer fn
  */
 export const getTableCellRenderer: GetTableCellRendererType = ({
@@ -169,10 +173,12 @@ export const getTableCellRenderer: GetTableCellRendererType = ({
     extraHighlighterProps,
     extraPostfixProps,
     extraTitle,
+    extraTooltipProps,
     href,
     underline,
     target,
     Icon,
+    iconProps,
 } = {}) =>
     (text) => {
         const title = getTitleMessage({ text, extraTitle, postfix })
@@ -186,7 +192,7 @@ export const getTableCellRenderer: GetTableCellRendererType = ({
 
         const ellipsisConfig = isBoolean(ellipsis) ? ELLIPSIS_SETTINGS : ellipsis
 
-        const cellContent = text ? (
+        const cellContent = text && (
             !ellipsis
                 ? highlightedContent
                 : (
@@ -194,18 +200,18 @@ export const getTableCellRenderer: GetTableCellRendererType = ({
                         {highlightedContent}
                     </Typography.Paragraph>
                 )
-        ) : Icon && <Icon className='icon'/>
-
+        )
         // NOTE Tooltip -> span -> content
         // This hack (span) is needed for tooltip to appear
 
         return (
-            <Tooltip title={title}>
+            <Tooltip title={title} {...extraTooltipProps}>
                 <span>
                     {
                         href
                             ? renderLink(cellContent, href, underline, target)
-                            : cellContent
+                            : Icon ? <Space size={8}><Icon {...iconProps} className={`${iconProps ? '' : 'icon'}`}/>{cellContent}</Space>
+                                : cellContent
                     }
                 </span>
             </Tooltip>
