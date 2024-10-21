@@ -135,7 +135,7 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
             const cachedActualEmployees = Array.isArray(cachedData?.actualEmployees) ? cachedData.actualEmployees.filter(nonNull) : []
 
             if (!cachedActualEmployees.length) {
-                client.refetchQueries({
+                await client.refetchQueries({
                     include: [GetActualOrganizationEmployeesDocument],
                 })
             } else {

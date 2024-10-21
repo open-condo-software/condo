@@ -46,7 +46,7 @@ export const Header: React.FC<IHeaderProps> = (props) => {
     const hasAccessToAppeals = get(organization, 'type', MANAGING_COMPANY_TYPE) !== SERVICE_PROVIDER_TYPE
 
     const [acceptOrReject] = useMutation(ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION, {
-        onCompleted: (result) => {
+        onCompleted: async (result) => {
             const isAcceptedInvite = result?.obj
                 && result.obj.isAccepted
                 && !result.obj.isBlocked
@@ -62,7 +62,7 @@ export const Header: React.FC<IHeaderProps> = (props) => {
                 const cachedActualEmployees = Array.isArray(cachedData?.actualEmployees) ? cachedData.actualEmployees.filter(nonNull) : []
 
                 if (!cachedActualEmployees.length) {
-                    client.refetchQueries({
+                    await client.refetchQueries({
                         include: [GetActualOrganizationEmployeesDocument],
                     })
                 } else {
