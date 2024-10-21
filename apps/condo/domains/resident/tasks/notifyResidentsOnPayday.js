@@ -123,7 +123,7 @@ async function notifyResidentsOnPayday () {
                      * @param {BillingReceipt[]} chunk
                      * @returns {BillingReceipt[]}
                      */
-                    fields: 'id isPayable period account { id number } receiver { id } category { id }',
+                    fields: 'id toPay isPayable period organization { id country } account { id number } receiver { id } category { id }',
                     chunkProcessor: async chunk => chunk.filter(receipt => receipt.isPayable),
                 })
                 state.processedReceipts += receipts.length
