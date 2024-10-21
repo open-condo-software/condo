@@ -1,5 +1,10 @@
-const iconv = require('iconv-lite')
-const { get } = require('lodash')
+const get = require('lodash/get')
+
+const { convertEncoding, detectEncoding } = require('@open-condo/keystone/file/utils')
+const { getLogger } = require('@open-condo/keystone/logging')
+
+
+const logger = getLogger('parseRUReceiptQRCode')
 
 /**
  * @typedef {Object} TRUQRCodeFields
@@ -17,23 +22,20 @@ const { get } = require('lodash')
  * @return {TRUQRCodeFields}
  */
 function parseRUReceiptQRCode (qrStr) {
-    const matches = /^ST(?<version>\d{4})(?<encodingTag>\d)\|(?<requisitesStr>.*)$/g.exec(qrStr)
+    const buffer = Buffer.from(qrStr, 'base64')
+    const detectedEncoding = detectEncoding(buffer)
+    const decodedQrStr = convertEncoding(buffer, detectedEncoding)
+
+    const matches = /^ST(?<version>\d{4})(?<encodingTag>\d)\|(?<requisitesStr>.*)$/g.exec(decodedQrStr)
 
     if (!matches) {
+        logger.error({ msg:'Error qr-code parsing', data: { qrStr, decodedQrStr, detectedEncoding } })
         throw new Error('Invalid QR code')
     }
+    logger.info({ msg:'Parsed qr-code', data: { qrStr, decodedQrStr, detectedEncoding } })
 
     const requisitesStr = get(matches, ['groups', 'requisitesStr'], '')
-
-    // https://encoding.spec.whatwg.org/#koi8-r
-    // https://encoding.spec.whatwg.org/#windows-1251
-    const encodingTag = get(matches, ['groups', 'encodingTag'])
-    const encoding = get({ 1: 'cp1251', 2: 'utf-8', 3: 'koi8-r' }, encodingTag, 'utf-8')
-
-    // Skip decoding for utf string
-    const decodedRequisitesStr = encodingTag === '2' ? requisitesStr : iconv.decode(requisitesStr, encoding)
-
-    return Object.fromEntries(decodedRequisitesStr.split('|').map((part) => part.split('=', 2)))
+    return Object.fromEntries(requisitesStr.split('|').map((part) => part.split('=', 2)))
 }
 
 module.exports = parseRUReceiptQRCode
