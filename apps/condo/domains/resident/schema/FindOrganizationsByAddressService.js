@@ -62,20 +62,16 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
                 }
 
                 const properties = await find('Property', { addressKey, deletedAt: null })
+                if (!properties.length) return []
 
-                if (!properties.length) {
-                    return []
-                }
+                const organizationIds = [...new Set(properties.map(({ organization }) => organization))]
 
                 let organizations = await find('Organization', {
-                    id_in: [...new Set(properties.map(({ organization }) => organization))],
-                    ...tin ? { tin } : {},
+                    id_in: organizationIds,
+                    ...(tin && { tin }),
                     deletedAt: null,
                 })
-
-                if (!organizations.length) {
-                    return []
-                }
+                if (!organizations.length) return []
 
                 const [withAcquiring, withMeters] = await Promise.all([
                     getOrganizationIdsWithAcquiring(organizations),
@@ -83,20 +79,17 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
                 ])
 
                 organizations = organizations.filter(({ id }) => withAcquiring.has(id) || withMeters.has(id))
+                if (!organizations.length) return []
 
                 const billingContexts = await find('BillingIntegrationOrganizationContext', {
                     status: BILLING_CONTEXT_FINISHED_STATUS,
                     deletedAt: null,
                     organization: { id_in: organizations.map(({ id }) => id) },
                 })
-
-                if (!billingContexts.length){
-                    return []
-                }
+                if (!billingContexts.length) return []
 
                 const billingContextIndex = billingContexts.reduce((acc, billingContext) => {
                     acc[billingContext.organization] = billingContext
-
                     return acc
                 }, {})
 
