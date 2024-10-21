@@ -8,6 +8,7 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, SIGNIN_MUTATION } from '@condo/domains/user/gql'
 
+
 interface IAuthLayoutContext {
     isMobile: boolean
     signInByEmail: ({ email, password }, onCompleted?: () => void) => Promise<unknown>,

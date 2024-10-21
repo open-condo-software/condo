@@ -21,7 +21,6 @@ import { PropertyMeter, Meter, MeterPageTypes, METER_TAB_TYPES } from '@condo/do
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
 
-
 type CreateMeterProps = {
     organizationId: string
     meterType: MeterPageTypes
@@ -49,7 +48,6 @@ export const CreateMeterForm = (props: CreateMeterProps): JSX.Element => {
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>(propertyIdFromQuery as string || null)
     const [selectedUnitName, setSelectedUnitName] = useState<string>(unitNameFromQuery as string || null)
     const [selectedUnitType, setSelectedUnitType] = useState<MeterUnitTypeType>(unitTypeFromQuery as MeterUnitTypeType || MeterUnitTypeType.Flat)
-    const [isMatchSelectedProperty] = useState(true)
 
     const { obj: property, loading: propertyLoading } = Property.useObject({ where: { id: selectedPropertyId } },
         { skip: !selectedPropertyId }
@@ -126,7 +124,7 @@ export const CreateMeterForm = (props: CreateMeterProps): JSX.Element => {
                                     form={form}
                                     getHandleSelectPropertyAddress={getHandleSelectPropertyAddress}
                                     handleDeselectPropertyAddress={handleDeselectPropertyAddress}
-                                    isMatchSelectedProperty={isMatchSelectedProperty}
+                                    isMatchSelectedProperty
                                     meterType={meterType}
                                     organizationId={organizationId}
                                     selectedPropertyId={selectedPropertyId}

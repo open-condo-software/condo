@@ -2,6 +2,23 @@ query authenticatedUser {
     authenticatedUser {
         id
         name
-        type
+        avatar {
+            publicUrl
+        }
+        phone
+        email
+        isAdmin
+        isSupport
+        rightsSet {
+            id
+        }
+        locale
+        showGlobalHints
+    }
+}
+
+mutation signOut {
+    unauthenticateUser {
+        success
     }
 }

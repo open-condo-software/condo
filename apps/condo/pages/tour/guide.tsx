@@ -7,9 +7,12 @@ import Head from 'next/head'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { ChevronDown, ChevronUp, Download, ExternalLink } from '@open-condo/icons'
+import { prepareSSRContext } from '@open-condo/miniapp-utils'
+import { initializeApollo } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Card, Modal, Space, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
+
 
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
 import {
@@ -18,6 +21,11 @@ import {
     PageWrapper,
     useLayoutContext,
 } from '@condo/domains/common/components/containers/BaseLayout'
+import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
+import { extractSSRState } from '@condo/domains/common/utils/next/ssr'
+
+import type { GetServerSideProps } from 'next'
 
 
 const {
@@ -385,3 +393,20 @@ const GuidePage = () => {
 GuidePage.requiredAccess = AuthRequired
 
 export default GuidePage
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const { req, res } = context
+
+    // @ts-ignore In Next 9 the types (only!) do not match the expected types
+    const { headers } = prepareSSRContext(req, res)
+    const client = initializeApollo({ headers })
+
+    const { redirect, user } = await prefetchAuthOrRedirect(client, context)
+    if (redirect) return redirect
+
+    await prefetchOrganizationEmployee({ client, context, userId: user.id })
+
+    return extractSSRState(client, req, res, {
+        props: {},
+    })
+}

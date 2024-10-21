@@ -15,6 +15,8 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
 
+import { prepareSSRContext } from '@open-condo/miniapp-utils'
+import { initializeApollo } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -31,6 +33,9 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
+import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
+import { extractSSRState } from '@condo/domains/common/utils/next/ssr'
 import { NewsReadPermissionRequired } from '@condo/domains/news/components/PageAccess'
 import { RecipientCounter } from '@condo/domains/news/components/RecipientCounter'
 import { NewsItemScopeNoInstanceType } from '@condo/domains/news/components/types'
@@ -41,6 +46,9 @@ import { NewsItem, NewsItemScope, NewsItemSharing } from '@condo/domains/news/ut
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
+
+import type { GetServerSideProps } from 'next'
+
 
 const { publicRuntimeConfig: { newsItemsSendingDelay } } = getConfig()
 
@@ -422,3 +430,20 @@ const NewsItemCardPage = () => {
 NewsItemCardPage.requiredAccess = NewsReadPermissionRequired
 
 export default NewsItemCardPage
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const { req, res } = context
+
+    // @ts-ignore In Next 9 the types (only!) do not match the expected types
+    const { headers } = prepareSSRContext(req, res)
+    const client = initializeApollo({ headers })
+
+    const { redirect, user } = await prefetchAuthOrRedirect(client, context)
+    if (redirect) return redirect
+
+    await prefetchOrganizationEmployee({ client, context, userId: user.id })
+
+    return extractSSRState(client, req, res, {
+        props: {},
+    })
+}

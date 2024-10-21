@@ -11,6 +11,8 @@ import Link from 'next/link'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Edit, Info } from '@open-condo/icons'
+import { prepareSSRContext } from '@open-condo/miniapp-utils'
+import { initializeApollo } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { LocaleContext, useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -19,12 +21,16 @@ import { ActionBar, Button, Select, Tooltip, Typography } from '@open-condo/ui'
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
 import { PageContent, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { FeatureFlagsController } from '@condo/domains/common/components/containers/FeatureFlag'
+import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
+import { extractSSRState } from '@condo/domains/common/utils/next/ssr'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import { UserOrganizationsList } from '@condo/domains/user/components/UserOrganizationsList'
 import { User } from '@condo/domains/user/utils/clientSchema'
 
 import type { OrganizationEmployeeWhereInput } from '@app/condo/schema'
+import type { GetServerSideProps } from 'next'
 
 
 const ROW_GUTTER_BIG: [Gutter, Gutter] = [0, 60]
@@ -284,3 +290,20 @@ const UserInfoPage: React.FC & { requiredAccess?: React.FC } = () => {
 UserInfoPage.requiredAccess = AuthRequired
 
 export default UserInfoPage
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const { req, res } = context
+
+    // @ts-ignore In Next 9 the types (only!) do not match the expected types
+    const { headers } = prepareSSRContext(req, res)
+    const client = initializeApollo({ headers })
+
+    const { redirect, user } = await prefetchAuthOrRedirect(client, context)
+    if (redirect) return redirect
+
+    await prefetchOrganizationEmployee({ client, context, userId: user.id })
+
+    return extractSSRState(client, req, res, {
+        props: {},
+    })
+}

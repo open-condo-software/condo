@@ -105,6 +105,8 @@ export const getFilteredValue = <T>(filters: T, key: string | Array<string>): Fi
 interface IUpdateQueryOptions {
     routerAction: 'replace' | 'push'
     resetOldParameters: boolean
+    /** Prevents the "getServerSideProps" call */
+    shallow?: boolean
 }
 interface IUpdateQueryData {
     newParameters: Record<string, unknown>
@@ -117,6 +119,7 @@ export const updateQuery: UpdateQueryType = async (router, data, options) => {
     const newRoute = get(data, 'newRoute')
     const routerAction = get(options, 'routerAction', 'push')
     const resetOldParameters = get(options, 'resetOldParameters', true)
+    const shallow = get(options, 'shallow', routerAction === 'replace')
 
     if (isEmpty(newParameters) && isEmpty(newRoute)) return
 
@@ -136,8 +139,8 @@ export const updateQuery: UpdateQueryType = async (router, data, options) => {
     const url = route + query
 
     if (routerAction === 'push') {
-        await router.push(url)
+        await router.push(url, undefined, { shallow })
     } else {
-        await router.replace(url)
+        await router.replace(url, undefined, { shallow })
     }
 }

@@ -8,6 +8,8 @@ import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 
 import { Edit } from '@open-condo/icons'
+import { prepareSSRContext } from '@open-condo/miniapp-utils'
+import { initializeApollo } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -22,12 +24,17 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { FieldPairRow as BaseFieldPairRow, FieldPairRowProps } from '@condo/domains/common/components/FieldPairRow'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
+import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
+import { extractSSRState } from '@condo/domains/common/utils/next/ssr'
 import { EmployeeInviteRetryButton } from '@condo/domains/organization/components/EmployeeInviteRetryButton'
 import { EmployeesReadPermissionRequired } from '@condo/domains/organization/components/PageAccess'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
+
+import type { GetServerSideProps } from 'next'
 
 
 const ReInviteActionAlert = ({ employee }) => {
@@ -324,3 +331,20 @@ export const EmployeeInfoPage = () => {
 EmployeeInfoPage.requiredAccess = EmployeesReadPermissionRequired
 
 export default EmployeeInfoPage
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const { req, res } = context
+
+    // @ts-ignore In Next 9 the types (only!) do not match the expected types
+    const { headers } = prepareSSRContext(req, res)
+    const client = initializeApollo({ headers })
+
+    const { redirect, user } = await prefetchAuthOrRedirect(client, context)
+    if (redirect) return redirect
+
+    await prefetchOrganizationEmployee({ client, context, userId: user.id })
+
+    return extractSSRState(client, req, res, {
+        props: {},
+    })
+}

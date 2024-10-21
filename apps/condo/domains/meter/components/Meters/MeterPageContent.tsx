@@ -1,5 +1,5 @@
 import { MeterReportingPeriod, MeterResource, PropertyMeter as PropertyMeterType } from '@app/condo/schema'
-import { Meter as MeterType } from '@app/condo/schema' 
+import { Meter as MeterType } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
