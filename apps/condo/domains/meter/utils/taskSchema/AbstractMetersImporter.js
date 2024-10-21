@@ -178,7 +178,14 @@ class AbstractMetersImporter {
                             const message = get(mutationError, ['message'])
                             const internalMessage = get(mutationError, ['extensions', 'message'])
                             const messageForUser = get(mutationError, ['extensions', 'messageForUser'])
-                            const rowErrors = [messageForUser || internalMessage || message]
+
+                            const originalError = get(mutationError, ['originalError', 'errors', 0, 'originalError', 'errors', 0])
+                            const originalMessage = get(originalError, ['message'])
+                            const originalInternalMessage = get(originalError, ['extensions', 'message'])
+                            const originalMessageForUser = get(originalError, ['extensions', 'messageForUser'])
+
+                            // We need to show as understandable error as possible
+                            const rowErrors = [originalMessageForUser || originalInternalMessage || originalMessage || messageForUser || internalMessage || message]
 
                             // for sbbol import file we can have several transformed lines per one source line
                             // in such cases we would like to proceed exactly one failed line

@@ -1,4 +1,4 @@
-const { isNil, isEmpty } = require('lodash')
+const { get, isNil, isEmpty, set } = require('lodash')
 
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { i18n } = require('@open-condo/locales/loader')
@@ -209,6 +209,10 @@ async function importRows (keystone, userId, organizationId, rows) {
             listKey: 'User',
         },
     })
+
+    if (get(keystone, ['req', 'locale'])) {
+        set(userContext, ['req', 'locale'], keystone.req.locale)
+    }
 
     // call it with user context - require for MeterReadings hooks
     const { errors, data: { result } } = await registerMetersReadings(userContext, {
