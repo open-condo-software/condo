@@ -78,23 +78,44 @@ async function canReadOrganizations (args) {
             deletedAt: null,
         })
 
-        const allowedOrganizations = get(user, 'extra.allowedOrganizations')
-
         let serviceOrganizationIds = uniq(billingContexts
             .map(({ organization }) => organization )
             .concat(acquiringContexts.map(({ organization }) => organization )))
             .concat(bankIntegrationOrganizationContext.map(({ organization }) => organization))
             .concat(get(accessFilterForB2BAppServiceUser, 'id_in', []) || [])
 
-        if (allowedOrganizations) {
-            serviceOrganizationIds = serviceOrganizationIds.filter(id => allowedOrganizations.includes(id))
-        }
-
         if (serviceOrganizationIds.length) {
             accessConditions.push({ id_in: serviceOrganizationIds })
         }
     }
-    return { OR: accessConditions }
+
+    const allowedOrganizations = get(user, 'extra.allowedOrganizations')
+    if (allowedOrganizations) {
+        accessConditions.map((condition) => {
+            for (const key in condition) {
+                if (!key.startsWith('id')) {
+                    continue
+                }
+
+                if (key === 'id' && !allowedOrganizations.includes(condition(key))) {
+                    delete condition[key]
+                }
+
+                condition[key] = condition[key].filter(id => allowedOrganizations.includes(id))
+            }
+            return condition
+        })
+    }
+
+    const whereByOrganizationsWithTokenScope = { id_in: allowedOrganizations }
+    const defaultWhereByOrganizations = { OR: accessConditions }
+
+    return allowedOrganizations ? {
+        AND: [
+            defaultWhereByOrganizations,
+            whereByOrganizationsWithTokenScope,
+        ],
+    } : defaultWhereByOrganizations
 }
 
 async function canManageOrganizations ({ authentication: { item: user }, operation, listKey, originalInput }) {

@@ -8,4 +8,5 @@ export * as ConfirmPhoneAction from './ConfirmPhoneAction'
 export * as OidcClient from './OidcClient'
 export * as ExternalTokenAccessRight from './ExternalTokenAccessRight'
 export * as UserRightsSet from './UserRightsSet'
+export * as AccessToken from './AccessToken'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

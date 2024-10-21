@@ -26,7 +26,6 @@ const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
 const { PaymentLinkMiddleware } = require('@condo/domains/acquiring/PaymentLinkMiddleware')
 const { VersioningMiddleware, getCurrentVersion } = require('@condo/domains/common/utils/VersioningMiddleware')
 const { UnsubscribeMiddleware } = require('@condo/domains/notification/UnsubscribeMiddleware')
-const { UseAccessTokenMiddleware } = require('@condo/domains/user/integration/UseAccessTokenMiddleware')
 const { UserExternalIdentityMiddleware } = require('@condo/domains/user/integration/UserExternalIdentityMiddleware')
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
 
@@ -131,7 +130,6 @@ const apps = () => {
         new AdapterCache(conf.ADAPTER_CACHE_CONFIG ? JSON.parse(conf.ADAPTER_CACHE_CONFIG) : { enabled: false }),
         new VersioningMiddleware(),
         new OIDCMiddleware(),
-        new UseAccessTokenMiddleware(),
         new FeaturesMiddleware(),
         new PaymentLinkMiddleware(),
         new UnsubscribeMiddleware(),

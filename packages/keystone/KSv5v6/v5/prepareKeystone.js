@@ -4,6 +4,7 @@ const v8 = require('v8')
 const { AdminUIApp } = require('@keystonejs/app-admin-ui')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { Keystone } = require('@keystonejs/keystone')
+const { SessionManager: KeystoneSessionManager } = require('@keystonejs/session')
 const cuid = require('cuid')
 const { json, urlencoded } = require('express')
 const { get, identity } = require('lodash')
@@ -38,7 +39,7 @@ const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development'
 const IS_KEEP_ALIVE_ON_ERROR = get(conf, 'KEEP_ALIVE_ON_ERROR', false) === 'true'
 // NOTE: should be disabled in production: https://www.apollographql.com/docs/apollo-server/testing/graphql-playground/
 // WARN: https://github.com/graphql/graphql-playground/tree/main/packages/graphql-playground-html/examples/xss-attack
-const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND === 'true'
+const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = true || conf.ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND === 'true'
 // NOTE(pahaz): it's a magic number tested by @arichiv at https://developer.chrome.com/blog/cookie-max-age-expires/
 const INFINITY_MAX_AGE_COOKIE = 1707195600
 const SERVICE_USER_SESSION_TTL_IN_SEC = 7 * 24 * 60 * 60 // 7 days in sec
@@ -79,6 +80,29 @@ const sendAppMetrics = () => {
     }
 }
 
+class CustomSessionManager extends KeystoneSessionManager {
+    constructor ({
+        cookieSecret,
+        cookie,
+        sessionStore,
+    }) {
+        super({
+            cookieSecret,
+            cookie,
+            sessionStore,
+        })
+    }
+
+    async _getAuthedItem (req, keystone) {
+        const item = await super._getAuthedItem(req, keystone)
+        if (item) {
+            // also could be accessed through context.req.session.extra
+            item.extra = req.session.extra
+        }
+        return item
+    }
+}
+
 function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, schemas, schemasPreprocessors, tasks, queues, apps, lastApp, graphql, ui, authStrategyOpts }) {
     // trying to be compatible with keystone-6 and keystone-5
     // TODO(pahaz): add storage like https://keystonejs.com/docs/config/config#storage-images-and-files
@@ -99,6 +123,11 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
         ...keystoneConfig,
         onConnect: async () => onConnect && onConnect(keystone),
         ...extendedKeystoneConfig,
+    })
+    keystone._sessionManager = new CustomSessionManager({
+        cookieSecret: keystoneConfig.cookieSecret,
+        cookie: keystoneConfig.cookie,
+        sessionStore: keystoneConfig.sessionStore,
     })
 
     // patch access control handler to store skipAccessControl flag in context
@@ -142,6 +171,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
                     return
                 }
                 // NOTE: auth token is just session token prefix (32 chars) + some prefix after dot.
+                // NOTE(YEgorLu): suffix after dot is actually a sign from cookie-signature, calculated from part before dot + env.COOKIE_SECRET
                 // Example: 12345678901234567890123456789012.asdhaksdjhajskdhajskdhjkas
                 // Session token can be build like so "sess:{prefixBeforeDot}"
                 const sessToken = token.split('.')[0]
