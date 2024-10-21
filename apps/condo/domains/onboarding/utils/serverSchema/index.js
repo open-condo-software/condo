@@ -1,15 +1,10 @@
-
-
 const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
 const { STEP_TYPES, INITIAL_ENABLED_STEPS, TODO_STEP_STATUS, DISABLED_STEP_STATUS, STEP_ORDER } = require('@condo/domains/onboarding/constants/steps')
-const { TourStep: TourStepGQL } = require('@condo/domains/onboarding/gql')
 const { SYNC_TOUR_STEPS_MUTATION } = require('@condo/domains/onboarding/gql')
-const { UserHelpRequest: UserHelpRequestGQL } = require('@condo/domains/onboarding/gql')
-const { UserHelpRequestFile: UserHelpRequestFileGQL } = require('@condo/domains/onboarding/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const TourStep = generateServerUtils(TourStepGQL)
+const TourStep = generateServerUtils('TourStep')
 
 async function syncTourSteps (context, data) {
     if (!context) throw new Error('no context')
@@ -24,8 +19,8 @@ async function syncTourSteps (context, data) {
     })
 }
 
-const UserHelpRequest = generateServerUtils(UserHelpRequestGQL)
-const UserHelpRequestFile = generateServerUtils(UserHelpRequestFileGQL)
+const UserHelpRequest = generateServerUtils('UserHelpRequest')
+const UserHelpRequestFile = generateServerUtils('UserHelpRequestFile')
 /* AUTOGENERATE MARKER <CONST> */
 
 const createTourStepsForOrganization = async (context, organization, dvSenderData) => {

@@ -27,7 +27,12 @@ async function main (args) {
 
     console.info(`NAME: ${b2bAppName}`)
     let b2bAppId
-    const [b2bApp] = await B2BApp.getAll(context, { name: b2bAppName }, { first: 1, sortBy: ['createdAt_DESC'] })
+    const [b2bApp] = await B2BApp.getAll(
+        context,
+        { name: b2bAppName },
+        'id',
+        { first: 1, sortBy: ['createdAt_DESC'] }
+    )
     if (!json.dv) json.dv = 1
     if (!json.sender) json.sender = { 'dv': 1, 'fingerprint': 'create-b2bapp-script' }
     if (!b2bApp) {

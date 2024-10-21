@@ -10,8 +10,11 @@ const { DATE_FORMAT, prepareAndSendMessage, normalizeTarget } = require('./sendM
 const { MESSAGE_BATCH_CREATED_STATUS, MESSAGE_BATCH_PROCESSING_STATUS, MESSAGE_BATCH_DONE_STATUS, MESSAGE_BATCH_FAILED_STATUS } = require('../constants/constants')
 
 async function sendMessageBatch (batchId) {
-    const { keystone: context } = await getSchemaCtx('MessageBatch')
-    const batch = await MessageBatch.getOne(context, { id: batchId })
+    const { keystone: context } = getSchemaCtx('MessageBatch')
+    const batch = await MessageBatch.getOne(context,
+        { id: batchId },
+        'id targets status dv sender { dv fingerprint } title deepLink message messageType'
+    )
 
     // Skip batches that are already have been processed
     if (batch.status !== MESSAGE_BATCH_CREATED_STATUS) return 'batch already processed'

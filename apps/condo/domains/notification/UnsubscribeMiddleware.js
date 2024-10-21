@@ -53,7 +53,7 @@ class UnsubscribeLinkRouter {
             const message = await Message.getOne(this.context, {
                 id,
                 deletedAt: null,
-            })
+            }, 'user { id } email phone type')
 
             // now supported to set settings only for email/sms transport
             if (isNil(message.user) && (message.email || message.phone)) {

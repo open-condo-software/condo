@@ -145,7 +145,7 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
                     organization: { id: organizationId },
                 })
                 for (let b2BAppCtx of b2BAppCtxs) {
-                    await B2BAppContext.softDelete(context, b2BAppCtx.id, DV_SENDER)
+                    await B2BAppContext.softDelete(context, b2BAppCtx.id, 'id', DV_SENDER)
                 }
 
                 // banking domain

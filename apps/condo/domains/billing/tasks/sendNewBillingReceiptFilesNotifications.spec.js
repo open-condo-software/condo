@@ -22,6 +22,7 @@ const {
 } = require('@condo/domains/billing/utils/testSchema')
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const { BILLING_RECEIPT_FILE_ADDED_TYPE } = require('@condo/domains/notification/constants/constants')
+const { MESSAGE_FIELDS } = require('@condo/domains/notification/gql')
 const { Message } = require('@condo/domains/notification/utils/serverSchema')
 const {
     createTestProperty,
@@ -126,7 +127,7 @@ describe('sendNewBillingReceiptFilesNotifications', () => {
             const [message] = await Message.getAll(adminContext, {
                 type: BILLING_RECEIPT_FILE_ADDED_TYPE,
                 email: contact.email,
-            }, { sortBy: 'createdAt_DESC' })
+            }, MESSAGE_FIELDS, { sortBy: 'createdAt_DESC' })
 
             expect(message).toHaveProperty('email', contact.email)
             expect(message).toHaveProperty('meta')
@@ -193,7 +194,7 @@ describe('sendNewBillingReceiptFilesNotifications', () => {
             const messages = await Message.getAll(adminContext, {
                 type: BILLING_RECEIPT_FILE_ADDED_TYPE,
                 email: contact.email,
-            }, { sortBy: 'createdAt_DESC' })
+            }, MESSAGE_FIELDS, { sortBy: 'createdAt_DESC' })
 
             expect(messages).toHaveLength(0)
         })
@@ -231,7 +232,7 @@ describe('sendNewBillingReceiptFilesNotifications', () => {
             const messages = await Message.getAll(adminContext, {
                 type: BILLING_RECEIPT_FILE_ADDED_TYPE,
                 email: contact.email,
-            }, { sortBy: 'createdAt_DESC' })
+            }, MESSAGE_FIELDS, { sortBy: 'createdAt_DESC' })
 
             expect(messages).toHaveLength(0)
         })
@@ -264,7 +265,7 @@ describe('sendNewBillingReceiptFilesNotifications', () => {
             const messages = await Message.getAll(adminContext, {
                 type: BILLING_RECEIPT_FILE_ADDED_TYPE,
                 email: contact.email,
-            }, { sortBy: 'createdAt_DESC' })
+            }, MESSAGE_FIELDS, { sortBy: 'createdAt_DESC' })
 
             expect(messages).toHaveLength(0)
         })

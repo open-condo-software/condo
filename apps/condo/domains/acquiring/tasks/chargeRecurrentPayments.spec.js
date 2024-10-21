@@ -31,6 +31,7 @@ const {
     RECURRENT_PAYMENT_PROCEEDING_CARD_TOKEN_NOT_VALID_ERROR_MESSAGE_TYPE,
     RECURRENT_PAYMENT_PROCEEDING_ACQUIRING_PAYMENT_PROCEED_ERROR_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
+const { MESSAGE_FIELDS } = require('@condo/domains/notification/gql')
 const {
     Message,
 } = require('@condo/domains/notification/utils/serverSchema')
@@ -114,7 +115,7 @@ describe('charge-recurrent-payments', () => {
             const notification = await Message.getOne(adminContext, {
                 type: RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE,
                 uniqKey: `rp_${recurrentPayment.id}_1_true`,
-            })
+            }, MESSAGE_FIELDS)
             expect(notification).toBeDefined()
             expect(notification).toHaveProperty('user')
             expect(notification.user).toHaveProperty('id')
@@ -171,7 +172,7 @@ describe('charge-recurrent-payments', () => {
             const notification = await Message.getOne(adminContext, {
                 type: RECURRENT_PAYMENT_PROCEEDING_CARD_TOKEN_NOT_VALID_ERROR_MESSAGE_TYPE,
                 uniqKey: `rp_${recurrentPayment.id}_1_false`,
-            })
+            }, MESSAGE_FIELDS)
             expect(notification).toBeDefined()
             expect(notification).toHaveProperty('user')
             expect(notification.user).toHaveProperty('id')
@@ -236,7 +237,7 @@ describe('charge-recurrent-payments', () => {
             const notification = await Message.getOne(adminContext, {
                 type: RECURRENT_PAYMENT_PROCEEDING_ACQUIRING_PAYMENT_PROCEED_ERROR_MESSAGE_TYPE,
                 uniqKey: `rp_${recurrentPayment.id}_1_false`,
-            })
+            }, MESSAGE_FIELDS)
             expect(notification).toBeDefined()
             expect(notification).toHaveProperty('user')
             expect(notification.user).toHaveProperty('id')

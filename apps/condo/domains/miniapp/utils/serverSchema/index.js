@@ -9,21 +9,7 @@ const { execGqlWithoutAccess, generateServerUtils } = require('@open-condo/codeg
 const {
     ALL_MINI_APPS_QUERY,
     SEND_B2C_APP_PUSH_MESSAGE_MUTATION,
-    B2BApp: B2BAppGQL,
-    B2BAppContext: B2BAppContextGQL,
-    B2BAppAccessRight: B2BAppAccessRightGQL,
-    B2BAppAccessRightSet: B2BAppAccessRightSetGQL,
-    B2BAppPermission: B2BAppPermissionGQL,
-    B2BAppPromoBlock: B2BAppPromoBlockGQL,
-    B2BAppRole: B2BAppRoleGQL,
-    B2CApp: B2CAppGQL,
-    B2CAppProperty: B2CAppPropertyGQL,
-    B2CAppAccessRight: B2CAppAccessRightGQL,
-    B2CAppBuild: B2CAppBuildGQL,
-    MessageAppBlackList: MessageAppBlackListGQL,
 } = require('@condo/domains/miniapp/gql')
-const { B2BAppNewsSharingConfig: B2BAppNewsSharingConfigGQL } = require('@condo/domains/miniapp/gql')
-const { B2CAppMessageSetting: B2CAppMessageSettingGQL } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 async function allOrganizationApps (context, data) {
@@ -52,20 +38,20 @@ async function sendB2CAppPushMessage (context, data) {
     })
 }
 
-const B2BApp = generateServerUtils(B2BAppGQL)
-const B2BAppContext = generateServerUtils(B2BAppContextGQL)
-const B2BAppAccessRight = generateServerUtils(B2BAppAccessRightGQL)
-const B2CApp = generateServerUtils(B2CAppGQL)
-const B2CAppAccessRight = generateServerUtils(B2CAppAccessRightGQL)
-const B2CAppBuild = generateServerUtils(B2CAppBuildGQL)
-const B2CAppProperty = generateServerUtils(B2CAppPropertyGQL)
-const B2BAppPromoBlock = generateServerUtils(B2BAppPromoBlockGQL)
-const MessageAppBlackList = generateServerUtils(MessageAppBlackListGQL)
-const B2BAppPermission = generateServerUtils(B2BAppPermissionGQL)
-const B2BAppRole = generateServerUtils(B2BAppRoleGQL)
-const B2BAppAccessRightSet = generateServerUtils(B2BAppAccessRightSetGQL)
-const B2BAppNewsSharingConfig = generateServerUtils(B2BAppNewsSharingConfigGQL)
-const B2CAppMessageSetting = generateServerUtils(B2CAppMessageSettingGQL)
+const B2BApp = generateServerUtils('B2BApp')
+const B2BAppContext = generateServerUtils('B2BAppContext')
+const B2BAppAccessRight = generateServerUtils('B2BAppAccessRight')
+const B2CApp = generateServerUtils('B2CApp')
+const B2CAppAccessRight = generateServerUtils('B2CAppAccessRight')
+const B2CAppBuild = generateServerUtils('B2CAppBuild')
+const B2CAppProperty = generateServerUtils('B2CAppProperty')
+const B2BAppPromoBlock = generateServerUtils('B2BAppPromoBlock')
+const MessageAppBlackList = generateServerUtils('MessageAppBlackList')
+const B2BAppPermission = generateServerUtils('B2BAppPermission')
+const B2BAppRole = generateServerUtils('B2BAppRole')
+const B2BAppAccessRightSet = generateServerUtils('B2BAppAccessRightSet')
+const B2BAppNewsSharingConfig = generateServerUtils('B2BAppNewsSharingConfig')
+const B2CAppMessageSetting = generateServerUtils('B2CAppMessageSetting')
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {

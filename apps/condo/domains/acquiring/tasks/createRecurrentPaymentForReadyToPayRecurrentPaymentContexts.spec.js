@@ -22,6 +22,7 @@ const {
 const {
     RECURRENT_PAYMENT_PROCEEDING_NO_RECEIPTS_TO_PROCEED_ERROR_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
+const { MESSAGE_FIELDS } = require('@condo/domains/notification/gql')
 const {
     Message,
 } = require('@condo/domains/notification/utils/serverSchema')
@@ -163,7 +164,7 @@ describe('create-recurrent-payment-for-ready-to-pay-recurrent-payment-contexts',
         const notifications = await Message.getAll(adminContext, {
             type: RECURRENT_PAYMENT_PROCEEDING_NO_RECEIPTS_TO_PROCEED_ERROR_MESSAGE_TYPE,
             user: { id: batch.resident.user.id },
-        }, {
+        }, MESSAGE_FIELDS, {
             sortBy: 'createdAt_DESC',
         })
         expect(notifications).toHaveLength(1)
@@ -214,7 +215,7 @@ describe('create-recurrent-payment-for-ready-to-pay-recurrent-payment-contexts',
         const notifications = await Message.getAll(adminContext, {
             type: RECURRENT_PAYMENT_PROCEEDING_NO_RECEIPTS_TO_PROCEED_ERROR_MESSAGE_TYPE,
             user: { id: batch.resident.user.id },
-        }, {
+        }, MESSAGE_FIELDS, {
             sortBy: 'createdAt_DESC',
         })
         expect(notifications).toHaveLength(1)
