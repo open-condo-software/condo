@@ -148,7 +148,7 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
                     if (!appExisted) throw new GQLError(ERRORS.APP_NOT_FOUND, context)
 
                     const where = { app: { id: app.id }, type, deletedAt: null }
-                    appSettings = await B2CAppMessageSetting.getOne(context, where)
+                    appSettings = await B2CAppMessageSetting.getOne(context, where, 'isBlacklisted notificationWindowSize numberOfNotificationInWindow')
 
                     if (get(appSettings, 'isBlacklisted') === true) throw new GQLError(ERRORS.APP_IN_BLACK_LIST, context)
                     B2CAppName = appExisted.name

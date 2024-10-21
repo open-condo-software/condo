@@ -74,9 +74,13 @@ async function exportRecipients (taskId) {
         logger.error({ message: 'taskId is undefined' })
         throw new Error('taskId is undefined')
     }
-    const { keystone: context } = await getSchemaCtx('NewsItemRecipientsExportTask')
+    const { keystone: context } = getSchemaCtx('NewsItemRecipientsExportTask')
 
-    const task = await NewsItemRecipientsExportTask.getOne(context, { id: taskId })
+    const task = await NewsItemRecipientsExportTask.getOne(
+        context,
+        { id: taskId },
+        'scopes organization { id } user { id locale }'
+    )
     if (!task) {
         logger.error({ msg: `No task with id "${taskId}"` })
         throw new Error(`No task with id "${taskId}"`)

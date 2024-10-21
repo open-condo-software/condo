@@ -28,7 +28,7 @@ async function hasConflictingPushes (context, userId) {
         createdAt_gte: now.startOf('date').toISOString(),
         createdAt_lte: now.toISOString(),
         deletedAt: null,
-    })
+    }, 'type')
 
     for (const message of userMessages) {
         if (conflictingMessageTypes.find(type => type === message.type)) return true

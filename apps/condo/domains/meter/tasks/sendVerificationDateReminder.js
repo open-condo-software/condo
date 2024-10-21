@@ -132,6 +132,7 @@ const filterSentReminders = async ({ context, date, reminderWindowSize, metersCo
             createdAt_gte: dayjs(date).add(-2, 'month').format('YYYY-MM-DD'),
             deletedAt: null,
         },
+        fields: 'createdAt user { id } meta',
     })
 
     // do filter
