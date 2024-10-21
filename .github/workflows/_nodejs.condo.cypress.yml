@@ -53,7 +53,7 @@ jobs:
         run: yarn workspace @app/condo build:deps
 
       - name: Prepare condo app
-        run: node bin/prepare.js -f condo
+        run: node bin/prepare.js -f condo -r condo
 
       - name: Build condo app
         run: yarn workspace @app/condo build
