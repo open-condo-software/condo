@@ -8,14 +8,13 @@
 const path = require('path')
 
 const commander = require('commander')
-const { map } = require('lodash')
+const { map, chunk } = require('lodash')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
+const { find } = require('@open-condo/keystone/schema')
 
-const { BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
 const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
-const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { discoverServiceConsumers } = require('@condo/domains/resident/utils/serverSchema')
 
 const logger = getLogger('discoverServiceConsumersScript')
@@ -43,26 +42,23 @@ async function main () {
         { excludeApps: ['NextApp', 'AdminUIApp'] },
     )
 
-    await loadListByChunks({
-        context,
-        list: BillingAccount,
-        where: {
-            context: { organization: { id: options.organization } },
-            deletedAt: null,
-        },
-        chunkSize: 25,
-        chunkProcessor: async (/** @type {BillingAccount[]} */ chunk) => {
-            const billingAccountsIds = map(chunk, 'id')
-            try {
-                const result = await discoverServiceConsumers(context, { ...DV_SENDER, billingAccountsIds })
-                logger.info({ msg: `chunk[${chunk.length}]`, billingAccountsIds, result })
-            } catch (err) {
-                logger.error({ msg: `chunk[${chunk.length}] error`, billingAccountsIds, err })
-            }
-
-            return []
-        },
+    const accounts = await find('BillingAccount', {
+        context: { organization: { id: options.organization } },
+        deletedAt: null,
     })
+
+    const chunks = chunk(accounts, 25)
+    for (const chunkData of chunks) {
+        const billingAccountsIds = map(chunkData, 'id')
+        try {
+            const result = await discoverServiceConsumers(context, { ...DV_SENDER, billingAccountsIds })
+            logger.info({ msg: `chunk[${chunkData.length}]`, billingAccountsIds, result })
+        } catch (err) {
+            logger.error({ msg: `chunk[${chunkData.length}] error`, billingAccountsIds, err })
+        }
+    }
+
+    return []
 }
 
 main().then(() => {

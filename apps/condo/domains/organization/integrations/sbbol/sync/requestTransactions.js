@@ -30,7 +30,7 @@ const dvSenderFieldsBankSyncTask = {
 async function isTaskCancelled (context, taskId) {
     const task = await BankSyncTask.getOne(context, {
         id: taskId,
-    })
+    }, 'id status')
     return task.status === BANK_SYNC_TASK_STATUS.CANCELLED
 }
 /**
@@ -207,7 +207,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
             const bankIntegrationAccountContextId = get(bankAccount, 'integrationContext.id')
             const bankIntegrationAccountContext = BankIntegrationAccountContext.getOne(context, {
                 id: bankIntegrationAccountContextId,
-            })
+            }, 'id meta')
 
             const meta = {}
             if (transactionException || summaryException) {
@@ -257,7 +257,7 @@ async function requestTransactionsForDate ({ userId, bankAccounts, context, stat
                     importId: transactionAttrs.importId,
                     importRemoteSystem: SBBOL_IMPORT_NAME,
                     deletedAt: null,
-                }, { first: 1 })
+                }, 'id', { first: 1 })
 
                 let bankContractorAccount
                 // in mvp we will keep the contractor account for debit payments as well. Dividing them into individuals and legal entities
@@ -330,7 +330,7 @@ async function requestTransactions ({ dateInterval, userId, organization, bankSy
     if (!dateInterval) return logger.error('dateInterval is required')
     if (bankSyncTaskId && !uuidValidate(bankSyncTaskId)) return logger.error(`passed bankSyncTaskId is not a valid uuid. bankSyncTaskId: ${bankSyncTaskId}`)
 
-    const { keystone: context } = await getSchemaCtx('Organization')
+    const { keystone: context } = getSchemaCtx('Organization')
     const today = dayjs().format('YYYY-MM-DD')
     const transactions = []
     const totalCount = dateInterval.length
@@ -343,10 +343,10 @@ async function requestTransactions ({ dateInterval, userId, organization, bankSy
             totalCount,
             processedCount,
             ...dvSenderFieldsBankSyncTask,
-        })
+        }, 'id account { id }')
         bankAccounts = await BankAccount.getAll(context, {
             id: bankSyncTask.account.id,
-        })
+        }, 'id number integrationContext { id }')
     } else {
         // TODO(VKislov): DOMA-5239 Should not receive deleted instances with admin context
         bankAccounts = await BankAccount.getAll(context, {
@@ -358,7 +358,7 @@ async function requestTransactions ({ dateInterval, userId, organization, bankSy
                 },
             },
             deletedAt: null,
-        })
+        }, 'id number integrationContext { id }')
     }
 
     for (const statementDate of dateInterval) {

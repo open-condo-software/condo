@@ -224,7 +224,7 @@ const RegisterMultiPaymentForVirtualReceiptService = new GQLCustomSchema('Regist
                     recipientBic: bic,
                     recipientBankAccount: bankAccount,
                     ...paymentCommissionFields,
-                })
+                }, 'id amount explicitFee explicitServiceCharge implicitFee')
                 const payment = { ...paymentModel, serviceFee: paymentCommissionFields.serviceFee }
 
                 const totalAmount = {

@@ -225,7 +225,7 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
                 && !resolvedData['deletedAt']
             ) {
                 const newItem = { ...existingItem, ...resolvedData }
-                const activeContexts = await ContextServerSchema.getAll(context, {
+                const activeContextsCount = await ContextServerSchema.count(context, {
                     organization: { id: newItem['organization'] },
                     OR: [
                         { status_in: [CONTEXT_FINISHED_STATUS, CONTEXT_VERIFICATION_STATUS] },
@@ -234,7 +234,7 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
                     deletedAt: null,
                     id_not: newItem['id'],
                 })
-                if (activeContexts.length) {
+                if (activeContextsCount) {
                     addValidationError(CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
                 }
             }

@@ -137,12 +137,12 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                         organization: { id_in: residentOrganizationIds },
                         deletedAt: null,
                         status: CONTEXT_FINISHED_STATUS,
-                    })
+                    }, 'id organization { id }')
                     const billingAccounts = await BillingAccount.getAll(context, {
                         context: { id_in: billingIntegrationContexts.map(context => context.id) },
                         deletedAt: null,
                         number_i: accountNumber,
-                    })
+                    }, 'id context { id organization { id } }')
 
                     for (const billingAccount of billingAccounts) {
                         const [existingServiceConsumer] = await ServiceConsumer.getAll(context, {
@@ -237,7 +237,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                     status: CONTEXT_FINISHED_STATUS,
                     organization: { id: organization.id },
                     deletedAt: null,
-                })
+                }, 'id integration { checkAccountNumberUrl }')
                 let isBillingAccountFound = false
                 let isMetersFound = false
                 if (billingContext) {

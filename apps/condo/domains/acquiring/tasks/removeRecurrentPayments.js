@@ -41,7 +41,7 @@ const removeOrphansRecurrentPaymentContexts = async ({ userId, residentId, servi
 
     // remove item by item
     for (const recurrentContext of recurrentContexts) {
-        await RecurrentPaymentContext.softDelete(context, recurrentContext.id, { dv, sender })
+        await RecurrentPaymentContext.softDelete(context, recurrentContext.id, 'id', { dv, sender })
     }
 }
 
@@ -57,7 +57,7 @@ const removeOutdatedRecurrentPayments = async ({ recurrentPaymentContextId, dv, 
     if (isNil(recurrentPaymentContextId)) throw new Error('Can not removeOutdatedRecurrentPayments for empty context id')
     if (isNil(dv) ||  isNil(sender)) throw new Error('Can not removeOutdatedRecurrentPayments with empty dv and sender params')
 
-    const { keystone: context } = await getSchemaCtx('RecurrentPayment')
+    const { keystone: context } = getSchemaCtx('RecurrentPayment')
 
     // get all RecurrentPayments
     const recurrentPayments = await RecurrentPayment.getAll(context, {
@@ -68,7 +68,7 @@ const removeOutdatedRecurrentPayments = async ({ recurrentPaymentContextId, dv, 
 
     // remove item by item
     for (const recurrentPayment of recurrentPayments) {
-        await RecurrentPayment.softDelete(context, recurrentPayment.id, { dv, sender })
+        await RecurrentPayment.softDelete(context, recurrentPayment.id, 'id', { dv, sender })
     }
 }
 

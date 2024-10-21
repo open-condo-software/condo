@@ -34,7 +34,7 @@ async function chargeByRecurrentPaymentAndPaymentAdapter (context, recurrentPaym
     const { recurrentPaymentContext: { id: recurrentContextId } } = recurrentPayment
     const { settings: { cardId } } = await RecurrentPaymentContext.getOne(context, {
         id: recurrentContextId,
-    })
+    }, 'settings { cardId }')
 
     // check card token validity
     const cardTokenValidity = await paymentAdapter.checkCardToken(cardId)
@@ -63,7 +63,7 @@ async function chargeRecurrentPayments () {
     logger.info({ msg: 'Start processing recurrent payment tasks', taskId })
 
     // prepare context
-    const { keystone } = await getSchemaCtx('RecurrentPaymentContext')
+    const { keystone } = getSchemaCtx('RecurrentPaymentContext')
     const context = await keystone.createContext({ skipAccessControl: true })
 
     // prepare vars

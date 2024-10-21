@@ -55,6 +55,8 @@ async function throwErrorAndSetErrorStatusToTask (context, task, errorMessage) {
     throw new Error(errorMessage)
 }
 
+const BANK_ACCOUNT_FIELDS = 'id property { id } integrationContext { id enabled integration { id } }'
+
 /**
  * Imports bank transactions according to specified BankSyncTask
  * @param taskId
@@ -62,8 +64,10 @@ async function throwErrorAndSetErrorStatusToTask (context, task, errorMessage) {
  */
 const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
     if (!taskId) throw new Error('taskId is undefined')
-    const { keystone: context } = await getSchemaCtx('BankSyncTask')
-    let task = await BankSyncTask.getOne(context, { id: taskId })
+    const { keystone: context } = getSchemaCtx('BankSyncTask')
+    let task = await BankSyncTask.getOne(context, { id: taskId },
+        'id meta status account { id } integrationContext { id } organization { id } property { id } file { id originalFilename publicUrl mimetype }'
+    )
     if (!task) {
         throw new Error(`Cannot find BankSyncTask by id="${taskId}"`)
     }
@@ -81,7 +85,7 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
     const existingIntegrationOrganizationContext = await BankIntegrationOrganizationContext.getOne(context, {
         integration: { id: integration.id },
         organization: { id: organization.id },
-    })
+    }, 'id enabled')
     // Check for manually disabled integration context
     // At this stage there is no matter, when it does not exist
     if (existingIntegrationOrganizationContext && !existingIntegrationOrganizationContext.enabled) {
@@ -111,7 +115,7 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
         number: bankAccountData.number,
         organization: { id: organization.id },
         deletedAt: null,
-    })
+    }, BANK_ACCOUNT_FIELDS)
     if (property) {
         const adminContext = await context.createContext({ skipAccessControl: true })
         const accountByProperty = await BankAccount.getAll(adminContext, {
@@ -170,7 +174,7 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
         }
 
         if (property) data.property = { connect: { id: property.id } }
-        bankAccount = await BankAccount.create(context, data)
+        bankAccount = await BankAccount.create(context, data, BANK_ACCOUNT_FIELDS)
     } else {
         const bankAccountUpdatePayload = {
             meta: bankAccountData.meta,
@@ -199,7 +203,7 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
         bankAccount = await BankAccount.update(context, bankAccount.id, {
             ...DV_SENDER,
             ...bankAccountUpdatePayload,
-        })
+        }, BANK_ACCOUNT_FIELDS)
         await BankIntegrationAccountContext.update(context, bankAccount.integrationContext.id, {
             ...DV_SENDER,
             meta: bankAccountData.meta,
@@ -211,7 +215,6 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
             ...DV_SENDER,
             integration: { connect: { id: integration.id } },
             organization: { connect: { id: organization.id } },
-
         })
     }
 
@@ -228,7 +231,6 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
     }
     await BankSyncTask.update(context, taskId, taskUpdatePayload)
 
-
     let lastProgress = Date.now()
     const transactions = []
     let duplicatedTransactions = []
@@ -236,7 +238,7 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
     for (let i = 0; i < bankTransactionsData.length; i++) {
 
         // User can cancel the task at any time, in this all operations should be stopped
-        task = await BankSyncTask.getOne(context, { id: taskId })
+        task = await BankSyncTask.getOne(context, { id: taskId }, 'id status')
         const taskStatus = get(task, 'status')
         if (!task || taskStatus !== TASK_PROCESSING_STATUS) {
             logger.info({ msg: 'status != processing. Aborting processing bank transactions loop', taskStatus, taskSchemaName: BankSyncTask.gql.SINGULAR_FORM, taskId })

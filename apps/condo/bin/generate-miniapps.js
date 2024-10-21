@@ -54,7 +54,7 @@ class AppsGenerator {
                         : { instruction: faker.lorem.paragraphs(2) },
                 })
             } else if (this.category === 'ACQUIRING') {
-                const billings = await BillingIntegration.getAll(this.context, {}, { first: 1 })
+                const billings = await BillingIntegration.getAll(this.context, {},  'id', { first: 1 })
                 if (!billings.length || !billings[0].id) {
                     throw new Error('No billing to connect')
                 }
