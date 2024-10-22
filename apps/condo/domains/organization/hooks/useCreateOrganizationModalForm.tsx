@@ -15,7 +15,6 @@ import { Radio, RadioGroup, Space } from '@open-condo/ui'
 import Input from '@condo/domains/common/components/antd/Input'
 import { BaseModalForm } from '@condo/domains/common/components/containers/FormList'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { nonNull } from '@condo/domains/common/utils/nonNull'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
 import { EMPTY_NAME_ERROR, TIN_TOO_SHORT_ERROR, TIN_VALUE_INVALID } from '@condo/domains/organization/constants/errors'
 import { REGISTER_NEW_ORGANIZATION_MUTATION } from '@condo/domains/organization/gql'
@@ -127,25 +126,9 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
         const employee = get(data, ['data', 'objs', 0]) || null
 
         if (id && employee?.id) {
-            const queryData = {
-                query: GetActualOrganizationEmployeesDocument,
-                variables: { userId: userId },
-            }
-            const cachedData = client.readQuery(queryData)
-            const cachedActualEmployees = Array.isArray(cachedData?.actualEmployees) ? cachedData.actualEmployees.filter(nonNull) : []
-
-            if (!cachedActualEmployees.length) {
-                await client.refetchQueries({
-                    include: [GetActualOrganizationEmployeesDocument],
-                })
-            } else {
-                client.writeQuery({
-                    ...queryData,
-                    data: {
-                        actualEmployees: [employee, ...cachedActualEmployees],
-                    },
-                })
-            }
+            await client.refetchQueries({
+                include: [GetActualOrganizationEmployeesDocument],
+            })
 
             await selectEmployee(employee?.id)
             setIsVisible(false)
@@ -154,7 +137,7 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
         if (isFunction(onFinish)) onFinish(get(createResult, 'data.obj'))
 
         return null
-    }, [userId, selectEmployee, setIsVisible, refetch, onFinish])
+    }, [refetch, userId, onFinish, client, selectEmployee])
 
     const handleMutationCompleted = React.useCallback(async (result) => {
         setIsVisible(false)

@@ -15,7 +15,6 @@ import { Space } from '@open-condo/ui'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Logo } from '@condo/domains/common/components/Logo'
 import { ResidentActions } from '@condo/domains/common/components/ResidentActions/ResidentActions'
-import { nonNull } from '@condo/domains/common/utils/nonNull'
 import { InlineOrganizationSelect } from '@condo/domains/organization/components/OrganizationSelect'
 import { SBBOLIndicator } from '@condo/domains/organization/components/SBBOLIndicator'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
@@ -38,10 +37,8 @@ export const Header: React.FC<IHeaderProps> = (props) => {
     const { breakpoints, toggleCollapsed } = useLayoutContext()
     const router = useRouter()
 
-    const { user, isAuthenticated } = useAuth()
+    const { isAuthenticated } = useAuth()
     const { organization } = useOrganization()
-
-    const userId = get(user, 'id') || null
 
     const hasAccessToAppeals = get(organization, 'type', MANAGING_COMPANY_TYPE) !== SERVICE_PROVIDER_TYPE
 
@@ -54,25 +51,9 @@ export const Header: React.FC<IHeaderProps> = (props) => {
                 && [OrganizationTypeType.ManagingCompany, OrganizationTypeType.ServiceProvider].includes(result.obj.organization.type)
 
             if (isAcceptedInvite) {
-                const queryData = {
-                    query: GetActualOrganizationEmployeesDocument,
-                    variables: { userId: userId },
-                }
-                const cachedData = client.readQuery(queryData)
-                const cachedActualEmployees = Array.isArray(cachedData?.actualEmployees) ? cachedData.actualEmployees.filter(nonNull) : []
-
-                if (!cachedActualEmployees.length) {
-                    await client.refetchQueries({
-                        include: [GetActualOrganizationEmployeesDocument],
-                    })
-                } else {
-                    client.writeQuery({
-                        ...queryData,
-                        data: {
-                            actualEmployees: [result.obj, ...cachedActualEmployees],
-                        },
-                    })
-                }
+                await client.refetchQueries({
+                    include: [GetActualOrganizationEmployeesDocument],
+                })
             }
         },
     })
