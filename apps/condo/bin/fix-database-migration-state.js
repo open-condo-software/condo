@@ -211,6 +211,12 @@ DROP TABLE "ForgotPasswordAction" CASCADE;
 DROP TABLE "ForgotPasswordActionHistoryRecord" CASCADE;
 COMMIT;
 
+--
+-- 20241022231708-0434_remove_externalreport_createdby_and_more.js Delete old analytics service
+--
+DROP TABLE "ExternalReport" CASCADE;
+DROP TABLE "ExternalReportHistoryRecord" CASCADE;
+COMMIT;
     `))
 }
 
