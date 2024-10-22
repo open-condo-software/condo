@@ -8,7 +8,7 @@ const { GQLListSchema, getByCondition } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/meter/access/MeterReportingPeriod')
 const { MeterReportingPeriod: MeterReportingPeriodAPI } = require('@condo/domains/meter/utils/serverSchema/index')
-const { PropertyOrganizationIdOnly } = require('@condo/domains/property/utils/serverSchema')
+const { Property } = require('@condo/domains/property/utils/serverSchema')
 
 
 const ERRORS = {
@@ -143,7 +143,7 @@ const MeterReportingPeriod = new GQLListSchema('MeterReportingPeriod', {
         resolveInput: async ({ context, operation, resolvedData }) => {
             if (operation === 'create') {
                 if (!resolvedData.organization && resolvedData.property) {
-                    const property = await PropertyOrganizationIdOnly.getOne(context, { id: resolvedData.property })
+                    const property = await Property.getOne(context, { id: resolvedData.property }, 'id organization { id }')
 
                     resolvedData.organization = property.organization
                 }
