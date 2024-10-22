@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playground - __REPLACE_TO_YOUR_SERVER_URL__</title>
+    <link rel="stylesheet" href="https://unpkg.com/graphiql/graphiql.min.css" />
+</head>
+<body style="margin: 0;">
+<div id="graphiql" style="height: 100vh;"></div>
+<script crossorigin src="https://unpkg.com/react/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom/umd/react-dom.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/graphiql/graphiql.min.js"></script>
+<script>
+    const apiPath = '__REPLACE_TO_YOUR_API_PATH__'
+    const graphQLFetcher = async (graphQLParams) =>
+        fetch(apiPath, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'omit',
+            body: JSON.stringify(graphQLParams),
+        }).then((response) => response.json());
+
+    ReactDOM.render(
+        React.createElement(GraphiQL, { fetcher: graphQLFetcher }),
+        document.getElementById('graphiql'),
+    );
+</script>
+</body>
+</html>
