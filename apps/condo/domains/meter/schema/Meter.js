@@ -24,7 +24,7 @@ const {
 const { deleteReadingsOfDeletedMeter } = require('@condo/domains/meter/tasks')
 const { Meter: MeterApi, MeterResourceOwner } = require('@condo/domains/meter/utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
-const { PropertyAddressAndAddressKeyOnly } = require('@condo/domains/property/utils/serverSchema')
+const { Property } = require('@condo/domains/property/utils/serverSchema')
 
 const { resolveNumberOfTariffs, installationDate, commissioningDate, verificationDate, nextVerificationDate, controlReadingsDate, sealingDate, isAutomatic, resource, b2bApp, archiveDate } = require('./fields')
 
@@ -254,10 +254,10 @@ const Meter = new GQLListSchema('Meter', {
             )
 
             if (isNeedToCheckOwnership) {
-                const property = await PropertyAddressAndAddressKeyOnly.getOne(context, {
+                const property = await Property.getOne(context, {
                     id: newItem.property,
                     deletedAt: null,
-                })
+                }, 'id address addressKey')
                 if (property) {
                     const meterResourceOwner = await MeterResourceOwner.getOne(context, {
                         addressKey: property.addressKey,
@@ -273,10 +273,10 @@ const Meter = new GQLListSchema('Meter', {
             }
         },
         afterChange: async ({ context, operation, originalInput, updatedItem }) => {
-            const property = await PropertyAddressAndAddressKeyOnly.getOne(context, {
+            const property = await Property.getOne(context, {
                 id: updatedItem.property,
                 deletedAt: null,
-            })
+            }, 'id address addressKey')
 
             if (property) {
                 const hasMeterResourceOwnership = await MeterResourceOwner.getOne(context, {

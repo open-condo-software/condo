@@ -96,6 +96,7 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                     organization: { type: MANAGING_COMPANY_TYPE },
                     deletedAt: null,
                 },
+                'id',
                 { sortBy: ['isApproved_DESC', 'createdAt_ASC'], first: 1 },
                 )
 

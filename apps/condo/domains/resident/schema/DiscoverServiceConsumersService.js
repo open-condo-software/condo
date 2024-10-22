@@ -15,7 +15,7 @@ const { BillingAccount, BillingReceipt } = require('@condo/domains/billing/utils
 const { DISABLE_DISCOVER_SERVICE_CONSUMERS } = require('@condo/domains/common/constants/featureflags')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
-const { PropertyOrganizationIdAndAddressOnly } = require('@condo/domains/property/utils/serverSchema')
+const { Property } = require('@condo/domains/property/utils/serverSchema')
 const access = require('@condo/domains/resident/access/DiscoverServiceConsumersService')
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 
@@ -186,7 +186,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                 const organizationsIdsWithProperties = new Set()
                 await loadListByChunks({
                     context,
-                    list: PropertyOrganizationIdAndAddressOnly,
+                    list: Property,
                     chunkSize: 50,
                     where: {
                         deletedAt: null,
@@ -198,6 +198,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                             ],
                         })),
                     },
+                    fields: 'organization { id } address',
                     chunkProcessor: (chunk) => {
                         chunk.forEach((row) => {
                             organizationsIdsWithProperties.add(`${get(row, ['organization', 'id'])}_${get(row, 'address')}`)
