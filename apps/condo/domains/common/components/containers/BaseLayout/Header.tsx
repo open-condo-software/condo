@@ -25,7 +25,7 @@ import { UserMenu } from '@condo/domains/user/components/UserMenu'
 import { ITopMenuItemsProps, TopMenuItems } from './components/TopMenuItems'
 
 
-const ORGANIZATION_TYPES: Array<OrganizationTypeType> = [OrganizationTypeType.Holding]
+const ORGANIZATION_TYPES: Array<OrganizationTypeType> = [OrganizationTypeType.ManagingCompany, OrganizationTypeType.ServiceProvider]
 
 interface IHeaderProps {
     headerAction?: React.ElementType
