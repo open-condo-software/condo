@@ -34,7 +34,8 @@ const convertEncoding = (buffer, encoding) => {
 }
 
 const clearString = (cell) => {
-    if (!cell) {
+    // number 0 should be parsed as '0', not ''
+    if (!cell && typeof cell !== 'number') {
         return ''
     }
     if (typeof cell !== 'string') {
