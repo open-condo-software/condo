@@ -125,9 +125,10 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
 
                 // NOTE: builder.toSQL() in single-query case will return object of shape:
                 // { method: "<knex-method>", sql: "select * from ... limit ?", bindings: [100] }
-                // parser cannot understand bindings, so we need to insert it in query by using toString method
-                const sqlQueryWithBindings = builder.toString()
-                const selectedPool = this._selectTargetPool(sqlQueryWithBindings)
+                // parser cannot understand bindings, so we need to do some tricks, which Client_PG does under the hood
+                const sqlQueryWithPositionalBindings = this.knex.client.positionBindings(sqlObject.sql)
+
+                const selectedPool = this._selectTargetPool(sqlQueryWithPositionalBindings)
 
                 return selectedPool.getQueryRunner(builder)
             } catch (err) {

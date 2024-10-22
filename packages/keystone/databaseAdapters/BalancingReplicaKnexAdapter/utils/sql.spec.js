@@ -18,13 +18,33 @@ describe('SQL parsing utils', () => {
                 ],
                 [
                     'simple select (allModels)',
-                    'select "t0".* from "public"."Model" as "t0" where true and ("t0"."deletedAt" is null) limit 1001;',
+                    'select "t0".* from "public"."Model" as "t0" where true and ("t0"."deletedAt" is null) limit $1',
                     { sqlOperationName: 'select', tableName: 'Model' },
                 ],
                 [
-                    'simple select with join',
-                    'select "t0".* from "public"."Model" as "t0" join "public"."Model" as "t1" on "t1".id = "t0".id where true and ("t0"."deletedAt" is null) limit 1001',
+                    'select with relation join filter (allModels (where: { v: 1, someRelation: { v_gt: 1 } }))',
+                    'select "t0".* from "public"."Model" as "t0" left outer join "public"."RelationModel" as "t0__someRelation" on "t0__someRelation"."id" = "t0"."someRelation" where true and (true and ("t0__someRelation"."v" > $1) and ("t0"."v" = $2) and ("t0"."deletedAt" is null)) limit $3',
                     { sqlOperationName: 'select', tableName: 'Model' },
+                ],
+                [
+                    'simple select with join (allModels (where: { v: 1, manyRelations_some: { v_gt: 1 } }))',
+                    'select "t0".* from "public"."Model" as "t0" where true and (true and ("t0"."id" in (select "Model_left_id" from (select "t1"."Model_left_id" from "public"."Model_manyRelations_many" as "t1" inner join "public"."RelationModel" as "t1__manyRelations" on "t1__manyRelations"."id" = "t1"."RelationModel_right_id" where true and ("t1__manyRelations"."v" > $1)) as "unused_alias")) and ("t0"."v" = $2) and ("t0"."deletedAt" is null)) order by "id" DESC limit $3',
+                    { sqlOperationName: 'select', tableName: 'Model' },
+                ],
+                [
+                    'select with count',
+                    'select count(*) as "count" from (select * from "public"."Model" as "t0" where true and ("t0"."deletedAt" is null)) as "unused_alias"',
+                    { sqlOperationName: 'select', tableName: 'Model' },
+                ],
+                [
+                    'select with count and join #1',
+                    'select count(*) as "count" from (select * from "public"."Model" as "t0" left outer join "public"."RelationModel" as "t0__someRelation" on "t0__someRelation"."id" = "t0"."someRelation" where true and (true and ("t0__someRelation"."dv" > $1) and ("t0"."deletedAt" is null))) as "unused_alias"',
+                    { sqlOperationName: 'select', tableName: 'Model' },
+                ],
+                [
+                    'select with count and join #2',
+                    'select count(*) as "count" from (select * from "public"."Contact" as "t0" left outer join "public"."Organization" as "t0__organization" on "t0__organization"."id" = "t0"."organization" where true and ("t0__organization"."id" = $1) and ("t0"."deletedAt" is null)) as "unused_alias"',
+                    { sqlOperationName: 'select', tableName: 'Contact' },
                 ],
                 [
                     'select with relation join filter (allModels (where: { v: 1, someRelation: { v_gt: 1 } }))',
@@ -38,88 +58,88 @@ describe('SQL parsing utils', () => {
                 ],
                 [
                     'simple insert (createRelationModel)',
-                    'insert into "public"."RelationModel" ("createdAt", "createdBy", "dv", "id", "name", "sender", "updatedAt", "updatedBy", "v") values (\'2024-10-10T06:39:40.224Z\', NULL, 1, \'806c73ae-808d-4aeb-a9e0-b8b6c8a2d2d6\', \'name\', \'{"dv":1,"fingerprint":"test-print"}\', \'2024-10-10T06:39:40.224Z\', NULL, 1) returning *',
+                    'insert into "public"."RelationModel" ("createdAt", "createdBy", "dv", "id", "name", "sender", "updatedAt", "updatedBy", "v") values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning *',
                     { sqlOperationName: 'insert', tableName: 'RelationModel' },
                 ],
                 [
                     'insert historical (afterChange historical plugin)',
-                    'insert into "public"."RelationModelHistoryRecord" ("createdAt", "createdBy", "deletedAt", "dv", "history_action", "history_date", "history_id", "id", "name", "newId", "sender", "updatedAt", "updatedBy", "v") values (\'2024-10-10T06:39:40.224Z\', NULL, NULL, 1, \'c\', \'2024-10-10T06:41:58.809Z\', \'806c73ae-808d-4aeb-a9e0-b8b6c8a2d2d6\', \'69b7e8a6-edfd-4d3c-ac80-8d65e1eff97a\', \'name\', \'null\', \'{"dv":1,"fingerprint":"test-print"}\', \'2024-10-10T06:39:40.224Z\', NULL, 1) returning *',
+                    'insert into "public"."RelationModelHistoryRecord" ("createdAt", "createdBy", "deletedAt", "dv", "history_action", "history_date", "history_id", "id", "name", "newId", "sender", "updatedAt", "updatedBy", "v") values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) returning *',
                     { sqlOperationName: 'insert', tableName: 'RelationModelHistoryRecord' },
                 ],
                 [
                     'single connect select (relation by id resolver)',
-                    'select "t0".* from "public"."RelationModel" as "t0" where true and ("t0"."deletedAt" is null) and ("t0"."id" = \'cc776b13-e414-45c3-b44c-b48623b37df9\') limit 1',
+                    'select "t0".* from "public"."RelationModel" as "t0" where true and ("t0"."deletedAt" is null) and ("t0"."id" = $1) limit $2',
                     { sqlOperationName: 'select', tableName: 'RelationModel' },
                 ],
                 [
                     'insert with relation ({ connect: { id: "123" } })',
-                    'insert into "public"."Model" ("createdAt", "createdBy", "dv", "id", "name", "sender", "someRelation", "updatedAt", "updatedBy", "v") values (\'2024-10-10T06:47:27.347Z\', NULL, 1, \'c9c2839b-73f0-4f50-9603-98fa42350324\', \'name\', \'{"dv":1,"fingerprint":"test-print"}\', \'cc776b13-e414-45c3-b44c-b48623b37df9\', \'2024-10-10T06:47:27.347Z\', NULL, 1) returning *',
+                    'insert into "public"."Model" ("createdAt", "createdBy", "dv", "id", "name", "sender", "someRelation", "updatedAt", "updatedBy", "v") values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning *',
                     { sqlOperationName: 'insert', tableName: 'Model' },
                 ],
                 [
                     'insert with many relation ({ connect: [ { id: "123" } ] })',
-                    'insert into "public"."Model_manyRelations_many" ("Model_left_id", "RelationModel_right_id") values (\'f345ffaf-cbd5-4a80-8d09-ac00e2eba666\', \'cc776b13-e414-45c3-b44c-b48623b37df9\') returning "RelationModel_right_id"',
+                    'insert into "public"."Model_manyRelations_many" ("Model_left_id", "RelationModel_right_id") values ($1, $2) returning "RelationModel_right_id"',
                     { sqlOperationName: 'insert', tableName: 'Model_manyRelations_many' },
                 ],
                 [
                     'insert with many relation ({ connect: [ { id: "123" }, { id: "456" } ] })',
-                    'insert into "public"."Model_manyRelations_many" ("Model_left_id", "RelationModel_right_id") values (\'f0d4132e-bf7f-4cbd-9496-2ca9acea2111\', \'cc776b13-e414-45c3-b44c-b48623b37df9\'), (\'f0d4132e-bf7f-4cbd-9496-2ca9acea2111\', \'fc3b80a3-cc9e-41f9-a5f4-d02685f6181d\') returning "RelationModel_right_id"',
+                    'insert into "public"."Model_manyRelations_many" ("Model_left_id", "RelationModel_right_id") values ($1, $2), ($3, $4) returning "RelationModel_right_id"',
                     { sqlOperationName: 'insert', tableName: 'Model_manyRelations_many' },
                 ],
                 [
                     'select with many relation (many relation field resolver)',
-                    'select "t0".* from "public"."RelationModel" as "t0" left outer join "public"."Model_manyRelations_many" as "t1" on "t1"."RelationModel_right_id" = "t0"."id" where true and "t1"."Model_left_id" = \'f0d4132e-bf7f-4cbd-9496-2ca9acea2111\' and ("t0"."deletedAt" is null) limit 1001',
+                    'select "t0".* from "public"."RelationModel" as "t0" left outer join "public"."Model_manyRelations_many" as "t1" on "t1"."RelationModel_right_id" = "t0"."id" where true and "t1"."Model_left_id" = $1 and ("t0"."deletedAt" is null) limit $2',
                     { sqlOperationName: 'select', tableName: 'RelationModel' },
                 ],
                 [
                     'simple update',
-                    'update "public"."RelationModel" set "name" = \'new name\', "v" = 2, "updatedAt" = \'2024-10-10T06:58:41.230Z\', "updatedBy" = NULL, "dv" = 1, "sender" = \'{"dv":1,"fingerprint":"test-print"}\' where "id" = \'cc776b13-e414-45c3-b44c-b48623b37df9\' returning "id", "name", "id", "v", "createdAt", "updatedAt", "createdBy", "updatedBy", "deletedAt", "newId", "dv", "sender"',
+                    'update "public"."RelationModel" set "name" = $1, "v" = $2, "updatedAt" = $3, "updatedBy" = $4, "dv" = $5, "sender" = $6 where "id" = $7 returning "id", "name", "id", "v", "createdAt", "updatedAt", "createdBy", "updatedBy", "deletedAt", "newId", "dv", "sender"',
                     { sqlOperationName: 'update', tableName: 'RelationModel' },
                 ],
                 [
+                    'update with file',
+                    'update "public"."ContactExportTask" set "status" = $1, "file" = $2, "timeZone" = $3, "v" = $4, "updatedAt" = $5, "updatedBy" = $6, "dv" = $7, "sender" = $8 where "id" = $9 returning "id", "status", "format", "exportedRecordsCount", "totalRecordsCount", "file", "meta", "where", "sortBy", "locale", "timeZone", "user", "id", "v", "createdAt", "updatedAt", "createdBy", "updatedBy", "deletedAt", "newId", "dv", "sender"',
+                    { sqlOperationName: 'update', tableName: 'ContactExportTask' },
+                ],
+                [
                     'many-relation disconnect all select #1',
-                    'select "t0".* from "public"."RelationModel" as "t0" left outer join "public"."Model_manyRelations_many" as "t1" on "t1"."RelationModel_right_id" = "t0"."id" where true and "t1"."Model_left_id" = \'02ec093b-ed88-400f-8800-e38da1ca4ef1\' limit 1001',
+                    'select "t0".* from "public"."RelationModel" as "t0" left outer join "public"."Model_manyRelations_many" as "t1" on "t1"."RelationModel_right_id" = "t0"."id" where true and "t1"."Model_left_id" = $1 limit $2',
                     { sqlOperationName: 'select', tableName: 'RelationModel' },
                 ],
                 [
                     'many-relation disconnect all select #2',
-                    'select "RelationModel_right_id" from "public"."Model_manyRelations_many" where "Model_left_id" = \'02ec093b-ed88-400f-8800-e38da1ca4ef1\'',
+                    'select "RelationModel_right_id" from "public"."Model_manyRelations_many" where "Model_left_id" = $1',
                     { sqlOperationName: 'select', tableName: 'Model_manyRelations_many' },
                 ],
                 [
                     'disconnect all many relation',
-                    'delete from "public"."Model_manyRelations_many" where "Model_left_id" = \'02ec093b-ed88-400f-8800-e38da1ca4ef1\' and "RelationModel_right_id" in (\'cc776b13-e414-45c3-b44c-b48623b37df9\', \'310cb400-c2d2-402d-8b29-8b10b14c4fc2\')',
+                    'delete from "public"."Model_manyRelations_many" where "Model_left_id" = $1 and "RelationModel_right_id" in ($2, $3)',
                     { sqlOperationName: 'delete', tableName: 'Model_manyRelations_many' },
                 ],
                 [
                     'disconnect all single relation',
-                    'update "public"."Model" set "name" = \'new name\', "someRelation" = NULL, "v" = 2, "updatedAt" = \'2024-10-10T07:06:33.740Z\', "updatedBy" = NULL, "dv" = 1, "sender" = \'{"dv":1,"fingerprint":"test-print"}\' where "id" = \'56908ec5-889d-4e9d-80a1-41cf472daf19\' returning "id", "name", "someRelation", "id", "v", "createdAt", "updatedAt", "createdBy", "updatedBy", "deletedAt", "newId", "dv", "sender"',
+                    'update "public"."Model" set "name" = $1, "someRelation" = $2, "v" = $3, "updatedAt" = $4, "updatedBy" = $5, "dv" = $6, "sender" = $7 where "id" = $8 returning "id", "name", "someRelation", "id", "v", "createdAt", "updatedAt", "createdBy", "updatedBy", "deletedAt", "newId", "dv", "sender"',
                     { sqlOperationName: 'update', tableName: 'Model' },
                 ],
                 [
                     'grouped select (updateModels)',
-                    'select "t0".* from "public"."Model" as "t0" where true and ("t0"."id" in (\'1aba78fe-64b5-41a1-9be1-0c73cd4b1fd3\', \'f345ffaf-cbd5-4a80-8d09-ac00e2eba666\')) limit 1001',
+                    'select "t0".* from "public"."Model" as "t0" where true and ("t0"."id" in ($1, $2)) limit $3',
                     { sqlOperationName: 'select', tableName: 'Model' },
                 ],
                 [
                     'single delete',
-                    'delete from "public"."Model" where "id" = \'f345ffaf-cbd5-4a80-8d09-ac00e2eba666\'',
+                    'delete from "public"."Model" where "id" = $1',
                     { sqlOperationName: 'delete', tableName: 'Model' },
                 ],
                 [
                     'SET_NULL policy',
-                    'update "public"."Model" set "someRelation" = NULL where "someRelation" = \'8e68f296-9193-4f02-bdfe-67185c9da748\'',
+                    'update "public"."Model" set "someRelation" = $1 where "someRelation" = $2',
                     { sqlOperationName: 'update', tableName: 'Model' },
                 ],
                 [
                     'delete many-to-many relations',
-                    'delete from "public"."Model_manyRelations_many" where "RelationModel_right_id" = \'8e68f296-9193-4f02-bdfe-67185c9da748\'',
+                    'delete from "public"."Model_manyRelations_many" where "RelationModel_right_id" = $1',
                     { sqlOperationName: 'delete', tableName: 'Model_manyRelations_many' },
-                ],
-                [
-                    'manual insert',
-                    'INSERT INTO "TicketSource" (dv, sender, type, name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy") VALUES (1, \'{"dv": 1, "fingerprint": "initial"}\', \'mobile_app\', \'ЛК приложение\', \'3068d49a-a45c-4c3a-a02d-ea1a53e1febb\', 1, \'2020-11-24 00:00:00.000000\', \'2020-11-24 00:00:00.000000\', null, null, null, null);',
-                    { sqlOperationName: 'insert', tableName: 'TicketSource' },
                 ],
             ]
             test.each(cases)('%p', (_, query, expectedData) => {

@@ -10,20 +10,40 @@ const parser = new Parser()
 /**
  * Helper util to extract tableName by "from" argument in node-sql-parser's AST
  * Used in "SELECT FROM <Table>" and "DELETE FROM <Table>" queries
+ * @param sqlString - initial sql query to propagate inside error logs
  * @param ast - node-sql-parser's AST
  * @returns {string | undefined}
  * @private
  */
-function _extractTableByFromArgument (ast) {
+function _extractTableByFromArgument (sqlString, ast) {
     const from = get(ast, 'from', []) || []
-    const nonJoinedTable = from.find(table => !table.join)
 
-    return get(nonJoinedTable, 'table')
+    // "SELECT 1+1" case
+    if (!from.length) {
+        return undefined
+    }
+
+    const nonJoinedItem = from.find(item => !item.join)
+
+    // "SELECT * FROM t1 JOIN t2 ..." case
+    if (nonJoinedItem.table) {
+        return nonJoinedItem.table
+    }
+
+    // "SELECT COUNT(*) FROM (SELECT ...)" case
+    const subAst = get(nonJoinedItem, ['expr', 'ast'])
+    if (subAst) {
+        return _extractTableByFromArgument(sqlString, subAst)
+    }
+
+    logger.error({ msg: 'Unexpected from argument', sqlQuery: sqlString })
+    throw new TypeError(`Unexpected from argument: "${sqlString}"`)
 }
 
 /**
  * Helper util to extract tableName by "table" argument in node-sql-parser's AST
  * Used in "UPDATE <Table>" and "INSERT INTO <Table>" queries
+ * @param sqlString - initial sql query to propagate inside error logs
  * @param ast - node-sql-parser's AST
  * @returns {string | undefined}
  * @private
@@ -58,7 +78,6 @@ function extractCRUDQueryData (sqlString) {
         throw new Error(`Provided SQL query cannot be parsed: "${sqlString}"`)
     }
 
-
     // NOTE: Array is possible, since there's sqlString.split(';') in astify
     // and we're not supporting this type of bulked SQL
     if (Array.isArray(ast)) {
@@ -83,7 +102,7 @@ function extractCRUDQueryData (sqlString) {
     let tableName = undefined
 
     if (sqlOperationName === 'select' || sqlOperationName === 'delete') {
-        tableName = _extractTableByFromArgument(ast)
+        tableName = _extractTableByFromArgument(sqlString, ast)
     } else if (sqlOperationName === 'insert' || sqlOperationName === 'update') {
         tableName = _extractTableByTableArgument(sqlString, ast)
     }
