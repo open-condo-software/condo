@@ -19,6 +19,7 @@ const {
 } = require('@open-condo/keystone/healthCheck')
 const { prepareKeystone } = require('@open-condo/keystone/KSv5v6/v5/prepareKeystone')
 const { RequestCache } = require('@open-condo/keystone/requestCache')
+const { getXRemoteApp, getXRemoteClient, getXRemoteVersion, getAppName } = require('@open-condo/keystone/tracingUtils')
 const { getWebhookModels } = require('@open-condo/webhooks/schema')
 const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
 
@@ -63,7 +64,6 @@ const schemas = () => [
     require('@condo/domains/settings/schema'),
     require('@condo/domains/marketplace/schema'),
     require('@condo/domains/document/schema'),
-    require('@condo/domains/test/schema'),
     getWebhookModels('@app/condo/schema.graphql'),
 ]
 
@@ -126,8 +126,8 @@ const lastApp = conf.DISABLE_NEXT_APP ? undefined : new NextApp({ dir: '.' })
 const apps = () => {
     return [
         new HealthCheck({ checks }),
-        // new RequestCache(conf.REQUEST_CACHE_CONFIG ? JSON.parse(conf.REQUEST_CACHE_CONFIG) : { enabled: false }),
-        // new AdapterCache(conf.ADAPTER_CACHE_CONFIG ? JSON.parse(conf.ADAPTER_CACHE_CONFIG) : { enabled: false }),
+        new RequestCache(conf.REQUEST_CACHE_CONFIG ? JSON.parse(conf.REQUEST_CACHE_CONFIG) : { enabled: false }),
+        new AdapterCache(conf.ADAPTER_CACHE_CONFIG ? JSON.parse(conf.ADAPTER_CACHE_CONFIG) : { enabled: false }),
         new VersioningMiddleware(),
         new OIDCMiddleware(),
         new FeaturesMiddleware(),
