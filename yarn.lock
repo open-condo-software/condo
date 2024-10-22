@@ -1469,12 +1469,6 @@ __metadata:
   resolution: "@app/meters-billing-integration@workspace:apps/meters-billing-integration"
   dependencies:
     "@faker-js/faker": ^8.4.1
-    "@graphql-codegen/add": ^5.0.3
-    "@graphql-codegen/cli": ^5.0.2
-    "@graphql-codegen/import-types-preset": ^3.0.0
-    "@graphql-codegen/typescript": ^4.0.9
-    "@graphql-codegen/typescript-operations": ^4.2.3
-    "@graphql-codegen/typescript-react-apollo": ^4.3.2
     "@keystonejs/keystone": ^19.3.1
     "@meters-billing-integration/domains": "link:./domains"
     "@open-condo/keystone": "workspace:^"
@@ -1483,7 +1477,6 @@ __metadata:
     "@zeit/next-less": ^1.0.1
     antd: ^4.24.12
     babel-jest: ^29.7.0
-    cross-env: ^7.0.3
     dayjs: ^1.10.6
     emotion: ^10.0.27
     emotion-server: ^10.0.27

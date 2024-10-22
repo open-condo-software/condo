@@ -35,9 +35,28 @@ const { findOrganizationsByAddressByTestClient } = require('@condo/domains/resid
 
 const { createTestAcquiringIntegrationContext, createTestAcquiringIntegration } = require('../../acquiring/utils/testSchema')
 const { createTestBillingIntegrationOrganizationContext, createTestBillingIntegration } = require('../../billing/utils/testSchema')
+const { COLD_WATER_METER_RESOURCE_ID } = require('../../meter/constants/constants')
 const { createTestOrganization } = require('../../organization/utils/testSchema')
 const { createTestProperty } = require('../../property/utils/testSchema')
 
+function getOnlyResourceMeterTest (resource) {
+    return {
+        resource: resource,
+        account: null,
+        number: null,
+        value: null,
+    }
+}
+
+function getOnlyCategoryReceiptTest (category){
+    return {
+        number: null,
+        category: category,
+        balance: null,
+        routingNumber: null,
+        bankAccount: null,
+    }
+}
 
 describe('FindOrganizationsByAddress', () => {
 
@@ -54,6 +73,7 @@ describe('FindOrganizationsByAddress', () => {
                 const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
                     addressKey: utils.property.addressKey,
                 })
+                console.log(foundOrganizations)
                 const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
                 expect(found.meters).toBeNull()
                 expect(found.receipts).toBeNull()
@@ -73,12 +93,11 @@ describe('FindOrganizationsByAddress', () => {
                 const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
                     addressKey: utils.property.addressKey,
                 })
+                console.log(foundOrganizations)
+
                 const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
                 expect(found.meters).toBeNull()
-                //TODO: uncoment this after lastReport builder deploy
-                // expect(found.receipts).toMatchObject({
-                //     category: HOUSING_CATEGORY_ID,
-                // })
+                expect(found.receipts).toContainEqual(getOnlyCategoryReceiptTest(HOUSING_CATEGORY_ID))
                 expect(found.id).toEqual(utils.organization.id)
                 expect(found.name).toEqual(utils.organization.name)
                 expect(found.tin).toEqual(utils.organization.tin)
@@ -86,16 +105,14 @@ describe('FindOrganizationsByAddress', () => {
             })
 
             test('Should return organization and meter resource', async () => {
-                await utils.createMeter()
+                await utils.createMeter({ resource: COLD_WATER_METER_RESOURCE_ID })
                 const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
                     addressKey: utils.property.addressKey,
                 })
                 const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
                 console.log(found)
                 expect(found.receipts).toBeNull()
-                expect(found.meters[0]).toMatchObject({
-                    resource: expect.any(String),
-                })
+                expect(found.meters).toContainEqual(getOnlyResourceMeterTest(COLD_WATER_METER_RESOURCE_ID))
                 expect(found.id).toEqual(utils.organization.id)
                 expect(found.name).toEqual(utils.organization.name)
                 expect(found.tin).toEqual(utils.organization.tin)
@@ -103,7 +120,6 @@ describe('FindOrganizationsByAddress', () => {
             })
 
             test('Should return several organizations', async () => {
-                //TODO: can i return orgs without receipts and meters?
                 const [organization] = await createTestOrganization(utils.clients.admin)
                 const [billingIntegration] = await createTestBillingIntegration(utils.clients.admin)
                 const [acquiringIntegration] = await createTestAcquiringIntegration(utils.clients.admin)
@@ -142,6 +158,7 @@ describe('FindOrganizationsByAddress', () => {
                     unitType,
                 })
                 const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
+                console.log(foundOrganizations)
                 expect(found.receipts[0]).toMatchObject({
                     number: expect.stringMatching(accountNumber),
                     category: expect.any(String),
@@ -222,6 +239,7 @@ describe('FindOrganizationsByAddress', () => {
                     unitType,
                 })
                 const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
+                console.log(found)
                 expect(found.meters[0]).toMatchObject({ resource: expect.any(String) })
                 expect(found.receipts[0]).toMatchObject({ category: expect.any(String) })
                 expect(found.id).toEqual(utils.organization.id)

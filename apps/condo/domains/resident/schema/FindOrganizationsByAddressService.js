@@ -12,9 +12,9 @@ const {
 const {
     getOrganizationIdsWithAcquiring,
     getOrganizationIdsWithMeters,
-    findOrganizationsByAddressKeyTinAccountNumber,
-    findOrganizationsByAddressKeyUnitNameUnitType,
-    findOrganizationsByAddressKey,
+    findOrganizationByAddressKeyTinAccountNumber,
+    findOrganizationByAddressKeyUnitNameUnitType,
+    findOrganization,
 } = require('@condo/domains/resident/utils/serverSchema/findOrganizationsByAddress')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
@@ -42,11 +42,11 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
         },
         {
             access: true,
-            type: 'type FindOrganizationByAddressMeterType { resource: String!, number: String, account: String, value: String }',
+            type: 'type FindOrganizationByAddressMeterType { resource: ID!, number: String, account: String, value: String }',
         },
         {
             access: true,
-            type: 'type FindOrganizationByAddressOutput { id: String!, name: String!, tin: String!, type:OrganizationTypeType!, receipts: [FindOrganizationByAddressReceiptType], meters: [FindOrganizationByAddressMeterType] }',
+            type: 'type FindOrganizationByAddressOutput { id: ID!, name: String!, tin: String!, type:OrganizationTypeType!, receipts: [FindOrganizationByAddressReceiptType], meters: [FindOrganizationByAddressMeterType] }',
         },
     ],
     queries: [
@@ -64,15 +64,13 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
                 const properties = await find('Property', { addressKey, deletedAt: null })
                 if (!properties.length) return []
 
-                const organizationIds = [...new Set(properties.map(({ organization }) => organization))]
-
                 let organizations = await find('Organization', {
-                    id_in: organizationIds,
+                    id_in: [...new Set(properties.map(({ organization }) => organization))],
                     ...(tin && { tin }),
                     deletedAt: null,
                 })
                 if (!organizations.length) return []
-
+                //resourceMeterOwner find is called twice here and in addressKey case
                 const [withAcquiring, withMeters] = await Promise.all([
                     getOrganizationIdsWithAcquiring(organizations),
                     getOrganizationIdsWithMeters(organizations),
@@ -95,13 +93,23 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
 
                 organizations = organizations.filter(({ id }) => billingContextIndex[id])
 
-                if (tin && accountNumber) {
-                    return findOrganizationsByAddressKeyTinAccountNumber(organizations, billingContextIndex, data)
-                } else if (unitName && unitType) {
-                    return findOrganizationsByAddressKeyUnitNameUnitType(organizations, billingContextIndex, context, data)
-                } else {
-                    return findOrganizationsByAddressKey(organizations, billingContextIndex, data)
+                const fetchOrganizationData = async (organization) => {
+                    const billingContext = billingContextIndex[organization.id]
+
+                    if (tin && accountNumber) {
+                        const org = await findOrganizationByAddressKeyTinAccountNumber(organization, billingContext, data)
+
+                        return org.meters || org.receipts ? org : null
+                    } else if (unitName && unitType) {
+                        return findOrganizationByAddressKeyUnitNameUnitType(organization, billingContext, context, data)
+                    } else {
+                        return findOrganization(organization, billingContext)
+                    }
                 }
+
+                const result = await Promise.all(organizations.map(fetchOrganizationData))
+
+                return result.filter(Boolean)
             },
         },
     ],
