@@ -46,6 +46,8 @@ const { ExternalTokenAccessRight: ExternalTokenAccessRightGQL } = require('@cond
 const { GET_ACCESS_TOKEN_BY_USER_ID_QUERY } = require('@condo/domains/user/gql')
 const { UserRightsSet: UserRightsSetGQL } = require('@condo/domains/user/gql')
 const { CHECK_USER_EXISTENCE_MUTATION } = require('@condo/domains/user/gql')
+const { AccessToken: AccessTokenGQL } = require('@condo/domains/user/gql')
+const { AccessTokenAdmin: AccessTokenAdminGQL } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function createTestEmail () {
@@ -239,6 +241,8 @@ const ConfirmPhoneAction = generateGQLTestUtils(ConfirmPhoneActionGQL)
 const OidcClient = generateGQLTestUtils(OidcClientGQL)
 const ExternalTokenAccessRight = generateGQLTestUtils(ExternalTokenAccessRightGQL)
 const UserRightsSet = generateGQLTestUtils(UserRightsSetGQL)
+const AccessToken = generateGQLTestUtils(AccessTokenGQL)
+const AccessTokenAdmin = generateGQLTestUtils(AccessTokenAdminGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestConfirmPhoneAction (client, extraAttrs = {}) {
@@ -530,6 +534,35 @@ async function checkUserExistenceByTestClient(client, extraAttrs = {}) {
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+async function createTestAccessToken (client, serviceUser, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!serviceUser) throw new Error('service user id is required')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        user: { connect: { id: serviceUser.id } },
+        ...extraAttrs,
+    }
+    const obj = await AccessToken.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestAccessToken (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await AccessToken.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -570,5 +603,6 @@ module.exports = {
     UserRightsSet, createTestUserRightsSet, updateTestUserRightsSet,
     checkUserExistenceByTestClient,
     authenticateUserWithPhoneAndPasswordByTestClient,
+    AccessToken, AccessTokenAdmin, createTestAccessToken, updateTestAccessToken,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

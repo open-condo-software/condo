@@ -190,6 +190,11 @@ const CHECK_USER_EXISTENCE_MUTATION = gql`
     }
 `
 
+const ACCESS_TOKEN_FIELDS = `{ signedToken allowedOrganizations user { ${USER_FIELDS} } ${COMMON_FIELDS} }`
+const ACCESS_TOKEN_ADMIN_FIELDS = `{ token signedToken allowedOrganizations user { ${USER_FIELDS} } ${COMMON_FIELDS} }`
+const AccessToken = generateGqlQueries('AccessToken', ACCESS_TOKEN_FIELDS)
+const AccessTokenAdmin = generateGqlQueries('AccessToken', ACCESS_TOKEN_ADMIN_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -220,5 +225,7 @@ module.exports = {
     GET_ACCESS_TOKEN_BY_USER_ID_QUERY,
     UserRightsSet,
     CHECK_USER_EXISTENCE_MUTATION,
+    AccessToken,
+    AccessTokenAdmin,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
