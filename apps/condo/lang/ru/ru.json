@@ -3169,7 +3169,7 @@
   "api.acquiring.multiPayment.RECEIPTS_WITH_INVOICES_FORBIDDEN": "Квитанции и счета не могут быть в одном платеже, увы. Но мы над этим работаем.",
   "api.acquiring.payment.PAYMENT_AMOUNT_LESS_THAN_MINIMUM": "Сумма оплаты должна быть не меньше чем {minimumPaymentAmount}",
   "api.acquiring.payment.PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM": "Сумма оплаты не должна превышать {maximumPaymentAmount}",
-  "ISO_DATE_FORMAT": "ГГГГ-ММ-ДД",
-  "EUROPEAN_DATE_FORMAT": "ДД.ММ.ГГГГ"
+  "iso.date.format": "ГГГГ-ММ-ДД",
+  "european.date.format": "ДД.ММ.ГГГГ"
 }
 

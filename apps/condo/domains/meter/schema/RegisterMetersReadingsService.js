@@ -381,8 +381,8 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                             messageInterpolation: {
                                 columnName: i18n('meter.import.column.meterReadingSubmissionDate', { locale }),
                                 format: [
-                                    i18n('ISO_DATE_FORMAT', { locale }),
-                                    i18n('EUROPEAN_DATE_FORMAT', { locale }),
+                                    i18n('iso.date.format', { locale }),
+                                    i18n('european.date.format', { locale }),
                                 ].join('", "'),
                             },
                         }, context))
