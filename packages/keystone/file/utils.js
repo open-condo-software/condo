@@ -1,11 +1,12 @@
-const { createReadStream, readFileSync } = require('fs')
+const { createReadStream } = require('fs')
 const path = require('path')
 const { Duplex } = require('stream')
 
 const INVISIBLE_CHARS_REGEXP = new RegExp('[\u200B-\u200D\uFEFF]', 'g')
 
 const clearString = (cell) => {
-    if (!cell) {
+    // number 0 should be parsed as '0', not ''
+    if (!cell && typeof cell !== 'number') {
         return ''
     }
     if (typeof cell !== 'string') {
