@@ -4,26 +4,10 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
+const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
-const { GET_EXTERNAL_REPORT_IFRAME_URL_QUERY } = require('@condo/domains/analytics/gql')
 const { GET_OVERVIEW_DASHBOARD_MUTATION } = require('@condo/domains/analytics/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
-
-const ExternalReport = generateServerUtils('ExternalReport')
-
-async function getExternalReportIframeUrl (context, data) {
-    if (!context) throw new Error('no context')
-    if (!data) throw new Error('no data')
-    if (!data.sender) throw new Error('no data.sender')
-
-    return await execGqlWithoutAccess(context, {
-        query: GET_EXTERNAL_REPORT_IFRAME_URL_QUERY,
-        variables: { data: { dv: 1, ...data } },
-        errorMessage: '[error] Unable to getExternalReportIframeUrl',
-        dataPath: 'obj',
-    })
-}
 
 async function getOverviewDashboard (context, data) {
     if (!context) throw new Error('no context')
@@ -41,8 +25,6 @@ async function getOverviewDashboard (context, data) {
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
-    ExternalReport,
-    getExternalReportIframeUrl,
     getOverviewDashboard,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
