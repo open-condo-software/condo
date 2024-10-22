@@ -80,7 +80,7 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
 
     const taskOrganization = await Organization.getOne(context, {
         id: organization.id,
-    })
+    }, 'id tin country')
 
     const existingIntegrationOrganizationContext = await BankIntegrationOrganizationContext.getOne(context, {
         integration: { id: integration.id },

@@ -105,7 +105,7 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
                     deletedAt: null,
                 })
                 for (let organizationLink of organizationLinks) {
-                    await OrganizationLink.softDelete(context, organizationLink.id, DV_SENDER)
+                    await OrganizationLink.softDelete(context, organizationLink.id, 'id', DV_SENDER)
                 }
                 // TODO(DOMA-10423): add deleting meter and propertyMeter to a separate, asynchronous task
                 const meterResourceOwners = await find('MeterResourceOwner', {

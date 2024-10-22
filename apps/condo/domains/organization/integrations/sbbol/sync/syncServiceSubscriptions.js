@@ -26,10 +26,11 @@ async function stop (subscription, context) {
  * @return {Promise<void>}
  */
 const syncServiceSubscriptions = async (tin) => {
-    const { keystone: context } = await getSchemaCtx('User')
+    const { keystone: context } = getSchemaCtx('User')
 
     const [organization] = await Organization.getAll(context,
         { tin },
+        'id',
         { sortBy: 'createdAt_DESC' },
     )
 

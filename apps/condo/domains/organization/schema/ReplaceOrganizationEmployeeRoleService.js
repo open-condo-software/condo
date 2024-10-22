@@ -175,6 +175,7 @@ const ReplaceOrganizationEmployeeRoleService = new GQLCustomSchema('ReplaceOrgan
                                 role: { id: oldRoleId },
                                 deletedAt: null,
                             },
+                            fields: 'id',
                             sortBy: ['createdAt_ASC', 'id_ASC'],
                             chunkProcessor: async (chunk) => {
                                 const ids = chunk.map(b2bAppRole => b2bAppRole.id)
@@ -184,7 +185,7 @@ const ReplaceOrganizationEmployeeRoleService = new GQLCustomSchema('ReplaceOrgan
                             },
                         })
 
-                        await OrganizationEmployeeRole.softDelete(context, oldRole.id, { dv, sender })
+                        await OrganizationEmployeeRole.softDelete(context, oldRole.id, 'id', { dv, sender })
                     }
 
                     return {

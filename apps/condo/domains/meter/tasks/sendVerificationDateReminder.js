@@ -177,7 +177,11 @@ const filterSentReminders = async ({ context, date, reminderWindowSize, metersCo
 }
 
 const getOrganizationLang = async (context, id) => {
-    const organization = await Organization.getOne(context, { id, deletedAt: null })
+    const organization = await Organization.getOne(
+        context,
+        { id, deletedAt: null },
+        'id country'
+    )
 
     /**
      * Detect message language
