@@ -23,15 +23,22 @@ exports.down = async (knex) => {
 --
 -- Delete model externalreporthistoryrecord
 --
-CREATE TABLE "ExternalReportHistoryRecord" ("type" text NULL, "title" text NULL, "description" text NULL, "meta" jsonb NULL, "organization" uuid NULL, "isHidden" boolean NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "createdBy" uuid NULL, "updatedBy" uuid NULL, "deletedAt" timestamp with time zone NULL, "newId" jsonb NULL, "dv" integer NULL, "sender" jsonb NULL, "history_date" timestamp with time zone NOT NULL, "history_action" varchar(50) NOT NULL, "history_id" uuid NOT NULL);
+CREATE TABLE IF NOT EXISTS "ExternalReportHistoryRecord" ("type" text NULL, "title" text NULL, "description" text NULL, "meta" jsonb NULL, "organization" uuid NULL, "isHidden" boolean NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "createdBy" uuid NULL, "updatedBy" uuid NULL, "deletedAt" timestamp with time zone NULL, "newId" jsonb NULL, "dv" integer NULL, "sender" jsonb NULL, "history_date" timestamp with time zone NOT NULL, "history_action" varchar(50) NOT NULL, "history_id" uuid NOT NULL);
 --
 -- Delete model externalreport
 --
 CREATE TABLE IF NOT EXISTS "ExternalReport" ("type" varchar(50) NOT NULL, "title" text NOT NULL, "description" text NULL, "meta" jsonb NULL, "isHidden" boolean NOT NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NOT NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "deletedAt" timestamp with time zone NULL, "newId" uuid NULL, "dv" integer NOT NULL, "sender" jsonb NOT NULL, "createdBy" uuid NULL, "organization" uuid NULL, "updatedBy" uuid NULL);
 CREATE INDEX IF NOT EXISTS "ExternalReportHistoryRecord_history_id_3e040763" ON "ExternalReportHistoryRecord" ("history_id");
-ALTER TABLE "ExternalReport" ADD CONSTRAINT IF NOT EXISTS "ExternalReport_createdBy_9471f31c_fk_User_id" FOREIGN KEY ("createdBy") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
-ALTER TABLE "ExternalReport" ADD CONSTRAINT IF NOT EXISTS "ExternalReport_organization_33248cd9_fk_Organization_id" FOREIGN KEY ("organization") REFERENCES "Organization" ("id") DEFERRABLE INITIALLY DEFERRED;
-ALTER TABLE "ExternalReport" ADD CONSTRAINT IF NOT EXISTS "ExternalReport_updatedBy_da2b945f_fk_User_id" FOREIGN KEY ("updatedBy") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
+
+ALTER TABLE "ExternalReport" DROP CONSTRAINT IF EXISTS "ExternalReport_createdBy_9471f31c_fk_User_id";
+ALTER TABLE "ExternalReport" ADD CONSTRAINT "ExternalReport_createdBy_9471f31c_fk_User_id" FOREIGN KEY ("createdBy") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
+
+ALTER TABLE "ExternalReport" DROP CONSTRAINT IF EXISTS "ExternalReport_organization_33248cd9_fk_Organization_id";
+ALTER TABLE "ExternalReport" ADD CONSTRAINT "ExternalReport_organization_33248cd9_fk_Organization_id" FOREIGN KEY ("organization") REFERENCES "Organization" ("id") DEFERRABLE INITIALLY DEFERRED;
+
+ALTER TABLE "ExternalReport" DROP CONSTRAINT IF EXISTS "ExternalReport_updatedBy_da2b945f_fk_User_id";
+ALTER TABLE "ExternalReport" ADD CONSTRAINT "ExternalReport_updatedBy_da2b945f_fk_User_id" FOREIGN KEY ("updatedBy") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
+
 CREATE INDEX IF NOT EXISTS "ExternalReport_createdAt_c70831b6" ON "ExternalReport" ("createdAt");
 CREATE INDEX IF NOT EXISTS "ExternalReport_updatedAt_40a14aa7" ON "ExternalReport" ("updatedAt");
 CREATE INDEX IF NOT EXISTS "ExternalReport_deletedAt_97fbe18d" ON "ExternalReport" ("deletedAt");
