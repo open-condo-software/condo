@@ -211,7 +211,11 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
             graphQLReturnType: 'JSON',
             resolver: async (item, _, context) => {
                 const organizationId = get(item, 'organization')
-                const [organization] = await Organization.getAll(context, { id: organizationId })
+                const [organization] = await Organization.getAll(
+                    context,
+                    { id: organizationId },
+                    'id country'
+                )
 
                 if (!organization) {
                     throw new Error('No organization found for OrganizationEmployeeRole')

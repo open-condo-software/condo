@@ -19,7 +19,7 @@ const logger = getLogger('sbbol/syncBankAccounts')
  *  @param {Object} organization
  */
 const _syncBankAccounts = async (accounts, organization) => {
-    const { keystone: context } = await getSchemaCtx('User')
+    const { keystone: context } = getSchemaCtx('User')
 
     for (const account of accounts) {
         const bankAccountDetails = {

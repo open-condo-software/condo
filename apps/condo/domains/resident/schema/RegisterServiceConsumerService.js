@@ -228,7 +228,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                     throw new GQLError(ERRORS.RESIDENT_NOT_FOUND, context)
                 }
                 await resetUserResidentCache(resident.user.id)
-                const organization = await Organization.getOne(context, { id: organizationId, deletedAt: null })
+                const organization = await Organization.getOne(context, { id: organizationId, deletedAt: null }, 'id tin')
                 if (!organization) {
                     throw new GQLError(ERRORS.ORGANIZATION_NOT_FOUND, context)
                 }
