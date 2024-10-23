@@ -44,7 +44,9 @@ const syncServiceSubscriptions = async (tin) => {
             id: organization.id,
         },
         finishAt_gt: dayjs().toISOString(),
-    }, {
+    },
+    'id type',
+    {
         sortBy: ['createdAt_DESC'],
     })
 

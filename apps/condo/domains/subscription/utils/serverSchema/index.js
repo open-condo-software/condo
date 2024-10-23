@@ -6,10 +6,9 @@
 
 const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
 
-const { ServiceSubscription: ServiceSubscriptionGQL } = require('@condo/domains/subscription/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const ServiceSubscription = generateServerUtils(ServiceSubscriptionGQL)
+const ServiceSubscription = generateServerUtils('ServiceSubscription')
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
