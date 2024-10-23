@@ -31,6 +31,9 @@ const { KeystoneTracingApp } = require('@open-condo/keystone/tracing')
 const { Keystone } = require('./keystone')
 const { validateHeaders } = require('./validateHeaders')
 
+const { GraphiqlApp } = require('../../graphiql')
+
+
 const IS_BUILD_PHASE = conf.PHASE === 'build'
 const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
 const IS_SENTRY_ENABLED = JSON.parse(get(conf, 'SENTRY_CONFIG', '{}'))['server'] !== undefined
@@ -184,12 +187,13 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
             new IpBlackListMiddleware(),
             new KeystoneTracingApp(),
             ...((apps) ? apps() : []),
+            ...(IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND ? [new GraphiqlApp()] : []),
             new GraphQLApp({
                 apollo: {
                     formatError: safeApolloErrorFormatter,
                     debug: IS_ENABLE_APOLLO_DEBUG,
                     introspection: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
-                    playground: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
+                    playground: false,
                     plugins: apolloPlugins,
                 },
                 ...(graphql || {}),
