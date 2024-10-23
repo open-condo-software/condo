@@ -24,7 +24,7 @@ const CERT_FILE = path.join(__filename, '..', '.ssl', 'localhost.pem')
 
 program.option('-f, --filter <names...>', 'Filters apps by name')
 program.option('--https', 'Uses https for local running')
-program.option('-r, --replication <names...>', 'Enables replica adapter to interact with multiple databases')
+program.option('-r, --replicate <names...>', 'Enables replica adapter to interact with multiple databases')
 program.description(`Prepares applications from the /apps directory for local running 
 by creating separate databases for them 
 and running their local bin/prepare.js scripts.
@@ -36,7 +36,7 @@ function logWithIndent (message, indent = 1) {
 
 async function prepare () {
     program.parse()
-    const { https, filter, replication } = program.opts()
+    const { https, filter, replicate } = program.opts()
 
     // Step 1. Sanity checks
     logWithIndent('Running sanity checks')
@@ -117,9 +117,20 @@ async function prepare () {
                 SERVER_URL: app.serviceUrl,
             }
 
-            if (replication && replication.includes(app.name)) {
-                env.DATABASE_URL = `custom:{"default":{"read":"postgresql://postgres:postgres@127.0.0.1:5433/${app.pgName}","write":"postgresql://postgres:postgres@127.0.0.1:5432/${app.pgName}"}}` // NOSONAR used only for test purposes
-                env.DATABASE_MAPPING = '[{"match":"*","query":"default","command":"default"}]'
+            if (replicate && replicate.includes(app.name)) {
+                env.DATABASE_URL = `custom:${JSON.stringify({
+                    main: `${LOCAL_PG_DB_PREFIX}:5432/${app.pgName}`,
+                    replica: `${LOCAL_PG_DB_PREFIX}:5433/${app.pgName}`,
+                })}`
+                env.DATABASE_POOLS = JSON.stringify({
+                    main: { databases: ['main'], writable: true },
+                    replicas: { databases: ['replica'], writable: false },
+                })
+                env.DATABASE_ROUTING_RULES = JSON.stringify([
+                    { target: 'main', gqlOperationType: 'mutation' },
+                    { target: 'replicas', sqlOperationName: 'select' },
+                    { target: 'main' },
+                ])
             }
 
             await prepareAppEnv(app.name, env)

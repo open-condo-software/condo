@@ -1,7 +1,7 @@
 const { KnexAdapter } = require('@keystonejs/adapter-knex')
 const { MongooseAdapter } = require('@keystonejs/adapter-mongoose')
 
-const { ScalableDatabaseAdapter } = require('@open-condo/keystone/databaseAdapters/ScalableDatabaseAdapter')
+const { BalancingReplicaKnexAdapter } = require('@open-condo/keystone/databaseAdapters/index')
 
 const { getAdapter, getCookieSecret } = require('./setup.utils')
 
@@ -16,10 +16,40 @@ describe('getAdapter()', () => {
         expect(adapter).toBeInstanceOf(KnexAdapter)
     })
 
-    test('custom', () => {
-        const adapter = getAdapter('custom:{"default": "postgresql://postgres:postgres@127.0.0.1/main"}', '[{"match": "*", "query": "default", "command": "default"}]')
-        expect(adapter).toBeInstanceOf(ScalableDatabaseAdapter)
+    describe('custom provider with replicas', () => {
+        const originalEnv = process.env
+
+        beforeEach(() => {
+            jest.resetModules() // clear the cache
+            process.env = {
+                ...originalEnv,
+                DATABASE_POOLS: JSON.stringify({
+                    main: { databases: ['main'], writable: true },
+                    replicas: { databases: ['replica'], writable: false },
+                }),
+                DATABASE_ROUTING_RULES: JSON.stringify([
+                    { target: 'main', gqlOperationType: 'mutation' },
+                    { target: 'replicas', sqlOperationName: 'select' },
+                    { target: 'replicas', sqlOperationName: 'show' },
+                    { target: 'main' },
+                ]),
+            }
+        })
+
+        afterAll(() => {
+            process.env = originalEnv
+        })
+
+        test('custom', () => {
+            const dbUrl = `custom:${JSON.stringify({
+                main: 'postgresql://postgres:postgres@127.0.0.1:5432/main',
+                replica: 'postgresql://postgres:postgres@127.0.0.1:5433/main',
+            })}`
+            const adapter = getAdapter(dbUrl)
+            expect(adapter).toBeInstanceOf(BalancingReplicaKnexAdapter)
+        })
     })
+
 
     test('undefined', () => {
         const adapter = getAdapter('undefined')

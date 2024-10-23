@@ -9002,7 +9002,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@faker-js/faker@npm:^7.6.0":
+"@faker-js/faker@npm:^7, @faker-js/faker@npm:^7.6.0":
   version: 7.6.0
   resolution: "@faker-js/faker@npm:7.6.0"
   checksum: 942af6221774e8c98a0eb6bc75265e05fb81a941170377666c3439aab9495dd321d6beedc5406f07e6ad44262b3e43c20961f666d116ad150b78e7437dd1bb2b
@@ -13995,6 +13995,7 @@ __metadata:
   resolution: "@open-condo/keystone@workspace:packages/keystone"
   dependencies:
     "@apollo/client": ^3.11.8
+    "@faker-js/faker": ^7
     "@keystonejs/adapter-knex": ^13.2.0
     "@keystonejs/adapter-mongoose": ^11.2.0
     "@keystonejs/adapter-prisma": ^3.2.0
@@ -14016,6 +14017,7 @@ __metadata:
     "@keystonejs/utils": ^6.1.0
     "@open-condo/config": "workspace:^"
     "@open-condo/locales": "workspace:^"
+    ajv: 8.11.0
     apollo-errors: ^1.9.0
     apollo-server-errors: ^3.1.0
     apollo-upload-client: ^14.1.3
@@ -14051,6 +14053,7 @@ __metadata:
     ms: ^2.1.3
     next-cookies: ^2.0.3
     node-fetch: ^2.6.7
+    node-sql-parser: ^5.3.3
     ow: ^0.19.0
     pino: ^6.13.3
     react: ^16.13.1
@@ -19246,6 +19249,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/pegjs@npm:^0.10.0":
+  version: 0.10.6
+  resolution: "@types/pegjs@npm:0.10.6"
+  checksum: be219504714e219b37daee7ef3214b6876d98405cc56b2d084763134032fd46394c5d0e387216ee3e52bd519fe7341e25bdec855f2a911c49a593b21fd8ea4a6
+  languageName: node
+  linkType: hard
+
 "@types/pg-pool@npm:2.0.3":
   version: 2.0.3
   resolution: "@types/pg-pool@npm:2.0.3"
@@ -23048,7 +23058,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"big-integer@npm:^1.6.44":
+"big-integer@npm:^1.6.44, big-integer@npm:^1.6.48":
   version: 1.6.52
   resolution: "big-integer@npm:1.6.52"
   checksum: 6e86885787a20fed96521958ae9086960e4e4b5e74d04f3ef7513d4d0ad631a9f3bde2730fc8aaa4b00419fc865f6ec573e5320234531ef37505da7da192c40b
@@ -41220,6 +41230,16 @@ __metadata:
   version: 2.0.6
   resolution: "node-releases@npm:2.0.6"
   checksum: e86a926dc9fbb3b41b4c4a89d998afdf140e20a4e8dbe6c0a807f7b2948b42ea97d7fd3ad4868041487b6e9ee98409829c6e4d84a734a4215dff060a7fbeb4bf
+  languageName: node
+  linkType: hard
+
+"node-sql-parser@npm:^5.3.3":
+  version: 5.3.3
+  resolution: "node-sql-parser@npm:5.3.3"
+  dependencies:
+    "@types/pegjs": ^0.10.0
+    big-integer: ^1.6.48
+  checksum: f0bf18607d47fa2c074914918f7468a63bcf039fd3bfe2d18c3d5edf9888b3a5e386b73a69bff2b1a190e174805caa2492c9430cada63699d3b9ff13c155a5e5
   languageName: node
   linkType: hard
 
