@@ -1,3 +1,4 @@
+const dayjs = require('dayjs')
 const { get } = require('lodash')
 const isArray = require('lodash/isArray')
 const isEmpty = require('lodash/isEmpty')
@@ -52,9 +53,28 @@ const buildFullClassifierName = (classifier) => {
     ].filter(Boolean).join(' » ')
 }
 
+const buildEmptyLineDifferentLength = (long = false) => {
+    return long ? '______________________________________________' : '_______________________'
+}
+
+
+const formatDate = (date, timeZone, format = 'DD.MM.YYYY') => {
+    return dayjs(date).tz(timeZone).format(format)
+}
+
+const renderMoney = (amount, currencyCode, locale) => {
+    const options = { currency: currencyCode }
+    const numberFormat = new Intl.NumberFormat(locale, options)
+    const parts = numberFormat.formatToParts(amount)
+    return parts.map((part) => part.value).join('')
+}
+
 module.exports = {
     convertQualityControlOrFeedbackOptionsToText,
     filterFeedbackOptionsByScore,
     filterQualityControlOptionsByScore,
     buildFullClassifierName,
+    buildEmptyLineDifferentLength,
+    formatDate,
+    renderMoney,
 }

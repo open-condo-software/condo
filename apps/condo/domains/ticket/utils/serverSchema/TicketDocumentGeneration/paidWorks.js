@@ -1,9 +1,10 @@
-const { formatRubles } = require('@vicimpa/rubles')
+const { format: formatRubles } = require('@vicimpa/rubles')
+const Big = require('big.js')
 const dayjs = require('dayjs')
 const { get } = require('lodash')
 
 const { FinanceInfoClient } = require('@open-condo/clients/finance-info-client/FinanceInfoClient')
-const { getById, getByCondition } = require('@open-condo/keystone/schema')
+const { getByCondition } = require('@open-condo/keystone/schema')
 
 const { buildExportFile, DOCX_FILE_META } = require('@condo/domains/common/utils/createExportFile')
 const { buildUploadInputFrom } = require('@condo/domains/common/utils/serverSchema/export')
@@ -12,20 +13,7 @@ const { DEFAULT_INVOICE_CURRENCY_CODE, INVOICE_STATUS_CANCELED } = require('@con
 const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { TICKET_DOCUMENT_GENERATION_TASK_FORMAT } = require('@condo/domains/ticket/constants/ticketDocument')
-
-const BLANK = '_______________________'
-
-const DATE_FORMAT = 'DD.MM.YYYY'
-const formatDate = (date, timeZone, format = DATE_FORMAT) => {
-    return dayjs(date).tz(timeZone).format(format)
-}
-
-const renderMoney = (amount, currencyCode, locale) => {
-    const options = { currency: currencyCode }
-    const numberFormat = new Intl.NumberFormat(locale, options)
-    const parts = numberFormat.formatToParts(amount)
-    return parts.map((part) => part.value).join('')
-}
+const { buildEmptyLineDifferentLength, formatDate, renderMoney } = require('@condo/domains/ticket/utils')
 
 const financeInfoClient = new FinanceInfoClient()
 
@@ -61,15 +49,16 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
     const timeZone = normalizeTimeZone(timeZoneFromUser) || DEFAULT_ORGANIZATION_TIMEZONE
     const printDate = dayjs().tz(timeZone).locale(locale)
 
+    const contact = ticket.contact ? await getByCondition('Contact', {
+        id: ticket.contact,
+        deletedAt: null,
+    }) : null
 
-    console.log('contact', ticket.contact)
-    const contact = ticket.contact ? await getById('Contact', ticket.contact) : null
-
-    console.log('executor', ticket.executor)
     const employee = organization.id && ticket.executor
         ? await getByCondition('OrganizationEmployee', {
             organization: { id: organization.id },
             user: { id: ticket.executor },
+            deletedAt: null,
         })
         : null
 
@@ -77,22 +66,24 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
         ticket: { id: ticket.id },
         deletedAt: null,
         status_not: INVOICE_STATUS_CANCELED,
-    }, {
+    }, 'id currencyCode accountNumber rows { isMin toPay name count vatPercent } recipient { bankName bankAccount bic }', {
         sortBy: ['createdAt_ASC'],
     })
 
     const currencyCode = get(invoices, '0.currencyCode') || DEFAULT_INVOICE_CURRENCY_CODE
-    let totalSum = 0, totalVAT = 0, vatPercent = get(invoices, '0.rows.0.vatPercent')
+    let totalSum = Big(0), totalVAT = Big(0)
 
     const listOfWorks = invoices.reduce((acc, invoice) => {
         const rows = Array.isArray(invoice.rows) ? invoice.rows : []
         acc.push(...rows.map((row, index) => {
-            const price = parseFloat(!row.isMin ? row.toPay : null)
-            const sum = price * row.count
-            totalSum += sum
+            const price = Big(!row.isMin ? row.toPay : 0)
+            const sum = price.times(get(row, 'count', 1))
+            const vatPercent = get(row, 'vatPercent') || 0
+            totalSum = totalSum.plus(sum)
+            totalVAT = totalVAT.plus(sum.times(vatPercent).div(100))
 
             return {
-                number: index + 1 || '',
+                number: index + 1,
                 name: row.name || '',
                 count: String(row.count) || '',
                 price: !Number.isNaN(price) ? renderMoney(price, currencyCode, locale) : '',
@@ -104,7 +95,7 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
         return acc
     }, [])
 
-    totalVAT = totalSum * vatPercent / 100
+    totalSum.toFixed(2)
     totalVAT.toFixed(2)
 
     const documentData = {
@@ -112,29 +103,29 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
             generalDate: printDate.format('DD.MM.YYYY'),
         },
         company: {
-            name: get(organization, 'name') || BLANK,
-            psrn: psrn || BLANK,
-            tin: get(organization, 'tin') || BLANK, 
-            iec: iec || BLANK,
-            address: organizationAddress || BLANK,
-            phone: get(organization, 'phone') || BLANK, 
+            name: get(organization, 'name') || buildEmptyLineDifferentLength(true),
+            psrn: psrn || buildEmptyLineDifferentLength(),
+            tin: get(organization, 'tin') || buildEmptyLineDifferentLength(),
+            iec: iec || buildEmptyLineDifferentLength(),
+            address: organizationAddress || buildEmptyLineDifferentLength(true),
+            phone: get(organization, 'phone') || buildEmptyLineDifferentLength(),
 
         },
         bankDetails: {
-            accountNumber: get(invoices, '0.accountNumber') || BLANK,
-            bankName: get(invoices, '0.recipient.bankName') || BLANK,
-            bankAccount: get(invoices, '0.recipient.bankAccount') || BLANK,
-            bic: get(invoices, '0.recipient.bic') || BLANK,
+            accountNumber: get(invoices, '0.accountNumber') || buildEmptyLineDifferentLength(),
+            bankName: get(invoices, '0.recipient.bankName') || buildEmptyLineDifferentLength(),
+            bankAccount: get(invoices, '0.recipient.bankAccount') || buildEmptyLineDifferentLength(),
+            bic: get(invoices, '0.recipient.bic') || buildEmptyLineDifferentLength(),
         },
         client: {
-            name: get(contact, 'name') || BLANK,
+            name: get(contact, 'name') || '',
         },
         listOfWorks,
         sum: {
-            totalSum: !Number.isNaN(totalSum) ? renderMoney(totalSum, currencyCode, locale) : BLANK,
-            totalVAT: !Number.isNaN(totalVAT) ? renderMoney(totalVAT, currencyCode, locale) : BLANK,
-            totalSumInWords: !Number.isNaN(totalVAT) ? formatRubles(totalSum) : BLANK,
-            totalVATInWords: !Number.isNaN(totalVAT) ?  formatRubles(totalVAT) : BLANK,
+            totalSum: !Number.isNaN(totalSum) ? renderMoney(totalSum, currencyCode, locale) : '',
+            totalVAT: !Number.isNaN(totalVAT) ? renderMoney(totalVAT, currencyCode, locale) : '',
+            totalSumInWords: !Number.isNaN(totalSum) ? formatRubles(totalSum, '$summString') : '',
+            totalVATInWords: !Number.isNaN(totalVAT) ? formatRubles(totalVAT, '$summString') : '',
         },
         executor: {
             name: get(employee, 'name') || '',

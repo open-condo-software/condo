@@ -11,12 +11,7 @@ const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { getAddressDetails } = require('@condo/domains/property/utils/serverSchema/helpers')
 const { TICKET_DOCUMENT_GENERATION_TASK_FORMAT } = require('@condo/domains/ticket/constants/ticketDocument')
-
-
-const DATE_FORMAT = 'DD.MM.YYYY'
-const formatDate = (date, timeZone, format = DATE_FORMAT) => {
-    return dayjs(date).tz(timeZone).format(format)
-}
+const { formatDate, renderMoney } = require('@condo/domains/ticket/utils')
 
 const buildExportWordFile = async ({ task, documentData, locale, timeZone }) => {
     const { id, ticket } = task
@@ -36,13 +31,6 @@ const buildExportWordFile = async ({ task, documentData, locale, timeZone }) => 
             id,
         },
     }
-}
-
-const renderMoney = (amount, currencyCode, locale) => {
-    const options = { currency: currencyCode }
-    const numberFormat = new Intl.NumberFormat(locale, options)
-    const parts = numberFormat.formatToParts(amount)
-    return parts.map((part) => part.value).join('')
 }
 
 const generateTicketDocumentOfCompletionWorks = async ({ task, baseAttrs, context, locale, ticket, organization }) => {
