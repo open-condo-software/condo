@@ -79,6 +79,7 @@ const CheckUserExistenceService = new GQLCustomSchema('CheckUserExistenceService
                         isPhoneVerified: true,
                         deletedAt: null,
                     },
+                    'id phone'
                 )
                 if (!action) throw new GQLError(ERRORS.TOKEN_NOT_FOUND, context)
 
