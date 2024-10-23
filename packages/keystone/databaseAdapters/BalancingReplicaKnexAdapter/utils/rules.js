@@ -32,7 +32,13 @@ function _isStringOrRegExpMatching (ruleValue, ctxValue) {
 
 /**
  * Checks if the routing rule matches context value
- * @param rule - routing rule
+ * @param {{
+ * gqlOperationType: string | undefined,
+ * gqlOperationName: string | undefined,
+ * sqlOperationName: string | undefined,
+ * tableName: string | undefined
+ * target: string
+ * }} rule - routing rule
  * @param {{
  * gqlOperationType: string | undefined,
  * gqlOperationName: string | undefined,
