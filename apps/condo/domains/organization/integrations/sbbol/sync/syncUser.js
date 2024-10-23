@@ -4,7 +4,6 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 const { SBBOL_IDP_TYPE, STAFF } = require('@condo/domains/user/constants/common')
 const { MULTIPLE_ACCOUNTS_MATCHES } = require('@condo/domains/user/constants/errors')
 const { User, UserExternalIdentity } = require('@condo/domains/user/utils/serverSchema')
-const { UserAdmin } = require('@condo/domains/user/utils/serverSchema')
 
 const { dvSenderFields } = require('../constants')
 
@@ -63,12 +62,15 @@ const syncUser = async ({ context: { context, keystone }, userInfo, identityId }
     }
 
     // let's search users by UserExternalIdentity and phone
-    const importedUsers = (await UserExternalIdentity.getAll(context, identityWhereStatement))
-        .map(identity => identity.user)
+    const importedUsers = (await UserExternalIdentity.getAll(context,
+        identityWhereStatement,
+        'id user { id email isEmailVerified isPhoneVerified phone }'
+    )).map(identity => identity.user)
+
     const notImportedUsers = await User.getAll(context, {
         ...userWhereStatement,
         id_not_in: importedUsers.map(identity => identity.id),
-    })
+    }, 'id email isEmailVerified isPhoneVerified phone')
 
     const existingUsers = [...notImportedUsers, ...importedUsers]
     const existingUsersCount = existingUsers.length
@@ -86,7 +88,7 @@ const syncUser = async ({ context: { context, keystone }, userInfo, identityId }
 
         // create a user
         const createdUser = await User.create(context, { ...userInfo, ...dvSenderFields })
-        const user = await UserAdmin.getOne(context, { id: createdUser.id })
+        const user = await User.getOne(context, { id: createdUser.id })
         
         // register a UserExternalIdentity
         await registerIdentity({
@@ -151,7 +153,7 @@ const syncUser = async ({ context: { context, keystone }, userInfo, identityId }
         return updatedUser
     }
 
-    return await UserAdmin.getOne(context, { id: user.id })
+    return await User.getOne(context, { id: user.id })
 }
 
 module.exports = {
