@@ -1,6 +1,7 @@
 import get from 'lodash/get'
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 
+import bridge from '@open-condo/bridge'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Tooltip } from '@open-condo/ui'
 
@@ -8,8 +9,18 @@ import { useBillingAndAcquiringContexts } from './ContextProvider'
 
 export const ReportMessage: React.FC = () => {
     const intl = useIntl()
-    const { billingContext } = useBillingAndAcquiringContexts()
+    const { billingContext, refetchBilling } = useBillingAndAcquiringContexts()
     const lastReport = get(billingContext, 'lastReport', {})
+
+    useEffect(() => {
+        const handleRedirect = async (event) => {
+            if (get(event, 'type') === 'condo-bridge') refetchBilling()
+        }
+        bridge.subscribe(handleRedirect)
+        return () => {
+            bridge.unsubscribe(handleRedirect)
+        }
+    }, [refetchBilling])
 
     return useMemo(() => {
         if (typeof lastReport.totalReceipts !== 'number' || typeof lastReport.finishTime !== 'string') {
