@@ -10,7 +10,7 @@ const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { SBER_ID_IDP_TYPE, RESIDENT } = require('@condo/domains/user/constants/common')
 const {
-    UserAdmin,
+    User,
     UserExternalIdentity: UserExternalIdentityApi,
 } = require('@condo/domains/user/utils/serverSchema')
 
@@ -43,7 +43,10 @@ describe('syncUser from SberId', () => {
         // assertions
         // assert created user
         expect(id).toBeDefined()
-        const [ checkUser ] = await UserAdmin.getAll(context, { id })
+        const [ checkUser ] = await User.getAll(context,
+            { id },
+            'id name email phone type isPhoneVerified isEmailVerified'
+        )
         expect(checkUser).toBeDefined()
         expect(checkUser).toHaveProperty('id')
         expect(checkUser).toHaveProperty('name')

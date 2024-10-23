@@ -34,7 +34,7 @@ const createOrganization = async ({ context, user, importInfo, organizationInfo 
             listKey: 'User',
         },
     })
-    const { data: { obj: createdOrganization } } = await userContext.executeGraphQL({
+    const data = await userContext.executeGraphQL({
         context: userContext,
         query: REGISTER_NEW_ORGANIZATION_MUTATION,
         variables: {
@@ -47,6 +47,8 @@ const createOrganization = async ({ context, user, importInfo, organizationInfo 
             },
         },
     })
+
+    const { data: { obj: createdOrganization } } = data
 
     const organization = await Organization.update(userContext, createdOrganization.id, {
         ...dvSenderFields,

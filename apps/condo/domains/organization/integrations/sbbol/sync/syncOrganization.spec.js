@@ -10,7 +10,8 @@ const { setFakeClientMode, makeLoggedInAdminClient, DATETIME_RE } = require('@op
 const { OrganizationEmployee: OrganizationEmployeeApi, Organization: OrganizationApi } = require('@condo/domains/organization/utils/serverSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { UserAdmin } = require('@condo/domains/user/utils/serverSchema')
+const { USER_FIELDS } = require('@condo/domains/user/gql')
+const { User: UserAPI } = require('@condo/domains/user/utils/serverSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, User } = require('@condo/domains/user/utils/testSchema')
 
 const { MockSbbolResponses } = require('./MockSbbolResponses')
@@ -34,7 +35,7 @@ describe('syncOrganization from SBBOL', () => {
             }
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
             const [organization] = await registerNewOrganization(client)
-            const user = await UserAdmin.getOne(adminContext, { id: client.user.id })
+            const user = await UserAPI.getOne(adminContext, { id: client.user.id }, `${USER_FIELDS} email phone`)
 
             userData.phone = user.phone
             organizationData.meta.inn = organization.tin

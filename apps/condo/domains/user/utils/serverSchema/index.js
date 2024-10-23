@@ -141,7 +141,7 @@ const updateEmployeesRelatedToUser = async (context, user) => {
 }
 
 async function createUserAndSendLoginData ({ context, userData }) {
-    const user = await User.create(context, userData, {
+    const user = await User.create(context, userData, 'id', {
         errorMapping: {
             '[password:minLength:User:password]': ERRORS.INVALID_PASSWORD_LENGTH,
             '[password:rejectCommon:User:password]': ERRORS.PASSWORD_IS_FREQUENTLY_USED,
