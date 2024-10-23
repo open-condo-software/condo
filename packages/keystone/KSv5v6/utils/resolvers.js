@@ -111,7 +111,7 @@ const allowedValueTypes = new Set(['object', 'function'])
  * @returns {ResolversObject}
  * @private
  */
-function _patchResolvers (resolversObject) {
+function _patchResolverWithGQLContext (resolversObject) {
     return Object.fromEntries(
         Object.entries(resolversObject).map(([key, value]) => {
             const valueType = typeof value
@@ -127,7 +127,7 @@ function _patchResolvers (resolversObject) {
                     throw new Error(`Unexpected object type inside resolvers: ${valueClassName}`)
                 }
                 if (valueClassName === 'Object') {
-                    return [key, _patchResolvers(value)]
+                    return [key, _patchResolverWithGQLContext(value)]
                 }
 
                 return [key, value]
@@ -140,5 +140,5 @@ function _patchResolvers (resolversObject) {
 }
 
 module.exports = {
-    _patchResolvers,
+    _patchResolverWithGQLContext,
 }

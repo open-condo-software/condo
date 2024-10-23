@@ -1,12 +1,12 @@
 const { Keystone: DefaultKeystone } = require('@keystonejs/keystone')
 
-const { _patchResolvers } = require('../utils/resolvers')
+const { _patchResolverWithGQLContext } = require('../utils/resolvers')
 
 class Keystone extends DefaultKeystone {
     getResolvers ({ schemaName }) {
         const originalResolvers = super.getResolvers({ schemaName })
 
-        return _patchResolvers(originalResolvers)
+        return _patchResolverWithGQLContext(originalResolvers)
     }
 }
 

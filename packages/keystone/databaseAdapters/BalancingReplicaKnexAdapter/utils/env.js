@@ -6,7 +6,7 @@ const ajv = new Ajv({ useDefaults: true })
 
 const DB_URL_PROTOCOL_PREFIX = 'custom:'
 const DB_URL_PATTERN = new RegExp(`${DB_URL_PROTOCOL_PREFIX}{.+}`)
-const ANY_CHAR_PATTERNS = '^.+$'
+const ANY_CHAR_PATTERN = '^.+$'
 const IMMUTABLE_OPERATIONS = new Set(['select', 'show'])
 // NOTE: detects names of pg tables / queries / mutations
 const SIMPLE_NAME_PATTERN = /^[a-z\d_+]+$/i
@@ -16,7 +16,7 @@ const DB_URL_SCHEMA = {
     minProperties: 1,
     additionalProperties: false,
     patternProperties: {
-        [ANY_CHAR_PATTERNS]: {
+        [ANY_CHAR_PATTERN]: {
             type: 'string',
             pattern: '^postgresql://.+',
         },
@@ -66,7 +66,7 @@ function _createReplicaPoolsSchema (availableDatabases) {
         minProperties: 1,
         additionalProperties: false,
         patternProperties: {
-            '^.+$': {
+            [ANY_CHAR_PATTERN]: {
                 type: 'object',
                 properties: {
                     databases: {

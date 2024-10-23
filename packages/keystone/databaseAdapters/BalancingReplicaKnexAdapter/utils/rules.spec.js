@@ -42,7 +42,11 @@ function _buildRuleValue (value, ruleType) {
         const randomLength = _randomInt(value.length - 1) + 1 // [1, value.length)
         const fromEnd = Math.random() > 0.5
         const pattern = fromEnd
+            // NOTE: controlled tests environment
+            // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
             ? new RegExp(`^.+${value.substring(value.length - randomLength)}$`)
+            // NOTE: controlled tests environment
+            // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
             : new RegExp(`^${value.substring(0, randomLength)}.+$`)
         return [pattern, true]
     } else {
