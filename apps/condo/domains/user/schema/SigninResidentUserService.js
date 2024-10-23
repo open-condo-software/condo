@@ -75,7 +75,8 @@ const SigninResidentUserService = new GQLCustomSchema('SigninResidentUserService
                         expiresAt_gte: new Date().toISOString(),
                         completedAt: null,
                         isPhoneVerified: true,
-                    }
+                    },
+                    'id phone isPhoneVerified'
                 )
                 if (!action) {
                     throw new GQLError(ERRORS.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, context)
