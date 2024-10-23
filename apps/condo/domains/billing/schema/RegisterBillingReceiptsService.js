@@ -110,7 +110,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                 }
                 const { id: billingContextId } = billingContextInput
                 const billingContext = await BillingContextApi.getOne(context, { id: billingContextId },
-                    'id organization { id tin name country type } settings'
+                    'id organization { id tin name country type } settings lastReport'
                 )
                 if (!billingContextId || !billingContext) {
                     throw new GQLError(ERRORS.BILLING_CONTEXT_NOT_FOUND, context)
