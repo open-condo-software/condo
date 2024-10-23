@@ -87,7 +87,7 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                     unitType,
                     deletedAt: null,
                     user: { id: context.authedItem.id },
-                }, {
+                }, 'id', {
                     first: 1,
                 })
 

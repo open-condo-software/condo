@@ -109,6 +109,7 @@ const _internalSendNotificationNewMobileAppVersionService = new GQLCustomSchema(
                                 id_in: propertyIds,
                             },
                         },
+                        fields: 'id user { id }',
                         chunkSize: 50,
                         chunkProcessor: (/** @type {Resident[]} */ chunk) => {
                             const userIds = []

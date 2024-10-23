@@ -139,7 +139,10 @@ const validateAndNormalizeData = async (context, data) => {
                 ],
             },
         }
-        const [resident] = await Resident.getAll(context, residentWhere, { sortBy: ['createdAt_ASC'], first: 1 })
+        const [resident] = await Resident.getAll(context,
+            residentWhere,
+            'id residentProperty { id }',
+            { sortBy: ['createdAt_ASC'], first: 1 })
 
         if (!isEmpty(get(resident, 'residentProperty'))) propertiesMapping[billingProperty.id] = resident.residentProperty.id
     }

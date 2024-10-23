@@ -52,6 +52,7 @@ const {
     RECURRENT_PAYMENT_TOMORROW_PAYMENT_LIMIT_EXCEED_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
+const { SERVICE_CONSUMER_FIELDS } = require('@condo/domains/resident/gql')
 const {
     ServiceConsumer,
 } = require('@condo/domains/resident/utils/serverSchema')
@@ -143,7 +144,9 @@ async function getServiceConsumer (context, id) {
     const consumer = await ServiceConsumer.getOne(context, {
         id,
         deletedAt: null,
-    }, {
+    },
+    SERVICE_CONSUMER_FIELDS,
+    {
         doesNotExistError: {
             code: BAD_USER_INPUT,
             type: RECURRENT_PAYMENT_PROCESS_ERROR_SERVICE_CONSUMER_NOT_FOUND_CODE,

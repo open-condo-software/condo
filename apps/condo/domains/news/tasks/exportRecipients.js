@@ -108,6 +108,7 @@ async function exportRecipients (taskId) {
                 ...queryFindResidentsByOrganizationAndScopes(organizationId, newsItemScopes),
                 deletedAt: null,
             },
+            fields: 'id property { id } unitType unitName',
             /**
              * @param {Resident[]} chunk
              * @returns {Resident[]}

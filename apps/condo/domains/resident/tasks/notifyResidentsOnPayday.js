@@ -92,7 +92,9 @@ async function notifyResidentsOnPayday () {
                 deletedAt: null,
             },
             deletedAt: null,
-        }, {
+        },
+        'id resident { id } organization { id } accountNumber billingIntegrationContext { id }',
+        {
             skip: state.consumersOffset,
             first: state.consumersChunkSize,
         })

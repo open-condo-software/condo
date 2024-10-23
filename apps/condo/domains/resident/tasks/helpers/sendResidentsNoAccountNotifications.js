@@ -123,7 +123,13 @@ const sendResidentsNoAccountNotificationsForContext = async (billingContext, rec
             deletedAt: null,
             resident: { deletedAt: null },
         }
-        const serviceConsumers = await loadListByChunks({ context, chunkSize: 50, list: ServiceConsumer, where: serviceConsumersWhere })
+        const serviceConsumers = await loadListByChunks({
+            context,
+            chunkSize: 50,
+            list: ServiceConsumer,
+            where: serviceConsumersWhere,
+            fields: 'id resident { id }',
+        })
         const scResidentIds = uniq(serviceConsumers.map(sc => get(sc, 'resident.id')).filter(Boolean))
 
         const residentsWhere = {
@@ -152,7 +158,12 @@ const sendResidentsNoAccountNotificationsForContext = async (billingContext, rec
         processedCount += residentsCount
 
         while (skip < residentsCount) {
-            const residents = await Resident.getAll(context, residentsWhere, { sortBy: ['createdAt_ASC'], first: 100, skip })
+            const residents = await Resident.getAll(context,
+                residentsWhere,
+                'id residentOrganization { id country tin } property { id }' +
+                ' residentProperty { address } user { id } unitType unitName',
+                { sortBy: ['createdAt_ASC'], first: 100, skip }
+            )
 
             skip += residents.length
 
