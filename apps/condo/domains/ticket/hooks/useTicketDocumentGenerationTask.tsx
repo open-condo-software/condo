@@ -46,8 +46,8 @@ export const useTicketDocumentGenerationTask = ({ invoices, ticket, user, timeZo
         handleRunTask({ taskAttrs: { documentType } })
     }, [handleRunTask, loading])
 
-    const isValidInvoice = invoices.find((invoice) => get(invoice, 'status') !== 'Canceled' &&  get(invoice, 'deleteAt') === null)
-
+    const isValidInvoice = invoices.find((invoice) => get(invoice, 'status') !== 'Canceled' &&  get(invoice, 'deletedAt') === null)
+    
     const buttonItems = useMemo(() => {
         return [
             isSupportedDocumentTypeByLocale(TICKET_DOCUMENT_TYPE.COMPLETION_WORKS, locale) && {
