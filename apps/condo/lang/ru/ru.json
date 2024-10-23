@@ -1814,10 +1814,10 @@
   "meter.import.error.MeterNumberExistInOrganization": "Прибор учета с таким номером уже существует в вашей организации",
   "meter.import.error.MeterResourceNotFound": "Не найден тип счётчика по указанной аббревиатуре",
   "meter.import.error.MeterValueInvalid": "Неверное значение в столбце \"{columnName}\", должно быть положительное число",
-  "api.meter.registerMetersReadings.INVALID_DATE:": "Неверное значение даты в столбце \"{columnName}\". Используйте значение с типом Строка в формате \"{format}\", либо значение с типом Дата",
-  "meter.import.error.WrongDateOrMonthFormatMessage": "Неверное значение даты в столбце \"{columnName}\". Используйте значение с типом Строка в форматах \"{dateFormat}\" или \"{monthFormat}\" (для указания только месяца); либо значение с типом Дата",
-  "meter.import.error.unknownResourceType": "Неизвестный тип счетчика. Используйте один из списка: {knownList}",
-  "meter.import.error.unknownUnitType": "Неизвестный тип помещения. Используйте один из списка: {knownList}",
+  "api.meter.registerMetersReadings.INVALID_DATE:": "Неверное значение даты в столбце \"{columnName}\". Используйте значение с типом ячейки \"Текстовый\" в формате \"{format}\"",
+  "meter.import.error.WrongDateOrMonthFormatMessage": "Неверное значение даты в столбце \"{columnName}\". Используйте значение с типом ячейки \"Текстовый\" в форматах \"{dateFormat}\" или \"{monthFormat}\" (для указания только месяца)",
+  "meter.import.error.unknownResourceType": "Неизвестный тип счетчика. Введите один из списка: {knownList} в столбце \"Тип счетчика\"",
+  "meter.import.error.unknownUnitType": "Неизвестный тип помещения. Введите один из списка: {knownList} в столбце \"Тип помещения\"",
   "meter.import.error.unknownIsAutomatic": "Неизвестное значение в поле \"Автоматический\". Используйте одно из списка: {knownList}",
   "meter.import.error.ZeroValuesSpecified": "Должно быть указано как минимум одно из показаний",
   "api.meter.registerMetersReadings.INVALID_ACCOUNT_NUMBER": "Указан некорректный лицевой счет",
@@ -2651,7 +2651,7 @@
   "api.meter.meter.METER_NUMBER_HAVE_INVALID_VALUE": "Номер счетчика не может быть пустым",
   "api.meter.meter.METER_ACCOUNT_NUMBER_HAVE_INVALID_VALUE": "Лицевой счет не может быть пустым",
   "api.meter.meter.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION": "Данным ресурсом по текущему адресу владеет другая УК. Пожалуйста, обратитесь в поддержку для решения этого вопроса",
-  "api.meter.meter.SAME_NUMBER_AND_RESOURCE_EXISTS_IN_ORGANIZATION": "ИПУ с таким номером и ресурсом уже есть в организации на лицевом счете {accountNumbersCsv}",
+  "api.meter.meter.SAME_NUMBER_AND_RESOURCE_EXISTS_IN_ORGANIZATION": "ИПУ с таким номером и ресурсом уже есть в организации на лицевом счете {accountNumbersCsv}. Проверьте, пожалуйста, правильность данных.",
   "api.meter.meter.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT": "ИПУ с таким лицевым счетом уже есть в организации в помещении {unitsCsv}",
   "api.meter.NUMBER_OF_TARIFFS_NOT_VALID": "Количество тарифов должно быть целым числом от 1 до 4, передано {value}",
   "api.meter.meterReportingPeriod.INVALID_FINISH": "Конец периода может принимать значение только от 1 до 31",
@@ -3168,6 +3168,8 @@
   "acquiringReceipt.invoice.row.amount": "Стоимость",
   "api.acquiring.multiPayment.RECEIPTS_WITH_INVOICES_FORBIDDEN": "Квитанции и счета не могут быть в одном платеже, увы. Но мы над этим работаем.",
   "api.acquiring.payment.PAYMENT_AMOUNT_LESS_THAN_MINIMUM": "Сумма оплаты должна быть не меньше чем {minimumPaymentAmount}",
-  "api.acquiring.payment.PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM": "Сумма оплаты не должна превышать {maximumPaymentAmount}"
+  "api.acquiring.payment.PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM": "Сумма оплаты не должна превышать {maximumPaymentAmount}",
+  "iso.date.format": "ГГГГ-ММ-ДД",
+  "european.date.format": "ДД.ММ.ГГГГ"
 }
 

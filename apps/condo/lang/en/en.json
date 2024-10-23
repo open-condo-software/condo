@@ -1814,10 +1814,10 @@
   "meter.import.error.MeterNumberExistInOrganization": "Meter with this number already exists in your organization",
   "meter.import.error.MeterResourceNotFound": "Meter type was not found according to specified abbreviation in \"Type\" column",
   "meter.import.error.MeterValueInvalid": "Incorrect format in column \"{columnName}\", must be a positive numeric value",
-  "api.meter.registerMetersReadings.INVALID_DATE:": "Incorrect date format in column \"{columnName}\". Use either value of String type in format: \"{format}\", or value of Date type",
-  "meter.import.error.WrongDateOrMonthFormatMessage": "Wrong date format in column \"{columnName}\". Use either value of String formats \"{dateFormat}\" or \"{monthFormat}\" (for month-only); or value of Date type",
-  "meter.import.error.unknownResourceType": "Unknown resource type. Please use one of the following: {knownList}",
-  "meter.import.error.unknownUnitType": "Unknown unit type. Please use one of the following: {knownList}",
+  "api.meter.registerMetersReadings.INVALID_DATE:": "Incorrect date format in column \"{columnName}\". Use either value of \"Text\" type in format: \"{format}\"",
+  "meter.import.error.WrongDateOrMonthFormatMessage": "Wrong date format in column \"{columnName}\". Use either value of \"Text\" formats \"{dateFormat}\" or \"{monthFormat}\" (for month-only)",
+  "meter.import.error.unknownResourceType": "Unknown resource type. Please use one of the following: {knownList} at column \"Type\"",
+  "meter.import.error.unknownUnitType": "Unknown unit type. Please use one of the following: {knownList} at column \"Unit type\"",
   "meter.import.error.unknownIsAutomatic": "Unknown value for Automatic. Please use one of the following: {knownList}",
   "meter.import.error.ZeroValuesSpecified": "At least one of values must be specified",
   "api.meter.registerMetersReadings.INVALID_ACCOUNT_NUMBER": "Account number field is filled incorrectly",
@@ -2651,7 +2651,7 @@
   "api.meter.meter.METER_NUMBER_HAVE_INVALID_VALUE": "Meter number field value cannot be empty",
   "api.meter.meter.METER_ACCOUNT_NUMBER_HAVE_INVALID_VALUE": "Account number field value cannot be empty",
   "api.meter.meter.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION": "This resource is owned by another organization. Please contact tech support if you want to resolve this problem",
-  "api.meter.meter.SAME_NUMBER_AND_RESOURCE_EXISTS_IN_ORGANIZATION": "Meter with same number and resource exist in current organization and linked with account number {accountNumbersCsv}",
+  "api.meter.meter.SAME_NUMBER_AND_RESOURCE_EXISTS_IN_ORGANIZATION": "Meter with same number and resource exist in current organization and linked with account number {accountNumbersCsv}. Please check your data.",
   "api.meter.meter.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT": "Meter with same account number exist in current organization in unit {unitsCsv}",
   "api.meter.NUMBER_OF_TARIFFS_NOT_VALID": "Number of tariffs should be an integer from 1 to 4, but {value} passed",
   "api.meter.meterReportingPeriod.INVALID_FINISH": "The \"finish\" field can take values in the range from 1 to 31",
@@ -3168,6 +3168,8 @@
   "acquiringReceipt.invoice.row.amount": "Amount",
   "api.acquiring.multiPayment.RECEIPTS_WITH_INVOICES_FORBIDDEN": "Receipts and invoices are forbidden to be together",
   "api.acquiring.payment.PAYMENT_AMOUNT_LESS_THAN_MINIMUM": "Payment amount must be at least {minimumPaymentAmount}",
-  "api.acquiring.payment.PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM": "Payment amount must not exceed {maximumPaymentAmount}"
+  "api.acquiring.payment.PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM": "Payment amount must not exceed {maximumPaymentAmount}",
+  "iso.date.format": "YYYY-MM-DD",
+  "european.date.format": "DD.MM.YYYY"
 }
 
