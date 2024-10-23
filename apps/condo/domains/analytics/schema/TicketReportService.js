@@ -32,7 +32,7 @@ const getOrganizationStatuses = async (context, userOrganizationId) => {
     const statuses = await TicketStatus.getAll(context, { OR: [
         { organization: { id: userOrganizationId } },
         { organization_is_null: true },
-    ] })
+    ] }, 'id organization { id } type name')
 
     return statuses.filter(status => {
         if (!status.organization) { return true }

@@ -69,7 +69,10 @@ const sendTicketCommentCreatedNotifications = async (commentId, ticketId) => {
         const commentType = get(createdComment, 'type', ORGANIZATION_COMMENT_TYPE)
         const ticketStatus = await getById('TicketStatus', ticket.status)
         const ticketUrl = `${conf.SERVER_URL}/ticket/${ticketId}`
-        const classifier = await TicketClassifier.getOne(context, { id: ticket.classifier })
+        const classifier = await TicketClassifier.getOne(context,
+            { id: ticket.classifier },
+            'id place { name } category { name } problem { name }'
+        )
 
         const OpenTicketMessage = i18n(`notification.messages.${TICKET_COMMENT_CREATED_TYPE}.telegram.openTicket`, { locale: lang })
         const TicketStatusName = i18n(`ticket.status.${ticketStatus.type}.name`, { locale: lang })

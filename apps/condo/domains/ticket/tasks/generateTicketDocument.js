@@ -41,7 +41,7 @@ const generateTicketDocument = async (taskId) => {
         task = await TicketDocumentGenerationTask.getOne(context, {
             id: taskId,
             deletedAt: null,
-        })
+        }, 'id ticket { id } documentType meta format timeZone')
         if (!task) throw new Error('not found task!')
 
         const ticketId = get(task, 'ticket.id')
