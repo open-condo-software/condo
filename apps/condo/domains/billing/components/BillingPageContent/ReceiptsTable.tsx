@@ -3,8 +3,9 @@ import { Row, Col, Typography, Space } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo, useState, CSSProperties } from 'react'
+import React, { useCallback, useMemo, useState, CSSProperties, useEffect } from 'react'
 
+import bridge from '@open-condo/bridge'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useIntl } from '@open-condo/next/intl'
 
@@ -66,6 +67,7 @@ export const ReceiptsTable: React.FC = () => {
         count: total,
         objs: receipts,
         error,
+        refetch,
     } = BillingReceiptForOrganization.useObjects({
         where: { ...filtersToWhere(filters), context: { id: contextId } },
         sortBy: sortersToSortBy(sorters) as SortBillingReceiptsBy[],
@@ -100,6 +102,16 @@ export const ReceiptsTable: React.FC = () => {
             setPeriod(dayjs(filtersPeriod as string))
         }
     }, [filters])
+
+    useEffect(() => {
+        const handleRedirect = async (event) => {
+            if (get(event, 'type') === 'condo-bridge') refetch()
+        }
+        bridge.subscribe(handleRedirect)
+        return () => {
+            bridge.unsubscribe(handleRedirect)
+        }
+    }, [refetch])
 
     const periodMetaSelect = useMemo(() => {
         return (
