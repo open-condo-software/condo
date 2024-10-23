@@ -5,12 +5,15 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { BILLING_RECEIPT_FILE_FOLDER_NAME } = require('@condo/domains/billing/constants/constants')
-const { BillingReceiptFile, BillingReceiptAdmin, BillingProperty } = require('@condo/domains/billing/utils/serverSchema')
+const { BillingReceiptFile, BillingReceipt, BillingProperty } = require('@condo/domains/billing/utils/serverSchema')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { BILLING_RECEIPT_FILE_ADDED_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 
+const BILLING_RECEIPT_FIELDS = 'id account { unitName unitType } property { id addressKey } file { id controlSum '
+    + 'sensitiveDataFile { id filename originalFilename publicUrl mimetype } '
+    + 'publicDataFile { id filename originalFilename publicUrl mimetype } }'
 const logger = getLogger('sendNewBillingReceiptFilesNotifications')
 const fileAdapter = new FileAdapter(BILLING_RECEIPT_FILE_FOLDER_NAME)
 
@@ -55,7 +58,9 @@ async function sendNewBillingReceiptFilesNotifications ({ organizationId, organi
             context: { organization: { id: organizationId } },
             createdAt_gte: watermark,
             deletedAt: null,
-        }, sortBy: 'createdAt_ASC',
+        },
+        sortBy: 'createdAt_ASC',
+        fields: 'id',
     })
 
     /**
@@ -66,11 +71,11 @@ async function sendNewBillingReceiptFilesNotifications ({ organizationId, organi
      */
     const sendMessagesCache = {}
     for (let billingReceiptFile of billingReceiptFiles) {
-        const receipt = await BillingReceiptAdmin.getOne(context, {
+        const receipt = await BillingReceipt.getOne(context, {
             file: { id: billingReceiptFile.id },
             period,
             deletedAt: null,
-        })
+        }, BILLING_RECEIPT_FIELDS)
 
         // no receipt for billing receipt file
         if (isNil(receipt)) {
@@ -82,7 +87,9 @@ async function sendNewBillingReceiptFilesNotifications ({ organizationId, organi
             account: { unitName, unitType },
             property: { id: billingPropertyId, addressKey },
         } = receipt
-        const billingProperty = await BillingProperty.getOne(context, { id: billingPropertyId })
+        const billingProperty = await BillingProperty.getOne(context, { id: billingPropertyId },
+            'id property { id address addressKey }'
+        )
 
         // check if no matching property exists
         if (isNil(get(billingProperty, ['property', 'id']))) {

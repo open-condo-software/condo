@@ -11,23 +11,7 @@ const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.ut
 const { find } = require('@open-condo/keystone/schema')
 
 const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants/payment')
-const { BillingIntegration: BillingIntegrationGQL } = require('@condo/domains/billing/gql')
-const { BillingIntegrationAccessRight: BillingIntegrationAccessRightGQL } = require('@condo/domains/billing/gql')
-const { BillingIntegrationOrganizationContext: BillingIntegrationOrganizationContextGQL } = require('@condo/domains/billing/gql')
-const { BillingIntegrationOrganizationContextForRegisterBillingReceiptsService: BillingIntegrationOrganizationContextForRegisterBillingReceiptsServiceGQL } = require('@condo/domains/billing/gql')
-const { BillingIntegrationProblem: BillingIntegrationProblemGQL } = require('@condo/domains/billing/gql')
-const { BillingProperty: BillingPropertyGQL } = require('@condo/domains/billing/gql')
-const { BillingAccount: BillingAccountGQL } = require('@condo/domains/billing/gql')
-const { BillingReceipt: BillingReceiptGQL } = require('@condo/domains/billing/gql')
-const { BillingReceiptAdmin: BillingReceiptAdminGQL } = require('@condo/domains/billing/gql')
-const { BillingReceiptIdOnly: BillingReceiptIdOnlyGQL } = require('@condo/domains/billing/gql')
-const { ResidentBillingReceipt: ResidentBillingReceiptGQL } = require('@condo/domains/billing/gql')
-const { ResidentBillingVirtualReceipt: ResidentBillingVirtualReceiptGQL } = require('@condo/domains/billing/gql')
-const { BillingRecipient: BillingRecipientGQL } = require('@condo/domains/billing/gql')
-const { BillingCategory: BillingCategoryGQL } = require('@condo/domains/billing/gql')
 const { REGISTER_BILLING_RECEIPTS_MUTATION } = require('@condo/domains/billing/gql')
-const { BillingReceiptFile: BillingReceiptFileGQL } = require('@condo/domains/billing/gql')
-const { BillingReceiptFileIdOnly: BillingReceiptFileIdOnlyGQL } = require('@condo/domains/billing/gql')
 const { VALIDATE_QRCODE_MUTATION } = require('@condo/domains/billing/gql')
 const { SEND_NEW_BILLING_RECEIPT_FILES_NOTIFICATIONS_MUTATION } = require('@condo/domains/billing/gql')
 const { REGISTER_BILLING_RECEIPT_FILE_MUTATION } = require('@condo/domains/billing/gql')
@@ -35,22 +19,16 @@ const { SUM_BILLING_RECEIPTS_QUERY } = require('@condo/domains/billing/gql')
 const { SEND_RESIDENT_MESSAGE_MUTATION } = require('@condo/domains/resident/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const BillingIntegration = generateServerUtils(BillingIntegrationGQL)
-const BillingIntegrationAccessRight = generateServerUtils(BillingIntegrationAccessRightGQL)
-const BillingIntegrationOrganizationContext = generateServerUtils(BillingIntegrationOrganizationContextGQL)
-const BillingIntegrationOrganizationContextForRegisterBillingReceiptsService = generateServerUtils(BillingIntegrationOrganizationContextForRegisterBillingReceiptsServiceGQL)
-const BillingIntegrationProblem = generateServerUtils(BillingIntegrationProblemGQL)
-const BillingProperty = generateServerUtils(BillingPropertyGQL)
-const BillingAccount = generateServerUtils(BillingAccountGQL)
-const BillingReceipt = generateServerUtils(BillingReceiptGQL)
-const BillingReceiptAdmin = generateServerUtils(BillingReceiptAdminGQL)
-const BillingReceiptIdOnly = generateServerUtils(BillingReceiptIdOnlyGQL)
-const ResidentBillingReceipt = generateServerUtils(ResidentBillingReceiptGQL)
-const ResidentBillingVirtualReceipt = generateServerUtils(ResidentBillingVirtualReceiptGQL)
-const BillingRecipient = generateServerUtils(BillingRecipientGQL)
-const BillingCategory = generateServerUtils(BillingCategoryGQL)
-const BillingReceiptFile = generateServerUtils(BillingReceiptFileGQL)
-const BillingReceiptFileIdOnly = generateServerUtils(BillingReceiptFileIdOnlyGQL)
+const BillingIntegration = generateServerUtils('BillingIntegration')
+const BillingIntegrationAccessRight = generateServerUtils('BillingIntegrationAccessRight')
+const BillingIntegrationOrganizationContext = generateServerUtils('BillingIntegrationOrganizationContext')
+const BillingIntegrationProblem = generateServerUtils('BillingIntegrationProblem')
+const BillingProperty = generateServerUtils('BillingProperty')
+const BillingAccount = generateServerUtils('BillingAccount')
+const BillingReceipt = generateServerUtils('BillingReceipt')
+const BillingRecipient = generateServerUtils('BillingRecipient')
+const BillingCategory = generateServerUtils('BillingCategory')
+const BillingReceiptFile = generateServerUtils('BillingReceiptFile')
 
 async function registerBillingReceipts (context, data) {
     if (!context) throw new Error('no context')
@@ -157,22 +135,16 @@ module.exports = {
     BillingIntegration,
     BillingIntegrationAccessRight,
     BillingIntegrationOrganizationContext,
-    BillingIntegrationOrganizationContextForRegisterBillingReceiptsService,
     BillingIntegrationProblem,
     BillingProperty,
     BillingAccount,
     BillingReceipt,
-    BillingReceiptAdmin,
-    BillingReceiptIdOnly,
-    ResidentBillingReceipt,
-    ResidentBillingVirtualReceipt,
     BillingRecipient,
     BillingCategory,
     registerBillingReceipts,
     getPaymentsSum,
     sendNewReceiptMessagesToResidentScopes,
     BillingReceiptFile,
-    BillingReceiptFileIdOnly,
     validateQRCode,
     sendNewBillingReceiptFilesNotifications,
     sumBillingReceipts,

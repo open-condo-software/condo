@@ -131,11 +131,9 @@ async function getAllReadyToPayRecurrentPaymentContexts (context, date, pageSize
             deletedAt: null,
             ...triggerCondition,
             ...extraArgs,
-        }, {
-            sortBy: 'id_ASC',
-            first: pageSize,
-            skip: offset,
-        }
+        },
+        'id serviceConsumer { id } billingCategory { id } enabled paymentDay autoPayReceipts',
+        { sortBy: 'id_ASC', first: pageSize, skip: offset }
     )
 }
 
@@ -192,7 +190,7 @@ async function getReceiptsForServiceConsumer (context, date, serviceConsumer, bi
         ...periodCondition,
         ...extraArgs,
         deletedAt: null,
-    })
+    }, 'id period toPay account { id number } receiver { id } category { id } ')
 
     // let's create a map for receipt concatenated identifiers -> receipt
     // in order to deduplicate same receipts for different periods
@@ -234,7 +232,7 @@ async function filterPaidBillingReceipts (context, billingReceipts) {
             id_in: billingReceipts.map(receipt => receipt.id),
         },
         status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS],
-    })
+    }, 'id receipt { id }')
 
     // map to receipt ids
     const payedBillIds = payments.map(payment => payment.receipt.id)
@@ -249,7 +247,7 @@ async function filterPaidBillingReceipts (context, billingReceipts) {
         id_in: notPaidBillsIds,
         toPay_gt: '0',
         deletedAt: null,
-    })
+    }, 'id toPay category { id }')
 }
 
 async function isLimitExceedForBillingReceipts (context, recurrentPaymentContext, billingReceipts) {
@@ -290,11 +288,10 @@ async function getReadyForProcessingPaymentsPage (context, pageSize, offset, ext
         createdAt_gte: dayjs().add(-7, 'day').toISOString(), // just to not get paginated over older payments
         deletedAt: null,
         ...extraArgs,
-    }, {
-        sortBy: 'id_ASC',
-        first: pageSize,
-        skip: offset,
-    })
+    },
+    'id status tryCount billingReceipts { id } recurrentPaymentContext { id }',
+    { sortBy: 'id_ASC', first: pageSize, skip: offset },
+    )
 }
 
 async function filterNotPayablePayment (recurrentPayments) {
@@ -321,7 +318,7 @@ async function registerMultiPayment (context, recurrentPayment) {
     const recurrentContext = await RecurrentPaymentContext.getOne(context, {
         id: recurrentPaymentContextId,
         deletedAt: null,
-    })
+    }, 'id enabled serviceConsumer { id } limit')
 
     // validate context
     if (!recurrentContext) {
@@ -400,7 +397,7 @@ async function registerMultiPayment (context, recurrentPayment) {
     // get multi payment
     const multiPayment = await MultiPayment.getOne(context, {
         id: registerResponse.multiPaymentId,
-    })
+    }, 'id amount')
 
     // check limits for recurrent context
     // in case if limit is set up
@@ -450,7 +447,9 @@ async function sendResultMessageSafely (context, recurrentPayment, success, erro
                 id: serviceConsumerId,
                 resident: { id: residentId, user: { id: userId } },
             },
-        } = await RecurrentPaymentContext.getOne(context, { id: recurrentContextId })
+        } = await RecurrentPaymentContext.getOne(context, { id: recurrentContextId },
+            'serviceConsumer { id resident { id user { id } } }',
+        )
 
         await sendMessage(context, {
             ...dvAndSender,
@@ -485,7 +484,9 @@ async function sendTomorrowPaymentNotificationSafely (context, recurrentPaymentC
                 id: serviceConsumerId,
                 resident: { id: residentId, user: { id: userId } },
             },
-        } = await RecurrentPaymentContext.getOne(context, { id: recurrentPaymentContext.id })
+        } = await RecurrentPaymentContext.getOne(context, { id: recurrentPaymentContext.id },
+            'serviceConsumer { id resident { id user { id } } }',
+        )
 
         // get trigger identifier
         const recurrentPaymentId = get(recurrentPayment, 'id')
@@ -523,7 +524,9 @@ async function sendTomorrowPaymentNoReceiptsNotificationSafely (context, recurre
                 id: serviceConsumerId,
                 resident: { id: residentId, user: { id: userId } },
             },
-        } = await RecurrentPaymentContext.getOne(context, { id: recurrentPaymentContext.id })
+        } = await RecurrentPaymentContext.getOne(context, { id: recurrentPaymentContext.id },
+            'serviceConsumer { id resident { id user { id } } }',
+        )
 
         // create unique key and send message
         const uniqKey = `rp_tpnr_${recurrentPaymentContext.id}_${dayjs().format('YYYY-MM-DD')}`
@@ -558,7 +561,9 @@ async function sendTomorrowPaymentLimitExceedNotificationSafely (context, recurr
                 id: serviceConsumerId,
                 resident: { id: residentId, user: { id: userId } },
             },
-        } = await RecurrentPaymentContext.getOne(context, { id: recurrentPaymentContext.id })
+        } = await RecurrentPaymentContext.getOne(context, { id: recurrentPaymentContext.id },
+            'serviceConsumer { id resident { id user { id } } }',
+        )
 
         // create unique key and send message
         const uniqKey = `rp_tple_${recurrentPaymentContext.id}_${dayjs().format('YYYY-MM-DD')}`
@@ -593,7 +598,9 @@ async function sendNoReceiptsToProceedNotificationSafely (context, recurrentPaym
                 id: serviceConsumerId,
                 resident: { id: residentId, user: { id: userId } },
             },
-        } = await RecurrentPaymentContext.getOne(context, { id: recurrentPaymentContext.id })
+        } = await RecurrentPaymentContext.getOne(context, { id: recurrentPaymentContext.id },
+            'serviceConsumer { id resident { id user { id } } }',
+        )
 
         // create unique key and send message
         const uniqKey = `rp_nrtp_${recurrentPaymentContext.id}_${dayjs().format('YYYY-MM-DD')}`

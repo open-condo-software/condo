@@ -36,7 +36,7 @@ const BANK_TRANSACTION_FIELDS = `{ account { id number } contractorAccount { id 
 const BankTransaction = generateGqlQueries('BankTransaction', BANK_TRANSACTION_FIELDS)
 
 const BANK_SYNC_TASK_OPTIONS_FIELDS = 'type dateFrom dateTo'
-const BANK_SYNC_TASK_FIELDS = `{ account { id } integrationContext { id } organization { id } property { id } status file { id originalFilename publicUrl mimetype } user { id } totalCount processedCount options {${BANK_SYNC_TASK_OPTIONS_FIELDS}} meta ${COMMON_FIELDS} }`
+const BANK_SYNC_TASK_FIELDS = `{ account { id } integrationContext { id } organization { id } property { id } status file { id originalFilename publicUrl mimetype } user { id } totalCount processedCount options { ${BANK_SYNC_TASK_OPTIONS_FIELDS} } meta ${COMMON_FIELDS} }`
 const BankSyncTask = generateGqlQueries('BankSyncTask', BANK_SYNC_TASK_FIELDS)
 
 const BANK_INTEGRATION_ACCESS_RIGHT_FIELDS = `{ integration { id } user { id } ${COMMON_FIELDS} }`

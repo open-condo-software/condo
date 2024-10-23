@@ -93,12 +93,17 @@ const validateAndNormalizeData = async (context, data) => {
     if (isEmpty(scopes)) throw new GQLError(ERRORS.SCOPES_IS_EMPTY, context)
 
     /** Validate category id */
-    const categoryData = await BillingCategory.getOne(context, { id: category.id, deletedAt: null })
+    const categoryData = await BillingCategory.getOne(context, { id: category.id, deletedAt: null },
+        'id name nameNonLocalized',
+    )
 
     if (isEmpty(categoryData)) throw new GQLError(ERRORS.INVALID_BILLING_CATEGORY_PROVIDED, context)
 
     /** Validate billing context id */
-    const contextData = await BillingIntegrationOrganizationContext.getOne(context, { id: billingIntegrationContext.id, deletedAt: null, status: CONTEXT_FINISHED_STATUS })
+    const contextData = await BillingIntegrationOrganizationContext.getOne(
+        context, { id: billingIntegrationContext.id, deletedAt: null, status: CONTEXT_FINISHED_STATUS },
+        'id organization { id }'
+    )
     const organizationId = get(contextData, 'organization.id')
 
     /** Validate organization id */
@@ -108,7 +113,10 @@ const validateAndNormalizeData = async (context, data) => {
     const billingPropertyIds = scopes.map(scope => scope.billingProperty.id)
     const uniqBillingPropertyIds = uniq(compact(billingPropertyIds))
     const billingPropertiesWhere = { context: { id: billingIntegrationContext.id }, id_in: uniqBillingPropertyIds, deletedAt: null }
-    const billingProperties = await loadListByChunks({ context, list: BillingProperty, where: billingPropertiesWhere })
+    const billingProperties = await loadListByChunks({
+        context, list: BillingProperty, where: billingPropertiesWhere,
+        fields: 'id address addressKey',
+    })
     const loadedBillingPropertyIds = billingProperties.map(billingProperty => billingProperty.id)
     const loadedBillingPropertyUniqIds = uniq(compact(loadedBillingPropertyIds))
     const propertiesMapping = {}

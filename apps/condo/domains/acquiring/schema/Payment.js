@@ -334,14 +334,14 @@ const Payment = new GQLListSchema('Payment', {
                     const receipt = await getById('BillingReceipt', resolvedData['receipt'])
                     const billingContext = await getById('BillingIntegrationOrganizationContext', receipt.context)
                     const billingIntegration = await getById('BillingIntegration', billingContext.integration)
-                    const acquiringContexts = await AcquiringIntegrationContext.getAll(context, {
+                    const acquiringContextsCount = await AcquiringIntegrationContext.count(context, {
                         id: resolvedData['context'],
                         integration: {
                             supportedBillingIntegrationsGroup: billingIntegration.group,
                         },
                         organization: { id: resolvedData['organization'] },
                     })
-                    if (!acquiringContexts.length) {
+                    if (!acquiringContextsCount) {
                         return addValidationError(PAYMENT_NO_SUPPORTED_CONTEXT)
                     }
                     if (get(receipt, ['recipient', 'bic']) !== resolvedData['recipientBic']

@@ -23,7 +23,7 @@ const {
 } = require('@condo/domains/billing/schema/resolvers')
 const { buildLastReportForBillingContext } = require('@condo/domains/billing/schema/resolvers/utils')
 const {
-    BillingIntegrationOrganizationContextForRegisterBillingReceiptsService: BillingContextApi,
+    BillingIntegrationOrganizationContext: BillingContextApi,
 } = require('@condo/domains/billing/utils/serverSchema')
 
 const appLogger = getLogger('condo')
@@ -109,7 +109,9 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     throw new GQLError(ERRORS.RECEIPTS_LIMIT_HIT, context)
                 }
                 const { id: billingContextId } = billingContextInput
-                const billingContext = await BillingContextApi.getOne(context, { id: billingContextId })
+                const billingContext = await BillingContextApi.getOne(context, { id: billingContextId },
+                    'id organization { id tin name country type } settings lastReport'
+                )
                 if (!billingContextId || !billingContext) {
                     throw new GQLError(ERRORS.BILLING_CONTEXT_NOT_FOUND, context)
                 }

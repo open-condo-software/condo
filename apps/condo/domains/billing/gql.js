@@ -19,9 +19,7 @@ const BILLING_INTEGRATION_ACCESS_RIGHT_FIELDS = `{ integration { id name } user 
 const BillingIntegrationAccessRight = generateGqlQueries('BillingIntegrationAccessRight', BILLING_INTEGRATION_ACCESS_RIGHT_FIELDS)
 
 const BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS = `{ integration { id name appUrl checkAccountNumberUrl billingPageTitle setupUrl instruction instructionExtraLink connectedMessage uploadUrl uploadMessage extendsBillingPage billingPageTitle currencyCode dataFormat ${BILLING_INTEGRATION_DATA_FORMAT_FIELDS} skipNoAccountNotifications } organization { id tin name country type } settings state status lastReport currentProblem { id title message } ${COMMON_FIELDS} }`
-const BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FOR_REGISTER_BILLING_RECEIPTS_SERVICE_FIELDS = '{ id organization { id tin name country type } settings lastReport }'
 const BillingIntegrationOrganizationContext = generateGqlQueries('BillingIntegrationOrganizationContext', BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS)
-const BillingIntegrationOrganizationContextForRegisterBillingReceiptsService = generateGqlQueries('BillingIntegrationOrganizationContext', BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FOR_REGISTER_BILLING_RECEIPTS_SERVICE_FIELDS)
 
 const BILLING_INTEGRATION_PROBLEM_FIELDS = `{ context { id } title message meta ${COMMON_FIELDS} }`
 const BillingIntegrationProblem = generateGqlQueries('BillingIntegrationProblem', BILLING_INTEGRATION_PROBLEM_FIELDS)
@@ -48,7 +46,6 @@ const BILLING_RECEIPT_ADMIN_FIELDS = `{ ${BILLING_RECEIPT_COMMON_FIELDS} file { 
 
 const BillingReceipt = generateGqlQueries('BillingReceipt', BILLING_RECEIPT_FIELDS)
 const BillingReceiptAdmin = generateGqlQueries('BillingReceipt', BILLING_RECEIPT_ADMIN_FIELDS)
-const BillingReceiptIdOnly = generateGqlQueries('BillingReceipt', '{ id }')
 
 const RESIDENT_BILLING_RECEIPTS_FIELDS = `{ id ${BILLING_RECEIPT_RECIPIENT_FIELDS} period toPay paid toPayDetails { ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS} } ${BILLING_RECEIPT_SERVICE_FIELDS} printableNumber serviceConsumer { id paymentCategory } currencyCode category { id name } isPayable file { file { id originalFilename publicUrl mimetype } controlSum } updatedAt }`
 const ResidentBillingReceipt = generateGqlQueries('ResidentBillingReceipt', RESIDENT_BILLING_RECEIPTS_FIELDS)
@@ -70,7 +67,6 @@ const BillingReceiptForOrganization = generateGqlQueries('BillingReceipt', `{
 
 const BILLING_RECEIPT_FILE_FIELDS = `{ file { id originalFilename publicUrl mimetype } context { id } receipt { id } controlSum ${COMMON_FIELDS} }`
 const BillingReceiptFile = generateGqlQueries('BillingReceiptFile', BILLING_RECEIPT_FILE_FIELDS)
-const BillingReceiptFileIdOnly = generateGqlQueries('BillingReceiptFile', '{ id }')
 
 const REGISTER_BILLING_RECEIPTS_MUTATION = gql`
     mutation registerBillingReceipts ($data: RegisterBillingReceiptsInput!) {
@@ -116,13 +112,11 @@ module.exports = {
     BillingIntegration,
     BillingIntegrationAccessRight,
     BillingIntegrationOrganizationContext,
-    BillingIntegrationOrganizationContextForRegisterBillingReceiptsService,
     BillingIntegrationProblem,
     BillingProperty,
     BillingAccount,
     BillingReceipt,
     BillingReceiptAdmin,
-    BillingReceiptIdOnly,
     BillingReceiptForOrganization,
     ResidentBillingReceipt,
     ResidentBillingVirtualReceipt,
@@ -133,10 +127,10 @@ module.exports = {
 
     SEND_NEW_RECEIPT_MESSAGES_TO_RESIDENT_SCOPES_MUTATION,
     BillingReceiptFile,
-    BillingReceiptFileIdOnly,
     VALIDATE_QRCODE_MUTATION,
     SEND_NEW_BILLING_RECEIPT_FILES_NOTIFICATIONS_MUTATION,
     SUM_BILLING_RECEIPTS_QUERY,
     REGISTER_BILLING_RECEIPT_FILE_MUTATION,
+    BILLING_RECEIPT_COMMON_FIELDS,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

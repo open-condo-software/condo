@@ -17,7 +17,7 @@ const {
     REGISTER_BILLING_RECEIPT_FILE_SKIPPED_STATUS,
     REGISTER_BILLING_RECEIPT_FILE_STATUSES,
 } = require('@condo/domains/billing/constants')
-const { BillingReceiptFileIdOnly } = require('@condo/domains/billing/utils/serverSchema')
+const { BillingReceiptFile } = require('@condo/domains/billing/utils/serverSchema')
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const { md5 } = require('@condo/domains/common/utils/crypto')
 const { buildUploadInputFrom } = require('@condo/domains/common/utils/serverSchema/export')
@@ -102,7 +102,7 @@ const RegisterBillingReceiptFileService = new GQLCustomSchema('RegisterBillingRe
                 })
 
                 if (!receiptFile) {
-                    const { id } = await BillingReceiptFileIdOnly.create(context, {
+                    const { id } = await BillingReceiptFile.create(context, {
                         dv, sender,
                         sensitiveDataFile,
                         ...controlSumInput,
@@ -112,7 +112,7 @@ const RegisterBillingReceiptFileService = new GQLCustomSchema('RegisterBillingRe
 
                     return { id, status: REGISTER_BILLING_RECEIPT_FILE_CREATED_STATUS }
                 } else {
-                    await BillingReceiptFileIdOnly.update(context, receiptFile.id, {
+                    await BillingReceiptFile.update(context, receiptFile.id, {
                         dv, sender,
                         sensitiveDataFile,
                         ...controlSumInput,

@@ -108,11 +108,12 @@ const AllResidentBillingVirtualReceiptsService = new GQLCustomSchema('AllResiden
                     const serviceConsumerPayments = await Payment.getAll(
                         context,
                         paymentWhere,
+                        'id period amount explicitFee accountNumber currencyCode',
                         { sortBy, first, skip }
                     )
                     const acquiringContext = await AcquiringIntegrationContext.getOne(context, {
                         id: serviceConsumer.acquiringIntegrationContext,
-                    })
+                    }, 'recipient { bic bankAccount iec tin }')
 
                     // compose it for future mapping
                     payments.push(...serviceConsumerPayments.map(payment => ({
@@ -123,7 +124,9 @@ const AllResidentBillingVirtualReceiptsService = new GQLCustomSchema('AllResiden
                 }
 
                 // map payment to ResidentBillingReceiptOutput model
-                const category = await BillingCategory.getOne(context, { id: DEFAULT_BILLING_CATEGORY_ID })
+                const category = await BillingCategory.getOne(context, { id: DEFAULT_BILLING_CATEGORY_ID },
+                    'id name nameNonLocalized'
+                )
                 return payments.map(payment => ({
                     dv: 1,
                     recipient: get(payment, ['acquiringContext', 'recipient']),

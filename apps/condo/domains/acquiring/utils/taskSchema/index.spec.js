@@ -473,7 +473,7 @@ describe('task schema queries', () => {
             const today = dayjs(period).date(15)
 
             // delete the second billingReceipt
-            await BillingReceipt.softDelete(adminContext, batch.billingReceipts[1].id, dvAndSender)
+            await BillingReceipt.softDelete(adminContext, batch.billingReceipts[1].id, 'id', dvAndSender)
 
             // get receipts
             const receipts = await getReceiptsForServiceConsumer(adminContext, today, serviceConsumer, category)
@@ -526,7 +526,7 @@ describe('task schema queries', () => {
             } = batch
 
             // delete the second billingReceipt
-            await BillingReceipt.softDelete(adminContext, batch.billingReceipts[1].id, dvAndSender)
+            await BillingReceipt.softDelete(adminContext, batch.billingReceipts[1].id, 'id', dvAndSender)
 
             // get receipts
             const receipts = await filterPaidBillingReceipts(adminContext, billingReceipts)
@@ -579,7 +579,7 @@ describe('task schema queries', () => {
                 multiPayment: {
                     id: result.multiPaymentId,
                 },
-            })
+            }, 'id receipt { id }')
             expect(payments).toBeDefined()
             expect(payments).toHaveLength(billingReceipts.length)
 
@@ -618,7 +618,7 @@ describe('task schema queries', () => {
                 multiPayment: {
                     id: result.multiPaymentId,
                 },
-            })
+            }, 'id receipt { id }')
             expect(payments).toBeDefined()
             expect(payments).toHaveLength(billingReceipts.length)
 
@@ -662,7 +662,7 @@ describe('task schema queries', () => {
                 multiPayment: {
                     id: result.multiPaymentId,
                 },
-            })
+            }, 'id receipt { id }')
             expect(payments).toBeDefined()
             expect(payments).toHaveLength(billingReceipts.length)
 
