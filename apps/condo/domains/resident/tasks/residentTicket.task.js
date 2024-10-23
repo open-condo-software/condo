@@ -18,14 +18,14 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
  * @returns {Promise<void>}
  */
 async function manageResidentToPropertyAndOrganizationConnections (address, dv, sender) {
-    const { keystone: context } = await getSchemaCtx('Property')
+    const { keystone: context } = getSchemaCtx('Property')
 
     //  get oldest non-deleted property with same address
     const [oldestProperty] = await PropertyAPI.getAll(context, {
         address_i: address,
         deletedAt: null,
         organization: { type: MANAGING_COMPANY_TYPE },
-    }, {
+    }, 'id', {
         sortBy: ['isApproved_DESC', 'createdAt_ASC'], // sorting order is essential here
         first: 1,
     })
@@ -35,7 +35,7 @@ async function manageResidentToPropertyAndOrganizationConnections (address, dv, 
             address_i: address,
             deletedAt: null,
             property: { OR: [{ id_not: oldestProperty.id }, { id: null }] },
-        })
+        }, 'id property { id }')
 
         // Disconnect residents before reconnecting
         await disconnectResidents(context, residents, dv, sender)
@@ -46,7 +46,7 @@ async function manageResidentToPropertyAndOrganizationConnections (address, dv, 
         const residents = await ResidentAPI.getAll(context, {
             address_i: address,
             deletedAt: null,
-        })
+        }, 'id property { id }')
 
         // We have no non-deleted properties with such address
         // All residents with such address should be disconnected
@@ -65,7 +65,7 @@ async function manageResidentToPropertyAndOrganizationConnections (address, dv, 
  * @returns {Promise<void>}
  */
 async function manageResidentToTicketClientConnections (propertyId, unitType, unitName, userId, dv, sender) {
-    const { keystone } = await getSchemaCtx('Message')
+    const { keystone } = getSchemaCtx('Message')
 
     const residentUser = await getById('User', userId)
     const residentUserPhone = get(residentUser, 'phone', null)

@@ -327,7 +327,7 @@ describe('task schema queries', () => {
         it('should throw error for deleted consumer', async () => {
             const anotherServiceConsumerClient = await makeClientWithServiceConsumer()
             const serviceConsumerId = anotherServiceConsumerClient.serviceConsumer.id
-            await ServiceConsumer.softDelete(adminContext, serviceConsumerId, dvAndSender)
+            await ServiceConsumer.softDelete(adminContext, serviceConsumerId, 'id', dvAndSender)
 
             await catchErrorFrom(async () => {
                 await getServiceConsumer(adminContext, serviceConsumerId)

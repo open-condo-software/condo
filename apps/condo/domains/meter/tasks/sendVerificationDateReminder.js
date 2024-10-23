@@ -62,6 +62,7 @@ const joinResidentsToMeters = async ({ context, meters }) => {
             accountNumber_in: accountNumbers,
             deletedAt: null,
         },
+        fields: 'id resident { id } accountNumber organization { id }',
     })
 
     // second step is to get all resident ids
@@ -75,6 +76,7 @@ const joinResidentsToMeters = async ({ context, meters }) => {
             id_in: residentsIds,
             deletedAt: null,
         },
+        fields: 'id unitName unitType user { id }',
     })
 
     // next step - connect residents to services consumers

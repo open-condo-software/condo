@@ -285,7 +285,7 @@ const Resident = new GQLListSchema('Resident', {
                     unitType,
                     user: { id: userId },
                     deletedAt: null,
-                }, {
+                }, 'id', {
                     first: 1,
                 })
                 if (resident) {

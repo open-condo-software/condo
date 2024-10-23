@@ -11,8 +11,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 
 const { REGISTER_RESIDENT_MUTATION } = require('@condo/domains/property/gql')
 const { SUGGEST_SERVICE_PROVIDER_QUERY } = require('@condo/domains/resident/gql')
-const { Resident: ResidentGQL, REGISTER_RESIDENT_INVOICE_MUTATION } = require('@condo/domains/resident/gql')
-const { ServiceConsumer: ServiceConsumerGQL } = require('@condo/domains/resident/gql')
+const { REGISTER_RESIDENT_INVOICE_MUTATION } = require('@condo/domains/resident/gql')
 const { REGISTER_CONSUMER_SERVICE_MUTATION } = require('@condo/domains/resident/gql')
 const { SEND_MESSAGE_TO_RESIDENT_SCOPES_MUTATION } = require('@condo/domains/resident/gql')
 const { DISCOVER_SERVICE_CONSUMERS_MUTATION } = require('@condo/domains/resident/gql')
@@ -21,7 +20,8 @@ const { FIND_ORGANIZATIONS_BY_ADDRESS_QUERY } = require('@condo/domains/resident
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const logger = getLogger('resident/serverSchema')
-const Resident = generateServerUtils(ResidentGQL)
+
+const Resident = generateServerUtils('Resident')
 
 async function registerResident (context, data) {
     if (!context) throw new Error('no context')
@@ -36,7 +36,7 @@ async function registerResident (context, data) {
     })
 }
 
-const ServiceConsumer = generateServerUtils(ServiceConsumerGQL)
+const ServiceConsumer = generateServerUtils('ServiceConsumer')
 
 async function registerConsumerService (context, data) {
     if (!context) throw new Error('no context')
