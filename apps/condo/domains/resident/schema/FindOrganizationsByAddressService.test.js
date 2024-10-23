@@ -16,11 +16,13 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { createTestAcquiringIntegrationContext, createTestAcquiringIntegration } = require('@condo/domains/acquiring/utils/testSchema')
 const { HOUSING_CATEGORY_ID, REPAIR_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
 const {
     ONLINE_INTERACTION_CHECK_ACCOUNT_NOT_FOUND_STATUS,
     ONLINE_INTERACTION_CHECK_ACCOUNT_SUCCESS_STATUS,
 } = require('@condo/domains/billing/constants/onlineInteraction')
+const { createTestBillingIntegrationOrganizationContext, createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
 const {
     TestUtils,
     ResidentTestMixin,
@@ -30,14 +32,12 @@ const { DISABLE_DISCOVER_SERVICE_CONSUMERS } = require('@condo/domains/common/co
 const {
     CALL_METER_READING_SOURCE_ID,
 } = require('@condo/domains/meter/constants/constants')
+const { COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const { createTestMeterReading, MeterReadingSource } = require('@condo/domains/meter/utils/testSchema')
+const { createTestMeterResourceOwner } = require('@condo/domains/meter/utils/testSchema')
+const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { findOrganizationsByAddressByTestClient } = require('@condo/domains/resident/utils/testSchema')
-
-const { createTestAcquiringIntegrationContext, createTestAcquiringIntegration } = require('../../acquiring/utils/testSchema')
-const { createTestBillingIntegrationOrganizationContext, createTestBillingIntegration } = require('../../billing/utils/testSchema')
-const { COLD_WATER_METER_RESOURCE_ID } = require('../../meter/constants/constants')
-const { createTestOrganization } = require('../../organization/utils/testSchema')
-const { createTestProperty } = require('../../property/utils/testSchema')
 
 function getOnlyResourceMeterTest (resource) {
     return {
@@ -68,12 +68,46 @@ describe('FindOrganizationsByAddress', () => {
     })
 
     describe('Unified flow', () => {
+        describe('General behaviour', () => {
+            test('Should not return organization if acquiring context is not in finished status', async () => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
+                const [foundOrganizationsOnFinishedContext] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                    addressKey: utils.property.addressKey,
+                })
+                const foundForFinishedContext = foundOrganizationsOnFinishedContext.find(({ id }) => id === utils.organization.id)
+                expect(foundForFinishedContext).not.toBeUndefined()
+                await utils.updateAcquiringContext({ status: CONTEXT_IN_PROGRESS_STATUS })
+                const [foundOrganizationsOnInProgressContext] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                    addressKey: utils.property.addressKey,
+                })
+                const foundForInProgressContext = foundOrganizationsOnInProgressContext.find(({ id }) => id === utils.organization.id)
+                expect(foundForInProgressContext).toBeUndefined()
+            })
+        
+            test('Should return empty array if no properties', async () => {
+                const wrongAddressKey = faker.datatype.uuid()
+                const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                    addressKey: wrongAddressKey,
+                })
+                expect(foundOrganizations).toHaveLength(0)
+            })
+
+            test('Should return empty array if no meters and acquiring', async () => {
+                const [organization] = await createTestOrganization(utils.clients.admin)
+                const [property] = await createTestProperty(utils.clients.admin, organization)
+                const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                    addressKey: property.addressKey,
+                })
+                expect(foundOrganizations).toHaveLength(0)
+            })
+        })
+
         describe('addressKey', () => {
             test('Should return organization', async () => {
                 const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
                     addressKey: utils.property.addressKey,
                 })
-                console.log(foundOrganizations)
                 const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
                 expect(found.meters).toBeNull()
                 expect(found.receipts).toBeNull()
@@ -84,6 +118,8 @@ describe('FindOrganizationsByAddress', () => {
             })
 
             test('Should return organization and receipt category', async () => {
+                const utils = new TestUtils([ResidentTestMixin, MeterTestMixin])
+                await utils.init()
                 await utils.createReceipts([
                     utils.createJSONReceipt({
                         address: utils.property.address,
@@ -94,7 +130,6 @@ describe('FindOrganizationsByAddress', () => {
                     addressKey: utils.property.addressKey,
                 })
                 console.log(foundOrganizations)
-
                 const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
                 expect(found.meters).toBeNull()
                 expect(found.receipts).toContainEqual(getOnlyCategoryReceiptTest(HOUSING_CATEGORY_ID))
@@ -105,18 +140,22 @@ describe('FindOrganizationsByAddress', () => {
             })
 
             test('Should return organization and meter resource', async () => {
-                await utils.createMeter({ resource: COLD_WATER_METER_RESOURCE_ID })
-                const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
-                    addressKey: utils.property.addressKey,
+                const [organization] = await createTestOrganization(utils.clients.admin)
+                const [property] = await createTestProperty(utils.clients.admin, organization)
+                const [meter] = await utils.createMeter({ resource: COLD_WATER_METER_RESOURCE_ID })
+                await createTestMeterResourceOwner(utils.clients.admin, organization, meter.resource, {
+                    address: property.address,
                 })
-                const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
-                console.log(found)
+                const [foundOrganizations] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
+                    addressKey: property.addressKey,
+                })
+                const found = foundOrganizations.find(({ id }) => id === organization.id)
                 expect(found.receipts).toBeNull()
                 expect(found.meters).toContainEqual(getOnlyResourceMeterTest(COLD_WATER_METER_RESOURCE_ID))
-                expect(found.id).toEqual(utils.organization.id)
-                expect(found.name).toEqual(utils.organization.name)
-                expect(found.tin).toEqual(utils.organization.tin)
-                expect(found.type).toEqual(utils.organization.type)
+                expect(found.id).toEqual(organization.id)
+                expect(found.name).toEqual(organization.name)
+                expect(found.tin).toEqual(organization.tin)
+                expect(found.type).toEqual(organization.type)
             })
 
             test('Should return several organizations', async () => {
@@ -203,15 +242,8 @@ describe('FindOrganizationsByAddress', () => {
                     unitType,
                 })
                 const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
-                console.log(found)
                 expect(found.receipts).toHaveLength(2)
-                expect(found.receipts).toContainEqual({
-                    number: null,
-                    category: HOUSING_CATEGORY_ID,
-                    balance: null,
-                    routingNumber: null,
-                    bankAccount: null,
-                })
+                expect(found.receipts).toContainEqual(getOnlyCategoryReceiptTest(HOUSING_CATEGORY_ID))
                 expect(found.receipts).toContainEqual({
                     number: accountNumber1,
                     category: REPAIR_CATEGORY_ID,
@@ -252,6 +284,7 @@ describe('FindOrganizationsByAddress', () => {
 
         describe('addressKey tin accountNumber', () => {
             describe('Online interaction', () => {
+                // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
                 const app = express()
                 const apiHandler = jest.fn()
                 const CHECK_URL_PATH = '/check-account-number'
@@ -398,7 +431,6 @@ describe('FindOrganizationsByAddress', () => {
                     tin: utils.organization.tin,
                 })
                 const found = foundOrganizations.find(({ id }) => id === utils.organization.id)
-                console.log(found)
                 expect(found.receipts).toBeNull()
                 expect(found.meters[0]).toMatchObject({
                     resource: expect.any(String),
@@ -411,28 +443,6 @@ describe('FindOrganizationsByAddress', () => {
                 expect(found.tin).toEqual(utils.organization.tin)
                 expect(found.type).toEqual(utils.organization.type)
             })
-        })
-    })
-
-    describe('Context statuses', () => {
-
-        afterEach(async () => {
-            await utils.updateBillingContext({ status: CONTEXT_FINISHED_STATUS })
-            await utils.updateAcquiringContext({ status: CONTEXT_FINISHED_STATUS })
-        })
-
-        test('Should not return organization if billing context is not in finished status', async () => {
-            const [foundOrganizationsOnFinishedContext] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
-                addressKey: utils.property.addressKey,
-            })
-            const foundForFinishedContext = foundOrganizationsOnFinishedContext.find(({ id }) => id === utils.organization.id)
-            expect(foundForFinishedContext).not.toBeUndefined()
-            await utils.updateBillingContext({ status: CONTEXT_IN_PROGRESS_STATUS })
-            const [foundOrganizationsOnInProgressContext] = await findOrganizationsByAddressByTestClient(utils.clients.resident, {
-                addressKey: utils.property.addressKey,
-            })
-            const foundForInProgressContext = foundOrganizationsOnInProgressContext.find(({ id }) => id === utils.organization.id)
-            expect(foundForInProgressContext).toBeUndefined()
         })
     })
 
@@ -484,5 +494,4 @@ describe('FindOrganizationsByAddress', () => {
             expect(organizations).not.toHaveLength(0)
         })
     })
-
 })
