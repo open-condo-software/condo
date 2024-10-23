@@ -1,9 +1,6 @@
 import {
     BuildingUnitSubType,
     Ticket,
-    TicketCategoryClassifier as TicketCategoryClassifierType,
-    TicketSource as TicketSourceType,
-    TicketStatus as TicketStatusType,
     TicketWhereInput,
 } from '@app/condo/schema'
 import get from 'lodash/get'
@@ -138,12 +135,12 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
     const { user } = useAuth()
 
     const { objs: statuses } = TicketStatus.useObjects({})
-    const statusOptions = useMemo(() => convertToOptions<TicketStatusType>(statuses, 'name', 'type'), [statuses])
+    const statusOptions = useMemo(() => convertToOptions(statuses, 'name', 'type'), [statuses])
 
     const { objs: sources } = TicketSource.useObjects({
         where: { type_in: VISIBLE_TICKET_SOURCE_TYPES },
     })
-    const sourceOptions = useMemo(() => convertToOptions<TicketSourceType>(sources, 'name', 'id'), [sources])
+    const sourceOptions = useMemo(() => convertToOptions(sources, 'name', 'id'), [sources])
 
     const attributeOptions = useMemo(() => [
         { label: RegularMessage, value: 'isRegular' },
@@ -172,7 +169,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
         { label: IsNotResidentContactMessage, value: 'true' },
     ], [IsNotResidentContactMessage, IsResidentContactMessage])
     const { objs: categoryClassifiers } = TicketCategoryClassifier.useObjects({})
-    const categoryClassifiersOptions = useMemo(() => convertToOptions<TicketCategoryClassifierType>(categoryClassifiers, 'name', 'id'), [categoryClassifiers])
+    const categoryClassifiersOptions = useMemo(() => convertToOptions(categoryClassifiers, 'name', 'id'), [categoryClassifiers])
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])

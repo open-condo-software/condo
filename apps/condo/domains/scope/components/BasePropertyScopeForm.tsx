@@ -75,7 +75,7 @@ type BasePropertyScopeFormProps = {
     loading?: boolean
 }
 
-export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ children, action, organizationId, initialValues = {}, loading }) => {
+export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = (props) => {
     const intl = useIntl()
     const PropertyScopeNameMessage = intl.formatMessage({ id: 'field.Name' })
     const PropertiesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.properties' })
@@ -85,6 +85,14 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
     const NameValidationErrorMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.form.validation.name' }, {
         max: MAX_NAME_LENGTH,
     })
+
+    const {
+        children,
+        action,
+        organizationId,
+        initialValues = {} as BasePropertyScopeFormProps['initialValues'],
+        loading,
+    } = props
 
     const router = useRouter()
 

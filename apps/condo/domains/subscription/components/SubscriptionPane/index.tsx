@@ -1,3 +1,4 @@
+import { ServiceSubscription } from '@app/condo/schema'
 import { Alert, Col, Row, Table, Typography } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
@@ -7,14 +8,15 @@ import { useIntl } from '@open-condo/next/intl'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
-
 import { getSubscriptionOptions } from './subscriptionOptions'
 
-import { ServiceSubscription } from '../../../../schema'
 import { useSubscriptionPaymentModal } from '../../hooks/useSubscriptionPaymentModal'
 import { useServiceSubscriptionContext } from '../SubscriptionContext'
 
-const getActiveSubscriptionData = (intl, subscription: ServiceSubscription, isExpired) => {
+import type { IntlShape } from 'react-intl/src/types'
+
+
+const getActiveSubscriptionData = (intl: IntlShape, subscription: Pick<ServiceSubscription, 'isTrial' | 'type' | 'finishAt'>, isExpired: boolean) => {
     const ActiveMessage = intl.formatMessage({ id: 'subscription.status.active' })
     const ExpiredMessage = intl.formatMessage({ id: 'subscription.status.expired' })
     const SbbolSubscriptionTypeMessage = intl.formatMessage({ id: 'subscription.type.sbbol' })
