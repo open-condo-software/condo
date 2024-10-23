@@ -14,7 +14,7 @@ const {
     getOrganizationIdsWithMeters,
     findOrganizationByAddressKeyTinAccountNumber,
     findOrganizationByAddressKeyUnitNameUnitType,
-    findOrganization,
+    findOrganizationByAddressKey,
 } = require('@condo/domains/resident/utils/serverSchema/findOrganizationsByAddress')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
@@ -69,8 +69,9 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
                     ...(tin && { tin }),
                     deletedAt: null,
                 })
+                // can exist property without org?
                 if (!organizations.length) return []
-                //resourceMeterOwner find is called twice here and in addressKey case
+
                 const [withAcquiring, withMeters] = await Promise.all([
                     getOrganizationIdsWithAcquiring(organizations),
                     getOrganizationIdsWithMeters(organizations),
@@ -79,31 +80,15 @@ const FindOrganizationsByAddressService = new GQLCustomSchema('FindOrganizations
                 organizations = organizations.filter(({ id }) => withAcquiring.has(id) || withMeters.has(id))
                 if (!organizations.length) return []
 
-                const billingContexts = await find('BillingIntegrationOrganizationContext', {
-                    status: BILLING_CONTEXT_FINISHED_STATUS,
-                    deletedAt: null,
-                    organization: { id_in: organizations.map(({ id }) => id) },
-                })
-                if (!billingContexts.length) return []
-
-                const billingContextIndex = billingContexts.reduce((acc, billingContext) => {
-                    acc[billingContext.organization] = billingContext
-                    return acc
-                }, {})
-
-                organizations = organizations.filter(({ id }) => billingContextIndex[id])
-
                 const fetchOrganizationData = async (organization) => {
-                    const billingContext = billingContextIndex[organization.id]
-
                     if (tin && accountNumber) {
-                        const org = await findOrganizationByAddressKeyTinAccountNumber(organization, billingContext, data)
+                        const org = await findOrganizationByAddressKeyTinAccountNumber(organization, data)
 
                         return org.meters || org.receipts ? org : null
                     } else if (unitName && unitType) {
-                        return findOrganizationByAddressKeyUnitNameUnitType(organization, billingContext, context, data)
+                        return findOrganizationByAddressKeyUnitNameUnitType(organization, context, data)
                     } else {
-                        return findOrganization(organization, billingContext)
+                        return findOrganizationByAddressKey(organization)
                     }
                 }
 
