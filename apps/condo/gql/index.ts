@@ -42,6 +42,7 @@ export const GetActiveOrganizationEmployeeDocument = gql`
       id
       isEditable
       isDefault
+      statusTransitions
       ticketVisibilityType
       canReadAnalytics
       canManageOrganization
