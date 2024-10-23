@@ -33,7 +33,10 @@ const sendTicketCreatedNotifications = async (ticketId, lang, organizationId, or
         const createdTicket = await getById('Ticket', ticketId)
         const ticketStatus = await getById('TicketStatus', createdTicket.status)
         const ticketUrl = `${conf.SERVER_URL}/ticket/${ticketId}`
-        const classifier = await TicketClassifier.getOne(context, { id: createdTicket.classifier })
+        const classifier = await TicketClassifier.getOne(context,
+            { id: createdTicket.classifier },
+            'id place { name } category { name } problem { name }'
+        )
 
         const ticketStatusName = i18n(`ticket.status.${ticketStatus.type}.name`, { locale: lang })
         const ticketUnitType = i18n(`field.UnitType.prefix.${createdTicket.unitType}`, { locale: lang }).toLowerCase()

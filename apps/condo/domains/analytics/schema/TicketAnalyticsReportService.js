@@ -151,7 +151,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                     context, where, groupBy, nullReplaces, extraLabels: { status: 'type' },
                 })
                 const { result, groupKeys } = aggregateData(ticketCounts, groupBy)
-                const ticketAccessCheck = await Ticket.getAll(context, where, { first: 1 })
+                const ticketAccessCheck = await Ticket.getAll(context, where, 'id', { first: 1 })
                 const [groupBy1, groupBy2] = groupKeys
 
                 // TODO(sitozzz): find way to collect organization locale without additional request

@@ -36,7 +36,11 @@ const reopenDeferredTickets = async () => {
     let changedTicketCounter = 0
 
     while (countTicketToChange > changedTicketCounter) {
-        const ticketsToChange = await Ticket.getAll(keystone, ticketWhere, { first: CHUNK_SIZE })
+        const ticketsToChange = await Ticket.getAll(keystone,
+            ticketWhere,
+            'id assignee { id } executor { id } organization { id }',
+            { first: CHUNK_SIZE }
+        )
 
         if (isEmpty(ticketsToChange)) break
 
