@@ -4,12 +4,10 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
-
-const { MobileFeatureConfig: MobileFeatureConfigGQL } = require('@condo/domains/settings/gql')
+const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const MobileFeatureConfig = generateServerUtils(MobileFeatureConfigGQL)
+const MobileFeatureConfig = generateServerUtils('MobileFeatureConfig')
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
