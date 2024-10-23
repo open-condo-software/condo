@@ -88,7 +88,7 @@ const syncUser = async ({ context: { context, keystone }, userInfo, identityId }
 
         // create a user
         const createdUser = await User.create(context, { ...userInfo, ...dvSenderFields })
-        const user = await User.getOne(context, { id: createdUser.id })
+        const user = await User.getOne(context, { id: createdUser.id }, 'id name')
         
         // register a UserExternalIdentity
         await registerIdentity({
@@ -143,7 +143,7 @@ const syncUser = async ({ context: { context, keystone }, userInfo, identityId }
         const updatedUser = await User.update(context, user.id, {
             ...updateInput,
             ...dvSenderFields,
-        })
+        }, 'id name')
 
         // create a UserExternalIdentity - since user wasn't imported - no identity was saved in db
         await registerIdentity({
@@ -153,7 +153,7 @@ const syncUser = async ({ context: { context, keystone }, userInfo, identityId }
         return updatedUser
     }
 
-    return await User.getOne(context, { id: user.id })
+    return await User.getOne(context, { id: user.id }, 'id name')
 }
 
 module.exports = {

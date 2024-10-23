@@ -85,7 +85,7 @@ const ChangePhoneNumberResidentUserService = new GQLCustomSchema('ChangePhoneNum
                         completedAt: null,
                         isPhoneVerified: true,
                     },
-                    'phone identityType'
+                    'id phone identityType'
                 )
                 if (!action) {
                     throw new GQLError(ERRORS.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, context)
