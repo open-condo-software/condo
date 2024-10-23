@@ -57,7 +57,7 @@ describe('syncUser from SberId', () => {
         const [ checkedIdentity ] = await UserExternalIdentityApi.getAll(context, {
             identityId,
             identityType: SBER_ID_IDP_TYPE,
-        })
+        }, 'id user { id } identityId identityType')
         expect(checkedIdentity).toBeDefined()
         expect(checkedIdentity).toHaveProperty('user')
         expect(checkedIdentity.user.id).toEqual(checkUser.id)

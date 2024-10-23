@@ -37,17 +37,21 @@ async function main (args) {
             console.info(`PASSWORD: ${userPayload.password}`)
         }
         userPayload.name ??= email.split('@')[0]
-        const user =  await User.create(context, {
+        const user = await User.create(context, {
             email,
             ...userPayload,
-        })
+        }, 'id rightsSet { id }')
         console.info('User created!')
         userId = user.id
         if (user.rightsSet) {
             rightSetId = user.rightsSet.id
         }
     } else {
-        const user = await User.update(context, existingUser.id, userPayload)
+        const user = await User.update(context,
+            existingUser.id,
+            userPayload,
+            'id rightsSet { id }'
+        )
         console.info('User updated!')
         userId = existingUser.id
         if (user.rightsSet) {

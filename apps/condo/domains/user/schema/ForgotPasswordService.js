@@ -118,7 +118,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                     throw new GQLError(ERRORS.changePasswordWithToken.USER_NOT_FOUND, context)
                 }
 
-                await User.update(context, user.id, { dv: 1, sender, password }, { errorMapping: USER_ERROR_MAPPING })
+                await User.update(context, user.id, { dv: 1, sender, password }, 'id', { errorMapping: USER_ERROR_MAPPING })
 
                 await ConfirmPhoneAction.update(context, tokenAction.id, { dv: 1, sender, completedAt: new Date().toISOString() })
 

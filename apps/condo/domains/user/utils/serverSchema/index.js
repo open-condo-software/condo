@@ -30,8 +30,8 @@ const { UserRightsSet: UserRightsSetGQL } = require('@condo/domains/user/gql')
 const { CHECK_USER_EXISTENCE_MUTATION } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const User = generateServerUtils(UserGQL)
-const UserAdmin = generateServerUtils(UserAdminGQL)
+const User = generateServerUtils('User')
+const UserAdmin = generateServerUtils(UserAdmin)
 const UserExternalIdentity = generateServerUtils(UserExternalIdentityGQL)
 const ConfirmPhoneAction = generateServerUtils(ConfirmPhoneActionGQL)
 const OidcClient = generateServerUtils(OidcClientGQL)

@@ -32,6 +32,7 @@ const {
     WAREHOUSE_UNIT_TYPE,
     COMMERCIAL_UNIT_TYPE,
 } = require('@condo/domains/property/constants/common')
+const { USER_FIELDS } = require('@condo/domains/user/gql')
 const { User } = require('@condo/domains/user/utils/serverSchema')
 
 const { DomaMetersImporter } = require('./DomaMetersImporter')
@@ -205,7 +206,7 @@ async function importRows (keystone, userId, organizationId, rows) {
     // readings meter import must be called with the user context
     const userContext = await keystone.createContext({
         authentication: {
-            item: await User.getOne(keystone, { id: userId }),
+            item: await User.getOne(keystone, { id: userId }, USER_FIELDS),
             listKey: 'User',
         },
     })

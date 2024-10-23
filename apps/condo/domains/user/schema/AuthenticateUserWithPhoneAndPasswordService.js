@@ -5,6 +5,7 @@ const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 const { WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { STAFF } = require('@condo/domains/user/constants/common')
+const { USER_FIELDS } = require('@condo/domains/user/gql')
 const { User } = require('@condo/domains/user/utils/serverSchema')
 
 const { USER_NOT_FOUND, WRONG_PASSWORD } = require('../constants/errors')
@@ -62,12 +63,12 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
                 if (!phone) {
                     throw new GQLError(ERRORS.WRONG_PHONE_FORMAT, context)
                 }
-                const users = await User.getAll(context, { phone, type: STAFF, deletedAt: null })
+                const users = await User.getAll(context, { phone, type: STAFF, deletedAt: null }, USER_FIELDS)
                 if (users.length !== 1) {
                     throw new GQLError(ERRORS.USER_NOT_FOUND, context)
                 }
                 const user = await getById('User', users[0].id)
-                const { keystone } = await getSchemaCtx('User')
+                const { keystone } = getSchemaCtx('User')
                 const { auth: { User: { password: PasswordStrategy } } } = keystone
                 const list = PasswordStrategy.getList()
                 const { success } = await PasswordStrategy._matchItem(user, { password }, list.fieldsByPath['password'] )
