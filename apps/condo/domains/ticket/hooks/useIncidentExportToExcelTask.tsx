@@ -56,7 +56,7 @@ export const useIncidentExportToExcelTask = (props: UseIncidentExportToExcelInpu
         <Button
             type='secondary'
             loading={loading}
-            onClick={handleRunTask}
+            onClick={() => handleRunTask()}
             disabled={loading || disabled}
             children={label || ExportAsExcelLabel}
             icon={<Sheet size='medium' />}

@@ -18,7 +18,7 @@ import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import { Edit, Link as LinkIcon } from '@open-condo/icons'
+import { Link as LinkIcon } from '@open-condo/icons'
 import { prepareSSRContext } from '@open-condo/miniapp-utils'
 import { initializeApollo } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
@@ -36,7 +36,7 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
-import { MARKETPLACE, TICKET_DOCUMENT_GENERATION } from '@condo/domains/common/constants/featureflags'
+import { MARKETPLACE } from '@condo/domains/common/constants/featureflags'
 import { getObjectCreatedMessage } from '@condo/domains/common/utils/date.utils'
 import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
 import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
@@ -380,9 +380,6 @@ const TicketActionBar = ({
     const { requestFeature } = useGlobalAppsFeaturesContext()
     const { isCallActive, connectedTickets } = useActiveCall()
 
-    const { useFlag } = useFeatureFlags()
-    const isTicketDocumentGenerationEnabled = useFlag(TICKET_DOCUMENT_GENERATION)
-
     const id = get(ticket, 'id')
     const ticketOrganizationId = useMemo(() => get(ticket, 'organization.id'), [ticket])
     const canShareTickets = useMemo(() => get(employee, 'role.canShareTickets'), [employee])
@@ -451,7 +448,7 @@ const TicketActionBar = ({
                         </Button>
                     </Link>
                 ),
-                isTicketDocumentGenerationEnabled && <TicketDocumentGenerationButton key='generateDocument' />,
+                <TicketDocumentGenerationButton key='generateDocument' />,
                 breakpoints.TABLET_LARGE && <>
                     <TicketBlanksExportToPdfButton/>
                     {TicketBlanksExportToPdfModal}

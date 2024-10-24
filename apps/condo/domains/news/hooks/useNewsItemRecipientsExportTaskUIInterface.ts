@@ -1,21 +1,24 @@
-import { NewsItemRecipientsExportTask } from '@app/condo/schema'
+import {
+    GetNewsItemRecipientsExportTasksDocument,
+    CreateNewsItemRecipientsExportTaskDocument,
+    UpdateNewsItemRecipientsExportTaskDocument,
+    type GetNewsItemRecipientsExportTasksQuery,
+} from '@app/condo/gql'
 
+import { ITask } from '@condo/domains/common/components/tasks'
 import { useExportTaskUIInterface } from '@condo/domains/common/hooks/useExportTaskUIInterface'
-import { NewsItemRecipientsExportTask as NewsItemRecipientsExportTaskApi } from '@condo/domains/news/utils/clientSchema'
 
-export const useNewsItemRecipientsExportTaskUIInterface = () => {
-    const { TaskUIInterface } = useExportTaskUIInterface<NewsItemRecipientsExportTask & {
-        exportedRecordsCount: number
-        totalRecordsCount: number
-    }>({
+
+type TaskRecordType = GetNewsItemRecipientsExportTasksQuery['tasks'][number]
+type UseNewsItemRecipientsExportTaskUIInterfaceType = () => ({ NewsItemRecipientsExportTask: ITask<TaskRecordType> })
+
+export const useNewsItemRecipientsExportTaskUIInterface: UseNewsItemRecipientsExportTaskUIInterfaceType = () => {
+    const { TaskUIInterface } = useExportTaskUIInterface({
         schemaName: 'NewsItemRecipientsExportTask',
-        clientSchema: NewsItemRecipientsExportTaskApi,
+        getTasksDocument: GetNewsItemRecipientsExportTasksDocument,
+        createTaskDocument: CreateNewsItemRecipientsExportTaskDocument,
+        updateTaskDocument: UpdateNewsItemRecipientsExportTaskDocument,
     })
 
-    return {
-        // Key of object should match `__typename` value of `NewsItemRecipientsExportTask` record (name of Keystone schema)
-        // This will be used to match this interface implementation with
-        // initial loaded record on first page load
-        NewsItemRecipientsExportTask: TaskUIInterface,
-    }
+    return { NewsItemRecipientsExportTask: TaskUIInterface }
 }

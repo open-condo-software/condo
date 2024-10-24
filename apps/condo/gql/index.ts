@@ -10,6 +10,962 @@ export * from '@app/condo/gql/operation.types'
 
 const defaultOptions = {} as const
 
+export const GetBankAccountReportTasksDocument = gql`
+    query getBankAccountReportTasks($where: BankAccountReportTaskWhereInput!) {
+  tasks: allBankAccountReportTasks(where: $where) {
+    id
+    progress
+    status
+    __typename
+  }
+}
+    `
+
+/**
+ * __useGetBankAccountReportTasksQuery__
+ *
+ * To run a query within a React component, call `useGetBankAccountReportTasksQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBankAccountReportTasksQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetBankAccountReportTasksQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *   },
+ * });
+ */
+export function useGetBankAccountReportTasksQuery (baseOptions: Apollo.QueryHookOptions<Types.GetBankAccountReportTasksQuery, Types.GetBankAccountReportTasksQueryVariables> & ({ variables: Types.GetBankAccountReportTasksQueryVariables, skip?: boolean } | { skip: boolean }) ) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useQuery<Types.GetBankAccountReportTasksQuery, Types.GetBankAccountReportTasksQueryVariables>(GetBankAccountReportTasksDocument, options)
+}
+export function useGetBankAccountReportTasksLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<Types.GetBankAccountReportTasksQuery, Types.GetBankAccountReportTasksQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useLazyQuery<Types.GetBankAccountReportTasksQuery, Types.GetBankAccountReportTasksQueryVariables>(GetBankAccountReportTasksDocument, options)
+}
+export function useGetBankAccountReportTasksSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetBankAccountReportTasksQuery, Types.GetBankAccountReportTasksQueryVariables>) {
+    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+    return Apollo.useSuspenseQuery<Types.GetBankAccountReportTasksQuery, Types.GetBankAccountReportTasksQueryVariables>(GetBankAccountReportTasksDocument, options)
+}
+export type GetBankAccountReportTasksQueryHookResult = ReturnType<typeof useGetBankAccountReportTasksQuery>
+export type GetBankAccountReportTasksLazyQueryHookResult = ReturnType<typeof useGetBankAccountReportTasksLazyQuery>
+export type GetBankAccountReportTasksSuspenseQueryHookResult = ReturnType<typeof useGetBankAccountReportTasksSuspenseQuery>
+export type GetBankAccountReportTasksQueryResult = Apollo.QueryResult<Types.GetBankAccountReportTasksQuery, Types.GetBankAccountReportTasksQueryVariables>
+export const CreateBankAccountReportTaskDocument = gql`
+    mutation createBankAccountReportTask($data: BankAccountReportTaskCreateInput!) {
+  task: createBankAccountReportTask(data: $data) {
+    id
+    progress
+    status
+    __typename
+  }
+}
+    `
+export type CreateBankAccountReportTaskMutationFn = Apollo.MutationFunction<Types.CreateBankAccountReportTaskMutation, Types.CreateBankAccountReportTaskMutationVariables>
+
+/**
+ * __useCreateBankAccountReportTaskMutation__
+ *
+ * To run a mutation, you first call `useCreateBankAccountReportTaskMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateBankAccountReportTaskMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createBankAccountReportTaskMutation, { data, loading, error }] = useCreateBankAccountReportTaskMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateBankAccountReportTaskMutation (baseOptions?: Apollo.MutationHookOptions<Types.CreateBankAccountReportTaskMutation, Types.CreateBankAccountReportTaskMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<Types.CreateBankAccountReportTaskMutation, Types.CreateBankAccountReportTaskMutationVariables>(CreateBankAccountReportTaskDocument, options)
+}
+export type CreateBankAccountReportTaskMutationHookResult = ReturnType<typeof useCreateBankAccountReportTaskMutation>
+export type CreateBankAccountReportTaskMutationResult = Apollo.MutationResult<Types.CreateBankAccountReportTaskMutation>
+export type CreateBankAccountReportTaskMutationOptions = Apollo.BaseMutationOptions<Types.CreateBankAccountReportTaskMutation, Types.CreateBankAccountReportTaskMutationVariables>
+export const UpdateBankAccountReportTaskDocument = gql`
+    mutation updateBankAccountReportTask($data: BankAccountReportTaskUpdateInput!, $id: ID!) {
+  task: updateBankAccountReportTask(data: $data, id: $id) {
+    id
+    progress
+    status
+    __typename
+  }
+}
+    `
+export type UpdateBankAccountReportTaskMutationFn = Apollo.MutationFunction<Types.UpdateBankAccountReportTaskMutation, Types.UpdateBankAccountReportTaskMutationVariables>
+
+/**
+ * __useUpdateBankAccountReportTaskMutation__
+ *
+ * To run a mutation, you first call `useUpdateBankAccountReportTaskMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateBankAccountReportTaskMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateBankAccountReportTaskMutation, { data, loading, error }] = useUpdateBankAccountReportTaskMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useUpdateBankAccountReportTaskMutation (baseOptions?: Apollo.MutationHookOptions<Types.UpdateBankAccountReportTaskMutation, Types.UpdateBankAccountReportTaskMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<Types.UpdateBankAccountReportTaskMutation, Types.UpdateBankAccountReportTaskMutationVariables>(UpdateBankAccountReportTaskDocument, options)
+}
+export type UpdateBankAccountReportTaskMutationHookResult = ReturnType<typeof useUpdateBankAccountReportTaskMutation>
+export type UpdateBankAccountReportTaskMutationResult = Apollo.MutationResult<Types.UpdateBankAccountReportTaskMutation>
+export type UpdateBankAccountReportTaskMutationOptions = Apollo.BaseMutationOptions<Types.UpdateBankAccountReportTaskMutation, Types.UpdateBankAccountReportTaskMutationVariables>
+export const GetBankSyncTasksDocument = gql`
+    query getBankSyncTasks($where: BankSyncTaskWhereInput!) {
+  tasks: allBankSyncTasks(where: $where) {
+    id
+    status
+    processedCount
+    totalCount
+    meta
+    property {
+      id
+    }
+    options {
+      type
+    }
+    file {
+      publicUrl
+      originalFilename
+    }
+    __typename
+  }
+}
+    `
+
+/**
+ * __useGetBankSyncTasksQuery__
+ *
+ * To run a query within a React component, call `useGetBankSyncTasksQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBankSyncTasksQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetBankSyncTasksQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *   },
+ * });
+ */
+export function useGetBankSyncTasksQuery (baseOptions: Apollo.QueryHookOptions<Types.GetBankSyncTasksQuery, Types.GetBankSyncTasksQueryVariables> & ({ variables: Types.GetBankSyncTasksQueryVariables, skip?: boolean } | { skip: boolean }) ) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useQuery<Types.GetBankSyncTasksQuery, Types.GetBankSyncTasksQueryVariables>(GetBankSyncTasksDocument, options)
+}
+export function useGetBankSyncTasksLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<Types.GetBankSyncTasksQuery, Types.GetBankSyncTasksQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useLazyQuery<Types.GetBankSyncTasksQuery, Types.GetBankSyncTasksQueryVariables>(GetBankSyncTasksDocument, options)
+}
+export function useGetBankSyncTasksSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetBankSyncTasksQuery, Types.GetBankSyncTasksQueryVariables>) {
+    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+    return Apollo.useSuspenseQuery<Types.GetBankSyncTasksQuery, Types.GetBankSyncTasksQueryVariables>(GetBankSyncTasksDocument, options)
+}
+export type GetBankSyncTasksQueryHookResult = ReturnType<typeof useGetBankSyncTasksQuery>
+export type GetBankSyncTasksLazyQueryHookResult = ReturnType<typeof useGetBankSyncTasksLazyQuery>
+export type GetBankSyncTasksSuspenseQueryHookResult = ReturnType<typeof useGetBankSyncTasksSuspenseQuery>
+export type GetBankSyncTasksQueryResult = Apollo.QueryResult<Types.GetBankSyncTasksQuery, Types.GetBankSyncTasksQueryVariables>
+export const CreateBankSyncTaskDocument = gql`
+    mutation createBankSyncTask($data: BankSyncTaskCreateInput!) {
+  task: createBankSyncTask(data: $data) {
+    id
+    status
+    processedCount
+    totalCount
+    meta
+    property {
+      id
+    }
+    options {
+      type
+    }
+    file {
+      publicUrl
+      originalFilename
+    }
+    __typename
+  }
+}
+    `
+export type CreateBankSyncTaskMutationFn = Apollo.MutationFunction<Types.CreateBankSyncTaskMutation, Types.CreateBankSyncTaskMutationVariables>
+
+/**
+ * __useCreateBankSyncTaskMutation__
+ *
+ * To run a mutation, you first call `useCreateBankSyncTaskMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateBankSyncTaskMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createBankSyncTaskMutation, { data, loading, error }] = useCreateBankSyncTaskMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateBankSyncTaskMutation (baseOptions?: Apollo.MutationHookOptions<Types.CreateBankSyncTaskMutation, Types.CreateBankSyncTaskMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<Types.CreateBankSyncTaskMutation, Types.CreateBankSyncTaskMutationVariables>(CreateBankSyncTaskDocument, options)
+}
+export type CreateBankSyncTaskMutationHookResult = ReturnType<typeof useCreateBankSyncTaskMutation>
+export type CreateBankSyncTaskMutationResult = Apollo.MutationResult<Types.CreateBankSyncTaskMutation>
+export type CreateBankSyncTaskMutationOptions = Apollo.BaseMutationOptions<Types.CreateBankSyncTaskMutation, Types.CreateBankSyncTaskMutationVariables>
+export const UpdateBankSyncTaskDocument = gql`
+    mutation updateBankSyncTask($data: BankSyncTaskUpdateInput!, $id: ID!) {
+  task: updateBankSyncTask(data: $data, id: $id) {
+    id
+    status
+    processedCount
+    totalCount
+    meta
+    property {
+      id
+    }
+    options {
+      type
+    }
+    file {
+      publicUrl
+      originalFilename
+    }
+    __typename
+  }
+}
+    `
+export type UpdateBankSyncTaskMutationFn = Apollo.MutationFunction<Types.UpdateBankSyncTaskMutation, Types.UpdateBankSyncTaskMutationVariables>
+
+/**
+ * __useUpdateBankSyncTaskMutation__
+ *
+ * To run a mutation, you first call `useUpdateBankSyncTaskMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateBankSyncTaskMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateBankSyncTaskMutation, { data, loading, error }] = useUpdateBankSyncTaskMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useUpdateBankSyncTaskMutation (baseOptions?: Apollo.MutationHookOptions<Types.UpdateBankSyncTaskMutation, Types.UpdateBankSyncTaskMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<Types.UpdateBankSyncTaskMutation, Types.UpdateBankSyncTaskMutationVariables>(UpdateBankSyncTaskDocument, options)
+}
+export type UpdateBankSyncTaskMutationHookResult = ReturnType<typeof useUpdateBankSyncTaskMutation>
+export type UpdateBankSyncTaskMutationResult = Apollo.MutationResult<Types.UpdateBankSyncTaskMutation>
+export type UpdateBankSyncTaskMutationOptions = Apollo.BaseMutationOptions<Types.UpdateBankSyncTaskMutation, Types.UpdateBankSyncTaskMutationVariables>
+export const GetProcessingTasksDocument = gql`
+    query getProcessingTasks($userId: ID!, $createdAtGte: String!) {
+  allTicketDocumentGenerationTasks(
+    where: {status: processing, user: {id: $userId}, createdAt_gte: $createdAtGte}
+  ) {
+    id
+    progress
+    status
+    file {
+      publicUrl
+      originalFilename
+    }
+    __typename
+  }
+  allTicketExportTasks(
+    where: {status: processing, user: {id: $userId}, createdAt_gte: $createdAtGte}
+  ) {
+    id
+    status
+    file {
+      publicUrl
+      originalFilename
+    }
+    totalRecordsCount
+    exportedRecordsCount
+    __typename
+  }
+  allIncidentExportTasks(
+    where: {status: processing, user: {id: $userId}, createdAt_gte: $createdAtGte}
+  ) {
+    id
+    status
+    file {
+      publicUrl
+      originalFilename
+    }
+    totalRecordsCount
+    exportedRecordsCount
+    __typename
+  }
+  allContactExportTasks(
+    where: {status: processing, user: {id: $userId}, createdAt_gte: $createdAtGte}
+  ) {
+    id
+    status
+    file {
+      publicUrl
+      originalFilename
+    }
+    totalRecordsCount
+    exportedRecordsCount
+    __typename
+  }
+  allBankSyncTasks(
+    where: {status: processing, user: {id: $userId}, createdAt_gte: $createdAtGte}
+  ) {
+    id
+    status
+    processedCount
+    totalCount
+    meta
+    property {
+      id
+    }
+    options {
+      type
+    }
+    file {
+      publicUrl
+      originalFilename
+    }
+    __typename
+  }
+  allBankAccountReportTasks(
+    where: {status: processing, user: {id: $userId}, createdAt_gte: $createdAtGte}
+  ) {
+    id
+    progress
+    status
+    __typename
+  }
+  allNewsItemRecipientsExportTasks(
+    where: {status: processing, user: {id: $userId}, createdAt_gte: $createdAtGte}
+  ) {
+    id
+    status
+    file {
+      publicUrl
+      originalFilename
+    }
+    __typename
+  }
+  allMeterReadingsImportTasks(
+    where: {status: processing, user: {id: $userId}, createdAt_gte: $createdAtGte}
+  ) {
+    id
+    status
+    file {
+      publicUrl
+      originalFilename
+    }
+    errorFile {
+      publicUrl
+    }
+    errorMessage
+    totalRecordsCount
+    processedRecordsCount
+    __typename
+  }
+  allMeterReadingExportTasks(
+    where: {status: processing, user: {id: $userId}, createdAt_gte: $createdAtGte}
+  ) {
+    id
+    status
+    file {
+      publicUrl
+      originalFilename
+    }
+    totalRecordsCount
+    exportedRecordsCount
+    __typename
+  }
+}
+    `
+
+/**
+ * __useGetProcessingTasksQuery__
+ *
+ * To run a query within a React component, call `useGetProcessingTasksQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetProcessingTasksQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetProcessingTasksQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *      createdAtGte: // value for 'createdAtGte'
+ *   },
+ * });
+ */
+export function useGetProcessingTasksQuery (baseOptions: Apollo.QueryHookOptions<Types.GetProcessingTasksQuery, Types.GetProcessingTasksQueryVariables> & ({ variables: Types.GetProcessingTasksQueryVariables, skip?: boolean } | { skip: boolean }) ) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useQuery<Types.GetProcessingTasksQuery, Types.GetProcessingTasksQueryVariables>(GetProcessingTasksDocument, options)
+}
+export function useGetProcessingTasksLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<Types.GetProcessingTasksQuery, Types.GetProcessingTasksQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useLazyQuery<Types.GetProcessingTasksQuery, Types.GetProcessingTasksQueryVariables>(GetProcessingTasksDocument, options)
+}
+export function useGetProcessingTasksSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetProcessingTasksQuery, Types.GetProcessingTasksQueryVariables>) {
+    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+    return Apollo.useSuspenseQuery<Types.GetProcessingTasksQuery, Types.GetProcessingTasksQueryVariables>(GetProcessingTasksDocument, options)
+}
+export type GetProcessingTasksQueryHookResult = ReturnType<typeof useGetProcessingTasksQuery>
+export type GetProcessingTasksLazyQueryHookResult = ReturnType<typeof useGetProcessingTasksLazyQuery>
+export type GetProcessingTasksSuspenseQueryHookResult = ReturnType<typeof useGetProcessingTasksSuspenseQuery>
+export type GetProcessingTasksQueryResult = Apollo.QueryResult<Types.GetProcessingTasksQuery, Types.GetProcessingTasksQueryVariables>
+export const GetContactExportTasksDocument = gql`
+    query getContactExportTasks($where: ContactExportTaskWhereInput!) {
+  tasks: allContactExportTasks(where: $where) {
+    id
+    status
+    file {
+      publicUrl
+      originalFilename
+    }
+    totalRecordsCount
+    exportedRecordsCount
+    __typename
+  }
+}
+    `
+
+/**
+ * __useGetContactExportTasksQuery__
+ *
+ * To run a query within a React component, call `useGetContactExportTasksQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetContactExportTasksQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetContactExportTasksQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *   },
+ * });
+ */
+export function useGetContactExportTasksQuery (baseOptions: Apollo.QueryHookOptions<Types.GetContactExportTasksQuery, Types.GetContactExportTasksQueryVariables> & ({ variables: Types.GetContactExportTasksQueryVariables, skip?: boolean } | { skip: boolean }) ) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useQuery<Types.GetContactExportTasksQuery, Types.GetContactExportTasksQueryVariables>(GetContactExportTasksDocument, options)
+}
+export function useGetContactExportTasksLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<Types.GetContactExportTasksQuery, Types.GetContactExportTasksQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useLazyQuery<Types.GetContactExportTasksQuery, Types.GetContactExportTasksQueryVariables>(GetContactExportTasksDocument, options)
+}
+export function useGetContactExportTasksSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetContactExportTasksQuery, Types.GetContactExportTasksQueryVariables>) {
+    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+    return Apollo.useSuspenseQuery<Types.GetContactExportTasksQuery, Types.GetContactExportTasksQueryVariables>(GetContactExportTasksDocument, options)
+}
+export type GetContactExportTasksQueryHookResult = ReturnType<typeof useGetContactExportTasksQuery>
+export type GetContactExportTasksLazyQueryHookResult = ReturnType<typeof useGetContactExportTasksLazyQuery>
+export type GetContactExportTasksSuspenseQueryHookResult = ReturnType<typeof useGetContactExportTasksSuspenseQuery>
+export type GetContactExportTasksQueryResult = Apollo.QueryResult<Types.GetContactExportTasksQuery, Types.GetContactExportTasksQueryVariables>
+export const CreateContactExportTaskDocument = gql`
+    mutation createContactExportTask($data: ContactExportTaskCreateInput!) {
+  task: createContactExportTask(data: $data) {
+    id
+    status
+    file {
+      publicUrl
+      originalFilename
+    }
+    totalRecordsCount
+    exportedRecordsCount
+    __typename
+  }
+}
+    `
+export type CreateContactExportTaskMutationFn = Apollo.MutationFunction<Types.CreateContactExportTaskMutation, Types.CreateContactExportTaskMutationVariables>
+
+/**
+ * __useCreateContactExportTaskMutation__
+ *
+ * To run a mutation, you first call `useCreateContactExportTaskMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateContactExportTaskMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createContactExportTaskMutation, { data, loading, error }] = useCreateContactExportTaskMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateContactExportTaskMutation (baseOptions?: Apollo.MutationHookOptions<Types.CreateContactExportTaskMutation, Types.CreateContactExportTaskMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<Types.CreateContactExportTaskMutation, Types.CreateContactExportTaskMutationVariables>(CreateContactExportTaskDocument, options)
+}
+export type CreateContactExportTaskMutationHookResult = ReturnType<typeof useCreateContactExportTaskMutation>
+export type CreateContactExportTaskMutationResult = Apollo.MutationResult<Types.CreateContactExportTaskMutation>
+export type CreateContactExportTaskMutationOptions = Apollo.BaseMutationOptions<Types.CreateContactExportTaskMutation, Types.CreateContactExportTaskMutationVariables>
+export const UpdateContactExportTaskDocument = gql`
+    mutation updateContactExportTask($data: ContactExportTaskUpdateInput!, $id: ID!) {
+  task: updateContactExportTask(data: $data, id: $id) {
+    id
+    status
+    file {
+      publicUrl
+      originalFilename
+    }
+    totalRecordsCount
+    exportedRecordsCount
+    __typename
+  }
+}
+    `
+export type UpdateContactExportTaskMutationFn = Apollo.MutationFunction<Types.UpdateContactExportTaskMutation, Types.UpdateContactExportTaskMutationVariables>
+
+/**
+ * __useUpdateContactExportTaskMutation__
+ *
+ * To run a mutation, you first call `useUpdateContactExportTaskMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateContactExportTaskMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateContactExportTaskMutation, { data, loading, error }] = useUpdateContactExportTaskMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useUpdateContactExportTaskMutation (baseOptions?: Apollo.MutationHookOptions<Types.UpdateContactExportTaskMutation, Types.UpdateContactExportTaskMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<Types.UpdateContactExportTaskMutation, Types.UpdateContactExportTaskMutationVariables>(UpdateContactExportTaskDocument, options)
+}
+export type UpdateContactExportTaskMutationHookResult = ReturnType<typeof useUpdateContactExportTaskMutation>
+export type UpdateContactExportTaskMutationResult = Apollo.MutationResult<Types.UpdateContactExportTaskMutation>
+export type UpdateContactExportTaskMutationOptions = Apollo.BaseMutationOptions<Types.UpdateContactExportTaskMutation, Types.UpdateContactExportTaskMutationVariables>
+export const GetMeterReadingExportTasksDocument = gql`
+    query getMeterReadingExportTasks($where: MeterReadingExportTaskWhereInput!) {
+  tasks: allMeterReadingExportTasks(where: $where) {
+    id
+    status
+    file {
+      publicUrl
+      originalFilename
+    }
+    totalRecordsCount
+    exportedRecordsCount
+    __typename
+  }
+}
+    `
+
+/**
+ * __useGetMeterReadingExportTasksQuery__
+ *
+ * To run a query within a React component, call `useGetMeterReadingExportTasksQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMeterReadingExportTasksQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetMeterReadingExportTasksQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *   },
+ * });
+ */
+export function useGetMeterReadingExportTasksQuery (baseOptions: Apollo.QueryHookOptions<Types.GetMeterReadingExportTasksQuery, Types.GetMeterReadingExportTasksQueryVariables> & ({ variables: Types.GetMeterReadingExportTasksQueryVariables, skip?: boolean } | { skip: boolean }) ) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useQuery<Types.GetMeterReadingExportTasksQuery, Types.GetMeterReadingExportTasksQueryVariables>(GetMeterReadingExportTasksDocument, options)
+}
+export function useGetMeterReadingExportTasksLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<Types.GetMeterReadingExportTasksQuery, Types.GetMeterReadingExportTasksQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useLazyQuery<Types.GetMeterReadingExportTasksQuery, Types.GetMeterReadingExportTasksQueryVariables>(GetMeterReadingExportTasksDocument, options)
+}
+export function useGetMeterReadingExportTasksSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetMeterReadingExportTasksQuery, Types.GetMeterReadingExportTasksQueryVariables>) {
+    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+    return Apollo.useSuspenseQuery<Types.GetMeterReadingExportTasksQuery, Types.GetMeterReadingExportTasksQueryVariables>(GetMeterReadingExportTasksDocument, options)
+}
+export type GetMeterReadingExportTasksQueryHookResult = ReturnType<typeof useGetMeterReadingExportTasksQuery>
+export type GetMeterReadingExportTasksLazyQueryHookResult = ReturnType<typeof useGetMeterReadingExportTasksLazyQuery>
+export type GetMeterReadingExportTasksSuspenseQueryHookResult = ReturnType<typeof useGetMeterReadingExportTasksSuspenseQuery>
+export type GetMeterReadingExportTasksQueryResult = Apollo.QueryResult<Types.GetMeterReadingExportTasksQuery, Types.GetMeterReadingExportTasksQueryVariables>
+export const CreateMeterReadingExportTaskDocument = gql`
+    mutation createMeterReadingExportTask($data: MeterReadingExportTaskCreateInput!) {
+  task: createMeterReadingExportTask(data: $data) {
+    id
+    status
+    file {
+      publicUrl
+      originalFilename
+    }
+    totalRecordsCount
+    exportedRecordsCount
+    __typename
+  }
+}
+    `
+export type CreateMeterReadingExportTaskMutationFn = Apollo.MutationFunction<Types.CreateMeterReadingExportTaskMutation, Types.CreateMeterReadingExportTaskMutationVariables>
+
+/**
+ * __useCreateMeterReadingExportTaskMutation__
+ *
+ * To run a mutation, you first call `useCreateMeterReadingExportTaskMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateMeterReadingExportTaskMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createMeterReadingExportTaskMutation, { data, loading, error }] = useCreateMeterReadingExportTaskMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateMeterReadingExportTaskMutation (baseOptions?: Apollo.MutationHookOptions<Types.CreateMeterReadingExportTaskMutation, Types.CreateMeterReadingExportTaskMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<Types.CreateMeterReadingExportTaskMutation, Types.CreateMeterReadingExportTaskMutationVariables>(CreateMeterReadingExportTaskDocument, options)
+}
+export type CreateMeterReadingExportTaskMutationHookResult = ReturnType<typeof useCreateMeterReadingExportTaskMutation>
+export type CreateMeterReadingExportTaskMutationResult = Apollo.MutationResult<Types.CreateMeterReadingExportTaskMutation>
+export type CreateMeterReadingExportTaskMutationOptions = Apollo.BaseMutationOptions<Types.CreateMeterReadingExportTaskMutation, Types.CreateMeterReadingExportTaskMutationVariables>
+export const UpdateMeterReadingExportTaskDocument = gql`
+    mutation updateMeterReadingExportTask($data: MeterReadingExportTaskUpdateInput!, $id: ID!) {
+  task: updateMeterReadingExportTask(data: $data, id: $id) {
+    id
+    status
+    file {
+      publicUrl
+      originalFilename
+    }
+    totalRecordsCount
+    exportedRecordsCount
+    __typename
+  }
+}
+    `
+export type UpdateMeterReadingExportTaskMutationFn = Apollo.MutationFunction<Types.UpdateMeterReadingExportTaskMutation, Types.UpdateMeterReadingExportTaskMutationVariables>
+
+/**
+ * __useUpdateMeterReadingExportTaskMutation__
+ *
+ * To run a mutation, you first call `useUpdateMeterReadingExportTaskMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateMeterReadingExportTaskMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateMeterReadingExportTaskMutation, { data, loading, error }] = useUpdateMeterReadingExportTaskMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useUpdateMeterReadingExportTaskMutation (baseOptions?: Apollo.MutationHookOptions<Types.UpdateMeterReadingExportTaskMutation, Types.UpdateMeterReadingExportTaskMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<Types.UpdateMeterReadingExportTaskMutation, Types.UpdateMeterReadingExportTaskMutationVariables>(UpdateMeterReadingExportTaskDocument, options)
+}
+export type UpdateMeterReadingExportTaskMutationHookResult = ReturnType<typeof useUpdateMeterReadingExportTaskMutation>
+export type UpdateMeterReadingExportTaskMutationResult = Apollo.MutationResult<Types.UpdateMeterReadingExportTaskMutation>
+export type UpdateMeterReadingExportTaskMutationOptions = Apollo.BaseMutationOptions<Types.UpdateMeterReadingExportTaskMutation, Types.UpdateMeterReadingExportTaskMutationVariables>
+export const GetMeterReadingsImportTasksDocument = gql`
+    query getMeterReadingsImportTasks($where: MeterReadingsImportTaskWhereInput!) {
+  tasks: allMeterReadingsImportTasks(where: $where) {
+    id
+    status
+    file {
+      publicUrl
+      originalFilename
+    }
+    errorFile {
+      publicUrl
+    }
+    errorMessage
+    totalRecordsCount
+    processedRecordsCount
+    __typename
+  }
+}
+    `
+
+/**
+ * __useGetMeterReadingsImportTasksQuery__
+ *
+ * To run a query within a React component, call `useGetMeterReadingsImportTasksQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMeterReadingsImportTasksQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetMeterReadingsImportTasksQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *   },
+ * });
+ */
+export function useGetMeterReadingsImportTasksQuery (baseOptions: Apollo.QueryHookOptions<Types.GetMeterReadingsImportTasksQuery, Types.GetMeterReadingsImportTasksQueryVariables> & ({ variables: Types.GetMeterReadingsImportTasksQueryVariables, skip?: boolean } | { skip: boolean }) ) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useQuery<Types.GetMeterReadingsImportTasksQuery, Types.GetMeterReadingsImportTasksQueryVariables>(GetMeterReadingsImportTasksDocument, options)
+}
+export function useGetMeterReadingsImportTasksLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<Types.GetMeterReadingsImportTasksQuery, Types.GetMeterReadingsImportTasksQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useLazyQuery<Types.GetMeterReadingsImportTasksQuery, Types.GetMeterReadingsImportTasksQueryVariables>(GetMeterReadingsImportTasksDocument, options)
+}
+export function useGetMeterReadingsImportTasksSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetMeterReadingsImportTasksQuery, Types.GetMeterReadingsImportTasksQueryVariables>) {
+    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+    return Apollo.useSuspenseQuery<Types.GetMeterReadingsImportTasksQuery, Types.GetMeterReadingsImportTasksQueryVariables>(GetMeterReadingsImportTasksDocument, options)
+}
+export type GetMeterReadingsImportTasksQueryHookResult = ReturnType<typeof useGetMeterReadingsImportTasksQuery>
+export type GetMeterReadingsImportTasksLazyQueryHookResult = ReturnType<typeof useGetMeterReadingsImportTasksLazyQuery>
+export type GetMeterReadingsImportTasksSuspenseQueryHookResult = ReturnType<typeof useGetMeterReadingsImportTasksSuspenseQuery>
+export type GetMeterReadingsImportTasksQueryResult = Apollo.QueryResult<Types.GetMeterReadingsImportTasksQuery, Types.GetMeterReadingsImportTasksQueryVariables>
+export const CreateMeterReadingsImportTaskDocument = gql`
+    mutation createMeterReadingsImportTask($data: MeterReadingsImportTaskCreateInput!) {
+  task: createMeterReadingsImportTask(data: $data) {
+    id
+    status
+    file {
+      publicUrl
+      originalFilename
+    }
+    errorFile {
+      publicUrl
+    }
+    errorMessage
+    totalRecordsCount
+    processedRecordsCount
+    __typename
+  }
+}
+    `
+export type CreateMeterReadingsImportTaskMutationFn = Apollo.MutationFunction<Types.CreateMeterReadingsImportTaskMutation, Types.CreateMeterReadingsImportTaskMutationVariables>
+
+/**
+ * __useCreateMeterReadingsImportTaskMutation__
+ *
+ * To run a mutation, you first call `useCreateMeterReadingsImportTaskMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateMeterReadingsImportTaskMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createMeterReadingsImportTaskMutation, { data, loading, error }] = useCreateMeterReadingsImportTaskMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateMeterReadingsImportTaskMutation (baseOptions?: Apollo.MutationHookOptions<Types.CreateMeterReadingsImportTaskMutation, Types.CreateMeterReadingsImportTaskMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<Types.CreateMeterReadingsImportTaskMutation, Types.CreateMeterReadingsImportTaskMutationVariables>(CreateMeterReadingsImportTaskDocument, options)
+}
+export type CreateMeterReadingsImportTaskMutationHookResult = ReturnType<typeof useCreateMeterReadingsImportTaskMutation>
+export type CreateMeterReadingsImportTaskMutationResult = Apollo.MutationResult<Types.CreateMeterReadingsImportTaskMutation>
+export type CreateMeterReadingsImportTaskMutationOptions = Apollo.BaseMutationOptions<Types.CreateMeterReadingsImportTaskMutation, Types.CreateMeterReadingsImportTaskMutationVariables>
+export const UpdateMeterReadingsImportTaskDocument = gql`
+    mutation updateMeterReadingsImportTask($data: MeterReadingsImportTaskUpdateInput!, $id: ID!) {
+  task: updateMeterReadingsImportTask(data: $data, id: $id) {
+    id
+    status
+    file {
+      publicUrl
+      originalFilename
+    }
+    errorFile {
+      publicUrl
+    }
+    errorMessage
+    totalRecordsCount
+    processedRecordsCount
+    __typename
+  }
+}
+    `
+export type UpdateMeterReadingsImportTaskMutationFn = Apollo.MutationFunction<Types.UpdateMeterReadingsImportTaskMutation, Types.UpdateMeterReadingsImportTaskMutationVariables>
+
+/**
+ * __useUpdateMeterReadingsImportTaskMutation__
+ *
+ * To run a mutation, you first call `useUpdateMeterReadingsImportTaskMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateMeterReadingsImportTaskMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateMeterReadingsImportTaskMutation, { data, loading, error }] = useUpdateMeterReadingsImportTaskMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useUpdateMeterReadingsImportTaskMutation (baseOptions?: Apollo.MutationHookOptions<Types.UpdateMeterReadingsImportTaskMutation, Types.UpdateMeterReadingsImportTaskMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<Types.UpdateMeterReadingsImportTaskMutation, Types.UpdateMeterReadingsImportTaskMutationVariables>(UpdateMeterReadingsImportTaskDocument, options)
+}
+export type UpdateMeterReadingsImportTaskMutationHookResult = ReturnType<typeof useUpdateMeterReadingsImportTaskMutation>
+export type UpdateMeterReadingsImportTaskMutationResult = Apollo.MutationResult<Types.UpdateMeterReadingsImportTaskMutation>
+export type UpdateMeterReadingsImportTaskMutationOptions = Apollo.BaseMutationOptions<Types.UpdateMeterReadingsImportTaskMutation, Types.UpdateMeterReadingsImportTaskMutationVariables>
+export const GetNewsItemRecipientsExportTasksDocument = gql`
+    query getNewsItemRecipientsExportTasks($where: NewsItemRecipientsExportTaskWhereInput!) {
+  tasks: allNewsItemRecipientsExportTasks(where: $where) {
+    id
+    status
+    file {
+      publicUrl
+      originalFilename
+    }
+    __typename
+  }
+}
+    `
+
+/**
+ * __useGetNewsItemRecipientsExportTasksQuery__
+ *
+ * To run a query within a React component, call `useGetNewsItemRecipientsExportTasksQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetNewsItemRecipientsExportTasksQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetNewsItemRecipientsExportTasksQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *   },
+ * });
+ */
+export function useGetNewsItemRecipientsExportTasksQuery (baseOptions: Apollo.QueryHookOptions<Types.GetNewsItemRecipientsExportTasksQuery, Types.GetNewsItemRecipientsExportTasksQueryVariables> & ({ variables: Types.GetNewsItemRecipientsExportTasksQueryVariables, skip?: boolean } | { skip: boolean }) ) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useQuery<Types.GetNewsItemRecipientsExportTasksQuery, Types.GetNewsItemRecipientsExportTasksQueryVariables>(GetNewsItemRecipientsExportTasksDocument, options)
+}
+export function useGetNewsItemRecipientsExportTasksLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<Types.GetNewsItemRecipientsExportTasksQuery, Types.GetNewsItemRecipientsExportTasksQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useLazyQuery<Types.GetNewsItemRecipientsExportTasksQuery, Types.GetNewsItemRecipientsExportTasksQueryVariables>(GetNewsItemRecipientsExportTasksDocument, options)
+}
+export function useGetNewsItemRecipientsExportTasksSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetNewsItemRecipientsExportTasksQuery, Types.GetNewsItemRecipientsExportTasksQueryVariables>) {
+    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+    return Apollo.useSuspenseQuery<Types.GetNewsItemRecipientsExportTasksQuery, Types.GetNewsItemRecipientsExportTasksQueryVariables>(GetNewsItemRecipientsExportTasksDocument, options)
+}
+export type GetNewsItemRecipientsExportTasksQueryHookResult = ReturnType<typeof useGetNewsItemRecipientsExportTasksQuery>
+export type GetNewsItemRecipientsExportTasksLazyQueryHookResult = ReturnType<typeof useGetNewsItemRecipientsExportTasksLazyQuery>
+export type GetNewsItemRecipientsExportTasksSuspenseQueryHookResult = ReturnType<typeof useGetNewsItemRecipientsExportTasksSuspenseQuery>
+export type GetNewsItemRecipientsExportTasksQueryResult = Apollo.QueryResult<Types.GetNewsItemRecipientsExportTasksQuery, Types.GetNewsItemRecipientsExportTasksQueryVariables>
+export const CreateNewsItemRecipientsExportTaskDocument = gql`
+    mutation createNewsItemRecipientsExportTask($data: NewsItemRecipientsExportTaskCreateInput!) {
+  task: createNewsItemRecipientsExportTask(data: $data) {
+    id
+    status
+    file {
+      publicUrl
+      originalFilename
+    }
+    __typename
+  }
+}
+    `
+export type CreateNewsItemRecipientsExportTaskMutationFn = Apollo.MutationFunction<Types.CreateNewsItemRecipientsExportTaskMutation, Types.CreateNewsItemRecipientsExportTaskMutationVariables>
+
+/**
+ * __useCreateNewsItemRecipientsExportTaskMutation__
+ *
+ * To run a mutation, you first call `useCreateNewsItemRecipientsExportTaskMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateNewsItemRecipientsExportTaskMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createNewsItemRecipientsExportTaskMutation, { data, loading, error }] = useCreateNewsItemRecipientsExportTaskMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateNewsItemRecipientsExportTaskMutation (baseOptions?: Apollo.MutationHookOptions<Types.CreateNewsItemRecipientsExportTaskMutation, Types.CreateNewsItemRecipientsExportTaskMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<Types.CreateNewsItemRecipientsExportTaskMutation, Types.CreateNewsItemRecipientsExportTaskMutationVariables>(CreateNewsItemRecipientsExportTaskDocument, options)
+}
+export type CreateNewsItemRecipientsExportTaskMutationHookResult = ReturnType<typeof useCreateNewsItemRecipientsExportTaskMutation>
+export type CreateNewsItemRecipientsExportTaskMutationResult = Apollo.MutationResult<Types.CreateNewsItemRecipientsExportTaskMutation>
+export type CreateNewsItemRecipientsExportTaskMutationOptions = Apollo.BaseMutationOptions<Types.CreateNewsItemRecipientsExportTaskMutation, Types.CreateNewsItemRecipientsExportTaskMutationVariables>
+export const UpdateNewsItemRecipientsExportTaskDocument = gql`
+    mutation updateNewsItemRecipientsExportTask($data: NewsItemRecipientsExportTaskUpdateInput!, $id: ID!) {
+  task: updateNewsItemRecipientsExportTask(data: $data, id: $id) {
+    id
+    status
+    file {
+      publicUrl
+      originalFilename
+    }
+    __typename
+  }
+}
+    `
+export type UpdateNewsItemRecipientsExportTaskMutationFn = Apollo.MutationFunction<Types.UpdateNewsItemRecipientsExportTaskMutation, Types.UpdateNewsItemRecipientsExportTaskMutationVariables>
+
+/**
+ * __useUpdateNewsItemRecipientsExportTaskMutation__
+ *
+ * To run a mutation, you first call `useUpdateNewsItemRecipientsExportTaskMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateNewsItemRecipientsExportTaskMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateNewsItemRecipientsExportTaskMutation, { data, loading, error }] = useUpdateNewsItemRecipientsExportTaskMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useUpdateNewsItemRecipientsExportTaskMutation (baseOptions?: Apollo.MutationHookOptions<Types.UpdateNewsItemRecipientsExportTaskMutation, Types.UpdateNewsItemRecipientsExportTaskMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<Types.UpdateNewsItemRecipientsExportTaskMutation, Types.UpdateNewsItemRecipientsExportTaskMutationVariables>(UpdateNewsItemRecipientsExportTaskDocument, options)
+}
+export type UpdateNewsItemRecipientsExportTaskMutationHookResult = ReturnType<typeof useUpdateNewsItemRecipientsExportTaskMutation>
+export type UpdateNewsItemRecipientsExportTaskMutationResult = Apollo.MutationResult<Types.UpdateNewsItemRecipientsExportTaskMutation>
+export type UpdateNewsItemRecipientsExportTaskMutationOptions = Apollo.BaseMutationOptions<Types.UpdateNewsItemRecipientsExportTaskMutation, Types.UpdateNewsItemRecipientsExportTaskMutationVariables>
 export const GetActiveOrganizationEmployeeDocument = gql`
     query getActiveOrganizationEmployee($userId: ID!, $employeeId: ID) {
   employees: allOrganizationEmployees(
@@ -332,6 +1288,396 @@ export type GetTrialServiceSubscriptionQueryHookResult = ReturnType<typeof useGe
 export type GetTrialServiceSubscriptionLazyQueryHookResult = ReturnType<typeof useGetTrialServiceSubscriptionLazyQuery>
 export type GetTrialServiceSubscriptionSuspenseQueryHookResult = ReturnType<typeof useGetTrialServiceSubscriptionSuspenseQuery>
 export type GetTrialServiceSubscriptionQueryResult = Apollo.QueryResult<Types.GetTrialServiceSubscriptionQuery, Types.GetTrialServiceSubscriptionQueryVariables>
+export const GetIncidentExportTasksDocument = gql`
+    query getIncidentExportTasks($where: IncidentExportTaskWhereInput!) {
+  tasks: allIncidentExportTasks(where: $where) {
+    id
+    status
+    file {
+      publicUrl
+      originalFilename
+    }
+    totalRecordsCount
+    exportedRecordsCount
+    __typename
+  }
+}
+    `
+
+/**
+ * __useGetIncidentExportTasksQuery__
+ *
+ * To run a query within a React component, call `useGetIncidentExportTasksQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetIncidentExportTasksQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetIncidentExportTasksQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *   },
+ * });
+ */
+export function useGetIncidentExportTasksQuery (baseOptions: Apollo.QueryHookOptions<Types.GetIncidentExportTasksQuery, Types.GetIncidentExportTasksQueryVariables> & ({ variables: Types.GetIncidentExportTasksQueryVariables, skip?: boolean } | { skip: boolean }) ) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useQuery<Types.GetIncidentExportTasksQuery, Types.GetIncidentExportTasksQueryVariables>(GetIncidentExportTasksDocument, options)
+}
+export function useGetIncidentExportTasksLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<Types.GetIncidentExportTasksQuery, Types.GetIncidentExportTasksQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useLazyQuery<Types.GetIncidentExportTasksQuery, Types.GetIncidentExportTasksQueryVariables>(GetIncidentExportTasksDocument, options)
+}
+export function useGetIncidentExportTasksSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetIncidentExportTasksQuery, Types.GetIncidentExportTasksQueryVariables>) {
+    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+    return Apollo.useSuspenseQuery<Types.GetIncidentExportTasksQuery, Types.GetIncidentExportTasksQueryVariables>(GetIncidentExportTasksDocument, options)
+}
+export type GetIncidentExportTasksQueryHookResult = ReturnType<typeof useGetIncidentExportTasksQuery>
+export type GetIncidentExportTasksLazyQueryHookResult = ReturnType<typeof useGetIncidentExportTasksLazyQuery>
+export type GetIncidentExportTasksSuspenseQueryHookResult = ReturnType<typeof useGetIncidentExportTasksSuspenseQuery>
+export type GetIncidentExportTasksQueryResult = Apollo.QueryResult<Types.GetIncidentExportTasksQuery, Types.GetIncidentExportTasksQueryVariables>
+export const CreateIncidentExportTaskDocument = gql`
+    mutation createIncidentExportTask($data: IncidentExportTaskCreateInput!) {
+  task: createIncidentExportTask(data: $data) {
+    id
+    status
+    file {
+      publicUrl
+      originalFilename
+    }
+    totalRecordsCount
+    exportedRecordsCount
+    __typename
+  }
+}
+    `
+export type CreateIncidentExportTaskMutationFn = Apollo.MutationFunction<Types.CreateIncidentExportTaskMutation, Types.CreateIncidentExportTaskMutationVariables>
+
+/**
+ * __useCreateIncidentExportTaskMutation__
+ *
+ * To run a mutation, you first call `useCreateIncidentExportTaskMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateIncidentExportTaskMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createIncidentExportTaskMutation, { data, loading, error }] = useCreateIncidentExportTaskMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateIncidentExportTaskMutation (baseOptions?: Apollo.MutationHookOptions<Types.CreateIncidentExportTaskMutation, Types.CreateIncidentExportTaskMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<Types.CreateIncidentExportTaskMutation, Types.CreateIncidentExportTaskMutationVariables>(CreateIncidentExportTaskDocument, options)
+}
+export type CreateIncidentExportTaskMutationHookResult = ReturnType<typeof useCreateIncidentExportTaskMutation>
+export type CreateIncidentExportTaskMutationResult = Apollo.MutationResult<Types.CreateIncidentExportTaskMutation>
+export type CreateIncidentExportTaskMutationOptions = Apollo.BaseMutationOptions<Types.CreateIncidentExportTaskMutation, Types.CreateIncidentExportTaskMutationVariables>
+export const UpdateIncidentExportTaskDocument = gql`
+    mutation updateIncidentExportTask($data: IncidentExportTaskUpdateInput!, $id: ID!) {
+  task: updateIncidentExportTask(data: $data, id: $id) {
+    id
+    status
+    file {
+      publicUrl
+      originalFilename
+    }
+    totalRecordsCount
+    exportedRecordsCount
+    __typename
+  }
+}
+    `
+export type UpdateIncidentExportTaskMutationFn = Apollo.MutationFunction<Types.UpdateIncidentExportTaskMutation, Types.UpdateIncidentExportTaskMutationVariables>
+
+/**
+ * __useUpdateIncidentExportTaskMutation__
+ *
+ * To run a mutation, you first call `useUpdateIncidentExportTaskMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateIncidentExportTaskMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateIncidentExportTaskMutation, { data, loading, error }] = useUpdateIncidentExportTaskMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useUpdateIncidentExportTaskMutation (baseOptions?: Apollo.MutationHookOptions<Types.UpdateIncidentExportTaskMutation, Types.UpdateIncidentExportTaskMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<Types.UpdateIncidentExportTaskMutation, Types.UpdateIncidentExportTaskMutationVariables>(UpdateIncidentExportTaskDocument, options)
+}
+export type UpdateIncidentExportTaskMutationHookResult = ReturnType<typeof useUpdateIncidentExportTaskMutation>
+export type UpdateIncidentExportTaskMutationResult = Apollo.MutationResult<Types.UpdateIncidentExportTaskMutation>
+export type UpdateIncidentExportTaskMutationOptions = Apollo.BaseMutationOptions<Types.UpdateIncidentExportTaskMutation, Types.UpdateIncidentExportTaskMutationVariables>
+export const GetTicketDocumentGenerationTasksDocument = gql`
+    query getTicketDocumentGenerationTasks($where: TicketDocumentGenerationTaskWhereInput!) {
+  tasks: allTicketDocumentGenerationTasks(where: $where) {
+    id
+    progress
+    status
+    file {
+      publicUrl
+      originalFilename
+    }
+    __typename
+  }
+}
+    `
+
+/**
+ * __useGetTicketDocumentGenerationTasksQuery__
+ *
+ * To run a query within a React component, call `useGetTicketDocumentGenerationTasksQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetTicketDocumentGenerationTasksQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetTicketDocumentGenerationTasksQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *   },
+ * });
+ */
+export function useGetTicketDocumentGenerationTasksQuery (baseOptions: Apollo.QueryHookOptions<Types.GetTicketDocumentGenerationTasksQuery, Types.GetTicketDocumentGenerationTasksQueryVariables> & ({ variables: Types.GetTicketDocumentGenerationTasksQueryVariables, skip?: boolean } | { skip: boolean }) ) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useQuery<Types.GetTicketDocumentGenerationTasksQuery, Types.GetTicketDocumentGenerationTasksQueryVariables>(GetTicketDocumentGenerationTasksDocument, options)
+}
+export function useGetTicketDocumentGenerationTasksLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<Types.GetTicketDocumentGenerationTasksQuery, Types.GetTicketDocumentGenerationTasksQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useLazyQuery<Types.GetTicketDocumentGenerationTasksQuery, Types.GetTicketDocumentGenerationTasksQueryVariables>(GetTicketDocumentGenerationTasksDocument, options)
+}
+export function useGetTicketDocumentGenerationTasksSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetTicketDocumentGenerationTasksQuery, Types.GetTicketDocumentGenerationTasksQueryVariables>) {
+    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+    return Apollo.useSuspenseQuery<Types.GetTicketDocumentGenerationTasksQuery, Types.GetTicketDocumentGenerationTasksQueryVariables>(GetTicketDocumentGenerationTasksDocument, options)
+}
+export type GetTicketDocumentGenerationTasksQueryHookResult = ReturnType<typeof useGetTicketDocumentGenerationTasksQuery>
+export type GetTicketDocumentGenerationTasksLazyQueryHookResult = ReturnType<typeof useGetTicketDocumentGenerationTasksLazyQuery>
+export type GetTicketDocumentGenerationTasksSuspenseQueryHookResult = ReturnType<typeof useGetTicketDocumentGenerationTasksSuspenseQuery>
+export type GetTicketDocumentGenerationTasksQueryResult = Apollo.QueryResult<Types.GetTicketDocumentGenerationTasksQuery, Types.GetTicketDocumentGenerationTasksQueryVariables>
+export const CreateTicketDocumentGenerationTaskDocument = gql`
+    mutation createTicketDocumentGenerationTask($data: TicketDocumentGenerationTaskCreateInput!) {
+  task: createTicketDocumentGenerationTask(data: $data) {
+    id
+    progress
+    status
+    file {
+      publicUrl
+      originalFilename
+    }
+    __typename
+  }
+}
+    `
+export type CreateTicketDocumentGenerationTaskMutationFn = Apollo.MutationFunction<Types.CreateTicketDocumentGenerationTaskMutation, Types.CreateTicketDocumentGenerationTaskMutationVariables>
+
+/**
+ * __useCreateTicketDocumentGenerationTaskMutation__
+ *
+ * To run a mutation, you first call `useCreateTicketDocumentGenerationTaskMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateTicketDocumentGenerationTaskMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createTicketDocumentGenerationTaskMutation, { data, loading, error }] = useCreateTicketDocumentGenerationTaskMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateTicketDocumentGenerationTaskMutation (baseOptions?: Apollo.MutationHookOptions<Types.CreateTicketDocumentGenerationTaskMutation, Types.CreateTicketDocumentGenerationTaskMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<Types.CreateTicketDocumentGenerationTaskMutation, Types.CreateTicketDocumentGenerationTaskMutationVariables>(CreateTicketDocumentGenerationTaskDocument, options)
+}
+export type CreateTicketDocumentGenerationTaskMutationHookResult = ReturnType<typeof useCreateTicketDocumentGenerationTaskMutation>
+export type CreateTicketDocumentGenerationTaskMutationResult = Apollo.MutationResult<Types.CreateTicketDocumentGenerationTaskMutation>
+export type CreateTicketDocumentGenerationTaskMutationOptions = Apollo.BaseMutationOptions<Types.CreateTicketDocumentGenerationTaskMutation, Types.CreateTicketDocumentGenerationTaskMutationVariables>
+export const UpdateTicketDocumentGenerationTaskDocument = gql`
+    mutation updateTicketDocumentGenerationTask($data: TicketDocumentGenerationTaskUpdateInput!, $id: ID!) {
+  task: updateTicketDocumentGenerationTask(data: $data, id: $id) {
+    id
+    progress
+    status
+    file {
+      publicUrl
+      originalFilename
+    }
+    __typename
+  }
+}
+    `
+export type UpdateTicketDocumentGenerationTaskMutationFn = Apollo.MutationFunction<Types.UpdateTicketDocumentGenerationTaskMutation, Types.UpdateTicketDocumentGenerationTaskMutationVariables>
+
+/**
+ * __useUpdateTicketDocumentGenerationTaskMutation__
+ *
+ * To run a mutation, you first call `useUpdateTicketDocumentGenerationTaskMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateTicketDocumentGenerationTaskMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateTicketDocumentGenerationTaskMutation, { data, loading, error }] = useUpdateTicketDocumentGenerationTaskMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useUpdateTicketDocumentGenerationTaskMutation (baseOptions?: Apollo.MutationHookOptions<Types.UpdateTicketDocumentGenerationTaskMutation, Types.UpdateTicketDocumentGenerationTaskMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<Types.UpdateTicketDocumentGenerationTaskMutation, Types.UpdateTicketDocumentGenerationTaskMutationVariables>(UpdateTicketDocumentGenerationTaskDocument, options)
+}
+export type UpdateTicketDocumentGenerationTaskMutationHookResult = ReturnType<typeof useUpdateTicketDocumentGenerationTaskMutation>
+export type UpdateTicketDocumentGenerationTaskMutationResult = Apollo.MutationResult<Types.UpdateTicketDocumentGenerationTaskMutation>
+export type UpdateTicketDocumentGenerationTaskMutationOptions = Apollo.BaseMutationOptions<Types.UpdateTicketDocumentGenerationTaskMutation, Types.UpdateTicketDocumentGenerationTaskMutationVariables>
+export const GetTicketExportTasksDocument = gql`
+    query getTicketExportTasks($where: TicketExportTaskWhereInput!) {
+  tasks: allTicketExportTasks(where: $where) {
+    id
+    status
+    file {
+      publicUrl
+      originalFilename
+    }
+    totalRecordsCount
+    exportedRecordsCount
+    __typename
+  }
+}
+    `
+
+/**
+ * __useGetTicketExportTasksQuery__
+ *
+ * To run a query within a React component, call `useGetTicketExportTasksQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetTicketExportTasksQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetTicketExportTasksQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *   },
+ * });
+ */
+export function useGetTicketExportTasksQuery (baseOptions: Apollo.QueryHookOptions<Types.GetTicketExportTasksQuery, Types.GetTicketExportTasksQueryVariables> & ({ variables: Types.GetTicketExportTasksQueryVariables, skip?: boolean } | { skip: boolean }) ) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useQuery<Types.GetTicketExportTasksQuery, Types.GetTicketExportTasksQueryVariables>(GetTicketExportTasksDocument, options)
+}
+export function useGetTicketExportTasksLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<Types.GetTicketExportTasksQuery, Types.GetTicketExportTasksQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useLazyQuery<Types.GetTicketExportTasksQuery, Types.GetTicketExportTasksQueryVariables>(GetTicketExportTasksDocument, options)
+}
+export function useGetTicketExportTasksSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetTicketExportTasksQuery, Types.GetTicketExportTasksQueryVariables>) {
+    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+    return Apollo.useSuspenseQuery<Types.GetTicketExportTasksQuery, Types.GetTicketExportTasksQueryVariables>(GetTicketExportTasksDocument, options)
+}
+export type GetTicketExportTasksQueryHookResult = ReturnType<typeof useGetTicketExportTasksQuery>
+export type GetTicketExportTasksLazyQueryHookResult = ReturnType<typeof useGetTicketExportTasksLazyQuery>
+export type GetTicketExportTasksSuspenseQueryHookResult = ReturnType<typeof useGetTicketExportTasksSuspenseQuery>
+export type GetTicketExportTasksQueryResult = Apollo.QueryResult<Types.GetTicketExportTasksQuery, Types.GetTicketExportTasksQueryVariables>
+export const CreateTicketExportTaskDocument = gql`
+    mutation createTicketExportTask($data: TicketExportTaskCreateInput!) {
+  task: createTicketExportTask(data: $data) {
+    id
+    status
+    file {
+      publicUrl
+      originalFilename
+    }
+    totalRecordsCount
+    exportedRecordsCount
+    __typename
+  }
+}
+    `
+export type CreateTicketExportTaskMutationFn = Apollo.MutationFunction<Types.CreateTicketExportTaskMutation, Types.CreateTicketExportTaskMutationVariables>
+
+/**
+ * __useCreateTicketExportTaskMutation__
+ *
+ * To run a mutation, you first call `useCreateTicketExportTaskMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateTicketExportTaskMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createTicketExportTaskMutation, { data, loading, error }] = useCreateTicketExportTaskMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateTicketExportTaskMutation (baseOptions?: Apollo.MutationHookOptions<Types.CreateTicketExportTaskMutation, Types.CreateTicketExportTaskMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<Types.CreateTicketExportTaskMutation, Types.CreateTicketExportTaskMutationVariables>(CreateTicketExportTaskDocument, options)
+}
+export type CreateTicketExportTaskMutationHookResult = ReturnType<typeof useCreateTicketExportTaskMutation>
+export type CreateTicketExportTaskMutationResult = Apollo.MutationResult<Types.CreateTicketExportTaskMutation>
+export type CreateTicketExportTaskMutationOptions = Apollo.BaseMutationOptions<Types.CreateTicketExportTaskMutation, Types.CreateTicketExportTaskMutationVariables>
+export const UpdateTicketExportTaskDocument = gql`
+    mutation updateTicketExportTask($data: TicketExportTaskUpdateInput!, $id: ID!) {
+  task: updateTicketExportTask(data: $data, id: $id) {
+    id
+    status
+    file {
+      publicUrl
+      originalFilename
+    }
+    totalRecordsCount
+    exportedRecordsCount
+    __typename
+  }
+}
+    `
+export type UpdateTicketExportTaskMutationFn = Apollo.MutationFunction<Types.UpdateTicketExportTaskMutation, Types.UpdateTicketExportTaskMutationVariables>
+
+/**
+ * __useUpdateTicketExportTaskMutation__
+ *
+ * To run a mutation, you first call `useUpdateTicketExportTaskMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateTicketExportTaskMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateTicketExportTaskMutation, { data, loading, error }] = useUpdateTicketExportTaskMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useUpdateTicketExportTaskMutation (baseOptions?: Apollo.MutationHookOptions<Types.UpdateTicketExportTaskMutation, Types.UpdateTicketExportTaskMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<Types.UpdateTicketExportTaskMutation, Types.UpdateTicketExportTaskMutationVariables>(UpdateTicketExportTaskDocument, options)
+}
+export type UpdateTicketExportTaskMutationHookResult = ReturnType<typeof useUpdateTicketExportTaskMutation>
+export type UpdateTicketExportTaskMutationResult = Apollo.MutationResult<Types.UpdateTicketExportTaskMutation>
+export type UpdateTicketExportTaskMutationOptions = Apollo.BaseMutationOptions<Types.UpdateTicketExportTaskMutation, Types.UpdateTicketExportTaskMutationVariables>
 export const AuthenticatedUserDocument = gql`
     query authenticatedUser {
   authenticatedUser {

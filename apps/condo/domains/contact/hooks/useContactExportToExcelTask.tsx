@@ -10,6 +10,7 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 
 import { useContactExportTaskUIInterface } from './useContactExportTaskUIInterface'
 
+import type { GetContactExportTasksQuery } from '../../../gql'
 import type {
     ContactWhereInput,
     SortContactsBy,
@@ -27,10 +28,11 @@ type UseContactExportToExcelTaskProps = {
     user: User
 }
 
+type TaskRecordType = GetContactExportTasksQuery['tasks'][number]
 interface IUseContactExportToExcelTask {
     ({ where, sortBy, format, locale, timeZone, user }: UseContactExportToExcelTaskProps): ({
         ExportButton: React.FC
-        TaskUIInterface: ITask
+        TaskUIInterface: ITask<TaskRecordType>
     })
 }
 
@@ -57,7 +59,7 @@ export const useContactExportToExcelTask: IUseContactExportToExcelTask = (props)
         <Button
             type='secondary'
             children={ExportAsExcelTitle}
-            onClick={handleRunTask}
+            onClick={() => handleRunTask()}
             loading={loading}
             icon={<Sheet size='medium' />}
         />

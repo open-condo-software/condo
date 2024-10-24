@@ -33,7 +33,7 @@ export const useTicketExportToExcelTask = ({ where, sortBy, format, locale, time
             type='secondary'
             icon={<Sheet size='medium' />}
             loading={loading}
-            onClick={handleRunTask}
+            onClick={() => handleRunTask()}
             id='TicketsExportClick'
             children={ExportAsExcelLabel}
         />

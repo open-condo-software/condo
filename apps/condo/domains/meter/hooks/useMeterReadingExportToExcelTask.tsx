@@ -63,7 +63,7 @@ export const useMeterReadingExportToExcelTask = (props: UseMeterReadingExportToE
             disabled={loading || disabled}
             children={label || ExportAsExcelLabel}
             loading={loading}
-            onClick={handleRunTask}
+            onClick={() => handleRunTask()}
         />
     ), [ExportAsExcelLabel, handleRunTask, label, loading])
 

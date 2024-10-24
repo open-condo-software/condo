@@ -36,7 +36,7 @@ export const useNewsItemRecipientsExportToExcelTask = ({ organization, user, sco
     const NewsItemRecipientsExportToXlsxButton = useCallback(() => (
         <Button
             size='small'
-            onClick={handleRunTask}
+            onClick={() => handleRunTask()}
             disabled={loading}
             children={<Download size='small'/>}
             style={downloaderButtonStyle}

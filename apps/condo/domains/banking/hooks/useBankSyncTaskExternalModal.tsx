@@ -61,7 +61,7 @@ export const useBankSyncTaskExternalModal: IUseBankSyncTaskExternalModal = (prop
     const modalFooter = useMemo(() => (
         <Button
             type='primary'
-            onClick={handleRunTask}
+            onClick={() => handleRunTask()}
             loading={loading}
             disabled={isNull(dateRange)}
         >

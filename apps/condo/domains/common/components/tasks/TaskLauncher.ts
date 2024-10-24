@@ -1,27 +1,26 @@
-import get from 'lodash/get'
-import { useCallback, useContext, useState } from 'react'
+import { useCallback, useState } from 'react'
 
-import { TasksContext } from './TasksContextProvider'
+import { useTasks } from './TasksContextProvider'
 
-import { ITask, TaskRecord } from './index'
+import { ITask, BaseTaskRecord } from './index'
 
 type UseTaskLauncherOutputType = {
     loading: boolean
-    handleRunTask: (params?: { taskAttrs?: Record<string, any> } & Record<string, any>) => void
+    // TODO(INFRA-455): fix types
+    handleRunTask: (params?: { taskAttrs?: Record<string, any> }) => void
 }
-type UseTaskLauncherType = (taskUIInterface: ITask, attrs: Record<string, any>) => UseTaskLauncherOutputType
 
 /**
  * Launches specified task by creating its record with `useCreate`
  * and adds its progress representation using ITasksContext interface
  */
-export const useTaskLauncher: UseTaskLauncherType = (taskUIInterface, attrs) => {
+export const useTaskLauncher = <TTaskRecord extends BaseTaskRecord = BaseTaskRecord> (taskUIInterface: ITask<TTaskRecord>, attrs: Record<string, any>): UseTaskLauncherOutputType  => {
     const [loading, setLoading] = useState(false)
 
     // TODO(antonal): load in-progress tasks and set loading state. For user it will mean that
-    const { addTask } = useContext(TasksContext)
+    const { addTask } = useTasks<TTaskRecord>()
 
-    const launchTask = taskUIInterface.storage.useCreateTask({}, (record: TaskRecord) => {
+    const launchTask = taskUIInterface.storage.useCreateTask({}, (record) => {
         setLoading(true)
         addTask({
             record,
@@ -39,12 +38,12 @@ export const useTaskLauncher: UseTaskLauncherType = (taskUIInterface, attrs) => 
         })
     })
 
-    const handleRunTask = useCallback((params) => {
+    const handleRunTask: UseTaskLauncherOutputType['handleRunTask'] = useCallback((params) => {
         // NOTE: The "taskAttrs" property is used here because
         // if "handleRunTask" is called in "onClick" (like "onClick={handleRunTask}"),
         // then a lot of unnecessary properties will be passed, which are passed by "onClick".
         // All these properties will be passed to the request - this should be avoided
-        const taskAttrs = get(params, 'taskAttrs')
+        const taskAttrs = params?.taskAttrs
         launchTask({ ...attrs, ...taskAttrs })
     }, [launchTask, attrs])
 
