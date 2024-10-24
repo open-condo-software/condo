@@ -76713,6 +76713,7 @@ enum WebhookSubscriptionModelType {
   User
   Organization
   Ticket
+  TicketFile
   TicketComment
   TicketCommentFile
   Contact
