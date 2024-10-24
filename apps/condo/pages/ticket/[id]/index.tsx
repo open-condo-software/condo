@@ -354,6 +354,7 @@ const TicketContent = ({ ticket }) => {
 }
 
 const TicketActionBar = ({
+    invoices,
     ticket,
     organization,
     employee,
@@ -402,6 +403,7 @@ const TicketActionBar = ({
     })
 
     const { TicketDocumentGenerationButton } = useTicketDocumentGenerationTask({
+        invoices,
         ticket,
         timeZone,
         user,
@@ -728,6 +730,7 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
                     />
                     <Col span={24}>
                         <TicketActionBar
+                            invoices={invoices}
                             ticket={ticket}
                             organization={organization}
                             employee={employee}

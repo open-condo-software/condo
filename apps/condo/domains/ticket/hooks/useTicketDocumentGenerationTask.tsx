@@ -7,6 +7,7 @@ import { Dropdown, DropdownProps } from '@open-condo/ui'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { useTaskLauncher } from '@condo/domains/common/components/tasks/TaskLauncher'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
+import { INVOICE_STATUS_CANCELED } from '@condo/domains/marketplace/constants'
 import { SUPPORTED_DOCUMENT_TYPES_BY_LOCALE, TICKET_DOCUMENT_TYPE, TICKET_DOCUMENT_GENERATION_TASK_FORMAT } from '@condo/domains/ticket/constants/ticketDocument'
 
 import { useTicketDocumentGenerationTaskUIInterface } from './useTicketDocumentGenerationTaskUIInterface'
@@ -20,9 +21,10 @@ const isSupportedDocumentTypeByLocale = (documentType, locale) => {
 const DROPDOWN_TRIGGER: DropdownProps['trigger'] = ['hover']
 const MOBILE_DROPDOWN_TRIGGER: DropdownProps['trigger'] = ['hover', 'click']
 
-export const useTicketDocumentGenerationTask = ({ ticket, user, timeZone }) => {
+export const useTicketDocumentGenerationTask = ({ invoices, ticket, user, timeZone }) => {
     const intl = useIntl()
     const CompletionWorksLabel = intl.formatMessage({ id: 'pages.condo.ticket.generateDocument.completionWorks.label' })
+    const PaidCompletionWorks = intl.formatMessage({ id: 'pages.condo.ticket.generateDocument.paidWorks.label' })
     const GenerateDocumentLabel = intl.formatMessage({ id: 'pages.condo.ticket.generateDocument.label' })
     const locale = intl.locale
 
@@ -45,15 +47,22 @@ export const useTicketDocumentGenerationTask = ({ ticket, user, timeZone }) => {
         handleRunTask({ taskAttrs: { documentType } })
     }, [handleRunTask, loading])
 
+    const isValidInvoice = invoices.find((invoice) => get(invoice, 'status') !== INVOICE_STATUS_CANCELED &&  get(invoice, 'deletedAt') === null)
+    
     const buttonItems = useMemo(() => {
         return [
             isSupportedDocumentTypeByLocale(TICKET_DOCUMENT_TYPE.COMPLETION_WORKS, locale) && {
                 label: CompletionWorksLabel,
-                key: 'generate-document-of-completion-works',
+                key: 'generate-document-of-works-completion',
                 onClick: getHandleClick(TICKET_DOCUMENT_TYPE.COMPLETION_WORKS),
             },
+            ticket.isPaid && isValidInvoice && isSupportedDocumentTypeByLocale(TICKET_DOCUMENT_TYPE.PAID_WORKS, locale) && {
+                label: PaidCompletionWorks,
+                key: 'generate-document-of-paid-works-completion',
+                onClick: getHandleClick(TICKET_DOCUMENT_TYPE.PAID_WORKS),
+            },
         ].filter(Boolean)
-    }, [CompletionWorksLabel, getHandleClick, locale])
+    }, [CompletionWorksLabel, PaidCompletionWorks, ticket.isPaid, getHandleClick, locale, isValidInvoice])
 
     const TicketDocumentGenerationButton = useCallback(() => {
         if (buttonItems.length < 1) return null
