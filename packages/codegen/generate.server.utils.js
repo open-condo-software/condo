@@ -143,215 +143,18 @@ async function execGqlWithoutAccess (context, { query, variables, errorMessage =
     return (dataPath) ? get(data, dataPath) : data
 }
 
-/** @deprecated use generateServerUtils with schemaName parameter */
-function _generateServerUtilsDeprecated (gql) {
-    if (!gql) throw new Error('you are trying to generateServerUtils without gql argument')
-
-    // note developers that they are using deprecated generateServerUtils
-    console.warn(`Generation of server utils by provided GQL object ${gql.PLURAL_FORM} going to be deprecated soon`)
-
-    async function getAll (context, where, { sortBy, first, skip } = {}, options = {}) {
-        if (!context) throw new Error('no context')
-        if (!where) throw new Error('no where')
-        _checkOptions(options)
-        return await execGqlWithoutAccess(context, {
-            query: gql.GET_ALL_OBJS_QUERY,
-            variables: {
-                where, sortBy, first, skip,
-            },
-            errorMessage: `[error] Unable to query ${gql.PLURAL_FORM}`,
-            dataPath: 'objs',
-            ...options,
-        })
-    }
-
-    async function getOne (context, where, options = {}) {
-        if (!context) throw new Error('no context')
-        if (!where) throw new Error('no where')
-        _checkOptions(options)
-
-        const objs = await getAll(context, where, { first: 2 }, options)
-
-        if (objs.length > 1) {
-            if (options.multipleObjectsError) {
-                throw new GQLError(options.multipleObjectsError, context)
-            } else {
-                throw new Error('getOne() got more than one result, check filters/logic please. The error is raised by a query if only one object is expected, but multiple objects are returned')
-            }
-        } else if (objs.length < 1) {
-            if (options.doesNotExistError) {
-                throw new GQLError(options.doesNotExistError, context)
-            } else {
-                return undefined
-            }
-        } else {
-            return objs[0]
-        }
-    }
-
-    async function count (context, where, options = {}) {
-        if (!context) throw new Error('no context')
-        if (!where) throw new Error('no where')
-        _checkOptions(options)
-        return await execGqlWithoutAccess(context, {
-            query: gql.GET_COUNT_OBJS_QUERY,
-            variables: {
-                where,
-            },
-            errorMessage: `[error] Unable to query ${gql.PLURAL_FORM}`,
-            dataPath: 'meta.count',
-            ...options,
-        })
-    }
-
-    /**
-     * Tries to create a new domain object.
-     * @param context
-     * @param data -- create data
-     * @param options -- server side tuning options
-     * @returns {Promise<*>}
-     */
-    async function create (context, data, options = {}) {
-        if (!context) throw new Error('no context')
-        if (!data) throw new Error('no data')
-        _checkOptions(options)
-        return await execGqlWithoutAccess(context, {
-            query: gql.CREATE_OBJ_MUTATION,
-            variables: { data },
-            errorMessage: `[error] Create ${gql.SINGULAR_FORM} internal error`,
-            dataPath: 'obj',
-            ...options,
-        })
-    }
-
-    async function createMany (context, data, options = {}) {
-        if (!context) throw new Error('no context')
-        if (!data) throw new Error('no data')
-        _checkOptions(options)
-        return await execGqlWithoutAccess(context, {
-            query: gql.CREATE_OBJS_MUTATION,
-            variables: { data },
-            errorMessage: `[error] Create ${gql.PLURAL_FORM} internal error`,
-            dataPath: 'objs',
-            ...options,
-        })
-    }
-
-    async function update (context, id, data, options = {}) {
-        if (!context) throw new Error('no context')
-        if (!id) throw new Error('no id')
-        if (!data) throw new Error('no data')
-        _checkOptions(options)
-        return await execGqlWithoutAccess(context, {
-            query: gql.UPDATE_OBJ_MUTATION,
-            variables: { id, data },
-            errorMessage: `[error] Update ${gql.SINGULAR_FORM} internal error`,
-            dataPath: 'obj',
-            ...options,
-        })
-    }
-
-    async function updateMany (context, data, options = {}) {
-        if (!context) throw new Error('no context')
-        if (!data) throw new Error('no data')
-        _checkOptions(options)
-
-        return await execGqlWithoutAccess(context, {
-            query: gql.UPDATE_OBJS_MUTATION,
-            variables: { data },
-            errorMessage: `[error] Update ${gql.PLURAL_FORM} internal error`,
-            dataPath: 'objs',
-            ...options,
-        })
-    }
-
-    async function delete_ (context, id, options = {}) {
-        if (!context) throw new Error('no context')
-        if (!id) throw new Error('no id')
-        _checkOptions(options)
-        return await execGqlWithoutAccess(context, {
-            query: gql.DELETE_OBJ_MUTATION,
-            variables: { id },
-            errorMessage: `[error] Delete ${gql.SINGULAR_FORM} internal error`,
-            dataPath: 'obj',
-            ...options,
-        })
-    }
-
-    async function softDelete (context, id, extraAttrs = {}) {
-        const attrs = {
-            deletedAt: 'true',
-            ...extraAttrs,
-        }
-        return await update(context, id, attrs)
-    }
-
-    async function softDeleteMany (context, ids, extraAttrs = {}) {
-        const data = ids.map(id => ({
-            id,
-            data: {
-                deletedAt: 'true',
-                ...extraAttrs,
-            },
-        }))
-        return await updateMany(context, data)
-    }
-
-    /**
-     * Tries to receive existing item, and updates it on success or creates new one. Updated/created value is returned.
-     * Attention! Be careful with where. Because of getOne, this helper will throw exception, if it gets 1+ items.
-     * @param context
-     * @param where -- getOne where check
-     * @param data -- create/update data
-     * @param options -- server side tuning options
-     * @returns {Promise<*|null|undefined>}
-     */
-    async function updateOrCreate (context, where, data, options = {}) {
-        if (!context) throw new Error('no context')
-        if (!where) throw new Error('no where')
-        if (!data) throw new Error('no data')
-        _checkOptions(options)
-
-        const existingItem = await getOne(context, where, options)
-
-        return get(existingItem, 'id')
-            ? await update(context, existingItem.id, data, options)
-            : await create(context, data, options)
-    }
-
-    return {
-        gql,
-        getAll,
-        getOne,
-        count,
-        create,
-        createMany,
-        update,
-        updateMany,
-        updateOrCreate,
-        delete: delete_,
-        softDelete,
-        softDeleteMany,
-    }
-}
-
 function _addBracesIfMissing (fields) {
     const trimmed = fields.trim()
     return trimmed.startsWith('{') ? trimmed : `{ ${trimmed} }`
 }
 
-function generateServerUtils (gqlOrSchemaName) {
-    if (!gqlOrSchemaName) throw new Error('you are trying to generateServerUtils without gqlOrSchemaName argument')
-
-    // pre calc default gql
-    const isSchemaNameProvided = typeof gqlOrSchemaName === 'string'
-    const defaultGql = isSchemaNameProvided ? generateGqlQueries(gqlOrSchemaName, '{ id }') : gqlOrSchemaName
-    const { SINGULAR_FORM: singularName, PLURAL_FORM: pluralForm } = defaultGql
-
-    // check if this is deprecated server utils generation by provided gql object
-    if (!isSchemaNameProvided) {
-        return _generateServerUtilsDeprecated(gqlOrSchemaName)
+function generateServerUtils (schemaName) {
+    if (typeof schemaName !== 'string') {
+        throw new Error('schemaName argument must be string')
     }
+
+    const defaultGql = generateGqlQueries(schemaName, '{ id }')
+    const { SINGULAR_FORM: singularName, PLURAL_FORM: pluralForm } = defaultGql
 
     // make decision to use defaultGql or not
     // don't use defaultGql for cases when fields are provided
@@ -361,19 +164,19 @@ function generateServerUtils (gqlOrSchemaName) {
     // prepare a query resolver helper
     const queryResolver = {
         getAll: (fields) => isDefaultGql(fields)
-            ? defaultGql.GET_ALL_OBJS_QUERY : generateGetAllGQL(gqlOrSchemaName, _addBracesIfMissing(fields)),
+            ? defaultGql.GET_ALL_OBJS_QUERY : generateGetAllGQL(schemaName, _addBracesIfMissing(fields)),
         count: (fields) => isDefaultGql(fields)
-            ? defaultGql.GET_COUNT_OBJS_QUERY : generateGetCountGQL(gqlOrSchemaName, _addBracesIfMissing(fields)),
+            ? defaultGql.GET_COUNT_OBJS_QUERY : generateGetCountGQL(schemaName, _addBracesIfMissing(fields)),
         create: (fields) => isDefaultGql(fields)
-            ? defaultGql.CREATE_OBJ_MUTATION : generateCreateGQL(gqlOrSchemaName, _addBracesIfMissing(fields)),
+            ? defaultGql.CREATE_OBJ_MUTATION : generateCreateGQL(schemaName, _addBracesIfMissing(fields)),
         createMany: (fields) => isDefaultGql(fields)
-            ? defaultGql.CREATE_OBJS_MUTATION : generateCreateManyGQL(gqlOrSchemaName, _addBracesIfMissing(fields)),
+            ? defaultGql.CREATE_OBJS_MUTATION : generateCreateManyGQL(schemaName, _addBracesIfMissing(fields)),
         update: (fields) => isDefaultGql(fields)
-            ? defaultGql.UPDATE_OBJ_MUTATION : generateUpdateGQL(gqlOrSchemaName, _addBracesIfMissing(fields)),
+            ? defaultGql.UPDATE_OBJ_MUTATION : generateUpdateGQL(schemaName, _addBracesIfMissing(fields)),
         updateMany: (fields) => isDefaultGql(fields)
-            ? defaultGql.UPDATE_OBJS_MUTATION : generateUpdateManyGQL(gqlOrSchemaName, _addBracesIfMissing(fields)),
+            ? defaultGql.UPDATE_OBJS_MUTATION : generateUpdateManyGQL(schemaName, _addBracesIfMissing(fields)),
         delete: (fields) => isDefaultGql(fields)
-            ? defaultGql.DELETE_OBJ_MUTATION : generateDeleteGQL(gqlOrSchemaName, _addBracesIfMissing(fields)),
+            ? defaultGql.DELETE_OBJ_MUTATION : generateDeleteGQL(schemaName, _addBracesIfMissing(fields)),
     }
 
     /**
@@ -636,7 +439,6 @@ function generateServerUtils (gqlOrSchemaName) {
         delete: delete_,
         softDelete,
         softDeleteMany,
-        hasFieldsParam: true, // TODO INFRA-538 remove this once migration to new server utils to be done
     }
 }
 

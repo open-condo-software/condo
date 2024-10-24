@@ -236,16 +236,8 @@ const loadListByChunks = async ({
             throw new Error('Operation timed out')
         }
 
-        // TODO INFRA-538 remove this condition once migration to new server utils to be done
         const resolvedFields = !isNil(fields) ? fields : 'id'
-        if (get(list, 'hasFieldsParam') && isNil(fields)) {
-            // the case when we migrate model to use new server utils, but loadListByChunks use it in old way
-            console.trace('Provide required fields parameter for loadListByChunks util')
-        }
-
-        newChunk = !get(list, 'hasFieldsParam')
-            ? await list.getAll(context, where, { sortBy, first: chunkSize, skip: skip })
-            : await list.getAll(context, where, resolvedFields, { sortBy, first: chunkSize, skip: skip })
+        newChunk = await list.getAll(context, where, resolvedFields, { sortBy, first: chunkSize, skip: skip })
         newChunkLength = newChunk.length
 
         if (newChunkLength > 0) {
