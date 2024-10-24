@@ -118,6 +118,9 @@ async function calculateFeeForReceipt (context, data) {
     })
 }
 
+const PaymentRule = generateServerUtils('PaymentRule')
+const PaymentRuleBillingScope = generateServerUtils('PaymentRuleBillingScope')
+const PaymentRuleMarketScope = generateServerUtils('PaymentRuleMarketScope')
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -136,5 +139,8 @@ module.exports = {
     createPaymentByLink,
     registerMultiPaymentForInvoices,
     calculateFeeForReceipt,
+    PaymentRule,
+    PaymentRuleBillingScope,
+    PaymentRuleMarketScope,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
