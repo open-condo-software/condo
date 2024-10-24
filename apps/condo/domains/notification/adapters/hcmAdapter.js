@@ -208,22 +208,15 @@ class HCMAdapter {
             const target = isFakeToken ? fakeNotifications : notifications
             const pushType = pushTypes[pushToken] || PUSH_TYPE_DEFAULT
             const preparedData = HCMAdapter.prepareData(data, pushToken)
-            const pushData = isSilentDataPushEnabled && pushType === PUSH_TYPE_SILENT_DATA
-                ? {
-                    token: pushToken,
-                    data: JSON.stringify({
-                        ...preparedData,
-                        '_title': notification.title,
-                        '_body': notification.body,
-                    }),
-                    ...DEFAULT_PUSH_SETTINGS,
-                }
-                : {
-                    token: pushToken,
-                    data: preparedData,
-                    notification,
-                    ...DEFAULT_PUSH_SETTINGS,
-                }
+            const pushData= {
+                token: pushToken,
+                data: JSON.stringify({
+                    ...preparedData,
+                    '_title': notification.title,
+                    '_body': notification.body,
+                }),
+                ...DEFAULT_PUSH_SETTINGS,
+            }
 
             if (!APPS_WITH_DISABLED_NOTIFICATIONS.includes(data.app)) target.push(pushData)
 
