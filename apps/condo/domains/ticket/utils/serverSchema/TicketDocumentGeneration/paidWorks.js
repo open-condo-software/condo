@@ -45,7 +45,7 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
     try {
         ({ iec, psrn, organizationAddress } = await financeInfoClient.getOrganization(organization.tin))
     } catch (error) {
-        logger({ msg: 'fall financeInfoClient when get organization by tin', organizationId: organization.id, tin: organization.tin, error: error })
+        logger.info({ msg: 'fall financeInfoClient when get organization by tin', organizationId: organization.id, tin: organization.tin, error: error })
     }
     const { format, timeZone: timeZoneFromUser } = task
 
@@ -148,7 +148,7 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
         }
     }
 
-    logger({ msg: 'finish genereate document of paid completion works ', ticketId: ticket.id })
+    logger.info({ msg: 'finish genereate document of paid completion works ', ticketId: ticket.id })
 
     return fileUploadInput
 }
