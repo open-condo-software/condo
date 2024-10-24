@@ -63,7 +63,7 @@ describe('syncUser from SBBOL', () => {
             const [ checkedIdentity ] = await UserExternalIdentityApi.getAll(adminContext, {
                 identityId,
                 identityType: SBBOL_IDP_TYPE,
-            })
+            }, 'identityId identityType')
             expect(checkedIdentity.identityId).toEqual(identityId)
             expect(checkedIdentity.identityType).toEqual(SBBOL_IDP_TYPE)
         })
@@ -103,7 +103,7 @@ describe('syncUser from SBBOL', () => {
             const identities = await UserExternalIdentityApi.getAll(adminContext, {
                 identityId,
                 identityType: SBBOL_IDP_TYPE,
-            })
+            }, 'identityId identityType user { id }')
             expect(identities).toHaveLength(1)
             const [identity] = identities
             expect(identity.identityId).toEqual(identityId)

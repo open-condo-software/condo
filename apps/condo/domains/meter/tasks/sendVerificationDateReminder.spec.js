@@ -9,6 +9,7 @@ const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
 const { sendVerificationDateReminder } = require('@condo/domains/meter/tasks/sendVerificationDateReminder')
 const { METER_VERIFICATION_DATE_REMINDER_TYPE } = require('@condo/domains/notification/constants/constants')
+const { MESSAGE_FIELDS } = require('@condo/domains/notification/gql')
 const { Message: MessageApi } = require('@condo/domains/notification/utils/serverSchema')
 
 
@@ -22,7 +23,10 @@ const getNotificationsFromMeter = async ({ verificationDate, nextVerificationDat
 
     await sendVerificationDateReminder({ date: null, searchWindowDaysShift, daysCount: 30 })
 
-    return await MessageApi.getAll(keystone, { user: { id }, type: METER_VERIFICATION_DATE_REMINDER_TYPE })
+    return await MessageApi.getAll(keystone,
+        { user: { id }, type: METER_VERIFICATION_DATE_REMINDER_TYPE },
+        MESSAGE_FIELDS,
+    )
 }
 
 describe('Meter verification notification', () => {
@@ -94,7 +98,10 @@ describe('Meter verification notification', () => {
         })
         await sendVerificationDateReminder({ date: null, searchWindowDaysShift: 0, daysCount: 30 })
         await sendVerificationDateReminder({ date: dayjs().add(1, 'day').toISOString(), searchWindowDaysShift: 0, daysCount: 30 })
-        const messages = await MessageApi.getAll(keystone, { user: { id }, type: METER_VERIFICATION_DATE_REMINDER_TYPE })
+        const messages = await MessageApi.getAll(keystone,
+            { user: { id }, type: METER_VERIFICATION_DATE_REMINDER_TYPE },
+            MESSAGE_FIELDS
+        )
         expect(messages).toHaveLength(1)
     })
 
@@ -105,7 +112,10 @@ describe('Meter verification notification', () => {
         })
         await sendVerificationDateReminder({ date: null, searchWindowDaysShift: 30, daysCount: 30 })
         await sendVerificationDateReminder({ date: dayjs().add(1, 'day').toISOString(), searchWindowDaysShift: 30, daysCount: 30 })
-        const messages = await MessageApi.getAll(keystone, { user: { id }, type: METER_VERIFICATION_DATE_REMINDER_TYPE })
+        const messages = await MessageApi.getAll(keystone,
+            { user: { id }, type: METER_VERIFICATION_DATE_REMINDER_TYPE },
+            MESSAGE_FIELDS,
+        )
         expect(messages).toHaveLength(1)
     })
 
@@ -116,7 +126,10 @@ describe('Meter verification notification', () => {
         })
         await sendVerificationDateReminder({ date: null, searchWindowDaysShift: 30, daysCount: 30 })
         await sendVerificationDateReminder({ date: dayjs().add(35, 'day').toISOString(), searchWindowDaysShift: 0, daysCount: 30 })
-        const messages = await MessageApi.getAll(keystone, { user: { id }, type: METER_VERIFICATION_DATE_REMINDER_TYPE })
+        const messages = await MessageApi.getAll(keystone,
+            { user: { id }, type: METER_VERIFICATION_DATE_REMINDER_TYPE },
+            MESSAGE_FIELDS,
+        )
         expect(messages).toHaveLength(2)
     })
 })

@@ -51,15 +51,18 @@ const closeCompletedTickets = async (defaultLimit = 100) => {
     let skippedTicket = 0
 
     while (countTicketToChange > changedTicketCounter) {
-        const ticketsToChange = await Ticket.getAll(context, ticketWhere, {
-            first: CHUNK_SIZE,
-            // NOTE The list needs to be sorted in the same order all the time.
-            // This is necessary so that we can skip the required number of elements without allowing repetitions
-            sortBy: ['createdAt_ASC', 'createdBy_ASC'],
-            // NOTE It is necessary to skip tickets that could not be updated
-            // or were skipped in order to avoid looping on the same elements
-            skip: skippedTicket,
-        })
+        const ticketsToChange = await Ticket.getAll(context,
+            ticketWhere,
+            'id organization { id }',
+            {
+                first: CHUNK_SIZE,
+                // NOTE The list needs to be sorted in the same order all the time.
+                // This is necessary so that we can skip the required number of elements without allowing repetitions
+                sortBy: ['createdAt_ASC', 'createdBy_ASC'],
+                // NOTE It is necessary to skip tickets that could not be updated
+                // or were skipped in order to avoid looping on the same elements
+                skip: skippedTicket,
+            })
 
         if (isEmpty(ticketsToChange)) break
 

@@ -173,7 +173,7 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
 
                 const message = messageWithSameUniqKey
                     ? messageWithSameUniqKey
-                    : await Message.create(context, messageAttrs)
+                    : await Message.create(context, messageAttrs, 'id status')
 
                 if (!messageWithSameUniqKey) await deliverMessage.applyAsync([message.id], getMessageQueue({ type }))
 
@@ -197,7 +197,7 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
                     sentAt: null,
                     deliveredAt: null,
                     readAt: null,
-                })
+                }, 'id status type')
 
                 await deliverMessage.applyAsync([message.id], getMessageQueue({ type: message.type }))
 

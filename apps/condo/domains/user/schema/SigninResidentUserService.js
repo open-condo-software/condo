@@ -9,6 +9,7 @@ const { getRandomString } = require('@open-condo/keystone/test.utils')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const access = require('@condo/domains/user/access/SigninResidentUserService')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { USER_FIELDS } = require('@condo/domains/user/gql')
 const { ConfirmPhoneAction, User } = require('@condo/domains/user/utils/serverSchema')
 
 const { TOKEN_NOT_FOUND, UNABLE_TO_CREATE_USER } = require('../constants/errors')
@@ -74,7 +75,8 @@ const SigninResidentUserService = new GQLCustomSchema('SigninResidentUserService
                         expiresAt_gte: new Date().toISOString(),
                         completedAt: null,
                         isPhoneVerified: true,
-                    }
+                    },
+                    'id phone isPhoneVerified'
                 )
                 if (!action) {
                     throw new GQLError(ERRORS.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, context)
@@ -84,18 +86,18 @@ const SigninResidentUserService = new GQLCustomSchema('SigninResidentUserService
                 }
                 // NOTE(pahaz): it's a time based security issue! You need to use update if the user exists to avoid it.
                 // But, really, we need to have a valid Confirm Phone Token it's a reason why it's not critical
-                let user = await User.getOne(context, { type: RESIDENT, phone: action.phone })
+                let user = await User.getOne(context, { type: RESIDENT, phone: action.phone }, USER_FIELDS)
                 if (!user) {
                     userData.phone = action.phone
                     userData.isPhoneVerified = action.isPhoneVerified
                     userData.password = getRandomString()
-                    user = await User.create(context, userData)
+                    user = await User.create(context, userData, USER_FIELDS)
                     if (!user) {
                         throw new GQLError(ERRORS.UNABLE_TO_CREATE_USER, context)
                     }
                 }
                 await ConfirmPhoneAction.update(context, action.id, { dv: 1, sender, completedAt: new Date().toISOString() })
-                const { keystone } = await getSchemaCtx('User')
+                const { keystone } = getSchemaCtx('User')
                 const sessionToken = await context.startAuthedSession({ item: user, list: keystone.lists['User'] })
                 return {
                     user: await getById('User', user.id),

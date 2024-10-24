@@ -87,7 +87,7 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                     unitType,
                     deletedAt: null,
                     user: { id: context.authedItem.id },
-                }, {
+                }, 'id', {
                     first: 1,
                 })
 
@@ -96,6 +96,7 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                     organization: { type: MANAGING_COMPANY_TYPE },
                     deletedAt: null,
                 },
+                'id',
                 { sortBy: ['isApproved_DESC', 'createdAt_ASC'], first: 1 },
                 )
 

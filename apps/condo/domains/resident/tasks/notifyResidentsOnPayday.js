@@ -28,7 +28,7 @@ async function hasConflictingPushes (context, userId) {
         createdAt_gte: now.startOf('date').toISOString(),
         createdAt_lte: now.toISOString(),
         deletedAt: null,
-    })
+    }, 'type')
 
     for (const message of userMessages) {
         if (conflictingMessageTypes.find(type => type === message.type)) return true
@@ -68,7 +68,7 @@ async function sendNotification (context, receipt, consumer) {
 }
 
 async function notifyResidentsOnPayday () {
-    const { keystone: context } = await getSchemaCtx('User')
+    const { keystone: context } = getSchemaCtx('User')
     const state = {
         startTime: dayjs().toISOString(),
         completeTime: null,
@@ -92,7 +92,10 @@ async function notifyResidentsOnPayday () {
                 deletedAt: null,
             },
             deletedAt: null,
-        }, {
+        },
+        'id resident { id user { id } } organization { id } ' +
+            'accountNumber billingIntegrationContext { id }',
+        {
             skip: state.consumersOffset,
             first: state.consumersChunkSize,
         })

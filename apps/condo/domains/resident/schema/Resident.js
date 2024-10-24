@@ -18,7 +18,7 @@ const { getUnitTypeFieldResolveInput } = require('@condo/domains/common/utils/se
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { addOrganizationFieldPlugin } = require(
     '@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
-const { PropertyAddressAndAddressKeyOnly } = require('@condo/domains/property/utils/serverSchema')
+const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { getAddressUpToBuildingFrom } = require('@condo/domains/property/utils/serverSchema/helpers')
 const access = require('@condo/domains/resident/access/Resident')
 const { PAYMENT_CATEGORIES_META } = require('@condo/domains/resident/constants')
@@ -108,7 +108,7 @@ const Resident = new GQLListSchema('Resident', {
                     if (operation === 'update') return
                     const propertyId = resolvedData.property
                     if (!propertyId) return
-                    const [property] = await PropertyAddressAndAddressKeyOnly.getAll(context, { id: propertyId })
+                    const [property] = await Property.getAll(context, { id: propertyId }, 'id address addressKey')
                     const residentAddress = getAddressUpToBuildingFrom(resolvedData.addressMeta)
                     if (property.address.toLowerCase() !== residentAddress.toLowerCase()) {
                         // but wait... if these addresses were updated by address service, the addressKey will be the same
@@ -285,7 +285,7 @@ const Resident = new GQLListSchema('Resident', {
                     unitType,
                     user: { id: userId },
                     deletedAt: null,
-                }, {
+                }, 'id', {
                     first: 1,
                 })
                 if (resident) {

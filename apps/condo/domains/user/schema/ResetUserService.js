@@ -124,7 +124,7 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
                 })
 
                 for (const externalIdentity of accordingUserExternalIdentity) {
-                    await UserExternalIdentity.softDelete(context, externalIdentity.id, { dv: 1, sender })
+                    await UserExternalIdentity.softDelete(context, externalIdentity.id, 'id', { dv: 1, sender })
                 }
 
                 // remove RecurrentPaymentContext

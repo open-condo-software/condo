@@ -28,7 +28,7 @@ const syncUser = async ({ context, userInfo, userType, authedUserId }) => {
         identityType: APPLE_ID_IDP_TYPE,
         identityId: userInfo.id,
         deletedAt: null,
-    })
+    }, 'id user { id }')
 
     // now we have the following cases:
     // 1. user already registered and have linked identity

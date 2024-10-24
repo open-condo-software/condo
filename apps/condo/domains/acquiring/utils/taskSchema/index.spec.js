@@ -58,6 +58,7 @@ const {
     RECURRENT_PAYMENT_PROCEEDING_NO_RECEIPTS_TO_PROCEED_ERROR_MESSAGE_TYPE,
     RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
+const { MESSAGE_FIELDS } = require('@condo/domains/notification/gql')
 const {
     Message,
 } = require('@condo/domains/notification/utils/serverSchema')
@@ -326,7 +327,7 @@ describe('task schema queries', () => {
         it('should throw error for deleted consumer', async () => {
             const anotherServiceConsumerClient = await makeClientWithServiceConsumer()
             const serviceConsumerId = anotherServiceConsumerClient.serviceConsumer.id
-            await ServiceConsumer.softDelete(adminContext, serviceConsumerId, dvAndSender)
+            await ServiceConsumer.softDelete(adminContext, serviceConsumerId, 'id', dvAndSender)
 
             await catchErrorFrom(async () => {
                 await getServiceConsumer(adminContext, serviceConsumerId)
@@ -1662,7 +1663,7 @@ describe('task schema queries', () => {
             const notification = await Message.getOne(adminContext, {
                 type: RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE,
                 uniqKey: `rp_${recurrentPayment.id}_1_true`,
-            })
+            }, MESSAGE_FIELDS)
             expect(notification).toBeDefined()
             expect(notification).toHaveProperty('user')
             expect(notification.user).toHaveProperty('id')
@@ -1776,7 +1777,7 @@ describe('task schema queries', () => {
             const notification = await Message.getOne(adminContext, {
                 type: notificationMeta.type,
                 uniqKey: `rp_${recurrentPayment.id}_1_false`,
-            })
+            }, MESSAGE_FIELDS)
             expect(notification).toBeDefined()
             expect(notification).toHaveProperty('user')
             expect(notification.user).toHaveProperty('id')
@@ -1841,7 +1842,7 @@ describe('task schema queries', () => {
             const notification = await Message.getOne(adminContext, {
                 type: notificationMeta.type,
                 uniqKey: `rp_${recurrentPayment.id}_1_false`,
-            })
+            }, MESSAGE_FIELDS)
             expect(notification).toBeDefined()
             expect(notification).toHaveProperty('user')
             expect(notification.user).toHaveProperty('id')
@@ -1902,7 +1903,7 @@ describe('task schema queries', () => {
             const notification = await Message.getOne(adminContext, {
                 type: notificationMeta.type,
                 uniqKey: `rp_${recurrentPayment.id}_1_false`,
-            })
+            }, MESSAGE_FIELDS)
             expect(notification).toBeDefined()
             expect(notification).toHaveProperty('user')
             expect(notification.user).toHaveProperty('id')
@@ -1960,7 +1961,7 @@ describe('task schema queries', () => {
             const notifications = await Message.getAll(adminContext, {
                 type: notificationMeta.type,
                 uniqKey: `rp_${recurrentPayment.id}_1_false`,
-            })
+            }, MESSAGE_FIELDS)
             expect(notifications).toHaveLength(0)
         })
 
@@ -1996,7 +1997,7 @@ describe('task schema queries', () => {
             const notification = await Message.getOne(adminContext, {
                 type: notificationMeta.type,
                 uniqKey: `rp_${recurrentPayment.id}_${RETRY_COUNT}_false`,
-            })
+            }, MESSAGE_FIELDS)
             expect(notification).toBeDefined()
             expect(notification).toHaveProperty('user')
             expect(notification.user).toHaveProperty('id')
@@ -2105,7 +2106,7 @@ describe('task schema queries', () => {
             const [notification] = await Message.getAll(adminContext, {
                 type: RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
                 user: { id: serviceConsumerBatch.resident.user.id },
-            }, {
+            }, MESSAGE_FIELDS, {
                 sortBy: 'createdAt_DESC',
             })
             expect(notification).toBeDefined()
@@ -2144,7 +2145,7 @@ describe('task schema queries', () => {
             const notifications = await Message.getAll(adminContext, {
                 type: RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
                 user: { id: serviceConsumerBatch.resident.user.id },
-            }, {
+            }, MESSAGE_FIELDS, {
                 sortBy: 'createdAt_DESC',
             })
             expect(notifications).toHaveLength(1)
@@ -2177,7 +2178,7 @@ describe('task schema queries', () => {
             const notifications = await Message.getAll(adminContext, {
                 type: RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
                 user: { id: serviceConsumerBatch.resident.user.id },
-            }, {
+            }, MESSAGE_FIELDS, {
                 sortBy: 'createdAt_DESC',
             })
             expect(notifications).toHaveLength(1)
@@ -2270,7 +2271,7 @@ describe('task schema queries', () => {
             const [notification] = await Message.getAll(adminContext, {
                 type: RECURRENT_PAYMENT_TOMORROW_PAYMENT_NO_RECEIPTS_MESSAGE_TYPE,
                 user: { id: serviceConsumerBatch.resident.user.id },
-            }, {
+            }, MESSAGE_FIELDS, {
                 sortBy: 'createdAt_DESC',
             })
             expect(notification).toBeDefined()
@@ -2301,7 +2302,7 @@ describe('task schema queries', () => {
             const notifications = await Message.getAll(adminContext, {
                 type: RECURRENT_PAYMENT_TOMORROW_PAYMENT_NO_RECEIPTS_MESSAGE_TYPE,
                 user: { id: serviceConsumerBatch.resident.user.id },
-            }, {
+            }, MESSAGE_FIELDS, {
                 sortBy: 'createdAt_DESC',
             })
             expect(notifications).toHaveLength(1)
@@ -2374,7 +2375,7 @@ describe('task schema queries', () => {
             const [notification] = await Message.getAll(adminContext, {
                 type: RECURRENT_PAYMENT_TOMORROW_PAYMENT_LIMIT_EXCEED_MESSAGE_TYPE,
                 user: { id: serviceConsumerBatch.resident.user.id },
-            }, {
+            }, MESSAGE_FIELDS, {
                 sortBy: 'createdAt_DESC',
             })
             expect(notification).toBeDefined()
@@ -2406,7 +2407,7 @@ describe('task schema queries', () => {
             const notifications = await Message.getAll(adminContext, {
                 type: RECURRENT_PAYMENT_TOMORROW_PAYMENT_LIMIT_EXCEED_MESSAGE_TYPE,
                 user: { id: serviceConsumerBatch.resident.user.id },
-            }, {
+            }, MESSAGE_FIELDS, {
                 sortBy: 'createdAt_DESC',
             })
             expect(notifications).toHaveLength(1)
@@ -2486,7 +2487,7 @@ describe('task schema queries', () => {
             const [notification] = await Message.getAll(adminContext, {
                 type: RECURRENT_PAYMENT_PROCEEDING_NO_RECEIPTS_TO_PROCEED_ERROR_MESSAGE_TYPE,
                 user: { id: serviceConsumerBatch.resident.user.id },
-            }, {
+            }, MESSAGE_FIELDS, {
                 sortBy: 'createdAt_DESC',
             })
             expect(notification).toBeDefined()
@@ -2517,7 +2518,7 @@ describe('task schema queries', () => {
             const notifications = await Message.getAll(adminContext, {
                 type: RECURRENT_PAYMENT_PROCEEDING_NO_RECEIPTS_TO_PROCEED_ERROR_MESSAGE_TYPE,
                 user: { id: serviceConsumerBatch.resident.user.id },
-            }, {
+            }, MESSAGE_FIELDS, {
                 sortBy: 'createdAt_DESC',
             })
             expect(notifications).toHaveLength(1)

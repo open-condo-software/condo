@@ -12,7 +12,7 @@ const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
  * @returns {Promise<void>}
  */
 async function manageTicketPropertyAddressChange (propertyId, userInfo) {
-    const { keystone: context } = await getSchemaCtx('Property')
+    const { keystone: context } = getSchemaCtx('Property')
 
     const ticketsToChange = await find('Ticket', {
         property: { id: propertyId },

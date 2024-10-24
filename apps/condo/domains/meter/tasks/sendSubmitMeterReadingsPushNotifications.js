@@ -79,8 +79,9 @@ const readOrganizations = async ({ context, meters }) => {
         list: Organization,
         where: {
             id_in: organizationIds,
+            deletedAt: null,
         },
-        deletedAt: null,
+        fields: 'id country',
     })
 }
 

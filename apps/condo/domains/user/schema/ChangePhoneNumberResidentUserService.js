@@ -84,7 +84,8 @@ const ChangePhoneNumberResidentUserService = new GQLCustomSchema('ChangePhoneNum
                         token,
                         completedAt: null,
                         isPhoneVerified: true,
-                    }
+                    },
+                    'id phone identityType'
                 )
                 if (!action) {
                     throw new GQLError(ERRORS.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, context)
@@ -98,7 +99,7 @@ const ChangePhoneNumberResidentUserService = new GQLCustomSchema('ChangePhoneNum
                         id: userId,
                     },
                     deletedAt: null,
-                })
+                }, 'id meta')
 
                 for (const externalIdentity of accordingUserExternalIdentity) {
                     const phoneNumber = get(externalIdentity, 'meta.phoneNumber') || get(externalIdentity, 'meta.phone_number')
@@ -109,7 +110,7 @@ const ChangePhoneNumberResidentUserService = new GQLCustomSchema('ChangePhoneNum
                         // if we have a flag removeUserExternalIdentitiesIfPhoneDifferent == true
                         // let's remove that UserExternalIdentity
                         if (removeUserExternalIdentitiesIfPhoneDifferent) {
-                            await UserExternalIdentity.softDelete(context, externalIdentity.id, { dv: 1, sender })
+                            await UserExternalIdentity.softDelete(context, externalIdentity.id, 'id',  { dv: 1, sender })
                         } else {
                             throw new GQLError(ERRORS.USER_HAS_CONNECTED_EXTERNAL_IDENTITY_WITH_DIFFERENT_PHONE, context)
                         }

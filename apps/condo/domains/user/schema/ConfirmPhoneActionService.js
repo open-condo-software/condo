@@ -179,7 +179,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     token,
                     expiresAt_gte: new Date(now).toISOString(),
                     completedAt: null,
-                })
+                }, 'phone isPhoneVerified')
                 if (isEmpty(actions)) {
                     throw new GQLError({ ...ERRORS.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, mutation: 'getPhoneByConfirmPhoneActionToken' }, context)
                 }
@@ -287,7 +287,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     token,
                     expiresAt_gte: new Date(now).toISOString(),
                     completedAt: null,
-                })
+                }, 'id phone')
                 if (isEmpty(actions)) {
                     throw new GQLError({ ...ERRORS.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, mutation: 'resendConfirmPhoneActionSms' }, context)
                 }
@@ -346,7 +346,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     token,
                     expiresAt_gte: new Date(now).toISOString(),
                     completedAt: null,
-                })
+                }, 'id smsCode retries smsCodeExpiresAt')
                 if (isEmpty(actions)) {
                     throw new GQLError({ ...ERRORS.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, mutation: 'completeConfirmPhoneAction' }, context)
                 }

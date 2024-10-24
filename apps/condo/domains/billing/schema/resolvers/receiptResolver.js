@@ -1,15 +1,11 @@
 const Big = require('big.js')
 const { isEmpty, pick } = require('lodash')
 
-const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
-const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
 const { find } = require('@open-condo/keystone/schema')
 
 const { ERRORS } = require('@condo/domains/billing/constants/registerBillingReceiptService')
 const { Resolver } = require('@condo/domains/billing/schema/resolvers/resolver')
-const BILLING_RECEIPT_FIELDS = '{ id }'
-const BillingReceiptGQL = generateGqlQueries('BillingReceipt', BILLING_RECEIPT_FIELDS)
-const BillingReceiptApi = generateServerUtils(BillingReceiptGQL)
+const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 const RECEIPT_UPDATE_FIELDS = ['services', 'toPayDetails', 'recipient', 'period', 'category', 'account', 'property', 'receiver', 'importId', 'toPay']
 
 class ReceiptResolver extends Resolver {
@@ -55,7 +51,7 @@ class ReceiptResolver extends Resolver {
                 )
                 if (!isEmpty(updateInput)) {
                     try {
-                        receiptIndex[index] = await BillingReceiptApi.update(this.context, receiptToUpdate.id, { ...updateInput, raw: receipt })
+                        receiptIndex[index] = await BillingReceipt.update(this.context, receiptToUpdate.id, { ...updateInput, raw: receipt })
                     } catch (error) {
                         this.error(ERRORS.RECEIPT_SAVE_FAILED, index, error)
                     }
@@ -67,7 +63,9 @@ class ReceiptResolver extends Resolver {
                     receipt.importId = this.buildUniqKey(receipt)
                 }
                 try {
-                    receiptIndex[index] = await BillingReceiptApi.create(this.context, this.buildCreateInput({ ...pick(receipt, RECEIPT_UPDATE_FIELDS), context: this.billingContext.id, raw: receipt }, ['category', 'account', 'property', 'receiver', 'context']))
+                    receiptIndex[index] = await BillingReceipt.create(this.context, this.buildCreateInput({
+                        ...pick(receipt, RECEIPT_UPDATE_FIELDS), context: this.billingContext.id, raw: receipt,
+                    }, ['category', 'account', 'property', 'receiver', 'context']))
                 } catch (error) {
                     this.error(ERRORS.RECEIPT_SAVE_FAILED, index, error)
                 }

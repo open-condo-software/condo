@@ -62,7 +62,11 @@ const UserHelpRequest = new GQLListSchema('UserHelpRequest', {
                     if (!existingItem) return resolvedData[fieldPath]
 
                     const userHelpRequestId = existingItem.id
-                    const files = await UserHelpRequestFile.getAll(context, { userHelpRequest: { id: userHelpRequestId } })
+                    const files = await UserHelpRequestFile.getAll(
+                        context,
+                        { userHelpRequest: { id: userHelpRequestId } },
+                        'file { publicUrl }'
+                    )
 
                     if (!isEmpty(files)) {
                         const currentMeta = { ...get(existingItem, fieldPath, {}), ...get(resolvedData, fieldPath, {}) }

@@ -34,7 +34,7 @@ const TicketMultipleUpdateService = new GQLCustomSchema('TicketMultipleUpdateSer
 
                 const existedTicket = await getById('Ticket', ticketId)
                 const organizationId = get(existedTicket, 'organization', null)
-                const ticketOrganization = await Organization.getOne(context, { id: organizationId })
+                const ticketOrganization = await Organization.getOne(context, { id: organizationId }, 'statusTransitions')
                 const organizationStatusTransitions = get(ticketOrganization, 'statusTransitions', DEFAULT_STATUS_TRANSITIONS)
 
                 let existedTicketStatusId = get(existedTicket, 'status', null)
@@ -47,7 +47,7 @@ const TicketMultipleUpdateService = new GQLCustomSchema('TicketMultipleUpdateSer
                             organizationStatusTransitions[existedTicketStatusId] &&
                             organizationStatusTransitions[existedTicketStatusId].includes(ticketStatusToUpdate)
                         ) {
-                            const updatedTicket = await Ticket.update(context, ticketId, ticketUpdateData)
+                            const updatedTicket = await Ticket.update(context, ticketId, ticketUpdateData, 'id status { id }')
                             existedTicketStatusId = get(updatedTicket, 'status.id', null)
                         }
                     } else {

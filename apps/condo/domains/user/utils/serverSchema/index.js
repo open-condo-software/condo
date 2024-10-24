@@ -16,26 +16,20 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 const { SMS_CODE_LENGTH } = require('@condo/domains/user/constants/common')
 const { ERRORS } = require('@condo/domains/user/constants/errors')
-const { User: UserGQL, UserExternalIdentity: UserExternalIdentityGQL, UserAdmin: UserAdminGQL } = require('@condo/domains/user/gql')
-const { ConfirmPhoneAction: ConfirmPhoneActionGQL } = require('@condo/domains/user/gql')
 const { SIGNIN_AS_USER_MUTATION } = require('@condo/domains/user/gql')
 const { REGISTER_NEW_SERVICE_USER_MUTATION } = require('@condo/domains/user/gql')
 const { SEND_MESSAGE_TO_SUPPORT_MUTATION } = require('@condo/domains/user/gql')
 const { RESET_USER_MUTATION } = require('@condo/domains/user/gql')
 // nosemgrep: generic.secrets.gitleaks.generic-api-key.generic-api-key
-const { OidcClient: OidcClientGQL } = require('@condo/domains/user/gql')
-const { ExternalTokenAccessRight: ExternalTokenAccessRightGQL } = require('@condo/domains/user/gql')
 const { GET_ACCESS_TOKEN_BY_USER_ID_QUERY } = require('@condo/domains/user/gql')
-const { UserRightsSet: UserRightsSetGQL } = require('@condo/domains/user/gql')
 const { CHECK_USER_EXISTENCE_MUTATION } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const User = generateServerUtils(UserGQL)
-const UserAdmin = generateServerUtils(UserAdminGQL)
-const UserExternalIdentity = generateServerUtils(UserExternalIdentityGQL)
-const ConfirmPhoneAction = generateServerUtils(ConfirmPhoneActionGQL)
-const OidcClient = generateServerUtils(OidcClientGQL)
-const ExternalTokenAccessRight = generateServerUtils(ExternalTokenAccessRightGQL)
+const User = generateServerUtils('User')
+const UserExternalIdentity = generateServerUtils('UserExternalIdentity')
+const ConfirmPhoneAction = generateServerUtils('ConfirmPhoneAction')
+const OidcClient = generateServerUtils('OidcClient')
+const ExternalTokenAccessRight = generateServerUtils('ExternalTokenAccessRight')
 
 async function signinAsUser (context, data) {
     if (!context) throw new Error('no context')
@@ -100,7 +94,7 @@ async function getAccessTokenByUserId (context, data) {
     })
 }
 
-const UserRightsSet = generateServerUtils(UserRightsSetGQL)
+const UserRightsSet = generateServerUtils('UserRightsSet')
 async function checkUserExistence (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
@@ -147,7 +141,7 @@ const updateEmployeesRelatedToUser = async (context, user) => {
 }
 
 async function createUserAndSendLoginData ({ context, userData }) {
-    const user = await User.create(context, userData, {
+    const user = await User.create(context, userData, 'id', {
         errorMapping: {
             '[password:minLength:User:password]': ERRORS.INVALID_PASSWORD_LENGTH,
             '[password:rejectCommon:User:password]': ERRORS.PASSWORD_IS_FREQUENTLY_USED,
@@ -175,7 +169,6 @@ async function createUserAndSendLoginData ({ context, userData }) {
 module.exports = {
     createUserAndSendLoginData,
     User,
-    UserAdmin,
     UserExternalIdentity,
     ConfirmPhoneAction,
     generateSmsCode,

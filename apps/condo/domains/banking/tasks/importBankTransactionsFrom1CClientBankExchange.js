@@ -29,7 +29,7 @@ const { ConvertToUTF8 } = require('@condo/domains/banking/utils/serverSchema/con
 const { TASK_PROCESSING_STATUS, TASK_COMPLETED_STATUS, TASK_ERROR_STATUS } = require('@condo/domains/common/constants/tasks')
 const { sleep } = require('@condo/domains/common/utils/sleep')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
-const { PropertyIdOnly } = require('@condo/domains/property/utils/serverSchema')
+const { Property } = require('@condo/domains/property/utils/serverSchema')
 
 // Avoids producing "BankSyncTaskHistoryRecord" record for each iteration in the processing loop, when we update progress
 // Practically, we need to
@@ -80,7 +80,7 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
 
     const taskOrganization = await Organization.getOne(context, {
         id: organization.id,
-    })
+    }, 'id tin country')
 
     const existingIntegrationOrganizationContext = await BankIntegrationOrganizationContext.getOne(context, {
         integration: { id: integration.id },
@@ -139,7 +139,7 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
 
         // In case if Property was deleted and BankAccount did not -> update link to a new property to connect with existing transactions
         if (bankAccount && bankAccount.property !== null) {
-            const currentProperty = await PropertyIdOnly.getOne(context, {
+            const currentProperty = await Property.getOne(context, {
                 id: bankAccount.property.id,
                 deletedAt_not: null,
             })

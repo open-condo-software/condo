@@ -5,7 +5,6 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/notification/access/MessageUserBlackList')
-const { MESSAGE_TYPES } = require('@condo/domains/notification/constants/constants')
 const { EMPTY_MESSAGE_USER_BLACK_LIST_FIELDS_ERROR } = require('@condo/domains/notification/constants/errors')
 const { getMessageTypeField } = require('@condo/domains/notification/schema/fields/MessageType')
 

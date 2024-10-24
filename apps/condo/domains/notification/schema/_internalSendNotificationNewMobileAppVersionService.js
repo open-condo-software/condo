@@ -18,7 +18,7 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 const { compareMobileAppVersions } = require('@condo/domains/notification/helpers/compareMobileAppVersion')
 const { MessageBatch, RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
-const { PropertyIdOnly } = require('@condo/domains/property/utils/serverSchema')
+const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 
@@ -66,6 +66,7 @@ const _internalSendNotificationNewMobileAppVersionService = new GQLCustomSchema(
                                 type: userType,
                             },
                         },
+                        fields: 'id meta',
                         chunkSize: 50,
                         chunkProcessor: (/** @type {RemoteClient[]} */ chunk) => {
                             const rcWithLowerBuild = []
@@ -83,12 +84,13 @@ const _internalSendNotificationNewMobileAppVersionService = new GQLCustomSchema(
                 } else {    //The case when a push is sent to suitable devices of a specific or several organizations
                     const propertyIds = await loadListByChunks({
                         context: context,
-                        list: PropertyIdOnly,
+                        list: Property,
                         where: {
                             organization: {
                                 id_in: organizationIds,
                             },
                         },
+                        fields: 'id',
                         chunkSize: 50,
                         chunkProcessor: (/** @type {Property[]} */ chunk) => {
                             const propertyIds = []
@@ -107,6 +109,7 @@ const _internalSendNotificationNewMobileAppVersionService = new GQLCustomSchema(
                                 id_in: propertyIds,
                             },
                         },
+                        fields: 'id user { id }',
                         chunkSize: 50,
                         chunkProcessor: (/** @type {Resident[]} */ chunk) => {
                             const userIds = []
@@ -129,6 +132,7 @@ const _internalSendNotificationNewMobileAppVersionService = new GQLCustomSchema(
                                 id_in: userIds,
                             },
                         },
+                        fields: 'id meta',
                         chunkSize: 50,
                         chunkProcessor: (/** @type {RemoteClient[]} */ chunk) => {
                             const rcWithLowerBuild = []
@@ -136,7 +140,8 @@ const _internalSendNotificationNewMobileAppVersionService = new GQLCustomSchema(
                             if (buildVersion) {
                                 for (const rc of chunk) {
                                     const buildVersionFromRC = get(rc, 'meta.Build')
-                                    if (compareMobileAppVersions(typeof buildVersionFromRC === 'string' ? buildVersionFromRC : buildVersion, buildVersion) < 0) rcWithLowerBuild.push(`rc:${rc.id}`)                                }
+                                    if (compareMobileAppVersions(typeof buildVersionFromRC === 'string' ? buildVersionFromRC : buildVersion, buildVersion) < 0) rcWithLowerBuild.push(`rc:${rc.id}`)
+                                }
                             }
 
                             return rcWithLowerBuild

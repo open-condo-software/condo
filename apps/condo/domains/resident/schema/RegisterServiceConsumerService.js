@@ -19,7 +19,7 @@ const { WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
-const { PropertyOrganizationIdOnly } = require('@condo/domains/property/utils/serverSchema')
+const { Property } = require('@condo/domains/property/utils/serverSchema')
 const access = require('@condo/domains/resident/access/RegisterServiceConsumerService')
 const { resetUserResidentCache } = require('@condo/domains/resident/utils/accessSchema')
 const { ServiceConsumer, Resident } = require('@condo/domains/resident/utils/serverSchema')
@@ -105,7 +105,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
 
                 if (!accountNumber || accountNumber.length === 0) throw new GQLError(ERRORS.ACCOUNT_NUMBER_IS_NOT_SPECIFIED, context)
 
-                const resident = await Resident.getOne(context, { id, deletedAt: null })
+                const resident = await Resident.getOne(context, { id, deletedAt: null }, 'id user { id } address addressKey')
                 if (!resident) throw new GQLError(ERRORS.RESIDENT_NOT_FOUND, context)
                 await resetUserResidentCache(resident.user.id)
 
@@ -114,7 +114,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                     ? { addressKey: resident.addressKey }
                     : { address_i: resident.address }
 
-                const residentProperties = await PropertyOrganizationIdOnly.getAll(context, propertyWhere)
+                const residentProperties = await Property.getAll(context, propertyWhere, 'id organization { id }')
 
                 let organizations = await Organization.getAll(context, {
                     id_in: uniq(residentProperties.map(property => property.organization.id)), deletedAt: null,
@@ -223,12 +223,12 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                 if (!accountNumber || accountNumber.length === 0) {
                     throw new GQLError(ERRORS.ACCOUNT_NUMBER_IS_NOT_SPECIFIED, context)
                 }
-                const resident = await Resident.getOne(context, { id: residentId, deletedAt: null })
+                const resident = await Resident.getOne(context, { id: residentId, deletedAt: null }, 'id user { id }')
                 if (!resident) {
                     throw new GQLError(ERRORS.RESIDENT_NOT_FOUND, context)
                 }
                 await resetUserResidentCache(resident.user.id)
-                const organization = await Organization.getOne(context, { id: organizationId, deletedAt: null })
+                const organization = await Organization.getOne(context, { id: organizationId, deletedAt: null }, 'id tin')
                 if (!organization) {
                     throw new GQLError(ERRORS.ORGANIZATION_NOT_FOUND, context)
                 }
@@ -283,7 +283,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                     accountNumber_i: accountNumber,
                     organization: { id: organizationId },
                     deletedAt: null,
-                })
+                }, 'id acquiringIntegrationContext { id } billingIntegrationContext { id }')
                 let serviceConsumerId = existingServiceConsumer ? existingServiceConsumer.id : null
                 if (existingServiceConsumer) {
                     serviceConsumerId = existingServiceConsumer.id

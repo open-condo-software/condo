@@ -66,7 +66,7 @@ const addressFieldHooks = {
                 },
                 deletedAt: null,
             }
-            const sameAddressProperties = await PropertyAPI.getAll(context, where, { first: 1 })
+            const sameAddressProperties = await PropertyAPI.getAll(context, where, 'id', { first: 1 })
 
             if (!isEmpty(sameAddressProperties)) {
                 throw new GQLError({
