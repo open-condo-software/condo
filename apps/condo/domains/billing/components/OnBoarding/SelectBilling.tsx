@@ -19,6 +19,7 @@ import { BillingDescriptionModalContent } from './BillingDescriptionModalContent
 import type { BillingIntegration as BillingIntegrationType } from '@app/condo/schema'
 import type { RowProps } from 'antd'
 
+
 const CARD_GAP = 40
 const MAX_CARDS = 4
 const FULL_SPAN = 24

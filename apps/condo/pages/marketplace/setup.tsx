@@ -4,6 +4,8 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo } from 'react'
 
+import { prepareSSRContext } from '@open-condo/miniapp-utils'
+import { initializeApollo } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { StepItem } from '@open-condo/ui'
@@ -14,12 +16,18 @@ import { AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clie
 import { useOnboardingProgress } from '@condo/domains/billing/hooks/useOnboardingProgress'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
+import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
+import { extractSSRState } from '@condo/domains/common/utils/next/ssr'
 import { OfferSetupPage } from '@condo/domains/marketplace/components/MarketplaceOnboarding/OfferSetupPage'
 import { RequisitesSetup } from '@condo/domains/marketplace/components/MarketplaceOnboarding/RequisitesSetup'
 import {
     MarketplaceReadPermissionRequired,
     MarketplaceSetupPermissionRequired,
 } from '@condo/domains/marketplace/components/PageAccess'
+
+import type { GetServerSideProps } from 'next'
+
 
 const STEPS_GUTTER: RowProps['gutter'] = [60, 60]
 const FULL_COL_SPAN = 24
@@ -123,3 +131,20 @@ const MarketplaceOnboardingPage: IMarketplaceOnboardingPage = ({ onFinish, withV
 MarketplaceOnboardingPage.requiredAccess = MarketplaceSetupPermissionRequired
 
 export default MarketplaceOnboardingPage
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const { req, res } = context
+
+    // @ts-ignore In Next 9 the types (only!) do not match the expected types
+    const { headers } = prepareSSRContext(req, res)
+    const client = initializeApollo({ headers })
+
+    const { redirect, user } = await prefetchAuthOrRedirect(client, context)
+    if (redirect) return redirect
+
+    await prefetchOrganizationEmployee({ client, context, userId: user.id })
+
+    return extractSSRState(client, req, res, {
+        props: {},
+    })
+}

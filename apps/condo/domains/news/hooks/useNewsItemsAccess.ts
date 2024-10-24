@@ -2,6 +2,7 @@ import get from 'lodash/get'
 
 import { useOrganization } from '@open-condo/next/organization'
 
+
 type TUseNewsItemsAccess = {
     canRead: boolean
     canManage: boolean

@@ -14,7 +14,7 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { REPLACE_ORGANIZATION_EMPLOYEE_ROLE_MUTATION } from '@condo/domains/organization/gql'
 
 
-type UseDeleteEmployeeRole = (employeeRoles?: Array<IEmployeeRole>, employeeRoleToDelete?: IEmployeeRole, currentEmployeeRole?: IEmployeeRole) => {
+type UseDeleteEmployeeRole = (employeeRoles?: Array<IEmployeeRole>, employeeRoleToDelete?: IEmployeeRole, currentEmployeeRole?: Pick<IEmployeeRole, 'id'>) => {
     DeleteRoleButton: React.FC<Omit<ButtonProps, 'type' | 'danger' | 'onClick' | 'children'>>
     DeleteRoleModal: JSX.Element
 }

@@ -6,6 +6,8 @@ import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 
 import { PlusCircle, Search } from '@open-condo/icons'
+import { prepareSSRContext } from '@open-condo/miniapp-utils'
+import { initializeApollo } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button } from '@open-condo/ui'
@@ -22,12 +24,17 @@ import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePrevio
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
+import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
+import { extractSSRState } from '@condo/domains/common/utils/next/ssr'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { EmployeesReadPermissionRequired } from '@condo/domains/organization/components/PageAccess'
 import { useTableColumns } from '@condo/domains/organization/hooks/useTableColumns'
 import { useTableFilters } from '@condo/domains/organization/hooks/useTableFilters'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { IFilters } from '@condo/domains/organization/utils/helpers'
+
+import type { GetServerSideProps } from 'next'
 
 
 const ADD_EMPLOYEE_ROUTE = '/employee/create/'
@@ -182,3 +189,20 @@ const EmployeesPage = () => {
 EmployeesPage.requiredAccess = EmployeesReadPermissionRequired
 
 export default EmployeesPage
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const { req, res } = context
+
+    // @ts-ignore In Next 9 the types (only!) do not match the expected types
+    const { headers } = prepareSSRContext(req, res)
+    const client = initializeApollo({ headers })
+
+    const { redirect, user } = await prefetchAuthOrRedirect(client, context)
+    if (redirect) return redirect
+
+    await prefetchOrganizationEmployee({ client, context, userId: user.id })
+
+    return extractSSRState(client, req, res, {
+        props: {},
+    })
+}

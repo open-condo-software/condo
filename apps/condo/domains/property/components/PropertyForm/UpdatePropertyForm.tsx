@@ -12,6 +12,7 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 
 import BasePropertyForm from '../BasePropertyForm'
 
+
 interface IUpdatePropertyForm {
     id: string
 }

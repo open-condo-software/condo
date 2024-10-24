@@ -20,6 +20,7 @@ import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.uti
 import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
 import { IFilters } from '@condo/domains/contact/utils/helpers'
 
+
 type UseTableColumns = (filterMetas: Array<FiltersMeta<ContactWhereInput>>) => ColumnsType<Contact>
 export const useTableColumns: UseTableColumns = (filterMetas) => {
     const intl = useIntl()

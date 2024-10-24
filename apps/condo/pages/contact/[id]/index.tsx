@@ -7,6 +7,8 @@ import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback } from 'react'
 
 import { Edit } from '@open-condo/icons'
+import { prepareSSRContext } from '@open-condo/miniapp-utils'
+import { initializeApollo } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Typography } from '@open-condo/ui'
@@ -19,9 +21,14 @@ import { FieldPairRow as BaseFieldPairRow, FieldPairRowProps } from '@condo/doma
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { TicketCardList } from '@condo/domains/common/components/TicketCard/TicketCardList'
 import { fontSizes } from '@condo/domains/common/constants/style'
+import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
+import { extractSSRState } from '@condo/domains/common/utils/next/ssr'
 import { ContactsReadPermissionRequired } from '@condo/domains/contact/components/PageAccess'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
+
+import type { GetServerSideProps } from 'next'
 
 
 const VALUE_FIELD_WRAPPER_STYLE = { width: '100%' }
@@ -252,3 +259,20 @@ const ContactInfoPage = () => {
 ContactInfoPage.requiredAccess = ContactsReadPermissionRequired
 
 export default ContactInfoPage
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const { req, res } = context
+
+    // @ts-ignore In Next 9 the types (only!) do not match the expected types
+    const { headers } = prepareSSRContext(req, res)
+    const client = initializeApollo({ headers })
+
+    const { redirect, user } = await prefetchAuthOrRedirect(client, context)
+    if (redirect) return redirect
+
+    await prefetchOrganizationEmployee({ client, context, userId: user.id })
+
+    return extractSSRState(client, req, res, {
+        props: {},
+    })
+}

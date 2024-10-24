@@ -6,7 +6,6 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, CSSProperties } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { ChevronDown, PlusCircle } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -53,7 +52,6 @@ export const InlineOrganizationSelect: React.FC = () => {
     const { user } = useAuth()
     const { link, selectLink, isLoading: organizationLoading } = useOrganization()
     const userId = get(user, 'id', null)
-    const { useFlag } = useFeatureFlags()
 
     const { objs: userEmployees, allDataLoaded: employeesLoaded } = OrganizationEmployee.useAllObjects({
         where: {

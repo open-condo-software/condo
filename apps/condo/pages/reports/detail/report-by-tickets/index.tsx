@@ -14,7 +14,9 @@ import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRe
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { Edit, PlusCircle, Print } from '@open-condo/icons'
+import { prepareSSRContext } from '@open-condo/miniapp-utils'
 import { useApolloClient, useLazyQuery } from '@open-condo/next/apollo'
+import { initializeApollo } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button } from '@open-condo/ui'
@@ -44,6 +46,9 @@ import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangeP
 import RadioGroupWithIcon from '@condo/domains/common/components/RadioGroupWithIcon'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { fontSizes } from '@condo/domains/common/constants/style'
+import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
+import { extractSSRState } from '@condo/domains/common/utils/next/ssr'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import {
     DATE_DISPLAY_FORMAT,
@@ -56,6 +61,9 @@ import {
     searchEmployeeUser,
     searchOrganizationProperty,
 } from '@condo/domains/ticket/utils/clientSchema/search'
+
+import type { GetServerSideProps } from 'next'
+
 
 dayjs.extend(quarterOfYear)
 
@@ -1051,3 +1059,20 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
 TicketAnalyticsPage.requiredAccess = OrganizationRequired
 
 export default TicketAnalyticsPage
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+    const { req, res } = context
+
+    // @ts-ignore In Next 9 the types (only!) do not match the expected types
+    const { headers } = prepareSSRContext(req, res)
+    const client = initializeApollo({ headers })
+
+    const { redirect, user } = await prefetchAuthOrRedirect(client, context)
+    if (redirect) return redirect
+
+    await prefetchOrganizationEmployee({ client, context, userId: user.id })
+
+    return extractSSRState(client, req, res, {
+        props: {},
+    })
+}
