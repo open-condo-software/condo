@@ -7,6 +7,7 @@ import { Dropdown, DropdownProps } from '@open-condo/ui'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { useTaskLauncher } from '@condo/domains/common/components/tasks/TaskLauncher'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
+import { INVOICE_STATUS_CANCELED } from '@condo/domains/marketplace/constants'
 import { SUPPORTED_DOCUMENT_TYPES_BY_LOCALE, TICKET_DOCUMENT_TYPE, TICKET_DOCUMENT_GENERATION_TASK_FORMAT } from '@condo/domains/ticket/constants/ticketDocument'
 
 import { useTicketDocumentGenerationTaskUIInterface } from './useTicketDocumentGenerationTaskUIInterface'
@@ -46,7 +47,7 @@ export const useTicketDocumentGenerationTask = ({ invoices, ticket, user, timeZo
         handleRunTask({ taskAttrs: { documentType } })
     }, [handleRunTask, loading])
 
-    const isValidInvoice = invoices.find((invoice) => get(invoice, 'status') !== 'Canceled' &&  get(invoice, 'deletedAt') === null)
+    const isValidInvoice = invoices.find((invoice) => get(invoice, 'status') !== INVOICE_STATUS_CANCELED &&  get(invoice, 'deletedAt') === null)
     
     const buttonItems = useMemo(() => {
         return [

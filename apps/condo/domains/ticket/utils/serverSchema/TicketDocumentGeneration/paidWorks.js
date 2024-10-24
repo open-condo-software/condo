@@ -4,6 +4,7 @@ const dayjs = require('dayjs')
 const { get } = require('lodash')
 
 const { FinanceInfoClient } = require('@open-condo/clients/finance-info-client/FinanceInfoClient')
+const { getLogger } = require('@open-condo/keystone/logging')
 const { getByCondition } = require('@open-condo/keystone/schema')
 
 const { buildExportFile, DOCX_FILE_META } = require('@condo/domains/common/utils/createExportFile')
@@ -14,6 +15,8 @@ const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { TICKET_DOCUMENT_GENERATION_TASK_FORMAT } = require('@condo/domains/ticket/constants/ticketDocument')
 const { buildEmptyLineDifferentLength, formatDate, renderMoney } = require('@condo/domains/ticket/utils')
+
+const logger = getLogger('generateDocumentOfPaidWorksCompletion')
 
 const financeInfoClient = new FinanceInfoClient()
 
@@ -42,7 +45,7 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
     try {
         ({ iec, psrn, organizationAddress } = await financeInfoClient.getOrganization(organization.tin))
     } catch (error) {
-        console.error(error)
+        logger({ msg: 'fall financeInfoClient when get organization by tin', organizationId: organization.id, tin: organization.tin, error: error })
     }
     const { format, timeZone: timeZoneFromUser } = task
 
@@ -144,6 +147,8 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
             throw new Error(`unexpected format "${format}" for a document generation`)
         }
     }
+
+    logger({ msg: 'finish genereate document of paid completion works ', ticketId: ticket.id })
 
     return fileUploadInput
 }
