@@ -2,9 +2,7 @@ const { isEmpty, get, chunk } = require('lodash')
 
 const { createInstance } = require('@open-condo/clients/address-service-client')
 const { AddressFromStringParser } = require('@open-condo/clients/address-service-client/utils/parseAddressesFromString')
-const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
-const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
-const { find, itemsQuery } = require('@open-condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 
 const {
     ERRORS,
@@ -13,12 +11,9 @@ const {
 } = require('@condo/domains/billing/constants/registerBillingReceiptService')
 const { Resolver } = require('@condo/domains/billing/schema/resolvers/resolver')
 const { isValidFias, normalizePropertyGlobalId } = require('@condo/domains/billing/schema/resolvers/utils')
+const { BillingProperty } = require('@condo/domains/billing/utils/serverSchema')
 const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
 const { FLAT_UNIT_TYPE : DEFAULT_UNIT_TYPE, UNIT_TYPES } = require('@condo/domains/property/constants/common')
-
-const BILLING_PROPERTY_FIELDS = '{ id importId globalId address addressKey }'
-const BillingPropertyGQL = generateGqlQueries('BillingProperty', BILLING_PROPERTY_FIELDS)
-const BillingPropertyApi = generateServerUtils(BillingPropertyGQL)
 
 
 class PropertyResolver extends Resolver {
@@ -259,7 +254,7 @@ class PropertyResolver extends Resolver {
                     }, existingProperty)
                     if (!isEmpty(updateInput)) {
                         try {
-                            await BillingPropertyApi.update(this.context, existingProperty.id, updateInput)
+                            await BillingProperty.update(this.context, existingProperty.id, updateInput)
                         } catch (error) {
                             receiptIndex[index].error = this.error(ERRORS.PROPERTY_SAVE_FAILED, index, error)
                         }
@@ -268,7 +263,7 @@ class PropertyResolver extends Resolver {
                 }
             } else {
                 try {
-                    const newProperty = await BillingPropertyApi.create(this.context, this.buildCreateInput({
+                    const newProperty = await BillingProperty.create(this.context, this.buildCreateInput({
                         context: this.billingContext.id,
                         address: this.addressFieldValue(address, resultAddressKey),
                         importId: importIdInput,

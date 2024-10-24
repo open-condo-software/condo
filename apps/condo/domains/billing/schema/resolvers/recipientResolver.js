@@ -1,8 +1,6 @@
 const { isEmpty, get } = require('lodash')
 
 const { getOrganizationInfo, getBankInfo } = require('@open-condo/clients/finance-info-client')
-const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
-const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
 const { find } = require('@open-condo/keystone/schema')
 
 const {
@@ -10,10 +8,11 @@ const {
     RECIPIENT_IS_NOT_APPROVED,
 } = require('@condo/domains/billing/constants/registerBillingReceiptService')
 const { Resolver } = require('@condo/domains/billing/schema/resolvers/resolver')
+const { BillingRecipient } = require('@condo/domains/billing/utils/serverSchema')
+
 
 const BILLING_RECIPIENT_FIELDS = '{ id name bankName bankAccount tin iec bic offsettingAccount territoryCode isApproved }'
-const BillingRecipientGQL = generateGqlQueries('BillingRecipient', BILLING_RECIPIENT_FIELDS)
-const BillingRecipientApi = generateServerUtils(BillingRecipientGQL)
+
 class RecipientResolver extends Resolver {
     constructor ({ billingContext, context }) {
         super(billingContext, context, { name: 'recipient' })
@@ -30,7 +29,11 @@ class RecipientResolver extends Resolver {
     async syncBillingRecipient (existing, data){
         if (!existing) {
             try {
-                const newRecipient = await BillingRecipientApi.create(this.context, this.buildCreateInput(data, ['context']))
+                const newRecipient = await BillingRecipient.create(
+                    this.context,
+                    this.buildCreateInput(data, ['context']),
+                    BILLING_RECIPIENT_FIELDS
+                )
                 this.recipients.push(newRecipient)
                 return newRecipient
             } catch (error) {
@@ -40,7 +43,12 @@ class RecipientResolver extends Resolver {
             const updateInput = this.buildUpdateInput(data, existing)
             if (!isEmpty(updateInput)) {
                 try {
-                    const updatedRecipient = await BillingRecipientApi.update(this.context, existing.id, updateInput)
+                    const updatedRecipient = await BillingRecipient.update(
+                        this.context,
+                        existing.id,
+                        updateInput,
+                        BILLING_RECIPIENT_FIELDS,
+                    )
                     this.recipients.push(updatedRecipient)
                     return updatedRecipient
                 } catch (error) {
