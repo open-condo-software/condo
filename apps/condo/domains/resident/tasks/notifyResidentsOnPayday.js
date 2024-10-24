@@ -68,7 +68,7 @@ async function sendNotification (context, receipt, consumer) {
 }
 
 async function notifyResidentsOnPayday () {
-    const { keystone: context } = await getSchemaCtx('User')
+    const { keystone: context } = getSchemaCtx('User')
     const state = {
         startTime: dayjs().toISOString(),
         completeTime: null,
@@ -93,7 +93,8 @@ async function notifyResidentsOnPayday () {
             },
             deletedAt: null,
         },
-        'id resident { id } organization { id } accountNumber billingIntegrationContext { id }',
+        'id resident { id user { id } } organization { id } ' +
+            'accountNumber billingIntegrationContext { id }',
         {
             skip: state.consumersOffset,
             first: state.consumersChunkSize,

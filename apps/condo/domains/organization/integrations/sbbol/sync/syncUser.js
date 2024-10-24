@@ -40,6 +40,8 @@ const registerIdentity = async ({ context, user, identityId }) => {
     })
 }
 
+const USER_FIELDS = 'id name phone'
+
 /**
  * Creates or updates user, according to data from SBBOL
  *
@@ -88,7 +90,7 @@ const syncUser = async ({ context: { context, keystone }, userInfo, identityId }
 
         // create a user
         const createdUser = await User.create(context, { ...userInfo, ...dvSenderFields })
-        const user = await User.getOne(context, { id: createdUser.id }, 'id name')
+        const user = await User.getOne(context, { id: createdUser.id }, USER_FIELDS)
         
         // register a UserExternalIdentity
         await registerIdentity({
@@ -143,7 +145,7 @@ const syncUser = async ({ context: { context, keystone }, userInfo, identityId }
         const updatedUser = await User.update(context, user.id, {
             ...updateInput,
             ...dvSenderFields,
-        }, 'id name')
+        }, USER_FIELDS)
 
         // create a UserExternalIdentity - since user wasn't imported - no identity was saved in db
         await registerIdentity({
@@ -153,7 +155,7 @@ const syncUser = async ({ context: { context, keystone }, userInfo, identityId }
         return updatedUser
     }
 
-    return await User.getOne(context, { id: user.id }, 'id name')
+    return await User.getOne(context, { id: user.id }, USER_FIELDS)
 }
 
 module.exports = {
