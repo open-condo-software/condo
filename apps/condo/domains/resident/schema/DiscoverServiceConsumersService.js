@@ -19,6 +19,8 @@ const { Property } = require('@condo/domains/property/utils/serverSchema')
 const access = require('@condo/domains/resident/access/DiscoverServiceConsumersService')
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 
+const { RESIDENT_FIELDS } = require('../gql')
+
 
 const MAX_RESIDENTS_COUNT_FOR_USER_PROPERTY = 6
 const BILLING_ACCOUNT_FIELDS = 'id unitName unitType number '
@@ -421,7 +423,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                     list: Resident,
                     chunkSize: 50,
                     where: residentsWhere,
-                    fields: 'id address addressKey unitType unitName',
+                    fields: 'id address addressKey unitType unitName property { id } user { id }',
                     chunkProcessor: (/** @type {Resident[]} */ chunk) => {
                         const chunkCombinations = flatMap(chunk, (resident) => billingAccountItemsData.map((billingAccountItemData) => {
                             if (

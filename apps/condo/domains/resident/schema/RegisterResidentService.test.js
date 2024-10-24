@@ -34,7 +34,7 @@ const {
     Property,
 } = require('@condo/domains/property/utils/testSchema')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
-const { registerResidentByTestClient, Resident, ServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
+const { registerResidentByTestClient, Resident } = require('@condo/domains/resident/utils/testSchema')
 const {
     makeClientWithResidentUser,
     makeClientWithSupportUser,

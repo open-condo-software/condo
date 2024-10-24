@@ -65,7 +65,7 @@ async function getAnonymousSettings (context, email, phone, messageType) {
                 deletedAt: null,
             },
         ],
-    }, 'messageType messageTransport isEnabled')
+    }, 'messageType messageTransport isEnabled email phone')
 }
 
 
