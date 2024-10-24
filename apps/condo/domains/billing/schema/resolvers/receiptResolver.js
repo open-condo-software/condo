@@ -51,7 +51,7 @@ class ReceiptResolver extends Resolver {
                 )
                 if (!isEmpty(updateInput)) {
                     try {
-                        receiptIndex[index] = await BillingReceiptApi.update(this.context, receiptToUpdate.id, { ...updateInput, raw: receipt })
+                        receiptIndex[index] = await BillingReceipt.update(this.context, receiptToUpdate.id, { ...updateInput, raw: receipt })
                     } catch (error) {
                         this.error(ERRORS.RECEIPT_SAVE_FAILED, index, error)
                     }
