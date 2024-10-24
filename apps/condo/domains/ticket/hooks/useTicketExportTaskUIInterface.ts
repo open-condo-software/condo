@@ -1,19 +1,23 @@
-import { TicketExportTask } from '@app/condo/schema'
+import {
+    GetTicketExportTasksDocument,
+    CreateTicketExportTaskDocument,
+    UpdateTicketExportTaskDocument, type GetTicketExportTasksQuery,
+} from '@app/condo/gql'
 
+import { ITask } from '@condo/domains/common/components/tasks'
 import { useExportTaskUIInterface } from '@condo/domains/common/hooks/useExportTaskUIInterface'
-import { TicketExportTask as TicketExportTaskApi } from '@condo/domains/ticket/utils/clientSchema'
 
 
-export const useTicketExportTaskUIInterface = () => {
-    const { TaskUIInterface } = useExportTaskUIInterface<TicketExportTask>({
+type TaskRecordType = GetTicketExportTasksQuery['tasks'][number]
+type UseTicketExportTaskUIInterfaceType = () => ({ TicketExportTask: ITask<TaskRecordType> })
+
+export const useTicketExportTaskUIInterface: UseTicketExportTaskUIInterfaceType = () => {
+    const { TaskUIInterface } = useExportTaskUIInterface({
         schemaName: 'TicketExportTask',
-        clientSchema: TicketExportTaskApi,
+        getTasksDocument: GetTicketExportTasksDocument,
+        createTaskDocument: CreateTicketExportTaskDocument,
+        updateTaskDocument: UpdateTicketExportTaskDocument,
     })
 
-    return {
-        // Key of object should match `__typename` value of `TicketExportTask` record (name of Keystone schema)
-        // This will be used to match this interface implementation with
-        // initial loaded record on first page load
-        TicketExportTask: TaskUIInterface,
-    }
+    return { TicketExportTask: TaskUIInterface }
 }

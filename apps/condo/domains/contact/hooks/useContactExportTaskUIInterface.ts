@@ -1,15 +1,22 @@
+import {
+    GetContactExportTasksDocument,
+    CreateContactExportTaskDocument,
+    UpdateContactExportTaskDocument, type GetContactExportTasksQuery,
+} from '@app/condo/gql'
+
 import { ITask } from '@condo/domains/common/components/tasks'
 import { useExportTaskUIInterface } from '@condo/domains/common/hooks/useExportTaskUIInterface'
-import { ContactExportTask } from '@condo/domains/contact/utils/clientSchema'
 
-import type { ContactExportTask as ContactExportTaskType } from '@app/condo/schema'
 
-interface IUseContactExportTaskUIInterface { (): ({ ContactExportTask: ITask }) }
+type TaskRecordType = GetContactExportTasksQuery['tasks'][number]
+type UseContactExportTaskUIInterfaceType = () => ({ ContactExportTask: ITask<TaskRecordType> })
 
-export const useContactExportTaskUIInterface: IUseContactExportTaskUIInterface = () => {
-    const { TaskUIInterface } = useExportTaskUIInterface<ContactExportTaskType>({
-        clientSchema: ContactExportTask,
+export const useContactExportTaskUIInterface: UseContactExportTaskUIInterfaceType = () => {
+    const { TaskUIInterface } = useExportTaskUIInterface({
         schemaName: 'ContactExportTask',
+        getTasksDocument: GetContactExportTasksDocument,
+        createTaskDocument: CreateContactExportTaskDocument,
+        updateTaskDocument: UpdateContactExportTaskDocument,
     })
 
     return { ContactExportTask: TaskUIInterface }
