@@ -56,11 +56,12 @@ describe('receiptQRCodeUtils', () => {
 
     describe('RU QR-codes decoded correctly', () => {
         const cases = [ // Got from real QR-code
-            [iconv.encode(TEST_STRING, 'UTF-8').toString('base64')],
-            [iconv.encode(TEST_STRING, 'cp1251').toString('base64')],
+            // [testName, testData]
+            ['utf-8', iconv.encode(TEST_STRING, 'UTF-8').toString('base64')],
+            ['cp1251', iconv.encode(TEST_STRING, 'cp1251').toString('base64')],
         ]
 
-        test.each(cases)('%p %p', (qrStr) => {
+        test.each(cases)('from %p', (testName, qrStr) => {
             const parsed = parseRUReceiptQRCode(qrStr)
             expect(parsed).toEqual({
                 'Name': 'ООО «УК ЭкоГрад»',

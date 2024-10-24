@@ -18,21 +18,21 @@ const logger = getLogger('parseRUReceiptQRCode')
  */
 
 /**
- * @param {string} qrStr The QR code string got from the picture
+ * @param {string} qrBase64Str The QR code b64-encoded string got from the picture
  * @return {TRUQRCodeFields}
  */
-function parseRUReceiptQRCode (qrStr) {
-    const buffer = Buffer.from(qrStr, 'base64')
+function parseRUReceiptQRCode (qrBase64Str) {
+    const buffer = Buffer.from(qrBase64Str, 'base64')
     const detectedEncoding = detectEncoding(buffer)
     const decodedQrStr = convertEncoding(buffer, detectedEncoding)
 
     const matches = /^ST(?<version>\d{4})(?<encodingTag>\d)\|(?<requisitesStr>.*)$/g.exec(decodedQrStr)
 
     if (!matches) {
-        logger.error({ msg:'Error qr-code parsing', data: { qrStr, decodedQrStr, detectedEncoding } })
+        logger.error({ msg:'Error qr-code parsing', data: { qrStr: qrBase64Str, decodedQrStr, detectedEncoding } })
         throw new Error('Invalid QR code')
     }
-    logger.info({ msg:'Parsed qr-code', data: { qrStr, decodedQrStr, detectedEncoding } })
+    logger.info({ msg:'Parsed qr-code', data: { qrStr: qrBase64Str, decodedQrStr, detectedEncoding } })
 
     const requisitesStr = get(matches, ['groups', 'requisitesStr'], '')
     return Object.fromEntries(requisitesStr.split('|').map((part) => part.split('=', 2)))
