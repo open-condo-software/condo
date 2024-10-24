@@ -1,4 +1,4 @@
-import get from 'lodash/get'
+import { BankSyncTaskCreateInput }  from '@app/condo/schema'
 import isNull from 'lodash/isNull'
 import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 
@@ -37,14 +37,14 @@ const useFileImport: IUseFileImport = ({ propertyId, bankAccount, organizationId
 
     const { user } = useAuth()
     const { BankSyncTask: BankSyncTaskUIInterface } = useBankSyncTaskUIInterface()
-    const { loading, handleRunTask } = useTaskLauncher(BankSyncTaskUIInterface, {
+    const { loading, handleRunTask } = useTaskLauncher<BankSyncTaskCreateInput>(BankSyncTaskUIInterface, {
         dv: 1,
         sender: getClientSideSenderInfo(),
-        user: { connect: { id: get(user, 'id') } },
+        user: { connect: { id: user?.id } },
         property: { connect: { id: propertyId } },
         organization: { connect: { id: organizationId } },
-        ...(bankAccount && { account: { connect: { id: get(bankAccount, 'id') } } }),
-        ...(bankAccount && { integrationContext: { connect: { id: get(bankAccount, 'integrationContext.id') } } }),
+        ...(bankAccount && { account: { connect: { id: bankAccount?.id } } }),
+        ...(bankAccount && { integrationContext: { connect: { id: bankAccount?.integrationContext?.id } } }),
         file,
         options: {
             type: _1C_CLIENT_BANK_EXCHANGE,

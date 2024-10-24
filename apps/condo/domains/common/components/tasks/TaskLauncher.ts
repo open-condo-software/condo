@@ -4,17 +4,16 @@ import { useTasks } from './TasksContextProvider'
 
 import { ITask, BaseTaskRecord } from './index'
 
-type UseTaskLauncherOutputType = {
+type UseTaskLauncherOutputType<TTaskRecordVariables extends Record<string, any>> = {
     loading: boolean
-    // TODO(INFRA-455): fix types
-    handleRunTask: (params?: { taskAttrs?: Record<string, any> }) => void
+    handleRunTask: (params?: { taskAttrs?: TTaskRecordVariables }) => void
 }
 
 /**
  * Launches specified task by creating its record with `useCreate`
  * and adds its progress representation using ITasksContext interface
  */
-export const useTaskLauncher = <TTaskRecord extends BaseTaskRecord = BaseTaskRecord> (taskUIInterface: ITask<TTaskRecord>, attrs: Record<string, any>): UseTaskLauncherOutputType  => {
+export const useTaskLauncher = <TTaskRecordVariables extends Record<string, any>, TTaskRecord extends BaseTaskRecord = BaseTaskRecord> (taskUIInterface: ITask<TTaskRecord>, attrs: TTaskRecordVariables): UseTaskLauncherOutputType<TTaskRecordVariables>  => {
     const [loading, setLoading] = useState(false)
 
     // TODO(antonal): load in-progress tasks and set loading state. For user it will mean that
@@ -38,7 +37,7 @@ export const useTaskLauncher = <TTaskRecord extends BaseTaskRecord = BaseTaskRec
         })
     })
 
-    const handleRunTask: UseTaskLauncherOutputType['handleRunTask'] = useCallback((params) => {
+    const handleRunTask: UseTaskLauncherOutputType<TTaskRecordVariables>['handleRunTask'] = useCallback((params) => {
         // NOTE: The "taskAttrs" property is used here because
         // if "handleRunTask" is called in "onClick" (like "onClick={handleRunTask}"),
         // then a lot of unnecessary properties will be passed, which are passed by "onClick".

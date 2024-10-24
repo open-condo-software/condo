@@ -373,8 +373,7 @@ const TicketActionBar = ({
 
     const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
 
-    const auth = useAuth() as { user: { id: string } }
-    const user = get(auth, 'user')
+    const { user } = useAuth()
 
     const { breakpoints } = useLayoutContext()
     const { requestFeature } = useGlobalAppsFeaturesContext()
@@ -406,9 +405,9 @@ const TicketActionBar = ({
     })
 
     const { TicketDocumentGenerationButton } = useTicketDocumentGenerationTask({
-        ticket,
+        ticketId: id || null,
         timeZone,
-        user,
+        userId: user?.id || null,
     })
 
     const { EditButton: EditQualityControlButton } = useTicketQualityControl()
@@ -554,8 +553,7 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
     const BlockedEditingDescriptionMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.description' })
     const TicketChangesMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketChanges' })
 
-    const auth = useAuth() as { user: { id: string } }
-    const user = get(auth, 'user')
+    const { user } = useAuth()
     const { breakpoints } = useLayoutContext()
 
     const id = get(ticket, 'id')
@@ -594,7 +592,7 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
     const deleteComment = TicketComment.useSoftDelete(() => refetchComments())
     const createCommentAction = TicketComment.useCreate({
         ticket: { connect: { id: id } },
-        user: { connect: { id: auth.user && auth.user.id } },
+        user: { connect: { id: user?.id || null } },
     })
 
     const { obj: ticketCommentsTime, refetch: refetchTicketCommentsTime } = TicketLastCommentsTime.useObject({
@@ -636,18 +634,20 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
     })
 
     const actionsFor = useCallback(comment => {
-        const isAuthor = comment.user.id === auth.user.id
-        const isAdmin = get(auth, ['user', 'isAdmin'])
+        const isAuthor = comment.user.id === user?.id
+        const isAdmin = user?.isAdmin
         return {
             updateAction: isAdmin || isAuthor ? updateComment : null,
             deleteAction: isAdmin || isAuthor ? deleteComment : null,
         }
-    }, [auth, deleteComment, updateComment])
+    }, [user, deleteComment, updateComment])
 
     const ticketPropertyId = get(ticket, ['property', 'id'], null)
     const isDeletedProperty = !ticket.property && ticket.propertyAddress
-    const canCreateComments = useMemo(() => get(auth, ['user', 'isAdmin']) || get(employee, ['role', 'canManageTicketComments']),
-        [auth, employee])
+    const canCreateComments = useMemo(
+        () => user?.isAdmin || get(employee, ['role', 'canManageTicketComments']),
+        [user, employee]
+    )
 
     const { useFlag } = useFeatureFlags()
     const isMarketplaceEnabled = useFlag(MARKETPLACE)

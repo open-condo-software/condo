@@ -271,7 +271,7 @@ const PropertyReport: IPropertyReport = ({ bankAccount, propertyId, role }) => {
     } = useBankSyncTaskExternalModal({ propertyId, bankAccount })
 
     const { BankReportTaskButton } = useBankReportTaskButton({
-        bankAccount, user, organizationId: bankAccount.organization.id, type: 'secondary',
+        bankAccount, userId: user?.id || null, organizationId: bankAccount.organization.id, type: 'secondary',
     })
 
     // Handlers

@@ -97,7 +97,6 @@ export enum TASK_REMOVE_STRATEGY {
  * Data loading utils and abstract logic for a trackable task
  * In case of loading task records on page load helps to use appropriate implementation for a loaded record
  */
-// TODO(INFRA-455):, TTaskVariables extends Record<string, any> = Record<string, any>
 export interface ITask<TTaskRecord extends BaseTaskRecord = BaseTaskRecord> {
     storage: ITasksStorage<TTaskRecord>
     removeStrategy: Array<TASK_REMOVE_STRATEGY>

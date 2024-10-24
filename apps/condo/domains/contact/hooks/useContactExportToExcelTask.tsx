@@ -10,14 +10,16 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 
 import { useContactExportTaskUIInterface } from './useContactExportTaskUIInterface'
 
-import type { GetContactExportTasksQuery } from '../../../gql'
+import type { GetContactExportTasksQuery } from '@app/condo/gql'
 import type {
     ContactWhereInput,
     SortContactsBy,
     User,
     ContactExportTask as ContactExportTaskType,
+    ContactExportTaskCreateInput,
 } from '@app/condo/schema'
 import type { ITask } from '@condo/domains/common/components/tasks'
+
 
 type UseContactExportToExcelTaskProps = {
     where: ContactWhereInput
@@ -44,7 +46,7 @@ export const useContactExportToExcelTask: IUseContactExportToExcelTask = (props)
 
     const { where, sortBy, format, locale, timeZone, user } = props
 
-    const { loading, handleRunTask } = useTaskLauncher(TaskUIInterface, {
+    const { loading, handleRunTask } = useTaskLauncher<ContactExportTaskCreateInput>(TaskUIInterface, {
         dv: 1,
         sender: getClientSideSenderInfo(),
         where,

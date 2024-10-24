@@ -4,6 +4,7 @@ import {
     UpdateMeterReadingsImportTaskDocument,
     type GetMeterReadingsImportTasksQuery,
 } from '@app/condo/gql'
+import { MeterReadingsImportTaskCreateInput }  from '@app/condo/schema'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -109,7 +110,7 @@ export const useMeterReadingsImportTask = ({ file, userId, organizationId }) => 
     const { MeterReadingsImportTask: TaskUIInterface } = useMeterReadingsImportTaskUIInterface()
 
     // there must be all args to create MeterReadingsImportTask job
-    const { handleRunTask } = useTaskLauncher(TaskUIInterface, {
+    const { handleRunTask } = useTaskLauncher<MeterReadingsImportTaskCreateInput>(TaskUIInterface, {
         dv: 1,
         sender: getClientSideSenderInfo(),
         user: { connect: { id: userId } },

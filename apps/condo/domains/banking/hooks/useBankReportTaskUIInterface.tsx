@@ -4,8 +4,8 @@ import {
     UpdateBankAccountReportTaskDocument,
     type GetBankAccountReportTasksQuery,
 } from '@app/condo/gql'
+import { BankAccountReportTaskCreateInput }  from '@app/condo/schema'
 import { notification } from 'antd'
-import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 
@@ -69,7 +69,7 @@ export const useBankReportTaskUIInterface: UseBankReportTaskUIInterfaceType = ()
 
 type UserBankReportTaskButtonProps = {
     organizationId: string
-    user: Record<string, unknown>
+    userId: string
     bankAccount: BankAccountType
     type?: ButtonProps['type']
 }
@@ -78,17 +78,17 @@ export const useBankReportTaskButton = (props: UserBankReportTaskButtonProps) =>
     const intl = useIntl()
     const CreateReportTitle = intl.formatMessage({ id: 'pages.condo.property.report.createReport.title' })
 
-    const { organizationId, user, bankAccount, type = 'primary' } = props
+    const { organizationId, userId, bankAccount, type = 'primary' } = props
 
     const { BankReportTask: TaskUIInterface } = useBankReportTaskUIInterface()
 
-    const { loading, handleRunTask } = useTaskLauncher(TaskUIInterface, {
+    const { loading, handleRunTask } = useTaskLauncher<BankAccountReportTaskCreateInput>(TaskUIInterface, {
         dv: 1,
         sender: getClientSideSenderInfo(),
         account: { connect: { id: bankAccount.id } },
         progress: 0,
         organization: { connect: { id: organizationId } },
-        user: { connect: { id: get(user, 'id') } },
+        user: { connect: { id: userId } },
     })
 
     const BankReportTaskButton = useCallback(() => (
