@@ -208,7 +208,7 @@ class HCMAdapter {
             const target = isFakeToken ? fakeNotifications : notifications
             const pushType = pushTypes[pushToken] || PUSH_TYPE_DEFAULT
             const preparedData = HCMAdapter.prepareData(data, pushToken)
-            const pushData= {
+            const pushData = {
                 token: pushToken,
                 data: JSON.stringify({
                     ...preparedData,
