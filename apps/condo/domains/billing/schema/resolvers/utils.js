@@ -92,7 +92,7 @@ const buildLastReportForBillingContext = async (receipts, { dv, sender, billingC
         categories: [],
     }
 
-    if (existingLastReport){
+    if (existingLastReport && existingLastReport.categories){
         if (dayjs(newestPeriodFromReceipts, 'YYYY-MM-DD').isAfter(dayjs(existingLastReport.period, 'YYYY-MM-DD'))){
             lastReport.categories = receiptsCategories
         } else {
