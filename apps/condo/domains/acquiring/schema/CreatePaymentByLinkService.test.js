@@ -56,7 +56,7 @@ function generateQRCode (qrCodeData = {}, { version = '0001', encodingTag = '2' 
         ...qrCodeData,
     }
 
-    return [`ST${version}${encodingTag}|${Object.keys(qrCodeObj).map((k) => `${k}=${qrCodeObj[k]}`).join('|')}`, qrCodeObj]
+    return [Buffer.from(`ST${version}${encodingTag}|${Object.keys(qrCodeObj).map((k) => `${k}=${qrCodeObj[k]}`).join('|')}`).toString('base64'), qrCodeObj]
 }
 
 async function createOrganizationAndPropertyAndQrCode (client, houseNumber, flatNumber, PaymPeriod) {

@@ -130,6 +130,7 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
 
     mutations: [
         {
+            schemaDoc: 'Validates qr-code received from mobile application. This mutation receives base64 encoded raw data from scanned qr-code.',
             access: access.canValidateQRCode,
             schema: 'validateQRCode(data: ValidateQRCodeInput!): ValidateQRCodeOutput',
             resolver: async (parent, /** ValidateQRCodeInputArgs */ args, context) => {
