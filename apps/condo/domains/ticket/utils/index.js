@@ -107,8 +107,8 @@ const counterWord = (input, counter) => {
 const parseNumber = (input) => {
     return input
         .toString()
-        .replace(/[\s\t\_\-]+/g, '')
-        .split(/[\.\,]/)
+        .replace(/[\s\t_-]+/g, '')
+        .split(/[.,]/)
 }
 
 const numbersInWords = (input, com = false) => {
