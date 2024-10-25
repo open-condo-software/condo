@@ -1,4 +1,3 @@
-const { format: formatRubles } = require('@vicimpa/rubles')
 const Big = require('big.js')
 const dayjs = require('dayjs')
 const { get } = require('lodash')
@@ -14,7 +13,7 @@ const { DEFAULT_INVOICE_CURRENCY_CODE, INVOICE_STATUS_CANCELED } = require('@con
 const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { TICKET_DOCUMENT_GENERATION_TASK_FORMAT } = require('@condo/domains/ticket/constants/ticketDocument')
-const { buildEmptyLineDifferentLength, formatDate, renderMoney } = require('@condo/domains/ticket/utils')
+const { buildEmptyLineDifferentLength, formatDate, renderMoney, numbersInWords } = require('@condo/domains/ticket/utils')
 
 const logger = getLogger('generateDocumentOfPaidWorksCompletion')
 
@@ -81,7 +80,7 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
         acc.push(...rows.map((row, index) => {
             const price = Big(!row.isMin ? row.toPay : 0)
             const sum = price.times(get(row, 'count', 1))
-            const vatPercent = get(row, 'vatPercent') || 0
+            const vatPercent = Big(get(row, 'vatPercent', 0))
             totalSum = totalSum.plus(sum)
             totalVAT = totalVAT.plus(sum.times(vatPercent).div(100))
 
@@ -90,7 +89,7 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
                 name: row.name || '',
                 count: String(row.count) || '',
                 price: !Number.isNaN(price) ? renderMoney(price, currencyCode, locale) : '',
-                vat: vatPercent || '',
+                vat: !Number.isNaN(vatPercent) ? renderMoney(vatPercent, currencyCode, locale) : '',
                 sum: !Number.isNaN(sum) ? renderMoney(sum, currencyCode, locale) : '',
             }
         }))
@@ -127,8 +126,8 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
         sum: {
             totalSum: !Number.isNaN(totalSum) ? renderMoney(totalSum, currencyCode, locale) : '',
             totalVAT: !Number.isNaN(totalVAT) ? renderMoney(totalVAT, currencyCode, locale) : '',
-            totalSumInWords: !Number.isNaN(totalSum) ? formatRubles(totalSum, '$summString') : '',
-            totalVATInWords: !Number.isNaN(totalVAT) ? formatRubles(totalVAT, '$summString') : '',
+            totalSumInWords: !Number.isNaN(totalSum) ? numbersInWords(totalSum) : '',
+            totalVATInWords: !Number.isNaN(totalVAT) ? numbersInWords(totalVAT) : '',
         },
         executor: {
             name: get(employee, 'name') || '',
