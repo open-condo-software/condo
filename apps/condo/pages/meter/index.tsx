@@ -15,7 +15,7 @@ import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { MultipleFilterContextProvider } from '@condo/domains/common/hooks/useMultipleFiltersModal'
-import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
+import { usePreviousQueryParams } from '@condo/domains/common/hooks/usePreviousQueryParams'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { MeterReadPermissionRequired } from '@condo/domains/meter/components/PageAccess'
 import { MetersPageContent } from '@condo/domains/meter/components/TabContent/Meter'
@@ -123,7 +123,7 @@ const MetersPage: IMeterIndexPage = () => {
     const { breakpoints } = useLayoutContext()
 
     const { GlobalHints } = useGlobalHints()
-    usePreviousSortAndFilters({ paramNamesForPageChange: ['tab'], employeeSpecificKey: employeeId })
+    usePreviousQueryParams({ paramNamesForPageChange: ['tab', 'type'], trackedParamNames: ['sort', 'filters', 'isShowActiveMeters', 'isShowArchivedMeters'], employeeSpecificKey: employeeId }) 
 
     const { tab } = parseQuery(router.query)
     const type = get(router.query, 'type', METER_TYPES.unit) as string

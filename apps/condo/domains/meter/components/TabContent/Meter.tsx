@@ -6,7 +6,8 @@ import { Col, Row, RowProps } from 'antd'
 import { ColumnsType } from 'antd/lib/table'
 import dayjs, { Dayjs } from 'dayjs'
 import get from 'lodash/get'
-import { useRouter } from 'next/router'
+import isString from 'lodash/isString'
+import { NextRouter, useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { PlusCircle, Search } from '@open-condo/icons'
@@ -14,6 +15,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button, Checkbox  } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
+import { updateQuery } from '@/domains/common/utils/helpers'
 import Input from '@condo/domains/common/components/antd/Input'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
@@ -45,6 +47,19 @@ const FULL_WIDTH_DATE_RANGE_STYLE: CSSProperties = { width: '100%' }
 
 const SORTABLE_PROPERTIES = ['verificationDate', 'source']
 const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs(), dayjs().add(2, 'month')]
+
+
+const getInitialArchivedOrActiveMeter = (router: NextRouter, field: 'isShowActiveMeters' | 'isShowArchivedMeters', defaultValue = false) => {
+    if (field in router.query && isString(router.query[field])) {
+        try {
+            return (JSON.parse(router.query[field]))
+        } catch (error) {
+            console.warn(`Failed to parse property value ${field}`, error)
+            return false
+        }
+    }
+    return defaultValue
+}
 
 type MetersTableContentProps = {
     filtersMeta: FiltersMeta<MeterReadingWhereInput>[]
@@ -85,8 +100,8 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
 
     const [dateRange, setDateRange] = useDateRangeSearch('nextVerificationDate')
     const [filtersAreReset, setFiltersAreReset] = useState(false)
-    const [isShowActiveMeters, setIsShowActiveMeters] = useState(true)
-    const [isShowArchivedMeters, setIsShowArchivedMeters] = useState(false)
+    const [isShowActiveMeters, setIsShowActiveMeters] = useState(() => getInitialArchivedOrActiveMeter(router, 'isShowActiveMeters', true))
+    const [isShowArchivedMeters, setIsShowArchivedMeters] = useState(() => getInitialArchivedOrActiveMeter(router, 'isShowArchivedMeters'))
 
     const dateFallback = filtersAreReset ? null : DEFAULT_DATE_RANGE
     const dateFilterValue = dateRange
@@ -148,14 +163,27 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
 
 
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
-    const handleCheckShowActiveMeters = useCallback(() => {
-        setIsShowActiveMeters(prev => !prev)
-    }, [])
-    const handleCheckShowArchiveMeters = useCallback(() => {
-        setIsShowArchivedMeters(prev => !prev)
-    }, [])
-    const handleCreateMeterReadings = useCallback(() => router.push(`/meter/create?tab=${METER_TAB_TYPES.meter}`), [router])
+    const handleUpdateMeterQuery = useCallback(async (isShowActiveMeters, isShowArchivedMeters) => {
+        await updateQuery(router, {
+            newParameters: {
+                isShowActiveMeters: String(isShowActiveMeters),
+                isShowArchivedMeters: String(isShowArchivedMeters),
+            },
+        }, { routerAction: 'replace', resetOldParameters: false })
+    }, [router])
 
+    const handleCheckShowActiveMeters = useCallback(() => {
+        handleUpdateMeterQuery(!isShowActiveMeters, isShowArchivedMeters)
+        setIsShowActiveMeters(prev => !prev)
+    }, [handleUpdateMeterQuery, isShowActiveMeters, isShowArchivedMeters])
+
+    const handleCheckShowArchiveMeters = useCallback(() => {
+        handleUpdateMeterQuery(isShowActiveMeters, !isShowArchivedMeters)
+        setIsShowArchivedMeters(prev => !prev)
+    }, [handleUpdateMeterQuery, isShowActiveMeters, isShowArchivedMeters])
+
+    const handleCreateMeterReadings = useCallback(() => router.push(`/meter/create?tab=${METER_TAB_TYPES.meter}`), [router])
+    
     return (
         <>
             <Row
