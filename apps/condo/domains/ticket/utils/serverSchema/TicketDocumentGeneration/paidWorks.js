@@ -126,8 +126,8 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
         sum: {
             totalSum: !Number.isNaN(totalSum) ? renderMoney(totalSum, currencyCode, locale) : '',
             totalVAT: !Number.isNaN(totalVAT) ? renderMoney(totalVAT, currencyCode, locale) : '',
-            totalSumInWords: '',
-            totalVATInWords: '',
+            totalSumInWords: buildEmptyLineDifferentLength(true),
+            totalVATInWords: buildEmptyLineDifferentLength(true),
         },
         executor: {
             name: get(employee, 'name') || '',
