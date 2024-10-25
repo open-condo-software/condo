@@ -54,7 +54,7 @@ const getInitialArchivedOrActiveMeter = (router: NextRouter, field: 'isShowActiv
         try {
             return (JSON.parse(router.query[field]))
         } catch (error) {
-            console.error(`Failed to parse property value ${field}`, error)
+            console.error('Failed to parse property value %s: %s', field, error)
             return defaultValue
         }
     }
