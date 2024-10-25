@@ -187,6 +187,30 @@ describe('RegisterBillingReceiptsService', () => {
             expect(contextAfter.lastReport.categories).toContain(REPAIR_CATEGORY_ID)
             expect(contextAfter.lastReport.totalReceipts).toEqual(2)
         })
+
+        test('Should update categories for old lastReport without categories', async () => {
+            const utils = new TestUtils([BillingTestMixin])
+            await utils.init()
+            const currentMonthPeriod = dayjs().format('YYYY-MM-01')
+            const [currentYear, currentMonth] = currentMonthPeriod.split('-').map(Number)
+            await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [ REPAIR_CATEGORY_ID ].map(category => utils.createJSONReceipt({ month: currentMonth, year: currentYear, category: { id : category } })),
+            })
+            const contextBefore = await BillingContext.getOne(utils.clients.admin, { id: utils.billingContext.id })
+            const oldLastReport = { ...contextBefore.lastReport }
+            delete oldLastReport.categories
+            await utils.updateBillingContext({ lastReport: oldLastReport })
+            await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                context: { id: utils.billingContext.id },
+                receipts: [ ELECTRICITY_CATEGORY_ID ].map(category => utils.createJSONReceipt({ month: currentMonth, year: currentYear, category: { id : category } })),
+            })
+            const contextAfter = await BillingContext.getOne(utils.clients.admin, { id: utils.billingContext.id })
+            expect(contextAfter.lastReport.period).toEqual(currentMonthPeriod)
+            expect(contextAfter.lastReport.categories).toContain(ELECTRICITY_CATEGORY_ID)
+            expect(contextAfter.lastReport.categories).not.toContain(REPAIR_CATEGORY_ID)
+            expect(contextAfter.lastReport.totalReceipts).toEqual(2)
+        })
     })
 
     describe('PeriodResolver',  () => {

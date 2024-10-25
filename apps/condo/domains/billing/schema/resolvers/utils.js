@@ -92,7 +92,7 @@ const buildLastReportForBillingContext = async (receipts, { dv, sender, billingC
         categories: [],
     }
 
-    if (existingLastReport){
+    if (existingLastReport && existingLastReport.categories && Array.isArray(existingLastReport.categories)) {
         if (dayjs(newestPeriodFromReceipts, 'YYYY-MM-DD').isAfter(dayjs(existingLastReport.period, 'YYYY-MM-DD'))){
             lastReport.categories = receiptsCategories
         } else {
@@ -104,7 +104,11 @@ const buildLastReportForBillingContext = async (receipts, { dv, sender, billingC
 
     if (existingLastReport) {
         const existingPeriod = dayjs(existingLastReport.period, 'YYYY-MM-DD')
-        const hasDifferentCategories = receiptsCategories.some(item => !existingLastReport.categories.includes(item))
+        let hasDifferentCategories = true
+
+        if (existingLastReport.categories && Array.isArray(existingLastReport.categories)) {
+            hasDifferentCategories = receiptsCategories.some(item => !existingLastReport.categories.includes(item))
+        }
 
         const needsUpdate = !dayjs(newestPeriodFromReceipts, 'YYYY-MM-DD').isSame(existingPeriod) ||
             hasDifferentCategories ||
