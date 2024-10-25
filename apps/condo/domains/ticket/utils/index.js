@@ -69,100 +69,6 @@ const renderMoney = (amount, currencyCode, locale) => {
     return parts.map((part) => part.value).join('')
 }
 
-const bigDischarges = [
-    ['…n-лион', 'ов', '', 'а'],
-    ['тысяч', '', 'а', 'и'],
-    ['миллион', 'ов', '', 'а'],
-    ['миллиард', 'ов', '', 'а'],
-]
-
-const smallDischarges = [
-    ['ноль'],
-    ['-', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'],
-    ['десять', 'одиннадцать', 'двенадцать', 'тринадцать', 'четырнадцать', 'пятнадцать', 'шестнадцать', 'семнадцать', 'восемнадцать', 'девятнадцать'],
-    ['-', '-', 'двадцать', 'тридцать', 'сорок', 'пятьдесят', 'шестьдесят', 'семьдесят', 'восемьдесят', 'девяносто'],
-    ['-', 'сто', 'двести', 'триста', 'четыреста', 'пятьсот', 'шестьсот', 'семьсот', 'восемьсот', 'девятьсот'],
-    ['-', 'одна', 'две'],
-]
-
-const joinWord = (input, index = 0) => {
-    return input[0] + input[index + 1]
-}
-
-const counterWord = (input, counter) => {
-    const units = counter % 10
-
-    if (counter > 10 && counter < 20)
-        return joinWord(input, 0)
-
-    if (units == 1)
-        return joinWord(input, 1)
-
-    if (units > 1 && units < 5)
-        return joinWord(input, 2)
-
-    return joinWord(input, 0)
-}
-
-const parseNumber = (input) => {
-    return input
-        .toString()
-        .replace(/[\s\t_-]+/g, '')
-        .split(/[.,]/)
-}
-
-const numbersInWords = (input, com = false) => {
-    const output = []
-
-    let [num] = parseNumber(input)
-
-    let deep = 0
-
-    if (!num || num === '0')
-        return smallDischarges[0][0]
-
-    while (num.length) {
-        const row = []
-        const current = +num.slice(-3)
-        num = num.slice(0, -3)
-
-        const hundreds = current / 100 | 0
-        const dozens = current / 10 % 10 | 0
-        const units = current % 10
-
-        if (current) {
-            row.push(smallDischarges[4][hundreds])
-
-            if (dozens === 1) {
-                row.push(smallDischarges[2][units])
-            } else {
-                row.push(smallDischarges[3][dozens])
-
-                if (deep === 1 || deep == 0 && com) {
-                    row.push(
-                        smallDischarges[5][units] ?? smallDischarges[1][units]
-                    )
-                } else {
-                    row.push(smallDischarges[1][units])
-                }
-            }
-
-            if (deep) {
-                row.push(counterWord(bigDischarges[deep] ?? bigDischarges[0], current))
-            }
-        }
-
-        const rowString = row.filter(e => e && e != '-').join(' ')
-
-        if (rowString)
-            output.unshift(rowString)
-
-        deep++
-    }
-
-    return output.join(' ')
-}
-
 module.exports = {
     convertQualityControlOrFeedbackOptionsToText,
     filterFeedbackOptionsByScore,
@@ -171,5 +77,4 @@ module.exports = {
     buildEmptyLineDifferentLength,
     formatDate,
     renderMoney,
-    numbersInWords,
 }

@@ -821,7 +821,6 @@ __metadata:
     "@types/react": 16.9.17
     "@types/react-infinite-scroller": ^1.2.3
     "@types/wavesurfer.js": ^6.0.6
-    "@vicimpa/rubles": ^0.1.18
     "@welldone-software/why-did-you-render": ^5.0.0-alpha.1
     "@zeit/next-css": ^1.0.1
     "@zeit/next-less": ^1.0.1
@@ -19914,13 +19913,6 @@ __metadata:
     "@typescript-eslint/types": 4.33.0
     eslint-visitor-keys: ^2.0.0
   checksum: 59953e474ad4610c1aa23b2b1a964445e2c6201521da6367752f37939d854352bbfced5c04ea539274065e012b1337ba3ffa49c2647a240a4e87155378ba9873
-  languageName: node
-  linkType: hard
-
-"@vicimpa/rubles@npm:^0.1.18":
-  version: 0.1.18
-  resolution: "@vicimpa/rubles@npm:0.1.18"
-  checksum: 824db6bde298368134891092edf050189033a207533afeeb2493252aa105a07e434fd7cd1d208b469feb2855df52bfa428913c6791475887b8c78c16ff827d5f
   languageName: node
   linkType: hard
 

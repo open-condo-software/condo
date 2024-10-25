@@ -13,7 +13,7 @@ const { DEFAULT_INVOICE_CURRENCY_CODE, INVOICE_STATUS_CANCELED } = require('@con
 const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { TICKET_DOCUMENT_GENERATION_TASK_FORMAT } = require('@condo/domains/ticket/constants/ticketDocument')
-const { buildEmptyLineDifferentLength, formatDate, renderMoney, numbersInWords } = require('@condo/domains/ticket/utils')
+const { buildEmptyLineDifferentLength, formatDate, renderMoney } = require('@condo/domains/ticket/utils')
 
 const logger = getLogger('generateDocumentOfPaidWorksCompletion')
 
@@ -126,8 +126,8 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
         sum: {
             totalSum: !Number.isNaN(totalSum) ? renderMoney(totalSum, currencyCode, locale) : '',
             totalVAT: !Number.isNaN(totalVAT) ? renderMoney(totalVAT, currencyCode, locale) : '',
-            totalSumInWords: !Number.isNaN(totalSum) ? numbersInWords(totalSum) : '',
-            totalVATInWords: !Number.isNaN(totalVAT) ? numbersInWords(totalVAT) : '',
+            totalSumInWords: '',
+            totalVATInWords: '',
         },
         executor: {
             name: get(employee, 'name') || '',
