@@ -50,12 +50,12 @@ const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs(), dayjs().add(2, 'month')]
 
 
 const getInitialArchivedOrActiveMeter = (router: NextRouter, field: 'isShowActiveMeters' | 'isShowArchivedMeters', defaultValue = false) => {
-    if (field in router.query && isString(router.query[field])) {
+    if (field in router.query && typeof router.query[field] === 'string') {
         try {
             return (JSON.parse(router.query[field]))
         } catch (error) {
-            console.warn(`Failed to parse property value ${field}`, error)
-            return false
+            console.error(`Failed to parse property value ${field}`, error)
+            return defaultValue
         }
     }
     return defaultValue
