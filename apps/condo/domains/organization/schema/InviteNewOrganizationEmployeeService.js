@@ -130,7 +130,11 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                 email = normalizeEmail(email)
                 if (dvSenderData.dv !== 1) throw new GQLError(ERRORS.inviteNewOrganizationEmployee.DV_VERSION_MISMATCH, context)
                 if (!phone) throw new GQLError(ERRORS.inviteNewOrganizationEmployee.WRONG_PHONE_FORMAT, context)
-                const userOrganization = await Organization.getOne(context, { id: organization.id })
+                const userOrganization = await Organization.getOne(
+                    context,
+                    { id: organization.id },
+                    'id name country type'
+                )
                 let user = await guards.checkStaffUserExistency(context, email, phone)
 
                 const sameOrganizationEmployees = await find('OrganizationEmployee', {
@@ -244,7 +248,11 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                     throw new GQLError(ERRORS.reInviteOrganizationEmployee.WRONG_PHONE_FORMAT, context)
                 }
 
-                const employeeOrganization = await Organization.getOne(context, { id: organization.id })
+                const employeeOrganization = await Organization.getOne(
+                    context,
+                    { id: organization.id },
+                    'id name country type'
+                )
 
                 if (!employeeOrganization) {
                     throw new GQLError(ERRORS.reInviteOrganizationEmployee.ORGANIZATION_NOT_FOUND, context)
