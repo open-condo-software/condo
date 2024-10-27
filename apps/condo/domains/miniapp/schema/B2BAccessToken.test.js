@@ -28,6 +28,8 @@ const { registerNewOrganization } = require('@condo/domains/organization/utils/t
 const {
     makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser, makeClientWithServiceUser,
 } = require('@condo/domains/user/utils/testSchema')
+const {registerBillingReceiptsByTestClient} = require("../../billing/utils/testSchema");
+const {TestUtils, BillingTestMixin} = require("../../billing/utils/testSchema/testUtils");
 
 describe('B2BAccessToken', () => {
     const redisClient = getRedisClient()
@@ -174,7 +176,7 @@ describe('B2BAccessToken', () => {
                 await createTestB2BAccessToken(admin, serviceUserClient.user, organization)
                 const client = await makeClientWithSupportUser()
                 await expectToThrowAccessDeniedErrorToObjects(async () => {
-                    await B2BAccessToken.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })  // TODO(codegen): write 'anonymous: read B2BAccessToken' test
+                    await B2BAccessToken.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
                 })
             })
 
@@ -182,7 +184,7 @@ describe('B2BAccessToken', () => {
                 await createTestB2BAccessToken(admin, serviceUserClient.user, organization)
                 const client = await makeLoggedInClient()
                 await expectToThrowAccessDeniedErrorToObjects(async () => {
-                    await B2BAccessToken.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })  // TODO(codegen): write 'anonymous: read B2BAccessToken' test
+                    await B2BAccessToken.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
                 })
             })
 
@@ -190,7 +192,7 @@ describe('B2BAccessToken', () => {
                 await createTestB2BAccessToken(admin, serviceUserClient.user, organization)
                 const client = await makeClient()
                 await expectToThrowAuthenticationErrorToObjects(async () => {
-                    await B2BAccessToken.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })  // TODO(codegen): write 'anonymous: read B2BAccessToken' test
+                    await B2BAccessToken.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
                 })
             })
         })
@@ -231,7 +233,7 @@ describe('B2BAccessToken', () => {
                         await createTestB2BAccessToken(admin, serviceUserClient.user, organization)
                         const client = await makeClient()
                         await expectToThrowAuthenticationErrorToObjects(async () => {
-                            await B2BAccessTokenAdmin.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })  // TODO(codegen): write 'anonymous: read B2BAccessToken' test
+                            await B2BAccessTokenAdmin.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
                         })
                     })
                 })
@@ -374,7 +376,23 @@ describe('B2BAccessToken', () => {
         })
 
         test('can execute "registerBillingReceipts"', async () => {
-                
+            const utils = new TestUtils([BillingTestMixin])
+            await utils.init()
+            const receipt1 = utils.createJSONReceipt()
+            const receipt2 = utils.createJSONReceipt({
+                ...receipt1,
+                importId: null,
+                address: utils.createAddressWithUnit(),
+                accountNumber: utils.randomNumber(10).toString(),
+            })
+            const [token] = await createTestB2BAccessToken(admin, utils.clients.service.user, utils.organization)
+            const anonymous = await makeClient()
+            anonymous.setHeaders({ 'Authorization': `Bearer ${token.signedToken}` })
+            const [createdReceipts] = await registerBillingReceiptsByTestClient(anonymous, {
+                context: { id: utils.billingContext.id },
+                receipts: [receipt1, receipt2],
+            })
+            expect(createdReceipts[0].id).not.toEqual(createdReceipts[1].id)
         })
         
     })
