@@ -8,5 +8,5 @@ export * as ConfirmPhoneAction from './ConfirmPhoneAction'
 export * as OidcClient from './OidcClient'
 export * as ExternalTokenAccessRight from './ExternalTokenAccessRight'
 export * as UserRightsSet from './UserRightsSet'
-export * as AccessToken from './AccessToken'
+export * as AccessToken from '../../../miniapp/utils/clientSchema/AccessToken'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

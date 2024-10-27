@@ -3,18 +3,19 @@ const v8 = require('v8')
 
 const { AdminUIApp } = require('@keystonejs/app-admin-ui')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
-const { SessionManager: KeystoneSessionManager } = require('@keystonejs/session')
 const cuid = require('cuid')
 const { json, urlencoded } = require('express')
 const { get, identity } = require('lodash')
 const nextCookie = require('next-cookies')
 const { v4 } = require('uuid')
+const { validate: validateUuid } = require('uuid')
 
 
 const conf = require('@open-condo/config')
 const { safeApolloErrorFormatter } = require('@open-condo/keystone/apolloErrorFormatter')
 const { ExtendedPasswordAuthStrategy } = require('@open-condo/keystone/authStrategy/passwordAuth')
 const { parseCorsSettings } = require('@open-condo/keystone/cors.utils')
+const { GQLError, GQLErrorCode: { FORBIDDEN } } = require('@open-condo/keystone/errors')
 const { _internalGetExecutionContextAsyncLocalStorage } = require('@open-condo/keystone/executionContext')
 const { IpBlackListMiddleware } = require('@open-condo/keystone/ipBlackList')
 const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSchema')
@@ -80,29 +81,6 @@ const sendAppMetrics = () => {
     }
 }
 
-class CustomSessionManager extends KeystoneSessionManager {
-    constructor ({
-        cookieSecret,
-        cookie,
-        sessionStore,
-    }) {
-        super({
-            cookieSecret,
-            cookie,
-            sessionStore,
-        })
-    }
-
-    async _getAuthedItem (req, keystone) {
-        const item = await super._getAuthedItem(req, keystone)
-        if (item) {
-            // also could be accessed through context.req.session.extra
-            item.extra = req.session.extra
-        }
-        return item
-    }
-}
-
 function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, schemas, schemasPreprocessors, tasks, queues, apps, lastApp, graphql, ui, authStrategyOpts }) {
     // trying to be compatible with keystone-6 and keystone-5
     // TODO(pahaz): add storage like https://keystonejs.com/docs/config/config#storage-images-and-files
@@ -123,11 +101,6 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
         ...keystoneConfig,
         onConnect: async () => onConnect && onConnect(keystone),
         ...extendedKeystoneConfig,
-    })
-    keystone._sessionManager = new CustomSessionManager({
-        cookieSecret: keystoneConfig.cookieSecret,
-        cookie: keystoneConfig.cookie,
-        sessionStore: keystoneConfig.sessionStore,
     })
 
     // patch access control handler to store skipAccessControl flag in context
@@ -160,6 +133,18 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
             ...authStrategyConfig,
         },
         hooks: {
+            // forbid unauth with B2BAccessToken
+            beforeUnauth ({ context }) {
+                const sessionId = context.req.sessionID
+                const isManualSession = validateUuid(sessionId)
+                if (isManualSession) {
+                    throw new GQLError({
+                        type: FORBIDDEN,
+                        code: FORBIDDEN,
+                        message: 'You can not log out with token',
+                    }, context)
+                }
+            },
             async afterAuth ({ item, token, success })  {
                 // NOTE: It's triggered only by default Keystone mutation, "authenticateUserWithPhoneAndPassword" will not work here
                 // Step 1. Skip if auth was not succeeded

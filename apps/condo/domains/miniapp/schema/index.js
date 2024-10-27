@@ -4,6 +4,7 @@
  */
 
 const { AllMiniAppsService } = require('./AllMiniAppsService')
+const { B2BAccessToken } = require('./B2BAccessToken')
 const { B2BApp } = require('./B2BApp')
 const { B2BAppAccessRight } = require('./B2BAppAccessRight')
 const { B2BAppAccessRightSet } = require('./B2BAppAccessRightSet')
@@ -38,5 +39,6 @@ module.exports = {
     B2BAppAccessRightSet,
     B2BAppNewsSharingConfig,
     B2CAppMessageSetting,
+    B2BAccessToken,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

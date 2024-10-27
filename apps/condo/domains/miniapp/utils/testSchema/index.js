@@ -33,6 +33,7 @@ const { B2BAppRole: B2BAppRoleGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppAccessRightSet: B2BAppAccessRightSetGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppNewsSharingConfig: B2BAppNewsSharingConfigGQL } = require('@condo/domains/miniapp/gql')
 const { B2CAppMessageSetting: B2CAppMessageSettingGQL } = require('@condo/domains/miniapp/gql')
+const { B2BAccessToken: B2BAccessTokenGQL, B2BAccessTokenAdmin: B2BAccessTokenAdminGQL } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function randomChoice(options) {
@@ -65,6 +66,8 @@ const B2BAppRole = generateGQLTestUtils(B2BAppRoleGQL)
 const B2BAppAccessRightSet = generateGQLTestUtils(B2BAppAccessRightSetGQL)
 const B2BAppNewsSharingConfig = generateGQLTestUtils(B2BAppNewsSharingConfigGQL)
 const B2CAppMessageSetting = generateGQLTestUtils(B2CAppMessageSettingGQL)
+const B2BAccessToken = generateGQLTestUtils(B2BAccessTokenGQL)
+const B2BAccessTokenAdmin = generateGQLTestUtils(B2BAccessTokenAdminGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 
@@ -559,6 +562,36 @@ async function updateTestB2CAppMessageSetting (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestB2BAccessToken (client, serviceUser, organization, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!serviceUser) throw new Error('service user id is required')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        user: { connect: { id: serviceUser.id } },
+        organization: { connect: { id: organization.id } },
+        ...extraAttrs,
+    }
+    const obj = await B2BAccessToken.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestB2BAccessToken (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await B2BAccessToken.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -578,5 +611,6 @@ module.exports = {
     B2BAppAccessRightSet, createTestB2BAppAccessRightSet, updateTestB2BAppAccessRightSet,
     B2BAppNewsSharingConfig, createTestB2BAppNewsSharingConfig, updateTestB2BAppNewsSharingConfig,
     B2CAppMessageSetting, createTestB2CAppMessageSetting, updateTestB2CAppMessageSetting,
+    B2BAccessToken, B2BAccessTokenAdmin, createTestB2BAccessToken, updateTestB2BAccessToken,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -14,7 +14,7 @@ const { generateGqlQueryToOrganizationId, getFilterByOrganizationIds } = require
 /**
  * @return {Promise<Record<string, any>|false>}
  */
-const canReadByServiceUser = async ({ authentication: { item: user }, args, listKey, context }, schemaConfig) => {
+const canReadByServiceUser = async ({ authentication: { item: user, extra }, args, listKey, context }, schemaConfig) => {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -29,8 +29,7 @@ const canReadByServiceUser = async ({ authentication: { item: user }, args, list
 
     let organizationIds = B2BAppContexts.map(ctx => ctx.organization)
 
-    const allowedOrganizations = get(user, 'extra.allowedOrganizations')
-
+    const allowedOrganizations = get(extra, 'allowedOrganizations')
     if (allowedOrganizations) {
         organizationIds = organizationIds.filter(id => allowedOrganizations.includes(id))
     }
@@ -40,7 +39,7 @@ const canReadByServiceUser = async ({ authentication: { item: user }, args, list
     return getFilterByOrganizationIds(pathToOrganizationId, organizationIds)
 }
 
-const canManageByServiceUser = async ({ authentication: { item: user }, listKey, originalInput, itemId, operation, context }, schemaConfig, parentSchemaName) => {
+const canManageByServiceUser = async ({ authentication: { item: user, extra }, listKey, originalInput, itemId, operation, context }, schemaConfig, parentSchemaName) => {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -106,8 +105,7 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
 
     if (!organizationId) return false
 
-    const allowedOrganizations = get(user, 'extra.allowedOrganizations')
-    if (allowedOrganizations && !allowedOrganizations.includes(organizationId)) {
+    if (extra.allowedOrganizations && !extra.allowedOrganizations.includes(organizationId)) {
         return false
     }
 
@@ -120,7 +118,7 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
 }
 
 const canExecuteByServiceUser = async (params, serviceConfig) => {
-    const { authentication: { item: user }, args, gqlName } = params
+    const { authentication: { item: user, extra }, args, gqlName } = params
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -134,8 +132,7 @@ const canExecuteByServiceUser = async (params, serviceConfig) => {
 
     if (!organizationId) return false
 
-    const allowedOrganizations = get(user, 'extra.allowedOrganizations')
-    if (allowedOrganizations && !allowedOrganizations.includes(organizationId)) {
+    if (extra.allowedOrganizations && !extra.allowedOrganizations.includes(organizationId)) {
         return false
     }
 

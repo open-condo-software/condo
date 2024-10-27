@@ -62,13 +62,10 @@ function getAdapter (databaseUrl) {
     }
 }
 
-// may be just use conf.COOKIE_SECRET, since getCookieSecret changes it only in certain conditions
-const secret = getCookieSecret(conf.COOKIE_SECRET)
-
 /** @deprecated use prepareKeystone */
 function prepareDefaultKeystoneConfig (conf) {
     const config = {
-        cookieSecret: secret,
+        cookieSecret: getCookieSecret(conf.COOKIE_SECRET),
         cookie: {
             sameSite: HTTPS_REGEXP.test(conf.SERVER_URL) && conf.NODE_ENV === 'production' ? 'None' : 'Lax',
             // NOTE(pahaz): Apollo server client doesn't work with secure=true! Need to research why
@@ -101,5 +98,4 @@ module.exports = {
     getCookieSecret,
     getAdapter,
     prepareDefaultKeystoneConfig,
-    secret,
 }

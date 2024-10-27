@@ -14,6 +14,7 @@ const { B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS } = require('./utils/b2bAp
 
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
+const USER_FIELDS = `type name avatar { publicUrl } rightsSet { id } meta isPhoneVerified isEmailVerified isAdmin isSupport locale showGlobalHints ${COMMON_FIELDS}`
 
 const APP_FIELDS = '{ id name shortDescription connected accessible category logo label icon menuCategory }'
 
@@ -79,6 +80,11 @@ const B2BAppAccessRightSet = generateGqlQueries('B2BAppAccessRightSet', B2B_APP_
 const B2C_APP_MESSAGE_SETTINGS_FIELDS = `{ app { id } isBlacklisted blockReason type notificationWindowSize numberOfNotificationInWindow ${COMMON_FIELDS} }`
 const B2CAppMessageSetting = generateGqlQueries('B2CAppMessageSetting', B2C_APP_MESSAGE_SETTINGS_FIELDS)
 
+const B2B_ACCESS_TOKEN_FIELDS = `{ signedToken organization { id } user { ${USER_FIELDS} } ${COMMON_FIELDS} }`
+const B2B_ACCESS_TOKEN_ADMIN_FIELDS = `{ token signedToken organization { id } user { ${USER_FIELDS} } ${COMMON_FIELDS} }`
+const B2BAccessToken = generateGqlQueries('B2BAccessToken', B2B_ACCESS_TOKEN_FIELDS)
+const B2BAccessTokenAdmin = generateGqlQueries('B2BAccessToken', B2B_ACCESS_TOKEN_ADMIN_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -98,5 +104,7 @@ module.exports = {
     MessageAppBlackList,
     B2BAppNewsSharingConfig,
     B2CAppMessageSetting,
+    B2BAccessToken,
+    B2BAccessTokenAdmin,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
