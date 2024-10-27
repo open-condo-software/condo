@@ -9,7 +9,7 @@ const { v4: uuidv4 } = require('uuid')
 const { getRedisClient } = require('@open-condo/keystone/redis')
 const {
     makeLoggedInAdminClient, makeClient, UUID_RE, expectValuesOfCommonFields,
-    expectToThrowAccessDeniedError, expectToThrowValidationFailureError, expectToThrowGQLError,
+    expectToThrowAccessDeniedError, expectToThrowValidationFailureError,
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj, makeLoggedInClient, expectToThrowAccessDeniedErrorToObjects,
 } = require('@open-condo/keystone/test.utils')
@@ -20,6 +20,8 @@ const {
     createTestBillingIntegrationOrganizationContext,
     updateTestBillingIntegrationOrganizationContext, createTestBillingIntegration,
 } = require('@condo/domains/billing/utils/testSchema')
+const { registerBillingReceiptsByTestClient } = require('@condo/domains/billing/utils/testSchema')
+const { TestUtils, BillingTestMixin } = require('@condo/domains/billing/utils/testSchema/testUtils')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { B2BAccessToken, B2BAccessTokenAdmin, createTestB2BAccessToken, updateTestB2BAccessToken } = require('@condo/domains/miniapp/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
@@ -28,8 +30,7 @@ const { registerNewOrganization } = require('@condo/domains/organization/utils/t
 const {
     makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser, makeClientWithServiceUser,
 } = require('@condo/domains/user/utils/testSchema')
-const {registerBillingReceiptsByTestClient} = require("../../billing/utils/testSchema");
-const {TestUtils, BillingTestMixin} = require("../../billing/utils/testSchema/testUtils");
+
 
 describe('B2BAccessToken', () => {
     const redisClient = getRedisClient()
@@ -363,7 +364,7 @@ describe('B2BAccessToken', () => {
                 }
 
                 const organizationsByService = await Organization.getAll(serviceUserClient, {})
-                expect(organizationsByService.length).toEqual(organizationsGenerationCount)
+                expect(organizationsByService).toHaveLength(organizationsGenerationCount)
 
                 const organizationForToken = faker.helpers.arrayElement(createdOrganizations)
                 const [obj] = await createTestB2BAccessToken(admin, serviceUserClient.user, organizationForToken)
