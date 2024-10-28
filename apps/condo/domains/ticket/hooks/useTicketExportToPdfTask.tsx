@@ -5,12 +5,13 @@ import {
     TicketComment as TicketCommentType,
     TicketWhereInput,
     User as IUser,
+    TicketExportTaskCreateInput,
+    TicketExportTaskFormatType,
 } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Row, Typography } from 'antd'
 import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
 import { Gutter } from 'antd/lib/grid/row'
-import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
 import { ResolvedIntlConfig } from 'react-intl'
@@ -25,7 +26,6 @@ import { ChevronIcon as ChevronIconBase } from '@condo/domains/common/components
 import { useTaskLauncher } from '@condo/domains/common/components/tasks/TaskLauncher'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { TrackingEventType, useTracking } from '@condo/domains/common/components/TrackingContext'
-import { PDF } from '@condo/domains/common/constants/export'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { TicketComment } from '@condo/domains/ticket/utils/clientSchema'
 
@@ -234,15 +234,15 @@ export const useTicketExportToPdfTask: UseTicketExportToPdfTaskType = (props)  =
     const openModalButtonEventName = eventNamePrefix ? `${eventNamePrefix}BlanksToPdfClickOpenModal` : getEventName(TrackingEventType.Click)
     const taskStartButtonEventName = eventNamePrefix ? `${eventNamePrefix}BlanksToPdfClickStartTask` : getEventName(TrackingEventType.Click)
 
-    const { loading, handleRunTask } = useTaskLauncher(TaskUIInterface, {
+    const { loading, handleRunTask } = useTaskLauncher<TicketExportTaskCreateInput>(TaskUIInterface, {
         dv: 1,
         sender: getClientSideSenderInfo(),
         where,
-        format: PDF,
+        format: TicketExportTaskFormatType.Pdf,
         sortBy,
         locale,
         timeZone,
-        user: { connect: { id: get(user, 'id', null) } },
+        user: { connect: { id: user?.id || null } },
         options: {
             commentIds: checkedCommentIds,
             haveAllComments,
@@ -276,7 +276,7 @@ export const useTicketExportToPdfTask: UseTicketExportToPdfTaskType = (props)  =
     }, [])
 
     const handleSaveToPdfTask = useCallback(() => {
-        const selectedTicketsCount = ticketId ? 1 : get(where, ['id_in', 'length'], null)
+        const selectedTicketsCount = ticketId ? 1 : where?.id_in?.length || null
         const eventProperties = {
             selectedCommentCount: haveAllComments
                 ? 'all'

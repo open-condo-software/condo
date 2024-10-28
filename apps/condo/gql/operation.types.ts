@@ -3,6 +3,146 @@
 
 import * as Types from '@app/condo/schema'
 
+export type GetBankAccountReportTasksQueryVariables = Types.Exact<{
+    where: Types.BankAccountReportTaskWhereInput
+}>
+
+
+export type GetBankAccountReportTasksQuery = { __typename?: 'Query', tasks?: Array<{ __typename: 'BankAccountReportTask', id: string, progress?: number | null, status?: Types.BankAccountReportTaskStatusType | null } | null> | null }
+
+export type CreateBankAccountReportTaskMutationVariables = Types.Exact<{
+    data: Types.BankAccountReportTaskCreateInput
+}>
+
+
+export type CreateBankAccountReportTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'BankAccountReportTask', id: string, progress?: number | null, status?: Types.BankAccountReportTaskStatusType | null } | null }
+
+export type UpdateBankAccountReportTaskMutationVariables = Types.Exact<{
+    id: Types.Scalars['ID']['input']
+    data: Types.BankAccountReportTaskUpdateInput
+}>
+
+
+export type UpdateBankAccountReportTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'BankAccountReportTask', id: string, progress?: number | null, status?: Types.BankAccountReportTaskStatusType | null } | null }
+
+export type GetBankSyncTasksQueryVariables = Types.Exact<{
+    where: Types.BankSyncTaskWhereInput
+}>
+
+
+export type GetBankSyncTasksQuery = { __typename?: 'Query', tasks?: Array<{ __typename: 'BankSyncTask', id: string, status?: Types.BankSyncTaskStatusType | null, processedCount?: number | null, totalCount?: number | null, meta?: any | null, property?: { __typename?: 'Property', id: string } | null, options?: { __typename?: 'BankSyncTaskOptions', type?: string | null } | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null> | null }
+
+export type CreateBankSyncTaskMutationVariables = Types.Exact<{
+    data: Types.BankSyncTaskCreateInput
+}>
+
+
+export type CreateBankSyncTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'BankSyncTask', id: string, status?: Types.BankSyncTaskStatusType | null, processedCount?: number | null, totalCount?: number | null, meta?: any | null, property?: { __typename?: 'Property', id: string } | null, options?: { __typename?: 'BankSyncTaskOptions', type?: string | null } | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null }
+
+export type UpdateBankSyncTaskMutationVariables = Types.Exact<{
+    id: Types.Scalars['ID']['input']
+    data: Types.BankSyncTaskUpdateInput
+}>
+
+
+export type UpdateBankSyncTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'BankSyncTask', id: string, status?: Types.BankSyncTaskStatusType | null, processedCount?: number | null, totalCount?: number | null, meta?: any | null, property?: { __typename?: 'Property', id: string } | null, options?: { __typename?: 'BankSyncTaskOptions', type?: string | null } | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null }
+
+export type GetProcessingTasksQueryVariables = Types.Exact<{
+    userId: Types.Scalars['ID']['input']
+    createdAtGte: Types.Scalars['String']['input']
+}>
+
+
+export type GetProcessingTasksQuery = { __typename?: 'Query', allTicketDocumentGenerationTasks?: Array<{ __typename: 'TicketDocumentGenerationTask', id: string, progress?: number | null, status?: Types.TicketDocumentGenerationTaskStatusType | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null> | null, allTicketExportTasks?: Array<{ __typename: 'TicketExportTask', id: string, status?: Types.TicketExportTaskStatusType | null, totalRecordsCount?: number | null, exportedRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null> | null, allIncidentExportTasks?: Array<{ __typename: 'IncidentExportTask', id: string, status?: Types.IncidentExportTaskStatusType | null, totalRecordsCount?: number | null, exportedRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null> | null, allContactExportTasks?: Array<{ __typename: 'ContactExportTask', id: string, status?: Types.ContactExportTaskStatusType | null, totalRecordsCount?: number | null, exportedRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null> | null, allBankSyncTasks?: Array<{ __typename: 'BankSyncTask', id: string, status?: Types.BankSyncTaskStatusType | null, processedCount?: number | null, totalCount?: number | null, meta?: any | null, property?: { __typename?: 'Property', id: string } | null, options?: { __typename?: 'BankSyncTaskOptions', type?: string | null } | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null> | null, allBankAccountReportTasks?: Array<{ __typename: 'BankAccountReportTask', id: string, progress?: number | null, status?: Types.BankAccountReportTaskStatusType | null } | null> | null, allNewsItemRecipientsExportTasks?: Array<{ __typename: 'NewsItemRecipientsExportTask', id: string, status?: Types.NewsItemRecipientsExportTaskStatusType | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null> | null, allMeterReadingsImportTasks?: Array<{ __typename: 'MeterReadingsImportTask', id: string, status?: Types.MeterReadingsImportTaskStatusType | null, errorMessage?: string | null, totalRecordsCount?: number | null, processedRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null, errorFile?: { __typename?: 'File', publicUrl?: string | null } | null } | null> | null, allMeterReadingExportTasks?: Array<{ __typename: 'MeterReadingExportTask', id: string, status?: Types.MeterReadingExportTaskStatusType | null, totalRecordsCount?: number | null, exportedRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null> | null }
+
+export type GetContactExportTasksQueryVariables = Types.Exact<{
+    where: Types.ContactExportTaskWhereInput
+}>
+
+
+export type GetContactExportTasksQuery = { __typename?: 'Query', tasks?: Array<{ __typename: 'ContactExportTask', id: string, status?: Types.ContactExportTaskStatusType | null, totalRecordsCount?: number | null, exportedRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null> | null }
+
+export type CreateContactExportTaskMutationVariables = Types.Exact<{
+    data: Types.ContactExportTaskCreateInput
+}>
+
+
+export type CreateContactExportTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'ContactExportTask', id: string, status?: Types.ContactExportTaskStatusType | null, totalRecordsCount?: number | null, exportedRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null }
+
+export type UpdateContactExportTaskMutationVariables = Types.Exact<{
+    id: Types.Scalars['ID']['input']
+    data: Types.ContactExportTaskUpdateInput
+}>
+
+
+export type UpdateContactExportTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'ContactExportTask', id: string, status?: Types.ContactExportTaskStatusType | null, totalRecordsCount?: number | null, exportedRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null }
+
+export type GetMeterReadingExportTasksQueryVariables = Types.Exact<{
+    where: Types.MeterReadingExportTaskWhereInput
+}>
+
+
+export type GetMeterReadingExportTasksQuery = { __typename?: 'Query', tasks?: Array<{ __typename: 'MeterReadingExportTask', id: string, status?: Types.MeterReadingExportTaskStatusType | null, totalRecordsCount?: number | null, exportedRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null> | null }
+
+export type CreateMeterReadingExportTaskMutationVariables = Types.Exact<{
+    data: Types.MeterReadingExportTaskCreateInput
+}>
+
+
+export type CreateMeterReadingExportTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'MeterReadingExportTask', id: string, status?: Types.MeterReadingExportTaskStatusType | null, totalRecordsCount?: number | null, exportedRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null }
+
+export type UpdateMeterReadingExportTaskMutationVariables = Types.Exact<{
+    id: Types.Scalars['ID']['input']
+    data: Types.MeterReadingExportTaskUpdateInput
+}>
+
+
+export type UpdateMeterReadingExportTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'MeterReadingExportTask', id: string, status?: Types.MeterReadingExportTaskStatusType | null, totalRecordsCount?: number | null, exportedRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null }
+
+export type GetMeterReadingsImportTasksQueryVariables = Types.Exact<{
+    where: Types.MeterReadingsImportTaskWhereInput
+}>
+
+
+export type GetMeterReadingsImportTasksQuery = { __typename?: 'Query', tasks?: Array<{ __typename: 'MeterReadingsImportTask', id: string, status?: Types.MeterReadingsImportTaskStatusType | null, errorMessage?: string | null, totalRecordsCount?: number | null, processedRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null, errorFile?: { __typename?: 'File', publicUrl?: string | null } | null } | null> | null }
+
+export type CreateMeterReadingsImportTaskMutationVariables = Types.Exact<{
+    data: Types.MeterReadingsImportTaskCreateInput
+}>
+
+
+export type CreateMeterReadingsImportTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'MeterReadingsImportTask', id: string, status?: Types.MeterReadingsImportTaskStatusType | null, errorMessage?: string | null, totalRecordsCount?: number | null, processedRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null, errorFile?: { __typename?: 'File', publicUrl?: string | null } | null } | null }
+
+export type UpdateMeterReadingsImportTaskMutationVariables = Types.Exact<{
+    id: Types.Scalars['ID']['input']
+    data: Types.MeterReadingsImportTaskUpdateInput
+}>
+
+
+export type UpdateMeterReadingsImportTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'MeterReadingsImportTask', id: string, status?: Types.MeterReadingsImportTaskStatusType | null, errorMessage?: string | null, totalRecordsCount?: number | null, processedRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null, errorFile?: { __typename?: 'File', publicUrl?: string | null } | null } | null }
+
+export type GetNewsItemRecipientsExportTasksQueryVariables = Types.Exact<{
+    where: Types.NewsItemRecipientsExportTaskWhereInput
+}>
+
+
+export type GetNewsItemRecipientsExportTasksQuery = { __typename?: 'Query', tasks?: Array<{ __typename: 'NewsItemRecipientsExportTask', id: string, status?: Types.NewsItemRecipientsExportTaskStatusType | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null> | null }
+
+export type CreateNewsItemRecipientsExportTaskMutationVariables = Types.Exact<{
+    data: Types.NewsItemRecipientsExportTaskCreateInput
+}>
+
+
+export type CreateNewsItemRecipientsExportTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'NewsItemRecipientsExportTask', id: string, status?: Types.NewsItemRecipientsExportTaskStatusType | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null }
+
+export type UpdateNewsItemRecipientsExportTaskMutationVariables = Types.Exact<{
+    id: Types.Scalars['ID']['input']
+    data: Types.NewsItemRecipientsExportTaskUpdateInput
+}>
+
+
+export type UpdateNewsItemRecipientsExportTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'NewsItemRecipientsExportTask', id: string, status?: Types.NewsItemRecipientsExportTaskStatusType | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null }
+
 export type GetActiveOrganizationEmployeeQueryVariables = Types.Exact<{
     userId: Types.Scalars['ID']['input']
     employeeId?: Types.InputMaybe<Types.Scalars['ID']['input']>
@@ -40,6 +180,72 @@ export type GetTrialServiceSubscriptionQueryVariables = Types.Exact<{
 
 
 export type GetTrialServiceSubscriptionQuery = { __typename?: 'Query', subscriptions?: Array<{ __typename?: 'ServiceSubscription', id: string, finishAt?: string | null } | null> | null }
+
+export type GetIncidentExportTasksQueryVariables = Types.Exact<{
+    where: Types.IncidentExportTaskWhereInput
+}>
+
+
+export type GetIncidentExportTasksQuery = { __typename?: 'Query', tasks?: Array<{ __typename: 'IncidentExportTask', id: string, status?: Types.IncidentExportTaskStatusType | null, totalRecordsCount?: number | null, exportedRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null> | null }
+
+export type CreateIncidentExportTaskMutationVariables = Types.Exact<{
+    data: Types.IncidentExportTaskCreateInput
+}>
+
+
+export type CreateIncidentExportTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'IncidentExportTask', id: string, status?: Types.IncidentExportTaskStatusType | null, totalRecordsCount?: number | null, exportedRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null }
+
+export type UpdateIncidentExportTaskMutationVariables = Types.Exact<{
+    id: Types.Scalars['ID']['input']
+    data: Types.IncidentExportTaskUpdateInput
+}>
+
+
+export type UpdateIncidentExportTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'IncidentExportTask', id: string, status?: Types.IncidentExportTaskStatusType | null, totalRecordsCount?: number | null, exportedRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null }
+
+export type GetTicketDocumentGenerationTasksQueryVariables = Types.Exact<{
+    where: Types.TicketDocumentGenerationTaskWhereInput
+}>
+
+
+export type GetTicketDocumentGenerationTasksQuery = { __typename?: 'Query', tasks?: Array<{ __typename: 'TicketDocumentGenerationTask', id: string, progress?: number | null, status?: Types.TicketDocumentGenerationTaskStatusType | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null> | null }
+
+export type CreateTicketDocumentGenerationTaskMutationVariables = Types.Exact<{
+    data: Types.TicketDocumentGenerationTaskCreateInput
+}>
+
+
+export type CreateTicketDocumentGenerationTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'TicketDocumentGenerationTask', id: string, progress?: number | null, status?: Types.TicketDocumentGenerationTaskStatusType | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null }
+
+export type UpdateTicketDocumentGenerationTaskMutationVariables = Types.Exact<{
+    id: Types.Scalars['ID']['input']
+    data: Types.TicketDocumentGenerationTaskUpdateInput
+}>
+
+
+export type UpdateTicketDocumentGenerationTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'TicketDocumentGenerationTask', id: string, progress?: number | null, status?: Types.TicketDocumentGenerationTaskStatusType | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null }
+
+export type GetTicketExportTasksQueryVariables = Types.Exact<{
+    where: Types.TicketExportTaskWhereInput
+}>
+
+
+export type GetTicketExportTasksQuery = { __typename?: 'Query', tasks?: Array<{ __typename: 'TicketExportTask', id: string, status?: Types.TicketExportTaskStatusType | null, totalRecordsCount?: number | null, exportedRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null> | null }
+
+export type CreateTicketExportTaskMutationVariables = Types.Exact<{
+    data: Types.TicketExportTaskCreateInput
+}>
+
+
+export type CreateTicketExportTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'TicketExportTask', id: string, status?: Types.TicketExportTaskStatusType | null, totalRecordsCount?: number | null, exportedRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null }
+
+export type UpdateTicketExportTaskMutationVariables = Types.Exact<{
+    id: Types.Scalars['ID']['input']
+    data: Types.TicketExportTaskUpdateInput
+}>
+
+
+export type UpdateTicketExportTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'TicketExportTask', id: string, status?: Types.TicketExportTaskStatusType | null, totalRecordsCount?: number | null, exportedRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null }
 
 export type AuthenticatedUserQueryVariables = Types.Exact<{ [key: string]: never }>
 

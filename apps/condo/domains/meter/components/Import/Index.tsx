@@ -31,7 +31,7 @@ const MetersImportWrapper: React.FC<IMetersImportWrapperProps> = (props) => {
     const intl = useIntl()
     const domain = 'meter'
     const { organization } = useOrganization()
-    const { user } = useAuth() as { user: { id: string } }
+    const { user } = useAuth()
 
     const ChooseFileForUploadLabel = intl.formatMessage({ id: 'import.uploadModal.chooseFileForUpload' })
     const ErrorsMessage = intl.formatMessage({ id: 'import.Errors' })
@@ -62,8 +62,8 @@ const MetersImportWrapper: React.FC<IMetersImportWrapperProps> = (props) => {
 
     const { handleRunTask } = useMeterReadingsImportTask({
         file: fileRef,
-        userId: user.id,
-        organizationId: organization.id,
+        userId: user?.id || null,
+        organizationId: organization?.id || null,
     })
 
     useEffect(() => {

@@ -411,7 +411,7 @@ const BankAccountReport: IBankAccountReport = ({ bankAccount, bankAccountReports
 
     const { BankReportTaskButton } = useBankReportTaskButton({
         organizationId: bankAccount.organization.id,
-        user,
+        userId: user?.id || null,
         bankAccount,
     })
 

@@ -1,5 +1,9 @@
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
-import { AuthenticatedUserDocument, GetActiveOrganizationEmployeeDocument } from '@app/condo/gql'
+import {
+    AuthenticatedUserDocument,
+    GetActiveOrganizationEmployeeDocument,
+    useGetProcessingTasksQuery,
+} from '@app/condo/gql'
 import { CacheProvider } from '@emotion/core'
 import { ConfigProvider } from 'antd'
 import enUS from 'antd/lib/locale/en_US'
@@ -38,7 +42,6 @@ import { MenuItem } from '@condo/domains/common/components/MenuItem'
 import PopupSmart from '@condo/domains/common/components/PopupSmart'
 import { PostMessageProvider } from '@condo/domains/common/components/PostMessageProvider'
 import { ServiceProblemsAlert } from '@condo/domains/common/components/ServiceProblemsAlert'
-import { TASK_STATUS } from '@condo/domains/common/components/tasks'
 import { TasksContextProvider } from '@condo/domains/common/components/tasks/TasksContextProvider'
 import { TrackingProvider } from '@condo/domains/common/components/TrackingContext'
 import UseDeskWidget from '@condo/domains/common/components/UseDeskWidget'
@@ -71,6 +74,7 @@ import {
     extractVitalCookies,
 } from '@condo/domains/common/utils/next/ssr'
 import { GetPrefetchedDataReturnRedirect } from '@condo/domains/common/utils/next/types'
+import { nonNull } from '@condo/domains/common/utils/nonNull'
 import { useContactExportTaskUIInterface } from '@condo/domains/contact/hooks/useContactExportTaskUIInterface'
 import { useMeterReadingExportTaskUIInterface } from '@condo/domains/meter/hooks/useMeterReadingExportTaskUIInterface'
 import { useMeterReadingsImportTaskUIInterface } from '@condo/domains/meter/hooks/useMeterReadingsImportTaskUIInterface'
@@ -397,52 +401,30 @@ const TasksProvider = ({ children }) => {
     // ... another interfaces of tasks should be used here
 
     // Load all tasks with 'processing' status
-    const { records: ticketDocumentGenerationTasks } = TicketDocumentGenerationTaskUIInterface.storage.useTasks(
-        { status: TASK_STATUS.PROCESSING, today: true }, user
-    )
-    const { records: ticketExportTasks } = TicketExportTaskUIInterface.storage.useTasks(
-        { status: TASK_STATUS.PROCESSING, today: true }, user
-    )
-    const { records: incidentExportTasks } = IncidentExportTaskUIInterface.storage.useTasks(
-        { status: TASK_STATUS.PROCESSING, today: true }, user
-    )
-    const { records: contactExportTasks } = ContactExportTaskUIInterface.storage.useTasks(
-        { status: TASK_STATUS.PROCESSING, today: true }, user
-    )
-    const { records: bankSyncTasks } = BankSyncTaskUIInterface.storage.useTasks(
-        { status: TASK_STATUS.PROCESSING, today: true }, user
-    )
-    const { records: bankReportTasks } = BankReportTaskUIInterface.storage.useTasks(
-        { status: TASK_STATUS.PROCESSING, today: true }, user
-    )
-    const { records: miniAppTasks } = MiniAppTaskUIInterface.storage.useTasks(
-        { status: TASK_STATUS.PROCESSING, today: true }, user
-    )
-    const { records: newsItemRecipientsTask } = NewsItemRecipientsExportTaskUIInterface.storage.useTasks(
-        { status: TASK_STATUS.PROCESSING, today: true }, user
-    )
-    const { records: meterReadingsImportTask } = MeterReadingsImportTaskUIInterface.storage.useTasks(
-        { status: TASK_STATUS.PROCESSING, today: true }, user
-    )
-    const { records: meterReadingsExportTask } = MeterReadingExportTaskUIInterface.storage.useTasks(
-        { status: TASK_STATUS.PROCESSING, today: true }, user
+    const { data, loading: isProcessingTasksLoading } = useGetProcessingTasksQuery({
+        variables: { userId: user?.id || null, createdAtGte: dayjs().startOf('day').toISOString() },
+        skip: !user?.id,
+    })
+
+    const { records: miniAppTasks, loading: isMiniAppTasksLoading } = MiniAppTaskUIInterface.storage.useTasks(
+        { status: 'processing', today: true }, user
     )
     // ... another task records should be loaded here
 
     const initialTaskRecords = useMemo(
         () => [
+            ...(data?.allBankAccountReportTasks?.filter(nonNull) || []),
+            ...(data?.allBankSyncTasks?.filter(nonNull) || []),
+            ...(data?.allContactExportTasks?.filter(nonNull) || []),
+            ...(data?.allIncidentExportTasks?.filter(nonNull) || []),
+            ...(data?.allMeterReadingExportTasks?.filter(nonNull) || []),
+            ...(data?.allMeterReadingsImportTasks?.filter(nonNull) || []),
+            ...(data?.allNewsItemRecipientsExportTasks?.filter(nonNull) || []),
+            ...(data?.allTicketDocumentGenerationTasks?.filter(nonNull) || []),
+            ...(data?.allTicketExportTasks?.filter(nonNull) || []),
             ...miniAppTasks,
-            ...ticketDocumentGenerationTasks,
-            ...ticketExportTasks,
-            ...incidentExportTasks,
-            ...contactExportTasks,
-            ...bankSyncTasks,
-            ...bankReportTasks,
-            ...newsItemRecipientsTask,
-            ...meterReadingsImportTask,
-            ...meterReadingsExportTask,
         ],
-        [miniAppTasks, ticketDocumentGenerationTasks, ticketExportTasks, incidentExportTasks, contactExportTasks, bankSyncTasks, bankReportTasks, newsItemRecipientsTask, meterReadingsImportTask, meterReadingsExportTask],
+        [data, miniAppTasks],
     )
     const uiInterfaces = useMemo(() => ({
         MiniAppTask: MiniAppTaskUIInterface,
@@ -457,10 +439,16 @@ const TasksProvider = ({ children }) => {
         MeterReadingExportTask: MeterReadingExportTaskUIInterface,
     }), [MiniAppTaskUIInterface, TicketDocumentGenerationTaskUIInterface, TicketExportTaskUIInterface, IncidentExportTaskUIInterface, ContactExportTaskUIInterface, BankSyncTaskUIInterface, BankReportTaskUIInterface, NewsItemRecipientsExportTaskUIInterface, MeterReadingsImportTaskUIInterface, MeterReadingExportTaskUIInterface])
 
+    const isInitialLoading =
+        !! user?.id
+        || (isProcessingTasksLoading || !data)
+        || isMiniAppTasksLoading
+
     return (
         <TasksContextProvider
             preloadedTaskRecords={initialTaskRecords}
             uiInterfaces={uiInterfaces}
+            isInitialLoading={isInitialLoading}
         >
             {children}
         </TasksContextProvider>

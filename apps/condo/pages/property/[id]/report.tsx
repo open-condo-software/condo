@@ -1,4 +1,3 @@
-import { BankSyncTaskStatusType } from '@app/condo/schema'
 import { Row, Col, Tabs } from 'antd'
 import get from 'lodash/get'
 import isNull from 'lodash/isNull'
@@ -32,7 +31,6 @@ import {
     BankAccount,
     BankTransaction,
     BankAccountReport as BankAccountReportClient,
-    BankSyncTask,
 } from '@condo/domains/banking/utils/clientSchema'
 import Input from '@condo/domains/common/components/antd/Input'
 import { Button as DeprecatedButton } from '@condo/domains/common/components/Button'
@@ -45,6 +43,7 @@ import { SberIconWithoutLabel } from '@condo/domains/common/components/icons/Sbe
 import { Loader } from '@condo/domains/common/components/Loader'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
+import { useTasks } from '@condo/domains/common/components/tasks/TasksContextProvider'
 import { PROPERTY_REPORT_DELETE_ENTITIES, PROPERTY_BANK_ACCOUNT } from '@condo/domains/common/constants/featureflags'
 import { useDateRangeSearch } from '@condo/domains/common/hooks/useDateRangeSearch'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
@@ -78,7 +77,6 @@ const DATE_DISPLAY_FORMAT: FormatDateOptions = {
 const SBBOL_SYNC_CALLBACK_QUERY = 'sbbol-sync-callback'
 const EMPTY_IMAGE_PATH = '/dino/searching@2x.png'
 const PROCESSING_IMAGE_PATH = '/dino/processing@2x.png'
-const BANK_INTEGRATION_CONTEXT_POLL_INTERVAL = 10000
 
 type BaseBankReportProps = {
     bankAccount: BankAccountType
@@ -109,8 +107,6 @@ const PropertyImportBankTransactions: IPropertyImportBankTransactions = ({ bankA
     const ImportSBBOLTitle = intl.formatMessage({ id: 'pages.condo.property.report.importBankTransaction.importSbbolTitle' })
     const ImportFileTitle = intl.formatMessage({ id: 'pages.condo.property.report.importBankTransaction.importFileTitle' })
 
-    const [isProcessing, setIsProcessing] = useState(false)
-
     const { query, asPath, push } = useRouter()
     const { id } = query
     const { loading: fileImportLoading, Component: FileImportButton } = useFileImport({
@@ -122,26 +118,11 @@ const PropertyImportBankTransactions: IPropertyImportBankTransactions = ({ bankA
         handleOpen: handleOpenTransactionsModal,
         ModalComponent: ImportTransactionsModal,
     } = useBankSyncTaskExternalModal({ bankAccount, propertyId: get(bankAccount, 'property.id') })
-    const { count: bankSyncTasksCount, loading: bankSyncTasksLoading, stopPolling } = BankSyncTask.useObjects({
-        where: {
-            status: BankSyncTaskStatusType.Processing,
-            organization: { id: organizationId },
-        },
-    }, { pollInterval: BANK_INTEGRATION_CONTEXT_POLL_INTERVAL })
+    const { tasks, isInitialLoading: isTasksInitialLoading } = useTasks()
 
-    // Fetch transactions sync status. If it not equals to processing -> stop poll results
-    useEffect(() => {
-        if (!bankSyncTasksLoading) {
-            if (bankSyncTasksCount > 0) {
-                setIsProcessing(true)
-            } else {
-                stopPolling()
-                setIsProcessing(false)
-            }
-        }
+    const bankSyncTasks = useMemo(() => tasks.filter((task) => task.record.__typename === 'BankSyncTask'), [tasks])
 
-        if (fileImportLoading) setIsProcessing(true)
-    }, [fileImportLoading, bankSyncTasksLoading, bankSyncTasksCount, isProcessing, stopPolling])
+    const isProcessing = (bankSyncTasks.length > 0 && !isTasksInitialLoading) || fileImportLoading
 
     const handleOpenSbbolModal = useCallback(async () => {
         await push(`${asPath}?${SBBOL_SYNC_CALLBACK_QUERY}`)
@@ -204,7 +185,7 @@ const PropertyImportBankTransactions: IPropertyImportBankTransactions = ({ bankA
     }, [bankAccount, isProcessing, asPath, fileImportLoading, LoginBySBBOLTitle, handleOpenSbbolModal,
         ImportSBBOLTitle, handleOpenTransactionsModal, ImportTransactionsModal])
 
-    if (isNull(bankSyncTasksCount) && bankSyncTasksLoading) return <Loader fill size='large' />
+    if (isTasksInitialLoading) return <Loader fill size='large' />
 
     const hasSuccessCallback = query.hasOwnProperty(SBBOL_SYNC_CALLBACK_QUERY)
     const fileImportIntegration = get(bankAccount, ['integrationContext', 'integration', 'id']) === BANK_INTEGRATION_IDS['1CClientBankExchange']
@@ -285,7 +266,7 @@ const PropertyReport: IPropertyReport = ({ bankAccount, propertyId, role }) => {
     } = useBankSyncTaskExternalModal({ propertyId, bankAccount })
 
     const { BankReportTaskButton } = useBankReportTaskButton({
-        bankAccount, user, organizationId: bankAccount.organization.id, type: 'secondary',
+        bankAccount, userId: user?.id || null, organizationId: bankAccount.organization.id, type: 'secondary',
     })
 
     // Handlers

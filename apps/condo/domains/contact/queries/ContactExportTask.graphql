@@ -1,0 +1,48 @@
+query getContactExportTasks ($where: ContactExportTaskWhereInput!) {
+    tasks: allContactExportTasks(
+        where: $where
+    ) {
+        id
+        status
+        file {
+            publicUrl
+            originalFilename
+        }
+        totalRecordsCount
+        exportedRecordsCount
+        __typename
+    }
+}
+
+mutation createContactExportTask ($data: ContactExportTaskCreateInput!) {
+    task: createContactExportTask(
+        data: $data
+    ) {
+        id
+        status
+        file {
+            publicUrl
+            originalFilename
+        }
+        totalRecordsCount
+        exportedRecordsCount
+        __typename
+    }
+}
+
+mutation updateContactExportTask ($id: ID!, $data: ContactExportTaskUpdateInput!) {
+    task: updateContactExportTask(
+        data: $data,
+        id: $id
+    ) {
+        id
+        status
+        file {
+            publicUrl
+            originalFilename
+        }
+        totalRecordsCount
+        exportedRecordsCount
+        __typename
+    }
+}
