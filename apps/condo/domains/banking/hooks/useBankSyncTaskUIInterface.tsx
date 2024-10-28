@@ -1,5 +1,10 @@
+import {
+    GetBankSyncTasksDocument,
+    CreateBankSyncTaskDocument,
+    UpdateBankSyncTaskDocument,
+    type GetBankSyncTasksQuery,
+} from '@app/condo/gql'
 import { notification } from 'antd'
-import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import { useCallback } from 'react'
 
@@ -7,16 +12,17 @@ import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@open-condo/ui'
 
 import { SBBOL } from '@condo/domains/banking/constants'
-import { BankSyncTask } from '@condo/domains/banking/utils/clientSchema'
-import { ITask, TASK_REMOVE_STRATEGY, TASK_STATUS } from '@condo/domains/common/components/tasks'
+import { ITask, TASK_REMOVE_STRATEGY } from '@condo/domains/common/components/tasks'
 import { TasksCondoStorage } from '@condo/domains/common/components/tasks/storage/TasksCondoStorage'
-import { TASK_COMPLETED_STATUS } from '@condo/domains/common/constants/tasks'
+import { TASK_COMPLETED_STATUS, TASK_ERROR_STATUS } from '@condo/domains/common/constants/tasks'
 
-import type { BankSyncTask as BankSyncTaskType } from '@app/condo/schema'
+
+type TaskRecordType = GetBankSyncTasksQuery['tasks'][number]
+type UseBankSyncTaskUIInterfaceType = () => ({ BankSyncTask: ITask<TaskRecordType> })
 
 const BANK_ACCOUNT_REPORT_PAGE_PATHNAME = '/property/[id]/report'
 
-export const useBankSyncTaskUIInterface = () => {
+export const useBankSyncTaskUIInterface: UseBankSyncTaskUIInterfaceType = () => {
     const intl = useIntl()
     const BankSyncTaskProgressTitle = intl.formatMessage({ id: 'tasks.BankSyncTask.file.progress.title' })
     const BankSyncTaskExternalSystemProgressTitle = intl.formatMessage({ id: 'tasks.BankSyncTask.externalSystem.progress.title' })
@@ -29,8 +35,8 @@ export const useBankSyncTaskUIInterface = () => {
 
     const { reload, push, pathname, query: { id } } = useRouter()
 
-    const getCompleteButtonClickHandler = useCallback((taskRecord) => () => {
-        const propertyId = get(taskRecord, 'property.id')
+    const getCompleteButtonClickHandler = useCallback((taskRecord: TaskRecordType) => () => {
+        const propertyId = taskRecord?.property?.id
 
         if (propertyId && BANK_ACCOUNT_REPORT_PAGE_PATHNAME === pathname) {
             reload()
@@ -39,48 +45,49 @@ export const useBankSyncTaskUIInterface = () => {
         }
     }, [reload, push, pathname])
 
-    const TaskUIInterface: ITask = {
+    const TaskUIInterface: ITask<TaskRecordType> = {
         storage: new TasksCondoStorage({
-            clientSchema: BankSyncTask,
+            getTasksDocument: GetBankSyncTasksDocument,
+            createTaskDocument: CreateBankSyncTaskDocument,
+            updateTaskDocument: UpdateBankSyncTaskDocument,
         }),
         removeStrategy: [TASK_REMOVE_STRATEGY.PANEL],
         translations: {
             title: (taskRecord) => {
-                return get(taskRecord, 'options.type') === SBBOL
+                return taskRecord?.options?.type === SBBOL
                     ? BankSyncTaskExternalSystemProgressTitle
                     : BankSyncTaskProgressTitle
             },
             description: (taskRecord) => {
-                if (taskRecord.status === TASK_STATUS.ERROR) {
-                    return get(taskRecord, 'meta.errorMessage', BankSyncTaskProgressDescriptionError)
+                if (taskRecord.status === TASK_ERROR_STATUS) {
+                    return taskRecord?.meta?.errorMessage || BankSyncTaskProgressDescriptionError
                 }
 
-                const completedMessage = get(taskRecord, 'options.type') === SBBOL
+                const completedMessage = taskRecord?.options?.type === SBBOL
                     ? BankSyncTaskExternalSystemProgressDescriptionCompleted
                     : BankSyncTaskProgressDescriptionCompleted
 
-                // @ts-ignore
                 const { status, processedCount, totalCount } = taskRecord // this record is of type BankSyncTask
                 return status === TASK_COMPLETED_STATUS
                     ? completedMessage
                     : !totalCount || !processedCount
                         ? BankSyncTaskProgressDescriptionPreparing
                         : BankSyncTaskProgressDescriptionProcessing
-                            .replace('{imported}', processedCount || 0)
-                            .replace('{total}', totalCount || 0)
+                            .replace('{imported}', String(processedCount || 0))
+                            .replace('{total}', String(totalCount || 0))
             },
         },
-        calculateProgress: (task: BankSyncTaskType) => {
+        calculateProgress: (task) => {
             return Math.floor(task.processedCount / task.totalCount) * 100
         },
         onComplete: (taskRecord) => {
-            const propertyId = get(taskRecord, 'property.id', null)
+            const propertyId = taskRecord?.property?.id || null
 
-            if (get(taskRecord, 'status') === TASK_COMPLETED_STATUS) {
+            if (taskRecord?.status === TASK_COMPLETED_STATUS) {
                 if (pathname === BANK_ACCOUNT_REPORT_PAGE_PATHNAME && propertyId === id) {
                     reload()
                 } else if (propertyId) {
-                    const message = get(taskRecord, 'options.type') === SBBOL
+                    const message = taskRecord?.options?.type === SBBOL
                         ? BankSyncTaskExternalSystemProgressDescriptionCompleted
                         : BankSyncTaskProgressDescriptionCompleted
                     // TODO(antonal): move it to translations, since now it is possible to return ReactNode as a value of `translations.description`

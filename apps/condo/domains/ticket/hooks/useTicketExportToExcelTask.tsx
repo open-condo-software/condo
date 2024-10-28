@@ -1,4 +1,4 @@
-import get from 'lodash/get'
+import { TicketExportTaskCreateInput }  from '@app/condo/schema'
 import React, { useCallback } from 'react'
 
 import { Sheet } from '@open-condo/icons'
@@ -17,7 +17,7 @@ export const useTicketExportToExcelTask = ({ where, sortBy, format, locale, time
 
     const { TicketExportTask: TaskUIInterface } = useTicketExportTaskUIInterface()
 
-    const { loading, handleRunTask } = useTaskLauncher(TaskUIInterface, {
+    const { loading, handleRunTask } = useTaskLauncher<TicketExportTaskCreateInput>(TaskUIInterface, {
         dv: 1,
         sender: getClientSideSenderInfo(),
         where,
@@ -25,7 +25,7 @@ export const useTicketExportToExcelTask = ({ where, sortBy, format, locale, time
         sortBy,
         locale,
         timeZone,
-        user: { connect: { id: get(user, 'id', null) } },
+        user: { connect: { id: user?.id || null } },
     })
 
     const TicketsExportToXlsxButton = useCallback(() => (
@@ -33,7 +33,7 @@ export const useTicketExportToExcelTask = ({ where, sortBy, format, locale, time
             type='secondary'
             icon={<Sheet size='medium' />}
             loading={loading}
-            onClick={handleRunTask}
+            onClick={() => handleRunTask()}
             id='TicketsExportClick'
             children={ExportAsExcelLabel}
         />
