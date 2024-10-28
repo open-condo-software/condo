@@ -47,7 +47,7 @@ export const useTicketDocumentGenerationTask = ({ invoices, ticket, user, timeZo
         handleRunTask({ taskAttrs: { documentType } })
     }, [handleRunTask, loading])
 
-    const isValidInvoice = invoices.find((invoice) => get(invoice, 'status') !== INVOICE_STATUS_CANCELED &&  get(invoice, 'deletedAt') === null)
+    const hasValidInvoice = invoices.find((invoice) => get(invoice, 'status') !== INVOICE_STATUS_CANCELED &&  get(invoice, 'deletedAt') === null)
     
     const buttonItems = useMemo(() => {
         return [
@@ -56,13 +56,13 @@ export const useTicketDocumentGenerationTask = ({ invoices, ticket, user, timeZo
                 key: 'generate-document-of-works-completion',
                 onClick: getHandleClick(TICKET_DOCUMENT_TYPE.COMPLETION_WORKS),
             },
-            ticket.isPaid && isValidInvoice && isSupportedDocumentTypeByLocale(TICKET_DOCUMENT_TYPE.PAID_WORKS, locale) && {
+            ticket.isPaid && hasValidInvoice && isSupportedDocumentTypeByLocale(TICKET_DOCUMENT_TYPE.PAID_WORKS, locale) && {
                 label: PaidCompletionWorks,
                 key: 'generate-document-of-paid-works-completion',
                 onClick: getHandleClick(TICKET_DOCUMENT_TYPE.PAID_WORKS),
             },
         ].filter(Boolean)
-    }, [CompletionWorksLabel, PaidCompletionWorks, ticket.isPaid, getHandleClick, locale, isValidInvoice])
+    }, [CompletionWorksLabel, PaidCompletionWorks, ticket.isPaid, getHandleClick, locale, hasValidInvoice])
 
     const TicketDocumentGenerationButton = useCallback(() => {
         if (buttonItems.length < 1) return null

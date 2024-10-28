@@ -7,17 +7,25 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { getByCondition } = require('@open-condo/keystone/schema')
 
 const { buildExportFile, DOCX_FILE_META } = require('@condo/domains/common/utils/createExportFile')
+const { renderMoney } = require('@condo/domains/common/utils/money')
 const { buildUploadInputFrom } = require('@condo/domains/common/utils/serverSchema/export')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const { DEFAULT_INVOICE_CURRENCY_CODE, INVOICE_STATUS_CANCELED } = require('@condo/domains/marketplace/constants')
 const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { TICKET_DOCUMENT_GENERATION_TASK_FORMAT } = require('@condo/domains/ticket/constants/ticketDocument')
-const { buildEmptyLineDifferentLength, formatDate, renderMoney } = require('@condo/domains/ticket/utils')
+const { formatDateToTimezone } = require('@condo/domains/ticket/utils')
 
 const logger = getLogger('generateDocumentOfPaidWorksCompletion')
 
 const financeInfoClient = new FinanceInfoClient()
+
+const changeUndefinedDataToBlanks = (obj) => {
+    for (let prop in obj) {
+        if (!obj[prop]) prop.startsWith('long') ? obj[prop] = '______________________________________' : obj[prop] = '___________________'
+    }
+    return obj
+}
 
 const buildExportWordFile = async ({ task, documentData, locale, timeZone }) => {
     const { id, ticket } = task
@@ -29,7 +37,7 @@ const buildExportWordFile = async ({ task, documentData, locale, timeZone }) => 
 
     return {
         stream,
-        filename: `paid_works_ticket_${ticket.id}_${formatDate(undefined, timeZone, 'DD_MM_YYYY')}.docx`,
+        filename: `paid_works_ticket_${ticket.id}_${formatDateToTimezone(undefined, timeZone, 'DD_MM_YYYY')}.docx`,
         mimetype: DOCX_FILE_META.mimetype,
         encoding: DOCX_FILE_META.encoding,
         meta: {
@@ -97,41 +105,47 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
         return acc
     }, [])
 
-    totalSum.toFixed(2)
-    totalVAT.toFixed(2)
+    const company = {
+        longName: get(organization, 'name'),
+        psrn: psrn,
+        tin: get(organization, 'tin'),
+        iec: iec,
+        longAddress: organizationAddress,
+        phone: get(organization, 'phone'),
+    }
 
-    const documentData = {
+    const bankDetails = {
+        accountNumber: get(invoices, '0.accountNumber'),
+        bankName: get(invoices, '0.recipient.bankName'),
+        bankAccount: get(invoices, '0.recipient.bankAccount'),
+        bic: get(invoices, '0.recipient.bic'),
+    }
+
+    const documentDataInLine = {
         header: {
             generalDate: printDate.format('DD.MM.YYYY'),
         },
-        company: {
-            name: get(organization, 'name') || buildEmptyLineDifferentLength(true),
-            psrn: psrn || buildEmptyLineDifferentLength(),
-            tin: get(organization, 'tin') || buildEmptyLineDifferentLength(),
-            iec: iec || buildEmptyLineDifferentLength(),
-            address: organizationAddress || buildEmptyLineDifferentLength(true),
-            phone: get(organization, 'phone') || buildEmptyLineDifferentLength(),
+        company : changeUndefinedDataToBlanks(company),
+        bankDetails: changeUndefinedDataToBlanks(bankDetails),
+    }
 
-        },
-        bankDetails: {
-            accountNumber: get(invoices, '0.accountNumber') || buildEmptyLineDifferentLength(),
-            bankName: get(invoices, '0.recipient.bankName') || buildEmptyLineDifferentLength(),
-            bankAccount: get(invoices, '0.recipient.bankAccount') || buildEmptyLineDifferentLength(),
-            bic: get(invoices, '0.recipient.bic') || buildEmptyLineDifferentLength(),
-        },
+    const documentDataInTable = {
         client: {
             name: get(contact, 'name') || '',
         },
         listOfWorks,
-        sum: {
+        total: {
             totalSum: !Number.isNaN(totalSum) ? renderMoney(totalSum, currencyCode, locale) : '',
             totalVAT: !Number.isNaN(totalVAT) ? renderMoney(totalVAT, currencyCode, locale) : '',
-            totalSumInWords: buildEmptyLineDifferentLength(true),
-            totalVATInWords: buildEmptyLineDifferentLength(true),
         },
         executor: {
             name: get(employee, 'name') || '',
         },
+    }
+
+    const documentData = {
+        ...documentDataInLine,
+        ...documentDataInTable,
     }
 
     let fileUploadInput
@@ -147,7 +161,7 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
         }
     }
 
-    logger.info({ msg: 'finish genereate document of paid completion works ', ticketId: ticket.id })
+    logger.info({ msg: 'finish genereate document of paid completion works ', taskId: task.id, ticketId: ticket.id })
 
     return fileUploadInput
 }

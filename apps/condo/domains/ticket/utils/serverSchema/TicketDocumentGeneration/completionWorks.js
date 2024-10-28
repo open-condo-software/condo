@@ -11,7 +11,7 @@ const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { getAddressDetails } = require('@condo/domains/property/utils/serverSchema/helpers')
 const { TICKET_DOCUMENT_GENERATION_TASK_FORMAT } = require('@condo/domains/ticket/constants/ticketDocument')
-const { formatDate, renderMoney } = require('@condo/domains/ticket/utils')
+const { formatDateToTimezone, renderMoney } = require('@condo/domains/ticket/utils')
 
 const buildExportWordFile = async ({ task, documentData, locale, timeZone }) => {
     const { id, ticket } = task
@@ -23,7 +23,7 @@ const buildExportWordFile = async ({ task, documentData, locale, timeZone }) => 
 
     return {
         stream,
-        filename: `completion_works_ticket_${ticket.id}_${formatDate(undefined, timeZone, 'DD_MM_YYYY')}.docx`,
+        filename: `completion_works_ticket_${ticket.id}_${formatDateToTimezone(undefined, timeZone, 'DD_MM_YYYY')}.docx`,
         mimetype: DOCX_FILE_META.mimetype,
         encoding: DOCX_FILE_META.encoding,
         meta: {

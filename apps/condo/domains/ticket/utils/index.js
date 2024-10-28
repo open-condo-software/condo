@@ -53,20 +53,9 @@ const buildFullClassifierName = (classifier) => {
     ].filter(Boolean).join(' » ')
 }
 
-const buildEmptyLineDifferentLength = (long = false) => {
-    return long ? '______________________________________________' : '_______________________'
-}
 
-
-const formatDate = (date, timeZone, format = 'DD.MM.YYYY') => {
+const formatDateToTimezone = (date, timeZone, format = 'DD.MM.YYYY') => {
     return dayjs(date).tz(timeZone).format(format)
-}
-
-const renderMoney = (amount, currencyCode, locale) => {
-    const options = { currency: currencyCode }
-    const numberFormat = new Intl.NumberFormat(locale, options)
-    const parts = numberFormat.formatToParts(amount)
-    return parts.map((part) => part.value).join('')
 }
 
 module.exports = {
@@ -74,7 +63,5 @@ module.exports = {
     filterFeedbackOptionsByScore,
     filterQualityControlOptionsByScore,
     buildFullClassifierName,
-    buildEmptyLineDifferentLength,
-    formatDate,
-    renderMoney,
+    formatDateToTimezone,
 }
