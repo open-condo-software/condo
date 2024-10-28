@@ -1,11 +1,8 @@
 import dayjs from 'dayjs'
 import isToday from 'dayjs/plugin/isToday'
-import find from 'lodash/find'
-import findIndex from 'lodash/findIndex'
-import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
 
-import { ITasksStorage, OnCompleteFunc } from '../index'
+import { ITasksStorage, LocalTaskRecord } from '../index'
 
 dayjs.extend(isToday)
 
@@ -18,6 +15,13 @@ const StopPollingStub = () => {
 
 const isServerSide = typeof window === 'undefined'
 
+
+type UseTasks<TTaskRecord extends LocalTaskRecord> = ITasksStorage<TTaskRecord>['useTasks']
+type UseTask<TTaskRecord extends LocalTaskRecord> = ITasksStorage<TTaskRecord>['useTask']
+type UseCreateTask<TTaskRecord extends LocalTaskRecord> = ITasksStorage<TTaskRecord>['useCreateTask']
+type UseUpdateTask<TTaskRecord extends LocalTaskRecord> = ITasksStorage<TTaskRecord>['useUpdateTask']
+type UseDeleteTask<TTaskRecord extends LocalTaskRecord> = ITasksStorage<TTaskRecord>['useDeleteTask']
+
 /**
  * Used to store third-party task records, unknown for Condo API.
  * Third-party task records will come from mini-apps
@@ -27,9 +31,12 @@ const isServerSide = typeof window === 'undefined'
  * NOTE: not working with SSR because there is no `window` object
  * TODO(antonal): load tasks created by current user only
  */
-export class TasksLocalStorage implements ITasksStorage {
+export class TasksLocalStorage<TTaskRecord extends LocalTaskRecord = LocalTaskRecord> implements ITasksStorage<TTaskRecord> {
 
-    useTasks ({ status, today }, user) {
+    useTasks (
+        { status, today }: Parameters<UseTasks<TTaskRecord>>[0],
+        user: Parameters<UseTasks<TTaskRecord>>[1]
+    ): ReturnType<UseTasks<TTaskRecord>> {
         if (isServerSide) {
             // Gracefully return empty results in SSR mode, no need to throw errors or do something extra
             return { records: [] }
@@ -39,15 +46,15 @@ export class TasksLocalStorage implements ITasksStorage {
         }
         const tasks = this.getAllItemsFromStorage()
         if (!status) {
-            return tasks
+            return { records: tasks }
         }
         const records = tasks
-            .filter(task => task.status === status && task.user && get(task, 'user.id') === user.id)
+            .filter(task => task.status === status && task.user && task.user?.id === user.id)
             .filter(task => today ? dayjs(task.createdAt).isToday() : true)
         return { records }
     }
 
-    useTask (id) {
+    useTask (id: Parameters<UseTask<TTaskRecord>>[0]): ReturnType<UseTask<TTaskRecord>> {
         const existingRecords = this.getAllItemsFromStorage()
         const record = existingRecords.find(item => item.id === id)
 
@@ -58,34 +65,41 @@ export class TasksLocalStorage implements ITasksStorage {
      * Since this is a third-party record Condo API don't knows about,
      * store it locally to fetch it on initial page load
      */
-    useCreateTask (attrs: any, onComplete: OnCompleteFunc) {
-        return (extraAttrs: any) => {
+    useCreateTask (
+        initialValues: Parameters<UseCreateTask<TTaskRecord>>[0],
+        onComplete: Parameters<UseCreateTask<TTaskRecord>>[1]
+    ): ReturnType<UseCreateTask<TTaskRecord>> {
+        return (values) => {
             const existingRecords = this.getAllItemsFromStorage()
-            const newRecord = { ...attrs, ...extraAttrs }
-            if (find(existingRecords, { id: newRecord.id })) {
+            const newRecord = { ...initialValues, ...values } as TTaskRecord
+            if (existingRecords.find(record => record.id === newRecord.id)) {
                 console.error('Task record with given id already presented in localStorage', newRecord)
                 return
             }
-            const updatedRecords = [ ...existingRecords, newRecord ]
+            const updatedRecords = [...existingRecords, newRecord]
             this.store(updatedRecords)
             onComplete(newRecord)
+            return Promise.resolve()
         }
     }
 
-    useUpdateTask (attrs: any, onComplete: OnCompleteFunc) {
-        return (extraAttrs: any, obj: any) => {
+    useUpdateTask (
+        initialValues: Parameters<UseUpdateTask<TTaskRecord>>[0],
+        onComplete: Parameters<UseUpdateTask<TTaskRecord>>[1]
+    ): ReturnType<UseUpdateTask<TTaskRecord>> {
+        return (values, obj) => {
             const existingRecords = this.getAllItemsFromStorage()
-            const id = attrs.id || obj.id
-            const recordToUpdate = find(existingRecords, { id })
-            const recordIndexToUpdate = findIndex(existingRecords, { id })
+            const id = initialValues.id || obj.id
+            const recordToUpdate = existingRecords.find((record) => record.id === id)
+            const recordIndexToUpdate = existingRecords.findIndex((record) => record.id === id)
             if (!recordToUpdate) {
                 console.error('Could not find task to update by id', id)
                 return
             }
             const updatedRecord = {
                 ...recordToUpdate,
-                ...attrs,
-                ...extraAttrs,
+                ...initialValues,
+                ...values,
             }
             const updatedRecords = [
                 ...existingRecords.slice(0, recordIndexToUpdate),
@@ -94,17 +108,20 @@ export class TasksLocalStorage implements ITasksStorage {
             ]
             this.store(updatedRecords)
             onComplete(updatedRecord)
-            return Promise.resolve(updatedRecord)
+            return Promise.resolve()
         }
     }
 
-    useDeleteTask (attrs: any, onComplete: OnCompleteFunc) {
-        return (extraAttrs: any) => {
+    useDeleteTask (
+        initialObj: Parameters<UseDeleteTask<TTaskRecord>>[0],
+        onComplete: Parameters<UseDeleteTask<TTaskRecord>>[1]
+    ): ReturnType<UseDeleteTask<TTaskRecord>> {
+        return (obj) => {
             const existingRecords = this.getAllItemsFromStorage()
-            const id = attrs.id || extraAttrs.id
-            const recordsToRemove = find(existingRecords, { id })
+            const id = initialObj.id || obj.id
+            const recordToRemove = existingRecords.find(record => record.id === id)
 
-            if (!recordsToRemove) {
+            if (!recordToRemove) {
                 console.error('Could not find task to remove by id ', id)
                 return
             }
@@ -112,12 +129,13 @@ export class TasksLocalStorage implements ITasksStorage {
             this.store(existingRecords.filter((record) => record.id !== id))
 
             if (isFunction(onComplete)) {
-                onComplete(id)
+                onComplete(recordToRemove)
             }
+            return Promise.resolve()
         }
     }
 
-    private getAllItemsFromStorage () {
+    private getAllItemsFromStorage (): Array<TTaskRecord> {
         // There is not `localStorage` on server-side
         if (!localStorage) {
             return []
@@ -127,8 +145,7 @@ export class TasksLocalStorage implements ITasksStorage {
             return []
         }
         try {
-            const items = JSON.parse(resultString)
-            return items
+            return JSON.parse(resultString)
         } catch (e) {
             console.error('Incorrect syntax of stored tasks in localStorage. Wiping them out!')
             localStorage.removeItem(LOCAL_STORAGE_TASKS_KEY)
@@ -136,7 +153,7 @@ export class TasksLocalStorage implements ITasksStorage {
         }
     }
 
-    private store (records) {
+    private store (records: Array<TTaskRecord>) {
         localStorage.setItem(LOCAL_STORAGE_TASKS_KEY, JSON.stringify(records))
     }
 }

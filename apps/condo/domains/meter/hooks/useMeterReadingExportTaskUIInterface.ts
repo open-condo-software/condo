@@ -1,13 +1,22 @@
-import { MeterReadingExportTask } from '@app/condo/schema'
+import {
+    GetMeterReadingExportTasksDocument,
+    CreateMeterReadingExportTaskDocument,
+    UpdateMeterReadingExportTaskDocument, type GetMeterReadingExportTasksQuery,
+} from '@app/condo/gql'
 
+import { ITask } from '@condo/domains/common/components/tasks'
 import { useExportTaskUIInterface } from '@condo/domains/common/hooks/useExportTaskUIInterface'
-import { MeterReadingExportTask as MeterReadingExportTaskApi } from '@condo/domains/meter/utils/clientSchema'
 
 
-export const useMeterReadingExportTaskUIInterface = () => {
-    const { TaskUIInterface } = useExportTaskUIInterface<MeterReadingExportTask>({
-        clientSchema: MeterReadingExportTaskApi,
+type TaskRecordType = GetMeterReadingExportTasksQuery['tasks'][number]
+type UseMeterReadingExportTaskUIInterfaceType = () => ({ MeterReadingExportTask: ITask<TaskRecordType> })
+
+export const useMeterReadingExportTaskUIInterface: UseMeterReadingExportTaskUIInterfaceType = () => {
+    const { TaskUIInterface } = useExportTaskUIInterface({
         schemaName: 'MeterReadingExportTask',
+        getTasksDocument: GetMeterReadingExportTasksDocument,
+        createTaskDocument: CreateMeterReadingExportTaskDocument,
+        updateTaskDocument: UpdateMeterReadingExportTaskDocument,
     })
 
     return { MeterReadingExportTask: TaskUIInterface }

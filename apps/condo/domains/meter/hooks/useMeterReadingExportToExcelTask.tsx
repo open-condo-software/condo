@@ -1,5 +1,10 @@
 import {
-    MeterReadingWhereInput, SortMeterReadingsBy, User as UserType,
+    MeterReadingWhereInput,
+    SortMeterReadingsBy,
+    User as UserType,
+    MeterReadingExportTaskCreateInput,
+    MeterReadingExportTaskLocaleType,
+    MeterReadingExportTaskFormatType,
 } from '@app/condo/schema'
 import get from 'lodash/get'
 import React, { useCallback, useMemo } from 'react'
@@ -9,7 +14,6 @@ import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@open-condo/ui'
 
 import { useTaskLauncher } from '@condo/domains/common/components/tasks/TaskLauncher'
-import { EXCEL } from '@condo/domains/common/constants/export'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 
 import { useMeterReadingExportTaskUIInterface } from './useMeterReadingExportTaskUIInterface'
@@ -37,18 +41,19 @@ export const useMeterReadingExportToExcelTask = (props: UseMeterReadingExportToE
 
     const { label, where, sortBy, user } = props
 
-    const locale = intl.locale
+    const locale = intl.locale as MeterReadingExportTaskLocaleType
+
     const timeZone = useMemo(() =>
         intl.formatters.getDateTimeFormat().resolvedOptions().timeZone,
     [intl.formatters])
 
     const { MeterReadingExportTask: ExportMeterReadingTaskUIInterface } = useMeterReadingExportTaskUIInterface()
 
-    const { loading, handleRunTask } = useTaskLauncher(ExportMeterReadingTaskUIInterface, {
+    const { loading, handleRunTask } = useTaskLauncher<MeterReadingExportTaskCreateInput>(ExportMeterReadingTaskUIInterface, {
         dv: 1,
         sender: getClientSideSenderInfo(),
         where,
-        format: EXCEL,
+        format: MeterReadingExportTaskFormatType.Excel,
         sortBy,
         locale,
         timeZone,
@@ -63,7 +68,7 @@ export const useMeterReadingExportToExcelTask = (props: UseMeterReadingExportToE
             disabled={loading || disabled}
             children={label || ExportAsExcelLabel}
             loading={loading}
-            onClick={handleRunTask}
+            onClick={() => handleRunTask()}
         />
     ), [ExportAsExcelLabel, handleRunTask, label, loading])
 

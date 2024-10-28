@@ -1,16 +1,17 @@
-import { ITask, TaskRecord } from '@condo/domains/common/components/tasks'
+import { ITask, LocalTaskRecord } from '@condo/domains/common/components/tasks'
 import { TASK_REMOVE_STRATEGY }  from '@condo/domains/common/components/tasks'
 import { TasksLocalStorage } from '@condo/domains/common/components/tasks/storage/TasksLocalStorage'
 
-export const useMiniappTaskUIInterface = () => {
-    const TaskUIInterface: ITask = {
+type UseMiniappTaskUIInterfaceType = () => ({ MiniAppTask: ITask<LocalTaskRecord> })
+export const useMiniappTaskUIInterface: UseMiniappTaskUIInterfaceType = () => {
+    const TaskUIInterface: ITask<LocalTaskRecord> = {
         storage: new TasksLocalStorage(),
         removeStrategy: [TASK_REMOVE_STRATEGY.PANEL, TASK_REMOVE_STRATEGY.STORAGE],
         translations: {
             title: (taskRecord) => taskRecord.title,
             description: (taskRecord) => taskRecord.description,
         },
-        calculateProgress: (taskRecord: TaskRecord) => {
+        calculateProgress: (taskRecord) => {
             return taskRecord.progress
         },
         onComplete: (taskRecord) => {

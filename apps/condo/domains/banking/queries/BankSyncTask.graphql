@@ -1,0 +1,69 @@
+query getBankSyncTasks ($where: BankSyncTaskWhereInput!) {
+    tasks: allBankSyncTasks(
+        where: $where
+    ) {
+        id
+        status
+        processedCount
+        totalCount
+        meta
+        property {
+            id
+        }
+        options {
+            type
+        }
+        file {
+            publicUrl
+            originalFilename
+        }
+        __typename
+    }
+}
+
+mutation createBankSyncTask ($data: BankSyncTaskCreateInput!) {
+    task: createBankSyncTask(
+        data: $data
+    ) {
+        id
+        status
+        processedCount
+        totalCount
+        meta
+        property {
+            id
+        }
+        options {
+            type
+        }
+        file {
+            publicUrl
+            originalFilename
+        }
+        __typename
+    }
+}
+
+mutation updateBankSyncTask ($id: ID!, $data: BankSyncTaskUpdateInput!) {
+    task: updateBankSyncTask(
+        data: $data,
+        id: $id
+    ) {
+        id
+        status
+        processedCount
+        totalCount
+        meta
+        property {
+            id
+        }
+        options {
+            type
+        }
+        file {
+            publicUrl
+            originalFilename
+        }
+        __typename
+    }
+}
