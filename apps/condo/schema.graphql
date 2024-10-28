@@ -80200,23 +80200,23 @@ type FindOrganizationByAddressReceiptType {
   category: ID!
   balance: String
   routingNumber: String
-  bankAccountNumber: String
+  bankAccount: String
 }
 
 type FindOrganizationByAddressMeterType {
-  resource: String!
+  resource: ID!
   number: String
   account: String
   value: String
 }
 
 type FindOrganizationByAddressOutput {
-  id: String!
+  id: ID!
   name: String!
   tin: String!
   type: OrganizationTypeType!
-  receipts: [FindOrganizationByAddressReceiptType]!
-  meters: [FindOrganizationByAddressMeterType!]
+  receipts: [FindOrganizationByAddressReceiptType]
+  meters: [FindOrganizationByAddressMeterType]
 }
 
 input SuggestServiceProviderInput {
