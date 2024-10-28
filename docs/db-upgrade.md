@@ -81,3 +81,13 @@ To restore the dump to a new base, use the following command:
 ```bash
 cat backups/pg.sql | docker exec -i open-condo-postgresdb-master-1 psql -U postgres
 ```
+
+After that, the migration should be complete. You can verify this by restarting the applications.
+
+#### Step 4. Cleanup
+
+At this point, you can safely delete the previously created dump as it is no longer needed:
+
+```bash
+rm -rf backups/pg.sql
+```
