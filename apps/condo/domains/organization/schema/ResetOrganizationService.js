@@ -16,7 +16,7 @@ const { B2BAppContext } = require('@condo/domains/miniapp/utils/serverSchema')
 const access = require('@condo/domains/organization/access/ResetOrganizationService')
 const { DELETED_ORGANIZATION_NAME } = require('@condo/domains/organization/constants/common')
 const { Organization, OrganizationLink, OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
-const { PropertyIdOnly } = require('@condo/domains/property/utils/serverSchema')
+const { Property } = require('@condo/domains/property/utils/serverSchema')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -77,16 +77,17 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
 
                 const properties = await loadListByChunks({
                     context,
-                    list: PropertyIdOnly,
+                    list: Property,
                     chunkSize: 20,
                     limit: 100000,
                     where: {
                         deletedAt: null,
                         organization: { id: organizationId },
                     },
+                    fields: 'id',
                 })
                 for (let property of properties) {
-                    await PropertyIdOnly.softDelete(context, property.id, DV_SENDER)
+                    await Property.softDelete(context, property.id, 'id', DV_SENDER)
                 }
 
                 const employees = await find('OrganizationEmployee', {
@@ -105,7 +106,7 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
                     deletedAt: null,
                 })
                 for (let organizationLink of organizationLinks) {
-                    await OrganizationLink.softDelete(context, organizationLink.id, DV_SENDER)
+                    await OrganizationLink.softDelete(context, organizationLink.id, 'id', DV_SENDER)
                 }
                 // TODO(DOMA-10423): add deleting meter and propertyMeter to a separate, asynchronous task
                 const meterResourceOwners = await find('MeterResourceOwner', {
@@ -145,7 +146,7 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
                     organization: { id: organizationId },
                 })
                 for (let b2BAppCtx of b2BAppCtxs) {
-                    await B2BAppContext.softDelete(context, b2BAppCtx.id, DV_SENDER)
+                    await B2BAppContext.softDelete(context, b2BAppCtx.id, 'id', DV_SENDER)
                 }
 
                 // banking domain

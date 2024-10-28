@@ -15,7 +15,7 @@ const {
     MARKETPLACE_PRICE_SCOPE_TYPE_PROPERTY,
 } = require('@condo/domains/marketplace/constants')
 const { MarketItemPrice, MarketItem } = require('@condo/domains/marketplace/utils/serverSchema')
-const { PropertyOrganizationIdOnly } = require('@condo/domains/property/utils/serverSchema')
+const { Property } = require('@condo/domains/property/utils/serverSchema')
 
 const ERRORS = {
     ORGANIZATION_IN_PROPERTY_AND_MARKET_ITEM_PRICE_NOT_MATCHED: {
@@ -95,9 +95,9 @@ const MarketPriceScope = new GQLListSchema('MarketPriceScope', {
                     id: get(marketItemPrice, 'marketItem.id', null),
                 }, 'organization { id }')
 
-                const property = await PropertyOrganizationIdOnly.getOne(context, {
+                const property = await Property.getOne(context, {
                     id: propertyId,
-                })
+                }, 'id organization { id }')
 
                 if (get(marketItem, 'organization.id') !== get(property, 'organization.id')) throw new GQLError(ERRORS.ORGANIZATION_IN_PROPERTY_AND_MARKET_ITEM_PRICE_NOT_MATCHED, context)
             }

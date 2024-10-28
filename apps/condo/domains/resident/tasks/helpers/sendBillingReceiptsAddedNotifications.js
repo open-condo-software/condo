@@ -133,7 +133,14 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
             accountNumber_in: accountsNumbers,
             deletedAt: null,
         }
-        const serviceConsumers = await loadListByChunks({ context, chunkSize: 50, list: ServiceConsumer, where: serviceConsumerWhere })
+        const serviceConsumers = await loadListByChunks({
+            context,
+            chunkSize: 50,
+            list: ServiceConsumer,
+            where: serviceConsumerWhere,
+            fields: 'id accountNumber ' +
+                'resident { id address deletedAt residentOrganization { country } user { id } organization { id } }',
+        })
 
         const consumersByAccountKey = groupBy(serviceConsumers, (item) => {
             const params = [

@@ -7,7 +7,8 @@ const { getById, getByCondition } = require('@open-condo/keystone/schema')
 
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { FLAT_UNIT_TYPE, SECTION_SECTION_TYPE, PARKING_UNIT_TYPE, PARKING_SECTION_TYPE } = require('@condo/domains/property/constants/common')
-const { PropertyIdAndAddressAndMapOnly } = require('@condo/domains/property/utils/serverSchema')
+const { PROPERTY_MAP_JSON_FIELDS } = require('@condo/domains/property/gql')
+const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { COMPLETED_STATUS_TYPE, NEW_OR_REOPENED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
 const { DEFERRED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
 const { FEEDBACK_VALUES_BY_KEY } = require('@condo/domains/ticket/constants/feedback')
@@ -160,9 +161,9 @@ async function setSectionAndFloorFieldsByDataFromPropertyMap (context, resolvedD
     const unitName = get(resolvedData, 'unitName', null)
     const propertyId = get(resolvedData, 'property', null)
     const unitType = get(resolvedData, 'unitType', null)
-    const property = await PropertyIdAndAddressAndMapOnly.getOne(context, {
+    const property = await Property.getOne(context, {
         id: propertyId,
-    })
+    }, `id address map { ${PROPERTY_MAP_JSON_FIELDS} }`)
 
     const { sectionName, floorName, sectionType } = getSectionAndFloorByUnitName(property, unitName, unitType)
     resolvedData.sectionName = sectionName

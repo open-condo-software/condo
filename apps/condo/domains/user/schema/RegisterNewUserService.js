@@ -57,7 +57,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                         expiresAt_gte: new Date().toISOString(),
                         completedAt: null,
                         isPhoneVerified: true,
-                    }, {
+                    }, 'id phone isPhoneVerified', {
                         doesNotExistError: ERRORS.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION,
                     })
                     userData.phone = action.phone

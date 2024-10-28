@@ -94,7 +94,13 @@ class BillingContextScriptCore extends ScriptCore {
      * (not defined within @condo/domains/common/constants/countries)
      */
     async loadOrganizationData () {
-        if (!this.organization) this.organization = await Organization.getOne(this.context, { id: this.billingContext.organization.id, deletedAt: null })
+        if (!this.organization) {
+            this.organization = await Organization.getOne(
+                this.context,
+                { id: this.billingContext.organization.id, deletedAt: null },
+                'id country { locale }'
+            )
+        }
         if (!this.locale) this.locale = get(COUNTRIES, get(this.organization, 'country.locale'), DEFAULT_LOCALE)
     }
 }

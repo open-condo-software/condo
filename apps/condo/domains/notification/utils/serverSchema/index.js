@@ -20,21 +20,14 @@ const {
     SYNC_DEVICE_MUTATION,
     DISCONNECT_USER_FROM_DEVICE_MUTATION,
     SET_MESSAGE_STATUS_MUTATION,
-    Message: MessageGQL,
-    RemoteClient: RemoteClientGQL,
-    MessageUserBlackList: MessageUserBlackListGQL,
-    MessageOrganizationBlackList: MessageOrganizationBlackListGQL,
-    MessageBatch: MessageBatchGQL,
-    NotificationUserSetting: NotificationUserSettingGQL,
 } = require('@condo/domains/notification/gql')
-const { TelegramUserChat: TelegramUserChatGQL } = require('@condo/domains/notification/gql')
-const { NotificationAnonymousSetting: NotificationAnonymousSettingGQL } = require('@condo/domains/notification/gql')
 const { _INTERNAL_SEND_NOTIFICATION_NEW_MOBILE_APP_VERSION_MUTATION } = require('@condo/domains/notification/gql')
 const { _INTERNAL_SEND_HASHED_RESIDENT_PHONES_MUTATION } = require('@condo/domains/notification/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const logger = getLogger('notification/serverSchema')
-const Message = generateServerUtils(MessageGQL)
+
+const Message = generateServerUtils('Message')
 
 async function sendMessage (context, data) {
     if (!context) throw new Error('no context')
@@ -73,7 +66,7 @@ async function resendMessage (context, data) {
     })
 }
 
-const RemoteClient = generateServerUtils(RemoteClientGQL)
+const RemoteClient = generateServerUtils('RemoteClient')
 
 /**
  * Connects a device that could be sent push notifications with user and/or pushToken
@@ -164,12 +157,13 @@ async function checkMessageTypeInBlackList (context, message) {
     return { error: null }
 }
 
-const MessageUserBlackList = generateServerUtils(MessageUserBlackListGQL)
-const MessageOrganizationBlackList = generateServerUtils(MessageOrganizationBlackListGQL)
-const MessageBatch = generateServerUtils(MessageBatchGQL)
-const NotificationUserSetting = generateServerUtils(NotificationUserSettingGQL)
-const TelegramUserChat = generateServerUtils(TelegramUserChatGQL)
-const NotificationAnonymousSetting = generateServerUtils(NotificationAnonymousSettingGQL)
+const MessageUserBlackList = generateServerUtils('MessageUserBlackList')
+const MessageOrganizationBlackList = generateServerUtils('MessageOrganizationBlackList')
+const MessageBatch = generateServerUtils('MessageBatch')
+const NotificationUserSetting = generateServerUtils('NotificationUserSetting')
+const TelegramUserChat = generateServerUtils('TelegramUserChat')
+const NotificationAnonymousSetting = generateServerUtils('NotificationAnonymousSetting')
+
 async function _internalSendNotificationNewMobileAppVersion (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')

@@ -34,7 +34,7 @@ async function syncSbbolTransactions (dateInterval) {
     const usersWithSBBOLExternalIdentity = await UserExternalIdentity.getAll(context, {
         identityType: SBBOL_IDP_TYPE,
         deletedAt: null,
-    })
+    }, 'id user { id }')
     if (isEmpty(usersWithSBBOLExternalIdentity)) return logger.info('No users imported from SBBOL found. Cancel sync transactions')
 
     const syncedOrgIds = []

@@ -49,7 +49,7 @@ const prepareAndSendNotification = async (context, remoteClient) => {
 }
 
 const sendRemoteClientsUpgradeAppNotifications = async (where = {}) => {
-    const { keystone: context } = await getSchemaCtx('RemoteClient')
+    const { keystone: context } = getSchemaCtx('RemoteClient')
     const remoteClientWhere = { ...where, appId: 'unknown', owner: { id_not: null }, pushToken_not: null, pushTransport: PUSH_TRANSPORT_FIREBASE }
     const remoteClientsCount = await RemoteClient.count(context, remoteClientWhere)
     let skip = 0, successCnt = 0
@@ -59,7 +59,11 @@ const sendRemoteClientsUpgradeAppNotifications = async (where = {}) => {
     if (!remoteClientsCount) return
 
     while (skip < remoteClientsCount) {
-        const remoteClients = await RemoteClient.getAll(context, remoteClientWhere, { sortBy: ['createdAt_ASC'], first: CHUNK_SIZE, skip })
+        const remoteClients = await RemoteClient.getAll(context,
+            remoteClientWhere,
+            'id owner { id type }',
+            { sortBy: ['createdAt_ASC'], first: CHUNK_SIZE, skip }
+        )
 
         if (isEmpty(remoteClients)) break
 

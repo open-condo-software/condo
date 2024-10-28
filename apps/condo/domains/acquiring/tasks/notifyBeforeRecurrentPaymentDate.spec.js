@@ -30,6 +30,7 @@ const {
     RECURRENT_PAYMENT_TOMORROW_PAYMENT_NO_RECEIPTS_MESSAGE_TYPE,
     RECURRENT_PAYMENT_TOMORROW_PAYMENT_LIMIT_EXCEED_MESSAGE_TYPE,
 } = require('@condo/domains/notification/constants/constants')
+const { MESSAGE_FIELDS } = require('@condo/domains/notification/gql')
 const {
     Message,
 } = require('@condo/domains/notification/utils/serverSchema')
@@ -91,7 +92,7 @@ describe('notify-before-recurrent-payment-date', () => {
         const [notification] = await Message.getAll(adminContext, {
             type: RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
             user: { id: batch.resident.user.id },
-        }, {
+        }, MESSAGE_FIELDS, {
             sortBy: 'createdAt_DESC',
         })
         expect(notification).toBeDefined()
@@ -133,7 +134,7 @@ describe('notify-before-recurrent-payment-date', () => {
         const [notification] = await Message.getAll(adminContext, {
             type: RECURRENT_PAYMENT_TOMORROW_PAYMENT_NO_RECEIPTS_MESSAGE_TYPE,
             user: { id: batch.resident.user.id },
-        }, {
+        }, MESSAGE_FIELDS, {
             sortBy: 'createdAt_DESC',
         })
         expect(notification).toBeDefined()
@@ -200,7 +201,7 @@ describe('notify-before-recurrent-payment-date', () => {
         const [notification] = await Message.getAll(adminContext, {
             type: RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE_TYPE,
             user: { id: batch.resident.user.id },
-        }, {
+        }, MESSAGE_FIELDS, {
             sortBy: 'createdAt_DESC',
         })
         expect(notification).toBeDefined()
@@ -269,7 +270,7 @@ describe('notify-before-recurrent-payment-date', () => {
         const [notification] = await Message.getAll(adminContext, {
             type: RECURRENT_PAYMENT_TOMORROW_PAYMENT_NO_RECEIPTS_MESSAGE_TYPE,
             user: { id: batch.resident.user.id },
-        }, {
+        }, MESSAGE_FIELDS, {
             sortBy: 'createdAt_DESC',
         })
         expect(notification).toBeDefined()
@@ -312,7 +313,7 @@ describe('notify-before-recurrent-payment-date', () => {
         const [notification] = await Message.getAll(adminContext, {
             type: RECURRENT_PAYMENT_TOMORROW_PAYMENT_LIMIT_EXCEED_MESSAGE_TYPE,
             user: { id: batch.resident.user.id },
-        }, {
+        }, MESSAGE_FIELDS, {
             sortBy: 'createdAt_DESC',
         })
         expect(notification).toBeDefined()

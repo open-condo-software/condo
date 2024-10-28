@@ -29,7 +29,7 @@ describe('notification', () => {
                 },
             })
 
-            const message = await Message.getOne(keystone, { id: result.id })
+            const message = await Message.getOne(keystone, { id: result.id }, 'type lang meta')
             expect(message.type).toEqual(DEVELOPER_IMPORTANT_NOTE_TYPE)
             expect(message.lang).toEqual('en')
             expect(message.meta).toEqual({

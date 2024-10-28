@@ -23,7 +23,8 @@ const { buildUploadInputFrom } = require('@condo/domains/common/utils/serverSche
 const { queryFindResidentsByOrganizationAndScopes } = require('@condo/domains/news/utils/accessSchema')
 const { NewsItemRecipientsExportTask } = require('@condo/domains/news/utils/serverSchema')
 const { getUnitsFromProperty } = require('@condo/domains/news/utils/serverSchema/recipientsCounterUtils')
-const { PropertyIdAndAddressAndMapOnly } = require('@condo/domains/property/utils/serverSchema')
+const { PROPERTY_MAP_JSON_FIELDS } = require('@condo/domains/property/gql')
+const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 
 const logger = getLogger('exportNewsItemRecipients')
@@ -74,9 +75,13 @@ async function exportRecipients (taskId) {
         logger.error({ message: 'taskId is undefined' })
         throw new Error('taskId is undefined')
     }
-    const { keystone: context } = await getSchemaCtx('NewsItemRecipientsExportTask')
+    const { keystone: context } = getSchemaCtx('NewsItemRecipientsExportTask')
 
-    const task = await NewsItemRecipientsExportTask.getOne(context, { id: taskId })
+    const task = await NewsItemRecipientsExportTask.getOne(
+        context,
+        { id: taskId },
+        'scopes organization { id } user { id locale }'
+    )
     if (!task) {
         logger.error({ msg: `No task with id "${taskId}"` })
         throw new Error(`No task with id "${taskId}"`)
@@ -103,6 +108,7 @@ async function exportRecipients (taskId) {
                 ...queryFindResidentsByOrganizationAndScopes(organizationId, newsItemScopes),
                 deletedAt: null,
             },
+            fields: 'id property { id } unitType unitName',
             /**
              * @param {Resident[]} chunk
              * @returns {Resident[]}
@@ -125,7 +131,7 @@ async function exportRecipients (taskId) {
         if (isAllOrganization) {
             await loadListByChunks({
                 context,
-                list: PropertyIdAndAddressAndMapOnly,
+                list: Property,
                 chunkSize: 50,
                 where: {
                     organization: {
@@ -133,6 +139,7 @@ async function exportRecipients (taskId) {
                     },
                     deletedAt: null,
                 },
+                fields: `id address map { ${PROPERTY_MAP_JSON_FIELDS} }`,
                 /**
                  * @param {Property[]} chunk
                  * @returns {Property[]}
@@ -158,10 +165,10 @@ async function exportRecipients (taskId) {
             const propertiesIds = new Set()
             for (let newsItemScope of compactedNewsItemScopes) {
                 if (get(newsItemScope, 'property.id')) {
-                    const property = await PropertyIdAndAddressAndMapOnly.getOne(context, {
+                    const property = await Property.getOne(context, {
                         id: newsItemScope.property.id,
                         deletedAt: null,
-                    })
+                    }, `id address map { ${PROPERTY_MAP_JSON_FIELDS} }`)
 
                     propertiesIds.add(property.id)
 

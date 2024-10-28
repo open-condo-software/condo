@@ -26,7 +26,7 @@ async function syncSbbolBankAccounts () {
     const usersWithSBBOLExternalIdentity = await UserExternalIdentity.getAll(context, {
         identityType: SBBOL_IDP_TYPE,
         deletedAt: null,
-    })
+    }, 'id user { id }')
     if (isEmpty(usersWithSBBOLExternalIdentity)) return logger.info('No users imported from SBBOL found. Cancel sync bank accounts')
 
     const integration = await BankIntegration.getOne(context, { id: BANK_INTEGRATION_IDS.SBBOL })

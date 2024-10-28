@@ -29,13 +29,18 @@ const logger = getLogger('sendWebhook')
  */
 async function sendWebhook (subscriptionId) {
     const taskId = this.id || uuid()
-    const { keystone } = await getSchemaCtx('WebhookSubscription')
+    const { keystone } = getSchemaCtx('WebhookSubscription')
 
     const lockKey = `sendWebhook:${subscriptionId}`
     const lock = await rLock.acquire([lockKey], LOCK_DURATION)
 
     try {
-        const subscription = await WebhookSubscription.getOne(keystone, { id: subscriptionId })
+        const subscription = await WebhookSubscription.getOne(
+            keystone,
+            { id: subscriptionId },
+            'model fields filters syncedAt syncedAmount failuresCount maxPackSize ' +
+            'url updatedAt webhook { url user { id } }'
+        )
         if (!subscription) {
             return { status: NO_SUBSCRIPTION_STATUS }
         }

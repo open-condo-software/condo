@@ -170,7 +170,12 @@ async function notifyResidentsAboutNewsItem (newsItemId) {
 
         const { keystone: context } = getSchemaCtx('NewsItem')
 
-        const newsItem = await NewsItem.getOne(context, { id: newsItemId })
+        const newsItem = await NewsItem.getOne(
+            context,
+            { id: newsItemId },
+            'id organization { id } type title body ' +
+            'validBefore publishedAt updatedAt createdAt deletedAt sentAt isPublished sendAt'
+        )
 
         await sendNotifications(newsItem, taskId)
 

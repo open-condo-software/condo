@@ -22,7 +22,7 @@ async function deleteB2BAppRoles (appId, organizationId) {
 
     logger.info({ msg: 'Deleting B2BAppRoles for organization', organizationId, appId })
 
-    const { keystone: context } = await getSchemaCtx('B2BAppRole')
+    const { keystone: context } = getSchemaCtx('B2BAppRole')
 
     const existingRoles = await find('B2BAppRole', {
         app: { id: appId },

@@ -25,8 +25,15 @@ const ShareTicketService = new GQLCustomSchema('ShareTicketService', {
             resolver: async (parent, args, context) => {
                 const { data } = args
                 const { employees, ticketId, sender } = data
-                const [ticket] = await Ticket.getAll(context, { id: ticketId })
-                const employeeUsers = await OrganizationEmployee.getAll(context, { id_in: employees }, 'email user { id } organization { id }')
+                const [ticket] = await Ticket.getAll(context,
+                    { id: ticketId },
+                    'id number createdAt details'
+                )
+                const employeeUsers = await OrganizationEmployee.getAll(
+                    context,
+                    { id_in: employees },
+                    'email user { id } organization { id }'
+                )
 
                 await Promise.all(employeeUsers.map(employee => {
                     return sendMessage(context, {
