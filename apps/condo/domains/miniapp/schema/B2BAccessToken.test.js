@@ -4,6 +4,7 @@
 
 const { faker } = require('@faker-js/faker')
 const { gql } = require('graphql-tag')
+const { map } = require('lodash')
 const { v4: uuidv4 } = require('uuid')
 
 const { getRedisClient } = require('@open-condo/keystone/redis')
@@ -22,14 +23,29 @@ const {
 } = require('@condo/domains/billing/utils/testSchema')
 const { registerBillingReceiptsByTestClient } = require('@condo/domains/billing/utils/testSchema')
 const { TestUtils, BillingTestMixin } = require('@condo/domains/billing/utils/testSchema/testUtils')
+const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
+const {
+    createTestReadingData,
+    registerMetersReadingsByTestClient,
+    Meter,
+    MeterReading,
+} = require('@condo/domains/meter/utils/testSchema')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { B2BAccessToken, B2BAccessTokenAdmin, createTestB2BAccessToken, updateTestB2BAccessToken } = require('@condo/domains/miniapp/utils/testSchema')
+const {
+    createTestB2BApp,
+    createTestB2BAppContext,
+    createTestB2BAppAccessRightSet,
+    createTestB2BAppAccessRight,
+} = require('@condo/domains/miniapp/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { Organization } = require('@condo/domains/organization/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
+const { createTestPropertyWithMap } = require('@condo/domains/property/utils/testSchema')
 const {
     makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser, makeClientWithServiceUser,
 } = require('@condo/domains/user/utils/testSchema')
+
 
 
 describe('B2BAccessToken', () => {
@@ -376,24 +392,140 @@ describe('B2BAccessToken', () => {
             })
         })
 
-        test('can execute "registerBillingReceipts"', async () => {
-            const utils = new TestUtils([BillingTestMixin])
-            await utils.init()
-            const receipt1 = utils.createJSONReceipt()
-            const receipt2 = utils.createJSONReceipt({
-                ...receipt1,
-                importId: null,
-                address: utils.createAddressWithUnit(),
-                accountNumber: utils.randomNumber(10).toString(),
+        describe('Billing', () => {
+
+            describe('"registerBillingReceipts"', () => {
+
+                test('can execute with own billing context id', async () => {
+                    const utils = new TestUtils([BillingTestMixin])
+                    await utils.init()
+                    const receipt1 = utils.createJSONReceipt()
+                    const receipt2 = utils.createJSONReceipt({
+                        ...receipt1,
+                        importId: null,
+                        address: utils.createAddressWithUnit(),
+                        accountNumber: utils.randomNumber(10).toString(),
+                    })
+                    const [token] = await createTestB2BAccessToken(admin, utils.clients.service.user, utils.organization)
+                    const anonymous = await makeClient()
+                    anonymous.setHeaders({ 'Authorization': `Bearer ${token.signedToken}` })
+                    const [createdReceipts] = await registerBillingReceiptsByTestClient(anonymous, {
+                        context: { id: utils.billingContext.id },
+                        receipts: [receipt1, receipt2],
+                    })
+                    console.error(createdReceipts)
+                    expect(createdReceipts[0].id).not.toEqual(createdReceipts[1].id)
+                })
+
+                test('can\'t execute with another billing context id', async () => {
+                    const utils = new TestUtils([BillingTestMixin])
+                    const anotherUtils = new TestUtils([BillingTestMixin])
+                    await utils.init()
+                    await anotherUtils.init()
+                    const receipt1 = utils.createJSONReceipt()
+                    const receipt2 = utils.createJSONReceipt({
+                        ...receipt1,
+                        importId: null,
+                        address: utils.createAddressWithUnit(),
+                        accountNumber: utils.randomNumber(10).toString(),
+                    })
+                    const [token] = await createTestB2BAccessToken(admin, utils.clients.service.user, utils.organization)
+                    const anonymous = await makeClient()
+                    anonymous.setHeaders({ 'Authorization': `Bearer ${token.signedToken}` })
+
+                    await expectToThrowAccessDeniedError(async () => {
+                        await registerBillingReceiptsByTestClient(anonymous, {
+                            context: { id: anotherUtils.billingContext.id },
+                            receipts: [receipt1, receipt2],
+                        })
+                    }, ['result'])
+                })
+
             })
-            const [token] = await createTestB2BAccessToken(admin, utils.clients.service.user, utils.organization)
-            const anonymous = await makeClient()
-            anonymous.setHeaders({ 'Authorization': `Bearer ${token.signedToken}` })
-            const [createdReceipts] = await registerBillingReceiptsByTestClient(anonymous, {
-                context: { id: utils.billingContext.id },
-                receipts: [receipt1, receipt2],
+
+        })
+
+        describe('Meter', () => {
+            describe('"registerMetersReadings"', () => {
+                
+                test('can execute with own organization', async () => {
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestPropertyWithMap(admin, organization)
+                    const readings = [createTestReadingData(property)]
+                    const serviceUser = await makeClientWithServiceUser()
+
+                    const [app] = await createTestB2BApp(admin)
+                    await createTestB2BAppContext(admin, app, organization, { status: 'Finished' })
+                    const [accessRightSet] = await createTestB2BAppAccessRightSet(admin, app, {
+                        canExecuteRegisterMetersReadings: true,
+                        canReadMeters: true,
+                        canReadMeterReadings: true,
+                        canReadOrganizations: true,
+                        canReadProperties: true,
+                    })
+                    await createTestB2BAppAccessRight(admin, serviceUser.user, app, accessRightSet)
+
+                    const [token] = await createTestB2BAccessToken(admin, serviceUser.user, organization)
+                    const anonymous = await makeClient()
+                    anonymous.setHeaders({ 'Authorization': `Bearer ${token.signedToken}` })
+                    const [data] = await registerMetersReadingsByTestClient(anonymous, organization, readings)
+
+                    expect(data).toEqual([expect.objectContaining({
+                        id: expect.stringMatching(UUID_REGEXP),
+                        meter: expect.objectContaining({
+                            id: expect.stringMatching(UUID_REGEXP),
+                            property: expect.objectContaining({
+                                id: property.id,
+                                address: property.address,
+                                addressKey: property.addressKey,
+                            }),
+                            unitType: readings[0].addressInfo.unitType,
+                            unitName: readings[0].addressInfo.unitName,
+                            accountNumber: readings[0].accountNumber,
+                            number: readings[0].meterNumber,
+                        }),
+                    })])
+
+                    const meters = await Meter.getAll(anonymous, {
+                        organization: { id: organization.id },
+                        property: { id: property.id },
+                    })
+                    expect(meters).toHaveLength(1)
+                    expect(meters[0].number).toBe(readings[0].meterNumber)
+
+                    const metersReadings = await MeterReading.getAll(anonymous, { meter: { id_in: map(meters, 'id') } })
+                    expect(metersReadings).toHaveLength(1)
+                })
+
+                test('can\'t execute with another organization', async () => {
+                    const [organization] = await createTestOrganization(admin)
+                    const [anotherOrganization] = await createTestOrganization(admin)
+                    const [property] = await createTestPropertyWithMap(admin, organization)
+                    const readings = [createTestReadingData(property)]
+                    const serviceUser = await makeClientWithServiceUser()
+
+                    const [app] = await createTestB2BApp(admin)
+                    await createTestB2BAppContext(admin, app, organization, { status: 'Finished' })
+                    await createTestB2BAppContext(admin, app, anotherOrganization, { status: 'Finished' })
+                    const [accessRightSet] = await createTestB2BAppAccessRightSet(admin, app, {
+                        canExecuteRegisterMetersReadings: true,
+                        canReadMeters: true,
+                        canReadMeterReadings: true,
+                        canReadOrganizations: true,
+                        canReadProperties: true,
+                    })
+                    await createTestB2BAppAccessRight(admin, serviceUser.user, app, accessRightSet)
+
+                    const [token] = await createTestB2BAccessToken(admin, serviceUser.user, organization)
+                    const anonymous = await makeClient()
+                    anonymous.setHeaders({ 'Authorization': `Bearer ${token.signedToken}` })
+
+                    await expectToThrowAccessDeniedError(async () => {
+                        await registerMetersReadingsByTestClient(anonymous, anotherOrganization, readings)
+                    }, ['result'])
+                })
+                
             })
-            expect(createdReceipts[0].id).not.toEqual(createdReceipts[1].id)
         })
         
     })

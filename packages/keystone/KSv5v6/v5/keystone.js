@@ -24,6 +24,7 @@ class Keystone extends DefaultKeystone {
     // Copy of DefaultKeystone.createApolloServer with additional properties in context -> authentication
     createApolloServer ({ apolloConfig = {}, schemaName, dev }) {
         // add the Admin GraphQL API
+        // NOTE(YEgorLu) to work this ApolloServer package should have same version as in @keystonejs/keystone
         const server = new ApolloServer({
             typeDefs: this.getTypeDefs({ schemaName }),
             resolvers: this.getResolvers({ schemaName }),
