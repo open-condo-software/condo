@@ -1,6 +1,6 @@
 const dayjs = require('dayjs')
 
-const { clearDateStr, isDateStrValid, tryToISO } = require('@condo/domains/common/utils/import/importDate.utils') // Adjust the path to your module
+const { clearDateStr, isDateStrValid, tryToISO } = require('@condo/domains/common/utils/import/date')
 
 const validDateStrings = [
     '2024-01-01',

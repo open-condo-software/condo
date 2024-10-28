@@ -546,7 +546,7 @@ describe('importMeters', () => {
                 locale,
             })
             await importMeters(meterReadingsImportTask.id)
-            const task = await MeterReadingsImportTask.getOne(context, { id: meterReadingsImportTask.id })
+            const task = await MeterReadingsImportTask.getOne(context, { id: meterReadingsImportTask.id }, 'errorMessage file { mimetype } format importedRecordsCount processedRecordsCount totalRecordsCount id')
             expect(task).toMatchObject({
                 format: DOMA_EXCEL,
                 file: expect.objectContaining({ mimetype: EXCEL_FILE_META.mimetype }),
@@ -557,13 +557,14 @@ describe('importMeters', () => {
             })
             const [reading] = await MeterReading.getAll(keystone, {
                 organization: { id: organization.id },
-            }, { sortBy: ['createdAt_DESC'], first: 1 })
+            },  'id date source { id } meter { id }', { sortBy: ['createdAt_DESC'], first: 1 })
 
             expect(reading).toBeDefined()
             expect(reading.source.id).toBe(IMPORT_CONDO_METER_READING_SOURCE_ID)
             expect(reading.date).toEqual(expectedDates.reading.date)
 
-            const meter = await Meter.getOne(context, { id: reading.meter.id })
+            const meter = await Meter.getOne(context, { id: reading.meter.id },
+                'verificationDate nextVerificationDate installationDate commissioningDate sealingDate controlReadingsDate')
             expect(meter).toBeDefined()
             expect(meter.verificationDate).toBe(expectedDates.meter.verificationDate)
             expect(meter.nextVerificationDate).toBe(expectedDates.meter.nextVerificationDate)

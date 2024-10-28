@@ -1,5 +1,5 @@
-const importDateUtils = require('@condo/domains/common/utils/import/importDate.utils')
+const date = require('@condo/domains/common/utils/import/date')
 
 module.exports = {
-    ...importDateUtils,
+    date,
 }
