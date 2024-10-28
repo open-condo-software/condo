@@ -30,7 +30,7 @@ const PropertyMeterInfoPage = (): JSX.Element => {
     
     const { query: { id: meterId } } = useRouter()
     const { user } = useAuth()
-    const { organization, selectLink } = useOrganization()
+    const { organization, selectEmployee } = useOrganization()
 
     const {
         obj: propertyMeter,
@@ -82,7 +82,7 @@ const PropertyMeterInfoPage = (): JSX.Element => {
             meterOrganizationEmployeeOrganizationId &&
             meterOrganizationEmployeeOrganizationId !== currentEmployeeOrganization
         ) {
-            selectLink(meterOrganizationEmployee)
+            selectEmployee(meterOrganizationEmployee?.id)
         }
     }, [meterOrganizationEmployeeOrganizationId, currentEmployeeOrganization])
 

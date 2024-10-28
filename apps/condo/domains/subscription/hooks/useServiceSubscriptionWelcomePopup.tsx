@@ -1,4 +1,4 @@
-import { ServiceSubscriptionTypeType } from '@app/condo/schema'
+import { useGetTrialServiceSubscriptionQuery } from '@app/condo/gql'
 import styled from '@emotion/styled'
 import { Col, Row } from 'antd'
 import dayjs from 'dayjs'
@@ -11,9 +11,8 @@ import { FormattedMessage } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Modal, Typography, Button } from '@open-condo/ui'
 
+import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import { fontSizes } from '@condo/domains/common/constants/style'
-
-import { ServiceSubscription } from '../utils/clientSchema'
 
 
 interface IServiceSubscriptionWelcomePopup {
@@ -37,6 +36,8 @@ export const useServiceSubscriptionWelcomePopup = (): IServiceSubscriptionWelcom
     const CurrentTariffMessage = intl.formatMessage({ id: 'subscription.modal.newClient.currentTariff' })
     const ServiceDisconnectMessage = intl.formatMessage({ id: 'subscription.modal.newClient.serviceDisconnect' })
 
+    const hasSubscriptionFeature = hasFeature('subscription')
+
     const { organization } = useOrganization()
     const { user } = useAuth()
 
@@ -47,18 +48,17 @@ export const useServiceSubscriptionWelcomePopup = (): IServiceSubscriptionWelcom
     const subscriberFirstLoginPopupConfirmedInfo = cookieSubscriberFirstLoginPopupConfirmedInfo ?
         JSON.parse(cookieSubscriberFirstLoginPopupConfirmedInfo) : []
 
-    const { objs: subscriptions, loading: subscriptionsLoading } = ServiceSubscription.useObjects({
-        where: {
-            organization: { id: organization && organization.id },
-            type: ServiceSubscriptionTypeType.Sbbol,
-            isTrial: true,
-            finishAt_gte: thisMinute,
+    const { data, loading: subscriptionsLoading } = useGetTrialServiceSubscriptionQuery({
+        variables: {
+            organizationId: organization?.id || null,
+            finishAtGte: thisMinute,
         },
+        skip: !hasSubscriptionFeature || !organization?.id,
     })
 
     useEffect(() => {
         if (
-            subscriptions.length > 0 &&
+            data?.subscriptions?.length > 0 &&
             !subscriptionsLoading &&
             !isServiceSubscriptionWelcomePopupVisible &&
             !subscriberFirstLoginPopupConfirmedInfo.find(info =>
@@ -67,7 +67,7 @@ export const useServiceSubscriptionWelcomePopup = (): IServiceSubscriptionWelcom
             setIsServiceSubscriptionWelcomePopupVisible(true)
     }, [subscriptionsLoading])
 
-    const subscription = subscriptions && subscriptions.length > 0 && subscriptions[0]
+    const subscription = data?.subscriptions?.length ? data.subscriptions[0] : null
 
     const handleCloseModal = () => {
         setIsServiceSubscriptionWelcomePopupVisible(false)

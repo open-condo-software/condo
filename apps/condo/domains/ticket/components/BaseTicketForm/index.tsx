@@ -5,7 +5,7 @@ import {
     Ticket,
     TicketFile as TicketFileType,
     TicketStatusTypeType,
-    TicketSource as TicketSourceType, SortInvoicesBy,
+    SortInvoicesBy,
 } from '@app/condo/schema'
 import { Affix, Col, ColProps, Form, FormItemProps, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
@@ -627,7 +627,7 @@ export const TicketSourceSelect: React.FC = () => {
     const { objs: sources, loading } = TicketSource.useObjects({
         where: { type_in: VISIBLE_TICKET_SOURCE_TYPES_IN_TICKET_FORM },
     })
-    const sourceOptions = convertToOptions<TicketSourceType>(sources, 'name', 'id')
+    const sourceOptions = convertToOptions(sources, 'name', 'id')
 
     const LoadingSelect = useMemo(() => (
         <Form.Item

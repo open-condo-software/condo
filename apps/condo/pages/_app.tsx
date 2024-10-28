@@ -37,7 +37,6 @@ import { MenuItem } from '@condo/domains/common/components/MenuItem'
 import PopupSmart from '@condo/domains/common/components/PopupSmart'
 import { PostMessageProvider } from '@condo/domains/common/components/PostMessageProvider'
 import { ServiceProblemsAlert } from '@condo/domains/common/components/ServiceProblemsAlert'
-import { SetupTelegramNotificationsBanner } from '@condo/domains/common/components/SetupTelegramNotificationsBanner'
 import { TASK_STATUS } from '@condo/domains/common/components/tasks'
 import { TasksContextProvider } from '@condo/domains/common/components/tasks/TasksContextProvider'
 import { TrackingProvider } from '@condo/domains/common/components/TrackingContext'
@@ -487,7 +486,6 @@ const MyApp = ({ Component, pageProps }) => {
             </Head>
             <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize='large'>
                 <CacheProvider value={cache}>
-                    <SetupTelegramNotificationsBanner />
                     <GlobalStyle/>
                     {shouldDisplayCookieAgreement && <CookieAgreement/>}
                     <LayoutContextProvider serviceProblemsAlert={<ServiceProblemsAlert />}>
