@@ -65,3 +65,6 @@ semgrep_results/*
 
 #k6 artifacts
 **/k6/screenshots**
+
+# Backup artifacts
+backups
