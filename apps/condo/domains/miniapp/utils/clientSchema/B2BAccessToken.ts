@@ -6,6 +6,7 @@
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
 
 import { B2BAccessToken as B2BAccessTokenGQL } from '@/domains/miniapp/gql'
+
 import {
     B2BAccessToken,
     B2BAccessTokenCreateInput,
