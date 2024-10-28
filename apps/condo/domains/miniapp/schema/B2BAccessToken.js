@@ -91,7 +91,6 @@ const B2BAccessToken = new GQLListSchema('B2BAccessToken', {
             }
 
             if (!softDeleted) {
-                console.error('updatedItem', updatedItem)
                 setSession(context.req.sessionStore, updatedItem, {
                     allowedOrganizations: [get(updatedItem, 'organization')],
                 })

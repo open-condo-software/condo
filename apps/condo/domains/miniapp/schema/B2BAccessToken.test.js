@@ -336,7 +336,10 @@ describe('B2BAccessToken', () => {
                 expect(data.obj).toBeNull()
                 expect(errors).toEqual([
                     expect.objectContaining({
-                        message: 'you can not unauth with access token',
+                        extensions: expect.objectContaining({
+                            code: 'FORBIDDEN',
+                            message: 'You can not log out with token',
+                        }),
                         name: 'GQLError',
                     }),
                 ])
@@ -356,39 +359,8 @@ describe('B2BAccessToken', () => {
                 const defaultClientCookie = parseCookies(serviceUserClient.getCookie())[keystoneSidCookieName]
                 const anonymousCookie = parseCookies(anonymous.getCookie())[keystoneSidCookieName]
 
-                console.error(serviceUserClient.getCookie())
-                console.error(anonymous.getCookie())
-
                 expect(defaultClientCookie).toBeDefined()
                 expect(anonymousCookie).not.toBeDefined()
-            })
-        })
-
-        describe('signed token scopes accesses by allowed organizations', () => {
-            
-            test('Organizations', async () => {
-                const organizationsGenerationCount = 10
-                const [integration] = await createTestBillingIntegration(admin)
-                const serviceUserClient = await makeClientWithServiceUser()
-                await createTestBillingIntegrationAccessRight(admin, integration, serviceUserClient.user)
-                const createdOrganizations = []
-                for (let i = 0; i < organizationsGenerationCount; i++) {
-                    const [organization] = await createTestOrganization(admin)
-                    createdOrganizations.push(organization)
-                    let [context] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
-                ;[context] = await updateTestBillingIntegrationOrganizationContext(admin, context.id, { status: CONTEXT_FINISHED_STATUS })
-                }
-
-                const organizationsByService = await Organization.getAll(serviceUserClient, {})
-                expect(organizationsByService).toHaveLength(organizationsGenerationCount)
-
-                const organizationForToken = faker.helpers.arrayElement(createdOrganizations)
-                const [obj] = await createTestB2BAccessToken(admin, serviceUserClient.user, organizationForToken)
-                const anonymous = await makeClient()
-                anonymous.setHeaders({ 'Authorization': `Bearer ${obj.signedToken}` })
-                const organizationsByToken = await Organization.getAll(anonymous, {})
-                expect(organizationsByToken).toHaveLength(1)
-                expect(organizationsByToken[0]).toHaveProperty('id', organizationForToken.id)
             })
         })
 
@@ -413,7 +385,6 @@ describe('B2BAccessToken', () => {
                         context: { id: utils.billingContext.id },
                         receipts: [receipt1, receipt2],
                     })
-                    console.error(createdReceipts)
                     expect(createdReceipts[0].id).not.toEqual(createdReceipts[1].id)
                 })
 

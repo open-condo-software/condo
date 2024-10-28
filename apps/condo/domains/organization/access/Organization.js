@@ -18,8 +18,7 @@ const { canDirectlyReadSchemaObjects, canDirectlyManageSchemaObjects } = require
 
 
 async function canReadOrganizations (args) {
-    const { authentication: { item: user, extra }, listKey, context } = args
-    console.error('extra', extra)
+    const { authentication: { item: user }, listKey, context } = args
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -78,44 +77,19 @@ async function canReadOrganizations (args) {
             deletedAt: null,
         })
 
-        let serviceOrganizationIds = uniq(billingContexts
+        const serviceOrganizationIds = uniq(billingContexts
             .map(({ organization }) => organization )
             .concat(acquiringContexts.map(({ organization }) => organization )))
             .concat(bankIntegrationOrganizationContext.map(({ organization }) => organization))
             .concat(get(accessFilterForB2BAppServiceUser, 'id_in', []) || [])
-
         if (serviceOrganizationIds.length) {
             accessConditions.push({ id_in: serviceOrganizationIds })
         }
     }
-
-    if (extra.allowedOrganizations) {
-        accessConditions.map((condition) => {
-            for (const key in condition) {
-                if (!key.startsWith('id')) {
-                    continue
-                }
-                if (key === 'id' && !extra.allowedOrganizations.includes(condition(key))) {
-                    delete condition[key]
-                }
-                condition[key] = condition[key].filter(id => extra.allowedOrganizations.includes(id))
-            }
-            return condition
-        })
-    }
-
-    const whereByOrganizationsWithTokenScope = { id_in: extra.allowedOrganizations }
-    const defaultWhereByOrganizations = { OR: accessConditions }
-
-    return extra.allowedOrganizations ? {
-        AND: [
-            defaultWhereByOrganizations,
-            whereByOrganizationsWithTokenScope,
-        ],
-    } : defaultWhereByOrganizations
+    return { OR: accessConditions }
 }
 
-async function canManageOrganizations ({ authentication: { item: user, extra }, operation, listKey, originalInput }) {
+async function canManageOrganizations ({ authentication: { item: user }, operation, listKey, originalInput }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
@@ -131,16 +105,9 @@ async function canManageOrganizations ({ authentication: { item: user, extra }, 
     if ('isApproved' in originalInput) return false
 
     // user is inside employee list and is not blocked
-    const accessQuery = {
+    return {
         employees_some: { user: { id: user.id }, role: { canManageOrganization: true }, isBlocked: false, deletedAt: null },
     }
-
-    const allowedOrganizations = get(extra, 'allowedOrganizations')
-    if (allowedOrganizations) {
-        accessQuery.id_in = allowedOrganizations
-    }
-
-    return accessQuery
 }
 
 const canAccessToImportField = {
