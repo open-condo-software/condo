@@ -25,7 +25,7 @@ async function canReadMeterReadings (args) {
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    
+
     if (user.isSupport || user.isAdmin) return {}
 
     if (user.type === RESIDENT) {
@@ -103,16 +103,20 @@ async function canManageMeterReadings (args) {
                 deletedAt: null,
             })
             if (!meterReading) return false
-    
+
             const meterReadingOrganization = get(meterReading, 'organization')
             if (!meterReadingOrganization) return false
-    
+
             return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, meterReadingOrganization, 'canManageMeterReadings')
         }
-       
+
     }
 
     return false
+}
+
+function canEditBillingStatusFields ({ authentication: { item: user } }) {
+    return user.isAdmin || user.isSupport || user.type === SERVICE
 }
 
 /*
@@ -122,4 +126,5 @@ async function canManageMeterReadings (args) {
 module.exports = {
     canReadMeterReadings,
     canManageMeterReadings,
+    canEditBillingStatusFields,
 }

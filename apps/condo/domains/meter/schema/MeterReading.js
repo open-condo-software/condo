@@ -19,11 +19,7 @@ const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { connectContactToMeterReading } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
 const { addClientInfoToResidentMeterReading } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
 const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
-const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
-
-function canEditBillingStatusFields ({ authentication: { item: user } }) {
-    return user.isAdmin || user.isSupport || user.type === SERVICE
-}
+const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 const ERRORS = {
     METER_READING_DATE_IN_FUTURE: {
@@ -126,8 +122,8 @@ const MeterReading = new GQLListSchema('MeterReading', {
             options: METER_READING_BILLING_STATUSES,
             access: {
                 read: true,
-                create: canEditBillingStatusFields,
-                update: canEditBillingStatusFields,
+                create: access.canEditBillingStatusFields,
+                update: access.canEditBillingStatusFields,
             },
         },
         billingStatusText: {
@@ -145,8 +141,8 @@ const MeterReading = new GQLListSchema('MeterReading', {
             },
             access: {
                 read: true,
-                create: canEditBillingStatusFields,
-                update: canEditBillingStatusFields,
+                create: access.canEditBillingStatusFields,
+                update: access.canEditBillingStatusFields,
             },
         },
 
