@@ -1,4 +1,5 @@
 import { green } from '@ant-design/colors'
+import { useGetContactTicketsQuery } from '@app/condo/gql'
 import { SortTicketsBy, Ticket as TicketSchema } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Row, RowProps, Space, Typography } from 'antd'
@@ -13,8 +14,6 @@ import { useIntl } from '@open-condo/next/intl'
 
 import { Loader } from '@condo/domains/common/components/Loader'
 import { colors } from '@condo/domains/common/constants/style'
-import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
-
 
 import { TicketOverview } from './TicketOverview'
 
@@ -145,10 +144,12 @@ const TicketCardList: React.FC<ITicketCardListProps> = ({ contactId }) => {
 
     const {
         loading,
-        objs: tickets,
-    } = Ticket.useObjects(generateQueryVariables(contactId), {
-        fetchPolicy: 'cache-first',
+        data: ticketsData,
+    } = useGetContactTicketsQuery({
+        variables: { contactId },
+        skip: !contactId,
     })
+    const tickets = ticketsData?.tickets
     const addresses = useMemo(() => {
         return Object.entries(groupBy(tickets, (ticket) => get(ticket, 'property.address', DeletedMessage)))
     }, [tickets])

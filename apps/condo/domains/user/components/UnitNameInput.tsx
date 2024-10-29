@@ -109,7 +109,17 @@ export const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
     const NotFoundLinkMessage = intl.formatMessage({ id: 'field.UnitName.notFound.link' })
 
     const {
-        placeholder, property, loading, disabled = false, mode, selectedFloorName, selectedSectionName, selectedSections, multiple, showUnitNotFoundLink = true, ...restInputProps
+        placeholder,
+        property,
+        loading,
+        disabled = false,
+        mode,
+        selectedFloorName,
+        selectedSectionName,
+        selectedSections,
+        multiple,
+        showUnitNotFoundLink = true,
+        ...restInputProps
     } = props
 
     const sections = get(property, 'map.sections', [])

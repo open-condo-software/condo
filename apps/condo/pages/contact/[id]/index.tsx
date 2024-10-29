@@ -1,3 +1,7 @@
+import {
+    useGetContactByIdQuery,
+    useUpdateContactMutation,
+} from '@app/condo/gql'
 import { BuildingUnitSubType } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import get from 'lodash/get'
@@ -6,6 +10,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { Edit } from '@open-condo/icons'
 import { prepareSSRContext } from '@open-condo/miniapp-utils'
 import { initializeApollo } from '@open-condo/next/apollo'
@@ -25,11 +30,21 @@ import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
 import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
 import { extractSSRState } from '@condo/domains/common/utils/next/ssr'
 import { ContactsReadPermissionRequired } from '@condo/domains/contact/components/PageAccess'
-import { Contact } from '@condo/domains/contact/utils/clientSchema'
+import { prefetchContact } from '@condo/domains/contact/utils/next/Contact'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 
 import type { GetServerSideProps } from 'next'
 
+
+type ContactIdPageProps = {
+    id: string
+}
+
+type ContactIdPageParams = {
+    id: string
+}
+
+type GetServerSidePropsType = GetServerSideProps<ContactIdPageProps | Awaited<ReturnType<GetServerSideProps>>, ContactIdPageParams>
 
 const VALUE_FIELD_WRAPPER_STYLE = { width: '100%' }
 const CONTACT_FIELD_PAIR_PROPS: Partial<FieldPairRowProps> = {
@@ -46,9 +61,9 @@ const FieldPairRow: React.FC<FieldPairRowProps> = (props) => (
 
 const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.content }
 
-export const ContactPageContent = ({ contact, isContactEditable, softDeleteAction, phonePrefix = '' }) => {
+export const ContactPageContent = ({ contact, isContactEditable, softDeleteAction }) => {
     const intl = useIntl()
-    const ContactLabel = intl.formatMessage({ id:'Contact' }).toLowerCase()
+    const ContactLabel = intl.formatMessage({ id: 'Contact' }).toLowerCase()
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
@@ -73,6 +88,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
     const contactAddress = `${get(contact, ['property', 'address'], DeletedMessage)} ${unitSuffix}`
     const contactRole = get(contact, 'role')
     const isVerified = get(contact, 'isVerified')
+    const phonePrefix = get(contact, ['organization', 'phoneNumberPrefix'], '')
 
     const { breakpoints } = useLayoutContext()
 
@@ -116,7 +132,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                                 <FieldPairRow
                                                     fieldTitle={PhoneLabel}
                                                     fieldValue={contactPhone}
-                                                    href={`tel:${phonePrefix ? 
+                                                    href={`tel:${phonePrefix ?
                                                         `${phonePrefix}${contactPhone}` : contactPhone}`}
                                                 />
                                                 {
@@ -154,7 +170,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                                     <Link key='update' href={`/contact/${get(contact, 'id')}/update`}>
                                                         <Button
                                                             type='primary'
-                                                            icon={<Edit size='medium' />}
+                                                            icon={<Edit size='medium'/>}
                                                         >
                                                             {UpdateMessage}
                                                         </Button>
@@ -185,7 +201,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                             <Link key='update' href={`/contact/${get(contact, 'id')}/update`}>
                                                 <Button
                                                     type='primary'
-                                                    icon={<Edit size='medium' />}
+                                                    icon={<Edit size='medium'/>}
                                                 >
                                                     {UpdateMessage}
                                                 </Button>
@@ -211,32 +227,39 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-const ContactInfoPage = () => {
+const ContactInfoPage: React.FC<ContactIdPageProps> & { requiredAccess: React.FC } = ({ id: contactId }) => {
     const intl = useIntl()
     const ErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
     const ContactNotFoundTitle = intl.formatMessage({ id: 'Contact.NotFound.Title' })
     const ContactNotFoundMessage = intl.formatMessage({ id: 'Contact.NotFound.Message' })
 
-    const { query, push } = useRouter()
-    const contactId = get(query, 'id', '')
-
-    const { organization, link } = useOrganization()
+    const { push } = useRouter()
+    const { role } = useOrganization()
 
     const {
-        obj: contact,
+        data,
         loading,
         error,
-    } = Contact.useObject({
-        where: {
-            id: String(contactId),
-            organization: {
-                id: String(organization.id),
+    } = useGetContactByIdQuery({ variables: { id: contactId } })
+    const filteredContacts = data?.contacts?.filter(Boolean)
+    const contact = Array.isArray(filteredContacts) && filteredContacts.length > 0 ? filteredContacts[0] : null
+
+    const [updateContactMutation] = useUpdateContactMutation({
+        variables: {
+            id: contactId,
+            data: {
+                deletedAt: new Date().toISOString(),
+                sender: getClientSideSenderInfo(),
+                dv: 1,
             },
         },
     })
 
-    const handleDeleteAction = Contact.useSoftDelete(() => push('/contact/'))
+    const handleDeleteAction = useCallback(async () => {
+        await updateContactMutation()
+        await push('/contact')
+    }, [push, updateContactMutation])
 
     if (error || loading) {
         return <LoadingOrErrorPage title={LoadingMessage} loading={loading} error={error ? ErrorMessage : null}/>
@@ -245,7 +268,7 @@ const ContactInfoPage = () => {
         return <LoadingOrErrorPage title={ContactNotFoundTitle} loading={false} error={ContactNotFoundMessage}/>
     }
 
-    const isContactEditable = get(link, ['role', 'canManageContacts'], null)
+    const isContactEditable = role?.canManageContacts
 
     return (
         <ContactPageContent
@@ -260,8 +283,8 @@ ContactInfoPage.requiredAccess = ContactsReadPermissionRequired
 
 export default ContactInfoPage
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-    const { req, res } = context
+export const getServerSideProps: GetServerSidePropsType = async (context) => {
+    const { req, res, params } = context
 
     // @ts-ignore In Next 9 the types (only!) do not match the expected types
     const { headers } = prepareSSRContext(req, res)
@@ -272,7 +295,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     await prefetchOrganizationEmployee({ client, context, userId: user.id })
 
+    const { id: contactId } = params
+    await prefetchContact({ client, contactId })
+
     return extractSSRState(client, req, res, {
-        props: {},
+        props: {
+            id: contactId,
+        },
     })
 }

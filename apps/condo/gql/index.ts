@@ -9,7 +9,54 @@ import * as Types from '@app/condo/gql/operation.types'
 export * from '@app/condo/gql/operation.types'
 
 const defaultOptions = {} as const
-
+export const FloorInfoFragmentDoc = gql`
+    fragment FloorInfo on BuildingFloor {
+  id
+  type
+  index
+  name
+  units {
+    id
+    type
+    unitType
+    name
+    label
+    preview
+  }
+}
+    `
+export const SectionOrParkingInfoFragmentDoc = gql`
+    fragment SectionOrParkingInfo on BuildingSection {
+  id
+  type
+  index
+  name
+  preview
+  floors {
+    ...FloorInfo
+  }
+}
+    ${FloorInfoFragmentDoc}`
+export const AddressMetaForTableAddressFragmentDoc = gql`
+    fragment AddressMetaForTableAddress on AddressMetaField {
+  data {
+    street_with_type
+    house_type
+    house
+    block_type
+    block
+    flat_type
+    flat
+    region_type_full
+    region
+    region_with_type
+    city_with_type
+    city
+    settlement_with_type
+    area_with_type
+  }
+}
+    `
 export const GetBankAccountReportTasksDocument = gql`
     query getBankAccountReportTasks($where: BankAccountReportTaskWhereInput!) {
   tasks: allBankAccountReportTasks(where: $where) {
@@ -436,6 +483,254 @@ export type GetProcessingTasksQueryHookResult = ReturnType<typeof useGetProcessi
 export type GetProcessingTasksLazyQueryHookResult = ReturnType<typeof useGetProcessingTasksLazyQuery>
 export type GetProcessingTasksSuspenseQueryHookResult = ReturnType<typeof useGetProcessingTasksSuspenseQuery>
 export type GetProcessingTasksQueryResult = Apollo.QueryResult<Types.GetProcessingTasksQuery, Types.GetProcessingTasksQueryVariables>
+export const GetContactByIdDocument = gql`
+    query getContactById($id: ID!) {
+  contacts: allContacts(where: {id: $id}) {
+    id
+    name
+    email
+    phone
+    unitName
+    unitType
+    isVerified
+    organization {
+      id
+    }
+    property {
+      id
+      address
+    }
+    role {
+      id
+      name
+    }
+  }
+}
+    `
+
+/**
+ * __useGetContactByIdQuery__
+ *
+ * To run a query within a React component, call `useGetContactByIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetContactByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetContactByIdQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetContactByIdQuery (baseOptions: Apollo.QueryHookOptions<Types.GetContactByIdQuery, Types.GetContactByIdQueryVariables> & ({ variables: Types.GetContactByIdQueryVariables, skip?: boolean } | { skip: boolean }) ) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useQuery<Types.GetContactByIdQuery, Types.GetContactByIdQueryVariables>(GetContactByIdDocument, options)
+}
+export function useGetContactByIdLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<Types.GetContactByIdQuery, Types.GetContactByIdQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useLazyQuery<Types.GetContactByIdQuery, Types.GetContactByIdQueryVariables>(GetContactByIdDocument, options)
+}
+export function useGetContactByIdSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetContactByIdQuery, Types.GetContactByIdQueryVariables>) {
+    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+    return Apollo.useSuspenseQuery<Types.GetContactByIdQuery, Types.GetContactByIdQueryVariables>(GetContactByIdDocument, options)
+}
+export type GetContactByIdQueryHookResult = ReturnType<typeof useGetContactByIdQuery>
+export type GetContactByIdLazyQueryHookResult = ReturnType<typeof useGetContactByIdLazyQuery>
+export type GetContactByIdSuspenseQueryHookResult = ReturnType<typeof useGetContactByIdSuspenseQuery>
+export type GetContactByIdQueryResult = Apollo.QueryResult<Types.GetContactByIdQuery, Types.GetContactByIdQueryVariables>
+export const GetContactsExistenceDocument = gql`
+    query getContactsExistence($where: ContactWhereInput) {
+  contacts: allContacts(first: 1, where: $where) {
+    id
+  }
+}
+    `
+
+/**
+ * __useGetContactsExistenceQuery__
+ *
+ * To run a query within a React component, call `useGetContactsExistenceQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetContactsExistenceQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetContactsExistenceQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *   },
+ * });
+ */
+export function useGetContactsExistenceQuery (baseOptions?: Apollo.QueryHookOptions<Types.GetContactsExistenceQuery, Types.GetContactsExistenceQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useQuery<Types.GetContactsExistenceQuery, Types.GetContactsExistenceQueryVariables>(GetContactsExistenceDocument, options)
+}
+export function useGetContactsExistenceLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<Types.GetContactsExistenceQuery, Types.GetContactsExistenceQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useLazyQuery<Types.GetContactsExistenceQuery, Types.GetContactsExistenceQueryVariables>(GetContactsExistenceDocument, options)
+}
+export function useGetContactsExistenceSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetContactsExistenceQuery, Types.GetContactsExistenceQueryVariables>) {
+    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+    return Apollo.useSuspenseQuery<Types.GetContactsExistenceQuery, Types.GetContactsExistenceQueryVariables>(GetContactsExistenceDocument, options)
+}
+export type GetContactsExistenceQueryHookResult = ReturnType<typeof useGetContactsExistenceQuery>
+export type GetContactsExistenceLazyQueryHookResult = ReturnType<typeof useGetContactsExistenceLazyQuery>
+export type GetContactsExistenceSuspenseQueryHookResult = ReturnType<typeof useGetContactsExistenceSuspenseQuery>
+export type GetContactsExistenceQueryResult = Apollo.QueryResult<Types.GetContactsExistenceQuery, Types.GetContactsExistenceQueryVariables>
+export const GetContactsForTableDocument = gql`
+    query getContactsForTable($where: ContactWhereInput, $first: Int, $skip: Int, $sortBy: [SortContactsBy!]) {
+  contacts: allContacts(
+    where: $where
+    first: $first
+    skip: $skip
+    sortBy: $sortBy
+  ) {
+    id
+    name
+    unitName
+    unitType
+    phone
+    email
+    organization {
+      id
+      name
+    }
+    property {
+      id
+      deletedAt
+      address
+      addressMeta {
+        ...AddressMetaForTableAddress
+      }
+    }
+    role {
+      id
+      name
+    }
+  }
+  meta: _allContactsMeta(where: $where) {
+    count
+  }
+}
+    ${AddressMetaForTableAddressFragmentDoc}`
+
+/**
+ * __useGetContactsForTableQuery__
+ *
+ * To run a query within a React component, call `useGetContactsForTableQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetContactsForTableQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetContactsForTableQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *      first: // value for 'first'
+ *      skip: // value for 'skip'
+ *      sortBy: // value for 'sortBy'
+ *   },
+ * });
+ */
+export function useGetContactsForTableQuery (baseOptions?: Apollo.QueryHookOptions<Types.GetContactsForTableQuery, Types.GetContactsForTableQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useQuery<Types.GetContactsForTableQuery, Types.GetContactsForTableQueryVariables>(GetContactsForTableDocument, options)
+}
+export function useGetContactsForTableLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<Types.GetContactsForTableQuery, Types.GetContactsForTableQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useLazyQuery<Types.GetContactsForTableQuery, Types.GetContactsForTableQueryVariables>(GetContactsForTableDocument, options)
+}
+export function useGetContactsForTableSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetContactsForTableQuery, Types.GetContactsForTableQueryVariables>) {
+    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+    return Apollo.useSuspenseQuery<Types.GetContactsForTableQuery, Types.GetContactsForTableQueryVariables>(GetContactsForTableDocument, options)
+}
+export type GetContactsForTableQueryHookResult = ReturnType<typeof useGetContactsForTableQuery>
+export type GetContactsForTableLazyQueryHookResult = ReturnType<typeof useGetContactsForTableLazyQuery>
+export type GetContactsForTableSuspenseQueryHookResult = ReturnType<typeof useGetContactsForTableSuspenseQuery>
+export type GetContactsForTableQueryResult = Apollo.QueryResult<Types.GetContactsForTableQuery, Types.GetContactsForTableQueryVariables>
+export const CreateContactDocument = gql`
+    mutation createContact($data: ContactCreateInput!) {
+  contact: createContact(data: $data) {
+    id
+    phone
+    unitName
+    unitType
+    property {
+      id
+    }
+  }
+}
+    `
+export type CreateContactMutationFn = Apollo.MutationFunction<Types.CreateContactMutation, Types.CreateContactMutationVariables>
+
+/**
+ * __useCreateContactMutation__
+ *
+ * To run a mutation, you first call `useCreateContactMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateContactMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createContactMutation, { data, loading, error }] = useCreateContactMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateContactMutation (baseOptions?: Apollo.MutationHookOptions<Types.CreateContactMutation, Types.CreateContactMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<Types.CreateContactMutation, Types.CreateContactMutationVariables>(CreateContactDocument, options)
+}
+export type CreateContactMutationHookResult = ReturnType<typeof useCreateContactMutation>
+export type CreateContactMutationResult = Apollo.MutationResult<Types.CreateContactMutation>
+export type CreateContactMutationOptions = Apollo.BaseMutationOptions<Types.CreateContactMutation, Types.CreateContactMutationVariables>
+export const UpdateContactDocument = gql`
+    mutation updateContact($id: ID!, $data: ContactUpdateInput!) {
+  contact: updateContact(id: $id, data: $data) {
+    id
+    phone
+    unitName
+    unitType
+    property {
+      id
+    }
+  }
+}
+    `
+export type UpdateContactMutationFn = Apollo.MutationFunction<Types.UpdateContactMutation, Types.UpdateContactMutationVariables>
+
+/**
+ * __useUpdateContactMutation__
+ *
+ * To run a mutation, you first call `useUpdateContactMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateContactMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateContactMutation, { data, loading, error }] = useUpdateContactMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateContactMutation (baseOptions?: Apollo.MutationHookOptions<Types.UpdateContactMutation, Types.UpdateContactMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<Types.UpdateContactMutation, Types.UpdateContactMutationVariables>(UpdateContactDocument, options)
+}
+export type UpdateContactMutationHookResult = ReturnType<typeof useUpdateContactMutation>
+export type UpdateContactMutationResult = Apollo.MutationResult<Types.UpdateContactMutation>
+export type UpdateContactMutationOptions = Apollo.BaseMutationOptions<Types.UpdateContactMutation, Types.UpdateContactMutationVariables>
 export const GetContactExportTasksDocument = gql`
     query getContactExportTasks($where: ContactExportTaskWhereInput!) {
   tasks: allContactExportTasks(where: $where) {
@@ -567,6 +862,103 @@ export function useUpdateContactExportTaskMutation (baseOptions?: Apollo.Mutatio
 export type UpdateContactExportTaskMutationHookResult = ReturnType<typeof useUpdateContactExportTaskMutation>
 export type UpdateContactExportTaskMutationResult = Apollo.MutationResult<Types.UpdateContactExportTaskMutation>
 export type UpdateContactExportTaskMutationOptions = Apollo.BaseMutationOptions<Types.UpdateContactExportTaskMutation, Types.UpdateContactExportTaskMutationVariables>
+export const GetCommonOrOrganizationContactRolesDocument = gql`
+    query getCommonOrOrganizationContactRoles($organizationId: ID!) {
+  roles: allContactRoles(
+    where: {OR: [{organization_is_null: true}, {organization: {id: $organizationId}}]}
+  ) {
+    id
+    name
+  }
+}
+    `
+
+/**
+ * __useGetCommonOrOrganizationContactRolesQuery__
+ *
+ * To run a query within a React component, call `useGetCommonOrOrganizationContactRolesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetCommonOrOrganizationContactRolesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetCommonOrOrganizationContactRolesQuery({
+ *   variables: {
+ *      organizationId: // value for 'organizationId'
+ *   },
+ * });
+ */
+export function useGetCommonOrOrganizationContactRolesQuery (baseOptions: Apollo.QueryHookOptions<Types.GetCommonOrOrganizationContactRolesQuery, Types.GetCommonOrOrganizationContactRolesQueryVariables> & ({ variables: Types.GetCommonOrOrganizationContactRolesQueryVariables, skip?: boolean } | { skip: boolean }) ) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useQuery<Types.GetCommonOrOrganizationContactRolesQuery, Types.GetCommonOrOrganizationContactRolesQueryVariables>(GetCommonOrOrganizationContactRolesDocument, options)
+}
+export function useGetCommonOrOrganizationContactRolesLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<Types.GetCommonOrOrganizationContactRolesQuery, Types.GetCommonOrOrganizationContactRolesQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useLazyQuery<Types.GetCommonOrOrganizationContactRolesQuery, Types.GetCommonOrOrganizationContactRolesQueryVariables>(GetCommonOrOrganizationContactRolesDocument, options)
+}
+export function useGetCommonOrOrganizationContactRolesSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetCommonOrOrganizationContactRolesQuery, Types.GetCommonOrOrganizationContactRolesQueryVariables>) {
+    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+    return Apollo.useSuspenseQuery<Types.GetCommonOrOrganizationContactRolesQuery, Types.GetCommonOrOrganizationContactRolesQueryVariables>(GetCommonOrOrganizationContactRolesDocument, options)
+}
+export type GetCommonOrOrganizationContactRolesQueryHookResult = ReturnType<typeof useGetCommonOrOrganizationContactRolesQuery>
+export type GetCommonOrOrganizationContactRolesLazyQueryHookResult = ReturnType<typeof useGetCommonOrOrganizationContactRolesLazyQuery>
+export type GetCommonOrOrganizationContactRolesSuspenseQueryHookResult = ReturnType<typeof useGetCommonOrOrganizationContactRolesSuspenseQuery>
+export type GetCommonOrOrganizationContactRolesQueryResult = Apollo.QueryResult<Types.GetCommonOrOrganizationContactRolesQuery, Types.GetCommonOrOrganizationContactRolesQueryVariables>
+export const GetContactTicketsDocument = gql`
+    query getContactTickets($contactId: ID!) {
+  tickets: allTickets(
+    where: {contact: {id: $contactId}}
+    sortBy: [createdAt_DESC]
+  ) {
+    id
+    details
+    createdAt
+    number
+    status {
+      id
+      name
+    }
+    property {
+      id
+      address
+    }
+  }
+}
+    `
+
+/**
+ * __useGetContactTicketsQuery__
+ *
+ * To run a query within a React component, call `useGetContactTicketsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetContactTicketsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetContactTicketsQuery({
+ *   variables: {
+ *      contactId: // value for 'contactId'
+ *   },
+ * });
+ */
+export function useGetContactTicketsQuery (baseOptions: Apollo.QueryHookOptions<Types.GetContactTicketsQuery, Types.GetContactTicketsQueryVariables> & ({ variables: Types.GetContactTicketsQueryVariables, skip?: boolean } | { skip: boolean }) ) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useQuery<Types.GetContactTicketsQuery, Types.GetContactTicketsQueryVariables>(GetContactTicketsDocument, options)
+}
+export function useGetContactTicketsLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<Types.GetContactTicketsQuery, Types.GetContactTicketsQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useLazyQuery<Types.GetContactTicketsQuery, Types.GetContactTicketsQueryVariables>(GetContactTicketsDocument, options)
+}
+export function useGetContactTicketsSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetContactTicketsQuery, Types.GetContactTicketsQueryVariables>) {
+    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+    return Apollo.useSuspenseQuery<Types.GetContactTicketsQuery, Types.GetContactTicketsQueryVariables>(GetContactTicketsDocument, options)
+}
+export type GetContactTicketsQueryHookResult = ReturnType<typeof useGetContactTicketsQuery>
+export type GetContactTicketsLazyQueryHookResult = ReturnType<typeof useGetContactTicketsLazyQuery>
+export type GetContactTicketsSuspenseQueryHookResult = ReturnType<typeof useGetContactTicketsSuspenseQuery>
+export type GetContactTicketsQueryResult = Apollo.QueryResult<Types.GetContactTicketsQuery, Types.GetContactTicketsQueryVariables>
 export const GetMeterReadingExportTasksDocument = gql`
     query getMeterReadingExportTasks($where: MeterReadingExportTaskWhereInput!) {
   tasks: allMeterReadingExportTasks(where: $where) {
@@ -1194,6 +1586,55 @@ export type GetEmployeeInvitesCountQueryHookResult = ReturnType<typeof useGetEmp
 export type GetEmployeeInvitesCountLazyQueryHookResult = ReturnType<typeof useGetEmployeeInvitesCountLazyQuery>
 export type GetEmployeeInvitesCountSuspenseQueryHookResult = ReturnType<typeof useGetEmployeeInvitesCountSuspenseQuery>
 export type GetEmployeeInvitesCountQueryResult = Apollo.QueryResult<Types.GetEmployeeInvitesCountQuery, Types.GetEmployeeInvitesCountQueryVariables>
+export const GetPropertyWithMapByIdDocument = gql`
+    query getPropertyWithMapById($id: ID!) {
+  property: allProperties(where: {id: $id}) {
+    id
+    map {
+      sections {
+        ...SectionOrParkingInfo
+      }
+      parking {
+        ...SectionOrParkingInfo
+      }
+      dv
+    }
+  }
+}
+    ${SectionOrParkingInfoFragmentDoc}`
+
+/**
+ * __useGetPropertyWithMapByIdQuery__
+ *
+ * To run a query within a React component, call `useGetPropertyWithMapByIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPropertyWithMapByIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPropertyWithMapByIdQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetPropertyWithMapByIdQuery (baseOptions: Apollo.QueryHookOptions<Types.GetPropertyWithMapByIdQuery, Types.GetPropertyWithMapByIdQueryVariables> & ({ variables: Types.GetPropertyWithMapByIdQueryVariables, skip?: boolean } | { skip: boolean }) ) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useQuery<Types.GetPropertyWithMapByIdQuery, Types.GetPropertyWithMapByIdQueryVariables>(GetPropertyWithMapByIdDocument, options)
+}
+export function useGetPropertyWithMapByIdLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<Types.GetPropertyWithMapByIdQuery, Types.GetPropertyWithMapByIdQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useLazyQuery<Types.GetPropertyWithMapByIdQuery, Types.GetPropertyWithMapByIdQueryVariables>(GetPropertyWithMapByIdDocument, options)
+}
+export function useGetPropertyWithMapByIdSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetPropertyWithMapByIdQuery, Types.GetPropertyWithMapByIdQueryVariables>) {
+    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+    return Apollo.useSuspenseQuery<Types.GetPropertyWithMapByIdQuery, Types.GetPropertyWithMapByIdQueryVariables>(GetPropertyWithMapByIdDocument, options)
+}
+export type GetPropertyWithMapByIdQueryHookResult = ReturnType<typeof useGetPropertyWithMapByIdQuery>
+export type GetPropertyWithMapByIdLazyQueryHookResult = ReturnType<typeof useGetPropertyWithMapByIdLazyQuery>
+export type GetPropertyWithMapByIdSuspenseQueryHookResult = ReturnType<typeof useGetPropertyWithMapByIdSuspenseQuery>
+export type GetPropertyWithMapByIdQueryResult = Apollo.QueryResult<Types.GetPropertyWithMapByIdQuery, Types.GetPropertyWithMapByIdQueryVariables>
 export const GetServiceSubscriptionDocument = gql`
     query getServiceSubscription($organizationId: ID!) {
   subscriptions: allServiceSubscriptions(

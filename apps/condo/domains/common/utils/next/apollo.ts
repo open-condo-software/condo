@@ -48,6 +48,11 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
         },
         invalidationPolicies: {
             timeToLive: 15 * 60 * 1000, // 15 minutes in milliseconds
+            types: {
+                Ticket: {
+                    timeToLive: 60 * 1000, // 1 minute in milliseconds
+                },
+            },
         },
     }
 }
