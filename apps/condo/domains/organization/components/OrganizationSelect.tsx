@@ -1,6 +1,6 @@
 import {
     useGetActualOrganizationEmployeesQuery,
-    useGetInviteCountQuery,
+    useGetEmployeeInvitesCountQuery,
 } from '@app/condo/gql'
 import { OrganizationTypeType } from '@app/condo/schema'
 import { Dropdown } from 'antd'
@@ -67,9 +67,9 @@ export const InlineOrganizationSelect: React.FC = () => {
         , [actualEmployeesData]
     )
 
-    const { data: invites, loading: isInvitesLoading } = useGetInviteCountQuery({
+    const { data: invites, loading: isInvitesLoading } = useGetEmployeeInvitesCountQuery({
         variables: { userId },
-        skip: !userId || !persistor,
+        skip: !userId || !persistor || !!activeEmployee?.id || actualEmployees.length > 0,
     })
     const hasInvites = invites?.meta?.count > 0
 

@@ -125,7 +125,7 @@ query getActualOrganizationEmployees($userId: ID!) {
     }
 }
 
-query getInviteCount($userId: ID!) {
+query getEmployeeInvitesCount($userId: ID!) {
     meta: _allOrganizationEmployeesMeta(
         where: {
             user: { id: $userId },

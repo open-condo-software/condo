@@ -18,12 +18,12 @@ export type GetActualOrganizationEmployeesQueryVariables = Types.Exact<{
 
 export type GetActualOrganizationEmployeesQuery = { __typename?: 'Query', actualEmployees?: Array<{ __typename?: 'OrganizationEmployee', id: string, organization?: { __typename?: 'Organization', id: string, name?: string | null, importId?: string | null, importRemoteSystem?: string | null } | null } | null> | null }
 
-export type GetInviteCountQueryVariables = Types.Exact<{
+export type GetEmployeeInvitesCountQueryVariables = Types.Exact<{
     userId: Types.Scalars['ID']['input']
 }>
 
 
-export type GetInviteCountQuery = { __typename?: 'Query', meta?: { __typename?: '_QueryMeta', count?: number | null } | null }
+export type GetEmployeeInvitesCountQuery = { __typename?: 'Query', meta?: { __typename?: '_QueryMeta', count?: number | null } | null }
 
 export type GetServiceSubscriptionQueryVariables = Types.Exact<{
     organizationId: Types.Scalars['ID']['input']
