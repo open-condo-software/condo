@@ -1,0 +1,13 @@
+query getCommonOrOrganizationContactRoles ($organizationId: ID!) {
+    roles: allContactRoles(
+        where: {
+            OR: [
+                { organization_is_null: true },
+                { organization: { id: $organizationId } },
+            ]
+        }
+    ) {
+        id
+        name
+    }
+}

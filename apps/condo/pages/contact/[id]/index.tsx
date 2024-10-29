@@ -1,3 +1,7 @@
+import {
+    useGetContactByIdQuery,
+    useUpdateContactMutation,
+} from '@app/condo/gql'
 import { BuildingUnitSubType } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import get from 'lodash/get'
@@ -6,6 +10,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { Edit } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -21,7 +26,6 @@ import { TicketCardList } from '@condo/domains/common/components/TicketCard/Tick
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { PageComponentType } from '@condo/domains/common/types'
 import { ContactsReadPermissionRequired } from '@condo/domains/contact/components/PageAccess'
-import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 
 
@@ -40,9 +44,9 @@ const FieldPairRow: React.FC<FieldPairRowProps> = (props) => (
 
 const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.content }
 
-export const ContactPageContent = ({ contact, isContactEditable, softDeleteAction, phonePrefix = '' }) => {
+export const ContactPageContent = ({ contact, isContactEditable, softDeleteAction }) => {
     const intl = useIntl()
-    const ContactLabel = intl.formatMessage({ id:'Contact' }).toLowerCase()
+    const ContactLabel = intl.formatMessage({ id: 'Contact' }).toLowerCase()
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
@@ -67,6 +71,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
     const contactAddress = `${get(contact, ['property', 'address'], DeletedMessage)} ${unitSuffix}`
     const contactRole = get(contact, 'role')
     const isVerified = get(contact, 'isVerified')
+    const phonePrefix = get(contact, ['organization', 'phoneNumberPrefix'], '')
 
     const { breakpoints } = useLayoutContext()
 
@@ -110,7 +115,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                                 <FieldPairRow
                                                     fieldTitle={PhoneLabel}
                                                     fieldValue={contactPhone}
-                                                    href={`tel:${phonePrefix ? 
+                                                    href={`tel:${phonePrefix ?
                                                         `${phonePrefix}${contactPhone}` : contactPhone}`}
                                                 />
                                                 {
@@ -148,7 +153,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                                     <Link key='update' href={`/contact/${get(contact, 'id')}/update`}>
                                                         <Button
                                                             type='primary'
-                                                            icon={<Edit size='medium' />}
+                                                            icon={<Edit size='medium'/>}
                                                         >
                                                             {UpdateMessage}
                                                         </Button>
@@ -179,7 +184,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                             <Link key='update' href={`/contact/${get(contact, 'id')}/update`}>
                                                 <Button
                                                     type='primary'
-                                                    icon={<Edit size='medium' />}
+                                                    icon={<Edit size='medium'/>}
                                                 >
                                                     {UpdateMessage}
                                                 </Button>
@@ -212,24 +217,32 @@ const ContactInfoPage: PageComponentType = () => {
     const ContactNotFoundMessage = intl.formatMessage({ id: 'Contact.NotFound.Message' })
 
     const { query, push } = useRouter()
-    const contactId = get(query, 'id', '')
-
-    const { organization, link } = useOrganization()
+    const contactId = query?.id as string
+    const { role } = useOrganization()
 
     const {
-        obj: contact,
+        data,
         loading,
         error,
-    } = Contact.useObject({
-        where: {
-            id: String(contactId),
-            organization: {
-                id: String(organization.id),
+    } = useGetContactByIdQuery({ variables: { id: contactId } })
+    const filteredContacts = data?.contacts?.filter(Boolean)
+    const contact = Array.isArray(filteredContacts) && filteredContacts.length > 0 ? filteredContacts[0] : null
+
+    const [updateContactMutation] = useUpdateContactMutation({
+        variables: {
+            id: contactId,
+            data: {
+                deletedAt: new Date().toISOString(),
+                sender: getClientSideSenderInfo(),
+                dv: 1,
             },
         },
     })
 
-    const handleDeleteAction = Contact.useSoftDelete(() => push('/contact/'))
+    const handleDeleteAction = useCallback(async () => {
+        await updateContactMutation()
+        await push('/contact')
+    }, [push, updateContactMutation])
 
     if (error || loading) {
         return <LoadingOrErrorPage title={LoadingMessage} loading={loading} error={error ? ErrorMessage : null}/>
@@ -238,7 +251,7 @@ const ContactInfoPage: PageComponentType = () => {
         return <LoadingOrErrorPage title={ContactNotFoundTitle} loading={false} error={ContactNotFoundMessage}/>
     }
 
-    const isContactEditable = get(link, ['role', 'canManageContacts'], null)
+    const isContactEditable = role?.canManageContacts
 
     return (
         <ContactPageContent

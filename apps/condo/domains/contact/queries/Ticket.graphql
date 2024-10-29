@@ -1,0 +1,19 @@
+query getContactTickets ($contactId: ID!) {
+    tickets: allTickets(
+        where: { contact: { id: $contactId } }
+        sortBy: [createdAt_DESC]
+    ) {
+        id
+        details
+        createdAt
+        number
+        status {
+            id
+            name
+        }
+        property {
+            id
+            address
+        }
+    }
+}

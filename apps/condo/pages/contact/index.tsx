@@ -1,3 +1,4 @@
+import { useGetContactsExistenceQuery, useGetContactsForTableQuery } from '@app/condo/gql'
 import { ContactWhereInput, OrganizationEmployeeRole, SortContactsBy, ContactExportTaskFormatType } from '@app/condo/schema'
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
@@ -35,7 +36,6 @@ import { useContactExportToExcelTask } from '@condo/domains/contact/hooks/useCon
 import { useImporterFunctions } from '@condo/domains/contact/hooks/useImporterFunctions'
 import { useTableColumns } from '@condo/domains/contact/hooks/useTableColumns'
 import { useContactsTableFilters } from '@condo/domains/contact/hooks/useTableFilters'
-import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { CONTACT_PAGE_SIZE, IFilters } from '@condo/domains/contact/utils/helpers'
 import { PROPERTY_PAGE_SIZE } from '@condo/domains/property/utils/helpers'
 
@@ -44,10 +44,12 @@ const ADD_CONTACT_ROUTE = '/contact/create/'
 const ROW_VERTICAL_GUTTERS: [Gutter, Gutter] = [0, 40]
 const SORTABLE_PROPERTIES = ['name', 'unitName', 'phone', 'email', 'role']
 
+type ContactBaseSearchQuery = { organization: { id: string } } | { organization: { 'id_in': Array<string> } }
+
 type ContactPageContentProps = {
     filterMeta: FiltersMeta<ContactWhereInput>[]
     tableColumns: ColumnsType
-    baseSearchQuery: ContactWhereInput
+    baseSearchQuery: ContactBaseSearchQuery
     role?: Pick<OrganizationEmployeeRole, 'canManageContacts'>
     loading: boolean
 }
@@ -123,16 +125,19 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
     const {
         refetch,
         loading: contactsLoading,
-        count: total,
-        objs: contacts,
-    } = Contact.useObjects({
-        sortBy,
-        where: searchContactsQuery,
-        skip: (currentPageIndex - 1) * CONTACT_PAGE_SIZE,
-        first: CONTACT_PAGE_SIZE,
-    }, {
+        data: contactsData,
+    } = useGetContactsForTableQuery({
+        variables: {
+            sortBy,
+            where: searchContactsQuery,
+            skip: (currentPageIndex - 1) * CONTACT_PAGE_SIZE,
+            first: CONTACT_PAGE_SIZE,
+        },
         fetchPolicy: 'network-only',
     })
+    const contacts = contactsData?.contacts?.filter(Boolean)
+    const total = contactsData?.meta?.count
+
     const { ExportButton } = useContactExportToExcelTask({
         where: searchContactsQuery,
         sortBy,
@@ -229,16 +234,25 @@ const ContactsPageContent: React.FC<ContactPageContentProps> = (props) => {
     const EmptyListLabel = intl.formatMessage({ id: 'contact.EmptyList.header' })
     const EmptyListManualBodyDescription = intl.formatMessage({ id: 'contact.EmptyList.manualCreateCard.body.description' })
 
-    const { refetch } = Contact.useObjects({ where: baseSearchQuery }, { skip: true })
-    const { count, loading: contactsCountLoading } = Contact.useCount({ where: baseSearchQuery })
-    const canManageContacts = get(role, 'canManageContacts', false)
+    const {
+        data: contactsExistenceData,
+        loading: contactsExistenceDataLoading,
+        refetch,
+    } = useGetContactsExistenceQuery({
+        variables: {
+            where: baseSearchQuery,
+        },
+        fetchPolicy: 'network-only',
+    })
+    const contacts = contactsExistenceData?.contacts?.filter(Boolean) || []
+    const canManageContacts = role?.canManageContacts
 
     const { isVerifiedRef, handleImportModalClose, IsVerifiedCheckbox } = useContactImportIsVerifiedCheckbox()
     const [columns, contactNormalizer, contactValidator, contactCreator] = useImporterFunctions({ isVerifiedRef })
 
-    if (contactsCountLoading || loading) return <Loader />
+    if (contactsExistenceDataLoading || loading) return <Loader />
 
-    if (count === 0) {
+    if (contacts.length === 0) {
         return (
             <EmptyListContent
                 label={EmptyListLabel}
@@ -293,12 +307,11 @@ export const ContactPageContentWrapper: React.FC<ContactPageContentProps> = (pro
 const ContactsPage: PageComponentType = () => {
     const filterMeta = useContactsTableFilters()
     const tableColumns = useTableColumns(filterMeta)
-    const { organization, link, isLoading } = useOrganization()
+    const { organization, role, employee, isLoading } = useOrganization()
     const userOrganizationId = get(organization, ['id'])
-    const role = get(link, 'role')
-    const employeeId = get(link, 'id')
+    const employeeId = get(employee, 'id')
 
-    const baseSearchQuery = useMemo(() => ({
+    const baseSearchQuery: ContactBaseSearchQuery = useMemo(() => ({
         organization: { id: userOrganizationId },
     }), [userOrganizationId])
 
