@@ -2,7 +2,7 @@ import { DocumentNode } from 'graphql'
 import { gql } from 'graphql-tag'
 import get from 'lodash/get'
 import { NextPage } from 'next'
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
+import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react'
 
 import { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } from './_utils'
 import { useApolloClient, useMutation, useQuery } from './apollo'
@@ -263,7 +263,7 @@ const AuthProvider: React.FC = ({ children }) => {
 
     const { data, loading: userLoading, refetch } = useQuery(USER_QUERY)
 
-    const [user, setUser] = useState(get(data, 'authenticatedUser', null))
+    const user = useMemo(() => get(data, 'authenticatedUser' || null), [data])
 
     const refetchAuth = useCallback(async () => {
         await refetch()
@@ -277,7 +277,6 @@ const AuthProvider: React.FC = ({ children }) => {
 
             if (item) {
                 await apolloClient.clearStore()
-                setUser(item)
             }
         },
         onError: (error) => {
@@ -286,23 +285,20 @@ const AuthProvider: React.FC = ({ children }) => {
     })
 
     const [signOutMutation, { loading: signOutLoading }] = useMutation(SIGNOUT_MUTATION, {
-        onCompleted: async (data) => {
-            const success = get(data, ['unauthenticateUser', 'success'])
-            if (success) setUser(null)
-
+        onCompleted: async () => {
             removeCookieEmployeeId()
-            await apolloClient.clearStore()
+            await apolloClient.cache.reset()
+            apolloClient.cache.writeQuery({
+                query: USER_QUERY,
+                data: {
+                    authenticatedUser: null,
+                },
+            })
         },
         onError: (error) => {
             console.error(error)
         },
     })
-
-    useEffect(() => {
-        if (!userLoading) {
-            setUser(get(data, 'authenticatedUser', null))
-        }
-    }, [data, userLoading])
 
     return (
         <AuthContext.Provider

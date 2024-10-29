@@ -385,6 +385,7 @@ const OrganizationProvider: React.FC<OrganizationProviderProps> = ({
         if (auth.isLoading) return
         if (!auth.user && activeEmployee !== null) {
             setActiveEmployee(null)
+            setActiveEmployeeId(null)
         }
     }, [auth.user])
 

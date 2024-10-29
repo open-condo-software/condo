@@ -10,7 +10,7 @@ type MessagesKeysType = keyof typeof translations[number]
 type LinkExtendsType = GetActiveOrganizationEmployeeQuery['employees'][number]
 type OrganizationExtendsType = GetActiveOrganizationEmployeeQuery['employees'][number]['organization']
 type EmployeeExtendsType = Omit<GetActiveOrganizationEmployeeQuery['employees'][number], 'organization' | 'role'>
-type RoleExtendsType = Pick<GetActiveOrganizationEmployeeQuery['employees'][number], 'role'>
+type RoleExtendsType = GetActiveOrganizationEmployeeQuery['employees'][number]['role']
 type UserExtendsType = AuthenticatedUserQuery['authenticatedUser']
 
 declare global {

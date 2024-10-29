@@ -43,11 +43,7 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
     }
 }
 
-function getApiUrl (): string {
-    return apolloGraphQLUrl
-}
-
 export const apolloHelperOptions = {
-    uri: getApiUrl,
+    uri: apolloGraphQLUrl,
     cacheConfig,
 }
