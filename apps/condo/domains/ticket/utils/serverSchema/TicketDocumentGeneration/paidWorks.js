@@ -8,6 +8,7 @@ const { getByCondition } = require('@open-condo/keystone/schema')
 
 const { buildExportFile, DOCX_FILE_META } = require('@condo/domains/common/utils/createExportFile')
 const { renderMoney } = require('@condo/domains/common/utils/money')
+const { ToWords } = require('@condo/domains/common/utils/numberToWords')
 const { buildUploadInputFrom } = require('@condo/domains/common/utils/serverSchema/export')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const { DEFAULT_INVOICE_CURRENCY_CODE, INVOICE_STATUS_CANCELED } = require('@condo/domains/marketplace/constants')
@@ -18,13 +19,37 @@ const { formatDateToTimezone } = require('@condo/domains/ticket/utils')
 
 const logger = getLogger('generateDocumentOfPaidWorksCompletion')
 
+const numberToWords = new ToWords()
 const financeInfoClient = new FinanceInfoClient()
 
-const changeUndefinedDataToBlanks = (obj) => {
-    for (let prop in obj) {
-        if (!obj[prop]) prop.startsWith('long') ? obj[prop] = '______________________________________' : obj[prop] = '___________________'
+async function getLocaleToPullFinanceInfoClient (locale, organization) {
+    let psrn = null, organizationAddress = null, iec = null
+
+    if (locale === 'ru') {
+        try {
+            ({ iec, psrn, organizationAddress } = await financeInfoClient.getOrganization(organization.tin))
+        } catch (error) {
+            logger.info({ msg: 'fall financeInfoClient when get organization by tin', organizationId: organization.id, tin: organization.tin, error: error })
+        }
     }
-    return obj
+
+    return { iec, psrn, organizationAddress }
+}
+
+const changeUndefinedDataToBlanks = (documentDataInLine) => {
+    const metaInfoAboutLongWords = {
+        name: true,
+        address: true,
+    }
+    const chengedDocumentDataInLine = Object.fromEntries(Object.entries(documentDataInLine).map(([key, value]) => {
+        let changedValue = {}
+        for (let subValue in value) {
+            changedValue[subValue] = value[subValue] ? value[subValue] : metaInfoAboutLongWords.hasOwnProperty(subValue) ? '____________________________________' : '__________________'
+        }
+        return [key, changedValue]
+    }))
+    
+    return chengedDocumentDataInLine
 }
 
 const buildExportWordFile = async ({ task, documentData, locale, timeZone }) => {
@@ -48,12 +73,9 @@ const buildExportWordFile = async ({ task, documentData, locale, timeZone }) => 
 }
 
 const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, locale, ticket, organization }) => {
-    let psrn = null, organizationAddress = null, iec = null
-    try {
-        ({ iec, psrn, organizationAddress } = await financeInfoClient.getOrganization(organization.tin))
-    } catch (error) {
-        logger.info({ msg: 'fall financeInfoClient when get organization by tin', organizationId: organization.id, tin: organization.tin, error: error })
-    }
+
+    const { iec, psrn, organizationAddress } = await getLocaleToPullFinanceInfoClient(locale, organization)
+
     const { format, timeZone: timeZoneFromUser } = task
 
     const timeZone = normalizeTimeZone(timeZoneFromUser) || DEFAULT_ORGANIZATION_TIMEZONE
@@ -95,9 +117,9 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
             return {
                 number: index + 1,
                 name: row.name || '',
-                count: String(row.count) || '',
+                count: row.count || '',
                 price: !Number.isNaN(price) ? renderMoney(price, currencyCode, locale) : '',
-                vat: !Number.isNaN(vatPercent) ? renderMoney(vatPercent, currencyCode, locale) : '',
+                vat: !Number.isNaN(vatPercent) ? vatPercent : '',
                 sum: !Number.isNaN(sum) ? renderMoney(sum, currencyCode, locale) : '',
             }
         }))
@@ -105,28 +127,32 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
         return acc
     }, [])
 
-    const company = {
-        longName: get(organization, 'name'),
-        psrn: psrn,
-        tin: get(organization, 'tin'),
-        iec: iec,
-        longAddress: organizationAddress,
-        phone: get(organization, 'phone'),
-    }
-
-    const bankDetails = {
-        accountNumber: get(invoices, '0.accountNumber'),
-        bankName: get(invoices, '0.recipient.bankName'),
-        bankAccount: get(invoices, '0.recipient.bankAccount'),
-        bic: get(invoices, '0.recipient.bic'),
-    }
+    // NOTE: There are two different types of data in the document template
+    // The first is data inserted into tables
+    // The second is data inserted directly into the document paragraph
 
     const documentDataInLine = {
         header: {
             generalDate: printDate.format('DD.MM.YYYY'),
         },
-        company : changeUndefinedDataToBlanks(company),
-        bankDetails: changeUndefinedDataToBlanks(bankDetails),
+        company: {
+            name: get(organization, 'name'),
+            psrn: psrn,
+            tin: get(organization, 'tin'),
+            iec: iec,
+            address: organizationAddress,
+            phone: get(organization, 'phone'),
+        },
+        bankDetails: {
+            accountNumber: get(invoices, '0.accountNumber'),
+            bankName: get(invoices, '0.recipient.bankName'),
+            bankAccount: get(invoices, '0.recipient.bankAccount'),
+            bic: get(invoices, '0.recipient.bic'),
+        },
+        totalInWords: {
+            totalSum: numberToWords.format(totalSum, locale),
+            totalVAT: numberToWords.format(totalVAT, locale),
+        },
     }
 
     const documentDataInTable = {
@@ -134,7 +160,7 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
             name: get(contact, 'name') || '',
         },
         listOfWorks,
-        total: {
+        totalInNumbers: {
             totalSum: !Number.isNaN(totalSum) ? renderMoney(totalSum, currencyCode, locale) : '',
             totalVAT: !Number.isNaN(totalVAT) ? renderMoney(totalVAT, currencyCode, locale) : '',
         },
@@ -144,7 +170,7 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
     }
 
     const documentData = {
-        ...documentDataInLine,
+        ...changeUndefinedDataToBlanks(documentDataInLine),
         ...documentDataInTable,
     }
 
