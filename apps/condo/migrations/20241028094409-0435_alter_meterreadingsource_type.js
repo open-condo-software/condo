@@ -7,7 +7,7 @@ exports.up = async (knex) => {
     --
     -- Alter field type on meterreadingsource
     --
-    INSERT INTO "MeterReadingSource" (dv, sender, type, name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy") VALUES (1, '{"dv": 1, "fingerprint": "initial"}', 'meters_billing_integration_kvp24', 'meterReadingSource.metersBillingIntegrationKvp24.name', '3450106c-2613-49e8-8d97-b3adf5edd189', 1, '2024-10-22 00:00:00.000000', '2024-10-22 00:00:00.000000', null, null, null, null);
+    INSERT INTO "MeterReadingSource" (dv, sender, type, name, id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy") VALUES (1, '{"dv": 1, "fingerprint": "initial"}', 'external_integration', 'meterReadingSource.externalIntegration.name', '3450106c-2613-49e8-8d97-b3adf5edd189', 1, '2024-10-22 00:00:00.000000', '2024-10-22 00:00:00.000000', null, null, null, null);
     COMMIT;
     `)
 }
