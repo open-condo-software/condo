@@ -47198,7 +47198,7 @@ enum MeterReadingSourceTypeType {
   social_network
   mobile_app_staff
   crm
-  meters_billing_integration_kvp24
+  external_integration
 }
 
 """ Ticket source. Income call, mobile_app, ... """
