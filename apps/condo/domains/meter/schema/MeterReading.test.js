@@ -1762,7 +1762,7 @@ describe('MeterReading', () => {
             [meter] = await createTestMeter(admin, organization, property, resource, {})
         })
 
-        test('Service user can create and update', async () => {
+        test('Service user with b2b access rights can create and update', async () => {
             const serviceUserClient = await makeClientWithServiceUser()
             const [app] = await createTestB2BApp(admin)
             await createTestB2BAppContext(admin, app, organization, { status: 'Finished' })
@@ -1789,6 +1789,38 @@ describe('MeterReading', () => {
             })
 
             expect(updatedMeterReading.billingStatusText).toBe(updatedAttrs.billingStatusText)
+        })
+
+        test('Service user without b2b access rights can\'t create and update', async () => {
+            const serviceUserClient = await makeClientWithServiceUser()
+            const [app] = await createTestB2BApp(admin)
+            await createTestB2BAppContext(admin, app, organization, { status: 'Finished' })
+
+            await expectToThrowAccessDeniedErrorToObj(
+                async () => {
+                    await createTestMeterReading(serviceUserClient, meter, source, {
+                        billingStatus: 'declined',
+                        billingStatusText: faker.lorem.sentence(5),
+                    })
+                },
+                {},
+            )
+            const [meterReading, attrs] = await createTestMeterReading(admin, meter, source, {
+                billingStatus: 'declined',
+                billingStatusText: faker.lorem.sentence(5),
+            })
+
+            expect(meterReading.billingStatus).toBe('declined')
+            expect(meterReading.billingStatusText).toBe(attrs.billingStatusText)
+
+            await expectToThrowAccessDeniedErrorToObj(
+                async () => {
+                    await updateTestMeterReading(serviceUserClient, meterReading.id, {
+                        billingStatusText: 'updated billing status text',
+                    })
+                },
+                {},
+            )
         })
 
         test('admin can create and update', async () => {
