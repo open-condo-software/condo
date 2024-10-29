@@ -37,7 +37,7 @@ type EmployeeType = keyof OpenCondoNext.EmployeeType extends never
     : OpenCondoNext.LinkType
 type RoleType = keyof OpenCondoNext.RoleType extends never
     ? any
-    : OpenCondoNext.LinkType
+    : OpenCondoNext.RoleType
 type GetActiveOrganizationEmployeeQueryType = keyof OpenCondoNext.GetActiveOrganizationEmployeeQueryType extends never
     ? any
     : OpenCondoNext.GetActiveOrganizationEmployeeQueryType
