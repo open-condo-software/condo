@@ -110,19 +110,23 @@ function transformToPlainObject (input) {
 }
 
 function isDateStrValid (dateStr) {
-    return isDateStrValidUtils(dateStr, { offsets: false, formats: [DATE_FORMAT, UTC_DATE_FORMAT] })
+    return isDateStrValidUtils(dateStr, [DATE_FORMAT, UTC_DATE_FORMAT])
 }
 
 function tryToISO (dateStr) {
-    return tryToISOUtils(dateStr, [DATE_FORMAT])
+    return tryToISOUtils(dateStr, [DATE_FORMAT, UTC_DATE_FORMAT])
 }
 
 function getDateStrValidationError (context, locale, reading) {
+    const isoDateFormatMessage = i18n('iso.date.format', { locale })
     const getError = (datePath) => new GQLError({
         ...ERRORS.INVALID_DATE,
         messageInterpolation: {
             columnName: i18n(DATE_FIELD_PATH_TO_TRANSLATION[datePath], { locale }),
-            format: [UTC_DATE_FORMAT, DATE_FORMAT].join('", "'),
+            format: [
+                UTC_DATE_FORMAT,
+                isoDateFormatMessage,
+            ].join('", "'),
         },
     }, context)
 

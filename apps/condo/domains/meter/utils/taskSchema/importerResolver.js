@@ -10,7 +10,6 @@ const {
     ERROR,
 } = require('@condo/domains/common/constants/import')
 const { DEFAULT_RECORDS_LIMIT_FOR_IMPORT } = require('@condo/domains/common/constants/import')
-const { ISO_DATE_FORMAT, EUROPEAN_DATE_FORMAT } = require('@condo/domains/common/constants/import')
 const {
     HOT_WATER_METER_RESOURCE_ID,
     COLD_WATER_METER_RESOURCE_ID,
@@ -184,7 +183,10 @@ async function getErrors (keystone, format, locale, columns, mappers) {
     } }) : ''
 
     const columnNameMask = '#####'
-    const InvalidDateMessage = i18n('meter.import.error.InvalidDate', { locale, meta: { columnName: columnNameMask, format: [ISO_DATE_FORMAT, EUROPEAN_DATE_FORMAT].join('", "') } })
+    const InvalidDateMessage = i18n('meter.import.error.InvalidDate', { locale, meta: { columnName: columnNameMask, format: [
+        i18n('iso.date.format', { locale }),
+        i18n('european.date.format', { locale }),
+    ].join('", "') } })
     const InvalidDateMessageGetter = (columnName) => InvalidDateMessage.replace(columnNameMask, columnName)
 
     return {

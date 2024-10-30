@@ -9,9 +9,43 @@ dayjs.extend(customParseFormat)
 dayjs.extend(utc)
 
 const SYMBOLS_TO_CUT_FROM_DATES_REGEXP = /[^+\-TZ_:.,( )/\d]/gi // -_:.,()/ recognizable by dayjs https://day.js.org/docs/en/parse/string-format
-const DATE_WITH_OFFSET_REGEXP = /([T\s]\d{2}:\d{2}:\d{2}(\.\d{1,3})?)[+-](\d{2}):?(\d{2})$/ // +5000 | +50:00
-const UTC_STRING_FORMAT = 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'
-const DEFAULT_DATE_VALIDATION_OPTIONS = { offsets: false, formats: DEFAULT_DATE_PARSING_FORMATS }
+const DATE_WITH_OFFSET_REGEXP = /[+-](\d{2}):?(\d{2})$/ // +5000 | +50:00
+
+function isUtcFormat (format) {
+    return format.endsWith('Z]')
+}
+
+function isOffsetFormat (format) {
+    return format.endsWith('Z') // ...Z or ...ZZ
+}
+
+/** true if date has ending like +0000 +00:00 -00:00...
+ * @example
+ * 2024-01-01 - false
+ * 01-01-2024 - true
+ * 2024-01-01T00:00:00+00:00 - true
+ * */
+function isOffsetDate (dateStr) {
+    return DATE_WITH_OFFSET_REGEXP.test(dateStr)
+}
+
+/**
+ * Helper for parcing date in multiple utc formats, as dayjs.utc accepts only one
+ * @param dateStr
+ * @param {Array<string>} utcFormats - not empty array of utc formats (with Z)
+ * @param strict - use formats as restriction - true, else as addition
+ * @returns {dayjs.Dayjs} is invalid if it could not parse any or utcFormats is empty
+ */
+function tryParseUtcDate (dateStr, utcFormats, strict = false) {
+    let date = dayjs('invalid date')
+    for (const format of utcFormats) {
+        const date = dayjs.utc(dateStr, format, strict)
+        if (date.isValid()) {
+            return date
+        }
+    }
+    return date
+}
 
 /**
  * Clear bad user input
@@ -36,22 +70,31 @@ function clearDateStr (dateStr) {
 /**
  * Validates date strings
  * @param {string} dateStr
- * @param options - set parsing formats, enable offset formats
- * @param {Array<string>?} options.formats - date parsing formats. Must be not empty array
- * @param {boolean?} options.offsets - enable check for dates like 2024-01-20T00:00:00 with +00:00 or +0000
+ * @param {Array<string>?} formats - date parsing formats. Must be not empty array
  * @return {boolean}
  */
-function isDateStrValid (dateStr, options = {}) {
+function isDateStrValid (dateStr, formats = DEFAULT_DATE_PARSING_FORMATS) {
     if (!dateStr || !isString(dateStr)) {
         return false
     }
 
-    options = { ...DEFAULT_DATE_VALIDATION_OPTIONS, ...options }
+    // dayjs does recognize these formats, so no additional manipulations required
+    if (dayjs(dateStr, formats, true).isValid()) {
+        return true
+    }
 
-    if (options.offsets && DATE_WITH_OFFSET_REGEXP.test(dateStr)) {
+    if (isOffsetDate(dateStr)) {
+        let offsetFormats = formats.filter(format => isOffsetFormat(format))
+        if (!offsetFormats.length) {
+            return dayjs(dateStr, formats, true).isValid()
+        }
+        if (dayjs(dateStr, formats, true).isValid()) {
+            return true
+        }
+
         // we need to pass dateStr to dayjs in strict mode to check valid values in MM, DD, HH, mm...
-        // but dayjs can not parse this format strictly
-        // so lets manually drop offsets, because they are irrelevant, add utc ending and check validity
+        // but dayjs can not parse this format strictly https://github.com/iamkun/dayjs/issues/929
+        // so lets manually drop offsets from date string and format and check what's left
 
         const maybeSemicolon = dateStr[dateStr.length - 3]
         let offsetStartIndex = dateStr.length - 5
@@ -59,23 +102,21 @@ function isDateStrValid (dateStr, options = {}) {
             offsetStartIndex = dateStr.length - 6
         }
         dateStr = dateStr.substring(0, offsetStartIndex)
+        offsetFormats = offsetFormats.map(format => {
+            const offsetFromEnd = format.endsWith('ZZ') ? 2 : 1
+            return format.substring(0, format.length - offsetFromEnd)
+        })
 
-        const dateStrHasMilliseconds = dateStr[dateStr.length - 4] === '.'
-        if (dateStrHasMilliseconds) {
-            dateStr += 'Z'
-        } else {
-            dateStr += '.000Z'
-        }
-        return dayjs(dateStr, UTC_STRING_FORMAT, true).isValid()
+        return dayjs(dateStr, offsetFormats, true).isValid()
     }
 
-    return dayjs(dateStr, options.formats, true).isValid()
+    return false
 }
 
 /**
  * Parses strings in UTC format always. Extra formats can be passed.
  * @param {string} dateStr
- * @param {Array<string>} overrideFormats - valid input formats. Must be not empty array
+ * @param {Array<string>?} overrideFormats - valid input formats. Must be not empty array
  * @returns {string|undefined} dateString in UTC or undefined for invalid date
  */
 function tryToISO (dateStr, overrideFormats = DEFAULT_DATE_PARSING_FORMATS) {
@@ -86,7 +127,8 @@ function tryToISO (dateStr, overrideFormats = DEFAULT_DATE_PARSING_FORMATS) {
     /** @type {dayjs.Dayjs} */
     let date
     if (dateStr.endsWith('Z')) {
-        date = dayjs.utc(dateStr, UTC_STRING_FORMAT, false)
+        const utcStringFormats = overrideFormats.filter(format => isUtcFormat(format))
+        date = tryParseUtcDate(dateStr, utcStringFormats, false)
     } else {
         date = dayjs(dateStr, overrideFormats, false)
     }

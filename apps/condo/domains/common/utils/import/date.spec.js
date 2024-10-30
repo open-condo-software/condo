@@ -53,14 +53,14 @@ describe('importDate.utils', () => {
         })
 
         it('should handle offset dates correctly', () => {
-            expect(isDateStrValid('2024-01-01T00:00:00+00:00', { offsets: true })).toBe(true)
-            expect(isDateStrValid('2024-01-01T00:00:00+5000', { offsets: true })).toBe(true)
+            expect(isDateStrValid('2024-01-01T00:00:00+00:00', ['YYYY-MM-DDTHH:mm:ssZZ'])).toBe(true)
+            expect(isDateStrValid('2024-01-01T00:00:00+5000', ['YYYY-MM-DDTHH:mm:ssZ'])).toBe(true)
         })
 
         it('should allow custom formats', () => {
             const customFormat = 'MM/YYYY'
-            expect(isDateStrValid('01/2024', { formats: [customFormat] })).toBe(true)
-            expect(isDateStrValid('13/2024', { formats: [customFormat] })).toBe(false)
+            expect(isDateStrValid('01/2024', [customFormat])).toBe(true)
+            expect(isDateStrValid('13/2024', [customFormat])).toBe(false)
         })
     })
 
@@ -84,6 +84,17 @@ describe('importDate.utils', () => {
             const customFormats = ['MM/YYYY', 'YYYY/MM/DD']
             expect(tryToISO('01/2024', customFormats)).toBe(dayjs('2024-01-01T00:00:00').toISOString())
             expect(tryToISO('2024/01/01', customFormats)).toBe(dayjs('2024-01-01T00:00:00').toISOString())
+        })
+
+        describe('should work with multiple utc formats', () => {
+            const utcFormats = ['YYYY-MM-DDTHH:mm:ss.SSS[Z]', 'YYYY-MM-DD[Z]']
+            const cases = [
+                ['2024-01-02Z', dayjs.utc('2024-01-02Z', 'YYYY-MM-DD[Z]').toISOString()],
+                ['2024-01-02T11:00:00.111Z', dayjs.utc('2024-01-02T11:00:00.111Z', 'YYYY-MM-DDTHH:mm:ss.SSS[Z]').toISOString()],
+            ]
+            it.each(cases)('%p', (date, expectedDate) => {
+                expect(tryToISO(date, utcFormats)).toBe(expectedDate)
+            })
         })
     })
 
