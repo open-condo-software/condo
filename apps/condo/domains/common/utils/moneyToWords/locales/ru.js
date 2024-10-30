@@ -14,10 +14,14 @@ const smallDischarges = [
     ['-', 'одна', 'две'],
 ]
 
-const currency = [
+const currencyRUB = [
     ['рубл', 'ей', 'ь', 'я'],
     ['копе', 'ек', 'йка', 'йки'],
 ]
+
+const currency = {
+    'RUB': currencyRUB,
+}
 
 module.exports = {
     bigDischarges,

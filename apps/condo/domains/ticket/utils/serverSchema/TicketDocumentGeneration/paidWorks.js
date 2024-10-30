@@ -8,7 +8,7 @@ const { getByCondition } = require('@open-condo/keystone/schema')
 
 const { buildExportFile, DOCX_FILE_META } = require('@condo/domains/common/utils/createExportFile')
 const { renderMoney } = require('@condo/domains/common/utils/money')
-const { ToWords } = require('@condo/domains/common/utils/numberToWords')
+const { moneyToWords } = require('@condo/domains/common/utils/moneyToWords')
 const { buildUploadInputFrom } = require('@condo/domains/common/utils/serverSchema/export')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const { DEFAULT_INVOICE_CURRENCY_CODE, INVOICE_STATUS_CANCELED } = require('@condo/domains/marketplace/constants')
@@ -19,7 +19,6 @@ const { formatDateToTimezone } = require('@condo/domains/ticket/utils')
 
 const logger = getLogger('generateDocumentOfPaidWorksCompletion')
 
-const numberToWords = new ToWords()
 const financeInfoClient = new FinanceInfoClient()
 
 async function getLocaleToPullFinanceInfoClient (locale, organization) {
@@ -73,7 +72,6 @@ const buildExportWordFile = async ({ task, documentData, locale, timeZone }) => 
 }
 
 const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, locale, ticket, organization }) => {
-
     const { iec, psrn, organizationAddress } = await getLocaleToPullFinanceInfoClient(locale, organization)
 
     const { format, timeZone: timeZoneFromUser } = task
@@ -150,8 +148,8 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
             bic: get(invoices, '0.recipient.bic'),
         },
         totalInWords: {
-            totalSum: numberToWords.format(totalSum, locale),
-            totalVAT: numberToWords.format(totalVAT, locale),
+            totalSum: moneyToWords(totalSum.toFixed(2), { locale, currencyCode }),
+            totalVAT: moneyToWords(totalVAT.toFixed(2), { locale, currencyCode }),
         },
     }
 
