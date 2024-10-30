@@ -44,7 +44,7 @@ mutation createBankSyncTask ($data: BankSyncTaskCreateInput!) {
     }
 }
 
-mutation updateBankSyncTask ($data: BankSyncTaskUpdateInput!, $id: ID!) {
+mutation updateBankSyncTask ($id: ID!, $data: BankSyncTaskUpdateInput!) {
     task: updateBankSyncTask(
         data: $data,
         id: $id

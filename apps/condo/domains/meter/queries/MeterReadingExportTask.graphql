@@ -30,7 +30,7 @@ mutation createMeterReadingExportTask ($data: MeterReadingExportTaskCreateInput!
     }
 }
 
-mutation updateMeterReadingExportTask ($data: MeterReadingExportTaskUpdateInput!, $id: ID!) {
+mutation updateMeterReadingExportTask ($id: ID!, $data: MeterReadingExportTaskUpdateInput!) {
     task: updateMeterReadingExportTask(
         data: $data,
         id: $id

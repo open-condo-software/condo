@@ -38,7 +38,7 @@ mutation createMeterReadingsImportTask ($data: MeterReadingsImportTaskCreateInpu
     }
 }
 
-mutation updateMeterReadingsImportTask ($data: MeterReadingsImportTaskUpdateInput!, $id: ID!) {
+mutation updateMeterReadingsImportTask ($id: ID!, $data: MeterReadingsImportTaskUpdateInput!) {
     task: updateMeterReadingsImportTask(
         data: $data,
         id: $id

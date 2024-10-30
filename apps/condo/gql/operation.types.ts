@@ -18,8 +18,8 @@ export type CreateBankAccountReportTaskMutationVariables = Types.Exact<{
 export type CreateBankAccountReportTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'BankAccountReportTask', id: string, progress?: number | null, status?: Types.BankAccountReportTaskStatusType | null } | null }
 
 export type UpdateBankAccountReportTaskMutationVariables = Types.Exact<{
-    data: Types.BankAccountReportTaskUpdateInput
     id: Types.Scalars['ID']['input']
+    data: Types.BankAccountReportTaskUpdateInput
 }>
 
 
@@ -40,8 +40,8 @@ export type CreateBankSyncTaskMutationVariables = Types.Exact<{
 export type CreateBankSyncTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'BankSyncTask', id: string, status?: Types.BankSyncTaskStatusType | null, processedCount?: number | null, totalCount?: number | null, meta?: any | null, property?: { __typename?: 'Property', id: string } | null, options?: { __typename?: 'BankSyncTaskOptions', type?: string | null } | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null }
 
 export type UpdateBankSyncTaskMutationVariables = Types.Exact<{
-    data: Types.BankSyncTaskUpdateInput
     id: Types.Scalars['ID']['input']
+    data: Types.BankSyncTaskUpdateInput
 }>
 
 
@@ -70,8 +70,8 @@ export type CreateContactExportTaskMutationVariables = Types.Exact<{
 export type CreateContactExportTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'ContactExportTask', id: string, status?: Types.ContactExportTaskStatusType | null, totalRecordsCount?: number | null, exportedRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null }
 
 export type UpdateContactExportTaskMutationVariables = Types.Exact<{
-    data: Types.ContactExportTaskUpdateInput
     id: Types.Scalars['ID']['input']
+    data: Types.ContactExportTaskUpdateInput
 }>
 
 
@@ -92,8 +92,8 @@ export type CreateMeterReadingExportTaskMutationVariables = Types.Exact<{
 export type CreateMeterReadingExportTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'MeterReadingExportTask', id: string, status?: Types.MeterReadingExportTaskStatusType | null, totalRecordsCount?: number | null, exportedRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null }
 
 export type UpdateMeterReadingExportTaskMutationVariables = Types.Exact<{
-    data: Types.MeterReadingExportTaskUpdateInput
     id: Types.Scalars['ID']['input']
+    data: Types.MeterReadingExportTaskUpdateInput
 }>
 
 
@@ -114,8 +114,8 @@ export type CreateMeterReadingsImportTaskMutationVariables = Types.Exact<{
 export type CreateMeterReadingsImportTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'MeterReadingsImportTask', id: string, status?: Types.MeterReadingsImportTaskStatusType | null, errorMessage?: string | null, totalRecordsCount?: number | null, processedRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null, errorFile?: { __typename?: 'File', publicUrl?: string | null } | null } | null }
 
 export type UpdateMeterReadingsImportTaskMutationVariables = Types.Exact<{
-    data: Types.MeterReadingsImportTaskUpdateInput
     id: Types.Scalars['ID']['input']
+    data: Types.MeterReadingsImportTaskUpdateInput
 }>
 
 
@@ -136,8 +136,8 @@ export type CreateNewsItemRecipientsExportTaskMutationVariables = Types.Exact<{
 export type CreateNewsItemRecipientsExportTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'NewsItemRecipientsExportTask', id: string, status?: Types.NewsItemRecipientsExportTaskStatusType | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null }
 
 export type UpdateNewsItemRecipientsExportTaskMutationVariables = Types.Exact<{
-    data: Types.NewsItemRecipientsExportTaskUpdateInput
     id: Types.Scalars['ID']['input']
+    data: Types.NewsItemRecipientsExportTaskUpdateInput
 }>
 
 
@@ -196,8 +196,8 @@ export type CreateIncidentExportTaskMutationVariables = Types.Exact<{
 export type CreateIncidentExportTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'IncidentExportTask', id: string, status?: Types.IncidentExportTaskStatusType | null, totalRecordsCount?: number | null, exportedRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null }
 
 export type UpdateIncidentExportTaskMutationVariables = Types.Exact<{
-    data: Types.IncidentExportTaskUpdateInput
     id: Types.Scalars['ID']['input']
+    data: Types.IncidentExportTaskUpdateInput
 }>
 
 
@@ -218,8 +218,8 @@ export type CreateTicketDocumentGenerationTaskMutationVariables = Types.Exact<{
 export type CreateTicketDocumentGenerationTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'TicketDocumentGenerationTask', id: string, progress?: number | null, status?: Types.TicketDocumentGenerationTaskStatusType | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null }
 
 export type UpdateTicketDocumentGenerationTaskMutationVariables = Types.Exact<{
-    data: Types.TicketDocumentGenerationTaskUpdateInput
     id: Types.Scalars['ID']['input']
+    data: Types.TicketDocumentGenerationTaskUpdateInput
 }>
 
 
@@ -240,8 +240,8 @@ export type CreateTicketExportTaskMutationVariables = Types.Exact<{
 export type CreateTicketExportTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'TicketExportTask', id: string, status?: Types.TicketExportTaskStatusType | null, totalRecordsCount?: number | null, exportedRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null }
 
 export type UpdateTicketExportTaskMutationVariables = Types.Exact<{
-    data: Types.TicketExportTaskUpdateInput
     id: Types.Scalars['ID']['input']
+    data: Types.TicketExportTaskUpdateInput
 }>
 
 

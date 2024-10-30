@@ -90,7 +90,7 @@ export type CreateBankAccountReportTaskMutationHookResult = ReturnType<typeof us
 export type CreateBankAccountReportTaskMutationResult = Apollo.MutationResult<Types.CreateBankAccountReportTaskMutation>
 export type CreateBankAccountReportTaskMutationOptions = Apollo.BaseMutationOptions<Types.CreateBankAccountReportTaskMutation, Types.CreateBankAccountReportTaskMutationVariables>
 export const UpdateBankAccountReportTaskDocument = gql`
-    mutation updateBankAccountReportTask($data: BankAccountReportTaskUpdateInput!, $id: ID!) {
+    mutation updateBankAccountReportTask($id: ID!, $data: BankAccountReportTaskUpdateInput!) {
   task: updateBankAccountReportTask(data: $data, id: $id) {
     id
     progress
@@ -114,8 +114,8 @@ export type UpdateBankAccountReportTaskMutationFn = Apollo.MutationFunction<Type
  * @example
  * const [updateBankAccountReportTaskMutation, { data, loading, error }] = useUpdateBankAccountReportTaskMutation({
  *   variables: {
- *      data: // value for 'data'
  *      id: // value for 'id'
+ *      data: // value for 'data'
  *   },
  * });
  */
@@ -230,7 +230,7 @@ export type CreateBankSyncTaskMutationHookResult = ReturnType<typeof useCreateBa
 export type CreateBankSyncTaskMutationResult = Apollo.MutationResult<Types.CreateBankSyncTaskMutation>
 export type CreateBankSyncTaskMutationOptions = Apollo.BaseMutationOptions<Types.CreateBankSyncTaskMutation, Types.CreateBankSyncTaskMutationVariables>
 export const UpdateBankSyncTaskDocument = gql`
-    mutation updateBankSyncTask($data: BankSyncTaskUpdateInput!, $id: ID!) {
+    mutation updateBankSyncTask($id: ID!, $data: BankSyncTaskUpdateInput!) {
   task: updateBankSyncTask(data: $data, id: $id) {
     id
     status
@@ -266,8 +266,8 @@ export type UpdateBankSyncTaskMutationFn = Apollo.MutationFunction<Types.UpdateB
  * @example
  * const [updateBankSyncTaskMutation, { data, loading, error }] = useUpdateBankSyncTaskMutation({
  *   variables: {
- *      data: // value for 'data'
  *      id: // value for 'id'
+ *      data: // value for 'data'
  *   },
  * });
  */
@@ -526,7 +526,7 @@ export type CreateContactExportTaskMutationHookResult = ReturnType<typeof useCre
 export type CreateContactExportTaskMutationResult = Apollo.MutationResult<Types.CreateContactExportTaskMutation>
 export type CreateContactExportTaskMutationOptions = Apollo.BaseMutationOptions<Types.CreateContactExportTaskMutation, Types.CreateContactExportTaskMutationVariables>
 export const UpdateContactExportTaskDocument = gql`
-    mutation updateContactExportTask($data: ContactExportTaskUpdateInput!, $id: ID!) {
+    mutation updateContactExportTask($id: ID!, $data: ContactExportTaskUpdateInput!) {
   task: updateContactExportTask(data: $data, id: $id) {
     id
     status
@@ -555,8 +555,8 @@ export type UpdateContactExportTaskMutationFn = Apollo.MutationFunction<Types.Up
  * @example
  * const [updateContactExportTaskMutation, { data, loading, error }] = useUpdateContactExportTaskMutation({
  *   variables: {
- *      data: // value for 'data'
  *      id: // value for 'id'
+ *      data: // value for 'data'
  *   },
  * });
  */
@@ -657,7 +657,7 @@ export type CreateMeterReadingExportTaskMutationHookResult = ReturnType<typeof u
 export type CreateMeterReadingExportTaskMutationResult = Apollo.MutationResult<Types.CreateMeterReadingExportTaskMutation>
 export type CreateMeterReadingExportTaskMutationOptions = Apollo.BaseMutationOptions<Types.CreateMeterReadingExportTaskMutation, Types.CreateMeterReadingExportTaskMutationVariables>
 export const UpdateMeterReadingExportTaskDocument = gql`
-    mutation updateMeterReadingExportTask($data: MeterReadingExportTaskUpdateInput!, $id: ID!) {
+    mutation updateMeterReadingExportTask($id: ID!, $data: MeterReadingExportTaskUpdateInput!) {
   task: updateMeterReadingExportTask(data: $data, id: $id) {
     id
     status
@@ -686,8 +686,8 @@ export type UpdateMeterReadingExportTaskMutationFn = Apollo.MutationFunction<Typ
  * @example
  * const [updateMeterReadingExportTaskMutation, { data, loading, error }] = useUpdateMeterReadingExportTaskMutation({
  *   variables: {
- *      data: // value for 'data'
  *      id: // value for 'id'
+ *      data: // value for 'data'
  *   },
  * });
  */
@@ -796,7 +796,7 @@ export type CreateMeterReadingsImportTaskMutationHookResult = ReturnType<typeof 
 export type CreateMeterReadingsImportTaskMutationResult = Apollo.MutationResult<Types.CreateMeterReadingsImportTaskMutation>
 export type CreateMeterReadingsImportTaskMutationOptions = Apollo.BaseMutationOptions<Types.CreateMeterReadingsImportTaskMutation, Types.CreateMeterReadingsImportTaskMutationVariables>
 export const UpdateMeterReadingsImportTaskDocument = gql`
-    mutation updateMeterReadingsImportTask($data: MeterReadingsImportTaskUpdateInput!, $id: ID!) {
+    mutation updateMeterReadingsImportTask($id: ID!, $data: MeterReadingsImportTaskUpdateInput!) {
   task: updateMeterReadingsImportTask(data: $data, id: $id) {
     id
     status
@@ -829,8 +829,8 @@ export type UpdateMeterReadingsImportTaskMutationFn = Apollo.MutationFunction<Ty
  * @example
  * const [updateMeterReadingsImportTaskMutation, { data, loading, error }] = useUpdateMeterReadingsImportTaskMutation({
  *   variables: {
- *      data: // value for 'data'
  *      id: // value for 'id'
+ *      data: // value for 'data'
  *   },
  * });
  */
@@ -927,7 +927,7 @@ export type CreateNewsItemRecipientsExportTaskMutationHookResult = ReturnType<ty
 export type CreateNewsItemRecipientsExportTaskMutationResult = Apollo.MutationResult<Types.CreateNewsItemRecipientsExportTaskMutation>
 export type CreateNewsItemRecipientsExportTaskMutationOptions = Apollo.BaseMutationOptions<Types.CreateNewsItemRecipientsExportTaskMutation, Types.CreateNewsItemRecipientsExportTaskMutationVariables>
 export const UpdateNewsItemRecipientsExportTaskDocument = gql`
-    mutation updateNewsItemRecipientsExportTask($data: NewsItemRecipientsExportTaskUpdateInput!, $id: ID!) {
+    mutation updateNewsItemRecipientsExportTask($id: ID!, $data: NewsItemRecipientsExportTaskUpdateInput!) {
   task: updateNewsItemRecipientsExportTask(data: $data, id: $id) {
     id
     status
@@ -954,8 +954,8 @@ export type UpdateNewsItemRecipientsExportTaskMutationFn = Apollo.MutationFuncti
  * @example
  * const [updateNewsItemRecipientsExportTaskMutation, { data, loading, error }] = useUpdateNewsItemRecipientsExportTaskMutation({
  *   variables: {
- *      data: // value for 'data'
  *      id: // value for 'id'
+ *      data: // value for 'data'
  *   },
  * });
  */
@@ -1378,7 +1378,7 @@ export type CreateIncidentExportTaskMutationHookResult = ReturnType<typeof useCr
 export type CreateIncidentExportTaskMutationResult = Apollo.MutationResult<Types.CreateIncidentExportTaskMutation>
 export type CreateIncidentExportTaskMutationOptions = Apollo.BaseMutationOptions<Types.CreateIncidentExportTaskMutation, Types.CreateIncidentExportTaskMutationVariables>
 export const UpdateIncidentExportTaskDocument = gql`
-    mutation updateIncidentExportTask($data: IncidentExportTaskUpdateInput!, $id: ID!) {
+    mutation updateIncidentExportTask($id: ID!, $data: IncidentExportTaskUpdateInput!) {
   task: updateIncidentExportTask(data: $data, id: $id) {
     id
     status
@@ -1407,8 +1407,8 @@ export type UpdateIncidentExportTaskMutationFn = Apollo.MutationFunction<Types.U
  * @example
  * const [updateIncidentExportTaskMutation, { data, loading, error }] = useUpdateIncidentExportTaskMutation({
  *   variables: {
- *      data: // value for 'data'
  *      id: // value for 'id'
+ *      data: // value for 'data'
  *   },
  * });
  */
@@ -1507,7 +1507,7 @@ export type CreateTicketDocumentGenerationTaskMutationHookResult = ReturnType<ty
 export type CreateTicketDocumentGenerationTaskMutationResult = Apollo.MutationResult<Types.CreateTicketDocumentGenerationTaskMutation>
 export type CreateTicketDocumentGenerationTaskMutationOptions = Apollo.BaseMutationOptions<Types.CreateTicketDocumentGenerationTaskMutation, Types.CreateTicketDocumentGenerationTaskMutationVariables>
 export const UpdateTicketDocumentGenerationTaskDocument = gql`
-    mutation updateTicketDocumentGenerationTask($data: TicketDocumentGenerationTaskUpdateInput!, $id: ID!) {
+    mutation updateTicketDocumentGenerationTask($id: ID!, $data: TicketDocumentGenerationTaskUpdateInput!) {
   task: updateTicketDocumentGenerationTask(data: $data, id: $id) {
     id
     progress
@@ -1535,8 +1535,8 @@ export type UpdateTicketDocumentGenerationTaskMutationFn = Apollo.MutationFuncti
  * @example
  * const [updateTicketDocumentGenerationTaskMutation, { data, loading, error }] = useUpdateTicketDocumentGenerationTaskMutation({
  *   variables: {
- *      data: // value for 'data'
  *      id: // value for 'id'
+ *      data: // value for 'data'
  *   },
  * });
  */
@@ -1637,7 +1637,7 @@ export type CreateTicketExportTaskMutationHookResult = ReturnType<typeof useCrea
 export type CreateTicketExportTaskMutationResult = Apollo.MutationResult<Types.CreateTicketExportTaskMutation>
 export type CreateTicketExportTaskMutationOptions = Apollo.BaseMutationOptions<Types.CreateTicketExportTaskMutation, Types.CreateTicketExportTaskMutationVariables>
 export const UpdateTicketExportTaskDocument = gql`
-    mutation updateTicketExportTask($data: TicketExportTaskUpdateInput!, $id: ID!) {
+    mutation updateTicketExportTask($id: ID!, $data: TicketExportTaskUpdateInput!) {
   task: updateTicketExportTask(data: $data, id: $id) {
     id
     status
@@ -1666,8 +1666,8 @@ export type UpdateTicketExportTaskMutationFn = Apollo.MutationFunction<Types.Upd
  * @example
  * const [updateTicketExportTaskMutation, { data, loading, error }] = useUpdateTicketExportTaskMutation({
  *   variables: {
- *      data: // value for 'data'
  *      id: // value for 'id'
+ *      data: // value for 'data'
  *   },
  * });
  */

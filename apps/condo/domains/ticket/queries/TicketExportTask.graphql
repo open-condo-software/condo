@@ -30,7 +30,7 @@ mutation createTicketExportTask ($data: TicketExportTaskCreateInput!) {
     }
 }
 
-mutation updateTicketExportTask ($data: TicketExportTaskUpdateInput!, $id: ID!) {
+mutation updateTicketExportTask ($id: ID!, $data: TicketExportTaskUpdateInput!) {
     task: updateTicketExportTask(
         data: $data,
         id: $id

@@ -26,7 +26,7 @@ mutation createNewsItemRecipientsExportTask ($data: NewsItemRecipientsExportTask
     }
 }
 
-mutation updateNewsItemRecipientsExportTask ($data: NewsItemRecipientsExportTaskUpdateInput!, $id: ID!) {
+mutation updateNewsItemRecipientsExportTask ($id: ID!, $data: NewsItemRecipientsExportTaskUpdateInput!) {
     task: updateNewsItemRecipientsExportTask(
         data: $data,
         id: $id

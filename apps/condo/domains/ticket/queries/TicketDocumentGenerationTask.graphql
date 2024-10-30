@@ -28,7 +28,7 @@ mutation createTicketDocumentGenerationTask ($data: TicketDocumentGenerationTask
     }
 }
 
-mutation updateTicketDocumentGenerationTask ($data: TicketDocumentGenerationTaskUpdateInput!, $id: ID!) {
+mutation updateTicketDocumentGenerationTask ($id: ID!, $data: TicketDocumentGenerationTaskUpdateInput!) {
     task: updateTicketDocumentGenerationTask(
         data: $data,
         id: $id

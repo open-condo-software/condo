@@ -20,7 +20,7 @@ mutation createBankAccountReportTask ($data: BankAccountReportTaskCreateInput!) 
     }
 }
 
-mutation updateBankAccountReportTask ($data: BankAccountReportTaskUpdateInput!, $id: ID!) {
+mutation updateBankAccountReportTask ($id: ID!, $data: BankAccountReportTaskUpdateInput!) {
     task: updateBankAccountReportTask(
         data: $data,
         id: $id
