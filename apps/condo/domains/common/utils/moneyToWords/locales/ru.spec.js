@@ -19,13 +19,13 @@ const testIntegers = [
     [86429753, 'Восемьдесят шесть миллионов четыреста двадцать девять тысяч семьсот пятьдесят три'],
 ]
 
-describe(`Test Integers with optioins = { format: '$WholeString' }`, () => {
+describe('Test Integers with optioins = { format: `$WholeString` }', () => {
     test.concurrent.each(testIntegers)('moneyToWords %d => %s', (input, expected) => {
-        expect(moneyToWords(input, {locale, currencyCode, format: '$WholeString'})).toBe(expected)
+        expect(moneyToWords(input, { locale, currencyCode, format: '$WholeString' })).toBe(expected)
     })
 })
 
-describe(`Test Negative Integers with optioins = { format: '$WholeString' }`, () => {
+describe('Test Negative Integers with optioins = { format: `$WholeString` }', () => {
     const testNegativeIntegers = cloneDeep(testIntegers)
     testNegativeIntegers.map((row, i) => {
         if (i === 0) {
@@ -35,7 +35,7 @@ describe(`Test Negative Integers with optioins = { format: '$WholeString' }`, ()
     })
 
     test.concurrent.each(testNegativeIntegers)('moneyToWords %d => %s', (input, expected) => {
-        expect(moneyToWords(input, {locale, currencyCode, format: '$WholeString'})).toBe(expected)
+        expect(moneyToWords(input, { locale, currencyCode, format: '$WholeString' })).toBe(expected)
     })
 })
 
@@ -52,9 +52,9 @@ const testIntegersWithCurrency = [
     [86429753, 'Восемьдесят шесть миллионов четыреста двадцать девять тысяч семьсот пятьдесят три рубля'],
 ]
 
-describe(`Test Integers with optioins = { format: '$WholeString $wholeCurrency' }`, () => {
+describe('Test Integers with optioins = { format: `$WholeString $wholeCurrency` }', () => {
     test.concurrent.each(testIntegersWithCurrency)('moneyToWords %d => %s', (input, expected) => {
-        expect(moneyToWords(input, {locale, currencyCode, format: '$WholeString $wholeCurrency'})).toBe(expected)
+        expect(moneyToWords(input, { locale, currencyCode, format: '$WholeString $wholeCurrency' })).toBe(expected)
     })
 })
 
@@ -72,8 +72,8 @@ const testFloatsWithCurrency = [
     [37.683, 'Тридцать семь рублей шестьдесят восемь копеек'],
 ]
 
-describe(`Test Floats with optioins = { currencyCode, format: '$WholeString $wholeCurrency $decimalString $decimalCurrency' }`, () => {
+describe('Test Floats with optioins = { currencyCode, format: `$WholeString $wholeCurrency $decimalString $decimalCurrency` }', () => {
     test.concurrent.each(testFloatsWithCurrency)('moneyToWords %d => %s', (input, expected) => {
-        expect(moneyToWords(input, {locale, currencyCode, format: '$WholeString $wholeCurrency $decimalString $decimalCurrency'})).toBe(expected)
+        expect(moneyToWords(input, { locale, currencyCode, format: '$WholeString $wholeCurrency $decimalString $decimalCurrency' })).toBe(expected)
     })
 })
