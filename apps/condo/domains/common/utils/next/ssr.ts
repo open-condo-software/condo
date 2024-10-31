@@ -7,7 +7,7 @@ import { createContext, useContext } from 'react'
 import { extractApolloState } from '@open-condo/apollo'
 
 import type { NormalizedCacheObject, ApolloClient } from '@apollo/client'
-import type { GetServerSidePropsContext, GetServerSideProps } from 'next'
+import type { GetServerSidePropsContext, GetServerSideProps, GetServerSidePropsResult } from 'next'
 
 const COOKIE_STATE_PROP_NAME = '__SSR_COOKIE_EXTRACTOR__'
 
@@ -65,10 +65,17 @@ export const SSRCookiesContext = createContext<SSRCookiesContextType>(DEFAULT_CO
 export const useSSRCookiesContext = (): SSRCookiesContextType => useContext(SSRCookiesContext)
 
 
-const { publicRuntimeConfig: { isSsrDisabled } } = getConfig()
+const { publicRuntimeConfig: { isDisabledSsr } } = getConfig()
 
-export const ifSsrIsNotDisabled = (getServerSideProps: GetServerSideProps): GetServerSideProps | undefined => {
-    if (isSsrDisabled) return undefined
+export function ifSsrIsNotDisabled (getServerSideProps: GetServerSideProps): GetServerSideProps {
+    if (isDisabledSsr) {
+        return async function getEmptyServerSideProps (context): Promise<GetServerSidePropsResult<any>> {
+            const { req, res } = context
+            return extractVitalCookies(req, res, {
+                props: {},
+            })
+        }
+    }
 
     return getServerSideProps
 }
