@@ -83,6 +83,11 @@ async function fetchWithLogger (url, options, extraAttrs) {
         taskId: parentTaskId,
         execId: parentExecId,
         headers: options.headers,
+        method: options.method,
+        // Body can be instance of many types, such as ArrayBuffer or URLSearchParams
+        // https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+        // Right now we will log it only if body is a string (stringified JSON)
+        body: typeof options.body === 'string' ? options.body : null,
         url, path, hostname,
     })
 
