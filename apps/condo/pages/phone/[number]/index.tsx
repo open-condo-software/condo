@@ -37,7 +37,7 @@ import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { colors, gradients, shadows, transitions } from '@condo/domains/common/constants/style'
 import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
 import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
-import { extractSSRState } from '@condo/domains/common/utils/next/ssr'
+import { extractSSRState, ifSsrIsNotDisabled } from '@condo/domains/common/utils/next/ssr'
 import { renderPhone } from '@condo/domains/common/utils/Renders'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { ClientType, getClientCardTabKey, redirectToForm } from '@condo/domains/contact/utils/clientCard'
@@ -968,7 +968,7 @@ ClientCardPage.requiredAccess = TicketReadPermissionRequired
 
 export default ClientCardPage
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getServerSideProps: GetServerSideProps = ifSsrIsNotDisabled(async (context) => {
     const { req, res } = context
 
     // @ts-ignore In Next 9 the types (only!) do not match the expected types
@@ -983,4 +983,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     return extractSSRState(client, req, res, {
         props: {},
     })
-}
+})

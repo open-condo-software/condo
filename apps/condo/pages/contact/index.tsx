@@ -32,7 +32,7 @@ import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
 import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
-import { extractSSRState } from '@condo/domains/common/utils/next/ssr'
+import { extractSSRState, ifSsrIsNotDisabled } from '@condo/domains/common/utils/next/ssr'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { ContactsReadPermissionRequired } from '@condo/domains/contact/components/PageAccess'
 import { useContactExportToExcelTask } from '@condo/domains/contact/hooks/useContactExportToExcelTask'
@@ -325,7 +325,7 @@ ContactsPage.requiredAccess = ContactsReadPermissionRequired
 
 export default ContactsPage
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getServerSideProps: GetServerSideProps = ifSsrIsNotDisabled(async (context) => {
     const { req, res } = context
 
     // @ts-ignore In Next 9 the types (only!) do not match the expected types
@@ -340,4 +340,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     return extractSSRState(client, req, res, {
         props: {},
     })
-}
+})

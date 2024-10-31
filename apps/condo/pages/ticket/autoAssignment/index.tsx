@@ -36,7 +36,7 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { TICKET_AUTO_ASSIGNMENT_MANAGEMENT } from '@condo/domains/common/constants/featureflags'
 import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
 import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
-import { extractSSRState } from '@condo/domains/common/utils/next/ssr'
+import { extractSSRState, ifSsrIsNotDisabled } from '@condo/domains/common/utils/next/ssr'
 import { PermissionsRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { TicketAutoAssignment } from '@condo/domains/ticket/utils/clientSchema'
@@ -628,7 +628,7 @@ TicketAutoAssignmentPage.requiredAccess = TicketAutoAssignmentPermissionRequired
 
 export default TicketAutoAssignmentPage
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getServerSideProps: GetServerSideProps = ifSsrIsNotDisabled(async (context) => {
     const { req, res } = context
 
     // @ts-ignore In Next 9 the types (only!) do not match the expected types
@@ -643,4 +643,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     return extractSSRState(client, req, res, {
         props: {},
     })
-}
+})

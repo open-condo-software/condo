@@ -13,7 +13,7 @@ import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/comp
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
 import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
-import { extractSSRState } from '@condo/domains/common/utils/next/ssr'
+import { extractSSRState, ifSsrIsNotDisabled } from '@condo/domains/common/utils/next/ssr'
 import { UpdateMeterForm } from '@condo/domains/meter/components/Meters/UpdateMeterForm'
 import { METER_TAB_TYPES, PropertyMeter } from '@condo/domains/meter/utils/clientSchema'
 
@@ -67,7 +67,7 @@ const UpdatePropertyMeterPage = (): JSX.Element => {
 
 export default UpdatePropertyMeterPage
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getServerSideProps: GetServerSideProps = ifSsrIsNotDisabled(async (context) => {
     const { req, res } = context
 
     // @ts-ignore In Next 9 the types (only!) do not match the expected types
@@ -82,4 +82,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     return extractSSRState(client, req, res, {
         props: {},
     })
-}
+})

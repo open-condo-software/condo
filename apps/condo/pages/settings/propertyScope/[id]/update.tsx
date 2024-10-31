@@ -12,7 +12,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
 import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
-import { extractSSRState } from '@condo/domains/common/utils/next/ssr'
+import { extractSSRState, ifSsrIsNotDisabled } from '@condo/domains/common/utils/next/ssr'
 import { PropertyScopeForm } from '@condo/domains/scope/components/PropertyScopeForm'
 import { SettingsReadPermissionRequired } from '@condo/domains/settings/components/PageAccess'
 
@@ -53,7 +53,7 @@ UpdatePropertyScopePage.requiredAccess = SettingsReadPermissionRequired
 
 export default UpdatePropertyScopePage
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getServerSideProps: GetServerSideProps = ifSsrIsNotDisabled(async (context) => {
     const { req, res } = context
 
     // @ts-ignore In Next 9 the types (only!) do not match the expected types
@@ -68,4 +68,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     return extractSSRState(client, req, res, {
         props: {},
     })
-}
+})

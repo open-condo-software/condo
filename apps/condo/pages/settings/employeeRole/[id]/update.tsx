@@ -11,7 +11,7 @@ import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/comp
 import { IPage } from '@condo/domains/common/types'
 import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
 import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
-import { extractSSRState } from '@condo/domains/common/utils/next/ssr'
+import { extractSSRState, ifSsrIsNotDisabled } from '@condo/domains/common/utils/next/ssr'
 import { EmployeeRoleForm } from '@condo/domains/organization/components/EmployeeRoleForm'
 import { EmployeeRolesReadAndManagePermissionRequired } from '@condo/domains/settings/components/PageAccess'
 
@@ -47,7 +47,7 @@ UpdateEmployeeRolePage.requiredAccess = EmployeeRolesReadAndManagePermissionRequ
 
 export default UpdateEmployeeRolePage
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getServerSideProps: GetServerSideProps = ifSsrIsNotDisabled(async (context) => {
     const { req, res } = context
 
     // @ts-ignore In Next 9 the types (only!) do not match the expected types
@@ -62,4 +62,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     return extractSSRState(client, req, res, {
         props: {},
     })
-}
+})

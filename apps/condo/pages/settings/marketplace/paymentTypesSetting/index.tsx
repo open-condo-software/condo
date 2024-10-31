@@ -14,7 +14,7 @@ import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/comp
 import { Loader } from '@condo/domains/common/components/Loader'
 import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
 import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
-import { extractSSRState } from '@condo/domains/common/utils/next/ssr'
+import { extractSSRState, ifSsrIsNotDisabled } from '@condo/domains/common/utils/next/ssr'
 import { MarketSettingAbout } from '@condo/domains/marketplace/components/MarketSetting/MarketSettingAbout'
 import { MarketSettingForm } from '@condo/domains/marketplace/components/MarketSetting/MarketSettingForm'
 import { MarketSetting } from '@condo/domains/marketplace/utils/clientSchema'
@@ -76,7 +76,7 @@ PaymentTypesSettingPage.requiredAccess = MarketSettingReadPermissionRequired
 
 export default PaymentTypesSettingPage
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getServerSideProps: GetServerSideProps = ifSsrIsNotDisabled(async (context) => {
     const { req, res } = context
 
     // @ts-ignore In Next 9 the types (only!) do not match the expected types
@@ -91,4 +91,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     return extractSSRState(client, req, res, {
         props: {},
     })
-}
+})

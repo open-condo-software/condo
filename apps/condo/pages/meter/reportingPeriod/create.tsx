@@ -11,7 +11,7 @@ import { Typography } from '@open-condo/ui'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
 import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
-import { extractSSRState } from '@condo/domains/common/utils/next/ssr'
+import { extractSSRState, ifSsrIsNotDisabled } from '@condo/domains/common/utils/next/ssr'
 import { MeterReportingPeriodForm } from '@condo/domains/meter/components/MeterReportingPeriodForm'
 import { MeterReadAndManagePermissionRequired } from '@condo/domains/meter/components/PageAccess'
 import { METER_TAB_TYPES, MeterReportingPeriod, METER_TYPES } from '@condo/domains/meter/utils/clientSchema'
@@ -58,7 +58,7 @@ MeterReportingPeriodCreatePage.requiredAccess = MeterReadAndManagePermissionRequ
 
 export default MeterReportingPeriodCreatePage
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getServerSideProps: GetServerSideProps = ifSsrIsNotDisabled(async (context) => {
     const { req, res } = context
 
     // @ts-ignore In Next 9 the types (only!) do not match the expected types
@@ -73,4 +73,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     return extractSSRState(client, req, res, {
         props: {},
     })
-}
+})

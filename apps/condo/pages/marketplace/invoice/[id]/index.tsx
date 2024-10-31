@@ -23,7 +23,7 @@ import { getObjectCreatedMessage } from '@condo/domains/common/utils/date.utils'
 import { getAddressDetails } from '@condo/domains/common/utils/helpers'
 import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
 import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
-import { extractSSRState } from '@condo/domains/common/utils/next/ssr'
+import { extractSSRState, ifSsrIsNotDisabled } from '@condo/domains/common/utils/next/ssr'
 import { CopyButton } from '@condo/domains/marketplace/components/Invoice/CopyButton'
 import { InvoiceRowsTable } from '@condo/domains/marketplace/components/Invoice/InvoiceRowsTable'
 import { InvoiceStatusSelect } from '@condo/domains/marketplace/components/Invoice/InvoiceStatusSelect'
@@ -474,7 +474,7 @@ InvoiceIdPage.requiredAccess = InvoiceReadPermissionRequired
 
 export default InvoiceIdPage
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getServerSideProps: GetServerSideProps = ifSsrIsNotDisabled(async (context) => {
     const { req, res } = context
 
     // @ts-ignore In Next 9 the types (only!) do not match the expected types
@@ -489,4 +489,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     return extractSSRState(client, req, res, {
         props: {},
     })
-}
+})

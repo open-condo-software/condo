@@ -40,7 +40,7 @@ import { MARKETPLACE, TICKET_DOCUMENT_GENERATION } from '@condo/domains/common/c
 import { getObjectCreatedMessage } from '@condo/domains/common/utils/date.utils'
 import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
 import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
-import { extractSSRState } from '@condo/domains/common/utils/next/ssr'
+import { extractSSRState, ifSsrIsNotDisabled } from '@condo/domains/common/utils/next/ssr'
 import { CopyButton } from '@condo/domains/marketplace/components/Invoice/CopyButton'
 import { TicketInvoicesList } from '@condo/domains/marketplace/components/Invoice/TicketInvoicesList'
 import { INVOICE_STATUS_PUBLISHED } from '@condo/domains/marketplace/constants'
@@ -863,7 +863,7 @@ TicketIdPage.requiredAccess = TicketReadPermissionRequired
 
 export default TicketIdPage
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getServerSideProps: GetServerSideProps = ifSsrIsNotDisabled(async (context) => {
     const { req, res } = context
 
     // @ts-ignore In Next 9 the types (only!) do not match the expected types
@@ -878,4 +878,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     return extractSSRState(client, req, res, {
         props: {},
     })
-}
+})

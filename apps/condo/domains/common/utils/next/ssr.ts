@@ -1,12 +1,13 @@
 // TODO(INFRA-614): move it inside miniapp-utils
 
 import { getCookie } from 'cookies-next'
+import getConfig from 'next/config'
 import { createContext, useContext } from 'react'
 
 import { extractApolloState } from '@open-condo/apollo'
 
 import type { NormalizedCacheObject, ApolloClient } from '@apollo/client'
-import type { GetServerSidePropsContext } from 'next'
+import type { GetServerSidePropsContext, GetServerSideProps } from 'next'
 
 const COOKIE_STATE_PROP_NAME = '__SSR_COOKIE_EXTRACTOR__'
 
@@ -62,3 +63,12 @@ export function extractSSRState<PropsType> (
 export const SSRCookiesContext = createContext<SSRCookiesContextType>(DEFAULT_COOKIES_VALUES)
 
 export const useSSRCookiesContext = (): SSRCookiesContextType => useContext(SSRCookiesContext)
+
+
+const { publicRuntimeConfig: { isSsrDisabled } } = getConfig()
+
+export const ifSsrIsNotDisabled = (getServerSideProps: GetServerSideProps): GetServerSideProps | undefined => {
+    if (isSsrDisabled) return undefined
+
+    return getServerSideProps
+}

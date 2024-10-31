@@ -11,7 +11,7 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { SERVICE_PROVIDER_PROFILE } from '@condo/domains/common/constants/featureflags'
 import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
 import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
-import { extractSSRState } from '@condo/domains/common/utils/next/ssr'
+import { extractSSRState, ifSsrIsNotDisabled } from '@condo/domains/common/utils/next/ssr'
 import { BillingAppPage } from '@condo/domains/miniapp/components/AppIndex'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
@@ -44,7 +44,7 @@ ServiceProviderProfilePage.requiredAccess = OrganizationRequired
 
 export default ServiceProviderProfilePage
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getServerSideProps: GetServerSideProps = ifSsrIsNotDisabled(async (context) => {
     const { req, res } = context
 
     // @ts-ignore In Next 9 the types (only!) do not match the expected types
@@ -59,4 +59,4 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     return extractSSRState(client, req, res, {
         props: {},
     })
-}
+})
