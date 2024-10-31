@@ -6,7 +6,6 @@ import { Col, Row, RowProps } from 'antd'
 import { ColumnsType } from 'antd/lib/table'
 import dayjs, { Dayjs } from 'dayjs'
 import get from 'lodash/get'
-import isString from 'lodash/isString'
 import { NextRouter, useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
@@ -15,7 +14,6 @@ import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button, Checkbox  } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
-import { updateQuery } from '@/domains/common/utils/helpers'
 import Input from '@condo/domains/common/components/antd/Input'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
@@ -29,6 +27,7 @@ import { useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultiple
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
+import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { MetersImportWrapper } from '@condo/domains/meter/components/Import/Index'
 import {
