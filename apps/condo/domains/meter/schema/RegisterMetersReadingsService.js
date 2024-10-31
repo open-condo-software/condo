@@ -3,8 +3,8 @@
  */
 const dayjs = require('dayjs')
 const customParseFormat = require('dayjs/plugin/customParseFormat')
-const { get, isUndefined, isEmpty, isNumber, isString, isNil, pick, set } = require('lodash')
-const uniq = require('lodash/uniq')
+const utc = require('dayjs/plugin/utc')
+const { get, isEmpty, isNil, set, uniq } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
@@ -13,6 +13,7 @@ const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { i18n } = require('@open-condo/locales/loader')
 
 const { PropertyResolver } = require('@condo/domains/billing/schema/resolvers')
+const { isDateStrValid: isDateStrValidUtils, tryToISO: tryToISOUtils } = require('@condo/domains/common/utils/import/date')
 const access = require('@condo/domains/meter/access/RegisterMetersReadingsService')
 const { OTHER_METER_READING_SOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const {
@@ -25,20 +26,16 @@ const {
     INVALID_METER_NUMBER,
     INVALID_DATE,
 } = require('@condo/domains/meter/constants/errors')
+const { READINGS_LIMIT, DATE_FIELD_PATH_TO_TRANSLATION, DATE_FIELD_PATHS } = require('@condo/domains/meter/constants/registerMetersReadingsService')
+const { validateMeterValue, shouldUpdateMeter, meterReadingAsResult, normalizeMeterValue } = require('@condo/domains/meter/utils/meter.utils')
 const { Meter, MeterReading } = require('@condo/domains/meter/utils/serverSchema')
 
-dayjs.extend(customParseFormat)
+const DATE_FORMAT = 'YYYY-MM-DD'
+const UTC_DATE_FORMAT = 'YYYY-MM-DDTHH:mm:ss.SSS[Z]'
 
-const ISO_DATE_FORMAT = 'YYYY-MM-DD'
-const EUROPEAN_DATE_FORMAT = 'DD.MM.YYYY'
-const DATE_PARSING_FORMATS = [
-    'YYYY-MM-DDTHH:mm:ss.SSS[Z]', // The result of dayjs().toISOString()
-    `${ISO_DATE_FORMAT} HH:mm:ss`, `${EUROPEAN_DATE_FORMAT} HH:mm:ss`, // Up to seconds
-    `${ISO_DATE_FORMAT} HH:mm`, `${EUROPEAN_DATE_FORMAT} HH:mm`, // Up to minutes
-    ISO_DATE_FORMAT, EUROPEAN_DATE_FORMAT, // No time
-    'YYYY-MM', 'MM-YYYY', 'YYYY.MM', 'MM.YYYY', // Some exotic cases
-]
-const READINGS_LIMIT = 500
+
+dayjs.extend(customParseFormat)
+dayjs.extend(utc)
 
 const ERRORS = {
     TOO_MUCH_READINGS: {
@@ -68,12 +65,14 @@ const ERRORS = {
         type: INVALID_METER_VALUES,
         message: 'Invalid meter values',
         messageForUser: 'api.meter.registerMetersReadings.INVALID_METER_VALUES',
+        messageInterpolation: { valuesList: '"{column}"="{errorValue}"' },
     },
     MULTIPLE_METERS_FOUND: {
         code: BAD_USER_INPUT,
         type: MULTIPLE_METERS_FOUND,
         message: 'Multiple meters found',
         messageForUser: 'api.meter.registerMetersReadings.MULTIPLE_METERS_FOUND',
+        messageInterpolation: { count: '??' },
     },
     INVALID_ACCOUNT_NUMBER: {
         code: BAD_USER_INPUT,
@@ -92,87 +91,8 @@ const ERRORS = {
         type: INVALID_DATE,
         message: 'Invalid date',
         messageForUser: 'api.meter.registerMetersReadings.INVALID_DATE',
+        messageInterpolation: { columnName: 'columnName', format: [UTC_DATE_FORMAT, DATE_FORMAT].join('", "') },
     },
-}
-
-const SYMBOLS_TO_CUT_FROM_DATES_REGEXP = /[^-_:.,( )/\d]/g
-
-/**
- * @param {string} dateStr
- * @return {undefined|string}
- */
-function sanitizeDateStr (dateStr) {
-    if (isEmpty(dateStr) || !isString(dateStr)) {
-        return undefined
-    }
-
-    const sanitizedDateStr = dateStr.replace(SYMBOLS_TO_CUT_FROM_DATES_REGEXP, '')
-    if (isEmpty(sanitizedDateStr)) {
-        return undefined
-    }
-
-    return sanitizedDateStr
-}
-
-/**
- * @param {string} dateStr
- * @return {undefined|string}
- */
-function toISO (dateStr) {
-    const sanitizedDateStr = sanitizeDateStr(dateStr)
-
-    if (isEmpty(sanitizedDateStr)) {
-        return undefined
-    }
-
-    return dayjs(sanitizedDateStr, DATE_PARSING_FORMATS).toISOString()
-}
-
-/**
- * @param {string} dateStr
- * @return {boolean}
- */
-function isDateValid (dateStr) {
-    const sanitizedStr = sanitizeDateStr(dateStr)
-    return dayjs(sanitizedStr, DATE_PARSING_FORMATS).isValid()
-}
-
-/**
- * @param value
- * @return {undefined|string|null}
- */
-function normalizeMeterValue (value) {
-    if (!(isString(value) || isNumber(value) || isUndefined(value))) return null
-    if (isUndefined(value)) return value
-
-    const transformedValue = String(value).trim().replaceAll(',', '.')
-    if (isEmpty(transformedValue)) return undefined
-    return String(Number(transformedValue))
-}
-
-/**
- * @param {string | null | undefined} value
- * @return {boolean}
- */
-function validateMeterValue (value) {
-    if (!isString(value) && !isUndefined(value)) return false
-    if (isUndefined(value)) return true
-
-    return !isEmpty(value) && !isNaN(Number(value)) && isFinite(Number(value)) && Number(value) >= 0
-}
-
-/**
- * @param {MeterReading} meterReading
- * @return {Object}
- */
-function meterReadingAsResult (meterReading) {
-    return {
-        id: meterReading.id,
-        meter: {
-            ...pick(meterReading.meter, ['id', 'unitType', 'unitName', 'accountNumber', 'number']),
-            property: pick(meterReading.meter.property, ['id', 'address', 'addressKey']),
-        },
-    }
 }
 
 function transformToPlainObject (input) {
@@ -189,30 +109,43 @@ function transformToPlainObject (input) {
     return result
 }
 
-/**
- * @param {Meter} meter
- * @param {RegisterMetersReadingsMeterMetaInput} changedFields
- * @return {boolean}
- */
-function shouldUpdateMeter (meter, changedFields) {
-    const fieldsToUpdate = [
-        'accountNumber',
-        'numberOfTariffs',
-        'place',
-        'verificationDate',
-        'nextVerificationDate',
-        'installationDate',
-        'commissioningDate',
-        'sealingDate',
-        'controlReadingsDate',
-    ]
+function isDateStrValid (dateStr) {
+    return isDateStrValidUtils(dateStr, [DATE_FORMAT, UTC_DATE_FORMAT])
+}
 
-    return fieldsToUpdate.reduce((result, field) => {
-        if (result) {
-            return result
+function tryToISO (dateStr) {
+    return tryToISOUtils(dateStr, [DATE_FORMAT, UTC_DATE_FORMAT])
+}
+
+function getDateStrValidationError (context, locale, reading) {
+    const isoDateFormatMessage = i18n('iso.date.format', { locale })
+    const getError = (datePath) => new GQLError({
+        ...ERRORS.INVALID_DATE,
+        messageInterpolation: {
+            columnName: i18n(DATE_FIELD_PATH_TO_TRANSLATION[datePath], { locale }),
+            format: [
+                UTC_DATE_FORMAT,
+                isoDateFormatMessage,
+            ].join('", "'),
+        },
+    }, context)
+
+    for (const { path, nullable } of DATE_FIELD_PATHS) {
+        const dateStr = get(reading, path)
+
+        if (!nullable && isNil(dateStr)) {
+            return getError(path)
         }
-        return !!get(changedFields, field) && get(changedFields, field) !== get(meter, field)
-    }, false)
+
+        if (nullable && isNil(dateStr)) {
+            continue
+        }
+
+        if (!isDateStrValid(dateStr)) {
+            return getError(path)
+        }
+    }
+    return null
 }
 
 const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReadingsService', {
@@ -244,6 +177,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                 'meterNumber: String!,' +
                 'meterResource: MeterResourceWhereUniqueInput!,' +
                 'date: String!,' +
+                // TODO(YEgorLu): DOMA-10497 allow values only in decimal with dot
                 'value1: String!,' +
                 'value2: String,' +
                 'value3: String,' +
@@ -273,6 +207,11 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
     mutations: [
         {
             access: access.canRegisterMetersReadings,
+            doc: {
+                summary: 'Create meter readings and, if not exists, meters.',
+                description: 'Use dates in UTC format (YYYY-MM-DDTHH:mm:ss.SSSZ) or in YYYY-MM-DD. You should prefer UTC.',
+                errors: ERRORS,
+            },
             schema: 'registerMetersReadings(data: RegisterMetersReadingsInput!): [RegisterMetersReadingsOutput]',
             resolver: async (parent, /**{ data: RegisterMetersReadingsInput }*/args, context) => {
                 const { data: { dv, sender, organization, readings } } = args
@@ -327,10 +266,10 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     deletedAt: null,
                 })
 
-                const readingsWithValidDates = readings.filter(reading => isDateValid(reading.date))
+                const readingsWithValidDates = readings.filter(reading => isDateStrValid(reading.date))
                 const plainMeterReadings = await find('MeterReading', {
                     meter: { id_in: meters.map(meter => meter.id) },
-                    date_in: uniq(readingsWithValidDates.map(reading => toISO(reading.date))),
+                    date_in: uniq(readingsWithValidDates.map(reading => tryToISO(reading.date))),
                 })
                 const propertyByIdMap = properties.reduce((acc, property) => {
                     acc[property.id] = property
@@ -375,21 +314,13 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                         continue
                     }
 
-                    if (!isDateValid(reading.date)) {
-                        resultRows.push(new GQLError({
-                            ...ERRORS.INVALID_DATE,
-                            messageInterpolation: {
-                                columnName: i18n('meter.import.column.meterReadingSubmissionDate', { locale }),
-                                format: [
-                                    i18n('iso.date.format', { locale }),
-                                    i18n('european.date.format', { locale }),
-                                ].join('", "'),
-                            },
-                        }, context))
+                    const dateValidationError = getDateStrValidationError(context, locale, reading)
+                    if (dateValidationError) {
+                        resultRows.push(dateValidationError)
                         continue
                     }
 
-                    const dateISO = toISO(reading.date)
+                    const dateISO = tryToISO(reading.date)
                     const property = properties.find((p) => p.addressKey === addressKey)
 
                     if (!property) {
@@ -453,12 +384,12 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                                 accountNumber,
                                 numberOfTariffs: get(reading, ['meterMeta', 'numberOfTariffs']),
                                 place: get(reading, ['meterMeta', 'place']),
-                                verificationDate: toISO(get(reading, ['meterMeta', 'verificationDate'])),
-                                nextVerificationDate: toISO(get(reading, ['meterMeta', 'nextVerificationDate'])),
-                                installationDate: toISO(get(reading, ['meterMeta', 'installationDate'])),
-                                commissioningDate: toISO(get(reading, ['meterMeta', 'commissioningDate'])),
-                                sealingDate: toISO(get(reading, ['meterMeta', 'sealingDate'])),
-                                controlReadingsDate: toISO(get(reading, ['meterMeta', 'controlReadingsDate'])),
+                                verificationDate: tryToISO(get(reading, ['meterMeta', 'verificationDate'])),
+                                nextVerificationDate: tryToISO(get(reading, ['meterMeta', 'nextVerificationDate'])),
+                                installationDate: tryToISO(get(reading, ['meterMeta', 'installationDate'])),
+                                commissioningDate: tryToISO(get(reading, ['meterMeta', 'commissioningDate'])),
+                                sealingDate: tryToISO(get(reading, ['meterMeta', 'sealingDate'])),
+                                controlReadingsDate: tryToISO(get(reading, ['meterMeta', 'controlReadingsDate'])),
                                 isAutomatic: get(reading, ['meterMeta', 'isAutomatic']),
                             }
                             if (shouldUpdateMeter(foundMeter, fieldsToUpdate)) {
@@ -485,12 +416,12 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                                 resource: { connect: reading.meterResource },
                                 numberOfTariffs: get(reading, ['meterMeta', 'numberOfTariffs'], Object.values(values).filter(Boolean).length),
                                 place: get(reading, ['meterMeta', 'place']),
-                                verificationDate: toISO(get(reading, ['meterMeta', 'verificationDate'])),
-                                nextVerificationDate: toISO(get(reading, ['meterMeta', 'nextVerificationDate'])),
-                                installationDate: toISO(get(reading, ['meterMeta', 'installationDate'])),
-                                commissioningDate: toISO(get(reading, ['meterMeta', 'commissioningDate'])),
-                                sealingDate: toISO(get(reading, ['meterMeta', 'sealingDate'])),
-                                controlReadingsDate: rawControlReadingsDate ? toISO(rawControlReadingsDate) : dayjs().toISOString(),
+                                verificationDate: tryToISO(get(reading, ['meterMeta', 'verificationDate'])),
+                                nextVerificationDate: tryToISO(get(reading, ['meterMeta', 'nextVerificationDate'])),
+                                installationDate: tryToISO(get(reading, ['meterMeta', 'installationDate'])),
+                                commissioningDate: tryToISO(get(reading, ['meterMeta', 'commissioningDate'])),
+                                sealingDate: tryToISO(get(reading, ['meterMeta', 'sealingDate'])),
+                                controlReadingsDate: rawControlReadingsDate ? tryToISO(rawControlReadingsDate) : dayjs().toISOString(),
                                 isAutomatic: get(reading, ['meterMeta', 'isAutomatic']),
                             }, 'id property { id } unitName unitType accountNumber number resource { id }')
                             meterId = createdMeter.id
@@ -511,7 +442,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                                 sender,
                                 meter: { connect: { id: meterId } },
                                 source: { connect: readingSource },
-                                date: toISO(reading.date),
+                                date: tryToISO(reading.date),
                                 ...values,
                             }, 'id meter { id unitType unitName accountNumber number property { id address addressKey } }')
 

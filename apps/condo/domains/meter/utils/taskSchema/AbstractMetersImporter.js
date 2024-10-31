@@ -1,10 +1,13 @@
-const { chunk, get, isArray } = require('lodash')
+
+const { chunk, isNil, set, get, isArray } = require('lodash')
 const XLSX = require('xlsx')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 const { i18n } = require('@open-condo/locales/loader')
 
+const { clearDateStr, isDateStrValid, tryToISO } = require('@condo/domains/common/utils/import/date')
 const { IMPORT_CONDO_METER_READING_SOURCE_ID } = require('@condo/domains/meter/constants/constants')
+const { DATE_FIELD_PATHS } = require('@condo/domains/meter/constants/registerMetersReadingsService')
 
 const READINGS_CHUNK_SIZE = 100
 const READING_SOURCE = { id: IMPORT_CONDO_METER_READING_SOURCE_ID }
@@ -22,6 +25,7 @@ class AbstractMetersImporter {
         setProcessedRows,
         setImportedRows,
         errorHandler,
+        dateColumnsByReadingDatePaths,
     ) {
         this.columnsHeaders = columnsHeaders
         this.mappers = mappers
@@ -33,6 +37,7 @@ class AbstractMetersImporter {
         this.setProcessedRows = setProcessedRows
         this.setImportedRows = setImportedRows
         this.errorHandler = errorHandler
+        this.dateColumnsTranslationsByPath = dateColumnsByReadingDatePaths
 
         this.progress = {
             min: 0,
@@ -42,7 +47,6 @@ class AbstractMetersImporter {
             absImported: 0,
             absTotal: 0,
         }
-
         this.tableData = []
         this.failedRows = []
     }
@@ -65,6 +69,60 @@ class AbstractMetersImporter {
      */
     transformRow (row) {
         throw new Error('Not implemented')
+    }
+
+    getInvalidDatesPaths (reading) {
+        return DATE_FIELD_PATHS.reduce((datesPaths, { path, nullable }) => {
+            const dateStr = get(reading, path)
+
+            if (!nullable && isNil(dateStr)) {
+                datesPaths.push(path)
+                return datesPaths
+            }
+
+            const clearedDate = clearDateStr(dateStr)
+            const dateIsEmpty = isNil(dateStr) || !clearedDate
+            if (nullable && dateIsEmpty) {
+                return datesPaths
+            }
+
+            if (!isDateStrValid(clearedDate)) {
+                datesPaths.push(path)
+                return datesPaths
+            }
+
+            return datesPaths
+        }, [])
+    }
+
+    prepareReading (reading, row, transformedData, transformedRowToSourceRowMap, transformedIndex, sourceIndex) {
+        const invalidDatesPaths = this.getInvalidDatesPaths(reading)
+        const invalidDatesColumns = invalidDatesPaths.map(path => this.dateColumnsTranslationsByPath[path])
+        if (invalidDatesPaths.length > 0) {
+            const columnNamesInError = invalidDatesColumns.join('", "')
+            this.failProcessingHandler({
+                originalRow: row,
+                errors: [this.errors.invalidDate.get(`"${columnNamesInError}"`)],
+            })
+        }
+        this.convertDatesToISOOrUndefined(reading)
+        reading.readingSource = READING_SOURCE
+        transformedData.push(reading)
+        transformedRowToSourceRowMap.set(
+            String(transformedIndex++),
+            sourceIndex
+        )
+    }
+
+    /**
+     * Converts dates to UTC if they are valid, otherwise to undefined
+     * @param {RegisterMetersReadingsReadingInput} data
+     */
+    convertDatesToISOOrUndefined (data) {
+        DATE_FIELD_PATHS.forEach(({ path }) => {
+            const date = get(data, path)
+            set(data, path, tryToISO(clearDateStr(date)))
+        })
     }
 
     async import (data) {
@@ -124,17 +182,10 @@ class AbstractMetersImporter {
                                 })
                             }
                             for (const rowPart of transformedRow) {
-                                rowPart.readingSource = READING_SOURCE
-                                transformedData.push(rowPart)
-                                transformedRowToSourceRowMap.set(
-                                    String(transformedIndex++),
-                                    sourceIndex
-                                )
+                                this.prepareReading(rowPart, row, transformedData, transformedRowToSourceRowMap, String(transformedIndex++), sourceIndex)
                             }
                         } else {
-                            transformedRow.readingSource = READING_SOURCE
-                            transformedData.push(transformedRow)
-                            transformedRowToSourceRowMap.set(sourceIndex, sourceIndex)
+                            this.prepareReading(transformedRow, row, transformedData, transformedRowToSourceRowMap, sourceIndex, sourceIndex)
                         }
                     } catch (err) {
                         logger.error({ msg: this.errors.invalidTypes.message, err })

@@ -1,6 +1,9 @@
 /**
  * @jest-environment node
  */
+const fs = require('fs')
+const path = require('path')
+
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
 const { get } = require('lodash')
@@ -21,16 +24,26 @@ const { EXCEL_FILE_META } = require('@condo/domains/common/utils/createExportFil
 const { readXlsx, getTmpFile, downloadFile } = require('@condo/domains/common/utils/testSchema/file')
 const { IMPORT_CONDO_METER_READING_SOURCE_ID, COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const { importMeters, createUpload } = require('@condo/domains/meter/tasks/importMeters')
-const { MeterReadingsImportTask, MeterReading } = require('@condo/domains/meter/utils/serverSchema')
+const { TEST_ADDRESS, TEST_ADDRESS_META } = require('@condo/domains/meter/tasks/mock-files/meter-import-example-excel-date-type-en-xlsx')
+const { MeterReadingsImportTask, MeterReading, Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { createTestMeter, MeterResource } = require('@condo/domains/meter/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { createTestPropertyWithMap } = require('@condo/domains/property/utils/testSchema')
+const { createTestPropertyWithMap, createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { buildPropertyMap } = require('@condo/domains/property/utils/testSchema/factories')
 
 // NOTE(pahaz): we call this task directly in this specs
 jest.mock('@condo/domains/meter/tasks/index')
 
 const { keystone } = index
 const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint: faker.datatype.uuid() } }
+
+
+const MOCK_FOLDER = 'mock-files'
+
+const readMockFile = (fileName) => {
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+    return fs.readFileSync(path.join(__dirname, MOCK_FOLDER, fileName))
+}
 
 const generateCsvFile = (validLinesSize, invalidLinesSize, fatalErrorLinesSize, property) => {
     // content header
@@ -491,5 +504,75 @@ describe('importMeters', () => {
         await downloadFile(url, filename)
         const errorData = await readXlsx(filename)
         expect(errorData[1][20]).toBe(`ИПУ с таким номером и ресурсом уже есть в организации на лицевом счете ${meter.accountNumber}. Проверьте, пожалуйста, правильность данных.`)
+    })
+
+    describe('Mock files', () => {
+
+        it('Imports excel date format', async () => {
+            const locale = 'en'
+            const expectedDates = {
+                reading: { date: '2021-12-20T00:00:00.000Z' },
+                meter: {
+                    verificationDate: '2021-12-20T00:00:00.000Z',
+                    nextVerificationDate: '2021-12-20T00:00:00.000Z',
+                    installationDate: '2021-12-20T00:00:00.000Z',
+                    commissioningDate: '2021-12-20T00:00:00.000Z',
+                    sealingDate: '2021-12-20T00:00:00.000Z',
+                    controlReadingsDate: '2021-12-20T11:11:11.000Z',
+                },
+            }
+
+            const adminClient = await makeLoggedInAdminClient()
+            adminClient.setHeaders({ 'Accept-Language': locale })
+            const [organization] = await createTestOrganization(adminClient)
+            await createTestProperty(adminClient, organization, {
+                map: buildPropertyMap(),
+                address: TEST_ADDRESS,
+                addressMeta: TEST_ADDRESS_META,
+            })
+
+            const fileName = 'meter-import-example-excel-date-type-en.xlsx'
+            const content = readMockFile(fileName)
+            const upload = createUpload(content, fileName, EXCEL_FILE_META.mimetype)
+
+            const validLines = 1
+            const invalidLines = 0
+            const fatalLines = 0
+            const meterReadingsImportTask = await MeterReadingsImportTask.create(context, {
+                ...dvAndSender,
+                file: upload,
+                user: { connect: { id: adminClient.user.id } },
+                organization: { connect: { id: organization.id } },
+                locale,
+            })
+            await importMeters(meterReadingsImportTask.id)
+            const task = await MeterReadingsImportTask.getOne(context, { id: meterReadingsImportTask.id }, 'errorMessage file { mimetype } format importedRecordsCount processedRecordsCount totalRecordsCount id')
+            expect(task).toMatchObject({
+                format: DOMA_EXCEL,
+                file: expect.objectContaining({ mimetype: EXCEL_FILE_META.mimetype }),
+                errorMessage: null,
+                totalRecordsCount: validLines + invalidLines + fatalLines,
+                importedRecordsCount: validLines,
+                processedRecordsCount: validLines + invalidLines,
+            })
+            const [reading] = await MeterReading.getAll(keystone, {
+                organization: { id: organization.id },
+            },  'id date source { id } meter { id }', { sortBy: ['createdAt_DESC'], first: 1 })
+
+            expect(reading).toBeDefined()
+            expect(reading.source.id).toBe(IMPORT_CONDO_METER_READING_SOURCE_ID)
+            expect(reading.date).toEqual(expectedDates.reading.date)
+
+            const meter = await Meter.getOne(context, { id: reading.meter.id },
+                'verificationDate nextVerificationDate installationDate commissioningDate sealingDate controlReadingsDate')
+            expect(meter).toBeDefined()
+            expect(meter.verificationDate).toBe(expectedDates.meter.verificationDate)
+            expect(meter.nextVerificationDate).toBe(expectedDates.meter.nextVerificationDate)
+            expect(meter.installationDate).toBe(expectedDates.meter.installationDate)
+            expect(meter.commissioningDate).toBe(expectedDates.meter.commissioningDate)
+            expect(meter.sealingDate).toBe(expectedDates.meter.sealingDate)
+            expect(meter.controlReadingsDate).toBe(expectedDates.meter.controlReadingsDate)
+        })
+
     })
 })

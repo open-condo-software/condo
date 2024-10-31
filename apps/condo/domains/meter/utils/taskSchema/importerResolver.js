@@ -24,7 +24,10 @@ const {
     EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION,
     METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION,
 } = require('@condo/domains/meter/constants/errors')
+const { DATE_FIELD_PATH_TO_TRANSLATION } = require('@condo/domains/meter/constants/registerMetersReadingsService')
 const { MeterReadingsImportTask, registerMetersReadings } = require('@condo/domains/meter/utils/serverSchema')
+const { DomaMetersImporter } = require('@condo/domains/meter/utils/taskSchema/DomaMetersImporter')
+const { SbbolMetersImporter } = require('@condo/domains/meter/utils/taskSchema/SbbolMetersImporter')
 const {
     FLAT_UNIT_TYPE,
     PARKING_UNIT_TYPE,
@@ -35,8 +38,6 @@ const {
 const { USER_FIELDS } = require('@condo/domains/user/gql')
 const { User } = require('@condo/domains/user/utils/serverSchema')
 
-const { DomaMetersImporter } = require('./DomaMetersImporter')
-const { SbbolMetersImporter } = require('./SbbolMetersImporter')
 
 const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint: 'import-meter-job' } }
 
@@ -86,6 +87,12 @@ function getColumnNames (format, locale) {
         { name: PlaceColumnMessage },
         { name: AutomaticColumnMessage },
     ] : null
+}
+
+function getDatesColumnNamesByDatePathInReading () {
+    return Object.fromEntries(
+        Object.entries(DATE_FIELD_PATH_TO_TRANSLATION).map(([datePath, key]) => [datePath, i18n(key)])
+    )
 }
 
 function getMappers (format, locale) {
@@ -176,6 +183,13 @@ async function getErrors (keystone, format, locale, columns, mappers) {
         value: columns.map(column => `"${column.name}"`).join(', '),
     } }) : ''
 
+    const columnNameMask = '#####'
+    const InvalidDateMessage = i18n('meter.import.error.InvalidDate', { locale, meta: { columnName: columnNameMask, format: [
+        i18n('iso.date.format', { locale }),
+        i18n('european.date.format', { locale }),
+    ].join('", "') } })
+    const InvalidDateMessageGetter = (columnName) => InvalidDateMessage.replace(columnNameMask, columnName)
+
     return {
         tooManyRows: { message: `${TooManyRowsErrorTitle}.${TooManyRowsErrorMessage}` },
         invalidColumns: { message: `${InvalidHeadersErrorTitle}. ${InvalidColumnsMessage}` },
@@ -187,6 +201,7 @@ async function getErrors (keystone, format, locale, columns, mappers) {
         unknownResource: { message: UnknownResource },
         unknownUnitType: { message: UnknownUnitType },
         unknownIsAutomatic: { message: UnknownIsAutomatic },
+        invalidDate: { get: InvalidDateMessageGetter },
     }
 }
 
@@ -276,6 +291,7 @@ async function getImporter (keystone, taskId, organizationId, userId, format, lo
     const setProcessedRowsMutation = async (processed) => await setProcessedRows(keystone, taskId, processed)
     const setImportedRowsMutation = async (imported) => await setImportedRows(keystone, taskId, imported)
     const errorHandlerMutation = async (error) => await errorHandler(keystone, taskId, error)
+    const dateColumnsByReadingDatePaths = getDatesColumnNamesByDatePathInReading()
 
     return new MetersImporterClass(
         columns,
@@ -288,6 +304,7 @@ async function getImporter (keystone, taskId, organizationId, userId, format, lo
         setProcessedRowsMutation,
         setImportedRowsMutation,
         errorHandlerMutation,
+        dateColumnsByReadingDatePaths,
     )
 }
 
