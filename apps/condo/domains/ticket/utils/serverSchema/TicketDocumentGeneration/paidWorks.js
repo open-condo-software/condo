@@ -1,6 +1,6 @@
 const Big = require('big.js')
 const dayjs = require('dayjs')
-const { get } = require('lodash')
+const { get, isPlainObject } = require('lodash')
 
 const { FinanceInfoClient } = require('@open-condo/clients/finance-info-client/FinanceInfoClient')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -19,11 +19,14 @@ const { formatDateToTimezone } = require('@condo/domains/ticket/utils')
 
 const logger = getLogger('generateDocumentOfPaidWorksCompletion')
 
+const LONG_BLANK = '____________________________________'
+const SHORT_BLANK = '__________________'
+
 const financeInfoClient = new FinanceInfoClient()
 
-async function getLocaleToPullFinanceInfoClient (locale, organization) {
-    let psrn = null, organizationAddress = null, iec = null
-
+async function getFinanceInfoDataByLocale (organization, { locale }) {
+    let organizationAddress = null, iec = null, psrn = null
+    
     if (locale === 'ru') {
         try {
             ({ iec, psrn, organizationAddress } = await financeInfoClient.getOrganization(organization.tin))
@@ -35,21 +38,36 @@ async function getLocaleToPullFinanceInfoClient (locale, organization) {
     return { iec, psrn, organizationAddress }
 }
 
-const changeUndefinedDataToBlanks = (documentDataInLine) => {
-    const metaInfoAboutLongWords = {
-        name: true,
-        address: true,
-    }
-    const chengedDocumentDataInLine = Object.fromEntries(Object.entries(documentDataInLine).map(([key, value]) => {
-        let changedValue = {}
-        for (let subValue in value) {
-            changedValue[subValue] = value[subValue] ? value[subValue] : metaInfoAboutLongWords.hasOwnProperty(subValue) ? '____________________________________' : '__________________'
-        }
-        return [key, changedValue]
-    }))
-    
-    return chengedDocumentDataInLine
+const getDataFormatByLocale = ( locale ) => {
+    if (locale === 'ru') 'DD.MM.YYYY'
+    return 'YYYY-MM-DD'
 }
+
+const _changeToEmptyCell = (key, value) => {
+    if (value) {
+        return ''
+    }
+    return value
+}
+
+const _changeToBlanks = (key, value) => {
+    if (value) {
+        return (key === 'address' || key === 'name') ? LONG_BLANK : SHORT_BLANK
+    }
+    return value
+}
+
+const replaceAllUndefinedValues = (object, replace) => {
+    for (let key in object) {
+        if (isPlainObject(object[key])) {
+            replaceAllUndefinedValues(object[key], replace)
+        } else (
+            object[key] = replace(key, object[key])
+        )
+    }
+    return object
+}
+
 
 const buildExportWordFile = async ({ task, documentData, locale, timeZone }) => {
     const { id, ticket } = task
@@ -72,7 +90,7 @@ const buildExportWordFile = async ({ task, documentData, locale, timeZone }) => 
 }
 
 const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, locale, ticket, organization }) => {
-    const { iec, psrn, organizationAddress } = await getLocaleToPullFinanceInfoClient(locale, organization)
+    const { iec, psrn, organizationAddress } = await getFinanceInfoDataByLocale(organization, { locale })
 
     const { format, timeZone: timeZoneFromUser } = task
 
@@ -92,6 +110,7 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
         })
         : null
 
+    // Переписать на find 
     const invoices = await Invoice.getAll(context, {
         ticket: { id: ticket.id },
         deletedAt: null,
@@ -100,38 +119,43 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
         sortBy: ['createdAt_ASC'],
     })
 
+    // Спросить у Матвея, как работать с этим? Нет тестов
+
     const currencyCode = get(invoices, '0.currencyCode') || DEFAULT_INVOICE_CURRENCY_CODE
     let totalSum = Big(0), totalVAT = Big(0)
 
     const listOfWorks = invoices.reduce((acc, invoice) => {
         const rows = Array.isArray(invoice.rows) ? invoice.rows : []
         acc.push(...rows.map((row, index) => {
-            const price = Big(!row.isMin ? row.toPay : 0)
-            const sum = price.times(get(row, 'count', 1))
-            const vatPercent = Big(get(row, 'vatPercent', 0))
-            totalSum = totalSum.plus(sum)
+            const isExactPrice = !row.isMin ? row.toPay : 0
+            const price = !Number.isNaN(isExactPrice) ? Big(isExactPrice) : 0
+            const sum = !Number.isNaN(row.count) ? price.times(get(row, 'count', 1)) : 1
+            const vatPercent = !Number.isNaN(row.vatPercent) ? Big(get(row, 'vatPercent', 0)) : 0
+            totalSum = totalSum.plus(sum) 
             totalVAT = totalVAT.plus(sum.times(vatPercent).div(100))
 
-            return {
+            return _changeToEmptyCell({
                 number: index + 1,
-                name: row.name || '',
-                count: row.count || '',
-                price: !Number.isNaN(price) ? renderMoney(price, currencyCode, locale) : '',
-                vat: !Number.isNaN(vatPercent) ? vatPercent : '',
-                sum: !Number.isNaN(sum) ? renderMoney(sum, currencyCode, locale) : '',
-            }
+                name: row.name,
+                count: row.count,
+                price: renderMoney(price, currencyCode, locale),
+                vat: vatPercent,
+                sum: renderMoney(sum, currencyCode, locale),
+            })
         }))
+        totalSum = !Number.isNaN(totalSum) ? totalSum : 0
+        totalVAT = !Number.isNaN(totalVAT) ? totalVAT : 0
 
         return acc
     }, [])
+    
+    // NOTE: This doc needs two variables to be generated:
+    // 1. Values that will go into the table (documentTextData)
+    // 2. Values that will be embeded into the text of the document (documentDataInTable)
 
-    // NOTE: There are two different types of data in the document template
-    // The first is data inserted into tables
-    // The second is data inserted directly into the document paragraph
-
-    const documentDataInLine = {
+    const documentTextData = {
         header: {
-            generalDate: printDate.format('DD.MM.YYYY'),
+            generalDate: printDate.format(getDataFormatByLocale(locale)),
         },
         company: {
             name: get(organization, 'name'),
@@ -155,21 +179,21 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
 
     const documentDataInTable = {
         client: {
-            name: get(contact, 'name') || '',
+            name: get(contact, 'name'),
         },
         listOfWorks,
         totalInNumbers: {
-            totalSum: !Number.isNaN(totalSum) ? renderMoney(totalSum, currencyCode, locale) : '',
-            totalVAT: !Number.isNaN(totalVAT) ? renderMoney(totalVAT, currencyCode, locale) : '',
+            totalSum: renderMoney(totalSum, currencyCode, locale),
+            totalVAT: renderMoney(totalVAT, currencyCode, locale),
         },
         executor: {
-            name: get(employee, 'name') || '',
+            name: get(employee, 'name'),
         },
     }
 
     const documentData = {
-        ...changeUndefinedDataToBlanks(documentDataInLine),
-        ...documentDataInTable,
+        ...replaceAllUndefinedValues(documentTextData, _changeToBlanks),
+        ...replaceAllUndefinedValues(documentDataInTable, _changeToEmptyCell),
     }
 
     let fileUploadInput
@@ -185,7 +209,7 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
         }
     }
 
-    logger.info({ msg: 'finish genereate document of paid completion works ', taskId: task.id, ticketId: ticket.id })
+    logger.info({ msg: 'finished genereating a document of paid completion works ', taskId: task.id, ticketId: ticket.id })
 
     return fileUploadInput
 }
