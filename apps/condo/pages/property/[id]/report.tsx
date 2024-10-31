@@ -314,7 +314,7 @@ const PropertyReport: IPropertyReport = ({ bankAccount, propertyId, role }) => {
             await router.push({
                 pathname: router.pathname,
                 query: { ...router.query, offset: 0 },
-            })
+            }, undefined, { shallow: true })
         }
         setTab(tab)
     }, [handleClearSelection, router])

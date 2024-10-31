@@ -773,7 +773,7 @@ const ClientCardPageContent = ({
         setActiveTab(newKey)
         const newRoute = `${router.route.replace('[number]', phoneNumber)}?tab=${newKey}`
 
-        return router.push(newRoute)
+        return router.push(newRoute, undefined, { shallow: true })
     }, [phoneNumber, router])
 
     const handleAddAddressClick = useCallback(() => handleTabChange(ADD_ADDRESS_TAB_KEY), [handleTabChange])

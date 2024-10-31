@@ -149,7 +149,7 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
             }, { id: billingCtxId })
                 .then(()=> {
                     if (orgType === SERVICE_PROVIDER_TYPE) {
-                        router.push({ query: { step: 3 } })
+                        router.push({ query: { step: 3 } }, undefined, { shallow: true })
                     } else {
                         onFinish()
                     }

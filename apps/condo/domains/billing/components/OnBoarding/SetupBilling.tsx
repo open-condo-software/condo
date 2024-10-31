@@ -33,7 +33,7 @@ const SetupInstructionBilling: React.FC<SetupInstructionBillingProps> = ({ instr
     const router = useRouter()
 
     const handleDoneClick = useCallback(() => {
-        router.push({ query: { step: 2 } })
+        router.push({ query: { step: 2 } }, undefined, { shallow: true })
     }, [router])
 
     return (
@@ -68,7 +68,7 @@ const SetupInteractiveBilling: React.FC<SetupInteractiveBillingProps> = ({ setup
     const frameOrigin = useMemo(() => extractOrigin(setupUrl), [setupUrl])
     const handleDoneMessage = useCallback((event: MessageEvent) => {
         if (event.origin === frameOrigin && get(event.data, 'success') === true) {
-            router.push({ query: { step: 2 } } )
+            router.push({ query: { step: 2 } }, undefined, { shallow: true })
         }
     }, [frameOrigin, router])
 

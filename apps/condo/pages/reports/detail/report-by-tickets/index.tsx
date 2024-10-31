@@ -179,7 +179,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
             classifierList: JSON.stringify(classifierListRef.current),
             executorList: JSON.stringify(executorListRef.current),
             responsibleList: JSON.stringify(responsibleListRef.current),
-        }))
+        }), undefined, { shallow: true })
     }, [dateRange, specification, addressList, responsibleList, responsibleList, classifierList, viewMode, groupTicketsBy])
 
     useEffect(() => {

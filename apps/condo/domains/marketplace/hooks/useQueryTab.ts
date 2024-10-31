@@ -34,7 +34,7 @@ export function useQueryTab (tabs: MarketplacePageTypes[]): [MarketplacePageType
     }, [router.query, tabs])
 
     const handleUpdateTab = useCallback((newKey: string) => {
-        return router.push({ query: { tab: newKey } })
+        return router.push({ query: { tab: newKey } }, undefined, { shallow: true })
     }, [router])
 
     if (!tabs || tabs.length < 1) return null
