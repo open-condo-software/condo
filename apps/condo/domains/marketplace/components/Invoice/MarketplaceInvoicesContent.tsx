@@ -80,9 +80,10 @@ const TableContent = () => {
             { ...filtersFromQuery, createdAt }
         )
         updateQuery(router, {
-            newParameters: { ...newParameters, tab: MARKETPLACE_PAGE_TYPES.bills } },
-        { routerAction: 'replace', resetOldParameters: false }
-        )
+            newParameters: { ...newParameters, tab: MARKETPLACE_PAGE_TYPES.bills },
+        }, {
+            routerAction: 'replace', resetOldParameters: false, shallow: true,
+        })
     }, [])
 
     const disabledDate = useCallback((currentDate) => {

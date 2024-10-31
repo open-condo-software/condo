@@ -545,7 +545,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         }
 
         const newParameters = getFiltersQueryData(filtersValue)
-        await updateQuery(router, { newParameters: { ...newParameters, ...extraQueryParameters } }, { routerAction: 'replace' })
+        await updateQuery(router, { newParameters: { ...newParameters, ...extraQueryParameters } }, { routerAction: 'replace', shallow: true })
         setIsMultipleFiltersModalVisible(false)
     }, [searchFilter, onSubmit, router, setIsMultipleFiltersModalVisible])
 

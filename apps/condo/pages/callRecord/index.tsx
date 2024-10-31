@@ -68,7 +68,7 @@ const StartedAtFilter = ({ placeholder, field }) => {
             omit(filtersFromQuery, field) : { ...filtersFromQuery, [field]: value.toISOString() }
 
         const newParameters = getFiltersQueryData(newFilters)
-        await updateQuery(router, { newParameters }, { resetOldParameters: false })
+        await updateQuery(router, { newParameters }, { resetOldParameters: false, shallow: true })
     }, 400), [field, filtersFromQuery, router])
 
     const handleDateChange = useCallback((value) => updateStartedAtFilters(value), [updateStartedAtFilters])

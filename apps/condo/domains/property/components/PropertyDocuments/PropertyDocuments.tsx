@@ -149,7 +149,7 @@ export const PropertyDocuments: React.FC<PropertyDocumentsProps> = ({
             newFilters = { ...newFilters, category: value }
         }
         const newParameters = getFiltersQueryData(newFilters)
-        await updateQuery(router, { newParameters }, { routerAction: 'replace', resetOldParameters: false })
+        await updateQuery(router, { newParameters }, { routerAction: 'replace', resetOldParameters: false, shallow: true })
     }, [filters, router])
 
     const canManagePropertyDocuments = useMemo(() => get(role, 'canManageDocuments', false), [role])

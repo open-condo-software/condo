@@ -55,7 +55,7 @@ const CreateMeterPage: ICreateMeterPage = () => {
             newParameters: {
                 tab: METER_TAB_TYPES.meter,
             },
-        }, { routerAction: 'replace', resetOldParameters: true })
+        }, { routerAction: 'replace', resetOldParameters: true, shallow: true })
     }, [router])
 
     useEffect(() => {        

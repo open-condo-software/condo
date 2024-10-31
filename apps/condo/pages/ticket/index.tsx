@@ -184,6 +184,7 @@ const TicketTable = ({
         await updateQuery(router, { newParameters: { selectedTicketIds: selectedTicketKeys } }, {
             routerAction: 'replace',
             resetOldParameters: false,
+            shallow: true,
         })
     }, DEBOUNCE_TIMEOUT), [])
 
@@ -951,7 +952,7 @@ export const TicketTypeFilterSwitch = ({ ticketFilterQuery }) => {
             }
         }
         const newParameters = getFiltersQueryData(newFilters)
-        await updateQuery(router, { newParameters }, { routerAction: 'replace' })
+        await updateQuery(router, { newParameters }, { routerAction: 'replace', shallow: true })
     }, [filters, logEvent, router])
 
     return (
