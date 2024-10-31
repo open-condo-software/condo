@@ -45,7 +45,7 @@ export const OfferSetupPage: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
                 || !get(acquiringContext, 'invoiceTaxRegime')
             )
         ) {
-            router.replace({ query: { step: 0 } })
+            router.replace({ query: { step: 0 } }, undefined, { shallow: true })
         }
     }, [acquiringContextId, router, acquiringContext, acquiringContextLoading, acquiringContextError])
 

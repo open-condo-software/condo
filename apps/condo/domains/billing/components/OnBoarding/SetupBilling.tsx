@@ -114,14 +114,14 @@ export const SetupBilling: React.FC = ()=> {
     // NOTE: If already connected billing = skip to final step
     useEffect(() => {
         if (!connectedCtxLoading && !connectedCtxError && connectedContextId) {
-            router.replace({ query: { ...router.query, step: 2 } })
+            router.replace({ query: { ...router.query, step: 2 } }, undefined, { shallow: true })
         }
     }, [router, connectedCtxLoading, connectedCtxError, connectedContextId])
 
     // If no context found, return to step 0
     useEffect(() => {
         if (!currentCtxLoading && !currentCtxError && !currentContextId) {
-            router.replace({ query: { step: 0 } })
+            router.replace({ query: { step: 0 } }, undefined, { shallow: true })
         }
     }, [router, currentCtxLoading, currentCtxError, currentContextId])
 

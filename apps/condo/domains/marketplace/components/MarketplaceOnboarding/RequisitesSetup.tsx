@@ -197,7 +197,7 @@ export const RequisitesSetup: React.FC = () => {
             }
 
             promise.then(async () => {
-                await router.replace({ query: { step: 1 } })
+                await router.replace({ query: { step: 1 } }, undefined, { shallow: true })
             }).catch(errorHandler)
 
             setIsLoading(false)

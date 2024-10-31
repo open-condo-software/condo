@@ -216,7 +216,7 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
             await router.replace({
                 pathname: router.pathname,
                 query: { ...router.query, period },
-            })
+            }, undefined, { shallow: true })
         }
     }, [router, bankAccountReports])
     const onMouseOver = useCallback((itemName) => () => {
@@ -288,7 +288,7 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
             router.replace({
                 pathname: router.pathname,
                 query: { ...router.query, period: selectedPeriod },
-            })
+            }, undefined, { shallow: true })
         }
     }, [router])
 

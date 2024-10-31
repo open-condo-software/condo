@@ -97,9 +97,9 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
     useEffect(() => {
         // No connected billing = go to setup beginning
         if (!billingCtxLoading && !billingCtxError && !billingCtxId) {
-            router.replace({ query: { step: 0 } })
+            router.replace({ query: { step: 0 } }, undefined, { shallow: true })
         } else if (!connectedCtxLoading && !connectedCtxError && connectedCtxId) {
-            router.replace({ query: { step: 3 } })
+            router.replace({ query: { step: 3 } }, undefined, { shallow: true })
         }
     }, [
         billingCtxLoading,

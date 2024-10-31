@@ -74,7 +74,7 @@ export const SelectBilling: React.FC = () => {
     // NOTE: If already connected billing = skip to final step
     useEffect(() => {
         if (!ctxLoading && !ctxError && connectedContextId) {
-            router.replace({ query: { ...router.query, step: 2 } })
+            router.replace({ query: { ...router.query, step: 2 } }, undefined, { shallow: true })
         }
     }, [router, ctxLoading, ctxError, connectedContextId])
 

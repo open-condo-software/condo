@@ -94,7 +94,7 @@ export const MeterTypeSwitch = ({ defaultValue }: MeterTypeSwitchProps): JSX.Ele
         const value = event.target.value
         setValue(value)
         logEvent({ eventName: 'MeterTypeChange', denyDuplicates: true, eventProperties: { type: value } })
-        router.replace({ query: { ...router.query, type: value } })
+        router.replace({ query: { ...router.query, type: value } }, undefined, { shallow: true })
     }, [logEvent])
 
     return (
@@ -141,11 +141,11 @@ const MetersPage: IMeterIndexPage = () => {
     const activeType = useMemo(() => type ? type : METER_TYPES.unit,  [type])
 
     const changeRouteToActiveTab = useCallback(async (activeTab: string) => {
-        router.replace({ query: { tab: activeTab, type: get(router, 'query.type') } })
+        router.replace({ query: { tab: activeTab, type: get(router, 'query.type') } }, undefined, { shallow: true })
     }, [router])
 
     const changeRouteToActiveType = useCallback(async (activeType: string) => {
-        router.replace({ query: { tab: get(router, 'query.tab'), type: activeType } })
+        router.replace({ query: { tab: get(router, 'query.tab'), type: activeType } }, undefined, { shallow: true })
     }, [router])
 
 
