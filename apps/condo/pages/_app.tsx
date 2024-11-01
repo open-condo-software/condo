@@ -96,7 +96,7 @@ import '@open-condo/ui/dist/style-vars/variables.css'
 import '@condo/domains/common/components/containers/global-styles.css'
 
 
-const { publicRuntimeConfig: { defaultLocale, sppConfig, isSsrDisabled } } = getConfig()
+const { publicRuntimeConfig: { defaultLocale, sppConfig, isDisabledSsr } } = getConfig()
 
 
 const ANT_LOCALES = {
@@ -565,8 +565,8 @@ export default (
         withApollo({ legacy: false, apolloHelperOptions })(
             withAuth({ legacy: false, USER_QUERY: AuthenticatedUserDocument })(
                 withOrganization({ legacy: false, GET_ORGANIZATION_EMPLOYEE_QUERY: GetActiveOrganizationEmployeeDocument, useInitialEmployeeId })(
-                    withIntl({ ssr: !isSsrDisabled, messagesImporter, extractReqLocale, defaultLocale })(
-                        withFeatureFlags({ ssr: !isSsrDisabled })(
+                    withIntl({ ssr: !isDisabledSsr, messagesImporter, extractReqLocale, defaultLocale })(
+                        withFeatureFlags({ ssr: !isDisabledSsr })(
                             MyApp
                         )
                     )
