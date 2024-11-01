@@ -1,10 +1,10 @@
 const Big = require('big.js')
 const dayjs = require('dayjs')
-const { get, isPlainObject } = require('lodash')
+const { get } = require('lodash')
 
 const { FinanceInfoClient } = require('@open-condo/clients/finance-info-client/FinanceInfoClient')
 const { getLogger } = require('@open-condo/keystone/logging')
-const { getByCondition } = require('@open-condo/keystone/schema')
+const { getByCondition, find } = require('@open-condo/keystone/schema')
 
 const { buildExportFile, DOCX_FILE_META } = require('@condo/domains/common/utils/createExportFile')
 const { renderMoney } = require('@condo/domains/common/utils/money')
@@ -43,23 +43,23 @@ const getDataFormatByLocale = ( locale ) => {
     return 'YYYY-MM-DD'
 }
 
-const _changeToEmptyCell = (key, value) => {
-    if (value) {
-        return ''
+const _changeToBlanks = (key, value) => {
+    if (!value) {
+        return (key === 'address' || key === 'name') ? LONG_BLANK : SHORT_BLANK
     }
     return value
 }
 
-const _changeToBlanks = (key, value) => {
-    if (value) {
-        return (key === 'address' || key === 'name') ? LONG_BLANK : SHORT_BLANK
+const _changeToEmptyCell = (key, value) => {
+    if (!value) {
+        return ''
     }
     return value
 }
 
 const replaceAllUndefinedValues = (object, replace) => {
     for (let key in object) {
-        if (isPlainObject(object[key])) {
+        if (typeof object[key] === 'object' && object[key] !== null) {
             replaceAllUndefinedValues(object[key], replace)
         } else (
             object[key] = replace(key, object[key])
@@ -67,7 +67,6 @@ const replaceAllUndefinedValues = (object, replace) => {
     }
     return object
 }
-
 
 const buildExportWordFile = async ({ task, documentData, locale, timeZone }) => {
     const { id, ticket } = task
@@ -110,7 +109,6 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
         })
         : null
 
-    // Переписать на find 
     const invoices = await Invoice.getAll(context, {
         ticket: { id: ticket.id },
         deletedAt: null,
@@ -119,32 +117,35 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
         sortBy: ['createdAt_ASC'],
     })
 
-    // Спросить у Матвея, как работать с этим? Нет тестов
-
     const currencyCode = get(invoices, '0.currencyCode') || DEFAULT_INVOICE_CURRENCY_CODE
     let totalSum = Big(0), totalVAT = Big(0)
 
     const listOfWorks = invoices.reduce((acc, invoice) => {
         const rows = Array.isArray(invoice.rows) ? invoice.rows : []
         acc.push(...rows.map((row, index) => {
-            const isExactPrice = !row.isMin ? row.toPay : 0
-            const price = !Number.isNaN(isExactPrice) ? Big(isExactPrice) : 0
-            const sum = !Number.isNaN(row.count) ? price.times(get(row, 'count', 1)) : 1
-            const vatPercent = !Number.isNaN(row.vatPercent) ? Big(get(row, 'vatPercent', 0)) : 0
+            let price = Big(0)
+            if (row.isMin) {
+                price = Big(0)
+            } else {
+                price = !Number.isNaN(parseFloat(row.toPay)) ? Big(row.toPay) : Big(0)
+            }
+            const count = !Number.isNaN(parseFloat(row.count)) ? Big(row.count) : Big(1)
+            const vatPercent = !Number.isNaN(parseFloat(row.vatPercent)) ? Big(get(row, 'vatPercent', 0)) : Big(0)
+
+            const sum = price.times(count)
+
             totalSum = totalSum.plus(sum) 
             totalVAT = totalVAT.plus(sum.times(vatPercent).div(100))
 
-            return _changeToEmptyCell({
+            return {
                 number: index + 1,
                 name: row.name,
-                count: row.count,
+                count: String(count),
                 price: renderMoney(price, currencyCode, locale),
-                vat: vatPercent,
+                vat: String(vatPercent),
                 sum: renderMoney(sum, currencyCode, locale),
-            })
+            }
         }))
-        totalSum = !Number.isNaN(totalSum) ? totalSum : 0
-        totalVAT = !Number.isNaN(totalVAT) ? totalVAT : 0
 
         return acc
     }, [])
@@ -172,8 +173,8 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
             bic: get(invoices, '0.recipient.bic'),
         },
         totalInWords: {
-            totalSum: moneyToWords(totalSum.toFixed(2), { locale, currencyCode }),
-            totalVAT: moneyToWords(totalVAT.toFixed(2), { locale, currencyCode }),
+            totalSum: moneyToWords(totalSum, { locale, currencyCode }),
+            totalVAT: moneyToWords(totalVAT, { locale, currencyCode }),
         },
     }
 

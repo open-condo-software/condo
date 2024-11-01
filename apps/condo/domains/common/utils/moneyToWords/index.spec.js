@@ -1,27 +1,58 @@
 const { moneyToWords } = require('.')
 
-describe('Wrong Locale', () => {
-    const locale = 'fr-sfs'
+describe('Tests moneyToWords', () => {
+    const unsupportedLocale = 'fr'
+    const unsupportedCurrencyCode = 'BTC'
 
-    test(`'format' called with ${locale} locale`, () => {
-        expect(() => moneyToWords(1, { locale })).toThrow(/Unknown Locale/)
+    test(`moneyToWords called with not supported ${unsupportedLocale} locale`, () => {
+        expect(() => moneyToWords(1, { locale: unsupportedLocale })).toThrow(/Supported only "ru" and "en" locale/)
     })
 
-    const currencyCode = 'SDF'
-    test(`'format' called with ${currencyCode} currencyCode`, () => {
-        expect(() => moneyToWords(1, { currencyCode })).toThrow(/Unknown currencyCode/)
+    test(`moneyToWords called with not supported ${unsupportedCurrencyCode} currencyCode`, () => {
+        expect(() => moneyToWords(1, { currencyCode: unsupportedCurrencyCode })).toThrow(/Supported only "RUB" and "USD" currencyCode/)
     })
-})
 
-describe('Test Wrong Inputs', () => {
-
-    const testWrongInputs = [
+    const testInvalidInputs = [
         '',
-        'sdf.asf',
+        '      ',
+        undefined,
+        {},
+        [],
+        true,
+        false,
         NaN,
+        'ssdfsdfsd',
+        '141,124',
+        '    12345 125 1245',
+        '124.sdf',
+        '124_124_124.24',
+        '123.124.1241.124',
+        'NaN',
+        '______',
+        '-125-',
+        '--124',
+        Infinity,
+        -Infinity,
     ]
 
-    test.concurrent.each(testWrongInputs)('Input %s', (input) => {
+    const testValidInputs = [
+        0,
+        '0',
+        '123',
+        '123.43',
+        '124.43252323',
+        '-124.12',
+        12541,
+        1245.124,
+        -124124,
+    ]
+
+    test.concurrent.each(testInvalidInputs)('Input %s', (input) => {
         expect(() => moneyToWords(input)).toThrow(/Invalid Number/)
     })
+
+    test.concurrent.each(testValidInputs)('Input %s', (input) => {
+        expect(() => moneyToWords(input)).not.toThrow()
+    })
+
 })

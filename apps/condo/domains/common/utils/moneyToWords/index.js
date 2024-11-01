@@ -1,103 +1,110 @@
 const LOCALES = require('./locales')
 
-const formatRegExp = /\$([a-z]+)/gi
+const FORMAT_REG_EXP = /\$([a-z]+)/gi
 
-let currency, smallDischarges, bigDischarges
-
-const setWordsToConvert = (locale = 'ru', currencyCode = 'RUB') => {
-    if (!(locale in LOCALES)) {
-        throw new Error(`Unknown Locale "${locale}"`)
-    }
-    const wordsToConvert = LOCALES[locale]
-    if (!(wordsToConvert.currency[currencyCode])) {
-        throw new Error(`Unknown currencyCode "${currencyCode}"`)
-    }
-    currency = wordsToConvert.currency[currencyCode]
-    smallDischarges = wordsToConvert.smallDischarges
-    bigDischarges = wordsToConvert.bigDischarges
-}
-
-const defaultOptions = {
+const DEFAULT_OPTIONS = {
     locale: 'ru',
     currencyCode: 'RUB',
     format: '$WholeString $wholeCurrency $decimalString $decimalCurrency',
 }
 
-const moneyToWords = (input, options = {}) => {
-    options = Object.assign({}, defaultOptions, options)
+/**
+ * @exception Currently only supported - 'ru' and 'en' locale 
+ * @exception Currently only supported - 'RUB' and 'USD' currencyCode 
+ * 
+ * @param { number | string } input - whole and decimal parts only through a dot. Example '124123.15'
+ * @param {{
+ *      locale: string,
+ *      currencyCode: string,
+ *      format: string,
+ * }} options 
+ * @returns { string } money converted into words
+ * @default options = {
+ *   locale: 'ru',
+ *   currencyCode: 'RUB',
+ *   format: '$WholeString $wholeCurrency $decimalString $decimalCurrency', 
+ *   }
+ * @description
+ * options.format contains the form of the string that the function will return.
+ * options.format can contain any combination of the following variables: 
+ * - $wholeString, 
+ * - $wholeCurrency, 
+ * - $WholeString, 
+ * - $WholeCurrency, 
+ * - $decimalString, 
+ * - $decimalCurrency, 
+ * - $DecimalString, 
+ * - $decimalCurrency
+ * @example moneyToWords('124', oprtions = {locale: 'en', currencyCode: 'USD', format = '$WholeString $wholeCurrency'}) returns 'One hundred twenty four dollars'
+ * @example moneyToWords('124.45', oprtions = {locale: 'en', currencyCode: 'USD', format = '$decimalString $decimalCurrency'}) returns 'fourty five cents'
+ * @example moneyToWords('123.45', oprtions = {locale: 'en', currencyCode: 'USD', format = '$WholeString $wholeCurrency $decimalString $decimalCurrency'}) returns 'One hundred twenty four dollars fourty five cents'
+ * @exception This function can work with numbers up to >10000000000. But it can be easily extended to numbers of higher orders.
+ */
 
-    if (options.locale) setWordsToConvert(options.locale, options.currencyCode)
+function moneyToWords (input, options = {}) {
+    options = { ...DEFAULT_OPTIONS, ...options }
 
-    if (!isValidNumber(input)) throw new Error(`Invalid Number '${input}'`)
+    if (!(options.locale === 'ru' || options.locale === 'en')) throw new Error('Supported only "ru" and "en" locale')
+    if (!(options.currencyCode === 'RUB' || options.currencyCode === 'USD')) throw new Error('Supported only "RUB" and "USD" currencyCode')
+    if (!_isValidNumber(input)) throw new Error(`Invalid Number "${input}"`)
 
-    let [base = '0', dop = '00'] = parseNumber(input)
+    const { currency, smallDischarges, bigDischarges } = _setWordsToConvert(options.locale, options.currencyCode)
 
-    dop = dop.slice(0, 2)
-    if (dop.length === 1) {
-        dop = (dop + '00').slice(0, 2)
-    } else {
-        dop = ('00' + dop).slice(-2)
-    }
+    const roundedInput = Number(input).toFixed(2)
 
-    return options.format.replace(formatRegExp, (find, arg) => {
+    let [whole = '0', decimal = '00'] = _parseNumber(roundedInput)
+
+    if (!(decimal.length === 2)) throw new Error(`Decimal part must be two digits, but his '${decimal}'`)
+
+    const wholeString = _numbersInWords(roundedInput, { smallDischarges, bigDischarges })
+    const wholeCurrency = _counterWord(currency[0], +whole.slice(-2))
+    const decimalString = _numbersInWords(+decimal, { smallDischarges, bigDischarges }, true)
+    const decimalCurrency = _counterWord(currency[1], +decimal)
+
+    return options.format.replace(FORMAT_REG_EXP, (find, arg) => {
         switch (arg) {
-            case 'wholeString': return numbersInWords(input)
-            case 'wholeCurrency': return counterWord(currency[0], +base.slice(-2))
-            case 'WholeString': return firstUpper(numbersInWords(input))
-            case 'WholeCurrency': return firstUpper(counterWord(currency[0], +base.slice(-2)))
-            case 'decimal': return dop
-            case 'decimalString': return numbersInWords(+dop, true)
-            case 'decimalCurrency': return counterWord(currency[1], +dop)
-            case 'DecimalString': return firstUpper(numbersInWords(+dop, true))
-            case 'DecimalCurrency': return firstUpper(counterWord(currency[1], +dop))
+            case 'wholeString': return wholeString
+            case 'wholeCurrency': return wholeCurrency
+            case 'WholeString': return _firstUpper(wholeString)
+            case 'WholeCurrency': return _firstUpper(wholeCurrency)
+            case 'decimalString': return decimalString
+            case 'decimalCurrency': return decimalCurrency
+            case 'DecimalString': return _firstUpper(decimalString)
+            case 'DecimalCurrency': return _firstUpper(decimalCurrency)
             default: return find
         }
     })
 }
 
-const isValidNumber = (input) => {
-    return !isNaN(input) && input.length !== 0
+function _isValidNumber (input) {
+    return !isNaN(parseFloat(input)) && isFinite(input)
 }
 
-const parseNumber = (input) => {
+function _setWordsToConvert (locale = 'ru', currencyCode = 'RUB') {
+    if (!(locale in LOCALES)) throw new Error(`Unknown Locale "${locale}"`)
+    const wordsToConvert = LOCALES[locale]
+    if (!(currencyCode in wordsToConvert.currency)) throw new Error(`Unknown currencyCode "${currencyCode}"`)
+    const currency = wordsToConvert.currency[currencyCode]
+    const smallDischarges = wordsToConvert.smallDischarges
+    const bigDischarges = wordsToConvert.bigDischarges
+    return { currency, smallDischarges, bigDischarges }
+}
+
+function _parseNumber (input) {
     return input
         .toString()
         .replace(/[\s\t-]+/g, '')
-        .split(/[.,]/)
+        .split(/[.]/)
 }
 
-const joinWord = (input, index = 0) => {
-    return input[0] + input[index + 1]
-}
-
-const firstUpper = (input) => {
-    return input.slice(0, 1).toUpperCase() + input.slice(1).toLocaleLowerCase()
-}
-
-const counterWord = (input, counter) => {
-    const units = counter % 10
-
-    if (counter > 10 && counter < 20)
-        return joinWord(input, 0)
-
-    if (units == 1)
-        return joinWord(input, 1)
-
-    if (units > 1 && units < 5)
-        return joinWord(input, 2)
-
-    return joinWord(input, 0)
-}
-
-const numbersInWords = (input, com = false) => {
+function _numbersInWords (input, { smallDischarges, bigDischarges }, firstDigitDeclension ) {
     const output = []
 
-    let [num] = parseNumber(input)
+    let [num] = _parseNumber(input)
 
     let deep = 0
 
-    if (!num || num === '0')
-        return smallDischarges[0][0]
+    if (!num || num === '0') return smallDischarges[0][0]
 
     while (num.length) {
         const row = []
@@ -116,7 +123,7 @@ const numbersInWords = (input, com = false) => {
             } else {
                 row.push(smallDischarges[3][dozens])
 
-                if (deep === 1 || deep == 0 && com) {
+                if (deep === 1 || deep == 0 && firstDigitDeclension) {
                     row.push(
                         smallDischarges[5][units] ?? smallDischarges[1][units]
                     )
@@ -126,11 +133,11 @@ const numbersInWords = (input, com = false) => {
             }
 
             if (deep) {
-                row.push(counterWord(bigDischarges[deep] ?? bigDischarges[0], current))
+                row.push(_counterWord(bigDischarges[deep] ?? bigDischarges[0], current))
             }
         }
 
-        const rowString = row.filter(e => e && e != '-').join(' ')
+        const rowString = row.filter(partJoin => partJoin && partJoin !== '-').join(' ')
 
         if (rowString)
             output.unshift(rowString)
@@ -139,6 +146,29 @@ const numbersInWords = (input, com = false) => {
     }
 
     return output.join(' ')
+}
+
+function _counterWord (input, counter) {
+    const units = counter % 10
+
+    if (counter > 10 && counter < 20)
+        return _joinWord(input, 0)
+
+    if (units == 1)
+        return _joinWord(input, 1)
+
+    if (units > 1 && units < 5)
+        return _joinWord(input, 2)
+
+    return _joinWord(input, 0)
+}
+
+function _joinWord (input, index = 0) {
+    return input[0] + input[index + 1]
+}
+
+function _firstUpper (input) {
+    return input.slice(0, 1).toUpperCase() + input.slice(1).toLocaleLowerCase()
 }
 
 module.exports = {
