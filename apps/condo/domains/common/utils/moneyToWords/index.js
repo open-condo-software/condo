@@ -54,7 +54,7 @@ function moneyToWords (input, options = {}) {
 
     let [whole = '0', decimal = '00'] = _parseNumber(roundedInput)
 
-    if (!(decimal.length === 2)) throw new Error(`Decimal part must be two digits, but his '${decimal}'`)
+    if (decimal.length !== 2) throw new Error(`Decimal part must be two digits, but his '${decimal}'`)
 
     const wholeString = _numbersInWords(roundedInput, { smallDischarges, bigDischarges })
     const wholeCurrency = _counterWord(currency[0], +whole.slice(-2))

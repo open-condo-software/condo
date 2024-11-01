@@ -39,7 +39,7 @@ async function getFinanceInfoDataByLocale (organization, { locale }) {
 }
 
 const getDataFormatByLocale = ( locale ) => {
-    if (locale === 'ru') 'DD.MM.YYYY'
+    if (locale === 'ru') return 'DD.MM.YYYY'
     return 'YYYY-MM-DD'
 }
 
@@ -123,7 +123,7 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
     const listOfWorks = invoices.reduce((acc, invoice) => {
         const rows = Array.isArray(invoice.rows) ? invoice.rows : []
         acc.push(...rows.map((row, index) => {
-            let price = Big(0)
+            let price
             if (row.isMin) {
                 price = Big(0)
             } else {
