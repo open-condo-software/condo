@@ -22,7 +22,9 @@ jobs:
       - name: "Check namespace exist"
         id: check_ns
         run: |
-          kubectl --kubeconfig <(echo $KUBE_CONFIG_BASE64_DATA | base64 --decode) get ns ${{ env.REVIEW_NAMESPACE }}
+          kubectl --kubeconfig <(echo $KUBE_CONFIG_BASE64_DATA | base64 --decode) get ns ${{ env.REVIEW_NAMESPACE }} > /dev/null 2>&1 && \
+          kubectl --kubeconfig <(echo $KUBE_CONFIG_BASE64_DATA | base64 --decode) delete namespace ${{ env.REVIEW_NAMESPACE }} \
+          echo "namespace ${{ env.REVIEW_NAMESPACE }} does not exist"
 
 #  converge:
 #    name: "Remove review"
