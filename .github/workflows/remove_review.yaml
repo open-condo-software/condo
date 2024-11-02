@@ -12,8 +12,8 @@ jobs:
   check_ns:
     name: "Check namespace exist"
     runs-on: self-hosted
-    outputs:
-      ns_exist: ${{ steps.check_ns.outputs.exist }}
+    env:
+      KUBE_CONFIG_BASE64_DATA: ${{ secrets.TEST_CLUSTER_KUBE_CONFIG_BASE64_DATA }}
     steps:
       - name: Set env for namespace
         run: |
@@ -22,34 +22,32 @@ jobs:
       - name: "Check namespace exist"
         id: check_ns
         run: |
-          kubectl get ns ${{ env.REVIEW_NAMESPACE }}
-          kubectl get ns ${{ env.REVIEW_NAMESPACE }} > /dev/null 2>&1 && \
-          echo "::set-output name=exist::true" || \
-          echo "::set-output name=exist::false"
-  converge:
-    name: "Remove review"
-    needs: [check_ns]
-    if: needs.check_ns.outputs.ns_exist == 'true'
-    runs-on: self-hosted
-    env:
-      WERF_SECRET_KEY: ${{ secrets.WERF_SECRET_KEY }}
-      PULL_USER: ${{ secrets.PULL_USER }}
-      PULL_PERSONAL_ACCESS_KEY: ${{ secrets.PULL_PERSONAL_ACCESS_KEY }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          submodules: recursive
-          ssh-key: ${{ secrets.RUNNER_SSH_PRIVATE_KEY }}
-      - name: Set env for namespace
-        run: |
-          REF_NAME=${{ github.event.ref }}
-          echo "REVIEW_NAMESPACE=$(echo review-${REF_NAME##*/} | sed 's/\_/-/g')" >> $GITHUB_ENV
-      - name: Dismiss
-        uses: werf/actions/dismiss@v1.2
-        env:
-          WERF_NAMESPACE: ${{ env.REVIEW_NAMESPACE }}
-          WERF_WITH_NAMESPACE: true
-        with:
-          env: review
+          kubectl --kubeconfig <(echo $KUBE_CONFIG_BASE64_DATA | base64 --decode) get ns ${{ env.REVIEW_NAMESPACE }}
+
+#  converge:
+#    name: "Remove review"
+#    needs: [check_ns]
+#    if: needs.check_ns.outputs.ns_exist == 'true'
+#    runs-on: self-hosted
+#    env:
+#      WERF_SECRET_KEY: ${{ secrets.WERF_SECRET_KEY }}
+#      PULL_USER: ${{ secrets.PULL_USER }}
+#      PULL_PERSONAL_ACCESS_KEY: ${{ secrets.PULL_PERSONAL_ACCESS_KEY }}
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v4
+#        with:
+#          fetch-depth: 0
+#          submodules: recursive
+#          ssh-key: ${{ secrets.RUNNER_SSH_PRIVATE_KEY }}
+#      - name: Set env for namespace
+#        run: |
+#          REF_NAME=${{ github.event.ref }}
+#          echo "REVIEW_NAMESPACE=$(echo review-${REF_NAME##*/} | sed 's/\_/-/g')" >> $GITHUB_ENV
+#      - name: Dismiss
+#        uses: werf/actions/dismiss@v1.2
+#        env:
+#          WERF_NAMESPACE: ${{ env.REVIEW_NAMESPACE }}
+#          WERF_WITH_NAMESPACE: true
+#        with:
+#          env: review
