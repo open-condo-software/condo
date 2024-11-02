@@ -22,7 +22,7 @@ jobs:
       - name: "Check namespace exist"
         id: check_ns
         run: |
-          echo kubectl get ns ${{ env.REVIEW_NAMESPACE }}
+          kubectl get ns ${{ env.REVIEW_NAMESPACE }}
           kubectl get ns ${{ env.REVIEW_NAMESPACE }} > /dev/null 2>&1 && \
           echo "::set-output name=exist::true" || \
           echo "::set-output name=exist::false"
