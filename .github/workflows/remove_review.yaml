@@ -25,7 +25,7 @@ jobs:
           kubectl --kubeconfig <(echo $KUBE_CONFIG_BASE64_DATA | base64 --decode) get ns ${{ env.REVIEW_NAMESPACE }} > /dev/null 2>&1 && \
           kubectl --kubeconfig <(echo $KUBE_CONFIG_BASE64_DATA | base64 --decode) delete namespace ${{ env.REVIEW_NAMESPACE }} || \
           echo "namespace ${{ env.REVIEW_NAMESPACE }} does not exist"
-
+          psql --version
 #  converge:
 #    name: "Remove review"
 #    needs: [check_ns]
