@@ -19,23 +19,40 @@ import { Address, LINK_ADDRESS_AND_SOURCE_MUTATION } from '@address-service/doma
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 
 const LinkAddressAndSource = () => {
+    const { addToast } = useToasts()
+
     const [source, setSource] = useState('')
     const [tin, setTin] = useState('')
     const [addressesOptions, setAddressesOptions] = useState([])
     const [selectedAddress, setSelectedAddress] = useState(null)
     const [parseUnit, setParseUnit] = useState(false)
-    const { addToast } = useToasts()
 
-    const resetForm = () => {
+    const resetForm = useCallback(() => {
         setSource('')
         setTin('')
         setAddressesOptions([])
         setSelectedAddress(null)
         setParseUnit(false)
-    }
+    }, [])
 
-    const [linkAddressAndSource, { loading: loadingSubmit, error: errorSubmit }] = useMutation(LINK_ADDRESS_AND_SOURCE_MUTATION, {
-        onCompleted: resetForm,
+    const handleSuccess = useCallback(() => {
+        resetForm()
+        addToast('Source and address successfully linked', {
+            appearance: 'success',
+            autoDismiss: true,
+        })
+    }, [addToast, resetForm])
+
+    const handleError = useCallback((e) => {
+        addToast(e.message, {
+            appearance: 'error',
+            autoDismiss: true,
+        })
+    }, [addToast])
+
+    const [linkAddressAndSource, { loading: loadingSubmit }] = useMutation(LINK_ADDRESS_AND_SOURCE_MUTATION, {
+        onCompleted: handleSuccess,
+        onError: handleError,
     })
 
     const [getAddresses, { loading: loadingAddresses, error: errorAddresses }] = useLazyQuery(Address.GET_ALL_OBJS_QUERY, {
@@ -43,17 +60,19 @@ const LinkAddressAndSource = () => {
         onCompleted: ({ objs: addresses }) => {
             setAddressesOptions(addresses.map(({ id, address }) => ({ label: address, value: id })))
         },
+        onError: handleError,
     })
 
-    const getAddressesQueryThrottled = useMemo(() => throttle((newSource) => {
-        getAddresses({ variables: { where: { address_contains_i: newSource } } })
-    }, 400), [getAddresses])
+    const throttledGetAddresses = useMemo(
+        () => throttle((newSource) => getAddresses({ variables: { where: { address_contains_i: newSource } } }), 400),
+        [getAddresses]
+    )
 
     useEffect(() => {
-        if (source) getAddressesQueryThrottled(source)
-    }, [source, getAddressesQueryThrottled])
+        if (source) throttledGetAddresses(source)
+    }, [source, throttledGetAddresses])
 
-    const handleSubmit = useCallback(async (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
         await linkAddressAndSource({
             variables: {
@@ -67,11 +86,7 @@ const LinkAddressAndSource = () => {
                 },
             },
         })
-        addToast('Source and address is successfully linked', {
-            appearance: 'success',
-            autoDismiss: true,
-        })
-    }, [linkAddressAndSource, source, tin, selectedAddress, parseUnit])
+    }
 
     return (
         <Container>
@@ -90,6 +105,7 @@ const LinkAddressAndSource = () => {
                     onChange={e => setSource(e.target.value)}
                     css={{ width: '100%' }}
                     placeholder='Source'
+                    required
                 />
                 <Input
                     value={tin}
@@ -124,8 +140,6 @@ const LinkAddressAndSource = () => {
                 >
                     Save
                 </LoadingButton>
-                {errorSubmit && <span css={{ color: 'red' }}>{errorSubmit.message}</span>}
-                {errorAddresses && <span css={{ color: 'red' }}>{errorAddresses.message}</span>}
             </form>
         </Container>
     )
