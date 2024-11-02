@@ -23,7 +23,7 @@ const testIntegers = [
 const testNegativeIntegers = cloneDeep(testIntegers)
 testNegativeIntegers.map((row, i) => {
     if (i === 0) {
-        return row[1] = `Ноль` 
+        return row[1] = 'Ноль' 
     }
     row[0] = -row[0]
     row[1] = `Минус ${row[1]}`
