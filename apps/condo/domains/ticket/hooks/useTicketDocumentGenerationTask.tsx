@@ -53,12 +53,12 @@ export const useTicketDocumentGenerationTask = ({ invoices, ticket, user, timeZo
         return [
             isSupportedDocumentTypeByLocale(TICKET_DOCUMENT_TYPE.COMPLETION_WORKS, locale) && {
                 label: CompletionWorksLabel,
-                key: 'generate-document-of-works-completion',
+                key: 'generate-document-of-completion-works',
                 onClick: getHandleClick(TICKET_DOCUMENT_TYPE.COMPLETION_WORKS),
             },
             ticket.isPaid && hasValidInvoice && isSupportedDocumentTypeByLocale(TICKET_DOCUMENT_TYPE.PAID_WORKS, locale) && {
                 label: PaidCompletionWorks,
-                key: 'generate-document-of-paid-works-completion',
+                key: 'generate-document-of-paid-works',
                 onClick: getHandleClick(TICKET_DOCUMENT_TYPE.PAID_WORKS),
             },
         ].filter(Boolean)

@@ -1,12 +1,12 @@
 /**
- * @constant { Array } bigDischarges 
- * bigDischarges[n][0] - word root;
- * bigDischarges[n][1] - word root + ending for units from 5 to 9
- * bigDischarges[n][2] - word root + ending for 1 unit
- * bigDischarges[n][3] - word root + ending for units from 2 to 4
+ * @constant { Array } dischargesMoreThanThousand 
+ * dischargesMoreThanThousand[n][0] - word root;
+ * dischargesMoreThanThousand[n][1] - word root + ending for units from 5 to 9
+ * dischargesMoreThanThousand[n][2] - word root + ending for 1 unit
+ * dischargesMoreThanThousand[n][3] - word root + ending for units from 2 to 4
  */
 
-const bigDischarges = [
+const dischargesMoreThanThousand = [
     ['…n-лион', 'ов', '', 'а'],
     ['тысяч', '', 'а', 'и'],
     ['миллион', 'ов', '', 'а'],
@@ -14,16 +14,16 @@ const bigDischarges = [
 ]
 
 /**
- * @constant { Array } smallDischarges
- * smallDischarges[0][0] - zero units
- * smallDischarges[1][n] - units from 1 to 9
- * smallDischarges[2][n] - two-digit numbers from 10 to 19
- * smallDischarges[3][n] - tens from 20 to 90
- * smallDischarges[4][n] - hundreds from 100 to 900
- * smallDischarges[5][n] - declensions of one and two
+ * @constant { Array } dischargesLessThanThousand
+ * dischargesLessThanThousand[0][0] - zero units
+ * dischargesLessThanThousand[1][n] - units from 1 to 9
+ * dischargesLessThanThousand[2][n] - two-digit numbers from 10 to 19
+ * dischargesLessThanThousand[3][n] - tens from 20 to 90
+ * dischargesLessThanThousand[4][n] - hundreds from 100 to 900
+ * dischargesLessThanThousand[5][n] - declensions of one and two
  */
 
-const smallDischarges = [
+const dischargesLessThanThousand = [
     ['ноль'],
     ['-', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'],
     ['десять', 'одиннадцать', 'двенадцать', 'тринадцать', 'четырнадцать', 'пятнадцать', 'шестнадцать', 'семнадцать', 'восемнадцать', 'девятнадцать'],
@@ -51,12 +51,17 @@ const currencyRUB = [
 * } currency 
 */
 
-const currency = {
+const supportedCurrencies = {
     'RUB': currencyRUB,
 }
 
+const mathematicalSymbol = {
+    minus: 'минус',
+}
+
 module.exports = {
-    bigDischarges,
-    smallDischarges,
-    currency,
+    dischargesMoreThanThousand,
+    dischargesLessThanThousand,
+    supportedCurrencies,
+    mathematicalSymbol,
 }

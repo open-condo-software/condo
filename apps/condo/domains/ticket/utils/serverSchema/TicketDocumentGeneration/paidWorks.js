@@ -1,21 +1,21 @@
 const Big = require('big.js')
-const dayjs = require('dayjs')
 const { get } = require('lodash')
 
 const { FinanceInfoClient } = require('@open-condo/clients/finance-info-client/FinanceInfoClient')
 const { getLogger } = require('@open-condo/keystone/logging')
-const { getByCondition, find } = require('@open-condo/keystone/schema')
+const { getByCondition } = require('@open-condo/keystone/schema')
 
+const { RU_LOCALE } = require('@condo/domains/common/constants/locale')
 const { buildExportFile, DOCX_FILE_META } = require('@condo/domains/common/utils/createExportFile')
+const { formatDateToTimezone } = require('@condo/domains/common/utils/date')
 const { renderMoney } = require('@condo/domains/common/utils/money')
-const { moneyToWords } = require('@condo/domains/common/utils/moneyToWords')
+const { moneyToWords } = require('@condo/domains/common/utils/moneyToWords/moneyToWords')
 const { buildUploadInputFrom } = require('@condo/domains/common/utils/serverSchema/export')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const { DEFAULT_INVOICE_CURRENCY_CODE, INVOICE_STATUS_CANCELED } = require('@condo/domains/marketplace/constants')
 const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { TICKET_DOCUMENT_GENERATION_TASK_FORMAT } = require('@condo/domains/ticket/constants/ticketDocument')
-const { formatDateToTimezone } = require('@condo/domains/ticket/utils')
 
 const logger = getLogger('generateDocumentOfPaidWorksCompletion')
 
@@ -26,8 +26,8 @@ const financeInfoClient = new FinanceInfoClient()
 
 async function getFinanceInfoDataByLocale (organization, { locale }) {
     let organizationAddress = null, iec = null, psrn = null
-    
-    if (locale === 'ru') {
+
+    if (locale === RU_LOCALE) {
         try {
             ({ iec, psrn, organizationAddress } = await financeInfoClient.getOrganization(organization.tin))
         } catch (error) {
@@ -38,29 +38,10 @@ async function getFinanceInfoDataByLocale (organization, { locale }) {
     return { iec, psrn, organizationAddress }
 }
 
-const getDataFormatByLocale = ( locale ) => {
-    if (locale === 'ru') return 'DD.MM.YYYY'
-    return 'YYYY-MM-DD'
-}
-
-const _changeToBlanks = (key, value) => {
-    if (!value) {
-        return (key === 'address' || key === 'name') ? LONG_BLANK : SHORT_BLANK
-    }
-    return value
-}
-
-const _changeToEmptyCell = (key, value) => {
-    if (!value) {
-        return ''
-    }
-    return value
-}
-
-const replaceAllUndefinedValues = (object, replace) => {
+const replaceAllNullishValues = (object, replace) => {
     for (let key in object) {
         if (typeof object[key] === 'object' && object[key] !== null) {
-            replaceAllUndefinedValues(object[key], replace)
+            replaceAllNullishValues(object[key], replace)
         } else (
             object[key] = replace(key, object[key])
         )
@@ -94,7 +75,6 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
     const { format, timeZone: timeZoneFromUser } = task
 
     const timeZone = normalizeTimeZone(timeZoneFromUser) || DEFAULT_ORGANIZATION_TIMEZONE
-    const printDate = dayjs().tz(timeZone).locale(locale)
 
     const contact = ticket.contact ? await getByCondition('Contact', {
         id: ticket.contact,
@@ -123,40 +103,41 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
     const listOfWorks = invoices.reduce((acc, invoice) => {
         const rows = Array.isArray(invoice.rows) ? invoice.rows : []
         acc.push(...rows.map((row, index) => {
-            let price
-            if (row.isMin) {
-                price = Big(0)
-            } else {
-                price = !Number.isNaN(parseFloat(row.toPay)) ? Big(row.toPay) : Big(0)
-            }
-            const count = !Number.isNaN(parseFloat(row.count)) ? Big(row.count) : Big(1)
-            const vatPercent = !Number.isNaN(parseFloat(row.vatPercent)) ? Big(get(row, 'vatPercent', 0)) : Big(0)
+            let price = Big(0), count = Big(1), vatPercent = Big(0), sum = Big(0)
+            try {
+                if (!row.isMin) price = !Number.isNaN(parseFloat(row.toPay)) ? Big(row.toPay) : Big(0)
+                count = !Number.isNaN(parseFloat(row.count)) ? Big(row.count) : Big(1)
+                vatPercent = !Number.isNaN(parseFloat(row.vatPercent)) ? Big(row.vatPercent) : Big(0)
 
-            const sum = price.times(count)
+                sum = price.times(count)
 
-            totalSum = totalSum.plus(sum) 
-            totalVAT = totalVAT.plus(sum.times(vatPercent).div(100))
+                totalSum = totalSum.plus(sum)
+                totalVAT = totalVAT.plus(sum.times(vatPercent).div(100))
 
-            return {
-                number: index + 1,
-                name: row.name,
-                count: String(count),
-                price: renderMoney(price, currencyCode, locale),
-                vat: String(vatPercent),
-                sum: renderMoney(sum, currencyCode, locale),
+                return {
+                    number: index + 1,
+                    name: row.name,
+                    count: String(count),
+                    price: renderMoney(price, currencyCode, locale),
+                    vat: String(vatPercent),
+                    sum: renderMoney(sum, currencyCode, locale),
+                }
+            } catch (err) {
+                logger.info({ msg: 'listOfWorks generation error in document of paid completion works', err: err, taskId: task.id, ticketId: ticket.id })
+                return {}
             }
         }))
 
         return acc
     }, [])
-    
+
     // NOTE: This doc needs two variables to be generated:
     // 1. Values that will go into the table (documentTextData)
     // 2. Values that will be embeded into the text of the document (documentDataInTable)
 
     const documentTextData = {
         header: {
-            generalDate: printDate.format(getDataFormatByLocale(locale)),
+            generalDate: formatDateToTimezone(undefined, timeZone, 'DD.MM.YYYY'),
         },
         company: {
             name: get(organization, 'name'),
@@ -173,8 +154,9 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
             bic: get(invoices, '0.recipient.bic'),
         },
         totalInWords: {
-            totalSum: moneyToWords(totalSum, { locale, currencyCode }),
-            totalVAT: moneyToWords(totalVAT, { locale, currencyCode }),
+            // TODO: DOMA-10594 paidWorks with multi-currency support for moneyToWords
+            totalSum: moneyToWords(totalSum.toFixed(2), { locale, currencyCode }),
+            totalVAT: moneyToWords(totalVAT.toFixed(2), { locale, currencyCode }),
         },
     }
 
@@ -193,8 +175,8 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
     }
 
     const documentData = {
-        ...replaceAllUndefinedValues(documentTextData, _changeToBlanks),
-        ...replaceAllUndefinedValues(documentDataInTable, _changeToEmptyCell),
+        ...replaceAllNullishValues(documentTextData, (key, value) => value ? value : (key === 'address' || key === 'name') ? LONG_BLANK : SHORT_BLANK),
+        ...replaceAllNullishValues(documentDataInTable, (key, value) => value ? value : ''),
     }
 
     let fileUploadInput

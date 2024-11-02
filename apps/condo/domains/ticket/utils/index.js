@@ -53,14 +53,9 @@ const buildFullClassifierName = (classifier) => {
     ].filter(Boolean).join(' » ')
 }
 
-const formatDateToTimezone = (date, timeZone, format = 'DD.MM.YYYY') => {
-    return dayjs(date).tz(timeZone).format(format)
-}
-
 module.exports = {
     convertQualityControlOrFeedbackOptionsToText,
     filterFeedbackOptionsByScore,
     filterQualityControlOptionsByScore,
     buildFullClassifierName,
-    formatDateToTimezone,
 }
