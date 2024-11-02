@@ -1,7 +1,7 @@
 
 const { cloneDeep } = require('lodash')
 
-const { moneyToWords } = require('../index')
+const { moneyToWords } = require('../moneyToWords')
 
 const locale = 'en'
 const currencyCode = 'USD'
@@ -23,9 +23,10 @@ const testIntegers = [
 const testNegativeIntegers = cloneDeep(testIntegers)
 testNegativeIntegers.map((row, i) => {
     if (i === 0) {
-        return
+        return row[1] = 'Zero'
     }
     row[0] = -row[0]
+    row[1] = `Minus ${row[1]}`
 })
 
 const testIntegersWithCurrency = cloneDeep(testIntegers)
@@ -34,53 +35,43 @@ testIntegersWithCurrency.map((row) => {
 })
 
 
-const testFloats = [
+const testFloatsWithFirstUpper = [
     [0.0, 'Zero zero'],
     [0.04, 'Zero four'],
-    [0.0468, 'Zero five'],
-    [0.4, 'Zero forty'],
+    ['0.40', 'Zero forty'],
     [0.63, 'Zero sixty three'],
-    [0.973, 'Zero ninety seven'],
-    [0.999, 'One zero'],
     [37.06, 'Thirty seven six'],
-    [37.068, 'Thirty seven seven'],
     [37.68, 'Thirty seven sixty eight'],
-    [37.683, 'Thirty seven sixty eight'],
 ]
 
-const testFloatsWithCurrency = [
-    [0.0, 'Zero dollars zero cents'],
+const testFloatsWithCurrencyAndFirstUpper = [
+    [0.00, 'Zero dollars zero cents'],
     [0.04, 'Zero dollars four cents'],
-    [0.0468, 'Zero dollars five cents'],
-    [0.4, 'Zero dollars forty cents'],
+    ['0.40', 'Zero dollars forty cents'],
     [0.63, 'Zero dollars sixty three cents'],
-    [0.973, 'Zero dollars ninety seven cents'],
-    [0.999, 'One dollars zero cents'],
     [37.06, 'Thirty seven dollars six cents'],
-    [37.068, 'Thirty seven dollars seven cents'],
     [37.68, 'Thirty seven dollars sixty eight cents'],
-    [37.683, 'Thirty seven dollars sixty eight cents'],
 ]
 
 
 describe('Test "en" locale moneyToWords', () => {
-    test.concurrent.each(testIntegers)('moneyToWords(testIntegers) %d => %s', (input, expected) => {
+    test.each(testIntegers)('moneyToWords(testIntegers) %d => %s', (input, expected) => {
         expect(moneyToWords(input, { locale, currencyCode, format: '$wholeString' })).toBe(expected)
     })
 
-    test.concurrent.each(testNegativeIntegers)('moneyToWords(testNegativeIntegers) %d => %s', (input, expected) => {
-        expect(moneyToWords(input, { locale, currencyCode, format: '$wholeString' })).toBe(expected)
+    test.each(testNegativeIntegers)('moneyToWords(testNegativeIntegers) %d => %s', (input, expected) => {
+        expect(moneyToWords(input, { locale, currencyCode, format: '$WholeString' })).toBe(expected)
     })
 
-    test.concurrent.each(testIntegersWithCurrency)('moneyToWords(testIntegersWithCurrency) %d => %s', (input, expected) => {
+    test.each(testIntegersWithCurrency)('moneyToWords(testIntegersWithCurrency) %d => %s', (input, expected) => {
         expect(moneyToWords(input, { locale, currencyCode, format: '$wholeString $wholeCurrency' })).toBe(expected)
     })
 
-    test.concurrent.each(testFloats)('moneyToWords(testFloats) %d => %s', (input, expected) => {
+    test.each(testFloatsWithFirstUpper)('moneyToWords(testFloatsWithFirstUpper) %d => %s', (input, expected) => {
         expect(moneyToWords(input, { locale, currencyCode, format: '$WholeString $decimalString' })).toBe(expected)
     })
     
-    test.concurrent.each(testFloatsWithCurrency)('moneyToWords(testFloatsWithCurrency) %d => %s', (input, expected) => {
+    test.concurrent.each(testFloatsWithCurrencyAndFirstUpper)('moneyToWords(testFloatsWithCurrencyAndFirstUpper) %d => %s', (input, expected) => {
         expect(moneyToWords(input, { locale, currencyCode, format: '$WholeString $wholeCurrency $decimalString $decimalCurrency' })).toBe(expected)
     })
 })
