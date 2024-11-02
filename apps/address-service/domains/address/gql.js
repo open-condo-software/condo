@@ -22,7 +22,7 @@ const AddressSource = generateGqlQueries('AddressSource', ADDRESS_SOURCE_FIELDS)
 
 const LINK_ADDRESS_AND_SOURCE_MUTATION = gql`
     mutation linkAddressAndSource ($data: LinkAddressAndSourceInput!) {
-        result: linkAddressAndSource(data: $data) { addressSource, addressSourceCompounded }
+        result: linkAddressAndSource(data: $data) { addressSourceId }
     }
 `
 

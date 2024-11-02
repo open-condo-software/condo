@@ -7,7 +7,7 @@ const conf = require('@open-condo/config')
 const { faker } = require('@faker-js/faker')
 
 const {
-    generateGQLTestUtils,
+    generateGQLTestUtils, throwIfError,
 } = require('@open-condo/codegen/generate.test.utils')
 
 const { Address: AddressGQL } = require('@address-service/domains/address/gql')
@@ -183,6 +183,7 @@ async function linkAddressAndSourceByTestClient(client, extraAttrs = {}) {
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(LINK_ADDRESS_AND_SOURCE_MUTATION, { data: attrs })
+    throwIfError(data, errors)
     return [data.result, attrs]
 }
 /* AUTOGENERATE MARKER <FACTORY> */

@@ -10,8 +10,10 @@ import Select from '@arch-ui/select'
 import { gridSize } from '@arch-ui/theme'
 import { PageTitle } from '@arch-ui/typography'
 import { jsx } from '@emotion/core'
-import { throttle } from 'lodash'
-import { Fragment, useEffect, useMemo, useState } from 'react'
+import { useToasts } from '@keystonejs/app-admin-ui/node_modules/react-toast-notifications'
+import get from 'lodash/get'
+import throttle from 'lodash/throttle'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 
 import { Address, LINK_ADDRESS_AND_SOURCE_MUTATION } from '@address-service/domains/address/gql'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
@@ -21,39 +23,38 @@ const LinkAddressAndSource = () => {
     const [tin, setTin] = useState('')
     const [addressesOptions, setAddressesOptions] = useState([])
     const [selectedAddress, setSelectedAddress] = useState(null)
-    const [withUnitName, setWithUnitName] = useState(false)
+    const [parseUnit, setParseUnit] = useState(false)
+    const { addToast } = useToasts()
 
-    const reset = () => {
+    const resetForm = () => {
         setSource('')
         setTin('')
         setAddressesOptions([])
-        setSelectedAddress({ label: null, value: null })
-        setWithUnitName(false)
+        setSelectedAddress(null)
+        setParseUnit(false)
     }
 
-    const [linkAddressAndSource, { loading: loadingSubmit, error: errorSubmit }] = useMutation(LINK_ADDRESS_AND_SOURCE_MUTATION,
-        {
-            onCompleted: reset,
-        }
-    )
-    const [getAddresses, { error: errorAddresses }] = useLazyQuery(Address.GET_ALL_OBJS_QUERY, {
+    const [linkAddressAndSource, { loading: loadingSubmit, error: errorSubmit }] = useMutation(LINK_ADDRESS_AND_SOURCE_MUTATION, {
+        onCompleted: resetForm,
+    })
+
+    const [getAddresses, { loading: loadingAddresses, error: errorAddresses }] = useLazyQuery(Address.GET_ALL_OBJS_QUERY, {
         fetchPolicy: 'network-only',
         onCompleted: ({ objs: addresses }) => {
             setAddressesOptions(addresses.map(({ id, address }) => ({ label: address, value: id })))
         },
     })
 
-    const getAddressesQueryThrottled = useMemo(() => {
-        return throttle((newSource) => {
-            getAddresses({ variables: { where: { address_contains_i: newSource } } })
-        }, 400)
-    }, [getAddresses])
+    const getAddressesQueryThrottled = useMemo(() => throttle((newSource) => {
+        getAddresses({ variables: { where: { address_contains_i: newSource } } })
+    }, 400), [getAddresses])
 
     useEffect(() => {
         if (source) getAddressesQueryThrottled(source)
     }, [source, getAddressesQueryThrottled])
 
-    const submit = async () => {
+    const handleSubmit = useCallback(async (e) => {
+        e.preventDefault()
         await linkAddressAndSource({
             variables: {
                 data: {
@@ -61,65 +62,72 @@ const LinkAddressAndSource = () => {
                     sender: getClientSideSenderInfo(),
                     source,
                     tin,
-                    address: selectedAddress,
-                    withUnitName,
+                    address: get(selectedAddress, 'value'),
+                    parseUnit,
                 },
             },
         })
-    }
+        addToast('Source and address is successfully linked', {
+            appearance: 'success',
+            autoDismiss: true,
+        })
+    }, [linkAddressAndSource, source, tin, selectedAddress, parseUnit])
 
     return (
-        <Fragment>
-            <Container>
-                <PageTitle>Link address and source</PageTitle>
-                <form
-                    css={{
-                        display: 'flex',
-                        alignItems: 'flex-start',
-                        gap: '.5rem',
-                        flexDirection: 'column',
-                        padding: '1rem',
-                        marginBottom: `${gridSize * 3}px`,
-                    }}
-                    onSubmit={submit}
-                >
-                    <Input value={source} onChange={e => setSource(e.target.value)} css={{ width: '100%' }} placeholder='Source'/>
-                    <Input value={tin} onChange={setTin} css={{ width: '100%' }} placeholder='TIN'/>
-                    <Select
-                        css={{
-                            width: '100%',
-                        }}
-                        required={true}
-                        isClearable={true}
-                        isDisabled={errorAddresses}
-                        placeholder='Address'
-                        selectedOption={selectedAddress}
-                        options={addressesOptions}
-                        onChange={({ value }) => setSelectedAddress(value)}
+        <Container>
+            <PageTitle>Link address and source</PageTitle>
+            <form css={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '.5rem',
+                flexDirection: 'column',
+                padding: '1rem',
+                marginBottom: `${gridSize * 3}px`,
+            }}
+            onSubmit={handleSubmit}>
+                <Input
+                    value={source}
+                    onChange={e => setSource(e.target.value)}
+                    css={{ width: '100%' }}
+                    placeholder='Source'
+                />
+                <Input
+                    value={tin}
+                    onChange={e => setTin(e.target.value)}
+                    css={{ width: '100%' }}
+                    placeholder='TIN'
+                />
+                <Select
+                    value={selectedAddress}
+                    isClearable
+                    isLoading={loadingAddresses}
+                    css={{ width: '100%' }}
+                    required
+                    isDisabled={errorAddresses}
+                    placeholder='Address'
+                    options={addressesOptions}
+                    onChange={setSelectedAddress}
+                />
+                <label css={{ display: 'flex', alignItems: 'center', gap: '.5rem' }}>
+                    <CheckboxPrimitive
+                        checked={parseUnit}
+                        onChange={e => setParseUnit(e.target.checked)}
                     />
-                    <label css={{ display: 'flex' }}>
-                        <CheckboxPrimitive
-                            value={withUnitName}
-                            onChange={e => setWithUnitName(e.target.checked)}
-                            checked={withUnitName}
-                        />
-                        <span>With unit name</span>
-                    </label>
-                    <LoadingButton variant='nuance' appearance='primary' onClick={submit}
-                        isLoading={loadingSubmit}>Save</LoadingButton>
-                    {errorSubmit && (
-                        <span css={{ color: 'red' }}>
-                            {errorSubmit.message}
-                        </span>
-                    )}
-                    {errorAddresses && (
-                        <span css={{ color: 'red' }}>
-                            {errorAddresses.message}
-                        </span>
-                    )}
-                </form>
-            </Container>
-        </Fragment>
+                    <span>Parse unit</span>
+                </label>
+                <LoadingButton
+                    type='submit'
+                    variant='bold'
+                    appearance='primary'
+                    isLoading={loadingSubmit}
+                    isDisabled={!selectedAddress || !source}
+                >
+                    Save
+                </LoadingButton>
+                {errorSubmit && <span css={{ color: 'red' }}>{errorSubmit.message}</span>}
+                {errorAddresses && <span css={{ color: 'red' }}>{errorAddresses.message}</span>}
+            </form>
+        </Container>
     )
 }
 

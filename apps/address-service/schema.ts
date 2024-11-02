@@ -1269,15 +1269,14 @@ export type LinkAddressAndSourceInput = {
   dv: Scalars['Int'];
   sender: Scalars['JSON'];
   source: Scalars['String'];
-  tin: Scalars['String'];
+  tin?: Maybe<Scalars['String']>;
   address: Scalars['ID'];
-  withUnitName: Scalars['Boolean'];
+  parseUnit?: Maybe<Scalars['Boolean']>;
 };
 
 export type LinkAddressAndSourceOutput = {
   __typename?: 'LinkAddressAndSourceOutput';
-  addressSource: Scalars['ID'];
-  addressSourceCompounded: Scalars['ID'];
+  addressSourceId: Scalars['ID'];
 };
 
 export type Mutation = {

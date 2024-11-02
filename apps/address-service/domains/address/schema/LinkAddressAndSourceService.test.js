@@ -4,31 +4,70 @@
 
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, expectToThrowGQLErrorToResult } = require('@open-condo/keystone/test.utils')
 
+const { ERRORS } = require('@address-service/domains/address/schema/LinkAddressAndSourceService')
 const { AddressSource, linkAddressAndSourceByTestClient, createTestAddress } = require('@address-service/domains/address/utils/testSchema')
 
 describe('LinkAddressAndSourceService', () => {
-    test('Should link address and source correctly', async () => {
+    test('Should link with tin', async () => {
         const tin = faker.random.numeric(12)
         const source = `${faker.address.city()}${faker.random.alphaNumeric(8)}, ${faker.address.street()}, ${faker.random.alphaNumeric(8)}`
-
         const admin = await makeLoggedInAdminClient()
         const [{ id: address }] = await createTestAddress(admin)
         const payload = { source, tin, address }
-
         const [result] = await linkAddressAndSourceByTestClient(admin, payload)
-
         expect(result).toMatchObject({
-            addressSource: expect.any(String),
-            addressSourceCompounded: expect.any(String),
+            addressSourceId: expect.any(String),
         })
+        const addressSource = await AddressSource.getOne(admin, { id: result.addressSourceId })
+        expect(addressSource.source).toEqual(expect.stringContaining('|helpers:'))
+    })
 
-        const [addressSource, addressSourceCompounded] = await Promise.all([
-            AddressSource.getOne(admin, { id: result.addressSource }),
-            AddressSource.getOne(admin, { id: result.addressSourceCompounded }),
-        ])
+    test('Should link without tin', async () => {
+        const source = `${faker.address.city()}${faker.random.alphaNumeric(8)}, ${faker.address.street()}, ${faker.random.alphaNumeric(8)}`
+        const admin = await makeLoggedInAdminClient()
+        const [{ id: address }] = await createTestAddress(admin)
+        const payload = { source, address }
+        const [result] = await linkAddressAndSourceByTestClient(admin, payload)
+        expect(result).toMatchObject({
+            addressSourceId: expect.any(String),
+        })
+        const addressSource = await AddressSource.getOne(admin, { id: result.addressSourceId })
+        expect(addressSource.source).toEqual(expect.not.stringContaining('|helpers:'))
+    })
 
-        expect(addressSourceCompounded.address).toEqual(addressSource.address)
+    test('Should not add the source again', async () => {
+        const source = `${faker.address.city()}${faker.random.alphaNumeric(8)}, ${faker.address.street()}, ${faker.random.alphaNumeric(8)}`
+        const admin = await makeLoggedInAdminClient()
+        const [{ id: address }] = await createTestAddress(admin)
+        const payload = { source, address }
+        await linkAddressAndSourceByTestClient(admin, payload)
+        await expectToThrowGQLErrorToResult(
+            async () => await linkAddressAndSourceByTestClient(admin, payload)
+            , ERRORS.SAME_SOURCE)
+    })
+
+    test('Should parse unit', async () => {
+        const source = `${faker.address.street()}, ${faker.random.numeric(3)}, кв. 123`
+        const admin = await makeLoggedInAdminClient()
+        const [{ id: address }] = await createTestAddress(admin)
+        const payload = { source, address, parseUnit: true  }
+        const [result] = await linkAddressAndSourceByTestClient(admin, payload)
+        expect(result).toMatchObject({
+            addressSourceId: expect.any(String),
+        })
+        const addressSource = await AddressSource.getOne(admin, { id: result.addressSourceId })
+        expect(addressSource.source).toEqual(source.slice(0, -9).toLowerCase())
+    })
+
+    test('Should not save incorrect data', async () => {
+        const source = `${faker.address.street()} ${faker.random.numeric(3)} кв123`
+        const admin = await makeLoggedInAdminClient()
+        const [{ id: address }] = await createTestAddress(admin)
+        const payload = { source, address, parseUnit: true  }
+        await expectToThrowGQLErrorToResult(
+            async () => await linkAddressAndSourceByTestClient(admin, payload)
+            , ERRORS.INCORRECT_ADDRESS_SOURCE)
     })
 })
