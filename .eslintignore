@@ -3,6 +3,7 @@
 **/node_modules
 **/out
 **/__generated__
+**/public
 
 # Ignore test files
 **/test*
