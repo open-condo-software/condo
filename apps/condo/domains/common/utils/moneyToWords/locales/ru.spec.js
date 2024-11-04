@@ -1,6 +1,3 @@
-
-const { cloneDeep } = require('lodash')
-
 const { moneyToWords } = require('../moneyToWords')
 
 const locale = 'ru'
@@ -20,13 +17,11 @@ const testIntegers = [
     [86429753, 'восемьдесят шесть миллионов четыреста двадцать девять тысяч семьсот пятьдесят три'],
 ]
 
-const testNegativeIntegers = cloneDeep(testIntegers)
-testNegativeIntegers.map((row, i) => {
+const testNegativeIntegers = testIntegers.map((row, i) => {
     if (i === 0) {
-        return row[1] = 'Ноль' 
+        return [row[0], 'Ноль' ]
     }
-    row[0] = -row[0]
-    row[1] = `Минус ${row[1]}`
+    return [-row[0], `Минус ${row[1]}`]
 })
 
 const testIntegersWithCurrencyAndFirstUpper = [

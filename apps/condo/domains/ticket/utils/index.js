@@ -1,4 +1,3 @@
-const dayjs = require('dayjs')
 const { get } = require('lodash')
 const isArray = require('lodash/isArray')
 const isEmpty = require('lodash/isEmpty')

@@ -1,4 +1,5 @@
 const Big = require('big.js')
+const dayjs = require('dayjs')
 const { get } = require('lodash')
 
 const { FinanceInfoClient } = require('@open-condo/clients/finance-info-client/FinanceInfoClient')
@@ -7,7 +8,6 @@ const { getByCondition } = require('@open-condo/keystone/schema')
 
 const { RU_LOCALE } = require('@condo/domains/common/constants/locale')
 const { buildExportFile, DOCX_FILE_META } = require('@condo/domains/common/utils/createExportFile')
-const { formatDateToTimezone } = require('@condo/domains/common/utils/date')
 const { renderMoney } = require('@condo/domains/common/utils/money')
 const { moneyToWords } = require('@condo/domains/common/utils/moneyToWords/moneyToWords')
 const { buildUploadInputFrom } = require('@condo/domains/common/utils/serverSchema/export')
@@ -59,7 +59,7 @@ const buildExportWordFile = async ({ task, documentData, locale, timeZone }) => 
 
     return {
         stream,
-        filename: `paid_works_ticket_${ticket.id}_${formatDateToTimezone(undefined, timeZone, 'DD_MM_YYYY')}.docx`,
+        filename: `paid_works_ticket_${ticket.id}_${dayjs().tz(timeZone).format('DD_MM_YYYY')}.docx`,
         mimetype: DOCX_FILE_META.mimetype,
         encoding: DOCX_FILE_META.encoding,
         meta: {
@@ -137,7 +137,7 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
 
     const documentTextData = {
         header: {
-            generalDate: formatDateToTimezone(undefined, timeZone, 'DD.MM.YYYY'),
+            generalDate: dayjs().tz(timeZone).format('DD.MM.YYYY'),
         },
         company: {
             name: get(organization, 'name'),

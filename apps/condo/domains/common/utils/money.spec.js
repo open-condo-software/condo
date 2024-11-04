@@ -24,7 +24,7 @@ describe('Tests renderMoney with different locales and currency ', () => {
             ['10000.10000', '10,000.10'],
         ]
 
-        test.each(differentAmount)('renderMoney called with "en" locale and "USD" currency: %d => %s', (amount, expected) => {
+        test.each(differentAmount)('Input %d => Output %s', (amount, expected) => {
             expect(renderMoney(amount, currency, locale)).toBe(expected)
         })
     })   
@@ -57,7 +57,7 @@ describe('Tests renderMoney with different locales and currency ', () => {
             ['124,124', '124,00'],
         ]
 
-        test.each(differentAmount)('renderMoney called with "en" locale and "USD" currency: %d => %s', (amount, expected) => {
+        test.each(differentAmount)('Input %d => Output %s', (amount, expected) => {
             expect(renderMoney(amount, currency, locale)).toBe(expected)
         })
     })   

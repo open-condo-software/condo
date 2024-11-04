@@ -47,7 +47,7 @@ export const useTicketDocumentGenerationTask = ({ invoices, ticket, user, timeZo
         handleRunTask({ taskAttrs: { documentType } })
     }, [handleRunTask, loading])
 
-    const hasValidInvoice = invoices.find((invoice) => get(invoice, 'status') !== INVOICE_STATUS_CANCELED &&  get(invoice, 'deletedAt') === null)
+    const hasValidInvoice = invoices.find((invoice) => get(invoice, 'status') !== INVOICE_STATUS_CANCELED)
     
     const buttonItems = useMemo(() => {
         return [

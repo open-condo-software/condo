@@ -4,7 +4,6 @@ const { get } = require('lodash')
 const { getById, getByCondition } = require('@open-condo/keystone/schema')
 
 const { buildExportFile, DOCX_FILE_META } = require('@condo/domains/common/utils/createExportFile')
-const { formatDateToTimezone } = require('@condo/domains/common/utils/date')
 const { renderMoney } = require('@condo/domains/common/utils/money')
 const { buildUploadInputFrom } = require('@condo/domains/common/utils/serverSchema/export')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
@@ -24,7 +23,7 @@ const buildExportWordFile = async ({ task, documentData, locale, timeZone }) => 
 
     return {
         stream,
-        filename: `completion_works_ticket_${ticket.id}_${formatDateToTimezone(undefined, timeZone, 'DD_MM_YYYY')}.docx`,
+        filename: `completion_works_ticket_${ticket.id}_${dayjs().tz(timeZone).format('DD_MM_YYYY')}.docx`,
         mimetype: DOCX_FILE_META.mimetype,
         encoding: DOCX_FILE_META.encoding,
         meta: {

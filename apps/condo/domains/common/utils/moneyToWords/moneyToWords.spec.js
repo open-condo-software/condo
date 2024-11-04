@@ -41,14 +41,8 @@ describe('Tests moneyToWords', () => {
         '124.29102480918209480129',
         '0.000',
         '0.1241',
-        '0.1',
-        '0.9',
-        '0.0',
-        '-0.0',
         '-0.00000',
         '-0.513511',
-        0.40,
-        -0.40,
     ]
 
     const testValidInputs = [
@@ -63,6 +57,12 @@ describe('Tests moneyToWords', () => {
         1245.11,
         '0.40',
         '-0.40',
+        0.40,
+        -0.40,
+        '0.1',
+        '0.9',
+        '0.0',
+        '-0.0',
     ]
 
     test.each(testInvalidInputs)('Input %s', (input) => {

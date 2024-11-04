@@ -49,16 +49,16 @@ function moneyToWords (input, options = {}) {
     if (!(options.locale in LOCALES)) throw new Error(`Supported only ${Object.keys(LOCALES).join(', ')} locales`)
     if (!(options.currencyCode in LOCALES[options.locale].supportedCurrencies)) throw new Error(`Supported only ${Object.keys(LOCALES[options.locale].supportedCurrencies).join(', d')} locales`)
 
-    if (!_isValidNumber(input)) throw new Error(`Invalid Number "${input}"`)
+    if (!(!isNaN(parseFloat(input)) && isFinite(input))) throw new Error(`Invalid Number "${input}"`)
 
     const { currency, dischargesLessThanThousand, dischargesMoreThanThousand, mathematicalSymbol } = _setWordsToConvert(options.locale, options.currencyCode)
 
     const isNegativeNumber = input < 0
-    if (isNegativeNumber) {
-        input = input.toString().slice(1)
-    }
+    if (isNegativeNumber) input = input.toString().slice(1)
 
     let [whole = '0', decimal = '00'] = _parseNumber(input)
+
+    if (decimal.length === 1) decimal += '0' 
 
     if (decimal.length !== 2) throw new Error(`Decimal part must be two digits, but his '${decimal}'`)
 
@@ -82,10 +82,6 @@ function moneyToWords (input, options = {}) {
     })
 }
 
-function _isValidNumber (input) {
-    return !isNaN(parseFloat(input)) && isFinite(input)
-}
-
 function _setWordsToConvert (locale = 'ru', currencyCode = 'RUB') {
     if (!(locale in LOCALES)) throw new Error(`Unknown Locale "${locale}"`)
     const wordsToConvert = LOCALES[locale]
@@ -100,7 +96,7 @@ function _setWordsToConvert (locale = 'ru', currencyCode = 'RUB') {
 function _parseNumber (input) {
     return input
         .toString()
-        .replace(/[\s\t]+/g, '')
+        .replace(/[\s]+/g, '')
         .split(/[.]/)
 }
 
