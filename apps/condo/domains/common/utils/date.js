@@ -37,6 +37,7 @@ const getStartDates = (dateRaw) => {
  */
 const getCurrTimeStamp = () => Math.floor(Date.now() / 1000)
 
+
 module.exports = {
     getMonthStart,
     getStartDates,

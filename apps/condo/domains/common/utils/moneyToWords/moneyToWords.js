@@ -107,7 +107,7 @@ function _numbersInWords (input, { dischargesLessThanThousand, dischargesMoreTha
 
     let deep = 0
 
-    if (!num || num === '0') return dischargesLessThanThousand['Zero'][0]
+    if (!num || num === '0') return dischargesLessThanThousand[0][0]
 
     while (num.length) {
         const row = []
@@ -119,22 +119,19 @@ function _numbersInWords (input, { dischargesLessThanThousand, dischargesMoreTha
         const units = current % 10
 
         if (current) {
-            row.push(dischargesLessThanThousand['Hundreds'][hundreds])
+            row.push(dischargesLessThanThousand[4][hundreds])
 
             if (dozens === 1) {
-                row.push(dischargesLessThanThousand['FirstDozen'][units])
+                row.push(dischargesLessThanThousand[2][units])
             } else {
-                row.push(dischargesLessThanThousand['Dozens'][dozens])
+                row.push(dischargesLessThanThousand[3][dozens])
 
-                if (deep === '1000^1' || deep == 0 && firstDigitDeclension) {
-                    console.log(deep)
-                    console.log(units)
-                    console.log(dischargesLessThanThousand['SpecialUnits'][units])
+                if (deep === 1 || deep == 0 && firstDigitDeclension) {
                     row.push(
-                        dischargesLessThanThousand['SpecialUnits'][units] ?? dischargesLessThanThousand['Units'][units] 
+                        dischargesLessThanThousand[5][units] ?? dischargesLessThanThousand[1][units] 
                     )
                 } else {
-                    row.push(dischargesLessThanThousand['Units'][units])
+                    row.push(dischargesLessThanThousand[1][units])
                 }
             }
 
@@ -148,7 +145,6 @@ function _numbersInWords (input, { dischargesLessThanThousand, dischargesMoreTha
         if (rowString)
             output.unshift(rowString)
 
-        deep === 0 ? deep = 1000 : deep *= 1000
         deep++
     }
 
