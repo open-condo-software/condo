@@ -168,14 +168,6 @@ jobs:
         with:
           files: |
             **/*.{js,ts,jsx,tsx,cjs,cts,mjs,mts}
-      - name: List all changed files
-        env:
-          ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
-        run: |
-          for file in ${ALL_CHANGED_FILES}; do
-            echo "$file was changed"
-            done
-          echo "List all the files that have changed: $ALL_CHANGED_FILES"
       - name: Prepare Node environment
         uses: actions/setup-node@v3
         with:
@@ -188,6 +180,8 @@ jobs:
         run: |
           yarn lint:code
       - name: Check strict JS code-style rules on changed files
+        env:
+          ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
         run: |
           if [ -n "${ALL_CHANGED_FILES}" ]; then
             yarn lint:strict ${ALL_CHANGED_FILES}
