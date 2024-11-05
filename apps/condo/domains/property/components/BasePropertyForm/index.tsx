@@ -131,10 +131,14 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
         labelAlign: 'left',
     }), [breakpoints])
 
+    const handleSubmit = useCallback(async (formValues) => {
+        await action(formValues)
+    }, [action])
+
     return (
         <>
             <FormWithAction
-                action={action}
+                action={handleSubmit}
                 initialValues={initialValues}
                 validateTrigger={FORM_WITH_ACTION_VALIDATION_TRIGGERS}
                 formValuesToMutationDataPreprocessor={formValuesToMutationDataPreprocessor}

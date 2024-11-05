@@ -1,0 +1,8 @@
+query getIncidentProperties ($where: IncidentPropertyWhereInput) {
+    incidentProperties: allIncidentProperties (where: $where) {
+        id
+        incident {
+            id
+        }
+    }
+}

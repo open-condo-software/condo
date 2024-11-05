@@ -1,0 +1,22 @@
+query getPropertyById ($id: ID!) {
+    properties: allProperties (
+        where: {
+            id: $id
+        },
+        first: 1
+    ) {
+        id
+        address
+        organization {
+            id
+        }
+        map {
+            sections {
+                ...SectionOrParkingInfo
+            }
+            parking {
+                ...SectionOrParkingInfo
+            }
+        }
+    }
+}

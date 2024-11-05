@@ -13,6 +13,7 @@ import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSc
 
 import type { MutationTuple } from '@apollo/client/react/types/types'
 
+
 type OrganizationInvitesReturnType = {
     loading: boolean
 }
@@ -23,6 +24,7 @@ export const useOrganizationInvites = (organizationTypes: Array<OrganizationType
     const RejectMessage = intl.formatMessage({ id: 'Reject' })
     const DoneMessage = intl.formatMessage({ id: 'OperationCompleted' })
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
+
     const { user, isAuthenticated } = useAuth()
     const userId = get(user, 'id') || null
     const { selectEmployee } = useOrganization()
@@ -58,6 +60,7 @@ export const useOrganizationInvites = (organizationTypes: Array<OrganizationType
                 description: error.message,
             })
         }
+
         await refetch()
     }
     if (isAuthenticated && userInvites) {

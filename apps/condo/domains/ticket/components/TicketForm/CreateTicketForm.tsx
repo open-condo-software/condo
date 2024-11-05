@@ -1,3 +1,4 @@
+import { useGetTicketByCreatedByQuery } from '@app/condo/gql'
 import { B2BAppGlobalFeature } from '@app/condo/schema'
 import { Form, notification } from 'antd'
 import dayjs from 'dayjs'
@@ -7,6 +8,7 @@ import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState, useEffect } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -49,15 +51,23 @@ export const CreateTicketActionBar = ({ handleSave, isLoading, form }) => {
     const { user } = useAuth()
     const userId = get(user, 'id', null)
 
-    const { count } = Ticket.useCount({
-        where: {
-            createdBy: { id: userId },
+    const { persistor } = useCachePersistor()
+    const {
+        data: userTicketsData,
+        loading: userTicketsLoading,
+    } = useGetTicketByCreatedByQuery({
+        variables: {
+            userId,
         },
+        skip: !persistor || !userId,
     })
+    const userTicketsCount = useMemo(() => userTicketsData?.tickets?.filter(Boolean)?.length || 0,
+        [userTicketsData?.tickets])
 
     useEffect(() => {
-        setCurrentStep((count === 0 && !disabled) ? 1 : 0)
-    }, [disabled, setCurrentStep, count])
+        if (userTicketsLoading) return
+        setCurrentStep((userTicketsCount === 0 && !disabled) ? 1 : 0)
+    }, [disabled, setCurrentStep, userTicketsCount, userTicketsLoading])
 
     return (
         <Form.Item noStyle shouldUpdate>

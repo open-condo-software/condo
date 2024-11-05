@@ -1,4 +1,9 @@
 import {
+    useGetIncidentClassifierIncidentQuery,
+    useGetIncidentPropertiesQuery,
+    useGetIncidentsQuery,
+} from '@app/condo/gql'
+import {
     Incident as IIncident,
     IncidentClassifier as IIncidentClassifier,
     IncidentClassifierIncidentWhereInput,
@@ -17,8 +22,6 @@ import { IntlShape } from 'react-intl/src/types'
 import { useIntl } from '@open-condo/next/intl'
 import { Alert, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
-
-import { Incident, IncidentClassifierIncident, IncidentProperty } from '@condo/domains/ticket/utils/clientSchema'
 
 
 const INCIDENTS_GUTTER: RowProps['gutter'] = [0, 24]
@@ -138,9 +141,9 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
     const [allIncidents, setAllIncidents] = useState<IIncident[]>([])
     const [incidentsToShow, setIncidentsToShow] = useState<IIncident[]>([])
 
-    const { refetch: refetchIncidentProperties } = IncidentProperty.useObjects({}, { skip: true })
-    const { refetch: refetchIncidents } = Incident.useObjects({}, { skip: true })
-    const { refetch: refetchIncidentClassifierIncidents } = IncidentClassifierIncident.useObjects({}, { skip: true })
+    const { refetch: refetchIncidentProperties } = useGetIncidentPropertiesQuery({ skip: true })
+    const { refetch: refetchIncidents } = useGetIncidentsQuery({ skip: true })
+    const { refetch: refetchIncidentClassifierIncidents } = useGetIncidentClassifierIncidentQuery({ skip: true })
 
     const categoryId = useMemo(() => get(classifier, 'category.id', null), [classifier]) as string | null
     const problemId = useMemo(() => get(classifier, 'problem.id', null), [classifier]) as string | null
@@ -170,7 +173,7 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
             },
         })
 
-        return get(res, 'data.objs', [])
+        return res?.data?.incidentProperties?.filter(Boolean) || []
     }, [])
 
     const fetchIncidents: FetchIncidentsType = useCallback(async ({ sortBy, incidentIds, organizationId, status, workFinishedInLastDays }) => {
@@ -196,7 +199,7 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
 
         const res = await refetchIncidents({ where, sortBy })
 
-        return get(res, 'data.objs', [])
+        return res?.data?.incidents?.filter(Boolean) || []
     }, [])
 
     const fetchIncidentClassifierIncidents = useCallback(async (incidentIds: string[], categoryId?: string, problemId?: string) => {
@@ -233,7 +236,7 @@ export const IncidentHints: React.FC<IncidentHintsProps> = (props) => {
             where,
         })
 
-        return get(res, 'data.objs', [])
+        return res?.data?.incidentClassifierIncident?.filter(Boolean) || []
     }, [])
 
     const getAllIncidents = useCallback(async (propertyId: string, organizationId: string) => {

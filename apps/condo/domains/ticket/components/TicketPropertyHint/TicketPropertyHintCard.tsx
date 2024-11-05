@@ -1,15 +1,16 @@
+import { useGetTicketPropertyHintByIdQuery, useGetTicketPropertyHintPropertyByPropertyQuery } from '@app/condo/gql'
 import styled from '@emotion/styled'
 import { Col, ColProps, Typography } from 'antd'
 import { get } from 'lodash'
 import React, { CSSProperties, useMemo } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Alert } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
-import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
-
 import { TicketPropertyHintContent } from './TicketPropertyHintContent'
+
 
 const StyledAlert = styled(Alert)`
    background-color: ${colors.green[1]} !important;
@@ -34,18 +35,30 @@ export const TicketPropertyHintCard: React.FC<TicketPropertyHintCardProps> = ({ 
     const intl = useIntl()
     const PropertyHintMessage = intl.formatMessage({ id: 'pages.condo.settings.hint.ticketPropertyHint' })
 
-    const { obj: ticketPropertyHintProperty } = TicketPropertyHintProperty.useObject({
-        where: {
-            property: { id: propertyId },
+    const { persistor } = useCachePersistor()
+    const {
+        data: ticketPropertyHintPropertyData,
+    } = useGetTicketPropertyHintPropertyByPropertyQuery({
+        variables: {
+            propertyId,
         },
+        skip: !persistor || !propertyId,
     })
-    const ticketPropertyHintId = useMemo(() => get(ticketPropertyHintProperty, ['ticketPropertyHint', 'id'], null), [ticketPropertyHintProperty])
+    const ticketPropertyHintProperty = useMemo(() => ticketPropertyHintPropertyData?.ticketPropertyHintProperty?.filter(Boolean)[0],
+        [ticketPropertyHintPropertyData?.ticketPropertyHintProperty])
+    const ticketPropertyHintId = useMemo(() => ticketPropertyHintProperty?.ticketPropertyHint?.id,
+        [ticketPropertyHintProperty?.ticketPropertyHint?.id])
 
-    const { obj: ticketPropertyHint } = TicketPropertyHint.useObject({
-        where: {
+    const {
+        data: ticketPropertyHintData,
+    } = useGetTicketPropertyHintByIdQuery({
+        variables: {
             id: ticketPropertyHintId,
         },
+        skip: !persistor || !ticketPropertyHintId,
     })
+    const ticketPropertyHint = useMemo(() => ticketPropertyHintData?.ticketPropertyHints?.filter(Boolean)[0],
+        [ticketPropertyHintData?.ticketPropertyHints])
 
     const htmlContent = useMemo(() => get(ticketPropertyHint, 'content'), [ticketPropertyHint])
 
@@ -67,6 +80,6 @@ export const TicketPropertyHintCard: React.FC<TicketPropertyHintCardProps> = ({ 
     if (!ticketPropertyHintProperty || !ticketPropertyHint) {
         return null
     }
-    
+
     return colProps ? (<Col {...colProps}>{Hint}</Col>) : Hint
 }
