@@ -428,7 +428,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                                 sealingDate: tryToISO(get(reading, ['meterMeta', 'sealingDate'])),
                                 controlReadingsDate: rawControlReadingsDate ? tryToISO(rawControlReadingsDate) : dayjs().toISOString(),
                                 isAutomatic: get(reading, ['meterMeta', 'isAutomatic']),
-                                archiveDate: toISO(get(reading, ['meterMeta', 'archiveDate'])),
+                                archiveDate: tryToISO(get(reading, ['meterMeta', 'archiveDate'])),
                             }, 'id property { id } unitName unitType accountNumber number resource { id }')
                             meterId = createdMeter.id
                             meters.push(transformToPlainObject(createdMeter))
