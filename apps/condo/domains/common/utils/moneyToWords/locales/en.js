@@ -55,7 +55,7 @@ const supportedCurrencies = {
     'USD': currencyUSD,
 }
 
-const mathematicalSymbol = {
+const texts = {
     minus: 'minus',
 }
 
@@ -63,5 +63,5 @@ module.exports = {
     dischargesMoreThanThousand,
     dischargesLessThanThousand,
     supportedCurrencies,
-    mathematicalSymbol,
+    texts,
 }

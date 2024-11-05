@@ -51,7 +51,7 @@ function moneyToWords (input, options = {}) {
 
     if (!(!isNaN(parseFloat(input)) && isFinite(input))) throw new Error(`Invalid Number "${input}"`)
 
-    const { currency, dischargesLessThanThousand, dischargesMoreThanThousand, mathematicalSymbol } = _setWordsToConvert(options.locale, options.currencyCode)
+    const { currency, dischargesLessThanThousand, dischargesMoreThanThousand, texts } = _setWordsToConvert(options.locale, options.currencyCode)
 
     const isNegativeNumber = input < 0
     if (isNegativeNumber) input = input.toString().slice(1)
@@ -62,7 +62,7 @@ function moneyToWords (input, options = {}) {
 
     if (decimal.length !== 2) throw new Error(`Decimal part must be two digits, but his '${decimal}'`)
 
-    const wholeString = isNegativeNumber ? mathematicalSymbol.minus + ' ' + _numbersInWords(input, { dischargesLessThanThousand, dischargesMoreThanThousand }) : _numbersInWords(input, { dischargesLessThanThousand, dischargesMoreThanThousand })
+    const wholeString = isNegativeNumber ? texts.minus + ' ' + _numbersInWords(input, { dischargesLessThanThousand, dischargesMoreThanThousand }) : _numbersInWords(input, { dischargesLessThanThousand, dischargesMoreThanThousand })
     const wholeCurrency = _counterWord(currency[0], +whole.slice(-2))
     const decimalString = _numbersInWords(+decimal, { dischargesLessThanThousand, dischargesMoreThanThousand }, true)
     const decimalCurrency = _counterWord(currency[1], +decimal)
@@ -89,25 +89,25 @@ function _setWordsToConvert (locale = 'ru', currencyCode = 'RUB') {
     const currency = wordsToConvert.supportedCurrencies[currencyCode]
     const dischargesLessThanThousand = wordsToConvert.dischargesLessThanThousand
     const dischargesMoreThanThousand = wordsToConvert.dischargesMoreThanThousand
-    const mathematicalSymbol = wordsToConvert.mathematicalSymbol
-    return { currency, dischargesLessThanThousand, dischargesMoreThanThousand, mathematicalSymbol }
+    const texts = wordsToConvert.texts
+    return { currency, dischargesLessThanThousand, dischargesMoreThanThousand, texts }
 }
 
 function _parseNumber (input) {
     return input
         .toString()
-        .replace(/[\s]+/g, '')
+        .replace(/\s+/g, '')
         .split(/[.]/)
 }
 
-function _numbersInWords (input, { dischargesLessThanThousand, dischargesMoreThanThousand }, firstDigitDeclension ) {
+function _numbersInWords (input, { dischargesLessThanThousand, dischargesMoreThanThousand }, firstDigitDeclension = false ) {
     const output = []
 
     let [num] = _parseNumber(input)
 
     let deep = 0
 
-    if (!num || num === '0') return dischargesLessThanThousand[0][0]
+    if (!num || num === '0') return dischargesLessThanThousand['Zero'][0]
 
     while (num.length) {
         const row = []
@@ -119,19 +119,22 @@ function _numbersInWords (input, { dischargesLessThanThousand, dischargesMoreTha
         const units = current % 10
 
         if (current) {
-            row.push(dischargesLessThanThousand[4][hundreds])
+            row.push(dischargesLessThanThousand['Hundreds'][hundreds])
 
             if (dozens === 1) {
-                row.push(dischargesLessThanThousand[2][units])
+                row.push(dischargesLessThanThousand['FirstDozen'][units])
             } else {
-                row.push(dischargesLessThanThousand[3][dozens])
+                row.push(dischargesLessThanThousand['Dozens'][dozens])
 
-                if (deep === 1 || deep == 0 && firstDigitDeclension) {
+                if (deep === '1000^1' || deep == 0 && firstDigitDeclension) {
+                    console.log(deep)
+                    console.log(units)
+                    console.log(dischargesLessThanThousand['SpecialUnits'][units])
                     row.push(
-                        dischargesLessThanThousand[5][units] ?? dischargesLessThanThousand[1][units]
+                        dischargesLessThanThousand['SpecialUnits'][units] ?? dischargesLessThanThousand['Units'][units] 
                     )
                 } else {
-                    row.push(dischargesLessThanThousand[1][units])
+                    row.push(dischargesLessThanThousand['Units'][units])
                 }
             }
 
@@ -145,6 +148,7 @@ function _numbersInWords (input, { dischargesLessThanThousand, dischargesMoreTha
         if (rowString)
             output.unshift(rowString)
 
+        deep === 0 ? deep = 1000 : deep *= 1000
         deep++
     }
 

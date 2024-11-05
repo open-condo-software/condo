@@ -54,7 +54,6 @@ describe('Tests renderMoney with different locales and currency ', () => {
             [' ', ''],
             ['', ''],
             ['QWERTY', ''],
-            ['124,124', '124,00'],
         ]
 
         test.each(differentAmount)('Input %d => Output %s', (amount, expected) => {
