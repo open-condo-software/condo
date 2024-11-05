@@ -16,6 +16,7 @@ import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { MultipleFilterContextProvider } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { usePreviousQueryParams } from '@condo/domains/common/hooks/usePreviousQueryParams'
+import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { MeterReadPermissionRequired } from '@condo/domains/meter/components/PageAccess'
 import { MetersPageContent } from '@condo/domains/meter/components/TabContent/Meter'
@@ -126,41 +127,40 @@ const MetersPage: IMeterIndexPage = () => {
     usePreviousQueryParams({ paramNamesForPageChange: ['tab', 'type'], trackedParamNames: ['sort', 'filters', 'isShowActiveMeters', 'isShowArchivedMeters'], employeeSpecificKey: employeeId }) 
 
     const { tab } = parseQuery(router.query)
-    const type = get(router.query, 'type', METER_TYPES.unit) as string
+    const type = Array.isArray(get(router.query, 'type')) ? undefined : get(router.query, 'type') as string
 
     const tabAsMeterPageType = tab ? MeterPageTypeFromQuery(tab) : null
-    
+
     const activeTab = useMemo(() => AVAILABLE_TABS.includes(tabAsMeterPageType) ? tabAsMeterPageType : get(AVAILABLE_TABS, [0], ''),  [tabAsMeterPageType])
-    const activeType = useMemo(() => type ? type : METER_TYPES.unit,  [type])
+    const activeType = useMemo(() => type in METER_TYPES ? type : METER_TYPES.unit, [type])
 
-    const changeRouteToActiveTab = useCallback(async (activeTab: string) => {
-        router.replace({ query: { tab: activeTab, type: get(router, 'query.type') } })
-    }, [router])
-
-    const changeRouteToActiveType = useCallback(async (activeType: string) => {
-        router.replace({ query: { tab: get(router, 'query.tab'), type: activeType } })
+    const changeRouteToActiveParams = useCallback(async (newParameters) => {
+        await updateQuery(router, { newParameters }, { resetOldParameters: true, routerAction: 'replace' } )
     }, [router])
 
 
     useEffect(() => {
-        if (!activeTab) return
+        if (!activeType && !activeTab) return
+        if ((!type || type !== activeType) && (!tab || tab !== activeTab)) {
+            changeRouteToActiveParams({ type: activeType, tab: activeTab })
+            return
+        }
+        if (!type || type !== activeType ) {
+            changeRouteToActiveParams({ type: activeType })
+            return
+        }
         if (!tab || tab !== activeTab) {
-            changeRouteToActiveTab(activeTab)
+            changeRouteToActiveParams({ tab: activeTab })
+            return
         }
-    }, [activeTab, changeRouteToActiveTab, tab])
-
-    useEffect(() => {
-        if (!activeType) return
-        if (!type || type !== activeType) {
-            changeRouteToActiveType(activeType)
-        }
-    }, [activeType, changeRouteToActiveType, type])
+       
+    }, [activeTab, activeType, changeRouteToActiveParams, tab, type])
 
     useEffect(() => {
         if (activeType === METER_TYPES.property && activeTab === METER_TAB_TYPES.reportingPeriod) {
-            changeRouteToActiveTab(METER_TAB_TYPES.meterReading)
+            changeRouteToActiveParams({ type: METER_TAB_TYPES.meterReading })
         }
-    }, [activeTab, activeType, changeRouteToActiveTab])
+    }, [activeTab, activeType, changeRouteToActiveParams])
 
     const filtersForMetersMeta = useMeterFilters(activeType as MeterTypes)
     const tableColumnsForMeters = useTableColumns(filtersForMetersMeta, tabAsMeterPageType, activeType as MeterTypes)
@@ -181,8 +181,8 @@ const MetersPage: IMeterIndexPage = () => {
     [userOrganizationId])
 
     const handleTabChange = useCallback(async (activeTab) => {
-        await changeRouteToActiveTab(activeTab)
-    }, [changeRouteToActiveTab])
+        await changeRouteToActiveParams({ tab: activeTab, type: activeType })
+    }, [activeType, changeRouteToActiveParams])
 
     const canManageMeterReadings = useMemo(() => get(role, 'canManageMeterReadings', false), [role])
     const canManageMeters = useMemo(() => get(role, 'canManageMeters', false), [role])
