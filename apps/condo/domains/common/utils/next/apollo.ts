@@ -49,8 +49,35 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
         invalidationPolicies: {
             timeToLive: 15 * 60 * 1000, // 15 minutes in milliseconds
             types: {
+                _QueryMeta: {
+                    timeToLive: 60 * 1000, // 1 minute in milliseconds
+                },
                 Ticket: {
                     timeToLive: 60 * 1000, // 1 minute in milliseconds
+                },
+                TicketComment: {
+                    timeToLive: 60 * 1000, // 1 minute in milliseconds
+                },
+                TicketCommentFile: {
+                    timeToLive: 60 * 1000, // 1 minute in milliseconds
+                },
+                TicketStatus: {
+                    timeToLive: 60 * 60 * 1000, // 1 hour in milliseconds
+                },
+                TicketSource: {
+                    timeToLive: 60 * 60 * 1000, // 1 hour in milliseconds
+                },
+                TicketClassifier: {
+                    timeToLive: 60 * 60 * 1000, // 1 hour in milliseconds
+                },
+                CallRecord: {
+                    timeToLive: 60 * 1000, // 1 minute in milliseconds
+                },
+                CallRecordFragment: {
+                    timeToLive: 60 * 1000, // 1 minute in milliseconds
+                },
+                Invoice: {
+                    timeToLive: 5 * 60 * 1000, // 5 minutes in milliseconds
                 },
             },
         },

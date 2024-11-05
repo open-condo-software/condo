@@ -1,3 +1,4 @@
+import { GetTicketByIdQueryResult } from '@app/condo/gql'
 import { Ticket, TicketWhereInput } from '@app/condo/schema'
 import get from 'lodash/get'
 import { createContext, useCallback, useContext } from 'react'
@@ -23,7 +24,7 @@ import {
 interface ITicketVisibilityContext {
     ticketFilterQuery: TicketWhereInput
     ticketFilterQueryLoading: boolean
-    canEmployeeReadTicket: (ticket: Ticket) => boolean
+    canEmployeeReadTicket: (ticket: GetTicketByIdQueryResult['data']['tickets'][0]) => boolean
 }
 
 const TicketVisibilityContext = createContext<ITicketVisibilityContext>(null)
@@ -197,6 +198,7 @@ const isEmployeeCanReadTicket = ({
     }
 }
 
+// TODO(DOMA-10650): should be refactored to new client utils
 const TicketVisibilityContextProvider: React.FC = ({ children }) => {
     const { user, isLoading } = useAuth()
     const userId = get(user, 'id', null)

@@ -1,0 +1,41 @@
+query getTicketComments ($ticketId: ID!) {
+    ticketComments: allTicketComments (
+        where: { ticket: { id: $ticketId } },
+        sortBy: [createdAt_DESC]
+    ) {
+        id
+        type
+        createdAt
+        updatedAt
+        deletedAt
+        content
+        user {
+            id
+            type
+            name
+        }
+    }
+}
+
+query getPollTicketComments ($where: TicketCommentWhereInput!) {
+    ticketComments: allTicketComments (
+        where: $where,
+        sortBy: [updatedAt_DESC]
+    ) {
+        id
+        updatedAt
+        ticket { id }
+    }
+}
+
+mutation updateTicketComment ($id: ID!, $data: TicketCommentUpdateInput!) {
+    ticketComment: updateTicketComment (id: $id, data: $data) {
+        id
+    }
+}
+
+mutation createTicketComment ($data: TicketCommentCreateInput!) {
+    ticketComment: createTicketComment (data: $data) {
+        id
+    }
+}

@@ -1010,6 +1010,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
         }
     }, [form, isCreateForm])
 
+
     return (
         <FormContainer
             initialValues={initialValues}

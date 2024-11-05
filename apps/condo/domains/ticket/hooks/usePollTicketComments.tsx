@@ -1,14 +1,13 @@
-import { SortTicketCommentsBy } from '@app/condo/schema'
+import { useGetPollTicketCommentsQuery } from '@app/condo/gql'
 import get from 'lodash/get'
 import uniq from 'lodash/uniq'
 import { useCallback, useEffect, useRef } from 'react'
 
 import { useBroadcastChannel } from '@condo/domains/common/hooks/useBroadcastChannel'
 import { useExecuteWithLock } from '@condo/domains/common/hooks/useExecuteWithLock'
-import { TicketComment } from '@condo/domains/ticket/utils/clientSchema'
 
 
-const COMMENT_RE_FETCH_INTERVAL_IN_MS = 5 * 1000
+const COMMENT_RE_FETCH_INTERVAL_IN_MS = 15 * 1000
 const LOCK_NAME = 'ticketComments'
 const BROADCAST_CHANNEL_NAME = 'ticketComments'
 const LOCAL_STORAGE_SYNC_KEY = 'syncTicketCommentsAt'
@@ -20,7 +19,9 @@ export function usePollTicketComments ({
 }) {
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>()
 
-    const { refetch: refetchSyncComments } = TicketComment.useObjects({}, { skip: true })
+    const { refetch: refetchSyncComments } = useGetPollTicketCommentsQuery({
+        skip: true,
+    })
 
     const { sendMessage } = useBroadcastChannel<string[]>(BROADCAST_CHANNEL_NAME, async (ticketIdsWithUpdatedComments) => {
         if (ticketIdsWithUpdatedComments.includes(get(ticket, 'id'))) {
@@ -39,9 +40,8 @@ export function usePollTicketComments ({
                 ...pollCommentsQuery,
                 updatedAt_gt: lastSyncAt || now,
             },
-            sortBy: [SortTicketCommentsBy.UpdatedAtDesc],
         })
-        const ticketComments = get(result, 'data.objs', [])
+        const ticketComments = result?.data?.ticketComments?.filter(Boolean) || []
 
         const newSyncedAt = get(ticketComments, '0.updatedAt', now)
         localStorage.setItem(LOCAL_STORAGE_SYNC_KEY, newSyncedAt)

@@ -1,3 +1,4 @@
+import { useGetTicketSourcesQuery, useGetTicketStatusesQuery } from '@app/condo/gql'
 import {
     BuildingUnitSubType,
     Ticket,
@@ -6,6 +7,7 @@ import {
 import get from 'lodash/get'
 import React, { useMemo } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -28,7 +30,7 @@ import { ExpiredTicketsFilter } from '@condo/domains/ticket/components/TicketMod
 import { FEEDBACK_VALUES_BY_KEY } from '@condo/domains/ticket/constants/feedback'
 import { QUALITY_CONTROL_VALUES_BY_KEY } from '@condo/domains/ticket/constants/qualityControl'
 import { VISIBLE_TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/sourceTypes'
-import { TicketCategoryClassifier, TicketSource, TicketStatus } from '@condo/domains/ticket/utils/clientSchema'
+import { TicketCategoryClassifier } from '@condo/domains/ticket/utils/clientSchema'
 import { searchEmployeeUser, searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 import {
     getClientNameFilter,
@@ -133,13 +135,19 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
     const FavoriteTicketTypeMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.TicketType.favorite' })
 
     const { user } = useAuth()
+    const { persistor } = useCachePersistor()
 
-    const { objs: statuses } = TicketStatus.useObjects({})
+    const { data: statusesData } = useGetTicketStatusesQuery({ skip: !persistor })
+    const statuses = useMemo(() => statusesData?.statuses?.filter(Boolean) || [], [statusesData?.statuses])
     const statusOptions = useMemo(() => convertToOptions(statuses, 'name', 'type'), [statuses])
 
-    const { objs: sources } = TicketSource.useObjects({
-        where: { type_in: VISIBLE_TICKET_SOURCE_TYPES },
+    const { data: sourcesData } = useGetTicketSourcesQuery({
+        variables: {
+            types: VISIBLE_TICKET_SOURCE_TYPES,
+        },
+        skip: !persistor,
     })
+    const sources = useMemo(() => sourcesData?.sources?.filter(Boolean) || [], [sourcesData?.sources])
     const sourceOptions = useMemo(() => convertToOptions(sources, 'name', 'id'), [sources])
 
     const attributeOptions = useMemo(() => [

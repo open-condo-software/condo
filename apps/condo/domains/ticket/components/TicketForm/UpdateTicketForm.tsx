@@ -1,3 +1,6 @@
+import {
+    useUpdateTicketMutation,
+} from '@app/condo/gql'
 import { Form, Typography } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
@@ -101,15 +104,19 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
     const { objs: invoices, loading: invoicesLoading } = Invoice.useObjects({ where: { ticket: { id } } })
 
     // no redirect after mutation as we need to wait for ticket files to save
-    const action = Ticket.useUpdate({})
+    const [action] = useUpdateTicketMutation({})
     const createInvoiceAction = Invoice.useCreate({})
     const updateInvoiceAction = Invoice.useUpdate({})
     const updateAction = async (values) => {
         const { existedInvoices, newInvoices, ...ticketValues } = values
 
-        const ticket = await action({
-            ...Ticket.formValuesProcessor(ticketValues),
-        }, obj)
+        const ticketData = await action({
+            variables: {
+                id: obj.id,
+                data: Ticket.formValuesProcessor(ticketValues),
+            },
+        })
+        const ticket = ticketData?.data?.ticket
 
         if (!isEmpty(newInvoices)) {
             for (const invoiceFromForm of newInvoices) {

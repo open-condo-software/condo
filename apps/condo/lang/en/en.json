@@ -814,7 +814,6 @@
   "pages.condo.warning.modal.SaveLabel": "Save",
   "pages.condo.warning.modal.LeaveLabel": "Leave",
   "pages.condo.residents.PageTitle": "Residents",
-  "pages.condo.ticket.alert.NoProperties": "To create ticket, you need to add at least one address in the section «Buildings».",
   "pages.condo.ticket.autoAssignAlert.title": "Responsible and executor assigned automatically",
   "pages.condo.ticket.autoAssignAlert.message": "The property from this ticket is within the property scope of «{name}». Therefore, the Domá algorithm automatically assigned the assignee and the executor.",
   "pages.condo.ticket.favorite.addToFavorite": "Add to favorite",
