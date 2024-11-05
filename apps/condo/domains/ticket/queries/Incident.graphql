@@ -1,0 +1,9 @@
+query getIncidents ($where: IncidentWhereInput, $sortBy: [SortIncidentsBy!]) {
+    incidents: allIncidents (where: $where, sortBy: $sortBy) {
+        id
+        details
+        workStart
+        workFinish
+        status
+    }
+}

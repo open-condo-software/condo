@@ -1,0 +1,11 @@
+query getOrganizationEmployeeWithTicketOrganization ($userId: ID!, $organizationId: ID!) {
+    employees: allOrganizationEmployees (
+        where: {
+            user: { id: $userId },
+            organization: { id: $organizationId },
+        }
+        first: 1
+    ) {
+        id
+    }
+}

@@ -46,6 +46,7 @@ const isDeletedInitialEmployee = (initialValue, employees) => {
     return initialValue && !employees.some((item) => get(item, 'user.id'))
 }
 
+// TODO(DOMA-10648): should be refactored to new client utils
 const TicketAssignments = ({
     validations,
     organizationId,

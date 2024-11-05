@@ -1,0 +1,10 @@
+query getContactEditorContacts ($where: ContactWhereInput) {
+    contacts: allContacts (
+        where: $where,
+        first: 100
+    ) {
+        id
+        phone
+        name
+    }
+}

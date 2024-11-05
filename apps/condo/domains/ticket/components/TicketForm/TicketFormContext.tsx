@@ -26,7 +26,7 @@ export const TicketFormContextProvider = ({ children, organizationId, isExistedT
 
     const { obj: newTicketSetting, loading: ticketSettingLoading } = TicketSetting.useObject({
         where: { organization: { id: organizationId } },
-    })
+    }, { skip: !organizationId })
 
     useEffect(() => {
         if (!newTicketSetting) return

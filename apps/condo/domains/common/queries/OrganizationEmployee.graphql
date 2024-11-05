@@ -1,0 +1,10 @@
+query getContactEditorOrganizationEmployees ($where: OrganizationEmployeeWhereInput) {
+    employees: allOrganizationEmployees (
+        where: $where,
+        first: 100
+    ) {
+        id
+        name
+        phone
+    }
+}
