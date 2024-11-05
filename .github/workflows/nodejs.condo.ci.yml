@@ -165,6 +165,9 @@ jobs:
       - name: Get changed files
         id: changed-files
         uses: tj-actions/changed-files@v45
+        with:
+          files: |
+            **/*.{js,ts,jsx,tsx,cjs,cts,mjs,mts}
       - name: List all changed files
         env:
           ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
@@ -172,6 +175,7 @@ jobs:
           for file in ${ALL_CHANGED_FILES}; do
             echo "$file was changed"
             done
+          echo "List all the files that have changed: $ALL_CHANGED_FILES"
       - name: Prepare Node environment
         uses: actions/setup-node@v3
         with:
