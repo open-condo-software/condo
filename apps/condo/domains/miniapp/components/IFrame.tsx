@@ -35,7 +35,6 @@ export type IFrameProps = {
     withLoader?: boolean
     withPrefetch?: boolean
     withResize?: boolean
-    scrolling?: 'no' | 'yes'
 }
 
 
@@ -47,7 +46,6 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
         withLoader = false,
         withPrefetch = false,
         withResize = false,
-        scrolling = 'no',
     } = props
 
     const intl = useIntl()
@@ -186,7 +184,7 @@ const IFrameForwardRef = React.forwardRef<HTMLIFrameElement, IFrameProps>((props
                 ref={handleRefChange}
                 height={frameHeight}
                 // NOTE: Deprecated, but overflow: hidden still not works in Chrome :)
-                scrolling={scrolling}
+                scrolling='no'
             />
         </>
     )
