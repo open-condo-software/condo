@@ -6,7 +6,7 @@ import { Col, Row, RowProps } from 'antd'
 import { ColumnsType } from 'antd/lib/table'
 import dayjs, { Dayjs } from 'dayjs'
 import get from 'lodash/get'
-import { NextRouter, useRouter } from 'next/router'
+import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { PlusCircle, Search } from '@open-condo/icons'
@@ -35,6 +35,7 @@ import {
     MeterForOrganization,
     METER_TAB_TYPES,
 } from '@condo/domains/meter/utils/clientSchema'
+import { getInitialArchivedOrActiveMeter } from '@condo/domains/meter/utils/helpers'
 
 
 
@@ -48,17 +49,6 @@ const SORTABLE_PROPERTIES = ['verificationDate', 'source']
 const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs(), dayjs().add(2, 'month')]
 
 
-const getInitialArchivedOrActiveMeter = (router: NextRouter, field: 'isShowActiveMeters' | 'isShowArchivedMeters', defaultValue = false) => {
-    if (field in router.query && typeof router.query[field] === 'string') {
-        try {
-            return (JSON.parse(router.query[field]))
-        } catch (error) {
-            console.error('Failed to parse property value %s: %s', field, error)
-            return defaultValue
-        }
-    }
-    return defaultValue
-}
 
 type MetersTableContentProps = {
     filtersMeta: FiltersMeta<MeterReadingWhereInput>[]
@@ -69,6 +59,11 @@ type MetersTableContentProps = {
     mutationErrorsToMessages?: Record<string, string>
     loading?: boolean
     showImportButton?: boolean
+}
+
+type UpdateMeterQueryParamsType = {
+    isShowActiveMeters: string
+    isShowArchivedMeters: string
 }
 
 const MetersTableContent: React.FC<MetersTableContentProps> = ({
@@ -162,22 +157,17 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
 
 
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
-    const handleUpdateMeterQuery = useCallback(async (isShowActiveMeters, isShowArchivedMeters) => {
-        await updateQuery(router, {
-            newParameters: {
-                isShowActiveMeters: String(isShowActiveMeters),
-                isShowArchivedMeters: String(isShowArchivedMeters),
-            },
-        }, { routerAction: 'replace', resetOldParameters: false })
+    const handleUpdateMeterQuery = useCallback(async (newParameters: UpdateMeterQueryParamsType) => {
+        await updateQuery(router, { newParameters }, { routerAction: 'replace', resetOldParameters: false })
     }, [router])
 
     const handleCheckShowActiveMeters = useCallback(() => {
-        handleUpdateMeterQuery(!isShowActiveMeters, isShowArchivedMeters)
+        handleUpdateMeterQuery({ isShowActiveMeters: String(!isShowActiveMeters), isShowArchivedMeters: String(isShowArchivedMeters) })
         setIsShowActiveMeters(prev => !prev)
     }, [handleUpdateMeterQuery, isShowActiveMeters, isShowArchivedMeters])
 
     const handleCheckShowArchiveMeters = useCallback(() => {
-        handleUpdateMeterQuery(isShowActiveMeters, !isShowArchivedMeters)
+        handleUpdateMeterQuery({ isShowActiveMeters: String(isShowActiveMeters), isShowArchivedMeters: String(!isShowArchivedMeters) })
         setIsShowArchivedMeters(prev => !prev)
     }, [handleUpdateMeterQuery, isShowActiveMeters, isShowArchivedMeters])
 
