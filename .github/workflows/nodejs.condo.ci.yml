@@ -184,9 +184,16 @@ jobs:
       - name: Install root dependencies
         run: |
           yarn workspaces focus root
-      - name: Check JS code-style rules
+      - name: Check basic JS code-style rules
         run: |
           yarn lint:code
+      - name: Check strict JS code-style rules on changed files
+        run: |
+          if [ -n "${ALL_CHANGED_FILES}" ]; then
+            yarn lint:strict ${ALL_CHANGED_FILES}
+          else
+            echo "No relevant files changed. Skipping lint."
+          fi
       - name: Check styling rules
         run: |
           yarn lint:styles
