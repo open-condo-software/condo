@@ -6,7 +6,8 @@ on:
       - main
 
   # NOTE: change pull_request_target to pull_request if you want to change the CI in your branch
-  pull_request_target:
+#  pull_request_target:
+  pull_request:
     types:
       - opened
       - reopened
@@ -161,6 +162,16 @@ jobs:
           submodules: recursive
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
           ref: ${{ env.REF }}
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v45
+      - name: List all changed files
+        env:
+          ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
+        run: |
+          for file in ${ALL_CHANGED_FILES}; do
+            echo "$file was changed"
+            done
       - name: Prepare Node environment
         uses: actions/setup-node@v3
         with:
