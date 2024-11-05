@@ -142,17 +142,8 @@ const MetersPage: IMeterIndexPage = () => {
 
     useEffect(() => {
         if (!activeType && !activeTab) return
-        if ((!type || type !== activeType) && (!tab || tab !== activeTab)) {
+        if ((!type || type !== activeType) || (!tab || tab !== activeTab)) {
             changeRouteToActiveParams({ type: activeType, tab: activeTab })
-            return
-        }
-        if (!type || type !== activeType ) {
-            changeRouteToActiveParams({ type: activeType })
-            return
-        }
-        if (!tab || tab !== activeTab) {
-            changeRouteToActiveParams({ tab: activeTab })
-            return
         }
        
     }, [activeTab, activeType, changeRouteToActiveParams, tab, type])
