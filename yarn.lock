@@ -610,6 +610,7 @@ __metadata:
     react-markdown: ^4.3.1
     react-responsive: ^8.1.0
     react-test-renderer: ^16.13.1
+    react-toast-notifications: ^2.4.4
     typescript: ^5.5.4
     use-immer: ^0.4.1
     uuid: ^8.3.0

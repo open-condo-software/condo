@@ -1,5 +1,4 @@
 /** @jsx jsx */
-/* eslint-disable no-use-before-define */
 
 import { useLazyQuery, useMutation } from '@apollo/client'
 import { LoadingButton } from '@arch-ui/button'
@@ -9,11 +8,12 @@ import { Container } from '@arch-ui/layout'
 import Select from '@arch-ui/select'
 import { gridSize } from '@arch-ui/theme'
 import { PageTitle } from '@arch-ui/typography'
-import { jsx } from '@emotion/core'
-import { useToasts } from '@keystonejs/app-admin-ui/node_modules/react-toast-notifications'
+/** @jsxImportSource @emotion/react */
+import { jsx } from '@emotion/react'
 import get from 'lodash/get'
 import throttle from 'lodash/throttle'
 import { useEffect, useState, useCallback, useMemo } from 'react'
+import { useToasts } from 'react-toast-notifications'
 
 import { Address, LINK_ADDRESS_AND_SOURCE_MUTATION } from '@address-service/domains/address/gql'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
