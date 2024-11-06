@@ -48,3 +48,15 @@ export const getInitialSelectedReadingKeys = (router: NextRouter) => {
     }
     return []
 }
+
+export const getInitialArchivedOrActiveMeter = (router: NextRouter, field: 'isShowActiveMeters' | 'isShowArchivedMeters', defaultValue = false): boolean => {
+    if (field in router.query && typeof router.query[field] === 'string') {
+        try {
+            return (JSON.parse(router.query[field]))
+        } catch (error) {
+            console.error('Failed to parse property value %s: %s', field, error)
+            return defaultValue
+        }
+    }
+    return defaultValue
+}
