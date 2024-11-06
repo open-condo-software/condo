@@ -91,7 +91,7 @@ class HCMMessaging {
         const requestBody = JSON.stringify(body)
 
         // TODO (@toplenboren) DOMA-10611 remove excessive logging
-        logger.info({ msg: 'HCMMessaging sendRequest, data is ready:', args: { body }, reqId, taskId })
+        logger.info({ msg: 'HCMMessaging sendRequest, data is ready:', args: { requestBody }, reqId, taskId })
 
         try {
             response = await fetch(url, { method: 'POST', body: requestBody, headers })
