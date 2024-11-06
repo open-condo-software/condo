@@ -114,8 +114,8 @@ function _numbersInWords (input, { dischargesLessThanThousand, dischargesMoreTha
         const current = +num.slice(-3)
         num = num.slice(0, -3)
 
-        const hundreds = current / 100 | 0
-        const dozens = current / 10 % 10 | 0
+        const hundreds = Math.floor(current / 100)
+        const dozens = Math.floor(current / 10 % 10)
         const units = current % 10
 
         if (current) {
