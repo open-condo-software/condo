@@ -7,7 +7,7 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import colors from '@open-condo/ui/colors'
+import { colors } from '@open-condo/ui/dist/colors'
 
 import { getOptionFilterDropdown, getFilterIcon } from '@condo/domains/common/components/Table/Filters'
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
@@ -31,9 +31,9 @@ export const useTableColumns = (
     const NameMessage = intl.formatMessage({ id: 'pages.auth.register.field.Name' })
     const RoleMessage = intl.formatMessage({ id: 'employee.Role' })
     const PositionMessage = intl.formatMessage({ id: 'employee.Position' })
-    const PhoneMessage =  intl.formatMessage({ id: 'Phone' })
+    const PhoneMessage = intl.formatMessage({ id: 'Phone' })
     const SpecializationsMessage = intl.formatMessage({ id: 'employee.Specializations' })
-    const BlockedMessage = 'заблокирован'
+    const BlockedMessage = intl.formatMessage({ id: 'employee.isBlocked' })
 
     const router = useRouter()
     const { filters } = parseQuery(router.query)
@@ -68,9 +68,12 @@ export const useTableColumns = (
 
     const renderBlockedEmployee = useCallback((name) => {
         return (
-            <Typography.Paragraph style={{ color: colors.red[5] }}>
-                {BlockedMessage}
-            </Typography.Paragraph>
+            <>
+                {render(name)}
+                <Typography.Paragraph style={{ color: colors.red[5] }}>
+                    ({BlockedMessage})
+                </Typography.Paragraph>
+            </>
         )
     }, [])
 
@@ -90,11 +93,7 @@ export const useTableColumns = (
                 sorter: true,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'name'),
                 filterIcon: getFilterIcon,
-                render: (name, employee) => {
-                    if (employee.isBlocked) {
-                        renderBlockedEmployee(name) 
-                    }
-                    return render(name)},
+                render: (name, employee) => employee.isBlocked ? renderBlockedEmployee(name) : render(name),
                 width: '15%',
             },
             {

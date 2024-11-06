@@ -340,7 +340,7 @@ export default function GlobalStyle () {
                 }
               }
 
-              .ant-table-row-blocked * {
+              .ant-table-row-blocked .ant-typography {
                 color: ${UIColors.gray[7]};
               }
               
