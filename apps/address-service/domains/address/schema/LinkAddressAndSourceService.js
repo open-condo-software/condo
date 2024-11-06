@@ -7,16 +7,22 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keys
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@address-service/domains/address/access/LinkAddressAndSourceService')
-const { EMPTY_SOURCE, SOURCE_ALREADY_EXISTS_ERROR, INCORRECT_ADDRESS_SOURCE } = require('@address-service/domains/address/constants')
+const { EMPTY_SOURCE, EMPTY_ADDRESS, SOURCE_ALREADY_EXISTS_ERROR, INCORRECT_ADDRESS_SOURCE } = require('@address-service/domains/address/constants')
 const { AddressSource } = require('@address-service/domains/address/utils/serverSchema')
 const { mergeAddressAndHelpers } = require('@address-service/domains/common/utils/services/search/searchServiceUtils')
 
 const ERRORS = {
-    EMPTY_ADDRESS_SOURCE: {
+    EMPTY_SOURCE: {
         query: 'linkAddressAndSource',
         code: BAD_USER_INPUT,
         type: EMPTY_SOURCE,
-        message: 'Address source is empty',
+        message: 'Source is empty',
+    },
+    EMPTY_ADDRESS: {
+        query: 'linkAddressAndSource',
+        code: BAD_USER_INPUT,
+        type: EMPTY_ADDRESS,
+        message: 'Address is empty',
     },
     INCORRECT_ADDRESS_SOURCE: {
         query: 'linkAddressAndSource',
@@ -50,6 +56,19 @@ const LinkAddressAndSourceService = new GQLCustomSchema('LinkAddressAndSourceSer
             schema: 'linkAddressAndSource(data: LinkAddressAndSourceInput!): LinkAddressAndSourceOutput',
             resolver: async (parent, { data }, context) => {
                 let { dv, sender, source, tin, address, parseUnit } = data
+
+                if (!source) {
+                    throw new GQLError({
+                        ...ERRORS.EMPTY_SOURCE,
+                    }, context)
+                }
+
+                if (!address) {
+                    throw new GQLError({
+                        ...ERRORS.EMPTY_ADDRESS,
+                    }, context)
+                }
+
                 if (parseUnit) {
                     source = parseAddressesFromString([source])[0].result.address
                 }

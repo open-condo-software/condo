@@ -70,4 +70,20 @@ describe('LinkAddressAndSourceService', () => {
             async () => await linkAddressAndSourceByTestClient(admin, payload)
             , ERRORS.INCORRECT_ADDRESS_SOURCE)
     })
+
+    test('Should not save empty strings', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const source = ''
+        const address = ''
+        const existSource = `${faker.address.street()} ${faker.random.numeric(3)} кв123`
+        const [{ id: existAddress }] = await createTestAddress(admin)
+        const payload1 = { source, address: existAddress, parseUnit: true  }
+        await expectToThrowGQLErrorToResult(
+            async () => await linkAddressAndSourceByTestClient(admin, payload1)
+            , ERRORS.EMPTY_SOURCE)
+        const payload2 = { source: existSource, address, parseUnit: true  }
+        await expectToThrowGQLErrorToResult(
+            async () => await linkAddressAndSourceByTestClient(admin, payload2)
+            , ERRORS.EMPTY_ADDRESS)
+    })
 })

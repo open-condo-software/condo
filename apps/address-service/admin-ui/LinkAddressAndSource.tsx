@@ -1,4 +1,5 @@
 /** @jsx jsx */
+/* eslint-disable no-use-before-define */
 
 import { useLazyQuery, useMutation } from '@apollo/client'
 import { LoadingButton } from '@arch-ui/button'
@@ -8,17 +9,31 @@ import { Container } from '@arch-ui/layout'
 import Select from '@arch-ui/select'
 import { gridSize } from '@arch-ui/theme'
 import { PageTitle } from '@arch-ui/typography'
-/** @jsxImportSource @emotion/react */
-import { jsx } from '@emotion/react'
+import { jsx } from '@emotion/core'
 import get from 'lodash/get'
 import throttle from 'lodash/throttle'
-import { useEffect, useState, useCallback, useMemo } from 'react'
-import { useToasts } from 'react-toast-notifications'
+import { useEffect, useState, useCallback, useMemo, CSSProperties } from 'react'
+import { useToasts, ToastProvider } from 'react-toast-notifications'
 
 import { Address, LINK_ADDRESS_AND_SOURCE_MUTATION } from '@address-service/domains/address/gql'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 
-const LinkAddressAndSource = () => {
+const formStyle: CSSProperties = {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: '.5rem',
+    flexDirection: 'column',
+    padding: '1rem',
+    marginBottom: `${gridSize * 3}px`,
+}
+
+const labelStyle: CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '.5rem',
+}
+
+const Page = () => {
     const { addToast } = useToasts()
 
     const [source, setSource] = useState('')
@@ -91,15 +106,9 @@ const LinkAddressAndSource = () => {
     return (
         <Container>
             <PageTitle>Link address and source</PageTitle>
-            <form css={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: '.5rem',
-                flexDirection: 'column',
-                padding: '1rem',
-                marginBottom: `${gridSize * 3}px`,
-            }}
-            onSubmit={handleSubmit}>
+            <form
+                style={formStyle}
+                onSubmit={handleSubmit}>
                 <Input
                     value={source}
                     onChange={e => setSource(e.target.value)}
@@ -124,7 +133,7 @@ const LinkAddressAndSource = () => {
                     options={addressesOptions}
                     onChange={setSelectedAddress}
                 />
-                <label css={{ display: 'flex', alignItems: 'center', gap: '.5rem' }}>
+                <label style={labelStyle}>
                     <CheckboxPrimitive
                         checked={parseUnit}
                         onChange={e => setParseUnit(e.target.checked)}
@@ -142,6 +151,14 @@ const LinkAddressAndSource = () => {
                 </LoadingButton>
             </form>
         </Container>
+    )
+}
+
+const LinkAddressAndSource = () => {
+    return (
+        <ToastProvider>
+            <Page/>
+        </ToastProvider>
     )
 }
 
