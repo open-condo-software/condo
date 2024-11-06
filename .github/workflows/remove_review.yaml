@@ -29,4 +29,5 @@ jobs:
       - name: "Drop review databases"
         run: |
           psql --version
-          
+          psql -d ${{ secrets.TEST_CLUSTER_DB_CREDENTIALS }} \
+          -Atqc "SELECT 'DROP DATABASE ' || quote_ident(datname) || ';' FROM pg_database WHERE datname like '%${{ env.REVIEW_NAMESPACE }}%';" | psql
