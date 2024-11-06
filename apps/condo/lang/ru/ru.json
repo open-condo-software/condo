@@ -2542,6 +2542,7 @@
   "pages.billing.NoBilling.button": "Посмотреть список интеграций",
   "pages.billing.ReceiptsTable.PDFTooltip": "Посмотреть PDF-квитанцию",
   "pages.billing.ReceiptsTable.loadRegistry.button": "Загрузить реестр",
+  "pages.billing.registry.uploadPage.title": "Загрузка нового реестра",
   "pages.billing.Status.success.title": "Платежи от физлиц подключены",
   "WillBeReadySoon": "Скоро всё будет готово",
   "Accruals": "Начисления",

@@ -59,7 +59,7 @@ export const MainContent: React.FC<MainContentProps> = ({
             result.push({
                 label: extensionPageTitle,
                 key: EXTENSION_TAB_KEY,
-                children: <IFrame src={appUrl} reloadScope='organization' withPrefetch withLoader withResize/>,
+                children: <IFrame src={appUrl} reloadScope='organization' withPrefetch withLoader withResize />,
             })
         }
 
