@@ -23,12 +23,14 @@ import { useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultiple
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
+import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import {
     PropertyMeter,
     METER_TAB_TYPES,
     MeterReadingFilterTemplate,
 } from '@condo/domains/meter/utils/clientSchema'
+import { getInitialArchivedOrActiveMeter } from '@condo/domains/meter/utils/helpers'
 
 
 const METERS_PAGE_CONTENT_ROW_GUTTERS: RowProps['gutter'] = [0, 40]
@@ -47,6 +49,12 @@ type PropertyMetersTableContentProps = {
     mutationErrorsToMessages?: Record<string, string>
     loading?: boolean
 }
+
+type UpdateMeterQueryParamsType = {
+    isShowActiveMeters: string
+    isShowArchivedMeters: string
+}
+
 
 const PropertyMetersTableContent: React.FC<PropertyMetersTableContentProps> = ({
     filtersMeta,
@@ -68,8 +76,8 @@ const PropertyMetersTableContent: React.FC<PropertyMetersTableContentProps> = ({
     
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
 
-    const [isShowActiveMeters, setIsShowActiveMeters] = useState(true)
-    const [isShowArchivedMeters, setIsShowArchivedMeters] = useState(false)
+    const [isShowActiveMeters, setIsShowActiveMeters] = useState(() => getInitialArchivedOrActiveMeter(router, 'isShowActiveMeters', true))
+    const [isShowArchivedMeters, setIsShowArchivedMeters] = useState(() => getInitialArchivedOrActiveMeter(router, 'isShowArchivedMeters'))
 
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, sortableProperties || SORTABLE_PROPERTIES)
 
@@ -113,14 +121,20 @@ const PropertyMetersTableContent: React.FC<PropertyMetersTableContentProps> = ({
     }, [router])
 
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
-    const handleCreateMeterReadings = useCallback(() => router.push(`/meter/create?tab=${METER_TAB_TYPES.propertyMeter}`), [router])
+    const handleUpdateMeterQuery = useCallback(async (newParameters: UpdateMeterQueryParamsType) => {
+        await updateQuery(router, { newParameters }, { routerAction: 'replace', resetOldParameters: false })
+    }, [router])
     const handleCheckShowActiveMeters = useCallback(() => {
+        handleUpdateMeterQuery({ isShowActiveMeters: String(!isShowActiveMeters), isShowArchivedMeters: String(isShowArchivedMeters) })
         setIsShowActiveMeters(prev => !prev)
-    }, [])
-    const handleCheckShowArchiveMeters = useCallback(() => {
-        setIsShowArchivedMeters(prev => !prev)
-    }, [])
+    }, [handleUpdateMeterQuery, isShowActiveMeters, isShowArchivedMeters])
 
+    const handleCheckShowArchiveMeters = useCallback(() => {
+        handleUpdateMeterQuery({ isShowActiveMeters: String(isShowActiveMeters), isShowArchivedMeters: String(!isShowArchivedMeters) })
+        setIsShowArchivedMeters(prev => !prev)
+    }, [handleUpdateMeterQuery, isShowActiveMeters, isShowArchivedMeters])
+    const handleCreateMeterReadings = useCallback(() => router.push(`/meter/create?tab=${METER_TAB_TYPES.propertyMeter}`), [router])
+    
     return (
         <>
             <Row

@@ -16,6 +16,7 @@ import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { MultipleFilterContextProvider } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { usePreviousQueryParams } from '@condo/domains/common/hooks/usePreviousQueryParams'
+import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { MeterReadPermissionRequired } from '@condo/domains/meter/components/PageAccess'
 import { MetersPageContent } from '@condo/domains/meter/components/TabContent/Meter'
@@ -26,7 +27,7 @@ import { PropertyMeterReadingsPageContent } from '@condo/domains/meter/component
 import { useMeterFilters } from '@condo/domains/meter/hooks/useMeterFilters'
 import { useMeterReadingFilters } from '@condo/domains/meter/hooks/useMeterReadingFilters'
 import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
-import { METER_TAB_TYPES, METER_TYPES, MeterTypes } from '@condo/domains/meter/utils/clientSchema'
+import { METER_TAB_TYPES, METER_TYPES, MeterPageTypes, MeterTypes } from '@condo/domains/meter/utils/clientSchema'
 
 
 interface IMeterIndexPage extends React.FC {
@@ -59,9 +60,10 @@ const HEADER_STYLES: CSSProperties = { padding: 0 }
 
 type MeterTypeSwitchProps = {
     defaultValue: MeterTypes
+    activeTab: MeterPageTypes
 }
 
-export const MeterTypeSwitch = ({ defaultValue }: MeterTypeSwitchProps): JSX.Element => {
+export const MeterTypeSwitch = ({ defaultValue, activeTab }: MeterTypeSwitchProps): JSX.Element => {
     const intl = useIntl()
     const MeterReadingMessage = intl.formatMessage({ id: 'pages.condo.meter.index.MeterType.meterReading' })
     const HouseMeterReadingMessage = intl.formatMessage({ id: 'pages.condo.meter.index.MeterType.houseMeterReading' })
@@ -87,8 +89,8 @@ export const MeterTypeSwitch = ({ defaultValue }: MeterTypeSwitchProps): JSX.Ele
         const value = event.target.value
         setValue(value)
         logEvent({ eventName: 'MeterTypeChange', denyDuplicates: true, eventProperties: { type: value } })
-        router.replace({ query: { ...router.query, type: value } })
-    }, [logEvent])
+        updateQuery(router, { newParameters: { type: value, tab: activeTab } }, { resetOldParameters: true, routerAction: 'replace' })
+    }, [activeTab, logEvent, router])
 
     return (
         <RadioGroup optionType='button' value={value} onChange={handleRadioChange} defaultValue={defaultValue}>
@@ -126,41 +128,31 @@ const MetersPage: IMeterIndexPage = () => {
     usePreviousQueryParams({ paramNamesForPageChange: ['tab', 'type'], trackedParamNames: ['sort', 'filters', 'isShowActiveMeters', 'isShowArchivedMeters'], employeeSpecificKey: employeeId }) 
 
     const { tab } = parseQuery(router.query)
-    const type = get(router.query, 'type', METER_TYPES.unit) as string
+    const type = Array.isArray(get(router.query, 'type')) ? undefined : get(router.query, 'type') as string
 
     const tabAsMeterPageType = tab ? MeterPageTypeFromQuery(tab) : null
-    
-    const activeTab = useMemo(() => AVAILABLE_TABS.includes(tabAsMeterPageType) ? tabAsMeterPageType : get(AVAILABLE_TABS, [0], ''),  [tabAsMeterPageType])
-    const activeType = useMemo(() => type ? type : METER_TYPES.unit,  [type])
 
-    const changeRouteToActiveTab = useCallback(async (activeTab: string) => {
-        router.replace({ query: { tab: activeTab, type: get(router, 'query.type') } })
-    }, [router])
+    const activeTab = useMemo(() => AVAILABLE_TABS.includes(tabAsMeterPageType) ? tabAsMeterPageType : get(AVAILABLE_TABS, [0]),  [tabAsMeterPageType])
+    const activeType = useMemo(() => type in METER_TYPES ? type : METER_TYPES.unit, [type])
 
-    const changeRouteToActiveType = useCallback(async (activeType: string) => {
-        router.replace({ query: { tab: get(router, 'query.tab'), type: activeType } })
+    const changeRouteToActiveParams = useCallback(async (newParameters) => {
+        await updateQuery(router, { newParameters }, { resetOldParameters: true, routerAction: 'replace' } )
     }, [router])
 
 
     useEffect(() => {
-        if (!activeTab) return
-        if (!tab || tab !== activeTab) {
-            changeRouteToActiveTab(activeTab)
+        if (!activeType && !activeTab) return
+        if ((!type || type !== activeType) || (!tab || tab !== activeTab)) {
+            changeRouteToActiveParams({ type: activeType, tab: activeTab })
         }
-    }, [activeTab, changeRouteToActiveTab, tab])
-
-    useEffect(() => {
-        if (!activeType) return
-        if (!type || type !== activeType) {
-            changeRouteToActiveType(activeType)
-        }
-    }, [activeType, changeRouteToActiveType, type])
+       
+    }, [activeTab, activeType, changeRouteToActiveParams, tab, type])
 
     useEffect(() => {
         if (activeType === METER_TYPES.property && activeTab === METER_TAB_TYPES.reportingPeriod) {
-            changeRouteToActiveTab(METER_TAB_TYPES.meterReading)
+            changeRouteToActiveParams({ tab: METER_TAB_TYPES.meterReading, type: activeType })
         }
-    }, [activeTab, activeType, changeRouteToActiveTab])
+    }, [activeTab, activeType, changeRouteToActiveParams])
 
     const filtersForMetersMeta = useMeterFilters(activeType as MeterTypes)
     const tableColumnsForMeters = useTableColumns(filtersForMetersMeta, tabAsMeterPageType, activeType as MeterTypes)
@@ -181,8 +173,8 @@ const MetersPage: IMeterIndexPage = () => {
     [userOrganizationId])
 
     const handleTabChange = useCallback(async (activeTab) => {
-        await changeRouteToActiveTab(activeTab)
-    }, [changeRouteToActiveTab])
+        await changeRouteToActiveParams({ tab: activeTab, type: activeType })
+    }, [activeType, changeRouteToActiveParams])
 
     const canManageMeterReadings = useMemo(() => get(role, 'canManageMeterReadings', false), [role])
     const canManageMeters = useMemo(() => get(role, 'canManageMeters', false), [role])
@@ -256,7 +248,7 @@ const MetersPage: IMeterIndexPage = () => {
                             <PageHeader title={<Typography.Title>{PageTitleMessage}</Typography.Title>} style={HEADER_STYLES}/>
                         </Col>
                         <Col>
-                            <MeterTypeSwitch defaultValue={METER_TYPES.unit}/>
+                            <MeterTypeSwitch defaultValue={METER_TYPES.unit} activeTab={activeTab}/>
                         </Col>
                     </Row>
                     <Tabs
