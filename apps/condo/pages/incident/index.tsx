@@ -15,8 +15,6 @@ import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { PlusCircle, Search } from '@open-condo/icons'
-import { prepareSSRContext } from '@open-condo/miniapp-utils'
-import { initializeApollo } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -35,9 +33,6 @@ import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePrevio
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
-import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
-import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
-import { extractSSRState, ifSsrIsNotDisabled } from '@condo/domains/common/utils/next/ssr'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { IncidentReadPermissionRequired } from '@condo/domains/ticket/components/PageAccess'
@@ -48,8 +43,6 @@ import { useIncidentTableColumns, UseTableColumnsType } from '@condo/domains/tic
 import { useIncidentTableFilters } from '@condo/domains/ticket/hooks/useIncidentTableFilters'
 import { Incident, IncidentProperty } from '@condo/domains/ticket/utils/clientSchema'
 import { getFilterAddressForSearch } from '@condo/domains/ticket/utils/tables.utils'
-
-import type { GetServerSideProps } from 'next'
 
 
 export interface IIncidentIndexPage extends React.FC {
@@ -405,7 +398,7 @@ export const IncidentsPageContent: React.FC<IncidentsPageContentProps> = (props)
     )
 }
 
-const IncidentsPage: IIncidentIndexPage = () => {
+const IncidentsPage: IIncidentIndexPage = (props) => {
     const filterMetas = useIncidentTableFilters()
     const { organization, link } = useOrganization()
     const organizationId = get(organization, 'id')
@@ -426,20 +419,3 @@ const IncidentsPage: IIncidentIndexPage = () => {
 IncidentsPage.requiredAccess = IncidentReadPermissionRequired
 
 export default IncidentsPage
-
-export const getServerSideProps: GetServerSideProps = ifSsrIsNotDisabled(async (context) => {
-    const { req, res } = context
-
-    // @ts-ignore In Next 9 the types (only!) do not match the expected types
-    const { headers } = prepareSSRContext(req, res)
-    const client = initializeApollo({ headers })
-
-    const { redirect, user } = await prefetchAuthOrRedirect(client, context)
-    if (redirect) return redirect
-
-    await prefetchOrganizationEmployee({ client, context, userId: user.id })
-
-    return extractSSRState(client, req, res, {
-        props: {},
-    })
-})

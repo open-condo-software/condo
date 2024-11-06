@@ -8,8 +8,6 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
 import { PlusCircle, Search } from '@open-condo/icons'
-import { prepareSSRContext } from '@open-condo/miniapp-utils'
-import { initializeApollo } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, ActionBarProps, Button, Typography } from '@open-condo/ui'
@@ -26,9 +24,6 @@ import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
-import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
-import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
-import { extractSSRState, ifSsrIsNotDisabled } from '@condo/domains/common/utils/next/ssr'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { NewsReadPermissionRequired } from '@condo/domains/news/components/PageAccess'
 import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess'
@@ -37,8 +32,6 @@ import { useTableFilters } from '@condo/domains/news/hooks/useTableFilters'
 import { NewsItem } from '@condo/domains/news/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
-
-import type { GetServerSideProps } from 'next'
 
 
 interface INewsIndexPage extends React.FC {
@@ -267,20 +260,3 @@ const NewsPage: INewsIndexPage = () => {
 
 NewsPage.requiredAccess = NewsReadPermissionRequired
 export default NewsPage
-
-export const getServerSideProps: GetServerSideProps = ifSsrIsNotDisabled(async (context) => {
-    const { req, res } = context
-
-    // @ts-ignore In Next 9 the types (only!) do not match the expected types
-    const { headers } = prepareSSRContext(req, res)
-    const client = initializeApollo({ headers })
-
-    const { redirect, user } = await prefetchAuthOrRedirect(client, context)
-    if (redirect) return redirect
-
-    await prefetchOrganizationEmployee({ client, context, userId: user.id })
-
-    return extractSSRState(client, req, res, {
-        props: {},
-    })
-})

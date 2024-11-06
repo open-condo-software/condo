@@ -8,8 +8,6 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { AlertCircle, PlusCircle, Search } from '@open-condo/icons'
-import { prepareSSRContext } from '@open-condo/miniapp-utils'
-import { initializeApollo } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -30,9 +28,6 @@ import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePrevio
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
-import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
-import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
-import { extractSSRState, ifSsrIsNotDisabled } from '@condo/domains/common/utils/next/ssr'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { ContactsReadPermissionRequired } from '@condo/domains/contact/components/PageAccess'
 import { useContactExportToExcelTask } from '@condo/domains/contact/hooks/useContactExportToExcelTask'
@@ -42,8 +37,6 @@ import { useContactsTableFilters } from '@condo/domains/contact/hooks/useTableFi
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { CONTACT_PAGE_SIZE, IFilters } from '@condo/domains/contact/utils/helpers'
 import { PROPERTY_PAGE_SIZE } from '@condo/domains/property/utils/helpers'
-
-import type { GetServerSideProps } from 'next'
 
 
 const ADD_CONTACT_ROUTE = '/contact/create/'
@@ -324,20 +317,3 @@ const ContactsPage = () => {
 ContactsPage.requiredAccess = ContactsReadPermissionRequired
 
 export default ContactsPage
-
-export const getServerSideProps: GetServerSideProps = ifSsrIsNotDisabled(async (context) => {
-    const { req, res } = context
-
-    // @ts-ignore In Next 9 the types (only!) do not match the expected types
-    const { headers } = prepareSSRContext(req, res)
-    const client = initializeApollo({ headers })
-
-    const { redirect, user } = await prefetchAuthOrRedirect(client, context)
-    if (redirect) return redirect
-
-    await prefetchOrganizationEmployee({ client, context, userId: user.id })
-
-    return extractSSRState(client, req, res, {
-        props: {},
-    })
-})

@@ -1,4 +1,8 @@
 import {
+    ApolloClient,
+    NormalizedCacheObject,
+} from '@apollo/client'
+import {
     AuthenticatedUserDocument,
     GetActiveOrganizationEmployeeDocument,
 } from '@app/condo/gql'
@@ -10,15 +14,18 @@ import dayjs from 'dayjs'
 import { cache } from 'emotion'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
+import { NextPageContext } from 'next'
+import App, { AppContext } from 'next/app'
 import getConfig from 'next/config'
 import Head from 'next/head'
-import { useRouter } from 'next/router'
+import Router, { useRouter } from 'next/router'
 import React, { useMemo } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useFeatureFlags, FeaturesReady, withFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import * as AllIcons from '@open-condo/icons'
 import { extractReqLocale } from '@open-condo/locales/extractReqLocale'
+import { isSSR } from '@open-condo/miniapp-utils'
 import { withApollo } from '@open-condo/next/apollo'
 import { useAuth, withAuth } from '@open-condo/next/auth'
 import { useIntl, withIntl } from '@open-condo/next/intl'
@@ -58,9 +65,17 @@ import {
 } from '@condo/domains/common/constants/menuCategories'
 import { useHotCodeReload } from '@condo/domains/common/hooks/useHotCodeReload'
 import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
+import { Either } from '@condo/domains/common/types'
 import { messagesImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
 import { apolloHelperOptions } from '@condo/domains/common/utils/next/apollo'
-import { useVitalCookies, SSRCookiesContext, useSSRCookiesContext } from '@condo/domains/common/utils/next/ssr'
+import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
+import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
+import {
+    useVitalCookies,
+    SSRCookiesContext,
+    useSSRCookiesContext,
+    extractVitalCookies,
+} from '@condo/domains/common/utils/next/ssr'
 import { useContactExportTaskUIInterface } from '@condo/domains/contact/hooks/useContactExportTaskUIInterface'
 import { useMeterReadingExportTaskUIInterface } from '@condo/domains/meter/hooks/useMeterReadingExportTaskUIInterface'
 import { useMeterReadingsImportTaskUIInterface } from '@condo/domains/meter/hooks/useMeterReadingsImportTaskUIInterface'
@@ -531,9 +546,113 @@ const MyApp = ({ Component, pageProps }) => {
     )
 }
 
+// TODO(INFRA-574): move to next/types
+export type PrefetchedDataProps = {
+    context: NextPageContext
+    user?
+    redirectToAuth?: GetPrefetchedDataReturnRedirect
+    activeEmployee?
+    apolloClient: ApolloClient<NormalizedCacheObject>
+}
+export type GetPrefetchedDataReturnProps = { props: Record<string, any> }
+export type GetPrefetchedDataReturnRedirect = { redirect: { destination: string, permanent?: boolean } }
+export type GetPrefetchedDataReturnNotFound = { notFound: true }
+export type GetPrefetchedDataReturnType = Either<GetPrefetchedDataReturnProps, Either<GetPrefetchedDataReturnNotFound, GetPrefetchedDataReturnRedirect>>
+export type GetPrefetchedData = (props: PrefetchedDataProps) => Promise<GetPrefetchedDataReturnType>
+export type NextAppContext = AppContext & {
+    apolloClient: ApolloClient<NormalizedCacheObject>
+    Component: {
+        getPrefetchedData?: GetPrefetchedData
+        isAnonymous?: boolean
+        preventRedirectToAuth?: boolean
+    }
+}
+// TODO(INFRA-574): move to next/utils
+async function nextRedirect (pageContext: NextPageContext, params: { destination: string, permanent?: boolean, as?: string }): Promise<{ pageProps: Record<string,  never> }> {
+    if (isSSR()) {
+        pageContext.res.writeHead(params.permanent ? 308 : 307, {
+            Location: params.destination,
+        })
+        pageContext.res.end()
+    } else {
+        await Router.push(params.destination, params.as)
+    }
+
+    return { pageProps: {} }
+}
+
+MyApp.getInitialProps = async (appContext: NextAppContext) => {
+    const pageContext = appContext?.ctx
+    const apolloClient = appContext.apolloClient
+
+    if (!apolloClient) throw new Error('no appContext.apolloClient!')
+
+    let initialProps: Record<string, any>,
+        prefetchedData: Record<string, any>
+    if (appContext.Component.getInitialProps && appContext.Component.getPrefetchedData) {
+        throw new Error('You cannot use getInitialProps and getPrefetchedData together')
+    }
+    if (appContext.Component.getInitialProps) {
+        ({ pageProps: initialProps } = await App.getInitialProps(appContext))
+    }
+
+    const isAnonymousPage = appContext.Component.isAnonymous || false
+    const preventRedirectToAuth = appContext.Component.preventRedirectToAuth || false
+
+    let redirectToAuth: GetPrefetchedDataReturnRedirect
+    let user: GetPrefetchedDataReturnProps['props'] = null
+    if (!isAnonymousPage) {
+        ({ redirectToAuth, user } = await prefetchAuthOrRedirect(apolloClient, pageContext))
+        if (redirectToAuth && !preventRedirectToAuth) return await nextRedirect(pageContext, redirectToAuth.redirect)
+    }
+
+    let activeEmployee = null
+    if (user) {
+        ({ activeEmployee } = await prefetchOrganizationEmployee({
+            apolloClient,
+            context: pageContext,
+            userId: user.id,
+        }))
+    }
+
+    if (appContext.Component.getPrefetchedData) {
+        const _prefetchedData = await appContext.Component.getPrefetchedData({
+            user, redirectToAuth, context: pageContext, apolloClient, activeEmployee,
+        })
+
+        if (Object.keys(_prefetchedData).length > 1) throw new Error('getPrefetchedData() should return only "notFound", "redirect" or "props"')
+
+        if ('notFound' in _prefetchedData) {
+            const { asPath } = pageContext
+            return await nextRedirect(pageContext, {
+                destination: `/404?notFoundPath=${encodeURIComponent(asPath)}`,
+                as: asPath,
+            })
+        }
+
+        if ('redirect' in _prefetchedData) {
+            return await nextRedirect(pageContext, _prefetchedData.redirect)
+        }
+
+        prefetchedData = _prefetchedData.props
+    }
+
+    let pageProps: Record<string, any> = {
+        ...initialProps,
+        ...prefetchedData,
+    }
+
+    if (isSSR()) {
+        ({ props: pageProps } = extractVitalCookies(pageContext.req, pageContext.res, {
+            props: pageProps,
+        }))
+    }
+
+    return { pageProps }
+}
+
 export const withCookies = () => (PageComponent) => {
     const WithCookies = (props) => {
-
         const ssrCookies = useVitalCookies(props?.pageProps)
 
         return (
@@ -567,6 +686,8 @@ export default (
                 withOrganization({ legacy: false, GET_ORGANIZATION_EMPLOYEE_QUERY: GetActiveOrganizationEmployeeDocument, useInitialEmployeeId })(
                     withIntl({ ssr: !isDisabledSsr, messagesImporter, extractReqLocale, defaultLocale })(
                         withFeatureFlags({ ssr: !isDisabledSsr })(
+                            // TODO(INFRA-574): fix types
+                            // @ts-ignore
                             MyApp
                         )
                     )

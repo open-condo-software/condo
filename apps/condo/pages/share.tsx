@@ -9,7 +9,6 @@ import React, { useEffect } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
-
 import BaseLayout, { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { LOCALES } from '@condo/domains/common/constants/locale'
 import {

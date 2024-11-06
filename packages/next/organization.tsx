@@ -333,7 +333,7 @@ const OrganizationProvider: React.FC<OrganizationProviderProps> = ({
 
     const { loading: employeeLoading, refetch, data } = useQuery(GET_ORGANIZATION_EMPLOYEE_QUERY, {
         variables: {
-            userId: get(auth, ['user', 'id']) || null,
+            userId: auth?.user?.id || null,
             employeeId: activeEmployeeId,
         },
         skip: auth.isLoading || !auth.user || !auth.user.id || !activeEmployeeId,

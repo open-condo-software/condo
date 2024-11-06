@@ -1,5 +1,6 @@
 /** @jsx jsx */
 import { useApolloClient } from '@apollo/client'
+import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import { SortTicketsBy, Ticket as ITicket, TicketStatusTypeType } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
 import styled from '@emotion/styled'
@@ -15,6 +16,7 @@ import isNumber from 'lodash/isNumber'
 import isString from 'lodash/isString'
 import omit from 'lodash/omit'
 import pick from 'lodash/pick'
+import { NextPageContext } from 'next'
 import Head from 'next/head'
 import Link from 'next/link'
 import { NextRouter, useRouter } from 'next/router'
@@ -24,16 +26,13 @@ import React, { CSSProperties, Key, useCallback, useEffect, useMemo, useRef, use
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { Search, Close, Phone } from '@open-condo/icons'
-import { prepareSSRContext } from '@open-condo/miniapp-utils'
 import { useLazyQuery } from '@open-condo/next/apollo'
-import { initializeApollo } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Typography, Button, RadioGroup, Radio, Space } from '@open-condo/ui'
 // TODO(DOMA-4844): Replace with @open-condo/ui/colors
 import { colors } from '@open-condo/ui/dist/colors'
-
 
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
@@ -65,9 +64,6 @@ import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
-import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
-import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
-import { extractSSRState, ifSsrIsNotDisabled } from '@condo/domains/common/utils/next/ssr'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { TicketReadPermissionRequired } from '@condo/domains/ticket/components/PageAccess'
 import { TicketStatusFilter } from '@condo/domains/ticket/components/TicketStatusFilter/TicketStatusFilter'
@@ -93,12 +89,14 @@ import { CallRecordFragment, Ticket, TicketFilterTemplate } from '@condo/domains
 import { GET_TICKETS_COUNT_QUERY } from '@condo/domains/ticket/utils/clientSchema/search'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 
-import type { GetServerSideProps } from 'next'
+import { GetPrefetchedData } from '../_app'
+
 
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
     requiredAccess?: React.FC
+    getPrefetchedData?: GetPrefetchedData
 }
 
 type TicketType = 'all' | 'own' | 'favorite'
@@ -991,7 +989,9 @@ export const TicketTypeFilterSwitch = ({ ticketFilterQuery }) => {
     )
 }
 
-const TicketsPage: ITicketIndexPage = () => {
+const TicketsPage: ITicketIndexPage = (props) => {
+
+    console.log('TicketsPage >>> ', { props })
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
     const CallRecordsLogMessage = intl.formatMessage({ id: 'callRecord.index.title' })
@@ -1094,21 +1094,23 @@ const TicketsPage: ITicketIndexPage = () => {
 }
 
 TicketsPage.requiredAccess = TicketReadPermissionRequired
+
+TicketsPage.getPrefetchedData = async (props) => {
+    // const { context, redirectToAuth, apolloClient, user, activeEmployee } = props
+    // const { req, res } = context
+
+    return { props: { myProps: 12312312 } }
+    // if (redirectToAuth) {
+    //     return redirectToAuth
+    // }
+    // return { notFound: true }
+    // return {
+    //     redirect: {
+    //         destination: '/ticket', // page path
+    //         permanent: false, // false - 307, true - 308
+    //     },
+    // }
+    // return { props: { myPropsFromTicketIndex: '123123qweqwe' } }
+}
+
 export default TicketsPage
-
-export const getServerSideProps: GetServerSideProps = ifSsrIsNotDisabled(async (context) => {
-    const { req, res } = context
-
-    // @ts-ignore In Next 9 the types (only!) do not match the expected types
-    const { headers } = prepareSSRContext(req, res)
-    const client = initializeApollo({ headers })
-
-    const { redirect, user } = await prefetchAuthOrRedirect(client, context)
-    if (redirect) return redirect
-
-    await prefetchOrganizationEmployee({ client, context, userId: user.id })
-
-    return extractSSRState(client, req, res, {
-        props: {},
-    })
-})

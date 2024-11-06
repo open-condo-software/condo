@@ -20,8 +20,6 @@ import React, { CSSProperties, useCallback, useEffect, useLayoutEffect, useMemo,
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { History, Mail } from '@open-condo/icons'
-import { prepareSSRContext } from '@open-condo/miniapp-utils'
-import { initializeApollo } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Carousel, Space, Typography } from '@open-condo/ui'
@@ -35,9 +33,6 @@ import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table
 import { Tag } from '@condo/domains/common/components/Tag'
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { colors, gradients, shadows, transitions } from '@condo/domains/common/constants/style'
-import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
-import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
-import { extractSSRState, ifSsrIsNotDisabled } from '@condo/domains/common/utils/next/ssr'
 import { renderPhone } from '@condo/domains/common/utils/Renders'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { ClientType, getClientCardTabKey, redirectToForm } from '@condo/domains/contact/utils/clientCard'
@@ -51,8 +46,6 @@ import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketP
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import { useClientCardTicketTableColumns } from '@condo/domains/ticket/hooks/useClientCardTicketTableColumns'
 import { CallRecordFragment, Ticket } from '@condo/domains/ticket/utils/clientSchema'
-
-import type { GetServerSideProps } from 'next'
 
 
 //#region Constants, types and styles
@@ -967,20 +960,3 @@ const ClientCardPage = () => {
 ClientCardPage.requiredAccess = TicketReadPermissionRequired
 
 export default ClientCardPage
-
-export const getServerSideProps: GetServerSideProps = ifSsrIsNotDisabled(async (context) => {
-    const { req, res } = context
-
-    // @ts-ignore In Next 9 the types (only!) do not match the expected types
-    const { headers } = prepareSSRContext(req, res)
-    const client = initializeApollo({ headers })
-
-    const { redirect, user } = await prefetchAuthOrRedirect(client, context)
-    if (redirect) return redirect
-
-    await prefetchOrganizationEmployee({ client, context, userId: user.id })
-
-    return extractSSRState(client, req, res, {
-        props: {},
-    })
-})

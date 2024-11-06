@@ -27,6 +27,8 @@ import {
     UseApollo,
     ApolloHelperOptions,
 } from '@open-condo/apollo'
+import { prepareSSRContext } from '@open-condo/miniapp-utils'
+import { isSSR } from '@open-condo/miniapp-utils'
 
 import {
     _useEmitterMutation,
@@ -334,12 +336,16 @@ const _withApollo: WillApollo = ({ apolloHelperOptions }) => (PageComponent: Nex
     initializeApollo = apolloHelper.initializeApollo as unknown as InitializeApollo<ApolloClient<NormalizedCacheObject>>
 
     const WithApollo = (props) => {
-        const { client, cachePersistor } = useApollo(props.pageProps)
+        const { apolloClientState, ...componentProps } = props
+
+        const { client, cachePersistor } = useApollo({
+            '__APOLLO_STATE__': apolloClientState,
+        })
 
         return (
             <ApolloProvider client={client}>
                 <CachePersistorContext.Provider value={{ persistor: cachePersistor }}>
-                    <PageComponent {...props} />
+                    <PageComponent {...componentProps} />
                 </CachePersistorContext.Provider>
             </ApolloProvider>
         )
@@ -352,7 +358,35 @@ const _withApollo: WillApollo = ({ apolloHelperOptions }) => (PageComponent: Nex
         WithApollo.displayName = `withApollo(${displayName})`
     }
 
-    WithApollo.getInitialProps = PageComponent.getInitialProps
+    /**
+     *
+     * @param context {{AppTree, Component, router, ctx: NextPageContext}}
+     */
+    WithApollo.getInitialProps = async (context) => {
+        const req = context?.req || context?.ctx?.req
+        const res = context?.res || context?.ctx?.res
+
+        let headers, networkOnly
+        if (isSSR()) {
+            ({ headers } = prepareSSRContext(req, res))
+        } else {
+            networkOnly = false
+        }
+        const apolloClient = initializeApollo({ headers, networkOnly })
+
+        if (!context.apolloClient) context.apolloClient = apolloClient
+        if (context.ctx && !context.ctx.apolloClient) context.ctx.apolloClient = apolloClient
+
+        let childProps = {}
+        if (PageComponent.getInitialProps) {
+            childProps = await PageComponent.getInitialProps(context)
+        }
+
+        return {
+            ...childProps,
+            __APOLLO_STATE__: apolloClient.cache.extract(),
+        }
+    }
 
     return WithApollo
 }

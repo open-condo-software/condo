@@ -1,5 +1,5 @@
 import { ErrorLayoutFooter, ErrorLayoutHeader } from '@app/condo/pages/500'
-import { Col, Row, RowProps, Typography } from 'antd'
+import { Typography } from 'antd'
 import getConfig from 'next/config'
 import Head from 'next/head'
 import { useRouter } from 'next/router'

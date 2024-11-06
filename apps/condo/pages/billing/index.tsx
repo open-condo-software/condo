@@ -1,8 +1,6 @@
 import get from 'lodash/get'
 import React, { useCallback } from 'react'
 
-import { prepareSSRContext } from '@open-condo/miniapp-utils'
-import { initializeApollo } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
@@ -14,14 +12,9 @@ import { BillingAndAcquiringContext } from '@condo/domains/billing/components/Bi
 import { BillingOnboardingPage } from '@condo/domains/billing/components/OnBoarding'
 import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/domains/billing/utils/clientSchema'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
-import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
-import { extractSSRState, ifSsrIsNotDisabled } from '@condo/domains/common/utils/next/ssr'
 import { CONTEXT_FINISHED_STATUS as BILLING_FINISHED_STATUS } from '@condo/domains/miniapp/constants'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
-
-import type { GetServerSideProps } from 'next'
 
 
 type PageType = React.FC & {
@@ -81,20 +74,3 @@ const AccrualsAndPaymentsPage: PageType = () => {
 AccrualsAndPaymentsPage.requiredAccess = OrganizationRequired
 
 export default AccrualsAndPaymentsPage
-
-export const getServerSideProps: GetServerSideProps = ifSsrIsNotDisabled(async (context) => {
-    const { req, res } = context
-
-    // @ts-ignore In Next 9 the types (only!) do not match the expected types
-    const { headers } = prepareSSRContext(req, res)
-    const client = initializeApollo({ headers })
-
-    const { redirect, user } = await prefetchAuthOrRedirect(client, context)
-    if (redirect) return redirect
-
-    await prefetchOrganizationEmployee({ client, context, userId: user.id })
-
-    return extractSSRState(client, req, res, {
-        props: {},
-    })
-})

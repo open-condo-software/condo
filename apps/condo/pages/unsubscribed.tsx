@@ -1,4 +1,3 @@
-import styled from '@emotion/styled'
 import { Col, Row, Typography } from 'antd'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'

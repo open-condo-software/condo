@@ -3,32 +3,23 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useEffect, useMemo } from 'react'
 
-import { prepareSSRContext } from '@open-condo/miniapp-utils'
-import { initializeApollo } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
-
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { MultipleFilterContextProvider } from '@condo/domains/common/hooks/useMultipleFiltersModal'
-import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
-import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
-import { extractSSRState, ifSsrIsNotDisabled } from '@condo/domains/common/utils/next/ssr'
 import { MeterPageContent } from '@condo/domains/meter/components/Meters/MeterPageContent'
 import { Meter, MeterReportingPeriod, MeterResource, METER_TYPES } from '@condo/domains/meter/utils/clientSchema'
 import { getMeterTitleMessage } from '@condo/domains/meter/utils/helpers'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
-
-import type { GetServerSideProps } from 'next'
 
 
 const MeterInfoPage = (): JSX.Element => {
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
 
-    
     const { query: { id: meterId } } = useRouter()
     const { user } = useAuth()
     const { organization, selectLink } = useOrganization()
@@ -116,20 +107,3 @@ const MeterInfoPage = (): JSX.Element => {
 }
 
 export default MeterInfoPage
-
-export const getServerSideProps: GetServerSideProps = ifSsrIsNotDisabled(async (context) => {
-    const { req, res } = context
-
-    // @ts-ignore In Next 9 the types (only!) do not match the expected types
-    const { headers } = prepareSSRContext(req, res)
-    const client = initializeApollo({ headers })
-
-    const { redirect, user } = await prefetchAuthOrRedirect(client, context)
-    if (redirect) return redirect
-
-    await prefetchOrganizationEmployee({ client, context, userId: user.id })
-
-    return extractSSRState(client, req, res, {
-        props: {},
-    })
-})

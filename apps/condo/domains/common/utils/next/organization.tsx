@@ -6,15 +6,49 @@ import {
     GetActiveOrganizationEmployeeQueryResult,
 } from '@app/condo/gql'
 import { getCookie, setCookie, deleteCookie } from 'cookies-next'
+import cookie from 'js-cookie'
 import get from 'lodash/get'
-import { GetServerSideProps } from 'next'
+import { NextPageContext } from 'next'
+
+import { isSSR } from '@open-condo/miniapp-utils'
 
 
 export const ACTIVE_EMPLOYEE_COOKIE_NAME = 'organizationLinkId'
 
+function getCookieEmployeeId (context: NextPageContext): string | null {
+    let state: string | null
+    if (isSSR()) {
+        state = getCookie(ACTIVE_EMPLOYEE_COOKIE_NAME, { req: context.req, res: context.res })
+    } else {
+        try {
+            state = cookie.get(ACTIVE_EMPLOYEE_COOKIE_NAME) || null
+        } catch (e) {
+            console.error('Failed to get employee id from cookie', e)
+            state = null
+        }
+    }
+    return state
+}
+
+function setCookieEmployeeId (context: NextPageContext, activeEmployeeId: string) {
+    if (isSSR()) {
+        setCookie(ACTIVE_EMPLOYEE_COOKIE_NAME, activeEmployeeId, { req: context.req, res: context.res })
+    } else {
+        cookie.set(ACTIVE_EMPLOYEE_COOKIE_NAME, activeEmployeeId, { expires: 365 })
+    }
+}
+
+function removeCookieEmployeeId (context: NextPageContext) {
+    if (isSSR()) {
+        deleteCookie(ACTIVE_EMPLOYEE_COOKIE_NAME, { req: context.req, res: context.res })
+    } else {
+        cookie.remove(ACTIVE_EMPLOYEE_COOKIE_NAME)
+    }
+}
+
 type PrefetchOrganizationEmployeeArgs = {
-    client: ApolloClient<NormalizedCacheObject>
-    context: Parameters<GetServerSideProps>[0]
+    apolloClient: ApolloClient<NormalizedCacheObject>
+    context: NextPageContext
     userId: string
 }
 type PrefetchOrganizationEmployeeReturnType = Promise<{
@@ -22,12 +56,12 @@ type PrefetchOrganizationEmployeeReturnType = Promise<{
 }>
 
 export async function prefetchOrganizationEmployee (args: PrefetchOrganizationEmployeeArgs): PrefetchOrganizationEmployeeReturnType {
-    const { client, context, userId } = args
+    const { apolloClient, context, userId } = args
 
-    const activeEmployeeId = getCookie(ACTIVE_EMPLOYEE_COOKIE_NAME, { req: context.req, res: context.res })
+    const activeEmployeeId = getCookieEmployeeId(context)
 
     if (activeEmployeeId) {
-        const response = await client.query<GetActiveOrganizationEmployeeQuery, GetActiveOrganizationEmployeeQueryVariables>({
+        const response = await apolloClient.query<GetActiveOrganizationEmployeeQuery, GetActiveOrganizationEmployeeQueryVariables>({
             query: GetActiveOrganizationEmployeeDocument,
             variables: {
                 employeeId: activeEmployeeId,
@@ -42,7 +76,7 @@ export async function prefetchOrganizationEmployee (args: PrefetchOrganizationEm
         }
     }
 
-    const response = await client.query<GetActiveOrganizationEmployeeQuery, GetActiveOrganizationEmployeeQueryVariables>({
+    const response = await apolloClient.query<GetActiveOrganizationEmployeeQuery, GetActiveOrganizationEmployeeQueryVariables>({
         query: GetActiveOrganizationEmployeeDocument,
         variables: {
             userId,
@@ -51,7 +85,7 @@ export async function prefetchOrganizationEmployee (args: PrefetchOrganizationEm
     // NOTE:It is assumed that "prefetchOrganizationEmployee" will be executed
     // at the beginning of the "getServerSideProps" call,
     // so we can ignore the arguments and clear all "allOrganizationEmployees" requests
-    client.cache.evict({
+    apolloClient.cache.evict({
         id: 'ROOT_QUERY',
         fieldName: 'allOrganizationEmployees',
     })
@@ -59,7 +93,7 @@ export async function prefetchOrganizationEmployee (args: PrefetchOrganizationEm
     const activeEmployee = get(response, ['data', 'employees', 0]) || null
 
     if (activeEmployee) {
-        client.writeQuery({
+        apolloClient.writeQuery({
             query: GetActiveOrganizationEmployeeDocument,
             variables: {
                 employeeId: activeEmployee.id,
@@ -68,9 +102,9 @@ export async function prefetchOrganizationEmployee (args: PrefetchOrganizationEm
             data: response.data,
         })
 
-        setCookie(ACTIVE_EMPLOYEE_COOKIE_NAME, activeEmployee.id, { req: context.req, res: context.res })
+        setCookieEmployeeId(context, activeEmployee.id)
     } else {
-        deleteCookie(ACTIVE_EMPLOYEE_COOKIE_NAME, { req: context.req, res: context.res })
+        removeCookieEmployeeId(context)
     }
 
     return { activeEmployee }

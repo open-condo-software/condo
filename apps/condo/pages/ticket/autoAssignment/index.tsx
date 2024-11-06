@@ -23,26 +23,18 @@ import isUndefined from 'lodash/isUndefined'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import { prepareSSRContext } from '@open-condo/miniapp-utils'
 import { useQuery, useApolloClient } from '@open-condo/next/apollo'
-import { initializeApollo } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
-
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { TICKET_AUTO_ASSIGNMENT_MANAGEMENT } from '@condo/domains/common/constants/featureflags'
-import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
-import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
-import { extractSSRState, ifSsrIsNotDisabled } from '@condo/domains/common/utils/next/ssr'
 import { PermissionsRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { TicketAutoAssignment } from '@condo/domains/ticket/utils/clientSchema'
 import { ClassifiersQueryLocal } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
-
-import type { GetServerSideProps } from 'next'
 
 
 interface ITicketAutoAssignmentPage extends React.FC {
@@ -627,20 +619,3 @@ const TicketAutoAssignmentPermissionRequired: React.FC = ({ children }) => {
 TicketAutoAssignmentPage.requiredAccess = TicketAutoAssignmentPermissionRequired
 
 export default TicketAutoAssignmentPage
-
-export const getServerSideProps: GetServerSideProps = ifSsrIsNotDisabled(async (context) => {
-    const { req, res } = context
-
-    // @ts-ignore In Next 9 the types (only!) do not match the expected types
-    const { headers } = prepareSSRContext(req, res)
-    const client = initializeApollo({ headers })
-
-    const { redirect, user } = await prefetchAuthOrRedirect(client, context)
-    if (redirect) return redirect
-
-    await prefetchOrganizationEmployee({ client, context, userId: user.id })
-
-    return extractSSRState(client, req, res, {
-        props: {},
-    })
-})

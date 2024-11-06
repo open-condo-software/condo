@@ -11,8 +11,6 @@ import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo } from 'react'
 
 import { ArrowLeft } from '@open-condo/icons'
-import { prepareSSRContext } from '@open-condo/miniapp-utils'
-import { initializeApollo } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Button, Space, Typography } from '@open-condo/ui'
@@ -28,9 +26,6 @@ import {
     useLayoutContext,
 } from '@condo/domains/common/components/containers/BaseLayout'
 import { Loader } from '@condo/domains/common/components/Loader'
-import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
-import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
-import { extractSSRState, ifSsrIsNotDisabled } from '@condo/domains/common/utils/next/ssr'
 import { ResidentAppCard, TechnicAppCard } from '@condo/domains/onboarding/components/TourPage/AppCards'
 import { TourStepCard } from '@condo/domains/onboarding/components/TourPage/TourStepCard'
 import {
@@ -45,8 +40,6 @@ import { TourStep } from '@condo/domains/onboarding/utils/clientSchema'
 import { TODO_STEP_CLICK_ROUTE } from '@condo/domains/onboarding/utils/clientSchema/constants'
 import { SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
 import { Property } from '@condo/domains/property/utils/clientSchema'
-
-import type { GetServerSideProps } from 'next'
 
 
 const {
@@ -306,20 +299,3 @@ const TourPage = () => {
 TourPage.requiredAccess = AuthRequired
 
 export default TourPage
-
-export const getServerSideProps: GetServerSideProps = ifSsrIsNotDisabled(async (context) => {
-    const { req, res } = context
-
-    // @ts-ignore In Next 9 the types (only!) do not match the expected types
-    const { headers } = prepareSSRContext(req, res)
-    const client = initializeApollo({ headers })
-
-    const { redirect, user } = await prefetchAuthOrRedirect(client, context)
-    if (redirect) return redirect
-
-    await prefetchOrganizationEmployee({ client, context, userId: user.id })
-
-    return extractSSRState(client, req, res, {
-        props: {},
-    })
-})
