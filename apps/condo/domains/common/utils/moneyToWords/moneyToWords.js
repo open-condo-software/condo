@@ -101,6 +101,7 @@ function _parseNumber (input) {
 }
 
 function _numbersInWords (input, { dischargesLessThanThousand, dischargesMoreThanThousand }, firstDigitDeclension = false ) {
+    // TODO: DOMA-10610 Rewrite moneyToWords for all locales
     const output = []
 
     let [num] = _parseNumber(input)
