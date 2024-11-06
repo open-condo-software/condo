@@ -7,6 +7,7 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import colors from '@open-condo/ui/colors'
 
 import { getOptionFilterDropdown, getFilterIcon } from '@condo/domains/common/components/Table/Filters'
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
@@ -32,6 +33,7 @@ export const useTableColumns = (
     const PositionMessage = intl.formatMessage({ id: 'employee.Position' })
     const PhoneMessage =  intl.formatMessage({ id: 'Phone' })
     const SpecializationsMessage = intl.formatMessage({ id: 'employee.Specializations' })
+    const BlockedMessage = 'заблокирован'
 
     const router = useRouter()
     const { filters } = parseQuery(router.query)
@@ -64,6 +66,14 @@ export const useTableColumns = (
         )
     }, [intl, organizationEmployeeSpecializations])
 
+    const renderBlockedEmployee = useCallback((name) => {
+        return (
+            <Typography.Paragraph style={{ color: colors.red[5] }}>
+                {BlockedMessage}
+            </Typography.Paragraph>
+        )
+    }, [])
+
     const renderPhone = useCallback((phone) => {
         return getTableCellRenderer(
             { search, href: `tel:${phone}` }
@@ -80,7 +90,11 @@ export const useTableColumns = (
                 sorter: true,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'name'),
                 filterIcon: getFilterIcon,
-                render,
+                render: (name, employee) => {
+                    if (employee.isBlocked) {
+                        renderBlockedEmployee(name) 
+                    }
+                    return render(name)},
                 width: '15%',
             },
             {
@@ -124,5 +138,5 @@ export const useTableColumns = (
                 render: renderPhone,
             },
         ]
-    }, [NameMessage, PhoneMessage, PositionMessage, RoleMessage, SpecializationsMessage, filterMetas, filters, render, renderCheckboxFilterDropdown, renderSpecializations])
+    }, [NameMessage, PhoneMessage, PositionMessage, RoleMessage, SpecializationsMessage, filterMetas, filters, render, renderCheckboxFilterDropdown, renderSpecializations, employees.isBlocked])
 }

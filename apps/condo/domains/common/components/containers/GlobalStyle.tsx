@@ -339,6 +339,10 @@ export default function GlobalStyle () {
                   cursor: pointer;
                 }
               }
+
+              .ant-table-row-blocked * {
+                color: ${UIColors.gray[7]};
+              }
               
               .ant-table-row-expand-icon-spaced {
                 display: none;

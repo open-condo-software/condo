@@ -54,6 +54,10 @@ export const EmployeesPageContent = ({
 
     const { GlobalHints } = useGlobalHints()
 
+    const rowClassName = (record) => {
+        return record.isBlocked ? 'ant-table-row-blocked' : ''
+    }
+
     const handleRowAction = useCallback((record) => {
         return {
             onClick: () => {
@@ -105,6 +109,7 @@ export const EmployeesPageContent = ({
                                         dataSource={employees}
                                         columns={tableColumns}
                                         onRow={handleRowAction}
+                                        rowClassName={rowClassName}
                                     />
                                 </Col>
                                 {
