@@ -19,6 +19,7 @@ jobs:
         run: |
           REF_NAME=${{ github.event.ref }}
           echo "REVIEW_NAMESPACE=$(echo review-${REF_NAME##*/} | sed 's/\_/-/g')" >> $GITHUB_ENV
+          echo "REVIEW_URL_PREFIX=$(echo ${GITHUB_REF##*/} | sed 's/\_/-/g' | cut -c -30)" >> $GITHUB_ENV
 
       - name: "Drop review namespace"
         run: |
@@ -29,5 +30,4 @@ jobs:
       - name: "Drop review databases"
         run: |
           psql --version
-          psql -d ${{ secrets.TEST_CLUSTER_DB_CREDENTIALS }} \
-          -Atqc "SELECT 'DROP DATABASE ' || quote_ident(datname) || ';' FROM pg_database WHERE datname like '%${{ env.REVIEW_NAMESPACE }}%';" | psql
+          psql -d ${{ secrets.TEST_CLUSTER_DB_CREDENTIALS }} -Atqc "SELECT 'DROP DATABASE ' || quote_ident(datname) || ';' FROM pg_database WHERE datname like '${{ env.REVIEW_URL_PREFIX }}%';" | psql -d ${{ secrets.TEST_CLUSTER_DB_CREDENTIALS }}
