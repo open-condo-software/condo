@@ -38,6 +38,8 @@ async function prepare () {
     program.parse()
     const { https, filter, replicate } = program.opts()
 
+    // TODO(pahaz): DOMA-10616 we need to run packages build before migrations ... because our backend depends on icon package ...
+
     // Step 1. Sanity checks
     logWithIndent('Running sanity checks')
     await checkPostgresIsRunning(LOCAL_PG_DB_PREFIX)
@@ -85,7 +87,6 @@ async function prepare () {
     await fillGlobalEnvWithDefaultValues()
     // Step 3.2. Extract domains .env information, like CONDO_DOMAIN, MY_APP_DOMAIN and put it global monorepo env
     logWithIndent('Writing services <service-name>_DOMAIN variables to global .env')
-    // console.log(appsWithData)
     for (const app of appsWithData) {
         const domainEnvKey = `${app.name.toUpperCase().replaceAll('-', '_')}_DOMAIN`
         await updateGlobalEnvFile(domainEnvKey, app.serviceUrl)
