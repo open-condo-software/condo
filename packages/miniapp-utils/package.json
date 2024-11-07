@@ -117,7 +117,7 @@
     "typescript": "^5.5.4"
   },
   "dependencies": {
-    "cookie": "^0.6.0",
+    "cookie": "^0.7.0",
     "cookies-next": "^4.2.1"
   }
 }
