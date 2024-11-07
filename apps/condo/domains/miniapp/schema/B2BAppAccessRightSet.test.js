@@ -9,7 +9,8 @@ const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects,
     expectToThrowUniqueConstraintViolationError, expectToThrowAccessDeniedErrorToCount,
-    expectToThrowAccessDeniedErrorToResult, expectToThrowGraphQLRequestError,
+    expectToThrowAccessDeniedErrorToResult, expectToThrowGQLErrorToResult,
+    expectToThrowGQLError, expectToThrowGraphQLRequestError,
 } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
@@ -350,13 +351,67 @@ describe('B2BAppAccessRightSet', () => {
     })
 
     describe('Constraints', () => {
-        test('Cannot be created 2 active set of access rights for a single app', async () => {
+        test('Cannot be created 2 active set of access rights with type: miniapp for a single app', async () => {
             const [app] = await createTestB2BApp(admin)
-            await createTestB2BAppAccessRightSet(admin, app)
+            const [rightSet] = await createTestB2BAppAccessRightSet(admin, app)
+            console.error('sssss', rightSet)
 
             await expectToThrowUniqueConstraintViolationError(async () => {
                 await createTestB2BAppAccessRightSet(admin, app)
             }, 'b2b_app_access_right_set_unique_app')
+        })
+
+        test('Cannot be created 11 active sets of access rights with type: token for a single app', async () => {
+            const [app] = await createTestB2BApp(admin)
+            await createTestB2BAppAccessRightSet(admin, app)
+            for (let i = 0; i < 10; i++) {
+                await createTestB2BAppAccessRightSet(admin, app, { type: 'token' })
+            }
+
+            await expectToThrowGQLError(async () => {
+                await createTestB2BAppAccessRightSet(admin, app, { type: 'token' })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'ACCESS_RIGHT_SET_TOO_MANY_OF_TYPE',
+                message: 'Too many items of type "token". Maximum is "10"',
+            }, 'obj')
+        })
+
+        describe('name', () => {
+
+            test('Takes "default" name if type: "miniapp" provided with empty "name"', async () => {
+                const [app] = await createTestB2BApp(admin)
+                const [accessRightSet] = await createTestB2BAppAccessRightSet(admin, app, { name: undefined })
+                expect(accessRightSet).toHaveProperty('name', 'default')
+            })
+
+            test('Cannot update "name" to empty for type: "miniapp"', async () => {
+                const [app] = await createTestB2BApp(admin)
+                const name = faker.random.alphaNumeric(8)
+                const [accessRightSet] = await createTestB2BAppAccessRightSet(admin, app, { name })
+                expect(accessRightSet).toHaveProperty('name', name)
+
+                await expectToThrowGQLError(async () => {
+                    await updateTestB2BAppAccessRightSet(admin, accessRightSet.id, { name: null })
+                }, {
+                    code: 'BAD_USER_INPUT',
+                    type: 'NAME_REQUIRED',
+                    message: 'Name is required',
+                }, 'obj')
+            })
+
+            test('Cannot create item with non "miniapp" type without name', async () => {
+                const [app] = await createTestB2BApp(admin)
+
+                await expectToThrowGQLError(async () => {
+                    await createTestB2BAppAccessRightSet(admin, app, { type: 'token', name: null })
+                }, {
+                    code: 'BAD_USER_INPUT',
+                    type: 'NAME_REQUIRED',
+                    message: 'Name is required',
+                }, 'obj')
+            })
+
         })
     })
 })

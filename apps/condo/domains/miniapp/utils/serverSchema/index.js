@@ -52,6 +52,7 @@ const B2BAppRole = generateServerUtils('B2BAppRole')
 const B2BAppAccessRightSet = generateServerUtils('B2BAppAccessRightSet')
 const B2BAppNewsSharingConfig = generateServerUtils('B2BAppNewsSharingConfig')
 const B2CAppMessageSetting = generateServerUtils('B2CAppMessageSetting')
+const B2BAccessToken = generateServerUtils('B2BAccessToken')
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -71,5 +72,6 @@ module.exports = {
     B2BAppAccessRightSet,
     B2BAppNewsSharingConfig,
     B2CAppMessageSetting,
+    B2BAccessToken,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

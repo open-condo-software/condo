@@ -152,6 +152,7 @@ async function registerNewUser (client, extraAttrs = {}, { raw = false } = {}) {
         data: attrs,
     })
     if (raw) return { data, errors }
+    console.error({data, errors})
     throwIfError(data, errors, { query: REGISTER_NEW_USER_MUTATION, variables: { data: attrs } })
     return [data.user, attrs]
 }

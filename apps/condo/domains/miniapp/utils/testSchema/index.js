@@ -10,7 +10,7 @@ const path = require('path')
 const conf = require('@open-condo/config')
 const { UploadingFile } = require('@open-condo/keystone/test.utils')
 const { throwIfError, generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
-const { PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS } = require('@condo/domains/miniapp/constants')
+const { PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS, ACCESS_TOKEN_MAX_TTL_IN_MILLISECONDS } = require('@condo/domains/miniapp/constants')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 const {
     B2C_APP_MESSAGE_PUSH_TYPE,
@@ -33,6 +33,9 @@ const { B2BAppRole: B2BAppRoleGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppAccessRightSet: B2BAppAccessRightSetGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppNewsSharingConfig: B2BAppNewsSharingConfigGQL } = require('@condo/domains/miniapp/gql')
 const { B2CAppMessageSetting: B2CAppMessageSettingGQL } = require('@condo/domains/miniapp/gql')
+const { B2BAccessToken: B2BAccessTokenGQL } = require('@condo/domains/miniapp/gql')
+const { B2BAccessTokenReadonly: B2BAccessTokenReadonlyGQL } = require('@condo/domains/miniapp/gql')
+const dayjs = require("dayjs");
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function randomChoice(options) {
@@ -65,6 +68,8 @@ const B2BAppRole = generateGQLTestUtils(B2BAppRoleGQL)
 const B2BAppAccessRightSet = generateGQLTestUtils(B2BAppAccessRightSetGQL)
 const B2BAppNewsSharingConfig = generateGQLTestUtils(B2BAppNewsSharingConfigGQL)
 const B2CAppMessageSetting = generateGQLTestUtils(B2CAppMessageSettingGQL)
+const B2BAccessToken = generateGQLTestUtils(B2BAccessTokenGQL)
+const B2BAccessTokenReadonly = generateGQLTestUtils(B2BAccessTokenReadonlyGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 
@@ -477,6 +482,8 @@ async function createTestB2BAppAccessRightSet (client, app, extraAttrs = {}) {
         dv: 1,
         sender,
         app: { connect: { id: app.id } },
+        type: 'miniapp',
+        name: faker.random.alphaNumeric(8),
         ...extraAttrs,
     }
     const obj = await B2BAppAccessRightSet.create(client, attrs)
@@ -559,6 +566,55 @@ async function updateTestB2CAppMessageSetting (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function _createTestB2BAccessToken (gql, client, context, rightSet, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!context || !context.id) throw new Error('no context.id')
+    if (!rightSet || !rightSet.id) throw new Error('no rightSet.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const expiresAt = dayjs().add(ACCESS_TOKEN_MAX_TTL_IN_MILLISECONDS, 'milliseconds').toISOString()
+
+    const attrs = {
+        dv: 1,
+        sender,
+        context: { connect: { id: context.id } },
+        rightSet: { connect: { id: rightSet.id } },
+        expiresAt,
+        ...extraAttrs,
+    }
+    const obj = await gql.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function createTestB2BAccessToken (client, context, rightSet, extraAttrs = {}) {
+    return await _createTestB2BAccessToken(B2BAccessToken, client, context, rightSet, extraAttrs)
+}
+
+async function createTestB2BAccessTokenReadonly (client, context, rightSet, extraAttrs = {}) {
+    return await _createTestB2BAccessToken(B2BAccessTokenReadonly, client, context, rightSet, extraAttrs)
+}
+
+async function _updateTestB2BAccessToken (utils, client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await utils.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestB2BAccessToken (client, id, extraAttrs = {}) {
+    return await _updateTestB2BAccessToken(B2BAccessToken, client, id, extraAttrs)
+}
+
+async function updateTestB2BAccessTokenReadonly (client, id, extraAttrs = {}) {
+    return await _updateTestB2BAccessToken(B2BAccessTokenReadonly, client, id, extraAttrs)
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -578,5 +634,7 @@ module.exports = {
     B2BAppAccessRightSet, createTestB2BAppAccessRightSet, updateTestB2BAppAccessRightSet,
     B2BAppNewsSharingConfig, createTestB2BAppNewsSharingConfig, updateTestB2BAppNewsSharingConfig,
     B2CAppMessageSetting, createTestB2CAppMessageSetting, updateTestB2CAppMessageSetting,
+    B2BAccessToken, createTestB2BAccessToken, updateTestB2BAccessToken,
+    B2BAccessTokenReadonly, createTestB2BAccessTokenReadonly, updateTestB2BAccessTokenReadonly
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
