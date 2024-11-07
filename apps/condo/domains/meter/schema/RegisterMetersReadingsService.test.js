@@ -815,6 +815,7 @@ describe('RegisterMetersReadingsService', () => {
                 '[]',
                 '12_23',
                 'hello moto',
+                '',
                 '2024.28.05',
                 '2024.05.28 13-13-13',
                 '!2024-06-17',

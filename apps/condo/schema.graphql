@@ -90170,7 +90170,7 @@ type Mutation {
     "code": "BAD_USER_INPUT",
     "type": "INVALID_DATE",
     "message": "Invalid date",
-    "messageForUser": "Incorrect date format in column \"columnName\". Use either value of \"Text\" type in format: \"YYYY-MM-DDTHH:mm:ss.SSS[Z]\", \"YYYY-MM-DD\", or value of \"Date\" type"
+    "messageForUser": "Incorrect date format in column \"columnName\". Use value of \"Text\" type in format: \"YYYY-MM-DDTHH:mm:ss.SSS[Z]\", \"YYYY-MM-DD\"."
   }`
   """
   registerMetersReadings(data: RegisterMetersReadingsInput!): [RegisterMetersReadingsOutput]
