@@ -140,7 +140,7 @@ async function importMeters (taskId) {
             await MeterReadingsImportTask.update(context, taskId, {
                 ...dvAndSender,
                 status: COMPLETED,
-            })
+            }, 'id')
         } else {
             const errorFileContent = await importer.generateErrorFile()
             await failWithErrorFile(context, taskId, errorFileContent, format)

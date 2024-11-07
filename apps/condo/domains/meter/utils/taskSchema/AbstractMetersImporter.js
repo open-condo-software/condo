@@ -109,7 +109,7 @@ class AbstractMetersImporter {
         reading.readingSource = READING_SOURCE
         transformedData.push(reading)
         transformedRowToSourceRowMap.set(
-            String(transformedIndex++),
+            transformedIndex,
             sourceIndex
         )
     }
@@ -180,12 +180,15 @@ class AbstractMetersImporter {
                                     originalRow: row,
                                     errors: [this.errors.invalidTypes.message],
                                 })
+                                indexesOfFailedSourceRows.add(sourceIndex)
                             }
                             for (const rowPart of transformedRow) {
-                                this.prepareReading(rowPart, row, transformedData, transformedRowToSourceRowMap, String(transformedIndex++), sourceIndex)
+                                this.prepareReading(rowPart, row, transformedData, transformedRowToSourceRowMap, transformedIndex, sourceIndex)
+                                transformedIndex++
                             }
                         } else {
-                            this.prepareReading(transformedRow, row, transformedData, transformedRowToSourceRowMap, sourceIndex, sourceIndex)
+                            this.prepareReading(transformedRow, row, transformedData, transformedRowToSourceRowMap, transformedIndex, sourceIndex)
+                            transformedIndex++
                         }
                     } catch (err) {
                         logger.error({ msg: this.errors.invalidTypes.message, err })
@@ -194,11 +197,13 @@ class AbstractMetersImporter {
                             // The `TransformRowError` contains `getMessages`
                             errors: err.getMessages ? err.getMessages() : [err.message],
                         })
+                        indexesOfFailedSourceRows.add(sourceIndex)
                     }
                 }
 
                 // iterate over transformed meter records, chunk by chunk
                 const transformedChunks = chunk(transformedData, READINGS_CHUNK_SIZE)
+                let processedTransformedIndex = 0
                 for (const transformedChunk of transformedChunks) {
                     // firstly check if process is not cancelled
                     if (await this.breakProcessChecker()) {
@@ -216,11 +221,8 @@ class AbstractMetersImporter {
                     // - result rows exists - so we can iterate over them to check if particular row is imported
                     // - result is null and errors array present - fatal proceeding error
                     let errorIndex = 0
-                    for (const transformedRowIndex in result) {
-                        const resultRow = result[transformedRowIndex]
-                        const sourceRowIndex = transformedRowToSourceRowMap.get(
-                            transformedRowIndex
-                        )
+                    for (const resultRow of result) {
+                        const sourceRowIndex = transformedRowToSourceRowMap.get(processedTransformedIndex)
 
                         // in case if result row is empty - register error happens
                         // we have to take care of such rows in order to create errors file
@@ -251,6 +253,8 @@ class AbstractMetersImporter {
                         } else {
                             this.progress.absImported += 1
                         }
+
+                        processedTransformedIndex++
                     }
                 }
 
