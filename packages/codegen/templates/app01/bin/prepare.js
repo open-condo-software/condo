@@ -1,4 +1,4 @@
-const { prepareCondoAppOidcConfig, prepareCondoAppB2BAppConfig, updateAppEnvFile, prepareAppEnvLocalAdminUsers, getAppEnvValue, runAppPackageJsonScript } = require('@open-condo/cli')
+const { prepareCondoAppOidcConfig, prepareCondoAppB2BAppConfig, updateAppEnvFile, prepareAppEnvLocalAdminUsers, getAppEnvValue } = require('@open-condo/cli')
 
 
 const main = async ([B2BAppName = '{{name}}']) => {
@@ -13,10 +13,6 @@ const main = async ([B2BAppName = '{{name}}']) => {
     await updateAppEnvFile(appName, 'ACCEPT_LANGUAGE', 'accept-language')
     // 2) prepare B2BApp in condo
     await prepareCondoAppB2BAppConfig(appName, B2BAppName)
-    // 3) migrate initial data and maketypes
-    await runAppPackageJsonScript(appName, 'makemigrations')
-    await runAppPackageJsonScript(appName, 'migrate')
-    await runAppPackageJsonScript(appName, 'maketypes')
     // 4) add local admin user
     await prepareAppEnvLocalAdminUsers(appName)
     // 5) add condo url conf
