@@ -32,8 +32,8 @@ const meterReadingToRow = async ({ task, meterReading }) => {
     const { timeZone, locale } = task
 
     const unitType = meterReading.unitType ? i18n(`pages.condo.ticket.field.unitType.${meterReading.unitType}`, { locale }) : ''
-    const status = meterReading.status ? i18n('pages.condo.meter.Meter.outOfOrder', { locale }) : i18n('pages.condo.meter.Meter.isActive', { locale })
-
+    const status = i18n(`pages.condo.meter.Meter.${meterReading.status ? 'outOfOrder' : 'isActive'}`, { locale })
+    const nextVerificationDate = meterReading.nextVerificationDate ? formatDate(meterReading.nextVerificationDate, timeZone) : ''
     return {
         date: formatDate(meterReading.date, timeZone),
         address: meterReading.address,
@@ -49,7 +49,7 @@ const meterReadingToRow = async ({ task, meterReading }) => {
         value4: meterReading.value4,
         clientName: meterReading.clientName,
         source: meterReading.source,
-        nextVerificationDate: formatDate(meterReading.nextVerificationDate, timeZone),
+        nextVerificationDate,
         status,
     }
 }
