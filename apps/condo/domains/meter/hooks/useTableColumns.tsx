@@ -123,6 +123,16 @@ export function useTableColumns <T> (
             width: isPropertyMeter ? '25%' : '20%',
             render: getTextRender(search),
         },
+        isPropertyMeter ? undefined : {
+            title: AccountNumberMessage,
+            filteredValue: getFilteredValue(filters, 'accountNumber'),
+            dataIndex: 'accountNumber',
+            key: 'accountNumber',
+            width: '15%',
+            filterDropdown: getFilterDropdownByKey(filterMetas, 'accountNumber'),
+            render: getTextRender(search),
+            filterIcon: getFilterIcon,
+        },
         {
             title: MeterReadingMessage,
             ellipsis: false,
@@ -162,7 +172,7 @@ export function useTableColumns <T> (
         isPropertyMeter ? undefined : {
             title: AccountNumberMessage,
             filteredValue: getFilteredValue(filters, 'accountNumber'),
-            dataIndex: isMeter ? 'accountNumber' : ['meter', 'accountNumber'],
+            dataIndex: 'accountNumber',
             key: 'accountNumber',
             width: '10%',
             filterDropdown: getFilterDropdownByKey(filterMetas, 'accountNumber'),
