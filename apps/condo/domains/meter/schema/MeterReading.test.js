@@ -1705,25 +1705,17 @@ describe('MeterReading', () => {
                         resource,
                     )
                     const [meterReading] = await createTestMeterReading(admin, meter, source)
-                    const [updatedMeterReading] = await updateTestMeterReading(admin, meterReading.id, {
-                        value1: faker.random.numeric(),
-                    })
-                    
+
                     await expectToThrowGQLError(
                         async () => await updateTestMeterReading(admin, meterReading.id, {
                             accountNumber: faker.random.alphaNumeric(),
                         }),
                         {
-                            code: 'BAD_USER_INPUT',
+                            code: 'FORBIDDEN',
                             type: 'METER_READING_CANNOT_UPDATE_ACCOUNT_NUMBER',
                             message: 'Can not update account number of already passed meter reading',
                         }
                     )
-                    // const updatedMeterReading = await updateTestMeterReading(admin, meterReading.id, {
-                    //     accountNumber: faker.random.alphaNumeric(),
-                    // })
-                    // expect(meterReading.accountNumber).toBe(meter.accountNumber)
-
                 })
             })
         })

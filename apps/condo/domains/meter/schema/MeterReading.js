@@ -5,7 +5,7 @@ const dayjs = require('dayjs')
 const { get, isEmpty, isNil } = require('lodash')
 
 const conf = require('@open-condo/config')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT, FORBIDDEN } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
@@ -46,7 +46,7 @@ const ERRORS = {
         message: 'Can not set billingStatusText without billingStatus',
     },
     METER_READING_CANNOT_UPDATE_ACCOUNT_NUMBER: {
-        code: BAD_USER_INPUT,
+        code: FORBIDDEN,
         type: METER_READING_CANNOT_UPDATE_ACCOUNT_NUMBER,
         message: 'Can not update account number of already passed meter reading',
     },
