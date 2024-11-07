@@ -5,8 +5,6 @@
     "repository": "https://github.com/open-condo-software/condo/tree/main/packages/codegen",
     "dependencies": {
         "@apollo/client": "^3.11.8",
-        "@graphql-tools/graphql-file-loader": "^7.5.5",
-        "@graphql-tools/load": "^8.0.0",
         "@graphql-typed-document-node/core": "^3.1.1",
         "@open-condo/config": "workspace:^",
         "@open-condo/keystone": "workspace:^",
@@ -29,6 +27,8 @@
         ]
     },
     "peerDependencies": {
+        "@graphql-tools/graphql-file-loader": "^7.5.5",
+        "@graphql-tools/load": "^8.0.0",
         "react": ">=16",
         "react-dom": ">=16"
     },
