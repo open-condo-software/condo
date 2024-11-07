@@ -20,6 +20,7 @@ const { setLocaleForKeystoneContext } = require('@condo/domains/common/utils/ser
 const { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
 const { FEEDBACK_ADDITIONAL_OPTIONS_BY_KEY, FEEDBACK_VALUES_BY_KEY } = require('@condo/domains/ticket/constants/feedback')
 const { QUALITY_CONTROL_ADDITIONAL_OPTIONS_BY_KEY, QUALITY_CONTROL_VALUES_BY_KEY } = require('@condo/domains/ticket/constants/qualityControl')
+const { TICKET_EXPORT_TASK_OPTIONS_FIELDS } = require('@condo/domains/ticket/gql')
 const { convertQualityControlOrFeedbackOptionsToText, filterFeedbackOptionsByScore, filterQualityControlOptionsByScore } = require( '@condo/domains/ticket/utils')
 const { buildTicketsLoader, loadTicketCommentsForExcelExport, loadClassifiersForExcelExport } = require('@condo/domains/ticket/utils/serverSchema')
 const { TicketExportTask, TicketStatus, Ticket } = require('@condo/domains/ticket/utils/serverSchema')
@@ -243,7 +244,7 @@ async function exportTickets (taskId) {
     if (!taskId) throw new Error('taskId is undefined')
     const { keystone: context } = getSchemaCtx('TicketExportTask')
 
-    let task = await TicketExportTask.getOne(context, { id: taskId }, 'id timeZone format where sortBy locale')
+    let task = await TicketExportTask.getOne(context, { id: taskId }, `id timeZone format where sortBy locale options {${TICKET_EXPORT_TASK_OPTIONS_FIELDS.join(' ')}}`)
     const { where, sortBy, format } = task
     const baseAttrs = {
         dv: 1,
