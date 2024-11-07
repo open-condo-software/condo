@@ -116,13 +116,18 @@ const MeterReading = new GQLListSchema('MeterReading', {
         },
 
         billingStatus: {
-            schemaDoc: 'A status from external billing system. Changing during processing the reading in external system.',
+            schemaDoc: 'A status from external billing system. Changing during processing the reading in external system. This field can be changed only by service user.',
             type: 'Select',
             dataType: 'string',
             options: METER_READING_BILLING_STATUSES,
+            access: {
+                read: true,
+                create: access.canEditBillingStatusFields,
+                update: access.canEditBillingStatusFields,
+            },
         },
         billingStatusText: {
-            schemaDoc: 'A message from external billing system. Set to null if billing status is `approved`.',
+            schemaDoc: 'A message from external billing system. Set to null if billing status is `approved`. This field can be changed only by service user.',
             type: 'Text',
             hooks: {
                 resolveInput: async ({ resolvedData, existingItem, fieldPath }) => {
@@ -133,6 +138,11 @@ const MeterReading = new GQLListSchema('MeterReading', {
 
                     return resolvedData[fieldPath]
                 },
+            },
+            access: {
+                read: true,
+                create: access.canEditBillingStatusFields,
+                update: access.canEditBillingStatusFields,
             },
         },
 

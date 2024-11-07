@@ -47198,6 +47198,7 @@ enum MeterReadingSourceTypeType {
   social_network
   mobile_app_staff
   crm
+  external_integration
 }
 
 """ Ticket source. Income call, mobile_app, ... """
@@ -47847,11 +47848,11 @@ type MeterReading {
   """
   source: MeterReadingSource
 
-  """ A status from external billing system. Changing during processing the reading in external system. 
+  """ A status from external billing system. Changing during processing the reading in external system. This field can be changed only by service user. 
   """
   billingStatus: MeterReadingBillingStatusType
 
-  """ A message from external billing system. Set to null if billing status is `approved`. 
+  """ A message from external billing system. Set to null if billing status is `approved`. This field can be changed only by service user. 
   """
   billingStatusText: String
 
@@ -78254,6 +78255,7 @@ input RegisterMetersReadingsMeterMetaInput {
   sealingDate: String
   controlReadingsDate: String
   isAutomatic: Boolean
+  archiveDate: String
 }
 
 input RegisterMetersReadingsReadingAddressInfoInput {
@@ -78275,6 +78277,8 @@ input RegisterMetersReadingsReadingInput {
   value4: String
   meterMeta: RegisterMetersReadingsMeterMetaInput
   readingSource: MeterReadingSourceWhereUniqueInput
+  billingStatus: MeterReadingBillingStatusType
+  billingStatusText: String
 }
 
 input RegisterMetersReadingsInput {

@@ -161,7 +161,8 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                 'commissioningDate: String,' +
                 'sealingDate: String,' +
                 'controlReadingsDate: String,' +
-                'isAutomatic: Boolean' +
+                'isAutomatic: Boolean,' +
+                'archiveDate: String' +
                 '}',
         },
         {
@@ -183,7 +184,9 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                 'value3: String,' +
                 'value4: String,' +
                 'meterMeta: RegisterMetersReadingsMeterMetaInput,' +
-                'readingSource: MeterReadingSourceWhereUniqueInput' +
+                'readingSource: MeterReadingSourceWhereUniqueInput,' +
+                'billingStatus: MeterReadingBillingStatusType,' +
+                'billingStatusText: String' +
                 '}',
         },
         {
@@ -299,6 +302,8 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                     const unitName = get(reading, ['addressInfo', 'unitName'], get(resolvedAddresses, [reading.address, 'addressResolve', 'unitName'], '')).trim() || null
                     const addressKey = get(resolvedAddresses, [reading.address, 'addressResolve', 'propertyAddress', 'addressKey'])
                     let readingSource = get(reading, 'readingSource')
+                    const billingStatus = get(reading, 'billingStatus', null)
+                    const billingStatusText = get(reading, 'billingStatusText', null)
 
                     if (isNil(readingSource)) {
                         readingSource = { id: OTHER_METER_READING_SOURCE_ID }
@@ -423,6 +428,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                                 sealingDate: tryToISO(get(reading, ['meterMeta', 'sealingDate'])),
                                 controlReadingsDate: rawControlReadingsDate ? tryToISO(rawControlReadingsDate) : dayjs().toISOString(),
                                 isAutomatic: get(reading, ['meterMeta', 'isAutomatic']),
+                                archiveDate: tryToISO(get(reading, ['meterMeta', 'archiveDate'])),
                             }, 'id property { id } unitName unitType accountNumber number resource { id }')
                             meterId = createdMeter.id
                             meters.push(transformToPlainObject(createdMeter))
@@ -444,6 +450,8 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                                 source: { connect: readingSource },
                                 date: tryToISO(reading.date),
                                 ...values,
+                                billingStatus,
+                                billingStatusText,
                             }, 'id meter { id unitType unitName accountNumber number property { id address addressKey } }')
 
                             meterReadingByDate[key] = createdMeterReading

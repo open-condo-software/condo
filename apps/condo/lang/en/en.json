@@ -1764,6 +1764,7 @@
   "meterReadingSource.Messenger.name": "Messengers (tg, whatsapp, viber, ..)",
   "meterReadingSource.SocialNetwork.name": "Social media (vk, fb, ..)",
   "meterReadingSource.MobileAppStaff.name": "Staff mobile app",
+  "meterReadingSource.externalIntegration.name": "External integration",
   "meterReadingSource.crm.name": "CRM",
   "meterResource.ColdWater.name": "Cold water",
   "meterResource.HotWater.name": "Hot water",

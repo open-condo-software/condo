@@ -44,6 +44,7 @@ const {
     createTestB2BApp,
     createTestB2BAppContext,
 } = require('@condo/domains/miniapp/utils/testSchema')
+const { createTestB2BAppAccessRightSet, createTestB2BAppAccessRight } = require('@condo/domains/miniapp/utils/testSchema')
 const {
     createTestOrganization,
     updateTestOrganizationEmployee,
@@ -64,7 +65,7 @@ const {
     createTestServiceConsumer,
     updateTestServiceConsumer,
 } = require('@condo/domains/resident/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser, makeClientWithServiceUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 
 describe('MeterReading', () => {
@@ -72,13 +73,16 @@ describe('MeterReading', () => {
     let employeeCanManageReadings
     let employeeCanNotManageReadings
     let residentClient
+    let supportClient
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
         residentClient = await makeClientWithResidentUser()
         employeeCanManageReadings = await makeEmployeeUserClientWithAbilities({ canManageMeterReadings: true })
         employeeCanNotManageReadings = await makeEmployeeUserClientWithAbilities({ canManageMeterReadings: false })
+        supportClient = await makeClientWithSupportUser()
     })
+
     describe('CRUD', () => {
         describe('Create', () => {
             describe('Admin', () => {
@@ -94,6 +98,21 @@ describe('MeterReading', () => {
                     expect(meterReading.id).toMatch(UUID_RE)
                 })
             })
+
+            describe('Support', () => {
+                test('cannot create MeterReadings', async () => {
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+                    const [meter] = await createTestMeter(admin, organization, property, resource, {})
+
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await createTestMeterReading(supportClient, meter, source)
+                    })
+                })
+            })
+
             describe('Employee', () => {
                 test('employee with "canManageMeterReadings" role: can create MeterReadings', async () => {
                     const [resource] = await MeterResource.getAll(employeeCanManageReadings, {
@@ -1729,6 +1748,204 @@ describe('MeterReading', () => {
                 expect(connectedContact).toBeDefined()
                 expect(connectedContact.id).toEqual(contact.id)
             })
+        })
+    })
+
+    describe('billingStatus and billingStatusText fields access', () => {
+        let organization, source, meter
+
+        beforeAll(async () => {
+            [organization] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization);
+            [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+            const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID });
+            [meter] = await createTestMeter(admin, organization, property, resource, {})
+        })
+
+        test('Service user with b2b access rights can create and update', async () => {
+            const serviceUserClient = await makeClientWithServiceUser()
+            const [app] = await createTestB2BApp(admin)
+            await createTestB2BAppContext(admin, app, organization, { status: 'Finished' })
+            const [accessRightSet] = await createTestB2BAppAccessRightSet(admin, app, {
+                canExecuteRegisterMetersReadings: true,
+                canReadMeters: true,
+                canReadMeterReadings: true,
+                canManageMeterReadings: true,
+                canReadOrganizations: true,
+                canReadProperties: true,
+            })
+            await createTestB2BAppAccessRight(admin, serviceUserClient.user, app, accessRightSet)
+
+            const [meterReading, attrs] = await createTestMeterReading(serviceUserClient, meter, source, {
+                billingStatus: 'declined',
+                billingStatusText: faker.lorem.sentence(5),
+            })
+
+            expect(meterReading.billingStatus).toBe('declined')
+            expect(meterReading.billingStatusText).toBe(attrs.billingStatusText)
+
+            const [updatedMeterReading, updatedAttrs] = await updateTestMeterReading(serviceUserClient, meterReading.id, {
+                billingStatusText: 'updated billing status text',
+            })
+
+            expect(updatedMeterReading.billingStatusText).toBe(updatedAttrs.billingStatusText)
+        })
+
+        test('Service user without b2b access rights can\'t create and update', async () => {
+            const serviceUserClient = await makeClientWithServiceUser()
+            const [app] = await createTestB2BApp(admin)
+            await createTestB2BAppContext(admin, app, organization, { status: 'Finished' })
+
+            await expectToThrowAccessDeniedErrorToObj(
+                async () => {
+                    await createTestMeterReading(serviceUserClient, meter, source, {
+                        billingStatus: 'declined',
+                        billingStatusText: faker.lorem.sentence(5),
+                    })
+                },
+                {},
+            )
+            const [meterReading, attrs] = await createTestMeterReading(admin, meter, source, {
+                billingStatus: 'declined',
+                billingStatusText: faker.lorem.sentence(5),
+            })
+
+            expect(meterReading.billingStatus).toBe('declined')
+            expect(meterReading.billingStatusText).toBe(attrs.billingStatusText)
+
+            await expectToThrowAccessDeniedErrorToObj(
+                async () => {
+                    await updateTestMeterReading(serviceUserClient, meterReading.id, {
+                        billingStatusText: 'updated billing status text',
+                    })
+                },
+                {},
+            )
+        })
+
+        test('admin can create and update', async () => {
+            const [meterReading, attrs] = await createTestMeterReading(admin, meter, source, {
+                billingStatus: 'declined',
+                billingStatusText: faker.lorem.sentence(5),
+            })
+
+            expect(meterReading.billingStatus).toBe('declined')
+            expect(meterReading.billingStatusText).toBe(attrs.billingStatusText)
+
+            const [updatedMeterReading, updatedAttrs] = await updateTestMeterReading(admin, meterReading.id, {
+                billingStatusText: 'updated billing status text',
+            })
+
+            expect(updatedMeterReading.billingStatusText).toBe(updatedAttrs.billingStatusText)
+        })
+
+        test('user can\'t create and update', async () => {
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+            await expectToThrowAccessDeniedErrorToObj(
+                async () => {
+                    await createTestMeterReading(client, meter, source, {
+                        billingStatus: 'declined',
+                        billingStatusText: faker.lorem.sentence(5),
+                    })
+                },
+                {},
+            )
+
+            const [meterReading] = await createTestMeterReading(admin, meter, source, {
+                billingStatus: 'declined',
+                billingStatusText: faker.lorem.sentence(5),
+            })
+
+            await expectToThrowAccessDeniedErrorToObj(
+                async () => {
+                    await updateTestMeterReading(client, meterReading.id, {
+                        billingStatus: 'approved',
+                        billingStatusText: faker.lorem.sentence(5),
+                    })
+                },
+                {},
+            )
+        })
+
+        test('resident can\'t create and update', async () => {
+            await expectToThrowAccessDeniedErrorToObj(
+                async () => {
+                    await createTestMeterReading(residentClient, meter, source, {
+                        billingStatus: 'declined',
+                        billingStatusText: faker.lorem.sentence(5),
+                    })
+                },
+                {},
+            )
+
+            const [meterReading] = await createTestMeterReading(admin, meter, source, {
+                billingStatus: 'declined',
+                billingStatusText: faker.lorem.sentence(5),
+            })
+
+            await expectToThrowAccessDeniedErrorToObj(
+                async () => {
+                    await updateTestMeterReading(residentClient, meterReading.id, {
+                        billingStatus: 'approved',
+                        billingStatusText: faker.lorem.sentence(5),
+                    })
+                },
+                {},
+            )
+        })
+
+        test('employee with "canManageMeterReadings" role can\'t create and update', async () => {
+            await expectToThrowAccessDeniedErrorToObj(
+                async () => {
+                    await createTestMeterReading(employeeCanManageReadings, meter, source, {
+                        billingStatus: 'declined',
+                        billingStatusText: faker.lorem.sentence(5),
+                    })
+                },
+                {},
+            )
+
+            const [meterReading] = await createTestMeterReading(admin, meter, source, {
+                billingStatus: 'declined',
+                billingStatusText: faker.lorem.sentence(5),
+            })
+
+            await expectToThrowAccessDeniedErrorToObj(
+                async () => {
+                    await updateTestMeterReading(employeeCanManageReadings, meterReading.id, {
+                        billingStatus: 'approved',
+                        billingStatusText: faker.lorem.sentence(5),
+                    })
+                },
+                {},
+            )
+        })
+
+        test('employee without "canManageMeterReadings" role can\'t create and update', async () => {
+            await expectToThrowAccessDeniedErrorToObj(
+                async () => {
+                    await createTestMeterReading(employeeCanNotManageReadings, meter, source, {
+                        billingStatus: 'declined',
+                        billingStatusText: faker.lorem.sentence(5),
+                    })
+                },
+                {},
+            )
+
+            const [meterReading] = await createTestMeterReading(admin, meter, source, {
+                billingStatus: 'declined',
+                billingStatusText: faker.lorem.sentence(5),
+            })
+
+            await expectToThrowAccessDeniedErrorToObj(
+                async () => {
+                    await updateTestMeterReading(employeeCanNotManageReadings, meterReading.id, {
+                        billingStatus: 'approved',
+                        billingStatusText: faker.lorem.sentence(5),
+                    })
+                },
+                {},
+            )
         })
     })
 })
