@@ -1,22 +1,35 @@
-const { prepareCondoAppOidcConfig, prepareCondoAppB2BAppConfig, updateAppEnvFile, prepareAppEnvLocalAdminUsers } = require('@open-condo/cli')
+const { prepareCondoAppOidcConfig, prepareCondoAppB2BAppConfig, updateAppEnvFile, prepareAppEnvLocalAdminUsers, getAppEnvValue, runAppPackageJsonScript } = require('@open-condo/cli')
 
-async function main () {
-    // 1) register oidc url in condo!
-    const serviceName = 'miniapp'
-    const miniAppName = 'MiniApp'
-    const oidcConf = await prepareCondoAppOidcConfig(serviceName)
-    await updateAppEnvFile(serviceName, 'OIDC_CONDO_CLIENT_CONFIG', JSON.stringify(oidcConf))
-    // 2) prepare B2BApp in condo!
-    await prepareCondoAppB2BAppConfig(serviceName, miniAppName)
-    // 2) add local admin user!
-    await prepareAppEnvLocalAdminUsers(serviceName)
-    console.log('done')
+
+const main = async ([B2BAppName = 'miniapp']) => {
+    // 1) register oidc url in condo
+    const appName = 'miniapp'
+    const oidcConf = await prepareCondoAppOidcConfig(appName)
+    await updateAppEnvFile(appName, 'OIDC_CONDO_CLIENT_CONFIG', JSON.stringify(oidcConf))
+    await updateAppEnvFile(appName, 'APP_TOKEN_KEY', 'appToken')
+    await updateAppEnvFile(appName, 'CONDO_ACCESS_TOKEN_KEY', 'condoAccessToken')
+    await updateAppEnvFile(appName, 'CONDO_REFRESH_TOKEN_KEY', 'condoRefreshToken')
+    await updateAppEnvFile(appName, 'CONDO_ORGANIZATION_ID_KEY', 'condoOrganizationId')
+    await updateAppEnvFile(appName, 'ACCEPT_LANGUAGE', 'accept-language')
+    // 2) prepare B2BApp in condo
+    await prepareCondoAppB2BAppConfig(appName, B2BAppName, true)
+    // 3) migrate initial data and maketypes
+    await runAppPackageJsonScript(appName, 'makemigrations')
+    await runAppPackageJsonScript(appName, 'migrate')
+    await runAppPackageJsonScript(appName, 'maketypes')
+    // 4) add local admin user
+    await prepareAppEnvLocalAdminUsers(appName)
+    // 5) add condo url conf
+    const condoUrl = await getAppEnvValue('condo', 'SERVER_URL') || 'http://localhost:3000'
+    await updateAppEnvFile(appName, 'CONDO_DOMAIN', condoUrl)
+    console.log('Done')
 }
 
-main().then(
-    () => process.exit(),
-    (error) => {
-        console.error(error)
+main(process.argv.slice(2))
+    .then(() => {
+        process.exit()
+    })
+    .catch((error) => {
+        console.log(error)
         process.exit(1)
-    },
-)
+    })

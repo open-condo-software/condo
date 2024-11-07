@@ -13,6 +13,7 @@ const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext } 
 const { createTestPayment } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBillingReceipt, createTestBillingProperty, createTestBillingAccount, createTestBillingIntegration, createTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
 const { SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
+const { MESSAGE_FIELDS } = require('@condo/domains/notification/gql')
 const { Message } = require('@condo/domains/notification/utils/serverSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
@@ -27,7 +28,7 @@ const getNewMessages = async ({ userId }) => {
     return await Message.getAll(keystone, {
         user: { id: userId },
         type: SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE_TYPE,
-    })
+    }, MESSAGE_FIELDS)
 }
 
 describe('Push notification on payday about unpaid receipts', () => {

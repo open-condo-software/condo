@@ -56,7 +56,7 @@ interface EditableCellProps {
     children?: React.ReactNode
     inputNode?: React.ReactNode
     cellProps?: React.HTMLAttributes<HTMLElement>
-    formItemProps?: FormItemProps,
+    formItemProps?: FormItemProps
 }
 
 const RELATIONS = ['assignee', 'organization', 'executor', 'classifier']
@@ -157,12 +157,13 @@ const TicketAutoAssignmentPage: ITicketAutoAssignmentPage = () => {
         sortBy: [SortTicketAutoAssignmentsBy.CreatedAtDesc, SortTicketAutoAssignmentsBy.IdDesc],
     }, {
         fetchPolicy: 'network-only',
+        skip: !organizationId,
     })
     const { loading: employeesLoading, objs: employees, error: employeesError } = OrganizationEmployee.useObjects({
         where: {
             organization: { id: organizationId },
         },
-    })
+    }, { skip: !organizationId })
 
     const [editingKey, setEditingKey] = useState('')
     const [creating, setCreating] = useState<boolean>(false)
@@ -586,6 +587,7 @@ const TicketAutoAssignmentPermissionRequired: React.FC = ({ children }) => {
         variables: {
             userId: userId,
         },
+        skip: !user,
     })
     const userWithRightSets = useMemo(() => {
         if (!data && (loading || error)) return null

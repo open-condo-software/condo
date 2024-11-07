@@ -25,7 +25,7 @@ const PDF_FILE_META = {
     encoding: 'UTF-8',
 }
 
-// NOTE "padmake" can only use two properties per font: "normal" and "bold".
+// NOTE "pdfmake" can only use two properties per font: "normal" and "bold".
 //      Therefore, two fonts are used to use different font weights.
 const PDF_FONTS = {
     OpenSans: {

@@ -21,7 +21,7 @@ env:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         node-version: [16.x]
@@ -49,6 +49,7 @@ jobs:
           echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
           sudo apt-get update
           sudo apt-get install k6
+          k6 version
 
       - name: run k6 tests
         run: |
@@ -66,7 +67,7 @@ jobs:
           
           k6 -o experimental-prometheus-rw run --summary-trend-stats="avg,min,med,max,p(90),p(95),p(99)" apps/condo/k6/dist/ticket.test.js
           k6 -o experimental-prometheus-rw run --summary-trend-stats="avg,min,med,max,p(90),p(95),p(99)" apps/condo/k6/dist/payment.test.js
-          k6 -o experimental-prometheus-rw run --summary-trend-stats="avg,min,med,max,p(90),p(95),p(99)" apps/condo/k6/dist/news.test.js
+          k6 -o experimental-prometheus-rw run --summary-trend-stats="avg,min,med,max,p(90),p(95),p(99)" apps/condo/k6/dist/registerBillingReceipt.test.js
 
       - name: Upload screenshots
         uses: actions/upload-artifact@v4

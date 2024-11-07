@@ -6,7 +6,7 @@ import { generateQueryVariables } from '@condo/domains/common/components/TicketC
 import { Ticket as TicketGQL } from '@condo/domains/ticket/gql'
 
 interface ICachedData {
-    objs: Ticket[],
+    objs: Ticket[]
 }
 
 type TicketCacheUtilsHook = (cache: ApolloCache<unknown>) => {

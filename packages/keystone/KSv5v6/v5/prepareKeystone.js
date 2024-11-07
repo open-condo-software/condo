@@ -3,15 +3,15 @@ const v8 = require('v8')
 
 const { AdminUIApp } = require('@keystonejs/app-admin-ui')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
-const { Keystone } = require('@keystonejs/keystone')
 const cuid = require('cuid')
 const { json, urlencoded } = require('express')
 const { get, identity } = require('lodash')
 const nextCookie = require('next-cookies')
 const { v4 } = require('uuid')
 
+
 const conf = require('@open-condo/config')
-const { formatError } = require('@open-condo/keystone/apolloErrorFormatter')
+const { safeApolloErrorFormatter } = require('@open-condo/keystone/apolloErrorFormatter')
 const { ExtendedPasswordAuthStrategy } = require('@open-condo/keystone/authStrategy/passwordAuth')
 const { parseCorsSettings } = require('@open-condo/keystone/cors.utils')
 const { _internalGetExecutionContextAsyncLocalStorage } = require('@open-condo/keystone/executionContext')
@@ -27,6 +27,9 @@ const { ApolloSentryPlugin } = require('@open-condo/keystone/sentry')
 const { prepareDefaultKeystoneConfig } = require('@open-condo/keystone/setup.utils')
 const { registerTasks, registerTaskQueues, taskQueues } = require('@open-condo/keystone/tasks')
 const { KeystoneTracingApp } = require('@open-condo/keystone/tracing')
+
+const { Keystone } = require('./keystone')
+const { validateHeaders } = require('./validateHeaders')
 
 const IS_BUILD_PHASE = conf.PHASE === 'build'
 const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
@@ -97,6 +100,14 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
         onConnect: async () => onConnect && onConnect(keystone),
         ...extendedKeystoneConfig,
     })
+
+    // patch access control handler to store skipAccessControl flag in context
+    const accessControlContextHandler = keystone._getAccessControlContext
+    keystone._getAccessControlContext = args => {
+        const context = accessControlContextHandler(args)
+        context.skipAccessControl = args.skipAccessControl
+        return context
+    }
 
     const globalPreprocessors = schemasPreprocessors ? schemasPreprocessors() : []
     globalPreprocessors.push(...[schemaDocPreprocessor, adminDocPreprocessor, escapeSearchPreprocessor, customAccessPostProcessor])
@@ -175,7 +186,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
             ...((apps) ? apps() : []),
             new GraphQLApp({
                 apollo: {
-                    formatError,
+                    formatError: safeApolloErrorFormatter,
                     debug: IS_ENABLE_APOLLO_DEBUG,
                     introspection: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
                     playground: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
@@ -195,16 +206,27 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
 
         /** @type {(app: import('express').Application) => void} */
         configureExpress: (app) => {
+            const requestIdHeaderName = 'x-request-id'
+            const startRequestIdHeaderName = 'x-start-request-id'
 
             // NOTE(pahaz): we are always behind reverse proxy
             app.set('trust proxy', true)
+
+            app.use(function validateHeadersToPreventInjectionAttacks (req, res, next) {
+                try {
+                    validateHeaders(req.headers)
+                } catch (err) {
+                    logger.error({ msg: 'InvalidHeader', err })
+                    res.status(423).send({ error: err.message })
+                }
+                next()
+            })
 
             // NOTE(toplenboren): we need a custom body parser for custom file upload limit
             app.use(json({ limit: '100mb', extended: true }))
             app.use(urlencoded({ limit: '100mb', extended: true }))
 
-            const requestIdHeaderName = 'x-request-id'
-            const startRequestIdHeaderName = 'x-start-request-id'
+
             app.use(function reqId (req, res, next) {
                 const reqId = req.get(requestIdHeaderName) || v4()
                 const startReqId = req.get(startRequestIdHeaderName) || reqId
@@ -218,7 +240,6 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
                     req['startId'] = req.headers[startRequestIdHeaderName] = startReqId
 
                     res.setHeader(requestIdHeaderName, reqId)
-                    res.setHeader(startRequestIdHeaderName, startReqId)
                     next()
                 })
             })

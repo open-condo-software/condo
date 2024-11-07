@@ -72,7 +72,7 @@ interface ICommentFormProps {
     editableComment: CommentWithFiles
     setEditableComment: React.Dispatch<React.SetStateAction<CommentWithFiles>>
     sending: boolean
-    FileModel: Module,
+    FileModel: Module
     relationField: string
     setSending: React.Dispatch<React.SetStateAction<boolean>>
 }

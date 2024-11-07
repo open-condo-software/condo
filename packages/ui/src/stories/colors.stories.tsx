@@ -1,18 +1,18 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { styled } from '@storybook/theming'
 import { identity } from 'lodash'
 import get from 'lodash/get'
 import React from 'react'
 
-import { Space } from '@open-condo/ui/src'
-import { Typography, Card } from '@open-condo/ui/src'
+import { Space, Typography, Card } from '@open-condo/ui/src'
 import { colors } from '@open-condo/ui/src/colors'
 import tokens from '@open-condo/ui/src/tokens/tokens.json'
+
+import type { Meta, StoryObj } from '@storybook/react'
 
 type SwatchColors = { [key: string]: string }
 type SwatchColorsWithDescription = { [key: string]: { value: string, description?: string } }
 type Swatch = {
-    title: string,
+    title: string
     colors: SwatchColors
 }
 type SwatchWithDescription = Swatch & { colors: SwatchColorsWithDescription }
@@ -155,8 +155,6 @@ export default {
         options: { showPanel: false },
         controls: { disabled: true },
     },
-} as ComponentMeta<typeof ColorPalette>
+} as Meta<typeof ColorPalette>
 
-const Template: ComponentStory<typeof ColorPalette> = (args) => <ColorPalette {...args}/>
-
-export const Colors = Template.bind({})
+export const Colors: StoryObj<typeof ColorPalette> = {}

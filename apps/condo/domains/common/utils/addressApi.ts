@@ -5,7 +5,7 @@ import { makeId } from './makeid.utils'
 import { getCurrentUserId } from './userid.utils'
 
 type TSuggestion = AddressMetaField & {
-    rawValue: string,
+    rawValue: string
     type: 'building' | 'village' | null
 }
 

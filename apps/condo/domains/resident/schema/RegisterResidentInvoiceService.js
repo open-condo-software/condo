@@ -31,26 +31,25 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: ERROR_NO_ACQUIRING_CONTEXT,
         message: 'The organization hasn\'t set up the marketplace',
-        messageForUser: 'api.marketplace.registerInvoice.error.noAcquiringContext',
+        messageForUser: 'api.resident.registerResidentInvoice.NO_ACQUIRING_CONTEXT',
     },
-    ITEM_FROM_OTHER_ORGANIZATION: (rowNumber) => ({
+    ITEM_FROM_OTHER_ORGANIZATION: {
         code: BAD_USER_INPUT,
         type: ERROR_ITEM_FROM_OTHER_ORGANIZATION,
-        message: `Item from other organization. Check line ${rowNumber}`,
-        messageForUser: 'api.marketplace.registerInvoice.error.itemFromOtherOrganization',
-        messageInterpolation: { rowNumber },
-    }),
+        message: 'Item from other organization. Check line {rowNumber}',
+        messageForUser: 'api.resident.registerResidentInvoice.ITEM_FROM_OTHER_ORGANIZATION',
+    },
     EMPTY_ROWS: {
         code: BAD_USER_INPUT,
         type: ERROR_INVOICE_EMPTY_ROWS,
         message: 'The invoice contains no rows',
-        messageForUser: 'api.marketplace.invoice.error.emptyRows',
+        messageForUser: 'api.marketplace.invoice.EMPTY_ROWS',
     },
     PROHIBITED_INVOICE_PAYMENT_TYPE: {
         code: BAD_USER_INPUT,
         type: ERROR_PROHIBITED_INVOICE_PAYMENT_TYPE,
         message: 'This payment method is prohibited in the selected organization',
-        messageForUser: 'api.marketplace.invoice.error.prohibitedPaymentType',
+        messageForUser: 'api.resident.registerResidentInvoice.PROHIBITED_INVOICE_PAYMENT_TYPE',
     },
 }
 
@@ -99,7 +98,7 @@ const RegisterResidentInvoiceService = new GQLCustomSchema('RegisterResidentInvo
                 const [marketSetting] = await MarketSetting.getAll(context, {
                     organization: { id: resident.organization },
                     deletedAt: null,
-                }, { first: 1 })
+                }, 'residentAllowedPaymentTypes', { first: 1 })
 
                 if (resident && marketSetting && !get(marketSetting, 'residentAllowedPaymentTypes', []).includes(data.paymentType)) {
                     throw new GQLError(ERRORS.PROHIBITED_INVOICE_PAYMENT_TYPE, context)
@@ -113,11 +112,19 @@ const RegisterResidentInvoiceService = new GQLCustomSchema('RegisterResidentInvo
                     return id
                 })
 
-                const priceScopes = await MarketPriceScope.getAll(context, { deletedAt: null, id_in: priceScopesIds })
+                const priceScopes = await MarketPriceScope.getAll(
+                    context,
+                    { deletedAt: null, id_in: priceScopesIds },
+                    'id marketItemPrice { price { vatPercent salesTaxPercent price isMin } ' +
+                    'marketItem { name sku organization { id } } }'
+                )
 
                 for (let i = 0; i < priceScopes.length; i++) {
                     if (get(priceScopes, [i, 'marketItemPrice', 'marketItem', 'organization', 'id']) !== resident.organization) {
-                        throw new GQLError(ERRORS.ITEM_FROM_OTHER_ORGANIZATION(i + 1), context)
+                        throw new GQLError({
+                            ...ERRORS.ITEM_FROM_OTHER_ORGANIZATION,
+                            messageInterpolation: { rowNumber: i + 1 },
+                        }, context)
                     }
                 }
 

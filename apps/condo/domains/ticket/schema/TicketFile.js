@@ -6,6 +6,7 @@ const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { getFileMetaAfterChange } = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { webHooked } = require('@open-condo/webhooks/plugins')
 
 const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
 const access = require('@condo/domains/ticket/access/TicketFile')
@@ -51,6 +52,7 @@ const TicketFile = new GQLListSchema('TicketFile', {
         softDeleted(),
         dvAndSender(),
         historical(),
+        webHooked(),
     ],
     access: {
         read: access.canReadTicketFiles,

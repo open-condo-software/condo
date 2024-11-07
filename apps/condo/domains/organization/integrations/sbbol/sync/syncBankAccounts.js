@@ -19,7 +19,7 @@ const logger = getLogger('sbbol/syncBankAccounts')
  *  @param {Object} organization
  */
 const _syncBankAccounts = async (accounts, organization) => {
-    const { keystone: context } = await getSchemaCtx('User')
+    const { keystone: context } = getSchemaCtx('User')
 
     for (const account of accounts) {
         const bankAccountDetails = {
@@ -34,7 +34,7 @@ const _syncBankAccounts = async (accounts, organization) => {
             ...bankAccountDetails,
             organization: { id: organization.id },
             deletedAt: null,
-        })
+        }, 'id integrationContext { id }')
 
         const integration = await BankIntegration.getOne(context, { id: BANK_INTEGRATION_IDS.SBBOL })
         if (!integration) throw new Error(`Cannot find SBBOL integration by id=" ${BANK_INTEGRATION_IDS.SBBOL}"`)

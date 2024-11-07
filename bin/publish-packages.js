@@ -20,10 +20,12 @@ const BREAKING_KEYWORDS = ['BREAKING CHANGE', 'BREAKING CHANGES', 'BREAKING-CHAN
 
 // NOTE: Edit this list to add / remove packages from auto-release cycle
 const RELEASE_LIST = [
-    'packages/tsconfig',
-    'packages/icons',
-    'packages/ui',
+    'packages/apollo',
     'packages/bridge',
+    'packages/icons',
+    'packages/miniapp-utils',
+    'packages/tsconfig',
+    'packages/ui',
 ]
 
 publish(RELEASE_LIST, [

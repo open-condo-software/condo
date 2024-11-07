@@ -14,11 +14,11 @@ const {
     PUSH_TRANSPORT_FIREBASE, PUSH_TRANSPORT_HUAWEI,
 } = require('@condo/domains/notification/constants/constants')
 const { Message, syncRemoteClientByTestClient } = require('@condo/domains/notification/utils/testSchema')
+const { getRandomTokenData } = require('@condo/domains/notification/utils/testSchema/utils')
 const { makeClientWithResidentUser, makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
 
 const { makeMessageKey, sendRemoteClientsUpgradeAppNotifications } = require('./sendRemoteClientsUpgradeAppNotifications')
 
-const { getRandomTokenData } = require('../utils/testSchema/helpers')
 
 
 describe('sendResidentsNoAccountNotifications', () => {

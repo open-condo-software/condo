@@ -6,33 +6,21 @@
 
 const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
-const { BankAccount: BankAccountGQL } = require('@condo/domains/banking/gql')
-const { BankCategory: BankCategoryGQL } = require('@condo/domains/banking/gql')
-const { BankCostItem: BankCostItemGQL } = require('@condo/domains/banking/gql')
-const { BankContractorAccount: BankContractorAccountGQL } = require('@condo/domains/banking/gql')
-const { BankIntegration: BankIntegrationGQL } = require('@condo/domains/banking/gql')
 const { CREATE_BANK_ACCOUNT_REQUEST_MUTATION } = require('@condo/domains/banking/gql')
-const { BankIntegrationAccountContext: BankIntegrationAccountContextGQL } = require('@condo/domains/banking/gql')
-const { BankIntegrationOrganizationContext: BankIntegrationOrganizationContextGQL } = require('@condo/domains/banking/gql')
-const { BankTransaction: BankTransactionGQL } = require('@condo/domains/banking/gql')
-const { BankSyncTask: BankSyncTaskGQL } = require('@condo/domains/banking/gql')
-const { BankIntegrationAccessRight: BankIntegrationAccessRightGQL } = require('@condo/domains/banking/gql')
 const { PREDICT_TRANSACTION_CLASSIFICATION_QUERY } = require('@condo/domains/banking/gql')
-const { BankAccountReport: BankAccountReportGQL } = require('@condo/domains/banking/gql')
-const { BankAccountReportTask: BankAccountReportTaskGQL } = require('@condo/domains/banking/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const BankAccount = generateServerUtils(BankAccountGQL)
-const BankCategory = generateServerUtils(BankCategoryGQL)
-const BankCostItem = generateServerUtils(BankCostItemGQL)
-const BankContractorAccount = generateServerUtils(BankContractorAccountGQL)
-const BankIntegration = generateServerUtils(BankIntegrationGQL)
-const BankIntegrationAccountContext = generateServerUtils(BankIntegrationAccountContextGQL)
-const BankIntegrationOrganizationContext = generateServerUtils(BankIntegrationOrganizationContextGQL)
-const BankTransaction = generateServerUtils(BankTransactionGQL)
-const BankSyncTask = generateServerUtils(BankSyncTaskGQL)
-const BankAccountReport = generateServerUtils(BankAccountReportGQL)
-const BankAccountReportTask = generateServerUtils(BankAccountReportTaskGQL)
+const BankAccount = generateServerUtils('BankAccount')
+const BankCategory = generateServerUtils('BankCategory')
+const BankCostItem = generateServerUtils('BankCostItem')
+const BankContractorAccount = generateServerUtils('BankContractorAccount')
+const BankIntegration = generateServerUtils('BankIntegration')
+const BankIntegrationAccountContext = generateServerUtils('BankIntegrationAccountContext')
+const BankIntegrationOrganizationContext = generateServerUtils('BankIntegrationOrganizationContext')
+const BankTransaction = generateServerUtils('BankTransaction')
+const BankSyncTask = generateServerUtils('BankSyncTask')
+const BankAccountReport = generateServerUtils('BankAccountReport')
+const BankAccountReportTask = generateServerUtils('BankAccountReportTask')
 
 async function createBankAccountRequest (context, data) {
     if (!context) throw new Error('no context')
@@ -47,7 +35,7 @@ async function createBankAccountRequest (context, data) {
     })
 }
 
-const BankIntegrationAccessRight = generateServerUtils(BankIntegrationAccessRightGQL)
+const BankIntegrationAccessRight = generateServerUtils('BankIntegrationAccessRight')
 async function predictTransactionClassification (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')

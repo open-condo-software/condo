@@ -32,7 +32,7 @@ export const MAX_TAG_TEXT_LENGTH = 30
 export const TICKET_CHART_PAGE_SIZE = 6
 
 export type specificationTypes = 'day' | 'week' | 'month'
-export type addressPickerType = { id: string; value: string; }
+export type addressPickerType = { id: string, value: string }
 export type GroupTicketsByTypes = 'status' | 'property' | 'categoryClassifier' | 'executor' | 'assignee'
 
 export type ticketAnalyticsPageFilters = {
@@ -48,9 +48,9 @@ interface IFilterToQuery {
     (
         { filter, viewMode, ticketType, mainGroup }:
         {
-            filter: ticketAnalyticsPageFilters,
-            viewMode: ViewModeTypes,
-            ticketType: TicketSelectTypes,
+            filter: ticketAnalyticsPageFilters
+            viewMode: ViewModeTypes
+            ticketType: TicketSelectTypes
             mainGroup: GroupTicketsByTypes
         }
     ): { AND: TicketWhereInput['AND'], groupBy: TicketAnalyticsGroupBy[] }
@@ -146,17 +146,17 @@ interface IGetChartOptions {
         series,
         chartOptions,
     }: {
-        legend: string[],
-        viewMode: ViewModeTypes,
-        animationEnabled: boolean,
-        series: ChartConfigResult['series'],
-        chartOptions: EChartsReactProps['opts'],
-        color: string[],
-        axisData?: ChartConfigResult['axisData'],
-        tooltip?: ChartConfigResult['tooltip'],
+        legend: string[]
+        viewMode: ViewModeTypes
+        animationEnabled: boolean
+        series: ChartConfigResult['series']
+        chartOptions: EChartsReactProps['opts']
+        color: string[]
+        axisData?: ChartConfigResult['axisData']
+        tooltip?: ChartConfigResult['tooltip']
         showTitle?: boolean
     }): {
-        option: EChartsOption,
+        option: EChartsOption
         opts: unknown
     }
 }

@@ -19,7 +19,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: MAX_NAME_LENGTH_ERROR,
         message: `Maximum size of PropertyScope name exceeded (${MAX_NAME_LENGTH} characters)`,
-        messageForUser: 'api.propertyScope.MAX_NAME_LENGTH_ERROR',
+        messageForUser: 'api.scope.propertyScope.MAX_NAME_LENGTH_ERROR',
         messageInterpolation: {
             max: MAX_NAME_LENGTH,
         },

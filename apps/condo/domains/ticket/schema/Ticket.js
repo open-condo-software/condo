@@ -160,26 +160,26 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
         message: '"feedbackValue" must be specified if there is "feedbackAdditionalOptions" or "feedbackComment"',
-        messageForUser: 'api.ticket.FEEDBACK_VALUE_MUST_BE_SPECIFIED',
+        messageForUser: 'api.ticket.ticket.FEEDBACK_VALUE_MUST_BE_SPECIFIED',
     },
     QUALITY_CONTROL_VALUE_MUST_BE_SPECIFIED: {
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
         message: '"qualityControlValue" must be specified if there is "qualityControlAdditionalOptions" or "qualityControlComment"',
-        messageForUser: 'api.ticket.QUALITY_CONTROL_VALUE_MUST_BE_SPECIFIED',
+        messageForUser: 'api.ticket.ticket.QUALITY_CONTROL_VALUE_MUST_BE_SPECIFIED',
     },
     TICKET_FOR_PHONE_DAY_LIMIT_REACHED: {
         code: 'BAD_USER_INPUT',
         type: 'TICKET_FOR_PHONE_DAY_LIMIT_REACHED',
         message: 'Please try again tomorrow. You can not create more tickets!',
-        messageForUser: 'api.ticket.TICKET_FOR_PHONE_DAY_LIMIT_REACHED',
+        messageForUser: 'api.ticket.ticket.TICKET_FOR_PHONE_DAY_LIMIT_REACHED',
         messageInterpolation: { ticketLimit: DAILY_TICKET_LIMIT },
     },
     SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED: {
         code: 'BAD_USER_INPUT',
         type: 'SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED',
         message: 'You already sent this ticket! You can not create more tickets!',
-        messageForUser: 'api.ticket.SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED',
+        messageForUser: 'api.ticket.ticket.SAME_TICKET_FOR_PHONE_DAY_LIMIT_REACHED',
     },
 }
 
@@ -807,7 +807,7 @@ const Ticket = new GQLListSchema('Ticket', {
             }
 
             if (resolvedData.contact) {
-                const contact = await Contact.getOne(context, { id: resolvedData.contact })
+                const contact = await Contact.getOne(context, { id: resolvedData.contact }, 'name email phone')
 
                 if (!resolvedData.clientName) resolvedData.clientName = contact.name
                 if (!resolvedData.clientEmail) resolvedData.clientEmail = contact.email
@@ -973,6 +973,34 @@ const Ticket = new GQLListSchema('Ticket', {
         update: access.canManageTickets,
         delete: false,
         auth: true,
+    },
+    kmigratorOptions: {
+        indexes: [
+            // NOTE: popular filter on /ticket page
+            {
+                type: 'BTreeIndex',
+                fields: ['unitName'],
+                name: 'ticket_unitName',
+            },
+            // NOTE: used on /ticket page for "Own Tickets" fitler
+            {
+                type: 'BTreeIndex',
+                fields: ['organization', 'assignee', 'executor', 'deletedAt'],
+                name: 'ticket_org_assign_exec_deletedAt',
+            },
+            // NOTE: popular filter on /ticket page
+            {
+                type: 'BTreeIndex',
+                fields: ['organization', 'status'],
+                name: 'ticket_organization_status',
+            },
+            // NOTE: default CRM sorting on /ticket page 
+            {
+                type: 'BTreeIndex',
+                fields: ['order', '-createdAt'],
+                name: 'ticket_order_createdat',
+            },
+        ],
     },
 })
 

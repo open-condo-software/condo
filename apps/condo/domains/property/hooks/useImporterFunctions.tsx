@@ -7,15 +7,19 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
-import { Columns, RowNormalizer, RowValidator, ObjectCreator } from '@condo/domains/common/utils/importer'
+import { Columns, RowNormalizer, RowValidator, ObjectCreator, TableRow } from '@condo/domains/common/utils/importer'
 import { MapEdit } from '@condo/domains/property/components/panels/Builder/MapConstructor'
 import { validHouseTypes } from '@condo/domains/property/constants/property'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
 
-const createPropertyUnitsMap = (units, sections, floors) => {
-    const unitsOnFloor = Math.ceil(units / (floors * sections))
+const createPropertyUnitsMap = (units, sections, floors, minFloor) => {
+    if (!minFloor) {
+        minFloor = 1
+    }
+
+    const unitsOnFloor = Math.ceil(units / ((floors - (minFloor - 1)) * sections))
     if (!unitsOnFloor) {
         return
     }
@@ -34,7 +38,7 @@ const createPropertyUnitsMap = (units, sections, floors) => {
         mapEditor.addSection({
             name,
             unitsOnFloor,
-            minFloor: 1,
+            minFloor,
             maxFloor: floors,
         })
     }
@@ -52,6 +56,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const UnitLabel = intl.formatMessage({ id: 'property.import.column.Units' })
     const SectionLabel = intl.formatMessage({ id: 'property.import.column.Sections' })
     const FloorLabel = intl.formatMessage({ id: 'property.import.column.Floors' })
+    const minFloorLabel = intl.formatMessage({ id: 'property.import.column.MinFloor' })
 
     const userOrganization = useOrganization()
     const client = useApolloClient()
@@ -70,6 +75,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         { name: UnitLabel, type: 'number', required: true },
         { name: SectionLabel, type: 'number', required: true },
         { name: FloorLabel, type: 'number', required: true },
+        { name: minFloorLabel, type: 'number', required: false },
     ]
 
     const propertyNormalizer: RowNormalizer = async (row) => {
@@ -122,10 +128,10 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
 
     const propertyCreator: ObjectCreator = async (row) => {
         if (!row) return
-        const [, units, sections, floors] = row.row
+        const [, units, sections, floors, minFloor] = row.row
         const property = get(row.addons, ['suggestion'])
         const value = get(property, 'value')
-        const map = createPropertyUnitsMap(units.value, sections.value, floors.value)
+        const map = createPropertyUnitsMap(units.value, sections.value, floors.value, minFloor.value)
         return await createPropertyAction({
             dv: 1,
             type: PropertyTypeType.Building,

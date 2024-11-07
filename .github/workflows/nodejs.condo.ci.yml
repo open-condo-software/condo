@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+
+  # NOTE: change pull_request_target to pull_request if you want to change the CI in your branch
   pull_request_target:
     types:
       - opened
@@ -27,7 +29,7 @@ env:
 jobs:
   authorize:
     name: Authorize PR
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     environment:
       ${{ github.event_name == 'pull_request_target' &&
       github.event.pull_request.head.repo.full_name != github.repository && 
@@ -114,7 +116,7 @@ jobs:
   detect-changes:
     name: Define job list based on changed files
     needs: authorize
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     outputs:
       address-service: ${{ steps.detect-changes.outputs.address-service }}
       dev-api: ${{ steps.detect-changes.outputs.dev-api }}
@@ -150,7 +152,7 @@ jobs:
   lint:
     name: Lint source code
     needs: authorize
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout code with submodules
         uses: actions/checkout@v4
@@ -184,7 +186,7 @@ jobs:
   security:
     name: Semgrep vulnerabilities check
     needs: authorize
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     container:
       image: returntocorp/semgrep
     # Skip any PR created by dependabot to avoid permission issues
@@ -202,7 +204,7 @@ jobs:
 
   run-address-service-tests:
     name: Address-Service Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs:
       - authorize
       - build-image
@@ -281,7 +283,7 @@ jobs:
 
   run-condorb-tests:
     name: CondoRB Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs:
       - authorize
       - build-image
@@ -323,7 +325,7 @@ jobs:
 
   run-dev-api-tests:
     name: DEV-API Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs:
       - authorize
       - build-image
@@ -348,7 +350,9 @@ jobs:
           docker run -p="127.0.0.1:6379:6379" -d ${{ env.REDIS_IMAGE_FULL }}
       - name: Run condo container with daemon
         run: |
-          docker run --network="host" --name condo-container -dit ${{ env.DOCKER_IMAGE_FULL }} sh
+          mkdir test_logs
+          chmod -R a+rw ./test_logs
+          docker run -v ./test_logs:/app/test_logs --network="host" --name condo-container -dit ${{ env.DOCKER_IMAGE_FULL }} sh
       - name: Prepare apps
         run: |
           docker exec condo-container node bin/prepare.js -f condo dev-api
@@ -357,15 +361,29 @@ jobs:
           docker exec condo-container yarn workspace @app/dev-api makemigrations --check
       - name: Run apps and tests
         run: |
-          docker exec condo-container sh -c "(\
-          yarn workspace @app/condo start & \
-          yarn workspace @app/dev-api start & \
-          node bin/wait-apps-apis.js -f condo dev-api) && \
-          yarn workspace @app/dev-api test"
+          docker exec condo-container sh -c "yarn workspace @app/condo start" 2>&1 > ./test_logs/devapi.condo.dev.log &
+          docker exec condo-container sh -c "yarn workspace @app/dev-api start" 2>&1 > ./test_logs/devapi.dev-api.dev.log &
+          docker exec condo-container sh -c "node bin/wait-apps-apis.js -f condo dev-api"
+          docker exec condo-container sh -c "yarn workspace @app/dev-api test" 2>&1 > ./test_logs/devapi.tests.log
+      - name: Collect docker logs on failure
+        if: failure()
+        uses: jwalton/gh-docker-logs@v1
+        with:
+          dest: './docker-logs'
+      - name: Upload log artifact
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: dev-api
+          path: |
+            ./test_logs/*
+            *.log
+            ./docker-logs
+          retention-days: 2
 
   run-webhooks-tests:
     name: Webhooks Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs:
       - authorize
       - detect-changes

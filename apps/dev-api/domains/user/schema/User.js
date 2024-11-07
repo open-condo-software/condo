@@ -18,13 +18,13 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: INVALID_PHONE,
         message: 'The provided phone number is in the wrong format',
-        messageForUser: 'errors.INVALID_PHONE.message',
+        messageForUser: 'api.user.user.INVALID_PHONE',
     },
     PASSWORD_TOO_SIMPLE: {
         code: BAD_USER_INPUT,
         type: PASSWORD_TOO_SIMPLE,
         message: 'The provided password is too simple',
-        messageForUser: 'errors.PASSWORD_TOO_SIMPLE.message',
+        messageForUser: 'api.user.user.PASSWORD_TOO_SIMPLE',
     },
 }
 

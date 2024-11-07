@@ -7,7 +7,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
-const { BillingReceiptAdmin, BillingReceipt, getPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
+const { BillingReceipt, getPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { RU_LOCALE } = require('@condo/domains/common/constants/locale')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
@@ -28,7 +28,7 @@ async function hasConflictingPushes (context, userId) {
         createdAt_gte: now.startOf('date').toISOString(),
         createdAt_lte: now.toISOString(),
         deletedAt: null,
-    })
+    }, 'type')
 
     for (const message of userMessages) {
         if (conflictingMessageTypes.find(type => type === message.type)) return true
@@ -68,7 +68,7 @@ async function sendNotification (context, receipt, consumer) {
 }
 
 async function notifyResidentsOnPayday () {
-    const { keystone: context } = await getSchemaCtx('User')
+    const { keystone: context } = getSchemaCtx('User')
     const state = {
         startTime: dayjs().toISOString(),
         completeTime: null,
@@ -92,7 +92,10 @@ async function notifyResidentsOnPayday () {
                 deletedAt: null,
             },
             deletedAt: null,
-        }, {
+        },
+        'id resident { id user { id } } organization { id } ' +
+            'accountNumber billingIntegrationContext { id }',
+        {
             skip: state.consumersOffset,
             first: state.consumersChunkSize,
         })
@@ -107,7 +110,7 @@ async function notifyResidentsOnPayday () {
                 const receipts = await loadListByChunks({
                     context,
                     chunkSize:20,
-                    list: BillingReceiptAdmin,
+                    list: BillingReceipt,
                     where: {
                         account: {
                             number: accountNumber,
@@ -123,6 +126,7 @@ async function notifyResidentsOnPayday () {
                      * @param {BillingReceipt[]} chunk
                      * @returns {BillingReceipt[]}
                      */
+                    fields: 'id toPay isPayable period organization { id country } account { id number } receiver { id } category { id }',
                     chunkProcessor: async chunk => chunk.filter(receipt => receipt.isPayable),
                 })
                 state.processedReceipts += receipts.length
@@ -156,16 +160,8 @@ async function notifyResidentsOnPayday () {
 
                 let isAllPaid = true
                 for (const receipt of payableReceipts) {
-                    const organizationId = get(receipt, ['context', 'organization', 'id'])
                     const toPay = Number(get(receipt, ['toPay']))
-                    const paid = Number(await getPaymentsSum(
-                        context,
-                        organizationId,
-                        accountNumber,
-                        get(receipt, 'period', null),
-                        get(receipt, ['recipient', 'bic'], null),
-                        get(receipt, ['recipient', 'bankAccount'], null)
-                    ))
+                    const paid = Number(await getPaymentsSum(receipt.id))
                     if (paid < toPay) isAllPaid = false
                 }
 

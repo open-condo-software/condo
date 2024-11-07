@@ -23,6 +23,7 @@ const {
     MeterReadingSource,
     MeterResource,
     createTestMeter,
+    updateTestMeterReading,
 } = require('@condo/domains/meter/utils/testSchema')
 const {
     createTestB2BApp,
@@ -1240,6 +1241,46 @@ describe('B2BApp permissions for service user', () => {
 
             // B2BApp with permissions
             const [result] = await createTestMeterReading(serviceUser, meter, source)
+
+            expect(result.id).toMatch(UUID_RE)
+        })
+
+        test('update MeterReading model', async () => {
+            const [organization] = await registerNewOrganization(user)
+            const [property] = await createTestProperty(user, organization)
+            const [source] = await MeterReadingSource.getAll(user, { id: CALL_METER_READING_SOURCE_ID })
+            const [resource] = await MeterResource.getAll(user, { id: COLD_WATER_METER_RESOURCE_ID })
+            const [meter] = await createTestMeter(user, organization, property, resource, {})
+            const [meterReading] = await createTestMeterReading(user, meter, source)
+
+            const [newServiceUser] = await registerNewServiceUserByTestClient(support)
+            const serviceUser = await makeLoggedInClient({
+                email: newServiceUser.email,
+                password: newServiceUser.password,
+            })
+
+            const [app] = await createTestB2BApp(support)
+            await createTestB2BAppContext(support, app, organization, { status: 'Finished' })
+            const [right] = await createTestB2BAppAccessRight(support, serviceUser.user, app)
+
+            // B2BApp without permissions
+            await expectToThrowAccessDeniedErrorToObj(
+                async () => await updateTestMeterReading(serviceUser, meterReading.id, { billingStatus: 'approved' })
+            )
+
+            // add permissions for B2BApp
+            const [accessRightSet] = await createTestB2BAppAccessRightSet(support, app, {
+                canReadMeters: true,
+                canReadMeterReadings: true,
+                canManageMeters: true,
+                canManageMeterReadings: true,
+                canReadOrganizations: true,
+                canReadProperties: true,
+            })
+            await updateTestB2BAppAccessRight(support, right.id, { accessRightSet: { connect: { id: accessRightSet.id } } })
+
+            // B2BApp with permissions
+            const [result] = await updateTestMeterReading(serviceUser, meterReading.id, { billingStatus: 'approved' })
 
             expect(result.id).toMatch(UUID_RE)
         })

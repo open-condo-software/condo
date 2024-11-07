@@ -35,11 +35,11 @@ jest.mock('@open-condo/keystone/logging', () => {
 let adminClient
 
 describe('syncSubscriptions', () => {
+    setFakeClientMode(index)
+
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
     })
-
-    setFakeClientMode(index)
 
     describe('One active ServiceSubscription with type "default" exist', () => {
         it('stops it and creates new ServiceSubscription with type "sbbol"', async () => {

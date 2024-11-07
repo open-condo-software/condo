@@ -9,7 +9,6 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAccessDeniedErrorToObjects,
-    expectToThrowInternalError,
     expectToThrowGraphQLRequestError,
     expectToThrowValidationFailureError,
 } = require('@open-condo/keystone/test.utils')

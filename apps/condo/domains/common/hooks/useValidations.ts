@@ -29,7 +29,7 @@ const changeMessage = (rule: Rule, message: string) => {
 }
 
 type ValidationSettings = {
-    allowLandLine?: boolean;
+    allowLandLine?: boolean
 }
 
 type UseValidations = (settings?: ValidationSettings) => ValidatorTypes

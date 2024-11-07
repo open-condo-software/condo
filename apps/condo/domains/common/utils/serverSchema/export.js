@@ -85,7 +85,7 @@ const processRecords = async ({ context, loadRecordsBatch, processRecordsBatch, 
 
     do {
         // User can cancel the task at any time, in this all operations should be stopped
-        task = await taskServerUtils.getOne(context, { id: taskId })
+        task = await taskServerUtils.getOne(context, { id: taskId }, 'id status')
         const taskStatus = get(task, 'status')
         if (!task || taskStatus !== TASK_PROCESSING_STATUS) {
             logger.info({ msg: 'status != processing', taskStatus, taskSchemaName, taskId })
@@ -148,7 +148,7 @@ const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecord
     const filename = getTmpFile('csv')
     const writeStream = createWriteStreamForExport(filename)
 
-    const task = await taskServerUtils.getOne(context, { id: taskId })
+    const task = await taskServerUtils.getOne(context, { id: taskId }, 'id locale')
     const _getHeadersTranslations = isFunction(overriddenGetHeadersTranslations) ? overriddenGetHeadersTranslations : getHeadersTranslations
     const columns = _getHeadersTranslations(registry, task.locale)
     const columnKeys = Object.keys(columns)

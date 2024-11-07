@@ -32,7 +32,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: WRONG_FORMAT,
         message: 'Invalid format of "sender" field value',
-        correctExample: '{ dv: 1, fingerprint: \'example-fingerprint-alphanumeric-value\'}',
+        correctExample: '{ "dv": 1, "fingerprint": "uniq-device-or-container-id" }',
     },
 }
 
@@ -101,6 +101,7 @@ const _internalDeleteMeterAndMeterReadingsService = new GQLCustomSchema('_intern
                     sortBy: ['createdAt_ASC'],
                     chunkSize: 100,
                     limit: 200_000,
+                    fields: 'id',
                     chunkProcessor: async (chunk) => {
                         const meterIdsToDelete = map(chunk, 'id')
                         // Why not delete objects immediately in "chunkProcessor"?
@@ -120,7 +121,7 @@ const _internalDeleteMeterAndMeterReadingsService = new GQLCustomSchema('_intern
                     })
 
                     try {
-                        const deleted = await Meter.softDeleteMany(context, meterIdsToDelete, { dv, sender })
+                        const deleted = await Meter.softDeleteMany(context, meterIdsToDelete, 'id', { dv, sender })
                         deletedMeters += deleted.length
                     } catch (error) {
                         logger.error({

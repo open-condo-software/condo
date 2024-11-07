@@ -105,8 +105,8 @@ class SberIdRoutes {
         const redirectUrl = getRedirectUrl(req)
 
         // auth session
-        const user = await User.getOne(context, { id: userId })
-        const { keystone } = await getSchemaCtx('User')
+        const user = await User.getOne(context, { id: userId }, 'id type')
+        const { keystone } = getSchemaCtx('User')
         const token = await keystone._sessionManager.startAuthedSession(req, { item: { id: user.id }, list: keystone.lists['User'] })
 
         // remove tmp data

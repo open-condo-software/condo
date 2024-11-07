@@ -1,5 +1,6 @@
 const { get, isArray, isString, isEmpty } = require('lodash')
 
+const { getExecutionContext } = require('@open-condo/keystone/executionContext')
 const { fetch } = require('@open-condo/keystone/fetch')
 const { getLogger } = require('@open-condo/keystone/logging')
 
@@ -33,6 +34,13 @@ class HCMMessaging {
     }
 
     async send (rawMessage, validationOnly = false) {
+        const executionContext = getExecutionContext()
+        const reqId = executionContext?.reqId
+        const taskId = executionContext?.taskId
+
+        // TODO (@toplenboren) DOMA-10611 remove excessive logging
+        logger.info({ msg: 'HCMMessaging send', args: { rawMessage, validationOnly }, reqId, taskId })
+
         if (!this.authClient) throw new Error('can\'t refresh token because getting auth client fail')
         if (!this.authClient.token || this.authClient.isExpired) await this.authClient.refreshToken()
 
@@ -63,6 +71,13 @@ class HCMMessaging {
     }
 
     async #sendRequest (body) {
+        const executionContext = getExecutionContext()
+        const reqId = executionContext?.reqId
+        const taskId = executionContext?.taskId
+
+        // TODO (@toplenboren) DOMA-10611 remove excessive logging
+        logger.info({ msg: 'HCMMessaging sendRequest', args: { body }, reqId, taskId })
+
         validateMessage(body.message)
 
         const url = `${ENDPOINT}/${this.config.clientId}/messages:send`
@@ -73,8 +88,13 @@ class HCMMessaging {
 
         let response, json
 
+        const requestBody = JSON.stringify(body)
+
+        // TODO (@toplenboren) DOMA-10611 remove excessive logging
+        logger.info({ msg: 'HCMMessaging sendRequest, data is ready:', args: { requestBody }, reqId, taskId })
+
         try {
-            response = await fetch(url, { method: 'POST', body: JSON.stringify(body), headers })
+            response = await fetch(url, { method: 'POST', body: requestBody, headers })
             json = await response.json()
         } catch (error) {
             logger.error({ msg: 'send push notification request error', error })

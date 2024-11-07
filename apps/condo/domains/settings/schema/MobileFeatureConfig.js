@@ -19,21 +19,21 @@ const ERRORS = {
         variable: ['data', 'commonPhone'],
         type: 'TICKET_SUBMITTING_PHONES_NOT_CONFIGURED',
         message: 'commonPhone field not specified',
-        messageForUser: 'api.organization.MobileFeatureConfig.TICKET_SUBMITTING_PHONES_NOT_CONFIGURED',
+        messageForUser: 'api.settings.mobileFeatureConfig.TICKET_SUBMITTING_PHONES_NOT_CONFIGURED',
     },
     COMMON_PHONE_INVALID: {
         code: BAD_USER_INPUT,
         variable: ['data', 'commonPhone'],
         type: 'COMMON_PHONE_NOT_CONFIGURED',
         message: 'commonPhone is invalid',
-        messageForUser: 'api.organization.MobileFeatureConfig.COMMON_PHONE_INVALID',
+        messageForUser: 'api.settings.mobileFeatureConfig.COMMON_PHONE_INVALID',
     },
     ORGANIZATION_IS_REQUIRED: {
         code: BAD_USER_INPUT,
         variable: ['data', 'organization'],
         type: 'ORGANIZATION_IS_REQUIRED',
         message: 'The organization is required to create',
-        messageForUser: 'api.organization.MobileFeatureConfig.ORGANIZATION_IS_REQUIRED',
+        messageForUser: 'api.settings.MobileFeatureConfig.ORGANIZATION_IS_REQUIRED',
     },
 }
 

@@ -121,7 +121,7 @@ const BankTransaction = new GQLListSchema('BankTransaction', {
             const isOutcome = has(resolvedData, 'isOutcome') ? resolvedData.isOutcome : existingItem.isOutcome
             const costItemId = has(resolvedData, 'costItem') ? resolvedData.costItem : get(existingItem, 'costItem', null)
             if (costItemId) {
-                const costItem = await BankCostItem.getOne(context, { id: costItemId })
+                const costItem = await BankCostItem.getOne(context, { id: costItemId }, 'id isOutcome')
                 if (costItem && costItem.isOutcome !== isOutcome) {
                     addValidationError(`Mismatched value of "isOutcome" field of BankTransaction${operation === 'update' ? `(id="${existingItem.id}")` : ''} with BankCostItem(id="${costItemId}") during ${operation} operation`)
                 }

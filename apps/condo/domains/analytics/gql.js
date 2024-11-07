@@ -11,15 +11,6 @@ const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const EXTERNAL_REPORT_FIELDS = `{ type title description isHidden organization { id } meta ${COMMON_FIELDS} }`
-const ExternalReport = generateGqlQueries('ExternalReport', EXTERNAL_REPORT_FIELDS)
-
-const GET_EXTERNAL_REPORT_IFRAME_URL_QUERY = gql`
-    query getExternalReportIframeUrl ($data: GetExternalReportIframeUrlInput!) {
-        result: getExternalReportIframeUrl(data: $data) { title iframeUrl }
-    }
-`
-
 const GET_OVERVIEW_DASHBOARD_MUTATION = gql`
     query getOverviewDashboard ($data: GetOverviewDashboardInput!) {
         result: getOverviewDashboard(data: $data) { 
@@ -117,11 +108,9 @@ const EXPORT_TICKET_ANALYTICS_TO_EXCEL = gql`
 `
 
 module.exports = {
-    ExternalReport,
     GET_TICKET_WIDGET_REPORT_DATA,
     TICKET_ANALYTICS_REPORT_QUERY,
     EXPORT_TICKET_ANALYTICS_TO_EXCEL,
-    GET_EXTERNAL_REPORT_IFRAME_URL_QUERY,
     GET_OVERVIEW_DASHBOARD_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

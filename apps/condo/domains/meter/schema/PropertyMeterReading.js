@@ -22,14 +22,14 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: METER_READING_FEW_VALUES,
         message: 'Wrong values count: few values',
-        messageForUser: 'api.meterReading.METER_READING_FEW_VALUES',
+        messageForUser: 'api.meter.meterReading.METER_READING_FEW_VALUES',
         messageInterpolation: { meterNumber, numberOfTariffs, fieldsNames },
     }),
     METER_READING_EXTRA_VALUES: (meterNumber, numberOfTariffs, fieldsNames) => ({
         code: BAD_USER_INPUT,
         type: METER_READING_EXTRA_VALUES,
         message: 'Wrong values count: extra values',
-        messageForUser: 'api.meterReading.METER_READING_EXTRA_VALUES',
+        messageForUser: 'api.meter.meterReading.METER_READING_EXTRA_VALUES',
         messageInterpolation: { meterNumber, numberOfTariffs, fieldsNames },
     }),
 }

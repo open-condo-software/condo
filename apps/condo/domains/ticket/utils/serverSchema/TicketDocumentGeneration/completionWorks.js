@@ -69,7 +69,7 @@ const generateTicketDocumentOfCompletionWorks = async ({ task, baseAttrs, contex
         ticket: { id: ticket.id },
         deletedAt: null,
         status_not: INVOICE_STATUS_CANCELED,
-    }, {
+    }, 'id currencyCode rows { isMin toPay name count }', {
         sortBy: ['createdAt_ASC'],
     })
 

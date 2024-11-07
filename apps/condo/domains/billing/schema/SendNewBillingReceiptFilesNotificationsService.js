@@ -81,7 +81,7 @@ const SendNewBillingReceiptFilesNotificationsService = new GQLCustomSchema('Send
                 const organization = await Organization.getOne(context, {
                     id: organizationId,
                     deletedAt: null,
-                })
+                }, 'id name')
                 if (isNil(organization)) {
                     throw new GQLError(ERRORS.ORGANIZATION_NOT_FOUND, context)
                 }

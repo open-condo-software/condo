@@ -10,10 +10,10 @@ export type { TypographyTextProps } from './text'
 export type { TypographyLinkProps } from './link'
 export type { TypographyParagraphProps } from './paragraph'
 export type TypographyType = {
-    Text: typeof Text,
-    Title: typeof Title,
-    Link: typeof Link,
-    Paragraph: typeof Paragraph,
+    Text: typeof Text
+    Title: typeof Title
+    Link: typeof Link
+    Paragraph: typeof Paragraph
 }
 
 const Typography: TypographyType = {

@@ -5,6 +5,7 @@
 const dayjs = require('dayjs')
 const get = require('lodash/get')
 
+const { safeFormatError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, getByCondition } = require('@open-condo/keystone/schema')
 
@@ -25,25 +26,25 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: ACTION_NOT_FOUND,
         message: 'ConfirmEmailAction with the specified ID is not verified, expired, or does not exist',
-        messageForUser: 'errors.ACTION_NOT_FOUND.email.message',
+        messageForUser: 'api.miniapp.registerAppServiceUser.APP_NOT_FOUND',
     },
     APP_NOT_FOUND: {
         code: BAD_USER_INPUT,
         type: APP_NOT_FOUND,
         message: 'The application with the specified ID was not found',
-        messageForUser: 'errors.APP_NOT_FOUND.message',
+        messageForUser: 'api.miniapp.B2CApp.APP_NOT_FOUND',
     },
     CONDO_USER_ALREADY_EXISTS: {
         code: BAD_USER_INPUT,
         type: CONDO_USER_ALREADY_EXISTS,
         message: 'Service user with specified email already exists',
-        messageForUser: 'errors.CONDO_USER_ALREADY_EXISTS.message',
+        messageForUser: 'api.miniapp.registerAppServiceUser.CONDO_USER_ALREADY_EXISTS',
     },
     ACCESS_RIGHT_ALREADY_EXISTS: {
         code: BAD_USER_INPUT,
         type: ACCESS_RIGHT_ALREADY_EXISTS,
         message: 'Another service user is already linked to specified app',
-        messageForUser: 'errors.ACCESS_RIGHT_ALREADY_EXISTS.message',
+        messageForUser: 'api.miniapp.registerAppServiceUser.ACCESS_RIGHT_ALREADY_EXISTS',
     },
 }
 
@@ -60,12 +61,9 @@ async function registerCondoUser (serverClient, data, context) {
     } catch (err) {
         const graphQLErrors = get(err, 'graphQLErrors', [])
         for (const graphQLError of graphQLErrors) {
-            const gqlErrors = get(graphQLError, ['originalError', 'errors'], [])
-            for (const gqlError of gqlErrors) {
-                const messages = get(gqlError, ['data', 'messages'], [])
-                if (messages.some(message => message.includes(EMAIL_ALREADY_REGISTERED_ERROR))) {
-                    throw new GQLError(ERRORS.CONDO_USER_ALREADY_EXISTS, context)
-                }
+            const errorString = JSON.stringify(safeFormatError(graphQLError))
+            if (errorString.includes(EMAIL_ALREADY_REGISTERED_ERROR)) {
+                throw new GQLError(ERRORS.CONDO_USER_ALREADY_EXISTS, context)
             }
         }
 
@@ -108,7 +106,7 @@ const RegisterAppServiceUserService = new GQLCustomSchema('RegisterAppServiceUse
                     expiresAt_gte: currentTime,
                     deletedAt: null,
                     isVerified: true,
-                })
+                }, 'id email')
 
                 if (!confirmAction) {
                     throw new GQLError(ERRORS.ACTION_NOT_FOUND, context)

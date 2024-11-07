@@ -17,7 +17,7 @@ type ChangeHistoryInputType<ChangesType extends BaseChangesType> = {
     title: string
     useChangedFieldMessagesOf: HistoricalChangeInputType<ChangesType>['useChangedFieldMessagesOf']
     labelSpan?: number
-    HistoricalChange: (props: HistoricalChangeInputType<ChangesType>) => HistoricalChangeReturnType,
+    HistoricalChange: (props: HistoricalChangeInputType<ChangesType>) => HistoricalChangeReturnType
 }
 
 type ChangeHistoryReturnType = ReactElement | null

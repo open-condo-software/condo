@@ -1,13 +1,12 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { styled } from '@storybook/theming'
 import get from 'lodash/get'
 import React from 'react'
 
-import { Space } from '@open-condo/ui/src'
-import { Typography } from '@open-condo/ui/src'
+import { Space, Typography } from '@open-condo/ui/src'
 import type { TypographyTitleProps } from '@open-condo/ui/src'
 import { colors } from '@open-condo/ui/src/colors'
 
+import type { StoryFn, Meta, StoryObj } from '@storybook/react'
 
 const StoryDecorator = styled.div<{ bg: 'light' | 'dark' }>`
   background: ${(props) => props.bg === 'light' ? colors.white : colors.black};
@@ -19,22 +18,21 @@ export default {
     argTypes: {
         children: { type: 'string' },
         type: {
-            defaultValue: 'default',
             options: ['primary', 'inverted', 'secondary', 'info', 'success', 'warning', 'danger'],
             mapping: [undefined, 'inverted', 'secondary', 'info', 'success', 'warning', 'danger'],
             control: 'select',
         },
     },
     decorators: [
-        (Story, options) => (
+        (StoryFn, options) => (
             <StoryDecorator bg={options.args.type === 'inverted' ? 'dark' : 'light'}>
-                <Story/>
+                <StoryFn />
             </StoryDecorator>
         ),
     ],
-} as ComponentMeta<typeof Typography.Title>
+} as Meta<typeof Typography.Title>
 
-const Template: ComponentStory<typeof Typography.Title> = (args) => {
+const Template: StoryFn<typeof Typography.Title> = (args) => {
     const levels: Array<TypographyTitleProps['level']> = [1, 2, 3, 4, 5, 6]
 
     return (
@@ -49,4 +47,6 @@ const Template: ComponentStory<typeof Typography.Title> = (args) => {
     )
 }
 
-export const Title = Template.bind({})
+export const Title: StoryObj<typeof Typography.Title> = {
+    render: Template,
+}

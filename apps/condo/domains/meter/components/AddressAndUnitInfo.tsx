@@ -28,21 +28,21 @@ type PropertyUnitInitialValues = {
 }
 
 type AddressAndUnitInfoProps = {
-    form?: FormInstance,
-    organizationId: string,
-    meterType: MeterPageTypes,
+    form?: FormInstance
+    organizationId: string
+    meterType: MeterPageTypes
     getHandleSelectPropertyAddress: (form: FormInstance) => (_: unknown, option: DefaultOptionType) => void,
     handleDeselectPropertyAddress: () => void
-    selectedPropertyId: string,
+    selectedPropertyId: string
     isMatchSelectedProperty: boolean
-    isNoMeterForAddress?: boolean,
-    notFoundMetersForAddressTooltip?: JSX.Element,
+    isNoMeterForAddress?: boolean
+    notFoundMetersForAddressTooltip?: JSX.Element
     isNoMeterForUnitName?: boolean
-    property?: PropertyType,
+    property?: PropertyType
     propertyLoading?: boolean
-    setSelectedUnitName?: Dispatch<SetStateAction<string>>,
-    setSelectedUnitType?: Dispatch<SetStateAction<string>>,
-    initialValues?: PropertyUnitInitialValues,
+    setSelectedUnitName?: Dispatch<SetStateAction<string>>
+    setSelectedUnitType?: Dispatch<SetStateAction<string>>
+    initialValues?: PropertyUnitInitialValues
 }
 
 

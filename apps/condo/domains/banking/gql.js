@@ -20,7 +20,7 @@ const BankCostItem = generateGqlQueries('BankCostItem', BANK_COST_ITEM_FIELDS)
 const BANK_INTEGRATION_FIELDS = `{ name ${COMMON_FIELDS} }`
 const BankIntegration = generateGqlQueries('BankIntegration', BANK_INTEGRATION_FIELDS)
 
-const BANK_ACCOUNT_FIELDS = `{ organization { id, name } property { id } integrationContext { id enabled integration ${BANK_INTEGRATION_FIELDS} meta } tin country routingNumber number currencyCode isApproved approvedAt approvedBy { id name } importId territoryCode bankName meta ${COMMON_FIELDS} }`
+const BANK_ACCOUNT_FIELDS = `{ organization { id, name } name property { id } integrationContext { id enabled integration ${BANK_INTEGRATION_FIELDS} meta } tin country routingNumber number currencyCode isApproved approvedAt approvedBy { id name } importId territoryCode bankName meta ${COMMON_FIELDS} }`
 const BankAccount = generateGqlQueries('BankAccount', BANK_ACCOUNT_FIELDS)
 
 const BANK_CONTRACTOR_ACCOUNT_FIELDS = `{ name organization { id } costItem { id category { id name } } tin country routingNumber number currencyCode importId territoryCode bankName meta relatedTransactions ${COMMON_FIELDS} }`
@@ -36,7 +36,7 @@ const BANK_TRANSACTION_FIELDS = `{ account { id number } contractorAccount { id 
 const BankTransaction = generateGqlQueries('BankTransaction', BANK_TRANSACTION_FIELDS)
 
 const BANK_SYNC_TASK_OPTIONS_FIELDS = 'type dateFrom dateTo'
-const BANK_SYNC_TASK_FIELDS = `{ account { id } integrationContext { id } organization { id } property { id } status file { id originalFilename publicUrl mimetype } user { id } totalCount processedCount options {${BANK_SYNC_TASK_OPTIONS_FIELDS}} meta ${COMMON_FIELDS} }`
+const BANK_SYNC_TASK_FIELDS = `{ account { id } integrationContext { id } organization { id } property { id } status file { id originalFilename publicUrl mimetype } user { id } totalCount processedCount options { ${BANK_SYNC_TASK_OPTIONS_FIELDS} } meta ${COMMON_FIELDS} }`
 const BankSyncTask = generateGqlQueries('BankSyncTask', BANK_SYNC_TASK_FIELDS)
 
 const BANK_INTEGRATION_ACCESS_RIGHT_FIELDS = `{ integration { id } user { id } ${COMMON_FIELDS} }`

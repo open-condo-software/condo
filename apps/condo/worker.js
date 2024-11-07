@@ -22,6 +22,10 @@ if (IS_ENABLE_DD_TRACE) {
         service: (appName === 'condo-app') ? 'root' : appName,
         tags: { xRemoteApp, xRemoteClient, xRemoteVersion },
         experimental: (isDDLog) ? { exporter: 'log' } : undefined,
+        // NOTE: we don't need IAST and AppSec inside workers
+        // TODO(pahaz): DOMA-10202 probably we need to set it by ENV but at the moment I can't change env for workers only
+        iast: { enabled: false },
+        appsec: { enabled: false },
     })
 }
 

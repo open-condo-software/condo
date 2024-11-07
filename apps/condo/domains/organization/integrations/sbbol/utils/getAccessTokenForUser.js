@@ -1,7 +1,7 @@
-const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
+const { find } = require('@open-condo/keystone/schema')
+
 const { SbbolOauth2Api } = require('@condo/domains/organization/integrations/sbbol/oauth2')
 const { getSbbolSecretStorage } = require('@condo/domains/organization/integrations/sbbol/utils/getSbbolSecretStorage')
-const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 
 /**
  * Each route handler here in each application instance needs an instance of `SbbolOauth2Api` with actual
@@ -45,15 +45,9 @@ async function getAccessTokenForUser (userId, useExtendedConfig) {
 }
 
 const getAllAccessTokensByOrganization = async (context, organizationId) => {
-    const employees = await loadListByChunks({
-        context,
-        list: OrganizationEmployee,
-        chunkSize: 50,
-        limit: 10000,
-        where: {
-            organization: { id: organizationId },
-            deletedAt: null,
-        },
+    const employees = await find('OrganizationEmployee', {
+        organization: { id: organizationId },
+        deletedAt: null,
     })
 
     let accessTokens = []
@@ -62,7 +56,7 @@ const getAllAccessTokensByOrganization = async (context, organizationId) => {
     const oauth2 = new SbbolOauth2Api({ clientSecret, useExtendedConfig: true })
 
     for (let employee of employees) {
-        const userId = employee.user.id
+        const userId = employee.user
         let accessToken
         try {
             if (await sbbolSecretStorage.isRefreshTokenExpired(userId)) {

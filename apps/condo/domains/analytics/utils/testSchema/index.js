@@ -4,46 +4,14 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const { faker } = require('@faker-js/faker')
-const { EXTERNAL_REPORT_TYPES } = require('@condo/domains/analytics/constants/constants')
 
-const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
+const { throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
-const { ExternalReport: ExternalReportGQL, GET_TICKET_WIDGET_REPORT_DATA, TICKET_ANALYTICS_REPORT_QUERY, EXPORT_TICKET_ANALYTICS_TO_EXCEL } = require('@condo/domains/analytics/gql')
-const { GET_EXTERNAL_REPORT_IFRAME_URL_QUERY } = require('@condo/domains/analytics/gql')
+const { GET_TICKET_WIDGET_REPORT_DATA, TICKET_ANALYTICS_REPORT_QUERY, EXPORT_TICKET_ANALYTICS_TO_EXCEL } = require('@condo/domains/analytics/gql')
 const { GET_OVERVIEW_DASHBOARD_MUTATION } = require('@condo/domains/analytics/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const ExternalReport = generateGQLTestUtils(ExternalReportGQL)
 /* AUTOGENERATE MARKER <CONST> */
-
-async function createTestExternalReport (client, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        type: EXTERNAL_REPORT_TYPES[0],
-        title: faker.datatype.string(),
-        ...extraAttrs,
-    }
-    const obj = await ExternalReport.create(client, attrs)
-    return [obj, attrs]
-}
-
-async function updateTestExternalReport (client, id, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!id) throw new Error('no id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const obj = await ExternalReport.update(client, id, attrs)
-    return [obj, attrs]
-}
 
 async function getTicketReport(client, periodType = 'calendarWeek', extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -85,20 +53,6 @@ async function getTicketAnalyticsExport(client, extraAttrs = {}) {
     return [data.result, extraAttrs]
 }
 
-async function getExternalReportIframeUrlByTestClient(client, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const { data, errors } = await client.mutate(GET_EXTERNAL_REPORT_IFRAME_URL_QUERY, { data: attrs })
-    throwIfError(data, errors)
-    return [data.result, attrs]
-}
-
 async function getOverviewDashboardByTestClient(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -115,9 +69,7 @@ async function getOverviewDashboardByTestClient(client, extraAttrs = {}) {
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-    ExternalReport, createTestExternalReport, updateTestExternalReport,
     getTicketReport, getTicketAnalyticsReport, getTicketAnalyticsExport,
-    getExternalReportIframeUrlByTestClient,
     getOverviewDashboardByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

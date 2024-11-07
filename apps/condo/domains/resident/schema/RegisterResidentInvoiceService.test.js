@@ -198,7 +198,7 @@ describe('RegisterResidentInvoiceService', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'NO_ACQUIRING_CONTEXT',
                 message: 'The organization hasn\'t set up the marketplace',
-                messageForUser: 'api.marketplace.registerInvoice.error.noAcquiringContext',
+                messageForUser: 'api.resident.registerResidentInvoice.NO_ACQUIRING_CONTEXT',
             }, 'result')
         })
 
@@ -239,8 +239,8 @@ describe('RegisterResidentInvoiceService', () => {
             ), {
                 code: 'BAD_USER_INPUT',
                 type: 'ITEM_FROM_OTHER_ORGANIZATION',
-                message: 'Item from other organization. Check line 1',
-                messageForUser: 'api.marketplace.registerInvoice.error.itemFromOtherOrganization',
+                message: 'Item from other organization. Check line {rowNumber}',
+                messageForUser: 'api.resident.registerResidentInvoice.ITEM_FROM_OTHER_ORGANIZATION',
                 messageInterpolation: { rowNumber: 1 },
             }, 'result')
         })
@@ -309,7 +309,7 @@ describe('RegisterResidentInvoiceService', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'EMPTY_ROWS',
                 message: 'The invoice contains no rows',
-                messageForUser: 'api.marketplace.invoice.error.emptyRows',
+                messageForUser: 'api.marketplace.invoice.EMPTY_ROWS',
             }, 'result')
 
             await expectToThrowGQLError(async () => await registerResidentInvoiceByTestClient(
@@ -323,7 +323,7 @@ describe('RegisterResidentInvoiceService', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'EMPTY_ROWS',
                 message: 'The invoice contains no rows',
-                messageForUser: 'api.marketplace.invoice.error.emptyRows',
+                messageForUser: 'api.marketplace.invoice.EMPTY_ROWS',
             }, 'result')
         })
 
@@ -361,7 +361,7 @@ describe('RegisterResidentInvoiceService', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'PROHIBITED_INVOICE_PAYMENT_TYPE',
                 message: 'This payment method is prohibited in the selected organization',
-                messageForUser: 'api.marketplace.invoice.error.prohibitedPaymentType',
+                messageForUser: 'api.resident.registerResidentInvoice.PROHIBITED_INVOICE_PAYMENT_TYPE',
             }, 'result')
         })
     })

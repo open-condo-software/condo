@@ -24,7 +24,7 @@ const Meter = generateGqlQueries('Meter', METER_FIELDS_ALL)
 
 const MeterForOrganization = generateGqlQueries('Meter', `{ ${METER_FIELDS} }`)
 
-const METER_READING_FIELDS = `{ value1 value2 value3 value4 date meter ${METER_FIELDS_ALL} organization { id name } client { id } clientName clientEmail clientPhone contact { id name } source { id name type } ${COMMON_FIELDS} }`
+const METER_READING_FIELDS = `{ value1 value2 value3 value4 date meter ${METER_FIELDS_ALL} organization { id name } client { id } clientName clientEmail clientPhone contact { id name } source { id name type } billingStatus billingStatusText ${COMMON_FIELDS} }`
 const MeterReading = generateGqlQueries('MeterReading', METER_READING_FIELDS)
 
 const MeterReadingForOrganization = generateGqlQueries('MeterReading', `{
@@ -36,12 +36,6 @@ const MeterReadingForOrganization = generateGqlQueries('MeterReading', `{
         source { id name type } 
     }`
 )
-
-const EXPORT_METER_READINGS_QUERY = gql`
-    query exportMeterReadings ($data: ExportMeterReadingsInput!) {
-        result: exportMeterReadings (data: $data) { status, linkToFile }
-    }
-`
 
 const METER_READING_FILTERS_FIELDS = '{ organization address accountNumber place number unitName resource clientName createdAt date verificationDate installationDate commissioningDate sealingDate controlReadingsDate }'
 const METER_READING_FILTER_TEMPLATE_FIELDS = `{ name employee { id } fields ${METER_READING_FILTERS_FIELDS} ${COMMON_FIELDS} }`
@@ -86,6 +80,9 @@ const REGISTER_METERS_READINGS_MUTATION = gql`
 const METER_READINGS_IMPORT_TASK_FIELDS = `{ status format processedRecordsCount importedRecordsCount totalRecordsCount file { id filename originalFilename publicUrl mimetype } errorFile { id filename originalFilename publicUrl mimetype } errorMessage user { id } organization { id } locale meta ${COMMON_FIELDS} }`
 const MeterReadingsImportTask = generateGqlQueries('MeterReadingsImportTask', METER_READINGS_IMPORT_TASK_FIELDS)
 
+const METER_READING_EXPORT_TASK_FIELDS = `{ status format exportedRecordsCount totalRecordsCount file { id originalFilename publicUrl mimetype } meta where sortBy locale timeZone user { id } ${COMMON_FIELDS} }`
+const MeterReadingExportTask = generateGqlQueries('MeterReadingExportTask', METER_READING_EXPORT_TASK_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -95,7 +92,6 @@ module.exports = {
     MeterForOrganization,
     MeterReading,
     MeterReadingForOrganization,
-    EXPORT_METER_READINGS_QUERY,
     MeterReadingFilterTemplate,
     PropertyMeter,
     PropertyMeterReading,
@@ -106,6 +102,7 @@ module.exports = {
     EXPORT_PROPERTY_METER_READINGS_QUERY,
     REGISTER_METERS_READINGS_MUTATION,
     MeterReadingsImportTask,
+    MeterReadingExportTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 

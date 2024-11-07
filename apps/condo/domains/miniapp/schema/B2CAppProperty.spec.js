@@ -7,7 +7,7 @@ const { faker } = require('@faker-js/faker')
 const { set } = require('lodash')
 
 const { AddressServiceClient } = require('@open-condo/clients/address-service-client/AddressServiceClient')
-const { MockedAddressServiceClient } = require('@open-condo/clients/address-service-client/MockedAddressServiceClient')
+const { FakeAddressServiceClient } = require('@open-condo/clients/address-service-client/FakeAddressServiceClient')
 const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const {
     makeLoggedInAdminClient,
@@ -62,7 +62,7 @@ describe('B2CAppProperty spec', () => {
             test('If house type is not supported', async () => {
 
                 jest.spyOn(AddressServiceClient.prototype, 'search').mockImplementationOnce(async (s) => {
-                    const cli = new MockedAddressServiceClient(faker.internet.url())
+                    const cli = new FakeAddressServiceClient(faker.internet.url())
                     const result = await cli.search(s)
                     set(result, ['addressMeta', 'data', 'house_type_full'], faker.datatype.string(8))
                     return result
@@ -79,7 +79,7 @@ describe('B2CAppProperty spec', () => {
             })
             test('If address suggestion don\'t match input address', async () => {
                 jest.spyOn(AddressServiceClient.prototype, 'search').mockImplementationOnce(async (s) => {
-                    const cli = new MockedAddressServiceClient(faker.internet.url())
+                    const cli = new FakeAddressServiceClient(faker.internet.url())
                     const result = await cli.search(s)
                     set(result, ['addressMeta', 'value'], faker.address.streetAddress())
                     return result

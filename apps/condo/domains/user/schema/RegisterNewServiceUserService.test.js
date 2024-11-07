@@ -3,15 +3,15 @@
  */
 const dayjs = require('dayjs')
 
-const { makeLoggedInAdminClient, makeClient, expectToThrowUniqueConstraintViolationError } = require('@open-condo/keystone/test.utils')
+const { GQLInternalErrorTypes, GQLErrorCode } = require('@open-condo/keystone/errors')
 const {
+    makeLoggedInAdminClient, makeClient,
     expectToThrowAccessDeniedErrorToResult,
     expectToThrowAuthenticationError,
-    catchErrorFrom,
+    expectToThrowUniqueConstraintViolationError, expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
 const { SERVICE } = require('@condo/domains/user/constants/common')
-const { EMAIL_ALREADY_REGISTERED_ERROR } = require('@condo/domains/user/constants/errors')
 const { GET_MY_USERINFO } = require('@condo/domains/user/gql')
 const {
     registerNewServiceUserByTestClient,
@@ -22,6 +22,7 @@ const {
 } = require('@condo/domains/user/utils/testSchema')
 
 const { PASS_LENGTH, PASS_ALPHABET } = require('./RegisterNewServiceUserService')
+
 
 describe('RegisterNewServiceUserService', () => {
     let admin
@@ -75,24 +76,22 @@ describe('RegisterNewServiceUserService', () => {
         test('can not register service user with existed email', async () => {
             const [, userAttrs] = await registerNewServiceUserByTestClient(admin)
             const email = userAttrs.email
-            // TODO(DOMA-3146): use the GQLError util
-            await catchErrorFrom(async () => {
+            // TODO(DOMA-3146): change error format it's not friendly
+            await expectToThrowGQLError(async () => {
                 await registerNewServiceUserByTestClient(admin, { email })
-            }, ({ errors }) => {
-                expect(errors[0].originalError.errors[0].data.messages[0]).toEqual(
-                    expect.stringContaining(EMAIL_ALREADY_REGISTERED_ERROR))
-            })
+            }, {
+                'code': GQLErrorCode.INTERNAL_ERROR,
+                'type': GQLInternalErrorTypes.SUB_GQL_ERROR,
+                'message': '[unique:email:multipleFound] user already exists',
+            }, 'result')
         })
         test('service user cannot be registered again if email registered for soft deleted user', async () => {
             const [user, userAttrs] = await registerNewServiceUserByTestClient(admin)
             await User.softDelete(admin, user.id)
             const email = userAttrs.email
-            await catchErrorFrom(async () => {
+            await expectToThrowUniqueConstraintViolationError(async () => {
                 await registerNewServiceUserByTestClient(admin, { email })
-            }, ({ errors }) => {
-                expect(errors[0].originalError.errors[0].message).toEqual(
-                    expect.stringContaining('duplicate key value violates unique constraint "unique_type_and_email"'))
-            })
+            }, 'unique_type_and_email')
         })
         test('Password must be strong enough', async () => {
             const [{ password }] = await registerNewServiceUserByTestClient(admin)

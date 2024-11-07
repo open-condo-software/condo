@@ -7,9 +7,9 @@ import { Tooltip } from '@condo/domains/common/components/Tooltip'
 
 
 export interface INoOrganizationToolTipWrapper {
-    key?: string,
-    element: JSX.Element,
-    placement: TooltipPlacement,
+    key?: string
+    element: JSX.Element
+    placement: TooltipPlacement
 }
 
 interface INoOrganizationToolTipHook {

@@ -31,9 +31,9 @@ import { RESIDENT } from '@condo/domains/user/constants/common'
 
 
 interface ITicketChangeFieldMessages {
-    add?: FormatjsIntl.Message['ids'],
-    change?: FormatjsIntl.Message['ids'],
-    remove?: FormatjsIntl.Message['ids'],
+    add?: FormatjsIntl.Message['ids']
+    change?: FormatjsIntl.Message['ids']
+    remove?: FormatjsIntl.Message['ids']
 }
 
 enum TicketChangeFieldMessageType {

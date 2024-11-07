@@ -6,6 +6,7 @@ import {
     OrganizationEmployeeRoleCreateInput as IEmployeeRoleCreateInput,
     OrganizationEmployeeRoleUpdateInput as IEmployeeRoleUpdateInput,
     QueryAllOrganizationEmployeeRolesArgs as IQueryAllEmployeeRolesArgs,
+    OrganizationEmployeeRoleTicketVisibilityTypeType,
 } from '@app/condo/schema'
 import { Col, ColProps, Row } from 'antd'
 import { FormProps } from 'antd/lib/form/Form'
@@ -167,7 +168,7 @@ const getInitValues = (employeeRole: Partial<IEmployeeRole> = {}, permissionsGro
     return {
         name: employeeRole.name || '',
         description: employeeRole.description || '',
-        ticketVisibilityType: employeeRole.ticketVisibilityType || ORGANIZATION_TICKET_VISIBILITY,
+        ticketVisibilityType: employeeRole.ticketVisibilityType || OrganizationEmployeeRoleTicketVisibilityTypeType.Organization,
         permissions: {
             organization: organizationPermissions,
             b2bApps: b2bAppsPermissions,
@@ -203,7 +204,7 @@ export const BaseEmployeeRoleForm: React.FC<BaseEmployeeRoleFormPropsType> = ({
     const PermissionsSectionTitle = intl.formatMessage({ id: 'pages.condo.employeeRole.form.permissions.title' })
     const NotEditableRoleTooltip = intl.formatMessage({ id: 'pages.condo.employeeRole.tooltip.notEditableRole' }, { role: get(employeeRoleToUpdate, 'name') })
     const RoleCreationLimitReachedTooltip = intl.formatMessage({ id: 'pages.condo.settings.employeeRoles.roleCreationLimitReachedTooltip' }, { max: MAX_ROLE_COUNT })
-    const RoleNameAlreadyExistErrorMessage = intl.formatMessage({ id: 'api.organization.OrganizationEmployeeRole.ROLE_NAME_ALREADY_EXIST' })
+    const RoleNameAlreadyExistErrorMessage = intl.formatMessage({ id: 'api.organization.organizationEmployeeRole.ROLE_NAME_ALREADY_EXIST' })
     const CancelMessage = intl.formatMessage({ id: 'Cancel' })
     const SaveMessage = intl.formatMessage({ id: 'Save' })
 

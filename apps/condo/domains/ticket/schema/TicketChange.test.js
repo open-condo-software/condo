@@ -10,13 +10,21 @@ const {
     catchErrorFrom,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowGraphQLRequestError,
+    expectToThrowGraphQLRequestErrors,
 } = require('@open-condo/keystone/test.utils')
 const { makeLoggedInAdminClient, makeClient, DATETIME_RE } = require('@open-condo/keystone/test.utils')
 const { i18n } = require('@open-condo/locales/loader')
 
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
-const { createTestOrganizationWithAccessToAnotherOrganization, createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee, updateTestOrganizationEmployee, createTestOrganizationLink } = require('@condo/domains/organization/utils/testSchema')
+const {
+    createTestOrganizationWithAccessToAnotherOrganization,
+    createTestOrganization,
+    createTestOrganizationEmployeeRole,
+    createTestOrganizationEmployee,
+    updateTestOrganizationEmployee,
+    createTestOrganizationLink,
+} = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { TicketChange, TicketStatus, TicketSource, createTestTicketChange, updateTestTicketChange } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
@@ -293,14 +301,10 @@ describe('TicketChange', () => {
                 ticket: { id: ticket.id },
             })
 
-            await catchErrorFrom(async () => {
-                await updateTestTicketChange(client, objCreated.id)
-            }, ({ errors }) => {
-                // Custom match should be used here, because error message contains
-                // suggestions, like "Did you mean …", that cannot be known in advance
-                // So, just inspect basic part of the message
-                expect(errors[0].message).toMatch('Unknown type "TicketChangeUpdateInput"')
-            })
+            await expectToThrowGraphQLRequestErrors(
+                async () => await updateTestTicketChange(client, objCreated.id),
+                ['Unknown type "TicketChangeUpdateInput"', 'Cannot query field "updateTicketChange" on type "Mutation"'],
+            )
         })
 
         it('anonymous: update TicketChange', async () => {
@@ -324,7 +328,9 @@ describe('TicketChange', () => {
                 // Custom match should be used here, because error message contains
                 // suggestions, like "Did you mean …", that cannot be known in advance
                 // So, just inspect basic part of the message
+                expect(errors).toHaveLength(2)
                 expect(errors[0].message).toMatch('Unknown type "TicketChangeUpdateInput"')
+                expect(errors[1].message).toMatch('Cannot query field "updateTicketChange" on type "Mutation"')
             })
         })
 
@@ -363,14 +369,10 @@ describe('TicketChange', () => {
                 ticket: { id: ticket.id },
             })
 
-            await catchErrorFrom(async () => {
-                await TicketChange.delete(anonymous, objCreated.id)
-            }, ({ errors }) => {
-                // Custom match should be used here, because error message contains
-                // suggestions, like "Did you mean …", that cannot be known in advance
-                // So, just inspect basic part of the message
-                expect(errors[0].message).toMatch('Cannot query field "deleteTicketChange" on type "Mutation"')
-            })
+            await expectToThrowGraphQLRequestError(
+                async () => await TicketChange.delete(anonymous, objCreated.id),
+                'Cannot query field "deleteTicketChange" on type "Mutation"',
+            )
         })
 
         it('employee from "from" relation: can read ticket changes from his "to" relation organization', async () => {
@@ -590,7 +592,7 @@ describe('TicketChange', () => {
 
                 const objs = await TicketChange.getAll(client,
                     { ticket: { id: ticket.id } },
-                    { sortBy: 'actualCreationDate_ASC' }
+                    { sortBy: 'actualCreationDate_ASC' },
                 )
 
                 const statusUpdatedAtDate = new Date(statusUpdatedAt)

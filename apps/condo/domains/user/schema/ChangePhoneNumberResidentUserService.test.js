@@ -1,10 +1,10 @@
 const { faker } = require('@faker-js/faker')
 
+const { GQLInternalErrorTypes, GQLErrorCode } = require('@open-condo/keystone/errors')
 const {
     makeLoggedInAdminClient,
     makeClient,
-    expectToThrowInternalError,
-    catchErrorFrom,
+    expectToThrowGQLErrorToResult,
     expectToThrowAccessDeniedErrorToResult,
     expectToThrowAuthenticationErrorToResult,
 } = require('@open-condo/keystone/test.utils')
@@ -21,7 +21,6 @@ const {
     createTestUserExternalIdentity,
     changePhoneNumberResidentUserByTestClient,
 } = require('@condo/domains/user/utils/testSchema')
-
 
 describe('ChangePhoneNumberResidentUserService', () => {
     describe('Anonymous', () => {
@@ -72,9 +71,14 @@ describe('ChangePhoneNumberResidentUserService', () => {
                 const client = await makeClientWithResidentUser({ type: RESIDENT, isPhoneVerified: true })
                 await createTestUser(admin, { phone: phone, type: RESIDENT })
 
-                await expectToThrowInternalError(async () => {
-                    await changePhoneNumberResidentUserByTestClient(client, { token })
-                }, '[error] Update User internal error', 'result')
+                await expectToThrowGQLErrorToResult(
+                    async () => await changePhoneNumberResidentUserByTestClient(client, { token }),
+                    {
+                        code: GQLErrorCode.INTERNAL_ERROR,
+                        type: GQLInternalErrorTypes.SUB_GQL_ERROR,
+                        message: '[unique:phone:multipleFound] user already exists',
+                    },
+                )
             })
             it('can not change phone with expired token', async () => {
                 const admin = await makeLoggedInAdminClient()
@@ -146,22 +150,16 @@ describe('ChangePhoneNumberResidentUserService', () => {
                     },
                 })
 
-                await catchErrorFrom(async () => {
-                    await changePhoneNumberResidentUserByTestClient(client, { token })
-                }, ({ errors }) => {
-                    expect(errors).toMatchObject([{
+                await expectToThrowGQLErrorToResult(
+                    async () => await changePhoneNumberResidentUserByTestClient(client, { token }),
+                    {
+                        code: 'BAD_USER_INPUT',
+                        type: 'WRONG_VALUE',
+                        mutation: 'changePhoneNumberResidentUser',
                         message: 'Unable to change phone number since user has external identity and phone number are different',
-                        name: 'GQLError',
-                        path: ['result'],
-                        extensions: {
-                            code: 'BAD_USER_INPUT',
-                            type: 'WRONG_VALUE',
-                            mutation: 'changePhoneNumberResidentUser',
-                            message: 'Unable to change phone number since user has external identity and phone number are different',
-                            variable: ['data', 'token'],
-                        },
-                    }])
-                })
+                        variable: ['data', 'token'],
+                    },
+                )
             })
             it('can change phone with connected external identity pointed to another phone if remove flag provided', async () => {
                 const admin = await makeLoggedInAdminClient()

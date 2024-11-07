@@ -33,7 +33,7 @@ describe('Firebase adapter utils', () => {
         const [isOk, result] = await adapter.sendNotification({
             tokens,
             notification: {
-                title: 'Doma.ai',
+                title: 'Condo',
                 body: `${dayjs().format()} Condo greets you!`,
             },
             data: {
@@ -59,7 +59,7 @@ describe('Firebase adapter utils', () => {
             type: CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
             tokens,
             notification: {
-                title: 'Doma.ai',
+                title: 'Condo',
                 body: `${dayjs().format()} Condo greets you!`,
             },
             data: {
@@ -84,7 +84,7 @@ describe('Firebase adapter utils', () => {
         const [isOk, result] = await adapter.sendNotification({
             tokens: [PUSH_FAKE_TOKEN_FAIL],
             notification: {
-                title: 'Doma.ai',
+                title: 'Condo',
                 body: `${dayjs().format()} Condo greets you!`,
             },
             data: {
@@ -109,7 +109,7 @@ describe('Firebase adapter utils', () => {
         const [isOk, result] = await adapter.sendNotification({
             tokens: [PUSH_FAKE_TOKEN_SUCCESS, PUSH_FAKE_TOKEN_FAIL],
             notification: {
-                title: 'Doma.ai',
+                title: 'Condo',
                 body: `${dayjs().format()} Condo greets you!`,
             },
             data: {
@@ -138,7 +138,7 @@ describe('Firebase adapter utils', () => {
         const pushData = {
             tokens,
             notification: {
-                title: 'Doma.ai',
+                title: 'Condo',
                 body: `${dayjs().format()} Condo greets you!`,
             },
             data: {
@@ -171,7 +171,7 @@ describe('Firebase adapter utils', () => {
         const pushData = {
             tokens,
             notification: {
-                title: 'Doma.ai',
+                title: 'Condo',
                 body: `${dayjs().format()} Condo greets you!`,
             },
             data: {
@@ -254,7 +254,7 @@ describe('Firebase adapter utils', () => {
             adapter.sendNotification({
                 tokens: [PUSH_FAKE_TOKEN_SUCCESS],
                 notification: {
-                    title: 'Doma.ai',
+                    title: 'Condo',
                 },
                 data: {
                     app : 'condo',

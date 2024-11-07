@@ -1,8 +1,8 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react'
 import React from 'react'
 
 import { Card as Component, Typography } from '@open-condo/ui/src'
 
+import type { StoryFn, Meta, StoryObj } from '@storybook/react'
 
 export default {
     title: 'Components/Card',
@@ -14,35 +14,42 @@ export default {
         disabled: false,
         children: 'A decision tree is a decision support tool that uses a tree-like model of decisions and their possible consequences, including chance event outcomes, resource costs, and utility. It is one way to display an algorithm that only contains conditional control statements.  Decision trees are commonly used in operations research, specifically in decision analysis, to help identify a strategy most likely to reach a goal, but are also a popular tool in machine learning.',
     },
-} as ComponentMeta<typeof Component>
+} as Meta<typeof Component>
 
-const Template: ComponentStory<typeof Component> = ({ children, ...rest }) => {
+const Template: StoryFn<typeof Component> = ({ children, ...rest }) => {
     return (
-        <Component
-            {...rest}
-        >
-            <Typography.Paragraph ellipsis={{ rows: 3 }}>
-                {children}
-            </Typography.Paragraph>
+        <Component {...rest}>
+            <Typography.Paragraph ellipsis={{ rows: 3 }}>{children}</Typography.Paragraph>
         </Component>
     )
 }
 
-export const Simple = Template.bind({})
-export const WithTitle = Template.bind({})
-export const Accent = Template.bind({})
-export const AccentWithTitle = Template.bind({})
-WithTitle.args = {
-    title: <Typography.Title level={3}>Some Title Content</Typography.Title>,
+export const Simple: StoryObj<typeof Component> = {
+    render: Template,
 }
-WithTitle.argTypes = {
-    title: { control: false },
+
+export const WithTitle: StoryObj<typeof Component> = {
+    render: Template,
+    args: {
+        title: <Typography.Title level={3}>Some Title Content</Typography.Title>,
+    },
+    argTypes: {
+        title: { control: false },
+    },
 }
-Accent.args = {
-    accent: true,
+
+export const Accent: StoryObj<typeof Component> = {
+    render: Template,
+    args: {
+        accent: true,
+    },
 }
-AccentWithTitle.args = {
-    title: <Typography.Title level={3}>Some Title Content</Typography.Title>,
-    titlePadding: 24,
-    accent: true,
+
+export const AccentWithTitle: StoryObj<typeof Component> = {
+    render: Template,
+    args: {
+        title: <Typography.Title level={3}>Some Title Content</Typography.Title>,
+        titlePadding: 24,
+        accent: true,
+    },
 }

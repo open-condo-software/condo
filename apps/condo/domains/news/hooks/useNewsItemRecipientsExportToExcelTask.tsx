@@ -18,8 +18,8 @@ const downloaderButtonStyle: CSSProperties = {
 }
 
 type Props = {
-    organization: OrganizationWhereUniqueInput,
-    user: UserWhereUniqueInput,
+    organization: OrganizationWhereUniqueInput
+    user: UserWhereUniqueInput
     scopes: { property?: PropertyWhereUniqueInput, unitType?: string, unitName?: string }[],
 }
 export const useNewsItemRecipientsExportToExcelTask = ({ organization, user, scopes }: Props) => {

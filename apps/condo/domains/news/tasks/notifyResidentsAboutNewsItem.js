@@ -18,7 +18,6 @@ const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 const { generateUniqueMessageKey } = require('./notifyResidentsAboutNewsItem.helpers')
 
-
 const logger = getLogger('notifyResidentsAboutNewsItem')
 
 const REDIS_GUARD = new RedisGuard()
@@ -63,6 +62,8 @@ async function sendNotifications (newsItem, taskId) {
     const gelAllLikeScopes = scopes.map((scope) => ({ unitType: scope.unitType, unitName: scope.unitName, property: { id: scope.property } }))
 
     const residentsData = []
+
+    // NOTE(pahaz): use find here!
     await allItemsQueryByChunks({
         schemaName: 'Resident',
         where: {
@@ -155,9 +156,10 @@ async function sendNotifications (newsItem, taskId) {
  * @returns {Promise<void|string>}
  */
 async function notifyResidentsAboutNewsItem (newsItemId) {
-    const taskId = uuid()
+    const taskId = this?.taskId || uuid()
 
     try {
+        // TODO(pahaz): isLocked doesn't work well ...
         const isLocked = await REDIS_GUARD.isLocked(newsItemId, action)
         if (isLocked) {
             const timeRemain = await REDIS_GUARD.lockTimeRemain(newsItemId, action)
@@ -168,9 +170,16 @@ async function notifyResidentsAboutNewsItem (newsItemId) {
 
         const { keystone: context } = getSchemaCtx('NewsItem')
 
-        const newsItem = await NewsItem.getOne(context, { id: newsItemId })
+        const newsItem = await NewsItem.getOne(
+            context,
+            { id: newsItemId },
+            'id organization { id } type title body ' +
+            'validBefore publishedAt updatedAt createdAt deletedAt sentAt isPublished sendAt'
+        )
 
         await sendNotifications(newsItem, taskId)
+
+        await REDIS_GUARD.unlock(newsItemId, action)
     } catch (error) {
         logger.error({
             msg: 'failed to send news to residents',

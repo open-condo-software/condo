@@ -10,7 +10,7 @@ import { ChevronIcon } from '@condo/domains/common/components/icons/ChevronIcon'
 import { colors } from '../constants/style'
 
 type ChevronIconWrapperProps = {
-    direction: 'down' | 'up',
+    direction: 'down' | 'up'
 }
 
 const ChevronIconWrapper = styled.div<ChevronIconWrapperProps>`

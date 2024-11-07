@@ -1,9 +1,9 @@
 node_modules
-packages/bicrypt/build
 dist
 out
 .next
 .idea
+.zed
 .env
 .kmigrator
 .DS_Store
@@ -19,6 +19,7 @@ codegen.yaml
 
 schema.graphql
 !apps/condo/schema.graphql
+!apps/miniapp/schema.graphql
 !apps/dev-api/schema.graphql
 
 # yarn + npm
@@ -65,3 +66,6 @@ semgrep_results/*
 
 #k6 artifacts
 **/k6/screenshots**
+
+# Backup artifacts
+backups

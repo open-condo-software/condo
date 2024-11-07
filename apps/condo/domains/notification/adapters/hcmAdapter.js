@@ -1,9 +1,9 @@
-const { faker } = require('@faker-js/faker')
-const { isEmpty, isObject, isNull, get } = require('lodash')
+const { isEmpty, isObject, isNull, get, cloneDeep } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { safeFormatError } = require('@open-condo/keystone/apolloErrorFormatter')
+const { getExecutionContext } = require('@open-condo/keystone/executionContext')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 
@@ -36,9 +36,6 @@ const CONFIG_VALIDATED_FIELDS = [APP_MASTER_KEY, APP_RESIDENT_KEY, `${APP_MASTER
 const IS_LOCAL_ENV = conf.SERVER_URL.includes('localhost')
 
 const logger = getLogger('HCMAdapter')
-
-/** Generates randomly filled string of digits */
-const getRandomNumeric = (count) => faker.phone.number(''.padStart(count, '#'))
 
 /**
  * HCM is Huawei Cloud Messaging
@@ -144,7 +141,7 @@ class HCMAdapter {
             type: 'Fake',
             pushToken: token,
             appType,
-            requestId: getRandomNumeric(24),
+            requestId: Date.now(),
         }
     }
 
@@ -159,7 +156,7 @@ class HCMAdapter {
             type: 'Fake',
             pushToken: token,
             appType,
-            requestId: getRandomNumeric(24),
+            requestId: Date.now(),
         }
 
     }
@@ -251,9 +248,16 @@ class HCMAdapter {
      * @returns {Promise<[boolean, {error: string}]|[boolean, (*&{pushContext: (*[]|{})})]>}
      */
     async sendNotification ({ notification, data, tokens, pushTypes, appIds } = {}) {
+        const executionContext = getExecutionContext()
+        const reqId = executionContext?.reqId
+        const taskId = executionContext?.taskId
+
         if (!tokens || isEmpty(tokens)) return [false, { error: 'No pushTokens available.' }]
 
         const [notifications, fakeNotifications, pushContext] = await HCMAdapter.prepareBatchData(notification, data, tokens, pushTypes)
+        // TODO (@toplenboren) DOMA-10611 remove excessive logging
+        logger.info({ msg: 'sendNotification prepareBatchData done', args: { notification, data, tokens, pushTypes }, result: { notifications, fakeNotifications, pushContext }, reqId, taskId })
+
         let result
 
         // If we come up to here and no real tokens provided, that means fakeNotifications contains
@@ -276,21 +280,25 @@ class HCMAdapter {
             const hcmResult = HCMAdapter.getEmptyResult()
 
             for (let idx = 0; idx < notifications.length; idx++) {
-                const notification = notifications[idx]
-                const appType = HCMAdapter.getAppType(appIds, notifications[idx].token)
+                const notification = cloneDeep(notifications[idx])
+
+                // TODO (@toplenboren) DOMA-10611 remove excessive logging
+                logger.info({ msg: 'sendNotification processing notification', args: { notification }, reqId, taskId })
+
+                const appType = HCMAdapter.getAppType(appIds, notification.token)
 
                 const app = this.apps[appType]
 
                 try {
-                    if (!appType || !app) throw new Error(`${HCM_UNSUPPORTED_APP_ID_ERROR}: ${get(appIds, notifications[idx].token)}`)
+                    if (!appType || !app) throw new Error(`${HCM_UNSUPPORTED_APP_ID_ERROR}: ${get(appIds, notification.token)}`)
 
                     const sendResult = await app.send(notification)
 
                     hcmResult.responses.push({
                         idx,
                         appType,
-                        pushToken: notifications[idx].token,
-                        pushType: pushTypes[notifications[idx].token],
+                        pushToken: notification.token,
+                        pushType: pushTypes[notification.token],
                         ...sendResult,
                     })
 
@@ -313,6 +321,9 @@ class HCMAdapter {
                     logger.error({ msg: 'sendNotification error', error: safeError })
                 }
             }
+
+            // TODO (@toplenboren) DOMA-10611 remove excessive logging
+            logger.info({ msg: 'sendNotification end', result: hcmResult, args: { notification, notifications, fakeNotifications, appIds }, reqId, taskId })
 
             result = HCMAdapter.injectFakeResults(hcmResult, fakeNotifications, appIds)
         }

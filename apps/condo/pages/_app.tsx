@@ -57,6 +57,7 @@ import { useHotCodeReload } from '@condo/domains/common/hooks/useHotCodeReload'
 import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
 import { messagesImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
 import { useContactExportTaskUIInterface } from '@condo/domains/contact/hooks/useContactExportTaskUIInterface'
+import { useMeterReadingExportTaskUIInterface } from '@condo/domains/meter/hooks/useMeterReadingExportTaskUIInterface'
 import { useMeterReadingsImportTaskUIInterface } from '@condo/domains/meter/hooks/useMeterReadingsImportTaskUIInterface'
 import { ConnectedAppsWithIconsContextProvider, useConnectedAppsWithIconsContext } from '@condo/domains/miniapp/components/ConnectedAppsWithIconsProvider'
 import { GlobalAppsContainer } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsContainer'
@@ -100,11 +101,11 @@ const ANT_LOCALES = {
 }
 
 interface IMenuItemData {
-    id?: string,
-    path: string,
-    icon: React.FC,
-    label: string,
-    access?: boolean,
+    id?: string
+    path: string
+    icon: React.FC
+    label: string
+    access?: boolean
     excludePaths?: Array<RegExp>
 }
 
@@ -368,6 +369,7 @@ const TasksProvider = ({ children }) => {
     const { TicketDocumentGenerationTask: TicketDocumentGenerationTaskUIInterface } = useTicketDocumentGenerationTaskUIInterface()
     const { TicketExportTask: TicketExportTaskUIInterface } = useTicketExportTaskUIInterface()
     const { IncidentExportTask: IncidentExportTaskUIInterface } = useIncidentExportTaskUIInterface()
+    const { MeterReadingExportTask: MeterReadingExportTaskUIInterface } = useMeterReadingExportTaskUIInterface()
     const { ContactExportTask: ContactExportTaskUIInterface } = useContactExportTaskUIInterface()
     const { BankSyncTask: BankSyncTaskUIInterface } = useBankSyncTaskUIInterface()
     const { BankReportTask: BankReportTaskUIInterface } = useBankReportTaskUIInterface()
@@ -404,11 +406,25 @@ const TasksProvider = ({ children }) => {
     const { records: meterReadingsImportTask } = MeterReadingsImportTaskUIInterface.storage.useTasks(
         { status: TASK_STATUS.PROCESSING, today: true }, user
     )
+    const { records: meterReadingsExportTask } = MeterReadingExportTaskUIInterface.storage.useTasks(
+        { status: TASK_STATUS.PROCESSING, today: true }, user
+    )
     // ... another task records should be loaded here
 
     const initialTaskRecords = useMemo(
-        () => [...miniAppTasks, ...ticketDocumentGenerationTasks, ...ticketExportTasks, ...incidentExportTasks, ...contactExportTasks, ...bankSyncTasks, ...bankReportTasks, ...newsItemRecipientsTask, ...meterReadingsImportTask],
-        [miniAppTasks, ticketDocumentGenerationTasks, ticketExportTasks, incidentExportTasks, contactExportTasks, bankSyncTasks, bankReportTasks, newsItemRecipientsTask, meterReadingsImportTask],
+        () => [
+            ...miniAppTasks,
+            ...ticketDocumentGenerationTasks,
+            ...ticketExportTasks,
+            ...incidentExportTasks,
+            ...contactExportTasks,
+            ...bankSyncTasks,
+            ...bankReportTasks,
+            ...newsItemRecipientsTask,
+            ...meterReadingsImportTask,
+            ...meterReadingsExportTask,
+        ],
+        [miniAppTasks, ticketDocumentGenerationTasks, ticketExportTasks, incidentExportTasks, contactExportTasks, bankSyncTasks, bankReportTasks, newsItemRecipientsTask, meterReadingsImportTask, meterReadingsExportTask],
     )
     const uiInterfaces = useMemo(() => ({
         MiniAppTask: MiniAppTaskUIInterface,
@@ -420,7 +436,8 @@ const TasksProvider = ({ children }) => {
         BankReportTask: BankReportTaskUIInterface,
         NewsItemRecipientsExportTask: NewsItemRecipientsExportTaskUIInterface,
         MeterReadingsImportTask: MeterReadingsImportTaskUIInterface,
-    }), [MiniAppTaskUIInterface, TicketDocumentGenerationTaskUIInterface, TicketExportTaskUIInterface, IncidentExportTaskUIInterface, ContactExportTaskUIInterface, BankSyncTaskUIInterface, BankReportTaskUIInterface, NewsItemRecipientsExportTaskUIInterface, MeterReadingsImportTaskUIInterface])
+        MeterReadingExportTask: MeterReadingExportTaskUIInterface,
+    }), [MiniAppTaskUIInterface, TicketDocumentGenerationTaskUIInterface, TicketExportTaskUIInterface, IncidentExportTaskUIInterface, ContactExportTaskUIInterface, BankSyncTaskUIInterface, BankReportTaskUIInterface, NewsItemRecipientsExportTaskUIInterface, MeterReadingsImportTaskUIInterface, MeterReadingExportTaskUIInterface])
 
     return (
         <TasksContextProvider
@@ -539,9 +556,9 @@ const apolloCacheConfig: WithApolloProps['apolloCacheConfig'] = {
 }
 
 export default (
-    withApollo({ ssr: !IS_SSR_DISABLED, apolloCacheConfig })(
-        withAuth({ ssr: !IS_SSR_DISABLED, USER_QUERY })(
-            withIntl({ ssr: !IS_SSR_DISABLED, messagesImporter, extractReqLocale, defaultLocale })(
+    withIntl({ ssr: !IS_SSR_DISABLED, messagesImporter, extractReqLocale, defaultLocale })(
+        withApollo({ ssr: !IS_SSR_DISABLED, apolloCacheConfig })(
+            withAuth({ ssr: !IS_SSR_DISABLED, USER_QUERY })(
                 withOrganization({
                     ssr: !IS_SSR_DISABLED,
                     GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY: GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,

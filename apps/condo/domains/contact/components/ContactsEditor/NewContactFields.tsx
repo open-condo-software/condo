@@ -1,3 +1,4 @@
+import { Contact as ContactType } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { AutoComplete, Col, Form, FormInstance, FormItemProps, InputProps, Row, RowProps } from 'antd'
 import get from 'lodash/get'
@@ -16,19 +17,18 @@ import { SPECIAL_CHAR_REGEXP } from '@condo/domains/common/constants/regexps'
 import { colors } from '@condo/domains/common/constants/style'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
-import { Contact as TContact } from '@condo/domains/contact/schema'
 
 import { CONTACT_TYPE, ContactValue, FieldsType } from './index'
 
 
 interface INewContactFieldsFieldsProps {
-    initialValueWithoutContact?: TContact,
-    onChange: (contact: ContactValue) => void,
-    onChecked?: () => void,
-    checked?: boolean,
-    contacts: TContact[],
-    displayMinusButton?: boolean,
-    onClickMinusButton?: () => void,
+    initialValueWithoutContact?: Partial<ContactType>
+    onChange: (contact: ContactValue) => void
+    onChecked?: () => void
+    checked?: boolean
+    contacts: ContactType[]
+    displayMinusButton?: boolean
+    onClickMinusButton?: () => void
     fields: FieldsType
     activeTab: CONTACT_TYPE
     contactsLoading?: boolean
@@ -36,7 +36,7 @@ interface INewContactFieldsFieldsProps {
     newContactPhoneFormItemProps?: FormItemProps
     newContactNameFormItemProps?: FormItemProps
     disabled?: boolean
-    form: FormInstance,
+    form: FormInstance
 }
 
 const FIELD_WRAPPER_COL = { span: 24 }

@@ -72,4 +72,7 @@ async function createGraphQLSchema () {
 createGraphQLSchema().then(() => {
     console.log('createGraphQLSchema completed')
     process.exit(0)
-}).catch(console.error)
+}).catch((error) => {
+    console.error(error)
+    process.exit(1)
+})

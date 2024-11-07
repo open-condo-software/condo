@@ -45,6 +45,16 @@ export const BankingInfo: React.FC<IBankAccountInfo> = ({ bankAccount }) => {
         return { width: breakpoints.MOBILE_SMALL && !breakpoints.DESKTOP_LARGE ? '100%' : '425px' }
     }, [breakpoints])
 
+    // Note(YEgorLu): could use just bankAccount.name after migrating organization names to empty bankAccount names
+    const bankAccountName = useMemo(() => {
+        const bankAccountName: string = get(bankAccount, 'name', '')
+        const organizationName: string = get(bankAccount, 'organization.name', '-')
+        if (bankAccountName) {
+            return bankAccountName
+        }
+        return organizationName
+    }, [bankAccount])
+
     return (
         <RequisitesContainer style={containerStyle}>
             <Row gutter={[0, 22]}>
@@ -57,7 +67,7 @@ export const BankingInfo: React.FC<IBankAccountInfo> = ({ bankAccount }) => {
                     </Tag>
                 </Col>
                 <Col span={24}>
-                    <Typography.Title level={3}>{get(bankAccount, 'organization.name', '-')}</Typography.Title>
+                    <Typography.Title level={3}>{bankAccountName}</Typography.Title>
                 </Col>
                 <Row gutter={GUTTER}>
                     <Col span={24}>

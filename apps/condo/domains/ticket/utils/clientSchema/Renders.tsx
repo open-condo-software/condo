@@ -8,10 +8,11 @@ import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isString from 'lodash/isString'
 import React, { CSSProperties, useCallback, useEffect, useRef, useState } from 'react'
-import { useIntl } from 'react-intl'
+
 
 import { Star, StarFilled } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
+import { useIntl } from '@open-condo/next/intl'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { getHighlightedContents, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
@@ -31,7 +32,6 @@ import {
 } from '../helpers'
 
 import { UserFavoriteTicket } from './index'
-
 
 const NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL: CSSProperties = {
     position: 'absolute', left: '-102px', top: '50%', transform: 'translateY(-50%)', zIndex: 999,

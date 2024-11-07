@@ -32,7 +32,7 @@ import { NewsItemScopeNoInstanceType, TUnit } from './types'
 interface CounterProps {
     label: string
     value: number
-    type?: TypographyTitleProps['type'],
+    type?: TypographyTitleProps['type']
     hint?: string
     downloadButton?: ButtonProps
     isLoading?: boolean
@@ -102,7 +102,7 @@ const getUnitsFromSection = (section: BuildingSection): TUnit[] => section.floor
 })))
 
 export const detectTargetedSections = (newsItemScopes: NewsItemScope[], property: PropertyType): {
-    sections: BuildingSection[],
+    sections: BuildingSection[]
     parking: BuildingSection[]
 } => {
     const newsItemScopesUnits = map(newsItemScopes, ({ unitType, unitName }) => ({ unitType, unitName }))
@@ -203,8 +203,8 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
     const ErrorLoadingMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.error.loading' })
 
     const [counters, setCounters] = useState<{
-        propertiesCount: number,
-        unitsCount: number,
+        propertiesCount: number
+        unitsCount: number
         receiversCount: number
     }>(null)
 

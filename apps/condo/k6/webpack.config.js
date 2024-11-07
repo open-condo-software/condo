@@ -3,11 +3,13 @@ const path = require('path')
 module.exports = {
     mode: 'production',
     entry: {
-        'allResidentBillingReceipt.test': path.join(__dirname, 'src/allResidentBillingReceipt.test.ts'),
+        'registerMetersReadings.test': path.join(__dirname, 'src/registerMetersReadings.test.ts'),
         'syncTourStep.test': path.join(__dirname, 'src/syncTourStep.test.ts'),
         'ticket.test': path.join(__dirname, 'src/ticket.test.ts'),
         'news.test': path.join(__dirname, 'src/news.test.ts'),
         'payment.test': path.join(__dirname, 'src/payment.test.ts'),
+        'registerBillingReceiptFile.test': path.join(__dirname, 'src/registerBillingReceiptFile.test.ts'),
+        'registerBillingReceipt.test': path.join(__dirname, 'src/registerBillingReceipt.test.ts'),
     },
     output: {
         path: path.join(__dirname, 'dist'),

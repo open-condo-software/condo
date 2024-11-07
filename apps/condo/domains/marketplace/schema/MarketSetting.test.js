@@ -277,8 +277,9 @@ describe('MarketSetting', () => {
     describe('constraint tests', () => {
         test('single entry for one organization', async () => {
             const [organization] = await createTestOrganization(admin)
-            const [obj, attrs] = await createTestMarketSetting(admin, organization)
+            await createTestMarketSetting(admin, organization)
 
+            // TODO(pahaz): DOMA-10368 use expectTo Violate
             await catchErrorFrom(async () => {
                 await createTestMarketSetting(admin, organization)
             }, (caught) => {

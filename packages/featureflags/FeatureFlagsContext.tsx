@@ -23,7 +23,7 @@ const {
 } = getConfig()
 
 const growthbook = new GrowthBook()
-const FEATURES_RE_FETCH_INTERVAL = 10 * 1000
+const FEATURES_RE_FETCH_INTERVAL_IN_MS = 60 * 1000 // 1 min
 
 type UseFlagValueType = <T>(name: string) => T | null
 
@@ -85,7 +85,7 @@ const FeatureFlagsProviderWrapper = ({ children, initFeatures = null }) => {
         }
 
         fetchFeatures()
-        const handler = setInterval(() => fetchFeatures(), FEATURES_RE_FETCH_INTERVAL)
+        const handler = setInterval(() => fetchFeatures(), FEATURES_RE_FETCH_INTERVAL_IN_MS)
 
         return () => {
             clearInterval(handler)

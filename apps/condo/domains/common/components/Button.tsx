@@ -265,7 +265,7 @@ const sberBlackCss = css`
 
 export interface CustomButtonProps extends Omit<ButtonProps, 'type'>, ITrackingComponent {
     type?: 'sberDefault' | 'sberGradient' | 'sberPrimary' | 'inlineLink' | 'sberDanger' | 'sberGrey' | 'sberAction'
-    | 'sberDangerGhost' | 'sberDefaultGradient' | 'sberBlack' | ButtonProps['type'],
+    | 'sberDangerGhost' | 'sberDefaultGradient' | 'sberBlack' | ButtonProps['type']
     secondary?: boolean
 }
 

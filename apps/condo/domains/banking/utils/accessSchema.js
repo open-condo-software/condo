@@ -49,7 +49,7 @@ async function checkBankIntegrationsAccessRights (context, userId, integrationId
         integration: { id_in: integrationIds },
         user: { id: userId },
         deletedAt: null,
-    }, { first: 100 })
+    }, 'id integration { id }', { first: 100 })
 
     const permittedIntegrations = new Set(rights.map(right => right.integration.id))
     const nonPermittedIntegrations = integrationIds.filter(id => !permittedIntegrations.has(id))

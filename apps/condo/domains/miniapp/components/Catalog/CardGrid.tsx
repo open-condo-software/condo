@@ -24,7 +24,8 @@ import {
 
 import { AppCard, MIN_CARD_WIDTH } from '../AppCard'
 
-import type { MiniAppOutput } from '@app/condo/schema'
+import type { B2BAppLabelType, MiniAppOutput } from '@app/condo/schema'
+
 
 const SEARCH_TAB_KEY = 'search'
 const TAB_GUTTER = 8
@@ -120,7 +121,7 @@ const TabPaneContent: React.FC<TabPaneContentProps> = ({ tab, fallback }) => {
                         name={app.name}
                         description={app.shortDescription}
                         logoUrl={app.logo}
-                        label={app.label}
+                        label={app.label as B2BAppLabelType}
                         onClick={handleCardClick(app.id, app.connected, app.accessible)}
                     />
                 </Col>

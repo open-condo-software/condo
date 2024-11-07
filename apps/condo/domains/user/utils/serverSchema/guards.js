@@ -47,7 +47,7 @@ class RedisGuard {
      * @param {Object | undefined} context - Keystone context
      * @return {Promise<void>}
      */
-    async checkCustomLimitCounters (variable, windowSize, counterLimit, context = undefined) {
+    async checkCustomLimitCounters (variable, windowSize, counterLimit, context) {
         const expiryAnchorDate = dayjs().add(windowSize, 'second')
         const counter = await this.incrementCustomCounter(variable, expiryAnchorDate)
         if (counter > counterLimit) {
@@ -111,6 +111,10 @@ class RedisGuard {
         await this.redis.expire(`${this.lockPrefix}${actionFolder}${variable}`, ttl )
     }
 
+    async unlock (variable, action = '') {
+        const actionFolder = action ? `${action}:` : ''
+        await this.redis.del(`${this.lockPrefix}${actionFolder}${variable}`)
+    }
 }
 
 module.exports = {

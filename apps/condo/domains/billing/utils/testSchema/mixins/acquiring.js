@@ -42,15 +42,23 @@ const AcquiringTestMixin = {
         return await updateTestAcquiringIntegration(this.clients.admin, this.acquiringIntegration.id, updateInput)
     },
 
-    async payForReceipt (receiptId, consumerId) {
-        const [ { multiPaymentId } ] = await registerMultiPaymentByTestClient(this.clients.resident, {
+    async payForReceipt (receiptId, consumerId, amount) {
+        const groupedReceipts = [{
             serviceConsumer: { id: consumerId },
             receipts: [{ id: receiptId }],
-        })
+        }]
+        if (amount) {
+            groupedReceipts[0].amountDistribution = [{
+                receipt: { id: receiptId },
+                amount: amount,
+            }]
+        }
+
+        const [ { multiPaymentId } ] = await registerMultiPaymentByTestClient(this.clients.resident, groupedReceipts)
         await this.completeMultiPayment(multiPaymentId)
     },
 
-    async partialPayForReceipt (jsonReceipt, amount) {
+    async partialPayForVirtualReceipt (jsonReceipt, amount) {
         const partialReceipt = {
             currencyCode: this.billingIntegration.currencyCode || DEFAULT_CURRENCY_CODE,
             amount: amount,
@@ -61,8 +69,7 @@ const AcquiringTestMixin = {
                 accountNumber: jsonReceipt.accountNumber,
             },
         }
-        console.error(partialReceipt)
-        console.error(this.acquiringContext)
+
         const [ { multiPaymentId }] = await registerMultiPaymentForVirtualReceiptByTestClient(this.clients.admin, partialReceipt, { id: this.acquiringContext.id })
         await this.completeMultiPayment(multiPaymentId)
     },

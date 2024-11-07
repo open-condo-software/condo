@@ -85,7 +85,11 @@ const sendMessageToResidentScopes = async (json) => {
             const serviceConsumersTotal = await ServiceConsumer.count(context, serviceConsumersWhere)
 
             while (serviceConsumersCount < serviceConsumersTotal) {
-                const serviceConsumers = await ServiceConsumer.getAll(context, serviceConsumersWhere, { sortBy: ['createdAt_ASC'], first: CHUNK_SIZE, skip: serviceConsumersCount })
+                const serviceConsumers = await ServiceConsumer.getAll(context,
+                    serviceConsumersWhere,
+                    'id resident { id }',
+                    { sortBy: ['createdAt_ASC'], first: CHUNK_SIZE, skip: serviceConsumersCount }
+                )
 
                 if (isEmpty(serviceConsumers)) break
 
@@ -104,7 +108,11 @@ const sendMessageToResidentScopes = async (json) => {
 
     while (skip < residentsCount) {
         // TODO(DOMA-5824): priority on sorting by flats & apartments (sortBy: ['unitType_ASC'], add index on unitType for Resident model)
-        const residents = await Resident.getAll(context, residentsWhere, { sortBy: ['createdAt_ASC'], first: CHUNK_SIZE, skip })
+        const residents = await Resident.getAll(context,
+            residentsWhere,
+            'id user { id locale } property { id } residentOrganization { country } organization { id }',
+            { sortBy: ['createdAt_ASC'], first: CHUNK_SIZE, skip }
+        )
 
         if (isEmpty(residents)) break
 
