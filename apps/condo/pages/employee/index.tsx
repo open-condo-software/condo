@@ -1,4 +1,5 @@
 import { SortOrganizationEmployeesBy } from '@app/condo/schema'
+import styled from '@emotion/styled'
 import { Col, Row, Typography } from 'antd'
 import { get } from 'lodash'
 import Head from 'next/head'
@@ -55,8 +56,15 @@ export const EmployeesPageContent = ({
     const { GlobalHints } = useGlobalHints()
 
     const rowClassName = (record) => {
-        return record.isBlocked ? 'ant-table-row-blocked' : ''
+        return record.isBlocked ? 'ant-table-row-inactive' : ''
     }
+
+    const TableWithInactiveEmloyee = styled(Table)`
+        .ant-table-row-inactive .ant-typography {
+            color: ${colors.gray[7]};
+        }
+    `
+
 
     const handleRowAction = useCallback((record) => {
         return {
@@ -77,7 +85,7 @@ export const EmployeesPageContent = ({
             </Head>
             <PageWrapper>
                 {GlobalHints}
-                <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitleMessage}</Typography.Title>}/>
+                <PageHeader title={<Typography.Title style={{ margin: 0 }}>{PageTitleMessage}</Typography.Title>} />
                 <TablePageContent>
                     {
                         !employees.length && !filtersFromQuery
@@ -103,7 +111,7 @@ export const EmployeesPageContent = ({
                                     </TableFiltersContainer>
                                 </Col>
                                 <Col span={24}>
-                                    <Table
+                                    <TableWithInactiveEmloyee
                                         totalRows={total}
                                         loading={employeesLoading}
                                         dataSource={employees}
@@ -120,7 +128,7 @@ export const EmployeesPageContent = ({
                                                     <Button
                                                         key='create'
                                                         type='primary'
-                                                        icon={<PlusCircle size='medium'/>}
+                                                        icon={<PlusCircle size='medium' />}
                                                         onClick={handleAddEmployee}
                                                     >
                                                         {AddEmployeeLabel}
@@ -139,7 +147,7 @@ export const EmployeesPageContent = ({
 }
 
 const EmployeesPage = () => {
-    const { link, organization }  = useOrganization()
+    const { link, organization } = useOrganization()
     const userOrganizationId = get(organization, 'id', null)
     const canManageEmployee = get(link, 'role.canInviteNewOrganizationEmployees', null)
     const employeeId = get(link, 'id')
