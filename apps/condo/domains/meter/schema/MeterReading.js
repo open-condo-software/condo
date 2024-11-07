@@ -14,7 +14,7 @@ const { i18n } = require('@open-condo/locales/loader')
 const { CONTACT_FIELD, CLIENT_EMAIL_FIELD, CLIENT_NAME_FIELD, CLIENT_PHONE_LANDLINE_FIELD, CLIENT_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/meter/access/MeterReading')
 const { METER_READING_MAX_VALUES_COUNT, METER_READING_BILLING_STATUSES, METER_READING_BILLING_STATUS_APPROVED } = require('@condo/domains/meter/constants/constants')
-const { METER_READING_DATE_IN_FUTURE, METER_READING_FEW_VALUES, METER_READING_EXTRA_VALUES, BILLING_STATUS_MESSAGE_WITHOUT_BILLING_STATUS } = require('@condo/domains/meter/constants/errors')
+const { METER_READING_DATE_IN_FUTURE, METER_READING_FEW_VALUES, METER_READING_EXTRA_VALUES, BILLING_STATUS_MESSAGE_WITHOUT_BILLING_STATUS, METER_READING_CANNOT_UPDATE_ACCOUNT_NUMBER } = require('@condo/domains/meter/constants/errors')
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { connectContactToMeterReading } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
 const { addClientInfoToResidentMeterReading } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
@@ -44,6 +44,11 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: BILLING_STATUS_MESSAGE_WITHOUT_BILLING_STATUS,
         message: 'Can not set billingStatusText without billingStatus',
+    },
+    METER_READING_CANNOT_UPDATE_ACCOUNT_NUMBER: {
+        code: BAD_USER_INPUT,
+        type: METER_READING_CANNOT_UPDATE_ACCOUNT_NUMBER,
+        message: 'Can not update account number of already passed meter reading',
     },
 }
 
@@ -145,6 +150,18 @@ const MeterReading = new GQLListSchema('MeterReading', {
                 update: access.canEditBillingStatusFields,
             },
         },
+        accountNumber: {
+            schemaDoc: 'Account number of the related Meter at the moment of creation. Filled once.',
+            type: 'Text',
+            isRequired: false,
+            hooks: {
+                validateInput: ({ context, operation }) => {
+                    if (operation === 'update') {
+                        throw new GQLError(ERRORS.METER_READING_CANNOT_UPDATE_ACCOUNT_NUMBER, context)
+                    }
+                },
+            },
+        },
 
     },
     hooks: {
@@ -162,7 +179,12 @@ const MeterReading = new GQLListSchema('MeterReading', {
 
             const meter = await Meter.getOne(context, {
                 id: get(resolvedData, 'meter', null),
-            }, 'organization { id } property { id } unitName unitType')
+            }, 'organization { id } property { id } unitName unitType accountNumber')
+
+            if (operation === 'create') {
+                resolvedData['accountNumber'] = get(meter, 'accountNumber', null)
+            }
+
             if (meter && resolvedData.clientName && resolvedData.clientPhone) {
                 const contactCreationData = {
                     ...resolvedData,

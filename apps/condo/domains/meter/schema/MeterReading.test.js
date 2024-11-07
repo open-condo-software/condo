@@ -1680,6 +1680,52 @@ describe('MeterReading', () => {
                     )
                 })
             })
+
+            describe('accountNumber', () => {
+                test('is filled from related Meter.accountNumber on creation', async () => {
+                    const [resource] = await MeterResource.getAll(employeeCanManageReadings, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [source] = await MeterReadingSource.getAll(employeeCanManageReadings, { id: CALL_METER_READING_SOURCE_ID })
+                    const [meter] = await createTestMeter(
+                        employeeCanManageReadings,
+                        employeeCanManageReadings.organization,
+                        employeeCanManageReadings.property,
+                        resource,
+                    )
+                    const [meterReading] = await createTestMeterReading(admin, meter, source)
+                    expect(meterReading.accountNumber).toBe(meter.accountNumber)
+
+                })
+                test('cannot be updated', async () => {
+                    const [resource] = await MeterResource.getAll(employeeCanManageReadings, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [source] = await MeterReadingSource.getAll(employeeCanManageReadings, { id: CALL_METER_READING_SOURCE_ID })
+                    const [meter] = await createTestMeter(
+                        employeeCanManageReadings,
+                        employeeCanManageReadings.organization,
+                        employeeCanManageReadings.property,
+                        resource,
+                    )
+                    const [meterReading] = await createTestMeterReading(admin, meter, source)
+                    const [updatedMeterReading] = await updateTestMeterReading(admin, meterReading.id, {
+                        value1: faker.random.numeric(),
+                    })
+                    
+                    await expectToThrowGQLError(
+                        async () => await updateTestMeterReading(admin, meterReading.id, {
+                            accountNumber: faker.random.alphaNumeric(),
+                        }),
+                        {
+                            code: 'BAD_USER_INPUT',
+                            type: 'METER_READING_CANNOT_UPDATE_ACCOUNT_NUMBER',
+                            message: 'Can not update account number of already passed meter reading',
+                        }
+                    )
+                    // const updatedMeterReading = await updateTestMeterReading(admin, meterReading.id, {
+                    //     accountNumber: faker.random.alphaNumeric(),
+                    // })
+                    // expect(meterReading.accountNumber).toBe(meter.accountNumber)
+
+                })
+            })
         })
 
         describe('Resolve input', () => {
