@@ -3,6 +3,7 @@
 
 import { useLazyQuery, useMutation } from '@apollo/client'
 import { LoadingButton } from '@arch-ui/button'
+import { Card } from '@arch-ui/card'
 import { CheckboxPrimitive } from '@arch-ui/controls'
 import { Input } from '@arch-ui/input'
 import { Container } from '@arch-ui/layout'
@@ -12,7 +13,7 @@ import { PageTitle } from '@arch-ui/typography'
 import { jsx } from '@emotion/core'
 import get from 'lodash/get'
 import throttle from 'lodash/throttle'
-import { useEffect, useState, useCallback, useMemo, CSSProperties } from 'react'
+import { useState, useCallback, useMemo, CSSProperties } from 'react'
 import { useToasts, ToastProvider } from 'react-toast-notifications'
 
 import { Address, LINK_ADDRESS_AND_SOURCE_MUTATION } from '@address-service/domains/address/gql'
@@ -21,10 +22,8 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 const formStyle: CSSProperties = {
     display: 'flex',
     alignItems: 'flex-start',
-    gap: '.5rem',
+    gap: '1rem',
     flexDirection: 'column',
-    padding: '1rem',
-    marginBottom: `${gridSize * 3}px`,
 }
 
 const labelStyle: CSSProperties = {
@@ -70,22 +69,20 @@ const Page = () => {
         onError: handleError,
     })
 
-    const [getAddresses, { loading: loadingAddresses, error: errorAddresses }] = useLazyQuery(Address.GET_ALL_OBJS_QUERY, {
+    const [getAddresses, { loading: loadingAddresses }] = useLazyQuery(Address.GET_ALL_OBJS_QUERY, {
         fetchPolicy: 'network-only',
-        onCompleted: ({ objs: addresses }) => {
-            setAddressesOptions(addresses.map(({ id, address }) => ({ label: address, value: id })))
-        },
         onError: handleError,
     })
-
+    
     const throttledGetAddresses = useMemo(
-        () => throttle((newSource) => getAddresses({ variables: { where: { address_contains_i: newSource } } }), 400),
+        () => throttle(async newAddress => {
+            if (!newAddress) return []
+            const { data: { objs } } = await getAddresses({ variables: { where: { address_contains_i: newAddress } } })
+
+            return objs.map(({ id, address }) => ({ label: address, value: id }))
+        }, 400),
         [getAddresses]
     )
-
-    useEffect(() => {
-        if (source) throttledGetAddresses(source)
-    }, [source, throttledGetAddresses])
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -96,7 +93,7 @@ const Page = () => {
                     sender: getClientSideSenderInfo(),
                     source,
                     tin,
-                    address: get(selectedAddress, 'value'),
+                    address: { id: get(selectedAddress, 'value') },
                     parseUnit,
                 },
             },
@@ -106,50 +103,56 @@ const Page = () => {
     return (
         <Container>
             <PageTitle>Link address and source</PageTitle>
-            <form
-                style={formStyle}
-                onSubmit={handleSubmit}>
-                <Input
-                    value={source}
-                    onChange={e => setSource(e.target.value)}
-                    css={{ width: '100%' }}
-                    placeholder='Source'
-                    required
-                />
-                <Input
-                    value={tin}
-                    onChange={e => setTin(e.target.value)}
-                    css={{ width: '100%' }}
-                    placeholder='TIN'
-                />
-                <Select
-                    value={selectedAddress}
-                    isClearable
-                    isLoading={loadingAddresses}
-                    css={{ width: '100%' }}
-                    required
-                    isDisabled={errorAddresses}
-                    placeholder='Address'
-                    options={addressesOptions}
-                    onChange={setSelectedAddress}
-                />
-                <label style={labelStyle}>
-                    <CheckboxPrimitive
-                        checked={parseUnit}
-                        onChange={e => setParseUnit(e.target.checked)}
+            <Card css={{ maxWidth: `${gridSize * 52}px`, margin: '0 auto' }}>
+                <form
+                    style={formStyle}
+                    onSubmit={handleSubmit}>
+                    <Input
+                        value={source}
+                        onChange={e => setSource(e.target.value)}
+                        css={{ width: '100%' }}
+                        placeholder='Source'
+                        required
                     />
-                    <span>Parse unit</span>
-                </label>
-                <LoadingButton
-                    type='submit'
-                    variant='bold'
-                    appearance='primary'
-                    isLoading={loadingSubmit}
-                    isDisabled={!selectedAddress || !source}
-                >
-                    Save
-                </LoadingButton>
-            </form>
+                    <Input
+                        value={tin}
+                        onChange={e => setTin(e.target.value)}
+                        css={{ width: '100%' }}
+                        placeholder='TIN'
+                    />
+                    <Select
+                        value={selectedAddress}
+                        cacheOptions
+                        loadOptions={throttledGetAddresses}
+                        defaultOptions
+                        isAsync
+                        isClearable
+                        isLoading={loadingAddresses}
+                        css={{ width: '100%' }}
+                        required
+                        placeholder='Address'
+                        options={addressesOptions}
+                        onChange={setSelectedAddress}
+                    />
+                    <label style={labelStyle}>
+                        <CheckboxPrimitive
+                            checked={parseUnit}
+                            onChange={e => setParseUnit(e.target.checked)}
+                        />
+                        <span>Parse unit</span>
+                    </label>
+                    <LoadingButton
+                        type='submit'
+                        variant='bold'
+                        appearance='primary'
+                        isLoading={loadingSubmit}
+                        isDisabled={!selectedAddress || !source}
+                        css={{ marginTop: `${gridSize * 3}px` }}
+                    >
+                    Link address
+                    </LoadingButton>
+                </form>
+            </Card>
         </Container>
     )
 }

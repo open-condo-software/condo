@@ -6,7 +6,7 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 async function canLinkAddressAndSource ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    return !!user.isAdmin
+    return !!user.isAdmin || !!user.isSupport
 }
 
 /*

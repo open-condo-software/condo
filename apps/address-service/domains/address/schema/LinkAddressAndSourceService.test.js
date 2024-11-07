@@ -15,33 +15,35 @@ describe('LinkAddressAndSourceService', () => {
         const source = `${faker.address.city()}${faker.random.alphaNumeric(8)}, ${faker.address.street()}, ${faker.random.alphaNumeric(8)}`
         const admin = await makeLoggedInAdminClient()
         const [{ id: address }] = await createTestAddress(admin)
-        const payload = { source, tin, address }
+        const payload = { source, tin, address: { id: address } }
         const [result] = await linkAddressAndSourceByTestClient(admin, payload)
         expect(result).toMatchObject({
             addressSourceId: expect.any(String),
         })
         const addressSource = await AddressSource.getOne(admin, { id: result.addressSourceId })
         expect(addressSource.source).toEqual(expect.stringContaining('|helpers:'))
+        expect(addressSource.address.id).toEqual(address)
     })
 
     test('Should link without tin', async () => {
         const source = `${faker.address.city()}${faker.random.alphaNumeric(8)}, ${faker.address.street()}, ${faker.random.alphaNumeric(8)}`
         const admin = await makeLoggedInAdminClient()
         const [{ id: address }] = await createTestAddress(admin)
-        const payload = { source, address }
+        const payload = { source, address: { id: address } }
         const [result] = await linkAddressAndSourceByTestClient(admin, payload)
         expect(result).toMatchObject({
             addressSourceId: expect.any(String),
         })
         const addressSource = await AddressSource.getOne(admin, { id: result.addressSourceId })
         expect(addressSource.source).toEqual(expect.not.stringContaining('|helpers:'))
+        expect(addressSource.address.id).toEqual(address)
     })
 
     test('Should not add the source again', async () => {
         const source = `${faker.address.city()}${faker.random.alphaNumeric(8)}, ${faker.address.street()}, ${faker.random.alphaNumeric(8)}`
         const admin = await makeLoggedInAdminClient()
         const [{ id: address }] = await createTestAddress(admin)
-        const payload = { source, address }
+        const payload = { source, address: { id: address } }
         await linkAddressAndSourceByTestClient(admin, payload)
         await expectToThrowGQLErrorToResult(
             async () => await linkAddressAndSourceByTestClient(admin, payload)
@@ -52,7 +54,7 @@ describe('LinkAddressAndSourceService', () => {
         const source = `${faker.address.street()}, ${faker.random.numeric(3)}, кв. 123`
         const admin = await makeLoggedInAdminClient()
         const [{ id: address }] = await createTestAddress(admin)
-        const payload = { source, address, parseUnit: true  }
+        const payload = { source, address: { id: address }, parseUnit: true  }
         const [result] = await linkAddressAndSourceByTestClient(admin, payload)
         expect(result).toMatchObject({
             addressSourceId: expect.any(String),
@@ -65,7 +67,7 @@ describe('LinkAddressAndSourceService', () => {
         const source = `${faker.address.street()} ${faker.random.numeric(3)} кв123`
         const admin = await makeLoggedInAdminClient()
         const [{ id: address }] = await createTestAddress(admin)
-        const payload = { source, address, parseUnit: true  }
+        const payload = { source, address: { id: address }, parseUnit: true  }
         await expectToThrowGQLErrorToResult(
             async () => await linkAddressAndSourceByTestClient(admin, payload)
             , ERRORS.INCORRECT_ADDRESS_SOURCE)
@@ -77,11 +79,11 @@ describe('LinkAddressAndSourceService', () => {
         const address = ''
         const existSource = `${faker.address.street()} ${faker.random.numeric(3)} кв123`
         const [{ id: existAddress }] = await createTestAddress(admin)
-        const payload1 = { source, address: existAddress, parseUnit: true  }
+        const payload1 = { source, address: { id: existAddress }, parseUnit: true  }
         await expectToThrowGQLErrorToResult(
             async () => await linkAddressAndSourceByTestClient(admin, payload1)
             , ERRORS.EMPTY_SOURCE)
-        const payload2 = { source: existSource, address, parseUnit: true  }
+        const payload2 = { source: existSource, address: { id: address }, parseUnit: true  }
         await expectToThrowGQLErrorToResult(
             async () => await linkAddressAndSourceByTestClient(admin, payload2)
             , ERRORS.EMPTY_ADDRESS)

@@ -14,5 +14,5 @@ module.exports = {
     AddressInjection,
     AddressSource,
     LinkAddressAndSourceService,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

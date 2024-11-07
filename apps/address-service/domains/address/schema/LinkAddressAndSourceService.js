@@ -4,10 +4,10 @@
 
 const { parseAddressesFromString } = require('@open-condo/clients/address-service-client/utils')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { GQLCustomSchema } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
 const access = require('@address-service/domains/address/access/LinkAddressAndSourceService')
-const { EMPTY_SOURCE, EMPTY_ADDRESS, SOURCE_ALREADY_EXISTS_ERROR, INCORRECT_ADDRESS_SOURCE } = require('@address-service/domains/address/constants')
+const { EMPTY_SOURCE_ERROR, EMPTY_ADDRESS_ERROR, SOURCE_ALREADY_EXISTS_ERROR, INCORRECT_ADDRESS_SOURCE_ERROR } = require('@address-service/domains/address/constants')
 const { AddressSource } = require('@address-service/domains/address/utils/serverSchema')
 const { mergeAddressAndHelpers } = require('@address-service/domains/common/utils/services/search/searchServiceUtils')
 
@@ -15,26 +15,26 @@ const ERRORS = {
     EMPTY_SOURCE: {
         query: 'linkAddressAndSource',
         code: BAD_USER_INPUT,
-        type: EMPTY_SOURCE,
+        type: EMPTY_SOURCE_ERROR,
         message: 'Source is empty',
     },
     EMPTY_ADDRESS: {
         query: 'linkAddressAndSource',
         code: BAD_USER_INPUT,
-        type: EMPTY_ADDRESS,
+        type: EMPTY_ADDRESS_ERROR,
         message: 'Address is empty',
     },
     INCORRECT_ADDRESS_SOURCE: {
         query: 'linkAddressAndSource',
         code: BAD_USER_INPUT,
-        type: INCORRECT_ADDRESS_SOURCE,
+        type: INCORRECT_ADDRESS_SOURCE_ERROR,
         message: 'Incorrect address source',
     },
     SAME_SOURCE: {
-        mutation: 'createAddressSource',
+        mutation: 'linkAddressAndSource',
         code: BAD_USER_INPUT,
         type: SOURCE_ALREADY_EXISTS_ERROR,
-        message: 'Source with the same address already exists',
+        message: 'This source already exists',
     },
 }
 
@@ -42,7 +42,7 @@ const LinkAddressAndSourceService = new GQLCustomSchema('LinkAddressAndSourceSer
     types: [
         {
             access: true,
-            type: 'input LinkAddressAndSourceInput { dv: Int!, sender: JSON!, source: String!, tin: String, address: ID!, parseUnit: Boolean }',
+            type: 'input LinkAddressAndSourceInput { dv: Int!, sender: SenderFieldInput!, source: String!, tin: String, address: AddressWhereUniqueInput!, parseUnit: Boolean }',
         },
         {
             access: true,
@@ -58,15 +58,11 @@ const LinkAddressAndSourceService = new GQLCustomSchema('LinkAddressAndSourceSer
                 let { dv, sender, source, tin, address, parseUnit } = data
 
                 if (!source) {
-                    throw new GQLError({
-                        ...ERRORS.EMPTY_SOURCE,
-                    }, context)
+                    throw new GQLError(ERRORS.EMPTY_SOURCE, context)
                 }
 
-                if (!address) {
-                    throw new GQLError({
-                        ...ERRORS.EMPTY_ADDRESS,
-                    }, context)
+                if (!address.id) {
+                    throw new GQLError(ERRORS.EMPTY_ADDRESS, context)
                 }
 
                 if (parseUnit) {
@@ -74,30 +70,34 @@ const LinkAddressAndSourceService = new GQLCustomSchema('LinkAddressAndSourceSer
                 }
 
                 if (!source) {
-                    throw new GQLError({
-                        ...ERRORS.INCORRECT_ADDRESS_SOURCE,
-                    }, context)
+                    throw new GQLError(ERRORS.INCORRECT_ADDRESS_SOURCE, context)
                 }
 
                 if (tin) {
                     source = mergeAddressAndHelpers(source, { tin })
                 }
-                try {
-                    const addressSource = await AddressSource.create(
-                        context,
-                        {
-                            dv,
-                            sender,
-                            source,
-                            address: { connect: { id: address } },
-                        },
-                    )
-                    return {
-                        addressSourceId: addressSource.id,
-                    }
-                } catch (e) {
+
+                const lowerCasedSource = source.toLowerCase()
+                const [existingSource] = await find('AddressSource', {
+                    source: lowerCasedSource,
+                    deletedAt: null,
+                })
+
+                if (existingSource) {
                     throw new GQLError(ERRORS.SAME_SOURCE, context)
                 }
+
+                const addressSource = await AddressSource.create(
+                    context,
+                    {
+                        dv,
+                        sender,
+                        source,
+                        address: { connect: address },
+                    },
+                )
+
+                return { addressSourceId: addressSource.id }
             },
         },
     ],

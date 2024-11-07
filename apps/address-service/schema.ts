@@ -1267,10 +1267,10 @@ export enum CacheControlScope {
 
 export type LinkAddressAndSourceInput = {
   dv: Scalars['Int'];
-  sender: Scalars['JSON'];
+  sender: SenderFieldInput;
   source: Scalars['String'];
   tin?: Maybe<Scalars['String']>;
-  address: Scalars['ID'];
+  address: AddressWhereUniqueInput;
   parseUnit?: Maybe<Scalars['Boolean']>;
 };
 
