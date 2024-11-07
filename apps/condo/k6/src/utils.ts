@@ -284,6 +284,22 @@ const allResidentBillingReceipts = (data, residentId, extraAttrs = {}) => {
     })
 }
 
+const registerBillingReceiptFile = (data, billingContextId, receiptId, base64EncodedPDF, extraAttrs = {}) => {
+    return sendAuthorizedRequest(data, {
+        operationName: 'registerBillingReceiptFile',
+        query: 'mutation registerBillingReceiptFile ($data: RegisterBillingReceiptFileInput!) { obj: registerBillingReceiptFile(data: $data) { id status } }',
+        variables: {
+            data: {
+                ...DV_SENDER,
+                context: { id: billingContextId },
+                receipt: { id: receiptId },
+                base64EncodedPDF,
+                ...extraAttrs,
+            },
+        },
+    })
+}
+
 
 export {
     allResidentBillingReceipts,
@@ -299,6 +315,7 @@ export {
     getOrganizationEmployees,
     registerResident,
     registerResidentServiceConsumers,
+    registerBillingReceiptFile,
     signInAsUser,
     BASE_API_URL,
 }

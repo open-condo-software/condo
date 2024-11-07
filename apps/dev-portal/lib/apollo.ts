@@ -25,6 +25,9 @@ let apolloClient: ApolloClient<NormalizedCacheObject> | undefined
 function createApolloClient (): ApolloClient<NormalizedCacheObject> {
     return new ApolloClient({
         ssrMode: typeof window === 'undefined',
+        // NOTE: @types/apollo-upload-client has its own apollo-client as dep, so type mismatch is here
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         link: createUploadLink({
             uri: `${serviceUrl}/api/graphql`,
             credentials: 'include',

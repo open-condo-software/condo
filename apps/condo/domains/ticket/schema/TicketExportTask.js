@@ -14,6 +14,7 @@ const { EXPORT_STATUS_VALUES, EXPORT_FORMAT_VALUES, PROCESSING, COMPLETED, ERROR
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const access = require('@condo/domains/ticket/access/TicketExportTask')
+const { LOCALES } = require('@condo/domains/user/constants/common')
 
 const { TICKET_EXPORT_OPTIONS_FIELD } = require('./fields/TicketExportParameters')
 
@@ -128,8 +129,14 @@ const TicketExportTask = new GQLListSchema('TicketExportTask', {
             type: 'Text',
             isRequired: true,
             hooks: {
-                resolveInput: async ({ context }) => {
-                    return extractReqLocale(context.req) || conf.DEFAULT_LOCALE
+                resolveInput: async ({ context, resolvedData, fieldPath, operation, existingItem }) => {
+                    if (operation === 'create') {
+                        // NOTE(pahaz): resolveInput called every update/create! And we need to use it only on create!
+                        const resolvedValue = resolvedData[fieldPath]
+                        // TODO(pahaz): we need to throw validation error here!
+                        if (resolvedValue && LOCALES.includes(resolvedValue)) return resolvedValue
+                        return extractReqLocale(context.req) || conf.DEFAULT_LOCALE
+                    }
                 },
             },
             access: {

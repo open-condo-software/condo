@@ -69,7 +69,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: ALREADY_EXISTS_ERROR,
         message: 'Provided receipt already paid',
-        messageForUser: 'api.billing.error.alreadyPaid',
+        messageForUser: 'api.billing.billingReceipt.RECEIPT_ALREADY_PAID_ERROR',
     },
     INVALID_QR_CODE_STRING: {
         mutation: 'validateQRCode',
@@ -130,6 +130,7 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
 
     mutations: [
         {
+            schemaDoc: 'Validates qr-code received from mobile application. This mutation receives base64 encoded raw data from scanned qr-code.',
             access: access.canValidateQRCode,
             schema: 'validateQRCode(data: ValidateQRCodeInput!): ValidateQRCodeOutput',
             resolver: async (parent, /** ValidateQRCodeInputArgs */ args, context) => {
@@ -143,6 +144,7 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
                         `validate-QR-code-${ip}`,
                         BILLING_VALIDATE_QR_CODE_WINDOW,
                         MAX_CLIENT_VALIDATE_QR_CODE_BY_WINDOW,
+                        context,
                     )
                 }
 

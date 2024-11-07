@@ -1,3 +1,4 @@
+import { MultiPaymentStatusType } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Row, Typography } from 'antd'
 import Big from 'big.js'
@@ -9,52 +10,46 @@ import React, { useEffect, useRef } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
-import {
-    MULTIPAYMENT_DONE_STATUS,
-    MULTIPAYMENT_ERROR_STATUS,
-    MULTIPAYMENT_PROCESSING_STATUS,
-    MULTIPAYMENT_WITHDRAWN_STATUS,
-} from '@condo/domains/acquiring/constants/payment'
 import { colors } from '@condo/domains/common/constants/style'
 import { createWrappedPdf } from '@condo/domains/common/utils/pdf'
 
 dayjs.extend(utc)
 
 type PrintingOption = {
-    key: string,
-    value: string,
+    key: string
+    value: string
 }
 
 type ReceiptPrintingSectionRow = {
-    name: string,
+    name: string
     toPay: string
 }
 
 type ReceiptPrintingSection = {
-    title?: string,
-    info: Array<PrintingOption>,
-    amount?: string,
-    rows: Array<ReceiptPrintingSectionRow>,
-    explicitFee?: string,
+    title?: string
+    info: Array<PrintingOption>
+    amount?: string
+    rows: Array<ReceiptPrintingSectionRow>
+    explicitFee?: string
     explicitServiceCharge?: string
 }
 
 type InvoicePrintingSectionRow = {
-    name: string,
-    toPay: string,
-    count: number,
-    vatPercent: string,
+    name: string
+    toPay: string
+    count: number
+    vatPercent: string
     amount: string
 }
 
 type InvoicePrintingSection = {
-    number: string,
-    date: string,
-    amount: string,
+    number: string
+    date: string
+    amount: string
     vatAmount?: Record<string, string>,
-    taxRegime: string,
-    rows: Array<InvoicePrintingSectionRow>,
-    info: Array<PrintingOption>,
+    taxRegime: string
+    rows: Array<InvoicePrintingSectionRow>
+    info: Array<PrintingOption>
 }
 
 // This colors are mobile oriented and dont match antd / CRM DS defaults
@@ -63,29 +58,29 @@ const STATUS_SUCCESS_COLOR = '#4CD174'
 const STATUS_ERROR_COLOR = '#FF3B30'
 
 interface IAcquiringReceiptProps {
-    paymentDateTime: string,
-    documentNumber: string,
-    documentTitle: string,
-    status: MULTIPAYMENT_DONE_STATUS | MULTIPAYMENT_ERROR_STATUS | MULTIPAYMENT_PROCESSING_STATUS | MULTIPAYMENT_WITHDRAWN_STATUS,
-    payerInfo: Array<PrintingOption>,
+    paymentDateTime: string
+    documentNumber: string
+    documentTitle: string
+    status: MultiPaymentStatusType
+    payerInfo: Array<PrintingOption>
     totalSum: {
-        amountWithExplicits: string,
-        currencyCode: string,
-        explicitFee?: string,
-        explicitServiceCharge?: string,
+        amountWithExplicits: string
+        currencyCode: string
+        explicitFee?: string
+        explicitServiceCharge?: string
     }
-    receipts: Array<ReceiptPrintingSection>,
+    receipts: Array<ReceiptPrintingSection>
     invoices: Array<InvoicePrintingSection>
 }
 
 interface IReceiptSectionProps {
     section: ReceiptPrintingSection
-    currencyCode: string,
+    currencyCode: string
 }
 
 interface IInvoiceSectionProps {
-    section: InvoicePrintingSection,
-    currencyCode: string,
+    section: InvoicePrintingSection
+    currencyCode: string
 }
 
 interface IInfoRowProps {
@@ -412,15 +407,15 @@ export const AcquiringReceipt: React.FC<IAcquiringReceiptProps> = (props) => {
     const intl = useIntl()
 
     let statusMessage = intl.formatMessage({ id: 'MultiPayment.status.DONE' })
-    if (status === MULTIPAYMENT_PROCESSING_STATUS) {
+    if (status === MultiPaymentStatusType.Processing) {
         statusMessage = intl.formatMessage({ id: 'MultiPayment.status.PROCESSING' })
-    } else if (status === MULTIPAYMENT_ERROR_STATUS) {
+    } else if (status === MultiPaymentStatusType.Error) {
         statusMessage = intl.formatMessage({ id: 'MultiPayment.status.ERROR' })
     }
     let statusColor = STATUS_SUCCESS_COLOR
-    if (status === MULTIPAYMENT_PROCESSING_STATUS) {
+    if (status === MultiPaymentStatusType.Processing) {
         statusColor = STATUS_PROCESSING_COLOR
-    } else if (status === MULTIPAYMENT_ERROR_STATUS) {
+    } else if (status === MultiPaymentStatusType.Error) {
         statusColor = STATUS_ERROR_COLOR
     }
     const payerTitle = intl.formatMessage({ id: 'acquiringReceipt.title' })

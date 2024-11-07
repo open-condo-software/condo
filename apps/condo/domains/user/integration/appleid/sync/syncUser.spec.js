@@ -8,9 +8,9 @@ const { faker } = require('@faker-js/faker')
 const { setFakeClientMode, catchErrorFrom } = require('@open-condo/keystone/test.utils')
 
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { APPLE_ID_IDP_TYPE, RESIDENT } = require('@condo/domains/user/constants/common')
+const { APPLE_ID_IDP_TYPE } = require('@condo/domains/user/constants/common')
 const {
-    UserAdmin,
+    User,
     UserExternalIdentity: UserExternalIdentityApi,
 } = require('@condo/domains/user/utils/serverSchema')
 
@@ -155,7 +155,7 @@ describe('syncUser from AppleId', () => {
         const userInfo = mockUserInfo(identityId, existingUserPhone)
 
         // soft delete user
-        await UserAdmin.softDelete(context, existingUser.id, {
+        await User.softDelete(context, existingUser.id, 'id', {
             dv: 1,
             sender: { dv: 1, fingerprint: faker.datatype.uuid() },
         })

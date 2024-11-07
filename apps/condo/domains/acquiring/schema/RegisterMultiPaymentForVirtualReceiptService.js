@@ -15,7 +15,7 @@ const {
     RECEIPT_HAVE_INVALID_CURRENCY_CODE_VALUE,
     ACQUIRING_INTEGRATION_IS_DELETED,
     ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
-    GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM },
+    GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM, PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM },
 } = require('@condo/domains/acquiring/constants/errors')
 const {
     FEE_CALCULATION_PATH,
@@ -51,7 +51,8 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: WRONG_FORMAT,
         message: 'Invalid format of "sender" field value. {details}',
-        correctExample: '{ dv: 1, fingerprint: \'example-fingerprint-alphanumeric-value\'}',
+        correctExample: '{ "dv": 1, "fingerprint": "uniq-device-or-container-id" }',
+        messageInterpolation: { details: 'Please, check the example for details' },
     },
     ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED: {
         mutation: 'registerMultiPaymentForVirtualReceipt',
@@ -69,6 +70,10 @@ const ERRORS = {
     },
     PAYMENT_AMOUNT_LESS_THAN_MINIMUM: {
         ...PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
+        mutation: 'registerMultiPaymentForVirtualReceipt',
+    },
+    PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM: {
+        ...PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM,
         mutation: 'registerMultiPaymentForVirtualReceipt',
     },
     RECEIPT_HAVE_INVALID_TO_PAY_VALUE: {
@@ -136,7 +141,7 @@ const RegisterMultiPaymentForVirtualReceiptService = new GQLCustomSchema('Regist
 
                 const acquiringIntegration = await AcquiringIntegration.getOne(context, {
                     id: acquiringContext.integration,
-                })
+                }, 'id minimumPaymentAmount maximumPaymentAmount hostUrl deletedAt')
 
                 if (acquiringIntegration.deletedAt) {
                     throw new GQLError({
@@ -189,14 +194,21 @@ const RegisterMultiPaymentForVirtualReceiptService = new GQLCustomSchema('Regist
                     implicitFee: String(implicitFee),
                     serviceFee: String(fromReceiptAmountFee),
                 }
-
                 const amountToPay = Big(amount)
                     .add(Big(paymentCommissionFields.explicitServiceCharge))
                     .add(Big(paymentCommissionFields.explicitFee))
+
                 if (acquiringIntegration.minimumPaymentAmount && Big(amountToPay).lt(acquiringIntegration.minimumPaymentAmount)) {
                     throw new GQLError({
                         ...ERRORS.PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
                         messageInterpolation: { minimumPaymentAmount: Big(acquiringIntegration.minimumPaymentAmount).toString() },
+                    }, context)
+                }
+
+                if (acquiringIntegration.maximumPaymentAmount && Big(amountToPay).gt(acquiringIntegration.maximumPaymentAmount)) {
+                    throw new GQLError({
+                        ...ERRORS.PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM,
+                        messageInterpolation: { maximumPaymentAmount: Big(acquiringIntegration.maximumPaymentAmount).toString() },
                     }, context)
                 }
 
@@ -212,7 +224,7 @@ const RegisterMultiPaymentForVirtualReceiptService = new GQLCustomSchema('Regist
                     recipientBic: bic,
                     recipientBankAccount: bankAccount,
                     ...paymentCommissionFields,
-                })
+                }, 'id amount explicitFee explicitServiceCharge implicitFee')
                 const payment = { ...paymentModel, serviceFee: paymentCommissionFields.serviceFee }
 
                 const totalAmount = {

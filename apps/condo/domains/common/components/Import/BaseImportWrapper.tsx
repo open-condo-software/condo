@@ -64,18 +64,18 @@ type TBaseImportWrapperProps = {
     importCardButton?: {
         header: Pick<CardHeaderProps, 'emoji' | 'headingTitle'>,
         body: Pick<CardBodyProps, 'description'>
-    },
-    setActiveModal: (type: ActiveModalType) => void,
-    domainName: string,
-    uploadButtonLabel?: string,
-    closeModal: () => void,
-    activeModal: ActiveModalType,
-    handleBreakImport: () => void,
-    progress: any,
-    handleDownloadPartyLoadedData: () => Promise<void>,
-    successRowsRef: React.MutableRefObject<number>,
-    totalRowsRef: React.MutableRefObject<number>,
-    error: any,
+    }
+    setActiveModal: (type: ActiveModalType) => void
+    domainName: string
+    uploadButtonLabel?: string
+    closeModal: () => void
+    activeModal: ActiveModalType
+    handleBreakImport: () => void
+    progress: any
+    handleDownloadPartyLoadedData: () => Promise<void>
+    successRowsRef: React.MutableRefObject<number>
+    totalRowsRef: React.MutableRefObject<number>
+    error: any
     dataImporter: JSX.Element
     extraModalContent?: ExtraModalContentType
 }

@@ -83,7 +83,10 @@ const sendResidentsNoAccountNotificationsForContext = async (billingContext, rec
     const { keystone: context } = await getSchemaCtx('Resident')
 
     const billingPropertiesWhere = { context: { id: billingContext.id }, deletedAt: null }
-    const billingProperties = await loadListByChunks({ context, list: BillingProperty, where: billingPropertiesWhere })
+    const billingProperties = await loadListByChunks({
+        context, list: BillingProperty, where: billingPropertiesWhere,
+        fields: 'id address property { id }',
+    })
 
     let successCount = 0, attemptsCount = 0, processedCount = 0
 
@@ -99,8 +102,11 @@ const sendResidentsNoAccountNotificationsForContext = async (billingContext, rec
         if (receiptsCount < 1) continue
 
         const accountsWhere = { property: { id: billingProperty.id, deletedAt: null }, deletedAt: null }
-        const accounts = await loadListByChunks({ context, list: BillingAccount, where: accountsWhere })
-        const accountNumbers = uniq(accounts.map(accounts => get(accounts, 'number')))
+        const accounts = await loadListByChunks({
+            context, list: BillingAccount, where: accountsWhere,
+            fields: 'id number unitName unitType property { id address }',
+        })
+        const accountNumbers = uniq(accounts.map(account => get(account, 'number')))
         const accountsByAddresses = accounts.reduce(
             (result, account) => {
                 const fullAddress = makeAddress(get(account, 'property.address'), account.unitType, account.unitName)
@@ -117,7 +123,13 @@ const sendResidentsNoAccountNotificationsForContext = async (billingContext, rec
             deletedAt: null,
             resident: { deletedAt: null },
         }
-        const serviceConsumers = await loadListByChunks({ context, chunkSize: 50, list: ServiceConsumer, where: serviceConsumersWhere })
+        const serviceConsumers = await loadListByChunks({
+            context,
+            chunkSize: 50,
+            list: ServiceConsumer,
+            where: serviceConsumersWhere,
+            fields: 'id resident { id }',
+        })
         const scResidentIds = uniq(serviceConsumers.map(sc => get(sc, 'resident.id')).filter(Boolean))
 
         const residentsWhere = {
@@ -146,7 +158,12 @@ const sendResidentsNoAccountNotificationsForContext = async (billingContext, rec
         processedCount += residentsCount
 
         while (skip < residentsCount) {
-            const residents = await Resident.getAll(context, residentsWhere, { sortBy: ['createdAt_ASC'], first: 100, skip })
+            const residents = await Resident.getAll(context,
+                residentsWhere,
+                'id residentOrganization { id country tin } property { id }' +
+                ' residentProperty { address } user { id } unitType unitName',
+                { sortBy: ['createdAt_ASC'], first: 100, skip }
+            )
 
             skip += residents.length
 
@@ -188,9 +205,10 @@ const sendResidentsNoAccountNotificationsForPeriod = async (period, billingConte
         status: CONTEXT_FINISHED_STATUS,
         deletedAt: null,
     }
+    const fields = 'id integration { id skipNoAccountNotifications } organization { id }'
     const billingContexts = billingContextId
-        ? [ await BillingIntegrationOrganizationContext.getOne(context, { id: billingContextId, ...contextWhere }) ]
-        : await loadListByChunks({ context, list: BillingIntegrationOrganizationContext, where: contextWhere })
+        ? [ await BillingIntegrationOrganizationContext.getOne(context, { id: billingContextId, ...contextWhere }, fields) ]
+        : await loadListByChunks({ context, list: BillingIntegrationOrganizationContext, where: contextWhere, fields })
 
     if (isEmpty(billingContexts) || isEmpty(billingContexts[0])) throw new Error(INVALID_CONTEXT_PROVIDED_ERROR)
 

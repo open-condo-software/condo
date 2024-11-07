@@ -278,7 +278,7 @@ describe('PropertyMeterReading', () => {
                             code: 'BAD_USER_INPUT',
                             type: 'METER_READING_FEW_VALUES',
                             message: 'Wrong values count: few values',
-                            messageForUser: 'api.meterReading.METER_READING_FEW_VALUES',
+                            messageForUser: 'api.meter.meterReading.METER_READING_FEW_VALUES',
                             messageInterpolation: { meterNumber: propertyMeter.number, numberOfTariffs: 3, fieldsNames: ['value1', 'value2', 'value3'].map((field) => i18n(`meter.import.column.${field}`, { locale })).join(', ') },
                         }
                     )
@@ -294,7 +294,7 @@ describe('PropertyMeterReading', () => {
                             code: 'BAD_USER_INPUT',
                             type: 'METER_READING_FEW_VALUES',
                             message: 'Wrong values count: few values',
-                            messageForUser: 'api.meterReading.METER_READING_FEW_VALUES',
+                            messageForUser: 'api.meter.meterReading.METER_READING_FEW_VALUES',
                             messageInterpolation: { meterNumber: propertyMeter.number, numberOfTariffs: 3, fieldsNames: ['value2', 'value3'].map((field) => i18n(`meter.import.column.${field}`, { locale })).join(', ') },
                         }
                     )
@@ -310,7 +310,7 @@ describe('PropertyMeterReading', () => {
                             code: 'BAD_USER_INPUT',
                             type: 'METER_READING_FEW_VALUES',
                             message: 'Wrong values count: few values',
-                            messageForUser: 'api.meterReading.METER_READING_FEW_VALUES',
+                            messageForUser: 'api.meter.meterReading.METER_READING_FEW_VALUES',
                             messageInterpolation: { meterNumber: propertyMeter.number, numberOfTariffs: 3, fieldsNames: ['value3'].map((field) => i18n(`meter.import.column.${field}`, { locale })).join(', ') },
                         }
                     )
@@ -326,7 +326,7 @@ describe('PropertyMeterReading', () => {
                             code: 'BAD_USER_INPUT',
                             type: 'METER_READING_FEW_VALUES',
                             message: 'Wrong values count: few values',
-                            messageForUser: 'api.meterReading.METER_READING_FEW_VALUES',
+                            messageForUser: 'api.meter.meterReading.METER_READING_FEW_VALUES',
                             messageInterpolation: { meterNumber: propertyMeter.number, numberOfTariffs: 3, fieldsNames: ['value1', 'value3'].map((field) => i18n(`meter.import.column.${field}`, { locale })).join(', ') },
                         }
                     )
@@ -350,7 +350,7 @@ describe('PropertyMeterReading', () => {
                             code: 'BAD_USER_INPUT',
                             type: 'METER_READING_EXTRA_VALUES',
                             message: 'Wrong values count: extra values',
-                            messageForUser: 'api.meterReading.METER_READING_EXTRA_VALUES',
+                            messageForUser: 'api.meter.meterReading.METER_READING_EXTRA_VALUES',
                             messageInterpolation: { meterNumber: propertyMeter.number, numberOfTariffs: 1, fieldsNames: ['value2'].map((field) => i18n(`meter.import.column.${field}`, { locale })).join(', ') },
                         }
                     )
@@ -366,7 +366,7 @@ describe('PropertyMeterReading', () => {
                             code: 'BAD_USER_INPUT',
                             type: 'METER_READING_EXTRA_VALUES',
                             message: 'Wrong values count: extra values',
-                            messageForUser: 'api.meterReading.METER_READING_EXTRA_VALUES',
+                            messageForUser: 'api.meter.meterReading.METER_READING_EXTRA_VALUES',
                             messageInterpolation: { meterNumber: propertyMeter.number, numberOfTariffs: 1, fieldsNames: ['value2', 'value3'].map((field) => i18n(`meter.import.column.${field}`, { locale })).join(', ') },
                         }
                     )
@@ -382,7 +382,7 @@ describe('PropertyMeterReading', () => {
                             code: 'BAD_USER_INPUT',
                             type: 'METER_READING_EXTRA_VALUES',
                             message: 'Wrong values count: extra values',
-                            messageForUser: 'api.meterReading.METER_READING_EXTRA_VALUES',
+                            messageForUser: 'api.meter.meterReading.METER_READING_EXTRA_VALUES',
                             messageInterpolation: { meterNumber: propertyMeter.number, numberOfTariffs: 1, fieldsNames: ['value2', 'value3', 'value4'].map((field) => i18n(`meter.import.column.${field}`, { locale })).join(', ') },
                         }
                     )

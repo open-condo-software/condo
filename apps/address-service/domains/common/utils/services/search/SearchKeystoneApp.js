@@ -89,8 +89,8 @@ class SearchKeystoneApp {
                  */
                 const s = get(req, ['query', 's'])
 
-                if (!s) {
-                    res.status(400).send('No address to search for')
+                if (!s || typeof s !== 'string') {
+                    res.status(400).send('No address to search for. Or wrong ?s= query format')
                     return
                 }
 

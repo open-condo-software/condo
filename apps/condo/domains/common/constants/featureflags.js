@@ -21,7 +21,6 @@ const SEND_TELEGRAM_NOTIFICATIONS = 'send-telegram-notifications'
 const CAPTCHA_CHECK_ENABLED = 'captcha-check-enabled'
 // TODO(DOMA-8667): Remove flag after links to instructions will be ready
 const IMPORT_HELP_MODAL = 'import-help-modal'
-const PROPERTY_DOCUMENTS = 'property-documents'
 const SEND_DAILY_STATISTICS_TASK = 'send-daily-statistics-task'
 const RETENTION_LOOPS_ENABLED = 'retention-loops-enabled'
 const NEWS_SHARING = 'news-sharing'
@@ -53,7 +52,6 @@ module.exports = {
     SEND_TELEGRAM_NOTIFICATIONS,
     CAPTCHA_CHECK_ENABLED,
     IMPORT_HELP_MODAL,
-    PROPERTY_DOCUMENTS,
     RETENTION_LOOPS_ENABLED,
     SEND_DAILY_STATISTICS_TASK,
     NEWS_SHARING,

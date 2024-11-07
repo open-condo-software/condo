@@ -5,8 +5,7 @@
 const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
-const { GQLCustomSchema, getSchemaCtx } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const access = require('@condo/domains/notification/access/_internalSendNotificationNewMobileAppVersionService')
@@ -67,6 +66,7 @@ const _internalSendNotificationNewMobileAppVersionService = new GQLCustomSchema(
                                 type: userType,
                             },
                         },
+                        fields: 'id meta',
                         chunkSize: 50,
                         chunkProcessor: (/** @type {RemoteClient[]} */ chunk) => {
                             const rcWithLowerBuild = []
@@ -90,6 +90,7 @@ const _internalSendNotificationNewMobileAppVersionService = new GQLCustomSchema(
                                 id_in: organizationIds,
                             },
                         },
+                        fields: 'id',
                         chunkSize: 50,
                         chunkProcessor: (/** @type {Property[]} */ chunk) => {
                             const propertyIds = []
@@ -108,6 +109,7 @@ const _internalSendNotificationNewMobileAppVersionService = new GQLCustomSchema(
                                 id_in: propertyIds,
                             },
                         },
+                        fields: 'id user { id }',
                         chunkSize: 50,
                         chunkProcessor: (/** @type {Resident[]} */ chunk) => {
                             const userIds = []
@@ -130,6 +132,7 @@ const _internalSendNotificationNewMobileAppVersionService = new GQLCustomSchema(
                                 id_in: userIds,
                             },
                         },
+                        fields: 'id meta',
                         chunkSize: 50,
                         chunkProcessor: (/** @type {RemoteClient[]} */ chunk) => {
                             const rcWithLowerBuild = []
@@ -137,7 +140,8 @@ const _internalSendNotificationNewMobileAppVersionService = new GQLCustomSchema(
                             if (buildVersion) {
                                 for (const rc of chunk) {
                                     const buildVersionFromRC = get(rc, 'meta.Build')
-                                    if (compareMobileAppVersions(typeof buildVersionFromRC === 'string' ? buildVersionFromRC : buildVersion, buildVersion) < 0) rcWithLowerBuild.push(`rc:${rc.id}`)                                }
+                                    if (compareMobileAppVersions(typeof buildVersionFromRC === 'string' ? buildVersionFromRC : buildVersion, buildVersion) < 0) rcWithLowerBuild.push(`rc:${rc.id}`)
+                                }
                             }
 
                             return rcWithLowerBuild

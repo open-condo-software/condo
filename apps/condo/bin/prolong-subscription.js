@@ -114,7 +114,7 @@ async function main () {
     console.debug('where', where)
     console.debug('increaseFinishAtBy', increaseFinishAtBy)
 
-    const serviceSubscriptions = await ServiceSubscription.getAll(adminContext, where)
+    const serviceSubscriptions = await ServiceSubscription.getAll(adminContext, where, 'id finishAt')
     if (serviceSubscriptions.length === 0) {
         console.log(`No ServiceSubscription records found by conditions: ${JSON.stringify(where)}`)
         process.exit(0)
@@ -143,7 +143,7 @@ async function main () {
                     dv: 1,
                     sender: { dv: 1, fingerprint: 'prolong-subscriptions' },
                     finishAt: newFinishAt,
-                })
+                }, 'id finishAt')
                 console.debug('after', result)
                 processedCount++
             }))

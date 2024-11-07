@@ -71,8 +71,8 @@ export type BaseIncidentFormProps = {
     | 'textForResident'
     | 'hasAllProperties'
     > & {
-        incidentProperties: IIncidentProperty[],
-        incidentClassifiers: IIncidentClassifierIncident[],
+        incidentProperties: IIncidentProperty[]
+        incidentClassifiers: IIncidentClassifierIncident[]
     }
     organizationId: string
     action: (values: IIncidentCreateInput | IIncidentUpdateInput) => ReturnType<ReturnType<IncidentClientUtilsType['useCreate' | 'useUpdate']>>
@@ -113,9 +113,9 @@ export const TextArea = styled(Input.TextArea)`
 
 type OptionType = Required<Pick<DefaultOptionType, 'label' | 'value'>>
 type FilterAvailableItemsType = (props: {
-    availableClassifiers: IIncidentClassifier[],
-    type: 'category' | 'problem',
-    selectedItems: string[],
+    availableClassifiers: IIncidentClassifier[]
+    type: 'category' | 'problem'
+    selectedItems: string[]
 }) => string[]
 
 const convertToSelectOptions: (items: Option[]) => OptionType[] = (items) => items.map(item => ({ label: item.name, value: item.id }))
@@ -322,7 +322,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const { breakpoints } = useLayoutContext()
     const isSmallWindow = !breakpoints.TABLET_LARGE
     const { requiredValidator } = useValidations()
-    const Details = useInputWithCounter(TextArea, 500)
+    const Details = useInputWithCounter(TextArea, 1500)
     const TextForResident = useInputWithCounter(TextArea, 500)
 
     const createIncidentProperty = IncidentProperty.useCreate({})

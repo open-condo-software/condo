@@ -4,10 +4,8 @@
 
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, UUID_RE } = require('@open-condo/keystone/test.utils')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowInternalError } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, UUID_RE, expectToThrowAccessDeniedErrorToObj, expectToThrowUniqueConstraintViolationError } = require('@open-condo/keystone/test.utils')
 
-const { UNIQUE_CONSTRAINT_ERROR } = require('@condo/domains/common/constants/errors')
 const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const {
     createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee, updateTestOrganizationEmployee, createTestOrganizationLink,
@@ -65,9 +63,9 @@ describe('UserTicketCommentReadTime', () => {
                 const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property)
                 await createTestUserTicketCommentReadTime(userClient, userClient.user, ticket)
 
-                await expectToThrowInternalError(async () => {
+                await expectToThrowUniqueConstraintViolationError(async () => {
                     await createTestUserTicketCommentReadTime(userClient, userClient.user, ticket)
-                }, `${UNIQUE_CONSTRAINT_ERROR} "unique_user_and_ticket"`)
+                }, 'unique_user_and_ticket')
             })
 
             it('can create UserTicketCommentReadTime if user has another soft deleted employee in organization', async () => {
@@ -154,11 +152,11 @@ describe('UserTicketCommentReadTime', () => {
                 await createTestUserTicketCommentReadTime(userClient, userClient.user, ticket)
                 const [userTicketCommentReadTime] = await createTestUserTicketCommentReadTime(userClient, userClient.user, ticket1)
 
-                await expectToThrowInternalError(async () => {
+                await expectToThrowUniqueConstraintViolationError(async () => {
                     await updateTestUserTicketCommentReadTime(userClient, userTicketCommentReadTime.id, {
                         ticket: { connect: { id: ticket.id } },
                     })
-                }, `${UNIQUE_CONSTRAINT_ERROR} "unique_user_and_ticket"`)
+                }, 'unique_user_and_ticket')
             })
         })
     })

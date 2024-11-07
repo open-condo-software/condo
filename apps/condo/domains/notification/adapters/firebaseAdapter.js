@@ -1,4 +1,3 @@
-const { faker } = require('@faker-js/faker')
 const admin = require('firebase-admin')
 const { isEmpty, isNull, get, isObject } = require('lodash')
 
@@ -112,7 +111,7 @@ class FirebaseAdapter {
         return {
             success: true,
             type: 'Fake',
-            messageId: `fake-success-message/${faker.datatype.uuid()}`,
+            messageId: `fake-success-message/${Date.now()}`,
         }
     }
 
@@ -215,7 +214,7 @@ class FirebaseAdapter {
         // NOTE: we try to fire FireBase request only if FireBase was initialized and we have some real notifications
         if (!isNull(this.app) && !isEmpty(notifications)) {
             try {
-                const fbResult = await this.app.messaging().sendAll(notifications)
+                const fbResult = await this.app.messaging().sendEach(notifications)
 
                 if (!isEmpty(fbResult.responses)) {
                     fbResult.responses = fbResult.responses.map(

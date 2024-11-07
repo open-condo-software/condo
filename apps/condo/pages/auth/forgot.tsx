@@ -104,7 +104,7 @@ function ResetPageView () {
                 setIsLoading(false)
                 setStep('validatePhone')
             },
-            finally: () => setIsLoading(false),
+            onFinally: () => setIsLoading(false),
             intl,
             form,
             ErrorToFormFieldMsgMapping,

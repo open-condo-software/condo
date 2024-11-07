@@ -9,7 +9,7 @@ function getModelForms (key) {
     return [MODEL, MODELS]
 }
 
-function genGetAllGQL (key, fields, prefix = '') {
+function generateGetAllGQL (key, fields, prefix = '') {
     const [MODEL, MODELS] = getModelForms(key)
     const capitalizedPrefix = prefix.length ? prefix.charAt(0).toUpperCase() + prefix.slice(1) : ''
     const queryName = prefix ? `${prefix}All${MODELS}` : `all${MODELS}`
@@ -23,7 +23,7 @@ function genGetAllGQL (key, fields, prefix = '') {
     `
 }
 
-function genGetCountGQL (key, prefix = '') {
+function generateGetCountGQL (key, prefix = '') {
     const [MODEL, MODELS] = getModelForms(key)
     const metaQueryName = `${prefix}_all${MODELS}Meta`
     const capitalizedPrefix = prefix.length ? prefix.charAt(0).toUpperCase() + prefix.slice(1) : ''
@@ -36,7 +36,7 @@ function genGetCountGQL (key, prefix = '') {
     `
 }
 
-function genGetAllWithCountGQL (key, fields, prefix = '') {
+function generateGetAllWithCountGQL (key, fields, prefix = '') {
     const [MODEL, MODELS] = getModelForms(key)
     const metaQueryName = `${prefix}_all${MODELS}Meta`
     const queryName = prefix ? `${prefix}All${MODELS}` : `all${MODELS}`
@@ -52,7 +52,7 @@ function genGetAllWithCountGQL (key, fields, prefix = '') {
     `
 }
 
-function genCreateGQL (key, fields, prefix = '') {
+function generateCreateGQL (key, fields, prefix = '') {
     const [MODEL] = getModelForms(key)
     const capitalizedPrefix = prefix.length ? prefix.charAt(0).toUpperCase() + prefix.slice(1) : ''
     const mutationName = prefix ? `${prefix}Create${MODEL}` : `create${MODEL}`
@@ -65,7 +65,7 @@ function genCreateGQL (key, fields, prefix = '') {
     `
 }
 
-function genCreateManyGQL (key, fields, prefix = '') {
+function generateCreateManyGQL (key, fields, prefix = '') {
     const [, MODELS] = getModelForms(key)
     const capitalizedPrefix = prefix.length ? prefix.charAt(0).toUpperCase() + prefix.slice(1) : ''
     const mutationName = prefix ? `${prefix}Create${MODELS}` : `create${MODELS}`
@@ -78,7 +78,7 @@ function genCreateManyGQL (key, fields, prefix = '') {
     `
 }
 
-function genUpdateGQL (key, fields, prefix = '') {
+function generateUpdateGQL (key, fields, prefix = '') {
     const [MODEL] = getModelForms(key)
     const mutationName = prefix ? `${prefix}Update${MODEL}` : `update${MODEL}`
     const capitalizedPrefix = prefix.length ? prefix.charAt(0).toUpperCase() + prefix.slice(1) : ''
@@ -91,7 +91,7 @@ function genUpdateGQL (key, fields, prefix = '') {
     `
 }
 
-function genUpdateManyGQL (key, fields, prefix = '') {
+function generateUpdateManyGQL (key, fields, prefix = '') {
     const [, MODELS] = getModelForms(key)
     const capitalizedPrefix = prefix.length ? prefix.charAt(0).toUpperCase() + prefix.slice(1) : ''
     const mutationName = prefix ? `${prefix}Update${MODELS}` : `update${MODELS}`
@@ -104,7 +104,7 @@ function genUpdateManyGQL (key, fields, prefix = '') {
 }
 
 // TODO(DOMA-4411): add prefix or remove at all
-function genDeleteGQL (key, fields) {
+function generateDeleteGQL (key, fields) {
     const [MODEL] = getModelForms(key)
     return gql`
         mutation delete${MODEL}($id: ID!) {
@@ -114,7 +114,7 @@ function genDeleteGQL (key, fields) {
 }
 
 // TODO(DOMA-4411): add prefix or remove at all
-function genDeleteMany (key, fields) {
+function generateDeleteMany (key, fields) {
     const [, MODELS] = getModelForms(key)
     return gql`
         mutation delete${MODELS}($ids: [ID!]) {
@@ -129,15 +129,15 @@ function generateGqlQueries (key, fields, prefix = '') {
     if (!fields.startsWith('{') || !fields.endsWith('}'))
         throw new Error('wrong list fields format. Try "{ name1 name2 }"')
 
-    const GET_ALL_OBJS_QUERY = genGetAllGQL(singularName, fields, prefix)
-    const GET_COUNT_OBJS_QUERY = genGetCountGQL(singularName, prefix)
-    const GET_ALL_OBJS_WITH_COUNT_QUERY = genGetAllWithCountGQL(singularName, fields, prefix)
-    const CREATE_OBJ_MUTATION = genCreateGQL(singularName, fields, prefix)
-    const CREATE_OBJS_MUTATION = genCreateManyGQL(singularName, fields, prefix)
-    const UPDATE_OBJ_MUTATION = genUpdateGQL(singularName, fields, prefix)
-    const UPDATE_OBJS_MUTATION = genUpdateManyGQL(singularName, fields, prefix)
-    const DELETE_OBJ_MUTATION = genDeleteGQL(singularName, fields)
-    const DELETE_OBJS_MUTATION = genDeleteMany(singularName, fields)
+    const GET_ALL_OBJS_QUERY = generateGetAllGQL(singularName, fields, prefix)
+    const GET_COUNT_OBJS_QUERY = generateGetCountGQL(singularName, prefix)
+    const GET_ALL_OBJS_WITH_COUNT_QUERY = generateGetAllWithCountGQL(singularName, fields, prefix)
+    const CREATE_OBJ_MUTATION = generateCreateGQL(singularName, fields, prefix)
+    const CREATE_OBJS_MUTATION = generateCreateManyGQL(singularName, fields, prefix)
+    const UPDATE_OBJ_MUTATION = generateUpdateGQL(singularName, fields, prefix)
+    const UPDATE_OBJS_MUTATION = generateUpdateManyGQL(singularName, fields, prefix)
+    const DELETE_OBJ_MUTATION = generateDeleteGQL(singularName, fields)
+    const DELETE_OBJS_MUTATION = generateDeleteMany(singularName, fields)
 
     return {
         SINGULAR_FORM: singularName,
@@ -245,4 +245,11 @@ module.exports = {
     generateGqlQueries,
     generateQueryWhereInput,
     generateQuerySortBy,
+    generateGetAllGQL,
+    generateGetCountGQL,
+    generateCreateGQL,
+    generateCreateManyGQL,
+    generateUpdateGQL,
+    generateUpdateManyGQL,
+    generateDeleteGQL,
 }

@@ -39,6 +39,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: UNKNOWN_ATTRIBUTE,
         message: 'Unknown attribute "{attr}" provided to "meta" variable',
+        messageInterpolation: { attr: '<attr-name>' },
     },
     MISSING_VALUE_FOR_REQUIRED_META_ATTRIBUTE: {
         mutation: 'sendMessage',
@@ -46,6 +47,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: REQUIRED,
         message: 'Missing value for required "meta.{attr}" attribute',
+        messageInterpolation: { attr: '<name>' },
     },
     UNKNOWN_MESSAGE_TYPE: {
         mutation: 'sendMessage',
@@ -53,6 +55,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
         message: 'Unknown value "{type}" provided for message type',
+        messageInterpolation: { type: '<type-name>' },
     },
     DV_VERSION_MISMATCH: {
         mutation: 'sendMessage',
@@ -170,7 +173,7 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
 
                 const message = messageWithSameUniqKey
                     ? messageWithSameUniqKey
-                    : await Message.create(context, messageAttrs)
+                    : await Message.create(context, messageAttrs, 'id status')
 
                 if (!messageWithSameUniqKey) await deliverMessage.applyAsync([message.id], getMessageQueue({ type }))
 
@@ -194,7 +197,7 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
                     sentAt: null,
                     deliveredAt: null,
                     readAt: null,
-                })
+                }, 'id status type')
 
                 await deliverMessage.applyAsync([message.id], getMessageQueue({ type: message.type }))
 

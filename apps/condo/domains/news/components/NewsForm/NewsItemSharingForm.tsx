@@ -25,8 +25,8 @@ const BIG_HORIZONTAL_GUTTER: [Gutter, Gutter] = [50, 0]
 export type SharingAppValues = {
     formValues: Record<string, unknown>,
     preview: {
-        renderedTitle: string,
-        renderedBody: string,
+        renderedTitle: string
+        renderedBody: string
     }
     isValid: boolean
 }
@@ -34,7 +34,7 @@ export type SharingAppValues = {
 interface INewsItemSharingForm {
     sharingApp: B2BApp
 
-    ctxId: string,
+    ctxId: string
 
     onSubmit: (SharingAppValues) => void
     onSkip: (SharingAppValues) => void
@@ -42,10 +42,10 @@ interface INewsItemSharingForm {
     initialValues: SharingAppValues | undefined
 
     newsItemData: {
-        type: string,
-        validBefore?: string,
-        title: string,
-        body: string,
+        type: string
+        validBefore?: string
+        title: string
+        body: string
         scopes: NewsItemScopeNoInstanceType[]
     }
 }

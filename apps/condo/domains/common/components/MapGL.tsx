@@ -11,14 +11,14 @@ import { DEFAULT_CENTER, MARKER_SVG_URL } from '../constants/map'
 const GUEST_API_KEY = 'bfd8bbca-8abf-11ea-b033-5fa57aae2de7'
 
 export interface IPointsOfInterest {
-    title?: string,
-    text?: string,
+    title?: string
+    text?: string
     location: { lat: number, lng: number },
     route?: string
 }
 
 export interface IMapProps {
-    points: IPointsOfInterest[],
+    points: IPointsOfInterest[]
     containerCss?: InterpolationWithTheme<any>
 }
 

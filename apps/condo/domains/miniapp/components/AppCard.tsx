@@ -7,6 +7,9 @@ import { Card, Typography, Button } from '@open-condo/ui'
 
 import { AppLabelTag } from './AppLabelTag'
 
+import type { AppLabelTagProps } from './AppLabelTag'
+
+
 const FALLBACK_IMAGE_URL = '/homeWithSun.svg'
 const TEXT_ELLIPSIS_CONFIG = { rows: 2 }
 const CARD_BODY_PADDINGS = 20
@@ -21,15 +24,15 @@ export const MIN_CARD_WIDTH = 250
 
 type AppCardTitleProps = {
     logoUrl?: string
-    label?: string
+    label?: AppLabelTagProps['type']
 }
 
 type AppCardProps = {
     connected: boolean
     name: string
     description?: string
-    logoUrl?: string
-    label?: string
+    logoUrl?: AppCardTitleProps['logoUrl']
+    label?: AppCardTitleProps['label']
     onClick?: () => void
 }
 

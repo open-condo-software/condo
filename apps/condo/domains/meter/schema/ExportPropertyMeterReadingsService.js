@@ -39,7 +39,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: WRONG_FORMAT,
         message: 'Invalid format of "sender" field value',
-        correctExample: '{ dv: 1, fingerprint: \'example-fingerprint-alphanumeric-value\'}',
+        correctExample: '{ "dv": 1, "fingerprint": "uniq-device-or-container-id" }',
     },
     NOTHING_TO_EXPORT: {
         query: 'exportPropertyMeterReadings',
@@ -90,8 +90,8 @@ const ExportPropertyMeterReadingsService = new GQLCustomSchema('ExportPropertyMe
 
                 const meterIds = uniq(lastReadingsByMeter.map(meterReading => meterReading.meter))
                 const meters = await loadPropertyMetersForExcelExport({ where: { id_in: meterIds } })
-                const meterResources = await MeterResource.getAll(context, {})
-                const meterReadingSources = await MeterReadingSource.getAll(context, {})
+                const meterResources = await MeterResource.getAll(context, {}, 'id name')
+                const meterReadingSources = await MeterReadingSource.getAll(context, {}, 'id name')
 
                 const mappedMeterReadings = lastReadingsByMeter.map(meterReading => {
                     const source = meterReadingSources.find(meterReadingSource => meterReadingSource.id === meterReading.source)

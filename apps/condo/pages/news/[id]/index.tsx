@@ -1,4 +1,7 @@
 /** @jsx jsx */
+import {
+    NewsItem as INewsItem,
+} from '@app/condo/schema'
 import { jsx } from '@emotion/react'
 import { Col, notification, Row, RowProps } from 'antd'
 import dayjs from 'dayjs'
@@ -47,8 +50,8 @@ const HORIZONTAL_ROW_GUTTER: RowProps['gutter'] = [0, 24]
 const HEADER_STYLES: React.CSSProperties = { paddingBottom: '20px' }
 
 interface IFieldPairRowProps {
-    fieldTitle: string,
-    fieldValue: string | React.ReactNode,
+    fieldTitle: string
+    fieldValue: string | React.ReactNode
 }
 const FieldPairRow: React.FC<IFieldPairRowProps> = (props) => {
     const {
@@ -77,10 +80,13 @@ const NewsItemCard: React.FC = () => {
     const TitleLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.field.title' })
     const BodyLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.field.body' })
     const EditTitle = intl.formatMessage({ id: 'Edit' })
-    const DeleteTitle = intl.formatMessage({ id: 'Delete' })
     const ResendTitle = intl.formatMessage({ id: 'pages.news.newsItemCard.resendButton' })
+    const DeleteTitle = intl.formatMessage({ id: 'Delete' })
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'news.ConfirmDeleteTitle' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'news.ConfirmDeleteMessage' })
+    const DeprecateTitle = intl.formatMessage({ id: 'news.DeprecateTitle' })
+    const ConfirmDeprecateTitle = intl.formatMessage({ id: 'news.ConfirmDeprecateTitle' })
+    const ConfirmDeprecateMessage = intl.formatMessage({ id: 'news.ConfirmDeprecateMessage' })
     const CancelMessage = intl.formatMessage({ id: 'news.CancelMessage' })
     const NotSentMessage = intl.formatMessage({ id: 'pages.news.newsItemCard.status.notSent' })
     const SendingMessage = intl.formatMessage({ id: 'pages.news.newsItemCard.status.sending' })
@@ -99,6 +105,7 @@ const NewsItemCard: React.FC = () => {
         obj: newsItem,
         loading: newsItemLoading,
         error: newsItemError,
+        refetch: refetchNews,
     } = NewsItem.useObject({
         where: {
             id: newsItemId,
@@ -187,11 +194,21 @@ const NewsItemCard: React.FC = () => {
         },
     })
 
-    const softDeleteNews = NewsItem.useSoftDelete(() => push('/news/'))
+    const softDeleteNewsAction = NewsItem.useSoftDelete(() => push('/news/'))
     const handleDeleteButtonClick = useCallback(async () => {
         notification.close(newsItem.id)
-        await softDeleteNews(newsItem)
-    }, [softDeleteNews, newsItem])
+        await softDeleteNewsAction(newsItem)
+    }, [softDeleteNewsAction, newsItem])
+
+    const updateNewsAction = NewsItem.useUpdate({}, () => refetchNews())
+    const handleDeprecateNowButtonClick = useCallback(async (newsItem: INewsItem) => {
+        notification.close(newsItem.id)
+        // To deprecate news item now you need to send validBefore = now
+        // If user has broken time settings in their OS, result of Date.now() will be wrong
+        // This might result in an error when validBefore is less than sentAt
+        const deprecateDatetime = newsItem.sentAt || dayjs().toISOString()
+        await updateNewsAction({ validBefore: deprecateDatetime }, newsItem)
+    }, [ updateNewsAction, newsItem ])
 
     const CreatedByLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.author' }, {
         createdBy: get(employee, 'name'),
@@ -362,6 +379,20 @@ const NewsItemCard: React.FC = () => {
                                             <Link key='resend' href={`/news/${get(newsItem, 'id')}/resend`}>
                                                 <Button type='primary'>{ResendTitle}</Button>
                                             </Link>
+                                        ),
+                                        (isSent && (!newsItem.validBefore || dayjs(newsItem.validBefore) > dayjs()) && newsItemSharings.length === 0) && (
+                                            <DeleteButtonWithConfirmModal
+                                                key='validBefore'
+                                                title={ConfirmDeprecateTitle}
+                                                message={ConfirmDeprecateMessage}
+                                                okButtonLabel={DeprecateTitle}
+                                                action={() => handleDeprecateNowButtonClick(newsItem)}
+                                                buttonContent={DeprecateTitle}
+                                                showCancelButton={true}
+                                                cancelMessage={CancelMessage}
+                                                messageType='secondary'
+                                                buttonCustomProps={{ type:'secondary', danger: undefined }}
+                                            />
                                         ),
                                     ]}/>
                                 </Col>

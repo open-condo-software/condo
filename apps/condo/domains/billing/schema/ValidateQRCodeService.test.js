@@ -55,9 +55,9 @@ const {
 } = require('@condo/domains/user/utils/testSchema')
 
 function stringifyQrCode (qrCodeObj) {
-    return Object.keys(qrCodeObj).reduce((qrStr, field) => {
+    return Buffer.from(Object.keys(qrCodeObj).reduce((qrStr, field) => {
         return `${qrStr}|${field}=${qrCodeObj[field]}`
-    }, 'ST00012')
+    }, 'ST00012')).toString('base64')
 }
 
 async function createBillingReceiptAndAllDependencies (admin, organization, property, qrCodeAttrs, period, sum, acquiringIntegrationFeePercent, serviceFeePercent) {
@@ -271,7 +271,7 @@ describe('ValidateQRCodeService', () => {
 
     describe('Validate organization', () => {
         test('should throw if no organization with provided TIN exists', async () => {
-            const qrCode = qrCodeString.replace(qrCodeObj.PayeeINN, '000000000')
+            const qrCode = stringifyQrCode({ ...qrCodeObj, PayeeINN: '000000000' })
             await expectToThrowGQLError(
                 async () => {
                     await validateQRCodeByTestClient(adminClient, { qrCode })
@@ -415,18 +415,15 @@ describe('ValidateQRCodeService', () => {
 
             for await (const i of Array.from(Array(MAX_CLIENT_VALIDATE_QR_CODE_BY_WINDOW + 1).keys())) {
                 if (i === MAX_CLIENT_VALIDATE_QR_CODE_BY_WINDOW) {
-                    await catchErrorFrom(async () => {
-                        await validateQRCodeByTestClient(anonymousClient, { qrCode: qrCodeString })
-                    }, ({ errors }) => {
-                        expect(errors).toMatchObject([{
-                            path: ['result'],
-                            extensions: {
-                                code: 'BAD_USER_INPUT',
-                                type: 'TOO_MANY_REQUESTS',
-                                message: 'You have to wait {secondsRemaining} seconds to be able to send request again',
-                            },
-                        }])
-                    })
+                    await expectToThrowGQLError(
+                        async () => await validateQRCodeByTestClient(anonymousClient, { qrCode: qrCodeString }),
+                        {
+                            code: 'BAD_USER_INPUT',
+                            type: 'TOO_MANY_REQUESTS',
+                            message: 'You have to wait {secondsRemaining} seconds to be able to send request again',
+                        },
+                        'result'
+                    )
                 } else {
                     await validateQRCodeByTestClient(anonymousClient, { qrCode: qrCodeString })
                 }

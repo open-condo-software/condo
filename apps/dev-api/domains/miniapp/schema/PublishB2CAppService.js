@@ -48,31 +48,31 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: FIRST_PUBLISH_WITHOUT_INFO,
         message: 'The first publication of the application should include information about the application',
-        messageForUser: 'errors.FIRST_PUBLISH_WITHOUT_INFO.message',
+        messageForUser: 'api.miniapp.publishB2CApp.FIRST_PUBLISH_WITHOUT_INFO',
     },
     APP_NOT_FOUND: {
         code: BAD_USER_INPUT,
         type: APP_NOT_FOUND,
         message: 'The application with the specified ID was not found',
-        messageForUser: 'errors.APP_NOT_FOUND.message',
+        messageForUser: 'api.miniapp.B2CApp.APP_NOT_FOUND',
     },
     CONDO_APP_NOT_FOUND: {
         code: INTERNAL_ERROR,
         type: CONDO_APP_NOT_FOUND,
         message: 'The application was probably deleted on remote server. Try to publish app info to recreate it',
-        messageForUser: 'errors.CONDO_APP_NOT_FOUND.message',
+        messageForUser: 'api.miniapp.publishB2CApp.CONDO_APP_NOT_FOUND',
     },
     BUILD_NOT_FOUND: {
         code: BAD_USER_INPUT,
         type: BUILD_NOT_FOUND,
         message: 'Application build with the specified ID was not found',
-        messageForUser: 'errors.BUILD_NOT_FOUND.message',
+        messageForUser: 'api.miniapp.publishB2CApp.BUILD_NOT_FOUND',
     },
     PUBLISH_NOT_ALLOWED: {
         code: BAD_USER_INPUT,
         type: PUBLISH_NOT_ALLOWED,
         message: 'The application cannot be published to the specified stand, as this requires additional verification',
-        messageForUser: 'errors.PUBLISH_NOT_ALLOWED.message',
+        messageForUser: 'api.miniapp.publishB2CApp.PUBLISH_NOT_ALLOWED',
     },
 }
 
@@ -238,7 +238,7 @@ async function addAccessRight ({ args, serverClient, context, condoApp }) {
         app: { id },
         environment,
         deletedAt: null,
-    })
+    }, 'id condoUserId')
 
     if (accessRight) {
         logger.info({ msg: 'Access right found for app', appId: id, environment, meta: { accessRightId: accessRight.id } })
@@ -320,7 +320,11 @@ const PublishB2CAppService = new GQLCustomSchema('PublishB2CAppService', {
             resolver: async (parent, args, context) => {
                 const { data: { app: { id }, options, environment } } = args
 
-                const app = await B2CApp.getOne(context, { id, deletedAt: null })
+                const app = await B2CApp.getOne(
+                    context,
+                    { id, deletedAt: null },
+                    'id developmentExportId productionExportId name developer createdBy { name } logo { publicUrl originalFilename }'
+                )
                 if (!app) {
                     throw new GQLError(ERRORS.APP_NOT_FOUND, context)
                 }
@@ -375,7 +379,7 @@ const PublishB2CAppService = new GQLCustomSchema('PublishB2CAppService', {
                         id: options.build.id,
                         deletedAt: null,
                         app: { id: app.id },
-                    })
+                    }, 'id developmentExportId productionExportId version data { publicUrl originalFilename mimetype encoding }')
                     if (!build) {
                         throw new GQLError(ERRORS.BUILD_NOT_FOUND, context)
                     }

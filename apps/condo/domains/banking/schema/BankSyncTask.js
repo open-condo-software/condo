@@ -34,19 +34,19 @@ const errors = {
         code: BAD_USER_INPUT,
         type: 'ACCOUNT_IS_REQUIRED',
         message: 'The "account" field is required to request transactions from SBBOL',
-        messageForUser: 'api.banking.BankSyncTask.ACCOUNT_IS_REQUIRED',
+        messageForUser: 'api.banking.bankSyncTask.ACCOUNT_IS_REQUIRED',
     },
     INCORRECT_DATE_INTERVAL: {
         code: BAD_USER_INPUT,
         type: 'INCORRECT_DATE_INTERVAL',
         message: 'dateTo cannot be later than dateFrom',
-        messageForUser: 'api.banking.BankSyncTask.INCORRECT_DATE_INTERVAL',
+        messageForUser: 'api.banking.bankSyncTask.INCORRECT_DATE_INTERVAL',
     },
     DISABLED_BANK_INTEGRATION_ORGANIZATION_CONTEXT: {
         code: BAD_USER_INPUT,
         type: 'DISABLED_BANK_INTEGRATION_ORGANIZATION_CONTEXT',
         message: 'Disabled BankIntegrationContext for current organization does not allow to execute data synchronization operations',
-        messageForUser: 'api.banking.BankSyncTask.DISABLED_BANK_INTEGRATION_ORGANIZATION_CONTEXT',
+        messageForUser: 'api.banking.bankSyncTask.DISABLED_BANK_INTEGRATION_ORGANIZATION_CONTEXT',
     },
 }
 
@@ -182,7 +182,7 @@ const BankSyncTask = new GQLListSchema('BankSyncTask', {
                         id: integrationId,
                     },
                     deletedAt: null,
-                })
+                }, 'id enabled')
                 // After first execution of sync operations, a record for BankIntegrationOrganizationContext will be created automatically
                 // For integration with SBBOL it will be created in sync operation right after completed authorization flow
                 // For integration with 1C, it will be created in importBankTransactions worker
@@ -209,7 +209,9 @@ const BankSyncTask = new GQLListSchema('BankSyncTask', {
             const type = get(resolvedData, 'options.type')
             if (operation === 'create') {
                 if (type === SBBOL) {
-                    const account = await BankAccount.getOne(context, { id: resolvedData.account })
+                    const account = await BankAccount.getOne(context, { id: resolvedData.account },
+                        'id integrationContext { integration { id } }',
+                    )
                     const integration = get(account, 'integrationContext.integration.id')
                     if (!integration) {
                         await BankAccount.update(context, account.id, {

@@ -1,7 +1,6 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react'
-import React from 'react'
-
 import { Alert } from '@open-condo/ui/src'
+
+import type { Meta, StoryObj } from '@storybook/react'
 
 export default {
     title: 'Components/Alert',
@@ -12,23 +11,28 @@ export default {
         showIcon: true,
         description: 'Description',
     },
-} as ComponentMeta<typeof Alert>
+} as Meta<typeof Alert>
+ 
+export const SuccessAlert: StoryObj<typeof Alert> = {
+    args: {
+        type: 'success',
+    },
+}
 
-const Template: ComponentStory<typeof Alert> = (props) => <Alert {...props}/>
+export const InfoAlert: StoryObj<typeof Alert> = {
+    args: {
+        type: 'info',
+    },
+}
 
-export const SuccessAlert = Template.bind({})
-SuccessAlert.args = {
-    type: 'success',
+export const WarningAlert: StoryObj<typeof Alert> = {
+    args: {
+        type: 'warning',
+    },
 }
-export const InfoAlert = Template.bind({})
-InfoAlert.args = {
-    type: 'info',
-}
-export const WarningAlert = Template.bind({})
-WarningAlert.args = {
-    type: 'warning',
-}
-export const ErrorAlert = Template.bind({})
-ErrorAlert.args = {
-    type: 'error',
+
+export const ErrorAlert: StoryObj<typeof Alert> = {
+    args: {
+        type: 'error',
+    },
 }

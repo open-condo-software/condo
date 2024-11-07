@@ -14,7 +14,7 @@ export type StepsProps = {
     current?: number
     items: Array<StepItem>
     onChange?: (currentStep: number) => void
-    id?: string,
+    id?: string
     className?: string
     noReturnMessage?: string
 }

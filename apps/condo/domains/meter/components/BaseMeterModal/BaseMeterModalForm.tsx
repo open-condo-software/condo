@@ -46,9 +46,9 @@ type InitialMeterFormValuesType = {
 }
 
 type BaseMeterModalFormProps = ComponentProps<typeof BaseModalForm> & {
-    handleSubmit: (values: unknown) => void,
-    initialValues: InitialMeterFormValuesType,
-    ModalTitleMsg: JSX.Element | string,
+    handleSubmit: (values: unknown) => void
+    initialValues: InitialMeterFormValuesType
+    ModalTitleMsg: JSX.Element | string
     ModalSaveButtonLabelMsg: JSX.Element | string
     modalNotification?: JSX.Element | string
     disabled?: boolean

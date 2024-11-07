@@ -158,6 +158,12 @@ const Message = new GQLListSchema('Message', {
                 fields: ['uniqKey', 'type'],
                 name: 'message_uniqKey_type',
             },
+            // used by mobile apps to get new push notifications
+            {
+                type: 'BTreeIndex',
+                fields: ['user', 'status', 'sentAt'],
+                name: 'message_user_status_sentat',
+            },
         ],
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],

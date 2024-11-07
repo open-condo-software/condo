@@ -50,7 +50,7 @@ export const filtersToQuery = (filters: IFilters): ContactWhereInput => {
 }
 
 type SorterColumn = {
-    columnKey: string,
+    columnKey: string
     order: 'ascend' | 'descend'
 }
 

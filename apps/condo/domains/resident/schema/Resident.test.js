@@ -72,7 +72,6 @@ const {
     createTestPhone,
 } = require('@condo/domains/user/utils/testSchema')
 
-
 describe('Resident', () => {
 
     describe('resolveInput', () => {
@@ -178,6 +177,7 @@ describe('Resident', () => {
             }
             await createTestResident(adminClient, userClient.user, userClient.property, duplicatedFields)
 
+            // TODO(pahaz): DOMA-10368 use expectToThrow Validation
             await catchErrorFrom(async () => {
                 await createTestResident(adminClient, userClient.user, userClient.property, duplicatedFields)
             }, ({ errors, data }) => {
@@ -201,6 +201,7 @@ describe('Resident', () => {
                 unitName: fields.unitName.toUpperCase(),
             }
 
+            // TODO(pahaz): DOMA-10368 use expectToThrow Validation
             await catchErrorFrom(async () => {
                 await createTestResident(adminClient, userClient.user, userClient.property, duplicatedFields)
             }, ({ errors, data }) => {
@@ -230,6 +231,7 @@ describe('Resident', () => {
                 addressMeta: addressMetaWithFlat,
             }
 
+            // TODO(pahaz): DOMA-10368 use expectToThrow Validation or GQLError
             await catchErrorFrom(async () => {
                 await createTestResident(adminClient, userClient.user, userClient.property, duplicatedFieldsWithFlatInAddress)
             }, ({ errors, data }) => {
@@ -264,13 +266,10 @@ describe('Resident', () => {
                     addressMeta: userClient.property.addressMeta,
                 }
 
-                await catchErrorFrom(async () => {
-                    await createTestResident(adminClient, userClient.user, propertyWithAnotherAddress, attrs)
-                }, ({ errors, data }) => {
-                    expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                    expect(errors[0].data.messages[0]).toMatch('Cannot connect property, because its address differs from address of resident')
-                    expect(data).toEqual({ 'obj': null })
-                })
+                await expectToThrowValidationFailureError(
+                    async () => await createTestResident(adminClient, userClient.user, propertyWithAnotherAddress, attrs),
+                    'Cannot connect property, because its address differs from address of resident',
+                )
             })
 
             it('allows to connect new resident to property having the same address in different character case', async () => {

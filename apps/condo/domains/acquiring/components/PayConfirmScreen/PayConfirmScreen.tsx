@@ -13,16 +13,16 @@ import { MoneyBlock } from './MoneyBlock'
 
 
 export type BlockType = {
-    descriptor: MessageDescriptor,
-    amount: string,
-    hideOnZero?: boolean,
+    descriptor: MessageDescriptor
+    amount: string
+    hideOnZero?: boolean
 }
 
 
 interface PayConfirmScreenProps {
     onConfirm: React.MouseEventHandler<HTMLElement>
-    currencyCode: string,
-    parts: Array<BlockType>,
+    currencyCode: string
+    parts: Array<BlockType>
 }
 
 const PayConfirmScreen: React.FC<PayConfirmScreenProps> = ({

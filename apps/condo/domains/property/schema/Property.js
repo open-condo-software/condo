@@ -40,13 +40,13 @@ const jsonMapValidator = ajv.compile(MapSchemaJSON)
 const REQUIRED_FIELDS = ['organization', 'type', 'address', 'addressMeta']
 
 const ERRORS = {
-    SAME_ADDRESS: (existingPropertyId) => ({
+    SAME_ADDRESS: {
         query: 'createProperty',
         code: BAD_USER_INPUT,
         type: PROPERTY_ALREADY_EXISTS,
-        message: `Property with the same address (id=${existingPropertyId}) already exists in current organization`,
-        messageForUser: 'api.property.create.sameAddressError',
-    }),
+        message: 'Property with the same address (id={existingPropertyId}) already exists in current organization',
+        messageForUser: 'api.property.property.SAME_ADDRESS',
+    },
 }
 
 const addressFieldHooks = {
@@ -66,10 +66,13 @@ const addressFieldHooks = {
                 },
                 deletedAt: null,
             }
-            const sameAddressProperties = await PropertyAPI.getAll(context, where, { first: 1 })
+            const sameAddressProperties = await PropertyAPI.getAll(context, where, 'id', { first: 1 })
 
             if (!isEmpty(sameAddressProperties)) {
-                throw new GQLError(ERRORS.SAME_ADDRESS(get(sameAddressProperties, [0, 'id'])), context)
+                throw new GQLError({
+                    ...ERRORS.SAME_ADDRESS,
+                    messageInterpolation: { existingPropertyId: get(sameAddressProperties, [0, 'id']) },
+                }, context)
             }
         }
     },

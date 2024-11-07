@@ -27,7 +27,7 @@ const ERRORS = {
         type: NOT_FOUND,
         variable: ['data', 'role'],
         message: 'Role not found',
-        messageForUser: 'api.organizationEmployee.NOT_FOUND_ROLE',
+        messageForUser: 'api.organization.organizationEmployee.NOT_FOUND_ROLE',
     },
 }
 

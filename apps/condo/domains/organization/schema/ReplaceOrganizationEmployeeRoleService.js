@@ -9,7 +9,7 @@ const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, TOO_MANY_REQUESTS } } = require('@open-condo/keystone/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { getRedisClient } = require('@open-condo/keystone/redis')
-const { GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, getById, find } = require('@open-condo/keystone/schema')
 
 const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
@@ -41,7 +41,8 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: WRONG_FORMAT,
         message: 'Invalid format of "sender" field value. {details}',
-        correctExample: '{ dv: 1, fingerprint: \'example-fingerprint-alphanumeric-value\'}',
+        correctExample: '{ "dv": 1, "fingerprint": "uniq-device-or-container-id" }',
+        messageInterpolation: { details: 'Please, check the example for details' },
     },
     ORGANIZATION_NOT_FOUND: {
         mutation: 'replaceOrganizationEmployeeRole',
@@ -49,7 +50,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'ORGANIZATION_NOT_FOUND',
         message: 'Organization not found',
-        messageForUser: 'api.organization.ReplaceOrganizationEmployeeRole.ORGANIZATION_NOT_FOUND',
+        messageForUser: 'api.organization.replaceOrganizationEmployeeRole.ORGANIZATION_NOT_FOUND',
     },
     OLD_ROLE_NOT_FOUND: {
         mutation: 'replaceOrganizationEmployeeRole',
@@ -57,7 +58,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'OLD_ROLE_NOT_FOUND',
         message: 'Old role not found in specified organization',
-        messageForUser: 'api.organization.ReplaceOrganizationEmployeeRole.OLD_ROLE_NOT_FOUND',
+        messageForUser: 'api.organization.replaceOrganizationEmployeeRole.OLD_ROLE_NOT_FOUND',
     },
     NEW_ROLE_NOT_FOUND: {
         mutation: 'replaceOrganizationEmployeeRole',
@@ -65,7 +66,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'NEW_ROLE_NOT_FOUND',
         message: 'New role not found in specified organization',
-        messageForUser: 'api.organization.ReplaceOrganizationEmployeeRole.NEW_ROLE_NOT_FOUND',
+        messageForUser: 'api.organization.replaceOrganizationEmployeeRole.NEW_ROLE_NOT_FOUND',
     },
     DEFAULT_ROLE_CANNOT_BE_DELETED: {
         mutation: 'replaceOrganizationEmployeeRole',
@@ -73,7 +74,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'DEFAULT_ROLE_CANNOT_BE_DELETED',
         message: 'The default role cannot be deleted',
-        messageForUser: 'api.organization.ReplaceOrganizationEmployeeRole.DEFAULT_ROLE_CANNOT_BE_DELETED',
+        messageForUser: 'api.organization.replaceOrganizationEmployeeRole.DEFAULT_ROLE_CANNOT_BE_DELETED',
     },
     ROLES_MUST_BE_DIFFERENT: {
         mutation: 'replaceOrganizationEmployeeRole',
@@ -81,7 +82,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: 'ROLES_MUST_BE_DIFFERENT',
         message: 'The old role and new role must be different',
-        messageForUser: 'api.organization.ReplaceOrganizationEmployeeRole.ROLES_MUST_BE_DIFFERENT',
+        messageForUser: 'api.organization.replaceOrganizationEmployeeRole.ROLES_MUST_BE_DIFFERENT',
     },
     ROLES_ARE_BEING_PROCESSED: {
         mutation: 'replaceOrganizationEmployeeRole',
@@ -89,7 +90,7 @@ const ERRORS = {
         code: TOO_MANY_REQUESTS,
         type: 'ROLES_ARE_BEING_PROCESSED',
         message: 'These roles are already being processed. Please try again a little later',
-        messageForUser: 'api.organization.ReplaceOrganizationEmployeeRole.ROLES_ARE_BEING_PROCESSED',
+        messageForUser: 'api.organization.replaceOrganizationEmployeeRole.ROLES_ARE_BEING_PROCESSED',
     },
 }
 
@@ -150,30 +151,20 @@ const ReplaceOrganizationEmployeeRoleService = new GQLCustomSchema('ReplaceOrgan
                         retryCount: 0,
                     })
 
-                    await loadListByChunks({
-                        context,
-                        list: OrganizationEmployee,
-                        chunkSize: 20,
-                        where: {
-                            organization: { id: organizationId, deletedAt: null },
-                            role: { id: oldRoleId },
-                            deletedAt: null,
-                        },
-                        sortBy: ['createdAt_ASC', 'id_ASC'],
-                        chunkProcessor: async (chunk) => {
-                            const payload = chunk.map(employee => ({
-                                id: employee.id,
-                                data: {
-                                    dv,
-                                    sender,
-                                    role: { connect: { id: newRoleId } },
-                                },
-                            }))
-                            await OrganizationEmployee.updateMany(context, payload)
-
-                            return []
-                        },
+                    const employees = await find('OrganizationEmployee', {
+                        organization: { id: organizationId, deletedAt: null },
+                        role: { id: oldRoleId },
+                        deletedAt: null,
                     })
+                    const payloadToUpdate = employees.map(employee => ({
+                        id: employee.id,
+                        data: {
+                            dv,
+                            sender,
+                            role: { connect: { id: newRoleId } },
+                        },
+                    }))
+                    await OrganizationEmployee.updateMany(context, payloadToUpdate)
 
                     if (withDeletionOldRole) {
                         await loadListByChunks({
@@ -184,16 +175,17 @@ const ReplaceOrganizationEmployeeRoleService = new GQLCustomSchema('ReplaceOrgan
                                 role: { id: oldRoleId },
                                 deletedAt: null,
                             },
+                            fields: 'id',
                             sortBy: ['createdAt_ASC', 'id_ASC'],
                             chunkProcessor: async (chunk) => {
                                 const ids = chunk.map(b2bAppRole => b2bAppRole.id)
-                                await B2BAppRole.softDeleteMany(context, ids, { dv, sender })
+                                await B2BAppRole.softDeleteMany(context, ids, 'id', { dv, sender })
 
                                 return []
                             },
                         })
 
-                        await OrganizationEmployeeRole.softDelete(context, oldRole.id, { dv, sender })
+                        await OrganizationEmployeeRole.softDelete(context, oldRole.id, 'id', { dv, sender })
                     }
 
                     return {

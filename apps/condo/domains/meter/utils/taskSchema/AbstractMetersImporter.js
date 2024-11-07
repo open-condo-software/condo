@@ -1,10 +1,16 @@
-const { chunk, get, isArray } = require('lodash')
+
+const { chunk, isNil, set, get, isArray } = require('lodash')
 const XLSX = require('xlsx')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 const { i18n } = require('@open-condo/locales/loader')
 
+const { clearDateStr, isDateStrValid, tryToISO } = require('@condo/domains/common/utils/import/date')
+const { IMPORT_CONDO_METER_READING_SOURCE_ID } = require('@condo/domains/meter/constants/constants')
+const { DATE_FIELD_PATHS } = require('@condo/domains/meter/constants/registerMetersReadingsService')
+
 const READINGS_CHUNK_SIZE = 100
+const READING_SOURCE = { id: IMPORT_CONDO_METER_READING_SOURCE_ID }
 const logger = getLogger('AbstractMetersImporter')
 
 class AbstractMetersImporter {
@@ -19,6 +25,7 @@ class AbstractMetersImporter {
         setProcessedRows,
         setImportedRows,
         errorHandler,
+        dateColumnsByReadingDatePaths,
     ) {
         this.columnsHeaders = columnsHeaders
         this.mappers = mappers
@@ -30,6 +37,7 @@ class AbstractMetersImporter {
         this.setProcessedRows = setProcessedRows
         this.setImportedRows = setImportedRows
         this.errorHandler = errorHandler
+        this.dateColumnsTranslationsByPath = dateColumnsByReadingDatePaths
 
         this.progress = {
             min: 0,
@@ -39,7 +47,6 @@ class AbstractMetersImporter {
             absImported: 0,
             absTotal: 0,
         }
-
         this.tableData = []
         this.failedRows = []
     }
@@ -62,6 +69,60 @@ class AbstractMetersImporter {
      */
     transformRow (row) {
         throw new Error('Not implemented')
+    }
+
+    getInvalidDatesPaths (reading) {
+        return DATE_FIELD_PATHS.reduce((datesPaths, { path, nullable }) => {
+            const dateStr = get(reading, path)
+
+            if (!nullable && isNil(dateStr)) {
+                datesPaths.push(path)
+                return datesPaths
+            }
+
+            const clearedDate = clearDateStr(dateStr)
+            const dateIsEmpty = isNil(dateStr) || !clearedDate
+            if (nullable && dateIsEmpty) {
+                return datesPaths
+            }
+
+            if (!isDateStrValid(clearedDate)) {
+                datesPaths.push(path)
+                return datesPaths
+            }
+
+            return datesPaths
+        }, [])
+    }
+
+    prepareReading (reading, row, transformedData, transformedRowToSourceRowMap, transformedIndex, sourceIndex) {
+        const invalidDatesPaths = this.getInvalidDatesPaths(reading)
+        const invalidDatesColumns = invalidDatesPaths.map(path => this.dateColumnsTranslationsByPath[path])
+        if (invalidDatesPaths.length > 0) {
+            const columnNamesInError = invalidDatesColumns.join('", "')
+            this.failProcessingHandler({
+                originalRow: row,
+                errors: [this.errors.invalidDate.get(`"${columnNamesInError}"`)],
+            })
+        }
+        this.convertDatesToISOOrUndefined(reading)
+        reading.readingSource = READING_SOURCE
+        transformedData.push(reading)
+        transformedRowToSourceRowMap.set(
+            transformedIndex,
+            sourceIndex
+        )
+    }
+
+    /**
+     * Converts dates to UTC if they are valid, otherwise to undefined
+     * @param {RegisterMetersReadingsReadingInput} data
+     */
+    convertDatesToISOOrUndefined (data) {
+        DATE_FIELD_PATHS.forEach(({ path }) => {
+            const date = get(data, path)
+            set(data, path, tryToISO(clearDateStr(date)))
+        })
     }
 
     async import (data) {
@@ -119,17 +180,15 @@ class AbstractMetersImporter {
                                     originalRow: row,
                                     errors: [this.errors.invalidTypes.message],
                                 })
+                                indexesOfFailedSourceRows.add(sourceIndex)
                             }
                             for (const rowPart of transformedRow) {
-                                transformedData.push(rowPart)
-                                transformedRowToSourceRowMap.set(
-                                    String(transformedIndex++),
-                                    sourceIndex
-                                )
+                                this.prepareReading(rowPart, row, transformedData, transformedRowToSourceRowMap, transformedIndex, sourceIndex)
+                                transformedIndex++
                             }
                         } else {
-                            transformedData.push(transformedRow)
-                            transformedRowToSourceRowMap.set(sourceIndex, sourceIndex)
+                            this.prepareReading(transformedRow, row, transformedData, transformedRowToSourceRowMap, transformedIndex, sourceIndex)
+                            transformedIndex++
                         }
                     } catch (err) {
                         logger.error({ msg: this.errors.invalidTypes.message, err })
@@ -138,11 +197,13 @@ class AbstractMetersImporter {
                             // The `TransformRowError` contains `getMessages`
                             errors: err.getMessages ? err.getMessages() : [err.message],
                         })
+                        indexesOfFailedSourceRows.add(sourceIndex)
                     }
                 }
 
                 // iterate over transformed meter records, chunk by chunk
                 const transformedChunks = chunk(transformedData, READINGS_CHUNK_SIZE)
+                let processedTransformedIndex = 0
                 for (const transformedChunk of transformedChunks) {
                     // firstly check if process is not cancelled
                     if (await this.breakProcessChecker()) {
@@ -160,67 +221,24 @@ class AbstractMetersImporter {
                     // - result rows exists - so we can iterate over them to check if particular row is imported
                     // - result is null and errors array present - fatal proceeding error
                     let errorIndex = 0
-                    for (const transformedRowIndex in result) {
-                        const resultRow = result[transformedRowIndex]
-                        const sourceRowIndex = transformedRowToSourceRowMap.get(
-                            transformedRowIndex
-                        )
+                    for (const resultRow of result) {
+                        const sourceRowIndex = transformedRowToSourceRowMap.get(processedTransformedIndex)
 
                         // in case if result row is empty - register error happens
                         // we have to take care of such rows in order to create errors file
                         if (!resultRow) {
                             const mutationError = errors[errorIndex++]
+                            const message = get(mutationError, ['message'])
+                            const internalMessage = get(mutationError, ['extensions', 'message'])
                             const messageForUser = get(mutationError, ['extensions', 'messageForUser'])
-                            const rowErrors = []
 
-                            if (messageForUser) {
-                                rowErrors.push(messageForUser)
-                            } else {
-                                let mutationErrorMessages =
-                                    get(mutationError, ['originalError', 'errors', 0, 'data', 'messages'], []) || []
+                            const originalError = get(mutationError, ['originalError', 'errors', 0, 'originalError', 'errors', 0])
+                            const originalMessage = get(originalError, ['message'])
+                            const originalInternalMessage = get(originalError, ['extensions', 'message'])
+                            const originalMessageForUser = get(originalError, ['extensions', 'messageForUser'])
 
-                                // errors thrown to mutation from models (1 error)
-                                if (mutationErrorMessages.length === 0) {
-                                    mutationErrorMessages = [
-                                        get(
-                                            mutationError,
-                                            ['originalError', 'errors', 0, 'extensions', 'messageForUser'],
-                                            get(
-                                                mutationError,
-                                                ['originalError', 'errors', 0, 'originalError', 'extensions', 'messageForUser'],
-                                            ),
-                                        ),
-                                    ].filter(Boolean)
-                                }
-
-                                // errors thrown to mutation from models (2+ errors)
-                                if (mutationErrorMessages.length === 0) {
-                                    mutationErrorMessages = (get(mutationError, ['originalError', 'errors', 0, 'originalError', 'errors'], []) || []).reduce((result, error) => {
-                                        return [
-                                            ...result,
-                                            get(error, ['extensions', 'messageForUser'], get(error, ['extensions', 'message'])),
-                                        ]
-                                    }, [])
-                                }
-
-                                for (const message of mutationErrorMessages) {
-                                    const errorCodes = Object.keys(this.mutationErrorsToMessages)
-                                    for (const code of errorCodes) {
-                                        if (message.includes(code)) {
-                                            rowErrors.push(this.mutationErrorsToMessages[code])
-                                        } else if (!rowErrors.includes(message)) {
-                                            rowErrors.push(message)
-                                        }
-                                    }
-                                }
-
-                                // fallback for not recognized errors
-                                if (rowErrors.length === 0) {
-                                    const error = get(mutationError, ['originalError', 'errors', 0, 'message'])
-                                        || get(mutationError, ['message'], 'Unknown error')
-                                    rowErrors.push(error)
-                                }
-                            }
+                            // We need to show as understandable error as possible
+                            const rowErrors = [originalMessageForUser || originalInternalMessage || originalMessage || messageForUser || internalMessage || message]
 
                             // for sbbol import file we can have several transformed lines per one source line
                             // in such cases we would like to proceed exactly one failed line
@@ -235,6 +253,8 @@ class AbstractMetersImporter {
                         } else {
                             this.progress.absImported += 1
                         }
+
+                        processedTransformedIndex++
                     }
                 }
 

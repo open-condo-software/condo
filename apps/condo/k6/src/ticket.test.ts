@@ -1,5 +1,5 @@
 import { check, sleep } from 'k6'
-import { browser } from 'k6/experimental/browser'
+import { browser } from 'k6/browser'
 import http from 'k6/http'
 
 import {
@@ -102,7 +102,6 @@ export function setup () {
         organizationId,
         organizationLinkId: organizationEmployee.json('data.allOrganizationEmployees.0.id'),
         propertyId: createdProperty.json('data.obj.id'),
-        organizationForCheckFrontend: setupOrganizationForCheckFrontend(),
     }
 }
 
@@ -158,7 +157,6 @@ export function queryBasicEntities (data) {
 
 export function createTickets (data) {
     const response = createTicket(data)
-
     check(response, {
         'create ticket status is 200': (res) => res.status === 200,
         'ticket is created': (res) => res.json('data.obj.id') !== undefined,
@@ -166,10 +164,10 @@ export function createTickets (data) {
 }
 
 export async function checkFrontend (data) {
-    const context = browser.newContext()
-    const page = context.newPage()
+    const context = await browser.newContext()
+    const page = await context.newPage()
 
-    const organizationForCheckFrontend = data.organizationForCheckFrontend
+    const organizationForCheckFrontend = setupOrganizationForCheckFrontend()
     let cookie
     let organizationLinkId
 
@@ -181,7 +179,7 @@ export async function checkFrontend (data) {
         organizationLinkId = data.organizationLinkId
     }
 
-    context.addCookies([
+    await context.addCookies([
         {
             name: 'keystone.sid',
             value: cookie,
@@ -210,20 +208,23 @@ export async function checkFrontend (data) {
             page.waitForNavigation(),
         ])
 
-        page.waitForTimeout(1000)
+        await page.waitForTimeout(1000)
 
-        page.screenshot({ path: `apps/condo/k6/screenshots/ticketNavigation${__ITER}.png` })
+        await page.screenshot({ path: `apps/condo/k6/screenshots/ticketNavigation${__ITER}.png` })
 
-        page.waitForSelector('[data-cy="ticket__table"] .ant-table-row-level-0').isVisible()
+        const ticketTable = await page.waitForSelector('[data-cy="ticket__table"] .ant-table-row-level-0')
+        await ticketTable.isVisible()
 
-        page.screenshot({ path: `apps/condo/k6/screenshots/ticketTableLoadCompleted${__ITER}.png` })
+        await page.screenshot({ path: `apps/condo/k6/screenshots/ticketTableLoadCompleted${__ITER}.png` })
+
+        const ticketsHeader = await page.locator('h1').textContent() === 'Tickets'
 
         check(page, {
-            'tickets table header': () => page.locator('h1').textContent() === 'Tickets',
+            'tickets table header': () => ticketsHeader,
             'tickets table url': () => page.url() === BASE_APP_URL,
         })
 
-        const ticketId = page
+        const ticketId = await page
             .locator('[data-cy="ticket__table"] .ant-table-row-level-0:nth-of-type(2)')
             .getAttribute('data-row-key')
 
@@ -232,51 +233,56 @@ export async function checkFrontend (data) {
             page.waitForNavigation(),
         ])
 
+        const ticketH1 = await page.locator('h1').textContent()
+
         check(page, {
             'ticket detail url': () => page.url() === BASE_APP_URL + '/' + ticketId,
-            'ticket detail header': () => page.locator('h1').textContent().includes('Ticket №'),
+            'ticket detail header': () => ticketH1.includes('Ticket №'),
         })
 
-        page.screenshot({ path: `apps/condo/k6/screenshots/ticketDetail${__ITER}.png` })
+        await page.screenshot({ path: `apps/condo/k6/screenshots/ticketDetail${__ITER}.png` })
+
+        const ticketDetailH1 = await page.locator('h1').textContent()
+        const ticketStatusSelectValue = await page
+            .locator('[data-cy="ticket__status-select"] .ant-select-selection-item').textContent()
 
         check(page, {
-            'ticket detail header': () => page.locator('h1').textContent().includes('Ticket №'),
+            'ticket detail header': () => ticketDetailH1.includes('Ticket №'),
             'ticket detail url': () => page.url() !== BASE_APP_URL,
-            'ticket status should be opened': () => page.locator('[data-cy="ticket__status-select"] .ant-select-selection-item').textContent() === 'Open',
+            'ticket status should be opened': () => ticketStatusSelectValue === 'Open',
         })
 
-        page.waitForSelector('[data-cy="ticket__status-select"]:not(.ant-select-disabled)')
+        await page.waitForSelector('[data-cy="ticket__status-select"]:not(.ant-select-disabled)')
 
         await page.locator('[data-cy="ticket__status-select"]').click()
 
         // Wait for select to become opened
-        page.waitForSelector('[data-cy="ticket__status-select-option"][title="In progress"]', {
+        await page.waitForSelector('[data-cy="ticket__status-select-option"][title="In progress"]', {
             state: 'visible',
         })
 
         await page.locator('[data-cy="ticket__status-select-option"][title="In progress"]').click()
 
-        page.waitForSelector('[data-cy="ticket__status-select-option"][title="In progress"]', {
+        await page.waitForSelector('[data-cy="ticket__status-select-option"][title="In progress"]', {
             state: 'hidden',
         })
 
-        page.waitForSelector('[data-cy="ticket__status-select"] .ant-select-selection-item[title="In progress"]', {
+        await page.waitForSelector('[data-cy="ticket__status-select"] .ant-select-selection-item[title="In progress"]', {
         })
-        page.waitForSelector('[data-cy="ticket__change-history"]', {
+        await page.waitForSelector('[data-cy="ticket__change-history"]', {
             state: 'visible',
         })
 
-        check(page, {
-            'ticket should be successfully change status': () => {
-                return page
-                    .locator('[data-cy="ticket__status-select"] .ant-select-selection-item')
-                    .textContent() === 'In progress'
-            },
+        const ticketStatusSelectUpdatedValue = await page
+            .locator('[data-cy="ticket__status-select"] .ant-select-selection-item').textContent()
 
+        check(page, {
+            'ticket should be successfully change status': () => ticketStatusSelectUpdatedValue === 'In progress',
         })
-        page.screenshot({ path: `apps/condo/k6/screenshots/ticketDetailChangeStatus${__ITER}.png` })
+        await page.screenshot({ path: `apps/condo/k6/screenshots/ticketDetailChangeStatus${__ITER}.png` })
 
     } finally {
-        page.close()
+        await page.close()
+        await context.close()
     }
 }

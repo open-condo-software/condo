@@ -58,9 +58,9 @@ export const useBankReportTaskUIInterface = () => {
 }
 
 type UserBankReportTaskButtonProps = {
-    organizationId: string,
+    organizationId: string
     user: Record<string, 'unknown'>,
-    bankAccount: BankAccountType,
+    bankAccount: BankAccountType
     type?: ButtonProps['type']
 }
 

@@ -118,28 +118,28 @@ const GetNewsSharingRecipientsCountersService = new GQLCustomSchema('GetNewsShar
                 
                 const b2bAppContextData = await getById('B2BAppContext', b2bAppContext.id)
                 if (!b2bAppContextData || b2bAppContextData.deletedAt) {
-                    throw new GQLError(ERRORS.B2B_APP_CONTEXT_IS_DELETED)
+                    throw new GQLError(ERRORS.B2B_APP_CONTEXT_IS_DELETED, context)
                 }
                 if (b2bAppContextData.status  !== CONTEXT_FINISHED_STATUS) {
-                    throw new GQLError(ERRORS.B2B_APP_CONTEXT_IS_NOT_IN_FINISHED_STATUS)
+                    throw new GQLError(ERRORS.B2B_APP_CONTEXT_IS_NOT_IN_FINISHED_STATUS, context)
                 }
 
                 const b2bApp = await getById('B2BApp', b2bAppContextData.app)
                 if (!b2bApp || b2bApp.deletedAt) {
-                    throw new GQLError(ERRORS.B2B_APP_IS_DELETED)
+                    throw new GQLError(ERRORS.B2B_APP_IS_DELETED, context)
                 }
                 if (!b2bApp.newsSharingConfig) {
-                    throw new GQLError(ERRORS.NOT_NEWS_SHARING_APP)
+                    throw new GQLError(ERRORS.NOT_NEWS_SHARING_APP, context)
                 }
 
                 const newsSharingConfig = await getById('B2BAppNewsSharingConfig', b2bApp.newsSharingConfig)
                 if (!newsSharingConfig || newsSharingConfig.deletedAt) {
-                    throw new GQLError(ERRORS.NOT_NEWS_SHARING_APP)
+                    throw new GQLError(ERRORS.NOT_NEWS_SHARING_APP, context)
                 }
 
                 const getRecipientsCountersUrl = newsSharingConfig.getRecipientsCountersUrl
                 if (!getRecipientsCountersUrl) {
-                    throw new GQLError(ERRORS.NOT_CUSTOM_RECIPIENTS_QUERY_APP)
+                    throw new GQLError(ERRORS.NOT_CUSTOM_RECIPIENTS_QUERY_APP, context)
                 }
 
                 const organizationId = b2bAppContextData.organization
@@ -173,7 +173,7 @@ const GetNewsSharingRecipientsCountersService = new GQLCustomSchema('GetNewsShar
 
                 // This check guarantees that data sent to server complies with news sharing api contract.
                 if (!validateRequestSchema(getCustomRecipientsCountersRequestData)) {
-                    throw new GQLError(ERRORS.NEWS_SHARING_APP_REQUEST_INTERNAL_ERROR)
+                    throw new GQLError(ERRORS.NEWS_SHARING_APP_REQUEST_INTERNAL_ERROR, context)
                 }
 
                 let customGetRecipientsCountResult
@@ -190,12 +190,12 @@ const GetNewsSharingRecipientsCountersService = new GQLCustomSchema('GetNewsShar
                     })
                 }
                 catch (err) {
-                    throw new GQLError(ERRORS.NEWS_SHARING_APP_REQUEST_FAILED)
+                    throw new GQLError(ERRORS.NEWS_SHARING_APP_REQUEST_FAILED, context)
                 }
 
                 // If status code of response is not 200, we need to raise an error
                 if (customGetRecipientsCountResult.status !== 200) {
-                    throw new GQLError(ERRORS.NEWS_SHARING_APP_REQUEST_FAILED)
+                    throw new GQLError(ERRORS.NEWS_SHARING_APP_REQUEST_FAILED, context)
                 }
 
                 // Check that result data is in good shape
@@ -204,11 +204,11 @@ const GetNewsSharingRecipientsCountersService = new GQLCustomSchema('GetNewsShar
                 try {
                     getCustomRecipientsCountResultData = await customGetRecipientsCountResult.json()
                 } catch (err) {
-                    throw new GQLError(ERRORS.NEWS_SHARING_APP_REQUEST_BAD_RESPONSE)
+                    throw new GQLError(ERRORS.NEWS_SHARING_APP_REQUEST_BAD_RESPONSE, context)
                 }
 
                 if (!validateResponseSchema(getCustomRecipientsCountResultData)) {
-                    throw new GQLError(ERRORS.NEWS_SHARING_APP_REQUEST_BAD_RESPONSE)
+                    throw new GQLError(ERRORS.NEWS_SHARING_APP_REQUEST_BAD_RESPONSE, context)
                 }
 
                 return getCustomRecipientsCountResultData

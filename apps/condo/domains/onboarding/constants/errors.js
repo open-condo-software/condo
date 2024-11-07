@@ -6,7 +6,7 @@ const ERRORS = {
         code: 'BAD_USER_INPUT',
         type: UPDATE_COMPLETED_STEP_TYPE,
         message: 'You can not update status of TourStep in "completed" status',
-        messageForUser: 'api.tourStep.update.updateCompletedStepType',
+        messageForUser: 'api.onboarding.tourStep.UPDATE_COMPLETED_STEP_TYPE',
     },
 }
 

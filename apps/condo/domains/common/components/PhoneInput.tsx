@@ -31,7 +31,7 @@ interface IPhoneInputProps extends Omit<PhoneInputProps, 'onChange'> {
     /*
         Make this component compatible with `AutoComplete` component, when used as a custom input.
      */
-    compatibilityWithAntAutoComplete?: boolean,
+    compatibilityWithAntAutoComplete?: boolean
     masks?: { ru?: string }
 
     style?: CSSProperties
@@ -43,8 +43,8 @@ interface IPhoneInputProps extends Omit<PhoneInputProps, 'onChange'> {
 
 type PhoneInputRef = {
     numberInputRef: {
-        focus: () => void,
-    } & ComponentProps<'input'>,
+        focus: () => void
+    } & ComponentProps<'input'>
 }
 
 const { publicRuntimeConfig: { defaultLocale } } = getConfig()

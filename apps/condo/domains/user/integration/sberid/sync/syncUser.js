@@ -64,7 +64,7 @@ const syncUser = async ({ context, userInfo, userType }) => {
         identityId: userInfo.id,
         // TODO DOMA-5239 remove this parameter. We should by default have only not deleted objects
         deletedAt: null,
-    })
+    }, 'id user { id }')
 
     // now we have the following cases:
     // 1. user already registered and have linked identity

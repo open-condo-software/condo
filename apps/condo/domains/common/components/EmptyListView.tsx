@@ -7,9 +7,9 @@ import { EmptyIcon } from './EmptyIcon'
 export interface IBasicEmptyListProps extends EmptyProps {
     image?: string
     children?: React.ReactNode
-    containerStyle?: CSSProperties,
-    imageStyle?: CSSProperties,
-    spaceSize?: number,
+    containerStyle?: CSSProperties
+    imageStyle?: CSSProperties
+    spaceSize?: number
 }
 
 export const DEFAULT_CONTAINER_STYLE: CSSProperties = {

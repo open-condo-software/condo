@@ -19,11 +19,12 @@ const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 const redisGuard = new RedisGuard()
 
-const checkLimits = async (userId) => {
+const checkLimits = async (userId, context) => {
     await redisGuard.checkCustomLimitCounters(
         `suggest_service_provider:user:${userId}`,
         RESIDENT_SUGGEST_SERVICE_PROVIDER_WINDOW_IN_SEC,
         MAX_RESIDENT_SUGGEST_SERVICE_PROVIDER_CALLS_BY_WINDOW_SEC,
+        context,
     )
 }
 
@@ -68,7 +69,7 @@ const SuggestServiceProviderService = new GQLCustomSchema('SuggestServiceProvide
             schema: 'suggestServiceProvider (data: SuggestServiceProviderInput!): [SuggestServiceProviderOutput]',
             resolver: async (parent, args, context = {}) => {
                 if (context.authedItem.type === RESIDENT) {
-                    await checkLimits(context.authedItem.id)
+                    await checkLimits(context.authedItem.id, context)
                 }
 
                 const { data: { search } } = args

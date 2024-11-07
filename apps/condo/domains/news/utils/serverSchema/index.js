@@ -6,21 +6,15 @@
 
 const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
-const { NewsItem: NewsItemGQL } = require('@condo/domains/news/gql')
-const { NewsItemScope: NewsItemScopeGQL } = require('@condo/domains/news/gql')
-const { NewsItemTemplate: NewsItemTemplateGQL } = require('@condo/domains/news/gql')
-const { NewsItemUserRead: NewsItemUserReadGQL } = require('@condo/domains/news/gql')
 const { EXPORT_NEWS_RECIPIENTS_MUTATION } = require('@condo/domains/news/gql')
 const { GET_NEWS_ITEMS_RECIPIENTS_COUNTERS_MUTATION } = require('@condo/domains/news/gql')
-const { NewsItemRecipientsExportTask: NewsItemRecipientsExportTaskGQL } = require('@condo/domains/news/gql')
-const { NewsItemSharing: NewsItemSharingGQL } = require('@condo/domains/news/gql')
 const { GET_NEWS_SHARING_RECIPIENTS_MUTATION, GET_NEWS_SHARING_RECIPIENTS_COUNTERS_QUERY } = require('@condo/domains/news/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const NewsItem = generateServerUtils(NewsItemGQL)
-const NewsItemScope = generateServerUtils(NewsItemScopeGQL)
-const NewsItemTemplate = generateServerUtils(NewsItemTemplateGQL)
-const NewsItemUserRead = generateServerUtils(NewsItemUserReadGQL)
+const NewsItem = generateServerUtils('NewsItem')
+const NewsItemScope = generateServerUtils('NewsItemScope')
+const NewsItemTemplate = generateServerUtils('NewsItemTemplate')
+const NewsItemUserRead = generateServerUtils('NewsItemUserRead')
 async function exportNewsRecipients (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
@@ -47,9 +41,9 @@ async function getNewsItemsRecipientsCounters (context, data) {
     })
 }
 
-const NewsItemRecipientsExportTask = generateServerUtils(NewsItemRecipientsExportTaskGQL)
+const NewsItemRecipientsExportTask = generateServerUtils('NewsItemRecipientsExportTask')
 
-const NewsItemSharing = generateServerUtils(NewsItemSharingGQL)
+const NewsItemSharing = generateServerUtils('NewsItemSharing')
 
 async function getNewsItemSharingRecipients (context, data) {
     if (!context) throw new Error('no context')

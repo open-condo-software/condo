@@ -33,12 +33,12 @@ import { TicketFormItem } from './index'
 
 
 type TicketAssignmentsProps = {
-    validations: { [key: string]: Rule[] },
-    organizationId: string,
-    propertyId: string,
-    disableUserInteraction: boolean,
-    autoAssign: boolean,
-    categoryClassifier: string,
+    validations: { [key: string]: Rule[] }
+    organizationId: string
+    propertyId: string
+    disableUserInteraction: boolean
+    autoAssign: boolean
+    categoryClassifier: string
     form: FormInstance
 }
 

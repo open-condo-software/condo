@@ -305,5 +305,6 @@ module.exports = {
     TICKET_MULTIPLE_UPDATE_MUTATION,
     TicketAutoAssignment,
     TicketDocumentGenerationTask,
+    TICKET_EXPORT_TASK_OPTIONS_FIELDS,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -13,11 +13,11 @@ const ARCHIVE_MODAL_DATE_PICKER_DATE_FORMAT = 'DD.MM.YYYY'
 const ARCHIVE_MODAL_ROW_GUTTER: [Gutter, Gutter] = [0, 16]
 
 type ChangeMeterStatusModalProps = {
-    isShowStatusChangeModal: boolean,
+    isShowStatusChangeModal: boolean
     handleCloseStatusChangeModal: () => void
-    selectedArchiveDate: string,
-    handleChangeSelectedArchiveDate: (date) => void,
-    changeMeterStatusToArchived: () => void,
+    selectedArchiveDate: string
+    handleChangeSelectedArchiveDate: (date) => void
+    changeMeterStatusToArchived: () => void
 }
 
 const ChangeMeterStatusModal = ({
@@ -55,7 +55,6 @@ const ChangeMeterStatusModal = ({
                     format={ARCHIVE_MODAL_DATE_PICKER_DATE_FORMAT}
                     style={ARCHIVE_MODAL_DATE_PICKER_STYLE}
                     onChange={handleChangeSelectedArchiveDate}
-                    disabledDate={(current) => current.isBefore(dayjs().subtract(1, 'day'))}
                 />
             </Row>
         </Modal>

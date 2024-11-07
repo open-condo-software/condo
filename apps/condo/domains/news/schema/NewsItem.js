@@ -45,7 +45,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: EMPTY_VALID_BEFORE_DATE,
         message: 'The date the news item valid before is empty',
-        messageForUser: 'api.newsItem.EMPTY_VALID_BEFORE_DATE',
+        messageForUser: 'api.news.newsItem.EMPTY_VALID_BEFORE_DATE',
         mutation: 'createNewsItem',
         variable: ['data', 'validBefore'],
     },
@@ -53,46 +53,46 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: VALIDITY_DATE_LESS_THAN_SEND_DATE,
         message: 'The validity date is less than send date',
-        messageForUser: 'api.newsItem.VALIDITY_DATE_LESS_THAN_SEND_DATE',
+        messageForUser: 'api.news.newsItem.VALIDITY_DATE_LESS_THAN_SEND_DATE',
         mutation: 'updateNewsItem',
     },
     EDIT_DENIED_ALREADY_SENT: {
         code: BAD_USER_INPUT,
         type: EDIT_DENIED_ALREADY_SENT,
         message: 'The sent news item is restricted from editing',
-        messageForUser: 'api.newsItem.EDIT_DENIED_ALREADY_SENT',
+        messageForUser: 'api.news.newsItem.EDIT_DENIED_ALREADY_SENT',
         mutation: 'updateNewsItem',
     },
     EDIT_DENIED_PUBLISHED: {
         code: BAD_USER_INPUT,
         type: EDIT_DENIED_PUBLISHED,
         message: 'The published news item is restricted from editing',
-        messageForUser: 'api.newsItem.EDIT_DENIED_PUBLISHED',
+        messageForUser: 'api.news.newsItem.EDIT_DENIED_PUBLISHED',
         mutation: 'updateNewsItem',
     },
     PROFANITY_TITLE_DETECTED_MOT_ERF_KER: {
         code: BAD_USER_INPUT,
         type: PROFANITY_TITLE_DETECTED_MOT_ERF_KER,
         message: 'Profanity in title detected',
-        messageForUser: 'api.newsItem.PROFANITY_TITLE_DETECTED_MOT_ERF_KER',
+        messageForUser: 'api.news.newsItem.PROFANITY_TITLE_DETECTED_MOT_ERF_KER',
     },
     PROFANITY_BODY_DETECTED_MOT_ERF_KER: {
         code: BAD_USER_INPUT,
         type: PROFANITY_BODY_DETECTED_MOT_ERF_KER,
         message: 'Profanity in body detected',
-        messageForUser: 'api.newsItem.PROFANITY_BODY_DETECTED_MOT_ERF_KER',
+        messageForUser: 'api.news.newsItem.PROFANITY_BODY_DETECTED_MOT_ERF_KER',
     },
     WRONG_SEND_DATE: {
         code: BAD_USER_INPUT,
         type: WRONG_SEND_DATE,
         message: 'Wrong send date',
-        messageForUser: 'api.newsItem.WRONG_SEND_DATE',
+        messageForUser: 'api.news.newsItem.WRONG_SEND_DATE',
     },
     NO_NEWS_ITEM_SCOPES: {
         code: BAD_USER_INPUT,
         type: NO_NEWS_ITEM_SCOPES,
         message: 'The news item without scopes publishing is forbidden',
-        messageForUser: 'api.newsItem.NO_NEWS_ITEM_SCOPES',
+        messageForUser: 'api.news.newsItem.NO_NEWS_ITEM_SCOPES',
     },
 }
 
@@ -241,7 +241,7 @@ const NewsItem = new GQLListSchema('NewsItem', {
             return resolvedData
         },
         validateInput: async (args) => {
-            const { resolvedData, existingItem, context, operation } = args
+            const { resolvedData, originalInput, existingItem, context, operation } = args
             const resultItemData = { ...existingItem, ...resolvedData }
 
             const sendAt = get(resolvedData, 'sendAt')
@@ -260,9 +260,15 @@ const NewsItem = new GQLListSchema('NewsItem', {
             }
 
             if (operation === 'update') {
+                // You can update only validBefore field if news item was already sent
+                const updatedFields = Object.keys(originalInput).filter(fieldName => !['dv', 'sender'].includes(fieldName))
+
                 if (sentAt) {
-                    throw new GQLError(ERRORS.EDIT_DENIED_ALREADY_SENT, context)
+                    if (updatedFields.length !== 1 || updatedFields[0] !== 'validBefore' || isEmpty(get(resolvedData, 'validBefore'))) {
+                        throw new GQLError(ERRORS.EDIT_DENIED_ALREADY_SENT, context)
+                    }
                 }
+
                 if (isPublished) {
                     for (const readOnlyField of readOnlyFieldsWhenPublished) {
                         if (!isEmpty(get(resolvedData, readOnlyField))) {

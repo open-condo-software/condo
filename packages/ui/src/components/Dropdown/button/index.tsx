@@ -11,7 +11,7 @@ import { useItems } from '../hooks/useItems'
 
 
 export interface IDropdownItem {
-    disabled?: boolean,
+    disabled?: boolean
     label: string
     onClick?: MenuItemType['onClick']
     key: React.Key

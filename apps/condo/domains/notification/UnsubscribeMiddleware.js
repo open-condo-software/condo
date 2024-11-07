@@ -1,10 +1,8 @@
 const express = require('express')
 const { get, isNil } = require('lodash')
 
-
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
-
 
 const { EMAIL_TRANSPORT, SMS_TRANSPORT } = require('@condo/domains/notification/constants/constants')
 const {
@@ -36,6 +34,7 @@ class UnsubscribeLinkRouter {
             ip,
             UNSUBSCRIBE_LINK_WINDOW_SIZE,
             MAX_UNSUBSCRIBE_LINK_REQUEST_BY_WINDOW,
+            { req },
         )
     }
 
@@ -54,7 +53,7 @@ class UnsubscribeLinkRouter {
             const message = await Message.getOne(this.context, {
                 id,
                 deletedAt: null,
-            })
+            }, 'user { id } email phone type')
 
             // now supported to set settings only for email/sms transport
             if (isNil(message.user) && (message.email || message.phone)) {

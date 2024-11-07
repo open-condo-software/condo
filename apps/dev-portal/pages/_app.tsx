@@ -59,7 +59,7 @@ function DevPortalApp ({ Component, pageProps, router }: AppProps): ReactNode {
     const client = useApollo(pageProps)
 
     return (
-        <IntlProvider locale={locale} messages={get(MESSAGES, locale, {})}>
+        <IntlProvider locale={locale} messages={get(MESSAGES, locale)}>
             <SeoProvider/>
             <ApolloProvider client={client}>
                 <AuthProvider>

@@ -5,8 +5,8 @@ import { colors } from '@open-condo/ui/dist/colors'
 import { DEFAULT_BORDER_RADIUS } from '../constants/style'
 
 interface IFocusContainerProps {
-    color?: string,
-    margin?: string,
+    color?: string
+    margin?: string
     padding?: string
 }
 

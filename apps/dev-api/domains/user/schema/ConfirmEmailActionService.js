@@ -36,31 +36,31 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: INVALID_EMAIL,
         message: 'The provided email is in the wrong format',
-        messageForUser: 'errors.INVALID_EMAIL.message',
+        messageForUser: 'api.user.confirmEmailAction.INVALID_EMAIL',
     },
     EMAILS_FOR_USER_DAY_LIMIT_REACHED: {
         code: TOO_MANY_REQUESTS,
         type: EMAILS_DAILY_LIMIT_REACHED,
         message: 'You exceeded the daily email request limit',
-        messageForUser: 'errors.EMAILS_DAILY_LIMIT_REACHED.user.message',
+        messageForUser: 'api.user.confirmEmailAction.EMAILS_DAILY_LIMIT_REACHED',
     },
     EMAILS_FOR_ADDRESS_DAY_LIMIT_REACHED: {
         code: TOO_MANY_REQUESTS,
         type: EMAILS_DAILY_LIMIT_REACHED,
         message: 'The specified email has exceeded the daily SMS request limit',
-        messageForUser: 'errors.EMAILS_DAILY_LIMIT_REACHED.email.message',
+        messageForUser: 'api.user.confirmEmailAction.EMAILS_DAILY_LIMIT_REACHED',
     },
     ACTION_NOT_FOUND: {
         code: BAD_USER_INPUT,
         type: ACTION_NOT_FOUND,
         message: 'ConfirmEmailAction with the specified ID is expired, or does not exist',
-        messageForUser: 'errors.ACTION_NOT_FOUND.code.message',
+        messageForUser: 'api.user.confirmPhoneAction.ACTION_NOT_FOUND',
     },
     INVALID_CODE: {
         code: BAD_USER_INPUT,
         type: INVALID_CODE,
         message: 'Invalid verification code',
-        messageForUser: 'errors.INVALID_CODE.message',
+        messageForUser: 'api.user.confirmPhoneAction.INVALID_CODE',
     },
 }
 
@@ -130,7 +130,7 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
                     sender,
                 }
 
-                const createdAction = await ConfirmEmailAction.create(context, actionPayload)
+                const createdAction = await ConfirmEmailAction.create(context, actionPayload, 'id email')
 
                 const locale = extractReqLocale(context.req)
                 const subject = getLocalizedMessage('messages.confirmEmailAction.subject', { locale })
@@ -159,7 +159,7 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
                     expiresAt_gt: currentTime,
                     deletedAt: null,
                     isVerified: false,
-                })
+                }, 'id attempts code')
 
                 if (!requestedAction) {
                     throw new GQLError(ERRORS.ACTION_NOT_FOUND, context)
@@ -177,7 +177,7 @@ const ConfirmEmailActionService = new GQLCustomSchema('ConfirmEmailActionService
                     if (attempts >= CONFIRM_EMAIL_ACTION_MAX_ATTEMPTS) {
                         updateAttrs.deletedAt = currentTime
                     }
-                    await ConfirmEmailAction.update(context, requestedAction.id,  updateAttrs)
+                    await ConfirmEmailAction.update(context, requestedAction.id, updateAttrs)
 
                     throw new GQLError(ERRORS.INVALID_CODE, context)
                 }

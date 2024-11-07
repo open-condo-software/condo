@@ -11,7 +11,8 @@ const {
     expectToThrowGQLError,
     makeLoggedInClient,
     expectToThrowGraphQLRequestError,
-    expectToThrowInternalError,
+    expectToThrowUniqueConstraintViolationError,
+    expectToThrowCheckConstraintViolationError,
 } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj,
@@ -252,12 +253,12 @@ describe('NotificationUserSetting', () => {
 
     describe('Constraints tests', () => {
         test('must throw an error on trying to create setting without type and transport', async () => {
-            await expectToThrowInternalError(
+            await expectToThrowCheckConstraintViolationError(
                 async () => await createTestNotificationUserSetting(adminClient, {
                     messageType: null,
                     messageTransport: null,
                 }),
-                'violates check constraint "has_messageType_or_messageTransport"',
+                'has_messageType_or_messageTransport',
             )
         })
 
@@ -266,9 +267,9 @@ describe('NotificationUserSetting', () => {
 
             const modelAttrs = { messageType: NEWS_ITEM_COMMON_MESSAGE_TYPE, messageTransport: PUSH_TRANSPORT }
             await createTestNotificationUserSetting(otherAdminClient, modelAttrs)
-            await expectToThrowInternalError(
+            await expectToThrowUniqueConstraintViolationError(
                 async () => await createTestNotificationUserSetting(otherAdminClient, modelAttrs),
-                'violates unique constraint "NotificationUserSetting_unique_user_messageType_messageTranspor"',
+                'NotificationUserSetting_unique_user_messageType_messageTranspor',
             )
         })
 
@@ -277,9 +278,9 @@ describe('NotificationUserSetting', () => {
 
             const modelAttrs = { messageType: NEWS_ITEM_COMMON_MESSAGE_TYPE, messageTransport: null }
             await createTestNotificationUserSetting(otherAdminClient, modelAttrs)
-            await expectToThrowInternalError(
+            await expectToThrowUniqueConstraintViolationError(
                 async () => await createTestNotificationUserSetting(otherAdminClient, modelAttrs),
-                'violates unique constraint "NotificationUserSetting_unique_user_messageType"',
+                'NotificationUserSetting_unique_user_messageType',
             )
         })
 
@@ -288,9 +289,9 @@ describe('NotificationUserSetting', () => {
 
             const modelAttrs = { messageType: null, messageTransport: PUSH_TRANSPORT }
             await createTestNotificationUserSetting(otherAdminClient, modelAttrs)
-            await expectToThrowInternalError(
+            await expectToThrowUniqueConstraintViolationError(
                 async () => await createTestNotificationUserSetting(otherAdminClient, modelAttrs),
-                'violates unique constraint "NotificationUserSetting_unique_user_messageTransport"',
+                'NotificationUserSetting_unique_user_messageTransport',
             )
         })
 

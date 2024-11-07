@@ -1,19 +1,18 @@
 const { isEmpty, get } = require('lodash')
 
 const { getOrganizationInfo, getBankInfo } = require('@open-condo/clients/finance-info-client')
-const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
-const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
-const { getById, find } = require('@open-condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 
 const {
     ERRORS,
     RECIPIENT_IS_NOT_APPROVED,
 } = require('@condo/domains/billing/constants/registerBillingReceiptService')
 const { Resolver } = require('@condo/domains/billing/schema/resolvers/resolver')
+const { BillingRecipient } = require('@condo/domains/billing/utils/serverSchema')
+
 
 const BILLING_RECIPIENT_FIELDS = '{ id name bankName bankAccount tin iec bic offsettingAccount territoryCode isApproved }'
-const BillingRecipientGQL = generateGqlQueries('BillingRecipient', BILLING_RECIPIENT_FIELDS)
-const BillingRecipientApi = generateServerUtils(BillingRecipientGQL)
+
 class RecipientResolver extends Resolver {
     constructor ({ billingContext, context }) {
         super(billingContext, context, { name: 'recipient' })
@@ -21,7 +20,6 @@ class RecipientResolver extends Resolver {
     }
     async init () {
         await this.loadExistingRecipients()
-        this.organization = await getById('Organization', get(this.billingContext, 'organization.id'))
     }
 
     async loadExistingRecipients () {
@@ -31,8 +29,12 @@ class RecipientResolver extends Resolver {
     async syncBillingRecipient (existing, data){
         if (!existing) {
             try {
-                const newRecipient = await BillingRecipientApi.create(this.context, this.buildCreateInput(data, ['context']))
-                await this.loadExistingRecipients()
+                const newRecipient = await BillingRecipient.create(
+                    this.context,
+                    this.buildCreateInput(data, ['context']),
+                    BILLING_RECIPIENT_FIELDS
+                )
+                this.recipients.push(newRecipient)
                 return newRecipient
             } catch (error) {
                 return { error: ERRORS.RECIPIENT_SAVE_FAILED }
@@ -41,8 +43,13 @@ class RecipientResolver extends Resolver {
             const updateInput = this.buildUpdateInput(data, existing)
             if (!isEmpty(updateInput)) {
                 try {
-                    const updatedRecipient = await BillingRecipientApi.update(this.context, existing.id, updateInput)
-                    await this.loadExistingRecipients()
+                    const updatedRecipient = await BillingRecipient.update(
+                        this.context,
+                        existing.id,
+                        updateInput,
+                        BILLING_RECIPIENT_FIELDS,
+                    )
+                    this.recipients.push(updatedRecipient)
                     return updatedRecipient
                 } catch (error) {
                     return { error: ERRORS.RECIPIENT_SAVE_FAILED }

@@ -125,7 +125,7 @@ export const filtersToQuery = (filters: IFilters, translations = null): Organiza
 }
 
 type SorterColumn = {
-    columnKey: string,
+    columnKey: string
     order: 'ascend' | 'descend'
 }
 

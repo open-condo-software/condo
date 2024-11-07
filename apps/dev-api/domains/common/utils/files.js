@@ -11,7 +11,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: INVALID_MIMETYPE,
         message: 'Attached file have invalid mimetype',
-        messageForUser: 'errors.INVALID_MIMETYPE.message',
+        messageForUser: 'api.common.INVALID_MIMETYPE',
     },
 }
 
@@ -21,7 +21,7 @@ function getMimeTypesValidator ({ allowedTypes }) {
         if (!allowedTypes.includes(mimeType)) {
             throw new GQLError({
                 ...ERRORS.INVALID_MIMETYPE,
-                messageInterpolation: { types: allowedTypes },
+                messageInterpolation: { types: allowedTypes.join(', ') },
             }, context)
         }
     }

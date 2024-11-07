@@ -20,6 +20,7 @@ const {
     METER_VERIFICATION_DATE_EXPIRED_TYPE,
     CALL_METER_READING_SOURCE_ID,
 } = require('@condo/domains/notification/constants/constants')
+const { MESSAGE_FIELDS } = require('@condo/domains/notification/gql')
 const { Message: MessageApi } = require('@condo/domains/notification/utils/serverSchema')
 const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 
@@ -71,7 +72,7 @@ const getNewMessages = async ({ userId, meterId }) => {
             METER_SUBMIT_READINGS_REMINDER_END_PERIOD_TYPE,
             METER_VERIFICATION_DATE_EXPIRED_TYPE,
         ],
-    })
+    }, MESSAGE_FIELDS)
     return messages.filter(message => message.meta.data.meterId === meterId)
 }
 

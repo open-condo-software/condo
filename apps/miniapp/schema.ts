@@ -143,22 +143,20 @@ export type SenderFieldInput = {
 };
 
 export enum SortUsersBy {
-  VAsc = 'v_ASC',
-  VDesc = 'v_DESC',
-  NameAsc = 'name_ASC',
-  NameDesc = 'name_DESC',
   TypeAsc = 'type_ASC',
   TypeDesc = 'type_DESC',
-  IsAdminAsc = 'isAdmin_ASC',
-  IsAdminDesc = 'isAdmin_DESC',
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
   IsSupportAsc = 'isSupport_ASC',
   IsSupportDesc = 'isSupport_DESC',
+  IsAdminAsc = 'isAdmin_ASC',
+  IsAdminDesc = 'isAdmin_DESC',
   EmailAsc = 'email_ASC',
   EmailDesc = 'email_DESC',
-  IsLocalAsc = 'isLocal_ASC',
-  IsLocalDesc = 'isLocal_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
   CreatedAtAsc = 'createdAt_ASC',
   CreatedAtDesc = 'createdAt_DESC',
   UpdatedAtAsc = 'updatedAt_ASC',
@@ -174,7 +172,7 @@ export enum SortUsersBy {
 }
 
 
-/**  condo.User (exported from condo API)  */
+/**  Users authorized by oidc auth  */
 export type User = {
   __typename?: 'User';
   /**
@@ -185,25 +183,20 @@ export type User = {
    *  4. As an alias to the 'id' field on the User List.
    */
   _label_?: Maybe<Scalars['String']>;
-  /**  condo.User.v  */
-  v?: Maybe<Scalars['Int']>;
-  /**  condo.User.name  */
-  name?: Maybe<Scalars['String']>;
   /**  condo.User.type  */
   type?: Maybe<UserTypeType>;
-  /**  condo.User.isAdmin  */
-  isAdmin?: Maybe<Scalars['Boolean']>;
-  /**  condo.User.isSupport  */
+  /**  The user's name  */
+  name?: Maybe<Scalars['String']>;
+  /**  Whether the user support or not  */
   isSupport?: Maybe<Scalars['Boolean']>;
-  /**  condo.User.email  */
+  /**  Whether the user admin or not  */
+  isAdmin?: Maybe<Scalars['Boolean']>;
+  /**  The user's email  */
   email?: Maybe<Scalars['String']>;
-  /**  Is this a local user (not from oidc auth). We use such users for test purposes. Usecase: you need to check the app locally without the OIDC server or you need to run tests  */
-  isLocal?: Maybe<Scalars['Boolean']>;
-  /**  Password. Update only (for local auth without oidc). Check the `isLocal` field docs  */
+  /**  The user's password  */
   password_is_set?: Maybe<Scalars['Boolean']>;
-  /**  Current organization id  */
-  organizationId?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
   /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
@@ -219,14 +212,13 @@ export type User = {
 };
 
 export type UserCreateInput = {
-  v?: Maybe<Scalars['Int']>;
-  name?: Maybe<Scalars['String']>;
   type?: Maybe<UserTypeType>;
-  isAdmin?: Maybe<Scalars['Boolean']>;
+  name?: Maybe<Scalars['String']>;
   isSupport?: Maybe<Scalars['Boolean']>;
+  isAdmin?: Maybe<Scalars['Boolean']>;
   email?: Maybe<Scalars['String']>;
-  isLocal?: Maybe<Scalars['Boolean']>;
   password?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<UserRelateToOneInput>;
@@ -251,14 +243,13 @@ export enum UserTypeType {
 }
 
 export type UserUpdateInput = {
-  v?: Maybe<Scalars['Int']>;
-  name?: Maybe<Scalars['String']>;
   type?: Maybe<UserTypeType>;
-  isAdmin?: Maybe<Scalars['Boolean']>;
+  name?: Maybe<Scalars['String']>;
   isSupport?: Maybe<Scalars['Boolean']>;
+  isAdmin?: Maybe<Scalars['Boolean']>;
   email?: Maybe<Scalars['String']>;
-  isLocal?: Maybe<Scalars['Boolean']>;
   password?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<UserRelateToOneInput>;
@@ -272,14 +263,10 @@ export type UserUpdateInput = {
 export type UserWhereInput = {
   AND?: Maybe<Array<Maybe<UserWhereInput>>>;
   OR?: Maybe<Array<Maybe<UserWhereInput>>>;
-  v?: Maybe<Scalars['Int']>;
-  v_not?: Maybe<Scalars['Int']>;
-  v_lt?: Maybe<Scalars['Int']>;
-  v_lte?: Maybe<Scalars['Int']>;
-  v_gt?: Maybe<Scalars['Int']>;
-  v_gte?: Maybe<Scalars['Int']>;
-  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  type?: Maybe<UserTypeType>;
+  type_not?: Maybe<UserTypeType>;
+  type_in?: Maybe<Array<Maybe<UserTypeType>>>;
+  type_not_in?: Maybe<Array<Maybe<UserTypeType>>>;
   name?: Maybe<Scalars['String']>;
   name_not?: Maybe<Scalars['String']>;
   name_contains?: Maybe<Scalars['String']>;
@@ -298,14 +285,10 @@ export type UserWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  type?: Maybe<UserTypeType>;
-  type_not?: Maybe<UserTypeType>;
-  type_in?: Maybe<Array<Maybe<UserTypeType>>>;
-  type_not_in?: Maybe<Array<Maybe<UserTypeType>>>;
-  isAdmin?: Maybe<Scalars['Boolean']>;
-  isAdmin_not?: Maybe<Scalars['Boolean']>;
   isSupport?: Maybe<Scalars['Boolean']>;
   isSupport_not?: Maybe<Scalars['Boolean']>;
+  isAdmin?: Maybe<Scalars['Boolean']>;
+  isAdmin_not?: Maybe<Scalars['Boolean']>;
   email?: Maybe<Scalars['String']>;
   email_not?: Maybe<Scalars['String']>;
   email_contains?: Maybe<Scalars['String']>;
@@ -324,13 +307,19 @@ export type UserWhereInput = {
   email_not_ends_with_i?: Maybe<Scalars['String']>;
   email_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   email_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  isLocal?: Maybe<Scalars['Boolean']>;
-  isLocal_not?: Maybe<Scalars['Boolean']>;
   password_is_set?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
   id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   createdAt?: Maybe<Scalars['String']>;
   createdAt_not?: Maybe<Scalars['String']>;
   createdAt_lt?: Maybe<Scalars['String']>;

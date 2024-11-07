@@ -148,15 +148,22 @@ const fetchWithRetriesAndLogger = async (url, options = {}) => {
         try {
             const controller = new AbortController()
             const signal = controller.signal
+            let timeout
+
             const response = await Promise.race([
                 fetchWithLogger(url, { ... fetchOptions, signal }, { skipTracingHeaders, skipXTargetHeader }),
                 new Promise((_, reject) =>
-                    setTimeout(() => {
+                    timeout = setTimeout(() => {
                         controller.abort()
                         reject(new Error('Abort request by timeout'))
                     }, abortRequestTimeout)
                 ),
             ])
+
+            if (timeout) {
+                clearTimeout(timeout)
+            }
+
             if (response && response.ok) {
                 return response
             }

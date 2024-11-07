@@ -27,6 +27,7 @@ import { useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultiple
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
+import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { MetersImportWrapper } from '@condo/domains/meter/components/Import/Index'
 import {
@@ -34,6 +35,7 @@ import {
     MeterForOrganization,
     METER_TAB_TYPES,
 } from '@condo/domains/meter/utils/clientSchema'
+import { getInitialArchivedOrActiveMeter } from '@condo/domains/meter/utils/helpers'
 
 
 
@@ -46,6 +48,8 @@ const FULL_WIDTH_DATE_RANGE_STYLE: CSSProperties = { width: '100%' }
 const SORTABLE_PROPERTIES = ['verificationDate', 'source']
 const DEFAULT_DATE_RANGE: [Dayjs, Dayjs] = [dayjs(), dayjs().add(2, 'month')]
 
+
+
 type MetersTableContentProps = {
     filtersMeta: FiltersMeta<MeterReadingWhereInput>[]
     tableColumns: ColumnsType
@@ -55,6 +59,11 @@ type MetersTableContentProps = {
     mutationErrorsToMessages?: Record<string, string>
     loading?: boolean
     showImportButton?: boolean
+}
+
+type UpdateMeterQueryParamsType = {
+    isShowActiveMeters: string
+    isShowArchivedMeters: string
 }
 
 const MetersTableContent: React.FC<MetersTableContentProps> = ({
@@ -85,8 +94,8 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
 
     const [dateRange, setDateRange] = useDateRangeSearch('nextVerificationDate')
     const [filtersAreReset, setFiltersAreReset] = useState(false)
-    const [isShowActiveMeters, setIsShowActiveMeters] = useState(true)
-    const [isShowArchivedMeters, setIsShowArchivedMeters] = useState(false)
+    const [isShowActiveMeters, setIsShowActiveMeters] = useState(() => getInitialArchivedOrActiveMeter(router, 'isShowActiveMeters', true))
+    const [isShowArchivedMeters, setIsShowArchivedMeters] = useState(() => getInitialArchivedOrActiveMeter(router, 'isShowArchivedMeters'))
 
     const dateFallback = filtersAreReset ? null : DEFAULT_DATE_RANGE
     const dateFilterValue = dateRange
@@ -148,14 +157,22 @@ const MetersTableContent: React.FC<MetersTableContentProps> = ({
 
 
     const handleSearch = useCallback((e) => {handleSearchChange(e.target.value)}, [handleSearchChange])
-    const handleCheckShowActiveMeters = useCallback(() => {
-        setIsShowActiveMeters(prev => !prev)
-    }, [])
-    const handleCheckShowArchiveMeters = useCallback(() => {
-        setIsShowArchivedMeters(prev => !prev)
-    }, [])
-    const handleCreateMeterReadings = useCallback(() => router.push(`/meter/create?tab=${METER_TAB_TYPES.meter}`), [router])
+    const handleUpdateMeterQuery = useCallback(async (newParameters: UpdateMeterQueryParamsType) => {
+        await updateQuery(router, { newParameters }, { routerAction: 'replace', resetOldParameters: false })
+    }, [router])
 
+    const handleCheckShowActiveMeters = useCallback(() => {
+        handleUpdateMeterQuery({ isShowActiveMeters: String(!isShowActiveMeters), isShowArchivedMeters: String(isShowArchivedMeters) })
+        setIsShowActiveMeters(prev => !prev)
+    }, [handleUpdateMeterQuery, isShowActiveMeters, isShowArchivedMeters])
+
+    const handleCheckShowArchiveMeters = useCallback(() => {
+        handleUpdateMeterQuery({ isShowActiveMeters: String(isShowActiveMeters), isShowArchivedMeters: String(!isShowArchivedMeters) })
+        setIsShowArchivedMeters(prev => !prev)
+    }, [handleUpdateMeterQuery, isShowActiveMeters, isShowArchivedMeters])
+
+    const handleCreateMeterReadings = useCallback(() => router.push(`/meter/create?tab=${METER_TAB_TYPES.meter}`), [router])
+    
     return (
         <>
             <Row

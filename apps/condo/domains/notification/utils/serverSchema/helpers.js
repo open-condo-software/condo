@@ -29,7 +29,7 @@ async function getUserSettings (context, userId, messageType) {
             { messageType: null }, // possible settings for all messages
             { messageType }, // settings for specific message type
         ],
-    })
+    }, 'messageType messageTransport isEnabled')
 }
 
 /**
@@ -65,7 +65,7 @@ async function getAnonymousSettings (context, email, phone, messageType) {
                 deletedAt: null,
             },
         ],
-    })
+    }, 'messageType messageTransport isEnabled email phone')
 }
 
 

@@ -12,7 +12,7 @@ interface ArrowButtonTypeProp {
 interface ArrowButtonProps extends React.HTMLAttributes<HTMLDivElement>, ArrowButtonTypeProp {}
 
 interface ArrowCircleProps extends ArrowButtonProps {
-    isDisabled: boolean,
+    isDisabled: boolean
 }
 
 const ArrowCircle = styled.div<ArrowCircleProps>`

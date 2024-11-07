@@ -9,7 +9,7 @@ const {
 } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAccessDeniedErrorToObj,
-    catchErrorFrom,
+    expectToThrowInternalError,
 } = require('@open-condo/keystone/test.utils')
 
 const { SBER_ID_IDP_TYPE } = require('@condo/domains/user/constants/common')
@@ -96,17 +96,11 @@ describe('UserExternalIdentity', () => {
                 deletedAt: 'true',
             })
 
-            await catchErrorFrom(async () => {
-                await createTestUserExternalIdentity(admin, identityRequest)
-            }, ({ errors }) => {
-                expect(errors).toMatchObject([{
-                    message: 'Unable to connect a UserExternalIdentity.user<User>',
-                    name: 'GraphQLError',
-                    extensions: {
-                        code: 'INTERNAL_SERVER_ERROR',
-                    },
-                }])
-            })
+            await expectToThrowInternalError(
+                async () => await createTestUserExternalIdentity(admin, identityRequest),
+                'Unable to connect a UserExternalIdentity.user<User>',
+                ['obj'],
+            )
         })
     })
 
@@ -180,7 +174,7 @@ describe('UserExternalIdentity', () => {
 
         test('Denied: RESIDENT', async () => {
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await UserExternalIdentity.update(resident, identity.id, {  })
+                await UserExternalIdentity.update(resident, identity.id, {})
             })
         })
 

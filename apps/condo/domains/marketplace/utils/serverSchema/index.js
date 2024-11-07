@@ -5,24 +5,15 @@
  */
 
 const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
-
-const { MarketCategory: MarketCategoryGQL } = require('@condo/domains/marketplace/gql')
-const { MarketItem: MarketItemGQL } = require('@condo/domains/marketplace/gql')
-const { Invoice: InvoiceGQL } = require('@condo/domains/marketplace/gql')
-const { MarketItemFile: MarketItemFileGQL } = require('@condo/domains/marketplace/gql')
-const { MarketItemPrice: MarketItemPriceGQL } = require('@condo/domains/marketplace/gql')
-const { MarketPriceScope: MarketPriceScopeGQL } = require('@condo/domains/marketplace/gql')
-const { MarketSetting: MarketSettingGQL } = require('@condo/domains/marketplace/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const MarketCategory = generateServerUtils(MarketCategoryGQL)
-const MarketItem = generateServerUtils(MarketItemGQL)
-const Invoice = generateServerUtils(InvoiceGQL)
-const MarketItemFile = generateServerUtils(MarketItemFileGQL)
-const MarketItemPrice = generateServerUtils(MarketItemPriceGQL)
-const MarketPriceScope = generateServerUtils(MarketPriceScopeGQL)
-
-const MarketSetting = generateServerUtils(MarketSettingGQL)
+const MarketCategory = generateServerUtils('MarketCategory')
+const MarketItem = generateServerUtils('MarketItem')
+const Invoice = generateServerUtils('Invoice')
+const MarketItemFile = generateServerUtils('MarketItemFile')
+const MarketItemPrice = generateServerUtils('MarketItemPrice')
+const MarketPriceScope = generateServerUtils('MarketPriceScope')
+const MarketSetting = generateServerUtils('MarketSetting')
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {

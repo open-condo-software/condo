@@ -4,10 +4,9 @@ const get = require('lodash/get')
 const conf = require('@open-condo/config')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
-const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { CUSTOMER_IMPORTANT_NOTE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { REGISTER_NEW_ORGANIZATION_MUTATION } = require('@condo/domains/organization/gql')
+const { REGISTER_NEW_ORGANIZATION_MUTATION, ORGANIZATION_FIELDS } = require('@condo/domains/organization/gql')
 const { dvSenderFields } = require('@condo/domains/organization/integrations/sbbol/constants')
 const { Organization, OrganizationEmployee, OrganizationEmployeeRole } = require('@condo/domains/organization/utils/serverSchema')
 const { createConfirmedEmployee } = require('@condo/domains/organization/utils/serverSchema/Organization')
@@ -17,7 +16,7 @@ const CUSTOMER_EMAIL = conf.NOTIFY_ABOUT_NEW_ORGANIZATION_EMAIL
 
 async function sendToCustomer (data) {
     if (CUSTOMER_EMAIL) {
-        const { keystone } = await getSchemaCtx('Message')
+        const { keystone } = getSchemaCtx('Message')
 
         await sendMessage(keystone, {
             ...dvSenderFields,
@@ -35,7 +34,7 @@ const createOrganization = async ({ context, user, importInfo, organizationInfo 
             listKey: 'User',
         },
     })
-    const { data: { obj: createdOrganization } } = await userContext.executeGraphQL({
+    const data = await userContext.executeGraphQL({
         context: userContext,
         query: REGISTER_NEW_ORGANIZATION_MUTATION,
         variables: {
@@ -49,10 +48,12 @@ const createOrganization = async ({ context, user, importInfo, organizationInfo 
         },
     })
 
+    const { data: { obj: createdOrganization } } = data
+
     const organization = await Organization.update(userContext, createdOrganization.id, {
         ...dvSenderFields,
         ...importInfo,
-    })
+    }, ORGANIZATION_FIELDS)
 
     await sendToCustomer({ organization })
 
@@ -76,23 +77,18 @@ const syncOrganization = async ({ context, user, userData, organizationInfo, dvS
         importRemoteSystem: organizationInfo.importRemoteSystem,
     }
 
-    const employees = await loadListByChunks({
-        context: adminContext,
-        list: OrganizationEmployee,
-        chunkSize: 30,
-        limit: 10000,
-        where: {
-            user: { id: user.id },
-            deletedAt: null,
-        },
-        sortBy: ['updatedAt_DESC'],
-    })
+    const employees = await OrganizationEmployee.getAll(adminContext, {
+        user: { id: user.id },
+        deletedAt: null,
+    }, 'id organization { id tin meta deletedAt }', { sortBy: ['updatedAt_DESC'] })
 
     const [importedOrganization] = await Organization.getAll(adminContext, {
         ...importInfo,
         tin: `${organizationInfo.meta.inn}`,
         deletedAt: null,
-    }, { first: 1 })
+    },
+    'id features country tin name',
+    { first: 1 })
 
     if (!importedOrganization) {
         // Organization was not imported from SBBOL, but maybe, it was created before with the same TIN
@@ -120,7 +116,7 @@ const syncOrganization = async ({ context, user, userData, organizationInfo, dvS
                     ...existingOrganization.meta,
                     ...organizationInfo.meta,
                 },
-            })
+            }, 'id features country tin name')
 
             return { organization: updatedOrganization, employee: employeeWithExistingOrganization }
         }
@@ -143,7 +139,7 @@ const syncOrganization = async ({ context, user, userData, organizationInfo, dvS
             return { organization: importedOrganization, employee }
         }
     }
-    return { organization: importedOrganization, employee: employees.find(employee => ( employee.organization.id === importedOrganization.id )) }
+    return { organization: importedOrganization, employee: employees.find(employee => (employee.organization.id === importedOrganization.id )) }
 }
 
 module.exports = {

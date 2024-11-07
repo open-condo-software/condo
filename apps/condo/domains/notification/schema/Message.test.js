@@ -8,11 +8,10 @@ const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowGraphQLRequestError,
-    expectToThrowInternalError,
+    expectToThrowUniqueConstraintViolationError,
     expectToThrowAuthenticationErrorToObjects, catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 
-const { DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE } = require('@condo/domains/common/constants/errors')
 const { INVITE_NEW_EMPLOYEE_MESSAGE_TYPE, VOIP_INCOMING_CALL_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { Message, createTestMessage, updateTestMessage } = require('@condo/domains/notification/utils/testSchema')
 const { makeClientWithRegisteredOrganization, createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
@@ -72,6 +71,7 @@ describe('Message', () => {
         const payload = {
             organization: { connect: newOrganization.id },
         }
+        // TODO(pahaz): DOMA-10368 use expectToThrowGraphQLRequestError
         await catchErrorFrom(async () => {
             await updateTestMessage(admin, obj.id, payload)
         }, (e) => {
@@ -198,9 +198,9 @@ describe('Message', () => {
             expect(obj.uniqKey).toMatch(uniqKey)
             expect(obj.user.id).toMatch(user.user.id)
 
-            await expectToThrowInternalError(
+            await expectToThrowUniqueConstraintViolationError(
                 async () => await createTestMessage(admin, { user: { connect: { id: user.user.id } }, uniqKey }),
-                DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE,
+                'message_unique_user_type_uniqKey',
             )
         })
 
@@ -212,9 +212,9 @@ describe('Message', () => {
             expect(obj.uniqKey).toMatch(uniqKey)
             expect(obj.user).toBeNull()
 
-            await expectToThrowInternalError(
+            await expectToThrowUniqueConstraintViolationError(
                 async () => await createTestMessage(admin, { user: null, uniqKey }),
-                DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE,
+                'message_unique_type_uniqKey',
             )
         })
 
@@ -231,14 +231,14 @@ describe('Message', () => {
             expect(obj1.uniqKey).toMatch(uniqKey)
             expect(obj1.user).toBeNull()
 
-            await expectToThrowInternalError(
+            await expectToThrowUniqueConstraintViolationError(
                 async () => await createTestMessage(admin, { user: { connect: { id: user.user.id } }, uniqKey }),
-                DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE,
+                'message_unique_user_type_uniqKey',
             )
 
-            await expectToThrowInternalError(
+            await expectToThrowUniqueConstraintViolationError(
                 async () => await createTestMessage(admin, { uniqKey }),
-                DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE,
+                'message_unique_type_uniqKey',
             )
         })
 
