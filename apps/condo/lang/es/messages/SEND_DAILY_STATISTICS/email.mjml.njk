@@ -90,7 +90,7 @@
           </mj-column>
           <mj-column vertical-align="middle">
             <mj-button background-color="transparent" color="#000000" font-size="20px" border="1px solid" border-radius="8px" align="right" href="{{ env.serverUrl }}" css-class="header-btn">
-              Go to Doma
+              Ir a Doma
             </mj-button>
           </mj-column>
         </mj-group>
@@ -116,20 +116,20 @@
     <mj-wrapper mj-class="bg-white" padding-top="5px">
       <mj-section>
         <mj-column>
-          <mj-text mj-class="title black" font-size="24px" css-class="title" padding-top="20px">Hello!</mj-text>
+          <mj-text mj-class="title black" font-size="24px" css-class="title" padding-top="20px">¡Hola!</mj-text>
         </mj-column>
       </mj-section>
 
       <mj-section>
         <mj-column>
-          <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">This letter is a list of important events in the life of your properties for <b class="black">{{ message.meta.data.date }}</b> based on Doma.ai platform data. We tell you what happened to make it easier for you to keep the situation under control and respond to events in a timely manner.</mj-text>
+          <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">Esta carta es una lista de eventos importantes en la vida de sus propiedades para <b class="black">{{ message.meta.data.date }}</b> basada en los datos de la plataforma Doma.ai. Le contamos lo sucedido para que le sea más fácil mantener la situación bajo control y responder a los eventos a tiempo.</mj-text>
         </mj-column>
       </mj-section>
 
       <mj-section>
         <mj-column>
           <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
-            <b class="black">Total number of tickets in progress: </b>
+            <b class="black">Número total de incidencias en curso: </b>
             <b class="black">{{ message.meta.data.tickets.inProgress.total }}</b>
             {% if message.meta.data.tickets.inProgress.details %}
               <span>({{ message.meta.data.tickets.inProgress.details }})</span>
@@ -141,7 +141,7 @@
       <mj-section>
         <mj-column>
           <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
-            <b class="black">Open emergency tickets</b> that were created more than 24 hours ago:
+            <b class="black">Incidencias urgentes en estado abierto y creadas hace más de 24 horas:</b>
             <b class="black">{{ message.meta.data.tickets.isEmergency.total }}</b>
             {% if message.meta.data.tickets.isEmergency.details %}
               <span>({{ message.meta.data.tickets.isEmergency.details }})</span>
@@ -153,7 +153,7 @@
       <mj-section>
         <mj-column>
           <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
-            <b class="black">Returned tickets: </b>
+            <b class="black">Incidencias devueltas: </b>
             <b class="black">{{ message.meta.data.tickets.isReturned.total }}</b>
             {% if message.meta.data.tickets.isReturned.details %}
               <span>({{ message.meta.data.tickets.isReturned.details }})</span>
@@ -165,7 +165,7 @@
       <mj-section>
         <mj-column>
           <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
-            <b class="black">Expired tickets: </b>
+            <b class="black">Incidencias caducadas: </b>
             <b class="black">{{ message.meta.data.tickets.isExpired.total }}</b>
             {% if message.meta.data.tickets.isExpired.details %}
               <span>({{ message.meta.data.tickets.isExpired.details }})</span>
@@ -177,7 +177,7 @@
       <mj-section>
         <mj-column>
           <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
-            <b class="black">Tickets requiring the appointment of executors and assignees persons: </b>
+            <b class="black">Incidencias que requieren la asignación de proveedores: </b>
             <b class="black">{{ message.meta.data.tickets.withoutEmployee.total }}</b>
             {% if message.meta.data.tickets.withoutEmployee.details %}
               <span>({{ message.meta.data.tickets.withoutEmployee.details }})</span>
@@ -188,7 +188,7 @@
 
       <mj-section>
         <mj-column>
-          <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">Go to <a href="{{ env.serverUrl }}" class="link">the Doma.ai platform</a>,to find out details on tickets and use other services.</mj-text>
+          <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">Ir a la <a href="{{ env.serverUrl }}" class="link">plataforma Doma.ai</a> para conocer más detalles sobre las incidencias y utilizar otros servicios.</mj-text>
         </mj-column>
       </mj-section>
 
@@ -196,7 +196,7 @@
         <mj-section>
           <mj-column>
             <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">
-              <b class="black">Scheduled water incidents dates: </b>
+              <b class="black">Cortes de agua previstos: </b>
               <span>{{ message.meta.data.incidents.water }}</span>
             </mj-text>
           </mj-column>
@@ -206,14 +206,14 @@
       <mj-section>
         <mj-column>
           <mj-button background-color="#49d48a" border-radius="8px" font-size="16px" line-height="22px" href="{{ env.serverUrl }}/ticket" padding-top="20px" padding-bottom="32px" css-class="letter-btn">
-            Go to the control room
+            Ir al panel de control
           </mj-button>
         </mj-column>
       </mj-section>
 
       <mj-section>
         <mj-column>
-          <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">With care for your business, </mj-text>
+          <mj-text mj-class="paragraph" css-class="paragraph" padding-top="20px">Con cuidado para su negocio, </mj-text>
           {% if env.landingUrl.en %}
             <mj-text mj-class="paragraph company-name" css-class="paragraph company-name" padding-top="4px"><a href="{{ env.landingUrl.en }}" class="link">Domá</a></mj-text>
           {% else %}
@@ -234,7 +234,7 @@
       {% if env.socialMediaLinks.en %}
         <mj-section>
           <mj-column>
-            <mj-text align="center" font-weight="500" line-height="19px">Follow the news on social networks of the Doma</mj-text>
+            <mj-text align="center" font-weight="500" line-height="19px">Siga las noticias de Doma en las redes sociales</mj-text>
           </mj-column>
         </mj-section>
 
@@ -252,19 +252,19 @@
 
       <mj-section>
         <mj-column>
-          <mj-text align="center" font-weight="500" padding-top="8px" line-height="19px">Any questions left? <a href="mailto:{{ env.supportEmail }}" class="link">Support</a> will answer them.</mj-text>
+          <mj-text align="center" font-weight="500" padding-top="8px" line-height="19px">¿Queda alguna duda? <a href="mailto:{{ env.supportEmail }}" class="link">El equipo de soporte las responderá</a>.</mj-text>
         </mj-column>
       </mj-section>
 
       <mj-section>
         <mj-column>
-          <mj-text align="center" padding-top="12px" line-height="19px">You are receiving this email because you have consented to receive communications from the Doma.</mj-text>
+          <mj-text align="center" padding-top="12px" line-height="19px">Está recibiendo este correo electrónico porque ha dado su consentimiento para recibir comunicaciones de Doma.</mj-text>
         </mj-column>
       </mj-section>
 
       <mj-section>
         <mj-column>
-          <mj-text align="center" padding-top="12px" line-height="19px">Do you want to unsubscribe from the newsletter? Click <a href="{{ env.serverUrl }}/api/unsubscribe?id={{ message.id }}" class="link">here</a>.</mj-text>
+          <mj-text align="center" padding-top="12px" line-height="19px">¿Desea darse de baja del boletín? Haga clic <a href="{{ env.serverUrl }}/api/unsubscribe?id={{ message.id }}" class="link">aquí</a>.</mj-text>
         </mj-column>
       </mj-section>
 
