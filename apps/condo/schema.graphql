@@ -47414,6 +47414,7 @@ type MeterReadingHistoryRecord {
   source: String
   billingStatus: String
   billingStatusText: String
+  accountNumber: String
   organization: String
   id: ID!
   v: Int
@@ -47579,6 +47580,24 @@ input MeterReadingHistoryRecordWhereInput {
   billingStatusText_not_ends_with_i: String
   billingStatusText_in: [String]
   billingStatusText_not_in: [String]
+  accountNumber: String
+  accountNumber_not: String
+  accountNumber_contains: String
+  accountNumber_not_contains: String
+  accountNumber_starts_with: String
+  accountNumber_not_starts_with: String
+  accountNumber_ends_with: String
+  accountNumber_not_ends_with: String
+  accountNumber_i: String
+  accountNumber_not_i: String
+  accountNumber_contains_i: String
+  accountNumber_not_contains_i: String
+  accountNumber_starts_with_i: String
+  accountNumber_not_starts_with_i: String
+  accountNumber_ends_with_i: String
+  accountNumber_not_ends_with_i: String
+  accountNumber_in: [String]
+  accountNumber_not_in: [String]
   organization: String
   organization_not: String
   organization_in: [String]
@@ -47686,6 +47705,8 @@ enum SortMeterReadingHistoryRecordsBy {
   billingStatus_DESC
   billingStatusText_ASC
   billingStatusText_DESC
+  accountNumber_ASC
+  accountNumber_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -47719,6 +47740,7 @@ input MeterReadingHistoryRecordUpdateInput {
   source: String
   billingStatus: String
   billingStatusText: String
+  accountNumber: String
   organization: String
   v: Int
   createdAt: String
@@ -47754,6 +47776,7 @@ input MeterReadingHistoryRecordCreateInput {
   source: String
   billingStatus: String
   billingStatusText: String
+  accountNumber: String
   organization: String
   v: Int
   createdAt: String
@@ -47855,6 +47878,10 @@ type MeterReading {
   """ A message from external billing system. Set to null if billing status is `approved`. This field can be changed only by service user. 
   """
   billingStatusText: String
+
+  """ Account number of the related Meter at the moment of creation. Filled once. 
+  """
+  accountNumber: String
 
   """ Ref to the organization. It is filled in on the server and is read-only 
   """
@@ -48009,6 +48036,24 @@ input MeterReadingWhereInput {
   billingStatusText_not_ends_with_i: String
   billingStatusText_in: [String]
   billingStatusText_not_in: [String]
+  accountNumber: String
+  accountNumber_not: String
+  accountNumber_contains: String
+  accountNumber_not_contains: String
+  accountNumber_starts_with: String
+  accountNumber_not_starts_with: String
+  accountNumber_ends_with: String
+  accountNumber_not_ends_with: String
+  accountNumber_i: String
+  accountNumber_not_i: String
+  accountNumber_contains_i: String
+  accountNumber_not_contains_i: String
+  accountNumber_starts_with_i: String
+  accountNumber_not_starts_with_i: String
+  accountNumber_ends_with_i: String
+  accountNumber_not_ends_with_i: String
+  accountNumber_in: [String]
+  accountNumber_not_in: [String]
   organization: OrganizationWhereInput
   organization_is_null: Boolean
   id: ID
@@ -48102,6 +48147,8 @@ enum SortMeterReadingsBy {
   billingStatus_DESC
   billingStatusText_ASC
   billingStatusText_DESC
+  accountNumber_ASC
+  accountNumber_DESC
   organization_ASC
   organization_DESC
   id_ASC
@@ -48137,6 +48184,7 @@ input MeterReadingUpdateInput {
   source: MeterReadingSourceRelateToOneInput
   billingStatus: MeterReadingBillingStatusType
   billingStatusText: String
+  accountNumber: String
   organization: OrganizationRelateToOneInput
   v: Int
   createdAt: String
@@ -48169,6 +48217,7 @@ input MeterReadingCreateInput {
   source: MeterReadingSourceRelateToOneInput
   billingStatus: MeterReadingBillingStatusType
   billingStatusText: String
+  accountNumber: String
   organization: OrganizationRelateToOneInput
   v: Int
   createdAt: String

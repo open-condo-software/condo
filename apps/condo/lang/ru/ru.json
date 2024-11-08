@@ -2804,6 +2804,8 @@
   "excelExport.headers.meters.value4": "Показание по тарифу №4",
   "excelExport.headers.meters.clientName": "Житель",
   "excelExport.headers.meters.source": "Источник",
+  "excelExport.headers.meters.nextVerificationDate": "Дата следующей поверки",
+  "excelExport.headers.meters.status": "Статус",
   "excelExport.headers.propertyMeters.date": "Дата снятия",
   "excelExport.headers.propertyMeters.address": "Адрес",
   "excelExport.headers.propertyMeters.resource": "Услуга",

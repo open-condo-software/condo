@@ -2804,6 +2804,8 @@
   "excelExport.headers.meters.value4": "Reading from tariff №4",
   "excelExport.headers.meters.clientName": "Contact",
   "excelExport.headers.meters.source": "Source",
+  "excelExport.headers.meters.nextVerificationDate": "Next verification date",
+  "excelExport.headers.meters.status": "Status",
   "excelExport.headers.propertyMeters.date": "Reading date",
   "excelExport.headers.propertyMeters.address": "Address",
   "excelExport.headers.propertyMeters.resource": "Service",
