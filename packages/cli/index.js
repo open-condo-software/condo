@@ -7,7 +7,6 @@ const util = require('util')
 const dotenv = require('dotenv')
 const { Client, Pool } = require('pg')
 
-
 const conf = require('@open-condo/config')
 
 const exec = util.promisify(cp.exec)
@@ -19,7 +18,7 @@ const exists = util.promisify(fs.exists)
 const PROJECT_ROOT = conf['PROJECT_ROOT']
 const TRACE = conf['TRACE']
 
-const getRandomString = () => crypto.randomBytes(6).hexSlice()
+const getRandomString = (size = 10) => crypto.randomBytes(size).hexSlice()
 
 /**
  * If use '@open-condo/config' package probably you want to exec some command without current process.env!
@@ -161,12 +160,13 @@ async function updateEnvFile (filePath, key, value, opts = { override: true }) {
  * @param appName {string} application name ./apps/<appName>
  * @param key {string} environment variable name
  * @param value {string} environment variable value
+ * @param opts {{ override: boolean }}
  * @return {Promise<void>}
  */
-async function updateAppEnvFile (appName, key, value) {
+async function updateAppEnvFile (appName, key, value, opts = { override: true }) {
     if (typeof appName !== 'string') throw new Error('updateAppEnvFile(..., appName) should be a string')
     if (!appName) throw new Error('updateAppEnvFile(..., appName) should be a defined')
-    return await updateEnvFile(`${PROJECT_ROOT}/apps/${appName}/.env`, key, value)
+    return await updateEnvFile(`${PROJECT_ROOT}/apps/${appName}/.env`, key, value, opts)
 }
 
 /**
@@ -200,7 +200,7 @@ async function getAppServerUrl (appName) {
 }
 
 async function prepareCondoAppOidcConfig (appName) {
-    const clientSecret = getRandomString() + getRandomString() + getRandomString()
+    const clientSecret = getRandomString(20)
     const clientId = appName
     const serverUrl = await getAppServerUrl('condo')
     const callbackUrl = await getAppServerUrl(appName) + '/oidc/callback'
@@ -216,9 +216,9 @@ async function prepareCondoAppB2BAppConfig (appName, b2bAppName, withLaunchRoute
     return { appUrl }
 }
 
-async function prepareAppEnv (appName, envToFill) {
+async function prepareAppEnv (appName, envToFill, opts = { override: true }) {
     for (const [key, value] of Object.entries(envToFill)) {
-        await updateAppEnvFile(appName, key, value)
+        await updateAppEnvFile(appName, key, value, opts)
     }
 }
 
@@ -339,6 +339,7 @@ async function getAllActualApps () {
 }
 
 module.exports = {
+    getRandomString,
     safeExec,
     checkPostgresIsRunning,
     createPostgresDatabasesIfNotExist,

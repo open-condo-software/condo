@@ -154,7 +154,7 @@ async function getAvailableResidentMeterReportCondition (userId) {
 const loadMetersForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
     const metersLoader = new GqlWithKnexLoadList({
         listKey: 'Meter',
-        fields: 'id unitName unitType accountNumber number place',
+        fields: 'id unitName unitType accountNumber number place nextVerificationDate archiveDate',
         singleRelations: [
             ['Property', 'property', 'address'],
             ['MeterResource', 'resource', 'id'],

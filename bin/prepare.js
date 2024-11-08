@@ -3,6 +3,7 @@ const path = require('path')
 const { program } = require('commander')
 
 const {
+    getRandomString,
     checkPostgresIsRunning,
     checkMkCertCommandAndLocalCerts,
     createPostgresDatabasesIfNotExist,
@@ -110,7 +111,6 @@ async function prepare () {
             await fillAppEnvWithDefaultValues(app.name)
             logWithIndent('Writing assigned urls / ports / dbs to app\'s .env', 2)
             const env = {
-                COOKIE_SECRET: `${app.name}-secret`,
                 DATABASE_URL: `${LOCAL_PG_DB_PREFIX}/${app.pgName}`,
                 REDIS_URL: `${LOCAL_REDIS_DB_PREFIX}/${app.redisIndex}`,
                 PORT: String(app.port),
@@ -135,6 +135,14 @@ async function prepare () {
             }
 
             await prepareAppEnv(app.name, env)
+            // NOTE(pahaz): we don't need to update secret if someone already set it
+            await prepareAppEnv(
+                app.name,
+                {
+                    COOKIE_SECRET: `${app.name}-secret-${getRandomString(12)}-value`,
+                },
+                { override: false },
+            )
             logWithIndent('Running migration script', 2)
             const migrateResult = await runAppPackageJsonScript(app.name, 'migrate')
             if (migrateResult) console.log(migrateResult)

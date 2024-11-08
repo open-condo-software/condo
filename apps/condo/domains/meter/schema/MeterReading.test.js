@@ -6,7 +6,9 @@ const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
 const conf = require('@open-condo/config')
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor, expectToThrowGQLError,
+    expectToThrowGraphQLRequestError,
+} = require('@open-condo/keystone/test.utils')
 const {
     catchErrorFrom,
     expectToThrowAuthenticationErrorToObjects,
@@ -1677,6 +1679,40 @@ describe('MeterReading', () => {
                             type: 'BILLING_STATUS_MESSAGE_WITHOUT_BILLING_STATUS',
                             message: 'Can not set billingStatusText without billingStatus',
                         }
+                    )
+                })
+            })
+
+            describe('accountNumber', () => {
+                test('is filled from related Meter.accountNumber on creation', async () => {
+                    const [resource] = await MeterResource.getAll(employeeCanManageReadings, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [source] = await MeterReadingSource.getAll(employeeCanManageReadings, { id: CALL_METER_READING_SOURCE_ID })
+                    const [meter] = await createTestMeter(
+                        employeeCanManageReadings,
+                        employeeCanManageReadings.organization,
+                        employeeCanManageReadings.property,
+                        resource,
+                    )
+                    const [meterReading] = await createTestMeterReading(admin, meter, source)
+                    expect(meterReading.accountNumber).toBe(meter.accountNumber)
+
+                })
+                test('cannot be updated', async () => {
+                    const [resource] = await MeterResource.getAll(employeeCanManageReadings, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [source] = await MeterReadingSource.getAll(employeeCanManageReadings, { id: CALL_METER_READING_SOURCE_ID })
+                    const [meter] = await createTestMeter(
+                        employeeCanManageReadings,
+                        employeeCanManageReadings.organization,
+                        employeeCanManageReadings.property,
+                        resource,
+                    )
+                    const [meterReading] = await createTestMeterReading(admin, meter, source)
+
+                    await expectToThrowGraphQLRequestError(
+                        async () => await updateTestMeterReading(admin, meterReading.id, {
+                            accountNumber: faker.random.alphaNumeric(),
+                        }),
+                        'got invalid value',
                     )
                 })
             })
