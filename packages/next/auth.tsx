@@ -204,10 +204,10 @@ type WithAuthLegacyProps = {
     SIGNIN_MUTATION?: DocumentNode
     SIGNOUT_MUTATION?: DocumentNode
 }
-type WithAuthLegacy = (props: WithAuthLegacyProps) => (PageComponent: NextPage) => NextPage
+type WithAuthLegacyType = (props: WithAuthLegacyProps) => (PageComponent: NextPage) => NextPage
 
 /** @deprecated */
-const _withAuthLegacy: WithAuthLegacy = ({ ssr = false, ...opts } = {}) => PageComponent => {
+const _withAuthLegacy: WithAuthLegacyType = ({ ssr = false, ...opts } = {}) => PageComponent => {
     // TODO(pahaz): refactor it. No need to patch globals here!
     USER_QUERY = opts.USER_QUERY ? opts.USER_QUERY : USER_QUERY
     SIGNIN_MUTATION = opts.SIGNIN_MUTATION ? opts.SIGNIN_MUTATION : SIGNIN_MUTATION
@@ -321,9 +321,9 @@ type WithAuthProps = {
     SIGNIN_MUTATION?: DocumentNode
     SIGNOUT_MUTATION?: DocumentNode
 }
-type WithAuth = (props: WithAuthProps) => (PageComponent: NextPage) => NextPage
+type WithAuthType = (props: WithAuthProps) => (PageComponent: NextPage) => NextPage
 
-const _withAuth: WithAuth = (opts) => (PageComponent: NextPage): NextPage => {
+const _withAuth: WithAuthType = (opts) => (PageComponent: NextPage): NextPage => {
     USER_QUERY = opts.USER_QUERY ? opts.USER_QUERY : USER_QUERY
     SIGNIN_MUTATION = opts.SIGNIN_MUTATION ? opts.SIGNIN_MUTATION : SIGNIN_MUTATION
     SIGNOUT_MUTATION = opts.SIGNOUT_MUTATION ? opts.SIGNOUT_MUTATION : SIGNOUT_MUTATION
@@ -349,8 +349,8 @@ const _withAuth: WithAuth = (opts) => (PageComponent: NextPage): NextPage => {
 }
 
 type mergedWithAuthProps = Either<WithAuthProps & { legacy: false }, WithAuthLegacyProps & { legacy?: true }>
-type mergedWithAuth = (props: mergedWithAuthProps) => (PageComponent: NextPage) => NextPage
-const withAuth: mergedWithAuth = (opts) => (PageComponent: NextPage): NextPage => {
+type mergedWithAuthType = (props: mergedWithAuthProps) => (PageComponent: NextPage) => NextPage
+const withAuth: mergedWithAuthType = (opts) => (PageComponent: NextPage): NextPage => {
     if (opts.legacy === false) {
         return _withAuth(opts)(PageComponent)
     } else {

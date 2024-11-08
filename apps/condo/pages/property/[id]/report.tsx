@@ -48,6 +48,7 @@ import { TableFiltersContainer } from '@condo/domains/common/components/TableFil
 import { PROPERTY_REPORT_DELETE_ENTITIES, PROPERTY_BANK_ACCOUNT } from '@condo/domains/common/constants/featureflags'
 import { useDateRangeSearch } from '@condo/domains/common/hooks/useDateRangeSearch'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { PageComponentType } from '@condo/domains/common/types'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
@@ -566,7 +567,7 @@ const PropertyReportPageContent: IPropertyReportPageContent = ({ property }) => 
     )
 }
 
-const PropertyReportPage = (): React.ReactElement => {
+const PropertyReportPage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'pages.condo.property.report.pageImportTitle' })
     const ServerErrorTitle = intl.formatMessage({ id: 'ServerError' })

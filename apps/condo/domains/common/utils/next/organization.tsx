@@ -21,13 +21,13 @@ function getCookieEmployeeId (context: NextPageContext): string | null {
         state = getCookie(ACTIVE_EMPLOYEE_COOKIE_NAME, { req: context.req, res: context.res })
     } else {
         try {
-            state = cookie.get(ACTIVE_EMPLOYEE_COOKIE_NAME) || null
+            state = cookie.get(ACTIVE_EMPLOYEE_COOKIE_NAME)
         } catch (e) {
             console.error('Failed to get employee id from cookie', e)
             state = null
         }
     }
-    return state
+    return state || null
 }
 
 function setCookieEmployeeId (context: NextPageContext, activeEmployeeId: string) {
@@ -51,8 +51,9 @@ type PrefetchOrganizationEmployeeArgs = {
     context: NextPageContext
     userId: string
 }
+export type ActiveEmployeeType = GetActiveOrganizationEmployeeQueryResult['data']['employees'][number]
 type PrefetchOrganizationEmployeeReturnType = Promise<{
-    activeEmployee: GetActiveOrganizationEmployeeQueryResult['data']['employees'][number]
+    activeEmployee: ActiveEmployeeType
 }>
 
 export async function prefetchOrganizationEmployee (args: PrefetchOrganizationEmployeeArgs): PrefetchOrganizationEmployeeReturnType {

@@ -22,6 +22,7 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { FieldPairRow as BaseFieldPairRow, FieldPairRowProps } from '@condo/domains/common/components/FieldPairRow'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
+import { PageComponentType } from '@condo/domains/common/types'
 import { EmployeeInviteRetryButton } from '@condo/domains/organization/components/EmployeeInviteRetryButton'
 import { EmployeesReadPermissionRequired } from '@condo/domains/organization/components/PageAccess'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
@@ -277,7 +278,7 @@ export const EmployeePageContent = ({
     )
 }
 
-export const EmployeeInfoPage = () => {
+export const EmployeeInfoPage: PageComponentType = () => {
     const { query } = useRouter()
     const { link } = useOrganization()
     const intl = useIntl()

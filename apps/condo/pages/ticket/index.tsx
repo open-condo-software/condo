@@ -1,6 +1,5 @@
 /** @jsx jsx */
 import { useApolloClient } from '@apollo/client'
-import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import { SortTicketsBy, Ticket as ITicket, TicketStatusTypeType } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
 import styled from '@emotion/styled'
@@ -16,7 +15,6 @@ import isNumber from 'lodash/isNumber'
 import isString from 'lodash/isString'
 import omit from 'lodash/omit'
 import pick from 'lodash/pick'
-import { NextPageContext } from 'next'
 import Head from 'next/head'
 import Link from 'next/link'
 import { NextRouter, useRouter } from 'next/router'
@@ -62,6 +60,7 @@ import {
 import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { PageComponentType } from '@condo/domains/common/types'
 import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -89,15 +88,6 @@ import { CallRecordFragment, Ticket, TicketFilterTemplate } from '@condo/domains
 import { GET_TICKETS_COUNT_QUERY } from '@condo/domains/ticket/utils/clientSchema/search'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 
-import { GetPrefetchedData } from '../_app'
-
-
-
-interface ITicketIndexPage extends React.FC {
-    headerAction?: JSX.Element
-    requiredAccess?: React.FC
-    getPrefetchedData?: GetPrefetchedData
-}
 
 type TicketType = 'all' | 'own' | 'favorite'
 
@@ -989,9 +979,7 @@ export const TicketTypeFilterSwitch = ({ ticketFilterQuery }) => {
     )
 }
 
-const TicketsPage: ITicketIndexPage = (props) => {
-
-    console.log('TicketsPage >>> ', { props })
+const TicketsPage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
     const CallRecordsLogMessage = intl.formatMessage({ id: 'callRecord.index.title' })

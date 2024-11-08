@@ -6,13 +6,14 @@ import React from 'react'
 import { useIntl } from '@open-condo/next/intl'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageComponentType } from '@condo/domains/common/types'
 import { MarketItemForm } from '@condo/domains/marketplace/components/MarketItem/MarketItemForm'
 import { MarketItemReadAndManagePermissionRequired } from '@condo/domains/marketplace/components/PageAccess'
 
 
 const CREATE_MARKET_ITEM_PAGE_GUTTER: [Gutter, Gutter] = [12, 60]
 
-const CreateInvoicePage = () => {
+const CreateInvoicePage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.create.title' })
 

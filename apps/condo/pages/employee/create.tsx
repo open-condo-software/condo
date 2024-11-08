@@ -7,6 +7,7 @@ import React from 'react'
 import { useIntl } from '@open-condo/next/intl'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageComponentType } from '@condo/domains/common/types'
 import { CreateEmployeeForm } from '@condo/domains/organization/components/EmployeeForm/CreateEmployeeForm'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import {
@@ -14,12 +15,7 @@ import {
 } from '@condo/domains/organization/components/PageAccess'
 
 
-interface IPageWithHeaderAction extends React.FC {
-    headerAction?: JSX.Element
-    requiredAccess?: React.FC
-}
-
-const CreateEmployeePage: IPageWithHeaderAction = () => {
+const CreateEmployeePage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id: 'employee.AddEmployee' })
         

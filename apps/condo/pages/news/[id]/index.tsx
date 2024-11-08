@@ -30,6 +30,7 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
+import { PageComponentType } from '@condo/domains/common/types'
 import { NewsReadPermissionRequired } from '@condo/domains/news/components/PageAccess'
 import { RecipientCounter } from '@condo/domains/news/components/RecipientCounter'
 import { NewsItemScopeNoInstanceType } from '@condo/domains/news/components/types'
@@ -406,7 +407,7 @@ const NewsItemCard: React.FC = () => {
     )
 }
 
-const NewsItemCardPage = () => {
+const NewsItemCardPage: PageComponentType = () => {
     const { canRead, isLoading: isAccessLoading } = useNewsItemsAccess()
 
     if (isAccessLoading) {
@@ -419,6 +420,7 @@ const NewsItemCardPage = () => {
 
     return <NewsItemCard/>
 }
+
 NewsItemCardPage.requiredAccess = NewsReadPermissionRequired
 
 export default NewsItemCardPage

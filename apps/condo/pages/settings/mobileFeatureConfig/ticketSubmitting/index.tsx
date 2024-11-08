@@ -9,6 +9,7 @@ import { useOrganization } from '@open-condo/next/organization'
 
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { Loader } from '@condo/domains/common/components/Loader'
+import { PageComponentType } from '@condo/domains/common/types'
 import { SettingsReadPermissionRequired } from '@condo/domains/settings/components/PageAccess'
 import {
     TicketSubmittingSettingsForm,
@@ -42,7 +43,7 @@ const TicketSubmittingContent: React.FC = () => {
     )
 }
 
-const TicketSubmittingPage = () => {
+const TicketSubmittingPage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'pages.condo.settings.ticketDeadlines.pageTitle' })
 

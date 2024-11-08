@@ -35,8 +35,9 @@ export const UserMenu: React.FC = () => {
         router.push('/user')
     }, [router])
 
-    const handleSignOutClick = useCallback(() => {
-        auth.signOut()
+    const handleSignOutClick = useCallback(async () => {
+        await auth.signOut()
+        await router.push('/auth/signin')
     }, [auth])
 
     const menu = useMemo<DropdownProps['menu']>(() => {

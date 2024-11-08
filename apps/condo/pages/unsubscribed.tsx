@@ -8,6 +8,7 @@ import { useIntl } from '@open-condo/next/intl'
 
 import { Logo } from '@condo/domains/common/components/Logo'
 import { colors, fontSizes } from '@condo/domains/common/constants/style'
+import { PageComponentType } from '@condo/domains/common/types'
 import { PosterLayout } from '@condo/domains/user/components/containers/PosterLayout'
 
 
@@ -22,7 +23,7 @@ const {
 const DESCRIPTION_TEXT_STYLE = { fontSize: fontSizes.content }
 const SrcUnsubscribe = { poster: '/successDino.webp' }
 
-export default function Unsubscribe (): React.ReactElement {
+const Unsubscribe: PageComponentType = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage( { id: 'pages.condo.notification.unsubscribed.PageTitle' })
     const DescriptionMessage = intl.formatMessage({ id: 'pages.condo.notification.unsubscribed.Description' })
@@ -94,3 +95,6 @@ const UnsubscribeLayout = (props): React.ReactElement => <PosterLayout
 />
 
 Unsubscribe.container = UnsubscribeLayout
+Unsubscribe.skipUserPrefetch = true
+
+export default Unsubscribe

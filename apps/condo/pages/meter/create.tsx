@@ -10,6 +10,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Tour, Typography } from '@open-condo/ui'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageComponentType } from '@condo/domains/common/types'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import {
@@ -23,14 +24,9 @@ import {
 import { METER_TAB_TYPES, MeterPageTypes } from '@condo/domains/meter/utils/clientSchema'
 
 
-interface ICreateMeterPage extends React.FC {
-    headerAction?: JSX.Element
-    requiredAccess?: React.FC
-}
-
 const CREATE_METER_PAGE_GUTTER: [Gutter, Gutter] = [12, 40]
 
-const CreateMeterPage: ICreateMeterPage = () => {
+const CreateMeterPage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitleAddMeterReadings = intl.formatMessage({ id: 'meter.AddMeterReadings' })
     const PageTitleAddPropertyMeterReadings = intl.formatMessage({ id: 'meter.AddPropertyMeterReadings' })

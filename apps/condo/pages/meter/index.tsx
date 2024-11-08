@@ -16,6 +16,7 @@ import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { MultipleFilterContextProvider } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
+import { PageComponentType } from '@condo/domains/common/types'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { MeterReadPermissionRequired } from '@condo/domains/meter/components/PageAccess'
 import { MetersPageContent } from '@condo/domains/meter/components/TabContent/Meter'
@@ -28,11 +29,6 @@ import { useMeterReadingFilters } from '@condo/domains/meter/hooks/useMeterReadi
 import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
 import { METER_TAB_TYPES, METER_TYPES, MeterTypes } from '@condo/domains/meter/utils/clientSchema'
 
-
-interface IMeterIndexPage extends React.FC {
-    headerAction?: JSX.Element
-    requiredAccess?: React.FC
-}
 
 export function MeterPageTypeFromQuery (tabFromQuery) {
     switch (tabFromQuery) {
@@ -108,7 +104,7 @@ export const MeterTypeSwitch = ({ defaultValue }: MeterTypeSwitchProps): JSX.Ele
 
 const PAGE_DIV_STYLE: CSSProperties = { display: 'flex', flexDirection: 'column',  height: '100%' }
 
-const MetersPage: IMeterIndexPage = () => {
+const MetersPage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.meter.index.PageTitle' })
     const MeterMessage = intl.formatMessage({ id: 'pages.condo.meter.index.meterTab' })

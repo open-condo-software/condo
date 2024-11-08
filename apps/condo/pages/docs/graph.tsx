@@ -1,4 +1,3 @@
-// @ts-nocheck
 import fetch from 'isomorphic-fetch'
 import getConfig from 'next/config'
 import dynamic from 'next/dynamic'
@@ -6,6 +5,9 @@ import Head from 'next/head'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+
+import { PageComponentType } from '@condo/domains/common/types'
+
 
 function introspectionProvider (query) {
     return fetch('/admin/api', {
@@ -22,7 +24,7 @@ const DynamicVoyager = dynamic(
     { ssr: false }
 )
 
-const DocsGraphPage: React.FC = () => {
+const DocsGraphPage: PageComponentType = () => {
     const intl = useIntl()
     const AccessError = intl.formatMessage({ id: 'AccessError' })
 
@@ -50,5 +52,6 @@ const DocsGraphPage: React.FC = () => {
 const NoContainer = ({ children }) => children
 
 DocsGraphPage.container = NoContainer
+DocsGraphPage.skipUserPrefetch = true
 
 export default DocsGraphPage

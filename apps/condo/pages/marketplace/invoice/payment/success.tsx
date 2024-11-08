@@ -9,6 +9,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { Button, Space } from '@open-condo/ui'
 
 import { fontSizes } from '@condo/domains/common/constants/style'
+import { PageComponentType } from '@condo/domains/common/types'
 import { PosterLayout } from '@condo/domains/user/components/containers/PosterLayout'
 
 
@@ -17,7 +18,7 @@ const SuccessSrc = { poster: '/successDino.webp' }
 
 const { publicRuntimeConfig:{ condoRBDomain } } = getConfig()
 
-export default function SuccessPage () {
+const SuccessPage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage( { id: 'pages.condo.marketplace.invoice.payment.success.title' })
     const DescriptionMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.payment.success.description' })
@@ -74,3 +75,6 @@ const SuccessPageLayout = (props): React.ReactElement => (
 )
 
 SuccessPage.container = SuccessPageLayout
+SuccessPage.skipUserPrefetch = true
+
+export default SuccessPage

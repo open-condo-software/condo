@@ -263,10 +263,10 @@ type WithOrganizationLegacyProps = {
     ssr?: boolean
     GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY?: DocumentNode
 }
-type WithOrganizationLegacy = (props: WithOrganizationLegacyProps) => (PageComponent: NextPage) => NextPage
+type WithOrganizationLegacyType = (props: WithOrganizationLegacyProps) => (PageComponent: NextPage) => NextPage
 
 /** @deprecated */
-const _withOrganizationLegacy: WithOrganizationLegacy = ({ ssr = false, ...opts } = {}) => PageComponent => {
+const _withOrganizationLegacy: WithOrganizationLegacyType = ({ ssr = false, ...opts } = {}) => PageComponent => {
     // TODO(pahaz): refactor it. No need to patch globals here!
     GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY_LEGACY = opts.GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY ? opts.GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY : GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY_LEGACY
 
@@ -412,9 +412,9 @@ type WithOrganizationProps = {
     useInitialEmployeeId: OrganizationProviderProps['useInitialEmployeeId']
     GET_ORGANIZATION_EMPLOYEE_QUERY?: DocumentNode
 }
-type WithOrganization = (props: WithOrganizationProps) => (PageComponent: NextPage) => NextPage
+type WithOrganizationType = (props: WithOrganizationProps) => (PageComponent: NextPage) => NextPage
 
-const _withOrganization: WithOrganization = (opts) => (PageComponent) => {
+const _withOrganization: WithOrganizationType = (opts) => (PageComponent) => {
     GET_ORGANIZATION_EMPLOYEE_QUERY = opts.GET_ORGANIZATION_EMPLOYEE_QUERY ? opts.GET_ORGANIZATION_EMPLOYEE_QUERY : GET_ORGANIZATION_EMPLOYEE_QUERY
 
     const WithOrganization = (props) => {
@@ -438,8 +438,8 @@ const _withOrganization: WithOrganization = (opts) => (PageComponent) => {
 }
 
 type mergedWithOrganizationProps = Either<WithOrganizationProps & { legacy: false }, WithOrganizationLegacyProps & { legacy?: true }>
-type mergedWithOrganization = (props: mergedWithOrganizationProps) => (PageComponent: NextPage) => NextPage
-const withOrganization: mergedWithOrganization = (opts) => (PageComponent: NextPage): NextPage => {
+type mergedWithOrganizationType = (props: mergedWithOrganizationProps) => (PageComponent: NextPage) => NextPage
+const withOrganization: mergedWithOrganizationType = (opts) => (PageComponent: NextPage): NextPage => {
     if (opts.legacy === false) {
         return _withOrganization(opts)(PageComponent)
     } else {

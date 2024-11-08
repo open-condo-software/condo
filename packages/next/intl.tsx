@@ -139,9 +139,9 @@ type WithIntlProps = {
     getLocale?: GetLocale
     hideErrors?: boolean
 }
-export type WithIntl = (props: WithIntlProps) => (PageComponent: NextPage<any>) => NextPage<any>
+export type WithIntlType = (props: WithIntlProps) => (PageComponent: NextPage<any>) => NextPage<any>
 
-const withIntl: WithIntl = ({ ssr = false, ...opts }: WithIntlProps = {}) => PageComponent => {
+const withIntl: WithIntlType = ({ ssr = false, ...opts }: WithIntlProps = {}) => PageComponent => {
     // TODO(pahaz): refactor it. No need to patch globals here!
     defaultLocale = opts.defaultLocale || defaultLocale
     extractReqLocale = opts.extractReqLocale || extractReqLocale

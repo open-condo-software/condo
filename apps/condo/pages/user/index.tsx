@@ -19,6 +19,7 @@ import { ActionBar, Button, Select, Tooltip, Typography } from '@open-condo/ui'
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
 import { PageContent, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { FeatureFlagsController } from '@condo/domains/common/components/containers/FeatureFlag'
+import { PageComponentType } from '@condo/domains/common/types'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import { UserOrganizationsList } from '@condo/domains/user/components/UserOrganizationsList'
@@ -265,7 +266,7 @@ export const UserInfoPageContent: React.FC<IUserInfoPageContentProps> = ({ organ
     )
 }
 
-const UserInfoPage: React.FC & { requiredAccess?: React.FC } = () => {
+const UserInfoPage: PageComponentType = () => {
     const { user } = useAuth()
     const userId = useMemo(() => get(user, 'id', null), [user])
     const organizationEmployeesQuery = useMemo<IUserInfoPageContentProps['organizationEmployeesQuery']>(() => ({

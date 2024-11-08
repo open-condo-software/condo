@@ -11,6 +11,7 @@ import { useIntl } from '@open-condo/next/intl'
 
 import BaseLayout, { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { LOCALES } from '@condo/domains/common/constants/locale'
+import { PageComponentType } from '@condo/domains/common/types'
 import {
     ALGORITHM,
     SALT,
@@ -41,11 +42,7 @@ interface ShareProps {
     date: string
 }
 
-interface IShareProps extends React.FC<ShareProps> {
-    container: React.FC
-}
-
-const Share: IShareProps = ({ date, number, details, id }) => {
+const Share: PageComponentType<ShareProps> = ({ date, number, details, id }) => {
     const intl = useIntl()
     const locale = get(LOCALES, intl.locale)
     const localizedDate = locale ? dayjs(date || 0).locale(locale) : dayjs(date || 0)
@@ -102,5 +99,6 @@ const EmptyLayout = ({ children, ...props }) => {
 }
 
 Share.container = EmptyLayout
+Share.skipUserPrefetch = true
 
 export default Share

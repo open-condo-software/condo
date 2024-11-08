@@ -212,10 +212,10 @@ export type WithApolloLegacyProps = {
     apolloCacheConfig?: InMemoryCacheConfig
     apolloClientConfig?: Partial<ApolloClientOptions<NormalizedCacheObject>>
 }
-export type WillApolloLegacy = (props: WithApolloLegacyProps) => (PageComponent: NextPage) => NextPage
+export type WillApolloLegacyType = (props: WithApolloLegacyProps) => (PageComponent: NextPage) => NextPage
 
 /** @deprecated */
-const _withApolloLegacy: WillApolloLegacy = ({ ssr = false, ...opts } = {}) => (PageComponent: NextPage): NextPage => {
+const _withApolloLegacy: WillApolloLegacyType = ({ ssr = false, ...opts } = {}) => (PageComponent: NextPage): NextPage => {
     // TODO(pahaz): refactor it. No need to patch globals here!
     getApolloClientConfig = opts.getApolloClientConfig ? opts.getApolloClientConfig : getApolloClientConfig
     createApolloClient = opts.createApolloClient ? opts.createApolloClient : createApolloClient
@@ -321,31 +321,27 @@ const _withApolloLegacy: WillApolloLegacy = ({ ssr = false, ...opts } = {}) => (
 let initializeApollo: InitializeApollo<ApolloClient<NormalizedCacheObject>>
 
 export type WithApolloProps = {
+    ssr?: boolean
     apolloHelperOptions: ApolloHelperOptions
 }
-export type WillApollo = (props: WithApolloProps) => (PageComponent: NextPage) => NextPage
+export type WillApolloType = (props: WithApolloProps) => (PageComponent: NextPage) => NextPage
 /**
  * Creates a withApollo HOC
  * that provides the apolloContext
  * to a next.js Page or AppTree.
  */
-const _withApollo: WillApollo = ({ apolloHelperOptions }) => (PageComponent: NextPage): NextPage => {
-
+const _withApollo: WillApolloType = ({ ssr, apolloHelperOptions }) => (PageComponent: NextPage): NextPage => {
     const apolloHelper = new ApolloHelper(apolloHelperOptions)
     const useApollo = apolloHelper.generateUseApolloHook() as unknown as UseApollo<ApolloClient<NormalizedCacheObject>>
     initializeApollo = apolloHelper.initializeApollo as unknown as InitializeApollo<ApolloClient<NormalizedCacheObject>>
 
     const WithApollo = (props) => {
-        const { apolloClientState, ...componentProps } = props
-
-        const { client, cachePersistor } = useApollo({
-            '__APOLLO_STATE__': apolloClientState,
-        })
+        const { client, cachePersistor } = useApollo(props)
 
         return (
             <ApolloProvider client={client}>
                 <CachePersistorContext.Provider value={{ persistor: cachePersistor }}>
-                    <PageComponent {...componentProps} />
+                    <PageComponent {...props} />
                 </CachePersistorContext.Provider>
             </ApolloProvider>
         )
@@ -358,33 +354,37 @@ const _withApollo: WillApollo = ({ apolloHelperOptions }) => (PageComponent: Nex
         WithApollo.displayName = `withApollo(${displayName})`
     }
 
-    /**
-     *
-     * @param context {{AppTree, Component, router, ctx: NextPageContext}}
-     */
-    WithApollo.getInitialProps = async (context) => {
-        const req = context?.req || context?.ctx?.req
-        const res = context?.res || context?.ctx?.res
+    if (ssr || PageComponent.getInitialProps) {
+        /**
+         * @param context {{AppTree, Component, router, ctx: NextPageContext}}
+         */
+        WithApollo.getInitialProps = async (context) => {
+            let headers, networkOnly
+            if (isSSR()) {
+                const req = context?.req || context?.ctx?.req
+                const res = context?.res || context?.ctx?.res;
+                ({ headers } = prepareSSRContext(req, res))
+            } else {
+                networkOnly = false
+            }
+            const apolloClient = initializeApollo({ headers, networkOnly })
 
-        let headers, networkOnly
-        if (isSSR()) {
-            ({ headers } = prepareSSRContext(req, res))
-        } else {
-            networkOnly = false
-        }
-        const apolloClient = initializeApollo({ headers, networkOnly })
+            if (!context.apolloClient) context.apolloClient = apolloClient
+            if (context.ctx && !context.ctx.apolloClient) context.ctx.apolloClient = apolloClient
 
-        if (!context.apolloClient) context.apolloClient = apolloClient
-        if (context.ctx && !context.ctx.apolloClient) context.ctx.apolloClient = apolloClient
+            let childProps = {}
+            if (PageComponent.getInitialProps) {
+                childProps = await PageComponent.getInitialProps(context)
+            }
 
-        let childProps = {}
-        if (PageComponent.getInitialProps) {
-            childProps = await PageComponent.getInitialProps(context)
-        }
+            if (isSSR()) {
+                preventInfinityLoop(context)
+            }
 
-        return {
-            ...childProps,
-            __APOLLO_STATE__: apolloClient.cache.extract(),
+            return {
+                ...childProps,
+                __APOLLO_STATE__: apolloClient.cache.extract(),
+            }
         }
     }
 
@@ -392,8 +392,8 @@ const _withApollo: WillApollo = ({ apolloHelperOptions }) => (PageComponent: Nex
 }
 
 type mergedWithApolloProps = Either<WithApolloProps & { legacy: false }, WithApolloLegacyProps & { legacy?: true }>
-type mergedWithApollo = (props: mergedWithApolloProps) => (PageComponent: NextPage) => NextPage
-const withApollo: mergedWithApollo = (props) => (PageComponent: NextPage): NextPage => {
+type mergedWithApolloType = (props: mergedWithApolloProps) => (PageComponent: NextPage) => NextPage
+const withApollo: mergedWithApolloType = (props) => (PageComponent: NextPage): NextPage => {
     if (props.legacy === false) {
         return _withApollo(props)(PageComponent)
     } else {

@@ -6,6 +6,7 @@ import React from 'react'
 import { useIntl } from '@open-condo/next/intl'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageComponentType } from '@condo/domains/common/types'
 import {
     MarketSettingPaymentTypesCard,
 } from '@condo/domains/marketplace/components/MarketSetting/MarketSettingPaymentTypesCard'
@@ -26,7 +27,7 @@ const MarketplaceSettingsContent: React.FC = () => {
     )
 }
 
-const MarketplaceSettingsPage = () => {
+const MarketplaceSettingsPage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'global.section.marketplace' })
 

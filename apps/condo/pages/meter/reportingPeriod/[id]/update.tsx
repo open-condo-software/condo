@@ -8,6 +8,7 @@ import { Typography } from '@open-condo/ui'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
+import { PageComponentType } from '@condo/domains/common/types'
 import { MeterReportingPeriodForm } from '@condo/domains/meter/components/MeterReportingPeriodForm'
 import { MeterReadAndManagePermissionRequired } from '@condo/domains/meter/components/PageAccess'
 import { METER_TAB_TYPES, MeterReportingPeriod, METER_TYPES } from '@condo/domains/meter/utils/clientSchema'
@@ -15,7 +16,7 @@ import { METER_TAB_TYPES, MeterReportingPeriod, METER_TYPES } from '@condo/domai
 
 const CREATE_REPORTING_PERIOD_PAGE_GUTTER: RowProps['gutter'] = [0, 16]
 
-const MeterReportingPeriodUpdatePage = (): JSX.Element => {
+const MeterReportingPeriodUpdatePage: PageComponentType = () => {
     const intl = useIntl()
     const { query: { id: reportingPeriodId }, push } = useRouter()
 
