@@ -6,7 +6,9 @@ const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
 const conf = require('@open-condo/config')
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor, expectToThrowGQLError,
+    expectToThrowGraphQLRequestError,
+} = require('@open-condo/keystone/test.utils')
 const {
     catchErrorFrom,
     expectToThrowAuthenticationErrorToObjects,
@@ -1706,15 +1708,11 @@ describe('MeterReading', () => {
                     )
                     const [meterReading] = await createTestMeterReading(admin, meter, source)
 
-                    await expectToThrowGQLError(
+                    await expectToThrowGraphQLRequestError(
                         async () => await updateTestMeterReading(admin, meterReading.id, {
                             accountNumber: faker.random.alphaNumeric(),
                         }),
-                        {
-                            code: 'FORBIDDEN',
-                            type: 'METER_READING_CANNOT_UPDATE_ACCOUNT_NUMBER',
-                            message: 'Can not update account number of already passed meter reading',
-                        }
+                        'got invalid value',
                     )
                 })
             })

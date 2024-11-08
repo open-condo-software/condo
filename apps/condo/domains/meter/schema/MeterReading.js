@@ -5,7 +5,7 @@ const dayjs = require('dayjs')
 const { get, isEmpty, isNil } = require('lodash')
 
 const conf = require('@open-condo/config')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT, FORBIDDEN } } = require('@open-condo/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
@@ -14,7 +14,7 @@ const { i18n } = require('@open-condo/locales/loader')
 const { CONTACT_FIELD, CLIENT_EMAIL_FIELD, CLIENT_NAME_FIELD, CLIENT_PHONE_LANDLINE_FIELD, CLIENT_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/meter/access/MeterReading')
 const { METER_READING_MAX_VALUES_COUNT, METER_READING_BILLING_STATUSES, METER_READING_BILLING_STATUS_APPROVED } = require('@condo/domains/meter/constants/constants')
-const { METER_READING_DATE_IN_FUTURE, METER_READING_FEW_VALUES, METER_READING_EXTRA_VALUES, BILLING_STATUS_MESSAGE_WITHOUT_BILLING_STATUS, METER_READING_CANNOT_UPDATE_ACCOUNT_NUMBER } = require('@condo/domains/meter/constants/errors')
+const { METER_READING_DATE_IN_FUTURE, METER_READING_FEW_VALUES, METER_READING_EXTRA_VALUES, BILLING_STATUS_MESSAGE_WITHOUT_BILLING_STATUS } = require('@condo/domains/meter/constants/errors')
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { connectContactToMeterReading } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
 const { addClientInfoToResidentMeterReading } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
@@ -44,11 +44,6 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: BILLING_STATUS_MESSAGE_WITHOUT_BILLING_STATUS,
         message: 'Can not set billingStatusText without billingStatus',
-    },
-    METER_READING_CANNOT_UPDATE_ACCOUNT_NUMBER: {
-        code: FORBIDDEN,
-        type: METER_READING_CANNOT_UPDATE_ACCOUNT_NUMBER,
-        message: 'Can not update account number of already passed meter reading',
     },
 }
 
@@ -154,12 +149,10 @@ const MeterReading = new GQLListSchema('MeterReading', {
             schemaDoc: 'Account number of the related Meter at the moment of creation. Filled once.',
             type: 'Text',
             isRequired: false,
-            hooks: {
-                validateInput: ({ context, operation }) => {
-                    if (operation === 'update') {
-                        throw new GQLError(ERRORS.METER_READING_CANNOT_UPDATE_ACCOUNT_NUMBER, context)
-                    }
-                },
+            access: {
+                read: true,
+                create: true,
+                update: false,
             },
         },
 
