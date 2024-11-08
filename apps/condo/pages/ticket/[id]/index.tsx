@@ -766,7 +766,7 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
     )
 }
 
-const TicketIdPage: PageComponentType = ({}) => {
+const TicketIdPage: PageComponentType = () => {
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
 
