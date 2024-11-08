@@ -17,6 +17,7 @@ const { GQLListSchema, find, getById, getByCondition } = require('@open-condo/ke
 const { setSession, destroySession } = require('@open-condo/keystone/session')
 const { prepareDefaultKeystoneConfig } = require('@open-condo/keystone/setup.utils')
 
+const { encrypt, decrypt } = require('@condo/domains/common/utils/cipher')
 const { makeSessionData } = require('@condo/domains/common/utils/session')
 const access = require('@condo/domains/miniapp/access/B2BAccessToken')
 const {
@@ -28,10 +29,19 @@ const {
     ACCESS_TOKEN_CONTEXT_DOES_NOT_MATCH_RIGHT_SET,
     ACCESS_TOKEN_SERVICE_USER_DOES_NOT_MATCH_CONTEXT,
     ACCESS_TOKEN_TTL_TOO_BIG,
+    ACCESS_TOKEN_CRYPTO_ALGORITHM,
 } = require('@condo/domains/miniapp/constants')
 const { SERVICE_USER_FIELD } = require('@condo/domains/miniapp/schema/fields/accessRight')
 
 const { cookieSecret } = prepareDefaultKeystoneConfig(conf)
+
+function encryptSessionId (sessionId) {
+    return encrypt(sessionId, ACCESS_TOKEN_CRYPTO_ALGORITHM, conf.ACCESS_TOKEN_SECRET_KEY)
+}
+
+function decryptSessionId (encryptedSessionId) {
+    return decrypt(encryptedSessionId, ACCESS_TOKEN_CRYPTO_ALGORITHM, conf.ACCESS_TOKEN_SECRET_KEY)
+}
 
 const ERRORS = {
     CONTEXT_NOT_EXISTS: {
@@ -81,7 +91,8 @@ const B2BAccessToken = new GQLListSchema('B2BAccessToken', {
             hooks: {
                 resolveInput ({ operation, existingItem, fieldPath }) {
                     if (operation === 'create') {
-                        return ACCESS_TOKEN_SESSION_ID_PREFIX + uuid()
+                        const sessionId = ACCESS_TOKEN_SESSION_ID_PREFIX + uuid()
+                        return encryptSessionId(sessionId)
                     }
                     return get(existingItem, fieldPath)
                 },
@@ -94,7 +105,8 @@ const B2BAccessToken = new GQLListSchema('B2BAccessToken', {
             graphQLReturnType: 'String',
             resolver: (parent, args, context, info, extra) => {
                 if (info.operation.name.value === 'createB2BAccessToken') {
-                    return cookieSignature.sign(parent.sessionId, cookieSecret) // TODO: use decodedSessionId
+                    const sessionId = decryptSessionId(parent.sessionId)
+                    return cookieSignature.sign(sessionId, cookieSecret)
                 }
                 return null
             },
@@ -150,65 +162,77 @@ const B2BAccessToken = new GQLListSchema('B2BAccessToken', {
         },
     },
     hooks: {
-        async validateInput ({ resolvedData, existingItem, context }) {
+        async validateInput ({ operation, resolvedData, existingItem, context }) {
             const newItem = {
                 ...(existingItem || {}),
                 ...resolvedData,
             }
-            const b2bAppcontext = await getById('B2BAppContext', get(newItem, 'context'))
-            const accessRightSet = await getById('B2BAppAccessRightSet', get(newItem, 'rightSet'))
-
-            if (!b2bAppcontext || get(b2bAppcontext, 'deletedAt')) {
-                throw new GQLError(ERRORS.CONTEXT_NOT_EXISTS, context)
-            }
-            if (!accessRightSet || get(accessRightSet, 'deletedAt')) {
-                throw new GQLError(ERRORS.RIGHT_SET_NOT_EXISTS, context)
-            }
-            if (get(accessRightSet, 'type') !== 'token') {
-                throw new GQLError(ERRORS.WRONG_RIGHT_SET_TYPE, context)
+            const b2bAppContext = await getByCondition('B2BAppContext', {
+                id: get(newItem, 'context'),
+                deletedAt: null,
+            })
+            const accessRightSet = await getByCondition('B2BAppAccessRightSet', {
+                id: get(newItem, 'rightSet'),
+                deletedAt: null,
+            })
+            
+            function throwErrorOrDelete (error) {
+                if (operation === 'create') {
+                    throw new GQLError(error, context)
+                }
+                resolvedData.deletedAt = dayjs().toISOString()
+                return true
             }
             
-            if (get(accessRightSet, 'app') && (get(accessRightSet, 'app') !== get(b2bAppcontext, 'app'))) {
+            if (!b2bAppContext && throwErrorOrDelete(ERRORS.CONTEXT_NOT_EXISTS)) {
+                return
+            }
+            if (!accessRightSet && throwErrorOrDelete(ERRORS.RIGHT_SET_NOT_EXISTS)) {
+                return
+            }
+            if (get(accessRightSet, 'type') !== 'token' && throwErrorOrDelete(ERRORS.WRONG_RIGHT_SET_TYPE)) {
+                return
+            }
+
+            if (get(accessRightSet, 'app') && (get(accessRightSet, 'app') !== get(b2bAppContext, 'app'))) {
                 throw new GQLError(ERRORS.CONTEXT_DOES_NOT_MATCH_RIGHT_SET, context)
             }
 
             const [accessRightForUserAndApp] = await find('B2BAppAccessRight', {
                 user: { id: get(newItem, 'user') },
-                app: { id: get(b2bAppcontext, 'app') },
+                app: { id: get(b2bAppContext, 'app') },
                 deletedAt: null,
             })
-            if (!accessRightForUserAndApp) {
-                throw new GQLError(ERRORS.SERVICE_USER_DOES_NOT_MATCH_CONTEXT, context)
+            if (!accessRightForUserAndApp && throwErrorOrDelete(ERRORS.SERVICE_USER_DOES_NOT_MATCH_CONTEXT)) {
+                return
             }
 
             const maxExpiresAtInMilliseconds = dayjs().add(ACCESS_TOKEN_MAX_TTL_IN_MILLISECONDS, 'milliseconds').valueOf()
             const newExpiresAtInMilliseconds = dayjs.utc(get(newItem, 'expiresAt')).valueOf()
-            if (maxExpiresAtInMilliseconds < newExpiresAtInMilliseconds) {
-                throw new GQLError(ERRORS.TTL_TOO_BIG, context)
+            if (maxExpiresAtInMilliseconds < newExpiresAtInMilliseconds && throwErrorOrDelete(ERRORS.TTL_TOO_BIG)) {
+                return
             }
 
         },
-        beforeChange () {
-            // TODO: encode sessionId for saving in db
-        },
         async afterChange ({ context, operation, existingItem, updatedItem }) {
             const softDeleted = operation === 'update' && !existingItem['deletedAt'] && updatedItem['deletedAt']
-            // TODO: decode sessionId for session manipulations
+            const sessionId = decryptSessionId(updatedItem.sessionId)
+            console.error('afterChange B2BAccessToken', updatedItem)
             if (softDeleted) {
-                await destroySession(context, existingItem.sessionId)
+                await destroySession(context, sessionId)
             }
 
             if (!softDeleted) {
                 const rightSet = await getById('B2BAppAccessRightSet', updatedItem.rightSet)
                 const b2bAppContext = await getById('B2BAppContext', updatedItem.context)
-                const permissions = omit(rightSet, ['id', 'app', 'name', 'type', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy', 'deletedAt', 'deletedBy', 'v', 'dv', 'newId', 'sender'])
+                const permissions = omit(rightSet, ['id', 'app', 'name', 'type', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy', 'deletedAt', 'v', 'dv', 'newId', 'sender'])
                 const additionalFields = makeSessionData({
                     organizations: [get(b2bAppContext, 'organization')],
                     b2bPermissions: permissions,
                 })
-
+                console.error('setting session with fields', additionalFields)
                 await setSession(context, {
-                    sessionId: get(updatedItem, 'sessionId'),
+                    sessionId,
                     userId: get(updatedItem, 'user'),
                     expires: get(updatedItem, 'expiresAt').toISOString(),
                     additionalFields,

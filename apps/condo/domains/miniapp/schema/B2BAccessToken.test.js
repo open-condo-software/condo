@@ -5,28 +5,24 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 const { gql } = require('graphql-tag')
+const IORedis = require('ioredis')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor, expectValuesOfCommonFields,
-    expectToThrowAccessDeniedErrorToObjects,
-} = require('@open-condo/keystone/test.utils')
+const conf = require('@open-condo/config')
 const {
+    makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor, expectValuesOfCommonFields,
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
 const { B2BAccessToken, createTestB2BAccessToken, updateTestB2BAccessToken, createTestB2BAppContext,
     createTestB2BAppAccessRightSet, createTestB2BAppAccessRight, createTestB2BAccessTokenReadonly,
-    B2BAccessTokenReadonly, updateTestB2BAppAccessRightSet,
+    B2BAccessTokenReadonly, updateTestB2BAppAccessRightSet, createTestB2BApp, updateTestB2BAccessTokenReadonly,
+    updateTestB2BAppContext,
 } = require('@condo/domains/miniapp/utils/testSchema')
-const { createTestB2BApp } = require('@condo/domains/miniapp/utils/testSchema')
-const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { Organization, registerNewOrganization, createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser,
     registerNewServiceUserByTestClient,
 } = require('@condo/domains/user/utils/testSchema')
-
-const { Organization } = require('../../organization/utils/testSchema')
-const { registerNewOrganization } = require('../../organization/utils/testSchema/Organization')
-const { updateTestB2BAccessTokenReadonly } = require('../utils/testSchema')
 
 
 
@@ -285,6 +281,15 @@ describe('B2BAccessToken', () => {
     })
 
     describe('Real-life cases', () => {
+        
+        test('Returned sessionId is encoded', async () => {
+            const redisClient = new IORedis(conf.REDIS_URL)
+            const [createdToken] = await createTestB2BAccessToken(admin, b2bAppContext, tokenRightSet)
+            expect(createdToken).toHaveProperty('sessionId')
+            const session = await redisClient.get(`sess:${createdToken.sessionId}`)
+            expect(session).toBeNull()
+        })
+        
         test.todo('After DOMA-6766 rewrite test to use employee with role')
         test('Show token only once after creation', async () => {
             // const client = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -374,7 +379,7 @@ describe('B2BAccessToken', () => {
             test('Overrides miniapp B2BAccessRightSet with own right set', async () => {
                 const [originalOrganization] = await registerNewOrganization(admin)
                 const [b2bApp] = await createTestB2BApp(admin)
-                const [b2bAppContext] = await createTestB2BAppContext(admin, b2bApp, originalOrganization)
+                const [b2bAppContext] = await createTestB2BAppContext(admin, b2bApp, originalOrganization, { status: 'Finished' })
                 await createTestB2BAppAccessRightSet(admin, b2bApp, { canReadOrganizations: true, canReadMeters: true })
                 const [tokenRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { type: 'token', canReadMeters: true })
                 const [serviceUser] = await registerNewServiceUserByTestClient(admin)
@@ -386,6 +391,84 @@ describe('B2BAccessToken', () => {
 
                 const organizations = await Organization.getAll(anonymous, {})
                 expect(organizations).toHaveLength(0)
+            })
+
+            test('Updating tokenB2BAccessRightSet leads to updating created token permissions', async () => {
+                const [originalOrganization] = await registerNewOrganization(admin)
+                const [b2bApp] = await createTestB2BApp(admin)
+                const [b2bAppContext] = await createTestB2BAppContext(admin, b2bApp, originalOrganization, { status: 'Finished' })
+                const [miniappRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { canReadOrganizations: true })
+                const [tokenRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { type: 'token', canReadOrganizations: true })
+                const [serviceUser] = await registerNewServiceUserByTestClient(admin)
+                await createTestB2BAppAccessRight(admin, serviceUser, b2bApp, miniappRightSet)
+
+                await registerNewOrganization(admin)
+
+                const [accessToken] = await createTestB2BAccessToken(admin, b2bAppContext, tokenRightSet)
+                const anonymous = await makeClient()
+                anonymous.setHeaders({ 'Authorization': `Bearer ${accessToken.token}` })
+
+                const organizations = await Organization.getAll(anonymous, {})
+                expect(organizations).toHaveLength(1)
+                expect(organizations[0].id).toEqual(originalOrganization.id)
+
+                await updateTestB2BAppAccessRightSet(admin, tokenRightSet.id, { canReadOrganizations: false })
+                const repeatOrganizations = await Organization.getAll(anonymous, {})
+                expect(repeatOrganizations).toHaveLength(0)
+            })
+            
+            describe('Deleting related objects', () => {
+
+                test('Deleting B2BAppAccessRightSet leads to session removal', async () => {
+                    const [originalOrganization] = await registerNewOrganization(admin)
+                    const [b2bApp] = await createTestB2BApp(admin)
+                    const [b2bAppContext] = await createTestB2BAppContext(admin, b2bApp, originalOrganization, { status: 'Finished' })
+                    const [miniappRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { canReadOrganizations: true })
+                    const [tokenRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { type: 'token', canReadOrganizations: true })
+                    const [serviceUser] = await registerNewServiceUserByTestClient(admin)
+                    await createTestB2BAppAccessRight(admin, serviceUser, b2bApp, miniappRightSet)
+
+                    await registerNewOrganization(admin)
+
+                    const [accessToken] = await createTestB2BAccessToken(admin, b2bAppContext, tokenRightSet)
+                    const anonymous = await makeClient()
+                    anonymous.setHeaders({ 'Authorization': `Bearer ${accessToken.token}` })
+
+                    const organizations = await Organization.getAll(anonymous, {})
+                    expect(organizations).toHaveLength(1)
+                    expect(organizations[0].id).toEqual(originalOrganization.id)
+
+                    await updateTestB2BAppAccessRightSet(admin, tokenRightSet.id, { deletedAt: dayjs().toISOString() })
+                    await expectToThrowAuthenticationErrorToObjects(async () => {
+                        await Organization.getAll(anonymous, {})
+                    })
+                })
+            
+                test('Deleting B2BAppContext leads to session removal', async () => {
+                    const [originalOrganization] = await registerNewOrganization(admin)
+                    const [b2bApp] = await createTestB2BApp(admin)
+                    const [b2bAppContext] = await createTestB2BAppContext(admin, b2bApp, originalOrganization, { status: 'Finished' })
+                    const [miniappRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { canReadOrganizations: true })
+                    const [tokenRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { type: 'token', canReadOrganizations: true })
+                    const [serviceUser] = await registerNewServiceUserByTestClient(admin)
+                    await createTestB2BAppAccessRight(admin, serviceUser, b2bApp, miniappRightSet)
+
+                    await registerNewOrganization(admin)
+
+                    const [accessToken] = await createTestB2BAccessToken(admin, b2bAppContext, tokenRightSet)
+                    const anonymous = await makeClient()
+                    anonymous.setHeaders({ 'Authorization': `Bearer ${accessToken.token}` })
+
+                    const organizations = await Organization.getAll(anonymous, {})
+                    expect(organizations).toHaveLength(1)
+                    expect(organizations[0].id).toEqual(originalOrganization.id)
+
+                    await updateTestB2BAppContext(admin, b2bAppContext.id, { deletedAt: dayjs().toISOString() })
+                    await expectToThrowAuthenticationErrorToObjects(async () => {
+                        await Organization.getAll(anonymous, {})
+                    })
+                })
+
             })
 
         })

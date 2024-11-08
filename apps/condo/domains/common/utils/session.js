@@ -36,31 +36,31 @@ function parseSession (sessionOrWrapper) {
 }
 
 /**
- * @param {string[]?} args.organizations - allowed organizations
- * @param {string[]?} args.b2bPermissionKeys - active permissions
- * @param {Record<string, boolean>?} args.b2bPermissions
+ * @typedef SessionDataArgs
+ * @prop {string[]?} organizations - allowed organizations
+ * @prop {string[]?} b2bPermissionKeys - active permissions
+ * @prop {Record<string, boolean>?} b2bPermissions
+ */
+
+/**
+ * @param {SessionDataArgs?} args
  * @returns {{organizations: string[] | null, b2bPermissionKeys: string[] | null}}
  */
-function makeSessionData (args) {
-    let { organizations = [], b2bPermissionKeys = [], b2bPermissions = {} } = args
+function makeSessionData (args = {}) {
+    let { organizations, b2bPermissionKeys, b2bPermissions } = args
 
-    if (organizations === null || !Array.isArray(organizations)) {
-        organizations = []
+    if (b2bPermissions !== null && b2bPermissions !== undefined) {
+        const parsedAllowedPermissionKeys = Object.keys(b2bPermissions)
+            .filter(key => b2bPermissions[key] === true)
+            .map(key => key)
+
+        b2bPermissionKeys = Array.isArray(b2bPermissionKeys) ? b2bPermissionKeys : []
+        b2bPermissionKeys = b2bPermissionKeys.concat(parsedAllowedPermissionKeys)
     }
-
-    if (b2bPermissionKeys === null || !Array.isArray(b2bPermissionKeys)) {
-        b2bPermissionKeys = []
-    }
-    
-    Object.keys(b2bPermissions)
-        .filter(key => b2bPermissions[key] === true)
-        .forEach(key => b2bPermissionKeys.push(key))
-
-    organizations = organizations.filter(Boolean)
 
     return {
-        organizations: organizations.length ? uniq(organizations) : null,
-        b2bPermissionKeys: b2bPermissionKeys.length ? uniq(b2bPermissionKeys) : null,
+        organizations: organizations ? uniq(organizations).filter(Boolean) : null,
+        b2bPermissionKeys: b2bPermissionKeys ? uniq(b2bPermissionKeys) : null,
     }
 }
 

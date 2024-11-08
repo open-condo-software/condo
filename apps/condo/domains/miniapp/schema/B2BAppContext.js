@@ -13,7 +13,7 @@ const access = require('@condo/domains/miniapp/access/B2BAppContext')
 const { NO_CONTEXT_STATUS_ERROR, CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { STATUS_FIELD, getStatusResolver, getStatusDescription } = require('@condo/domains/miniapp/schema/fields/context')
 const { deleteB2BAppRoles } = require('@condo/domains/miniapp/tasks')
-const { B2BAppRole } = require('@condo/domains/miniapp/utils/serverSchema')
+const { B2BAppRole, B2BAccessToken } = require('@condo/domains/miniapp/utils/serverSchema')
 
 const logger = getLogger('miniapp/createDefaultB2BAppRoles')
 
@@ -135,6 +135,13 @@ const B2BAppContext = new GQLListSchema('B2BAppContext', {
 
             if (isSoftDeletedHappened) {
                 await deleteB2BAppRoles.delay(appId, organizationId)
+                const accessTokens = await find('B2BAccessToken', {
+                    context: { id: updatedItem.id },
+                    deletedAt: null,
+                })
+                for (const accessToken of accessTokens) {
+                    await B2BAccessToken.update(context, accessToken.id, { dv: accessToken.dv, sender }, 'id')
+                }
             } else if (isConnectionHappened) {
                 await createDefaultB2BAppRoles(appId, organizationId, sender, context)
             }

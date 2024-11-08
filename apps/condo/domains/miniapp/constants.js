@@ -129,6 +129,7 @@ const ACCESS_TOKEN_MAX_ITEMS_FOR_SCOPE = {
 
 const ACCESS_TOKEN_MAX_TTL_IN_MILLISECONDS = dayjs().add(3, 'month').valueOf() - dayjs().valueOf()
 const ACCESS_TOKEN_SESSION_ID_PREFIX = 'b2bAccessToken:'
+const ACCESS_TOKEN_CRYPTO_ALGORITHM = 'aes-256-cbc'
 
 module.exports = {
     ALL_APPS_CATEGORY,
@@ -202,4 +203,5 @@ module.exports = {
 
     ACCESS_TOKEN_MAX_TTL_IN_MILLISECONDS,
     ACCESS_TOKEN_SESSION_ID_PREFIX,
+    ACCESS_TOKEN_CRYPTO_ALGORITHM,
 }

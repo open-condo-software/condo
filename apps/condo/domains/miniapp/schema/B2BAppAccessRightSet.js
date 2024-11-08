@@ -11,14 +11,14 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema, find } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/miniapp/access/B2BAppAccessRightSet')
-const { ACCESS_RIGHT_SET_TOO_MANY_OF_TYPE, NAME_REQUIRED } = require('@condo/domains/miniapp/constants')
+const { ACCESS_RIGHT_SET_TOO_MANY_OF_TYPE, NAME_REQUIRED, ACCESS_TOKEN_TOKEN_SCOPE_TYPE } = require('@condo/domains/miniapp/constants')
 const {
     ACCESS_TOKEN_SCOPE_TYPES, ACCESS_TOKEN_MINIAPP_SCOPE_TYPE, ACCESS_TOKEN_MAX_ITEMS_FOR_SCOPE,
     ACCESS_RIGHT_SET_MINIAPP_SCOPE_RIGHT_SET_REQUIRED, ACCESS_RIGHT_SET_TOO_MANY_PERMISSIONS,
 } = require('@condo/domains/miniapp/constants')
 const { B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess/config')
 const { generatePermissionFields } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess/schema.utils')
-const { B2BAppAccessRightSet: B2BAppAccessRightSetAPI } = require('@condo/domains/miniapp/utils/serverSchema')
+const { B2BAppAccessRightSet: B2BAppAccessRightSetAPI, B2BAccessToken } = require('@condo/domains/miniapp/utils/serverSchema')
 
 const PERMISSION_FIELDS_KEYS = Object.keys(generatePermissionFields({ config: B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS }))
 
@@ -173,17 +173,29 @@ const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
             }
         },
         async afterChange ({ operation, updatedItem, context }) {
-            if (operation !== 'update' || updatedItem.type !== ACCESS_TOKEN_MINIAPP_SCOPE_TYPE) return
-            const otherTypeRightSets = await find('B2BAppAccessRightSet', {
-                app: { id: updatedItem.app },
-                type_not: ACCESS_TOKEN_MINIAPP_SCOPE_TYPE,
-                deletedAt: null,
-            })
-            for (const rightSet of otherTypeRightSets) {
-                const diffPermissions = getRightsDifference(updatedItem, rightSet)
-                if (diffPermissions.length) {
-                    const updateInput = Object.fromEntries(diffPermissions.map(permissionField => [permissionField, false]))
-                    await B2BAppAccessRightSetAPI.update(context, updateInput)
+            if (operation === 'update' || updatedItem.type === ACCESS_TOKEN_MINIAPP_SCOPE_TYPE) {
+                const otherTypeRightSets = await find('B2BAppAccessRightSet', {
+                    app: { id: updatedItem.app },
+                    type_not: ACCESS_TOKEN_MINIAPP_SCOPE_TYPE,
+                    deletedAt: null,
+                })
+                for (const rightSet of otherTypeRightSets) {
+                    const diffPermissions = getRightsDifference(updatedItem, rightSet)
+                    if (diffPermissions.length) {
+                        const updateInput = Object.fromEntries(diffPermissions.map(permissionField => [permissionField, false]))
+                        await B2BAppAccessRightSetAPI.update(context, updateInput)
+                    }
+                }
+            }
+
+            if (operation === 'update' && updatedItem.type === ACCESS_TOKEN_TOKEN_SCOPE_TYPE) {
+                const accessTokens = await find('B2BAccessToken', {
+                    rightSet: { id: updatedItem.id },
+                    deletedAt: null,
+                })
+                for (const accessToken of accessTokens) {
+                    console.error(`updating accessToken:${accessToken.id} from rightSet`)
+                    await B2BAccessToken.update(context, accessToken.id, { dv: 1, sender: get(updatedItem, 'sender') }, 'id')
                 }
             }
         },
