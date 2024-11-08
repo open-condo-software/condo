@@ -19,8 +19,12 @@ const { Property } = require('@condo/domains/property/utils/serverSchema')
 const access = require('@condo/domains/resident/access/DiscoverServiceConsumersService')
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 
-const MAX_RESIDENTS_COUNT_FOR_USER_PROPERTY = 6
+const { RESIDENT_FIELDS } = require('../gql')
 
+
+const MAX_RESIDENTS_COUNT_FOR_USER_PROPERTY = 6
+const BILLING_ACCOUNT_FIELDS = 'id unitName unitType number '
+    + 'context { id organization { id type } } property { id address addressKey }'
 const logger = getLogger('DiscoverServiceConsumersMutation')
 
 /**
@@ -126,6 +130,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                         isClosed: false,
                         ownerType_not: BILLING_ACCOUNT_OWNER_TYPE_COMPANY,
                     },
+                    fields: BILLING_ACCOUNT_FIELDS,
                     chunkProcessor: async (/** @type {BillingAccount[]} */ chunk) => {
                         for (const billingAccount of chunk) {
                             const organizationId = get(billingAccount, ['context', 'organization', 'id'], null)
@@ -159,6 +164,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                         organization: { id_in: map(billingAccountItemsData, 'organizationId') },
                         status: CONTEXT_FINISHED_STATUS,
                     },
+                    fields: 'id organization { id }',
                     chunkProcessor: (chunk) => {
                         chunk.forEach((row) => {
                             const organizationId = get(row, ['organization', 'id'])
@@ -194,6 +200,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                             ],
                         })),
                     },
+                    fields: 'organization { id } address',
                     chunkProcessor: (chunk) => {
                         chunk.forEach((row) => {
                             organizationsIdsWithProperties.add(`${get(row, ['organization', 'id'])}_${get(row, 'address')}`)
@@ -213,8 +220,8 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                 // Filter duplicates (same address, unitType, and unitName) of each billing account
 
                 /**
-                 * @type {BillingAccountData[]}
-                 * */
+                     * @type {BillingAccountData[]}
+                     * */
                 const additionalBillingAccountsData = await loadListByChunks({
                     context,
                     list: BillingAccount,
@@ -246,6 +253,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                         })),
                     },
                     chunkSize: 50,
+                    fields: BILLING_ACCOUNT_FIELDS,
                     chunkProcessor: (chunk) => {
                         return chunk.map(extractDataFromBillingAccount)
                     },
@@ -276,15 +284,21 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                 // There should be only one
                 // Keep billing account which has the latest receipt
                 const billingReceiptsIdsWithoutDuplicates = []
-                for (const theKey in billingAccountsCandidatesForDuplicatesByNumber) {
+                for (const theKey in billingAccountsCandidatesForDuplicatesByNumber)
+                {
                     const billingAccountsIds = billingAccountsCandidatesForDuplicatesByNumber[theKey]
                     if (billingAccountsIds.length === 1) {
                         billingReceiptsIdsWithoutDuplicates.push(billingAccountsIds[0])
                     } else {
-                        const [lastReceipt] = await BillingReceipt.getAll(context, { account: { id_in: billingAccountsIds } }, {
-                            sortBy: 'period_DESC',
-                            first: 1,
-                        })
+                        const [lastReceipt] = await BillingReceipt.getAll(
+                            context,
+                            { account: { id_in: billingAccountsIds } },
+                            'id account { id }',
+                            {
+                                sortBy: 'period_DESC',
+                                first: 1,
+                            }
+                        )
                         if (lastReceipt) {
                             billingReceiptsIdsWithoutDuplicates.push(lastReceipt.account.id)
                         } else {
@@ -337,7 +351,9 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                             unitName: item.unitName,
                             number: item.number,
                         },
-                    }, { sortBy: ['period_DESC'], first: 1 })
+                    },
+                    'id category { id }',
+                    { sortBy: ['period_DESC'], first: 1 })
 
                     if (receipts.length === 0) {
                         // if no receipts found - not create service consumer
@@ -407,6 +423,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                     list: Resident,
                     chunkSize: 50,
                     where: residentsWhere,
+                    fields: 'id address addressKey unitType unitName property { id } user { id }',
                     chunkProcessor: (/** @type {Resident[]} */ chunk) => {
                         const chunkCombinations = flatMap(chunk, (resident) => billingAccountItemsData.map((billingAccountItemData) => {
                             if (
@@ -464,7 +481,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                             { organization: { id: data.organization } },
                         ],
                     })),
-                })
+                }, 'id resident { id } organization { id } accountNumber billingAccount')
 
                 discoveringSteps.push({
                     name: 'search existing consumers',
@@ -478,6 +495,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                     list: Resident,
                     chunkSize: 20,
                     where: { user: { id_in: map(serviceConsumersData, 'user') }, deletedAt: null },
+                    fields: 'id user { id } property { id }',
                     chunkProcessor: (/** @type {Resident[]} */ chunk) => {
                         for (const resident of chunk) {
                             const userId = get(resident, ['user', 'id'])

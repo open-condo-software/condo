@@ -1,4 +1,3 @@
-const { faker } = require('@faker-js/faker')
 const { isEmpty, isNull, get, isObject } = require('lodash')
 
 const conf = require('@open-condo/config')
@@ -98,7 +97,7 @@ class AppleAdapter {
             state: 'error',
             error: {
                 reason: 'fake-error',
-                'apns-id': `fake-error-message/${faker.datatype.uuid()}`,
+                'apns-id': `fake-error-message/${Date.now()}`,
             },
         }
     }
@@ -114,7 +113,7 @@ class AppleAdapter {
             status: APS_RESPONSE_STATUS_SUCCESS,
             headers: {
                 ':status': APS_RESPONSE_STATUS_SUCCESS,
-                'apns-id': `fake-success-message/${faker.datatype.uuid()}`,
+                'apns-id': `fake-success-message/${Date.now()}`,
             },
         }
     }
@@ -154,7 +153,7 @@ class AppleAdapter {
      */
     static prepareBatchData (notificationRaw, data, tokens = [], pushTypes = {}, appIds) {
         const notification = AppleAdapter.validateAndPrepareNotification(notificationRaw)
-        const notifications = []
+        const notifications = [] // User can have many Remote Clients. Message is created for the user, so from 1 message there can be many notifications
         const fakeNotifications = []
         const pushContext = {}
 
@@ -218,36 +217,31 @@ class AppleAdapter {
 
         // NOTE: we try to fire Apple push request only if Apple push was initialized and we have some real notifications
         if (!isNull(this.#config) && !isEmpty(notifications)) {
-            const notificationsSortedByAppId = {}
+            const notificationsByAppId = {}
             for (const notification of notifications) {
                 const appId = notification.appId
-                if (!notificationsSortedByAppId[appId]) {
-                    notificationsSortedByAppId[appId] = [notification]
-                }
-                else {
-                    notificationsSortedByAppId[appId].push(notification)
-                }
+                notificationsByAppId[appId] ||= []
+                notificationsByAppId[appId].push(notification)
             }
-            for (const appId of Object.keys(notificationsSortedByAppId)) {
-                const currentConfig = this.#config[appId]
-                if (!currentConfig) {
+            for (const [appId, notificationsBatchForApp] of Object.entries(notificationsByAppId)) {
+                const configForApp = this.#config[appId]
+                if (!configForApp) {
                     logger.error({ msg: 'Unknown appId. Config was not found', appId })
                     continue
                 }
 
-                const currentNotificationsBatch = notificationsSortedByAppId[appId]
-                const app = new AppleMessaging(currentConfig)
+                const app = new AppleMessaging(configForApp)
 
                 try {
-                    const appleResult = await app.sendAll(currentNotificationsBatch, isVoIP)
+                    const appleResult = await app.sendAll(notificationsBatchForApp, isVoIP)
 
                     if (!isEmpty(appleResult.responses)) {
                         appleResult.responses = appleResult.responses.map(
                             (response, idx) =>
                                 ({
                                     ...response,
-                                    pushToken: currentNotificationsBatch[idx].token,
-                                    pushType: pushTypes[currentNotificationsBatch[idx].token],
+                                    pushToken: notificationsBatchForApp[idx].token,
+                                    pushType: pushTypes[notificationsBatchForApp[idx].token],
                                 })
                         )
                     }

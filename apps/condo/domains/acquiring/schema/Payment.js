@@ -37,6 +37,7 @@ const {
     PAYMENT_DONE_STATUS,
     PAYMENT_WITHDRAWN_STATUS,
 } = require('@condo/domains/acquiring/constants/payment')
+const { RECIPIENT_FIELD } = require('@condo/domains/acquiring/schema/fields/Recipient')
 const { ACQUIRING_CONTEXT_FIELD } = require('@condo/domains/acquiring/schema/fields/relations')
 const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
 const { PERIOD_FIELD } = require('@condo/domains/billing/schema/fields/common')
@@ -271,15 +272,27 @@ const Payment = new GQLListSchema('Payment', {
         },
 
         recipientBic: {
-            schemaDoc: 'Bic of recipient organization, used for matching payments with receipts in case of multiple receipts per account + address',
+            schemaDoc: '@deprecated --use "recipient" Bic of recipient organization, used for matching payments with receipts in case of multiple receipts per account + address',
             type: 'Text',
             isRequired: true,
         },
 
         recipientBankAccount: {
-            schemaDoc: 'Bank account number of recipient organization, used for matching payments with receipts in case of multiple receipts per account + address',
+            schemaDoc: '@deprecated --use "recipient" Bank account number of recipient organization, used for matching payments with receipts in case of multiple receipts per account + address',
             type: 'Text',
             isRequired: true,
+        },
+
+        recipient: {
+            ...RECIPIENT_FIELD,
+            schemaDoc: 'Recipient. Should contain all meta information to identify the organization and bank account',
+            isRequired: false,
+        },
+
+        rawAddress: {
+            schemaDoc: 'Non-normalized address that was imported from the organization',
+            type: 'Text',
+            isRequired: false,
         },
 
         importId: IMPORT_ID_FIELD,
@@ -293,12 +306,15 @@ const Payment = new GQLListSchema('Payment', {
         auth: true,
     },
     hooks: {
-        resolveInput: async ({ resolvedData }) => {
+        resolveInput: async ({ operation, resolvedData }) => {
             if (resolvedData['explicitFee'] && !resolvedData['explicitServiceCharge']) {
                 resolvedData['explicitServiceCharge'] = '0'
             }
             if (resolvedData['explicitServiceCharge'] && !resolvedData['explicitFee']) {
                 resolvedData['explicitFee'] = '0'
+            }
+            if (operation === 'create') {
+                resolvedData['rawAddress'] = get(resolvedData, ['frozenReceipt', 'data', 'raw', 'address'])
             }
             return resolvedData
         },
@@ -318,14 +334,14 @@ const Payment = new GQLListSchema('Payment', {
                     const receipt = await getById('BillingReceipt', resolvedData['receipt'])
                     const billingContext = await getById('BillingIntegrationOrganizationContext', receipt.context)
                     const billingIntegration = await getById('BillingIntegration', billingContext.integration)
-                    const acquiringContexts = await AcquiringIntegrationContext.getAll(context, {
+                    const acquiringContextsCount = await AcquiringIntegrationContext.count(context, {
                         id: resolvedData['context'],
                         integration: {
                             supportedBillingIntegrationsGroup: billingIntegration.group,
                         },
                         organization: { id: resolvedData['organization'] },
                     })
-                    if (!acquiringContexts.length) {
+                    if (!acquiringContextsCount) {
                         return addValidationError(PAYMENT_NO_SUPPORTED_CONTEXT)
                     }
                     if (get(receipt, ['recipient', 'bic']) !== resolvedData['recipientBic']

@@ -14,7 +14,6 @@ const { MeterResource: MeterResourceGQL } = require('@condo/domains/meter/gql')
 const { MeterReadingSource: MeterReadingSourceGQL } = require('@condo/domains/meter/gql')
 const { Meter: MeterGQL } = require('@condo/domains/meter/gql')
 const { MeterReading: MeterReadingGQL } = require('@condo/domains/meter/gql')
-const { EXPORT_METER_READINGS_QUERY } = require('@condo/domains/meter/gql')
 const { MeterReadingFilterTemplate: MeterReadingFilterTemplateGQL } = require('@condo/domains/meter/gql')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
@@ -27,6 +26,7 @@ const { EXPORT_PROPERTY_METER_READINGS_QUERY } = require('@condo/domains/meter/g
 const { INTERNAL_DELETE_METER_READINGS_MUTATION } = require('@condo/domains/meter/gql')
 const { REGISTER_METERS_READINGS_MUTATION } = require('@condo/domains/meter/gql')
 const { MeterReadingsImportTask: MeterReadingsImportTaskGQL } = require('@condo/domains/meter/gql')
+const { MeterReadingExportTask: MeterReadingExportTaskGQL } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateGQLTestUtils(MeterResourceGQL)
@@ -39,11 +39,15 @@ const PropertyMeterReading = generateGQLTestUtils(PropertyMeterReadingGQL)
 const MeterReportingPeriod = generateGQLTestUtils(MeterReportingPeriodGQL)
 const MeterResourceOwner = generateGQLTestUtils(MeterResourceOwnerGQL)
 const MeterReadingsImportTask = generateGQLTestUtils(MeterReadingsImportTaskGQL)
+const MeterReadingExportTask = generateGQLTestUtils(MeterReadingExportTaskGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const { COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+const { EXCEL } = require('@condo/domains/common/constants/export')
+const { LOCALE_EN } = require('@condo/domains/user/constants/common')
+
 
 async function createTestMeterResource (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -186,21 +190,6 @@ async function updateTestMeterReading (client, id, extraAttrs = {}) {
     }
     const obj = await MeterReading.update(client, id, attrs)
     return [obj, attrs]
-}
-
-async function exportMeterReadingsByTestClient(client, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        timeZone: DEFAULT_ORGANIZATION_TIMEZONE,
-        ...extraAttrs,
-    }
-    const { data, errors } = await client.query(EXPORT_METER_READINGS_QUERY, { data: attrs })
-    throwIfError(data, errors)
-    return [data.result, attrs]
 }
 
 async function createTestMeterReadingFilterTemplate (client, employee, extraAttrs = {}) {
@@ -484,6 +473,38 @@ async function updateTestMeterReadingsImportTask (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestMeterReadingExportTask (client, user, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!user || !user.id) throw new Error('no user.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        format: EXCEL,
+        where: {},
+        sortBy: ['createdAt_DESC'],
+        user: { connect: { id: user.id } },
+        ...extraAttrs,
+    }
+    const obj = await MeterReadingExportTask.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestMeterReadingExportTask (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await MeterReadingExportTask.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -491,7 +512,6 @@ module.exports = {
     MeterReadingSource, createTestMeterReadingSource, updateTestMeterReadingSource,
     Meter, createTestMeter, updateTestMeter,
     MeterReading, createTestMeterReading, updateTestMeterReading,
-    exportMeterReadingsByTestClient,
     MeterReadingFilterTemplate, createTestMeterReadingFilterTemplate, updateTestMeterReadingFilterTemplate,
     makeClientWithResidentAndMeter,
     _internalDeleteMeterAndMeterReadingsByTestClient,
@@ -503,5 +523,6 @@ module.exports = {
     exportPropertyMeterReadingsByTestClient,
     createTestReadingData, registerMetersReadingsByTestClient,
     MeterReadingsImportTask, createTestMeterReadingsImportTask, updateTestMeterReadingsImportTask,
+    MeterReadingExportTask, createTestMeterReadingExportTask, updateTestMeterReadingExportTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

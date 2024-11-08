@@ -277,7 +277,7 @@ describe('RegisterResidentServiceConsumers', () => {
                 code: 'BAD_USER_INPUT',
                 type: NOT_FOUND,
                 message: 'Can\'t find billingAccount and any meters with this accountNumber, unitName and address',
-                messageForUser: 'api.resident.RegisterServiceConsumerService.BILLING_ACCOUNT_OR_METER_NOT_FOUND',
+                messageForUser: 'api.resident.registerServiceConsumers.BILLING_ACCOUNT_OR_METER_NOT_FOUND',
             }, 'objs')
         })
 
@@ -354,7 +354,7 @@ describe('RegisterResidentServiceConsumers', () => {
                 code: 'BAD_USER_INPUT',
                 type: NOT_FOUND,
                 message: 'Can\'t find billingAccount and any meters with this accountNumber, unitName and address',
-                messageForUser: 'api.resident.RegisterServiceConsumerService.BILLING_ACCOUNT_OR_METER_NOT_FOUND',
+                messageForUser: 'api.resident.registerServiceConsumers.BILLING_ACCOUNT_OR_METER_NOT_FOUND',
             }, 'objs')
         })
     })

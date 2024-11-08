@@ -1,23 +1,21 @@
 import { B2BApp, B2BAppPermission } from '@app/condo/schema'
 import { useMemo } from 'react'
 
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 
-import { PROPERTY_DOCUMENTS } from '@condo/domains/common/constants/featureflags'
 
 export type PermissionRow = {
-    key: string,
-    name: string,
-    relatedCheckPermissions?: string[],
+    key: string
+    name: string
+    relatedCheckPermissions?: string[]
     relatedUncheckPermissions?: string[]
 }
 
 export type PermissionsGroup = {
-    key: string,
-    b2bAppId?: string,
-    groupName: string,
-    permissions: PermissionRow[],
+    key: string
+    b2bAppId?: string
+    groupName: string
+    permissions: PermissionRow[]
 }
 
 
@@ -69,9 +67,6 @@ export type UseEmployeeRolesPermissionsGroups = (connectedB2BApps: B2BApp[], b2B
 
 export const useEmployeeRolesPermissionsGroups: UseEmployeeRolesPermissionsGroups = (connectedB2BApps, b2BAppPermissions) => {
     const intl = useIntl()
-
-    const { useFlag } = useFeatureFlags()
-    const hasPropertyDocumentsFeature = useFlag(PROPERTY_DOCUMENTS)
 
     const employeeRolePermissionGroups: PermissionsGroup[] = useMemo(() => [
         {
@@ -128,11 +123,11 @@ export const useEmployeeRolesPermissionsGroups: UseEmployeeRolesPermissionsGroup
                     key: 'canManageProperties',
                     relatedCheckPermissions: ['canReadProperties'],
                 },
-                hasPropertyDocumentsFeature && {
+                {
                     key: 'canReadDocuments',
                     relatedUncheckPermissions: ['canManageDocuments'],
                 },
-                hasPropertyDocumentsFeature && {
+                {
                     key: 'canManageDocuments',
                     relatedCheckPermissions: ['canReadDocuments'],
                 },

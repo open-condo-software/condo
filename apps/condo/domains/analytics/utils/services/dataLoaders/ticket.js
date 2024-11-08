@@ -41,7 +41,7 @@ const createStatusRange = async (context, organizationWhereInput, labelKey = 'na
             { organization: organizationWhereInput },
             { organization_is_null: true },
         ],
-    })
+    }, 'id organization { id } type name colors { primary }')
     // We use organization specific statuses if they exists
     // or default if there is no organization specific status with a same type
     const allStatuses = statuses.filter(status => {

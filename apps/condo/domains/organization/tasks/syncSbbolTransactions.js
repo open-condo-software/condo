@@ -34,7 +34,7 @@ async function syncSbbolTransactions (dateInterval) {
     const usersWithSBBOLExternalIdentity = await UserExternalIdentity.getAll(context, {
         identityType: SBBOL_IDP_TYPE,
         deletedAt: null,
-    })
+    }, 'id user { id }')
     if (isEmpty(usersWithSBBOLExternalIdentity)) return logger.info('No users imported from SBBOL found. Cancel sync transactions')
 
     const syncedOrgIds = []
@@ -48,7 +48,7 @@ async function syncSbbolTransactions (dateInterval) {
                 deletedAt: null,
             },
             deletedAt: null,
-        }, { first: 1 })
+        },  'organization { id tin }', { first: 1 })
 
         if (employee) {
             const organization = get(employee, 'organization')
@@ -70,13 +70,13 @@ async function syncSbbolTransactionsBankSyncTask (taskId) {
         await updateStatusOfBankSyncTask(context, taskId, BANK_SYNC_TASK_STATUS.ERROR)
         throw new Error('Missing taskId')
     }
-    const { keystone: context } = await getSchemaCtx('User')
+    const { keystone: context } = getSchemaCtx('User')
 
     let bankSyncTask
 
     bankSyncTask = await BankSyncTask.getOne(context, {
         id: taskId,
-    })
+    }, 'id options { type dateFrom dateTo } user { id } organization { id tin }')
 
     const dateInterval = [get(bankSyncTask, 'options.dateFrom')]
     while (dateInterval[dateInterval.length - 1] < get(bankSyncTask, 'options.dateTo')) {
@@ -91,7 +91,7 @@ async function syncSbbolTransactionsBankSyncTask (taskId) {
     }
     bankSyncTask = await BankSyncTask.getOne(context, {
         id: taskId,
-    })
+    }, 'id status')
     if (bankSyncTask.status !== BANK_SYNC_TASK_STATUS.ERROR || bankSyncTask.status !== BANK_SYNC_TASK_STATUS.CANCELLED) {
         await updateStatusOfBankSyncTask(context, taskId, BANK_SYNC_TASK_STATUS.COMPLETED)
     }

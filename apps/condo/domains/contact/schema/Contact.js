@@ -27,14 +27,14 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: UNABLE_TO_CREATE_CONTACT_DUPLICATE,
         message: 'Cannot create contact, because another contact with the same provided set of "property", "unitName", "phone"',
-        messageForUser: 'api.contact.CONTACT_DUPLICATE_ERROR',
+        messageForUser: 'api.contact.contact.CONTACT_DUPLICATE_ERROR',
     },
     UNABLE_TO_UPDATE_CONTACT_DUPLICATE: {
         mutation: 'signinResidentUser',
         code: BAD_USER_INPUT,
         type: UNABLE_TO_UPDATE_CONTACT_DUPLICATE,
         message: 'Cannot update contact, because another contact with the same provided set of "property", "unitName", "phone"',
-        messageForUser: 'api.contact.CONTACT_DUPLICATE_ERROR',
+        messageForUser: 'api.contact.contact.CONTACT_DUPLICATE_ERROR',
     },
 }
 
@@ -186,6 +186,14 @@ const Contact = new GQLListSchema('Contact', {
                 fields: ['property', 'unitName', 'unitType', 'phone'],
                 condition: 'Q(deletedAt__isnull=True)',
                 name: 'contact_unique_property_unitName_unitType_phone',
+            },
+        ],
+        indexes: [
+            // NOTE: used in AllResidentBillingReceiptsService (154)
+            {
+                type: 'BTreeIndex',
+                fields: ['phone', 'isVerified'],
+                name: 'contact_phone_isverified',
             },
         ],
     },

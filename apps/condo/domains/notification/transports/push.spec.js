@@ -8,9 +8,7 @@ const dayjs = require('dayjs')
 const { setFakeClientMode, makeLoggedInAdminClient, waitFor } = require('@open-condo/keystone/test.utils')
 
 const { DATE_FORMAT_Z } = require('@condo/domains/common/utils/date')
-const { makeClientWithResidentUser, makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
-
-const { PUSH_SUCCESS_CODE, PUSH_PARTIAL_SUCCESS_CODE } = require('../adapters/hcm/constants')
+const { PUSH_SUCCESS_CODE, PUSH_PARTIAL_SUCCESS_CODE } = require('@condo/domains/notification/adapters/hcm/constants')
 const {
     CUSTOM_CONTENT_MESSAGE_TYPE,
     CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
@@ -25,10 +23,11 @@ const {
     MESSAGE_SENT_STATUS,
     MESSAGE_ERROR_STATUS,
     PUSH_TRANSPORT,
-} = require('../constants/constants')
-const { prepareMessageData } = require('../tasks/sendMessageBatch.helpers')
-const { Message, sendMessageByTestClient, syncRemoteClientByTestClient } = require('../utils/testSchema')
-const { getRandomTokenData, getRandomFakeSuccessToken, getRandomFakeFailToken } = require('../utils/testSchema/helpers')
+} = require('@condo/domains/notification/constants/constants')
+const { prepareMessageData } = require('@condo/domains/notification/tasks/sendMessageBatch.helpers')
+const { Message, sendMessageByTestClient, syncRemoteClientByTestClient } = require('@condo/domains/notification/utils/testSchema')
+const { getRandomTokenData, getRandomFakeSuccessToken, getRandomFakeFailToken } = require('@condo/domains/notification/utils/testSchema/utils')
+const { makeClientWithResidentUser, makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
 
 
 describe('push transport', () => {

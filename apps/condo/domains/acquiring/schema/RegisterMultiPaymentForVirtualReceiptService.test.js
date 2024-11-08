@@ -3,11 +3,12 @@
  */
 
 const { faker } = require('@faker-js/faker')
+const Big = require('big.js')
 const dayjs = require('dayjs')
 
 const {
     makeClient,
-    makeLoggedInAdminClient,
+    makeLoggedInAdminClient, expectToThrowGQLError, expectToThrowGQLErrorToResult,
 } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationError,
@@ -15,6 +16,7 @@ const {
     catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 
+const { GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM, PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM } } = require('@condo/domains/acquiring/constants/errors')
 const {
     FEE_CALCULATION_PATH,
     WEB_VIEW_PATH,
@@ -29,8 +31,9 @@ const {
     updateTestAcquiringIntegration,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const {
-    createTestBillingIntegration,
-} = require('@condo/domains/billing/utils/testSchema')
+    TestUtils,
+    ResidentTestMixin,
+} = require('@condo/domains/billing/utils/testSchema/testUtils')
 
 function generateReceipt (billingAccount) {
     return {
@@ -278,20 +281,17 @@ describe('RegisterMultiPaymentForVirtualReceiptService', () => {
                 await updateTestAcquiringIntegration(admin, acquiringIntegration.id, {
                     deletedAt: dayjs().toISOString(),
                 })
-                await catchErrorFrom(async () => {
+                await expectToThrowGQLErrorToResult(async () => {
                     await registerMultiPaymentForVirtualReceiptByTestClient(admin, receipt, acquiringIntegrationContext)
-                }, ({ errors }) => {
-                    expect(errors).toMatchObject([{
-                        message: `Cannot pay via deleted acquiring integration with id "${acquiringIntegration.id}"`,
-                        path: ['result'],
-                        extensions: {
-                            mutation: 'registerMultiPaymentForVirtualReceipt',
-                            variable: ['data', 'acquiringIntegrationContext', 'id'],
-                            code: 'BAD_USER_INPUT',
-                            type: 'ACQUIRING_INTEGRATION_IS_DELETED',
-                            message: 'Cannot pay via deleted acquiring integration with id "{id}"',
-                        },
-                    }])
+                }, {
+                    mutation: 'registerMultiPaymentForVirtualReceipt',
+                    variable: ['data', 'acquiringIntegrationContext', 'id'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'ACQUIRING_INTEGRATION_IS_DELETED',
+                    message: 'Cannot pay via deleted acquiring integration with id "{id}"',
+                    messageInterpolation: {
+                        id: acquiringIntegration.id,
+                    },
                 })
             })
         })
@@ -308,6 +308,93 @@ describe('RegisterMultiPaymentForVirtualReceiptService', () => {
             expect(serverObtainedAcquiring).toHaveProperty('id')
             expect(serverObtainedAcquiring).toHaveProperty('canGroupReceipts')
             expect(serverObtainedAcquiring).toHaveProperty('supportedBillingIntegrationsGroup')
+        })
+    })
+
+    describe('RegisterMultiPaymentForVirtualReceiptService check minimum and maximum payment amount', () => {
+        let utils
+
+        beforeAll(async () => {
+            utils = new TestUtils([ResidentTestMixin])
+            await utils.init()
+            await utils.updateAcquiringIntegration({
+                explicitFeeDistributionSchema: [
+                    { 'recipient': 'acquiring', 'percent': '1.0' },
+                    { 'recipient': 'service', 'percent': '0.2' },
+                ],
+            })
+        })
+
+        afterEach(async () => {
+            await utils.updateAcquiringIntegration({ minimumPaymentAmount: null, maximumPaymentAmount: null })
+        })
+
+        test('Payment for acquiring with no set the maximum payment amount', async () => {
+            const receipt = generateReceipt({ number: faker.random.numeric(50) })
+            const [result] = await registerMultiPaymentForVirtualReceiptByTestClient(utils.clients.admin, receipt, { id: utils.acquiringContext.id })
+            expect(result).toHaveProperty('multiPaymentId')
+        })
+
+        test('Payment amount is equal to the maximum payment amount required by the acquiring integration', async () => {
+            const receipt = generateReceipt({ number: faker.random.numeric(50) })
+            const maximumPaymentAmount = Big(receipt.amount).mul(1.012).toFixed(2)
+            await utils.updateAcquiringIntegration({ maximumPaymentAmount })
+            const [result] = await registerMultiPaymentForVirtualReceiptByTestClient(utils.clients.admin, receipt, { id: utils.acquiringContext.id })
+            expect(result).toHaveProperty('multiPaymentId')
+        })
+
+        test('Payment amount is greater than the maximum payment amount required by the acquiring integration', async () => {
+            const receipt = generateReceipt({ number: faker.random.numeric(50) })
+            const maximumPaymentAmount = Big(receipt.amount).minus(100).toString()
+            await utils.updateAcquiringIntegration({ maximumPaymentAmount })
+            await expectToThrowGQLError(async () => {
+                await registerMultiPaymentForVirtualReceiptByTestClient(utils.clients.admin, receipt, { id: utils.acquiringContext.id })
+            }, {
+                ...PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM,
+                messageInterpolation: { maximumPaymentAmount },
+            }, 'result')
+        })
+
+        test('Payment amount is less than the maximum payment amount required by the acquiring integration', async () => {
+            const receipt = generateReceipt({ number: faker.random.numeric(50) })
+            const maximumPaymentAmount = Big(receipt.amount).add(100)
+            await utils.updateAcquiringIntegration({ maximumPaymentAmount })
+            const [result] = await registerMultiPaymentForVirtualReceiptByTestClient(utils.clients.admin, receipt, { id: utils.acquiringContext.id })
+            expect(result).toHaveProperty('multiPaymentId')
+        })
+
+        test('Payment for acquiring with no set the minimum payment amount', async () => {
+            const receipt = generateReceipt({ number: faker.random.numeric(50) })
+            const [result] = await registerMultiPaymentForVirtualReceiptByTestClient(utils.clients.admin, receipt, { id: utils.acquiringContext.id })
+            expect(result).toHaveProperty('multiPaymentId')
+        })
+
+        test('Payment amount is equal to the minimum payment amount required by the acquiring integration', async () => {
+            const receipt = generateReceipt({ number: faker.random.numeric(50) })
+            const minimumPaymentAmount = Big(receipt.amount).mul(1.012).toFixed(2)
+            await utils.updateAcquiringIntegration({ minimumPaymentAmount })
+            const [result] = await registerMultiPaymentForVirtualReceiptByTestClient(utils.clients.admin, receipt, { id: utils.acquiringContext.id })
+            expect(result).toHaveProperty('multiPaymentId')
+        })
+
+        test('Payment amount is greater than the minimum payment amount required by the acquiring integration', async () => {
+            const receipt = generateReceipt({ number: faker.random.numeric(50) })
+            const minimumPaymentAmount = Big(receipt.amount).minus(1)
+            await utils.updateAcquiringIntegration({ minimumPaymentAmount })
+            const [result] = await registerMultiPaymentForVirtualReceiptByTestClient(utils.clients.admin, receipt, { id: utils.acquiringContext.id })
+            expect(result).toHaveProperty('multiPaymentId')
+        })
+
+        test('Payment amount is less than the minimum payment amount required by the acquiring integration', async () => {
+            const receipt = generateReceipt({ number: faker.random.numeric(50) })
+            const minimumPaymentAmount = Big(receipt.amount).add(100).toString()
+            await utils.updateAcquiringIntegration({ minimumPaymentAmount })
+            await expectToThrowGQLError(async () => {
+                await registerMultiPaymentForVirtualReceiptByTestClient(utils.clients.admin, receipt, { id: utils.acquiringContext.id })
+            }, {
+                ...PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
+                messageInterpolation: { minimumPaymentAmount },
+            }, 'result')
         })
     })
 })

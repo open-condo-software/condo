@@ -6,10 +6,10 @@ import { TicketOrganizationSetting as TicketSetting } from '@condo/domains/ticke
 
 
 type TicketFormContextType = {
-    ticketSetting: TicketOrganizationSetting,
-    isAutoDetectedDeadlineValue: boolean,
-    setIsAutoDetectedDeadlineValue: React.Dispatch<React.SetStateAction<boolean>>,
-    ticketSettingLoading: boolean,
+    ticketSetting: TicketOrganizationSetting
+    isAutoDetectedDeadlineValue: boolean
+    setIsAutoDetectedDeadlineValue: React.Dispatch<React.SetStateAction<boolean>>
+    ticketSettingLoading: boolean
     isExistedTicket: boolean
     setClassifier: React.Dispatch<React.SetStateAction<TicketClassifier>>
     classifier: TicketClassifier | null

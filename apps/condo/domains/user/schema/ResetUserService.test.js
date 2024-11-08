@@ -6,7 +6,7 @@ const { faker } = require('@faker-js/faker')
 
 const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 const { makeClient, waitFor } = require('@open-condo/keystone/test.utils')
-const { catchErrorFrom } = require('@open-condo/keystone/test.utils')
+const { expectToThrowGQLErrorToResult } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')
 
 const {
@@ -27,7 +27,6 @@ const {
 
 const { SBER_ID_IDP_TYPE } = require('../constants/common')
 const { createTestUserExternalIdentity } = require('../utils/testSchema')
-
 
 describe('ResetUserService', () => {
     let support
@@ -93,21 +92,16 @@ describe('ResetUserService', () => {
             user: { id: userId },
         }
 
-        await catchErrorFrom(async () => {
-            await resetUserByTestClient(support, payload)
-        }, ({ errors }) => {
-            expect(errors).toMatchObject([{
+        await expectToThrowGQLErrorToResult(
+            async () => await resetUserByTestClient(support, payload),
+            {
                 message: 'Could not find User by provided id',
-                name: 'GQLError',
-                path: ['result'],
-                extensions: {
-                    mutation: 'resetUser',
-                    variable: ['data', 'user', 'id'],
-                    code: 'BAD_USER_INPUT',
-                    type: 'USER_NOT_FOUND',
-                },
-            }])
-        })
+                mutation: 'resetUser',
+                variable: ['data', 'user', 'id'],
+                code: 'BAD_USER_INPUT',
+                type: 'USER_NOT_FOUND',
+            },
+        )
     })
 
     test('support cant reset admin user', async () => {
@@ -116,21 +110,16 @@ describe('ResetUserService', () => {
             user: { id: userId },
         }
 
-        await catchErrorFrom(async () => {
-            await resetUserByTestClient(support, payload)
-        }, ({ errors }) => {
-            expect(errors).toMatchObject([{
+        await expectToThrowGQLErrorToResult(
+            async () => await resetUserByTestClient(support, payload),
+            {
+                mutation: 'resetUser',
                 message: 'You cannot reset admin user',
-                name: 'GQLError',
-                path: ['result'],
-                extensions: {
-                    mutation: 'resetUser',
-                    variable: ['data', 'user', 'id'],
-                    code: 'FORBIDDEN',
-                    type: 'CANNOT_RESET_ADMIN_USER',
-                },
-            }])
-        })
+                variable: ['data', 'user', 'id'],
+                code: 'FORBIDDEN',
+                type: 'CANNOT_RESET_ADMIN_USER',
+            },
+        )
     })
 
     test('user can reset their account', async () => {

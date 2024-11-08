@@ -115,7 +115,7 @@ async function updateTaskProgress ({ task, lastProgress, context, progress }) {
     const taskId = get(task, 'id')
     if (Date.now() - lastProgress > TASK_PROGRESS_UPDATE_INTERVAL) {
         // User can cancel the task at any time, in this all operations should be stopped
-        task = await BankAccountReportTask.getOne(context, { id: taskId })
+        task = await BankAccountReportTask.getOne(context, { id: taskId }, 'id status')
         const taskStatus = get(task, 'status')
         if (!task || taskStatus !== TASK_PROCESSING_STATUS) {
             logger.info({ msg: 'status != processing. Aborting processing reports loop', taskStatus, taskSchemaName: BankAccountReportTask.gql.SINGULAR_FORM, taskId })
@@ -136,7 +136,9 @@ async function updateTaskProgress ({ task, lastProgress, context, progress }) {
 const generateReports = async (taskId) => {
     if (!taskId) throw new Error('taskId is undefined')
     const { keystone: context } = getSchemaCtx('BankSyncTask')
-    let task = await BankAccountReportTask.getOne(context, { id: taskId })
+    let task = await BankAccountReportTask.getOne(context, { id: taskId },
+        'id account { id } organization { id } status'
+    )
     if (!task) {
         throw new Error(`Cannot find BankSyncTask by id="${taskId}"`)
     }
@@ -147,7 +149,7 @@ const generateReports = async (taskId) => {
         id: bankAccountId,
         organization: { id: organization.id },
         deletedAt: null,
-    })
+    }, 'id integrationContext { id }')
 
     if (!bankAccount) {
         throw new Error(`Cannot find BankAccount by id="${bankAccountId}"`)
@@ -161,7 +163,7 @@ const generateReports = async (taskId) => {
     const bankIntegrationAccountContext = await BankIntegrationAccountContext.getOne(context, {
         id: bankIntegrationAccountContextId,
         deletedAt: null,
-    })
+    }, 'id meta')
 
     if (!bankIntegrationAccountContext) {
         throw new Error(`Cannot find BankIntegrationAccountContext by id="${bankAccount.integrationContext.id}"`)
@@ -183,6 +185,9 @@ const generateReports = async (taskId) => {
             organization: { id: organization.id },
             account: { id: bankAccount.id },
         },
+        fields: 'account { id number } contractorAccount { id name costItem { id name category { id name } } } ' +
+            'costItem { id name category { id name } } integrationContext { id enabled } organization { id } ' +
+            'number date amount isOutcome currencyCode purpose meta importId importRemoteSystem',
     })
 
     for (let transaction of allTransactions) {
@@ -251,7 +256,10 @@ const generateReports = async (taskId) => {
             account: { id: bankAccountId },
             organization: { id: organization.id },
             isLatest: true,
-        }, { sortBy: ['createdAt_ASC'] })
+        },
+        'id version totalIncome totalOutcome data',
+        { sortBy: ['createdAt_ASC'] },
+        )
         const amount = get(bankIntegrationAccountContext, 'meta.amount')
         const payload = {
             data,

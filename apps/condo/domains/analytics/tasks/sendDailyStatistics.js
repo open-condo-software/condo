@@ -10,7 +10,7 @@ const { createCronTask, removeCronTask } = require('@open-condo/keystone/tasks')
 const { RETENTION_LOOPS_ENABLED } = require('@condo/domains/common/constants/featureflags')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { STAFF } = require('@condo/domains/user/constants/common')
-const { UserAdmin } = require('@condo/domains/user/utils/serverSchema')
+const { User } = require('@condo/domains/user/utils/serverSchema')
 
 const { sendDailyMessageToUserSafely } = require('./helpers/sendDailyStatistics')
 
@@ -50,7 +50,7 @@ const sendDailyStatistics = async () => {
         const { keystone: context } = getSchemaCtx('User')
         await loadListByChunks({
             context,
-            list: UserAdmin,
+            list: User,
             chunkSize: 50,
             where: {
                 deletedAt: null,
@@ -65,6 +65,7 @@ const sendDailyStatistics = async () => {
                 // NOTE: We don't have a process for email verification, so it's not used yet.
                 // isEmailVerified: true,
             },
+            fields: 'id locale email',
             /**
              * @param {User[]} chunk
              * @returns {User[]}

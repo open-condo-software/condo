@@ -37,7 +37,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: WRONG_FORMAT,
         message: 'Invalid format of "sender" field value',
-        correctExample: '{ dv: 1, fingerprint: \'example-fingerprint-alphanumeric-value\'}',
+        correctExample: '{ "dv": 1, "fingerprint": "uniq-device-or-container-id" }',
     },
     INVALID_START_DATE_TIME: {
         query: '_internalDeleteMeterReadingsService',
@@ -168,7 +168,7 @@ const _internalDeleteMeterReadingsService = new GQLCustomSchema('_internalDelete
                     })
 
                     try {
-                        await MeterReading.softDeleteMany(context, meterReadingIdsToDelete, { dv, sender })
+                        await MeterReading.softDeleteMany(context, meterReadingIdsToDelete, 'id',  { dv, sender })
                         numberOfDeleted += meterReadingIdsToDelete.length
                     } catch (error) {
                         logger.error({

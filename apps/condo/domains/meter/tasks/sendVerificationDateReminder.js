@@ -31,7 +31,10 @@ const readMetersPage = async ({ context, offset, pageSize, date, searchWindowDay
             nextVerificationDate_gte: startWindowDate,
             nextVerificationDate_lte: endWindowDate,
             isAutomatic: false,
-        }, {
+        },
+        'id resource { nameNonLocalized } accountNumber verificationDate nextVerificationDate ' +
+        'organization { id } property { id } unitName unitType',
+        {
             sortBy: 'id_ASC',
             first: pageSize,
             skip: offset,
@@ -59,6 +62,7 @@ const joinResidentsToMeters = async ({ context, meters }) => {
             accountNumber_in: accountNumbers,
             deletedAt: null,
         },
+        fields: 'id resident { id } accountNumber organization { id }',
     })
 
     // second step is to get all resident ids
@@ -72,6 +76,7 @@ const joinResidentsToMeters = async ({ context, meters }) => {
             id_in: residentsIds,
             deletedAt: null,
         },
+        fields: 'id unitName unitType user { id }',
     })
 
     // next step - connect residents to services consumers
@@ -129,6 +134,7 @@ const filterSentReminders = async ({ context, date, reminderWindowSize, metersCo
             createdAt_gte: dayjs(date).add(-2, 'month').format('YYYY-MM-DD'),
             deletedAt: null,
         },
+        fields: 'createdAt user { id } meta',
     })
 
     // do filter
@@ -173,7 +179,11 @@ const filterSentReminders = async ({ context, date, reminderWindowSize, metersCo
 }
 
 const getOrganizationLang = async (context, id) => {
-    const organization = await Organization.getOne(context, { id, deletedAt: null })
+    const organization = await Organization.getOne(
+        context,
+        { id, deletedAt: null },
+        'id country'
+    )
 
     /**
      * Detect message language
@@ -233,7 +243,7 @@ const sendVerificationDateReminder = async ({ date, searchWindowDaysShift, daysC
     const reminderWindowSize = searchWindowDaysShift + daysCount
 
     // initialize context stuff
-    const { keystone: context } = await getSchemaCtx('Meter')
+    const { keystone: context } = getSchemaCtx('Meter')
 
     // let's proceed meters page by page
     const pageSize = 100

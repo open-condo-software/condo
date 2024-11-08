@@ -6,11 +6,9 @@
 
 const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
 
-const { Property: PropertyGQL } = require('@condo/domains/property/gql')
-
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const Property = generateServerUtils(PropertyGQL)
+const Property = generateServerUtils('Property')
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {

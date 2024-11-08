@@ -42,6 +42,7 @@ async function discoverServiceConsumersCronTask () {
             deletedAt: null,
         },
         sortBy: ['createdAt_ASC'],
+        fields: 'id createdAt',
         /**
          * @param {BillingAccount[]} chunk
          * @returns {BillingAccount[]}

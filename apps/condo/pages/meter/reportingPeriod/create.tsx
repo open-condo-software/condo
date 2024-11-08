@@ -2,8 +2,8 @@ import { Col, Row, RowProps } from 'antd'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React from 'react'
-import { useIntl } from 'react-intl'
 
+import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'

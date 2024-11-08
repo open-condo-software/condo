@@ -281,6 +281,7 @@ describe('RecurrentPaymentContext', () => {
             const request = await getContextRequest()
             request.autoPayReceipts = true
 
+            // TODO(pahaz): DOMA-10368 use expectToThrowGQLError
             await catchErrorFrom(async () => {
                 await createTestRecurrentPaymentContext(admin, request)
             }, ({ errors }) => {
@@ -299,6 +300,7 @@ describe('RecurrentPaymentContext', () => {
             request.autoPayReceipts = false
             request.paymentDay = null
 
+            // TODO(pahaz): DOMA-10368 use expectToThrowGQLError
             await catchErrorFrom(async () => {
                 await createTestRecurrentPaymentContext(admin, request)
             }, ({ errors }) => {
@@ -321,6 +323,7 @@ describe('RecurrentPaymentContext', () => {
                 billingCategory: { connect: { id: billingCategory.id } },
             }
 
+            // TODO(pahaz): DOMA-10368 use expectToThrowGQLError
             await catchErrorFrom(async () => {
                 await createTestRecurrentPaymentContext(admin, request)
             }, ({ errors }) => {
@@ -362,6 +365,7 @@ describe('RecurrentPaymentContext', () => {
 
             const [objCreated] = await createTestRecurrentPaymentContext(admin, request)
 
+            // TODO(pahaz): DOMA-10368 use expectToThrowGQLError
             await catchErrorFrom(async () => {
                 await updateTestRecurrentPaymentContext(admin, objCreated.id, {
                     ...request,
@@ -388,6 +392,7 @@ describe('RecurrentPaymentContext', () => {
         })
         test('validate serviceConsumer', async () => {
             const resident = await makeClientWithServiceConsumer()
+            // TODO(pahaz): DOMA-10368 use expectToThrowGraphQLRequestError
             await catchErrorFrom(async () => {
                 await createTestRecurrentPaymentContext(resident, await getContextRequest())
             }, ({ errors }) => {
@@ -402,6 +407,7 @@ describe('RecurrentPaymentContext', () => {
             const request = await getContextRequest()
             request.paymentDay = 0
 
+            // TODO(pahaz): DOMA-10368 use expectToThrowGQLError
             await catchErrorFrom(async () => {
                 await createTestRecurrentPaymentContext(admin, {
                     ...request,

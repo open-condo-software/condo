@@ -7,17 +7,14 @@
 const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
 const {
-    User: UserGQL,
-    ConfirmEmailAction: ConfirmEmailActionGQL,
-    ConfirmPhoneAction: ConfirmPhoneActionGQL,
     REGISTER_NEW_USER_MUTATION,
     AUTHENTICATE_USER_WITH_PHONE_AND_PASSWORD_MUTATION,
 } = require('@dev-api/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const User = generateServerUtils(UserGQL)
-const ConfirmEmailAction = generateServerUtils(ConfirmEmailActionGQL)
-const ConfirmPhoneAction = generateServerUtils(ConfirmPhoneActionGQL)
+const User = generateServerUtils('User')
+const ConfirmEmailAction = generateServerUtils('ConfirmEmailAction')
+const ConfirmPhoneAction = generateServerUtils('ConfirmPhoneAction')
 
 async function registerNewUser (context, data) {
     if (!context) throw new Error('no context')

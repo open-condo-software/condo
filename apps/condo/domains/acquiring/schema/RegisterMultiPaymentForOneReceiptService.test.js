@@ -3,18 +3,21 @@
  */
 
 const { faker } = require('@faker-js/faker')
+const Big = require('big.js')
 const dayjs = require('dayjs')
 
 const {
     makeClient,
-    makeLoggedInAdminClient,
+    makeLoggedInAdminClient, expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationError,
     expectToThrowAccessDeniedErrorToResult,
+    expectToThrowGQLErrorToResult,
     catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 
+const { GQL_ERRORS: { PAYMENT_AMOUNT_LESS_THAN_MINIMUM, PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM } } = require('@condo/domains/acquiring/constants/errors')
 const {
     FEE_CALCULATION_PATH,
     WEB_VIEW_PATH,
@@ -34,6 +37,10 @@ const {
     createTestBillingIntegration,
     updateTestBillingIntegrationOrganizationContext,
 } = require('@condo/domains/billing/utils/testSchema')
+const {
+    TestUtils,
+    ResidentTestMixin,
+} = require('@condo/domains/billing/utils/testSchema/testUtils')
 
 describe('RegisterMultiPaymentForOneReceiptService', () => {
     describe('Execute', () => {
@@ -154,20 +161,17 @@ describe('RegisterMultiPaymentForOneReceiptService', () => {
                 const missingReceiptId = faker.datatype.uuid()
                 const receipt = { id: missingReceiptId }
                 const acquiringIntegrationContext = { id: acquiringContext.id }
-                await catchErrorFrom(async () => {
+                await expectToThrowGQLErrorToResult(async () => {
                     await registerMultiPaymentForOneReceiptByTestClient(admin, receipt, acquiringIntegrationContext)
-                }, ({ errors }) => {
-                    expect(errors).toMatchObject([{
-                        message: `Cannot find specified BillingReceipt with id ${missingReceiptId}`,
-                        path: ['result'],
-                        extensions: {
-                            mutation: 'registerMultiPaymentForOneReceipt',
-                            variable: ['data', 'receipt', 'id'],
-                            code: 'BAD_USER_INPUT',
-                            type: 'CANNOT_FIND_ALL_BILLING_RECEIPTS',
-                            message: 'Cannot find specified BillingReceipt with id {missingReceiptId}',
-                        },
-                    }])
+                }, {
+                    mutation: 'registerMultiPaymentForOneReceipt',
+                    variable: ['data', 'receipt', 'id'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'CANNOT_FIND_ALL_BILLING_RECEIPTS',
+                    message: 'Cannot find specified BillingReceipt with id {missingReceiptId}',
+                    messageInterpolation: {
+                        missingReceiptId,
+                    },
                 })
             })
             test('Should be linked to BillingIntegration which supported by acquiring', async () => {
@@ -186,20 +190,17 @@ describe('RegisterMultiPaymentForOneReceiptService', () => {
                     supportedBillingIntegrationsGroup: groupName,
                 })
 
-                await catchErrorFrom(async () => {
+                await expectToThrowGQLErrorToResult(async () => {
                     await registerMultiPaymentForOneReceiptByTestClient(admin, receipt, acquiringIntegrationContext)
-                }, ({ errors }) => {
-                    expect(errors).toMatchObject([{
-                        message: `AcquiringIntegration does not supports following BillingReceipt's BillingIntegration: ${billingIntegration.id}`,
-                        path: ['result'],
-                        extensions: {
-                            mutation: 'registerMultiPaymentForOneReceipt',
-                            variable: ['data', 'receipt', 'id'],
-                            code: 'BAD_USER_INPUT',
-                            type: 'ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION',
-                            message: 'AcquiringIntegration does not supports following BillingReceipt\'s BillingIntegration: {unsupportedBillingIntegration}',
-                        },
-                    }])
+                }, {
+                    mutation: 'registerMultiPaymentForOneReceipt',
+                    variable: ['data', 'receipt', 'id'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION',
+                    message: 'AcquiringIntegration does not supports following BillingReceipt\'s BillingIntegration: {unsupportedBillingIntegration}',
+                    messageInterpolation: {
+                        unsupportedBillingIntegration: billingIntegration.id,
+                    },
                 })
             })
             describe('Cannot pay for receipts with negative toPay', () => {
@@ -215,20 +216,17 @@ describe('RegisterMultiPaymentForOneReceiptService', () => {
                     await updateTestBillingReceipt(admin, receipt.id, {
                         toPay,
                     })
-                    await catchErrorFrom(async () => {
+                    await expectToThrowGQLErrorToResult(async () => {
                         await registerMultiPaymentForOneReceiptByTestClient(admin, receipt, acquiringIntegrationContext)
-                    }, ({ errors }) => {
-                        expect(errors).toMatchObject([{
-                            message: `Cannot pay for BillingReceipt ${receipt.id} with negative "toPay" value`,
-                            path: ['result'],
-                            extensions: {
-                                mutation: 'registerMultiPaymentForOneReceipt',
-                                variable: ['data', 'receipt', 'id'],
-                                code: 'BAD_USER_INPUT',
-                                type: 'RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE',
-                                message: 'Cannot pay for BillingReceipt {id} with negative "toPay" value',
-                            },
-                        }])
+                    }, {
+                        mutation: 'registerMultiPaymentForOneReceipt',
+                        variable: ['data', 'receipt', 'id'],
+                        code: 'BAD_USER_INPUT',
+                        type: 'RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE',
+                        message: 'Cannot pay for BillingReceipt {id} with negative "toPay" value',
+                        messageInterpolation: {
+                            id: receipt.id,
+                        },
                     })
                 })
             })
@@ -246,20 +244,17 @@ describe('RegisterMultiPaymentForOneReceiptService', () => {
                 await updateTestBillingReceipt(admin, deletedReceiptId, {
                     deletedAt: dayjs().toISOString(),
                 })
-                await catchErrorFrom(async () => {
+                await expectToThrowGQLErrorToResult(async () => {
                     await registerMultiPaymentForOneReceiptByTestClient(admin, receipt, acquiringIntegrationContext)
-                }, ({ errors }) => {
-                    expect(errors).toMatchObject([{
-                        message: `Cannot pay for deleted receipt ${deletedReceiptId}`,
-                        path: ['result'],
-                        extensions: {
-                            mutation: 'registerMultiPaymentForOneReceipt',
-                            variable: ['data', 'receipt', 'id'],
-                            code: 'BAD_USER_INPUT',
-                            type: 'RECEIPTS_ARE_DELETED',
-                            message: 'Cannot pay for deleted receipt {id}',
-                        },
-                    }])
+                }, {
+                    mutation: 'registerMultiPaymentForOneReceipt',
+                    variable: ['data', 'receipt', 'id'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'RECEIPTS_ARE_DELETED',
+                    message: 'Cannot pay for deleted receipt {id}',
+                    messageInterpolation: {
+                        id: deletedReceiptId,
+                    },
                 })
             })
             test('Should not be able to pay for consumer with deleted acquiring context', async () => {
@@ -301,20 +296,17 @@ describe('RegisterMultiPaymentForOneReceiptService', () => {
                 await updateTestAcquiringIntegration(admin, acquiringIntegration.id, {
                     deletedAt: dayjs().toISOString(),
                 })
-                await catchErrorFrom(async () => {
+                await expectToThrowGQLErrorToResult(async () => {
                     await registerMultiPaymentForOneReceiptByTestClient(admin, receipt, acquiringIntegrationContext)
-                }, ({ errors }) => {
-                    expect(errors).toMatchObject([{
-                        message: `Cannot pay via deleted acquiring integration with id "${acquiringIntegration.id}"`,
-                        path: ['result'],
-                        extensions: {
-                            mutation: 'registerMultiPaymentForOneReceipt',
-                            variable: ['data', 'acquiringIntegrationContext', 'id'],
-                            code: 'BAD_USER_INPUT',
-                            type: 'ACQUIRING_INTEGRATION_IS_DELETED',
-                            message: 'Cannot pay via deleted acquiring integration with id "{id}"',
-                        },
-                    }])
+                }, {
+                    mutation: 'registerMultiPaymentForOneReceipt',
+                    variable: ['data', 'acquiringIntegrationContext', 'id'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'ACQUIRING_INTEGRATION_IS_DELETED',
+                    message: 'Cannot pay via deleted acquiring integration with id "{id}"',
+                    messageInterpolation: {
+                        id: acquiringIntegration.id,
+                    },
                 })
             })
             test('Should not be able to pay for receipt with deleted BillingIntegrationOrganizationContext', async () => {
@@ -401,4 +393,104 @@ describe('RegisterMultiPaymentForOneReceiptService', () => {
             expect(serverObtainedAcquiring).toHaveProperty('supportedBillingIntegrationsGroup')
         })
     })
+
+    describe('RegisterMultiPaymentForOneReceiptService check minimum and maximum payment amount', () => {
+        let utils
+
+        beforeAll(async () => {
+            utils = new TestUtils([ResidentTestMixin])
+            await utils.init()
+            await utils.updateAcquiringIntegration({
+                explicitFeeDistributionSchema: [
+                    { 'recipient':'acquiring', 'percent':'1.0' },
+                    { 'recipient':'service', 'percent':'0.2' },
+                ],
+            })
+        })
+
+        afterEach(async () => {
+            await utils.updateAcquiringIntegration({ minimumPaymentAmount: null, maximumPaymentAmount: null })
+        })
+
+        test('Payment for acquiring with no set the maximum payment amount', async () => {
+            const [[receipt]] = await utils.createReceipts([
+                utils.createJSONReceipt({ toPay: '0.01' }),
+            ])
+            const [result] = await registerMultiPaymentForOneReceiptByTestClient(utils.clients.admin, { id: receipt.id }, { id: utils.acquiringContext.id })
+            expect(result).toHaveProperty('multiPaymentId')
+        })
+
+        test('Payment amount is equal to the maximum payment amount required by the acquiring integration', async () => {
+            const [[receipt]] = await utils.createReceipts([
+                utils.createJSONReceipt({ toPay: '10' }),
+            ])
+            await utils.updateAcquiringIntegration({ maximumPaymentAmount: '10.12' })
+            const [result] = await registerMultiPaymentForOneReceiptByTestClient(utils.clients.admin, { id: receipt.id }, { id: utils.acquiringContext.id })
+            expect(result).toHaveProperty('multiPaymentId')
+        })
+
+        test('Payment amount is greater than the maximum payment amount required by the acquiring integration', async () => {
+            const [[receipt]] = await utils.createReceipts([
+                utils.createJSONReceipt({ toPay: '1000' }),
+            ])
+            const maximumPaymentAmount = Big(receipt.toPay).minus(100).toString()
+            await utils.updateAcquiringIntegration({ maximumPaymentAmount })
+            await expectToThrowGQLError(async () => {
+                await registerMultiPaymentForOneReceiptByTestClient(utils.clients.admin, { id: receipt.id }, { id: utils.acquiringContext.id })
+            }, {
+                ...PAYMENT_AMOUNT_GREATER_THAN_MAXIMUM,
+                messageInterpolation: { maximumPaymentAmount },
+            }, 'result')
+        })
+
+        test('Payment amount is less than the maximum payment amount required by the acquiring integration', async () => {
+            const [[receipt]] = await utils.createReceipts([
+                utils.createJSONReceipt({ toPay: '1000' }),
+            ])
+            await utils.updateAcquiringIntegration({ maximumPaymentAmount: Big(receipt.toPay).add(100) })
+            const [result] = await registerMultiPaymentForOneReceiptByTestClient(utils.clients.admin, { id: receipt.id }, { id: utils.acquiringContext.id })
+            expect(result).toHaveProperty('multiPaymentId')
+        })
+
+        test('Payment for acquiring with no set the minimum payment amount', async () => {
+            const [[receipt]] = await utils.createReceipts([
+                utils.createJSONReceipt({ toPay: '0.01' }),
+            ])
+            const [result] = await registerMultiPaymentForOneReceiptByTestClient(utils.clients.admin, { id: receipt.id }, { id: utils.acquiringContext.id })
+            expect(result).toHaveProperty('multiPaymentId')
+        })
+
+        test('Payment amount is equal to the minimum payment amount required by the acquiring integration', async () => {
+            const [[receipt]] = await utils.createReceipts([
+                utils.createJSONReceipt({ toPay: '10' }),
+            ])
+            await utils.updateAcquiringIntegration({ minimumPaymentAmount: '10.12' })
+            const [result] = await registerMultiPaymentForOneReceiptByTestClient(utils.clients.admin, { id: receipt.id }, { id: utils.acquiringContext.id })
+            expect(result).toHaveProperty('multiPaymentId')
+        })
+
+        test('Payment amount is greater than the minimum payment amount required by the acquiring integration', async () => {
+            const [[receipt]] = await utils.createReceipts([
+                utils.createJSONReceipt({ toPay: '1000' }),
+            ])
+            await utils.updateAcquiringIntegration({ minimumPaymentAmount: Big(receipt.toPay).minus(1) })
+            const [result] = await registerMultiPaymentForOneReceiptByTestClient(utils.clients.admin, { id: receipt.id }, { id: utils.acquiringContext.id })
+            expect(result).toHaveProperty('multiPaymentId')
+        })
+
+        test('Payment amount is less than the minimum payment amount required by the acquiring integration', async () => {
+            const [[receipt]] = await utils.createReceipts([
+                utils.createJSONReceipt({ toPay: '1000' }),
+            ])
+            const minimumPaymentAmount = Big(receipt.toPay).add(100).toString()
+            await utils.updateAcquiringIntegration({ minimumPaymentAmount })
+            await expectToThrowGQLError(async () => {
+                await registerMultiPaymentForOneReceiptByTestClient(utils.clients.admin, { id: receipt.id }, { id: utils.acquiringContext.id })
+            }, {
+                ...PAYMENT_AMOUNT_LESS_THAN_MINIMUM,
+                messageInterpolation: { minimumPaymentAmount },
+            }, 'result')
+        })
+    })
 })
+

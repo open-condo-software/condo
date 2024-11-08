@@ -1,4 +1,4 @@
-import { ContactWhereInput, OrganizationEmployeeRole, SortContactsBy } from '@app/condo/schema'
+import { ContactWhereInput, OrganizationEmployeeRole, SortContactsBy, ContactExportTaskFormatType } from '@app/condo/schema'
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { ColumnsType } from 'antd/lib/table'
@@ -23,7 +23,6 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { EMOJI } from '@condo/domains/common/constants/emoji'
-import { EXCEL } from '@condo/domains/common/constants/export'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
@@ -44,11 +43,11 @@ const ROW_VERTICAL_GUTTERS: [Gutter, Gutter] = [0, 40]
 const SORTABLE_PROPERTIES = ['name', 'unitName', 'phone', 'email', 'role']
 
 type ContactPageContentProps = {
-    filterMeta: FiltersMeta<ContactWhereInput>[],
-    tableColumns: ColumnsType,
-    baseSearchQuery: ContactWhereInput,
-    role: OrganizationEmployeeRole,
-    loading: boolean,
+    filterMeta: FiltersMeta<ContactWhereInput>[]
+    tableColumns: ColumnsType
+    baseSearchQuery: ContactWhereInput
+    role: OrganizationEmployeeRole
+    loading: boolean
 }
 
 
@@ -135,7 +134,7 @@ const ContactTableContent: React.FC<ContactPageContentProps> = (props) => {
     const { ExportButton } = useContactExportToExcelTask({
         where: searchContactsQuery,
         sortBy,
-        format: EXCEL,
+        format: ContactExportTaskFormatType.Excel,
         user,
         timeZone: intl.formatters.getDateTimeFormat().resolvedOptions().timeZone,
         locale: intl.locale,

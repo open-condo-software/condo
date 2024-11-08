@@ -8,7 +8,7 @@ on:
 jobs:
   chromatic:
     if: ${{ github.event.label.name == '👨🏻‍🎨 Request UI-kit review' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout code with submodules

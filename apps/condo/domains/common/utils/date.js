@@ -3,6 +3,7 @@ const dayjs = require('dayjs')
 const DATE_FORMAT = 'YYYY-MM-DD'
 const DATE_FORMAT_Z = 'YYYY-MM-DDTHH:mm:ss.SSSZZ'
 
+
 /**
  * Returns date adjusted to first day of the month. Can be formatted to DATE_FORMAT
  * @param dateRaw
@@ -35,6 +36,7 @@ const getStartDates = (dateRaw) => {
  * @returns {number}
  */
 const getCurrTimeStamp = () => Math.floor(Date.now() / 1000)
+
 
 module.exports = {
     getMonthStart,

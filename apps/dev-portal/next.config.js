@@ -18,6 +18,10 @@ const ADDRESS_SERVICE_URL = conf['ADDRESS_SERVICE_DOMAIN'] || 'http://localhost:
 // NOTE: Value to override via headers
 const GRAPHQL_PROXY_NAME = conf['GRAPHQL_PROXY_NAME'] || 'Next'
 
+const termsOfUseUrl = conf['LEGAL_TERMS_OF_USE_URL']
+const privacyPolicyUrl = conf['LEGAL_PRIVACY_POLICY_URL']
+const dataProcessingConsentUrl = conf['LEGAL_DATA_PROCESSING_CONSENT_URL']
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: true,
@@ -30,6 +34,9 @@ const nextConfig = {
         serverUrl: SERVER_URL,
         serviceUrl: SERVICE_URL,
         addressServiceUrl: ADDRESS_SERVICE_URL,
+        termsOfUseUrl,
+        privacyPolicyUrl,
+        dataProcessingConsentUrl,
     },
     serverRuntimeConfig: {
         proxyName: GRAPHQL_PROXY_NAME,

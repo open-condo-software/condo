@@ -8,10 +8,6 @@ const { generateServerUtils } = require('@open-condo/codegen/generate.server.uti
 const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
 const {
-    B2CApp: B2CAppGQL,
-    B2CAppAccessRight: B2CAppAccessRightGQL,
-    B2CAppBuild: B2CAppBuildGQL,
-    B2CAppPublishRequest: B2CAppPublishRequestGQL,
     PUBLISH_B2C_APP_MUTATION,
     IMPORT_B2C_APP_MUTATION,
     CREATE_B2C_APP_PROPERTY_MUTATION,
@@ -25,10 +21,10 @@ const {
 } = require('@dev-api/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const B2CApp = generateServerUtils(B2CAppGQL)
-const B2CAppAccessRight = generateServerUtils(B2CAppAccessRightGQL)
-const B2CAppBuild = generateServerUtils(B2CAppBuildGQL)
-const B2CAppPublishRequest = generateServerUtils(B2CAppPublishRequestGQL)
+const B2CApp = generateServerUtils('B2CApp')
+const B2CAppAccessRight = generateServerUtils('B2CAppAccessRight')
+const B2CAppBuild = generateServerUtils('B2CAppBuild')
+const B2CAppPublishRequest = generateServerUtils('B2CAppPublishRequest')
 
 async function publishB2CApp (context, data) {
     if (!context) throw new Error('no context')

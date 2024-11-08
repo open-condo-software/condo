@@ -6,29 +6,22 @@
 
 const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
-const { AcquiringIntegration: AcquiringIntegrationGQL } = require('@condo/domains/acquiring/gql')
-const { AcquiringIntegrationAccessRight: AcquiringIntegrationAccessRightGQL } = require('@condo/domains/acquiring/gql')
-const { AcquiringIntegrationContext: AcquiringIntegrationContextGQL } = require('@condo/domains/acquiring/gql')
-const { MultiPayment: MultiPaymentGQL } = require('@condo/domains/acquiring/gql')
-const { Payment: PaymentGQL } = require('@condo/domains/acquiring/gql')
 const { REGISTER_MULTI_PAYMENT_MUTATION } = require('@condo/domains/acquiring/gql')
-const { PaymentsFilterTemplate: PaymentsFilterTemplateGQL } = require('@condo/domains/acquiring/gql')
 const {
     REGISTER_MULTI_PAYMENT_FOR_ONE_RECEIPT_MUTATION,
     REGISTER_MULTI_PAYMENT_FOR_VIRTUAL_RECEIPT_MUTATION,
 } = require('@condo/domains/acquiring/gql')
 const { SUM_PAYMENTS_QUERY } = require('@condo/domains/acquiring/gql')
-const { RecurrentPaymentContext: RecurrentPaymentContextGQL } = require('@condo/domains/acquiring/gql')
-const { RecurrentPayment: RecurrentPaymentGQL } = require('@condo/domains/acquiring/gql')
 const { PAYMENT_BY_LINK_MUTATION } = require('@condo/domains/acquiring/gql')
 const { REGISTER_MULTI_PAYMENT_FOR_INVOICES_MUTATION } = require('@condo/domains/acquiring/gql')
+const { CALCULATE_FEE_FOR_RECEIPT_QUERY } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const AcquiringIntegration = generateServerUtils(AcquiringIntegrationGQL)
-const AcquiringIntegrationAccessRight = generateServerUtils(AcquiringIntegrationAccessRightGQL)
-const AcquiringIntegrationContext = generateServerUtils(AcquiringIntegrationContextGQL)
-const MultiPayment = generateServerUtils(MultiPaymentGQL)
-const Payment = generateServerUtils(PaymentGQL)
+const AcquiringIntegration = generateServerUtils('AcquiringIntegration')
+const AcquiringIntegrationAccessRight = generateServerUtils('AcquiringIntegrationAccessRight')
+const AcquiringIntegrationContext = generateServerUtils('AcquiringIntegrationContext')
+const MultiPayment = generateServerUtils('MultiPayment')
+const Payment = generateServerUtils('Payment')
 async function registerMultiPayment (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
@@ -42,7 +35,7 @@ async function registerMultiPayment (context, data) {
     })
 }
 
-const PaymentsFilterTemplate = generateServerUtils(PaymentsFilterTemplateGQL)
+const PaymentsFilterTemplate = generateServerUtils('PaymentsFilterTemplate')
 
 async function registerMultiPaymentForOneReceipt (context, data) {
     if (!context) throw new Error('no context')
@@ -83,8 +76,8 @@ async function allPaymentsSum (context, data) {
     })
 }
 
-const RecurrentPaymentContext = generateServerUtils(RecurrentPaymentContextGQL)
-const RecurrentPayment = generateServerUtils(RecurrentPaymentGQL)
+const RecurrentPaymentContext = generateServerUtils('RecurrentPaymentContext')
+const RecurrentPayment = generateServerUtils('RecurrentPayment')
 
 async function createPaymentByLink (context, data) {
     if (!context) throw new Error('no context')
@@ -112,6 +105,19 @@ async function registerMultiPaymentForInvoices (context, data) {
     })
 }
 
+async function calculateFeeForReceipt (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: CALCULATE_FEE_FOR_RECEIPT_QUERY,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to calculateFeeForReceipt',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -129,5 +135,6 @@ module.exports = {
     RecurrentPayment,
     createPaymentByLink,
     registerMultiPaymentForInvoices,
+    calculateFeeForReceipt,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

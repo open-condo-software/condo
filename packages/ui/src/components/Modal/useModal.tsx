@@ -36,13 +36,13 @@ const ElementsHolder = React.memo(
 ElementsHolder.displayName = 'ModalContainer'
 
 interface HookModalProps {
-    afterClose: () => void;
-    config: ModalConfig;
+    afterClose: () => void
+    config: ModalConfig
 }
 
 interface HookModalRef {
-    destroy: () => void;
-    update: (config: ModalConfig) => void;
+    destroy: () => void
+    update: (config: ModalConfig) => void
 }
 
 const HookModal = React.forwardRef<HookModalRef, HookModalProps>((

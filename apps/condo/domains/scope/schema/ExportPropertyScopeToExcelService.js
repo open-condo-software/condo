@@ -27,7 +27,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: NOTHING_TO_EXPORT,
         message: 'No property scopes found to export',
-        messageForUser: 'api.contact.exportContactsToExcel.NOTHING_TO_EXPORT',
+        messageForUser: 'api.scope.exportPropertyScopeToExcel.NOTHING_TO_EXPORT',
     },
 }
 

@@ -27,14 +27,14 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
         message: 'Status is already completed',
-        messageForUser: 'api.newsItemRecipientsExportTask.STATUS_IS_ALREADY_COMPLETED',
+        messageForUser: 'api.news.newsItemRecipientsExportTask.STATUS_IS_ALREADY_COMPLETED',
         variable: ['data', 'status'],
     },
     STATUS_IS_ALREADY_ERROR: {
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
         message: 'Status is already error',
-        messageForUser: 'api.newsItemRecipientsExportTask.STATUS_IS_ALREADY_ERROR',
+        messageForUser: 'api.news.newsItemRecipientsExportTask.STATUS_IS_ALREADY_ERROR',
         variable: ['data', 'status'],
     },
 }

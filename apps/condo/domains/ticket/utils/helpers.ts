@@ -223,7 +223,7 @@ export const filtersToQuery = (filters: IFilters): TicketWhereInput => {
 }
 
 type SorterColumn = {
-    columnKey: string,
+    columnKey: string
     order: 'ascend' | 'descend'
 }
 

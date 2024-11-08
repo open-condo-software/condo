@@ -192,7 +192,13 @@ class InjectionsSeeker {
      * @returns {Promise<AddressInjection[]>}
      */
     async getInjections (context) {
-        return await AddressInjection.getAll(context, this.buildWhere())
+        return await AddressInjection.getAll(
+            context,
+            this.buildWhere(),
+            'id country region { typeShort typeFull name } area { typeShort typeFull name } city ' +
+            '{ typeShort typeFull name } cityDistrict { typeShort typeFull name } settlement { typeShort typeFull name } ' +
+            'street { typeShort typeFull name } house { typeShort typeFull name } block { typeShort typeFull name }'
+        )
     }
 }
 

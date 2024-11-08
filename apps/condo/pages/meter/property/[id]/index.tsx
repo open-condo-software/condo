@@ -2,9 +2,9 @@ import get from 'lodash/get'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useEffect, useMemo } from 'react'
-import { useIntl } from 'react-intl'
 
 import { useAuth } from '@open-condo/next/auth'
+import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'

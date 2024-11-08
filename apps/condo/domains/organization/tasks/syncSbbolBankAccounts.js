@@ -26,7 +26,7 @@ async function syncSbbolBankAccounts () {
     const usersWithSBBOLExternalIdentity = await UserExternalIdentity.getAll(context, {
         identityType: SBBOL_IDP_TYPE,
         deletedAt: null,
-    })
+    }, 'id user { id }')
     if (isEmpty(usersWithSBBOLExternalIdentity)) return logger.info('No users imported from SBBOL found. Cancel sync bank accounts')
 
     const integration = await BankIntegration.getOne(context, { id: BANK_INTEGRATION_IDS.SBBOL })
@@ -46,7 +46,7 @@ async function syncSbbolBankAccounts () {
             deletedAt: null,
             isRejected: false,
             isBlocked: false,
-        }, { first: 1 })
+        }, 'organization { id tin name }', { first: 1 })
 
         if (employee) {
             const organization = get(employee, 'organization')

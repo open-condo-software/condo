@@ -15,7 +15,7 @@
   },
   "author": {
     "name": "Matthew Savelev",
-    "email": "msavelyev@doma.ai",
+    "email": "matthew@doma.ai",
     "url": "https://github.com/SavelevMatthew"
   },
   "license": "MIT",
@@ -44,6 +44,6 @@
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-uglify": "^6.0.4",
     "tslib": "^2.4.1",
-    "typescript": "^4.9.4"
+    "typescript": "^5.5.4"
   }
 }

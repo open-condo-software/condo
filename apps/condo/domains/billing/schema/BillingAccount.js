@@ -103,6 +103,16 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
         delete: false,
         auth: true,
     },
+    kmigratorOptions: {
+        indexes: [
+            // used in allResidentBillingReceipts getting BillingReceipts
+            {
+                type: 'BTreeIndex',
+                fields: ['number', 'deletedAt'],
+                name: 'billingAccount_number_deletedAt',
+            },
+        ],
+    },
     hooks: {
         validateInput: async ({ resolvedData, addValidationError, existingItem }) => {
             const newItem = { ...existingItem, ...resolvedData }

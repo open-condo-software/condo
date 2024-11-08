@@ -33,7 +33,8 @@ const ERRORS = {
         variable: ['data', 'emailFrom'],
         code: BAD_USER_INPUT,
         type: WRONG_FORMAT,
-        message: 'api.user.sendMessageToSupport.WRONG_EMAIL_FORMAT',
+        message: 'Wrong format of specified email',
+        messageForUser: 'api.user.sendMessageToSupport.WRONG_EMAIL_FORMAT',
     },
 }
 
@@ -57,6 +58,10 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
         {
             access: access.canSendMessageToSupport,
             schema: 'sendMessageToSupport(data: SendMessageToSupportInput!): SendMessageToSupportOutput',
+            doc: {
+                summary: 'If you have any problem you can use this to notify our support team',
+                errors: ERRORS,
+            },
             resolver: async (parent, args, context) => {
                 const { data } = args
                 const { dv, sender, text, emailFrom, attachments = [], os, appVersion, lang } = data
@@ -101,8 +106,14 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
 
                 const files = await Promise.all(filesPromises)
 
-                const residents = await Resident.getAll(context, { user: { id: user.id }, deletedAt: null })
-                const serviceConsumers = await ServiceConsumer.getAll(context, { resident: { id_in: residents.map(({ id }) => id) }, deletedAt: null })
+                const residents = await Resident.getAll(context,
+                    { user: { id: user.id }, deletedAt: null },
+                    'id address unitName organization { name tin }'
+                )
+                const serviceConsumers = await ServiceConsumer.getAll(context,
+                    { resident: { id_in: residents.map(({ id }) => id) }, deletedAt: null },
+                    'id resident { id } accountNumber organization { name }'
+                )
 
                 const residentsExtraInfo = []
 

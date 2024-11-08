@@ -35,7 +35,13 @@ class SearchByInjectionId extends AbstractSearchPlugin {
         const godContext = this.keystoneContext.sudo()
         const dvSender = this.getDvAndSender(this.constructor.name)
 
-        const injection = await AddressInjection.getOne(this.keystoneContext.sudo(), { id, deletedAt: null })
+        const injection = await AddressInjection.getOne(
+            this.keystoneContext.sudo(),
+            { id, deletedAt: null },
+            'id country region { typeShort typeFull name } area { typeShort typeFull name } city ' +
+            '{ typeShort typeFull name } cityDistrict { typeShort typeFull name } settlement { typeShort typeFull name } ' +
+            'street { typeShort typeFull name } house { typeShort typeFull name } block { typeShort typeFull name }'
+        )
         if (!injection) {
             return null
         }

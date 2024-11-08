@@ -12,10 +12,10 @@ import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 
 
 type InvoiceStatusOptionType = {
-    label: string,
-    value: string,
-    color: string,
-    bgColor: string,
+    label: string
+    value: string
+    color: string
+    bgColor: string
     statusTransitions: string[]
 }
 

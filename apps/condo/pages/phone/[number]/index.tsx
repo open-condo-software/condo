@@ -64,15 +64,15 @@ const HINTS_COL_PROPS: ColProps = { span: 24 }
 
 interface IClientContactProps {
     phone: string
-    lastTicket: TicketType,
+    lastTicket: TicketType
     contact?: ContactType
     showOrganizationMessage?: boolean
 }
 
 type TabDataType = {
-    type: ClientType,
-    property: Property,
-    unitName: string,
+    type: ClientType
+    property: Property
+    unitName: string
     unitType: string
     organization: OrganizationType
 }

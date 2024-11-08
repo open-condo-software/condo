@@ -5,10 +5,10 @@ import { useIntl } from '@open-condo/next/intl'
 import { Card, Modal, Typography } from '@open-condo/ui'
 
 type NewsItemCardProps = {
-    icon: string,
-    appName: string,
-    title: string,
-    body: string,
+    icon: string
+    appName: string
+    title: string
+    body: string
 }
 
 export const NewsItemCard: React.FC<NewsItemCardProps> = ({ icon, appName, title, body }) => {

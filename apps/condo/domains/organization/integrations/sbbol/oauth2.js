@@ -1,5 +1,3 @@
-// Todo(zuch): need to write JWT verification
-
 const util = require('util')
 
 const jwtDecode = require('jwt-decode') // decode jwt without validation
@@ -20,7 +18,8 @@ const logger = getLogger('sbbol/oauth2')
 class SbbolOauth2Api {
     constructor ({ clientSecret, useExtendedConfig }) {
         if (!clientSecret) throw new Error('SbbolOauth2Api: unknown clientSecret')
-        this.useExtendedConfig = useExtendedConfig
+        this.config = useExtendedConfig ? SBBOL_AUTH_CONFIG_EXTENDED : SBBOL_AUTH_CONFIG
+        this.pfx = useExtendedConfig ? SBBOL_PFX_EXTENDED : SBBOL_PFX
         this.createClient(clientSecret)
     }
 
@@ -28,7 +27,7 @@ class SbbolOauth2Api {
         this.enableDebugMode()
         this.createIssuer()
         const client = new this.issuer.Client({
-            client_id: String(this.useExtendedConfig ? SBBOL_AUTH_CONFIG_EXTENDED.client_id : SBBOL_AUTH_CONFIG.client_id),
+            client_id: String(this.config.client_id),
             client_secret: clientSecret,
             redirect_uris: [this.redirectUrl],
             response_types: ['code'],
@@ -39,14 +38,13 @@ class SbbolOauth2Api {
             tls_client_certificate_bound_access_tokens: true,
         })
         client[custom.http_options] = (options) => {
-            const sbbolPfx = this.useExtendedConfig ? SBBOL_PFX_EXTENDED : SBBOL_PFX
-            if (sbbolPfx.certificate) {
+            if (this.pfx.certificate) {
                 return {
                     ...options,
                     https: {
-                        pfx: Buffer.from(sbbolPfx.certificate, 'base64'),
-                        passphrase: sbbolPfx.passphrase,
-                        ...(sbbolPfx.https || {}),
+                        pfx: Buffer.from(this.pfx.certificate, 'base64'),
+                        passphrase: this.pfx.passphrase,
+                        ...(this.pfx.https || {}),
                     },
                 }
             }
@@ -58,7 +56,6 @@ class SbbolOauth2Api {
             try {
                 await _validateJWT.call(client, jwt, expectedAlg, required)
             } catch (error) {
-                //TODO(zuch): find a way to force jose validate gost algorithm
                 logger.error({ msg: 'JWT validation error', jwt, error })
             }
             return { protected: jwtDecode(jwt, { header: true }), payload: jwtDecode(jwt) }
@@ -68,7 +65,7 @@ class SbbolOauth2Api {
 
     createIssuer () {
         const sbbolIssuer = new Issuer({
-            issuer: this.useExtendedConfig ? SBBOL_AUTH_CONFIG_EXTENDED.issuer : SBBOL_AUTH_CONFIG.issuer,
+            issuer: this.config.issuer,
             authorization_endpoint: this.authUrl,
             token_endpoint: this.tokenUrl,
             userinfo_endpoint: this.userInfoUrl,
@@ -84,7 +81,7 @@ class SbbolOauth2Api {
     authorizationUrlWithParams (checks) {
         return this.client.authorizationUrl({
             response_type: 'code',
-            scope: this.useExtendedConfig ? SBBOL_AUTH_CONFIG_EXTENDED.scope : SBBOL_AUTH_CONFIG.scope,
+            scope: this.config.scope,
             ...checks,
         })
     }
@@ -102,8 +99,11 @@ class SbbolOauth2Api {
         return await this.client.userinfo(accessToken)
     }
 
+    // TODO(dkovyazin): DOMA-10395 find out why we are using mix of oauth versions on production and unify api
+
     get userInfoUrl () {
-        return `${this.protectedUrl}/ic/sso/api/v1/oauth/user-info`
+        const path = this.config.hasOwnProperty('oauthVersion') ? `/ic/sso/api/v${this.config.oauthVersion}` : '/ic/sso/api/v1'
+        return `${this.protectedUrl}${path}/oauth/user-info`
     }
 
     get redirectUrl () {
@@ -111,23 +111,26 @@ class SbbolOauth2Api {
     }
 
     get tokenUrl () {
-        return `${this.protectedUrl}/ic/sso/api/v2/oauth/token`
+        const path = this.config.hasOwnProperty('oauthVersion') ? `/ic/sso/api/v${this.config.oauthVersion}` : '/ic/sso/api/v2'
+        return `${this.protectedUrl}${path}/oauth/token`
     }
 
     get authUrl () {
-        return `${this.url}/ic/sso/api/v2/oauth/authorize`
+        const path = this.config.hasOwnProperty('oauthVersion') ? `/ic/sbbid/api/v${this.config.oauthVersion}` : '/ic/sso/api/v2'
+        return `${this.url}${path}/oauth/authorize`
     }
 
     get revokeUrl () {
-        return `${this.protectedUrl}/v1/oauth/revoke`
+        const path = this.config.hasOwnProperty('oauthVersion') ? `/ic/sso/api/v${this.config.oauthVersion}` : '/ic/sso/api/v1'
+        return `${this.protectedUrl}${path}/oauth/revoke`
     }
 
     get url () {
-        return this.useExtendedConfig ? `${SBBOL_AUTH_CONFIG_EXTENDED.host}:${SBBOL_AUTH_CONFIG_EXTENDED.port}` : `${SBBOL_AUTH_CONFIG.host}:${SBBOL_AUTH_CONFIG.port}`
+        return `${this.config.host}:${this.config.port}`
     }
 
     get protectedUrl () {
-        return this.useExtendedConfig ? `${SBBOL_AUTH_CONFIG_EXTENDED.protected_host}:${SBBOL_AUTH_CONFIG_EXTENDED.protected_port || SBBOL_AUTH_CONFIG_EXTENDED.port}` : `${SBBOL_AUTH_CONFIG.protected_host}:${SBBOL_AUTH_CONFIG.protected_port || SBBOL_AUTH_CONFIG.port}`
+        return `${this.config.protected_host}:${this.config.protected_port || this.config.port}`
     }
 
     /**

@@ -35,7 +35,7 @@ type FileMetaInfo = {
 type ItemDescription =
     string | // File name mapping via string value
     { title: string } | // File name mapping via title property
-    { title: string, href: string,  } | // External resource
+    { title: string, href: string  } | // External resource
     { title: string, hidden: boolean } // Files, which available just from direct url (hidden in menu)
 
 export type ArticleInfo = {

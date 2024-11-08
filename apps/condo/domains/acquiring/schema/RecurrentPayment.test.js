@@ -260,6 +260,7 @@ describe('RecurrentPayment', () => {
                 const request = getPaymentRequest()
                 request.billingReceipts = [{ id: 1 }]
 
+                // TODO(pahaz): DOMA-10368 use expectToThrowGQLError
                 await catchErrorFrom(async () => {
                     await createTestRecurrentPayment(admin, request)
                 }, ({ errors }) => {

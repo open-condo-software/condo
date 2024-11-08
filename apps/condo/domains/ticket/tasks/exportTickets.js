@@ -243,7 +243,7 @@ async function exportTickets (taskId) {
     if (!taskId) throw new Error('taskId is undefined')
     const { keystone: context } = getSchemaCtx('TicketExportTask')
 
-    let task = await TicketExportTask.getOne(context, { id: taskId })
+    let task = await TicketExportTask.getOne(context, { id: taskId }, 'id timeZone format where sortBy locale')
     const { where, sortBy, format } = task
     const baseAttrs = {
         dv: 1,
@@ -267,7 +267,7 @@ async function exportTickets (taskId) {
         // which determines user requested locale from `TicketExportTask.locale` field value
         setLocaleForKeystoneContext(context, task.locale)
 
-        const statuses = await TicketStatus.getAll(context, {})
+        const statuses = await TicketStatus.getAll(context, {}, 'type name')
         const indexedStatuses = Object.fromEntries(statuses.map(status => ([status.type, status.name])))
 
         let classifier

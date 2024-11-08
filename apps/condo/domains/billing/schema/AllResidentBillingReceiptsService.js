@@ -13,7 +13,9 @@ const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 const { getAcquiringIntegrationContextFormula, FeeDistribution } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const access = require('@condo/domains/billing/access/AllResidentBillingReceipts')
 const { BILLING_RECEIPT_FILE_FOLDER_NAME } = require('@condo/domains/billing/constants/constants')
-const { BillingReceiptAdmin, getPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
+const { BILLING_RECEIPT_COMMON_FIELDS } = require('@condo/domains/billing/gql')
+const { BillingReceipt, getPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
+const { normalizeUnitName } = require('@condo/domains/billing/utils/unitName.utils')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 
 const {
@@ -23,6 +25,10 @@ const {
 } = require('../constants/constants')
 
 const Adapter = new FileAdapter(BILLING_RECEIPT_FILE_FOLDER_NAME)
+
+const BILLING_RECEIPT_FIELDS = BILLING_RECEIPT_COMMON_FIELDS + ' file { id ' +
+    'sensitiveDataFile { id filename originalFilename publicUrl mimetype } ' +
+    'publicDataFile { id filename originalFilename publicUrl mimetype } controlSum } isPayable'
 
 const ALL_RESIDENT_BILLING_RECEIPTS_FIELDS = {
     id: 'ID',
@@ -42,7 +48,7 @@ const getFile = (receipt, contacts) => {
 
     // let's search for a contact
     // if any exists = user allowed to see sensitive data
-    const propertyContacts = contacts.filter(contact => contact.unitName === accountUnitName
+    const propertyContacts = contacts.filter(contact => normalizeUnitName(contact.unitName) === normalizeUnitName(accountUnitName)
         && contact.unitType === accountUnitType
         && contact.property.address === propertyAddress)
     const file = propertyContacts.length > 0
@@ -78,7 +84,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
         },
         {
             access: true,
-            type: `type ResidentBillingReceiptOutput { dv: String!, recipient: ${BILLING_RECEIPT_RECIPIENT_FIELD_NAME}!, id: ID!, period: String!, toPay: String!, paid: String!, explicitFee: String!, printableNumber: String, toPayDetails: ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME}, services: ${BILLING_RECEIPT_SERVICES_FIELD}, serviceConsumer: ServiceConsumer! currencyCode: String! category: BillingCategory! isPayable: Boolean! file: ResidentBillingReceiptFile }`,
+            type: `type ResidentBillingReceiptOutput { dv: String!, recipient: ${BILLING_RECEIPT_RECIPIENT_FIELD_NAME}!, id: ID!, period: String!, toPay: String!, paid: String!, explicitFee: String!, printableNumber: String, toPayDetails: ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME}, services: ${BILLING_RECEIPT_SERVICES_FIELD}, serviceConsumer: ServiceConsumer! currencyCode: String! category: BillingCategory! isPayable: Boolean! file: ResidentBillingReceiptFile updatedAt: String }`,
         },
     ],
 
@@ -136,9 +142,12 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                     'OR': receiptsQuery,
                 }
 
-                const receiptsForConsumer = await BillingReceiptAdmin.getAll(
+                // NOTE: we have an index for this query called "billingAccount_number_deletedAt"
+                // if you modify the query you should make sure that the index is still being used
+                const receiptsForConsumer = await BillingReceipt.getAll(
                     context,
                     joinedReceiptsQuery,
+                    BILLING_RECEIPT_FIELDS,
                     {
                         sortBy, first, skip,
                     }
@@ -147,11 +156,13 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                 // cache verified contacts for authed user
                 // in order to determinate if user can see
                 // a sensitive version of primary file
+                // NOTE: there is a "contact_phone_isverified" index for this query,
+                // if you change it make sure to modify the index so it still works
                 const contacts = await Contact.getAll(context, {
                     phone: context.authedItem.phone,
                     isVerified: true,
                     deletedAt: null,
-                })
+                }, 'unitName unitType property { address }')
 
                 receiptsForConsumer.forEach(receipt => {
                     const file = getFile(receipt, contacts)
@@ -173,6 +184,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                         currencyCode: get(receipt, ['context', 'integration', 'currencyCode'], null),
                         file,
                         isPayable: receipt.isPayable,
+                        updatedAt: receipt.updatedAt,
                     })
                 })
 
@@ -181,17 +193,8 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                 //
                 const receiptsWithPayments = []
                 for (const receipt of processedReceipts) {
-                    const organizationId = get(receipt.serviceConsumer, ['organization'])
-                    const accountNumber = get(receipt.serviceConsumer, ['accountNumber'])
                     const billingCategory = get(receipt, ['category']) || {}
-                    const paid = await getPaymentsSum(
-                        context,
-                        organizationId,
-                        accountNumber,
-                        get(receipt, 'period', null),
-                        get(receipt, ['recipient', 'bic'], null),
-                        get(receipt, ['recipient', 'bankAccount'], null)
-                    )
+                    const paid = await getPaymentsSum(receipt.id)
                     const acquiringContextId = get(receipt, ['serviceConsumer', 'acquiringIntegrationContext'], null)
                     const toPay = get(receipt, ['toPay'], 0)
                     let fee = '0'

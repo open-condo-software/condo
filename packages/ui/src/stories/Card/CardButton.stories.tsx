@@ -1,16 +1,14 @@
-import { Meta, Story } from '@storybook/react'
-import {  pickBy } from 'lodash'
-import React from 'react'
+import React, { ComponentProps } from 'react'
 
 import { PlusCircle } from '@open-condo/icons'
 import { Card as Component, CardButtonProps } from '@open-condo/ui/src'
+import { colors } from '@open-condo/ui/src/colors'
 
-import { colors } from '../../colors'
-
+import type { Meta, StoryFn, StoryObj } from '@storybook/react'
 
 const CardButton = Component.CardButton
 
-type StoryProps = Pick<CardButtonProps, 'accent' | 'disabled'> & {
+type StoryProps = ComponentProps<typeof CardButton> & {
     accent: boolean
     disabled: boolean
     headerTag: boolean
@@ -56,7 +54,7 @@ export default {
     },
 } as Meta<StoryProps>
 
-const Template: Story<StoryProps> = (props) => {
+const Template: StoryFn<StoryProps> = (props) => {
     const {
         header,
         headerTag,
@@ -76,25 +74,25 @@ const Template: Story<StoryProps> = (props) => {
         bodyButton,
     } = props
 
-    const headerProps = pickBy({
-        tag: headerTag && { children: 'Tag text', bgColor: colors.teal[1], textColor: colors.teal[5] },
-        progressIndicator: headerProgressIndicator && { steps: ['done'] },
-        emoji: headerEmoji && [{ symbol: '✍️' }, { symbol: '🏠' }],
-        headingTitle: headerTitle && 'Resident App',
-        mainLink: headerMainLink && { label: 'Main link', href: '#', AfterIcon: PlusCircle, PreIcon: PlusCircle },
-        secondLink: headerSecondLink && { label: 'Second link', href: '#', AfterIcon: PlusCircle, PreIcon: PlusCircle },
-        image: headerImage && { src: 'https://i.imgur.com/ambPuQF.png', size: 'big' },
-    })
+    const headerProps: CardButtonProps['header'] = {
+        tag: headerTag ? { children: 'Tag text', bgColor: colors.teal[1], textColor: colors.teal[5] } : undefined,
+        progressIndicator: headerProgressIndicator ? { steps: ['completed'] } : undefined,
+        emoji: headerEmoji ? [{ symbol: '✍️' }, { symbol: '🏠' }] : undefined,
+        headingTitle: headerTitle ? 'Resident App' : undefined,
+        mainLink: headerMainLink ? { label: 'Main link', href: '#', AfterIcon: PlusCircle, PreIcon: PlusCircle } : undefined,
+        secondLink: headerSecondLink ? { label: 'Second link', href: '#', AfterIcon: PlusCircle, PreIcon: PlusCircle } : undefined,
+        image: headerImage ? { src: 'https://i.imgur.com/ambPuQF.png', size: 'big' } : undefined,
+    }
 
-    const bodyProps = pickBy({
-        bodyTitle: bodyTitle && 'Resident App',
-        description: bodyDescription && 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-        image: bodyImage && { src: 'https://i.imgur.com/ambPuQF.png', style: { width: '120px', height: '150px', borderRadius: '10px', marginTop: '10px' } },
-        caption: bodyCaption && 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-        mainLink: bodyMainLink && { label: 'Main link', href: '#', AfterIcon: PlusCircle, PreIcon: PlusCircle },
-        secondLink: bodySecondLink && { label: 'Second link', href: '#', AfterIcon: PlusCircle, PreIcon: PlusCircle },
-        button: bodyButton && { children: 'Body button', type: 'secondary' },
-    })
+    const bodyProps: CardButtonProps['body'] = {
+        bodyTitle: bodyTitle ? 'Resident App' : undefined,
+        description: bodyDescription ? 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' : undefined,
+        image: bodyImage ? { src: 'https://i.imgur.com/ambPuQF.png', style: { width: '120px', height: '150px', borderRadius: '10px', marginTop: '10px' } } : undefined,
+        caption: bodyCaption ? 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' : undefined,
+        mainLink: bodyMainLink ? { label: 'Main link', href: '#', AfterIcon: PlusCircle, PreIcon: PlusCircle } : undefined,
+        secondLink: bodySecondLink ? { label: 'Second link', href: '#', AfterIcon: PlusCircle, PreIcon: PlusCircle } : undefined,
+        button: bodyButton ? { children: 'Body button', type: 'secondary' } : undefined,
+    }
 
     return (
         <div style={{ maxWidth: '400px' }}>
@@ -107,7 +105,9 @@ const Template: Story<StoryProps> = (props) => {
     )
 }
 
-export const CardButtonComponent = Template.bind({})
-CardButtonComponent.args = {
-    accent: true,
+export const CardButtonComponent: StoryObj<Meta<StoryProps>> = {
+    render: Template,
+    args: {
+        accent: true,
+    },
 }

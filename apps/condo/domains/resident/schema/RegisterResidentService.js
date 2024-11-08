@@ -28,11 +28,12 @@ const redisGuard = new RedisGuard()
 
 const logger = getLogger('registerResident')
 
-const checkLimits = async (uniqueField) => {
+const checkLimits = async (uniqueField, context) => {
     await redisGuard.checkCustomLimitCounters(
         `discover-service-consumers-${uniqueField}`,
         RESIDENT_DISCOVER_CONSUMERS_WINDOW_SEC,
         MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW_SEC,
+        context,
     )
 }
 
@@ -84,8 +85,9 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                     addressKey: addressItem.addressKey,
                     unitName_i: unitName,
                     unitType,
+                    deletedAt: null,
                     user: { id: context.authedItem.id },
-                }, {
+                }, 'id', {
                     first: 1,
                 })
 
@@ -94,6 +96,7 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                     organization: { type: MANAGING_COMPANY_TYPE },
                     deletedAt: null,
                 },
+                'id',
                 { sortBy: ['isApproved_DESC', 'createdAt_ASC'], first: 1 },
                 )
 
@@ -106,16 +109,7 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                 }
 
                 let id
-                if (existingResident) {
-                    const nextAttrs = omit(
-                        { ...attrs, deletedAt: null },
-                        ['address', 'addressMeta', 'unitName'],
-                    )
-
-                    // TODO(DOMA-1780): we need to update address and addressMeta from property
-                    await ResidentAPI.update(context, existingResident.id, nextAttrs)
-                    id = existingResident.id
-                } else {
+                if (!existingResident) {
                     const residentAttrs = { ...attrs, address: addressItem.address }
                     const resident = await ResidentAPI.create(context, residentAttrs)
 
@@ -124,8 +118,7 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
 
 
                 try {
-                    // checkLimits throws an error if the limit was reached
-                    await checkLimits(context.authedItem.id)
+                    await checkLimits(context.authedItem.id, context)
                     const billingAccounts = await BillingAccount.getAll(
                         context,
                         {

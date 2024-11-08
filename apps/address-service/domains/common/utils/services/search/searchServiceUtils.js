@@ -3,6 +3,8 @@ const { isEmpty, isObject } = require('lodash')
 const { AddressSource } = require('@address-service/domains/address/utils/serverSchema')
 const { md5 } = require('@condo/domains/common/utils/crypto')
 
+const ADDRESS_ITEM_FIELDS = 'id address key meta overrides'
+
 /**
  * @param context Keystone context
  * @param addressServerUtils
@@ -18,15 +20,15 @@ async function createOrUpdateAddressWithSource (context, addressServerUtils, add
     //
     // Address
     //
-    let addressItem = await addressServerUtils.getOne(context, { key })
+    let addressItem = await addressServerUtils.getOne(context, { key }, ADDRESS_ITEM_FIELDS)
 
     if (addressItem) {
         addressItem = await addressServerUtils.update(context, addressItem.id, {
             ...dvSender,
             deletedAt: null, // Restore deleted address on demand
-        })
+        }, ADDRESS_ITEM_FIELDS)
     } else {
-        addressItem = await addressServerUtils.create(context, { ...dvSender, ...addressData })
+        addressItem = await addressServerUtils.create(context, { ...dvSender, ...addressData }, ADDRESS_ITEM_FIELDS)
     }
 
     //
@@ -78,7 +80,11 @@ async function createReturnObject ({
     overridden = {},
     AddressSourceServerUtils = AddressSource,
 }) {
-    const addressSources = await AddressSourceServerUtils.getAll(context, { address: { id: addressModel.id } }) || []
+    const addressSources = await AddressSourceServerUtils.getAll(
+        context,
+        { address: { id: addressModel.id } },
+        'source'
+    ) || []
     const ret = {
         address: addressModel.address,
         addressKey: addressModel.id,

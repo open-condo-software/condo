@@ -25,11 +25,12 @@ const {
     REGISTER_RESIDENT_MUTATION,
     REGISTER_RESIDENT_INVOICE_MUTATION,
     REGISTER_RESIDENT_SERVICE_CONSUMERS_MUTATION,
-    FIND_ORGANIZATIONS_FOR_ADDRESS_QUERY,
+    FIND_ORGANIZATIONS_BY_ADDRESS_QUERY,
     GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_QUERY,
     DISCOVER_SERVICE_CONSUMERS_MUTATION,
     SEND_MESSAGE_TO_RESIDENT_SCOPES_MUTATION,
     REGISTER_SERVICE_CONSUMER_MUTATION,
+    SUGGEST_SERVICE_PROVIDER_QUERY
 } = require('@condo/domains/resident/gql')
 const { makeClientWithResidentUser } = require(
     '@condo/domains/user/utils/testSchema')
@@ -194,9 +195,9 @@ async function getResidentExistenceByPhoneAndAddressByTestClient (client, extraA
     return [data.result, attrs]
 }
 
-async function findOrganizationsForAddressByTestClient (client, attrs = {}) {
+async function findOrganizationsByAddressByTestClient (client, attrs = {}) {
     if (!client) throw new Error('no client')
-    const { data, errors } = await client.query(FIND_ORGANIZATIONS_FOR_ADDRESS_QUERY, { data: attrs })
+    const { data, errors } = await client.query(FIND_ORGANIZATIONS_BY_ADDRESS_QUERY, { data: attrs })
     throwIfError(data, errors)
     return [data.result, attrs]
 }
@@ -257,6 +258,13 @@ async function registerResidentInvoiceByTestClient (client, resident, invoiceRow
     return [data.result, attrs]
 }
 
+async function suggestServiceProviderByTestClient(client, attrs = {}) {
+    if (!client) throw new Error('no client')
+    const { data, errors } = await client.query(SUGGEST_SERVICE_PROVIDER_QUERY, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
 module.exports = {
     Resident, createTestResident, updateTestResident,
     registerResidentByTestClient, makeClientWithResident,
@@ -268,6 +276,7 @@ module.exports = {
     getResidentExistenceByPhoneAndAddressByTestClient,
     registerResidentServiceConsumersByTestClient,
     registerResidentInvoiceByTestClient,
-    findOrganizationsForAddressByTestClient,
+    findOrganizationsByAddressByTestClient,
+    suggestServiceProviderByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -3,6 +3,7 @@ import crypto from 'crypto'
 
 import { green } from '@ant-design/colors'
 import { CloseCircleFilled, RightOutlined } from '@ant-design/icons'
+import { Organization as IOrganization } from '@app/condo/schema'
 import { css, jsx } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Col, Collapse, notification, Row } from 'antd'
@@ -12,8 +13,6 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { useState } from 'react'
 
-import { Send } from '@open-condo/icons'
-import { Organization } from '@open-condo/keystone/schema'
 import { useMutation } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Modal, Typography } from '@open-condo/ui'
@@ -157,7 +156,7 @@ interface IShareTicketModalProps {
     details: string
     id: string
     locale?: string
-    organization: Organization
+    organization: IOrganization
 }
 
 export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {

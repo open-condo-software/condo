@@ -108,7 +108,7 @@ const Resident = new GQLListSchema('Resident', {
                     if (operation === 'update') return
                     const propertyId = resolvedData.property
                     if (!propertyId) return
-                    const [property] = await Property.getAll(context, { id: propertyId })
+                    const [property] = await Property.getAll(context, { id: propertyId }, 'id address addressKey')
                     const residentAddress = getAddressUpToBuildingFrom(resolvedData.addressMeta)
                     if (property.address.toLowerCase() !== residentAddress.toLowerCase()) {
                         // but wait... if these addresses were updated by address service, the addressKey will be the same
@@ -197,6 +197,7 @@ const Resident = new GQLListSchema('Resident', {
                         if (category.canGetBillingFromOrganization && item.organization) {
                             const [billingCtx] = await BillingIntegrationOrganizationContext.getAll(
                                 context, { organization: { id: item.organization, deletedAt: null }, deletedAt: null },
+                                'id integration { name }'
                             )
                             billingName = get(billingCtx, ['integration', 'name'], DEFAULT_BILLING_INTEGRATION_NAME)
                         }
@@ -204,6 +205,7 @@ const Resident = new GQLListSchema('Resident', {
                         if (category.canGetAcquiringFromOrganization && item.organization) {
                             const [acquiringCtx] = await AcquiringIntegrationContext.getAll(
                                 context, { organization: { id: item.organization, deletedAt: null }, deletedAt: null },
+                                'integration { name }'
                             )
                             acquiringName = get(acquiringCtx, ['integration', 'name'], DEFAULT_ACQUIRING_INTEGRATION_NAME)
                         }
@@ -283,7 +285,7 @@ const Resident = new GQLListSchema('Resident', {
                     unitType,
                     user: { id: userId },
                     deletedAt: null,
-                }, {
+                }, 'id', {
                     first: 1,
                 })
                 if (resident) {

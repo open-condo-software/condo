@@ -1,8 +1,9 @@
+import { OrganizationEmployee as OrganizationEmployeeType } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { AutoComplete, Col, Form, Row, RowProps } from 'antd'
 import { OptionProps } from 'antd/lib/mentions'
-import { get } from 'lodash'
 import debounce from 'lodash/debounce'
+import get from 'lodash/get'
 import { Rule } from 'rc-field-form/lib/interface'
 import React, { useCallback, useMemo, useState } from 'react'
 
@@ -12,20 +13,20 @@ import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { SPECIAL_CHAR_REGEXP } from '@condo/domains/common/constants/regexps'
 import { colors } from '@condo/domains/common/constants/style'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { OrganizationEmployee } from '@condo/domains/contact/schema'
 
 import { CONTACT_TYPE, ContactValue } from './index'
+
 
 const DEBOUNCE_TIMEOUT_IN_MS = 800
 
 interface INotResidentFieldsFieldsProps {
-    refetch,
-    initialQuery?,
-    initialValue?: OrganizationEmployee,
-    onChange: (contact: ContactValue) => void,
+    refetch
+    initialQuery?
+    initialValue?: Partial<OrganizationEmployeeType>
+    onChange: (contact: ContactValue) => void
     // Used for autocomplete
-    employees: OrganizationEmployee[],
-    activeTab: CONTACT_TYPE,
+    employees: OrganizationEmployeeType[]
+    activeTab: CONTACT_TYPE
 }
 
 const FIELD_ROW_GUTTER: RowProps['gutter'] = [16, 0]

@@ -53,7 +53,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'Can\'t find billingAccount and any meters with this accountNumber, unitName and address',
-        messageForUser: 'api.resident.RegisterServiceConsumerService.BILLING_ACCOUNT_OR_METER_NOT_FOUND',
+        messageForUser: 'api.resident.registerServiceConsumers.BILLING_ACCOUNT_OR_METER_NOT_FOUND',
     },
     BILLING_ACCOUNT_NOT_FOUND: {
         mutation: 'registerServiceConsumer',
@@ -61,7 +61,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'Can\'t find billingAccount and any meters with this accountNumber, unitName and organization combination',
-        messageForUser: 'api.resident.RegisterServiceConsumerService.BILLING_ACCOUNT_NOT_FOUND',
+        messageForUser: 'api.resident.registerServiceConsumers.BILLING_ACCOUNT_NOT_FOUND',
     },
     ACCOUNT_NUMBER_IS_NOT_SPECIFIED: {
         mutation: 'registerServiceConsumer',
@@ -105,7 +105,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
 
                 if (!accountNumber || accountNumber.length === 0) throw new GQLError(ERRORS.ACCOUNT_NUMBER_IS_NOT_SPECIFIED, context)
 
-                const resident = await Resident.getOne(context, { id, deletedAt: null })
+                const resident = await Resident.getOne(context, { id, deletedAt: null }, 'id user { id } address addressKey')
                 if (!resident) throw new GQLError(ERRORS.RESIDENT_NOT_FOUND, context)
                 await resetUserResidentCache(resident.user.id)
 
@@ -114,7 +114,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                     ? { addressKey: resident.addressKey }
                     : { address_i: resident.address }
 
-                const residentProperties = await Property.getAll(context, propertyWhere)
+                const residentProperties = await Property.getAll(context, propertyWhere, 'id organization { id }')
 
                 let organizations = await Organization.getAll(context, {
                     id_in: uniq(residentProperties.map(property => property.organization.id)), deletedAt: null,
@@ -137,12 +137,12 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                         organization: { id_in: residentOrganizationIds },
                         deletedAt: null,
                         status: CONTEXT_FINISHED_STATUS,
-                    })
+                    }, 'id organization { id }')
                     const billingAccounts = await BillingAccount.getAll(context, {
                         context: { id_in: billingIntegrationContexts.map(context => context.id) },
                         deletedAt: null,
                         number_i: accountNumber,
-                    })
+                    }, 'id context { id organization { id } }')
 
                     for (const billingAccount of billingAccounts) {
                         const [existingServiceConsumer] = await ServiceConsumer.getAll(context, {
@@ -223,12 +223,12 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                 if (!accountNumber || accountNumber.length === 0) {
                     throw new GQLError(ERRORS.ACCOUNT_NUMBER_IS_NOT_SPECIFIED, context)
                 }
-                const resident = await Resident.getOne(context, { id: residentId, deletedAt: null })
+                const resident = await Resident.getOne(context, { id: residentId, deletedAt: null }, 'id user { id }')
                 if (!resident) {
                     throw new GQLError(ERRORS.RESIDENT_NOT_FOUND, context)
                 }
                 await resetUserResidentCache(resident.user.id)
-                const organization = await Organization.getOne(context, { id: organizationId, deletedAt: null })
+                const organization = await Organization.getOne(context, { id: organizationId, deletedAt: null }, 'id tin')
                 if (!organization) {
                     throw new GQLError(ERRORS.ORGANIZATION_NOT_FOUND, context)
                 }
@@ -237,7 +237,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                     status: CONTEXT_FINISHED_STATUS,
                     organization: { id: organization.id },
                     deletedAt: null,
-                })
+                }, 'id integration { checkAccountNumberUrl }')
                 let isBillingAccountFound = false
                 let isMetersFound = false
                 if (billingContext) {
@@ -283,7 +283,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                     accountNumber_i: accountNumber,
                     organization: { id: organizationId },
                     deletedAt: null,
-                })
+                }, 'id acquiringIntegrationContext { id } billingIntegrationContext { id }')
                 let serviceConsumerId = existingServiceConsumer ? existingServiceConsumer.id : null
                 if (existingServiceConsumer) {
                     serviceConsumerId = existingServiceConsumer.id

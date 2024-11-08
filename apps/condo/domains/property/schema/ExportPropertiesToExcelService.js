@@ -53,6 +53,7 @@ const ExportPropertiesToExcelService = new GQLCustomSchema('ExportPropertiesToEx
                     context,
                     list: PropertyAPI,
                     where,
+                    fields: 'id organization { name } address unitsCount uninhabitedUnitsCount ticketsClosed ticketsInWork',
                     sortBy,
                 })
                 if (allProperties.length === 0) {

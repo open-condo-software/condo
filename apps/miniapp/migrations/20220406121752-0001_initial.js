@@ -20,7 +20,6 @@ CREATE INDEX "User_deletedAt_b5da2563" ON "User" ("deletedAt");
 CREATE INDEX "User_createdBy_7f87595a" ON "User" ("createdBy");
 CREATE INDEX "User_updatedBy_998aac8b" ON "User" ("updatedBy");
 COMMIT;
-
     `)
 }
 
@@ -36,6 +35,5 @@ ALTER TABLE "User" DROP CONSTRAINT "unique_type_and_email";
 --
 DROP TABLE "User" CASCADE;
 COMMIT;
-
     `)
 }

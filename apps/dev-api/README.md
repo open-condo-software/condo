@@ -25,7 +25,7 @@ yarn
 yarn workspace @app/dev-api makemigrations
 
 # migrate!
-yarn workspace @app/dev-api @app/dev-api migrate
+yarn workspace @app/dev-api migrate
 
 # run dev server!
 yarn workspace @app/dev-api dev

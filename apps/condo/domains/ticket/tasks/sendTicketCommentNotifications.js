@@ -40,9 +40,13 @@ const detectTicketCommentEventTypes = async ({ operation, createdById, commentTy
  * Sends notifications after ticket comment created
  */
 const sendTicketCommentNotifications = async ({ operation, ticketId, createdById, commentId, commentType, sender }) => {
-    const { keystone: context } = await getSchemaCtx('TicketComment')
+    const { keystone: context } = getSchemaCtx('TicketComment')
 
-    const ticket = await Ticket.getOne(context, { id: ticketId })
+    const ticket = await Ticket.getOne(context,
+        { id: ticketId },
+        'id number client { id } organization { id } property { id } ' +
+        'unitName unitType canReadByResident executor { id } assignee { id }'
+    )
     const eventTypes = await detectTicketCommentEventTypes({ operation, createdById, commentType, ticket })
     const clientId = get(ticket, 'client.id')
     const organizationId = get(ticket, 'organization.id')

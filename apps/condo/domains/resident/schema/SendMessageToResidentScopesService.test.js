@@ -9,9 +9,9 @@ const {
     makeLoggedInAdminClient, makeClient,
     expectToThrowAccessDeniedErrorToResult,
     expectToThrowAuthenticationErrorToResult,
-    expectToThrowGQLError, waitFor, catchErrorFrom,
+    expectToThrowGQLError, waitFor,
+    expectToThrowGraphQLRequestError,
 } = require('@open-condo/keystone/test.utils')
-
 
 const { SUCCESS_STATUS } = require('@condo/domains/common/constants')
 const { getStartDates } = require('@condo/domains/common/utils/date')
@@ -136,12 +136,9 @@ describe('SendMessageToResidentScopesService', () => {
                 }
                 const expectedErrorMessage = `Variable "$data" got invalid value "${payload.type}" at "data.type"; Value "${payload.type}" does not exist in "MessageType" enum.`
 
-                await catchErrorFrom(
-                    async () => { await sendMessageToResidentScopesByTestClient(adminClient, payload) },
-                    ({ errors, data }) => {
-                        expect(errors).toMatchObject([{ message: expectedErrorMessage }])
-                        expect(data).toBeUndefined()
-                    }
+                await expectToThrowGraphQLRequestError(
+                    async () => await sendMessageToResidentScopesByTestClient(adminClient, payload),
+                    expectedErrorMessage,
                 )
             })
 
@@ -154,7 +151,7 @@ describe('SendMessageToResidentScopesService', () => {
                 await expectToThrowGQLError(
                     async () => { await sendMessageToResidentScopesByTestClient(adminClient, payload) },
                     { ...ERRORS.SCOPES_IS_EMPTY },
-                    'result'
+                    'result',
                 )
             })
 
@@ -165,12 +162,9 @@ describe('SendMessageToResidentScopesService', () => {
                 }
                 const expectedErrorMessage = 'Variable "$data" got invalid value {} at "data.scopes[1]"; Field "property" of required type "PropertyWhereUniqueInput!" was not provided.'
 
-                await catchErrorFrom(
-                    async () => { await sendMessageToResidentScopesByTestClient(adminClient, payload) },
-                    ({ errors, data }) => {
-                        expect(errors).toMatchObject([{ message: expectedErrorMessage }])
-                        expect(data).toBeUndefined()
-                    }
+                await expectToThrowGraphQLRequestError(
+                    async () => await sendMessageToResidentScopesByTestClient(adminClient, payload),
+                    expectedErrorMessage,
                 )
             })
         })
@@ -201,7 +195,7 @@ describe('SendMessageToResidentScopesService', () => {
                             period,
                         },
                     },
-                    uniqKeyTemplate: [CATEGORY_HOUSING, period, '{residentId}' ].join(':'),
+                    uniqKeyTemplate: [CATEGORY_HOUSING, period, '{residentId}'].join(':'),
                 }
                 const [data] = await sendMessageToResidentScopesByTestClient(adminClient, sendMessagePayload)
 
@@ -219,7 +213,7 @@ describe('SendMessageToResidentScopesService', () => {
                     for (const message of messages) {
                         const residentId = message.meta.data.residentId
                         const url = `payments/addaccount/?residentId=${residentId}&categoryId=${CATEGORY_HOUSING}&organizationTIN=${organization.tin}`
-                        const uniqKey = [CATEGORY_HOUSING, period, residentId ].join(':')
+                        const uniqKey = [CATEGORY_HOUSING, period, residentId].join(':')
 
                         expect(message.status).toEqual(MESSAGE_SENT_STATUS)
                         expect(message.meta.data.url).toEqual(url)
@@ -251,7 +245,7 @@ describe('SendMessageToResidentScopesService', () => {
                             categoryId: CATEGORY_HOUSING,
                         },
                     },
-                    uniqKeyTemplate: ['{categoryId}', '{period}', '{residentId}' ].join(':'),
+                    uniqKeyTemplate: ['{categoryId}', '{period}', '{residentId}'].join(':'),
                 }
                 const [data] = await sendMessageToResidentScopesByTestClient(adminClient, sendMessagePayload)
 
@@ -259,7 +253,7 @@ describe('SendMessageToResidentScopesService', () => {
 
                 const messageWhere = { user: { id_in: [resident.user.id] }, type: CUSTOM_CONTENT_MESSAGE_PUSH_TYPE }
                 const url = `payments/addaccount/?residentId=${resident.id}&categoryId=${CATEGORY_HOUSING}&organizationTIN=${organization.tin}`
-                const uniqKey = [CATEGORY_HOUSING, period, resident.id ].join(':')
+                const uniqKey = [CATEGORY_HOUSING, period, resident.id].join(':')
 
                 await waitFor(async () => {
                     const messages = await Message.getAll(adminClient, messageWhere)
@@ -274,7 +268,6 @@ describe('SendMessageToResidentScopesService', () => {
                     expect(message.meta.data.url).toEqual(url)
                 })
             })
-
 
             test('no duplicate notifications sent', async () => {
                 // Create some residents and sync their users with remoteClients to be able to emulate sending push notifications
@@ -297,7 +290,7 @@ describe('SendMessageToResidentScopesService', () => {
                             period,
                         },
                     },
-                    uniqKeyTemplate: [CATEGORY_HOUSING, period, '{residentId}' ].join(':'),
+                    uniqKeyTemplate: [CATEGORY_HOUSING, period, '{residentId}'].join(':'),
                 }
                 const [data] = await sendMessageToResidentScopesByTestClient(adminClient, sendMessagePayload)
 
@@ -338,7 +331,7 @@ describe('SendMessageToResidentScopesService', () => {
                             period,
                         },
                     },
-                    uniqKeyTemplate: [CATEGORY_HOUSING, period, '{residentId}' ].join(':'),
+                    uniqKeyTemplate: [CATEGORY_HOUSING, period, '{residentId}'].join(':'),
                 }
 
                 const [data] = await sendMessageToResidentScopesByTestClient(adminClient, sendMessagePayload)

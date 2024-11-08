@@ -154,7 +154,7 @@ async function exportIncidents (taskId) {
 
     const { keystone: context } = getSchemaCtx('IncidentExportTask')
 
-    const task = await IncidentExportTask.getOne(context, { id: taskId })
+    const task = await IncidentExportTask.getOne(context, { id: taskId }, 'id timeZone format where sortBy locale')
     if (!task) {
         taskLogger.error({
             msg: `No task with id "${taskId}"`,

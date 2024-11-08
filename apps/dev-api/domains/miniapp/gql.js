@@ -91,6 +91,7 @@ const REGISTER_APP_USER_SERVICE_MUTATION = gql`
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
+    EXPORT_FIELDS,
     B2CApp,
     B2CAppAccessRight,
     B2CAppBuild,

@@ -2,22 +2,29 @@ const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 const pick = require('lodash/pick')
 
-const { find } = require('@open-condo/keystone/schema')
+const { getLogger } = require('@open-condo/keystone/logging/getLogger')
+const { find, getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { AppleAdapter } = require('@condo/domains/notification/adapters/appleAdapter')
 const { FirebaseAdapter } = require('@condo/domains/notification/adapters/firebaseAdapter')
 const HCMAdapter = require('@condo/domains/notification/adapters/hcmAdapter')
+const { RedStoreAdapter } = require('@condo/domains/notification/adapters/redStoreAdapter')
 const {
     PUSH_TRANSPORT,
     PUSH_TRANSPORT_TYPES,
     PUSH_TRANSPORT_FIREBASE,
     PUSH_TRANSPORT_APPLE,
     PUSH_TRANSPORT_HUAWEI,
+    PUSH_TRANSPORT_REDSTORE,
 } = require('@condo/domains/notification/constants/constants')
 const { renderTemplate } = require('@condo/domains/notification/templates')
+const { RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
+
+const logger = getLogger('messaging/sendNotification')
 
 const ADAPTERS = {
     [PUSH_TRANSPORT_FIREBASE]: new FirebaseAdapter(),
+    [PUSH_TRANSPORT_REDSTORE]: new RedStoreAdapter(),
     [PUSH_TRANSPORT_HUAWEI]: new HCMAdapter(),
     [PUSH_TRANSPORT_APPLE]: new AppleAdapter(),
 }
@@ -62,6 +69,7 @@ async function getTokens (ownerId, remoteClientId, isVoIP = false) {
     const remoteClients =  await find('RemoteClient', conditions)
     const tokensByTransport = {
         [PUSH_TRANSPORT_FIREBASE]: [],
+        [PUSH_TRANSPORT_REDSTORE]: [],
         [PUSH_TRANSPORT_HUAWEI]: [],
         [PUSH_TRANSPORT_APPLE]: [],
     }
@@ -146,6 +154,30 @@ async function send ({ notification, data, user, remoteClient } = {}, isVoIP = f
             const adapter = ADAPTERS[transport]
             const payload = { tokens, pushTypes, appIds, notification, data }
             const [isOk, result] = await adapter.sendNotification(payload, isVoIP)
+            if (adapter === PUSH_TRANSPORT_FIREBASE) {
+                // handling expired token error. https://firebase.google.com/docs/cloud-messaging/manage-tokens?hl=ru#detect-invalid-token-responses-from-the-fcm-backend
+                if (get(result, 'responses')) {
+                    for (const res of result.responses) {
+                        const context = getSchemaCtx('RemoteClient')
+                        if (get(res, 'error.code') === 'messaging/registration-token-not-registered') {
+                            const field = isVoIP ? 'pushTokenVoIP' : 'pushToken'
+                            const [remoteClient] = await find('RemoteClient', {
+                                [field]: res.pushToken,
+                                deletedAt: null,
+                            })
+
+                            if (get(remoteClient, 'id')) {
+                                await RemoteClient.update(context, get(remoteClient, 'id'), {
+                                    [field]: null,
+                                    dv: 1,
+                                    sender: { dv: 1, fingerprint: 'internal-update_token-not-registered' },
+                                })
+                                logger.info({ msg: 'Remove expired FCM token', remoteClientId: remoteClient.id, field })
+                            }
+                        }
+                    }
+                }
+            }
 
             container = mixResult(container, result)
             _isOk = _isOk || isOk

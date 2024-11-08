@@ -54,7 +54,7 @@ export type MarketItemFormValuesType = {
 }
 
 type ConvertToFormStateArgsType = {
-    marketItem: MarketItem,
+    marketItem: MarketItem
     marketItemPrices: MarketItemPrice[]
     marketPriceScopes: MarketPriceScope[]
     marketItemFiles: MarketItemFile[]

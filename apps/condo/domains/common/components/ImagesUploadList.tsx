@@ -101,10 +101,10 @@ const getImagesList = (): HTMLDivElement => {
 }
 
 export type UploadFileType = {
-    uid: string,
-    name: string,
-    status: 'done' | 'uploading',
-    url: string,
+    uid: string
+    name: string
+    status: 'done' | 'uploading'
+    url: string
     response: { id: string, url: string },
 }
 
@@ -225,7 +225,7 @@ export const ImagesUploadList: React.FC<ImagesUploadListProps> = ({
                         })
 
                         if (isFunction(onFilesChange)) {
-                            onFilesChange(fileList)
+                            onFilesChange(fileList as UploadFileType[])
                         }
 
                         setFiles(fileList)

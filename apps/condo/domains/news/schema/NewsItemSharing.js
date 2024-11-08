@@ -100,7 +100,7 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
 
     hooks: {
         validateInput: async (args) => {
-            const { resolvedData, existingItem, operation } = args
+            const { resolvedData, existingItem, operation, context } = args
             const resultItemData = { ...existingItem, ...resolvedData }
 
             // Check if b2bAppContext support NewsSharing
@@ -108,7 +108,7 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
                 const b2bAppContext = await getById('B2BAppContext', resultItemData.b2bAppContext)
                 const b2bApp = await getById('B2BApp', b2bAppContext.app)
                 if (!b2bApp.newsSharingConfig) {
-                    throw new GQLError(ERRORS.B2B_APP_CONTEXT_DOES_NOT_SUPPORT_NEWS_SHARING)
+                    throw new GQLError(ERRORS.B2B_APP_CONTEXT_DOES_NOT_SUPPORT_NEWS_SHARING, context)
                 }
             }
 
@@ -117,7 +117,7 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
                 const oldStatus = existingItem.status
                 const newStatus = resolvedData.status
                 if (newStatus && !ALLOWED_TRANSITIONS[oldStatus].includes(newStatus)) {
-                    throw new GQLError(ERRORS.BAD_STATUS_TRANSITION)
+                    throw new GQLError(ERRORS.BAD_STATUS_TRANSITION, context)
                 }
             }
         },

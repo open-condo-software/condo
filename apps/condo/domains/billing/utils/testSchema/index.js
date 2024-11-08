@@ -630,7 +630,9 @@ async function registerBillingReceiptFileByTestClient (client, args = {}) {
 }
 
 function createRegisterBillingReceiptsPayload (extraAttrs = {}) {
-    const address = extraAttrs.address || faker.random.alphaNumeric(24)
+    const unitName = faker.random.alphaNumeric(14)
+    const address = extraAttrs.address || `${faker.random.alphaNumeric(24)}, ${unitName}`
+
     return {
         importId: faker.random.alphaNumeric(24),
 
@@ -639,7 +641,7 @@ function createRegisterBillingReceiptsPayload (extraAttrs = {}) {
 
         unitType: FLAT_UNIT_TYPE,
         accountNumber: faker.random.alphaNumeric(10),
-        unitName: faker.random.alphaNumeric(14),
+        unitName,
 
         toPay: '100.00',
 
@@ -858,7 +860,7 @@ async function validateQRCodeByTestClient (client, extraAttrs = {}) {
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(VALIDATE_QRCODE_MUTATION, { data: attrs })
-    throwIfError(data, errors)
+    throwIfError(data, errors, { query: VALIDATE_QRCODE_MUTATION, variables: { data: attrs } })
     return [data.result, attrs]
 }
 

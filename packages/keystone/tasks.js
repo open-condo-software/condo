@@ -166,6 +166,12 @@ async function _scheduleInProcessTask (name, preparedArgs, preparedOpts) {
             const endTime = Date.now()
             const responseTime = endTime - startTime
             logger.error({ msg: 'worker: failed with error', taskName: name, err: e, meta: { preparedArgs, preparedOpts }, responseTime })
+            if (typeof jasmine !== 'undefined') {
+                // eslint-disable-next-line
+                const testName = `[${get(jasmine, ['currentTest', 'fullName'], jasmine['testPath'].split('/').pop().split('.')[0])}]`
+                // nosemgrep: javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring
+                console.warn(`[worker catch error !!!]${testName}:`, e)
+            }
             status = 'error'
             error = e
         }

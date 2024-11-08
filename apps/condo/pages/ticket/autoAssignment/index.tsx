@@ -1,7 +1,9 @@
 /**
  * This page is not visible to users!
  * This is a service page!
- * This page is available only with direct access (canManageTicketAutoAssignments and canReadTicketAutoAssignments)!
+ * This page is available only:
+ * 1) Users with direct access (canManageTicketAutoAssignments and canReadTicketAutoAssignments)
+ * 2) Employee with permission canManageTicketAutoAssignments and if enabled feature flag "ticket-auto-assignment-management"
  */
 
 import {
@@ -20,6 +22,7 @@ import isArray from 'lodash/isArray'
 import isUndefined from 'lodash/isUndefined'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useQuery, useApolloClient } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -27,6 +30,7 @@ import { useOrganization } from '@open-condo/next/organization'
 
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
+import { TICKET_AUTO_ASSIGNMENT_MANAGEMENT } from '@condo/domains/common/constants/featureflags'
 import { PermissionsRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { TicketAutoAssignment } from '@condo/domains/ticket/utils/clientSchema'
@@ -52,7 +56,7 @@ interface EditableCellProps {
     children?: React.ReactNode
     inputNode?: React.ReactNode
     cellProps?: React.HTMLAttributes<HTMLElement>
-    formItemProps?: FormItemProps,
+    formItemProps?: FormItemProps
 }
 
 const RELATIONS = ['assignee', 'organization', 'executor', 'classifier']
@@ -153,12 +157,13 @@ const TicketAutoAssignmentPage: ITicketAutoAssignmentPage = () => {
         sortBy: [SortTicketAutoAssignmentsBy.CreatedAtDesc, SortTicketAutoAssignmentsBy.IdDesc],
     }, {
         fetchPolicy: 'network-only',
+        skip: !organizationId,
     })
     const { loading: employeesLoading, objs: employees, error: employeesError } = OrganizationEmployee.useObjects({
         where: {
             organization: { id: organizationId },
         },
-    })
+    }, { skip: !organizationId })
 
     const [editingKey, setEditingKey] = useState('')
     const [creating, setCreating] = useState<boolean>(false)
@@ -575,10 +580,14 @@ const TicketAutoAssignmentPermissionRequired: React.FC = ({ children }) => {
     const { user } = useAuth()
     const userId = get(user, 'id', null)
 
+    const { useFlag } = useFeatureFlags()
+    const hasTicketAutoAssignmentManagementFeature = useFlag(TICKET_AUTO_ASSIGNMENT_MANAGEMENT)
+
     const { loading, error, data } = useQuery(USER_WITH_RIGHTS_SET, {
         variables: {
             userId: userId,
         },
+        skip: !user,
     })
     const userWithRightSets = useMemo(() => {
         if (!data && (loading || error)) return null
@@ -590,7 +599,7 @@ const TicketAutoAssignmentPermissionRequired: React.FC = ({ children }) => {
         return objs[0]
     }, [data, error, loading])
 
-    const canOpenPage = useMemo(
+    const canDirectlyManage = useMemo(
         () => get(userWithRightSets, 'rightsSet.canManageTicketAutoAssignments')
             && get(userWithRightSets, 'rightsSet.canReadTicketAutoAssignments'),
         [userWithRightSets]
@@ -600,13 +609,11 @@ const TicketAutoAssignmentPermissionRequired: React.FC = ({ children }) => {
         return <LoadingOrErrorPage loading={loading} error={error} />
     }
 
-    if (!canOpenPage) {
-        return <AccessDeniedPage />
+    if (canDirectlyManage || hasTicketAutoAssignmentManagementFeature) {
+        return <PermissionsRequired permissionKeys={[]} children={children} />
     }
 
-    return (
-        <PermissionsRequired permissionKeys={[]} children={children} />
-    )
+    return <AccessDeniedPage />
 }
 
 TicketAutoAssignmentPage.requiredAccess = TicketAutoAssignmentPermissionRequired

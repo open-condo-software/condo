@@ -172,6 +172,7 @@ describe('NewsItemSharing', () => {
             test('newsItem can not be updated', async () => {
                 const [objCreated] = await createTestNewsItemSharing(admin, dummyB2BContext, dummyNewsItem)
 
+                // TODO(pahaz): DOMA-10368 use expectToThrowGraphQLRequestError
                 await catchErrorFrom(
                     async () => await updateTestNewsItemSharing(admin, objCreated.id, { newsItem: { connect: { id: dummyPublishedNewsItem } } }),
                     (error) => {

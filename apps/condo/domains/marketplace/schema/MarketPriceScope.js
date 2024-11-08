@@ -21,7 +21,7 @@ const ERRORS = {
     ORGANIZATION_IN_PROPERTY_AND_MARKET_ITEM_PRICE_NOT_MATCHED: {
         code: BAD_USER_INPUT,
         type: 'ORGANIZATION_IN_PROPERTY_AND_MARKET_ITEM_PRICE_NOT_MATCHED',
-        messageForUser: 'api.marketplace.MarketItemPrice.error.ORGANIZATION_IN_PROPERTY_AND_MARKET_ITEM_PRICE_NOT_MATCHED',
+        messageForUser: 'api.marketplace.marketItemPrice.ORGANIZATION_IN_PROPERTY_AND_MARKET_ITEM_PRICE_NOT_MATCHED',
         message: 'Cannot create scope with property from one organization and market item from another organization.',
     },
 }
@@ -90,14 +90,14 @@ const MarketPriceScope = new GQLListSchema('MarketPriceScope', {
                 const marketItemPriceId = get(nextData, 'marketItemPrice', null)
                 const marketItemPrice = await MarketItemPrice.getOne(context, {
                     id: marketItemPriceId,
-                })
+                }, 'marketItem { id }')
                 const marketItem = await MarketItem.getOne(context, {
                     id: get(marketItemPrice, 'marketItem.id', null),
-                })
+                }, 'organization { id }')
 
                 const property = await Property.getOne(context, {
                     id: propertyId,
-                })
+                }, 'id organization { id }')
 
                 if (get(marketItem, 'organization.id') !== get(property, 'organization.id')) throw new GQLError(ERRORS.ORGANIZATION_IN_PROPERTY_AND_MARKET_ITEM_PRICE_NOT_MATCHED, context)
             }

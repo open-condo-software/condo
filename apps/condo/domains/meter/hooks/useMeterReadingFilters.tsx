@@ -1,11 +1,12 @@
 import { MeterReadingWhereInput, MeterReadingSource as MeterReadingSourceType, MeterResource as MeterResourceType } from '@app/condo/schema'
 import compact from 'lodash/compact'
 import get from 'lodash/get'
-import { useMemo } from 'react'
+import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
+import { getDateRangeFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import {
     ComponentType,
     convertToOptions,
@@ -16,6 +17,7 @@ import {
     getDayRangeFilter, getFilter,
     getStringContainsFilter,
 } from '@condo/domains/common/utils/tables.utils'
+import { MeterReadingDatePicker } from '@condo/domains/meter/components/MeterReadingDatePicker'
 import { MeterReadingSource, MeterResource, MeterTypes, METER_TYPES } from '@condo/domains/meter/utils/clientSchema'
 import { searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
@@ -79,7 +81,6 @@ export function useMeterReadingFilters (meterType: MeterTypes): Array<FiltersMet
     const resourceFilter = getFilter(['meter', 'resource', 'id'], 'array', 'string', 'in')
 
     return useMemo(() => {
-
         return compact([
             {
                 keyword: 'address',
@@ -197,14 +198,15 @@ export function useMeterReadingFilters (meterType: MeterTypes): Array<FiltersMet
                 keyword: 'date',
                 filters: [readingDateRangeFilter],
                 component: {
-                    type: ComponentType.DateRange,
-                    props: {
-                        placeholder: [StartDateMessage, EndDateMessage],
-                    },
+                    type: ComponentType.Custom,
+                    modalFilterComponent: (form) => <MeterReadingDatePicker filtersModalForm={form} />,
                     modalFilterComponentWrapper: {
                         label: MeterReadingDateMessage,
                         size: FilterComponentSize.Medium,
                     },
+                    getComponentFilterDropdown: getDateRangeFilterDropdown({
+                        Component: MeterReadingDatePicker,
+                    }),
                 },
             },
             isPropertyMeter ? null : {

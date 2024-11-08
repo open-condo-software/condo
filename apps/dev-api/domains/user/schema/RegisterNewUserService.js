@@ -18,13 +18,13 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: USER_ALREADY_EXISTS,
         message: 'User with specified phone number is already registered',
-        messageForUser: 'errors.USER_ALREADY_EXISTS.message',
+        messageForUser: 'api.user.registerNewUser.USER_ALREADY_EXISTS',
     },
     ACTION_NOT_FOUND: {
         code: BAD_USER_INPUT,
         type: ACTION_NOT_FOUND,
         message: 'ConfirmPhoneAction with the specified ID is not verified, expired, or does not exist',
-        messageForUser: 'errors.ACTION_NOT_FOUND.phone.message',
+        messageForUser: 'api.user.registerNewUser.ACTION_NOT_FOUND',
     },
 }
 
@@ -48,7 +48,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     expiresAt_gte: currentTime,
                     deletedAt: null,
                     isVerified: true,
-                })
+                }, 'id phone')
 
                 if (!confirmAction) {
                     throw new GQLError(ERRORS.ACTION_NOT_FOUND, context)
@@ -68,7 +68,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     sender,
                     phone: confirmAction.phone,
                     password,
-                }, {
+                }, 'id', {
                     errorMapping: {
                         'duplicate key value violates unique constraint "user_unique_phone"': ERRORS.USER_ALREADY_EXISTS,
                     },

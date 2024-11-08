@@ -13,6 +13,7 @@ import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { PlusCircle, Search } from '@open-condo/icons'
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button, Checkbox, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
@@ -21,9 +22,7 @@ import Input from '@condo/domains/common/components/antd/Input'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { EmptyListContent } from '@condo/domains/common/components/EmptyListContent'
-import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 import { Loader } from '@condo/domains/common/components/Loader'
-import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
@@ -35,9 +34,10 @@ import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { MetersImportWrapper } from '@condo/domains/meter/components/Import/Index'
+import { MeterReadingDatePicker } from '@condo/domains/meter/components/MeterReadingDatePicker'
 import ActionBarForSingleMeter from '@condo/domains/meter/components/Meters/ActionBarForSingleMeter'
 import UpdateMeterReadingModal from '@condo/domains/meter/components/Meters/UpdateMeterReadingModal'
-import { EXPORT_METER_READINGS_QUERY } from '@condo/domains/meter/gql'
+import { useMeterReadingExportToExcelTask } from '@condo/domains/meter/hooks/useMeterReadingExportToExcelTask'
 import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
 import {
     MeterReadingForOrganization,
@@ -49,12 +49,10 @@ import {
 import { getInitialSelectedReadingKeys } from '@condo/domains/meter/utils/helpers'
 
 
-
 const METERS_PAGE_CONTENT_ROW_GUTTERS: RowProps['gutter'] = [0, 40]
 const FILTERS_CONTAINER_GUTTER: RowProps['gutter'] = [16, 16]
 const RESET_FILTERS_BUTTON_STYLE: CSSProperties = { paddingLeft: 0 }
 const QUICK_FILTERS_COL_STYLE: CSSProperties = { alignSelf: 'center' }
-const FULL_WIDTH_DATE_RANGE_STYLE: CSSProperties = { width: '100%' }
 
 const SORTABLE_PROPERTIES = ['date', 'clientName', 'source']
 
@@ -62,9 +60,9 @@ type MetersTableContentProps = {
     filtersMeta: FiltersMeta<MeterReadingWhereInput>[]
     baseSearchQuery: MeterReadingWhereInput
     canManageMeterReadings: boolean
-    isAutomatic?: boolean,
-    meter?: MeterType | PropertyMeter,
-    resource?: MeterResourceType,
+    isAutomatic?: boolean
+    meter?: MeterType | PropertyMeter
+    resource?: MeterResourceType
     sortableProperties?: string[]
     mutationErrorsToMessages?: Record<string, string>
     loading?: boolean
@@ -88,8 +86,6 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     const intl = useIntl()
     const CreateMeterReadingsButtonLabel = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterReadingsButtonLabel' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
-    const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
     const CancelSelectedReadingsMessage = intl.formatMessage({ id: 'global.cancelSelection' })
     const CountSelectedReadingsMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterReading.CountSelectedReadings' })
     const DeleteMeterReadingsMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterReading.DeleteMeterReadings' })
@@ -98,6 +94,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     const DeleteMessage = intl.formatMessage({ id: 'Delete' })
     const DontDeleteMessage = intl.formatMessage({ id: 'DontDelete' })
 
+    const { user } = useAuth()
     const router = useRouter()
     const { filters, offset, sorters, tab } = parseQuery(router.query)
     const type = get(router.query, 'type')
@@ -109,7 +106,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
     const sortBy = useMemo(() => sortersToSortBy(sorters) as SortMeterReadingsBy[], [sorters, sortersToSortBy])
     const { getTrackingWrappedCallback } = useTracking()
 
-    const [dateRange, setDateRange] = useDateRangeSearch('date')
+    const [dateRange] = useDateRangeSearch('date')
     const dateFilterValue = dateRange || null
     const dateFilter = dateFilterValue ? dateFilterValue.map(el => el.toISOString()) : null
     const nextVerificationDate = get(meter, 'nextVerificationDate')
@@ -117,10 +114,6 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
 
     const [isShowUpdateReadingModal, setIsShowUpdateReadingModal] = useState(false)
     const [chosenMeterReadingId, setChosenMeterReadingId] = useState<string>(null)
-
-    const handleDateChange = useCallback((value) => {
-        setDateRange(value)
-    }, [setDateRange])
 
     const searchMeterReadingsQuery = useMemo(() => ({
         ...filtersToWhere({ ... !meter ? { date: dateFilter } : {}, ...filters }),
@@ -141,6 +134,12 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
 
     const tableColumnsForSingleMeter = useTableColumns(filtersMeta, METER_TAB_TYPES.meterReading, METER_TYPES.unit, true, meterReadings)
     const tableColumnsForMeterReadings = useTableColumns(filtersMeta, METER_TAB_TYPES.meterReading, METER_TYPES.unit as MeterTypes)
+
+    const { ExportButton } = useMeterReadingExportToExcelTask({
+        where: searchMeterReadingsQuery,
+        sortBy,
+        user,
+    })
 
     const [search, handleSearchChange, handleSearchReset] = useSearch()
     const [selectedReadingKeys, setSelectedReadingKeys] = useState<string[]>(() => getInitialSelectedReadingKeys(router))
@@ -263,12 +262,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                                 <Col xs={24} sm={24} md={16}>
                                     <Row justify='start' gutter={FILTERS_CONTAINER_GUTTER} style={{ flexWrap: 'nowrap' }}>
                                         <Col style={QUICK_FILTERS_COL_STYLE} xs={24} sm={11}>
-                                            <DateRangePicker
-                                                value={dateRange}
-                                                onChange={handleDateChange}
-                                                placeholder={[StartDateMessage, EndDateMessage]}
-                                                style={FULL_WIDTH_DATE_RANGE_STYLE}
-                                            />
+                                            <MeterReadingDatePicker/>
                                         </Col>
                                     </Row>
                                 </Col>
@@ -344,10 +338,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                 }
                 {selectedReadingKeys.length < 1 && !meter && (
                     <Col span={24}>
-                        <ExportToExcelActionBar
-                            searchObjectsQuery={searchMeterReadingsQuery}
-                            exportToExcelQuery={EXPORT_METER_READINGS_QUERY}
-                            sortBy={sortBy}
+                        <ActionBar
                             actions={[
                                 canManageMeterReadings && (
                                     <Button
@@ -366,6 +357,7 @@ const MeterReadingsTableContent: React.FC<MetersTableContentProps> = ({
                                         onFinish={refetch}
                                     />
                                 ),
+                                <ExportButton key='export' id='exportToExcelMeterReadings' />,
                             ]}
                         />
                     </Col>

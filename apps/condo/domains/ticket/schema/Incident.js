@@ -29,14 +29,14 @@ const ERRORS = {
         type: WRONG_VALUE,
         variable: ['data', 'workFinish'],
         message: 'The value of the "workFinish" field must be greater or equal than the "workStart" field',
-        messageForUser: 'api.incident.WORK_FINISHED_EARLIER_THEN_WORK_STARTED',
+        messageForUser: 'api.ticket.incident.WORK_FINISHED_EARLIER_THEN_WORK_STARTED',
     },
     WORK_FINISH_MUST_BE_SPECIFIED_IF_NOT_ACTUAL_STATUS: {
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
         variable: ['data', 'workFinish'],
         message: '"workFinish" field should be specified if the incident has status "not_actual"',
-        messageForUser: 'api.incident.WORK_FINISH_MUST_BE_SPECIFIED_IF_NOT_ACTUAL_STATUS',
+        messageForUser: 'api.ticket.incident.WORK_FINISH_MUST_BE_SPECIFIED_IF_NOT_ACTUAL_STATUS',
     },
 }
 

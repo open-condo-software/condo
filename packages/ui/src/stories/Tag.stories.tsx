@@ -1,10 +1,10 @@
-import { ComponentStory, ComponentMeta } from '@storybook/react'
 import React from 'react'
 
 import * as condoIcons from '@open-condo/icons'
 import { Tag as Component } from '@open-condo/ui/src'
 import { colors } from '@open-condo/ui/src/colors'
 
+import type { Meta, StoryObj } from '@storybook/react'
 
 const icons = Object.assign({}, ...Object.entries(condoIcons).map(([key, Icon]) => ({
     [`${key}-small`]: <Icon size='small'/>,
@@ -31,14 +31,13 @@ export default {
             options: ['start', 'end'],
         },
     },
-} as ComponentMeta<typeof Component>
+} as Meta<typeof Component>
 
-const Template: ComponentStory<typeof Component> = (args) => <Component {...args}/>
+export const Tag: StoryObj<typeof Component> = {}
 
-export const Tag = Template.bind({})
-
-export const TagWithIcon = Template.bind({})
-TagWithIcon.args = {
-    icon: icons['ChevronDown-small'],
-    iconPosition: 'end',
+export const TagWithIcon: StoryObj<typeof Component> = {
+    args: {
+        icon: icons['ChevronDown-small'],
+        iconPosition: 'end',
+    },
 }

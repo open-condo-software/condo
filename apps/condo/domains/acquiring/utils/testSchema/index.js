@@ -54,6 +54,7 @@ const { PAYMENT_BY_LINK_MUTATION } = require('@condo/domains/acquiring/gql')
 const { REGISTER_MULTI_PAYMENT_FOR_INVOICES_MUTATION } = require('@condo/domains/acquiring/gql')
 const { EXPORT_PAYMENTS_TO_EXCEL } = require('@condo/domains/acquiring/gql')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
+const { CALCULATE_FEE_FOR_RECEIPT_QUERY } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateGQLTestUtils(AcquiringIntegrationGQL)
@@ -350,7 +351,7 @@ async function registerMultiPaymentByTestClient(client, groupedReceipts, extraAt
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(REGISTER_MULTI_PAYMENT_MUTATION, { data: attrs })
-    throwIfError(data, errors)
+    throwIfError(data, errors, { query: REGISTER_MULTI_PAYMENT_MUTATION, variables: { data: attrs } })
     return [data.result, attrs]
 }
 
@@ -399,7 +400,7 @@ async function registerMultiPaymentForOneReceiptByTestClient(client, receipt, ac
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(REGISTER_MULTI_PAYMENT_FOR_ONE_RECEIPT_MUTATION, { data: attrs })
-    throwIfError(data, errors)
+    throwIfError(data, errors, { query: REGISTER_MULTI_PAYMENT_FOR_ONE_RECEIPT_MUTATION, variables: { data: attrs } })
     return [data.result, attrs]
 }
 
@@ -415,7 +416,7 @@ async function registerMultiPaymentForVirtualReceiptByTestClient(client, receipt
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(REGISTER_MULTI_PAYMENT_FOR_VIRTUAL_RECEIPT_MUTATION, { data: attrs })
-    throwIfError(data, errors)
+    throwIfError(data, errors, { query: REGISTER_MULTI_PAYMENT_FOR_VIRTUAL_RECEIPT_MUTATION, variables: { data: attrs } })
     return [data.result, attrs]
 }
 
@@ -433,7 +434,7 @@ async function generatePaymentLinkByTestClient(client, receipt, receiptData, acq
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(GENERATE_PAYMENT_LINK_QUERY, { data: attrs })
-    throwIfError(data, errors)
+    throwIfError(data, errors, { query: GENERATE_PAYMENT_LINK_QUERY, variables: { data: attrs } })
     return [data.result, attrs]
 }
 
@@ -441,7 +442,7 @@ async function sumPaymentsByTestClient(client, where = {}) {
     if (!client) throw new Error('no client')
 
     const { data, errors } = await client.query(SUM_PAYMENTS_QUERY, { where: where })
-    throwIfError(data, errors)
+    throwIfError(data, errors, { query: SUM_PAYMENTS_QUERY, variables: { where: where } })
     return data.result
 }
 async function createTestRecurrentPaymentContext (client, extraAttrs = {}) {
@@ -509,7 +510,7 @@ async function createPaymentByLinkByTestClient(client, extraAttrs = {}) {
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(PAYMENT_BY_LINK_MUTATION, { data: attrs })
-    throwIfError(data, errors)
+    throwIfError(data, errors, { query: PAYMENT_BY_LINK_MUTATION, variables: { data: attrs } })
     return [data.result, attrs]
 }
 
@@ -523,8 +524,16 @@ async function registerMultiPaymentForInvoicesByTestClient(client, extraAttrs = 
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(REGISTER_MULTI_PAYMENT_FOR_INVOICES_MUTATION, { data: attrs })
-    throwIfError(data, errors)
+    throwIfError(data, errors, { query: REGISTER_MULTI_PAYMENT_FOR_INVOICES_MUTATION, variables: { data: attrs } })
     return [data.result, attrs]
+}
+
+async function calculateFeeForReceiptByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+
+    const { data, errors } = await client.query(CALCULATE_FEE_FOR_RECEIPT_QUERY, { data: extraAttrs })
+    throwIfError(data, errors, { query: CALCULATE_FEE_FOR_RECEIPT_QUERY, variables: { data: extraAttrs } })
+    return [data.result, extraAttrs]
 }
 /* AUTOGENERATE MARKER <FACTORY> */
 
@@ -745,7 +754,7 @@ async function exportPaymentsServiceByTestClient(client, where, extraAttrs = {})
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(EXPORT_PAYMENTS_TO_EXCEL, { data: attrs })
-    throwIfError(data, errors)
+    throwIfError(data, errors, { query: EXPORT_PAYMENTS_TO_EXCEL, variables: { data: attrs } })
     return [data.result, attrs]
 }
 
@@ -795,5 +804,6 @@ module.exports = {
     exportPaymentsServiceByTestClient,
     formatDateWithDefaultTimeZone,
     generateVirtualReceipt,
+    calculateFeeForReceiptByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

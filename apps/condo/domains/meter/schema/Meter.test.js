@@ -4,7 +4,7 @@
 
 const { faker } = require('@faker-js/faker')
 
-const { makeClient, UUID_RE, makeLoggedInAdminClient, waitFor } = require('@open-condo/keystone/test.utils')
+const { makeClient, UUID_RE, makeLoggedInAdminClient, waitFor, getRandomString } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowValidationFailureError,
     expectToThrowAccessDeniedErrorToObj,
@@ -49,7 +49,6 @@ const { createTestResident, updateTestServiceConsumer, createTestServiceConsumer
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
 const { METER_ERRORS } = require('./Meter')
-
 
 describe('Meter', () => {
     let admin
@@ -124,9 +123,9 @@ describe('Meter', () => {
                     canManageMeters: true,
                 })
                 const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-                const accountNumber = faker.lorem.word()
-                const unitName1 = faker.lorem.word()
-                const unitName2 = faker.lorem.word()
+                const accountNumber = getRandomString()
+                const unitName1 = getRandomString()
+                const unitName2 = getRandomString()
 
                 const [firstMeter] = await createTestMeter(client, client.organization, client.property, resource, {
                     accountNumber,
@@ -137,8 +136,10 @@ describe('Meter', () => {
                     async () => await createTestMeter(client, client.organization, client.property, resource, {
                         accountNumber,
                         unitName: unitName2,
-                    }),
-                    METER_ERRORS.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT(`${firstMeter.unitType} ${firstMeter.unitName}`),
+                    }), {
+                        ...METER_ERRORS.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT,
+                        messageInterpolation: { unitsCsv: `${firstMeter.unitType} ${firstMeter.unitName}` },
+                    }
                 )
             })
 
@@ -147,8 +148,8 @@ describe('Meter', () => {
                     canManageMeters: true,
                 })
                 const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-                const accountNumber = faker.lorem.word()
-                const unitName = faker.lorem.word()
+                const accountNumber = getRandomString()
+                const unitName = getRandomString()
 
                 const [firstMeter] = await createTestMeter(client, client.organization, client.property, resource, {
                     accountNumber,
@@ -161,8 +162,10 @@ describe('Meter', () => {
                         accountNumber,
                         unitName,
                         unitType: PARKING_UNIT_TYPE,
-                    }),
-                    METER_ERRORS.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT(`${firstMeter.unitType} ${firstMeter.unitName}`),
+                    }), {
+                        ...METER_ERRORS.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT,
+                        messageInterpolation: { unitsCsv: `${firstMeter.unitType} ${firstMeter.unitName}` },
+                    }
                 )
             })
 
@@ -171,15 +174,15 @@ describe('Meter', () => {
                     canManageMeters: true,
                 })
                 const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-                const accountNumber = faker.lorem.word()
-                const unitName = faker.lorem.word()
+                const accountNumber = getRandomString()
+                const unitName = getRandomString()
 
                 await createTestMeter(client, client.organization, client.property, resource, {
                     accountNumber,
                     unitName,
                 })
 
-                const [meter] =  await createTestMeter(client, client.organization, client.property, resource, {
+                const [meter] = await createTestMeter(client, client.organization, client.property, resource, {
                     accountNumber,
                     unitName,
                 })
@@ -195,7 +198,7 @@ describe('Meter', () => {
                     canManageMeters: true,
                 })
                 const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-                const accountNumber = faker.lorem.word()
+                const accountNumber = getRandomString()
 
                 await createTestMeter(client, client.organization, client.property, resource, {
                     accountNumber,
@@ -293,7 +296,10 @@ describe('Meter', () => {
 
                 await expectToThrowGQLError(
                     async () => await createTestMeter(client, client.organization, client.property, resource, { number }),
-                    METER_ERRORS.SAME_NUMBER_AND_RESOURCE_EXISTS_IN_ORGANIZATION(firstMeter.accountNumber),
+                    {
+                        ...METER_ERRORS.SAME_NUMBER_AND_RESOURCE_EXISTS_IN_ORGANIZATION,
+                        messageInterpolation: { accountNumbersCsv: firstMeter.accountNumber },
+                    },
                 )
             })
 
@@ -377,8 +383,8 @@ describe('Meter', () => {
                     canManageMeters: true,
                 })
                 const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-                const accountNumber = faker.lorem.word()
-                const unitName = faker.lorem.word()
+                const accountNumber = getRandomString()
+                const unitName = getRandomString()
 
                 await createTestMeter(client, client.organization, client.property, resource, {
                     accountNumber,
@@ -386,7 +392,7 @@ describe('Meter', () => {
                     unitType: FLAT_UNIT_TYPE,
                 })
 
-                const [meter] =  await createTestMeter(client, client.organization, client.property, resource, {
+                const [meter] = await createTestMeter(client, client.organization, client.property, resource, {
                     unitName,
                     unitType: FLAT_UNIT_TYPE,
                 })
@@ -403,7 +409,7 @@ describe('Meter', () => {
                     canManageMeters: true,
                 })
                 const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-                const accountNumber = faker.lorem.word()
+                const accountNumber = getRandomString()
 
                 const [firstMeter] = await createTestMeter(client, client.organization, client.property, resource, {
                     accountNumber,
@@ -414,8 +420,10 @@ describe('Meter', () => {
                 await expectToThrowGQLError(
                     async () => await updateTestMeter(client, meter.id, {
                         accountNumber,
-                    }),
-                    METER_ERRORS.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT(`${firstMeter.unitType} ${firstMeter.unitName}`),
+                    }), {
+                        ...METER_ERRORS.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT,
+                        messageInterpolation: { unitsCsv: `${firstMeter.unitType} ${firstMeter.unitName}` },
+                    }
                 )
             })
 
@@ -424,8 +432,8 @@ describe('Meter', () => {
                     canManageMeters: true,
                 })
                 const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-                const accountNumber = faker.lorem.word()
-                const unitName = faker.lorem.word()
+                const accountNumber = getRandomString()
+                const unitName = getRandomString()
 
                 const [firstMeter] = await createTestMeter(client, client.organization, client.property, resource, {
                     accountNumber,
@@ -440,8 +448,10 @@ describe('Meter', () => {
                         accountNumber,
                         unitName,
                         unitType: PARKING_UNIT_TYPE,
-                    }),
-                    METER_ERRORS.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT(`${firstMeter.unitType} ${firstMeter.unitName}`),
+                    }), {
+                        ...METER_ERRORS.SAME_ACCOUNT_NUMBER_EXISTS_IN_OTHER_UNIT,
+                        messageInterpolation: { unitsCsv: `${firstMeter.unitType} ${firstMeter.unitName}` },
+                    }
                 )
             })
 
@@ -616,7 +626,7 @@ describe('Meter', () => {
                 expect(meters).toHaveLength(0)
             })
 
-            describe('resident: can read his Meters',  () => {
+            describe('resident: can read his Meters', () => {
                 test('Manual meter', async () => {
                     const adminClient = await makeLoggedInAdminClient()
                     const client = await makeClientWithResidentUser()
@@ -703,7 +713,6 @@ describe('Meter', () => {
 
                 const unitName = faker.random.alphaNumeric(8)
                 const unitType = FLAT_UNIT_TYPE
-
 
                 const [resident] = await createTestResident(admin, residentClient.user, originalProperty, { unitName, unitType })
                 await createTestServiceConsumer(admin, resident, originalOrganization, { accountNumber: originalBillingAccount.number })
@@ -1059,7 +1068,7 @@ describe('Meter', () => {
                 })
             }, B2B_APP_NOT_CONNECTED)
             await createTestB2BAppContext(admin, b2bApp, organization)
-            const [meter] =  await createTestMeter(admin, organization, property, resource, {
+            const [meter] = await createTestMeter(admin, organization, property, resource, {
                 isAutomatic: true,
                 b2bApp: { connect: { id: b2bApp.id } },
             })

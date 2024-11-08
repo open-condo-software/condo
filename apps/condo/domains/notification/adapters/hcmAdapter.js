@@ -1,9 +1,9 @@
-const { faker } = require('@faker-js/faker')
 const { isEmpty, isObject, isNull, get } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { safeFormatError } = require('@open-condo/keystone/apolloErrorFormatter')
+const { getExecutionContext } = require('@open-condo/keystone/executionContext')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 
@@ -36,9 +36,6 @@ const CONFIG_VALIDATED_FIELDS = [APP_MASTER_KEY, APP_RESIDENT_KEY, `${APP_MASTER
 const IS_LOCAL_ENV = conf.SERVER_URL.includes('localhost')
 
 const logger = getLogger('HCMAdapter')
-
-/** Generates randomly filled string of digits */
-const getRandomNumeric = (count) => faker.phone.number(''.padStart(count, '#'))
 
 /**
  * HCM is Huawei Cloud Messaging
@@ -144,7 +141,7 @@ class HCMAdapter {
             type: 'Fake',
             pushToken: token,
             appType,
-            requestId: getRandomNumeric(24),
+            requestId: Date.now(),
         }
     }
 
@@ -159,7 +156,7 @@ class HCMAdapter {
             type: 'Fake',
             pushToken: token,
             appType,
-            requestId: getRandomNumeric(24),
+            requestId: Date.now(),
         }
 
     }
@@ -251,9 +248,15 @@ class HCMAdapter {
      * @returns {Promise<[boolean, {error: string}]|[boolean, (*&{pushContext: (*[]|{})})]>}
      */
     async sendNotification ({ notification, data, tokens, pushTypes, appIds } = {}) {
+        const executionContext = getExecutionContext()
+        const reqId = executionContext?.reqId
+        const taskId = executionContext?.taskId
+
         if (!tokens || isEmpty(tokens)) return [false, { error: 'No pushTokens available.' }]
 
         const [notifications, fakeNotifications, pushContext] = await HCMAdapter.prepareBatchData(notification, data, tokens, pushTypes)
+        logger.info({ msg: 'sendNotification prepareBatchData done', args: { notification, data, tokens, pushTypes }, result: { notifications, fakeNotifications, pushContext }, reqId, taskId })
+
         let result
 
         // If we come up to here and no real tokens provided, that means fakeNotifications contains
@@ -313,6 +316,8 @@ class HCMAdapter {
                     logger.error({ msg: 'sendNotification error', error: safeError })
                 }
             }
+
+            logger.info({ msg: 'sendNotification success', result: hcmResult, notification, reqId, taskId })
 
             result = HCMAdapter.injectFakeResults(hcmResult, fakeNotifications, appIds)
         }
