@@ -339,7 +339,7 @@ export default function GlobalStyle () {
                   cursor: pointer;
                 }
               }
-              
+                
               .ant-table-row-expand-icon-spaced {
                 display: none;
               }
