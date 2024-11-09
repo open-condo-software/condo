@@ -917,6 +917,7 @@
   "pages.condo.ticket.exportBlank.HideAllComments.label": "Hide comments",
   "pages.condo.ticket.generateDocument.label": "Generate document",
   "pages.condo.ticket.generateDocument.completionWorks.label": "Work completion certificate",
+  "pages.condo.ticket.generateDocument.paidWorks.label": "Work completion certificate (paid)",
   "pages.condo.ticket.select.group.flat": "Flats",
   "pages.condo.ticket.select.group.parking": "Parking units",
   "pages.condo.ticket.select.group.apartment": "Apartments",

@@ -65,6 +65,7 @@ class FinanceInfoClient {
                     short_with_opf: organizationShortName,
                 },
                 address: {
+                    value: organizationAddress,
                     data: {
                         country_iso_code: organizationCountry,
                         timezone,
@@ -72,7 +73,7 @@ class FinanceInfoClient {
                 },
             },
         } = info
-        const result = { timezone, territoryCode, iec, tin, psrn, name: organizationShortName || organizationFullName, country: organizationCountry.toLowerCase() }
+        const result = { timezone, territoryCode, iec, tin, psrn, name: organizationShortName || organizationFullName, country: organizationCountry.toLowerCase(), organizationAddress }
         await this.#setToCache(`ORGANIZATION_${requestTin}`, result)
         return result
     }

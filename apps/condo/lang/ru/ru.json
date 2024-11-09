@@ -917,6 +917,7 @@
   "pages.condo.ticket.exportBlank.HideAllComments.label": "Скрыть комментарии",
   "pages.condo.ticket.generateDocument.label": "Сформировать акт",
   "pages.condo.ticket.generateDocument.completionWorks.label": "Акт выполненных работ",
+  "pages.condo.ticket.generateDocument.paidWorks.label": "Акт платных работ",
   "pages.condo.ticket.select.group.flat": "Квартиры",
   "pages.condo.ticket.select.group.parking": "Паркинг",
   "pages.condo.ticket.select.group.apartment": "Апартаменты",
