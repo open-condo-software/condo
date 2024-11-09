@@ -37692,6 +37692,7 @@ enum TicketDocumentGenerationTaskFormatType {
 
 enum TicketDocumentGenerationTaskDocumentTypeType {
   completionWorks
+  paidWorks
 }
 
 """ Information about generation process of ticket document """
