@@ -23,7 +23,6 @@ const testNegativeIntegers = testIntegers.map((row, i) => {
     }
     return [-row[0], `Minus ${row[1]}`]
 })
-console.log(testNegativeIntegers)
 
 const testIntegersWithCurrency = testIntegers.map((row) => {
     return [row[0], `${row[1]} dollars`]
@@ -65,7 +64,7 @@ describe('Test "en" locale moneyToWords', () => {
         expect(moneyToWords(input, { locale, currencyCode, format: '$WholeString $decimalString' })).toBe(expected)
     })
     
-    test.concurrent.each(testFloatsWithCurrencyAndFirstUpper)('moneyToWords(testFloatsWithCurrencyAndFirstUpper) %d => %s', (input, expected) => {
+    test.each(testFloatsWithCurrencyAndFirstUpper)('moneyToWords(testFloatsWithCurrencyAndFirstUpper) %d => %s', (input, expected) => {
         expect(moneyToWords(input, { locale, currencyCode, format: '$WholeString $wholeCurrency $decimalString $decimalCurrency' })).toBe(expected)
     })
 })
