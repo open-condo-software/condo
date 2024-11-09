@@ -8,6 +8,7 @@ const Options = require('./Options')
 const Select = require('./Select')
 const SignedDecimal = require('./SignedDecimal')
 const Stars = require('./Stars')
+const SymmetricEncryptedText = require('./SymmetricEncryptedText')
 const Text = require('./Text')
 
 module.exports = {
@@ -22,4 +23,5 @@ module.exports = {
     AddressPartWithType,
     FileWithUTF8Name,
     Text,
+    SymmetricEncryptedText,
 }

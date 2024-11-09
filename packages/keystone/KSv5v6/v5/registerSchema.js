@@ -25,6 +25,7 @@ const {
     Select,
     SignedDecimal,
     Text,
+    SymmetricEncryptedText,
 } = require('../../fields')
 const { HiddenRelationship } = require('../../plugins/utils/HiddenRelationship')
 const { AuthedRelationship, Relationship } = require('../../plugins/utils/Relationship')
@@ -83,6 +84,7 @@ function convertStringToTypes (schema) {
         Select,
         SignedDecimal,
         Text,
+        SymmetricEncryptedText,
     }
     const allTypesForPrint = Object.keys(mapping).map(item => `"${item}"`).join(', ')
 
