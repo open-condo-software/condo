@@ -61,7 +61,7 @@
     "immer": "9.0.13",
     "less": "^3.12.2",
     "lodash": "^4.17.21",
-    "next": "^9.5.5",
+    "next": "^14.2.10",
     "next-cookies": "^2.0.3",
     "next-transpile-modules": "^4.1.0",
     "node-fetch": "^2.6.7",
