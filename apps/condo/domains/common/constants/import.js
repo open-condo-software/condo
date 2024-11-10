@@ -39,6 +39,9 @@ const DEFAULT_DATE_PARSING_FORMATS = [
     ...DATE_TIME_FORMATS,
     ...DATE_FORMATS,
 
+    'YYYYMM',
+    'MMYYYY',
+
     'YYYY-MM-DDTHH:mm:ss.SSS[Z]', // The result of dayjs().toISOString()
     'YYYY-MM-DDTHH:mm:ss.SSSZ',
     'YYYY-MM-DDTHH:mm:ss.SSS',

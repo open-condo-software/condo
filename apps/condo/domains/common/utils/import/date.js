@@ -128,9 +128,17 @@ function tryToISO (dateStr, overrideFormats = DEFAULT_DATE_PARSING_FORMATS) {
     let date
     if (dateStr.endsWith('Z')) {
         const utcStringFormats = overrideFormats.filter(format => isUtcFormat(format))
-        date = tryParseUtcDate(dateStr, utcStringFormats, false)
+        date = tryParseUtcDate(dateStr, utcStringFormats, true)
+        // try in strict mode first, to pick right format among very similar, like YYYYMM and MMYYYY
+        if (!date.isValid()) {
+            date = tryParseUtcDate(dateStr, utcStringFormats, false)
+        }
     } else {
-        date = dayjs(dateStr, overrideFormats, false)
+        date = dayjs(dateStr, overrideFormats, true)
+        // try in strict mode first, to pick right format among very similar, like YYYYMM and MMYYYY
+        if (!date.isValid()) {
+            date = dayjs(dateStr, overrideFormats, false)
+        }
     }
     // undefined needed to not update invalid dates to null
     return date.isValid() ? date.toISOString() : undefined

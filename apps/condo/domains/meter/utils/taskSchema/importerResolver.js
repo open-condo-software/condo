@@ -231,11 +231,12 @@ async function importRows (keystone, userId, organizationId, rows) {
     }
 
     // call it with user context - require for MeterReadings hooks
-    const { errors, data: { result } } = await registerMetersReadings(userContext, {
+    const { errors, data } = await registerMetersReadings(userContext, {
         ...dvAndSender,
         organization: { id: organizationId },
         readings: rows,
     })
+    const result = get(data, 'result')
 
     // fatal error proceeding case - throw error in order to fail proceeding job - since this is not recoverable state
     if (isNil(result) && !isEmpty(errors)) {

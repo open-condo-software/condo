@@ -6,6 +6,7 @@ const path = require('path')
 
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
+const dayjs = require('dayjs')
 const { get } = require('lodash')
 const XLSX = require('xlsx')
 
@@ -18,7 +19,7 @@ const {
     CSV,
     DOMA_EXCEL,
     CANCELLED,
-    ERROR,
+    ERROR, DEFAULT_DATE_PARSING_FORMATS,
 } = require('@condo/domains/common/constants/import')
 const { EXCEL_FILE_META } = require('@condo/domains/common/utils/createExportFile')
 const { readXlsx, getTmpFile, downloadFile } = require('@condo/domains/common/utils/testSchema/file')
@@ -45,10 +46,11 @@ const readMockFile = (fileName) => {
     return fs.readFileSync(path.join(__dirname, MOCK_FOLDER, fileName))
 }
 
-const generateCsvFile = (validLinesSize, invalidLinesSize, fatalErrorLinesSize, property) => {
+const generateCsvFile = (validLinesSize, invalidLinesSize, fatalErrorLinesSize, property, dateFormats = DEFAULT_DATE_PARSING_FORMATS) => {
     // content header
     let content = `#DATE_BEGIN01.12.2023
 #DATE_END: 31.12.2023`
+    const defaultDateString = '31.12.2023'
 
     // generate valid lines lines
     for (let i = 0; i < validLinesSize; i++) {
@@ -56,8 +58,11 @@ const generateCsvFile = (validLinesSize, invalidLinesSize, fatalErrorLinesSize, 
         const lastName = faker.name.lastName()
         const unitName = `${i + 1}`
         const address = property.address + ', кв ' + unitName
+        const format = faker.helpers.arrayElement(dateFormats)
+        const dateString = dayjs(defaultDateString, 'DD.MM.YYYY').format(format)
+
         content += `
-00-00000${number};${lastName} Л.М.;40ОН89${number}-02;${faker.datatype.uuid()};${address};9;${number}${number};ХВС;[];750,00;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;
+00-00000${number};${lastName} Л.М.;40ОН89${number}-02;${faker.datatype.uuid()};${address};9;${number}${number};ХВС;[];750,00;${dateString};;;;;;;${dateString};;;;;;;${dateString};;;;;;;${dateString};
 `
     }
 
@@ -67,8 +72,11 @@ const generateCsvFile = (validLinesSize, invalidLinesSize, fatalErrorLinesSize, 
         const lastName = faker.name.lastName()
         const unitName = `${validLinesSize + i + 1}`
         const address = property.address + ', кв ' + unitName
+        const format = faker.helpers.arrayElement(dateFormats)
+        const dateString = dayjs(defaultDateString, 'DD.MM.YYYY').format(format)
+
         content += `
-;${lastName} Л.М.;40ОН89${number}-02;${faker.datatype.uuid()};${address};9;${number}${number};ХВС;[];750,00;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;
+;${lastName} Л.М.;40ОН89${number}-02;${faker.datatype.uuid()};${address};9;${number}${number};ХВС;[];750,00;${dateString};;;;;;;${dateString};;;;;;;${dateString};;;;;;;${dateString};
 `
     }
 
@@ -77,15 +85,18 @@ const generateCsvFile = (validLinesSize, invalidLinesSize, fatalErrorLinesSize, 
         const number = faker.datatype.number({ min: 1000, max: 9999 })
         const lastName = faker.name.lastName()
         const address = faker.address.streetAddress(true)
+        const format = faker.helpers.arrayElement(dateFormats)
+        const dateString = dayjs(defaultDateString, 'DD.MM.YYYY').format(format)
+
         content += `
-;${lastName} Л.М.;40ОН89${number}-02;${faker.datatype.uuid()};${address};9;${number}${number};ХВС;[];750,00;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;
+;${lastName} Л.М.;40ОН89${number}-02;${faker.datatype.uuid()};${address};9;${number}${number};ХВС;[];750,00;${dateString};;;;;;;${dateString};;;;;;;${dateString};;;;;;;${dateString};
 `
     }
 
     return createUpload(content, `${faker.datatype.uuid()}.csv`, 'text/csv')
 }
 
-const generateExcelFile = async (validLinesSize, invalidLinesSize, fatalLinesSize, property) => {
+const generateExcelFile = async (validLinesSize, invalidLinesSize, fatalLinesSize, property, dateFormats = DEFAULT_DATE_PARSING_FORMATS) => {
     const data = [[
         'Адрес', 'Помещение', 'Тип помещения', 'Лицевой счет',
         'Тип счетчика', 'Номер счетчика', 'Количество тарифов',
@@ -93,14 +104,20 @@ const generateExcelFile = async (validLinesSize, invalidLinesSize, fatalLinesSiz
         'Дата передачи показаний', 'Дата поверки', 'Дата следующей поверки',
         'Дата установки', 'Дата ввода в эксплуатацию', 'Дата опломбирования', 'Дата контрольных показаний', 'Место установки счетчика', 'Автоматический']]
 
+    const defaultDates = ['2021-01-21', '2021-01-21', '2021-01-21',
+        '2021-01-22', '2021-01-23', '2021-01-24', '2021-01-25']
+
     for (let i = 0; i < validLinesSize; i++) {
         const unitName = `${i + 1}`
+        const formats = defaultDates.map(() => faker.helpers.arrayElement(dateFormats))
+        const dateStrings = defaultDates.map((date, i) => dayjs(date, 'YYYY-MM-DD').format(formats[i]))
+
         const line = [
             property.address, unitName, 'Квартира', `${faker.datatype.number({ min: 1000, max: 9999 })}`,
             'ГВС', `${faker.datatype.number({ min: 1000, max: 9999 })}`, '1',
             `${faker.datatype.number({ min: 1000, max: 9999 })}`, '', '', '',
-            '2021-01-21', '2021-01-21', '2021-01-21',
-            '2021-01-22', '2021-01-23', '2021-01-24', '2021-01-25', 'Кухня', '',
+            dateStrings[0], dateStrings[1], dateStrings[2],
+            dateStrings[3], dateStrings[4], dateStrings[5], dateStrings[6], 'Кухня', '',
         ]
 
         data.push(line)
@@ -108,12 +125,15 @@ const generateExcelFile = async (validLinesSize, invalidLinesSize, fatalLinesSiz
 
     for (let i = 0; i < invalidLinesSize; i++) {
         const unitName = `${i + 1}`
+        const formats = defaultDates.map(() => faker.helpers.arrayElement(dateFormats))
+        const dateStrings = defaultDates.map((date, i) => dayjs(date, 'YYYY-MM-DD').format(formats[i]))
+
         const line = [
             property.address, unitName, 'Квартира', `${faker.datatype.number({ min: 1000, max: 9999 })}`,
             'WRONG_METER_TYPE', `${faker.datatype.number({ min: 1000, max: 9999 })}`, '1',
             `${faker.datatype.number({ min: 1000, max: 9999 })}`, '', '', '',
-            '2021-01-21', '2021-01-21', '2021-01-21',
-            '2021-01-22', '2021-01-23', '2021-01-24', '2021-01-25', 'Кухня',
+            dateStrings[0], dateStrings[1], dateStrings[2],
+            dateStrings[3], dateStrings[4], dateStrings[5], dateStrings[6], 'Кухня',
         ]
 
         data.push(line)

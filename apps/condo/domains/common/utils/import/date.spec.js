@@ -12,6 +12,10 @@ const validDateStrings = [
     '01-01-2024',
     '2024-01-01 00:00:00',
     '2024-01-01 00:00',
+    '202410',
+    '102024',
+    '012024',
+    '202401',
 ]
 
 const invalidDateStrings = [
@@ -21,6 +25,7 @@ const invalidDateStrings = [
     'invalid-date', // Not a date
     '2024/13/01', // Invalid month
     '2024-01-01T25:00:00Z', // Invalid hour
+    '20241',
 ]
 
 describe('importDate.utils', () => {
@@ -96,6 +101,7 @@ describe('importDate.utils', () => {
                 expect(tryToISO(date, utcFormats)).toBe(expectedDate)
             })
         })
+
     })
 
 })
