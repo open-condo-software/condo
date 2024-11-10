@@ -19,14 +19,14 @@ const cipherManager = new CipherManager([
 keystone.createList('User', {
   fields: {
     email: { type: Text },
-    password: { 
+    nonPublicData: { 
         type: 'SymmetricEncryptedText',
         cipherManager: cipherManager,
         hooks: {
             // here you have decrypted field in all hooks (existingItem)
             resolveInput({resolvedData, existingItem}) {
-                // resolvedData.password - raw password, not encrypted
-                // existingItem.password - decrypted password
+                // resolvedData.nonPublicData - raw nonPublicData, not encrypted
+                // existingItem.nonPublicData - decrypted nonPublicData
             }
         },
     },
@@ -34,12 +34,12 @@ keystone.createList('User', {
   hooks: {
       // here you have decrypted field in all hooks (updatedItem, existingItem)
       afterChanges: async ({ updatedItem, existingItem, context }) => {
-          // this won't give you users, because you passing decrypted password, and adapter is searching among encrypted ones
-          await User.getAll(context, { password: updatedItem.password })
+          // this won't give you users, because you passing decrypted nonPublicData, and adapter is searching among encrypted ones
+          await User.getAll(context, { nonPublicData: updatedItem.nonPublicData })
           // what you need to do in such cases
-          const passwordDecryptInfo = getDecryptInfo(updatedItem, 'password') // function will retun 'undefined' if passing anything other than 'updatedItem', 'existingItem'
-          const passwordSameAsStoredInDatabase = cipherManager.encrypt(updatedItem.password, passwordDecryptInfo)
-          await User.getAll(context, { password: passwordSameAsStoredInDatabase })
+          const nonPublicDataDecryptInfo = getDecryptInfo(updatedItem, 'nonPublicData') // function will retun 'undefined' if passing anything other than 'updatedItem', 'existingItem'
+          const nonPublicDataSameAsStoredInDatabase = cipherManager.encrypt(updatedItem.nonPublicData, nonPublicDataDecryptInfo)
+          await User.getAll(context, { nonPublicData: nonPublicDataSameAsStoredInDatabase })
       },   
   }, 
 });
@@ -47,22 +47,22 @@ keystone.createList('User', {
 Create / update mutations should provide raw data, returning field is encrypted
 ```gql 
 mutation {
-    result: createUser ($data: { password: "raw-password" }) {
-        password
+    result: createUser ($data: { nonPublicData: "raw-data" }) {
+        nonPublicData
     }
 }
 
-# returns { password: "some-encrypted-password-value, as it is stored in database" }
+# returns { nonPublicData: "some-encrypted-data-value, as it is stored in database" }
 ```
 Filters in read queries should provide encrypted data
 ```gql
 query {
-    objs: allUsers (where: { password: "some-encrypted-password-value, as it is stored in database" }) {
-        password
+    objs: allUsers (where: { nonPublicData: "some-encrypted-data-value, as it is stored in database" }) {
+        nonPublicData
     }
 }
 
-# returns [{ password: "some-encrypted-password-value, as it is stored in database" }]
+# returns [{ nonPublicData: "some-encrypted-data-value, as it is stored in database" }]
 ```
 
 ## Config extends Text field config
