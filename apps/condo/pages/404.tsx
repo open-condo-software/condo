@@ -1,4 +1,3 @@
-import styled from '@emotion/styled'
 import { Col, Row, RowProps, Typography } from 'antd'
 import Router from 'next/router'
 import React from 'react'
@@ -12,10 +11,6 @@ import { PosterLayout } from '@condo/domains/user/components/containers/PosterLa
 
 import { ErrorLayoutFooter, ErrorLayoutHeader } from './500'
 
-
-export const ErrorPosterWrapper = styled.div<{ isSmall: boolean }>`
-  height: 55vh;
-`
 
 const DESCRIPTION_TEXT_STYLE = { fontSize: fontSizes.content }
 const ROW_MESSAGE_GUTTER: RowProps['gutter'] = [0, 14]
