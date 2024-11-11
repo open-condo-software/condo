@@ -33,10 +33,12 @@ const UseDeskWidget: React.FC = () => {
     const userIdentify = useMemo(() => get(messenger, 'userIdentify', null), [messenger])
 
     useEffect(() => {
+        if (!UseDeskWidgetId) return
+
         const userId = get(user, 'id')
 
         try {
-            if (UseDeskWidgetId && isFunction(userIdentify) && typeof window !== 'undefined') {
+            if (isFunction(userIdentify) && typeof window !== 'undefined') {
                 const name = get(link, 'name')
                 const email = get(user, 'email')
                 const phone = get(user, 'phone')
@@ -74,7 +76,7 @@ const UseDeskWidget: React.FC = () => {
                 })
             }
 
-            messenger.setAdditionalFields([
+            if (messenger) messenger.setAdditionalFields([
                 {
                     id: useDeskFieldsIdsMap.tin, value: get(link, ['organization', 'tin'], null),
                 },

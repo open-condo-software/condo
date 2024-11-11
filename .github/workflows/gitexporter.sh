@@ -33,7 +33,9 @@ cat > ${SOURCE_FOLDER}.config.json <<EOF
   "sourceRepoPath": "${SOURCE_FOLDER}",
   "allowedPaths": [
     ".yarn/plugins/*",
+    ".yarn/patches/*",
     ".yarn/releases/*",
+    ".yarn/install-state.gz",
     ".yarnrc.yml",
     "apps/__demo/*",
     "apps/_demo/*",

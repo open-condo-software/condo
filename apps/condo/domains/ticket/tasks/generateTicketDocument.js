@@ -14,7 +14,7 @@ const {
     SUPPORTED_DOCUMENT_TYPES_BY_LOCALE,
 } = require('@condo/domains/ticket/constants/ticketDocument')
 const { TicketDocumentGenerationTask } = require('@condo/domains/ticket/utils/serverSchema')
-const { generateTicketDocumentOfCompletionWorks } = require('@condo/domains/ticket/utils/serverSchema/TicketDocumentGeneration')
+const { generateTicketDocumentOfCompletionWorks, generateTicketDocumentOfPaidWorks } = require('@condo/domains/ticket/utils/serverSchema/TicketDocumentGeneration')
 
 
 const appLogger = getLogger('condo')
@@ -67,6 +67,11 @@ const generateTicketDocument = async (taskId) => {
         switch (documentType) {
             case TICKET_DOCUMENT_TYPE.COMPLETION_WORKS: {
                 fileUploadInput = await generateTicketDocumentOfCompletionWorks({ task, locale, organization, ticket, context, baseAttrs: BASE_ATTRS })
+                break
+            }
+
+            case TICKET_DOCUMENT_TYPE.PAID_WORKS: {
+                fileUploadInput = await generateTicketDocumentOfPaidWorks({ task, locale, organization, ticket, context, baseAttrs: BASE_ATTRS })
                 break
             }
 
