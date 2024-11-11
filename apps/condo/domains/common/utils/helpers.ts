@@ -19,11 +19,7 @@ const SPANISH_PHONE_FORMAT_REGEXP = /(\d{2})(\d{3})(\d{3})(\d{3})/
 /**
  * Formats a phone, convert it from number string to string with dividers
  * for example: 01234567890 -> 0 (123) 456-78-90
-*/
-export const formatPhone = (phone?: string): string =>
-    phone ? phone.replace(PHONE_FORMAT_REGEXP, '$1 ($2) $3-$4-$5') : phone
-
-
+ */
 export const formatPhone = (phone?: string): string =>{
     if (phone.startsWith('+7')){
         return phone.replace(RUSSIAN_PHONE_FORMAT_REGEXP, '$1 ($2) $3-$4-$5')
@@ -32,6 +28,20 @@ export const formatPhone = (phone?: string): string =>{
         return phone.replace(SPANISH_PHONE_FORMAT_REGEXP, '$1-$2-$3-$4')
     }
     return phone
+}
+
+export const getFiltersFromQuery = <T>(query: ParsedUrlQuery): T | Record<string, unknown> => {
+    const { filters } = query
+
+    if (!filters || typeof filters !== 'string') {
+        return {}
+    }
+
+    try {
+        return JSON.parse(filters)
+    } catch (e) {
+        return {}
+    }
 }
 
 export const preciseFloor = (x: number, precision: number = DEFAULT_WIDTH_PRECISION) => {
