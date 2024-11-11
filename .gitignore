@@ -3,6 +3,7 @@ dist
 out
 .next
 .idea
+.zed
 .env
 .kmigrator
 .DS_Store

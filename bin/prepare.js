@@ -3,6 +3,7 @@ const path = require('path')
 const { program } = require('commander')
 
 const {
+    getRandomString,
     checkPostgresIsRunning,
     checkMkCertCommandAndLocalCerts,
     createPostgresDatabasesIfNotExist,
@@ -37,6 +38,8 @@ function logWithIndent (message, indent = 1) {
 async function prepare () {
     program.parse()
     const { https, filter, replicate } = program.opts()
+
+    // TODO(pahaz): DOMA-10616 we need to run packages build before migrations ... because our backend depends on icon package ...
 
     // Step 1. Sanity checks
     logWithIndent('Running sanity checks')
@@ -85,7 +88,6 @@ async function prepare () {
     await fillGlobalEnvWithDefaultValues()
     // Step 3.2. Extract domains .env information, like CONDO_DOMAIN, MY_APP_DOMAIN and put it global monorepo env
     logWithIndent('Writing services <service-name>_DOMAIN variables to global .env')
-    // console.log(appsWithData)
     for (const app of appsWithData) {
         const domainEnvKey = `${app.name.toUpperCase().replaceAll('-', '_')}_DOMAIN`
         await updateGlobalEnvFile(domainEnvKey, app.serviceUrl)
@@ -109,7 +111,6 @@ async function prepare () {
             await fillAppEnvWithDefaultValues(app.name)
             logWithIndent('Writing assigned urls / ports / dbs to app\'s .env', 2)
             const env = {
-                COOKIE_SECRET: `${app.name}-secret`,
                 DATABASE_URL: `${LOCAL_PG_DB_PREFIX}/${app.pgName}`,
                 REDIS_URL: `${LOCAL_REDIS_DB_PREFIX}/${app.redisIndex}`,
                 PORT: String(app.port),
@@ -134,6 +135,14 @@ async function prepare () {
             }
 
             await prepareAppEnv(app.name, env)
+            // NOTE(pahaz): we don't need to update secret if someone already set it
+            await prepareAppEnv(
+                app.name,
+                {
+                    COOKIE_SECRET: `${app.name}-secret-${getRandomString(12)}-value`,
+                },
+                { override: false },
+            )
             logWithIndent('Running migration script', 2)
             const migrateResult = await runAppPackageJsonScript(app.name, 'migrate')
             if (migrateResult) console.log(migrateResult)

@@ -4,6 +4,7 @@ const { get } = require('lodash')
 const { getById, getByCondition } = require('@open-condo/keystone/schema')
 
 const { buildExportFile, DOCX_FILE_META } = require('@condo/domains/common/utils/createExportFile')
+const { renderMoney } = require('@condo/domains/common/utils/money')
 const { buildUploadInputFrom } = require('@condo/domains/common/utils/serverSchema/export')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const { DEFAULT_INVOICE_CURRENCY_CODE, INVOICE_STATUS_CANCELED } = require('@condo/domains/marketplace/constants')
@@ -11,12 +12,6 @@ const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { getAddressDetails } = require('@condo/domains/property/utils/serverSchema/helpers')
 const { TICKET_DOCUMENT_GENERATION_TASK_FORMAT } = require('@condo/domains/ticket/constants/ticketDocument')
-
-
-const DATE_FORMAT = 'DD.MM.YYYY'
-const formatDate = (date, timeZone, format = DATE_FORMAT) => {
-    return dayjs(date).tz(timeZone).format(format)
-}
 
 const buildExportWordFile = async ({ task, documentData, locale, timeZone }) => {
     const { id, ticket } = task
@@ -28,7 +23,7 @@ const buildExportWordFile = async ({ task, documentData, locale, timeZone }) => 
 
     return {
         stream,
-        filename: `completion_works_ticket_${ticket.id}_${formatDate(undefined, timeZone, 'DD_MM_YYYY')}.docx`,
+        filename: `completion_works_ticket_${ticket.id}_${dayjs().tz(timeZone).format('DD_MM_YYYY')}.docx`,
         mimetype: DOCX_FILE_META.mimetype,
         encoding: DOCX_FILE_META.encoding,
         meta: {
@@ -36,13 +31,6 @@ const buildExportWordFile = async ({ task, documentData, locale, timeZone }) => 
             id,
         },
     }
-}
-
-const renderMoney = (amount, currencyCode, locale) => {
-    const options = { currency: currencyCode }
-    const numberFormat = new Intl.NumberFormat(locale, options)
-    const parts = numberFormat.formatToParts(amount)
-    return parts.map((part) => part.value).join('')
 }
 
 const generateTicketDocumentOfCompletionWorks = async ({ task, baseAttrs, context, locale, ticket, organization }) => {
