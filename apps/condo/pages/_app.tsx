@@ -9,7 +9,7 @@ import isEmpty from 'lodash/isEmpty'
 import getConfig from 'next/config'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { useMemo } from 'react'
+import React, { Fragment, useMemo } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useFeatureFlags, FeaturesReady, withFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
@@ -326,7 +326,7 @@ const MenuItems: React.FC = () => {
     return (
         <div>
             {menuCategoriesData.map((category) => (
-                <>
+                <Fragment key={category.key}>
                     {category.items.map((item) => (
                         <MenuItem
                             id={item.id}
@@ -357,7 +357,7 @@ const MenuItems: React.FC = () => {
                             excludePaths={[miniAppsPattern]}
                         />
                     })}
-                </>
+                </Fragment>
             ))}
         </div>
     )
