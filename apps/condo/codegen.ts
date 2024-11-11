@@ -52,7 +52,7 @@ const config: CodegenConfig = {
         },
     },
     hooks: {
-        afterAllFileWrite: ['eslint --fix --no-ignore'],
+        afterAllFileWrite: ['eslint --fix ./gql/operation.types.ts ./gql/index.ts ./schema.ts'],
     },
 }
 
