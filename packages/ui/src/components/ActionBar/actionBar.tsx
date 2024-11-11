@@ -21,7 +21,7 @@ export const ActionBar: React.FC<ActionBarProps> = (props) => {
 
     return (
         <>
-            <Affix offsetBottom={24} prefixCls={ACTION_BAR_CLASS_PREFIX}>
+            <Affix offsetBottom={23} prefixCls={ACTION_BAR_CLASS_PREFIX}>
                 <Space wrap={wrap} size={SPACE_SIZE} className={AFFIX_CONTENT_WRAPPER_CLASS}>
                     {message && <Typography.Text strong>{message}</Typography.Text>}
                     {actions}
