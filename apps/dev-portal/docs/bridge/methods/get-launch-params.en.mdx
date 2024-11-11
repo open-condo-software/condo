@@ -10,12 +10,12 @@ If successful, you will receive a JSON object of the following type:
 <Tabs labels={['Return type', 'Return exmaple']}>
     ```typescript
     type GetLaunchParamsData = {
-    condoUserId: string | null                       // Current user ID
-    condoUserType: 'staff' | 'resident'              // User type
-    condoLocale: string                              // Current interface locale ("en" / "ru")
-    condoContextEntity: 'Organization' | 'Resident'  // Context entity type
-    condoContextEntityId: string | null              // Context entity ID
-}
+        condoUserId: string | null                       // Current user ID
+        condoUserType: 'staff' | 'resident'              // User type
+        condoLocale: string                              // Current interface locale ("en" / "ru")
+        condoContextEntity: 'Organization' | 'Resident'  // Context entity type
+        condoContextEntityId: string | null              // Context entity ID
+    }
     ```
     ```json
     {
