@@ -11,7 +11,7 @@ const ErrorPage: PageComponentType = () => {
     return <Custom500/>
 }
 
-ErrorPage.container = () => <></>
+ErrorPage.container = (props) => <React.Fragment {...props} />
 
 ErrorPage.getInitialProps = async (props) => {
     const { req, asPath, pathname, res, err } = props
@@ -32,19 +32,7 @@ ErrorPage.getInitialProps = async (props) => {
 
     console.error('StatusCode:', statusCode)
 
-    if (statusCode >= 500) {
-        res.writeHead(302, {
-            Location: '/500',
-        })
-        res.end()
-    }
-
-    if (statusCode === 404) {
-        res.writeHead(302, {
-            Location: '/404',
-        })
-        res.end()
-    }
-
     return errorInitialProps
 }
+
+export default ErrorPage

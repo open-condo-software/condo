@@ -1,11 +1,5 @@
-import {
-    ApolloClient,
-    NormalizedCacheObject,
-} from '@apollo/client'
-import {
-    AuthenticatedUserDocument,
-    GetActiveOrganizationEmployeeDocument,
-} from '@app/condo/gql'
+import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
+import { AuthenticatedUserDocument, GetActiveOrganizationEmployeeDocument } from '@app/condo/gql'
 import { CacheProvider } from '@emotion/core'
 import { ConfigProvider } from 'antd'
 import enUS from 'antd/lib/locale/en_US'
@@ -64,6 +58,7 @@ import {
 } from '@condo/domains/common/constants/menuCategories'
 import { useHotCodeReload } from '@condo/domains/common/hooks/useHotCodeReload'
 import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
+import { PageComponentType } from '@condo/domains/common/types'
 import { messagesImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
 import { apolloHelperOptions } from '@condo/domains/common/utils/next/apollo'
 import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
@@ -75,7 +70,7 @@ import {
     useSSRCookiesContext,
     extractVitalCookies,
 } from '@condo/domains/common/utils/next/ssr'
-import { GetPrefetchedDataReturnRedirect, GetPrefetchedData, PrefetchedDataProps } from '@condo/domains/common/utils/next/types'
+import { GetPrefetchedDataReturnRedirect } from '@condo/domains/common/utils/next/types'
 import { useContactExportTaskUIInterface } from '@condo/domains/contact/hooks/useContactExportTaskUIInterface'
 import { useMeterReadingExportTaskUIInterface } from '@condo/domains/meter/hooks/useMeterReadingExportTaskUIInterface'
 import { useMeterReadingsImportTaskUIInterface } from '@condo/domains/meter/hooks/useMeterReadingsImportTaskUIInterface'
@@ -551,11 +546,7 @@ const MyApp = ({ Component, pageProps }) => {
 
 type NextAppContext = (AppContext & NextPageContext) & {
     apolloClient: ApolloClient<NormalizedCacheObject>
-    Component: {
-        getPrefetchedData?: GetPrefetchedData
-        skipUserPrefetch?: boolean
-        skipRedirectToAuth?: boolean
-    }
+    Component: PageComponentType
 }
 
 MyApp.getInitialProps = async (appContext: NextAppContext): Promise<{ pageProps: Record<string, any> }> => {
@@ -577,7 +568,7 @@ MyApp.getInitialProps = async (appContext: NextAppContext): Promise<{ pageProps:
         const skipUserPrefetch = appContext.Component.skipUserPrefetch || false
 
         let redirectToAuth: GetPrefetchedDataReturnRedirect
-        let user: PrefetchedDataProps['user'] = null
+        let user: Parameters<PageComponentType['getPrefetchedData']>[0]['user'] = null
         if (!skipUserPrefetch) {
             ({ redirectToAuth, user } = await prefetchAuthOrRedirect(apolloClient, pageContext))
 
@@ -585,7 +576,7 @@ MyApp.getInitialProps = async (appContext: NextAppContext): Promise<{ pageProps:
             if (redirectToAuth && !skipRedirectToAuth) return await nextRedirect(pageContext, redirectToAuth.redirect)
         }
 
-        let activeEmployee: PrefetchedDataProps['activeEmployee'] = null
+        let activeEmployee: Parameters<PageComponentType['getPrefetchedData']>[0]['activeEmployee'] = null
         if (user) {
             ({ activeEmployee } = await prefetchOrganizationEmployee({
                 apolloClient,
@@ -633,7 +624,7 @@ MyApp.getInitialProps = async (appContext: NextAppContext): Promise<{ pageProps:
     }
 }
 
-export const withCookies = () => (PageComponent: NextPage): NextPage => {
+const withCookies = () => (PageComponent: NextPage): NextPage => {
     const WithCookies = (props) => {
         const ssrCookies = useVitalCookies(props?.pageProps)
 
@@ -667,7 +658,7 @@ const withError = () => (PageComponent: NextPage): NextPage => {
         if (statusCode && statusCode === 404) return (
             <PageComponent {...props} Component={Error404Page} statusCode={statusCode} />
         )
-        if (statusCode && statusCode >= 500) return (
+        if (statusCode && statusCode >= 400) return (
             <PageComponent {...props} Component={Error500Page} statusCode={statusCode} />
         )
 
