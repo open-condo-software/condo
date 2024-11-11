@@ -7,6 +7,7 @@
 @condo-action-bar-overflow-width: @condo-global-spacing-16;
 @condo-action-bar-width: calc(100% + @condo-action-bar-overflow-width * 2);
 @condo-action-bar-large-screen-bottom-indent: @condo-global-spacing-24;
+@condo-action-bar-container-padding: @condo-global-spacing-40;
 
 .condo-affix-placeholder {
   height: @condo-action-bar-large-screen-bottom-indent;
@@ -16,11 +17,11 @@
   box-sizing: border-box;
   height: fit-content !important;
   padding: @condo-action-bar-overflow-width;
-  transition: box-shadow @condo-global-transition-duration-default ease-out;
 
   @media @from-mobile-small and @to-tablet-small {
     width: 100%;
-
+    
+    padding-bottom: @condo-action-bar-large-screen-bottom-indent;
     & > .condo-space-item {
       width: 100%;
 
@@ -30,10 +31,14 @@
     }
   }
 
-  @media @from-tablet-large {
+  @media @from-mobile-small {
     position: relative;
     right: @condo-action-bar-overflow-width;
     width: @condo-action-bar-width;
+  }
+
+  @media @from-tablet-large {
+    transition: box-shadow @condo-global-transition-duration-default ease-out;
   }
 }
 
@@ -45,6 +50,11 @@
     background: @condo-global-color-white;
     border-radius: @condo-global-border-radius-medium;
     box-shadow: @condo-global-box-shadow-default;
+    
+    @media @from-mobile-small and @to-tablet-small {
+      padding-right: @condo-action-bar-container-padding;
+      padding-left: @condo-action-bar-container-padding;
+    }
   }
 
   @media @from-mobile-small and @to-tablet-small {
@@ -54,7 +64,7 @@
     width: auto !important;
 
     & .condo-affix-content-wrapper {
-      padding-bottom: @condo-global-spacing-32;
+      padding-bottom: @condo-action-bar-large-screen-bottom-indent;
 
       & > .condo-space-item {
         padding: 0  @condo-global-spacing-16;

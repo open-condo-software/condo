@@ -3,6 +3,7 @@ import React, { ReactElement } from 'react'
 
 import { Space, SpaceProps } from '../Space'
 import { Typography } from '../Typography'
+import { useBreakpoints } from '../../hooks'
 
 const ACTION_BAR_CLASS_PREFIX = 'condo-affix'
 const AFFIX_CONTENT_WRAPPER_CLASS = `${ACTION_BAR_CLASS_PREFIX}-content-wrapper`
@@ -19,9 +20,11 @@ export type ActionBarProps = {
 export const ActionBar: React.FC<ActionBarProps> = (props) => {
     const { actions, message, wrap = true } = props
 
+    const { TABLET_LARGE } = useBreakpoints()
+
     return (
         <>
-            <Affix offsetBottom={23} prefixCls={ACTION_BAR_CLASS_PREFIX}>
+            <Affix offsetBottom={TABLET_LARGE ? 23 : 0} prefixCls={ACTION_BAR_CLASS_PREFIX}>
                 <Space wrap={wrap} size={SPACE_SIZE} className={AFFIX_CONTENT_WRAPPER_CLASS}>
                     {message && <Typography.Text strong>{message}</Typography.Text>}
                     {actions}
