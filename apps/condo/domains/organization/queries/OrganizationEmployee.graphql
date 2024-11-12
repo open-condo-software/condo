@@ -138,3 +138,26 @@ query getEmployeeInvitesCount($userId: ID!) {
         count
     }
 }
+
+query getContactEditorOrganizationEmployees ($where: OrganizationEmployeeWhereInput) {
+    employees: allOrganizationEmployees (
+        where: $where,
+        first: 100
+    ) {
+        id
+        name
+        phone
+    }
+}
+
+query getOrganizationEmployeeWithTicketOrganization ($userId: ID!, $organizationId: ID!) {
+    employees: allOrganizationEmployees (
+        where: {
+            user: { id: $userId },
+            organization: { id: $organizationId },
+        }
+        first: 1
+    ) {
+        id
+    }
+}

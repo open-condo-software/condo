@@ -222,6 +222,26 @@ query getTicketLastCommentsTime ($id: ID!) {
     }
 }
 
+query getContactTickets ($contactId: ID!) {
+    tickets: allTickets(
+        where: { contact: { id: $contactId } }
+        sortBy: [createdAt_DESC]
+    ) {
+        id
+        details
+        createdAt
+        number
+        status {
+            id
+            name
+        }
+        property {
+            id
+            address
+        }
+    }
+}
+
 mutation updateTicket ($id: ID!, $data: TicketUpdateInput!) {
     ticket: updateTicket (id: $id, data: $data) {
         id

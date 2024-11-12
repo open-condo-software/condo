@@ -68,6 +68,17 @@ query getContactsForTable ($where: ContactWhereInput, $first: Int, $skip: Int, $
     }
 }
 
+query getContactEditorContacts ($where: ContactWhereInput) {
+    contacts: allContacts (
+        where: $where,
+        first: 100
+    ) {
+        id
+        phone
+        name
+    }
+}
+
 mutation createContact ($data: ContactCreateInput!) {
     contact: createContact(data: $data) {
         id
