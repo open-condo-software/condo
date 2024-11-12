@@ -26,7 +26,7 @@ const logger = getLogger('worker')
 
 const QUEUES = new Map()
 
-const KEEP_JOBS_CONFIG = { age: 60 * 60 * 24 * 30 } // 30 days
+const KEEP_JOBS_CONFIG = { age: 60 * 60 * 24 * 14 } // 14 days
 const GLOBAL_TASK_OPTIONS = { removeOnComplete: KEEP_JOBS_CONFIG, removeOnFail: KEEP_JOBS_CONFIG }
 const TASKS = new Map()
 const CRON_TASKS = new Map()
