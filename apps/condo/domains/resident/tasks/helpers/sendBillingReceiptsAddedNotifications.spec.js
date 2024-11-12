@@ -7,7 +7,7 @@ const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
 const { getRedisClient } = require('@open-condo/keystone/redis')
-const { setFakeClientMode, makeLoggedInAdminClient, waitFor } = require('@open-condo/keystone/test.utils')
+const { setFakeClientMode, makeLoggedInAdminClient, waitFor, setAllFeatureFlags} = require('@open-condo/keystone/test.utils')
 
 const { TestUtils, ResidentTestMixin } = require('@condo/domains/billing/utils/testSchema/testUtils')
 const { _internalScheduleTaskByNameByTestClient } = require('@condo/domains/common/utils/testSchema')
@@ -225,13 +225,16 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 user: { id: resident.user.id },
                 type: BILLING_RECEIPT_ADDED_TYPE,
             }
+
+            // Doesn't work due to feature flag
             await waitFor(async () => {
                 const message = await Message.getOne(admin, messageWhere)
+
                 expect(message.id).toBeDefined()
             }, { delay: 2 * 1000 })
             await waitFor(async () => {
                 const lastSync = await redisClient.get(`LAST_SEND_BILLING_RECEIPT_NOTIFICATION_CREATED_AT:${receipt[0].context.id}`)
-                expect(dayjs(lastSync).toISOString()).toEqual(dayjs(receipt[0].createdAt).toISOString())
+                expect(dayjs(lastSync).toISOString()).toEqual(dayjs(receipt[0].context.lastReport.finishTime).toISOString())
             }, { delay: 2 * 1000 })
         })
 
