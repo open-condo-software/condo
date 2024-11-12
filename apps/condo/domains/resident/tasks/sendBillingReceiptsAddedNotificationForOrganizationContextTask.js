@@ -100,15 +100,7 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
     const { prevMonthStart, thisMonthStart } = getStartDates()
     const { keystone } = getSchemaCtx('Message')
     const redisClient = getRedisClient()
-    const handleLastDtChange = async (createdAt) => {
-        const redisKey = `LAST_SEND_BILLING_RECEIPT_NOTIFICATION_CREATED_AT:${context.id}`
-        const lastSyncDate = await redisClient.get(redisKey)
-        if (!!lastSyncDate && dayjs(lastSyncDate).isAfter(dayjs(createdAt))) {
-            return
-        }
-        await redisClient.set(redisKey, dayjs(createdAt).toISOString())
-    }
-    
+
     const receiptsWhere = {
         period_in: [prevMonthStart, thisMonthStart],
         createdAt_gt: lastSync,
@@ -124,8 +116,7 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
     })
     const accountsNumbers = []
     const receiptAccountKeys = {}
-    const notifiedUsers = new Set()
-    let lastReceipt, successCount = 0
+    let successCount = 0
 
     for (const receipt of receipts) {
         //Calculate isPayable field of BillingReceipt
@@ -188,6 +179,7 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
 
         return makeAccountKey(...params)
     })
+    const lastReportDate = get(context, 'lastReport.finishTime')
 
     for (const [key, receipt] of Object.entries(receiptAccountKeys)) {
         const consumers = consumersByAccountKey[key]
@@ -204,22 +196,21 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
             if (!resident || resident.deletedAt) continue
 
             // NOTE: (DOMA-4351) skip already notified user to get rid of duplicate notifications
-            if (notifiedUsers.has(resident.user)) continue
+            const notifiedUserDate = await redisClient.get(`BILLING_RECEIPTS_NOTIFIED_USERS${resident.user}`)
+
+            if (dayjs(notifiedUserDate).isAfter(dayjs(lastReportDate))) continue
 
             const success = await prepareAndSendNotification(keystone, receipt, resident, parentTaskId)
 
-            if (success) notifiedUsers.add(resident.user)
+            if (success){
+                await redisClient.set(`BILLING_RECEIPTS_NOTIFIED_USERS${resident.user}`, dayjs().toISOString())
+            }
 
             successConsumerCount += success
         }
 
         if (successConsumerCount > 0) successCount += 1
-        lastReceipt = receipt
     }
-
-
-    // Store receipt.createdAt as lastDt in order to continue from this point on next execution
-    if (!isEmpty(lastReceipt)) await handleLastDtChange(lastReceipt.createdAt)
 
     logger.info({ msg: 'sent billing receipts', successCount, parentTaskId, contextId })
 }
