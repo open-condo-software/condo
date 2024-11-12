@@ -10,6 +10,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { Edit } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
@@ -26,6 +27,7 @@ import { TicketCardList } from '@condo/domains/common/components/TicketCard/Tick
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { PageComponentType } from '@condo/domains/common/types'
 import { ContactsReadPermissionRequired } from '@condo/domains/contact/components/PageAccess'
+import { prefetchContact } from '@condo/domains/contact/utils/next/Contact'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 
 
@@ -209,22 +211,25 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
     )
 }
 
-const ContactInfoPage: PageComponentType = () => {
+const ContactInfoPage: PageComponentType<{ id: string }> = ({ id: contactId }) => {
     const intl = useIntl()
     const ErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
     const ContactNotFoundTitle = intl.formatMessage({ id: 'Contact.NotFound.Title' })
     const ContactNotFoundMessage = intl.formatMessage({ id: 'Contact.NotFound.Message' })
 
-    const { query, push } = useRouter()
-    const contactId = query?.id as string
+    const { push } = useRouter()
     const { role } = useOrganization()
+    const { persistor } = useCachePersistor()
 
     const {
         data,
         loading,
         error,
-    } = useGetContactByIdQuery({ variables: { id: contactId } })
+    } = useGetContactByIdQuery({
+        variables: { id: contactId },
+        skip: !persistor,
+    })
     const filteredContacts = data?.contacts?.filter(Boolean)
     const contact = Array.isArray(filteredContacts) && filteredContacts.length > 0 ? filteredContacts[0] : null
 
@@ -263,5 +268,18 @@ const ContactInfoPage: PageComponentType = () => {
 }
 
 ContactInfoPage.requiredAccess = ContactsReadPermissionRequired
+
+ContactInfoPage.getPrefetchedData = async ({ context, apolloClient }) => {
+    const { query } = context
+    const { id: contactId } = query as { id: string }
+
+    await prefetchContact({ client: apolloClient, contactId })
+
+    return {
+        props: {
+            id: contactId,
+        },
+    }
+}
 
 export default ContactInfoPage

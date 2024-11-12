@@ -21,7 +21,6 @@ import isEmpty from 'lodash/isEmpty'
 import map from 'lodash/map'
 import Head from 'next/head'
 import Link from 'next/link'
-import { useRouter } from 'next/router'
 import { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
@@ -49,7 +48,6 @@ import { CopyButton } from '@condo/domains/marketplace/components/Invoice/CopyBu
 import { TicketInvoicesList } from '@condo/domains/marketplace/components/Invoice/TicketInvoicesList'
 import { INVOICE_STATUS_CANCELED, INVOICE_STATUS_PUBLISHED } from '@condo/domains/marketplace/constants'
 import { useInvoicePaymentLink } from '@condo/domains/marketplace/hooks/useInvoicePaymentLink'
-import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 import { useGlobalAppsFeaturesContext } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
 import {
     ASSIGNED_TICKET_VISIBILITY,
@@ -95,6 +93,7 @@ import { FavoriteTicketIndicator } from '@condo/domains/ticket/utils/clientSchem
 import {
     getTicketTitleMessage,
 } from '@condo/domains/ticket/utils/helpers'
+import { prefetchTicket } from '@condo/domains/ticket/utils/next/Ticket'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { RESIDENT } from '@condo/domains/user/constants/common'
 
@@ -798,18 +797,14 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
     )
 }
 
-const TicketIdPage: PageComponentType = () => {
+const TicketIdPage: PageComponentType<{ id: string }> = ({ id }) => {
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
 
     const { user } = useAuth()
     const { link, organization, selectEmployee } = useOrganization()
 
-    const router = useRouter()
     const { persistor } = useCachePersistor()
-
-    // NOTE: cast `string | string[]` to `string`
-    const { query: { id } } = router as { query: { [key: string]: string } }
 
     const {
         data: ticketByIdData,
@@ -819,7 +814,6 @@ const TicketIdPage: PageComponentType = () => {
     } = useGetTicketByIdQuery({
         variables: { id },
         skip: !persistor,
-        fetchPolicy: 'network-only',
     })
     const ticket = useMemo(() => ticketByIdData?.tickets?.filter(Boolean)[0], [ticketByIdData?.tickets])
 
@@ -896,5 +890,18 @@ const TicketIdPage: PageComponentType = () => {
 }
 
 TicketIdPage.requiredAccess = TicketReadPermissionRequired
+
+TicketIdPage.getPrefetchedData = async ({ context, apolloClient }) => {
+    const { query } = context
+    const { id: ticketId } = query as { id: string }
+
+    await prefetchTicket({ client: apolloClient, ticketId })
+
+    return {
+        props: {
+            id: ticketId,
+        },
+    }
+}
 
 export default TicketIdPage
