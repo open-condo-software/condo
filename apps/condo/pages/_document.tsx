@@ -17,7 +17,13 @@ export default class MyDocument extends Document {
                 <Head>
                     <link id='favicon' rel='shortcut icon' href='/favicon.ico' type='image/x-icon'/>
                 </Head>
-                <body>
+                {/*
+                    NOTE: Extensions similar to Grammarly, ColorZilla and LanguageTool are therefore the cause of this warning,
+                    so you have to find out which one is doing this and then disable/configure it
+                    to not run on the ports you usually use for development.
+                    https://stackoverflow.com/a/75339011/941020
+                */}
+                <body suppressHydrationWarning={true}>
                     <Main/>
                     <NextScript/>
                     <style
