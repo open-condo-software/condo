@@ -1,4 +1,5 @@
 const { Text } = require('@keystonejs/fields')
+const isNil = require('lodash/isNil')
 
 const { RegexplessKnexFieldAdapter } = require('@open-condo/keystone/fields/utils/RegexplessKnexFieldAdapter')
 
@@ -9,13 +10,13 @@ const CommonInterface = superclass => class extends superclass {
     
     constructor () {
         super(...arguments) 
-        this.cipherManager = this.config.cipherManager
+        this.cipherManager = this.config.cipherConfig.cipherManager
     }
 
     setupHooks ({ addPreSaveHook }) {
 
         addPreSaveHook(item => {
-            if (item[this.path] !== null && item[this.path] !== undefined) {
+            if (!isNil(item) && !isNil(item[this.path])) {
                 const { encrypted } = this.cipherManager.encrypt(item[this.path])
                 item[this.path] = encrypted
             }
