@@ -32,6 +32,7 @@ const { Keystone } = require('./keystone')
 const { validateHeaders } = require('./validateHeaders')
 
 const IS_BUILD_PHASE = conf.PHASE === 'build'
+const IS_WORKER_PROCESS = conf.PHASE === 'worker'
 const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
 const IS_SENTRY_ENABLED = JSON.parse(get(conf, 'SENTRY_CONFIG', '{}'))['server'] !== undefined
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development'
@@ -266,14 +267,14 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
 
 process.on('uncaughtException', (err, origin) => {
     logger.error({ msg: 'uncaughtException', err, origin })
-    if (!IS_KEEP_ALIVE_ON_ERROR) {
+    if (IS_WORKER_PROCESS || !IS_KEEP_ALIVE_ON_ERROR) {
         throw err
     }
 })
 
 process.on('unhandledRejection', (err, promise) => {
     logger.error({ msg: 'unhandledRejection', err, promise })
-    if (!IS_KEEP_ALIVE_ON_ERROR) {
+    if (IS_WORKER_PROCESS || !IS_KEEP_ALIVE_ON_ERROR) {
         throw err
     }
 })

@@ -15,7 +15,6 @@ import { renderLink } from '@condo/domains/common/utils/Renders'
 import { getEscaped } from '@condo/domains/common/utils/string.utils'
 import { INoOrganizationToolTipWrapper } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
 
-import { ClientRenderedIcon } from './icons/ClientRenderedIcon'
 import { useLayoutContext } from './LayoutContext'
 import { useTracking } from './TrackingContext'
 
@@ -99,7 +98,7 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
     const {
         id,
         path,
-        icon,
+        icon: Icon,
         label,
         hideInMenu,
         disabled,
@@ -151,10 +150,10 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
 
     const linkContent = isCollapsed
         ? (
-            <ClientRenderedIcon icon={icon} iconProps={MenuItemIconProps}/>
+            <Icon {...MenuItemIconProps} />
         ) : (
             <Space size={12} align='center' direction='horizontal' className='menu-item'>
-                <ClientRenderedIcon icon={icon} iconProps={MenuItemIconProps}/>
+                <Icon {...MenuItemIconProps} />
                 <Typography.Title ellipsis={{ rows: 2 }} level={5}>
                     {Message}
                 </Typography.Title>
