@@ -1,0 +1,79 @@
+const Redis = require('ioredis')
+
+const conf = require('@open-condo/config')
+
+
+describe('Redis adapter', () => {
+    let redisClient
+    let nonPrefixedClient
+
+    beforeAll(() => {
+        jest.resetModules()
+        process.env.REDIS_URL = conf['REDIS_URL'] || 'redis://127.0.0.1:6379'
+        process.env.REDIS_FALLBACK_ENABLED = conf['REDIS_FALLBACK_ENABLED'] || 'true'
+
+        const { getRedisClient } = require('./redis')
+        redisClient = getRedisClient('test')
+        nonPrefixedClient = new Redis(process.env.REDIS_URL)
+    })
+
+    afterAll(async () => {
+        await nonPrefixedClient.del('test')
+        await nonPrefixedClient.del('keystone:test1')
+        await nonPrefixedClient.del('keystone:incrTest')
+        await nonPrefixedClient.del('keystone:testList')
+        await nonPrefixedClient.close()
+        await redisClient.close()
+    })
+
+    test('redis keyPrefix should be module specific', async () => {
+        expect(redisClient.options.keyPrefix).toMatch('keystone:')
+    })
+
+    test('redis handles non prefixed key with fallback enabled', async () => {
+        await nonPrefixedClient.set('test', 'result')
+        const res = await nonPrefixedClient.get('test')
+        expect(res).toMatch('result')
+
+        const key = await redisClient.get('test')
+        expect(key).toMatch(res)
+    })
+
+    test('default redis client set all keys with prefix', async () => {
+        await redisClient.set('test1', 'result1')
+        const result = await redisClient.get('test1')
+        expect(result).toMatch('result1')
+
+        const result1 = await nonPrefixedClient.get('test1')
+        expect(result1).toBeNull()
+
+        const result2 = await nonPrefixedClient.get('keystone:test1')
+        expect(result2).toMatch(result)
+    })
+
+    test('pipeline/multi operations should work as expected', async () => {
+        const [[incrError, incrValue], [ttlError, ttlValue]] = await redisClient
+            .multi()
+            .incrby('incrTest', 1)
+            .ttl('incrTest')
+            .exec()
+
+        expect(incrError).toBeNull()
+        expect(ttlError).toBeNull()
+        expect(incrValue).toEqual(1)
+        expect(ttlValue).toEqual(-1)
+    })
+
+    test('redis should work with oidc adapter', async () => {
+        await redisClient.rpush('testList', 1)
+        const key = await nonPrefixedClient.keys('keystone:testList')
+        expect(key).toEqual(expect.arrayContaining(['keystone:testList']))
+        const range = await redisClient.lrange('testList', 0, -1)
+        expect(range).toEqual(expect.arrayContaining(['1']))
+        const multi = redisClient.multi()
+        await multi.rpush('testList', 2).expire('testList', 0).exec()
+
+        const expiredKey = await redisClient.keys('testList')
+        expect(expiredKey).toHaveLength(0)
+    })
+})

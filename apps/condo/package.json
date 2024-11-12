@@ -22,7 +22,8 @@
     "createservice": "node ./../../bin/createservice",
     "createschema": "node ./../../bin/createschema",
     "lint-schema": "DISABLE_NEXT_APP=true node ./../../bin/lint-schema.js",
-    "lint-translations": "DISABLE_NEXT_APP=true node ./../../bin/lint-i18n-translations.js"
+    "lint-translations": "DISABLE_NEXT_APP=true node ./../../bin/lint-i18n-translations.js",
+    "rename-redis-keys": "node ./../../bin/rename-redis-keys.js"
   },
   "dependencies": {
     "@ant-design/colors": "^6.0.0",
