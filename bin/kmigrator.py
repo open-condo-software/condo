@@ -32,7 +32,8 @@ from datetime import datetime
 from pathlib import Path
 from time import time
 
-VERSION = (1, 5, 9)
+VERSION = (1, 6, 0)
+DISABLE_MODEL_CHOICES = True
 CACHE_DIR = Path('.kmigrator')
 KNEX_MIGRATIONS_DIR = Path('migrations')
 GET_KNEX_SETTINGS_SCRIPT = CACHE_DIR / 'get.knex.settings.js'
@@ -48,6 +49,7 @@ import keyword
 import sys
 
 DATA = '__KNEX_SCHEMA_DATA__'
+DISABLE_MODEL_CHOICES = '__DISABLE_MODEL_CHOICES__'.lower() in ('y', 'yes', 't', 'true', 'on', '1')
 NAME = '_django_model_generator'
 MODELS_TPL = """
 # -*- coding: utf-8 -*-
@@ -109,7 +111,7 @@ def to_fieldname(value):
 
 
 @register.filter
-def to_fieldtype(value, fieldname=None):
+def to_fieldtype(value, fieldname=None, disable_choices=DISABLE_MODEL_CHOICES):
     """
     >>> to_fieldtype([['increments'], ['notNullable']])
     'models.AutoField(primary_key=True)'
@@ -127,9 +129,9 @@ def to_fieldtype(value, fieldname=None):
     'models.DecimalField(null=True, blank=True, max_digits=8, decimal_places=2)'
     >>> to_fieldtype([["decimal", 8, 2]])
     'models.DecimalField(null=True, blank=True, max_digits=8, decimal_places=2)'
-    >>> to_fieldtype([["enum", ["pending", "processed"]], ["notNullable"]])
+    >>> to_fieldtype([["enum", ["pending", "processed"]], ["notNullable"]], disable_choices=False)
     "models.CharField(max_length=50, choices=[('pending', 'pending'), ('processed', 'processed')])"
-    >>> to_fieldtype([["enum", [1, 19]], ["notNullable"]])
+    >>> to_fieldtype([["enum", [1, 19]], ["notNullable"]], disable_choices=False)
     "models.IntegerField(choices=[(1, '1'), (19, '19')])"
     """
     q = json.dumps
@@ -157,9 +159,9 @@ def to_fieldtype(value, fieldname=None):
         "onDelete": lambda x, on_delete: x.update(
             {'field_class': 'models.ForeignKey', 'on_delete': 'models.' + on_delete}),
         "enum": lambda x, choices: x.update(
-            {'field_class': 'models.IntegerField', 'choices': [(i, str(i)) for i in choices]}) if type(
+            {'field_class': 'models.IntegerField', 'choices': None if disable_choices else [(i, str(i)) for i in choices]}) if type(
             choices[0]) == int else x.update(
-            {'field_class': 'models.CharField', 'max_length': 50, 'choices': [(i, i) for i in choices]}),
+            {'field_class': 'models.CharField', 'max_length': 50, 'choices': None if disable_choices else [(i, i) for i in choices]}),
         "defaultTo": lambda x, v: x.update({'default': v}),
         "kmigrator": lambda x, options: x.update(options),
     }
@@ -730,6 +732,7 @@ def main(command, keystoneEntryFile='./index.js', merge=False, check=False, empt
         '__KNEX_SCHEMA_PATH__': CACHE_DIR / 'knex.schema.json',
         '__KNEX_CONNECTION_PATH__': CACHE_DIR / 'knex.connection.json',
         '__KNEX_MIGRATION_DIR__': KNEX_MIGRATIONS_DIR,
+        '__DISABLE_MODEL_CHOICES__': DISABLE_MODEL_CHOICES,
     }
     try:
         _1_1_prepare_cache_dir(ctx)
