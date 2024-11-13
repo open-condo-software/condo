@@ -1,7 +1,4 @@
 import { CacheProvider } from '@emotion/core'
-import { ConfigProvider } from 'antd'
-import enUS from 'antd/lib/locale/en_US'
-import ruRU from 'antd/lib/locale/ru_RU'
 import dayjs from 'dayjs'
 import { cache } from 'emotion'
 import get from 'lodash/get'
@@ -24,6 +21,7 @@ import { useBankReportTaskUIInterface } from '@condo/domains/banking/hooks/useBa
 import { useBankSyncTaskUIInterface } from '@condo/domains/banking/hooks/useBankSyncTaskUIInterface'
 import { BILLING_RECEIPT_SERVICE_FIELD_NAME } from '@condo/domains/billing/constants/constants'
 import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/domains/billing/utils/clientSchema'
+import ConfigProvider from '@condo/domains/common/components/antd/ConfigProvider'
 import BaseLayout, { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
@@ -95,11 +93,6 @@ const { publicRuntimeConfig: { defaultLocale, sppConfig, disableSSR } } = getCon
 
 const IS_SSR_DISABLED = Boolean(disableSSR && disableSSR === 'true')
 
-const ANT_LOCALES = {
-    ru: ruRU,
-    en: enUS,
-}
-
 interface IMenuItemData {
     id?: string
     path: string
@@ -117,8 +110,6 @@ interface IMenuCategoryData {
     key: string
     items: Array<IMenuItemData>
 }
-
-const ANT_DEFAULT_LOCALE = enUS
 
 const MenuItems: React.FC = () => {
     const { updateContext, useFlag } = useFeatureFlags()
@@ -457,7 +448,6 @@ const MyApp = ({ Component, pageProps }) => {
     const { publicRuntimeConfig: { yandexMetrikaID, popupSmartConfig, UseDeskWidgetId } } = getConfig()
 
     const LayoutComponent = Component.container || BaseLayout
-    // TODO(Dimitreee): remove this mess later
     const HeaderAction = Component.headerAction
     let RequiredAccess: React.FC = React.Fragment
 
@@ -480,7 +470,7 @@ const MyApp = ({ Component, pageProps }) => {
                     content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'
                 />
             </Head>
-            <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize='large'>
+            <ConfigProvider>
                 <CacheProvider value={cache}>
                     <SetupTelegramNotificationsBanner />
                     <GlobalStyle/>
