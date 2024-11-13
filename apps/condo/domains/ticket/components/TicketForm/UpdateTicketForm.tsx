@@ -10,6 +10,7 @@ import reduce from 'lodash/reduce'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button } from '@open-condo/ui'
 
@@ -113,7 +114,11 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
         const ticketData = await action({
             variables: {
                 id: obj.id,
-                data: Ticket.formValuesProcessor(ticketValues),
+                data: {
+                    ...Ticket.formValuesProcessor(ticketValues),
+                    dv: 1,
+                    sender: getClientSideSenderInfo(),
+                },
             },
         })
         const ticket = ticketData?.data?.ticket
