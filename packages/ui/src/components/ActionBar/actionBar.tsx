@@ -20,11 +20,11 @@ export type ActionBarProps = {
 export const ActionBar: React.FC<ActionBarProps> = (props) => {
     const { actions, message, wrap = true } = props
 
-    const { TABLET_LARGE } = useBreakpoints()
+    const { MOBILE_LARGE, TABLET_SMALL } = useBreakpoints()
 
     return (
         <>
-            <Affix offsetBottom={TABLET_LARGE ? 23 : 0} prefixCls={ACTION_BAR_CLASS_PREFIX}>
+            <Affix offsetBottom={TABLET_SMALL ? 23 : 0} prefixCls={ACTION_BAR_CLASS_PREFIX}>
                 <Space wrap={wrap} size={SPACE_SIZE} className={AFFIX_CONTENT_WRAPPER_CLASS}>
                     {message && <Typography.Text strong>{message}</Typography.Text>}
                     {actions}
