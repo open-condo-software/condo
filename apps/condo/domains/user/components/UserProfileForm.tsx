@@ -1,9 +1,9 @@
+import { useMutation } from '@open-condo/next/apollo'
 import { jsx } from '@emotion/react/dist/emotion-react.cjs'
 import { Col, Form, Row, Space, Typography } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
-
 
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -12,13 +12,18 @@ import { ActionBar, Button } from '@open-condo/ui'
 import Input from '@condo/domains/common/components/antd/Input'
 import { Button as DeprecatedButton } from '@condo/domains/common/components/Button'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
+import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { runMutation } from '@condo/domains/common/utils/mutations.utils'
+import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
+import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import { EMAIL_ALREADY_REGISTERED_ERROR } from '@condo/domains/user/constants/errors'
+import { RESET_USER_MUTATION } from '@condo/domains/user/gql'
 import { User } from '@condo/domains/user/utils/clientSchema'
 
-import { UserAvatar } from './UserAvatar'
+
 
 
 const INPUT_LAYOUT_PROPS = {
@@ -47,14 +52,18 @@ export const UserProfileForm = () => {
     const ProfileUpdateTitle = intl.formatMessage({ id: 'profile.Update' })
     const EmailIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.EmailIsAlreadyRegistered' })
     const ChangePasswordLabel = intl.formatMessage({ id: 'profile.ChangePassword' })
+    const DeleteUserLabel = intl.formatMessage({ id: 'profile.Delete.CurrentUser' })
+    const ConfirmDeleteUserMessage = intl.formatMessage({ id: 'profile.Delete.ConfirmMessage' })
+    const DeleteOkButtonLabel = intl.formatMessage({ id: 'Delete' })
     const PromptTitle = intl.formatMessage({ id: 'form.prompt.title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'form.prompt.message' })
     const CancelLabel = intl.formatMessage({ id: 'Cancel' })
 
-    const { user } = useAuth()
+    const { user, signout } = useAuth()
     const updateUserAction = User.useUpdate({}, () => router.push('/user/'))
     const formAction = (formValues) => updateUserAction(formValues, user)
     const { breakpoints } = useLayoutContext()
+    const [resetUserMutation] = useMutation(RESET_USER_MUTATION)
 
     const onCancel = useCallback(() => {
         router.push('/user')
@@ -82,6 +91,30 @@ export const UserProfileForm = () => {
     const handleResetPasswordAction = useCallback(() => {
         return router.push(RESET_PASSWORD_URL)
     }, [router])
+
+    const handleDeleteButtonClick = useCallback(async () => {
+        const profileExtraData = {
+            dv: 1,
+            sender: getClientSideSenderInfo(),
+        }
+
+        const data = { user: { id: user.id }, saveName: true, ...profileExtraData }
+
+        return runMutation({
+            mutation: resetUserMutation,
+            variables: { data },
+            onCompleted: () => {
+                signout()
+            },
+            onError: (e) => {
+                console.log(e)
+                console.error(e.friendlyDescription)
+                throw e
+            },
+            intl,
+        })
+    }, [intl, user, signout])
+
 
     return (
         <FormWithAction
@@ -167,6 +200,16 @@ export const UserProfileForm = () => {
                                                 >
                                                     {CancelLabel}
                                                 </Button>,
+                                                <DeleteButtonWithConfirmModal
+                                                    key='deleteUser'
+                                                    buttonContent={DeleteUserLabel}
+                                                    title={DeleteUserLabel}
+                                                    message={ConfirmDeleteUserMessage}
+                                                    messageType='secondary'
+                                                    okButtonLabel={DeleteOkButtonLabel}
+                                                    showCancelButton={true}
+                                                    action={handleDeleteButtonClick}
+                                                />,
                                             ]}
                                         />
                                     </Col>
