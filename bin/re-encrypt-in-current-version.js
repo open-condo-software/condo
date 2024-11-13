@@ -2,7 +2,9 @@ const path = require('path')
 
 const chalk = require('chalk')
 const { program } = require('commander')
+const get = require('lodash/get')
 const isNil = require('lodash/isNil')
+const set = require('lodash/set')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
@@ -15,15 +17,17 @@ const STATE = {
     processedCount: 0,
     successCount: 0,
     allCount: 0,
-    errors: [],
+    errors: undefined,
 }
 
-function logState (state) {
+const CHUNK_SIZE = 100
+
+function logState (state, indent = '') {
     console.log(chalk.green('--------------------------'))
-    console.log(chalk.green(`Items count: ${state.allCount}`))
-    console.log(chalk.green(`Processed count: ${state.processedCount}`))
-    console.log(chalk.green(`Success count: ${state.successCount}`))
-    console.log(chalk.green(`Errors count: ${state.errorCount}`))
+    console.log(chalk.green(`${indent}Items count: ${state.allCount}`))
+    console.log(chalk.green(`${indent}Processed count: ${state.processedCount}`))
+    console.log(chalk.green(`${indent}Success count: ${state.successCount}`))
+    console.log(chalk.green(`${indent}Errors count: ${state.errorCount}`))
 }
 
 /**
@@ -33,22 +37,17 @@ function logState (state) {
  * */
 async function processList (keystone, { list, fields }) {
 
-    const ciphers = {}
-    const oldVersionKeys = {}
+    const encryptionManagers = {}
+    const currentVersionIdsByField = {}
     for (const field of fields) {
-        ciphers[field.path] = field.cipherManager
-        const oldVersionKeysForField = Object.keys(field.cipherManager._versions)
-            .filter((versionKey) => versionKey !== field.cipherManager._currentVersionKey)
-        if (oldVersionKeysForField.length) {
-            oldVersionKeys[field.path] = oldVersionKeysForField.map(key => Buffer.from(key).toString('hex'))
-        }
+        encryptionManagers[field.path] = field.encryptionManager
+        currentVersionIdsByField[field.path] = Buffer.from(field.encryptionManager._currentVersionId).toString('hex')
+        console.error(`${list.key}.${field.path}`, field.encryptionManager._currentVersionId, Buffer.from(field.encryptionManager._currentVersionId).toString('hex'))
     }
 
-    const where = { OR: [] }
-    for (const field in oldVersionKeys) {
-        for (const key of oldVersionKeys[field]) {
-            where.OR.push({ [`${field}_starts_with`]: `${key}:` } )
-        }
+    const where = { AND: [] }
+    for (const field in currentVersionIdsByField) {
+        where.AND.push({ [`${field}_not_starts_with`]: `${currentVersionIdsByField[field]}:` } )
     }
 
     const adapter = list.adapter
@@ -56,20 +55,21 @@ async function processList (keystone, { list, fields }) {
     console.log(chalk.green('--------------------------'))
     console.log(chalk.green(`Processing list ${list.key}`))
 
-    const { count: itemsToUpdateCount } = await adapter.itemsQuery({ where }, { meta: true }) // SELECT COUNT(*)...
+    let { count: itemsToUpdateCount } = await adapter.itemsQuery({ where }, { meta: true }) // SELECT COUNT(*)...
     const listState = {
         allCount: itemsToUpdateCount,
         processedCount: 0,
         errorCount: 0,
         successCount: 0,
+        decryptErrors: {},
+        updateErrors: {},
     }
-    STATE.allCount += itemsToUpdateCount
 
-    logState(listState)
+    const logIndent = '    '
+    logState(listState, logIndent)
 
-    let first = 100
+    let first = CHUNK_SIZE
     let skip = 0
-    let chunkLength
     do {
         const variables = { where, first, skip }
         const chunk = await adapter.itemsQuery(variables)
@@ -77,49 +77,53 @@ async function processList (keystone, { list, fields }) {
         const toUpdate = []
 
         for (const obj of chunk) {
-            for (const key in ciphers) {
+            let didDecryptAnyFields = false
+            const nextErrorsCount = listState.errorCount + 1
+            for (const key in encryptionManagers) {
                 if (isNil(obj[key])) continue
                 try {
-                    const { decrypted } = ciphers[key].decrypt(obj[key])
+                    const decrypted = encryptionManagers[key].decrypt(obj[key])
+                    if (isNil(decrypted)) {
+                        throw new Error('Can not decrypt field')
+                    }
                     obj[key] = decrypted
-                    toUpdate.push(obj)
+                    didDecryptAnyFields = true
                 } catch (err) {
-                    STATE.errorCount++
-                    STATE.processedCount++
-                    STATE.errors.push({ listKey: list.key, err, itemId: obj.id, itemField: key })
-                    listState.errorCount++
-                    listState.processedCount++
-                    console.error(err)
+                    set(listState, `decryptErrors.${key}.${obj.id}`, err)
+                    listState.errorCount = nextErrorsCount
                 }
+            }
+            if (didDecryptAnyFields) {
+                toUpdate.push(obj)
+            } else {
+                listState.processedCount++
             }
         }
 
         const updatesPromises = toUpdate.map(async ({ id, ...updateInput }) => {
             try {
                 await adapter.update(id, updateInput)
-                STATE.successCount++
                 listState.successCount++
             } catch (err) {
-                console.error(err)
-                STATE.errorCount++
                 listState.errorCount++
+                listState.updateErrors[id] = err
             } finally {
-                STATE.processedCount++
                 listState.processedCount++
             }
         })
 
         await Promise.allSettled(updatesPromises)
 
-        logState(listState)
+        logState(listState, logIndent)
 
-        chunkLength = chunk.length
+        itemsToUpdateCount -= chunk.length
         skip = first
-        first += 100
-    } while (chunkLength)
+        first += CHUNK_SIZE
+    } while (itemsToUpdateCount > 0)
 
     console.log(chalk.green('--------------------------'))
     console.log(chalk.green(`End process list ${list.key}`))
+    return listState
 }
 
 function getListsWithEncryptedFields (keystone) {
@@ -223,19 +227,40 @@ async function main () {
     let i = 0
     for (const listFieldsPair of listsWithEncryptedFieldsToReEncrypt) {
         i++
-        await processList(keystone, listFieldsPair)
+        const listState = await processList(keystone, listFieldsPair)
+        STATE.allCount += listState.allCount
+        STATE.successCount += listState.successCount
+        STATE.processedCount += listState.processedCount
+        STATE.errorCount += listState.errorCount
+        set(STATE, `errors.${listFieldsPair.list.key}.decrypt`, listState.decryptErrors)
+        set(STATE, `errors.${listFieldsPair.list.key}.update`, listState.updateErrors)
         console.log(chalk.green('--------------------------'))
         console.log(chalk.greenBright(`Processed lists: ${i}/${listsWithEncryptedFieldsToReEncrypt.length}`))
         logState(STATE)
     }
 
-    if (STATE.errors.length) {
-        console.log(chalk.red('ERRORS:'))
+    if (STATE.errors) {
+        console.log(chalk.redBright('ERRORS:'))
     }
-    for (const { listKey, itemId, itemField, err } of STATE.errors) {
-        console.log(chalk.red(`- List: ${listKey} id: ${itemId} field: ${itemField}`))
-        console.log(chalk.red(err))
-        console.log(chalk.red(err.toString))
+    for (const listKey in STATE.errors) {
+        console.log(chalk.redBright(` - ${listKey}:`))
+        const updateErrors = get(STATE.errors[listKey], 'update')
+        if (updateErrors) {
+            console.log(chalk.redBright('   Update errors:'))
+        }
+        for (const itemId in updateErrors) {
+            console.log(chalk.redBright(`    - id: ${itemId} | ${updateErrors[itemId].stack}`))
+        }
+        const decryptErrorsByField = get(STATE.errors[listKey], 'decrypt')
+        if (decryptErrorsByField) {
+            console.log(chalk.redBright('   Decrypt errors:'))
+        }
+        for (const field in decryptErrorsByField) {
+            console.log(chalk.redBright(`   - ${listKey}.${field}:`))
+            for (const id in decryptErrorsByField[field]) {
+                console.log(chalk.redBright(`     - ${id}`), chalk.red(`: ${decryptErrorsByField[field][id].stack}`))
+            }
+        }
     }
 }
 
