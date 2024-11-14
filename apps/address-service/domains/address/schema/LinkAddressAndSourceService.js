@@ -7,7 +7,7 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keys
 const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
 const access = require('@address-service/domains/address/access/LinkAddressAndSourceService')
-const { EMPTY_SOURCE_ERROR, EMPTY_ADDRESS_ERROR, SOURCE_ALREADY_EXISTS_ERROR, INCORRECT_ADDRESS_SOURCE_ERROR } = require('@address-service/domains/address/constants')
+const { EMPTY_SOURCE_ERROR, EMPTY_ADDRESS_ERROR, SOURCE_ALREADY_EXISTS_ERROR, INCORRECT_ADDRESS_SOURCE_ERROR, INCORRECT_ADDRESS_ERROR } = require('@address-service/domains/address/constants')
 const { AddressSource } = require('@address-service/domains/address/utils/serverSchema')
 const { mergeAddressAndHelpers } = require('@address-service/domains/common/utils/services/search/searchServiceUtils')
 
@@ -29,6 +29,12 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: INCORRECT_ADDRESS_SOURCE_ERROR,
         message: 'Incorrect address source',
+    },
+    INCORRECT_ADDRESS: {
+        query: 'linkAddressAndSource',
+        code: BAD_USER_INPUT,
+        type: INCORRECT_ADDRESS_ERROR,
+        message: 'Incorrect address',
     },
     SAME_SOURCE: {
         mutation: 'linkAddressAndSource',
@@ -85,6 +91,15 @@ const LinkAddressAndSourceService = new GQLCustomSchema('LinkAddressAndSourceSer
 
                 if (existingSource) {
                     throw new GQLError(ERRORS.SAME_SOURCE, context)
+                }
+
+                const [existingAddress] = await find('Address', {
+                    id: address.id,
+                    deletedAt: null,
+                })
+
+                if (!existingAddress) {
+                    throw new GQLError(ERRORS.INCORRECT_ADDRESS, context)
                 }
 
                 const addressSource = await AddressSource.create(

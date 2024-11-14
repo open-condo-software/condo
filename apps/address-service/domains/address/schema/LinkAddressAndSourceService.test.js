@@ -88,4 +88,14 @@ describe('LinkAddressAndSourceService', () => {
             async () => await linkAddressAndSourceByTestClient(admin, payload2)
             , ERRORS.EMPTY_ADDRESS)
     })
+
+    test('Should not link unexisting or incorrect address', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const source = `${faker.address.street()} ${faker.random.numeric(3)} кв123`
+        const address = faker.datatype.uuid()
+        const payload = { source, address: { id: address } }
+        await expectToThrowGQLErrorToResult(
+            async () => await linkAddressAndSourceByTestClient(admin, payload)
+            , ERRORS.INCORRECT_ADDRESS)
+    })
 })
