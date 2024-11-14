@@ -42,7 +42,6 @@ async function processList (keystone, { list, fields }) {
     for (const field of fields) {
         encryptionManagers[field.path] = field.encryptionManager
         currentVersionIdsByField[field.path] = Buffer.from(field.encryptionManager._currentVersionId).toString('hex')
-        console.error(`${list.key}.${field.path}`, field.encryptionManager._currentVersionId, Buffer.from(field.encryptionManager._currentVersionId).toString('hex'))
     }
 
     const where = { AND: [] }
@@ -258,7 +257,7 @@ async function main () {
         for (const field in decryptErrorsByField) {
             console.log(chalk.redBright(`   - ${listKey}.${field}:`))
             for (const id in decryptErrorsByField[field]) {
-                console.log(chalk.redBright(`     - ${id}`), chalk.red(`: ${decryptErrorsByField[field][id].stack}`))
+                console.log(chalk.red(`     - ${id}: ${decryptErrorsByField[field][id].stack}`))
             }
         }
     }
