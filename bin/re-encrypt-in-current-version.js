@@ -174,41 +174,19 @@ function getDataToReEncrypt (keystone) {
         if (exclude !== null) {
             filteredLists = filteredLists
                 .filter(({ list }) => isNil(exclude[list.key]))
-                .map((listWithFields) => {
-                    let { list, fields } = listWithFields
-                    const excludedFieldsOfList = exclude[list.key]
-                    if (!excludedFieldsOfList.length) return listWithFields
-                    fields = fields.filter((field) => !excludedFieldsOfList.includes(field.name))
-                    if (!fields.length) {
-                        return null
-                    }
-                    listWithFields.fields = fields
-                    return listWithFields
-                })
         }
     } else {
         filteredLists = filteredLists
             .filter(({ list }) => !isNil(include[list.key]))
-            .map((listWithFields) => {
-                let { list, fields } = listWithFields
-                const includedFieldsOfList = include[list.key]
-                if (!includedFieldsOfList.length) return listWithFields
-                fields = fields.filter((field) => includedFieldsOfList.includes(field.path))
-                if (!fields.length) {
-                    return null
-                }
-                listWithFields.fields = fields
-                return listWithFields
-            })
     }
     return filteredLists.filter(Boolean)
 }
 
 program.option('-a --all', 're encrypt all fields of SymmetricEncryptedText type in all lists', false)
-program.option('-i --include <listKey.field...>', `Collection of <listKey> or <listKey.field> divided by space.
-    If passed, only these lists and fields will be user. Works only with --all = false`, null)
-program.option('-e --exclude <listKey.field...>', 'Same as --include, but works only with --app = true and determines\n ' +
-    'models and fields which should not be modified', null)
+program.option('-i --include <listKey>', `Collection of <listKey> divided by space.
+    If passed, only these lists will be re encrypted. Works only with --all = false`, null)
+program.option('-e --exclude <listKey>', 'Same as --include, but works only with --app = true and determines\n ' +
+    'models which should not be modified', null)
 program.description(`Re encrypts fields of type SymmetricEncryptedText with old secrets to new secrets
 NOTE: it only touches data, which was encrypted in existing versions. If old version was forgotten, this script won't tell, or might error
 If there is data under field SymmetricEncryptedText, which was not encrypted by field methods, script will skip it or will error
