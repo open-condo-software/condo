@@ -2348,20 +2348,26 @@ export const GetTicketsDocument = gql`
     details
     clientName
     classifier {
+      id
       category {
+        id
         name
       }
       place {
+        id
         name
       }
     }
     contact {
+      id
       name
     }
     executor {
+      id
       name
     }
     assignee {
+      id
       name
     }
     organization {
@@ -2377,6 +2383,7 @@ export const GetTicketsDocument = gql`
       }
     }
     status {
+      id
       type
       name
       colors {
@@ -2649,6 +2656,7 @@ export const GetTicketByIdDocument = gql`
       type
     }
     source {
+      id
       name
     }
     status {

@@ -10,7 +10,7 @@ import { ContactsReadAndManagePermissionRequired } from '@condo/domains/contact/
 import { prefetchContact } from '@condo/domains/contact/utils/next/Contact'
 
 
-const ContactUpdatePage: PageComponentType<{ id: string }> = () => {
+const ContactUpdatePage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'EditingContact' })
 
@@ -39,9 +39,7 @@ ContactUpdatePage.getPrefetchedData = async ({ context, apolloClient }) => {
     await prefetchContact({ client: apolloClient, contactId })
 
     return {
-        props: {
-            id: contactId,
-        },
+        props: {},
     }
 }
 
