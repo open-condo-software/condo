@@ -14,17 +14,17 @@ const { getLocalized } = require('@open-condo/locales/loader')
 
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { DEFAULT_CURRENCY_CODE, CURRENCY_SYMBOLS } = require('@condo/domains/common/constants/currencies')
+const { getStartDates } = require('@condo/domains/common/utils/date')
 const {
     BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
     BILLING_RECEIPT_ADDED_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-
-const { getStartDates } = require('@condo/domains/common/utils/date')
+const { USER_BILLING_RECEIPT_NOTIFICATION_PERIOD_IN_SEC, BILLING_RECEIPTS_NOTIFIED_USERS_PREFIX } = require('@condo/domains/resident/constants')
 
 const logger = getLogger('sendNewBillingReceiptNotification')
 
-const makeMessageKey = (period, accountNumber, categoryId, residentId) => `${period}:${accountNumber}:${categoryId}:${residentId}}`
+const makeMessageKey = (receiptId, period, accountNumber, categoryId, residentId) => `${receiptId}:${period}:${accountNumber}:${categoryId}:${residentId}}`
 const makeAccountKey = (...args) => args.map(value => `${value}`.trim().toLowerCase()).join(':')
 const getMessageTypeAndDebt = (toPay, toPayCharge) => {
     if (toPay <= 0) return { messageType: BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE, debt: 0 }
@@ -46,7 +46,7 @@ const prepareAndSendNotification = async (context, receipt, resident) => {
     // TODO(DOMA-3376): Detect locale by resident locale instead of organization country.
     const country = get(resident, 'residentOrganization.country', conf.DEFAULT_LOCALE)
     const locale = get(COUNTRIES, country).locale
-    const notificationKey = makeMessageKey(receipt.period, receipt.account.number, receipt.category.id, resident.id)
+    const notificationKey = makeMessageKey(receipt.id, receipt.period, receipt.account.number, receipt.category.id, resident.id)
     const toPayValue = parseFloat(receipt.toPay)
     const toPay = isNaN(toPayValue) ? null : toPayValue
     const toPayChargeValue = parseFloat(get(receipt, 'toPayDetails.charge'))
@@ -221,13 +221,14 @@ async function notifyConsumers (redisClient, keystone, receipt, consumers) {
     for (const consumer of consumers) {
         const resident = get(consumer, 'resident')
         if (!resident || resident.deletedAt) continue
+        const notifiedUserDate = await redisClient.get(BILLING_RECEIPTS_NOTIFIED_USERS_PREFIX + resident.user)
+        logger.info({ residentTest: resident.user, notifiedUserDate })
 
-        const notifiedUserDate = await redisClient.get(`BILLING_RECEIPTS_NOTIFIED_USERS:${resident.user}`)
         if (notifiedUserDate) continue
 
         const success = await prepareAndSendNotification(keystone, receipt, resident)
         if (success) {
-            await redisClient.set(`BILLING_RECEIPTS_NOTIFIED_USERS:${resident.user}`, true, 'EX', 86400, 'NX') // 1 day TTL
+            await redisClient.set(BILLING_RECEIPTS_NOTIFIED_USERS_PREFIX + resident.user, 'true', 'EX', USER_BILLING_RECEIPT_NOTIFICATION_PERIOD_IN_SEC, 'NX')
             successConsumerCount += 1
         }
     }

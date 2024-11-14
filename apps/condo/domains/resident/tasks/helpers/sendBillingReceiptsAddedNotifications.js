@@ -7,11 +7,9 @@ const { find } = require('@open-condo/keystone/schema')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { getStartDates } = require('@condo/domains/common/utils/date')
+const { REDIS_LAST_DATE_KEY, REDIS_LAST_DATE_KEY_PREFIX } = require('@condo/domains/resident/constants')
 const { sendBillingReceiptsAddedNotificationForOrganizationContextTask } = require('@condo/domains/resident/tasks/sendBillingReceiptsAddedNotificationForOrganizationContextTask')
-
 const logger = getLogger('sendBillingReceiptsAddedNotifications')
-const REDIS_LAST_DATE_KEY_OLD_WAY = 'LAST_SEND_BILLING_RECEIPT_NOTIFICATION_CREATED_AT'
-const REDIS_KEY_PREFIX = 'LAST_SEND_BILLING_RECEIPT_NOTIFICATION_CREATED_AT:'
 
 const sendBillingReceiptsAddedNotifications = async () => {
     const redisClient = getRedisClient()
@@ -28,14 +26,14 @@ const sendBillingReceiptsAddedNotifications = async () => {
     logger.info({ msg: 'Starting billing receipts notification process' })
 
     // After synchronization with integrations (RegisterBillingReceiptsService), the context is updated to put the lastReport:JSON field.
-    // Therefore, we understand that according to the context updated after the date of the last notification mailing, there are new receipts and we fetch such contexts.
+    // Therefore, we understand that according to the context updated after the date of the last notification mailing, there are new receipts, and we fetch such contexts.
 
     const BillingContexts = await find('BillingIntegrationOrganizationContext', {
         updatedAt_gte: lastSync,
         status: CONTEXT_FINISHED_STATUS,
         deletedAt: null,
     })
-    const oldWayLastSyncDate = await redisClient.get(REDIS_LAST_DATE_KEY_OLD_WAY)
+    const oldWayLastSyncDate = await redisClient.get(REDIS_LAST_DATE_KEY)
 
     for (const context of BillingContexts) {
         const lastReport = get(context, 'lastReport.finishTime')
@@ -44,7 +42,7 @@ const sendBillingReceiptsAddedNotifications = async () => {
         if (oldWayLastSyncDate && dayjs(oldWayLastSyncDate).isAfter(dayjs(lastReport))) continue
 
 
-        const redisKey = `${REDIS_KEY_PREFIX}${context.id}`
+        const redisKey = `${REDIS_LAST_DATE_KEY_PREFIX}${context.id}`
         const lastSyncDate = await redisClient.get(redisKey)
         if (!lastSyncDate || dayjs(lastReport).isAfter(dayjs(lastSyncDate))) {
             await redisClient.set(redisKey, lastReport)
