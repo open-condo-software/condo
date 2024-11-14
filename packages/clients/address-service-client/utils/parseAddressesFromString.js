@@ -11,8 +11,6 @@ const SPLIT_SYMBOL = '%'
 
 class AddressFromStringParser {
 
-    splitRegexp
-
     constructor () {
         const keywordsRegex = this.keywordsToRegexp(Object.values(KEYWORDS).flat())
         this.splitRegexp = new RegExp(`[\\s,](${HOUSE_IDENTIFIERS})([\\s.].*?)[\\s,]+(${keywordsRegex})[.\\s]`, 'i')
