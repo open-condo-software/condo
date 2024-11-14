@@ -3,7 +3,6 @@
  */
 
 const get = require('lodash/get')
-const has = require('lodash/has')
 const isEmpty = require('lodash/isEmpty')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
@@ -11,27 +10,17 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema, find } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/miniapp/access/B2BAppAccessRightSet')
-const { ACCESS_RIGHT_SET_TOO_MANY_OF_TYPE, NAME_REQUIRED, ACCESS_TOKEN_TOKEN_SCOPE_TYPE } = require('@condo/domains/miniapp/constants')
+const { ACCESS_RIGHT_SET_TOO_MANY_OF_TYPE, NAME_REQUIRED, ACCESS_RIGHT_SET_TOKEN_SCOPE_TYPE } = require('@condo/domains/miniapp/constants')
 const {
-    ACCESS_TOKEN_SCOPE_TYPES, ACCESS_TOKEN_MINIAPP_SCOPE_TYPE, ACCESS_TOKEN_MAX_ITEMS_FOR_SCOPE,
+    ACCESS_RIGHT_SET_SCOPE_TYPES, ACCESS_RIGHT_SET_MINIAPP_SCOPE_TYPE, ACCESS_RIGHT_SET_MAX_ITEMS_FOR_SCOPE,
     ACCESS_RIGHT_SET_MINIAPP_SCOPE_RIGHT_SET_REQUIRED, ACCESS_RIGHT_SET_TOO_MANY_PERMISSIONS,
 } = require('@condo/domains/miniapp/constants')
 const { B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess/config')
 const { generatePermissionFields } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess/schema.utils')
+const { getPermissionsDiff, getEnabledPermissions } = require('@condo/domains/miniapp/utils/permissions')
 const { B2BAppAccessRightSet: B2BAppAccessRightSetAPI, B2BAccessToken } = require('@condo/domains/miniapp/utils/serverSchema')
 
-const PERMISSION_FIELDS_KEYS = Object.keys(generatePermissionFields({ config: B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS }))
 
-
-/** Get fields, which set to false in rightSet1 and false in rightSet2 */
-function getRightsDifference (rightSet1, rightSet2) {
-    const diff = []
-    for (const permissionField of PERMISSION_FIELDS_KEYS)
-        if (!rightSet1[permissionField] && rightSet2[permissionField]) {
-            diff.push(permissionField)
-        }
-    return diff
-}
 
 const ERRORS = {
     TOO_MANY_ITEMS_OF_TYPE: {
@@ -90,21 +79,9 @@ const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
         name: {
             schemaDoc: 'Name for right set to distinguish it',
             type: 'Text',
-            isRequired: false,
+            isRequired: true,
+            defaultValue: 'default',
             hooks: {
-                resolveInput ({ operation, existingItem, resolvedData, fieldPath, originalInput, context }) {
-                    const nextItem = {
-                        ...(existingItem || {}),
-                        ...resolvedData,
-                    }
-                    const name = get(nextItem, fieldPath)
-                    const type = get(nextItem, 'type')
-                    if (operation === 'create' && type === ACCESS_TOKEN_MINIAPP_SCOPE_TYPE && isEmpty(name)) {
-                        return 'default'
-                    }
-
-                    return get(resolvedData, fieldPath)
-                },
                 validateInput ({ resolvedData, existingItem, context }) {
                     const nextItem = {
                         ...(existingItem || {}),
@@ -121,23 +98,10 @@ const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
         type: {
             schemaDoc: 'Scope type of right set',
             type: 'Select',
-            options: ACCESS_TOKEN_SCOPE_TYPES,
+            options: ACCESS_RIGHT_SET_SCOPE_TYPES,
+            defaultValue: ACCESS_RIGHT_SET_MINIAPP_SCOPE_TYPE,
             access: {
                 update: false,
-            },
-            hooks: {
-                // TODO(YEgorLu): migrate all existing rightSets to have type: 'miniapp', then make field required and remove this hook
-                resolveInput ({ operation, existingItem, fieldPath, resolvedData, originalInput }) {
-                    if (operation === 'update' && !get(existingItem, fieldPath)) {
-                        return ACCESS_TOKEN_MINIAPP_SCOPE_TYPE
-                    }
-
-                    if (operation === 'create' && !has(originalInput, fieldPath)) {
-                        throw new GQLError()
-                    }
-
-                    return get(operation === 'create' ? resolvedData : existingItem, fieldPath)
-                },
             },
         },
 
@@ -145,57 +109,69 @@ const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
 
     },
     hooks: {
-        async validateInput ({ operation, resolvedData, existingItem, context }) {
-            if (operation === 'create' && resolvedData.type !== ACCESS_TOKEN_MINIAPP_SCOPE_TYPE) {
+        async validateInput ({ resolvedData, existingItem, context }) {
+            const nextItem = {
+                ...(existingItem || {}),
+                ...resolvedData,
+            }
+            if (nextItem.type !== ACCESS_RIGHT_SET_MINIAPP_SCOPE_TYPE) {
                 const rightSetsForApp = await find('B2BAppAccessRightSet', {
-                    app: { id: resolvedData.app },
+                    app: { id: nextItem.app },
                     deletedAt: null,
                 })
                 
-                const miniappRightSet = rightSetsForApp.find(set => set.type === ACCESS_TOKEN_MINIAPP_SCOPE_TYPE)
+                const miniappRightSet = rightSetsForApp.find(set => set.type === ACCESS_RIGHT_SET_MINIAPP_SCOPE_TYPE)
                 if (!miniappRightSet) {
                     throw new GQLError(ERRORS.MINIAPP_SCOPE_RIGHT_SET_REQUIRED, context)
                 }
-                const sameTypeRightSets = rightSetsForApp.filter(set => set.type === resolvedData.type)
-                if (sameTypeRightSets.length >= ACCESS_TOKEN_MAX_ITEMS_FOR_SCOPE[resolvedData.type]) {
+                const sameTypeRightSets = rightSetsForApp.filter(set => set.type === nextItem.type)
+                if (sameTypeRightSets.length >= ACCESS_RIGHT_SET_MAX_ITEMS_FOR_SCOPE[nextItem.type]) {
                     throw new GQLError({
                         ...ERRORS.TOO_MANY_ITEMS_OF_TYPE,
-                        messageInterpolation: { type: resolvedData.type, maximum: ACCESS_TOKEN_MAX_ITEMS_FOR_SCOPE[resolvedData.type] },
+                        messageInterpolation: { type: nextItem.type, maximum: ACCESS_RIGHT_SET_MAX_ITEMS_FOR_SCOPE[nextItem.type] },
                     }, context)
                 }
 
-                if (resolvedData.type !== ACCESS_TOKEN_MINIAPP_SCOPE_TYPE) {
-                    const permissionDiff = getRightsDifference(miniappRightSet, resolvedData)
-                    if (permissionDiff.length) {
+                if (nextItem.type !== ACCESS_RIGHT_SET_MINIAPP_SCOPE_TYPE) {
+                    const permissionDiff = getPermissionsDiff(miniappRightSet, nextItem)
+                    const enabledPermissionsDiff = getEnabledPermissions(permissionDiff)
+                    if (Object.keys(enabledPermissionsDiff).length) {
                         throw new GQLError(ERRORS.TOO_MANY_PERMISSIONS, context)
                     }
                 }
             }
         },
         async afterChange ({ operation, updatedItem, context }) {
-            if (operation === 'update' || updatedItem.type === ACCESS_TOKEN_MINIAPP_SCOPE_TYPE) {
+            if (operation === 'update' && updatedItem.type === ACCESS_RIGHT_SET_MINIAPP_SCOPE_TYPE) {
                 const otherTypeRightSets = await find('B2BAppAccessRightSet', {
                     app: { id: updatedItem.app },
-                    type_not: ACCESS_TOKEN_MINIAPP_SCOPE_TYPE,
+                    type_not: ACCESS_RIGHT_SET_MINIAPP_SCOPE_TYPE,
                     deletedAt: null,
                 })
                 for (const rightSet of otherTypeRightSets) {
-                    const diffPermissions = getRightsDifference(updatedItem, rightSet)
-                    if (diffPermissions.length) {
-                        const updateInput = Object.fromEntries(diffPermissions.map(permissionField => [permissionField, false]))
-                        await B2BAppAccessRightSetAPI.update(context, updateInput)
+                    const diffPermissions = getPermissionsDiff(updatedItem, rightSet)
+                    const permissionsToDisable = getEnabledPermissions(diffPermissions)
+                    const disabledPermissions = Object.fromEntries(Object.keys(permissionsToDisable).map((perm) => [perm, false]))
+                    if (Object.keys(disabledPermissions).length) {
+                        await B2BAppAccessRightSetAPI.update(context, rightSet.id, {
+                            dv: rightSet.dv,
+                            sender: updatedItem.sender,
+                            ...disabledPermissions,
+                        }, 'id')
                     }
                 }
             }
 
-            if (operation === 'update' && updatedItem.type === ACCESS_TOKEN_TOKEN_SCOPE_TYPE) {
+            if (operation === 'update' && updatedItem.type === ACCESS_RIGHT_SET_TOKEN_SCOPE_TYPE) {
                 const accessTokens = await find('B2BAccessToken', {
                     rightSet: { id: updatedItem.id },
                     deletedAt: null,
                 })
                 for (const accessToken of accessTokens) {
-                    console.error(`updating accessToken:${accessToken.id} from rightSet`)
-                    await B2BAccessToken.update(context, accessToken.id, { dv: 1, sender: get(updatedItem, 'sender') }, 'id')
+                    await B2BAccessToken.update(context, accessToken.id, {
+                        dv: 1,
+                        sender: updatedItem.sender,
+                    }, 'id')
                 }
             }
         },
@@ -205,7 +181,7 @@ const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
             {
                 type: 'models.UniqueConstraint',
                 fields: ['app'],
-                condition: `Q(deletedAt__isnull=True) & Q(type='${ACCESS_TOKEN_MINIAPP_SCOPE_TYPE}')`,
+                condition: `Q(deletedAt__isnull=True) & Q(type='${ACCESS_RIGHT_SET_MINIAPP_SCOPE_TYPE}')`,
                 name: 'b2b_app_access_right_set_unique_app',
             },
         ],

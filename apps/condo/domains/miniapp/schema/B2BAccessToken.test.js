@@ -11,7 +11,7 @@ const conf = require('@open-condo/config')
 const {
     makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor, expectValuesOfCommonFields,
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
-    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAccessDeniedErrorToObj, expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
 const { B2BAccessToken, createTestB2BAccessToken, updateTestB2BAccessToken, createTestB2BAppContext,
@@ -21,7 +21,7 @@ const { B2BAccessToken, createTestB2BAccessToken, updateTestB2BAccessToken, crea
 } = require('@condo/domains/miniapp/utils/testSchema')
 const { Organization, registerNewOrganization, createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser,
-    registerNewServiceUserByTestClient,
+    registerNewServiceUserByTestClient, makeClientWithServiceUser,
 } = require('@condo/domains/user/utils/testSchema')
 
 
@@ -278,6 +278,45 @@ describe('B2BAccessToken', () => {
             const [obj] = await createTestB2BAccessToken(admin, b2bAppContext, tokenRightSet)
             expect(obj).toHaveProperty('dv', 1)
         })
+
+        test('Accepts only context and rightSet for same app', async () => {
+            const [otherApp1] = await createTestB2BApp(admin)
+            const [otherApp2] = await createTestB2BApp(admin)
+            const [otherApp3] = await createTestB2BApp(admin)
+            await createTestB2BAppAccessRightSet(admin, otherApp1)
+            await createTestB2BAppAccessRightSet(admin, otherApp2)
+            await createTestB2BAppAccessRightSet(admin, otherApp3)
+            const [tokenRightSet1] = await createTestB2BAppAccessRightSet(admin, otherApp1, { type: 'token' })
+            const [tokenRightSet2] = await createTestB2BAppAccessRightSet(admin, otherApp2, { type: 'token' })
+            const [tokenRightSet3] = await createTestB2BAppAccessRightSet(admin, otherApp3, { type: 'token' })
+            const [otherServiceUser1] = await registerNewServiceUserByTestClient(admin)
+            const [otherServiceUser2] = await registerNewServiceUserByTestClient(admin)
+            const [otherServiceUser3] = await registerNewServiceUserByTestClient(admin)
+            await createTestB2BAppAccessRight(admin, otherServiceUser1, otherApp1)
+            await createTestB2BAppAccessRight(admin, otherServiceUser2, otherApp2)
+            await createTestB2BAppAccessRight(admin, otherServiceUser3, otherApp3)
+            await updateTestB2BAppContext(admin, b2bAppContext.id, { status: 'Finished' })
+            const [otherContext1] = await createTestB2BAppContext(admin, otherApp1, organization, { status: 'Finished' })
+            const [otherContext2] = await createTestB2BAppContext(admin, otherApp2, organization, { status: 'Finished' })
+            const [otherContext3] = await createTestB2BAppContext(admin, otherApp3, organization, { status: 'Finished' })
+
+            const badCases = [
+                [otherContext2, tokenRightSet1],
+                [otherContext1, tokenRightSet2],
+                [otherContext1, tokenRightSet3],
+            ]
+
+            for (const [context, rightSet] of badCases) {
+                await expectToThrowGQLError(async () => {
+                    await createTestB2BAccessToken(admin, context, rightSet)
+                }, {
+                    code: 'BAD_USER_INPUT',
+                    type: 'ACCESS_TOKEN_CONTEXT_DOES_NOT_MATCH_RIGHT_SET',
+                    message: 'B2BAppContext and B2BRightSet connected to different B2BApps',
+                }, 'obj')
+            }
+
+        })
     })
 
     describe('Real-life cases', () => {
@@ -377,20 +416,23 @@ describe('B2BAccessToken', () => {
             })
 
             test('Overrides miniapp B2BAccessRightSet with own right set', async () => {
+                const serviceUserClient = await makeClientWithServiceUser()
                 const [originalOrganization] = await registerNewOrganization(admin)
                 const [b2bApp] = await createTestB2BApp(admin)
                 const [b2bAppContext] = await createTestB2BAppContext(admin, b2bApp, originalOrganization, { status: 'Finished' })
-                await createTestB2BAppAccessRightSet(admin, b2bApp, { canReadOrganizations: true, canReadMeters: true })
+                const [miniappRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { canReadOrganizations: true, canReadMeters: true })
+                await createTestB2BAppAccessRight(admin, serviceUserClient.user, b2bApp, miniappRightSet)
                 const [tokenRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { type: 'token', canReadMeters: true })
-                const [serviceUser] = await registerNewServiceUserByTestClient(admin)
-                await createTestB2BAppAccessRight(admin, serviceUser, b2bApp, tokenRightSet)
 
                 const [accessToken] = await createTestB2BAccessToken(admin, b2bAppContext, tokenRightSet)
                 const anonymous = await makeClient()
                 anonymous.setHeaders({ 'Authorization': `Bearer ${accessToken.token}` })
 
-                const organizations = await Organization.getAll(anonymous, {})
-                expect(organizations).toHaveLength(0)
+                const serviceUserOrganizations = await Organization.getAll(serviceUserClient, {})
+                expect(serviceUserOrganizations.length).toBeGreaterThanOrEqual(1)
+
+                const accessTokenOrganizations = await Organization.getAll(anonymous, {})
+                expect(accessTokenOrganizations).toHaveLength(0)
             })
 
             test('Updating tokenB2BAccessRightSet leads to updating created token permissions', async () => {

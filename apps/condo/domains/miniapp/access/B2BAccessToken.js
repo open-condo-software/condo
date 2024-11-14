@@ -18,7 +18,7 @@ async function canReadB2BAccessTokens ({ authentication: { item: user }, context
     if (user.isAdmin) return true
 
     const organizations = await getEmployedOrganizationsByPermissions(context, user, 'canManageIntegrations')
-    console.error('read permitted organizations', organizations)
+
     return {
         context: {
             organization: {
@@ -50,14 +50,13 @@ async function canManageB2BAccessTokens ({ authentication: { item: user }, origi
         organizationForItem = get(context, 'organization')
     }
 
-    console.error({ permittedOrganizations, organizationForItem, gotAccess: permittedOrganizations.some(organizationId => organizationId === organizationForItem) })
     return permittedOrganizations.some(organizationId => organizationId === organizationForItem)
 }
 
 const readonlyForNonAdmin = {
-    read: (args) => { console.error('read', args.fieldKey); return true },
-    create: (args) => { console.error('create', args.fieldKey); return true },
-    update: (args) => { console.error('update', args.fieldKey); return userIsAdmin(args) },
+    read: true,
+    create: true,
+    update: userIsAdmin,
 }
 
 /*

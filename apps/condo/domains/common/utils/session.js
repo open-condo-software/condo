@@ -1,4 +1,5 @@
-const { has, get } = require('lodash')
+const get = require('lodash/get')
+const has = require('lodash/has')
 const uniq = require('lodash/uniq')
 
 const POSSIBLE_SESSION_PATHS = [
@@ -21,46 +22,50 @@ function _getSession (sessionOrWrapper) {
  *  parseSession(context)
  *  parseSession(context.req)
  *  parseSession(context.req.session)
+ *  @returns {SessionData}
  * */
 function parseSession (sessionOrWrapper) {
     const session = _getSession(sessionOrWrapper)
     if (!session) {
-        return null
+        return makeSessionData()
     }
-    const organizations = get(session, 'organizations')
-    const b2bPermissionKeys = get(session, 'b2bPermissionKeys')
+    const allowedOrganizations = get(session, 'allowedOrganizations')
+    const enabledB2BPermissions = get(session, 'enabledB2BPermissions')
     return makeSessionData({
-        organizations,
-        b2bPermissionKeys,
+        allowedOrganizations,
+        enabledB2BPermissions,
     })
 }
 
 /**
  * @typedef SessionDataArgs
- * @prop {string[]?} organizations - allowed organizations
- * @prop {string[]?} b2bPermissionKeys - active permissions
- * @prop {Record<string, boolean>?} b2bPermissions
+ * @prop {string[]?} allowedOrganizations - ids
+ * @prop {string[]?} enabledB2BPermissions - keys
+ */
+
+/**
+ * @typedef SessionData
+ * @property {string[] | null} allowedOrganizations
+ * @property {string[] | null } enabledB2BPermissions
  */
 
 /**
  * @param {SessionDataArgs?} args
- * @returns {{organizations: string[] | null, b2bPermissionKeys: string[] | null}}
+ * @returns {{allowedOrganizations: string[] | null, enabledB2BPermissions: string[] | null}}
  */
 function makeSessionData (args = {}) {
-    let { organizations, b2bPermissionKeys, b2bPermissions } = args
+    Object.keys(args).forEach(key => {
+        args[key] = args[key] ? uniq(args[key].filter(Boolean)) : args[key]
+    })
 
-    if (b2bPermissions !== null && b2bPermissions !== undefined) {
-        const parsedAllowedPermissionKeys = Object.keys(b2bPermissions)
-            .filter(key => b2bPermissions[key] === true)
-            .map(key => key)
-
-        b2bPermissionKeys = Array.isArray(b2bPermissionKeys) ? b2bPermissionKeys : []
-        b2bPermissionKeys = b2bPermissionKeys.concat(parsedAllowedPermissionKeys)
-    }
+    const {
+        allowedOrganizations,
+        enabledB2BPermissions,
+    } = args
 
     return {
-        organizations: organizations ? uniq(organizations).filter(Boolean) : null,
-        b2bPermissionKeys: b2bPermissionKeys ? uniq(b2bPermissionKeys) : null,
+        allowedOrganizations: allowedOrganizations || null,
+        enabledB2BPermissions: enabledB2BPermissions || null,
     }
 }
 

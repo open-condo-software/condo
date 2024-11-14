@@ -379,20 +379,20 @@ describe('B2BAppAccessRightSet', () => {
 
         describe('name', () => {
 
-            test('Takes "default" name if type: "miniapp" provided with empty "name"', async () => {
+            test('Takes "default" name if not provided', async () => {
                 const [app] = await createTestB2BApp(admin)
                 const [accessRightSet] = await createTestB2BAppAccessRightSet(admin, app, { name: undefined })
                 expect(accessRightSet).toHaveProperty('name', 'default')
             })
 
-            test('Cannot update "name" to empty for type: "miniapp"', async () => {
+            test('Cannot update "name" to empty', async () => {
                 const [app] = await createTestB2BApp(admin)
                 const name = faker.random.alphaNumeric(8)
                 const [accessRightSet] = await createTestB2BAppAccessRightSet(admin, app, { name })
                 expect(accessRightSet).toHaveProperty('name', name)
 
                 await expectToThrowGQLError(async () => {
-                    await updateTestB2BAppAccessRightSet(admin, accessRightSet.id, { name: null })
+                    await updateTestB2BAppAccessRightSet(admin, accessRightSet.id, { name: '' })
                 }, {
                     code: 'BAD_USER_INPUT',
                     type: 'NAME_REQUIRED',
@@ -400,18 +400,57 @@ describe('B2BAppAccessRightSet', () => {
                 }, 'obj')
             })
 
-            test('Cannot create item with non "miniapp" type without name', async () => {
-                const [app] = await createTestB2BApp(admin)
+        })
 
-                await expectToThrowGQLError(async () => {
-                    await createTestB2BAppAccessRightSet(admin, app, { type: 'token', name: null })
-                }, {
-                    code: 'BAD_USER_INPUT',
-                    type: 'NAME_REQUIRED',
-                    message: 'Name is required',
-                }, 'obj')
+        test('Cannot create or update set with type "token" if type "miniapp" donesn\'t exists', async () => {
+            const [app] = await createTestB2BApp(admin)
+
+            await expectToThrowGQLError(async () => {
+                await createTestB2BAppAccessRightSet(admin, app, { type: 'token' })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'ACCESS_RIGHT_SET_MINIAPP_SCOPE_RIGHT_SET_REQUIRED',
+                message: 'You need to have "miniapp" type right before other types',
+            }, 'obj')
+        })
+
+        test('Can not create or update B2BAppAccessRightSet of type "token" with more permissions, than set of type "miniapp" on same app', async () => {
+            const [app] = await createTestB2BApp(admin)
+            await createTestB2BAppAccessRightSet(admin, app, { canReadOrganizations: true })
+
+            await expectToThrowGQLError(async () => {
+                await createTestB2BAppAccessRightSet(admin, app, { type: 'token', canReadMeters: true })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'ACCESS_RIGHT_SET_TOO_MANY_PERMISSIONS',
+                message: 'You trying to give to right set more permissions, than "miniapp" right set has',
+            }, 'obj')
+
+            const [tokenRightSet] = await createTestB2BAppAccessRightSet(admin, app, { type: 'token', canReadOrganizations: true })
+
+            await expectToThrowGQLError(async () => {
+                await updateTestB2BAppAccessRightSet(admin, tokenRightSet.id, { canReadMeters: true })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'ACCESS_RIGHT_SET_TOO_MANY_PERMISSIONS',
+                message: 'You trying to give to right set more permissions, than "miniapp" right set has',
+            }, 'obj')
+        })
+
+        test('Removing permissions on "miniapp" B2BAppAccessRightSet leads to removing these permissions from entities with type "token"', async () => {
+            const [app] = await createTestB2BApp(admin)
+            const [miniappRightSet] = await createTestB2BAppAccessRightSet(admin, app, { canReadOrganizations: true })
+
+            for (let i = 0; i < 3; i++) {
+                const [tokenRightSet] = await createTestB2BAppAccessRightSet(admin, app, { type: 'token', canReadOrganizations: true })
+                expect(tokenRightSet.canReadOrganizations).toEqual(true)
+            }
+
+            await updateTestB2BAppAccessRightSet(admin, miniappRightSet.id, { canReadOrganizations: false })
+            const tokenRightSets = await B2BAppAccessRightSet.getAll(admin, { app: { id: app.id } })
+            tokenRightSets.forEach(tokenRightSet => {
+                expect(tokenRightSet.canReadOrganizations).toEqual(false)
             })
-
         })
     })
 })

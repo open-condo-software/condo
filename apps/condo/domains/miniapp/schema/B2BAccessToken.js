@@ -6,7 +6,6 @@ const cookieSignature = require('cookie-signature')
 const dayjs = require('dayjs')
 const get = require('lodash/get')
 const has = require('lodash/has')
-const omit = require('lodash/omit')
 const { v4: uuid } = require('uuid')
 
 const conf = require('@open-condo/config')
@@ -30,8 +29,10 @@ const {
     ACCESS_TOKEN_SERVICE_USER_DOES_NOT_MATCH_CONTEXT,
     ACCESS_TOKEN_TTL_TOO_BIG,
     ACCESS_TOKEN_CRYPTO_ALGORITHM,
+    ACCESS_RIGHT_SET_TOKEN_SCOPE_TYPE,
 } = require('@condo/domains/miniapp/constants')
 const { SERVICE_USER_FIELD } = require('@condo/domains/miniapp/schema/fields/accessRight')
+const { getEnabledPermissions } = require('@condo/domains/miniapp/utils/permissions')
 
 const { cookieSecret } = prepareDefaultKeystoneConfig(conf)
 
@@ -190,7 +191,7 @@ const B2BAccessToken = new GQLListSchema('B2BAccessToken', {
             if (!accessRightSet && throwErrorOrDelete(ERRORS.RIGHT_SET_NOT_EXISTS)) {
                 return
             }
-            if (get(accessRightSet, 'type') !== 'token' && throwErrorOrDelete(ERRORS.WRONG_RIGHT_SET_TYPE)) {
+            if (get(accessRightSet, 'type') !== ACCESS_RIGHT_SET_TOKEN_SCOPE_TYPE && throwErrorOrDelete(ERRORS.WRONG_RIGHT_SET_TYPE)) {
                 return
             }
 
@@ -217,7 +218,7 @@ const B2BAccessToken = new GQLListSchema('B2BAccessToken', {
         async afterChange ({ context, operation, existingItem, updatedItem }) {
             const softDeleted = operation === 'update' && !existingItem['deletedAt'] && updatedItem['deletedAt']
             const sessionId = decryptSessionId(updatedItem.sessionId)
-            console.error('afterChange B2BAccessToken', updatedItem)
+
             if (softDeleted) {
                 await destroySession(context, sessionId)
             }
@@ -225,12 +226,12 @@ const B2BAccessToken = new GQLListSchema('B2BAccessToken', {
             if (!softDeleted) {
                 const rightSet = await getById('B2BAppAccessRightSet', updatedItem.rightSet)
                 const b2bAppContext = await getById('B2BAppContext', updatedItem.context)
-                const permissions = omit(rightSet, ['id', 'app', 'name', 'type', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy', 'deletedAt', 'v', 'dv', 'newId', 'sender'])
+                const permissions = Object.keys(getEnabledPermissions(rightSet))
                 const additionalFields = makeSessionData({
-                    organizations: [get(b2bAppContext, 'organization')],
-                    b2bPermissions: permissions,
+                    allowedOrganizations: [get(b2bAppContext, 'organization')],
+                    enabledB2BPermissions: permissions,
                 })
-                console.error('setting session with fields', additionalFields)
+
                 await setSession(context, {
                     sessionId,
                     userId: get(updatedItem, 'user'),

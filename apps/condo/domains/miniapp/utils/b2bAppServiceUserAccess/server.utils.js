@@ -25,8 +25,7 @@ const canReadByServiceUser = async ({ authentication: { item: user }, args, list
     const sessionRestrictions = parseSession(context)
 
     const permissionKey = `canRead${pluralize.plural(listKey)}`
-    console.error('perm', sessionRestrictions.b2bPermissionKeys, !sessionRestrictions.b2bPermissionKeys?.includes(permissionKey))
-    if (sessionRestrictions.b2bPermissionKeys && !sessionRestrictions.b2bPermissionKeys.includes(permissionKey)) {
+    if (sessionRestrictions.enabledB2BPermissions && !sessionRestrictions.enabledB2BPermissions.includes(permissionKey)) {
         return false
     }
 
@@ -36,10 +35,8 @@ const canReadByServiceUser = async ({ authentication: { item: user }, args, list
     })
 
     let organizationIds = B2BAppContexts.map(ctx => ctx.organization)
-    if (sessionRestrictions.organizations) {
-
-        organizationIds = organizationIds.filter(id => sessionRestrictions.organizations.includes(id))
-        console.error(sessionRestrictions.organizations, organizationIds)
+    if (sessionRestrictions.allowedOrganizations) {
+        organizationIds = organizationIds.filter(id => sessionRestrictions.allowedOrganizations.includes(id))
     }
 
     if (!organizationIds || isEmpty(organizationIds)) return false
@@ -112,14 +109,14 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
         }
     }
 
-    if (sessionRestrictions.organizations && !sessionRestrictions.organizations.includes(organizationId)) {
+    if (sessionRestrictions.allowedOrganizations && !sessionRestrictions.allowedOrganizations.includes(organizationId)) {
         organizationId = null
     }
 
     if (!organizationId) return false
 
     const permissionKey = `canManage${pluralize.plural(listKey)}`
-    if (sessionRestrictions.b2bPermissionKeys && !sessionRestrictions.b2bPermissionKeys.includes(permissionKey)) {
+    if (sessionRestrictions.enabledB2BPermissions && !sessionRestrictions.enabledB2BPermissions.includes(permissionKey)) {
         return false
     }
 
