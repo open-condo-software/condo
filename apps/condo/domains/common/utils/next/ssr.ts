@@ -35,25 +35,10 @@ type SSRResult<PropsType> = {
 const DEFAULT_COOKIES_VALUES: SSRCookiesContextType =
     Object.assign({}, ...VITAL_COOKIES.map(key => ({ [key]: null })))
 
-function nextGetCookie (context: Pick<NextPageContext, 'req' | 'res'>, key: string) {
-    let state: string | null
-    if (isSSR()) {
-        state = getCookie(key, { req: context.req, res: context.res })
-    } else {
-        try {
-            state = cookie.get(ACTIVE_EMPLOYEE_COOKIE_NAME)
-        } catch (e) {
-            console.error('Failed to get state from cookie', e)
-            state = null
-        }
-    }
-    return state || null
-}
-
 export function extractVitalCookies<PropsType> (req: SSRRequest, res: SSRResponse, pageParams: SSRResult<PropsType>): SSRResult<PropsType> {
     const cookies: SSRCookiesContextType = Object.assign({},
         ...VITAL_COOKIES.map(key => ({
-            [key]: nextGetCookie({ req, res }, key) || null,
+            [key]: getCookie(key, { req, res }) || null,
         }))
     )
 
