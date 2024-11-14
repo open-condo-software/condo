@@ -93,7 +93,7 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
         ticket: { id: ticket.id },
         deletedAt: null,
         status_not: INVOICE_STATUS_CANCELED,
-    }, 'id currencyCode accountNumber rows { isMin toPay name count vatPercent } recipient { bankName bankAccount bic }', {
+    }, 'id currencyCode accountNumber rows { isMin toPay name count vatPercent } recipient { bankName bankAccount bic offsettingAccount }', {
         sortBy: ['createdAt_ASC'],
     })
 
