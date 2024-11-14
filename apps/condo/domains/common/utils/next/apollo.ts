@@ -55,6 +55,9 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
                 Ticket: {
                     timeToLive: 60 * 1000, // 1 minute in milliseconds
                 },
+                TicketChange: {
+                    timeToLive: 60 * 1000, // 1 minute in milliseconds
+                },
                 TicketComment: {
                     timeToLive: 60 * 1000, // 1 minute in milliseconds
                 },
@@ -77,7 +80,7 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
                     timeToLive: 60 * 1000, // 1 minute in milliseconds
                 },
                 Invoice: {
-                    timeToLive: 5 * 60 * 1000, // 5 minutes in milliseconds
+                    timeToLive: 60 * 1000, // 1 minute in milliseconds
                 },
             },
         },
