@@ -10,6 +10,7 @@ import Link from 'next/link'
 import qs, { IStringifyOptions } from 'qs'
 import React, { useMemo } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useIntl } from '@open-condo/next/intl'
 
 import { Loader } from '@condo/domains/common/components/Loader'
@@ -142,12 +143,13 @@ const TicketCardList: React.FC<ITicketCardListProps> = ({ contactId }) => {
     const intl = useIntl()
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
 
+    const { persistor } = useCachePersistor()
     const {
         loading,
         data: ticketsData,
     } = useGetContactTicketsQuery({
         variables: { contactId },
-        skip: !contactId,
+        skip: !persistor || !contactId,
     })
     const tickets = ticketsData?.tickets
     const addresses = useMemo(() => {

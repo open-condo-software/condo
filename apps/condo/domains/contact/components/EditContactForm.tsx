@@ -89,7 +89,7 @@ export const EditContactForm: React.FC = () => {
         variables: { organizationId },
         skip: !persistor || !organizationId,
     })
-    const roles = rolesData?.roles
+    const roles = rolesData?.roles || []
 
     const redirectToClientCard = useMemo(() => !!get(router, ['query', 'redirectToClientCard']), [router])
 
