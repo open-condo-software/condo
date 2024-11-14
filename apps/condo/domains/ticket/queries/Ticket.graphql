@@ -22,20 +22,26 @@ query getTickets ($where: TicketWhereInput!, $sortBy: [SortTicketsBy!], $first: 
         details
         clientName
         classifier {
+            id
             category {
+                id
                 name
             }
             place {
+                id
                 name
             }
         }
         contact {
+            id
             name
         }
         executor {
+            id
             name
         }
         assignee {
+            id
             name
         }
         organization {
@@ -49,6 +55,7 @@ query getTickets ($where: TicketWhereInput!, $sortBy: [SortTicketsBy!], $first: 
             addressMeta { ...AddressMetaForTableAddress }
         }
         status {
+            id
             type
             name
             colors {
@@ -178,6 +185,7 @@ query getTicketById ($id: ID!) {
             type
         }
         source {
+            id
             name
         }
         status {
