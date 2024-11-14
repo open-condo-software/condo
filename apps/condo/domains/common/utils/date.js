@@ -21,7 +21,7 @@ const getMonthStart = (dateRaw = undefined, shouldFormat = false) => {
  * Usable for periods of billing receipts, etc.
  * @returns {{prevMonthStart, thisMonthStart, nextMonthStart}}
  */
-const getStartDates = (dateRaw= undefined) => {
+const getStartDates = (dateRaw = undefined) => {
     const date = getMonthStart(dateRaw)
 
     return {

@@ -1,4 +1,3 @@
-const dayjs = require('dayjs')
 const get = require('lodash/get')
 const groupBy = require('lodash/groupBy')
 const isEmpty = require('lodash/isEmpty')
@@ -15,16 +14,17 @@ const { getLocalized } = require('@open-condo/locales/loader')
 
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { DEFAULT_CURRENCY_CODE, CURRENCY_SYMBOLS } = require('@condo/domains/common/constants/currencies')
-const { getStartDates } = require('@condo/domains/common/utils/date')
 const {
     BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
     BILLING_RECEIPT_ADDED_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 
+const { getStartDates } = require('@condo/domains/common/utils/date')
+
 const logger = getLogger('sendNewBillingReceiptNotification')
 
-const makeMessageKey = (parentTaskId, period, accountNumber, categoryId, residentId) => `${parentTaskId}:${period}:${accountNumber}:${categoryId}:${residentId}`
+const makeMessageKey = (period, accountNumber, categoryId, residentId) => `${period}:${accountNumber}:${categoryId}:${residentId}}`
 const makeAccountKey = (...args) => args.map(value => `${value}`.trim().toLowerCase()).join(':')
 const getMessageTypeAndDebt = (toPay, toPayCharge) => {
     if (toPay <= 0) return { messageType: BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE, debt: 0 }
@@ -42,11 +42,11 @@ const getMessageTypeAndDebt = (toPay, toPayCharge) => {
  * @param {uuid} parentTaskId
  * @returns {Promise<number>}
  */
-const prepareAndSendNotification = async (context, receipt, resident, parentTaskId) => {
+const prepareAndSendNotification = async (context, receipt, resident) => {
     // TODO(DOMA-3376): Detect locale by resident locale instead of organization country.
     const country = get(resident, 'residentOrganization.country', conf.DEFAULT_LOCALE)
     const locale = get(COUNTRIES, country).locale
-    const notificationKey = makeMessageKey(parentTaskId, receipt.period, receipt.account.number, receipt.category.id, resident.id)
+    const notificationKey = makeMessageKey(receipt.period, receipt.account.number, receipt.category.id, resident.id)
     const toPayValue = parseFloat(receipt.toPay)
     const toPay = isNaN(toPayValue) ? null : toPayValue
     const toPayChargeValue = parseFloat(get(receipt, 'toPayDetails.charge'))
@@ -60,6 +60,7 @@ const prepareAndSendNotification = async (context, receipt, resident, parentTask
     if (isNull(toPay) || toPay <= 0) return 0
 
     const { messageType, debt } = getMessageTypeAndDebt(toPay, toPayCharge)
+
     const data = {
         residentId: resident.id,
         userId: resident.user,
@@ -72,6 +73,7 @@ const prepareAndSendNotification = async (context, receipt, resident, parentTask
         toPay: debt,
         currencySymbol: CURRENCY_SYMBOLS[currencyCode] || currencyCode,
     }
+
     const messageData = {
         lang: locale,
         to: { user: { id: resident.user } },
@@ -84,135 +86,152 @@ const prepareAndSendNotification = async (context, receipt, resident, parentTask
 
     const { isDuplicateMessage } = await sendMessage(context, messageData)
 
-    return (isDuplicateMessage) ? 0 : 1
+    return isDuplicateMessage ? 0 : 1
 }
 
 /**
  * Prepares data for sendMessage to resident on available billing receipt, then tries to send the message
  * @param {BillingIntegrationOrganizationContext} context
- * @param {string} lastSync
- * @param {uuid} parentTaskId
+ * @param {string} lastSyncDate
  * @returns {Promise<void>}
  */
-async function sendBillingReceiptsAddedNotificationForOrganizationContext (context, lastSync, parentTaskId) {
+async function sendBillingReceiptsAddedNotificationForOrganizationContext (context, lastSyncDate) {
     const contextId = get(context, 'id')
     if (!contextId) throw new Error(`Invalid BillingIntegrationOrganizationContext, cannot get context.id. Context: ${context}`)
-    const { prevMonthStart, thisMonthStart } = getStartDates()
+
     const { keystone } = getSchemaCtx('Message')
     const redisClient = getRedisClient()
+    const { thisMonthStart } = getStartDates()
+    const receiptCreatedAfter = lastSyncDate || thisMonthStart
 
+    const receipts = await fetchReceipts(contextId, receiptCreatedAfter)
+    logger.info({ msg: `Found ${receipts.length} receipts`, contextId })
+
+    const receiptAccountData = await prepareReceiptsData(receipts, context)
+    const serviceConsumers = await fetchServiceConsumers(context, receiptAccountData.accountNumbers)
+    const consumersByAccountKey = groupConsumersByAccountKey(serviceConsumers)
+
+    let successCount = 0
+    logger.info({ msg: 'Left receipts', receiptAccountData })
+
+    for (const [key, receipt] of Object.entries(receiptAccountData.receiptAccountKeys)) {
+        const consumers = consumersByAccountKey[key]
+        if (isEmpty(consumers)) continue
+
+        successCount += await notifyConsumers(redisClient, keystone, receipt, consumers)
+    }
+
+    logger.info({ msg: 'Sent billing receipts', successCount, contextId })
+}
+
+async function fetchReceipts (contextId, receiptCreatedAfter) {
     const receiptsWhere = {
-        period_in: [prevMonthStart, thisMonthStart],
-        createdAt_gt: lastSync,
+        createdAt_gt: receiptCreatedAfter,
         context: { id: contextId },
         deletedAt: null,
     }
-    
-    const receipts = await find('BillingReceipt', receiptsWhere)
-    logger.info({
-        msg: `found ${receipts.length} receipts by where: ${JSON.stringify(receiptsWhere)}`,
-        parentTaskId,
-        contextId,
-    })
+    return find('BillingReceipt', receiptsWhere)
+}
+
+async function prepareReceiptsData (receipts, context) {
     const accountsNumbers = []
     const receiptAccountKeys = {}
-    let successCount = 0
 
     for (const receipt of receipts) {
-        //Calculate isPayable field of BillingReceipt
-        const newerReceipts = await find('BillingReceipt', {
-            account: { id: get(receipt, 'account'), deletedAt: null },
-            OR: [
-                { receiver: { AND: [{ id: get(receipt, 'receiver') }, { deletedAt: null } ] } },
-                { category: { AND: [{ id: get(receipt, 'category') }, { deletedAt: null } ] } },
-            ],
-            period_gt: get(receipt, 'period'),
-            deletedAt: null,
-        })
+        if (await hasNewerReceipts(receipt)) continue
 
-        if (!newerReceipts.length) { // if isPayable, we collect data in a form that includes relations
-            const account = await getById('BillingAccount', receipt.account)
-            const billingProperty = await getById('BillingProperty', account.property)
-            const category = await getById('BillingCategory', receipt.category)
-            const processedReceipt = ({
-                ...receipt,
-                context,
-                account: {
-                    ...account,
-                    property: { ...billingProperty },
-                },
-                category,
-            })
-            accountsNumbers.push(get(account, 'number'))
-            receiptAccountKeys[makeAccountKey(get(billingProperty, 'addressKey'), get(account, 'number'))] ||= processedReceipt // A necessary and sufficient condition for notifying the user is one unpaid receipt in this period.
-        }
+        const processedReceipt = await processReceiptData(receipt, context)
+        const accountNumber = get(processedReceipt, 'account.number')
+        const addressKey = get(processedReceipt, 'account.property.addressKey')
+
+        accountsNumbers.push(accountNumber)
+        receiptAccountKeys[makeAccountKey(addressKey, accountNumber)] ||= processedReceipt
     }
 
+    return { accountNumbers: accountsNumbers.filter(Boolean), receiptAccountKeys }
+}
+
+async function hasNewerReceipts (receipt) {
+    const newerReceiptsWhere = {
+        account: { id: get(receipt, 'account'), deletedAt: null },
+        OR: [
+            { receiver: { AND: [{ id: get(receipt, 'receiver') }, { deletedAt: null }] } },
+            { category: { AND: [{ id: get(receipt, 'category') }, { deletedAt: null }] } },
+        ],
+        period_gt: get(receipt, 'period'),
+        deletedAt: null,
+    }
+    const newerReceipts = await find('BillingReceipt', newerReceiptsWhere)
+    return newerReceipts.length > 0
+}
+
+async function processReceiptData (receipt, context) {
+    const account = await getById('BillingAccount', receipt.account)
+    const billingProperty = await getById('BillingProperty', account.property)
+    const category = await getById('BillingCategory', receipt.category)
+
+    return {
+        ...receipt,
+        context,
+        account: {
+            ...account,
+            property: { ...billingProperty },
+        },
+        category,
+    }
+}
+
+async function fetchServiceConsumers (context, accountNumbers) {
     const serviceConsumerWhere = {
         organization: { id: context.organization, deletedAt: null },
-        accountNumber_in: accountsNumbers.filter(Boolean),
+        accountNumber_in: accountNumbers,
         deletedAt: null,
     }
-
     const rawServiceConsumers = await find('ServiceConsumer', serviceConsumerWhere)
 
+    const residents = await fetchResidents(rawServiceConsumers.map(sc => sc.resident))
+    return rawServiceConsumers.map(serviceConsumer => ({
+        ...serviceConsumer,
+        resident: residents[serviceConsumer.resident] || {},
+    }))
+}
+
+async function fetchResidents (residentIds) {
     const residents = await find('Resident', {
-        id_in: rawServiceConsumers.map(serviceConsumer => serviceConsumer.resident),
+        id_in: residentIds,
         deletedAt: null,
     })
-
-    const residentsFilteredById = residents.reduce((acc, resident) => {
+    return residents.reduce((acc, resident) => {
         acc[resident.id] = resident
         return acc
     }, {})
+}
 
-    const serviceConsumers = rawServiceConsumers.map(serviceConsumer => ({
-        ...serviceConsumer,
-        resident: residentsFilteredById[serviceConsumer.resident] || {},
-    }))
-
-    const consumersByAccountKey = groupBy(serviceConsumers, (item) => {
-        const params = [
-            get(item, 'resident.addressKey'),
-            get(item, 'accountNumber'),
-        ]
-
-        return makeAccountKey(...params)
+function groupConsumersByAccountKey (serviceConsumers) {
+    return groupBy(serviceConsumers, (item) => {
+        const addressKey = get(item, 'resident.addressKey')
+        const accountNumber = get(item, 'accountNumber')
+        return makeAccountKey(addressKey, accountNumber)
     })
-    const lastReportDate = get(context, 'lastReport.finishTime')
+}
 
-    for (const [key, receipt] of Object.entries(receiptAccountKeys)) {
-        const consumers = consumersByAccountKey[key]
+async function notifyConsumers (redisClient, keystone, receipt, consumers) {
+    let successConsumerCount = 0
 
-        // We have no ServiceConsumer records for this receipt
-        if (isEmpty(consumers)) continue
+    for (const consumer of consumers) {
+        const resident = get(consumer, 'resident')
+        if (!resident || resident.deletedAt) continue
 
-        let successConsumerCount = 0
+        const notifiedUserDate = await redisClient.get(`BILLING_RECEIPTS_NOTIFIED_USERS:${resident.user}`)
+        if (notifiedUserDate) continue
 
-        for (const consumer of consumers) {
-            const resident = get(consumer, 'resident')
-
-            // ServiceConsumer has no connection to Resident
-            if (!resident || resident.deletedAt) continue
-
-            // NOTE: (DOMA-4351) skip already notified user to get rid of duplicate notifications
-            const notifiedUserDate = await redisClient.get(`BILLING_RECEIPTS_NOTIFIED_USERS${resident.user}`)
-
-            if (dayjs(notifiedUserDate).isAfter(dayjs(lastReportDate))) continue
-
-            const success = await prepareAndSendNotification(keystone, receipt, resident, parentTaskId)
-
-            if (success){
-                await redisClient.set(`BILLING_RECEIPTS_NOTIFIED_USERS${resident.user}`, dayjs().toISOString())
-            }
-
-            successConsumerCount += success
+        const success = await prepareAndSendNotification(keystone, receipt, resident)
+        if (success) {
+            await redisClient.set(`BILLING_RECEIPTS_NOTIFIED_USERS:${resident.user}`, true, 'EX', 86400, 'NX') // 1 day TTL
+            successConsumerCount += 1
         }
-
-        if (successConsumerCount > 0) successCount += 1
     }
-
-    logger.info({ msg: 'sent billing receipts', successCount, parentTaskId, contextId })
+    return successConsumerCount
 }
 
 const taskName = 'sendBillingReceiptsAddedNotificationForOrganizationContextTask'

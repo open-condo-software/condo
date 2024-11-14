@@ -6,16 +6,17 @@ const { getRedisClient } = require('@open-condo/keystone/redis')
 const { find } = require('@open-condo/keystone/schema')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
-const { getMonthStart } = require('@condo/domains/common/utils/date')
+const { getStartDates } = require('@condo/domains/common/utils/date')
 const { sendBillingReceiptsAddedNotificationForOrganizationContextTask } = require('@condo/domains/resident/tasks/sendBillingReceiptsAddedNotificationForOrganizationContextTask')
 
 const logger = getLogger('sendBillingReceiptsAddedNotifications')
-
+const REDIS_LAST_DATE_KEY_OLD_WAY = 'LAST_SEND_BILLING_RECEIPT_NOTIFICATION_CREATED_AT'
 const REDIS_KEY_PREFIX = 'LAST_SEND_BILLING_RECEIPT_NOTIFICATION_CREATED_AT:'
 
-const sendBillingReceiptsAddedNotifications = async (parentTaskId) => {
+const sendBillingReceiptsAddedNotifications = async () => {
     const redisClient = getRedisClient()
-    const lastSync = new Date(getMonthStart()).toISOString()
+    const { prevMonthStart } = getStartDates()
+    const lastSync = new Date(prevMonthStart).toISOString()
 
     /**
      * This represents min value for billingReceipt createdAt to start processing from
@@ -24,7 +25,7 @@ const sendBillingReceiptsAddedNotifications = async (parentTaskId) => {
      * 3. Use thisMonthStart
      */
 
-    logger.info({ msg: 'Starting billing receipts notification process', parentTaskId })
+    logger.info({ msg: 'Starting billing receipts notification process' })
 
     // After synchronization with integrations (RegisterBillingReceiptsService), the context is updated to put the lastReport:JSON field.
     // Therefore, we understand that according to the context updated after the date of the last notification mailing, there are new receipts and we fetch such contexts.
@@ -34,17 +35,20 @@ const sendBillingReceiptsAddedNotifications = async (parentTaskId) => {
         status: CONTEXT_FINISHED_STATUS,
         deletedAt: null,
     })
+    const oldWayLastSyncDate = await redisClient.get(REDIS_LAST_DATE_KEY_OLD_WAY)
 
     for (const context of BillingContexts) {
         const lastReport = get(context, 'lastReport.finishTime')
-        if (!lastReport) return
+        if (!lastReport) continue
+        logger.info({ msg: 'Old way redis key', oldWayLastSyncDate, lastReport, result: dayjs(oldWayLastSyncDate).isAfter(dayjs(lastReport)) })
+        if (oldWayLastSyncDate && dayjs(oldWayLastSyncDate).isAfter(dayjs(lastReport))) continue
+
 
         const redisKey = `${REDIS_KEY_PREFIX}${context.id}`
         const lastSyncDate = await redisClient.get(redisKey)
-
         if (!lastSyncDate || dayjs(lastReport).isAfter(dayjs(lastSyncDate))) {
             await redisClient.set(redisKey, lastReport)
-            sendBillingReceiptsAddedNotificationForOrganizationContextTask.delay(context, lastSync, parentTaskId)
+            sendBillingReceiptsAddedNotificationForOrganizationContextTask.delay(context, lastSyncDate)
         }
     }
 }
