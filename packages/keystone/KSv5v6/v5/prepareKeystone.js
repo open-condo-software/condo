@@ -66,7 +66,7 @@ const sendAppMetrics = () => {
     metrics.gauge({ name: 'processMemoryUsage.rss', value: memUsage.rss })
     metrics.gauge({ name: 'processMemoryUsage.external', value: memUsage.external })
 
-    if (taskQueues.size > 0) {
+    if (IS_WORKER_PROCESS && taskQueues.size > 0) {
         Array.from(taskQueues.entries()).forEach(([queueName, queue]) => {
             queue.getJobCounts().then(jobCounts => {
                 metrics.gauge({ name: `worker.${queueName}.activeTasks`, value: jobCounts.active })
