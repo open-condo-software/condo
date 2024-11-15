@@ -79,7 +79,6 @@ class SberCloudFileAdapter {
         this.server = config.s3Options.server
         this.folder = config.folder
         this.shouldResolveDirectUrl = config.isPublic
-        this.saveFileName = config.saveFileName
         this.acl = new SberCloudObsAcl(config)
     }
 
@@ -95,7 +94,7 @@ class SberCloudFileAdapter {
         const fileData = {
             id,
             originalFilename: filename,
-            filename: this.saveFileName ? filename : this.getFilename({ id, originalFilename: filename }),
+            filename: this.getFilename({ id, originalFilename: filename }),
             mimetype,
             encoding,
         }
@@ -120,17 +119,6 @@ class SberCloudFileAdapter {
                     stream.destroy()
                 }
             )
-        }
-
-        if (this.saveFileName) {
-            return this.acl.getMeta(key)
-                .then((existedMeta) => {
-                    if (!isEmpty(existedMeta)) {
-                        return { ...fileData, _meta: existedMeta }
-                    }
-
-                    return new Promise(saveFile)
-                })
         }
 
         return new Promise(saveFile)

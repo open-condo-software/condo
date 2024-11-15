@@ -49,12 +49,11 @@ class LocalFilesMiddleware {
 }
 
 class FileAdapter {
-    constructor (folder, isPublic = false, saveFileName = false) {
+    constructor (folder, isPublic = false) {
         const type = conf.FILE_FIELD_ADAPTER || DEFAULT_FILE_ADAPTER
         this.folder = folder
         this.type = type
         this.isPublic = isPublic
-        this.saveFileName = saveFileName
         let Adapter = null
         switch (type) {
             case 'local':
@@ -84,10 +83,6 @@ class FileAdapter {
         const config = {
             src: `${conf.MEDIA_ROOT}/${this.folder}`,
             path: `${conf.SERVER_URL}${conf.MEDIA_URL}/${this.folder}`,
-        }
-
-        if (this.saveFileName) {
-            config.getFilename = ({ originalFilename }) => originalFilename
         }
 
         return new LocalFileAdapter(config)
@@ -120,7 +115,7 @@ class FileAdapter {
         if (!config) {
             return null
         }
-        return new SberCloudFileAdapter({ ...config, folder: this.folder, isPublic: this.isPublic, saveFileName: this.saveFileName })
+        return new SberCloudFileAdapter({ ...config, folder: this.folder, isPublic: this.isPublic })
     }
 
     // TODO(pahaz): DOMA-1569 it's better to create just a function. But we already use FileAdapter in many places. I just want to save a backward compatibility
