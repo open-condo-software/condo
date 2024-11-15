@@ -15,7 +15,7 @@ const access = require('@condo/domains/ticket/access/CallRecord')
 const { CALL_RECORD_ERRORS } = require('@condo/domains/ticket/constants/errors')
 
 const CALL_RECORDS_FOLDER_NAME = 'ticket-call-record'
-const Adapter = new FileAdapter(CALL_RECORDS_FOLDER_NAME, false, true)
+const Adapter = new FileAdapter(CALL_RECORDS_FOLDER_NAME, false)
 
 const CallRecord = new GQLListSchema('CallRecord', {
     schemaDoc: 'Conversation record between operator and client',
