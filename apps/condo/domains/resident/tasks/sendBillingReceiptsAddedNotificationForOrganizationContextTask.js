@@ -2,7 +2,6 @@ const get = require('lodash/get')
 const groupBy = require('lodash/groupBy')
 const isEmpty = require('lodash/isEmpty')
 const isNull = require('lodash/isNull')
-const { v4: uuid } = require('uuid')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -39,7 +38,6 @@ const getMessageTypeAndDebt = (toPay, toPayCharge) => {
  * @param {keystone} context
  * @param receipt
  * @param resident
- * @param {uuid} parentTaskId
  * @returns {Promise<number>}
  */
 const prepareAndSendNotification = async (context, receipt, resident) => {
@@ -97,7 +95,7 @@ const prepareAndSendNotification = async (context, receipt, resident) => {
  */
 async function sendBillingReceiptsAddedNotificationForOrganizationContext (context, lastSyncDate) {
     const contextId = get(context, 'id')
-    if (!contextId) throw new Error(`Invalid BillingIntegrationOrganizationContext, cannot get context.id. Context: ${context}`)
+    if (!contextId) throw new Error('Invalid BillingIntegrationOrganizationContext, cannot get context.id')
 
     const { keystone } = getSchemaCtx('Message')
     const redisClient = getRedisClient()
@@ -105,14 +103,14 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
     const receiptCreatedAfter = lastSyncDate || thisMonthStart
 
     const receipts = await fetchReceipts(contextId, receiptCreatedAfter)
-    logger.info({ msg: `Found ${receipts.length} receipts`, contextId })
+    logger.info({ msg: 'Found receipts', data: { receiptsNumber: receipts.length, contextId }  })
 
     const receiptAccountData = await prepareReceiptsData(receipts, context)
     const serviceConsumers = await fetchServiceConsumers(context, receiptAccountData.accountNumbers)
     const consumersByAccountKey = groupConsumersByAccountKey(serviceConsumers)
 
     let successCount = 0
-    logger.info({ msg: 'Left receipts', receiptAccountData })
+    logger.info({ msg: 'Left receipts', data: { receiptAccountData } })
 
     for (const [key, receipt] of Object.entries(receiptAccountData.receiptAccountKeys)) {
         const consumers = consumersByAccountKey[key]
@@ -121,7 +119,7 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
         successCount += await notifyConsumers(redisClient, keystone, receipt, consumers)
     }
 
-    logger.info({ msg: 'Sent billing receipts', successCount, contextId })
+    logger.info({ msg: 'Sent billing receipts', data: { successCount, contextId } })
 }
 
 async function fetchReceipts (contextId, receiptCreatedAfter) {
@@ -221,10 +219,10 @@ async function notifyConsumers (redisClient, keystone, receipt, consumers) {
     for (const consumer of consumers) {
         const resident = get(consumer, 'resident')
         if (!resident || resident.deletedAt) continue
-        const notifiedUserDate = await redisClient.get(BILLING_RECEIPTS_NOTIFIED_USERS_PREFIX + resident.user)
-        logger.info({ residentTest: resident.user, notifiedUserDate })
+        const isUserNotified = await redisClient.get(BILLING_RECEIPTS_NOTIFIED_USERS_PREFIX + resident.user)
+        logger.info({ data: { user: resident.user, isUserNotified } })
 
-        if (notifiedUserDate) continue
+        if (isUserNotified) continue
 
         const success = await prepareAndSendNotification(keystone, receipt, resident)
         if (success) {

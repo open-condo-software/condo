@@ -38,7 +38,7 @@ const sendBillingReceiptsAddedNotifications = async () => {
     for (const context of BillingContexts) {
         const lastReport = get(context, 'lastReport.finishTime')
         if (!lastReport) continue
-        logger.info({ msg: 'Old way redis key', oldWayLastSyncDate, lastReport, result: dayjs(oldWayLastSyncDate).isAfter(dayjs(lastReport)) })
+        logger.info({ msg: 'Old way redis key', data: { oldWayLastSyncDate, lastReport  } })
         if (oldWayLastSyncDate && dayjs(oldWayLastSyncDate).isAfter(dayjs(lastReport))) continue
 
 

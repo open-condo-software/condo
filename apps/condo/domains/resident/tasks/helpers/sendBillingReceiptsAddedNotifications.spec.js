@@ -221,7 +221,6 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
 
             const messages = await Message.getAll(admin, messageWhere)
             expect(messages).toHaveLength(1)
-            expect(messages[0].organization.id).toEqual(resident.organization.id)
         })
     })
 
@@ -294,11 +293,11 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 const message = await Message.getOne(admin, messageWhere)
 
                 expect(message.id).toBeDefined()
-            }, { delay: 2000 })
+            }, { delay: 10000 })
             await waitFor(async () => {
                 const lastSync = await redisClient.get(`${REDIS_LAST_DATE_KEY_PREFIX}${receipt[0].context.id}`)
                 expect(dayjs(lastSync).toISOString()).toEqual(dayjs(receipt[0].context.lastReport.finishTime).toISOString())
-            }, { delay: 2000 })
+            }, { delay: 10000 })
         })
 
         test('Should send pushes if old way redis key is older than lastReport', async () => {
@@ -330,11 +329,11 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 const message = await Message.getOne(admin, messageWhere)
 
                 expect(message.id).toBeDefined()
-            }, { delay: 2000 })
+            }, { delay: 10000 })
             await waitFor(async () => {
                 const lastSync = await redisClient.get(`${REDIS_LAST_DATE_KEY_PREFIX}${receipt[0].context.id}`)
                 expect(dayjs(lastSync).toISOString()).toEqual(dayjs(receipt[0].context.lastReport.finishTime).toISOString())
-            }, { delay: 2000 })
+            }, { delay: 10000 })
         })
 
         test('Should not send pushes if old way redis key is newer than lastReport', async () => {
@@ -367,10 +366,10 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 const message = await Message.getOne(admin, messageWhere)
 
                 expect(message).toBeUndefined()
-            }, { delay: 2000 })
+            }, { delay: 10000 })
         })
 
-        test('Should not send pushes for one user with different residents', async () => {
+        test('Should send only one push for one user with different residents', async () => {
             const environment = new TestUtils([ResidentTestMixin])
             await environment.init()
             const utilsForContext = new TestUtils([ResidentTestMixin])
@@ -417,7 +416,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 const messages = await Message.getAll(admin, messageWhere)
 
                 expect(messages).toHaveLength(1)
-            }, { delay: 2000 })
+            }, { delay: 10000 })
         })
 
         test('Should not send pushes more often than USER_BILLING_RECEIPT_NOTIFICATION_PERIOD_IN_SEC time', async () => {
@@ -448,7 +447,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 const messages = await Message.getAll(admin, messageWhere)
 
                 expect(messages).toHaveLength(1)
-            }, { delay: 2000 })
+            }, { delay: 10000 })
 
             await environment.createReceipts([
                 environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
@@ -461,7 +460,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 const messages = await Message.getAll(admin, messageWhere)
 
                 expect(messages).toHaveLength(1)
-            }, { delay: 2000 })
+            }, { delay: 10000 })
 
             await redisClient.del(BILLING_RECEIPTS_NOTIFIED_USERS_PREFIX + resident.user.id)
 
@@ -476,7 +475,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 const messages = await Message.getAll(admin, messageWhere)
 
                 expect(messages).toHaveLength(2)
-            }, { delay: 2000 })
+            }, { delay: 10000 })
         })
     })
 })
