@@ -106,6 +106,13 @@ const checks = [
         },
     }),
     getPfxCertificateHealthCheck({
+        certificateName: 'sber_id_client',
+        getPfxParams: () => {
+            const SBER_ID_CONFIG = conf['SBER_ID_CONFIG'] && JSON.parse(conf['SBER_ID_CONFIG']) || {}
+            return { pfx: SBER_ID_CONFIG.certificate, passphrase: SBER_ID_CONFIG.passphrase }
+        },
+    }),
+    getPfxCertificateHealthCheck({
         certificateName: 'sbbol_client',
         getPfxParams: () => {
             const SBBOL_PFX = conf['SBBOL_PFX'] && JSON.parse(conf['SBBOL_PFX']) || {}
