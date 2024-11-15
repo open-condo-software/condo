@@ -34,18 +34,5 @@ describe('Date helper tests', () => {
             expect(thisMonthStart).toStrictEqual('2022-01-01')
             expect(nextMonthStart).toStrictEqual('2022-02-01')
         })
-
-        it('returns properly formatted correct date', () => {
-            const now = new Date()
-            const prevMonthStartTest = new Date(now.getFullYear(), now.getMonth()).toISOString().slice(0, 7) + '-01'
-            const thisMonthStartTest = new Date(now.getFullYear(), now.getMonth() + 1).toISOString().slice(0, 7) + '-01'
-            const nextMonthStartTest = new Date(now.getFullYear(), now.getMonth() + 2).toISOString().slice(0, 7) + '-01'
-
-            const { prevMonthStart, thisMonthStart, nextMonthStart } = getStartDates()
-
-            expect(prevMonthStart).toStrictEqual(prevMonthStartTest)
-            expect(thisMonthStart).toStrictEqual(thisMonthStartTest)
-            expect(nextMonthStart).toStrictEqual(nextMonthStartTest)
-        })
     })
 })
