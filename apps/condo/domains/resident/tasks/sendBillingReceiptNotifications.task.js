@@ -17,7 +17,7 @@ async function sendBillingReceiptNotificationsWeekends () {
 }
 
 /** PODS work according to UTC, so time in cron-tasks should also be according to UTC too. */
-const sendBillingReceiptNotificationsWorkDaysTask = createCronTask('sendBillingReceiptNotificationsWorkDaysTask', '* * * * *', sendBillingReceiptNotificationsWorkDays)
+const sendBillingReceiptNotificationsWorkDaysTask = createCronTask('sendBillingReceiptNotificationsWorkDaysTask', '17 10-15 * * 1-5', sendBillingReceiptNotificationsWorkDays)
 const sendBillingReceiptNotificationsWeekendsTask = createCronTask('sendBillingReceiptNotificationsWeekendsTask', '17 9-12 * * 0,6', sendBillingReceiptNotificationsWeekends)
 
 module.exports = {

@@ -19,7 +19,7 @@ const sendBillingReceiptNotifications = async (context = null) => {
     }
 
     await sendBillingReceiptsAddedNotifications()
-    // await sendResidentsNoAccountNotifications()
+    await sendResidentsNoAccountNotifications()
 }
 
 module.exports = {
