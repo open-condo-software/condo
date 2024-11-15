@@ -42,7 +42,7 @@ services:
       POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
       command: |
         postgres
-           -c wal_level=replica -c shared_buffers=512MB -c effective_cache_size=1536MB -c work_mem=2621kB -c maintenance_work_mem=128MB
+           -c wal_level=replica -c shared_buffers=256MB -c effective_cache_size=256MB -c work_mem=2621kB -c maintenance_work_mem=128MB
     volumes:
       - ./docker-compose-postgresql-init-replication.sql:/docker-entrypoint-initdb.d/docker-compose-postgresql-init-replication.sql
     networks:
@@ -68,7 +68,7 @@ services:
         touch /var/lib/postgresql/initialized
         echo "hot_standby_feedback=on" >> /var/lib/postgresql/data/postgresql.conf
       fi
-      postgres -c shared_buffers=512MB -c effective_cache_size=1536MB -c work_mem=2621kB -c maintenance_work_mem=128MB
+      postgres -c shared_buffers=256MB -c effective_cache_size=256MB -c work_mem=2621kB -c maintenance_work_mem=128MB
       "
     networks:
       - app-network
