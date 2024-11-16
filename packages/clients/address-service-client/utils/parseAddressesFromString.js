@@ -2,11 +2,11 @@ const KEYWORDS = {
     parking: ['автоместо', 'парковка', 'паркинг', 'машиноместо', 'гараж', 'м/м', 'мм', 'место', 'м/место', 'а/м', 'бокс', 'парк'],
     apartment: ['аппарт', 'апарт', 'ап', 'к/п'],
     commercial: ['офис', 'оф'],
-    warehouse: ['помещение', 'подвал', 'помещ', 'пом', 'кл', 'кладовка', 'кладовая', 'нп'],
+    warehouse: ['помещение', 'подвал', 'помещ', 'пом', 'кл', 'кладовка', 'кладовая', 'нп', 'клад'],
     flat: ['квартира', 'кв', 'комн'],
 }
 
-const HOUSE_IDENTIFIERS = 'д|уч|дом|участок|двлд'
+const HOUSE_IDENTIFIERS = 'д|уч|дом|участок|двлд|домовладение'
 const SPLIT_SYMBOL = '%'
 
 class AddressFromStringParser {
@@ -60,11 +60,12 @@ class AddressFromStringParser {
     parseUnit (unitInput = '') {
         let detectedType = null
         for (const unitType in KEYWORDS) {
-            const unitTypeRegex = new RegExp(this.keywordsToRegexp(KEYWORDS[unitType]) + '[.]*', 'ig')
-            if (!detectedType && unitTypeRegex.test(unitInput)) {
+            const clearUnitTypeRegex = new RegExp(this.keywordsToRegexp(KEYWORDS[unitType]) + '[.\\s]+', 'ig')
+            const checkUnitTypeRegex = new RegExp(this.keywordsToRegexp(KEYWORDS[unitType]) + '[.]*', 'ig')
+            if (!detectedType && checkUnitTypeRegex.test(unitInput)) {
                 detectedType = unitType
             }
-            unitInput = this.trim(unitInput.replace(unitTypeRegex, '').replace(/\s+/g, ' '))
+            unitInput = this.trim(unitInput.replace(clearUnitTypeRegex, ' ').replace(/\s+/g, ' '))
         }
         return {
             unitName: unitInput,
@@ -79,7 +80,7 @@ class AddressFromStringParser {
     splitByKeyword (input = '') {
         const [housePart, unitPart = ''] = input
             .replace(new RegExp(`[${SPLIT_SYMBOL}]`, 'g'), '')
-            .replace(this.splitRegexp, ` $1$2${SPLIT_SYMBOL}$3`)
+            .replace(this.splitRegexp, ` $1$2${SPLIT_SYMBOL}$3.`)
             .split(SPLIT_SYMBOL)
         return {
             housePart: this.trim(housePart),
