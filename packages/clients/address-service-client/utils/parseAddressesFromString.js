@@ -65,7 +65,7 @@ class AddressFromStringParser {
             if (!detectedType && checkUnitTypeRegex.test(unitInput)) {
                 detectedType = unitType
             }
-            unitInput = this.trim(unitInput.replace(clearUnitTypeRegex, ' ').replace(/\s+/g, ' '))
+            unitInput = this.trim(unitInput.replace(clearUnitTypeRegex, '').replace(/\s+/g, ' '))
         }
         return {
             unitName: unitInput,
