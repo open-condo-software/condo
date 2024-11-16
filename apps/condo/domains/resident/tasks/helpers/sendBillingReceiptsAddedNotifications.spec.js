@@ -261,6 +261,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
         beforeAll(async () => {
             redisClient = getRedisClient()
             setFeatureFlag(SEND_BILLING_RECEIPTS_NOTIFICATIONS_TASK, true)
+            redisClient.del(REDIS_LAST_DATE_KEY)
         })
 
         afterEach(async () => {
@@ -293,11 +294,11 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 const message = await Message.getOne(admin, messageWhere)
 
                 expect(message.id).toBeDefined()
-            }, { delay: 10000 })
+            }, { delay: 2000 })
             await waitFor(async () => {
                 const lastSync = await redisClient.get(`${REDIS_LAST_DATE_KEY_PREFIX}${receipt[0].context.id}`)
                 expect(dayjs(lastSync).toISOString()).toEqual(dayjs(receipt[0].context.lastReport.finishTime).toISOString())
-            }, { delay: 10000 })
+            }, { delay: 2000 })
         })
 
         test('Should send pushes if old way redis key is older than lastReport', async () => {
@@ -311,7 +312,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 unitType: resident.unitType,
             }
 
-            redisClient.set(REDIS_LAST_DATE_KEY, new Date().toISOString())
+            await redisClient.set(REDIS_LAST_DATE_KEY, new Date().toISOString())
 
             const [receipt] = await environment.createReceipts([
                 environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
@@ -329,11 +330,11 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 const message = await Message.getOne(admin, messageWhere)
 
                 expect(message.id).toBeDefined()
-            }, { delay: 10000 })
+            }, { delay: 2000 })
             await waitFor(async () => {
                 const lastSync = await redisClient.get(`${REDIS_LAST_DATE_KEY_PREFIX}${receipt[0].context.id}`)
                 expect(dayjs(lastSync).toISOString()).toEqual(dayjs(receipt[0].context.lastReport.finishTime).toISOString())
-            }, { delay: 10000 })
+            }, { delay: 2000 })
         })
 
         test('Should not send pushes if old way redis key is newer than lastReport', async () => {
@@ -351,7 +352,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
             ])
 
-            redisClient.set(REDIS_LAST_DATE_KEY, new Date().toISOString())
+            await redisClient.set(REDIS_LAST_DATE_KEY, new Date().toISOString())
 
             await environment.createServiceConsumer(resident, accountNumber)
             const [res] = await _internalScheduleTaskByNameByTestClient(admin, { taskName: 'sendBillingReceiptNotificationsWorkDaysTask' })
@@ -366,7 +367,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 const message = await Message.getOne(admin, messageWhere)
 
                 expect(message).toBeUndefined()
-            }, { delay: 10000 })
+            }, { delay: 2000 })
         })
 
         test('Should send only one push for one user with different residents', async () => {
@@ -416,7 +417,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 const messages = await Message.getAll(admin, messageWhere)
 
                 expect(messages).toHaveLength(1)
-            }, { delay: 10000 })
+            }, { delay: 2000 })
         })
 
         test('Should not send pushes more often than USER_BILLING_RECEIPT_NOTIFICATION_PERIOD_IN_SEC time', async () => {
@@ -447,7 +448,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 const messages = await Message.getAll(admin, messageWhere)
 
                 expect(messages).toHaveLength(1)
-            }, { delay: 10000 })
+            }, { delay: 2000 })
 
             await environment.createReceipts([
                 environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
@@ -460,7 +461,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 const messages = await Message.getAll(admin, messageWhere)
 
                 expect(messages).toHaveLength(1)
-            }, { delay: 10000 })
+            }, { delay: 2000 })
 
             await redisClient.del(BILLING_RECEIPTS_NOTIFIED_USERS_PREFIX + resident.user.id)
 
@@ -475,7 +476,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 const messages = await Message.getAll(admin, messageWhere)
 
                 expect(messages).toHaveLength(2)
-            }, { delay: 10000 })
+            }, { delay: 2000 })
         })
     })
 })
