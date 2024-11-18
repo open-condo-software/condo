@@ -94,6 +94,7 @@ const prepareAndSendNotification = async (context, receipt, resident) => {
  * @returns {Promise<void>}
  */
 async function sendBillingReceiptsAddedNotificationForOrganizationContext (context, lastSyncDate) {
+    logger.info({ msg: 'sendBillingReceiptsAddedNotificationForOrganizationContext starts' })
     const contextId = get(context, 'id')
     if (!contextId) throw new Error('Invalid BillingIntegrationOrganizationContext, cannot get context.id')
 
@@ -215,7 +216,7 @@ function groupConsumersByAccountKey (serviceConsumers) {
 
 async function notifyConsumers (redisClient, keystone, receipt, consumers) {
     let successConsumerCount = 0
-
+    logger.info({ msg: 'Consumers for notifictaion', data: consumers})
     for (const consumer of consumers) {
         const resident = get(consumer, 'resident')
         if (!resident || resident.deletedAt) continue
