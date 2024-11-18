@@ -216,7 +216,7 @@ function groupConsumersByAccountKey (serviceConsumers) {
 
 async function notifyConsumers (redisClient, keystone, receipt, consumers) {
     let successConsumerCount = 0
-    logger.info({ msg: 'Consumers for notifictaion', data: consumers })
+
     for (const consumer of consumers) {
         const resident = get(consumer, 'resident')
         if (!resident || resident.deletedAt) continue
