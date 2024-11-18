@@ -94,24 +94,28 @@ if (!IS_BUILD_PHASE && SENTRY_CONFIG['server']) {
         release: `${SENTRY_CONFIG['server']['environment']}-${getCurrentVersion()}`,
     })
 }
+const SBER_ID_CONFIG = conf['SBER_ID_CONFIG'] && JSON.parse(conf['SBER_ID_CONFIG']) || {}
+const sberIdCertificateHealthCheck = 
+    SBER_ID_CONFIG.pfx && SBER_ID_CONFIG.passphrase 
+        ?
+        getPfxCertificateHealthCheck({
+            certificateName: 'sber_id_client',
+            getPfxParams: () => {
+                return { pfx: SBER_ID_CONFIG.certificate, passphrase: SBER_ID_CONFIG.passphrase }
+            },
+        })
+        :
+        getCertificateHealthCheck({
+            certificateName: 'sber_id_client',
+            getCertificate: () => {
+                return SBER_ID_CONFIG.cert
+            },
+        })
 
 const checks = [
     getRedisHealthCheck(),
     getPostgresHealthCheck(),
-    getCertificateHealthCheck({
-        certificateName: 'sber_id_client',
-        getCertificate: () => {
-            const SBER_ID_CONFIG = conf['SBER_ID_CONFIG'] && JSON.parse(conf['SBER_ID_CONFIG']) || {}
-            return SBER_ID_CONFIG.cert
-        },
-    }),
-    getPfxCertificateHealthCheck({
-        certificateName: 'sber_id_client',
-        getPfxParams: () => {
-            const SBER_ID_CONFIG = conf['SBER_ID_CONFIG'] && JSON.parse(conf['SBER_ID_CONFIG']) || {}
-            return { pfx: SBER_ID_CONFIG.certificate, passphrase: SBER_ID_CONFIG.passphrase }
-        },
-    }),
+    sberIdCertificateHealthCheck,
     getPfxCertificateHealthCheck({
         certificateName: 'sbbol_client',
         getPfxParams: () => {
