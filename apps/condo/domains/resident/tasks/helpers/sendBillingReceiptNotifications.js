@@ -12,7 +12,7 @@ const sendBillingReceiptNotifications = async (context = null) => {
     const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(context, SEND_BILLING_RECEIPTS_NOTIFICATIONS_TASK)
     // Skip sending notifications if feature is disabled on https://growthbook.doma.ai/features
     // This affects only cron task, notifications still could be sent using scripts in condo/
-    logger.info({ msg: 'sendBillingReceiptNotifications cron tasks starts', data: { isFeatureEnabled } })
+
     if (!isFeatureEnabled) {
         logger.info(`sendBillingReceiptNotifications was skipped due to disabled growthbook feature flag [${SEND_BILLING_RECEIPTS_NOTIFICATIONS_TASK}]`)
 
