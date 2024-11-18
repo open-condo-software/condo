@@ -464,8 +464,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
             ])
 
-            const [res3] = await _internalScheduleTaskByNameByTestClient(environment.clients.admin, { taskName: 'sendBillingReceiptNotificationsWorkDaysTask' })
-            expect(res3.id).toBeDefined()
+            await sendBillingReceiptNotifications()
 
             await waitFor(async () => {
                 const messages = await Message.getAll(environment.clients.admin, messageWhere)
