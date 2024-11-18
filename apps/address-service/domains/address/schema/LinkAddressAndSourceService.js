@@ -48,7 +48,11 @@ const LinkAddressAndSourceService = new GQLCustomSchema('LinkAddressAndSourceSer
     types: [
         {
             access: true,
-            type: 'input LinkAddressAndSourceInput { dv: Int!, sender: SenderFieldInput!, source: String!, tin: String, address: AddressWhereUniqueInput!, parseUnit: Boolean }',
+            type: 'input LinkAddressAndSourceHelpersInput { tin: String }',
+        },
+        {
+            access: true,
+            type: 'input LinkAddressAndSourceInput { dv: Int!, sender: SenderFieldInput!, source: String!, helpers: LinkAddressAndSourceHelpersInput, address: AddressWhereUniqueInput!, parseUnit: Boolean }',
         },
         {
             access: true,
@@ -61,7 +65,7 @@ const LinkAddressAndSourceService = new GQLCustomSchema('LinkAddressAndSourceSer
             access: access.canLinkAddressAndSource,
             schema: 'linkAddressAndSource(data: LinkAddressAndSourceInput!): LinkAddressAndSourceOutput',
             resolver: async (parent, { data }, context) => {
-                let { dv, sender, source, tin, address, parseUnit } = data
+                let { dv, sender, source, helpers, address, parseUnit } = data
 
                 if (!source) {
                     throw new GQLError(ERRORS.EMPTY_SOURCE, context)
@@ -79,8 +83,8 @@ const LinkAddressAndSourceService = new GQLCustomSchema('LinkAddressAndSourceSer
                     throw new GQLError(ERRORS.INCORRECT_ADDRESS_SOURCE, context)
                 }
 
-                if (tin) {
-                    source = mergeAddressAndHelpers(source, { tin })
+                if (helpers.tin) {
+                    source = mergeAddressAndHelpers(source, { tin: helpers.tin })
                 }
 
                 const lowerCasedSource = source.toLowerCase()

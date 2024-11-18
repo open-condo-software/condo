@@ -63,7 +63,7 @@ describe('LinkAddressAndSourceService', () => {
         expect(addressSource.source).toEqual(source.slice(0, -9).toLowerCase())
     })
 
-    test('Should not save incorrect data', async () => {
+    test('Should not save incorrect address source', async () => {
         const source = `${faker.address.street()} ${faker.random.numeric(3)} кв123`
         const admin = await makeLoggedInAdminClient()
         const [{ id: address }] = await createTestAddress(admin)

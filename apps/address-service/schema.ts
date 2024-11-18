@@ -1265,11 +1265,15 @@ export enum CacheControlScope {
 }
 
 
+export type LinkAddressAndSourceHelpersInput = {
+  tin?: Maybe<Scalars['String']>;
+};
+
 export type LinkAddressAndSourceInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
   source: Scalars['String'];
-  tin?: Maybe<Scalars['String']>;
+  helpers?: Maybe<LinkAddressAndSourceHelpersInput>;
   address: AddressWhereUniqueInput;
   parseUnit?: Maybe<Scalars['Boolean']>;
 };
