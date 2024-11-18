@@ -104,14 +104,12 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
     const receiptCreatedAfter = lastSyncDate || thisMonthStart
 
     const receipts = await fetchReceipts(contextId, receiptCreatedAfter)
-    logger.info({ msg: 'Found receipts', data: { receiptsNumber: receipts.length, contextId }  })
 
     const receiptAccountData = await prepareReceiptsData(receipts, context)
     const serviceConsumers = await fetchServiceConsumers(context, receiptAccountData.accountNumbers)
     const consumersByAccountKey = groupConsumersByAccountKey(serviceConsumers)
 
     let successCount = 0
-    logger.info({ msg: 'Left receipts', data: { receiptAccountData } })
 
     for (const [key, receipt] of Object.entries(receiptAccountData.receiptAccountKeys)) {
         const consumers = consumersByAccountKey[key]
@@ -137,8 +135,6 @@ async function prepareReceiptsData (receipts, context) {
     const receiptAccountKeys = {}
 
     for (const receipt of receipts) {
-        if (await hasNewerReceipts(receipt)) continue
-
         const processedReceipt = await processReceiptData(receipt, context)
         const accountNumber = get(processedReceipt, 'account.number')
         const addressKey = get(processedReceipt, 'account.property.addressKey')
@@ -148,20 +144,6 @@ async function prepareReceiptsData (receipts, context) {
     }
 
     return { accountNumbers: accountsNumbers.filter(Boolean), receiptAccountKeys }
-}
-
-async function hasNewerReceipts (receipt) {
-    const newerReceiptsWhere = {
-        account: { id: get(receipt, 'account'), deletedAt: null },
-        OR: [
-            { receiver: { AND: [{ id: get(receipt, 'receiver') }, { deletedAt: null }] } },
-            { category: { AND: [{ id: get(receipt, 'category') }, { deletedAt: null }] } },
-        ],
-        period_gt: get(receipt, 'period'),
-        deletedAt: null,
-    }
-    const newerReceipts = await find('BillingReceipt', newerReceiptsWhere)
-    return newerReceipts.length > 0
 }
 
 async function processReceiptData (receipt, context) {
@@ -221,7 +203,6 @@ async function notifyConsumers (redisClient, keystone, receipt, consumers) {
         const resident = get(consumer, 'resident')
         if (!resident || resident.deletedAt) continue
         const isUserNotified = await redisClient.get(BILLING_RECEIPTS_NOTIFIED_USERS_PREFIX + resident.user)
-        logger.info({ data: { user: resident.user, isUserNotified } })
 
         if (isUserNotified) continue
 

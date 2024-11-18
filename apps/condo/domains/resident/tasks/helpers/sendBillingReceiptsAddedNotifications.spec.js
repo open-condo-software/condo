@@ -13,7 +13,6 @@ const { makeLoggedInAdminClient, setFeatureFlag, setFakeClientMode, waitFor } = 
 const { registerBillingReceiptsByTestClient } = require('@condo/domains/billing/utils/testSchema')
 const { TestUtils, ResidentTestMixin } = require('@condo/domains/billing/utils/testSchema/testUtils')
 const { SEND_BILLING_RECEIPTS_NOTIFICATIONS_TASK } = require('@condo/domains/common/constants/featureflags')
-const { _internalScheduleTaskByNameByTestClient } = require('@condo/domains/common/utils/testSchema')
 const {
     BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
     BILLING_RECEIPT_ADDED_TYPE,
@@ -21,19 +20,17 @@ const {
 const { Message } = require('@condo/domains/notification/utils/testSchema')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { REDIS_LAST_DATE_KEY, REDIS_LAST_DATE_KEY_PREFIX, BILLING_RECEIPTS_NOTIFIED_USERS_PREFIX } = require('@condo/domains/resident/constants')
-const { sendBillingReceiptNotifications } = require('@condo/domains/resident/tasks/helpers/sendBillingReceiptNotifications')
+const { sendBillingReceiptsAddedNotifications } = require('@condo/domains/resident/tasks/helpers/sendBillingReceiptsAddedNotifications')
 const { makeBillingReceiptWithResident } = require('@condo/domains/resident/tasks/helpers/spec.helpers')
 const { makeAccountKey, getMessageTypeAndDebt, sendBillingReceiptsAddedNotificationForOrganizationContext } = require('@condo/domains/resident/tasks/sendBillingReceiptsAddedNotificationForOrganizationContextTask')
 const { Resident } = require('@condo/domains/resident/utils/testSchema')
 
 describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
     setFakeClientMode(index)
-    let redisClient, admin
+    let admin
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
-        redisClient = getRedisClient()
-        redisClient.del('LAST_SEND_BILLING_RECEIPT_NOTIFICATION_CREATED_AT')
     })
 
     describe('notifications', () => {
@@ -282,7 +279,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
             ])
             await environment.createServiceConsumer(resident, accountNumber)
-            await sendBillingReceiptNotifications()
+            await sendBillingReceiptsAddedNotifications()
 
             const messageWhere = {
                 user: { id: resident.user.id },
@@ -317,7 +314,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
             ])
             await environment.createServiceConsumer(resident, accountNumber)
-            await sendBillingReceiptNotifications()
+            await sendBillingReceiptsAddedNotifications()
 
             const messageWhere = {
                 user: { id: resident.user.id },
@@ -353,8 +350,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             await redisClient.set(REDIS_LAST_DATE_KEY, new Date().toISOString())
 
             await environment.createServiceConsumer(resident, accountNumber)
-            const [res] = await _internalScheduleTaskByNameByTestClient(environment.clients.admin, { taskName: 'sendBillingReceiptNotificationsWorkDaysTask' })
-            expect(res.id).toBeDefined()
+            await sendBillingReceiptsAddedNotifications()
 
             const messageWhere = {
                 user: { id: resident.user.id },
@@ -402,7 +398,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             await environment.createServiceConsumer(resident1, accountNumber1)
             await environment.createServiceConsumer(resident2, accountNumber2)
 
-            await sendBillingReceiptNotifications()
+            await sendBillingReceiptsAddedNotifications()
             expect(resident1.user.id ).toEqual(resident2.user.id )
 
             const messageWhere = {
@@ -436,9 +432,9 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 user: { id: resident.user.id },
                 type: BILLING_RECEIPT_ADDED_TYPE,
             }
-
             await environment.createServiceConsumer(resident, accountNumber)
-            await sendBillingReceiptNotifications()
+
+            await sendBillingReceiptsAddedNotifications()
 
             await waitFor(async () => {
                 const messages = await Message.getAll(environment.clients.admin, messageWhere)
@@ -450,7 +446,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
             ])
 
-            await sendBillingReceiptNotifications()
+            await sendBillingReceiptsAddedNotifications()
 
             await waitFor(async () => {
                 const messages = await Message.getAll(environment.clients.admin, messageWhere)
@@ -464,7 +460,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
             ])
 
-            await sendBillingReceiptNotifications()
+            await sendBillingReceiptsAddedNotifications()
 
             await waitFor(async () => {
                 const messages = await Message.getAll(environment.clients.admin, messageWhere)

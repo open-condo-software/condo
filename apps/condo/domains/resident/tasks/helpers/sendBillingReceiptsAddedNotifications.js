@@ -42,7 +42,6 @@ const sendBillingReceiptsAddedNotifications = async () => {
         logger.info({ msg: 'Old way redis key', data: { oldWayLastSyncDate, lastReport  } })
         if (oldWayLastSyncDate && dayjs(oldWayLastSyncDate).isAfter(dayjs(lastReport))) continue
 
-
         const redisKey = `${REDIS_LAST_DATE_KEY_PREFIX}${context.id}`
         const lastSyncDate = await redisClient.get(redisKey)
         if (!lastSyncDate || dayjs(lastReport).isAfter(dayjs(lastSyncDate))) {
