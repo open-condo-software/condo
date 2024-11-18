@@ -15,7 +15,7 @@ describe('LinkAddressAndSourceService', () => {
         const source = `${faker.address.city()}${faker.random.alphaNumeric(8)}, ${faker.address.street()}, ${faker.random.alphaNumeric(8)}`
         const admin = await makeLoggedInAdminClient()
         const [{ id: address }] = await createTestAddress(admin)
-        const payload = { source, tin, address: { id: address } }
+        const payload = { source, helpers: { tin }, address: { id: address } }
         const [result] = await linkAddressAndSourceByTestClient(admin, payload)
         expect(result).toMatchObject({
             addressSourceId: expect.any(String),

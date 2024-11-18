@@ -82,9 +82,8 @@ const LinkAddressAndSourceService = new GQLCustomSchema('LinkAddressAndSourceSer
                 if (!source) {
                     throw new GQLError(ERRORS.INCORRECT_ADDRESS_SOURCE, context)
                 }
-
-                if (helpers.tin) {
-                    source = mergeAddressAndHelpers(source, { tin: helpers.tin })
+                if (helpers) {
+                    source = mergeAddressAndHelpers(source, helpers)
                 }
 
                 const lowerCasedSource = source.toLowerCase()
