@@ -81,10 +81,10 @@ export function useTableColumns<T> (
         loading: statusesLoading,
         data: ticketStatusesData,
     } = useGetTicketStatusesQuery()
-    const ticketStatuses = useMemo(() => ticketStatusesData?.statuses?.filter(Boolean), [ticketStatusesData?.statuses])
+    const ticketStatuses = useMemo(() => ticketStatusesData?.statuses?.filter(Boolean) || [], [ticketStatusesData?.statuses])
 
     const renderStatusFilterDropdown: ColumnType<ITicket>['filterDropdown'] = useCallback((filterProps) => {
-        const adaptedStatuses = ticketStatuses.map(status => ({ label: status.name, value: status.type })).filter(identity)
+        const adaptedStatuses = ticketStatuses?.map(status => ({ label: status.name, value: status.type })).filter(identity)
         return getOptionFilterDropdown({
             checkboxGroupProps: {
                 options: adaptedStatuses,
