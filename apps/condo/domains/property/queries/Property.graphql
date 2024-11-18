@@ -48,6 +48,10 @@ query getPropertyWithMapById ($id: ID!) {
         where: { id: $id }
     ) {
         id
+        organization {
+            id
+            name
+        }
         map {
             sections {
                 ...SectionOrParkingInfo

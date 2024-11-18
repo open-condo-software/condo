@@ -1771,6 +1771,10 @@ export const GetPropertyWithMapByIdDocument = gql`
     query getPropertyWithMapById($id: ID!) {
   property: allProperties(where: {id: $id}) {
     id
+    organization {
+      id
+      name
+    }
     map {
       sections {
         ...SectionOrParkingInfo
