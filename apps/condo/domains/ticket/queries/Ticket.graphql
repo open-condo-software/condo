@@ -21,6 +21,7 @@ query getTickets ($where: TicketWhereInput!, $sortBy: [SortTicketsBy!], $first: 
         unitName
         details
         clientName
+        clientPhone
         classifier {
             id
             category {
@@ -62,6 +63,14 @@ query getTickets ($where: TicketWhereInput!, $sortBy: [SortTicketsBy!], $first: 
                 primary
                 secondary
             }
+        }
+        createdBy {
+            id
+            name
+        }
+        source {
+            id
+            name
         }
     }
 
