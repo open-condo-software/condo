@@ -17,8 +17,10 @@ describe('sendBillingReceiptNotifications', () => {
 
     describe('feature flag', () => {
         it('checks for proper result on enabled', async () => {
+            await redisClient.del(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
             setAllFeatureFlags(true)
-            expect(await sendBillingReceiptNotifications()).toBeUndefined()
+            expect(await sendBillingReceiptNotifications()).toEqual('noRedisKey')
+            await redisClient.del(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
         })
 
         it('checks for proper result on disabled', async () => {
