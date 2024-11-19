@@ -58,13 +58,19 @@ export const InlineOrganizationSelect: React.FC = () => {
     } = useOrganization()
     const userId = user?.id || null
 
-    const { data: actualEmployeesData, loading: isActualEmployeeLoading } = useGetActualOrganizationEmployeesQuery({
+    const {
+        data: actualEmployeesData,
+        loading: isActualEmployeeLoading,
+        previousData: previousEmployeesData,
+    } = useGetActualOrganizationEmployeesQuery({
         variables: { userId },
         skip: !userId || !persistor,
     })
+    const actualData = useMemo(() => actualEmployeesData?.actualEmployees?.filter(nonNull) || [], [actualEmployeesData?.actualEmployees])
+    const prevData = useMemo(() => previousEmployeesData?.actualEmployees?.filter(nonNull) || [], [previousEmployeesData?.actualEmployees])
     const actualEmployees = useMemo(
-        () => Array.isArray(actualEmployeesData?.actualEmployees) ? actualEmployeesData.actualEmployees.filter(nonNull) : []
-        , [actualEmployeesData]
+        () => !actualData.length ? prevData : actualData
+        , [actualData, prevData]
     )
 
     const { data: invites, loading: isInvitesLoading } = useGetEmployeeInvitesCountQuery({
@@ -74,7 +80,10 @@ export const InlineOrganizationSelect: React.FC = () => {
     const hasInvites = invites?.meta?.count > 0
 
     // Note: Filter case where organization was deleted
-    const filteredEmployees = uniqBy(actualEmployees.filter(employee => employee.organization), employee => employee.organization.id)
+    const filteredEmployees = useMemo(() =>
+        uniqBy(actualEmployees.filter(employee => employee.organization), employee => employee.organization.id),
+    [actualEmployees]
+    )
 
     const { setIsVisible: showCreateOrganizationModal, ModalForm: CreateOrganizationModalForm } = useCreateOrganizationModalForm({
         onFinish: async (createdOrganization) => {
