@@ -49,13 +49,6 @@ export async function prefetchOrganizationEmployee (args: PrefetchOrganizationEm
             userId,
         },
     })
-    // NOTE:It is assumed that "prefetchOrganizationEmployee" will be executed
-    // at the beginning of the "getServerSideProps" call,
-    // so we can ignore the arguments and clear all "allOrganizationEmployees" requests
-    apolloClient.cache.evict({
-        id: 'ROOT_QUERY',
-        fieldName: 'allOrganizationEmployees',
-    })
 
     const activeEmployee = get(response, ['data', 'employees', 0]) || null
 
