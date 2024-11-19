@@ -2351,6 +2351,7 @@ export const GetTicketsDocument = gql`
     unitName
     details
     clientName
+    clientPhone
     classifier {
       id
       category {
@@ -2394,6 +2395,14 @@ export const GetTicketsDocument = gql`
         primary
         secondary
       }
+    }
+    createdBy {
+      id
+      name
+    }
+    source {
+      id
+      name
     }
   }
   meta: _allTicketsMeta(where: $where) {
