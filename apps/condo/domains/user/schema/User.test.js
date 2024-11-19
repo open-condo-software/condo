@@ -508,14 +508,18 @@ describe('User fields', () => {
                     expect.objectContaining({ id: defaultClient.user.id, name: defaultClient.user.name }),
                 ]))
 
-                const nameAccessDeniedErrors = errors.filter(error =>
-                    error && error.name &&
-                    error.path && error.name === 'AccessDeniedError' &&
-                    error.path.length === 3 &&
-                    error.path[0] === 'objs' && typeof error.path[1] === 'number' && error.path[2] === 'name'
-                )
+                const nonSelfIndexes = data.objs
+                    .map((_, idx) => idx)
+                    .filter(idx => data.objs[idx].id !== defaultClient.user.id)
 
-                expect(nameAccessDeniedErrors).toHaveLength(2)
+                expect(nonSelfIndexes).toHaveLength(2)
+
+                expect(errors).toEqual(expect.arrayContaining(nonSelfIndexes.map(idx =>
+                    expect.objectContaining({
+                        name: 'AccessDeniedError',
+                        path: ['objs', idx, 'name'],
+                    })
+                )))
             })
         })
         describe('Outside list queries (allUsers, User)', () => {
