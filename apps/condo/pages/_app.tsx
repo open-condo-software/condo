@@ -535,78 +535,80 @@ type NextAppContext = (AppContext & NextPageContext) & {
     Component: PageComponentType
 }
 
-MyApp.getInitialProps = async (appContext: NextAppContext): Promise<{ pageProps: Record<string, any> }> => {
-    try {
-        const pageContext = appContext?.ctx
-        const apolloClient = appContext.apolloClient
+if (!isDisabledSsr) {
+    MyApp.getInitialProps = async (appContext: NextAppContext): Promise<{ pageProps: Record<string, any> }> => {
+        try {
+            const pageContext = appContext?.ctx
+            const apolloClient = appContext.apolloClient
 
-        if (!apolloClient) throw new Error('no appContext.apolloClient!')
+            if (!apolloClient) throw new Error('no appContext.apolloClient!')
 
-        let initialProps: Record<string, any>,
-            prefetchedData: Record<string, any>
-        if (appContext.Component.getInitialProps && appContext.Component.getPrefetchedData) {
-            throw new Error('You cannot use getInitialProps and getPrefetchedData together')
-        }
-        if (appContext.Component.getInitialProps) {
-            ({ pageProps: initialProps } = await App.getInitialProps(appContext))
-        }
+            let initialProps: Record<string, any>,
+                prefetchedData: Record<string, any>
+            if (appContext.Component.getInitialProps && appContext.Component.getPrefetchedData) {
+                throw new Error('You cannot use getInitialProps and getPrefetchedData together')
+            }
+            if (appContext.Component.getInitialProps) {
+                ({ pageProps: initialProps } = await App.getInitialProps(appContext))
+            }
 
-        const skipUserPrefetch = appContext.Component.skipUserPrefetch || false
+            const skipUserPrefetch = appContext.Component.skipUserPrefetch || false
 
-        let redirectToAuth: GetPrefetchedDataReturnRedirect
-        let user: Parameters<PageComponentType['getPrefetchedData']>[0]['user'] = null
-        if (!skipUserPrefetch) {
-            ({ redirectToAuth, user } = await prefetchAuthOrRedirect(apolloClient, pageContext))
+            let redirectToAuth: GetPrefetchedDataReturnRedirect
+            let user: Parameters<PageComponentType['getPrefetchedData']>[0]['user'] = null
+            if (!skipUserPrefetch) {
+                ({ redirectToAuth, user } = await prefetchAuthOrRedirect(apolloClient, pageContext))
 
-            const skipRedirectToAuth = appContext.Component.skipRedirectToAuth || false
-            if (redirectToAuth && !skipRedirectToAuth) return await nextRedirect(pageContext, redirectToAuth.redirect)
-        }
+                const skipRedirectToAuth = appContext.Component.skipRedirectToAuth || false
+                if (redirectToAuth && !skipRedirectToAuth) return await nextRedirect(pageContext, redirectToAuth.redirect)
+            }
 
-        let activeEmployee: Parameters<PageComponentType['getPrefetchedData']>[0]['activeEmployee'] = null
-        if (user) {
-            ({ activeEmployee } = await prefetchOrganizationEmployee({
-                apolloClient,
-                context: pageContext,
-                userId: user.id,
-            }))
-        }
+            let activeEmployee: Parameters<PageComponentType['getPrefetchedData']>[0]['activeEmployee'] = null
+            if (user) {
+                ({ activeEmployee } = await prefetchOrganizationEmployee({
+                    apolloClient,
+                    context: pageContext,
+                    userId: user.id,
+                }))
+            }
 
-        if (appContext.Component.getPrefetchedData) {
-            const _prefetchedData = await appContext.Component.getPrefetchedData({
-                user, redirectToAuth, context: pageContext, apolloClient, activeEmployee,
-            })
+            if (appContext.Component.getPrefetchedData) {
+                const _prefetchedData = await appContext.Component.getPrefetchedData({
+                    user, redirectToAuth, context: pageContext, apolloClient, activeEmployee,
+                })
 
-            const isValidPrefetchedData = typeof _prefetchedData === 'object'
-                && ('notFound' in _prefetchedData || 'redirect' in _prefetchedData || 'props' in _prefetchedData)
-                && Object.keys(_prefetchedData).length === 1
-            if (!isValidPrefetchedData) throw new Error('getPrefetchedData() should return "notFound", "redirect" or "props"')
+                const isValidPrefetchedData = typeof _prefetchedData === 'object'
+                    && ('notFound' in _prefetchedData || 'redirect' in _prefetchedData || 'props' in _prefetchedData)
+                    && Object.keys(_prefetchedData).length === 1
+                if (!isValidPrefetchedData) throw new Error('getPrefetchedData() should return "notFound", "redirect" or "props"')
 
-            if ('notFound' in _prefetchedData) {
-                if (_prefetchedData.notFound === true) {
-                    prefetchedData = { statusCode: 404 }
+                if ('notFound' in _prefetchedData) {
+                    if (_prefetchedData.notFound === true) {
+                        prefetchedData = { statusCode: 404 }
+                    }
+                }
+                if ('redirect' in _prefetchedData) {
+                    return await nextRedirect(pageContext, _prefetchedData.redirect)
+                }
+                if ('props' in _prefetchedData) {
+                    prefetchedData = _prefetchedData.props
                 }
             }
-            if ('redirect' in _prefetchedData) {
-                return await nextRedirect(pageContext, _prefetchedData.redirect)
-            }
-            if ('props' in _prefetchedData) {
-                prefetchedData = _prefetchedData.props
-            }
+
+            let pageProps: Record<string, any> = {
+                ...initialProps,
+                ...prefetchedData,
+            };
+
+            ({ props: pageProps } = extractVitalCookies(pageContext.req, pageContext.res, {
+                props: pageProps,
+            }))
+
+            return { pageProps }
+        } catch (error) {
+            console.error('Error while running `MyApp.getInitialProps', error)
+            return { pageProps: { statusCode: 500 } }
         }
-
-        let pageProps: Record<string, any> = {
-            ...initialProps,
-            ...prefetchedData,
-        };
-
-        ({ props: pageProps } = extractVitalCookies(pageContext.req, pageContext.res, {
-            props: pageProps,
-        }))
-
-        return { pageProps }
-    } catch (error) {
-        console.error('Error while running `MyApp.getInitialProps', error)
-        return { pageProps: { statusCode: 500 } }
     }
 }
 
