@@ -74,6 +74,7 @@ describe('User', () => {
                     const readUser = await User.getOne(user, { id: user.user.id })
                     expect(readUser).toHaveProperty('id')
                     expect(readUser.phone).not.toBeNull()
+                    expect(readUser.user).not.toBeNull()
                 })
                 test('No access to sensitive fields of others', async () => {
                     // TODO(pahaz): DOMA-10368 use expectToThrow AccessDenied
@@ -82,7 +83,7 @@ describe('User', () => {
                     }, ({ errors, data }) => {
                         expect(data.objs).toHaveLength(1)
                         const readUser = data.objs[0]
-                        expect(readUser.name).not.toBeNull()
+                        expect(readUser.name).toBeNull()
                         expect(readUser.isAdmin).not.toBeNull()
                         expect(readUser.isSupport).not.toBeNull()
                         expect(readUser.id).not.toBeNull()
