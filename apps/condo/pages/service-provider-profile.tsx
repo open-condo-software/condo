@@ -28,10 +28,12 @@ const ServiceProviderProfilePage: PageType = () => {
     const { GlobalHints } = useGlobalHints()
 
     if (sppConfig && 'BillingIntegrationId' in sppConfig && isSPPOrg) {
-        return (<PageWrapper>
-            {GlobalHints}
-            <BillingAppPage id={sppConfig.BillingIntegrationId}/>
-        </PageWrapper>)
+        return (
+            <PageWrapper>
+                {GlobalHints}
+                <BillingAppPage id={sppConfig.BillingIntegrationId}/>
+            </PageWrapper>
+        )
     }
 
     return <LoadingOrErrorPage title={PageTitle} error={NoPermissionsMessage}/>
