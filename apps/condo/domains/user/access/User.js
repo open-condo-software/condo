@@ -113,18 +113,22 @@ const canAccessCustomAccessField = {
 async function canReadUserNameField (args) {
     const { authentication: { item: user }, listKey, existingItem } = args
 
-    if (!user) return throwAuthenticationError()
-    if (user.deletedAt) return false
-    if (user.isAdmin || user.isSupport) return true
+    // NOTE: Order of checks is important. Outside allUsers / User we want to keep default behaviour
+    // Including access for non-authorized users in queries such as signIn / registerNewUser
+    // But inside User / allUsers we want to restrict access to name field
 
-    const hasDirectAccess = await canDirectlyReadSchemaObjects(user, listKey)
-    if (hasDirectAccess) return true
-
-    // NOTE: name is not available inside User / allUsers queries
     if (isDirectListQuery(args)) {
+        if (!user) return throwAuthenticationError()
+        if (user.deletedAt) return false
+        if (user.isAdmin || user.isSupport) return true
+
+        const hasDirectAccess = await canDirectlyReadSchemaObjects(user, listKey)
+        if (hasDirectAccess) return true
+
         return existingItem.id === user.id
     }
 
+    // NOTE: Managed by default list / custom query access
     return true
 }
 

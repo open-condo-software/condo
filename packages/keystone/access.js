@@ -142,15 +142,18 @@ function isFilteringBy (where, fields) {
     return false
 }
 
-function isDirectListQuery (accessArgs) {
-    const { listKey } = accessArgs
+function isSpecificQuery (queryName) {
     const gqlContext = graphqlCtx.getStore()
     const gqlOperationName = get(gqlContext, 'gqlOperationName')
 
+    return gqlOperationName === queryName
+}
+
+function isDirectListQuery (accessArgs) {
+    const { listKey } = accessArgs
     const plural = pluralize.plural(listKey)
 
-
-    return (gqlOperationName === `all${plural}`) || (gqlOperationName === listKey)
+    return isSpecificQuery(`all${plural}`) || isSpecificQuery(listKey)
 }
 
 // TODO(pahaz): think about naming! ListAccessCheck and FieldAccessCheck has different arguments
@@ -168,6 +171,7 @@ module.exports = {
     userIsNotResidentUser,
     canOnlyServerSideWithoutUserRequest,
     isFilteringBy,
+    isSpecificQuery,
     isDirectListQuery,
     readOnlyFieldAccess,
     writeOnlyServerSideFieldAccess,
