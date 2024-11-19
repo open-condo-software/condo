@@ -26,6 +26,7 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
+const { createTestB2BApp, B2BApp } = require('@condo/domains/miniapp/utils/testSchema')
 const {
     MIN_PASSWORD_LENGTH,
     MAX_PASSWORD_LENGTH,
@@ -50,7 +51,10 @@ const {
     createTestPhone,
     createTestEmail,
     makeClientWithResidentUser,
+    makeClientWithSupportUser,
+    registerNewUser,
 } = require('@condo/domains/user/utils/testSchema')
+
 
 describe('SIGNIN', () => {
     test('anonymous: SIGNIN_MUTATION', async () => {
@@ -455,6 +459,93 @@ describe('User fields', () => {
 
         expect(user.showGlobalHints).toBeTruthy()
     })
+
+    describe('name', () => {
+        describe('Inside list queries (allUsers, User)', () => {
+            test('Can be seen only by admin / support / direct accessed users', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const support = await makeClientWithSupportUser()
+
+                const [rightsSet] = await createTestUserRightsSet(admin, {
+                    canReadUsers: true,
+                })
+                const directAccessedClient = await makeClientWithNewRegisteredAndLoggedInUser({
+                    rightsSet: { connect: { id: rightsSet.id } },
+                })
+
+                const defaultClient = await makeClientWithNewRegisteredAndLoggedInUser()
+
+                expect(admin.user.name).not.toBeNull()
+                expect(support.user.name).not.toBeNull()
+                expect(directAccessedClient.user.name).not.toBeNull()
+                expect(defaultClient.user.name).not.toBeNull()
+
+                const where = {
+                    id_in: [support.user.id, directAccessedClient.user.id, defaultClient.user.id],
+                }
+
+                for (const client of [admin, support, directAccessedClient]) {
+                    const users = await User.getAll(client, where)
+                    expect(users).toHaveLength(3)
+                    expect(users).toEqual(expect.arrayContaining([
+                        expect.objectContaining({ id: support.user.id, name: support.user.name }),
+                        expect.objectContaining({ id: directAccessedClient.user.id, name: directAccessedClient.user.name }),
+                        expect.objectContaining({ id: defaultClient.user.id, name: defaultClient.user.name }),
+                    ]))
+
+                    const user = await User.getOne(client, { id: defaultClient.user.id })
+                    expect(user).toEqual(expect.objectContaining({
+                        name: defaultClient.user.name,
+                    }))
+                }
+
+                const { data, errors } = await User.getAll(defaultClient, where, { raw: true })
+                expect(data).toHaveProperty('objs')
+                expect(data.objs).toHaveLength(3)
+                expect(data.objs).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: support.user.id, name: null }),
+                    expect.objectContaining({ id: directAccessedClient.user.id, name: null }),
+                    expect.objectContaining({ id: defaultClient.user.id, name: defaultClient.user.name }),
+                ]))
+
+                const nonSelfIndexes = data.objs
+                    .map((_, idx) => idx)
+                    .filter(idx => data.objs[idx].id !== defaultClient.user.id)
+
+                expect(nonSelfIndexes).toHaveLength(2)
+
+                expect(errors).toEqual(expect.arrayContaining(nonSelfIndexes.map(idx =>
+                    expect.objectContaining({
+                        name: 'AccessDeniedError',
+                        path: ['objs', idx, 'name'],
+                    })
+                )))
+            })
+        })
+        describe('Outside list queries (allUsers, User)', () => {
+            describe('Can be seen according to regular access',  () => {
+                test('List example', async () => {
+                    const support = await makeClientWithSupportUser()
+                    const [app] = await createTestB2BApp(support)
+                    expect(support).toHaveProperty(['user', 'name'])
+
+                    const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+
+                    const apps = await B2BApp.getAll(userClient, { id: app.id })
+                    expect(apps).toHaveLength(1)
+
+                    expect(apps[0]).toHaveProperty(['createdBy', 'name'], support.user.name)
+                })
+                test('Unauthorized query returning User', async () => {
+                    const client = await makeClient()
+                    const name = faker.name.firstName()
+                    const [user] = await registerNewUser(client, { name })
+
+                    expect(user).toHaveProperty('name', name)
+                })
+            })
+        })
+    })
 })
 
 const COMMON_FIELDS = 'id dv sender v deletedAt newId createdBy updatedBy createdAt updatedAt'
@@ -521,7 +612,6 @@ describe('Cache tests', () => {
 
         const CLIENTS = [
             { fields: ['id'], result: {} },
-            { fields: ['id', 'name'], result: {} },
             { fields: ['id', 'type'], result: {} },
             { fields: ['id', 'dv'], result: {} },
             { fields: ['id', 'updatedAt'], result: {} },

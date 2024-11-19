@@ -39,6 +39,9 @@ const User = new GQLListSchema('User', {
         name: {
             schemaDoc: 'Name. If impersonal account should be a company name',
             type: 'Text',
+            access: {
+                read: access.canReadUserNameField,
+            },
         },
         hasEmail: {
             type: 'Virtual',
