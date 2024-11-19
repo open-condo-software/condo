@@ -4,7 +4,7 @@
 const get = require('lodash/get')
 
 const access = require('@open-condo/keystone/access')
-const { isFilteringBy } = require('@open-condo/keystone/access')
+const { isFilteringBy, isDirectListQuery } = require('@open-condo/keystone/access')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
 const { SERVICE } = require('@condo/domains/user/constants/common')
@@ -110,6 +110,24 @@ const canAccessCustomAccessField = {
     update: access.userIsAdmin,
 }
 
+async function canReadUserNameField (args) {
+    const { authentication: { item: user }, listKey, existingItem } = args
+
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    if (user.isAdmin || user.isSupport) return true
+
+    const hasDirectAccess = await canDirectlyReadSchemaObjects(user, listKey)
+    if (hasDirectAccess) return true
+
+    // NOTE: name is not available inside User / allUsers queries
+    if (isDirectListQuery(args)) {
+        return existingItem.id === user.id
+    }
+
+    return true
+}
+
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
   all or no items are available) or a set of filters that limit the available items.
@@ -128,4 +146,5 @@ module.exports = {
     canAccessToRelatedOrganizationsField,
     canAccessToEmployeesField,
     canAccessCustomAccessField,
+    canReadUserNameField,
 }

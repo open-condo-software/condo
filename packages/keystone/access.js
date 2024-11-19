@@ -1,6 +1,8 @@
 const get = require('lodash/get')
+const pluralize =  require('pluralize')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
+const { graphqlCtx } = require('@open-condo/keystone/KSv5v6/utils/graphqlCtx')
 
 const RESIDENT_TYPE_USER = 'resident'
 
@@ -140,6 +142,17 @@ function isFilteringBy (where, fields) {
     return false
 }
 
+function isDirectListQuery (accessArgs) {
+    const { listKey } = accessArgs
+    const gqlContext = graphqlCtx.getStore()
+    const gqlOperationName = get(gqlContext, 'gqlOperationName')
+
+    const plural = pluralize.plural(listKey)
+
+
+    return (gqlOperationName === `all${plural}`) || (gqlOperationName === listKey)
+}
+
 // TODO(pahaz): think about naming! ListAccessCheck and FieldAccessCheck has different arguments
 module.exports = {
     userIsAuthenticated,
@@ -155,6 +168,7 @@ module.exports = {
     userIsNotResidentUser,
     canOnlyServerSideWithoutUserRequest,
     isFilteringBy,
+    isDirectListQuery,
     readOnlyFieldAccess,
     writeOnlyServerSideFieldAccess,
 }
