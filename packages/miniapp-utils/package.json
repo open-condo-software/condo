@@ -39,6 +39,9 @@
       "helpers/apollo": [
         "dist/types/helpers/apollo.d.ts"
       ],
+      "helpers/collections": [
+        "dist/types/helpers/collections.d.ts"
+      ],
       "helpers/environment": [
         "dist/types/helpers/environment.d.ts"
       ],
@@ -61,6 +64,11 @@
       "types": "./dist/types/helpers/apollo.d.ts",
       "require": "./dist/cjs/helpers/apollo.js",
       "import": "./dist/esm/helpers/apollo.js"
+    },
+    "./helpers/collections": {
+      "types": "./dist/types/helpers/collections.d.ts",
+      "require": "./dist/cjs/helpers/collections.js",
+      "import": "./dist/esm/helpers/collections.js"
     },
     "./helpers/environment": {
       "types": "./dist/types/helpers/environment.d.ts",

@@ -2,13 +2,13 @@ import { Form } from 'antd'
 import React, { useCallback, useState } from 'react'
 import { useIntl } from 'react-intl'
 
+import { nonNull } from '@open-condo/miniapp-utils/helpers/collections'
 import { Checkbox, Select, Button } from '@open-condo/ui'
 import type { CheckboxProps } from '@open-condo/ui'
 
 import { useValidations } from '@/domains/common/hooks/useValidations'
 import styles from '@/domains/miniapp/components/B2CApp/edit/publishing/PublishForm.module.css'
 import { DEFAULT_PAGE_SIZE } from '@/domains/miniapp/constants/common'
-import { nonNull } from '@/domains/miniapp/utils/nonNull'
 
 import { useAllB2CAppBuildsLazyQuery } from '@/lib/gql'
 

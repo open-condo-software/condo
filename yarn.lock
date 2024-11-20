@@ -1125,6 +1125,7 @@ __metadata:
     "@open-condo/cli": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/icons": "workspace:^"
+    "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@open-condo/tsconfig": "workspace:^"
     "@open-condo/ui": "workspace:^"
@@ -2003,6 +2004,7 @@ __metadata:
     "@open-condo/config": "workspace:^"
     "@open-condo/icons": "workspace:^"
     "@open-condo/locales": "workspace:^"
+    "@open-condo/miniapp-utils": "workspace:^"
     "@open-condo/tsconfig": "workspace:^"
     "@open-condo/ui": "workspace:^"
     "@parcel/watcher": ^2.3.0
