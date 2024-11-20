@@ -1,9 +1,9 @@
 import { Affix } from 'antd'
 import React, { ReactElement } from 'react'
 
+import { useBreakpoints } from '../../hooks'
 import { Space, SpaceProps } from '../Space'
 import { Typography } from '../Typography'
-import { useBreakpoints } from '../../hooks'
 
 const ACTION_BAR_CLASS_PREFIX = 'condo-affix'
 const AFFIX_CONTENT_WRAPPER_CLASS = `${ACTION_BAR_CLASS_PREFIX}-content-wrapper`
