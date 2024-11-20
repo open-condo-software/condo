@@ -52722,6 +52722,7 @@ enum MeterReadingExportTaskFormatType {
 enum MeterReadingExportTaskLocaleType {
   ru
   en
+  es
 }
 
 """ Stores requested export format, status of export job, link to exported file and information about progress of export job 

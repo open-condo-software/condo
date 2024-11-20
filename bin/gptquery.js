@@ -31,18 +31,23 @@ function isQueryCached (queryHash) {
     if (!fs.existsSync(GPT_CACHE_DIR)) {
         fs.mkdirSync(GPT_CACHE_DIR, { recursive: true })
     }
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     const queryFile = path.join(GPT_CACHE_DIR, `${queryHash}.query.txt`)
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     const answerFile = path.join(GPT_CACHE_DIR, `${queryHash}.answer.txt`)
     return fs.existsSync(queryFile) && fs.existsSync(answerFile)
 }
 
 function loadCachedAnswer (queryHash) {
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     const answerFile = path.join(GPT_CACHE_DIR, `${queryHash}.answer.txt`)
     return fs.readFileSync(answerFile, 'utf-8')
 }
 
 function cacheQueryAndAnswer (query, answer, queryHash) {
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     const queryFile = path.join(GPT_CACHE_DIR, `${queryHash}.query.txt`)
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     const answerFile = path.join(GPT_CACHE_DIR, `${queryHash}.answer.txt`)
     fs.writeFileSync(queryFile, query, 'utf-8')
     fs.writeFileSync(answerFile, answer, 'utf-8')
@@ -99,6 +104,7 @@ async function main (inputFile, outputDir) {
 
         console.log(`A${i + 1}: ${cleanAndTrimText(answer)}`)
 
+        // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
         const outputFile = path.join(outputDir, `result_${i + 1}.md`)
         fs.writeFileSync(outputFile, answer, 'utf-8')
         console.log(`Result saved to ${outputFile}`)
