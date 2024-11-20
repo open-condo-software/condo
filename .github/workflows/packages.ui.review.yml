@@ -28,4 +28,4 @@ jobs:
         with:
           workingDir: packages/ui
           projectToken: ${{ secrets.UI_CHROMATIC_PROJECT_TOKEN }}
-          buildScriptName: "build:sb"
+          buildScriptName: "build:chromatic"

@@ -35,6 +35,7 @@
     "build:lib": "webpack --config webpack.prod.js && tsc --project tsconfig.prod.json",
     "build": "yarn build:tokens && yarn build:lib",
     "build:sb": "storybook build",
+    "build:chromatic": "yarn build:deps && yarn build:tokens && yarn build:sb",
     "dev": "yarn build:deps && yarn build:tokens && storybook dev -p 6006",
     "watch": "yarn build:deps && yarn build:tokens && webpack --config webpack.dev.js"
   },
