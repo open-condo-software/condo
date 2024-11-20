@@ -263,7 +263,7 @@ const AuthProvider: React.FC = ({ children }) => {
 
     const { data, loading: userLoading, refetch } = useQuery(USER_QUERY)
 
-    const user = useMemo(() => get(data, 'authenticatedUser' || null), [data])
+    const user = useMemo(() => get(data, 'authenticatedUser') || null, [data])
 
     const refetchAuth = useCallback(async () => {
         await refetch()
