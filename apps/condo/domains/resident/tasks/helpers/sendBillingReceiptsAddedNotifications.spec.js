@@ -454,7 +454,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             ])
             await environment.createServiceConsumer(resident, accountNumber)
 
-            await sendBillingReceiptNotifications()
+            await sendBillingReceiptNotifications(dayjs().toISOString())
 
             const messageWhere = {
                 user: { id: resident.user.id },
