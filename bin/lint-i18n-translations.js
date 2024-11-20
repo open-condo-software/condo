@@ -1,7 +1,9 @@
+const { exec } = require('child_process')
 const fs = require('fs').promises
 const path = require('path')
+const util = require('util')
 
-const { diffLinesUnified, diffLinesRaw } = require('jest-diff')
+const execPromise = util.promisify(exec)
 
 async function loadTranslations (langDir) {
     const translations = []
@@ -18,7 +20,7 @@ async function loadTranslations (langDir) {
                     throw new Error(`Loaded file "${fileName}" seems to be empty`)
                 }
                 const parsedData = JSON.parse(data)
-                translations.push([folderName, Object.keys(parsedData)])
+                translations.push([folderName, Object.keys(parsedData), parsedData])
             } catch (e) {
                 throw new Error(`Error reading or parsing file "${fileName}": ${e.message}`)
             }
@@ -43,7 +45,7 @@ async function validateTranslations (translations) {
         if (missingKeys.length > 0) {
             missingKeysReport.push({
                 lang,
-                missingKeys
+                missingKeys,
             })
         }
     }
@@ -60,9 +62,52 @@ async function validateTranslations (translations) {
     return missingKeysReport
 }
 
-async function fixTranslations (translations, missingKeysReport) {
+async function fixTranslations (translations, missingKeysReport, langDir, gptquery) {
     console.log('Fixing translations...')
-    // TODO: Implement logic to add missing keys to the corresponding translation files
+
+    const tmpFilePath = path.join(__dirname, '..', '.gpt_translation_prompts.txt')
+    const prompts = []
+
+    for (const { lang: missedLang, missingKeys } of missingKeysReport) {
+        for (const key of missingKeys) {
+            const examples = translations
+                .filter(([lang]) => lang !== missedLang)
+                .map(([lang, , data]) => `${lang} - ${data[key] || 'N/A'}`)
+                .join(', ')
+
+            const prompt = `We are translating property management software, and we have a translation key "${key}". Here are examples of translations for this key in other languages: ${examples}. Your task is to translate this key into the language "${missedLang}". Please provide only the translated text in your response.`
+            prompts.push(prompt)
+        }
+    }
+
+    try {
+        await fs.writeFile(tmpFilePath, prompts.join('\n----\n'), 'utf8')
+        console.log(`Prompt file created at ${tmpFilePath}`)
+
+        const { stdout, stderr } = await execPromise(`node ${gptquery} ${tmpFilePath}`)
+        if (stderr) {
+            console.error('Warning during GPT query execution:', stderr)
+        }
+
+        console.log(`GPT query executed successfully:\n${stdout.trim()}`)
+
+        let i = 0
+        for (const { lang: missedLang, missingKeys } of missingKeysReport) {
+            const translationFilePath = path.join(langDir, `${missedLang}/${missedLang}.json`)
+            const translationData = JSON.parse(await fs.readFile(translationFilePath, 'utf8'))
+            for (const key of missingKeys) {
+                i++
+                const resultFilePath = path.join('out', `result_${i}.md`)
+                const resultData = (await fs.readFile(resultFilePath, 'utf8')).trim()
+                translationData[key] = resultData
+            }
+            console.log(`Updating translations for ${missedLang} in ${translationFilePath}`)
+            await fs.writeFile(translationFilePath, JSON.stringify(translationData, null, 2), 'utf8')
+        }
+    } catch (e) {
+        throw new Error(`Error fixing translations: ${e.message}`)
+    }
+
     console.log('Fixing completed.')
 }
 
@@ -72,6 +117,7 @@ async function main () {
 
     const name = path.basename(process.cwd())
     const root = path.join(__dirname, '..', 'apps', name)
+    const gptquery = path.join(__dirname, '..', 'bin', 'gptquery.js')
     const langDir = path.join(root, 'lang')
 
     const translations = await loadTranslations(langDir)
@@ -79,7 +125,7 @@ async function main () {
 
     if (missingKeysReport.length > 0) {
         if (shouldFix) {
-            await fixTranslations(translations, missingKeysReport)
+            await fixTranslations(translations, missingKeysReport, langDir, gptquery)
         } else {
             throw new Error('Validation failed: Missing keys found in translation files')
         }
