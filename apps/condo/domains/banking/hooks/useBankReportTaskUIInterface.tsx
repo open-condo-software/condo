@@ -91,11 +91,12 @@ export const useBankReportTaskButton = (props: UserBankReportTaskButtonProps) =>
         user: { connect: { id: userId } },
     })
 
+    const handleClick = useCallback(() => handleRunTask(), [handleRunTask])
     const BankReportTaskButton = useCallback(() => (
-        <Button type={type} onClick={() => handleRunTask()} loading={loading}>
+        <Button type={type} onClick={handleClick} loading={loading}>
             {CreateReportTitle}
         </Button>
-    ), [CreateReportTitle, handleRunTask, loading, type])
+    ), [CreateReportTitle, handleClick, loading, type])
 
     return {
         BankReportTaskButton,

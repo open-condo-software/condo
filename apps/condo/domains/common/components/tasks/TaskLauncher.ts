@@ -6,7 +6,7 @@ import { ITask, BaseTaskRecord } from './index'
 
 type UseTaskLauncherOutputType<TTaskRecordVariables extends Record<string, any>> = {
     loading: boolean
-    handleRunTask: (params?: { taskAttrs?: TTaskRecordVariables }) => void
+    handleRunTask: (params?: TTaskRecordVariables) => void
 }
 
 /**
@@ -37,12 +37,7 @@ export const useTaskLauncher = <TTaskRecordVariables extends Record<string, any>
         })
     })
 
-    const handleRunTask: UseTaskLauncherOutputType<TTaskRecordVariables>['handleRunTask'] = useCallback((params) => {
-        // NOTE: The "taskAttrs" property is used here because
-        // if "handleRunTask" is called in "onClick" (like "onClick={handleRunTask}"),
-        // then a lot of unnecessary properties will be passed, which are passed by "onClick".
-        // All these properties will be passed to the request - this should be avoided
-        const taskAttrs = params?.taskAttrs
+    const handleRunTask: UseTaskLauncherOutputType<TTaskRecordVariables>['handleRunTask'] = useCallback((taskAttrs) => {
         launchTask({ ...attrs, ...taskAttrs })
     }, [launchTask, attrs])
 

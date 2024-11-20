@@ -37,15 +37,16 @@ export const useNewsItemRecipientsExportToExcelTask = ({ organization, user, sco
         scopes,
     })
 
+    const handleClick = useCallback(() => handleRunTask(), [handleRunTask])
     const NewsItemRecipientsExportToXlsxButton = useCallback(() => (
         <Button
             size='small'
-            onClick={() => handleRunTask()}
+            onClick={handleClick}
             disabled={loading}
             children={<Download size='small'/>}
             style={downloaderButtonStyle}
         />
-    ), [handleRunTask, loading])
+    ), [handleClick, loading])
 
     return {
         TaskUIInterface,

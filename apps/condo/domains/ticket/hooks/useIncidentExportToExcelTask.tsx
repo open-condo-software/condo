@@ -54,17 +54,18 @@ export const useIncidentExportToExcelTask = (props: UseIncidentExportToExcelInpu
         user: { connect: { id: user?.id || null } },
     })
 
+    const handleClick = useCallback(() => handleRunTask(), [handleRunTask])
     const ExportButton: React.FC<ExportButtonInputType> = useCallback(({ disabled = false, id = 'exportToExcel' }) => (
         <Button
             type='secondary'
             loading={loading}
-            onClick={() => handleRunTask()}
+            onClick={handleClick}
             disabled={loading || disabled}
             children={label || ExportAsExcelLabel}
             icon={<Sheet size='medium' />}
             id={id}
         />
-    ), [ExportAsExcelLabel, handleRunTask, label, loading])
+    ), [ExportAsExcelLabel, handleClick, label, loading])
 
     return {
         ExportButton,

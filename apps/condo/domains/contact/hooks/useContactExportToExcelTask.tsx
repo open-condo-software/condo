@@ -57,15 +57,16 @@ export const useContactExportToExcelTask: IUseContactExportToExcelTask = (props)
         user: { connect: { id: get(user, 'id') } },
     })
 
+    const handleClick = useCallback(() => handleRunTask(), [handleRunTask])
     const ExportButton = useCallback(() => (
         <Button
             type='secondary'
             children={ExportAsExcelTitle}
-            onClick={() => handleRunTask()}
+            onClick={handleClick}
             loading={loading}
             icon={<Sheet size='medium' />}
         />
-    ), [loading, ExportAsExcelTitle, handleRunTask])
+    ), [loading, ExportAsExcelTitle, handleClick])
 
     return {
         ExportButton,

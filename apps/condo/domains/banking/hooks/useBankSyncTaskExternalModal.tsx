@@ -58,16 +58,17 @@ export const useBankSyncTaskExternalModal: IUseBankSyncTaskExternalModal = (prop
         setOpen(false)
     }, [dateRange])
     const handleOpen = useCallback(() => setOpen(true), [])
+    const handleClick = useCallback(() => handleRunTask(), [handleRunTask])
     const modalFooter = useMemo(() => (
         <Button
             type='primary'
-            onClick={() => handleRunTask()}
+            onClick={handleClick}
             loading={loading}
             disabled={isNull(dateRange)}
         >
             {SyncSbbolTransactions}
         </Button>
-    ), [SyncSbbolTransactions, dateRange, handleRunTask, loading])
+    ), [SyncSbbolTransactions, dateRange, handleClick, loading])
 
     useEffect(() => {
         if (loading) {

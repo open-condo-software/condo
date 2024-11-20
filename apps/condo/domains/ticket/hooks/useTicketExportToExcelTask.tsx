@@ -28,16 +28,17 @@ export const useTicketExportToExcelTask = ({ where, sortBy, format, locale, time
         user: { connect: { id: user?.id || null } },
     })
 
+    const handleClick = useCallback(() => handleRunTask(), [handleRunTask])
     const TicketsExportToXlsxButton = useCallback(() => (
         <Button
             type='secondary'
             icon={<Sheet size='medium' />}
             loading={loading}
-            onClick={() => handleRunTask()}
+            onClick={handleClick}
             id='TicketsExportClick'
             children={ExportAsExcelLabel}
         />
-    ), [ExportAsExcelLabel, handleRunTask, loading])
+    ), [ExportAsExcelLabel, handleClick, loading])
 
     return {
         TaskUIInterface,

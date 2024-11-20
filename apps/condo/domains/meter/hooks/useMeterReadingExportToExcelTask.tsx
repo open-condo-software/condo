@@ -60,6 +60,7 @@ export const useMeterReadingExportToExcelTask = (props: UseMeterReadingExportToE
         user: { connect: { id: get(user, 'id', null) } },
     })
 
+    const handleClick = useCallback(() => handleRunTask(), [handleRunTask])
     const ExportButton: React.FC<MeterReadingExportButtonInputType> = useCallback(({ disabled = false, id = 'exportToExcel' }) => (
         <Button
             id={id}
@@ -68,9 +69,9 @@ export const useMeterReadingExportToExcelTask = (props: UseMeterReadingExportToE
             disabled={loading || disabled}
             children={label || ExportAsExcelLabel}
             loading={loading}
-            onClick={() => handleRunTask()}
+            onClick={handleClick}
         />
-    ), [ExportAsExcelLabel, handleRunTask, label, loading])
+    ), [ExportAsExcelLabel, handleClick, label, loading])
 
     return {
         ExportButton,
