@@ -3,6 +3,7 @@
  */
 
 const access = require('@open-condo/keystone/access')
+const { isDirectListQuery } = require('@open-condo/keystone/access')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
 async function canReadUsers ({ authentication: { item: user } }) {
@@ -20,6 +21,19 @@ async function canManageUsers ({ authentication: { item: user }, operation, item
     if (operation === 'update') return itemId === user.id
 
     return false
+}
+
+function canReadUserNameField (args) {
+    const { authentication: { item: user }, existingItem } = args
+
+    if (isDirectListQuery(args)) {
+        if (user.isAdmin || user.isSupport) return true
+
+        return existingItem.id === user.id
+    }
+
+    // NOTE: Managed by default list / custom query access
+    return true
 }
 
 const canAccessToPasswordField = {
@@ -42,6 +56,13 @@ const canAccessToPhoneField = {
     update: false,
 }
 
+const canAccessToNameField = {
+    read: canReadUserNameField,
+    // NOTE: mutations follow list-level access
+    create: true,
+    update: true,
+}
+
 
 
 /*
@@ -54,4 +75,5 @@ module.exports = {
     canAccessToPhoneField,
     canAccessToPasswordField,
     canAccessToAccessControlField,
+    canAccessToNameField,
 }

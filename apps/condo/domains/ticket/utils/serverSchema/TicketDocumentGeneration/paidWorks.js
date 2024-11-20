@@ -93,7 +93,7 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
         ticket: { id: ticket.id },
         deletedAt: null,
         status_not: INVOICE_STATUS_CANCELED,
-    }, 'id currencyCode accountNumber rows { isMin toPay name count vatPercent } recipient { bankName bankAccount bic }', {
+    }, 'id currencyCode accountNumber rows { isMin toPay name count vatPercent } recipient { bankName bankAccount bic offsettingAccount }', {
         sortBy: ['createdAt_ASC'],
     })
 
@@ -148,9 +148,9 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
             phone: get(organization, 'phone'),
         },
         bankDetails: {
-            accountNumber: get(invoices, '0.accountNumber'),
+            accountNumber: get(invoices, '0.recipient.bankAccount'),
             bankName: get(invoices, '0.recipient.bankName'),
-            bankAccount: get(invoices, '0.recipient.bankAccount'),
+            bankAccount: get(invoices, '0.recipient.offsettingAccount'),
             bic: get(invoices, '0.recipient.bic'),
         },
         totalInWords: {

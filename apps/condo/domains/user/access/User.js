@@ -4,7 +4,7 @@
 const get = require('lodash/get')
 
 const access = require('@open-condo/keystone/access')
-const { isFilteringBy } = require('@open-condo/keystone/access')
+const { isFilteringBy, isDirectListQuery } = require('@open-condo/keystone/access')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
 const { SERVICE } = require('@condo/domains/user/constants/common')
@@ -110,6 +110,28 @@ const canAccessCustomAccessField = {
     update: access.userIsAdmin,
 }
 
+async function canReadUserNameField (args) {
+    const { authentication: { item: user }, listKey, existingItem } = args
+
+    // NOTE: Order of checks is important. Outside allUsers / User we want to keep default behaviour
+    // Including access for non-authorized users in queries such as signIn / registerNewUser
+    // But inside User / allUsers we want to restrict access to name field
+
+    if (isDirectListQuery(args)) {
+        if (!user) return throwAuthenticationError()
+        if (user.deletedAt) return false
+        if (user.isAdmin || user.isSupport) return true
+
+        const hasDirectAccess = await canDirectlyReadSchemaObjects(user, listKey)
+        if (hasDirectAccess) return true
+
+        return existingItem.id === user.id
+    }
+
+    // NOTE: Managed by default list / custom query access
+    return true
+}
+
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
   all or no items are available) or a set of filters that limit the available items.
@@ -128,4 +150,5 @@ module.exports = {
     canAccessToRelatedOrganizationsField,
     canAccessToEmployeesField,
     canAccessCustomAccessField,
+    canReadUserNameField,
 }

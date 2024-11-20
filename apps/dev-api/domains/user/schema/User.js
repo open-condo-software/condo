@@ -36,6 +36,7 @@ const User = new GQLListSchema('User', {
             schemaDoc: 'Name. If impersonal account should be a company name',
             type: 'Text',
             isRequired: true,
+            access: access.canAccessToNameField,
         },
         password: {
             schemaDoc: 'User password used for authentication. Self-update only field',
