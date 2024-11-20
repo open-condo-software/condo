@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useIntl } from 'react-intl'
 
 import { PlusCircle, Trash } from '@open-condo/icons'
+import { nonNull } from '@open-condo/miniapp-utils/helpers/collections'
 import { Button } from '@open-condo/ui'
 
 
@@ -11,7 +12,6 @@ import { EmptyTableFiller } from '@/domains/common/components/EmptyTableFiller'
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
 import { DEFAULT_PAGE_SIZE } from '@/domains/miniapp/constants/common'
-import { nonNull } from '@/domains/miniapp/utils/nonNull'
 import { getCurrentPage } from '@/domains/miniapp/utils/query'
 
 import { CreatePropertyModal } from './CreatePropertyModal'

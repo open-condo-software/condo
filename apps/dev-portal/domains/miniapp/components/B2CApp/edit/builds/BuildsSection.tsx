@@ -4,6 +4,7 @@ import React, { useCallback, useState } from 'react'
 import { useIntl } from 'react-intl'
 
 import { PlusCircle } from '@open-condo/icons'
+import { nonNull } from '@open-condo/miniapp-utils/helpers/collections'
 import { Button, Modal, Input, Alert, Typography } from '@open-condo/ui'
 
 import { EmptyTableFiller } from '@/domains/common/components/EmptyTableFiller'
@@ -21,7 +22,6 @@ import {
 import { useFileSizeFormatter } from '@/domains/miniapp/hooks/useFileSizeFormatter'
 import { useFileValidator } from '@/domains/miniapp/hooks/useFileValidator'
 import { useMutationCompletedHandler } from '@/domains/miniapp/hooks/useMutationCompletedHandler'
-import { nonNull } from '@/domains/miniapp/utils/nonNull'
 import { getCurrentPage } from '@/domains/miniapp/utils/query'
 import { INVALID_MIMETYPE } from '@dev-api/domains/common/constants/errors'
 import { B2C_APP_BUILD_UNIQUE_VERSION_CONSTRAINT } from '@dev-api/domains/miniapp/constants/constraints'
