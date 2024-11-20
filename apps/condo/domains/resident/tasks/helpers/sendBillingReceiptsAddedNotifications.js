@@ -16,7 +16,7 @@ const sendBillingReceiptsAddedNotifications = async (lastSendDate) => {
         deletedAt: null,
     })
 
-    logger.info({ msg: 'Billing contexts for pushes', data: BillingContexts })
+    logger.info({ msg: 'Billing contexts for pushes', data: { BillingContexts } })
 
     for (const context of BillingContexts) {
         const lastReport = get(context, 'lastReport.finishTime')

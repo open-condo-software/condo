@@ -96,15 +96,33 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
     const serviceConsumers = await fetchServiceConsumers(context, receiptAccountData.accountNumbers)
     const consumersByAccountKey = groupConsumersByAccountKey(serviceConsumers)
 
-    let successCount = 0
+    let successSentMessages = 0
+    let duplicatedSentMessages = 0
     for (const [key, receipt] of Object.entries(receiptAccountData.receiptAccountKeys)) {
         const consumers = consumersByAccountKey[key]
         if (isEmpty(consumers)) continue
 
-        successCount += await notifyConsumers(keystone, receipt, consumers, lastSendDate)
+        const [success, duplicate] = await notifyConsumers(keystone, receipt, consumers, lastSendDate)
+        successSentMessages += success
+        duplicatedSentMessages += duplicate
     }
 
-    logger.info({ msg: 'Sent billing receipts', data: { successCount, contextId } })
+    const residents = serviceConsumers.map(sc => sc.resident)
+    const residentsUnique = [...new Set(residents.filter(r => r.id))]
+    const usersUnique = [...new Set(residentsUnique.map(ru => ru.user).filter(Boolean))]
+
+    logger.info(
+        { 
+            msg: 'Sent billing receipts', data: {
+                successSentMessages,
+                duplicatedSentMessages,
+                receiptsCount: receipts.length,
+                contextId,
+                serviceConsumersCount: serviceConsumers.length,
+                residentsUniqueCount: residentsUnique.length,
+                usersUniqueCount: usersUnique.length,
+            }, 
+        })
 }
 
 async function fetchReceipts (contextId, receiptCreatedAfter) {
@@ -183,17 +201,21 @@ function groupConsumersByAccountKey (serviceConsumers) {
 }
 
 async function notifyConsumers (keystone, receipt, consumers, lastSendDate) {
-    let successConsumerCount = 0
+    let successSentMessages = 0
+    let duplicatedSentMessages = 0
     for (const consumer of consumers) {
         const resident = get(consumer, 'resident')
         if (!resident || resident.deletedAt) continue
 
         const success = await prepareAndSendNotification(keystone, receipt, resident, dayjs(lastSendDate).format('YYYY-MM-DD'))
         if (success) {
-            successConsumerCount += 1
+            successSentMessages++
+        } else {
+            duplicatedSentMessages++
         }
+
     }
-    return successConsumerCount
+    return [successSentMessages, duplicatedSentMessages]
 }
 
 const taskName = 'sendBillingReceiptsAddedNotificationForOrganizationContextTask'
