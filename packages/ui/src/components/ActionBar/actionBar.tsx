@@ -20,7 +20,7 @@ export type ActionBarProps = {
 export const ActionBar: React.FC<ActionBarProps> = (props) => {
     const { actions, message, wrap = true } = props
 
-    const { MOBILE_LARGE, TABLET_SMALL } = useBreakpoints()
+    const { TABLET_SMALL } = useBreakpoints()
 
     return (
         <>
