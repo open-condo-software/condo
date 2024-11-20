@@ -1,3 +1,5 @@
+const { fetch } = require('@open-condo/keystone/fetch')
+
 /**
  * @typedef {Object} SuggestionHelpersType
  * @property {string} tin The organization's tin (inn)

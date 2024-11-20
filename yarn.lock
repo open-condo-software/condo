@@ -13962,6 +13962,7 @@ __metadata:
   resolution: "@open-condo/clients@workspace:packages/clients"
   dependencies:
     "@open-condo/config": "workspace:^"
+    "@open-condo/keystone": "workspace:^"
     dotenv: ^16.3.1
   languageName: unknown
   linkType: soft
