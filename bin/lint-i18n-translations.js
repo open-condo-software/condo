@@ -91,11 +91,11 @@ async function fixTranslations (translations, missingKeysReport, gptquery) {
     for (const { lang: missedLang, missingKeys } of missingKeysReport) {
         for (const key of missingKeys) {
             const examples = translations
-                .filter(([lang]) => lang !== missedLang)
-                .map(([lang, , data]) => `${lang} - ${data[key] || 'N/A'}`)
-                .join(', ')
+                .filter(([lang, , data]) => lang !== missedLang && data[key])
+                .map(([lang, , data]) => `${lang}: ${data[key]}\n`)
+                .join('')
 
-            const prompt = `We are translating property management software, and we have a translation key "${key}". Here are examples of translations for this key in other languages: ${examples}. Your task is to translate this key into the language "${missedLang}". Please provide only the translated text in your response.`
+            const prompt =  `We are translating property management software, and we have a translation key "${key}". The translation uses the ICU Message Format, so please preserve the placeholders, variables, and syntax exactly as they are. Here are examples of translations for this key in other languages: \n${examples}\n\nYour task is to translate this key into the language "${missedLang}". Ensure that your response is in the "${missedLang}" language and retains any formatting, placeholders, or markup (e.g., HTML tags, ICU syntax) from the examples. Please provide only the translated text in your response.`
             prompts.push(prompt)
         }
     }
