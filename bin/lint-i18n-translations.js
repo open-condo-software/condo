@@ -5,6 +5,14 @@ const util = require('util')
 
 const execPromise = util.promisify(exec)
 
+async function writeTranslationData (translationFilePath, translationData) {
+    const sortedTranslationData = Object.keys(translationData).sort().reduce((acc, key) => {
+        acc[key] = translationData[key]
+        return acc
+    }, {})
+    await fs.writeFile(translationFilePath, JSON.stringify(sortedTranslationData, null, 2), 'utf8')
+}
+
 async function loadTranslations (langDir) {
     const translations = []
     try {
@@ -29,6 +37,18 @@ async function loadTranslations (langDir) {
         throw new Error(`Error reading lang directory: ${e.message}`)
     }
     return translations
+}
+
+async function saveTranslations (langDir, translations) {
+    try {
+        for (const [folderName, , translationData] of translations) {
+            const filePath = path.join(langDir, `${folderName}/${folderName}.json`)
+            console.log(`Saving file ${filePath}`)
+            await writeTranslationData(filePath, translationData)
+        }
+    } catch (e) {
+        throw new Error(`Error saving translations: ${e.message}`)
+    }
 }
 
 async function validateTranslations (translations) {
@@ -62,7 +82,7 @@ async function validateTranslations (translations) {
     return missingKeysReport
 }
 
-async function fixTranslations (translations, missingKeysReport, langDir, gptquery) {
+async function fixTranslations (translations, missingKeysReport, gptquery) {
     console.log('Fixing translations...')
 
     const tmpFilePath = path.join(__dirname, '..', '.gpt_translation_prompts.txt')
@@ -93,16 +113,14 @@ async function fixTranslations (translations, missingKeysReport, langDir, gptque
 
         let i = 0
         for (const { lang: missedLang, missingKeys } of missingKeysReport) {
-            const translationFilePath = path.join(langDir, `${missedLang}/${missedLang}.json`)
-            const translationData = JSON.parse(await fs.readFile(translationFilePath, 'utf8'))
+            const translation = translations.find(([lang]) => lang === missedLang)
+            const [, , translationData] = translation
             for (const key of missingKeys) {
                 i++
                 const resultFilePath = path.join('out', `result_${i}.md`)
                 const resultData = (await fs.readFile(resultFilePath, 'utf8')).trim()
                 translationData[key] = resultData
             }
-            console.log(`Updating translations for ${missedLang} in ${translationFilePath}`)
-            await fs.writeFile(translationFilePath, JSON.stringify(translationData, null, 2), 'utf8')
         }
     } catch (e) {
         throw new Error(`Error fixing translations: ${e.message}`)
@@ -125,10 +143,14 @@ async function main () {
 
     if (missingKeysReport.length > 0) {
         if (shouldFix) {
-            await fixTranslations(translations, missingKeysReport, langDir, gptquery)
+            await fixTranslations(translations, missingKeysReport, gptquery)
         } else {
             throw new Error('Validation failed: Missing keys found in translation files')
         }
+    }
+
+    if (shouldFix) {
+        await saveTranslations(langDir, translations)
     }
 }
 
