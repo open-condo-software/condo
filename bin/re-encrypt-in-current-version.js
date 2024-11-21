@@ -41,7 +41,7 @@ async function processList (keystone, { list, fields }) {
     const currentVersionIdsByField = {}
     for (const field of fields) {
         encryptionManagers[field.path] = field.encryptionManager
-        currentVersionIdsByField[field.path] = Buffer.from(field.encryptionManager._currentVersionId).toString('hex')
+        currentVersionIdsByField[field.path] = Buffer.from(field.encryptionManager._encryptionVersionId).toString('hex')
     }
 
     const where = { AND: [] }
@@ -182,6 +182,32 @@ function getDataToReEncrypt (keystone) {
     return filteredLists.filter(Boolean)
 }
 
+function logErrors () {
+    if (STATE.errors) {
+        console.log(chalk.redBright('ERRORS:'))
+    }
+    for (const listKey in STATE.errors) {
+        console.log(chalk.redBright(` - ${listKey}:`))
+        const updateErrors = get(STATE.errors[listKey], 'update')
+        if (updateErrors) {
+            console.log(chalk.redBright('   Update errors:'))
+        }
+        for (const itemId in updateErrors) {
+            console.log(chalk.redBright(`    - id: ${itemId} | ${updateErrors[itemId].stack}`))
+        }
+        const decryptErrorsByField = get(STATE.errors[listKey], 'decrypt')
+        if (decryptErrorsByField) {
+            console.log(chalk.redBright('   Decrypt errors:'))
+        }
+        for (const field in decryptErrorsByField) {
+            console.log(chalk.redBright(`   - ${listKey}.${field}:`))
+            for (const id in decryptErrorsByField[field]) {
+                console.log(chalk.red(`     - ${id}: ${decryptErrorsByField[field][id].stack}`))
+            }
+        }
+    }
+}
+
 program.option('-a --all', 're encrypt all fields of SymmetricEncryptedText type in all lists', false)
 program.option('-i --include <listKey>', `Collection of <listKey> divided by space.
     If passed, only these lists will be re encrypted. Works only with --all = false`, null)
@@ -215,30 +241,7 @@ async function main () {
         console.log(chalk.greenBright(`Processed lists: ${i}/${listsWithEncryptedFieldsToReEncrypt.length}`))
         logState(STATE)
     }
-
-    if (STATE.errors) {
-        console.log(chalk.redBright('ERRORS:'))
-    }
-    for (const listKey in STATE.errors) {
-        console.log(chalk.redBright(` - ${listKey}:`))
-        const updateErrors = get(STATE.errors[listKey], 'update')
-        if (updateErrors) {
-            console.log(chalk.redBright('   Update errors:'))
-        }
-        for (const itemId in updateErrors) {
-            console.log(chalk.redBright(`    - id: ${itemId} | ${updateErrors[itemId].stack}`))
-        }
-        const decryptErrorsByField = get(STATE.errors[listKey], 'decrypt')
-        if (decryptErrorsByField) {
-            console.log(chalk.redBright('   Decrypt errors:'))
-        }
-        for (const field in decryptErrorsByField) {
-            console.log(chalk.redBright(`   - ${listKey}.${field}:`))
-            for (const id in decryptErrorsByField[field]) {
-                console.log(chalk.red(`     - ${id}: ${decryptErrorsByField[field][id].stack}`))
-            }
-        }
-    }
+    logErrors()
 }
 
 main().then(() => process.exit(0)).catch((e) => {
