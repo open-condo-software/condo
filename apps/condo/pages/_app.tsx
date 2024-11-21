@@ -1,6 +1,7 @@
 import { CacheProvider } from '@emotion/core'
 import { ConfigProvider } from 'antd'
 import enUS from 'antd/lib/locale/en_US'
+import esES from 'antd/lib/locale/es_ES'
 import ruRU from 'antd/lib/locale/ru_RU'
 import dayjs from 'dayjs'
 import { cache } from 'emotion'
@@ -98,6 +99,7 @@ const IS_SSR_DISABLED = Boolean(disableSSR && disableSSR === 'true')
 const ANT_LOCALES = {
     ru: ruRU,
     en: enUS,
+    es: esES,
 }
 
 interface IMenuItemData {

@@ -55,6 +55,7 @@ export const UserInfoPageContent: React.FC<IUserInfoPageContentProps> = ({ organ
     const GlobalHintsTitle = intl.formatMessage({ id: 'pages.condo.profile.globalHints' })
     const RuTitle = intl.formatMessage({ id: 'language.russian.withFlag' })
     const EnTitle = intl.formatMessage({ id: 'language.english-us.withFlag' })
+    const EsTitle = intl.formatMessage({ id: 'language.spanish-es.withFlag' })
 
     const [showGlobalHints, setShowGlobalHints] = useState<boolean>(false)
 
@@ -72,7 +73,8 @@ export const UserInfoPageContent: React.FC<IUserInfoPageContentProps> = ({ organ
     const possibleLocalesOptions = useMemo(() => ([
         { label: RuTitle, value: 'ru' },
         { label: EnTitle, value: 'en' },
-    ]), [EnTitle, RuTitle])
+        { label: EsTitle, value: 'es' },
+    ]), [EnTitle, RuTitle, EsTitle])
 
     const handleLocaleChange = useCallback((setLocale) => async (newLocale) => {
         await updateUser({ locale: newLocale }, { id: user.id })

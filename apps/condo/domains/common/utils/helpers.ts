@@ -13,15 +13,22 @@ import qs from 'qs'
 import { IRecordWithId } from '../types'
 
 const DEFAULT_WIDTH_PRECISION = 2
-const PHONE_FORMAT_REGEXP = /(\d)(\d{3})(\d{3})(\d{2})(\d{2})/
+const RUSSIAN_PHONE_FORMAT_REGEXP = /(\d)(\d{3})(\d{3})(\d{2})(\d{2})/
+const SPANISH_PHONE_FORMAT_REGEXP = /(\d{2})(\d{3})(\d{3})(\d{3})/
 
 /**
  * Formats a phone, convert it from number string to string with dividers
  * for example: 01234567890 -> 0 (123) 456-78-90
-*/
-export const formatPhone = (phone?: string): string =>
-    phone ? phone.replace(PHONE_FORMAT_REGEXP, '$1 ($2) $3-$4-$5') : phone
-
+ */
+export const formatPhone = (phone?: string): string =>{
+    if (phone.startsWith('+7')){
+        return phone.replace(RUSSIAN_PHONE_FORMAT_REGEXP, '$1 ($2) $3-$4-$5')
+    }
+    if (phone.startsWith('+34')){
+        return phone.replace(SPANISH_PHONE_FORMAT_REGEXP, '$1-$2-$3-$4')
+    }
+    return phone
+}
 
 export const getFiltersFromQuery = <T>(query: ParsedUrlQuery): T | Record<string, unknown> => {
     const { filters } = query

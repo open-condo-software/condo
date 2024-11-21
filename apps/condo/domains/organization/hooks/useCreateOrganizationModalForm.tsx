@@ -109,6 +109,7 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
     const { user } = useAuth()
     const userId = get(user, 'id')
     const locale = get(organization, 'country', defaultLocale)
+    // TODO(pahaz): DOMA-10729 use this locale for country and MUTATION_EXTRA_DATA
 
     const { requiredValidator, tinValidator, trimValidator } = useValidations()
     const validators = React.useMemo(
