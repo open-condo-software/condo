@@ -24,6 +24,7 @@ import {
 import { ImagesUploadList } from '@condo/domains/common/components/ImagesUploadList'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import Prompt from '@condo/domains/common/components/Prompt'
+import { DEFAULT_BORDER_RADIUS } from '@condo/domains/common/constants/style'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { DEFAULT_INVOICE_CURRENCY_CODE, MIN_PRICE_VALUE } from '@condo/domains/marketplace/constants'
 import {
@@ -104,33 +105,34 @@ const AppPreviewContainer = styled.div`
     justify-content: space-between;
     padding: 12px 20px;
     overflow: hidden;
-    
+
     & .order-header .condo-typography {
       font-family: 'SF Pro Display', 'Wix Madefor Display', -apple-system, BlinkMacSystemFont, Helvetica, sans-serif;
       font-style: normal;
       font-weight: 600;
+      line-height: 1;
     }
-    
+
     & .order-sku .condo-typography {
       font-family: 'SF Pro Text', 'Wix Madefor Display', -apple-system, BlinkMacSystemFont, Helvetica, sans-serif;
       font-size: 10px;
       font-style: normal;
       font-weight: 400;
     }
-    
+
     & .order-description .condo-typography {
       font-family: 'SF Pro Text', 'Wix Madefor Display', -apple-system, BlinkMacSystemFont, Helvetica, sans-serif;
       font-size: 12px;
       font-style: normal;
       font-weight: 400;
-      line-height: 0;
+      line-height: 1.5;
     }
 
     & .order-button-wrapper {
       width: 100%;
       padding-right: 11px;
     }
-    
+
     & .order-button {
       & .condo-typography {
         font-family: 'SF Pro Display', 'Wix Madefor Display', -apple-system, BlinkMacSystemFont, Helvetica, sans-serif;
@@ -164,6 +166,7 @@ const MobilePreview = ({ name, price, priceType, sku, description, files }) => {
     const PriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.mobileAppPreview.price' })
     const OrderMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.mobileAppPreview.order' })
     const DescriptionMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.mobileAppPreview.description' })
+    const shortMeasureTypeMessage = 'ч'
 
     const { currencyCode } = useMarketItemFormContext()
 
@@ -175,6 +178,8 @@ const MobilePreview = ({ name, price, priceType, sku, description, files }) => {
         resultPrice = moneyRender(price, priceType === PriceType.Min)
     }
 
+    const showMeasureType = true
+
     return (
         <MobilePreviewContainer>
             <div style={{ textAlign: 'center' }}>
@@ -184,7 +189,7 @@ const MobilePreview = ({ name, price, priceType, sku, description, files }) => {
             </div>
             <AppPreviewContainer>
                 <div className='mobile-content-wrapper'>
-                    <Row gutter={[0, 20]} style={{ maxWidth: '100%' }}>
+                    <Row gutter={[0, 15]} style={{ maxWidth: '100%' }}>
                         <Col span={24}>
                             <Row>
                                 <Col span={24} className='order-header'>
@@ -192,22 +197,23 @@ const MobilePreview = ({ name, price, priceType, sku, description, files }) => {
                                         {name || NameMessage}
                                     </Typography.Title>
                                 </Col>
-                                <Col span={24} className='order-header'>
+                                <Col span={24} style={{ marginTop: '-0px' }} className='order-header'>
                                     <Typography.Title type='secondary' level={3}>
-                                        {resultPrice || PriceMessage}
+                                        {resultPrice || PriceMessage}{showMeasureType && `/${shortMeasureTypeMessage}`}
                                     </Typography.Title>
                                 </Col>
-                                <Col span={24} className='order-sku'>
+                                <Col span={24} style={{ marginTop: '-6px' }} className='order-sku'>
                                     <Typography.Text size='small' type='secondary'>
                                         {SkuMessage} {sku}
                                     </Typography.Text>
                                 </Col>
                             </Row>
                         </Col>
-                        <Col span={24} className='order-description'>
-                            <Typography.Text size='medium'>
+
+                        <Col span={24} style={{ marginTop: '-10px' }} className='order-description'>
+                            <Typography.Paragraph ellipsis={{ 'rows': 5 }} size='medium'>
                                 {description || DescriptionMessage}
-                            </Typography.Text>
+                            </Typography.Paragraph>
                         </Col>
                         {
                             !isEmpty(files) && (
@@ -222,11 +228,34 @@ const MobilePreview = ({ name, price, priceType, sku, description, files }) => {
                             )
                         }
                     </Row>
-                    <div className='order-button-wrapper'>
+
+                    <Space direction='vertical' size={8} className='order-button-wrapper'>
+                        (showMeasureType && (
+                        <div style={{
+                            'padding': '4px 9px',
+                            'display': 'flex',
+                            'justifyContent': 'space-between',
+                            'alignItems': 'center',
+                            'backgroundColor': colors.gray[1],
+                            width: '100%',
+                            borderRadius: DEFAULT_BORDER_RADIUS,
+                        }}>
+                            <div style={{ 'marginTop': '-2px' }}>
+                                <Typography.Text size='small' type='secondary'>итого</Typography.Text>
+                                <div style={{ 'marginTop': '-6px' }}>
+                                    <Typography.Text strong size='medium' type='inherit'>{resultPrice || PriceMessage}</Typography.Text>
+                                </div>
+                            </div>
+                            <div style={{ 'display':'flex', 'justifyContent':'space-between', 'alignItems':'center', 'padding': '2px 4px', 'backgroundColor': 'white', borderRadius: '4px' }}>
+                                <span>{`1${shortMeasureTypeMessage}`}</span>
+                                <span style={{ 'marginLeft': '2px' }}>+</span>
+                            </div>
+                        </div>))
+
                         <AntdButton className='order-button'>
                             <Typography.Text strong type='inherit'>{OrderMessage}</Typography.Text>
                         </AntdButton>
-                    </div>
+                    </Space>
                 </div>
             </AppPreviewContainer>
         </MobilePreviewContainer>
