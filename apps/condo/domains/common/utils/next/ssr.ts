@@ -1,14 +1,10 @@
 // TODO(INFRA-614): move it inside miniapp-utils
 
 import { getCookie } from 'cookies-next'
-import cookie from 'js-cookie'
 import { NextPageContext } from 'next'
 import { createContext, useContext } from 'react'
 
 import { extractApolloState } from '@open-condo/apollo'
-import { isSSR } from '@open-condo/miniapp-utils'
-
-import { ACTIVE_EMPLOYEE_COOKIE_NAME } from './organization'
 
 import type { NormalizedCacheObject, ApolloClient } from '@apollo/client'
 

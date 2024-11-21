@@ -27,8 +27,7 @@ import {
     UseApollo,
     ApolloHelperOptions,
 } from '@open-condo/apollo'
-import { prepareSSRContext } from '@open-condo/miniapp-utils'
-import { isSSR } from '@open-condo/miniapp-utils'
+import { isSSR, prepareSSRContext } from '@open-condo/miniapp-utils'
 
 import {
     _useEmitterMutation,

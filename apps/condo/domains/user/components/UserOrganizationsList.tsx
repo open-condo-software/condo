@@ -1,4 +1,4 @@
-import { OrganizationEmployee as OrganizationEmployeeType, OrganizationTypeType } from '@app/condo/schema'
+import { OrganizationEmployee as OrganizationEmployeeType } from '@app/condo/schema'
 import { Col, Row, Skeleton } from 'antd'
 import get from 'lodash/get'
 import uniqBy from 'lodash/uniqBy'
