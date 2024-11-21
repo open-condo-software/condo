@@ -37,7 +37,12 @@ class ImporterWrapper extends AbstractMetersImporter {
 
 
 function generateValidDatesByFormats (formats) {
-    return formats.map(format => dayjs(faker.date.past()).format(format))
+    return formats.map(format => {
+        if (typeof format !== 'string') {
+            format = format.format
+        }
+        return dayjs(faker.date.past()).format(format)
+    })
 }
 
 const defaultReading = {

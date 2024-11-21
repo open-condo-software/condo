@@ -1,3 +1,7 @@
+const dayjs = require('dayjs')
+
+const VALID_YEAR_OFFSET_FROM_TODAY = 30
+
 const PROCESSING = 'processing'
 const COMPLETED = 'completed'
 const ERROR = 'error'
@@ -35,9 +39,18 @@ const DATE_TIME_FORMATS = DATE_FORMATS
         TIME_VARIANTS.map(timeVariant => [dateFormat, timeVariant].join(' '))
     )
 
+/** @param {dayjs.Dayjs} date */
+function yearAroundToday (date) {
+    return Math.abs(date.year() - dayjs().year()) < VALID_YEAR_OFFSET_FROM_TODAY
+}
+
+/** @type {(string | {format:string, validate:(validDate: dayjs.Dayjs)=>boolean})[]} */
 const DEFAULT_DATE_PARSING_FORMATS = [
     ...DATE_TIME_FORMATS,
     ...DATE_FORMATS,
+
+    { format: 'YYYYMM', validate: yearAroundToday },
+    { format: 'MMYYYY', validate: yearAroundToday },
 
     'YYYY-MM-DDTHH:mm:ss.SSS[Z]', // The result of dayjs().toISOString()
     'YYYY-MM-DDTHH:mm:ss.SSSZ',
@@ -45,7 +58,15 @@ const DEFAULT_DATE_PARSING_FORMATS = [
     'YYYY-MM-DDTHH:mm:ssZZ',
     'YYYY-MM-DDTHH:mm:ssZ',
     'YYYY-MM-DDTHH:mm:ss',
-].sort((a, b) => b.length - a.length) // Order matters! see "Differences to moment" https://day.js.org/docs/en/parse/string-format
+].sort((a, b) => {
+    if (typeof a === 'string' && typeof b === 'string') {
+        return b.length - a.length
+    }
+    if (typeof a === 'string' || typeof b === 'string') {
+        return typeof a === 'string' ? -1 : 1
+    }
+    return b.format.length - a.format.length
+}) // Order matters! see "Differences to moment" https://day.js.org/docs/en/parse/string-format
 const ISO_DATE_FORMAT = 'YYYY-MM-DD'
 const EUROPEAN_DATE_FORMAT = 'DD.MM.YYYY'
 

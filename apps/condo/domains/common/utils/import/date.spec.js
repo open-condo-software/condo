@@ -12,6 +12,8 @@ const validDateStrings = [
     '01-01-2024',
     '2024-01-01 00:00:00',
     '2024-01-01 00:00',
+    '092009', // 2009-09-01...
+    '200012', // 2000-12-01...
 ]
 
 const invalidDateStrings = [
@@ -21,6 +23,8 @@ const invalidDateStrings = [
     'invalid-date', // Not a date
     '2024/13/01', // Invalid month
     '2024-01-01T25:00:00Z', // Invalid hour
+    '091000', // 1000-09-01... technically
+    '100009', // 1000-09-01... technically
 ]
 
 describe('importDate.utils', () => {
@@ -94,6 +98,18 @@ describe('importDate.utils', () => {
             ]
             it.each(cases)('%p', (date, expectedDate) => {
                 expect(tryToISO(date, utcFormats)).toBe(expectedDate)
+            })
+        })
+
+        describe('Works with simmilar formats if validator provided', () => {
+            const yearIsNearToday = (date) => Math.abs(date.year() - new Date().getFullYear()) < 30
+            const cases = [
+                { similarFormats: [{ format: 'YYYYMM', validate: yearIsNearToday }, { format: 'MMYYYY', validate: yearIsNearToday }], dateString: '092009', expectedDate: '2009-08-31T18:00:00.000Z' },
+                { similarFormats: [{ format: 'YYYYMM', validate: yearIsNearToday }, { format: 'MMYYYY', validate: yearIsNearToday }], dateString: '200909', expectedDate: '2009-08-31T18:00:00.000Z' },
+            ]
+
+            it.each(cases)('$similarFormats.0.format - $similarFormats.1.format $dateString', ({ similarFormats, dateString, expectedDate }) => {
+                expect(tryToISO(dateString, similarFormats)).toBe(expectedDate)
             })
         })
     })
