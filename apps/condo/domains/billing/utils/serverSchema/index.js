@@ -67,15 +67,6 @@ const getPaymentsSum = async (receiptId) => {
  */
 const getNewPaymentsSum = async (receiptId) => {
     const receipt = await getById('BillingReceipt', receiptId)
-    console.error(JSON.stringify({
-        AND: [
-            { status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS] },
-            { deletedAt: null },
-            { receipt: { id: receiptId } },
-            { OR: [ { transferDate_gte: receipt.updatedAt }, { transferDate: null } ] },
-        ],
-    }))
-    console.error('===1')
     const payments = await find('Payment', {
         AND: [
             { status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS] },
@@ -84,8 +75,6 @@ const getNewPaymentsSum = async (receiptId) => {
             { OR: [ { transferDate_gte: new Date(receipt.updatedAt).toISOString() }, { transferDate: null } ] },
         ],
     })
-    console.error('===2')
-
     return payments.reduce((total, current) => (Big(total).plus(current.amount)), 0).toFixed(8).toString()
 }
 
