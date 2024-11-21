@@ -14,9 +14,10 @@ import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 
 type BillingAppPageProps = {
     id: string
+    children?: React.ReactNode
 }
 
-export const BillingAppPage: React.FC<BillingAppPageProps> = ({ id }) => {
+export const BillingAppPage: React.FC<BillingAppPageProps> = ({ id, children }) => {
     const intl = useIntl()
     const FallbackPageTitle = intl.formatMessage({ id: 'global.section.miniapps' })
 
@@ -47,6 +48,7 @@ export const BillingAppPage: React.FC<BillingAppPageProps> = ({ id }) => {
                 <title>{appName || FallbackPageTitle}</title>
             </Head>
             <PageWrapper>
+                {children}
                 <PageHeader title={<Typography.Title level={1}>{appName || FallbackPageTitle}</Typography.Title>} spaced/>
                 <PageContent>
                     {appUrl && (
