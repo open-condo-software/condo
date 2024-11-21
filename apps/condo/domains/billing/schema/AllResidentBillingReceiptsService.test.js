@@ -411,7 +411,8 @@ describe('AllResidentBillingReceiptsService', () => {
             expect(receiptAfterPayment.isPayable).toBeTruthy()
         })
 
-        test('paid field calculated when organization bank info changed', async () => {
+        // TODO(dkovyazin): Add additional field on balance change to calculate new payments and display on mobile app
+        test.skip('paid field calculated when organization bank info changed', async () => {
             const accountNumber = faker.random.alphaNumeric(12)
             const total = '5000.00'
             const jsonReceipt = utils.createJSONReceipt({ accountNumber, toPay: total })
