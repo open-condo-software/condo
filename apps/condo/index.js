@@ -100,8 +100,8 @@ const checks = [
     getPfxCertificateHealthCheck({
         certificateName: 'sber_id_client',
         getPfxParams: () => {
-            const SBER_ID_CONFIG = conf['SBER_ID_CONFIG'] && JSON.parse(conf['SBER_ID_CONFIG']) || {}
-            return { pfx: SBER_ID_CONFIG.certificate, passphrase: SBER_ID_CONFIG.passphrase }
+            const { certificate, passphrase } = conf['SBER_ID_CONFIG'] && JSON.parse(conf['SBER_ID_CONFIG']) || {}
+            return { pfx: certificate, passphrase }
         },
     }),
     getPfxCertificateHealthCheck({
