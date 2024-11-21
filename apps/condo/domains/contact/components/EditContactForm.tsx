@@ -1,3 +1,4 @@
+import { useApolloClient } from '@apollo/client'
 import {
     useGetCommonOrOrganizationContactRolesQuery,
     useGetContactByIdQuery,
@@ -65,7 +66,7 @@ export const EditContactForm: React.FC = () => {
     const PromptHelpMessage = intl.formatMessage({ id: 'contact.form.prompt.message' })
 
     const { breakpoints } = useLayoutContext()
-
+    const client = useApolloClient()
     const router = useRouter()
     const contactId = get(router, 'query.id', '')
 
@@ -116,7 +117,10 @@ export const EditContactForm: React.FC = () => {
         } else {
             await router.push('/contact')
         }
-    }, [contactId, redirectToClientCard, router, updateContactMutation])
+
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allContacts' })
+        client.cache.gc()
+    }, [client.cache, contactId, redirectToClientCard, router, updateContactMutation])
 
     const formInitialValues = useMemo(() => ({
         name: get(contact, 'name'),

@@ -292,7 +292,11 @@ const Comments: React.FC<ICommentsListProps> = ({
             await updateAction({
                 variables: {
                     id: editableComment.id,
-                    data: values,
+                    data: {
+                        ...values,
+                        dv: 1,
+                        sender: getClientSideSenderInfo(),
+                    },
                 },
             })
             await syncModifiedFiles(editableComment.id)
@@ -304,6 +308,8 @@ const Comments: React.FC<ICommentsListProps> = ({
                         type: commentType,
                         ticket: { connect: { id: ticketId } },
                         user: { connect: { id: user?.id || null } },
+                        dv: 1,
+                        sender: getClientSideSenderInfo(),
                     },
                 },
             })
@@ -315,7 +321,7 @@ const Comments: React.FC<ICommentsListProps> = ({
         await refetchComments()
         setEditableComment(null)
     },
-    [commentType, createAction, editableComment, refetchComments, updateAction])
+    [commentType, createAction, editableComment, refetchComments, ticketId, updateAction, user?.id])
 
     const createOrUpdateUserTicketCommentReadTime = useCallback(async (payload) => {
         if (loadingUserTicketCommentReadTime) return
@@ -324,7 +330,11 @@ const Comments: React.FC<ICommentsListProps> = ({
             await updateUserTicketCommentReadTime({
                 variables: {
                     id: userTicketCommentReadTime.id,
-                    data: payload,
+                    data: {
+                        ...payload,
+                        dv: 1,
+                        sender: getClientSideSenderInfo(),
+                    },
                 },
             })
         } else {
@@ -334,6 +344,8 @@ const Comments: React.FC<ICommentsListProps> = ({
                         ...payload,
                         ticket: { connect: { id: ticketId } },
                         user: { connect: { id: user?.id || null } },
+                        dv: 1,
+                        sender: getClientSideSenderInfo(),
                     },
                 },
             })
