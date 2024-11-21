@@ -684,7 +684,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                 </Select.Option>
                                                 <Select.Option
                                                     key='oneTime'
-                                                    value={null}
+                                                    value={undefined}
                                                 >
                                                     { NoPriceMeasureLabel }
                                                 </Select.Option>

@@ -219,7 +219,7 @@ describe('MarketItemPrice', () => {
             })
         })
 
-        describe('anonymus', () => {
+        describe('anonymous', () => {
             let client
             beforeAll(async () => {
                 client = await makeClient()
@@ -324,6 +324,14 @@ describe('MarketItemPrice', () => {
                 },
                 'obj'
             )
+        })
+
+        test('Validate item price measure, undefined is valid measure', async () => {
+            const [price] = await createTestMarketItemPrice(admin, marketItem, {
+                price: [{ ...validPriceFieldValue[0], measure: undefined }],
+            })
+
+            expect(price).toBeDefined()
         })
 
         test('Validate salesTaxPercent less when 0', async () => {
