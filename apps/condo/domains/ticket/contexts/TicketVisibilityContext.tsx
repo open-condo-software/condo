@@ -198,7 +198,6 @@ const isEmployeeCanReadTicket = ({
     }
 }
 
-// TODO(DOMA-10650): should be refactored to new client utils
 const TicketVisibilityContextProvider: React.FC = ({ children }) => {
     const { user, isLoading } = useAuth()
     const userId = get(user, 'id', null)

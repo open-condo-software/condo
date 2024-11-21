@@ -145,7 +145,6 @@ const useTicketClassifierSelectHook = ({
 
 const CLASSIFIER_ROW_GUTTER: [Gutter, Gutter] = [40, 10]
 
-// TODO(DOMA-10649): refactor to new client utils
 export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     classifier,
     placeClassifier,

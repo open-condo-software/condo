@@ -118,7 +118,6 @@ export const CreateContactForm: React.FC = () => {
             id: selectedPropertyId,
         },
         skip: !selectedPropertyId,
-        // TODO(INFRA-647): remove network-only after update client utils on property (create/update) pages
         fetchPolicy: 'network-only',
     })
     const property = propertyData?.property[0]
