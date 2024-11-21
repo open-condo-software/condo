@@ -51,7 +51,6 @@ export const BillingAppPage: React.FC<BillingAppPageProps> = ({ id, children }) 
                 {children}
                 <PageHeader title={<Typography.Title level={1}>{appName || FallbackPageTitle}</Typography.Title>} spaced/>
                 <PageContent>
-
                     {appUrl && (
                         <IFrame
                             src={appUrl}
