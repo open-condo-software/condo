@@ -2481,7 +2481,6 @@
   "pages.condo.ticket.WithoutDeadline": "Este tipo de solicitud no tiene fecha límite",
   "pages.condo.ticket.alert.BlockedEditing.description": "No se puede modificar la solicitud porque ya no se presta servicio a la dirección indicada",
   "pages.condo.ticket.alert.BlockedEditing.title": "Edición de solicitud no disponible",
-  "pages.condo.ticket.alert.NoProperties": "Para crear una solicitud, agregue al menos una dirección en la sección ¨Comunidades¨.",
   "pages.condo.ticket.autoAssignAlert.message": "La comunidad de esta solicitud está en el ámbito de ¨{name}¨. Por lo tanto, el algoritmo Domá ha asignado automáticamente un responsable y un ejecutor.",
   "pages.condo.ticket.autoAssignAlert.title": "El responsable y el ejecutor se asignan automáticamente",
   "pages.condo.ticket.exportBlank.HaveAllComments.label": "Todos los comentarios de la solicitud",

@@ -2481,7 +2481,6 @@
   "pages.condo.ticket.WithoutDeadline": "This type of ticket does not have a deadline.",
   "pages.condo.ticket.alert.BlockedEditing.description": "You cannot change ticket because the selected address is no longer in service",
   "pages.condo.ticket.alert.BlockedEditing.title": "Ticket editing is not available",
-  "pages.condo.ticket.alert.NoProperties": "To create ticket, you need to add at least one address in the section «Buildings».",
   "pages.condo.ticket.autoAssignAlert.message": "The property from this ticket is within the property scope of «{name}». Therefore, the Domá algorithm automatically assigned the assignee and the executor.",
   "pages.condo.ticket.autoAssignAlert.title": "Responsible and executor assigned automatically",
   "pages.condo.ticket.exportBlank.HaveAllComments.label": "All comments from the ticket",
