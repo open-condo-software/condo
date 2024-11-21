@@ -7,6 +7,8 @@ import { NextPage } from 'next'
 import nextCookie from 'next-cookies'
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
 
+import { isSSR } from '@open-condo/miniapp-utils'
+
 import { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } from './_utils'
 import { useQuery } from './apollo'
 import { useAuth } from './auth'
@@ -287,7 +289,7 @@ const _withOrganizationLegacy: WithOrganizationLegacyType = ({ ssr = false, ...o
         WithOrganization.displayName = `withOrganization(${displayName})`
     }
 
-    if (ssr || PageComponent.getInitialProps) {
+    if (ssr || !isSSR() || PageComponent.getInitialProps) {
         WithOrganization.getInitialProps = async ctx => {
             if (DEBUG_RERENDERS) console.log('WithOrganization.getInitialProps()', ctx)
             const isOnServerSide = typeof window === 'undefined'

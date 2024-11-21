@@ -4,6 +4,8 @@ import get from 'lodash/get'
 import { NextPage } from 'next'
 import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react'
 
+import { isSSR } from '@open-condo/miniapp-utils'
+
 import { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } from './_utils'
 import { useApolloClient, useMutation, useQuery } from './apollo'
 import { removeCookieEmployeeId } from './organization'
@@ -230,7 +232,7 @@ const _withAuthLegacy: WithAuthLegacyType = ({ ssr = false, ...opts } = {}) => P
         WithAuth.displayName = `withAuth(${displayName})`
     }
 
-    if (ssr || PageComponent.getInitialProps) {
+    if (ssr || !isSSR() || PageComponent.getInitialProps) {
         WithAuth.getInitialProps = async ctx => {
             if (DEBUG_RERENDERS) console.log('WithAuth.getInitialProps()', ctx)
             const isOnServerSide = typeof window === 'undefined'

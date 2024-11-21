@@ -250,7 +250,7 @@ const _withApolloLegacy: WillApolloLegacyType = ({ ssr = false, ...opts } = {}) 
         WithApollo.displayName = `withApollo(${displayName})`
     }
 
-    if (ssr || PageComponent.getInitialProps) {
+    if (ssr || !isSSR() || PageComponent.getInitialProps) {
         WithApollo.getInitialProps = async ctx => {
             if (DEBUG_RERENDERS) console.log('WithApollo.getInitialProps()', ctx)
             const isOnServerSide = typeof window === 'undefined'
@@ -353,7 +353,7 @@ const _withApollo: WillApolloType = ({ ssr, apolloHelperOptions }) => (PageCompo
         WithApollo.displayName = `withApollo(${displayName})`
     }
 
-    if (ssr || PageComponent.getInitialProps) {
+    if (ssr || !isSSR() || PageComponent.getInitialProps) {
         /**
          * @param context {{AppTree, Component, router, ctx: NextPageContext}}
          */

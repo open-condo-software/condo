@@ -13,6 +13,7 @@ import { NextPage } from 'next'
 import getConfig from 'next/config'
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
 
+import { isSSR } from '@open-condo/miniapp-utils'
 import {
     DEBUG_RERENDERS,
     DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER,
@@ -207,14 +208,13 @@ const withFeatureFlags: WithFeatureFlags = ({ ssr = false }) => PageComponent =>
         WithFeatureFlags.displayName = `withFeatureFlags(${displayName})`
     }
 
-    if (ssr || PageComponent.getInitialProps) {
+    if (ssr || !isSSR() || PageComponent.getInitialProps) {
         WithFeatureFlags.getInitialProps = async (ctx) => {
             if (DEBUG_RERENDERS) console.log('WithIntl.getInitialProps()', ctx)
-            const isOnServerSide = typeof window === 'undefined'
             const { features } = await initOnRestore(ctx)
             const pageProps = await getContextIndependentWrappedInitialProps(PageComponent, ctx)
 
-            if (isOnServerSide) {
+            if (isSSR()) {
                 preventInfinityLoop(ctx)
             }
 
