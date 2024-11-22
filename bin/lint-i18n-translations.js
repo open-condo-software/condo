@@ -19,6 +19,12 @@ async function writeTranslationData (translationFilePath, translationData) {
     await fs.writeFile(translationFilePath, JSON.stringify(sortedTranslationData, null, 2), 'utf8')
 }
 
+async function writeFile (filePath, data) {
+    const directoryPath = path.dirname(filePath)
+    await fs.mkdir(directoryPath, { recursive: true })
+    await fs.writeFile(filePath, data, 'utf8')
+}
+
 async function loadStringTranslations (langDir) {
     const translations = []
     try {
@@ -161,6 +167,18 @@ async function saveTranslations (langDir, translations) {
     }
 }
 
+async function saveFixedFiles (langDir, filesToWrite) {
+    try {
+        for (const { path: targetPath, content } of filesToWrite) {
+            const filePath = path.join(langDir, targetPath)
+            console.log(`Saving file ${filePath}`)
+            await writeFile(filePath, content)
+        }
+    } catch (e) {
+        throw new Error(`Error saving translations: ${e.message}`)
+    }
+}
+
 async function validateStringTranslations (translations) {
     const allKeys = new Set()
     translations.forEach(([, keys]) => {
@@ -239,6 +257,54 @@ async function fixStringTranslations (translations, missingKeysReport, gptquery)
     console.log('Fixing completed.')
 }
 
+async function fixMessagesDirectories (missingFilesReport, messageData, gptquery) {
+    console.log('Fixing missing message files...')
+    const prompts = []
+
+    // Generate prompts for missing files
+    for (const { locale, messageDir, missingFile } of missingFilesReport) {
+        const examples = Object.entries(messageData)
+            .filter(([exampleLocale]) => exampleLocale !== locale && messageData[exampleLocale][messageDir] && messageData[exampleLocale][messageDir].njkFiles[missingFile])
+            .map(([exampleLocale, data]) => `### translation for ${exampleLocale} locale\n${data[messageDir].njkFiles[missingFile].trim()}`)
+            .join('\n\n')
+
+        const prompt = `We are missing the message template "${missingFile}" in the directory "${messageDir}" for the locale "${locale}".\n\n# Here are examples of the template in other languages:\n\n${examples}\n\n# Your task\nPlease generate the content for this file in the "${locale}" locale. Ensure that your response is in the "${locale}" language and retains any formatting, placeholders, or markup (e.g., HTML tags, ICU syntax) from the examples. Please provide only the translated text in your response.`
+        prompts.push({ locale, messageDir, missingFile, prompt })
+    }
+
+    const tmpFilePath = path.join('.', '.gpt_missing_files_prompts.log')
+    try {
+        // Write all prompts to a temporary file
+        await fs.writeFile(tmpFilePath, prompts.map(p => p.prompt).join('\n----\n'), 'utf8')
+        console.log(`Prompt file created at ${tmpFilePath}`)
+
+        // Execute the GPT query command
+        const { stdout, stderr } = await execPromise(`node ${gptquery} ${tmpFilePath}`)
+        if (stderr) {
+            console.error('Warning during GPT query execution:', stderr)
+        }
+
+        console.log(`GPT query executed successfully:\n${stdout.trim()}`)
+
+        let i = 0
+        const filesToWrite = []
+        for (const { missingPath } of missingFilesReport) {
+            i++
+            const resultFilePath = path.join('out', `result_${i}.md`)
+            try {
+                const resultData = (await fs.readFile(resultFilePath, 'utf8')).trim()
+                filesToWrite.push({ path: missingPath, content: resultData })
+            } catch (e) {
+                throw new Error(`Error reading result file "${resultFilePath}": ${e.message}`)
+            }
+        }
+
+        return filesToWrite
+    } catch (e) {
+        throw new Error(`Error fixing translations: ${e.message}`)
+    }
+}
+
 async function main () {
     const { fix: shouldFix } = program.parse().opts()
 
@@ -262,7 +328,12 @@ async function main () {
     const missingFilesReport = await validateMessagesDirectories(messageData)
 
     if (missingFilesReport.length > 0) {
-        throw new Error('Validation failed: Missing messages file found')
+        if (shouldFix) {
+            const filesToWrite = await fixMessagesDirectories(missingFilesReport, messageData, gptquery)
+            await saveFixedFiles(langDir, filesToWrite)
+        } else {
+            throw new Error('Validation failed: Missing messages file found')
+        }
     }
 
     if (shouldFix) {
