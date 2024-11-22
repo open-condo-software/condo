@@ -11,9 +11,17 @@ const logger = getLogger('EncryptionManager')
 let DEFAULT_CONFIG
 let DEFAULT_VERSION_ID
 
+// INVISIBLE / WHITESPACE CHARACTERS
+// \u{200B} - ZERO WIDTH SPACE
+// \u{034F} - COMBINING GRAPHEME JOINER
+// \u{180C} - MONGOLIAN FREE VARIATION SELECTOR TWO
+// \u{1D175} - MUSICAL SYMBOL BEGIN TIE
+// \u{E003B} - TAG SEMICOLON
+// \u{2800} - BRAILLE PATTERN BLANK
 
 // since data is converted in hex, ':' shouldn't be in it
 const SEPARATOR = ':'
+const ENCRYPTION_PREFIX = ['\u{200B}', '\u{034F}', '\u{180C}', '\u{1D175}', '\u{E003B}', '\u{2800}'].join('')
 const SUPPORTED_MODES = ['cbc', 'ctr', 'cfb', 'ofb']
 const SUGGESTIONS = {
     'cfb': 'Please, consider using "ctr" or "cbc"',
@@ -92,18 +100,26 @@ class EncryptionManager {
         const cipheriv = crypto.createCipheriv(algorithm, secret, iv)
         const encryptedValue = Buffer.concat([cipheriv.update(data), cipheriv.final()])
         return [
+            ENCRYPTION_PREFIX,
             Buffer.from(this._encryptionVersionId).toString('hex'),
             encryptedValue.toString('hex'),
             iv.toString('hex'),
         ].join(SEPARATOR)
-
     }
 
     /** @param {string} encrypted
      *  @returns {string | null}
      */
     decrypt (encrypted) {
-        let [versionIdHex, encodedHex, ivHex] = encrypted.split(SEPARATOR)
+        if (typeof encrypted !== 'string') {
+            return null
+        }
+        const parts = encrypted.split(SEPARATOR)
+        if (parts.length < 3) {
+            return null
+        }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const [_, versionIdHex, encodedHex, ivHex] = parts
         const versionId = Buffer.from(versionIdHex, 'hex').toString()
         const version = this._config[versionId]
         if (isNil(version)) {
@@ -115,6 +131,30 @@ class EncryptionManager {
         const decrypted = Buffer.concat([decipheriv.update(Buffer.from(encodedHex, 'hex')), decipheriv.final()])
 
         return decrypted.toString()
+    }
+
+    /**
+     * Is given string encrypted with one of versions of this instance. Can not check for secrets and algorithm
+     * @param {string} str
+     * @param {string?} versionId - validate specific version
+     * @returns {boolean}
+     */
+    isEncrypted (str, versionId) {
+        if (typeof str !== 'string') {
+            return false
+        }
+        const parts = str.split(SEPARATOR)
+        if (parts.length < 3) {
+            return false
+        }
+        if (parts[0] !== ENCRYPTION_PREFIX) {
+            return false
+        }
+        const decodedFromHexVersion = Buffer.from(parts[1], 'hex').toString()
+        if (!isNil(versionId)) {
+            return decodedFromHexVersion === versionId
+        }
+        return !!this._config[decodedFromHexVersion]
     }
 
     _initializeDefaults (overrideEncryptionVersionId) {
@@ -190,7 +230,9 @@ class EncryptionManager {
             if (versionId.includes(SEPARATOR)) {
                 throw new Error(`You should not put "${SEPARATOR}" in version id (key in object of versions), received ${versionId}`)
             }
-
+            if (versionId.length === 0) {
+                throw new Error('Invalid version id. Empty string is forbidden')
+            }
 
             const { algorithm, secret } = versions[versionId]
             const cipherInfo = crypto.getCipherInfo(algorithm)
@@ -222,4 +264,5 @@ class EncryptionManager {
 module.exports = {
     EncryptionManager,
     SUPPORTED_MODES,
+    ENCRYPTION_PREFIX,
 }

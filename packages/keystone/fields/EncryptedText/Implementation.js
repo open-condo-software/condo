@@ -23,10 +23,10 @@ function _getEncryptionManager (errorStart, options) {
     return manager
 }
 
-function _getErrorStart (listKey, path) { return `${listKey}.${path}: SymmetricEncryptedText field` }
+function _getErrorStart (listKey, path) { return `${listKey}.${path}: EncryptedText field` }
 
 
-class SymmetricEncryptedTextImplementation extends Text.implementation {
+class EncryptedTextImplementation extends Text.implementation {
 
     /** @type {EncryptionManager} */
     encryptionManager
@@ -50,5 +50,5 @@ class SymmetricEncryptedTextImplementation extends Text.implementation {
 }
 
 module.exports = {
-    SymmetricEncryptedTextImplementation,
+    EncryptedTextImplementation,
 }

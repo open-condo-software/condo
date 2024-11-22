@@ -1,6 +1,6 @@
-# SymmetricEncryptedText
+# EncryptedText
 
-`SymmetricEncryptedText` field simplifies work with encrypted data. It automatically encrypts text before storing in
+`EncryptedText` field simplifies work with encrypted data. It automatically encrypts text before storing in
 database and allows you to store data encrypted with different versions of keys.
 
 ## Basic usage
@@ -11,8 +11,8 @@ const conf = require('@open-condo/config')
 
 keystone.createList('User', {
   fields: {
-    email: { type: Text },
-    nonPublicData: { type: 'SymmetricEncryptedText' },
+    email: { type: 'Text' },
+    nonPublicData: { type: 'EncryptedText' },
   },
 });
 ```
@@ -32,7 +32,7 @@ keystone.createList('User', {
   fields: {
     email: { type: 'Text' },
     nonPublicData: { 
-        type: 'SymmetricEncryptedText',
+        type: 'EncryptedText',
         encryptionManager: UserCrypto.nonPublicData,
         hooks: {
             resolveInput({ existingItem }) {
@@ -67,7 +67,7 @@ keystone.createList('User', {
   fields: {
       email: {type: 'Text'},
       nonPublicData: {
-          type: 'SymmetricEncryptedText',
+          type: 'EncryptedText',
           encryptionManager: UserCrypto.nonPublicData,
       },
   }
@@ -87,13 +87,13 @@ encrypted with old keys / algorithms. New data is being stored with CipherManage
 
 ## GraphQL
 
-`SymmetricEncryptedText` fields behave as strings (`Text` field). On create / update operations input value will be
+`EncryptedText` fields behave as strings (`Text` field). On create / update operations input value will be
 encrypted before storing in database and returning in response. For read operations field expects encrypted value.
 
 ## Storage
 
 The value stored is string containing provided version, iv and, encrypted with provided algorithm and secret, provided value.
-#### Example: \<version from CipherManager\>:\<crypted data\>:\<iv or other service info\>
+#### Example: \<our string to mark text encrypted\>:\<version from CipherManager\>:\<crypted data\>:\<iv or other service info\>
 
 ## Service information
 

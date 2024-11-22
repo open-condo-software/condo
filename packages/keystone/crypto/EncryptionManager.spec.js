@@ -55,7 +55,7 @@ describe('EncryptionManager', () => {
                 const initialString = faker.random.alphaNumeric(20)
                 const encrypted = manager.encrypt(initialString)
                 expect(encrypted).not.toEqual(initialString)
-                expect(encrypted.split(':')).toHaveLength(3)
+                expect(encrypted.split(':')).toHaveLength(4)
 
                 const decrypted = manager.decrypt(encrypted)
                 expect(decrypted).toEqual(initialString)
@@ -106,5 +106,97 @@ describe('EncryptionManager', () => {
             expect(decrypted).toEqual(exampleString)
         })
     })
+    
+    describe('Unsuccessful decryption', () => {
+        const manager = new EncryptionManager({ 
+            versions: {
+                '1': { algorithm: 'aes-256-cbc', secret: faker.random.alphaNumeric(32) },
+            },
+            encryptionVersionId: '1',
+        })
+        
+        const nonStrings = [
+            [],
+            {},
+            null,
+            undefined,
+            new Date(),
+            123,
+            Symbol(),
+        ]
+        
+        test.each(nonStrings)('Passed non string %p', (nonString) => {
+            expect(manager.decrypt(nonString)).toBeNull()
+        })
 
+        test('Is not encrypted', () => {
+            const notEncrypted = faker.random.alphaNumeric(10)
+            expect(manager.decrypt(notEncrypted)).toBeNull()
+        })
+
+        test('Is encrypted in version, which not provided', () => {
+            const anotherManager = new EncryptionManager({
+                versions: { '2': { algorithm: 'aes-256-cbc', secret: faker.random.alphaNumeric(32) } },
+                encryptionVersionId: '2',
+            })
+            const exampleString = faker.random.alphaNumeric(10)
+            const encryptedString = anotherManager.encrypt(exampleString)
+            expect(manager.decrypt(encryptedString)).toBeNull()
+        })
+
+        test('Versions are same, but secret or algorithm differs', () => {
+            const managerAnotherAlgorithm = new EncryptionManager({
+                versions: { '1': { algorithm: 'aes-128-cbc', secret: faker.random.alphaNumeric(16) } },
+                encryptionVersionId: '1',
+            })
+            const managerAnotherSecret = new EncryptionManager({
+                versions: { '1': { algorithm: 'aes-256-cbc', secret: faker.random.alphaNumeric(32) } },
+                encryptionVersionId: '1',
+            })
+            const exampleValue = faker.random.alphaNumeric(10)
+            const encryptedWithDifferentAlgorithm = managerAnotherAlgorithm.encrypt(exampleValue)
+            const encryptedWithDifferentSecret = managerAnotherSecret.encrypt(exampleValue)
+
+            expect(() => manager.decrypt(encryptedWithDifferentAlgorithm)).toThrow()
+            expect(() => manager.decrypt(encryptedWithDifferentSecret)).toThrow()
+        })
+    })
+
+    describe('isEncrypted', () => {
+        const manager = new EncryptionManager({
+            versions: {
+                '1': { algorithm: 'aes-256-cbc', secret: faker.random.alphaNumeric(32) },
+            },
+            encryptionVersionId: '1',
+        })
+
+        test('Checks, that value was encrypted with one of provided versions', () => {
+            const exampleValue = faker.random.alphaNumeric(10)
+            const encrypted = manager.encrypt(exampleValue)
+
+            const anotherManager = new EncryptionManager({
+                versions: { '2': { algorithm: 'aes-256-cbc', secret: faker.random.alphaNumeric(32) } },
+                encryptionVersionId: '2',
+            })
+            const anotherEncrypted = anotherManager.encrypt(exampleValue)
+
+            expect(manager.isEncrypted(encrypted)).toBe(true)
+            expect(manager.isEncrypted(exampleValue)).toBe(false)
+            expect(manager.isEncrypted(anotherEncrypted)).toBe(false)
+        })
+
+        test('Checks, that value was encrypted in specific version', () => {
+            const exampleValue = faker.random.alphaNumeric(10)
+            const encrypted = manager.encrypt(exampleValue)
+
+            const anotherManager = new EncryptionManager({
+                versions: { '2': { algorithm: 'aes-256-cbc', secret: faker.random.alphaNumeric(32) } },
+                encryptionVersionId: '2',
+            })
+            const anotherEncrypted = anotherManager.encrypt(exampleValue)
+
+            expect(manager.isEncrypted(encrypted, '1')).toBe(true)
+            expect(manager.isEncrypted(anotherEncrypted, '2')).toBe(true)
+        })
+    })
 })
