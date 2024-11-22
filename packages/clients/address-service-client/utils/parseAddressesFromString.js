@@ -93,6 +93,12 @@ class AddressFromStringParser {
      * @returns {{housePart: string, unitPart: string}}
      */
     splitByComma (input = '') {
+        if (input.indexOf(',') === -1) {
+            return {
+                housePart: input,
+                unitPart: '',
+            }
+        }
         const addressParts = input.split(',').map(part => part.trim())
         const unit = addressParts.pop()
         return {

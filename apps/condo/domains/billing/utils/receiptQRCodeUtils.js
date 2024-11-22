@@ -194,7 +194,6 @@ async function findAuxiliaryData (qrCodeFields, errors) {
     const normalizedAddress = await addressServiceClient.search(getQRCodeField(qrCodeFields, 'PayerAddress'), { extractUnit: true })
 
     if (!normalizedAddress.addressKey || !normalizedAddress.unitType || !normalizedAddress.unitName) throw errors.address
-
     const properties = await find('Property', {
         organization: { tin: getQRCodeField(qrCodeFields, 'PayeeINN'), deletedAt: null },
         addressKey: normalizedAddress.addressKey,
