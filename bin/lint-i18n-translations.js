@@ -93,7 +93,7 @@ async function validateTranslations (translations) {
 async function fixTranslations (translations, missingKeysReport, gptquery) {
     console.log('Fixing translations...')
 
-    const tmpFilePath = path.join('.', '.gpt_translation_prompts.txt')
+    const tmpFilePath = path.join('.', '.gpt_translation_prompts.log')
     const prompts = []
 
     for (const { lang: missedLang, missingKeys } of missingKeysReport) {
