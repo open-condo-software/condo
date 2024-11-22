@@ -19,10 +19,10 @@ async function writeTranslationData (translationFilePath, translationData) {
     await fs.writeFile(translationFilePath, JSON.stringify(sortedTranslationData, null, 2), 'utf8')
 }
 
-async function loadTranslations (langDir) {
+async function loadStringTranslations (langDir) {
     const translations = []
     try {
-        const entries = await fs.readdir(langDir, { withFileTypes: true });
+        const entries = await fs.readdir(langDir, { withFileTypes: true })
         for (const entry of entries) {
             if (!entry.isDirectory()) continue
             const folderName = entry.name
@@ -47,6 +47,108 @@ async function loadTranslations (langDir) {
     return translations
 }
 
+async function loadMessagesDirectories (langDir) {
+    const messageData = {}
+    try {
+        const locales = await fs.readdir(langDir, { withFileTypes: true })
+        for (const locale of locales) {
+            if (!locale.isDirectory()) continue
+            const localePath = path.join(langDir, locale.name, 'messages')
+            messageData[locale.name] = {}
+            try {
+                const entries = await fs.readdir(localePath, { withFileTypes: true })
+                for (const entry of entries) {
+                    const messageDirPath = path.join(localePath, entry.name)
+                    if (entry.isDirectory()) {
+                        try {
+                            const files = await fs.readdir(messageDirPath)
+                            const njkFiles = {}
+                            for (const file of files) {
+                                const filePath = path.join(messageDirPath, file)
+                                if (file.endsWith('.njk')) {
+                                    try {
+                                        await fs.access(filePath)
+                                        const data = await fs.readFile(filePath, 'utf8')
+                                        if (!data) {
+                                            throw new Error(`Loaded file "${filePath}" seems to be empty`)
+                                        }
+                                        njkFiles[file] = data
+                                    } catch (e) {
+                                        throw new Error(`Error reading or parsing file "${filePath}": ${e.message}`)
+                                    }
+                                } else {
+                                    console.warn(`Warning: Unexpected file found during processing messages directory: ${filePath} (does not match the "*.njk" pattern)`)
+                                }
+                            }
+                            messageData[locale.name][entry.name] = {
+                                messageDir: entry.name,
+                                njkFiles,
+                            }
+                        } catch (e) {
+                            throw new Error(`Error reading files in directory "${messageDirPath}": ${e.message}`)
+                        }
+                    } else {
+                        console.warn(`Warning: Unexpected file found during processing messages directory: ${messageDirPath}`)
+                    }
+                }
+            } catch (e) {
+                throw new Error(`Error working with messages directory "${localePath}": ${e.message}`)
+            }
+        }
+    } catch (e) {
+        throw new Error(`Error reading lang directory: ${e.message}`)
+    }
+    return messageData
+}
+
+async function validateMessagesDirectories (messageData) {
+    const missingFilesReport = []
+    const filePresenceMap = {}
+    try {
+        // Gather all unique files across all locales with messageDir/njkFileName combinations
+        for (const locale in messageData) {
+            for (const messageDir in messageData[locale]) {
+                const njkFiles = messageData[locale][messageDir].njkFiles
+                for (const file in njkFiles) {
+                    const fileKey = `${messageDir}/${file}`
+                    if (!filePresenceMap[fileKey]) {
+                        filePresenceMap[fileKey] = new Set()
+                    }
+                    filePresenceMap[fileKey].add(locale)
+                }
+            }
+        }
+
+        // Validate each locale to ensure it contains all necessary files
+        for (const fileKey in filePresenceMap) {
+            const [messageDir, fileName] = fileKey.split('/')
+            for (const locale in messageData) {
+                if (!messageData[locale][messageDir] || !messageData[locale][messageDir].njkFiles[fileName]) {
+                    missingFilesReport.push({
+                        locale,
+                        messageDir,
+                        missingFile: fileName,
+                        missingPath: path.join(locale, 'messages', messageDir, fileName),
+                    })
+                }
+            }
+        }
+
+        // Report missing files
+        if (missingFilesReport.length > 0) {
+            console.log('Missing files found in message directories:')
+            for (const report of missingFilesReport) {
+                console.log(`- Locale "${report.locale}", Message "${report.messageDir}" is missing file "${report.missingFile}": ${report.missingPath}`)
+            }
+        } else {
+            console.log('✔︎ All message directories are consistent across locales and contain all necessary files')
+        }
+    } catch (e) {
+        throw new Error(`Error validating messages directories: ${e.message}`)
+    }
+    return missingFilesReport
+}
+
 async function saveTranslations (langDir, translations) {
     try {
         for (const [folderName, , translationData] of translations) {
@@ -59,7 +161,7 @@ async function saveTranslations (langDir, translations) {
     }
 }
 
-async function validateTranslations (translations) {
+async function validateStringTranslations (translations) {
     const allKeys = new Set()
     translations.forEach(([, keys]) => {
         keys.forEach(key => allKeys.add(key))
@@ -90,7 +192,7 @@ async function validateTranslations (translations) {
     return missingKeysReport
 }
 
-async function fixTranslations (translations, missingKeysReport, gptquery) {
+async function fixStringTranslations (translations, missingKeysReport, gptquery) {
     console.log('Fixing translations...')
 
     const tmpFilePath = path.join('.', '.gpt_translation_prompts.log')
@@ -103,7 +205,7 @@ async function fixTranslations (translations, missingKeysReport, gptquery) {
                 .map(([lang, , data]) => `${lang}: ${data[key]}\n`)
                 .join('')
 
-            const prompt =  `We are translating property management software, and we have a translation key "${key}". The translation uses the ICU Message Format, so please preserve the placeholders, variables, and syntax exactly as they are. Here are examples of translations for this key in other languages: \n${examples}\n\nYour task is to translate this key into the language "${missedLang}". Ensure that your response is in the "${missedLang}" language and retains any formatting, placeholders, or markup (e.g., HTML tags, ICU syntax) from the examples. Please provide only the translated text in your response.`
+            const prompt = `We are translating property management software, and we have a translation key "${key}". The translation uses the ICU Message Format, so please preserve the placeholders, variables, and syntax exactly as they are. Here are examples of translations for this key in other languages: \n${examples}\n\nYour task is to translate this key into the language "${missedLang}". Ensure that your response is in the "${missedLang}" language and retains any formatting, placeholders, or markup (e.g., HTML tags, ICU syntax) from the examples. Please provide only the translated text in your response.`
             prompts.push(prompt)
         }
     }
@@ -145,15 +247,22 @@ async function main () {
     const gptquery = path.join(__dirname, '..', 'bin', 'gptquery.js')
     const langDir = path.join(root, 'lang')
 
-    const translations = await loadTranslations(langDir)
-    const missingKeysReport = await validateTranslations(translations)
+    const translations = await loadStringTranslations(langDir)
+    const missingKeysReport = await validateStringTranslations(translations)
 
     if (missingKeysReport.length > 0) {
         if (shouldFix) {
-            await fixTranslations(translations, missingKeysReport, gptquery)
+            await fixStringTranslations(translations, missingKeysReport, gptquery)
         } else {
             throw new Error('Validation failed: Missing keys found in translation files')
         }
+    }
+
+    const messageData = await loadMessagesDirectories(langDir)
+    const missingFilesReport = await validateMessagesDirectories(messageData)
+
+    if (missingFilesReport.length > 0) {
+        throw new Error('Validation failed: Missing messages file found')
     }
 
     if (shouldFix) {
