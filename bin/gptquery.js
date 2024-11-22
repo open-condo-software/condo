@@ -1,12 +1,15 @@
-// NOTE: based on python version: https://gist.github.com/pahaz/17c66fd6d75b74ff307aca2b6bf942f3
 const crypto = require('crypto')
 const fs = require('fs')
 const path = require('path')
 
-const fetch = require('node-fetch') // Import fetch from node-fetch
+const fetch = require('node-fetch')
+
+const conf = require('@open-condo/config')
 
 const DEFAULT_OUTPUT_DIR = 'out'
+// NOTE: Please don't use this pattern. It's just for backward compatibility (we will drip it soon)
 const GPT_KEY_FILE = path.resolve(process.env.HOME, '.openai.key')
+// NOTE: Please don't use this pattern. It's essential for us to prevent unnecessary expenses
 const GPT_CACHE_DIR = path.resolve(process.env.HOME, '.openai.cache')
 
 function cleanAndTrimText (text) {
@@ -14,12 +17,12 @@ function cleanAndTrimText (text) {
 }
 
 function loadApiKey () {
-    if (fs.existsSync(GPT_KEY_FILE)) {
+    if (conf.OPENAI_API_KEY) {
+        return conf.OPENAI_API_KEY.trim()
+    } else if (fs.existsSync(GPT_KEY_FILE)) {
         return fs.readFileSync(GPT_KEY_FILE, 'utf-8').trim()
-    } else if (process.env.OPENAI_API_KEY) {
-        return process.env.OPENAI_API_KEY.trim()
     } else {
-        throw new Error('API key file not found and OPENAI_API_KEY environment variable is not set.')
+        throw new Error('OPENAI_API_KEY is not found!')
     }
 }
 
