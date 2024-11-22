@@ -166,7 +166,7 @@ const Message = new GQLListSchema('Message', {
             },
         ],
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender()],
     access: {
         read: access.canReadMessages,
         create: access.canManageMessages,
