@@ -3,7 +3,13 @@ const fs = require('fs').promises
 const path = require('path')
 const util = require('util')
 
+const { program } = require('commander')
+
 const execPromise = util.promisify(exec)
+
+program
+    .option('--fix', 'Automatically fix missing translation keys')
+    .description('Validate and optionally fix i18n translation files')
 
 async function writeTranslationData (translationFilePath, translationData) {
     const sortedTranslationData = Object.keys(translationData).sort().reduce((acc, key) => {
@@ -16,22 +22,23 @@ async function writeTranslationData (translationFilePath, translationData) {
 async function loadTranslations (langDir) {
     const translations = []
     try {
-        const folders = await fs.readdir(langDir)
-        for (const folderName of folders) {
-            // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
-            const fileName = `${folderName}/${folderName}.json`
-            const filePath = `${langDir}/${fileName}`
+        const entries = await fs.readdir(langDir, { withFileTypes: true });
+        for (const entry of entries) {
+            if (!entry.isDirectory()) continue
+            const folderName = entry.name
+            const filePath = path.join(langDir, folderName, `${folderName}.json`)
             console.log(`Loading file ${filePath}`)
 
             try {
+                await fs.access(filePath)
                 const data = await fs.readFile(filePath, 'utf8')
                 if (!data) {
-                    throw new Error(`Loaded file "${fileName}" seems to be empty`)
+                    throw new Error(`Loaded file "${filePath}" seems to be empty`)
                 }
                 const parsedData = JSON.parse(data)
                 translations.push([folderName, Object.keys(parsedData), parsedData])
             } catch (e) {
-                throw new Error(`Error reading or parsing file "${fileName}": ${e.message}`)
+                throw new Error(`Error reading or parsing file "${filePath}": ${e.message}`)
             }
         }
     } catch (e) {
@@ -43,8 +50,7 @@ async function loadTranslations (langDir) {
 async function saveTranslations (langDir, translations) {
     try {
         for (const [folderName, , translationData] of translations) {
-            // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
-            const filePath = path.join(langDir, `${folderName}/${folderName}.json`)
+            const filePath = path.join(langDir, folderName, `${folderName}.json`)
             console.log(`Saving file ${filePath}`)
             await writeTranslationData(filePath, translationData)
         }
@@ -87,7 +93,7 @@ async function validateTranslations (translations) {
 async function fixTranslations (translations, missingKeysReport, gptquery) {
     console.log('Fixing translations...')
 
-    const tmpFilePath = path.join(__dirname, '..', '.gpt_translation_prompts.txt')
+    const tmpFilePath = path.join('.', '.gpt_translation_prompts.txt')
     const prompts = []
 
     for (const { lang: missedLang, missingKeys } of missingKeysReport) {
@@ -132,8 +138,7 @@ async function fixTranslations (translations, missingKeysReport, gptquery) {
 }
 
 async function main () {
-    const args = process.argv.slice(2)
-    const shouldFix = args.includes('--fix')
+    const { fix: shouldFix } = program.parse().opts()
 
     const name = path.basename(process.cwd())
     const root = path.join(__dirname, '..', 'apps', name)
