@@ -1,3 +1,9 @@
+import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
+import {
+    AuthenticatedUserDocument,
+    GetActiveOrganizationEmployeeDocument,
+    useGetProcessingTasksQuery,
+} from '@app/condo/gql'
 import { CacheProvider } from '@emotion/core'
 import { ConfigProvider } from 'antd'
 import enUS from 'antd/lib/locale/en_US'
@@ -7,6 +13,8 @@ import dayjs from 'dayjs'
 import { cache } from 'emotion'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
+import { NextPage, NextPageContext } from 'next'
+import App, { AppContext } from 'next/app'
 import getConfig from 'next/config'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -16,14 +24,14 @@ import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEf
 import { useFeatureFlags, FeaturesReady, withFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import * as AllIcons from '@open-condo/icons'
 import { extractReqLocale } from '@open-condo/locales/extractReqLocale'
-import { withApollo, WithApolloProps } from '@open-condo/next/apollo'
+import { isSSR } from '@open-condo/miniapp-utils'
+import { withApollo } from '@open-condo/next/apollo'
 import { useAuth, withAuth } from '@open-condo/next/auth'
 import { useIntl, withIntl } from '@open-condo/next/intl'
 import { useOrganization, withOrganization } from '@open-condo/next/organization'
 
 import { useBankReportTaskUIInterface } from '@condo/domains/banking/hooks/useBankReportTaskUIInterface'
 import { useBankSyncTaskUIInterface } from '@condo/domains/banking/hooks/useBankSyncTaskUIInterface'
-import { BILLING_RECEIPT_SERVICE_FIELD_NAME } from '@condo/domains/billing/constants/constants'
 import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/domains/billing/utils/clientSchema'
 import BaseLayout, { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
@@ -35,8 +43,6 @@ import { MenuItem } from '@condo/domains/common/components/MenuItem'
 import PopupSmart from '@condo/domains/common/components/PopupSmart'
 import { PostMessageProvider } from '@condo/domains/common/components/PostMessageProvider'
 import { ServiceProblemsAlert } from '@condo/domains/common/components/ServiceProblemsAlert'
-import { SetupTelegramNotificationsBanner } from '@condo/domains/common/components/SetupTelegramNotificationsBanner'
-import { TASK_STATUS } from '@condo/domains/common/components/tasks'
 import { TasksContextProvider } from '@condo/domains/common/components/tasks/TasksContextProvider'
 import { TrackingProvider } from '@condo/domains/common/components/TrackingContext'
 import UseDeskWidget from '@condo/domains/common/components/UseDeskWidget'
@@ -56,7 +62,20 @@ import {
 } from '@condo/domains/common/constants/menuCategories'
 import { useHotCodeReload } from '@condo/domains/common/hooks/useHotCodeReload'
 import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
+import { PageComponentType } from '@condo/domains/common/types'
 import { messagesImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
+import { apolloHelperOptions } from '@condo/domains/common/utils/next/apollo'
+import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
+import { nextRedirect } from '@condo/domains/common/utils/next/helpers'
+import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
+import {
+    useVitalCookies,
+    SSRCookiesContext,
+    useSSRCookiesContext,
+    extractVitalCookies,
+} from '@condo/domains/common/utils/next/ssr'
+import { GetPrefetchedDataReturnRedirect } from '@condo/domains/common/utils/next/types'
+import { nonNull } from '@condo/domains/common/utils/nonNull'
 import { useContactExportTaskUIInterface } from '@condo/domains/contact/hooks/useContactExportTaskUIInterface'
 import { useMeterReadingExportTaskUIInterface } from '@condo/domains/meter/hooks/useMeterReadingExportTaskUIInterface'
 import { useMeterReadingsImportTaskUIInterface } from '@condo/domains/meter/hooks/useMeterReadingsImportTaskUIInterface'
@@ -70,7 +89,6 @@ import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess
 import { TourProvider } from '@condo/domains/onboarding/contexts/TourContext'
 import { useNoOrganizationToolTip } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
-import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
 import {
     SubscriptionProvider,
     useServiceSubscriptionContext,
@@ -86,15 +104,18 @@ import {
 } from '@condo/domains/ticket/hooks/useTicketDocumentGenerationTaskUIInterface'
 import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useTicketExportTaskUIInterface'
 import { CookieAgreement } from '@condo/domains/user/components/CookieAgreement'
-import { USER_QUERY } from '@condo/domains/user/gql'
+
+import Error404Page from './404'
+import Error500Page from './500'
+
 import '@condo/domains/common/components/wdyr'
 import '@open-condo/ui/dist/styles.min.css'
 import '@open-condo/ui/dist/style-vars/variables.css'
 import '@condo/domains/common/components/containers/global-styles.css'
 
-const { publicRuntimeConfig: { defaultLocale, sppConfig, disableSSR } } = getConfig()
 
-const IS_SSR_DISABLED = Boolean(disableSSR && disableSSR === 'true')
+const { publicRuntimeConfig: { defaultLocale, sppConfig, isDisabledSsr } } = getConfig()
+
 
 const ANT_LOCALES = {
     ru: ruRU,
@@ -381,52 +402,30 @@ const TasksProvider = ({ children }) => {
     // ... another interfaces of tasks should be used here
 
     // Load all tasks with 'processing' status
-    const { records: ticketDocumentGenerationTasks } = TicketDocumentGenerationTaskUIInterface.storage.useTasks(
-        { status: TASK_STATUS.PROCESSING, today: true }, user
-    )
-    const { records: ticketExportTasks } = TicketExportTaskUIInterface.storage.useTasks(
-        { status: TASK_STATUS.PROCESSING, today: true }, user
-    )
-    const { records: incidentExportTasks } = IncidentExportTaskUIInterface.storage.useTasks(
-        { status: TASK_STATUS.PROCESSING, today: true }, user
-    )
-    const { records: contactExportTasks } = ContactExportTaskUIInterface.storage.useTasks(
-        { status: TASK_STATUS.PROCESSING, today: true }, user
-    )
-    const { records: bankSyncTasks } = BankSyncTaskUIInterface.storage.useTasks(
-        { status: TASK_STATUS.PROCESSING, today: true }, user
-    )
-    const { records: bankReportTasks } = BankReportTaskUIInterface.storage.useTasks(
-        { status: TASK_STATUS.PROCESSING, today: true }, user
-    )
-    const { records: miniAppTasks } = MiniAppTaskUIInterface.storage.useTasks(
-        { status: TASK_STATUS.PROCESSING, today: true }, user
-    )
-    const { records: newsItemRecipientsTask } = NewsItemRecipientsExportTaskUIInterface.storage.useTasks(
-        { status: TASK_STATUS.PROCESSING, today: true }, user
-    )
-    const { records: meterReadingsImportTask } = MeterReadingsImportTaskUIInterface.storage.useTasks(
-        { status: TASK_STATUS.PROCESSING, today: true }, user
-    )
-    const { records: meterReadingsExportTask } = MeterReadingExportTaskUIInterface.storage.useTasks(
-        { status: TASK_STATUS.PROCESSING, today: true }, user
+    const { data, loading: isProcessingTasksLoading } = useGetProcessingTasksQuery({
+        variables: { userId: user?.id || null, createdAtGte: dayjs().startOf('day').toISOString() },
+        skip: !user?.id,
+    })
+
+    const { records: miniAppTasks, loading: isMiniAppTasksLoading } = MiniAppTaskUIInterface.storage.useTasks(
+        { status: 'processing', today: true }, user
     )
     // ... another task records should be loaded here
 
     const initialTaskRecords = useMemo(
         () => [
+            ...(data?.allBankAccountReportTasks?.filter(nonNull) || []),
+            ...(data?.allBankSyncTasks?.filter(nonNull) || []),
+            ...(data?.allContactExportTasks?.filter(nonNull) || []),
+            ...(data?.allIncidentExportTasks?.filter(nonNull) || []),
+            ...(data?.allMeterReadingExportTasks?.filter(nonNull) || []),
+            ...(data?.allMeterReadingsImportTasks?.filter(nonNull) || []),
+            ...(data?.allNewsItemRecipientsExportTasks?.filter(nonNull) || []),
+            ...(data?.allTicketDocumentGenerationTasks?.filter(nonNull) || []),
+            ...(data?.allTicketExportTasks?.filter(nonNull) || []),
             ...miniAppTasks,
-            ...ticketDocumentGenerationTasks,
-            ...ticketExportTasks,
-            ...incidentExportTasks,
-            ...contactExportTasks,
-            ...bankSyncTasks,
-            ...bankReportTasks,
-            ...newsItemRecipientsTask,
-            ...meterReadingsImportTask,
-            ...meterReadingsExportTask,
         ],
-        [miniAppTasks, ticketDocumentGenerationTasks, ticketExportTasks, incidentExportTasks, contactExportTasks, bankSyncTasks, bankReportTasks, newsItemRecipientsTask, meterReadingsImportTask, meterReadingsExportTask],
+        [data, miniAppTasks],
     )
     const uiInterfaces = useMemo(() => ({
         MiniAppTask: MiniAppTaskUIInterface,
@@ -441,10 +440,16 @@ const TasksProvider = ({ children }) => {
         MeterReadingExportTask: MeterReadingExportTaskUIInterface,
     }), [MiniAppTaskUIInterface, TicketDocumentGenerationTaskUIInterface, TicketExportTaskUIInterface, IncidentExportTaskUIInterface, ContactExportTaskUIInterface, BankSyncTaskUIInterface, BankReportTaskUIInterface, NewsItemRecipientsExportTaskUIInterface, MeterReadingsImportTaskUIInterface, MeterReadingExportTaskUIInterface])
 
+    const isInitialLoading =
+        !! user?.id
+        || (isProcessingTasksLoading || !data)
+        || isMiniAppTasksLoading
+
     return (
         <TasksContextProvider
             preloadedTaskRecords={initialTaskRecords}
             uiInterfaces={uiInterfaces}
+            isInitialLoading={isInitialLoading}
         >
             {children}
         </TasksContextProvider>
@@ -484,7 +489,6 @@ const MyApp = ({ Component, pageProps }) => {
             </Head>
             <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize='large'>
                 <CacheProvider value={cache}>
-                    <SetupTelegramNotificationsBanner />
                     <GlobalStyle/>
                     {shouldDisplayCookieAgreement && <CookieAgreement/>}
                     <LayoutContextProvider serviceProblemsAlert={<ServiceProblemsAlert />}>
@@ -529,44 +533,145 @@ const MyApp = ({ Component, pageProps }) => {
     )
 }
 
-/*
-    Configuration for `InMemoryCache` of Apollo
-    Add fields, related to pagination strategies of Apollo.
-    Items of some GraphQL global fields needs to be appended to list,
-    when paginated, rather than to be displayed as a slice of data, —
-    its like "Infinite scrolling" UI pattern. For example, fetching
-    more changes of a ticket on button click.
-    For those items, we need to set `concatPagination` strategy.
-    https://www.apollographql.com/docs/react/pagination/core-api/
- */
-const apolloCacheConfig: WithApolloProps['apolloCacheConfig'] = {
-    typePolicies: {
-        [BILLING_RECEIPT_SERVICE_FIELD_NAME]: {
-            // avoiding of building cache from ID on client, since Service ID is not UUID and will be repeated
-            keyFields: false,
-        },
-        BuildingSection: {
-            keyFields: false,
-        },
-        BuildingFloor: {
-            keyFields: false,
-        },
-        BuildingUnit: {
-            keyFields: false,
-        },
-    },
+type NextAppContext = (AppContext & NextPageContext) & {
+    apolloClient: ApolloClient<NormalizedCacheObject>
+    Component: PageComponentType
+}
+
+if (!isDisabledSsr || !isSSR()) {
+    MyApp.getInitialProps = async (appContext: NextAppContext): Promise<{ pageProps: Record<string, any> }> => {
+        try {
+            const pageContext = appContext?.ctx
+            const apolloClient = appContext.apolloClient
+
+            if (!apolloClient) throw new Error('no appContext.apolloClient!')
+
+            let initialProps: Record<string, any>,
+                prefetchedData: Record<string, any>
+            if (appContext.Component.getInitialProps && appContext.Component.getPrefetchedData) {
+                throw new Error('You cannot use getInitialProps and getPrefetchedData together')
+            }
+            if (appContext.Component.getInitialProps) {
+                ({ pageProps: initialProps } = await App.getInitialProps(appContext))
+            }
+
+            const skipUserPrefetch = appContext.Component.skipUserPrefetch || false
+
+            let redirectToAuth: GetPrefetchedDataReturnRedirect
+            let user: Parameters<PageComponentType['getPrefetchedData']>[0]['user'] = null
+            if (!skipUserPrefetch) {
+                ({ redirectToAuth, user } = await prefetchAuthOrRedirect(apolloClient, pageContext))
+
+                const skipRedirectToAuth = appContext.Component.skipRedirectToAuth || false
+                if (redirectToAuth && !skipRedirectToAuth) return await nextRedirect(pageContext, redirectToAuth.redirect)
+            }
+
+            let activeEmployee: Parameters<PageComponentType['getPrefetchedData']>[0]['activeEmployee'] = null
+            if (user) {
+                ({ activeEmployee } = await prefetchOrganizationEmployee({
+                    apolloClient,
+                    context: pageContext,
+                    userId: user.id,
+                }))
+            }
+
+            if (appContext.Component.getPrefetchedData) {
+                const _prefetchedData = await appContext.Component.getPrefetchedData({
+                    user, redirectToAuth, context: pageContext, apolloClient, activeEmployee,
+                })
+
+                const isValidPrefetchedData = typeof _prefetchedData === 'object'
+                    && ('notFound' in _prefetchedData || 'redirect' in _prefetchedData || 'props' in _prefetchedData)
+                    && Object.keys(_prefetchedData).length === 1
+                if (!isValidPrefetchedData) throw new Error('getPrefetchedData() should return "notFound", "redirect" or "props"')
+
+                if ('notFound' in _prefetchedData) {
+                    if (_prefetchedData.notFound === true) {
+                        prefetchedData = { statusCode: 404 }
+                    }
+                }
+                if ('redirect' in _prefetchedData) {
+                    return await nextRedirect(pageContext, _prefetchedData.redirect)
+                }
+                if ('props' in _prefetchedData) {
+                    prefetchedData = _prefetchedData.props
+                }
+            }
+
+            let pageProps: Record<string, any> = {
+                ...initialProps,
+                ...prefetchedData,
+            };
+
+            ({ props: pageProps } = extractVitalCookies(pageContext.req, pageContext.res, {
+                props: pageProps,
+            }))
+
+            return { pageProps }
+        } catch (error) {
+            console.error('Error while running `MyApp.getInitialProps', error)
+            return { pageProps: { statusCode: 500 } }
+        }
+    }
+}
+
+const withCookies = () => (PageComponent: NextPage): NextPage => {
+    const WithCookies = (props) => {
+        const ssrCookies = useVitalCookies(props?.pageProps)
+
+        return (
+            <SSRCookiesContext.Provider value={ssrCookies}>
+                <PageComponent {...props} />
+            </SSRCookiesContext.Provider>
+        )
+    }
+
+    // Set the correct displayName in development
+    if (process.env.NODE_ENV !== 'production') {
+        const displayName =
+            PageComponent.displayName || PageComponent.name || 'Component'
+        WithCookies.displayName = `withCookies(${displayName})`
+    }
+
+    WithCookies.getInitialProps = PageComponent.getInitialProps
+
+    return WithCookies
+}
+
+const useInitialEmployeeId = () => {
+    const { organizationLinkId: employeeId } = useSSRCookiesContext()
+    return { employeeId }
+}
+
+const withError = () => (PageComponent: NextPage): NextPage => {
+    const WithError = (props) => {
+        const statusCode = props?.pageProps?.statusCode
+        if (statusCode && statusCode === 404) return (
+            <PageComponent {...props} Component={Error404Page} statusCode={statusCode} />
+        )
+        if (statusCode && statusCode >= 400) return (
+            <PageComponent {...props} Component={Error500Page} statusCode={statusCode} />
+        )
+
+        return <PageComponent {...props} />
+    }
+
+    WithError.getInitialProps = PageComponent.getInitialProps
+
+    return WithError
 }
 
 export default (
-    withIntl({ ssr: !IS_SSR_DISABLED, messagesImporter, extractReqLocale, defaultLocale })(
-        withApollo({ ssr: !IS_SSR_DISABLED, apolloCacheConfig })(
-            withAuth({ ssr: !IS_SSR_DISABLED, USER_QUERY })(
-                withOrganization({
-                    ssr: !IS_SSR_DISABLED,
-                    GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY: GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,
-                })(
-                    withFeatureFlags({ ssr: !IS_SSR_DISABLED })(
-                        MyApp
+    withCookies()(
+        withApollo({ legacy: false, ssr: !isDisabledSsr, apolloHelperOptions })(
+            withAuth({ legacy: false, USER_QUERY: AuthenticatedUserDocument })(
+                withIntl({ ssr: !isDisabledSsr, messagesImporter, extractReqLocale, defaultLocale })(
+                    withOrganization({ legacy: false, GET_ORGANIZATION_EMPLOYEE_QUERY: GetActiveOrganizationEmployeeDocument, useInitialEmployeeId })(
+                        withFeatureFlags({ ssr: !isDisabledSsr })(
+                            withError()(
+                                MyApp
+                            )
+                        )
                     )
                 )
             )

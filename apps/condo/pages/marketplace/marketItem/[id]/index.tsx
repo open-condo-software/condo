@@ -21,6 +21,7 @@ import { ImagesUploadList } from '@condo/domains/common/components/ImagesUploadL
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
+import { PageComponentType } from '@condo/domains/common/types'
 import { getObjectCreatedMessage } from '@condo/domains/common/utils/date.utils'
 import { getAddressDetails } from '@condo/domains/common/utils/helpers'
 import { MarketItemReadPermissionRequired } from '@condo/domains/marketplace/components/PageAccess'
@@ -266,7 +267,7 @@ const PricesBlock = ({ marketItemId }) => {
     )
 }
 
-const MarketItemIdPage = () => {
+const MarketItemIdPage: PageComponentType = () => {
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     const EditMessage = intl.formatMessage({ id: 'Edit' })
@@ -404,6 +405,6 @@ const MarketItemIdPage = () => {
     )
 }
 
-MarketItemIdPage.requiredPermission = MarketItemReadPermissionRequired
+MarketItemIdPage.requiredAccess = MarketItemReadPermissionRequired
 
 export default MarketItemIdPage

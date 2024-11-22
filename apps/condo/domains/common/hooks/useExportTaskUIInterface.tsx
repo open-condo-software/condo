@@ -1,63 +1,51 @@
 import {
-    ContactExportTask as ContactExportTaskType,
-    IncidentExportTask as IncidentExportTaskType,
-    NewsItemRecipientsExportTask as NewsItemRecipientsExportTaskType,
-    TicketExportTask as TicketExportTaskType,
-    MeterReadingsImportTask as MeterReadingsImportTaskType,
-    MeterReadingExportTask as MeterReadingExportTaskType,
-} from '@app/condo/schema'
-import get from 'lodash/get'
+    type GetMeterReadingExportTasksQuery,
+    type GetContactExportTasksQuery,
+    type GetIncidentExportTasksQuery,
+    type GetTicketExportTasksQuery,
+    type GetNewsItemRecipientsExportTasksQuery,
+} from '@app/condo/gql'
 import { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
-import { ITask, TASK_REMOVE_STRATEGY } from '@condo/domains/common/components/tasks'
+import { BaseTaskRecord, ITask, TASK_REMOVE_STRATEGY } from '@condo/domains/common/components/tasks'
 import { TasksCondoStorage } from '@condo/domains/common/components/tasks/storage/TasksCondoStorage'
 import { TASK_COMPLETED_STATUS } from '@condo/domains/common/constants/tasks'
 import { useDownloadFileFromServer } from '@condo/domains/common/hooks/useDownloadFileFromServer'
-import { ContactExportTask } from '@condo/domains/contact/utils/clientSchema'
-import { MeterReadingsImportTask } from '@condo/domains/meter/utils/clientSchema'
-import { MeterReadingExportTask } from '@condo/domains/meter/utils/clientSchema'
-import { NewsItemRecipientsExportTask } from '@condo/domains/news/utils/clientSchema'
-import { IncidentExportTask, TicketExportTask } from '@condo/domains/ticket/utils/clientSchema'
+
+import type { DocumentNode } from '@apollo/client'
 
 
-type ExportTaskTypes =
-    MeterReadingExportTaskType
-    | IncidentExportTaskType
-    | TicketExportTaskType
-    | ContactExportTaskType
-    | (NewsItemRecipientsExportTaskType & { exportedRecordsCount: number, totalRecordsCount: number })
-    | (MeterReadingsImportTaskType & { exportedRecordsCount: number, totalRecordsCount: number })
-
-type ExportTaskClientSchemas =
-    typeof MeterReadingExportTask
-    | typeof IncidentExportTask
-    | typeof TicketExportTask
-    | typeof ContactExportTask
-    | typeof NewsItemRecipientsExportTask
-    | typeof MeterReadingsImportTask
-
-type ExportTaskSchemaNames =
-    'MeterReadingExportTask'
-    | 'IncidentExportTask'
-    | 'TicketExportTask'
-    | 'ContactExportTask'
-    | 'NewsItemRecipientsExportTask'
-    | 'MeterReadingsImportTask'
-
-type UseExportTaskUIInterfaceProps = {
-    clientSchema: ExportTaskClientSchemas
-    schemaName: ExportTaskSchemaNames
+type ExportTaskMergedType = {
+    MeterReadingExportTask: GetMeterReadingExportTasksQuery['tasks'][number]
+    IncidentExportTask: GetIncidentExportTasksQuery['tasks'][number]
+    TicketExportTask: GetTicketExportTasksQuery['tasks'][number]
+    ContactExportTask: GetContactExportTasksQuery['tasks'][number]
+    NewsItemRecipientsExportTask: GetNewsItemRecipientsExportTasksQuery['tasks'][number] & {
+        exportedRecordsCount: number
+        totalRecordsCount: number
+    }
 }
 
-type UseExportTaskUIInterfaceReturn = { TaskUIInterface: ITask }
+type ExportTaskNames = keyof ExportTaskMergedType
 
-export const useExportTaskUIInterface = <T extends ExportTaskTypes> ({
-    clientSchema,
+type UseExportTaskUIInterfaceProps<TExportTaskName extends ExportTaskNames> = {
+    schemaName: TExportTaskName
+    getTasksDocument: DocumentNode
+    createTaskDocument: DocumentNode
+    updateTaskDocument: DocumentNode
+}
+
+type UseExportTaskUIInterfaceReturn<TTaskRecord extends BaseTaskRecord> = { TaskUIInterface: ITask<TTaskRecord> }
+
+export const useExportTaskUIInterface = <TExportTaskName extends keyof ExportTaskMergedType, TTaskRecord extends ExportTaskMergedType[TExportTaskName] = ExportTaskMergedType[TExportTaskName]> ({
     schemaName,
-}: UseExportTaskUIInterfaceProps): UseExportTaskUIInterfaceReturn => {
+    getTasksDocument,
+    createTaskDocument,
+    updateTaskDocument,
+}: UseExportTaskUIInterfaceProps<TExportTaskName>): UseExportTaskUIInterfaceReturn<TTaskRecord> => {
     const intl = useIntl()
     const ExportTaskProgressTitle = intl.formatMessage({ id: `tasks.${schemaName}.progress.title` })
     const ExportTaskProgressDescriptionPreparing = intl.formatMessage({ id: `tasks.${schemaName}.progress.description.preparing` })
@@ -67,9 +55,9 @@ export const useExportTaskUIInterface = <T extends ExportTaskTypes> ({
 
     const { downloadFile } = useDownloadFileFromServer()
 
-    const tryToDownloadFile = useCallback(async (taskRecord: T) => {
-        const publicUrl = get(taskRecord, 'file.publicUrl')
-        const filename = get(taskRecord, 'file.originalFilename')
+    const tryToDownloadFile = useCallback(async (taskRecord: TTaskRecord) => {
+        const publicUrl = taskRecord?.file?.publicUrl
+        const filename = taskRecord?.file?.originalFilename
         if (publicUrl && filename) {
             await downloadFile({ url: publicUrl, name: filename })
         } else {
@@ -84,16 +72,20 @@ export const useExportTaskUIInterface = <T extends ExportTaskTypes> ({
      * We need this separation of behavior from data to determine which behaviour
      * to use for initial loaded tasks by `__typename` field value
      */
-    const TaskUIInterface: ITask = useMemo(() => ({
-        storage: new TasksCondoStorage({ clientSchema }),
+    const TaskUIInterface: ITask<TTaskRecord> = useMemo(() => ({
+        storage: new TasksCondoStorage({
+            getTasksDocument,
+            createTaskDocument,
+            updateTaskDocument,
+        }),
         removeStrategy: [TASK_REMOVE_STRATEGY.PANEL],
         translations: {
             title: () => ExportTaskProgressTitle,
             description: (taskRecord) => {
-                const taskStatus = get(taskRecord, 'status')
-                const totalRecordsCount = get(taskRecord, 'totalRecordsCount')
-                const exportedRecordsCount = get(taskRecord, 'exportedRecordsCount')
-                const publicUrl = get(taskRecord, 'file.publicUrl')
+                const taskStatus = taskRecord?.status
+                const totalRecordsCount = taskRecord?.totalRecordsCount
+                const exportedRecordsCount = taskRecord?.exportedRecordsCount
+                const publicUrl = taskRecord?.file?.publicUrl
 
                 return taskStatus === TASK_COMPLETED_STATUS
                     ? (
@@ -116,26 +108,26 @@ export const useExportTaskUIInterface = <T extends ExportTaskTypes> ({
                     ) : !totalRecordsCount || !exportedRecordsCount
                         ? ExportTaskProgressDescriptionPreparing
                         : ExportTaskProgressDescriptionProcessing
-                            .replace('{exported}', exportedRecordsCount || 0)
-                            .replace('{total}', totalRecordsCount || 0)
+                            .replace('{exported}', String(exportedRecordsCount || 0))
+                            .replace('{total}', String(totalRecordsCount || 0))
             },
             link: (taskRecord) => {
-                const taskStatus = get(taskRecord, 'status')
+                const taskStatus = taskRecord?.status
                 if (taskStatus === TASK_COMPLETED_STATUS) {
                     return {
                         label: ExportTaskProgressDescriptionCompletedLinkLabel,
-                        url: get(taskRecord, 'file.publicUrl'),
+                        url: taskRecord?.file?.publicUrl,
                     }
                 }
                 return null
             },
         },
-        calculateProgress: (totalRecordsCount: T) => {
+        calculateProgress: (totalRecordsCount: TTaskRecord) => {
             return Math.floor(totalRecordsCount.exportedRecordsCount / totalRecordsCount.totalRecordsCount * 100)
         },
         onComplete: tryToDownloadFile,
         onCancel: tryToDownloadFile,
-    }), [ExportTaskProgressDescriptionCompleted, ExportTaskProgressDescriptionPreparing, ExportTaskProgressDescriptionProcessing, ExportTaskProgressTitle, ExportTaskProgressDescriptionCompletedLinkLabel, clientSchema, tryToDownloadFile])
+    }), [getTasksDocument, createTaskDocument, updateTaskDocument, tryToDownloadFile, ExportTaskProgressTitle, ExportTaskProgressDescriptionCompleted, ExportTaskProgressDescriptionCompletedLinkLabel, ExportTaskProgressDescriptionPreparing, ExportTaskProgressDescriptionProcessing])
 
     return { TaskUIInterface }
 }

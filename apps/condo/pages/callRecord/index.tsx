@@ -29,6 +29,7 @@ import { TableFiltersContainer } from '@condo/domains/common/components/TableFil
 import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { PageComponentType } from '@condo/domains/common/types'
 import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
 import { getFiltersFromQuery, updateQuery } from '@condo/domains/common/utils/helpers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -38,10 +39,6 @@ import { useCallRecordTableColumns } from '@condo/domains/ticket/hooks/useCallRe
 import { useCallRecordTableFilters } from '@condo/domains/ticket/hooks/useCallRecordTableFilters'
 import { CallRecordFragment } from '@condo/domains/ticket/utils/clientSchema'
 
-export interface ICallRecordIndexPage extends React.FC {
-    headerAction?: JSX.Element
-    requiredAccess?: React.FC
-}
 
 export type BaseQueryType = { organization: OrganizationWhereInput }
 
@@ -60,7 +57,7 @@ const StartedAtFilter = ({ placeholder, field }) => {
             omit(filtersFromQuery, field) : { ...filtersFromQuery, [field]: value.toISOString() }
 
         const newParameters = getFiltersQueryData(newFilters)
-        await updateQuery(router, { newParameters }, { resetOldParameters: false })
+        await updateQuery(router, { newParameters }, { resetOldParameters: false, shallow: true })
     }, 400), [field, filtersFromQuery, router])
 
     const handleDateChange = useCallback((value) => updateStartedAtFilters(value), [updateStartedAtFilters])
@@ -245,7 +242,7 @@ export const CallRecordsPageContent = (props) => {
     )
 }
 
-const CallRecordsPage: ICallRecordIndexPage = () => {
+const CallRecordsPage: PageComponentType = () => {
     const filterMetas = useCallRecordTableFilters()
     const { organization, link } = useOrganization()
     const organizationId = get(organization, 'id')

@@ -1,11 +1,10 @@
 import { notification } from 'antd'
 import filter from 'lodash/filter'
-import findIndex from 'lodash/findIndex'
-import get from 'lodash/get'
 import identity from 'lodash/identity'
 import isEmpty from 'lodash/isEmpty'
 import uniqBy from 'lodash/uniqBy'
-import React, { useEffect, useState, useReducer, useRef } from 'react'
+import React, { useEffect, useState, useReducer, useRef, useContext, ReactElement } from 'react'
+
 
 import { useAuth } from '@open-condo/next/auth'
 
@@ -14,24 +13,31 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 
 import { closeTasksProgress, displayTasksProgress } from './TaskProgress'
 
-import { ITask, ITasksContext, ITaskTrackableItem, TaskRecord, TasksContext, TASK_REMOVE_STRATEGY } from './index'
+import { ITask, ITasksContext, ITaskTrackableItem, TASK_REMOVE_STRATEGY, BaseTaskRecord } from './index'
+
+
+// NOTE: Exact value cannot be provided here, because it is build in `TasksContextProvider` component and interacts with its internals
+const TasksContext = React.createContext<ITasksContext>({} as ITasksContext)
+
+const useTasks = <TTaskRecord extends BaseTaskRecord = BaseTaskRecord> (): ITasksContext<TTaskRecord> => useContext<ITasksContext<TTaskRecord>>(TasksContext as React.Context<ITasksContext<TTaskRecord>>)
 
 
 // Map of task schema name to its UI interface implementation
-type TaskUIInterfacesMap = Record<string, ITask>
+type TaskUIInterfacesMap<TTaskRecord extends BaseTaskRecord = BaseTaskRecord> = Record<string, ITask<TTaskRecord>>
 
-type ITasksContextProviderProps = {
-    preloadedTaskRecords: TaskRecord[]
-    uiInterfaces: TaskUIInterfacesMap
+type ITasksContextProviderProps<TTaskRecord extends BaseTaskRecord = BaseTaskRecord> = {
+    preloadedTaskRecords: Array<TTaskRecord>
+    uiInterfaces: TaskUIInterfacesMap<TTaskRecord>
     children: React.ReactNode
+    isInitialLoading?: boolean
 }
 
 /**
  * For each task record determines appropriate UI implementation and composes trackable task item
  */
-const buildTrackableTasksFrom = (records: TaskRecord[], uiInterfaces: TaskUIInterfacesMap): ITaskTrackableItem[] => {
+const buildTrackableTasksFrom = <TTaskRecord extends BaseTaskRecord = BaseTaskRecord> (records: Array<TTaskRecord>, uiInterfaces: TaskUIInterfacesMap<TTaskRecord>): Array<ITaskTrackableItem<TTaskRecord>> => {
     const trackableTasks = records.map(record => {
-        const typeName = get(record, '__typename')
+        const typeName = record?.__typename
         if (!typeName) {
             console.error('Error: Result of GraphQL query for task should contain "__typename" property', record)
             return null
@@ -54,7 +60,8 @@ const buildTrackableTasksFrom = (records: TaskRecord[], uiInterfaces: TaskUIInte
  * Abstract implementation of displaying new worker tasks and tracking its progress
  * TODO: Progress should be tracked after closing progress panel
  */
-const TasksContextProvider: React.FC<ITasksContextProviderProps> = ({ preloadedTaskRecords = [], uiInterfaces, children }) => {
+const TasksContextProvider = <TTaskRecord extends BaseTaskRecord = BaseTaskRecord> (props: ITasksContextProviderProps<TTaskRecord>): ReactElement | null => {
+    const { preloadedTaskRecords = [], uiInterfaces, isInitialLoading = false,  children } = props
     const { breakpoints: { TABLET_LARGE } } = useLayoutContext()
     const { user } = useAuth()
     /**
@@ -67,7 +74,7 @@ const TasksContextProvider: React.FC<ITasksContextProviderProps> = ({ preloadedT
     const [notificationApi, contextHolder] = notification.useNotification()
     // NOTE: Initial state of `tasks` cannot be initialized with `preloadedTaskRecords` prop, because a hook in parent component that loads tasks
     // will rerender this component as data comes, so, the state will not be reinitialized.
-    const [tasks, setTasks] = useState<ITaskTrackableItem[]>([])
+    const [tasks, setTasks] = useState<Array<ITaskTrackableItem<TTaskRecord>>>([])
     // Timestamp of latest update in tasks without changing length of trackable tasks array
     // Used to trigger `useEffects` when tasks are updated or deleted. Relying on length of tasks is not enough in effects
     const [lastUpdated, forceUpdate] = useReducer(x => x + 1, 0)
@@ -120,14 +127,14 @@ const TasksContextProvider: React.FC<ITasksContextProviderProps> = ({ preloadedT
     }, [TABLET_LARGE, tasks, notificationApi])
 
     function findExistingTaskById (id: string): [ITaskTrackableItem | null, number] {
-        const index = findIndex(tasksRef.current, { record: { id } })
+        const index = tasksRef.current.findIndex((task) => task.record?.id === id)
         if (index === -1) {
             return [null, -1]
         }
         return [tasksRef.current[index], index]
     }
 
-    const tasksContextInterface: ITasksContext = {
+    const tasksContextInterface: ITasksContext<TTaskRecord> = {
         addTask: (newTask) => {
             // TODO(antonal): validate newTask object shape
             const [existingTask] = findExistingTaskById(newTask.record.id)
@@ -167,16 +174,17 @@ const TasksContextProvider: React.FC<ITasksContextProviderProps> = ({ preloadedT
         },
         deleteAllTasks: () => {
             tasks.forEach(task => {
-                const { storage, removeStrategy } = task
+                const { storage, removeStrategy, record } = task
 
                 if (removeStrategy.includes(TASK_REMOVE_STRATEGY.STORAGE)) {
-                    storage.useDeleteTask({}, () => null)
+                    storage.useDeleteTask({ id: record.id }, () => null)
                 }
             })
             setTasks([])
             forceUpdate()
         },
         tasks,
+        isInitialLoading,
     }
 
     return (
@@ -190,4 +198,5 @@ const TasksContextProvider: React.FC<ITasksContextProviderProps> = ({ preloadedT
 export {
     TasksContextProvider,
     TasksContext,
+    useTasks,
 }

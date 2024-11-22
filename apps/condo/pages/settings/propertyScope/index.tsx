@@ -4,10 +4,12 @@ import React from 'react'
 import { useIntl } from '@open-condo/next/intl'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageComponentType } from '@condo/domains/common/types'
 import { PropertyScopeSettingsContent } from '@condo/domains/scope/components/PropertyScopeSettingsContent'
 import { SettingsReadPermissionRequired } from '@condo/domains/settings/components/PageAccess'
 
-const PropertyScopesPage = () => {
+
+const PropertyScopesPage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.title' })
 

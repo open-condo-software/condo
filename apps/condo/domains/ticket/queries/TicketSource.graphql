@@ -1,0 +1,8 @@
+query getTicketSources ($types: [TicketSourceTypeType!]) {
+    sources: allTicketSources (where: {
+        type_in: $types
+    }) {
+        id
+        name
+    }
+}

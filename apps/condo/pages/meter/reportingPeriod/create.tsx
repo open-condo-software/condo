@@ -7,13 +7,15 @@ import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageComponentType } from '@condo/domains/common/types'
 import { MeterReportingPeriodForm } from '@condo/domains/meter/components/MeterReportingPeriodForm'
 import { MeterReadAndManagePermissionRequired } from '@condo/domains/meter/components/PageAccess'
 import { METER_TAB_TYPES, MeterReportingPeriod, METER_TYPES } from '@condo/domains/meter/utils/clientSchema'
 
+
 const CREATE_REPORTING_PERIOD_PAGE_GUTTER: RowProps['gutter'] = [0, 16]
 
-const MeterReportingPeriodCreatePage = (): JSX.Element => {
+const MeterReportingPeriodCreatePage: PageComponentType = () => {
     const intl = useIntl()
     
     const PageTitle = intl.formatMessage({ id: 'meter.reportingPeriod.AddMeterReportingPeriod' })

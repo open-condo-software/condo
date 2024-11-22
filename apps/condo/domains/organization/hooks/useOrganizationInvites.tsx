@@ -1,42 +1,46 @@
+import { OrganizationEmployee as OrganizationEmployeeType, OrganizationTypeType } from '@app/condo/schema'
 import { notification } from 'antd'
 import { get } from 'lodash'
 import React from 'react'
 
-import { useMutation } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
-import { FormattedMessage } from '@open-condo/next/intl'
-import { useIntl } from '@open-condo/next/intl'
+import { FormattedMessage, useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-
 
 import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import {
-    ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION,
-} from '@condo/domains/organization/gql'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
-import type { OrganizationWhereInput } from '@app/condo/schema'
+import type { MutationTuple } from '@apollo/client/react/types/types'
 
-interface IOrganizationInvitesHookResult {
+
+type OrganizationInvitesReturnType = {
     loading: boolean
 }
 
-export const useOrganizationInvites = (organizationFilter?: OrganizationWhereInput): IOrganizationInvitesHookResult => {
+export const useOrganizationInvites = (organizationTypes: Array<OrganizationTypeType>, acceptOrRejectMutation: MutationTuple<{ obj: OrganizationEmployeeType }, any>[0]): OrganizationInvitesReturnType => {
     const intl = useIntl()
     const AcceptMessage = intl.formatMessage({ id: 'Accept' })
     const RejectMessage = intl.formatMessage({ id: 'Reject' })
     const DoneMessage = intl.formatMessage({ id: 'OperationCompleted' })
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
+
     const { user, isAuthenticated } = useAuth()
-    const userId = get(user, 'id', null)
-    const { selectLink } = useOrganization()
-    const { objs: userInvites, refetch, loading } = OrganizationEmployee.useObjects(
-        { where: { user: { id: userId }, isAccepted: false, isRejected: false, isBlocked: false, organization: organizationFilter } },
-        { skip: !userId },
-    )
+    const userId = get(user, 'id') || null
+    const { selectEmployee } = useOrganization()
+    const { objs: userInvites, refetch, loading } = OrganizationEmployee.useObjects({
+        where: {
+            user: { id: userId },
+            isAccepted: false,
+            isRejected: false,
+            isBlocked: false,
+            organization: { type_in: organizationTypes },
+        },
+    }, {
+        skip: !userId || !organizationTypes || organizationTypes.length < 1,
+    })
     const { addNotification } = useLayoutContext()
-    const [acceptOrReject] = useMutation(ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION)
+
     const handleAcceptOrReject = async (item, action) => {
         let data = {}
         if (action === 'accept') {
@@ -48,7 +52,7 @@ export const useOrganizationInvites = (organizationFilter?: OrganizationWhereInp
         }
         const sender = getClientSideSenderInfo()
         try {
-            await acceptOrReject({ variables: { id: item.id, data: { ...data, dv: 1, sender } } })
+            await acceptOrRejectMutation({ variables: { id: item.id, data: { ...data, dv: 1, sender } } })
             notification.success({ message: DoneMessage })
         } catch (error) {
             notification.error({
@@ -56,6 +60,7 @@ export const useOrganizationInvites = (organizationFilter?: OrganizationWhereInp
                 description: error.message,
             })
         }
+
         await refetch()
     }
     if (isAuthenticated && userInvites) {
@@ -69,7 +74,7 @@ export const useOrganizationInvites = (organizationFilter?: OrganizationWhereInp
                     },
                     {
                         action: () => handleAcceptOrReject(invite, 'accept').then(() => {
-                            selectLink({ id: invite.id })
+                            selectEmployee(invite.id)
                         }),
                         title: AcceptMessage,
                     },

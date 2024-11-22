@@ -1,17 +1,25 @@
+import {
+    useGetCommonOrOrganizationContactRolesQuery,
+    useGetPropertyWithMapByIdQuery,
+    useCreateContactMutation,
+} from '@app/condo/gql'
 import { BuildingUnitSubType } from '@app/condo/schema'
 import { Col, Form, Row } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
 import { Rule } from 'rc-field-form/lib/interface'
-import React, { CSSProperties, useEffect, useMemo, useRef, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
+import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button } from '@open-condo/ui'
+import { ActionBar } from '@open-condo/ui'
 
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
+import { ButtonWithDisabledTooltip } from '@condo/domains/common/components/ButtonWithDisabledTooltip'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
@@ -19,16 +27,12 @@ import { fontSizes } from '@condo/domains/common/constants/style'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { getObjectValueFromQuery } from '@condo/domains/common/utils/query'
 import { ContactRoleSelect } from '@condo/domains/contact/components/contactRoles/ContactRoleSelect'
-import { ErrorsContainer } from '@condo/domains/contact/components/ErrorsContainer'
 import { ClientType, getClientCardTabKey } from '@condo/domains/contact/utils/clientCard'
-import { Contact, ContactRole } from '@condo/domains/contact/utils/clientSchema'
 import { usePropertyValidations } from '@condo/domains/property/components/BasePropertyForm/usePropertyValidations'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
-import { Property } from '@condo/domains/property/utils/clientSchema'
 import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
 import { UNABLE_TO_CREATE_CONTACT_DUPLICATE, UNABLE_TO_UPDATE_CONTACT_DUPLICATE } from '@condo/domains/user/constants/errors'
 
-import { ButtonWithDisabledTooltip } from '../../common/components/ButtonWithDisabledTooltip'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -72,7 +76,7 @@ export const CreateContactForm: React.FC = () => {
     const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
     const ContactDuplicateMessage = intl.formatMessage({ id: 'contact.ContactDuplicateError' })
     
-    const { organization, link } = useOrganization()
+    const { organization, role } = useOrganization()
     const router = useRouter()
 
     const [selectedPropertyId, setSelectedPropertyId] = useState(null)
@@ -81,20 +85,26 @@ export const CreateContactForm: React.FC = () => {
     const selectedUnitNameRef = useRef(selectedUnitName)
     const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitSubType>(BuildingUnitSubType.Flat)
     const selectedUnitTypeRef = useRef(selectedUnitType)
-    const [isMatchSelectedProperty, setIsMatchSelectedProperty] = useState(true)
     const [isFieldsChanged, setIsFieldsChanged] = useState(false)
 
     const initialValuesFromQuery = useMemo(() => getObjectValueFromQuery(router, ['initialValues']), [router])
     const redirectToClientCard = useMemo(() => !!get(router, ['query', 'redirectToClientCard']), [router])
 
-    const { changeMessage, phoneValidator, emailValidator, requiredValidator, specCharValidator, trimValidator } = useValidations({ allowLandLine: true })
+    const {
+        changeMessage,
+        phoneValidator,
+        emailValidator,
+        requiredValidator,
+        specCharValidator,
+        trimValidator,
+    } = useValidations({ allowLandLine: true })
     const { addressValidator } = usePropertyValidations()
     const validations: { [key: string]: Rule[] } = {
         phone: [requiredValidator, phoneValidator],
         email: [changeMessage(emailValidator, EmailErrorMessage)],
         property: [
             changeMessage(requiredValidator, PropertyErrorMessage),
-            addressValidator(selectedPropertyId, isMatchSelectedProperty),
+            addressValidator(selectedPropertyId, true),
         ],
         unit: [changeMessage(requiredValidator, UnitErrorMessage)],
         name: [
@@ -103,19 +113,25 @@ export const CreateContactForm: React.FC = () => {
         ],
     }
 
-    const { loading, obj: property } = Property.useObject({ where:{ id: selectedPropertyId ? selectedPropertyId : null } })
+    const { loading, data: propertyData } = useGetPropertyWithMapByIdQuery({
+        variables: {
+            id: selectedPropertyId,
+        },
+        skip: !selectedPropertyId,
+        fetchPolicy: 'network-only',
+    })
+    const property = propertyData?.property[0]
 
+    const { persistor } = useCachePersistor()
+    const organizationId = useMemo(() => organization?.id, [organization?.id])
     const {
         loading: isRolesLoading,
-        objs: roles,
-    } = ContactRole.useObjects({
-        where: {
-            OR: [
-                { organization_is_null: true },
-                { organization: { id: get(organization, 'id') } },
-            ],
-        },
+        data: rolesData,
+    } = useGetCommonOrOrganizationContactRolesQuery({
+        variables: { organizationId },
+        skip: !persistor || !organizationId,
     })
+    const roles = useMemo(() => rolesData?.roles?.filter(Boolean) || [], [rolesData?.roles])
 
     useEffect(() => {
         selectedPropertyIdRef.current = selectedPropertyId
@@ -140,10 +156,23 @@ export const CreateContactForm: React.FC = () => {
         },
     }
 
-    const action = Contact.useCreate({
-        organization: { connect: { id: organization.id } },
-    }, async (contact) => {
+    const [createContactMutation] = useCreateContactMutation()
+
+    const actionWithHandleSubmit = useCallback(async (data) => {
+        setIsFieldsChanged(false)
+        const response = await createContactMutation({
+            variables: {
+                data: {
+                    ...data,
+                    organization: { connect: { id: organization.id } },
+                    dv: 1,
+                    sender: getClientSideSenderInfo(),
+                },
+            },
+        })
+
         if (redirectToClientCard) {
+            const contact = response?.data?.contact
             const phone = contact.phone
             const propertyId = get(contact, 'property.id')
             if (phone && propertyId) {
@@ -152,14 +181,9 @@ export const CreateContactForm: React.FC = () => {
         } else {
             await router.push('/contact/')
         }
-    })
+    }, [createContactMutation, organization?.id, redirectToClientCard, router])
 
-    const actionWithHandleSubmit = async (data) => {
-        setIsFieldsChanged(false)
-        await action(data)
-    }
-
-    const canManageContacts = get(link, 'role.canManageContacts', false)
+    const canManageContacts = role?.canManageContacts
 
     return (
         <FormWithAction
@@ -318,7 +342,7 @@ export const CreateContactForm: React.FC = () => {
                                 <Form.Item noStyle dependencies={['phone', 'property', 'unitName', 'name']} shouldUpdate>
                                     {
                                         ({ getFieldsValue, getFieldError }) => {
-                                            const { phone, property, unitName, name } = getFieldsValue(['phone', 'property', 'unitName', 'name'])
+                                            const { phone, property, unitName } = getFieldsValue(['phone', 'property', 'unitName'])
                                             const propertyMismatchError = getFieldError('property').find((error)=>error.includes(AddressNotSelected))
                                             const hasDuplicateError = Boolean(getFieldError('_NON_FIELD_ERROR_').find((error => error.includes(ContactDuplicateError))))
                                             const hasNameSpecCharError = Boolean(getFieldError('name').find((error => error.includes(FullNameInvalidCharMessage))))

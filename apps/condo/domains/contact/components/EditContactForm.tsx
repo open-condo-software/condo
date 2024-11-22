@@ -1,11 +1,19 @@
-import { Col, Form, Row, Space, Typography } from 'antd'
+import { useApolloClient } from '@apollo/client'
+import {
+    useGetCommonOrOrganizationContactRolesQuery,
+    useGetContactByIdQuery,
+    useUpdateContactMutation,
+} from '@app/condo/gql'
+import { Col, Form, Row } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
+import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useIntl } from '@open-condo/next/intl'
-import { ActionBar, Button } from '@open-condo/ui'
+import { ActionBar, Button, Typography } from '@open-condo/ui'
 
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
@@ -14,16 +22,13 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
+import Prompt from '@condo/domains/common/components/Prompt'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { ClientType, getClientCardTabKey } from '@condo/domains/contact/utils/clientCard'
-import { Contact, ContactRole } from '@condo/domains/contact/utils/clientSchema'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 
 import { ContactRoleSelect } from './contactRoles/ContactRoleSelect'
-
-import Prompt from '../../common/components/Prompt'
-
 
 
 const INPUT_LAYOUT_PROPS = {
@@ -61,6 +66,7 @@ export const EditContactForm: React.FC = () => {
     const PromptHelpMessage = intl.formatMessage({ id: 'contact.form.prompt.message' })
 
     const { breakpoints } = useLayoutContext()
+    const client = useApolloClient()
     const router = useRouter()
     const contactId = get(router, 'query.id', '')
 
@@ -69,41 +75,52 @@ export const EditContactForm: React.FC = () => {
     }, [contactId, router])
 
     const {
-        obj: contact,
+        data: contactsData,
         loading,
         error,
-        refetch,
-    } = Contact.useObject({
-        where: {
-            id: String(contactId),
-        },
-    })
+    } = useGetContactByIdQuery({ variables: { id: contactId } })
+    const filteredContacts = contactsData?.contacts?.filter(Boolean)
+    const contact = Array.isArray(filteredContacts) && filteredContacts.length > 0 ? filteredContacts[0] : null
+    const organizationId = contact?.organization?.id
 
+    const { persistor } = useCachePersistor()
     const {
-        objs: roles,
-    } = ContactRole.useObjects({
-        where: {
-            OR: [
-                { organization_is_null: true },
-                { organization: { id: get(contact, 'organization.id', null) } },
-            ],
-        },
+        data: rolesData,
+    } = useGetCommonOrOrganizationContactRolesQuery({
+        variables: { organizationId },
+        skip: !persistor || !organizationId,
     })
+    const roles = rolesData?.roles || []
 
     const redirectToClientCard = useMemo(() => !!get(router, ['query', 'redirectToClientCard']), [router])
 
-    const contactUpdateAction = Contact.useUpdate({}, async (contact) => {
-        await refetch()
+    const [updateContactMutation] = useUpdateContactMutation()
+    const handleUpdate = useCallback(async (formValues) => {
+        const response = await updateContactMutation({
+            variables: {
+                id: contactId,
+                data: {
+                    ...formValues,
+                    dv: 1,
+                    sender: getClientSideSenderInfo(),
+                },
+            },
+        })
+
         if (redirectToClientCard) {
+            const contact = response?.data?.contact
             const phone = contact.phone
             const propertyId = get(contact, 'property.id')
             if (phone && propertyId) {
                 await router.push(`/phone/${phone}?tab=${getClientCardTabKey(propertyId, ClientType.Resident, contact.unitName, contact.unitType)}`)
             }
         } else {
-            await router.push('/contact/')
+            await router.push('/contact')
         }
-    })
+
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allContacts' })
+        client.cache.gc()
+    }, [client.cache, contactId, redirectToClientCard, router, updateContactMutation])
 
     const formInitialValues = useMemo(() => ({
         name: get(contact, 'name'),
@@ -134,14 +151,10 @@ export const EditContactForm: React.FC = () => {
         return <LoadingOrErrorPage title={ContactNotFoundTitle} loading={false} error={ContactNotFoundMessage}/>
     }
 
-    const formAction = (formValues) => {
-        return contactUpdateAction(formValues, contact)
-    }
-
     return (
         <>
             <FormWithAction
-                action={formAction}
+                action={handleUpdate}
                 initialValues={formInitialValues}
                 layout='horizontal'
                 validateTrigger={['onBlur', 'onSubmit']}
@@ -174,7 +187,6 @@ export const EditContactForm: React.FC = () => {
                                             <Col span={24}>
                                                 <Typography.Title
                                                     level={1}
-                                                    style={{ margin: 0, fontWeight: 'bold' }}
                                                 >
                                                     {ProfileUpdateTitle}
                                                 </Typography.Title>
@@ -225,7 +237,7 @@ export const EditContactForm: React.FC = () => {
                                                     name='role'
                                                     label={RoleLabel}
                                                 >
-                                                    <ContactRoleSelect roles={roles}/>
+                                                    {roles && <ContactRoleSelect roles={roles}/>}
                                                 </Form.Item>
                                             </Col>
                                             <Col span={24}>

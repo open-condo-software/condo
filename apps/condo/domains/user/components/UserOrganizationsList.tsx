@@ -5,16 +5,16 @@ import uniqBy from 'lodash/uniqBy'
 import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Tag } from '@open-condo/ui'
 
-import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 
 
 interface IOrganizationName {
     name: string
     organizationId: string
-    employeeOrganizationId: string
+    activeOrganizationId: string
     selectOrganization: () => void
 }
 
@@ -25,11 +25,11 @@ const OrganizationName: React.FC<IOrganizationName> = (props) => {
     const {
         name,
         organizationId,
-        employeeOrganizationId,
+        activeOrganizationId,
         selectOrganization,
     } = props
 
-    if (organizationId === employeeOrganizationId) {
+    if (organizationId === activeOrganizationId) {
         return (<Typography.Text strong>{name}</Typography.Text>)
     }
 
@@ -42,7 +42,6 @@ const OrganizationName: React.FC<IOrganizationName> = (props) => {
 
 interface IOrganizationEmployeeItem {
     employee: OrganizationEmployeeType
-    userOrganization
 }
 
 const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) => {
@@ -52,10 +51,12 @@ const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) =>
     const PositionMessage = intl.formatMessage({ id: 'employee.Position' })
     const RoleMessage = intl.formatMessage({ id: 'employee.Role' })
 
-    const { employee, userOrganization } = props
+    const { employee } = props
+
+    const { selectEmployee, organization } = useOrganization()
 
     const selectOrganization = useCallback(() => {
-        userOrganization.selectLink(employee)
+        selectEmployee(employee.id)
     }, [])
 
     if (!employee.isAccepted) {
@@ -77,7 +78,7 @@ const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) =>
                             <OrganizationName
                                 name={String(name)}
                                 organizationId={get(employee, ['organization', 'id'])}
-                                employeeOrganizationId={get(userOrganization, ['link', 'organization', 'id'])}
+                                activeOrganizationId={get(organization, 'id')}
                                 selectOrganization={selectOrganization}
                             />
                         )}
@@ -115,11 +116,11 @@ const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) =>
     )
 }
 
-export const UserOrganizationsList = ({ userOrganization, organizationEmployeesQuery }) => {
-    const { objs: userOrganizations, allDataLoaded } = OrganizationEmployee.useAllObjects(
-        organizationEmployeesQuery,
-        { fetchPolicy: 'network-only' }
-    )
+export type UserOrganizationsListProps = {
+    useAllOrganizationEmployee: () => { objs: Array<OrganizationEmployeeType>, allDataLoaded: boolean }
+}
+export const UserOrganizationsList: React.FC<UserOrganizationsListProps> = ({ useAllOrganizationEmployee }) => {
+    const { objs: userOrganizations, allDataLoaded } = useAllOrganizationEmployee()
 
     const list = useMemo(() => {
         return uniqBy(userOrganizations, employee => get(employee, 'organization.id')).slice()
@@ -130,18 +131,14 @@ export const UserOrganizationsList = ({ userOrganization, organizationEmployeesQ
                 <OrganizationEmployeeItem
                     employee={employee}
                     key={index}
-                    userOrganization={userOrganization}
                 />
             ))
-    }, [userOrganization, userOrganizations])
+    }, [userOrganizations])
 
     return (
-
         <Row gutter={[0, 60]}>
             {
-                !allDataLoaded
-                    ? <Skeleton active />
-                    : list
+                !allDataLoaded ? <Skeleton active /> : list
             }
         </Row>
     )

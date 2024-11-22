@@ -197,7 +197,7 @@ const TableContent = () => {
         }
 
         const newParameters = getFiltersQueryData(newFilters)
-        await updateQuery(router, { newParameters }, { routerAction: 'replace', resetOldParameters: false })
+        await updateQuery(router, { newParameters }, { routerAction: 'replace', resetOldParameters: false, shallow: true })
     }, [filtersFromQuery, router])
 
     const handleRowClick = useCallback((row) => {

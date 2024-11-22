@@ -1,10 +1,12 @@
+import { useUpdateTicketMutation } from '@app/condo/gql'
 import { Ticket as TicketType, TicketQualityControlValueType } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Row, Form, FormInstance, RowProps } from 'antd'
 import isFunction from 'lodash/isFunction'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 
-import { Smile, Frown, FileEdit } from '@open-condo/icons'
+import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
+import { Smile, Frown } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, ButtonProps, Card, Checkbox, CheckboxProps, Modal, Typography } from '@open-condo/ui'
 
@@ -14,13 +16,12 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import { EMOJI_IMAGES } from '@condo/domains/common/constants/emoji'
 import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
 import { QUALITY_CONTROL_BAD_OPTIONS, QUALITY_CONTROL_GOOD_OPTIONS } from '@condo/domains/ticket/constants/qualityControl'
-import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 
 
 export type QualityControlDataType = Pick<TicketType, 'qualityControlValue' | 'qualityControlAdditionalOptions' | 'qualityControlComment'>
 
 interface IUseTicketQualityControlModalProps {
-    ticket: TicketType
+    ticketId: string
     afterUpdate?: (values: QualityControlDataType) => void
 }
 
@@ -140,7 +141,7 @@ const formValuesToMutationDataPreprocessor = (values): QualityControlDataType =>
 
 const INITIAL_STATE = {}
 
-export const useTicketQualityControlModal: UseTicketQualityControlModalType = ({ ticket, afterUpdate }) => {
+export const useTicketQualityControlModal: UseTicketQualityControlModalType = ({ ticketId, afterUpdate }) => {
     const intl = useIntl()
     const EditMessage = intl.formatMessage({ id: 'ticket.modalQualityControl.edit' })
     const SaveMessage = intl.formatMessage({ id: 'ticket.modalQualityControl.save' })
@@ -170,7 +171,7 @@ export const useTicketQualityControlModal: UseTicketQualityControlModalType = ({
 
     const isBad = type === TicketQualityControlValueType.Bad
 
-    const update = Ticket.useUpdate({})
+    const [updateTicket] = useUpdateTicketMutation()
 
     const handleOpenModal = useCallback(() => {
         formRef.current.setFieldValue('qualityControlValue', type)
@@ -208,14 +209,23 @@ export const useTicketQualityControlModal: UseTicketQualityControlModalType = ({
         setLoading(true)
 
         const updatedValues = formValuesToMutationDataPreprocessor({ ...values, qualityControlValue: type })
-        await update(updatedValues, ticket)
+        await updateTicket({
+            variables: {
+                id: ticketId,
+                data: {
+                    ...updatedValues,
+                    dv: 1,
+                    sender: getClientSideSenderInfo(),
+                },
+            },
+        })
 
         setLoading(false)
         handleCloseModal()
         if (isFunction(afterUpdate)) {
             await afterUpdate(updatedValues)
         }
-    }, [afterUpdate, handleCloseModal, ticket, type, update])
+    }, [afterUpdate, handleCloseModal, ticketId, type, updateTicket])
 
     const handleToggleContentVisibility: CheckboxProps['onChange'] = useCallback((event) => {
         setOpenComment(event.target.checked)

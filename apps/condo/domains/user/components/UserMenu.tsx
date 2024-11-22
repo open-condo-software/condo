@@ -13,6 +13,7 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 
 import type { DropdownProps } from 'antd'
 
+
 function formatUserName (name) {
     const splittedName = name.split(' ')
     return splittedName[0]
@@ -34,8 +35,9 @@ export const UserMenu: React.FC = () => {
         router.push('/user')
     }, [router])
 
-    const handleSignOutClick = useCallback(() => {
-        auth.signout()
+    const handleSignOutClick = useCallback(async () => {
+        await auth.signOut()
+        await router.push('/auth/signin')
     }, [auth])
 
     const menu = useMemo<DropdownProps['menu']>(() => {

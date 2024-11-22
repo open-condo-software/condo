@@ -12,6 +12,7 @@ import { ALL_MINI_APPS_QUERY } from '@condo/domains/miniapp/gql'
 
 import type { MiniAppOutput } from '@app/condo/schema'
 
+
 type AppsByCategories = Record<string, Array<MiniAppOutput>>
 
 type IConnectedAppsWithIconsContext = {

@@ -23,6 +23,7 @@ import {
     SETTINGS_TAB_MOBILE_FEATURE_CONFIG,
     SETTINGS_TAB_MARKETPLACE,
 } from '@condo/domains/common/constants/settingsTabs'
+import { PageComponentType } from '@condo/domains/common/types'
 import { ContactRolesSettingsContent } from '@condo/domains/contact/components/contactRoles/ContactRolesSettingsContent'
 import { CONTEXT_FINISHED_STATUS } from '@condo/domains/miniapp/constants'
 import {
@@ -42,7 +43,7 @@ const TITLE_STYLES: CSSProperties = { margin: 0 }
 
 const ALWAYS_AVAILABLE_TABS = []
 
-const SettingsPage = () => {
+const SettingsPage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'global.section.settings' })
     const SubscriptionTitle = intl.formatMessage({ id: 'Subscription' })

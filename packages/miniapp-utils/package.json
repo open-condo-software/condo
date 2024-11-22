@@ -36,6 +36,9 @@
   ],
   "typesVersions": {
     "*": {
+      ".": [
+        "dist/types/index.d.ts"
+      ],
       "helpers/apollo": [
         "dist/types/helpers/apollo.d.ts"
       ],
@@ -59,7 +62,15 @@
       ]
     }
   },
+  "types": "dist/types/index.d.ts",
+  "main": "dist/cjs/index.js",
+  "module": "/dist/esm/index.js",
   "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "require": "./dist/cjs/index.js",
+      "import": "./dist/esm/index.js"
+    },
     "./helpers/apollo": {
       "types": "./dist/types/helpers/apollo.d.ts",
       "require": "./dist/cjs/helpers/apollo.js",

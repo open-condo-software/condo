@@ -1,4 +1,5 @@
-import { BuildingMap, BuildingSection, BuildingUnit, BuildingUnitSubType, Property } from '@app/condo/schema'
+import { GetPropertyByIdQueryHookResult } from '@app/condo/gql'
+import { BuildingSection, BuildingUnit, BuildingUnitSubType } from '@app/condo/schema'
 import { LabeledValue } from 'antd/lib/select'
 import flattenDeep from 'lodash/flattenDeep'
 import get from 'lodash/get'
@@ -14,7 +15,7 @@ import { TrackingEventPropertiesType } from '@condo/domains/common/components/Tr
 import { getFloorsBySection, UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
 
 export interface IUnitNameInputProps extends Pick<CustomSelectProps<string>, 'onChange' | 'onSelect'> {
-    property: Property | { map: BuildingMap }
+    property: GetPropertyByIdQueryHookResult['data']['properties'][number]
     placeholder?: string
     allowClear?: boolean
     loading?: boolean
@@ -109,7 +110,17 @@ export const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
     const NotFoundLinkMessage = intl.formatMessage({ id: 'field.UnitName.notFound.link' })
 
     const {
-        placeholder, property, loading, disabled = false, mode, selectedFloorName, selectedSectionName, selectedSections, multiple, showUnitNotFoundLink = true, ...restInputProps
+        placeholder,
+        property,
+        loading,
+        disabled = false,
+        mode,
+        selectedFloorName,
+        selectedSectionName,
+        selectedSections,
+        multiple,
+        showUnitNotFoundLink = true,
+        ...restInputProps
     } = props
 
     const sections = get(property, 'map.sections', [])

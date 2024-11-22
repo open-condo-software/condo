@@ -60,6 +60,7 @@ export function searchEmployeeWithSpecializations (intl, organizationId, filter)
         if (error || organizationEmployeeSpecializationsError) console.warn(error)
 
         return employees
+            .filter(Boolean)
             .filter(filter || Boolean)
             .map(employee => ({
                 value: employee.id,
@@ -84,6 +85,7 @@ export function searchEmployeeUser (intl, organizationId, filter) {
         if (error) console.warn(error)
 
         return employees
+            .filter(Boolean)
             .filter(filter || Boolean)
             .filter(({ user }) => user)
             .map(employee => ({

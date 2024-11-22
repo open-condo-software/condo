@@ -1,0 +1,104 @@
+query getContactById ($id: ID!) {
+    contacts: allContacts(
+        where: { id: $id }
+    ) {
+        id
+        name
+        email
+        phone
+        unitName
+        unitType
+        isVerified
+        organization {
+            id
+        }
+        property {
+            id
+            address
+        }
+        role {
+            id
+            name
+        }
+    }
+}
+
+query getContactsExistence ($where: ContactWhereInput) {
+    contacts: allContacts(
+        first: 1
+        where: $where
+    ) {
+        id
+    }
+}
+
+query getContactsForTable ($where: ContactWhereInput, $first: Int, $skip: Int, $sortBy: [SortContactsBy!]) {
+    contacts: allContacts(
+        where: $where
+        first: $first
+        skip: $skip
+        sortBy: $sortBy
+    ) {
+        id
+        name
+        unitName
+        unitType
+        phone
+        email
+        organization {
+            id
+            name
+        }
+        property {
+            id
+            deletedAt
+            address
+            addressMeta {
+                ...AddressMetaForTableAddress
+            }
+        }
+        role {
+            id
+            name
+        }
+    }
+
+    meta: _allContactsMeta(where: $where) {
+        count
+    }
+}
+
+query getContactEditorContacts ($where: ContactWhereInput) {
+    contacts: allContacts (
+        where: $where,
+        first: 100
+    ) {
+        id
+        phone
+        name
+    }
+}
+
+mutation createContact ($data: ContactCreateInput!) {
+    contact: createContact(data: $data) {
+        id
+        phone
+        unitName
+        unitType
+        property {
+            id
+        }
+    }
+}
+
+mutation updateContact ($id: ID!, $data: ContactUpdateInput!) {
+    contact: updateContact(id: $id, data: $data) {
+        id
+        phone
+        unitName
+        unitType
+        property {
+            id
+        }
+    }
+}

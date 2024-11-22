@@ -10,12 +10,14 @@ import { Typography } from '@open-condo/ui'
 
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { Loader } from '@condo/domains/common/components/Loader'
+import { PageComponentType } from '@condo/domains/common/types'
 import { MarketSettingAbout } from '@condo/domains/marketplace/components/MarketSetting/MarketSettingAbout'
 import { MarketSettingForm } from '@condo/domains/marketplace/components/MarketSetting/MarketSettingForm'
 import { MarketSetting } from '@condo/domains/marketplace/utils/clientSchema'
 import {
     MarketSettingReadPermissionRequired,
 } from '@condo/domains/settings/components/PageAccess'
+
 
 const ROW_GUTTER: [Gutter, Gutter] = [0, 60]
 
@@ -46,7 +48,7 @@ const PaymentTypesSettingContent: React.FC = () => {
     )
 }
 
-const PaymentTypesSettingPage = () => {
+const PaymentTypesSettingPage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'pages.condo.settings.ticketDeadlines.pageTitle' })
 

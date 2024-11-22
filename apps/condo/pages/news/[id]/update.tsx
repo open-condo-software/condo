@@ -8,14 +8,11 @@ import { Typography } from '@open-condo/ui'
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import { PageHeader, PageWrapper, PageContent } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
+import { PageComponentType } from '@condo/domains/common/types'
 import { NewsForm } from '@condo/domains/news/components/NewsForm'
 import { NewsReadAndManagePermissionRequired } from '@condo/domains/news/components/PageAccess'
 import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess'
 
-export interface IUpdateNewsPage extends React.FC {
-    headerAction?: JSX.Element
-    requiredAccess?: React.FC
-}
 
 const UpdateNewsPageContent: React.FC = () => {
     const intl = useIntl()
@@ -43,7 +40,7 @@ const UpdateNewsPageContent: React.FC = () => {
     )
 }
 
-const UpdateNewsPage: IUpdateNewsPage = () => {
+const UpdateNewsPage: PageComponentType = () => {
     const { canManage, isLoading: isAccessLoading } = useNewsItemsAccess()
 
     if (isAccessLoading) {

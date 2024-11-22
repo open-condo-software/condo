@@ -22,6 +22,7 @@ import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { PageComponentType } from '@condo/domains/common/types'
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { EmployeesReadPermissionRequired } from '@condo/domains/organization/components/PageAccess'
@@ -59,7 +60,7 @@ export const EmployeesPageContent = ({
         return record.isBlocked ? 'ant-table-row-inactive' : ''
     }
 
-    const TableWithInactiveEmloyee = styled(Table)`
+    const TableWithInactiveEmployee = styled(Table)`
         .ant-table-row-inactive .ant-typography {
             color: ${colors.gray[7]};
         }
@@ -111,7 +112,7 @@ export const EmployeesPageContent = ({
                                     </TableFiltersContainer>
                                 </Col>
                                 <Col span={24}>
-                                    <TableWithInactiveEmloyee
+                                    <TableWithInactiveEmployee
                                         totalRows={total}
                                         loading={employeesLoading}
                                         dataSource={employees}
@@ -146,7 +147,7 @@ export const EmployeesPageContent = ({
     )
 }
 
-const EmployeesPage = () => {
+const EmployeesPage: PageComponentType = () => {
     const { link, organization } = useOrganization()
     const userOrganizationId = get(organization, 'id', null)
     const canManageEmployee = get(link, 'role.canInviteNewOrganizationEmployees', null)
@@ -175,8 +176,6 @@ const EmployeesPage = () => {
         where: searchEmployeeQuery,
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
         first: DEFAULT_PAGE_SIZE,
-    }, {
-        fetchPolicy: 'network-only',
     })
 
     const tableColumns = useTableColumns(filtersMeta, userOrganizationId, employees)

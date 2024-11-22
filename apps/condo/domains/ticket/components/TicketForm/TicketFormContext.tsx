@@ -2,6 +2,8 @@ import { TicketOrganizationSetting, TicketClassifier } from '@app/condo/schema'
 import React, { useEffect, useState } from 'react'
 
 
+import { useCachePersistor } from '@open-condo/apollo'
+
 import { TicketOrganizationSetting as TicketSetting } from '@condo/domains/ticket/utils/clientSchema'
 
 
@@ -23,10 +25,11 @@ export const TicketFormContextProvider = ({ children, organizationId, isExistedT
     const [isAutoDetectedDeadlineValue, setIsAutoDetectedDeadlineValue] = useState<boolean>(false)
     const [ticketSetting, setTicketSetting] = useState<TicketOrganizationSetting | null>(null)
     const [classifier, setClassifier] = useState<TicketClassifier | null>(null)
+    const { persistor } = useCachePersistor()
 
     const { obj: newTicketSetting, loading: ticketSettingLoading } = TicketSetting.useObject({
         where: { organization: { id: organizationId } },
-    })
+    }, { skip: !persistor || !organizationId })
 
     useEffect(() => {
         if (!newTicketSetting) return

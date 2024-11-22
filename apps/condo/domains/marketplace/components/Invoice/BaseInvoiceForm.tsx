@@ -1,7 +1,6 @@
 import { PlusCircleOutlined } from '@ant-design/icons'
 import {
     BuildingUnitSubType,
-    OrganizationEmployeeRole,
     Invoice,
     Property as PropertyType,
 } from '@app/condo/schema'
@@ -274,9 +273,8 @@ const UnitNameFormField = ({ form, property, disabled }) => {
     )
 }
 
-const ContactFormField = ({ role, organizationId, form, disabled }) => {
+const ContactFormField = ({ organizationId, form, disabled }) => {
     const { ContactsEditorComponent } = useContactsEditorHook({
-        role,
         initialQuery: { organization: { id: organizationId } },
     })
 
@@ -321,7 +319,7 @@ const ContactFormField = ({ role, organizationId, form, disabled }) => {
     )
 }
 
-const PayerDataFields = ({ organizationId, form, role, disabled, initialValues }) => {
+const PayerDataFields = ({ organizationId, form, disabled, initialValues }) => {
     const intl = useIntl()
     const HasPayerDataMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.payerData' })
     const NoPayerDataMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.payerNoData' })
@@ -408,7 +406,6 @@ const PayerDataFields = ({ organizationId, form, role, disabled, initialValues }
                                 </Col>
                             </Row>
                             <ContactFormField
-                                role={role}
                                 organizationId={organizationId}
                                 form={form}
                                 disabled={disabled}
@@ -422,7 +419,11 @@ const PayerDataFields = ({ organizationId, form, role, disabled, initialValues }
 }
 
 type MarketItemOptionType = {
-    label: string, value: string, toPay: string, isMin: boolean, sku: string
+    label: string
+    value: string
+    toPay: string
+    isMin: boolean
+    sku: string
 }
 
 const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabled, setStatus, isModalForm }) => {
@@ -939,7 +940,6 @@ const StatusRadioGroup = ({
 type BaseInvoiceFormProps = {
     action: (values: InvoiceFormValuesType) => Promise<Invoice | void>
     organizationId: string
-    role: OrganizationEmployeeRole
     initialValues?: InvoiceFormValuesType
     OnCompletedMsg?: ComponentProps<typeof FormWithAction>['OnCompletedMsg']
     isCreateForm?: boolean
@@ -972,7 +972,6 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
         children,
         action,
         organizationId,
-        role,
         initialValues,
         OnCompletedMsg,
         isCreateForm,
@@ -1010,6 +1009,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
             form.validateFields(rows.map((_, index) => ['rows', index, 'toPay']))
         }
     }, [form, isCreateForm])
+
 
     return (
         <FormContainer
@@ -1049,7 +1049,6 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                             <PayerDataFields
                                                 organizationId={organizationId}
                                                 form={form}
-                                                role={role}
                                                 disabled={disabled}
                                                 initialValues={initialValues}
                                             />

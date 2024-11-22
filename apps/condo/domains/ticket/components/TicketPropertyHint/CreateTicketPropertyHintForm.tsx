@@ -9,6 +9,7 @@ import { TicketPropertyHint } from '@condo/domains/ticket/utils/clientSchema'
 
 import { BaseTicketPropertyHintForm } from './BaseTicketPropertyHintForm'
 
+
 export const CreateTicketPropertyHintForm = () => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })

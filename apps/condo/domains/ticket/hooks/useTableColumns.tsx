@@ -1,12 +1,15 @@
+import { useGetTicketStatusesQuery, useGetUserTicketCommentsReadTimeQuery } from '@app/condo/gql'
 import { Ticket as ITicket, Property as IProperty } from '@app/condo/schema'
 import { ColumnsType } from 'antd/lib/table'
 import { ColumnType } from 'antd/lib/table/interface'
 import get from 'lodash/get'
 import identity from 'lodash/identity'
+import isEmpty from 'lodash/isEmpty'
 import map from 'lodash/map'
 import { useRouter } from 'next/router'
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 
@@ -21,7 +24,6 @@ import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useAutoRefetchTickets } from '@condo/domains/ticket/contexts/AutoRefetchTicketsContext'
-import { TicketStatus, UserTicketCommentReadTime } from '@condo/domains/ticket/utils/clientSchema'
 import {
     FavoriteTicketIndicator,
     getClassifierRender, getCommentsIndicatorRender,
@@ -75,10 +77,14 @@ export function useTableColumns<T> (
     const search = getFilteredValue(filters, 'search')
     const { breakpoints } = useLayoutContext()
 
-    const { loading: statusesLoading, objs: ticketStatuses } = TicketStatus.useObjects({})
+    const {
+        loading: statusesLoading,
+        data: ticketStatusesData,
+    } = useGetTicketStatusesQuery()
+    const ticketStatuses = useMemo(() => ticketStatusesData?.statuses?.filter(Boolean) || [], [ticketStatusesData?.statuses])
 
     const renderStatusFilterDropdown: ColumnType<ITicket>['filterDropdown'] = useCallback((filterProps) => {
-        const adaptedStatuses = ticketStatuses.map(status => ({ label: status.name, value: status.type })).filter(identity)
+        const adaptedStatuses = ticketStatuses?.map(status => ({ label: status.name, value: status.type })).filter(identity)
         return getOptionFilterDropdown({
             checkboxGroupProps: {
                 options: adaptedStatuses,
@@ -104,20 +110,23 @@ export function useTableColumns<T> (
         [search])
 
     const { user } = useAuth()
+    const { persistor } = useCachePersistor()
 
     const ticketIds = useMemo(() => map(tickets, 'id'), [tickets])
+    const userId = useMemo(() => user?.id, [user?.id])
     const {
-        objs: userTicketCommentReadTimes,
+        data: userTicketCommentReadTimesData,
         refetch: refetchUserTicketCommentReadTimes,
         loading: userTicketCommentReadTimesLoading,
-    } = UserTicketCommentReadTime.useObjects({
-        where: {
-            user: { id: get(user, 'id', null) },
-            ticket: {
-                id_in: ticketIds,
-            },
+    } = useGetUserTicketCommentsReadTimeQuery({
+        variables: {
+            userId,
+            ticketIds,
         },
+        skip: !persistor || !userId || isEmpty(ticketIds),
     })
+    const userTicketCommentReadTimes = useMemo(() => userTicketCommentReadTimesData?.objs?.filter(Boolean) || [],
+        [userTicketCommentReadTimesData?.objs])
 
     const { isRefetchTicketsFeatureEnabled, refetchInterval } = useAutoRefetchTickets()
 
@@ -153,7 +162,7 @@ export function useTableColumns<T> (
                 key: 'commentsIndicator',
                 width: COLUMNS_WIDTH.commentsIndicator,
                 render: getCommentsIndicatorRender({
-                    intl, tickets, userTicketCommentReadTimes, breakpoints,
+                    intl, userTicketCommentReadTimes, breakpoints,
                 }),
                 align: 'center',
                 className: 'comments-column',

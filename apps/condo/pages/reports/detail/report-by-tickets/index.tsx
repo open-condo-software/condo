@@ -44,6 +44,7 @@ import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangeP
 import RadioGroupWithIcon from '@condo/domains/common/components/RadioGroupWithIcon'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { fontSizes } from '@condo/domains/common/constants/style'
+import { PageComponentType } from '@condo/domains/common/types'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import {
     DATE_DISPLAY_FORMAT,
@@ -57,12 +58,9 @@ import {
     searchOrganizationProperty,
 } from '@condo/domains/ticket/utils/clientSchema/search'
 
+
 dayjs.extend(quarterOfYear)
 
-interface ITicketAnalyticsPage extends React.FC {
-    headerAction?: JSX.Element
-    requiredAccess?: React.FC
-}
 
 interface ITicketAnalyticsPageFilterProps {
     groupTicketsBy: GroupTicketsByTypes
@@ -171,7 +169,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
             classifierList: JSON.stringify(classifierListRef.current),
             executorList: JSON.stringify(executorListRef.current),
             responsibleList: JSON.stringify(responsibleListRef.current),
-        }))
+        }), undefined, { shallow: true })
     }, [dateRange, specification, addressList, responsibleList, responsibleList, classifierList, viewMode, groupTicketsBy])
 
     useEffect(() => {
@@ -349,7 +347,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
     )
 }
 
-const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
+const TicketAnalyticsPage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.PageTitle' })
     const HeaderButtonTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.HeaderButtonTitle' })

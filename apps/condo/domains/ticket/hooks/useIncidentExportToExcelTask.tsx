@@ -1,7 +1,10 @@
 import {
-    IncidentWhereInput, SortIncidentsBy, User as UserType,
+    IncidentWhereInput,
+    SortIncidentsBy,
+    User as UserType,
+    IncidentExportTaskCreateInput,
+    IncidentExportTaskFormatType,
 } from '@app/condo/schema'
-import { get } from 'lodash'
 import React, { useCallback, useMemo } from 'react'
 
 import { Sheet } from '@open-condo/icons'
@@ -9,7 +12,6 @@ import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@open-condo/ui'
 
 import { useTaskLauncher } from '@condo/domains/common/components/tasks/TaskLauncher'
-import { EXCEL } from '@condo/domains/common/constants/export'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { useIncidentExportTaskUIInterface } from '@condo/domains/ticket/hooks/useIncidentExportTaskUIInterface'
 
@@ -41,28 +43,29 @@ export const useIncidentExportToExcelTask = (props: UseIncidentExportToExcelInpu
 
     const { IncidentExportTask: TaskUIInterface } = useIncidentExportTaskUIInterface()
 
-    const { loading, handleRunTask } = useTaskLauncher(TaskUIInterface, {
+    const { loading, handleRunTask } = useTaskLauncher<IncidentExportTaskCreateInput>(TaskUIInterface, {
         dv: 1,
         sender: getClientSideSenderInfo(),
         where,
-        format: EXCEL,
+        format: IncidentExportTaskFormatType.Excel,
         sortBy,
         locale,
         timeZone,
-        user: { connect: { id: get(user, 'id', null) } },
+        user: { connect: { id: user?.id || null } },
     })
 
+    const handleClick = useCallback(() => handleRunTask(), [handleRunTask])
     const ExportButton: React.FC<ExportButtonInputType> = useCallback(({ disabled = false, id = 'exportToExcel' }) => (
         <Button
             type='secondary'
             loading={loading}
-            onClick={handleRunTask}
+            onClick={handleClick}
             disabled={loading || disabled}
             children={label || ExportAsExcelLabel}
             icon={<Sheet size='medium' />}
             id={id}
         />
-    ), [ExportAsExcelLabel, handleRunTask, label, loading])
+    ), [ExportAsExcelLabel, handleClick, label, loading])
 
     return {
         ExportButton,

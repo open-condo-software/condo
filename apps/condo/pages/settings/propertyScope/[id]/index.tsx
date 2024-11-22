@@ -18,6 +18,7 @@ import {
 import { renderBlockedObject } from '@condo/domains/common/components/GraphQlSearchInput'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
+import { PageComponentType } from '@condo/domains/common/types'
 import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
 import {
     EmployeeNameAndSpecializations,
@@ -36,7 +37,7 @@ const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
 const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
 const PARAGRAPH_STYLES: CSSProperties = { margin: 0 }
 
-const PropertyScopeIdPage = () => {
+const PropertyScopeIdPage: PageComponentType = () => {
     const intl = useIntl()
     const PropertyScopeTitle = intl.formatMessage({ id: 'pages.condo.settings.propertyScope' })
     const NameMessage = intl.formatMessage({ id: 'field.Name' })

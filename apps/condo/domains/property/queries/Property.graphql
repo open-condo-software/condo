@@ -1,0 +1,88 @@
+fragment FloorInfo on BuildingFloor {
+    id
+    type
+    index
+    name
+    units {
+        id
+        type
+        unitType
+        name
+        label
+        preview
+    }
+}
+
+fragment SectionOrParkingInfo on BuildingSection {
+    id
+    type
+    index
+    name
+    preview
+    floors {
+        ...FloorInfo
+    }
+}
+
+fragment AddressMetaForTableAddress on AddressMetaField {
+    data {
+        street_with_type
+        house_type
+        house
+        block_type
+        block
+        flat_type
+        flat
+        region_type_full
+        region
+        region_with_type
+        city_with_type
+        city
+        settlement_with_type
+        area_with_type
+    }
+}
+
+query getPropertyWithMapById ($id: ID!) {
+    property: allProperties(
+        where: { id: $id }
+    ) {
+        id
+        organization {
+            id
+            name
+        }
+        map {
+            sections {
+                ...SectionOrParkingInfo
+            }
+            parking {
+                ...SectionOrParkingInfo
+            }
+            dv
+        }
+    }
+}
+
+query getPropertyById ($id: ID!) {
+    properties: allProperties (
+        where: {
+            id: $id
+        },
+        first: 1
+    ) {
+        id
+        address
+        organization {
+            id
+        }
+        map {
+            sections {
+                ...SectionOrParkingInfo
+            }
+            parking {
+                ...SectionOrParkingInfo
+            }
+        }
+    }
+}

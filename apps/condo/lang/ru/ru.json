@@ -2481,7 +2481,6 @@
   "pages.condo.ticket.WithoutDeadline": "У данного типа заявки отсутствует срок выполнения",
   "pages.condo.ticket.alert.BlockedEditing.description": "Вы не можете изменить заявку, потому что указанный адрес больше не обслуживается",
   "pages.condo.ticket.alert.BlockedEditing.title": "Редактирование заявки недоступно",
-  "pages.condo.ticket.alert.NoProperties": "Чтобы создать заявку, добавьте хотя бы один адрес в разделе «Дома».",
   "pages.condo.ticket.autoAssignAlert.message": "Дом из этой заявки входит в область видимости «{name}». Поэтому алгоритм Домá автоматически назначил ответственного и исполнителя.",
   "pages.condo.ticket.autoAssignAlert.title": "Ответственный и исполнитель назначены автоматически",
   "pages.condo.ticket.exportBlank.HaveAllComments.label": "Все комментарии из заявки",

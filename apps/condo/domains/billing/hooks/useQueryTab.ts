@@ -27,7 +27,7 @@ export function useQueryTab (includeExtension: boolean): [string, TabUpdateHandl
     }, [router.query, availableTabs])
 
     const handleUpdateTab = useCallback((newKey: string) => {
-        return router.push({ query: { tab: newKey } })
+        return router.push({ query: { tab: newKey } }, undefined, { shallow: true })
     }, [router])
 
     return [currentTab, handleUpdateTab]

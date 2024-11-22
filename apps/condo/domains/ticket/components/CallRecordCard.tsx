@@ -1,4 +1,4 @@
-import { CallRecord } from '@app/condo/schema'
+import { GetTicketCallRecordsFragmentsQueryHookResult } from '@app/condo/gql'
 import { Row, Col, RowProps } from 'antd'
 import React, { useMemo } from 'react'
 
@@ -11,7 +11,7 @@ import { formatPhone } from '@condo/domains/common/utils/helpers'
 
 
 interface ICallRecordCardProps {
-    callRecord: CallRecord
+    callRecord: GetTicketCallRecordsFragmentsQueryHookResult['data']['callRecordFragments'][number]['callRecord']
     autoPlay?: boolean
 }
 

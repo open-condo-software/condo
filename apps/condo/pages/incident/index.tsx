@@ -32,6 +32,7 @@ import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { usePreviousSortAndFilters } from '@condo/domains/common/hooks/usePreviousQueryParams'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { PageComponentType } from '@condo/domains/common/types'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { Property } from '@condo/domains/property/utils/clientSchema'
@@ -44,11 +45,6 @@ import { useIncidentTableFilters } from '@condo/domains/ticket/hooks/useIncident
 import { Incident, IncidentProperty } from '@condo/domains/ticket/utils/clientSchema'
 import { getFilterAddressForSearch } from '@condo/domains/ticket/utils/tables.utils'
 
-
-export interface IIncidentIndexPage extends React.FC {
-    headerAction?: JSX.Element
-    requiredAccess?: React.FC
-}
 
 type FilterMetasType = Array<FiltersMeta<IncidentWhereInput>>
 export type BaseQueryType = { organization: OrganizationWhereInput }
@@ -398,7 +394,7 @@ export const IncidentsPageContent: React.FC<IncidentsPageContentProps> = (props)
     )
 }
 
-const IncidentsPage: IIncidentIndexPage = () => {
+const IncidentsPage: PageComponentType = (props) => {
     const filterMetas = useIncidentTableFilters()
     const { organization, link } = useOrganization()
     const organizationId = get(organization, 'id')

@@ -1,4 +1,4 @@
-import get from 'lodash/get'
+import { BankSyncTaskCreateInput }  from '@app/condo/schema'
 import isNull from 'lodash/isNull'
 import React, { useCallback, useState, useMemo, useEffect } from 'react'
 
@@ -13,6 +13,7 @@ import { useTaskLauncher } from '@condo/domains/common/components/tasks/TaskLaun
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 
 import type { BankAccount } from '@app/condo/schema'
+
 
 const BANK_SYNC_TASK_DATE_FORMAT = 'YYYY-MM-DD'
 
@@ -36,14 +37,14 @@ export const useBankSyncTaskExternalModal: IUseBankSyncTaskExternalModal = (prop
 
     const { user } = useAuth()
     const { BankSyncTask: TaskUIInterface } = useBankSyncTaskUIInterface()
-    const { handleRunTask, loading } = useTaskLauncher(TaskUIInterface, {
+    const { handleRunTask, loading } = useTaskLauncher<BankSyncTaskCreateInput>(TaskUIInterface, {
         dv: 1,
         sender: getClientSideSenderInfo(),
-        user: { connect: { id: get(user, 'id') } },
+        user: { connect: { id: user?.id } },
         property: { connect: { id: props.propertyId } },
-        account: { connect: { id: get(props, 'bankAccount.id') } },
-        organization: { connect: { id: get(props, 'bankAccount.organization.id') } },
-        integrationContext: { connect: { id: get(props, 'bankAccount.integrationContext.id') } },
+        account: { connect: { id: props?.bankAccount?.id } },
+        organization: { connect: { id: props?.bankAccount?.organization?.id } },
+        integrationContext: { connect: { id: props?.bankAccount?.integrationContext?.id } },
         options: {
             type: SBBOL,
             dateFrom: isNull(dateRange) ? null : dateRange[0].format(BANK_SYNC_TASK_DATE_FORMAT),
@@ -57,16 +58,17 @@ export const useBankSyncTaskExternalModal: IUseBankSyncTaskExternalModal = (prop
         setOpen(false)
     }, [dateRange])
     const handleOpen = useCallback(() => setOpen(true), [])
+    const handleClick = useCallback(() => handleRunTask(), [handleRunTask])
     const modalFooter = useMemo(() => (
         <Button
             type='primary'
-            onClick={handleRunTask}
+            onClick={handleClick}
             loading={loading}
             disabled={isNull(dateRange)}
         >
             {SyncSbbolTransactions}
         </Button>
-    ), [SyncSbbolTransactions, dateRange, handleRunTask, loading])
+    ), [SyncSbbolTransactions, dateRange, handleClick, loading])
 
     useEffect(() => {
         if (loading) {

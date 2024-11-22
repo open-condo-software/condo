@@ -1,4 +1,5 @@
 import { MinusCircleOutlined, PlusCircleOutlined } from '@ant-design/icons'
+import { useGetContactEditorContactsQuery, useGetContactEditorOrganizationEmployeesQuery } from '@app/condo/gql'
 import { BuildingUnitSubType, Contact as ContactType } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Form, FormInstance, FormItemProps, Row, Tabs } from 'antd'
@@ -12,6 +13,7 @@ import pickBy from 'lodash/pickBy'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -21,12 +23,11 @@ import { Button } from '@condo/domains/common/components/Button'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { colors } from '@condo/domains/common/constants/style'
-import { Contact } from '@condo/domains/contact/utils/clientSchema'
-import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
 import { ContactOption } from './ContactOption'
 import { NEW_CONTACT_PHONE_FORM_ITEM_NAME, NewContactFields } from './NewContactFields'
 import { NotResidentFields } from './NotResidentFields'
+
 
 const DEBOUNCE_TIMEOUT = 800
 
@@ -59,26 +60,22 @@ export interface IContactEditorProps {
     // Also, this makes usage of the component explicitly, — it's clear, what fields will be set.
     fields: FieldsType
     value?: ContactValue
-    onChange?: (contact: ContactFields, isNew: boolean) => void,
-
+    onChange?: (contact: ContactFields, isNew: boolean) => void
     // Composite scope of organization, property and unitName, used to
     // fetch contacts for autocomplete fields.
     organization?: string
-    role?: Record<string, boolean>,
     property?: string
     unitName?: string
     unitType?: BuildingUnitSubType
-    clientPhone?: string
-    allowLandLine?: boolean
-    disabled?: boolean
-    initialQuery?
     hasNotResidentTab?: boolean
+    initialQuery?
     residentTitle?: string
     hideFocusContainer?: boolean
     hideTabBar?: boolean
     contactFormItemProps?: FormItemProps
     newContactPhoneFormItemProps?: FormItemProps
     newContactNameFormItemProps?: FormItemProps
+    disabled?: boolean
 }
 
 const ContactsInfoFocusContainer = styled(FocusContainer)`
@@ -142,6 +139,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const [initialContacts, setInitialContacts] = useState<ContactType[]>([])
     const [activeTab, setActiveTab] = useState<CONTACT_TYPE>()
 
+    const { persistor } = useCachePersistor()
     const { breakpoints } = useLayoutContext()
     const { link } = useOrganization()
     const canReadContacts = get(link, ['role', 'canReadContacts'], false)
@@ -167,21 +165,27 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         ? CONTACT_TYPE.NOT_RESIDENT : CONTACT_TYPE.RESIDENT
 
     const {
-        objs: fetchedContacts,
+        data: contactsData,
         loading: contactsLoading,
         error,
-    } = Contact.useObjects({
-        where: initialContactsQuery,
-        first: 100,
-    }, { skip: (!property || !unitName || !unitType) })
+    } = useGetContactEditorContactsQuery({
+        variables: {
+            where: initialContactsQuery,
+        },
+        skip: !persistor || !property || !unitName || !unitType,
+    })
+    const fetchedContacts = useMemo(() => contactsData?.contacts?.filter(Boolean) || [], [contactsData?.contacts])
 
     const {
-        objs: fetchedEmployees,
+        data: employeesData,
         refetch: refetchEmployees,
-    } = OrganizationEmployee.useObjects({
-        where: initialEmployeesQuery,
-        first: 100,
+    } = useGetContactEditorOrganizationEmployeesQuery({
+        variables: {
+            where: initialEmployeesQuery,
+        },
+        skip: !persistor,
     })
+    const fetchedEmployees = useMemo(() => employeesData?.employees?.filter(Boolean) || [], [employeesData?.employees])
 
     const triggerOnChange = useCallback((contact: ContactValue, isNew: boolean) => {
         form.setFieldsValue({
