@@ -69,3 +69,6 @@ semgrep_results/*
 
 # Backup artifacts
 backups
+
+# no logs
+*.log
