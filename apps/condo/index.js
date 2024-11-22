@@ -14,7 +14,6 @@ const {
     HealthCheck,
     getRedisHealthCheck,
     getPostgresHealthCheck,
-    getCertificateHealthCheck,
     getPfxCertificateHealthCheck,
 } = require('@open-condo/keystone/healthCheck')
 const { prepareKeystone } = require('@open-condo/keystone/KSv5v6/v5/prepareKeystone')
@@ -98,11 +97,11 @@ if (!IS_BUILD_PHASE && SENTRY_CONFIG['server']) {
 const checks = [
     getRedisHealthCheck(),
     getPostgresHealthCheck(),
-    getCertificateHealthCheck({
+    getPfxCertificateHealthCheck({
         certificateName: 'sber_id_client',
-        getCertificate: () => {
-            const SBER_ID_CONFIG = conf['SBER_ID_CONFIG'] && JSON.parse(conf['SBER_ID_CONFIG']) || {}
-            return SBER_ID_CONFIG.cert
+        getPfxParams: () => {
+            const { certificate, passphrase } = conf['SBER_ID_CONFIG'] && JSON.parse(conf['SBER_ID_CONFIG']) || {}
+            return { pfx: certificate, passphrase }
         },
     }),
     getPfxCertificateHealthCheck({
