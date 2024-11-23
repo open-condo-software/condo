@@ -45,7 +45,7 @@ describe('Crypto packShareData and unpackShareData', () => {
     })
 
     it('modern method should be more efficient', () => {
-        const v2 = packShareData(DATA)
+        const v2 = packShareData(DATA, true)
 
         expect(v2.length).toBeLessThan(V1_ENCRYPTED_DATA.length)
     })

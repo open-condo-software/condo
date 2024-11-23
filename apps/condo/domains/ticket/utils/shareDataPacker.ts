@@ -25,6 +25,8 @@ export function unpackShareData (data: string): string {
         const decipher = crypto.createDecipheriv(MODERN_ALGORITHM, Buffer.from(KEY), iv)
 
         const decryptedBuffers = [decipher.update(encryptedText), decipher.final()]
+        // NOTE: it's more efficient but its require modern node version! please use it in a future
+        // const decompressedText = zlib.brotliDecompressSync(Buffer.concat(decryptedBuffers)).toString('utf8')
         const decompressedText = zlib.inflateSync(Buffer.concat(decryptedBuffers)).toString('utf8')
         return decompressedText
     } else {
@@ -37,13 +39,17 @@ export function unpackShareData (data: string): string {
     }
 }
 
-export function packShareData (data: string, useModern = true): string {
+// NOTE: we still use old version and will use it until Node.js v23.3.0: https://nodejs.org/api/deprecations.html#DEP0106
+// Probably we want also to use more efficient compression to reduce link size. At the moment I leave old encryption version
+export function packShareData (data: string, useModern = false): string {
     if (useModern) {
         // New version using AES-CTR and Deflate compression
         // Using KEY directly as IV
         const iv = Buffer.from(KEY).subarray(0, IV_LENGTH)
         const cipher = crypto.createCipheriv(MODERN_ALGORITHM, Buffer.from(KEY), iv)
 
+        // NOTE: it's more efficient but its require modern node version! please use it in a future when we will use useModern = true by default!
+        // const compressedData = zlib.brotliCompressSync(Buffer.from(data), { params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 11 } }) // Use maximum Brotli compression level
         const compressedData = zlib.deflateSync(Buffer.from(data))
         const encryptedBuffers = [cipher.update(compressedData), cipher.final()]
 
