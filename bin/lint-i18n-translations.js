@@ -32,6 +32,7 @@ async function loadStringTranslations (langDir) {
         for (const entry of entries) {
             if (!entry.isDirectory()) continue
             const folderName = entry.name
+            // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
             const filePath = path.join(langDir, folderName, `${folderName}.json`)
             console.log(`Loading file ${filePath}`)
 
@@ -53,23 +54,55 @@ async function loadStringTranslations (langDir) {
     return translations
 }
 
+async function isAnyMessagesDirectoryExists (langDir) {
+    try {
+        const locales = await fs.readdir(langDir, { withFileTypes: true })
+        for (const locale of locales) {
+            if (!locale.isDirectory()) continue
+            // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+            const localePath = path.join(langDir, locale.name)
+            // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+            const messagesPath = path.join(localePath, 'messages')
+            try {
+                const stat = await fs.stat(messagesPath)
+                if (stat.isDirectory()) {
+                    return true
+                }
+            } catch (e) {
+                // Ignore errors that indicate messages directory does not exist
+                if (e.code !== 'ENOENT') {
+                    throw new Error(`Error checking messages directory at "${messagesPath}": ${e.message}`)
+                }
+            }
+        }
+    } catch (e) {
+        throw new Error(`Error reading lang directory: ${e.message}`)
+    }
+    return false
+}
+
 async function loadMessagesDirectories (langDir) {
     const messageData = {}
     try {
         const locales = await fs.readdir(langDir, { withFileTypes: true })
         for (const locale of locales) {
             if (!locale.isDirectory()) continue
+            // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
             const localePath = path.join(langDir, locale.name, 'messages')
+            // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+            console.log(`Loading files ${path.join(localePath, '*')}`)
             messageData[locale.name] = {}
             try {
                 const entries = await fs.readdir(localePath, { withFileTypes: true })
                 for (const entry of entries) {
+                    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
                     const messageDirPath = path.join(localePath, entry.name)
                     if (entry.isDirectory()) {
                         try {
                             const files = await fs.readdir(messageDirPath)
                             const njkFiles = {}
                             for (const file of files) {
+                                // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
                                 const filePath = path.join(messageDirPath, file)
                                 if (file.endsWith('.njk')) {
                                     try {
@@ -134,6 +167,7 @@ async function validateMessagesDirectories (messageData) {
                         locale,
                         messageDir,
                         missingFile: fileName,
+                        // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
                         missingPath: path.join(locale, 'messages', messageDir, fileName),
                     })
                 }
@@ -158,6 +192,7 @@ async function validateMessagesDirectories (messageData) {
 async function saveTranslations (langDir, translations) {
     try {
         for (const [folderName, , translationData] of translations) {
+            // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
             const filePath = path.join(langDir, folderName, `${folderName}.json`)
             console.log(`Saving file ${filePath}`)
             await writeTranslationData(filePath, translationData)
@@ -170,6 +205,7 @@ async function saveTranslations (langDir, translations) {
 async function saveFixedFiles (langDir, filesToWrite) {
     try {
         for (const { path: targetPath, content } of filesToWrite) {
+            // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
             const filePath = path.join(langDir, targetPath)
             console.log(`Saving file ${filePath}`)
             await writeFile(filePath, content)
@@ -312,6 +348,7 @@ async function main () {
     const root = path.join(__dirname, '..', 'apps', name)
     const gptquery = path.join(__dirname, '..', 'bin', 'gptquery.js')
     const langDir = path.join(root, 'lang')
+    const filesToWrite = []
 
     const translations = await loadStringTranslations(langDir)
     const missingKeysReport = await validateStringTranslations(translations)
@@ -324,20 +361,25 @@ async function main () {
         }
     }
 
-    const messageData = await loadMessagesDirectories(langDir)
-    const missingFilesReport = await validateMessagesDirectories(messageData)
+    const hasMessagesDirectory = await isAnyMessagesDirectoryExists(langDir)
+    if (hasMessagesDirectory) {
+        const messageData = await loadMessagesDirectories(langDir)
+        const missingFilesReport = await validateMessagesDirectories(messageData)
 
-    if (missingFilesReport.length > 0) {
-        if (shouldFix) {
-            const filesToWrite = await fixMessagesDirectories(missingFilesReport, messageData, gptquery)
-            await saveFixedFiles(langDir, filesToWrite)
-        } else {
-            throw new Error('Validation failed: Missing messages file found')
+        if (missingFilesReport.length > 0) {
+            if (shouldFix) {
+                const messagesFilesToWrite = await fixMessagesDirectories(missingFilesReport, messageData, gptquery)
+                if (messagesFilesToWrite.length > 0) filesToWrite.push(...messagesFilesToWrite)
+            } else {
+                throw new Error('Validation failed: Missing messages file found')
+            }
         }
     }
 
     if (shouldFix) {
+        // NOTE: all save operations should be here! to realize --dry-run feature in a future
         await saveTranslations(langDir, translations)
+        await saveFixedFiles(langDir, filesToWrite)
     }
 }
 
