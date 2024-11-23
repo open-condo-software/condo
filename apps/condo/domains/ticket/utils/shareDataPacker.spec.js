@@ -31,4 +31,11 @@ describe('Crypto packShareData and unpackShareData', () => {
 
         expect(packedData).not.toBe(testData)
     })
+
+    it('should decrypt existing links', () => {
+        const data = 'gkQ+t4yV53ToCmiGjPcjzzVICyDa76Hy474vWtbUk6P4Am66KU9zqLowFX9C/4kjstxxHbzBTRMqDqrGIjsAasdE9NR2gNLy4hPGATna6pFstDgdY45lPn+XRsuGaL55YHMKTH5gjVrQMbc34+Ro7xEGTiD25d0QngGNe8R4xKZ0JJO9df943k3botuxgyena+bjGZNEvy3vNmA3FPINNA=='
+        const unpacked = '{"date":"2021-06-17T13:26:52.479Z","number":2135,"details":"fragment fragment fragment fragment fragment fragment","id":"3c05ed8c-56b1-41bf-9c9a-8dfeaa07feb1"}'
+
+        expect(unpackShareData(data)).toEqual(unpacked)
+    })
 })
