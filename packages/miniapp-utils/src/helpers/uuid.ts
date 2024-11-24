@@ -1,5 +1,10 @@
 import { randomBytes } from 'crypto'
 
+/**
+ * Generates v4 UUIDs in both browser and Node environments
+ * @example
+ * const uuid = generateUUIDv4()
+ */
 export function generateUUIDv4 (): string {
     let randomValues: Uint8Array
 

@@ -29,6 +29,68 @@ export type UseSSRCookiesExtractor<
 
 export type UseSSRCookies<CookiesList extends ReadonlyArray<string>> = () => SSRCookiesContextValues<CookiesList>
 
+/**
+ * Helper that allows you to pass cookies from the request directly to the SSR,
+ * thus avoiding layout shifts and loading states.
+ *
+ * NOTE: You should not use this tool to pass secure http-only cookies to the client,
+ * that's why each application must define the list of allowed cookies itself.
+ *
+ * @example Init helper and export utils for app
+ * import { SSRCookiesHelper } from '@open-condo/miniapp-utils/helpers/cookies'
+ * import type { SSRCookiesContextValues } from '@open-condo/miniapp-utils/helpers/cookies'
+ *
+ * import type { Context } from 'react'
+ *
+ * // NOTE: put here only cookies needed in SRR (hydration), does not put http-only cookies here
+ * const VITAL_COOKIES = ['residentId', 'isLayoutMinified'] as const
+ *
+ * const cookieHelper = new SSRCookiesHelper(VITAL_COOKIES)
+ *
+ * export const extractSSRCookies = cookieHelper.extractSSRCookies
+ * export const useSSRCookiesExtractor = cookieHelper.generateUseSSRCookiesExtractorHook()
+ * export const useSSRCookies = cookieHelper.generateUseSSRCookiesHook()
+ * export const SSRCookiesContext = cookieHelper.getContext() as Context<SSRCookiesContextValues<typeof VITAL_COOKIES>>
+ *
+ * @example Extract cookies in getServerSideProps / getInitialProps
+ * import { extractSSRCookies } from '@/domains/common/utils/ssr'
+ *
+ * export const getServerSideProps = async ({ req, res }) => {
+ *     return extractSSRCookies(req, res, {
+ *         props: { ... }
+ *     })
+ * }
+ *
+ * @example Pass extracted cookies to React context in your _app.ts
+ * import { SSRCookiesContext } from '@/domains/common/utils/ssr'
+ *
+ * export default function App ({ Component, pageProps }: AppProps): ReactNode {
+ *     const ssrCookies = useSSRCookiesExtractor(pageProps)
+ *
+ *     return (
+ *         <SSRCookiesContext.Provider value={ssrCookies}>
+ *             <Component {...pageProps} />
+ *         </SSRCookiesContext.Provider>
+ *     )
+ * }
+ *
+ * @example Use extracted cookies anywhere in your app.
+ * // /domains/common/components/Layout.tsx
+ * import { useState } from 'react'
+ * import { useSSRCookies } from '@/domains/common/utils/ssr'
+ *
+ * import type { FC } from 'react'
+ *
+ * export const Layout: FC = () => {
+ *     const { isLayoutMinified } = useSSRCookies()
+ *
+ *     const [layoutMinified, setLayoutMinified] = useState(isLayoutMinified === 'true')
+ *
+ *     return {
+ *         // ...
+ *     }
+ * }
+ */
 export class SSRCookiesHelper<
     CookiesList extends ReadonlyArray<string>,
     CookiesPropName extends string = typeof SSR_COOKIES_DEFAULT_PROP_NAME,
