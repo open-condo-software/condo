@@ -6,7 +6,7 @@ import type { Context } from 'react'
 
 const SSR_COOKIES_DEFAULT_PROP_NAME = '__SSR_COOKIES__'
 
-type SSRCookiesContextValues<CookiesList extends ReadonlyArray<string>> = Record<CookiesList[number], string | null>
+export type SSRCookiesContextValues<CookiesList extends ReadonlyArray<string>> = Record<CookiesList[number], string | null>
 
 type SSRProps<PropsType extends Record<string, unknown>> = {
     props?: PropsType
@@ -22,12 +22,12 @@ type SSRPropsWithCookies<
     }
 }
 
-type UseCookiesExtractor<
+export type UseSSRCookiesExtractor<
     CookiesList extends ReadonlyArray<string>,
     CookiesPropName extends string = typeof SSR_COOKIES_DEFAULT_PROP_NAME,
 > = <PropsType extends Record<string, unknown>>(pageParams: SSRPropsWithCookies<PropsType, CookiesList, CookiesPropName>['props']) => SSRCookiesContextValues<CookiesList>
 
-type UseSSRCookies<CookiesList extends ReadonlyArray<string>> = () => SSRCookiesContextValues<CookiesList>
+export type UseSSRCookies<CookiesList extends ReadonlyArray<string>> = () => SSRCookiesContextValues<CookiesList>
 
 export class SSRCookiesHelper<
     CookiesList extends ReadonlyArray<string>,
@@ -43,17 +43,19 @@ export class SSRCookiesHelper<
         this.propName = propName || SSR_COOKIES_DEFAULT_PROP_NAME as CookiesPropName
         this.defaultValues = Object.fromEntries(allowedCookies.map(key => [key, null])) as SSRCookiesContextValues<CookiesList>
         this.context = createContext<SSRCookiesContextValues<CookiesList>>(this.defaultValues)
+
+        this.extractSSRCookies = this.extractSSRCookies.bind(this)
     }
 
     getContext (): Context<SSRCookiesContextValues<CookiesList>> {
         return this.context
     }
 
-    generateUseCookiesExtractorHook (): UseCookiesExtractor<CookiesList, CookiesPropName> {
+    generateUseSSRCookiesExtractorHook (): UseSSRCookiesExtractor<CookiesList, CookiesPropName> {
         const defaultValues = this.defaultValues
         const propName = this.propName
 
-        return function useCookiesExtractor<PropsType extends Record<string, unknown>> (
+        return function useSSRCookiesExtractor<PropsType extends Record<string, unknown>> (
             pageParams: SSRPropsWithCookies<PropsType, CookiesList, CookiesPropName>['props']
         ): SSRCookiesContextValues<CookiesList> {
             return pageParams[propName] || defaultValues
