@@ -29,5 +29,3 @@ export function generateUUIDv4 (): string {
         })
         .join('')
 }
-
-export default generateUUIDv4
