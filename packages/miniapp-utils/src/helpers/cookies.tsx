@@ -1,5 +1,7 @@
+import { getCookie } from 'cookies-next'
 import { createContext, useContext } from 'react'
 
+import type { IncomingMessage, ServerResponse } from 'http'
 import type { Context } from 'react'
 
 const SSR_COOKIES_DEFAULT_PROP_NAME = '__SSR_COOKIES__'
@@ -66,13 +68,16 @@ export class SSRCookiesHelper<
         }
     }
 
-    extractSSRCookies<PropsType extends Record<string, unknown>> (req: any, res: any, pageParams: SSRProps<PropsType>): SSRPropsWithCookies<PropsType, CookiesList, CookiesPropName>  {
+    extractSSRCookies<PropsType extends Record<string, unknown>> (req: IncomingMessage, res: ServerResponse, pageParams: SSRProps<PropsType>): SSRPropsWithCookies<PropsType, CookiesList, CookiesPropName>  {
         return {
             ...pageParams,
             props: {
                 ...pageParams.props,
                 [this.propName]: Object.fromEntries(
-                    Object.keys(this.defaultValues).map(key => [key, null])
+                    Object.keys(this.defaultValues).map(key => [
+                        key,
+                        getCookie(key, { req, res }) || null,
+                    ])
                 ),
             },
         } as SSRPropsWithCookies<PropsType, CookiesList, CookiesPropName>
