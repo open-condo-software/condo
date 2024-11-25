@@ -1,6 +1,6 @@
 const { parseAddressesFromString, AddressFromStringParser } = require('./parseAddressesFromString')
 
-const ADDRESS_USE_CASES = [
+const ADDRESS_USE_CASES_RU = [
     ['пер.Малый Козихинский, д.7, м/м 3,4 (1 ур.)', 'пер.Малый Козихинский, д.7', 'parking', '3,4 (1 ур.)'],
     ['пер.Малый Козихинский, дом 7, м/м 10,13 (1 ур.)', 'пер.Малый Козихинский, дом 7', 'parking', '10,13 (1 ур.)'],
     ['г.Копейск ул.Короленко д.4Б кв.39/ЖП', 'г.Копейск ул.Короленко д.4Б', 'flat', '39/ЖП'],
@@ -39,9 +39,9 @@ const ADDRESS_USE_CASES = [
     ['не-распознаваемая-ерунда-без-ничего', 'не-распознаваемая-ерунда-без-ничего', 'flat', ''],
 ]
 
-describe('AddressFromStringParser', () => {
+describe('AddressFromStringParser (ru)', () => {
     describe('Parsing unit names with unit types and house address from address strings', () => {
-        for (const rawData of ADDRESS_USE_CASES) {
+        for (const rawData of ADDRESS_USE_CASES_RU) {
             const [ rawInput, house, unitType, unit ] = rawData
             test(`"${rawInput}" to be: "${house} = ${unitType} = ${unit}" `, () => {
                 const [{ result: { address, unitName: parsedUnitName, unitType: parsedUnitType } }] = parseAddressesFromString([ rawInput ])
@@ -92,6 +92,27 @@ describe('AddressFromStringParser', () => {
             expect(result.housePart).toEqual('г. Казань, ул. Кремлевская, д. 18')
             expect(result.unitPart).toEqual('кв. 25')
         })
+    })
+})
+
+const ADDRESS_USE_CASES_EN = [
+    ['123 Main St Apt 4B', '123 Main St', 'apartment', '4B' ],
+    ['456 Elm Rd, Suite 300', '456 Elm Rd', 'commercial', '300'],
+    ['789 Pine Ln, #12', '789 Pine Ln', 'apartment', '12'],
+    ['101 Maple Dr, Unit 2', '101 Maple Dr', 'apartment', '2'],
+]
+
+describe('AddressFromStringParser (en)', () => {
+    describe('Parsing unit names with unit types and house address from address strings', () => {
+        for (const rawData of ADDRESS_USE_CASES_EN) {
+            const [ rawInput, house, unitType, unit ] = rawData
+            test(`"${rawInput}" to be: "${house} = ${unitType} = ${unit}" `, () => {
+                const [{ result: { address, unitName: parsedUnitName, unitType: parsedUnitType } }] = parseAddressesFromString([ rawInput ], 'en')
+                expect(address).toEqual(house)
+                expect(parsedUnitName).toEqual(unit)
+                expect(unitType).toEqual(parsedUnitType)
+            })
+        }
     })
 })
 

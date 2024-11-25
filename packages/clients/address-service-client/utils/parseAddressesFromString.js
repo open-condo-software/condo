@@ -1,17 +1,17 @@
-const KEYWORDS = {
-    parking: ['автоместо', 'парковка', 'паркинг', 'машиноместо', 'гараж', 'м/м', 'мм', 'место', 'м/место', 'а/м', 'бокс', 'парк'],
-    apartment: ['аппарт', 'апарт', 'ап', 'к/п'],
-    commercial: ['офис', 'оф'],
-    warehouse: ['помещение', 'подвал', 'помещ', 'пом', 'кл', 'кладовка', 'кладовая', 'нп', 'клад'],
-    flat: ['квартира', 'кв', 'комн'],
-}
-
-const HOUSE_IDENTIFIERS = 'д|уч|дом|участок|двлд|домовладение'
 const SPLIT_SYMBOL = '%'
+const RULES = {}
 
 class AddressFromStringParser {
 
-    constructor () {
+    constructor (locale = 'ru') {
+        const {
+            HOUSE_IDENTIFIERS,
+            DEFAULT_UNIT,
+            KEYWORDS,
+        } = require(`@open-condo/clients/address-service-client/utils/locale/${locale}`)
+        RULES['KEYWORDS'] = KEYWORDS
+        RULES['HOUSE_IDENTIFIERS'] = HOUSE_IDENTIFIERS
+        RULES['DEFAULT_UNIT'] = DEFAULT_UNIT
         const keywordsRegex = this.keywordsToRegexp(Object.values(KEYWORDS).flat())
         this.splitRegexp = new RegExp(`[\\s,](${HOUSE_IDENTIFIERS})([\\s.].*?)[\\s,]+(${keywordsRegex})[.\\s]`, 'i')
     }
@@ -59,9 +59,9 @@ class AddressFromStringParser {
      */
     parseUnit (unitInput = '') {
         let detectedType = null
-        for (const unitType in KEYWORDS) {
-            const clearUnitTypeRegex = new RegExp(this.keywordsToRegexp(KEYWORDS[unitType]) + '[.\\s]+', 'ig')
-            const checkUnitTypeRegex = new RegExp(this.keywordsToRegexp(KEYWORDS[unitType]) + '[.]*', 'ig')
+        for (const unitType in RULES.KEYWORDS) {
+            const clearUnitTypeRegex = new RegExp(this.keywordsToRegexp(RULES.KEYWORDS[unitType]) + '[.\\s]+', 'ig')
+            const checkUnitTypeRegex = new RegExp(this.keywordsToRegexp(RULES.KEYWORDS[unitType]) + '[.]*', 'ig')
             if (!detectedType && checkUnitTypeRegex.test(unitInput)) {
                 detectedType = unitType
             }
@@ -114,16 +114,16 @@ class AddressFromStringParser {
     splitToUnitAndAddress (input) {
         const { housePart, unitPart } = this.splitByKeyword(input)
         if (!unitPart) {
-            const houseInTheEndRegexp = new RegExp(`[.\\s](${HOUSE_IDENTIFIERS})([.\\s]+)([0-9А-Я/\\\\]+)$`, 'i')
-            input = input.replace(houseInTheEndRegexp, ' $1$2$3, кв. 1')
+            const houseInTheEndRegexp = new RegExp(`[.\\s](${RULES.HOUSE_IDENTIFIERS})([.\\s]+)([0-9А-Я/\\\\]+)$`, 'i')
+            input = input.replace(houseInTheEndRegexp, ` $1$2$3, ${RULES.DEFAULT_UNIT}`)
             return this.splitByComma(input)
         }
         return { housePart, unitPart }
     }
 }
 
-const parseAddressesFromString = (addresses = []) => {
-    const parser = new AddressFromStringParser()
+const parseAddressesFromString = (addresses = [], locale = 'ru') => {
+    const parser = new AddressFromStringParser(locale)
     return addresses.map(source => ({ source, result: parser.parse(source) }))
 }
 
