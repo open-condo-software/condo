@@ -8,6 +8,8 @@ const SSR_COOKIES_DEFAULT_PROP_NAME = '__SSR_COOKIES__'
 
 export type SSRCookiesContextValues<CookiesList extends ReadonlyArray<string>> = Record<CookiesList[number], string | null>
 
+type Optional<T> = T | undefined
+
 type SSRProps<PropsType extends Record<string, unknown>> = {
     props?: PropsType
 }
@@ -132,7 +134,11 @@ export class SSRCookiesHelper<
         }
     }
 
-    extractSSRCookies<PropsType extends Record<string, unknown>> (req: IncomingMessage, res: ServerResponse, pageParams: SSRProps<PropsType>): SSRPropsWithCookies<PropsType, CookiesList, CookiesPropName>  {
+    extractSSRCookies<PropsType extends Record<string, unknown>> (
+        req: Optional<IncomingMessage>,
+        res: Optional<ServerResponse>,
+        pageParams: SSRProps<PropsType>
+    ): SSRPropsWithCookies<PropsType, CookiesList, CookiesPropName>  {
         return {
             ...pageParams,
             props: {
