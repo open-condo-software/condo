@@ -18,7 +18,7 @@ import App, { AppContext } from 'next/app'
 import getConfig from 'next/config'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { Fragment, useMemo, useState } from 'react'
+import React, { Fragment, useMemo } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useFeatureFlags, withFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
@@ -450,6 +450,24 @@ const TasksProvider = ({ children }) => {
     )
 }
 
+const useFeatureFlagsContext = () => {
+    const { organization } = useOrganization()
+    const { user } = useAuth()
+
+    const orgFeatures = useMemo(() => organization?.features || [], [organization])
+    const isSupport = user?.isSupport || false
+    const isAdmin = user?.isAdmin || false
+    const userId = user?.id || null
+    const organizationId = organization?.id || null
+
+    return useMemo(() => ({
+        orgFeatures,
+        isSupport: isSupport || isAdmin,
+        organization: organizationId,
+        userId,
+    }), [isAdmin, isSupport, orgFeatures, organizationId, userId])
+}
+
 const MyApp = ({ Component, pageProps }) => {
     const intl = useIntl()
     useHotCodeReload()
@@ -457,24 +475,12 @@ const MyApp = ({ Component, pageProps }) => {
     const router = useRouter()
     const { publicRuntimeConfig: { yandexMetrikaID, popupSmartConfig, UseDeskWidgetId } } = getConfig()
 
-    const { organization } = useOrganization()
-    const { user } = useAuth()
     const { updateContext } = useFeatureFlags()
-
-    const orgFeatures = get(organization, 'features', [])
-    const isSupport = get(user, 'isSupport', false)
-    const isAdmin = get(user, 'isAdmin', false)
-    const userId = get(user, 'id', null)
-    const organizationId = get(organization, 'id', null)
+    const featureFlagsContext = useFeatureFlagsContext()
 
     useDeepCompareEffect(() => {
-        updateContext({
-            orgFeatures,
-            isSupport: isSupport || isAdmin,
-            organization: organizationId,
-            userId,
-        })
-    }, [updateContext, orgFeatures, isSupport, isAdmin, organizationId, userId])
+        updateContext(featureFlagsContext)
+    }, [featureFlagsContext])
 
     const LayoutComponent = Component.container || BaseLayout
     // TODO(Dimitreee): remove this mess later
@@ -672,33 +678,13 @@ const withError = () => (PageComponent: NextPage): NextPage => {
     return WithError
 }
 
-const useInitFeatureFlagsContext = () => {
-    const { organization } = useOrganization()
-    const { user } = useAuth()
-
-    const orgFeatures = organization?.features || []
-    const isSupport = user?.isSupport || false
-    const isAdmin = user?.isAdmin || false
-    const userId = user?.id || null
-    const organizationId = organization?.id || null
-
-    const [initContext] = useState(() => ({
-        orgFeatures,
-        isSupport: isSupport || isAdmin,
-        organization: organizationId,
-        userId,
-    }))
-
-    return initContext
-}
-
 export default (
     withCookies()(
         withApollo({ legacy: false, ssr: !isDisabledSsr, apolloHelperOptions })(
             withAuth({ legacy: false, USER_QUERY: AuthenticatedUserDocument })(
                 withIntl({ ssr: !isDisabledSsr, messagesImporter, extractReqLocale, defaultLocale })(
                     withOrganization({ legacy: false, GET_ORGANIZATION_EMPLOYEE_QUERY: GetActiveOrganizationEmployeeDocument, useInitialEmployeeId })(
-                        withFeatureFlags({ ssr: !isDisabledSsr, useInitContext: useInitFeatureFlagsContext })(
+                        withFeatureFlags({ ssr: !isDisabledSsr, useInitContext: useFeatureFlagsContext })(
                             withError()(
                                 MyApp
                             )
