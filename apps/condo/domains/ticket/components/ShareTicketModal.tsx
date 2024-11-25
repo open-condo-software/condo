@@ -1,6 +1,4 @@
 /** @jsx jsx */
-import crypto from 'crypto'
-
 import { green } from '@ant-design/colors'
 import { CloseCircleFilled, RightOutlined } from '@ant-design/icons'
 import { Organization as IOrganization } from '@app/condo/schema'
@@ -22,9 +20,9 @@ import { useTracking, TrackingEventType } from '@condo/domains/common/components
 import { EN_LOCALE } from '@condo/domains/common/constants/locale'
 import { colors } from '@condo/domains/common/constants/style'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import { ALGORITHM, CRYPTOENCODING, SALT } from '@condo/domains/ticket/constants/crypto'
 import { SHARE_TICKET_MUTATION } from '@condo/domains/ticket/gql'
 import { getEmployeeWithEmail } from '@condo/domains/ticket/utils/clientSchema/search'
+import { packShareData } from '@condo/domains/ticket/utils/shareDataPacker'
 
 
 const collapse = css`
@@ -176,14 +174,13 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     const { logEvent, getEventName } = useTracking()
 
     const { date, number, details, id, locale, organization } = props
-    const cipher = crypto.createCipher(ALGORITHM, SALT)
 
     let cutDetails = details || ''
     if (cutDetails.length >= 110) {
         cutDetails = `${cutDetails.substr(0, 100)}…`
     }
-    const stringifiedParams = JSON.stringify({ date, number, details: cutDetails, id })
-    const encryptedText = cipher.update(stringifiedParams, 'utf8', CRYPTOENCODING) + cipher.final(CRYPTOENCODING)
+    const shareParams = JSON.stringify({ date, number, details: cutDetails, id })
+    const encryptedText = packShareData(shareParams)
 
     const { query } = useRouter()
     const [shareTicket] = useMutation(SHARE_TICKET_MUTATION)

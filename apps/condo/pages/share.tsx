@@ -1,5 +1,3 @@
-import crypto from 'crypto'
-
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import getConfig from 'next/config'
@@ -12,11 +10,7 @@ import { useIntl } from '@open-condo/next/intl'
 import BaseLayout, { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { LOCALES } from '@condo/domains/common/constants/locale'
 import { PageComponentType } from '@condo/domains/common/types'
-import {
-    ALGORITHM,
-    SALT,
-    CRYPTOENCODING,
-} from '@condo/domains/ticket/constants/crypto'
+import { unpackShareData } from '@condo/domains/ticket/utils/shareDataPacker'
 
 
 function RedirectToTicket ({ ticketId }) {
@@ -80,10 +74,9 @@ const Share: PageComponentType<ShareProps> = ({ date, number, details, id }) => 
 }
 
 export const getServerSideProps = ({ query }) => {
-    const decipher = crypto.createDecipher(ALGORITHM, SALT)
-    const decryptedText = decipher.update(query.q.replace(/\s/gm, '+'), CRYPTOENCODING, 'utf8') + decipher.final('utf8')
-    // TODO(leonid-d): update encrypt method, or use link shortening service
-    return { props: JSON.parse(decryptedText) }
+    const packedData = query.q.replace(/\s/gm, '+')
+    const shareParams = unpackShareData(packedData)
+    return { props: JSON.parse(shareParams) }
 }
 
 const EmptyLayout = ({ children, ...props }) => {
