@@ -1,12 +1,12 @@
 import {
     FeatureDefinitions,
+    Attributes,
     FeaturesReady,
     GrowthBook,
     GrowthBookProvider,
     useGrowthBook,
     Context,
 } from '@growthbook/growthbook-react'
-import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
 import { NextPage } from 'next'
@@ -20,8 +20,6 @@ import {
     getContextIndependentWrappedInitialProps,
     preventInfinityLoop,
 } from '@open-condo/next/_utils'
-import { useAuth } from '@open-condo/next/auth'
-import { useOrganization } from '@open-condo/next/organization'
 
 
 const {
@@ -38,29 +36,20 @@ interface IFeatureFlagsContext {
     useFlag: (name: string) => boolean
     useFlagValue: UseFlagValueType
     updateContext: (context) => void
+    isReady: boolean
 }
 
 const FeatureFlagsContext = createContext<IFeatureFlagsContext>({
     useFlag: () => false,
     useFlagValue: () => null,
     updateContext: () => ({}),
+    isReady: false,
 })
 
 const useFeatureFlags = (): IFeatureFlagsContext => useContext(FeatureFlagsContext)
 
-type FeatureFlagsProviderWrapperProps = {
-    initFeatures?: FeatureDefinitions
-}
-
-const FeatureFlagsProviderWrapper: React.FC<FeatureFlagsProviderWrapperProps> = ({ children, initFeatures = null }) => {
+const FeatureFlagsProviderWrapper: React.FC = ({ children }) => {
     const growthbook = useGrowthBook()
-    const { user, isLoading: userIsLoading  } = useAuth()
-    const { organization, isLoading: organizationIsLoading } = useOrganization()
-    const [features, setFeature] = useState(initFeatures)
-
-    const isSupport = get(user, 'isSupport', false)
-    const isAdmin = get(user, 'isAdmin', false)
-    const userId = get(user, 'id', null)
 
     const updateContext = useCallback((context) => {
         const previousContext = growthbook.getAttributes()
@@ -90,7 +79,9 @@ const FeatureFlagsProviderWrapper: React.FC<FeatureFlagsProviderWrapperProps> = 
                 })
                 .finally(() => {
                     if (!growthbook.ready || !isEqual(prev, next)) {
-                        setFeature(next)
+                        if (next) {
+                            growthbook.setPayload({ features: next })
+                        }
                     }
                 })
         }
@@ -103,53 +94,37 @@ const FeatureFlagsProviderWrapper: React.FC<FeatureFlagsProviderWrapperProps> = 
         }
     }, [growthbook])
 
-    useEffect(() => {
-        if (!features || userIsLoading || organizationIsLoading) return
-
-        growthbook.setPayload({ features: features })
-    }, [features, userIsLoading, organizationIsLoading])
-
-    useEffect(() => {
-        updateContext({ isSupport: isSupport || isAdmin, organization: get(organization, 'id'), userId })
-    }, [updateContext, isAdmin, isSupport, organization, userId])
-
     return (
         <FeatureFlagsContext.Provider value={{
             useFlag,
             useFlagValue,
             updateContext,
+            isReady: growthbook.ready,
         }}>
             {children}
         </FeatureFlagsContext.Provider>
     )
 }
 
-type FeatureFlagsProviderProps = FeatureFlagsProviderWrapperProps
+type FeatureFlagsProviderProps = {
+    initFeatures?: FeatureDefinitions
+    initContext?: Attributes
+}
 
-const FeatureFlagsProvider: React.FC<FeatureFlagsProviderProps> = ({ children, initFeatures = null }) => {
-    const { user, isLoading: userIsLoading  } = useAuth()
-    const { organization, isLoading: organizationIsLoading } = useOrganization()
-
+const FeatureFlagsProvider: React.FC<FeatureFlagsProviderProps> = ({ children, initFeatures = null, initContext = null }) => {
     const [growthbookInstance] = useState(() => {
         // NOTE: We need to fill the growthbook during server rendering so that the correct page is generated
-        const isSupport = get(user, 'isSupport', false)
-        const isAdmin = get(user, 'isAdmin', false)
-        const userId = get(user, 'id', null)
-        const organizationId = get(organization, 'id', null)
-
         const context: Context = {}
 
         // NOTE: After we write feature to the growthbook, the growthbook will be marked as ready.
         // Therefore, if not all the necessary data is loaded,
         // then we want to consider that the growthbook is not ready for work
-        if (!userIsLoading && !organizationIsLoading && initFeatures) {
+        if (initFeatures) {
             context.features = initFeatures
         }
 
-        context.attributes = {
-            isSupport: isSupport || isAdmin,
-            organization: organizationId,
-            userId,
+        if (initContext) {
+            context.attributes = initContext
         }
 
         return new GrowthBook(context)
@@ -157,7 +132,7 @@ const FeatureFlagsProvider: React.FC<FeatureFlagsProviderProps> = ({ children, i
 
     return (
         <GrowthBookProvider growthbook={growthbookInstance}>
-            <FeatureFlagsProviderWrapper initFeatures={initFeatures}>
+            <FeatureFlagsProviderWrapper>
                 {children}
             </FeatureFlagsProviderWrapper>
         </GrowthBookProvider>
@@ -186,15 +161,18 @@ const initOnRestore = async (ctx) => {
 
 type WithFeatureFlagsProps = {
     ssr?: boolean
+    useInitContext?: () => Attributes
 }
 export type WithFeatureFlags = (props: WithFeatureFlagsProps) => (PageComponent: NextPage) => NextPage
 
-const withFeatureFlags: WithFeatureFlags = ({ ssr = false }) => PageComponent => {
+const withFeatureFlags: WithFeatureFlags = ({ ssr = false, useInitContext = () => ({}) }) => PageComponent => {
     const WithFeatureFlags = ({ features, ...pageProps }) => {
         if (DEBUG_RERENDERS) console.log('WithFeatureFlags()', features)
 
+        const initContext = useInitContext()
+
         return (
-            <FeatureFlagsProvider initFeatures={features}>
+            <FeatureFlagsProvider initFeatures={features} initContext={initContext}>
                 <PageComponent {...pageProps} />
             </FeatureFlagsProvider>
         )
