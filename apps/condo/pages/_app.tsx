@@ -18,10 +18,10 @@ import App, { AppContext } from 'next/app'
 import getConfig from 'next/config'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { Fragment, useMemo } from 'react'
+import React, { Fragment, useMemo, useState } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
-import { useFeatureFlags, FeaturesReady, withFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
+import { useFeatureFlags, withFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import * as AllIcons from '@open-condo/icons'
 import { extractReqLocale } from '@open-condo/locales/extractReqLocale'
 import { isSSR } from '@open-condo/miniapp-utils'
@@ -38,7 +38,6 @@ import { hasFeature } from '@condo/domains/common/components/containers/FeatureF
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
 import YandexMetrika from '@condo/domains/common/components/containers/YandexMetrika'
 import { LayoutContextProvider } from '@condo/domains/common/components/LayoutContext'
-import { Loader } from '@condo/domains/common/components/Loader'
 import { MenuItem } from '@condo/domains/common/components/MenuItem'
 import PopupSmart from '@condo/domains/common/components/PopupSmart'
 import { PostMessageProvider } from '@condo/domains/common/components/PostMessageProvider'
@@ -144,7 +143,7 @@ interface IMenuCategoryData {
 const ANT_DEFAULT_LOCALE = enUS
 
 const MenuItems: React.FC = () => {
-    const { updateContext, useFlag } = useFeatureFlags()
+    const { useFlag } = useFeatureFlags()
     const isSPPOrg = useFlag(SERVICE_PROVIDER_PROFILE)
     const isMarketplaceEnabled = useFlag(MARKETPLACE)
 
@@ -156,7 +155,6 @@ const MenuItems: React.FC = () => {
     const { wrapElementIntoNoOrganizationToolTip } = useNoOrganizationToolTip()
     const role = get(link, 'role', {})
     const orgId = get(organization, 'id', null)
-    const orgFeatures = get(organization, 'features', [])
     const sppBillingId = get(sppConfig, 'BillingIntegrationId', null)
     const { obj: billingCtx } = BillingContext.useObject({ where: { integration: { id: sppBillingId }, organization: { id: orgId } } })
     const anyReceiptsLoaded = Boolean(get(billingCtx, 'lastReport', null))
@@ -179,10 +177,6 @@ const MenuItems: React.FC = () => {
     const { canRead: hasAccessToNewsItems } = useNewsItemsAccess()
 
     const { appsByCategories, connectedAppsIds } = useConnectedAppsWithIconsContext()
-
-    useDeepCompareEffect(() => {
-        updateContext({ orgFeatures })
-    }, [updateContext, orgFeatures])
 
     const menuCategoriesData = useMemo<Array<IMenuCategoryData>>(() => ([
         {
@@ -463,6 +457,25 @@ const MyApp = ({ Component, pageProps }) => {
     const router = useRouter()
     const { publicRuntimeConfig: { yandexMetrikaID, popupSmartConfig, UseDeskWidgetId } } = getConfig()
 
+    const { organization } = useOrganization()
+    const { user } = useAuth()
+    const { updateContext } = useFeatureFlags()
+
+    const orgFeatures = get(organization, 'features', [])
+    const isSupport = get(user, 'isSupport', false)
+    const isAdmin = get(user, 'isAdmin', false)
+    const userId = get(user, 'id', null)
+    const organizationId = get(organization, 'id', null)
+
+    useDeepCompareEffect(() => {
+        updateContext({
+            orgFeatures,
+            isSupport: isSupport || isAdmin,
+            organization: organizationId,
+            userId,
+        })
+    }, [updateContext, orgFeatures, isSupport, isAdmin, organizationId, userId])
+
     const LayoutComponent = Component.container || BaseLayout
     // TODO(Dimitreee): remove this mess later
     const HeaderAction = Component.headerAction
@@ -504,14 +517,12 @@ const MyApp = ({ Component, pageProps }) => {
                                                         <ConnectedAppsWithIconsContextProvider>
                                                             <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
                                                                 <RequiredAccess>
-                                                                    <FeaturesReady fallback={<Loader fill size='large'/>}>
-                                                                        <Component {...pageProps} />
-                                                                        {
-                                                                            isEndTrialSubscriptionReminderPopupVisible && (
-                                                                                <EndTrialSubscriptionReminderPopup/>
-                                                                            )
-                                                                        }
-                                                                    </FeaturesReady>
+                                                                    <Component {...pageProps} />
+                                                                    {
+                                                                        isEndTrialSubscriptionReminderPopupVisible && (
+                                                                            <EndTrialSubscriptionReminderPopup/>
+                                                                        )
+                                                                    }
                                                                 </RequiredAccess>
                                                             </LayoutComponent>
                                                         </ConnectedAppsWithIconsContextProvider>
@@ -524,8 +535,8 @@ const MyApp = ({ Component, pageProps }) => {
                             </PostMessageProvider>
                         </TasksProvider>
                     </LayoutContextProvider>
-                    {yandexMetrikaID && <YandexMetrika />}
-                    {!isEmpty(popupSmartConfig) && <PopupSmart />}
+                    {yandexMetrikaID && <YandexMetrika/>}
+                    {!isEmpty(popupSmartConfig) && <PopupSmart/>}
                     {UseDeskWidgetId && <UseDeskWidget/>}
                 </CacheProvider>
             </ConfigProvider>
@@ -661,13 +672,33 @@ const withError = () => (PageComponent: NextPage): NextPage => {
     return WithError
 }
 
+const useInitFeatureFlagsContext = () => {
+    const { organization } = useOrganization()
+    const { user } = useAuth()
+
+    const orgFeatures = organization?.features || []
+    const isSupport = user?.isSupport || false
+    const isAdmin = user?.isAdmin || false
+    const userId = user?.id || null
+    const organizationId = organization?.id || null
+
+    const [initContext] = useState(() => ({
+        orgFeatures,
+        isSupport: isSupport || isAdmin,
+        organization: organizationId,
+        userId,
+    }))
+
+    return initContext
+}
+
 export default (
     withCookies()(
         withApollo({ legacy: false, ssr: !isDisabledSsr, apolloHelperOptions })(
             withAuth({ legacy: false, USER_QUERY: AuthenticatedUserDocument })(
                 withIntl({ ssr: !isDisabledSsr, messagesImporter, extractReqLocale, defaultLocale })(
                     withOrganization({ legacy: false, GET_ORGANIZATION_EMPLOYEE_QUERY: GetActiveOrganizationEmployeeDocument, useInitialEmployeeId })(
-                        withFeatureFlags({ ssr: !isDisabledSsr })(
+                        withFeatureFlags({ ssr: !isDisabledSsr, useInitContext: useInitFeatureFlagsContext })(
                             withError()(
                                 MyApp
                             )
