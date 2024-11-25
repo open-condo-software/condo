@@ -6,6 +6,7 @@ const get = require('lodash/get')
 const isNil = require('lodash/isNil')
 const set = require('lodash/set')
 
+const { ENCRYPTION_PREFIX } = require('@open-condo/keystone/crypto/EncryptionManager')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { prepareKeystoneExpressApp } = require('@open-condo/keystone/prepareKeystoneApp')
 const { getAppName } = require('@open-condo/keystone/tracingUtils')
@@ -30,10 +31,26 @@ function logState (state, indent = '') {
     console.log(chalk.green(`${indent}Errors count: ${state.errorCount}`))
 }
 
+function getWhereCondition (encryptionManagers, currentVersionIdsByField) {
+    const where = { AND: [], OR: [] }
+    for (const field in currentVersionIdsByField) {
+        if (OPTIONS.fromVersions) {
+            for (const versionId of OPTIONS.fromVersions) {
+                if (encryptionManagers[field]._config[versionId]) {
+                    where.OR.push({ [`${field}_starts_with`]: `${ENCRYPTION_PREFIX}:${Buffer.from(versionId).toString('hex')}:` })
+                }
+            }
+        } else {
+            where.AND.push({ [`${field}_not_starts_with`]: `${ENCRYPTION_PREFIX}:${currentVersionIdsByField[field]}:` } )
+        }
+    }
+    return where
+}
+
 /**
  * @param {Keystone} keystone
  * @param {List} list
- * @param {SymmetricEncryptedTextImplementation[]} fields
+ * @param {EncryptedTextImplementation[]} fields
  * */
 async function processList (keystone, { list, fields }) {
 
@@ -44,10 +61,7 @@ async function processList (keystone, { list, fields }) {
         currentVersionIdsByField[field.path] = Buffer.from(field.encryptionManager._encryptionVersionId).toString('hex')
     }
 
-    const where = { AND: [] }
-    for (const field in currentVersionIdsByField) {
-        where.AND.push({ [`${field}_not_starts_with`]: `${currentVersionIdsByField[field]}:` } )
-    }
+    const where = getWhereCondition(encryptionManagers, currentVersionIdsByField)
 
     const adapter = list.adapter
 
@@ -60,8 +74,8 @@ async function processList (keystone, { list, fields }) {
         processedCount: 0,
         errorCount: 0,
         successCount: 0,
-        decryptErrors: {},
-        updateErrors: {},
+        decryptErrors: undefined,
+        updateErrors: undefined,
     }
 
     const logIndent = '    '
@@ -127,13 +141,13 @@ async function processList (keystone, { list, fields }) {
 
 function getListsWithEncryptedFields (keystone) {
     return keystone.listsArray
-        .map(list => ({ list, fields: list.fields.filter(field => field.constructor.name === 'SymmetricEncryptedTextImplementation') } ) )
+        .map(list => ({ list, fields: list.fields.filter(field => field.constructor.name === 'EncryptedTextImplementation') } ) )
         .filter(({ fields }) => fields.length)
 }
 
-function getOptions () {
+function parseOptions () {
     program.parse()
-    let { all, include, exclude } = program.opts()
+    let { all, include, exclude, fromVersions } = program.opts()
 
     if (all) {
         if (!isNil(include)) {
@@ -164,11 +178,21 @@ function getOptions () {
         }, {})
     }
 
-    return { all, include: transformToSchema(include), exclude: transformToSchema(exclude) }
+    OPTIONS.all = all
+    OPTIONS.include = transformToSchema(include)
+    OPTIONS.exclude = transformToSchema(exclude)
+    OPTIONS.fromVersions = isNil(fromVersions) ? fromVersions : Array.isArray(fromVersions) ? fromVersions : [fromVersions]
+}
+
+const OPTIONS = {
+    all: undefined,
+    include: undefined,
+    exclude: undefined,
+    fromVersions: undefined,
 }
 
 function getDataToReEncrypt (keystone) {
-    const { all, include, exclude } = getOptions()
+    const { all, include, exclude } = OPTIONS
     let filteredLists = getListsWithEncryptedFields(keystone)
     if (all) {
         if (exclude !== null) {
@@ -208,19 +232,20 @@ function logErrors () {
     }
 }
 
-program.option('-a --all', 're encrypt all fields of SymmetricEncryptedText type in all lists', false)
+program.option('-a --all', 're encrypt all fields of EncryptedText type in all lists', false)
 program.option('-i --include <listKey>', `Collection of <listKey> divided by space.
     If passed, only these lists will be re encrypted. Works only with --all = false`, null)
 program.option('-e --exclude <listKey>', 'Same as --include, but works only with --app = true and determines\n ' +
     'models which should not be modified', null)
-program.description(`Re encrypts fields of type SymmetricEncryptedText with old secrets to new secrets
+program.option('--from-versions <versions>', 'Collection of versoin ids, which you need to re encrypt. If not passed, all versions are re encrypted', null)
+program.description(`Re encrypts fields of type EncryptedText with old secrets to new secrets
 NOTE: it only touches data, which was encrypted in existing versions. If old version was forgotten, this script won't tell, or might error
-If there is data under field SymmetricEncryptedText, which was not encrypted by field methods, script will skip it or will error
+If there is data under field EncryptedText, which was not encrypted by field methods, script will skip it or will error
 `)
 
 
 async function main () {
-    program.parse()
+    parseOptions()
     const index = path.resolve('./index.js')
     const { keystone } = await prepareKeystoneExpressApp(index)
     
@@ -235,8 +260,12 @@ async function main () {
         STATE.successCount += listState.successCount
         STATE.processedCount += listState.processedCount
         STATE.errorCount += listState.errorCount
-        set(STATE, `errors.${listFieldsPair.list.key}.decrypt`, listState.decryptErrors)
-        set(STATE, `errors.${listFieldsPair.list.key}.update`, listState.updateErrors)
+        if (listState.decryptErrors) {
+            set(STATE, `errors.${listFieldsPair.list.key}.decrypt`, listState.decryptErrors)
+        }
+        if (listState.updateErrors) {
+            set(STATE, `errors.${listFieldsPair.list.key}.update`, listState.updateErrors)
+        }
         console.log(chalk.green('--------------------------'))
         console.log(chalk.greenBright(`Processed lists: ${i}/${listsWithEncryptedFieldsToReEncrypt.length}`))
         logState(STATE)

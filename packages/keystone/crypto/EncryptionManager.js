@@ -4,9 +4,10 @@ const isEmpty = require('lodash/isEmpty')
 const isNil = require('lodash/isNil')
 
 const conf = require('@open-condo/config')
-const { getLogger } = require('@open-condo/keystone/logging/getLogger')
 
-const logger = getLogger('EncryptionManager')
+const { compressors } = require('./compressors')
+const { EncryptionVersion } = require('./EncryptionVersion')
+const { keyDerivers } = require('./keyDerivers')
 
 let DEFAULT_CONFIG
 let DEFAULT_VERSION_ID
@@ -22,7 +23,7 @@ let DEFAULT_VERSION_ID
 // since data is converted in hex, ':' shouldn't be in it
 const SEPARATOR = ':'
 const ENCRYPTION_PREFIX = ['\u{200B}', '\u{034F}', '\u{180C}', '\u{1D175}', '\u{E003B}', '\u{2800}'].join('')
-const SUPPORTED_MODES = ['cbc', 'ctr', 'cfb', 'ofb']
+const SUPPORTED_MODES = ['cbc', 'ctr', 'cfb', 'ofb', 'gcm']
 const SUGGESTIONS = {
     'cfb': 'Please, consider using "ctr" or "cbc"',
     'ofb': 'Please, consider using "ctr" or "cbc"',
@@ -38,6 +39,8 @@ const SUGGESTIONS = {
  * @typedef {Object} EncryptionManagerVersion
  * @property {string} algorithm - crypto algorithm
  * @property {string} secret - secret key
+ * @property {string} compressor
+ * @property {string} keyDeriver
  */
 
 /**
@@ -74,6 +77,7 @@ const SUGGESTIONS = {
 class EncryptionManager {
     
     _encryptionVersionId
+    /** @type {Record<string, EncryptionVersion>} */
     _config = {}
 
     /**
@@ -94,17 +98,23 @@ class EncryptionManager {
      * @returns {string}
      */
     encrypt (data) {
-        const { algorithm, ivLength, secret } = this._config[this._encryptionVersionId]
-        const iv = crypto.randomBytes(ivLength)
-
-        const cipheriv = crypto.createCipheriv(algorithm, secret, iv)
-        const encryptedValue = Buffer.concat([cipheriv.update(data), cipheriv.final()])
+        const version = this._config[this._encryptionVersionId]
         return [
             ENCRYPTION_PREFIX,
             Buffer.from(this._encryptionVersionId).toString('hex'),
-            encryptedValue.toString('hex'),
-            iv.toString('hex'),
+            version.encrypt(data),
         ].join(SEPARATOR)
+        // const { algorithm, ivLength, secret } = this._config[this._encryptionVersionId]
+        // const iv = crypto.randomBytes(ivLength)
+        //
+        // const cipheriv = crypto.createCipheriv(algorithm, secret, iv)
+        // const encryptedValue = Buffer.concat([cipheriv.update(data), cipheriv.final()])
+        // return [
+        //     ENCRYPTION_PREFIX,
+        //     Buffer.from(this._encryptionVersionId).toString('hex'),
+        //     encryptedValue.toString('hex'),
+        //     iv.toString('hex'),
+        // ].join(SEPARATOR)
     }
 
     /** @param {string} encrypted
@@ -112,34 +122,31 @@ class EncryptionManager {
      */
     decrypt (encrypted) {
         if (typeof encrypted !== 'string') {
-            return null
+            throw new Error(`Invalid encrypted data, expected of type "string", received ${typeof encrypted}`)
         }
         const parts = encrypted.split(SEPARATOR)
         if (parts.length < 3) {
-            return null
+            throw new Error('Invalid format of encrypted data')
         }
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const [_, versionIdHex, encodedHex, ivHex] = parts
+
+        const [encryptionPrefix, versionIdHex, encryptedPayload] = parts
+        if (encryptionPrefix !== ENCRYPTION_PREFIX) {
+            throw new Error('Invalid encrypted data. It was not encrypted with EncryptionManager')
+        }
         const versionId = Buffer.from(versionIdHex, 'hex').toString()
         const version = this._config[versionId]
         if (isNil(version)) {
-            logger.error({ msg: 'Received version id, which is not present in versions', data: { versionId } })
-            return null
+            throw new Error('Invalid encrypted data. Versions id is not present in EncryptionManager')
         }
-        const { algorithm, secret } = version
-        const decipheriv = crypto.createDecipheriv(algorithm, secret, Buffer.from(ivHex, 'hex'))
-        const decrypted = Buffer.concat([decipheriv.update(Buffer.from(encodedHex, 'hex')), decipheriv.final()])
-
-        return decrypted.toString()
+        return version.decrypt(encryptedPayload)
     }
 
     /**
      * Is given string encrypted with one of versions of this instance. Can not check for secrets and algorithm
      * @param {string} str
-     * @param {string?} versionId - validate specific version
      * @returns {boolean}
      */
-    isEncrypted (str, versionId) {
+    isEncrypted (str) {
         if (typeof str !== 'string') {
             return false
         }
@@ -151,9 +158,6 @@ class EncryptionManager {
             return false
         }
         const decodedFromHexVersion = Buffer.from(parts[1], 'hex').toString()
-        if (!isNil(versionId)) {
-            return decodedFromHexVersion === versionId
-        }
         return !!this._config[decodedFromHexVersion]
     }
 
@@ -164,12 +168,12 @@ class EncryptionManager {
             return
         }
 
-        const defaultVersionsJSON = conf.DEFAULT_KEYSTONE_SYMMETRIC_ENCRYPTION_CONFIG
+        const defaultVersionsJSON = conf.DEFAULT_KEYSTONE_ENCRYPTION_CONFIG
         if (isNil(defaultVersionsJSON)) {
             throw new Error('env DEFAULT_KEYSTONE_SYMMETRIC_ENCRYPTION_CONFIG is not present')
         }
         const defaultVersions = JSON.parse(defaultVersionsJSON)
-        this._encryptionVersionId = isNil(overrideEncryptionVersionId) ?  conf.DEFAULT_KEYSTONE_SYMMETRIC_ENCRYPTION_VERSION_ID : overrideEncryptionVersionId
+        this._encryptionVersionId = isNil(overrideEncryptionVersionId) ?  conf.DEFAULT_KEYSTONE_ENCRYPTION_VERSION_ID : overrideEncryptionVersionId
 
         this._validateVersions(defaultVersions)
         this._config = this._parseVersions(defaultVersions)
@@ -214,27 +218,30 @@ class EncryptionManager {
     _parseVersions (versions) {
         const parsedConfig = {}
         for (const versionId in versions) {
-            const { algorithm, secret } = versions[versionId]
-            const { ivLength } = crypto.getCipherInfo(algorithm)
-            parsedConfig[versionId] = {
+            const { algorithm, secret, keyDeriver = 'noop', compressor = 'noop' } = versions[versionId]
+            parsedConfig[versionId] = new EncryptionVersion({
+                id: versionId,
                 algorithm,
                 secret,
-                ivLength: ivLength || 0,
-            }
+                compressor: compressors[compressor],
+                keyDeriver: keyDerivers[keyDeriver],
+            })
         }
         return parsedConfig
     }
 
     _validateVersions (versions) {
         for (const versionId in versions) {
-            if (versionId.includes(SEPARATOR)) {
-                throw new Error(`You should not put "${SEPARATOR}" in version id (key in object of versions), received ${versionId}`)
-            }
             if (versionId.length === 0) {
                 throw new Error('Invalid version id. Empty string is forbidden')
             }
 
-            const { algorithm, secret } = versions[versionId]
+            const {
+                algorithm,
+                secret,
+                keyDeriver = 'noop',
+                compressor = 'noop',
+            } = versions[versionId]
             const cipherInfo = crypto.getCipherInfo(algorithm)
             if (!cipherInfo) {
                 throw new Error(`Invalid algorithm at ${versionId}.algorithm`)
@@ -245,17 +252,22 @@ class EncryptionManager {
             if (SUGGESTIONS[cipherInfo.mode]) {
                 console.warn(`${SUGGESTIONS[cipherInfo.mode]} at ${versionId}.algorithm`)
             }
-            
+
             const keyLength = cipherInfo.keyLength
 
-            if (typeof secret !== 'string' || isEmpty(secret)) {
-                throw new Error(`Secret must be a non empty string at ${versionId}.secret`)
+            if ((typeof secret !== 'string' && !(secret instanceof Buffer)) || isEmpty(secret)) {
+                throw new Error(`Secret must be a non empty string or buffer at ${versionId}.secret`)
             }
-            if (secret.length !== keyLength) {
-                throw new Error(`Secret for algorithm ${algorithm} must have length ${keyLength}, received ${secret.length} at ${versionId}.secret`)
+
+            if (!compressors[compressor]) {
+                throw new Error(`Invalid compressor ${compressor} at ${versionId}.compressor. Register it with "registerCompressor" or use another`)
             }
-            if (!crypto.getCipherInfo(algorithm, { keyLength: secret.length })) {
-                throw new Error(`For some reason crypto does not accept ${algorithm} with secret of length ${secret.length}, debug why at ${versionId}.secret`)
+            if (!keyDerivers[keyDeriver]) {
+                throw new Error(`Invalid key deriver ${keyDeriver} at ${versionId}.keyDeriver. Register it with "registerKeyDeriver" or use another`)
+            }
+
+            if (keyDeriver === 'noop' && !crypto.getCipherInfo(algorithm, { keyLength: secret.length })) {
+                throw new Error(`Invalid secret key length for ${algorithm} with secret of length ${secret.length}, required ${keyLength}. Change secret key or provide keyDeriver at ${versionId}.secret`)
             }
         }
     }
