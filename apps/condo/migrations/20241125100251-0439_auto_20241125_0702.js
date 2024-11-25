@@ -9,7 +9,9 @@ exports.up = async (knex) => {
             UPDATE "MeterReading"
             SET "accountNumber" = "Meter"."accountNumber"
             FROM "Meter"
-            WHERE "MeterReading"."meter" = "Meter"."id" AND "Meter"."deletedAt" is NULL;
+            WHERE "MeterReading"."meter" = "Meter"."id" 
+                AND "Meter"."deletedAt" is NULL 
+                AND "MeterReading"."accountNumber" is NULL;
 
             SET statement_timeout = '10s';
         COMMIT;
@@ -24,7 +26,8 @@ exports.down = async (knex) => {
             UPDATE "MeterReading"
             SET "accountNumber" = NULL
             FROM "Meter"
-            WHERE "MeterReading"."meter" = "Meter"."id" AND "Meter"."deletedAt" is NULL;
+            WHERE "MeterReading"."meter" = "Meter"."id" 
+                AND "Meter"."deletedAt" is NULL;
 
             SET statement_timeout = '10s';
         COMMIT;
