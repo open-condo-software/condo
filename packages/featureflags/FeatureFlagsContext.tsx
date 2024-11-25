@@ -169,7 +169,8 @@ const withFeatureFlags: WithFeatureFlags = ({ ssr = false, useInitContext = () =
     const WithFeatureFlags = ({ features, ...pageProps }) => {
         if (DEBUG_RERENDERS) console.log('WithFeatureFlags()', features)
 
-        const initContext = useInitContext()
+        const _initContext = useInitContext()
+        const [initContext] = useState(_initContext)
 
         return (
             <FeatureFlagsProvider initFeatures={features} initContext={initContext}>
