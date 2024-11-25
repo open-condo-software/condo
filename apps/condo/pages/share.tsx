@@ -12,6 +12,8 @@ import { LOCALES } from '@condo/domains/common/constants/locale'
 import { PageComponentType } from '@condo/domains/common/types'
 import { unpackShareData } from '@condo/domains/ticket/utils/shareDataPacker'
 
+import type { GetServerSideProps } from 'next'
+
 
 function RedirectToTicket ({ ticketId }) {
     const intl = useIntl()
@@ -73,10 +75,27 @@ const Share: PageComponentType<ShareProps> = ({ date, number, details, id }) => 
     )
 }
 
-export const getServerSideProps = ({ query }) => {
-    const packedData = query.q.replace(/\s/gm, '+')
-    const shareParams = unpackShareData(packedData)
-    return { props: JSON.parse(shareParams) }
+export const getServerSideProps: GetServerSideProps = async ({ query }) => {
+    try {
+        if (typeof query?.q !== 'string') {
+            return {
+                props: {
+                    statusCode: 404,
+                },
+            }
+        }
+        
+        const packedData = query.q.replace(/\s/gm, '+')
+        const shareParams = unpackShareData(packedData)
+        return { props: JSON.parse(shareParams) }
+    } catch (error) {
+        console.error({ msg: 'Failed to unpack share data', error, 'query.q': query?.q })
+        return {
+            props: {
+                statusCode: 500,
+            },
+        }
+    }
 }
 
 const EmptyLayout = ({ children, ...props }) => {
