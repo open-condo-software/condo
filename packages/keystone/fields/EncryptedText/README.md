@@ -24,26 +24,24 @@ Create EncryptionManager separately, so you can use it elsewhere to decrypt data
 const { EncryptionManager } = require('@open-condo/keystone/crypto/EncryptionManager');
 const conf = require('@open-condo/config')
 
-const UserCrypto = {
-    nonPublicData: new EncryptionManager()
-}
+const manager = new EncryptionManager()
 
 keystone.createList('User', {
   fields: {
     email: { type: 'Text' },
     nonPublicData: { 
         type: 'EncryptedText',
-        encryptionManager: UserCrypto.nonPublicData,
+        encryptionManager: manager,
         hooks: {
             resolveInput({ existingItem }) {
-                const decryptedNonPublicData = UserCrypto.nonPublicData.decrypt(existingItem.nonPublicData)
+                const decryptedNonPublicData = manager.decrypt(existingItem.nonPublicData)
             }
         },
     },
   },
   hooks: {
       afterChanges: async ({ updatedItem }) => {
-         const decryptedNonPublicData = UserCrypto.nonPublicData.decrypt(updatedItem.nonPublicData)
+         const decryptedNonPublicData = manager.decrypt(updatedItem.nonPublicData)
       },   
   }, 
 });
@@ -56,19 +54,24 @@ If you want to configure EncryptionManager yourself
 const { EncryptionManager } = require('@open-condo/keystone/crypto/EncryptionManager');
 const conf = require('@open-condo/config')
 
-const UserCrypto = {
-    nonPublicData: new EncryptionManager({
-       versions: { 'versionId':  { algorithm: 'crypto algorithm', secret: 'your secret key' } },
+const manager = new EncryptionManager({
+       versions: { 
+           'versionId':  { 
+               algorithm: 'crypto algorithm',
+               secret: 'your secret key',
+               compressor: 'open-condo_brotli', // defaults to noop
+               keyDeriver: 'open-condo_pbkdf2-sha512', // defaults to noop
+           }
+       },
        encryptionVersionId: 'versionId'
     })
-}
 
 keystone.createList('User', {
   fields: {
       email: {type: 'Text'},
       nonPublicData: {
           type: 'EncryptedText',
-          encryptionManager: UserCrypto.nonPublicData,
+          encryptionManager: manager,
       },
   }
 });
@@ -97,7 +100,7 @@ The value stored is string containing provided version, iv and, encrypted with p
 
 ## Service information
 
-| Env                                                | Format                                                    | Description                                                       |
-|----------------------------------------------------|-----------------------------------------------------------|-------------------------------------------------------------------|
-| `DEFAULT_KEYSTONE_SYMMETRIC_ENCRYPTION_CONFIG`     | `{ [id: string]: { algorithm: string, secret: string } }` | Default versions                                                  |
-| `DEFAULT_KEYSTONE_SYMMETRIC_ENCRYPTION_VERSION_ID` | `string`                                                  | Default version id from default versions to encrypt new data with |
+| Env                          | Format                                                                                              | Description                                                       |
+|------------------------------|-----------------------------------------------------------------------------------------------------|-------------------------------------------------------------------|
+| `DATA_ENCRYPTION_CONFIG`     | `{ [id: string]: { algorithm: string, secret: string, compressor?: string, keyDeriver?: string } }` | Default versions                                                  |
+| `DATA_ENCRYPTION_VERSION_ID` | `string`                                                                                            | Default version id from default versions to encrypt new data with |

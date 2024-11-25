@@ -39,9 +39,11 @@ class EncryptedTextImplementation extends Text.implementation {
      * @param {string} listKey
      */
     constructor (path, options = {}, { listKey }) {
+        // provide encryptionManager in options for fieldAdapter for database
         const errorStart = _getErrorStart(listKey, path)
         const encryptionManager = _getEncryptionManager(errorStart, options)
         set(options, 'encryptionManager', encryptionManager)
+
         super(...arguments)
 
         this.encryptionManager = encryptionManager

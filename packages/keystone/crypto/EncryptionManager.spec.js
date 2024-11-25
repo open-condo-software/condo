@@ -3,18 +3,25 @@ const crypto = require('crypto')
 const { faker } = require('@faker-js/faker')
 const { groupBy } = require('lodash')
 
-const { EncryptionManager, SUPPORTED_MODES, ENCRYPTION_PREFIX } = require('@open-condo/keystone/crypto/EncryptionManager')
+const { EncryptionManager } = require('@open-condo/keystone/crypto/EncryptionManager')
 const { catchErrorFrom, getRandomString } = require('@open-condo/keystone/test.utils')
+
+const SUPPORTED_MODES = ['cbc', 'ctr', 'cfb', 'ofb', 'gcm']
+const ENCRYPTION_PREFIX = ['\u{200B}', '\u{034F}', '\u{180C}', '\u{1D175}', '\u{E003B}', '\u{2800}'].join('')
+
+function getSecretKey (len) {
+    return crypto.randomBytes(len)
+}
 
 function generateVersions () {
     const cipherAlgorithms = crypto.getCiphers()
     const cipherInfos = cipherAlgorithms.map(alg => crypto.getCipherInfo(alg))
     const modes = new Set(cipherInfos.map(info => info.mode))
 
-    const secrets = cipherInfos.map((info) => faker.random.alphaNumeric(info.keyLength || 0))
+    const secrets = cipherInfos.map((info) => getSecretKey(info.keyLength || 0))
     const versions = cipherAlgorithms.map((algorithm, i) => ({
         mode: cipherInfos[i].mode,
-        id: faker.random.alphaNumeric(10),
+        id: getRandomString(),
         algorithm: algorithm,
         secret: secrets[i],
     }))
@@ -29,9 +36,9 @@ function generateVersionsInMode (mode, count = 1) {
     const infosForVersions = faker.helpers.arrayElements(cipherInfos, count)
     const versionsArray = infosForVersions.map(info => {
         return {
-            id: faker.random.alphaNumeric(10),
+            id: getRandomString(),
             algorithm: info.name,
-            secret: faker.random.alphaNumeric(info.keyLength || 0),
+            secret: getSecretKey(info.keyLength || 0),
         }
     })
     return versionsArray.reduce((versions, currentVersion) => {
@@ -52,13 +59,13 @@ describe('EncryptionManager', () => {
             test.each(versions)('$algorithm', (version) => {
                 const manager = new EncryptionManager({ versions: { [version.id]: version }, encryptionVersionId: version.id })
 
-                const initialString = faker.random.alphaNumeric(20)
+                const initialString = getRandomString()
                 const encrypted = manager.encrypt(initialString)
                 expect(encrypted).not.toEqual(initialString)
                 const parts = encrypted.split(':')
                 expect(parts).toHaveLength(3)
                 expect(parts[0]).toEqual(ENCRYPTION_PREFIX)
-                expect(parts[1]).toEqual(Buffer.from(version.id).toString('hex'))
+                expect(parts[1]).toEqual(version.id)
 
                 const decrypted = manager.decrypt(encrypted)
                 expect(decrypted).toEqual(initialString)
@@ -104,7 +111,7 @@ describe('EncryptionManager', () => {
                 },
             }
             const manager = new EncryptionManager({ versions, encryptionVersionId: versionId })
-            const exampleString = faker.random.alphaNumeric(10)
+            const exampleString = getRandomString()
             const encrypted = manager.encrypt(exampleString)
             expect(manager.decrypt(encrypted)).toEqual(exampleString)
         })
@@ -127,7 +134,7 @@ describe('EncryptionManager', () => {
                 },
             }
             const manager = new EncryptionManager({ versions, encryptionVersionId: versionId })
-            const exampleString = faker.random.alphaNumeric(10)
+            const exampleString = getRandomString()
             const encrypted = manager.encrypt(exampleString)
             expect(manager.decrypt(encrypted)).toEqual(exampleString)
         })
@@ -135,7 +142,7 @@ describe('EncryptionManager', () => {
 
     test('Can decrypt from multiple versions', () => {
         const differentVersionsCount = 3
-        const exampleString = faker.random.alphaNumeric(10)
+        const exampleString = getRandomString()
         const encryptedInDifferentVersionsStrings = []
         const versions = {}
 
@@ -160,7 +167,7 @@ describe('EncryptionManager', () => {
     describe('Unsuccessful decryption', () => {
         const manager = new EncryptionManager({ 
             versions: {
-                '1': { algorithm: 'aes-256-cbc', secret: faker.random.alphaNumeric(32) },
+                '1': { algorithm: 'aes-256-cbc', secret: getSecretKey(32) },
             },
             encryptionVersionId: '1',
         })
@@ -180,30 +187,30 @@ describe('EncryptionManager', () => {
         })
 
         test('Is not encrypted', () => {
-            const notEncrypted = faker.random.alphaNumeric(10)
-            expect(manager.decrypt(notEncrypted)).toBeNull()
+            const notEncrypted = getRandomString()
+            expect(() => manager.decrypt(notEncrypted)).toThrow()
         })
 
         test('Is encrypted in version, which not provided', () => {
             const anotherManager = new EncryptionManager({
-                versions: { '2': { algorithm: 'aes-256-cbc', secret: faker.random.alphaNumeric(32) } },
+                versions: { '2': { algorithm: 'aes-256-cbc', secret: getSecretKey(32) } },
                 encryptionVersionId: '2',
             })
-            const exampleString = faker.random.alphaNumeric(10)
+            const exampleString = getRandomString()
             const encryptedString = anotherManager.encrypt(exampleString)
-            expect(manager.decrypt(encryptedString)).toBeNull()
+            expect(() => manager.decrypt(encryptedString)).toThrow()
         })
 
         test('Versions are same, but secret or algorithm differs', () => {
             const managerAnotherAlgorithm = new EncryptionManager({
-                versions: { '1': { algorithm: 'aes-128-cbc', secret: faker.random.alphaNumeric(16) } },
+                versions: { '1': { algorithm: 'aes-128-cbc', secret: getSecretKey(16) } },
                 encryptionVersionId: '1',
             })
             const managerAnotherSecret = new EncryptionManager({
-                versions: { '1': { algorithm: 'aes-256-cbc', secret: faker.random.alphaNumeric(32) } },
+                versions: { '1': { algorithm: 'aes-256-cbc', secret: getSecretKey(32) } },
                 encryptionVersionId: '1',
             })
-            const exampleValue = faker.random.alphaNumeric(10)
+            const exampleValue = getRandomString()
             const encryptedWithDifferentAlgorithm = managerAnotherAlgorithm.encrypt(exampleValue)
             const encryptedWithDifferentSecret = managerAnotherSecret.encrypt(exampleValue)
 
@@ -215,17 +222,17 @@ describe('EncryptionManager', () => {
     describe('isEncrypted', () => {
         const manager = new EncryptionManager({
             versions: {
-                '1': { algorithm: 'aes-256-cbc', secret: faker.random.alphaNumeric(32) },
+                '1': { algorithm: 'aes-256-cbc', secret: getSecretKey(32) },
             },
             encryptionVersionId: '1',
         })
 
         test('Checks, that value was encrypted with one of provided versions', () => {
-            const exampleValue = faker.random.alphaNumeric(10)
+            const exampleValue = getRandomString()
             const encrypted = manager.encrypt(exampleValue)
 
             const anotherManager = new EncryptionManager({
-                versions: { '2': { algorithm: 'aes-256-cbc', secret: faker.random.alphaNumeric(32) } },
+                versions: { '2': { algorithm: 'aes-256-cbc', secret: getSecretKey(32) } },
                 encryptionVersionId: '2',
             })
             const anotherEncrypted = anotherManager.encrypt(exampleValue)

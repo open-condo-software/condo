@@ -20,7 +20,7 @@ let DEFAULT_VERSION_ID
 // \u{E003B} - TAG SEMICOLON
 // \u{2800} - BRAILLE PATTERN BLANK
 
-// since data is converted in hex, ':' shouldn't be in it
+// ':' should not be presented in version id or encryption prefix
 const SEPARATOR = ':'
 const ENCRYPTION_PREFIX = ['\u{200B}', '\u{034F}', '\u{180C}', '\u{1D175}', '\u{E003B}', '\u{2800}'].join('')
 const SUPPORTED_MODES = ['cbc', 'ctr', 'cfb', 'ofb', 'gcm']
@@ -46,13 +46,13 @@ const SUGGESTIONS = {
 /**
  * Used for versioning secrets for encryption / decryption
  * @example use defaults
- * const manager = new EncryptManager() // use versions from .env DEFAULT_KEYSTONE_SYMMETRIC_ENCRYPTION_CONFIG and encrypt in DEFAULT_KEYSTONE_SYMMETRIC_ENCRYPTION_VERSION_ID
+ * const manager = new EncryptManager() // use versions from .env DATA_ENCRYPTION_CONFIG and encrypt in DATA_ENCRYPTION_VERSION_ID
  *
  * @example override version for encryption
  * const manager = new EncryptManager({ encryptionVersionId: 'version id - key of version in default config' })
  *
  * @example provide custom versions
- * const versions = { 'versionId': { algorithm: 'aes-256-cbc', secret: '...' } }
+ * const versions = { 'versionId': { algorithm: 'aes-256-cbc', secret: '...', compressor: 'open-condo_brotli', keyDeriver: 'open-condo_pbkdf2-sha512 } }
  * const encryptionVersionId = 'versionId'
  * const manager = new EncryptManager({ versions, encryptionVersionId })
  *
@@ -71,8 +71,7 @@ const SUGGESTIONS = {
  * manager.decrypt(encryptedDataNull) // this throws error. You should not put null / undefined here
  *
  * const encryptedWithVersionWhichNotPresent = 'this-data-was-encrypted-using-version-which-is-not-present-in-Encryption-Manager'
- * const decryptedData = manager.decrypt(encryptedWithVersionWhichNotPresent)
- * expect(decryptedData).toBe(null)
+ * expect(() => manager.decrypt(encryptedWithVersionWhichNotPresent))).toThrow()
  */
 class EncryptionManager {
     
@@ -83,7 +82,7 @@ class EncryptionManager {
     /**
      * @param config
      * @param {EncryptionManagerConfig?} config.versions - override default versions for encryption and decryption
-     * @param {string?} config.encryptionVersionId - add default versions from .env. Defaults to true
+     * @param {string?} config.encryptionVersionId - override default version to encrypt data with
      * */
     constructor ({ versions = null, encryptionVersionId  } = {}) {
         if (isNil(versions)) {
@@ -101,20 +100,9 @@ class EncryptionManager {
         const version = this._config[this._encryptionVersionId]
         return [
             ENCRYPTION_PREFIX,
-            Buffer.from(this._encryptionVersionId).toString('hex'),
+            this._encryptionVersionId,
             version.encrypt(data),
         ].join(SEPARATOR)
-        // const { algorithm, ivLength, secret } = this._config[this._encryptionVersionId]
-        // const iv = crypto.randomBytes(ivLength)
-        //
-        // const cipheriv = crypto.createCipheriv(algorithm, secret, iv)
-        // const encryptedValue = Buffer.concat([cipheriv.update(data), cipheriv.final()])
-        // return [
-        //     ENCRYPTION_PREFIX,
-        //     Buffer.from(this._encryptionVersionId).toString('hex'),
-        //     encryptedValue.toString('hex'),
-        //     iv.toString('hex'),
-        // ].join(SEPARATOR)
     }
 
     /** @param {string} encrypted
@@ -129,11 +117,10 @@ class EncryptionManager {
             throw new Error('Invalid format of encrypted data')
         }
 
-        const [encryptionPrefix, versionIdHex, encryptedPayload] = parts
+        const [encryptionPrefix, versionId, encryptedPayload] = parts
         if (encryptionPrefix !== ENCRYPTION_PREFIX) {
             throw new Error('Invalid encrypted data. It was not encrypted with EncryptionManager')
         }
-        const versionId = Buffer.from(versionIdHex, 'hex').toString()
         const version = this._config[versionId]
         if (isNil(version)) {
             throw new Error('Invalid encrypted data. Versions id is not present in EncryptionManager')
@@ -157,8 +144,7 @@ class EncryptionManager {
         if (parts[0] !== ENCRYPTION_PREFIX) {
             return false
         }
-        const decodedFromHexVersion = Buffer.from(parts[1], 'hex').toString()
-        return !!this._config[decodedFromHexVersion]
+        return !!this._config[parts[1]]
     }
 
     _initializeDefaults (overrideEncryptionVersionId) {
@@ -168,12 +154,12 @@ class EncryptionManager {
             return
         }
 
-        const defaultVersionsJSON = conf.DEFAULT_KEYSTONE_ENCRYPTION_CONFIG
+        const defaultVersionsJSON = conf.DATA_ENCRYPTION_CONFIG
         if (isNil(defaultVersionsJSON)) {
-            throw new Error('env DEFAULT_KEYSTONE_SYMMETRIC_ENCRYPTION_CONFIG is not present')
+            throw new Error('env DATA_ENCRYPTION_CONFIG is not present')
         }
         const defaultVersions = JSON.parse(defaultVersionsJSON)
-        this._encryptionVersionId = isNil(overrideEncryptionVersionId) ?  conf.DEFAULT_KEYSTONE_ENCRYPTION_VERSION_ID : overrideEncryptionVersionId
+        this._encryptionVersionId = isNil(overrideEncryptionVersionId) ?  conf.DATA_ENCRYPTION_VERSION_ID : overrideEncryptionVersionId
 
         this._validateVersions(defaultVersions)
         this._config = this._parseVersions(defaultVersions)
@@ -199,14 +185,14 @@ class EncryptionManager {
     _checkAtLeastOneVersionPresent () {
         const atLeastOneVersionPresent = Object.keys(this._config).length > 0
         if (!atLeastOneVersionPresent) {
-            throw new Error('Zero versions were provided. Add version in env.DEFAULT_KEYSTONE_SYMMETRIC_ENCRYPTION_CONFIG or provide in constructor')
+            throw new Error('Zero versions were provided. Add version in env.DATA_ENCRYPTION_CONFIG or provide in constructor')
         }
     }
 
     _checkEncryptionVersionPresent () {
         if (isNil(this._encryptionVersionId)) {
             throw new Error(`Invalid encryption version id, received: ${this._encryptionVersionId}. You must add it in 
-            env.DEFAULT_KEYSTONE_SYMMETRIC_ENCRYPTION_VERSION_ID or provide in constructor`)
+            env.DATA_ENCRYPTION_VERSION_ID or provide in constructor`)
         }
 
         if (isNil(this._config[this._encryptionVersionId])) {
@@ -234,6 +220,9 @@ class EncryptionManager {
         for (const versionId in versions) {
             if (versionId.length === 0) {
                 throw new Error('Invalid version id. Empty string is forbidden')
+            }
+            if (versionId.includes(SEPARATOR)) {
+                throw new Error(`${SEPARATOR} is forbidden to use in version id at ${versionId}`)
             }
 
             const {
@@ -275,6 +264,4 @@ class EncryptionManager {
 
 module.exports = {
     EncryptionManager,
-    SUPPORTED_MODES,
-    ENCRYPTION_PREFIX,
 }

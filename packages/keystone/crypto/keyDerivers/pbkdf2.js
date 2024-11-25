@@ -10,7 +10,7 @@ function derive (secretKey, { keyLen, salt = null, iterations = null }) {
         salt = crypto.randomBytes(SALT_LENGTH)
     }
     if (isNil(iterations)) {
-        iterations = Math.floor(Math.random() * (10000)) + BRUTE_FORCE_STRENGTH
+        iterations = crypto.randomInt(10000) + BRUTE_FORCE_STRENGTH
     }
     const masterKey = crypto.pbkdf2Sync(secretKey, salt, iterations, keyLen, 'sha512')
     return {
