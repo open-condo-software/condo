@@ -1156,6 +1156,21 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         return getSteps().length - 1
     }, [getSteps])
 
+    const validateBeforeSave = () => {
+        if (!selectAppsFormValues.validBefore) return false
+
+        const validBeforeValue: dayjs.Dayjs = dayjs(selectAppsFormValues.validBefore)
+
+        if (validBeforeValue.isBefore(dayjs())) {
+            setCurrentStep(0)
+            notification.error({ message: PastTimeErrorMessage })
+
+            return true
+        }
+
+        return false
+    }
+
     return (
         <Row gutter={BIG_HORIZONTAL_GUTTER}>
             <Col span={24} flex='auto'>
@@ -1594,7 +1609,11 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                             key='submit'
                                                             type='primary'
                                                             children={ShareButtonMessage}
-                                                            onClick={handleSave}
+                                                            onClick={() => {
+                                                                if (validateBeforeSave()) return
+
+                                                                handleSave()
+                                                            }}
                                                             disabled={isLoading}
                                                         />,
                                                     ]}
