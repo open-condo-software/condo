@@ -143,6 +143,23 @@ async function prepare () {
                 },
                 { override: false },
             )
+            await prepareAppEnv(
+                app.name,
+                {
+                    DATA_ENCRYPTION_CONFIG: JSON.stringify({
+                        [`${app.name}_1`]: {
+                            algorithm: 'aes-256-gcm',
+                            secret: getRandomString(32),
+                            compressor: 'brotli',
+                            // Semgrep identifies this as hard-coded credentials, but it is not
+                            // nosemgrep: generic.secrets.gitleaks.generic-api-key.generic-api-key
+                            keyDeriver: 'pbkdf2-sha512',
+                        },
+                    }),
+                    DATA_ENCRYPTION_VERSION_ID: `${app.name}_1`,
+                },
+                { override: false },
+            )
             logWithIndent('Running migration script', 2)
             const migrateResult = await runAppPackageJsonScript(app.name, 'migrate')
             if (migrateResult) console.log(migrateResult)
