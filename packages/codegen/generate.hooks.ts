@@ -6,7 +6,7 @@ import dayjs from 'dayjs'
 import { DocumentNode } from 'graphql'
 import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useMemo } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useMutation, useQuery } from '@open-condo/next/apollo'
@@ -359,7 +359,7 @@ export function generateReactHooks<
             ...(typeof options === 'object' && 'fetchPolicy' in options ? null : { fetchPolicy: 'no-cache' }),
         })
 
-        const objs: GQLObject[] = (data && data.objs) ? data.objs.filter(nonNull) : []
+        const objs: GQLObject[] = useMemo(() => (data && data.objs) ? data.objs.filter(nonNull) : [], [data])
         const count = (data && data.meta) ? data.meta.count : null
         const typedRefetch: IRefetchType<GQLObject, QueryVariables> = refetch
         const typedFetchMore: IFetchMoreType<GQLObject, QueryVariables> = fetchMore
