@@ -51,7 +51,6 @@ class ReceiptResolver extends Resolver {
                 )
                 if (!isEmpty(updateInput)) {
                     if (updateInput.hasOwnProperty('toPay') || updateInput.hasOwnProperty('toPayDetails')) {
-                        console.error('BALANCE UPDATE')
                         updateInput['balanceUpdatedAt'] = new Date().toISOString()
                     }
                     try {
