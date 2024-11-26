@@ -848,7 +848,6 @@ __metadata:
     cuid: ^2.1.8
     cypress: 12.17.3
     dayjs: ^1.10.6
-    dumb-passwords: ^0.2.1
     echarts: ^5.1.2
     echarts-for-react: 3.0.2
     emotion: ^10.0.27
@@ -14123,6 +14122,7 @@ __metadata:
     cuid: ^2.1.8
     dayjs: ^1.10.6
     debug: ^4.3.4
+    dumb-passwords: ^0.2.1
     emittery: ^0.7.1
     encoding: ^0.1.0
     ensure-error: ^3.0.1

@@ -244,7 +244,7 @@ class EncryptionManager {
             }
 
             const keyLength = cipherInfo.keyLength
-            if (!crypto.getCipherInfo(algorithm, { keyLength: secret.length })) {
+            if (secret.length < keyLength) {
                 throw new Error(`Invalid secret key length for ${algorithm} with secret of length ${secret.length}, required at least ${keyLength} at ${versionId}.secret`)
             }
 
