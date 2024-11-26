@@ -21,15 +21,6 @@ exports.up = async (knex) => {
 exports.down = async (knex) => {
     await knex.raw(`
        BEGIN;
-            SET statement_timeout = '1500s';
-
-            UPDATE "MeterReading"
-            SET "accountNumber" = NULL
-            FROM "Meter"
-            WHERE "MeterReading"."meter" = "Meter"."id" 
-                AND "Meter"."deletedAt" is NULL;
-
-            SET statement_timeout = '10s';
-        COMMIT;
+       COMMIT;
     `)
 }
