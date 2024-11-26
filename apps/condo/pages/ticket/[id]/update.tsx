@@ -1,5 +1,6 @@
 import { Typography, Row, Col } from 'antd'
 import Head from 'next/head'
+import { useRouter } from 'next/router'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -11,9 +12,13 @@ import { TicketForm } from '@condo/domains/ticket/components/TicketForm'
 import { prefetchTicket } from '@condo/domains/ticket/utils/next/Ticket'
 
 
-const TicketUpdatePage: PageComponentType<{ id: string }> = ({ id }) => {
+const TicketUpdatePage: PageComponentType = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id:'pages.condo.ticket.index.EditTicketModalTitle' })
+
+    const router = useRouter()
+    const { query } = router
+    const { id } = query as { id: string }
 
     return (
         <>
@@ -43,9 +48,7 @@ TicketUpdatePage.getPrefetchedData = async ({ context, apolloClient }) => {
     await prefetchTicket({ client: apolloClient, ticketId })
 
     return {
-        props: {
-            id: ticketId,
-        },
+        props: {},
     }
 }
 

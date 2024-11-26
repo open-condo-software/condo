@@ -8,7 +8,7 @@ import get from 'lodash/get'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback } from 'react'
+import React, { CSSProperties, useCallback, useMemo } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
@@ -211,14 +211,15 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
     )
 }
 
-const ContactInfoPage: PageComponentType<{ id: string }> = ({ id: contactId }) => {
+const ContactInfoPage: PageComponentType = () => {
     const intl = useIntl()
     const ErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
     const ContactNotFoundTitle = intl.formatMessage({ id: 'Contact.NotFound.Title' })
     const ContactNotFoundMessage = intl.formatMessage({ id: 'Contact.NotFound.Message' })
 
-    const { push } = useRouter()
+    const { push, query } = useRouter()
+    const { id: contactId } = query as { id: string }
     const { role } = useOrganization()
     const { persistor } = useCachePersistor()
 
@@ -232,6 +233,7 @@ const ContactInfoPage: PageComponentType<{ id: string }> = ({ id: contactId }) =
     })
     const filteredContacts = data?.contacts?.filter(Boolean)
     const contact = Array.isArray(filteredContacts) && filteredContacts.length > 0 ? filteredContacts[0] : null
+    const contactLoading = useMemo(() => loading || !persistor, [loading, persistor])
 
     const [updateContactMutation] = useUpdateContactMutation({
         variables: {
@@ -249,8 +251,8 @@ const ContactInfoPage: PageComponentType<{ id: string }> = ({ id: contactId }) =
         await push('/contact')
     }, [push, updateContactMutation])
 
-    if (error || loading) {
-        return <LoadingOrErrorPage title={LoadingMessage} loading={loading} error={error ? ErrorMessage : null}/>
+    if (error || contactLoading) {
+        return <LoadingOrErrorPage title={LoadingMessage} loading={contactLoading} error={error ? ErrorMessage : null}/>
     }
     if (!contact) {
         return <LoadingOrErrorPage title={ContactNotFoundTitle} loading={false} error={ContactNotFoundMessage}/>
@@ -276,9 +278,7 @@ ContactInfoPage.getPrefetchedData = async ({ context, apolloClient }) => {
     await prefetchContact({ client: apolloClient, contactId })
 
     return {
-        props: {
-            id: contactId,
-        },
+        props: {},
     }
 }
 
