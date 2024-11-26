@@ -1,5 +1,5 @@
 const { registerCompressor } = require('./compressors')
-const EncryptionManager = require('./EncryptionManager')
+const { EncryptionManager } = require('./EncryptionManager')
 const { registerKeyDeriver } = require('./keyDerivers')
 
 module.exports = {
