@@ -13,7 +13,8 @@
     "./rateLimiting": "./rateLimiting/index.js",
     "./sentry": "./sentry/index.js",
     "./fileAdapter/": "./fileAdapter/",
-    "./*": "./*.js"
+    "./*": "./*.js",
+    "./crypto": "./crypto/index.js"
   },
   "dependencies": {
     "@apollo/client": "^3.11.8",
