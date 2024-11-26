@@ -50,8 +50,12 @@ class ReceiptResolver extends Resolver {
                     ['category', 'account', 'property', 'receiver']
                 )
                 if (!isEmpty(updateInput)) {
+                    if (updateInput.hasOwnProperty('toPay') || updateInput.hasOwnProperty('toPayDetails')) {
+                        console.error('BALANCE UPDATE')
+                        updateInput['balanceUpdatedAt'] = new Date().toISOString()
+                    }
                     try {
-                        receiptIndex[index] = await BillingReceipt.update(this.context, receiptToUpdate.id, { ...updateInput, raw: receipt })
+                        receiptIndex[index] = await BillingReceipt.update(this.context, receiptToUpdate.id, { ...updateInput, raw: receipt }, 'id')
                     } catch (error) {
                         this.error(ERRORS.RECEIPT_SAVE_FAILED, index, error)
                     }
@@ -65,7 +69,7 @@ class ReceiptResolver extends Resolver {
                 try {
                     receiptIndex[index] = await BillingReceipt.create(this.context, this.buildCreateInput({
                         ...pick(receipt, RECEIPT_UPDATE_FIELDS), context: this.billingContext.id, raw: receipt,
-                    }, ['category', 'account', 'property', 'receiver', 'context']))
+                    }, ['category', 'account', 'property', 'receiver', 'context']), 'id')
                 } catch (error) {
                     this.error(ERRORS.RECEIPT_SAVE_FAILED, index, error)
                 }
