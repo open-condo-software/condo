@@ -143,6 +143,16 @@ async function prepare () {
                 },
                 { override: false },
             )
+            await prepareAppEnv(
+                app.name,
+                {
+                    DATA_ENCRYPTION_CONFIG: JSON.stringify({
+                        [`${app.name}_1`]: { algorithm: 'aes-256-gcm', secret: getRandomString(32), compressor: 'brotli', keyDeriver: 'pbkdf2-sha512' }
+                    }),
+                    DATA_ENCRYPTION_VERSION_ID: `${app.name}_1`
+                },
+                { override: false },
+            )
             logWithIndent('Running migration script', 2)
             const migrateResult = await runAppPackageJsonScript(app.name, 'migrate')
             if (migrateResult) console.log(migrateResult)
