@@ -301,16 +301,11 @@ describe('AllResidentBillingReceiptsService', () => {
                 const payAmount = '5000.00'
                 const jsonReceipt = utils.createJSONReceipt({ importId, accountNumber, toPay: payAmount, toPayDetails: { charge: payAmount } })
                 const [[{ id: receiptId }]] = await utils.createReceipts([jsonReceipt])
-                console.error('====== 1.')
                 const resident = await utils.createResident()
                 const [{ id: serviceConsumerId }] = await utils.createServiceConsumer(resident, accountNumber)
                 await utils.payForReceipt(receiptId, serviceConsumerId)
-                console.error('====== 2.')
-
                 const [[{ id: updatedReceiptId }]] = await utils.createReceipts([{ ...jsonReceipt, toPay: '0.00', toPayDetails: { charge: payAmount, paid: payAmount } }])
                 expect(updatedReceiptId).toEqual(receiptId)
-                console.error('====== 3.')
-
                 const receiptsAfterPayment = await ResidentBillingReceipt.getAll(utils.clients.resident, {
                     serviceConsumer: { resident: { id: resident.id } },
                 })
@@ -352,7 +347,6 @@ describe('AllResidentBillingReceiptsService', () => {
                     serviceConsumer: { resident: { id: resident.id } },
                 })
                 const receiptAfterPayment = receiptsAfterPayment.find(({ id }) => id === receiptId )
-                console.error(receiptAfterPayment)
                 expect(Big(receiptAfterPayment.paid).toFixed(2)).toEqual(remainPay)
                 expect(Big(receiptAfterPayment.toPayDetails.paid).toFixed(2)).toEqual(partialPay)
             })
