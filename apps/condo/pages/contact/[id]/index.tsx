@@ -211,14 +211,15 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
     )
 }
 
-const ContactInfoPage: PageComponentType<{ id: string }> = ({ id: contactId }) => {
+const ContactInfoPage: PageComponentType = () => {
     const intl = useIntl()
     const ErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
     const ContactNotFoundTitle = intl.formatMessage({ id: 'Contact.NotFound.Title' })
     const ContactNotFoundMessage = intl.formatMessage({ id: 'Contact.NotFound.Message' })
 
-    const { push } = useRouter()
+    const { push, query } = useRouter()
+    const { id: contactId } = query as { id: string }
     const { role } = useOrganization()
     const { persistor } = useCachePersistor()
 
@@ -277,9 +278,7 @@ ContactInfoPage.getPrefetchedData = async ({ context, apolloClient }) => {
     await prefetchContact({ client: apolloClient, contactId })
 
     return {
-        props: {
-            id: contactId,
-        },
+        props: {},
     }
 }
 

@@ -21,6 +21,7 @@ import isEmpty from 'lodash/isEmpty'
 import map from 'lodash/map'
 import Head from 'next/head'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useCachePersistor } from '@open-condo/apollo'
@@ -797,12 +798,14 @@ export const TicketPageContent = ({ ticket, pollCommentsQuery, refetchTicket, or
     )
 }
 
-const TicketIdPage: PageComponentType<{ id: string }> = ({ id }) => {
+const TicketIdPage: PageComponentType = () => {
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
 
     const { user } = useAuth()
     const { link, organization, selectEmployee } = useOrganization()
+    const { query } = useRouter()
+    const { id } = query as { id: string }
 
     const { persistor } = useCachePersistor()
 
@@ -898,9 +901,7 @@ TicketIdPage.getPrefetchedData = async ({ context, apolloClient }) => {
     await prefetchTicket({ client: apolloClient, ticketId })
 
     return {
-        props: {
-            id: ticketId,
-        },
+        props: {},
     }
 }
 
