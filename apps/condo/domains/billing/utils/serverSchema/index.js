@@ -67,14 +67,20 @@ const getPaymentsSum = async (receiptId) => {
  */
 const getNewPaymentsSum = async (receiptId) => {
     const receipt = await getById('BillingReceipt', receiptId)
-    const payments = await find('Payment', {
-        AND: [
-            { status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS] },
-            { deletedAt: null },
-            { receipt: { id: receiptId } },
-            { OR: [ { transferDate_gte: new Date(receipt.updatedAt).toISOString() }, { transferDate: null } ] },
-        ],
-    })
+    const conditions = [
+        { status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS] },
+        { deletedAt: null },
+        { receipt: { id: receiptId } },
+    ]
+    if (receipt.balanceUpdatedAt) {
+        conditions.push({
+            OR: [
+                { transferDate: null },
+                { transferDate_gte: new Date(receipt.balanceUpdatedAt).toISOString() },
+            ],
+        })
+    }
+    const payments = await find('Payment', { AND: conditions })
     return payments.reduce((total, current) => (Big(total).plus(current.amount)), 0).toFixed(8).toString()
 }
 
