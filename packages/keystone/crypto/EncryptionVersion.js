@@ -1,5 +1,8 @@
 const crypto = require('crypto')
 
+const { compressors } = require('./compressors')
+const { keyDerivers } = require('./keyDerivers')
+
 const MODES_WITH_AUTH_TAG = new Set(['gcm'])
 const AUTH_TAG_LENGTH = 16 // Recommended authentication tag length for GCM mode
 const ITERATIONS_BUFFER_SIZE = 4 // number <= 2^32
@@ -18,8 +21,8 @@ class EncryptionVersion {
         this.id = id
         this.algorithm = algorithm
         this.secret = secret
-        this.compressor = compressor
-        this.keyDeriver = keyDeriver
+        this.compressor = compressors[compressor]
+        this.keyDeriver = keyDerivers[keyDeriver]
         
         const cipherInfo = crypto.getCipherInfo(algorithm)
         if (!cipherInfo) {

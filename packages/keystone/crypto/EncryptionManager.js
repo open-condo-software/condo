@@ -1,5 +1,6 @@
 const crypto = require('crypto')
 
+const dumbPasswords = require('dumb-passwords')
 const isEmpty = require('lodash/isEmpty')
 const isNil = require('lodash/isNil')
 
@@ -23,7 +24,7 @@ let DEFAULT_VERSION_ID
 // ':' should not be presented in version id or encryption prefix
 const SEPARATOR = ':'
 const ENCRYPTION_PREFIX = ['\u{200B}', '\u{034F}', '\u{180C}', '\u{1D175}', '\u{E003B}', '\u{2800}'].join('')
-const SUPPORTED_MODES = ['cbc', 'ctr', 'cfb', 'ofb', 'gcm']
+const SUPPORTED_MODES = ['cbc', 'ctr', 'gcm']
 const SUGGESTIONS = {
     'cfb': 'Please, consider using "ctr" or "cbc"',
     'ofb': 'Please, consider using "ctr" or "cbc"',
@@ -52,7 +53,7 @@ const SUGGESTIONS = {
  * const manager = new EncryptManager({ encryptionVersionId: 'version id - key of version in default config' })
  *
  * @example provide custom versions
- * const versions = { 'versionId': { algorithm: 'aes-256-cbc', secret: '...', compressor: 'open-condo_brotli', keyDeriver: 'open-condo_pbkdf2-sha512 } }
+ * const versions = { 'versionId': { algorithm: 'aes-256-cbc', secret: '...', compressor: 'brotli', keyDeriver: 'pbkdf2-sha512 } }
  * const encryptionVersionId = 'versionId'
  * const manager = new EncryptManager({ versions, encryptionVersionId })
  *
@@ -209,8 +210,8 @@ class EncryptionManager {
                 id: versionId,
                 algorithm,
                 secret,
-                compressor: compressors[compressor],
-                keyDeriver: keyDerivers[keyDeriver],
+                compressor,
+                keyDeriver,
             })
         }
         return parsedConfig
@@ -236,16 +237,23 @@ class EncryptionManager {
                 throw new Error(`Invalid algorithm at ${versionId}.algorithm`)
             }
             if (!SUPPORTED_MODES.includes(cipherInfo.mode)) {
+                if (SUGGESTIONS[cipherInfo.mode]) {
+                    throw new Error(`${SUGGESTIONS[cipherInfo.mode]} at ${versionId}.algorithm`)
+                }
                 throw new Error(`Algorithm ${algorithm} is not supported right now at ${versionId}.algorithm`)
-            }
-            if (SUGGESTIONS[cipherInfo.mode]) {
-                console.warn(`${SUGGESTIONS[cipherInfo.mode]} at ${versionId}.algorithm`)
             }
 
             const keyLength = cipherInfo.keyLength
+            if (!crypto.getCipherInfo(algorithm, { keyLength: secret.length })) {
+                throw new Error(`Invalid secret key length for ${algorithm} with secret of length ${secret.length}, required at least ${keyLength} at ${versionId}.secret`)
+            }
 
-            if ((typeof secret !== 'string' && !(secret instanceof Buffer)) || isEmpty(secret)) {
+            const secretIsStringOrBuffer = typeof secret === 'string' || secret instanceof Buffer
+            if (!secretIsStringOrBuffer || isEmpty(secret)) {
                 throw new Error(`Secret must be a non empty string or buffer at ${versionId}.secret`)
+            }
+            if (dumbPasswords.check(secret.toString())) {
+                throw new Error(`Common and frequently-used passwords are not allowed at ${versionId}.secret`)
             }
 
             if (!compressors[compressor]) {
@@ -253,10 +261,6 @@ class EncryptionManager {
             }
             if (!keyDerivers[keyDeriver]) {
                 throw new Error(`Invalid key deriver ${keyDeriver} at ${versionId}.keyDeriver. Register it with "registerKeyDeriver" or use another`)
-            }
-
-            if (keyDeriver === 'noop' && !crypto.getCipherInfo(algorithm, { keyLength: secret.length })) {
-                throw new Error(`Invalid secret key length for ${algorithm} with secret of length ${secret.length}, required ${keyLength}. Change secret key or provide keyDeriver at ${versionId}.secret`)
             }
         }
     }

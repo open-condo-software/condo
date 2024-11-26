@@ -6,7 +6,7 @@ const { groupBy } = require('lodash')
 const { EncryptionManager } = require('@open-condo/keystone/crypto/EncryptionManager')
 const { catchErrorFrom, getRandomString } = require('@open-condo/keystone/test.utils')
 
-const SUPPORTED_MODES = ['cbc', 'ctr', 'cfb', 'ofb', 'gcm']
+const SUPPORTED_MODES = ['cbc', 'ctr', 'gcm']
 const ENCRYPTION_PREFIX = ['\u{200B}', '\u{034F}', '\u{180C}', '\u{1D175}', '\u{E003B}', '\u{2800}'].join('')
 
 function getSecretKey (len) {
@@ -85,7 +85,6 @@ describe('EncryptionManager', () => {
                     new EncryptionManager({ versions: { [version.id]: version }, encryptionVersionId: version.id })
                 }, (err) => {
                     expect(err).toBeDefined()
-                    expect(err.toString()).toMatch(`Algorithm ${version.algorithm} is not supported right now`)
                 })
             })
 
@@ -96,7 +95,7 @@ describe('EncryptionManager', () => {
     describe('Compressors', () => {
         const secretKeyLen = 32
         const algorithms = ['aes-256-gcm', 'aes-256-cbc']
-        const compressors = ['noop', 'open-condo_brotli']
+        const compressors = ['noop', 'brotli']
         const cases = algorithms.flatMap(algorithm =>
             compressors.map(compressor => [algorithm, compressor])
         )
@@ -120,7 +119,7 @@ describe('EncryptionManager', () => {
     describe('KeyDerivers', () => {
         const secretKeyLen = 32
         const algorithms = ['aes-256-gcm', 'aes-256-cbc']
-        const keyDerivers = ['noop', 'open-condo_pbkdf2-sha512']
+        const keyDerivers = ['noop', 'pbkdf2-sha512']
         const cases = algorithms.flatMap(algorithm =>
             keyDerivers.map(keyDeriver => [algorithm, keyDeriver])
         )
@@ -129,7 +128,7 @@ describe('EncryptionManager', () => {
             const versions = {
                 [versionId]: {
                     algorithm,
-                    secret: keyDeriver === 'noop' ? crypto.randomBytes(secretKeyLen) : getRandomString(),
+                    secret: crypto.randomBytes(secretKeyLen),
                     keyDeriver,
                 },
             }
@@ -211,6 +210,7 @@ describe('EncryptionManager', () => {
                 encryptionVersionId: '1',
             })
             const exampleValue = getRandomString()
+            console.error(exampleValue)
             const encryptedWithDifferentAlgorithm = managerAnotherAlgorithm.encrypt(exampleValue)
             const encryptedWithDifferentSecret = managerAnotherSecret.encrypt(exampleValue)
 

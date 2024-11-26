@@ -59,8 +59,8 @@ const manager = new EncryptionManager({
            'versionId':  { 
                algorithm: 'crypto algorithm',
                secret: 'your secret key',
-               compressor: 'open-condo_brotli', // defaults to noop
-               keyDeriver: 'open-condo_pbkdf2-sha512', // defaults to noop
+               compressor: 'brotli', // defaults to noop
+               keyDeriver: 'pbkdf2-sha512', // defaults to noop
            }
        },
        encryptionVersionId: 'versionId'

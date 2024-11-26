@@ -1,6 +1,8 @@
 const isEmpty = require('lodash/isEmpty')
 const isNil = require('lodash/isNil')
 
+const pbkdf2 = require('./pbkdf2')
+
 /** @typedef KeyDeriver
  * @type {{saltLength: number, derive(secretKey: string, keyLen: number): Buffer<string>}}
  */
@@ -20,7 +22,7 @@ const noop = {
 /** @type {Record<string, KeyDeriver>}  */
 const keyDerivers = {
     'noop': noop,
-    'open-condo_pbkdf2-sha512': require('./pbkdf2'),
+    'pbkdf2-sha512': pbkdf2,
 }
 
 /**

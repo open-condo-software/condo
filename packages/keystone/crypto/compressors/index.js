@@ -1,6 +1,8 @@
 const isEmpty = require('lodash/isEmpty')
 const isNil = require('lodash/isNil')
 
+const brotli = require('./brotli')
+
 /** @typedef Compressor
  * @type {{compress(data:string):Buffer<string>,decompress(data:Buffer<string>):Buffer<string>}}
 */
@@ -12,7 +14,7 @@ const noop = {
 
 const compressors = {
     'noop': noop,
-    'open-condo_brotli': require('./brotli'),
+    'brotli': brotli,
 }
 
 function registerCompressor (name, compressor) {
