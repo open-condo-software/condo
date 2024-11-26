@@ -53,7 +53,7 @@ const SUGGESTIONS = {
  * const manager = new EncryptManager({ encryptionVersionId: 'version id - key of version in default config' })
  *
  * @example provide custom versions
- * const versions = { 'versionId': { algorithm: 'aes-256-cbc', secret: '...', compressor: 'brotli', keyDeriver: 'pbkdf2-sha512 } }
+ * const versions = { 'versionId': { algorithm: 'aes-256-cbc', secret: '...', compressor: '...', keyDeriver: '...' } }
  * const encryptionVersionId = 'versionId'
  * const manager = new EncryptManager({ versions, encryptionVersionId })
  *
