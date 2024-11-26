@@ -9,51 +9,42 @@ const { userIsAdmin } = require('@open-condo/keystone/access')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
+const { canReadObjectsAsB2BAppServiceUser, canManageObjectsAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const { getEmployedOrganizationsByPermissions } = require('@condo/domains/organization/utils/accessSchema')
+const { SERVICE } = require('@condo/domains/user/constants/common')
+const { canDirectlyReadSchemaObjects, canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
-async function canReadB2BAccessTokens ({ authentication: { item: user }, context }) {
+async function canReadB2BAccessTokens (args) {
+    const { authentication: { item: user }, listKey } = args
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isSupport) return false
     if (user.isAdmin) return true
 
-    const organizations = await getEmployedOrganizationsByPermissions(context, user, 'canManageIntegrations')
-
-    return {
-        context: {
-            organization: {
-                id_in: organizations,
-            },
-        },
+    if (user.type === SERVICE) {
+        return canReadObjectsAsB2BAppServiceUser(args)
     }
+    if (user.isSupport) {
+        return canDirectlyReadSchemaObjects(user, listKey)
+    }
+    return false
 }
 
-async function canManageB2BAccessTokens ({ authentication: { item: user }, originalInput, operation, itemId, context }) {
+async function canManageB2BAccessTokens (args) {
+    const { authentication: { item: user }, originalInput, listKey, operation } = args
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isSupport) return false
     if (user.isAdmin) return true
 
-    const permittedOrganizations = await getEmployedOrganizationsByPermissions(context, user, 'canManageIntegrations')
-    let organizationForItem
-
-    const isUpdatingContext = operation === 'update' && has(originalInput, 'context')
-    if (operation === 'create' || isUpdatingContext) {
-        const contextId = get(originalInput, 'context.connect.id')
-        const context = await getById('B2BAppContext', contextId)
-        organizationForItem = get(context, 'organization')
+    if (user.type === SERVICE) {
+        return canManageObjectsAsB2BAppServiceUser(args)
     }
-
-    if (operation === 'update') {
-        const item = await getById('B2BAccessToken', itemId)
-        const context = await getById('B2BAppContext', get(item, 'context'))
-        organizationForItem = get(context, 'organization')
+    if (user.isSupport) {
+        return canDirectlyManageSchemaObjects(user, listKey, originalInput, operation)
     }
-
-    return permittedOrganizations.some(organizationId => organizationId === organizationForItem)
+    return false
 }
 
-const readonlyForNonAdmin = {
+const updatableOnlyForAdmin = {
     read: true,
     create: true,
     update: userIsAdmin,
@@ -66,5 +57,5 @@ const readonlyForNonAdmin = {
 module.exports = {
     canReadB2BAccessTokens,
     canManageB2BAccessTokens,
-    readonlyForNonAdmin,
+    updatableOnlyForAdmin,
 }

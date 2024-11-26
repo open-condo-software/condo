@@ -10,10 +10,10 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema, find } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/miniapp/access/B2BAppAccessRightSet')
-const { ACCESS_RIGHT_SET_TOO_MANY_OF_TYPE, NAME_REQUIRED, ACCESS_RIGHT_SET_TOKEN_SCOPE_TYPE } = require('@condo/domains/miniapp/constants')
 const {
-    ACCESS_RIGHT_SET_SCOPE_TYPES, ACCESS_RIGHT_SET_MINIAPP_SCOPE_TYPE, ACCESS_RIGHT_SET_MAX_ITEMS_FOR_SCOPE,
-    ACCESS_RIGHT_SET_MINIAPP_SCOPE_RIGHT_SET_REQUIRED, ACCESS_RIGHT_SET_TOO_MANY_PERMISSIONS,
+    ACCESS_RIGHT_SET_TOO_MANY_OF_TYPE, NAME_REQUIRED, ACCESS_RIGHT_SET_SCOPED_TYPE,
+    ACCESS_RIGHT_SET_TYPES, ACCESS_RIGHT_SET_GLOBAL_TYPE, ACCESS_RIGHT_SET_MAX_ITEMS_FOR_TYPE,
+    ACCESS_RIGHT_SET_GLOBAL_RIGHT_SET_REQUIRED, ACCESS_RIGHT_SET_TOO_MANY_PERMISSIONS,
 } = require('@condo/domains/miniapp/constants')
 const { B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess/config')
 const { generatePermissionFields } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess/schema.utils')
@@ -33,15 +33,15 @@ const ERRORS = {
         type: NAME_REQUIRED,
         message: 'Name is required',
     },
-    MINIAPP_SCOPE_RIGHT_SET_REQUIRED: {
+    GLOBAL_RIGHT_SET_REQUIRED: {
         code: BAD_USER_INPUT,
-        type: ACCESS_RIGHT_SET_MINIAPP_SCOPE_RIGHT_SET_REQUIRED,
-        message: 'You need to have "miniapp" type right before other types',
+        type: ACCESS_RIGHT_SET_GLOBAL_RIGHT_SET_REQUIRED,
+        message: 'You need to have "GLOBAL" type right before other types',
     },
     TOO_MANY_PERMISSIONS: {
         code: BAD_USER_INPUT,
         type: ACCESS_RIGHT_SET_TOO_MANY_PERMISSIONS,
-        message: 'You trying to give to right set more permissions, than "miniapp" right set has',
+        message: 'You trying to give to right set more permissions, than "GLOBAL" right set has',
     },
 }
 
@@ -98,8 +98,8 @@ const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
         type: {
             schemaDoc: 'Scope type of right set',
             type: 'Select',
-            options: ACCESS_RIGHT_SET_SCOPE_TYPES,
-            defaultValue: ACCESS_RIGHT_SET_MINIAPP_SCOPE_TYPE,
+            options: ACCESS_RIGHT_SET_TYPES,
+            defaultValue: ACCESS_RIGHT_SET_GLOBAL_TYPE,
             access: {
                 update: false,
             },
@@ -114,26 +114,26 @@ const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
                 ...(existingItem || {}),
                 ...resolvedData,
             }
-            if (nextItem.type !== ACCESS_RIGHT_SET_MINIAPP_SCOPE_TYPE) {
+            if (nextItem.type !== ACCESS_RIGHT_SET_GLOBAL_TYPE) {
                 const rightSetsForApp = await find('B2BAppAccessRightSet', {
                     app: { id: nextItem.app },
                     deletedAt: null,
                 })
                 
-                const miniappRightSet = rightSetsForApp.find(set => set.type === ACCESS_RIGHT_SET_MINIAPP_SCOPE_TYPE)
-                if (!miniappRightSet) {
-                    throw new GQLError(ERRORS.MINIAPP_SCOPE_RIGHT_SET_REQUIRED, context)
+                const globalRightSet = rightSetsForApp.find(set => set.type === ACCESS_RIGHT_SET_GLOBAL_TYPE)
+                if (!globalRightSet) {
+                    throw new GQLError(ERRORS.GLOBAL_RIGHT_SET_REQUIRED, context)
                 }
                 const sameTypeRightSets = rightSetsForApp.filter(set => set.type === nextItem.type)
-                if (sameTypeRightSets.length >= ACCESS_RIGHT_SET_MAX_ITEMS_FOR_SCOPE[nextItem.type]) {
+                if (sameTypeRightSets.length >= ACCESS_RIGHT_SET_MAX_ITEMS_FOR_TYPE[nextItem.type]) {
                     throw new GQLError({
                         ...ERRORS.TOO_MANY_ITEMS_OF_TYPE,
-                        messageInterpolation: { type: nextItem.type, maximum: ACCESS_RIGHT_SET_MAX_ITEMS_FOR_SCOPE[nextItem.type] },
+                        messageInterpolation: { type: nextItem.type, maximum: ACCESS_RIGHT_SET_MAX_ITEMS_FOR_TYPE[nextItem.type] },
                     }, context)
                 }
 
-                if (nextItem.type !== ACCESS_RIGHT_SET_MINIAPP_SCOPE_TYPE) {
-                    const permissionDiff = getPermissionsDiff(miniappRightSet, nextItem)
+                if (nextItem.type !== ACCESS_RIGHT_SET_GLOBAL_TYPE) {
+                    const permissionDiff = getPermissionsDiff(globalRightSet, nextItem)
                     const enabledPermissionsDiff = getEnabledPermissions(permissionDiff)
                     if (Object.keys(enabledPermissionsDiff).length) {
                         throw new GQLError(ERRORS.TOO_MANY_PERMISSIONS, context)
@@ -142,10 +142,10 @@ const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
             }
         },
         async afterChange ({ operation, updatedItem, context }) {
-            if (operation === 'update' && updatedItem.type === ACCESS_RIGHT_SET_MINIAPP_SCOPE_TYPE) {
+            if (operation === 'update' && updatedItem.type === ACCESS_RIGHT_SET_GLOBAL_TYPE) {
                 const otherTypeRightSets = await find('B2BAppAccessRightSet', {
                     app: { id: updatedItem.app },
-                    type_not: ACCESS_RIGHT_SET_MINIAPP_SCOPE_TYPE,
+                    type_not: ACCESS_RIGHT_SET_GLOBAL_TYPE,
                     deletedAt: null,
                 })
                 for (const rightSet of otherTypeRightSets) {
@@ -162,7 +162,7 @@ const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
                 }
             }
 
-            if (operation === 'update' && updatedItem.type === ACCESS_RIGHT_SET_TOKEN_SCOPE_TYPE) {
+            if (operation === 'update' && updatedItem.type === ACCESS_RIGHT_SET_SCOPED_TYPE) {
                 const accessTokens = await find('B2BAccessToken', {
                     rightSet: { id: updatedItem.id },
                     deletedAt: null,
@@ -181,7 +181,7 @@ const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
             {
                 type: 'models.UniqueConstraint',
                 fields: ['app'],
-                condition: `Q(deletedAt__isnull=True) & Q(type='${ACCESS_RIGHT_SET_MINIAPP_SCOPE_TYPE}')`,
+                condition: `Q(deletedAt__isnull=True) & Q(type='${ACCESS_RIGHT_SET_GLOBAL_TYPE}')`,
                 name: 'b2b_app_access_right_set_unique_app',
             },
         ],

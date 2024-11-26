@@ -8,16 +8,11 @@ async function updateAppEnvAddressSuggestionConfig (serviceName) {
     await updateAppEnvFile(serviceName, 'FAKE_FINANCE_INFO_CLIENT', 'true')
 }
 
-async function updateAppEnvLocalSecrets (serviceName) {
-    await updateAppEnvFile(serviceName, 'ACCESS_TOKEN_SECRET_KEY', 'secret-key-very-looooooooooooong')
-}
-
 async function main () {
     // 1) add local admin users!
     const appName = 'condo'
     await prepareAppEnvLocalAdminUsers(appName)
     await updateAppEnvAddressSuggestionConfig(appName)
-    await updateAppEnvLocalSecrets(appName)
     console.log('done')
 }
 

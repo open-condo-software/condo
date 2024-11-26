@@ -14,7 +14,6 @@ const conf = require('@open-condo/config')
 const { safeApolloErrorFormatter } = require('@open-condo/keystone/apolloErrorFormatter')
 const { ExtendedPasswordAuthStrategy } = require('@open-condo/keystone/authStrategy/passwordAuth')
 const { parseCorsSettings } = require('@open-condo/keystone/cors.utils')
-const { GQLError, GQLErrorCode: { FORBIDDEN } } = require('@open-condo/keystone/errors')
 const { _internalGetExecutionContextAsyncLocalStorage } = require('@open-condo/keystone/executionContext')
 const { IpBlackListMiddleware } = require('@open-condo/keystone/ipBlackList')
 const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSchema')
@@ -133,18 +132,6 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
             ...authStrategyConfig,
         },
         hooks: {
-            // forbid unauth with B2BAccessToken
-            beforeUnauth ({ context }) {
-                const sessionId = context.req.sessionID
-                const isManualSession = ['b2bAccessToken:'].some(prefix => sessionId.startsWith(prefix))
-                if (isManualSession) {
-                    throw new GQLError({
-                        type: FORBIDDEN,
-                        code: FORBIDDEN,
-                        message: 'You can not log out with token',
-                    }, context)
-                }
-            },
             async afterAuth ({ item, token, success })  {
                 // NOTE: It's triggered only by default Keystone mutation, "authenticateUserWithPhoneAndPassword" will not work here
                 // Step 1. Skip if auth was not succeeded
@@ -164,6 +151,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
                 // NOTE: if key not found returns 0, else 1.
                 await redisClient.expire(sessKey, SERVICE_USER_SESSION_TTL_IN_SEC)
             },
+            ...get(authStrategyOpts, 'hooks', {}),
         },
     })
 

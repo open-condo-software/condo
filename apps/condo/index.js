@@ -9,6 +9,7 @@ const utc = require('dayjs/plugin/utc')
 const conf = require('@open-condo/config')
 const { FeaturesMiddleware } = require('@open-condo/featureflags/FeaturesMiddleware')
 const { AdapterCache } = require('@open-condo/keystone/adapterCache')
+const { GQLError, GQLErrorCode: { FORBIDDEN } } = require('@open-condo/keystone/errors')
 const FileAdapter = require('@open-condo/keystone/fileAdapter/fileAdapter')
 const {
     HealthCheck,
@@ -27,6 +28,7 @@ const { VersioningMiddleware, getCurrentVersion } = require('@condo/domains/comm
 const { UnsubscribeMiddleware } = require('@condo/domains/notification/UnsubscribeMiddleware')
 const { UserExternalIdentityMiddleware } = require('@condo/domains/user/integration/UserExternalIdentityMiddleware')
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
+const {ACCESS_TOKEN_SESSION_ID_PREFIX} = require("@condo/domains/miniapp/constants");
 
 dayjs.extend(duration)
 dayjs.extend(utc)
@@ -145,9 +147,27 @@ const extendExpressApp = (app) => {
     app.use(Sentry.Handlers.errorHandler())
 }
 
+const authStrategyOpts = {
+    hooks: {
+        // forbid unauth with B2BAccessToken
+        beforeUnauth ({ context }) {
+            const sessionId = context.req.sessionID
+            const isManualSession = [ACCESS_TOKEN_SESSION_ID_PREFIX].some(prefix => sessionId.startsWith(prefix))
+            if (isManualSession) {
+                throw new GQLError({
+                    type: FORBIDDEN,
+                    code: FORBIDDEN,
+                    message: 'You can not log out with token',
+                }, context)
+            }
+        },
+    },
+}
+
 module.exports = prepareKeystone({
     extendExpressApp,
     schemas, tasks, queues: ['low', 'medium', 'high'],
     apps, lastApp,
     ui: { hooks: require.resolve('@app/condo/admin-ui') },
+    authStrategyOpts,
 })

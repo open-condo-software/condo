@@ -21,7 +21,7 @@ const { B2BAccessToken, createTestB2BAccessToken, updateTestB2BAccessToken, crea
 } = require('@condo/domains/miniapp/utils/testSchema')
 const { Organization, registerNewOrganization, createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser,
-    registerNewServiceUserByTestClient, makeClientWithServiceUser,
+    registerNewServiceUserByTestClient, makeClientWithServiceUser, createTestUserRightsSet,
 } = require('@condo/domains/user/utils/testSchema')
 
 
@@ -82,6 +82,13 @@ describe('B2BAccessToken', () => {
                     })
                 })
 
+                test('can with direct access', async () => {
+                    const [rightSet] = await createTestUserRightsSet(admin, { canManageB2BAccessTokens: true })
+                    const client = await makeClientWithNewRegisteredAndLoggedInUser({ rightSet: { connect: { id: rightSet.id } } })
+                    const [accessToken] = await createTestB2BAccessTokenReadonly(client, b2bAppContext, tokenRightSet)
+                    expect(accessToken).toBeDefined()
+                })
+
                 test.todo('Need to complete DOMA-6766 and give user access to B2BAppContext')
                 test.skip('can with employment and rights', async () => {
                     const client = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -90,6 +97,14 @@ describe('B2BAccessToken', () => {
                     const [accessToken] = await createTestB2BAccessTokenReadonly(client, b2bAppContext, tokenRightSet)
                     expect(accessToken).toBeDefined()
                 })
+            })
+
+            test('serviceUser can with rights', async () => {
+                const serviceUserClient = await makeClientWithServiceUser()
+                const [rightSet] = await createTestB2BAppAccessRightSet(admin, b2bAppContext, { canManageB2BAccessTokens: true })
+                await createTestB2BAppAccessRight(admin, serviceUserClient.user, b2bApp, rightSet)
+                const [accessToken] = await createTestB2BAccessTokenReadonly(serviceUserClient, b2bAppContext, tokenRightSet)
+                expect(accessToken).toBeDefined()
             })
 
             test('anonymous can\'t', async () => {
