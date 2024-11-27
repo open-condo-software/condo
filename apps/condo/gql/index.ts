@@ -1018,6 +1018,28 @@ export const GetInvoicesByIdsDocument = gql`
   invoices: allInvoices(where: {id_in: $ids}, sortBy: [createdAt_DESC]) {
     id
     status
+    number
+    paymentType
+    status
+    currencyCode
+    rows {
+      name
+      toPay
+      isMin
+      count
+      sku
+    }
+    organization {
+      id
+    }
+    createdBy {
+      id
+      name
+      type
+    }
+    ticket {
+      id
+    }
   }
 }
     `

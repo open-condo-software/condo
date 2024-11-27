@@ -58,9 +58,6 @@ export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({
     const handleUpdateInvoice = useCallback(async (values) => {
         setSubmitLoading(true)
         let valuesFromForm = { ...values }
-        if (isModalForm) {
-            valuesFromForm = omit(values, ['clientName', 'clientPhone', 'contact', 'property', 'unitName', 'unitType'])
-        }
         if (!values.payerData) {
             valuesFromForm = {
                 ...valuesFromForm,
@@ -72,6 +69,9 @@ export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({
                 unitType: null,
                 client: null,
             }
+        }
+        if (isModalForm) {
+            valuesFromForm = omit(values, ['clientName', 'clientPhone', 'contact', 'property', 'unitName', 'unitType'])
         }
 
         const formattedValues = Invoice.formValuesProcessor(valuesFromForm, intl)
