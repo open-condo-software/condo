@@ -31,6 +31,7 @@ import { EmployeeInviteRetryButton } from '@condo/domains/organization/component
 import { EmployeesReadPermissionRequired } from '@condo/domains/organization/components/PageAccess'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
+import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 
@@ -304,7 +305,7 @@ export const EmployeePageContent: React.FC<EmployeePageContent> = ({
     )
 }
 
-export const EmployeeInfoPage: PageComponentType = () => {
+export const EmployeeInfoPage = () => {
     const { query } = useRouter()
     const { link } = useOrganization()
     const intl = useIntl()

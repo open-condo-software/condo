@@ -60,7 +60,6 @@ async function canReadTickets (args) {
 
 async function canManageTickets (args) {
     const { authentication: { item: user }, operation, itemId, itemIds, originalInput, context, listKey } = args
-
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
@@ -183,9 +182,14 @@ async function canManageTickets (args) {
         if (operation === 'create') {
             organizationId = get(originalInput, ['organization', 'connect', 'id'])
         } else if (operation === 'update') {
-            if (!itemId) return false
-            const ticket = await getById('Ticket', itemId)
-            organizationId = get(ticket, 'organization', null)
+            console.log('itemId', itemId)
+            const ids = itemIds || [itemId]
+            if (ids.length !== uniq(ids).length) return false
+            const tickets = await find('Ticket', {
+                id_in: ids,
+                deletedAt: null,
+            })
+            organizationId = uniq(tickets.map(ticket => ticket.organization))
         }
 
         if (!organizationId) return false

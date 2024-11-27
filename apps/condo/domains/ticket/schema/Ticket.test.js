@@ -1377,6 +1377,47 @@ describe('Ticket', () => {
             })
         })
 
+        test('user can bulk update Tickets', async () => {
+
+            let tickets = []
+
+            for (let i = 0; i < 100; i++) {
+                const [ticket] = await createTestTicket(admin, organization, property)
+                tickets.push(ticket)
+            }
+
+            const payload = tickets.map((ticket) => ({
+                id: ticket.id,
+                data: {
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                    isPaid: true,
+                },
+            }))
+
+            // const expectedTickets = payload.map((ticket) => ({
+            //     id: ticket.id,
+            //     isPaid: true,
+            // }))
+
+            // let updatedTickets
+            const startTime = new Date().getTime()
+
+            for (let i = 0; i < 100; i = i + 100) {
+                const updatedPayload = payload.slice(i, i + 100)
+                await Ticket.updateMany(admin, updatedPayload)
+            }
+
+            const endTime = new Date().getTime()
+            const elapsedTime = endTime - startTime
+            console.log('Время выполнения:', elapsedTime, 'миллисекунд')
+
+            // expect(updatedTickets).toEqual(
+            //     expect.arrayContaining(expectedTickets)
+            // )
+        })
+
+
         test('employee from "from" organization: can read tickets from "to" organizations', async () => {
             const {
                 clientFrom,
