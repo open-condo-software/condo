@@ -702,7 +702,7 @@
   "employee.AllSpecializations": "all specializations",
   "employee.BlockUser": "Block user",
   "employee.CanNotBlockYourself": "(you can't block yourself)",
-  "employee.ConfirmDeleteMessage": "All data about him will be erased forever",
+  "employee.ConfirmDeleteMessage": "The data will not be recoverable and the employee will not be able to log in to the Doma.ai platform.",
   "employee.ConfirmDeleteTitle": "Delete an employee?",
   "employee.EmployeeDidntEntered": "User has not logged into CRM.",
   "employee.EmptyList.header": "No employees yet",

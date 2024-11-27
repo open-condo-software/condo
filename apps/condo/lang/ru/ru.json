@@ -702,7 +702,7 @@
   "employee.AllSpecializations": "Все типы работ",
   "employee.BlockUser": "Заблокировать пользователя",
   "employee.CanNotBlockYourself": "(вы не можете заблокировать себя)",
-  "employee.ConfirmDeleteMessage": "Все данные о нём сотрутся навсегда",
+  "employee.ConfirmDeleteMessage": "Данные нельзя будет восстановить, а сотрудник не сможет войти на платформу Doma.ai",
   "employee.ConfirmDeleteTitle": "Удалить сотрудника?",
   "employee.EmployeeDidntEntered": "Пользователь не заходил в CRM.",
   "employee.EmptyList.header": "Пока сотрудников нет",

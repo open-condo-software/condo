@@ -266,6 +266,29 @@ const TicketAutoAssignment = generateGqlQueries('TicketAutoAssignment', TICKET_A
 const TICKET_DOCUMENT_GENERATION_TASK_FIELDS = `{ ticket { id } status format progress user { id } timeZone file { id originalFilename publicUrl mimetype } documentType meta ${COMMON_FIELDS} }`
 const TicketDocumentGenerationTask = generateGqlQueries('TicketDocumentGenerationTask', TICKET_DOCUMENT_GENERATION_TASK_FIELDS)
 
+const GET_ACTIVE_TICKETS_ORGANIZATION_EMPLOYEE_QUERY = gql`
+    query selectActiveTicketsOrganizationEmployeeQuery($where: TicketWhereInput, $first: Int, $skip: Int) {
+        objs: allTickets(where: $where, first: $first, skip: $skip) {
+            id
+            organization {
+                id
+            }
+            assignee {
+                id
+            }
+            executor {
+                id
+            }
+        }
+    }
+`
+
+const REASSIGNEMENT_ACTIVE_TICKET_DELETE_ORGANIZATION_EMPLOYEE_UPDATE_MUTATION = gql`
+    mutation activeTicketUpdate ($data: [TicketsUpdateInput]) {
+        result: updateTickets(data: $data) { id }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 module.exports = {
     Ticket,
@@ -306,5 +329,7 @@ module.exports = {
     TicketAutoAssignment,
     TicketDocumentGenerationTask,
     TICKET_EXPORT_TASK_OPTIONS_FIELDS,
+    GET_ACTIVE_TICKETS_ORGANIZATION_EMPLOYEE_QUERY,
+    REASSIGNEMENT_ACTIVE_TICKET_DELETE_ORGANIZATION_EMPLOYEE_UPDATE_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
