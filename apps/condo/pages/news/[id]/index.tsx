@@ -245,8 +245,7 @@ const NewsItemCard: React.FC = () => {
     }, [NotSentMessage, SendingMessage, isSending, isSent, newsItem])
 
     const formattedNewsItemSharingSendAt = (newsItemSharing) => {
-        const dateToShow = get(newsItemSharing, 'createdAt', null)
-        if (!dateToShow) return '—'
+        let dateToShow = get(newsItem, 'sendAt', null)
 
         let status
         if (newsItemSharing.status === 'scheduled') {
@@ -256,8 +255,11 @@ const NewsItemCard: React.FC = () => {
         } else if (newsItemSharing.status === 'error') {
             status = ErrorMessage
         } else if (newsItemSharing.status === 'success') {
+            dateToShow = get(newsItemSharing, 'updatedAt', null)
             status = SentMessage
         }
+
+        if (!dateToShow) return '—'
 
         return (
             <>
