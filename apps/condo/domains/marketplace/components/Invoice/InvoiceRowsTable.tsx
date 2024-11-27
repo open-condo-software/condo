@@ -1,6 +1,7 @@
 import { Invoice } from '@app/condo/schema'
 import { Table as AntdTable } from 'antd'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -113,7 +114,7 @@ export const InvoiceRowsTable: React.FC<InvoiceRowsTableProps> = ({ invoice }) =
     const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
 
     const currencyCode = get(invoice, 'currencyCode') || DEFAULT_INVOICE_CURRENCY_CODE
-    const rows = useMemo(() => get(invoice, 'rows'), [invoice])
+    const rows = useMemo(() => get(invoice, 'rows') || [], [invoice])
     const organizationId = get(invoice, 'organization.id') || get(invoice, 'organization')
     const skuItems = rows.map(({ sku }) => sku).filter(Boolean)
 
@@ -122,7 +123,7 @@ export const InvoiceRowsTable: React.FC<InvoiceRowsTableProps> = ({ invoice }) =
             sku_in: skuItems,
             organization: { id: organizationId },
         },
-    })
+    }, { skip: isEmpty(skuItems) || !organizationId })
 
     const orderColumns = useInvoiceRowsTableColumns(currencyCode, marketItems)
 

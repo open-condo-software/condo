@@ -135,7 +135,7 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
         }
 
         if (!isEmpty(existedInvoices)) {
-            const notUpdatableFields = ['property', 'unitName', 'unitType', 'contact', 'clientName', 'clientPhone', 'client']
+            const notUpdatableFields = ['ticket', 'property', 'unitName', 'unitType', 'contact', 'clientName', 'clientPhone', 'client']
 
             for (const existedInvoice of existedInvoices) {
                 const initialInvoice = invoices.find(invoice => invoice.id === existedInvoice.id)
