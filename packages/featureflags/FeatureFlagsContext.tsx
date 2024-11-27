@@ -37,6 +37,7 @@ interface IFeatureFlagsContext {
     useFlagValue: UseFlagValueType
     updateContext: (context) => void
     isReady: boolean
+    getCurrentContext?: () => Attributes
 }
 
 const FeatureFlagsContext = createContext<IFeatureFlagsContext>({
@@ -44,6 +45,7 @@ const FeatureFlagsContext = createContext<IFeatureFlagsContext>({
     useFlagValue: () => null,
     updateContext: () => ({}),
     isReady: false,
+    getCurrentContext: () => null,
 })
 
 const useFeatureFlags = (): IFeatureFlagsContext => useContext(FeatureFlagsContext)
@@ -58,6 +60,7 @@ const FeatureFlagsProviderWrapper: React.FC = ({ children }) => {
     }, [growthbook])
     const useFlag = useCallback((id) => growthbook.feature(id).on, [growthbook])
     const useFlagValue: UseFlagValueType = useCallback((id) => growthbook.feature(id).value, [growthbook])
+    const getCurrentContext = useCallback(() => growthbook.getAttributes(), [growthbook])
 
     useEffect(() => {
         const fetchFeatures = () => {
@@ -100,6 +103,7 @@ const FeatureFlagsProviderWrapper: React.FC = ({ children }) => {
             useFlagValue,
             updateContext,
             isReady: growthbook.ready,
+            getCurrentContext,
         }}>
             {children}
         </FeatureFlagsContext.Provider>
