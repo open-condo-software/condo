@@ -96,7 +96,7 @@ function _makeCookie (expires) {
  *              "sameSite": "Lax"
  *          },
  *          "keystoneListKey": "User",
- *          "keystoneItemId": "63eca9e8-f642-445f-b8e6-97c0eb93b5a4"
+ *          "keystoneItemId": "uuid"
  *          "rights": ["canManageIntegrations]
  *      }
  *  *\/
