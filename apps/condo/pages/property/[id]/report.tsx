@@ -557,22 +557,28 @@ const PropertyReportPage: PageComponentType = () => {
 
     const { query: { id }, push, asPath } = useRouter()
     const { organization } = useOrganization()
+    const organizationId = organization?.id || null
 
-    const { useFlag } = useFeatureFlags()
+    const { useFlag, isReady, getCurrentContext } = useFeatureFlags()
     const reportPageEnabled = useFlag(PROPERTY_BANK_ACCOUNT)
+    const currentContext = getCurrentContext()
+    const syncedFeatureFlagsContext = !!organizationId && currentContext?.organization === organizationId
 
-    const { loading, obj: property, error } = Property.useObject(
-        { where: { id: id as string, organization: { id: organization.id } } },
-        { fetchPolicy: 'cache-first' }
-    )
+    const { loading, obj: property, error } = Property.useObject({
+        where: { id: id as string, organization: { id: organizationId } },
+    }, {
+        fetchPolicy: 'cache-first',
+        skip: !organizationId,
+    })
 
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            if (!reportPageEnabled) {
-                push(asPath.split('/report')[0])
-            }
-        }
-    }, [reportPageEnabled, push, asPath])
+        if (!isReady) return
+        if (!syncedFeatureFlagsContext) return
+        if (reportPageEnabled) return
+
+        push(asPath.split('/report')[0])
+    }, [asPath, isReady, push, reportPageEnabled, syncedFeatureFlagsContext])
+
 
     if (error || loading) {
         return (
