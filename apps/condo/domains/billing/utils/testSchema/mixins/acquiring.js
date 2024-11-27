@@ -79,7 +79,6 @@ const AcquiringTestMixin = {
         await updateTestPayment(this.clients.admin, multiPayment.payments[0].id, {
             explicitFee: '0.0',
             advancedAt: dayjs().toISOString(),
-            transferDate: dayjs().toISOString(),
             status: PAYMENT_DONE_STATUS,
         })
         await updateTestMultiPayment(this.clients.admin, multiPayment.id, {
