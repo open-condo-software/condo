@@ -136,8 +136,8 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
         },
 
         balanceUpdatedAt: {
+            schemaDoc: 'Last date time when the balance was updated',
             type: 'DateTimeUtc',
-            kmigratorOptions: { db_index: true },
             isRequired: false,
         },
 
