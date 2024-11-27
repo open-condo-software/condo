@@ -19,6 +19,7 @@ const { GQLListSchema, find, getById, getByCondition } = require('@open-condo/ke
 const { setSession, destroySession } = require('@open-condo/keystone/session')
 const { prepareDefaultKeystoneConfig } = require('@open-condo/keystone/setup.utils')
 
+const { encryptionManager } = require('@condo/domains/common/utils/crypto')
 const { makeSessionData } = require('@condo/domains/common/utils/session')
 const access = require('@condo/domains/miniapp/access/B2BAccessToken')
 const {
@@ -34,6 +35,8 @@ const {
 const { SERVICE_USER_FIELD } = require('@condo/domains/miniapp/schema/fields/accessRight')
 const { getEnabledPermissions } = require('@condo/domains/miniapp/utils/permissions')
 
+// NOTE(YEgorLu): using deprecated function to get same cookieSecret, that app uses
+// otherwise I would need to copy code to get same result
 const { cookieSecret } = prepareDefaultKeystoneConfig(conf)
 
 const ERRORS = {
@@ -74,19 +77,19 @@ const B2BAccessToken = new GQLListSchema('B2BAccessToken', {
     fields: {
         sessionId: {
             schemaDoc: 'Encrypted sessionId of session',
-            type: 'Text',
+            type: 'EncryptedText',
             isRequired: true,
-            access: userIsAdmin,
+            access: access.updatableOnlyForAdmin,
             hooks: {
                 resolveInput ({ operation, existingItem, fieldPath, originalInput }) {
                     const inputSessionId = get(originalInput, fieldPath)
                     // need to have option to manually set sessionId, so we can migrate already given tokens to this
                     if (!isNil(inputSessionId) && !isEmpty(inputSessionId)) {
-                        return inputSessionId
+                        return encryptionManager.encrypt(inputSessionId)
                     }
                     if (operation === 'create') {
                         const sessionId = ACCESS_TOKEN_SESSION_ID_PREFIX + crypto.randomUUID()
-                        return sessionId
+                        return encryptionManager.encrypt(sessionId)
                     }
                     return get(existingItem, fieldPath)
                 },
@@ -99,7 +102,7 @@ const B2BAccessToken = new GQLListSchema('B2BAccessToken', {
             graphQLReturnType: 'String',
             resolver: (parent, args, context, info, extra) => {
                 if (info.operation.name.value === 'createB2BAccessToken') {
-                    const sessionId = parent.sessionId
+                    const sessionId = encryptionManager.decrypt(parent.sessionId)
                     return cookieSignature.sign(sessionId, cookieSecret)
                 }
                 return null
@@ -216,10 +219,11 @@ const B2BAccessToken = new GQLListSchema('B2BAccessToken', {
         async afterChange ({ context, operation, existingItem, updatedItem, originalInput }) {
             const softDeleted = operation === 'update' && !existingItem['deletedAt'] && updatedItem['deletedAt']
             const sessionIdChanged = operation === 'update' && originalInput['sessionId']
-            const sessionId = updatedItem.sessionId//decryptSessionId(updatedItem.sessionId)
+            const sessionId = encryptionManager.decrypt(updatedItem.sessionId)
 
             if (softDeleted || sessionIdChanged) {
-                await destroySession(context, existingItem.sessionId)
+                const previousSessionId = encryptionManager.decrypt(existingItem.sessionId)
+                await destroySession(context, previousSessionId)
             }
 
             if (!softDeleted) {
@@ -231,10 +235,12 @@ const B2BAccessToken = new GQLListSchema('B2BAccessToken', {
                     enabledB2BPermissions: permissions,
                 })
 
+                const expiresAt = get(updatedItem, 'expiresAt')
+
                 await setSession(context, {
                     sessionId,
                     userId: get(updatedItem, 'user'),
-                    expires: get(updatedItem, 'expiresAt').toISOString(),
+                    expires: expiresAt ? expiresAt.toISOString() : null,
                     additionalFields,
                 })
             }

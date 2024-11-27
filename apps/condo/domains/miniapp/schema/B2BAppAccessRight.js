@@ -10,7 +10,7 @@ const { getByCondition } = require('@open-condo/keystone/schema')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/miniapp/access/B2BAppAccessRight')
-const { ACCESS_RIGHT_SET_NOT_FOR_CONNECTED_B2B_APP, ACCESS_RIGHT_SET_GLOBAL_RIGHT_SET_REQUIRED, ACCESS_RIGHT_SET_GLOBALTYPE } = require('@condo/domains/miniapp/constants')
+const { ACCESS_RIGHT_SET_NOT_FOR_CONNECTED_B2B_APP, ACCESS_RIGHT_SET_GLOBAL_RIGHT_SET_REQUIRED, ACCESS_RIGHT_SET_GLOBAL_TYPE } = require('@condo/domains/miniapp/constants')
 const { SERVICE_USER_FIELD } = require('@condo/domains/miniapp/schema/fields/accessRight')
 
 
@@ -87,7 +87,7 @@ const B2BAppAccessRight = new GQLListSchema('B2BAppAccessRight', {
                     throw new GQLError(ERRORS.ACCESS_RIGHT_SET_NOT_FOR_CONNECTED_B2B_APP, context)
                 }
 
-                if (accessRightSet.type !== ACCESS_RIGHT_SET_GLOBALTYPE) {
+                if (accessRightSet.type !== ACCESS_RIGHT_SET_GLOBAL_TYPE) {
                     throw new GQLError(ERRORS.ACCESS_RIGHT_SET_INVALID_TYPE, context)
                 }
             }

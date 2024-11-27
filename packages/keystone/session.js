@@ -7,6 +7,8 @@ const { prepareDefaultKeystoneConfig } = require('@open-condo/keystone/setup.uti
 
 const { cookie: defaultCookieOptions } = prepareDefaultKeystoneConfig(conf)
 
+const INFINITE_LIKE_MAX_AGE = 1000 * (Math.pow(2, 31) - 1) // Around 68 years in milliseconds
+
 const POSSIBLE_SESSION_STORE_PATHS = [
     'req.sessionStore',
     'sessionStore',
@@ -39,8 +41,7 @@ function _makeCookie (expires) {
     } else if (typeof expires === 'string') {
         maxAge = dayjs(expires).valueOf() - dayjs().valueOf()
     } else {
-        console.error(expires)
-        throw new Error('"expires" must be date string or number')
+        maxAge = INFINITE_LIKE_MAX_AGE
     }
 
     /** @type {CookieOptions} */

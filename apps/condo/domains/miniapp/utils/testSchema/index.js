@@ -482,7 +482,7 @@ async function createTestB2BAppAccessRightSet (client, app, extraAttrs = {}) {
         dv: 1,
         sender,
         app: { connect: { id: app.id } },
-        type: 'miniapp',
+        type: 'GLOBAL',
         name: faker.random.alphaNumeric(8),
         ...extraAttrs,
     }
@@ -571,14 +571,12 @@ async function _createTestB2BAccessToken (gql, client, context, rightSet, extraA
     if (!context || !context.id) throw new Error('no context.id')
     if (!rightSet || !rightSet.id) throw new Error('no rightSet.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const expiresAt = dayjs().add(ACCESS_TOKEN_MAX_TTL_IN_MILLISECONDS, 'milliseconds').toISOString()
 
     const attrs = {
         dv: 1,
         sender,
         context: { connect: { id: context.id } },
         rightSet: { connect: { id: rightSet.id } },
-        expiresAt,
         ...extraAttrs,
     }
     const obj = await gql.create(client, attrs)

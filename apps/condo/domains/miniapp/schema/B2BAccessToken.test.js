@@ -9,9 +9,10 @@ const IORedis = require('ioredis')
 
 const conf = require('@open-condo/config')
 const {
-    makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor, expectValuesOfCommonFields,
+    makeLoggedInAdminClient, makeClient, expectValuesOfCommonFields,
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
-    expectToThrowAccessDeniedErrorToObj, expectToThrowGQLError,
+    expectToThrowAccessDeniedErrorToObj, expectToThrowGQLError, expectToThrowAccessDeniedErrorToObjects,
+    makeLoggedInClient,
 } = require('@open-condo/keystone/test.utils')
 
 const { B2BAccessToken, createTestB2BAccessToken, updateTestB2BAccessToken, createTestB2BAppContext,
@@ -19,10 +20,11 @@ const { B2BAccessToken, createTestB2BAccessToken, updateTestB2BAccessToken, crea
     B2BAccessTokenReadonly, updateTestB2BAppAccessRightSet, createTestB2BApp, updateTestB2BAccessTokenReadonly,
     updateTestB2BAppContext,
 } = require('@condo/domains/miniapp/utils/testSchema')
-const { Organization, registerNewOrganization, createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { Organization, registerNewOrganization, createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser,
     registerNewServiceUserByTestClient, makeClientWithServiceUser, createTestUserRightsSet,
 } = require('@condo/domains/user/utils/testSchema')
+const pick = require("lodash/pick");
 
 
 
@@ -32,8 +34,8 @@ describe('B2BAccessToken', () => {
     let b2bAppContext
     let organization
     let b2bApp
-    let tokenRightSet
-    let miniapRightSet
+    let scopedRightSet
+    let globalRightSet
     let serviceUser
     beforeEach(async () => {
         admin = await makeLoggedInAdminClient()
@@ -42,14 +44,14 @@ describe('B2BAccessToken', () => {
             developer: faker.company.name(),
         })
         ;[organization] = await createTestOrganization(admin)
-        ;[b2bAppContext] = await createTestB2BAppContext(admin, b2bApp, organization)
-        ;[miniapRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp)
-        ;[tokenRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { 
+        ;[b2bAppContext] = await createTestB2BAppContext(admin, b2bApp, organization, { status: 'Finished' })
+        ;[globalRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp)
+        ;[scopedRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, {
             name: faker.random.alphaNumeric(8),
-            type: 'token',
+            type: 'SCOPED',
         })
         ;[serviceUser] = await registerNewServiceUserByTestClient(admin)
-        await createTestB2BAppAccessRight(admin, serviceUser, b2bApp, miniapRightSet)
+        await createTestB2BAppAccessRight(admin, serviceUser, b2bApp, globalRightSet)
     })
 
     describe('CRUD tests', () => {
@@ -59,7 +61,7 @@ describe('B2BAccessToken', () => {
                 const admin = await makeLoggedInAdminClient()
 
                 // 2) action
-                const [obj, attrs] = await createTestB2BAccessToken(admin, b2bAppContext, tokenRightSet)
+                const [obj, attrs] = await createTestB2BAccessToken(admin, b2bAppContext, scopedRightSet)
 
                 // 3) check
                 expectValuesOfCommonFields(obj, attrs, admin)
@@ -67,43 +69,39 @@ describe('B2BAccessToken', () => {
             })
 
 
-            test('support can\'t', async () => {
-                const client = await makeClientWithSupportUser()
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestB2BAccessToken(client, b2bAppContext, tokenRightSet)
-                })
-            })
-
-            describe('user', () => {
+            describe('support', () => {
                 test('can\'t with no rights', async () => {
-                    const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const client = await makeClientWithSupportUser()
                     await expectToThrowAccessDeniedErrorToObj(async () => {
-                        await createTestB2BAccessTokenReadonly(client, b2bAppContext, tokenRightSet)
+                        await createTestB2BAccessToken(client, b2bAppContext, scopedRightSet)
                     })
                 })
 
                 test('can with direct access', async () => {
                     const [rightSet] = await createTestUserRightsSet(admin, { canManageB2BAccessTokens: true })
-                    const client = await makeClientWithNewRegisteredAndLoggedInUser({ rightSet: { connect: { id: rightSet.id } } })
-                    const [accessToken] = await createTestB2BAccessTokenReadonly(client, b2bAppContext, tokenRightSet)
-                    expect(accessToken).toBeDefined()
-                })
-
-                test.todo('Need to complete DOMA-6766 and give user access to B2BAppContext')
-                test.skip('can with employment and rights', async () => {
-                    const client = await makeClientWithNewRegisteredAndLoggedInUser()
-                    const [integrationManagerRole] = await createTestOrganizationEmployeeRole(admin, organization, { canManageIntegrations: true })
-                    await createTestOrganizationEmployee(admin, organization, client.user, integrationManagerRole)
-                    const [accessToken] = await createTestB2BAccessTokenReadonly(client, b2bAppContext, tokenRightSet)
+                    const client = await makeClientWithSupportUser({ rightsSet: { connect: { id: rightSet.id } } })
+                    const [accessToken] = await createTestB2BAccessTokenReadonly(client, b2bAppContext, scopedRightSet)
                     expect(accessToken).toBeDefined()
                 })
             })
 
+            test('user can\'t', async () => {
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestB2BAccessTokenReadonly(client, b2bAppContext, scopedRightSet)
+                })
+            })
+
             test('serviceUser can with rights', async () => {
+                const [b2bApp] = await createTestB2BApp(admin)
+                const [organization] = await createTestOrganization(admin)
+                const [b2bAppContext] = await createTestB2BAppContext(admin, b2bApp, organization, { status: 'Finished' })
+                const [globalRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { canManageB2BAccessTokens: true, canReadB2BAccessTokens: true })
+                const [scopedRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { type: 'SCOPED' })
+
                 const serviceUserClient = await makeClientWithServiceUser()
-                const [rightSet] = await createTestB2BAppAccessRightSet(admin, b2bAppContext, { canManageB2BAccessTokens: true })
-                await createTestB2BAppAccessRight(admin, serviceUserClient.user, b2bApp, rightSet)
-                const [accessToken] = await createTestB2BAccessTokenReadonly(serviceUserClient, b2bAppContext, tokenRightSet)
+                await createTestB2BAppAccessRight(admin, serviceUserClient.user, b2bApp, globalRightSet)
+                const [accessToken] = await createTestB2BAccessTokenReadonly(serviceUserClient, b2bAppContext, scopedRightSet)
                 expect(accessToken).toBeDefined()
             })
 
@@ -111,7 +109,7 @@ describe('B2BAccessToken', () => {
                 const client = await makeClient()
 
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await createTestB2BAccessToken(client, b2bAppContext, tokenRightSet)
+                    await createTestB2BAccessToken(client, b2bAppContext, scopedRightSet)
                 })
             })
         })
@@ -119,7 +117,7 @@ describe('B2BAccessToken', () => {
         describe('update', () => {
             test('admin can', async () => {
                 const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestB2BAccessToken(admin, b2bAppContext, tokenRightSet)
+                const [objCreated] = await createTestB2BAccessToken(admin, b2bAppContext, scopedRightSet)
 
                 const [obj, attrs] = await updateTestB2BAccessToken(admin, objCreated.id)
 
@@ -129,75 +127,36 @@ describe('B2BAccessToken', () => {
                 expect(obj.updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
             })
 
+            describe('support', () => {
 
-            test('support can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestB2BAccessToken(admin, b2bAppContext, tokenRightSet)
-
-                const client = await makeClientWithSupportUser()
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestB2BAccessTokenReadonly(client, objCreated.id)
+                test('can\'t with no rights', async () => {
+                    const [objCreated] = await createTestB2BAccessToken(admin, b2bAppContext, scopedRightSet)
+                    const client = await makeClientWithSupportUser()
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await updateTestB2BAccessTokenReadonly(client, objCreated.id)
+                    })
                 })
+
+                test('can with direct access', async () => {
+                    const [rightSet] = await createTestUserRightsSet(admin, { canManageB2BAccessTokens: true })
+                    const client = await makeClientWithSupportUser({ rightsSet: { connect: { id: rightSet.id } } })
+                    const [accessToken] = await createTestB2BAccessTokenReadonly(admin, b2bAppContext, scopedRightSet)
+                    await updateTestB2BAccessTokenReadonly(client, accessToken.id)
+                })
+
             })
 
-            describe('user', () => {
-                
-                const USER_READONLY_FIELDS = [
-                    ['sessionId', faker.random.alphaNumeric(8)],
-                    ['user', { connect: { id: faker.datatype.uuid() } }],
-                    ['context', { connect: { id: faker.datatype.uuid() } }],
-                    ['expiresAt', faker.datatype.datetime({ min: dayjs().valueOf(), max: dayjs().add(1, 'month').valueOf() })],
-                ]
-                
-                const USER_UPDATABLE_FIELDS = [
-                    ['deletedAt', { value: dayjs().toISOString(), check: (item) => expect(item.deletedAt).toMatch(DATETIME_RE) }],
-                ]
-                
-                describe('can\'t', () => {
-                    let accessToken
-                    let client
-                    beforeAll(async () => {
-                        client = await makeClientWithNewRegisteredAndLoggedInUser()
-                        ;[accessToken] = await createTestB2BAccessToken(admin, b2bAppContext, tokenRightSet)
-                    })
-                    
-                    test.each(USER_READONLY_FIELDS)('%p', async (field, value) => {
-                        const [role] = await createTestOrganizationEmployeeRole(admin, organization, { canManageIntegrations: true })
-                        await createTestOrganizationEmployee(admin, organization, client.user, role)
-                        await expectToThrowAccessDeniedErrorToObj(async () => {
-                            await updateTestB2BAccessTokenReadonly(client, accessToken.id, { [field]: value })
-                        })
-                    })
+            test('user can\'t', async () => {
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [accessToken] = await createTestB2BAccessToken(admin, b2bAppContext, scopedRightSet)
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestB2BAccessTokenReadonly(client, accessToken.id)
                 })
-
-                describe('can', () => {
-                    let accessToken
-                    let client
-                    beforeAll(async () => {
-                        client = await makeClientWithNewRegisteredAndLoggedInUser()
-                    })
-
-                    beforeEach(async () => {
-                        [accessToken] = await createTestB2BAccessToken(admin, b2bAppContext, tokenRightSet)
-                    })
-
-                    test.each(USER_UPDATABLE_FIELDS)('%p', async (field, { value, check }) => {
-                        const [role] = await createTestOrganizationEmployeeRole(admin, organization, { canManageIntegrations: true })
-                        await createTestOrganizationEmployee(admin, organization, client.user, role)
-                        const [updatedAccessToken] = await updateTestB2BAccessTokenReadonly(client, accessToken.id, { [field]: value })
-                        if (!check) {
-                            expect(updatedAccessToken).toHaveProperty(field, value)
-                        } else {
-                            check(updatedAccessToken)
-                        }
-                    })
-                })
-
             })
 
             test('anonymous can\'t', async () => {
                 const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestB2BAccessToken(admin, b2bAppContext, tokenRightSet)
+                const [objCreated] = await createTestB2BAccessToken(admin, b2bAppContext, scopedRightSet)
 
                 const client = await makeClient()
                 await expectToThrowAuthenticationErrorToObj(async () => {
@@ -209,7 +168,7 @@ describe('B2BAccessToken', () => {
         describe('hard delete', () => {
             test('admin can\'t', async () => {
                 const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestB2BAccessToken(admin, b2bAppContext, tokenRightSet)
+                const [objCreated] = await createTestB2BAccessToken(admin, b2bAppContext, scopedRightSet)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await B2BAccessToken.delete(admin, objCreated.id)
@@ -218,7 +177,7 @@ describe('B2BAccessToken', () => {
 
             test('user can\'t', async () => {
                 const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestB2BAccessToken(admin, b2bAppContext, tokenRightSet)
+                const [objCreated] = await createTestB2BAccessToken(admin, b2bAppContext, scopedRightSet)
 
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -228,7 +187,7 @@ describe('B2BAccessToken', () => {
 
             test('anonymous can\'t', async () => {
                 const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestB2BAccessToken(admin, b2bAppContext, tokenRightSet)
+                const [objCreated] = await createTestB2BAccessToken(admin, b2bAppContext, scopedRightSet)
 
                 const client = await makeClient()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -240,7 +199,7 @@ describe('B2BAccessToken', () => {
         describe('read', () => {
             test('admin can', async () => {
                 const admin = await makeLoggedInAdminClient()
-                const [obj, attrs] = await createTestB2BAccessToken(admin, b2bAppContext, tokenRightSet)
+                const [obj, attrs] = await createTestB2BAccessToken(admin, b2bAppContext, scopedRightSet)
 
                 const objs = await B2BAccessToken.getAll(admin, {}, { sortBy: ['updatedAt_DESC'] })
 
@@ -253,32 +212,82 @@ describe('B2BAccessToken', () => {
                 ]))
             })
 
-            describe('user', () => {
+            describe('support', () => {
 
                 test('can\'t with no rights', async () => {
-                    await createTestB2BAccessToken(admin, b2bAppContext, tokenRightSet)
-                    const client = await makeClientWithNewRegisteredAndLoggedInUser()
-                    const objs = await B2BAccessTokenReadonly.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
-                    expect(objs).toHaveLength(0)
+                    const admin = await makeLoggedInAdminClient()
+                    const [obj, attrs] = await createTestB2BAccessToken(admin, b2bAppContext, scopedRightSet)
+                    const client = await makeClientWithSupportUser()
+                    await expectToThrowAccessDeniedErrorToObjects(async () => {
+                        await B2BAccessToken.getOne(client, { id: obj.id })
+                    })
                 })
 
-                test('can with employment and rights', async () => {
-                    const [obj, attrs] = await createTestB2BAccessToken(admin, b2bAppContext, tokenRightSet)
-
-                    const client = await makeClientWithNewRegisteredAndLoggedInUser()
-                    const [role] = await createTestOrganizationEmployeeRole(admin, organization, { canManageIntegrations: true })
-                    await createTestOrganizationEmployee(admin, organization, client.user, role)
-
-                    const objs = await B2BAccessTokenReadonly.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
-                    expect(objs.length).toBeGreaterThanOrEqual(1)
-                    expect(objs).toEqual(expect.arrayContaining([expect.objectContaining({ id: obj.id })]))
+                test('can with direct access', async () => {
+                    const admin = await makeLoggedInAdminClient()
+                    const [obj, attrs] = await createTestB2BAccessToken(admin, b2bAppContext, scopedRightSet)
+                    const [rightSet] = await createTestUserRightsSet(admin, { canReadB2BAccessTokens: true })
+                    const client = await makeClientWithSupportUser({ rightsSet: { connect: { id: rightSet.id } } })
+                    const createdToken = await B2BAccessToken.getOne(client, { id: obj.id })
+                    expect(createdToken).toBeDefined()
                 })
 
             })
 
+            describe('service user', () => {
+
+                test('can\'t with no rights', async () => {
+                    const [b2bApp] = await createTestB2BApp(admin, {
+                        name: faker.company.name().replace(/ /, '-').toUpperCase() + ' B2B APP',
+                        developer: faker.company.name(),
+                    })
+                    const [organization] = await createTestOrganization(admin)
+                    const [b2bAppContext] = await createTestB2BAppContext(admin, b2bApp, organization, { status: 'Finished' })
+                    const [globalRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { canReadB2BAccessTokens: true })
+                    const [scopedRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, {
+                        name: faker.random.alphaNumeric(8),
+                        type: 'SCOPED',
+                    })
+                    const serviceUserClient = await makeClientWithServiceUser()
+                    await createTestB2BAppAccessRight(admin, serviceUserClient.user, b2bApp, globalRightSet)
+
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await createTestB2BAccessToken(serviceUserClient, b2bAppContext, scopedRightSet)
+                    })
+                })
+
+                test('can with rights', async () => {
+                    const [b2bApp] = await createTestB2BApp(admin, {
+                        name: faker.company.name().replace(/ /, '-').toUpperCase() + ' B2B APP',
+                        developer: faker.company.name(),
+                    })
+                    const [organization] = await createTestOrganization(admin)
+                    const [b2bAppContext] = await createTestB2BAppContext(admin, b2bApp, organization, { status: 'Finished' })
+                    const [globalRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { canManageB2BAccessTokens: true })
+                    const [scopedRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, {
+                        name: faker.random.alphaNumeric(8),
+                        type: 'SCOPED',
+                    })
+                    const serviceUserClient = await makeClientWithServiceUser()
+                    await createTestB2BAppAccessRight(admin, serviceUserClient.user, b2bApp, globalRightSet)
+
+                    const [accessToken] = await createTestB2BAccessToken(serviceUserClient, b2bAppContext, scopedRightSet)
+                    expect(accessToken).toBeDefined()
+                })
+
+            })
+
+            test('user can\'t', async () => {
+                await createTestB2BAccessToken(admin, b2bAppContext, scopedRightSet)
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                await expectToThrowAccessDeniedErrorToObjects(async () => {
+                    await B2BAccessTokenReadonly.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
+                })
+            })
+
             test('anonymous can\'t', async () => {
                 const admin = await makeLoggedInAdminClient()
-                const [obj, attrs] = await createTestB2BAccessToken(admin, b2bAppContext, tokenRightSet)
+                const [obj, attrs] = await createTestB2BAccessToken(admin, b2bAppContext, scopedRightSet)
 
                 const client = await makeClient()
                 await expectToThrowAuthenticationErrorToObjects(async () => {
@@ -288,9 +297,107 @@ describe('B2BAccessToken', () => {
         })
     })
 
+    describe('Fields update access', () => {
+        const updateInput = {}
+        const updatableByNonAdminFields = ['deletedAt']
+
+        beforeAll(async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [anotherB2bApp] = await createTestB2BApp(admin, {
+                name: faker.company.name().replace(/ /, '-').toUpperCase() + ' B2B APP',
+                developer: faker.company.name(),
+            })
+            const [anotherOrganization] = await createTestOrganization(admin)
+            const [anotherB2bAppContext] = await createTestB2BAppContext(admin, anotherB2bApp, anotherOrganization, { status: 'Finished' })
+            const [anotherGlobalRightSet] = await createTestB2BAppAccessRightSet(admin, anotherB2bApp)
+            const [anotherScopedRightSet] = await createTestB2BAppAccessRightSet(admin, anotherB2bApp, {
+                name: faker.random.alphaNumeric(8),
+                type: 'SCOPED',
+            })
+            const [anotherServiceUser] = await registerNewServiceUserByTestClient(admin)
+            await createTestB2BAppAccessRight(admin, anotherServiceUser, anotherB2bApp, anotherGlobalRightSet)
+
+            updateInput.sessionId = faker.random.alphaNumeric(8)
+            updateInput.user = { connect: { id: anotherServiceUser.id } }
+            updateInput.context = { connect: { id: anotherB2bAppContext.id } }
+            updateInput.rightSet = { connect: { id: anotherScopedRightSet.id } }
+            updateInput.expiresAt = faker.datatype.datetime({ min: dayjs().valueOf(), max: dayjs().add(1, 'month').valueOf() })
+            updateInput.deletedAt = dayjs().toISOString()
+        })
+
+        test('admin can update everything', async () => {
+            const [accessToken] = await createTestB2BAccessToken(admin, b2bAppContext, scopedRightSet)
+            const [updatedToken] = await updateTestB2BAccessToken(admin, accessToken.id, updateInput)
+            expect(updatedToken).toBeDefined()
+        })
+
+        test(`others can update only ${updatableByNonAdminFields}`, async () => {
+            const [rightSet] = await createTestUserRightsSet(admin, { canManageB2BAccessTokens: true })
+            const client = await makeClientWithSupportUser({ rightsSet: { connect: { id: rightSet.id } } })
+            const [accessToken] = await createTestB2BAccessToken(admin, b2bAppContext, scopedRightSet)
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestB2BAccessToken(client, accessToken.id, updateInput)
+            })
+
+            const [updatedToken] = await updateTestB2BAccessToken(client, accessToken.id, pick(updateInput, 'deletedAt'))
+            expect(updatedToken).toBeDefined()
+        })
+        // const USER_READONLY_FIELDS = [
+        //     ['sessionId', faker.random.alphaNumeric(8)],
+        //     ['user', { connect: { id: faker.datatype.uuid() } }],
+        //     ['context', { connect: { id: faker.datatype.uuid() } }],
+        //     ['expiresAt', faker.datatype.datetime({ min: dayjs().valueOf(), max: dayjs().add(1, 'month').valueOf() })],
+        // ]
+        //
+        // const USER_UPDATABLE_FIELDS = [
+        //     ['deletedAt', { value: dayjs().toISOString(), check: (item) => expect(item.deletedAt).toMatch(DATETIME_RE) }],
+        // ]
+        //
+        // describe('can\'t', () => {
+        //     let accessToken
+        //     let client
+        //     beforeAll(async () => {
+        //         client = await makeClientWithNewRegisteredAndLoggedInUser()
+        //         ;[accessToken] = await createTestB2BAccessToken(admin, b2bAppContext, tokenRightSet)
+        //     })
+        //    
+        //     test.each(USER_READONLY_FIELDS)('%p', async (field, value) => {
+        //         const [role] = await createTestOrganizationEmployeeRole(admin, organization, { canManageIntegrations: true })
+        //         await createTestOrganizationEmployee(admin, organization, client.user, role)
+        //         await expectToThrowAccessDeniedErrorToObj(async () => {
+        //             await updateTestB2BAccessTokenReadonly(client, accessToken.id, { [field]: value })
+        //         })
+        //     })
+        // })
+        //
+        // describe('can', () => {
+        //     let accessToken
+        //     let client
+        //     beforeAll(async () => {
+        //         client = await makeClientWithNewRegisteredAndLoggedInUser()
+        //     })
+        //
+        //     beforeEach(async () => {
+        //         [accessToken] = await createTestB2BAccessToken(admin, b2bAppContext, tokenRightSet)
+        //     })
+        //
+        //     test.each(USER_UPDATABLE_FIELDS)('%p', async (field, { value, check }) => {
+        //         const [role] = await createTestOrganizationEmployeeRole(admin, organization, { canManageIntegrations: true })
+        //         await createTestOrganizationEmployee(admin, organization, client.user, role)
+        //         const [updatedAccessToken] = await updateTestB2BAccessTokenReadonly(client, accessToken.id, { [field]: value })
+        //         if (!check) {
+        //             expect(updatedAccessToken).toHaveProperty(field, value)
+        //         } else {
+        //             check(updatedAccessToken)
+        //         }
+        //     })
+        // })
+    })
+
     describe('Validation tests', () => {
         test('Should have correct dv field (=== 1)', async () => {
-            const [obj] = await createTestB2BAccessToken(admin, b2bAppContext, tokenRightSet)
+            const [obj] = await createTestB2BAccessToken(admin, b2bAppContext, scopedRightSet)
             expect(obj).toHaveProperty('dv', 1)
         })
 
@@ -301,9 +408,9 @@ describe('B2BAccessToken', () => {
             await createTestB2BAppAccessRightSet(admin, otherApp1)
             await createTestB2BAppAccessRightSet(admin, otherApp2)
             await createTestB2BAppAccessRightSet(admin, otherApp3)
-            const [tokenRightSet1] = await createTestB2BAppAccessRightSet(admin, otherApp1, { type: 'token' })
-            const [tokenRightSet2] = await createTestB2BAppAccessRightSet(admin, otherApp2, { type: 'token' })
-            const [tokenRightSet3] = await createTestB2BAppAccessRightSet(admin, otherApp3, { type: 'token' })
+            const [tokenRightSet1] = await createTestB2BAppAccessRightSet(admin, otherApp1, { type: 'SCOPED' })
+            const [tokenRightSet2] = await createTestB2BAppAccessRightSet(admin, otherApp2, { type: 'SCOPED' })
+            const [tokenRightSet3] = await createTestB2BAppAccessRightSet(admin, otherApp3, { type: 'SCOPED' })
             const [otherServiceUser1] = await registerNewServiceUserByTestClient(admin)
             const [otherServiceUser2] = await registerNewServiceUserByTestClient(admin)
             const [otherServiceUser3] = await registerNewServiceUserByTestClient(admin)
@@ -338,23 +445,20 @@ describe('B2BAccessToken', () => {
         
         test('Returned sessionId is encoded', async () => {
             const redisClient = new IORedis(conf.REDIS_URL)
-            const [createdToken] = await createTestB2BAccessToken(admin, b2bAppContext, tokenRightSet)
+            const [createdToken] = await createTestB2BAccessToken(admin, b2bAppContext, scopedRightSet)
             expect(createdToken).toHaveProperty('sessionId')
             const session = await redisClient.get(`sess:${createdToken.sessionId}`)
             expect(session).toBeNull()
         })
-        
-        test.todo('After DOMA-6766 rewrite test to use employee with role')
-        test('Show token only once after creation', async () => {
-            // const client = await makeClientWithNewRegisteredAndLoggedInUser()
-            // const [role] = await createTestOrganizationEmployeeRole(admin, organization, { canManageIntegrations: true })
-            // await createTestOrganizationEmployee(admin, organization, client.user, role)
 
-            const [createdToken] = await createTestB2BAccessToken(admin, b2bAppContext, tokenRightSet)
+        test('Show token only once after creation', async () => {
+            await updateTestB2BAppAccessRightSet(admin, globalRightSet.id, { canManageB2BAccessTokens: true, canReadB2BAccessTokens: true })
+            const client = await makeLoggedInClient(serviceUser)
+            const [createdToken] = await createTestB2BAccessToken(client, b2bAppContext, scopedRightSet)
             expect(createdToken).toHaveProperty('token')
             expect(createdToken.token.length).toBeGreaterThan(0)
 
-            const gottenToken = await B2BAccessToken.getOne(admin, { id: createdToken.id })
+            const gottenToken = await B2BAccessToken.getOne(client, { id: createdToken.id })
             expect(gottenToken).toHaveProperty('token')
             expect(gottenToken.token).toBeNull()
         })
@@ -364,9 +468,9 @@ describe('B2BAccessToken', () => {
             describe('Authentication', () => {
 
                 test('Can\'t logout with token', async () => {
-                    await updateTestB2BAppAccessRightSet(admin, miniapRightSet.id, { canReadOrganizations: true })
-                    await updateTestB2BAppAccessRightSet(admin, tokenRightSet.id, { canReadOrganizations: true })
-                    const [accessToken] = await createTestB2BAccessToken(admin, b2bAppContext, tokenRightSet)
+                    await updateTestB2BAppAccessRightSet(admin, globalRightSet.id, { canReadOrganizations: true })
+                    await updateTestB2BAppAccessRightSet(admin, scopedRightSet.id, { canReadOrganizations: true })
+                    const [accessToken] = await createTestB2BAccessToken(admin, b2bAppContext, scopedRightSet)
                     const anonymous = await makeClient()
                     anonymous.setHeaders({ 'Authorization': `Bearer ${accessToken.token}` })
                     const { errors, data } = await anonymous.mutate(gql`
@@ -389,9 +493,9 @@ describe('B2BAccessToken', () => {
                 })
 
                 test('Executes as connected service user', async () => {
-                    await updateTestB2BAppAccessRightSet(admin, miniapRightSet.id, { canReadOrganizations: true })
-                    await updateTestB2BAppAccessRightSet(admin, tokenRightSet.id, { canReadOrganizations: true })
-                    const [accessToken] = await createTestB2BAccessToken(admin, b2bAppContext, tokenRightSet)
+                    await updateTestB2BAppAccessRightSet(admin, globalRightSet.id, { canReadOrganizations: true })
+                    await updateTestB2BAppAccessRightSet(admin, scopedRightSet.id, { canReadOrganizations: true })
+                    const [accessToken] = await createTestB2BAccessToken(admin, b2bAppContext, scopedRightSet)
                     const anonymous = await makeClient()
                     anonymous.setHeaders({ 'Authorization': `Bearer ${accessToken.token}` })
                     const res = await anonymous.query(gql`
@@ -416,7 +520,7 @@ describe('B2BAccessToken', () => {
                 const [b2bApp] = await createTestB2BApp(admin)
                 const [b2bAppContext] = await createTestB2BAppContext(admin, b2bApp, originalOrganization, { status: 'Finished' })
                 const [miniappRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { canReadOrganizations: true })
-                const [tokenRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { type: 'token', canReadOrganizations: true })
+                const [tokenRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { type: 'SCOPED', canReadOrganizations: true })
                 const [serviceUser] = await registerNewServiceUserByTestClient(admin)
                 await createTestB2BAppAccessRight(admin, serviceUser, b2bApp, miniappRightSet)
    
@@ -437,7 +541,7 @@ describe('B2BAccessToken', () => {
                 const [b2bAppContext] = await createTestB2BAppContext(admin, b2bApp, originalOrganization, { status: 'Finished' })
                 const [miniappRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { canReadOrganizations: true, canReadMeters: true })
                 await createTestB2BAppAccessRight(admin, serviceUserClient.user, b2bApp, miniappRightSet)
-                const [tokenRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { type: 'token', canReadMeters: true })
+                const [tokenRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { type: 'SCOPED', canReadMeters: true })
 
                 const [accessToken] = await createTestB2BAccessToken(admin, b2bAppContext, tokenRightSet)
                 const anonymous = await makeClient()
@@ -455,7 +559,7 @@ describe('B2BAccessToken', () => {
                 const [b2bApp] = await createTestB2BApp(admin)
                 const [b2bAppContext] = await createTestB2BAppContext(admin, b2bApp, originalOrganization, { status: 'Finished' })
                 const [miniappRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { canReadOrganizations: true })
-                const [tokenRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { type: 'token', canReadOrganizations: true })
+                const [tokenRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { type: 'SCOPED', canReadOrganizations: true })
                 const [serviceUser] = await registerNewServiceUserByTestClient(admin)
                 await createTestB2BAppAccessRight(admin, serviceUser, b2bApp, miniappRightSet)
 
@@ -481,7 +585,7 @@ describe('B2BAccessToken', () => {
                     const [b2bApp] = await createTestB2BApp(admin)
                     const [b2bAppContext] = await createTestB2BAppContext(admin, b2bApp, originalOrganization, { status: 'Finished' })
                     const [miniappRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { canReadOrganizations: true })
-                    const [tokenRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { type: 'token', canReadOrganizations: true })
+                    const [tokenRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { type: 'SCOPED', canReadOrganizations: true })
                     const [serviceUser] = await registerNewServiceUserByTestClient(admin)
                     await createTestB2BAppAccessRight(admin, serviceUser, b2bApp, miniappRightSet)
 
@@ -506,7 +610,7 @@ describe('B2BAccessToken', () => {
                     const [b2bApp] = await createTestB2BApp(admin)
                     const [b2bAppContext] = await createTestB2BAppContext(admin, b2bApp, originalOrganization, { status: 'Finished' })
                     const [miniappRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { canReadOrganizations: true })
-                    const [tokenRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { type: 'token', canReadOrganizations: true })
+                    const [tokenRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { type: 'SCOPED', canReadOrganizations: true })
                     const [serviceUser] = await registerNewServiceUserByTestClient(admin)
                     await createTestB2BAppAccessRight(admin, serviceUser, b2bApp, miniappRightSet)
 
