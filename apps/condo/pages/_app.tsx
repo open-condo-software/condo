@@ -9,6 +9,7 @@ import { ConfigProvider } from 'antd'
 import enUS from 'antd/lib/locale/en_US'
 import esES from 'antd/lib/locale/es_ES'
 import ruRU from 'antd/lib/locale/ru_RU'
+import { getCookie } from 'cookies-next'
 import dayjs from 'dayjs'
 import { cache } from 'emotion'
 import get from 'lodash/get'
@@ -66,7 +67,10 @@ import { messagesImporter } from '@condo/domains/common/utils/clientSchema/messa
 import { apolloHelperOptions } from '@condo/domains/common/utils/next/apollo'
 import { prefetchAuthOrRedirect } from '@condo/domains/common/utils/next/auth'
 import { nextRedirect } from '@condo/domains/common/utils/next/helpers'
-import { prefetchOrganizationEmployee } from '@condo/domains/common/utils/next/organization'
+import {
+    ACTIVE_EMPLOYEE_COOKIE_NAME,
+    prefetchOrganizationEmployee,
+} from '@condo/domains/common/utils/next/organization'
 import {
     useVitalCookies,
     SSRCookiesContext,
@@ -656,7 +660,13 @@ const withCookies = () => (PageComponent: NextPage): NextPage => {
 }
 
 const useInitialEmployeeId = () => {
-    const { organizationLinkId: employeeId } = useSSRCookiesContext()
+    let employeeId
+    const { organizationLinkId } = useSSRCookiesContext()
+    employeeId = organizationLinkId
+    if (!employeeId && !isSSR()) {
+        employeeId = getCookie(ACTIVE_EMPLOYEE_COOKIE_NAME)
+    }
+
     return { employeeId }
 }
 
