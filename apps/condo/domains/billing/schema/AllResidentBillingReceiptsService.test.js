@@ -294,65 +294,6 @@ describe('AllResidentBillingReceiptsService', () => {
 
     describe('Paid logics', () => {
 
-        describe('Duplicated paid fix', () => {
-            test('Receipt was published => payment was maid => receipt was updated with the information about this payment', async () => {
-                const accountNumber = faker.random.alphaNumeric(12)
-                const importId = faker.random.alphaNumeric(12)
-                const payAmount = '5000.00'
-                const jsonReceipt = utils.createJSONReceipt({ importId, accountNumber, toPay: payAmount, toPayDetails: { charge: payAmount } })
-                const [[{ id: receiptId }]] = await utils.createReceipts([jsonReceipt])
-                const resident = await utils.createResident()
-                const [{ id: serviceConsumerId }] = await utils.createServiceConsumer(resident, accountNumber)
-                await utils.payForReceipt(receiptId, serviceConsumerId)
-                const [[{ id: updatedReceiptId }]] = await utils.createReceipts([{ ...jsonReceipt, toPay: '0.00', toPayDetails: { charge: payAmount, paid: payAmount } }])
-                expect(updatedReceiptId).toEqual(receiptId)
-                const receiptsAfterPayment = await ResidentBillingReceipt.getAll(utils.clients.resident, {
-                    serviceConsumer: { resident: { id: resident.id } },
-                })
-                const receiptAfterPayment = receiptsAfterPayment.find(({ id }) => id === receiptId )
-                expect(Big(receiptAfterPayment.paid).toFixed(2)).toEqual('0.00')
-                expect(Big(receiptAfterPayment.toPayDetails.paid).toFixed(2)).toEqual(payAmount)
-            })
-            test('Receipt was published => payment was maid => receipt was not updated with the information about this payment', async () => {
-                const accountNumber = faker.random.alphaNumeric(12)
-                const importId = faker.random.alphaNumeric(12)
-                const payAmount = '5000.00'
-                const jsonReceipt = utils.createJSONReceipt({ importId, accountNumber, toPay: payAmount, toPayDetails: { charge: payAmount } })
-                const [[{ id: receiptId }]] = await utils.createReceipts([jsonReceipt])
-                const resident = await utils.createResident()
-                const [{ id: serviceConsumerId }] = await utils.createServiceConsumer(resident, accountNumber)
-                await utils.payForReceipt(receiptId, serviceConsumerId)
-                const receiptsAfterPayment = await ResidentBillingReceipt.getAll(utils.clients.resident, {
-                    serviceConsumer: { resident: { id: resident.id } },
-                })
-                const receiptAfterPayment = receiptsAfterPayment.find(({ id }) => id === receiptId )
-                expect(Big(receiptAfterPayment.paid).toFixed(2)).toEqual(payAmount)
-                expect(Big(receiptAfterPayment.toPayDetails.paid || 0).toFixed(2)).toEqual('0.00')
-            })
-            test('Receipt was published => partial payed => receipt was updated with the information about this payment => comlete paid', async () => {
-                const accountNumber = faker.random.alphaNumeric(12)
-                const importId = faker.random.alphaNumeric(12)
-                const payAmount = '5000.00'
-                const partialPay = '3000.00'
-                const remainPay = '2000.00'
-                const jsonReceipt = utils.createJSONReceipt({ importId, accountNumber, toPay: payAmount, toPayDetails: { charge: payAmount } })
-                const [[{ id: receiptId }]] = await utils.createReceipts([jsonReceipt])
-                const resident = await utils.createResident()
-                const [{ id: serviceConsumerId }] = await utils.createServiceConsumer(resident, accountNumber)
-                await utils.payForReceipt(receiptId, serviceConsumerId, partialPay)
-                const [[{ id: updatedReceiptId }]] = await utils.createReceipts([{ ...jsonReceipt, toPay: remainPay, toPayDetails: { charge: payAmount, paid: partialPay } }])
-                expect(updatedReceiptId).toEqual(receiptId)
-                await utils.payForReceipt(receiptId, serviceConsumerId, remainPay)
-                const receiptsAfterPayment = await ResidentBillingReceipt.getAll(utils.clients.resident, {
-                    serviceConsumer: { resident: { id: resident.id } },
-                })
-                const receiptAfterPayment = receiptsAfterPayment.find(({ id }) => id === receiptId )
-                console.error(receiptAfterPayment)
-                expect(Big(receiptAfterPayment.paid).toFixed(2)).toEqual(remainPay)
-                expect(Big(receiptAfterPayment.toPayDetails.paid).toFixed(2)).toEqual(partialPay)
-            })
-        })
-
         test('after partial payment allows to pay the rest amount', async () => {
             const accountNumber = faker.random.alphaNumeric(12)
             const total = '5000.00'
@@ -411,8 +352,7 @@ describe('AllResidentBillingReceiptsService', () => {
             expect(receiptAfterPayment.isPayable).toBeTruthy()
         })
 
-        // TODO(dkovyazin): Add additional field on balance change to calculate new payments and display on mobile app
-        test.skip('paid field calculated when organization bank info changed', async () => {
+        test('paid field calculated when organization bank info changed', async () => {
             const accountNumber = faker.random.alphaNumeric(12)
             const total = '5000.00'
             const jsonReceipt = utils.createJSONReceipt({ accountNumber, toPay: total })
