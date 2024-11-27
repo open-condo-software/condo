@@ -7,3 +7,5 @@ export type { InitApolloClientOptions, ApolloHelperOptions, InitializeApollo, Us
 
 export { ListHelper } from './utils/lists'
 export type { ListHelperOptions, ClientPaginationBehaviour } from './utils/lists'
+
+export { APOLLO_STATE_PROP_NAME } from './constants'
