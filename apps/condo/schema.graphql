@@ -13098,6 +13098,8 @@ type BillingReceipt {
   """ Amount of money that recipient doesn't pay for previous receipt. Example: "50.00", "-50.00" 
   """
   penalty: String
+
+  """ Last date time when the balance was updated """
   balanceUpdatedAt: String
 
   """ Amount of money that recipient already paid by current receipt. Example: "50.00", "-50.00" 
