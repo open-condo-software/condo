@@ -41,14 +41,15 @@ async function _search (client, query, variables) {
 export function searchEmployeeWithSpecializations (intl, organizationId, filter) {
     if (!organizationId) return
 
-    return async function (client, value, query = {}, first, skip) {
+    return async function (client, value, query = {}, first = 300, skip = 0) {
         const where = {
             organization: { id: organizationId },
+            name_contains_i: value,
             ...query,
         }
-        const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, where, first, skip })
+        const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { where, first, skip })
 
-        const employees = data.objs
+        const employees = data.objs.filter(Boolean)
 
         const {
             data: organizationEmployeeSpecializations,
@@ -73,12 +74,13 @@ export function searchEmployeeWithSpecializations (intl, organizationId, filter)
 export function searchEmployeeUser (intl, organizationId, filter) {
     if (!organizationId) return
 
-    return async function (client, value, query = {}, first, skip) {
+    return async function (client, value, query = {}, first = 300, skip = 0) {
         const where  = {
             organization: { id: organizationId },
+            name_contains_i: value,
             ...query,
         }
-        const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, where, first, skip })
+        const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { where, first, skip })
 
         const employees = data.objs
 

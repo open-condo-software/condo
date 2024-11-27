@@ -3,8 +3,8 @@ export SEMGREP_RULES="p/default p/expressjs p/react p/nextjs p/sql-injection p/j
 while getopts "ad:v" flag
 do
    case "${flag}" in
-      a) scan_all=true ;;
-      d) specified_directory="${OPTARG}" ;;
+      a) scan_all=true ;; # -a
+      d) specified_directory="${OPTARG}" ;; # -d <directory>
    esac
 done
 

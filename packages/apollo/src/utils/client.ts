@@ -155,7 +155,7 @@ export function extractApolloState<PropsType> (
  * export { extractApolloState } from '@open-condo/apollo'
  *
  * @example Use in SSR
- * import { initializeApollo, extractApolloState } from '@/lib/apollo'
+ * import { initializeApollo, extractApolloState } from '@/domains/common/utils/apollo'
  *
  * export const getServerSideProps = async ({ req }) => {
  *     const headers = extractHeaders(req)

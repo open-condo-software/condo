@@ -39,5 +39,27 @@ query getInvoicesByIds ($ids: [ID!]!) {
     ) {
         id
         status
+        number
+        paymentType
+        status
+        currencyCode
+        rows {
+            name
+            toPay
+            isMin
+            count
+            sku
+        }
+        organization {
+            id
+        }
+        createdBy {
+            id
+            name
+            type
+        }
+        ticket {
+            id
+        }
     }
 }

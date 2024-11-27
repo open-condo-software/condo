@@ -1,12 +1,13 @@
 import getConfig from 'next/config'
 
 import { ListHelper } from '@open-condo/apollo'
-import type { InitCacheConfig } from '@open-condo/apollo'
+import type { InitCacheConfig, ApolloHelperOptions } from '@open-condo/apollo'
+import { getTracingMiddleware } from '@open-condo/miniapp-utils'
 
 import { BILLING_RECEIPT_SERVICE_FIELD_NAME } from '@condo/domains/billing/constants/constants'
 
 
-const { publicRuntimeConfig: { apolloGraphQLUrl } } = getConfig()
+const { publicRuntimeConfig: { apolloGraphQLUrl, serverUrl, currentVersion } } = getConfig()
 
 const cacheConfig: InitCacheConfig = (cacheOptions) => {
     const listHelper = new ListHelper({ cacheOptions })
@@ -87,7 +88,14 @@ const cacheConfig: InitCacheConfig = (cacheOptions) => {
     }
 }
 
-export const apolloHelperOptions = {
+export const apolloHelperOptions: ApolloHelperOptions = {
     uri: apolloGraphQLUrl,
     cacheConfig,
+    middlewares: [
+        getTracingMiddleware({
+            serviceUrl: serverUrl,
+            codeVersion: currentVersion,
+            target: 'condo-app',
+        }),
+    ],
 }

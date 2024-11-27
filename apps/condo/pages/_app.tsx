@@ -441,7 +441,7 @@ const TasksProvider = ({ children }) => {
     }), [MiniAppTaskUIInterface, TicketDocumentGenerationTaskUIInterface, TicketExportTaskUIInterface, IncidentExportTaskUIInterface, ContactExportTaskUIInterface, BankSyncTaskUIInterface, BankReportTaskUIInterface, NewsItemRecipientsExportTaskUIInterface, MeterReadingsImportTaskUIInterface, MeterReadingExportTaskUIInterface])
 
     const isInitialLoading =
-        !! user?.id
+        !user?.id
         || (isProcessingTasksLoading || !data)
         || isMiniAppTasksLoading
 
