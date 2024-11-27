@@ -10,6 +10,12 @@ const { DEFAULT_INVOICE_CURRENCY_CODE } = require('@condo/domains/marketplace/co
 const PRICE_GQL_TYPE_NAME = 'MarketItemPricePriceSchemaField'
 const PRICE_GQL_INPUT_NAME = 'MarketItemPricePriceSchemaFieldInput'
 
+const PRICE_MEASURES = {
+    HOUR: 'hour',
+    ITEM: 'item',
+    METER: 'meter',
+}
+
 const priceSchemaFields = {
     type: 'String!',
     name: 'String!',
@@ -60,6 +66,10 @@ const PRICE_FIELD_SCHEMA = {
             currencyCode: {
                 type: 'string',
             },
+            measure: {
+                type: 'string',
+                enum: Object.values(PRICE_MEASURES),
+            },
         },
     },
 }
@@ -105,4 +115,5 @@ const PRICE_FIELD = {
 module.exports = {
     PRICE_FIELD,
     PRICE_FIELD_SCHEMA,
+    PRICE_MEASURES,
 }

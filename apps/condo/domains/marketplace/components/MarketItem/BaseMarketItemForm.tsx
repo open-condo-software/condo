@@ -157,7 +157,7 @@ const AppPreviewContainer = styled.div`
   }
 `
 
-const MobilePreview = ({ name, price, priceType, sku, description, files }) => {
+const MobilePreview = ({ name, price, measure, priceType, sku, description, files }) => {
     const intl = useIntl()
     const MobilePreviewTitle = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.mobileAppPreview.title' })
     const ContractPrice = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' })
@@ -166,7 +166,8 @@ const MobilePreview = ({ name, price, priceType, sku, description, files }) => {
     const PriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.mobileAppPreview.price' })
     const OrderMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.mobileAppPreview.order' })
     const DescriptionMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.mobileAppPreview.description' })
-    const shortMeasureTypeMessage = 'ч'
+
+    const shortMeasureTypeMessage = intl.formatMessage({ id: `pages.condo.marketplace.marketItem.${measure}.value` })
 
     const { currencyCode } = useMarketItemFormContext()
 
@@ -178,7 +179,7 @@ const MobilePreview = ({ name, price, priceType, sku, description, files }) => {
         resultPrice = moneyRender(price, priceType === PriceType.Min)
     }
 
-    const showMeasureType = true
+    const showMeasureType = !!(measure)
 
     return (
         <MobilePreviewContainer>
@@ -871,12 +872,14 @@ export const BaseMarketItemForm: React.FC<BaseMarketItemFormProps> = (props) => 
 
                                                                 const price = get(prices, '0.price')
                                                                 const priceType = get(prices, '0.priceType')
+                                                                const measure = get(prices, '0.measure')
 
                                                                 return (
                                                                     <MobilePreview
                                                                         name={name}
                                                                         price={price}
                                                                         priceType={priceType}
+                                                                        measure={measure}
                                                                         sku={sku}
                                                                         description={description}
                                                                         files={files}
