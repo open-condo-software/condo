@@ -47,7 +47,8 @@ const ERRORS = {
         variable: ['data', 'receipts', '[]', 'address'],
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
-        message: 'Address is not recognized for some receipts. We tried to recognize address, but failed. You can either double check address field or manually provide a normalizedAddress',
+        message: 'Address is not recognized: {address}',
+        messageInterpolation: { address: 'Some address' },
     },
     ACCOUNT_DUPLICATED: {
         mutation: 'registerBillingReceipts',
@@ -86,17 +87,19 @@ const ERRORS = {
     },
     BANK_FOUND_ERROR: {
         mutation: 'registerBillingReceipts',
-        variable: ['data', 'receipts', '[]', 'bic'],
+        variable: ['data', 'receipts', '[]', 'routingNumber'],
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
-        message: 'No information about bank from bic',
+        message: 'No information about the bank from routingNumber: {routingNumber}',
+        messageInterpolation: { routingNumber: 'Some routingNumber' },
     },
     ORGANIZATION_FOUND_ERROR: {
         mutation: 'registerBillingReceipts',
         variable: ['data', 'receipts', '[]', 'tin'],
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
-        message: 'No information about organization from tin',
+        message: 'No information about the organization from tin: {tin}',
+        messageInterpolation: { routingNumber: 'Some tin' },
     },
     RECEIPTS_LIMIT_HIT: {
         mutation: 'registerBillingReceipts',
