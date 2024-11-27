@@ -10,7 +10,7 @@ const path = require('path')
 const conf = require('@open-condo/config')
 const { UploadingFile } = require('@open-condo/keystone/test.utils')
 const { throwIfError, generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
-const { PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS, ACCESS_TOKEN_MAX_TTL_IN_MILLISECONDS } = require('@condo/domains/miniapp/constants')
+const { PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS } = require('@condo/domains/miniapp/constants')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 const {
     B2C_APP_MESSAGE_PUSH_TYPE,
@@ -35,7 +35,6 @@ const { B2BAppNewsSharingConfig: B2BAppNewsSharingConfigGQL } = require('@condo/
 const { B2CAppMessageSetting: B2CAppMessageSettingGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAccessToken: B2BAccessTokenGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAccessTokenReadonly: B2BAccessTokenReadonlyGQL } = require('@condo/domains/miniapp/gql')
-const dayjs = require("dayjs");
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function randomChoice(options) {

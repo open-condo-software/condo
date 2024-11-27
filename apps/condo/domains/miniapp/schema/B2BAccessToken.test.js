@@ -6,6 +6,7 @@ const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 const { gql } = require('graphql-tag')
 const IORedis = require('ioredis')
+const pick = require('lodash/pick')
 
 const conf = require('@open-condo/config')
 const {
@@ -24,7 +25,6 @@ const { Organization, registerNewOrganization, createTestOrganization } = requir
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser,
     registerNewServiceUserByTestClient, makeClientWithServiceUser, createTestUserRightsSet,
 } = require('@condo/domains/user/utils/testSchema')
-const pick = require("lodash/pick");
 
 
 
