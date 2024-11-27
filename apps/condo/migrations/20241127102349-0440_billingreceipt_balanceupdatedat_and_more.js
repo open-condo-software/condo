@@ -4,6 +4,7 @@
 exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
+SET statement_timeout = '1500s';
 --
 -- Add field balanceUpdatedAt to billingreceipt
 --
@@ -12,6 +13,7 @@ ALTER TABLE "BillingReceipt" ADD COLUMN "balanceUpdatedAt" timestamp with time z
 -- Add field balanceUpdatedAt to billingreceipthistoryrecord
 --
 ALTER TABLE "BillingReceiptHistoryRecord" ADD COLUMN "balanceUpdatedAt" timestamp with time zone NULL;
+SET statement_timeout = '10s';
 COMMIT;
 
     `)
