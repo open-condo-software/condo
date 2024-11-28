@@ -4,5 +4,10 @@ query getTicketPropertyHintById ($id: ID!) {
         first: 1
     ) {
         id
+        organization {
+            id
+        }
+        name
+        content
     }
 }

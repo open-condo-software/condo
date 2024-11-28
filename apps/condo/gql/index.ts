@@ -3537,6 +3537,11 @@ export const GetTicketPropertyHintByIdDocument = gql`
     query getTicketPropertyHintById($id: ID!) {
   ticketPropertyHints: allTicketPropertyHints(where: {id: $id}, first: 1) {
     id
+    organization {
+      id
+    }
+    name
+    content
   }
 }
     `
