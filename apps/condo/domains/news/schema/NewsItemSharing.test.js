@@ -326,15 +326,18 @@ describe('NewsItemSharing', () => {
         })
 
         describe('should not allow to make wrong transitions', () => {
-            test('should not allow to change published news', async () => {
+            const extraAttrForCases = [
+                { statusMessage: 'test' },
+                { lastPostRequest: 'test' },
+            ]
+
+            test.each(extraAttrForCases)('should not allow to change published news', async (extraAttr) => {
                 const [newsItemSharing] = await createTestNewsItemSharing(staffWithPermissions, dummyB2BContext, dummyNewsItem, {
                     status: STATUSES.PUBLISHED,
                 })
 
                 await expectToThrowGQLError(
-                    async () => await updateTestNewsItemSharing(admin, newsItemSharing.id, {
-                        statusMessage: 'test',
-                    }),
+                    async () => await updateTestNewsItemSharing(admin, newsItemSharing.id, extraAttr),
                     ERRORS.CANT_CHANGE_PUBLISHED_NEWS
                 )
             })
