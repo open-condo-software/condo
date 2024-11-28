@@ -32,8 +32,11 @@ ErrorPage.getInitialProps = async (props) => {
 
     console.error('StatusCode:', statusCode)
 
-    if (!statusCode && err) {
-        errorInitialProps['statusCode'] = 500
+    if (!errorInitialProps.statusCode) {
+        errorInitialProps.statusCode =
+            res?.statusCode
+            || err?.statusCode
+            || (err ? 500 : null)
     }
 
     return errorInitialProps
