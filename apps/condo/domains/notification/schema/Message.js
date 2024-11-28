@@ -4,12 +4,15 @@
 
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 
 const { LOCALES } = require('@condo/domains/common/constants/locale')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 const access = require('@condo/domains/notification/access/Message')
 const { MESSAGE_STATUSES, MESSAGE_SENDING_STATUS } = require('@condo/domains/notification/constants/constants')
 const { getMessageTypeField } = require('@condo/domains/notification/schema/fields/MessageType')
+const { renderDefaultTemplate } = require('@condo/domains/notification/templates')
+
 
 const Message = new GQLListSchema('Message', {
     schemaDoc: 'Notification message',
@@ -104,6 +107,24 @@ const Message = new GQLListSchema('Message', {
                 validateInput: (args) => {
                     if (!hasValidJsonStructure(args, false, 1, {})) return
                 },
+            },
+        },
+
+        defaultContent: {
+            schemaDoc: 'Specifies the default message content if it exists',
+            type: 'Virtual',
+            extendGraphQLTypes: ['type MessageDefaultContentField { content: String }'],
+            graphQLReturnType: 'MessageDefaultContentField',
+            graphQLReturnFragment: '{ content }',
+            resolver: (item, args, context) => {
+                const { lang } = item
+
+                const locale = extractReqLocale(context.req) || lang
+                const content = renderDefaultTemplate(item, locale)
+
+                return {
+                    content,
+                }
             },
         },
 

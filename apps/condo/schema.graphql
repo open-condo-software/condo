@@ -38923,6 +38923,10 @@ enum MessageStatusType {
   throttled
 }
 
+type MessageDefaultContentField {
+  content: String
+}
+
 """ Notification message """
 type Message {
   """
@@ -38968,6 +38972,9 @@ type Message {
   """ Task processing metadata. Just for debug purpose. You can see exactly what and where the message was sent 
   """
   processingMeta: JSON
+
+  """ Default content of message """
+  defaultContent: MessageDefaultContentField
 
   """ Delivered (received) at time """
   deliveredAt: String
