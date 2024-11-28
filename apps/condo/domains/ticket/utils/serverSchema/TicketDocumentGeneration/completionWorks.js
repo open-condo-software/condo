@@ -80,7 +80,7 @@ const generateTicketDocumentOfCompletionWorks = async ({ task, baseAttrs, contex
         return acc
     }, [])
 
-    const unitType = get(ticket, 'unitType')
+    const unitType = get(ticket, 'unitType') ?? ''
 
     const documentData = {
         city: {
@@ -102,7 +102,7 @@ const generateTicketDocumentOfCompletionWorks = async ({ task, baseAttrs, contex
         },
         unit: {
             name: get(ticket, 'unitName') || '',
-            type: (unitType ? i18n(`pages.condo.ticket.field.unitType.act.${unitType}`, { locale }) : '').toLowerCase(),
+            type: (unitType ? i18n(`field.UnitType.act.${unitType}`, { locale }) : '').toLowerCase(),
         },
         company: {
             name: get(organization, 'name') || '',
