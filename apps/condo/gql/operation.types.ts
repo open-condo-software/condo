@@ -500,7 +500,7 @@ export type GetTicketPropertyHintByIdQueryVariables = Types.Exact<{
 }>
 
 
-export type GetTicketPropertyHintByIdQuery = { __typename?: 'Query', ticketPropertyHints?: Array<{ __typename?: 'TicketPropertyHint', id: string } | null> | null }
+export type GetTicketPropertyHintByIdQuery = { __typename?: 'Query', ticketPropertyHints?: Array<{ __typename?: 'TicketPropertyHint', id: string, name?: string | null, content?: string | null, organization?: { __typename?: 'Organization', id: string } | null } | null> | null }
 
 export type GetTicketPropertyHintPropertyByPropertyQueryVariables = Types.Exact<{
     propertyId: Types.Scalars['ID']['input']
