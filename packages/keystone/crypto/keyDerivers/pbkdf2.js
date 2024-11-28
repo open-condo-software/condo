@@ -12,10 +12,9 @@ function derive (secretKey, { keyLen, salt = null, iterations = null }) {
     if (isNil(iterations)) {
         iterations = ITERATIONS_COUNT
     }
-    let t = Date.now()
+
     const masterKey = crypto.pbkdf2Sync(secretKey, salt, iterations, keyLen, 'sha512')
-    let s = Date.now()
-    console.error(s - t)
+
     return {
         masterKey,
         salt,
