@@ -325,7 +325,20 @@ describe('NewsItemSharing', () => {
             })
         })
 
-        describe('should not allow to make wrong status transitions', () => {
+        describe('should not allow to make wrong transitions', () => {
+            test('should not allow to change published news', async () => {
+                const [newsItemSharing] = await createTestNewsItemSharing(staffWithPermissions, dummyB2BContext, dummyNewsItem, {
+                    status: STATUSES.PUBLISHED,
+                })
+
+                await expectToThrowGQLError(
+                    async () => await updateTestNewsItemSharing(admin, newsItemSharing.id, {
+                        statusMessage: 'test',
+                    }),
+                    ERRORS.CANT_CHANGE_PUBLISHED_NEWS
+                )
+            })
+
             // Get all non-allowed transitions: *[ SCHEDULED -> PUBLISHED ]
             const cases = Object.entries(ALLOWED_TRANSITIONS).flatMap(([fromStatus, allowedTransitions]) => {
                 return Object.keys(ALLOWED_TRANSITIONS).map(toStatus => {
@@ -345,7 +358,7 @@ describe('NewsItemSharing', () => {
                     async () => await updateTestNewsItemSharing(admin, newsItemSharing.id, { 
                         status: toStatus,
                     }),
-                    ERRORS.BAD_STATUS_TRANSITION
+                    fromStatus === STATUSES.PUBLISHED ? ERRORS.CANT_CHANGE_PUBLISHED_NEWS : ERRORS.BAD_STATUS_TRANSITION
                 )
             })
         })
