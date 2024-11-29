@@ -12,7 +12,7 @@ const access = require('@condo/domains/news/access/NewsItemSharing')
 const {
     BAD_STATUS_TRANSITION,
     NOT_NEWS_SHARING_CONTEXT,
-    CANT_CHANGE_PUBLISHED_NEWS,
+    CANT_CHANGE_PUBLISHED_NEWS_ITEM_SHARINGS,
 } = require('@condo/domains/news/constants/errors')
 const { STATUSES, ALLOWED_TRANSITIONS } = require('@condo/domains/news/constants/newsItemSharingStatuses')
 const publishNewsItemSharing = require('@condo/domains/news/tasks/publishNewsItemSharing')
@@ -33,9 +33,9 @@ const ERRORS = {
         message: 'Cannot do this status transition',
         mutation: 'updateNewsItemSharing',
     },
-    CANT_CHANGE_PUBLISHED_NEWS: {
+    CANT_CHANGE_PUBLISHED_NEWS_ITEM_SHARINGS: {
         code: BAD_USER_INPUT,
-        type: CANT_CHANGE_PUBLISHED_NEWS,
+        type: CANT_CHANGE_PUBLISHED_NEWS_ITEM_SHARINGS,
         message: 'Cannot change published news',
         mutation: 'updateNewsItemSharing',
     },
@@ -124,10 +124,12 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
                 const oldStatus = existingItem.status
                 const newStatus = resolvedData.status
 
-                if ((!newStatus && oldStatus === STATUSES.PUBLISHED) || (newStatus && !ALLOWED_TRANSITIONS[oldStatus].includes(newStatus))) {
-                    const error = !newStatus ? ERRORS.CANT_CHANGE_PUBLISHED_NEWS : ERRORS.BAD_STATUS_TRANSITION
+                if (!newStatus && oldStatus === STATUSES.PUBLISHED) {
+                    throw new GQLError(ERRORS.CANT_CHANGE_PUBLISHED_NEWS_ITEM_SHARINGS, context)
+                }
 
-                    throw new GQLError(error, context)
+                if (newStatus && !ALLOWED_TRANSITIONS[oldStatus].includes(newStatus)) {
+                    throw new GQLError(ERRORS.BAD_STATUS_TRANSITION, context)
                 }
             }
         },
