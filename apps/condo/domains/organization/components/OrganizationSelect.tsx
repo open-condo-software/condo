@@ -65,6 +65,8 @@ export const InlineOrganizationSelect: React.FC = () => {
     } = useGetActualOrganizationEmployeesQuery({
         variables: { userId },
         skip: !userId || !persistor,
+        fetchPolicy: 'cache-and-network',
+        pollInterval: 1 * 30 * 1000,
     })
     const actualData = useMemo(() => actualEmployeesData?.actualEmployees?.filter(nonNull) || [], [actualEmployeesData?.actualEmployees])
     const prevData = useMemo(() => previousEmployeesData?.actualEmployees?.filter(nonNull) || [], [previousEmployeesData?.actualEmployees])
