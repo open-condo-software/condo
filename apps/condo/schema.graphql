@@ -30476,8 +30476,9 @@ type TicketPlaceClassifier {
   """
   organization: Organization
 
-  """ text content """
+  """ Localized Ticket Place classifier name """
   name: String
+  nameNonLocalized: String
   id: ID!
   v: Int
   createdAt: String
@@ -30865,8 +30866,9 @@ type TicketCategoryClassifier {
   """
   organization: Organization
 
-  """ text description """
+  """ Localized Ticket Category classifier name """
   name: String
+  nameNonLocalized: String
   id: ID!
   v: Int
   createdAt: String
@@ -31254,8 +31256,9 @@ type TicketProblemClassifier {
   """
   organization: Organization
 
-  """ text content """
+  """ Localized Ticket Problem classifier name """
   name: String
+  nameNonLocalized: String
   id: ID!
   v: Int
   createdAt: String
