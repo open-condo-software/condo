@@ -580,6 +580,62 @@ describe('RegisterBillingReceiptsService', () => {
                 expect(createdReceipt.receiver.id).toBeDefined()
                 expect(createdReceipt.context.id).toBeDefined()
             })
+            test('Will set balanceUpdatedAt if toPay was changed', async () => {
+                const createInput = utils.createJSONReceipt()
+                const [[createdReceipt]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                    context: { id: utils.billingContext.id },
+                    receipts: [createInput],
+                })
+                const [[updatedReceipt]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                    context: { id: utils.billingContext.id },
+                    receipts: [{ ...createInput, toPay: faker.finance.amount(-100, 500000) }],
+                })
+                expect(createdReceipt.id).toEqual(updatedReceipt.id)
+                expect(createdReceipt.balanceUpdatedAt).toBeNull()
+                expect(updatedReceipt.balanceUpdatedAt).not.toBeNull()
+            })
+            test('Will set balanceUpdatedAt if toPayDetails.paid was changed', async () => {
+                const createInput = utils.createJSONReceipt({ toPayDetails: { paid: faker.finance.amount(-100, 500000) } })
+                const [[createdReceipt]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                    context: { id: utils.billingContext.id },
+                    receipts: [createInput],
+                })
+                const [[updatedReceipt]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                    context: { id: utils.billingContext.id },
+                    receipts: [{ ...createInput, toPayDetails: { paid: faker.finance.amount(-100, 500000) } }],
+                })
+                expect(createdReceipt.id).toEqual(updatedReceipt.id)
+                expect(createdReceipt.balanceUpdatedAt).toBeNull()
+                expect(updatedReceipt.balanceUpdatedAt).not.toBeNull()
+            })
+            test('Will not set balanceUpdatedAt if toPayDetails changed and paid remains the same', async () => {
+                const createInput = utils.createJSONReceipt({ toPayDetails: { paid: faker.finance.amount(-100, 500000) } })
+                const [[createdReceipt]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                    context: { id: utils.billingContext.id },
+                    receipts: [createInput],
+                })
+                const [[updatedReceipt]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                    context: { id: utils.billingContext.id },
+                    receipts: [{ ...createInput, toPayDetails: { ...createInput.toPayDetails, charge: faker.finance.amount(-100, 500000) } }],
+                })
+                expect(createdReceipt.id).toEqual(updatedReceipt.id)
+                expect(createdReceipt.balanceUpdatedAt).toBeNull()
+                expect(updatedReceipt.balanceUpdatedAt).toBeNull()
+            })
+            test('Will not set balanceUpdatedAt if amount and toPayDetails.paid was not changed', async () => {
+                const createInput = utils.createJSONReceipt({ toPayDetails: { paid: faker.finance.amount(-100, 500000) } })
+                const [[createdReceipt]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                    context: { id: utils.billingContext.id },
+                    receipts: [createInput],
+                })
+                const [[updatedReceipt]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {
+                    context: { id: utils.billingContext.id },
+                    receipts: [createInput],
+                })
+                expect(createdReceipt.id).toEqual(updatedReceipt.id)
+                expect(createdReceipt.balanceUpdatedAt).toBeNull()
+                expect(updatedReceipt.balanceUpdatedAt).toBeNull()
+            })
             test('Will not invoke update on nothing changed', async () => {
                 const createInput = utils.createJSONReceipt()
                 const [[createdReceipt]] = await registerBillingReceiptsByTestClient(utils.clients.admin, {

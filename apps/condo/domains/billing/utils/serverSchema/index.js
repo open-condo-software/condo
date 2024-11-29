@@ -8,7 +8,7 @@ const Big = require('big.js')
 
 const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
 const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
-const { find } = require('@open-condo/keystone/schema')
+const { find, getById } = require('@open-condo/keystone/schema')
 
 const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const { REGISTER_BILLING_RECEIPTS_MUTATION } = require('@condo/domains/billing/gql')
@@ -56,6 +56,31 @@ const getPaymentsSum = async (receiptId) => {
             { receipt: { id: receiptId } },
         ],
     })
+    return payments.reduce((total, current) => (Big(total).plus(current.amount)), 0).toFixed(8).toString()
+}
+
+/**
+ * Sums up all new Payments for receipt
+ * The payment is new - if the BillingReceipt has not been updated since the payment was transferred to the organization or was not transferred yet
+ * @param receiptId {string}
+ * @return {Promise<*>}
+ */
+const getNewPaymentsSum = async (receiptId) => {
+    const receipt = await getById('BillingReceipt', receiptId)
+    const conditions = [
+        { status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS] },
+        { deletedAt: null },
+        { receipt: { id: receiptId } },
+    ]
+    if (receipt.balanceUpdatedAt) {
+        conditions.push({
+            OR: [
+                { transferDate: null },
+                { transferDate_gte: new Date(receipt.balanceUpdatedAt).toISOString() },
+            ],
+        })
+    }
+    const payments = await find('Payment', { AND: conditions })
     return payments.reduce((total, current) => (Big(total).plus(current.amount)), 0).toFixed(8).toString()
 }
 
@@ -143,6 +168,7 @@ module.exports = {
     BillingCategory,
     registerBillingReceipts,
     getPaymentsSum,
+    getNewPaymentsSum,
     sendNewReceiptMessagesToResidentScopes,
     BillingReceiptFile,
     validateQRCode,

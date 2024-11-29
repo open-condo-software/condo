@@ -12526,6 +12526,7 @@ type BillingReceiptHistoryRecord {
   recalculation: String
   privilege: String
   penalty: String
+  balanceUpdatedAt: String
   paid: String
   toPayDetails: JSON
   services: JSON
@@ -12680,6 +12681,14 @@ input BillingReceiptHistoryRecordWhereInput {
   penalty_gte: String
   penalty_in: [String]
   penalty_not_in: [String]
+  balanceUpdatedAt: String
+  balanceUpdatedAt_not: String
+  balanceUpdatedAt_lt: String
+  balanceUpdatedAt_lte: String
+  balanceUpdatedAt_gt: String
+  balanceUpdatedAt_gte: String
+  balanceUpdatedAt_in: [String]
+  balanceUpdatedAt_not_in: [String]
   paid: String
   paid_not: String
   paid_lt: String
@@ -12811,6 +12820,8 @@ enum SortBillingReceiptHistoryRecordsBy {
   privilege_DESC
   penalty_ASC
   penalty_DESC
+  balanceUpdatedAt_ASC
+  balanceUpdatedAt_DESC
   paid_ASC
   paid_DESC
   id_ASC
@@ -12847,6 +12858,7 @@ input BillingReceiptHistoryRecordUpdateInput {
   recalculation: String
   privilege: String
   penalty: String
+  balanceUpdatedAt: String
   paid: String
   toPayDetails: JSON
   services: JSON
@@ -12888,6 +12900,7 @@ input BillingReceiptHistoryRecordCreateInput {
   recalculation: String
   privilege: String
   penalty: String
+  balanceUpdatedAt: String
   paid: String
   toPayDetails: JSON
   services: JSON
@@ -13086,6 +13099,9 @@ type BillingReceipt {
   """
   penalty: String
 
+  """ Last date time when the balance was updated """
+  balanceUpdatedAt: String
+
   """ Amount of money that recipient already paid by current receipt. Example: "50.00", "-50.00" 
   """
   paid: String
@@ -13277,6 +13293,14 @@ input BillingReceiptWhereInput {
   penalty_gte: String
   penalty_in: [String]
   penalty_not_in: [String]
+  balanceUpdatedAt: String
+  balanceUpdatedAt_not: String
+  balanceUpdatedAt_lt: String
+  balanceUpdatedAt_lte: String
+  balanceUpdatedAt_gt: String
+  balanceUpdatedAt_gte: String
+  balanceUpdatedAt_in: [String]
+  balanceUpdatedAt_not_in: [String]
   paid: String
   paid_not: String
   paid_lt: String
@@ -13392,6 +13416,8 @@ enum SortBillingReceiptsBy {
   privilege_DESC
   penalty_ASC
   penalty_DESC
+  balanceUpdatedAt_ASC
+  balanceUpdatedAt_DESC
   paid_ASC
   paid_DESC
   receiver_ASC
@@ -13432,6 +13458,7 @@ input BillingReceiptUpdateInput {
   recalculation: String
   privilege: String
   penalty: String
+  balanceUpdatedAt: String
   paid: String
   toPayDetails: BillingReceiptToPayDetailsFieldInput
   services: [BillingReceiptServiceFieldInput!]
@@ -13470,6 +13497,7 @@ input BillingReceiptCreateInput {
   recalculation: String
   privilege: String
   penalty: String
+  balanceUpdatedAt: String
   paid: String
   toPayDetails: BillingReceiptToPayDetailsFieldInput
   services: [BillingReceiptServiceFieldInput!]

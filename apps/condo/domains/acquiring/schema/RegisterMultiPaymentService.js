@@ -38,7 +38,7 @@ const {
     FeeDistribution,
     compactDistributionSettings,
 } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
-const { getPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
+const { getNewPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
 const {
     REQUIRED,
     NOT_UNIQUE,
@@ -582,7 +582,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                             if (!isNil(amountDistributionForReceipt)) {
                                 amount = amountDistributionForReceipt.amount
                             } else {
-                                const paidAmount = await getPaymentsSum(receiptInfo.id)
+                                const paidAmount = await getNewPaymentsSum(receiptInfo.id)
                                 amount = String(Big(receipt.toPay).minus(Big(paidAmount)))
                             }
 

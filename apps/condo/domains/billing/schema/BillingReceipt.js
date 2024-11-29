@@ -135,6 +135,12 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             access: readOnlyFieldAccess,
         },
 
+        balanceUpdatedAt: {
+            schemaDoc: 'Last date time when the balance was updated',
+            type: 'DateTimeUtc',
+            isRequired: false,
+        },
+
         paid: {
             ...MONEY_AMOUNT_FIELD,
             schemaDoc: 'Amount of money that recipient already paid by current receipt. Example: "50.00", "-50.00"',
