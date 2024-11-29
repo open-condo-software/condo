@@ -47,8 +47,10 @@ const readMockFile = (fileName) => {
 
 const generateCsvFile = (validLinesSize, invalidLinesSize, fatalErrorLinesSize, property) => {
     // content header
-    let content = `#DATE_BEGIN01.12.2023
+    const header = `#DATE_BEGIN01.12.2023
 #DATE_END: 31.12.2023`
+
+    let content = []
 
     // generate valid lines lines
     for (let i = 0; i < validLinesSize; i++) {
@@ -56,9 +58,9 @@ const generateCsvFile = (validLinesSize, invalidLinesSize, fatalErrorLinesSize, 
         const lastName = faker.name.lastName()
         const unitName = `${i + 1}`
         const address = property.address + ', кв ' + unitName
-        content += `
+        content.push(`
 00-00000${number};${lastName} Л.М.;40ОН89${number}-02;${faker.datatype.uuid()};${address};9;${number}${number};ХВС;[];750,00;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;
-`
+`)
     }
 
     // generate invalid lines lines
@@ -67,9 +69,9 @@ const generateCsvFile = (validLinesSize, invalidLinesSize, fatalErrorLinesSize, 
         const lastName = faker.name.lastName()
         const unitName = `${validLinesSize + i + 1}`
         const address = property.address + ', кв ' + unitName
-        content += `
+        content.push(`
 ;${lastName} Л.М.;40ОН89${number}-02;${faker.datatype.uuid()};${address};9;${number}${number};ХВС;[];750,00;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;
-`
+`)
     }
 
     // generate fatal error lines lines
@@ -77,21 +79,23 @@ const generateCsvFile = (validLinesSize, invalidLinesSize, fatalErrorLinesSize, 
         const number = faker.datatype.number({ min: 1000, max: 9999 })
         const lastName = faker.name.lastName()
         const address = faker.address.streetAddress(true)
-        content += `
+        content.push(`
 ;${lastName} Л.М.;40ОН89${number}-02;${faker.datatype.uuid()};${address};9;${number}${number};ХВС;[];750,00;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;;;;;;;31.12.2023;
-`
+`)
     }
+    content = header + faker.helpers.shuffle(content).join('')
 
     return createUpload(content, `${faker.datatype.uuid()}.csv`, 'text/csv')
 }
 
 const generateExcelFile = async (validLinesSize, invalidLinesSize, fatalLinesSize, property) => {
-    const data = [[
+    const header = [
         'Адрес', 'Помещение', 'Тип помещения', 'Лицевой счет',
         'Тип счетчика', 'Номер счетчика', 'Количество тарифов',
         'Показание 1', 'Показание 2', 'Показание 3', 'Показание 4',
         'Дата передачи показаний', 'Дата поверки', 'Дата следующей поверки',
-        'Дата установки', 'Дата ввода в эксплуатацию', 'Дата опломбирования', 'Дата контрольных показаний', 'Место установки счетчика', 'Автоматический']]
+        'Дата установки', 'Дата ввода в эксплуатацию', 'Дата опломбирования', 'Дата контрольных показаний', 'Место установки счетчика', 'Автоматический']
+    const data = []
 
     for (let i = 0; i < validLinesSize; i++) {
         const unitName = `${i + 1}`
@@ -120,8 +124,11 @@ const generateExcelFile = async (validLinesSize, invalidLinesSize, fatalLinesSiz
     }
 
     for (let i = 0; i < fatalLinesSize; i++) {
-        data.push(data[0])
+        data.push(header)
     }
+
+    faker.helpers.shuffle(data)
+    data.unshift(header)
 
     const wb = XLSX.utils.book_new()
     const ws = XLSX.utils.aoa_to_sheet(data)
