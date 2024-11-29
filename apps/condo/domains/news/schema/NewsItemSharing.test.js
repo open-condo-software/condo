@@ -334,8 +334,6 @@ describe('NewsItemSharing', () => {
                 { lastPostRequest: faker.random.alphaNumeric(5) },
             ]
 
-            console.log(extraAttrForCases)
-
             test.each(extraAttrForCases)('should not allow to change published news', async (extraAttr) => {
                 const [newsItemSharing] = await createTestNewsItemSharing(staffWithPermissions, dummyB2BContext, dummyNewsItem, {
                     status: STATUSES.PUBLISHED,
