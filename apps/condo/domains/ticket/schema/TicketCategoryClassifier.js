@@ -13,9 +13,10 @@ const TicketCategoryClassifier = new GQLListSchema('TicketCategoryClassifier', {
     fields: {
         organization: COMMON_AND_ORGANIZATION_OWNED_FIELD,
         name: {
-            schemaDoc: 'text description',
-            type: 'Text',
+            schemaDoc: 'Localized Ticket Category classifier name',
+            type: 'LocalizedText',
             isRequired: true,
+            template: 'ticket.category.classifier.*.name',
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
