@@ -80,7 +80,7 @@ const generateTicketDocumentOfCompletionWorks = async ({ task, baseAttrs, contex
         return acc
     }, [])
 
-    const unitType = get(ticket, 'unitType') ?? ''
+    const unitType = get(ticket, 'unitType') || 'flat'
 
     const documentData = {
         city: {
