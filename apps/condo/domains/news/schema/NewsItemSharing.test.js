@@ -237,6 +237,16 @@ describe('NewsItemSharing', () => {
                     await updateTestNewsItemSharing(anonymous, objCreated.id, payload)
                 })
             })
+
+            test('should allow to make change published status to error', async () => {
+                const [newsItemSharing] = await createTestNewsItemSharing(staffWithPermissions, dummyB2BContext, dummyNewsItem, {
+                    status: STATUSES.PUBLISHED,
+                })
+
+                const [obj] = await updateTestNewsItemSharing(admin, newsItemSharing.id, { status: STATUSES.ERROR })
+
+                expect(obj.status).toEqual(STATUSES.ERROR)
+            })
         })
 
         describe('hard delete', () => {
@@ -341,7 +351,7 @@ describe('NewsItemSharing', () => {
 
                 await expectToThrowGQLError(
                     async () => await updateTestNewsItemSharing(admin, newsItemSharing.id, extraAttr),
-                    ERRORS.CANT_CHANGE_PUBLISHED_NEWS
+                    ERRORS.B2B_APP_CONTEXT_DOES_NOT_SUPPORT_NEWS_SHARING
                 )
             })
 
