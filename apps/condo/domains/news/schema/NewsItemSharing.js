@@ -124,11 +124,10 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
                 const oldStatus = existingItem.status
                 const newStatus = resolvedData.status
 
-                if (!ALLOWED_TRANSITIONS[oldStatus]?.includes(newStatus)) {
-                    if (oldStatus === STATUSES.PUBLISHED) {
-                        throw new GQLError(ERRORS.CANT_CHANGE_PUBLISHED_NEWS, context)
-                    }
-                    throw new GQLError(ERRORS.BAD_STATUS_TRANSITION, context)
+                if ((!newStatus && oldStatus === STATUSES.PUBLISHED) || (newStatus && !ALLOWED_TRANSITIONS[oldStatus].includes(newStatus))) {
+                    const error = !newStatus ? ERRORS.CANT_CHANGE_PUBLISHED_NEWS : ERRORS.BAD_STATUS_TRANSITION
+
+                    throw new GQLError(error, context)
                 }
             }
         },
