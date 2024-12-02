@@ -1,32 +1,36 @@
-# Localization for open-condo-platform
+# Localization
 
 ![hello](images/hello.jpeg)
 
-## File structure
+We are ready to support new languages! This guide explains how localization is structured in our project. 
+Below are the key concepts and organization principles.
 
-All files for localization are [stored in folders](https://github.com/open-condo-software/condo/tree/main/apps/condo/lang) distributed by locales `apps/condo/lang/[locale]/`
+## Directory Structure
+
+All files for localization are [stored in folders](https://github.com/open-condo-software/condo/tree/main/apps/condo/lang) distributed by locales `apps/[app-name]/lang/[locale]/`
 ```
-apps/condo/lang/
+apps/[app-name]/lang/
 ├─ [locale1]/
 │  ├─ [locale1].json
-│  └─ messages/
-│     ├─ [messageType1]/
-│     │  └─ *.njk
+│  ├─ messages/
+│  │  ├─ [messageType1]/
+│  │  │  └─ *.njk
+│  │  │  ...
+│  │  └─ [messageTypeN]/
+│  │     └─ *.njk
+│  └─ pages/
+│     ├─ [pageName1]/
+│     │  └─ *.md
 │     │  ...
-│     └─ [messageTypeN]/
-│        └─ *.njk
+│     └─ [pageNameN]/
+│        └─ *.md
 │  ...
 └─ [localeN]/
 ```
 
-Available transports are:
-- email
-- sms
-- push
-
 ## Translation strings
 
-Translation strings are stored within json files `apps/condo/lang/[locale]/[locale].json` in key-value manner.
+Translation strings are stored within json files `apps/[app-name]/lang/[locale]/[locale].json` in key-value manner.
 
 ## Message templates
 
@@ -153,6 +157,29 @@ For example:
   ...
 }
 ```
+
+## Translation Linter
+
+The linter verifies the existence and correctness of translations.
+
+To ensure all necessary translations are present, you can run the linter with the following command:
+```bash
+yarn workspace @app/condo lint-translations
+```
+
+### Auto-Fix Option
+
+If you want the linter to automatically add missing translations, you can use the `--fix` flag:
+
+```bash
+yarn workspace @app/condo lint-translations --fix
+```
+
+**⚠️ Note:** While the `--fix` option is available, we do not recommend using it. 
+Automatically generated translations may lack proper context or accuracy and should always be reviewed manually.
+
+To enable automatic translations, you need to set the `OPENAI_API_KEY` variable in your `.env` file. 
+For more details, refer to the [OpenAI Quickstart Documentation](https://platform.openai.com/docs/quickstart).
 
 ## If you'll forget something...
 

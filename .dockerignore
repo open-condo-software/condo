@@ -3,6 +3,7 @@
 !**/.gitignore
 **/__*
 **/*.log
+*.log
 **/.DS_Store
 **/Thumbs.db
 **/Dockerfile

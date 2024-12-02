@@ -17,7 +17,6 @@ import { useIntl } from '@open-condo/next/intl'
 import { Button, Card, Markdown, Space, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
-import { ConvertToUTF8 } from '../domains/banking/utils/serverSchema/converters/convertToUTF8'
 import EmptyLayout from '@condo/domains/common/components/containers/EmptyLayout'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { LoginWithSBBOLButton } from '@condo/domains/common/components/LoginWithSBBOLButton'
@@ -98,7 +97,7 @@ const ICONS = {
 
 export const Header: React.FC = (): JSX.Element => {
     const intl = useIntl()
-    const BackMessage = intl.formatMessage( { id: 'pages.condo.tls.back' })
+    const BackMessage = intl.formatMessage({ id: 'pages.condo.tls.back' })
 
     const { push } = useRouter()
     const { isAuthenticated } = useAuth()
@@ -136,7 +135,7 @@ const BlankAnchor = styled(Anchor)`
     }
     /* This is a redundant element, that adds visual artefacts to the button */
     .ant-anchor-ink {
-      display: none;
+        display: none;
     }
 `
 
@@ -178,7 +177,7 @@ const MoreLinkStyle = {
 
 const PosterHeader: React.FC = (): JSX.Element => {
     const intl = useIntl()
-    const MoreLinkMessage = intl.formatMessage( { id: 'pages.condo.tls.poster.more' })
+    const MoreLinkMessage = intl.formatMessage({ id: 'pages.condo.tls.poster.more' })
     return (
         <Space direction='vertical' size={8} align='end'>
             <BlankAnchor affix={false}>
@@ -200,15 +199,15 @@ const PosterHeader: React.FC = (): JSX.Element => {
 
 // NOTE(antonal): non-standard gap is a requirement from design team. `Space` cannot be used, because it requires `size` property to be set
 const PosterFooterSpace = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 100px;
-  align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 100px;
+    align-items: center;
 `
 
 const PosterFooter: React.FC = (): JSX.Element => {
     const intl = useIntl()
-    const TitleMessage = intl.formatMessage( { id: 'pages.condo.tls.title' })
+    const TitleMessage = intl.formatMessage({ id: 'pages.condo.tls.title' })
     const DescriptionMessage = intl.formatMessage({ id: 'pages.condo.tls.description' })
     const AlreadyHaveCertMessage = intl.formatMessage({ id: 'pages.condo.tls.poster.alreadyHaveCert' })
     const Card1DescriptionMessage = intl.formatMessage({ id: 'pages.condo.tls.poster.card1.description' })
@@ -271,9 +270,9 @@ const TlsPagePoster: React.FC = (): JSX.Element => (
 )
 
 const TextWrapper = styled.div`
-  h3 {
-    color: ${colors.gray[7]};
-  }
+    h3 {
+        color: ${colors.gray[7]};
+    }
 `
 
 /**
@@ -285,30 +284,30 @@ const MarkdownWrapper = styled(TextWrapper)`
         display: block;
         max-width: 627px;
     }
-  
+
     ol {
         padding-left: 0;
         list-style: none;
         position: relative;
         counter-reset: olCounter;
-        
+
         li {
-          padding-left: 2ex;
-          
-          &:before {
-            counter-increment: olCounter;
-            content: counter(olCounter)".";
-            display: inline-block;
-            position: absolute;
-            left: 0;
-          }
-          
-          &::marker {
-            display: none;
-          }
+            padding-left: 2ex;
+
+            &:before {
+                counter-increment: olCounter;
+                content: counter(olCounter) ".";
+                display: inline-block;
+                position: absolute;
+                left: 0;
+            }
+
+            &::marker {
+                display: none;
+            }
         }
     }
-  
+
     strong a {
         display: inline-block;
         border-radius: 8px;
@@ -323,8 +322,8 @@ const MarkdownWrapper = styled(TextWrapper)`
 `
 
 // Due to specifics of Ant implementation, only `Collapse.Panel` can be the children of `Collapse`.
-function renderGuideSectionCollapse ( { name, guidesContent, intl }): JSX.Element {
-    const TitleMessage = intl.formatMessage( { id: `pages.condo.tls.guide.section.${name}.title` })
+function renderGuideSectionCollapse ({ name, guidesContent, intl }): JSX.Element {
+    const TitleMessage = intl.formatMessage({ id: `pages.condo.tls.guide.section.${name}.title` })
 
     return (
         <Collapse.Panel
@@ -351,29 +350,29 @@ const StyledCollapse = styled(Collapse)`
     flex-direction: column;
     gap: 12px;
     border: none;
-  
+
     .ant-collapse-item {
-      border: 1px solid #d9d9d9;
-      border-radius: 12px !important;
-      overflow: hidden;
-      
-      &.ant-collapse-item-active {
-        .ant-collapse-content {
-          border-top: none;
-        }
-      }
-      
-      .ant-collapse-header {
-        padding: 24px !important;
+        border: 1px solid #d9d9d9;
+        border-radius: 12px !important;
+        overflow: hidden;
 
-        .ant-collapse-expand-icon {
-          order: 2;
-
-          > .ant-collapse-arrow {
-            margin-right: 0 !important;
-          }
+        &.ant-collapse-item-active {
+            .ant-collapse-content {
+                border-top: none;
+            }
         }
-      }
+
+        .ant-collapse-header {
+            padding: 24px !important;
+
+            .ant-collapse-expand-icon {
+                order: 2;
+
+                > .ant-collapse-arrow {
+                    margin-right: 0 !important;
+                }
+            }
+        }
     }
 `
 
@@ -385,8 +384,8 @@ type TlsPageGuideProps = {
 
 const TlsPageGuide: React.FC<TlsPageGuideProps> = ({ guidesContent }): JSX.Element => {
     const intl = useIntl()
-    const TitleMessage = intl.formatMessage( { id: 'pages.condo.tls.guide.title' })
-    const DescriptionMessage = intl.formatMessage( { id: 'pages.condo.tls.guide.description' })
+    const TitleMessage = intl.formatMessage({ id: 'pages.condo.tls.guide.title' })
+    const DescriptionMessage = intl.formatMessage({ id: 'pages.condo.tls.guide.description' })
 
     return (
         <div id='guide'>
@@ -438,7 +437,7 @@ const TlsPage: PageComponentType<TlsPageProps> = ({ guidesContent }) => {
             <Header/>
             <Space direction='vertical' size={60}>
                 <TlsPagePoster/>
-                <TlsPageGuide guidesContent={guidesContent} />
+                <TlsPageGuide guidesContent={guidesContent}/>
                 <TlsPageEpilog/>
             </Space>
         </Space>
@@ -464,7 +463,7 @@ export const getServerSideProps: GetServerSideProps<Result> = async ({ req }) =>
     const locale = localeIndex !== -1 ? Object.keys(LOCALES)[localeIndex] : defaultLocale
     let guidesFolderPath = path.resolve(conf.PROJECT_ROOT, 'apps/condo', 'lang', locale, 'pages/tls')
     if (!fs.existsSync(guidesFolderPath)) {
-        guidesFolderPath = path.resolve(conf.PROJECT_ROOT, 'apps/condo', 'lang',  defaultLocale, 'pages/tls')
+        guidesFolderPath = path.resolve(conf.PROJECT_ROOT, 'apps/condo', 'lang', defaultLocale, 'pages/tls')
     }
     const fileNames = fs.readdirSync(guidesFolderPath)
 
@@ -472,9 +471,7 @@ export const getServerSideProps: GetServerSideProps<Result> = async ({ req }) =>
     const guidesContent: GuidesContent = {}
     for (const fileName of fileNames) {
         const key = fileName.match(/^(\w+)\.md$/)[1]
-        const fileBuffer = fs.readFileSync(path.resolve(guidesFolderPath, fileName))
-        const { result: fileContent } = new ConvertToUTF8(fileBuffer).convert()
-        guidesContent[key] = fileContent
+        guidesContent[key] = fs.readFileSync(path.resolve(guidesFolderPath, fileName), 'utf-8')
     }
     return { props: { guidesContent } }
 }
