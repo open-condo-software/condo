@@ -1,126 +1,177 @@
+import { useGetOrganizationEmployeeTicketsLazyQuery, useUpdateTicketsMutation } from '@app/condo/gql'
+import { TicketStatusTypeType } from '@app/condo/schema'
+import { notification, Row } from 'antd'
 import get from 'lodash/get'
 import React, { useState } from 'react'
 
-import { useLazyQuery, useMutation } from '@open-condo/next/apollo'
+import { ArrowDownUp } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Alert, Button, Modal, Space, Typography } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
 
-import { GraphQlSearchInput } from '@/domains/common/components/GraphQlSearchInput'
-import { searchEmployeeUser } from '@/domains/ticket/utils/clientSchema/search'
+import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
-import { GET_ACTIVE_TICKETS_ORGANIZATION_EMPLOYEE_QUERY, REASSIGNEMENT_ACTIVE_TICKET_DELETE_ORGANIZATION_EMPLOYEE_UPDATE_MUTATION } from '@condo/domains/ticket/gql'
+import { sleep } from '@condo/domains/common/utils/sleep'
+import { searchEmployeeUser } from '@condo/domains/ticket/utils/clientSchema/search'
+
 
 export interface IDeleteActionButtonWithConfirmModal {
-    title: string
     buttonContent?: string
     action: () => Promise<any>
     disabled?: boolean
-    employeeActiveTicketCount: number
+    employeeUserId: string
+    employeeName: string
+    organizationId: string
+    activeTicketsOrganizationEmployeeCount: number
 }
 
-export const DeleteButtonWithReassigmentEmployeeModal = ({
-    title,
+const CHUNK_SIZE = 100
+
+export const DeleteButtonWithReassignmentEmployeeModal = ({
     buttonContent,
-    employee,
+    employeeUserId,
+    employeeName,
+    action,
+    organizationId,
     disabled = false,
-    employeeActiveTicketCount,
+    activeTicketsOrganizationEmployeeCount,
 }) => {
     const intl = useIntl()
-    const searchPlaceholderMessage = 'ФИО сотрудника'
-    const deleteEmployeeButtonLabel = 'Удалить сотрудника' || intl.formatMessage({ id: 'Cancel' })
-    const messageTitleLabel = `${get(employee, ['user', 'name'])} назначен на несколько заявок (${employeeActiveTicketCount} шт.)`
-    const messageDescriptionLabel =
-        <Space direction='vertical' size={8}>
-            <Typography.Paragraph>
-                Чтобы не потерять их, назначьте нового исполнителя среди сотрудников
-            </Typography.Paragraph>
-            <Typography.Link href='/ticket' target='_blank'>Показать заявки</Typography.Link>
-        </Space>
+    const ConfirmReassignEmployeeTitle = intl.formatMessage({ id: 'employee.reassignTickets.title' })
+    const ConfirmDeleteButtonLabel = intl.formatMessage({ id: 'employee.reassignTickets.deleteUser' })
+    const SearchPlaceholderLabel = intl.formatMessage({ id: 'EmployeesName' })
+    const AlertReassignTitleLabel = intl.formatMessage({ id: 'employee.reassignTickets.alert.title' })
+    const CountMessage = intl.formatMessage({ id: 'global.count.pieces.short' })
+    const AlertMessageLabel = intl.formatMessage({ id: 'employee.reassignTickets.alert.message' })
+    const ShowTicketsLabel = intl.formatMessage({ id: 'employee.reassignTickets.showTickets' })
+    const NotificationWarningLabel = intl.formatMessage({ id: 'employee.reassignTickets.notification.warning' })
+    const NotificationSuccessLabel = intl.formatMessage({ id: 'employee.reassignTickets.notification.success' })
+    const NotificationTitleLabel = intl.formatMessage({ id: 'employee.reassignTickets.notification.title' })
+    const NotificationMessageLabel = intl.formatMessage({ id: 'employee.reassignTickets.notification.message' })
 
-    const { organization } = useOrganization()
+    const AlertTitleLabel = `${employeeName} ${AlertReassignTitleLabel} (${activeTicketsOrganizationEmployeeCount} ${CountMessage})`
 
-    const [loadActiveTicketsOrganizationEmployeeTickets] = useLazyQuery(GET_ACTIVE_TICKETS_ORGANIZATION_EMPLOYEE_QUERY)
-    const [updateActiveTicketsDeletedOrganizationEmployee] = useMutation(REASSIGNEMENT_ACTIVE_TICKET_DELETE_ORGANIZATION_EMPLOYEE_UPDATE_MUTATION)
+    const [notificationApi, contextHolder] = notification.useNotification()
 
-    const [isConfirmVisible, setIsConfirmVisible] = useState(false)
+    const filterTicket = `{"search":"${employeeName}", "status":["new_or_reopened","processing","completed","deferred"]}`
+    const linkToFilteredTickets = `/ticket?filters=${encodeURIComponent(filterTicket)}`
+
+    const [searchOrganizationEmployees, setSearchOrganizationEmployees] = useState()
+    const onChange = (searchOrganizationEmployees) => setSearchOrganizationEmployees(searchOrganizationEmployees)
+
     const [isDeleting, setIsDeleting] = useState(false)
+    const [isConfirmVisible, setIsConfirmVisible] = useState(false)
 
     const showConfirm = () => setIsConfirmVisible(true)
     const handleCancel = () => setIsConfirmVisible(false)
-    const [search, setSearch] = useState()
-
-    const userEmployeeId = get(employee, ['user', 'id'], null)
-
-    const onChange = (search) => setSearch(search)
+    
+    const [loadTicketsToReassign] = useGetOrganizationEmployeeTicketsLazyQuery({
+        variables: {
+            where: {
+                organization: { id: organizationId },
+                OR: [
+                    { assignee: { id: employeeUserId } },
+                    { executor: { id: employeeUserId } },
+                ],
+                status: {
+                    type_in: [
+                        TicketStatusTypeType.NewOrReopened,
+                        TicketStatusTypeType.Processing,
+                        TicketStatusTypeType.Completed,
+                        TicketStatusTypeType.Deferred,
+                    ],
+                },
+            },
+            first: CHUNK_SIZE,
+        },
+        fetchPolicy: 'no-cache',
+    })
+    const [updateTicketsWithReassignOrganizationEmployee] = useUpdateTicketsMutation()
 
     const checkExecutorOrAssignee = (ticket) => {
         const resultObj = {}
-        if (ticket.executor.id === userEmployeeId) resultObj['executor'] = { connect: { id: search } }
-        if (ticket.assignee.id === userEmployeeId) resultObj['assignee'] = { connect: { id: search } }
+        if (ticket.executor.id === employeeUserId) resultObj['executor'] = { connect: { id: searchOrganizationEmployees } }
+        if (ticket.assignee.id === employeeUserId) resultObj['assignee'] = { connect: { id: searchOrganizationEmployees } }
         return resultObj
     }
 
+    const notificationModal = (notificationStatus, notificationTitleLabel, notificationMessageLabel?, updatedTicketsCount?, isSuccess = false) => {
+        return isSuccess ? notificationApi.warning({
+            message: <Typography.Text strong>{notificationStatus}</Typography.Text>,
+            description: (
+                <Space direction='vertical' size={4}>
+                    <Typography.Text strong>
+                        {notificationTitleLabel}
+                    </Typography.Text>
+                    <Typography.Text>
+                        {notificationMessageLabel}: {updatedTicketsCount} {} {activeTicketsOrganizationEmployeeCount}
+                    </Typography.Text>
+                </Space>
+            ),
+            duration: 0,
+            key: 'first',
+        }) : notificationApi.success({
+            message: <Typography.Text strong>{notificationStatus}</Typography.Text>,
+            description: <Space direction='vertical' size={4}>
+                <Typography.Text strong>
+                    {notificationTitleLabel}
+                </Typography.Text>
+                <Typography.Text>
+                    {notificationMessageLabel}: {updatedTicketsCount} {} {activeTicketsOrganizationEmployeeCount}
+                </Typography.Text>
+            </Space>,
+            duration: 0,
+            key: 'first',
+        })
+    }
+
     const handleDeleteButtonClick = async () => {
-        setIsConfirmVisible(false)
         setIsDeleting(true)
+        setIsConfirmVisible(false)
 
-        const CHANK = 100
-        let SKIP = 0
+        let updatedTicketsCount = 0
 
-        while (employeeActiveTicketCount > 0) {
-            const { data } = await loadActiveTicketsOrganizationEmployeeTickets({
+        while (updatedTicketsCount < activeTicketsOrganizationEmployeeCount) {
+            notificationModal(NotificationWarningLabel, NotificationTitleLabel, NotificationMessageLabel, updatedTicketsCount, false)
+
+            const { data: ticketsToReassign } = await loadTicketsToReassign()
+
+            const { data: reassignedTickets }  = await updateTicketsWithReassignOrganizationEmployee({
                 variables: {
-                    where: {
-                        organization: { id: organization?.id },
-                        OR: [
-                            { assignee: { id: userEmployeeId } },
-                            { executor: { id: userEmployeeId } },
-                        ],
-                    },
-                    first: CHANK,
-                    skip: SKIP,
-                },
-                fetchPolicy: 'no-cache',
-            })
-            console.log('data', data)
-
-            await updateActiveTicketsDeletedOrganizationEmployee({
-                variables: {
-                    data: data?.objs?.map(ticket => ({
+                    data: get(ticketsToReassign, 'ticktes', []).map(ticket => ({
                         id: ticket.id,
                         data: checkExecutorOrAssignee(ticket),
                     })),
                 },
             })
-            employeeActiveTicketCount = employeeActiveTicketCount - 100
-            SKIP = SKIP + CHANK
+
+            if (get(ticketsToReassign, 'ticktes', []).length !== get(reassignedTickets, 'tickets', []).length) {
+                notificationModal('Произошла ошибка', 'Повторите попытку')
+                return
+            }
+            updatedTicketsCount += get(reassignedTickets, 'tickets', []).length
+            await sleep(300)
         }
 
-
-        setIsDeleting(false)
-
-        // let tickets =
-        //
-        // while (tickets.lenght) {
-        //
-        // }
-        // runMutation(
-        //     {
-        //         action: () => reassignEmployeeAction(),
-        //         onError: (e) => {
-        //             console.log(e)
-        //             console.error(e.friendlyDescription)
-        //             throw e
-        //         },
-        //         intl,
-        //     },
-        // ).then(() => {
-        // })
+        runMutation(
+            {
+                action,
+                onError: (e) => {
+                    console.log(e)
+                    console.error(e.friendlyDescription)
+                    throw e
+                },
+                intl,
+            },
+        ).then(() => {
+            setIsDeleting(false)
+            notificationModal(NotificationSuccessLabel, NotificationTitleLabel, NotificationMessageLabel, updatedTicketsCount, true)
+        })
     }
 
     return (
         <>
+            {contextHolder}
             <Button
                 key='submit'
                 onClick={showConfirm}
@@ -132,35 +183,46 @@ export const DeleteButtonWithReassigmentEmployeeModal = ({
                 {buttonContent}
             </Button>
             <Modal
-                title={title}
+                title={ConfirmReassignEmployeeTitle}
                 open={isConfirmVisible}
                 onCancel={handleCancel}
                 footer={
                     <Button
                         key='submit'
                         type='primary'
+                        loading={isDeleting}
                         onClick={handleDeleteButtonClick}
                     >
-                        {deleteEmployeeButtonLabel}
+                        {ConfirmDeleteButtonLabel}
                     </Button>
                 }
             >
-                <Alert
-                    type='error'
-                    showIcon
-                    message={messageTitleLabel}
-                    description={messageDescriptionLabel}
-                >
-                </Alert>
-                <GraphQlSearchInput
-                    search={searchEmployeeUser(organization.id, (organizationEmployee) => (
-                        get(organizationEmployee, ['user', 'id'], null) !== userEmployeeId
-                    ))}
-                    value={search}
-                    onChange={onChange}
-                    style={{ width: '100%' }}
-                    placeholder={searchPlaceholderMessage}
-                />
+                <Row justify='center' gutter={[0, 12]}>
+                    <Alert
+                        type='error'
+                        showIcon
+                        message={AlertTitleLabel}
+                        description={
+                            <Space direction='vertical' size={8}>
+                                <Typography.Paragraph>{AlertMessageLabel}</Typography.Paragraph>
+                                <Typography.Link href={linkToFilteredTickets} target='_blank'>{ShowTicketsLabel}</Typography.Link>
+                            </Space>
+                        }
+                    >
+                    </Alert>
+                    <ArrowDownUp color={colors.gray[5]} />
+                    <GraphQlSearchInput
+                        search={searchEmployeeUser(organizationId, (organizationEmployee) => (
+                            get(organizationEmployee, ['user', 'id'], null) !== employeeUserId
+                        ))}
+                        value={searchOrganizationEmployees}
+                        onChange={onChange}
+                        style={{
+                            width: '100%',
+                        }}
+                        placeholder={SearchPlaceholderLabel}
+                    />
+                </Row>
             </Modal>
         </>
 

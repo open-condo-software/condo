@@ -2886,6 +2886,59 @@ export type GetContactTicketsQueryHookResult = ReturnType<typeof useGetContactTi
 export type GetContactTicketsLazyQueryHookResult = ReturnType<typeof useGetContactTicketsLazyQuery>
 export type GetContactTicketsSuspenseQueryHookResult = ReturnType<typeof useGetContactTicketsSuspenseQuery>
 export type GetContactTicketsQueryResult = Apollo.QueryResult<Types.GetContactTicketsQuery, Types.GetContactTicketsQueryVariables>
+export const GetOrganizationEmployeeTicketsDocument = gql`
+    query getOrganizationEmployeeTickets($where: TicketWhereInput!, $first: Int, $skip: Int) {
+  tickets: allTickets(
+    where: $where
+    first: $first
+    skip: $skip
+    sortBy: [createdAt_DESC]
+  ) {
+    id
+    assignee {
+      id
+    }
+    executor {
+      id
+    }
+  }
+}
+    `
+
+/**
+ * __useGetOrganizationEmployeeTicketsQuery__
+ *
+ * To run a query within a React component, call `useGetOrganizationEmployeeTicketsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOrganizationEmployeeTicketsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOrganizationEmployeeTicketsQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *      first: // value for 'first'
+ *      skip: // value for 'skip'
+ *   },
+ * });
+ */
+export function useGetOrganizationEmployeeTicketsQuery (baseOptions: Apollo.QueryHookOptions<Types.GetOrganizationEmployeeTicketsQuery, Types.GetOrganizationEmployeeTicketsQueryVariables> & ({ variables: Types.GetOrganizationEmployeeTicketsQueryVariables, skip?: boolean } | { skip: boolean }) ) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useQuery<Types.GetOrganizationEmployeeTicketsQuery, Types.GetOrganizationEmployeeTicketsQueryVariables>(GetOrganizationEmployeeTicketsDocument, options)
+}
+export function useGetOrganizationEmployeeTicketsLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<Types.GetOrganizationEmployeeTicketsQuery, Types.GetOrganizationEmployeeTicketsQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useLazyQuery<Types.GetOrganizationEmployeeTicketsQuery, Types.GetOrganizationEmployeeTicketsQueryVariables>(GetOrganizationEmployeeTicketsDocument, options)
+}
+export function useGetOrganizationEmployeeTicketsSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetOrganizationEmployeeTicketsQuery, Types.GetOrganizationEmployeeTicketsQueryVariables>) {
+    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+    return Apollo.useSuspenseQuery<Types.GetOrganizationEmployeeTicketsQuery, Types.GetOrganizationEmployeeTicketsQueryVariables>(GetOrganizationEmployeeTicketsDocument, options)
+}
+export type GetOrganizationEmployeeTicketsQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeTicketsQuery>
+export type GetOrganizationEmployeeTicketsLazyQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeTicketsLazyQuery>
+export type GetOrganizationEmployeeTicketsSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeTicketsSuspenseQuery>
+export type GetOrganizationEmployeeTicketsQueryResult = Apollo.QueryResult<Types.GetOrganizationEmployeeTicketsQuery, Types.GetOrganizationEmployeeTicketsQueryVariables>
 export const UpdateTicketDocument = gql`
     mutation updateTicket($id: ID!, $data: TicketUpdateInput!) {
   ticket: updateTicket(id: $id, data: $data) {
@@ -2920,6 +2973,39 @@ export function useUpdateTicketMutation (baseOptions?: Apollo.MutationHookOption
 export type UpdateTicketMutationHookResult = ReturnType<typeof useUpdateTicketMutation>
 export type UpdateTicketMutationResult = Apollo.MutationResult<Types.UpdateTicketMutation>
 export type UpdateTicketMutationOptions = Apollo.BaseMutationOptions<Types.UpdateTicketMutation, Types.UpdateTicketMutationVariables>
+export const UpdateTicketsDocument = gql`
+    mutation updateTickets($data: [TicketsUpdateInput]) {
+  tickets: updateTickets(data: $data) {
+    id
+  }
+}
+    `
+export type UpdateTicketsMutationFn = Apollo.MutationFunction<Types.UpdateTicketsMutation, Types.UpdateTicketsMutationVariables>
+
+/**
+ * __useUpdateTicketsMutation__
+ *
+ * To run a mutation, you first call `useUpdateTicketsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateTicketsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateTicketsMutation, { data, loading, error }] = useUpdateTicketsMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateTicketsMutation (baseOptions?: Apollo.MutationHookOptions<Types.UpdateTicketsMutation, Types.UpdateTicketsMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<Types.UpdateTicketsMutation, Types.UpdateTicketsMutationVariables>(UpdateTicketsDocument, options)
+}
+export type UpdateTicketsMutationHookResult = ReturnType<typeof useUpdateTicketsMutation>
+export type UpdateTicketsMutationResult = Apollo.MutationResult<Types.UpdateTicketsMutation>
+export type UpdateTicketsMutationOptions = Apollo.BaseMutationOptions<Types.UpdateTicketsMutation, Types.UpdateTicketsMutationVariables>
 export const GetTicketChangesDocument = gql`
     query getTicketChanges($ticketId: ID!) {
   ticketChanges: allTicketChanges(

@@ -260,8 +260,31 @@ query getContactTickets ($contactId: ID!) {
     }
 }
 
+query getOrganizationEmployeeTickets($where: TicketWhereInput!, $first: Int, $skip: Int) {
+    tickets: allTickets(
+        where: $where,
+        first: $first,
+        skip: $skip,
+        sortBy: [createdAt_DESC]
+    ) {
+        id
+        assignee {
+            id
+        }
+        executor {
+            id
+        }
+    }
+}
+
 mutation updateTicket ($id: ID!, $data: TicketUpdateInput!) {
     ticket: updateTicket (id: $id, data: $data) {
+        id
+    }
+}
+
+mutation updateTickets ($data: [TicketsUpdateInput]) {
+    tickets: updateTickets (data: $data) {
         id
     }
 }

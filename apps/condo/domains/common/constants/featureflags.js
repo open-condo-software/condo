@@ -28,6 +28,7 @@ const NEWS_SHARING_TEMPLATES = 'news-sharing-templates'
 const SERVICE_PROBLEMS_ALERT = 'service-problems-alert'
 const TICKET_AUTO_ASSIGNMENT_MANAGEMENT = 'ticket-auto-assignment-management'
 const POLL_TICKET_COMMENTS = 'poll-ticket-comments'
+const REASSIGN_EMPLOYEE_TICKETS = 'reassign-employee-tickets'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -59,4 +60,5 @@ module.exports = {
     SERVICE_PROBLEMS_ALERT,
     TICKET_AUTO_ASSIGNMENT_MANAGEMENT,
     POLL_TICKET_COMMENTS,
+    REASSIGN_EMPLOYEE_TICKETS,
 }

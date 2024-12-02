@@ -1,3 +1,5 @@
+import { useGetTicketsCountQuery } from '@app/condo/gql'
+import { TicketStatusTypeType } from '@app/condo/schema'
 import { Col, Row, Space, Switch } from 'antd'
 import { map } from 'lodash'
 import get from 'lodash/get'
@@ -7,6 +9,7 @@ import Router from 'next/router'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { Edit } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -22,13 +25,12 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { FieldPairRow as BaseFieldPairRow, FieldPairRowProps } from '@condo/domains/common/components/FieldPairRow'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
-import { PageComponentType } from '@condo/domains/common/types'
-import { DeleteButtonWithReassigmentEmployeeModal } from '@condo/domains/organization/components/DeleteButtonWithReassigmentEmployeeModal'
+import { REASSIGN_EMPLOYEE_TICKETS } from '@condo/domains/common/constants/featureflags'
+import { DeleteButtonWithReassignmentEmployeeModal } from '@condo/domains/organization/components/DeleteButtonWithReassigmentEmployeeModal'
 import { EmployeeInviteRetryButton } from '@condo/domains/organization/components/EmployeeInviteRetryButton'
 import { EmployeesReadPermissionRequired } from '@condo/domains/organization/components/PageAccess'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
-import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 
@@ -70,8 +72,11 @@ const FieldPairRow: React.FC<FieldPairRowProps> = (props) => (
 
 export const EmployeePageContent = ({
     employee,
+    employeeUserId,
+    organizationId,
     isEmployeeEditable,
     isEmployeeReinvitable,
+    activeTicketsOrganizationEmployeeCount,
     updateEmployeeAction,
     softDeleteAction,
     phonePrefix = '',
@@ -94,8 +99,10 @@ export const EmployeePageContent = ({
     const { user } = useAuth()
     const { breakpoints } = useLayoutContext()
 
+    const { useFlag } = useFeatureFlags()
+    const isReassignEmployeeTicketsEnabled = useFlag(REASSIGN_EMPLOYEE_TICKETS)
+
     const userId = get(user, 'id')
-    const employeeUserId = get(employee, 'user.id')
     const isMyEmployee = userId && employeeUserId && userId === employeeUserId
     const isEmployeeBlocked = get(employee, 'isBlocked')
 
@@ -256,7 +263,16 @@ export const EmployeePageContent = ({
                                                                 {UpdateMessage}
                                                             </Button>
                                                         </Link>,
-                                                        !isMyEmployee &&
+                                                        !isMyEmployee && (isReassignEmployeeTicketsEnabled && activeTicketsOrganizationEmployeeCount > 0 ?
+                                                            <DeleteButtonWithReassignmentEmployeeModal
+                                                                key='delete'
+                                                                action={() => softDeleteAction(employee)}
+                                                                buttonContent={DeleteMessage}
+                                                                employeeUserId={employeeUserId}
+                                                                employeeName = {name}
+                                                                organizationId={organizationId}
+                                                                activeTicketsOrganizationEmployeeCount={activeTicketsOrganizationEmployeeCount}
+                                                            /> :
                                                             <DeleteButtonWithConfirmModal
                                                                 key='delete'
                                                                 title={ConfirmDeleteTitle}
@@ -264,7 +280,7 @@ export const EmployeePageContent = ({
                                                                 okButtonLabel={ConfirmDeleteButtonLabel}
                                                                 action={() => softDeleteAction(employee)}
                                                                 buttonContent={DeleteMessage}
-                                                            />,
+                                                            />),
                                                     ]}
                                                 />
                                             </Col>
@@ -282,11 +298,12 @@ export const EmployeePageContent = ({
 
 export const EmployeeInfoPage = () => {
     const { query } = useRouter()
-    const { link } = useOrganization()
+    const { link, organization  } = useOrganization()
     const intl = useIntl()
     const UpdateEmployeeMessage = intl.formatMessage({ id: 'employee.UpdateTitle' })
     const ErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
 
+    const organizationId = get(organization, 'id', null)
     const employeeId = String(get(query, 'id', ''))
     const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject(
         {
@@ -295,9 +312,32 @@ export const EmployeeInfoPage = () => {
             },
         }
     )
+
     const { objs: organizationEmployeeSpecializations } = OrganizationEmployeeSpecialization.useObjects({
         where: {
             employee: { id: employeeId },
+        },
+    })
+
+    const employeeUserId = get(employee, 'user.id', null)
+
+    const { data: activeTicketsOrganizationEmployeeCount } = useGetTicketsCountQuery({
+        variables: {
+            where: {
+                organization: { id: organizationId },
+                OR: [
+                    { assignee: { id: employeeUserId } },
+                    { executor: { id: employeeUserId } },
+                ],
+                status: {
+                    type_in: [
+                        TicketStatusTypeType.NewOrReopened,
+                        TicketStatusTypeType.Processing,
+                        TicketStatusTypeType.Completed,
+                        TicketStatusTypeType.Deferred,
+                    ],
+                },
+            },
         },
     })
 
@@ -316,7 +356,10 @@ export const EmployeeInfoPage = () => {
     return (
         <EmployeePageContent
             employee={employeeWithSpecializations}
+            employeeUserId={employeeUserId}
+            organizationId={organizationId}
             updateEmployeeAction={updateEmployeeAction}
+            activeTicketsOrganizationEmployeeCount={get(activeTicketsOrganizationEmployeeCount, 'meta.count', 0)}
             softDeleteAction={softDeleteAction}
             isEmployeeEditable={isEmployeeEditable}
             isEmployeeReinvitable={isEmployeeReinvitable}
