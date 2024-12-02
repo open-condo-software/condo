@@ -27,7 +27,6 @@ const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = r
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 const { ERRORS } = require('./NewsItemSharing')
-const {CANT_CHANGE_PUBLISHED_NEWS_ITEM_SHARINGS} = require("../constants/errors");
 
 
 
