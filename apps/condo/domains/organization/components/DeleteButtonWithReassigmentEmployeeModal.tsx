@@ -40,16 +40,12 @@ export const DeleteButtonWithReassignmentEmployeeModal = ({
     const ConfirmReassignEmployeeTitle = intl.formatMessage({ id: 'employee.reassignTickets.title' })
     const ConfirmDeleteButtonLabel = intl.formatMessage({ id: 'employee.reassignTickets.deleteUser' })
     const SearchPlaceholderLabel = intl.formatMessage({ id: 'EmployeesName' })
-    const AlertReassignTitleLabel = intl.formatMessage({ id: 'employee.reassignTickets.alert.title' })
-    const CountMessage = intl.formatMessage({ id: 'global.count.pieces.short' })
+    const AlertTitleLabel = intl.formatMessage({ id: 'employee.reassignTickets.alert.title' }, { activeTicketsOrganizationEmployeeCount, employeeName })
     const AlertMessageLabel = intl.formatMessage({ id: 'employee.reassignTickets.alert.message' })
     const ShowTicketsLabel = intl.formatMessage({ id: 'employee.reassignTickets.showTickets' })
     const NotificationWarningLabel = intl.formatMessage({ id: 'employee.reassignTickets.notification.warning' })
     const NotificationSuccessLabel = intl.formatMessage({ id: 'employee.reassignTickets.notification.success' })
     const NotificationTitleLabel = intl.formatMessage({ id: 'employee.reassignTickets.notification.title' })
-    const NotificationMessageLabel = intl.formatMessage({ id: 'employee.reassignTickets.notification.message' })
-
-    const AlertTitleLabel = `${employeeName} ${AlertReassignTitleLabel} (${activeTicketsOrganizationEmployeeCount} ${CountMessage})`
 
     const [notificationApi, contextHolder] = notification.useNotification()
 
@@ -95,34 +91,18 @@ export const DeleteButtonWithReassignmentEmployeeModal = ({
         return resultObj
     }
 
-    const notificationModal = (notificationStatus, notificationTitleLabel, notificationMessageLabel?, updatedTicketsCount?, isSuccess = false) => {
-        return isSuccess ? notificationApi.warning({
-            message: <Typography.Text strong>{notificationStatus}</Typography.Text>,
-            description: (
-                <Space direction='vertical' size={4}>
-                    <Typography.Text strong>
-                        {notificationTitleLabel}
-                    </Typography.Text>
-                    <Typography.Text>
-                        {notificationMessageLabel}: {updatedTicketsCount} {} {activeTicketsOrganizationEmployeeCount}
-                    </Typography.Text>
-                </Space>
-            ),
-            duration: 0,
-            key: 'first',
-        }) : notificationApi.success({
-            message: <Typography.Text strong>{notificationStatus}</Typography.Text>,
-            description: <Space direction='vertical' size={4}>
+    const notificationTitle = (notificationStatus) => <Typography.Text strong>{notificationStatus}</Typography.Text>
+    const notificationMessage = (notificationTitleLabel, updatedTicketsCount?) => {
+        return (
+            <Space direction='vertical' size={4}>
                 <Typography.Text strong>
                     {notificationTitleLabel}
                 </Typography.Text>
                 <Typography.Text>
-                    {notificationMessageLabel}: {updatedTicketsCount} {} {activeTicketsOrganizationEmployeeCount}
+                    {intl.formatMessage({ id: 'employee.reassignTickets.notification.message' }, { activeTicketsOrganizationEmployeeCount, updatedTicketsCount })}
                 </Typography.Text>
-            </Space>,
-            duration: 0,
-            key: 'first',
-        })
+            </Space>
+        )
     }
 
     const handleDeleteButtonClick = async () => {
@@ -132,21 +112,32 @@ export const DeleteButtonWithReassignmentEmployeeModal = ({
         let updatedTicketsCount = 0
 
         while (updatedTicketsCount < activeTicketsOrganizationEmployeeCount) {
-            notificationModal(NotificationWarningLabel, NotificationTitleLabel, NotificationMessageLabel, updatedTicketsCount, false)
+            console.log('updatedTicketsCount', updatedTicketsCount)
+            notificationApi.warning({
+                message: notificationTitle(NotificationWarningLabel),
+                description: notificationMessage(NotificationTitleLabel, updatedTicketsCount),
+                duration: 0,
+                key: 'reassignTicket',
+            })
 
             const { data: ticketsToReassign } = await loadTicketsToReassign()
 
             const { data: reassignedTickets }  = await updateTicketsWithReassignOrganizationEmployee({
                 variables: {
-                    data: get(ticketsToReassign, 'ticktes', []).map(ticket => ({
-                        id: ticket.id,
+                    data: get(ticketsToReassign, 'tickets', []).map(ticket => ({
+                        id: get(ticket, 'id', null),
                         data: checkExecutorOrAssignee(ticket),
                     })),
                 },
             })
 
-            if (get(ticketsToReassign, 'ticktes', []).length !== get(reassignedTickets, 'tickets', []).length) {
-                notificationModal('Произошла ошибка', 'Повторите попытку')
+            if (get(ticketsToReassign, 'tickets', []).length !== get(reassignedTickets, 'tickets', []).length) {
+                notificationApi.error({
+                    message: notificationTitle('Ошибка'),
+                    description: notificationMessage('Повторите попытку'),
+                    duration: 0,
+                    key: 'reassignTicket',
+                })
                 return
             }
             updatedTicketsCount += get(reassignedTickets, 'tickets', []).length
@@ -165,7 +156,12 @@ export const DeleteButtonWithReassignmentEmployeeModal = ({
             },
         ).then(() => {
             setIsDeleting(false)
-            notificationModal(NotificationSuccessLabel, NotificationTitleLabel, NotificationMessageLabel, updatedTicketsCount, true)
+            notificationApi.success({
+                message: notificationTitle(NotificationSuccessLabel),
+                description: notificationMessage(NotificationTitleLabel, updatedTicketsCount),
+                duration: 0,
+                key: 'reassignTicket',
+            })
         })
     }
 
