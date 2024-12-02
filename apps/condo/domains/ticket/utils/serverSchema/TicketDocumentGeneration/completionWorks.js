@@ -2,6 +2,7 @@ const dayjs = require('dayjs')
 const { get } = require('lodash')
 
 const { getById, getByCondition } = require('@open-condo/keystone/schema')
+const { i18n } = require('@open-condo/locales/loader')
 
 const { buildExportFile, DOCX_FILE_META } = require('@condo/domains/common/utils/createExportFile')
 const { renderMoney } = require('@condo/domains/common/utils/money')
@@ -79,6 +80,8 @@ const generateTicketDocumentOfCompletionWorks = async ({ task, baseAttrs, contex
         return acc
     }, [])
 
+    const unitType = get(ticket, 'unitType') || 'flat'
+
     const documentData = {
         city: {
             name: cityName || '',
@@ -99,6 +102,7 @@ const generateTicketDocumentOfCompletionWorks = async ({ task, baseAttrs, contex
         },
         unit: {
             name: get(ticket, 'unitName') || '',
+            type: (unitType ? i18n(`field.UnitType.act.${unitType}`, { locale }) : '').toLowerCase(),
         },
         company: {
             name: get(organization, 'name') || '',
