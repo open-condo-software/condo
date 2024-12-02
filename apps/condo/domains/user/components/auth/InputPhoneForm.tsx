@@ -143,7 +143,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
                 >
                     <Row style={ROW_STYLES} gutter={[0, 28]}>
                         <ResponsiveCol span={24}>
-                            <Row>
+                            <Row gutter={[0, 28]}>
                                 <Col span={24}>
                                     <Form.Item
                                         name='phone'

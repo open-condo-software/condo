@@ -1,15 +1,11 @@
-import { Col, Typography } from 'antd'
+import { Col } from 'antd'
 import getConfig from 'next/config'
 import React from 'react'
 
 import { FormattedMessage, useIntl } from '@open-condo/next/intl'
+import { Typography } from '@open-condo/ui'
 
-import { colors } from '../../../common/constants/style'
-
-const FORM_PARAGRAPH_STYLES: React.CSSProperties = {
-    margin: '28px 0 12px',
-    fontSize: '12px',
-}
+import { colors } from '@condo/domains/common/constants/style'
 
 export const AgreementText = (): React.ReactElement => {
     const intl = useIntl()
@@ -23,7 +19,7 @@ export const AgreementText = (): React.ReactElement => {
             {(termsOfUseUrl && privacyPolicyUrl && dataProcessingConsentUrl) &&
                 (
                     <Col span={24}>
-                        <Typography.Paragraph type='secondary' style={FORM_PARAGRAPH_STYLES}>
+                        <Typography.Paragraph type='secondary' size='small'>
                             <FormattedMessage
                                 id='pages.auth.register.info.PersonalDataProcessingConsent'
                                 values={{
