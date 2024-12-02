@@ -89,9 +89,9 @@ function getColumnNames (format, locale) {
     ] : null
 }
 
-function getDatesColumnNamesByDatePathInReading () {
+function getDatesColumnNamesByDatePathInReading (locale) {
     return Object.fromEntries(
-        Object.entries(DATE_FIELD_PATH_TO_TRANSLATION).map(([datePath, key]) => [datePath, i18n(key)])
+        Object.entries(DATE_FIELD_PATH_TO_TRANSLATION).map(([datePath, key]) => [datePath, i18n(key, { locale })])
     )
 }
 
@@ -231,11 +231,13 @@ async function importRows (keystone, userId, organizationId, rows) {
     }
 
     // call it with user context - require for MeterReadings hooks
-    const { errors, data: { result } } = await registerMetersReadings(userContext, {
+    const { errors, data } = await registerMetersReadings(userContext, {
         ...dvAndSender,
         organization: { id: organizationId },
         readings: rows,
     })
+
+    let result = get(data, 'result')
 
     // fatal error proceeding case - throw error in order to fail proceeding job - since this is not recoverable state
     if (isNil(result) && !isEmpty(errors)) {
@@ -291,7 +293,7 @@ async function getImporter (keystone, taskId, organizationId, userId, format, lo
     const setProcessedRowsMutation = async (processed) => await setProcessedRows(keystone, taskId, processed)
     const setImportedRowsMutation = async (imported) => await setImportedRows(keystone, taskId, imported)
     const errorHandlerMutation = async (error) => await errorHandler(keystone, taskId, error)
-    const dateColumnsByReadingDatePaths = getDatesColumnNamesByDatePathInReading()
+    const dateColumnsByReadingDatePaths = getDatesColumnNamesByDatePathInReading(locale)
 
     return new MetersImporterClass(
         columns,
