@@ -3,29 +3,36 @@
  */
 
 const index = require('@app/condo/index')
-const dayjs = require('dayjs')
 
 const { getRedisClient } = require('@open-condo/keystone/redis')
 const { setFakeClientMode, setAllFeatureFlags } = require('@open-condo/keystone/test.utils')
 
-const { REDIS_LAST_DATE_KEY } = require('@condo/domains/resident/constants/constants')
+const { LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE } = require('@condo/domains/resident/constants')
 
 const { sendBillingReceiptNotifications } = require('./sendBillingReceiptNotifications')
 
 describe('sendBillingReceiptNotifications', () => {
     setFakeClientMode(index)
+    const redisClient = getRedisClient()
 
     describe('feature flag', () => {
         it('checks for proper result on enabled', async () => {
+            await redisClient.del(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
             setAllFeatureFlags(true)
-            const redisClient = getRedisClient()
-            await redisClient.set(REDIS_LAST_DATE_KEY, dayjs().toISOString())
-            expect(await sendBillingReceiptNotifications()).toBeUndefined()
+            expect(await sendBillingReceiptNotifications()).toEqual('noRedisKey')
+            await redisClient.del(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
         })
 
         it('checks for proper result on disabled', async () => {
             setAllFeatureFlags(false)
             expect(await sendBillingReceiptNotifications()).toEqual('disabled')
+        })
+
+        test('Should return noRedisKey for first running', async () => {
+            await redisClient.del(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
+            setAllFeatureFlags(true)
+            expect(await sendBillingReceiptNotifications()).toEqual('noRedisKey')
+            await redisClient.del(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
         })
     })
 })
