@@ -31,7 +31,6 @@ import { EmployeeInviteRetryButton } from '@condo/domains/organization/component
 import { EmployeesReadPermissionRequired } from '@condo/domains/organization/components/PageAccess'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
-import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 
@@ -83,6 +82,8 @@ const FieldPairRow: React.FC<FieldPairRowProps> = (props) => (
 
 export const EmployeePageContent: React.FC<EmployeePageContent> = ({
     employee,
+    employeeUserId,
+    organizationId,
     isEmployeeEditable,
     isEmployeeReinvitable,
     activeTicketsOrganizationEmployeeCount,
@@ -307,11 +308,12 @@ export const EmployeePageContent: React.FC<EmployeePageContent> = ({
 
 export const EmployeeInfoPage = () => {
     const { query } = useRouter()
-    const { link } = useOrganization()
+    const { link, organization  } = useOrganization()
     const intl = useIntl()
     const UpdateEmployeeMessage = intl.formatMessage({ id: 'employee.UpdateTitle' })
     const ErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
 
+    const organizationId = get(organization, 'id', null)
     const employeeId = String(get(query, 'id', ''))
 
     const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject(
@@ -350,6 +352,8 @@ export const EmployeeInfoPage = () => {
     return (
         <EmployeePageContent
             employee={employeeWithSpecializations}
+            employeeUserId={employeeUserId}
+            organizationId={organizationId}
             updateEmployeeAction={updateEmployeeAction}
             activeTicketsOrganizationEmployeeCount={activeTicketsOrganizationEmployeeCount?.meta?.count}
             softDeleteAction={softDeleteAction}
