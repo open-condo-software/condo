@@ -27,6 +27,7 @@ const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = r
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 const { ERRORS } = require('./NewsItemSharing')
+const {CANT_CHANGE_PUBLISHED_NEWS_ITEM_SHARINGS} = require("../constants/errors");
 
 
 
@@ -351,7 +352,7 @@ describe('NewsItemSharing', () => {
 
                 await expectToThrowGQLError(
                     async () => await updateTestNewsItemSharing(admin, newsItemSharing.id, extraAttr),
-                    ERRORS.B2B_APP_CONTEXT_DOES_NOT_SUPPORT_NEWS_SHARING
+                    ERRORS.CANT_CHANGE_PUBLISHED_NEWS_ITEM_SHARINGS
                 )
             })
 
