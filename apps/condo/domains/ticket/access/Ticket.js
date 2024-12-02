@@ -180,16 +180,21 @@ async function canManageTickets (args) {
         let organizationId
 
         if (operation === 'create') {
+            if (isBulkRequest) return false
             organizationId = get(originalInput, ['organization', 'connect', 'id'])
         } else if (operation === 'update') {
-            console.log('itemId', itemId)
-            const ids = itemIds || [itemId]
-            if (ids.length !== uniq(ids).length) return false
+            if (isBulkRequest) {
+                if (itemIds.length !== uniq(itemIds).length) return false
+                if (itemIds.length !== originalInput.length) return false
+            } else {
+                if (!itemId) return false
+            }
+
             const tickets = await find('Ticket', {
-                id_in: ids,
+                id_in: itemIds || [itemId],
                 deletedAt: null,
             })
-            organizationId = uniq(tickets.map(ticket => ticket.organization))
+            organizationId = uniq(tickets.map(ticket => get(ticket, 'organization', null)))
         }
 
         if (!organizationId) return false
