@@ -12,6 +12,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowGraphQLRequestError,
     expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAccessDeniedErrorToObjects,
     expectToThrowValidationFailureError,
     expectToThrowGQLError,
     expectValuesOfCommonFields,
@@ -36,6 +37,7 @@ const {
     PUSH_TRANSPORT,
     SMS_TRANSPORT,
 } = require('@condo/domains/notification/constants/constants')
+
 const {
     Message,
     MessageOrganizationBlackList,
@@ -102,6 +104,9 @@ const FEEDBACK_VALUES_WITHOUT_RETURNED = FEEDBACK_VALUES.filter(item => item !==
 /** @deprecated */
 const REVIEW_VALUES_WITHOUT_RETURNED = [REVIEW_VALUES.GOOD, REVIEW_VALUES.BAD]
 const MESSAGE_SENDING_DElAY = 1000 * 5
+const TICKET_OPEN_STATUS_ID = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
+const TICKET_OTHER_SOURCE_ID = '7da1e3be-06ba-4c9e-bba6-f97f278ac6e4'
+
 
 describe('Ticket', () => {
     let admin
@@ -1159,6 +1164,31 @@ describe('Ticket', () => {
             })
         })
 
+
+        test('user: bulk create Tickets', async () => {
+            const client = await makeClientWithProperty()
+
+            const attrs = {
+                dv: 1,
+                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                unitType: FLAT_UNIT_TYPE,
+                organization: { connect: { id: client.organization.id } },
+                property: { connect: { id: client.property.id } },
+                status: { connect: { id: TICKET_OPEN_STATUS_ID } },
+                source: { connect: { id: TICKET_OTHER_SOURCE_ID } },
+                isResidentTicket: false,
+            }
+            
+            const payload = [
+                { data: attrs },
+                { data: attrs },
+            ]
+
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await Ticket.createMany(client, payload)
+            })
+        })
+
         test('user: update Ticket', async () => {
             const client = await makeClientWithProperty()
             const client2 = await makeClientWithProperty()
@@ -1168,13 +1198,14 @@ describe('Ticket', () => {
             })
         })
 
-        test('user can bulk update Tickets', async () => {
+        test('user: bulk update Tickets', async () => {
+            const client = await makeClientWithProperty()
 
             let tickets = []
 
-            for (let i = 0; i < 100; i++) {
-                const [ticket] = await createTestTicket(admin, organization, property)
-                tickets.push(ticket)
+            for (let i = 0; i < 10; i++) {
+                const [obj] = await createTestTicket(client, client.organization, client.property)
+                tickets.push(obj)
             }
 
             const payload = tickets.map((ticket) => ({
@@ -1186,28 +1217,17 @@ describe('Ticket', () => {
                 },
             }))
 
-            // const expectedTickets = payload.map((ticket) => ({
-            //     id: ticket.id,
-            //     isPaid: true,
-            // }))
+            const expectedTickets = tickets.map((ticket) => expect.objectContaining({
+                id: ticket.id,
+                isPaid: true,
+            }))
 
-            // let updatedTickets
-            const startTime = new Date().getTime()
+            const updatedTickets = await Ticket.updateMany(client, payload)
 
-            for (let i = 0; i < 100; i = i + 100) {
-                const updatedPayload = payload.slice(i, i + 100)
-                await Ticket.updateMany(admin, updatedPayload)
-            }
-
-            const endTime = new Date().getTime()
-            const elapsedTime = endTime - startTime
-            console.log('Время выполнения:', elapsedTime, 'миллисекунд')
-
-            // expect(updatedTickets).toEqual(
-            //     expect.arrayContaining(expectedTickets)
-            // )
+            expect(updatedTickets).toEqual(
+                expect.arrayContaining(expectedTickets)
+            )
         })
-
 
         test('employee from "from" organization: can read tickets from "to" organizations', async () => {
             const {
