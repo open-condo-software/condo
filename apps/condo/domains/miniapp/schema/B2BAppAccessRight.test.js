@@ -240,27 +240,27 @@ describe('B2BAppAccessRight', () => {
             }, ERRORS.ACCESS_RIGHT_SET_NOT_FOR_CONNECTED_B2B_APP)
         })
 
-        test('Can not create or update "B2BAppAccessRight" if "accessRightSet"."type" != "miniapp"', async () => {
+        test('Can not create or update "B2BAppAccessRight" if "accessRightSet"."type" != "GLOBAL"', async () => {
             const admin = await makeLoggedInAdminClient()
             const [serviceUser] = await registerNewServiceUserByTestClient(admin)
 
             const [app] = await createTestB2BApp(admin)
 
-            const [accessRightSetMiniapp] = await createTestB2BAppAccessRightSet(admin, app)
-            const [accessRightSetToken] = await createTestB2BAppAccessRightSet(admin, app, { type: 'token' })
+            const [accessRightSetGlobal] = await createTestB2BAppAccessRightSet(admin, app)
+            const [accessRightSetScoped] = await createTestB2BAppAccessRightSet(admin, app, { type: 'SCOPED' })
 
-            // cannot create B2BAppAccessRight for app if accessRightSet type != 'miniapp'
+            // cannot create B2BAppAccessRight for app if accessRightSet type != 'GLOBAL'
             await expectToThrowGQLError(async () => {
-                await createTestB2BAppAccessRight(admin, serviceUser, app, accessRightSetToken)
+                await createTestB2BAppAccessRight(admin, serviceUser, app, accessRightSetScoped)
             }, ERRORS.ACCESS_RIGHT_SET_INVALID_TYPE)
 
-            // can create B2BAppAccessRight for app if accessRightSet type = 'miniapp'
-            const [b2BAppAccessRight] = await createTestB2BAppAccessRight(admin, serviceUser, app, accessRightSetMiniapp)
+            // can create B2BAppAccessRight for app if accessRightSet type = 'GLOBAL'
+            const [b2BAppAccessRight] = await createTestB2BAppAccessRight(admin, serviceUser, app, accessRightSetGlobal)
 
-            // cannot update B2BAppAccessRight for app if accessRightSet type != 'miniapp'
+            // cannot update B2BAppAccessRight for app if accessRightSet type != 'GLOBAL'
             await expectToThrowGQLError(async () => {
                 await updateTestB2BAppAccessRight(admin, b2BAppAccessRight.id, {
-                    accessRightSet: { connect: { id: accessRightSetToken.id } },
+                    accessRightSet: { connect: { id: accessRightSetScoped.id } },
                 })
             }, ERRORS.ACCESS_RIGHT_SET_INVALID_TYPE)
         })

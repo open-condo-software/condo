@@ -38,6 +38,29 @@ const { getEnabledPermissions } = require('@condo/domains/miniapp/utils/permissi
 // otherwise I would need to copy code to get same result
 const { cookieSecret } = prepareDefaultKeystoneConfig(conf)
 
+function getValidationError ({
+    b2bAppContext,
+    accessRightSet,
+    accessRightForUserAndApp,
+}) {
+    if (!b2bAppContext) {
+        return ERRORS.CONTEXT_NOT_EXISTS
+    }
+    if (!accessRightSet) {
+        return ERRORS.RIGHT_SET_NOT_EXISTS
+    }
+    if (get(accessRightSet, 'type') !== ACCESS_RIGHT_SET_SCOPED_TYPE) {
+        return ERRORS.WRONG_RIGHT_SET_TYPE
+    }
+    if (get(accessRightSet, 'app') && (get(accessRightSet, 'app') !== get(b2bAppContext, 'app'))) {
+        return ERRORS.CONTEXT_DOES_NOT_MATCH_RIGHT_SET
+    }
+    if (!accessRightForUserAndApp) {
+        return ERRORS.SERVICE_USER_DOES_NOT_MATCH_CONTEXT
+    }
+    return null
+}
+
 const ERRORS = {
     CONTEXT_NOT_EXISTS: {
         code: BAD_USER_INPUT,
@@ -70,6 +93,12 @@ const ERRORS = {
         message: 'TTL can\'t be negative. You provided expiresAt datetime previous to the current one',
     },
 }
+
+const ERRORS_FOR_DELETION = new Set([
+    ERRORS.CONTEXT_NOT_EXISTS,
+    ERRORS.RIGHT_SET_NOT_EXISTS,
+    ERRORS.NEGATIVE_TTL,
+])
 
 const B2BAccessToken = new GQLListSchema('B2BAccessToken', {
     schemaDoc: 'Access to service user with additional restrictions by Organization and B2BAppAccessRightSet',
@@ -174,6 +203,11 @@ const B2BAccessToken = new GQLListSchema('B2BAccessToken', {
                 ...(existingItem || {}),
                 ...resolvedData,
             }
+
+            if (newItem.deletedAt) {
+                return
+            }
+
             const b2bAppContext = await getByCondition('B2BAppContext', {
                 id: get(newItem, 'context'),
                 deletedAt: null,
@@ -182,38 +216,24 @@ const B2BAccessToken = new GQLListSchema('B2BAccessToken', {
                 id: get(newItem, 'rightSet'),
                 deletedAt: null,
             })
-            
-            function throwErrorOrDelete (error) {
-                if (operation === 'create') {
-                    throw new GQLError(error, context)
-                }
-                resolvedData.deletedAt = dayjs().toISOString()
-                return true
-            }
-            
-            if (!b2bAppContext && throwErrorOrDelete(ERRORS.CONTEXT_NOT_EXISTS)) {
-                return
-            }
-            if (!accessRightSet && throwErrorOrDelete(ERRORS.RIGHT_SET_NOT_EXISTS)) {
-                return
-            }
-            if (get(accessRightSet, 'type') !== ACCESS_RIGHT_SET_SCOPED_TYPE && throwErrorOrDelete(ERRORS.WRONG_RIGHT_SET_TYPE)) {
-                return
-            }
-
-            if (get(accessRightSet, 'app') && (get(accessRightSet, 'app') !== get(b2bAppContext, 'app'))) {
-                throw new GQLError(ERRORS.CONTEXT_DOES_NOT_MATCH_RIGHT_SET, context)
-            }
-
             const [accessRightForUserAndApp] = await find('B2BAppAccessRight', {
                 user: { id: get(newItem, 'user') },
                 app: { id: get(b2bAppContext, 'app') },
                 deletedAt: null,
             })
-            if (!accessRightForUserAndApp && throwErrorOrDelete(ERRORS.SERVICE_USER_DOES_NOT_MATCH_CONTEXT)) {
-                return
-            }
+            
+            const validationError = getValidationError({
+                b2bAppContext,
+                accessRightSet,
+                accessRightForUserAndApp,
+            })
 
+            if (operation === 'create' && validationError) {
+                throw new GQLError(validationError, context)
+            }
+            if (operation === 'update' && validationError && ERRORS_FOR_DELETION.has(validationError)) {
+                resolvedData.deletedAt = dayjs().toISOString()
+            }
         },
         async afterChange ({ context, operation, existingItem, updatedItem, originalInput }) {
             const softDeleted = operation === 'update' && !existingItem['deletedAt'] && updatedItem['deletedAt']

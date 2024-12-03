@@ -25,10 +25,10 @@ const { getWebhookTasks } = require('@open-condo/webhooks/tasks')
 
 const { PaymentLinkMiddleware } = require('@condo/domains/acquiring/PaymentLinkMiddleware')
 const { VersioningMiddleware, getCurrentVersion } = require('@condo/domains/common/utils/VersioningMiddleware')
+const { ACCESS_TOKEN_SESSION_ID_PREFIX } = require('@condo/domains/miniapp/constants')
 const { UnsubscribeMiddleware } = require('@condo/domains/notification/UnsubscribeMiddleware')
 const { UserExternalIdentityMiddleware } = require('@condo/domains/user/integration/UserExternalIdentityMiddleware')
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
-const {ACCESS_TOKEN_SESSION_ID_PREFIX} = require("@condo/domains/miniapp/constants");
 
 dayjs.extend(duration)
 dayjs.extend(utc)

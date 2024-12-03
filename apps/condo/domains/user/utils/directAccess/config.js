@@ -32,7 +32,6 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
     // Note: This list should be alphabetical when possible
     lists: [
         // Miniapps domain
-        'B2BAccessToken',
         'B2BApp',
         'B2BAppAccessRight',
         'B2BAppAccessRightSet',

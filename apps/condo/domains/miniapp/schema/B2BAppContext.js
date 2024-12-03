@@ -140,7 +140,7 @@ const B2BAppContext = new GQLListSchema('B2BAppContext', {
                     deletedAt: null,
                 })
                 for (const accessToken of accessTokens) {
-                    await B2BAccessToken.update(context, accessToken.id, { dv: accessToken.dv, sender }, 'id')
+                    await B2BAccessToken.update(context, accessToken.id, { dv: accessToken.dv, sender, deletedAt: new Date().toISOString() }, 'id')
                 }
             } else if (isConnectionHappened) {
                 await createDefaultB2BAppRoles(appId, organizationId, sender, context)

@@ -402,11 +402,11 @@ describe('B2BAppAccessRightSet', () => {
 
         })
 
-        test('Cannot create or update set with type "token" if type "miniapp" donesn\'t exists', async () => {
+        test('Cannot create or update set with type "SCOPED" if type "GLOBAL" doesn\'t exists', async () => {
             const [app] = await createTestB2BApp(admin)
 
             await expectToThrowGQLError(async () => {
-                await createTestB2BAppAccessRightSet(admin, app, { type: 'token' })
+                await createTestB2BAppAccessRightSet(admin, app, { type: 'SCOPED' })
             }, {
                 code: 'BAD_USER_INPUT',
                 type: 'ACCESS_RIGHT_SET_MINIAPP_SCOPE_RIGHT_SET_REQUIRED',
@@ -414,19 +414,19 @@ describe('B2BAppAccessRightSet', () => {
             }, 'obj')
         })
 
-        test('Can not create or update B2BAppAccessRightSet of type "token" with more permissions, than set of type "miniapp" on same app', async () => {
+        test('Can not create or update B2BAppAccessRightSet of type "SCOPED" with more permissions, than set of type "GLOBAL" on same app', async () => {
             const [app] = await createTestB2BApp(admin)
             await createTestB2BAppAccessRightSet(admin, app, { canReadOrganizations: true })
 
             await expectToThrowGQLError(async () => {
-                await createTestB2BAppAccessRightSet(admin, app, { type: 'token', canReadMeters: true })
+                await createTestB2BAppAccessRightSet(admin, app, { type: 'SCOPED', canReadMeters: true })
             }, {
                 code: 'BAD_USER_INPUT',
                 type: 'ACCESS_RIGHT_SET_TOO_MANY_PERMISSIONS',
                 message: 'You trying to give to right set more permissions, than "miniapp" right set has',
             }, 'obj')
 
-            const [tokenRightSet] = await createTestB2BAppAccessRightSet(admin, app, { type: 'token', canReadOrganizations: true })
+            const [tokenRightSet] = await createTestB2BAppAccessRightSet(admin, app, { type: 'SCOPED', canReadOrganizations: true })
 
             await expectToThrowGQLError(async () => {
                 await updateTestB2BAppAccessRightSet(admin, tokenRightSet.id, { canReadMeters: true })
@@ -437,19 +437,19 @@ describe('B2BAppAccessRightSet', () => {
             }, 'obj')
         })
 
-        test('Removing permissions on "miniapp" B2BAppAccessRightSet leads to removing these permissions from entities with type "token"', async () => {
+        test('Removing permissions on "GLOBAL" B2BAppAccessRightSet leads to removing these permissions from entities with type "SCOPED"', async () => {
             const [app] = await createTestB2BApp(admin)
-            const [miniappRightSet] = await createTestB2BAppAccessRightSet(admin, app, { canReadOrganizations: true })
+            const [globalRightsSet] = await createTestB2BAppAccessRightSet(admin, app, { canReadOrganizations: true })
 
             for (let i = 0; i < 3; i++) {
-                const [tokenRightSet] = await createTestB2BAppAccessRightSet(admin, app, { type: 'token', canReadOrganizations: true })
-                expect(tokenRightSet.canReadOrganizations).toEqual(true)
+                const [scopedRightSet] = await createTestB2BAppAccessRightSet(admin, app, { type: 'SCOPED', canReadOrganizations: true })
+                expect(scopedRightSet.canReadOrganizations).toEqual(true)
             }
 
-            await updateTestB2BAppAccessRightSet(admin, miniappRightSet.id, { canReadOrganizations: false })
-            const tokenRightSets = await B2BAppAccessRightSet.getAll(admin, { app: { id: app.id } })
-            tokenRightSets.forEach(tokenRightSet => {
-                expect(tokenRightSet.canReadOrganizations).toEqual(false)
+            await updateTestB2BAppAccessRightSet(admin, globalRightsSet.id, { canReadOrganizations: false })
+            const scopedRightSets = await B2BAppAccessRightSet.getAll(admin, { app: { id: app.id } })
+            scopedRightSets.forEach(scopedRightSet => {
+                expect(scopedRightSet.canReadOrganizations).toEqual(false)
             })
         })
     })
