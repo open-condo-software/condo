@@ -14,8 +14,7 @@ export type TypographyParagraphProps = Omit<DefaultParagraphProps,
 | 'mark'
 | 'className'
 | 'prefixCls'
-| 'style'
-| 'id'> & {
+| 'style'> & {
     type?: typeof TEXT_TYPES[number]
     size?: typeof TEXT_SIZES[number]
 }
