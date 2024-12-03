@@ -38973,7 +38973,7 @@ type Message {
   """
   processingMeta: JSON
 
-  """ Default content of message """
+  """ Specifies the default message content if it exists """
   defaultContent: MessageDefaultContentField
 
   """ Delivered (received) at time """
