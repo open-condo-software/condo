@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import {
-    NewsItem as INewsItem,
+    NewsItem as INewsItem, NewsItemSharingStatusType,
 } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
 import { Col, notification, Row, RowProps } from 'antd'
@@ -245,19 +245,21 @@ const NewsItemCard: React.FC = () => {
     }, [NotSentMessage, SendingMessage, isSending, isSent, newsItem])
 
     const formattedNewsItemSharingSendAt = (newsItemSharing) => {
-        const dateToShow = get(newsItemSharing, 'createdAt', null)
-        if (!dateToShow) return '—'
+        let dateToShow = get(newsItem, 'sendAt', null)
 
         let status
-        if (newsItemSharing.status === 'scheduled') {
+        if (newsItemSharing.status === NewsItemSharingStatusType.Scheduled) {
             status = NotSentMessage
-        } else if (newsItemSharing.status === 'processing') {
+        } else if (newsItemSharing.status === NewsItemSharingStatusType.Processing) {
             status = SendingMessage
-        } else if (newsItemSharing.status === 'error') {
+        } else if (newsItemSharing.status === NewsItemSharingStatusType.Error) {
             status = ErrorMessage
-        } else if (newsItemSharing.status === 'success') {
+        } else if (newsItemSharing.status === NewsItemSharingStatusType.Published) {
+            dateToShow = get(newsItemSharing, 'updatedAt', null)
             status = SentMessage
         }
+
+        if (!dateToShow) return '—'
 
         return (
             <>
