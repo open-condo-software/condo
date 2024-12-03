@@ -260,11 +260,21 @@ query getContactTickets ($contactId: ID!) {
     }
 }
 
-query getOrganizationEmployeeTickets($where: TicketWhereInput!, $first: Int, $skip: Int) {
+query getOrganizationEmployeeTicketsForReassign($userId: ID!, $organizationId: ID!, $first: Int) {
     tickets: allTickets(
-        where: $where,
+        where: {
+            organization: { id: $organizationId },
+            OR: { assignee: { id: $userId }, executor: { id: $userId } },
+            status: {
+                type_in: [
+                    new_or_reopened,
+                    processing,
+                    completed,
+                    deferred,
+                ],
+            },
+        },
         first: $first,
-        skip: $skip,
         sortBy: [createdAt_DESC]
     ) {
         id

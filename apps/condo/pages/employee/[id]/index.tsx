@@ -359,7 +359,7 @@ export const EmployeeInfoPage = () => {
             employeeUserId={employeeUserId}
             organizationId={organizationId}
             updateEmployeeAction={updateEmployeeAction}
-            activeTicketsOrganizationEmployeeCount={get(activeTicketsOrganizationEmployeeCount, 'meta.count', 0)}
+            activeTicketsOrganizationEmployeeCount={get(activeTicketsOrganizationEmployeeCount, ['meta', 'count'], null)}
             softDeleteAction={softDeleteAction}
             isEmployeeEditable={isEmployeeEditable}
             isEmployeeReinvitable={isEmployeeReinvitable}
