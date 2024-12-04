@@ -21,6 +21,8 @@ async function canRegisterServiceConsumer ({ args: { data }, authentication: { i
         
         return !!isMatch
     }
+
+    return false
 }
 
 /*
