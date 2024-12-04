@@ -1588,7 +1588,7 @@
   "pages.auth.register.field.Phone": "Телефон",
   "pages.auth.register.field.SmsCode": "Код из СМС",
   "pages.auth.register.info.ConsentContent": "согласие на обработку персональных данных",
-  "pages.auth.register.info.PersonalDataProcessingConsent": "Нажимая на кнопку «Зарегистрироваться» вы принимаете {termsOfUse}, {privacyPolicyLink} и даёте {consentLink}",
+  "pages.auth.register.info.PersonalDataProcessingConsent": "Нажимая на кнопку «Зарегистрироваться», «Войти по СберБизнес ID» или «Войти», вы принимаете {termsOfUse}, {privacyPolicyLink} и даёте {consentLink}",
   "pages.auth.register.info.PrivacyPolicyContent": "условия политики конфиденциальности",
   "pages.auth.register.info.RecaptchaPrivacyPolicyContent": "Этот сайт под защитой системы reCAPTCHA и к нему применяются {PrivacyPolicy} и {TermsOfService} Google",
   "pages.auth.register.info.SmsCodeSent": "Отправили SMS-код на номер {phone}",
