@@ -16,10 +16,12 @@ async function writeTranslationData (translationFilePath, translationData) {
 async function loadTranslations (langDir) {
     const translations = []
     try {
-        const folders = await fs.readdir(langDir)
-        for (const folderName of folders) {
+        const children = await fs.readdir(langDir, { withFileTypes: true })
+        for (const dirent of children) {
+
             // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
-            const fileName = `${folderName}/${folderName}.json`
+            const lang = dirent.isFile() ? dirent.name.split('.')[0] : dirent.name
+            const fileName = dirent.isFile() ? `${dirent.name}` : `${dirent.name}/${dirent.name}.json`
             const filePath = `${langDir}/${fileName}`
             console.log(`Loading file ${filePath}`)
 
@@ -29,7 +31,7 @@ async function loadTranslations (langDir) {
                     throw new Error(`Loaded file "${fileName}" seems to be empty`)
                 }
                 const parsedData = JSON.parse(data)
-                translations.push([folderName, Object.keys(parsedData), parsedData])
+                translations.push([lang, Object.keys(parsedData), parsedData])
             } catch (e) {
                 throw new Error(`Error reading or parsing file "${fileName}": ${e.message}`)
             }
