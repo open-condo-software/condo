@@ -119,7 +119,7 @@ describe('RegisterResidentServiceConsumers', () => {
             expect(data[0]).toHaveProperty(['residentAcquiringIntegrationContext', 'integration', 'hostUrl'], acquiringIntegration.hostUrl)
         })
 
-        it('cannot register ServiceConsumer only for another user residents', async () => {
+        it('cannot register ServiceConsumer for another user residents', async () => {
             const { organization, context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             await updateTestBillingIntegrationOrganizationContext(adminClient, context.id, { status: CONTEXT_FINISHED_STATUS })
             const [property] = await createTestProperty(adminClient, organization)
