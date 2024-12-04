@@ -109,7 +109,6 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                 if (!resident) throw new GQLError(ERRORS.RESIDENT_NOT_FOUND, context)
                 await resetUserResidentCache(resident.user.id)
 
-
                 const propertyWhere = resident.addressKey
                     ? { addressKey: resident.addressKey }
                     : { address_i: resident.address }
@@ -223,6 +222,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                 if (!accountNumber || accountNumber.length === 0) {
                     throw new GQLError(ERRORS.ACCOUNT_NUMBER_IS_NOT_SPECIFIED, context)
                 }
+
                 const resident = await Resident.getOne(context, { id: residentId, deletedAt: null }, 'id user { id }')
                 if (!resident) {
                     throw new GQLError(ERRORS.RESIDENT_NOT_FOUND, context)

@@ -132,6 +132,37 @@ describe('RegisterServiceConsumer', () => {
             expect(consumer1.id).not.toEqual(consumer2.id)
         })
 
+        test('Admin can create consumer for any resident', async () => {
+            const resident = await utils.createResident()
+            const anotherUtils = new TestUtils()
+            await anotherUtils.init()
+            const accountNumber = faker.random.alphaNumeric(16)
+            await utils.createReceipts([ utils.createJSONReceipt({ accountNumber }) ])
+            const [consumer] = await registerServiceConsumerByTestClient(anotherUtils.clients.admin, {
+                residentId: resident.id,
+                accountNumber,
+                organizationId: utils.organization.id,
+            })
+            expect(consumer).toHaveProperty('id')
+        })
+
+        test('does not allow to create service consumer for user and resident mismatch', async () => {
+            const resident = await utils.createResident()
+            const anotherUtils = new TestUtils([BillingTestMixin, ResidentTestMixin])
+            await anotherUtils.init()
+            await anotherUtils.createResident()
+            const accountNumber = faker.random.alphaNumeric(16)
+            await utils.createReceipts([ utils.createJSONReceipt({ accountNumber }) ])
+            await anotherUtils.createReceipts([ utils.createJSONReceipt({ accountNumber }) ])
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await registerServiceConsumerByTestClient(anotherUtils.clients.resident, {
+                    residentId: resident.id,
+                    accountNumber,
+                    organizationId: utils.organization.id,
+                })
+            })
+        })
+
         test('does not create same service consumer twice', async () => {
             const resident = await utils.createResident()
             const accountNumber = faker.random.alphaNumeric(16)
