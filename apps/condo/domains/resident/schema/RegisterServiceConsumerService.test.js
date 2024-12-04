@@ -26,7 +26,6 @@ const {
 const { ERRORS: {
     BILLING_ACCOUNT_NOT_FOUND,
     ACCOUNT_NUMBER_IS_NOT_SPECIFIED,
-    RESIDENT_NOT_FOUND,
 } } = require('@condo/domains/resident/schema/RegisterServiceConsumerService')
 const {
     registerServiceConsumerByTestClient,
@@ -133,6 +132,20 @@ describe('RegisterServiceConsumer', () => {
             expect(consumer1.id).not.toEqual(consumer2.id)
         })
 
+        test('Admin can create consumer for any resident', async () => {
+            const resident = await utils.createResident()
+            const anotherUtils = new TestUtils()
+            await anotherUtils.init()
+            const accountNumber = faker.random.alphaNumeric(16)
+            await utils.createReceipts([ utils.createJSONReceipt({ accountNumber }) ])
+            const [consumer] = await registerServiceConsumerByTestClient(anotherUtils.clients.admin, {
+                residentId: resident.id,
+                accountNumber,
+                organizationId: utils.organization.id,
+            })
+            expect(consumer).toHaveProperty('id')
+        })
+
         test('does not allow to create service consumer for user and resident mismatch', async () => {
             const resident = await utils.createResident()
             const anotherUtils = new TestUtils([BillingTestMixin, ResidentTestMixin])
@@ -141,13 +154,13 @@ describe('RegisterServiceConsumer', () => {
             const accountNumber = faker.random.alphaNumeric(16)
             await utils.createReceipts([ utils.createJSONReceipt({ accountNumber }) ])
             await anotherUtils.createReceipts([ utils.createJSONReceipt({ accountNumber }) ])
-            await expectToThrowGQLError(async () => {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
                 await registerServiceConsumerByTestClient(anotherUtils.clients.resident, {
                     residentId: resident.id,
                     accountNumber,
                     organizationId: utils.organization.id,
                 })
-            }, RESIDENT_NOT_FOUND)
+            })
         })
 
         test('does not create same service consumer twice', async () => {

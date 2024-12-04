@@ -104,16 +104,10 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                 const { data: { dv, sender, resident: { id }, accountNumber, paymentCategory } } = args
 
                 if (!accountNumber || accountNumber.length === 0) throw new GQLError(ERRORS.ACCOUNT_NUMBER_IS_NOT_SPECIFIED, context)
-                const isAdmin = get(context, 'authedItem.isAdmin')
-                const residentWhere = {
-                    id,
-                    ...isAdmin ? {} : { user: { id: get(context, 'authedItem.id') } },
-                    deletedAt: null,
-                }
-                const resident = await Resident.getOne(context, residentWhere, 'id user { id } address addressKey')
+
+                const resident = await Resident.getOne(context, { id, deletedAt: null }, 'id user { id } address addressKey')
                 if (!resident) throw new GQLError(ERRORS.RESIDENT_NOT_FOUND, context)
                 await resetUserResidentCache(resident.user.id)
-
 
                 const propertyWhere = resident.addressKey
                     ? { addressKey: resident.addressKey }
@@ -228,13 +222,8 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                 if (!accountNumber || accountNumber.length === 0) {
                     throw new GQLError(ERRORS.ACCOUNT_NUMBER_IS_NOT_SPECIFIED, context)
                 }
-                const isAdmin = get(context, 'authedItem.isAdmin')
-                const residentWhere = {
-                    id: residentId,
-                    ...isAdmin ? {} : { user: { id: get(context, 'authedItem.id') } },
-                    deletedAt: null,
-                }
-                const resident = await Resident.getOne(context, residentWhere, 'id user { id }')
+
+                const resident = await Resident.getOne(context, { id: residentId, deletedAt: null }, 'id user { id }')
                 if (!resident) {
                     throw new GQLError(ERRORS.RESIDENT_NOT_FOUND, context)
                 }

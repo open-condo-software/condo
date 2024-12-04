@@ -4,7 +4,7 @@
 const { faker } = require('@faker-js/faker')
 
 
-const { makeClient, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
+const { makeClient, expectToThrowGQLError, expectToThrowAccessDeniedErrorToObjects } = require('@open-condo/keystone/test.utils')
 const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObjects,
@@ -32,9 +32,6 @@ const {
     createTestProperty,
     makeClientWithProperty,
 } = require('@condo/domains/property/utils/testSchema')
-const { ERRORS: {
-    RESIDENT_NOT_FOUND,
-} } = require('@condo/domains/resident/schema/RegisterServiceConsumerService')
 const {
     updateTestServiceConsumer,
     createTestResident,
@@ -135,13 +132,12 @@ describe('RegisterResidentServiceConsumers', () => {
                 unitName: billingAccount.unitName,
             })
             const anotherResidentClient = await makeClientWithResidentUser()
-
-            await expectToThrowGQLError(async () => {
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
                 await registerResidentServiceConsumersByTestClient(anotherResidentClient, {
                     resident: { id: resident.id },
                     accountNumber: billingAccount.number,
                 })
-            }, RESIDENT_NOT_FOUND)
+            })
         })
 
         it('doesn\'t create same ServiceConsumer twice', async () => {
