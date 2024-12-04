@@ -1,5 +1,5 @@
 import classNames from 'classnames'
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import ReactPhoneInput from 'react-phone-input-2'
 
 import { INPUT_CLASS_PREFIX } from './input'
@@ -9,12 +9,19 @@ import type { PhoneInputProps as DefaultPhoneInputProps } from 'react-phone-inpu
 const DEFAULT_COUNTRY = 'ru'
 const DEFAULT_PLACEHOLDER = '7 (999) 123-4567'
 
-export type PhoneInputProps = Pick<DefaultPhoneInputProps, 'country' | 'placeholder' | 'onChange' | 'value' | 'onMount' | 'disabled'> & {
+export type PhoneInputProps = Pick<DefaultPhoneInputProps,
+'country'
+| 'placeholder'
+| 'onChange'
+| 'value'
+| 'onMount'
+| 'disabled'> & {
     inputProps?: Omit<React.InputHTMLAttributes<HTMLInputElement>, 'style' | 'value' | 'onChange'>
+    id?: string
 }
 
 const Phone: React.FC<PhoneInputProps> = (props) => {
-    const { country, placeholder, onChange, disabled = false, ...restProps } = props
+    const { country, placeholder, onChange, disabled = false, id, inputProps, ...restProps } = props
 
     const containerClasses = classNames(`${INPUT_CLASS_PREFIX}-phone`, {
         [`${INPUT_CLASS_PREFIX}-phone-disabled`]: disabled,
@@ -27,9 +34,18 @@ const Phone: React.FC<PhoneInputProps> = (props) => {
         }
     }, [onChange])
 
+    const combinedInputProps = useMemo(() => {
+        const props = { ...inputProps }
+        if (id) {
+            props.id = id
+        }
+        return props
+    }, [id, inputProps])
+
     return (
         <ReactPhoneInput
             {...restProps}
+            inputProps={combinedInputProps}
             onChange={internalOnChange}
             containerClass={containerClasses}
             disabled={disabled}

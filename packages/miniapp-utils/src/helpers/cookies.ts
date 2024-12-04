@@ -120,9 +120,9 @@ export class SSRCookiesHelper<
         const propName = this.propName
 
         return function useSSRCookiesExtractor<PropsType extends Record<string, unknown>> (
-            pageParams: SSRPropsWithCookies<PropsType, CookiesList, CookiesPropName>['props']
+            pageProps: SSRPropsWithCookies<PropsType, CookiesList, CookiesPropName>['props']
         ): SSRCookiesContextValues<CookiesList> {
-            return pageParams[propName] || defaultValues
+            return pageProps[propName] || defaultValues
         }
     }
 
