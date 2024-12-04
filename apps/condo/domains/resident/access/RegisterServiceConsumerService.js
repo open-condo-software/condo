@@ -9,21 +9,26 @@ const { find } = require('@open-condo/keystone/schema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 async function canRegisterServiceConsumer ({ args: { data }, authentication: { item: user } }) {
-    if (!user) return throwAuthenticationError()
+    if (!user) throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
     if (user.type === RESIDENT) {
         //Two mutations have different input types
-        const [isMatch] =  await find('Resident', {
-            id: get(data, 'residentId') || get(data, 'resident.id'),
-            user: { id: get(user, 'id') },
+        const residentId = get(data, 'residentId') || get(data, 'resident.id')
+
+        if (!residentId) return false
+
+        const [isMatch] = await find('Resident', {
+            id: residentId,
+            user: { id: user.id },
         })
-        
+
         return !!isMatch
     }
 
     return false
 }
+
 
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
