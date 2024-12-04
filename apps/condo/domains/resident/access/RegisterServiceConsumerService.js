@@ -11,6 +11,7 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
 async function canRegisterServiceConsumer ({ args: { data }, authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
+    if (user.isAdmin) return true
     if (user.type === RESIDENT) {
         //Two mutations have different input types
         const [isMatch] =  await find('Resident', {
@@ -20,8 +21,6 @@ async function canRegisterServiceConsumer ({ args: { data }, authentication: { i
         
         return !!isMatch
     }
-
-    return !!user.isAdmin
 }
 
 /*
