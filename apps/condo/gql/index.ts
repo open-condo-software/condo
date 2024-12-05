@@ -2550,6 +2550,49 @@ export type GetTicketsCountQueryHookResult = ReturnType<typeof useGetTicketsCoun
 export type GetTicketsCountLazyQueryHookResult = ReturnType<typeof useGetTicketsCountLazyQuery>
 export type GetTicketsCountSuspenseQueryHookResult = ReturnType<typeof useGetTicketsCountSuspenseQuery>
 export type GetTicketsCountQueryResult = Apollo.QueryResult<Types.GetTicketsCountQuery, Types.GetTicketsCountQueryVariables>
+export const GetOrganizationEmployeeTicketsCountForReassignDocument = gql`
+    query getOrganizationEmployeeTicketsCountForReassign($userId: ID!, $organizationId: ID!) {
+  meta: _allTicketsMeta(
+    where: {organization: {id: $organizationId}, OR: {assignee: {id: $userId}, executor: {id: $userId}}, status: {type_in: [new_or_reopened, processing, deferred]}}
+  ) {
+    count
+  }
+}
+    `
+
+/**
+ * __useGetOrganizationEmployeeTicketsCountForReassignQuery__
+ *
+ * To run a query within a React component, call `useGetOrganizationEmployeeTicketsCountForReassignQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetOrganizationEmployeeTicketsCountForReassignQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetOrganizationEmployeeTicketsCountForReassignQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *      organizationId: // value for 'organizationId'
+ *   },
+ * });
+ */
+export function useGetOrganizationEmployeeTicketsCountForReassignQuery (baseOptions: Apollo.QueryHookOptions<Types.GetOrganizationEmployeeTicketsCountForReassignQuery, Types.GetOrganizationEmployeeTicketsCountForReassignQueryVariables> & ({ variables: Types.GetOrganizationEmployeeTicketsCountForReassignQueryVariables, skip?: boolean } | { skip: boolean }) ) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useQuery<Types.GetOrganizationEmployeeTicketsCountForReassignQuery, Types.GetOrganizationEmployeeTicketsCountForReassignQueryVariables>(GetOrganizationEmployeeTicketsCountForReassignDocument, options)
+}
+export function useGetOrganizationEmployeeTicketsCountForReassignLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<Types.GetOrganizationEmployeeTicketsCountForReassignQuery, Types.GetOrganizationEmployeeTicketsCountForReassignQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useLazyQuery<Types.GetOrganizationEmployeeTicketsCountForReassignQuery, Types.GetOrganizationEmployeeTicketsCountForReassignQueryVariables>(GetOrganizationEmployeeTicketsCountForReassignDocument, options)
+}
+export function useGetOrganizationEmployeeTicketsCountForReassignSuspenseQuery (baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetOrganizationEmployeeTicketsCountForReassignQuery, Types.GetOrganizationEmployeeTicketsCountForReassignQueryVariables>) {
+    const options = baseOptions === Apollo.skipToken ? baseOptions : { ...defaultOptions, ...baseOptions }
+    return Apollo.useSuspenseQuery<Types.GetOrganizationEmployeeTicketsCountForReassignQuery, Types.GetOrganizationEmployeeTicketsCountForReassignQueryVariables>(GetOrganizationEmployeeTicketsCountForReassignDocument, options)
+}
+export type GetOrganizationEmployeeTicketsCountForReassignQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeTicketsCountForReassignQuery>
+export type GetOrganizationEmployeeTicketsCountForReassignLazyQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeTicketsCountForReassignLazyQuery>
+export type GetOrganizationEmployeeTicketsCountForReassignSuspenseQueryHookResult = ReturnType<typeof useGetOrganizationEmployeeTicketsCountForReassignSuspenseQuery>
+export type GetOrganizationEmployeeTicketsCountForReassignQueryResult = Apollo.QueryResult<Types.GetOrganizationEmployeeTicketsCountForReassignQuery, Types.GetOrganizationEmployeeTicketsCountForReassignQueryVariables>
 export const GetTicketsCountersByStatusDocument = gql`
     query getTicketsCountersByStatus($whereWithoutStatuses: TicketWhereInput!) {
   new_or_reopened: _allTicketsMeta(
@@ -2889,7 +2932,7 @@ export type GetContactTicketsQueryResult = Apollo.QueryResult<Types.GetContactTi
 export const GetOrganizationEmployeeTicketsForReassignDocument = gql`
     query getOrganizationEmployeeTicketsForReassign($userId: ID!, $organizationId: ID!, $first: Int) {
   tickets: allTickets(
-    where: {organization: {id: $organizationId}, OR: {assignee: {id: $userId}, executor: {id: $userId}}, status: {type_in: [new_or_reopened, processing, completed, deferred]}}
+    where: {organization: {id: $organizationId}, OR: {assignee: {id: $userId}, executor: {id: $userId}}, status: {type_in: [new_or_reopened, processing, deferred]}}
     first: $first
     sortBy: [createdAt_DESC]
   ) {

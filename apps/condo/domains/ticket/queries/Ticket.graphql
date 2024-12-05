@@ -91,6 +91,24 @@ query getTicketsCount ($where: TicketWhereInput!) {
     }
 }
 
+query getOrganizationEmployeeTicketsCountForReassign ($userId: ID!, $organizationId: ID!) {
+    meta: _allTicketsMeta (
+        where: {
+            organization: { id: $organizationId },
+            OR: { assignee: { id: $userId }, executor: { id: $userId } },
+            status: {
+                type_in: [
+                    new_or_reopened,
+                    processing,
+                    deferred,
+                ],
+            },
+        },
+    ) {
+        count
+    }
+}
+
 query getTicketsCountersByStatus ($whereWithoutStatuses: TicketWhereInput!) {
     new_or_reopened: _allTicketsMeta(where: { AND: [$whereWithoutStatuses, { status: { type: new_or_reopened } }]}) {
         count
@@ -269,7 +287,6 @@ query getOrganizationEmployeeTicketsForReassign($userId: ID!, $organizationId: I
                 type_in: [
                     new_or_reopened,
                     processing,
-                    completed,
                     deferred,
                 ],
             },

@@ -721,7 +721,7 @@
   "employee.isBlocked": "заблокирован",
   "employee.reassignTickets.title": "На кого назначить заявки сотрудника?",
   "employee.reassignTickets.deleteUser": "Удалить сотрудника",
-  "employee.reassignTickets.alert.title": "{employeeName} назначен на несколько заявок ({activeTicketsOrganizationEmployeeCount} шт.)",
+  "employee.reassignTickets.alert.title": "{employeeName} назначен на несколько заявок ({activeTicketsOrganizationEmployeeCount}",
   "employee.reassignTickets.alert.message": "Чтобы не потерять их, назначьте нового исполнителя среди сотрудников",
   "employee.reassignTickets.notification.title.warning": "Не закрывайте вкладку",
   "employee.reassignTickets.notification.title.error": "Возникла ошибка",

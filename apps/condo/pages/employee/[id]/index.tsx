@@ -1,5 +1,4 @@
-import { useGetTicketsCountQuery } from '@app/condo/gql'
-import { TicketStatusTypeType } from '@app/condo/schema'
+import { useGetOrganizationEmployeeTicketsCountForReassignQuery } from '@app/condo/gql'
 import { Col, Row, Space, Switch } from 'antd'
 import { map } from 'lodash'
 import get from 'lodash/get'
@@ -26,7 +25,8 @@ import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/D
 import { FieldPairRow as BaseFieldPairRow, FieldPairRowProps } from '@condo/domains/common/components/FieldPairRow'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { REASSIGN_EMPLOYEE_TICKETS } from '@condo/domains/common/constants/featureflags'
-import { DeleteButtonWithReassignmentEmployeeModal } from '@condo/domains/organization/components/DeleteButtonWithReassigmentEmployeeModal'
+import { PageComponentType } from '@condo/domains/common/types'
+import { DeleteEmployeeButtonWithReassignmentModel } from '@condo/domains/organization/components/DeleteButtonWithReassigmentEmployeeModal'
 import { EmployeeInviteRetryButton } from '@condo/domains/organization/components/EmployeeInviteRetryButton'
 import { EmployeesReadPermissionRequired } from '@condo/domains/organization/components/PageAccess'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
@@ -34,6 +34,16 @@ import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 
+
+interface EmployeePageContent {
+    employee: any
+    isEmployeeEditable: boolean
+    isEmployeeReinvitable: boolean
+    activeTicketsOrganizationEmployeeCount: number
+    updateEmployeeAction: (p: { isBlocked: any }, employee: any) => Promise<any>
+    softDeleteAction: (employee: any) => Promise<any>
+    phonePrefix?: string
+}
 
 const ReInviteActionAlert = ({ employee }) => {
     const intl = useIntl()
@@ -70,10 +80,8 @@ const FieldPairRow: React.FC<FieldPairRowProps> = (props) => (
     />
 )
 
-export const EmployeePageContent = ({
+export const EmployeePageContent: React.FC<EmployeePageContent> = ({
     employee,
-    employeeUserId,
-    organizationId,
     isEmployeeEditable,
     isEmployeeReinvitable,
     activeTicketsOrganizationEmployeeCount,
@@ -102,6 +110,7 @@ export const EmployeePageContent = ({
     const { useFlag } = useFeatureFlags()
     const isReassignEmployeeTicketsEnabled = useFlag(REASSIGN_EMPLOYEE_TICKETS)
 
+    const employeeUserId = employee?.user?.id
     const userId = get(user, 'id')
     const isMyEmployee = userId && employeeUserId && userId === employeeUserId
     const isEmployeeBlocked = get(employee, 'isBlocked')
@@ -264,13 +273,12 @@ export const EmployeePageContent = ({
                                                             </Button>
                                                         </Link>,
                                                         !isMyEmployee && (isReassignEmployeeTicketsEnabled && activeTicketsOrganizationEmployeeCount > 0 ?
-                                                            <DeleteButtonWithReassignmentEmployeeModal
+                                                            <DeleteEmployeeButtonWithReassignmentModel
                                                                 key='delete'
-                                                                action={() => softDeleteAction(employee)}
+                                                                softDeleteAction={() => softDeleteAction(employee)}
                                                                 buttonContent={DeleteMessage}
-                                                                employeeUserId={employeeUserId}
-                                                                employeeName = {name}
-                                                                organizationId={organizationId}
+                                                                okButtonLabel={ConfirmDeleteButtonLabel}
+                                                                employee={employee}
                                                                 activeTicketsOrganizationEmployeeCount={activeTicketsOrganizationEmployeeCount}
                                                             /> :
                                                             <DeleteButtonWithConfirmModal
@@ -296,15 +304,15 @@ export const EmployeePageContent = ({
     )
 }
 
-export const EmployeeInfoPage = () => {
+export const EmployeeInfoPage: PageComponentType = () => {
     const { query } = useRouter()
-    const { link, organization  } = useOrganization()
+    const { link } = useOrganization()
     const intl = useIntl()
     const UpdateEmployeeMessage = intl.formatMessage({ id: 'employee.UpdateTitle' })
     const ErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
 
-    const organizationId = get(organization, 'id', null)
     const employeeId = String(get(query, 'id', ''))
+
     const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject(
         {
             where: {
@@ -319,25 +327,10 @@ export const EmployeeInfoPage = () => {
         },
     })
 
-    const employeeUserId = get(employee, 'user.id', null)
-
-    const { data: activeTicketsOrganizationEmployeeCount } = useGetTicketsCountQuery({
+    const { data: activeTicketsOrganizationEmployeeCount } = useGetOrganizationEmployeeTicketsCountForReassignQuery({
         variables: {
-            where: {
-                organization: { id: organizationId },
-                OR: [
-                    { assignee: { id: employeeUserId } },
-                    { executor: { id: employeeUserId } },
-                ],
-                status: {
-                    type_in: [
-                        TicketStatusTypeType.NewOrReopened,
-                        TicketStatusTypeType.Processing,
-                        TicketStatusTypeType.Completed,
-                        TicketStatusTypeType.Deferred,
-                    ],
-                },
-            },
+            userId: employee?.user?.id,
+            organizationId: employee?.organization?.id,
         },
     })
 
@@ -356,10 +349,8 @@ export const EmployeeInfoPage = () => {
     return (
         <EmployeePageContent
             employee={employeeWithSpecializations}
-            employeeUserId={employeeUserId}
-            organizationId={organizationId}
             updateEmployeeAction={updateEmployeeAction}
-            activeTicketsOrganizationEmployeeCount={get(activeTicketsOrganizationEmployeeCount, ['meta', 'count'], null)}
+            activeTicketsOrganizationEmployeeCount={activeTicketsOrganizationEmployeeCount?.meta?.count}
             softDeleteAction={softDeleteAction}
             isEmployeeEditable={isEmployeeEditable}
             isEmployeeReinvitable={isEmployeeReinvitable}

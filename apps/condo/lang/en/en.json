@@ -721,7 +721,7 @@
   "employee.isBlocked": "blocked",
   "employee.reassignTickets.title": "Who should I assign employee requests to tickets?",
   "employee.reassignTickets.deleteUser": "Delete employee",
-  "employee.reassignTickets.alert.title": "{employeeName} is assigned to {activeTicketsOrganizationEmployeeCount} tickets",
+  "employee.reassignTickets.alert.title": "{employeeName} is assigned to multiple tickets ({activeTicketsOrganizationEmployeeCount}",
   "employee.reassignTickets.alert.message": "Reassign tickets to new employees",
   "employee.reassignTickets.notification.title.warning": "Do not close the tab",
   "employee.reassignTickets.notification.title.error": "An error occurred",

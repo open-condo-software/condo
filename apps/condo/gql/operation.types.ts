@@ -365,6 +365,14 @@ export type GetTicketsCountQueryVariables = Types.Exact<{
 
 export type GetTicketsCountQuery = { __typename?: 'Query', meta?: { __typename?: '_QueryMeta', count?: number | null } | null }
 
+export type GetOrganizationEmployeeTicketsCountForReassignQueryVariables = Types.Exact<{
+    userId: Types.Scalars['ID']['input']
+    organizationId: Types.Scalars['ID']['input']
+}>
+
+
+export type GetOrganizationEmployeeTicketsCountForReassignQuery = { __typename?: 'Query', meta?: { __typename?: '_QueryMeta', count?: number | null } | null }
+
 export type GetTicketsCountersByStatusQueryVariables = Types.Exact<{
     whereWithoutStatuses: Types.TicketWhereInput
 }>

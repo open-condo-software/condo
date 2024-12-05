@@ -721,7 +721,7 @@
   "employee.isBlocked": "bloqueado",
   "employee.reassignTickets.title": "¿A quién debo asignar las solicitudes de los empleados?",
   "employee.reassignTickets.deleteUser": "Eliminar empleado",
-  "employee.reassignTickets.alert.title": "{employeeName} está asignado a varios tickets ({activeTicketsOrganizationEmployeeCount} uds.)",
+  "employee.reassignTickets.alert.title": "{employeeName} está asignado a varios tickets ({activeTicketsOrganizationEmployeeCount}",
   "employee.reassignTickets.alert.message": "Para evitar perderlos, designe un nuevo albacea entre sus empleados.",
   "employee.reassignTickets.notification.title.warning": "No cierres la pestaña",
   "employee.reassignTickets.notification.title.error": "Se produjo un error",
