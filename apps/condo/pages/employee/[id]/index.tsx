@@ -82,8 +82,6 @@ const FieldPairRow: React.FC<FieldPairRowProps> = (props) => (
 
 export const EmployeePageContent: React.FC<EmployeePageContent> = ({
     employee,
-    employeeUserId,
-    organizationId,
     isEmployeeEditable,
     isEmployeeReinvitable,
     activeTicketsOrganizationEmployeeCount,
@@ -306,14 +304,13 @@ export const EmployeePageContent: React.FC<EmployeePageContent> = ({
     )
 }
 
-export const EmployeeInfoPage = () => {
+export const EmployeeInfoPage: PageComponentType = () => {
     const { query } = useRouter()
-    const { link, organization  } = useOrganization()
+    const { link } = useOrganization()
     const intl = useIntl()
     const UpdateEmployeeMessage = intl.formatMessage({ id: 'employee.UpdateTitle' })
     const ErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
 
-    const organizationId = get(organization, 'id', null)
     const employeeId = String(get(query, 'id', ''))
 
     const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject(
@@ -352,8 +349,6 @@ export const EmployeeInfoPage = () => {
     return (
         <EmployeePageContent
             employee={employeeWithSpecializations}
-            employeeUserId={employeeUserId}
-            organizationId={organizationId}
             updateEmployeeAction={updateEmployeeAction}
             activeTicketsOrganizationEmployeeCount={activeTicketsOrganizationEmployeeCount?.meta?.count}
             softDeleteAction={softDeleteAction}

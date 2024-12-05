@@ -1,6 +1,5 @@
 import { useGetOrganizationEmployeeTicketsForReassignLazyQuery, useUpdateTicketsMutation } from '@app/condo/gql'
 import { notification, Row } from 'antd'
-import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import React, { useCallback, useState } from 'react'
 
@@ -15,32 +14,31 @@ import { sleep } from '@condo/domains/common/utils/sleep'
 import { searchEmployeeUser } from '@condo/domains/ticket/utils/clientSchema/search'
 
 
-export interface IDeleteActionButtonWithConfirmModal {
-    buttonContent?: string
-    action: () => Promise<any>
+interface IDeleteEmployeeButtonWithReassignmentModel {
+    buttonContent: string
+    okButtonLabel: string
+    softDeleteAction: () => Promise<any>
     disabled?: boolean
-    employeeUserId: string
-    employeeName: string
-    organizationId: string
+    employee: any
     activeTicketsOrganizationEmployeeCount: number
 }
 
 const CHUNK_SIZE = 100
 
-export const DeleteButtonWithReassignmentEmployeeModal = ({
+export const DeleteEmployeeButtonWithReassignmentModel: React.FC<IDeleteEmployeeButtonWithReassignmentModel> = ({
     buttonContent,
-    employeeUserId,
-    employeeName,
-    action,
-    organizationId,
+    okButtonLabel,
+    softDeleteAction,
     disabled = false,
+    employee,
     activeTicketsOrganizationEmployeeCount,
 }) => {
     const intl = useIntl()
     const ConfirmReassignEmployeeTitle = intl.formatMessage({ id: 'employee.reassignTickets.title' })
     const ConfirmDeleteButtonLabel = intl.formatMessage({ id: 'employee.reassignTickets.deleteUser' })
     const SearchPlaceholderLabel = intl.formatMessage({ id: 'EmployeesName' })
-    const AlertTitleLabel = intl.formatMessage({ id: 'employee.reassignTickets.alert.title' }, { activeTicketsOrganizationEmployeeCount, employeeName })
+    const AlertTitleLabel = intl.formatMessage({ id: 'employee.reassignTickets.alert.title' }, { activeTicketsOrganizationEmployeeCount, employeeName: employee?.name })
+    const CountShortLabel = intl.formatMessage({ id: 'global.count.pieces.short' })
     const AlertMessageLabel = intl.formatMessage({ id: 'employee.reassignTickets.alert.message' })
     const NotificationTitleWarningLabel = intl.formatMessage({ id: 'employee.reassignTickets.notification.title.warning' })
     const NotificationTitleErrorLabel = intl.formatMessage({ id: 'employee.reassignTickets.notification.title.error' })
@@ -50,6 +48,9 @@ export const DeleteButtonWithReassignmentEmployeeModal = ({
     const NotificationMessageSuccessLabel = intl.formatMessage({ id: 'employee.reassignTickets.notification.message.success' })
 
     const [notificationApi, contextHolder] = notification.useNotification()
+
+    const employeeUserId = employee?.user?.id
+    const employeeOrganizationId = employee?.organization?.id
 
     const [newEmployeeUserId, setNewEmployeeUserId] = useState()
     const onChange = (newEmployeeUserId) => setNewEmployeeUserId(newEmployeeUserId)
@@ -62,7 +63,7 @@ export const DeleteButtonWithReassignmentEmployeeModal = ({
     
     const [loadTicketsToReassign] = useGetOrganizationEmployeeTicketsForReassignLazyQuery({
         variables: {
-            organizationId,
+            organizationId: employeeOrganizationId,
             userId: employeeUserId,
             first: CHUNK_SIZE,
         },
@@ -72,26 +73,49 @@ export const DeleteButtonWithReassignmentEmployeeModal = ({
 
     const getTicketReassignData = (ticket) => {
         const resultObj = {}
-        if (ticket.executor.id === employeeUserId) resultObj['executor'] = { connect: { id: newEmployeeUserId } }
-        if (ticket.assignee.id === employeeUserId) resultObj['assignee'] = { connect: { id: newEmployeeUserId } }
+        if (ticket?.executor?.id === employeeUserId) resultObj['executor'] = { connect: { id: newEmployeeUserId } }
+        if (ticket?.assignee?.id === employeeUserId) resultObj['assignee'] = { connect: { id: newEmployeeUserId } }
         return resultObj
     }
 
-    const notificationTitle = useCallback((notificationStatus) => <Typography.Text strong>{notificationStatus}</Typography.Text>, [])
-    const notificationMessage = useCallback((notificationTitleLabel, updatedTicketsCount?) => {
+    const notificationTitle = useCallback((notificationStatus: React.ReactNode) => <Typography.Text strong>{notificationStatus}</Typography.Text>, [])
+    const notificationMessage = useCallback((notificationTitleLabel: React.ReactNode, updatedTicketsCount = null) => {
         return (
             <Space direction='vertical' size={4}>
                 <Typography.Text strong>
                     {notificationTitleLabel}
                 </Typography.Text>
-                <Typography.Text>
+                {updatedTicketsCount !== null  && <Typography.Text>
                     {intl.formatMessage({ id: 'employee.reassignTickets.notification.progress' }, { activeTicketsOrganizationEmployeeCount, updatedTicketsCount })}
-                </Typography.Text>
+                </Typography.Text>}
             </Space>
         )
-    }, [activeTicketsOrganizationEmployeeCount])
+    }, [activeTicketsOrganizationEmployeeCount, intl])
 
-    const handleDeleteButtonClick = async () => {
+    const handleDeleteButtonClick = () => {
+        setIsDeleting(true)
+        runMutation(
+            {
+                action: softDeleteAction,
+                onError: (e) => {
+                    notificationApi.error({
+                        message: notificationTitle(NotificationTitleErrorLabel),
+                        description: notificationMessage(NotificationMessageErrorLabel),
+                        duration: 0,
+                        key: 'deleteOrganizationEmployee',
+                    })
+                    throw e
+                },
+                onCompleted: () => {
+                    setIsDeleting(false)
+                    setIsConfirmVisible(false)
+                },
+                intl,
+            },
+        )
+    }
+    
+    const handleDeleteAndReassignTicketsClick = async () => {
         setIsDeleting(true)
         setIsConfirmVisible(false)
 
@@ -107,23 +131,23 @@ export const DeleteButtonWithReassignmentEmployeeModal = ({
 
             const { data: ticketsToReassign } = await loadTicketsToReassign()
 
-            if (isEmpty(get(ticketsToReassign, 'tickets'))) break
+            if (isEmpty(ticketsToReassign?.tickets)) break
             const { data: reassignedTickets }  = await updateTickets({
                 variables: {
-                    data: get(ticketsToReassign, 'tickets').map(ticket => ({
-                        id: get(ticket, 'id', null),
+                    data: ticketsToReassign?.tickets?.map(ticket => ({
+                        id: ticket?.id,
                         data: getTicketReassignData(ticket),
                     })),
                 },
             })
 
-            updatedTicketsCount += get(reassignedTickets, 'tickets', []).length
-            await sleep(300)
+            updatedTicketsCount += reassignedTickets?.tickets?.length
+            await sleep(1000)
         }
 
         runMutation(
             {
-                action,
+                action: softDeleteAction,
                 onError: (e) => {
                     notificationApi.error({
                         message: notificationTitle(NotificationTitleErrorLabel),
@@ -166,34 +190,35 @@ export const DeleteButtonWithReassignmentEmployeeModal = ({
                 title={ConfirmReassignEmployeeTitle}
                 open={isConfirmVisible}
                 onCancel={handleCancel}
-                footer={
+                footer={[
                     <Button
                         key='submit'
                         type='primary'
                         loading={isDeleting}
-                        onClick={handleDeleteButtonClick}
+                        onClick={handleDeleteAndReassignTicketsClick}
                     >
                         {ConfirmDeleteButtonLabel}
-                    </Button>
-                }
+                    </Button>,
+                    <Button
+                        key='submit'
+                        type='secondary'
+                        danger
+                        onClick={handleDeleteButtonClick}
+                    >
+                        {okButtonLabel}
+                    </Button>,
+                ]}
             >
                 <Row justify='center' gutter={[0, 12]}>
                     <Alert
                         type='error'
                         showIcon
-                        message={AlertTitleLabel}
-                        description={
-                            <Space direction='vertical' size={8}>
-                                <Typography.Paragraph>{AlertMessageLabel}</Typography.Paragraph>
-                            </Space>
-                        }
-                    >
-                    </Alert>
+                        message={<Typography.Text strong>{AlertTitleLabel}&nbsp;{CountShortLabel})</Typography.Text>}
+                        description={<Typography.Paragraph>{AlertMessageLabel}</Typography.Paragraph>}
+                    />
                     <ArrowDownUp color={colors.gray[5]} />
                     <GraphQlSearchInput
-                        search={searchEmployeeUser(organizationId, (organizationEmployee) => (
-                            get(organizationEmployee, ['user', 'id'], null) !== employeeUserId
-                        ))}
+                        search={searchEmployeeUser(employeeOrganizationId, (organizationEmployee) => organizationEmployee?.user?.id !== employeeUserId)}
                         value={newEmployeeUserId}
                         onChange={onChange}
                         style={{
