@@ -106,7 +106,7 @@ export const useMeterReadingsImportTaskUIInterface: UseMeterReadingsImportTaskUI
     }
 }
 
-export const useMeterReadingsImportTask = ({ file, userId, organizationId }) => {
+export const useMeterReadingsImportTask = ({ file, userId, organizationId, isPropertyMeters }) => {
     const { MeterReadingsImportTask: TaskUIInterface } = useMeterReadingsImportTaskUIInterface()
 
     // there must be all args to create MeterReadingsImportTask job
@@ -116,6 +116,7 @@ export const useMeterReadingsImportTask = ({ file, userId, organizationId }) => 
         user: { connect: { id: userId } },
         organization: { connect: { id: organizationId } },
         file,
+        isPropertyMeters,
     })
 
     return {
