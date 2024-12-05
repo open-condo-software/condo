@@ -188,6 +188,14 @@ export type UpdateMeterReadingsImportTaskMutationVariables = Types.Exact<{
 
 export type UpdateMeterReadingsImportTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'MeterReadingsImportTask', id: string, status?: Types.MeterReadingsImportTaskStatusType | null, errorMessage?: string | null, totalRecordsCount?: number | null, processedRecordsCount?: number | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null, errorFile?: { __typename?: 'File', publicUrl?: string | null } | null } | null };
 
+export type GetCustomValuesForObjectQueryVariables = Types.Exact<{
+    schemaName: Types.CustomFieldSchemaNameType
+    objectId: Types.Scalars['String']['input']
+}>
+
+
+export type GetCustomValuesForObjectQuery = { __typename?: 'Query', customValues?: Array<{ __typename?: 'CustomValue', id: string, data?: any | null, sourceType?: Types.CustomValueSourceTypeType | null, sourceId?: string | null, customField?: { __typename?: 'CustomField', priority?: number | null, name?: string | null } | null } | null> | null }
+
 export type GetNewsItemRecipientsExportTasksQueryVariables = Types.Exact<{
   where: Types.NewsItemRecipientsExportTaskWhereInput;
 }>;
