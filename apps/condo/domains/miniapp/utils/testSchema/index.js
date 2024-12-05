@@ -33,6 +33,8 @@ const { B2BAppRole: B2BAppRoleGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppAccessRightSet: B2BAppAccessRightSetGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppNewsSharingConfig: B2BAppNewsSharingConfigGQL } = require('@condo/domains/miniapp/gql')
 const { B2CAppMessageSetting: B2CAppMessageSettingGQL } = require('@condo/domains/miniapp/gql')
+const { CustomField: CustomFieldGQL } = require('@condo/domains/miniapp/gql')
+const { CustomValue: CustomValueGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAccessToken: B2BAccessTokenGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAccessTokenAdmin: B2BAccessTokenAdminGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAccessTokenReadonly: B2BAccessTokenReadonlyGQL } = require('@condo/domains/miniapp/gql')
@@ -69,6 +71,8 @@ const B2BAppRole = generateGQLTestUtils(B2BAppRoleGQL)
 const B2BAppAccessRightSet = generateGQLTestUtils(B2BAppAccessRightSetGQL)
 const B2BAppNewsSharingConfig = generateGQLTestUtils(B2BAppNewsSharingConfigGQL)
 const B2CAppMessageSetting = generateGQLTestUtils(B2CAppMessageSettingGQL)
+const CustomField = generateGQLTestUtils(CustomFieldGQL)
+const CustomValue = generateGQLTestUtils(CustomValueGQL)
 const B2BAccessToken = generateGQLTestUtils(B2BAccessTokenGQL)
 const B2BAccessTokenAdmin = generateGQLTestUtils(B2BAccessTokenAdminGQL)
 const B2BAccessTokenReadonly = generateGQLTestUtils(B2BAccessTokenReadonlyGQL)
@@ -569,6 +573,69 @@ async function updateTestB2CAppMessageSetting (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestCustomField (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        name: faker.random.alphaNumeric(8) ,
+        schemaName: 'Property',
+        type: 'Text',
+        validationRules: null,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await CustomField.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestCustomField (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await CustomField.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestCustomValue (client, customField, organization, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!customField || !customField.id) throw new Error('no customField.id')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        customField: { connect: { id: customField.id } },
+        organization: { connect: { id: organization.id } },
+        data: {},
+        ...extraAttrs,
+    }
+    const obj = await CustomValue.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestCustomValue (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await CustomValue.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 async function _createTestB2BAccessToken (gql, client, context, rightSet, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!context || !context.id) throw new Error('no context.id')
@@ -651,6 +718,8 @@ module.exports = {
     B2BAppAccessRightSet, createTestB2BAppAccessRightSet, updateTestB2BAppAccessRightSet,
     B2BAppNewsSharingConfig, createTestB2BAppNewsSharingConfig, updateTestB2BAppNewsSharingConfig,
     B2CAppMessageSetting, createTestB2CAppMessageSetting, updateTestB2CAppMessageSetting,
+    CustomField, createTestCustomField, updateTestCustomField,
+    CustomValue, createTestCustomValue, updateTestCustomValue,
     B2BAccessToken, createTestB2BAccessToken, updateTestB2BAccessToken,
     B2BAccessTokenAdmin, createTestB2BAccessTokenAdmin, updateTestB2BAccessTokenAdmin,
     B2BAccessTokenReadonly, createTestB2BAccessTokenReadonly, updateTestB2BAccessTokenReadonly,
