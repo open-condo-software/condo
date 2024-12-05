@@ -19,7 +19,8 @@ query getTicketComments ($ticketId: ID!) {
 
 query getPollTicketComments ($where: TicketCommentWhereInput!) {
     ticketComments: allTicketComments (
-        where: $where,
+        where: $where
+        first: 100
         sortBy: [updatedAt_DESC]
     ) {
         id

@@ -34,21 +34,26 @@ export function usePollTicketComments ({
 
         const now = new Date().toISOString()
         const lastSyncAt = localStorage.getItem(LOCAL_STORAGE_SYNC_KEY)
+        let newSyncedAt
 
-        const result = await refetchSyncComments({
-            where: {
-                ...pollCommentsQuery,
-                updatedAt_gt: lastSyncAt || now,
-            },
-        })
-        const ticketComments = result?.data?.ticketComments?.filter(Boolean) || []
+        try {
+            const result = await refetchSyncComments({
+                where: {
+                    ...pollCommentsQuery,
+                    updatedAt_gt: lastSyncAt || now,
+                },
+            })
+            const ticketComments = result?.data?.ticketComments?.filter(Boolean) || []
+            const ticketsWithUpdatedComments: string[] = uniq(ticketComments.map(ticketComment => ticketComment?.ticket?.id))
+            newSyncedAt = ticketComments[0]?.updatedAt || now
 
-        const newSyncedAt = get(ticketComments, '0.updatedAt', now)
-        localStorage.setItem(LOCAL_STORAGE_SYNC_KEY, newSyncedAt)
-
-        const ticketsWithUpdatedComments: string[] = uniq(ticketComments.map(ticketComment => get(ticketComment, 'ticket.id')))
-
-        sendMessage(ticketsWithUpdatedComments)
+            sendMessage(ticketsWithUpdatedComments)
+        } finally {
+            if (!newSyncedAt) {
+                newSyncedAt = now
+            }
+            localStorage.setItem(LOCAL_STORAGE_SYNC_KEY, newSyncedAt)
+        }
     }, [pollCommentsQuery, refetchSyncComments, sendMessage])
 
     const { releaseLock } = useExecuteWithLock(LOCK_NAME, () => {
