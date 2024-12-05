@@ -27,7 +27,7 @@
   },
   "license": "MIT",
   "scripts": {
-    "build:deps": "turbo build --filter=apollo^...",
+    "build:deps": "turbo build --filter=@open-condo/apollo^...",
     "build:code": "NODE_ENV=production rollup -c",
     "build:types": "tsc --declaration --emitDeclarationOnly",
     "build": "rimraf dist && yarn build:code && yarn build:types",

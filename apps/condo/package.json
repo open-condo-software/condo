@@ -8,7 +8,7 @@
     "dev": "yarn build:deps && NODE_ENV=development node --trace-warnings ./../../bin/run-keystone-app.js & yarn types:watch",
     "debug": "node inspect node_modules/.bin/keystone dev",
     "build:static": "yarn workspace @open-condo/ui build:sb -o ../../apps/condo/public/ui && mv -f public/ui/ui/* public/ui",
-    "build:deps": "turbo build --filter=condo^...",
+    "build:deps": "turbo build --filter=@app/condo^...",
     "build": "yarn build:static && cross-env NODE_OPTIONS=\"--max_old_space_size=6144\" PHASE=build keystone build",
     "start": "NODE_ENV=production node ./../../bin/run-keystone-app.js",
     "worker": "cross-env PHASE=worker DISABLE_NEXT_APP=true node worker.js",

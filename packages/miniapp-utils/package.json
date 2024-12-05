@@ -25,7 +25,7 @@
   },
   "license": "MIT",
   "scripts": {
-    "build:deps": "turbo build --filter=miniapp-utils^...",
+    "build:deps": "turbo build --filter=@open-condo/miniapp-utils^...",
     "build:code": "NODE_ENV=production rollup -c",
     "build:types": "tsc --declaration --emitDeclarationOnly",
     "build": "rimraf dist && yarn build:code && yarn build:types",
