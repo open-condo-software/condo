@@ -28,8 +28,8 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
 
-      - name: Install deps
-        run: yarn --immutable
+#      - name: Install deps
+#        run: yarn --immutable
 
       - name: Debug
         run: ls
