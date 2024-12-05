@@ -1,4 +1,7 @@
-const { get, isEqual, isNil, has } = require('lodash')
+const get = require('lodash/get')
+const has = require('lodash/has')
+const isEqual = require('lodash/isEqual')
+const isNil = require('lodash/isNil')
 
 const { AbstractMetersImporter } = require('@condo/domains/meter/utils/taskSchema/AbstractMetersImporter')
 const { TransformRowError } = require('@condo/domains/meter/utils/taskSchema/MetersDataImporterTypes')
