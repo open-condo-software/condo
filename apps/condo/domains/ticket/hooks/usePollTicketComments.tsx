@@ -44,8 +44,8 @@ export function usePollTicketComments ({
                 },
             })
             const ticketComments = result?.data?.ticketComments?.filter(Boolean) || []
-            const ticketsWithUpdatedComments: string[] = uniq(ticketComments.map(ticketComment => get(ticketComment, 'ticket.id')))
-            newSyncedAt = get(ticketComments, '0.updatedAt', now)
+            const ticketsWithUpdatedComments: string[] = uniq(ticketComments.map(ticketComment => ticketComment?.ticket?.id))
+            newSyncedAt = ticketComments[0]?.updatedAt || now
 
             sendMessage(ticketsWithUpdatedComments)
         } finally {
