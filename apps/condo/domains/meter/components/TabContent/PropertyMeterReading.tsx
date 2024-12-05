@@ -29,6 +29,7 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
+import { EMOJI } from '@condo/domains/common/constants/emoji'
 import { useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
@@ -56,6 +57,7 @@ type PropertyMetersTableContentProps = {
     filtersMeta: FiltersMeta<PropertyMeterReadingWhereInput>[]
     baseSearchQuery: PropertyMeterReadingWhereInput
     canManageMeterReadings: boolean
+    showImportButton?: boolean
     isAutomatic?: boolean
     sortableProperties?: string[]
     loading?: boolean
@@ -75,6 +77,7 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
         isAutomatic,
         resource,
         refetchReadingsCount,
+        showImportButton = true,
     } = props
 
     const intl = useIntl()
@@ -322,6 +325,14 @@ const PropertyMeterReadingsTableContent: React.FC<PropertyMetersTableContentProp
                                         {CreateMeterReadingsButtonLabel}
                                     </Button>
                                 ),
+                                canManageMeterReadings && !meter && showImportButton && (
+                                    <MetersImportWrapper
+                                        key='import'
+                                        accessCheck={canManageMeterReadings}
+                                        onFinish={refetch}
+                                        isPropertyMeters={true}
+                                    />
+                                ),
                             ]}
                         />
                     )}
@@ -361,11 +372,13 @@ export const PropertyMeterReadingsPageContent: React.FC<PropertyMetersTableConte
         loading,
         meter,
         isAutomatic,
+        showImportButton = true,
     } = props
 
     const intl = useIntl()
     const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.propertyMeter.index.EmptyList.header' })
     const CreateMeterReading = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterReadingButtonLabel' })
+    const EmptyListManualBodyDescription = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.manualCreateCard.body.description' })
 
     const { count, loading: countLoading, refetch: refetchReadingsCount } = PropertyMeterReading.useCount({ where: baseSearchQuery })
     const nextVerificationDate = get(meter, 'nextVerificationDate')
@@ -375,14 +388,27 @@ export const PropertyMeterReadingsPageContent: React.FC<PropertyMetersTableConte
         if (countLoading || loading) return <Loader />
         if (count === 0) 
             if (!meter) {
-                return (
-                    <EmptyListContent
-                        label={EmptyListLabel}
-                        createRoute={`/meter/create?tab=${METER_TAB_TYPES.propertyMeterReading}`}
-                        createLabel={CreateMeterReading}
-                        accessCheck={canManageMeterReadings}
-                    />
-                )
+                return showImportButton ? (<EmptyListContent
+                    label={EmptyListLabel}
+                    importLayoutProps={{
+                        manualCreateEmoji: EMOJI.CLOCK,
+                        manualCreateDescription: EmptyListManualBodyDescription,
+                        importCreateEmoji: EMOJI.LIST,
+                        importWrapper: {
+                            onFinish: refetchReadingsCount,
+                            domainName: 'meterReading',
+                            isPropertyMeters: true,
+                        },
+                        OverrideImportWrapperFC: MetersImportWrapper,
+                    }}
+                    createRoute={`/meter/create?tab=${METER_TAB_TYPES.propertyMeterReading}`}
+                    accessCheck={canManageMeterReadings}
+                />) : (<EmptyListContent
+                    label={EmptyListLabel}
+                    createRoute={`/meter/create?tab=${METER_TAB_TYPES.propertyMeterReading}`}
+                    createLabel={CreateMeterReading}
+                    accessCheck={canManageMeterReadings}
+                />)
             } else {
                 return (
                     <ActionBarForSingleMeter
@@ -400,7 +426,7 @@ export const PropertyMeterReadingsPageContent: React.FC<PropertyMetersTableConte
 
         return <PropertyMeterReadingsTableContent {...props} refetchReadingsCount={refetchReadingsCount}/>
 
-    }, [CreateMeterReading, EmptyListLabel, canManageMeterReadings, count, countLoading, isAutomatic, isDeletedProperty, loading, meter, nextVerificationDate, props, refetchReadingsCount])
+    }, [CreateMeterReading, EmptyListLabel, EmptyListManualBodyDescription, canManageMeterReadings, count, countLoading, isAutomatic, isDeletedProperty, loading, meter, nextVerificationDate, props, refetchReadingsCount, showImportButton])
 
     return (
         <TablePageContent>

@@ -77,6 +77,12 @@ const REGISTER_METERS_READINGS_MUTATION = gql`
     }
 `
 
+const REGISTER_PROPERTY_METERS_READINGS_MUTATION = gql`
+    mutation registerPropertyMetersReadings ($data: RegisterPropertyMetersReadingsInput!) {
+        result: registerPropertyMetersReadings(data: $data) { id meter { id property { id address addressKey } number } }
+    }
+`
+
 const METER_READINGS_IMPORT_TASK_FIELDS = `{ status format processedRecordsCount importedRecordsCount totalRecordsCount file { id filename originalFilename publicUrl mimetype } errorFile { id filename originalFilename publicUrl mimetype } errorMessage user { id } organization { id } locale meta ${COMMON_FIELDS} }`
 const MeterReadingsImportTask = generateGqlQueries('MeterReadingsImportTask', METER_READINGS_IMPORT_TASK_FIELDS)
 
@@ -104,6 +110,7 @@ module.exports = {
     INTERNAL_DELETE_METER_READINGS_MUTATION,
     EXPORT_PROPERTY_METER_READINGS_QUERY,
     REGISTER_METERS_READINGS_MUTATION,
+    REGISTER_PROPERTY_METERS_READINGS_MUTATION,
     MeterReadingsImportTask,
     MeterReadingExportTask,
     MeterUserData,

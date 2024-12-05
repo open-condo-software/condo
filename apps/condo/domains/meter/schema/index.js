@@ -19,6 +19,7 @@ const { MeterUserData } = require('./MeterUserData')
 const { PropertyMeter } = require('./PropertyMeter')
 const { PropertyMeterReading } = require('./PropertyMeterReading')
 const { RegisterMetersReadingsService } = require('./RegisterMetersReadingsService')
+const { RegisterPropertyMetersReadingsService } = require('./RegisterPropertyMetersReadingsService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -38,5 +39,6 @@ module.exports = {
     MeterReadingsImportTask,
     MeterReadingExportTask,
     MeterUserData,
+    RegisterPropertyMetersReadingsService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
