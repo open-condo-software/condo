@@ -66,6 +66,8 @@ async function sendB2BAppPushMessage (context, data) {
         dataPath: 'obj',
     })
 }
+const CustomField = generateServerUtils('CustomField')
+const CustomValue = generateServerUtils('CustomValue')
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -88,5 +90,7 @@ module.exports = {
     B2BAccessToken,
     AppMessageSetting,
     sendB2BAppPushMessage,
+    CustomField,
+    CustomValue,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
