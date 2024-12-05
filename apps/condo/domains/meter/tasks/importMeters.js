@@ -81,10 +81,10 @@ async function importMeters (taskId) {
     const { keystone: context } = getSchemaCtx('MeterReadingsImportTask')
 
     // get task definition
-    const { file, user, organization, locale } = await MeterReadingsImportTask.getOne(
+    const { file, user, organization, locale, isPropertyMeters } = await MeterReadingsImportTask.getOne(
         context,
         { id: taskId },
-        'file { id originalFilename filename publicUrl mimetype } user { id } organization { id } locale'
+        'file { id originalFilename filename publicUrl mimetype } user { id } organization { id } locale isPropertyMeters'
     )
 
     // since we would like to catch all errors and immediately tell to user about them
@@ -118,7 +118,7 @@ async function importMeters (taskId) {
         const data = await converter.getData()
 
         // create importer
-        const importer = await getImporter(context, taskId, organization.id, user.id, format, locale)
+        const importer = await getImporter(context, taskId, organization.id, user.id, format, locale, isPropertyMeters)
 
         // do import
         await importer.import(data)

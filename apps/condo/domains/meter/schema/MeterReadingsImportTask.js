@@ -166,6 +166,18 @@ const MeterReadingsImportTask = new GQLListSchema('MeterReadingsImportTask', {
             },
         },
 
+        isPropertyMeters: {
+            schemaDoc: 'Indicates whether current import is for Meters and MeterReadings or for PropertyMeters and PropertyMeterReadings',
+            type: 'Checkbox',
+            defaultValue: false,
+            knexOptions: { isNotNullable: false },
+            access: {
+                read: true,
+                create: true,
+                update: false,
+            },
+        },
+
         meta: {
             schemaDoc: 'Stores information about query and ids of exported and failed records',
             type: 'Json',
