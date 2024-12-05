@@ -2638,6 +2638,7 @@ export const GetTicketByIdDocument = gql`
     feedbackAdditionalOptions
     feedbackComment
     deadline
+    deferredUntil
     completedAt
     unitType
     unitName
@@ -3114,7 +3115,11 @@ export type GetTicketCommentsSuspenseQueryHookResult = ReturnType<typeof useGetT
 export type GetTicketCommentsQueryResult = Apollo.QueryResult<Types.GetTicketCommentsQuery, Types.GetTicketCommentsQueryVariables>
 export const GetPollTicketCommentsDocument = gql`
     query getPollTicketComments($where: TicketCommentWhereInput!) {
-  ticketComments: allTicketComments(where: $where, sortBy: [updatedAt_DESC]) {
+  ticketComments: allTicketComments(
+    where: $where
+    first: 100
+    sortBy: [updatedAt_DESC]
+  ) {
     id
     updatedAt
     ticket {

@@ -142,6 +142,7 @@ query getTicketById ($id: ID!) {
         feedbackAdditionalOptions
         feedbackComment
         deadline
+        deferredUntil
         completedAt
         unitType
         unitName
