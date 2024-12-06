@@ -11,7 +11,7 @@ const { GQLListSchema, find } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/miniapp/access/B2BAppAccessRightSet')
 const {
-    ACCESS_RIGHT_SET_TOO_MANY_OF_TYPE, NAME_REQUIRED, ACCESS_RIGHT_SET_SCOPED_TYPE,
+    ACCESS_RIGHT_SET_TOO_MANY_OF_TYPE, ACCESS_RIGHT_SET_NAME_REQUIRED, ACCESS_RIGHT_SET_SCOPED_TYPE,
     ACCESS_RIGHT_SET_TYPES, ACCESS_RIGHT_SET_GLOBAL_TYPE, ACCESS_RIGHT_SET_MAX_ITEMS_FOR_TYPE,
     ACCESS_RIGHT_SET_GLOBAL_RIGHT_SET_REQUIRED, ACCESS_RIGHT_SET_TOO_MANY_PERMISSIONS,
 } = require('@condo/domains/miniapp/constants')
@@ -30,7 +30,7 @@ const ERRORS = {
     },
     NAME_REQUIRED: {
         code: BAD_USER_INPUT,
-        type: NAME_REQUIRED,
+        type: ACCESS_RIGHT_SET_NAME_REQUIRED,
         message: 'Name is required',
     },
     GLOBAL_RIGHT_SET_REQUIRED: {

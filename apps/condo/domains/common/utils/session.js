@@ -1,5 +1,5 @@
+const { Session } = require('express-session')
 const get = require('lodash/get')
-const has = require('lodash/has')
 const uniq = require('lodash/uniq')
 
 const POSSIBLE_SESSION_PATHS = [
@@ -8,16 +8,19 @@ const POSSIBLE_SESSION_PATHS = [
 ]
 
 function _getSession (sessionOrWrapper) {
+    if (sessionOrWrapper instanceof Session) {
+        return sessionOrWrapper
+    }
     for (const sessionPath of POSSIBLE_SESSION_PATHS) {
-        if (has(sessionOrWrapper, sessionPath)) {
+        if (get(sessionOrWrapper, sessionPath) instanceof Session) {
             return get(sessionOrWrapper, sessionPath)
         }
     }
-
-    return sessionOrWrapper
+    return null
 }
 
 /** Gives restrictions from session. If field is null - no restrictions were made
+ * @param {Session | { session: Session } | { req: { session: Session } }} sessionOrWrapper
  *  @example
  *  parseSession(context)
  *  parseSession(context.req)

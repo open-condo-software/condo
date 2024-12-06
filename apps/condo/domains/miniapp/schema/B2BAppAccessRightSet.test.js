@@ -395,7 +395,7 @@ describe('B2BAppAccessRightSet', () => {
                     await updateTestB2BAppAccessRightSet(admin, accessRightSet.id, { name: '' })
                 }, {
                     code: 'BAD_USER_INPUT',
-                    type: 'NAME_REQUIRED',
+                    type: 'ACCESS_RIGHT_SET_NAME_REQUIRED',
                     message: 'Name is required',
                 }, 'obj')
             })

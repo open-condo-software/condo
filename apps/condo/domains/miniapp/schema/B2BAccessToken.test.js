@@ -23,7 +23,7 @@ const { B2BAccessToken, createTestB2BAccessToken, updateTestB2BAccessToken, crea
 } = require('@condo/domains/miniapp/utils/testSchema')
 const { Organization, registerNewOrganization, createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser,
-    registerNewServiceUserByTestClient, makeClientWithServiceUser, createTestUserRightsSet,
+    registerNewServiceUserByTestClient, makeClientWithServiceUser,
 } = require('@condo/domains/user/utils/testSchema')
 
 
@@ -372,7 +372,7 @@ describe('B2BAccessToken', () => {
 
     describe('Real-life cases', () => {
         
-        test('Returned sessionId is encoded', async () => {
+        test('Returned sessionId is encrypted', async () => {
             const redisClient = new IORedis(conf.REDIS_URL)
             const [createdToken] = await createTestB2BAccessToken(admin, b2bAppContext, scopedRightSet)
             expect(createdToken).toHaveProperty('sessionId')

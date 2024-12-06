@@ -113,11 +113,10 @@ const B2BAccessToken = new GQLListSchema('B2BAccessToken', {
                     const inputSessionId = get(originalInput, fieldPath)
                     // need to have option to manually set sessionId, so we can migrate already given tokens to this
                     if (!isNil(inputSessionId) && !isEmpty(inputSessionId)) {
-                        return encryptionManager.encrypt(inputSessionId)
+                        return inputSessionId
                     }
                     if (operation === 'create') {
-                        const sessionId = ACCESS_TOKEN_SESSION_ID_PREFIX + crypto.randomUUID()
-                        return encryptionManager.encrypt(sessionId)
+                        return ACCESS_TOKEN_SESSION_ID_PREFIX + crypto.randomUUID()
                     }
                     return get(existingItem, fieldPath)
                 },
@@ -125,13 +124,12 @@ const B2BAccessToken = new GQLListSchema('B2BAccessToken', {
         },
 
         token: {
-            schemaDoc: 'Token, ready to be put in Authorization header',
+            schemaDoc: 'Token, ready to be put in Authorization header. Shown only once after creation',
             type: 'Virtual',
             graphQLReturnType: 'String',
-            resolver: (parent, args, context, info, extra) => {
-                if (info.operation.name.value === 'createB2BAccessToken') {
-                    const sessionId = encryptionManager.decrypt(parent.sessionId)
-                    return cookieSignature.sign(sessionId, cookieSecret)
+            resolver: (item) => {
+                if (!isNil(item.token)) {
+                    return item.token
                 }
                 return null
             },
@@ -239,6 +237,10 @@ const B2BAccessToken = new GQLListSchema('B2BAccessToken', {
             const softDeleted = operation === 'update' && !existingItem['deletedAt'] && updatedItem['deletedAt']
             const sessionIdChanged = operation === 'update' && originalInput['sessionId']
             const sessionId = encryptionManager.decrypt(updatedItem.sessionId)
+
+            if (operation === 'create') {
+                updatedItem.token = cookieSignature.sign(sessionId, cookieSecret)
+            }
 
             if (softDeleted || sessionIdChanged) {
                 const previousSessionId = encryptionManager.decrypt(existingItem.sessionId)
