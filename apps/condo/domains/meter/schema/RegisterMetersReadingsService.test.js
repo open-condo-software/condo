@@ -889,22 +889,6 @@ describe('RegisterMetersReadingsService', () => {
 
     })
 
-    test('Meter info controlReadingsDate should take todays date on empty input if meter is being created', async () => {
-        const [organization] = await createTestOrganization(adminClient)
-        const [property] = await createTestPropertyWithMap(adminClient, organization)
-
-        const reading = createTestReadingData(property)
-        reading.meterMeta.controlReadingsDate = undefined
-        const [data] = await registerMetersReadingsByTestClient(adminClient, organization, [reading])
-
-        expect(data).toHaveLength(1)
-
-        const row = data[0]
-
-        const meter = await Meter.getOne(adminClient, { id: row.meter.id })
-        expect(meter.controlReadingsDate).toBeTruthy()
-    })
-
     describe('Meter info dates saves as empty on empty input', () => {
         const dateFields = [
             'verificationDate',
@@ -912,6 +896,7 @@ describe('RegisterMetersReadingsService', () => {
             'installationDate',
             'commissioningDate',
             'sealingDate',
+            'controlReadingsDate',
         ]
 
         const emptyValues = [ null, undefined ]

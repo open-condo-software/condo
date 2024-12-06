@@ -408,7 +408,6 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                                 meters[meterIndex] = transformToPlainObject(updatedMeter)
                             }
                         } else {
-                            const rawControlReadingsDate = get(reading, ['meterMeta', 'controlReadingsDate'])
                             const createdMeter = await Meter.create(context, {
                                 dv,
                                 sender,
@@ -426,7 +425,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                                 installationDate: tryToISO(get(reading, ['meterMeta', 'installationDate'])),
                                 commissioningDate: tryToISO(get(reading, ['meterMeta', 'commissioningDate'])),
                                 sealingDate: tryToISO(get(reading, ['meterMeta', 'sealingDate'])),
-                                controlReadingsDate: rawControlReadingsDate ? tryToISO(rawControlReadingsDate) : dayjs().toISOString(),
+                                controlReadingsDate: tryToISO(get(reading, ['meterMeta', 'controlReadingsDate'])),
                                 isAutomatic: get(reading, ['meterMeta', 'isAutomatic']),
                                 archiveDate: tryToISO(get(reading, ['meterMeta', 'archiveDate'])),
                             }, 'id property { id } unitName unitType accountNumber number resource { id }')
