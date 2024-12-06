@@ -58,7 +58,7 @@ const BillingReceiptFile = new GQLListSchema('BillingReceiptFile', {
                 // We are changing link to publicData only for not verified residents. In other cases we return sensitive data files
                 let file = item.publicDataFile
                 if (authedItem.type === RESIDENT) {
-                    // Resident already has an access to billing receipt, so we only need to check if he is approved
+                    // Resident already has the access to the billing receipt, so we only need to check if he is approved
                     const { account } = await getById('BillingReceipt', item.receipt)
                     const isApproved = await isResidentVerified(authedItem, account)
                     if (isApproved) {

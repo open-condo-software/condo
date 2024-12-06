@@ -70,25 +70,25 @@ const RegisterBillingReceiptFileService = new GQLCustomSchema('RegisterBillingRe
                     ...receiptWhereInput,
                     deletedAt: null,
                 })
+                if (receipts.length === 0) {
+                    throw new GQLError(ERRORS.NO_RECEIPTS_FOUND, context)
+                }
                 if (receipts.length > 1) {
                     throw new GQLError(ERRORS.MULTIPLE_BILLING_RECEIPTS_FOUND, context)
                 }
                 const [receipt] = receipts
-                if (!receipt) {
-                    throw new GQLError(ERRORS.NO_RECEIPTS_FOUND, context)
-                }
+
                 const account = await getById('BillingAccount', receipt.account)
                 const [receiptFile] = await find('BillingReceiptFile', { receipt: { id: receipt.id }, deletedAt: null })
 
-                // for cases when we have a pdf receipt file bound to receipt
-                // that means we can skip processing such request
-                if (!isEmpty(get(receiptFile, 'receipt'))) {
+                const controlSum = md5(base64EncodedPDF)
+
+                // We allow organizations to update their PDF receipts
+                // No optimizations here PDF receipt is not equivalent to the paper receipt
+                if (receiptFile && receiptFile.controlSum === controlSum) {
                     return { id: receiptFile.id, status: REGISTER_BILLING_RECEIPT_FILE_SKIPPED_STATUS }
                 }
 
-                // since control sum for local file adapter not going to be resolved exactly as for s3 one
-                // let's calculate it in order to keep compatibility for tests purposes
-                const controlSumInput = isLocalFileAdapterConfigured ? { controlSum: md5(base64EncodedPDF) } : {}
                 const sensitiveDataFile = buildUploadInputFrom({
                     stream: Readable.from(Buffer.from(base64EncodedPDF, 'base64')),
                     filename: [
@@ -105,19 +105,19 @@ const RegisterBillingReceiptFileService = new GQLCustomSchema('RegisterBillingRe
                     const { id } = await BillingReceiptFile.create(context, {
                         dv, sender,
                         sensitiveDataFile,
-                        ...controlSumInput,
+                        controlSum,
                         receipt: { connect: { id: receipt.id } },
                         context: { connect: billingContextWhereUniqueInput },
-                    })
+                    }, 'id')
 
                     return { id, status: REGISTER_BILLING_RECEIPT_FILE_CREATED_STATUS }
                 } else {
                     await BillingReceiptFile.update(context, receiptFile.id, {
                         dv, sender,
                         sensitiveDataFile,
-                        ...controlSumInput,
+                        controlSum,
                         publicDataFile: null,
-                    })
+                    }, 'id')
 
                     return { id: receiptFile.id, status: REGISTER_BILLING_RECEIPT_FILE_UPDATED_STATUS }
                 }
