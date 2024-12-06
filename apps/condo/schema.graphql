@@ -56258,6 +56258,7 @@ enum MultiPaymentPaymentWayType {
   SBERPAY
   SBERID
   SBRF_SBOL_BINDING
+  SBOL_BINDING
 }
 
 enum MultiPaymentStatusType {
