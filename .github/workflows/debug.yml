@@ -32,4 +32,7 @@ jobs:
         run: yarn --immutable
 
       - name: Debug
+        run: turbo --version
+
+      - name: Debug
         run: yarn build:packages
