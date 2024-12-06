@@ -1,4 +1,3 @@
-// import typescript from 'rollup-plugin-typescript2'
 import typescript from '@rollup/plugin-typescript'
 import babel from 'rollup-plugin-babel'
 import bundleSize from 'rollup-plugin-bundle-size'
@@ -7,7 +6,7 @@ import json from 'rollup-plugin-json'
 import nodeResolve from 'rollup-plugin-node-resolve'
 import { uglify } from 'rollup-plugin-uglify'
 
-import pkg from './package.json'
+import pkg from './package.json' assert { type: 'json' }
 
 const IS_PRODUCTION = process.env.NODE_ENV === 'production'
 
