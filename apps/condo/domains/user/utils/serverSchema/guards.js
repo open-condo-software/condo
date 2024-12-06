@@ -77,6 +77,16 @@ class RedisGuard {
         return afterIncrement
     }
 
+    async checkCounterExistence (variable) {
+        const key = `${this.counterPrefix}${variable}`
+        return await this.redis.exists(key)
+    }
+
+    async resetCounterToOne (variable) {
+        const key = `${this.counterPrefix}${variable}`
+        await this.redis.set(key, '1')
+    }
+
     // Counter
     // 1. Set variable to redis with TTL
     // 2. Check if counter exists
