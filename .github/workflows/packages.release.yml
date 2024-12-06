@@ -12,7 +12,7 @@ on:
 
 jobs:
   release:
-    runs-on: test-pool-runners
+    runs-on: ubuntu-22.04
 
     strategy:
       matrix:

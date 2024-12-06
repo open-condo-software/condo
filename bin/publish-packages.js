@@ -8,7 +8,10 @@ const publish = require('mono-pub')
 const builder = {
     name: '@open-condo/turbo-builder',
     async prepare (_, ctx) {
-        await execa('yarn', ['build:packages'], { cwd: ctx.cwd })
+        // TODO: remove debug messages
+        await execa('yarn', ['build:packages', '--graph'], { cwd: ctx.cwd, stdio: 'inherit' })
+        console.log('='.repeat(80))
+        await execa('yarn', ['build:packages'], { cwd: ctx.cwd, stdio: 'inherit' })
     },
 }
 
