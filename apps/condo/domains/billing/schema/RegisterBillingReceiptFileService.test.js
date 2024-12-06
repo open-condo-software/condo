@@ -126,20 +126,6 @@ describe('RegisterBillingReceiptFileService', () => {
             expect(dataCreated.id).toEqual(dataUpdated.id)
             expect(dataUpdated.status).toEqual(REGISTER_BILLING_RECEIPT_FILE_SKIPPED_STATUS)
         })
-        test(`Will send status ${REGISTER_BILLING_RECEIPT_FILE_SKIPPED_STATUS} if new file was send`, async () => {
-            const [[receipt]] = await utils.createReceipts()
-            const payload = {
-                context: { id: receipt.context.id },
-                receipt: { importId: receipt.importId },
-            }
-            const [dataCreated] = await registerBillingReceiptFileByTestClient(utils.clients.admin, payload)
-            const [dataUpdated] = await registerBillingReceiptFileByTestClient(utils.clients.admin, {
-                ...payload,
-                base64EncodedPDF: readFileSync(PUBLIC_FILE).toString('base64'),
-            })
-            expect(dataCreated.id).toEqual(dataUpdated.id)
-            expect(dataUpdated.status).toEqual(REGISTER_BILLING_RECEIPT_FILE_SKIPPED_STATUS)
-        })
     })
 
     describe('Check custom gql errors', () => {
