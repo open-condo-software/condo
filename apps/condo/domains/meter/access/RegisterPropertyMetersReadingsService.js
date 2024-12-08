@@ -15,7 +15,7 @@ async function canRegisterPropertyMetersReadings (args) {
     if (user.isAdmin || user.isSupport) return true
 
     if (user.type === STAFF) {
-        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, ['canManagePropertyMeters', 'canManagePropertyMeterReadings'])
+        return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationId, ['canManageMeters', 'canManageMeterReadings'])
     }
 
     if (user.type === SERVICE) {
