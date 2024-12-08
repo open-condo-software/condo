@@ -53,8 +53,13 @@ const RegisterPropertyMetersReadingsService = new GQLCustomSchema('RegisterPrope
         },
         {
             access: true,
+            type: 'input RegisterPropertyMetersReadingsReadingAddressInfoInput { globalId: String }',
+        },
+        {
+            access: true,
             type: 'input RegisterPropertyMetersReadingsReadingInput {' +
                 'address: String!,' +
+                'addressInfo: RegisterPropertyMetersReadingsReadingAddressInfoInput,' +
                 'meterNumber: String!,' +
                 'meterResource: MeterResourceWhereUniqueInput!,' +
                 'date: String!,' +
@@ -206,7 +211,7 @@ const RegisterPropertyMetersReadingsService = new GQLCustomSchema('RegisterPrope
                                     context,
                                     foundMeter.id,
                                     { dv, sender, ...fieldsToUpdate },
-                                    'id property { id } unitName unitType accountNumber number resource { id }'
+                                    'id property { id } number resource { id }'
                                 )
                                 const meterIndex = meters.indexOf(meter => meter.id === updatedMeter.id)
                                 meters[meterIndex] = transformToPlainObject(updatedMeter)
@@ -217,7 +222,7 @@ const RegisterPropertyMetersReadingsService = new GQLCustomSchema('RegisterPrope
                                 dv,
                                 sender,
                                 ...getMeterDates(reading),
-                                ...propertyMeterFieldsGetter(organization, property, reading, resolvedAddresses),
+                                ...propertyMeterFieldsGetter(organization, property, reading, values, resolvedAddresses),
                             }, 'id property { id } number resource { id }')
                             meterId = createdMeter.id
                             meters.push(transformToPlainObject(createdMeter))
