@@ -52862,7 +52862,7 @@ type MeterReadingsImportTask {
   """ Requested import locale """
   locale: String
 
-  """ Indicates whether current import is for regular meters and meter readings or for property ones 
+  """ Indicates whether current import is for Meters and MeterReadings or for PropertyMeters and PropertyMeterReadings 
   """
   isPropertyMeters: Boolean
 
@@ -70311,6 +70311,7 @@ type B2BAppAccessRightSetHistoryRecord {
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
+  canExecuteRegisterPropertyMetersReadings: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -70415,6 +70416,8 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canManageTicketCommentFiles_not: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteRegisterMetersReadings_not: Boolean
+  canExecuteRegisterPropertyMetersReadings: Boolean
+  canExecuteRegisterPropertyMetersReadings_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -70548,6 +70551,8 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canManageTicketCommentFiles_DESC
   canExecuteRegisterMetersReadings_ASC
   canExecuteRegisterMetersReadings_DESC
+  canExecuteRegisterPropertyMetersReadings_ASC
+  canExecuteRegisterPropertyMetersReadings_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -70593,6 +70598,7 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
+  canExecuteRegisterPropertyMetersReadings: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -70639,6 +70645,7 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
+  canExecuteRegisterPropertyMetersReadings: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -70717,6 +70724,7 @@ type B2BAppAccessRightSet {
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
+  canExecuteRegisterPropertyMetersReadings: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -70813,6 +70821,8 @@ input B2BAppAccessRightSetWhereInput {
   canManageTicketCommentFiles_not: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteRegisterMetersReadings_not: Boolean
+  canExecuteRegisterPropertyMetersReadings: Boolean
+  canExecuteRegisterPropertyMetersReadings_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -70928,6 +70938,8 @@ enum SortB2BAppAccessRightSetsBy {
   canManageTicketCommentFiles_DESC
   canExecuteRegisterMetersReadings_ASC
   canExecuteRegisterMetersReadings_DESC
+  canExecuteRegisterPropertyMetersReadings_ASC
+  canExecuteRegisterPropertyMetersReadings_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -70973,6 +70985,7 @@ input B2BAppAccessRightSetUpdateInput {
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
+  canExecuteRegisterPropertyMetersReadings: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -71016,6 +71029,7 @@ input B2BAppAccessRightSetCreateInput {
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
+  canExecuteRegisterPropertyMetersReadings: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -79742,8 +79756,13 @@ input RegisterPropertyMetersReadingsMeterMetaInput {
   archiveDate: String
 }
 
+input RegisterPropertyMetersReadingsReadingAddressInfoInput {
+  globalId: String
+}
+
 input RegisterPropertyMetersReadingsReadingInput {
   address: String!
+  addressInfo: RegisterPropertyMetersReadingsReadingAddressInfoInput
   meterNumber: String!
   meterResource: MeterResourceWhereUniqueInput!
   date: String!
