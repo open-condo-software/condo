@@ -59,7 +59,7 @@ const { createTestProperty } = require("@condo/domains/property/utils/testSchema
 const { createTestResident, createTestServiceConsumer } = require("@condo/domains/resident/utils/testSchema")
 
 
-async function createTestMeterResource (client, extraAttrs = {}) {
+async function createTestMeterResource(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -72,7 +72,7 @@ async function createTestMeterResource (client, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function updateTestMeterResource (client, id, extraAttrs = {}) {
+async function updateTestMeterResource(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -86,7 +86,7 @@ async function updateTestMeterResource (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestMeterReadingSource (client, extraAttrs = {}) {
+async function createTestMeterReadingSource(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -99,7 +99,7 @@ async function createTestMeterReadingSource (client, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function updateTestMeterReadingSource (client, id, extraAttrs = {}) {
+async function updateTestMeterReadingSource(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -113,7 +113,7 @@ async function updateTestMeterReadingSource (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function makeClientWithResidentAndMeter (extraMeterAttrs = {}) {
+async function makeClientWithResidentAndMeter(extraMeterAttrs = {}) {
     const client = await makeClientWithServiceConsumer()
     const adminClient = await makeLoggedInAdminClient()
     const { property, organization, serviceConsumer, resident } = client
@@ -130,7 +130,7 @@ async function makeClientWithResidentAndMeter (extraMeterAttrs = {}) {
 }
 
 
-async function createTestMeter (client, organization, property, resource, extraAttrs = {}) {
+async function createTestMeter(client, organization, property, resource, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
     if (!property || !property.id) throw new Error('no property.id')
@@ -155,7 +155,7 @@ async function createTestMeter (client, organization, property, resource, extraA
     return [obj, attrs]
 }
 
-async function updateTestMeter (client, id, extraAttrs = {}) {
+async function updateTestMeter(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -169,7 +169,7 @@ async function updateTestMeter (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestMeterReading (client, meter, source, extraAttrs = {}) {
+async function createTestMeterReading(client, meter, source, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!meter || !meter.id) throw new Error('no meter.id')
     if (!source || !source.id) throw new Error('no source.id')
@@ -188,7 +188,7 @@ async function createTestMeterReading (client, meter, source, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function updateTestMeterReading (client, id, extraAttrs = {}) {
+async function updateTestMeterReading(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -202,7 +202,7 @@ async function updateTestMeterReading (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestMeterReadingFilterTemplate (client, employee, extraAttrs = {}) {
+async function createTestMeterReadingFilterTemplate(client, employee, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!employee || !employee.id) throw new Error('no employee.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -223,7 +223,7 @@ async function createTestMeterReadingFilterTemplate (client, employee, extraAttr
     return [obj, attrs]
 }
 
-async function updateTestMeterReadingFilterTemplate (client, id, extraAttrs = {}) {
+async function updateTestMeterReadingFilterTemplate(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -251,7 +251,7 @@ async function _internalDeleteMeterAndMeterReadingsByTestClient(client, extraAtt
     throwIfError(data, errors)
     return [data.result, attrs]
 }
-async function createTestPropertyMeter (client, organization, property, resource, extraAttrs = {}) {
+async function createTestPropertyMeter(client, organization, property, resource, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
     if (!property || !property.id) throw new Error('no property.id')
@@ -272,7 +272,7 @@ async function createTestPropertyMeter (client, organization, property, resource
     return [obj, attrs]
 }
 
-async function updateTestPropertyMeter (client, id, extraAttrs = {}) {
+async function updateTestPropertyMeter(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -286,7 +286,7 @@ async function updateTestPropertyMeter (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestPropertyMeterReading (client, meter, source, extraAttrs = {}) {
+async function createTestPropertyMeterReading(client, meter, source, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!meter || !meter.id) throw new Error('no meter.id')
     if (!source || !source.id) throw new Error('no source.id')
@@ -305,7 +305,7 @@ async function createTestPropertyMeterReading (client, meter, source, extraAttrs
     return [obj, attrs]
 }
 
-async function updateTestPropertyMeterReading (client, id, extraAttrs = {}) {
+async function updateTestPropertyMeterReading(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -319,7 +319,7 @@ async function updateTestPropertyMeterReading (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestMeterReportingPeriod (client, organization, extraAttrs = {}) {
+async function createTestMeterReportingPeriod(client, organization, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization.id) throw new Error('organization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -334,7 +334,7 @@ async function createTestMeterReportingPeriod (client, organization, extraAttrs 
     return [obj, attrs]
 }
 
-async function updateTestMeterReportingPeriod (client, id, extraAttrs = {}) {
+async function updateTestMeterReportingPeriod(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -348,7 +348,7 @@ async function updateTestMeterReportingPeriod (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestMeterResourceOwner (client, organization, resource, extraAttrs = {}) {
+async function createTestMeterResourceOwner(client, organization, resource, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
     if (!resource || !resource.id) throw new Error('no resource.id')
@@ -365,7 +365,7 @@ async function createTestMeterResourceOwner (client, organization, resource, ext
     return [obj, attrs]
 }
 
-async function updateTestMeterResourceOwner (client, id, extraAttrs = {}) {
+async function updateTestMeterResourceOwner(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -454,7 +454,7 @@ async function registerMetersReadingsByTestClient(client, organization, readings
     return [data.result, attrs]
 }
 
-async function createTestMeterReadingsImportTask (client, user, organization, extraAttrs = {}) {
+async function createTestMeterReadingsImportTask(client, user, organization, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!user || !user.id) throw new Error('no user.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -470,7 +470,7 @@ async function createTestMeterReadingsImportTask (client, user, organization, ex
     return [obj, attrs]
 }
 
-async function updateTestMeterReadingsImportTask (client, id, extraAttrs = {}) {
+async function updateTestMeterReadingsImportTask(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -484,7 +484,7 @@ async function updateTestMeterReadingsImportTask (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestMeterReadingExportTask (client, user, extraAttrs = {}) {
+async function createTestMeterReadingExportTask(client, user, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!user || !user.id) throw new Error('no user.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -502,7 +502,7 @@ async function createTestMeterReadingExportTask (client, user, extraAttrs = {}) 
     return [obj, attrs]
 }
 
-async function updateTestMeterReadingExportTask (client, id, extraAttrs = {}) {
+async function updateTestMeterReadingExportTask(client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -574,13 +574,19 @@ async function makeResidentWithOwnMeter (admin) {
     }
 }
 
-async function registerPropertyMetersReadingsByTestClient(client, extraAttrs = {}) {
+async function registerPropertyMetersReadingsByTestClient(client, organization, readings, extraAttrs = {}) {
     if (!client) throw new Error('no client')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    if (!readings) throw new Error('no readings')
+    if (!Array.isArray(readings)) throw new Error('readings is not an array')
+
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
         dv: 1,
         sender,
+        organization: { id: organization.id },
+        readings,
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(REGISTER_PROPERTY_METERS_READINGS_MUTATION, { data: attrs })
@@ -608,5 +614,5 @@ module.exports = {
     MeterReadingExportTask, createTestMeterReadingExportTask, updateTestMeterReadingExportTask,
     MeterUserData, createTestMeterUserData, updateTestMeterUserData, makeResidentWithOwnMeter,
     registerPropertyMetersReadingsByTestClient,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

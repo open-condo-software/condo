@@ -206,7 +206,7 @@ const RegisterPropertyMetersReadingsService = new GQLCustomSchema('RegisterPrope
                         if (foundMeter) {
                             meterId = foundMeter.id
                             const fieldsToUpdate = getFieldsToUpdate(reading, true)
-                            if (shouldUpdateMeter(foundMeter, fieldsToUpdate)) {
+                            if (shouldUpdateMeter(foundMeter, fieldsToUpdate, true)) {
                                 const updatedMeter = await PropertyMeter.update(
                                     context,
                                     foundMeter.id,
