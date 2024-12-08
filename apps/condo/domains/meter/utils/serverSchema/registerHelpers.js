@@ -224,7 +224,7 @@ function getMeterDates (reading) {
 
 function getMeterFields (isPropertyMeter = false) {
     return (organization, property, reading, values, resolvedAddresses) => {
-        const accountNumber = reading.accountNumber.trim()
+        const accountNumber = reading.accountNumber?.trim()
         const unitType = get(reading, ['addressInfo', 'unitType'], get(resolvedAddresses, [reading.address, 'addressResolve', 'unitType'], '')).trim() || null
         const unitName = get(reading, ['addressInfo', 'unitName'], get(resolvedAddresses, [reading.address, 'addressResolve', 'unitName'], '')).trim() || null
                     
@@ -269,7 +269,7 @@ function getReadingFields (isPropertyMeter = false) {
             source: { connect: readingSource },
             date: tryToISO(reading.date),
             ...values,
-            ...isPropertyMeter ? {
+            ...!isPropertyMeter ? {
                 billingStatus: get(reading, 'billingStatus', null),
                 billingStatusText: get(reading, 'billingStatusText', null),
             } : {},
