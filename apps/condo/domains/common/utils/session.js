@@ -2,34 +2,21 @@ const { Session } = require('express-session')
 const get = require('lodash/get')
 const uniq = require('lodash/uniq')
 
-const POSSIBLE_SESSION_PATHS = [
-    'req.session',
-    'session',
-]
-
-function _getSession (sessionOrWrapper) {
-    if (sessionOrWrapper instanceof Session) {
-        return sessionOrWrapper
-    }
-    for (const sessionPath of POSSIBLE_SESSION_PATHS) {
-        if (get(sessionOrWrapper, sessionPath) instanceof Session) {
-            return get(sessionOrWrapper, sessionPath)
-        }
-    }
-    return null
+const ARGS_CONFIG = {
+    arrays: {
+        allowedOrganizations: [_uniqNonNull],
+        enabledB2BPermissions: [_uniqNonNull],
+    },
 }
 
-/** Gives restrictions from session. If field is null - no restrictions were made
- * @param {Session | { session: Session } | { req: { session: Session } }} sessionOrWrapper
+/** Gives restrictions from session. If field === true - no restrictions were made
+ *  @param {Session} session
  *  @example
- *  parseSession(context)
- *  parseSession(context.req)
  *  parseSession(context.req.session)
  *  @returns {SessionData}
  * */
-function parseSession (sessionOrWrapper) {
-    const session = _getSession(sessionOrWrapper)
-    if (!session) {
+function parseSession (session) {
+    if (!(session instanceof Session)) {
         return makeSessionData()
     }
     const allowedOrganizations = get(session, 'allowedOrganizations')
@@ -57,19 +44,34 @@ function parseSession (sessionOrWrapper) {
  * @returns {{allowedOrganizations: string[] | null, enabledB2BPermissions: string[] | null}}
  */
 function makeSessionData (args = {}) {
-    Object.keys(args).forEach(key => {
-        args[key] = args[key] ? uniq(args[key].filter(Boolean)) : args[key]
-    })
+    const arrayArgsEntries = Object.keys(ARGS_CONFIG.arrays)
+        .map(key => {
+            let value = args[key]
+            if (value === null || value === undefined) {
+                return [key, true]
+            }
+            if (!Array.isArray(value)) {
+                value = [value]
+            }
+            for (let transform of ARGS_CONFIG.arrays[key]) {
+                value = transform(value)
+            }
+            return [key, value]
+        })
 
     const {
         allowedOrganizations,
         enabledB2BPermissions,
-    } = args
+    } = Object.fromEntries(arrayArgsEntries)
 
     return {
-        allowedOrganizations: allowedOrganizations || null,
-        enabledB2BPermissions: enabledB2BPermissions || null,
+        allowedOrganizations,
+        enabledB2BPermissions,
     }
+}
+
+function _uniqNonNull (array) {
+    return uniq(array).filter(item => item !== null && item !== undefined)
 }
 
 module.exports = {

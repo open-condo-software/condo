@@ -65,7 +65,6 @@ describe('B2BAccessToken', () => {
 
                 // 3) check
                 expectValuesOfCommonFields(obj, attrs, admin)
-
             })
 
 
@@ -179,7 +178,7 @@ describe('B2BAccessToken', () => {
         describe('read', () => {
             test('admin can', async () => {
                 const admin = await makeLoggedInAdminClient()
-                const [obj, attrs] = await createTestB2BAccessToken(admin, b2bAppContext, scopedRightSet)
+                const [obj] = await createTestB2BAccessToken(admin, b2bAppContext, scopedRightSet)
 
                 const objs = await B2BAccessToken.getAll(admin, {}, { sortBy: ['updatedAt_DESC'] })
 
@@ -194,7 +193,7 @@ describe('B2BAccessToken', () => {
 
             test('support can\'t', async () => {
                 const admin = await makeLoggedInAdminClient()
-                const [obj, attrs] = await createTestB2BAccessToken(admin, b2bAppContext, scopedRightSet)
+                const [obj] = await createTestB2BAccessToken(admin, b2bAppContext, scopedRightSet)
                 const client = await makeClientWithSupportUser()
                 await expectToThrowAccessDeniedErrorToObjects(async () => {
                     await B2BAccessToken.getOne(client, { id: obj.id })
@@ -254,7 +253,7 @@ describe('B2BAccessToken', () => {
 
             test('anonymous can\'t', async () => {
                 const admin = await makeLoggedInAdminClient()
-                const [obj, attrs] = await createTestB2BAccessToken(admin, b2bAppContext, scopedRightSet)
+                await createTestB2BAccessToken(admin, b2bAppContext, scopedRightSet)
 
                 const client = await makeClient()
                 await expectToThrowAuthenticationErrorToObjects(async () => {

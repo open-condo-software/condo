@@ -1,9 +1,6 @@
-const { B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess/config')
-const { generatePermissionFields } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess/schema.utils')
+const { B2B_PERMISSION_FIELDS } = require('@condo/domains/miniapp/schema/fields/b2bAccessRightSet')
 
-
-const PERMISSION_FIELDS_KEYS = Object.keys(generatePermissionFields({ config: B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS }))
-
+const PERMISSION_FIELDS_KEYS = Object.keys(B2B_PERMISSION_FIELDS)
 
 /** Get permission fields from b2bAppAccessRightSetRight, which values differs from b2bAppAccessRightSetLeft */
 function getPermissionsDiff (b2bAppAccessRightSetLeft, b2bAppAccessRightSetRight) {

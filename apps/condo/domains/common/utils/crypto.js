@@ -1,7 +1,5 @@
 const crypto = require('crypto')
 
-const { EncryptionManager } = require('@open-condo/keystone/crypto')
-
 /**
  * Converts value to MD5 hash. Do not ise this for hashing sensitive data!
  * @param value
@@ -10,9 +8,6 @@ const { EncryptionManager } = require('@open-condo/keystone/crypto')
 // nosemgrep: contrib.nodejsscan.crypto_node.node_md5
 const md5 = (value) => crypto.createHash('md5').update(value).digest('hex')
 
-const encryptionManager = new EncryptionManager()
-
 module.exports = {
     md5,
-    encryptionManager,
 }

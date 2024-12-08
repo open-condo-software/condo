@@ -15,8 +15,7 @@ const {
     ACCESS_RIGHT_SET_TYPES, ACCESS_RIGHT_SET_GLOBAL_TYPE, ACCESS_RIGHT_SET_MAX_ITEMS_FOR_TYPE,
     ACCESS_RIGHT_SET_GLOBAL_RIGHT_SET_REQUIRED, ACCESS_RIGHT_SET_TOO_MANY_PERMISSIONS,
 } = require('@condo/domains/miniapp/constants')
-const { B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess/config')
-const { generatePermissionFields } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess/schema.utils')
+const { B2B_PERMISSION_FIELDS } = require('@condo/domains/miniapp/schema/fields/b2bAccessRightSet')
 const { getPermissionsDiff, getEnabledPermissions } = require('@condo/domains/miniapp/utils/permissions')
 const { B2BAppAccessRightSet: B2BAppAccessRightSetAPI, B2BAccessToken } = require('@condo/domains/miniapp/utils/serverSchema')
 
@@ -105,7 +104,7 @@ const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
             },
         },
 
-        ...generatePermissionFields({ config: B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS }),
+        ...B2B_PERMISSION_FIELDS,
 
     },
     hooks: {

@@ -7,8 +7,6 @@ const crypto = require('crypto')
 const cookieSignature = require('cookie-signature')
 const dayjs = require('dayjs')
 const get = require('lodash/get')
-const has = require('lodash/has')
-const isEmpty = require('lodash/isEmpty')
 const isNil = require('lodash/isNil')
 
 const conf = require('@open-condo/config')
@@ -16,9 +14,8 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keys
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, find, getById, getByCondition } = require('@open-condo/keystone/schema')
 const { setSession, destroySession } = require('@open-condo/keystone/session')
-const { prepareDefaultKeystoneConfig } = require('@open-condo/keystone/setup.utils')
 
-const { encryptionManager } = require('@condo/domains/common/utils/crypto')
+const { encryptionManager } = require('@condo/domains/common/utils/encryption')
 const { makeSessionData } = require('@condo/domains/common/utils/session')
 const access = require('@condo/domains/miniapp/access/B2BAccessToken')
 const {
@@ -34,27 +31,35 @@ const {
 const { SERVICE_USER_FIELD } = require('@condo/domains/miniapp/schema/fields/accessRight')
 const { getEnabledPermissions } = require('@condo/domains/miniapp/utils/permissions')
 
-// NOTE(YEgorLu): using deprecated function to get same cookieSecret, that app uses
-// otherwise I would need to copy code to get same result
-const { cookieSecret } = prepareDefaultKeystoneConfig(conf)
+const { COOKIE_SECRET } = conf
 
-function getValidationError ({
-    b2bAppContext,
-    accessRightSet,
-    accessRightForUserAndApp,
-}) {
+async function getValidationError (item) {
+
+    const b2bAppContext = await getByCondition('B2BAppContext', {
+        id: item.context,
+        deletedAt: null,
+    })
     if (!b2bAppContext) {
         return ERRORS.CONTEXT_NOT_EXISTS
     }
+    const accessRightSet = await getByCondition('B2BAppAccessRightSet', {
+        id: item.rightSet,
+        deletedAt: null,
+    })
     if (!accessRightSet) {
         return ERRORS.RIGHT_SET_NOT_EXISTS
     }
-    if (get(accessRightSet, 'type') !== ACCESS_RIGHT_SET_SCOPED_TYPE) {
+    if (accessRightSet.type !== ACCESS_RIGHT_SET_SCOPED_TYPE) {
         return ERRORS.WRONG_RIGHT_SET_TYPE
     }
-    if (get(accessRightSet, 'app') && (get(accessRightSet, 'app') !== get(b2bAppContext, 'app'))) {
+    if (accessRightSet.app && (accessRightSet.app !== b2bAppContext.app)) {
         return ERRORS.CONTEXT_DOES_NOT_MATCH_RIGHT_SET
     }
+    const [accessRightForUserAndApp] = await find('B2BAppAccessRight', {
+        user: { id: item.user },
+        app: { id: b2bAppContext.app },
+        deletedAt: null,
+    })
     if (!accessRightForUserAndApp) {
         return ERRORS.SERVICE_USER_DOES_NOT_MATCH_CONTEXT
     }
@@ -106,15 +111,11 @@ const B2BAccessToken = new GQLListSchema('B2BAccessToken', {
         sessionId: {
             schemaDoc: 'Encrypted sessionId of session',
             type: 'EncryptedText',
+            encryptionManager: encryptionManager,
             isRequired: true,
             access: access.updatableOnlyForAdmin,
             hooks: {
-                resolveInput ({ operation, existingItem, fieldPath, originalInput }) {
-                    const inputSessionId = get(originalInput, fieldPath)
-                    // need to have option to manually set sessionId, so we can migrate already given tokens to this
-                    if (!isNil(inputSessionId) && !isEmpty(inputSessionId)) {
-                        return inputSessionId
-                    }
+                resolveInput ({ operation, existingItem, fieldPath }) {
                     if (operation === 'create') {
                         return ACCESS_TOKEN_SESSION_ID_PREFIX + crypto.randomUUID()
                     }
@@ -123,11 +124,16 @@ const B2BAccessToken = new GQLListSchema('B2BAccessToken', {
             },
         },
 
+        // Access is redundant. Because we can't know operation in 'read' access, resolver or user hooks here.
+        // So field is accessible by any user matching list access, and conditions to fill field described in list hooks
         token: {
             schemaDoc: 'Token, ready to be put in Authorization header. Shown only once after creation',
             type: 'Virtual',
             graphQLReturnType: 'String',
             resolver: (item) => {
+                // Show only once on 'create' operation
+                // Keystonejs does not pass 'operation' argument in virtual fields or access.
+                // So let's decide what to show and when in list 'afterChange' hook
                 if (!isNil(item.token)) {
                     return item.token
                 }
@@ -152,7 +158,11 @@ const B2BAccessToken = new GQLListSchema('B2BAccessToken', {
             hooks: {
                 ...SERVICE_USER_FIELD.hooks,
                 async resolveInput ({ operation, existingItem, resolvedData, fieldPath }) {
-                    if (operation === 'create' && !has(resolvedData, fieldPath)) {
+                    const newItem = {
+                        ...existingItem,
+                        ...resolvedData,
+                    }
+                    if (operation === 'create' && !newItem[fieldPath]) {
                         const contextId = get(resolvedData, 'context') || get(existingItem, 'context')
                         const context = await getById('B2BAppContext', contextId)
                         const [accessRight] = await find('B2BAppAccessRight', {
@@ -162,7 +172,7 @@ const B2BAccessToken = new GQLListSchema('B2BAccessToken', {
                         return accessRight.user
                     }
 
-                    return existingItem.user
+                    return resolvedData.user
                 },
             },
         },
@@ -198,53 +208,31 @@ const B2BAccessToken = new GQLListSchema('B2BAccessToken', {
     hooks: {
         async validateInput ({ operation, resolvedData, existingItem, context }) {
             const newItem = {
-                ...(existingItem || {}),
+                ...existingItem,
                 ...resolvedData,
             }
-
-            if (newItem.deletedAt) {
-                return
-            }
-
-            const b2bAppContext = await getByCondition('B2BAppContext', {
-                id: get(newItem, 'context'),
-                deletedAt: null,
-            })
-            const accessRightSet = await getByCondition('B2BAppAccessRightSet', {
-                id: get(newItem, 'rightSet'),
-                deletedAt: null,
-            })
-            const [accessRightForUserAndApp] = await find('B2BAppAccessRight', {
-                user: { id: get(newItem, 'user') },
-                app: { id: get(b2bAppContext, 'app') },
-                deletedAt: null,
-            })
-            
-            const validationError = getValidationError({
-                b2bAppContext,
-                accessRightSet,
-                accessRightForUserAndApp,
-            })
+            const validationError = await getValidationError(newItem)
 
             if (operation === 'create' && validationError) {
                 throw new GQLError(validationError, context)
             }
             if (operation === 'update' && validationError && ERRORS_FOR_DELETION.has(validationError)) {
-                resolvedData.deletedAt = dayjs().toISOString()
+                resolvedData.deletedAt = resolvedData.deletedAt ? resolvedData.deletedAt : dayjs().toISOString()
             }
         },
-        async afterChange ({ context, operation, existingItem, updatedItem, originalInput }) {
+        async afterChange ({ context, operation, existingItem, updatedItem }) {
             const softDeleted = operation === 'update' && !existingItem['deletedAt'] && updatedItem['deletedAt']
-            const sessionIdChanged = operation === 'update' && originalInput['sessionId']
             const sessionId = encryptionManager.decrypt(updatedItem.sessionId)
 
             if (operation === 'create') {
-                updatedItem.token = cookieSignature.sign(sessionId, cookieSecret)
+                // This is hack. Show token only once on 'create' operation
+                // Keystonejs does not pass 'operation' in virtual field resolver or 'read' access
+                // So need to control it manually here
+                updatedItem.token = cookieSignature.sign(sessionId, COOKIE_SECRET)
             }
 
-            if (softDeleted || sessionIdChanged) {
-                const previousSessionId = encryptionManager.decrypt(existingItem.sessionId)
-                await destroySession(context, previousSessionId)
+            if (softDeleted) {
+                await destroySession(context.req.sessionStore, sessionId)
             }
 
             if (!softDeleted) {
@@ -258,7 +246,7 @@ const B2BAccessToken = new GQLListSchema('B2BAccessToken', {
 
                 const expiresAt = get(updatedItem, 'expiresAt')
 
-                await setSession(context, {
+                await setSession(context.req.sessionStore, {
                     sessionId,
                     userId: get(updatedItem, 'user'),
                     expires: expiresAt ? expiresAt.toISOString() : null,

@@ -1,6 +1,6 @@
 const dayjs = require('dayjs')
 const { Store, Cookie } = require('express-session')
-const { has, get } = require('lodash')
+const { has } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { prepareDefaultKeystoneConfig } = require('@open-condo/keystone/setup.utils')
@@ -9,29 +9,11 @@ const { cookie: defaultCookieOptions } = prepareDefaultKeystoneConfig(conf)
 
 const INFINITE_LIKE_MAX_AGE = 1000 * (Math.pow(2, 31) - 1) // Around 68 years in milliseconds
 
-const POSSIBLE_SESSION_STORE_PATHS = [
-    'req.sessionStore',
-    'sessionStore',
-]
-
 const FORBIDDEN_SESSION_FIELDS = [
     'cookie',
     'keystoneListKey',
     'keystoneItemId',
 ]
-
-/** @returns {null | Store} */
-function _getSessionStore (sessionStoreOrWrapper) {
-    if (sessionStoreOrWrapper instanceof Store) {
-        return sessionStoreOrWrapper
-    }
-    for (const path of POSSIBLE_SESSION_STORE_PATHS) {
-        if (get(sessionStoreOrWrapper, path) instanceof Store) {
-            return get(sessionStoreOrWrapper, path)
-        }
-    }
-    return null
-}
 
 /** @param {String | Number} expires */
 function _makeCookie (expires) {
@@ -63,7 +45,7 @@ function _makeCookie (expires) {
 
 /**
  * Create or update session in store
- * @param sessionStoreOrWrapper - sessionStore, keystone context or request
+ * @param {Store} sessionStore
  * @param {SessionConfig} config
  *
  * @example
@@ -73,7 +55,7 @@ function _makeCookie (expires) {
  * const userId = user.id
  * const expiresAt = dayjs().add(2, 'month').toISOString()
  *
- * await setSession(context, {
+ * await setSession(context.req.sessionStore, {
  *      sessionId: getRandomString(),
  *      userId: user.id,
  *      expires: expiresAt
@@ -101,14 +83,14 @@ function _makeCookie (expires) {
  *      }
  *  *\/
  *
- *  await destroySession(context, sessionId)
+ *  await destroySession(context.req.sessionStore, sessionId)
  *  // context.req.session = null
  */
-function setSession (sessionStoreOrWrapper, config) {
+function setSession (sessionStore, config) {
     const { sessionId, userId, expires, additionalFields = {} } = config
-    const sessionStore = _getSessionStore(sessionStoreOrWrapper)
-    if (!sessionStore) {
-        throw new Error('Session Store is required')
+
+    if (!(sessionStore instanceof Store)) {
+        throw new Error('\'sessionStore\' as instance of Store is required')
     }
     if (!userId) {
         throw new Error('User id is required')
@@ -131,8 +113,14 @@ function setSession (sessionStoreOrWrapper, config) {
     )
 }
 
-function destroySession (sessionStoreOrWrapper, sessionId) {
-    const sessionStore = _getSessionStore(sessionStoreOrWrapper)
+/**
+ * @param {Store} sessionStore
+ * @param {string} sessionId
+ * */
+function destroySession (sessionStore, sessionId) {
+    if (!(sessionStore instanceof Store)) {
+        throw new Error('\'sessionStore\' as instance of Store is required')
+    }
     if (!sessionStore) {
         throw new Error('Session Store is required')
     }

@@ -22,10 +22,10 @@ const canReadByServiceUser = async ({ authentication: { item: user }, args, list
 
     const pathToOrganizationId = get(schemaConfig, 'pathToOrganizationId', ['organization', 'id'])
 
-    const sessionRestrictions = parseSession(context)
+    const sessionRestrictions = parseSession(context.req.session)
 
     const permissionKey = `canRead${pluralize.plural(listKey)}`
-    if (sessionRestrictions.enabledB2BPermissions && !sessionRestrictions.enabledB2BPermissions.includes(permissionKey)) {
+    if (sessionRestrictions.enabledB2BPermissions !== true && !sessionRestrictions.enabledB2BPermissions.includes(permissionKey)) {
         return false
     }
 
@@ -35,7 +35,7 @@ const canReadByServiceUser = async ({ authentication: { item: user }, args, list
     })
 
     let organizationIds = B2BAppContexts.map(ctx => ctx.organization)
-    if (sessionRestrictions.allowedOrganizations) {
+    if (sessionRestrictions.allowedOrganizations !== true) {
         organizationIds = organizationIds.filter(id => sessionRestrictions.allowedOrganizations.includes(id))
     }
 
@@ -57,7 +57,7 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
     const pathToOrganizationId = get(schemaConfig, 'pathToOrganizationId', ['organization', 'id'])
     if (!isArray(pathToOrganizationId) || isEmpty(pathToOrganizationId)) return false
 
-    const sessionRestrictions = parseSession(context)
+    const sessionRestrictions = parseSession(context.req.session)
     let organizationId
 
     if (operation === 'create') {
@@ -109,14 +109,14 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
         }
     }
 
-    if (sessionRestrictions.allowedOrganizations && !sessionRestrictions.allowedOrganizations.includes(organizationId)) {
-        organizationId = null
+    if (sessionRestrictions.allowedOrganizations !== true) {
+        organizationId = sessionRestrictions.allowedOrganizations.find(organizationId)
     }
 
     if (!organizationId) return false
 
     const permissionKey = `canManage${pluralize.plural(listKey)}`
-    if (sessionRestrictions.enabledB2BPermissions && !sessionRestrictions.enabledB2BPermissions.includes(permissionKey)) {
+    if (sessionRestrictions.enabledB2BPermissions !== true && !sessionRestrictions.enabledB2BPermissions.includes(permissionKey)) {
         return false
     }
 
@@ -139,17 +139,17 @@ const canExecuteByServiceUser = async (params, serviceConfig) => {
     const pathToOrganizationId = get(serviceConfig, 'pathToOrganizationId', ['data', 'organization', 'id'])
     if (!isArray(pathToOrganizationId) || isEmpty(pathToOrganizationId)) return false
 
-    const sessionRestrictions = parseSession(context)
+    const sessionRestrictions = parseSession(context.req.session)
     let organizationId = get(args, pathToOrganizationId)
 
-    if (sessionRestrictions.organizations && !sessionRestrictions.organizations.includes(organizationId)) {
-        organizationId = null
+    if (sessionRestrictions.allowedOrganizations !== true) {
+        organizationId = sessionRestrictions.allowedOrganizations.find(organizationId)
     }
 
     if (!organizationId) return false
 
     const permissionKey = `canExecute${upperFirst(gqlName)}`
-    if (sessionRestrictions.b2bPermissionKeys && !sessionRestrictions.b2bPermissionKeys.includes(permissionKey)) {
+    if (sessionRestrictions.enabledB2BPermissions !== true && !sessionRestrictions.enabledB2BPermissions.includes(permissionKey)) {
         return false
     }
 

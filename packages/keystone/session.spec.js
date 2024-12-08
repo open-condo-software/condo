@@ -30,7 +30,7 @@ describe('session', () => {
         await setSession(sessionStore, {
             sessionId,
             userId,
-            cookieOptions: { expires: expiresAt.toISOString() },
+            expires: expiresAt.toISOString(),
             additionalFields: {
                 [additionalFieldKey]: additionalFieldValue,
             },

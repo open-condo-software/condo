@@ -351,29 +351,28 @@ describe('B2BAppAccessRightSet', () => {
     })
 
     describe('Constraints', () => {
-        test('Cannot be created 2 active set of access rights with type: miniapp for a single app', async () => {
+        test('Cannot be created 2 active set of access rights with type: GLOBAL for a single app', async () => {
             const [app] = await createTestB2BApp(admin)
-            const [rightSet] = await createTestB2BAppAccessRightSet(admin, app)
-            console.error('sssss', rightSet)
+            await createTestB2BAppAccessRightSet(admin, app)
 
             await expectToThrowUniqueConstraintViolationError(async () => {
                 await createTestB2BAppAccessRightSet(admin, app)
             }, 'b2b_app_access_right_set_unique_app')
         })
 
-        test('Cannot be created 11 active sets of access rights with type: token for a single app', async () => {
+        test('Cannot be created 11 active sets of access rights with type: SCOPED for a single app', async () => {
             const [app] = await createTestB2BApp(admin)
             await createTestB2BAppAccessRightSet(admin, app)
             for (let i = 0; i < 10; i++) {
-                await createTestB2BAppAccessRightSet(admin, app, { type: 'token' })
+                await createTestB2BAppAccessRightSet(admin, app, { type: 'SCOPED' })
             }
 
             await expectToThrowGQLError(async () => {
-                await createTestB2BAppAccessRightSet(admin, app, { type: 'token' })
+                await createTestB2BAppAccessRightSet(admin, app, { type: 'SCOPED' })
             }, {
                 code: 'BAD_USER_INPUT',
                 type: 'ACCESS_RIGHT_SET_TOO_MANY_OF_TYPE',
-                message: 'Too many items of type "token". Maximum is "10"',
+                message: 'Too many items of type "SCOPED". Maximum is "10"',
             }, 'obj')
         })
 
