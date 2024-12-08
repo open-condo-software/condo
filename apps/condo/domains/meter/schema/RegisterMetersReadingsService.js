@@ -236,7 +236,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                                 dv,
                                 sender,
                                 ...getMeterDates(reading),
-                                ...meterFieldsGetter(organization, property, reading, resolvedAddresses),
+                                ...meterFieldsGetter(organization, property, reading, values, resolvedAddresses),
                             }, 'id property { id } unitName unitType accountNumber number resource { id }')
                             meterId = createdMeter.id
                             meters.push(transformToPlainObject(createdMeter))
