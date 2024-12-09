@@ -30,7 +30,7 @@ const MetersImportWrapper: React.FC<IMetersImportWrapperProps> = (props) => {
     } = props
 
     const intl = useIntl()
-    const domain = 'meter'
+    const domain = extraProps?.isPropertyMeters ? 'propertyMeter' : 'meter'
     const { organization } = useOrganization()
     const { user } = useAuth()
 
