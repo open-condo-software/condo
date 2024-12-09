@@ -263,18 +263,18 @@ export const PropertyMetersPageContent: React.FC<PropertyMeterReadingsPageConten
                         importCreateEmoji: EMOJI.LIST,
                         importWrapper: {
                             onFinish: refetch,
-                            domainName: 'meter',
+                            domainName: 'propertyMeter',
                             extraProps: {
                                 isPropertyMeters: true,
                             },
                         },
                         OverrideImportWrapperFC: MetersImportWrapper,
                     }}
-                    createRoute={`/meter/create?tab=${METER_TAB_TYPES.meter}`}
+                    createRoute={`/meter/create?tab=${METER_TAB_TYPES.propertyMeter}`}
                     accessCheck={canManageMeters}
                 />) : (<EmptyListContent
                     label={EmptyListLabel}
-                    createRoute={`/meter/create?tab=${METER_TAB_TYPES.meter}`}
+                    createRoute={`/meter/create?tab=${METER_TAB_TYPES.propertyMeter}`}
                     createLabel={CreateMeter}
                     accessCheck={canManageMeters}
                 />)
