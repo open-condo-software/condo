@@ -219,7 +219,9 @@ const PropertyMetersTableContent: React.FC<PropertyMetersTableContentProps> = ({
                                     key='import'
                                     accessCheck={canManageMeters}
                                     onFinish={refetch}
-                                    isPropertyMeters={true}
+                                    extraProps={{
+                                        isPropertyMeters: true,
+                                    }}
                                 />
                             ),
                         ]}/>
@@ -262,7 +264,9 @@ export const PropertyMetersPageContent: React.FC<PropertyMeterReadingsPageConten
                         importWrapper: {
                             onFinish: refetch,
                             domainName: 'meter',
-                            isPropertyMeters: true,
+                            extraProps: {
+                                isPropertyMeters: true,
+                            },
                         },
                         OverrideImportWrapperFC: MetersImportWrapper,
                     }}

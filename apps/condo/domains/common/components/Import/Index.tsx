@@ -22,6 +22,9 @@ import {
 
 import { ActiveModalType, BaseImportWrapper, ExtraModalContentType } from './BaseImportWrapper'
 
+interface IExtraProps {
+    isPropertyMeters?: boolean
+}
 
 export interface IImportWrapperProps {
     accessCheck: boolean
@@ -39,6 +42,7 @@ export interface IImportWrapperProps {
     }
     extraModalContent?: ExtraModalContentType
     handleClose?: () => void
+    extraProps?: IExtraProps
 }
 
 export function fitToColumn (arrayOfArray) {
