@@ -9,10 +9,10 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { CustomValue, createTestCustomValue, updateTestCustomValue } = require('@condo/domains/miniapp/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const {
     createTestOrganization,
 } = require('@condo/domains/organization/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 const {
     makeEmployeeUserClientWithAbilities,
