@@ -17,6 +17,7 @@ const {
     checkDailyRequestLimitCountersByIp,
     checkDailyRequestLimitCountersByPhone,
 } = require('@condo/domains/user/utils/serverSchema/requestLimitHelpers')
+const { detectTokenTypeSafely, TOKEN_TYPES } = require('@condo/domains/user/utils/serverSchema/tokens')
 
 
 /**
@@ -69,6 +70,8 @@ const CheckUserExistenceService = new GQLCustomSchema('CheckUserExistenceService
                 summary: 'Using an action token with a verified phone number,' +
                     ' checks whether a user with the specified type (resident, staff, service) is registered.\n' +
                     'As a result, information about the completion of some important fields (name, email, phone, password) is also returned.',
+                description: 'Token can be: \n' +
+                    ' - confirmPhoneToken',
                 errors: ERRORS,
             },
             resolver: async (parent, args, context) => {
@@ -85,6 +88,17 @@ const CheckUserExistenceService = new GQLCustomSchema('CheckUserExistenceService
                 checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 
                 if (!token) throw new GQLError(ERRORS.TOKEN_NOT_FOUND, context)
+
+                const { error: tokenError, tokenType } = detectTokenTypeSafely(token)
+                if (tokenError) {
+                    // todo(doma-10814): add error
+                    throw new GQLError({ ...ERRORS.INVALID_TOKEN, data: { error: tokenError } }, context)
+                }
+
+                if (tokenType !== TOKEN_TYPES.CONFIRM_PHONE) {
+                    // todo(doma-10814): add error
+                    throw new GQLError(ERRORS.UNSUPPORTED_TOKEN, context)
+                }
 
                 const action = await ConfirmPhoneAction.getOne(context,
                     {
