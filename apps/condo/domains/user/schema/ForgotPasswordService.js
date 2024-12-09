@@ -42,11 +42,11 @@ const ERRORS = {
         },
         DV_VERSION_MISMATCH: {
             ...COMMON_ERRORS.DV_VERSION_MISMATCH,
-            query: 'checkUserExistence',
+            query: 'changePasswordWithToken',
         },
         WRONG_SENDER_FORMAT: {
             ...COMMON_ERRORS.WRONG_SENDER_FORMAT,
-            query: 'checkUserExistence',
+            query: 'changePasswordWithToken',
         },
     },
 }
