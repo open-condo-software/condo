@@ -26,7 +26,7 @@ import { FieldPairRow as BaseFieldPairRow, FieldPairRowProps } from '@condo/doma
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { REASSIGN_EMPLOYEE_TICKETS } from '@condo/domains/common/constants/featureflags'
 import { PageComponentType } from '@condo/domains/common/types'
-import { DeleteEmployeeButtonWithReassignmentModel } from '@condo/domains/organization/components/DeleteButtonWithReassigmentEmployeeModal'
+import { DeleteEmployeeButtonWithReassignmentModel } from '@condo/domains/organization/components/DeleteEmployeeButtonWithReassignmentModel'
 import { EmployeeInviteRetryButton } from '@condo/domains/organization/components/EmployeeInviteRetryButton'
 import { EmployeesReadPermissionRequired } from '@condo/domains/organization/components/PageAccess'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
