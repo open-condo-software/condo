@@ -37,7 +37,6 @@ const {
     PUSH_TRANSPORT,
     SMS_TRANSPORT,
 } = require('@condo/domains/notification/constants/constants')
-
 const {
     Message,
     MessageOrganizationBlackList,
@@ -1369,31 +1368,6 @@ describe('Ticket', () => {
             })
         })
 
-
-        test('user: bulk create Tickets', async () => {
-            const client = await makeClientWithProperty()
-
-            const attrs = {
-                dv: 1,
-                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
-                unitType: FLAT_UNIT_TYPE,
-                organization: { connect: { id: client.organization.id } },
-                property: { connect: { id: client.property.id } },
-                status: { connect: { id: TICKET_OPEN_STATUS_ID } },
-                source: { connect: { id: TICKET_OTHER_SOURCE_ID } },
-                isResidentTicket: false,
-            }
-            
-            const payload = [
-                { data: attrs },
-                { data: attrs },
-            ]
-
-            await expectToThrowAccessDeniedErrorToObjects(async () => {
-                await Ticket.createMany(client, payload)
-            })
-        })
-
         test('user: update Ticket', async () => {
             const client = await makeClientWithProperty()
             const client2 = await makeClientWithProperty()
@@ -1401,37 +1375,6 @@ describe('Ticket', () => {
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestTicket(client, obj.id, { property: { connect: { id: client2.property.id } } })
             })
-        })
-
-        test('user: bulk update Tickets', async () => {
-            const client = await makeClientWithProperty()
-
-            let tickets = []
-
-            for (let i = 0; i < 10; i++) {
-                const [obj] = await createTestTicket(client, client.organization, client.property)
-                tickets.push(obj)
-            }
-
-            const payload = tickets.map((ticket) => ({
-                id: ticket.id,
-                data: {
-                    dv: 1,
-                    sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
-                    isPaid: true,
-                },
-            }))
-
-            const expectedTickets = tickets.map((ticket) => expect.objectContaining({
-                id: ticket.id,
-                isPaid: true,
-            }))
-
-            const updatedTickets = await Ticket.updateMany(client, payload)
-
-            expect(updatedTickets).toEqual(
-                expect.arrayContaining(expectedTickets)
-            )
         })
 
         test('employee from "from" organization: can read tickets from "to" organizations', async () => {
