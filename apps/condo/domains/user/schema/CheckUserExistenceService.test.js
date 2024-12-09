@@ -43,15 +43,15 @@ describe('CheckUserExistenceService', () => {
                 const userClient = await makeLoggedInClient()
                 const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
                 const [result] = await checkUserExistenceByTestClient(userClient, {
-                    confirmActionToken: confirmPhoneAction.token,
+                    token: confirmPhoneAction.token,
                     userType: RESIDENT,
                 })
                 expect(result).toEqual({
-                    userExists: false,
-                    nameSet: false,
-                    emailSet: false,
-                    phoneSet: false,
-                    passwordSet: false,
+                    isUserExists: false,
+                    isNameSet: false,
+                    isEmailSet: false,
+                    isPhoneSet: false,
+                    isPasswordSet: false,
                 })
             })
         })
@@ -60,15 +60,15 @@ describe('CheckUserExistenceService', () => {
             test('can execute', async () => {
                 const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
                 const [result] = await checkUserExistenceByTestClient(anonymousClient, {
-                    confirmActionToken: confirmPhoneAction.token,
+                    token: confirmPhoneAction.token,
                     userType: RESIDENT,
                 })
                 expect(result).toEqual({
-                    userExists: false,
-                    nameSet: false,
-                    emailSet: false,
-                    phoneSet: false,
-                    passwordSet: false,
+                    isUserExists: false,
+                    isNameSet: false,
+                    isEmailSet: false,
+                    isPhoneSet: false,
+                    isPasswordSet: false,
                 })
             })
         })
@@ -85,11 +85,11 @@ describe('CheckUserExistenceService', () => {
                         password: faker.internet.password(),
                     },
                     expectedResult: {
-                        userExists: true,
-                        nameSet: true,
-                        emailSet: true,
-                        phoneSet: true,
-                        passwordSet: true,
+                        isUserExists: true,
+                        isNameSet: true,
+                        isEmailSet: true,
+                        isPhoneSet: true,
+                        isPasswordSet: true,
                     },
                 },
                 {
@@ -100,11 +100,11 @@ describe('CheckUserExistenceService', () => {
                         password: faker.internet.password(),
                     },
                     expectedResult: {
-                        userExists: true,
-                        nameSet: false,
-                        emailSet: true,
-                        phoneSet: true,
-                        passwordSet: true,
+                        isUserExists: true,
+                        isNameSet: false,
+                        isEmailSet: true,
+                        isPhoneSet: true,
+                        isPasswordSet: true,
                     },
                 },
                 {
@@ -115,11 +115,11 @@ describe('CheckUserExistenceService', () => {
                         password: faker.internet.password(),
                     },
                     expectedResult: {
-                        userExists: true,
-                        nameSet: true,
-                        emailSet: false,
-                        phoneSet: true,
-                        passwordSet: true,
+                        isUserExists: true,
+                        isNameSet: true,
+                        isEmailSet: false,
+                        isPhoneSet: true,
+                        isPasswordSet: true,
                     },
                 },
                 {
@@ -130,11 +130,11 @@ describe('CheckUserExistenceService', () => {
                         password: null,
                     },
                     expectedResult: {
-                        userExists: true,
-                        nameSet: true,
-                        emailSet: true,
-                        phoneSet: true,
-                        passwordSet: false,
+                        isUserExists: true,
+                        isNameSet: true,
+                        isEmailSet: true,
+                        isPhoneSet: true,
+                        isPasswordSet: false,
                     },
                 },
             ]
@@ -149,7 +149,7 @@ describe('CheckUserExistenceService', () => {
                     phone: userAttrs.phone,
                 })
                 const [result] = await checkUserExistenceByTestClient(anonymousClient, {
-                    confirmActionToken: confirmPhoneAction.token,
+                    token: confirmPhoneAction.token,
                     userType: userType,
                 })
                 expect(result).toEqual(expectedResult)
@@ -158,15 +158,15 @@ describe('CheckUserExistenceService', () => {
             test('if user is not exist', async () => {
                 const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
                 const [result] = await checkUserExistenceByTestClient(anonymousClient, {
-                    confirmActionToken: confirmPhoneAction.token,
+                    token: confirmPhoneAction.token,
                     userType: userType,
                 })
                 expect(result).toEqual({
-                    userExists: false,
-                    nameSet: false,
-                    emailSet: false,
-                    phoneSet: false,
-                    passwordSet: false,
+                    isUserExists: false,
+                    isNameSet: false,
+                    isEmailSet: false,
+                    isPhoneSet: false,
+                    isPasswordSet: false,
                 })
             })
 
@@ -180,15 +180,15 @@ describe('CheckUserExistenceService', () => {
                     phone: resetUserAttrs.phone,
                 })
                 const [result] = await checkUserExistenceByTestClient(anonymousClient, {
-                    confirmActionToken: confirmPhoneAction.token,
+                    token: confirmPhoneAction.token,
                     userType: resetUserAttrs.type,
                 })
                 expect(result).toEqual({
-                    userExists: false,
-                    nameSet: false,
-                    emailSet: false,
-                    phoneSet: false,
-                    passwordSet: false,
+                    isUserExists: false,
+                    isNameSet: false,
+                    isEmailSet: false,
+                    isPhoneSet: false,
+                    isPasswordSet: false,
                 })
             })
 
@@ -204,15 +204,15 @@ describe('CheckUserExistenceService', () => {
                     phone: deletedUserAttrs.phone,
                 })
                 const [result] = await checkUserExistenceByTestClient(anonymousClient, {
-                    confirmActionToken: confirmPhoneAction.token,
+                    token: confirmPhoneAction.token,
                     userType: deletedUserAttrs.type,
                 })
                 expect(result).toEqual({
-                    userExists: false,
-                    nameSet: false,
-                    emailSet: false,
-                    phoneSet: false,
-                    passwordSet: false,
+                    isUserExists: false,
+                    isNameSet: false,
+                    isEmailSet: false,
+                    isPhoneSet: false,
+                    isPasswordSet: false,
                 })
             })
         })
@@ -220,7 +220,7 @@ describe('CheckUserExistenceService', () => {
         test('confirmPhoneAction should not be marked as used after checkUserExistence has been executed', async () => {
             const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
             const [result] = await checkUserExistenceByTestClient(anonymousClient, {
-                confirmActionToken: confirmPhoneAction.token,
+                token: confirmPhoneAction.token,
                 userType: RESIDENT,
             })
             expect(result).toBeDefined()
@@ -235,7 +235,7 @@ describe('CheckUserExistenceService', () => {
             })
             await expectToThrowGQLError(async () => {
                 await checkUserExistenceByTestClient(anonymousClient, {
-                    confirmActionToken: confirmPhoneAction.token,
+                    token: confirmPhoneAction.token,
                     userType: RESIDENT,
                 })
             }, ERRORS.TOKEN_NOT_FOUND, 'result')
@@ -247,7 +247,7 @@ describe('CheckUserExistenceService', () => {
             })
             await expectToThrowGQLError(async () => {
                 await checkUserExistenceByTestClient(anonymousClient, {
-                    confirmActionToken: confirmPhoneAction.token,
+                    token: confirmPhoneAction.token,
                     userType: RESIDENT,
                 })
             }, ERRORS.TOKEN_NOT_FOUND, 'result')
@@ -257,7 +257,7 @@ describe('CheckUserExistenceService', () => {
             const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: false })
             await expectToThrowGQLError(async () => {
                 await checkUserExistenceByTestClient(anonymousClient, {
-                    confirmActionToken: confirmPhoneAction.token,
+                    token: confirmPhoneAction.token,
                     userType: RESIDENT,
                 })
             }, ERRORS.TOKEN_NOT_FOUND, 'result')
@@ -268,14 +268,14 @@ describe('CheckUserExistenceService', () => {
             for (let i = 0; i < 10; i++) {
                 const client = await makeClient()
                 await checkUserExistenceByTestClient(client, {
-                    confirmActionToken: confirmPhoneAction.token,
+                    token: confirmPhoneAction.token,
                     userType: RESIDENT,
                 })
             }
             const client = await makeClient()
             await expectToThrowGQLError(async () => {
                 await checkUserExistenceByTestClient(client, {
-                    confirmActionToken: confirmPhoneAction.token,
+                    token: confirmPhoneAction.token,
                     userType: RESIDENT,
                 })
             }, USER_ERRORS.DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED, 'result')
@@ -285,13 +285,13 @@ describe('CheckUserExistenceService', () => {
             const [confirmPhoneAction] = await createTestConfirmPhoneAction(adminClient, { isPhoneVerified: true })
             for (let i = 0; i < 10; i++) {
                 await checkUserExistenceByTestClient(anonymousClient, {
-                    confirmActionToken: confirmPhoneAction.token,
+                    token: confirmPhoneAction.token,
                     userType: RESIDENT,
                 })
             }
             await expectToThrowGQLError(async () => {
                 await checkUserExistenceByTestClient(anonymousClient, {
-                    confirmActionToken: confirmPhoneAction.token,
+                    token: confirmPhoneAction.token,
                     userType: RESIDENT,
                 })
             }, USER_ERRORS.DAILY_REQUEST_LIMIT_FOR_IP_REACHED, 'result')
