@@ -58,7 +58,7 @@ RUN echo "# Build time .env config!" >> /app/.env && \
 	echo "FILE_FIELD_ADAPTER=local" >> /app/.env && \
 	echo "NEXT_TELEMETRY_DISABLED=1" >> /app/.env && \
 	echo "NODE_ENV=production" >> /app/.env && \
-    echo "DATA_ENCRYPTION_CONFIG='{\"build-time\":{\"algorithm\":\"aes-256-gcm\",\"secret\":\"d72cc852cbbf67e20a8a7a4766fcae5b56d36c5c62bd7a8aed74e70c47fadfe8\"}}'" >> /app/.env && \
+    echo "DATA_ENCRYPTION_CONFIG='{\"build-time\":{\"algorithm\":\"aes-256-gcm\",\"secret\":\"****************************************************************\"}}'" >> /app/.env && \
     echo "DATA_ENCRYPTION_VERSION_ID=build-time" >> /app/.env
 
 RUN chmod +x ./bin/run_condo_domain_tests.sh
