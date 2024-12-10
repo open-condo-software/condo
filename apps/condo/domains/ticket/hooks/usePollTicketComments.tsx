@@ -1,6 +1,6 @@
 import { useGetPollTicketCommentsQuery } from '@app/condo/gql'
-import { isEmpty } from 'lodash'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import uniq from 'lodash/uniq'
 import { useCallback, useEffect, useRef } from 'react'
 
