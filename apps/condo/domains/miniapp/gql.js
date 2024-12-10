@@ -81,7 +81,7 @@ const B2CAppMessageSetting = generateGqlQueries('B2CAppMessageSetting', B2C_APP_
 
 const B2B_ACCESS_TOKEN_FIELDS = `{ token sessionId user { id } context { id app { id name } organization { id name } } rightSet { id name } expiresAt ${COMMON_FIELDS} }`
 const B2BAccessToken = generateGqlQueries('B2BAccessToken', B2B_ACCESS_TOKEN_FIELDS)
-const B2BAccessTokenReadonly = generateGqlQueries('B2BAccessToken', `{ token context { id app { id name } organization { id name } } expiresAt ${COMMON_FIELDS}  }`)
+const B2BAccessTokenReadonly = generateGqlQueries('B2BAccessToken', `{ context { id app { id name } organization { id name } } expiresAt ${COMMON_FIELDS}  }`)
 
 /* AUTOGENERATE MARKER <CONST> */
 

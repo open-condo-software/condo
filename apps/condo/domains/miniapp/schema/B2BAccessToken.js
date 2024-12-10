@@ -134,11 +134,14 @@ const B2BAccessToken = new GQLListSchema('B2BAccessToken', {
                 // Show only once on 'create' operation
                 // Keystonejs does not pass 'operation' argument in virtual fields or access.
                 // So let's decide what to show and when in list 'afterChange' hook
-                if (!isNil(item.token)) {
-                    return item.token
-                }
-                return null
+                // if (!isNil(item.token)) {
+                //     return item.token
+                // }
+                // return null
+                const sessionId = encryptionManager.decrypt(item.sessionId)
+                return cookieSignature.sign(sessionId, COOKIE_SECRET)
             },
+            access: access.readableOnlyOnCreate,
         },
 
         context: {
@@ -224,12 +227,12 @@ const B2BAccessToken = new GQLListSchema('B2BAccessToken', {
             const softDeleted = operation === 'update' && !existingItem['deletedAt'] && updatedItem['deletedAt']
             const sessionId = encryptionManager.decrypt(updatedItem.sessionId)
 
-            if (operation === 'create') {
-                // This is hack. Show token only once on 'create' operation
-                // Keystonejs does not pass 'operation' in virtual field resolver or 'read' access
-                // So need to control it manually here
-                updatedItem.token = cookieSignature.sign(sessionId, COOKIE_SECRET)
-            }
+            // if (operation === 'create') {
+            //     // This is hack. Show token only once on 'create' operation
+            //     // Keystonejs does not pass 'operation' in virtual field resolver or 'read' access
+            //     // So need to control it manually here
+            //     updatedItem.token = cookieSignature.sign(sessionId, COOKIE_SECRET)
+            // }
 
             if (softDeleted) {
                 await destroySession(context.req.sessionStore, sessionId)

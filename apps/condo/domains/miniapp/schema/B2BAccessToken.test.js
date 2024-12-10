@@ -13,10 +13,10 @@ const {
     makeLoggedInAdminClient, makeClient, expectValuesOfCommonFields,
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj, expectToThrowGQLError, expectToThrowAccessDeniedErrorToObjects,
-    makeLoggedInClient,
+    makeLoggedInClient, expectToThrowAccessDeniedError,
 } = require('@open-condo/keystone/test.utils')
 
-const { B2BAccessToken, createTestB2BAccessToken, updateTestB2BAccessToken, createTestB2BAppContext,
+const { B2BAccessToken, createTestB2BAccessToken, createTestB2BAppContext,
     createTestB2BAppAccessRightSet, createTestB2BAppAccessRight, createTestB2BAccessTokenReadonly,
     B2BAccessTokenReadonly, updateTestB2BAppAccessRightSet, createTestB2BApp, updateTestB2BAccessTokenReadonly,
     updateTestB2BAppContext,
@@ -109,7 +109,7 @@ describe('B2BAccessToken', () => {
                 const admin = await makeLoggedInAdminClient()
                 const [objCreated] = await createTestB2BAccessToken(admin, b2bAppContext, scopedRightSet)
 
-                const [obj, attrs] = await updateTestB2BAccessToken(admin, objCreated.id)
+                const [obj, attrs] = await updateTestB2BAccessTokenReadonly(admin, objCreated.id)
 
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
@@ -139,7 +139,7 @@ describe('B2BAccessToken', () => {
 
                 const client = await makeClient()
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await updateTestB2BAccessToken(client, objCreated.id)
+                    await updateTestB2BAccessTokenReadonly(client, objCreated.id)
                 })
             })
         })
@@ -180,7 +180,7 @@ describe('B2BAccessToken', () => {
                 const admin = await makeLoggedInAdminClient()
                 const [obj] = await createTestB2BAccessToken(admin, b2bAppContext, scopedRightSet)
 
-                const objs = await B2BAccessToken.getAll(admin, {}, { sortBy: ['updatedAt_DESC'] })
+                const objs = await B2BAccessTokenReadonly.getAll(admin, {}, { sortBy: ['updatedAt_DESC'] })
 
                 expect(objs.length).toBeGreaterThanOrEqual(1)
                 expect(objs).toEqual(expect.arrayContaining([
@@ -293,7 +293,7 @@ describe('B2BAccessToken', () => {
 
         test('admin can update everything', async () => {
             const [accessToken] = await createTestB2BAccessToken(admin, b2bAppContext, scopedRightSet)
-            const [updatedToken] = await updateTestB2BAccessToken(admin, accessToken.id, updateInput)
+            const [updatedToken] = await updateTestB2BAccessTokenReadonly(admin, accessToken.id, updateInput)
             expect(updatedToken).toBeDefined()
         })
 
@@ -315,10 +315,10 @@ describe('B2BAccessToken', () => {
             const [accessToken] = await createTestB2BAccessToken(serviceUserClient, b2bAppContext, scopedRightSet)
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await updateTestB2BAccessToken(serviceUserClient, accessToken.id, updateInput)
+                await updateTestB2BAccessTokenReadonly(serviceUserClient, accessToken.id, updateInput)
             })
 
-            const [updatedToken] = await updateTestB2BAccessToken(serviceUserClient, accessToken.id, pick(updateInput, updatableByNonAdminFields))
+            const [updatedToken] = await updateTestB2BAccessTokenReadonly(serviceUserClient, accessToken.id, pick(updateInput, updatableByNonAdminFields))
             expect(updatedToken).toBeDefined()
         })
     })
@@ -386,9 +386,9 @@ describe('B2BAccessToken', () => {
             expect(createdToken).toHaveProperty('token')
             expect(createdToken.token.length).toBeGreaterThan(0)
 
-            const gottenToken = await B2BAccessToken.getOne(client, { id: createdToken.id })
-            expect(gottenToken).toHaveProperty('token')
-            expect(gottenToken.token).toBeNull()
+            await expectToThrowAccessDeniedError(async () => {
+                await B2BAccessToken.getOne(client, { id: createdToken.id })
+            }, ['objs', 0, 'token'])
         })
         
         describe('Token', () => {
