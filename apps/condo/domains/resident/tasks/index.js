@@ -9,7 +9,6 @@ const {
     sendBillingReceiptNotificationsWorkDaysTask,
     sendBillingReceiptNotificationsWeekendsTask,
 } = require('./sendBillingReceiptNotifications.task')
-const { sendBillingReceiptsAddedNotificationForOrganizationContextTask } = require('./sendBillingReceiptsAddedNotificationForOrganizationContextTask')
 
 module.exports = {
     notifyResidentsOnPaydayCronTask,
@@ -19,5 +18,4 @@ module.exports = {
     manageResidentToTicketClientConnections,
     discoverServiceConsumersCronTask,
     discoverServiceConsumersTask,
-    sendBillingReceiptsAddedNotificationForOrganizationContextTask,
 }

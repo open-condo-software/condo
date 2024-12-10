@@ -10,7 +10,7 @@ const DATE_FORMAT_Z = 'YYYY-MM-DDTHH:mm:ss.SSSZZ'
  * @param shouldFormat
  * @returns {*}
  */
-const getMonthStart = (dateRaw = undefined, shouldFormat = false) => {
+const getMonthStart = (dateRaw, shouldFormat = false) => {
     const date = dayjs(dateRaw).date(1)
 
     return shouldFormat ? date.format(DATE_FORMAT) : date
@@ -21,7 +21,7 @@ const getMonthStart = (dateRaw = undefined, shouldFormat = false) => {
  * Usable for periods of billing receipts, etc.
  * @returns {{prevMonthStart, thisMonthStart, nextMonthStart}}
  */
-const getStartDates = (dateRaw = undefined) => {
+const getStartDates = (dateRaw) => {
     const date = getMonthStart(dateRaw)
 
     return {
