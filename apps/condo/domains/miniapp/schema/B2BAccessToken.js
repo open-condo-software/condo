@@ -124,20 +124,11 @@ const B2BAccessToken = new GQLListSchema('B2BAccessToken', {
             },
         },
 
-        // Access is redundant. Because we can't know operation in 'read' access, resolver or user hooks here.
-        // So field is accessible by any user matching list access, and conditions to fill field described in list hooks
         token: {
             schemaDoc: 'Token, ready to be put in Authorization header. Shown only once after creation',
             type: 'Virtual',
             graphQLReturnType: 'String',
             resolver: (item) => {
-                // Show only once on 'create' operation
-                // Keystonejs does not pass 'operation' argument in virtual fields or access.
-                // So let's decide what to show and when in list 'afterChange' hook
-                // if (!isNil(item.token)) {
-                //     return item.token
-                // }
-                // return null
                 const sessionId = encryptionManager.decrypt(item.sessionId)
                 return cookieSignature.sign(sessionId, COOKIE_SECRET)
             },
@@ -226,13 +217,6 @@ const B2BAccessToken = new GQLListSchema('B2BAccessToken', {
         async afterChange ({ context, operation, existingItem, updatedItem }) {
             const softDeleted = operation === 'update' && !existingItem['deletedAt'] && updatedItem['deletedAt']
             const sessionId = encryptionManager.decrypt(updatedItem.sessionId)
-
-            // if (operation === 'create') {
-            //     // This is hack. Show token only once on 'create' operation
-            //     // Keystonejs does not pass 'operation' in virtual field resolver or 'read' access
-            //     // So need to control it manually here
-            //     updatedItem.token = cookieSignature.sign(sessionId, COOKIE_SECRET)
-            // }
 
             if (softDeleted) {
                 await destroySession(context.req.sessionStore, sessionId)
