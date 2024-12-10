@@ -4,14 +4,16 @@ const github = require('@mono-pub/github')
 const npm = require('@mono-pub/npm')
 const execa = require('execa')
 const publish = require('mono-pub')
+const { getExecutionOrder } = require('mono-pub/utils')
 
+/** @type {import('mono-pub').MonoPubPlugin} */
 const builder = {
     name: '@open-condo/turbo-builder',
-    async prepare (_, ctx) {
-        // TODO: remove debug messages
-        await execa('yarn', ['build:packages', '--graph'], { cwd: ctx.cwd, stdio: 'inherit' })
-        console.log('='.repeat(80))
-        await execa('yarn', ['build:packages'], { cwd: ctx.cwd, stdio: 'inherit' })
+    async prepareAll ({ foundPackages }, ctx) {
+        const batches = getExecutionOrder(foundPackages, { batching: true })
+        for (const batch of batches) {
+            await execa('yarn', ['build', ...batch.map((pkg) => `--filter=${pkg.name}`)], { cwd: ctx.cwd })
+        }
     },
 }
 

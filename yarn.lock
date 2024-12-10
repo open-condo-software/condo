@@ -13427,51 +13427,51 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mono-pub/commit-analyzer@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "@mono-pub/commit-analyzer@npm:1.0.1"
+"@mono-pub/commit-analyzer@npm:^1.0.5":
+  version: 1.0.5
+  resolution: "@mono-pub/commit-analyzer@npm:1.0.5"
   dependencies:
     conventional-commits-parser: ^3.2.4
   peerDependencies:
     mono-pub: 1.x
-  checksum: 6cad096b76ce4dccd2cb6fcaf61f161a2ae564c39ebde329448652cddd61614fa1198ec9d4e90226aca6d9f8ec08b2b077d737a02114d92f86f156acbfc64ad3
+  checksum: 9bdd6ea65c438379369e81c2fb98f21bbea0af1dd3385ffa3ac3a650a66a46c73a8d0a9d9d0cf0af61e4c714059946de3d3a4cfea3230551c652c5c04ee183b8
   languageName: node
   linkType: hard
 
-"@mono-pub/git@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "@mono-pub/git@npm:1.0.1"
+"@mono-pub/git@npm:^1.0.5":
+  version: 1.0.5
+  resolution: "@mono-pub/git@npm:1.0.5"
   dependencies:
     execa: ^5
   peerDependencies:
     mono-pub: 1.x
-  checksum: 864fad8e644280ebb9fb3dd02e0e3a9660366f885dd6c8d08d40181eb41c5b9876152f55682b20110672baae9e2e9ba73e6bd5e13e2106601d9f9f766b4f9789
+  checksum: fb5d646d87b6b447c8c4e60e64d16d26aa5bd1c7ea644d6dc898915f8e84a91175f435b60ba2d4b587b2de11353fad52b29a9611b865d09a41c15c4d34f70509
   languageName: node
   linkType: hard
 
-"@mono-pub/github@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "@mono-pub/github@npm:1.0.1"
+"@mono-pub/github@npm:^1.0.5":
+  version: 1.0.5
+  resolution: "@mono-pub/github@npm:1.0.5"
   dependencies:
-    "@mono-pub/git": ^1.0.1
+    "@mono-pub/git": ^1.0.5
     "@octokit/rest": ^19.0.7
     conventional-commits-parser: ^3.2.4
     lodash: ^4.17.21
   peerDependencies:
     mono-pub: 1.x
-  checksum: 5b2dc78fe62b5c66ac25df8dc8b79c9d6f98960bbb0186601aa7bbe0b5855326bc5c9a25bdc4c724d98eb9fa2f5848731493e08bf2848d91d1d7d26432f738b3
+  checksum: 8169e7c34b42361b64465b15e4c6ca1ae5fac2a956bb9ce387141f67b681cd4dbd037dc8ad58cffae53e8439dec4a3c390f80722e4c793a3d0f5b8e03750c9a4
   languageName: node
   linkType: hard
 
-"@mono-pub/npm@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "@mono-pub/npm@npm:1.0.1"
+"@mono-pub/npm@npm:^1.0.5":
+  version: 1.0.5
+  resolution: "@mono-pub/npm@npm:1.0.5"
   dependencies:
     execa: ^5
     tmp: ^0.2.1
   peerDependencies:
     mono-pub: 1.x
-  checksum: 881a2e17c2a27d4d296c3332d53ee451d29cb43c2cc121378dbdcddc480efb2241add91cb788721c1ec263421333a26f3d0f2f9a4f8b56b62c53f1587af8eb1b
+  checksum: 24e6a5a62a284b5fdc6c6693824243829237c0fc132ea232b3d44e43b44a8f2c188fb77149ccdee344e314eace2df3a156b5085cd4c5ff417f06353b94098c5b
   languageName: node
   linkType: hard
 
@@ -40591,14 +40591,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mono-pub@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "mono-pub@npm:1.0.1"
+"mono-pub@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "mono-pub@npm:2.0.0"
   dependencies:
     glob: ^10.2.2
     lodash: ^4.17.21
     signale: ^1.4.0
-  checksum: 2506c7aaa6ecdeb11fb398d7917bcc4c8299ddffb4fbea34e233b24cefa83b90448c41e0abb786e2d6d1cddc8fc485c767825894304a7bd0e11047c50c19ddd3
+  checksum: c825e782af8c78ee1e1f789ba64206273769b16eca78937bb27015f202d1d3d0a69107c26a820c8b57e5cff9726128badc69d37ec0938e8fcacc9c356fecbb36
   languageName: node
   linkType: hard
 
@@ -49426,10 +49426,10 @@ __metadata:
     "@faker-js/faker": ^7.6.0
     "@graphql-codegen/cli": 1.21.8
     "@graphql-codegen/typescript": 1.23.0
-    "@mono-pub/commit-analyzer": ^1.0.1
-    "@mono-pub/git": ^1.0.1
-    "@mono-pub/github": ^1.0.1
-    "@mono-pub/npm": ^1.0.1
+    "@mono-pub/commit-analyzer": ^1.0.5
+    "@mono-pub/git": ^1.0.5
+    "@mono-pub/github": ^1.0.5
+    "@mono-pub/npm": ^1.0.5
     "@open-condo/cli": "workspace:^"
     "@sentry/nextjs": ^6.19.7
     "@sentry/node": ^7.102.1
@@ -49455,7 +49455,7 @@ __metadata:
     jest-diff: ^29.7.0
     jest-environment-jsdom: ^29.7.0
     jest-jasmine2: ^29.7.0
-    mono-pub: ^1.0.1
+    mono-pub: ^2.0.0
     node-fetch: ^2.6.7
     postcss: ^8.3.5
     postcss-less: ^6.0.0
