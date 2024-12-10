@@ -408,8 +408,8 @@ describe('B2BAppAccessRightSet', () => {
                 await createTestB2BAppAccessRightSet(admin, app, { type: 'SCOPED' })
             }, {
                 code: 'BAD_USER_INPUT',
-                type: 'ACCESS_RIGHT_SET_MINIAPP_SCOPE_RIGHT_SET_REQUIRED',
-                message: 'You need to have "miniapp" type right before other types',
+                type: 'ACCESS_RIGHT_SET_GLOBAL_RIGHT_SET_REQUIRED',
+                message: 'You need to have "GLOBAL" type right before other types',
             }, 'obj')
         })
 
@@ -422,7 +422,7 @@ describe('B2BAppAccessRightSet', () => {
             }, {
                 code: 'BAD_USER_INPUT',
                 type: 'ACCESS_RIGHT_SET_TOO_MANY_PERMISSIONS',
-                message: 'You trying to give to right set more permissions, than "miniapp" right set has',
+                message: 'You trying to give to right set more permissions, than "GLOBAL" right set has',
             }, 'obj')
 
             const [tokenRightSet] = await createTestB2BAppAccessRightSet(admin, app, { type: 'SCOPED', canReadOrganizations: true })
@@ -432,7 +432,7 @@ describe('B2BAppAccessRightSet', () => {
             }, {
                 code: 'BAD_USER_INPUT',
                 type: 'ACCESS_RIGHT_SET_TOO_MANY_PERMISSIONS',
-                message: 'You trying to give to right set more permissions, than "miniapp" right set has',
+                message: 'You trying to give to right set more permissions, than "GLOBAL" right set has',
             }, 'obj')
         })
 
