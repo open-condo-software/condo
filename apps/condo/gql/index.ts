@@ -3115,10 +3115,10 @@ export type GetTicketCommentsLazyQueryHookResult = ReturnType<typeof useGetTicke
 export type GetTicketCommentsSuspenseQueryHookResult = ReturnType<typeof useGetTicketCommentsSuspenseQuery>
 export type GetTicketCommentsQueryResult = Apollo.QueryResult<Types.GetTicketCommentsQuery, Types.GetTicketCommentsQueryVariables>
 export const GetPollTicketCommentsDocument = gql`
-    query getPollTicketComments($where: TicketCommentWhereInput!) {
+    query getPollTicketComments($where: TicketCommentWhereInput!, $first: Int) {
   ticketComments: allTicketComments(
     where: $where
-    first: 100
+    first: $first
     sortBy: [updatedAt_DESC]
   ) {
     id
@@ -3143,6 +3143,7 @@ export const GetPollTicketCommentsDocument = gql`
  * const { data, loading, error } = useGetPollTicketCommentsQuery({
  *   variables: {
  *      where: // value for 'where'
+ *      first: // value for 'first'
  *   },
  * });
  */
