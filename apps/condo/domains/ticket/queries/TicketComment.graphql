@@ -1,6 +1,7 @@
 query getTicketComments ($ticketId: ID!) {
     ticketComments: allTicketComments (
-        where: { ticket: { id: $ticketId } },
+        where: { ticket: { id: $ticketId } }
+        first: 100
         sortBy: [createdAt_DESC]
     ) {
         id

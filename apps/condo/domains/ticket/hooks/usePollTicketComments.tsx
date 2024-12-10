@@ -1,7 +1,10 @@
 import { useGetPollTicketCommentsQuery } from '@app/condo/gql'
+import { isEmpty } from 'lodash'
 import get from 'lodash/get'
 import uniq from 'lodash/uniq'
 import { useCallback, useEffect, useRef } from 'react'
+
+import { isSSR } from '@open-condo/miniapp-utils'
 
 import { useBroadcastChannel } from '@condo/domains/common/hooks/useBroadcastChannel'
 import { useExecuteWithLock } from '@condo/domains/common/hooks/useExecuteWithLock'
@@ -30,29 +33,28 @@ export function usePollTicketComments ({
     })
 
     const pollTicketComments = useCallback(async () => {
-        if (!localStorage) return
+        if (isSSR() || !localStorage) return
 
         const now = new Date().toISOString()
         const lastSyncAt = localStorage.getItem(LOCAL_STORAGE_SYNC_KEY)
-        let newSyncedAt
 
-        try {
-            const result = await refetchSyncComments({
-                where: {
-                    ...pollCommentsQuery,
-                    updatedAt_gt: lastSyncAt || now,
-                },
-            })
-            const ticketComments = result?.data?.ticketComments?.filter(Boolean) || []
-            const ticketsWithUpdatedComments: string[] = uniq(ticketComments.map(ticketComment => ticketComment?.ticket?.id))
-            newSyncedAt = ticketComments[0]?.updatedAt || now
+        const result = await refetchSyncComments({
+            where: {
+                ...pollCommentsQuery,
+                updatedAt_gt: lastSyncAt || now,
+            },
+        })
+        const ticketComments = result?.data?.ticketComments?.filter(Boolean) || []
+        const newSyncedAt = ticketComments[0]?.updatedAt || now
 
+        localStorage.setItem(LOCAL_STORAGE_SYNC_KEY, newSyncedAt)
+
+        const ticketsWithUpdatedComments: string[] = uniq(ticketComments.map(
+            ticketComment => ticketComment?.ticket?.id
+        ))
+
+        if (!isEmpty(ticketsWithUpdatedComments)) {
             sendMessage(ticketsWithUpdatedComments)
-        } finally {
-            if (!newSyncedAt) {
-                newSyncedAt = now
-            }
-            localStorage.setItem(LOCAL_STORAGE_SYNC_KEY, newSyncedAt)
         }
     }, [pollCommentsQuery, refetchSyncComments, sendMessage])
 

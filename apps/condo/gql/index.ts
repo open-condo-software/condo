@@ -3064,6 +3064,7 @@ export const GetTicketCommentsDocument = gql`
     query getTicketComments($ticketId: ID!) {
   ticketComments: allTicketComments(
     where: {ticket: {id: $ticketId}}
+    first: 100
     sortBy: [createdAt_DESC]
   ) {
     id
@@ -3232,6 +3233,7 @@ export const GetTicketCommentsFilesDocument = gql`
     query getTicketCommentsFiles($ticketCommentsIds: [ID!]!) {
   files: allTicketCommentFiles(
     where: {ticketComment: {id_in: $ticketCommentsIds}}
+    first: 100
     sortBy: [createdAt_DESC]
   ) {
     id
