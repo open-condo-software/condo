@@ -406,7 +406,7 @@ const TicketActionBar = ({
     const { TicketDocumentGenerationButton } = useTicketDocumentGenerationTask({
         hasValidInvoice,
         ticketId: id || null,
-        isPaidTicket: ticket?.isPaid || false,
+        isPaidTicket: ticket?.isPayable || false,
         timeZone,
         userId: user?.id || null,
     })
