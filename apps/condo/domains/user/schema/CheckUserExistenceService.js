@@ -10,14 +10,14 @@ const { GQLCustomSchema, getByCondition } = require('@open-condo/keystone/schema
 
 const { NOT_FOUND, COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/user/access/CheckUserExistenceService')
-const { CAPTCHA_CHECK_FAILED } = require('@condo/domains/user/constants/errors')
+const { CAPTCHA_CHECK_FAILED, INVALID_TOKEN, UNSUPPORTED_TOKEN } = require('@condo/domains/user/constants/errors')
 const { captchaCheck } = require('@condo/domains/user/utils/hCaptcha')
 const { ConfirmPhoneAction } = require('@condo/domains/user/utils/serverSchema')
 const {
     checkDailyRequestLimitCountersByIp,
     checkDailyRequestLimitCountersByPhone,
 } = require('@condo/domains/user/utils/serverSchema/requestLimitHelpers')
-const { detectTokenTypeSafely, TOKEN_TYPES } = require('@condo/domains/user/utils/serverSchema/tokens')
+const { detectTokenTypeSafely, TOKEN_TYPES } = require('@condo/domains/user/utils/tokens')
 
 
 /**
@@ -47,6 +47,18 @@ const ERRORS = {
     WRONG_SENDER_FORMAT: {
         ...COMMON_ERRORS.WRONG_SENDER_FORMAT,
         query: 'checkUserExistence',
+    },
+    INVALID_TOKEN: {
+        query: 'checkUserExistence',
+        code: BAD_USER_INPUT,
+        type: INVALID_TOKEN,
+        message: 'Invalid token',
+    },
+    UNSUPPORTED_TOKEN: {
+        query: 'checkUserExistence',
+        code: BAD_USER_INPUT,
+        type: UNSUPPORTED_TOKEN,
+        message: 'Unsupported token',
     },
 }
 
@@ -80,9 +92,9 @@ const CheckUserExistenceService = new GQLCustomSchema('CheckUserExistenceService
 
                 await checkDailyRequestLimitCountersByIp(context, 'checkUserExistence', context.req.ip)
 
-                const { error } = await captchaCheck(context, captcha)
-                if (error) {
-                    throw new GQLError({ ...ERRORS.CAPTCHA_CHECK_FAILED, data: { error } }, context)
+                const { error: captchaError } = await captchaCheck(context, captcha)
+                if (captchaError) {
+                    throw new GQLError({ ...ERRORS.CAPTCHA_CHECK_FAILED, data: { error: captchaError } }, context)
                 }
 
                 checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
@@ -91,12 +103,10 @@ const CheckUserExistenceService = new GQLCustomSchema('CheckUserExistenceService
 
                 const { error: tokenError, tokenType } = detectTokenTypeSafely(token)
                 if (tokenError) {
-                    // todo(doma-10814): add error
                     throw new GQLError({ ...ERRORS.INVALID_TOKEN, data: { error: tokenError } }, context)
                 }
 
                 if (tokenType !== TOKEN_TYPES.CONFIRM_PHONE) {
-                    // todo(doma-10814): add error
                     throw new GQLError(ERRORS.UNSUPPORTED_TOKEN, context)
                 }
 

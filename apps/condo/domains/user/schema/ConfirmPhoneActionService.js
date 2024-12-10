@@ -1,10 +1,9 @@
 const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 const pick = require('lodash/pick')
-const { v4: uuid } = require('uuid')
 
 const conf = require('@open-condo/config')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
@@ -31,6 +30,7 @@ const {
     SMS_CODE_MAX_RETRIES_REACHED,
     SMS_CODE_VERIFICATION_FAILED,
     GQL_ERRORS,
+    GENERATE_TOKEN_FAILED,
 } = require('@condo/domains/user/constants/errors')
 const { captchaCheck } = require('@condo/domains/user/utils/hCaptcha')
 const {
@@ -38,6 +38,8 @@ const {
     generateSmsCode,
 } = require('@condo/domains/user/utils/serverSchema')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
+const { TOKEN_TYPES, generateTokenSafely } = require('@condo/domains/user/utils/tokens')
+
 
 const redisGuard = new RedisGuard()
 
@@ -102,6 +104,12 @@ const ERRORS = {
         type: SMS_CODE_VERIFICATION_FAILED,
         message: 'SMS code verification mismatch',
         messageForUser: 'api.user.completeConfirmPhoneAction.SMS_CODE_VERIFICATION_FAILED',
+    },
+    GENERATE_TOKEN_ERROR: {
+        mutation: 'completeConfirmPhoneAction',
+        code: INTERNAL_ERROR,
+        type: GENERATE_TOKEN_FAILED,
+        message: 'Generate token failed',
     },
 }
 
@@ -221,7 +229,10 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 await checkSMSDayLimitCounters(phone, context.req.ip, context)
                 await redisGuard.checkLock(phone, 'sendsms', context)
                 await redisGuard.lock(phone, 'sendsms', SMS_CODE_TTL)
-                const token = uuid()
+                const { error: tokenError, token } = generateTokenSafely(TOKEN_TYPES.CONFIRM_PHONE)
+                if (tokenError) {
+                    throw new GQLError({ ...ERRORS.GENERATE_TOKEN_ERROR, data: { error: tokenError } }, context)
+                }
                 const now = extra.extraNow || Date.now()
                 const requestedAt = new Date(now).toISOString()
                 const expiresAt = new Date(now + CONFIRM_PHONE_ACTION_EXPIRY * 1000).toISOString()

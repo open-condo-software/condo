@@ -11,6 +11,7 @@ const { max, repeat, get, isEmpty } = require('lodash')
 const { getRandomString, makeClient, makeLoggedInClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
+const { TOKEN_TYPES, generateToken } = require('@condo/domains/user/utils/tokens')
 const {
     SMS_CODE_TTL,
     CONFIRM_PHONE_ACTION_EXPIRY,
@@ -248,7 +249,7 @@ async function createTestConfirmPhoneAction (client, extraAttrs = {}) {
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const now = Date.now()
     const attributes = {
-        token: uuid(),
+        token: generateToken(TOKEN_TYPES.CONFIRM_PHONE),
         phone: createTestPhone(),
         smsCode: generateSmsCode(),
         smsCodeRequestedAt: new Date(now).toISOString(),
