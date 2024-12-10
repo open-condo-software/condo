@@ -1,8 +1,13 @@
 import { useGetPollTicketCommentsQuery } from '@app/condo/gql'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import uniq from 'lodash/uniq'
 import { useCallback, useEffect, useRef } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
+import { isSSR } from '@open-condo/miniapp-utils'
+
+import { POLL_TICKET_COMMENTS } from '@condo/domains/common/constants/featureflags'
 import { useBroadcastChannel } from '@condo/domains/common/hooks/useBroadcastChannel'
 import { useExecuteWithLock } from '@condo/domains/common/hooks/useExecuteWithLock'
 
@@ -17,6 +22,14 @@ export function usePollTicketComments ({
     refetchTicketComments,
     pollCommentsQuery,
 }) {
+    const { useFlag } = useFeatureFlags()
+    const isPollTicketsEnabled = useFlag(POLL_TICKET_COMMENTS)
+
+    const firstArgRef = useRef<number>()
+    useEffect(() => {
+        firstArgRef.current = isPollTicketsEnabled ? 100 : undefined
+    }, [isPollTicketsEnabled])
+    
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>()
 
     const { refetch: refetchSyncComments } = useGetPollTicketCommentsQuery({
@@ -30,29 +43,27 @@ export function usePollTicketComments ({
     })
 
     const pollTicketComments = useCallback(async () => {
-        if (!localStorage) return
+        if (isSSR() || !localStorage) return
 
         const now = new Date().toISOString()
         const lastSyncAt = localStorage.getItem(LOCAL_STORAGE_SYNC_KEY)
-        let newSyncedAt
+        localStorage.setItem(LOCAL_STORAGE_SYNC_KEY, now)
 
-        try {
-            const result = await refetchSyncComments({
-                where: {
-                    ...pollCommentsQuery,
-                    updatedAt_gt: lastSyncAt || now,
-                },
-            })
-            const ticketComments = result?.data?.ticketComments?.filter(Boolean) || []
-            const ticketsWithUpdatedComments: string[] = uniq(ticketComments.map(ticketComment => ticketComment?.ticket?.id))
-            newSyncedAt = ticketComments[0]?.updatedAt || now
+        const result = await refetchSyncComments({
+            where: {
+                ...pollCommentsQuery,
+                updatedAt_gt: lastSyncAt || now,
+            },
+            first: firstArgRef.current,
+        })
+        const ticketComments = result?.data?.ticketComments?.filter(Boolean) || []
 
+        const ticketsWithUpdatedComments: string[] = uniq(ticketComments.map(
+            ticketComment => ticketComment?.ticket?.id
+        ))
+
+        if (!isEmpty(ticketsWithUpdatedComments)) {
             sendMessage(ticketsWithUpdatedComments)
-        } finally {
-            if (!newSyncedAt) {
-                newSyncedAt = now
-            }
-            localStorage.setItem(LOCAL_STORAGE_SYNC_KEY, newSyncedAt)
         }
     }, [pollCommentsQuery, refetchSyncComments, sendMessage])
 

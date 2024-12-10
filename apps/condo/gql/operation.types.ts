@@ -424,6 +424,7 @@ export type GetTicketCommentsQuery = { __typename?: 'Query', ticketComments?: Ar
 
 export type GetPollTicketCommentsQueryVariables = Types.Exact<{
     where: Types.TicketCommentWhereInput
+    first?: Types.InputMaybe<Types.Scalars['Int']['input']>
 }>
 
 
