@@ -78004,16 +78004,17 @@ type GetAccessTokenByUserIdOutput {
 input CheckUserExistenceInput {
   dv: Int!
   sender: SenderFieldInput!
-  confirmActionToken: ID!
+  token: String!
   userType: UserTypeType!
+  captcha: String
 }
 
 type CheckUserExistenceOutput {
-  userExists: Boolean!
-  nameSet: Boolean!
-  emailSet: Boolean!
-  phoneSet: Boolean!
-  passwordSet: Boolean!
+  isUserExists: Boolean!
+  isNameSet: Boolean!
+  isEmailSet: Boolean!
+  isPhoneSet: Boolean!
+  isPasswordSet: Boolean!
 }
 
 enum OrganizationType {
@@ -83275,7 +83276,8 @@ type Query {
   Using an action token with a verified phone number, checks whether a user with the specified type (resident, staff, service) is registered.
   As a result, information about the completion of some important fields (name, email, phone, password) is also returned.
   
-  
+  Token can be: 
+   - confirmPhoneToken
   
   **Errors**
   
@@ -83289,6 +83291,13 @@ type Query {
   
   `{
     "code": "BAD_USER_INPUT",
+    "type": "CAPTCHA_CHECK_FAILED",
+    "message": "Failed to check CAPTCHA",
+    "messageForUser": "The operation could not be completed. Please update the application"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
     "type": "DV_VERSION_MISMATCH",
     "message": "Wrong value for data version number"
   }`
@@ -83298,6 +83307,18 @@ type Query {
     "type": "WRONG_FORMAT",
     "message": "Invalid format of \"sender\" field value",
     "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "INVALID_TOKEN",
+    "message": "Invalid token"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "UNSUPPORTED_TOKEN",
+    "message": "Unsupported token"
   }`
   """
   checkUserExistence(data: CheckUserExistenceInput!): CheckUserExistenceOutput
