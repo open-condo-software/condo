@@ -210,7 +210,7 @@ describe('B2BAccessToken', () => {
                     })
                     const [organization] = await createTestOrganization(admin)
                     const [b2bAppContext] = await createTestB2BAppContext(admin, b2bApp, organization, { status: 'Finished' })
-                    const [globalRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { canReadB2BAccessTokens: true })
+                    const [globalRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { canReadB2BAccessTokens: false, canManageB2BAccessTokens: true })
                     const [scopedRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, {
                         name: faker.random.alphaNumeric(8),
                         type: 'SCOPED',
@@ -218,8 +218,9 @@ describe('B2BAccessToken', () => {
                     const serviceUserClient = await makeClientWithServiceUser()
                     await createTestB2BAppAccessRight(admin, serviceUserClient.user, b2bApp, globalRightSet)
 
-                    await expectToThrowAccessDeniedErrorToObj(async () => {
-                        await createTestB2BAccessToken(serviceUserClient, b2bAppContext, scopedRightSet)
+                    const [{ id: createdId }] = await createTestB2BAccessToken(serviceUserClient, b2bAppContext, scopedRightSet)
+                    await expectToThrowAccessDeniedErrorToObjects(async () => {
+                        await B2BAccessTokenReadonly.getAll(serviceUserClient, { id: createdId })
                     })
                 })
 
@@ -230,7 +231,7 @@ describe('B2BAccessToken', () => {
                     })
                     const [organization] = await createTestOrganization(admin)
                     const [b2bAppContext] = await createTestB2BAppContext(admin, b2bApp, organization, { status: 'Finished' })
-                    const [globalRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { canManageB2BAccessTokens: true })
+                    const [globalRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, { canReadB2BAccessTokens: true, canManageB2BAccessTokens: true })
                     const [scopedRightSet] = await createTestB2BAppAccessRightSet(admin, b2bApp, {
                         name: faker.random.alphaNumeric(8),
                         type: 'SCOPED',
@@ -238,7 +239,8 @@ describe('B2BAccessToken', () => {
                     const serviceUserClient = await makeClientWithServiceUser()
                     await createTestB2BAppAccessRight(admin, serviceUserClient.user, b2bApp, globalRightSet)
 
-                    const [accessToken] = await createTestB2BAccessToken(serviceUserClient, b2bAppContext, scopedRightSet)
+                    const [{ id: createdId }] = await createTestB2BAccessToken(serviceUserClient, b2bAppContext, scopedRightSet)
+                    const accessToken = await B2BAccessTokenReadonly.getOne(serviceUserClient, { id: createdId })
                     expect(accessToken).toBeDefined()
                 })
 
