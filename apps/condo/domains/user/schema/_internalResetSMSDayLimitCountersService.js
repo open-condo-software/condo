@@ -77,4 +77,5 @@ const _internalResetSMSDayLimitCountersService = new GQLCustomSchema('_internalR
 
 module.exports = {
     _internalResetSMSDayLimitCountersService,
+    ERRORS,
 }

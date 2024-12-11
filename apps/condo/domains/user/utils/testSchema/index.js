@@ -47,6 +47,7 @@ const { GET_ACCESS_TOKEN_BY_USER_ID_QUERY } = require('@condo/domains/user/gql')
 const { UserRightsSet: UserRightsSetGQL } = require('@condo/domains/user/gql')
 const { CHECK_USER_EXISTENCE_MUTATION } = require('@condo/domains/user/gql')
 const { _INTERNAL_RESET_SMSDAY_LIMIT_COUNTERS_MUTATION } = require('@condo/domains/user/gql')
+const { START_CONFIRM_PHONE_MUTATION } = require('../../gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function createTestEmail () {
@@ -342,6 +343,23 @@ async function supportSendMessageToSupportByTestClient (client, extraAttrs = {})
     return [data.result, attrs]
 }
 
+async function startConfirmPhoneActionByTestClient (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const phone = createTestPhone()
+
+    const attrs = {
+        dv: 1,
+        sender,
+        phone,
+        captcha: faker.lorem.sentence(),
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(START_CONFIRM_PHONE_MUTATION, { data: attrs })
+    throwIfError(data, errors, { query: START_CONFIRM_PHONE_MUTATION, variables: { data: attrs } })
+    return [data.result, attrs]
+}
+
 async function completeConfirmPhoneActionByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -576,6 +594,7 @@ module.exports = {
     registerNewServiceUserByTestClient,
     resetUserByTestClient,
     supportSendMessageToSupportByTestClient,
+    startConfirmPhoneActionByTestClient,
     completeConfirmPhoneActionByTestClient,
     changePhoneNumberResidentUserByTestClient,
     changePasswordWithTokenByTestClient,

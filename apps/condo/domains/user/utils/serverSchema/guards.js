@@ -77,6 +77,11 @@ class RedisGuard {
         return afterIncrement
     }
 
+    async getCounterValue (variable) {
+        const key = `${this.counterPrefix}${variable}`
+        return await this.redis.get(key)
+    }
+
     async checkCounterExistence (variable) {
         const key = `${this.counterPrefix}${variable}`
         return await this.redis.exists(key)

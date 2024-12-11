@@ -194,7 +194,7 @@ const CHECK_USER_EXISTENCE_MUTATION = gql`
 
 const _INTERNAL_RESET_SMSDAY_LIMIT_COUNTERS_MUTATION = gql`
     mutation _internalResetSMSDayLimitCounters ($data: _internalResetSMSDayLimitCountersInput!) {
-        result: _internalResetSMSDayLimitCounters(data: $data) { id }
+        result: _internalResetSMSDayLimitCounters(data: $data) { ok }
     }
 `
 
@@ -229,6 +229,6 @@ module.exports = {
     UserRightsSet,
     CHECK_USER_EXISTENCE_MUTATION,
     USER_FIELDS,
-_INTERNAL_RESET_SMSDAY_LIMIT_COUNTERS_MUTATION,
+    _INTERNAL_RESET_SMSDAY_LIMIT_COUNTERS_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
