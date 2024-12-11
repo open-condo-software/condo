@@ -29,6 +29,8 @@ query getActiveOrganizationEmployee($userId: ID!, $employeeId: ID) {
         }
         role {
             id
+            name
+            nameNonLocalized
             isEditable
             isDefault
             statusTransitions
