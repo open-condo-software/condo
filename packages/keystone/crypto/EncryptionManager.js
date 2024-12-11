@@ -155,6 +155,11 @@ class EncryptionManager {
             return
         }
 
+        // Skip .env parsing in build time, when .env is not present
+        if (conf.PHASE === 'build') {
+            return
+        }
+
         const defaultVersionsJSON = conf.DATA_ENCRYPTION_CONFIG
         if (isNil(defaultVersionsJSON)) {
             throw new Error('env DATA_ENCRYPTION_CONFIG is not present')
