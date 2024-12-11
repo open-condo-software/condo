@@ -1505,6 +1505,8 @@ export const GetActiveOrganizationEmployeeDocument = gql`
     }
     role {
       id
+      name
+      nameNonLocalized
       isEditable
       isDefault
       statusTransitions
