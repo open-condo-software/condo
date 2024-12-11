@@ -79,9 +79,11 @@ const B2BAppAccessRightSet = generateGqlQueries('B2BAppAccessRightSet', B2B_APP_
 const B2C_APP_MESSAGE_SETTINGS_FIELDS = `{ app { id } isBlacklisted blockReason type notificationWindowSize numberOfNotificationInWindow ${COMMON_FIELDS} }`
 const B2CAppMessageSetting = generateGqlQueries('B2CAppMessageSetting', B2C_APP_MESSAGE_SETTINGS_FIELDS)
 
-const B2B_ACCESS_TOKEN_FIELDS = `{ token sessionId user { id } context { id app { id name } organization { id name } } rightSet { id name } expiresAt ${COMMON_FIELDS} }`
+const B2B_ACCESS_TOKEN_FIELDS = `{ token user { id } context { id app { id name } organization { id name } } rightSet { id name } expiresAt ${COMMON_FIELDS} }`
 const B2BAccessToken = generateGqlQueries('B2BAccessToken', B2B_ACCESS_TOKEN_FIELDS)
+const B2BAccessTokenAdmin = generateGqlQueries('B2BAccessToken', `{ sessionId token user { id } context { id app { id name } organization { id name } } rightSet { id name } expiresAt ${COMMON_FIELDS} }`)
 const B2BAccessTokenReadonly = generateGqlQueries('B2BAccessToken', `{ context { id app { id name } organization { id name } } expiresAt ${COMMON_FIELDS}  }`)
+const B2BAccessTokenReadonlyAdmin = generateGqlQueries('B2BAccessToken', `{ sessionId context { id app { id name } organization { id name } } expiresAt ${COMMON_FIELDS}  }`)
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -103,6 +105,8 @@ module.exports = {
     B2BAppNewsSharingConfig,
     B2CAppMessageSetting,
     B2BAccessToken,
+    B2BAccessTokenAdmin,
     B2BAccessTokenReadonly,
+    B2BAccessTokenReadonlyAdmin,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -34,7 +34,9 @@ const { B2BAppAccessRightSet: B2BAppAccessRightSetGQL } = require('@condo/domain
 const { B2BAppNewsSharingConfig: B2BAppNewsSharingConfigGQL } = require('@condo/domains/miniapp/gql')
 const { B2CAppMessageSetting: B2CAppMessageSettingGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAccessToken: B2BAccessTokenGQL } = require('@condo/domains/miniapp/gql')
+const { B2BAccessTokenAdmin: B2BAccessTokenAdminGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAccessTokenReadonly: B2BAccessTokenReadonlyGQL } = require('@condo/domains/miniapp/gql')
+const { B2BAccessTokenReadonlyAdmin: B2BAccessTokenReadonlyAdminGQL } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function randomChoice(options) {
@@ -68,7 +70,9 @@ const B2BAppAccessRightSet = generateGQLTestUtils(B2BAppAccessRightSetGQL)
 const B2BAppNewsSharingConfig = generateGQLTestUtils(B2BAppNewsSharingConfigGQL)
 const B2CAppMessageSetting = generateGQLTestUtils(B2CAppMessageSettingGQL)
 const B2BAccessToken = generateGQLTestUtils(B2BAccessTokenGQL)
+const B2BAccessTokenAdmin = generateGQLTestUtils(B2BAccessTokenAdminGQL)
 const B2BAccessTokenReadonly = generateGQLTestUtils(B2BAccessTokenReadonlyGQL)
+const B2BAccessTokenReadonlyAdmin = generateGQLTestUtils(B2BAccessTokenReadonlyAdminGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 
@@ -586,8 +590,16 @@ async function createTestB2BAccessToken (client, context, rightSet, extraAttrs =
     return await _createTestB2BAccessToken(B2BAccessToken, client, context, rightSet, extraAttrs)
 }
 
+async function createTestB2BAccessTokenAdmin (client, context, rightSet, extraAttrs = {}) {
+    return await _createTestB2BAccessToken(B2BAccessTokenAdmin, client, context, rightSet, extraAttrs)
+}
+
 async function createTestB2BAccessTokenReadonly (client, context, rightSet, extraAttrs = {}) {
     return await _createTestB2BAccessToken(B2BAccessTokenReadonly, client, context, rightSet, extraAttrs)
+}
+
+async function createTestB2BAccessTokenReadonlyAdmin (client, context, rightSet, extraAttrs = {}) {
+    return await _createTestB2BAccessToken(B2BAccessTokenReadonlyAdmin, client, context, rightSet, extraAttrs)
 }
 
 async function _updateTestB2BAccessToken (utils, client, id, extraAttrs = {}) {
@@ -608,8 +620,16 @@ async function updateTestB2BAccessToken (client, id, extraAttrs = {}) {
     return await _updateTestB2BAccessToken(B2BAccessToken, client, id, extraAttrs)
 }
 
+async function updateTestB2BAccessTokenAdmin (client, id, extraAttrs = {}) {
+    return await _updateTestB2BAccessToken(B2BAccessTokenAdmin, client, id, extraAttrs)
+}
+
 async function updateTestB2BAccessTokenReadonly (client, id, extraAttrs = {}) {
     return await _updateTestB2BAccessToken(B2BAccessTokenReadonly, client, id, extraAttrs)
+}
+
+async function updateTestB2BAccessTokenReadonlyAdmin (client, id, extraAttrs = {}) {
+    return await _updateTestB2BAccessToken(B2BAccessTokenReadonlyAdmin, client, id, extraAttrs)
 }
 
 /* AUTOGENERATE MARKER <FACTORY> */
@@ -632,6 +652,8 @@ module.exports = {
     B2BAppNewsSharingConfig, createTestB2BAppNewsSharingConfig, updateTestB2BAppNewsSharingConfig,
     B2CAppMessageSetting, createTestB2CAppMessageSetting, updateTestB2CAppMessageSetting,
     B2BAccessToken, createTestB2BAccessToken, updateTestB2BAccessToken,
-    B2BAccessTokenReadonly, createTestB2BAccessTokenReadonly, updateTestB2BAccessTokenReadonly
+    B2BAccessTokenAdmin, createTestB2BAccessTokenAdmin, updateTestB2BAccessTokenAdmin,
+    B2BAccessTokenReadonly, createTestB2BAccessTokenReadonly, updateTestB2BAccessTokenReadonly,
+    B2BAccessTokenReadonlyAdmin, createTestB2BAccessTokenReadonlyAdmin, updateTestB2BAccessTokenReadonlyAdmin,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
