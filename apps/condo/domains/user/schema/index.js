@@ -3,6 +3,7 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
+const { _internalResetSMSDayLimitCountersService } = require('./_internalResetSMSDayLimitCountersService')
 const { AuthenticateUserWithPhoneAndPasswordService } = require('./AuthenticateUserWithPhoneAndPasswordService')
 const { ChangePhoneNumberResidentUserService } = require('./ChangePhoneNumberResidentUserService')
 const { CheckUserExistenceService } = require('./CheckUserExistenceService')
@@ -21,7 +22,6 @@ const { SigninResidentUserService } = require('./SigninResidentUserService')
 const { User } = require('./User')
 const { UserExternalIdentity } = require('./UserExternalIdentity')
 const { UserRightsSet } = require('./UserRightsSet')
-const { _internalResetSMSDayLimitCountersService } = require('./_internalResetSMSDayLimitCountersService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
