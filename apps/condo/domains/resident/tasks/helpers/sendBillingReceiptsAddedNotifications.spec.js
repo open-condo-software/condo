@@ -288,6 +288,35 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             }, { delay: 2000 })
         })
 
+        test('Should send push for receipts with period two months ago', async () => {
+            const environment = new TestUtils([ResidentTestMixin])
+            await environment.init()
+            const accountNumber = faker.random.alphaNumeric(12)
+
+            const resident = await environment.createResident({ unitName: '1', unitType: FLAT_UNIT_TYPE })
+            const addressUnit = {
+                unitName: resident.unitName,
+                unitType: resident.unitType,
+            }
+            const [month, year] = dayjs().subtract(2, 'month').format('MM-YYYY').split('-').map(Number)
+
+            await environment.createReceipts([
+                environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit, month, year  }),
+            ])
+            await environment.createServiceConsumer(resident, accountNumber)
+            await sendBillingReceiptsAddedNotifications()
+
+            const messageWhere = {
+                user: { id: resident.user.id },
+                type: BILLING_RECEIPT_ADDED_TYPE,
+            }
+
+            await waitFor(async () => {
+                const messages = await find('Message', messageWhere)
+                expect(messages).toHaveLength(1)
+            }, { delay: 2000 })
+        })
+
         test('Should send only one push if user has several receipts', async () => {
             const environment = new TestUtils([ResidentTestMixin])
             await environment.init()
