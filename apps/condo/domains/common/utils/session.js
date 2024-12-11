@@ -2,10 +2,12 @@ const { Session } = require('express-session')
 const get = require('lodash/get')
 const uniq = require('lodash/uniq')
 
+const { nonNull } = require('@open-condo/miniapp-utils/helpers/collections')
+
 const ARGS_CONFIG = {
     arrays: {
-        allowedOrganizations: [_uniqNonNull],
-        enabledB2BPermissions: [_uniqNonNull],
+        allowedOrganizations: [_uniqItems, _nonNullItems],
+        enabledB2BPermissions: [_uniqItems, _nonNullItems],
     },
 }
 
@@ -70,8 +72,12 @@ function makeSessionData (args = {}) {
     }
 }
 
-function _uniqNonNull (array) {
-    return uniq(array).filter(item => item !== null && item !== undefined)
+function _uniqItems (array) {
+    return uniq(array)
+}
+
+function _nonNullItems (array) {
+    return array.filter(nonNull)
 }
 
 module.exports = {
