@@ -112,21 +112,23 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
 
         this.knex.client.runner = (builder) => {
             try {
-                const sqlObject = builder.toSQL()
+                // const sqlObject = builder.toSQL()
 
                 // NOTE: Right now partial routing is not implemented.
                 // In real life there's no array cases at all, except few occurrences in migrations with length === 1
                 // So for safe behaviour we'll redirect any batched queries to default writable pool
-                if (Array.isArray(sqlObject)) {
-                    return this._defaultPool.getQueryRunner(builder)
-                }
+                // if (Array.isArray(sqlObject)) {
+                //     return this._defaultPool.getQueryRunner(builder)
+                // }
 
                 // NOTE: builder.toSQL() in single-query case will return object of shape:
                 // { method: "<knex-method>", sql: "select * from ... limit ?", bindings: [100] }
                 // parser cannot understand bindings, so we need to do some tricks, which Client_PG does under the hood
-                const sqlQueryWithPositionalBindings = this.knex.client.positionBindings(sqlObject.sql)
+                // const sqlQueryWithPositionalBindings = this.knex.client.positionBindings(sqlObject.sql)
 
-                const selectedPool = this._selectTargetPool(sqlQueryWithPositionalBindings)
+                const sqlQueryWithArgs = String(builder)
+
+                const selectedPool = this._selectTargetPool(sqlQueryWithArgs)
 
                 return selectedPool.getQueryRunner(builder)
             } catch (err) {
