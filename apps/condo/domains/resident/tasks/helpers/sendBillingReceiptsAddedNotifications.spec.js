@@ -325,7 +325,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
 
             const resident1 = await environment.createResident({ unitName: '1', unitType: FLAT_UNIT_TYPE })
             const resident2 = await environment.createResident({ unitName: '2', unitType: FLAT_UNIT_TYPE })
-
+            expect(resident1.user.id).toBe(resident2.user.id)
             const addressUnitForResident1 = {
                 unitName: resident1.unitName,
                 unitType: resident1.unitType,
@@ -338,11 +338,14 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
 
             await environment.createReceipts([
                 environment.createJSONReceipt({ accountNumber: accountNumber1, address: resident1.address, addressMeta: addressUnitForResident1 }),
+                environment.createJSONReceipt({ accountNumber: accountNumber1, address: resident1.address, addressMeta: addressUnitForResident1 }),
+
             ])
 
             environment.context = utilsForContext.context
 
             await environment.createReceipts([
+                environment.createJSONReceipt({ accountNumber: accountNumber2, address: resident2.address, addressMeta: addressUnitForResident2 }),
                 environment.createJSONReceipt({ accountNumber: accountNumber2, address: resident2.address, addressMeta: addressUnitForResident2 }),
             ])
 
@@ -350,7 +353,6 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             await environment.createServiceConsumer(resident2, accountNumber2)
 
             await sendBillingReceiptsAddedNotifications(dayjs().subtract(1, 'h').toISOString())
-            expect(resident1.user.id ).toEqual(resident2.user.id )
 
             const messageWhere = {
                 user: { id: resident1.user.id },
@@ -454,6 +456,8 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             }
             await environment.createReceipts([
                 environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
+                environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
+                environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
             ])
             await environment.createServiceConsumer(resident, accountNumber)
 
@@ -471,6 +475,8 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
 
             await environment.createReceipts([
                 environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
+                environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
+                environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
             ])
 
             await sendBillingReceiptsAddedNotifications()
@@ -487,6 +493,127 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             await waitFor(async () => {
                 const messages = await find('Message', messageWhere)
                 expect(messages).toHaveLength(2)
+            }, { delay: 2000 })
+        })
+
+        test('Should work correctly for real case', async () => {
+            const environment = new TestUtils([ResidentTestMixin])
+            await environment.init()
+            const utilsForContext = new TestUtils([ResidentTestMixin])
+            await utilsForContext.init()
+            const accountNumber1 = faker.random.alphaNumeric(12)
+            const accountNumber2 = faker.random.alphaNumeric(12)
+
+            const resident1 = await environment.createResident({ unitName: '1', unitType: FLAT_UNIT_TYPE })
+            const resident2 = await environment.createResident({ unitName: '2', unitType: FLAT_UNIT_TYPE })
+            expect(resident1.user.id).toBe(resident2.user.id)
+            const addressUnitForResident1 = {
+                unitName: resident1.unitName,
+                unitType: resident1.unitType,
+            }
+
+            const addressUnitForResident2 = {
+                unitName: resident2.unitName,
+                unitType: resident2.unitType,
+            }
+
+            await environment.createReceipts([
+                environment.createJSONReceipt({ accountNumber: accountNumber1, address: resident1.address, addressMeta: addressUnitForResident1 }),
+                environment.createJSONReceipt({ accountNumber: accountNumber1, address: resident1.address, addressMeta: addressUnitForResident1 }),
+
+            ])
+
+            environment.context = utilsForContext.context
+
+            await environment.createReceipts([
+                environment.createJSONReceipt({ accountNumber: accountNumber2, address: resident2.address, addressMeta: addressUnitForResident2 }),
+                environment.createJSONReceipt({ accountNumber: accountNumber2, address: resident2.address, addressMeta: addressUnitForResident2 }),
+            ])
+
+            await environment.createServiceConsumer(resident1, accountNumber1)
+            await environment.createServiceConsumer(resident2, accountNumber2)
+
+            await sendBillingReceiptsAddedNotifications()
+
+            const messageWhere = {
+                user: { id: resident1.user.id },
+                type: BILLING_RECEIPT_ADDED_TYPE,
+            }
+
+            await waitFor(async () => {
+                const messages = await find('Message', messageWhere)
+                expect(messages).toHaveLength(1)
+            }, { delay: 2000 })
+
+            await environment.createReceipts([
+                environment.createJSONReceipt({ accountNumber: accountNumber2, address: resident2.address, addressMeta: addressUnitForResident2 }),
+                environment.createJSONReceipt({ accountNumber: accountNumber2, address: resident2.address, addressMeta: addressUnitForResident2 }),
+            ])
+
+            await sendBillingReceiptsAddedNotifications()
+
+            await waitFor(async () => {
+                const messages = await find('Message', messageWhere)
+                expect(messages).toHaveLength(1)
+            }, { delay: 2000 })
+
+            await redisClient.del(`${CAN_USER_GET_NEW_RECEIPT_NOTIFICATION}:${resident1.user.id}`)
+
+            await sendBillingReceiptsAddedNotifications()
+
+            await waitFor(async () => {
+                const messages = await find('Message', messageWhere)
+                expect(messages).toHaveLength(2)
+            }, { delay: 2000 })
+
+            await environment.createReceipts([
+                environment.createJSONReceipt({ accountNumber: accountNumber2, address: resident2.address, addressMeta: addressUnitForResident2 }),
+                environment.createJSONReceipt({ accountNumber: accountNumber2, address: resident2.address, addressMeta: addressUnitForResident2 }),
+                environment.createJSONReceipt({ accountNumber: accountNumber2, address: resident2.address, addressMeta: addressUnitForResident2 }),
+                environment.createJSONReceipt({ accountNumber: accountNumber2, address: resident2.address, addressMeta: addressUnitForResident2 }),
+                environment.createJSONReceipt({ accountNumber: accountNumber2, address: resident2.address, addressMeta: addressUnitForResident2 }),
+            ])
+
+            await redisClient.del(`${CAN_USER_GET_NEW_RECEIPT_NOTIFICATION}:${resident1.user.id}`)
+
+            await sendBillingReceiptsAddedNotifications()
+            await waitFor(async () => {
+                const messages = await find('Message', messageWhere)
+                expect(messages).toHaveLength(3)
+            }, { delay: 500 })
+            await sendBillingReceiptsAddedNotifications()
+            await waitFor(async () => {
+                const messages = await find('Message', messageWhere)
+                expect(messages).toHaveLength(3)
+            }, { delay: 500 })
+            await sendBillingReceiptsAddedNotifications()
+            await waitFor(async () => {
+                const messages = await find('Message', messageWhere)
+                expect(messages).toHaveLength(3)
+            }, { delay: 500 })
+            await sendBillingReceiptsAddedNotifications()
+            await waitFor(async () => {
+                const messages = await find('Message', messageWhere)
+                expect(messages).toHaveLength(3)
+            }, { delay: 500 })
+            await sendBillingReceiptsAddedNotifications()
+            await waitFor(async () => {
+                const messages = await find('Message', messageWhere)
+                expect(messages).toHaveLength(3)
+            }, { delay: 500 })
+            await sendBillingReceiptsAddedNotifications()
+            await waitFor(async () => {
+                const messages = await find('Message', messageWhere)
+                expect(messages).toHaveLength(3)
+            }, { delay: 500 })
+
+            await redisClient.del(`${CAN_USER_GET_NEW_RECEIPT_NOTIFICATION}:${resident1.user.id}`)
+
+            await sendBillingReceiptsAddedNotifications()
+
+            await waitFor(async () => {
+                const messages = await find('Message', messageWhere)
+                expect(messages).toHaveLength(3)
             }, { delay: 2000 })
         })
     })
