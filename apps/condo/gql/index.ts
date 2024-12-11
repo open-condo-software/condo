@@ -3015,39 +3015,39 @@ export function useUpdateTicketMutation (baseOptions?: Apollo.MutationHookOption
 export type UpdateTicketMutationHookResult = ReturnType<typeof useUpdateTicketMutation>
 export type UpdateTicketMutationResult = Apollo.MutationResult<Types.UpdateTicketMutation>
 export type UpdateTicketMutationOptions = Apollo.BaseMutationOptions<Types.UpdateTicketMutation, Types.UpdateTicketMutationVariables>
-export const UpdateTicketsDocument = gql`
-    mutation updateTickets($data: [TicketsUpdateInput]) {
+export const UpdateTicketsForReassignmentEmployeeDocument = gql`
+    mutation updateTicketsForReassignmentEmployee($data: [TicketsUpdateInput]) {
   tickets: updateTickets(data: $data) {
     id
   }
 }
     `
-export type UpdateTicketsMutationFn = Apollo.MutationFunction<Types.UpdateTicketsMutation, Types.UpdateTicketsMutationVariables>
+export type UpdateTicketsForReassignmentEmployeeMutationFn = Apollo.MutationFunction<Types.UpdateTicketsForReassignmentEmployeeMutation, Types.UpdateTicketsForReassignmentEmployeeMutationVariables>
 
 /**
- * __useUpdateTicketsMutation__
+ * __useUpdateTicketsForReassignmentEmployeeMutation__
  *
- * To run a mutation, you first call `useUpdateTicketsMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useUpdateTicketsMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useUpdateTicketsForReassignmentEmployeeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateTicketsForReassignmentEmployeeMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [updateTicketsMutation, { data, loading, error }] = useUpdateTicketsMutation({
+ * const [updateTicketsForReassignmentEmployeeMutation, { data, loading, error }] = useUpdateTicketsForReassignmentEmployeeMutation({
  *   variables: {
  *      data: // value for 'data'
  *   },
  * });
  */
-export function useUpdateTicketsMutation (baseOptions?: Apollo.MutationHookOptions<Types.UpdateTicketsMutation, Types.UpdateTicketsMutationVariables>) {
+export function useUpdateTicketsForReassignmentEmployeeMutation (baseOptions?: Apollo.MutationHookOptions<Types.UpdateTicketsForReassignmentEmployeeMutation, Types.UpdateTicketsForReassignmentEmployeeMutationVariables>) {
     const options = { ...defaultOptions, ...baseOptions }
-    return Apollo.useMutation<Types.UpdateTicketsMutation, Types.UpdateTicketsMutationVariables>(UpdateTicketsDocument, options)
+    return Apollo.useMutation<Types.UpdateTicketsForReassignmentEmployeeMutation, Types.UpdateTicketsForReassignmentEmployeeMutationVariables>(UpdateTicketsForReassignmentEmployeeDocument, options)
 }
-export type UpdateTicketsMutationHookResult = ReturnType<typeof useUpdateTicketsMutation>
-export type UpdateTicketsMutationResult = Apollo.MutationResult<Types.UpdateTicketsMutation>
-export type UpdateTicketsMutationOptions = Apollo.BaseMutationOptions<Types.UpdateTicketsMutation, Types.UpdateTicketsMutationVariables>
+export type UpdateTicketsForReassignmentEmployeeMutationHookResult = ReturnType<typeof useUpdateTicketsForReassignmentEmployeeMutation>
+export type UpdateTicketsForReassignmentEmployeeMutationResult = Apollo.MutationResult<Types.UpdateTicketsForReassignmentEmployeeMutation>
+export type UpdateTicketsForReassignmentEmployeeMutationOptions = Apollo.BaseMutationOptions<Types.UpdateTicketsForReassignmentEmployeeMutation, Types.UpdateTicketsForReassignmentEmployeeMutationVariables>
 export const GetTicketChangesDocument = gql`
     query getTicketChanges($ticketId: ID!) {
   ticketChanges: allTicketChanges(

@@ -1,13 +1,14 @@
 import { useGetOrganizationEmployeeTicketsCountForReassignQuery } from '@app/condo/gql'
+import { OrganizationEmployee as OrganizationEmployeeType, OrganizationEmployeeUpdateInput } from '@app/condo/schema'
 import { Col, Row, Space, Switch } from 'antd'
 import { map } from 'lodash'
 import get from 'lodash/get'
 import Head from 'next/head'
 import Link from 'next/link'
-import Router from 'next/router'
 import { useRouter } from 'next/router'
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 
+import { IUseSoftDeleteActionType, IUseUpdateActionType } from '@open-condo/codegen/generate.hooks'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { Edit } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
@@ -36,12 +37,12 @@ import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 
 
 interface EmployeePageContent {
-    employee: any
+    employee: OrganizationEmployeeType
     isEmployeeEditable: boolean
     isEmployeeReinvitable: boolean
     activeTicketsOrganizationEmployeeCount: number
-    updateEmployeeAction: (p: { isBlocked: any }, employee: any) => Promise<any>
-    softDeleteAction: (employee: any) => Promise<any>
+    updateEmployeeAction: IUseUpdateActionType<OrganizationEmployeeType, OrganizationEmployeeUpdateInput>
+    softDeleteAction: IUseSoftDeleteActionType<OrganizationEmployeeType>
     phonePrefix?: string
 }
 
@@ -277,7 +278,6 @@ export const EmployeePageContent: React.FC<EmployeePageContent> = ({
                                                                 key='delete'
                                                                 softDeleteAction={() => softDeleteAction(employee)}
                                                                 buttonContent={DeleteMessage}
-                                                                okButtonLabel={ConfirmDeleteButtonLabel}
                                                                 employee={employee}
                                                                 activeTicketsOrganizationEmployeeCount={activeTicketsOrganizationEmployeeCount}
                                                             /> :
@@ -305,13 +305,16 @@ export const EmployeePageContent: React.FC<EmployeePageContent> = ({
 }
 
 export const EmployeeInfoPage: PageComponentType = () => {
-    const { query } = useRouter()
+    const { query, push } = useRouter()
     const { link } = useOrganization()
     const intl = useIntl()
-    const UpdateEmployeeMessage = intl.formatMessage({ id: 'employee.UpdateTitle' })
+    const LoadingInProgressMessage = intl.formatMessage({ id: 'LoadingInProgress' })
     const ErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
+    const DeleteUserMessage = intl.formatMessage({ id: 'employee.Notification.deleteUser' })
 
     const employeeId = String(get(query, 'id', ''))
+
+    const isFirstRender = useRef<boolean>(true)
 
     const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject(
         {
@@ -320,6 +323,16 @@ export const EmployeeInfoPage: PageComponentType = () => {
             },
         }
     )
+
+    useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false
+            return
+        }
+        if (!loading && !employee) {
+            push('/employee/')
+        }
+    }, [employee, loading, push])
 
     const { objs: organizationEmployeeSpecializations } = OrganizationEmployeeSpecialization.useObjects({
         where: {
@@ -337,13 +350,13 @@ export const EmployeeInfoPage: PageComponentType = () => {
     const employeeWithSpecializations = { ...employee, specializations: organizationEmployeeSpecializations.map(scope => scope.specialization) }
 
     const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => refetch())
-    const softDeleteAction = OrganizationEmployee.useSoftDelete(() => Router.push('/employee/'))
+    const softDeleteAction = OrganizationEmployee.useSoftDelete(() => refetch())
 
     const isEmployeeEditable = get(link, ['role', 'canManageEmployees'], false)
     const isEmployeeReinvitable = get(link, ['role', 'canInviteNewOrganizationEmployees'], false) && !get(employee, 'isAccepted')
 
-    if (error || loading) {
-        return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={loading} error={error ? ErrorMessage : null}/>
+    if (error || loading || !employee) {
+        return <LoadingOrErrorPage title={!loading && !employee ? DeleteUserMessage : LoadingInProgressMessage} loading={loading} error={error ? ErrorMessage : null}/>
     }
 
     return (

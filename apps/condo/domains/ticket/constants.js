@@ -55,6 +55,25 @@ const MAX_COMMENT_LENGTH = 700
 
 const DEFAULT_DEFERRED_DAYS = 30
 
+const TICKET_OTHER_SOURCE_ID = '7da1e3be-06ba-4c9e-bba6-f97f278ac6e4'
+
+/**
+ * @example
+ * updateTickets - Query name in Ticket.updateMany. Usage in Ticket.test.js
+ * updateTicketsForReassignmentEmployee - Query name in query/Ticket.graphql. Usage in DeleteEmployeeButtonWithReassignmentModal.jsx
+ */
+const DISABLE_PUSH_NOTIFICATION_FOR_OPERATIONS = [
+    'updateTickets',
+    'updateTicketsForReassignmentEmployee',
+]
+
+const BULK_UPDATE_ALLOWED_FIELDS = [
+    'executor',
+    'assignee',
+    'dv',
+    'sender',
+]
+
 module.exports = {
     NEW_OR_REOPENED_STATUS_TYPE,
     PROCESSING_STATUS_TYPE,
@@ -72,4 +91,7 @@ module.exports = {
     MAX_COMMENT_LENGTH,
     DEFAULT_DEFERRED_DAYS,
     MAX_DETAILS_LENGTH,
+    TICKET_OTHER_SOURCE_ID,
+    DISABLE_PUSH_NOTIFICATION_FOR_OPERATIONS,
+    BULK_UPDATE_ALLOWED_FIELDS,
 }

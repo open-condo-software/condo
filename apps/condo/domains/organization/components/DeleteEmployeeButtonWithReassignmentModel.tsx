@@ -1,8 +1,10 @@
-import { useGetOrganizationEmployeeTicketsForReassignLazyQuery, useUpdateTicketsMutation } from '@app/condo/gql'
+import { useGetOrganizationEmployeeTicketsForReassignLazyQuery, useUpdateTicketsForReassignmentEmployeeMutation } from '@app/condo/gql'
+import { OrganizationEmployee, Ticket } from '@app/condo/schema'
 import { notification, Row } from 'antd'
 import isEmpty from 'lodash/isEmpty'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 
+import { IUseSoftDeleteActionType } from '@open-condo/codegen/generate.hooks'
 import { ArrowDownUp } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Alert, Button, Modal, Space, Typography } from '@open-condo/ui'
@@ -16,18 +18,14 @@ import { searchEmployeeUser } from '@condo/domains/ticket/utils/clientSchema/sea
 
 interface IDeleteEmployeeButtonWithReassignmentModel {
     buttonContent: string
-    okButtonLabel: string
-    softDeleteAction: () => Promise<any>
+    softDeleteAction: IUseSoftDeleteActionType<OrganizationEmployee>
     disabled?: boolean
-    employee: any
+    employee: OrganizationEmployee
     activeTicketsOrganizationEmployeeCount: number
 }
 
-const CHUNK_SIZE = 100
-
 export const DeleteEmployeeButtonWithReassignmentModel: React.FC<IDeleteEmployeeButtonWithReassignmentModel> = ({
     buttonContent,
-    okButtonLabel,
     softDeleteAction,
     disabled = false,
     employee,
@@ -35,7 +33,8 @@ export const DeleteEmployeeButtonWithReassignmentModel: React.FC<IDeleteEmployee
 }) => {
     const intl = useIntl()
     const ConfirmReassignEmployeeTitle = intl.formatMessage({ id: 'employee.reassignTickets.title' })
-    const ConfirmDeleteButtonLabel = intl.formatMessage({ id: 'employee.reassignTickets.deleteUser' })
+    const ConfirmDeleteButtonLabel = intl.formatMessage({ id: 'employee.reassignTickets.buttonContent.deleteUser' })
+    const ConfirmReassignTicketsButtonLabel = intl.formatMessage({ id: 'employee.reassignTickets.buttonContent.reassignTickets' })
     const SearchPlaceholderLabel = intl.formatMessage({ id: 'EmployeesName' })
     const AlertTitleLabel = intl.formatMessage({ id: 'employee.reassignTickets.alert.title' }, { activeTicketsOrganizationEmployeeCount, employeeName: employee?.name })
     const CountShortLabel = intl.formatMessage({ id: 'global.count.pieces.short' })
@@ -46,14 +45,17 @@ export const DeleteEmployeeButtonWithReassignmentModel: React.FC<IDeleteEmployee
     const NotificationMessageWarningLabel = intl.formatMessage({ id: 'employee.reassignTickets.notification.message.warning' })
     const NotificationMessageErrorLabel = intl.formatMessage({ id: 'employee.reassignTickets.notification.message.error' })
     const NotificationMessageSuccessLabel = intl.formatMessage({ id: 'employee.reassignTickets.notification.message.success' })
+    const NotificationMessageDeleteUserLabel = intl.formatMessage({ id: 'employee.Notification.deleteUser' })
 
     const [notificationApi, contextHolder] = notification.useNotification()
 
     const employeeUserId = employee?.user?.id
     const employeeOrganizationId = employee?.organization?.id
 
-    const [newEmployeeUserId, setNewEmployeeUserId] = useState()
-    const onChange = (newEmployeeUserId) => setNewEmployeeUserId(newEmployeeUserId)
+    const [newEmployeeUserId, setNewEmployeeUserId] = useState(null)
+    const onChange = (newEmployeeUserId: string) => {
+        setNewEmployeeUserId(newEmployeeUserId)
+    }
 
     const [isDeleting, setIsDeleting] = useState(false)
     const [isConfirmVisible, setIsConfirmVisible] = useState(false)
@@ -61,17 +63,17 @@ export const DeleteEmployeeButtonWithReassignmentModel: React.FC<IDeleteEmployee
     const showConfirm = () => setIsConfirmVisible(true)
     const handleCancel = () => setIsConfirmVisible(false)
     
-    const [loadTicketsToReassign] = useGetOrganizationEmployeeTicketsForReassignLazyQuery({
+    const [loadTicketsToReassign, { error: errorLoadTickets }] = useGetOrganizationEmployeeTicketsForReassignLazyQuery({
         variables: {
             organizationId: employeeOrganizationId,
             userId: employeeUserId,
-            first: CHUNK_SIZE,
+            first: 100,
         },
         fetchPolicy: 'no-cache',
     })
-    const [updateTickets] = useUpdateTicketsMutation()
+    const [updateTickets, { error: errorUpdateTickets }] = useUpdateTicketsForReassignmentEmployeeMutation()
 
-    const getTicketReassignData = (ticket) => {
+    const getTicketReassignData = (ticket: Ticket) => {
         const resultObj = {}
         if (ticket?.executor?.id === employeeUserId) resultObj['executor'] = { connect: { id: newEmployeeUserId } }
         if (ticket?.assignee?.id === employeeUserId) resultObj['assignee'] = { connect: { id: newEmployeeUserId } }
@@ -94,21 +96,25 @@ export const DeleteEmployeeButtonWithReassignmentModel: React.FC<IDeleteEmployee
 
     const handleDeleteButtonClick = () => {
         setIsDeleting(true)
+        setIsConfirmVisible(false)
+
         runMutation(
             {
                 action: softDeleteAction,
-                onError: (e) => {
-                    notificationApi.error({
-                        message: notificationTitle(NotificationTitleErrorLabel),
-                        description: notificationMessage(NotificationMessageErrorLabel),
-                        duration: 0,
-                        key: 'deleteOrganizationEmployee',
-                    })
-                    throw e
-                },
-                onCompleted: () => {
+                onError: (e) => { throw e },
+                OnErrorMsg: () => ({
+                    message: notificationTitle(NotificationTitleErrorLabel),
+                    description: notificationMessage(NotificationMessageErrorLabel),
+                    duration: 0,
+                    key: 'deleteOrganizationEmployee',
+                }),
+                OnCompletedMsg: () => ({
+                    message: notificationTitle(NotificationTitleErrorLabel),
+                    description: notificationMessage(NotificationMessageDeleteUserLabel),
+                    key: 'deleteOrganizationEmployee',
+                }),
+                onFinally: () => {
                     setIsDeleting(false)
-                    setIsConfirmVisible(false)
                 },
                 intl,
             },
@@ -129,49 +135,63 @@ export const DeleteEmployeeButtonWithReassignmentModel: React.FC<IDeleteEmployee
                 key: 'reassignTicket',
             })
 
-            const { data: ticketsToReassign } = await loadTicketsToReassign()
+            try {
+                const { data: ticketsToReassign } = await loadTicketsToReassign()
 
-            if (isEmpty(ticketsToReassign?.tickets)) break
-            const { data: reassignedTickets }  = await updateTickets({
-                variables: {
-                    data: ticketsToReassign?.tickets?.map(ticket => ({
-                        id: ticket?.id,
-                        data: getTicketReassignData(ticket),
-                    })),
-                },
-            })
+                if (isEmpty(ticketsToReassign?.tickets)) break
+                const { data: reassignedTickets }  = await updateTickets({
+                    variables: {
+                        data: ticketsToReassign?.tickets?.map(ticket => ({
+                            id: ticket?.id,
+                            data: getTicketReassignData(ticket),
+                        })),
+                    },
+                })
 
-            updatedTicketsCount += reassignedTickets?.tickets?.length
-            await sleep(1000)
-        }
-
-        runMutation(
-            {
-                action: softDeleteAction,
-                onError: (e) => {
+                updatedTicketsCount += reassignedTickets?.tickets?.length
+                await sleep(1000)
+            } catch (err) {
+                if (errorLoadTickets || errorUpdateTickets || err) {
                     notificationApi.error({
                         message: notificationTitle(NotificationTitleErrorLabel),
                         description: notificationMessage(NotificationMessageErrorLabel),
                         duration: 0,
                         key: 'reassignTicket',
                     })
-                    throw e
-                },
-                onCompleted: () => {
-                    notificationApi.success({
-                        message: notificationTitle(NotificationTitleSuccessLabel),
-                        description: notificationMessage(NotificationMessageSuccessLabel, updatedTicketsCount),
-                        duration: 0,
-                        key: 'reassignTicket',
-                    })
-                },
-                onFinally: () => {
-                    setIsDeleting(false)
-                },
+                }
+                setIsDeleting(false)
+                return
+            }
+        }
+
+        runMutation(
+            {
+                action: softDeleteAction,
+                onError: (e) => { throw e },
+                OnErrorMsg: () => ({
+                    message: notificationTitle(NotificationTitleErrorLabel),
+                    description: notificationMessage(NotificationMessageErrorLabel),
+                    duration: 0,
+                    key: 'reassignTicket',
+                }),
+                onFinally: () => setIsDeleting(false),
+                OnCompletedMsg: () => ({
+                    message: notificationTitle(NotificationTitleSuccessLabel),
+                    description: notificationMessage(NotificationMessageSuccessLabel, updatedTicketsCount),
+                    duration: 0,
+                    key: 'reassignTicket',
+                }),
                 intl,
             },
         )
     }
+
+    // TODO: DOMA-10834 add search for an employee along with specialization
+    const search = useMemo(() => {
+        return searchEmployeeUser(employeeOrganizationId, (organizationEmployee: OrganizationEmployee) => {
+            return organizationEmployee?.isBlocked ? false : organizationEmployee.user.id !== employeeUserId
+        })
+    }, [employeeOrganizationId, employeeUserId])
 
     return (
         <>
@@ -190,24 +210,15 @@ export const DeleteEmployeeButtonWithReassignmentModel: React.FC<IDeleteEmployee
                 title={ConfirmReassignEmployeeTitle}
                 open={isConfirmVisible}
                 onCancel={handleCancel}
-                footer={[
-                    <Button
-                        key='submit'
-                        type='primary'
-                        loading={isDeleting}
-                        onClick={handleDeleteAndReassignTicketsClick}
-                    >
-                        {ConfirmDeleteButtonLabel}
-                    </Button>,
-                    <Button
-                        key='submit'
-                        type='secondary'
-                        danger
-                        onClick={handleDeleteButtonClick}
-                    >
-                        {okButtonLabel}
-                    </Button>,
-                ]}
+                footer={<Button
+                    key='submit'
+                    type='primary'
+                    loading={isDeleting}
+                    onClick={newEmployeeUserId ? handleDeleteAndReassignTicketsClick : handleDeleteButtonClick}
+                >
+                    {newEmployeeUserId ? ConfirmReassignTicketsButtonLabel : ConfirmDeleteButtonLabel}
+                </Button>
+                }
             >
                 <Row justify='center' gutter={[0, 12]}>
                     <Alert
@@ -218,7 +229,7 @@ export const DeleteEmployeeButtonWithReassignmentModel: React.FC<IDeleteEmployee
                     />
                     <ArrowDownUp color={colors.gray[5]} />
                     <GraphQlSearchInput
-                        search={searchEmployeeUser(employeeOrganizationId, (organizationEmployee) => organizationEmployee?.user?.id !== employeeUserId)}
+                        search={search}
                         value={newEmployeeUserId}
                         onChange={onChange}
                         style={{

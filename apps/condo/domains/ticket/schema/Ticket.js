@@ -41,7 +41,10 @@ const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema
 const { SECTION_TYPES } = require('@condo/domains/property/constants/common')
 const access = require('@condo/domains/ticket/access/Ticket')
 const {
-    OMIT_TICKET_CHANGE_TRACKABLE_FIELDS, REVIEW_VALUES, DEFERRED_STATUS_TYPE,
+    OMIT_TICKET_CHANGE_TRACKABLE_FIELDS,
+    REVIEW_VALUES,
+    DEFERRED_STATUS_TYPE,
+    DISABLE_PUSH_NOTIFICATION_FOR_OPERATIONS,
 } = require('@condo/domains/ticket/constants')
 const { FEEDBACK_VALUES, FEEDBACK_ADDITIONAL_OPTIONS_BY_KEY } = require('@condo/domains/ticket/constants/feedback')
 const { QUALITY_CONTROL_VALUES } = require('@condo/domains/ticket/constants/qualityControl')
@@ -961,8 +964,10 @@ const Ticket = new GQLListSchema('Ticket', {
                 ]
             )(...args)
 
-            /* NOTE: this sends different kinds of notifications on ticket create/update */
-            await sendTicketChangedNotifications.delay({ ticketId: updatedItem.id, existingItem, operation })
+            /* NOTE: this sends different kinds of notifications on ticket create/update except bulk update operation */
+            if (!DISABLE_PUSH_NOTIFICATION_FOR_OPERATIONS.includes(get(context, ['req', 'body', 'operationName'], null))) {
+                await sendTicketChangedNotifications.delay({ ticketId: updatedItem.id, existingItem, operation })
+            }
         },
     },
     access: {

@@ -310,7 +310,9 @@ mutation updateTicket ($id: ID!, $data: TicketUpdateInput!) {
     }
 }
 
-mutation updateTickets ($data: [TicketsUpdateInput]) {
+# This aliase using for to check the need for sending bilk push messages
+# If you change alias of this query, then change the DISABLE_PUSH_NOTIFICATION_FOR_OPERATIONS variable
+mutation updateTicketsForReassignmentEmployee ($data: [TicketsUpdateInput]) {
     tickets: updateTickets (data: $data) {
         id
     }

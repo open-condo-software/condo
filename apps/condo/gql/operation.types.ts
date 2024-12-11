@@ -425,12 +425,12 @@ export type UpdateTicketMutationVariables = Types.Exact<{
 
 export type UpdateTicketMutation = { __typename?: 'Mutation', ticket?: { __typename?: 'Ticket', id: string } | null }
 
-export type UpdateTicketsMutationVariables = Types.Exact<{
+export type UpdateTicketsForReassignmentEmployeeMutationVariables = Types.Exact<{
     data?: Types.InputMaybe<Array<Types.InputMaybe<Types.TicketsUpdateInput>> | Types.InputMaybe<Types.TicketsUpdateInput>>
 }>
 
 
-export type UpdateTicketsMutation = { __typename?: 'Mutation', tickets?: Array<{ __typename?: 'Ticket', id: string } | null> | null }
+export type UpdateTicketsForReassignmentEmployeeMutation = { __typename?: 'Mutation', tickets?: Array<{ __typename?: 'Ticket', id: string } | null> | null }
 
 export type GetTicketChangesQueryVariables = Types.Exact<{
     ticketId: Types.Scalars['ID']['input']

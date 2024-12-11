@@ -14,7 +14,7 @@ const {
 } = require('@condo/domains/organization/utils/accessSchema')
 const { getUserResidents } = require('@condo/domains/resident/utils/accessSchema')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
-const { CANCELED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
+const { CANCELED_STATUS_TYPE, BULK_UPDATE_ALLOWED_FIELDS } = require('@condo/domains/ticket/constants')
 const {
     AVAILABLE_TICKET_FIELDS_FOR_UPDATE_BY_RESIDENT,
     INACCESSIBLE_TICKET_FIELDS_FOR_MANAGE_BY_RESIDENT,
@@ -115,17 +115,11 @@ async function canManageTickets (args) {
             return ticket.client === user.id
         }
     } else {
+        if (isBulkRequest && operation === 'create') return false
 
         if (isBulkRequest && operation === 'update') {
             if (itemIds.length !== uniq(itemIds).length) return false
             if (itemIds.length !== originalInput.length) return false
-
-            const BULK_UPDATE_ALLOWED_FIELDS = [
-                'executor',
-                'assignee',
-                'dv',
-                'sender',
-            ]
 
             if (!originalInput.every((updateItem) => {
                 for (const key in updateItem.data) {
@@ -134,45 +128,15 @@ async function canManageTickets (args) {
                 return true
             })) return false
 
-            const employeeUserIds = uniq(originalInput.map((updateItem) => {
-                const executorUserId = get(updateItem, ['data', 'executor', 'connect', 'id'], null)
-                const assigneeUserId = get(updateItem, ['data', 'assignee', 'connect', 'id'], null)
-                if (executorUserId === assigneeUserId) return executorUserId
-                return executorUserId ? executorUserId : assigneeUserId ? assigneeUserId : null
-            }))
-            if (employeeUserIds.length === 0 || employeeUserIds.some(userId => !userId)) return false
-
-            const users = await find('User', {
-                id_in: employeeUserIds,
-                deletedAt: null,
-            })
-
-            const userIds = uniq(users.map(user => get(user, 'id', null)))
-            if (userIds.length === 0 || userIds.some(userId => !userId)) return false
-
-            const organizationEmployees = await find('OrganizationEmployee', {
-                id_in: userIds,
-                deletedAt: null,
-            })
-
-            const employeeOrganizations = uniq(organizationEmployees.map((organizationEmployee) => get(organizationEmployee, 'organization', null)))
-            if (employeeOrganizations.length === 0 || employeeOrganizations.some(employeeOrganization => !employeeOrganization)) return false
-
             const tickets = await find('Ticket', {
                 id_in: itemIds,
                 deletedAt: null,
             })
 
-            if (isEmpty(tickets)) return false
-            const organizationIds = uniq(tickets.map(ticket => get(ticket, 'organization', null)))
-            if (isEmpty(organizationIds) || organizationIds.some(id => !id)) return false
-
-            for (const employeeOrganization in employeeOrganizations) {
-                if (!organizationIds.includes(employeeOrganization)) return false
-            }
-
-            const permission = await checkPermissionsInEmployedOrRelatedOrganizations(context, user, organizationIds, 'canManageTickets')
-            if (permission) return true
+            const ticketOrganizationIds = uniq(tickets.map(ticket => get(ticket, 'organization', null)))
+            if (isEmpty(ticketOrganizationIds) || ticketOrganizationIds.some(ticketOrganizationId => !ticketOrganizationId)) return false
+                
+            return await checkPermissionsInEmployedOrRelatedOrganizations(context, user, ticketOrganizationIds, 'canManageTickets')
         }
 
         const changedInaccessibleFields = Object.keys(originalInput).some(field => INACCESSIBLE_TICKET_FIELDS_FOR_MANAGE_BY_STAFF.includes(field))
