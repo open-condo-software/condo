@@ -151,7 +151,7 @@ export const TicketStatusFilter = ({ count, title, type }) => {
             <Tag
                 textColor={colorsByTagType.counterTextColor}
             >
-                {count[type]?.count}
+                {count?.[type]?.count}
             </Tag>
             {title}
             {
