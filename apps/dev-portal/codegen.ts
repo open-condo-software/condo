@@ -15,6 +15,7 @@ const config: CodegenConfig = {
         },
     },
     hooks: {
+        // TODO(INFRA-744): remove eslint after move lib/gql/index.ts to gql/index.ts
         afterAllFileWrite: ['eslint --fix'],
     },
 }
