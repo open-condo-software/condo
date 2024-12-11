@@ -35,7 +35,7 @@ module.exports = {
     ignorePatterns: [
         'dist',
         '*schema.ts',
-        ...['condo', 'callcenter'].map(app => `apps/${app}/gql/*.ts`),
+        'apps/*/gql/*.ts',
     ],
     rules: {
         'comma-spacing': 'off',
