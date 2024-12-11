@@ -132,6 +132,10 @@ class BalancingReplicaKnexAdapter extends KnexAdapter {
 
                 return selectedPool.getQueryRunner(builder)
             } catch (err) {
+                const msg = err.message
+                if (msg && msg.includes('Unsupported operation provided. Expected to be one of the following: [insert, select, update, delete, show], but got:')) {
+                    return this._defaultPool.getQueryRunner(builder)
+                }
                 logger.error({ msg: 'Unexpected error happened during SQL query routing', err })
                 throw new Error(`Unexpected error happened during SQL query routing: ${String(err)}`)
             }
