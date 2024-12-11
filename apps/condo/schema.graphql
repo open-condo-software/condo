@@ -74257,6 +74257,7 @@ type MarketItemPricePriceSchemaField {
   name: String!
   price: String!
   isMin: Boolean!
+  measure: String
   vatPercent: String
   salesTaxPercent: String
   currencyCode: String
@@ -74267,6 +74268,7 @@ input MarketItemPricePriceSchemaFieldInput {
   name: String!
   price: String!
   isMin: Boolean!
+  measure: String
   vatPercent: String
   salesTaxPercent: String
   currencyCode: String

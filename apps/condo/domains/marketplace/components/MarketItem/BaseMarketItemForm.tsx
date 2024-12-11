@@ -37,6 +37,7 @@ import {
     INITIAL_PRICE_FORM_VALUE,
     MarketItemFormValuesType,
     PriceType,
+    PriceMeasuresType,
 } from '@condo/domains/marketplace/utils/clientSchema/MarketItem'
 import { searchOrganizationPropertyWithExclusion } from '@condo/domains/marketplace/utils/clientSchema/search'
 import { Property } from '@condo/domains/property/utils/clientSchema'
@@ -167,8 +168,6 @@ const MobilePreview = ({ name, price, measure, priceType, sku, description, file
     const OrderMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.mobileAppPreview.order' })
     const DescriptionMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.mobileAppPreview.description' })
 
-    const shortMeasureTypeMessage = intl.formatMessage({ id: `pages.condo.marketplace.marketItem.${measure}.value` })
-
     const { currencyCode } = useMarketItemFormContext()
 
     const moneyRender = getMoneyRender(intl, currencyCode)
@@ -200,7 +199,7 @@ const MobilePreview = ({ name, price, measure, priceType, sku, description, file
                                 </Col>
                                 <Col span={24} style={{ marginTop: '-0px' }} className='order-header'>
                                     <Typography.Title type='secondary' level={3}>
-                                        {resultPrice || PriceMessage}{showMeasureType && `/${shortMeasureTypeMessage}`}
+                                        {resultPrice || PriceMessage}{(showMeasureType && `/${intl.formatMessage({ id: `pages.condo.marketplace.rate.${measure}.short` })}`)}
                                     </Typography.Title>
                                 </Col>
                                 <Col span={24} style={{ marginTop: '-6px' }} className='order-sku'>
@@ -231,27 +230,30 @@ const MobilePreview = ({ name, price, measure, priceType, sku, description, file
                     </Row>
 
                     <Space direction='vertical' size={8} className='order-button-wrapper'>
-                        (showMeasureType && (
-                        <div style={{
-                            'padding': '4px 9px',
-                            'display': 'flex',
-                            'justifyContent': 'space-between',
-                            'alignItems': 'center',
-                            'backgroundColor': colors.gray[1],
-                            width: '100%',
-                            borderRadius: DEFAULT_BORDER_RADIUS,
-                        }}>
-                            <div style={{ 'marginTop': '-2px' }}>
-                                <Typography.Text size='small' type='secondary'>итого</Typography.Text>
-                                <div style={{ 'marginTop': '-6px' }}>
-                                    <Typography.Text strong size='medium' type='inherit'>{resultPrice || PriceMessage}</Typography.Text>
-                                </div>
-                            </div>
-                            <div style={{ 'display':'flex', 'justifyContent':'space-between', 'alignItems':'center', 'padding': '2px 4px', 'backgroundColor': 'white', borderRadius: '4px' }}>
-                                <span>{`1${shortMeasureTypeMessage}`}</span>
-                                <span style={{ 'marginLeft': '2px' }}>+</span>
-                            </div>
-                        </div>))
+                        {
+                            (showMeasureType && (
+                                <div style={{
+                                    'padding': '4px 9px',
+                                    'display': 'flex',
+                                    'justifyContent': 'space-between',
+                                    'alignItems': 'center',
+                                    'backgroundColor': colors.gray[1],
+                                    width: '100%',
+                                    borderRadius: DEFAULT_BORDER_RADIUS,
+                                }}>
+                                    <div style={{ 'marginTop': '-2px' }}>
+                                        <Typography.Text size='small' type='secondary'>итого</Typography.Text>
+                                        <div style={{ 'marginTop': '-6px' }}>
+                                            <Typography.Text strong size='medium' type='inherit'>{resultPrice || PriceMessage}</Typography.Text>
+                                        </div>
+                                    </div>
+                                    <div style={{ 'display':'flex', 'justifyContent':'space-between', 'alignItems':'center', 'padding': '2px 4px', 'backgroundColor': 'white', borderRadius: '4px' }}>
+                                        <span>{`1${intl.formatMessage({ id: `pages.condo.marketplace.rate.${measure}.short` })}`}</span>
+                                        <span style={{ 'marginLeft': '2px' }}>+</span>
+                                    </div>
+                                </div>)
+                            )
+                        }
 
                         <AntdButton className='order-button'>
                             <Typography.Text strong type='inherit'>{OrderMessage}</Typography.Text>
@@ -590,6 +592,7 @@ const MarketPriceForm = ({ priceFormDescription, removeOperation, organizationPr
     const MinPriceTypeLabel = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.priceType.minPrice' })
     const ContractPriceTypeLabel = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.priceType.contractPrice' })
     const PriceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.price' })
+    const MeasureLabel = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.measure' })
     const PriceTooltip = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.price.tooltip' })
     const CancelMessage = intl.formatMessage({ id: 'Cancel' })
     const MinPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.price.minPriceMessage' })
@@ -619,6 +622,8 @@ const MarketPriceForm = ({ priceFormDescription, removeOperation, organizationPr
 
     const handleContractPriceCheck = useCallback(async () => {
         form.setFieldsValue(getUpdatedPricesField(priceFormName, { price: null }))
+        form.setFieldsValue(getUpdatedPricesField(priceFormName, { measure: null }))
+
         await form.validateFields(['prices', priceFormName, 'price'])
     }, [form, getUpdatedPricesField, priceFormName])
 
@@ -672,6 +677,46 @@ const MarketPriceForm = ({ priceFormDescription, removeOperation, organizationPr
                             </Radio>
                         </Space>
                     </RadioGroup>
+                </Form.Item>
+            </Col>
+            <Col span={24}>
+                <Form.Item
+                    required
+                    name={[priceFormName, 'measure']}
+                    label={MeasureLabel}
+                    wrapperCol={{
+                        span: 5,
+                    }}
+                >
+                    <Select
+                        defaultValue='perItem'
+                        disabled={isContractPrice}
+                    >
+                        <Select.Option
+                            key={PriceMeasuresType.PerItem}
+                            value={PriceMeasuresType.PerItem}
+                        >
+                            {intl.formatMessage({ id: 'pages.condo.marketplace.rate.perItem.full' })}
+                        </Select.Option>
+                        <Select.Option
+                            key={PriceMeasuresType.PerHour}
+                            value={PriceMeasuresType.PerHour}
+                        >
+                            {intl.formatMessage({ id: 'pages.condo.marketplace.rate.perHour.full' })}
+                        </Select.Option>
+                        <Select.Option
+                            key={PriceMeasuresType.PerMeter}
+                            value={PriceMeasuresType.PerMeter}
+                        >
+                            {intl.formatMessage({ id: 'pages.condo.marketplace.rate.perMeter.full' })}
+                        </Select.Option>
+                        <Select.Option
+                            key='oneTime'
+                            value={null}
+                        >
+                            {intl.formatMessage({ id: 'pages.condo.marketplace.noRate' })}
+                        </Select.Option>
+                    </Select>
                 </Form.Item>
             </Col>
             <Col span={24}>
@@ -788,7 +833,7 @@ type BaseMarketItemFormProps = {
 export const BaseMarketItemForm: React.FC<BaseMarketItemFormProps> = (props) => {
     const intl = useIntl()
     const SaveChangesModalTitle = intl.formatMessage({ id: 'form.prompt.title' })
-    const SaveChangesNodalMessage = intl.formatMessage({ id: 'form.prompt.message' })
+    const SaveChangesModalMessage = intl.formatMessage({ id: 'form.prompt.message' })
 
     const { children, action, initialValues } = props
     const { breakpoints } = useLayoutContext()
@@ -833,7 +878,7 @@ export const BaseMarketItemForm: React.FC<BaseMarketItemFormProps> = (props) => 
                                 handleSave={handleSave}
                             >
                                 <Typography.Paragraph>
-                                    {SaveChangesNodalMessage}
+                                    {SaveChangesModalMessage}
                                 </Typography.Paragraph>
                             </Prompt>
                             <Row gutter={[0, 60]}>

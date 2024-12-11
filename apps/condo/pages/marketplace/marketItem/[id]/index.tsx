@@ -100,6 +100,7 @@ const MarketItemFields = ({ marketItem }) => {
 
 type AddressesPriceType = {
     price: string
+    shortMeasureMessage: string,
     addresses: string[]
 }
 
@@ -131,7 +132,7 @@ const PriceScope: React.FC<PriceScopePropsType> = ({ addressesPrice, closable })
             <Col span={24}>
                 <Row justify='space-between' onClick={handlePriceBlockClick} style={priceBlockStyle}>
                     <Col style={PRICE_COL_STYLE}>
-                        <Typography.Text size='medium'>{addressesPrice.price}</Typography.Text>
+                        <Typography.Text size='medium'>{addressesPrice.price}{(addressesPrice.shortMeasureMessage && `/${addressesPrice.shortMeasureMessage}`)}</Typography.Text>
                     </Col>
                     {
                         closable && (
@@ -203,8 +204,17 @@ const PricesBlock = ({ marketItemId }) => {
 
     const addressesPrices: AddressesPriceType[] = useMemo(() => {
         const resultAddressesPrices = uniquePrices.map(priceObj => {
+            console.log(priceObj)
+
             const firstPrice =  get(priceObj, 'price.0')
             const price = getMoneyRender(intl, get(firstPrice, 'currency', 'RUB'))(get(firstPrice, 'price'), get(firstPrice, 'isMin'))
+            const measure = get(firstPrice, 'measure')
+
+            let shortMeasureMessage = null
+            if (measure) {
+                shortMeasureMessage = intl.formatMessage({ id: `pages.condo.marketplace.rate.${measure}.short` })
+            }
+
             const scopesWithSamePrice = priceScopes
                 .filter(scope => get(scope, 'marketItemPrice.id') === get(priceObj, 'id'))
             const addresses = scopesWithSamePrice.map(scope => {
@@ -222,7 +232,7 @@ const PricesBlock = ({ marketItemId }) => {
                 return streetPart
             })
 
-            return { price, addresses }
+            return { price, shortMeasureMessage, addresses }
         })
 
         const addressesWithoutPrices = propertiesWithoutPrices.map(property => {

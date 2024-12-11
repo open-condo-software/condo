@@ -11,9 +11,9 @@ const PRICE_GQL_TYPE_NAME = 'MarketItemPricePriceSchemaField'
 const PRICE_GQL_INPUT_NAME = 'MarketItemPricePriceSchemaFieldInput'
 
 const PRICE_MEASURES = {
-    HOUR: 'hour',
-    ITEM: 'item',
-    METER: 'meter',
+    PER_HOUR: 'perHour',
+    PER_ITEM: 'perItem',
+    PER_METER: 'perMeter',
 }
 
 const priceSchemaFields = {
@@ -21,6 +21,7 @@ const priceSchemaFields = {
     name: 'String!',
     price: 'String!',
     isMin: 'Boolean!',
+    measure: 'String',
     vatPercent: 'String',
     salesTaxPercent: 'String',
     currencyCode: 'String',
