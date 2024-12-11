@@ -3,9 +3,9 @@ const { Store, Cookie } = require('express-session')
 const { has } = require('lodash')
 
 const conf = require('@open-condo/config')
-const { prepareDefaultKeystoneConfig } = require('@open-condo/keystone/setup.utils')
+const { getCookieOptions } = require('@open-condo/keystone/setup.utils')
 
-const { cookie: defaultCookieOptions } = prepareDefaultKeystoneConfig(conf)
+const defaultCookieOptions = getCookieOptions(conf)
 
 const INFINITE_LIKE_MAX_AGE = 1000 * (Math.pow(2, 31) - 1) // Around 68 years in milliseconds
 
