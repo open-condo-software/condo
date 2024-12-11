@@ -1,3 +1,4 @@
+const dayjs = require('dayjs')
 const get = require('lodash/get')
 
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -7,9 +8,9 @@ const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/
 const { sendBillingReceiptsAddedNotificationForOrganizationContextTask } = require('@condo/domains/resident/tasks/sendBillingReceiptsAddedNotificationForOrganizationContextTask')
 const logger = getLogger('sendBillingReceiptsAddedNotifications')
 
-const sendBillingReceiptsAddedNotifications = async (lastSendDate) => {
+const sendBillingReceiptsAddedNotifications = async () => {
     logger.info({ msg: 'Starting billing receipts notification process' })
-
+    const lastSendDate = dayjs().subtract(2, 'day').toISOString()
     const BillingContexts = await find('BillingIntegrationOrganizationContext', {
         updatedAt_gte: lastSendDate,
         status: CONTEXT_FINISHED_STATUS,
