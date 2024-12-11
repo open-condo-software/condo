@@ -190,8 +190,6 @@ const CHECK_USER_EXISTENCE_MUTATION = gql`
     }
 `
 
-// TODO(codegen): write return type result!
-
 const _INTERNAL_RESET_SMSDAY_LIMIT_COUNTERS_MUTATION = gql`
     mutation _internalResetSMSDayLimitCounters ($data: _internalResetSMSDayLimitCountersInput!) {
         result: _internalResetSMSDayLimitCounters(data: $data) { ok }

@@ -35,6 +35,7 @@ const {
     RESET_USER_MUTATION,
     SEND_MESSAGE_TO_SUPPORT_MUTATION,
     SIGNIN_AS_USER_MUTATION,
+    START_CONFIRM_PHONE_MUTATION
 } = require('@condo/domains/user/gql')
 const { generateSmsCode } = require('@condo/domains/user/utils/serverSchema')
 
@@ -47,7 +48,6 @@ const { GET_ACCESS_TOKEN_BY_USER_ID_QUERY } = require('@condo/domains/user/gql')
 const { UserRightsSet: UserRightsSetGQL } = require('@condo/domains/user/gql')
 const { CHECK_USER_EXISTENCE_MUTATION } = require('@condo/domains/user/gql')
 const { _INTERNAL_RESET_SMSDAY_LIMIT_COUNTERS_MUTATION } = require('@condo/domains/user/gql')
-const { START_CONFIRM_PHONE_MUTATION } = require('../../gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function createTestEmail () {
