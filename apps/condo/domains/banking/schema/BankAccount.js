@@ -273,6 +273,7 @@ const BankAccount = new GQLListSchema('BankAccount', {
             },
         ],
     },
+    escapeSearch: true,
 })
 
 module.exports = {
