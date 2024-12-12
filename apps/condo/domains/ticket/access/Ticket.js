@@ -115,8 +115,7 @@ async function canManageTickets (args) {
             return ticket.client === user.id
         }
     } else {
-        if (isBulkRequest && operation === 'create') return false
-
+        // TODO: DOMA-10832 add check employee organization in Ticket access
         if (isBulkRequest && operation === 'update') {
             if (itemIds.length !== uniq(itemIds).length) return false
             if (itemIds.length !== originalInput.length) return false

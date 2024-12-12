@@ -6,7 +6,7 @@ import get from 'lodash/get'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { useCallback, useEffect, useRef } from 'react'
+import React, { useCallback } from 'react'
 
 import { IUseSoftDeleteActionType, IUseUpdateActionType } from '@open-condo/codegen/generate.hooks'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
@@ -305,16 +305,14 @@ export const EmployeePageContent: React.FC<EmployeePageContent> = ({
 }
 
 export const EmployeeInfoPage: PageComponentType = () => {
-    const { query, push } = useRouter()
+    const { query } = useRouter()
     const { link } = useOrganization()
     const intl = useIntl()
     const LoadingInProgressMessage = intl.formatMessage({ id: 'LoadingInProgress' })
     const ErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
-    const DeleteUserMessage = intl.formatMessage({ id: 'employee.Notification.deleteUser' })
+    const NotFoundMsg = intl.formatMessage({ id: 'NotFound' })
 
     const employeeId = String(get(query, 'id', ''))
-
-    const isFirstRender = useRef<boolean>(true)
 
     const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject(
         {
@@ -323,16 +321,6 @@ export const EmployeeInfoPage: PageComponentType = () => {
             },
         }
     )
-
-    useEffect(() => {
-        if (isFirstRender.current) {
-            isFirstRender.current = false
-            return
-        }
-        if (!loading && !employee) {
-            push('/employee/')
-        }
-    }, [employee, loading, push])
 
     const { objs: organizationEmployeeSpecializations } = OrganizationEmployeeSpecialization.useObjects({
         where: {
@@ -355,8 +343,9 @@ export const EmployeeInfoPage: PageComponentType = () => {
     const isEmployeeEditable = get(link, ['role', 'canManageEmployees'], false)
     const isEmployeeReinvitable = get(link, ['role', 'canInviteNewOrganizationEmployees'], false) && !get(employee, 'isAccepted')
 
-    if (error || loading || !employee) {
-        return <LoadingOrErrorPage title={!loading && !employee ? DeleteUserMessage : LoadingInProgressMessage} loading={loading} error={error ? ErrorMessage : null}/>
+    if (error || loading || (!loading && !employee)) {
+        const errorToPrint = error ? ErrorMessage : (!loading && !employee) ? NotFoundMsg : ''
+        return <LoadingOrErrorPage title={loading ? LoadingInProgressMessage : errorToPrint} loading={loading} error={errorToPrint}/>
     }
 
     return (
