@@ -87,9 +87,9 @@ class RedisGuard {
         return await this.redis.exists(key)
     }
 
-    async resetCounterToOne (variable) {
+    async deleteCounter (variable) {
         const key = `${this.counterPrefix}${variable}`
-        await this.redis.set(key, '1')
+        await this.redis.del(key)
     }
 
     // Counter

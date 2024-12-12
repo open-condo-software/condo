@@ -23,7 +23,6 @@ const {
 
 const redisGuard = new RedisGuard()
 const COUNTER_VALUE_TO_UPDATE = 2
-const COUNTER_VALUE_AFTER_RESET = 1
 
 describe('_internalResetSMSDayLimitCountersService', () => {
     let admin, support, user, anonymous, phone
@@ -87,7 +86,7 @@ describe('_internalResetSMSDayLimitCountersService', () => {
             })
             const value = await redisGuard.getCounterValue(phone)
 
-            expect(Number(value)).toEqual(COUNTER_VALUE_AFTER_RESET)
+            expect(value).toBeNull()
         })
 
         test('reset counter by ip', async () => {
@@ -105,7 +104,7 @@ describe('_internalResetSMSDayLimitCountersService', () => {
             })
             const afterReset = await redisGuard.getCounterValue(phone)
 
-            expect(Number(afterReset)).toEqual(COUNTER_VALUE_AFTER_RESET)
+            expect(afterReset).toBeNull()
         })
 
         test('throws error if key is not valid ip or phone', async () => {

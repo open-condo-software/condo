@@ -64,7 +64,7 @@ const _internalResetSMSDayLimitCountersService = new GQLCustomSchema('_internalR
                     }, context)
                 }
 
-                await redisGuard.resetCounterToOne(key)
+                await redisGuard.deleteCounter(key)
 
                 return {
                     ok: true,
