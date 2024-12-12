@@ -2771,6 +2771,7 @@ type UserRightsSetHistoryRecord {
   canExecute_internalSendHashedResidentPhones: Boolean
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
+  canExecute_internalResetSMSDayLimitCounters: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canReadUserEmailField: Boolean
   id: ID!
@@ -2897,6 +2898,8 @@ input UserRightsSetHistoryRecordWhereInput {
   canExecute_allPaymentsSum_not: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canExecute_allBillingReceiptsSum_not: Boolean
+  canExecute_internalResetSMSDayLimitCounters: Boolean
+  canExecute_internalResetSMSDayLimitCounters_not: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageOrganizationIsApprovedField_not: Boolean
   canReadUserEmailField: Boolean
@@ -3074,6 +3077,8 @@ enum SortUserRightsSetHistoryRecordsBy {
   canExecute_allPaymentsSum_DESC
   canExecute_allBillingReceiptsSum_ASC
   canExecute_allBillingReceiptsSum_DESC
+  canExecute_internalResetSMSDayLimitCounters_ASC
+  canExecute_internalResetSMSDayLimitCounters_DESC
   canManageOrganizationIsApprovedField_ASC
   canManageOrganizationIsApprovedField_DESC
   canReadUserEmailField_ASC
@@ -3142,6 +3147,7 @@ input UserRightsSetHistoryRecordUpdateInput {
   canExecute_internalSendHashedResidentPhones: Boolean
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
+  canExecute_internalResetSMSDayLimitCounters: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canReadUserEmailField: Boolean
   v: Int
@@ -3209,6 +3215,7 @@ input UserRightsSetHistoryRecordCreateInput {
   canExecute_internalSendHashedResidentPhones: Boolean
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
+  canExecute_internalResetSMSDayLimitCounters: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canReadUserEmailField: Boolean
   v: Int
@@ -3421,6 +3428,10 @@ type UserRightsSet {
   """
   canExecute_allBillingReceiptsSum: Boolean
 
+  """ Enables a user with the given UserRightsSet to execute "_internalResetSMSDayLimitCounters" query/mutation 
+  """
+  canExecute_internalResetSMSDayLimitCounters: Boolean
+
   """ Enables a user with the given UserRightsSet to update "isApproved" field of model "Organization" 
   """
   canManageOrganizationIsApprovedField: Boolean
@@ -3560,6 +3571,8 @@ input UserRightsSetWhereInput {
   canExecute_allPaymentsSum_not: Boolean
   canExecute_allBillingReceiptsSum: Boolean
   canExecute_allBillingReceiptsSum_not: Boolean
+  canExecute_internalResetSMSDayLimitCounters: Boolean
+  canExecute_internalResetSMSDayLimitCounters_not: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canManageOrganizationIsApprovedField_not: Boolean
   canReadUserEmailField: Boolean
@@ -3717,6 +3730,8 @@ enum SortUserRightsSetsBy {
   canExecute_allPaymentsSum_DESC
   canExecute_allBillingReceiptsSum_ASC
   canExecute_allBillingReceiptsSum_DESC
+  canExecute_internalResetSMSDayLimitCounters_ASC
+  canExecute_internalResetSMSDayLimitCounters_DESC
   canManageOrganizationIsApprovedField_ASC
   canManageOrganizationIsApprovedField_DESC
   canReadUserEmailField_ASC
@@ -3785,6 +3800,7 @@ input UserRightsSetUpdateInput {
   canExecute_internalSendHashedResidentPhones: Boolean
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
+  canExecute_internalResetSMSDayLimitCounters: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canReadUserEmailField: Boolean
   v: Int
@@ -3849,6 +3865,7 @@ input UserRightsSetCreateInput {
   canExecute_internalSendHashedResidentPhones: Boolean
   canExecute_allPaymentsSum: Boolean
   canExecute_allBillingReceiptsSum: Boolean
+  canExecute_internalResetSMSDayLimitCounters: Boolean
   canManageOrganizationIsApprovedField: Boolean
   canReadUserEmailField: Boolean
   v: Int
