@@ -2,7 +2,7 @@ const { Session } = require('express-session')
 const get = require('lodash/get')
 const uniq = require('lodash/uniq')
 
-const { nonNull } = require('@open-condo/miniapp-utils/helpers/collections')
+const { nonNull } = require('@open-condo/miniapp-utils')
 
 const ARGS_CONFIG = {
     arrays: {
