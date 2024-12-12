@@ -11,6 +11,7 @@ const {
     expectToThrowAuthenticationErrorToResult, expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
+const { CONFIRM_PHONE_COUNTER_PREFIX } = require('@condo/domains/user/constants/common')
 const { ERRORS } = require('@condo/domains/user/schema/_internalResetSMSDayLimitCountersService')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 const {
@@ -36,11 +37,12 @@ describe('_internalResetSMSDayLimitCountersService', () => {
 
     beforeEach(async () => {
         phone = createTestPhone()
+        const key = `${CONFIRM_PHONE_COUNTER_PREFIX}${phone}`
 
         for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
-            await redisGuard.incrementDayCounter(phone)
+            await redisGuard.incrementDayCounter(key)
         }
-        const value = await redisGuard.getCounterValue(phone)
+        const value = await redisGuard.getCounterValue(key)
 
         expect(Number(value)).toEqual(COUNTER_VALUE_TO_UPDATE)
     })
@@ -81,28 +83,31 @@ describe('_internalResetSMSDayLimitCountersService', () => {
 
     describe('Logic', () => {
         test('reset counter by phone number', async () => {
+            const key = `${CONFIRM_PHONE_COUNTER_PREFIX}${phone}`
+
             await _internalResetSMSDayLimitCountersByTestClient(support, {
                 key: phone,
             })
-            const value = await redisGuard.getCounterValue(phone)
+            const value = await redisGuard.getCounterValue(key)
 
             expect(value).toBeNull()
         })
 
         test('reset counter by ip', async () => {
             const ip = faker.internet.ipv4()
+            const key = `${CONFIRM_PHONE_COUNTER_PREFIX}${ip}`
 
             for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
-                await redisGuard.incrementDayCounter(ip)
+                await redisGuard.incrementDayCounter(key)
             }
-            const beforeReset = await redisGuard.getCounterValue(ip)
+            const beforeReset = await redisGuard.getCounterValue(key)
 
             expect(Number(beforeReset)).toEqual(COUNTER_VALUE_TO_UPDATE)
 
             await _internalResetSMSDayLimitCountersByTestClient(support, {
-                key: phone,
+                key: ip,
             })
-            const afterReset = await redisGuard.getCounterValue(phone)
+            const afterReset = await redisGuard.getCounterValue(key)
 
             expect(afterReset).toBeNull()
         })
@@ -124,15 +129,15 @@ describe('_internalResetSMSDayLimitCountersService', () => {
         })
 
         test('throws error if key is not exists', async () => {
-            const key = createTestPhone()
+            const phone = createTestPhone()
 
             await expectToThrowGQLError(async () => {
                 await _internalResetSMSDayLimitCountersByTestClient(support, {
-                    key,
+                    key: phone,
                 })
             }, {
                 ...ERRORS.KEY_NOT_FOUND,
-                message: `Key '${key}' does not exist.`,
+                message: `Key '${phone}' does not exist.`,
             }, 'result')
         })
     })
