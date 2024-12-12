@@ -205,6 +205,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
                     filterDetails,
                     filterExecutorName,
                     filterAssigneeName,
+                    filterClientPhone,
                     filterCreatedAtRange,
                     filterCategoryClassifierSearch,
                 ],
