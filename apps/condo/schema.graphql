@@ -69553,6 +69553,8 @@ type B2BAppAccessRightSetHistoryRecord {
   """
   _label_: String
   app: String
+  canReadBillingReceipts: Boolean
+  canManageBillingReceipts: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
   canReadMeters: Boolean
@@ -69594,6 +69596,10 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   app_not: String
   app_in: [String]
   app_not_in: [String]
+  canReadBillingReceipts: Boolean
+  canReadBillingReceipts_not: Boolean
+  canManageBillingReceipts: Boolean
+  canManageBillingReceipts_not: Boolean
   canReadContacts: Boolean
   canReadContacts_not: Boolean
   canManageContacts: Boolean
@@ -69715,6 +69721,10 @@ input B2BAppAccessRightSetHistoryRecordWhereUniqueInput {
 }
 
 enum SortB2BAppAccessRightSetHistoryRecordsBy {
+  canReadBillingReceipts_ASC
+  canReadBillingReceipts_DESC
+  canManageBillingReceipts_ASC
+  canManageBillingReceipts_DESC
   canReadContacts_ASC
   canReadContacts_DESC
   canManageContacts_ASC
@@ -69773,6 +69783,8 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
 
 input B2BAppAccessRightSetHistoryRecordUpdateInput {
   app: String
+  canReadBillingReceipts: Boolean
+  canManageBillingReceipts: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
   canReadMeters: Boolean
@@ -69813,6 +69825,8 @@ input B2BAppAccessRightSetHistoryRecordsUpdateInput {
 
 input B2BAppAccessRightSetHistoryRecordCreateInput {
   app: String
+  canReadBillingReceipts: Boolean
+  canManageBillingReceipts: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
   canReadMeters: Boolean
@@ -69870,6 +69884,11 @@ type B2BAppAccessRightSet {
 
   """ Link to B2BApp """
   app: B2BApp
+  canReadBillingReceipts: Boolean
+
+  """ Currently, this field is read-only. You cannot get manage access for the specified schema. 
+  """
+  canManageBillingReceipts: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
   canReadMeters: Boolean
@@ -69920,6 +69939,10 @@ input B2BAppAccessRightSetWhereInput {
   OR: [B2BAppAccessRightSetWhereInput]
   app: B2BAppWhereInput
   app_is_null: Boolean
+  canReadBillingReceipts: Boolean
+  canReadBillingReceipts_not: Boolean
+  canManageBillingReceipts: Boolean
+  canManageBillingReceipts_not: Boolean
   canReadContacts: Boolean
   canReadContacts_not: Boolean
   canManageContacts: Boolean
@@ -70023,6 +70046,10 @@ input B2BAppAccessRightSetWhereUniqueInput {
 enum SortB2BAppAccessRightSetsBy {
   app_ASC
   app_DESC
+  canReadBillingReceipts_ASC
+  canReadBillingReceipts_DESC
+  canManageBillingReceipts_ASC
+  canManageBillingReceipts_DESC
   canReadContacts_ASC
   canReadContacts_DESC
   canManageContacts_ASC
@@ -70081,6 +70108,8 @@ enum SortB2BAppAccessRightSetsBy {
 
 input B2BAppAccessRightSetUpdateInput {
   app: B2BAppRelateToOneInput
+  canReadBillingReceipts: Boolean
+  canManageBillingReceipts: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
   canReadMeters: Boolean
@@ -70118,6 +70147,8 @@ input B2BAppAccessRightSetsUpdateInput {
 
 input B2BAppAccessRightSetCreateInput {
   app: B2BAppRelateToOneInput
+  canReadBillingReceipts: Boolean
+  canManageBillingReceipts: Boolean
   canReadContacts: Boolean
   canManageContacts: Boolean
   canReadMeters: Boolean
