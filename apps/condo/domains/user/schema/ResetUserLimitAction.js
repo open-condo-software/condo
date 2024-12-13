@@ -45,13 +45,13 @@ const isIdentifierValid = (type, identifier) => {
 }
 
 const ResetUserLimitAction = new GQLListSchema('ResetUserLimitAction', {
-    schemaDoc: 'A model for resetting user limits. ' +
+    schemaDoc: 'A model for resetting user counters limit. ' +
         'To reset a counter limit, you need to create a new object and specify the counter type, identifier, and reason for the reset.',
     fields: {
         type: {
-            schemaDoc: `The type of user limit.
+            schemaDoc: `Type of counter to be reset.
                 Possible values: 
-                1. auth – limit for sending SMS based on IP or phone number.
+                1. Auth – counter for sending verification SMS based on IP or phone number.
              `,
             type: 'Select',
             dataType: 'string',
@@ -61,7 +61,7 @@ const ResetUserLimitAction = new GQLListSchema('ResetUserLimitAction', {
         identifier: {
             schemaDoc: `The identifier of the counter for a specific type.
                 Possible values: 
-                1. For the 'auth' type, it can be: an IP address or a phone number.
+                1. For the 'Auth' type, it can be: an IP address or a phone number.
             `,
             type: 'Text',
             isRequired: true,
