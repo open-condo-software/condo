@@ -46,6 +46,7 @@ const { ExternalTokenAccessRight: ExternalTokenAccessRightGQL } = require('@cond
 const { GET_ACCESS_TOKEN_BY_USER_ID_QUERY } = require('@condo/domains/user/gql')
 const { UserRightsSet: UserRightsSetGQL } = require('@condo/domains/user/gql')
 const { CHECK_USER_EXISTENCE_MUTATION } = require('@condo/domains/user/gql')
+const { ResetUserLimitAction: ResetUserLimitActionGQL } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function createTestEmail () {
@@ -239,6 +240,7 @@ const ConfirmPhoneAction = generateGQLTestUtils(ConfirmPhoneActionGQL)
 const OidcClient = generateGQLTestUtils(OidcClientGQL)
 const ExternalTokenAccessRight = generateGQLTestUtils(ExternalTokenAccessRightGQL)
 const UserRightsSet = generateGQLTestUtils(UserRightsSetGQL)
+const ResetUserLimitAction = generateGQLTestUtils(ResetUserLimitActionGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestConfirmPhoneAction (client, extraAttrs = {}) {
@@ -530,6 +532,37 @@ async function checkUserExistenceByTestClient(client, extraAttrs = {}) {
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+async function createTestResetUserLimitAction (client, type, identifier, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const reason = faker.random.words(5)
+
+    const attrs = {
+        dv: 1,
+        sender,
+        reason,
+        type,
+        identifier,
+        ...extraAttrs,
+    }
+    const obj = await ResetUserLimitAction.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestResetUserLimitAction (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await ResetUserLimitAction.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -570,5 +603,6 @@ module.exports = {
     UserRightsSet, createTestUserRightsSet, updateTestUserRightsSet,
     checkUserExistenceByTestClient,
     authenticateUserWithPhoneAndPasswordByTestClient,
+    ResetUserLimitAction, createTestResetUserLimitAction, updateTestResetUserLimitAction,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

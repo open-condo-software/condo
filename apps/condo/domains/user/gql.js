@@ -130,13 +130,12 @@ const CONFIRM_PHONE_ACTION_FIELDS = '{ id dv sender { dv fingerprint } deletedAt
 const ConfirmPhoneAction = generateGqlQueries('ConfirmPhoneAction', CONFIRM_PHONE_ACTION_FIELDS)
 
 
-// TODO(codegen): write return type result!
 const SIGNIN_RESIDENT_USER_MUTATION = gql`
     mutation signinResidentUser ($data: SigninResidentUserInput!) {
         result: signinResidentUser(data: $data) { user { id name }, token }
     }
 `
-// TODO(codegen): write return type result!
+
 const CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION = gql`
     mutation changePhoneNumberResidentUser ($data: ChangePhoneNumberResidentUserInput!) {
         result: changePhoneNumberResidentUser(data: $data) { status }
@@ -190,6 +189,9 @@ const CHECK_USER_EXISTENCE_MUTATION = gql`
     }
 `
 
+const RESET_USER_LIMIT_ACTION_FIELDS = `{ type identifier reason ${COMMON_FIELDS} }`
+const ResetUserLimitAction = generateGqlQueries('ResetUserLimitAction', RESET_USER_LIMIT_ACTION_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -221,5 +223,6 @@ module.exports = {
     UserRightsSet,
     CHECK_USER_EXISTENCE_MUTATION,
     USER_FIELDS,
+    ResetUserLimitAction,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

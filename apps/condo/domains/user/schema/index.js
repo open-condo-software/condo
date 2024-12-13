@@ -14,6 +14,7 @@ const { GetAccessTokenByUserIdService } = require('./GetAccessTokenByUserIdServi
 const { OidcClient } = require('./OidcClient')
 const { RegisterNewServiceUserService } = require('./RegisterNewServiceUserService')
 const { RegisterNewUserService } = require('./RegisterNewUserService')
+const { ResetUserLimitAction } = require('./ResetUserLimitAction')
 const { ResetUserService } = require('./ResetUserService')
 const { SendMessageToSupportService } = require('./SendMessageToSupportService')
 const { SigninAsUserService } = require('./SigninAsUserService')
@@ -42,5 +43,6 @@ module.exports = {
     GetAccessTokenByUserIdService,
     UserRightsSet,
     CheckUserExistenceService,
+    ResetUserLimitAction,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
