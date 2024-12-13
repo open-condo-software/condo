@@ -77544,16 +77544,6 @@ type CheckUserExistenceOutput {
   passwordSet: Boolean!
 }
 
-input _internalResetSMSDayLimitCountersInput {
-  dv: Int!
-  sender: SenderFieldInput!
-  key: String!
-}
-
-type _internalResetSMSDayLimitCountersOutput {
-  ok: Boolean!
-}
-
 enum OrganizationType {
   MANAGING_COMPANY
   HOLDING
@@ -88163,7 +88153,6 @@ type Mutation {
   }`
   """
   resetUser(data: ResetUserInput!): ResetUserOutput
-  _internalResetSMSDayLimitCounters(data: _internalResetSMSDayLimitCountersInput!): _internalResetSMSDayLimitCountersOutput
 
   """
   Registers new Organization for current user

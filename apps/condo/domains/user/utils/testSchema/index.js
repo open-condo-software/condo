@@ -343,23 +343,6 @@ async function supportSendMessageToSupportByTestClient (client, extraAttrs = {})
     return [data.result, attrs]
 }
 
-async function startConfirmPhoneActionByTestClient (client, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const phone = createTestPhone()
-
-    const attrs = {
-        dv: 1,
-        sender,
-        phone,
-        captcha: faker.lorem.sentence(),
-        ...extraAttrs,
-    }
-    const { data, errors } = await client.mutate(START_CONFIRM_PHONE_MUTATION, { data: attrs })
-    throwIfError(data, errors, { query: START_CONFIRM_PHONE_MUTATION, variables: { data: attrs } })
-    return [data.result, attrs]
-}
-
 async function completeConfirmPhoneActionByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -549,20 +532,6 @@ async function checkUserExistenceByTestClient(client, extraAttrs = {}) {
     throwIfError(data, errors)
     return [data.result, attrs]
 }
-
-async function _internalResetSMSDayLimitCountersByTestClient(client, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const { data, errors } = await client.mutate(_INTERNAL_RESET_SMSDAY_LIMIT_COUNTERS_MUTATION, { data: attrs })
-    throwIfError(data, errors)
-    return [data.result, attrs]
-}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -594,7 +563,6 @@ module.exports = {
     registerNewServiceUserByTestClient,
     resetUserByTestClient,
     supportSendMessageToSupportByTestClient,
-    startConfirmPhoneActionByTestClient,
     completeConfirmPhoneActionByTestClient,
     changePhoneNumberResidentUserByTestClient,
     changePasswordWithTokenByTestClient,
@@ -604,6 +572,5 @@ module.exports = {
     UserRightsSet, createTestUserRightsSet, updateTestUserRightsSet,
     checkUserExistenceByTestClient,
     authenticateUserWithPhoneAndPasswordByTestClient,
-    _internalResetSMSDayLimitCountersByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
