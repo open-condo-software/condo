@@ -3907,6 +3907,9 @@ export const GetUserTicketCommentsReadTimeDocument = gql`
   ) {
     id
     readResidentCommentAt
+    ticket {
+      id
+    }
   }
 }
     `

@@ -1,3 +1,4 @@
+import { useApolloClient } from '@apollo/client'
 import {
     CreateTicketCommentMutationHookResult,
     CreateUserTicketCommentReadTimeMutationHookResult,
@@ -255,6 +256,7 @@ const Comments: React.FC<ICommentsListProps> = ({
     const PromptResidentCommentsDescriptionMessage = intl.formatMessage({ id: 'Comments.tab.resident.prompt.description' })
 
     const { user } = useAuth()
+    const client = useApolloClient()
 
     const { breakpoints } = useLayoutContext()
     const [commentType, setCommentType] = useState(ORGANIZATION_COMMENT_TYPE)
@@ -350,7 +352,9 @@ const Comments: React.FC<ICommentsListProps> = ({
                 },
             })
         }
-    }, [createUserTicketCommentReadTime, loadingUserTicketCommentReadTime, ticketId, updateUserTicketCommentReadTime, user?.id, userTicketCommentReadTime])
+
+        client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'allUserTicketCommentReadTimes' })
+    }, [client, createUserTicketCommentReadTime, loadingUserTicketCommentReadTime, ticketId, updateUserTicketCommentReadTime, user?.id, userTicketCommentReadTime])
 
     useEffect(() => {
         if (!loadingUserTicketCommentReadTime && !isInitialUserTicketCommentReadTimeSet) {

@@ -560,7 +560,7 @@ export type GetUserTicketCommentsReadTimeQueryVariables = Types.Exact<{
 }>
 
 
-export type GetUserTicketCommentsReadTimeQuery = { __typename?: 'Query', objs?: Array<{ __typename?: 'UserTicketCommentReadTime', id: string, readResidentCommentAt?: string | null } | null> | null }
+export type GetUserTicketCommentsReadTimeQuery = { __typename?: 'Query', objs?: Array<{ __typename?: 'UserTicketCommentReadTime', id: string, readResidentCommentAt?: string | null, ticket?: { __typename?: 'Ticket', id: string } | null } | null> | null }
 
 export type CreateUserTicketCommentReadTimeMutationVariables = Types.Exact<{
     data?: Types.InputMaybe<Types.UserTicketCommentReadTimeCreateInput>
