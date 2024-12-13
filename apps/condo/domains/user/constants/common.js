@@ -30,7 +30,11 @@ const LOCALE_EN = 'en'
 const LOCALE_ES = 'es'
 const LOCALES = [LOCALE_RU, LOCALE_EN, LOCALE_ES]
 
-const CONFIRM_PHONE_COUNTER_PREFIX = ':confirm-phone:'
+const USER_AUTH_LIMIT_TYPE = 'auth'
+
+const USER_LIMIT_TYPES = [
+    USER_AUTH_LIMIT_TYPE,
+]
 
 module.exports = {
     MIN_PASSWORD_LENGTH,
@@ -58,5 +62,6 @@ module.exports = {
     LOCALE_RU,
     LOCALES,
     MIN_COUNT_OF_DIFFERENT_CHARACTERS_IN_PASSWORD,
-    CONFIRM_PHONE_COUNTER_PREFIX,
+    USER_LIMIT_TYPES,
+    USER_AUTH_LIMIT_TYPE,
 }

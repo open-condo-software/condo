@@ -18,7 +18,7 @@ const {
     CONFIRM_PHONE_ACTION_EXPIRY,
     LOCK_TIMEOUT,
     CONFIRM_PHONE_SMS_MAX_RETRIES,
-    CONFIRM_PHONE_COUNTER_PREFIX,
+    USER_AUTH_LIMIT_TYPE,
 } = require('@condo/domains/user/constants/common')
 const {
     MAX_SMS_FOR_IP_BY_DAY,
@@ -113,11 +113,11 @@ const APP_ID_HEADER = 'x-request-app'
 
 const checkSMSDayLimitCounters = async (phone, rawIp, context) => {
     const ip = rawIp.split(':').pop()
-    const byPhoneCounter = await redisGuard.incrementDayCounter(`${CONFIRM_PHONE_COUNTER_PREFIX}${phone}`)
+    const byPhoneCounter = await redisGuard.incrementDayCounter(`:${USER_AUTH_LIMIT_TYPE}:${phone}`)
     if (byPhoneCounter > maxSmsForPhoneByDay && !phoneWhiteList.includes(phone)) {
         throw new GQLError(GQL_ERRORS.SMS_FOR_PHONE_DAY_LIMIT_REACHED, context)
     }
-    const byIpCounter = await redisGuard.incrementDayCounter(`${CONFIRM_PHONE_COUNTER_PREFIX}${ip}`)
+    const byIpCounter = await redisGuard.incrementDayCounter(`:${USER_AUTH_LIMIT_TYPE}:${ip}`)
     if (byIpCounter > maxSmsForIpByDay && !ipWhiteList.includes(ip)) {
         throw new GQLError(GQL_ERRORS.SMS_FOR_IP_DAY_LIMIT_REACHED, context)
     }

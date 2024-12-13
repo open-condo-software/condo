@@ -59,6 +59,7 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
         'OidcClient',
         { schemaName: 'User', readonly: true },
         'UserRightsSet',
+        'ResetUserLimitAction',
 
         // Payments domain
         { schemaName: 'Payment', readonly: true },

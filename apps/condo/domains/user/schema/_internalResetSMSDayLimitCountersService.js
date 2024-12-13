@@ -11,7 +11,7 @@ const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const access = require('@condo/domains/user/access/_internalResetSMSDayLimitCountersService')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
-const { CONFIRM_PHONE_COUNTER_PREFIX } = require('../constants/common')
+const { USER_AUTH_LIMIT_TYPE } = require('../constants/common')
 
 
 const redisGuard = new RedisGuard()
@@ -57,7 +57,7 @@ const _internalResetSMSDayLimitCountersService = new GQLCustomSchema('_internalR
                     throw new GQLError(ERRORS.INVALID_KEY, context)
                 }
 
-                const keyWithPrefix = `${CONFIRM_PHONE_COUNTER_PREFIX}${key}`
+                const keyWithPrefix = `:${USER_AUTH_LIMIT_TYPE}:${key}`
                 const isKeyExists = await redisGuard.checkCounterExistence(keyWithPrefix)
 
                 if (!isKeyExists) {

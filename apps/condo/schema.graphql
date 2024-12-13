@@ -2763,6 +2763,8 @@ type UserRightsSetHistoryRecord {
   canReadUsers: Boolean
   canReadUserRightsSets: Boolean
   canManageUserRightsSets: Boolean
+  canReadResetUserLimitActions: Boolean
+  canManageResetUserLimitActions: Boolean
   canReadPayments: Boolean
   canReadBillingReceipts: Boolean
   canReadBillingOrganizationIntegrationContexts: Boolean
@@ -2881,6 +2883,10 @@ input UserRightsSetHistoryRecordWhereInput {
   canReadUserRightsSets_not: Boolean
   canManageUserRightsSets: Boolean
   canManageUserRightsSets_not: Boolean
+  canReadResetUserLimitActions: Boolean
+  canReadResetUserLimitActions_not: Boolean
+  canManageResetUserLimitActions: Boolean
+  canManageResetUserLimitActions_not: Boolean
   canReadPayments: Boolean
   canReadPayments_not: Boolean
   canReadBillingReceipts: Boolean
@@ -3058,6 +3064,10 @@ enum SortUserRightsSetHistoryRecordsBy {
   canReadUserRightsSets_DESC
   canManageUserRightsSets_ASC
   canManageUserRightsSets_DESC
+  canReadResetUserLimitActions_ASC
+  canReadResetUserLimitActions_DESC
+  canManageResetUserLimitActions_ASC
+  canManageResetUserLimitActions_DESC
   canReadPayments_ASC
   canReadPayments_DESC
   canReadBillingReceipts_ASC
@@ -3134,6 +3144,8 @@ input UserRightsSetHistoryRecordUpdateInput {
   canReadUsers: Boolean
   canReadUserRightsSets: Boolean
   canManageUserRightsSets: Boolean
+  canReadResetUserLimitActions: Boolean
+  canManageResetUserLimitActions: Boolean
   canReadPayments: Boolean
   canReadBillingReceipts: Boolean
   canReadBillingOrganizationIntegrationContexts: Boolean
@@ -3201,6 +3213,8 @@ input UserRightsSetHistoryRecordCreateInput {
   canReadUsers: Boolean
   canReadUserRightsSets: Boolean
   canManageUserRightsSets: Boolean
+  canReadResetUserLimitActions: Boolean
+  canManageResetUserLimitActions: Boolean
   canReadPayments: Boolean
   canReadBillingReceipts: Boolean
   canReadBillingOrganizationIntegrationContexts: Boolean
@@ -3389,6 +3403,14 @@ type UserRightsSet {
   """
   canManageUserRightsSets: Boolean
 
+  """ Enables a user with the given UserRightsSet to view all entities of model "ResetUserLimitAction" as support / admin users do 
+  """
+  canReadResetUserLimitActions: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "ResetUserLimitAction" similar to support users 
+  """
+  canManageResetUserLimitActions: Boolean
+
   """ Enables a user with the given UserRightsSet to view all entities of model "Payment" as support / admin users do 
   """
   canReadPayments: Boolean
@@ -3544,6 +3566,10 @@ input UserRightsSetWhereInput {
   canReadUserRightsSets_not: Boolean
   canManageUserRightsSets: Boolean
   canManageUserRightsSets_not: Boolean
+  canReadResetUserLimitActions: Boolean
+  canReadResetUserLimitActions_not: Boolean
+  canManageResetUserLimitActions: Boolean
+  canManageResetUserLimitActions_not: Boolean
   canReadPayments: Boolean
   canReadPayments_not: Boolean
   canReadBillingReceipts: Boolean
@@ -3701,6 +3727,10 @@ enum SortUserRightsSetsBy {
   canReadUserRightsSets_DESC
   canManageUserRightsSets_ASC
   canManageUserRightsSets_DESC
+  canReadResetUserLimitActions_ASC
+  canReadResetUserLimitActions_DESC
+  canManageResetUserLimitActions_ASC
+  canManageResetUserLimitActions_DESC
   canReadPayments_ASC
   canReadPayments_DESC
   canReadBillingReceipts_ASC
@@ -3777,6 +3807,8 @@ input UserRightsSetUpdateInput {
   canReadUsers: Boolean
   canReadUserRightsSets: Boolean
   canManageUserRightsSets: Boolean
+  canReadResetUserLimitActions: Boolean
+  canManageResetUserLimitActions: Boolean
   canReadPayments: Boolean
   canReadBillingReceipts: Boolean
   canReadBillingOrganizationIntegrationContexts: Boolean
@@ -3841,6 +3873,8 @@ input UserRightsSetCreateInput {
   canReadUsers: Boolean
   canReadUserRightsSets: Boolean
   canManageUserRightsSets: Boolean
+  canReadResetUserLimitActions: Boolean
+  canManageResetUserLimitActions: Boolean
   canReadPayments: Boolean
   canReadBillingReceipts: Boolean
   canReadBillingOrganizationIntegrationContexts: Boolean
