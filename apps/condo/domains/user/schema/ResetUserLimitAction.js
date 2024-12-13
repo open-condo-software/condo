@@ -73,7 +73,7 @@ const ResetUserLimitAction = new GQLListSchema('ResetUserLimitAction', {
                         throw new GQLError(ERRORS.INVALID_IDENTIFIER, context)
                     }
 
-                    const isKeyExists = await redisGuard.checkCounterExistence(`:${type}:${identifier}`)
+                    const isKeyExists = await redisGuard.checkCounterExistence(`${type}:${identifier}`)
                     if (!isKeyExists) {
                         throw new GQLError(ERRORS.KEY_NOT_FOUND, context)
                     }
