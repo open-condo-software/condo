@@ -13,7 +13,7 @@ describe('sendBillingReceiptNotifications', () => {
     describe('feature flag', () => {
         it('checks for proper result on enabled', async () => {
             setAllFeatureFlags(true)
-            expect(await sendBillingReceiptNotifications()).toEqual(undefined)
+            expect(await sendBillingReceiptNotifications()).toBeUndefined()
         })
 
         it('checks for proper result on disabled', async () => {
