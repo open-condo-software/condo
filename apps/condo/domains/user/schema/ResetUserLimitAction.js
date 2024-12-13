@@ -90,7 +90,7 @@ const ResetUserLimitAction = new GQLListSchema('ResetUserLimitAction', {
         afterChange: async ({ originalInput }) => {
             const { type, identifier } = originalInput
 
-            await redisGuard.deleteCounter(`:${type}:${identifier}`)
+            await redisGuard.deleteCounter(`${type}:${identifier}`)
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
