@@ -5,11 +5,13 @@
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
 const { canManageBillingEntityWithContext } = require('@condo/domains/billing/utils/accessSchema')
+const { canReadObjectsAsB2BAppServiceUser } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const { getUserResidents, getUserServiceConsumers } = require('@condo/domains/resident/utils/accessSchema')
 const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 const { canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
-async function canReadBillingReceipts ({ authentication: { item: user }, context, listKey }) {
+async function canReadBillingReceipts (args) {
+    const { authentication: { item: user }, context, listKey } = args
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return {}
@@ -34,7 +36,12 @@ async function canReadBillingReceipts ({ authentication: { item: user }, context
     }
 
     if (user.type === SERVICE) {
-        return { context: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } } }
+        const canReadAsB2BAppServiceUser = await canReadObjectsAsB2BAppServiceUser(args)
+        const filterConditions = [{ context: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } } }]
+        if (canReadAsB2BAppServiceUser) {
+            filterConditions.push(canReadAsB2BAppServiceUser)
+        }
+        return { OR: filterConditions }
     }
 
     const hasDirectAccess = await canDirectlyReadSchemaObjects(user, listKey)
