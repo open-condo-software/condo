@@ -56,7 +56,7 @@ const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
         ' Therefore, it is necessary to take this into account when specifying the necessary rights.' +
         '\nFor example, to create a contact, in addition to having access to managing properties, you also need to have access to read organization',
 
-    resolveLabel (item) {
+    labelResolver (item) {
         // do not let empty "name" break things in admin ui
         return item.id
     },
@@ -81,12 +81,19 @@ const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
             isRequired: true,
             defaultValue: 'default',
             hooks: {
-                validateInput ({ resolvedData, existingItem, context }) {
+                resolveInput ({ existingItem, resolvedData }) {
                     const nextItem = {
-                        ...(existingItem || {}),
+                        ...existingItem,
                         ...resolvedData,
                     }
-                    const name = get(nextItem, 'name')
+                    return get(nextItem, 'name', '').trim()
+                },
+                validateInput ({ resolvedData, existingItem, context }) {
+                    const nextItem = {
+                        ...existingItem,
+                        ...resolvedData,
+                    }
+                    const name = get(nextItem, 'name', '')
                     if (isEmpty(name)) {
                         throw new GQLError(ERRORS.NAME_REQUIRED, context)
                     }
@@ -110,17 +117,20 @@ const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
     hooks: {
         async validateInput ({ resolvedData, existingItem, context }) {
             const nextItem = {
-                ...(existingItem || {}),
+                ...existingItem,
                 ...resolvedData,
             }
             if (nextItem.type !== ACCESS_RIGHT_SET_GLOBAL_TYPE) {
                 const rightSetsForApp = await find('B2BAppAccessRightSet', {
                     app: { id: nextItem.app },
-                    deletedAt: null,
+                    OR: [
+                        { type: ACCESS_RIGHT_SET_GLOBAL_TYPE },
+                        { type_not: ACCESS_RIGHT_SET_GLOBAL_TYPE, deletedAt: null },
+                    ],
                 })
                 
                 const globalRightSet = rightSetsForApp.find(set => set.type === ACCESS_RIGHT_SET_GLOBAL_TYPE)
-                if (!globalRightSet) {
+                if (!globalRightSet && !resolvedData['deletedAt']) {
                     throw new GQLError(ERRORS.GLOBAL_RIGHT_SET_REQUIRED, context)
                 }
                 const sameTypeRightSets = rightSetsForApp.filter(set => set.type === nextItem.type)
@@ -148,14 +158,19 @@ const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
                     deletedAt: null,
                 })
                 for (const rightSet of otherTypeRightSets) {
+                    const dvSender = { dv: rightSet.dv, sender: updatedItem.sender }
                     const diffPermissions = getPermissionsDiff(updatedItem, rightSet)
                     const permissionsToDisable = getEnabledPermissions(diffPermissions)
                     const disabledPermissions = Object.fromEntries(Object.keys(permissionsToDisable).map((perm) => [perm, false]))
+                    const updateInput = { deletedAt: updatedItem.deletedAt ? new Date().toISOString() : undefined }
                     if (Object.keys(disabledPermissions).length) {
+                        Object.assign(updateInput, disabledPermissions)
+                    }
+                    if (Object.keys(updateInput).length) {
                         await B2BAppAccessRightSetAPI.update(context, rightSet.id, {
-                            dv: rightSet.dv,
-                            sender: updatedItem.sender,
-                            ...disabledPermissions,
+                            ...dvSender,
+                            ...updateInput,
+                            deletedAt: updatedItem.deletedAt ? new Date().toISOString() : undefined,
                         }, 'id')
                     }
                 }
@@ -167,6 +182,7 @@ const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
                     deletedAt: null,
                 })
                 for (const accessToken of accessTokens) {
+                    // NOTE(YEgorLu): Do not pass anything there, because B2BAccessToken knows how to manage himself
                     await B2BAccessToken.update(context, accessToken.id, {
                         dv: 1,
                         sender: updatedItem.sender,

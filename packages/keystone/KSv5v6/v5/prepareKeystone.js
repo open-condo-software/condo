@@ -20,6 +20,7 @@ const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSche
 const { getKeystonePinoOptions, GraphQLLoggerPlugin, getLogger } = require('@open-condo/keystone/logging')
 const { expressErrorHandler } = require('@open-condo/keystone/logging/expressErrorHandler')
 const metrics = require('@open-condo/keystone/metrics')
+const { composeNonResolveInputHook, composeResolveInputHook } = require('@open-condo/keystone/plugins/utils')
 const { schemaDocPreprocessor, adminDocPreprocessor, escapeSearchPreprocessor, customAccessPostProcessor } = require('@open-condo/keystone/preprocessors')
 const { ApolloRateLimitingPlugin } = require('@open-condo/keystone/rateLimiting')
 const { getRedisClient } = require('@open-condo/keystone/redis')
@@ -115,7 +116,28 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
     // We need to register all schemas as they will appear in admin ui
     registerSchemas(keystone, schemas(), globalPreprocessors)
 
-    const authStrategyConfig = get(authStrategyOpts, 'config', {})
+    const defaultAuthStrategyConfigHooks = {
+        async afterAuth ({ item, token, success })   {
+            // NOTE: It's triggered only by default Keystone mutation, "authenticateUserWithPhoneAndPassword" will not work here
+            // Step 1. Skip if auth was not succeeded
+            if (!success || !token) {
+                return
+            }
+            // Step 2. Skip this for any non-service user, or users without type field
+            if (!item || !item.type || item.type !== 'service') {
+                return
+            }
+            // NOTE: auth token is just session token prefix (32 chars) + some prefix after dot.
+            // Example: 12345678901234567890123456789012.asdhaksdjhajskdhajskdhjkas
+            // Session token can be build like so "sess:{prefixBeforeDot}"
+            const sessToken = token.split('.')[0]
+            const sessKey = `sess:${sessToken}`
+            const redisClient = getRedisClient()
+            // NOTE: if key not found returns 0, else 1.
+            await redisClient.expire(sessKey, SERVICE_USER_SESSION_TTL_IN_SEC)
+        },
+    }
+    const authStrategyConfig = get(authStrategyOpts, 'config', { hooks: { afterAuth: [defaultAuthStrategyConfigHooks.afterAuth] } })
     const authStrategy = keystone.createAuthStrategy({
         type: ExtendedPasswordAuthStrategy,
         list: 'User',
@@ -131,28 +153,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
             },
             ...authStrategyConfig,
         },
-        hooks: {
-            async afterAuth ({ item, token, success })  {
-                // NOTE: It's triggered only by default Keystone mutation, "authenticateUserWithPhoneAndPassword" will not work here
-                // Step 1. Skip if auth was not succeeded
-                if (!success || !token) {
-                    return
-                }
-                // Step 2. Skip this for any non-service user, or users without type field
-                if (!item || !item.type || item.type !== 'service') {
-                    return
-                }
-                // NOTE: auth token is just session token prefix (32 chars) + some prefix after dot.
-                // Example: 12345678901234567890123456789012.asdhaksdjhajskdhajskdhjkas
-                // Session token can be build like so "sess:{prefixBeforeDot}"
-                const sessToken = token.split('.')[0]
-                const sessKey = `sess:${sessToken}`
-                const redisClient = getRedisClient()
-                // NOTE: if key not found returns 0, else 1.
-                await redisClient.expire(sessKey, SERVICE_USER_SESSION_TTL_IN_SEC)
-            },
-            ...get(authStrategyOpts, 'hooks', {}),
-        },
+        hooks: composeHooks(defaultAuthStrategyConfigHooks, get(authStrategyOpts, 'hooks', {})),
     })
 
     if (!IS_BUILD) {
@@ -279,6 +280,31 @@ process.on('unhandledRejection', (err, promise) => {
         throw err
     }
 })
+
+function composeHooks (defaultHooksOptions = {}, hooksOptions = {}) {
+    const hooks = {}
+    const hookNames = [
+        'afterAuth',
+        'beforeUnauth',
+        'resolveInput',
+        'validateInput',
+        'beforeChanges',
+        'afterChanges',
+    ]
+    for (const hookName of hookNames) {
+        let composer = composeNonResolveInputHook
+        if (hookName === 'resolveInput') {
+            composer = composeResolveInputHook
+        }
+
+        if (defaultHooksOptions[hookName] && hooksOptions[hookName]) {
+            hooks[hookName] = composer(defaultHooksOptions[hookName], hooksOptions[hookName])
+        } else {
+            hooks[hookName] = defaultHooksOptions[hookName] || hooksOptions[hookName]
+        }
+    }
+    return hooks
+}
 
 module.exports = {
     prepareKeystone,

@@ -16,6 +16,7 @@ const {
     makeLoggedInClient, expectToThrowAccessDeniedError,
 } = require('@open-condo/keystone/test.utils')
 
+const { encryptionManager } = require('@condo/domains/common/utils/encryption')
 const { B2BAccessToken, createTestB2BAccessToken, createTestB2BAppContext,
     createTestB2BAppAccessRightSet, createTestB2BAppAccessRight, createTestB2BAccessTokenReadonly,
     B2BAccessTokenReadonly, B2BAccessTokenReadonlyAdmin, updateTestB2BAppAccessRightSet, createTestB2BApp, updateTestB2BAccessTokenReadonly,
@@ -374,6 +375,41 @@ describe('B2BAccessToken', () => {
 
     describe('Real-life cases', () => {
 
+        test('Can not update deleted access token to store it in redis', async () => {
+            const redisClient = new IORedis(conf.REDIS_URL)
+            const [createdToken] = await createTestB2BAccessTokenAdmin(admin, b2bAppContext, scopedRightSet)
+            expect(createdToken).toBeDefined()
+            expect(createdToken).toHaveProperty('sessionId')
+            const session = await redisClient.get(`sess:${encryptionManager.decrypt(createdToken.sessionId)}`)
+            expect(session).toBeDefined()
+
+            const [anotherB2BApp] = await createTestB2BApp(admin)
+            const [anotherB2BAppContext] = await createTestB2BAppContext(admin, anotherB2BApp, organization, { status: 'Finished' })
+            await expectToThrowGQLError(async () => {
+                await updateTestB2BAccessTokenReadonly(admin, createdToken.id, {
+                    context: { connect: { id: anotherB2BAppContext.id } },
+                    deletedAt: new Date().toISOString(),
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'ACCESS_TOKEN_CONTEXT_DOES_NOT_MATCH_RIGHT_SET',
+                message: 'B2BAppContext and B2BRightSet connected to different B2BApps',
+            }, 'obj')
+
+            const [anotherB2BAppRightsSet] = await createTestB2BAppAccessRightSet(admin, anotherB2BApp)
+            const [anotherB2BAppRightsSetScoped] = await createTestB2BAppAccessRightSet(admin, anotherB2BApp, { type: 'SCOPED', name: 'test' })
+            const [anotherServiceUser] = await registerNewServiceUserByTestClient(admin)
+            await createTestB2BAppAccessRight(admin, anotherServiceUser, anotherB2BApp, anotherB2BAppRightsSet)
+            await updateTestB2BAccessTokenReadonly(admin, createdToken.id, { context: { connect: { id: anotherB2BAppContext.id } }, user: { connect: { id: anotherServiceUser.id } }, rightSet: { connect: { id: anotherB2BAppRightsSetScoped.id } } })
+            const sessionAfterUpdatingDeletedToken = await redisClient.get(`sess:${encryptionManager.decrypt(createdToken.sessionId)}`)
+            expect(sessionAfterUpdatingDeletedToken).toBeNull()
+
+            const [anotherToken] = await createTestB2BAccessTokenAdmin(admin, b2bAppContext, scopedRightSet)
+            await updateTestB2BAccessTokenReadonly(admin, anotherToken.id, { deletedAt: new Date().toISOString() })
+            const anotherSession = await redisClient.get(`sess:${encryptionManager.decrypt(anotherToken.sessionId)}`)
+            expect(anotherSession).toBeNull()
+        })
+
         test('Only admin can filter by sensitive fields', async () => {
             const [b2bApp] = await createTestB2BApp(admin)
             const [organization] = await createTestOrganization(admin)
@@ -397,6 +433,7 @@ describe('B2BAccessToken', () => {
             const [createdToken] = await createTestB2BAccessTokenAdmin(admin, b2bAppContext, scopedRightSet)
             expect(createdToken).toHaveProperty('sessionId')
             const session = await redisClient.get(`sess:${createdToken.sessionId}`)
+            const sessionByDecryptedId = await redisClient.get(`sess:${encryptionManager.decrypt(createdToken.sessionId)}`)
             expect(session).toBeNull()
         })
 

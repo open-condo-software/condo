@@ -10,7 +10,7 @@ const get = require('lodash/get')
 const isNil = require('lodash/isNil')
 
 const conf = require('@open-condo/config')
-const { userIsAdmin } = require('@open-condo/keystone/access')
+const { userIsAdmin, isSoftDelete } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, find, getById, getByCondition } = require('@open-condo/keystone/schema')
@@ -38,6 +38,9 @@ async function getValidationError (item) {
 
     const b2bAppContext = await getByCondition('B2BAppContext', {
         id: item.context,
+        app: {
+            deletedAt: null,
+        },
         deletedAt: null,
     })
     if (!b2bAppContext) {
@@ -45,6 +48,9 @@ async function getValidationError (item) {
     }
     const accessRightSet = await getByCondition('B2BAppAccessRightSet', {
         id: item.rightSet,
+        app: {
+            deletedAt: null,
+        },
         deletedAt: null,
     })
     if (!accessRightSet) {
@@ -53,12 +59,12 @@ async function getValidationError (item) {
     if (accessRightSet.type !== ACCESS_RIGHT_SET_SCOPED_TYPE) {
         return ERRORS.WRONG_RIGHT_SET_TYPE
     }
-    if (accessRightSet.app && (accessRightSet.app !== b2bAppContext.app)) {
+    if (accessRightSet.app !== b2bAppContext.app) {
         return ERRORS.CONTEXT_DOES_NOT_MATCH_RIGHT_SET
     }
     const [accessRightForUserAndApp] = await find('B2BAppAccessRight', {
-        user: { id: item.user },
-        app: { id: b2bAppContext.app },
+        user: { id: item.user, deletedAt: null },
+        app: { id: b2bAppContext.app, deletedAt: null },
         deletedAt: null,
     })
     if (!accessRightForUserAndApp) {
@@ -201,39 +207,51 @@ const B2BAccessToken = new GQLListSchema('B2BAccessToken', {
         },
     },
     hooks: {
-        async validateInput ({ operation, resolvedData, existingItem, context }) {
+        async validateInput ({ operation, resolvedData, existingItem, context, originalInput }) {
             const newItem = {
                 ...existingItem,
                 ...resolvedData,
             }
-            const validationError = await getValidationError(newItem)
 
+            if (isSoftDelete(originalInput)) {
+                return
+            }
+
+            const validationError = await getValidationError(newItem)
             if (operation === 'create' && validationError) {
                 throw new GQLError(validationError, context)
             }
-            if (operation === 'update' && validationError && ERRORS_FOR_DELETION.has(validationError)) {
+            if (operation === 'update' && validationError) {
+                if (!ERRORS_FOR_DELETION.has(validationError)) {
+                    throw new GQLError(validationError, context)
+                }
                 resolvedData.deletedAt = resolvedData.deletedAt ? resolvedData.deletedAt : dayjs().toISOString()
             }
         },
         async afterChange ({ context, operation, existingItem, updatedItem }) {
-            const softDeleted = operation === 'update' && !existingItem['deletedAt'] && updatedItem['deletedAt']
+            const softDeleted = Boolean(operation === 'update' && !existingItem['deletedAt'] && updatedItem['deletedAt'])
             const sessionId = encryptionManager.decrypt(updatedItem.sessionId)
 
             if (softDeleted) {
                 await destroySession(context.req.sessionStore, sessionId)
             }
 
-            if (!softDeleted) {
-                const rightSet = await getById('B2BAppAccessRightSet', updatedItem.rightSet)
-                const b2bAppContext = await getById('B2BAppContext', updatedItem.context)
+            if (!softDeleted && !updatedItem['deletedAt']) {
+                const rightSet = await getByCondition('B2BAppAccessRightSet', { id: updatedItem.rightSet, deletedAt: null })
+                const b2bAppContext = await getByCondition('B2BAppContext', { id: updatedItem.context, deletedAt: null })
+                // Strange case, if these entities were deleted in time between hooks
+                if (!rightSet) {
+                    throw new GQLError(ERRORS.RIGHT_SET_NOT_EXISTS, context)
+                }
+                if (!b2bAppContext) {
+                    throw new GQLError(ERRORS.CONTEXT_NOT_EXISTS, context)
+                }
                 const permissions = Object.keys(getEnabledPermissions(rightSet))
                 const additionalFields = makeSessionData({
                     allowedOrganizations: [get(b2bAppContext, 'organization')],
                     enabledB2BPermissions: permissions,
                 })
-
                 const expiresAt = get(updatedItem, 'expiresAt')
-
                 await setSession(context.req.sessionStore, {
                     sessionId,
                     userId: get(updatedItem, 'user'),

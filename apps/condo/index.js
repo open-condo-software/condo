@@ -149,7 +149,7 @@ const extendExpressApp = (app) => {
 
 const authStrategyOpts = {
     hooks: {
-        // forbid unauth with B2BAccessToken
+        // Sessions linked can be permanent tokens can only be destroyed by deleting linking model, such as B2BAppToken
         beforeUnauth ({ context }) {
             const sessionId = context.req.sessionID
             const isManualSession = [ACCESS_TOKEN_SESSION_ID_PREFIX].some(prefix => sessionId.startsWith(prefix))

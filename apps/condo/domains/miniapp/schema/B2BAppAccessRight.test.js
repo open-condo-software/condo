@@ -241,25 +241,25 @@ describe('B2BAppAccessRight', () => {
         })
 
         test('Can not create or update "B2BAppAccessRight" if "accessRightSet"."type" != "GLOBAL"', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const [serviceUser] = await registerNewServiceUserByTestClient(admin)
+            const support = await makeClientWithSupportUser()
+            const [serviceUser] = await registerNewServiceUserByTestClient(support)
 
-            const [app] = await createTestB2BApp(admin)
+            const [app] = await createTestB2BApp(support)
 
-            const [accessRightSetGlobal] = await createTestB2BAppAccessRightSet(admin, app)
-            const [accessRightSetScoped] = await createTestB2BAppAccessRightSet(admin, app, { type: 'SCOPED' })
+            const [accessRightSetGlobal] = await createTestB2BAppAccessRightSet(support, app)
+            const [accessRightSetScoped] = await createTestB2BAppAccessRightSet(support, app, { type: 'SCOPED' })
 
             // cannot create B2BAppAccessRight for app if accessRightSet type != 'GLOBAL'
             await expectToThrowGQLError(async () => {
-                await createTestB2BAppAccessRight(admin, serviceUser, app, accessRightSetScoped)
+                await createTestB2BAppAccessRight(support, serviceUser, app, accessRightSetScoped)
             }, ERRORS.ACCESS_RIGHT_SET_INVALID_TYPE)
 
             // can create B2BAppAccessRight for app if accessRightSet type = 'GLOBAL'
-            const [b2BAppAccessRight] = await createTestB2BAppAccessRight(admin, serviceUser, app, accessRightSetGlobal)
+            const [b2BAppAccessRight] = await createTestB2BAppAccessRight(support, serviceUser, app, accessRightSetGlobal)
 
             // cannot update B2BAppAccessRight for app if accessRightSet type != 'GLOBAL'
             await expectToThrowGQLError(async () => {
-                await updateTestB2BAppAccessRight(admin, b2BAppAccessRight.id, {
+                await updateTestB2BAppAccessRight(support, b2BAppAccessRight.id, {
                     accessRightSet: { connect: { id: accessRightSetScoped.id } },
                 })
             }, ERRORS.ACCESS_RIGHT_SET_INVALID_TYPE)
