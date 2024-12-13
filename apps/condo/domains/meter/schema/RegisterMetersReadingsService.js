@@ -273,6 +273,7 @@ const RegisterMetersReadingsService = new GQLCustomSchema('RegisterMetersReading
                 const plainMeterReadings = await find('MeterReading', {
                     meter: { id_in: meters.map(meter => meter.id) },
                     date_in: uniq(readingsWithValidDates.map(reading => tryToISO(reading.date))),
+                    deletedAt: null,
                 })
                 const propertyByIdMap = properties.reduce((acc, property) => {
                     acc[property.id] = property
