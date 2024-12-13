@@ -10,7 +10,7 @@ const { NOT_FOUND, WRONG_FORMAT } = require('@condo/domains/common/constants/err
 const { IPv4_REGEX } = require('@condo/domains/common/constants/regexps')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const access = require('@condo/domains/user/access/ResetUserLimitAction')
-const { USER_AUTH_LIMIT_TYPE, USER_LIMIT_TYPES } = require('@condo/domains/user/constants/common')
+const { RESET_USER_LIMIT_ACTION_TYPES, AUTH_COUNTER_TYPE } = require('@condo/domains/user/constants/common')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 
@@ -35,7 +35,7 @@ const ERRORS = {
 
 const isIdentifierValid = (type, identifier) => {
     switch (type) {
-        case USER_AUTH_LIMIT_TYPE: {
+        case AUTH_COUNTER_TYPE: {
             const isValidPhone = Boolean(normalizePhone(identifier))
             const isValidIP = IPv4_REGEX.test(identifier)
 
@@ -55,7 +55,7 @@ const ResetUserLimitAction = new GQLListSchema('ResetUserLimitAction', {
              `,
             type: 'Select',
             dataType: 'string',
-            options: USER_LIMIT_TYPES,
+            options: RESET_USER_LIMIT_ACTION_TYPES,
             isRequired: true,
         },
         identifier: {
