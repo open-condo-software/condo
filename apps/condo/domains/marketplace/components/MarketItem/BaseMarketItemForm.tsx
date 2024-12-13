@@ -199,7 +199,7 @@ const MobilePreview = ({ name, price, measure, priceType, sku, description, file
                                 </Col>
                                 <Col span={24} style={{ marginTop: '-0px' }} className='order-header'>
                                     <Typography.Title type='secondary' level={3}>
-                                        {resultPrice || PriceMessage}{(showMeasureType && `/${intl.formatMessage({ id: `pages.condo.marketplace.rate.${measure}.short` })}`)}
+                                        {resultPrice || PriceMessage}{(showMeasureType && `/${intl.formatMessage({ id: `pages.condo.marketplace.measure.${measure}.short` })}`)}
                                     </Typography.Title>
                                 </Col>
                                 <Col span={24} style={{ marginTop: '-6px' }} className='order-sku'>
@@ -248,7 +248,7 @@ const MobilePreview = ({ name, price, measure, priceType, sku, description, file
                                         </div>
                                     </div>
                                     <div style={{ 'display':'flex', 'justifyContent':'space-between', 'alignItems':'center', 'padding': '2px 4px', 'backgroundColor': 'white', borderRadius: '4px' }}>
-                                        <span>{`1${intl.formatMessage({ id: `pages.condo.marketplace.rate.${measure}.short` })}`}</span>
+                                        <span>{`1${intl.formatMessage({ id: `pages.condo.marketplace.measure.${measure}.short` })}`}</span>
                                         <span style={{ 'marginLeft': '2px' }}>+</span>
                                     </div>
                                 </div>)
@@ -696,25 +696,25 @@ const MarketPriceForm = ({ priceFormDescription, removeOperation, organizationPr
                             key={PriceMeasuresType.PerItem}
                             value={PriceMeasuresType.PerItem}
                         >
-                            {intl.formatMessage({ id: 'pages.condo.marketplace.rate.perItem.full' })}
+                            {intl.formatMessage({ id: 'pages.condo.marketplace.measure.perItem.full' })}
                         </Select.Option>
                         <Select.Option
                             key={PriceMeasuresType.PerHour}
                             value={PriceMeasuresType.PerHour}
                         >
-                            {intl.formatMessage({ id: 'pages.condo.marketplace.rate.perHour.full' })}
+                            {intl.formatMessage({ id: 'pages.condo.marketplace.measure.perHour.full' })}
                         </Select.Option>
                         <Select.Option
                             key={PriceMeasuresType.PerMeter}
                             value={PriceMeasuresType.PerMeter}
                         >
-                            {intl.formatMessage({ id: 'pages.condo.marketplace.rate.perMeter.full' })}
+                            {intl.formatMessage({ id: 'pages.condo.marketplace.measure.perMeter.full' })}
                         </Select.Option>
                         <Select.Option
                             key='oneTime'
                             value={null}
                         >
-                            {intl.formatMessage({ id: 'pages.condo.marketplace.noRate' })}
+                            {intl.formatMessage({ id: 'pages.condo.marketplace.noMeasure' })}
                         </Select.Option>
                     </Select>
                 </Form.Item>

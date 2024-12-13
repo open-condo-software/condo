@@ -22,6 +22,7 @@ const invoiceRowSchemaFields = {
     salesTaxPercent: 'String',
     sku: 'String',
     isMin: 'Boolean!',
+    measure: 'String',
     meta: INVOICE_ROW_META_GQL_TYPE_NAME,
 }
 

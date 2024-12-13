@@ -13,12 +13,11 @@ import React, { ComponentProps, CSSProperties, useCallback, useEffect, useMemo, 
 
 import { Trash } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Alert, Button, Modal, Radio, RadioGroup, Space, Tooltip, Typography } from '@open-condo/ui'
+import { Alert, Card, Button, Modal, Radio, RadioGroup, Space, Tooltip, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { Button as OldButton } from '@condo/domains/common/components/Button'
 import { BaseModalForm, FormWithAction } from '@condo/domains/common/components/containers/FormList'
-import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import Prompt from '@condo/domains/common/components/Prompt'
@@ -41,12 +40,14 @@ import {
 import { useCancelStatusModal } from '@condo/domains/marketplace/hooks/useCancelStatusModal'
 import { MarketCategory, MarketPriceScope } from '@condo/domains/marketplace/utils/clientSchema'
 import { calculateRowsTotalPrice, InvoiceFormValuesType, prepareTotalPriceFromInput, getMoneyRender } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
+import { PriceMeasuresType } from '@condo/domains/marketplace/utils/clientSchema/MarketItem'
 import { searchOrganizationProperty } from '@condo/domains/marketplace/utils/clientSchema/search'
 import { UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
 
 import { ResidentPaymentAlert } from './ResidentPaymentAlert'
+
 
 
 const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
@@ -70,12 +71,7 @@ const PLUS_BUTTON_STYLE: CSSProperties = {
     color: colors.black,
     paddingLeft: '5px',
 }
-const ContactsInfoFocusContainer = styled(FocusContainer)`
-  position: relative;
-  left: ${({ padding }) => padding ? padding : '24px'};
-  box-sizing: border-box;
-  width: 100%;
-`
+
 const ServiceFormItem = styled(Form.Item)`
     & .ant-form-item-label {
       padding-bottom: 8px;
@@ -382,7 +378,7 @@ const PayerDataFields = ({ organizationId, form, disabled, initialValues }) => {
             {
                 hasPayerData && (
                     <Col span={24}>
-                        <ContactsInfoFocusContainer>
+                        <div>
                             <Row gutter={[0, 40]}>
                                 <Col span={24}>
                                     <Row gutter={[50, 0]}>
@@ -410,7 +406,7 @@ const PayerDataFields = ({ organizationId, form, disabled, initialValues }) => {
                                 form={form}
                                 disabled={disabled}
                             />
-                        </ContactsInfoFocusContainer>
+                        </div>
                     </Col>
                 )
             }
@@ -424,6 +420,7 @@ type MarketItemOptionType = {
     toPay: string
     isMin: boolean
     sku: string
+    measure?: string
 }
 
 const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabled, setStatus, isModalForm }) => {
@@ -433,6 +430,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
     const TotalPriceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.totalPrice' })
     const AddServiceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.addService' })
     const PriceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.toPay' })
+    const MeasureLabel = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.measure' })
     const NumberIsNotValidMessage = intl.formatMessage({ id: 'NumberIsNotValid' })
     const ServicePlaceholder = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.service.placeholder' })
     const MinPriceValidationMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.minPriceValidation' })
@@ -502,6 +500,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
             const priceObj = get(pricesArray, '0')
             const price = get(priceObj, 'price')
             const isMin = get(priceObj, 'isMin')
+            const measure = get(priceObj, 'measure')
             const sku = get(marketItem, 'sku')
 
             const marketItemOption = {
@@ -510,6 +509,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                 toPay: price,
                 isMin,
                 sku,
+                measure,
                 key: get(category, 'id') + get(marketItem, 'id'),
                 order: get(category, 'order'),
                 labelForSort: get(category, 'name') + get(marketItem, 'name'),
@@ -595,10 +595,10 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                 <Row gutter={SMALL_VERTICAL_GUTTER}>
                     {
                         marketItemForms.map((marketItemForm, index) => (
-                            <div>
+                            <Card key={marketItemForm.name} hoverable={false}>
                                 <Col span={24} key={marketItemForm.name}>
                                     <Row gutter={gutter} align='top'>
-                                        <Col xs={24} lg={8}>
+                                        <Col xs={24} lg={16}>
                                             <ServiceFormItem
                                                 label={ServiceLabel}
                                                 name={[marketItemForm.name, 'name']}
@@ -637,6 +637,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                         updateRowFields(marketItemForm.name, {
                                                             toPay: toPayValue,
                                                             isMin: option.isMin,
+                                                            measure: option.measure,
                                                         })
     
                                                         form.validateFields([['rows', marketItemForm.name, 'toPay']])
@@ -651,6 +652,125 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                     }}
                                                 />
                                             </ServiceFormItem>
+                                        </Col>
+                                        <Col xs={24} lg={8}>
+                                            <ServiceFormItem
+                                                label={MeasureLabel}
+                                                name={[marketItemForm.name, 'measure']}
+                                                labelAlign='left'
+                                                labelCol={{ span: 24 }}
+                                            >
+                                                <Select
+                                                    defaultValue='perItem'
+                                                >
+                                                    <Select.Option
+                                                        key={PriceMeasuresType.PerItem}
+                                                        value={PriceMeasuresType.PerItem}
+                                                    >
+                                                        {intl.formatMessage({ id: 'pages.condo.marketplace.measure.perItem.full' })}
+                                                    </Select.Option>
+                                                    <Select.Option
+                                                        key={PriceMeasuresType.PerHour}
+                                                        value={PriceMeasuresType.PerHour}
+                                                    >
+                                                        {intl.formatMessage({ id: 'pages.condo.marketplace.measure.perHour.full' })}
+                                                    </Select.Option>
+                                                    <Select.Option
+                                                        key={PriceMeasuresType.PerMeter}
+                                                        value={PriceMeasuresType.PerMeter}
+                                                    >
+                                                        {intl.formatMessage({ id: 'pages.condo.marketplace.measure.perMeter.full' })}
+                                                    </Select.Option>
+                                                    <Select.Option
+                                                        key='oneTime'
+                                                        value={null}
+                                                    >
+                                                        {intl.formatMessage({ id: 'pages.condo.marketplace.noMeasure' })}
+                                                    </Select.Option>
+                                                </Select>
+                                            </ServiceFormItem>
+                                        </Col>
+                                    </Row>
+                                    <Row style={{ paddingTop: 24 }} gutter={gutter} align='top'>
+                                        <Col xs={24} lg={6}>
+                                            <FormItemWithCustomWarningColor
+                                                label={PriceLabel}
+                                                required
+                                                name={[marketItemForm.name, 'toPay']}
+                                                labelCol={{ span: 24 }}
+                                                validateFirst
+                                                rules={[
+                                                    requiredValidator,
+                                                    {
+                                                        warningOnly: true,
+                                                        validator: (_, value) => {
+                                                            if (
+                                                                new RegExp(`^${FromMessage} (\\d+|\\d+(,|.)\\d+)$`).test(value) ||
+                                                                value === ContractPriceMessage
+                                                            ) {
+                                                                form.setFieldsValue({
+                                                                    hasIsMinPrice: true,
+                                                                    status: INVOICE_STATUS_DRAFT,
+                                                                })
+                                                                setStatus(INVOICE_STATUS_DRAFT)
+
+                                                                return Promise.reject(MinPriceValidationMessage)
+                                                            }
+
+                                                            const rows = form.getFieldValue('rows')
+                                                            if (!rows.some(row => row.isMin)) {
+                                                                form.setFieldsValue({
+                                                                    hasIsMinPrice: false,
+                                                                })
+                                                            }
+
+                                                            return Promise.resolve()
+                                                        },
+                                                    },
+                                                    {
+                                                        validator: (_, value) => {
+                                                            if (
+                                                                new RegExp(`^(${FromMessage} |)(\\d+|\\d+(,|.)\\d+)$`).test(value) ||
+                                                                value === ContractPriceMessage
+                                                            ) {
+                                                                return Promise.resolve()
+                                                            }
+
+                                                            return Promise.reject(NumberIsNotValidMessage)
+                                                        },
+                                                    },
+                                                    {
+                                                        validator: (_, value) => {
+                                                            if (new RegExp('^(?:\\d+(?:\\.\\d+)?|\\d+(?:,\\d+)?)$').test(value)) {
+                                                                const numberValue = Number(value.replace(',', '.'))
+
+                                                                if (numberValue < MIN_PRICE_VALUE) {
+                                                                    return Promise.reject(`${MinPriceMessage} – ${MIN_PRICE_VALUE}${currencySymbol}`)
+                                                                }
+                                                            }
+
+                                                            return Promise.resolve()
+                                                        },
+                                                    },
+                                                ]}
+                                            >
+                                                <Input
+                                                    disabled={disabled}
+                                                    addonAfter={currencySymbol}
+                                                    onChange={e => {
+                                                        const value = get(e, 'target.value')
+                                                        if (!value) return
+
+                                                        const splittedValue = value.split(' ')
+                                                        const isMin = (splittedValue.length === 2 && splittedValue[0] === FromMessage) ||
+                                                            (splittedValue.length === 1 && splittedValue[0] === ContractPriceMessage)
+
+                                                        updateRowFields(marketItemForm.name, {
+                                                            isMin,
+                                                        })
+                                                    }}
+                                                />
+                                            </FormItemWithCustomWarningColor>
                                         </Col>
                                         <Col xs={24} lg={4}>
                                             <ServiceFormItem
@@ -682,87 +802,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                 />
                                             </ServiceFormItem>
                                         </Col>
-                                        <Col xs={24} lg={5}>
-                                            <FormItemWithCustomWarningColor
-                                                label={PriceLabel}
-                                                required
-                                                name={[marketItemForm.name, 'toPay']}
-                                                labelCol={{ span: 24 }}
-                                                validateFirst
-                                                rules={[
-                                                    requiredValidator,
-                                                    {
-                                                        warningOnly: true,
-                                                        validator: (_, value) => {
-                                                            if (
-                                                                new RegExp(`^${FromMessage} (\\d+|\\d+(,|.)\\d+)$`).test(value) ||
-                                                                value === ContractPriceMessage
-                                                            ) {
-                                                                form.setFieldsValue({
-                                                                    hasIsMinPrice: true,
-                                                                    status: INVOICE_STATUS_DRAFT,
-                                                                })
-                                                                setStatus(INVOICE_STATUS_DRAFT)
-    
-                                                                return Promise.reject(MinPriceValidationMessage)
-                                                            }
-    
-                                                            const rows = form.getFieldValue('rows')
-                                                            if (!rows.some(row => row.isMin)) {
-                                                                form.setFieldsValue({
-                                                                    hasIsMinPrice: false,
-                                                                })
-                                                            }
-    
-                                                            return Promise.resolve()
-                                                        },
-                                                    },
-                                                    {
-                                                        validator: (_, value) => {
-                                                            if (
-                                                                new RegExp(`^(${FromMessage} |)(\\d+|\\d+(,|.)\\d+)$`).test(value) ||
-                                                                value === ContractPriceMessage
-                                                            ) {
-                                                                return Promise.resolve()
-                                                            }
-    
-                                                            return Promise.reject(NumberIsNotValidMessage)
-                                                        },
-                                                    },
-                                                    {
-                                                        validator: (_, value) => {
-                                                            if (new RegExp('^(?:\\d+(?:\\.\\d+)?|\\d+(?:,\\d+)?)$').test(value)) {
-                                                                const numberValue = Number(value.replace(',', '.'))
-    
-                                                                if (numberValue < MIN_PRICE_VALUE) {
-                                                                    return Promise.reject(`${MinPriceMessage} – ${MIN_PRICE_VALUE}${currencySymbol}`)
-                                                                }
-                                                            }
-    
-                                                            return Promise.resolve()
-                                                        },
-                                                    },
-                                                ]}
-                                            >
-                                                <Input
-                                                    disabled={disabled}
-                                                    addonAfter={currencySymbol}
-                                                    onChange={e => {
-                                                        const value = get(e, 'target.value')
-                                                        if (!value) return
-    
-                                                        const splittedValue = value.split(' ')
-                                                        const isMin = (splittedValue.length === 2 && splittedValue[0] === FromMessage) ||
-                                                            (splittedValue.length === 1 && splittedValue[0] === ContractPriceMessage)
-    
-                                                        updateRowFields(marketItemForm.name, {
-                                                            isMin,
-                                                        })
-                                                    }}
-                                                />
-                                            </FormItemWithCustomWarningColor>
-                                        </Col>
-                                        <Col xs={24} lg={5}>
+                                        <Col xs={24} lg={6}>
                                             <ServiceFormItem
                                                 label={TotalPriceLabel}
                                                 required
@@ -805,7 +845,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                         }
                                     </Row>
                                 </Col>
-                            </div>
+                            </Card>
                         ))
                     }
                     <Col span={24} hidden={disabled}>

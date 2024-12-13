@@ -212,7 +212,7 @@ const PricesBlock = ({ marketItemId }) => {
 
             let shortMeasureMessage = null
             if (measure) {
-                shortMeasureMessage = intl.formatMessage({ id: `pages.condo.marketplace.rate.${measure}.short` })
+                shortMeasureMessage = intl.formatMessage({ id: `pages.condo.marketplace.measure.${measure}.short` })
             }
 
             const scopesWithSamePrice = priceScopes
