@@ -26,23 +26,13 @@ const redisGuard = new RedisGuard()
 const COUNTER_VALUE_TO_UPDATE = 2
 
 describe('_internalResetSMSDayLimitCountersService', () => {
-    let userWithDirectAccess, admin, support, userWithoutDirectAccess, anonymous, phone
+    let admin, support, user, anonymous, phone
 
     beforeAll(async () => {
-        userWithDirectAccess = await makeClientWithNewRegisteredAndLoggedInUser({
-            rightsSet: {
-                create: {
-                    name: faker.lorem.words(3),
-                    dv: 1,
-                    sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
-                    canExecute_internalResetSMSDayLimitCounters: true,
-                },
-            },
-        })
         anonymous = await makeClient()
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
-        userWithoutDirectAccess = await makeClientWithNewRegisteredAndLoggedInUser()
+        user = await makeClientWithNewRegisteredAndLoggedInUser()
     })
 
     beforeEach(async () => {
@@ -58,33 +48,25 @@ describe('_internalResetSMSDayLimitCountersService', () => {
     })
 
     describe('Access', () => {
-        test('user with direct access (canExecute_internalResetSMSDayLimitCounters): can execute', async () => {
-            const [data] = await _internalResetSMSDayLimitCountersByTestClient(userWithDirectAccess, {
+        test('admin: can execute', async () => {
+            const [data] = await _internalResetSMSDayLimitCountersByTestClient(admin, {
                 key: phone,
             })
 
             expect(data.ok).toEqual(true)
         })
 
-        test('admin: can execute', async () => {
-            await expectToThrowAccessDeniedErrorToResult(async () => {
-                await _internalResetSMSDayLimitCountersByTestClient(admin, {
-                    key: phone,
-                })
+        test('support: can execute', async () => {
+            const [data] = await _internalResetSMSDayLimitCountersByTestClient(support, {
+                key: phone,
             })
-        })
 
-        test('support: can not execute', async () => {
-            await expectToThrowAccessDeniedErrorToResult(async () => {
-                await _internalResetSMSDayLimitCountersByTestClient(support, {
-                    key: phone,
-                })
-            })
+            expect(data.ok).toEqual(true)
         })
 
         test('user: can not execute', async () => {
             await expectToThrowAccessDeniedErrorToResult(async () => {
-                await _internalResetSMSDayLimitCountersByTestClient(userWithoutDirectAccess, {
+                await _internalResetSMSDayLimitCountersByTestClient(user, {
                     key: phone,
                 })
             })
@@ -103,7 +85,7 @@ describe('_internalResetSMSDayLimitCountersService', () => {
         test('reset counter by phone number', async () => {
             const key = `${CONFIRM_PHONE_COUNTER_PREFIX}${phone}`
 
-            await _internalResetSMSDayLimitCountersByTestClient(userWithDirectAccess, {
+            await _internalResetSMSDayLimitCountersByTestClient(support, {
                 key: phone,
             })
             const value = await redisGuard.getCounterValue(key)
@@ -122,7 +104,7 @@ describe('_internalResetSMSDayLimitCountersService', () => {
 
             expect(Number(beforeReset)).toEqual(COUNTER_VALUE_TO_UPDATE)
 
-            await _internalResetSMSDayLimitCountersByTestClient(userWithDirectAccess, {
+            await _internalResetSMSDayLimitCountersByTestClient(support, {
                 key: ip,
             })
             const afterReset = await redisGuard.getCounterValue(key)
@@ -140,7 +122,7 @@ describe('_internalResetSMSDayLimitCountersService', () => {
             expect(Number(beforeReset)).toEqual(COUNTER_VALUE_TO_UPDATE)
 
             await expectToThrowGQLError(async () => {
-                await _internalResetSMSDayLimitCountersByTestClient(userWithDirectAccess, {
+                await _internalResetSMSDayLimitCountersByTestClient(support, {
                     key,
                 })
             }, ERRORS.INVALID_KEY, 'result')
@@ -150,7 +132,7 @@ describe('_internalResetSMSDayLimitCountersService', () => {
             const phone = createTestPhone()
 
             await expectToThrowGQLError(async () => {
-                await _internalResetSMSDayLimitCountersByTestClient(userWithDirectAccess, {
+                await _internalResetSMSDayLimitCountersByTestClient(support, {
                     key: phone,
                 })
             }, {

@@ -3,14 +3,13 @@
  */
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-const { canDirectlyExecuteService } = require('@condo/domains/user/utils/directAccess')
-
-
-async function can_internalResetSMSDayLimitCounters ({ authentication: { item: user }, gqlName }) {
+async function can_internalResetSMSDayLimitCounters ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
-    return await canDirectlyExecuteService(user, gqlName)
+    if (user.isAdmin || user.isSupport) return true
+
+    return false
 }
 
 /*
