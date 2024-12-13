@@ -189,6 +189,9 @@ const CHECK_USER_EXISTENCE_MUTATION = gql`
     }
 `
 
+const RESET_USER_LIMIT_ACTION_FIELDS = `{ type identifier reason ${COMMON_FIELDS} }`
+const ResetUserLimitAction = generateGqlQueries('ResetUserLimitAction', RESET_USER_LIMIT_ACTION_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -220,5 +223,6 @@ module.exports = {
     UserRightsSet,
     CHECK_USER_EXISTENCE_MUTATION,
     USER_FIELDS,
+    ResetUserLimitAction,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
