@@ -2760,11 +2760,11 @@ type UserRightsSetHistoryRecord {
   canManageTicketAutoAssignments: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
+  canReadResetUserLimitActions: Boolean
+  canManageResetUserLimitActions: Boolean
   canReadUsers: Boolean
   canReadUserRightsSets: Boolean
   canManageUserRightsSets: Boolean
-  canReadResetUserLimitActions: Boolean
-  canManageResetUserLimitActions: Boolean
   canReadPayments: Boolean
   canReadBillingReceipts: Boolean
   canReadBillingOrganizationIntegrationContexts: Boolean
@@ -2877,16 +2877,16 @@ input UserRightsSetHistoryRecordWhereInput {
   canReadOidcClients_not: Boolean
   canManageOidcClients: Boolean
   canManageOidcClients_not: Boolean
+  canReadResetUserLimitActions: Boolean
+  canReadResetUserLimitActions_not: Boolean
+  canManageResetUserLimitActions: Boolean
+  canManageResetUserLimitActions_not: Boolean
   canReadUsers: Boolean
   canReadUsers_not: Boolean
   canReadUserRightsSets: Boolean
   canReadUserRightsSets_not: Boolean
   canManageUserRightsSets: Boolean
   canManageUserRightsSets_not: Boolean
-  canReadResetUserLimitActions: Boolean
-  canReadResetUserLimitActions_not: Boolean
-  canManageResetUserLimitActions: Boolean
-  canManageResetUserLimitActions_not: Boolean
   canReadPayments: Boolean
   canReadPayments_not: Boolean
   canReadBillingReceipts: Boolean
@@ -3058,16 +3058,16 @@ enum SortUserRightsSetHistoryRecordsBy {
   canReadOidcClients_DESC
   canManageOidcClients_ASC
   canManageOidcClients_DESC
+  canReadResetUserLimitActions_ASC
+  canReadResetUserLimitActions_DESC
+  canManageResetUserLimitActions_ASC
+  canManageResetUserLimitActions_DESC
   canReadUsers_ASC
   canReadUsers_DESC
   canReadUserRightsSets_ASC
   canReadUserRightsSets_DESC
   canManageUserRightsSets_ASC
   canManageUserRightsSets_DESC
-  canReadResetUserLimitActions_ASC
-  canReadResetUserLimitActions_DESC
-  canManageResetUserLimitActions_ASC
-  canManageResetUserLimitActions_DESC
   canReadPayments_ASC
   canReadPayments_DESC
   canReadBillingReceipts_ASC
@@ -3141,11 +3141,11 @@ input UserRightsSetHistoryRecordUpdateInput {
   canManageTicketAutoAssignments: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
+  canReadResetUserLimitActions: Boolean
+  canManageResetUserLimitActions: Boolean
   canReadUsers: Boolean
   canReadUserRightsSets: Boolean
   canManageUserRightsSets: Boolean
-  canReadResetUserLimitActions: Boolean
-  canManageResetUserLimitActions: Boolean
   canReadPayments: Boolean
   canReadBillingReceipts: Boolean
   canReadBillingOrganizationIntegrationContexts: Boolean
@@ -3210,11 +3210,11 @@ input UserRightsSetHistoryRecordCreateInput {
   canManageTicketAutoAssignments: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
+  canReadResetUserLimitActions: Boolean
+  canManageResetUserLimitActions: Boolean
   canReadUsers: Boolean
   canReadUserRightsSets: Boolean
   canManageUserRightsSets: Boolean
-  canReadResetUserLimitActions: Boolean
-  canManageResetUserLimitActions: Boolean
   canReadPayments: Boolean
   canReadBillingReceipts: Boolean
   canReadBillingOrganizationIntegrationContexts: Boolean
@@ -3391,6 +3391,14 @@ type UserRightsSet {
   """
   canManageOidcClients: Boolean
 
+  """ Enables a user with the given UserRightsSet to view all entities of model "ResetUserLimitAction" as support / admin users do 
+  """
+  canReadResetUserLimitActions: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "ResetUserLimitAction" similar to support users 
+  """
+  canManageResetUserLimitActions: Boolean
+
   """ Enables a user with the given UserRightsSet to view all entities of model "User" as support / admin users do 
   """
   canReadUsers: Boolean
@@ -3402,14 +3410,6 @@ type UserRightsSet {
   """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "UserRightsSet" similar to support users 
   """
   canManageUserRightsSets: Boolean
-
-  """ Enables a user with the given UserRightsSet to view all entities of model "ResetUserLimitAction" as support / admin users do 
-  """
-  canReadResetUserLimitActions: Boolean
-
-  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "ResetUserLimitAction" similar to support users 
-  """
-  canManageResetUserLimitActions: Boolean
 
   """ Enables a user with the given UserRightsSet to view all entities of model "Payment" as support / admin users do 
   """
@@ -3560,16 +3560,16 @@ input UserRightsSetWhereInput {
   canReadOidcClients_not: Boolean
   canManageOidcClients: Boolean
   canManageOidcClients_not: Boolean
+  canReadResetUserLimitActions: Boolean
+  canReadResetUserLimitActions_not: Boolean
+  canManageResetUserLimitActions: Boolean
+  canManageResetUserLimitActions_not: Boolean
   canReadUsers: Boolean
   canReadUsers_not: Boolean
   canReadUserRightsSets: Boolean
   canReadUserRightsSets_not: Boolean
   canManageUserRightsSets: Boolean
   canManageUserRightsSets_not: Boolean
-  canReadResetUserLimitActions: Boolean
-  canReadResetUserLimitActions_not: Boolean
-  canManageResetUserLimitActions: Boolean
-  canManageResetUserLimitActions_not: Boolean
   canReadPayments: Boolean
   canReadPayments_not: Boolean
   canReadBillingReceipts: Boolean
@@ -3721,16 +3721,16 @@ enum SortUserRightsSetsBy {
   canReadOidcClients_DESC
   canManageOidcClients_ASC
   canManageOidcClients_DESC
+  canReadResetUserLimitActions_ASC
+  canReadResetUserLimitActions_DESC
+  canManageResetUserLimitActions_ASC
+  canManageResetUserLimitActions_DESC
   canReadUsers_ASC
   canReadUsers_DESC
   canReadUserRightsSets_ASC
   canReadUserRightsSets_DESC
   canManageUserRightsSets_ASC
   canManageUserRightsSets_DESC
-  canReadResetUserLimitActions_ASC
-  canReadResetUserLimitActions_DESC
-  canManageResetUserLimitActions_ASC
-  canManageResetUserLimitActions_DESC
   canReadPayments_ASC
   canReadPayments_DESC
   canReadBillingReceipts_ASC
@@ -3804,11 +3804,11 @@ input UserRightsSetUpdateInput {
   canManageTicketAutoAssignments: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
+  canReadResetUserLimitActions: Boolean
+  canManageResetUserLimitActions: Boolean
   canReadUsers: Boolean
   canReadUserRightsSets: Boolean
   canManageUserRightsSets: Boolean
-  canReadResetUserLimitActions: Boolean
-  canManageResetUserLimitActions: Boolean
   canReadPayments: Boolean
   canReadBillingReceipts: Boolean
   canReadBillingOrganizationIntegrationContexts: Boolean
@@ -3870,11 +3870,11 @@ input UserRightsSetCreateInput {
   canManageTicketAutoAssignments: Boolean
   canReadOidcClients: Boolean
   canManageOidcClients: Boolean
+  canReadResetUserLimitActions: Boolean
+  canManageResetUserLimitActions: Boolean
   canReadUsers: Boolean
   canReadUserRightsSets: Boolean
   canManageUserRightsSets: Boolean
-  canReadResetUserLimitActions: Boolean
-  canManageResetUserLimitActions: Boolean
   canReadPayments: Boolean
   canReadBillingReceipts: Boolean
   canReadBillingOrganizationIntegrationContexts: Boolean

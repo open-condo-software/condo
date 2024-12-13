@@ -33,17 +33,6 @@ const ERRORS = {
     },
 }
 
-const isIdentifierValid = (type, identifier) => {
-    switch (type) {
-        case AUTH_COUNTER_TYPE: {
-            const isValidPhone = Boolean(normalizePhone(identifier))
-            const isValidIP = IPv4_REGEX.test(identifier)
-
-            return isValidPhone || isValidIP
-        }
-    }
-}
-
 const ResetUserLimitAction = new GQLListSchema('ResetUserLimitAction', {
     schemaDoc: 'A model for resetting user counters limit. ' +
         'To reset a counter limit, you need to create a new object and specify the counter type, identifier, and reason for the reset.',
@@ -69,8 +58,13 @@ const ResetUserLimitAction = new GQLListSchema('ResetUserLimitAction', {
                 validateInput: async ({ resolvedData, context }) => {
                     const { type, identifier } = resolvedData
 
-                    if (!isIdentifierValid(type, identifier)) {
-                        throw new GQLError(ERRORS.INVALID_IDENTIFIER, context)
+                    if (type === AUTH_COUNTER_TYPE) {
+                        const isValidPhone = Boolean(normalizePhone(identifier))
+                        const isValidIP = IPv4_REGEX.test(identifier)
+
+                        if (!isValidIP && !isValidPhone) {
+                            throw new GQLError(ERRORS.INVALID_IDENTIFIER, context)
+                        }
                     }
 
                     const isKeyExists = await redisGuard.checkCounterExistence(`${type}:${identifier}`)

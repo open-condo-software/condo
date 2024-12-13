@@ -13,10 +13,7 @@ async function canReadResetUserLimitActions ({ authentication: { item: user }, l
 
     if (user.isAdmin || user.isSupport) return {}
 
-    const hasDirectAccess = await canDirectlyReadSchemaObjects(user, listKey)
-    if (hasDirectAccess) return {}
-
-    return false
+    return await canDirectlyReadSchemaObjects(user, listKey)
 }
 
 async function canManageResetUserLimitActions ({ authentication: { item: user }, listKey, originalInput, operation }) {
