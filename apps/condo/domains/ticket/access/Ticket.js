@@ -120,12 +120,10 @@ async function canManageTickets (args) {
             if (itemIds.length !== uniq(itemIds).length) return false
             if (itemIds.length !== originalInput.length) return false
 
-            if (!originalInput.every((updateItem) => {
-                for (const key in updateItem.data) {
-                    if (!BULK_UPDATE_ALLOWED_FIELDS.includes(key)) return false
-                }
-                return true
-            })) return false
+            const changedInaccessibleFields = !originalInput.every((updateItem) => {
+                return Object.keys(updateItem.data).every(key => BULK_UPDATE_ALLOWED_FIELDS.includes(key))
+            })
+            if (changedInaccessibleFields) return false
 
             const tickets = await find('Ticket', {
                 id_in: itemIds,

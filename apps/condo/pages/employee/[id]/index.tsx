@@ -1,4 +1,4 @@
-import { useGetOrganizationEmployeeTicketsCountForReassignQuery } from '@app/condo/gql'
+import { useGetOrganizationEmployeeTicketsCountForReassignmentQuery } from '@app/condo/gql'
 import { OrganizationEmployee as OrganizationEmployeeType, OrganizationEmployeeUpdateInput } from '@app/condo/schema'
 import { Col, Row, Space, Switch } from 'antd'
 import { map } from 'lodash'
@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
 import { IUseSoftDeleteActionType, IUseUpdateActionType } from '@open-condo/codegen/generate.hooks'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { Edit } from '@open-condo/icons'
@@ -35,8 +36,7 @@ import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 
-
-interface EmployeePageContent {
+type EmployeePageContent = {
     employee: OrganizationEmployeeType
     isEmployeeEditable: boolean
     isEmployeeReinvitable: boolean
@@ -111,7 +111,7 @@ export const EmployeePageContent: React.FC<EmployeePageContent> = ({
     const { useFlag } = useFeatureFlags()
     const isReassignEmployeeTicketsEnabled = useFlag(REASSIGN_EMPLOYEE_TICKETS)
 
-    const employeeUserId = employee?.user?.id
+    const employeeUserId = employee?.user?.id || null
     const userId = get(user, 'id')
     const isMyEmployee = userId && employeeUserId && userId === employeeUserId
     const isEmployeeBlocked = get(employee, 'isBlocked')
@@ -307,11 +307,11 @@ export const EmployeePageContent: React.FC<EmployeePageContent> = ({
 export const EmployeeInfoPage: PageComponentType = () => {
     const { query } = useRouter()
     const { link } = useOrganization()
+    const { persistor } = useCachePersistor()
     const intl = useIntl()
     const LoadingInProgressMessage = intl.formatMessage({ id: 'LoadingInProgress' })
     const ErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
     const NotFoundMsg = intl.formatMessage({ id: 'NotFound' })
-
     const employeeId = String(get(query, 'id', ''))
 
     const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject(
@@ -328,11 +328,12 @@ export const EmployeeInfoPage: PageComponentType = () => {
         },
     })
 
-    const { data: activeTicketsOrganizationEmployeeCount } = useGetOrganizationEmployeeTicketsCountForReassignQuery({
+    const { data: activeTicketsOrganizationEmployeeCount, loading: loadingTicketsOrganizationEmployeeCount } = useGetOrganizationEmployeeTicketsCountForReassignmentQuery({
         variables: {
-            userId: employee?.user?.id,
-            organizationId: employee?.organization?.id,
+            userId: employee?.user?.id || null,
+            organizationId: employee?.organization?.id || null,
         },
+        skip: !persistor || !employee?.user?.id || !employee?.organization?.id,
     })
 
     const employeeWithSpecializations = { ...employee, specializations: organizationEmployeeSpecializations.map(scope => scope.specialization) }
@@ -343,16 +344,17 @@ export const EmployeeInfoPage: PageComponentType = () => {
     const isEmployeeEditable = get(link, ['role', 'canManageEmployees'], false)
     const isEmployeeReinvitable = get(link, ['role', 'canInviteNewOrganizationEmployees'], false) && !get(employee, 'isAccepted')
 
-    if (error || loading || (!loading && !employee)) {
-        const errorToPrint = error ? ErrorMessage : (!loading && !employee) ? NotFoundMsg : ''
-        return <LoadingOrErrorPage title={loading ? LoadingInProgressMessage : errorToPrint} loading={loading} error={errorToPrint}/>
-    }
+    const errorToPrint = error ? ErrorMessage : ''
+
+    if (error || loading || loadingTicketsOrganizationEmployeeCount) return <LoadingOrErrorPage title={loading ? LoadingInProgressMessage : errorToPrint} loading={loading} error={errorToPrint}/>
+
+    if (!loading && !employee) return <LoadingOrErrorPage title={NotFoundMsg} loading={loading} error={NotFoundMsg}/>
 
     return (
         <EmployeePageContent
             employee={employeeWithSpecializations}
             updateEmployeeAction={updateEmployeeAction}
-            activeTicketsOrganizationEmployeeCount={activeTicketsOrganizationEmployeeCount?.meta?.count}
+            activeTicketsOrganizationEmployeeCount={activeTicketsOrganizationEmployeeCount?.meta?.count || 0}
             softDeleteAction={softDeleteAction}
             isEmployeeEditable={isEmployeeEditable}
             isEmployeeReinvitable={isEmployeeReinvitable}

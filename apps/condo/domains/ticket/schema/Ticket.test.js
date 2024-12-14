@@ -77,7 +77,6 @@ const {
     CANCELED_STATUS_TYPE,
     NEW_OR_REOPENED_STATUS_TYPE,
     CLOSED_STATUS_TYPE,
-    TICKET_OTHER_SOURCE_ID,
 } = require('@condo/domains/ticket/constants')
 const { FEEDBACK_VALUES_BY_KEY, FEEDBACK_ADDITIONAL_OPTIONS, FEEDBACK_VALUES } = require('@condo/domains/ticket/constants/feedback')
 const { QUALITY_CONTROL_ADDITIONAL_OPTIONS, QUALITY_CONTROL_VALUES } = require('@condo/domains/ticket/constants/qualityControl')
@@ -104,6 +103,7 @@ const FEEDBACK_VALUES_WITHOUT_RETURNED = FEEDBACK_VALUES.filter(item => item !==
 /** @deprecated */
 const REVIEW_VALUES_WITHOUT_RETURNED = [REVIEW_VALUES.GOOD, REVIEW_VALUES.BAD]
 const MESSAGE_SENDING_DElAY = 1000 * 5
+const TICKET_OTHER_SOURCE_ID = '7da1e3be-06ba-4c9e-bba6-f97f278ac6e4'
 
 describe('Ticket', () => {
     let admin
@@ -1572,7 +1572,6 @@ describe('Ticket', () => {
             })
         })
 
-        // Should an admin have access to bulk create tickets?
         test.skip('admin: cannot bulk create Tickets', async () => {
             const client = await makeClientWithProperty()
 

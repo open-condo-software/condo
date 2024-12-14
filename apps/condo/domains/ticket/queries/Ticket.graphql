@@ -91,7 +91,7 @@ query getTicketsCount ($where: TicketWhereInput!) {
     }
 }
 
-query getOrganizationEmployeeTicketsCountForReassign ($userId: ID!, $organizationId: ID!) {
+query getOrganizationEmployeeTicketsCountForReassignment ($userId: ID!, $organizationId: ID!) {
     meta: _allTicketsMeta (
         where: {
             organization: { id: $organizationId },
@@ -278,7 +278,7 @@ query getContactTickets ($contactId: ID!) {
     }
 }
 
-query getOrganizationEmployeeTicketsForReassign($userId: ID!, $organizationId: ID!, $first: Int) {
+query getOrganizationEmployeeTicketsForReassignment ($userId: ID!, $organizationId: ID!, $first: Int) {
     tickets: allTickets(
         where: {
             organization: { id: $organizationId },
@@ -312,7 +312,7 @@ mutation updateTicket ($id: ID!, $data: TicketUpdateInput!) {
 
 # This aliase using for to check the need for sending bilk push messages
 # If you change alias of this query, then change the DISABLE_PUSH_NOTIFICATION_FOR_OPERATIONS variable
-mutation updateTicketsForReassignmentEmployee ($data: [TicketsUpdateInput]) {
+mutation updateOrganizationEmployeeTicketsForReassignment ($data: [TicketsUpdateInput]) {
     tickets: updateTickets (data: $data) {
         id
     }

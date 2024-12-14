@@ -365,13 +365,13 @@ export type GetTicketsCountQueryVariables = Types.Exact<{
 
 export type GetTicketsCountQuery = { __typename?: 'Query', meta?: { __typename?: '_QueryMeta', count?: number | null } | null }
 
-export type GetOrganizationEmployeeTicketsCountForReassignQueryVariables = Types.Exact<{
+export type GetOrganizationEmployeeTicketsCountForReassignmentQueryVariables = Types.Exact<{
     userId: Types.Scalars['ID']['input']
     organizationId: Types.Scalars['ID']['input']
 }>
 
 
-export type GetOrganizationEmployeeTicketsCountForReassignQuery = { __typename?: 'Query', meta?: { __typename?: '_QueryMeta', count?: number | null } | null }
+export type GetOrganizationEmployeeTicketsCountForReassignmentQuery = { __typename?: 'Query', meta?: { __typename?: '_QueryMeta', count?: number | null } | null }
 
 export type GetTicketsCountersByStatusQueryVariables = Types.Exact<{
     whereWithoutStatuses: Types.TicketWhereInput
@@ -408,14 +408,14 @@ export type GetContactTicketsQueryVariables = Types.Exact<{
 
 export type GetContactTicketsQuery = { __typename?: 'Query', tickets?: Array<{ __typename?: 'Ticket', id: string, details?: string | null, createdAt?: string | null, number?: number | null, status?: { __typename?: 'TicketStatus', id: string, name?: string | null } | null, property?: { __typename?: 'Property', id: string, address?: string | null } | null } | null> | null }
 
-export type GetOrganizationEmployeeTicketsForReassignQueryVariables = Types.Exact<{
+export type GetOrganizationEmployeeTicketsForReassignmentQueryVariables = Types.Exact<{
     userId: Types.Scalars['ID']['input']
     organizationId: Types.Scalars['ID']['input']
     first?: Types.InputMaybe<Types.Scalars['Int']['input']>
 }>
 
 
-export type GetOrganizationEmployeeTicketsForReassignQuery = { __typename?: 'Query', tickets?: Array<{ __typename?: 'Ticket', id: string, assignee?: { __typename?: 'User', id: string } | null, executor?: { __typename?: 'User', id: string } | null } | null> | null }
+export type GetOrganizationEmployeeTicketsForReassignmentQuery = { __typename?: 'Query', tickets?: Array<{ __typename?: 'Ticket', id: string, assignee?: { __typename?: 'User', id: string } | null, executor?: { __typename?: 'User', id: string } | null } | null> | null }
 
 export type UpdateTicketMutationVariables = Types.Exact<{
     id: Types.Scalars['ID']['input']
@@ -425,12 +425,12 @@ export type UpdateTicketMutationVariables = Types.Exact<{
 
 export type UpdateTicketMutation = { __typename?: 'Mutation', ticket?: { __typename?: 'Ticket', id: string } | null }
 
-export type UpdateTicketsForReassignmentEmployeeMutationVariables = Types.Exact<{
+export type UpdateOrganizationEmployeeTicketsForReassignmentMutationVariables = Types.Exact<{
     data?: Types.InputMaybe<Array<Types.InputMaybe<Types.TicketsUpdateInput>> | Types.InputMaybe<Types.TicketsUpdateInput>>
 }>
 
 
-export type UpdateTicketsForReassignmentEmployeeMutation = { __typename?: 'Mutation', tickets?: Array<{ __typename?: 'Ticket', id: string } | null> | null }
+export type UpdateOrganizationEmployeeTicketsForReassignmentMutation = { __typename?: 'Mutation', tickets?: Array<{ __typename?: 'Ticket', id: string } | null> | null }
 
 export type GetTicketChangesQueryVariables = Types.Exact<{
     ticketId: Types.Scalars['ID']['input']

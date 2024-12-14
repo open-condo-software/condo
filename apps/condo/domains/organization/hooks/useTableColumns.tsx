@@ -75,7 +75,7 @@ export const useTableColumns = (
                 </Typography.Paragraph>
             </>
         )
-    }, [])
+    }, [BlockedMessage, render])
 
     const renderPhone = useCallback((phone) => {
         return getTableCellRenderer(
@@ -93,7 +93,7 @@ export const useTableColumns = (
                 sorter: true,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'name'),
                 filterIcon: getFilterIcon,
-                render: (name, employee) => employee.isBlocked ? renderBlockedEmployee(name) : render(name),
+                render: (name, employee) => employee?.isBlocked ? renderBlockedEmployee(name) : render(name),
                 width: '15%',
             },
             {
