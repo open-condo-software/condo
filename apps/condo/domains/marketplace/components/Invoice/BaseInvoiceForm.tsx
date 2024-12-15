@@ -431,6 +431,10 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
     const AddServiceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.addService' })
     const PriceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.toPay' })
     const MeasureLabel = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.measure' })
+    const PerItemPriceMeasureLabel = intl.formatMessage({ id: 'pages.condo.marketplace.measure.perItem.full' })
+    const PerMeterPriceMeasureLabel = intl.formatMessage({ id: 'pages.condo.marketplace.measure.perMeter.full' })
+    const PerHourPriceMeasureLabel = intl.formatMessage({ id: 'pages.condo.marketplace.measure.perHour.full' })
+    const NoPriceMeasureLabel = intl.formatMessage({ id: 'pages.condo.marketplace.measure.perHour.full' })
     const NumberIsNotValidMessage = intl.formatMessage({ id: 'NumberIsNotValid' })
     const ServicePlaceholder = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.service.placeholder' })
     const MinPriceValidationMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.minPriceValidation' })
@@ -667,25 +671,25 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                         key={PriceMeasuresType.PerItem}
                                                         value={PriceMeasuresType.PerItem}
                                                     >
-                                                        {intl.formatMessage({ id: 'pages.condo.marketplace.measure.perItem.full' })}
+                                                        { PerItemPriceMeasureLabel }
                                                     </Select.Option>
                                                     <Select.Option
                                                         key={PriceMeasuresType.PerHour}
                                                         value={PriceMeasuresType.PerHour}
                                                     >
-                                                        {intl.formatMessage({ id: 'pages.condo.marketplace.measure.perHour.full' })}
+                                                        { PerHourPriceMeasureLabel }
                                                     </Select.Option>
                                                     <Select.Option
                                                         key={PriceMeasuresType.PerMeter}
                                                         value={PriceMeasuresType.PerMeter}
                                                     >
-                                                        {intl.formatMessage({ id: 'pages.condo.marketplace.measure.perMeter.full' })}
+                                                        { PerMeterPriceMeasureLabel }
                                                     </Select.Option>
                                                     <Select.Option
                                                         key='oneTime'
                                                         value={null}
                                                     >
-                                                        {intl.formatMessage({ id: 'pages.condo.marketplace.noMeasure' })}
+                                                        { NoPriceMeasureLabel }
                                                     </Select.Option>
                                                 </Select>
                                             </ServiceFormItem>

@@ -21,7 +21,7 @@ import {
     GraphQlSearchInputWithCheckAll,
     InputWithCheckAllProps,
 } from '@condo/domains/common/components/GraphQlSearchInputWithCheckAll'
-import { ImagesUploadList } from '@condo/domains/common/components/ImagesUploadList'
+import { ImagesUploadList, UploadFileType } from '@condo/domains/common/components/ImagesUploadList'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { DEFAULT_BORDER_RADIUS } from '@condo/domains/common/constants/style'
@@ -158,7 +158,17 @@ const AppPreviewContainer = styled.div`
   }
 `
 
-const MobilePreview = ({ name, price, measure, priceType, sku, description, files }) => {
+interface IMobilePreviewProps {
+    name: string
+    price: string
+    priceType: PriceType
+    sku: string
+    description: string
+    measure: PriceMeasuresType
+    files?: UploadFileType[]
+}
+
+const MobilePreview: React.FC<IMobilePreviewProps> = ({ name, price, measure, priceType, sku, description, files }) => {
     const intl = useIntl()
     const MobilePreviewTitle = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.mobileAppPreview.title' })
     const ContractPrice = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' })
@@ -596,6 +606,10 @@ const MarketPriceForm = ({ priceFormDescription, removeOperation, organizationPr
     const PriceTooltip = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.price.tooltip' })
     const CancelMessage = intl.formatMessage({ id: 'Cancel' })
     const MinPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.price.minPriceMessage' })
+    const PerItemPriceMeasureLabel = intl.formatMessage({ id: 'pages.condo.marketplace.measure.perItem.full' })
+    const PerMeterPriceMeasureLabel = intl.formatMessage({ id: 'pages.condo.marketplace.measure.perMeter.full' })
+    const PerHourPriceMeasureLabel = intl.formatMessage({ id: 'pages.condo.marketplace.measure.perHour.full' })
+    const NoPriceMeasureLabel = intl.formatMessage({ id: 'pages.condo.marketplace.measure.perHour.full' })
 
     const { requiredValidator, numberValidator, lessThanValidator } = useValidations()
     const { form, currencyCode, getUpdatedPricesField } = useMarketItemFormContext()
@@ -696,25 +710,25 @@ const MarketPriceForm = ({ priceFormDescription, removeOperation, organizationPr
                             key={PriceMeasuresType.PerItem}
                             value={PriceMeasuresType.PerItem}
                         >
-                            {intl.formatMessage({ id: 'pages.condo.marketplace.measure.perItem.full' })}
+                            { PerItemPriceMeasureLabel }
                         </Select.Option>
                         <Select.Option
                             key={PriceMeasuresType.PerHour}
                             value={PriceMeasuresType.PerHour}
                         >
-                            {intl.formatMessage({ id: 'pages.condo.marketplace.measure.perHour.full' })}
+                            { PerHourPriceMeasureLabel }
                         </Select.Option>
                         <Select.Option
                             key={PriceMeasuresType.PerMeter}
                             value={PriceMeasuresType.PerMeter}
                         >
-                            {intl.formatMessage({ id: 'pages.condo.marketplace.measure.perMeter.full' })}
+                            { PerMeterPriceMeasureLabel }
                         </Select.Option>
                         <Select.Option
                             key='oneTime'
                             value={null}
                         >
-                            {intl.formatMessage({ id: 'pages.condo.marketplace.noMeasure' })}
+                            {NoPriceMeasureLabel}
                         </Select.Option>
                     </Select>
                 </Form.Item>

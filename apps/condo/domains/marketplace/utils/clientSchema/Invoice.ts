@@ -104,8 +104,6 @@ export function formValuesProcessor (formValues: InvoiceFormValuesType, intl, is
                 if (!isTicketForm) {
                     rows = formValues[key].map(({ name, toPay, count, sku, measure }) => {
 
-                        console.log('rows', rows)
-
                         const baseFields = { name, count }
                         let toPayFields
                         if (toPay === ContractPriceMessage) {

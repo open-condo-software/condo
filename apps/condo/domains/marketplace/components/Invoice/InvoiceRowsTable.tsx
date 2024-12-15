@@ -11,9 +11,8 @@ import { Table } from '@condo/domains/common/components/Table/Index'
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { DEFAULT_INVOICE_CURRENCY_CODE } from '@condo/domains/marketplace/constants'
 import { MarketItem } from '@condo/domains/marketplace/utils/clientSchema'
-import {
-    getMoneyRender,
-} from '@condo/domains/marketplace/utils/clientSchema/Invoice'
+import { getMoneyRender } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
+import { PriceMeasuresType } from '@condo/domains/marketplace/utils/clientSchema/MarketItem'
 
 
 const useInvoiceRowsTableColumns = (currencyCode, marketItems) => {
@@ -38,7 +37,7 @@ const useInvoiceRowsTableColumns = (currencyCode, marketItems) => {
 
         const toPay = get(row, 'toPay')
         const isMin = get(row, 'isMin')
-        const measure = get(row, 'measure')
+        const measure: PriceMeasuresType = get(row, 'measure')
 
         let value
         if (isMin) {

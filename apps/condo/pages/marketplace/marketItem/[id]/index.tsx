@@ -27,7 +27,7 @@ import { getAddressDetails } from '@condo/domains/common/utils/helpers'
 import { MarketItemReadPermissionRequired } from '@condo/domains/marketplace/components/PageAccess'
 import { MarketItem, MarketItemFile, MarketPriceScope } from '@condo/domains/marketplace/utils/clientSchema'
 import { getMoneyRender } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
-import { convertFilesToUploadType } from '@condo/domains/marketplace/utils/clientSchema/MarketItem'
+import { convertFilesToUploadType, PriceMeasuresType } from '@condo/domains/marketplace/utils/clientSchema/MarketItem'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 
@@ -100,8 +100,8 @@ const MarketItemFields = ({ marketItem }) => {
 
 type AddressesPriceType = {
     price: string
-    shortMeasureMessage: string,
     addresses: string[]
+    shortMeasureMessage?: string
 }
 
 type PriceScopePropsType = {
@@ -203,12 +203,10 @@ const PricesBlock = ({ marketItemId }) => {
     }, { skip: !organizationId || propertyIdsInScopes.length < 2 })
 
     const addressesPrices: AddressesPriceType[] = useMemo(() => {
-        const resultAddressesPrices = uniquePrices.map(priceObj => {
-            console.log(priceObj)
-
+        const resultAddressesPrices: AddressesPriceType[] = uniquePrices.map(priceObj => {
             const firstPrice =  get(priceObj, 'price.0')
             const price = getMoneyRender(intl, get(firstPrice, 'currency', 'RUB'))(get(firstPrice, 'price'), get(firstPrice, 'isMin'))
-            const measure = get(firstPrice, 'measure')
+            const measure: PriceMeasuresType = get(firstPrice, 'measure')
 
             let shortMeasureMessage = null
             if (measure) {

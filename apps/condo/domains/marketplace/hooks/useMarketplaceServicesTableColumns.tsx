@@ -20,6 +20,8 @@ import { getAddressDetails, getFilteredValue } from '@condo/domains/common/utils
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { getMoneyRender } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
 
+import { PriceMeasuresType } from '../utils/clientSchema/MarketItem'
+
 export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, marketPriceScopes: MarketPriceScopeType[], marketCategories: MarketCategoryType[], properties: Property[]) {
     const intl = useIntl()
     const SkuTitle = intl.formatMessage({ id: 'pages.condo.marketplace.services.table.sku' })
@@ -145,7 +147,7 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
                     if (priceForAllProperties) {
                         const currency = get(priceForAllProperties, 'currency', 'RUB')
                         const price = get(priceForAllProperties, 'price')
-                        const measure = get(priceForAllProperties, 'measure')
+                        const measure: PriceMeasuresType = get(priceForAllProperties, 'measure')
                         const isMin = get(priceForAllProperties, 'isMin')
                         const renderedPrice = isMin && price == 0 ? ContractPriceMessage : getMoneyRender(intl, currency)(price, isMin)
 
@@ -172,7 +174,7 @@ export function useMarketplaceServicesTableColumns <T> (filterMetas: Array<Filte
 
                     for (const price in processedScopes[marketItem.id]) {
                         const items = processedScopes[marketItem.id][price]
-                        const measure = get(items[0], 'measure')
+                        const measure: PriceMeasuresType = get(items[0], 'measure')
                         const shouldShowMeasure = !!(measure)
                         const address = get(items[0], 'address')
 
