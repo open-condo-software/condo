@@ -6,7 +6,7 @@ const { getByCondition } = require('@open-condo/keystone/schema')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { render, getGQLErrorValidator } = require('@condo/domains/common/schema/json.utils')
 const { ERROR_INVALID_INVOICE_ROWS, DEFAULT_INVOICE_CURRENCY_CODE } = require('@condo/domains/marketplace/constants')
-const { PRICE_MEASURES } = require('@condo/domains/marketplace/schema/MarketItemPrice')
+const { PRICE_MEASURES } = require('@condo/domains/marketplace/schema/fields/price')
 
 const INVOICE_ROW_GQL_TYPE_NAME = 'InvoiceRowSchemaField'
 const INVOICE_ROW_GQL_INPUT_NAME = 'InvoiceRowSchemaFieldInput'
@@ -63,7 +63,7 @@ const rowsFieldSchema = {
             vatPercent: { type: 'string' },
             salesTaxPercent: { type: 'string' },
             sku: { type: 'string' },
-            measure: { type: 'string', enum: PRICE_MEASURES },
+            measure: { type: 'string', enum: Object.values(PRICE_MEASURES) },
             isMin: { type: 'boolean' },
             meta: {
                 type: 'object',
