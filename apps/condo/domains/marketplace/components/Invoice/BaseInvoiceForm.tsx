@@ -378,35 +378,33 @@ const PayerDataFields = ({ organizationId, form, disabled, initialValues }) => {
             {
                 hasPayerData && (
                     <Col span={24}>
-                        <div>
-                            <Row gutter={[0, 40]}>
-                                <Col span={24}>
-                                    <Row gutter={[50, 0]}>
-                                        <Col span={24} md={20}>
-                                            <PropertyFormField
-                                                organizationId={organizationId}
-                                                selectedPropertyId={selectedPropertyId}
-                                                setSelectedPropertyId={setSelectedPropertyId}
-                                                form={form}
-                                                disabled={disabled}
-                                            />
-                                        </Col>
-                                        <Col span={24} md={4}>
-                                            <UnitNameFormField
-                                                property={property}
-                                                form={form}
-                                                disabled={disabled}
-                                            />
-                                        </Col>
-                                    </Row>
-                                </Col>
-                            </Row>
-                            <ContactFormField
-                                organizationId={organizationId}
-                                form={form}
-                                disabled={disabled}
-                            />
-                        </div>
+                        <Row gutter={[0, 40]}>
+                            <Col span={24}>
+                                <Row gutter={[50, 0]}>
+                                    <Col span={24} lg={20}>
+                                        <PropertyFormField
+                                            organizationId={organizationId}
+                                            selectedPropertyId={selectedPropertyId}
+                                            setSelectedPropertyId={setSelectedPropertyId}
+                                            form={form}
+                                            disabled={disabled}
+                                        />
+                                    </Col>
+                                    <Col span={24} lg={4}>
+                                        <UnitNameFormField
+                                            property={property}
+                                            form={form}
+                                            disabled={disabled}
+                                        />
+                                    </Col>
+                                </Row>
+                            </Col>
+                        </Row>
+                        <ContactFormField
+                            organizationId={organizationId}
+                            form={form}
+                            disabled={disabled}
+                        />
                     </Col>
                 )
             }
@@ -600,255 +598,251 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                     {
                         marketItemForms.map((marketItemForm, index) => (
                             <Card key={marketItemForm.name} hoverable={false}>
-                                <Col span={24} key={marketItemForm.name}>
-                                    <Row gutter={gutter} align='top'>
-                                        <Col xs={24} lg={16}>
-                                            <ServiceFormItem
-                                                label={ServiceLabel}
-                                                name={[marketItemForm.name, 'name']}
-                                                required
-                                                labelAlign='left'
-                                                labelCol={{ span: 24 }}
-                                                rules={[requiredValidator, minLengthValidator(7)]}
-                                            >
-                                                <AutoComplete
-                                                    allowClear
-                                                    disabled={disabled}
-                                                    placeholder={ServicePlaceholder}
-                                                    options={marketItemGroups}
-                                                    filterOption
-                                                    onClear={() => {
-                                                        form.setFieldsValue({
-                                                            rows: {
-                                                                ...form.getFieldValue('rows'),
-                                                                [marketItemForm.name]: {
-                                                                    count: 1,
-                                                                    toPay: null,
-                                                                    isMin: false,
-                                                                    sku: null,
-                                                                },
+                                <Row gutter={gutter} align='top'>
+                                    <Col xs={24} lg={16}>
+                                        <ServiceFormItem
+                                            label={ServiceLabel}
+                                            name={[marketItemForm.name, 'name']}
+                                            required
+                                            labelAlign='left'
+                                            labelCol={{ span: 24 }}
+                                            rules={[requiredValidator, minLengthValidator(7)]}
+                                        >
+                                            <AutoComplete
+                                                allowClear
+                                                disabled={disabled}
+                                                placeholder={ServicePlaceholder}
+                                                options={marketItemGroups}
+                                                filterOption
+                                                onClear={() => {
+                                                    form.setFieldsValue({
+                                                        rows: {
+                                                            ...form.getFieldValue('rows'),
+                                                            [marketItemForm.name]: {
+                                                                count: 1,
+                                                                toPay: null,
+                                                                isMin: false,
+                                                                sku: null,
                                                             },
-                                                        })
-                                                    }}
-                                                    onSelect={(_, option: MarketItemOptionType) => {
-                                                        let toPayValue
-                                                        if (option.isMin) {
-                                                            toPayValue = option.toPay === '0' ? ContractPriceMessage : `${FromMessage} ${option.toPay}`
-                                                        } else {
-                                                            toPayValue = option.toPay
-                                                        }
-    
-                                                        updateRowFields(marketItemForm.name, {
-                                                            toPay: toPayValue,
-                                                            isMin: option.isMin,
-                                                            measure: option.measure,
-                                                        })
-    
-                                                        form.validateFields([['rows', marketItemForm.name, 'toPay']])
-                                                    }}
-                                                    onChange={text => {
-                                                        const existedMarketItem = flatMarketOptions.find(marketItem => marketItem.label === text)
-                                                        const sku = existedMarketItem ? existedMarketItem.sku : null
-    
-                                                        updateRowFields(marketItemForm.name, {
-                                                            sku,
-                                                        })
-                                                    }}
-                                                />
-                                            </ServiceFormItem>
-                                        </Col>
-                                        <Col xs={24} lg={8}>
-                                            <ServiceFormItem
-                                                label={MeasureLabel}
-                                                name={[marketItemForm.name, 'measure']}
-                                                labelAlign='left'
-                                                labelCol={{ span: 24 }}
+                                                        },
+                                                    })
+                                                }}
+                                                onSelect={(_, option: MarketItemOptionType) => {
+                                                    let toPayValue
+                                                    if (option.isMin) {
+                                                        toPayValue = option.toPay === '0' ? ContractPriceMessage : `${FromMessage} ${option.toPay}`
+                                                    } else {
+                                                        toPayValue = option.toPay
+                                                    }
+
+                                                    updateRowFields(marketItemForm.name, {
+                                                        toPay: toPayValue,
+                                                        isMin: option.isMin,
+                                                        measure: option.measure,
+                                                    })
+
+                                                    form.validateFields([['rows', marketItemForm.name, 'toPay']])
+                                                }}
+                                                onChange={text => {
+                                                    const existedMarketItem = flatMarketOptions.find(marketItem => marketItem.label === text)
+                                                    const sku = existedMarketItem ? existedMarketItem.sku : null
+
+                                                    updateRowFields(marketItemForm.name, {
+                                                        sku,
+                                                    })
+                                                }}
+                                            />
+                                        </ServiceFormItem>
+                                    </Col>
+                                    <Col xs={24} lg={8}>
+                                        <ServiceFormItem
+                                            label={MeasureLabel}
+                                            name={[marketItemForm.name, 'measure']}
+                                            labelAlign='left'
+                                            labelCol={{ span: 24 }}
+                                        >
+                                            <Select
+                                                defaultValue='perItem'
                                             >
-                                                <Select
-                                                    defaultValue='perItem'
+                                                <Select.Option
+                                                    key={PriceMeasuresType.PerItem}
+                                                    value={PriceMeasuresType.PerItem}
                                                 >
-                                                    <Select.Option
-                                                        key={PriceMeasuresType.PerItem}
-                                                        value={PriceMeasuresType.PerItem}
-                                                    >
-                                                        { PerItemPriceMeasureLabel }
-                                                    </Select.Option>
-                                                    <Select.Option
-                                                        key={PriceMeasuresType.PerHour}
-                                                        value={PriceMeasuresType.PerHour}
-                                                    >
-                                                        { PerHourPriceMeasureLabel }
-                                                    </Select.Option>
-                                                    <Select.Option
-                                                        key={PriceMeasuresType.PerMeter}
-                                                        value={PriceMeasuresType.PerMeter}
-                                                    >
-                                                        { PerMeterPriceMeasureLabel }
-                                                    </Select.Option>
-                                                    <Select.Option
-                                                        key='oneTime'
-                                                        value={null}
-                                                    >
-                                                        { NoPriceMeasureLabel }
-                                                    </Select.Option>
-                                                </Select>
-                                            </ServiceFormItem>
-                                        </Col>
-                                    </Row>
-                                    <Row style={{ paddingTop: 24 }} gutter={gutter} align='top'>
-                                        <Col xs={24} lg={6}>
-                                            <FormItemWithCustomWarningColor
-                                                label={PriceLabel}
-                                                required
-                                                name={[marketItemForm.name, 'toPay']}
-                                                labelCol={{ span: 24 }}
-                                                validateFirst
-                                                rules={[
-                                                    requiredValidator,
-                                                    {
-                                                        warningOnly: true,
-                                                        validator: (_, value) => {
-                                                            if (
-                                                                new RegExp(`^${FromMessage} (\\d+|\\d+(,|.)\\d+)$`).test(value) ||
+                                                    { PerItemPriceMeasureLabel }
+                                                </Select.Option>
+                                                <Select.Option
+                                                    key={PriceMeasuresType.PerHour}
+                                                    value={PriceMeasuresType.PerHour}
+                                                >
+                                                    { PerHourPriceMeasureLabel }
+                                                </Select.Option>
+                                                <Select.Option
+                                                    key={PriceMeasuresType.PerMeter}
+                                                    value={PriceMeasuresType.PerMeter}
+                                                >
+                                                    { PerMeterPriceMeasureLabel }
+                                                </Select.Option>
+                                                <Select.Option
+                                                    key='oneTime'
+                                                    value={null}
+                                                >
+                                                    { NoPriceMeasureLabel }
+                                                </Select.Option>
+                                            </Select>
+                                        </ServiceFormItem>
+                                    </Col>
+                                </Row>
+                                <Row style={{ paddingTop: 24 }} gutter={gutter} align='top'>
+                                    <Col xs={24} lg={6}>
+                                        <FormItemWithCustomWarningColor
+                                            label={PriceLabel}
+                                            required
+                                            name={[marketItemForm.name, 'toPay']}
+                                            labelCol={{ span: 24 }}
+                                            validateFirst
+                                            rules={[
+                                                requiredValidator,
+                                                {
+                                                    warningOnly: true,
+                                                    validator: (_, value) => {
+                                                        if (
+                                                            new RegExp(`^${FromMessage} (\\d+|\\d+(,|.)\\d+)$`).test(value) ||
                                                                 value === ContractPriceMessage
-                                                            ) {
-                                                                form.setFieldsValue({
-                                                                    hasIsMinPrice: true,
-                                                                    status: INVOICE_STATUS_DRAFT,
-                                                                })
-                                                                setStatus(INVOICE_STATUS_DRAFT)
+                                                        ) {
+                                                            form.setFieldsValue({
+                                                                hasIsMinPrice: true,
+                                                                status: INVOICE_STATUS_DRAFT,
+                                                            })
+                                                            setStatus(INVOICE_STATUS_DRAFT)
 
-                                                                return Promise.reject(MinPriceValidationMessage)
-                                                            }
+                                                            return Promise.reject(MinPriceValidationMessage)
+                                                        }
 
-                                                            const rows = form.getFieldValue('rows')
-                                                            if (!rows.some(row => row.isMin)) {
-                                                                form.setFieldsValue({
-                                                                    hasIsMinPrice: false,
-                                                                })
-                                                            }
+                                                        const rows = form.getFieldValue('rows')
+                                                        if (!rows.some(row => row.isMin)) {
+                                                            form.setFieldsValue({
+                                                                hasIsMinPrice: false,
+                                                            })
+                                                        }
 
-                                                            return Promise.resolve()
-                                                        },
+                                                        return Promise.resolve()
                                                     },
-                                                    {
-                                                        validator: (_, value) => {
-                                                            if (
-                                                                new RegExp(`^(${FromMessage} |)(\\d+|\\d+(,|.)\\d+)$`).test(value) ||
+                                                },
+                                                {
+                                                    validator: (_, value) => {
+                                                        if (
+                                                            new RegExp(`^(${FromMessage} |)(\\d+|\\d+(,|.)\\d+)$`).test(value) ||
                                                                 value === ContractPriceMessage
-                                                            ) {
-                                                                return Promise.resolve()
-                                                            }
-
-                                                            return Promise.reject(NumberIsNotValidMessage)
-                                                        },
-                                                    },
-                                                    {
-                                                        validator: (_, value) => {
-                                                            if (new RegExp('^(?:\\d+(?:\\.\\d+)?|\\d+(?:,\\d+)?)$').test(value)) {
-                                                                const numberValue = Number(value.replace(',', '.'))
-
-                                                                if (numberValue < MIN_PRICE_VALUE) {
-                                                                    return Promise.reject(`${MinPriceMessage} – ${MIN_PRICE_VALUE}${currencySymbol}`)
-                                                                }
-                                                            }
-
+                                                        ) {
                                                             return Promise.resolve()
-                                                        },
-                                                    },
-                                                ]}
-                                            >
-                                                <Input
-                                                    disabled={disabled}
-                                                    addonAfter={currencySymbol}
-                                                    onChange={e => {
-                                                        const value = get(e, 'target.value')
-                                                        if (!value) return
+                                                        }
 
-                                                        const splittedValue = value.split(' ')
-                                                        const isMin = (splittedValue.length === 2 && splittedValue[0] === FromMessage) ||
+                                                        return Promise.reject(NumberIsNotValidMessage)
+                                                    },
+                                                },
+                                                {
+                                                    validator: (_, value) => {
+                                                        if (new RegExp('^(?:\\d+(?:\\.\\d+)?|\\d+(?:,\\d+)?)$').test(value)) {
+                                                            const numberValue = Number(value.replace(',', '.'))
+
+                                                            if (numberValue < MIN_PRICE_VALUE) {
+                                                                return Promise.reject(`${MinPriceMessage} – ${MIN_PRICE_VALUE}${currencySymbol}`)
+                                                            }
+                                                        }
+
+                                                        return Promise.resolve()
+                                                    },
+                                                },
+                                            ]}
+                                        >
+                                            <Input
+                                                disabled={disabled}
+                                                addonAfter={currencySymbol}
+                                                onChange={e => {
+                                                    const value = get(e, 'target.value')
+                                                    if (!value) return
+
+                                                    const splittedValue = value.split(' ')
+                                                    const isMin = (splittedValue.length === 2 && splittedValue[0] === FromMessage) ||
                                                             (splittedValue.length === 1 && splittedValue[0] === ContractPriceMessage)
 
-                                                        updateRowFields(marketItemForm.name, {
-                                                            isMin,
-                                                        })
-                                                    }}
-                                                />
-                                            </FormItemWithCustomWarningColor>
-                                        </Col>
-                                        <Col xs={24} lg={4}>
-                                            <ServiceFormItem
-                                                label={QuantityLabel}
-                                                name={[marketItemForm.name, 'count']}
-                                                required
-                                                labelAlign='left'
-                                                labelCol={{ span: 24 }}
-                                                rules={[requiredValidator]}
-                                                initialValue={1}
-                                            >
-                                                <Select
-                                                    disabled={disabled}
-                                                    options={[...Array(50).keys() ].map( i => ({
-                                                        label: `${i + 1}`,
-                                                        key: i + 1,
-                                                        value: i + 1,
-                                                    }))}
-                                                    onSelect={(value) => {
-                                                        updateRowFields(marketItemForm.name, {
-                                                            count: value,
-                                                        })
-                                                    }}
-                                                    onClear={() => {
-                                                        updateRowFields(marketItemForm.name, {
-                                                            count: null,
-                                                        })
-                                                    }}
-                                                />
-                                            </ServiceFormItem>
-                                        </Col>
-                                        <Col xs={24} lg={6}>
-                                            <ServiceFormItem
-                                                label={TotalPriceLabel}
-                                                required
-                                                labelCol={{ span: 24 }}
-                                                shouldUpdate
-                                            >
-                                                {
-                                                    ({ getFieldValue }) => {
-                                                        const count = getFieldValue(['rows', marketItemForm.name, 'count'])
-                                                        const rawPrice = getFieldValue(['rows', marketItemForm.name, 'toPay'])
-                                                        const { error, isMin, total } = prepareTotalPriceFromInput(intl, count, rawPrice)
-    
-                                                        let value
-                                                        if (error) {
-                                                            value = ''
-                                                        } else if (isMin && total === 0) {
-                                                            value = ContractPriceMessage
-                                                        } else {
-                                                            value = moneyRender(String(total), isMin)
-                                                        }
-    
-                                                        return <Input type='total' addonAfter={currencySymbol} disabled value={value} />
+                                                    updateRowFields(marketItemForm.name, {
+                                                        isMin,
+                                                    })
+                                                }}
+                                            />
+                                        </FormItemWithCustomWarningColor>
+                                    </Col>
+                                    <Col xs={24} lg={4}>
+                                        <ServiceFormItem
+                                            label={QuantityLabel}
+                                            name={[marketItemForm.name, 'count']}
+                                            required
+                                            labelAlign='left'
+                                            labelCol={{ span: 24 }}
+                                            rules={[requiredValidator]}
+                                            initialValue={1}
+                                        >
+                                            <Select
+                                                disabled={disabled}
+                                                options={[...Array(50).keys() ].map( i => ({
+                                                    label: `${i + 1}`,
+                                                    key: i + 1,
+                                                    value: i + 1,
+                                                }))}
+                                                onSelect={(value) => {
+                                                    updateRowFields(marketItemForm.name, {
+                                                        count: value,
+                                                    })
+                                                }}
+                                                onClear={() => {
+                                                    updateRowFields(marketItemForm.name, {
+                                                        count: null,
+                                                    })
+                                                }}
+                                            />
+                                        </ServiceFormItem>
+                                    </Col>
+                                    <Col xs={24} lg={6}>
+                                        <ServiceFormItem
+                                            label={TotalPriceLabel}
+                                            required
+                                            labelCol={{ span: 24 }}
+                                            shouldUpdate
+                                        >
+                                            {
+                                                ({ getFieldValue }) => {
+                                                    const count = getFieldValue(['rows', marketItemForm.name, 'count'])
+                                                    const rawPrice = getFieldValue(['rows', marketItemForm.name, 'toPay'])
+                                                    const { error, isMin, total } = prepareTotalPriceFromInput(intl, count, rawPrice)
+
+                                                    let value
+                                                    if (error) {
+                                                        value = ''
+                                                    } else if (isMin && total === 0) {
+                                                        value = ContractPriceMessage
+                                                    } else {
+                                                        value = moneyRender(String(total), isMin)
                                                     }
+
+                                                    return <Input type='total' addonAfter={currencySymbol} disabled value={value} />
                                                 }
-                                            </ServiceFormItem>
-                                        </Col>
-                                        {
-                                            index !== 0 && (
-                                                <Col span={24} md={2}>
-                                                    <Typography.Text disabled={disabled} onClick={() => {
-                                                        if (disabled) return
-                                                        operation.remove(marketItemForm.name)
-                                                    }}>
-                                                        <div style={{ paddingTop: `${breakpoints.DESKTOP_SMALL ? '42px' : '12px'}` }}>
-                                                            <Trash size='large' />
-                                                        </div>
-                                                    </Typography.Text>
-                                                </Col>
-                                            )
-                                        }
-                                    </Row>
-                                </Col>
+                                            }
+                                        </ServiceFormItem>
+                                    </Col>
+                                    <Col xs={24} lg={2}>
+                                        { index !== 0 && (
+                                            <Typography.Text disabled={disabled} onClick={() => {
+                                                if (disabled) return
+                                                operation.remove(marketItemForm.name)
+                                            }}>
+                                                <div style={{ paddingTop: `${breakpoints.DESKTOP_SMALL ? '42px' : '12px'}` }}>
+                                                    <Trash size='large' />
+                                                </div>
+                                            </Typography.Text>
+                                        )}
+                                    </Col>
+                                </Row>
                             </Card>
                         ))
                     }
@@ -1005,9 +999,9 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
     const NoPayerDataAlertDescription = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.noPayerData' })
     const EmptyPayerDataAlertMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.message.passLinkToResident' })
     const EmptyPayerDataAlertDescription = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.emptyPayerData' })
-    const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
+    const NegotiatedPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
     const SaveChangesModalTitle = intl.formatMessage({ id: 'form.prompt.title' })
-    const SaveChangesNodalMessage = intl.formatMessage({ id: 'form.prompt.message' })
+    const SaveChangesModalMessage = intl.formatMessage({ id: 'form.prompt.message' })
     const SuggestQrMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.message.orSuggestQR' })
     const PayByQrMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.payByQrMessage' })
 
@@ -1037,7 +1031,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
     const moneyRender = useMemo(() => getMoneyRender(intl, currencyCode), [currencyCode, intl])
 
     const isModalForm = useMemo(() => !isEmpty(modalFormProps), [modalFormProps])
-    const colSpan = useMemo(() => isModalForm ? 24 : 20, [isModalForm])
+    const colSpan = useMemo(() => isModalForm ? 24 : 22, [isModalForm])
 
     const FormContainer = useMemo(
         () => isModalForm ? BaseModalForm : FormWithAction,
@@ -1074,9 +1068,10 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                         ignoreFormFields={[NEW_CONTACT_PHONE_FORM_ITEM_NAME]}
                     >
                         <Typography.Paragraph>
-                            {SaveChangesNodalMessage}
+                            {SaveChangesModalMessage}
                         </Typography.Paragraph>
                     </Prompt>
+
                     <Row gutter={OUTER_VERTICAL_GUTTER}>
                         <Col span={24} md={colSpan} hidden={isModalForm}>
                             <Form.Item
@@ -1100,6 +1095,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                 }
                             </Form.Item>
                         </Col>
+
                         <Col md={isModalForm ? 24 : 22}>
                             <Row gutter={SMALL_VERTICAL_GUTTER}>
                                 <Col span={24}>
@@ -1133,6 +1129,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                 </Col>
                             </Row>
                         </Col>
+
                         <Form.Item
                             dependencies={['rows']}
                             noStyle
@@ -1160,13 +1157,13 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                                             const rows = getFieldValue('rows').filter(Boolean)
                                                             const totalCount = rows.reduce((acc) => acc + 1, 0)
                                                             const { totalPrice, hasMinPrice, hasError } = calculateRowsTotalPrice(intl, rows)
-                                                            const isContractToPay = hasMinPrice && totalPrice === 0
+                                                            const isNegotiatedToPay = hasMinPrice && totalPrice === 0
 
                                                             let value
                                                             if (hasError) {
                                                                 value = ''
-                                                            } else if (isContractToPay) {
-                                                                value = ContractPriceMessage
+                                                            } else if (isNegotiatedToPay) {
+                                                                value = NegotiatedPriceMessage
                                                             } else {
                                                                 value = moneyRender(totalPrice, hasMinPrice)
                                                             }
@@ -1194,6 +1191,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                                     }
                                                 </Form.Item>
                                             </Col>
+
                                             <Col span={24}>
                                                 <Row gutter={[0, 16]}>
                                                     <Col md={colSpan}>
