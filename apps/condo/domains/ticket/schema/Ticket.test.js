@@ -98,7 +98,6 @@ const {
     makeClientWithSupportUser,
 } = require('@condo/domains/user/utils/testSchema')
 
-const { UPDATE_ORGANIZATION_EMPLOYEE_TICKETS_FOR_REASSIGNEE } = require('../gql')
 
 const FEEDBACK_VALUES_WITHOUT_RETURNED = FEEDBACK_VALUES.filter(item => item !== FEEDBACK_VALUES_BY_KEY.RETURNED)
 // TODO(DOMA-5833): delete REVIEW_VALUES_WITHOUT_RETURNED when the mobile app will use 'feedback*' fields
