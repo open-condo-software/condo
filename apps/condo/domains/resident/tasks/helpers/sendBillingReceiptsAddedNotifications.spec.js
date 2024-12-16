@@ -410,7 +410,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             }, { delay: 2000 })
         })
 
-        test('Should not create subtasks and just add redisKey if cron task is started first time', async () => {
+        test('Should not create subtasks and just add redisKey if cron task is started for the first time', async () => {
             const environment = new TestUtils([ResidentTestMixin])
             await environment.init()
             const accountNumber = faker.random.alphaNumeric(12)

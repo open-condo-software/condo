@@ -5,6 +5,7 @@ const isEmpty = require('lodash/isEmpty')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
+const { getRedisClient } = require('@open-condo/keystone/redis')
 const { find, getById, getSchemaCtx } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
 const { getLocalized } = require('@open-condo/locales/loader')
@@ -16,6 +17,7 @@ const {
     BILLING_RECEIPT_ADDED_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
+const { BILLING_CONTEXT_SYNCHRONIZATION_DATE } = require('@condo/domains/resident/constants/constants')
 
 const logger = getLogger('sendNewBillingReceiptNotification')
 
@@ -80,18 +82,28 @@ const prepareAndSendNotification = async (context, receipt, resident, lastSendDa
 /**
  * Prepares data for sendMessage to resident on available billing receipt, then tries to send the message
  * @param {BillingIntegrationOrganizationContext} context
- * @param {string} lastSendDate
+ * @param {string} lastSyncDate
  * @returns {Promise<void>}
  */
-async function sendBillingReceiptsAddedNotificationForOrganizationContext (context, lastSendDate) {
+async function sendBillingReceiptsAddedNotificationForOrganizationContext (context, lastSyncDate) {
     logger.info({ msg: 'sendBillingReceiptsAddedNotificationForOrganizationContext starts' })
     const contextId = get(context, 'id')
     if (!contextId) throw new Error('Invalid BillingIntegrationOrganizationContext, cannot get context.id')
 
     const { keystone } = getSchemaCtx('Message')
+    
+    const redisClient = await getRedisClient()
+    let lastSendDate = await redisClient.get(`${BILLING_CONTEXT_SYNCHRONIZATION_DATE}:${contextId}`)
+
+    if (!lastSendDate) {
+        lastSendDate = lastSyncDate
+    }
 
     const receipts = await fetchReceipts(contextId, lastSendDate)
 
+    if (!receipts.length) return
+
+    const maxCreatedAt = dayjs(getMaxReceiptCreatedAt(receipts)).toISOString()
     const receiptAccountData = await prepareReceiptsData(receipts, context)
     const serviceConsumers = await fetchServiceConsumers(context, receiptAccountData.accountNumbers)
     const consumersByAccountKey = groupConsumersByAccountKey(serviceConsumers)
@@ -106,6 +118,7 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
         successSentMessages += success
         duplicatedSentMessages += duplicate
     }
+    await redisClient.set(`${BILLING_CONTEXT_SYNCHRONIZATION_DATE}:${contextId}`, maxCreatedAt)
 
     const residents = serviceConsumers.map(sc => sc.resident)
     const residentsUnique = [...new Set(residents.filter(r => r.id))]
@@ -200,18 +213,32 @@ function groupConsumersByAccountKey (serviceConsumers) {
     })
 }
 
+function getMaxReceiptCreatedAt (receipts) {
+    let maxCreatedAt = null
+    for (const receipt of receipts) {
+        if (maxCreatedAt === null) maxCreatedAt = receipt.createdAt
+        if (dayjs(receipt.createdAt).isAfter(maxCreatedAt)) maxCreatedAt = receipt.createdAt
+    }
+    
+    return maxCreatedAt
+}
+
 async function notifyConsumers (keystone, receipt, consumers, lastSendDate) {
     let successSentMessages = 0
     let duplicatedSentMessages = 0
     for (const consumer of consumers) {
         const resident = get(consumer, 'resident')
         if (!resident || resident.deletedAt) continue
-
+        
+        logger.info({ msg: 'Notification data', data: { receipt, consumer, resident, lastSendDatePeriod: dayjs(lastSendDate).format('YYYY-MM-DD') } })
         const success = await prepareAndSendNotification(keystone, receipt, resident, dayjs(lastSendDate).format('YYYY-MM-DD'))
+        
         if (success) {
+            logger.info({ msg: 'User got notification', data: { user: resident.user } })
             successSentMessages++
         } else {
             duplicatedSentMessages++
+            logger.info({ msg: 'User did not get notification', data: { user: resident.user } })
         }
 
     }

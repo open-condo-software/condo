@@ -24,16 +24,21 @@ const sendBillingReceiptNotifications = async (context = null) => {
         return 'disabled'
     }
 
+    await sendResidentsNoAccountNotifications()
+
     const redisClient = await getRedisClient()
     const redisKey = await redisClient.get(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
 
     if (!redisKey) {
-        await redisClient.set(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE, dayjs().toISOString())
+        await redisClient.set(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE, dayjs().startOf('day').toISOString())
+
         return 'noRedisKey'
+    } else if (dayjs(redisKey).isSame(dayjs().startOf('day'))) {
+        return
     }
 
     await sendBillingReceiptsAddedNotifications(redisKey)
-    await sendResidentsNoAccountNotifications()
+    await redisClient.set(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE, dayjs().startOf('day').toISOString())
 }
 
 module.exports = {
