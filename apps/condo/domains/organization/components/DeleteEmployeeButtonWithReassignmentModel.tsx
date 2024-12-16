@@ -1,5 +1,9 @@
-import { useGetOrganizationEmployeeTicketsForReassignmentLazyQuery, useUpdateOrganizationEmployeeTicketsForReassignmentMutation } from '@app/condo/gql'
-import { OrganizationEmployee, Ticket } from '@app/condo/schema'
+import {
+    GetOrganizationEmployeeTicketsForReassignmentQuery,
+    useGetOrganizationEmployeeTicketsForReassignmentLazyQuery,
+    useUpdateOrganizationEmployeeTicketsForReassignmentMutation,
+} from '@app/condo/gql'
+import { OrganizationEmployee } from '@app/condo/schema'
 import { notification, Row } from 'antd'
 import isEmpty from 'lodash/isEmpty'
 import React, { useMemo, useCallback, useState } from 'react'
@@ -59,49 +63,50 @@ export const DeleteEmployeeButtonWithReassignmentModel: React.FC<IDeleteEmployee
     const employeeUserId = employee?.user?.id || null
     const employeeOrganizationId = employee?.organization?.id || null
 
-    const getTicketReassignData = (ticket: Ticket) => {
+    const getTicketReassignData = (ticket: GetOrganizationEmployeeTicketsForReassignmentQuery['tickets'][number]) => {
         const resultObj = {}
         if (ticket?.executor?.id === employeeUserId) resultObj['executor'] = { connect: { id: newEmployeeUserId } }
         if (ticket?.assignee?.id === employeeUserId) resultObj['assignee'] = { connect: { id: newEmployeeUserId } }
         return resultObj
     }
 
-    const getNotificationInfo = useCallback((notificationType: string, updatedTicketsCount = null) => {
-        if (notificationType === ERROR_NOTIFICATION_TYPE) {
-            return {
-                message: <Typography.Text strong>{NotificationTitleErrorLabel}</Typography.Text>,
-                description: <Typography.Text strong>{NotificationMessageErrorLabel}</Typography.Text>,
-                duration: 0,
-                key: 'reassignTicket',
-            }
-        } else if (notificationType === WARNING_NOTIFICATION_TYPE) {
-            return {
-                message: <Typography.Text strong>{NotificationTitleWarningLabel}</Typography.Text>,
-                description: <Space direction='vertical' size={4}>
-                    <Typography.Text strong>
-                        {NotificationMessageWarningLabel}
-                    </Typography.Text>
-                    <Typography.Text>
-                        {intl.formatMessage({ id: 'employee.reassignTickets.notification.progress' }, { activeTicketsOrganizationEmployeeCount, updatedTicketsCount })}
-                    </Typography.Text>
-                </Space>,
-                duration: 0,
-                key: 'reassignTicket',
-            }
-        } else if (notificationType === SUCCESS_NOTIFICATION_TYPE) {
-            return {
-                message: <Typography.Text strong>{NotificationTitleSuccessLabel}</Typography.Text>,
-                description: <Space direction='vertical' size={4}>
-                    <Typography.Text strong>
-                        {NotificationMessageSuccessLabel}
-                    </Typography.Text>
-                    {updatedTicketsCount !== null && <Typography.Text>
-                        {intl.formatMessage({ id: 'employee.reassignTickets.notification.progress' }, { activeTicketsOrganizationEmployeeCount, updatedTicketsCount })}
-                    </Typography.Text>}
-                </Space>,
-                duration: 0,
-                key: 'reassignTicket',
-            }
+    const getNotificationInfo = useCallback((notificationType: 'error' | 'warning' | 'success', updatedTicketsCount = null) => {
+        switch (notificationType) {
+            case ERROR_NOTIFICATION_TYPE:
+                return {
+                    message: <Typography.Text strong>{NotificationTitleErrorLabel}</Typography.Text>,
+                    description: <Typography.Text strong>{NotificationMessageErrorLabel}</Typography.Text>,
+                    duration: 0,
+                    key: 'reassignTicket',
+                }
+            case WARNING_NOTIFICATION_TYPE:
+                return {
+                    message: <Typography.Text strong>{NotificationTitleWarningLabel}</Typography.Text>,
+                    description: <Space direction='vertical' size={4}>
+                        <Typography.Text strong>
+                            {NotificationMessageWarningLabel}
+                        </Typography.Text>
+                        <Typography.Text>
+                            {intl.formatMessage({ id: 'employee.reassignTickets.notification.progress' }, { activeTicketsOrganizationEmployeeCount, updatedTicketsCount })}
+                        </Typography.Text>
+                    </Space>,
+                    duration: 0,
+                    key: 'reassignTicket',
+                }
+            case SUCCESS_NOTIFICATION_TYPE:
+                return {
+                    message: <Typography.Text strong>{NotificationTitleSuccessLabel}</Typography.Text>,
+                    description: <Space direction='vertical' size={4}>
+                        <Typography.Text strong>
+                            {NotificationMessageSuccessLabel}
+                        </Typography.Text>
+                        {updatedTicketsCount !== null && <Typography.Text>
+                            {intl.formatMessage({ id: 'employee.reassignTickets.notification.progress' }, { activeTicketsOrganizationEmployeeCount, updatedTicketsCount })}
+                        </Typography.Text>}
+                    </Space>,
+                    duration: 0,
+                    key: 'reassignTicket',
+                }
         }
     }, [intl, NotificationTitleSuccessLabel, NotificationTitleErrorLabel, NotificationTitleWarningLabel, NotificationMessageErrorLabel, NotificationMessageSuccessLabel, NotificationMessageWarningLabel, activeTicketsOrganizationEmployeeCount])
 
@@ -172,20 +177,16 @@ export const DeleteEmployeeButtonWithReassignmentModel: React.FC<IDeleteEmployee
                 return
             }
         }
-
-        if (activeTicketsOrganizationEmployeeCount === updatedTicketsCount) {
-            runMutation(
-                {
-                    action: softDeleteAction,
-                    onError: (e) => { throw e },
-                    OnErrorMsg: () => (getNotificationInfo(ERROR_NOTIFICATION_TYPE)),
-                    OnCompletedMsg: () => (getNotificationInfo(SUCCESS_NOTIFICATION_TYPE, updatedTicketsCount)),
-                    intl,
-                },
-            )
-        } else {
-            notificationApi.error(getNotificationInfo(ERROR_NOTIFICATION_TYPE))
-        }
+        
+        runMutation(
+            {
+                action: softDeleteAction,
+                onError: (e) => { throw e },
+                OnErrorMsg: () => (getNotificationInfo(ERROR_NOTIFICATION_TYPE)),
+                OnCompletedMsg: () => (getNotificationInfo(SUCCESS_NOTIFICATION_TYPE, updatedTicketsCount)),
+                intl,
+            },
+        )
         setIsDeleting(false)
     }
 
