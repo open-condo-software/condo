@@ -7,7 +7,6 @@ const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
 const { getRedisClient } = require('@open-condo/keystone/redis')
-const { find } = require('@open-condo/keystone/schema')
 const { makeLoggedInAdminClient, setFeatureFlag, setFakeClientMode, waitFor } = require('@open-condo/keystone/test.utils')
 
 const { registerBillingReceiptsByTestClient } = require('@condo/domains/billing/utils/testSchema')
@@ -19,8 +18,8 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 const { Message } = require('@condo/domains/notification/utils/testSchema')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
-const { CAN_USER_GET_NEW_RECEIPT_NOTIFICATION } = require('@condo/domains/resident/constants/constants')
-const { sendBillingReceiptsAddedNotifications } = require('@condo/domains/resident/tasks/helpers')
+const { LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE } = require('@condo/domains/resident/constants')
+const { sendBillingReceiptNotifications, sendBillingReceiptsAddedNotifications } = require('@condo/domains/resident/tasks/helpers')
 const { makeBillingReceiptWithResident } = require('@condo/domains/resident/tasks/helpers/spec.helpers')
 const { makeAccountKey, getMessageTypeAndDebt, sendBillingReceiptsAddedNotificationForOrganizationContext } = require('@condo/domains/resident/tasks/sendBillingReceiptsAddedNotificationForOrganizationContextTask')
 const { Resident } = require('@condo/domains/resident/utils/testSchema')
@@ -261,34 +260,11 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             setFeatureFlag(SEND_BILLING_RECEIPTS_NOTIFICATIONS_TASK, true)
         })
 
-        test('Should send push if user has receipts', async () => {
-            const environment = new TestUtils([ResidentTestMixin])
-            await environment.init()
-            const accountNumber = faker.random.alphaNumeric(12)
-
-            const resident = await environment.createResident({ unitName: '1', unitType: FLAT_UNIT_TYPE })
-            const addressUnit = {
-                unitName: resident.unitName,
-                unitType: resident.unitType,
-            }
-            await environment.createReceipts([
-                environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
-            ])
-            await environment.createServiceConsumer(resident, accountNumber)
-            await sendBillingReceiptsAddedNotifications()
-
-            const messageWhere = {
-                user: { id: resident.user.id },
-                type: BILLING_RECEIPT_ADDED_TYPE,
-            }
-
-            await waitFor(async () => {
-                const messages = await find('Message', messageWhere)
-                expect(messages).toHaveLength(1)
-            }, { delay: 2000 })
+        beforeEach(async () => {
+            redisClient.del(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
         })
 
-        test('Should send only one push if user has several receipts', async () => {
+        test('Should send push if user have receipts', async () => {
             const environment = new TestUtils([ResidentTestMixin])
             await environment.init()
             const accountNumber = faker.random.alphaNumeric(12)
@@ -299,7 +275,6 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 unitType: resident.unitType,
             }
             await environment.createReceipts([
-                environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
                 environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
             ])
             await environment.createServiceConsumer(resident, accountNumber)
@@ -309,13 +284,44 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 user: { id: resident.user.id },
                 type: BILLING_RECEIPT_ADDED_TYPE,
             }
+
             await waitFor(async () => {
-                const messages = await find('Message', messageWhere)
+                const messages = await Message.getAll(environment.clients.admin, messageWhere)
+
                 expect(messages).toHaveLength(1)
             }, { delay: 2000 })
         })
 
+        test('Should not send push for old lastReport', async () => {
+            const environment = new TestUtils([ResidentTestMixin])
+            await environment.init()
+            const accountNumber = faker.random.alphaNumeric(12)
+
+            const resident = await environment.createResident({ unitName: '1', unitType: FLAT_UNIT_TYPE })
+            const addressUnit = {
+                unitName: resident.unitName,
+                unitType: resident.unitType,
+            }
+            await environment.createReceipts([
+                environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
+            ])
+            await environment.createServiceConsumer(resident, accountNumber)
+            await sendBillingReceiptsAddedNotifications(dayjs().add(1, 'h').toISOString())
+
+            const messageWhere = {
+                user: { id: resident.user.id },
+                type: BILLING_RECEIPT_ADDED_TYPE,
+            }
+
+            await waitFor(async () => {
+                const messages = await Message.getAll(environment.clients.admin, messageWhere)
+
+                expect(messages).toHaveLength(0)
+            }, { delay: 2000 })
+        })
+
         test('Should send only one push for one user with different residents', async () => {
+            await redisClient.set(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE, dayjs().toISOString())
             const environment = new TestUtils([ResidentTestMixin])
             await environment.init()
             const utilsForContext = new TestUtils([ResidentTestMixin])
@@ -358,7 +364,8 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             }
 
             await waitFor(async () => {
-                const messages = await find('Message', messageWhere)
+                const messages = await Message.getAll(environment.clients.admin, messageWhere)
+
                 expect(messages).toHaveLength(1)
             }, { delay: 2000 })
         })
@@ -385,7 +392,8 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             await sendBillingReceiptsAddedNotifications(dayjs().subtract(1, 'h').toISOString())
 
             await waitFor(async () => {
-                const messages = await find('Message', messageWhere)
+                const messages = await Message.getAll(environment.clients.admin, messageWhere)
+
                 expect(messages).toHaveLength(1)
             }, { delay: 2000 })
 
@@ -397,11 +405,12 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
 
             await waitFor(async () => {
                 const messages = await Message.getAll(environment.clients.admin, messageWhere)
+                console.log(dayjs().toISOString())
                 expect(messages).toHaveLength(1)
             }, { delay: 2000 })
         })
 
-        test('Should send push if user block time expired', async () => {
+        test('Should not create subtasks and just add redisKey if cron task is started first time', async () => {
             const environment = new TestUtils([ResidentTestMixin])
             await environment.init()
             const accountNumber = faker.random.alphaNumeric(12)
@@ -416,33 +425,21 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             ])
             await environment.createServiceConsumer(resident, accountNumber)
 
-            await sendBillingReceiptsAddedNotifications()
-
+            await sendBillingReceiptNotifications()
             const messageWhere = {
                 user: { id: resident.user.id },
                 type: BILLING_RECEIPT_ADDED_TYPE,
             }
 
             await waitFor(async () => {
-                const messages = await find('Message', messageWhere)
-                expect(messages).toHaveLength(1)
-            }, { delay: 2000 })
+                const messages = await Message.getAll(environment.clients.admin, messageWhere)
 
-            await environment.createReceipts([
-                environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
-            ])
-
-            await redisClient.del(`${CAN_USER_GET_NEW_RECEIPT_NOTIFICATION}:${resident.user.id}`)
-
-            await sendBillingReceiptsAddedNotifications()
-
-            await waitFor(async () => {
-                const messages = await find('Message', messageWhere)
-                expect(messages).toHaveLength(2)
+                expect(messages).toHaveLength(0)
             }, { delay: 2000 })
         })
 
-        test('Should send one push after user block time expired', async () => {
+        test('Should create subtask if redis key exists', async () => {
+            await redisClient.set(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE, dayjs().toISOString())
             const environment = new TestUtils([ResidentTestMixin])
             await environment.init()
             const accountNumber = faker.random.alphaNumeric(12)
@@ -457,7 +454,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             ])
             await environment.createServiceConsumer(resident, accountNumber)
 
-            await sendBillingReceiptsAddedNotifications()
+            await sendBillingReceiptNotifications(dayjs().toISOString())
 
             const messageWhere = {
                 user: { id: resident.user.id },
@@ -465,28 +462,9 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             }
 
             await waitFor(async () => {
-                const messages = await find('Message', messageWhere)
+                const messages = await Message.getAll(environment.clients.admin, messageWhere)
+
                 expect(messages).toHaveLength(1)
-            }, { delay: 2000 })
-
-            await environment.createReceipts([
-                environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
-            ])
-
-            await sendBillingReceiptsAddedNotifications()
-
-            await waitFor(async () => {
-                const messages = await find('Message', messageWhere)
-                expect(messages).toHaveLength(1)
-            }, { delay: 2000 })
-
-            await redisClient.del(`${CAN_USER_GET_NEW_RECEIPT_NOTIFICATION}:${resident.user.id}`)
-
-            await sendBillingReceiptsAddedNotifications()
-
-            await waitFor(async () => {
-                const messages = await find('Message', messageWhere)
-                expect(messages).toHaveLength(2)
             }, { delay: 2000 })
         })
     })
