@@ -34,9 +34,16 @@ export enum PriceType {
     Contract = 'contract',
 }
 
+export enum PriceMeasuresType {
+    PerHour = 'perHour',
+    PerItem = 'perItem',
+    PerMeter = 'perMeter',
+}
+
 export type PriceFormValuesType = {
     properties?: string[]
     priceType?: PriceType
+    measure?: PriceMeasuresType
     price?: string
     hasAllProperties?: boolean
     id?: string
@@ -186,12 +193,12 @@ export async function createNewPricesAndPriceScopes ({
     createMarketPriceScopes,
 }: CreateNewPricesAndPriceScopesArgType) {
     for (const formPrice of prices) {
-        const { properties, hasAllProperties, price, priceType } = formPrice
+        const { properties, hasAllProperties, price, priceType, measure } = formPrice
 
         const { price: resultPrice, isMin } = getPriceValueFromFormPrice({ priceType, price })
 
         const createdPrice = await createMarketItemPrice({
-            price: [{ type: 'variant', name: marketItem.name, price: resultPrice, isMin }],
+            price: [{ type: 'variant', name: marketItem.name, price: resultPrice, isMin, measure }],
             marketItem: { connect: { id: marketItem.id } },
         })
 

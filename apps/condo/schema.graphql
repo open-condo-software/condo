@@ -73733,6 +73733,7 @@ type InvoiceRowSchemaField {
   salesTaxPercent: String
   sku: String
   isMin: Boolean!
+  measure: String
   meta: InvoiceRowMetaSchemaField
 }
 
@@ -73745,6 +73746,7 @@ input InvoiceRowSchemaFieldInput {
   salesTaxPercent: String
   sku: String
   isMin: Boolean!
+  measure: String
   meta: InvoiceRowMetaSchemaFieldInput
 }
 
@@ -74759,6 +74761,7 @@ type MarketItemPricePriceSchemaField {
   name: String!
   price: String!
   isMin: Boolean!
+  measure: String
   vatPercent: String
   salesTaxPercent: String
   currencyCode: String
@@ -74769,6 +74772,7 @@ input MarketItemPricePriceSchemaFieldInput {
   name: String!
   price: String!
   isMin: Boolean!
+  measure: String
   vatPercent: String
   salesTaxPercent: String
   currencyCode: String

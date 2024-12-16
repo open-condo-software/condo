@@ -29,6 +29,7 @@ export type InvoiceRowType = {
     name: string
     toPay: string
     sku?: string
+    measure?: string
 }
 
 export type InvoiceFormValuesType = {
@@ -101,7 +102,8 @@ export function formValuesProcessor (formValues: InvoiceFormValuesType, intl, is
             if (key === 'rows' && !isNull(formValues[key])) {
                 let rows = formValues[key]
                 if (!isTicketForm) {
-                    rows = formValues[key].map(({ name, toPay, count, sku }) => {
+                    rows = formValues[key].map(({ name, toPay, count, sku, measure }) => {
+
                         const baseFields = { name, count }
                         let toPayFields
                         if (toPay === ContractPriceMessage) {
@@ -113,7 +115,7 @@ export function formValuesProcessor (formValues: InvoiceFormValuesType, intl, is
                             toPayFields = { toPay: toPay.replace(',', '.'), isMin: false }
                         }
 
-                        const otherFields = pickBy({ sku }, (value) => !isEmpty(value))
+                        const otherFields = pickBy({ sku, measure }, (value) => !isEmpty(value))
 
                         return { ...baseFields, ...toPayFields, ...otherFields }
                     })

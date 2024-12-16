@@ -13,12 +13,11 @@ import React, { ComponentProps, CSSProperties, useCallback, useEffect, useMemo, 
 
 import { Trash } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Alert, Button, Modal, Radio, RadioGroup, Space, Tooltip, Typography } from '@open-condo/ui'
+import { Alert, Card, Button, Modal, Radio, RadioGroup, Space, Tooltip, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { Button as OldButton } from '@condo/domains/common/components/Button'
 import { BaseModalForm, FormWithAction } from '@condo/domains/common/components/containers/FormList'
-import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import Prompt from '@condo/domains/common/components/Prompt'
@@ -41,12 +40,14 @@ import {
 import { useCancelStatusModal } from '@condo/domains/marketplace/hooks/useCancelStatusModal'
 import { MarketCategory, MarketPriceScope } from '@condo/domains/marketplace/utils/clientSchema'
 import { calculateRowsTotalPrice, InvoiceFormValuesType, prepareTotalPriceFromInput, getMoneyRender } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
+import { PriceMeasuresType } from '@condo/domains/marketplace/utils/clientSchema/MarketItem'
 import { searchOrganizationProperty } from '@condo/domains/marketplace/utils/clientSchema/search'
 import { UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
 
 import { ResidentPaymentAlert } from './ResidentPaymentAlert'
+
 
 
 const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
@@ -70,12 +71,7 @@ const PLUS_BUTTON_STYLE: CSSProperties = {
     color: colors.black,
     paddingLeft: '5px',
 }
-const ContactsInfoFocusContainer = styled(FocusContainer)`
-  position: relative;
-  left: ${({ padding }) => padding ? padding : '24px'};
-  box-sizing: border-box;
-  width: 100%;
-`
+
 const ServiceFormItem = styled(Form.Item)`
     & .ant-form-item-label {
       padding-bottom: 8px;
@@ -382,35 +378,33 @@ const PayerDataFields = ({ organizationId, form, disabled, initialValues }) => {
             {
                 hasPayerData && (
                     <Col span={24}>
-                        <ContactsInfoFocusContainer>
-                            <Row gutter={[0, 40]}>
-                                <Col span={24}>
-                                    <Row gutter={[50, 0]}>
-                                        <Col span={24} md={20}>
-                                            <PropertyFormField
-                                                organizationId={organizationId}
-                                                selectedPropertyId={selectedPropertyId}
-                                                setSelectedPropertyId={setSelectedPropertyId}
-                                                form={form}
-                                                disabled={disabled}
-                                            />
-                                        </Col>
-                                        <Col span={24} md={4}>
-                                            <UnitNameFormField
-                                                property={property}
-                                                form={form}
-                                                disabled={disabled}
-                                            />
-                                        </Col>
-                                    </Row>
-                                </Col>
-                            </Row>
-                            <ContactFormField
-                                organizationId={organizationId}
-                                form={form}
-                                disabled={disabled}
-                            />
-                        </ContactsInfoFocusContainer>
+                        <Row gutter={[0, 40]}>
+                            <Col span={24}>
+                                <Row gutter={[50, 0]}>
+                                    <Col span={24} lg={20}>
+                                        <PropertyFormField
+                                            organizationId={organizationId}
+                                            selectedPropertyId={selectedPropertyId}
+                                            setSelectedPropertyId={setSelectedPropertyId}
+                                            form={form}
+                                            disabled={disabled}
+                                        />
+                                    </Col>
+                                    <Col span={24} lg={4}>
+                                        <UnitNameFormField
+                                            property={property}
+                                            form={form}
+                                            disabled={disabled}
+                                        />
+                                    </Col>
+                                </Row>
+                            </Col>
+                        </Row>
+                        <ContactFormField
+                            organizationId={organizationId}
+                            form={form}
+                            disabled={disabled}
+                        />
                     </Col>
                 )
             }
@@ -424,6 +418,7 @@ type MarketItemOptionType = {
     toPay: string
     isMin: boolean
     sku: string
+    measure?: string
 }
 
 const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabled, setStatus, isModalForm }) => {
@@ -433,6 +428,11 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
     const TotalPriceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.totalPrice' })
     const AddServiceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.addService' })
     const PriceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.toPay' })
+    const MeasureLabel = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.measure' })
+    const PerItemPriceMeasureLabel = intl.formatMessage({ id: 'pages.condo.marketplace.measure.perItem.full' })
+    const PerMeterPriceMeasureLabel = intl.formatMessage({ id: 'pages.condo.marketplace.measure.perMeter.full' })
+    const PerHourPriceMeasureLabel = intl.formatMessage({ id: 'pages.condo.marketplace.measure.perHour.full' })
+    const NoPriceMeasureLabel = intl.formatMessage({ id: 'pages.condo.marketplace.noMeasure' })
     const NumberIsNotValidMessage = intl.formatMessage({ id: 'NumberIsNotValid' })
     const ServicePlaceholder = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.service.placeholder' })
     const MinPriceValidationMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.minPriceValidation' })
@@ -502,6 +502,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
             const priceObj = get(pricesArray, '0')
             const price = get(priceObj, 'price')
             const isMin = get(priceObj, 'isMin')
+            const measure = get(priceObj, 'measure')
             const sku = get(marketItem, 'sku')
 
             const marketItemOption = {
@@ -510,6 +511,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                 toPay: price,
                 isMin,
                 sku,
+                measure,
                 key: get(category, 'id') + get(marketItem, 'id'),
                 order: get(category, 'order'),
                 labelForSort: get(category, 'name') + get(marketItem, 'name'),
@@ -595,9 +597,9 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                 <Row gutter={SMALL_VERTICAL_GUTTER}>
                     {
                         marketItemForms.map((marketItemForm, index) => (
-                            <Col span={24} key={marketItemForm.name}>
+                            <Card key={marketItemForm.name} hoverable={false}>
                                 <Row gutter={gutter} align='top'>
-                                    <Col xs={24} lg={8}>
+                                    <Col xs={24} lg={16}>
                                         <ServiceFormItem
                                             label={ServiceLabel}
                                             name={[marketItemForm.name, 'name']}
@@ -636,6 +638,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                     updateRowFields(marketItemForm.name, {
                                                         toPay: toPayValue,
                                                         isMin: option.isMin,
+                                                        measure: option.measure,
                                                     })
 
                                                     form.validateFields([['rows', marketItemForm.name, 'toPay']])
@@ -651,37 +654,46 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                             />
                                         </ServiceFormItem>
                                     </Col>
-                                    <Col xs={24} lg={4}>
+                                    <Col xs={24} lg={8}>
                                         <ServiceFormItem
-                                            label={QuantityLabel}
-                                            name={[marketItemForm.name, 'count']}
-                                            required
+                                            label={MeasureLabel}
+                                            name={[marketItemForm.name, 'measure']}
                                             labelAlign='left'
                                             labelCol={{ span: 24 }}
-                                            rules={[requiredValidator]}
-                                            initialValue={1}
                                         >
                                             <Select
-                                                disabled={disabled}
-                                                options={[...Array(50).keys() ].map( i => ({
-                                                    label: `${i + 1}`,
-                                                    key: i + 1,
-                                                    value: i + 1,
-                                                }))}
-                                                onSelect={(value) => {
-                                                    updateRowFields(marketItemForm.name, {
-                                                        count: value,
-                                                    })
-                                                }}
-                                                onClear={() => {
-                                                    updateRowFields(marketItemForm.name, {
-                                                        count: null,
-                                                    })
-                                                }}
-                                            />
+                                                defaultValue='perItem'
+                                            >
+                                                <Select.Option
+                                                    key={PriceMeasuresType.PerItem}
+                                                    value={PriceMeasuresType.PerItem}
+                                                >
+                                                    { PerItemPriceMeasureLabel }
+                                                </Select.Option>
+                                                <Select.Option
+                                                    key={PriceMeasuresType.PerHour}
+                                                    value={PriceMeasuresType.PerHour}
+                                                >
+                                                    { PerHourPriceMeasureLabel }
+                                                </Select.Option>
+                                                <Select.Option
+                                                    key={PriceMeasuresType.PerMeter}
+                                                    value={PriceMeasuresType.PerMeter}
+                                                >
+                                                    { PerMeterPriceMeasureLabel }
+                                                </Select.Option>
+                                                <Select.Option
+                                                    key='oneTime'
+                                                    value={null}
+                                                >
+                                                    { NoPriceMeasureLabel }
+                                                </Select.Option>
+                                            </Select>
                                         </ServiceFormItem>
                                     </Col>
-                                    <Col xs={24} lg={5}>
+                                </Row>
+                                <Row style={{ paddingTop: 24 }} gutter={gutter} align='top'>
+                                    <Col xs={24} lg={6}>
                                         <FormItemWithCustomWarningColor
                                             label={PriceLabel}
                                             required
@@ -695,7 +707,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                     validator: (_, value) => {
                                                         if (
                                                             new RegExp(`^${FromMessage} (\\d+|\\d+(,|.)\\d+)$`).test(value) ||
-                                                            value === ContractPriceMessage
+                                                                value === ContractPriceMessage
                                                         ) {
                                                             form.setFieldsValue({
                                                                 hasIsMinPrice: true,
@@ -720,7 +732,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                     validator: (_, value) => {
                                                         if (
                                                             new RegExp(`^(${FromMessage} |)(\\d+|\\d+(,|.)\\d+)$`).test(value) ||
-                                                            value === ContractPriceMessage
+                                                                value === ContractPriceMessage
                                                         ) {
                                                             return Promise.resolve()
                                                         }
@@ -752,7 +764,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
 
                                                     const splittedValue = value.split(' ')
                                                     const isMin = (splittedValue.length === 2 && splittedValue[0] === FromMessage) ||
-                                                        (splittedValue.length === 1 && splittedValue[0] === ContractPriceMessage)
+                                                            (splittedValue.length === 1 && splittedValue[0] === ContractPriceMessage)
 
                                                     updateRowFields(marketItemForm.name, {
                                                         isMin,
@@ -761,7 +773,37 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                             />
                                         </FormItemWithCustomWarningColor>
                                     </Col>
-                                    <Col xs={24} lg={5}>
+                                    <Col xs={24} lg={4}>
+                                        <ServiceFormItem
+                                            label={QuantityLabel}
+                                            name={[marketItemForm.name, 'count']}
+                                            required
+                                            labelAlign='left'
+                                            labelCol={{ span: 24 }}
+                                            rules={[requiredValidator]}
+                                            initialValue={1}
+                                        >
+                                            <Select
+                                                disabled={disabled}
+                                                options={[...Array(50).keys() ].map( i => ({
+                                                    label: `${i + 1}`,
+                                                    key: i + 1,
+                                                    value: i + 1,
+                                                }))}
+                                                onSelect={(value) => {
+                                                    updateRowFields(marketItemForm.name, {
+                                                        count: value,
+                                                    })
+                                                }}
+                                                onClear={() => {
+                                                    updateRowFields(marketItemForm.name, {
+                                                        count: null,
+                                                    })
+                                                }}
+                                            />
+                                        </ServiceFormItem>
+                                    </Col>
+                                    <Col xs={24} lg={6}>
                                         <ServiceFormItem
                                             label={TotalPriceLabel}
                                             required
@@ -788,22 +830,20 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                             }
                                         </ServiceFormItem>
                                     </Col>
-                                    {
-                                        index !== 0 && (
-                                            <Col span={24} md={2}>
-                                                <Typography.Text disabled={disabled} onClick={() => {
-                                                    if (disabled) return
-                                                    operation.remove(marketItemForm.name)
-                                                }}>
-                                                    <div style={{ paddingTop: `${breakpoints.DESKTOP_SMALL ? '42px' : '12px'}` }}>
-                                                        <Trash size='large' />
-                                                    </div>
-                                                </Typography.Text>
-                                            </Col>
-                                        )
-                                    }
+                                    <Col xs={24} lg={2}>
+                                        { index !== 0 && (
+                                            <Typography.Text disabled={disabled} onClick={() => {
+                                                if (disabled) return
+                                                operation.remove(marketItemForm.name)
+                                            }}>
+                                                <div style={{ paddingTop: `${breakpoints.DESKTOP_SMALL ? '42px' : '12px'}` }}>
+                                                    <Trash size='large' />
+                                                </div>
+                                            </Typography.Text>
+                                        )}
+                                    </Col>
                                 </Row>
-                            </Col>
+                            </Card>
                         ))
                     }
                     <Col span={24} hidden={disabled}>
@@ -865,15 +905,15 @@ const StatusRadioGroup = ({
     return (
         <>
             <Form.Item
-                label={<Typography.Text strong>{InvoiceStatusLabel}</Typography.Text>}
+                label={<Typography.Title level={3}>{InvoiceStatusLabel}</Typography.Title>}
                 labelCol={{
-                    style: { marginRight: '24px' },
+                    span: 24,
                 }}
             >
                 <RadioGroup value={status} onChange={handleValueChange}>
                     <Space size={24} wrap direction='horizontal'>
                         <Radio value={INVOICE_STATUS_DRAFT} disabled={onlyStatusTransitionsActive || isAllFieldsDisabled}>
-                            <Typography.Text strong disabled={onlyStatusTransitionsActive || isAllFieldsDisabled}>
+                            <Typography.Text disabled={onlyStatusTransitionsActive || isAllFieldsDisabled}>
                                 {InvoiceStatusDraftLabel}
                             </Typography.Text>
                         </Radio>
@@ -882,7 +922,6 @@ const StatusRadioGroup = ({
                                 <Typography.Text
                                     type={status === INVOICE_STATUS_PUBLISHED ? 'warning' : 'primary'}
                                     disabled={isAllFieldsDisabled || isNotDraftStatusesDisabled}
-                                    strong
                                 >
                                     {InvoiceStatusReadyLabel}
                                 </Typography.Text>
@@ -896,7 +935,6 @@ const StatusRadioGroup = ({
                                 <Typography.Text
                                     type={status === INVOICE_STATUS_PAID ? 'success' : 'primary'}
                                     disabled={isAllFieldsDisabled || isNotDraftStatusesDisabled || isOnlinePaymentType}
-                                    strong
                                 >
                                     {InvoiceStatusPaidLabel}
                                 </Typography.Text>
@@ -911,7 +949,6 @@ const StatusRadioGroup = ({
                                     <Typography.Text
                                         type={status === INVOICE_STATUS_CANCELED ? 'inherit' : 'primary'}
                                         disabled={isAllFieldsDisabled || isNotDraftStatusesDisabled || isCreateForm}
-                                        strong
                                     >
                                         {InvoiceStatusCancelledLabel}
                                     </Typography.Text>
@@ -962,9 +999,9 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
     const NoPayerDataAlertDescription = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.noPayerData' })
     const EmptyPayerDataAlertMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.message.passLinkToResident' })
     const EmptyPayerDataAlertDescription = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.emptyPayerData' })
-    const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
+    const NegotiatedPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
     const SaveChangesModalTitle = intl.formatMessage({ id: 'form.prompt.title' })
-    const SaveChangesNodalMessage = intl.formatMessage({ id: 'form.prompt.message' })
+    const SaveChangesModalMessage = intl.formatMessage({ id: 'form.prompt.message' })
     const SuggestQrMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.message.orSuggestQR' })
     const PayByQrMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.payByQrMessage' })
 
@@ -994,7 +1031,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
     const moneyRender = useMemo(() => getMoneyRender(intl, currencyCode), [currencyCode, intl])
 
     const isModalForm = useMemo(() => !isEmpty(modalFormProps), [modalFormProps])
-    const colSpan = useMemo(() => isModalForm ? 24 : 20, [isModalForm])
+    const colSpan = useMemo(() => isModalForm ? 24 : 22, [isModalForm])
 
     const FormContainer = useMemo(
         () => isModalForm ? BaseModalForm : FormWithAction,
@@ -1031,9 +1068,10 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                         ignoreFormFields={[NEW_CONTACT_PHONE_FORM_ITEM_NAME]}
                     >
                         <Typography.Paragraph>
-                            {SaveChangesNodalMessage}
+                            {SaveChangesModalMessage}
                         </Typography.Paragraph>
                     </Prompt>
+
                     <Row gutter={OUTER_VERTICAL_GUTTER}>
                         <Col span={24} md={colSpan} hidden={isModalForm}>
                             <Form.Item
@@ -1057,6 +1095,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                 }
                             </Form.Item>
                         </Col>
+
                         <Col md={isModalForm ? 24 : 22}>
                             <Row gutter={SMALL_VERTICAL_GUTTER}>
                                 <Col span={24}>
@@ -1090,6 +1129,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                 </Col>
                             </Row>
                         </Col>
+
                         <Form.Item
                             dependencies={['rows']}
                             noStyle
@@ -1117,13 +1157,13 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                                             const rows = getFieldValue('rows').filter(Boolean)
                                                             const totalCount = rows.reduce((acc) => acc + 1, 0)
                                                             const { totalPrice, hasMinPrice, hasError } = calculateRowsTotalPrice(intl, rows)
-                                                            const isContractToPay = hasMinPrice && totalPrice === 0
+                                                            const isNegotiatedToPay = hasMinPrice && totalPrice === 0
 
                                                             let value
                                                             if (hasError) {
                                                                 value = ''
-                                                            } else if (isContractToPay) {
-                                                                value = ContractPriceMessage
+                                                            } else if (isNegotiatedToPay) {
+                                                                value = NegotiatedPriceMessage
                                                             } else {
                                                                 value = moneyRender(totalPrice, hasMinPrice)
                                                             }
@@ -1151,14 +1191,15 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                                     }
                                                 </Form.Item>
                                             </Col>
+
                                             <Col span={24}>
                                                 <Row gutter={[0, 16]}>
                                                     <Col md={colSpan}>
                                                         <Form.Item
-                                                            label={<Typography.Text strong>{PaymentModeLabel}</Typography.Text>}
+                                                            label={<Typography.Title level={3}>{PaymentModeLabel}</Typography.Title>}
                                                             name='paymentType'
                                                             labelCol={{
-                                                                style: { marginRight: '24px' },
+                                                                span: 24,
                                                             }}
                                                         >
                                                             <RadioGroup
@@ -1173,12 +1214,12 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                                             >
                                                                 <Space size={24} wrap direction='horizontal'>
                                                                     <Radio value={INVOICE_PAYMENT_TYPE_ONLINE}>
-                                                                        <Typography.Text disabled={isAllFieldsDisabled || onlyStatusTransitionsActive} strong>
+                                                                        <Typography.Text disabled={isAllFieldsDisabled || onlyStatusTransitionsActive}>
                                                                             {PaymentOnlineLabel}
                                                                         </Typography.Text>
                                                                     </Radio>
                                                                     <Radio value={INVOICE_PAYMENT_TYPE_CASH}>
-                                                                        <Typography.Text disabled={isAllFieldsDisabled || onlyStatusTransitionsActive} strong>
+                                                                        <Typography.Text disabled={isAllFieldsDisabled || onlyStatusTransitionsActive}>
                                                                             {PaymentCashLabel}
                                                                         </Typography.Text>
                                                                     </Radio>
