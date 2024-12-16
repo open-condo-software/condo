@@ -1,4 +1,3 @@
-const dayjs = require('dayjs')
 const get = require('lodash/get')
 const groupBy = require('lodash/groupBy')
 const isEmpty = require('lodash/isEmpty')
@@ -17,7 +16,7 @@ const {
     BILLING_RECEIPT_ADDED_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { CAN_USER_GET_NEW_RECEIPT_NOTIFICATION, LAST_SEND_DATE_FOR_USER } = require('@condo/domains/resident/constants/constants')
+const { CAN_USER_GET_NEW_RECEIPT_NOTIFICATION } = require('@condo/domains/resident/constants/constants')
 
 const logger = getLogger('sendNewBillingReceiptNotification')
 
@@ -209,33 +208,25 @@ function groupConsumersByAccountKey (serviceConsumers) {
 }
 
 async function notifyConsumers (keystone, receipts, consumers) {
+    console.log('receipt test ', receipts)
     const redisClient = await getRedisClient()
     const expirationInSeconds = 24 * 60 * 60 // 24 hours
-    const expirationInSecondsForUserLastDate = 48 * 60 * 60 // 48 hours
     let successSentMessages = 0
     let duplicatedSentMessages = 0
     let usersAlreadyGotMessages = 0
     for (const consumer of consumers) {
         const resident = get(consumer, 'resident')
         if (!resident || resident.deletedAt) continue
-        const redisKeyForBlock = `${CAN_USER_GET_NEW_RECEIPT_NOTIFICATION}:${resident.user}`
-        const redisKeyForLastDate = `${LAST_SEND_DATE_FOR_USER}:${resident.user}`
-        const canUserGetNotification = await redisClient.get(redisKeyForBlock)
-        const userLastSendDate = await redisClient.get(redisKeyForLastDate)
-
+        const redisKey = `${CAN_USER_GET_NEW_RECEIPT_NOTIFICATION}:${resident.user}`
+        
+        const canUserGetNotification = await redisClient.get(redisKey)
         if (canUserGetNotification) {
             usersAlreadyGotMessages++
             continue
         }
-
         for (const receipt of receipts) {
-            if (userLastSendDate && dayjs(receipt.createdAt).isBefore(dayjs(userLastSendDate))){
-                continue
-            }
-            
             const success = await prepareAndSendNotification(keystone, receipt, resident)
-            await redisClient.set(redisKeyForBlock, 'true', 'EX', expirationInSeconds)
-            await redisClient.set(redisKeyForLastDate, dayjs().toISOString(), 'EX', expirationInSecondsForUserLastDate)
+            await redisClient.set(redisKey, 'true', 'EX', expirationInSeconds)
             if (success) {
                 successSentMessages++
                 break

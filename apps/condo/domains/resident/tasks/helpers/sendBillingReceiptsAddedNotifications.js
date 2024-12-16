@@ -10,7 +10,7 @@ const logger = getLogger('sendBillingReceiptsAddedNotifications')
 
 const sendBillingReceiptsAddedNotifications = async () => {
     logger.info({ msg: 'Starting billing receipts notification process' })
-    const lastSendDate = dayjs().subtract(1, 'day').toISOString()
+    const lastSendDate = dayjs().subtract(2, 'day').toISOString()
     const BillingContexts = await find('BillingIntegrationOrganizationContext', {
         updatedAt_gte: lastSendDate,
         status: CONTEXT_FINISHED_STATUS,
