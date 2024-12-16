@@ -260,6 +260,16 @@ const TICKET_MULTIPLE_UPDATE_MUTATION = gql`
     }
 `
 
+const UPDATE_ORGANIZATION_EMPLOYEE_TICKETS_FOR_REASSIGNEE = gql`
+    mutation updateOrganizationEmployeeTicketsForReassignment ($data: [TicketsUpdateInput]) {
+        tickets: updateTickets (data: $data) {
+            id
+            executor { id }
+            assignee { id }
+        }
+    }
+`
+
 const TICKET_AUTO_ASSIGNMENT_FIELDS = `{ organization { id name } assignee { id name } executor { id name } classifier { id place { id name } category { id name } problem { id name } } ${COMMON_FIELDS} }`
 const TicketAutoAssignment = generateGqlQueries('TicketAutoAssignment', TICKET_AUTO_ASSIGNMENT_FIELDS)
 
@@ -303,6 +313,7 @@ module.exports = {
     CallRecord,
     CallRecordFragment,
     TICKET_MULTIPLE_UPDATE_MUTATION,
+    UPDATE_ORGANIZATION_EMPLOYEE_TICKETS_FOR_REASSIGNEE,
     TicketAutoAssignment,
     TicketDocumentGenerationTask,
     TICKET_EXPORT_TASK_OPTIONS_FIELDS,

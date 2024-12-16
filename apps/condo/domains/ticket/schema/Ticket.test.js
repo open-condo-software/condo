@@ -97,6 +97,7 @@ const {
     createTestPhone,
     makeClientWithSupportUser,
 } = require('@condo/domains/user/utils/testSchema')
+const { UPDATE_ORGANIZATION_EMPLOYEE_TICKETS_FOR_REASSIGNEE } = require('../gql')
 
 const FEEDBACK_VALUES_WITHOUT_RETURNED = FEEDBACK_VALUES.filter(item => item !== FEEDBACK_VALUES_BY_KEY.RETURNED)
 // TODO(DOMA-5833): delete REVIEW_VALUES_WITHOUT_RETURNED when the mobile app will use 'feedback*' fields
@@ -4050,15 +4051,16 @@ describe('Ticket', () => {
                     assignee: { connect: { id: executor.user.id } },
                 }
 
-                const updatePayload = [
-                    { id: ticket1.id, data: attrs },
-                    { id: ticket2.id, data: attrs },
-                ]
+                const { data: reassigneeTickets, error: errorInUpdateTickets } = await client.mutate(UPDATE_ORGANIZATION_EMPLOYEE_TICKETS_FOR_REASSIGNEE, {
+                    data: [
+                        { id: ticket1.id, data: attrs },
+                        { id: ticket2.id, data: attrs },
+                    ],
+                })
 
-                const [updatedTicket1, updatedTicket2] = await Ticket.updateMany(admin, updatePayload)
-
-                expect(updatedTicket1.executor.id).toEqual(executor.user.id)
-                expect(updatedTicket2.executor.id).toEqual(executor.user.id)
+                expect(errorInUpdateTickets).toEqual(undefined)
+                expect(reassigneeTickets.tickets[0].executor.id).toEqual(executor.user.id)
+                expect(reassigneeTickets.tickets[1].executor.id).toEqual(executor.user.id)
 
                 let messageCount
                 const messageWhere = { user: { id: executor.user.id }, type: TICKET_EXECUTOR_CONNECTED_TYPE }

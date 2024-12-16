@@ -61,8 +61,7 @@ const DEFAULT_DEFERRED_DAYS = 30
  * updateTicketsForReassignmentEmployee - Query name in query/Ticket.graphql. Usage in DeleteEmployeeButtonWithReassignmentModal.jsx
  */
 const DISABLE_PUSH_NOTIFICATION_FOR_OPERATIONS = [
-    'updateTickets',
-    'updateTicketsForReassignmentEmployee',
+    'updateOrganizationEmployeeTicketsForReassignment',
 ]
 
 const BULK_UPDATE_ALLOWED_FIELDS = [
