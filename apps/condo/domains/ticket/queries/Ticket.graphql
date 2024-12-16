@@ -91,6 +91,24 @@ query getTicketsCount ($where: TicketWhereInput!) {
     }
 }
 
+query getOrganizationEmployeeTicketsCountForReassignment ($userId: ID!, $organizationId: ID!) {
+    meta: _allTicketsMeta (
+        where: {
+            organization: { id: $organizationId },
+            OR: { assignee: { id: $userId }, executor: { id: $userId } },
+            status: {
+                type_in: [
+                    new_or_reopened,
+                    processing,
+                    deferred,
+                ],
+            },
+        },
+    ) {
+        count
+    }
+}
+
 query getTicketsCountersByStatus ($whereWithoutStatuses: TicketWhereInput!) {
     new_or_reopened: _allTicketsMeta(where: { AND: [$whereWithoutStatuses, { status: { type: new_or_reopened } }]}) {
         count
@@ -260,8 +278,42 @@ query getContactTickets ($contactId: ID!) {
     }
 }
 
+query getOrganizationEmployeeTicketsForReassignment ($userId: ID!, $organizationId: ID!, $first: Int) {
+    tickets: allTickets(
+        where: {
+            organization: { id: $organizationId },
+            OR: { assignee: { id: $userId }, executor: { id: $userId } },
+            status: {
+                type_in: [
+                    new_or_reopened,
+                    processing,
+                    deferred,
+                ],
+            },
+        },
+        first: $first,
+        sortBy: [createdAt_DESC]
+    ) {
+        id
+        assignee {
+            id
+        }
+        executor {
+            id
+        }
+    }
+}
+
 mutation updateTicket ($id: ID!, $data: TicketUpdateInput!) {
     ticket: updateTicket (id: $id, data: $data) {
+        id
+    }
+}
+
+# This aliase using for to check the need for sending bilk push messages
+# If you change alias of this query, then change the DISABLE_PUSH_NOTIFICATION_FOR_OPERATIONS variable
+mutation updateOrganizationEmployeeTicketsForReassignment ($data: [TicketsUpdateInput]) {
+    tickets: updateTickets (data: $data) {
         id
     }
 }

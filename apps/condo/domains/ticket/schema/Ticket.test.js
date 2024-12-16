@@ -12,6 +12,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowGraphQLRequestError,
     expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAccessDeniedErrorToObjects,
     expectToThrowValidationFailureError,
     expectToThrowGQLError,
     expectValuesOfCommonFields,
@@ -102,6 +103,7 @@ const FEEDBACK_VALUES_WITHOUT_RETURNED = FEEDBACK_VALUES.filter(item => item !==
 /** @deprecated */
 const REVIEW_VALUES_WITHOUT_RETURNED = [REVIEW_VALUES.GOOD, REVIEW_VALUES.BAD]
 const MESSAGE_SENDING_DElAY = 1000 * 5
+const TICKET_OTHER_SOURCE_ID = '7da1e3be-06ba-4c9e-bba6-f97f278ac6e4'
 
 describe('Ticket', () => {
     let admin
@@ -178,7 +180,6 @@ describe('Ticket', () => {
                 await createTestTicket(userClient, userClient.organization, userClient.property)
             })
         })
-
         test('resident: can create ticket without deadline and set default deadline', async () => {
             const userClient = await makeClientWithResidentAccessAndProperty()
             const unitName = faker.random.alphaNumeric(5)
@@ -282,7 +283,6 @@ describe('Ticket', () => {
                 })
             })
         })
-
         test('resident: cannot update his Ticket details', async () => {
             const userClient = await makeClientWithResidentAccessAndProperty()
             const unitName = faker.random.alphaNumeric(5)
@@ -301,7 +301,6 @@ describe('Ticket', () => {
                 })
             })
         })
-
         test('employee: update statusReopenedCounter when update status from completed to open', async () => {
             const userClient = await makeClientWithProperty()
 
@@ -875,7 +874,6 @@ describe('Ticket', () => {
             expect(objUpdated.number).toEqual(objCreated.number)
             // TODO(pahaz): check others fields ...
         })
-
         test('user: can change unitType to null', async () => {
             const client = await makeClientWithProperty()
             const payload = { details: 'new data', unitType: null, unitName: null }
@@ -1159,6 +1157,14 @@ describe('Ticket', () => {
             })
         })
 
+        // TODO: DOMA-10832 add check employee organization in Ticket access
+        test.skip('user: cannot create ticket executor field with user from different organization', async () => {
+            const client = await makeClientWithProperty()
+            const client2 = await makeClientWithProperty()
+
+            await createTestTicket(client, client.organization, client.property, { executor: { connect: { id: client2.user.id } } })
+        })
+
         test('user: update Ticket', async () => {
             const client = await makeClientWithProperty()
             const client2 = await makeClientWithProperty()
@@ -1166,6 +1172,16 @@ describe('Ticket', () => {
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await updateTestTicket(client, obj.id, { property: { connect: { id: client2.property.id } } })
             })
+        })
+
+        // TODO: DOMA-10832 add check employee organization in Ticket access
+        test.skip('user: cannot update ticket executor field with user from different organization', async () => {
+            const client = await makeClientWithProperty()
+            const client2 = await makeClientWithProperty()
+
+            const [ticket1] = await createTestTicket(client, client.organization, client.property)
+
+            await updateTestTicket(client, ticket1.id, { executor: { connect: { id: client2.user.id } } })
         })
 
         test('employee from "from" organization: can read tickets from "to" organizations', async () => {
@@ -1446,6 +1462,527 @@ describe('Ticket', () => {
                 })
             })
         })
+    })
+
+    describe('Bulk-operation', () => {
+        test('anonymous: cannot bulk create Tickets', async () => {
+            const client = await makeClientWithProperty()
+            const anonymous = await makeClient()
+
+            const attrs = {
+                dv: 1,
+                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                details: faker.random.alphaNumeric(10),
+                unitType: FLAT_UNIT_TYPE,
+                organization: { connect: { id: client.organization.id } },
+                property: { connect: { id: client.property.id } },
+                status: { connect: { id: STATUS_IDS.OPEN } },
+                source: { connect: { id: TICKET_OTHER_SOURCE_ID } },
+                isResidentTicket: false,
+            }
+
+            const payload = [
+                { data: attrs },
+                { data: attrs },
+            ]
+
+            await expectToThrowAuthenticationErrorToObjects(async () => {
+                await Ticket.createMany(anonymous, payload)
+            })
+        })
+
+        test('anonymous: cannot bulk update Tickets', async () => {
+            const client1 = await makeClientWithProperty()
+            const anonymous = await makeClient()
+
+            const [ticket1] = await createTestTicket(client1, client1.organization, client1.property)
+            const [ticket2] = await createTestTicket(client1, client1.organization, client1.property)
+
+            const attrs = {
+                dv: 1,
+                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                details: 'new data',
+            }
+
+            const payload = [
+                { id: ticket1.id, data: attrs },
+                { id: ticket2.id, data: attrs },
+            ]
+
+            await expectToThrowAuthenticationErrorToObjects(async () => {
+                await Ticket.updateMany(anonymous, payload)
+            })
+        })
+
+        test('resident: cannot bulk create Tickets', async () => {
+            const userClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(5)
+            await createTestResident(admin, userClient.user, userClient.property, {
+                unitName,
+            })
+
+            const attrs = {
+                dv: 1,
+                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                details: faker.random.alphaNumeric(10),
+                unitName,
+                unitType: FLAT_UNIT_TYPE,
+                organization: { connect: { id: userClient.organization.id } },
+                property: { connect: { id: userClient.property.id } },
+                status: { connect: { id: STATUS_IDS.OPEN } },
+                source: { connect: { id: TICKET_OTHER_SOURCE_ID } },
+                isResidentTicket: true,
+            }
+
+            const payload = [
+                { data: attrs },
+                { data: attrs },
+            ]
+
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await Ticket.createMany(userClient, payload)
+            })
+        })
+
+        test('resident: cannot bulk update Tickets', async () => {
+            const userClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(5)
+            await createTestResident(admin, userClient.user, userClient.property, {
+                unitName,
+            })
+
+            const [ticket1] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                unitName,
+            })
+            const [ticket2] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            const [canceledStatus] = await TicketStatus.getAll(userClient, {
+                type: CANCELED_STATUS_TYPE,
+            })
+
+            const payload = [
+                { id: ticket1.id, data: { status: { connect: { id: canceledStatus.id } } } },
+                { id: ticket2.id, data: { status: { connect: { id: canceledStatus.id } } } },
+            ]
+
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await Ticket.updateMany(userClient, payload)
+            })
+        })
+
+        test.skip('admin: cannot bulk create Tickets', async () => {
+            const client = await makeClientWithProperty()
+
+            const attrs = {
+                dv: 1,
+                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                details: faker.random.alphaNumeric(10),
+                unitType: FLAT_UNIT_TYPE,
+                organization: { connect: { id: client.organization.id } },
+                property: { connect: { id: client.property.id } },
+                status: { connect: { id: STATUS_IDS.OPEN } },
+                source: { connect: { id: TICKET_OTHER_SOURCE_ID } },
+                isResidentTicket: false,
+            }
+
+            const payload = [
+                { data: attrs },
+                { data: attrs },
+            ]
+
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await Ticket.createMany(admin, payload)
+            })
+        })
+
+        test('admin: can bulk update Tickets', async () => {
+            const client = await makeClientWithProperty()
+
+            const [ticket1] = await createTestTicket(client, client.organization, client.property)
+            const [ticket2] = await createTestTicket(client, client.organization, client.property)
+
+            const attrs = {
+                dv: 1,
+                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                executor: { connect: { id: client.user.id } },
+                assignee: { connect: { id: client.user.id } },
+            }
+
+            const payload = [
+                { id: ticket1.id, data: attrs },
+                { id: ticket2.id, data: attrs },
+            ]
+
+            const [updatedTicket1, updatedTicket2] = await Ticket.updateMany(admin, payload)
+
+            expect(ticket1.id).toEqual(updatedTicket1.id)
+            expect(ticket2.id).toEqual(updatedTicket2.id)
+            expect(get(updatedTicket1, ['executor', 'id'], null)).toEqual(client.user.id)
+            expect(get(updatedTicket2, ['executor', 'id'], null)).toEqual(client.user.id)
+            expect(get(updatedTicket1, ['assignee', 'id'], null)).toEqual(client.user.id)
+            expect(get(updatedTicket2, ['assignee', 'id'], null)).toEqual(client.user.id)
+        })
+
+        // TODO: DOMA-10832 add check employee organization in Ticket access
+        test.skip('admin: cannot bulk update tickets executor field with user from different organization ', async () => {
+            const client1 = await makeClientWithProperty()
+            const client2 = await makeClientWithProperty()
+            const userFromDifferentOrganization = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [roleForDifferentOrganization] = await createTestOrganizationEmployeeRole(client2, client2.organization)
+            const [employeeFromDifferentOrganization] = await createTestOrganizationEmployee(admin, client2.organization, userFromDifferentOrganization.user, roleForDifferentOrganization)
+
+            const [ticket1] = await createTestTicket(client1, client1.organization, client1.property)
+            const [ticket2] = await createTestTicket(client1, client1.organization, client1.property)
+
+            const attrs = {
+                dv: 1,
+                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                executor: { connect: { id: employeeFromDifferentOrganization.user.id } },
+            }
+
+            const payload = [
+                { id: ticket1.id, data: attrs },
+                { id: ticket2.id, data: attrs },
+            ]
+
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await Ticket.updateMany(admin, payload)
+            })
+        })
+
+        test('admin: cannot bulk delete Tickets', async () => {
+            const client = await makeClientWithProperty()
+
+            const [ticket1] = await createTestTicket(client, client.organization, client.property)
+            const [ticket2] = await createTestTicket(client, client.organization, client.property)
+
+            const payload = [
+                ticket1.id,
+                ticket2.id,
+            ]
+
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await Ticket.deleteMany(admin, payload)
+            })
+        })
+
+        test('employee with role "canManageTickets": can bulk update Tickets', async () => {
+            const client = await makeClientWithProperty()
+            const user = await makeClientWithNewRegisteredAndLoggedInUser()
+
+            const [role] = await createTestOrganizationEmployeeRole(client, client.organization, {
+                canManageTickets: true,
+            })
+            await createTestOrganizationEmployee(admin, client.organization, user.user, role)
+
+            const [ticket1] = await createTestTicket(client, client.organization, client.property)
+            const [ticket2] = await createTestTicket(client, client.organization, client.property)
+
+            const attrs = {
+                dv: 1,
+                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                assignee: { connect: { id: client.user.id } },
+            }
+
+            const payload = [
+                { id: ticket1.id, data: attrs },
+                { id: ticket2.id, data: attrs },
+            ]
+
+            const [updatedTicket1, updatedTicket2] = await Ticket.updateMany(user, payload)
+
+            expect(ticket1.id).toEqual(updatedTicket1.id)
+            expect(ticket2.id).toEqual(updatedTicket2.id)
+            expect(get(updatedTicket1, ['assignee', 'id'], null)).toEqual(client.user.id)
+            expect(get(updatedTicket2, ['assignee', 'id'], null)).toEqual(client.user.id)
+        })
+
+        test('employee without role "canManageTickets": cannot bulk update Tickets', async () => {
+            const client = await makeClientWithProperty()
+            const user = await makeClientWithNewRegisteredAndLoggedInUser()
+
+            const [role] = await createTestOrganizationEmployeeRole(admin, client.organization, {
+                canManageTickets: false,
+            })
+            await createTestOrganizationEmployee(admin, client.organization, user.user, role)
+            const [ticket1] = await createTestTicket(client, client.organization, client.property)
+            const [ticket2] = await createTestTicket(client, client.organization, client.property)
+
+            const attrs = {
+                dv: 1,
+                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                assignee: { connect: { id: client.user.id } },
+            }
+
+            const payload = [
+                { id: ticket1.id, data: attrs },
+                { id: ticket2.id, data: attrs },
+            ]
+
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await Ticket.updateMany(user, payload)
+            })
+        })
+
+        test('employee with role "canManageTickets": can bulk update only the executor and assignee fields in Tickets', async () => {
+            const client = await makeClientWithProperty()
+            const user = await makeClientWithNewRegisteredAndLoggedInUser()
+
+            const [role] = await createTestOrganizationEmployeeRole(admin, client.organization, {
+                canManageTickets: true,
+            })
+            await createTestOrganizationEmployee(admin, client.organization, user.user, role)
+
+            const [ticket1] = await createTestTicket(client, client.organization, client.property)
+            const [ticket2] = await createTestTicket(client, client.organization, client.property)
+
+            const attrs = {
+                dv: 1,
+                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                executor: { connect: { id: client.user.id } },
+                assignee: { connect: { id: client.user.id } },
+            }
+
+            const payload = [
+                { id: ticket1.id, data: attrs },
+                { id: ticket2.id, data: attrs },
+            ]
+
+            const [updatedTicket1, updatedTicket2] = await Ticket.updateMany(user, payload)
+
+            expect(ticket1.id).toEqual(updatedTicket1.id)
+            expect(ticket2.id).toEqual(updatedTicket2.id)
+            expect(get(updatedTicket1, ['executor', 'id'], null)).toEqual(client.user.id)
+            expect(get(updatedTicket2, ['executor', 'id'], null)).toEqual(client.user.id)
+            expect(get(updatedTicket1, ['assignee', 'id'], null)).toEqual(client.user.id)
+            expect(get(updatedTicket2, ['assignee', 'id'], null)).toEqual(client.user.id)
+        })
+
+        test('employee with role "canManageTickets": cannot bulk update other fields except for executor or assignee', async () => {
+            const client = await makeClientWithProperty()
+            const user = await makeClientWithNewRegisteredAndLoggedInUser()
+
+            const [role] = await createTestOrganizationEmployeeRole(admin, client.organization, {
+                canManageTickets: true,
+            })
+            await createTestOrganizationEmployee(admin, client.organization, user.user, role)
+
+            const [ticket1] = await createTestTicket(client, client.organization, client.property)
+            const [ticket2] = await createTestTicket(client, client.organization, client.property)
+
+            const payload = [
+                { id: ticket1.id, data: { details: 'new data' } },
+                { id: ticket2.id, data: { details: 'new data' } },
+            ]
+
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await Ticket.updateMany(user, payload)
+            })
+        })
+
+        test('employee with role "canManageTickets": cannot bulk update executor and assignee fields with other fields', async () => {
+            const client = await makeClientWithProperty()
+            const user = await makeClientWithNewRegisteredAndLoggedInUser()
+
+            const [role] = await createTestOrganizationEmployeeRole(admin, client.organization, {
+                canManageTickets: true,
+            })
+            await createTestOrganizationEmployee(admin, client.organization, user.user, role)
+
+            const [ticket1] = await createTestTicket(client, client.organization, client.property)
+            const [ticket2] = await createTestTicket(client, client.organization, client.property)
+
+            const attrs = {
+                dv: 1,
+                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                executor: { connect: { id: client.user.id } },
+                details: 'new data',
+            }
+
+            const payload = [
+                { id: ticket1.id, data: attrs },
+                { id: ticket2.id, data: attrs },
+            ]
+
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await Ticket.updateMany(user, payload)
+            })
+        })
+
+        test('employee with role "canManageTickets": cannot bulk update one ticket from own organization and one ticket from other organization', async () => {
+            const client1 = await makeClientWithProperty()
+            const client2 = await makeClientWithProperty()
+
+            const user = await makeClientWithNewRegisteredAndLoggedInUser()
+
+            const [role] = await createTestOrganizationEmployeeRole(admin, client1.organization, {
+                canManageTickets: true,
+            })
+            await createTestOrganizationEmployee(admin, client1.organization, user.user, role)
+
+            const [ticket1] = await createTestTicket(client1, client1.organization, client1.property)
+            const [ticket2] = await createTestTicket(client2, client2.organization, client2.property)
+
+            const attrs = {
+                dv: 1,
+                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+            }
+
+            const payload = [
+                { id: ticket1.id, data: attrs },
+                { id: ticket2.id, data: attrs },
+            ]
+
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await Ticket.updateMany(user, payload)
+            })
+        })
+
+        test('organization "from" employee: can bulk update organization "to" tickets', async () => {
+            const {
+                organizationTo,
+                propertyTo,
+                employeeTo,
+                clientFrom,
+                organizationFrom,
+                employeeFrom,
+            } = await createTestOrganizationWithAccessToAnotherOrganization()
+            const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, {
+                canManageTickets: true,
+            })
+
+            await updateTestOrganizationEmployee(admin, employeeFrom.id, {
+                role: { connect: { id: role.id } },
+            })
+
+            const [ticket1] = await createTestTicket(admin, organizationTo, propertyTo)
+            const [ticket2] = await createTestTicket(admin, organizationTo, propertyTo)
+
+            const attrs = {
+                dv: 1,
+                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                executor: { connect: { id: employeeTo.user.id } },
+            }
+
+            const payload = [
+                { id: ticket1.id, data: attrs },
+                { id: ticket2.id, data: attrs },
+            ]
+
+            const [updatedTicket1, updatedTicket2] = await Ticket.updateMany(clientFrom, payload)
+
+            expect(updatedTicket1.id).toEqual(ticket1.id)
+            expect(updatedTicket2.id).toEqual(ticket2.id)
+            expect(get(updatedTicket1, ['executor', 'id'], null)).toEqual(employeeTo.user.id)
+            expect(get(updatedTicket2, ['executor', 'id'], null)).toEqual(employeeTo.user.id)
+        })
+
+        test('organization "from" employee: can update organization "to" tickets if employee is "from" organization', async () => {
+            const {
+                organizationTo,
+                propertyTo,
+                clientFrom,
+                organizationFrom,
+                employeeFrom,
+            } = await createTestOrganizationWithAccessToAnotherOrganization()
+            const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, {
+                canManageTickets: true,
+            })
+
+            await updateTestOrganizationEmployee(admin, employeeFrom.id, {
+                role: { connect: { id: role.id } },
+            })
+
+            const [ticket1] = await createTestTicket(admin, organizationTo, propertyTo)
+            const [ticket2] = await createTestTicket(admin, organizationTo, propertyTo)
+
+            const attrs = {
+                dv: 1,
+                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                executor: { connect: { id: employeeFrom.user.id } },
+            }
+
+            const payload = [
+                { id: ticket1.id, data: attrs },
+                { id: ticket2.id, data: attrs },
+            ]
+
+            const [updatedTicket1, updatedTicket2] = await Ticket.updateMany(clientFrom, payload)
+
+            expect(updatedTicket1.id).toEqual(ticket1.id)
+            expect(updatedTicket2.id).toEqual(ticket2.id)
+            expect(get(updatedTicket1, ['executor', 'id'], null)).toEqual(employeeFrom.user.id)
+            expect(get(updatedTicket2, ['executor', 'id'], null)).toEqual(employeeFrom.user.id)
+
+        })
+
+        test('blocked employee: cannot bulk create Tickets', async () => {
+            const client = await makeClientWithProperty()
+
+            const user = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [role] = await createTestOrganizationEmployeeRole(admin, client.organization, {
+                canManageTickets: true,
+            })
+
+            await createTestOrganizationEmployee(admin, client.organization, user.user, role, {
+                isBlocked: true,
+            })
+
+            const attrs = {
+                dv: 1,
+                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                details: faker.random.alphaNumeric(10),
+                unitType: FLAT_UNIT_TYPE,
+                organization: { connect: { id: client.organization.id } },
+                property: { connect: { id: client.property.id } },
+                status: { connect: { id: STATUS_IDS.OPEN } },
+                source: { connect: { id: TICKET_OTHER_SOURCE_ID } },
+                isResidentTicket: false,
+            }
+
+            const payload = [
+                { data: attrs },
+                { data: attrs },
+            ]
+
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await Ticket.createMany(user, payload)
+            })
+        })
+
+        test('blocked employee: cannot bulk update Tickets', async () => {
+            const client = await makeClientWithProperty()
+
+            const user = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [role] = await createTestOrganizationEmployeeRole(admin, client.organization, {
+                canManageTickets: true,
+            })
+
+            await createTestOrganizationEmployee(admin, client.organization, user.user, role, {
+                isBlocked: true,
+            })
+
+            const [ticket1] = await createTestTicket(client, client.organization, client.property)
+            const [ticket2] = await createTestTicket(client, client.organization, client.property)
+
+            const attrs = {
+                dv: 1,
+                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                executor: { connect: { id: client.user.id } },
+            }
+
+            const payload = [
+                { id: ticket1.id, data: attrs },
+                { id: ticket2.id, data: attrs },
+            ]
+
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await Ticket.updateMany(user, payload)
+            })
+        })
+
     })
 
     describe.skip('ticket visibility type', () => {
@@ -3491,6 +4028,45 @@ describe('Ticket', () => {
                     expect(message[0].organization.id).toEqual(ticket.organization.id)
                     expect(message[1].organization.id).toEqual(ticket.organization.id)
                 })
+            })
+
+            test('do not send push message if it bulk-update assignee or executor', async () => {
+                const client = await makeClientWithProperty()
+                const executor = await makeClientWithNewRegisteredAndLoggedInUser()
+                const payload = {
+                    devicePlatform: DEVICE_PLATFORM_ANDROID,
+                    appId: APP_MASTER_ID_ANDROID,
+                }
+
+                await syncRemoteClientWithPushTokenByTestClient(executor, payload)
+
+                const [ticket1] = await createTestTicket(client, client.organization, client.property)
+                const [ticket2] = await createTestTicket(client, client.organization, client.property)
+
+                const attrs = {
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                    executor: { connect: { id: executor.user.id } },
+                    assignee: { connect: { id: executor.user.id } },
+                }
+
+                const updatePayload = [
+                    { id: ticket1.id, data: attrs },
+                    { id: ticket2.id, data: attrs },
+                ]
+
+                const [updatedTicket1, updatedTicket2] = await Ticket.updateMany(admin, updatePayload)
+
+                expect(updatedTicket1.executor.id).toEqual(executor.user.id)
+                expect(updatedTicket2.executor.id).toEqual(executor.user.id)
+
+                let messageCount
+                const messageWhere = { user: { id: executor.user.id }, type: TICKET_EXECUTOR_CONNECTED_TYPE }
+
+                await waitFor(async () => {
+                    messageCount = await Message.count(admin, messageWhere)
+                    expect(messageCount).toEqual(0)
+                }, { delay: MESSAGE_SENDING_DElAY })
             })
         })
 

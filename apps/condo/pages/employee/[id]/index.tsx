@@ -1,12 +1,16 @@
+import { useGetOrganizationEmployeeTicketsCountForReassignmentQuery } from '@app/condo/gql'
+import { OrganizationEmployee as OrganizationEmployeeType, OrganizationEmployeeUpdateInput } from '@app/condo/schema'
 import { Col, Row, Space, Switch } from 'antd'
 import { map } from 'lodash'
 import get from 'lodash/get'
 import Head from 'next/head'
 import Link from 'next/link'
-import Router from 'next/router'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 
+import { useCachePersistor } from '@open-condo/apollo'
+import { IUseSoftDeleteActionType, IUseUpdateActionType } from '@open-condo/codegen/generate.hooks'
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { Edit } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -22,7 +26,9 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { FieldPairRow as BaseFieldPairRow, FieldPairRowProps } from '@condo/domains/common/components/FieldPairRow'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
+import { REASSIGN_EMPLOYEE_TICKETS } from '@condo/domains/common/constants/featureflags'
 import { PageComponentType } from '@condo/domains/common/types'
+import { DeleteEmployeeButtonWithReassignmentModel } from '@condo/domains/organization/components/DeleteEmployeeButtonWithReassignmentModel'
 import { EmployeeInviteRetryButton } from '@condo/domains/organization/components/EmployeeInviteRetryButton'
 import { EmployeesReadPermissionRequired } from '@condo/domains/organization/components/PageAccess'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
@@ -30,6 +36,15 @@ import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 
+type EmployeePageContent = {
+    employee: OrganizationEmployeeType
+    isEmployeeEditable: boolean
+    isEmployeeReinvitable: boolean
+    activeTicketsOrganizationEmployeeCount: number
+    updateEmployeeAction: IUseUpdateActionType<OrganizationEmployeeType, OrganizationEmployeeUpdateInput>
+    softDeleteAction: IUseSoftDeleteActionType<OrganizationEmployeeType>
+    phonePrefix?: string
+}
 
 const ReInviteActionAlert = ({ employee }) => {
     const intl = useIntl()
@@ -66,10 +81,11 @@ const FieldPairRow: React.FC<FieldPairRowProps> = (props) => (
     />
 )
 
-export const EmployeePageContent = ({
+export const EmployeePageContent: React.FC<EmployeePageContent> = ({
     employee,
     isEmployeeEditable,
     isEmployeeReinvitable,
+    activeTicketsOrganizationEmployeeCount,
     updateEmployeeAction,
     softDeleteAction,
     phonePrefix = '',
@@ -92,8 +108,11 @@ export const EmployeePageContent = ({
     const { user } = useAuth()
     const { breakpoints } = useLayoutContext()
 
+    const { useFlag } = useFeatureFlags()
+    const isReassignEmployeeTicketsEnabled = useFlag(REASSIGN_EMPLOYEE_TICKETS)
+
+    const employeeUserId = employee?.user?.id || null
     const userId = get(user, 'id')
-    const employeeUserId = get(employee, 'user.id')
     const isMyEmployee = userId && employeeUserId && userId === employeeUserId
     const isEmployeeBlocked = get(employee, 'isBlocked')
 
@@ -254,7 +273,14 @@ export const EmployeePageContent = ({
                                                                 {UpdateMessage}
                                                             </Button>
                                                         </Link>,
-                                                        !isMyEmployee &&
+                                                        !isMyEmployee && (isReassignEmployeeTicketsEnabled && activeTicketsOrganizationEmployeeCount > 0 ?
+                                                            <DeleteEmployeeButtonWithReassignmentModel
+                                                                key='delete'
+                                                                softDeleteAction={() => softDeleteAction(employee)}
+                                                                buttonContent={DeleteMessage}
+                                                                employee={employee}
+                                                                activeTicketsOrganizationEmployeeCount={activeTicketsOrganizationEmployeeCount}
+                                                            /> :
                                                             <DeleteButtonWithConfirmModal
                                                                 key='delete'
                                                                 title={ConfirmDeleteTitle}
@@ -262,7 +288,7 @@ export const EmployeePageContent = ({
                                                                 okButtonLabel={ConfirmDeleteButtonLabel}
                                                                 action={() => softDeleteAction(employee)}
                                                                 buttonContent={DeleteMessage}
-                                                            />,
+                                                            />),
                                                     ]}
                                                 />
                                             </Col>
@@ -281,11 +307,13 @@ export const EmployeePageContent = ({
 export const EmployeeInfoPage: PageComponentType = () => {
     const { query } = useRouter()
     const { link } = useOrganization()
+    const { persistor } = useCachePersistor()
     const intl = useIntl()
-    const UpdateEmployeeMessage = intl.formatMessage({ id: 'employee.UpdateTitle' })
+    const LoadingInProgressMessage = intl.formatMessage({ id: 'LoadingInProgress' })
     const ErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
-
+    const NotFoundMsg = intl.formatMessage({ id: 'NotFound' })
     const employeeId = String(get(query, 'id', ''))
+
     const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject(
         {
             where: {
@@ -293,28 +321,40 @@ export const EmployeeInfoPage: PageComponentType = () => {
             },
         }
     )
+
     const { objs: organizationEmployeeSpecializations } = OrganizationEmployeeSpecialization.useObjects({
         where: {
             employee: { id: employeeId },
         },
     })
 
+    const { data: activeTicketsOrganizationEmployeeCount, loading: loadingTicketsOrganizationEmployeeCount } = useGetOrganizationEmployeeTicketsCountForReassignmentQuery({
+        variables: {
+            userId: employee?.user?.id || null,
+            organizationId: employee?.organization?.id || null,
+        },
+        skip: !persistor || !employee?.user?.id || !employee?.organization?.id,
+    })
+
     const employeeWithSpecializations = { ...employee, specializations: organizationEmployeeSpecializations.map(scope => scope.specialization) }
 
     const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => refetch())
-    const softDeleteAction = OrganizationEmployee.useSoftDelete(() => Router.push('/employee/'))
+    const softDeleteAction = OrganizationEmployee.useSoftDelete(() => refetch())
 
     const isEmployeeEditable = get(link, ['role', 'canManageEmployees'], false)
     const isEmployeeReinvitable = get(link, ['role', 'canInviteNewOrganizationEmployees'], false) && !get(employee, 'isAccepted')
 
-    if (error || loading) {
-        return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={loading} error={error ? ErrorMessage : null}/>
-    }
+    const errorToPrint = error ? ErrorMessage : ''
+
+    if (error || loading || loadingTicketsOrganizationEmployeeCount || !persistor) return <LoadingOrErrorPage title={loading ? LoadingInProgressMessage : errorToPrint} loading={loading} error={errorToPrint}/>
+
+    if (!loading && !employee) return <LoadingOrErrorPage title={NotFoundMsg} loading={loading} error={NotFoundMsg}/>
 
     return (
         <EmployeePageContent
             employee={employeeWithSpecializations}
             updateEmployeeAction={updateEmployeeAction}
+            activeTicketsOrganizationEmployeeCount={activeTicketsOrganizationEmployeeCount?.meta?.count || 0}
             softDeleteAction={softDeleteAction}
             isEmployeeEditable={isEmployeeEditable}
             isEmployeeReinvitable={isEmployeeReinvitable}
