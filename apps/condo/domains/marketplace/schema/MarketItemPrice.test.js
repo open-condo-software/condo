@@ -13,7 +13,7 @@ const {
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
-const { PRICE_FIELD_SCHEMA, PRICE_MEASURES} = require('@condo/domains/marketplace/schema/fields/price')
+const { PRICE_FIELD_SCHEMA, PRICE_MEASURES } = require('@condo/domains/marketplace/schema/fields/price')
 const {
     MarketItemPrice,
     MarketPriceScope,
