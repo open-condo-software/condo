@@ -346,7 +346,7 @@ export const EmployeeInfoPage: PageComponentType = () => {
 
     const errorToPrint = error ? ErrorMessage : ''
 
-    if (error || loading || loadingTicketsOrganizationEmployeeCount) return <LoadingOrErrorPage title={loading ? LoadingInProgressMessage : errorToPrint} loading={loading} error={errorToPrint}/>
+    if (error || loading || loadingTicketsOrganizationEmployeeCount || !persistor) return <LoadingOrErrorPage title={loading ? LoadingInProgressMessage : errorToPrint} loading={loading} error={errorToPrint}/>
 
     if (!loading && !employee) return <LoadingOrErrorPage title={NotFoundMsg} loading={loading} error={NotFoundMsg}/>
 
