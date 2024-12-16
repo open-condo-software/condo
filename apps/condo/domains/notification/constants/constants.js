@@ -86,6 +86,8 @@ const SERVICE_USER_CREATED_MESSAGE_TYPE = 'SERVICE_USER_CREATED'
 const TITLE_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE = 'TITLE_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE'
 const BODY_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE = 'BODY_IS_REQUIRED_FOR_CUSTOM_CONTENT_MESSAGE_TYPE'
 const SEND_DAILY_STATISTICS_MESSAGE_TYPE = 'SEND_DAILY_STATISTICS'
+const B2B_APP_MESSAGE_PUSH_TYPE = 'B2B_APP_MESSAGE_PUSH'
+const PASS_TICKET_CREATED_MESSAGE_TYPE = 'PASS_TICKET_CREATED'
 
 const SMS_FORBIDDEN_SYMBOLS_REGEXP = /[&#|«»]+/gim
 
@@ -656,6 +658,24 @@ const MESSAGE_META = {
             incidents: { required: true },
         },
     },
+    [B2B_APP_MESSAGE_PUSH_TYPE]: {
+        dv: { required: true },
+        body: { required: true },
+    },
+    [PASS_TICKET_CREATED_MESSAGE_TYPE]: {
+        dv: { required: true },
+        data: {
+            openAt: { required: true },
+            url: { required: true },
+
+            // for vehicle type
+            stateVehicleNumber: { required: false, defaultValue: '' },
+            vehicleBrand: { required: false, defaultValue: '' },
+
+            // for guest type
+            guestName: { required: false, defaultValue: '' },
+        },
+    },
 }
 
 /** Used to validate type field for sendMessage mutation payload */
@@ -905,6 +925,17 @@ const MESSAGE_DELIVERY_OPTIONS = {
         defaultTransports: [EMAIL_TRANSPORT],
         isAllowedToChangeDefaultTransport: false,
     },
+    [B2B_APP_MESSAGE_PUSH_TYPE]: {
+        allowedTransports: [PUSH_TRANSPORT],
+        defaultTransports: [PUSH_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
+    },
+    [PASS_TICKET_CREATED_MESSAGE_TYPE]: {
+        allowedTransports: [TELEGRAM_TRANSPORT],
+        defaultTransports: [TELEGRAM_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
+        strategy: MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS,
+    },
 }
 
 const MESSAGE_SENDING_STATUS = 'sending'
@@ -1144,5 +1175,7 @@ module.exports = {
     REDSTORE_CONFIG_ENV,
     REDSTORE_CONFIG_TEST_PUSHTOKEN_ENV,
     PUSH_TRANSPORT_REDSTORE,
+    B2B_APP_MESSAGE_PUSH_TYPE,
+    PASS_TICKET_CREATED_MESSAGE_TYPE,
 }
 
