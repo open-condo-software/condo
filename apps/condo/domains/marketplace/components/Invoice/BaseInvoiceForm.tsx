@@ -434,7 +434,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
     const PerItemPriceMeasureLabel = intl.formatMessage({ id: 'pages.condo.marketplace.measure.perItem.full' })
     const PerMeterPriceMeasureLabel = intl.formatMessage({ id: 'pages.condo.marketplace.measure.perMeter.full' })
     const PerHourPriceMeasureLabel = intl.formatMessage({ id: 'pages.condo.marketplace.measure.perHour.full' })
-    const NoPriceMeasureLabel = intl.formatMessage({ id: 'pages.condo.marketplace.measure.perHour.full' })
+    const NoPriceMeasureLabel = intl.formatMessage({ id: 'pages.condo.marketplace.noMeasure' })
     const NumberIsNotValidMessage = intl.formatMessage({ id: 'NumberIsNotValid' })
     const ServicePlaceholder = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.service.placeholder' })
     const MinPriceValidationMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.minPriceValidation' })
@@ -911,15 +911,15 @@ const StatusRadioGroup = ({
     return (
         <>
             <Form.Item
-                label={<Typography.Text strong>{InvoiceStatusLabel}</Typography.Text>}
+                label={<Typography.Title level={3}>{InvoiceStatusLabel}</Typography.Title>}
                 labelCol={{
-                    style: { marginRight: '24px' },
+                    span: 24,
                 }}
             >
                 <RadioGroup value={status} onChange={handleValueChange}>
                     <Space size={24} wrap direction='horizontal'>
                         <Radio value={INVOICE_STATUS_DRAFT} disabled={onlyStatusTransitionsActive || isAllFieldsDisabled}>
-                            <Typography.Text strong disabled={onlyStatusTransitionsActive || isAllFieldsDisabled}>
+                            <Typography.Text disabled={onlyStatusTransitionsActive || isAllFieldsDisabled}>
                                 {InvoiceStatusDraftLabel}
                             </Typography.Text>
                         </Radio>
@@ -928,7 +928,6 @@ const StatusRadioGroup = ({
                                 <Typography.Text
                                     type={status === INVOICE_STATUS_PUBLISHED ? 'warning' : 'primary'}
                                     disabled={isAllFieldsDisabled || isNotDraftStatusesDisabled}
-                                    strong
                                 >
                                     {InvoiceStatusReadyLabel}
                                 </Typography.Text>
@@ -942,7 +941,6 @@ const StatusRadioGroup = ({
                                 <Typography.Text
                                     type={status === INVOICE_STATUS_PAID ? 'success' : 'primary'}
                                     disabled={isAllFieldsDisabled || isNotDraftStatusesDisabled || isOnlinePaymentType}
-                                    strong
                                 >
                                     {InvoiceStatusPaidLabel}
                                 </Typography.Text>
@@ -957,7 +955,6 @@ const StatusRadioGroup = ({
                                     <Typography.Text
                                         type={status === INVOICE_STATUS_CANCELED ? 'inherit' : 'primary'}
                                         disabled={isAllFieldsDisabled || isNotDraftStatusesDisabled || isCreateForm}
-                                        strong
                                     >
                                         {InvoiceStatusCancelledLabel}
                                     </Typography.Text>
@@ -1201,10 +1198,10 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                                 <Row gutter={[0, 16]}>
                                                     <Col md={colSpan}>
                                                         <Form.Item
-                                                            label={<Typography.Text strong>{PaymentModeLabel}</Typography.Text>}
+                                                            label={<Typography.Title level={3}>{PaymentModeLabel}</Typography.Title>}
                                                             name='paymentType'
                                                             labelCol={{
-                                                                style: { marginRight: '24px' },
+                                                                span: 24,
                                                             }}
                                                         >
                                                             <RadioGroup
@@ -1219,12 +1216,12 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                                             >
                                                                 <Space size={24} wrap direction='horizontal'>
                                                                     <Radio value={INVOICE_PAYMENT_TYPE_ONLINE}>
-                                                                        <Typography.Text disabled={isAllFieldsDisabled || onlyStatusTransitionsActive} strong>
+                                                                        <Typography.Text disabled={isAllFieldsDisabled || onlyStatusTransitionsActive}>
                                                                             {PaymentOnlineLabel}
                                                                         </Typography.Text>
                                                                     </Radio>
                                                                     <Radio value={INVOICE_PAYMENT_TYPE_CASH}>
-                                                                        <Typography.Text disabled={isAllFieldsDisabled || onlyStatusTransitionsActive} strong>
+                                                                        <Typography.Text disabled={isAllFieldsDisabled || onlyStatusTransitionsActive}>
                                                                             {PaymentCashLabel}
                                                                         </Typography.Text>
                                                                     </Radio>
