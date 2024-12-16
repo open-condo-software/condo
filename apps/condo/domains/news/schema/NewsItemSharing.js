@@ -80,7 +80,7 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
             access: {
                 create: true,
                 read: true,
-                update: false,
+                update: true,
             },
         },
 

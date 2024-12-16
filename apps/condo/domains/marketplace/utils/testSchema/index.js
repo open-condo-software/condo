@@ -7,7 +7,6 @@ const { faker } = require('@faker-js/faker')
 const path = require('path')
 const conf = require('@open-condo/config')
 const { UploadingFile } = require('@open-condo/keystone/test.utils')
-const { PRICE_MEASURES } = require('@condo/domains/marketplace/schema/fields/price')
 
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
@@ -97,15 +96,12 @@ async function updateTestMarketItem (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-const PRICE_MEASURES_VALUES = Object.values(PRICE_MEASURES)
-
 function generateInvoiceRow (attrs = {}) {
     return {
         name: faker.commerce.productName(),
         toPay: String(faker.commerce.price()),
         count: faker.datatype.number({ min: 1, max: 3 }),
         isMin: false,
-        measure: PRICE_MEASURES_VALUES[faker.datatype.number({ min: 0, max: PRICE_MEASURES_VALUES.length })],
         ...attrs,
     }
 }
