@@ -104,7 +104,7 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
         const consumers = consumersByAccountKey[key]
         if (isEmpty(consumers)) continue
 
-        const [success, duplicate, skipped] = await notifyConsumers(keystone, receipts, consumers)
+        const [success, duplicate, skipped] = await notifyConsumers(keystone, receipts, consumers, lastSendDate)
         successSentMessages += success
         duplicatedSentMessages += duplicate
         skippedUsers += skipped
