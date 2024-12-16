@@ -44,7 +44,6 @@ const {
     OMIT_TICKET_CHANGE_TRACKABLE_FIELDS,
     REVIEW_VALUES,
     DEFERRED_STATUS_TYPE,
-    DISABLE_PUSH_NOTIFICATION_FOR_OPERATIONS,
 } = require('@condo/domains/ticket/constants')
 const { FEEDBACK_VALUES, FEEDBACK_ADDITIONAL_OPTIONS_BY_KEY } = require('@condo/domains/ticket/constants/feedback')
 const { QUALITY_CONTROL_VALUES } = require('@condo/domains/ticket/constants/qualityControl')
@@ -190,7 +189,8 @@ const ERRORS = {
  * Checks limits on ticket creation.
  * User should not be able to create more than $DAILY_TICKET_LIMIT tickets to 1 organization.
  * User should not be able to create more than $DAILY_SAME_TICKET_LIMIT tickets to 1 organization.
- *
+ * Pushes for bulk operations are disabled in this scheme.
+ * 
  * $USERS_WITHOUT_TICKET_LIMITS phones are excluded from this rule.
  *
  * @param {string} phone
@@ -965,7 +965,8 @@ const Ticket = new GQLListSchema('Ticket', {
             )(...args)
 
             /* NOTE: this sends different kinds of notifications on ticket create/update except bulk update operation */
-            if (!DISABLE_PUSH_NOTIFICATION_FOR_OPERATIONS.includes(get(context, ['req', 'body', 'operationName'], null))) {
+            const isBulkOperation = Array.isArray(get(context, ['req', 'body', 'variables', 'data'], null))
+            if (!isBulkOperation) {
                 await sendTicketChangedNotifications.delay({ ticketId: updatedItem.id, existingItem, operation })
             }
         },

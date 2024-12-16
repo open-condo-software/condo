@@ -98,6 +98,7 @@ const {
     makeClientWithSupportUser,
 } = require('@condo/domains/user/utils/testSchema')
 
+
 const FEEDBACK_VALUES_WITHOUT_RETURNED = FEEDBACK_VALUES.filter(item => item !== FEEDBACK_VALUES_BY_KEY.RETURNED)
 // TODO(DOMA-5833): delete REVIEW_VALUES_WITHOUT_RETURNED when the mobile app will use 'feedback*' fields
 /** @deprecated */
@@ -4055,10 +4056,10 @@ describe('Ticket', () => {
                     { id: ticket2.id, data: attrs },
                 ]
 
-                const [updatedTicket1, updatedTicket2] = await Ticket.updateMany(admin, updatePayload)
+                const [updateTicket1, updateTicket2] = await Ticket.updateMany(client, updatePayload)
 
-                expect(updatedTicket1.executor.id).toEqual(executor.user.id)
-                expect(updatedTicket2.executor.id).toEqual(executor.user.id)
+                expect(updateTicket1.executor.id).toEqual(executor.user.id)
+                expect(updateTicket2.executor.id).toEqual(executor.user.id)
 
                 let messageCount
                 const messageWhere = { user: { id: executor.user.id }, type: TICKET_EXECUTOR_CONNECTED_TYPE }
