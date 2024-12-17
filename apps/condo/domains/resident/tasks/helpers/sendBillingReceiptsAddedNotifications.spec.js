@@ -467,5 +467,111 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 expect(messages).toHaveLength(1)
             }, { delay: 2000 })
         })
+
+        test('Should send push if next day came', async () => {
+            const environment = new TestUtils([ResidentTestMixin])
+            await environment.init()
+            const accountNumber = faker.random.alphaNumeric(12)
+            const resident = await environment.createResident({ unitName: '1', unitType: FLAT_UNIT_TYPE })
+            const addressUnit = {
+                unitName: resident.unitName,
+                unitType: resident.unitType,
+            }
+            await environment.createReceipts([
+                environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
+            ])
+
+            const messageWhere = {
+                user: { id: resident.user.id },
+                type: BILLING_RECEIPT_ADDED_TYPE,
+                deletedAt: null,
+            }
+            await environment.createServiceConsumer(resident, accountNumber)
+
+            await sendBillingReceiptsAddedNotifications(dayjs().subtract(1, 'h').toISOString())
+            let firstMessageId = null
+            await waitFor(async () => {
+                const messages = await Message.getAll(environment.clients.admin, messageWhere)
+                expect(messages).toHaveLength(1)
+                firstMessageId = messages[0].id
+                await Message.softDelete(environment.clients.admin, firstMessageId)
+            }, { delay: 2000 })
+
+            await environment.createReceipts([
+                environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
+            ])
+
+            await sendBillingReceiptsAddedNotifications(dayjs().subtract(1, 'h').toISOString())
+
+            await waitFor(async () => {
+                const messages = await Message.getAll(environment.clients.admin, messageWhere)
+
+                expect(messages).toHaveLength(1)
+                expect(messages[0].id).not.toEqual(firstMessageId)
+            }, { delay: 2000 })
+        })
+
+        test('Should send push if new receipts were loaded when user already got push', async () => {
+            const environment = new TestUtils([ResidentTestMixin])
+            await environment.init()
+            const accountNumber = faker.random.alphaNumeric(12)
+            const resident = await environment.createResident({ unitName: '1', unitType: FLAT_UNIT_TYPE })
+            const addressUnit = {
+                unitName: resident.unitName,
+                unitType: resident.unitType,
+            }
+            await environment.createReceipts([
+                environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
+                environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
+                environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
+            ])
+
+            const messageWhere = {
+                user: { id: resident.user.id },
+                type: BILLING_RECEIPT_ADDED_TYPE,
+                deletedAt: null,
+            }
+            await environment.createServiceConsumer(resident, accountNumber)
+
+            await waitFor(async () => {
+                await sendBillingReceiptsAddedNotifications(dayjs().subtract(1, 'h').toISOString())
+            }, { delay: 500 })
+            await waitFor(async () => {
+                await sendBillingReceiptsAddedNotifications(dayjs().subtract(1, 'h').toISOString())
+            }, { delay: 500 })
+            await waitFor(async () => {
+                await sendBillingReceiptsAddedNotifications(dayjs().subtract(1, 'h').toISOString())
+            }, { delay: 500 })
+            await waitFor(async () => {
+                await sendBillingReceiptsAddedNotifications(dayjs().subtract(1, 'h').toISOString())
+            }, { delay: 500 })
+            await waitFor(async () => {
+                await sendBillingReceiptsAddedNotifications(dayjs().subtract(1, 'h').toISOString())
+            }, { delay: 500 })
+
+            let firstMessageId = null
+
+            await waitFor(async () => {
+                const messages = await Message.getAll(environment.clients.admin, messageWhere)
+                expect(messages).toHaveLength(1)
+                firstMessageId = messages[0].id
+                await Message.softDelete(environment.clients.admin, firstMessageId)
+            }, { delay: 2000 })
+
+            await environment.createReceipts([
+                environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
+                environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
+                environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
+            ])
+
+            await sendBillingReceiptsAddedNotifications(dayjs().subtract(1, 'h').toISOString())
+
+            await waitFor(async () => {
+                const messages = await Message.getAll(environment.clients.admin, messageWhere)
+
+                expect(messages).toHaveLength(1)
+                expect(messages[0].id).not.toEqual(firstMessageId)
+            }, { delay: 2000 })
+        })
     })
 })

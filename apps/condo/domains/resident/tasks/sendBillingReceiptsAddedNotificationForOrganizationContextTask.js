@@ -76,7 +76,7 @@ const prepareAndSendNotification = async (context, receipt, resident, lastSendDa
 
     const { isDuplicateMessage } = await sendMessage(context, messageData)
 
-    return isDuplicateMessage ? 0 : 1
+    return isDuplicateMessage
 }
 
 /**
@@ -104,6 +104,7 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
     if (!receipts.length) return
 
     const maxCreatedAt = dayjs(getMaxReceiptCreatedAt(receipts)).toISOString()
+    logger.info({ msg: 'The latest receipt for the context', data: { maxCreatedAt } })
     const receiptAccountData = await prepareReceiptsData(receipts, context)
     const serviceConsumers = await fetchServiceConsumers(context, receiptAccountData.accountNumbers)
     const consumersByAccountKey = groupConsumersByAccountKey(serviceConsumers)
@@ -124,6 +125,7 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
     const residentsUnique = [...new Set(residents.filter(r => r.id))]
     const usersUnique = [...new Set(residentsUnique.map(ru => ru.user).filter(Boolean))]
 
+    logger.info({ msg: 'sendBillingReceiptsAddedNotificationForOrganizationContext ends' })
     logger.info(
         { 
             msg: 'Sent billing receipts', data: {

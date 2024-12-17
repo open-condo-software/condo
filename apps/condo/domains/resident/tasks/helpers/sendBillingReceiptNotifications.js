@@ -9,7 +9,9 @@ const { LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE } = require('@condo/domains/
 
 const { sendBillingReceiptsAddedNotifications } = require('./sendBillingReceiptsAddedNotifications')
 const { sendResidentsNoAccountNotifications } = require('./sendResidentsNoAccountNotifications')
-
+const DISABLED = 'DISABLED'
+const NO_REDIS_KEY = 'NO_REDIS_KEY'
+const DONE = 'DONE'
 
 const logger = getLogger('sendBillingReceiptsAddedNotifications')
 
@@ -21,7 +23,7 @@ const sendBillingReceiptNotifications = async (context = null) => {
     if (!isFeatureEnabled) {
         logger.info(`sendBillingReceiptNotifications was skipped due to disabled growthbook feature flag [${SEND_BILLING_RECEIPTS_NOTIFICATIONS_TASK}]`)
 
-        return 'disabled'
+        return { status: DISABLED }
     }
 
     await sendResidentsNoAccountNotifications()
@@ -32,15 +34,18 @@ const sendBillingReceiptNotifications = async (context = null) => {
     if (!redisKey) {
         await redisClient.set(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE, dayjs().startOf('day').toISOString())
 
-        return 'noRedisKey'
-    } else if (dayjs(redisKey).isSame(dayjs().startOf('day'))) {
-        return
+        return { status: NO_REDIS_KEY }
     }
 
     await sendBillingReceiptsAddedNotifications(redisKey)
     await redisClient.set(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE, dayjs().startOf('day').toISOString())
+
+    return { status: DONE }
 }
 
 module.exports = {
     sendBillingReceiptNotifications,
+    DISABLED,
+    NO_REDIS_KEY,
+    DONE,
 }
