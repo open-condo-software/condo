@@ -1,5 +1,6 @@
 const ms = require('ms')
 
+const { GQLError, GQLErrorCode: { TOO_MANY_REQUESTS } } = require('@open-condo/keystone/errors')
 const { getRedisClient } = require('@open-condo/keystone/redis')
 
 const {
@@ -11,6 +12,8 @@ const {
     DEFAULT_NON_AUTHED_QUOTA,
     DEFAULT_WHERE_COMPLEXITY_FACTOR,
     DEFAULT_PAGE_LIMIT,
+    ERROR_TYPE,
+    ERROR_MESSAGE,
 } = require('./constants')
 const { extractWhereComplexityFactor, extractRelationsComplexityFactor } = require('./query.utils')
 const { extractQueriesAndMutationsFromRequest, extractQuotaKeyFromRequest } = require('./request.utils')
@@ -172,19 +175,31 @@ class ApolloRateLimitingPlugin {
                 const { isAuthed, key } = extractQuotaKeyFromRequest(requestContext)
                 const maxQuota = isAuthed ? this.#authedQuota : this.#nonAuthedQuota
 
-                /** @type {string | null} */
-                const currentValue = await this.#redisClient.get(key)
-                const usedQuota = parseInt(currentValue) || 0
-
-                if (usedQuota + requestComplexity > maxQuota) {
-                    // TODO: Throw error instead here
-                    return
+                const [[ttlError, ttlInSec], [currentValueError, currentValue]] = await this.#redisClient.multi().ttl(key).get(key).exec()
+                if (currentValueError || ttlError) {
+                    throw (currentValueError || ttlError)
                 }
+
+                const timeLeftInSec = ttlInSec === null ? Math.ceil(this.#quotaWindowInMS / 1000) : ttlInSec
+
+                const usedQuota = parseInt(currentValue) || 0
 
                 if (currentValue === null) {
                     await this.#redisClient.set(key, requestComplexity, 'PX', this.#quotaWindowInMS)
                 } else {
                     await this.#redisClient.incrby(key, requestComplexity)
+                }
+
+                if (usedQuota + requestComplexity > maxQuota) {
+
+                    throw new GQLError({
+                        code: TOO_MANY_REQUESTS,
+                        type: ERROR_TYPE,
+                        message: ERROR_MESSAGE,
+                        messageInterpolation: {
+                            minutes: Math.ceil(timeLeftInSec / 60),
+                        },
+                    }, requestContext.context)
                 }
             },
         }
