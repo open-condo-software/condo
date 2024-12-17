@@ -406,7 +406,6 @@ describe('Resident', () => {
                     address,
                     addressMeta: buildFakeAddressMeta(address),
                 }
-                console.log('user and admin clients created')
 
                 const [{ id }] = await createTestResident(adminClient, userClient.user, null, attrs)
                 await addResidentAccess(userClient.user)

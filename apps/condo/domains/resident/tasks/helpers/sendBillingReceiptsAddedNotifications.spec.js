@@ -405,7 +405,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
 
             await waitFor(async () => {
                 const messages = await Message.getAll(environment.clients.admin, messageWhere)
-                console.log(dayjs().toISOString())
+
                 expect(messages).toHaveLength(1)
             }, { delay: 2000 })
         })
@@ -536,6 +536,13 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             await waitFor(async () => {
                 await sendBillingReceiptsAddedNotifications(dayjs().subtract(1, 'h').toISOString())
             }, { delay: 500 })
+
+            await environment.createReceipts([
+                environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
+                environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
+                environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
+            ])
+
             await waitFor(async () => {
                 await sendBillingReceiptsAddedNotifications(dayjs().subtract(1, 'h').toISOString())
             }, { delay: 500 })
@@ -557,12 +564,6 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 firstMessageId = messages[0].id
                 await Message.softDelete(environment.clients.admin, firstMessageId)
             }, { delay: 2000 })
-
-            await environment.createReceipts([
-                environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
-                environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
-                environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
-            ])
 
             await sendBillingReceiptsAddedNotifications(dayjs().subtract(1, 'h').toISOString())
 

@@ -11,6 +11,7 @@ const { sendBillingReceiptsAddedNotifications } = require('./sendBillingReceipts
 const { sendResidentsNoAccountNotifications } = require('./sendResidentsNoAccountNotifications')
 const DISABLED = 'DISABLED'
 const NO_REDIS_KEY = 'NO_REDIS_KEY'
+const SKIP_NOTIFICATION = 'SKIP_NOTIFICATION'
 const DONE = 'DONE'
 
 const logger = getLogger('sendBillingReceiptsAddedNotifications')
@@ -35,6 +36,8 @@ const sendBillingReceiptNotifications = async (context = null) => {
         await redisClient.set(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE, dayjs().startOf('day').toISOString())
 
         return { status: NO_REDIS_KEY }
+    } else if (dayjs().startOf('day').isSame(dayjs(redisKey))) {
+        return { status: SKIP_NOTIFICATION }
     }
 
     await sendBillingReceiptsAddedNotifications(redisKey)
@@ -48,4 +51,5 @@ module.exports = {
     DISABLED,
     NO_REDIS_KEY,
     DONE,
+    SKIP_NOTIFICATION,
 }

@@ -9,7 +9,7 @@ const { setFakeClientMode, setAllFeatureFlags } = require('@open-condo/keystone/
 
 const { LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE } = require('@condo/domains/resident/constants')
 
-const { sendBillingReceiptNotifications, NO_REDIS_KEY, DISABLED } = require('./sendBillingReceiptNotifications')
+const { sendBillingReceiptNotifications, NO_REDIS_KEY, DISABLED, SKIP_NOTIFICATION } = require('./sendBillingReceiptNotifications')
 
 describe('sendBillingReceiptNotifications', () => {
     setFakeClientMode(index)
@@ -32,6 +32,15 @@ describe('sendBillingReceiptNotifications', () => {
             await redisClient.del(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
             setAllFeatureFlags(true)
             expect(await sendBillingReceiptNotifications()).toMatchObject({ status: NO_REDIS_KEY })
+            await redisClient.del(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
+        })
+
+        test('Should return skip notification if cron runs more than one time a day', async () => {
+            await redisClient.del(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
+            setAllFeatureFlags(true)
+            expect(await sendBillingReceiptNotifications()).toMatchObject({ status: NO_REDIS_KEY })
+            expect(await sendBillingReceiptNotifications()).toMatchObject({ status: SKIP_NOTIFICATION })
+
             await redisClient.del(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
         })
     })
