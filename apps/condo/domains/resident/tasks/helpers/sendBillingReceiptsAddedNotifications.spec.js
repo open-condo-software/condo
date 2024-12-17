@@ -543,19 +543,6 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
             ])
 
-            await waitFor(async () => {
-                await sendBillingReceiptsAddedNotifications(dayjs().subtract(1, 'h').toISOString())
-            }, { delay: 500 })
-            await waitFor(async () => {
-                await sendBillingReceiptsAddedNotifications(dayjs().subtract(1, 'h').toISOString())
-            }, { delay: 500 })
-            await waitFor(async () => {
-                await sendBillingReceiptsAddedNotifications(dayjs().subtract(1, 'h').toISOString())
-            }, { delay: 500 })
-            await waitFor(async () => {
-                await sendBillingReceiptsAddedNotifications(dayjs().subtract(1, 'h').toISOString())
-            }, { delay: 500 })
-
             let firstMessageId = null
 
             await waitFor(async () => {

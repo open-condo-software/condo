@@ -9,7 +9,8 @@ const { setFakeClientMode, setAllFeatureFlags } = require('@open-condo/keystone/
 
 const { LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE } = require('@condo/domains/resident/constants')
 
-const { sendBillingReceiptNotifications, NO_REDIS_KEY, DISABLED, SKIP_NOTIFICATION } = require('./sendBillingReceiptNotifications')
+const { sendBillingReceiptNotifications, NO_REDIS_KEY, DISABLED, SKIP_NOTIFICATION, DONE} = require('./sendBillingReceiptNotifications')
+const dayjs = require("dayjs");
 
 describe('sendBillingReceiptNotifications', () => {
     setFakeClientMode(index)
@@ -40,6 +41,14 @@ describe('sendBillingReceiptNotifications', () => {
             setAllFeatureFlags(true)
             expect(await sendBillingReceiptNotifications()).toMatchObject({ status: NO_REDIS_KEY })
             expect(await sendBillingReceiptNotifications()).toMatchObject({ status: SKIP_NOTIFICATION })
+
+            await redisClient.del(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
+        })
+
+        test('Should return done if pushes are sent', async () => {
+            await redisClient.set(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE, dayjs().subtract(1, 'day').startOf('day').toISOString())
+            setAllFeatureFlags(true)
+            expect(await sendBillingReceiptNotifications()).toMatchObject({ status: DONE })
 
             await redisClient.del(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
         })
