@@ -1,5 +1,7 @@
 const dayjs = require('dayjs')
-const { get, groupBy, isEmpty } = require('lodash')
+const get = require('lodash/get')
+const groupBy = require('lodash/groupBy')
+const isEmpty = require('lodash/isEmpty')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -15,7 +17,7 @@ const {
     BILLING_RECEIPT_ADDED_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { CAN_USER_GET_NEW_RECEIPT_NOTIFICATION, LAST_SEND_DATE_FOR_USER } = require('@condo/domains/resident/constants/constants')
+const { BILLING_CONTEXT_SYNCHRONIZATION_DATE } = require('@condo/domains/resident/constants/constants')
 
 const logger = getLogger('sendNewBillingReceiptNotification')
 
@@ -33,13 +35,14 @@ const getMessageTypeAndDebt = (toPay, toPayCharge) => {
  * @param {keystone} context
  * @param receipt
  * @param resident
+ * @param lastSendDatePeriod
  * @returns {Promise<number>}
  */
-const prepareAndSendNotification = async (context, receipt, resident) => {
+const prepareAndSendNotification = async (context, receipt, resident, lastSendDatePeriod) => {
     // TODO(DOMA-3376): Detect locale by resident locale instead of organization country.
     const country = get(resident, 'residentOrganization.country', conf.DEFAULT_LOCALE)
     const locale = get(COUNTRIES, country).locale
-    const notificationKey = `NewReceiptPush:${resident.user}:${receipt.id}`
+    const notificationKey = `${lastSendDatePeriod}:${resident.user}`
     const toPayValue = parseFloat(receipt.toPay)
     const toPay = isNaN(toPayValue) ? null : toPayValue
     const toPayChargeValue = parseFloat(get(receipt, 'toPayDetails.charge'))
@@ -73,51 +76,65 @@ const prepareAndSendNotification = async (context, receipt, resident) => {
 
     const { isDuplicateMessage } = await sendMessage(context, messageData)
 
-    return isDuplicateMessage ? 0 : 1
+    return isDuplicateMessage
 }
 
 /**
  * Prepares data for sendMessage to resident on available billing receipt, then tries to send the message
  * @param {BillingIntegrationOrganizationContext} context
- * @param {string} lastSendDate
+ * @param {string} lastSyncDate
  * @returns {Promise<void>}
  */
-async function sendBillingReceiptsAddedNotificationForOrganizationContext (context, lastSendDate) {
+async function sendBillingReceiptsAddedNotificationForOrganizationContext (context, lastSyncDate) {
     logger.info({ msg: 'sendBillingReceiptsAddedNotificationForOrganizationContext starts' })
     const contextId = get(context, 'id')
     if (!contextId) throw new Error('Invalid BillingIntegrationOrganizationContext, cannot get context.id')
 
     const { keystone } = getSchemaCtx('Message')
+    
+    const redisClient = await getRedisClient()
+    let lastSendDate = await redisClient.get(`${BILLING_CONTEXT_SYNCHRONIZATION_DATE}:${contextId}`)
+
+    if (!lastSendDate) {
+        lastSendDate = lastSyncDate
+    }
 
     const receipts = await fetchReceipts(contextId, lastSendDate)
+    
+    if (!receipts.length){
+        logger.info({ msg: 'No new receipts were found for context', data: { contextId } })
+        
+        return 
+    }
 
+    const maxCreatedAt = dayjs(getMaxReceiptCreatedAt(receipts)).toISOString()
+    logger.info({ msg: 'The latest receipt for the context', data: { maxCreatedAt } })
     const receiptAccountData = await prepareReceiptsData(receipts, context)
     const serviceConsumers = await fetchServiceConsumers(context, receiptAccountData.accountNumbers)
     const consumersByAccountKey = groupConsumersByAccountKey(serviceConsumers)
 
     let successSentMessages = 0
     let duplicatedSentMessages = 0
-    let skippedUsers = 0
-    for (const [key, receipts] of Object.entries(receiptAccountData.receiptAccountKeys)) {
+    for (const [key, receipt] of Object.entries(receiptAccountData.receiptAccountKeys)) {
         const consumers = consumersByAccountKey[key]
         if (isEmpty(consumers)) continue
 
-        const [success, duplicate, skipped] = await notifyConsumers(keystone, receipts, consumers)
+        const [success, duplicate] = await notifyConsumers(keystone, receipt, consumers, lastSendDate)
         successSentMessages += success
         duplicatedSentMessages += duplicate
-        skippedUsers += skipped
     }
+    await redisClient.set(`${BILLING_CONTEXT_SYNCHRONIZATION_DATE}:${contextId}`, maxCreatedAt)
 
     const residents = serviceConsumers.map(sc => sc.resident)
     const residentsUnique = [...new Set(residents.filter(r => r.id))]
     const usersUnique = [...new Set(residentsUnique.map(ru => ru.user).filter(Boolean))]
 
+    logger.info({ msg: 'sendBillingReceiptsAddedNotificationForOrganizationContext ends' })
     logger.info(
         { 
             msg: 'Sent billing receipts', data: {
                 successSentMessages,
                 duplicatedSentMessages,
-                skippedUsers,
                 receiptsCount: receipts.length,
                 contextId,
                 serviceConsumersCount: serviceConsumers.length,
@@ -147,11 +164,7 @@ async function prepareReceiptsData (receipts, context) {
         const addressKey = get(processedReceipt, 'account.property.addressKey')
 
         accountsNumbers.push(accountNumber)
-        if (receiptAccountKeys[makeAccountKey(addressKey, accountNumber)]){
-            receiptAccountKeys[makeAccountKey(addressKey, accountNumber)].push(processedReceipt)
-        } else {
-            receiptAccountKeys[makeAccountKey(addressKey, accountNumber)] = [processedReceipt]
-        }
+        receiptAccountKeys[makeAccountKey(addressKey, accountNumber)] ||= processedReceipt
     }
 
     return { accountNumbers: accountsNumbers.filter(Boolean), receiptAccountKeys }
@@ -206,43 +219,36 @@ function groupConsumersByAccountKey (serviceConsumers) {
     })
 }
 
-async function notifyConsumers (keystone, receipts, consumers) {
-    const redisClient = await getRedisClient()
-    const expirationInSeconds = 24 * 60 * 60 // 24 hours
-    const expirationInSecondsForUserLastDate = 48 * 60 * 60 // 48 hours
+function getMaxReceiptCreatedAt (receipts) {
+    let maxCreatedAt = null
+    for (const receipt of receipts) {
+        if (maxCreatedAt === null) maxCreatedAt = receipt.createdAt
+        if (dayjs(receipt.createdAt).isAfter(maxCreatedAt)) maxCreatedAt = receipt.createdAt
+    }
+    
+    return maxCreatedAt
+}
+
+async function notifyConsumers (keystone, receipt, consumers, lastSendDate) {
     let successSentMessages = 0
     let duplicatedSentMessages = 0
-    let usersAlreadyGotMessages = 0
     for (const consumer of consumers) {
         const resident = get(consumer, 'resident')
         if (!resident || resident.deletedAt) continue
-        const redisKeyForBlock = `${CAN_USER_GET_NEW_RECEIPT_NOTIFICATION}:${resident.user}`
-        const redisKeyForLastDate = `${LAST_SEND_DATE_FOR_USER}:${resident.user}`
-        const canUserGetNotification = await redisClient.get(redisKeyForBlock)
-        const userLastSendDate = await redisClient.get(redisKeyForLastDate)
-
-        if (canUserGetNotification) {
-            usersAlreadyGotMessages++
-            continue
+        
+        logger.info({ msg: 'Notification data', data: { receipt, consumer, resident, lastSendDatePeriod: dayjs(lastSendDate).format('YYYY-MM-DD') } })
+        const success = await prepareAndSendNotification(keystone, receipt, resident, dayjs(lastSendDate).format('YYYY-MM-DD'))
+        
+        if (success) {
+            logger.info({ msg: 'User got notification', data: { user: resident.user } })
+            successSentMessages++
+        } else {
+            duplicatedSentMessages++
+            logger.info({ msg: 'User did not get notification', data: { user: resident.user } })
         }
 
-        for (const receipt of receipts) {
-            if (userLastSendDate && dayjs(receipt.createdAt).isBefore(dayjs(userLastSendDate))){
-                continue
-            }
-            
-            const success = await prepareAndSendNotification(keystone, receipt, resident)
-            await redisClient.set(redisKeyForBlock, 'true', 'EX', expirationInSeconds)
-            await redisClient.set(redisKeyForLastDate, dayjs().toISOString(), 'EX', expirationInSecondsForUserLastDate)
-            if (success) {
-                successSentMessages++
-                break
-            } else {
-                duplicatedSentMessages++
-            }
-        }
     }
-    return [successSentMessages, duplicatedSentMessages, usersAlreadyGotMessages]
+    return [successSentMessages, duplicatedSentMessages]
 }
 
 const taskName = 'sendBillingReceiptsAddedNotificationForOrganizationContextTask'
