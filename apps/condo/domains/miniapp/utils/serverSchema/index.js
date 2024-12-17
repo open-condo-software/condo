@@ -10,6 +10,7 @@ const {
     ALL_MINI_APPS_QUERY,
     SEND_B2C_APP_PUSH_MESSAGE_MUTATION,
 } = require('@condo/domains/miniapp/gql')
+const { SEND_B2_BAPP_PUSH_MESSAGE_MUTATION } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 async function allOrganizationApps (context, data) {
@@ -53,6 +54,19 @@ const B2BAppAccessRightSet = generateServerUtils('B2BAppAccessRightSet')
 const B2BAppNewsSharingConfig = generateServerUtils('B2BAppNewsSharingConfig')
 const B2CAppMessageSetting = generateServerUtils('B2CAppMessageSetting')
 const B2BAccessToken = generateServerUtils('B2BAccessToken')
+async function sendB2BAppPushMessage (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: SEND_B2_BAPP_PUSH_MESSAGE_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to sendB2BAppPushMessage',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -73,5 +87,6 @@ module.exports = {
     B2BAppNewsSharingConfig,
     B2CAppMessageSetting,
     B2BAccessToken,
+    sendB2BAppPushMessage,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
