@@ -33,6 +33,7 @@ const { B2BAppRole: B2BAppRoleGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppAccessRightSet: B2BAppAccessRightSetGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppNewsSharingConfig: B2BAppNewsSharingConfigGQL } = require('@condo/domains/miniapp/gql')
 const { B2CAppMessageSetting: B2CAppMessageSettingGQL } = require('@condo/domains/miniapp/gql')
+const { SEND_B2_BAPP_PUSH_MESSAGE_MUTATION } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function randomChoice(options) {
@@ -559,6 +560,20 @@ async function updateTestB2CAppMessageSetting (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+
+async function sendB2BAppPushMessageByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(SEND_B2_BAPP_PUSH_MESSAGE_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -578,5 +593,6 @@ module.exports = {
     B2BAppAccessRightSet, createTestB2BAppAccessRightSet, updateTestB2BAppAccessRightSet,
     B2BAppNewsSharingConfig, createTestB2BAppNewsSharingConfig, updateTestB2BAppNewsSharingConfig,
     B2CAppMessageSetting, createTestB2CAppMessageSetting, updateTestB2CAppMessageSetting,
+    sendB2BAppPushMessageByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
