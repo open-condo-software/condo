@@ -35,6 +35,7 @@ module.exports = {
     ignorePatterns: [
         'dist',
         '*schema.ts',
+        'apps/*/gql/*.ts',
     ],
     rules: {
         'comma-spacing': 'off',

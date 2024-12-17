@@ -51,10 +51,6 @@ const config: CodegenConfig = {
             ],
         },
     },
-    hooks: {
-        // TODO(INFRA-674): remove eslint for codegen. This takes a very long time to complete :(
-        afterAllFileWrite: ['eslint --no-ignore --fix ./gql/operation.types.ts ./gql/index.ts ./schema.ts'],
-    },
 }
 
 export default config
