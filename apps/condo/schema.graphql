@@ -70903,6 +70903,8 @@ type B2BAppAccessRightSetHistoryRecord {
   canManageMeterReadings: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
+  canReadOrganizationEmployees: Boolean
+  canManageOrganizationEmployees: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
@@ -70914,6 +70916,7 @@ type B2BAppAccessRightSetHistoryRecord {
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
+  canExecuteSendB2BAppPushMessage: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -70996,6 +70999,10 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canReadOrganizations_not: Boolean
   canManageOrganizations: Boolean
   canManageOrganizations_not: Boolean
+  canReadOrganizationEmployees: Boolean
+  canReadOrganizationEmployees_not: Boolean
+  canManageOrganizationEmployees: Boolean
+  canManageOrganizationEmployees_not: Boolean
   canReadProperties: Boolean
   canReadProperties_not: Boolean
   canManageProperties: Boolean
@@ -71018,6 +71025,8 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canManageTicketCommentFiles_not: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteRegisterMetersReadings_not: Boolean
+  canExecuteSendB2BAppPushMessage: Boolean
+  canExecuteSendB2BAppPushMessage_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -71129,6 +71138,10 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canReadOrganizations_DESC
   canManageOrganizations_ASC
   canManageOrganizations_DESC
+  canReadOrganizationEmployees_ASC
+  canReadOrganizationEmployees_DESC
+  canManageOrganizationEmployees_ASC
+  canManageOrganizationEmployees_DESC
   canReadProperties_ASC
   canReadProperties_DESC
   canManageProperties_ASC
@@ -71151,6 +71164,8 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canManageTicketCommentFiles_DESC
   canExecuteRegisterMetersReadings_ASC
   canExecuteRegisterMetersReadings_DESC
+  canExecuteSendB2BAppPushMessage_ASC
+  canExecuteSendB2BAppPushMessage_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -71185,6 +71200,8 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canManageMeterReadings: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
+  canReadOrganizationEmployees: Boolean
+  canManageOrganizationEmployees: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
@@ -71196,6 +71213,7 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
+  canExecuteSendB2BAppPushMessage: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -71231,6 +71249,8 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canManageMeterReadings: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
+  canReadOrganizationEmployees: Boolean
+  canManageOrganizationEmployees: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
@@ -71242,6 +71262,7 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
+  canExecuteSendB2BAppPushMessage: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -71309,6 +71330,11 @@ type B2BAppAccessRightSet {
   """ Currently, this field is read-only. You cannot get manage access for the specified schema. 
   """
   canManageOrganizations: Boolean
+  canReadOrganizationEmployees: Boolean
+
+  """ Currently, this field is read-only. You cannot get manage access for the specified schema. 
+  """
+  canManageOrganizationEmployees: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
@@ -71320,6 +71346,7 @@ type B2BAppAccessRightSet {
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
+  canExecuteSendB2BAppPushMessage: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -71394,6 +71421,10 @@ input B2BAppAccessRightSetWhereInput {
   canReadOrganizations_not: Boolean
   canManageOrganizations: Boolean
   canManageOrganizations_not: Boolean
+  canReadOrganizationEmployees: Boolean
+  canReadOrganizationEmployees_not: Boolean
+  canManageOrganizationEmployees: Boolean
+  canManageOrganizationEmployees_not: Boolean
   canReadProperties: Boolean
   canReadProperties_not: Boolean
   canManageProperties: Boolean
@@ -71416,6 +71447,8 @@ input B2BAppAccessRightSetWhereInput {
   canManageTicketCommentFiles_not: Boolean
   canExecuteRegisterMetersReadings: Boolean
   canExecuteRegisterMetersReadings_not: Boolean
+  canExecuteSendB2BAppPushMessage: Boolean
+  canExecuteSendB2BAppPushMessage_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -71509,6 +71542,10 @@ enum SortB2BAppAccessRightSetsBy {
   canReadOrganizations_DESC
   canManageOrganizations_ASC
   canManageOrganizations_DESC
+  canReadOrganizationEmployees_ASC
+  canReadOrganizationEmployees_DESC
+  canManageOrganizationEmployees_ASC
+  canManageOrganizationEmployees_DESC
   canReadProperties_ASC
   canReadProperties_DESC
   canManageProperties_ASC
@@ -71531,6 +71568,8 @@ enum SortB2BAppAccessRightSetsBy {
   canManageTicketCommentFiles_DESC
   canExecuteRegisterMetersReadings_ASC
   canExecuteRegisterMetersReadings_DESC
+  canExecuteSendB2BAppPushMessage_ASC
+  canExecuteSendB2BAppPushMessage_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -71565,6 +71604,8 @@ input B2BAppAccessRightSetUpdateInput {
   canManageMeterReadings: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
+  canReadOrganizationEmployees: Boolean
+  canManageOrganizationEmployees: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
@@ -71576,6 +71617,7 @@ input B2BAppAccessRightSetUpdateInput {
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
+  canExecuteSendB2BAppPushMessage: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -71608,6 +71650,8 @@ input B2BAppAccessRightSetCreateInput {
   canManageMeterReadings: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
+  canReadOrganizationEmployees: Boolean
+  canManageOrganizationEmployees: Boolean
   canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
@@ -71619,6 +71663,7 @@ input B2BAppAccessRightSetCreateInput {
   canReadTicketCommentFiles: Boolean
   canManageTicketCommentFiles: Boolean
   canExecuteRegisterMetersReadings: Boolean
+  canExecuteSendB2BAppPushMessage: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -79950,6 +79995,8 @@ enum MessageType {
   MARKETPLACE_INVOICE_CASH_WITH_TICKET_PUBLISHED_MESSAGE
   SERVICE_USER_CREATED
   SEND_DAILY_STATISTICS
+  B2B_APP_MESSAGE_PUSH
+  PASS_TICKET_CREATED
 }
 
 input SendMessageInput {
@@ -80831,6 +80878,26 @@ input SendB2CAppPushMessageInput {
 type SendB2CAppPushMessageOutput {
   id: String!
   status: String!
+}
+
+enum B2BAppMessageType {
+  B2B_APP_MESSAGE_PUSH
+  PASS_TICKET_CREATED
+}
+
+input SendB2BAppPushMessageInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  user: UserWhereUniqueInput!
+  organization: OrganizationWhereUniqueInput!
+  app: B2BAppWhereUniqueInput!
+  type: MessageType!
+  meta: JSON!
+}
+
+type SendB2BAppPushMessageOutput {
+  status: String!
+  id: String!
 }
 
 type unauthenticateUserOutput {
@@ -92317,6 +92384,39 @@ type Mutation {
   				"required": true
   			}
   		}
+  	},
+  	"B2B_APP_MESSAGE_PUSH": {
+  		"dv": {
+  			"required": true
+  		},
+  		"body": {
+  			"required": true
+  		}
+  	},
+  	"PASS_TICKET_CREATED": {
+  		"dv": {
+  			"required": true
+  		},
+  		"data": {
+  			"openAt": {
+  				"required": true
+  			},
+  			"url": {
+  				"required": true
+  			},
+  			"stateVehicleNumber": {
+  				"required": false,
+  				"defaultValue": ""
+  			},
+  			"vehicleBrand": {
+  				"required": false,
+  				"defaultValue": ""
+  			},
+  			"guestName": {
+  				"required": false,
+  				"defaultValue": ""
+  			}
+  		}
   	}
   }`
   
@@ -92632,6 +92732,7 @@ type Mutation {
   createPaymentByLink(data: CreatePaymentByLinkInput!): CreatePaymentByLinkOutput
   registerMultiPaymentForInvoices(data: RegisterMultiPaymentForInvoicesInput!): RegisterMultiPaymentForInvoicesOutput
   sendB2CAppPushMessage(data: SendB2CAppPushMessageInput!): SendB2CAppPushMessageOutput
+  sendB2BAppPushMessage(data: SendB2BAppPushMessageInput!): SendB2BAppPushMessageOutput
 
   """ Authenticate and generate a token for a User with the Password Authentication Strategy. 
   """

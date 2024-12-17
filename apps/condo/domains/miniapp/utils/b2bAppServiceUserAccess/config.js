@@ -71,6 +71,9 @@ const B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS = {
             // NOTE: service users cannot manage organizations!
             canBeManaged: false,
         },
+        OrganizationEmployee: {
+            canBeManaged: false,
+        },
 
         // Property domain
         Property: {},
@@ -90,6 +93,7 @@ const B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS = {
 
     services: {
         registerMetersReadings: {},
+        sendB2BAppPushMessage: {},
     },
 }
 
