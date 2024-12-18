@@ -209,7 +209,7 @@ async function fetchResidents (residentIds) {
         id_in: residentIds,
         user: { deletedAt: null },
         deletedAt: null,
-    }, 'id addressKey user { id } organization { id }')
+    })
 
     return residents.reduce((acc, resident) => {
         acc[resident.id] = resident
