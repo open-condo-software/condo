@@ -23,7 +23,7 @@ const { sendBillingReceiptNotifications, sendBillingReceiptsAddedNotifications }
 const { makeBillingReceiptWithResident } = require('@condo/domains/resident/tasks/helpers/spec.helpers')
 const { makeAccountKey, getMessageTypeAndDebt, sendBillingReceiptsAddedNotificationForOrganizationContext } = require('@condo/domains/resident/tasks/sendBillingReceiptsAddedNotificationForOrganizationContextTask')
 const { Resident } = require('@condo/domains/resident/utils/testSchema')
-
+const { User } = require('@condo/domains/user/utils/testSchema')
 
 describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
     setFakeClientMode(index)
@@ -34,6 +34,34 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
     })
 
     describe('notifications', () => {
+        test('Should not send push to deleted user', async () => {
+            const { receipt, resident, billingContext } = await makeBillingReceiptWithResident({ toPay: '10000', toPayDetails: { charge: '1000', formula: '', balance: '9000', penalty: '0' } } )
+            await User.softDelete(admin, resident.user.id)
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
+
+            const messageWhere = {
+                user: { id: resident.user.id },
+                type: BILLING_RECEIPT_ADDED_TYPE,
+            }
+
+            const messages = await Message.getAll(admin, messageWhere)
+            expect(messages).toHaveLength(0)
+        })
+
+        test('Should not send push for receipts with past period', async () => {
+            const { receipt, resident, billingContext } = await makeBillingReceiptWithResident({ toPay: '10000', period: '2024-01-01' } )
+
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
+
+            const messageWhere = {
+                user: { id: resident.user.id },
+                type: BILLING_RECEIPT_ADDED_TYPE,
+            }
+
+            const messages = await Message.getAll(admin, messageWhere)
+            expect(messages).toHaveLength(0)
+        })
+
         test('Should send notification of BILLING_RECEIPT_ADDED_TYPE for toPay > 0', async () => {
             const { receipt, resident, billingContext } = await makeBillingReceiptWithResident({ toPay: '10000', toPayDetails: { charge: '1000', formula: '', balance: '9000', penalty: '0' } } )
 
