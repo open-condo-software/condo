@@ -18,7 +18,6 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { BILLING_CONTEXT_SYNCHRONIZATION_DATE } = require('@condo/domains/resident/constants/constants')
-const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 const logger = getLogger('sendNewBillingReceiptNotification')
 
 const makeAccountKey = (...args) => args.map(value => `${value}`.trim().toLowerCase()).join(':')
@@ -206,19 +205,14 @@ async function fetchServiceConsumers (context, accountNumbers) {
 }
 
 async function fetchResidents (residentIds) {
-    const { keystone: context } = getSchemaCtx('Resident')
-    let residents = await Resident.getAll(context, {
+    let residents = await find('Resident', {
         id_in: residentIds,
         user: { deletedAt: null },
         deletedAt: null,
     }, 'id addressKey user { id } organization { id }')
 
     return residents.reduce((acc, resident) => {
-        acc[resident.id] = {
-            ...resident,
-            user: resident.user.id,
-            organization: resident.organization.id,
-        }
+        acc[resident.id] = resident
         return acc
     }, {})
 }

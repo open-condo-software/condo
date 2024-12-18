@@ -48,7 +48,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             expect(messages).toHaveLength(0)
         })
 
-        test('Should not send push to for receipts with past period', async () => {
+        test('Should not send push for receipts with past period', async () => {
             const { receipt, resident, billingContext } = await makeBillingReceiptWithResident({ toPay: '10000', period: '2024-01-01' } )
 
             await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
