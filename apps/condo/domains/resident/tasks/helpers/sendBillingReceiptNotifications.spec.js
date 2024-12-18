@@ -17,7 +17,7 @@ describe('sendBillingReceiptNotifications', () => {
     const redisClient = getRedisClient()
 
     describe('feature flag', () => {
-        test.skip('checks for proper result on enabled', async () => {
+        test('checks for proper result on enabled', async () => {
             await redisClient.del(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
             setAllFeatureFlags(true)
             await waitFor(async () => {
@@ -31,7 +31,7 @@ describe('sendBillingReceiptNotifications', () => {
             expect(await sendBillingReceiptNotifications()).toMatchObject({ status: DISABLED })
         })
 
-        test.skip('Should return noRedisKey for first running', async () => {
+        test('Should return noRedisKey for first running', async () => {
             await redisClient.del(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
             setAllFeatureFlags(true)
             await waitFor(async () => {
@@ -40,7 +40,7 @@ describe('sendBillingReceiptNotifications', () => {
             await redisClient.del(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
         })
 
-        test.skip('Should return skip notification if cron runs more than one time a day', async () => {
+        test('Should return skip notification if cron runs more than one time a day', async () => {
             await redisClient.del(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
             setAllFeatureFlags(true)
 
@@ -52,7 +52,7 @@ describe('sendBillingReceiptNotifications', () => {
             await redisClient.del(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
         })
 
-        test.skip('Should return done if pushes are sent', async () => {
+        test('Should return done if pushes are sent', async () => {
             await redisClient.set(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE, dayjs().subtract(1, 'day').startOf('day').toISOString())
             setAllFeatureFlags(true)
             await waitFor(async () => {
