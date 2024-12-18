@@ -205,7 +205,7 @@ async function fetchServiceConsumers (context, accountNumbers) {
 }
 
 async function fetchResidents (residentIds) {
-    let residents = await find('Resident', {
+    const residents = await find('Resident', {
         id_in: residentIds,
         user: { deletedAt: null },
         deletedAt: null,
