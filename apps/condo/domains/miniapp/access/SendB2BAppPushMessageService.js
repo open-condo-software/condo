@@ -3,12 +3,26 @@
  */
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-async function canSendB2BAppPushMessage ({ authentication: { item: user } }) {
+const { SERVICE } = require('@condo/domains/user/constants/common')
+
+async function canSendB2BAppPushMessage (args) {
+    const { authentication: { item: user } } = args
+
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
 
-    return true
+    if (user.type === SERVICE) {
+        // canExecuteServiceAsB2BAppServiceUser(args)
+        // check that b2b context exists between SOME app and org
+        // check that access right with canExecuteSendB2BAppPushMessage exists for this user and SOME app
+
+        // we need to check this behaviour for SPECIFIC app (passed as app arg),
+        // that because we move this logic to mutation logic instead canExecuteServiceAsB2BAppServiceUser(args)
+        return true
+    }
+
+    return false
 }
 
 /*

@@ -8,26 +8,15 @@ const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToO
 const { sendB2BAppPushMessageByTestClient } = require('@condo/domains/miniapp/utils/testSchema')
  
 describe('SendB2BAppPushMessageService', () => {
-    test('user: execute', async () => {
-        const client = await makeClient()  // TODO(codegen): use truly useful client!
-        const payload = {}  // TODO(codegen): change the 'user: update SendB2BAppPushMessageService' payload
-        const [data, attrs] = await sendB2BAppPushMessageByTestClient(client, payload)
-        // TODO(codegen): write user expect logic
-        throw new Error('Not implemented yet')
+    beforeAll(() => {
+
     })
- 
-    test('anonymous: execute', async () => {
-        const client = await makeClient()
-        await expectToThrowAuthenticationErrorToObjects(async () => {
-            await sendB2BAppPushMessageByTestClient(client)
-        })
+
+    describe('Access', () => {
+
     })
- 
-    test('admin: execute', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const payload = {}  // TODO(codegen): change the 'user: update SendB2BAppPushMessageService' payload
-        const [data, attrs] = await sendB2BAppPushMessageByTestClient(admin, payload)
-        // TODO(codegen): write admin expect logic
-        throw new Error('Not implemented yet')
+
+    describe('Logic', () => {
+
     })
 })
