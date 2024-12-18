@@ -51,7 +51,7 @@ export function convertToFormState (invoice: Invoice, intl): InvoiceFormValuesTy
     const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
 
     const initialRows = get(invoice, 'rows') && invoice.rows
-        .map(({ count, isMin, name, toPay, sku }) => {
+        .map(({ count, isMin, name, toPay, sku, measure }) => {
             let toPayValue
             if (isMin) {
                 if (toPay === '0') {
@@ -63,7 +63,7 @@ export function convertToFormState (invoice: Invoice, intl): InvoiceFormValuesTy
                 toPayValue = { isMin: false, toPay: toPay.replace('.', ',') }
             }
 
-            return { count, name, sku, ...toPayValue }
+            return { count, name, sku, measure, ...toPayValue }
         })
 
     return {

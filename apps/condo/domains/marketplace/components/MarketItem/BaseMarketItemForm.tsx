@@ -160,7 +160,7 @@ const AppPreviewContainer = styled.div`
 
 interface IMobilePreviewProps {
     name: string
-    price: string
+    price?: string
     priceType: PriceType
     sku: string
     description: string
@@ -609,7 +609,7 @@ const MarketPriceForm = ({ priceFormDescription, removeOperation, organizationPr
     const PerItemPriceMeasureLabel = intl.formatMessage({ id: 'pages.condo.marketplace.measure.perItem.full' })
     const PerMeterPriceMeasureLabel = intl.formatMessage({ id: 'pages.condo.marketplace.measure.perMeter.full' })
     const PerHourPriceMeasureLabel = intl.formatMessage({ id: 'pages.condo.marketplace.measure.perHour.full' })
-    const NoPriceMeasureLabel = intl.formatMessage({ id: 'pages.condo.marketplace.measure.perHour.full' })
+    const NoPriceMeasureLabel = intl.formatMessage({ id: 'pages.condo.marketplace.noMeasure' })
 
     const { requiredValidator, numberValidator, lessThanValidator } = useValidations()
     const { form, currencyCode, getUpdatedPricesField } = useMarketItemFormContext()
@@ -636,7 +636,7 @@ const MarketPriceForm = ({ priceFormDescription, removeOperation, organizationPr
 
     const handleContractPriceCheck = useCallback(async () => {
         form.setFieldsValue(getUpdatedPricesField(priceFormName, { price: null }))
-        form.setFieldsValue(getUpdatedPricesField(priceFormName, { measure: null }))
+        form.setFieldsValue(getUpdatedPricesField(priceFormName, { measure: undefined }))
 
         await form.validateFields(['prices', priceFormName, 'price'])
     }, [form, getUpdatedPricesField, priceFormName])
@@ -726,7 +726,7 @@ const MarketPriceForm = ({ priceFormDescription, removeOperation, organizationPr
                         </Select.Option>
                         <Select.Option
                             key='oneTime'
-                            value={null}
+                            value={undefined}
                         >
                             {NoPriceMeasureLabel}
                         </Select.Option>
