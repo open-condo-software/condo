@@ -75,7 +75,7 @@ export const DeleteEmployeeButtonWithReassignmentModel: React.FC<IDeleteEmployee
             case ERROR_NOTIFICATION_TYPE:
                 return {
                     message: <Typography.Text strong>{NotificationTitleErrorLabel}</Typography.Text>,
-                    description: <Typography.Text strong>{NotificationMessageErrorLabel}</Typography.Text>,
+                    description: <Typography.Text>{NotificationMessageErrorLabel}</Typography.Text>,
                     duration: 0,
                     key: 'reassignTicket',
                 }
@@ -83,7 +83,7 @@ export const DeleteEmployeeButtonWithReassignmentModel: React.FC<IDeleteEmployee
                 return {
                     message: <Typography.Text strong>{NotificationTitleWarningLabel}</Typography.Text>,
                     description: <Space direction='vertical' size={4}>
-                        <Typography.Text strong>
+                        <Typography.Text>
                             {NotificationMessageWarningLabel}
                         </Typography.Text>
                         <Typography.Text>
@@ -97,7 +97,7 @@ export const DeleteEmployeeButtonWithReassignmentModel: React.FC<IDeleteEmployee
                 return {
                     message: <Typography.Text strong>{NotificationTitleSuccessLabel}</Typography.Text>,
                     description: <Space direction='vertical' size={4}>
-                        <Typography.Text strong>
+                        <Typography.Text>
                             {NotificationMessageSuccessLabel}
                         </Typography.Text>
                         {updatedTicketsCount !== null && <Typography.Text>

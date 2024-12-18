@@ -305,7 +305,7 @@ export const EmployeePageContent: React.FC<EmployeePageContent> = ({
 }
 
 export const EmployeeInfoPage: PageComponentType = () => {
-    const { query } = useRouter()
+    const { query, push } = useRouter()
     const { link } = useOrganization()
     const { persistor } = useCachePersistor()
     const intl = useIntl()
@@ -339,7 +339,9 @@ export const EmployeeInfoPage: PageComponentType = () => {
     const employeeWithSpecializations = { ...employee, specializations: organizationEmployeeSpecializations.map(scope => scope.specialization) }
 
     const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => refetch())
-    const softDeleteAction = OrganizationEmployee.useSoftDelete(() => refetch())
+    const softDeleteAction = OrganizationEmployee.useSoftDelete(() => {
+        if (window && window.location.pathname === `/employee/${employeeId}`) push('/employee/')
+    })
 
     const isEmployeeEditable = get(link, ['role', 'canManageEmployees'], false)
     const isEmployeeReinvitable = get(link, ['role', 'canInviteNewOrganizationEmployees'], false) && !get(employee, 'isAccepted')

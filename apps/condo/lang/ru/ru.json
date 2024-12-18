@@ -723,7 +723,7 @@
   "employee.reassignTickets.buttonContent.deleteUser": "Удалить сотрудника без переназначения",
   "employee.reassignTickets.buttonContent.reassignTickets": "Удалить сотрудника и переназначить заявки",
   "employee.reassignTickets.alert.title": "{employeeName} назначен на несколько заявок",
-  "employee.reassignTickets.alert.message": "Чтобы не потерять их, назначьте нового исполнителя среди сотрудников",
+  "employee.reassignTickets.alert.message": "Чтобы не потерять их, назначьте нового исполнителя среди сотрудников. Можно не переназначать заявки и просто удалить сотрудника.",
   "employee.reassignTickets.notification.title.warning": "Не закрывайте вкладку",
   "employee.reassignTickets.notification.title.error": "Возникла ошибка",
   "employee.reassignTickets.notification.title.success": "Готово",
