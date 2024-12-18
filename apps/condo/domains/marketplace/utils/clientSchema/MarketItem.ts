@@ -101,6 +101,7 @@ export function convertToFormState ({ marketItem, marketItemPrices, marketPriceS
 
         const [priceObj] = get(marketItemPrice, 'price')
         const priceFromObj = get(priceObj, 'price')
+        const measureFromPriceObj = get(priceObj, 'measure')
         const isMinPrice = get(priceObj, 'isMin')
 
         let priceType
@@ -114,9 +115,9 @@ export function convertToFormState ({ marketItem, marketItemPrices, marketPriceS
         }
 
         if (hasAllProperties && initialProperties.length === 1) {
-            prices.push({ id, priceType, price, properties: initialProperties[0].id, hasAllProperties: false })
+            prices.push({ id, priceType, price, properties: initialProperties[0].id, hasAllProperties: false, measure: measureFromPriceObj })
         } else {
-            prices.push({ id, priceType, price, properties, hasAllProperties })
+            prices.push({ id, priceType, price, properties, hasAllProperties, measure: measureFromPriceObj })
         }
     }
 
