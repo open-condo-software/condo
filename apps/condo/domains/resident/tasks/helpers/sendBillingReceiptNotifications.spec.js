@@ -16,49 +16,47 @@ describe('sendBillingReceiptNotifications', () => {
     setFakeClientMode(index)
     const redisClient = getRedisClient()
 
-    describe('feature flag', () => {
-        test('checks for proper result on enabled', async () => {
-            await redisClient.del(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
-            setAllFeatureFlags(true)
-            waitFor(async () => {
-                expect(await sendBillingReceiptNotifications()).toMatchObject({ status: NO_REDIS_KEY })
-            }, { delay: 2000 })
-            await redisClient.del(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
-        })
+    beforeEach(async () => {
+        await redisClient.del(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
+    })
 
+    afterEach(async () => {
+        await redisClient.del(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
+    })
+
+    describe('feature flag', () => {
         test('checks for proper result on disabled', async () => {
             setAllFeatureFlags(false)
             expect(await sendBillingReceiptNotifications()).toMatchObject({ status: DISABLED })
         })
 
         test('Should return noRedisKey for first running', async () => {
-            await redisClient.del(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
             setAllFeatureFlags(true)
-            waitFor(async () => {
+            await waitFor(async () => {
                 expect(await sendBillingReceiptNotifications()).toMatchObject({ status: NO_REDIS_KEY })
-            }, { delay: 2000 })
-            await redisClient.del(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
+            }, { delay: 2000, interval: 2000 })
         })
 
         test('Should return skip notification if cron runs more than one time a day', async () => {
-            await redisClient.del(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
             setAllFeatureFlags(true)
 
-            waitFor(async () => {
+            await waitFor(async () => {
                 expect(await sendBillingReceiptNotifications()).toMatchObject({ status: NO_REDIS_KEY })
-                expect(await sendBillingReceiptNotifications()).toMatchObject({ status: SKIP_NOTIFICATION })
-            }, { delay: 2000 })
+            }, { delay: 2000, interval: 2000 })
 
-            await redisClient.del(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
+            await waitFor(async () => {
+                expect(await sendBillingReceiptNotifications()).toMatchObject({ status: SKIP_NOTIFICATION })
+            }, { delay: 2000, interval: 2000  })
         })
 
         test('Should return done if pushes are sent', async () => {
-            await redisClient.set(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE, dayjs().subtract(1, 'day').startOf('day').toISOString())
             setAllFeatureFlags(true)
-            waitFor(async () => {
+
+            await redisClient.set(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE, dayjs().subtract(1, 'day').startOf('day').toISOString())
+
+            await waitFor(async () => {
                 expect(await sendBillingReceiptNotifications()).toMatchObject({ status: DONE })
-            }, { delay: 2000 })
-            await redisClient.del(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
+            }, { delay: 2000, interval: 2000  })
         })
     })
 })
