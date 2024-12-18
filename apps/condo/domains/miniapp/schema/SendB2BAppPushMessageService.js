@@ -3,7 +3,7 @@
  */
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
-const { GQLCustomSchema } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, find, itemsQuery } = require('@open-condo/keystone/schema')
 
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const { LOCALES } = require('@condo/domains/common/constants/locale')
@@ -11,18 +11,41 @@ const access = require('@condo/domains/miniapp/access/SendB2BAppPushMessageServi
 const { B2B_APP_MESSAGE_TYPES } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 
+const { CONTEXT_FINISHED_STATUS } = require('../constants')
+
 
 /**
  * List of possible errors, that this custom schema can throw
  * They will be rendered in documentation section in GraphiQL for this custom schema
  */
 const ERRORS = {
-    NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY: { mutation: 'sendB2BAppPushMessage',
-        variable: ['data', 'someVar'], // TODO(codegen): Provide path to a query/mutation variable, whose value caused this error. Remove this property, if variables are not relevant to this error
-        code: BAD_USER_INPUT, // TODO(codegen): use one of the basic codes, declared in '@open-condo/keystone/errors'
-        type: NOT_FOUND, // TODO(codegen): use value from `constants/errors.js` either from 'common' or current domain
-        message: 'Describe what happened for developer',
-        messageForUser: 'api.user.sendB2BAppPushMessage.NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY', // TODO(codegen): localized message for user, use translation files
+    NO_B2B_CONTEXT: {
+        mutation: 'sendB2BAppPushMessage',
+        variable: ['data', 'app'],
+        code: BAD_USER_INPUT,
+        type: NOT_FOUND,
+        message: 'No finished B2BContext for passed organization and B2BApp',
+    },
+    NO_B2B_APP_ACCESS_RIGHT: {
+        mutation: 'sendB2BAppPushMessage',
+        variable: ['data', 'app'],
+        code: BAD_USER_INPUT,
+        type: NOT_FOUND,
+        message: 'No B2BAppAccessRight for passed user and B2BApp',
+    },
+    NO_EMPLOYEE_FOR_USER: {
+        mutation: 'sendB2BAppPushMessage',
+        variable: ['data', 'user'],
+        code: BAD_USER_INPUT,
+        type: NOT_FOUND,
+        message: 'Passed user is not an employee of passed organization',
+    },
+    NO_ORGANIZATION: {
+        mutation: 'sendB2BAppPushMessage',
+        variable: ['data', 'organization'],
+        code: BAD_USER_INPUT,
+        type: NOT_FOUND,
+        message: 'Organization not found',
     },
 }
 
@@ -46,26 +69,84 @@ const SendB2BAppPushMessageService = new GQLCustomSchema('SendB2BAppPushMessageS
         {
             access: access.canSendB2BAppPushMessage,
             schema: 'sendB2BAppPushMessage(data: SendB2BAppPushMessageInput!): SendB2BAppPushMessageOutput',
-            resolver: async (parent, args, context, info, extra = {}) => {
+            resolver: async (parent, args, context) => {
                 const {
-                    data: { dv, sender, user, organization, app, type, meta },
+                    data: {
+                        dv,
+                        sender,
+                        user: userFilter,
+                        organization: organizationFilter,
+                        app: b2bAppFilter,
+                        type,
+                        meta,
+                    },
                 } = args
 
-                const result = await sendMessage(context, {
-                    to: {
-                        user,
+                const [b2bAppContext] = await itemsQuery('B2BAppContext', {
+                    where: {
+                        organization: { ...organizationFilter, deletedAt: null },
+                        app: { ...b2bAppFilter, deletedAt: null },
+                        status: CONTEXT_FINISHED_STATUS,
+                        deletedAt: null,
                     },
-                    organization,
+                    first: 1,
+                })
+                if (!b2bAppContext) {
+                    throw new GQLError(ERRORS.NO_B2B_CONTEXT, context)
+                }
+
+                const [b2bAppAccessRight] = await itemsQuery('B2BAppAccessRight', {
+                    where: {
+                        accessRightSet: {
+                            user: { ...userFilter, deletedAt: null },
+                            app: { ...b2bAppFilter, deletedAt: null },
+                            canExecuteSendB2BAppPushMessage: true,
+                        },
+                        deletedAt: null,
+                    },
+                    first: 1,
+                })
+                if (!b2bAppAccessRight) {
+                    throw new GQLError(ERRORS.NO_B2B_APP_ACCESS_RIGHT, context)
+                }
+
+                const [organization] = await itemsQuery('Organization', {
+                    where: {
+                        ...organizationFilter,
+                        deletedAt: null,
+                    },
+                    first: 1,
+                })
+                if (!organization) {
+                    throw new GQLError(ERRORS.NO_ORGANIZATION, context)
+                }
+
+                const [employee] = await itemsQuery('OrganizationEmployee', {
+                    where: {
+                        organization: { ...organizationFilter, deletedAt: null },
+                        user: { ...userFilter, deletedAt: null },
+                        isAccepted: true,
+                        isRejected: false,
+                        isBlocked: false,
+                        deletedAt: null,
+                    },
+                    first: 1,
+                })
+                if (!employee) {
+                    throw new GQLError(ERRORS.NO_EMPLOYEE_FOR_USER, context)
+                }
+
+                // add checks for messages delay and black list (maybe in AppMessageSetting)
+
+                const { id, status } = await sendMessage(context, {
+                    to: { user: userFilter },
+                    organization: organizationFilter,
                     type,
-                    lang: 'ru',
+                    lang: organization.lang,
                     meta,
                     dv,
                     sender,
                 })
-
-                console.log('result', result)
-
-                const { id, status } = result
 
                 return {
                     id,
