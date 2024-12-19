@@ -131,10 +131,10 @@ class ApolloRateLimitingPlugin {
             didResolveOperation: async (requestContext) => {
                 const { mutations, queries } = extractQueriesAndMutationsFromRequest(requestContext)
 
-                /** @type {Record<string, number>} */
-                const queriesComplexity = {}
-                /** @type {Record<string, number>} */
-                const mutationsComplexity = {}
+                /** @type {Array<{ name: string, complexity: number }>} */
+                const queriesComplexity = []
+                /** @type {Array<{ name: string, complexity: number }>} */
+                const mutationsComplexity = []
 
                 for (const query of queries) {
                     // Not include introspection queries in complexity.
@@ -143,29 +143,27 @@ class ApolloRateLimitingPlugin {
                         continue
                     }
                     const complexity = this.#getQueryComplexity(query)
-                    // TODO: Check override query quota if needed
-                    queriesComplexity[query.name] ??= 0
-                    queriesComplexity[query.name] += complexity
+
+                    queriesComplexity.push({ name: query.name, complexity })
                 }
 
                 for (const mutation of mutations) {
                     const complexity = this.#getMutationComplexity(mutation)
-                    // TODO: Check override mutation quota if needed
-                    mutationsComplexity[mutation.name] ??= 0
-                    mutationsComplexity[mutation.name] += complexity
+
+                    mutationsComplexity.push({ name: mutation.name, complexity })
                 }
 
-                const allQueriesComplexity = Object.values(queriesComplexity).reduce((acc, curr) => acc + curr, 0)
-                const allMutationsComplexity = Object.values(mutationsComplexity).reduce((acc, curr) => acc + curr, 0)
-                const requestComplexity = allQueriesComplexity + allMutationsComplexity
+                const totalQueriesComplexity = queriesComplexity.reduce((acc, curr) => acc + curr.complexity, 0)
+                const totalMutationsComplexity = mutationsComplexity.reduce((acc, curr) => acc + curr.complexity, 0)
+                const requestComplexity = totalQueriesComplexity + totalMutationsComplexity
 
                 requestContext.context.req.complexity = {
                     details: {
                         queries: queriesComplexity,
                         mutations: mutationsComplexity,
                     },
-                    queries: allQueriesComplexity,
-                    mutations: allMutationsComplexity,
+                    queries: totalQueriesComplexity,
+                    mutations: totalMutationsComplexity,
                     total: requestComplexity,
                 }
 
