@@ -150,8 +150,6 @@ export const CreateNewsForm: React.FC = () => {
         },
     })
 
-    console.log(newsItemTemplates)
-
     const {
         loading: isSharingAppContextsFetching,
         objs: sharingAppContexts,
