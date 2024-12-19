@@ -725,7 +725,7 @@ const MarketPriceForm = ({ priceFormDescription, removeOperation, organizationPr
                             { PerMeterPriceMeasureLabel }
                         </Select.Option>
                         <Select.Option
-                            key='oneTime'
+                            key={undefined}
                             value={undefined}
                         >
                             {NoPriceMeasureLabel}
