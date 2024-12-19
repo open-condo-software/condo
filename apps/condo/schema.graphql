@@ -69864,7 +69864,7 @@ input MessageAppBlackListHistoryRecordsCreateInput {
   data: MessageAppBlackListHistoryRecordCreateInput
 }
 
-""" [Deprecated] Rule for blocking specific type of messages for apps. Use B2CAppMessageSetting 
+""" [Deprecated] Rule for blocking specific type of messages for apps. Use AppMessageSetting 
 """
 type MessageAppBlackList {
   """
@@ -72371,23 +72371,24 @@ input B2BAppNewsSharingConfigsCreateInput {
   data: B2BAppNewsSharingConfigCreateInput
 }
 
-enum B2CAppMessageSettingHistoryRecordHistoryActionType {
+enum AppMessageSettingHistoryRecordHistoryActionType {
   c
   u
   d
 }
 
 """ A keystone list """
-type B2CAppMessageSettingHistoryRecord {
+type AppMessageSettingHistoryRecord {
   """
   This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the B2CAppMessageSettingHistoryRecord List config, or
-   2. As an alias to the field set on 'labelField' in the B2CAppMessageSettingHistoryRecord List config, or
-   3. As an alias to a 'name' field on the B2CAppMessageSettingHistoryRecord List (if one exists), or
-   4. As an alias to the 'id' field on the B2CAppMessageSettingHistoryRecord List.
+   1. Execution of 'labelResolver' set on the AppMessageSettingHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the AppMessageSettingHistoryRecord List config, or
+   3. As an alias to a 'name' field on the AppMessageSettingHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the AppMessageSettingHistoryRecord List.
   """
   _label_: String
-  app: String
+  b2bApp: String
+  b2cApp: String
   blockReason: String
   isBlacklisted: Boolean
   type: String
@@ -72404,17 +72405,21 @@ type B2CAppMessageSettingHistoryRecord {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: B2CAppMessageSettingHistoryRecordHistoryActionType
+  history_action: AppMessageSettingHistoryRecordHistoryActionType
   history_id: String
 }
 
-input B2CAppMessageSettingHistoryRecordWhereInput {
-  AND: [B2CAppMessageSettingHistoryRecordWhereInput]
-  OR: [B2CAppMessageSettingHistoryRecordWhereInput]
-  app: String
-  app_not: String
-  app_in: [String]
-  app_not_in: [String]
+input AppMessageSettingHistoryRecordWhereInput {
+  AND: [AppMessageSettingHistoryRecordWhereInput]
+  OR: [AppMessageSettingHistoryRecordWhereInput]
+  b2bApp: String
+  b2bApp_not: String
+  b2bApp_in: [String]
+  b2bApp_not_in: [String]
+  b2cApp: String
+  b2cApp_not: String
+  b2cApp_in: [String]
+  b2cApp_not_in: [String]
   blockReason: String
   blockReason_not: String
   blockReason_contains: String
@@ -72537,21 +72542,21 @@ input B2CAppMessageSettingHistoryRecordWhereInput {
   history_date_gte: String
   history_date_in: [String]
   history_date_not_in: [String]
-  history_action: B2CAppMessageSettingHistoryRecordHistoryActionType
-  history_action_not: B2CAppMessageSettingHistoryRecordHistoryActionType
-  history_action_in: [B2CAppMessageSettingHistoryRecordHistoryActionType]
-  history_action_not_in: [B2CAppMessageSettingHistoryRecordHistoryActionType]
+  history_action: AppMessageSettingHistoryRecordHistoryActionType
+  history_action_not: AppMessageSettingHistoryRecordHistoryActionType
+  history_action_in: [AppMessageSettingHistoryRecordHistoryActionType]
+  history_action_not_in: [AppMessageSettingHistoryRecordHistoryActionType]
   history_id: String
   history_id_not: String
   history_id_in: [String]
   history_id_not_in: [String]
 }
 
-input B2CAppMessageSettingHistoryRecordWhereUniqueInput {
+input AppMessageSettingHistoryRecordWhereUniqueInput {
   id: ID!
 }
 
-enum SortB2CAppMessageSettingHistoryRecordsBy {
+enum SortAppMessageSettingHistoryRecordsBy {
   blockReason_ASC
   blockReason_DESC
   isBlacklisted_ASC
@@ -72580,8 +72585,9 @@ enum SortB2CAppMessageSettingHistoryRecordsBy {
   history_action_DESC
 }
 
-input B2CAppMessageSettingHistoryRecordUpdateInput {
-  app: String
+input AppMessageSettingHistoryRecordUpdateInput {
+  b2bApp: String
+  b2cApp: String
   blockReason: String
   isBlacklisted: Boolean
   type: String
@@ -72597,17 +72603,18 @@ input B2CAppMessageSettingHistoryRecordUpdateInput {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: B2CAppMessageSettingHistoryRecordHistoryActionType
+  history_action: AppMessageSettingHistoryRecordHistoryActionType
   history_id: String
 }
 
-input B2CAppMessageSettingHistoryRecordsUpdateInput {
+input AppMessageSettingHistoryRecordsUpdateInput {
   id: ID!
-  data: B2CAppMessageSettingHistoryRecordUpdateInput
+  data: AppMessageSettingHistoryRecordUpdateInput
 }
 
-input B2CAppMessageSettingHistoryRecordCreateInput {
-  app: String
+input AppMessageSettingHistoryRecordCreateInput {
+  b2bApp: String
+  b2cApp: String
   blockReason: String
   isBlacklisted: Boolean
   type: String
@@ -72623,28 +72630,31 @@ input B2CAppMessageSettingHistoryRecordCreateInput {
   dv: Int
   sender: JSON
   history_date: String
-  history_action: B2CAppMessageSettingHistoryRecordHistoryActionType
+  history_action: AppMessageSettingHistoryRecordHistoryActionType
   history_id: String
 }
 
-input B2CAppMessageSettingHistoryRecordsCreateInput {
-  data: B2CAppMessageSettingHistoryRecordCreateInput
+input AppMessageSettingHistoryRecordsCreateInput {
+  data: AppMessageSettingHistoryRecordCreateInput
 }
 
 """ Configuration of sending push notifications for specific miniapps.Used to block certain types of push notifications and control throttling of notifications of a certain miniapp 
 """
-type B2CAppMessageSetting {
+type AppMessageSetting {
   """
   This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the B2CAppMessageSetting List config, or
-   2. As an alias to the field set on 'labelField' in the B2CAppMessageSetting List config, or
-   3. As an alias to a 'name' field on the B2CAppMessageSetting List (if one exists), or
-   4. As an alias to the 'id' field on the B2CAppMessageSetting List.
+   1. Execution of 'labelResolver' set on the AppMessageSetting List config, or
+   2. As an alias to the field set on 'labelField' in the AppMessageSetting List config, or
+   3. As an alias to a 'name' field on the AppMessageSetting List (if one exists), or
+   4. As an alias to the 'id' field on the AppMessageSetting List.
   """
   _label_: String
 
+  """ Link to B2BApp to which this config applies """
+  b2bApp: B2BApp
+
   """ Link to B2CApp to which this config applies """
-  app: B2CApp
+  b2cApp: B2CApp
 
   """ Reason for blocking messages with types from type """
   blockReason: String
@@ -72684,11 +72694,13 @@ type B2CAppMessageSetting {
   sender: SenderField
 }
 
-input B2CAppMessageSettingWhereInput {
-  AND: [B2CAppMessageSettingWhereInput]
-  OR: [B2CAppMessageSettingWhereInput]
-  app: B2CAppWhereInput
-  app_is_null: Boolean
+input AppMessageSettingWhereInput {
+  AND: [AppMessageSettingWhereInput]
+  OR: [AppMessageSettingWhereInput]
+  b2bApp: B2BAppWhereInput
+  b2bApp_is_null: Boolean
+  b2cApp: B2CAppWhereInput
+  b2cApp_is_null: Boolean
   blockReason: String
   blockReason_not: String
   blockReason_contains: String
@@ -72787,13 +72799,15 @@ input B2CAppMessageSettingWhereInput {
   sender_not_in: [SenderFieldInput]
 }
 
-input B2CAppMessageSettingWhereUniqueInput {
+input AppMessageSettingWhereUniqueInput {
   id: ID!
 }
 
-enum SortB2CAppMessageSettingsBy {
-  app_ASC
-  app_DESC
+enum SortAppMessageSettingsBy {
+  b2bApp_ASC
+  b2bApp_DESC
+  b2cApp_ASC
+  b2cApp_DESC
   blockReason_ASC
   blockReason_DESC
   isBlacklisted_ASC
@@ -72822,8 +72836,9 @@ enum SortB2CAppMessageSettingsBy {
   dv_DESC
 }
 
-input B2CAppMessageSettingUpdateInput {
-  app: B2CAppRelateToOneInput
+input AppMessageSettingUpdateInput {
+  b2bApp: B2BAppRelateToOneInput
+  b2cApp: B2CAppRelateToOneInput
   blockReason: String
   isBlacklisted: Boolean
   type: MessageType
@@ -72840,13 +72855,14 @@ input B2CAppMessageSettingUpdateInput {
   sender: SenderFieldInput
 }
 
-input B2CAppMessageSettingsUpdateInput {
+input AppMessageSettingsUpdateInput {
   id: ID!
-  data: B2CAppMessageSettingUpdateInput
+  data: AppMessageSettingUpdateInput
 }
 
-input B2CAppMessageSettingCreateInput {
-  app: B2CAppRelateToOneInput
+input AppMessageSettingCreateInput {
+  b2bApp: B2BAppRelateToOneInput
+  b2cApp: B2CAppRelateToOneInput
   blockReason: String
   isBlacklisted: Boolean
   type: MessageType
@@ -72863,8 +72879,8 @@ input B2CAppMessageSettingCreateInput {
   sender: SenderFieldInput
 }
 
-input B2CAppMessageSettingsCreateInput {
-  data: B2CAppMessageSettingCreateInput
+input AppMessageSettingsCreateInput {
+  data: AppMessageSettingCreateInput
 }
 
 enum B2BAccessTokenHistoryRecordHistoryActionType {
@@ -84386,35 +84402,33 @@ type Query {
   """ Retrieve the meta-data for the B2BAppNewsSharingConfig list. """
   _B2BAppNewsSharingConfigsMeta: _ListMeta
 
-  """ Search for all B2CAppMessageSettingHistoryRecord items which match the where clause. 
+  """ Search for all AppMessageSettingHistoryRecord items which match the where clause. 
   """
-  allB2CAppMessageSettingHistoryRecords(where: B2CAppMessageSettingHistoryRecordWhereInput, search: String, sortBy: [SortB2CAppMessageSettingHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [B2CAppMessageSettingHistoryRecord]
+  allAppMessageSettingHistoryRecords(where: AppMessageSettingHistoryRecordWhereInput, search: String, sortBy: [SortAppMessageSettingHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [AppMessageSettingHistoryRecord]
 
-  """ Search for the B2CAppMessageSettingHistoryRecord item with the matching ID. 
+  """ Search for the AppMessageSettingHistoryRecord item with the matching ID. 
   """
-  B2CAppMessageSettingHistoryRecord(where: B2CAppMessageSettingHistoryRecordWhereUniqueInput!): B2CAppMessageSettingHistoryRecord
+  AppMessageSettingHistoryRecord(where: AppMessageSettingHistoryRecordWhereUniqueInput!): AppMessageSettingHistoryRecord
 
-  """ Perform a meta-query on all B2CAppMessageSettingHistoryRecord items which match the where clause. 
+  """ Perform a meta-query on all AppMessageSettingHistoryRecord items which match the where clause. 
   """
-  _allB2CAppMessageSettingHistoryRecordsMeta(where: B2CAppMessageSettingHistoryRecordWhereInput, search: String, sortBy: [SortB2CAppMessageSettingHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+  _allAppMessageSettingHistoryRecordsMeta(where: AppMessageSettingHistoryRecordWhereInput, search: String, sortBy: [SortAppMessageSettingHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
-  """ Retrieve the meta-data for the B2CAppMessageSettingHistoryRecord list. 
+  """ Retrieve the meta-data for the AppMessageSettingHistoryRecord list. """
+  _AppMessageSettingHistoryRecordsMeta: _ListMeta
+
+  """ Search for all AppMessageSetting items which match the where clause. """
+  allAppMessageSettings(where: AppMessageSettingWhereInput, search: String, sortBy: [SortAppMessageSettingsBy!], orderBy: String, first: Int, skip: Int): [AppMessageSetting]
+
+  """ Search for the AppMessageSetting item with the matching ID. """
+  AppMessageSetting(where: AppMessageSettingWhereUniqueInput!): AppMessageSetting
+
+  """ Perform a meta-query on all AppMessageSetting items which match the where clause. 
   """
-  _B2CAppMessageSettingHistoryRecordsMeta: _ListMeta
+  _allAppMessageSettingsMeta(where: AppMessageSettingWhereInput, search: String, sortBy: [SortAppMessageSettingsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
-  """ Search for all B2CAppMessageSetting items which match the where clause. 
-  """
-  allB2CAppMessageSettings(where: B2CAppMessageSettingWhereInput, search: String, sortBy: [SortB2CAppMessageSettingsBy!], orderBy: String, first: Int, skip: Int): [B2CAppMessageSetting]
-
-  """ Search for the B2CAppMessageSetting item with the matching ID. """
-  B2CAppMessageSetting(where: B2CAppMessageSettingWhereUniqueInput!): B2CAppMessageSetting
-
-  """ Perform a meta-query on all B2CAppMessageSetting items which match the where clause. 
-  """
-  _allB2CAppMessageSettingsMeta(where: B2CAppMessageSettingWhereInput, search: String, sortBy: [SortB2CAppMessageSettingsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
-
-  """ Retrieve the meta-data for the B2CAppMessageSetting list. """
-  _B2CAppMessageSettingsMeta: _ListMeta
+  """ Retrieve the meta-data for the AppMessageSetting list. """
+  _AppMessageSettingsMeta: _ListMeta
 
   """ Search for all B2BAccessTokenHistoryRecord items which match the where clause. 
   """
@@ -89447,41 +89461,41 @@ type Mutation {
   """ Delete multiple B2BAppNewsSharingConfig items by ID. """
   deleteB2BAppNewsSharingConfigs(ids: [ID!]): [B2BAppNewsSharingConfig]
 
-  """ Create a single B2CAppMessageSettingHistoryRecord item. """
-  createB2CAppMessageSettingHistoryRecord(data: B2CAppMessageSettingHistoryRecordCreateInput): B2CAppMessageSettingHistoryRecord
+  """ Create a single AppMessageSettingHistoryRecord item. """
+  createAppMessageSettingHistoryRecord(data: AppMessageSettingHistoryRecordCreateInput): AppMessageSettingHistoryRecord
 
-  """ Create multiple B2CAppMessageSettingHistoryRecord items. """
-  createB2CAppMessageSettingHistoryRecords(data: [B2CAppMessageSettingHistoryRecordsCreateInput]): [B2CAppMessageSettingHistoryRecord]
+  """ Create multiple AppMessageSettingHistoryRecord items. """
+  createAppMessageSettingHistoryRecords(data: [AppMessageSettingHistoryRecordsCreateInput]): [AppMessageSettingHistoryRecord]
 
-  """ Update a single B2CAppMessageSettingHistoryRecord item by ID. """
-  updateB2CAppMessageSettingHistoryRecord(id: ID!, data: B2CAppMessageSettingHistoryRecordUpdateInput): B2CAppMessageSettingHistoryRecord
+  """ Update a single AppMessageSettingHistoryRecord item by ID. """
+  updateAppMessageSettingHistoryRecord(id: ID!, data: AppMessageSettingHistoryRecordUpdateInput): AppMessageSettingHistoryRecord
 
-  """ Update multiple B2CAppMessageSettingHistoryRecord items by ID. """
-  updateB2CAppMessageSettingHistoryRecords(data: [B2CAppMessageSettingHistoryRecordsUpdateInput]): [B2CAppMessageSettingHistoryRecord]
+  """ Update multiple AppMessageSettingHistoryRecord items by ID. """
+  updateAppMessageSettingHistoryRecords(data: [AppMessageSettingHistoryRecordsUpdateInput]): [AppMessageSettingHistoryRecord]
 
-  """ Delete a single B2CAppMessageSettingHistoryRecord item by ID. """
-  deleteB2CAppMessageSettingHistoryRecord(id: ID!): B2CAppMessageSettingHistoryRecord
+  """ Delete a single AppMessageSettingHistoryRecord item by ID. """
+  deleteAppMessageSettingHistoryRecord(id: ID!): AppMessageSettingHistoryRecord
 
-  """ Delete multiple B2CAppMessageSettingHistoryRecord items by ID. """
-  deleteB2CAppMessageSettingHistoryRecords(ids: [ID!]): [B2CAppMessageSettingHistoryRecord]
+  """ Delete multiple AppMessageSettingHistoryRecord items by ID. """
+  deleteAppMessageSettingHistoryRecords(ids: [ID!]): [AppMessageSettingHistoryRecord]
 
-  """ Create a single B2CAppMessageSetting item. """
-  createB2CAppMessageSetting(data: B2CAppMessageSettingCreateInput): B2CAppMessageSetting
+  """ Create a single AppMessageSetting item. """
+  createAppMessageSetting(data: AppMessageSettingCreateInput): AppMessageSetting
 
-  """ Create multiple B2CAppMessageSetting items. """
-  createB2CAppMessageSettings(data: [B2CAppMessageSettingsCreateInput]): [B2CAppMessageSetting]
+  """ Create multiple AppMessageSetting items. """
+  createAppMessageSettings(data: [AppMessageSettingsCreateInput]): [AppMessageSetting]
 
-  """ Update a single B2CAppMessageSetting item by ID. """
-  updateB2CAppMessageSetting(id: ID!, data: B2CAppMessageSettingUpdateInput): B2CAppMessageSetting
+  """ Update a single AppMessageSetting item by ID. """
+  updateAppMessageSetting(id: ID!, data: AppMessageSettingUpdateInput): AppMessageSetting
 
-  """ Update multiple B2CAppMessageSetting items by ID. """
-  updateB2CAppMessageSettings(data: [B2CAppMessageSettingsUpdateInput]): [B2CAppMessageSetting]
+  """ Update multiple AppMessageSetting items by ID. """
+  updateAppMessageSettings(data: [AppMessageSettingsUpdateInput]): [AppMessageSetting]
 
-  """ Delete a single B2CAppMessageSetting item by ID. """
-  deleteB2CAppMessageSetting(id: ID!): B2CAppMessageSetting
+  """ Delete a single AppMessageSetting item by ID. """
+  deleteAppMessageSetting(id: ID!): AppMessageSetting
 
-  """ Delete multiple B2CAppMessageSetting items by ID. """
-  deleteB2CAppMessageSettings(ids: [ID!]): [B2CAppMessageSetting]
+  """ Delete multiple AppMessageSetting items by ID. """
+  deleteAppMessageSettings(ids: [ID!]): [AppMessageSetting]
 
   """ Create a single B2BAccessTokenHistoryRecord item. """
   createB2BAccessTokenHistoryRecord(data: B2BAccessTokenHistoryRecordCreateInput): B2BAccessTokenHistoryRecord

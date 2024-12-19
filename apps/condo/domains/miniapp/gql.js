@@ -76,8 +76,8 @@ const MessageAppBlackList = generateGqlQueries('MessageAppBlackList', MESSAGE_AP
 const B2B_APP_ACCESS_RIGHT_SET_FIELDS = `{ app { id } type name ${B2B_ACCESSES_LISTS_FIELDS} ${B2B_ACCESSES_SERVICES_FIELDS} ${COMMON_FIELDS} }`
 const B2BAppAccessRightSet = generateGqlQueries('B2BAppAccessRightSet', B2B_APP_ACCESS_RIGHT_SET_FIELDS)
 
-const B2C_APP_MESSAGE_SETTINGS_FIELDS = `{ app { id } isBlacklisted blockReason type notificationWindowSize numberOfNotificationInWindow ${COMMON_FIELDS} }`
-const B2CAppMessageSetting = generateGqlQueries('B2CAppMessageSetting', B2C_APP_MESSAGE_SETTINGS_FIELDS)
+const APP_MESSAGE_SETTINGS_FIELDS = `{ b2cApp { id } b2bApp { id } isBlacklisted blockReason type notificationWindowSize numberOfNotificationInWindow ${COMMON_FIELDS} }`
+const AppMessageSetting = generateGqlQueries('AppMessageSetting', APP_MESSAGE_SETTINGS_FIELDS)
 
 const B2B_ACCESS_TOKEN_FIELDS = `{ token user { id } context { id app { id name } organization { id name } } rightSet { id name } expiresAt ${COMMON_FIELDS} }`
 const B2BAccessToken = generateGqlQueries('B2BAccessToken', B2B_ACCESS_TOKEN_FIELDS)
@@ -109,11 +109,11 @@ module.exports = {
     B2CAppProperty,
     MessageAppBlackList,
     B2BAppNewsSharingConfig,
-    B2CAppMessageSetting,
     B2BAccessToken,
     B2BAccessTokenAdmin,
     B2BAccessTokenReadonly,
     B2BAccessTokenReadonlyAdmin,
+    AppMessageSetting,
     SEND_B2B_APP_PUSH_MESSAGE_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

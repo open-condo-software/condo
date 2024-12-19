@@ -13,7 +13,7 @@ const {
     USER_NOT_FOUND_ERROR, RESIDENT_NOT_FOUND_ERROR,
     APP_NOT_FOUND_ERROR, APP_BLACK_LIST_ERROR, DEBUG_APP_ID,
 } = require('@condo/domains/miniapp/constants')
-const { B2CAppMessageSetting } = require('@condo/domains/miniapp/utils/serverSchema')
+const { AppMessageSetting } = require('@condo/domains/miniapp/utils/serverSchema')
 const { B2CApp } = require('@condo/domains/miniapp/utils/serverSchema')
 const {
     VOIP_INCOMING_CALL_MESSAGE_TYPE,
@@ -147,8 +147,8 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
 
                     if (!appExisted) throw new GQLError(ERRORS.APP_NOT_FOUND, context)
 
-                    const where = { app: { id: app.id }, type, deletedAt: null }
-                    appSettings = await B2CAppMessageSetting.getOne(context, where, 'isBlacklisted notificationWindowSize numberOfNotificationInWindow')
+                    const where = { b2cApp: { id: app.id }, type, deletedAt: null }
+                    appSettings = await AppMessageSetting.getOne(context, where, 'isBlacklisted notificationWindowSize numberOfNotificationInWindow')
 
                     if (get(appSettings, 'isBlacklisted') === true) throw new GQLError(ERRORS.APP_IN_BLACK_LIST, context)
                     B2CAppName = appExisted.name

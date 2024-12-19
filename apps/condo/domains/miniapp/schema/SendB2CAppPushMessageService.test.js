@@ -16,7 +16,7 @@ const {
 const { DEBUG_APP_ID } = require('@condo/domains/miniapp/constants')
 const {
     createTestB2CApp,
-    sendB2CAppPushMessageByTestClient, createTestB2CAppMessageSetting,
+    sendB2CAppPushMessageByTestClient, createTestAppMessageSetting,
 } = require('@condo/domains/miniapp/utils/testSchema')
 const {
     B2C_APP_MESSAGE_PUSH_TYPE,
@@ -249,7 +249,7 @@ describe('SendB2CAppPushMessageService', () => {
         it('Don\'t send message if app added to MessageAppBlackList', async () => {
             const [b2c] = await createTestB2CApp(admin)
 
-            const [obj, attrs] = await createTestB2CAppMessageSetting(admin, b2c, {
+            const [obj, attrs] = await createTestAppMessageSetting(admin, b2c, {
                 type: B2C_APP_MESSAGE_PUSH_TYPE,
                 isBlacklisted: true,
             })
@@ -267,7 +267,7 @@ describe('SendB2CAppPushMessageService', () => {
         it('Don\'t send a notification if there was already a notification in the default time window', async () => {
             const [b2c] = await createTestB2CApp(admin)
 
-            await createTestB2CAppMessageSetting(admin, b2c, {
+            await createTestAppMessageSetting(admin, b2c, {
                 type: B2C_APP_MESSAGE_PUSH_TYPE,
             })
             const [message] = await sendB2CAppPushMessageByTestClient(admin, {
@@ -293,7 +293,7 @@ describe('SendB2CAppPushMessageService', () => {
 
             const notificationWindowSize = 3600
             const numberOfNotificationInWindow = 2
-            await createTestB2CAppMessageSetting(admin, b2c, {
+            await createTestAppMessageSetting(admin, b2c, {
                 notificationWindowSize,
                 numberOfNotificationInWindow,
             })
