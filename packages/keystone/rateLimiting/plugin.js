@@ -13,7 +13,7 @@ const {
     DEFAULT_PAGE_LIMIT,
 } = require('./constants')
 const { extractWhereComplexityFactor, extractRelationsComplexityFactor } = require('./query.utils')
-const { extractQueriesAndMutationsFromRequest, extractQuotaKeyFromRequest } = require('./request.utils')
+const { extractQueriesAndMutationsFromRequest, extractQuotaKeyFromRequest, addComplexity } = require('./request.utils')
 const { extractPossibleArgsFromSchemaQueries, extractKeystoneListsData } = require('./schema.utils')
 
 /** @implements {import('apollo-server-plugin-base').ApolloServerPlugin} */
@@ -157,7 +157,10 @@ class ApolloRateLimitingPlugin {
                 const totalMutationsComplexity = mutationsComplexity.reduce((acc, curr) => acc + curr.complexity, 0)
                 const requestComplexity = totalQueriesComplexity + totalMutationsComplexity
 
-                requestContext.context.req.complexity = {
+                // NOTE: Exists in cases of batched requests
+                const existingComplexity = requestContext.context.req.complexity
+
+                requestContext.context.req.complexity = addComplexity(existingComplexity, {
                     details: {
                         queries: queriesComplexity,
                         mutations: mutationsComplexity,
@@ -165,24 +168,44 @@ class ApolloRateLimitingPlugin {
                     queries: totalQueriesComplexity,
                     mutations: totalMutationsComplexity,
                     total: requestComplexity,
-                }
+                })
 
                 const { isAuthed, key } = extractQuotaKeyFromRequest(requestContext)
                 const maxQuota = isAuthed ? this.#authedQuota : this.#nonAuthedQuota
 
-                /** @type {string | null} */
-                const currentValue = await this.#redisClient.get(key)
-                const usedQuota = parseInt(currentValue) || 0
 
-                if (usedQuota + requestComplexity > maxQuota) {
-                    // TODO: Throw error instead here
-                    return
+                // NOTE: Request in batch are executed via Promise.all (probably),
+                // that's why we need an atomic way to increment counters / set TTLs
+                // So some magic with Redis transactions will be used below
+
+                const [
+                    [incrError, incrValue],
+                    [ttlError, ttlValue],
+                ] = await this.#redisClient
+                    .multi()
+                    .incrby(key, requestComplexity)
+                    .ttl(key)
+                    .exec()
+
+
+                if (incrError || ttlError) {
+                    throw (incrError || ttlError)
                 }
 
-                if (currentValue === null) {
-                    await this.#redisClient.set(key, requestComplexity, 'PX', this.#quotaWindowInMS)
-                } else {
-                    await this.#redisClient.incrby(key, requestComplexity)
+                // NOTE: If TTL is less than zero,
+                // it means that incrby has created a clean record in the database without expiration time.
+                // So we need to set its TTL explicitly.
+                // This operation is separated from main atomic transaction above,
+                // so it can potentially be called multiple times (by multiple pods / requests in batch)
+                // but the difference of a couple of ms is not very important for us
+                // ("expire" accepts seconds, "pexpire" - milliseconds)
+                if (ttlValue < 0) {
+                    await this.#redisClient.pexpire(key, this.#quotaWindowInMS)
+                }
+
+                if (incrValue > maxQuota) {
+                    // TODO(INFRA-760): Throw error instead here
+                    return
                 }
             },
         }
