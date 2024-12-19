@@ -196,10 +196,15 @@ export async function createNewPricesAndPriceScopes ({
     for (const formPrice of prices) {
         const { properties, hasAllProperties, price, priceType, measure } = formPrice
 
+        let processedMeasure = measure
+        if (!measure) {
+            processedMeasure = undefined
+        }
+
         const { price: resultPrice, isMin } = getPriceValueFromFormPrice({ priceType, price })
 
         const createdPrice = await createMarketItemPrice({
-            price: [{ type: 'variant', name: marketItem.name, price: resultPrice, isMin, measure }],
+            price: [{ type: 'variant', name: marketItem.name, price: resultPrice, isMin, measure: processedMeasure }],
             marketItem: { connect: { id: marketItem.id } },
         })
 
