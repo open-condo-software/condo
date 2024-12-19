@@ -18,7 +18,6 @@ import { NEW_CONTACT_NAME_FORM_ITEM_NAME } from '@condo/domains/contact/componen
 import { INVOICE_PAYMENT_TYPES, INVOICE_STATUSES } from '@condo/domains/marketplace/constants'
 import { Invoice as InvoiceGQL } from '@condo/domains/marketplace/gql'
 
-
 const RELATIONS = ['property', 'contact', 'ticket', 'organization', 'context']
 const DISCONNECT_ON_NULL = ['property', 'contact', 'ticket']
 const IGNORE_FORM_FIELDS = ['payerData', 'toPay', NEW_CONTACT_NAME_FORM_ITEM_NAME]
@@ -259,6 +258,9 @@ export function processRowsFromInvoiceTicketForm (rawRows, intl) {
         }
 
         const resultRow = { ...row, toPay: resultToPay }
+        if (!row.measure) {
+            resultRow.measure = undefined
+        }
 
         return resultRow.sku ? resultRow : omit(resultRow, 'sku')
     })

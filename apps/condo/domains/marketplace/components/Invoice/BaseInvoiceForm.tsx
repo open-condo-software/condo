@@ -502,7 +502,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
             const priceObj = get(pricesArray, '0')
             const price = get(priceObj, 'price')
             const isMin = get(priceObj, 'isMin')
-            const measure = get(priceObj, 'measure')
+            const measure = get(priceObj, 'measure') || undefined
             const sku = get(marketItem, 'sku')
 
             const marketItemOption = {
@@ -638,7 +638,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                     updateRowFields(marketItemForm.name, {
                                                         toPay: toPayValue,
                                                         isMin: option.isMin,
-                                                        measure: option.measure,
+                                                        measure: option.measure ? option.measure : undefined,
                                                     })
 
                                                     form.validateFields([['rows', marketItemForm.name, 'toPay']])
@@ -662,7 +662,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                             labelCol={{ span: 24 }}
                                         >
                                             <Select
-                                                defaultValue='perItem'
+                                                defaultValue={PriceMeasuresType.PerItem}
                                             >
                                                 <Select.Option
                                                     key={PriceMeasuresType.PerItem}
@@ -683,7 +683,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                     { PerMeterPriceMeasureLabel }
                                                 </Select.Option>
                                                 <Select.Option
-                                                    key='oneTime'
+                                                    key={undefined}
                                                     value={undefined}
                                                 >
                                                     { NoPriceMeasureLabel }
