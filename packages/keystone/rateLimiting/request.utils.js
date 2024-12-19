@@ -1,3 +1,5 @@
+const get = require('lodash/get')
+
 const { PLUGIN_KEY_PREFIX } = require('./constants')
 
 function extractArgValue (valueNode, variables) {
@@ -84,7 +86,24 @@ function extractQuotaKeyFromRequest (requestContext) {
     return { isAuthed, key }
 }
 
+function addComplexity (existingComplexity, newComplexity) {
+    if (!existingComplexity) {
+        return newComplexity
+    }
+
+    return {
+        details: {
+            queries: [...existingComplexity.details.queries, ...newComplexity.details.queries],
+            mutations: [...existingComplexity.details.mutations, ...newComplexity.details.mutations],
+        },
+        queries: existingComplexity.queries + newComplexity.queries,
+        mutations: existingComplexity.mutations + newComplexity.mutations,
+        total: existingComplexity.total + newComplexity.total,
+    }
+}
+
 module.exports = {
     extractQueriesAndMutationsFromRequest,
     extractQuotaKeyFromRequest,
+    addComplexity,
 }
