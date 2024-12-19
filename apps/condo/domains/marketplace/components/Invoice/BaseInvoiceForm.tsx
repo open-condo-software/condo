@@ -502,7 +502,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
             const priceObj = get(pricesArray, '0')
             const price = get(priceObj, 'price')
             const isMin = get(priceObj, 'isMin')
-            const measure = get(priceObj, 'measure', undefined)
+            const measure = get(priceObj, 'measure') || undefined
             const sku = get(marketItem, 'sku')
 
             const marketItemOption = {
