@@ -194,7 +194,8 @@ class ApolloRateLimitingPlugin {
 
                 // NOTE: If TTL is less than zero,
                 // it means that incrby has created a clean record in the database without expiration time.
-                // So we need to set its TTL explicitly. This operation may be included in race condition,
+                // So we need to set its TTL explicitly. This operation can cause race condition,
+                // since it is separated from main atomic transaction above
                 // but the difference of a couple of ms is not very important for us
                 // ("expire" accepts seconds, "pexpire" - milliseconds)
                 if (ttlValue < 0) {
