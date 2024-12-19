@@ -10,7 +10,6 @@ async function canSendB2BAppPushMessage (args) {
 
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin) return true
 
     if (user.type === SERVICE) {
         // canExecuteServiceAsB2BAppServiceUser(args)
