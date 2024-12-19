@@ -32,11 +32,11 @@ const { B2BAppPermission: B2BAppPermissionGQL } = require('@condo/domains/miniap
 const { B2BAppRole: B2BAppRoleGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppAccessRightSet: B2BAppAccessRightSetGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppNewsSharingConfig: B2BAppNewsSharingConfigGQL } = require('@condo/domains/miniapp/gql')
-const { B2CAppMessageSetting: B2CAppMessageSettingGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAccessToken: B2BAccessTokenGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAccessTokenAdmin: B2BAccessTokenAdminGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAccessTokenReadonly: B2BAccessTokenReadonlyGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAccessTokenReadonlyAdmin: B2BAccessTokenReadonlyAdminGQL } = require('@condo/domains/miniapp/gql')
+const { AppMessageSetting: AppMessageSettingGQL } = require('@condo/domains/miniapp/gql')
 const { SEND_B2B_APP_PUSH_MESSAGE_MUTATION } = require('@condo/domains/miniapp/gql')
 
 /* AUTOGENERATE MARKER <IMPORT> */
@@ -70,7 +70,7 @@ const B2BAppPermission = generateGQLTestUtils(B2BAppPermissionGQL)
 const B2BAppRole = generateGQLTestUtils(B2BAppRoleGQL)
 const B2BAppAccessRightSet = generateGQLTestUtils(B2BAppAccessRightSetGQL)
 const B2BAppNewsSharingConfig = generateGQLTestUtils(B2BAppNewsSharingConfigGQL)
-const B2CAppMessageSetting = generateGQLTestUtils(B2CAppMessageSettingGQL)
+const AppMessageSetting = generateGQLTestUtils(AppMessageSettingGQL)
 const B2BAccessToken = generateGQLTestUtils(B2BAccessTokenGQL)
 const B2BAccessTokenAdmin = generateGQLTestUtils(B2BAccessTokenAdminGQL)
 const B2BAccessTokenReadonly = generateGQLTestUtils(B2BAccessTokenReadonlyGQL)
@@ -541,24 +541,30 @@ async function updateTestB2BAppNewsSharingConfig (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestB2CAppMessageSetting (client, b2cApp, extraAttrs = {}) {
+async function createTestAppMessageSetting (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    if (!b2cApp.id) throw new Error('no b2cApp.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const type = B2C_APP_MESSAGE_PUSH_TYPE
+    const { b2cApp, b2bApp, ...otherAttrs } = extraAttrs
 
     const attrs = {
         dv: 1,
         sender,
-        type,
-        app: { connect: { id: b2cApp.id } },
-        ...extraAttrs,
     }
-    const obj = await B2CAppMessageSetting.create(client, attrs)
+    if (extraAttrs.b2cApp) {
+        attrs['b2cApp'] = { connect: { id: b2cApp.id } }
+        attrs['type'] = B2C_APP_MESSAGE_PUSH_TYPE
+    }
+    if (extraAttrs.b2bApp) {
+        attrs['b2bApp'] = { connect: { id: b2bApp.id } }
+        attrs['type'] = B2B_APP_MESSAGE_PUSH_TYPE
+    }
+
+    const obj = await AppMessageSetting.create(client, { ...attrs, ...otherAttrs })
+
     return [obj, attrs]
 }
 
-async function updateTestB2CAppMessageSetting (client, id, extraAttrs = {}) {
+async function updateTestAppMessageSetting (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -568,7 +574,7 @@ async function updateTestB2CAppMessageSetting (client, id, extraAttrs = {}) {
         sender,
         ...extraAttrs,
     }
-    const obj = await B2CAppMessageSetting.update(client, id, attrs)
+    const obj = await AppMessageSetting.update(client, id, attrs)
     return [obj, attrs]
 }
 
@@ -681,11 +687,11 @@ module.exports = {
     B2BAppRole, createTestB2BAppRole, updateTestB2BAppRole,
     B2BAppAccessRightSet, createTestB2BAppAccessRightSet, updateTestB2BAppAccessRightSet,
     B2BAppNewsSharingConfig, createTestB2BAppNewsSharingConfig, updateTestB2BAppNewsSharingConfig,
-    B2CAppMessageSetting, createTestB2CAppMessageSetting, updateTestB2CAppMessageSetting,
+    sendB2BAppPushMessageByTestClient,
     B2BAccessToken, createTestB2BAccessToken, updateTestB2BAccessToken,
     B2BAccessTokenAdmin, createTestB2BAccessTokenAdmin, updateTestB2BAccessTokenAdmin,
     B2BAccessTokenReadonly, createTestB2BAccessTokenReadonly, updateTestB2BAccessTokenReadonly,
     B2BAccessTokenReadonlyAdmin, createTestB2BAccessTokenReadonlyAdmin, updateTestB2BAccessTokenReadonlyAdmin,
-    sendB2BAppPushMessageByTestClient,
+    AppMessageSetting, createTestAppMessageSetting, updateTestAppMessageSetting,
     /* AUTOGENERATE MARKER <EXPORTS> */
 }
