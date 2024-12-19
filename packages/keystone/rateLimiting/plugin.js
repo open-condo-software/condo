@@ -204,7 +204,7 @@ class ApolloRateLimitingPlugin {
                 }
 
                 if (incrValue > maxQuota) {
-                    // TODO: Throw error instead here
+                    // TODO(INFRA-760): Throw error instead here
                     return
                 }
             },
