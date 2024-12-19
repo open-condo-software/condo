@@ -52,7 +52,7 @@ const B2BAppPermission = generateServerUtils('B2BAppPermission')
 const B2BAppRole = generateServerUtils('B2BAppRole')
 const B2BAppAccessRightSet = generateServerUtils('B2BAppAccessRightSet')
 const B2BAppNewsSharingConfig = generateServerUtils('B2BAppNewsSharingConfig')
-const B2CAppMessageSetting = generateServerUtils('B2CAppMessageSetting')
+const AppMessageSetting = generateServerUtils('AppMessageSetting')
 async function sendB2BAppPushMessage (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
@@ -84,7 +84,7 @@ module.exports = {
     MessageAppBlackList,
     B2BAppAccessRightSet,
     B2BAppNewsSharingConfig,
-    B2CAppMessageSetting,
+    AppMessageSetting,
     sendB2BAppPushMessage,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

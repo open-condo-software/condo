@@ -10,7 +10,7 @@ const { getMessageTypeField } = require('@condo/domains/notification/schema/fiel
 
 //TODO(VKislov): DOMA-9836 delete this entity
 const MessageAppBlackList = new GQLListSchema('MessageAppBlackList', {
-    schemaDoc: '[Deprecated] Rule for blocking specific type of messages for apps. Use B2CAppMessageSetting',
+    schemaDoc: '[Deprecated] Rule for blocking specific type of messages for apps. Use AppMessageSetting',
     fields: {
         app: {
             schemaDoc: 'the app we want to block from sending messages to (null - all apps)',
