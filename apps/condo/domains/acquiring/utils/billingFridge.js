@@ -5,7 +5,7 @@ const {
 } = require('@condo/domains/billing/utils/serverSchema')
 
 const BILLING_RECIPIENT_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId context { id } '
-    + 'importId tin iec bic bankAccount purpose isApproved meta name classificationCode'
+    + 'importId tin iec bic bankAccount purpose isApproved meta name classificationCode territoryCode offsettingAccount'
 
 // TODO(savelevMatthew): Replace with single request from serverSchema after gql refactoring
 /**
