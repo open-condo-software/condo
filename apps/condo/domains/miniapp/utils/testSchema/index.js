@@ -13,7 +13,7 @@ const { throwIfError, generateGQLTestUtils } = require('@open-condo/codegen/gene
 const { PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS } = require('@condo/domains/miniapp/constants')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 const {
-    B2C_APP_MESSAGE_PUSH_TYPE,
+    B2C_APP_MESSAGE_PUSH_TYPE, B2B_APP_MESSAGE_PUSH_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const {
     ALL_MINI_APPS_QUERY,
@@ -33,19 +33,20 @@ const { B2BAppRole: B2BAppRoleGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppAccessRightSet: B2BAppAccessRightSetGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppNewsSharingConfig: B2BAppNewsSharingConfigGQL } = require('@condo/domains/miniapp/gql')
 const { B2CAppMessageSetting: B2CAppMessageSettingGQL } = require('@condo/domains/miniapp/gql')
-const { SEND_B2_BAPP_PUSH_MESSAGE_MUTATION } = require('@condo/domains/miniapp/gql')
+const { SEND_B2B_APP_PUSH_MESSAGE_MUTATION } = require('@condo/domains/miniapp/gql')
+
 /* AUTOGENERATE MARKER <IMPORT> */
 
-function randomChoice(options) {
-    const index = Math.floor(Math.random() * options.length);
-    return options[index];
+function randomChoice (options) {
+    const index = Math.floor(Math.random() * options.length)
+    return options[index]
 }
 
-function randomHex() {
-    return `#${Math.floor(Math.random()*16777215).toString(16).padStart(6, '0')}`
+function randomHex () {
+    return `#${Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0')}`
 }
 
-function generatePermissionKey() {
+function generatePermissionKey () {
     const action = capitalize(faker.word.verb()).replace(/\W/g, '')
     const subject = capitalize(faker.word.noun()).replace(/\W/g, '')
 
@@ -66,10 +67,10 @@ const B2BAppRole = generateGQLTestUtils(B2BAppRoleGQL)
 const B2BAppAccessRightSet = generateGQLTestUtils(B2BAppAccessRightSetGQL)
 const B2BAppNewsSharingConfig = generateGQLTestUtils(B2BAppNewsSharingConfigGQL)
 const B2CAppMessageSetting = generateGQLTestUtils(B2CAppMessageSettingGQL)
+
 /* AUTOGENERATE MARKER <CONST> */
 
-
-async function allMiniAppsByTestClient(client, organization, extraAttrs) {
+async function allMiniAppsByTestClient (client, organization, extraAttrs) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -320,7 +321,7 @@ async function createTestB2BAppPromoBlock (client, extraAttrs = {}) {
         ? randomHex()
         : `linear-gradient(90deg,  ${randomHex()} 0%, ${randomHex()} 100%)`
     const backgroundImage = new UploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png'))
-    const targetUrl  = faker.internet.url()
+    const targetUrl = faker.internet.url()
 
     const attrs = {
         dv: 1,
@@ -352,8 +353,7 @@ async function updateTestB2BAppPromoBlock (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-
-async function sendB2CAppPushMessageByTestClient(client, extraAttrs = {}) {
+async function sendB2CAppPushMessageByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
 
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -368,10 +368,11 @@ async function sendB2CAppPushMessageByTestClient(client, extraAttrs = {}) {
     }
     const { data, errors } = await client.mutate(SEND_B2C_APP_PUSH_MESSAGE_MUTATION, { data: attrs })
 
-    throwIfError(data, errors, { query: SEND_B2C_APP_PUSH_MESSAGE_MUTATION, variables: { data: attrs }})
+    throwIfError(data, errors, { query: SEND_B2C_APP_PUSH_MESSAGE_MUTATION, variables: { data: attrs } })
 
     return [data.result, attrs]
 }
+
 async function createTestMessageAppBlackList (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
 
@@ -403,6 +404,7 @@ async function updateTestMessageAppBlackList (client, id, extraAttrs = {}) {
     const obj = await MessageAppBlackList.update(client, id, attrs)
     return [obj, attrs]
 }
+
 async function createTestB2BAppPermission (client, app, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!app || !app.id) throw new Error('no app.id')
@@ -560,20 +562,33 @@ async function updateTestB2CAppMessageSetting (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-
-async function sendB2BAppPushMessageByTestClient(client, extraAttrs = {}) {
+async function sendB2BAppPushMessageByTestClient (client, app, organization, user, extraAttrs = {}) {
     if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app')
+    if (!organization || !organization.id) throw new Error('no organization')
+    if (!user || !user.id) throw new Error('no user')
+
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const body = faker.random.alphaNumeric(8)
 
     const attrs = {
         dv: 1,
         sender,
+        app: { id: app.id },
+        organization: { id: organization.id },
+        user: { id: user.id },
+        type: B2B_APP_MESSAGE_PUSH_TYPE,
+        meta: {
+            dv: 1,
+            body,
+        },
         ...extraAttrs,
     }
-    const { data, errors } = await client.mutate(SEND_B2_BAPP_PUSH_MESSAGE_MUTATION, { data: attrs })
+    const { data, errors } = await client.mutate(SEND_B2B_APP_PUSH_MESSAGE_MUTATION, { data: attrs })
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -594,5 +609,5 @@ module.exports = {
     B2BAppNewsSharingConfig, createTestB2BAppNewsSharingConfig, updateTestB2BAppNewsSharingConfig,
     B2CAppMessageSetting, createTestB2CAppMessageSetting, updateTestB2CAppMessageSetting,
     sendB2BAppPushMessageByTestClient,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

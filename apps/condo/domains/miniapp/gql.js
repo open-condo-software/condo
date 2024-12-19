@@ -79,11 +79,9 @@ const B2BAppAccessRightSet = generateGqlQueries('B2BAppAccessRightSet', B2B_APP_
 const B2C_APP_MESSAGE_SETTINGS_FIELDS = `{ app { id } isBlacklisted blockReason type notificationWindowSize numberOfNotificationInWindow ${COMMON_FIELDS} }`
 const B2CAppMessageSetting = generateGqlQueries('B2CAppMessageSetting', B2C_APP_MESSAGE_SETTINGS_FIELDS)
 
-// TODO(codegen): write return type result!
-
-const SEND_B2_BAPP_PUSH_MESSAGE_MUTATION = gql`
+const SEND_B2B_APP_PUSH_MESSAGE_MUTATION = gql`
     mutation sendB2BAppPushMessage ($data: SendB2BAppPushMessageInput!) {
-        result: sendB2BAppPushMessage(data: $data) { id }
+        result: sendB2BAppPushMessage(data: $data) { id status }
     }
 `
 
@@ -106,6 +104,6 @@ module.exports = {
     MessageAppBlackList,
     B2BAppNewsSharingConfig,
     B2CAppMessageSetting,
-SEND_B2_BAPP_PUSH_MESSAGE_MUTATION,
+    SEND_B2B_APP_PUSH_MESSAGE_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
