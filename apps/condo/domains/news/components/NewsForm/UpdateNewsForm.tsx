@@ -13,8 +13,7 @@ import { B2BAppContext } from '@condo/domains/miniapp/utils/clientSchema'
 import { NewsItem, NewsItemScope, NewsItemTemplate } from '@condo/domains/news/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
-import { SendPeriodType, BaseNewsFormProps } from './BaseNewsForm'
-import { BaseNewsFormByFeatureFlag } from './BaseNewsFormByFeatureFlag'
+import { SendPeriodType, BaseNewsFormProps, BaseNewsForm } from './BaseNewsForm'
 export interface IUpdateNewsForm {
     id: string
 }
@@ -114,7 +113,7 @@ export const UpdateNewsForm: React.FC<IUpdateNewsForm> = ({ id }) => {
 
     const {
         loading: isNewsItemTemplatesFetching,
-        objs: NewsItemTemplates,
+        objs: newsItemTemplates,
         error: newsItemTemplatesError,
     } = NewsItemTemplate.useObjects({
         where: {
@@ -149,7 +148,7 @@ export const UpdateNewsForm: React.FC<IUpdateNewsForm> = ({ id }) => {
         },
     })
 
-    const templates = isNewsItemTemplatesFetching ? null : NewsItemTemplates
+    const templates = isNewsItemTemplatesFetching || !newsItemTemplates.length ? null : newsItemTemplates
         .reduce((acc, template) => {
             acc[template.id] = {
                 title: template.title,
@@ -176,7 +175,7 @@ export const UpdateNewsForm: React.FC<IUpdateNewsForm> = ({ id }) => {
     }
 
     return (
-        <BaseNewsFormByFeatureFlag
+        <BaseNewsForm
             organizationId={organizationId}
             newsItemAction={action}
             ActionBar={UpdateNewsActionBar}

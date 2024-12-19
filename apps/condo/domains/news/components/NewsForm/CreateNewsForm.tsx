@@ -16,8 +16,7 @@ import { B2BAppContext } from '@condo/domains/miniapp/utils/clientSchema'
 import { NewsItem, NewsItemTemplate, NewsItemSharing } from '@condo/domains/news/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
-import { BaseNewsFormProps } from './BaseNewsForm'
-import { BaseNewsFormByFeatureFlag } from './BaseNewsFormByFeatureFlag'
+import { BaseNewsForm, BaseNewsFormProps } from './BaseNewsForm'
 
 
 const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 28]
@@ -151,6 +150,8 @@ export const CreateNewsForm: React.FC = () => {
         },
     })
 
+    console.log(newsItemTemplates)
+
     const {
         loading: isSharingAppContextsFetching,
         objs: sharingAppContexts,
@@ -189,12 +190,14 @@ export const CreateNewsForm: React.FC = () => {
         },
     })
 
-    const templates = isNewsItemTemplatesFetching ? null : newsItemTemplates
+    const templates = isNewsItemTemplatesFetching || !newsItemTemplates.length ? null : newsItemTemplates
         .reduce((acc, template) => {
             acc[template.id] = {
                 title: template.title,
                 body: template.body,
                 type: template.type,
+                label: template.name,
+                category: template.category,
             }
             return acc
         }, { emptyTemplate: { title: EmptyTemplateTitle, body: '', type: null } })
@@ -230,7 +233,7 @@ export const CreateNewsForm: React.FC = () => {
     }
 
     return (
-        <BaseNewsFormByFeatureFlag
+        <BaseNewsForm
             autoFocusBody={organizationNewsCount === 0}
             initialValues={initialValues}
             organizationId={organizationId}
