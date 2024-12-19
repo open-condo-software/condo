@@ -85,9 +85,9 @@ const B2BAccessTokenAdmin = generateGqlQueries('B2BAccessToken', `{ sessionId to
 const B2BAccessTokenReadonly = generateGqlQueries('B2BAccessToken', `{ context { id app { id name } organization { id name } } expiresAt ${COMMON_FIELDS}  }`)
 const B2BAccessTokenReadonlyAdmin = generateGqlQueries('B2BAccessToken', `{ sessionId context { id app { id name } organization { id name } } expiresAt ${COMMON_FIELDS}  }`)
 
-const SEND_B2_BAPP_PUSH_MESSAGE_MUTATION = gql`
+const SEND_B2B_APP_PUSH_MESSAGE_MUTATION = gql`
     mutation sendB2BAppPushMessage ($data: SendB2BAppPushMessageInput!) {
-        result: sendB2BAppPushMessage(data: $data) { id }
+        result: sendB2BAppPushMessage(data: $data) { id status }
     }
 `
 
@@ -114,6 +114,6 @@ module.exports = {
     B2BAccessTokenAdmin,
     B2BAccessTokenReadonly,
     B2BAccessTokenReadonlyAdmin,
-    SEND_B2_BAPP_PUSH_MESSAGE_MUTATION,
+    SEND_B2B_APP_PUSH_MESSAGE_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

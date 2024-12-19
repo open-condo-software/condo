@@ -10,7 +10,7 @@ const {
     ALL_MINI_APPS_QUERY,
     SEND_B2C_APP_PUSH_MESSAGE_MUTATION,
 } = require('@condo/domains/miniapp/gql')
-const { SEND_B2_BAPP_PUSH_MESSAGE_MUTATION } = require('@condo/domains/miniapp/gql')
+const { SEND_B2B_APP_PUSH_MESSAGE_MUTATION } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 async function allOrganizationApps (context, data) {
@@ -60,7 +60,7 @@ async function sendB2BAppPushMessage (context, data) {
     if (!data.sender) throw new Error('no data.sender')
 
     return await execGqlWithoutAccess(context, {
-        query: SEND_B2_BAPP_PUSH_MESSAGE_MUTATION,
+        query: SEND_B2B_APP_PUSH_MESSAGE_MUTATION,
         variables: { data: { dv: 1, ...data } },
         errorMessage: '[error] Unable to sendB2BAppPushMessage',
         dataPath: 'obj',
