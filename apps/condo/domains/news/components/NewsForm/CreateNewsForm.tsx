@@ -198,7 +198,7 @@ export const CreateNewsForm: React.FC = () => {
                 category: template.category,
             }
             return acc
-        }, { emptyTemplate: { title: EmptyTemplateTitle, body: '', type: null } })
+        }, { emptyTemplate: { title: EmptyTemplateTitle, body: '', type: null, category: '' } })
 
     const softDeleteNewsItem = NewsItem.useSoftDelete()
     const OnCompletedMsg = useCallback((newsItem) => {

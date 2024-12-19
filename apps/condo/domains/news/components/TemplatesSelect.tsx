@@ -69,7 +69,7 @@ export const TemplatesSelect: React.FC<INewsFormProps> = ({ items, onChange, has
             const result = []
             for (const category of (Object.keys(templatesByCategory).reverse())) {
                 result.push({
-                    label: category !== 'undefined' ? intl.formatMessage( { id: `news.template.category.${camelCaseCategory[category]}` }) : '',
+                    label: intl.formatMessage( { id: `news.template.category.${camelCaseCategory[category]}` }),
                     options: templatesByCategory[category],
                 })
             }

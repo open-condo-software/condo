@@ -154,9 +154,11 @@ export const UpdateNewsForm: React.FC<IUpdateNewsForm> = ({ id }) => {
                 title: template.title,
                 body: template.body,
                 type: template.type,
+                label: template.name,
+                category: template.category,
             }
             return acc
-        }, { emptyTemplate: { title: EmptyTemplateTitle, body: '', type: null } })
+        }, { emptyTemplate: { title: EmptyTemplateTitle, body: '', type: null, category: '' } })
 
     const error = useMemo(
         () => newsItemError || newsItemScopeError || allNewsError || newsItemTemplatesError || totalPropertiesError || sharingAppContextsError,
