@@ -191,7 +191,7 @@ class ApolloRateLimitingPlugin {
                     throw (incrError || ttlError)
                 }
 
-                const nowTimestampInMs = (new Date).getTime()
+                const nowTimestampInMs = (new Date()).getTime()
 
                 // NOTE: If TTL is less than zero,
                 // it means that incrby has created a clean record in the database without expiration time.
