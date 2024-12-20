@@ -5,10 +5,15 @@ const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 const { WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { STAFF } = require('@condo/domains/user/constants/common')
+const { WRONG_CREDENTIALS } = require('@condo/domains/user/constants/errors')
 const { USER_FIELDS } = require('@condo/domains/user/gql')
 const { User } = require('@condo/domains/user/utils/serverSchema')
+const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
-const { USER_NOT_FOUND, WRONG_PASSWORD } = require('../constants/errors')
+const redisGuard = new RedisGuard()
+
+const GUARD_WINDOW_SIZE_SEC = 60 * 60 // seconds
+const GUARD_WINDOW_LIMIT = 10
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -24,21 +29,12 @@ const ERRORS = {
         correctExample: '+79991234567',
         messageForUser: 'api.common.WRONG_PHONE_FORMAT',
     },
-    USER_NOT_FOUND: {
+    WRONG_CREDENTIALS: {
         mutation: 'authenticateUserWithPhoneAndPassword',
         code: BAD_USER_INPUT,
-        type: USER_NOT_FOUND,
-        message: 'Unable to find user by provided phone. Try to register',
-        variable: ['data', 'phone'],
+        type: WRONG_CREDENTIALS,
+        message: 'Wrong phone or password',
         messageForUser: 'api.user.authenticateUserWithPhoneAndPassword.USER_NOT_FOUND',
-    },
-    WRONG_PASSWORD: {
-        mutation: 'authenticateUserWithPhoneAndPassword',
-        code: BAD_USER_INPUT,
-        type: WRONG_PASSWORD,
-        message: 'Wrong password',
-        variable: ['data', 'password'],
-        messageForUser: 'api.user.authenticateUserWithPhoneAndPassword.WRONG_PASSWORD',
     },
 }
 
@@ -58,6 +54,15 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
             access: true,
             schema: 'authenticateUserWithPhoneAndPassword(data: AuthenticateUserWithPhoneAndPasswordInput!): AuthenticateUserWithPhoneAndPasswordOutput',
             resolver: async (parent, args, context) => {
+
+                const ip = context.req.ip
+                await redisGuard.checkCustomLimitCounters(
+                    `authenticateUserWithPhoneAndPassword-${ip}`,
+                    GUARD_WINDOW_SIZE_SEC,
+                    GUARD_WINDOW_LIMIT,
+                    context,
+                )
+
                 const { data: { phone: inputPhone, password } } = args
                 const phone = normalizePhone(inputPhone)
                 if (!phone) {
@@ -65,7 +70,7 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
                 }
                 const users = await User.getAll(context, { phone, type: STAFF, deletedAt: null }, USER_FIELDS)
                 if (users.length !== 1) {
-                    throw new GQLError(ERRORS.USER_NOT_FOUND, context)
+                    throw new GQLError(ERRORS.WRONG_CREDENTIALS, context)
                 }
                 const user = await getById('User', users[0].id)
                 const { keystone } = getSchemaCtx('User')
@@ -73,7 +78,7 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
                 const list = PasswordStrategy.getList()
                 const { success } = await PasswordStrategy._matchItem(user, { password }, list.fieldsByPath['password'] )
                 if (!success) {
-                    throw new GQLError(ERRORS.WRONG_PASSWORD, context)
+                    throw new GQLError(ERRORS.WRONG_CREDENTIALS, context)
                 }
                 const token = await context.startAuthedSession({ item: users[0], list: keystone.lists['User'] })
                 return {
