@@ -649,5 +649,33 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 expect(messages[0].user.id).not.toEqual(messages[1].user.id)
             }, { delay: 2000 })
         })
+
+        test('Should not send push for paid receipts', async () => {
+            const environment = new TestUtils([ResidentTestMixin])
+            await environment.init()
+            const accountNumber = faker.random.alphaNumeric(12)
+
+            const resident = await environment.createResident({ unitName: '1', unitType: FLAT_UNIT_TYPE })
+            const addressUnit = {
+                unitName: resident.unitName,
+                unitType: resident.unitType,
+            }
+            const [[{ id: receiptId }]] = await environment.createReceipts([
+                environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit, year: 2024, month: 1, toPay: '1000' }),
+            ])
+            const [{ id: serviceConsumerId }] = await environment.createServiceConsumer(resident, accountNumber)
+            await environment.payForReceipt(receiptId, serviceConsumerId)
+            await sendBillingReceiptsAddedNotifications(dayjs().subtract(1, 'h').toISOString())
+
+            const messageWhere = {
+                user: { id: resident.user.id },
+                type: BILLING_RECEIPT_ADDED_TYPE,
+            }
+
+            await waitFor(async () => {
+                const messages = await Message.getAll(environment.clients.admin, messageWhere)
+                expect(messages).toHaveLength(0)
+            }, { delay: 2000 })
+        })
     })
 })

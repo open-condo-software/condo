@@ -1,3 +1,4 @@
+const Big = require('big.js')
 const dayjs = require('dayjs')
 const get = require('lodash/get')
 const groupBy = require('lodash/groupBy')
@@ -11,6 +12,7 @@ const { createTask } = require('@open-condo/keystone/tasks')
 const { getLocalized } = require('@open-condo/locales/loader')
 
 const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
+const { getNewPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { DEFAULT_CURRENCY_CODE, CURRENCY_SYMBOLS } = require('@condo/domains/common/constants/currencies')
 const {
@@ -19,7 +21,7 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { BILLING_CONTEXT_SYNCHRONIZATION_DATE } = require('@condo/domains/resident/constants/constants')
-const Big = require("big.js");
+
 const logger = getLogger('sendNewBillingReceiptNotification')
 const BILLING_RECEIPT_FIELDS = 'id period toPay toPayDetails { charge } createdAt isPayable '
     + 'context { id organization { id } integration { id currencyCode } } '
@@ -159,7 +161,19 @@ async function fetchReceipts (contextId, receiptCreatedAfter) {
     }
     const receipts = await BillingReceipt.getAll(context, receiptsWhere, BILLING_RECEIPT_FIELDS)
 
-    return receipts.filter(r => r.isPayable === true && Big(toPay).minus(Big(paid)))
+    const filteredReceipts = await Promise.all(
+        receipts.map(async receipt => {
+            const paid = await getNewPaymentsSum(receipt.id)
+            return {
+                receipt,
+                shouldInclude: receipt.isPayable === true && Big(receipt.toPay).minus(Big(paid)).gt(Big(0)),
+            }
+        })
+    )
+
+    return filteredReceipts
+        .filter(({ shouldInclude }) => shouldInclude)
+        .map(({ receipt }) => receipt)
 }
 
 async function prepareReceiptsData (receipts, context) {
@@ -250,7 +264,7 @@ async function notifyConsumers (keystone, receipt, consumers, lastSendDate) {
 
         logger.info({ msg: 'Notification data', data: { receipt, consumer, resident, lastSendDatePeriod: dayjs(lastSendDate).format('YYYY-MM-DD') } })
         const isDuplicated = await prepareAndSendNotification(keystone, receipt, resident, dayjs().format('YYYY-MM-DD'))
-        
+
         if (!isDuplicated) {
             logger.info({ msg: 'User got notification', data: { user: resident.user } })
             successSentMessages++
