@@ -171,7 +171,7 @@ class ApolloRateLimitingPlugin {
                 })
 
                 const { isAuthed, key } = extractQuotaKeyFromRequest(requestContext)
-                const maxQuota = isAuthed ? this.#authedQuota : this.#nonAuthedQuota
+                const allowedQuota = isAuthed ? this.#authedQuota : this.#nonAuthedQuota
 
 
                 // NOTE: Request in batch are executed via Promise.all (probably),
@@ -180,17 +180,18 @@ class ApolloRateLimitingPlugin {
 
                 const [
                     [incrError, incrValue],
-                    [ttlError, ttlValue],
+                    [ttlError, ttlValueInSec],
                 ] = await this.#redisClient
                     .multi()
                     .incrby(key, requestComplexity)
                     .ttl(key)
                     .exec()
 
-
                 if (incrError || ttlError) {
                     throw (incrError || ttlError)
                 }
+
+                const nowTimestampInMs = (new Date).getTime()
 
                 // NOTE: If TTL is less than zero,
                 // it means that incrby has created a clean record in the database without expiration time.
@@ -199,13 +200,39 @@ class ApolloRateLimitingPlugin {
                 // so it can potentially be called multiple times (by multiple pods / requests in batch)
                 // but the difference of a couple of ms is not very important for us
                 // ("expire" accepts seconds, "pexpire" - milliseconds)
-                if (ttlValue < 0) {
+                if (ttlValueInSec < 0) {
                     await this.#redisClient.pexpire(key, this.#quotaWindowInMS)
                 }
 
-                if (incrValue > maxQuota) {
+                // NOTE: Each sub-request in batched request execute "incrBy/ttl" + "pexpire" and executed concurrently
+                // So we need to take largest incrBy result
+                const savedIncrValue = requestContext.context.req.complexity?.quota?.used || 0
+                const maxIncrValue = Math.max(savedIncrValue, incrValue)
+
+                const ttlValueInMs = ttlValueInSec < 0 ? this.#quotaWindowInMS : ttlValueInSec * 1000
+                const resetTimestampInSec = Math.ceil((nowTimestampInMs + ttlValueInMs) / 1000)
+
+                Object.assign(requestContext.context.req.complexity, {
+                    quota: {
+                        limit: allowedQuota,
+                        remaining: Math.max(allowedQuota - maxIncrValue, 0),
+                        used: Math.min(maxIncrValue, allowedQuota),
+                        reset: resetTimestampInSec,
+                    },
+                })
+
+                if (incrValue > allowedQuota) {
                     // TODO(INFRA-760): Throw error instead here
                     return
+                }
+            },
+
+            willSendResponse: async (requestContext) => {
+                const res = requestContext.context.req.res
+                const quotaInfo = requestContext.context.req?.complexity?.quota || {}
+
+                for (const [key, value] of Object.entries(quotaInfo)) {
+                    res.setHeader(`x-rate-limit-complexity-${key}`, value)
                 }
             },
         }

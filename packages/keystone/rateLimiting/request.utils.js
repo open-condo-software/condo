@@ -92,6 +92,7 @@ function addComplexity (existingComplexity, newComplexity) {
     }
 
     return {
+        ...existingComplexity,
         details: {
             queries: [...existingComplexity.details.queries, ...newComplexity.details.queries],
             mutations: [...existingComplexity.details.mutations, ...newComplexity.details.mutations],
