@@ -34,7 +34,7 @@ describe('sendBillingReceiptNotifications', () => {
             setAllFeatureFlags(true)
             await waitFor(async () => {
                 expect(await sendBillingReceiptNotifications()).toMatchObject({ status: NO_REDIS_KEY })
-            }, { delay: 2000, interval: 2000 })
+            }, { delay: 4000, interval: 4000 })
         })
 
         test('Should return skip notification if cron runs more than one time a day', async () => {
@@ -42,11 +42,11 @@ describe('sendBillingReceiptNotifications', () => {
 
             await waitFor(async () => {
                 expect(await sendBillingReceiptNotifications()).toMatchObject({ status: NO_REDIS_KEY })
-            }, { delay: 2000, interval: 2000 })
+            }, { delay: 4000, interval: 4000 })
 
             await waitFor(async () => {
                 expect(await sendBillingReceiptNotifications()).toMatchObject({ status: SKIP_NOTIFICATION })
-            }, { delay: 2000, interval: 2000  })
+            }, { delay: 4000, interval: 4000  })
         })
 
         test('Should return done if pushes are sent', async () => {
@@ -56,7 +56,7 @@ describe('sendBillingReceiptNotifications', () => {
 
             await waitFor(async () => {
                 expect(await sendBillingReceiptNotifications()).toMatchObject({ status: DONE })
-            }, { delay: 2000, interval: 2000  })
+            }, { delay: 4000, interval: 4000  })
         })
     })
 })

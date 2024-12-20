@@ -48,20 +48,6 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             expect(messages).toHaveLength(0)
         })
 
-        test('Should not send push for receipts with past period', async () => {
-            const { receipt, resident, billingContext } = await makeBillingReceiptWithResident({ toPay: '10000', period: '2024-01-01' } )
-
-            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
-
-            const messageWhere = {
-                user: { id: resident.user.id },
-                type: BILLING_RECEIPT_ADDED_TYPE,
-            }
-
-            const messages = await Message.getAll(admin, messageWhere)
-            expect(messages).toHaveLength(0)
-        })
-
         test('Should send notification of BILLING_RECEIPT_ADDED_TYPE for toPay > 0', async () => {
             const { receipt, resident, billingContext } = await makeBillingReceiptWithResident({ toPay: '10000', toPayDetails: { charge: '1000', formula: '', balance: '9000', penalty: '0' } } )
 
@@ -113,7 +99,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
         test('Should not send notification of BILLING_RECEIPT_ADDED_WITH_NO_DEBT for toPay = 0.0', async () => {
             const { receipt, resident, billingContext } = await makeBillingReceiptWithResident({ toPay: '0.0' })
 
-            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString(), undefined)
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
 
             const messageWhere = {
                 user: { id: resident.user.id },
@@ -127,7 +113,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
         test('Should not send notification of BILLING_RECEIPT_ADDED_WITH_NO_DEBT for toPay < 0', async () => {
             const { receipt, resident, billingContext } = await makeBillingReceiptWithResident({ toPay: '-1.0' })
 
-            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString(), undefined)
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
 
             const messageWhere = {
                 user: { id: resident.user.id },
@@ -157,7 +143,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
         test('Should send nothing for receipt with no ServiceConsumer record', async () => {
             const { receipt, resident, billingContext } = await makeBillingReceiptWithResident({}, true)
 
-            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString(), undefined)
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
 
             const messageWhere = {
                 user: { id: resident.user.id },
@@ -587,6 +573,80 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
 
                 expect(messages).toHaveLength(1)
                 expect(messages[0].id).not.toEqual(firstMessageId)
+            }, { delay: 2000 })
+        })
+
+        test('Should not send push for archive receipts', async () => {
+            const environment = new TestUtils([ResidentTestMixin])
+            await environment.init()
+            const accountNumber = faker.random.alphaNumeric(12)
+
+            const resident = await environment.createResident({ unitName: '1', unitType: FLAT_UNIT_TYPE })
+            const addressUnit = {
+                unitName: resident.unitName,
+                unitType: resident.unitType,
+            }
+            const [ receipts ] = await environment.createReceipts([
+                environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit, year: 2024, month: 1 }),
+                environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit, year: 2024, month: 2 }),
+            ])
+            await environment.createServiceConsumer(resident, accountNumber)
+            await sendBillingReceiptsAddedNotifications(dayjs().subtract(1, 'h').toISOString())
+
+            const messageWhere = {
+                user: { id: resident.user.id },
+                type: BILLING_RECEIPT_ADDED_TYPE,
+            }
+
+            await waitFor(async () => {
+                const messages = await Message.getAll(environment.clients.admin, messageWhere)
+                expect(messages).toHaveLength(1)
+                expect(messages[0].meta.data.billingReceiptId).toEqual(receipts.filter(r => r.period === '2024-02-01')[0].id)
+            }, { delay: 2000 })
+        })
+
+        test('Should send pushes for several users in one context', async () => {
+            const environment = new TestUtils([ResidentTestMixin])
+            await environment.init()
+            const anotherEnvironment = new TestUtils([ResidentTestMixin])
+            await anotherEnvironment.init()
+
+            const accountNumber1 = faker.random.alphaNumeric(12)
+            const accountNumber2 = faker.random.alphaNumeric(12)
+
+            const resident1 = await environment.createResident({ unitName: '1', unitType: FLAT_UNIT_TYPE })
+            const resident2 = await anotherEnvironment.createResident({ unitName: '1', unitType: FLAT_UNIT_TYPE })
+
+            const addressUnit1 = {
+                unitName: resident1.unitName,
+                unitType: resident1.unitType,
+            }
+
+            const addressUnit2 = {
+                unitName: resident2.unitName,
+                unitType: resident2.unitType,
+            }
+
+            await environment.createReceipts([
+                environment.createJSONReceipt({ accountNumber: accountNumber1, address: resident1.address, addressMeta: addressUnit1 }),
+                environment.createJSONReceipt({ accountNumber: accountNumber2, address: resident2.address, addressMeta: addressUnit2 }),
+            ])
+
+            await environment.createServiceConsumer(resident1, accountNumber1)
+            await environment.createServiceConsumer(resident2, accountNumber2)
+
+            await sendBillingReceiptsAddedNotifications(dayjs().subtract(1, 'h').toISOString())
+
+            const messageWhere = {
+                user: { id_in: [resident1.user.id, resident2.user.id ] },
+                type: BILLING_RECEIPT_ADDED_TYPE,
+            }
+
+            await waitFor(async () => {
+                const messages = await Message.getAll(environment.clients.admin, messageWhere)
+
+                expect(messages).toHaveLength(2)
+                expect(messages[0].user.id).not.toEqual(messages[1].user.id)
             }, { delay: 2000 })
         })
     })

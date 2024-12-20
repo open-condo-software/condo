@@ -10,6 +10,7 @@ const { find, getById, getSchemaCtx } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
 const { getLocalized } = require('@open-condo/locales/loader')
 
+const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { DEFAULT_CURRENCY_CODE, CURRENCY_SYMBOLS } = require('@condo/domains/common/constants/currencies')
 const {
@@ -18,8 +19,11 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { BILLING_CONTEXT_SYNCHRONIZATION_DATE } = require('@condo/domains/resident/constants/constants')
+const Big = require("big.js");
 const logger = getLogger('sendNewBillingReceiptNotification')
-
+const BILLING_RECEIPT_FIELDS = 'id period toPay toPayDetails { charge } createdAt isPayable '
+    + 'context { id organization { id } integration { id currencyCode } } '
+    + 'account { id number } property { id address } category { id  nameNonLocalized }'
 const makeAccountKey = (...args) => args.map(value => `${value}`.trim().toLowerCase()).join(':')
 const getMessageTypeAndDebt = (toPay, toPayCharge) => {
     if (toPay <= 0) return { messageType: BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE, debt: 0 }
@@ -47,7 +51,7 @@ const prepareAndSendNotification = async (context, receipt, resident, lastSendDa
     const toPayChargeValue = parseFloat(get(receipt, 'toPayDetails.charge'))
     const toPayCharge = isNaN(toPayChargeValue) ? null : toPayChargeValue
     const category = getLocalized(locale, receipt.category.nameNonLocalized)
-    const currencyCode = get(receipt, 'context.integration.currencyCode') || DEFAULT_CURRENCY_CODE
+    const currencyCode = get(receipt, 'context.integration.currencyCode', DEFAULT_CURRENCY_CODE)
     const { messageType, debt } = getMessageTypeAndDebt(toPay, toPayCharge)
 
     const data = {
@@ -72,6 +76,7 @@ const prepareAndSendNotification = async (context, receipt, resident, lastSendDa
         uniqKey: notificationKey,
         organization: { id: resident.organization },
     }
+    logger.info({ msg: 'New receipt push data', data: { messageData } })
 
     const { isDuplicateMessage } = await sendMessage(context, messageData)
 
@@ -86,6 +91,7 @@ const prepareAndSendNotification = async (context, receipt, resident, lastSendDa
  */
 async function sendBillingReceiptsAddedNotificationForOrganizationContext (context, lastSyncDate) {
     logger.info({ msg: 'sendBillingReceiptsAddedNotificationForOrganizationContext starts' })
+
     const contextId = get(context, 'id')
     if (!contextId) throw new Error('Invalid BillingIntegrationOrganizationContext, cannot get context.id')
 
@@ -99,7 +105,7 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
     }
 
     const receipts = await fetchReceipts(contextId, lastSendDate)
-    
+
     if (!receipts.length){
         logger.info({ msg: 'No new receipts were found for context', data: { contextId } })
         
@@ -144,18 +150,16 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
 }
 
 async function fetchReceipts (contextId, receiptCreatedAfter) {
-    const periods = [
-        dayjs().subtract(1, 'month').format('YYYY-MM-01'),
-        dayjs().format('YYYY-MM-01'),
-    ]
+    const { keystone: context } = getSchemaCtx('BillingReceipt')
     const receiptsWhere = {
         createdAt_gt: receiptCreatedAfter,
         context: { id: contextId },
-        period_in: periods,
         toPay_gt: '0',
         deletedAt: null,
     }
-    return find('BillingReceipt', receiptsWhere)
+    const receipts = await BillingReceipt.getAll(context, receiptsWhere, BILLING_RECEIPT_FIELDS)
+
+    return receipts.filter(r => r.isPayable === true && Big(toPay).minus(Big(paid)))
 }
 
 async function prepareReceiptsData (receipts, context) {
@@ -175,9 +179,9 @@ async function prepareReceiptsData (receipts, context) {
 }
 
 async function processReceiptData (receipt, context) {
-    const account = await getById('BillingAccount', receipt.account)
+    const account = await getById('BillingAccount', receipt.account.id)
     const billingProperty = await getById('BillingProperty', account.property)
-    const category = await getById('BillingCategory', receipt.category)
+    const category = await getById('BillingCategory', receipt.category.id)
 
     return {
         ...receipt,
@@ -197,6 +201,7 @@ async function fetchServiceConsumers (context, accountNumbers) {
         deletedAt: null,
     }
     const rawServiceConsumers = await find('ServiceConsumer', serviceConsumerWhere)
+
     const residents = await fetchResidents(rawServiceConsumers.map(sc => sc.resident))
     return rawServiceConsumers.map(serviceConsumer => ({
         ...serviceConsumer,
@@ -242,11 +247,11 @@ async function notifyConsumers (keystone, receipt, consumers, lastSendDate) {
     for (const consumer of consumers) {
         const resident = get(consumer, 'resident')
         if (!resident || resident.deletedAt) continue
-        
+
         logger.info({ msg: 'Notification data', data: { receipt, consumer, resident, lastSendDatePeriod: dayjs(lastSendDate).format('YYYY-MM-DD') } })
-        const success = await prepareAndSendNotification(keystone, receipt, resident, dayjs(lastSendDate).format('YYYY-MM-DD'))
+        const isDuplicated = await prepareAndSendNotification(keystone, receipt, resident, dayjs().format('YYYY-MM-DD'))
         
-        if (success) {
+        if (!isDuplicated) {
             logger.info({ msg: 'User got notification', data: { user: resident.user } })
             successSentMessages++
         } else {
