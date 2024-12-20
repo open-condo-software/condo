@@ -227,7 +227,7 @@ class ApolloRateLimitingPlugin {
                 }
             },
 
-            willSendResponse: async (requestContext) => {
+            willSendResponse: (requestContext) => {
                 const res = requestContext.context.req.res
                 const quotaInfo = requestContext.context.req?.complexity?.quota || {}
 
