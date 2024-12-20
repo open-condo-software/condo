@@ -5,6 +5,7 @@ const { AdminUIApp } = require('@keystonejs/app-admin-ui')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const cuid = require('cuid')
 const { json, urlencoded } = require('express')
+const express = require('express')
 const { get, identity } = require('lodash')
 const nextCookie = require('next-cookies')
 const { v4 } = require('uuid')
@@ -77,6 +78,22 @@ const sendAppMetrics = () => {
                 metrics.gauge({ name: `worker.${queueName}.pausedTasks`, value: jobCounts.paused })
             })
         })
+    }
+}
+
+
+class Loggerr {
+    async prepareMiddleware ({ keystone }) {
+        // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
+        const app = express()
+        app.use((req, res, next) => {
+            console.log('Start request', {
+                'url': req?.url,
+                req,
+            })
+            next()
+        })
+        return app
     }
 }
 
@@ -182,6 +199,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
         cors: (conf.CORS) ? parseCorsSettings(JSON.parse(conf.CORS)) : { origin: true, credentials: true },
         pinoOptions: getKeystonePinoOptions(),
         apps: [
+            // new Loggerr(),
             new IpBlackListMiddleware(),
             new KeystoneTracingApp(),
             ...((apps) ? apps() : []),
