@@ -134,11 +134,19 @@ describe('Auth by phone and password', () => {
                 expect(errors).toHaveLength(1)
                 expect(errors[0]).toMatchObject(expect.objectContaining({
                     message: expect.stringMatching(/You have to wait \d{1,4} seconds to be able to send request again/),
+                    extensions: expect.objectContaining({
+                        type: 'TOO_MANY_REQUESTS',
+                        messageForUserTemplateKey: 'api.user.TOO_MANY_REQUESTS',
+                    }),
                 }))
             } else {
                 expect(errors).toHaveLength(1)
                 expect(errors[0]).toMatchObject(expect.objectContaining({
                     message: 'Wrong phone or password',
+                    extensions: expect.objectContaining({
+                        type: 'WRONG_CREDENTIALS',
+                        messageForUserTemplateKey: 'api.user.authenticateUserWithPhoneAndPassword.WRONG_CREDENTIALS',
+                    }),
                 }))
             }
         }

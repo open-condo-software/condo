@@ -34,7 +34,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: WRONG_CREDENTIALS,
         message: 'Wrong phone or password',
-        messageForUser: 'api.user.authenticateUserWithPhoneAndPassword.USER_NOT_FOUND',
+        messageForUser: 'api.user.authenticateUserWithPhoneAndPassword.WRONG_CREDENTIALS',
     },
 }
 
