@@ -114,8 +114,6 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
         return 
     }
 
-    console.log('FOUND RECEIPTS: ', receipts)
-
     const maxCreatedAt = dayjs(getMaxReceiptCreatedAt(receipts)).toISOString()
     logger.info({ msg: 'The latest receipt for the context', data: { maxCreatedAt } })
     const receiptAccountData = await prepareReceiptsData(receipts, context)

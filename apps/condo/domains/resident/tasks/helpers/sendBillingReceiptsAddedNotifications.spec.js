@@ -591,7 +591,6 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit, year: 2024, month: 2, toPay: '1000' }),
             ])
             await environment.createServiceConsumer(resident, accountNumber)
-            console.log('CONTEXT FROM TEST: ', environment.billingContext)
 
             await sendBillingReceiptsAddedNotifications(dayjs().subtract(1, 'h').toISOString())
 
