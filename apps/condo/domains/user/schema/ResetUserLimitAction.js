@@ -10,10 +10,10 @@ const { NOT_FOUND, WRONG_FORMAT } = require('@condo/domains/common/constants/err
 const access = require('@condo/domains/user/access/ResetUserLimitAction')
 const { AUTH_COUNTER_LIMIT_TYPE, RATE_LIMIT_TYPE } = require('@condo/domains/user/constants/limits')
 const { getIdentifierType } = require('@condo/domains/user/utils/identifiers')
-const { AuthLimitResetter, RateLimitResetter } = require('@condo/domains/user/utils/limits')
+const { AuthGuardResetter, RateLimitResetter } = require('@condo/domains/user/utils/limits/resetters')
 
 const resetters = {
-    [AUTH_COUNTER_LIMIT_TYPE]: new AuthLimitResetter(),
+    [AUTH_COUNTER_LIMIT_TYPE]: new AuthGuardResetter(),
     [RATE_LIMIT_TYPE]: new RateLimitResetter(),
 }
 
