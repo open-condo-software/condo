@@ -125,7 +125,7 @@ export const ResendNewsForm: React.FC<IResendNewsForm> = ({ id }) => {
         },
     })
 
-    const templates = isNewsItemTemplatesFetching || !newsItemTemplates.length ? null : newsItemTemplates
+    const templates = isNewsItemTemplatesFetching || !newsItemTemplates?.length ? null : newsItemTemplates
         .reduce((acc, template) => {
             acc[template.id] = {
                 title: template.title,

@@ -148,7 +148,7 @@ export const UpdateNewsForm: React.FC<IUpdateNewsForm> = ({ id }) => {
         },
     })
 
-    const templates = isNewsItemTemplatesFetching || !newsItemTemplates.length ? null : newsItemTemplates
+    const templates = isNewsItemTemplatesFetching || !newsItemTemplates?.length ? null : newsItemTemplates
         .reduce((acc, template) => {
             acc[template.id] = {
                 title: template.title,

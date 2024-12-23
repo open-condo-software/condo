@@ -18,7 +18,7 @@ interface INewsFormProps {
     hasCategories?: boolean
 }
 
-type TCamelCaseCategory =
+type TCategory =
     'water'
     | 'heating'
     | 'electricity'
@@ -34,7 +34,7 @@ type TCamelCaseCategory =
     | 'other'
     | 'fireProtection'
 
-const camelCaseCategory: { [k in string]: TCamelCaseCategory } = Object.freeze({
+const CATEGORIES: { [k in string]: TCategory } = {
     WATER: 'water',
     HEATING: 'heating',
     ELECTRICITY: 'electricity',
@@ -49,7 +49,7 @@ const camelCaseCategory: { [k in string]: TCamelCaseCategory } = Object.freeze({
     SNOW: 'snow',
     OTHER: 'other',
     FIRE_PROTECTION: 'fireProtection',
-})
+}
 
 export const TemplatesSelect: React.FC<INewsFormProps> = ({ items, onChange, hasCategories }) => {
     const intl = useIntl()
@@ -69,7 +69,7 @@ export const TemplatesSelect: React.FC<INewsFormProps> = ({ items, onChange, has
             const result = []
             for (const category of (Object.keys(templatesByCategory).reverse())) {
                 result.push({
-                    label: intl.formatMessage( { id: `news.template.category.${camelCaseCategory[category]}` }),
+                    label: intl.formatMessage( { id: `news.template.category.${CATEGORIES[category]}` }),
                     options: templatesByCategory[category],
                 })
             }
