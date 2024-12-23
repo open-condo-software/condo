@@ -43,6 +43,7 @@ import { MenuItem } from '@condo/domains/common/components/MenuItem'
 import PopupSmart from '@condo/domains/common/components/PopupSmart'
 import { PostMessageProvider } from '@condo/domains/common/components/PostMessageProvider'
 import { ServiceProblemsAlert } from '@condo/domains/common/components/ServiceProblemsAlert'
+import { Snowfall } from '@condo/domains/common/components/Snowfall'
 import { TasksContextProvider } from '@condo/domains/common/components/tasks/TasksContextProvider'
 import { TrackingProvider } from '@condo/domains/common/components/TrackingContext'
 import UseDeskWidget from '@condo/domains/common/components/UseDeskWidget'
@@ -461,7 +462,7 @@ const MyApp = ({ Component, pageProps }) => {
     useHotCodeReload()
     dayjs.locale(intl.locale)
     const router = useRouter()
-    const { publicRuntimeConfig: { yandexMetrikaID, popupSmartConfig, UseDeskWidgetId } } = getConfig()
+    const { publicRuntimeConfig: { yandexMetrikaID, popupSmartConfig, UseDeskWidgetId, isSnowfallDisabled } } = getConfig()
 
     const LayoutComponent = Component.container || BaseLayout
     // TODO(Dimitreee): remove this mess later
@@ -523,6 +524,7 @@ const MyApp = ({ Component, pageProps }) => {
                                 </TrackingProvider>
                             </PostMessageProvider>
                         </TasksProvider>
+                        {!isSnowfallDisabled && <Snowfall />}
                     </LayoutContextProvider>
                     {yandexMetrikaID && <YandexMetrika />}
                     {!isEmpty(popupSmartConfig) && <PopupSmart />}
