@@ -1,8 +1,9 @@
 const { faker } = require('@faker-js/faker')
 
+const { IPv4_TYPE, UUID_TYPE, PHONE_TYPE } = require('@condo/domains/user/constants/identifiers')
 const { createTestPhone } = require('@condo/domains/user/utils/testSchema')
 
-const { getIdentifierType, IPv4_TYPE, UUID_TYPE, PHONE_TYPE } = require('./identifiers')
+const { getIdentifierType } = require('./identifiers')
 
 describe('User identifiers utils', () => {
     describe('getIdentifierType', () => {
