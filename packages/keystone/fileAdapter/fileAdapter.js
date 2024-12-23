@@ -48,8 +48,9 @@ class LocalFilesMiddleware {
     }
 }
 
+//Needs to thing how to make configurable file adapter
 class FileAdapter {
-    constructor (folder, isPublic = false, saveFileName = false) {
+    constructor (folder, isPublic = false, saveFileName = false, customConfig = {}) {
         const type = conf.FILE_FIELD_ADAPTER || DEFAULT_FILE_ADAPTER
         this.folder = folder
         this.type = type
@@ -61,7 +62,7 @@ class FileAdapter {
                 Adapter = this.createLocalFileApapter()
                 break
             case 'sbercloud':
-                Adapter = this.createSbercloudFileApapter()
+                Adapter = this.createSbercloudFileApapter(customConfig)
                 break
         }
         if (!Adapter) {
@@ -110,13 +111,14 @@ class FileAdapter {
         return true
     }
 
-    createSbercloudFileApapter () {
-        const config = this.getEnvConfig('SBERCLOUD_OBS_CONFIG', [
+    createSbercloudFileApapter (customConfig) {
+        let config = this.getEnvConfig('SBERCLOUD_OBS_CONFIG', [
             'bucket',
             's3Options.server',
             's3Options.access_key_id',
             's3Options.secret_access_key',
         ])
+        config = { ...config, ...customConfig }
         if (!config) {
             return null
         }
