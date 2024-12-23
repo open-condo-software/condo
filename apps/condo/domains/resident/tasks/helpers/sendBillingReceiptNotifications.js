@@ -26,7 +26,7 @@ const sendBillingReceiptNotifications = async (context = null) => {
 
         return { status: DISABLED }
     }
-    //TODO: This func need to be refactored and optimized or removed, currently it falls by time out
+    //TODO: DOMA-10913 This func needs to be refactored and optimized or removed, currently it falls by time out
     // await sendResidentsNoAccountNotifications()
 
     const redisClient = await getRedisClient()

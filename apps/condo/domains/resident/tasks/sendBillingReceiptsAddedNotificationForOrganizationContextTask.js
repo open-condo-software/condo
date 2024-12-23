@@ -166,13 +166,13 @@ async function fetchReceipts (contextId, receiptCreatedAfter) {
             const paid = await getNewPaymentsSum(receipt.id)
             return {
                 receipt,
-                shouldInclude: receipt.isPayable === true && Big(receipt.toPay).minus(Big(paid)).gt(Big(0)),
+                isEligibleForProcessing: receipt.isPayable === true && Big(receipt.toPay).minus(Big(paid)).gt(Big(0)),
             }
         })
     )
 
     return filteredReceipts
-        .filter(({ shouldInclude }) => shouldInclude)
+        .filter(({ isEligibleForProcessing }) => isEligibleForProcessing)
         .map(({ receipt }) => receipt)
 }
 
