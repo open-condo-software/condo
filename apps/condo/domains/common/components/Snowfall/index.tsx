@@ -24,8 +24,6 @@ const DefaultSnowfall: React.FC<{ snowflakeCount?: number }> = ({ snowflakeCount
         setSnowflakes(generateSnowflakes(snowflakeCount))
     }, [snowflakeCount])
 
-    if (typeof window === 'undefined') return null
-
     return (
         <div className='snowfall'>
             {snowflakes.map((flake) => (
