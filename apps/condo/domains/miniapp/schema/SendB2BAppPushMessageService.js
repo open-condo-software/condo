@@ -5,39 +5,54 @@
 const { get } = require('lodash')
 
 const conf = require('@open-condo/config')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { GQLError, GQLErrorCode: { FORBIDDEN } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, itemsQuery } = require('@open-condo/keystone/schema')
 
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/miniapp/access/SendB2BAppPushMessageService')
-const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
+const {
+    CONTEXT_FINISHED_STATUS,
+    DEFAULT_NOTIFICATION_WINDOW_DURATION,
+    DEFAULT_NOTIFICATIONS_IN_WINDOW_COUNT,
+    APP_BLACK_LIST_ERROR,
+} = require('@condo/domains/miniapp/constants')
+const { AppMessageSetting } = require('@condo/domains/miniapp/utils/serverSchema')
 const { B2B_APP_MESSAGE_TYPES } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
+const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 
+const redisGuard = new RedisGuard()
 /**
  * List of possible errors, that this custom schema can throw
  * They will be rendered in documentation section in GraphiQL for this custom schema
  */
 const ERRORS = {
+    APP_IN_BLACK_LIST: {
+        mutation: 'sendB2BAppPushMessage',
+        variable: ['data', 'app'],
+        code: FORBIDDEN,
+        type: APP_BLACK_LIST_ERROR,
+        message: 'The notification type is blocked for this app',
+    },
     NO_B2B_CONTEXT: {
         mutation: 'sendB2BAppPushMessage',
         variable: ['data', 'app'],
-        code: BAD_USER_INPUT,
+        code: FORBIDDEN,
         type: NOT_FOUND,
         message: 'No completed B2BContext in "Finished" status found for the provided organization and B2BApp.',
     },
     NO_B2B_APP_ACCESS_RIGHT: {
         mutation: 'sendB2BAppPushMessage',
         variable: ['data', 'app'],
-        code: BAD_USER_INPUT,
+        code: FORBIDDEN,
         type: NOT_FOUND,
         message: 'No B2BAppAccessRight found for the provided user and B2BApp.',
     },
     NO_EMPLOYEE_FOR_USER: {
         mutation: 'sendB2BAppPushMessage',
         variable: ['data', 'user'],
-        code: BAD_USER_INPUT,
+        code: FORBIDDEN,
         type: NOT_FOUND,
         message: 'The provided user is not an employee of the specified organization.',
     },
@@ -77,6 +92,15 @@ const SendB2BAppPushMessageService = new GQLCustomSchema('SendB2BAppPushMessageS
                 } = args
                 const authedItemId = get(context, 'authedItem.id')
 
+                const appSettings = await AppMessageSetting.getOne(
+                    context,
+                    { b2bApp: { ...b2bAppFilter, deletedAt: null }, type, deletedAt: null },
+                    'isBlacklisted notificationWindowSize numberOfNotificationInWindow'
+                )
+                if (appSettings && appSettings.isBlacklisted) {
+                    throw new GQLError(ERRORS.APP_IN_BLACK_LIST, context)
+                }
+
                 const [b2bAppContext] = await itemsQuery('B2BAppContext', {
                     where: {
                         organization: { ...organizationFilter, deletedAt: null },
@@ -106,6 +130,13 @@ const SendB2BAppPushMessageService = new GQLCustomSchema('SendB2BAppPushMessageS
                     throw new GQLError(ERRORS.NO_B2B_APP_ACCESS_RIGHT, context)
                 }
 
+                await redisGuard.checkCustomLimitCounters(
+                    `sendB2CAppPushMessage-${type}-${b2bAppFilter.id}-${userFilter.id}`,
+                    get(appSettings, 'notificationWindowSize') || DEFAULT_NOTIFICATION_WINDOW_DURATION,
+                    get(appSettings, 'numberOfNotificationInWindow') || DEFAULT_NOTIFICATIONS_IN_WINDOW_COUNT,
+                    context,
+                )
+
                 const [organization] = await itemsQuery('Organization', {
                     where: {
                         ...organizationFilter,
@@ -128,8 +159,6 @@ const SendB2BAppPushMessageService = new GQLCustomSchema('SendB2BAppPushMessageS
                 if (!employee) {
                     throw new GQLError(ERRORS.NO_EMPLOYEE_FOR_USER, context)
                 }
-
-                // add checks for messages delay and black list (maybe in AppMessageSetting)
 
                 const { id, status } = await sendMessage(context, {
                     to: { user: userFilter },

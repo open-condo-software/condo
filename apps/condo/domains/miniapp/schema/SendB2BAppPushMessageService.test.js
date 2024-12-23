@@ -10,11 +10,12 @@ const conf = require('@open-condo/config')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult, waitFor, expectToThrowGQLErrorToResult } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
-const { sendB2BAppPushMessageByTestClient, createTestB2BApp, createTestB2BAppContext, createTestB2BAppAccessRightSet, createTestB2BAppAccessRight } = require('@condo/domains/miniapp/utils/testSchema')
-const { MESSAGE_SENT_STATUS, B2B_APP_MESSAGE_PUSH_TYPE, DEVICE_PLATFORM_ANDROID, APP_MASTER_ID_ANDROID } = require('@condo/domains/notification/constants/constants')
+const { sendB2BAppPushMessageByTestClient, createTestAppMessageSetting, createTestB2BApp, createTestB2BAppContext, createTestB2BAppAccessRightSet, createTestB2BAppAccessRight } = require('@condo/domains/miniapp/utils/testSchema')
+const { MESSAGE_SENT_STATUS, B2B_APP_MESSAGE_PUSH_TYPE, DEVICE_PLATFORM_ANDROID, APP_MASTER_ID_ANDROID, TICKET_CREATED_TYPE } = require('@condo/domains/notification/constants/constants')
 const { Message, syncRemoteClientWithPushTokenByTestClient } = require('@condo/domains/notification/utils/testSchema')
 const { DEFAULT_ROLES } = require('@condo/domains/organization/constants/common')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { GQL_ERRORS } = require('@condo/domains/user/constants/errors')
 const { makeClientWithServiceUser, makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 const { ERRORS } = require('./SendB2BAppPushMessageService')
@@ -29,7 +30,7 @@ describe('SendB2BAppPushMessageService', () => {
         organization,
         b2bApp
 
-    beforeAll(async () => {
+    beforeEach(async () => {
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
         anonymous = await makeClient()
@@ -142,6 +143,56 @@ describe('SendB2BAppPushMessageService', () => {
             await expectToThrowGQLErrorToResult(async () => {
                 await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, user.user)
             }, ERRORS.NO_EMPLOYEE_FOR_USER)
+        })
+
+        it('Throws an error if notifications are sent more often than specified in AppMessageSetting', async () => {
+            const notificationWindowSize = 3600
+            const numberOfNotificationInWindow = 2
+            await createTestAppMessageSetting(admin, {
+                b2bApp,
+                notificationWindowSize,
+                numberOfNotificationInWindow,
+            })
+
+            const [message1] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
+                type: B2B_APP_MESSAGE_PUSH_TYPE,
+            })
+            expect(message1.id).toMatch(UUID_RE)
+
+            const [message2] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
+                type: B2B_APP_MESSAGE_PUSH_TYPE,
+            })
+            expect(message2.id).toMatch(UUID_RE)
+
+            const expectedError = GQL_ERRORS.TOO_MANY_REQUESTS
+            await expectToThrowGQLErrorToResult(async () => {
+                await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
+                    type: B2B_APP_MESSAGE_PUSH_TYPE,
+                })
+            }, {
+                code: expectedError.code,
+                type: expectedError.type,
+                message: expectedError.message,
+            })
+        })
+
+        it('Throws an error if message type is blacklisted for app', async () => {
+            await createTestAppMessageSetting(admin, {
+                b2bApp,
+                type: TICKET_CREATED_TYPE,
+                isBlacklisted: true,
+            })
+
+            const [message1] = await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
+                type: B2B_APP_MESSAGE_PUSH_TYPE,
+            })
+            expect(message1.id).toMatch(UUID_RE)
+
+            await expectToThrowGQLErrorToResult(async () => {
+                await sendB2BAppPushMessageByTestClient(serviceUser, b2bApp, organization, staffClient.user, {
+                    type: TICKET_CREATED_TYPE,
+                })
+            }, ERRORS.APP_IN_BLACK_LIST)
         })
     })
 })
