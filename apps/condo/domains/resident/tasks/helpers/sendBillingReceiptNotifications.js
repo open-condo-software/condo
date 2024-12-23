@@ -26,8 +26,8 @@ const sendBillingReceiptNotifications = async (context = null) => {
 
         return { status: DISABLED }
     }
-
-    await sendResidentsNoAccountNotifications()
+    //TODO: This func need to be refactored and optimized or removed, currently it falls by time out
+    // await sendResidentsNoAccountNotifications()
 
     const redisClient = await getRedisClient()
     const redisKey = await redisClient.get(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
