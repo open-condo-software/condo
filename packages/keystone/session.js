@@ -38,7 +38,8 @@ function _makeCookie (expires) {
 /**
  * @typedef SessionConfig
  * @property {String} sessionId - key in store
- * @property {String} userId - user id
+ * @property {String} keystoneListKey - authed item list key. Defaults to 'User'
+ * @property {String} keystoneItemId - authed item id
  * @property {String | Number} expires - number for time span, utc date string for static value
  * @property {Record<string, any>?} additionalFields - any object to store in session
  */
@@ -57,7 +58,7 @@ function _makeCookie (expires) {
  *
  * await setSession(context.req.sessionStore, {
  *      sessionId: getRandomString(),
- *      userId: user.id,
+ *      keystoneItemId: user.id,
  *      expires: expiresAt
  *      additionalFields: {
  *          rights: ['canManageIntegrations']
@@ -87,24 +88,33 @@ function _makeCookie (expires) {
  *  // context.req.session = null
  */
 function setSession (sessionStore, config) {
-    const { sessionId, userId, expires, additionalFields = {} } = config
+    const {
+        sessionId,
+        keystoneListKey = 'User',
+        keystoneItemId,
+        expires,
+        additionalFields = {},
+    } = config
 
     if (!(sessionStore instanceof Store)) {
-        throw new Error('\'sessionStore\' as instance of Store is required')
+        throw new Error('"sessionStore" as instance of Store is required')
     }
-    if (!userId) {
-        throw new Error('User id is required')
+    if (!keystoneListKey) {
+        throw new Error('"keystoneListKey" is required')
+    }
+    if (!keystoneItemId) {
+        throw new Error('"keystoneItemId" is required')
     }
     for (const forbiddenField of FORBIDDEN_SESSION_FIELDS) {
         if (has(additionalFields, forbiddenField)) {
-            throw new Error(`Field ${forbiddenField} is forbidden for public use`)
+            throw new Error(`Field "${forbiddenField}" is forbidden for public use`)
         }
     }
 
     const session = {
         cookie: _makeCookie(expires),
-        keystoneListKey: 'User',
-        keystoneItemId: userId,
+        keystoneListKey,
+        keystoneItemId,
         ...additionalFields,
     }
 

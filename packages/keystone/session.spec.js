@@ -29,7 +29,7 @@ describe('session', () => {
         
         await setSession(sessionStore, {
             sessionId,
-            userId,
+            keystoneItemId: userId,
             expires: expiresAt.toISOString(),
             additionalFields: {
                 [additionalFieldKey]: additionalFieldValue,
@@ -43,7 +43,12 @@ describe('session', () => {
             [additionalFieldKey]: additionalFieldValue,
             keystoneListKey: 'User',
             keystoneItemId: userId,
-            cookie: expect.any(Object),
+            cookie: expect.objectContaining({
+                expires: expiresAt.toISOString(),
+                httpOnly: true,
+                path: '/',
+                sameSite: 'Lax',
+            }),
         }))
 
         const keyTtl = await redisClient.pttl(`sess:${sessionId}`)
@@ -63,7 +68,7 @@ describe('session', () => {
 
         await setSession(sessionStore, {
             sessionId,
-            userId,
+            keystoneItemId: userId,
             cookieOptions: { expires: expiresAt.toISOString() },
             additionalFields: {
                 [additionalFieldKey]: additionalFieldValue,

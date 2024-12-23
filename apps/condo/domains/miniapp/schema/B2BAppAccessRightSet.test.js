@@ -41,7 +41,8 @@ const {
     updateTestB2BAppAccessRight,
     B2BAppAccessRightSet,
     createTestB2BAppAccessRightSet,
-    updateTestB2BAppAccessRightSet,
+    updateTestB2BAppAccessRightSet, createTestB2BAccessTokenReadonly, B2BAccessTokenReadonly,
+    updateTestB2BAccessTokenReadonly,
 } = require('@condo/domains/miniapp/utils/testSchema')
 const { Organization, createTestOrganization, updateTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
@@ -416,7 +417,7 @@ describe('B2BAppAccessRightSet', () => {
             const [app] = await createTestB2BApp(support)
             const [globalRightsSet] = await createTestB2BAppAccessRightSet(support, app, { canReadOrganizations: true })
 
-            for (let i = 0; i < 3; i++) {
+            for (let i = 0; i < Math.round(Math.random() * ACCESS_RIGHT_SET_MAX_ITEMS_SCOPED_TYPE) + 1; i++) {
                 const [scopedRightSet] = await createTestB2BAppAccessRightSet(support, app, { type: 'SCOPED', canReadOrganizations: true })
                 expect(scopedRightSet.canReadOrganizations).toEqual(true)
             }
@@ -432,7 +433,7 @@ describe('B2BAppAccessRightSet', () => {
             const [app] = await createTestB2BApp(support)
             const [globalRightsSet] = await createTestB2BAppAccessRightSet(support, app, { canReadOrganizations: true })
 
-            for (let i = 0; i < 3; i++) {
+            for (let i = 0; i < Math.round(Math.random() * ACCESS_RIGHT_SET_MAX_ITEMS_SCOPED_TYPE) + 1; i++) {
                 const [scopedRightSet] = await createTestB2BAppAccessRightSet(support, app, { type: 'SCOPED', canReadOrganizations: true })
                 expect(scopedRightSet.canReadOrganizations).toEqual(true)
             }
@@ -621,7 +622,6 @@ describe('B2BApp permissions for service user', () => {
                 canManageOrganizations: false,
             })
         }, (e) => {
-            console.log(e)
             expect(e.errors[0].message).toContain('Field "canManageOrganizations" is not defined by type "B2BAppAccessRightSetCreateInput"')
         })
 
@@ -1467,5 +1467,74 @@ describe('B2BApp permissions for service user', () => {
             })
 
         })
+    })
+
+    describe('B2BAccessTokens domain', () => {
+
+        let app
+        let context
+        let serviceUser
+        let scopedRightSet
+        let accessRightSet
+
+        beforeAll(async () => {
+            const [organization] = await registerNewOrganization(user)
+            const [newServiceUser] = await registerNewServiceUserByTestClient(support)
+            serviceUser = await makeLoggedInClient({ email: newServiceUser.email, password: newServiceUser.password });
+            [app] = await createTestB2BApp(support);
+            [context] = await createTestB2BAppContext(support, app, organization, { status: 'Finished' })
+            const [right] = await createTestB2BAppAccessRight(support, serviceUser.user, app);
+            [accessRightSet] = await createTestB2BAppAccessRightSet(support, app, {
+                canReadB2BAccessTokens: true,
+                canManageB2BAccessTokens: true,
+            });
+            [scopedRightSet] = await createTestB2BAppAccessRightSet(support, app, { type: 'SCOPED' })
+            await updateTestB2BAppAccessRight(support, right.id, { accessRightSet: { connect: { id: accessRightSet.id } } })
+        })
+
+        test('create B2BAccessToken', async () => {
+            // can with rights
+            await updateTestB2BAppAccessRightSet(support, accessRightSet.id, { canManageB2BAccessTokens: true })
+            const [token] = await createTestB2BAccessTokenReadonly(serviceUser, context, scopedRightSet)
+            expect(token).toBeDefined()
+
+            // can't without rights
+            await updateTestB2BAppAccessRightSet(support, accessRightSet.id, { canManageB2BAccessTokens: false })
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await createTestB2BAccessTokenReadonly(serviceUser, context, scopedRightSet)
+            })
+        })
+
+        test('update B2BAccessToken', async () => {
+            await updateTestB2BAppAccessRightSet(support, accessRightSet.id, { canManageB2BAccessTokens: true })
+            const [token] = await createTestB2BAccessTokenReadonly(serviceUser, context, scopedRightSet)
+
+            // can with rights
+            const [updatedToken] = await updateTestB2BAccessTokenReadonly(serviceUser, token.id, {})
+            expect(updatedToken).toBeDefined()
+
+            // can't without rights
+            await updateTestB2BAppAccessRightSet(support, accessRightSet.id, { canManageB2BAccessTokens: false })
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestB2BAccessTokenReadonly(serviceUser, token.id, {})
+            })
+        })
+
+        test('read B2BAccessToken', async () => {
+            await updateTestB2BAppAccessRightSet(support, accessRightSet.id, { canReadB2BAccessTokens: true, canManageB2BAccessTokens: true })
+            const [token] = await createTestB2BAccessTokenReadonly(serviceUser, context, scopedRightSet)
+
+            // can with rights
+            const readToken = await B2BAccessTokenReadonly.getOne(serviceUser, { id: token.id })
+            expect(readToken).toBeDefined()
+            expect(readToken).toEqual(token)
+
+            // can't without rights
+            await updateTestB2BAppAccessRightSet(support, accessRightSet.id, { canReadB2BAccessTokens: false })
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await B2BAccessTokenReadonly.getOne(serviceUser, { id: token.id })
+            })
+        })
+
     })
 })

@@ -36,7 +36,7 @@ describe('session', () => {
             
             it('provided null', () => {
                 const sessionData = makeSessionData({ enabledB2BPermissions: null })
-                expect(sessionData.enabledB2BPermissions).toBe(true)
+                expect(sessionData.enabledB2BPermissions).toBe(false)
             })
             
             it('providedDuplicates', () => {

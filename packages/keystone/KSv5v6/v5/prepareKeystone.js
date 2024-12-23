@@ -137,7 +137,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
             await redisClient.expire(sessKey, SERVICE_USER_SESSION_TTL_IN_SEC)
         },
     }
-    const authStrategyConfig = get(authStrategyOpts, 'config', { hooks: { afterAuth: [defaultAuthStrategyConfigHooks.afterAuth] } })
+
     const authStrategy = keystone.createAuthStrategy({
         type: ExtendedPasswordAuthStrategy,
         list: 'User',
@@ -151,7 +151,7 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
                     deletedAt: null,
                 })
             },
-            ...authStrategyConfig,
+            ...get(authStrategyOpts, 'config', {}),
         },
         hooks: composeHooks(defaultAuthStrategyConfigHooks, get(authStrategyOpts, 'hooks', {})),
     })

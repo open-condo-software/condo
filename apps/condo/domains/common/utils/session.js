@@ -4,10 +4,14 @@ const uniq = require('lodash/uniq')
 
 const { nonNull } = require('@open-condo/miniapp-utils')
 
-const ARGS_CONFIG = {
-    arrays: {
-        allowedOrganizations: [_uniqItems, _nonNullItems],
-        enabledB2BPermissions: [_uniqItems, _nonNullItems],
+const PAYLOAD_CONFIG = {
+    allowedOrganizations: {
+        type: 'array',
+        transforms: [_uniqItems, _nonNullItems],
+    },
+    enabledB2BPermissions: {
+        type: 'array',
+        transforms: [_uniqItems, _nonNullItems],
     },
 }
 
@@ -42,21 +46,26 @@ function parseSession (session) {
  */
 
 /**
- * @param {SessionDataArgs?} args
+ * @param {SessionDataArgs?} payload
  * @returns {{allowedOrganizations: string[] | null, enabledB2BPermissions: string[] | null}}
  */
-function makeSessionData (args = {}) {
-    const arrayArgsEntries = Object.keys(ARGS_CONFIG.arrays)
-        .map(key => {
-            let value = args[key]
-            if (value === null || value === undefined) {
+function makeSessionData (payload = {}) {
+    const parsedPayloadEntries = Object.entries(PAYLOAD_CONFIG)
+        .map(([key, config]) => {
+            let value = payload[key]
+            if (value === undefined) {
                 return [key, true]
             }
-            if (!Array.isArray(value)) {
-                value = [value]
+            if (value === null) {
+                return [key, false]
             }
-            for (let transform of ARGS_CONFIG.arrays[key]) {
-                value = transform(value)
+            if (config.type === 'array') {
+                if (!Array.isArray(value)) {
+                    value = [value]
+                }
+                for (let transform of config.transforms) {
+                    value = transform(value)
+                }
             }
             return [key, value]
         })
@@ -64,7 +73,7 @@ function makeSessionData (args = {}) {
     const {
         allowedOrganizations,
         enabledB2BPermissions,
-    } = Object.fromEntries(arrayArgsEntries)
+    } = Object.fromEntries(parsedPayloadEntries)
 
     return {
         allowedOrganizations,
