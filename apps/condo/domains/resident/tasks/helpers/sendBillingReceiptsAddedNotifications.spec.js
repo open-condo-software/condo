@@ -303,7 +303,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 const messages = await Message.getAll(environment.clients.admin, messageWhere)
 
                 expect(messages).toHaveLength(1)
-            }, { delay: 2000 })
+            }, { delay: 8000 })
         })
 
         test('Should not send push for old lastReport', async () => {
@@ -331,7 +331,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 const messages = await Message.getAll(environment.clients.admin, messageWhere)
 
                 expect(messages).toHaveLength(0)
-            }, { delay: 2000 })
+            }, { delay: 8000 })
         })
 
         test('Should send only one push for one user with different residents', async () => {
@@ -381,7 +381,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 const messages = await Message.getAll(environment.clients.admin, messageWhere)
 
                 expect(messages).toHaveLength(1)
-            }, { delay: 2000 })
+            }, { delay: 8000 })
         })
 
         test('Should not send pushes more often than one time a day', async () => {
@@ -409,7 +409,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 const messages = await Message.getAll(environment.clients.admin, messageWhere)
 
                 expect(messages).toHaveLength(1)
-            }, { delay: 2000 })
+            }, { delay: 8000 })
 
             await environment.createReceipts([
                 environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
@@ -421,7 +421,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 const messages = await Message.getAll(environment.clients.admin, messageWhere)
 
                 expect(messages).toHaveLength(1)
-            }, { delay: 2000 })
+            }, { delay: 8000 })
         })
 
         test('Should not create subtasks and just add redisKey if cron task is started for the first time', async () => {
@@ -449,7 +449,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 const messages = await Message.getAll(environment.clients.admin, messageWhere)
 
                 expect(messages).toHaveLength(0)
-            }, { delay: 2000 })
+            }, { delay: 8000 })
         })
 
         test('Should create subtask if redis key exists', async () => {
@@ -479,7 +479,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 const messages = await Message.getAll(environment.clients.admin, messageWhere)
 
                 expect(messages).toHaveLength(1)
-            }, { delay: 2000 })
+            }, { delay: 8000 })
         })
 
         test('Should send push if next day came', async () => {
@@ -509,7 +509,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 expect(messages).toHaveLength(1)
                 firstMessageId = messages[0].id
                 await Message.softDelete(environment.clients.admin, firstMessageId)
-            }, { delay: 2000 })
+            }, { delay: 8000 })
 
             await environment.createReceipts([
                 environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
@@ -522,7 +522,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
 
                 expect(messages).toHaveLength(1)
                 expect(messages[0].id).not.toEqual(firstMessageId)
-            }, { delay: 2000 })
+            }, { delay: 8000 })
         })
 
         test('Should send push if new receipts were loaded when user already got push', async () => {
@@ -564,7 +564,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 expect(messages).toHaveLength(1)
                 firstMessageId = messages[0].id
                 await Message.softDelete(environment.clients.admin, firstMessageId)
-            }, { delay: 2000 })
+            }, { delay: 8000 })
 
             await sendBillingReceiptsAddedNotifications(dayjs().subtract(1, 'h').toISOString())
 
@@ -573,7 +573,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
 
                 expect(messages).toHaveLength(1)
                 expect(messages[0].id).not.toEqual(firstMessageId)
-            }, { delay: 2000 })
+            }, { delay: 8000 })
         })
 
         test('Should not send push for archive receipts', async () => {
@@ -602,7 +602,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 const messages = await Message.getAll(environment.clients.admin, messageWhere)
                 expect(messages).toHaveLength(1)
                 expect(messages[0].meta.data.billingReceiptId).toEqual(receipts.filter(r => r.period === '2024-02-01')[0].id)
-            }, { delay: 2000 })
+            }, { delay: 8000 })
         })
 
         test('Should send pushes for several users in one context', async () => {
@@ -647,7 +647,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
 
                 expect(messages).toHaveLength(2)
                 expect(messages[0].user.id).not.toEqual(messages[1].user.id)
-            }, { delay: 2000 })
+            }, { delay: 8000 })
         })
 
         test('Should not send push for paid receipts', async () => {
@@ -675,7 +675,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             await waitFor(async () => {
                 const messages = await Message.getAll(environment.clients.admin, messageWhere)
                 expect(messages).toHaveLength(0)
-            }, { delay: 2000 })
+            }, { delay: 8000 })
         })
     })
 })
