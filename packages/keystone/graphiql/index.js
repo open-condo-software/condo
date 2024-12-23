@@ -2,6 +2,7 @@ const fs = require('fs')
 const path = require('path')
 
 const express = require('express')
+const nunjucks = require('nunjucks')
 
 const conf = require('@open-condo/config')
 
@@ -19,10 +20,8 @@ class GraphiqlApp {
 
     prepareHtml (apiPath) {
         const fileBuffer = fs.readFileSync(path.join(__dirname, 'graphiql.html'))
-        const html = fileBuffer.toString()
-        return html
-            .replace('__REPLACE_TO_YOUR_API_PATH__', apiPath)
-            .replace('__REPLACE_TO_YOUR_SERVER_URL__', SERVER_URL)
+        const htmlTemplate = fileBuffer.toString()
+        return nunjucks.renderString(htmlTemplate, { apiPath, serverUrl: SERVER_URL + this.graphiqlPath })
     }
 
     async prepareMiddleware () {
