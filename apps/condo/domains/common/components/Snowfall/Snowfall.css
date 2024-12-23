@@ -1,0 +1,28 @@
+.snowfall {
+  position: fixed;
+  top: -30px;
+  right: 0;
+  bottom: -30px;
+  left: 0;
+  z-index: 100000; /* On top of all elements */
+  overflow: hidden;
+  pointer-events: none; /* Don't interfere with user action */
+}
+
+.snowflake {
+  position: absolute;
+  color: white;
+  font-size: 16px;
+  opacity: 0.6;
+  animation-name: fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  user-select: none;
+  will-change: transform;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(calc(100vh + 60px));
+  }
+}
