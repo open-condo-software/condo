@@ -3,7 +3,7 @@
  */
 
 const { makeLoggedInAdminClient, makeClient, expectValuesOfCommonFields,
-    expectToThrowUniqueConstraintViolationError,
+    expectToThrowUniqueConstraintViolationError, expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
@@ -12,9 +12,13 @@ const {
 
 
 const { AppMessageSetting, createTestAppMessageSetting, updateTestAppMessageSetting } = require('@condo/domains/miniapp/utils/testSchema')
-const { createTestB2CApp } = require('@condo/domains/miniapp/utils/testSchema')
-const { B2C_APP_MESSAGE_PUSH_TYPE, VOIP_INCOMING_CALL_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
+const { createTestB2CApp, createTestB2BApp, createTestB2BAppContext } = require('@condo/domains/miniapp/utils/testSchema')
+const { B2C_APP_MESSAGE_PUSH_TYPE, B2B_APP_MESSAGE_PUSH_TYPE, VOIP_INCOMING_CALL_MESSAGE_TYPE, TICKET_CREATED_TYPE } = require('@condo/domains/notification/constants/constants')
+const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+
+const { ERRORS } = require('./AppMessageSetting')
+
 
 describe('AppMessageSetting', () => {
     let admin, support, anonymous, user, b2cApp
@@ -176,6 +180,26 @@ describe('AppMessageSetting', () => {
 
                     expect(objs).toHaveLength(0)
                 })
+
+                test('user with employee in organization with b2b app from setting can read', async () => {
+                    const staffUser = await makeClientWithNewRegisteredAndLoggedInUser()
+
+                    const [organization] = await createTestOrganization(admin)
+                    const [app] = await createTestB2BApp(admin)
+                    await createTestB2BAppContext(admin, app, organization)
+                    const [role] = await createTestOrganizationEmployeeRole(admin, organization)
+                    await createTestOrganizationEmployee(admin, organization, staffUser.user, role)
+                    const [setting] = await createTestAppMessageSetting(admin, {
+                        b2bApp: app,
+                    })
+
+                    const readSetting = await AppMessageSetting.getOne(staffUser, { id: setting.id })
+
+                    expect(readSetting.id).toEqual(setting.id)
+                    expect(readSetting.type).toBeDefined()
+                    expect(readSetting.type).toEqual(setting.type)
+                    expect(readSetting.b2bApp.id).toEqual(setting.b2bApp.id)
+                })
             })
 
             describe('Anonymous', () => {
@@ -214,8 +238,59 @@ describe('AppMessageSetting', () => {
         })
     })
 
-    describe('Constraint tests', () => {
-        test('app_message_setting_unique_b2c_app_and_type can\'t create two records with same message type and B2CApp', async () => {
+    describe('Validations', () => {
+        test('can not create AppMessageSetting with b2bApp and b2cApp together', async () => {
+            const [b2cApp] = await createTestB2CApp(admin)
+            const [b2bApp] = await createTestB2BApp(admin)
+
+            await expectToThrowGQLError(async () => {
+                await createTestAppMessageSetting(admin, {
+                    b2cApp,
+                    b2bApp,
+                })
+            }, ERRORS.APP_MESSAGE_SETTING_MUST_HAVE_ONLY_B2B_OR_B2C_APP_FIELD)
+        })
+
+        test('can not create AppMessageSetting without b2bApp or b2cApp', async () => {
+            await expectToThrowGQLError(async () => {
+                await createTestAppMessageSetting(admin, {
+                    type: TICKET_CREATED_TYPE,
+                })
+            }, ERRORS.APP_MESSAGE_SETTING_MUST_HAVE_ONLY_B2B_OR_B2C_APP_FIELD)
+        })
+
+        test('can not connect b2bApp to AppMessageSetting with b2cApp', async () => {
+            const [b2cApp] = await createTestB2CApp(admin)
+            const [b2bApp] = await createTestB2BApp(admin)
+
+            const [setting] = await createTestAppMessageSetting(admin, {
+                b2cApp,
+            })
+
+            await expectToThrowGQLError(async () => {
+                await updateTestAppMessageSetting(admin, setting.id,  {
+                    b2bApp: { connect: { id: b2bApp.id } },
+                })
+            }, ERRORS.APP_MESSAGE_SETTING_MUST_HAVE_ONLY_B2B_OR_B2C_APP_FIELD)
+        })
+
+        test('can update AppMessageSetting fields', async () => {
+            const [b2bApp] = await createTestB2BApp(admin)
+            const [setting] = await createTestAppMessageSetting(admin, {
+                b2bApp,
+                isBlacklisted: false,
+            })
+
+            expect(setting.isBlacklisted).toEqual(false)
+
+            const [updatedSetting] = await updateTestAppMessageSetting(admin, setting.id,  {
+                isBlacklisted: true,
+            })
+
+            expect(updatedSetting.isBlacklisted).toEqual(true)
+        })
+
+        test('can not create two records with same message type and B2CApp', async () => {
             const [b2cApp] = await createTestB2CApp(admin)
             await createTestAppMessageSetting(admin, {
                 b2cApp,
@@ -228,7 +303,20 @@ describe('AppMessageSetting', () => {
             }, 'app_message_setting_unique_b2c_app_and_type')
         })
 
-        test('app_message_setting_unique_b2c_app_and_type can create two records with dif message type and same B2CApp', async () => {
+        test('can not create two records with same message type and B2BApp', async () => {
+            const [b2bApp] = await createTestB2BApp(admin)
+            await createTestAppMessageSetting(admin, {
+                b2bApp,
+            })
+            
+            await expectToThrowUniqueConstraintViolationError(async () => {
+                await createTestAppMessageSetting(admin, {
+                    b2bApp,
+                })
+            }, 'app_message_setting_unique_b2b_app_and_type')
+        })
+
+        test('can create two records with different message types and same B2CApp', async () => {
             const [b2cApp] = await createTestB2CApp(admin)
             const [obj1] = await createTestAppMessageSetting(admin, {
                 b2cApp,
@@ -240,10 +328,45 @@ describe('AppMessageSetting', () => {
             })
             expect(obj1.type).toEqual(B2C_APP_MESSAGE_PUSH_TYPE)
             expect(obj2.type).toEqual(VOIP_INCOMING_CALL_MESSAGE_TYPE)
-            expect(obj1.app).toEqual(obj2.app)
+            expect(obj1.b2cApp.id).toEqual(obj2.b2cApp.id)
         })
 
-        test('app_message_setting_unique_b2c_app_and_type can create two records with same message type and dif B2CApp', async () => {
+        test('can create two records with different message types and same B2BApp', async () => {
+            const [b2bApp] = await createTestB2BApp(admin)
+            const [obj1] = await createTestAppMessageSetting(admin, {
+                b2bApp,
+            })
+
+            const [obj2] = await createTestAppMessageSetting(admin, {
+                b2bApp,
+                type: TICKET_CREATED_TYPE,
+            })
+
+            expect(obj1.type).toEqual(B2B_APP_MESSAGE_PUSH_TYPE)
+            expect(obj2.type).toEqual(TICKET_CREATED_TYPE)
+            expect(obj1.b2bApp.id).toEqual(obj2.b2bApp.id)
+        })
+
+        test('can create two records with same message type and different app types', async () => {
+            const [b2cApp] = await createTestB2CApp(admin)
+            const [obj1] = await createTestAppMessageSetting(admin, {
+                b2cApp,
+                type: TICKET_CREATED_TYPE,
+            })
+
+            const [b2bApp] = await createTestB2BApp(admin)
+            const [obj2] = await createTestAppMessageSetting(admin, {
+                b2bApp,
+                type: TICKET_CREATED_TYPE,
+            })
+
+            expect(obj1.type).toEqual(TICKET_CREATED_TYPE)
+            expect(obj1.b2cApp.id).toEqual(b2cApp.id)
+            expect(obj2.type).toEqual(TICKET_CREATED_TYPE)
+            expect(obj2.b2bApp.id).toEqual(b2bApp.id)
+        })
+
+        test('can create two records with same message type and different B2CApp', async () => {
             const [b2cApp1] = await createTestB2CApp(admin)
             const [b2cApp2] = await createTestB2CApp(admin)
             const [obj1] = await createTestAppMessageSetting(admin, {
