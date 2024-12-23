@@ -9,9 +9,15 @@ const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects,
     expectToThrowUniqueConstraintViolationError, expectToThrowAccessDeniedErrorToCount,
-    expectToThrowAccessDeniedErrorToResult,
+    expectToThrowAccessDeniedErrorToResult, expectToThrowGraphQLRequestError,
 } = require('@open-condo/keystone/test.utils')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const {
+    createTestBillingIntegration, updateTestBillingIntegrationOrganizationContext,
+    createTestBillingIntegrationOrganizationContext, createTestBillingProperty,
+    createTestBillingAccount, createTestBillingReceipt, BillingReceipt,
+} = require('@condo/domains/billing/utils/testSchema')
 const { createTestContact, Contact, updateTestContact } = require('@condo/domains/contact/utils/testSchema')
 const {
     CALL_METER_READING_SOURCE_ID,
@@ -1283,6 +1289,75 @@ describe('B2BApp permissions for service user', () => {
             const [result] = await updateTestMeterReading(serviceUser, meterReading.id, { billingStatus: 'approved' })
 
             expect(result.id).toMatch(UUID_RE)
+        })
+    })
+
+    describe('Billing domain', () => {
+
+        describe('BillingReceipt model', () => {
+
+            let admin
+            let integration
+            let organization
+            let context
+            let property
+            let account
+            let serviceUser
+            let b2bApp
+            let b2bAppAccessRightSet
+
+            beforeAll(async () => {
+                admin = await makeLoggedInAdminClient();
+                [integration] = await createTestBillingIntegration(support);
+                [organization] = await registerNewOrganization(user);
+                [context] = await createTestBillingIntegrationOrganizationContext(user, organization, integration);
+                [context] = await updateTestBillingIntegrationOrganizationContext(user, context.id, { status: CONTEXT_FINISHED_STATUS });
+                [property] = await createTestBillingProperty(admin, context);
+                [account] = await createTestBillingAccount(admin, context, property)
+            })
+
+            beforeEach(async () => {
+                const [newServiceUser] = await registerNewServiceUserByTestClient(support)
+                serviceUser = await makeLoggedInClient({
+                    email: newServiceUser.email,
+                    password: newServiceUser.password,
+                });
+
+                [b2bApp] = await createTestB2BApp(support)
+                await createTestB2BAppContext(support, b2bApp, organization, { status: 'Finished' });
+                [b2bAppAccessRightSet] = await createTestB2BAppAccessRightSet(support, b2bApp)
+                await createTestB2BAppAccessRight(support, serviceUser.user, b2bApp, b2bAppAccessRightSet)
+            })
+
+            test('create', async () => {
+                // 'Manage' right is not defined
+                await expectToThrowGraphQLRequestError(async () => {
+                    await updateTestB2BAppAccessRightSet(support, b2bAppAccessRightSet.id, { canManageBillingReceipts: true })
+                }, 'Field "canManageBillingReceipts" is not defined')
+            })
+
+            test('update', async () => {
+                // 'Manage' right is not defined
+                await expectToThrowGraphQLRequestError(async () => {
+                    await updateTestB2BAppAccessRightSet(support, b2bAppAccessRightSet.id, { canManageBillingReceipts: true })
+                }, 'Field "canManageBillingReceipts" is not defined')
+            })
+
+            test('read', async () => {
+                const [receiptCreated] = await createTestBillingReceipt(admin, context, property, account)
+
+                // Without rights
+                const receiptWithoutRights = await BillingReceipt.getOne(serviceUser, { id: receiptCreated.id })
+                expect(receiptWithoutRights).not.toBeDefined()
+
+                await updateTestB2BAppAccessRightSet(support, b2bAppAccessRightSet.id, { canReadBillingReceipts: true })
+                // With rights
+                const receipt = await BillingReceipt.getOne(serviceUser, { id: receiptCreated.id })
+                expect(receipt).toBeDefined()
+                expect(receipt.account).toBeNull()
+                expect(receipt.property).toBeNull()
+            })
+
         })
     })
 })
