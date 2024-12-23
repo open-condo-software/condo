@@ -39,20 +39,17 @@ const ResetUserLimitAction = new GQLListSchema('ResetUserLimitAction', {
         'To reset a counter limit, you need to create a new object and specify the counter type, identifier, and reason for the reset.',
     fields: {
         type: {
-            schemaDoc: `Type of counter to be reset.
-                Possible values: 
-                1. Auth – counter for sending verification SMS based on IP or phone number.
-             `,
+            schemaDoc: `Type of limit to reset. Possible values: [${Object.keys(resetters).map(key => `"${key}"`).join(', ')}]`,
             type: 'Select',
             dataType: 'string',
             options: Object.keys(resetters),
             isRequired: true,
         },
         identifier: {
-            schemaDoc: `The identifier of the counter for a specific type.
-                Possible values: 
-                1. For the 'Auth' type, it can be: an IP address or a phone number.
-            `,
+            schemaDoc: 'The identifier of user, to which reset will apply. Possible values are based on reset type: \n' +
+                Object.entries(resetters)
+                    .map(([key, resetter]) => `${key}: [${resetter.supportedIdentifiers.map(type => `"${type}"`).join(', ')}]`)
+                    .join(', \n'),
             type: 'Text',
             isRequired: true,
             hooks: {
