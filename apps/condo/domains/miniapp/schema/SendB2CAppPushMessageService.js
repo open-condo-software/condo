@@ -12,6 +12,8 @@ const access = require('@condo/domains/miniapp/access/SendB2CAppPushMessageServi
 const {
     USER_NOT_FOUND_ERROR, RESIDENT_NOT_FOUND_ERROR,
     APP_NOT_FOUND_ERROR, APP_BLACK_LIST_ERROR, DEBUG_APP_ID,
+    DEFAULT_NOTIFICATIONS_IN_WINDOW_COUNT,
+    DEFAULT_NOTIFICATION_WINDOW_DURATION,
 } = require('@condo/domains/miniapp/constants')
 const { AppMessageSetting } = require('@condo/domains/miniapp/utils/serverSchema')
 const { B2CApp } = require('@condo/domains/miniapp/utils/serverSchema')
@@ -24,9 +26,9 @@ const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 const { User } = require('@condo/domains/user/utils/serverSchema')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
-const DEFAULT_COUNTER_LIMIT = 1
+
 const CACHE_TTL = {
-    DEFAULT: 3600,
+    DEFAULT: DEFAULT_NOTIFICATION_WINDOW_DURATION,
     VOIP_INCOMING_CALL_MESSAGE: 2,
     B2C_APP_MESSAGE_PUSH: 3600,
 }
@@ -160,7 +162,7 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
                 await redisGuard.checkCustomLimitCounters(
                     `${SERVICE_NAME}-${searchKey}`,
                     get(appSettings, 'notificationWindowSize') || ttl,
-                    get(appSettings, 'numberOfNotificationInWindow') || DEFAULT_COUNTER_LIMIT,
+                    get(appSettings, 'numberOfNotificationInWindow') || DEFAULT_NOTIFICATIONS_IN_WINDOW_COUNT,
                     context,
                 )
 

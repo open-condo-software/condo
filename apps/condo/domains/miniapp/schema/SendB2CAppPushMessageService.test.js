@@ -247,9 +247,10 @@ describe('SendB2CAppPushMessageService', () => {
 
     describe('Black list checks', () => {
         it('Don\'t send message if app added to MessageAppBlackList', async () => {
-            const [b2c] = await createTestB2CApp(admin)
+            const [b2cApp] = await createTestB2CApp(admin)
 
-            const [obj, attrs] = await createTestAppMessageSetting(admin, b2c, {
+            await createTestAppMessageSetting(admin, {
+                b2cApp,
                 type: B2C_APP_MESSAGE_PUSH_TYPE,
                 isBlacklisted: true,
             })
@@ -257,7 +258,7 @@ describe('SendB2CAppPushMessageService', () => {
             await expectToThrowGQLErrorToResult(async () => {
                 await sendB2CAppPushMessageByTestClient(admin, {
                     ...appAttrs,
-                    app: { id: b2c.id },
+                    app: { id: b2cApp.id },
                 })
             }, ERRORS.APP_IN_BLACK_LIST)
         })
@@ -265,21 +266,22 @@ describe('SendB2CAppPushMessageService', () => {
 
     describe('Notification throttling checks', () => {
         it('Don\'t send a notification if there was already a notification in the default time window', async () => {
-            const [b2c] = await createTestB2CApp(admin)
+            const [b2cApp] = await createTestB2CApp(admin)
 
-            await createTestAppMessageSetting(admin, b2c, {
+            await createTestAppMessageSetting(admin, {
                 type: B2C_APP_MESSAGE_PUSH_TYPE,
+                b2cApp,
             })
             const [message] = await sendB2CAppPushMessageByTestClient(admin, {
                 ...appAttrs,
-                app: { id: b2c.id },
+                app: { id: b2cApp.id },
             })
             expect(message.id).toMatch(UUID_RE)
 
             await expectToThrowGQLErrorToResult(async () => {
                 await sendB2CAppPushMessageByTestClient(admin, {
                     ...appAttrs,
-                    app: { id: b2c.id },
+                    app: { id: b2cApp.id },
                 })
             }, {
                 code: 'BAD_USER_INPUT',
@@ -289,31 +291,32 @@ describe('SendB2CAppPushMessageService', () => {
         })
 
         it('Don\'t send a notification if the notification limit in the custom time window is exhausted', async () => {
-            const [b2c] = await createTestB2CApp(admin)
+            const [b2cApp] = await createTestB2CApp(admin)
 
             const notificationWindowSize = 3600
             const numberOfNotificationInWindow = 2
-            await createTestAppMessageSetting(admin, b2c, {
+            await createTestAppMessageSetting(admin, {
+                b2cApp,
                 notificationWindowSize,
                 numberOfNotificationInWindow,
             })
 
             const [message1] = await sendB2CAppPushMessageByTestClient(admin, {
                 ...appAttrs,
-                app: { id: b2c.id },
+                app: { id: b2cApp.id },
             })
             expect(message1.id).toMatch(UUID_RE)
 
             const [message2] = await sendB2CAppPushMessageByTestClient(admin, {
                 ...appAttrs,
-                app: { id: b2c.id },
+                app: { id: b2cApp.id },
             })
             expect(message2.id).toMatch(UUID_RE)
 
             await expectToThrowGQLErrorToResult(async () => {
                 await sendB2CAppPushMessageByTestClient(admin, {
                     ...appAttrs,
-                    app: { id: b2c.id },
+                    app: { id: b2cApp.id },
                 })
             }, {
                 code: 'BAD_USER_INPUT',
