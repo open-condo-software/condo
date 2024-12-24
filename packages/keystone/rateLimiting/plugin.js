@@ -39,7 +39,6 @@ class ApolloRateLimitingPlugin {
     #redisClient = getRedisClient()
     #pageLimit = DEFAULT_PAGE_LIMIT
     #customQuotas = {}
-    #identifiersWhiteList = new Set()
 
     /**
      * @param keystone {import('@keystonejs/keystone').Keystone} keystone instance
@@ -90,9 +89,6 @@ class ApolloRateLimitingPlugin {
         }
         if (opts.customQuotas) {
             this.#customQuotas = opts.customQuotas
-        }
-        if (opts.identifiersWhiteList) {
-            this.#identifiersWhiteList = new Set(opts.identifiersWhiteList)
         }
     }
 
@@ -248,10 +244,6 @@ class ApolloRateLimitingPlugin {
                         reset: resetTimestampInSec,
                     },
                 })
-
-                if (this.#identifiersWhiteList.has(identifier)) {
-                    return
-                }
 
                 if (incrValue > allowedQuota) {
                     // TODO(INFRA-760): Throw error instead here

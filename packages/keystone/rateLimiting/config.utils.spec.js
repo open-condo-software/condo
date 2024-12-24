@@ -11,7 +11,12 @@ describe('Plugin config utils', () => {
         describe('Must bypass valid options', () => {
             const validCases = [
                 ['empty config', {}],
-                ['tests config', { identifiersWhiteList: ['::1', '127.0.0.1'] }],
+                ['tests config', {
+                    customQuotas: {
+                        '::1': randomInt(100_000_000),
+                        '127.0.0.1': randomInt(100_000_000),
+                    },
+                }],
                 ['real-word config', {
                     customQuotas: {
                         [faker.datatype.uuid()]: randomInt(),
@@ -23,7 +28,6 @@ describe('Plugin config utils', () => {
                 ['custom window #1', { window: '5 hours' }],
                 ['custom window #2', { window: '40 min' }],
                 ['full config', {
-                    identifiersWhiteList: [faker.datatype.uuid(), faker.internet.ipv4()],
                     customQuotas: {
                         [faker.datatype.uuid()]: randomInt(),
                         [faker.internet.ipv4()]: randomInt(),

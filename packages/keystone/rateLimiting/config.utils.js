@@ -5,7 +5,6 @@ const ajv = new Ajv()
 const PLUGIN_OPTIONS_SCHEMA = {
     type: 'object',
     properties: {
-        identifiersWhiteList: { type: 'array', items: { type: 'string' } },
         customQuotas: { type: 'object', additionalProperties: { type: 'number' } },
         queryWeight: { type: 'number' },
         mutationWeight: { type: 'number' },
