@@ -166,7 +166,7 @@ async function fetchReceipts (contextId, receiptCreatedAfter) {
             const paid = await getNewPaymentsSum(receipt.id)
             return {
                 receipt,
-                isEligibleForProcessing: receipt.isPayable === true && Big(receipt.toPay).minus(Big(paid)).gt(Big(0)),
+                isEligibleForProcessing: receipt.isPayable && Big(receipt.toPay).minus(Big(paid)).gt(Big(0)),
             }
         })
     )
@@ -265,12 +265,12 @@ async function notifyConsumers (keystone, receipt, consumers, lastSendDate) {
         logger.info({ msg: 'Notification data', data: { receipt, consumer, resident, lastSendDatePeriod: dayjs(lastSendDate).format('YYYY-MM-DD') } })
         const isDuplicated = await prepareAndSendNotification(keystone, receipt, resident, dayjs().format('YYYY-MM-DD'))
 
-        if (!isDuplicated) {
-            logger.info({ msg: 'User got notification', data: { user: resident.user } })
-            successSentMessages++
-        } else {
+        if (isDuplicated) {
             duplicatedSentMessages++
             logger.info({ msg: 'User did not get notification', data: { user: resident.user } })
+        } else {
+            logger.info({ msg: 'User got notification', data: { user: resident.user } })
+            successSentMessages++
         }
 
     }
