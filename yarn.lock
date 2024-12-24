@@ -846,7 +846,6 @@ __metadata:
     csv-parse: ^5.2.0
     csv-stringify: ^6.2.0
     cuid: ^2.1.8
-    cypress: 12.17.3
     dayjs: ^1.10.6
     echarts: ^5.1.2
     echarts-for-react: 3.0.2
@@ -8330,32 +8329,6 @@ __metadata:
   peerDependencies:
     "@cypress/request": ^3.0.0
   checksum: 72d17a3dd512a7b616b4d2c23d9aa0008d9ca10a8cb0c5f3d945b62705c7f4b57b6c8dc595934931be826bb0adfe5d2073c18648ed67ddf5e936f33d6b37c7ad
-  languageName: node
-  linkType: hard
-
-"@cypress/request@npm:^2.88.11":
-  version: 2.88.12
-  resolution: "@cypress/request@npm:2.88.12"
-  dependencies:
-    aws-sign2: ~0.7.0
-    aws4: ^1.8.0
-    caseless: ~0.12.0
-    combined-stream: ~1.0.6
-    extend: ~3.0.2
-    forever-agent: ~0.6.1
-    form-data: ~2.3.2
-    http-signature: ~1.3.6
-    is-typedarray: ~1.0.0
-    isstream: ~0.1.2
-    json-stringify-safe: ~5.0.1
-    mime-types: ~2.1.19
-    performance-now: ^2.1.0
-    qs: ~6.10.3
-    safe-buffer: ^5.1.2
-    tough-cookie: ^4.1.3
-    tunnel-agent: ^0.6.0
-    uuid: ^8.3.2
-  checksum: 2c6fbf7f3127d41bffca8374beaa8cf95450495a8a077b00309ea9d94dd2a4da450a77fe038e8ad26c97cdd7c39b65c53c850f8338ce9bc2dbe23ce2e2b48329
   languageName: node
   linkType: hard
 
@@ -19300,13 +19273,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^16.18.39":
-  version: 16.18.39
-  resolution: "@types/node@npm:16.18.39"
-  checksum: eac9b202b76013256cb517ca8d3e3f61df206edb1615ca8d8df4c80616e92879fe4d3f8570a11d60f4216a82724a3265d5888b24c6994c80b057a0423c9ff1d2
-  languageName: node
-  linkType: hard
-
 "@types/node@npm:^16.3.2":
   version: 16.11.52
   resolution: "@types/node@npm:16.11.52"
@@ -23902,7 +23868,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"buffer@npm:^5.1.0, buffer@npm:^5.2.1, buffer@npm:^5.5.0, buffer@npm:^5.6.0, buffer@npm:^5.7.0, buffer@npm:^5.7.1":
+"buffer@npm:^5.1.0, buffer@npm:^5.2.1, buffer@npm:^5.5.0, buffer@npm:^5.7.0, buffer@npm:^5.7.1":
   version: 5.7.1
   resolution: "buffer@npm:5.7.1"
   dependencies:
@@ -26997,58 +26963,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cypress@npm:12.17.3":
-  version: 12.17.3
-  resolution: "cypress@npm:12.17.3"
-  dependencies:
-    "@cypress/request": ^2.88.11
-    "@cypress/xvfb": ^1.2.4
-    "@types/node": ^16.18.39
-    "@types/sinonjs__fake-timers": 8.1.1
-    "@types/sizzle": ^2.3.2
-    arch: ^2.2.0
-    blob-util: ^2.0.2
-    bluebird: ^3.7.2
-    buffer: ^5.6.0
-    cachedir: ^2.3.0
-    chalk: ^4.1.0
-    check-more-types: ^2.24.0
-    cli-cursor: ^3.1.0
-    cli-table3: ~0.6.1
-    commander: ^6.2.1
-    common-tags: ^1.8.0
-    dayjs: ^1.10.4
-    debug: ^4.3.4
-    enquirer: ^2.3.6
-    eventemitter2: 6.4.7
-    execa: 4.1.0
-    executable: ^4.1.1
-    extract-zip: 2.0.1
-    figures: ^3.2.0
-    fs-extra: ^9.1.0
-    getos: ^3.2.1
-    is-ci: ^3.0.0
-    is-installed-globally: ~0.4.0
-    lazy-ass: ^1.6.0
-    listr2: ^3.8.3
-    lodash: ^4.17.21
-    log-symbols: ^4.0.0
-    minimist: ^1.2.8
-    ospath: ^1.2.2
-    pretty-bytes: ^5.6.0
-    proxy-from-env: 1.0.0
-    request-progress: ^3.0.0
-    semver: ^7.5.3
-    supports-color: ^8.1.1
-    tmp: ~0.2.1
-    untildify: ^4.0.0
-    yauzl: ^2.10.0
-  bin:
-    cypress: bin/cypress
-  checksum: 1da3922cac45c35ee282116fe2af2278e92cc08bd2d8586e0f2346cbe5c9f62129cec567bc9274c585e8c2e887341fa4e5c8623cfaa41dba87331cfb5a023721
-  languageName: node
-  linkType: hard
-
 "cypress@npm:^13.6.3":
   version: 13.6.6
   resolution: "cypress@npm:13.6.6"
@@ -29403,17 +29317,6 @@ __metadata:
     eslint:
       optional: true
   checksum: 3cecd99b6baf45ffc269167da0f95dcb75e5aa67b93d73a3bab63e2a7eedd9cdd6f188eed048e2f57c1b77db82c9cbf2adac20b512fa70e597d863dd3720170d
-  languageName: node
-  linkType: hard
-
-"eslint-plugin-cypress@npm:^2.12.1":
-  version: 2.12.1
-  resolution: "eslint-plugin-cypress@npm:2.12.1"
-  dependencies:
-    globals: ^11.12.0
-  peerDependencies:
-    eslint: ">= 3.2.1"
-  checksum: 1f1c36e149304e9a6f58e2292a761abad58274da33b3a48b24ad55ad20cbce3ac7467321f2b6fcb052f9563c89f67004de4766eba2e2bdbcb010a6a0666989cf
   languageName: node
   linkType: hard
 
@@ -32069,7 +31972,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"globals@npm:^11.1.0, globals@npm:^11.12.0":
+"globals@npm:^11.1.0":
   version: 11.12.0
   resolution: "globals@npm:11.12.0"
   checksum: 67051a45eca3db904aee189dfc7cd53c20c7d881679c93f6146ddd4c9f4ab2268e68a919df740d39c71f4445d2b38ee360fc234428baea1dbdfe68bbcb46979e
@@ -34610,7 +34513,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"is-ci@npm:^3.0.0, is-ci@npm:^3.0.1":
+"is-ci@npm:^3.0.1":
   version: 3.0.1
   resolution: "is-ci@npm:3.0.1"
   dependencies:
@@ -45190,7 +45093,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"qs@npm:6.10.4, qs@npm:~6.10.3":
+"qs@npm:6.10.4":
   version: 6.10.4
   resolution: "qs@npm:6.10.4"
   dependencies:
@@ -49444,7 +49347,6 @@ __metadata:
     commitlint-plugin-function-rules: ^1.3.2
     dd-trace: 4.46.0
     eslint: ^7.13.0
-    eslint-plugin-cypress: ^2.12.1
     eslint-plugin-import: ^2.29.1
     eslint-plugin-jest: ^24.1.0
     eslint-plugin-react: ^7.21.5
