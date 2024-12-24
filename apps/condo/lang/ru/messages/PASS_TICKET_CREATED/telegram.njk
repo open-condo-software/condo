@@ -1,5 +1,5 @@
 {%- if message.meta.data.guestName -%}
-Гость {{ message.meta.data.guestName }} придет {{ message.meta.data.openAt }}
+{{ message.meta.data.guestName }} придет {{ message.meta.data.openAt }}
 {%- else -%}
 {{ message.meta.data.vehicleBrand }}, {{ message.meta.data.stateVehicleNumber }} приедет {{ message.meta.data.openAt }}
 {% endif %}
