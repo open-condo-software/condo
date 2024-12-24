@@ -43,12 +43,11 @@ CREATE INDEX "AppMessageSetting_updatedBy_6d5512a1" ON "AppMessageSetting" ("upd
 CREATE INDEX "AppMessageSettingHistoryRecord_history_id_66d9c757" ON "AppMessageSettingHistoryRecord" ("history_id");
 
 --
--- Migrate data from B2CAppSetting to AppSetting
+-- Migrate data from B2CAppMessageSetting to AppMessageSetting
 --
-INSERT INTO "AppSetting" ("blockReason", "isBlacklisted", "type", "notificationWindowSize", "numberOfNotificationInWindow", "id", "v", "createdAt", "updatedAt", "deletedAt", "newId", "dv", "sender", "b2cApp", "createdBy", "updatedBy")
+INSERT INTO "AppMessageSetting" ("blockReason", "isBlacklisted", "type", "notificationWindowSize", "numberOfNotificationInWindow", "id", "v", "createdAt", "updatedAt", "deletedAt", "newId", "dv", "sender", "b2cApp", "createdBy", "updatedBy")
 SELECT "blockReason", "isBlacklisted", "type", "notificationWindowSize", "numberOfNotificationInWindow", "id", "v", "createdAt", "updatedAt", "deletedAt", "newId", "dv", "sender", "app", "createdBy", "updatedBy"
-FROM "B2CAppSetting";
-
+FROM "B2CAppMessageSetting";
 
 --
 -- Add field canExecuteSendB2BAppPushMessage to b2bappaccessrightset

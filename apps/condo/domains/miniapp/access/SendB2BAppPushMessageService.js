@@ -11,17 +11,7 @@ async function canSendB2BAppPushMessage (args) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
-    if (user.type === SERVICE) {
-        // canExecuteServiceAsB2BAppServiceUser(args)
-        // check that b2b context exists between SOME app and org
-        // check that access right with canExecuteSendB2BAppPushMessage exists for this user and SOME app
-
-        // we need to check this behaviour for SPECIFIC app (passed as app arg),
-        // that because we move this logic to mutation logic instead canExecuteServiceAsB2BAppServiceUser(args)
-        return true
-    }
-
-    return false
+    return user.type === SERVICE
 }
 
 /*
