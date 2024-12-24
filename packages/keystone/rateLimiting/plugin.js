@@ -2,6 +2,7 @@ const ms = require('ms')
 
 const { getRedisClient } = require('@open-condo/keystone/redis')
 
+const { validatePluginOptions } = require('./config.utils')
 const {
     DEFAULT_MAX_TOTAL_RESULTS,
     DEFAULT_MUTATION_WEIGHT,
@@ -37,12 +38,25 @@ class ApolloRateLimitingPlugin {
     #whereScalingFactor = DEFAULT_WHERE_COMPLEXITY_FACTOR
     #redisClient = getRedisClient()
     #pageLimit = DEFAULT_PAGE_LIMIT
+    #customQuotas = {}
 
     /**
      * @param keystone {import('@keystonejs/keystone').Keystone} keystone instance
-     * @param opts {{ queryWeight?: number, mutationWeight?: number, window?: string, authedQuota?: number, nonAuthedQuota?: number, whereScalingFactor?: number, pageLimit?: number }} plugin options
+     * @param opts {{
+     * queryWeight?: number,
+     * mutationWeight?: number,
+     * window?: string,
+     * authedQuota?: number,
+     * nonAuthedQuota?: number,
+     * whereScalingFactor?: number,
+     * pageLimit?: number,
+     * customQuotas?: Record<string, number>,
+     * identifiersWhiteList?: Array<string>
+     * }} plugin options
      */
     constructor (keystone, opts = {}) {
+        opts = validatePluginOptions(opts)
+
         this.#keystone = keystone
         const { listRelations, listMetaQueries, listQueries } = extractKeystoneListsData(keystone)
         this.#listReadQueries = listQueries
@@ -72,6 +86,9 @@ class ApolloRateLimitingPlugin {
         }
         if (opts.pageLimit) {
             this.#pageLimit = opts.pageLimit
+        }
+        if (opts.customQuotas) {
+            this.#customQuotas = opts.customQuotas
         }
     }
 
@@ -172,8 +189,13 @@ class ApolloRateLimitingPlugin {
                     total: requestComplexity,
                 })
 
-                const { isAuthed, key } = extractQuotaKeyFromRequest(requestContext)
-                const allowedQuota = isAuthed ? this.#authedQuota : this.#nonAuthedQuota
+                const { isAuthed, key, identifier } = extractQuotaKeyFromRequest(requestContext)
+
+                let allowedQuota = isAuthed ? this.#authedQuota : this.#nonAuthedQuota
+
+                if (this.#customQuotas.hasOwnProperty(identifier)) {
+                    allowedQuota = this.#customQuotas[identifier]
+                }
 
 
                 // NOTE: Request in batch are executed via Promise.all (probably),
