@@ -51,7 +51,7 @@
     "axios": "^0.21.2",
     "axios-cookiejar-support": "^1.0.1",
     "big.js": "^6.1.1",
-    "bull": "^4.8.4",
+    "bull": "^4.16.5",
     "connect-redis": "^6.0.0",
     "crypto": "^1.0.1",
     "cuid": "^2.1.8",
