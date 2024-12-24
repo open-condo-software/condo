@@ -8,8 +8,6 @@
 **/.kmigrator
 **/codegen.yaml
 
-**/cypress/videos/**
-**/cypress/screenshots/**
 *.png
 
 # yarn berry
