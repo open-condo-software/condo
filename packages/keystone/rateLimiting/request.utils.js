@@ -81,11 +81,11 @@ function buildQuotaKey (identityPrefix, identity) {
 
 function extractQuotaKeyFromRequest (requestContext) {
     const isAuthed = Boolean(requestContext.context.authedItem)
-    const identity = isAuthed ? requestContext.context.authedItem.id : requestContext.context.req.ip
+    const identifier = isAuthed ? requestContext.context.authedItem.id : requestContext.context.req.ip
     const identityPrefix = isAuthed ? 'user' : 'ip'
-    const key = buildQuotaKey(identityPrefix, identity)
+    const key = buildQuotaKey(identityPrefix, identifier)
 
-    return { isAuthed, key }
+    return { isAuthed, key, identifier }
 }
 
 function addComplexity (existingComplexity, newComplexity) {
