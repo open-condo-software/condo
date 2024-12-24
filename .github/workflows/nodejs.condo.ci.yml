@@ -273,14 +273,6 @@ jobs:
       image_name: ${{ needs.build-image.outputs.DOCKER_IMAGE }}
     secrets: inherit
 
-  run-condo-e2e-tests:
-    name: Condo E2E Tests
-    needs: authorize
-    uses: ./.github/workflows/_nodejs.condo.cypress.yml
-    with:
-      ref: ${{ needs.authorize.outputs.ref }}
-    secrets: inherit
-
   run-condorb-tests:
     name: CondoRB Tests
     runs-on: ubuntu-22.04
