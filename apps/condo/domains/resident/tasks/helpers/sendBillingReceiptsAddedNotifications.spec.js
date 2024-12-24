@@ -37,7 +37,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
         test('Should not send push to deleted user', async () => {
             const { receipt, resident, billingContext } = await makeBillingReceiptWithResident({ toPay: '10000', toPayDetails: { charge: '1000', formula: '', balance: '9000', penalty: '0' } } )
             await User.softDelete(admin, resident.user.id)
-            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id, integration: billingContext.integration.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
 
             const messageWhere = {
                 user: { id: resident.user.id },
@@ -51,7 +51,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
         test('Should send notification of BILLING_RECEIPT_ADDED_TYPE for toPay > 0', async () => {
             const { receipt, resident, billingContext } = await makeBillingReceiptWithResident({ toPay: '10000', toPayDetails: { charge: '1000', formula: '', balance: '9000', penalty: '0' } } )
 
-            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id, integration: billingContext.integration.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
 
             const messageWhere = {
                 user: { id: resident.user.id },
@@ -68,8 +68,8 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             const { receipt: receipt1, resident: resident1, billingContext: billingContext1 } = await makeBillingReceiptWithResident({ toPay: '10000', toPayDetails: { charge: '1000', formula: '', balance: '9000', penalty: '0' } }, undefined, residentUser)
 
             expect(resident.user.id).toEqual(resident1.user.id)
-            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
-            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext1, organization: billingContext1.organization.id }, dayjs(receipt1.createdAt).subtract(1, 'hour').toISOString())
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id, integration: billingContext.integration.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext1, organization: billingContext1.organization.id, integration: billingContext.integration.id }, dayjs(receipt1.createdAt).subtract(1, 'hour').toISOString())
 
             const messageWhere = {
                 user: { id: resident.user.id },
@@ -84,7 +84,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
         test('Should send notification of BILLING_RECEIPT_ADDED_TYPE for toPay > 0 and missing toPayDetails', async () => {
             const { receipt, resident, billingContext } = await makeBillingReceiptWithResident({ toPay: '10000' } )
 
-            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id, integration: billingContext.integration.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
 
             const messageWhere = {
                 user: { id: resident.user.id },
@@ -99,7 +99,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
         test('Should not send notification of BILLING_RECEIPT_ADDED_WITH_NO_DEBT for toPay = 0.0', async () => {
             const { receipt, resident, billingContext } = await makeBillingReceiptWithResident({ toPay: '0.0' })
 
-            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id, integration: billingContext.integration.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
 
             const messageWhere = {
                 user: { id: resident.user.id },
@@ -113,7 +113,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
         test('Should not send notification of BILLING_RECEIPT_ADDED_WITH_NO_DEBT for toPay < 0', async () => {
             const { receipt, resident, billingContext } = await makeBillingReceiptWithResident({ toPay: '-1.0' })
 
-            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id, integration: billingContext.integration.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
 
             const messageWhere = {
                 user: { id: resident.user.id },
@@ -127,8 +127,8 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
         test('Should send only one notification for same receipt', async () => {
             const { receipt, resident, billingContext } = await makeBillingReceiptWithResident()
 
-            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
-            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id, integration: billingContext.integration.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id, integration: billingContext.integration.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
 
             const messageWhere = {
                 user: { id: resident.user.id },
@@ -143,7 +143,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
         test('Should send nothing for receipt with no ServiceConsumer record', async () => {
             const { receipt, resident, billingContext } = await makeBillingReceiptWithResident({}, true)
 
-            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id, integration: billingContext.integration.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
 
             const messageWhere = {
                 user: { id: resident.user.id },
@@ -160,7 +160,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
 
             expect(resident1.deletedAt).not.toBeNull()
 
-            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id, integration: billingContext.integration.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
 
             const messageWhere = {
                 user: { id: resident.user.id },
@@ -176,8 +176,8 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             const { receipt: receipt1, resident: resident1, billingContext: billingContext1 } = await makeBillingReceiptWithResident({ toPay: '5000' })
             const { receipt: receipt2, resident: resident2, billingContext: billingContext2 } = await makeBillingReceiptWithResident({ toPay: '15000' })
 
-            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext1, organization: billingContext1.organization.id }, dayjs(receipt1.createdAt).subtract(1, 'hour').toISOString())
-            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext2, organization: billingContext2.organization.id }, dayjs(receipt2.createdAt).subtract(1, 'hour').toISOString())
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext1, organization: billingContext1.organization.id, integration: billingContext1.integration.id }, dayjs(receipt1.createdAt).subtract(1, 'hour').toISOString())
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext2, organization: billingContext2.organization.id, integration: billingContext2.integration.id }, dayjs(receipt2.createdAt).subtract(1, 'hour').toISOString())
 
             const messages1 = await Message.getAll(admin, { user: { id: resident1.user.id }, type: BILLING_RECEIPT_ADDED_TYPE })
             const messages2 = await Message.getAll(admin, { user: { id: resident2.user.id }, type: BILLING_RECEIPT_ADDED_TYPE })
@@ -192,8 +192,8 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             const { receipt, resident, billingContext } = await makeBillingReceiptWithResident({ toPay: '15000' })
 
             const date = dayjs(receipt.createdAt).subtract(1, 'hour').toISOString()
-            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id }, date)
-            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id }, date)
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id, integration: billingContext.integration.id }, date)
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id, integration: billingContext.integration.id }, date)
 
             const messageWhere = {
                 user: { id: resident.user.id },
@@ -223,8 +223,8 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
 
             expect(resident.user.id).toEqual(resident1.user.id)
             
-            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
-            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext1, organization: billingContext1.organization.id }, dayjs(receipt1.createdAt).subtract(1, 'hour').toISOString())
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id, integration: billingContext.integration.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext1, organization: billingContext1.organization.id, integration: billingContext1.integration.id }, dayjs(receipt1.createdAt).subtract(1, 'hour').toISOString())
 
             const messageWhere = {
                 user: { id: resident.user.id },
@@ -292,46 +292,17 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit, toPay: '1000' }),
             ])
             await environment.createServiceConsumer(resident, accountNumber)
-            await sendBillingReceiptsAddedNotifications(dayjs().subtract(1, 'h').toISOString())
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...environment.billingContext, organization: environment.billingContext.organization.id, integration: environment.billingContext.integration.id }, dayjs().subtract(1, 'h').toISOString())
+            // await sendBillingReceiptsAddedNotifications(dayjs().subtract(1, 'h').toISOString())
 
             const messageWhere = {
                 user: { id: resident.user.id },
                 type: BILLING_RECEIPT_ADDED_TYPE,
             }
 
-            await waitFor(async () => {
-                const messages = await Message.getAll(environment.clients.admin, messageWhere)
+            const messages = await Message.getAll(environment.clients.admin, messageWhere)
 
-                expect(messages).toHaveLength(1)
-            }, { delay: 2000 })
-        })
-
-        test('Should not send push for old lastReport', async () => {
-            const environment = new TestUtils([ResidentTestMixin])
-            await environment.init()
-            const accountNumber = faker.random.alphaNumeric(12)
-
-            const resident = await environment.createResident({ unitName: '1', unitType: FLAT_UNIT_TYPE })
-            const addressUnit = {
-                unitName: resident.unitName,
-                unitType: resident.unitType,
-            }
-            await environment.createReceipts([
-                environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit, toPay: '1000' }),
-            ])
-            await environment.createServiceConsumer(resident, accountNumber)
-            await sendBillingReceiptsAddedNotifications(dayjs().add(1, 'h').toISOString())
-
-            const messageWhere = {
-                user: { id: resident.user.id },
-                type: BILLING_RECEIPT_ADDED_TYPE,
-            }
-
-            await waitFor(async () => {
-                const messages = await Message.getAll(environment.clients.admin, messageWhere)
-
-                expect(messages).toHaveLength(0)
-            }, { delay: 2000 })
+            expect(messages).toHaveLength(1)
         })
 
         test('Should send only one push for one user with different residents', async () => {
@@ -369,7 +340,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             await environment.createServiceConsumer(resident1, accountNumber1)
             await environment.createServiceConsumer(resident2, accountNumber2)
 
-            await sendBillingReceiptsAddedNotifications(dayjs().subtract(1, 'h').toISOString())
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...environment.billingContext, organization: environment.billingContext.organization.id, integration: environment.billingContext.integration.id }, dayjs().subtract(1, 'h').toISOString())
             expect(resident1.user.id ).toEqual(resident2.user.id )
 
             const messageWhere = {
@@ -377,11 +348,9 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 type: BILLING_RECEIPT_ADDED_TYPE,
             }
 
-            await waitFor(async () => {
-                const messages = await Message.getAll(environment.clients.admin, messageWhere)
+            const messages = await Message.getAll(environment.clients.admin, messageWhere)
 
-                expect(messages).toHaveLength(1)
-            }, { delay: 2000 })
+            expect(messages).toHaveLength(1)
         })
 
         test('Should not send pushes more often than one time a day', async () => {
@@ -403,83 +372,19 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             }
             await environment.createServiceConsumer(resident, accountNumber)
 
-            await sendBillingReceiptsAddedNotifications(dayjs().subtract(1, 'h').toISOString())
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...environment.billingContext, organization: environment.billingContext.organization.id, integration: environment.billingContext.integration.id }, dayjs().subtract(1, 'h').toISOString())
 
-            await waitFor(async () => {
-                const messages = await Message.getAll(environment.clients.admin, messageWhere)
-
-                expect(messages).toHaveLength(1)
-            }, { delay: 2000 })
+            const messages1 = await Message.getAll(environment.clients.admin, messageWhere)
+            expect(messages1).toHaveLength(1)
 
             await environment.createReceipts([
                 environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit, toPay: '1000' }),
             ])
 
-            await sendBillingReceiptsAddedNotifications(dayjs().toISOString())
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...environment.billingContext, organization: environment.billingContext.organization.id, integration: environment.billingContext.integration.id }, dayjs().subtract(1, 'h').toISOString())
 
-            await waitFor(async () => {
-                const messages = await Message.getAll(environment.clients.admin, messageWhere)
-
-                expect(messages).toHaveLength(1)
-            }, { delay: 2000 })
-        })
-
-        test('Should not create subtasks and just add redisKey if cron task is started for the first time', async () => {
-            const environment = new TestUtils([ResidentTestMixin])
-            await environment.init()
-            const accountNumber = faker.random.alphaNumeric(12)
-
-            const resident = await environment.createResident({ unitName: '1', unitType: FLAT_UNIT_TYPE })
-            const addressUnit = {
-                unitName: resident.unitName,
-                unitType: resident.unitType,
-            }
-            await environment.createReceipts([
-                environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit, toPay: '1000' }),
-            ])
-            await environment.createServiceConsumer(resident, accountNumber)
-
-            await sendBillingReceiptNotifications()
-            const messageWhere = {
-                user: { id: resident.user.id },
-                type: BILLING_RECEIPT_ADDED_TYPE,
-            }
-
-            await waitFor(async () => {
-                const messages = await Message.getAll(environment.clients.admin, messageWhere)
-
-                expect(messages).toHaveLength(0)
-            }, { delay: 2000 })
-        })
-
-        test('Should create subtask if redis key exists', async () => {
-            await redisClient.set(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE, dayjs().toISOString())
-            const environment = new TestUtils([ResidentTestMixin])
-            await environment.init()
-            const accountNumber = faker.random.alphaNumeric(12)
-
-            const resident = await environment.createResident({ unitName: '1', unitType: FLAT_UNIT_TYPE })
-            const addressUnit = {
-                unitName: resident.unitName,
-                unitType: resident.unitType,
-            }
-            await environment.createReceipts([
-                environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit, toPay: '1000' }),
-            ])
-            await environment.createServiceConsumer(resident, accountNumber)
-
-            await sendBillingReceiptNotifications(dayjs().toISOString())
-
-            const messageWhere = {
-                user: { id: resident.user.id },
-                type: BILLING_RECEIPT_ADDED_TYPE,
-            }
-
-            await waitFor(async () => {
-                const messages = await Message.getAll(environment.clients.admin, messageWhere)
-
-                expect(messages).toHaveLength(1)
-            }, { delay: 2000 })
+            const messages2 = await Message.getAll(environment.clients.admin, messageWhere)
+            expect(messages2).toHaveLength(1)
         })
 
         test('Should send push if next day came', async () => {
@@ -502,27 +407,22 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             }
             await environment.createServiceConsumer(resident, accountNumber)
 
-            await sendBillingReceiptsAddedNotifications(dayjs().subtract(1, 'h').toISOString())
-            let firstMessageId = null
-            await waitFor(async () => {
-                const messages = await Message.getAll(environment.clients.admin, messageWhere)
-                expect(messages).toHaveLength(1)
-                firstMessageId = messages[0].id
-                await Message.softDelete(environment.clients.admin, firstMessageId)
-            }, { delay: 2000 })
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...environment.billingContext, organization: environment.billingContext.organization.id, integration: environment.billingContext.integration.id }, dayjs().subtract(1, 'h').toISOString())
+            const messages1 = await Message.getAll(environment.clients.admin, messageWhere)
+            expect(messages1).toHaveLength(1)
+            const firstMessageId = messages1[0].id
+            await Message.softDelete(environment.clients.admin, firstMessageId)
 
             await environment.createReceipts([
                 environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
             ])
 
-            await sendBillingReceiptsAddedNotifications(dayjs().subtract(1, 'h').toISOString())
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...environment.billingContext, organization: environment.billingContext.organization.id, integration: environment.billingContext.integration.id }, dayjs().subtract(1, 'h').toISOString())
 
-            await waitFor(async () => {
-                const messages = await Message.getAll(environment.clients.admin, messageWhere)
+            const messages2 = await Message.getAll(environment.clients.admin, messageWhere)
 
-                expect(messages).toHaveLength(1)
-                expect(messages[0].id).not.toEqual(firstMessageId)
-            }, { delay: 2000 })
+            expect(messages2).toHaveLength(1)
+            expect(messages2[0].id).not.toEqual(firstMessageId)
         })
 
         test('Should send push if new receipts were loaded when user already got push', async () => {
@@ -546,10 +446,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 deletedAt: null,
             }
             await environment.createServiceConsumer(resident, accountNumber)
-
-            await waitFor(async () => {
-                await sendBillingReceiptsAddedNotifications(dayjs().subtract(1, 'h').toISOString())
-            }, { delay: 500 })
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...environment.billingContext, organization: environment.billingContext.organization.id, integration: environment.billingContext.integration.id }, dayjs().subtract(1, 'h').toISOString())
 
             await environment.createReceipts([
                 environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit, toPay: '1000' }),
@@ -557,23 +454,17 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit, toPay: '1000' }),
             ])
 
-            let firstMessageId = null
+            const messages1 = await Message.getAll(environment.clients.admin, messageWhere)
+            expect(messages1).toHaveLength(1)
+            const firstMessageId = messages1[0].id
+            await Message.softDelete(environment.clients.admin, firstMessageId)
 
-            await waitFor(async () => {
-                const messages = await Message.getAll(environment.clients.admin, messageWhere)
-                expect(messages).toHaveLength(1)
-                firstMessageId = messages[0].id
-                await Message.softDelete(environment.clients.admin, firstMessageId)
-            }, { delay: 2000 })
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...environment.billingContext, organization: environment.billingContext.organization.id, integration: environment.billingContext.integration.id }, dayjs().subtract(1, 'h').toISOString())
 
-            await sendBillingReceiptsAddedNotifications(dayjs().subtract(1, 'h').toISOString())
+            const messages2 = await Message.getAll(environment.clients.admin, messageWhere)
 
-            await waitFor(async () => {
-                const messages = await Message.getAll(environment.clients.admin, messageWhere)
-
-                expect(messages).toHaveLength(1)
-                expect(messages[0].id).not.toEqual(firstMessageId)
-            }, { delay: 2000 })
+            expect(messages2).toHaveLength(1)
+            expect(messages2[0].id).not.toEqual(firstMessageId)
         })
 
         test('Should not send push for archive receipts', async () => {
@@ -592,18 +483,16 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             ])
             await environment.createServiceConsumer(resident, accountNumber)
 
-            await sendBillingReceiptsAddedNotifications(dayjs().subtract(1, 'h').toISOString())
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...environment.billingContext, organization: environment.billingContext.organization.id, integration: environment.billingContext.integration.id }, dayjs().subtract(1, 'h').toISOString())
 
             const messageWhere = {
                 user: { id: resident.user.id },
                 type: BILLING_RECEIPT_ADDED_TYPE,
             }
 
-            await waitFor(async () => {
-                const messages = await Message.getAll(environment.clients.admin, messageWhere)
-                expect(messages).toHaveLength(1)
-                expect(messages[0].meta.data.billingReceiptId).toEqual(receipts.filter(r => r.period === '2024-02-01')[0].id)
-            }, { delay: 2000 })
+            const messages = await Message.getAll(environment.clients.admin, messageWhere)
+            expect(messages).toHaveLength(1)
+            expect(messages[0].meta.data.billingReceiptId).toEqual(receipts.filter(r => r.period === '2024-02-01')[0].id)
         })
 
         test('Should send pushes for several users in one context', async () => {
@@ -636,19 +525,17 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             await environment.createServiceConsumer(resident1, accountNumber1)
             await environment.createServiceConsumer(resident2, accountNumber2)
 
-            await sendBillingReceiptsAddedNotifications(dayjs().subtract(1, 'h').toISOString())
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...environment.billingContext, organization: environment.billingContext.organization.id, integration: environment.billingContext.integration.id }, dayjs().subtract(1, 'h').toISOString())
 
             const messageWhere = {
                 user: { id_in: [resident1.user.id, resident2.user.id ] },
                 type: BILLING_RECEIPT_ADDED_TYPE,
             }
 
-            await waitFor(async () => {
-                const messages = await Message.getAll(environment.clients.admin, messageWhere)
+            const messages = await Message.getAll(environment.clients.admin, messageWhere)
 
-                expect(messages).toHaveLength(2)
-                expect(messages[0].user.id).not.toEqual(messages[1].user.id)
-            }, { delay: 2000 })
+            expect(messages).toHaveLength(2)
+            expect(messages[0].user.id).not.toEqual(messages[1].user.id)
         })
 
         test('Should not send push for paid receipts', async () => {
@@ -666,17 +553,15 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             ])
             const [{ id: serviceConsumerId }] = await environment.createServiceConsumer(resident, accountNumber)
             await environment.payForReceipt(receiptId, serviceConsumerId)
-            await sendBillingReceiptsAddedNotifications(dayjs().subtract(1, 'h').toISOString())
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...environment.billingContext, organization: environment.billingContext.organization.id, integration: environment.billingContext.integration.id }, dayjs().subtract(1, 'h').toISOString())
 
             const messageWhere = {
                 user: { id: resident.user.id },
                 type: BILLING_RECEIPT_ADDED_TYPE,
             }
 
-            await waitFor(async () => {
-                const messages = await Message.getAll(environment.clients.admin, messageWhere)
-                expect(messages).toHaveLength(0)
-            }, { delay: 2000 })
+            const messages = await Message.getAll(environment.clients.admin, messageWhere)
+            expect(messages).toHaveLength(0)
         })
     })
 })

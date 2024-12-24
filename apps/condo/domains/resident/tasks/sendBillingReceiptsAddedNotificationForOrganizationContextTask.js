@@ -7,11 +7,10 @@ const isEmpty = require('lodash/isEmpty')
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getRedisClient } = require('@open-condo/keystone/redis')
-const { find, getById, getSchemaCtx } = require('@open-condo/keystone/schema')
+const { find, getSchemaCtx, getByCondition } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
 const { getLocalized } = require('@open-condo/locales/loader')
 
-const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 const { getNewPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { DEFAULT_CURRENCY_CODE, CURRENCY_SYMBOLS } = require('@condo/domains/common/constants/currencies')
@@ -23,9 +22,6 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 const { BILLING_CONTEXT_SYNCHRONIZATION_DATE } = require('@condo/domains/resident/constants/constants')
 
 const logger = getLogger('sendNewBillingReceiptNotification')
-const BILLING_RECEIPT_FIELDS = 'id period toPay toPayDetails { charge } createdAt isPayable '
-    + 'context { id organization { id } integration { id currencyCode } } '
-    + 'account { id number } property { id address } category { id  nameNonLocalized }'
 const makeAccountKey = (...args) => args.map(value => `${value}`.trim().toLowerCase()).join(':')
 const getMessageTypeAndDebt = (toPay, toPayCharge) => {
     if (toPay <= 0) return { messageType: BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE, debt: 0 }
@@ -37,13 +33,14 @@ const getMessageTypeAndDebt = (toPay, toPayCharge) => {
 
 /**
  * Prepares data for sendMessage to resident on available billing receipt, then tries to send the message
- * @param {keystone} context
+ * @param {keystone} keystone
+ * @param context
  * @param receipt
  * @param resident
  * @param lastSendDatePeriod
  * @returns {Promise<number>}
  */
-const prepareAndSendNotification = async (context, receipt, resident, lastSendDatePeriod) => {
+const prepareAndSendNotification = async (keystone, context, receipt, resident, lastSendDatePeriod) => {
     // TODO(DOMA-3376): Detect locale by resident locale instead of organization country.
     const country = get(resident, 'residentOrganization.country', conf.DEFAULT_LOCALE)
     const locale = get(COUNTRIES, country).locale
@@ -53,7 +50,7 @@ const prepareAndSendNotification = async (context, receipt, resident, lastSendDa
     const toPayChargeValue = parseFloat(get(receipt, 'toPayDetails.charge'))
     const toPayCharge = isNaN(toPayChargeValue) ? null : toPayChargeValue
     const category = getLocalized(locale, receipt.category.nameNonLocalized)
-    const currencyCode = get(receipt, 'context.integration.currencyCode', DEFAULT_CURRENCY_CODE)
+    const currencyCode = get(context, 'integration.currencyCode', DEFAULT_CURRENCY_CODE)
     const { messageType, debt } = getMessageTypeAndDebt(toPay, toPayCharge)
 
     const data = {
@@ -80,7 +77,7 @@ const prepareAndSendNotification = async (context, receipt, resident, lastSendDa
     }
     logger.info({ msg: 'New receipt push data', data: { messageData } })
 
-    const { isDuplicateMessage } = await sendMessage(context, messageData)
+    const { isDuplicateMessage } = await sendMessage(keystone, messageData)
 
     return isDuplicateMessage
 }
@@ -114,8 +111,13 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
         return 
     }
 
-    const maxCreatedAt = dayjs(getMaxReceiptCreatedAt(receipts)).toISOString()
-    logger.info({ msg: 'The latest receipt for the context', data: { maxCreatedAt } })
+    context.integration = await find('BillingIntegration', {
+        id: context.integration,
+        deletedAt: null,
+    })
+
+    const maxReceiptCreatedAt = dayjs(getMaxReceiptCreatedAt(receipts)).toISOString()
+    logger.info({ msg: 'The latest receipt for the context', data: { maxReceiptCreatedAt } })
     const receiptAccountData = await prepareReceiptsData(receipts, context)
     const serviceConsumers = await fetchServiceConsumers(context, receiptAccountData.accountNumbers)
     const consumersByAccountKey = groupConsumersByAccountKey(serviceConsumers)
@@ -126,11 +128,11 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
         const consumers = consumersByAccountKey[key]
         if (isEmpty(consumers)) continue
 
-        const [success, duplicate] = await notifyConsumers(keystone, receipt, consumers, lastSendDate)
+        const [success, duplicate] = await notifyConsumers(keystone, context, receipt, consumers, lastSendDate)
         successSentMessages += success
         duplicatedSentMessages += duplicate
     }
-    await redisClient.set(`${BILLING_CONTEXT_SYNCHRONIZATION_DATE}:${contextId}`, maxCreatedAt)
+    await redisClient.set(`${BILLING_CONTEXT_SYNCHRONIZATION_DATE}:${contextId}`, maxReceiptCreatedAt)
 
     const residents = serviceConsumers.map(sc => sc.resident)
     const residentsUnique = [...new Set(residents.filter(r => r.id))]
@@ -152,21 +154,31 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
 }
 
 async function fetchReceipts (contextId, receiptCreatedAfter) {
-    const { keystone: context } = getSchemaCtx('BillingReceipt')
     const receiptsWhere = {
         createdAt_gt: receiptCreatedAfter,
         context: { id: contextId },
-        toPay_gt: '0',
         deletedAt: null,
     }
-    const receipts = await BillingReceipt.getAll(context, receiptsWhere, BILLING_RECEIPT_FIELDS)
+
+    const receipts = await find('BillingReceipt', receiptsWhere)
 
     const filteredReceipts = await Promise.all(
         receipts.map(async receipt => {
+            const newerReceipts = await find('BillingReceipt', {
+                account: { id: get(receipt, 'account'), deletedAt: null },
+                OR: [
+                    { receiver: { AND: [{ id: get(receipt, 'receiver') }, { deletedAt: null } ] } },
+                    { category: { AND: [{ id: get(receipt, 'category') }, { deletedAt: null } ] } },
+                ],
+                period_gt: get(receipt, 'period'),
+                deletedAt: null,
+            })
             const paid = await getNewPaymentsSum(receipt.id)
+            const isPayable = !newerReceipts.length
+
             return {
                 receipt,
-                isEligibleForProcessing: receipt.isPayable && Big(receipt.toPay).minus(Big(paid)).gt(Big(0)),
+                isEligibleForProcessing: isPayable && Big(receipt.toPay).minus(Big(paid)).gt(Big(0)),
             }
         })
     )
@@ -193,9 +205,9 @@ async function prepareReceiptsData (receipts, context) {
 }
 
 async function processReceiptData (receipt, context) {
-    const account = await getById('BillingAccount', receipt.account.id)
-    const billingProperty = await getById('BillingProperty', account.property)
-    const category = await getById('BillingCategory', receipt.category.id)
+    const account = await getByCondition('BillingAccount', { id: receipt.account, deletedAt: null })
+    const billingProperty = await getByCondition('BillingProperty', { id: account.property, deletedAt: null })
+    const category = await getByCondition('BillingCategory', { id: receipt.category, deletedAt: null })
 
     return {
         ...receipt,
@@ -211,7 +223,7 @@ async function processReceiptData (receipt, context) {
 async function fetchServiceConsumers (context, accountNumbers) {
     const serviceConsumerWhere = {
         organization: { id: context.organization, deletedAt: null },
-        accountNumber_in: accountNumbers,
+        accountNumber_in: accountNumbers.filter(Boolean),
         deletedAt: null,
     }
     const rawServiceConsumers = await find('ServiceConsumer', serviceConsumerWhere)
@@ -225,7 +237,7 @@ async function fetchServiceConsumers (context, accountNumbers) {
 
 async function fetchResidents (residentIds) {
     const residents = await find('Resident', {
-        id_in: residentIds,
+        id_in: residentIds.filter(Boolean),
         user: { deletedAt: null },
         deletedAt: null,
     })
@@ -255,7 +267,7 @@ function getMaxReceiptCreatedAt (receipts) {
     return maxCreatedAt
 }
 
-async function notifyConsumers (keystone, receipt, consumers, lastSendDate) {
+async function notifyConsumers (keystone, context, receipt, consumers, lastSendDate) {
     let successSentMessages = 0
     let duplicatedSentMessages = 0
     for (const consumer of consumers) {
@@ -263,7 +275,7 @@ async function notifyConsumers (keystone, receipt, consumers, lastSendDate) {
         if (!resident || resident.deletedAt) continue
 
         logger.info({ msg: 'Notification data', data: { receipt, consumer, resident, lastSendDatePeriod: dayjs(lastSendDate).format('YYYY-MM-DD') } })
-        const isDuplicated = await prepareAndSendNotification(keystone, receipt, resident, dayjs().format('YYYY-MM-DD'))
+        const isDuplicated = await prepareAndSendNotification(keystone, context, receipt, resident, dayjs().format('YYYY-MM-DD'))
 
         if (isDuplicated) {
             duplicatedSentMessages++

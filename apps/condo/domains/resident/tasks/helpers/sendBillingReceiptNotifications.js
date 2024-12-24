@@ -26,8 +26,14 @@ const sendBillingReceiptNotifications = async (context = null) => {
 
         return { status: DISABLED }
     }
-    //TODO: DOMA-10913 This func needs to be refactored and optimized or removed, currently it falls by time out
-    // await sendResidentsNoAccountNotifications()
+
+    try {
+        //TODO: DOMA-10913 This func needs to be refactored and optimized or removed, currently it falls by time out for orgs with a lot of properties
+        await sendResidentsNoAccountNotifications()
+    } catch (error) {
+        logger.error({ msg: 'sendResidentsNoAccountNotifications failed', error })
+    }
+
 
     const redisClient = await getRedisClient()
     const redisKey = await redisClient.get(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
