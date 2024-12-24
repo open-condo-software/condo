@@ -29,7 +29,7 @@ const SERVICE_PROBLEMS_ALERT = 'service-problems-alert'
 const TICKET_AUTO_ASSIGNMENT_MANAGEMENT = 'ticket-auto-assignment-management'
 const POLL_TICKET_COMMENTS = 'poll-ticket-comments'
 const REASSIGN_EMPLOYEE_TICKETS = 'reassign-employee-tickets'
-const SNOWFLAKES_COUNT = 'snowflakes-count'
+const SNOWFLAKES_SETTINGS = 'snowflakes-settings'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -62,5 +62,5 @@ module.exports = {
     TICKET_AUTO_ASSIGNMENT_MANAGEMENT,
     POLL_TICKET_COMMENTS,
     REASSIGN_EMPLOYEE_TICKETS,
-    SNOWFLAKES_COUNT,
+    SNOWFLAKES_SETTINGS,
 }
