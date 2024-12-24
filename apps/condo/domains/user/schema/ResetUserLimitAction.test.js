@@ -3,13 +3,15 @@
  */
 const { faker } = require('@faker-js/faker')
 
+const { ApolloRateLimitingPlugin } = require('@open-condo/keystone/rateLimiting')
+const { getRedisClient } = require('@open-condo/keystone/redis')
 const { makeLoggedInAdminClient, makeClient, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects,
 } = require('@open-condo/keystone/test.utils')
 
-const { AUTH_COUNTER_TYPE } = require('@condo/domains/user/constants/common')
+const { AUTH_COUNTER_LIMIT_TYPE, RATE_LIMIT_TYPE } = require('@condo/domains/user/constants/limits')
 const { ERRORS } = require('@condo/domains/user/schema/ResetUserLimitAction')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 const {
@@ -48,7 +50,7 @@ describe('ResetUserLimitAction', () => {
 
     beforeEach(async () => {
         phone = createTestPhone()
-        const key = `${AUTH_COUNTER_TYPE}:${phone}`
+        const key = `${AUTH_COUNTER_LIMIT_TYPE}:${phone}`
 
         for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
             await redisGuard.incrementDayCounter(key)
@@ -61,32 +63,32 @@ describe('ResetUserLimitAction', () => {
     describe('Access', () => {
         describe('Create', () => {
             test('admin: can create', async () => {
-                const [obj] = await createTestResetUserLimitAction(admin, AUTH_COUNTER_TYPE, phone)
+                const [obj] = await createTestResetUserLimitAction(admin, AUTH_COUNTER_LIMIT_TYPE, phone)
 
                 expect(obj.id).toBeDefined()
             })
 
             test('support: can create', async () => {
-                const [obj] = await createTestResetUserLimitAction(support, AUTH_COUNTER_TYPE, phone)
+                const [obj] = await createTestResetUserLimitAction(support, AUTH_COUNTER_LIMIT_TYPE, phone)
 
                 expect(obj.id).toBeDefined()
             })
 
             test('user: can create with access right (canManageResetUserLimitActions)', async () => {
-                const [obj] = await createTestResetUserLimitAction(userWithDirectAccess, AUTH_COUNTER_TYPE, phone)
+                const [obj] = await createTestResetUserLimitAction(userWithDirectAccess, AUTH_COUNTER_LIMIT_TYPE, phone)
 
                 expect(obj.id).toBeDefined()
             })
 
             test('user: can not create without access right (canManageResetUserLimitActions)', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestResetUserLimitAction(userWithoutDirectAccess, AUTH_COUNTER_TYPE, phone)
+                    await createTestResetUserLimitAction(userWithoutDirectAccess, AUTH_COUNTER_LIMIT_TYPE, phone)
                 })
             })
 
             test('anonymous: can not execute', async () => {
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await createTestResetUserLimitAction(anonymous, AUTH_COUNTER_TYPE, phone)
+                    await createTestResetUserLimitAction(anonymous, AUTH_COUNTER_LIMIT_TYPE, phone)
                 })
             })
         })
@@ -96,9 +98,9 @@ describe('ResetUserLimitAction', () => {
 
             beforeAll(async () => {
                 const phone = createTestPhone()
-                await redisGuard.incrementDayCounter(`${AUTH_COUNTER_TYPE}:${phone}`)
+                await redisGuard.incrementDayCounter(`${AUTH_COUNTER_LIMIT_TYPE}:${phone}`)
 
-                const [createdResetUserLimitAction] = await createTestResetUserLimitAction(admin, AUTH_COUNTER_TYPE, phone)
+                const [createdResetUserLimitAction] = await createTestResetUserLimitAction(admin, AUTH_COUNTER_LIMIT_TYPE, phone)
                 resetUserLimitActionToRead = createdResetUserLimitAction
             })
 
@@ -128,7 +130,7 @@ describe('ResetUserLimitAction', () => {
 
             test('anonymous: can not read', async () => {
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await createTestResetUserLimitAction(anonymous, AUTH_COUNTER_TYPE, phone)
+                    await createTestResetUserLimitAction(anonymous, AUTH_COUNTER_LIMIT_TYPE, phone)
                 })
             })
         })
@@ -138,9 +140,9 @@ describe('ResetUserLimitAction', () => {
 
             beforeEach(async () => {
                 const phone = createTestPhone()
-                await redisGuard.incrementDayCounter(`${AUTH_COUNTER_TYPE}:${phone}`)
+                await redisGuard.incrementDayCounter(`${AUTH_COUNTER_LIMIT_TYPE}:${phone}`)
 
-                const [createdResetUserLimitAction] = await createTestResetUserLimitAction(admin, AUTH_COUNTER_TYPE, phone)
+                const [createdResetUserLimitAction] = await createTestResetUserLimitAction(admin, AUTH_COUNTER_LIMIT_TYPE, phone)
                 resetUserLimitActionToUpdate = createdResetUserLimitAction
             })
 
@@ -180,9 +182,9 @@ describe('ResetUserLimitAction', () => {
 
             beforeEach(async () => {
                 const phone = createTestPhone()
-                await redisGuard.incrementDayCounter(`${AUTH_COUNTER_TYPE}:${phone}`)
+                await redisGuard.incrementDayCounter(`${AUTH_COUNTER_LIMIT_TYPE}:${phone}`)
 
-                const [createdResetUserLimitAction] = await createTestResetUserLimitAction(admin, AUTH_COUNTER_TYPE, phone)
+                const [createdResetUserLimitAction] = await createTestResetUserLimitAction(admin, AUTH_COUNTER_LIMIT_TYPE, phone)
                 resetUserLimitActionToDelete = createdResetUserLimitAction
             })
 
@@ -219,41 +221,13 @@ describe('ResetUserLimitAction', () => {
     })
 
     describe('Logic', () => {
-        describe('Common', () => {
+        describe(`${AUTH_COUNTER_LIMIT_TYPE} type`, () => {
             test('throws error if key is not exists', async () => {
                 const phone = createTestPhone()
 
                 await expectToThrowGQLError(async () => {
-                    await createTestResetUserLimitAction(admin, AUTH_COUNTER_TYPE, phone)
+                    await createTestResetUserLimitAction(admin, AUTH_COUNTER_LIMIT_TYPE, phone)
                 }, ERRORS.KEY_NOT_FOUND)
-            })
-        })
-
-        describe(`${AUTH_COUNTER_TYPE} type`, () => {
-            test('reset counter by phone number', async () => {
-                const key = `${AUTH_COUNTER_TYPE}:${phone}`
-
-                await createTestResetUserLimitAction(userWithDirectAccess, AUTH_COUNTER_TYPE, phone)
-                const value = await redisGuard.getCounterValue(key)
-
-                expect(value).toBeNull()
-            })
-
-            test('reset counter by ip', async () => {
-                const ip = faker.internet.ipv4()
-                const key = `${AUTH_COUNTER_TYPE}:${ip}`
-
-                for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
-                    await redisGuard.incrementDayCounter(key)
-                }
-                const beforeReset = await redisGuard.getCounterValue(key)
-
-                expect(Number(beforeReset)).toEqual(COUNTER_VALUE_TO_UPDATE)
-
-                await createTestResetUserLimitAction(userWithDirectAccess, AUTH_COUNTER_TYPE, ip)
-                const afterReset = await redisGuard.getCounterValue(key)
-
-                expect(afterReset).toBeNull()
             })
 
             test('throws error if key is not valid ip or phone', async () => {
@@ -266,8 +240,72 @@ describe('ResetUserLimitAction', () => {
                 expect(Number(beforeReset)).toEqual(COUNTER_VALUE_TO_UPDATE)
 
                 await expectToThrowGQLError(async () => {
-                    await createTestResetUserLimitAction(userWithDirectAccess, AUTH_COUNTER_TYPE, key)
+                    await createTestResetUserLimitAction(userWithDirectAccess, AUTH_COUNTER_LIMIT_TYPE, key)
                 }, ERRORS.INVALID_IDENTIFIER)
+            })
+
+            test('resets counter by phone number', async () => {
+                const key = `${AUTH_COUNTER_LIMIT_TYPE}:${phone}`
+
+                await createTestResetUserLimitAction(userWithDirectAccess, AUTH_COUNTER_LIMIT_TYPE, phone)
+                const value = await redisGuard.getCounterValue(key)
+
+                expect(value).toBeNull()
+            })
+
+            test('resets counter by ip', async () => {
+                const ip = faker.internet.ipv4()
+                const key = `${AUTH_COUNTER_LIMIT_TYPE}:${ip}`
+
+                for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
+                    await redisGuard.incrementDayCounter(key)
+                }
+                const beforeReset = await redisGuard.getCounterValue(key)
+
+                expect(Number(beforeReset)).toEqual(COUNTER_VALUE_TO_UPDATE)
+
+                await createTestResetUserLimitAction(userWithDirectAccess, AUTH_COUNTER_LIMIT_TYPE, ip)
+                const afterReset = await redisGuard.getCounterValue(key)
+
+                expect(afterReset).toBeNull()
+            })
+        })
+
+        describe(`${RATE_LIMIT_TYPE} type`, () => {
+            test('throws error if key is not exists', async () => {
+                await expectToThrowGQLError(async () => {
+                    await createTestResetUserLimitAction(admin, RATE_LIMIT_TYPE, faker.datatype.uuid())
+                }, ERRORS.KEY_NOT_FOUND)
+            })
+
+            describe('throws error if key is not valid uuid or ip', () => {
+                const cases = [
+                    createTestPhone(),
+                    faker.random.alphaNumeric(10),
+                ]
+                test.each(cases)('%p', async (key) => {
+                    await expectToThrowGQLError(async () => {
+                        await createTestResetUserLimitAction(userWithDirectAccess, RATE_LIMIT_TYPE, key)
+                    }, ERRORS.INVALID_IDENTIFIER)
+                })
+            })
+
+            const cases = [
+                ['ip', 'ip', faker.internet.ipv4()],
+                ['user id', 'user', faker.datatype.uuid()],
+            ]
+
+            test.each(cases)('resets rate-limit by %p', async (_, prefix, identifier) => {
+                const key = ApolloRateLimitingPlugin.buildQuotaKey(prefix, identifier)
+
+                const redis = getRedisClient()
+                const result = await redis.set(key, Math.floor(Math.random() * 10_000))
+                expect(result).toEqual('OK')
+
+                await createTestResetUserLimitAction(userWithDirectAccess, RATE_LIMIT_TYPE, identifier)
+                const value = await redis.get(key)
+
+                expect(value).toBeNull()
             })
         })
     })

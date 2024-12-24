@@ -13,7 +13,7 @@ const {
     DEFAULT_PAGE_LIMIT,
 } = require('./constants')
 const { extractWhereComplexityFactor, extractRelationsComplexityFactor } = require('./query.utils')
-const { extractQueriesAndMutationsFromRequest, extractQuotaKeyFromRequest, addComplexity } = require('./request.utils')
+const { extractQueriesAndMutationsFromRequest, extractQuotaKeyFromRequest, addComplexity, buildQuotaKey } = require('./request.utils')
 const { extractPossibleArgsFromSchemaQueries, extractKeystoneListsData } = require('./schema.utils')
 
 /** @implements {import('apollo-server-plugin-base').ApolloServerPlugin} */
@@ -74,6 +74,8 @@ class ApolloRateLimitingPlugin {
             this.#pageLimit = opts.pageLimit
         }
     }
+
+    static buildQuotaKey = buildQuotaKey
 
     /**
      * Calculates complexity coefficient of the query
