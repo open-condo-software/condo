@@ -22,10 +22,9 @@ const sendBillingReceiptsAddedNotifications = async (lastSendDate) => {
     logger.info({ msg: 'Billing contexts for pushes', data: { BillingContexts } })
 
     for (const context of BillingContexts) {
-        if (!context.lastReport) continue
-        const finishTime = get(context, 'lastReport.finishTime')
-        if (dayjs(finishTime).isAfter(lastSendDate))
-            sendBillingReceiptsAddedNotificationForOrganizationContextTask.delay(context, lastSendDate)
+        const lastReport = get(context, 'lastReport.finishTime')
+        if (!lastReport) continue
+        sendBillingReceiptsAddedNotificationForOrganizationContextTask.delay(context, lastSendDate)
     }
 }
 
