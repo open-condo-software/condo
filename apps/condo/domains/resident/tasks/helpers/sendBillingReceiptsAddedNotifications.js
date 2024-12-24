@@ -25,7 +25,6 @@ const sendBillingReceiptsAddedNotifications = async (lastSendDate) => {
         if (!context.lastReport) continue
         const finishTime = get(context, 'lastReport.finishTime')
         if (dayjs(finishTime).isAfter(lastSendDate))
-
             sendBillingReceiptsAddedNotificationForOrganizationContextTask.delay(context, lastSendDate)
     }
 }
