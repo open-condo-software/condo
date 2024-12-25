@@ -1,5 +1,6 @@
 const ms = require('ms')
 
+const { GQLError, GQLErrorCode: { TOO_MANY_REQUESTS } } = require('@open-condo/keystone/errors')
 const { getRedisClient } = require('@open-condo/keystone/redis')
 
 const { validatePluginOptions } = require('./config.utils')
@@ -12,6 +13,7 @@ const {
     DEFAULT_NON_AUTHED_QUOTA,
     DEFAULT_WHERE_COMPLEXITY_FACTOR,
     DEFAULT_PAGE_LIMIT,
+    ERROR_TYPE,
 } = require('./constants')
 const { extractWhereComplexityFactor, extractRelationsComplexityFactor } = require('./query.utils')
 const { extractQueriesAndMutationsFromRequest, extractQuotaKeyFromRequest, addComplexity, buildQuotaKey } = require('./request.utils')
@@ -246,8 +248,12 @@ class ApolloRateLimitingPlugin {
                 })
 
                 if (incrValue > allowedQuota) {
-                    // TODO(INFRA-760): Throw error instead here
-                    return
+                    throw new GQLError({
+                        code: TOO_MANY_REQUESTS,
+                        type: ERROR_TYPE,
+                        message: 'You\'ve made too many requests recently, try again later.',
+                        messageForUser: `api.global.rateLimit.${ERROR_TYPE}`,
+                    }, requestContext.context)
                 }
             },
 

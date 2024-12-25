@@ -7,6 +7,7 @@ const DEFAULT_QUOTA_WINDOW = '1h'
 const DEFAULT_WHERE_COMPLEXITY_FACTOR = 2
 const DEFAULT_PAGE_LIMIT = 100
 const PLUGIN_KEY_PREFIX = 'rate-limit'
+const ERROR_TYPE = 'RATE_LIMIT_EXCEEDED'
 
 
 module.exports = {
@@ -19,4 +20,5 @@ module.exports = {
     DEFAULT_WHERE_COMPLEXITY_FACTOR,
     DEFAULT_PAGE_LIMIT,
     PLUGIN_KEY_PREFIX,
+    ERROR_TYPE,
 }
