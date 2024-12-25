@@ -34,8 +34,7 @@ const sendBillingReceiptNotifications = async () => {
         logger.error({ msg: 'sendResidentsNoAccountNotifications failed', error })
     }
 
-
-    const redisClient = await getRedisClient()
+    const redisClient = getRedisClient()
     const redisKey = await redisClient.get(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
 
     if (!redisKey) {

@@ -6,20 +6,16 @@ const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
-const { getRedisClient } = require('@open-condo/keystone/redis')
-const { makeLoggedInAdminClient, setFeatureFlag, setFakeClientMode, waitFor } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
 const { registerBillingReceiptsByTestClient } = require('@condo/domains/billing/utils/testSchema')
 const { TestUtils, ResidentTestMixin } = require('@condo/domains/billing/utils/testSchema/testUtils')
-const { SEND_BILLING_RECEIPTS_NOTIFICATIONS_TASK } = require('@condo/domains/common/constants/featureflags')
 const {
     BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
     BILLING_RECEIPT_ADDED_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { Message } = require('@condo/domains/notification/utils/testSchema')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
-const { LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE } = require('@condo/domains/resident/constants')
-const { sendBillingReceiptNotifications, sendBillingReceiptsAddedNotifications } = require('@condo/domains/resident/tasks/helpers')
 const { makeBillingReceiptWithResident } = require('@condo/domains/resident/tasks/helpers/spec.helpers')
 const { makeAccountKey, getMessageTypeAndDebt, sendBillingReceiptsAddedNotificationForOrganizationContext } = require('@condo/domains/resident/tasks/sendBillingReceiptsAddedNotificationForOrganizationContextTask')
 const { Resident } = require('@condo/domains/resident/utils/testSchema')
@@ -268,16 +264,6 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
     })
 
     describe('Real-life test cases', () => {
-        const redisClient = getRedisClient()
-
-        beforeAll(async () => {
-            setFeatureFlag(SEND_BILLING_RECEIPTS_NOTIFICATIONS_TASK, true)
-        })
-
-        beforeEach(async () => {
-            redisClient.del(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
-        })
-
         test('Should send push if user have receipts', async () => {
             const environment = new TestUtils([ResidentTestMixin])
             await environment.init()
@@ -306,7 +292,6 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
         })
 
         test('Should send only one push for one user with different residents', async () => {
-            await redisClient.set(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE, dayjs().toISOString())
             const environment = new TestUtils([ResidentTestMixin])
             await environment.init()
             const utilsForContext = new TestUtils([ResidentTestMixin])

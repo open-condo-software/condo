@@ -25,13 +25,15 @@ describe('sendBillingReceiptNotifications', () => {
 
         test('Should return correct status for each case', async () => {
             setAllFeatureFlags(true)
-            await redisClient.del(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
+            const value1 = await redisClient.del(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
             const { status: status1 } = await sendBillingReceiptNotifications()
             expect(status1).toBe(NO_REDIS_KEY)
-            await redisClient.set(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE, dayjs().startOf('day').toISOString())
+            const value2 = await redisClient.set(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE, dayjs().startOf('day').toISOString())
+            expect(value2).toBe('OK')
             const { status: status2 } = await sendBillingReceiptNotifications()
             expect(status2).toBe(SKIP_NOTIFICATION)
-            await redisClient.set(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE, dayjs().subtract(1, 'd').startOf('day').toISOString())
+            const value3 = await redisClient.set(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE, dayjs().subtract(1, 'd').startOf('day').toISOString())
+            expect(value3).toBe('OK')
             const { status: status3 } = await sendBillingReceiptNotifications()
             expect(status3).toBe(DONE)
         })
