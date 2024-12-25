@@ -251,7 +251,7 @@ class ApolloRateLimitingPlugin {
                     throw new GQLError({
                         code: TOO_MANY_REQUESTS,
                         type: ERROR_TYPE,
-                        message: 'You\'ve made too many requests recently, try again later.',
+                        message: 'You\'ve made too many requests recently, try again later',
                         messageForUser: `api.global.rateLimit.${ERROR_TYPE}`,
                     }, requestContext.context)
                 }

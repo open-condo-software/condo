@@ -348,6 +348,7 @@
   "api.common.WRONG_PHONE_FORMAT": "Неверный формат номера телефона",
   "api.contact.contact.CONTACT_DUPLICATE_ERROR": "Контакт с таким номером телефона уже зарегистрирован в этом помещении",
   "api.document.WRONG_PROPERTY_ORGANIZATION": "Дом находится в другой организации",
+  "api.global.rateLimit.RATE_LIMIT_EXCEEDED": "Вы сделали слишком много запросов за последнее время, повторите попытку позднее",
   "api.marketplace.invoice.ALREADY_CANCELED": "Нельзя изменять отмененный счет",
   "api.marketplace.invoice.ALREADY_PAID": "Нельзя изменять оплаченный счет",
   "api.marketplace.invoice.CLIENT_DATA_DOES_NOT_MATCH_TICKET": "Адрес и данные контакта должны совпадать с данными из заявки, к которой привязан счет",

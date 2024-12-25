@@ -348,6 +348,7 @@
   "api.common.WRONG_PHONE_FORMAT": "Formato del número de teléfono incorrecto",
   "api.contact.contact.CONTACT_DUPLICATE_ERROR": "Un contacto con este número de teléfono ya está registrado en esta propiedad",
   "api.document.WRONG_PROPERTY_ORGANIZATION": "La propiedad tiene una organización diferente",
+  "api.global.rateLimit.RATE_LIMIT_EXCEEDED": "Ha realizado demasiadas solicitudes recientemente, inténtelo más tarde",
   "api.marketplace.invoice.ALREADY_CANCELED": "No se puede modificar una factura cancelada",
   "api.marketplace.invoice.ALREADY_PAID": "No se puede modificar una factura pagada",
   "api.marketplace.invoice.CLIENT_DATA_DOES_NOT_MATCH_TICKET": "La dirección y los datos de contacto deben coincidir con los datos de la solicitud a la que está vinculada la factura",
