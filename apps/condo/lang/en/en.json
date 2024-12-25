@@ -1432,6 +1432,7 @@
   "news.type.emergency": "Еmergency",
   "news.update.title": "Edit news",
   "notification.messages.B2C_APP_MESSAGE_PUSH.push.title": "{title}",
+  "notification.messages.B2B_APP_MESSAGE_PUSH.push.title": "{title}",
   "notification.messages.BANK_ACCOUNT_CREATION_REQUEST.email.subject": "Bank account creation",
   "notification.messages.BANK_ACCOUNT_CREATION_REQUEST.email.title": "New request for Sber account creation",
   "notification.messages.BILLING_RECEIPT_ADDED.email.subject": "Check out your utility bill",
