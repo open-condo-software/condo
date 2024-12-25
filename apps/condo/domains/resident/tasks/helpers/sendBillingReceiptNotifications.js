@@ -16,8 +16,8 @@ const DONE = 'DONE'
 
 const logger = getLogger('sendBillingReceiptsAddedNotifications')
 
-const sendBillingReceiptNotifications = async (context = null) => {
-    const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(context, SEND_BILLING_RECEIPTS_NOTIFICATIONS_TASK)
+const sendBillingReceiptNotifications = async (ONLY_FOR_TESTS = '') => {
+    const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(null, SEND_BILLING_RECEIPTS_NOTIFICATIONS_TASK)
     // Skip sending notifications if feature is disabled on https://growthbook.doma.ai/features
     // This affects only cron task, notifications still could be sent using scripts in condo/
     
@@ -36,10 +36,10 @@ const sendBillingReceiptNotifications = async (context = null) => {
 
 
     const redisClient = await getRedisClient()
-    const redisKey = await redisClient.get(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
+    const redisKey = await redisClient.get(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE + ONLY_FOR_TESTS)
 
     if (!redisKey) {
-        await redisClient.set(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE, dayjs().startOf('day').toISOString())
+        await redisClient.set(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE + ONLY_FOR_TESTS, dayjs().startOf('day').toISOString())
 
         return { status: NO_REDIS_KEY }
     } else if (dayjs().startOf('day').isSame(dayjs(redisKey))) {
@@ -47,7 +47,7 @@ const sendBillingReceiptNotifications = async (context = null) => {
     }
 
     await sendBillingReceiptsAddedNotifications(redisKey)
-    await redisClient.set(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE, dayjs().startOf('day').toISOString())
+    await redisClient.set(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE + ONLY_FOR_TESTS, dayjs().startOf('day').toISOString())
 
     return { status: DONE }
 }

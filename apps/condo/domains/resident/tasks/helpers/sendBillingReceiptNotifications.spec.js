@@ -33,24 +33,30 @@ describe('sendBillingReceiptNotifications', () => {
 
         test('Should return noRedisKey for first running', async () => {
             setAllFeatureFlags(true)
-            const { status } = await sendBillingReceiptNotifications()
+            const { status } = await sendBillingReceiptNotifications(':NO_REDIS_KEY')
             expect(status).toBe(NO_REDIS_KEY)
+            const delValue = await redisClient.del(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE + ':NO_REDIS_KEY')
+            expect(delValue).toBe(1)
         })
 
         test('Should return skip notification if cron runs more than one time a day', async () => {
             setAllFeatureFlags(true)
-            const value = await redisClient.set(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE, dayjs().startOf('day').toISOString())
+            const value = await redisClient.set(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE + ':SKIP_NOTIFICATION', dayjs().startOf('day').toISOString())
             expect(value).toBe('OK')
-            const { status } = await sendBillingReceiptNotifications()
+            const { status } = await sendBillingReceiptNotifications(':SKIP_NOTIFICATION')
             expect(status).toBe(SKIP_NOTIFICATION)
+            const delValue = await redisClient.del(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE + ':SKIP_NOTIFICATION')
+            expect(delValue).toBe(1)
         })
 
         test('Should return done if pushes are sent', async () => {
             setAllFeatureFlags(true)
-            const value = await redisClient.set(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE, dayjs().subtract(1, 'day').startOf('day').toISOString())
+            const value = await redisClient.set(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE + ':DONE', dayjs().subtract(1, 'day').startOf('day').toISOString())
             expect(value).toBe('OK')
-            const { status } = await sendBillingReceiptNotifications()
+            const { status } = await sendBillingReceiptNotifications(':DONE')
             expect(status).toBe(DONE)
+            const delValue = await redisClient.del(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE + ':DONE')
+            expect(delValue).toBe(1)
         })
     })
 })
