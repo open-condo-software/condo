@@ -212,7 +212,7 @@ const TicketVisibilityContextProvider: React.FC = ({ children }) => {
         where: {
             employee: { id: employeeId },
         },
-    })
+    }, { skip: !employeeId })
     const propertyScopeIds = propertyScopeEmployees
         .filter(propertyScopeEmployee => propertyScopeEmployee.propertyScope && propertyScopeEmployee.employee)
         .map(propertyScopeEmployee => propertyScopeEmployee.propertyScope.id)
@@ -224,17 +224,17 @@ const TicketVisibilityContextProvider: React.FC = ({ children }) => {
                 { hasAllEmployees: true },
             ],
         },
-    })
+    }, { skip: !organizationId })
     const { objs: propertyScopeProperties, loading: propertiesLoading } = PropertyScopeProperty.useAllObjects({
         where: {
             propertyScope: { id_in: propertyScopes.map(scope => scope.id) },
         },
-    })
+    }, { skip: propertyScopes.length === 0 })
     const { objs: employeeSpecializations, loading: specializationsLoading } = OrganizationEmployeeSpecialization.useAllObjects({
         where: {
             employee: { id: employeeId },
         },
-    })
+    }, { skip: !employeeId })
 
     const specializations = employeeSpecializations
         .filter(empSpec => empSpec.specialization && empSpec.employee)
