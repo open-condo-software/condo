@@ -92405,6 +92405,9 @@ type Mutation {
   		"dv": {
   			"required": true
   		},
+  		"title": {
+  			"required": true
+  		},
   		"body": {
   			"required": true
   		}
