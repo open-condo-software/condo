@@ -660,6 +660,7 @@ const MESSAGE_META = {
     },
     [B2B_APP_MESSAGE_PUSH_TYPE]: {
         dv: { required: true },
+        title: { required: true },
         body: { required: true },
     },
     [PASS_TICKET_CREATED_MESSAGE_TYPE]: {
