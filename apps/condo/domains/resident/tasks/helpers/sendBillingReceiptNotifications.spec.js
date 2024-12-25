@@ -6,7 +6,7 @@ const index = require('@app/condo/index')
 const dayjs = require('dayjs')
 
 const { getRedisClient } = require('@open-condo/keystone/redis')
-const { setFakeClientMode, setAllFeatureFlags, waitFor } = require('@open-condo/keystone/test.utils')
+const { setFakeClientMode, setAllFeatureFlags } = require('@open-condo/keystone/test.utils')
 
 const { LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE } = require('@condo/domains/resident/constants')
 
@@ -27,24 +27,30 @@ describe('sendBillingReceiptNotifications', () => {
     describe('feature flag', () => {
         test('checks for proper result on disabled', async () => {
             setAllFeatureFlags(false)
-            expect(await sendBillingReceiptNotifications()).toMatchObject({ status: DISABLED })
+            const { status } = await sendBillingReceiptNotifications()
+            expect(status).toBe(DISABLED)
         })
 
         test('Should return noRedisKey for first running', async () => {
             setAllFeatureFlags(true)
-            expect(await sendBillingReceiptNotifications()).toMatchObject({ status: NO_REDIS_KEY })
+            const { status } = await sendBillingReceiptNotifications()
+            expect(status).toBe(NO_REDIS_KEY)
         })
 
         test('Should return skip notification if cron runs more than one time a day', async () => {
             setAllFeatureFlags(true)
-            await redisClient.set(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE, dayjs().startOf('day').toISOString())
-            expect(await sendBillingReceiptNotifications()).toMatchObject({ status: SKIP_NOTIFICATION })
+            const value = await redisClient.set(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE, dayjs().startOf('day').toISOString())
+            expect(value).toBe('OK')
+            const { status } = await sendBillingReceiptNotifications()
+            expect(status).toBe(SKIP_NOTIFICATION)
         })
 
         test('Should return done if pushes are sent', async () => {
             setAllFeatureFlags(true)
-            await redisClient.set(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE, dayjs().subtract(1, 'day').startOf('day').toISOString())
-            expect(await sendBillingReceiptNotifications()).toMatchObject({ status: DONE })
+            const value = await redisClient.set(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE, dayjs().subtract(1, 'day').startOf('day').toISOString())
+            expect(value).toBe('OK')
+            const { status } = await sendBillingReceiptNotifications()
+            expect(status).toBe(DONE)
         })
     })
 })
