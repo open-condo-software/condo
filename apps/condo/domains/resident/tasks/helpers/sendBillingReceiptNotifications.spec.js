@@ -28,6 +28,7 @@ describe('sendBillingReceiptNotifications', () => {
             await redisClient.del(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
             const { status: status1 } = await sendBillingReceiptNotifications()
             expect(status1).toBe(NO_REDIS_KEY)
+            await redisClient.set(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE, dayjs().startOf('day').toISOString())
             const { status: status2 } = await sendBillingReceiptNotifications()
             expect(status2).toBe(SKIP_NOTIFICATION)
             await redisClient.set(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE, dayjs().subtract(1, 'd').startOf('day').toISOString())

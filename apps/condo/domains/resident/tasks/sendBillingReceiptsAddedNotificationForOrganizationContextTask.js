@@ -165,16 +165,16 @@ async function fetchReceipts (contextId, receiptCreatedAfter) {
     const filteredReceipts = await Promise.all(
         receipts.map(async receipt => {
             const newerReceipts = await find('BillingReceipt', {
-                account: { id: get(receipt, 'account'), deletedAt: null },
+                account: { id: receipt.account, deletedAt: null },
                 OR: [
-                    { receiver: { AND: [{ id: get(receipt, 'receiver') }, { deletedAt: null } ] } },
-                    { category: { AND: [{ id: get(receipt, 'category') }, { deletedAt: null } ] } },
+                    { receiver: { AND: [{ id: receipt.receiver }, { deletedAt: null } ] } },
+                    { category: { AND: [{ id: receipt.category }, { deletedAt: null } ] } },
                 ],
-                period_gt: get(receipt, 'period'),
+                period_gt: receipt.period,
                 deletedAt: null,
             })
             const paid = await getNewPaymentsSum(receipt.id)
-            const isPayable = !newerReceipts.length
+            const isPayable = !(newerReceipts && newerReceipts.length)
 
             return {
                 receipt,
@@ -247,7 +247,6 @@ async function fetchResidents (residentIds) {
         return acc
     }, {})
 }
-
 
 function groupConsumersByAccountKey (serviceConsumers) {
     return groupBy(serviceConsumers, (item) => {
