@@ -12,35 +12,36 @@ const access = require('@condo/domains/organization/access/FindOrganizationsByTi
 
 
 const ERRORS = {
-    USER_IS_MISSING: {
+    EMPTY_USER: {
         code: BAD_USER_INPUT,
-        type: 'USER_IS_MISSING',
+        type: 'EMPTY_USER',
         variable: ['data', 'user'],
         message: 'The "user" field must be specified',
     },
 }
 
 const FindOrganizationsByTinLog = new GQLListSchema('FindOrganizationsByTinLog', {
-    schemaDoc: 'Logging the query "FindOrganizationsByTin"',
+    schemaDoc: 'Log of "FindOrganizationsByTin" executions',
     fields: {
 
         user: {
-            schemaDoc: 'The user who caused the query',
+            schemaDoc: 'The user who executed the query',
             type: 'Relationship',
             ref: 'User',
             isRequired: true,
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
 
-        userId: {
-            schemaDoc: 'The user id who caused the query (save id if user deleted)',
+        userPhone: {
+            schemaDoc: 'The phone of user who executed the query',
             type: 'Text',
             isRequired: false,
-            access: {
-                read: true,
-                create: false,
-                update: false,
-            },
+        },
+
+        userEmail: {
+            schemaDoc: 'The email of user who executed the query',
+            type: 'Text',
+            isRequired: false,
         },
 
         tin: {
@@ -51,20 +52,11 @@ const FindOrganizationsByTinLog = new GQLListSchema('FindOrganizationsByTinLog',
 
     },
     hooks: {
-        resolveInput: async ({ resolvedData, existingItem }) => {
-            const newItem = { ...existingItem, ...resolvedData }
-            const userId = get(newItem, 'user', null)
-            if (userId) {
-                resolvedData['userId'] = userId
-            }
-            return resolvedData
-        },
         validateInput: async ({ resolvedData, context, existingItem }) => {
             const newItem = { ...existingItem, ...resolvedData }
             const user = get(newItem, 'user')
-            const userId = get(newItem, 'userId')
-            if (!user || !userId) {
-                throw new GQLError(ERRORS.USER_IS_MISSING, context)
+            if (!user) {
+                throw new GQLError(ERRORS.EMPTY_USER, context)
             }
         },
     },

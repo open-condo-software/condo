@@ -6,7 +6,6 @@ const {
     makeLoggedInAdminClient,
     makeClient,
     expectToThrowGraphQLRequestError,
-    catchErrorFrom,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
@@ -27,7 +26,7 @@ const {
 
 
 describe('FindOrganizationsByTinLog', () => {
-    let adminClient, supportClient, userClient, anonymousClient, user
+    let adminClient, supportClient, userClient, anonymousClient, user, userAttrs
 
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
@@ -35,7 +34,7 @@ describe('FindOrganizationsByTinLog', () => {
         userClient = await makeClientWithNewRegisteredAndLoggedInUser()
         anonymousClient = await makeClient();
 
-        [user] = await registerNewUser(await makeClient())
+        [user, userAttrs] = await registerNewUser(await makeClient())
     })
 
     describe('Accesses', () => {
@@ -60,10 +59,15 @@ describe('FindOrganizationsByTinLog', () => {
             test('Can create', async () => {
                 const [testSelfLog] = await createTestFindOrganizationsByTinLog(adminClient, adminClient.user)
                 expect(testSelfLog).toHaveProperty('user.id', adminClient.user.id)
-                expect(testSelfLog).toHaveProperty('userId', adminClient.user.id)
-                const [testLog] = await createTestFindOrganizationsByTinLog(adminClient, user)
+                expect(testSelfLog).toHaveProperty('userPhone', null)
+                expect(testSelfLog).toHaveProperty('userEmail', null)
+                const [testLog] = await createTestFindOrganizationsByTinLog(adminClient, user, {
+                    userPhone: userAttrs.phone,
+                    userEmail: userAttrs.email,
+                })
                 expect(testLog).toHaveProperty('user.id', user.id)
-                expect(testLog).toHaveProperty('userId', user.id)
+                expect(testLog).toHaveProperty('userPhone', userAttrs.phone)
+                expect(testLog).toHaveProperty('userEmail', userAttrs.email)
             })
 
             test('Cannot update', async () => {
@@ -216,17 +220,9 @@ describe('FindOrganizationsByTinLog', () => {
                 await createTestFindOrganizationsByTinLog(adminClient, adminClient.user, { user: undefined })
             }, {
                 code: 'BAD_USER_INPUT',
-                type: 'USER_IS_MISSING',
+                type: 'EMPTY_USER',
                 variable: ['data', 'user'],
                 message: 'The "user" field must be specified',
-            })
-        })
-
-        test('cannot pass userId', async () => {
-            await catchErrorFrom(async () => {
-                await createTestFindOrganizationsByTinLog(adminClient, adminClient.user, { userId: adminClient.user.id })
-            }, ({ errors }) => {
-                expect(errors[0].message).toContain('Field "userId" is not defined by type "FindOrganizationsByTinLogCreateInput"')
             })
         })
     })

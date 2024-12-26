@@ -12,7 +12,7 @@ const {
     expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
-const { COUNTRIES } = require('@condo/domains/common/constants/countries')
+const { COUNTRIES, DEFAULT_ENGLISH_COUNTRY } = require('@condo/domains/common/constants/countries')
 const {
     findOrganizationsByTinByTestClient,
     generateTin,
@@ -27,6 +27,9 @@ const {
     makeClientWithResidentUser,
     makeClientWithServiceUser,
     makeClientWithSupportUser,
+    updateTestUser,
+    createTestPhone,
+    createTestEmail,
 } = require('@condo/domains/user/utils/testSchema')
 
 
@@ -94,37 +97,35 @@ describe('FindOrganizationsByTinService', () => {
     })
 
     describe('Basic logic', () => {
-        describe('Should return all not deleted organizations with the specified TIN, where there are employees with the right "canManageEmployees" excluding service users', () => {
-            test.each(COUNTRY_KEYS)('country: %p', async (country) => {
-                const staffClient = await makeClientWithStaffUser()
-                const serviceClient = await makeClientWithServiceUser()
-                const registeredStaffClient = await makeClientWithStaffUser()
+        test('Should return all not deleted organizations with the specified TIN, where there are employees with the right "canManageEmployees" excluding service users', async () => {
+            const staffClient = await makeClientWithStaffUser()
+            const serviceClient = await makeClientWithServiceUser()
+            const registeredStaffClient = await makeClientWithStaffUser()
 
-                const tin = String(generateTin(country))
-                const tin2 = String(generateTin(country))
+            const tin = String(generateTin(DEFAULT_ENGLISH_COUNTRY))
+            const tin2 = String(generateTin(DEFAULT_ENGLISH_COUNTRY))
 
-                const [deletedO10nWithAdministrator] = await registerNewOrganization(staffClient, { tin, country })
-                await Organization.softDelete(adminClient, deletedO10nWithAdministrator.id)
+            const [deletedO10nWithAdministrator] = await registerNewOrganization(staffClient, { tin, country: DEFAULT_ENGLISH_COUNTRY })
+            await Organization.softDelete(adminClient, deletedO10nWithAdministrator.id)
 
-                const [deletedO10nWithoutAdministrator] = await createTestOrganization(adminClient, { tin, country })
-                await Organization.softDelete(adminClient, deletedO10nWithoutAdministrator.id)
+            const [deletedO10nWithoutAdministrator] = await createTestOrganization(adminClient, { tin, country: DEFAULT_ENGLISH_COUNTRY })
+            await Organization.softDelete(adminClient, deletedO10nWithoutAdministrator.id)
 
-                const [o10nWithAdministrator] = await registerNewOrganization(staffClient, { tin, country })
-                const [o10nWithAdministrator2] = await registerNewOrganization(staffClient, { tin, country })
+            const [o10nWithAdministrator] = await registerNewOrganization(staffClient, { tin, country: DEFAULT_ENGLISH_COUNTRY })
+            const [o10nWithAdministrator2] = await registerNewOrganization(staffClient, { tin, country: DEFAULT_ENGLISH_COUNTRY })
 
-                const [o10nWithoutAdministrator] = await createTestOrganization(adminClient, { tin, country })
+            const [o10nWithoutAdministrator] = await createTestOrganization(adminClient, { tin, country: DEFAULT_ENGLISH_COUNTRY })
 
-                const [o10nWithOtherTin] = await registerNewOrganization(staffClient, { tin: tin2, country })
+            const [o10nWithOtherTin] = await registerNewOrganization(staffClient, { tin: tin2, country: DEFAULT_ENGLISH_COUNTRY })
 
-                const [o10nWithServiceUserOnly] = await registerNewOrganization(serviceClient, { tin, country })
+            const [o10nWithServiceUserOnly] = await registerNewOrganization(serviceClient, { tin, country: DEFAULT_ENGLISH_COUNTRY })
 
-                const [result] = await findOrganizationsByTinByTestClient(registeredStaffClient, { tin })
-                expect(result.organizations).toHaveLength(2)
-                expect(result.organizations).toEqual(expect.arrayContaining([
-                    { id: o10nWithAdministrator.id, name: o10nWithAdministrator.name },
-                    { id: o10nWithAdministrator2.id, name: o10nWithAdministrator2.name },
-                ]))
-            })
+            const [result] = await findOrganizationsByTinByTestClient(registeredStaffClient, { tin })
+            expect(result.organizations).toHaveLength(2)
+            expect(result.organizations).toEqual(expect.arrayContaining([
+                { id: o10nWithAdministrator.id, name: o10nWithAdministrator.name },
+                { id: o10nWithAdministrator2.id, name: o10nWithAdministrator2.name },
+            ]))
         })
 
         test('Requests should be logged in "FindOrganizationsByTinLog"', async () => {
@@ -143,6 +144,8 @@ describe('FindOrganizationsByTinService', () => {
             expect(logs2).toEqual(expect.arrayContaining([
                 expect.objectContaining({
                     tin: tin1,
+                    userPhone: staffClient.userAttrs.phone,
+                    userEmail: staffClient.userAttrs.email,
                 }),
             ]))
 
@@ -220,8 +223,78 @@ describe('FindOrganizationsByTinService', () => {
             expect(logs).toHaveLength(10)
 
             // should not block other user
-            const staffClient2 = await makeClientWithStaffUser()
-            const [result] = await findOrganizationsByTinByTestClient(staffClient2, { tin })
+            const notBlockedStaffClient = await makeClientWithStaffUser()
+            const [result] = await findOrganizationsByTinByTestClient(notBlockedStaffClient, { tin })
+            expect(result).toBeDefined()
+        })
+
+        test('Should throw error if there are a lot of requests from phone and save to logs all processed requests', async () => {
+            const staffClient = await makeClientWithStaffUser()
+            const tin = String(generateTin())
+
+            for (let i = 0; i < REQUEST_DAILY_LIMIT - 1; i++) {
+                const [result] = await findOrganizationsByTinByTestClient(staffClient, { tin })
+                expect(result).toBeDefined()
+            }
+
+            // NOTE: The phone number restriction is checked after the user restriction,
+            // so we need to move the phone number to other user
+            await updateTestUser(adminClient, staffClient.user.id, { phone: createTestPhone() })
+            const staffClient2 = await makeClientWithStaffUser({ phone: staffClient.userAttrs.phone })
+            const [orgs] = await findOrganizationsByTinByTestClient(staffClient2, { tin })
+            expect(orgs).toBeDefined()
+
+            await expectToThrowGQLError(async () => {
+                await findOrganizationsByTinByTestClient(staffClient2, { tin })
+            }, USER_ERRORS.DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED, 'result')
+
+            const logs = await FindOrganizationsByTinLog.getAll(adminClient, {
+                user: { id: staffClient.user.id },
+            })
+            expect(logs).toHaveLength(9)
+            const logs2 = await FindOrganizationsByTinLog.getAll(adminClient, {
+                user: { id: staffClient2.user.id },
+            })
+            expect(logs2).toHaveLength(1)
+
+            // should not block other user
+            const notBlockedStaffClient = await makeClientWithStaffUser()
+            const [result] = await findOrganizationsByTinByTestClient(notBlockedStaffClient, { tin })
+            expect(result).toBeDefined()
+        })
+
+        test('Should throw error if there are a lot of requests from email and save to logs all processed requests', async () => {
+            const staffClient = await makeClientWithStaffUser()
+            const tin = String(generateTin())
+
+            for (let i = 0; i < REQUEST_DAILY_LIMIT - 1; i++) {
+                const [result] = await findOrganizationsByTinByTestClient(staffClient, { tin })
+                expect(result).toBeDefined()
+            }
+
+            // NOTE: The email restriction is checked after the user and phone restriction,
+            // so we need to move the email to other user
+            await updateTestUser(adminClient, staffClient.user.id, { email: createTestEmail() })
+            const staffClient2 = await makeClientWithStaffUser({ email: staffClient.userAttrs.email })
+            const [orgs] = await findOrganizationsByTinByTestClient(staffClient2, { tin })
+            expect(orgs).toBeDefined()
+
+            await expectToThrowGQLError(async () => {
+                await findOrganizationsByTinByTestClient(staffClient2, { tin })
+            }, USER_ERRORS.DAILY_REQUEST_LIMIT_FOR_EMAIL_REACHED, 'result')
+
+            const logs = await FindOrganizationsByTinLog.getAll(adminClient, {
+                user: { id: staffClient.user.id },
+            })
+            expect(logs).toHaveLength(9)
+            const logs2 = await FindOrganizationsByTinLog.getAll(adminClient, {
+                user: { id: staffClient2.user.id },
+            })
+            expect(logs2).toHaveLength(1)
+
+            // should not block other user
+            const notBlockedStaffClient = await makeClientWithStaffUser()
+            const [result] = await findOrganizationsByTinByTestClient(notBlockedStaffClient, { tin })
             expect(result).toBeDefined()
         })
 

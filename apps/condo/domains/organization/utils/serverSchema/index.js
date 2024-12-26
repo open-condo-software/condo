@@ -57,7 +57,7 @@ async function findOrganizationsByTin (context, data) {
     })
 }
 
-const FindOrganizationsByTinLog = generateServerUtils(FindOrganizationsByTinLogGQL)
+const FindOrganizationsByTinLog = generateServerUtils('FindOrganizationsByTinLog')
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {

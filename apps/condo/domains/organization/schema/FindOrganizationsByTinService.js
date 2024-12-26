@@ -15,9 +15,14 @@ const { USER_WHITE_LIST_FOR_FIND_ORGANIZATIONS_BY_TIN } = require('@condo/domain
 const access = require('@condo/domains/organization/access/FindOrganizationsByTinService')
 const { FindOrganizationsByTinLog } = require('@condo/domains/organization/utils/serverSchema')
 const { STAFF } = require('@condo/domains/user/constants/common')
+const { FIND_ORGANIZATION_BY_TIN_TYPE } = require('@condo/domains/user/constants/limits')
 const {
     checkDailyRequestLimitCountersByUser,
+    checkDailyRequestLimitCountersByPhone,
+    checkDailyRequestLimitCountersByEmail,
     checkTotalRequestLimitCountersByUser,
+    checkTotalRequestLimitCountersByEmail,
+    checkTotalRequestLimitCountersByPhone,
 } = require('@condo/domains/user/utils/serverSchema/requestLimitHelpers')
 
 
@@ -84,6 +89,8 @@ const FindOrganizationsByTinService = new GQLCustomSchema('FindOrganizationsByTi
                 const { data } = args
                 const { tin, dv, sender } = data
                 const authedItemId = get(context, 'authedItem.id', null)
+                const authedItemPhone = get(context, 'authedItem.phone', null)
+                const authedItemEmail = get(context, 'authedItem.email', null)
                 if (!authedItemId) throw new Error('no authedItemId!')
 
                 checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
@@ -96,16 +103,25 @@ const FindOrganizationsByTinService = new GQLCustomSchema('FindOrganizationsByTi
                     || get(context, 'authedItem.isSupport', false)
                     || (Array.isArray(userWhiteList) && userWhiteList.includes(authedItemId))
                 if (!skipRequestLimit) {
-                    await checkDailyRequestLimitCountersByUser(context, 'findOrganizationsByTin', authedItemId)
-                    await checkTotalRequestLimitCountersByUser(context, 'findOrganizationsByTin', authedItemId, MAX_TOTAL_REQUESTS)
+                    // NOTE: Users can change email/phone and user data may be reset,
+                    // so we remember all identifiers: userId, phone, email
+                    await checkDailyRequestLimitCountersByUser(context, FIND_ORGANIZATION_BY_TIN_TYPE, authedItemId)
+                    if (authedItemPhone) await checkDailyRequestLimitCountersByPhone(context, FIND_ORGANIZATION_BY_TIN_TYPE, authedItemPhone)
+                    if (authedItemEmail) await checkDailyRequestLimitCountersByEmail(context, FIND_ORGANIZATION_BY_TIN_TYPE, authedItemEmail)
+
+                    await checkTotalRequestLimitCountersByUser(context, FIND_ORGANIZATION_BY_TIN_TYPE, authedItemId, MAX_TOTAL_REQUESTS)
+                    if (authedItemEmail) await checkTotalRequestLimitCountersByEmail(context, FIND_ORGANIZATION_BY_TIN_TYPE, authedItemEmail, MAX_TOTAL_REQUESTS)
+                    if (authedItemPhone) await checkTotalRequestLimitCountersByPhone(context, FIND_ORGANIZATION_BY_TIN_TYPE, authedItemPhone, MAX_TOTAL_REQUESTS)
                 } else {
                     const reqId = get(context, ['req', 'id'])
-                    logger.info({ msg: `User "${authedItemId}" skip request limit`, reqId })
+                    logger.info({ msg: 'Request limit was skip for user', reqId, authedItemId })
                 }
 
                 await FindOrganizationsByTinLog.create(context, {
                     tin,
                     user: { connect: { id: authedItemId } },
+                    userPhone: authedItemPhone,
+                    userEmail: authedItemEmail,
                     dv,
                     sender,
                 })
