@@ -9,7 +9,7 @@ import { SBBOLIndicator } from '@condo/domains/organization/components/SBBOLIndi
 import { ServiceSubscriptionIndicator } from '@condo/domains/subscription/components/ServiceSubscriptionIndicator'
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
 
-import { NotificationCounter } from './NotificationCounter'
+import { NotificationDropdown } from './NotificationCounter/NotificationDropdown'
 
 
 export interface ITopMenuItemsProps {
@@ -26,7 +26,7 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
         <>
             {props.headerAction ? props.headerAction : null}
             <Space direction='horizontal' size={40} className='top-menu-items'>
-                <NotificationCounter count={0} />
+                <NotificationDropdown />
                 <Space size={12}>
                     <SBBOLIndicator organization={organization} />
                     <ServiceSubscriptionIndicator />
