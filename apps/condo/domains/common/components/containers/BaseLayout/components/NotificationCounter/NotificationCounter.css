@@ -1,0 +1,75 @@
+.notification-counter-container {
+  position: relative;
+  width: 24px;
+  height: 24px;
+}
+
+.notification-counter-bell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  transform-origin: center;
+}
+
+.notification-counter-bell.shake {
+  animation: shake-bell 0.05s;
+}
+
+.notification-counter-badge {
+  position: absolute;
+  top: -11px;
+  right: -11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 22px;
+  color: white;
+  font-weight: bold;
+  font-size: 12px;
+  background-color: #f43f5e;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
+}
+
+.notification-counter-badge.scale {
+  animation: scale-badge 0.05s;
+}
+
+.notification-counter-badge-text {
+  transition: opacity 0.01s;
+}
+
+.notification-counter-badge-text.hidden {
+  opacity: 0;
+}
+
+@keyframes shake-bell {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  50% {
+    transform: rotate(15deg);
+  }
+
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes scale-badge {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
