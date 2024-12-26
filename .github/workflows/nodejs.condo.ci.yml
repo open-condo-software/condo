@@ -121,6 +121,7 @@ jobs:
       address-service: ${{ steps.detect-changes.outputs.address-service }}
       dev-api: ${{ steps.detect-changes.outputs.dev-api }}
       condorb: ${{ steps.detect-changes.outputs.condorb }}
+      registry: ${{ steps.detect-changes.outputs.registry }}
       webhooks: ${{ steps.detect-changes.outputs.webhooks }}
     steps:
       - name: Checkout code with submodules
@@ -148,6 +149,9 @@ jobs:
               - 'packages/**'
             webhooks:
               - 'packages/webhooks/**'
+            registry:
+              - 'apps/registry/**'
+              - 'packages/**'
 
   lint:
     name: Lint source code
@@ -394,3 +398,45 @@ jobs:
           yarn install --immutable
       - name: Test webhooks utils
         run: yarn workspace @open-condo/webhooks jest
+
+  run-registry-tests:
+    name: Registry Tests
+    runs-on: ubuntu-22.04
+    needs:
+      - authorize
+      - build-image
+      - detect-changes
+    if: ${{ needs.detect-changes.outputs.registry == 'true' }}
+    steps:
+      - name: Login to cloud registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+          username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
+          password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
+      - name: Setup PG db
+        run: |
+          docker run -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5432:5432" -d ${{ env.PG_IMAGE_FULL }}
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: main
+      - name: Setup Redis db
+        run: |
+          docker run -p="127.0.0.1:6379:6379" -d ${{ env.REDIS_IMAGE_FULL }}
+      - name: Run condo container with daemon
+        run: |
+          docker run --network="host" --name condo-container -dit ${{ env.DOCKER_IMAGE_FULL }} sh
+      - name: Prepare apps
+        run: |
+          docker exec condo-container node bin/prepare.js -f condo registry
+      - name: Check migrations state
+        run: |
+          docker exec condo-container yarn workspace @app/registry makemigrations --check
+      - name: Run apps and tests
+        run: |
+          docker exec condo-container sh -c "(\
+          yarn workspace @app/condo start & \
+          yarn workspace @app/registry start & \
+          node bin/wait-apps-apis.js -f condo registry) && \
+          yarn workspace @app/registry test"
