@@ -1,0 +1,16 @@
+.user-messages-dropdown {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 300px;
+  max-height: 550px;
+  padding: 20px;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: var(--condo-global-box-shadow-default);
+}
+
+.notification-card-viewed {
+  opacity: 0.5;
+}
