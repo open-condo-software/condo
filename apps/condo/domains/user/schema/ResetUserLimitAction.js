@@ -8,13 +8,22 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const { NOT_FOUND, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/user/access/ResetUserLimitAction')
-const { AUTH_COUNTER_LIMIT_TYPE, RATE_LIMIT_TYPE } = require('@condo/domains/user/constants/limits')
+const {
+    AUTH_COUNTER_LIMIT_TYPE,
+    FIND_ORGANIZATION_BY_TIN_TYPE,
+    RATE_LIMIT_TYPE,
+} = require('@condo/domains/user/constants/limits')
 const { getIdentifierType } = require('@condo/domains/user/utils/identifiers')
-const { AuthGuardResetter, RateLimitResetter } = require('@condo/domains/user/utils/limits/resetters')
+const {
+    AuthGuardResetter,
+    RateLimitResetter,
+    FindOrganizationByTinGuardResetter,
+} = require('@condo/domains/user/utils/limits/resetters')
 
 const resetters = {
     [AUTH_COUNTER_LIMIT_TYPE]: new AuthGuardResetter(),
     [RATE_LIMIT_TYPE]: new RateLimitResetter(),
+    [FIND_ORGANIZATION_BY_TIN_TYPE]: new FindOrganizationByTinGuardResetter(),
 }
 
 const ERRORS = {
