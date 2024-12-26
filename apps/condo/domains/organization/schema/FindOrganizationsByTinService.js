@@ -31,6 +31,9 @@ const appLogger = getLogger('condo')
 const logger = appLogger.child({ module: 'organization/findOrganizationsByTin' })
 
 const MAX_TOTAL_REQUESTS = 50
+
+// NOTE: we use these TIN codes for testing,
+// so we don't use them for this request so that the response doesn't contain a lot of data
 const UNAVAILABLE_TINS = conf.UNAVAILABLE_TINS_FOR_ORGANIZATIONS_SEARCH
     ? JSON.parse(conf.UNAVAILABLE_TINS_FOR_ORGANIZATIONS_SEARCH)
     : ['0000000000', '000000000000']
