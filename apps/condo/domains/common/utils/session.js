@@ -4,12 +4,12 @@ const uniq = require('lodash/uniq')
 
 const { nonNull } = require('@open-condo/miniapp-utils')
 
-const PAYLOAD_CONFIG = {
+const PAYLOAD_SCHEMA = {
     allowedOrganizations: {
         type: 'array',
         transforms: [_uniqItems, _nonNullItems],
     },
-    enabledB2BPermissions: {
+    enabledB2BAppPermissions: {
         type: 'array',
         transforms: [_uniqItems, _nonNullItems],
     },
@@ -26,31 +26,31 @@ function parseSession (session) {
         return makeSessionData()
     }
     const allowedOrganizations = get(session, 'allowedOrganizations')
-    const enabledB2BPermissions = get(session, 'enabledB2BPermissions')
+    const enabledB2BAppPermissions = get(session, 'enabledB2BAppPermissions')
     return makeSessionData({
         allowedOrganizations,
-        enabledB2BPermissions,
+        enabledB2BAppPermissions,
     })
 }
 
 /**
  * @typedef SessionDataArgs
  * @prop {string[]?} allowedOrganizations - ids
- * @prop {string[]?} enabledB2BPermissions - keys
+ * @prop {string[]?} enabledB2BAppPermissions - keys
  */
 
 /**
  * @typedef SessionData
  * @property {string[] | null} allowedOrganizations
- * @property {string[] | null } enabledB2BPermissions
+ * @property {string[] | null } enabledB2BAppPermissions
  */
 
 /**
  * @param {SessionDataArgs?} payload
- * @returns {{allowedOrganizations: string[] | null, enabledB2BPermissions: string[] | null}}
+ * @returns {{allowedOrganizations: string[] | null, enabledB2BAppPermissions: string[] | null}}
  */
 function makeSessionData (payload = {}) {
-    const parsedPayloadEntries = Object.entries(PAYLOAD_CONFIG)
+    const parsedPayloadEntries = Object.entries(PAYLOAD_SCHEMA)
         .map(([key, config]) => {
             let value = payload[key]
             if (value === undefined) {
@@ -72,12 +72,12 @@ function makeSessionData (payload = {}) {
 
     const {
         allowedOrganizations,
-        enabledB2BPermissions,
+        enabledB2BAppPermissions,
     } = Object.fromEntries(parsedPayloadEntries)
 
     return {
         allowedOrganizations,
-        enabledB2BPermissions,
+        enabledB2BAppPermissions,
     }
 }
 

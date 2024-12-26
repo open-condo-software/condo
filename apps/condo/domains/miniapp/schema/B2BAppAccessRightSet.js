@@ -125,10 +125,8 @@ const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
             if (nextItem.type !== ACCESS_RIGHT_SET_GLOBAL_TYPE) {
                 const rightSetsForApp = await find('B2BAppAccessRightSet', {
                     app: { id: nextItem.app },
-                    OR: [
-                        { type: ACCESS_RIGHT_SET_GLOBAL_TYPE, deletedAt: null },
-                        { type_not: ACCESS_RIGHT_SET_GLOBAL_TYPE, deletedAt: null },
-                    ],
+                    deletedAt: null,
+                    type_in: [ACCESS_RIGHT_SET_GLOBAL_TYPE, nextItem.type],
                 })
                 
                 const globalRightSet = rightSetsForApp.find(set => set.type === ACCESS_RIGHT_SET_GLOBAL_TYPE)
@@ -161,7 +159,9 @@ const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
                     type_not: ACCESS_RIGHT_SET_GLOBAL_TYPE,
                     deletedAt: null,
                 })
-                await B2BAppAccessRightSetAPI.softDeleteMany(context, otherTypeRightSets.map(set => set.id), 'id')
+                await B2BAppAccessRightSetAPI.softDeleteMany(context, otherTypeRightSets.map(set => set.id), 'id', {
+                    dv: 1, sender: resolvedData.sender,
+                })
             }
             if (operation === 'update' && nextItem.type === ACCESS_RIGHT_SET_SCOPED_TYPE && nextItem.deletedAt) {
                 const accessTokens = await find('B2BAccessToken', {
@@ -211,7 +211,7 @@ const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
                 })
                 
                 const updateInputs = accessTokens.map(token => ({ id: token.id, data: { dv: 1, sender: { dv: 1, fingerprint: updatedItem.sender.fingerprint } } }))
-                // Update enabled permissions in sessions
+                // NOTE(YEgorLu): Update trigger is required to update sessions in B2BAccessToken afterChange hook
                 for (const chunkUpdateInputs of chunk(updateInputs, ACCESS_TOKEN_UPDATE_MANY_CHUNK_SIZE))
                     await B2BAccessToken.updateMany(context, chunkUpdateInputs, 'id')
             }

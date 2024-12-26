@@ -25,7 +25,7 @@ const canReadByServiceUser = async ({ authentication: { item: user }, args, list
     const sessionRestrictions = parseSession(context.req.session)
 
     const permissionKey = `canRead${pluralize.plural(listKey)}`
-    if (sessionRestrictions.enabledB2BPermissions !== true && !sessionRestrictions.enabledB2BPermissions.includes(permissionKey)) {
+    if (sessionRestrictions.enabledB2BAppPermissions !== true && !sessionRestrictions.enabledB2BAppPermissions.includes(permissionKey)) {
         return false
     }
 
@@ -116,7 +116,7 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
     if (!organizationId) return false
 
     const permissionKey = `canManage${pluralize.plural(listKey)}`
-    if (sessionRestrictions.enabledB2BPermissions !== true && !sessionRestrictions.enabledB2BPermissions.includes(permissionKey)) {
+    if (sessionRestrictions.enabledB2BAppPermissions !== true && !sessionRestrictions.enabledB2BAppPermissions.includes(permissionKey)) {
         return false
     }
 
@@ -149,7 +149,7 @@ const canExecuteByServiceUser = async (params, serviceConfig) => {
     if (!organizationId) return false
 
     const permissionKey = `canExecute${upperFirst(gqlName)}`
-    if (sessionRestrictions.enabledB2BPermissions !== true && !sessionRestrictions.enabledB2BPermissions.includes(permissionKey)) {
+    if (sessionRestrictions.enabledB2BAppPermissions !== true && !sessionRestrictions.enabledB2BAppPermissions.includes(permissionKey)) {
         return false
     }
 

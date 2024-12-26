@@ -15,11 +15,11 @@ describe('Permission Helper Functions', () => {
                 canManageMeters: false,
             }
             const referenceRightSet = {
-                canReadContacts2: true,
+                sender: { dv: 1, fingerprint: 'something' },
                 ...rightSet,
             }
             const inspectedRightSet = {
-                canReadContacts2: false,
+                sender: { dv: 1, fingerprint: 'other' },
                 ...rightSet,
             }
             expect(getPermissionsDiff(referenceRightSet, inspectedRightSet)).toEqual({})

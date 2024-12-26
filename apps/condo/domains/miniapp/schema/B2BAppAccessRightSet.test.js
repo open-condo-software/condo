@@ -10,7 +10,7 @@ const {
     expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects,
     expectToThrowUniqueConstraintViolationError, expectToThrowAccessDeniedErrorToCount,
     expectToThrowAccessDeniedErrorToResult, expectToThrowGQLErrorToResult,
-    expectToThrowGQLError, expectToThrowGraphQLRequestError,
+    expectToThrowGQLError, expectToThrowGraphQLRequestError, expectToThrowInternalError,
 } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
@@ -366,7 +366,8 @@ describe('B2BAppAccessRightSet', () => {
             const [app] = await createTestB2BApp(support)
             await createTestB2BAppAccessRightSet(support, app)
             for (let i = 0; i < ACCESS_RIGHT_SET_MAX_ITEMS_SCOPED_TYPE; i++) {
-                await createTestB2BAppAccessRightSet(support, app, { type: 'SCOPED' })
+                const [rightSet] = await createTestB2BAppAccessRightSet(support, app, { type: 'SCOPED' })
+                expect(rightSet).toBeDefined()
             }
 
             await expectToThrowGQLError(async () => {
@@ -381,6 +382,27 @@ describe('B2BAppAccessRightSet', () => {
         test('Cannot create or update set with type "SCOPED" if type "GLOBAL" doesn\'t exists', async () => {
             const [app] = await createTestB2BApp(support)
 
+            // Can't create
+            await expectToThrowGQLError(async () => {
+                await createTestB2BAppAccessRightSet(support, app, { type: 'SCOPED' })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'ACCESS_RIGHT_SET_GLOBAL_RIGHT_SET_REQUIRED',
+                message: 'You need to have "GLOBAL" type right before other types',
+            }, 'obj')
+
+            // Can't do something if global right set is deleted
+            const [globalRightSet] = await createTestB2BAppAccessRightSet(support, app)
+            const [tokenRightSet] = await createTestB2BAppAccessRightSet(support, app, { type: 'SCOPED' })
+            expect(tokenRightSet).toBeDefined()
+            await B2BAppAccessRightSet.softDelete(support, globalRightSet.id, {
+                dv: 1, sender: { dv: 1, fingerprint: 'b2b-app-access-right-set-test-case' },
+            })
+            await expectToThrowInternalError(async () => {
+                await updateTestB2BAppAccessRightSet(support, tokenRightSet.id, {})
+            }, 'Already deleted', ['obj'])
+
+            // Filters out deleted global right set
             await expectToThrowGQLError(async () => {
                 await createTestB2BAppAccessRightSet(support, app, { type: 'SCOPED' })
             }, {
@@ -433,12 +455,22 @@ describe('B2BAppAccessRightSet', () => {
             const [app] = await createTestB2BApp(support)
             const [globalRightsSet] = await createTestB2BAppAccessRightSet(support, app, { canReadOrganizations: true })
 
-            for (let i = 0; i < Math.round(Math.random() * ACCESS_RIGHT_SET_MAX_ITEMS_SCOPED_TYPE) + 1; i++) {
+            const scopedRightSetsCount = Math.round(Math.random() * ACCESS_RIGHT_SET_MAX_ITEMS_SCOPED_TYPE) + 1
+            for (let i = 0; i < scopedRightSetsCount; i++) {
                 const [scopedRightSet] = await createTestB2BAppAccessRightSet(support, app, { type: 'SCOPED', canReadOrganizations: true })
                 expect(scopedRightSet.canReadOrganizations).toEqual(true)
             }
             await updateTestB2BAppAccessRightSet(support, globalRightsSet.id, { deletedAt: new Date().toISOString() })
-            const deletedScopedRightSets = await B2BAppAccessRightSet.getAll(support, { app: { id: app.id }, type: 'SCOPED' })
+            const deletedScopedRightSets = await B2BAppAccessRightSet.getAll(support, {
+                app: { id: app.id },
+                type: 'SCOPED',
+                OR: [
+                    // Hack to make client return deleted items also
+                    { deletedAt: null },
+                    { deletedAt_not: null },
+                ],
+            })
+            expect(deletedScopedRightSets.length).toBeGreaterThanOrEqual(scopedRightSetsCount)
             for (const scopedRightSet of deletedScopedRightSets) {
                 expect(scopedRightSet.deletedAt).not.toBeNull()
             }
@@ -1469,7 +1501,7 @@ describe('B2BApp permissions for service user', () => {
         })
     })
 
-    describe('B2BAccessTokens domain', () => {
+    describe('B2BAccessTokens model', () => {
 
         let app
         let context

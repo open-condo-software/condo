@@ -165,7 +165,8 @@ const B2BAccessToken = new GQLListSchema('B2BAccessToken', {
                             app: { deletedAt: null },
                             organization: { deletedAt: null },
                             status: CONTEXT_FINISHED_STATUS,
-                            deletedAt: null })
+                            deletedAt: null,
+                        })
                         if (!context) {
                             return null
                         }
@@ -262,7 +263,7 @@ const B2BAccessToken = new GQLListSchema('B2BAccessToken', {
                 const permissions = Object.keys(getEnabledPermissions(rightSet))
                 const additionalFields = makeSessionData({
                     allowedOrganizations: [b2bAppContext.organization],
-                    enabledB2BPermissions: permissions,
+                    enabledB2BAppPermissions: permissions,
                 })
                 const expiresAt = get(updatedItem, 'expiresAt')
                 await setSession(context.req.sessionStore, {
