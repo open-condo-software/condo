@@ -4,6 +4,7 @@
 
 const get = require('lodash/get')
 
+const conf = require('@open-condo/config')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -30,7 +31,9 @@ const appLogger = getLogger('condo')
 const logger = appLogger.child({ module: 'organization/findOrganizationsByTin' })
 
 const MAX_TOTAL_REQUESTS = 50
-const UNAVAILABLE_TINS = ['0000000000', '000000000000']
+const UNAVAILABLE_TINS = conf.UNAVAILABLE_TINS_FOR_ORGANIZATIONS_SEARCH
+    ? JSON.parse(conf.UNAVAILABLE_TINS_FOR_ORGANIZATIONS_SEARCH)
+    : ['0000000000', '000000000000']
 
 /**
  * List of possible errors, that this custom schema can throw
