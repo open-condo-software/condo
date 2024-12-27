@@ -9,7 +9,7 @@ const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects,
     expectToThrowUniqueConstraintViolationError, expectToThrowAccessDeniedErrorToCount,
-    expectToThrowAccessDeniedErrorToResult, expectToThrowGQLErrorToResult,
+    expectToThrowAccessDeniedErrorToResult,
     expectToThrowGQLError, expectToThrowGraphQLRequestError, expectToThrowInternalError,
 } = require('@open-condo/keystone/test.utils')
 
@@ -439,7 +439,7 @@ describe('B2BAppAccessRightSet', () => {
             const [app] = await createTestB2BApp(support)
             const [globalRightsSet] = await createTestB2BAppAccessRightSet(support, app, { canReadOrganizations: true })
 
-            for (let i = 0; i < Math.round(Math.random() * ACCESS_RIGHT_SET_MAX_ITEMS_SCOPED_TYPE) + 1; i++) {
+            for (let i = 0; i < Math.round(Math.random() * (ACCESS_RIGHT_SET_MAX_ITEMS_SCOPED_TYPE - 1)) + 1; i++) {
                 const [scopedRightSet] = await createTestB2BAppAccessRightSet(support, app, { type: 'SCOPED', canReadOrganizations: true })
                 expect(scopedRightSet.canReadOrganizations).toEqual(true)
             }
@@ -455,7 +455,7 @@ describe('B2BAppAccessRightSet', () => {
             const [app] = await createTestB2BApp(support)
             const [globalRightsSet] = await createTestB2BAppAccessRightSet(support, app, { canReadOrganizations: true })
 
-            const scopedRightSetsCount = Math.round(Math.random() * ACCESS_RIGHT_SET_MAX_ITEMS_SCOPED_TYPE) + 1
+            const scopedRightSetsCount = Math.round(Math.random() * (ACCESS_RIGHT_SET_MAX_ITEMS_SCOPED_TYPE - 1)) + 1
             for (let i = 0; i < scopedRightSetsCount; i++) {
                 const [scopedRightSet] = await createTestB2BAppAccessRightSet(support, app, { type: 'SCOPED', canReadOrganizations: true })
                 expect(scopedRightSet.canReadOrganizations).toEqual(true)

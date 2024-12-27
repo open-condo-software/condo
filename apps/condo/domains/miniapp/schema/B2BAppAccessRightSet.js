@@ -130,11 +130,11 @@ const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
                 })
                 
                 const globalRightSet = rightSetsForApp.find(set => set.type === ACCESS_RIGHT_SET_GLOBAL_TYPE)
-                if (!globalRightSet && !resolvedData['deletedAt']) {
+                if (!globalRightSet && !nextItem['deletedAt']) {
                     throw new GQLError(ERRORS.GLOBAL_RIGHT_SET_REQUIRED, context)
                 }
                 const sameTypeRightSets = rightSetsForApp.filter(set => set.type === nextItem.type)
-                if (sameTypeRightSets.length >= ACCESS_RIGHT_SET_MAX_ITEMS_FOR_TYPE[nextItem.type]) {
+                if (sameTypeRightSets.length >= ACCESS_RIGHT_SET_MAX_ITEMS_FOR_TYPE[nextItem.type] && !nextItem['deletedAt']) {
                     throw new GQLError({
                         ...ERRORS.TOO_MANY_ITEMS_OF_TYPE,
                         messageInterpolation: { type: nextItem.type, maximum: ACCESS_RIGHT_SET_MAX_ITEMS_FOR_TYPE[nextItem.type] },
