@@ -93,6 +93,7 @@
     "body-parser": "^1.19.1",
     "carbone": "3.2.3",
     "classnames": "^2.2.6",
+    "cookie-signature": "^1.2.2",
     "csv-parse": "^5.2.0",
     "csv-stringify": "^6.2.0",
     "cuid": "^2.1.8",

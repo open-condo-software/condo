@@ -9,7 +9,8 @@ const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects,
     expectToThrowUniqueConstraintViolationError, expectToThrowAccessDeniedErrorToCount,
-    expectToThrowAccessDeniedErrorToResult, expectToThrowGraphQLRequestError,
+    expectToThrowAccessDeniedErrorToResult,
+    expectToThrowGQLError, expectToThrowGraphQLRequestError, expectToThrowInternalError,
 } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
@@ -31,6 +32,7 @@ const {
     createTestMeter,
     updateTestMeterReading,
 } = require('@condo/domains/meter/utils/testSchema')
+const { ACCESS_RIGHT_SET_MAX_ITEMS_GLOBAL_TYPE, ACCESS_RIGHT_SET_MAX_ITEMS_SCOPED_TYPE } = require('@condo/domains/miniapp/constants')
 const {
     createTestB2BApp,
     createTestB2BAppContext,
@@ -39,7 +41,8 @@ const {
     updateTestB2BAppAccessRight,
     B2BAppAccessRightSet,
     createTestB2BAppAccessRightSet,
-    updateTestB2BAppAccessRightSet,
+    updateTestB2BAppAccessRightSet, createTestB2BAccessTokenReadonly, B2BAccessTokenReadonly,
+    updateTestB2BAccessTokenReadonly,
 } = require('@condo/domains/miniapp/utils/testSchema')
 const { Organization, createTestOrganization, updateTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
@@ -350,7 +353,7 @@ describe('B2BAppAccessRightSet', () => {
     })
 
     describe('Constraints', () => {
-        test('Cannot be created 2 active set of access rights for a single app', async () => {
+        test(`Cannot be created ${ACCESS_RIGHT_SET_MAX_ITEMS_GLOBAL_TYPE + 1} active set of access rights with type: GLOBAL for a single app`, async () => {
             const [app] = await createTestB2BApp(admin)
             await createTestB2BAppAccessRightSet(admin, app)
 
@@ -358,6 +361,144 @@ describe('B2BAppAccessRightSet', () => {
                 await createTestB2BAppAccessRightSet(admin, app)
             }, 'b2b_app_access_right_set_unique_app')
         })
+
+        test(`Cannot be created ${ACCESS_RIGHT_SET_MAX_ITEMS_SCOPED_TYPE + 1} active sets of access rights with type: SCOPED for a single app`, async () => {
+            const [app] = await createTestB2BApp(support)
+            await createTestB2BAppAccessRightSet(support, app)
+            for (let i = 0; i < ACCESS_RIGHT_SET_MAX_ITEMS_SCOPED_TYPE; i++) {
+                const [rightSet] = await createTestB2BAppAccessRightSet(support, app, { type: 'SCOPED' })
+                expect(rightSet).toBeDefined()
+            }
+
+            await expectToThrowGQLError(async () => {
+                await createTestB2BAppAccessRightSet(support, app, { type: 'SCOPED' })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'ACCESS_RIGHT_SET_TOO_MANY_OF_TYPE',
+                message: `Too many items of type "SCOPED". Maximum is "${ACCESS_RIGHT_SET_MAX_ITEMS_SCOPED_TYPE}"`,
+            }, 'obj')
+        })
+
+        test('Cannot create or update set with type "SCOPED" if type "GLOBAL" doesn\'t exists', async () => {
+            const [app] = await createTestB2BApp(support)
+
+            // Can't create
+            await expectToThrowGQLError(async () => {
+                await createTestB2BAppAccessRightSet(support, app, { type: 'SCOPED' })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'ACCESS_RIGHT_SET_GLOBAL_RIGHT_SET_REQUIRED',
+                message: 'You need to have "GLOBAL" type right before other types',
+            }, 'obj')
+
+            // Can't do something if global right set is deleted
+            const [globalRightSet] = await createTestB2BAppAccessRightSet(support, app)
+            const [tokenRightSet] = await createTestB2BAppAccessRightSet(support, app, { type: 'SCOPED' })
+            expect(tokenRightSet).toBeDefined()
+            await B2BAppAccessRightSet.softDelete(support, globalRightSet.id, {
+                dv: 1, sender: { dv: 1, fingerprint: 'b2b-app-access-right-set-test-case' },
+            })
+            await expectToThrowInternalError(async () => {
+                await updateTestB2BAppAccessRightSet(support, tokenRightSet.id, {})
+            }, 'Already deleted', ['obj'])
+
+            // Filters out deleted global right set
+            await expectToThrowGQLError(async () => {
+                await createTestB2BAppAccessRightSet(support, app, { type: 'SCOPED' })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'ACCESS_RIGHT_SET_GLOBAL_RIGHT_SET_REQUIRED',
+                message: 'You need to have "GLOBAL" type right before other types',
+            }, 'obj')
+        })
+
+        test('Can not create or update B2BAppAccessRightSet of type "SCOPED" with more permissions, than set of type "GLOBAL" on same app', async () => {
+            const [app] = await createTestB2BApp(support)
+            await createTestB2BAppAccessRightSet(support, app, { canReadOrganizations: true })
+
+            await expectToThrowGQLError(async () => {
+                await createTestB2BAppAccessRightSet(support, app, { type: 'SCOPED', canReadMeters: true })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'ACCESS_RIGHT_SET_TOO_MANY_PERMISSIONS',
+                message: 'You trying to give to right set more permissions, than "GLOBAL" right set has',
+            }, 'obj')
+
+            const [tokenRightSet] = await createTestB2BAppAccessRightSet(support, app, { type: 'SCOPED', canReadOrganizations: true })
+
+            await expectToThrowGQLError(async () => {
+                await updateTestB2BAppAccessRightSet(support, tokenRightSet.id, { canReadMeters: true })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'ACCESS_RIGHT_SET_TOO_MANY_PERMISSIONS',
+                message: 'You trying to give to right set more permissions, than "GLOBAL" right set has',
+            }, 'obj')
+        })
+
+        test('Removing permissions on "GLOBAL" B2BAppAccessRightSet leads to removing these permissions from entities with type "SCOPED"', async () => {
+            const [app] = await createTestB2BApp(support)
+            const [globalRightsSet] = await createTestB2BAppAccessRightSet(support, app, { canReadOrganizations: true })
+
+            for (let i = 0; i < Math.round(Math.random() * (ACCESS_RIGHT_SET_MAX_ITEMS_SCOPED_TYPE - 1)) + 1; i++) {
+                const [scopedRightSet] = await createTestB2BAppAccessRightSet(support, app, { type: 'SCOPED', canReadOrganizations: true })
+                expect(scopedRightSet.canReadOrganizations).toEqual(true)
+            }
+
+            await updateTestB2BAppAccessRightSet(support, globalRightsSet.id, { canReadOrganizations: false })
+            const scopedRightSets = await B2BAppAccessRightSet.getAll(support, { app: { id: app.id } })
+            scopedRightSets.forEach(scopedRightSet => {
+                expect(scopedRightSet.canReadOrganizations).toEqual(false)
+            })
+        })
+
+        test('Deleting "GLOBAL" B2BAppAccessRightSet is leading for related right sets of other types deletion', async () => {
+            const [app] = await createTestB2BApp(support)
+            const [globalRightsSet] = await createTestB2BAppAccessRightSet(support, app, { canReadOrganizations: true })
+
+            const scopedRightSetsCount = Math.round(Math.random() * (ACCESS_RIGHT_SET_MAX_ITEMS_SCOPED_TYPE - 1)) + 1
+            for (let i = 0; i < scopedRightSetsCount; i++) {
+                const [scopedRightSet] = await createTestB2BAppAccessRightSet(support, app, { type: 'SCOPED', canReadOrganizations: true })
+                expect(scopedRightSet.canReadOrganizations).toEqual(true)
+            }
+            await updateTestB2BAppAccessRightSet(support, globalRightsSet.id, { deletedAt: new Date().toISOString() })
+            const deletedScopedRightSets = await B2BAppAccessRightSet.getAll(support, {
+                app: { id: app.id },
+                type: 'SCOPED',
+                OR: [
+                    // Hack to make client return deleted items also
+                    { deletedAt: null },
+                    { deletedAt_not: null },
+                ],
+            })
+            expect(deletedScopedRightSets.length).toBeGreaterThanOrEqual(scopedRightSetsCount)
+            for (const scopedRightSet of deletedScopedRightSets) {
+                expect(scopedRightSet.deletedAt).not.toBeNull()
+            }
+        })
+    })
+    
+    describe('Name validations', () => {
+        test('Takes "default" name if not provided', async () => {
+            const [app] = await createTestB2BApp(support)
+            const [accessRightSet] = await createTestB2BAppAccessRightSet(support, app, { name: undefined })
+            expect(accessRightSet).toHaveProperty('name', 'default')
+        })
+
+        test('Cannot update "name" to empty', async () => {
+            const [app] = await createTestB2BApp(support)
+            const name = faker.random.alphaNumeric(8)
+            const [accessRightSet] = await createTestB2BAppAccessRightSet(support, app, { name })
+            expect(accessRightSet).toHaveProperty('name', name)
+
+            await expectToThrowGQLError(async () => {
+                await updateTestB2BAppAccessRightSet(support, accessRightSet.id, { name: '' })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'ACCESS_RIGHT_SET_NAME_REQUIRED',
+                message: 'Name is required',
+            }, 'obj')
+        })
+
     })
 })
 
@@ -513,7 +654,6 @@ describe('B2BApp permissions for service user', () => {
                 canManageOrganizations: false,
             })
         }, (e) => {
-            console.log(e)
             expect(e.errors[0].message).toContain('Field "canManageOrganizations" is not defined by type "B2BAppAccessRightSetCreateInput"')
         })
 
@@ -1359,5 +1499,74 @@ describe('B2BApp permissions for service user', () => {
             })
 
         })
+    })
+
+    describe('B2BAccessTokens model', () => {
+
+        let app
+        let context
+        let serviceUser
+        let scopedRightSet
+        let accessRightSet
+
+        beforeAll(async () => {
+            const [organization] = await registerNewOrganization(user)
+            const [newServiceUser] = await registerNewServiceUserByTestClient(support)
+            serviceUser = await makeLoggedInClient({ email: newServiceUser.email, password: newServiceUser.password });
+            [app] = await createTestB2BApp(support);
+            [context] = await createTestB2BAppContext(support, app, organization, { status: 'Finished' })
+            const [right] = await createTestB2BAppAccessRight(support, serviceUser.user, app);
+            [accessRightSet] = await createTestB2BAppAccessRightSet(support, app, {
+                canReadB2BAccessTokens: true,
+                canManageB2BAccessTokens: true,
+            });
+            [scopedRightSet] = await createTestB2BAppAccessRightSet(support, app, { type: 'SCOPED' })
+            await updateTestB2BAppAccessRight(support, right.id, { accessRightSet: { connect: { id: accessRightSet.id } } })
+        })
+
+        test('create B2BAccessToken', async () => {
+            // can with rights
+            await updateTestB2BAppAccessRightSet(support, accessRightSet.id, { canManageB2BAccessTokens: true })
+            const [token] = await createTestB2BAccessTokenReadonly(serviceUser, context, scopedRightSet)
+            expect(token).toBeDefined()
+
+            // can't without rights
+            await updateTestB2BAppAccessRightSet(support, accessRightSet.id, { canManageB2BAccessTokens: false })
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await createTestB2BAccessTokenReadonly(serviceUser, context, scopedRightSet)
+            })
+        })
+
+        test('update B2BAccessToken', async () => {
+            await updateTestB2BAppAccessRightSet(support, accessRightSet.id, { canManageB2BAccessTokens: true })
+            const [token] = await createTestB2BAccessTokenReadonly(serviceUser, context, scopedRightSet)
+
+            // can with rights
+            const [updatedToken] = await updateTestB2BAccessTokenReadonly(serviceUser, token.id, {})
+            expect(updatedToken).toBeDefined()
+
+            // can't without rights
+            await updateTestB2BAppAccessRightSet(support, accessRightSet.id, { canManageB2BAccessTokens: false })
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestB2BAccessTokenReadonly(serviceUser, token.id, {})
+            })
+        })
+
+        test('read B2BAccessToken', async () => {
+            await updateTestB2BAppAccessRightSet(support, accessRightSet.id, { canReadB2BAccessTokens: true, canManageB2BAccessTokens: true })
+            const [token] = await createTestB2BAccessTokenReadonly(serviceUser, context, scopedRightSet)
+
+            // can with rights
+            const readToken = await B2BAccessTokenReadonly.getOne(serviceUser, { id: token.id })
+            expect(readToken).toBeDefined()
+            expect(readToken).toEqual(token)
+
+            // can't without rights
+            await updateTestB2BAppAccessRightSet(support, accessRightSet.id, { canReadB2BAccessTokens: false })
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await B2BAccessTokenReadonly.getOne(serviceUser, { id: token.id })
+            })
+        })
+
     })
 })

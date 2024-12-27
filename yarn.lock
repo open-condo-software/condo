@@ -840,6 +840,7 @@ __metadata:
     carbone: 3.2.3
     classnames: ^2.2.6
     commander: ^11.0.0
+    cookie-signature: ^1.2.2
     cross-env: ^7.0.3
     css-loader: 1.0.1
     csv-parse: ^5.2.0
@@ -25737,6 +25738,13 @@ __metadata:
   version: 1.2.0
   resolution: "cookie-signature@npm:1.2.0"
   checksum: d11f56f909733695d989511bf0e1dd874220d818b9d118945dce3c275fa50adfb3f6984354de0f5eefdc9347951a22ba3545230a762576019d23c16055b12d4c
+  languageName: node
+  linkType: hard
+
+"cookie-signature@npm:^1.2.2":
+  version: 1.2.2
+  resolution: "cookie-signature@npm:1.2.2"
+  checksum: 1ad4f9b3907c9f3673a0f0a07c0a23da7909ac6c9204c5d80a0ec102fe50ccc45f27fdf496361840d6c132c5bb0037122c0a381f856d070183d1ebe3e5e041ff
   languageName: node
   linkType: hard
 

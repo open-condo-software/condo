@@ -10,7 +10,7 @@ const { getByCondition } = require('@open-condo/keystone/schema')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/miniapp/access/B2BAppAccessRight')
-const { ACCESS_RIGHT_SET_NOT_FOR_CONNECTED_B2B_APP } = require('@condo/domains/miniapp/constants')
+const { ACCESS_RIGHT_SET_NOT_FOR_CONNECTED_B2B_APP, ACCESS_RIGHT_SET_GLOBAL_RIGHT_SET_REQUIRED, ACCESS_RIGHT_SET_GLOBAL_TYPE } = require('@condo/domains/miniapp/constants')
 const { SERVICE_USER_FIELD } = require('@condo/domains/miniapp/schema/fields/accessRight')
 
 
@@ -19,6 +19,11 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: ACCESS_RIGHT_SET_NOT_FOR_CONNECTED_B2B_APP,
         message: '"accessRightSet" must be connected to B2BApp, which specified in "app"',
+    },
+    ACCESS_RIGHT_SET_INVALID_TYPE: {
+        code: BAD_USER_INPUT,
+        type: ACCESS_RIGHT_SET_GLOBAL_RIGHT_SET_REQUIRED,
+        message: '"accessRightSet" should have field "type" with value "GLOBAL"',
     },
 }
 
@@ -80,6 +85,10 @@ const B2BAppAccessRight = new GQLListSchema('B2BAppAccessRight', {
 
                 if (!accessRightSet) {
                     throw new GQLError(ERRORS.ACCESS_RIGHT_SET_NOT_FOR_CONNECTED_B2B_APP, context)
+                }
+
+                if (accessRightSet.type !== ACCESS_RIGHT_SET_GLOBAL_TYPE) {
+                    throw new GQLError(ERRORS.ACCESS_RIGHT_SET_INVALID_TYPE, context)
                 }
             }
         },
