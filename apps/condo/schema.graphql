@@ -64619,6 +64619,7 @@ input B2BAppHistoryRecordsCreateInput {
 
 enum B2BAppIconType {
   AlertCircle
+  ArrowDownUp
   ArrowLeft
   ArrowRight
   BarChartHorizontal
