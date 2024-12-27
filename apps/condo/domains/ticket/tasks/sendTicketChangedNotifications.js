@@ -172,11 +172,12 @@ const sendTicketChangedNotifications = async ({ ticketId, existingItem, operatio
                 if (ticketStatusType) {
                     const { property: propertyId, organization: organizationId, unitName, unitType } = updatedItem
                     const where = {
-                        user: { id: clientId },
-                        property: { id: propertyId },
-                        organization: { id: organizationId },
+                        user: { id: clientId, deletedAt: null },
+                        property: { id: propertyId, deletedAt: null },
+                        organization: { id: organizationId, deletedAt: null },
                         unitName,
                         unitType,
+                        deletedAt: null,
                     }
                     const resident = await Resident.getOne(context, where)
 
