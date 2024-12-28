@@ -88,11 +88,11 @@ exports.down = async (knex) => {
 --
 -- Delete model b2cappmessagesettinghistoryrecord
 --
-CREATE IF NOT EXISTS TABLE "B2CAppMessageSettingHistoryRecord" ("app" uuid NULL, "blockReason" text NULL, "isBlacklisted" boolean NULL, "type" text NULL, "notificationWindowSize" integer NULL, "numberOfNotificationInWindow" integer NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "createdBy" uuid NULL, "updatedBy" uuid NULL, "deletedAt" timestamp with time zone NULL, "newId" jsonb NULL, "dv" integer NULL, "sender" jsonb NULL, "history_date" timestamp with time zone NOT NULL, "history_action" varchar(50) NOT NULL, "history_id" uuid NOT NULL);
+CREATE TABLE IF NOT EXISTS "B2CAppMessageSettingHistoryRecord" ("app" uuid NULL, "blockReason" text NULL, "isBlacklisted" boolean NULL, "type" text NULL, "notificationWindowSize" integer NULL, "numberOfNotificationInWindow" integer NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "createdBy" uuid NULL, "updatedBy" uuid NULL, "deletedAt" timestamp with time zone NULL, "newId" jsonb NULL, "dv" integer NULL, "sender" jsonb NULL, "history_date" timestamp with time zone NOT NULL, "history_action" varchar(50) NOT NULL, "history_id" uuid NOT NULL);
 --
 -- Delete model b2cappmessagesetting
 --
-CREATE IF NOT EXISTS TABLE "B2CAppMessageSetting" ("blockReason" text NULL, "isBlacklisted" boolean NOT NULL, "type" text NOT NULL, "notificationWindowSize" integer NULL, "numberOfNotificationInWindow" integer NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NOT NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "deletedAt" timestamp with time zone NULL, "newId" uuid NULL, "dv" integer NOT NULL, "sender" jsonb NOT NULL, "app" uuid NULL, "createdBy" uuid NULL, "updatedBy" uuid NULL);
+CREATE TABLE IF NOT EXISTS "B2CAppMessageSetting" ("blockReason" text NULL, "isBlacklisted" boolean NOT NULL, "type" text NOT NULL, "notificationWindowSize" integer NULL, "numberOfNotificationInWindow" integer NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NOT NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "deletedAt" timestamp with time zone NULL, "newId" uuid NULL, "dv" integer NOT NULL, "sender" jsonb NOT NULL, "app" uuid NULL, "createdBy" uuid NULL, "updatedBy" uuid NULL);
 --
 -- Create constraint app_message_setting_unique_b2b_app_and_type on model appmessagesetting
 --
@@ -109,17 +109,20 @@ DROP TABLE "AppMessageSettingHistoryRecord" CASCADE;
 -- Create model appmessagesetting
 --
 DROP TABLE "AppMessageSetting" CASCADE;
-CREATE INDEX "B2CAppMessageSettingHistoryRecord_history_id_583c8d08" ON "B2CAppMessageSettingHistoryRecord" ("history_id");
+CREATE INDEX IF NOT EXISTS "B2CAppMessageSettingHistoryRecord_history_id_583c8d08" ON "B2CAppMessageSettingHistoryRecord" ("history_id");
+ALTER TABLE "B2CAppMessageSetting" DROP CONSTRAINT IF EXISTS "B2CAppMessageSetting_app_6d573f2e_fk_B2CApp_id";
 ALTER TABLE "B2CAppMessageSetting" ADD CONSTRAINT "B2CAppMessageSetting_app_6d573f2e_fk_B2CApp_id" FOREIGN KEY ("app") REFERENCES "B2CApp" ("id") DEFERRABLE INITIALLY DEFERRED;
+ALTER TABLE "B2CAppMessageSetting" DROP CONSTRAINT IF EXISTS "B2CAppMessageSetting_createdBy_d2428a98_fk_User_id";
 ALTER TABLE "B2CAppMessageSetting" ADD CONSTRAINT "B2CAppMessageSetting_createdBy_d2428a98_fk_User_id" FOREIGN KEY ("createdBy") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
+ALTER TABLE "B2CAppMessageSetting" DROP CONSTRAINT IF EXISTS "B2CAppMessageSetting_updatedBy_f907a2b2_fk_User_id";
 ALTER TABLE "B2CAppMessageSetting" ADD CONSTRAINT "B2CAppMessageSetting_updatedBy_f907a2b2_fk_User_id" FOREIGN KEY ("updatedBy") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
-CREATE UNIQUE INDEX "b2c_app_message_setting_unique_app_and_type" ON "B2CAppMessageSetting" ("app", "type") WHERE "deletedAt" IS NULL;
-CREATE INDEX "B2CAppMessageSetting_createdAt_eb25d421" ON "B2CAppMessageSetting" ("createdAt");
-CREATE INDEX "B2CAppMessageSetting_updatedAt_59b36073" ON "B2CAppMessageSetting" ("updatedAt");
-CREATE INDEX "B2CAppMessageSetting_deletedAt_fad9c2e5" ON "B2CAppMessageSetting" ("deletedAt");
-CREATE INDEX "B2CAppMessageSetting_app_6d573f2e" ON "B2CAppMessageSetting" ("app");
-CREATE INDEX "B2CAppMessageSetting_createdBy_d2428a98" ON "B2CAppMessageSetting" ("createdBy");
-CREATE INDEX "B2CAppMessageSetting_updatedBy_f907a2b2" ON "B2CAppMessageSetting" ("updatedBy");
+CREATE UNIQUE INDEX IF NOT EXISTS "b2c_app_message_setting_unique_app_and_type" ON "B2CAppMessageSetting" ("app", "type") WHERE "deletedAt" IS NULL;
+CREATE INDEX IF NOT EXISTS "B2CAppMessageSetting_createdAt_eb25d421" ON "B2CAppMessageSetting" ("createdAt");
+CREATE INDEX IF NOT EXISTS "B2CAppMessageSetting_updatedAt_59b36073" ON "B2CAppMessageSetting" ("updatedAt");
+CREATE INDEX IF NOT EXISTS "B2CAppMessageSetting_deletedAt_fad9c2e5" ON "B2CAppMessageSetting" ("deletedAt");
+CREATE INDEX IF NOT EXISTS "B2CAppMessageSetting_app_6d573f2e" ON "B2CAppMessageSetting" ("app");
+CREATE INDEX IF NOT EXISTS "B2CAppMessageSetting_createdBy_d2428a98" ON "B2CAppMessageSetting" ("createdBy");
+CREATE INDEX IF NOT EXISTS "B2CAppMessageSetting_updatedBy_f907a2b2" ON "B2CAppMessageSetting" ("updatedBy");
 
 
 --
