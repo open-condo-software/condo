@@ -6,10 +6,10 @@ const { WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { STAFF } = require('@condo/domains/user/constants/common')
 const { WRONG_CREDENTIALS } = require('@condo/domains/user/constants/errors')
+const { AUTH_COUNTER_LIMIT_TYPE } = require('@condo/domains/user/constants/limits')
 const { USER_FIELDS } = require('@condo/domains/user/gql')
 const { User } = require('@condo/domains/user/utils/serverSchema')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
-const { AUTH_COUNTER_LIMIT_TYPE } = require('@condo/domains/user/constants/limits')
 
 const redisGuard = new RedisGuard()
 
