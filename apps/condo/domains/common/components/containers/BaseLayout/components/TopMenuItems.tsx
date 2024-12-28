@@ -9,7 +9,7 @@ import { SBBOLIndicator } from '@condo/domains/organization/components/SBBOLIndi
 import { ServiceSubscriptionIndicator } from '@condo/domains/subscription/components/ServiceSubscriptionIndicator'
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
 
-import { UserMessagesList } from './UserMessagesList'
+import { UserMessagesList } from '../../../../../notification/components/UserMessagesList'
 
 
 export interface ITopMenuItemsProps {
