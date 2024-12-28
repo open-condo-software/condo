@@ -1,0 +1,32 @@
+.user-messages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 300px;
+  max-height: 550px;
+  padding: 20px;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: var(--condo-global-box-shadow-default);
+}
+
+.user-messages-list .user-messages-list-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.message-card-viewed {
+  opacity: 0.5;
+}
+
+.message-card .message-card-title {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.message-card .message-card-footer {
+  float: right;
+}
