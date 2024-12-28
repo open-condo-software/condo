@@ -2,11 +2,10 @@ import React, { useCallback, useState } from 'react'
 
 import { Settings } from '@open-condo/icons'
 import { Dropdown, Typography, Card, Modal, Button, Checkbox, Space } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
 
-import { NotificationCounter } from '../index'
+import { MessagesCounter } from './MessagesCounter'
 
-import './NotificationDropdown.css'
+import './UserMessagesList.css'
 
 
 const UserMessagesSettingsModal = ({ open, setOpen }) => {
@@ -90,73 +89,50 @@ const MessageCard = ({ message }) => (
     <Card
         key={message.id}
         bodyPadding={12}
-        className={`notification-card${message.viewed ? ' notification-card-viewed' : ''}`}
+        className={`message-card${message.viewed ? ' message-card-viewed' : ''}`}
     >
-        <div
-            style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                marginBottom: '8px',
-            }}
-            className='notification-card-title'
-        >
+        <div className='message-card-title'>
             <Typography.Link>{message.title}</Typography.Link>
             {message.icon}
         </div>
-        <div
-            className='notification-card-body'
-            style={{
-                color: colors.gray[7],
-                fontSize: '14px',
-                fontWeight: 400,
-            }}
-        >
+        <Typography.Text type='secondary' size='medium'>
             {
                 message.description.length > 100 ?
                     message.description.slice(0, 100) + '…' :
                     message.description
             }
-        </div>
-        <div
-            className='notification-card-created-at'
-            style={{
-                color: colors.gray[7],
-                float: 'right',
-                fontSize: '12px',
-                fontWeight: 400,
-            }}
-        >
-            {message.time}
+        </Typography.Text>
+        <div className='message-card-footer'>
+            <Typography.Text type='secondary' size='small'>
+                {message.time}
+            </Typography.Text>
         </div>
     </Card>
 )
 
-export const NotificationDropdown = () => {
+export const UserMessagesList = () => {
     const unreadMessages = notifications.filter(m => !m.viewed)
     const readMessages = notifications.filter(m => m.viewed)
 
+    const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
     const [settingsModalOpen, setSettingsModalOpen] = useState<boolean>(false)
+
+    const handleModalOpen = useCallback(() => {
+        setIsDropdownOpen(false)
+        setSettingsModalOpen(true)
+    }, [])
 
     return (
         <>
             <Dropdown
+                open={isDropdownOpen}
                 dropdownRender={() => (
-                    <div
-                        className='user-messages-dropdown'
-                    >
-                        <div
-                            style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                marginBottom: '12px',
-                            }}
-                        >
+                    <div className='user-messages-list'>
+                        <div className='user-messages-list-header'>
                             <Typography.Title level={5}>Уведомления</Typography.Title>
-                            <div style={{ color: colors.gray[7], cursor: 'pointer' }}>
-                                <Settings
-                                    onClick={() => setSettingsModalOpen(true)}
-                                />
-                            </div>
+                            <Typography.Text type='secondary'>
+                                <Settings onClick={handleModalOpen}/>
+                            </Typography.Text>
                         </div>
 
                         {unreadMessages.map(message => <MessageCard key={message.id} message={message} />)}
@@ -164,11 +140,8 @@ export const NotificationDropdown = () => {
                         {
                             readMessages.length > 0 && (
                                 <>
-                                    <Typography.Title
-                                        level={6}
-                                        type='secondary'
-                                    >
-                                    Просмотренные
+                                    <Typography.Title level={6} type='secondary'>
+                                        Просмотренные
                                     </Typography.Title>
                                     {readMessages.map(message => <MessageCard key={message.id} message={message} />)}
                                 </>
@@ -177,10 +150,11 @@ export const NotificationDropdown = () => {
                     </div>
                 )}
                 trigger={['hover']}
+                onOpenChange={(open) => setIsDropdownOpen(open)}
                 placement='bottomCenter'
             >
                 <div>
-                    <NotificationCounter count={unreadMessages.length} />
+                    <MessagesCounter count={5} />
                 </div>
             </Dropdown>
             <UserMessagesSettingsModal
