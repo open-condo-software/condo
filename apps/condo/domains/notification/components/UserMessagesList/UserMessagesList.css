@@ -17,6 +17,17 @@
   margin-bottom: 12px;
 }
 
+.user-messages-list-settings-icon {
+  color: var(--condo-global-color-gray-7);
+  cursor: pointer;
+  transition: var(--condo-global-transition-duration-default);
+}
+
+.user-messages-list-settings-icon:hover,
+.user-messages-list-settings-icon:active {
+  color: var(--condo-global-color-black);
+}
+
 .message-card-viewed {
   opacity: 0.5;
 }
