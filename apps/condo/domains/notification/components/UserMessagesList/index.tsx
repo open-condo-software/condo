@@ -1,15 +1,22 @@
+import { useGetUserMessagesCountQuery } from '@app/condo/gql'
+import { MessageType } from '@app/condo/schema'
 import React, { useCallback, useEffect, useState } from 'react'
 
 import { Settings } from '@open-condo/icons'
 import { isSSR } from '@open-condo/miniapp-utils'
+import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Dropdown, Typography, Card } from '@open-condo/ui'
 
-
-import { READ_USER_MESSAGES_AT_LOCAL_STORAGE_KEY } from '@condo/domains/notification/components/constants'
+import {
+    EXCLUDED_USER_MESSAGE_TYPES_LOCAL_STORAGE_KEY,
+    READ_USER_MESSAGES_AT_LOCAL_STORAGE_KEY, USER_MESSAGE_TYPES_FILTER_ON_CLIENT,
+} from '@condo/domains/notification/components/constants'
 
 import { MessagesCounter } from './MessagesCounter'
 import { UserMessagesSettingsModal } from './UserMessagesSettingsModal'
+
 
 import './UserMessagesList.css'
 
@@ -95,19 +102,56 @@ export const UserMessagesList = () => {
     const UserMessagesListTitle = intl.formatMessage({ id: 'notification.UserMessagesList.title' })
     const ViewedMessage = intl.formatMessage({ id: 'notification.UserMessagesList.viewed' })
 
+    const { user } = useAuth()
+    const { organization } = useOrganization()
+
+    const userId = user?.id
+    const organizationId = organization?.id
+
     const unreadMessages = notifications.filter(m => !m.viewed)
     const readMessages = notifications.filter(m => m.viewed)
 
     const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
     const [settingsModalOpen, setSettingsModalOpen] = useState<boolean>(false)
     const [readUserMessagesAt, setReadUserMessagesAt] = useState<string>()
+    const [excludedMessageTypes, setExcludedMessageTypes] = useState<MessageType[]>([])
+
+    const messageTypesToFilter = USER_MESSAGE_TYPES_FILTER_ON_CLIENT.filter(type => !excludedMessageTypes?.includes(type))
+
+    console.log('readUserMessagesAt', readUserMessagesAt)
+    console.log('excludedMessageTypes', excludedMessageTypes)
+
+    const { data } = useGetUserMessagesCountQuery({
+        variables: {
+            userId,
+            organizationId,
+            types: messageTypesToFilter,
+            lastReadMessagesAt: readUserMessagesAt,
+        },
+        pollInterval: 5 * 1000,
+        skip: !userId || !organizationId || messageTypesToFilter.length === 0,
+    })
+    const userMessagesCount = data?.result?.count
 
     useEffect(() => {
         if (isSSR()) return
 
-        const readUserMessagesAtFromStorage = localStorage.getItem(READ_USER_MESSAGES_AT_LOCAL_STORAGE_KEY)
-        setReadUserMessagesAt(readUserMessagesAtFromStorage ? readUserMessagesAtFromStorage : new Date().toISOString())
-    }, [])
+        const readMessagesAtFromStorage = JSON.parse(localStorage.getItem(READ_USER_MESSAGES_AT_LOCAL_STORAGE_KEY)) || {}
+        let readMessagesAtForCurrentOrganization = readMessagesAtFromStorage[organizationId]
+
+        if (!readMessagesAtForCurrentOrganization) {
+            readMessagesAtForCurrentOrganization = new Date().toISOString()
+        }
+
+        setReadUserMessagesAt(readMessagesAtForCurrentOrganization)
+
+
+        const excludedMessageTypesToFilter = JSON.parse(localStorage.getItem(EXCLUDED_USER_MESSAGE_TYPES_LOCAL_STORAGE_KEY)) || {}
+        const excludedMessageTypesForCurrentOrganization = excludedMessageTypesToFilter ?
+            excludedMessageTypesToFilter[organizationId] :
+            []
+        setExcludedMessageTypes(excludedMessageTypesForCurrentOrganization)
+    }, [organizationId])
 
     const handleModalOpen = useCallback(() => {
         setIsDropdownOpen(false)
@@ -117,16 +161,24 @@ export const UserMessagesList = () => {
     const handleDropdownOpenChange = useCallback((isOpen) => {
         setIsDropdownOpen(isOpen)
 
-        // when dropdown opens - update last read date in localStorage
+        // when dropdown opens - update last read date for specific organization in localStorage
         // when dropdown closes - update state used in query filter, so the next query will use last open dropdown datetime in filter
         if (isOpen) {
             const currentDate = new Date().toISOString()
-            localStorage.setItem(READ_USER_MESSAGES_AT_LOCAL_STORAGE_KEY, currentDate)
+            const storedData = JSON.parse(localStorage.getItem(READ_USER_MESSAGES_AT_LOCAL_STORAGE_KEY)) || {}
+            const updatedData = {
+                ...storedData,
+                [organizationId]: currentDate,
+            }
+
+            localStorage.setItem(READ_USER_MESSAGES_AT_LOCAL_STORAGE_KEY, JSON.stringify(updatedData))
         } else {
-            const readUserMessagesAtFromStorage = localStorage.getItem(READ_USER_MESSAGES_AT_LOCAL_STORAGE_KEY)
-            setReadUserMessagesAt(readUserMessagesAtFromStorage ? readUserMessagesAtFromStorage : new Date().toISOString())
+            const readUserMessagesAtFromStorage = JSON.parse(localStorage.getItem(READ_USER_MESSAGES_AT_LOCAL_STORAGE_KEY)) || {}
+            const valueForCurrentOrganization = readUserMessagesAtFromStorage[organizationId]
+
+            setReadUserMessagesAt(valueForCurrentOrganization ? valueForCurrentOrganization : new Date().toISOString())
         }
-    }, [])
+    }, [organizationId])
 
     return (
         <>
@@ -135,10 +187,12 @@ export const UserMessagesList = () => {
                 dropdownRender={() => (
                     <div className='user-messages-list'>
                         <div className='user-messages-list-header'>
-                            <Typography.Title level={5}>{UserMessagesListTitle}</Typography.Title>
-                            <Typography.Text type='secondary'>
-                                <Settings onClick={handleModalOpen}/>
-                            </Typography.Text>
+                            <Typography.Title level={5}>
+                                {UserMessagesListTitle}
+                            </Typography.Title>
+                            <div className='user-messages-list-settings-icon'>
+                                <Settings onClick={handleModalOpen} />
+                            </div>
                         </div>
                         {unreadMessages.map(message => <MessageCard key={message.id} message={message} />)}
                         {
@@ -158,12 +212,13 @@ export const UserMessagesList = () => {
                 placement='bottomCenter'
             >
                 <div>
-                    <MessagesCounter count={5} />
+                    <MessagesCounter count={userMessagesCount} />
                 </div>
             </Dropdown>
             <UserMessagesSettingsModal
                 open={settingsModalOpen}
                 setOpen={setSettingsModalOpen}
+                setMessageTypesToFilter={setExcludedMessageTypes}
             />
         </>
     )
