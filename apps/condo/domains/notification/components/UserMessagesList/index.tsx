@@ -1,38 +1,18 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
 import { Settings } from '@open-condo/icons'
-import { Dropdown, Typography, Card, Modal, Button, Checkbox, Space } from '@open-condo/ui'
+import { isSSR } from '@open-condo/miniapp-utils'
+import { useIntl } from '@open-condo/next/intl'
+import { Dropdown, Typography, Card } from '@open-condo/ui'
+
+
+import { READ_USER_MESSAGES_AT_LOCAL_STORAGE_KEY } from '@condo/domains/notification/components/constants'
 
 import { MessagesCounter } from './MessagesCounter'
+import { UserMessagesSettingsModal } from './UserMessagesSettingsModal'
 
 import './UserMessagesList.css'
 
-
-const UserMessagesSettingsModal = ({ open, setOpen }) => {
-    const handleSubmit = useCallback(() => {
-        // update or set value in local storage
-        setOpen(false)
-    }, [setOpen])
-
-    return (
-        <Modal
-            open={open}
-            onCancel={() => setOpen(false)}
-            title='Какие уведомления показывать?'
-            footer={(
-                <Button type='primary' onClick={handleSubmit}>
-                    Сохранить изменения
-                </Button>
-            )}
-        >
-            <Space size={12} direction='vertical'>
-                <Checkbox label='О новых заявках' />
-                <Checkbox label='О новых комментариях' />
-                <Checkbox label='Об оформленных пропусках' />
-            </Space>
-        </Modal>
-    )
-}
 
 const notifications = [
     {
@@ -111,15 +91,41 @@ const MessageCard = ({ message }) => (
 )
 
 export const UserMessagesList = () => {
+    const intl = useIntl()
+    const UserMessagesListTitle = intl.formatMessage({ id: 'notification.UserMessagesList.title' })
+    const ViewedMessage = intl.formatMessage({ id: 'notification.UserMessagesList.viewed' })
+
     const unreadMessages = notifications.filter(m => !m.viewed)
     const readMessages = notifications.filter(m => m.viewed)
 
     const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
     const [settingsModalOpen, setSettingsModalOpen] = useState<boolean>(false)
+    const [readUserMessagesAt, setReadUserMessagesAt] = useState<string>()
+
+    useEffect(() => {
+        if (isSSR()) return
+
+        const readUserMessagesAtFromStorage = localStorage.getItem(READ_USER_MESSAGES_AT_LOCAL_STORAGE_KEY)
+        setReadUserMessagesAt(readUserMessagesAtFromStorage ? readUserMessagesAtFromStorage : new Date().toISOString())
+    }, [])
 
     const handleModalOpen = useCallback(() => {
         setIsDropdownOpen(false)
         setSettingsModalOpen(true)
+    }, [])
+
+    const handleDropdownOpenChange = useCallback((isOpen) => {
+        setIsDropdownOpen(isOpen)
+
+        // when dropdown opens - update last read date in localStorage
+        // when dropdown closes - update state used in query filter, so the next query will use last open dropdown datetime in filter
+        if (isOpen) {
+            const currentDate = new Date().toISOString()
+            localStorage.setItem(READ_USER_MESSAGES_AT_LOCAL_STORAGE_KEY, currentDate)
+        } else {
+            const readUserMessagesAtFromStorage = localStorage.getItem(READ_USER_MESSAGES_AT_LOCAL_STORAGE_KEY)
+            setReadUserMessagesAt(readUserMessagesAtFromStorage ? readUserMessagesAtFromStorage : new Date().toISOString())
+        }
     }, [])
 
     return (
@@ -129,19 +135,17 @@ export const UserMessagesList = () => {
                 dropdownRender={() => (
                     <div className='user-messages-list'>
                         <div className='user-messages-list-header'>
-                            <Typography.Title level={5}>Уведомления</Typography.Title>
+                            <Typography.Title level={5}>{UserMessagesListTitle}</Typography.Title>
                             <Typography.Text type='secondary'>
                                 <Settings onClick={handleModalOpen}/>
                             </Typography.Text>
                         </div>
-
                         {unreadMessages.map(message => <MessageCard key={message.id} message={message} />)}
-
                         {
                             readMessages.length > 0 && (
                                 <>
                                     <Typography.Title level={6} type='secondary'>
-                                        Просмотренные
+                                        {ViewedMessage}
                                     </Typography.Title>
                                     {readMessages.map(message => <MessageCard key={message.id} message={message} />)}
                                 </>
@@ -150,7 +154,7 @@ export const UserMessagesList = () => {
                     </div>
                 )}
                 trigger={['hover']}
-                onOpenChange={(open) => setIsDropdownOpen(open)}
+                onOpenChange={handleDropdownOpenChange}
                 placement='bottomCenter'
             >
                 <div>
