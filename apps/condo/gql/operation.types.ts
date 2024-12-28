@@ -210,6 +210,26 @@ export type UpdateNewsItemRecipientsExportTaskMutationVariables = Types.Exact<{
 
 export type UpdateNewsItemRecipientsExportTaskMutation = { __typename?: 'Mutation', task?: { __typename: 'NewsItemRecipientsExportTask', id: string, status?: Types.NewsItemRecipientsExportTaskStatusType | null, file?: { __typename?: 'File', publicUrl?: string | null, originalFilename?: string | null } | null } | null };
 
+export type GetUserMessagesCountQueryVariables = Types.Exact<{
+  userId: Types.Scalars['ID']['input'];
+  organizationId: Types.Scalars['ID']['input'];
+  types: Array<Types.MessageType> | Types.MessageType;
+  lastReadMessagesAt: Types.Scalars['String']['input'];
+}>;
+
+
+export type GetUserMessagesCountQuery = { __typename?: 'Query', result?: { __typename?: '_QueryMeta', count?: number | null } | null };
+
+export type GetUserMessagesQueryVariables = Types.Exact<{
+  userId: Types.Scalars['ID']['input'];
+  organizationId: Types.Scalars['ID']['input'];
+  types: Array<Types.MessageType> | Types.MessageType;
+  skip?: Types.InputMaybe<Types.Scalars['Int']['input']>;
+}>;
+
+
+export type GetUserMessagesQuery = { __typename?: 'Query', messages?: Array<{ __typename?: 'Message', id: string, type?: Types.MessageType | null, createdAt?: string | null, meta?: any | null, defaultContent?: { __typename?: 'MessageDefaultContentField', content?: string | null } | null } | null> | null };
+
 export type GetActiveOrganizationEmployeeQueryVariables = Types.Exact<{
   userId: Types.Scalars['ID']['input'];
   employeeId?: Types.InputMaybe<Types.Scalars['ID']['input']>;

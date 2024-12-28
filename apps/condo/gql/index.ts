@@ -1475,6 +1475,105 @@ export function useUpdateNewsItemRecipientsExportTaskMutation(baseOptions?: Apol
 export type UpdateNewsItemRecipientsExportTaskMutationHookResult = ReturnType<typeof useUpdateNewsItemRecipientsExportTaskMutation>;
 export type UpdateNewsItemRecipientsExportTaskMutationResult = Apollo.MutationResult<Types.UpdateNewsItemRecipientsExportTaskMutation>;
 export type UpdateNewsItemRecipientsExportTaskMutationOptions = Apollo.BaseMutationOptions<Types.UpdateNewsItemRecipientsExportTaskMutation, Types.UpdateNewsItemRecipientsExportTaskMutationVariables>;
+export const GetUserMessagesCountDocument = gql`
+    query getUserMessagesCount($userId: ID!, $organizationId: ID!, $types: [MessageType!]!, $lastReadMessagesAt: String!) {
+  result: _allMessagesMeta(
+    where: {user: {id: $userId}, organization: {id: $organizationId}, type_in: $types, createdAt_gte: $lastReadMessagesAt}
+  ) {
+    count
+  }
+}
+    `;
+
+/**
+ * __useGetUserMessagesCountQuery__
+ *
+ * To run a query within a React component, call `useGetUserMessagesCountQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUserMessagesCountQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUserMessagesCountQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *      organizationId: // value for 'organizationId'
+ *      types: // value for 'types'
+ *      lastReadMessagesAt: // value for 'lastReadMessagesAt'
+ *   },
+ * });
+ */
+export function useGetUserMessagesCountQuery(baseOptions: Apollo.QueryHookOptions<Types.GetUserMessagesCountQuery, Types.GetUserMessagesCountQueryVariables> & ({ variables: Types.GetUserMessagesCountQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetUserMessagesCountQuery, Types.GetUserMessagesCountQueryVariables>(GetUserMessagesCountDocument, options);
+      }
+export function useGetUserMessagesCountLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetUserMessagesCountQuery, Types.GetUserMessagesCountQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetUserMessagesCountQuery, Types.GetUserMessagesCountQueryVariables>(GetUserMessagesCountDocument, options);
+        }
+export function useGetUserMessagesCountSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetUserMessagesCountQuery, Types.GetUserMessagesCountQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetUserMessagesCountQuery, Types.GetUserMessagesCountQueryVariables>(GetUserMessagesCountDocument, options);
+        }
+export type GetUserMessagesCountQueryHookResult = ReturnType<typeof useGetUserMessagesCountQuery>;
+export type GetUserMessagesCountLazyQueryHookResult = ReturnType<typeof useGetUserMessagesCountLazyQuery>;
+export type GetUserMessagesCountSuspenseQueryHookResult = ReturnType<typeof useGetUserMessagesCountSuspenseQuery>;
+export type GetUserMessagesCountQueryResult = Apollo.QueryResult<Types.GetUserMessagesCountQuery, Types.GetUserMessagesCountQueryVariables>;
+export const GetUserMessagesDocument = gql`
+    query getUserMessages($userId: ID!, $organizationId: ID!, $types: [MessageType!]!, $skip: Int = 0) {
+  messages: allMessages(
+    where: {user: {id: $userId}, organization: {id: $organizationId}, type_in: $types}
+    first: 10
+    skip: $skip
+    sortBy: [createdAt_DESC]
+  ) {
+    id
+    type
+    createdAt
+    meta
+    defaultContent {
+      content
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetUserMessagesQuery__
+ *
+ * To run a query within a React component, call `useGetUserMessagesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetUserMessagesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetUserMessagesQuery({
+ *   variables: {
+ *      userId: // value for 'userId'
+ *      organizationId: // value for 'organizationId'
+ *      types: // value for 'types'
+ *      skip: // value for 'skip'
+ *   },
+ * });
+ */
+export function useGetUserMessagesQuery(baseOptions: Apollo.QueryHookOptions<Types.GetUserMessagesQuery, Types.GetUserMessagesQueryVariables> & ({ variables: Types.GetUserMessagesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<Types.GetUserMessagesQuery, Types.GetUserMessagesQueryVariables>(GetUserMessagesDocument, options);
+      }
+export function useGetUserMessagesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<Types.GetUserMessagesQuery, Types.GetUserMessagesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<Types.GetUserMessagesQuery, Types.GetUserMessagesQueryVariables>(GetUserMessagesDocument, options);
+        }
+export function useGetUserMessagesSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<Types.GetUserMessagesQuery, Types.GetUserMessagesQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<Types.GetUserMessagesQuery, Types.GetUserMessagesQueryVariables>(GetUserMessagesDocument, options);
+        }
+export type GetUserMessagesQueryHookResult = ReturnType<typeof useGetUserMessagesQuery>;
+export type GetUserMessagesLazyQueryHookResult = ReturnType<typeof useGetUserMessagesLazyQuery>;
+export type GetUserMessagesSuspenseQueryHookResult = ReturnType<typeof useGetUserMessagesSuspenseQuery>;
+export type GetUserMessagesQueryResult = Apollo.QueryResult<Types.GetUserMessagesQuery, Types.GetUserMessagesQueryVariables>;
 export const GetActiveOrganizationEmployeeDocument = gql`
     query getActiveOrganizationEmployee($userId: ID!, $employeeId: ID) {
   employees: allOrganizationEmployees(

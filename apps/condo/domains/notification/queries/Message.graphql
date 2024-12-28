@@ -1,0 +1,31 @@
+query getUserMessagesCount ($userId: ID!, $organizationId: ID!, $types: [MessageType!]!, $lastReadMessagesAt: String!) {
+    result: _allMessagesMeta (where: {
+        user: { id: $userId }
+        organization: { id: $organizationId }
+        type_in: $types
+        createdAt_gte: $lastReadMessagesAt
+    }) {
+        count
+    }
+}
+
+query getUserMessages ($userId: ID!, $organizationId: ID!, $types: [MessageType!]!, $skip: Int = 0) {
+    messages: allMessages (
+        where: {
+            user: { id: $userId }
+            organization: { id: $organizationId }
+            type_in: $types
+        }
+        first: 10
+        skip: $skip
+        sortBy: [createdAt_DESC]
+    ) {
+        id
+        type
+        createdAt
+        meta
+        defaultContent {
+            content
+        }
+    }
+}
