@@ -10,7 +10,7 @@ import {
 } from '@condo/domains/notification/components/constants'
 
 
-export const UserMessagesSettingsModal = ({ open, setOpen }) => {
+export const UserMessagesSettingsModal = ({ open, setOpen, setMessageTypesToFilter }) => {
     const intl = useIntl()
     const ModalTitleMessage = intl.formatMessage({ id: 'notification.UserMessagesSettingModal.title' })
     const ApplyChanges = intl.formatMessage({ id: 'ApplyChanges' })
@@ -45,9 +45,10 @@ export const UserMessagesSettingsModal = ({ open, setOpen }) => {
         const storedExcludedTypes = JSON.parse(localStorage.getItem(EXCLUDED_USER_MESSAGE_TYPES_LOCAL_STORAGE_KEY)) || {}
         const updatedExcludedTypes = { ...storedExcludedTypes, [organizationId]: excludedTypes }
         localStorage.setItem(EXCLUDED_USER_MESSAGE_TYPES_LOCAL_STORAGE_KEY, JSON.stringify(updatedExcludedTypes))
+        setMessageTypesToFilter(excludedTypes)
 
         setOpen(false)
-    }, [selectedMessageTypes, organizationId, setOpen])
+    }, [organizationId, setOpen, setMessageTypesToFilter, selectedMessageTypes])
 
     return (
         <Modal

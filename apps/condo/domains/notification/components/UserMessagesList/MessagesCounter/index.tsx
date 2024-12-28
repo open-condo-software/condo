@@ -12,7 +12,7 @@ export const MessagesCounter = ({ count }) => {
     const [isAnimating, setIsAnimating] = useState(false)
 
     useEffect(() => {
-        if (count !== currentCount) {
+        if (count && count !== currentCount) {
             setIsAnimating(true)
 
             setTimeout(() => {
