@@ -32,7 +32,6 @@ fi
 
 node bin/prepare.js -f condo -r condo
 
-export UNAVAILABLE_TINS_FOR_ORGANIZATIONS_SEARCH="['0000000000', '000000000000']"
 export NEWS_ITEMS_SENDING_DELAY_SEC=2
 export NEWS_ITEM_SENDING_TTL_SEC=2
 export NODE_OPTIONS="--max_old_space_size=4192"
