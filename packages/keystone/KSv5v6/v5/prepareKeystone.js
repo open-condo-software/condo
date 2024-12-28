@@ -190,13 +190,17 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
             new IpBlackListMiddleware(),
             new KeystoneTracingApp(),
             ...((apps) ? apps() : []),
-            ...(IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND ? [new GraphiqlApp({ graphiqlPath: '/admin/graphiql' })] : []),
+            ...(IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND ? [
+                new GraphiqlApp({
+                    allowedQueryParams: ['deleted'],
+                }),
+            ] : []),
             new GraphQLApp({
                 apollo: {
                     formatError: safeApolloErrorFormatter,
                     debug: IS_ENABLE_APOLLO_DEBUG,
                     introspection: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
-                    playground: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
+                    playground: false,
                     plugins: apolloPlugins,
                 },
                 ...(graphql || {}),
