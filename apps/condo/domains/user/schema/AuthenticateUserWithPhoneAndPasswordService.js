@@ -9,6 +9,7 @@ const { WRONG_CREDENTIALS } = require('@condo/domains/user/constants/errors')
 const { USER_FIELDS } = require('@condo/domains/user/gql')
 const { User } = require('@condo/domains/user/utils/serverSchema')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
+const { AUTH_COUNTER_LIMIT_TYPE } = require('@condo/domains/user/constants/limits')
 
 const redisGuard = new RedisGuard()
 
@@ -57,7 +58,7 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
 
                 const ip = context.req.ip
                 await redisGuard.checkCustomLimitCounters(
-                    `authenticateUserWithPhoneAndPassword-${ip}`,
+                    `${AUTH_COUNTER_LIMIT_TYPE}:${ip}`,
                     GUARD_WINDOW_SIZE_SEC,
                     GUARD_WINDOW_LIMIT,
                     context,
