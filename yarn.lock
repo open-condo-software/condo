@@ -14110,6 +14110,7 @@ __metadata:
     next-cookies: ^2.0.3
     node-fetch: ^2.6.7
     node-sql-parser: ^5.3.3
+    nunjucks: ^3.2.4
     ow: ^0.19.0
     pino: ^6.13.3
     pluralize: ^8
