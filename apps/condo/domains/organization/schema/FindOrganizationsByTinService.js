@@ -34,10 +34,10 @@ const MAX_TOTAL_REQUESTS = 50
 
 // NOTE: we use these TIN codes for testing by users,
 // so we don't use them for this request so that the response doesn't contain a lot of data
-const TEST_UNAVAILABLE_TINS = ['0000000000', '000000000000']
+const DEFAULT_UNAVAILABLE_TINS = ['0000000000', '000000000000']
 const UNAVAILABLE_TINS = conf.UNAVAILABLE_TINS_FOR_ORGANIZATIONS_SEARCH
-    ? [...JSON.parse(conf.UNAVAILABLE_TINS_FOR_ORGANIZATIONS_SEARCH), ...TEST_UNAVAILABLE_TINS]
-    : [...TEST_UNAVAILABLE_TINS]
+    ? [...JSON.parse(conf.UNAVAILABLE_TINS_FOR_ORGANIZATIONS_SEARCH), ...DEFAULT_UNAVAILABLE_TINS]
+    : [...DEFAULT_UNAVAILABLE_TINS]
 
 /**
  * List of possible errors, that this custom schema can throw
