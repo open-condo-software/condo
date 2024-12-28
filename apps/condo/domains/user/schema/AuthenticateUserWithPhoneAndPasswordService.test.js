@@ -6,10 +6,9 @@ const {
     makeLoggedInAdminClient,
 } = require('@open-condo/keystone/test.utils')
 
+const { AUTH_COUNTER_LIMIT_TYPE } = require('@condo/domains/user/constants/limits')
 const { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } = require('@condo/domains/user/gql')
-const { createTestUser, User, createTestPhone } = require('@condo/domains/user/utils/testSchema')
-const { createTestResetUserLimitAction } = require('../utils/testSchema')
-const { AUTH_COUNTER_LIMIT_TYPE } = require('../constants/limits')
+const { createTestUser, User, createTestPhone, createTestResetUserLimitAction } = require('@condo/domains/user/utils/testSchema')
 
 describe('Auth by phone and password', () => {
     // We need to check that token is also returned for mobile phones. It's the same as SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION
