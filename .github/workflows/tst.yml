@@ -45,6 +45,12 @@ jobs:
       - name: Build condo dependencies
         run: yarn workspace @app/condo build:deps
 
+      - name: Pull Compatible Images
+        if: matrix.os == 'windows-latest'
+        run: |
+          docker pull --platform=linux/amd64 postgres:16.4
+          docker pull --platform=linux/amd64 redis:6.2
+
       - name: Start Databases
         if: matrix.os == 'windows-latest'
         env:
