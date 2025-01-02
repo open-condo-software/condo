@@ -40,18 +40,12 @@ jobs:
       - name: Build condo dependencies
         run: yarn workspace @app/condo build:deps
 
-      # Docker compose for Windows
-      - name: Start Databases (Windows)
+      - name: Start Databases
         if: matrix.os == 'windows-latest'
+        env:
+          DOCKER_DEFAULT_PLATFORM: linux/amd64
         run: |
-         set DOCKER_DEFAULT_PLATFORM=linux/amd64
-         docker compose up --platform linux/amd64 -d postgresdb redis
-
-      # Docker compose for Linux
-      - name: Start Databases (Linux)
-        if: matrix.os != 'windows-latest'
-        run: docker compose up -d postgresdb redis
-      
+         docker compose up -d postgresdb redis
 
       - name: Teardown Databases
         if: always()
