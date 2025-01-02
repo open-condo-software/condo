@@ -49,9 +49,6 @@ jobs:
           fi
           docker compose up -d postgresdb redis
 
-      - name: Build condo dependencies
-        run: yarn workspace @app/condo build:deps
-
       - name: Teardown Databases
         if: always()
         run: docker compose down
