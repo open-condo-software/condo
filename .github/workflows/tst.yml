@@ -1,7 +1,5 @@
 name: "Test CI Run"
 
-concurrency: deploy_backup_production.yaml
-
 on:
   push:
     branches:
