@@ -17,6 +17,26 @@ jobs:
         node-version: [16.x]
     runs-on: ${{ matrix.os }}
 
+    services:
+      postgres:
+        image: postgres:16.4
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: main
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:6.2
+        ports:
+          - 6379:6379
+
     steps:
       - name: Checkout code without submodules
         uses: actions/checkout@v4
@@ -45,21 +65,11 @@ jobs:
       - name: Build condo dependencies
         run: yarn workspace @app/condo build:deps
 
-      - name: Pull Compatible Images
-        if: matrix.os == 'windows-latest'
-        run: |
-          docker pull --platform=linux/amd64 postgres:16.4
-          docker pull --platform=linux/amd64 redis:6.2
+      - name: Prepare condo app
+        run: node bin/prepare.js -f condo
 
-      - name: Start Databases
-        if: matrix.os == 'windows-latest'
-        env:
-          DOCKER_DEFAULT_PLATFORM: linux/amd64
-        run: |
-         docker compose up -d postgresdb redis
+      - name: Build condo app
+        run: yarn workspace @app/condo build
 
-      - name: Teardown Databases
-        if: always()
-        run: docker compose down
-
-
+      - name: Start condo app
+        run: yarn workspace @app/condo build & node bin/wait-apps-apis.js -f condo
