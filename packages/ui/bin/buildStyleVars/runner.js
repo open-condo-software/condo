@@ -1,3 +1,4 @@
+const fs = require('fs')
 const path = require('path')
 
 const { program } = require('commander')
@@ -45,5 +46,8 @@ const StyleDictionary = StyleDictionaryLib.extend(config)
 for (const transformer of allTransformers) {
     StyleDictionary.registerTransform(transformer)
 }
+
+console.log('SOURCE_PATH', SOURCE_PATH)
+console.log('EXISTS', fs.existsSync(path.join(__dirname, '../..', 'src/tokens', 'sets')))
 
 StyleDictionary.buildAllPlatforms()
