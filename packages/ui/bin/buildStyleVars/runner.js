@@ -8,7 +8,7 @@ const StyleDictionaryLib = require('style-dictionary')
 const { allTransformers, webVarsTransformersChain } = require('./transformers')
 
 const TOKENS_DIR = path.join(__dirname, '../..', 'src/tokens')
-const SOURCE_PATH = path.join(TOKENS_DIR, 'sets/*.json')
+const SOURCE_PATH = 'src/tokens/sets/*.json'
 // Less is used for development, CSS is used for strict token values check
 // Can be expanded with SCSS if someday we will decide to give tokens out
 // It's also possible to generate mobile tokens for iOS and Android here
@@ -46,8 +46,5 @@ const StyleDictionary = StyleDictionaryLib.extend(config)
 for (const transformer of allTransformers) {
     StyleDictionary.registerTransform(transformer)
 }
-
-console.log('SOURCE_PATH', SOURCE_PATH)
-console.log('EXISTS', fs.existsSync(path.join(__dirname, '../..', 'src/tokens', 'sets')))
 
 StyleDictionary.buildAllPlatforms()
