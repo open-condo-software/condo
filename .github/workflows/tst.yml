@@ -1,9 +1,9 @@
-name: "Test CI Run"
+name: Test CI Run
 
 on:
   push:
     branches:
-      - "chore/os-ci"
+      - chore/os-ci
   workflow_dispatch:
 
 env:
