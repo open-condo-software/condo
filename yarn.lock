@@ -14243,6 +14243,7 @@ __metadata:
     react-markdown: ^6
     react-phone-input-2: ^2.15.1
     remark-gfm: ^1
+    rimraf: ^6.0.1
     source-map-loader: ^4.0.1
     storybook: 7.6.20
     style-dictionary: ^3.9.2
