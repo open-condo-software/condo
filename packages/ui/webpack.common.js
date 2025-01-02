@@ -33,6 +33,9 @@ module.exports = {
     },
     resolve: {
         extensions: ['.ts', '.tsx', '.js', '.json', '.less', '.css'],
+        alias: {
+            '@open-condo/ui': path.resolve(__dirname),
+        },
     },
     module: {
         rules: [
