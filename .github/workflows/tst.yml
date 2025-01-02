@@ -41,11 +41,12 @@ jobs:
         run: yarn workspace @app/condo build:deps
 
       - name: Start Databases
+        shell: bash
         run: |
-          if [ $RUNNER_OS == "Windows" ]; then
-          set DOCKER_DEFAULT_PLATFORM=linux/amd64
+          if [ "${{ matrix.os }}" == "windows-latest" ]; then
+            set DOCKER_DEFAULT_PLATFORM=linux/amd64
           else
-          export DOCKER_DEFAULT_PLATFORM=linux/amd64
+            export DOCKER_DEFAULT_PLATFORM=linux/amd64
           fi
           docker compose up -d postgresdb redis
 
