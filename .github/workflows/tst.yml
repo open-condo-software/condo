@@ -25,4 +25,5 @@ jobs:
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
           ref: ${{ env.REF }}
 
+      - run: ls apps
       - run: ls apps/eps
