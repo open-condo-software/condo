@@ -1,0 +1,29 @@
+name: "Test CI Run"
+
+concurrency: deploy_backup_production.yaml
+
+on:
+  workflow_dispatch:
+    branches:
+      - '*'
+
+env:
+  REF: ${{ github.event.pull_request.head.sha || github.ref }}
+
+jobs:
+  open-source-build:
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, windows-latest]
+    runs-on: {{ matrix.os }}
+
+    steps:
+      - name: Checkout code without submodules
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: 'false'
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+          ref: ${{ env.REF }}
+
+      - run: ls apps/eps
