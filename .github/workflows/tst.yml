@@ -26,6 +26,11 @@ jobs:
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
           ref: ${{ env.REF }}
 
+      - name: Debug Docker Info
+        run: |
+          docker version
+          docker info
+
       - name: Prepare Node environment
         uses: actions/setup-node@v3
         with:
