@@ -33,7 +33,9 @@ jobs:
           cache: 'yarn'
 
       - name: Install packages
-        run: yarn --no-immutable
+        run: |
+          npm i -g turbo
+          yarn --no-immutable
 
       - name: Build condo dependencies
         run: yarn workspace @app/condo build:deps
