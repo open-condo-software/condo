@@ -57,5 +57,5 @@ jobs:
         run: |
           docker run -p="127.0.0.1:6379:6379" -d redis:6.2
 
-      - name: Build condo itself
-        run: yarn workspace @app/condo build
+#      - name: Build condo itself
+#        run: yarn workspace @app/condo build
