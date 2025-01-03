@@ -45,7 +45,7 @@ jobs:
 #      - name: Build condo dependencies
 #        run: yarn workspace @app/condo build:deps
 
-      - run: dockerd --experimental
+      - run: sudo dockerd --experimental
 
       - name: Setup PG db
         run: |
