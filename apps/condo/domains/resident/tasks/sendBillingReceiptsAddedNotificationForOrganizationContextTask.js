@@ -7,11 +7,12 @@ const isEmpty = require('lodash/isEmpty')
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getRedisClient } = require('@open-condo/keystone/redis')
-const { find, getSchemaCtx, getByCondition } = require('@open-condo/keystone/schema')
+const { find, getSchemaCtx, getByCondition, itemsQuery } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
 const { getLocalized } = require('@open-condo/locales/loader')
 
 const { getNewPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
+const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { DEFAULT_CURRENCY_CODE, CURRENCY_SYMBOLS } = require('@condo/domains/common/constants/currencies')
 const {
@@ -21,6 +22,7 @@ const {
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { BILLING_CONTEXT_SYNCHRONIZATION_DATE } = require('@condo/domains/resident/constants/constants')
 
+const CHUNK_SIZE = 100
 const logger = getLogger('sendNewBillingReceiptNotification')
 const makeAccountKey = (...args) => args.map(value => `${value}`.trim().toLowerCase()).join(':')
 const getMessageTypeAndDebt = (toPay, toPayCharge) => {
@@ -73,7 +75,7 @@ const prepareAndSendNotification = async (keystone, context, receipt, resident, 
         meta: { dv: 1, data },
         sender: { dv: 1, fingerprint: 'send-billing-receipts-added-notifications' },
         uniqKey: notificationKey,
-        organization: { id: resident.organization },
+        organization: resident.organization && { id: resident.organization },
     }
     logger.info({ msg: 'New receipt push data', data: { messageData } })
 
@@ -92,75 +94,99 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
     logger.info({ msg: 'sendBillingReceiptsAddedNotificationForOrganizationContext starts' })
 
     const contextId = get(context, 'id')
+
     if (!contextId) throw new Error('Invalid BillingIntegrationOrganizationContext, cannot get context.id')
 
-    const { keystone } = getSchemaCtx('Message')
-    
     const redisClient = await getRedisClient()
-    let lastSendDate = await redisClient.get(`${BILLING_CONTEXT_SYNCHRONIZATION_DATE}:${contextId}`)
+    const lastSendDate = await redisClient.get(`${BILLING_CONTEXT_SYNCHRONIZATION_DATE}:${contextId}`) || lastSyncDate
+    const { keystone } = getSchemaCtx('Message')
+    const receiptsWhere = buildReceiptsWhereClause(contextId, lastSendDate)
 
-    if (!lastSendDate) {
-        lastSendDate = lastSyncDate
-    }
-
-    const receipts = await fetchReceipts(contextId, lastSendDate)
-
-    if (!receipts.length){
+    const receiptsCount = await BillingReceipt.count(keystone, receiptsWhere)
+    if (receiptsCount === 0) {
         logger.info({ msg: 'No new receipts were found for context', data: { contextId } })
-        
-        return 
+        return
     }
 
-    context.integration = await find('BillingIntegration', {
-        id: context.integration,
+    const stats = initializeStats(contextId, receiptsCount)
+    let maxReceiptCreatedAt = null
+    for (let skip = 0; skip < receiptsCount; skip += CHUNK_SIZE) {
+        const receipts = await fetchReceiptsForChunk(contextId, receiptsWhere, CHUNK_SIZE, skip)
+        if (!receipts.length) break
+
+        maxReceiptCreatedAt = dayjs(getMaxReceiptCreatedAt(receipts, maxReceiptCreatedAt)).toISOString()
+        const receiptAccountData = await prepareReceiptsData(receipts, context)
+        const consumersByAccountKey = await fetchAndGroupConsumers(context, receiptAccountData.accountNumbers)
+
+        await processReceipts(keystone, context, receiptAccountData, consumersByAccountKey, lastSendDate, stats)
+
+        updateStats(stats, consumersByAccountKey)
+    }
+
+    await redisClient.set(`${BILLING_CONTEXT_SYNCHRONIZATION_DATE}:${contextId}`, maxReceiptCreatedAt)
+
+    logSummary(stats)
+}
+
+function initializeStats (contextId, receiptsCount) {
+    return {
+        successSentMessages: 0,
+        duplicatedSentMessages: 0,
+        receiptsCount,
+        contextId,
+        serviceConsumersCount: 0,
+        residentsUniqueCount: 0,
+        usersUniqueCount: 0,
+    }
+}
+
+function buildReceiptsWhereClause (contextId, lastSendDate) {
+    return {
+        createdAt_gt: lastSendDate,
+        context: { id: contextId },
         deletedAt: null,
-    })
+    }
+}
 
-    const maxReceiptCreatedAt = dayjs(getMaxReceiptCreatedAt(receipts)).toISOString()
-    logger.info({ msg: 'The latest receipt for the context', data: { maxReceiptCreatedAt } })
-    const receiptAccountData = await prepareReceiptsData(receipts, context)
-    const serviceConsumers = await fetchServiceConsumers(context, receiptAccountData.accountNumbers)
-    const consumersByAccountKey = groupConsumersByAccountKey(serviceConsumers)
+async function fetchReceiptsForChunk (contextId, receiptsWhere, first, skip) {
+    const receiptArgs = { where: receiptsWhere, first, skip }
+    return await fetchReceipts(contextId, receiptArgs)
+}
 
-    let successSentMessages = 0
-    let duplicatedSentMessages = 0
+async function fetchAndGroupConsumers (context, accountNumbers) {
+    const serviceConsumers = await fetchServiceConsumers(context, accountNumbers)
+    return groupConsumersByAccountKey(serviceConsumers)
+}
+
+async function processReceipts (keystone, context, receiptAccountData, consumersByAccountKey, lastSendDate, stats) {
     for (const [key, receipt] of Object.entries(receiptAccountData.receiptAccountKeys)) {
         const consumers = consumersByAccountKey[key]
         if (isEmpty(consumers)) continue
 
         const [success, duplicate] = await notifyConsumers(keystone, context, receipt, consumers, lastSendDate)
-        successSentMessages += success
-        duplicatedSentMessages += duplicate
+        stats.successSentMessages += success
+        stats.duplicatedSentMessages += duplicate
     }
-    await redisClient.set(`${BILLING_CONTEXT_SYNCHRONIZATION_DATE}:${contextId}`, maxReceiptCreatedAt)
-
-    const residents = serviceConsumers.map(sc => sc.resident)
-    const residentsUnique = [...new Set(residents.filter(r => r.id))]
-    const usersUnique = [...new Set(residentsUnique.map(ru => ru.user).filter(Boolean))]
-
-    logger.info({ msg: 'sendBillingReceiptsAddedNotificationForOrganizationContext ends' })
-    logger.info(
-        { 
-            msg: 'Sent billing receipts', data: {
-                successSentMessages,
-                duplicatedSentMessages,
-                receiptsCount: receipts.length,
-                contextId,
-                serviceConsumersCount: serviceConsumers.length,
-                residentsUniqueCount: residentsUnique.length,
-                usersUniqueCount: usersUnique.length,
-            }, 
-        })
 }
 
-async function fetchReceipts (contextId, receiptCreatedAfter) {
-    const receiptsWhere = {
-        createdAt_gt: receiptCreatedAfter,
-        context: { id: contextId },
-        deletedAt: null,
-    }
+function updateStats (stats, consumersByAccountKey) {
+    const serviceConsumers = Object.values(consumersByAccountKey).flat()
+    const residents = serviceConsumers.map(sc => sc.resident).filter(Boolean)
+    const residentsUnique = [...new Set(residents.map(r => r.id))].filter(Boolean)
+    const usersUnique = [...new Set(residentsUnique.map(ru => ru.user).filter(Boolean))]
 
-    const receipts = await find('BillingReceipt', receiptsWhere)
+    stats.serviceConsumersCount += serviceConsumers.length
+    stats.residentsUniqueCount += residentsUnique.length
+    stats.usersUniqueCount += usersUnique.length
+}
+
+function logSummary (stats) {
+    logger.info({ msg: 'sendBillingReceiptsAddedNotificationForOrganizationContext ends' })
+    logger.info({ msg: 'Sent billing receipts', data: stats })
+}
+
+async function fetchReceipts (contextId, args) {
+    const receipts = await itemsQuery('BillingReceipt', args)
 
     const filteredReceipts = await Promise.all(
         receipts.map(async receipt => {
@@ -224,11 +250,13 @@ async function fetchServiceConsumers (context, accountNumbers) {
     const serviceConsumerWhere = {
         organization: { id: context.organization, deletedAt: null },
         accountNumber_in: accountNumbers.filter(Boolean),
+        resident: { deletedAt: null },
         deletedAt: null,
     }
     const rawServiceConsumers = await find('ServiceConsumer', serviceConsumerWhere)
 
     const residents = await fetchResidents(rawServiceConsumers.map(sc => sc.resident))
+
     return rawServiceConsumers.map(serviceConsumer => ({
         ...serviceConsumer,
         resident: residents[serviceConsumer.resident] || {},
@@ -256,13 +284,13 @@ function groupConsumersByAccountKey (serviceConsumers) {
     })
 }
 
-function getMaxReceiptCreatedAt (receipts) {
-    let maxCreatedAt = null
+function getMaxReceiptCreatedAt (receipts, prevMaxCreatedAt) {
+    let maxCreatedAt = prevMaxCreatedAt || null
     for (const receipt of receipts) {
         if (maxCreatedAt === null) maxCreatedAt = receipt.createdAt
         if (dayjs(receipt.createdAt).isAfter(maxCreatedAt)) maxCreatedAt = receipt.createdAt
     }
-    
+
     return maxCreatedAt
 }
 
