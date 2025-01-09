@@ -370,6 +370,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
 
             const messages2 = await Message.getAll(environment.clients.admin, messageWhere)
             expect(messages2).toHaveLength(1)
+            expect(messages1[0].id).toEqual(messages2[0].id)
         })
 
         test('Should send push if next day came', async () => {
