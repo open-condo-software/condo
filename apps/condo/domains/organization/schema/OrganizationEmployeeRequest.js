@@ -11,6 +11,7 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema, getByCondition } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/organization/access/OrganizationEmployeeRequest')
+const { MAX_ORGANIZATION_EMPLOYEE_REQUEST_RETRIES, MIN_ORGANIZATION_EMPLOYEE_REQUEST_RETRIES } = require('@condo/domains/organization/constants/common')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 
 
@@ -19,7 +20,11 @@ const ERRORS = {
         variable: ['data', 'retries'],
         code: BAD_USER_INPUT,
         type: 'INVALID_RETRIES',
-        message: 'Invalid retries. The value must be between 0 and 4',
+        message: 'Invalid retries. The value must be from {min} to {max}',
+        messageInterpolation: {
+            min: MIN_ORGANIZATION_EMPLOYEE_REQUEST_RETRIES,
+            max: MAX_ORGANIZATION_EMPLOYEE_REQUEST_RETRIES - 1,
+        },
     },
     ACCEPT_OR_REJECT_ONLY: {
         variable: ['data'],
@@ -164,7 +169,7 @@ const OrganizationEmployeeRequest = new GQLListSchema('OrganizationEmployeeReque
             hooks: {
                 validateInput: async ({ context, resolvedData, fieldPath }) => {
                     const value = resolvedData[fieldPath]
-                    if (value < 0 || value > 4) {
+                    if (value < MIN_ORGANIZATION_EMPLOYEE_REQUEST_RETRIES || value > MAX_ORGANIZATION_EMPLOYEE_REQUEST_RETRIES - 1) {
                         throw new GQLError(ERRORS.INVALID_RETRIES, context)
                     }
                 },
@@ -235,9 +240,11 @@ const OrganizationEmployeeRequest = new GQLListSchema('OrganizationEmployeeReque
                     id: organizationId,
                     deletedAt: null,
                 })
-                resolvedData['organizationId'] = organization.id
-                resolvedData['organizationName'] = organization.name
-                resolvedData['organizationTin'] = organization.tin
+                if (organization) {
+                    resolvedData['organizationId'] = organization.id
+                    resolvedData['organizationName'] = organization.name
+                    resolvedData['organizationTin'] = organization.tin
+                }
             }
 
             return resolvedData

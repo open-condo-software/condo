@@ -15,10 +15,14 @@ const { MeterResourceOwner, MeterReportingPeriod } = require('@condo/domains/met
 const { B2BAppContext } = require('@condo/domains/miniapp/utils/serverSchema')
 const access = require('@condo/domains/organization/access/ResetOrganizationService')
 const { DELETED_ORGANIZATION_NAME } = require('@condo/domains/organization/constants/common')
-const { Organization, OrganizationLink, OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
+const {
+    Organization,
+    OrganizationLink,
+    OrganizationEmployee,
+    OrganizationEmployeeRequest,
+} = require('@condo/domains/organization/utils/serverSchema')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 
-const { OrganizationEmployeeRequest } = require('../utils/serverSchema')
 
 /**
  * List of possible errors, that this custom schema can throw
