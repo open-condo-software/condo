@@ -105,7 +105,7 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
                     deletedAt: null,
                 })
                 for (const request of employeeRequests) {
-                    await OrganizationEmployeeRequest.softDelete(context, request.id, DV_SENDER)
+                    await OrganizationEmployeeRequest.softDelete(context, request.id, 'id', DV_SENDER)
                 }
 
                 const organizationLinks = await OrganizationLink.getAll(context, {
@@ -180,11 +180,9 @@ const ResetOrganizationService = new GQLCustomSchema('ResetOrganizationService',
                 await Organization.update(context, organizationId, newOrganizationData)
 
                 return { status: 'ok' }
-
             },
         },
     ],
-
 })
 
 module.exports = {

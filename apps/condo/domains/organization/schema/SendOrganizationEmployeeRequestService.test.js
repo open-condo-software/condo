@@ -148,8 +148,9 @@ describe('SendOrganizationEmployeeRequestService', () => {
                 variable: ['data', 'sender'],
                 code: 'BAD_USER_INPUT',
                 type: 'WRONG_FORMAT',
-                message: 'Invalid format of "sender" field value',
-                correctExample: '{ dv: 1, fingerprint: \'example-fingerprint-alphanumeric-value\'}',
+                message: 'Invalid format of "sender" field value. {details}',
+                correctExample: '{ "dv": 1, "fingerprint": "uniq-device-or-container-id" }',
+                messageInterpolation: { details: 'Please, check the example for details' },
             }, 'result')
         })
 
@@ -266,7 +267,7 @@ describe('SendOrganizationEmployeeRequestService', () => {
                 })
             }, {
                 code: 'BAD_USER_INPUT',
-                type: 'REQUEST_LIMIT_FOR_USER_REACHED',
+                type: 'TOTAL_REQUEST_LIMIT_FOR_USER_REACHED',
                 message: 'Too many requests from this user. Try again later',
             }, 'result')
         })

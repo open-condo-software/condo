@@ -84786,7 +84786,7 @@ type Query {
   `{
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
-    "message": "Invalid format of \"sender\" field value",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
     "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
   }`
   
@@ -84834,7 +84834,7 @@ type Query {
   `{
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
-    "message": "Invalid format of \"sender\" field value",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
     "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
   }`
   """
@@ -90031,7 +90031,7 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
-    "message": "Invalid format of \"sender\" field value",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
     "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
   }`
   """
@@ -90551,7 +90551,7 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
-    "message": "Invalid format of \"sender\" field value",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
     "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
   }`
   """
@@ -90612,7 +90612,7 @@ type Mutation {
   `{
     "code": "BAD_USER_INPUT",
     "type": "WRONG_FORMAT",
-    "message": "Invalid format of \"sender\" field value",
+    "message": "Invalid format of \"sender\" field value. Please, check the example for details",
     "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
   }`
   """

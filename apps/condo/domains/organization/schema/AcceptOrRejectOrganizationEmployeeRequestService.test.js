@@ -179,8 +179,9 @@ describe('AcceptOrRejectOrganizationEmployeeRequestService', () => {
                 variable: ['data', 'sender'],
                 code: 'BAD_USER_INPUT',
                 type: 'WRONG_FORMAT',
-                message: 'Invalid format of "sender" field value',
-                correctExample: '{ dv: 1, fingerprint: \'example-fingerprint-alphanumeric-value\'}',
+                message: 'Invalid format of "sender" field value. {details}',
+                correctExample: '{ "dv": 1, "fingerprint": "uniq-device-or-container-id" }',
+                messageInterpolation: { details: 'Please, check the example for details' },
             }, 'result')
         })
 
@@ -398,10 +399,20 @@ describe('AcceptOrRejectOrganizationEmployeeRequestService', () => {
                         isAccepted: true,
                     })
                 }, ({ errors }) => {
-                    expect(errors[0].originalError.errors).toMatchObject([{
-                        message: 'Unable to connect a OrganizationEmployee.role<OrganizationEmployeeRole>',
-                        name: 'GraphQLError',
-                    }])
+                    expect(errors).toEqual([
+                        expect.objectContaining({
+                            message: '[error] Create OrganizationEmployee internal error',
+                            name: 'GQLError',
+                            path: ['result'],
+                            extensions: expect.objectContaining({
+                                code: 'BAD_USER_INPUT',
+                                type: 'NOT_FOUND',
+                                message: 'Role not found for the specified organization',
+                                variable: ['data', 'role'],
+                                messageForUserTemplateKey: 'api.organization.organizationEmployee.NOT_FOUND_ROLE',
+                            }),
+                        }),
+                    ])
                 })
             })
         })

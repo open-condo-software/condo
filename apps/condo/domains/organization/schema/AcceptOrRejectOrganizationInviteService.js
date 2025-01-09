@@ -81,7 +81,7 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
                         name: authedItem.name ? authedItem.name : null,
                         phone: authedItem.phone ? authedItem.phone : null,
                         email: authedItem.email ? authedItem.email : null,
-                    })
+                    }, 'id user { id } organization { id }')
 
                     const employeeRequestWithoutDecide = await getByCondition('OrganizationEmployeeRequest', {
                         user: { id: employee.user.id },
