@@ -8,6 +8,8 @@ const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codeg
 
 const { RESET_ORGANIZATION_MUTATION } = require('@condo/domains/organization/gql')
 const { REPLACE_ORGANIZATION_EMPLOYEE_ROLE_MUTATION } = require('@condo/domains/organization/gql')
+const { FIND_ORGANIZATIONS_BY_TIN_MUTATION } = require('@condo/domains/organization/gql')
+const { FindOrganizationsByTinLog: FindOrganizationsByTinLogGQL } = require('@condo/domains/organization/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Organization = generateServerUtils('Organization')
@@ -42,6 +44,20 @@ async function replaceOrganizationEmployeeRole (context, data) {
     })
 }
 
+async function findOrganizationsByTin (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: FIND_ORGANIZATIONS_BY_TIN_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to findOrganizationsByTin',
+        dataPath: 'obj',
+    })
+}
+
+const FindOrganizationsByTinLog = generateServerUtils('FindOrganizationsByTinLog')
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -52,5 +68,7 @@ module.exports = {
     OrganizationEmployeeSpecialization,
     resetOrganization,
     replaceOrganizationEmployeeRole,
+    findOrganizationsByTin,
+    FindOrganizationsByTinLog,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

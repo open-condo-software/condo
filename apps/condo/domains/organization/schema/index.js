@@ -4,6 +4,8 @@
  */
 
 const { AcceptOrRejectOrganizationInviteService } = require('./AcceptOrRejectOrganizationInviteService')
+const { FindOrganizationsByTinLog } = require('./FindOrganizationsByTinLog')
+const { FindOrganizationsByTinService } = require('./FindOrganizationsByTinService')
 const { InviteNewOrganizationEmployeeService } = require('./InviteNewOrganizationEmployeeService')
 const { Organization } = require('./Organization')
 const { OrganizationEmployee } = require('./OrganizationEmployee')
@@ -26,5 +28,7 @@ module.exports = {
     OrganizationEmployeeSpecialization,
     ResetOrganizationService,
     ReplaceOrganizationEmployeeRoleService,
+    FindOrganizationsByTinService,
+    FindOrganizationsByTinLog,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

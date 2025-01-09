@@ -4146,6 +4146,7 @@ input ResetUserLimitActionHistoryRecordsCreateInput {
 enum ResetUserLimitActionTypeType {
   auth
   rateLimit
+  findOrganizationsByTin
 }
 
 """ A model for resetting user counters limit. To reset a counter limit, you need to create a new object and specify the counter type, identifier, and reason for the reset. 
@@ -4160,13 +4161,15 @@ type ResetUserLimitAction {
   """
   _label_: String
 
-  """ Type of limit to reset. Possible values: ["auth", "rateLimit"] """
+  """ Type of limit to reset. Possible values: ["auth", "rateLimit", "findOrganizationsByTin"] 
+  """
   type: ResetUserLimitActionTypeType
 
   """
    The identifier of user, to which reset will apply. Possible values are based on reset type: 
   auth: ["phone", "ip"], 
-  rateLimit: ["uuid", "ip"] 
+  rateLimit: ["uuid", "ip"], 
+  findOrganizationsByTin: ["email", "phone", "uuid"] 
   """
   identifier: String
 
@@ -8008,6 +8011,220 @@ input OrganizationEmployeeSpecializationCreateInput {
 
 input OrganizationEmployeeSpecializationsCreateInput {
   data: OrganizationEmployeeSpecializationCreateInput
+}
+
+""" Log of "FindOrganizationsByTin" executions """
+type FindOrganizationsByTinLog {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the FindOrganizationsByTinLog List config, or
+   2. As an alias to the field set on 'labelField' in the FindOrganizationsByTinLog List config, or
+   3. As an alias to a 'name' field on the FindOrganizationsByTinLog List (if one exists), or
+   4. As an alias to the 'id' field on the FindOrganizationsByTinLog List.
+  """
+  _label_: String
+
+  """ The user who executed the query """
+  user: User
+
+  """ The phone of user who executed the query """
+  userPhone: String
+
+  """ The email of user who executed the query """
+  userEmail: String
+
+  """ TIN by which organizations were searched """
+  tin: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ "dv":1, "fingerprint":"VaxSw2aXZa"}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input FindOrganizationsByTinLogWhereInput {
+  AND: [FindOrganizationsByTinLogWhereInput]
+  OR: [FindOrganizationsByTinLogWhereInput]
+  user: UserWhereInput
+  user_is_null: Boolean
+  userPhone: String
+  userPhone_not: String
+  userPhone_contains: String
+  userPhone_not_contains: String
+  userPhone_starts_with: String
+  userPhone_not_starts_with: String
+  userPhone_ends_with: String
+  userPhone_not_ends_with: String
+  userPhone_i: String
+  userPhone_not_i: String
+  userPhone_contains_i: String
+  userPhone_not_contains_i: String
+  userPhone_starts_with_i: String
+  userPhone_not_starts_with_i: String
+  userPhone_ends_with_i: String
+  userPhone_not_ends_with_i: String
+  userPhone_in: [String]
+  userPhone_not_in: [String]
+  userEmail: String
+  userEmail_not: String
+  userEmail_contains: String
+  userEmail_not_contains: String
+  userEmail_starts_with: String
+  userEmail_not_starts_with: String
+  userEmail_ends_with: String
+  userEmail_not_ends_with: String
+  userEmail_i: String
+  userEmail_not_i: String
+  userEmail_contains_i: String
+  userEmail_not_contains_i: String
+  userEmail_starts_with_i: String
+  userEmail_not_starts_with_i: String
+  userEmail_ends_with_i: String
+  userEmail_not_ends_with_i: String
+  userEmail_in: [String]
+  userEmail_not_in: [String]
+  tin: String
+  tin_not: String
+  tin_contains: String
+  tin_not_contains: String
+  tin_starts_with: String
+  tin_not_starts_with: String
+  tin_ends_with: String
+  tin_not_ends_with: String
+  tin_i: String
+  tin_not_i: String
+  tin_contains_i: String
+  tin_not_contains_i: String
+  tin_starts_with_i: String
+  tin_not_starts_with_i: String
+  tin_ends_with_i: String
+  tin_not_ends_with_i: String
+  tin_in: [String]
+  tin_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input FindOrganizationsByTinLogWhereUniqueInput {
+  id: ID!
+}
+
+enum SortFindOrganizationsByTinLogsBy {
+  user_ASC
+  user_DESC
+  userPhone_ASC
+  userPhone_DESC
+  userEmail_ASC
+  userEmail_DESC
+  tin_ASC
+  tin_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input FindOrganizationsByTinLogUpdateInput {
+  user: UserRelateToOneInput
+  userPhone: String
+  userEmail: String
+  tin: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input FindOrganizationsByTinLogsUpdateInput {
+  id: ID!
+  data: FindOrganizationsByTinLogUpdateInput
+}
+
+input FindOrganizationsByTinLogCreateInput {
+  user: UserRelateToOneInput
+  userPhone: String
+  userEmail: String
+  tin: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input FindOrganizationsByTinLogsCreateInput {
+  data: FindOrganizationsByTinLogCreateInput
 }
 
 enum PropertyHistoryRecordHistoryActionType {
@@ -78635,6 +78852,21 @@ type ReplaceOrganizationEmployeeRoleOutput {
   status: String!
 }
 
+input FindOrganizationsByTinInput {
+  dv: Int!
+  sender: JSON!
+  tin: String!
+}
+
+type FindOrganizationsByTinOrganizationType {
+  id: String!
+  name: String!
+}
+
+type FindOrganizationsByTinOutput {
+  organizations: [FindOrganizationsByTinOrganizationType]!
+}
+
 input ExportPropertiesToExcelInput {
   where: PropertyWhereInput!
   sortBy: [SortPropertiesBy!]
@@ -80324,6 +80556,20 @@ type Query {
   """ Retrieve the meta-data for the OrganizationEmployeeSpecialization list. 
   """
   _OrganizationEmployeeSpecializationsMeta: _ListMeta
+
+  """ Search for all FindOrganizationsByTinLog items which match the where clause. 
+  """
+  allFindOrganizationsByTinLogs(where: FindOrganizationsByTinLogWhereInput, search: String, sortBy: [SortFindOrganizationsByTinLogsBy!], orderBy: String, first: Int, skip: Int): [FindOrganizationsByTinLog]
+
+  """ Search for the FindOrganizationsByTinLog item with the matching ID. """
+  FindOrganizationsByTinLog(where: FindOrganizationsByTinLogWhereUniqueInput!): FindOrganizationsByTinLog
+
+  """ Perform a meta-query on all FindOrganizationsByTinLog items which match the where clause. 
+  """
+  _allFindOrganizationsByTinLogsMeta(where: FindOrganizationsByTinLogWhereInput, search: String, sortBy: [SortFindOrganizationsByTinLogsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the FindOrganizationsByTinLog list. """
+  _FindOrganizationsByTinLogsMeta: _ListMeta
 
   """ Search for all PropertyHistoryRecord items which match the where clause. 
   """
@@ -83899,6 +84145,42 @@ type Query {
   }`
   """
   checkUserExistence(data: CheckUserExistenceInput!): CheckUserExistenceOutput
+
+  """
+  Returns all organizations by TIN. Used to get organizations that the user can apply to join
+  
+  
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "EMPTY_TIN",
+    "message": "Empty tin"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "UNAVAILABLE_TIN",
+    "message": "Unavailable tin"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "DV_VERSION_MISMATCH",
+    "message": "Wrong value for data version number"
+  }`
+  
+  `{
+    "code": "BAD_USER_INPUT",
+    "type": "WRONG_FORMAT",
+    "message": "Invalid format of \"sender\" field value",
+    "correctExample": "{ \"dv\": 1, \"fingerprint\": \"uniq-device-or-container-id\" }"
+  }`
+  """
+  findOrganizationsByTin(data: FindOrganizationsByTinInput!): FindOrganizationsByTinOutput
   exportPropertiesToExcel(data: ExportPropertiesToExcelInput!): ExportPropertiesToExcelOutput
   allResidentBillingReceipts(where: ResidentBillingReceiptWhereInput, first: Int, skip: Int, sortBy: [SortResidentBillingReceiptsBy!]): [ResidentBillingReceiptOutput]
 
@@ -84452,6 +84734,24 @@ type Mutation {
 
   """ Delete multiple OrganizationEmployeeSpecialization items by ID. """
   deleteOrganizationEmployeeSpecializations(ids: [ID!]): [OrganizationEmployeeSpecialization]
+
+  """ Create a single FindOrganizationsByTinLog item. """
+  createFindOrganizationsByTinLog(data: FindOrganizationsByTinLogCreateInput): FindOrganizationsByTinLog
+
+  """ Create multiple FindOrganizationsByTinLog items. """
+  createFindOrganizationsByTinLogs(data: [FindOrganizationsByTinLogsCreateInput]): [FindOrganizationsByTinLog]
+
+  """ Update a single FindOrganizationsByTinLog item by ID. """
+  updateFindOrganizationsByTinLog(id: ID!, data: FindOrganizationsByTinLogUpdateInput): FindOrganizationsByTinLog
+
+  """ Update multiple FindOrganizationsByTinLog items by ID. """
+  updateFindOrganizationsByTinLogs(data: [FindOrganizationsByTinLogsUpdateInput]): [FindOrganizationsByTinLog]
+
+  """ Delete a single FindOrganizationsByTinLog item by ID. """
+  deleteFindOrganizationsByTinLog(id: ID!): FindOrganizationsByTinLog
+
+  """ Delete multiple FindOrganizationsByTinLog items by ID. """
+  deleteFindOrganizationsByTinLogs(ids: [ID!]): [FindOrganizationsByTinLog]
 
   """ Create a single PropertyHistoryRecord item. """
   createPropertyHistoryRecord(data: PropertyHistoryRecordCreateInput): PropertyHistoryRecord
