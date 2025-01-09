@@ -82,7 +82,7 @@ const SendOrganizationEmployeeRequestService = new GQLCustomSchema('SendOrganiza
     types: [
         {
             access: true,
-            type: 'input SendOrganizationEmployeeRequestInput { dv: Int!, sender: JSON!, organization: OrganizationWhereUniqueInput! }',
+            type: 'input SendOrganizationEmployeeRequestInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput! }',
         },
     ],
 

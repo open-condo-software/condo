@@ -79462,7 +79462,7 @@ type ReplaceOrganizationEmployeeRoleOutput {
 
 input FindOrganizationsByTinInput {
   dv: Int!
-  sender: JSON!
+  sender: SenderFieldInput!
   tin: String!
 }
 
@@ -79477,7 +79477,7 @@ type FindOrganizationsByTinOutput {
 
 input SendOrganizationEmployeeRequestInput {
   dv: Int!
-  sender: JSON!
+  sender: SenderFieldInput!
   organization: OrganizationWhereUniqueInput!
 }
 
@@ -79487,7 +79487,7 @@ input AcceptOrRejectOrganizationEmployeeRequestEmployeeDataInput {
 
 input AcceptOrRejectOrganizationEmployeeRequestInput {
   dv: Int!
-  sender: JSON!
+  sender: SenderFieldInput!
   employeeRequest: OrganizationEmployeeRequestWhereUniqueInput!
   employeeData: AcceptOrRejectOrganizationEmployeeRequestEmployeeDataInput
   isRejected: Boolean

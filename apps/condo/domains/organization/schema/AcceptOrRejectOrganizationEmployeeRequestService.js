@@ -78,7 +78,7 @@ const AcceptOrRejectOrganizationEmployeeRequestService = new GQLCustomSchema('Ac
         },
         {
             access: true,
-            type: 'input AcceptOrRejectOrganizationEmployeeRequestInput { dv: Int!, sender: JSON!, employeeRequest: OrganizationEmployeeRequestWhereUniqueInput!, employeeData: AcceptOrRejectOrganizationEmployeeRequestEmployeeDataInput, isRejected: Boolean, isAccepted: Boolean }',
+            type: 'input AcceptOrRejectOrganizationEmployeeRequestInput { dv: Int!, sender: SenderFieldInput!, employeeRequest: OrganizationEmployeeRequestWhereUniqueInput!, employeeData: AcceptOrRejectOrganizationEmployeeRequestEmployeeDataInput, isRejected: Boolean, isAccepted: Boolean }',
         },
     ],
 
