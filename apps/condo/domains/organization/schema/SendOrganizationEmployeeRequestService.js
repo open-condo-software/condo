@@ -10,8 +10,10 @@ const { GQLCustomSchema, getById, getByCondition } = require('@open-condo/keysto
 
 const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/organization/access/SendOrganizationEmployeeRequestService')
+const { MAX_ORGANIZATION_EMPLOYEE_REQUEST_RETRIES } = require('@condo/domains/organization/constants/common')
 const { OrganizationEmployeeRequest } = require('@condo/domains/organization/utils/serverSchema')
 const { checkTotalRequestLimitCountersByUser } = require('@condo/domains/user/utils/serverSchema/requestLimitHelpers')
+
 
 
 /**
@@ -143,7 +145,7 @@ const SendOrganizationEmployeeRequestService = new GQLCustomSchema('SendOrganiza
                 } else {
                     if (existedRequest.isAccepted) throw new GQLError(ERRORS.REQUEST_ALREADY_ACCEPTED, context)
 
-                    if (existedRequest.retries >= 4) throw new GQLError(ERRORS.REQUEST_TO_ORGANIZATION_LIMIT_REACHED, context)
+                    if (existedRequest.retries >= MAX_ORGANIZATION_EMPLOYEE_REQUEST_RETRIES - 1) throw new GQLError(ERRORS.REQUEST_TO_ORGANIZATION_LIMIT_REACHED, context)
 
                     const isNotDecided = !existedRequest.isRejected || !existedRequest.decidedAt
                     if (isNotDecided) throw new GQLError(ERRORS.REQUEST_NOT_DECIDED, context)
