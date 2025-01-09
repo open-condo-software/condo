@@ -85,5 +85,4 @@ export {
     OrganizationEmployeeSpecialization,
 }
 
-export * as OrganizationEmployeeRequest from './OrganizationEmployeeRequest'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
