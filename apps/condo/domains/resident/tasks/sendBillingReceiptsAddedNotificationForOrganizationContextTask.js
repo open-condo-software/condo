@@ -46,6 +46,7 @@ const getMessageTypeAndDebt = (toPay, toPayCharge) => {
 const prepareAndSendNotification = async (keystone, context, receipt, resident, lastSendDatePeriod) => {
     // TODO(DOMA-3376): Detect locale by resident locale instead of organization country.
     const country = get(resident, 'residentOrganization.country', conf.DEFAULT_LOCALE)
+    const organizationId = get(resident, 'residentOrganization.id', receipt.context.organization)
     const locale = get(COUNTRIES, country).locale
     const notificationKey = `${lastSendDatePeriod}:${resident.user.id}`
     const toPayValue = parseFloat(receipt.toPay)
@@ -69,6 +70,8 @@ const prepareAndSendNotification = async (keystone, context, receipt, resident, 
         currencySymbol: CURRENCY_SYMBOLS[currencyCode] || currencyCode,
     }
 
+
+
     const messageData = {
         lang: locale,
         to: { user: { id: resident.user.id } },
@@ -76,7 +79,7 @@ const prepareAndSendNotification = async (keystone, context, receipt, resident, 
         meta: { dv: 1, data },
         sender: { dv: 1, fingerprint: 'send-billing-receipts-added-notifications' },
         uniqKey: notificationKey,
-        organization: resident.organization.id && { id: resident.organization.id },
+        organization: organizationId && { id: organizationId },
     }
     logger.info({ msg: 'New receipt push data', data: { messageData } })
 
@@ -113,7 +116,7 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
         return
     }
 
-    context.integration = await find('BillingIntegration', {
+    context.integration = await getByCondition('BillingIntegration', {
         id: context.integration,
         deletedAt: null,
     })
@@ -276,7 +279,7 @@ async function fetchResidents (residentIds) {
         id_in: residentIds.filter(Boolean),
         user: { deletedAt: null },
         deletedAt: null,
-    }, 'id residentProperty { addressKey } residentOrganization { country } user { id } organization { id }')
+    }, 'id residentProperty { addressKey } residentOrganization { id country } user { id }')
 
     return residents.reduce((acc, resident) => {
         acc[resident.id] = resident
@@ -310,7 +313,6 @@ async function notifyConsumers (keystone, context, receipt, consumers, lastSendD
         const resident = get(consumer, 'resident')
         if (!resident || resident.deletedAt) continue
 
-        logger.info({ msg: 'Notification data', data: { receipt, consumer, resident, lastSendDatePeriod: dayjs(lastSendDate).format('YYYY-MM-DD') } })
         const isDuplicated = await prepareAndSendNotification(keystone, context, receipt, resident, dayjs().format('YYYY-MM-DD'))
 
         if (isDuplicated) {
