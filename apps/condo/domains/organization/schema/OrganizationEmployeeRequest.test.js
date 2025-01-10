@@ -511,7 +511,7 @@ describe('OrganizationEmployeeRequest', () => {
                 variable: ['data', 'retries'],
                 code: 'BAD_USER_INPUT',
                 type: 'INVALID_RETRIES',
-                message: 'Invalid retries. The value must be between 0 and 4',
+                message: 'Invalid retries. The value must be from 0 to 4',
             })
             await expectToThrowGQLError(async () => {
                 // NOTE: check min value
@@ -520,7 +520,7 @@ describe('OrganizationEmployeeRequest', () => {
                 variable: ['data', 'retries'],
                 code: 'BAD_USER_INPUT',
                 type: 'INVALID_RETRIES',
-                message: 'Invalid retries. The value must be between 0 and 4',
+                message: 'Invalid retries. The value must be from 0 to 4',
             })
         })
 
