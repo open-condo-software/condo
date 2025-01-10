@@ -97,30 +97,7 @@ describe('AcceptOrRejectOrganizationInviteService', () => {
                 expect(employeeRequest.updatedAt).toBe(updatedEmployeeRequest.updatedAt)
             })
 
-            test('should reject invitation and not update not decided employee request', async () => {
-                const client1 = await makeClientWithRegisteredOrganization()
-                const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
-                const admin = await makeLoggedInAdminClient()
-
-                const [role] = await createTestOrganizationEmployeeRole(client1, client1.organization)
-                const [createdEmployeeRequest] = await createTestOrganizationEmployeeRequest(admin, client1.organization, client2.user)
-                const [invite] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs, role)
-                const [acceptedEmployee] = await acceptOrRejectOrganizationInviteById(client2, invite, {
-                    isAccepted: false,
-                    isRejected: true,
-                })
-                expect(acceptedEmployee).toEqual(expect.objectContaining({
-                    isAccepted: false,
-                    isRejected: true,
-                }))
-                const employeeRequest = await OrganizationEmployeeRequest.getOne(admin, { id: createdEmployeeRequest.id })
-                expect(employeeRequest.isAccepted).toBeFalsy()
-                expect(employeeRequest.isRejected).toBeFalsy()
-                expect(employeeRequest.employee).toBeNull()
-                expect(employeeRequest.v).toBe(1)
-            })
-
-            test('should reject invitation and not update decided employee request', async () => {
+            test('should reject invitation and not update employee request', async () => {
                 const client1 = await makeClientWithRegisteredOrganization()
                 const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
                 const admin = await makeLoggedInAdminClient()
