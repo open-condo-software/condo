@@ -9,8 +9,9 @@ import pickBy from 'lodash/pickBy'
 import { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Tooltip, Tour } from '@open-condo/ui'
+import { Input, Tooltip, Tour } from '@open-condo/ui'
 
+import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { getTextRender } from '@condo/domains/common/components/Table/Renders'
 import { colors } from '@condo/domains/common/constants/style'
 import { fontSizes } from '@condo/domains/common/constants/style'
@@ -191,6 +192,17 @@ export const useMeterTableColumns = (meterType: MeterPageTypes) => {
         />
     ), [newMeterReadings])
 
+    const meterReadingDateRenderer = useCallback((record, _, index) => (
+        <DatePicker 
+            // style={INPUT_STYLE}
+            value={record?.date}
+            // onChange={onPeriodChange}
+            picker='date'
+            format='DD.MM.YYYY'
+        />
+
+    ), [])
+
     const textRenderer = useMemo(() => getTextRender(), [])
     const nextVerificationDateRenderer = useMemo(() => getNextVerificationDateRender(intl), [intl])
 
@@ -241,8 +253,13 @@ export const useMeterTableColumns = (meterType: MeterPageTypes) => {
             width: '20%',
             render: meterReadingRenderer,
         },
+        {
+            title: MeterReadingsMessage,
+            width: '20%',
+            render: meterReadingDateRenderer,
+        },
     ]),
-    [isPropertyMeter, AccountMessage, textRenderer, ResourceMessage, meterResourceRenderer, MeterNumberMessage, PlaceMessage, LastReadingMessage, SourceMessage, NextVerificationDateMessage, nextVerificationDateRenderer, MeterReadingsMessage, meterReadingRenderer])
+    [isPropertyMeter, AccountMessage, textRenderer, ResourceMessage, meterResourceRenderer, MeterNumberMessage, PlaceMessage, LastReadingMessage, SourceMessage, NextVerificationDateMessage, nextVerificationDateRenderer, MeterReadingsMessage, meterReadingRenderer, meterReadingDateRenderer])
 
     return useMemo(() => ({ tableColumns, newMeterReadings, setNewMeterReadings }),
         [newMeterReadings, tableColumns])

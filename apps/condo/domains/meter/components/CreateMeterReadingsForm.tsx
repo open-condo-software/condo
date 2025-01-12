@@ -55,6 +55,7 @@ export const LAYOUT = {
 type MetersTableRecord = {
     meter: MeterType | PropertyMeterType
     lastMeterReading: string
+    lastMeterReadingDate: string
     meterReadingSource: string
     tariffNumber: string
 }
@@ -79,6 +80,7 @@ function getTableData (meters: MeterType[] | PropertyMeterType[], meterReadings)
             for (let tariffNumber = 1; tariffNumber <= meterTariffsCount; ++tariffNumber) {
                 dataSource.push({
                     meter,
+                    lastMeterReadingDate: lastMeterReading && lastMeterReading.date,
                     lastMeterReading: lastMeterReading && lastMeterReading[`value${tariffNumber}`],
                     meterReadingSource: lastMeterReading && lastMeterReading.source.name,
                     tariffNumber: String(tariffNumber),
@@ -87,6 +89,7 @@ function getTableData (meters: MeterType[] | PropertyMeterType[], meterReadings)
         } else {
             dataSource.push({
                 meter,
+                lastMeterReadingDate: lastMeterReading && lastMeterReading.date,
                 lastMeterReading: lastMeterReading && lastMeterReading.value1,
                 meterReadingSource: lastMeterReading && lastMeterReading.source.name,
                 tariffNumber: '1',
@@ -159,7 +162,7 @@ export const MetersTable = ({
         return {
             onClick: () => {
                 const meter = get(record, 'meter')
-                router.push(`/meter/property/${meter.id}`)
+                router.push(`/meter/unit/${meter.id}`)
             },
         }
     }, [])
