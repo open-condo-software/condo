@@ -893,6 +893,7 @@ __metadata:
     minimatch: ^5.1.1
     mjml: ^4.15.3
     mkdirp: ^1.0.4
+    n2words: ^1.21.0
     nanoid: ^3.3.4
     next: ^9.5.5
     next-cookies: ^2.0.3
@@ -40511,6 +40512,13 @@ __metadata:
   version: 0.0.8
   resolution: "mute-stream@npm:0.0.8"
   checksum: ff48d251fc3f827e5b1206cda0ffdaec885e56057ee86a3155e1951bc940fd5f33531774b1cc8414d7668c10a8907f863f6561875ee6e8768931a62121a531a1
+  languageName: node
+  linkType: hard
+
+"n2words@npm:^1.21.0":
+  version: 1.21.0
+  resolution: "n2words@npm:1.21.0"
+  checksum: 22df8b8442e980be302190bf4891492c2060e5468561f75ab5d851e6c583c7eb4c81d44adecf29c15c18067d9c03d938255f55288d0410cc7df3cd8c4483f6f8
   languageName: node
   linkType: hard
 
