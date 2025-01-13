@@ -160,6 +160,7 @@ async function getMeterReadingByDate (readings, meters, properties, readingModel
     const plainMeterReadings = await find(readingModel, {
         meter: { id_in: meters.map(meter => meter.id) },
         date_in: uniq(readingsWithValidDates.map(reading => tryToISO(reading.date))),
+        deletedAt: null,
     })
     
     const propertyByIdMap = properties.reduce((acc, property) => {
@@ -210,14 +211,13 @@ function  getValuesList (errorValuesKeys, errorValues, locale) {
 }
 
 function getMeterDates (reading) {
-    const rawControlReadingsDate = get(reading, ['meterMeta', 'controlReadingsDate'])
     return {
         verificationDate: tryToISO(get(reading, ['meterMeta', 'verificationDate'])),
         nextVerificationDate: tryToISO(get(reading, ['meterMeta', 'nextVerificationDate'])),
         installationDate: tryToISO(get(reading, ['meterMeta', 'installationDate'])),
         commissioningDate: tryToISO(get(reading, ['meterMeta', 'commissioningDate'])),
         sealingDate: tryToISO(get(reading, ['meterMeta', 'sealingDate'])),
-        controlReadingsDate: rawControlReadingsDate ? tryToISO(rawControlReadingsDate) : dayjs().toISOString(),
+        controlReadingsDate: tryToISO(get(reading, ['meterMeta', 'controlReadingsDate'])),
         archiveDate: tryToISO(get(reading, ['meterMeta', 'archiveDate'])),
     }
 }
