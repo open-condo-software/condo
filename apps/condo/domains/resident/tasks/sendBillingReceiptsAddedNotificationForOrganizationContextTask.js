@@ -70,8 +70,6 @@ const prepareAndSendNotification = async (keystone, context, receipt, resident, 
         currencySymbol: CURRENCY_SYMBOLS[currencyCode] || currencyCode,
     }
 
-
-
     const messageData = {
         lang: locale,
         to: { user: { id: resident.user.id } },
