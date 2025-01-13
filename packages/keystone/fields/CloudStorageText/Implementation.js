@@ -1,14 +1,15 @@
 const { Text } = require('@keystonejs/fields')
 
-class LargeTextImplementation extends Text.implementation {
+class CloudStorageTextImplementation extends Text.implementation {
     constructor (path, {
         adapter,
     }) {
         super(...arguments)
         this.fileAdapter = adapter
+        this.isMultiline = true
     }
 }
 
 module.exports = {
-    LargeTextImplementation,
+    CloudStorageTextImplementation,
 }

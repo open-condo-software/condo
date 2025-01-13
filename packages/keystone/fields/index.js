@@ -4,7 +4,7 @@ const DateInterval = require('./DateInterval')
 const EncryptedText = require('./EncryptedText')
 const FileWithUTF8Name = require('./FileWithUTF8Name')
 const Json = require('./Json')
-const LargeText = require('./LargeText')
+const CloudStorageText = require('./CloudStorageText')
 const LocalizedText = require('./LocalizedText')
 const Options = require('./Options')
 const Select = require('./Select')
@@ -25,5 +25,5 @@ module.exports = {
     FileWithUTF8Name,
     Text,
     EncryptedText,
-    LargeText,
+    CloudStorageText,
 }

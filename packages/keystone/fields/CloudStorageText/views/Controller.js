@@ -1,5 +1,5 @@
 import FieldController from '@keystonejs/fields/Controller'
 
-export default class LargeTextController extends FieldController {
+export default class CloudStorageTextController extends FieldController {
     getFilterTypes = () => []
 }

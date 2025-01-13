@@ -48,7 +48,6 @@ class LocalFilesMiddleware {
     }
 }
 
-//Needs to thing how to make configurable file adapter
 class FileAdapter {
     constructor (folder, isPublic = false, saveFileName = false, customConfig = {}) {
         const type = conf.FILE_FIELD_ADAPTER || DEFAULT_FILE_ADAPTER
@@ -118,11 +117,28 @@ class FileAdapter {
             's3Options.access_key_id',
             's3Options.secret_access_key',
         ])
-        config = { ...config, ...customConfig }
+
         if (!config) {
             return null
         }
-        return new SberCloudFileAdapter({ ...config, folder: this.folder, isPublic: this.isPublic, saveFileName: this.saveFileName })
+
+        config = { ...config, ...customConfig }
+
+        if (!this.isConfigValid(config, [
+            'bucket',
+            's3Options.server',
+            's3Options.access_key_id',
+            's3Options.secret_access_key',
+        ])) {
+            return null
+        }
+
+        return new SberCloudFileAdapter({
+            ...config,
+            folder: this.folder,
+            isPublic: this.isPublic,
+            saveFileName: this.saveFileName,
+        })
     }
 
     // TODO(pahaz): DOMA-1569 it's better to create just a function. But we already use FileAdapter in many places. I just want to save a backward compatibility
