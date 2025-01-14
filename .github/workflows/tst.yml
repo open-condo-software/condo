@@ -63,8 +63,11 @@ jobs:
       - name: Build condo dependencies
         run: yarn workspace @app/condo build:deps
 
-      - name: Prepare condo environment
+      - name: Prepare local condo environment
         run: node bin/prepare.js -f condo
 
       - name: Build condo itself
         run: yarn workspace @app/condo build
+
+      - name: Start condo app
+        run: yarn workspace @app/condo start & node bin/wait-apps-apis.js -f condo
