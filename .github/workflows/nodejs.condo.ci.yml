@@ -121,8 +121,9 @@ jobs:
     runs-on: ubuntu-22.04
     outputs:
       address-service: ${{ steps.detect-changes.outputs.address-service }}
-      dev-api: ${{ steps.detect-changes.outputs.dev-api }}
       condorb: ${{ steps.detect-changes.outputs.condorb }}
+      dev-api: ${{ steps.detect-changes.outputs.dev-api }}
+      open-condo: ${{ steps.detect-changes.outputs.open-condo }}
       registry: ${{ steps.detect-changes.outputs.registry }}
       webhooks: ${{ steps.detect-changes.outputs.webhooks }}
     steps:
@@ -149,14 +150,14 @@ jobs:
               - 'apps/condo/domains/miniapp/**'
               - 'apps/condo/domains/user/**'
               - 'packages/**'
-            webhooks:
-              - 'packages/webhooks/**'
-            registry:
-              - 'apps/registry/**'
-              - 'packages/**'
             open-condo:
               - 'packages/**'
               - '**/*.md'
+            registry:
+              - 'apps/registry/**'
+              - 'packages/**'
+            webhooks:
+              - 'packages/webhooks/**'
 
   lint:
     name: Lint source code
