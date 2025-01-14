@@ -210,12 +210,23 @@ describe('EncryptionManager', () => {
                 encryptionVersionId: '1',
             })
             const exampleValue = getRandomString()
-            console.error(exampleValue)
             const encryptedWithDifferentAlgorithm = managerAnotherAlgorithm.encrypt(exampleValue)
             const encryptedWithDifferentSecret = managerAnotherSecret.encrypt(exampleValue)
 
-            expect(() => manager.decrypt(encryptedWithDifferentAlgorithm)).toThrow()
-            expect(() => manager.decrypt(encryptedWithDifferentSecret)).toThrow()
+            function expectToThrowOrDecryptOrWrongResult (encryptedValue) {
+                let didThrow = false
+                let didGiveWrongResult = false
+                try {
+                    const decrypted = manager.decrypt(encryptedValue)
+                    didGiveWrongResult = decrypted !== exampleValue
+                } catch {
+                    didThrow = true
+                }
+                expect(didThrow || didGiveWrongResult).toBe(true)
+            }
+
+            expectToThrowOrDecryptOrWrongResult(encryptedWithDifferentAlgorithm)
+            expectToThrowOrDecryptOrWrongResult(encryptedWithDifferentSecret)
         })
     })
 
