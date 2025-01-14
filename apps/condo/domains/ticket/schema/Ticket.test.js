@@ -58,7 +58,7 @@ const {
     createTestOrganizationEmployeeRole,
     updateTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
-const { FLAT_UNIT_TYPE, SECTION_SECTION_TYPE, COMMERCIAL_UNIT_TYPE, PARKING_SECTION_TYPE } = require('@condo/domains/property/constants/common')
+const { FLAT_UNIT_TYPE, WAREHOUSE_UNIT_TYPE, SECTION_SECTION_TYPE, COMMERCIAL_UNIT_TYPE, PARKING_SECTION_TYPE } = require('@condo/domains/property/constants/common')
 const {
     makeClientWithProperty,
     createTestProperty,
@@ -2719,6 +2719,223 @@ describe('Ticket', () => {
                 const readTicket = await Ticket.getOne(residentClient, { id: ticket.id })
 
                 expect(readTicket.client.id).toEqual(residentClient.user.id)
+            })
+
+            test('ticket creating with sectionName, sectionType and floorName by resident user' +
+                'when unitName and unitType match in map and resident', async () => {
+                const residentClient = await makeClientWithResidentUser()
+
+                const [organization] = await createTestOrganization(admin)
+
+                const unitName = faker.random.alphaNumeric(5)
+                const unitType = WAREHOUSE_UNIT_TYPE
+                const sectionName = faker.random.alphaNumeric(5)
+                const sectionType = SECTION_SECTION_TYPE
+                const floorName = faker.random.alphaNumeric(5)
+
+                const [property] = await createTestProperty(admin, organization, {
+                    map: {
+                        dv: 1,
+                        type: 'building',
+                        sections: [
+                            {
+                                id: '1',
+                                type: sectionType,
+                                index: 1,
+                                name: String(sectionName + 1),
+                                preview: null,
+                                floors: [
+                                    {
+                                        id: String(0),
+                                        type: 'floor',
+                                        index: 0,
+                                        name: String(floorName + 1),
+                                        units: [
+                                            {
+                                                id: String(0),
+                                                type: 'unit',
+                                                name: null,
+                                                label: unitName,
+                                                preview: null,
+                                                unitType: FLAT_UNIT_TYPE,
+                                            },
+                                        ],
+                                    },
+                                ],
+                            },
+                            {
+                                id: '2',
+                                type: sectionType,
+                                index: 2,
+                                name: sectionName,
+                                preview: null,
+                                floors: [
+                                    {
+                                        id: String(1),
+                                        type: 'floor',
+                                        index: 1,
+                                        name: floorName,
+                                        units: [
+                                            {
+                                                id: String(1),
+                                                type: 'unit',
+                                                name: null,
+                                                label: unitName,
+                                                preview: null,
+                                                unitType: unitType,
+                                            },
+                                        ],
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                })
+
+                await createTestResident(admin, residentClient.user, property, {
+                    unitName,
+                    unitType,
+                })
+
+                const [ticket] = await createTestTicket(residentClient, organization, property, {
+                    unitName,
+                    unitType,
+                })
+
+                const readTicket = await Ticket.getOne(residentClient, { id: ticket.id })
+
+                expect(readTicket.client.id).toEqual(residentClient.user.id)
+                expect(readTicket.unitName).toEqual(unitName)
+                expect(readTicket.unitType).toEqual(unitType)
+                expect(readTicket.sectionName).toEqual(sectionName)
+                expect(readTicket.sectionType).toEqual(sectionType)
+                expect(readTicket.floorName).toEqual(floorName)
+            })
+
+            test('ticket creating without sectionName, sectionType and floorName by resident user' +
+                'when unitType did not match in map and resident, but unitName the same', async () => {
+                const residentClient = await makeClientWithResidentUser()
+
+                const [organization] = await createTestOrganization(admin)
+
+                const unitName = faker.random.alphaNumeric(5)
+                const unitType = WAREHOUSE_UNIT_TYPE
+
+                const [property] = await createTestProperty(admin, organization, {
+                    map: {
+                        dv: 1,
+                        type: 'building',
+                        sections: [
+                            {
+                                id: '1',
+                                type: SECTION_SECTION_TYPE,
+                                index: 1,
+                                name: '1',
+                                preview: null,
+                                floors: [
+                                    {
+                                        id: String(0),
+                                        type: 'floor',
+                                        index: 0,
+                                        name: String(0),
+                                        units: [
+                                            {
+                                                id: String(0),
+                                                type: 'unit',
+                                                name: null,
+                                                label: unitName,
+                                                preview: null,
+                                                unitType: FLAT_UNIT_TYPE,
+                                            },
+                                        ],
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                })
+
+                await createTestResident(admin, residentClient.user, property, {
+                    unitName,
+                    unitType,
+                })
+
+                const [ticket] = await createTestTicket(residentClient, organization, property, {
+                    unitName,
+                    unitType,
+                })
+
+                const readTicket = await Ticket.getOne(residentClient, { id: ticket.id })
+
+                expect(readTicket.client.id).toEqual(residentClient.user.id)
+                expect(readTicket.unitName).toEqual(unitName)
+                expect(readTicket.unitType).toEqual(unitType)
+                expect(readTicket.sectionName).toBeNull()
+                expect(readTicket.sectionType).toBeNull()
+                expect(readTicket.floorName).toBeNull()
+            })
+
+            test('ticket creating without sectionName, sectionType and floorName by resident user' +
+                'when unitName did not match in map and resident, but unitType the same', async () => {
+                const residentClient = await makeClientWithResidentUser()
+
+                const [organization] = await createTestOrganization(admin)
+
+                const unitName = faker.random.alphaNumeric(5)
+                const unitType = FLAT_UNIT_TYPE
+
+                const [property] = await createTestProperty(admin, organization, {
+                    map: {
+                        dv: 1,
+                        type: 'building',
+                        sections: [
+                            {
+                                id: '1',
+                                type: SECTION_SECTION_TYPE,
+                                index: 1,
+                                name: '1',
+                                preview: null,
+                                floors: [
+                                    {
+                                        id: String(0),
+                                        type: 'floor',
+                                        index: 0,
+                                        name: String(0),
+                                        units: [
+                                            {
+                                                id: String(0),
+                                                type: 'unit',
+                                                name: null,
+                                                label: faker.random.alphaNumeric(5),
+                                                preview: null,
+                                                unitType: FLAT_UNIT_TYPE,
+                                            },
+                                        ],
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                })
+
+                await createTestResident(admin, residentClient.user, property, {
+                    unitName,
+                    unitType,
+                })
+
+                const [ticket] = await createTestTicket(residentClient, organization, property, {
+                    unitName,
+                    unitType,
+                })
+
+                const readTicket = await Ticket.getOne(residentClient, { id: ticket.id })
+
+                expect(readTicket.client.id).toEqual(residentClient.user.id)
+                expect(readTicket.unitName).toEqual(unitName)
+                expect(readTicket.unitType).toEqual(unitType)
+                expect(readTicket.sectionName).toBeNull()
+                expect(readTicket.sectionType).toBeNull()
+                expect(readTicket.floorName).toBeNull()
             })
         })
 
