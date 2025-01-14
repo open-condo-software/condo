@@ -75,6 +75,14 @@ function generateToken (tokenType) {
 }
 
 /**
+ * Generates a random fake token for time-based attack prevention logic
+ * @return {string}
+ */
+function generateSimulatedToken () {
+    return ['simulated', uuid()].join(TOKEN_SEPARATOR)
+}
+
+/**
  * @param tokenType {string}
  * @return {{error, token: string}}
  */
@@ -96,4 +104,5 @@ module.exports = {
     detectTokenTypeSafely,
     generateToken,
     generateTokenSafely,
+    generateSimulatedToken,
 }
