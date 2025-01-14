@@ -153,6 +153,8 @@ jobs:
             open-condo:
               - 'packages/**'
               - '**/*.md'
+              - '*'
+              - '!.helm/**'
             registry:
               - 'apps/registry/**'
               - 'packages/**'
