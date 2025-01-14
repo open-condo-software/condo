@@ -4,15 +4,16 @@ const { get } = require('lodash')
 
 const { FinanceInfoClient } = require('@open-condo/clients/finance-info-client/FinanceInfoClient')
 const { getLogger } = require('@open-condo/keystone/logging')
-const { getByCondition } = require('@open-condo/keystone/schema')
 
 const { RU_LOCALE } = require('@condo/domains/common/constants/locale')
 const { buildExportFile, DOCX_FILE_META } = require('@condo/domains/common/utils/createExportFile')
 const { buildUploadInputFrom } = require('@condo/domains/common/utils/serverSchema/export')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
+const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { DEFAULT_INVOICE_CURRENCY_CODE, INVOICE_STATUS_CANCELED } = require('@condo/domains/marketplace/constants')
 const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
+const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 const { TICKET_DOCUMENT_GENERATION_TASK_FORMAT } = require('@condo/domains/ticket/constants/ticketDocument')
 
 const logger = getLogger('generateDocumentOfPaidWorksCompletion')
@@ -77,17 +78,17 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
 
     const timeZone = normalizeTimeZone(timeZoneFromUser) || DEFAULT_ORGANIZATION_TIMEZONE
 
-    const contact = ticket.contact ? await getByCondition('Contact', {
+    const contact = ticket.contact ? await Contact.getAll(context, {
         id: ticket.contact,
         deletedAt: null,
-    }) : null
+    }, 'name') : null
 
     const employee = organization.id && ticket.executor
-        ? await getByCondition('OrganizationEmployee', {
+        ? await OrganizationEmployee.getAll(context, {
             organization: { id: organization.id },
             user: { id: ticket.executor },
             deletedAt: null,
-        })
+        }, 'name')
         : null
 
     const invoices = await Invoice.getAll(context, {
@@ -144,7 +145,7 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
 
     const documentTextData = {
         header: {
-            generalDate: dayjs().tz(timeZone).format('DD.MM.YYYY'),
+            generalDate: dayjs().tz(timeZone).format(dayjs().localeData().longDateFormat('L')),
         },
         company: {
             name: get(organization, 'name'),
@@ -182,7 +183,7 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
 
     const documentDataInTable = {
         client: {
-            name: get(contact, 'name'),
+            name: get(contact, ['0', 'name']),
         },
         listOfWorks,
         totalInNumbers: {
@@ -190,7 +191,7 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
             totalVAT: !Number.isNaN(parseFloat(totalVAT)) ? numberFormatByLocale.format(totalVAT).replace(/[A-Z]{3}/, '').trim() : null,
         },
         executor: {
-            name: get(employee, 'name'),
+            name: get(employee, ['0', 'name']),
         },
     }
 
