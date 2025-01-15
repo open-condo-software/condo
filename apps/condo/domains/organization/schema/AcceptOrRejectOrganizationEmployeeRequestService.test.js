@@ -387,7 +387,7 @@ describe('AcceptOrRejectOrganizationEmployeeRequestService', () => {
                     expect(acceptedRequest.isRejected).toBeFalsy()
                     expect(acceptedRequest.processedBy.id).toBe(admin.user.id)
                     expect(acceptedRequest.processedAt).toMatch(DATETIME_RE)
-                    expect(acceptedRequest.createdEmployee.id).not.toBeNull()
+                    expect(acceptedRequest.createdEmployee.id).toBe(employee.id)
                 })
             })
 
