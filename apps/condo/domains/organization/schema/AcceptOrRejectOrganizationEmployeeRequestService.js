@@ -173,7 +173,7 @@ const AcceptOrRejectOrganizationEmployeeRequestService = new GQLCustomSchema('Ac
                 await OrganizationEmployeeRequest.update(context, request.id, {
                     isRejected,
                     isAccepted,
-                    ...(isAccepted && !!employeeIdToConnect ? { employee: { connect: { id: employeeIdToConnect } } } : null),
+                    ...(isAccepted && !!employeeIdToConnect ? { createdEmployee: { connect: { id: employeeIdToConnect } } } : null),
                     dv,
                     sender,
                 })

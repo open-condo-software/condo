@@ -95,7 +95,7 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
                         await OrganizationEmployeeRequest.update(context, notProcessedEmployeeRequest.id, {
                             isAccepted: true,
                             isRejected: false,
-                            employee: { connect: { id: employee.id } },
+                            createdEmployee: { connect: { id: employee.id } },
                             dv,
                             sender,
                         })

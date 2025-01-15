@@ -18,6 +18,9 @@ const {
     updateTestOrganizationEmployeeRequest,
     makeEmployeeUserClientWithAbilities,
     updateTestOrganizationEmployee,
+    acceptOrRejectOrganizationEmployeeRequestByTestClient,
+    OrganizationEmployee,
+    createTestOrganizationEmployeeRole,
 } = require('@condo/domains/organization/utils/testSchema')
 const {
     makeClientWithStaffUser,
@@ -103,13 +106,13 @@ describe('SendOrganizationEmployeeRequestService', () => {
         })
 
         test('should create request if rejected employee already exist for specified organization and authed user', async () => {
-            const employee = await makeEmployeeUserClientWithAbilities({}, false)
-            await updateTestOrganizationEmployee(admin, employee.createdEmployee.id, { isRejected: true })
-            const [request] = await sendOrganizationEmployeeRequestByTestClient(employee, {
-                organization: { id: employee.organization.id },
+            const employeeClient = await makeEmployeeUserClientWithAbilities({}, false)
+            await updateTestOrganizationEmployee(admin, employeeClient.employee.id, { isRejected: true })
+            const [request] = await sendOrganizationEmployeeRequestByTestClient(employeeClient, {
+                organization: { id: employeeClient.organization.id },
             })
-            expect(request.organizationId).toBe(employee.organization.id)
-            expect(request.user.id).toBe(employee.user.id)
+            expect(request.organizationId).toBe(employeeClient.organization.id)
+            expect(request.user.id).toBe(employeeClient.user.id)
         })
 
         test('should re-create with increased retries request if it was rejected', async () => {
@@ -124,6 +127,55 @@ describe('SendOrganizationEmployeeRequestService', () => {
             })
             expect(request2.id).toBe(request.id)
             expect(request2.retries).toBe(1)
+        })
+
+        test('should resend request if the employee that was created by the request was deleted', async () => {
+            const [request] = await sendOrganizationEmployeeRequestByTestClient(staff, {
+                organization: { id: organization.id },
+            })
+            expect(request.retries).toBe(0)
+
+            const [role] = await createTestOrganizationEmployeeRole(admin, organization, {})
+            const [acceptedRequest] = await acceptOrRejectOrganizationEmployeeRequestByTestClient(admin, {
+                employeeData: { role: { id: role.id } },
+                employeeRequest: { id: request.id },
+                isAccepted: true,
+            })
+            expect(acceptedRequest.createdEmployee.id).not.toBeNull()
+
+            const [deletedEmployee] = await OrganizationEmployee.softDelete(admin, acceptedRequest.createdEmployee.id)
+            expect(deletedEmployee.deletedAt).not.toBeNull()
+
+            const [resendedRequest] = await sendOrganizationEmployeeRequestByTestClient(staff, {
+                organization: { id: organization.id },
+            })
+            expect(resendedRequest.id).toBe(request.id)
+            expect(resendedRequest.retries).toBe(1)
+        })
+
+        test('should throw error if request was accepted already', async () => {
+            const [request] = await sendOrganizationEmployeeRequestByTestClient(staff, {
+                organization: { id: organization.id },
+            })
+            const [role] = await createTestOrganizationEmployeeRole(admin, organization, {})
+            const [acceptedRequest] = await acceptOrRejectOrganizationEmployeeRequestByTestClient(admin, {
+                employeeData: { role: { id: role.id } },
+                employeeRequest: { id: request.id },
+                isAccepted: true,
+            })
+            expect(acceptedRequest.createdEmployee.id).not.toBeNull()
+
+            await expectToThrowGQLError(async () => {
+                await sendOrganizationEmployeeRequestByTestClient(staff, {
+                    organization: { id: organization.id },
+                })
+            }, {
+                mutation: 'sendOrganizationEmployeeRequest',
+                variable: ['data'],
+                code: 'BAD_USER_INPUT',
+                type: 'EMPLOYEE_ALREADY_ACCEPTED',
+                message: 'An accepted employee already exist in this organization',
+            }, 'result')
         })
 
         test('should throw error if dv and sender not valid', async () => {

@@ -35,13 +35,6 @@ const ERRORS = {
         type: 'ORGANIZATION_NOT_FOUND',
         message: 'Organization not found',
     },
-    REQUEST_ALREADY_ACCEPTED: {
-        mutation: 'sendOrganizationEmployeeRequest',
-        variable: ['data'],
-        code: BAD_USER_INPUT,
-        type: 'REQUEST_ALREADY_ACCEPTED',
-        message: 'Request already accepted',
-    },
     REQUEST_TO_ORGANIZATION_LIMIT_REACHED: {
         mutation: 'sendOrganizationEmployeeRequest',
         variable: ['data'],
@@ -143,11 +136,9 @@ const SendOrganizationEmployeeRequestService = new GQLCustomSchema('SendOrganiza
 
                     requestId = createdRequest.id
                 } else {
-                    if (existedRequest.isAccepted) throw new GQLError(ERRORS.REQUEST_ALREADY_ACCEPTED, context)
-
                     if (existedRequest.retries >= MAX_ORGANIZATION_EMPLOYEE_REQUEST_RETRIES - 1) throw new GQLError(ERRORS.REQUEST_TO_ORGANIZATION_LIMIT_REACHED, context)
 
-                    const isNotProcessed = !existedRequest.isRejected || !existedRequest.processedAt
+                    const isNotProcessed = !existedRequest.isRejected && !existedRequest.isAccepted
                     if (isNotProcessed) throw new GQLError(ERRORS.REQUEST_NOT_PROCESSED, context)
 
                     const updatedRequest = await OrganizationEmployeeRequest.update(context, existedRequest.id, {
