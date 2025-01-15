@@ -55,6 +55,7 @@ UPDATE "OrganizationEmployeeRole"
 SET "canManageOrganizationEmployeeRequests" = true
 WHERE name = 'employee.role.Administrator.name';
 
+-- [CUSTOM] Sync canManageOrganizationEmployeeRequests and canInviteNewOrganizationEmployees
 UPDATE "OrganizationEmployeeRole"
 SET "canManageOrganizationEmployeeRequests" = true
 WHERE "canInviteNewOrganizationEmployees" = true;

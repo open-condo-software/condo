@@ -303,7 +303,7 @@ const DEFAULT_ROLES = {
         'canReadMarketSetting': true,
         'canManageMarketSetting': false,
         'canManageTicketAutoAssignments': false,
-        'canManageOrganizationEmployeeRequests': false,
+        'canManageOrganizationEmployeeRequests': true,
     },
     'Technician': {
         'isDefault': true,
