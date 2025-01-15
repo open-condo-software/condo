@@ -453,7 +453,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
         })
 
         describe('organization employee request', () => {
-            it('should be automatically accepted along with the invitation if exists and not decided', async () => {
+            it('should be automatically accepted along with the invitation if exists and not processed', async () => {
                 const employeeClient = await makeClientWithRegisteredOrganization()
                 const staffClient = await makeClientWithStaffUser()
                 const userAttrs = {
@@ -469,7 +469,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
                 expect(createdRequest.organizationId).toBe(employeeClient.organization.id)
                 expect(createdRequest.isAccepted).toBeFalsy()
                 expect(createdRequest.isRejected).toBeFalsy()
-                expect(createdRequest.decidedBy).toBeNull()
+                expect(createdRequest.processedBy).toBeNull()
                 expect(createdRequest.v).toBe(1)
 
                 const [role] = await createTestOrganizationEmployeeRole(employeeClient, employeeClient.organization)
@@ -492,11 +492,11 @@ describe('InviteNewOrganizationEmployeeService', () => {
                 expect(request.organization.id).toBe(employeeClient.organization.id)
                 expect(request.isAccepted).toBeTruthy()
                 expect(request.isRejected).toBeFalsy()
-                expect(request.decidedBy.id).toBe(employeeClient.user.id)
+                expect(request.processedBy.id).toBe(employeeClient.user.id)
                 expect(request.v).toBe(2)
             })
 
-            it('should not be automatically accepted along with the invitation if exists and decided', async () => {
+            it('should not be automatically accepted along with the invitation if exists and processed', async () => {
                 const employeeClient = await makeClientWithRegisteredOrganization()
                 const staffClient = await makeClientWithStaffUser()
                 const userAttrs = {
@@ -512,7 +512,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
                 expect(createdRequest.organizationId).toBe(employeeClient.organization.id)
                 expect(createdRequest.isAccepted).toBeFalsy()
                 expect(createdRequest.isRejected).toBeFalsy()
-                expect(createdRequest.decidedBy).toBeNull()
+                expect(createdRequest.processedBy).toBeNull()
                 expect(createdRequest.v).toBe(1)
 
                 const [rejectedRequest] = await acceptOrRejectOrganizationEmployeeRequestByTestClient(employeeClient, {
@@ -539,7 +539,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
                 expect(request.isRejected).toBeTruthy()
                 expect(request.isAccepted).toBeFalsy()
                 expect(request.isRejected).toBeTruthy()
-                expect(request.decidedBy.id).toBe(employeeClient.user.id)
+                expect(request.processedBy.id).toBe(employeeClient.user.id)
                 expect(request.v).toBe(2)
             })
         })

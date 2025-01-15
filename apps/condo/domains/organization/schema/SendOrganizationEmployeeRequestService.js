@@ -49,12 +49,12 @@ const ERRORS = {
         type: 'REQUEST_TO_ORGANIZATION_LIMIT_REACHED',
         message: 'A request to the organization limit reached',
     },
-    REQUEST_NOT_DECIDED: {
+    REQUEST_NOT_PROCESSED: {
         mutation: 'sendOrganizationEmployeeRequest',
         variable: ['data'],
         code: BAD_USER_INPUT,
-        type: 'REQUEST_NOT_DECIDED',
-        message: 'A request not decided yet. Please wait for a decide on the request from the organization',
+        type: 'REQUEST_NOT_PROCESSED',
+        message: 'A request not processed yet. Please wait for a decide on the request from the organization',
     },
     EMPLOYEE_ALREADY_ACCEPTED: {
         mutation: 'sendOrganizationEmployeeRequest',
@@ -147,15 +147,15 @@ const SendOrganizationEmployeeRequestService = new GQLCustomSchema('SendOrganiza
 
                     if (existedRequest.retries >= MAX_ORGANIZATION_EMPLOYEE_REQUEST_RETRIES - 1) throw new GQLError(ERRORS.REQUEST_TO_ORGANIZATION_LIMIT_REACHED, context)
 
-                    const isNotDecided = !existedRequest.isRejected || !existedRequest.decidedAt
-                    if (isNotDecided) throw new GQLError(ERRORS.REQUEST_NOT_DECIDED, context)
+                    const isNotProcessed = !existedRequest.isRejected || !existedRequest.processedAt
+                    if (isNotProcessed) throw new GQLError(ERRORS.REQUEST_NOT_PROCESSED, context)
 
                     const updatedRequest = await OrganizationEmployeeRequest.update(context, existedRequest.id, {
                         retries: existedRequest.retries + 1,
                         isAccepted: false,
                         isRejected: false,
-                        decidedAt: null,
-                        decidedBy: null,
+                        processedAt: null,
+                        processedBy: null,
                         dv,
                         sender,
                     })

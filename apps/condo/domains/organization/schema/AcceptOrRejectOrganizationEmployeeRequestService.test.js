@@ -86,9 +86,9 @@ describe('AcceptOrRejectOrganizationEmployeeRequestService', () => {
                 expect(rejectedRequest.id).toBe(request.id)
                 expect(rejectedRequest.isAccepted).toBeFalsy()
                 expect(rejectedRequest.isRejected).toBeTruthy()
-                expect(rejectedRequest.decidedBy.id).toBe(employeeWithPermissions.user.id)
-                expect(rejectedRequest.decidedAt).toMatch(DATETIME_RE)
-                expect(rejectedRequest.employee).toBeNull()
+                expect(rejectedRequest.processedBy.id).toBe(employeeWithPermissions.user.id)
+                expect(rejectedRequest.processedAt).toMatch(DATETIME_RE)
+                expect(rejectedRequest.createdEmployee).toBeNull()
             })
 
             test('cannot execute if he is an employee of an organization without the permission to "canManageOrganizationEmployeeRequests"', async () => {
@@ -244,7 +244,7 @@ describe('AcceptOrRejectOrganizationEmployeeRequestService', () => {
             }, 'result')
         })
 
-        test('should throw error if a request already decided', async () => {
+        test('should throw error if a request already processed', async () => {
             await acceptOrRejectOrganizationEmployeeRequestByTestClient(admin, {
                 employeeRequest: { id: request.id },
                 isRejected: true,
@@ -258,8 +258,8 @@ describe('AcceptOrRejectOrganizationEmployeeRequestService', () => {
                 mutation: 'acceptOrRejectOrganizationEmployeeRequest',
                 variable: ['data', 'employeeRequest'],
                 code: 'BAD_USER_INPUT',
-                type: 'REQUEST_ALREADY_DECIDED',
-                message: 'The request has already been decided',
+                type: 'REQUEST_ALREADY_PROCESSED',
+                message: 'The request has already been processed',
             }, 'result')
         })
 
@@ -279,9 +279,9 @@ describe('AcceptOrRejectOrganizationEmployeeRequestService', () => {
                 expect(rejectedRequest.id).toBe(request.id)
                 expect(rejectedRequest.isAccepted).toBeFalsy()
                 expect(rejectedRequest.isRejected).toBeTruthy()
-                expect(rejectedRequest.decidedBy.id).toBe(admin.user.id)
-                expect(rejectedRequest.decidedAt).toMatch(DATETIME_RE)
-                expect(rejectedRequest.employee).toBeNull()
+                expect(rejectedRequest.processedBy.id).toBe(admin.user.id)
+                expect(rejectedRequest.processedAt).toMatch(DATETIME_RE)
+                expect(rejectedRequest.createdEmployee).toBeNull()
             })
         })
 
@@ -359,9 +359,9 @@ describe('AcceptOrRejectOrganizationEmployeeRequestService', () => {
                     expect(acceptedRequest.id).toBe(request.id)
                     expect(acceptedRequest.isAccepted).toBeTruthy()
                     expect(acceptedRequest.isRejected).toBeFalsy()
-                    expect(acceptedRequest.decidedBy.id).toBe(admin.user.id)
-                    expect(acceptedRequest.decidedAt).toMatch(DATETIME_RE)
-                    expect(acceptedRequest.employee.id).toBe(createdEmployee.id)
+                    expect(acceptedRequest.processedBy.id).toBe(admin.user.id)
+                    expect(acceptedRequest.processedAt).toMatch(DATETIME_RE)
+                    expect(acceptedRequest.createdEmployee.id).toBe(createdEmployee.id)
                 })
             })
 
@@ -373,7 +373,7 @@ describe('AcceptOrRejectOrganizationEmployeeRequestService', () => {
                         employeeRequest: { id: request.id },
                         isAccepted: true,
                     })
-                    const employee = await OrganizationEmployee.getOne(admin, { id: acceptedRequest.employee.id })
+                    const employee = await OrganizationEmployee.getOne(admin, { id: acceptedRequest.createdEmployee.id })
                     expect(employee.isAccepted).toBeTruthy()
                     expect(employee.isRejected).toBeFalsy()
                     expect(employee.role.id).toBe(role.id)
@@ -385,9 +385,9 @@ describe('AcceptOrRejectOrganizationEmployeeRequestService', () => {
                     expect(acceptedRequest.id).toBe(request.id)
                     expect(acceptedRequest.isAccepted).toBeTruthy()
                     expect(acceptedRequest.isRejected).toBeFalsy()
-                    expect(acceptedRequest.decidedBy.id).toBe(admin.user.id)
-                    expect(acceptedRequest.decidedAt).toMatch(DATETIME_RE)
-                    expect(acceptedRequest.employee.id).not.toBeNull()
+                    expect(acceptedRequest.processedBy.id).toBe(admin.user.id)
+                    expect(acceptedRequest.processedAt).toMatch(DATETIME_RE)
+                    expect(acceptedRequest.createdEmployee.id).not.toBeNull()
                 })
             })
 

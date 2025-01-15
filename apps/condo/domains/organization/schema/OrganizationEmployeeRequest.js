@@ -36,7 +36,7 @@ const ERRORS = {
         variable: ['data', 'employee'],
         code: BAD_USER_INPUT,
         type: 'EMPLOYEE_NOT_FOUND',
-        message: 'An employee not found',
+        message: 'Employee was not found',
     },
     EMPLOYEE_FROM_ANOTHER_ORGANIZATION: {
         variable: ['data', 'employee'],
@@ -66,7 +66,7 @@ const OrganizationEmployeeRequest = new GQLListSchema('OrganizationEmployeeReque
         },
 
         organizationId: {
-            schemaDoc: 'Organization id (For the user who sent the request)',
+            schemaDoc: 'Organization id (For the user who sent the request because he does not have access to the organization)',
             type: 'Uuid',
             isRequired: true,
             access: {
@@ -77,7 +77,7 @@ const OrganizationEmployeeRequest = new GQLListSchema('OrganizationEmployeeReque
         },
 
         organizationName: {
-            schemaDoc: 'Organization name (For the user who sent the request)',
+            schemaDoc: 'Organization name (For the user who sent the request because he does not have access to the organization)',
             type: 'Text',
             isRequired: true,
             access: {
@@ -88,7 +88,7 @@ const OrganizationEmployeeRequest = new GQLListSchema('OrganizationEmployeeReque
         },
 
         organizationTin: {
-            schemaDoc: 'Organization tin (For the user who sent the request)',
+            schemaDoc: 'Organization tin (For the user who sent the request because he does not have access to the organization)',
             type: 'Text',
             isRequired: true,
             access: {
@@ -134,8 +134,8 @@ const OrganizationEmployeeRequest = new GQLListSchema('OrganizationEmployeeReque
             },
         },
 
-        decidedBy: {
-            schemaDoc: 'User who decided the request',
+        processedBy: {
+            schemaDoc: 'User who processed the request',
             type: 'Relationship',
             ref: 'User',
             isRequired: false,
@@ -147,8 +147,8 @@ const OrganizationEmployeeRequest = new GQLListSchema('OrganizationEmployeeReque
             },
         },
 
-        decidedAt: {
-            schemaDoc: 'Date when decided the request',
+        processedAt: {
+            schemaDoc: 'Date when the request was processed',
             type: 'DateTimeUtc',
             access: {
                 read: true,
@@ -158,7 +158,7 @@ const OrganizationEmployeeRequest = new GQLListSchema('OrganizationEmployeeReque
         },
 
         retries: {
-            schemaDoc: 'Number of re-sends',
+            schemaDoc: 'Number of retries',
             type: 'Integer',
             defaultValue: 0,
             access: {
@@ -176,7 +176,7 @@ const OrganizationEmployeeRequest = new GQLListSchema('OrganizationEmployeeReque
             },
         },
 
-        employee: {
+        createdEmployee: {
             schemaDoc: 'An employee who was created in the organization after the request was accepted',
             type: 'Relationship',
             ref: 'OrganizationEmployee',
@@ -230,8 +230,8 @@ const OrganizationEmployeeRequest = new GQLListSchema('OrganizationEmployeeReque
             const isRejectionOperation = !get(existingItem, 'isRejected') && get(resolvedData, 'isRejected')
             
             if (isAcceptanceOperation || isRejectionOperation) {
-                resolvedData['decidedBy'] = get(context, 'authedItem.id', null)
-                resolvedData['decidedAt'] = dayjs().toISOString()
+                resolvedData['processedBy'] = get(context, 'authedItem.id', null)
+                resolvedData['processedAt'] = dayjs().toISOString()
             }
 
             const organizationId = get(resolvedData, 'organization')

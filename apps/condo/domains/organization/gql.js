@@ -114,18 +114,18 @@ const FIND_ORGANIZATIONS_BY_TIN_QUERY = gql`
 const FIND_ORGANIZATIONS_BY_TIN_LOG_FIELDS = '{ user { id } userPhone userEmail tin id dv sender { dv fingerprint } v createdBy { id name } updatedBy { id name } createdAt updatedAt }'
 const FindOrganizationsByTinLog = generateGqlQueries('FindOrganizationsByTinLog', FIND_ORGANIZATIONS_BY_TIN_LOG_FIELDS)
 
-const ORGANIZATION_EMPLOYEE_REQUEST_FIELDS = `{ organization { id } organizationId organizationName organizationTin user { id } isAccepted isRejected decidedBy { id } decidedAt retries employee { id } ${COMMON_FIELDS} }`
+const ORGANIZATION_EMPLOYEE_REQUEST_FIELDS = `{ organization { id } organizationId organizationName organizationTin user { id } isAccepted isRejected processedBy { id } processedAt retries employee { id } ${COMMON_FIELDS} }`
 const OrganizationEmployeeRequest = generateGqlQueries('OrganizationEmployeeRequest', ORGANIZATION_EMPLOYEE_REQUEST_FIELDS)
 
 const SEND_ORGANIZATION_EMPLOYEE_REQUEST_MUTATION = gql`
     mutation sendOrganizationEmployeeRequest ($data: SendOrganizationEmployeeRequestInput!) {
-        result: sendOrganizationEmployeeRequest(data: $data) { organization { id } organizationId organizationName organizationTin user { id } isAccepted isRejected decidedBy { id } decidedAt retries employee { id } ${COMMON_FIELDS} }
+        result: sendOrganizationEmployeeRequest(data: $data) { organization { id } organizationId organizationName organizationTin user { id } isAccepted isRejected processedBy { id } processedAt retries employee { id } ${COMMON_FIELDS} }
     }
 `
 
 const ACCEPT_OR_REJECT_ORGANIZATION_EMPLOYEE_REQUEST_MUTATION = gql`
     mutation acceptOrRejectOrganizationEmployeeRequest ($data: AcceptOrRejectOrganizationEmployeeRequestInput!) {
-        result: acceptOrRejectOrganizationEmployeeRequest(data: $data) { organization { id } organizationId organizationName organizationTin user { id } isAccepted isRejected decidedBy { id } decidedAt retries employee { id } ${COMMON_FIELDS} }
+        result: acceptOrRejectOrganizationEmployeeRequest(data: $data) { organization { id } organizationId organizationName organizationTin user { id } isAccepted isRejected processedBy { id } processedAt retries employee { id } ${COMMON_FIELDS} }
     }
 `
 

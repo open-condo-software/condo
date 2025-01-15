@@ -12,7 +12,7 @@ const { STAFF } = require('@condo/domains/user/constants/common')
 
 
 /**
- * Requests can read:
+ * Requests can be read by:
  * 1) User who sent the request
  * 2) Employee with permission "canManageOrganizationEmployeeRequests"
  * 3) Supports
@@ -38,13 +38,13 @@ async function canReadOrganizationEmployeeRequests ({ authentication: { item: us
 }
 
 /**
- * Requests can create and update:
+ * Requests can be created and updated by:
  * 1) Admins
  *
- * Requests can soft delete:
+ * Requests can be soft deleted by:
  * 1) Admins
  * 2) Supports
- * 3) Users who sent the request if it was not answered
+ * 3) Users who sent the request if it was not yet accepted or rejected
  */
 async function canManageOrganizationEmployeeRequests ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()

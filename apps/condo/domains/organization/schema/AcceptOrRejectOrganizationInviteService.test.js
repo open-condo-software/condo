@@ -55,7 +55,7 @@ describe('AcceptOrRejectOrganizationInviteService', () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => await acceptOrRejectOrganizationInviteById(client1, invite, { isRejected: true }))
             })
 
-            test('should accept invitation and accept not decided employee request', async () => {
+            test('should accept invitation and accept not processed employee request', async () => {
                 const client1 = await makeClientWithRegisteredOrganization()
                 const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
                 const admin = await makeLoggedInAdminClient()
@@ -71,10 +71,10 @@ describe('AcceptOrRejectOrganizationInviteService', () => {
                 const employeeRequest = await OrganizationEmployeeRequest.getOne(admin, { id: createdEmployeeRequest.id })
                 expect(employeeRequest.isAccepted).toBeTruthy()
                 expect(employeeRequest.isRejected).toBeFalsy()
-                expect(employeeRequest.employee.id).toBe(acceptedEmployee.id)
+                expect(employeeRequest.createdEmployee.id).toBe(acceptedEmployee.id)
             })
 
-            test('should accept invitation and not update decided employee request', async () => {
+            test('should accept invitation and not update processed employee request', async () => {
                 const client1 = await makeClientWithRegisteredOrganization()
                 const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
                 const admin = await makeLoggedInAdminClient()
@@ -93,7 +93,7 @@ describe('AcceptOrRejectOrganizationInviteService', () => {
                 const employeeRequest = await OrganizationEmployeeRequest.getOne(admin, { id: createdEmployeeRequest.id })
                 expect(employeeRequest.isAccepted).toBeFalsy()
                 expect(employeeRequest.isRejected).toBeTruthy()
-                expect(employeeRequest.employee).toBeNull()
+                expect(employeeRequest.createdEmployee).toBeNull()
                 expect(employeeRequest.updatedAt).toBe(updatedEmployeeRequest.updatedAt)
             })
 

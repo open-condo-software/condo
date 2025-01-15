@@ -25,12 +25,12 @@ const ERRORS = {
         type: 'REQUEST_NEEDS_ACCEPT_OR_REJECT',
         message: 'The request must be accepted or rejected',
     },
-    REQUEST_ALREADY_DECIDED: {
+    REQUEST_ALREADY_PROCESSED: {
         mutation: 'acceptOrRejectOrganizationEmployeeRequest',
         variable: ['data', 'employeeRequest'],
         code: BAD_USER_INPUT,
-        type: 'REQUEST_ALREADY_DECIDED',
-        message: 'The request has already been decided',
+        type: 'REQUEST_ALREADY_PROCESSED',
+        message: 'The request has already been processed',
     },
     REQUEST_NOT_FOUND: {
         mutation: 'acceptOrRejectOrganizationEmployeeRequest',
@@ -114,8 +114,8 @@ const AcceptOrRejectOrganizationEmployeeRequestService = new GQLCustomSchema('Ac
                 })
                 if (!request) throw new GQLError(ERRORS.REQUEST_NOT_FOUND, context)
 
-                const alreadyDecided = request.isRejected || request.isAccepted
-                if (alreadyDecided) throw new GQLError(ERRORS.REQUEST_ALREADY_DECIDED, context)
+                const alreadyProcessed = request.isRejected || request.isAccepted
+                if (alreadyProcessed) throw new GQLError(ERRORS.REQUEST_ALREADY_PROCESSED, context)
 
                 let employeeIdToConnect
 

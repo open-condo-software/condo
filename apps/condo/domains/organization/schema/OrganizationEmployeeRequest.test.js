@@ -63,10 +63,10 @@ describe('OrganizationEmployeeRequest', () => {
                 expect(request.user.id).toBe(user.id)
                 expect(request.isAccepted).toBeFalsy()
                 expect(request.isRejected).toBeFalsy()
-                expect(request.decidedBy).toBeNull()
-                expect(request.decidedAt).toBeNull()
+                expect(request.processedBy).toBeNull()
+                expect(request.processedAt).toBeNull()
                 expect(request.retries).toBe(0)
-                expect(request.employee).toBeNull()
+                expect(request.createdEmployee).toBeNull()
             })
 
             test('can read any requests', async () => {
@@ -441,53 +441,53 @@ describe('OrganizationEmployeeRequest', () => {
             })
         })
 
-        test('cannot create and update "decidedBy", "decidedAt" fields', async () => {
+        test('cannot create and update "processedBy", "processedAt" fields', async () => {
             await expectToThrowGraphQLRequestError(async () => {
-                await createTestOrganizationEmployeeRequest(admin, organization, user, { decidedBy: { connect: { id: admin.user } } })
-            }, 'Field "decidedBy" is not defined by type "OrganizationEmployeeRequestCreateInput"')
+                await createTestOrganizationEmployeeRequest(admin, organization, user, { processedBy: { connect: { id: admin.user } } })
+            }, 'Field "processedBy" is not defined by type "OrganizationEmployeeRequestCreateInput"')
             await expectToThrowGraphQLRequestError(async () => {
-                await createTestOrganizationEmployeeRequest(admin, organization, user, { decidedAt: new Date().toISOString() })
-            }, 'Field "decidedAt" is not defined by type "OrganizationEmployeeRequestCreateInput"')
+                await createTestOrganizationEmployeeRequest(admin, organization, user, { processedAt: new Date().toISOString() })
+            }, 'Field "processedAt" is not defined by type "OrganizationEmployeeRequestCreateInput"')
 
             const [request] = await createTestOrganizationEmployeeRequest(admin, organization, user)
             await catchErrorFrom(async () => {
-                await updateTestOrganizationEmployeeRequest(admin, request.id, { decidedBy: { connect: { id: admin.user.id } } })
+                await updateTestOrganizationEmployeeRequest(admin, request.id, { processedBy: { connect: { id: admin.user.id } } })
             }, (caught) => {
                 expect(caught.errors[0].message).toBe('You do not have access to this resource')
                 expect(caught.errors[0].data).toEqual(expect.objectContaining({
                     type: 'mutation',
                     target: 'updateOrganizationEmployeeRequest',
-                    restrictedFields: ['decidedBy'],
+                    restrictedFields: ['processedBy'],
                 }))
             })
             await catchErrorFrom(async () => {
-                await updateTestOrganizationEmployeeRequest(admin, request.id, { decidedAt: new Date().toISOString() })
+                await updateTestOrganizationEmployeeRequest(admin, request.id, { processedAt: new Date().toISOString() })
             }, (caught) => {
                 expect(caught.errors[0].message).toBe('You do not have access to this resource')
                 expect(caught.errors[0].data).toEqual(expect.objectContaining({
                     type: 'mutation',
                     target: 'updateOrganizationEmployeeRequest',
-                    restrictedFields: ['decidedAt'],
+                    restrictedFields: ['processedAt'],
                 }))
             })
         })
 
-        test('"decidedBy", "decidedAt" fields should be auto-set from authed item when set "isAccepted" or "isRejected"', async () => {
+        test('"processedBy", "processedAt" fields should be auto-set from authed item when set "isAccepted" or "isRejected"', async () => {
             const [request] = await createTestOrganizationEmployeeRequest(admin, organization, user)
-            expect(request.decidedBy).toBeNull()
-            expect(request.decidedAt).toBeNull()
+            expect(request.processedBy).toBeNull()
+            expect(request.processedAt).toBeNull()
             const [updatedRequest] = await updateTestOrganizationEmployeeRequest(admin, request.id, { isRejected: true })
-            expect(updatedRequest.decidedBy.id).toBe(admin.user.id)
-            expect(updatedRequest.decidedAt).toMatch(DATETIME_RE)
+            expect(updatedRequest.processedBy.id).toBe(admin.user.id)
+            expect(updatedRequest.processedAt).toMatch(DATETIME_RE)
 
             const [organization2] = await createTestOrganization(admin)
             const [user2] = await createTestUser(admin)
             const [request2] = await createTestOrganizationEmployeeRequest(admin, organization2, user2)
-            expect(request2.decidedBy).toBeNull()
-            expect(request2.decidedAt).toBeNull()
+            expect(request2.processedBy).toBeNull()
+            expect(request2.processedAt).toBeNull()
             const [updatedRequest2] = await updateTestOrganizationEmployeeRequest(admin, request2.id, { isAccepted: true })
-            expect(updatedRequest2.decidedBy.id).toBe(admin.user.id)
-            expect(updatedRequest2.decidedAt).toMatch(DATETIME_RE)
+            expect(updatedRequest2.processedBy.id).toBe(admin.user.id)
+            expect(updatedRequest2.processedAt).toMatch(DATETIME_RE)
         })
 
         test('"retries" can be from 0 to 4', async () => {
@@ -558,7 +558,7 @@ describe('OrganizationEmployeeRequest', () => {
             })
 
             const [updatedRequest] = await updateTestOrganizationEmployeeRequest(admin, request.id, { employee: { connect: { id: employee.id } } })
-            expect(updatedRequest.employee.id).toBe(employee.id)
+            expect(updatedRequest.createdEmployee.id).toBe(employee.id)
         })
     })
 })

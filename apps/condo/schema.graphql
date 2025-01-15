@@ -8264,10 +8264,10 @@ type OrganizationEmployeeRequestHistoryRecord {
   user: String
   isAccepted: Boolean
   isRejected: Boolean
-  decidedBy: String
-  decidedAt: String
+  processedBy: String
+  processedAt: String
   retries: Int
-  employee: String
+  createdEmployee: String
   id: ID!
   v: Int
   createdAt: String
@@ -8338,18 +8338,18 @@ input OrganizationEmployeeRequestHistoryRecordWhereInput {
   isAccepted_not: Boolean
   isRejected: Boolean
   isRejected_not: Boolean
-  decidedBy: String
-  decidedBy_not: String
-  decidedBy_in: [String]
-  decidedBy_not_in: [String]
-  decidedAt: String
-  decidedAt_not: String
-  decidedAt_lt: String
-  decidedAt_lte: String
-  decidedAt_gt: String
-  decidedAt_gte: String
-  decidedAt_in: [String]
-  decidedAt_not_in: [String]
+  processedBy: String
+  processedBy_not: String
+  processedBy_in: [String]
+  processedBy_not_in: [String]
+  processedAt: String
+  processedAt_not: String
+  processedAt_lt: String
+  processedAt_lte: String
+  processedAt_gt: String
+  processedAt_gte: String
+  processedAt_in: [String]
+  processedAt_not_in: [String]
   retries: Int
   retries_not: Int
   retries_lt: Int
@@ -8358,10 +8358,10 @@ input OrganizationEmployeeRequestHistoryRecordWhereInput {
   retries_gte: Int
   retries_in: [Int]
   retries_not_in: [Int]
-  employee: String
-  employee_not: String
-  employee_in: [String]
-  employee_not_in: [String]
+  createdEmployee: String
+  createdEmployee_not: String
+  createdEmployee_in: [String]
+  createdEmployee_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -8455,8 +8455,8 @@ enum SortOrganizationEmployeeRequestHistoryRecordsBy {
   isAccepted_DESC
   isRejected_ASC
   isRejected_DESC
-  decidedAt_ASC
-  decidedAt_DESC
+  processedAt_ASC
+  processedAt_DESC
   retries_ASC
   retries_DESC
   id_ASC
@@ -8485,10 +8485,10 @@ input OrganizationEmployeeRequestHistoryRecordUpdateInput {
   user: String
   isAccepted: Boolean
   isRejected: Boolean
-  decidedBy: String
-  decidedAt: String
+  processedBy: String
+  processedAt: String
   retries: Int
-  employee: String
+  createdEmployee: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -8516,10 +8516,10 @@ input OrganizationEmployeeRequestHistoryRecordCreateInput {
   user: String
   isAccepted: Boolean
   isRejected: Boolean
-  decidedBy: String
-  decidedAt: String
+  processedBy: String
+  processedAt: String
   retries: Int
-  employee: String
+  createdEmployee: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -8553,13 +8553,16 @@ type OrganizationEmployeeRequest {
   """
   organization: Organization
 
-  """ Organization id (For the user who sent the request) """
+  """ Organization id (For the user who sent the request because he does not have access to the organization) 
+  """
   organizationId: ID
 
-  """ Organization name (For the user who sent the request) """
+  """ Organization name (For the user who sent the request because he does not have access to the organization) 
+  """
   organizationName: String
 
-  """ Organization tin (For the user who sent the request) """
+  """ Organization tin (For the user who sent the request because he does not have access to the organization) 
+  """
   organizationTin: String
 
   """ User who sent the request """
@@ -8571,18 +8574,18 @@ type OrganizationEmployeeRequest {
   """ Means that the request has been rejected """
   isRejected: Boolean
 
-  """ User who decided the request """
-  decidedBy: User
+  """ User who processed the request """
+  processedBy: User
 
-  """ Date when decided the request """
-  decidedAt: String
+  """ Date when the request was processed """
+  processedAt: String
 
-  """ Number of re-sends """
+  """ Number of retries """
   retries: Int
 
   """ An employee who was created in the organization after the request was accepted 
   """
-  employee: OrganizationEmployee
+  createdEmployee: OrganizationEmployee
   id: ID!
   v: Int
   createdAt: String
@@ -8657,16 +8660,16 @@ input OrganizationEmployeeRequestWhereInput {
   isAccepted_not: Boolean
   isRejected: Boolean
   isRejected_not: Boolean
-  decidedBy: UserWhereInput
-  decidedBy_is_null: Boolean
-  decidedAt: String
-  decidedAt_not: String
-  decidedAt_lt: String
-  decidedAt_lte: String
-  decidedAt_gt: String
-  decidedAt_gte: String
-  decidedAt_in: [String]
-  decidedAt_not_in: [String]
+  processedBy: UserWhereInput
+  processedBy_is_null: Boolean
+  processedAt: String
+  processedAt_not: String
+  processedAt_lt: String
+  processedAt_lte: String
+  processedAt_gt: String
+  processedAt_gte: String
+  processedAt_in: [String]
+  processedAt_not_in: [String]
   retries: Int
   retries_not: Int
   retries_lt: Int
@@ -8675,8 +8678,8 @@ input OrganizationEmployeeRequestWhereInput {
   retries_gte: Int
   retries_in: [Int]
   retries_not_in: [Int]
-  employee: OrganizationEmployeeWhereInput
-  employee_is_null: Boolean
+  createdEmployee: OrganizationEmployeeWhereInput
+  createdEmployee_is_null: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -8754,14 +8757,14 @@ enum SortOrganizationEmployeeRequestsBy {
   isAccepted_DESC
   isRejected_ASC
   isRejected_DESC
-  decidedBy_ASC
-  decidedBy_DESC
-  decidedAt_ASC
-  decidedAt_DESC
+  processedBy_ASC
+  processedBy_DESC
+  processedAt_ASC
+  processedAt_DESC
   retries_ASC
   retries_DESC
-  employee_ASC
-  employee_DESC
+  createdEmployee_ASC
+  createdEmployee_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -8788,10 +8791,10 @@ input OrganizationEmployeeRequestUpdateInput {
   user: UserRelateToOneInput
   isAccepted: Boolean
   isRejected: Boolean
-  decidedBy: UserRelateToOneInput
-  decidedAt: String
+  processedBy: UserRelateToOneInput
+  processedAt: String
   retries: Int
-  employee: OrganizationEmployeeRelateToOneInput
+  createdEmployee: OrganizationEmployeeRelateToOneInput
   v: Int
   createdAt: String
   updatedAt: String
@@ -8816,10 +8819,10 @@ input OrganizationEmployeeRequestCreateInput {
   user: UserRelateToOneInput
   isAccepted: Boolean
   isRejected: Boolean
-  decidedBy: UserRelateToOneInput
-  decidedAt: String
+  processedBy: UserRelateToOneInput
+  processedAt: String
   retries: Int
-  employee: OrganizationEmployeeRelateToOneInput
+  createdEmployee: OrganizationEmployeeRelateToOneInput
   v: Int
   createdAt: String
   updatedAt: String
@@ -90526,8 +90529,8 @@ type Mutation {
   
   `{
     "code": "BAD_USER_INPUT",
-    "type": "REQUEST_NOT_DECIDED",
-    "message": "A request not decided yet. Please wait for a decide on the request from the organization"
+    "type": "REQUEST_NOT_PROCESSED",
+    "message": "A request not processed yet. Please wait for a decide on the request from the organization"
   }`
   
   `{
@@ -90575,8 +90578,8 @@ type Mutation {
   
   `{
     "code": "BAD_USER_INPUT",
-    "type": "REQUEST_ALREADY_DECIDED",
-    "message": "The request has already been decided"
+    "type": "REQUEST_ALREADY_PROCESSED",
+    "message": "The request has already been processed"
   }`
   
   `{

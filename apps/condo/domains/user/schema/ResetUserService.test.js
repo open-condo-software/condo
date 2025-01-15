@@ -410,13 +410,13 @@ describe('ResetUserService', () => {
 
         const [organization] = await createTestOrganization(admin)
         const [organization2] = await createTestOrganization(admin)
-        const [decidedEmployeeRequest1] = await createTestOrganizationEmployeeRequest(admin, organization, user1)
-        const [decidedEmployeeRequest2] = await createTestOrganizationEmployeeRequest(admin, organization, user2)
+        const [processedEmployeeRequest1] = await createTestOrganizationEmployeeRequest(admin, organization, user1)
+        const [processedEmployeeRequest2] = await createTestOrganizationEmployeeRequest(admin, organization, user2)
         const [employeeRequest1] = await createTestOrganizationEmployeeRequest(admin, organization2, user1)
         const [employeeRequest2] = await createTestOrganizationEmployeeRequest(admin, organization2, user2)
 
-        await updateTestOrganizationEmployeeRequest(admin, decidedEmployeeRequest1.id, { isRejected: true })
-        await updateTestOrganizationEmployeeRequest(admin, decidedEmployeeRequest2.id, { isRejected: true })
+        await updateTestOrganizationEmployeeRequest(admin, processedEmployeeRequest1.id, { isRejected: true })
+        await updateTestOrganizationEmployeeRequest(admin, processedEmployeeRequest2.id, { isRejected: true })
 
         const payload = {
             user: { id: user1.id },
@@ -425,13 +425,13 @@ describe('ResetUserService', () => {
         await resetUserByTestClient(support, payload)
 
         const employeeRequests = await OrganizationEmployeeRequest.getAll(admin, {
-            id_in: [employeeRequest1.id, decidedEmployeeRequest1.id, employeeRequest2.id, decidedEmployeeRequest2.id],
+            id_in: [employeeRequest1.id, processedEmployeeRequest1.id, employeeRequest2.id, processedEmployeeRequest2.id],
         })
 
         expect(employeeRequests).toHaveLength(3)
         expect(employeeRequests).toEqual(expect.arrayContaining([
-            expect.objectContaining({ id: decidedEmployeeRequest1.id }),
-            expect.objectContaining({ id: decidedEmployeeRequest2.id }),
+            expect.objectContaining({ id: processedEmployeeRequest1.id }),
+            expect.objectContaining({ id: processedEmployeeRequest2.id }),
             expect.objectContaining({ id: employeeRequest2.id }),
         ]))
     })

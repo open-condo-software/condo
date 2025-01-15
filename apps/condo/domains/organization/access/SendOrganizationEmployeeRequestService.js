@@ -7,7 +7,7 @@ const { STAFF } = require('@condo/domains/user/constants/common')
 
 
 /**
- * Requests can send:
+ * Requests can be sent by:
  * 1) Staff
  */
 async function canSendOrganizationEmployeeRequest ({ authentication: { item: user } }) {

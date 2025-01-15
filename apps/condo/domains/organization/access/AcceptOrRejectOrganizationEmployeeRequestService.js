@@ -11,7 +11,7 @@ const { STAFF } = require('@condo/domains/user/constants/common')
 
 
 /**
- * Requests can accept or reject:
+ * Requests can be accepted or rejected by:
  * 1) Employee with permission "canManageOrganizationEmployeeRequests"
  */
 async function canAcceptOrRejectOrganizationEmployeeRequest ({ authentication: { item: user }, args, context }) {

@@ -55,10 +55,10 @@ describe('SendOrganizationEmployeeRequestService', () => {
                 expect(request.user.id).toBe(staff.user.id)
                 expect(request.isAccepted).toBeFalsy()
                 expect(request.isRejected).toBeFalsy()
-                expect(request.decidedBy).toBeNull()
-                expect(request.decidedAt).toBeNull()
+                expect(request.processedBy).toBeNull()
+                expect(request.processedAt).toBeNull()
                 expect(request.retries).toBe(0)
-                expect(request.employee).toBeNull()
+                expect(request.createdEmployee).toBeNull()
             })
         })
 
@@ -104,7 +104,7 @@ describe('SendOrganizationEmployeeRequestService', () => {
 
         test('should create request if rejected employee already exist for specified organization and authed user', async () => {
             const employee = await makeEmployeeUserClientWithAbilities({}, false)
-            await updateTestOrganizationEmployee(admin, employee.employee.id, { isRejected: true })
+            await updateTestOrganizationEmployee(admin, employee.createdEmployee.id, { isRejected: true })
             const [request] = await sendOrganizationEmployeeRequestByTestClient(employee, {
                 organization: { id: employee.organization.id },
             })
@@ -218,7 +218,7 @@ describe('SendOrganizationEmployeeRequestService', () => {
             }, 'result')
         })
 
-        test('should throw error if the request has not yet been decided', async () => {
+        test('should throw error if the request has not yet been processed', async () => {
             await sendOrganizationEmployeeRequestByTestClient(staff, {
                 organization: { id: organization.id },
             })
@@ -230,8 +230,8 @@ describe('SendOrganizationEmployeeRequestService', () => {
                 mutation: 'sendOrganizationEmployeeRequest',
                 variable: ['data'],
                 code: 'BAD_USER_INPUT',
-                type: 'REQUEST_NOT_DECIDED',
-                message: 'A request not decided yet. Please wait for a decide on the request from the organization',
+                type: 'REQUEST_NOT_PROCESSED',
+                message: 'A request not processed yet. Please wait for a decide on the request from the organization',
             }, 'result')
         })
 
