@@ -1502,6 +1502,7 @@ export const GetActiveOrganizationEmployeeDocument = gql`
       statusTransitions
       importId
       importRemoteSystem
+      meta
     }
     role {
       id
