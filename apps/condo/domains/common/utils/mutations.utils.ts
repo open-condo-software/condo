@@ -62,7 +62,7 @@ type RunMutationProps = {
  * @param OnCompletedMsg
  * @return {*}
  */
-function runMutation<T = unknown> ({ action, mutation, variables, onCompleted, onError, onFinally, intl, form, ErrorToFormFieldMsgMapping, OnErrorMsg = null, OnCompletedMsg }: RunMutationProps): Promise<T> {
+function runMutation ({ action, mutation, variables, onCompleted, onError, onFinally, intl, form, ErrorToFormFieldMsgMapping, OnErrorMsg = null, OnCompletedMsg }: RunMutationProps) {
     if (!intl) throw new Error('intl prop required')
     if (!mutation && !action) throw new Error('mutation or action prop required')
     if (action && mutation) throw new Error('impossible to pass mutation and action prop')
@@ -85,7 +85,7 @@ function runMutation<T = unknown> ({ action, mutation, variables, onCompleted, o
 
     return action()
         .then(
-            (data: T) => {
+            (data) => {
                 if (OnCompletedMsg === null) {
                     // we want to SKIP any notifications
                 } else if (typeof OnCompletedMsg === 'undefined') {
