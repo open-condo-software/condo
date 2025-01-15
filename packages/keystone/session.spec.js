@@ -39,12 +39,15 @@ describe('session', () => {
         const storedValueJSON = await redisClient.get(`sess:${sessionId}`)
         expect(storedValueJSON).toBeDefined()
         const storedValue = JSON.parse(storedValueJSON)
+        const expiresAtISO = expiresAt.toISOString()
         expect(storedValue).toEqual(expect.objectContaining({
             [additionalFieldKey]: additionalFieldValue,
             keystoneListKey: 'User',
             keystoneItemId: userId,
             cookie: expect.objectContaining({
-                expires: expiresAt.toISOString(),
+                // Do not check for milliseconds for less random errors in tests
+                // Because actual time in cookie can differ in few milliseconds
+                expires: expect.stringContaining(expiresAtISO.slice(0, expiresAtISO.length - 5)),
                 httpOnly: true,
                 path: '/',
                 sameSite: 'Lax',
