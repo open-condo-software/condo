@@ -77,8 +77,11 @@ function runMutation ({ action, mutation, variables, onCompleted, onError, onFin
     const DoneMsg = intl.formatMessage({ id: 'OperationCompleted' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
 
-    const commonErrorTypesToMessagesMapping: Record<string, string> = {
-        [TOO_MANY_REQUESTS]: intl.formatMessage({ id: 'pages.auth.TooManyRequests' }),
+    const commonErrorTypesToMessagesMapping: Record<string, { message: string, description?: string }> = {
+        [TOO_MANY_REQUESTS]: {
+            message: intl.formatMessage({ id: 'pages.auth.TooManyRequests' }),
+            description: null,
+        },
     }
 
     action = (action) ? action : () => mutation({ variables })
@@ -144,11 +147,11 @@ function runMutation ({ action, mutation, variables, onCompleted, onError, onFin
                                 })
                             } else if (OnErrorMsg === null) {
                                 const type = get(error, ['extensions', 'type'])
-                                const message = get(commonErrorTypesToMessagesMapping, type)
-                                if (message) {
+                                const messageData = get(commonErrorTypesToMessagesMapping, type)
+                                if (messageData) {
                                     notification.error({
-                                        message: commonErrorTypesToMessagesMapping[type],
-                                        description: messageForUser,
+                                        message: messageData.message,
+                                        description: get(messageData, 'description', messageForUser),
                                     })
                                 }
                             }
