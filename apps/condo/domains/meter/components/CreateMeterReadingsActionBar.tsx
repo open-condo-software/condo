@@ -57,7 +57,12 @@ export const CreateMeterReadingsActionBar = ({
                     }
 
                     const hasWrongNumberOfValues = Object.keys(newMeterReadings).reduce((result, meterId) => {
-                        return result || Object.keys(get(newMeterReadings, meterId, {})).length !== get(metersByIds, [meterId, 'numberOfTariffs'])
+                        const meterReadings = get(newMeterReadings, meterId, {})
+                        const numberOfValues = Object.keys(meterReadings).filter(key => key !== 'date').length
+                        const expectedNumberOfTariffs = get(metersByIds, [meterId, 'numberOfTariffs'])
+                        
+                        return result || numberOfValues !== expectedNumberOfTariffs
+
                     }, false)
 
                     if (meterType === METER_TAB_TYPES.meter) {

@@ -2058,6 +2058,7 @@
   "pages.condo.meter.create.AddMeterTourStepTitle": "Meters for this unit have not yet been added",
   "pages.condo.meter.create.LastReading": "Last meter reading",
   "pages.condo.meter.create.MeterReadings": "Meter readings",
+  "pages.condo.meter.create.Date": "Date of deposition",
   "pages.condo.meter.create.MetersAndReadings": "Meters and meter readings",
   "pages.condo.meter.create.meterReadingTourStepTitle": "Enter the reading you want to send",
   "pages.condo.meter.create.resourceOwnedByAnotherOrganization": "This resource is owned by another organization. Please, contact tech support",
