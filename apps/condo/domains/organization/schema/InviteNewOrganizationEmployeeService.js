@@ -186,7 +186,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                     user = await createUserAndSendLoginData({ context, userData })
                 }
 
-                const employeeRequestWithoutDecide = await getByCondition('OrganizationEmployeeRequest', {
+                const notProcessedEmployeeRequest = await getByCondition('OrganizationEmployeeRequest', {
                     user: { id: user.id },
                     organization: { id: userOrganization.id },
                     deletedAt: null,
@@ -207,7 +207,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                     // NOTE: If a user has submitted a request to join
                     // and the organization sends an invitation to that user,
                     // we consider the user to have accepted the invitation and the organization to have accepted the request
-                    ...(employeeRequestWithoutDecide ? { isAccepted: true, isRejected: false } : null),
+                    ...(notProcessedEmployeeRequest ? { isAccepted: true, isRejected: false } : null),
                 })
 
                 for (const specializationIdObj of specializations) {
@@ -218,11 +218,11 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                     })
                 }
 
-                if (employeeRequestWithoutDecide) {
+                if (notProcessedEmployeeRequest) {
                     // NOTE: If a user has submitted a request to join
                     // and the organization sends an invitation to that user,
                     // we consider the user to have accepted the invitation and the organization to have accepted the request
-                    await OrganizationEmployeeRequest.update(context, employeeRequestWithoutDecide.id, {
+                    await OrganizationEmployeeRequest.update(context, notProcessedEmployeeRequest.id, {
                         isAccepted: true,
                         isRejected: false,
                         employee: { connect: { id: employee.id } },

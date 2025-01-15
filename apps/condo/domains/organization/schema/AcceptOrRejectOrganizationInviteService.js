@@ -83,7 +83,7 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
                         email: authedItem.email ? authedItem.email : null,
                     }, 'id user { id } organization { id }')
 
-                    const employeeRequestWithoutDecide = await getByCondition('OrganizationEmployeeRequest', {
+                    const notProcessedEmployeeRequest = await getByCondition('OrganizationEmployeeRequest', {
                         user: { id: employee.user.id },
                         organization: { id: employee.organization.id },
                         deletedAt: null,
@@ -91,8 +91,8 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
                         isRejected: false,
                     })
 
-                    if (employeeRequestWithoutDecide) {
-                        await OrganizationEmployeeRequest.update(context, employeeRequestWithoutDecide.id, {
+                    if (notProcessedEmployeeRequest) {
+                        await OrganizationEmployeeRequest.update(context, notProcessedEmployeeRequest.id, {
                             isAccepted: true,
                             isRejected: false,
                             employee: { connect: { id: employee.id } },

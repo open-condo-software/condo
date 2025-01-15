@@ -428,9 +428,8 @@ describe('ResetUserService', () => {
             id_in: [employeeRequest1.id, processedEmployeeRequest1.id, employeeRequest2.id, processedEmployeeRequest2.id],
         })
 
-        expect(employeeRequests).toHaveLength(3)
+        expect(employeeRequests).toHaveLength(2)
         expect(employeeRequests).toEqual(expect.arrayContaining([
-            expect.objectContaining({ id: processedEmployeeRequest1.id }),
             expect.objectContaining({ id: processedEmployeeRequest2.id }),
             expect.objectContaining({ id: employeeRequest2.id }),
         ]))

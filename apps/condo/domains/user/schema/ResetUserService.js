@@ -115,13 +115,13 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
                     await OrganizationEmployee.softDelete(context, employee.id, 'id', { dv: 1, sender })
                 }
 
-                const employeeRequestsWithoutDecide = await find('OrganizationEmployeeRequest', {
+                const notProcessedEmployeeRequests = await find('OrganizationEmployeeRequest', {
                     user: { id: user.id },
                     deletedAt: null,
                     isAccepted: false,
                     isRejected: false,
                 })
-                for (const request of employeeRequestsWithoutDecide) {
+                for (const request of notProcessedEmployeeRequests) {
                     await OrganizationEmployeeRequest.softDelete(context, request.id, 'id', { dv: 1, sender })
                 }
 
