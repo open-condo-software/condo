@@ -30,6 +30,7 @@ const ERRORS = {
 
 
 const User = new GQLListSchema('User', {
+    labelField: 'id',
     schemaDoc: 'Account of individual developer or development company.',
     fields: {
         name: {

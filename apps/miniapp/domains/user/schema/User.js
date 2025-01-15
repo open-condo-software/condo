@@ -11,6 +11,7 @@ const { USER_TYPES, SERVICE_USER_TYPE } = require('@miniapp/domains/user/constan
 
 
 const User = new GQLListSchema('User', {
+    labelField: 'id',
     schemaDoc: 'Users authorized by oidc auth',
     fields: {
         type: {
