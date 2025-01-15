@@ -13,6 +13,18 @@ function getSecretKey (len) {
     return crypto.randomBytes(len)
 }
 
+function expectToThrowOrDecryptOrWrongResult (encryptionManager, encryptedValue, expectedValue) {
+    let didThrow = false
+    let didGiveWrongResult = false
+    try {
+        const decrypted = encryptionManager.decrypt(encryptedValue)
+        didGiveWrongResult = decrypted !== expectedValue
+    } catch {
+        didThrow = true
+    }
+    expect(didThrow || didGiveWrongResult).toBe(true)
+}
+
 function generateVersions () {
     const cipherAlgorithms = crypto.getCiphers()
     const cipherInfos = cipherAlgorithms.map(alg => crypto.getCipherInfo(alg))
@@ -213,20 +225,8 @@ describe('EncryptionManager', () => {
             const encryptedWithDifferentAlgorithm = managerAnotherAlgorithm.encrypt(exampleValue)
             const encryptedWithDifferentSecret = managerAnotherSecret.encrypt(exampleValue)
 
-            function expectToThrowOrDecryptOrWrongResult (encryptedValue) {
-                let didThrow = false
-                let didGiveWrongResult = false
-                try {
-                    const decrypted = manager.decrypt(encryptedValue)
-                    didGiveWrongResult = decrypted !== exampleValue
-                } catch {
-                    didThrow = true
-                }
-                expect(didThrow || didGiveWrongResult).toBe(true)
-            }
-
-            expectToThrowOrDecryptOrWrongResult(encryptedWithDifferentAlgorithm)
-            expectToThrowOrDecryptOrWrongResult(encryptedWithDifferentSecret)
+            expectToThrowOrDecryptOrWrongResult(manager, encryptedWithDifferentAlgorithm, exampleValue)
+            expectToThrowOrDecryptOrWrongResult(manager, encryptedWithDifferentSecret, exampleValue)
         })
     })
 
