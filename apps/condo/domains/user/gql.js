@@ -192,6 +192,9 @@ const CHECK_USER_EXISTENCE_MUTATION = gql`
 const RESET_USER_LIMIT_ACTION_FIELDS = `{ type identifier reason ${COMMON_FIELDS} }`
 const ResetUserLimitAction = generateGqlQueries('ResetUserLimitAction', RESET_USER_LIMIT_ACTION_FIELDS)
 
+const USER_SUDO_TOKEN_FIELDS = `{ token expiresAt user { id } remainingUses ${COMMON_FIELDS} }`
+const UserSudoToken = generateGqlQueries('UserSudoToken', USER_SUDO_TOKEN_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -224,5 +227,6 @@ module.exports = {
     CHECK_USER_EXISTENCE_MUTATION,
     USER_FIELDS,
     ResetUserLimitAction,
+    UserSudoToken,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

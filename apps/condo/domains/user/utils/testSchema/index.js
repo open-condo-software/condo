@@ -7,6 +7,7 @@ const { faker } = require('@faker-js/faker')
 const { v4: uuid } = require('uuid')
 const { countryPhoneData } = require('phone')
 const { max, repeat, get, isEmpty } = require('lodash')
+const dayjs = require('dayjs')
 
 const { getRandomString, makeClient, makeLoggedInClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
@@ -48,6 +49,7 @@ const { GET_ACCESS_TOKEN_BY_USER_ID_QUERY } = require('@condo/domains/user/gql')
 const { UserRightsSet: UserRightsSetGQL } = require('@condo/domains/user/gql')
 const { CHECK_USER_EXISTENCE_MUTATION } = require('@condo/domains/user/gql')
 const { ResetUserLimitAction: ResetUserLimitActionGQL } = require('@condo/domains/user/gql')
+const { UserSudoToken: UserSudoTokenGQL } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const OIDC_REDIRECT_URI = 'https://httpbin.org/anything'
@@ -244,6 +246,7 @@ const OidcClient = generateGQLTestUtils(OidcClientGQL)
 const ExternalTokenAccessRight = generateGQLTestUtils(ExternalTokenAccessRightGQL)
 const UserRightsSet = generateGQLTestUtils(UserRightsSetGQL)
 const ResetUserLimitAction = generateGQLTestUtils(ResetUserLimitActionGQL)
+const UserSudoToken = generateGQLTestUtils(UserSudoTokenGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestConfirmPhoneAction (client, extraAttrs = {}) {
@@ -566,6 +569,38 @@ async function updateTestResetUserLimitAction (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestUserSudoToken (client, user, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!user || !user.id) throw new Error('no user.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        user: { connect: { id: user.id } },
+        token: generateToken('SUDO'),
+        expiresAt: dayjs().add(5, 'minutes').toISOString(),
+        remainingUses: 1,
+        ...extraAttrs,
+    }
+    const obj = await UserSudoToken.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestUserSudoToken (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await UserSudoToken.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -607,6 +642,7 @@ module.exports = {
     checkUserExistenceByTestClient,
     authenticateUserWithPhoneAndPasswordByTestClient,
     ResetUserLimitAction, createTestResetUserLimitAction, updateTestResetUserLimitAction,
+    UserSudoToken, createTestUserSudoToken, updateTestUserSudoToken,
     OIDC_REDIRECT_URI,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

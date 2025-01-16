@@ -22,6 +22,7 @@ const { SigninResidentUserService } = require('./SigninResidentUserService')
 const { User } = require('./User')
 const { UserExternalIdentity } = require('./UserExternalIdentity')
 const { UserRightsSet } = require('./UserRightsSet')
+const { UserSudoToken } = require('./UserSudoToken')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -44,5 +45,6 @@ module.exports = {
     UserRightsSet,
     CheckUserExistenceService,
     ResetUserLimitAction,
+    UserSudoToken,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
