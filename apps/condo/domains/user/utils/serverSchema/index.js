@@ -109,6 +109,7 @@ async function checkUserExistence (context, data) {
 }
 
 const ResetUserLimitAction = generateServerUtils('ResetUserLimitAction')
+const UserSudoToken = generateServerUtils('UserSudoToken')
 /* AUTOGENERATE MARKER <CONST> */
 
 const whiteList = conf.SMS_WHITE_LIST ? JSON.parse(conf.SMS_WHITE_LIST) : {}
@@ -185,5 +186,6 @@ module.exports = {
     UserRightsSet,
     checkUserExistence,
     ResetUserLimitAction,
+    UserSudoToken,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
