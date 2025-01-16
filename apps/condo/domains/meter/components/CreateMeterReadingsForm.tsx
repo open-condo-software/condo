@@ -422,7 +422,7 @@ export const CreateMeterReadingsForm = ({ organization, canManageMeterReadings }
                                                     initialValues={propertyUnitInitialValues}
                                                 />
                                             </Col>
-                                            <Col span={24}>
+                                            {selectedPropertyId && <Col span={24}>
                                                 <ContactsInfo
                                                     ContactsEditorComponent={ContactsEditorComponent}
                                                     form={form}
@@ -430,12 +430,12 @@ export const CreateMeterReadingsForm = ({ organization, canManageMeterReadings }
                                                     hasNotResidentTab={false}
                                                     residentTitle={MeterReadingsFromResidentMessage}
                                                 />
-                                            </Col>
+                                            </Col>}
                                         </Row>
                                     </Col>
                                 </Row>
                             </Col>
-                            <MetersTable
+                            {selectedPropertyId && <MetersTable
                                 selectedPropertyId={selectedPropertyId}
                                 selectedUnitName={selectedUnitName}
                                 selectedUnitType={selectedUnitType}
@@ -443,7 +443,7 @@ export const CreateMeterReadingsForm = ({ organization, canManageMeterReadings }
                                 tableColumns={tableColumns}
                                 setNewMeterReadings={setNewMeterReadings}
                                 newMeterReadings={newMeterReadings}
-                            />
+                            />}
                         </Row>
                     </Col>
                 </>
