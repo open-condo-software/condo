@@ -17,6 +17,7 @@ import { useCachePersistor } from '@open-condo/apollo'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { Typography } from '@open-condo/ui'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import { Button } from '@condo/domains/common/components/Button'
@@ -108,6 +109,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const intl = useIntl()
     const AddNewContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AddNewContact' })
     const TicketFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketFromResident' })
+    const ResidentMessage = intl.formatMessage({ id: 'Contact' })
     const TicketNotFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketNotFromResident' })
     const CancelMessage = intl.formatMessage({ id: 'Cancel' })
 
@@ -360,6 +362,88 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         hideTabBar ? { display: 'none' } : {},
     [hideTabBar])
 
+    const residentInfo = useMemo(() => {
+        return (
+            <>
+                <Typography.Title level={4}>{ResidentMessage}</Typography.Title>
+                <Row gutter={TAB_PANE_ROW_GUTTERS}>
+                    {isEmpty(initialContacts) || !unitName ? (
+                        <NewContactFields
+                            onChange={handleChangeContact}
+                            contacts={fetchedContacts}
+                            fields={fields}
+                            activeTab={activeTab}
+                            contactsLoading={contactsLoading}
+                            unitName={unitName}
+                            initialValueWithoutContact={initialValueWithoutContact}
+                            newContactPhoneFormItemProps={newContactPhoneFormItemProps}
+                            newContactNameFormItemProps={newContactNameFormItemProps}
+                            disabled={disabled}
+                            form={form}
+                        />
+                    ) : (
+                        <>
+                            {contactOptions}
+                            <>
+                                {
+                                    canManageContacts && (
+                                        displayEditableFieldsWithContactOptions ? (
+                                            <>
+                                                <NewContactFields
+                                                    onChange={handleChangeContact}
+                                                    onChecked={handleSyncedFieldsChecked}
+                                                    checked={editableFieldsChecked}
+                                                    contacts={fetchedContacts}
+                                                    displayMinusButton={true}
+                                                    onClickMinusButton={handleClickOnMinusButton}
+                                                    fields={fields}
+                                                    activeTab={activeTab}
+                                                    contactsLoading={contactsLoading}
+                                                    unitName={unitName}
+                                                    initialValueWithoutContact={initialValueWithoutContact}
+                                                    newContactPhoneFormItemProps={newContactPhoneFormItemProps}
+                                                    newContactNameFormItemProps={newContactNameFormItemProps}
+                                                    disabled={disabled}
+                                                    form={form}
+                                                />
+                                                {
+                                                    !breakpoints.TABLET_LARGE && (
+                                                        <Col span={24}>
+                                                            <Button
+                                                                type='link'
+                                                                style={BUTTON_STYLE}
+                                                                onClick={handleClickOnMinusButton}
+                                                                icon={<MinusCircleOutlined style={BUTTON_ICON_STYLE} />}
+                                                            >
+                                                                {CancelMessage}
+                                                            </Button>
+                                                        </Col>
+                                                    )
+                                                }
+                                            </>
+                                        ) : (
+                                            <Col span={24}>
+                                                <Button
+                                                    type='link'
+                                                    style={BUTTON_STYLE}
+                                                    onClick={handleClickOnPlusButton}
+                                                    icon={<PlusCircleOutlined style={BUTTON_ICON_STYLE}/>}
+                                                    disabled={disabled}
+                                                >
+                                                    {AddNewContactLabel}
+                                                </Button>
+                                            </Col>
+                                        )
+                                    )
+                                }
+                            </>
+                        </>
+                    )}
+                </Row>
+            </>
+        )
+    }, [AddNewContactLabel, CancelMessage, ResidentMessage, activeTab, breakpoints.TABLET_LARGE, canManageContacts, contactOptions, contactsLoading, disabled, displayEditableFieldsWithContactOptions, editableFieldsChecked, fetchedContacts, fields, form, handleChangeContact, handleClickOnMinusButton, handleClickOnPlusButton, initialContacts, initialValueWithoutContact, newContactNameFormItemProps, newContactPhoneFormItemProps, unitName])
+
     if (error) {
         console.warn(error)
         throw error
@@ -368,114 +452,48 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     return (
         <Col span={24}>
             <Container className={className}>
-                <Tabs
-                    defaultActiveKey={activeTab}
-                    activeKey={activeTab}
-                    style={TABS_STYLE}
-                    onChange={handleTabChange}
-                    tabBarStyle={tabBarStyle}
-                >
-                    {
-                        (canReadContacts || canManageContacts) && (
-                            <TabPane tab={residentTitle || TicketFromResidentMessage} key={CONTACT_TYPE.RESIDENT} disabled={!unitName}>
-                                <Row gutter={TAB_PANE_ROW_GUTTERS}>
-                                    {isEmpty(initialContacts) || !unitName ? (
-                                        <NewContactFields
-                                            onChange={handleChangeContact}
-                                            contacts={fetchedContacts}
-                                            fields={fields}
-                                            activeTab={activeTab}
-                                            contactsLoading={contactsLoading}
-                                            unitName={unitName}
-                                            initialValueWithoutContact={initialValueWithoutContact}
-                                            newContactPhoneFormItemProps={newContactPhoneFormItemProps}
-                                            newContactNameFormItemProps={newContactNameFormItemProps}
-                                            disabled={disabled}
-                                            form={form}
-                                        />
-                                    ) : (
-                                        <>
-                                            {contactOptions}
-                                            <>
-                                                {
-                                                    canManageContacts && (
-                                                        displayEditableFieldsWithContactOptions
-                                                            ? (
-                                                                <>
-                                                                    <NewContactFields
-                                                                        onChange={handleChangeContact}
-                                                                        onChecked={handleSyncedFieldsChecked}
-                                                                        checked={editableFieldsChecked}
-                                                                        contacts={fetchedContacts}
-                                                                        displayMinusButton={true}
-                                                                        onClickMinusButton={handleClickOnMinusButton}
-                                                                        fields={fields}
-                                                                        activeTab={activeTab}
-                                                                        contactsLoading={contactsLoading}
-                                                                        unitName={unitName}
-                                                                        initialValueWithoutContact={initialValueWithoutContact}
-                                                                        newContactPhoneFormItemProps={newContactPhoneFormItemProps}
-                                                                        newContactNameFormItemProps={newContactNameFormItemProps}
-                                                                        disabled={disabled}
-                                                                        form={form}
-                                                                    />
-                                                                    {
-                                                                        !breakpoints.TABLET_LARGE && (
-                                                                            <Col span={24}>
-                                                                                <Button
-                                                                                    type='link'
-                                                                                    style={BUTTON_STYLE}
-                                                                                    onClick={handleClickOnMinusButton}
-                                                                                    icon={<MinusCircleOutlined style={BUTTON_ICON_STYLE} />}
-                                                                                >
-                                                                                    {CancelMessage}
-                                                                                </Button>
-                                                                            </Col>
-                                                                        )
-                                                                    }
-                                                                </>
-                                                            ) : (
-                                                                <Col span={24}>
-                                                                    <Button
-                                                                        type='link'
-                                                                        style={BUTTON_STYLE}
-                                                                        onClick={handleClickOnPlusButton}
-                                                                        icon={<PlusCircleOutlined style={BUTTON_ICON_STYLE}/>}
-                                                                        disabled={disabled}
-                                                                    >
-                                                                        {AddNewContactLabel}
-                                                                    </Button>
-                                                                </Col>
-                                                            )
-                                                    )
-                                                }
-                                            </>
-                                        </>
-                                    )}
-                                </Row>
-                            </TabPane>
-                        )
-                    }
-                    {
-                        hasNotResidentTab && (
-                            <TabPane
-                                tab={TicketNotFromResidentMessage}
-                                key={CONTACT_TYPE.NOT_RESIDENT}
-                            >
-                                <Row gutter={TAB_PANE_ROW_GUTTERS}>
-                                    <NotResidentFields
-                                        initialQuery={initialEmployeesQuery}
-                                        refetch={refetchEmployees}
-                                        initialValue={initialValueWithoutContact}
-                                        onChange={handleChangeEmployee}
-                                        employees={fetchedEmployees}
-                                        activeTab={activeTab}
-                                    />
-                                </Row>
-                            </TabPane>
-                        )
-                    }
-                </Tabs>
+                {
+                    (canReadContacts || canManageContacts) && !hasNotResidentTab ? (
+                        <>
+                            {residentInfo}
+                        </>
+                    ) : (
+                        <Tabs
+                            defaultActiveKey={activeTab}
+                            activeKey={activeTab}
+                            style={TABS_STYLE}
+                            onChange={handleTabChange}
+                            tabBarStyle={tabBarStyle}
+                        >
+                            {
+                                (canReadContacts || canManageContacts) && (
+                                    <TabPane tab={residentTitle || TicketFromResidentMessage} key={CONTACT_TYPE.RESIDENT} disabled={!unitName}>
+                                        {residentInfo}
+                                    </TabPane>
+                                )
+                            }
+                            {
+                                hasNotResidentTab && (
+                                    <TabPane
+                                        tab={TicketNotFromResidentMessage}
+                                        key={CONTACT_TYPE.NOT_RESIDENT}
+                                    >
+                                        <Row gutter={TAB_PANE_ROW_GUTTERS}>
+                                            <NotResidentFields
+                                                initialQuery={initialEmployeesQuery}
+                                                refetch={refetchEmployees}
+                                                initialValue={initialValueWithoutContact}
+                                                onChange={handleChangeEmployee}
+                                                employees={fetchedEmployees}
+                                                activeTab={activeTab}
+                                            />
+                                        </Row>
+                                    </TabPane>
+                                )
+                            }
+                        </Tabs>
+                    )
+                }
             </Container>
             {/*
                     This is a place for items of external form, this component is embedded into.
