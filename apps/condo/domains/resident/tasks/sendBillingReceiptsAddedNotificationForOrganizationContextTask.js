@@ -12,7 +12,6 @@ const { createTask } = require('@open-condo/keystone/tasks')
 const { getLocalized } = require('@open-condo/locales/loader')
 
 const { getNewPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
-const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { DEFAULT_CURRENCY_CODE, CURRENCY_SYMBOLS } = require('@condo/domains/common/constants/currencies')
 const {
@@ -108,12 +107,6 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
         deletedAt: null,
     }
 
-    const receiptsCount = await BillingReceipt.count(keystone, receiptsWhere)
-    if (receiptsCount === 0) {
-        logger.info({ msg: 'No new receipts were found for context', data: { contextId } })
-        return
-    }
-
     context.integration = await getByCondition('BillingIntegration', {
         id: context.integration,
         deletedAt: null,
@@ -130,7 +123,7 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
             stats.receiptsCount += receipts.length
 
             if (!receipts.length) {
-                logger.info({ msg: 'No new receipts', data: { contextId } })
+                logger.info({ msg: 'No new receipts were found for context', data: { contextId } })
             }
 
             if (receipts.length < CHUNK_SIZE) {
