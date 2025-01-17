@@ -9,17 +9,20 @@ const dayjs = require('dayjs')
 const { makeLoggedInAdminClient, setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
 const { registerBillingReceiptsByTestClient } = require('@condo/domains/billing/utils/testSchema')
+const { updateTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
 const { TestUtils, ResidentTestMixin } = require('@condo/domains/billing/utils/testSchema/testUtils')
 const {
     BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
     BILLING_RECEIPT_ADDED_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { Message } = require('@condo/domains/notification/utils/testSchema')
+const { updateTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { makeBillingReceiptWithResident } = require('@condo/domains/resident/tasks/helpers/spec.helpers')
 const { makeAccountKey, getMessageTypeAndDebt, sendBillingReceiptsAddedNotificationForOrganizationContext } = require('@condo/domains/resident/tasks/sendBillingReceiptsAddedNotificationForOrganizationContextTask')
 const { Resident } = require('@condo/domains/resident/utils/testSchema')
 const { User } = require('@condo/domains/user/utils/testSchema')
+
 
 describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
     setFakeClientMode(index)
@@ -218,7 +221,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             })
 
             expect(resident.user.id).toEqual(resident1.user.id)
-            
+
             await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id, integration: billingContext.integration.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
             await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext1, organization: billingContext1.organization.id, integration: billingContext1.integration.id }, dayjs(receipt1.createdAt).subtract(1, 'hour').toISOString())
 
@@ -370,6 +373,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
 
             const messages2 = await Message.getAll(environment.clients.admin, messageWhere)
             expect(messages2).toHaveLength(1)
+            expect(messages1[0].id).toEqual(messages2[0].id)
         })
 
         test('Should send push if next day came', async () => {
@@ -547,6 +551,46 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
 
             const messages = await Message.getAll(environment.clients.admin, messageWhere)
             expect(messages).toHaveLength(0)
+        })
+
+        test('Should correctly fill message body', async () => {
+            const environment = new TestUtils([ResidentTestMixin])
+            await environment.init()
+            const accountNumber = faker.random.alphaNumeric(12)
+            updateTestBillingIntegration(environment.clients.admin, environment.billingContext.integration.id, { currencyCode: 'USD' })
+            updateTestOrganization(environment.clients.admin, environment.billingContext.organization.id, { country: 'ru' })
+            const resident = await environment.createResident({ unitName: '1', unitType: FLAT_UNIT_TYPE })
+            const addressUnit = {
+                unitName: resident.unitName,
+                unitType: resident.unitType,
+            }
+            const HOUSING_SERVICE = '928c97ef-5289-4daa-b80e-4b9fed50c629'
+            const [[{ id: receiptId }]] = await environment.createReceipts([
+                environment.createJSONReceipt({
+                    accountNumber,
+                    address: resident.address,
+                    addressMeta: addressUnit,
+                    year: 2024,
+                    month: 1,
+                    toPay: '1000',
+                    category: { id: HOUSING_SERVICE },
+                }),
+            ])
+            await environment.createServiceConsumer(resident, accountNumber)
+
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...environment.billingContext, organization: environment.billingContext.organization.id, integration: environment.billingContext.integration.id }, dayjs().subtract(1, 'h').toISOString())
+
+            const messageWhere = {
+                user: { id: resident.user.id },
+                type: BILLING_RECEIPT_ADDED_TYPE,
+            }
+
+            const messages = await Message.getAll(environment.clients.admin, messageWhere)
+            expect(messages).toHaveLength(1)
+            const data = messages[0].meta.data
+            expect(data.url.slice(-36)).toEqual(receiptId)
+            expect(data.currencySymbol).toEqual('$')
+            expect(data.category).toEqual('Квартплата')
         })
     })
 })
