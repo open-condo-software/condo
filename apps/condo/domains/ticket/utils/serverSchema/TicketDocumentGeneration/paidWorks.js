@@ -4,7 +4,7 @@ const { get } = require('lodash')
 
 const { FinanceInfoClient } = require('@open-condo/clients/finance-info-client/FinanceInfoClient')
 const { getLogger } = require('@open-condo/keystone/logging')
-const { getById, getByCondition } = require('@open-condo/keystone/schema')
+const { getByCondition } = require('@open-condo/keystone/schema')
 
 const { RU_LOCALE } = require('@condo/domains/common/constants/locale')
 const { buildExportFile, DOCX_FILE_META } = require('@condo/domains/common/utils/createExportFile')
@@ -79,10 +79,13 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
 
     const timeZone = normalizeTimeZone(timeZoneFromUser) || DEFAULT_ORGANIZATION_TIMEZONE
 
-    const contact = ticket.contact ? await getById(context, ticket.contact) : null
+    const contact = ticket.contact ? await getByCondition('Contact', {
+        id: ticket.contact,
+        deletedAt: null,
+    }) : null
 
     const employee = organization.id && ticket.executor
-        ? await getByCondition(context, {
+        ? await getByCondition('OrganizationEmployee', {
             organization: { id: organization.id, deletedAt: null },
             user: { id: ticket.executor, deletedAt: null },
             deletedAt: null,
@@ -128,7 +131,12 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
                     sum: !Number.isNaN(parseFloat(sum)) ? numberFormatByLocale.format(sum).replace(CURRENCY_CODE_REGEXP, '').trim() : null,
                 }
             } catch (err) {
-                logger.info({ msg: 'listOfWorks generation error in document of paid completion works', err: err, taskId: task.id, ticketId: ticket.id })
+                logger.info({
+                    msg: 'listOfWorks generation error in document of paid completion works',
+                    err: err,
+                    taskId: task.id,
+                    ticketId: ticket.id,
+                })
                 return {}
             }
         }))
@@ -163,7 +171,7 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
                 .formatToParts(totalSum)
                 .map(p => p.type === 'integer' ? p.value : '')
                 .join(''), { lang: locale }),
-            totalSumDecimalPart:  n2words(numberFormatByLocale
+            totalSumDecimalPart: n2words(numberFormatByLocale
                 .formatToParts(totalSum)
                 .map(p => p.type === 'fraction' ? p.value : '')
                 .join(''), { lang: locale, feminine: locale === RU_LOCALE }),
@@ -201,7 +209,12 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
 
     switch (format) {
         case TICKET_DOCUMENT_GENERATION_TASK_FORMAT.DOCX: {
-            fileUploadInput = buildUploadInputFrom(await buildExportWordFile({ task, documentData, locale, timeZone }))
+            fileUploadInput = buildUploadInputFrom(await buildExportWordFile({
+                task,
+                documentData,
+                locale,
+                timeZone,
+            }))
             break
         }
 
@@ -210,7 +223,11 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
         }
     }
 
-    logger.info({ msg: 'finished genereating a document of paid completion works ', taskId: task.id, ticketId: ticket.id })
+    logger.info({
+        msg: 'finished genereating a document of paid completion works ',
+        taskId: task.id,
+        ticketId: ticket.id,
+    })
 
     return fileUploadInput
 }
