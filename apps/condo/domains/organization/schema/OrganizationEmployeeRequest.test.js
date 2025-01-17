@@ -541,7 +541,7 @@ describe('OrganizationEmployeeRequest', () => {
             const [employee] = await createTestOrganizationEmployee(admin, organization, user, role)
 
             await expectToThrowGQLError(async () => {
-                await updateTestOrganizationEmployeeRequest(admin, requestWithAnotherUser.id, { employee: { connect: { id: employee.id } } })
+                await updateTestOrganizationEmployeeRequest(admin, requestWithAnotherUser.id, { createdEmployee: { connect: { id: employee.id } } })
             }, {
                 variable: ['data', 'employee'],
                 code: 'BAD_USER_INPUT',
@@ -549,7 +549,7 @@ describe('OrganizationEmployeeRequest', () => {
                 message: 'An employee with another user cannot be connected',
             })
             await expectToThrowGQLError(async () => {
-                await updateTestOrganizationEmployeeRequest(admin, requestWithAnotherOrganization.id, { employee: { connect: { id: employee.id } } })
+                await updateTestOrganizationEmployeeRequest(admin, requestWithAnotherOrganization.id, { createdEmployee: { connect: { id: employee.id } } })
             }, {
                 variable: ['data', 'employee'],
                 code: 'BAD_USER_INPUT',
@@ -557,7 +557,7 @@ describe('OrganizationEmployeeRequest', () => {
                 message: 'An employee from another organization cannot be connected',
             })
 
-            const [updatedRequest] = await updateTestOrganizationEmployeeRequest(admin, request.id, { employee: { connect: { id: employee.id } } })
+            const [updatedRequest] = await updateTestOrganizationEmployeeRequest(admin, request.id, { createdEmployee: { connect: { id: employee.id } } })
             expect(updatedRequest.createdEmployee.id).toBe(employee.id)
         })
     })
