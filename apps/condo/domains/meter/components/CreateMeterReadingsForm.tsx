@@ -53,9 +53,10 @@ export const LAYOUT = {
     wrapperCol: { span: 16 },
 }
 
-type MetersTableRecord = {
+export type MetersTableRecord = {
     meter: MeterType | PropertyMeterType
     lastMeterReading: string
+    lastMeterReadingDate: string
     meterReadingSource: string
     tariffNumber: string
 }
@@ -81,6 +82,7 @@ function getTableData (meters: MeterType[] | PropertyMeterType[], meterReadings)
                 dataSource.push({
                     meter,
                     lastMeterReading: lastMeterReading && lastMeterReading[`value${tariffNumber}`],
+                    lastMeterReadingDate: lastMeterReading && lastMeterReading.date,
                     meterReadingSource: lastMeterReading && lastMeterReading.source.name,
                     tariffNumber: String(tariffNumber),
                 })
@@ -89,6 +91,7 @@ function getTableData (meters: MeterType[] | PropertyMeterType[], meterReadings)
             dataSource.push({
                 meter,
                 lastMeterReading: lastMeterReading && lastMeterReading.value1,
+                lastMeterReadingDate: lastMeterReading && lastMeterReading.date,
                 meterReadingSource: lastMeterReading && lastMeterReading.source.name,
                 tariffNumber: '1',
 

@@ -15,8 +15,15 @@ import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { getTextRender } from '@condo/domains/common/components/Table/Renders'
 import { colors } from '@condo/domains/common/constants/style'
 import { fontSizes } from '@condo/domains/common/constants/style'
+import { MetersTableRecord } from '@condo/domains/meter/components/CreateMeterReadingsForm'
 import { METER_TAB_TYPES, MeterPageTypes } from '@condo/domains/meter/utils/clientSchema'
 import { getNextVerificationDateRender } from '@condo/domains/meter/utils/clientSchema/Renders'
+
+type MeterReadingDatePickerType = {
+    record: MetersTableRecord
+    newMeterReadings: Array<unknown> | unknown
+    setNewMeterReadings: (readings) => void
+}
 
 const inputNumberCSS = css`
   & .ant-input-number-handler-wrap {
@@ -52,12 +59,13 @@ const METER_READING_INPUT_ADDON_STYLE: CSSProperties = {
     color: colors.sberGrey[6],
 }
 
-const MeterReadingDatePicker = ({ record, newMeterReadings, setNewMeterReadings }) => {
+const MeterReadingDatePicker = ({ record, newMeterReadings, setNewMeterReadings }: MeterReadingDatePickerType) => {
     const intl = useIntl()
     const MissedVerificationTooltip = intl.formatMessage({ id: 'pages.condo.meter.MissedVerification.tip' })
 
     const handleInputContainerClick = useCallback(e => e.stopPropagation(), [])
     const meterId = get(record, ['meter', 'id'])
+    const lastReadingDate = get(record, 'lastMeterReadingDate', dayjs().toISOString())
     const nextVerificationDate = get(record, ['meter', 'nextVerificationDate'], '')
     const pickerValue = get(newMeterReadings, [meterId, 'date'], dayjs().toISOString())
     const isPickerDisabled =  dayjs(nextVerificationDate).isBefore(dayjs(), 'day') && true
@@ -88,6 +96,8 @@ const MeterReadingDatePicker = ({ record, newMeterReadings, setNewMeterReadings 
                         <DatePicker
                             style={FULL_WIDTH_STYLE}
                             disabled={isPickerDisabled}
+                            value={dayjs(lastReadingDate)}
+                            format='DD.MM.YYYY'
                         />
                     </span>
                 </Tooltip>
