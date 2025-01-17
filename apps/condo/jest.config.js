@@ -41,7 +41,7 @@ module.exports = {
             },
             setupFilesAfterEnv: [`${__dirname}/jest.setupSpec.js`],
             // NOTE: need to pass uuid export syntax through babel
-            transformIgnorePatterns: ['/node_modules/(?!(uuid|nanoid|msgpackr)/)'],
+            transformIgnorePatterns: ['/node_modules/(?!(uuid|nanoid|msgpackr|n2words)/)'],
             moduleNameMapper: {
                 '@open-condo/(.*)': '<rootDir>/../../packages/$1',
             },

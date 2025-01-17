@@ -38,6 +38,7 @@ const generateTicketDocumentOfCompletionWorks = async ({ task, baseAttrs, contex
 
     const timeZone = normalizeTimeZone(timeZoneFromUser) || DEFAULT_ORGANIZATION_TIMEZONE
     const printDate = dayjs().tz(timeZone).locale(locale)
+    const CURRENCY_CODE_REGEXP = /[A-Z]{3}/
 
     const property = await getByCondition('Property', {
         id: ticket.property,
@@ -79,16 +80,16 @@ const generateTicketDocumentOfCompletionWorks = async ({ task, baseAttrs, contex
             return {
                 name: row.name || '',
                 count: String(row.count) || '',
-                price: !Number.isNaN(parseFloat(price)) ? new Intl.NumberFormat(locale, {
+                price: !Number.isNaN(price) ? new Intl.NumberFormat(locale, {
                     style: 'currency',
                     currency: currencyCode,
                     currencyDisplay: 'code',
-                }).format(price).replace(/[A-Z]{3}/, '').trim() : '',
-                sum: !Number.isNaN(parseFloat(price * row.count)) ? new Intl.NumberFormat(locale, {
+                }).format(price).replace(CURRENCY_CODE_REGEXP, '').trim() : '',
+                sum: !Number.isNaN(price * row.count) ? new Intl.NumberFormat(locale, {
                     style: 'currency',
                     currency: currencyCode,
                     currencyDisplay: 'code',
-                }).format(price * row.count).replace(/[A-Z]{3}/, '').trim() : '',
+                }).format(price * row.count).replace(CURRENCY_CODE_REGEXP, '').trim() : '',
             }
         }))
 

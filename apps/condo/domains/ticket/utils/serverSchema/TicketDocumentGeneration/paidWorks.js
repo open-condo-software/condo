@@ -4,24 +4,25 @@ const { get } = require('lodash')
 
 const { FinanceInfoClient } = require('@open-condo/clients/finance-info-client/FinanceInfoClient')
 const { getLogger } = require('@open-condo/keystone/logging')
+const { getById, getByCondition } = require('@open-condo/keystone/schema')
 
 const { RU_LOCALE } = require('@condo/domains/common/constants/locale')
 const { buildExportFile, DOCX_FILE_META } = require('@condo/domains/common/utils/createExportFile')
 const { buildUploadInputFrom } = require('@condo/domains/common/utils/serverSchema/export')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
-const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { DEFAULT_INVOICE_CURRENCY_CODE, INVOICE_STATUS_CANCELED } = require('@condo/domains/marketplace/constants')
 const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
-const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 const { TICKET_DOCUMENT_GENERATION_TASK_FORMAT } = require('@condo/domains/ticket/constants/ticketDocument')
 
 const logger = getLogger('generateDocumentOfPaidWorksCompletion')
 
+// N2Words provides only ESM syntax. Dynamic import is required to use this library in a CommonJS module.
 const n2wordsImport = import('n2words').then(module => module.default)
 
 const LONG_BLANK = '____________________________________'
 const SHORT_BLANK = '__________________'
+const CURRENCY_CODE_REGEXP = /[A-Z]{3}/
 
 const financeInfoClient = new FinanceInfoClient()
 
@@ -78,18 +79,14 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
 
     const timeZone = normalizeTimeZone(timeZoneFromUser) || DEFAULT_ORGANIZATION_TIMEZONE
 
-    const contact = ticket.contact ? await Contact.getAll(context, {
-        id: ticket.contact,
-        deletedAt: null,
-    }, 'name') : null
+    const contact = ticket.contact ? await getById(context, ticket.contact) : null
 
     const employee = organization.id && ticket.executor
-        ? await OrganizationEmployee.getAll(context, {
-            organization: { id: organization.id },
-            user: { id: ticket.executor },
+        ? await getByCondition(context, {
+            organization: { id: organization.id, deletedAt: null },
+            user: { id: ticket.executor, deletedAt: null },
             deletedAt: null,
-        }, 'name')
-        : null
+        }) : null
 
     const invoices = await Invoice.getAll(context, {
         ticket: { id: ticket.id },
@@ -126,9 +123,9 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
                     number: index + 1,
                     name: row.name,
                     count: String(count),
-                    price: !Number.isNaN(parseFloat(price)) ? numberFormatByLocale.format(price).replace(/[A-Z]{3}/, '').trim() : null,
+                    price: !Number.isNaN(parseFloat(price)) ? numberFormatByLocale.format(price).replace(CURRENCY_CODE_REGEXP, '').trim() : null,
                     vat: String(vatPercent),
-                    sum: !Number.isNaN(parseFloat(sum)) ? numberFormatByLocale.format(sum).replace(/[A-Z]{3}/, '').trim() : null,
+                    sum: !Number.isNaN(parseFloat(sum)) ? numberFormatByLocale.format(sum).replace(CURRENCY_CODE_REGEXP, '').trim() : null,
                 }
             } catch (err) {
                 logger.info({ msg: 'listOfWorks generation error in document of paid completion works', err: err, taskId: task.id, ticketId: ticket.id })
@@ -162,22 +159,22 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
             bic: get(invoices, '0.recipient.bic'),
         },
         totalInWords: {
-            wholePartTotalSum: n2words(numberFormatByLocale
+            totalSumWholePart: n2words(numberFormatByLocale
                 .formatToParts(totalSum)
                 .map(p => p.type === 'integer' ? p.value : '')
                 .join(''), { lang: locale }),
-            decimalPartTotalSum:  n2words(numberFormatByLocale
+            totalSumDecimalPart:  n2words(numberFormatByLocale
                 .formatToParts(totalSum)
                 .map(p => p.type === 'fraction' ? p.value : '')
-                .join(''), { lang: locale, feminine: true }),
-            wholePartTotalVAT: n2words(numberFormatByLocale
+                .join(''), { lang: locale, feminine: locale === RU_LOCALE }),
+            totalVATWholePart: n2words(numberFormatByLocale
                 .formatToParts(totalVAT)
                 .map(p => p.type === 'integer' ? p.value : '')
                 .join(''), { lang: locale }),
-            decimalPartTotalVAT: n2words(numberFormatByLocale
+            totalVATDecimalPart: n2words(numberFormatByLocale
                 .formatToParts(totalVAT)
                 .map(p => p.type === 'fraction' ? p.value : '')
-                .join(''), { lang: locale, feminine: true }),
+                .join(''), { lang: locale, feminine: locale === RU_LOCALE }),
         },
     }
 
@@ -187,8 +184,8 @@ const generateTicketDocumentOfPaidWorks = async ({ task, baseAttrs, context, loc
         },
         listOfWorks,
         totalInNumbers: {
-            totalSum: !Number.isNaN(parseFloat(totalSum)) ? numberFormatByLocale.format(totalSum).replace(/[A-Z]{3}/, '').trim() : null,
-            totalVAT: !Number.isNaN(parseFloat(totalVAT)) ? numberFormatByLocale.format(totalVAT).replace(/[A-Z]{3}/, '').trim() : null,
+            totalSum: !Number.isNaN(parseFloat(totalSum)) ? numberFormatByLocale.format(totalSum).replace(CURRENCY_CODE_REGEXP, '').trim() : null,
+            totalVAT: !Number.isNaN(parseFloat(totalVAT)) ? numberFormatByLocale.format(totalVAT).replace(CURRENCY_CODE_REGEXP, '').trim() : null,
         },
         executor: {
             name: get(employee, ['0', 'name']),
