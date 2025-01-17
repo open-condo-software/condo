@@ -1,8 +1,6 @@
 const Big = require('big.js')
 const dayjs = require('dayjs')
-const get = require('lodash/get')
-const groupBy = require('lodash/groupBy')
-const isEmpty = require('lodash/isEmpty')
+const { uniqBy, get, groupBy, isEmpty } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -119,7 +117,7 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
     //There is a concern that new receipts may be loaded during execution and then we may lose some of them
     for (;hasMoreData;) {
         try {
-            const receipts = await fetchReceiptsByChunk(contextId, receiptsWhere, CHUNK_SIZE, skip)
+            const receipts = await fetchReceiptsByChunk(receiptsWhere, CHUNK_SIZE, skip)
             stats.receiptsCount += receipts.length
 
             if (!receipts.length) {
@@ -161,45 +159,8 @@ function initializeStats (contextId, receiptsCount) {
     }
 }
 
-async function fetchReceiptsByChunk (contextId, receiptsWhere, first, skip) {
-    const receiptArgs = { where: receiptsWhere, first, skip }
-    return await fetchReceipts(contextId, receiptArgs)
-}
-
-async function fetchAndGroupConsumers (context, accountNumbers) {
-    const serviceConsumers = await fetchServiceConsumers(context, accountNumbers)
-    return groupConsumersByAccountKey(serviceConsumers)
-}
-
-async function processReceipts (keystone, context, receiptAccountData, consumersByAccountKey, lastSendDate, stats) {
-    for (const [key, receipt] of Object.entries(receiptAccountData.receiptAccountKeys)) {
-        const consumers = consumersByAccountKey[key]
-        if (isEmpty(consumers)) continue
-
-        const [success, duplicate] = await notifyConsumers(keystone, context, receipt, consumers, lastSendDate)
-        stats.successSentMessages += success
-        stats.duplicatedSentMessages += duplicate
-    }
-}
-
-function updateStats (stats, consumersByAccountKey) {
-    const serviceConsumers = Object.values(consumersByAccountKey).flat()
-    const residents = serviceConsumers.map(sc => sc.resident).filter(Boolean)
-    const residentsUnique = [...new Set(residents.map(r => r.id))].filter(Boolean)
-    const usersUnique = [...new Set(residentsUnique.map(ru => ru.user).filter(Boolean))]
-
-    stats.serviceConsumersCount += serviceConsumers.length
-    stats.residentsUniqueCount += residentsUnique.length
-    stats.usersUniqueCount += usersUnique.length
-}
-
-function logSummary (stats) {
-    logger.info({ msg: 'sendBillingReceiptsAddedNotificationForOrganizationContext ends' })
-    logger.info({ msg: 'Sent billing receipts', data: stats })
-}
-
-async function fetchReceipts (contextId, args) {
-    const receipts = await itemsQuery('BillingReceipt', args)
+async function fetchReceiptsByChunk (receiptsWhere, first, skip) {
+    const receipts = await itemsQuery('BillingReceipt', { where: receiptsWhere, first, skip })
 
     const filteredReceipts = await Promise.all(
         receipts.map(async receipt => {
@@ -225,6 +186,38 @@ async function fetchReceipts (contextId, args) {
     return filteredReceipts
         .filter(({ isEligibleForProcessing }) => isEligibleForProcessing)
         .map(({ receipt }) => receipt)
+}
+
+async function fetchAndGroupConsumers (context, accountNumbers) {
+    const serviceConsumers = await fetchServiceConsumers(context, accountNumbers)
+    return groupConsumersByAccountKey(serviceConsumers)
+}
+
+async function processReceipts (keystone, context, receiptAccountData, consumersByAccountKey, lastSendDate, stats) {
+    for (const [key, receipt] of Object.entries(receiptAccountData.receiptAccountKeys)) {
+        const consumers = consumersByAccountKey[key]
+        if (isEmpty(consumers)) continue
+
+        const [success, duplicate] = await notifyConsumers(keystone, context, receipt, consumers, lastSendDate)
+        stats.successSentMessages += success
+        stats.duplicatedSentMessages += duplicate
+    }
+}
+
+function updateStats (stats, consumersByAccountKey) {
+    const serviceConsumers = Object.values(consumersByAccountKey).flat()
+    const residents = serviceConsumers.map(sc => sc.resident).filter(Boolean)
+    const residentsUnique = uniqBy(residents, 'id').filter(Boolean)
+    const usersUnique = uniqBy(residentsUnique, 'user').filter(Boolean)
+
+    stats.serviceConsumersCount += serviceConsumers.length
+    stats.residentsUniqueCount += residentsUnique.length
+    stats.usersUniqueCount += usersUnique.length
+}
+
+function logSummary (stats) {
+    logger.info({ msg: 'sendBillingReceiptsAddedNotificationForOrganizationContext ends' })
+    logger.info({ msg: 'Sent billing receipts', data: stats })
 }
 
 async function prepareReceiptsData (receipts, context) {
