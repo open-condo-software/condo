@@ -115,7 +115,7 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
     let skip = 0
     let hasMoreData = true
     //There is a concern that new receipts may be loaded during execution and then we may lose some of them
-    for (;hasMoreData;) {
+    while (hasMoreData) {
         try {
             const receipts = await fetchReceiptsByChunk(receiptsWhere, CHUNK_SIZE, skip)
             stats.receiptsCount += receipts.length
