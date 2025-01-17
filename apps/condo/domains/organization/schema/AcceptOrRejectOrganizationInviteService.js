@@ -84,8 +84,8 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
                     }, 'id user { id } organization { id }')
 
                     const notProcessedEmployeeRequest = await getByCondition('OrganizationEmployeeRequest', {
-                        user: { id: employee.user.id },
-                        organization: { id: employee.organization.id },
+                        user: { id: employee.user.id, deletedAt: null },
+                        organization: { id: employee.organization.id, deletedAt: null },
                         deletedAt: null,
                         isAccepted: false,
                         isRejected: false,

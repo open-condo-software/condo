@@ -187,8 +187,8 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                 }
 
                 const notProcessedEmployeeRequest = await getByCondition('OrganizationEmployeeRequest', {
-                    user: { id: user.id },
-                    organization: { id: userOrganization.id },
+                    user: { id: user.id, deletedAt: null },
+                    organization: { id: userOrganization.id, deletedAt: null },
                     deletedAt: null,
                     isAccepted: false,
                     isRejected: false,
