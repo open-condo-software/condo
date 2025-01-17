@@ -6,6 +6,7 @@ import {
     setupCondoAuth,
     createOrganization,
     createProperty,
+    resetOrganization,
 } from './utils'
 
 const BASE_APP_URL = __ENV.BASE_URL + '/news/create'
@@ -47,6 +48,10 @@ export function setup () {
     createProperty({ token, organizationId })
 
     return { token, cookie, organizationId }
+}
+
+export function teardown (data) {
+    resetOrganization(data)
 }
 
 export function healthcheck () {

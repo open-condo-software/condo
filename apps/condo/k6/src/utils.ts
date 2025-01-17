@@ -8,7 +8,7 @@ const BASE_API_URL = __ENV.BASE_URL + '/admin/api'
 const AUTH_REQS = { email: __ENV.AUTH_EMAIL, password: __ENV.AUTH_PASSWORD }
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'k6-load-test' } }
 
-const setupCondoAuth = (useEnv = false) => {
+const setupCondoAuth = () => {
     const payload = {
         operationName: null,
         variables: {},
@@ -18,42 +18,9 @@ const setupCondoAuth = (useEnv = false) => {
     const response = http.post(BASE_API_URL, JSON.stringify(payload), { headers: { 'Content-Type': 'application/json' } })
     const token = response.json('data.authenticateUserWithPassword.token')
 
-    if (useEnv) {
-        return {
-            token,
-            cookie: response.cookies['keystone.sid'][0]['value'],
-        }
-    }
-
-    // Create separate account for tests
-    const email = `${new Date().getTime()}-k6-load-test@example.com`
-    const password = faker.internet.password(MIN_PASSWORD_LENGTH)
-    const createUserResponse = sendAuthorizedRequest({ token }, {
-        operationName: null,
-        query: 'mutation ($data: UserCreateInput!) { createUser (data: $data) { id } }',
-        variables: {
-            data: {
-                name: 'k6-test-user',
-                email,
-                password,
-                ...DV_SENDER,
-            },
-        },
-    })
-
-    if (createUserResponse.json('data.createUser.id') === undefined) {
-        console.error(JSON.stringify(createUserResponse.json('errors')))
-        throw new Error('Unable to create user for k6 test case run')
-    }
-
-    const testUserResponse = http.post(BASE_API_URL, JSON.stringify({
-        operationName: null, variables: {},
-        query: `mutation {authenticateUserWithPassword(email: "${email}" password: "${password}") {token}}`,
-    }), { headers: { 'Content-Type': 'application/json' } })
-
     return {
-        token: testUserResponse.json('data.authenticateUserWithPassword.token'),
-        cookie: testUserResponse.cookies['keystone.sid'][0]['value'],
+        token,
+        cookie: response.cookies['keystone.sid'][0]['value'],
     }
 }
 
@@ -82,6 +49,14 @@ const createOrganization = (data) => sendAuthorizedRequest(data, {
         },
     },
 })
+
+const resetOrganization = (data) => {
+    return sendAuthorizedRequest(data, {
+        operationName: 'resetOrganization',
+        query: 'mutation resetOrganization($data: ResetOrganizationInput!) { result: resetOrganization(data: $data) { status } }',
+        variables: { data: { ...DV_SENDER, organizationId: data.organizationId } },
+    })
+}
 
 const createTicket = (data) => sendAuthorizedRequest(data, {
     operationName: 'createTicket',
@@ -317,5 +292,6 @@ export {
     registerResidentServiceConsumers,
     registerBillingReceiptFile,
     signInAsUser,
+    resetOrganization,
     BASE_API_URL,
 }
