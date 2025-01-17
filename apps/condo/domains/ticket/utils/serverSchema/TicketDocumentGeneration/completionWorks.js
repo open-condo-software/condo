@@ -1,7 +1,7 @@
 const dayjs = require('dayjs')
 const { get } = require('lodash')
 
-const { getById, getByCondition } = require('@open-condo/keystone/schema')
+const { getByCondition } = require('@open-condo/keystone/schema')
 const { i18n } = require('@open-condo/locales/loader')
 
 const { buildExportFile, DOCX_FILE_META } = require('@condo/domains/common/utils/createExportFile')
@@ -40,17 +40,25 @@ const generateTicketDocumentOfCompletionWorks = async ({ task, baseAttrs, contex
     const timeZone = normalizeTimeZone(timeZoneFromUser) || DEFAULT_ORGANIZATION_TIMEZONE
     const printDate = dayjs().tz(timeZone).locale(locale)
 
-    const property = await getById('Property', ticket.property)
+    const property = await getByCondition('Property', {
+        id: ticket.property,
+        deletedAt: null,
+    })
+
     const { renderData, streetPart, settlement, cityType, cityName, houseName, block } = getAddressDetails(get(property, 'addressMeta', ticket.propertyAddressMeta))
 
     const contact = ticket.contact
-        ? await getById('Contact', ticket.contact)
+        ? await getByCondition('Contact', {
+            id: ticket.contact,
+            deletedAt: null,
+        })
         : null
 
     const employee = organization.id && ticket.executor
         ? await getByCondition('OrganizationEmployee', {
-            organization: { id: organization.id },
-            user: { id: ticket.executor },
+            organization: { id: organization.id, deletedAt: null },
+            user: { id: ticket.executor, deletedAt: null },
+            deletedAt: null,
         })
         : null
 
