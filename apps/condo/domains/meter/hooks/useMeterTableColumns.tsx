@@ -64,11 +64,11 @@ const MeterReadingDatePicker = ({ record, newMeterReadings, setNewMeterReadings 
     const MissedVerificationTooltip = intl.formatMessage({ id: 'pages.condo.meter.MissedVerification.tip' })
 
     const handleInputContainerClick = useCallback(e => e.stopPropagation(), [])
-    const meterId = get(record, ['meter', 'id'])
-    const lastReadingDate = get(record, 'lastMeterReadingDate', dayjs().toISOString())
-    const nextVerificationDate = get(record, ['meter', 'nextVerificationDate'], '')
+    const meterId = record?.meter?.id 
+    const lastReadingDate = record?.lastMeterReadingDate || dayjs().toISOString()
+    const nextVerificationDate = record?.meter?.nextVerificationDate || ''
     const pickerValue = get(newMeterReadings, [meterId, 'date'], dayjs().toISOString())
-    const isPickerDisabled =  dayjs(nextVerificationDate).isBefore(dayjs(), 'day') && true
+    const isPickerDisabled = dayjs(nextVerificationDate).isBefore(dayjs(), 'day') && true
 
     const wrapperProps = useMemo(() => ({
         style: INPUT_CONTAINER_STYLE,
