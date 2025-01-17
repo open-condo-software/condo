@@ -10,6 +10,7 @@ import {
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { ColumnsType } from 'antd/lib/table'
+import dayjs from 'dayjs'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isNull from 'lodash/isNull'
@@ -52,9 +53,10 @@ export const LAYOUT = {
     wrapperCol: { span: 16 },
 }
 
-type MetersTableRecord = {
+export type MetersTableRecord = {
     meter: MeterType | PropertyMeterType
     lastMeterReading: string
+    lastMeterReadingDate: string
     meterReadingSource: string
     tariffNumber: string
 }
@@ -80,6 +82,7 @@ function getTableData (meters: MeterType[] | PropertyMeterType[], meterReadings)
                 dataSource.push({
                     meter,
                     lastMeterReading: lastMeterReading && lastMeterReading[`value${tariffNumber}`],
+                    lastMeterReadingDate: lastMeterReading && lastMeterReading.date,
                     meterReadingSource: lastMeterReading && lastMeterReading.source.name,
                     tariffNumber: String(tariffNumber),
                 })
@@ -88,6 +91,7 @@ function getTableData (meters: MeterType[] | PropertyMeterType[], meterReadings)
             dataSource.push({
                 meter,
                 lastMeterReading: lastMeterReading && lastMeterReading.value1,
+                lastMeterReadingDate: lastMeterReading && lastMeterReading.date,
                 meterReadingSource: lastMeterReading && lastMeterReading.source.name,
                 tariffNumber: '1',
 
@@ -159,10 +163,10 @@ export const MetersTable = ({
         return {
             onClick: () => {
                 const meter = get(record, 'meter')
-                router.push(`/meter/property/${meter.id}`)
+                router.push(`/meter/unit/${meter.id}`)
             },
         }
-    }, [])
+    }, [router])
 
     const { count, loading: countLoading } = Meter.useCount({
         where: {
@@ -309,6 +313,7 @@ export const CreateMeterReadingsForm = ({ organization, canManageMeterReadings }
             const value2 = get(newMeterReading, '2')
             const value3 = get(newMeterReading, '3')
             const value4 = get(newMeterReading, '4')
+            const date = get(newMeterReading, 'date', dayjs().toISOString())
             const { property, unitName, unitType, sectionName, floorName, ...clientInfo } = values
 
             createMeterReadingAction({
@@ -319,6 +324,7 @@ export const CreateMeterReadingsForm = ({ organization, canManageMeterReadings }
                 value2,
                 value3,
                 value4,
+                date,
             })
         }
     }, [createMeterReadingAction, newMeterReadings])
@@ -419,7 +425,7 @@ export const CreateMeterReadingsForm = ({ organization, canManageMeterReadings }
                                                     initialValues={propertyUnitInitialValues}
                                                 />
                                             </Col>
-                                            <Col span={24}>
+                                            {selectedPropertyId && <Col span={24}>
                                                 <ContactsInfo
                                                     ContactsEditorComponent={ContactsEditorComponent}
                                                     form={form}
@@ -427,12 +433,12 @@ export const CreateMeterReadingsForm = ({ organization, canManageMeterReadings }
                                                     hasNotResidentTab={false}
                                                     residentTitle={MeterReadingsFromResidentMessage}
                                                 />
-                                            </Col>
+                                            </Col>}
                                         </Row>
                                     </Col>
                                 </Row>
                             </Col>
-                            <MetersTable
+                            {selectedPropertyId && <MetersTable
                                 selectedPropertyId={selectedPropertyId}
                                 selectedUnitName={selectedUnitName}
                                 selectedUnitType={selectedUnitType}
@@ -440,7 +446,7 @@ export const CreateMeterReadingsForm = ({ organization, canManageMeterReadings }
                                 tableColumns={tableColumns}
                                 setNewMeterReadings={setNewMeterReadings}
                                 newMeterReadings={newMeterReadings}
-                            />
+                            />}
                         </Row>
                     </Col>
                 </>

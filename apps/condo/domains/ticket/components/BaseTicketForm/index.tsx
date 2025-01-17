@@ -98,7 +98,7 @@ export const IncidentHintsBlock = ({ organizationId, propertyId }) => {
     )
 }
 
-export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, disabled = false, initialValues = {}, hasNotResidentTab = true, residentTitle = null }) => {
+export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, disabled = false, initialValues = {}, hasNotResidentTab = true, residentTitle = null, notResidentTitle = null }) => {
     const contactId = useMemo(() => get(initialValues, 'contact'), [initialValues])
 
     const value = useMemo(() => ({
@@ -128,13 +128,11 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
                 unitType={unitType}
                 hasNotResidentTab={hasNotResidentTab}
                 residentTitle={residentTitle}
+                notResidentTitle={notResidentTitle}
                 disabled={disabled}
             />
         )
-    }, [
-        ContactsEditorComponent, contactEditorComponentFields, disabled, form, hasNotResidentTab,
-        residentTitle, selectedPropertyId, value,
-    ])
+    }, [ContactsEditorComponent, contactEditorComponentFields, disabled, form, hasNotResidentTab, notResidentTitle, residentTitle, selectedPropertyId, value])
 
     return (
         <Col span={24}>
@@ -700,6 +698,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const CanReadByResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.CanReadByResident' })
     const AttachCallRecordMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.AttachCallRecord' })
     const CanReadByResidentTooltip = intl.formatMessage({ id: 'pages.condo.ticket.field.CanReadByResident.tooltip' })
+    const TicketNotFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketNotFromResident' })
+    const TicketFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketFromResident' })
 
     const client = useApolloClient()
     const { breakpoints } = useLayoutContext()
@@ -966,6 +966,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                     initialValues={initialTicketValues}
                                                                     selectedPropertyId={selectedPropertyId}
                                                                     disabled={!isEmpty(initialNotDraftInvoices)}
+                                                                    residentTitle={TicketFromResidentMessage}
+                                                                    notResidentTitle={TicketNotFromResidentMessage}
                                                                 />
                                                             </Row>
                                                         </Col>
