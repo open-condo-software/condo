@@ -538,7 +538,6 @@ describe('InviteNewOrganizationEmployeeService', () => {
                 })
                 expect(request.isRejected).toBeTruthy()
                 expect(request.isAccepted).toBeFalsy()
-                expect(request.isRejected).toBeTruthy()
                 expect(request.processedBy.id).toBe(employeeClient.user.id)
                 expect(request.v).toBe(2)
             })
