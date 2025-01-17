@@ -15,7 +15,7 @@ async function validateUserCredentials (userIdentity, authFactors) {
     if (typeof userIdentity !== 'object') throw new Error('You must provide userIdentity')
     if (typeof authFactors !== 'object') throw new Error('You must provide authFactors')
 
-    // TODO(DOMA-00000): check ConfirmEmailToken
+    // TODO(DOMA-9890): add ConfirmEmailToken
     if (authFactors.confirmEmailToken !== undefined) throw new Error('confirmEmailToken is not supported yet')
 
     const phone = userIdentity.phone
@@ -65,7 +65,6 @@ async function _getUser (userIdentity) {
     })
 
     if (users.length !== 1) {
-        // TODO(DOMA-10861): prevent a time based attack
         return { success: false }
     }
 
@@ -87,11 +86,11 @@ async function _matchUser (user, authFactors) {
     const authChecks = {
         password: authFactors.password === undefined ? 'skip' : 'fail',
         confirmPhoneToken: authFactors.confirmPhoneToken === undefined ? 'skip' : 'fail',
-        // TODO(DOMA-00000): check ConfirmEmailToken
+        // TODO(DOMA-9890): add ConfirmEmailToken
         // confirmEmailToken: authFactors.confirmEmailToken === undefined ? 'skip' : 'fail',
     }
 
-    const is2FAEnabled = false // TODO(DOMA-00000): add logic for 2FA
+    const is2FAEnabled = false // TODO(DOMA-10969): add logic for 2FA
 
     const numberOfChecksRequiredForAuth = is2FAEnabled ? 2 : 1
 
@@ -107,7 +106,7 @@ async function _matchUser (user, authFactors) {
         confirmPhoneAction = action
     }
 
-    // TODO(DOMA-00000): check ConfirmEmailToken
+    // TODO(DOMA-9890): add ConfirmEmailToken
     // let confirmEmailAction
     // if (authChecks.confirmEmailToken !== 'skip') {
     //     const { success, confirmEmailAction: action } = await matchUserConfirmEmailToken(user, authFactors.confirmEmailToken)
@@ -124,7 +123,7 @@ async function _matchUser (user, authFactors) {
         return {
             success: true, authChecks, confirmPhoneAction,
 
-            // TODO(DOMA-00000): check ConfirmEmailToken
+            // TODO(DOMA-9890): add ConfirmEmailToken
             // confirmEmailAction,
         }
     }
@@ -180,7 +179,7 @@ async function _matchUserConfirmPhoneToken (user, confirmPhoneToken) {
     return { success: false }
 }
 
-// TODO(DOMA-00000): check ConfirmEmailToken
+// TODO(DOMA-9890): add ConfirmEmailToken
 // async function _matchUserConfirmEmailToken (user, confirmEmailToken) {
 //     return { success: false }
 // }
@@ -216,7 +215,7 @@ async function _preventTimeBasedAttack (authFactors) {
         )
     }
 
-    // TODO(DOMA-00000): check ConfirmEmailToken
+    // TODO(DOMA-9890): add ConfirmEmailToken
     // if (authFactors.confirmEmailToken !== undefined) {
     //
     // }
