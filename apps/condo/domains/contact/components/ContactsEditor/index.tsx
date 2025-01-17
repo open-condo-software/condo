@@ -71,6 +71,7 @@ export interface IContactEditorProps {
     hasNotResidentTab?: boolean
     initialQuery?
     residentTitle?: string
+    notResidentTitle?: string
     hideFocusContainer?: boolean
     hideTabBar?: boolean
     contactFormItemProps?: FormItemProps
@@ -108,9 +109,8 @@ export enum CONTACT_TYPE {
 export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const intl = useIntl()
     const AddNewContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AddNewContact' })
-    const TicketFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketFromResident' })
     const ResidentMessage = intl.formatMessage({ id: 'Contact' })
-    const TicketNotFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketNotFromResident' })
+    const NotResidentMessage = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.NotResident' })
     const CancelMessage = intl.formatMessage({ id: 'Cancel' })
 
     const {
@@ -125,6 +125,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         hasNotResidentTab = true,
         initialQuery,
         residentTitle,
+        notResidentTitle,
         hideFocusContainer,
         hideTabBar,
         contactFormItemProps,
@@ -473,7 +474,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                             {
                                 hasNotResidentTab && (
                                     <TabPane
-                                        tab={TicketNotFromResidentMessage}
+                                        tab={notResidentTitle || NotResidentMessage}
                                         key={CONTACT_TYPE.NOT_RESIDENT}
                                     >
                                         <Row gutter={TAB_PANE_ROW_GUTTERS}>

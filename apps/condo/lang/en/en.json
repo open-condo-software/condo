@@ -646,6 +646,7 @@
   "contact.ConfirmDeleteMessage": "This contact will be deleted forever",
   "contact.ConfirmDeleteTitle": "Delete contact?",
   "contact.Contact.ContactsEditor.AddNewContact": "New contact",
+  "contact.Contact.ContactsEditor.NotResident": "Not a resident",
   "contact.Contact.ContactsEditor.AnotherContact": "Another contact",
   "contact.Contact.ContactsEditor.Name": "Name",
   "contact.Contact.ContactsEditor.Name.placeholder": "Full name",

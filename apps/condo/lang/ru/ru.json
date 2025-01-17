@@ -646,6 +646,7 @@
   "contact.ConfirmDeleteMessage": "Все данные о жителе сотрутся навсегда",
   "contact.ConfirmDeleteTitle": "Удалить жителя?",
   "contact.Contact.ContactsEditor.AddNewContact": "Новый контакт",
+  "contact.Contact.ContactsEditor.NotResident": "Не житель",
   "contact.Contact.ContactsEditor.AnotherContact": "Другой контакт",
   "contact.Contact.ContactsEditor.Name": "ФИО",
   "contact.Contact.ContactsEditor.Name.placeholder": "Фамилия Имя Отчество",

@@ -646,6 +646,7 @@
   "contact.ConfirmDeleteMessage": "Todos los datos sobre el vecino se borrarán de forma permanente",
   "contact.ConfirmDeleteTitle": "Eliminar vecino?",
   "contact.Contact.ContactsEditor.AddNewContact": "Nuevo contacto",
+  "contact.Contact.ContactsEditor.NotResident": "No residente",
   "contact.Contact.ContactsEditor.AnotherContact": "Otro contacto",
   "contact.Contact.ContactsEditor.Name": "Nombre completo",
   "contact.Contact.ContactsEditor.Name.placeholder": "Nombre completo",
