@@ -90517,12 +90517,6 @@ type Mutation {
   
   `{
     "code": "BAD_USER_INPUT",
-    "type": "REQUEST_ALREADY_ACCEPTED",
-    "message": "Request already accepted"
-  }`
-  
-  `{
-    "code": "BAD_USER_INPUT",
     "type": "REQUEST_TO_ORGANIZATION_LIMIT_REACHED",
     "message": "A request to the organization limit reached"
   }`
