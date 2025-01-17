@@ -188,9 +188,9 @@ const OrganizationEmployeeRequest = new GQLListSchema('OrganizationEmployeeReque
                 update: true,
             },
             hooks: {
-                validateInput: async ({ context, resolvedData, existingItem }) => {
+                validateInput: async ({ context, resolvedData, existingItem, fieldPath }) => {
                     const newItem = { ...existingItem, ...resolvedData }
-                    const employeeId = get(resolvedData, 'employee')
+                    const employeeId = get(resolvedData, fieldPath)
                     const userId = get(newItem, 'user')
                     const organizationId = get(newItem, 'organization')
 

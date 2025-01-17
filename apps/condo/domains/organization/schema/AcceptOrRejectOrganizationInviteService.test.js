@@ -7,6 +7,7 @@ const {
 
 const { GET_ORGANIZATION_EMPLOYEE_BY_ID_WITH_INVITE_CODE_QUERY } = require('@condo/domains/organization/gql')
 const {
+    OrganizationEmployee,
     createTestOrganization,
     createTestOrganizationEmployeeRequest,
     OrganizationEmployeeRequest,
@@ -61,17 +62,25 @@ describe('AcceptOrRejectOrganizationInviteService', () => {
                 const admin = await makeLoggedInAdminClient()
 
                 const [role] = await createTestOrganizationEmployeeRole(client1, client1.organization)
+                const [createdInvite] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs, role)
                 const [createdEmployeeRequest] = await createTestOrganizationEmployeeRequest(admin, client1.organization, client2.user)
-                const [invite] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs, role)
-                const [acceptedEmployee] = await acceptOrRejectOrganizationInviteById(client2, invite)
-                expect(acceptedEmployee).toEqual(expect.objectContaining({
-                    isAccepted: true,
-                    isRejected: false,
-                }))
+
+                const employee = await OrganizationEmployee.getOne(admin, { id: createdInvite.id })
+                expect(employee.isAccepted).toBeFalsy()
+                expect(employee.isRejected).toBeFalsy()
                 const employeeRequest = await OrganizationEmployeeRequest.getOne(admin, { id: createdEmployeeRequest.id })
-                expect(employeeRequest.isAccepted).toBeTruthy()
+                expect(employeeRequest.isAccepted).toBeFalsy()
                 expect(employeeRequest.isRejected).toBeFalsy()
-                expect(employeeRequest.createdEmployee.id).toBe(acceptedEmployee.id)
+                expect(employeeRequest.createdEmployee).toBeNull()
+
+                const [acceptedEmployee] = await acceptOrRejectOrganizationInviteById(client2, createdInvite)
+                expect(acceptedEmployee.isAccepted).toBeTruthy()
+                expect(acceptedEmployee.isRejected).toBeFalsy()
+
+                const processedEmployeeRequest = await OrganizationEmployeeRequest.getOne(admin, { id: createdEmployeeRequest.id })
+                expect(processedEmployeeRequest.isAccepted).toBeTruthy()
+                expect(processedEmployeeRequest.isRejected).toBeFalsy()
+                expect(processedEmployeeRequest.createdEmployee.id).toBe(acceptedEmployee.id)
             })
 
             test('should accept invitation and not update processed employee request', async () => {
@@ -80,21 +89,29 @@ describe('AcceptOrRejectOrganizationInviteService', () => {
                 const admin = await makeLoggedInAdminClient()
 
                 const [role] = await createTestOrganizationEmployeeRole(client1, client1.organization)
+                const [createdInvite] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs, role)
                 const [createdEmployeeRequest] = await createTestOrganizationEmployeeRequest(admin, client1.organization, client2.user)
                 const [updatedEmployeeRequest] = await updateTestOrganizationEmployeeRequest(admin, createdEmployeeRequest.id, {
                     isRejected: true,
                 })
-                const [invite] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs, role)
-                const [acceptedEmployee] = await acceptOrRejectOrganizationInviteById(client2, invite)
-                expect(acceptedEmployee).toEqual(expect.objectContaining({
-                    isAccepted: true,
-                    isRejected: false,
-                }))
+
+                const employee = await OrganizationEmployee.getOne(admin, { id: createdInvite.id })
+                expect(employee.isAccepted).toBeFalsy()
+                expect(employee.isRejected).toBeFalsy()
                 const employeeRequest = await OrganizationEmployeeRequest.getOne(admin, { id: createdEmployeeRequest.id })
                 expect(employeeRequest.isAccepted).toBeFalsy()
                 expect(employeeRequest.isRejected).toBeTruthy()
                 expect(employeeRequest.createdEmployee).toBeNull()
-                expect(employeeRequest.updatedAt).toBe(updatedEmployeeRequest.updatedAt)
+
+                const [acceptedEmployee] = await acceptOrRejectOrganizationInviteById(client2, createdInvite)
+                expect(acceptedEmployee.isAccepted).toBeTruthy()
+                expect(acceptedEmployee.isRejected).toBeFalsy()
+
+                const processedEmployeeRequest = await OrganizationEmployeeRequest.getOne(admin, { id: createdEmployeeRequest.id })
+                expect(processedEmployeeRequest.isAccepted).toBeFalsy()
+                expect(processedEmployeeRequest.isRejected).toBeTruthy()
+                expect(processedEmployeeRequest.createdEmployee).toBeNull()
+                expect(processedEmployeeRequest.updatedAt).toBe(updatedEmployeeRequest.updatedAt)
             })
 
             test('should reject invitation and not update employee request', async () => {
