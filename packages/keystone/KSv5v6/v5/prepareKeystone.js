@@ -47,6 +47,8 @@ const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLA
 // NOTE(pahaz): it's a magic number tested by @arichiv at https://developer.chrome.com/blog/cookie-max-age-expires/
 const INFINITY_MAX_AGE_COOKIE = 1707195600
 const SERVICE_USER_SESSION_TTL_IN_SEC = 7 * 24 * 60 * 60 // 7 days in sec
+const RATE_LIMIT_CONFIG = JSON.parse(conf['RATE_LIMIT_CONFIG'] || '{}')
+const IS_RATE_LIMIT_DISABLED = conf['DISABLE_RATE_LIMIT'] === 'true'
 
 const logger = getLogger('uncaughtError')
 
@@ -170,10 +172,11 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
         setInterval(sendAppMetrics, 2000)
     }
 
-    const apolloPlugins = [
-        new ApolloRateLimitingPlugin(keystone),
-        new GraphQLLoggerPlugin(),
-    ]
+    const apolloPlugins = []
+    if (!IS_RATE_LIMIT_DISABLED) {
+        apolloPlugins.push(new ApolloRateLimitingPlugin(keystone, RATE_LIMIT_CONFIG))
+    }
+    apolloPlugins.push(new GraphQLLoggerPlugin())
 
     if (IS_SENTRY_ENABLED) {
         apolloPlugins.unshift(new ApolloSentryPlugin())
