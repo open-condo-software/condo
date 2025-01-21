@@ -115,38 +115,37 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
     let hasMoreData = true
     //There is a concern that new receipts may be loaded during execution and then we may lose some of them
     while (hasMoreData) {
-        try {
-            const rawReceipts = await itemsQuery('BillingReceipt', { where: receiptsWhere, first: SEND_BILLING_RECEIPT_CHUNK_SIZE, skip })
+        const rawReceipts = await itemsQuery('BillingReceipt', { where: receiptsWhere, first: SEND_BILLING_RECEIPT_CHUNK_SIZE, skip })
+        stats.rawReceiptsCount += rawReceipts.length
 
-            if (!rawReceipts.length && !skip) {
-                logger.info({ msg: 'No new receipts were found for context', data: { contextId } })
-                break
-            }
-
-            if (rawReceipts.length < SEND_BILLING_RECEIPT_CHUNK_SIZE) {
-                hasMoreData = false
-            }
-
-            if (!rawReceipts.length){
-                break
-            }
-
-            const receipts = await filterReceipts(rawReceipts)
-
-            maxReceiptCreatedAt = dayjs(getMaxReceiptCreatedAt(receipts, maxReceiptCreatedAt)).toISOString()
-            const receiptAccountData = await prepareReceiptsData(receipts, context)
-            const consumersByAccountKey = await fetchAndGroupConsumers(context, receiptAccountData.accountNumbers)
-
-            await processReceipts(keystone, context, receiptAccountData, consumersByAccountKey, lastSendDate, stats)
-
-            updateStats(stats, consumersByAccountKey)
-            stats.rawReceiptsCount += rawReceipts.length
-            stats.isEligibleForProcessingReceipts += receipts.length
-            console.log('STATS:', stats)
-            skip += SEND_BILLING_RECEIPT_CHUNK_SIZE
-        } catch (err) {
-            logger.error({ msg: 'sendBillingReceiptsAddedNotificationForOrganizationContext fail', err })
+        if (!rawReceipts.length && !skip) {
+            logger.info({ msg: 'No new receipts were found for context', data: { contextId } })
+            break
         }
+
+        if (rawReceipts.length < SEND_BILLING_RECEIPT_CHUNK_SIZE) {
+            hasMoreData = false
+        }
+
+        if (!rawReceipts.length){
+            break
+        }
+
+        const receipts = await filterReceipts(rawReceipts)
+        stats.isEligibleForProcessingReceipts += receipts.length
+
+        if (!receipts.length) {
+            skip += SEND_BILLING_RECEIPT_CHUNK_SIZE
+            continue
+        }
+
+        maxReceiptCreatedAt = dayjs(getMaxReceiptCreatedAt(receipts, maxReceiptCreatedAt)).toISOString()
+        const receiptAccountData = await prepareReceiptsData(receipts, context)
+        const consumersByAccountKey = await fetchAndGroupConsumers(context, receiptAccountData.accountNumbers)
+
+        await processReceipts(keystone, context, receiptAccountData, consumersByAccountKey, lastSendDate, stats)
+
+        skip += SEND_BILLING_RECEIPT_CHUNK_SIZE
     }
 
     await redisClient.set(`${BILLING_CONTEXT_SYNCHRONIZATION_DATE}:${contextId}`, maxReceiptCreatedAt)
@@ -161,9 +160,6 @@ function initializeStats (contextId) {
         rawReceiptsCount: 0,
         isEligibleForProcessingReceipts: 0,
         contextId,
-        serviceConsumersCount: 0,
-        residentsUniqueCount: 0,
-        usersUniqueCount: 0,
     }
 }
 
@@ -208,17 +204,6 @@ async function processReceipts (keystone, context, receiptAccountData, consumers
         stats.successSentMessages += success
         stats.duplicatedSentMessages += duplicate
     }
-}
-
-function updateStats (stats, consumersByAccountKey) {
-    const serviceConsumers = Object.values(consumersByAccountKey).flat()
-    const residents = serviceConsumers.map(sc => sc.resident).filter(Boolean)
-    const residentsUnique = uniqBy(residents, 'id').filter(Boolean)
-    const usersUnique = uniqBy(residentsUnique, 'user').filter(Boolean)
-
-    stats.serviceConsumersCount += serviceConsumers.length
-    stats.residentsUniqueCount += residentsUnique.length
-    stats.usersUniqueCount += usersUnique.length
 }
 
 function logSummary (stats) {

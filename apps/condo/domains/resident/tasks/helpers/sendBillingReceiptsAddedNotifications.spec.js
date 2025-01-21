@@ -326,8 +326,6 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 environment.createJSONReceipt({ accountNumber: accountNumber1, address: resident1.address, addressMeta: addressUnitForResident1, toPay: '1000' }),
             ])
 
-            environment.context = utilsForContext.context
-
             await environment.createReceipts([
                 environment.createJSONReceipt({ accountNumber: accountNumber2, address: resident2.address, addressMeta: addressUnitForResident2, toPay: '1000' }),
             ])
