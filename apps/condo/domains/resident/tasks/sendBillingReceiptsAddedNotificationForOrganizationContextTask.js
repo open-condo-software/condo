@@ -17,10 +17,9 @@ const {
     BILLING_RECEIPT_ADDED_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { BILLING_CONTEXT_SYNCHRONIZATION_DATE } = require('@condo/domains/resident/constants/constants')
+const { BILLING_CONTEXT_SYNCHRONIZATION_DATE, SEND_BILLING_RECEIPT_CHUNK_SIZE } = require('@condo/domains/resident/constants/constants')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 
-const CHUNK_SIZE = 100
 const logger = getLogger('sendNewBillingReceiptNotification')
 const makeAccountKey = (...args) => args.map(value => `${value}`.trim().toLowerCase()).join(':')
 const getMessageTypeAndDebt = (toPay, toPayCharge) => {
@@ -117,16 +116,22 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
     //There is a concern that new receipts may be loaded during execution and then we may lose some of them
     while (hasMoreData) {
         try {
-            const receipts = await fetchReceiptsByChunk(receiptsWhere, CHUNK_SIZE, skip)
-            stats.receiptsCount += receipts.length
+            const rawReceipts = await itemsQuery('BillingReceipt', { where: receiptsWhere, SEND_BILLING_RECEIPT_CHUNK_SIZE, skip })
 
-            if (!receipts.length) {
+            if (!rawReceipts.length && !skip) {
                 logger.info({ msg: 'No new receipts were found for context', data: { contextId } })
+                break
             }
 
-            if (receipts.length < CHUNK_SIZE) {
+            if (rawReceipts.length < SEND_BILLING_RECEIPT_CHUNK_SIZE) {
                 hasMoreData = false
             }
+
+            if (!rawReceipts.length){
+                break
+            }
+
+            const receipts = await filterReceipts(rawReceipts)
 
             maxReceiptCreatedAt = dayjs(getMaxReceiptCreatedAt(receipts, maxReceiptCreatedAt)).toISOString()
             const receiptAccountData = await prepareReceiptsData(receipts, context)
@@ -135,8 +140,9 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
             await processReceipts(keystone, context, receiptAccountData, consumersByAccountKey, lastSendDate, stats)
 
             updateStats(stats, consumersByAccountKey)
-
-            skip += CHUNK_SIZE
+            stats.rawReceiptsCount += rawReceipts.length
+            stats.isEligibleForProcessingReceipts += receipts.length
+            skip += SEND_BILLING_RECEIPT_CHUNK_SIZE
         } catch (err) {
             logger.error({ msg: 'sendBillingReceiptsAddedNotificationForOrganizationContext fail', err })
         }
@@ -147,11 +153,12 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
     logSummary(stats)
 }
 
-function initializeStats (contextId, receiptsCount) {
+function initializeStats (contextId) {
     return {
         successSentMessages: 0,
         duplicatedSentMessages: 0,
-        receiptsCount,
+        rawReceiptsCount: 0,
+        isEligibleForProcessingReceipts: 0,
         contextId,
         serviceConsumersCount: 0,
         residentsUniqueCount: 0,
@@ -159,9 +166,7 @@ function initializeStats (contextId, receiptsCount) {
     }
 }
 
-async function fetchReceiptsByChunk (receiptsWhere, first, skip) {
-    const receipts = await itemsQuery('BillingReceipt', { where: receiptsWhere, first, skip })
-
+async function filterReceipts (receipts) {
     const filteredReceipts = await Promise.all(
         receipts.map(async receipt => {
             const newerReceipts = await find('BillingReceipt', {
