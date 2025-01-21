@@ -132,7 +132,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
         })
 
         test('Should send only one notification for same receipt', async () => {
-            const { receipt, resident, billingContext } = await makeBillingReceiptWithResident()
+            const { receipt, resident, billingContext } = await makeBillingReceiptWithResident({ toPay: '1000' })
 
             await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id, integration: billingContext.integration.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
             await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id, integration: billingContext.integration.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
@@ -148,7 +148,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
         })
 
         test('Should send nothing for receipt with no ServiceConsumer record', async () => {
-            const { receipt, resident, billingContext } = await makeBillingReceiptWithResident({}, true)
+            const { receipt, resident, billingContext } = await makeBillingReceiptWithResident({ toPay: '1000' }, true)
 
             await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...billingContext, organization: billingContext.organization.id, integration: billingContext.integration.id }, dayjs(receipt.createdAt).subtract(1, 'hour').toISOString())
 
@@ -408,7 +408,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             await Message.softDelete(environment.clients.admin, firstMessageId)
 
             await environment.createReceipts([
-                environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit }),
+                environment.createJSONReceipt({ accountNumber, address: resident.address, addressMeta: addressUnit, toPay: '1000' }),
             ])
 
             await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...environment.billingContext, organization: environment.billingContext.organization.id, integration: environment.billingContext.integration.id }, dayjs().subtract(1, 'h').toISOString())
@@ -599,11 +599,13 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                     accountNumber: accountNumber2,
                     address: resident2.address,
                     addressMeta: addressUnit2,
+                    toPay: '100',
                 }),
                 environment.createJSONReceipt({
                     accountNumber: accountNumber1,
                     address: resident1.address,
                     addressMeta: addressUnit1,
+                    toPay: '100',
                 })])
 
             await sendBillingReceiptsAddedNotificationForOrganizationContext({
@@ -638,6 +640,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                     addressMeta: addressUnit,
                     year: 2024,
                     month: 1,
+                    toPay: '100',
                 }),
                 environment.createJSONReceipt({
                     accountNumber,
@@ -645,6 +648,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                     addressMeta: addressUnit,
                     year: 2024,
                     month: 2,
+                    toPay: '100',
                 }),
             ])
             await environment.createServiceConsumer(resident, accountNumber)
