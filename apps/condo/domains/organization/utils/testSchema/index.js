@@ -34,6 +34,9 @@ const { RESET_ORGANIZATION_MUTATION } = require('@condo/domains/organization/gql
 const { REPLACE_ORGANIZATION_EMPLOYEE_ROLE_MUTATION } = require('@condo/domains/organization/gql')
 const { FIND_ORGANIZATIONS_BY_TIN_QUERY } = require('@condo/domains/organization/gql')
 const { FindOrganizationsByTinLog: FindOrganizationsByTinLogGQL } = require('@condo/domains/organization/gql')
+const { OrganizationEmployeeRequest: OrganizationEmployeeRequestGQL } = require('@condo/domains/organization/gql')
+const { SEND_ORGANIZATION_EMPLOYEE_REQUEST_MUTATION } = require('@condo/domains/organization/gql')
+const { ACCEPT_OR_REJECT_ORGANIZATION_EMPLOYEE_REQUEST_MUTATION } = require('@condo/domains/organization/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const OrganizationEmployeeRole = generateGQLTestUtils(OrganizationEmployeeRoleGQL)
@@ -43,6 +46,7 @@ const OrganizationLink = generateGQLTestUtils(OrganizationLinkGQL)
 
 const OrganizationEmployeeSpecialization = generateGQLTestUtils(OrganizationEmployeeSpecializationGQL)
 const FindOrganizationsByTinLog = generateGQLTestUtils(FindOrganizationsByTinLogGQL)
+const OrganizationEmployeeRequest = generateGQLTestUtils(OrganizationEmployeeRequestGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 /**
@@ -422,6 +426,65 @@ async function updateTestFindOrganizationsByTinLog (client, id, extraAttrs = {})
     return [obj, attrs]
 }
 
+async function createTestOrganizationEmployeeRequest (client, organization, user, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    if (!user || !user.id) throw new Error('no user.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        organization: { connect: { id: organization.id } },
+        user: { connect: { id: user.id } },
+        ...extraAttrs,
+    }
+    const obj = await OrganizationEmployeeRequest.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestOrganizationEmployeeRequest (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await OrganizationEmployeeRequest.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+
+async function sendOrganizationEmployeeRequestByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(SEND_ORGANIZATION_EMPLOYEE_REQUEST_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
+async function acceptOrRejectOrganizationEmployeeRequestByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(ACCEPT_OR_REJECT_ORGANIZATION_EMPLOYEE_REQUEST_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -450,5 +513,8 @@ module.exports = {
     replaceOrganizationEmployeeRoleByTestClient,
     findOrganizationsByTinByTestClient,
     FindOrganizationsByTinLog, createTestFindOrganizationsByTinLog, updateTestFindOrganizationsByTinLog,
+    OrganizationEmployeeRequest, createTestOrganizationEmployeeRequest, updateTestOrganizationEmployeeRequest,
+    sendOrganizationEmployeeRequestByTestClient,
+    acceptOrRejectOrganizationEmployeeRequestByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

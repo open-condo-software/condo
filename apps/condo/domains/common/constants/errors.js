@@ -67,8 +67,9 @@ const COMMON_ERRORS = {
         variable: ['data', 'sender'],
         code: 'BAD_USER_INPUT',
         type: WRONG_FORMAT,
-        message: 'Invalid format of "sender" field value',
+        message: 'Invalid format of "sender" field value. {details}',
         correctExample: '{ "dv": 1, "fingerprint": "uniq-device-or-container-id" }',
+        messageInterpolation: { details: 'Please, check the example for details' },
     },
 }
 

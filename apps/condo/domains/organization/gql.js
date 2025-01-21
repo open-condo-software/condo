@@ -13,7 +13,7 @@ const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId created
 const ORGANIZATION_FIELDS = `{ country name type description avatar { publicUrl } meta tin features statusTransitions defaultEmployeeRoleStatusTransitions importId importRemoteSystem phone phoneNumberPrefix isApproved ${COMMON_FIELDS} }`
 const Organization = generateGqlQueries('Organization', ORGANIZATION_FIELDS)
 
-const ORGANIZATION_EMPLOYEE_ROLE_FIELDS = `{ isEditable isDefault organization { id } name nameNonLocalized description descriptionNonLocalized statusTransitions canReadAnalytics canManageOrganization canManageCallRecords canDownloadCallRecords canReadEmployees canManageEmployees canInviteNewOrganizationEmployees canManageRoles canManageTicketPropertyHints canManageIntegrations canImportBillingReceipts canReadBillingReceipts canReadPayments canManageProperties canReadProperties canReadDocuments canManageDocuments canReadTickets canManageTickets canReadContacts canManageContacts canManageContactRoles canManageTicketComments canManagePropertyScopes canShareTickets canBeAssignedAsResponsible canBeAssignedAsExecutor canManageMeters canManageMeterReadings ticketVisibilityType canManageBankAccounts canManageBankContractorAccounts canManageBankIntegrationAccountContexts canManageBankIntegrationOrganizationContexts canManageBankTransactions canManageBankAccountReports canManageBankAccountReportTasks canManageBankAccountReports canReadIncidents canManageIncidents canReadNewsItems canManageNewsItems canManageNewsItemTemplates canManageMobileFeatureConfigs canManageB2BApps canReadMeters canReadSettings canReadExternalReports canReadServices canReadCallRecords canReadInvoices canManageInvoices canReadMarketItems canManageMarketItems canManageMarketItemPrices canReadMarketItemPrices canReadMarketPriceScopes canManageMarketPriceScopes canReadMarketplace canManageMarketplace canReadPaymentsWithInvoices canReadTour canManageTour canReadMarketSetting canManageMarketSetting canManageTicketAutoAssignments ${COMMON_FIELDS} }`
+const ORGANIZATION_EMPLOYEE_ROLE_FIELDS = `{ isEditable isDefault organization { id } name nameNonLocalized description descriptionNonLocalized statusTransitions canReadAnalytics canManageOrganization canManageCallRecords canDownloadCallRecords canReadEmployees canManageEmployees canInviteNewOrganizationEmployees canManageRoles canManageTicketPropertyHints canManageIntegrations canImportBillingReceipts canReadBillingReceipts canReadPayments canManageProperties canReadProperties canReadDocuments canManageDocuments canReadTickets canManageTickets canReadContacts canManageContacts canManageContactRoles canManageTicketComments canManagePropertyScopes canShareTickets canBeAssignedAsResponsible canBeAssignedAsExecutor canManageMeters canManageMeterReadings ticketVisibilityType canManageBankAccounts canManageBankContractorAccounts canManageBankIntegrationAccountContexts canManageBankIntegrationOrganizationContexts canManageBankTransactions canManageBankAccountReports canManageBankAccountReportTasks canManageBankAccountReports canReadIncidents canManageIncidents canReadNewsItems canManageNewsItems canManageNewsItemTemplates canManageMobileFeatureConfigs canManageB2BApps canReadMeters canReadSettings canReadExternalReports canReadServices canReadCallRecords canReadInvoices canManageInvoices canReadMarketItems canManageMarketItems canManageMarketItemPrices canReadMarketItemPrices canReadMarketPriceScopes canManageMarketPriceScopes canReadMarketplace canManageMarketplace canReadPaymentsWithInvoices canReadTour canManageTour canReadMarketSetting canManageMarketSetting canManageTicketAutoAssignments canManageOrganizationEmployeeRequests ${COMMON_FIELDS} }`
 const OrganizationEmployeeRole = generateGqlQueries('OrganizationEmployeeRole', ORGANIZATION_EMPLOYEE_ROLE_FIELDS)
 
 const ORGANIZATION_EMPLOYEE_FIELDS = `{ organization ${ORGANIZATION_FIELDS} user { id name } name email phone role ${ORGANIZATION_EMPLOYEE_ROLE_FIELDS} hasAllSpecializations isRejected isAccepted isBlocked id dv sender { dv fingerprint } v createdBy { id name } updatedBy { id name } position createdAt deletedAt updatedAt }`
@@ -114,6 +114,21 @@ const FIND_ORGANIZATIONS_BY_TIN_QUERY = gql`
 const FIND_ORGANIZATIONS_BY_TIN_LOG_FIELDS = '{ user { id } userPhone userEmail tin id dv sender { dv fingerprint } v createdBy { id name } updatedBy { id name } createdAt updatedAt }'
 const FindOrganizationsByTinLog = generateGqlQueries('FindOrganizationsByTinLog', FIND_ORGANIZATIONS_BY_TIN_LOG_FIELDS)
 
+const ORGANIZATION_EMPLOYEE_REQUEST_FIELDS = `{ organization { id } organizationId organizationName organizationTin user { id } isAccepted isRejected processedBy { id } processedAt retries createdEmployee { id } ${COMMON_FIELDS} }`
+const OrganizationEmployeeRequest = generateGqlQueries('OrganizationEmployeeRequest', ORGANIZATION_EMPLOYEE_REQUEST_FIELDS)
+
+const SEND_ORGANIZATION_EMPLOYEE_REQUEST_MUTATION = gql`
+    mutation sendOrganizationEmployeeRequest ($data: SendOrganizationEmployeeRequestInput!) {
+        result: sendOrganizationEmployeeRequest(data: $data) { organization { id } organizationId organizationName organizationTin user { id } isAccepted isRejected processedBy { id } processedAt retries createdEmployee { id } ${COMMON_FIELDS} }
+    }
+`
+
+const ACCEPT_OR_REJECT_ORGANIZATION_EMPLOYEE_REQUEST_MUTATION = gql`
+    mutation acceptOrRejectOrganizationEmployeeRequest ($data: AcceptOrRejectOrganizationEmployeeRequestInput!) {
+        result: acceptOrRejectOrganizationEmployeeRequest(data: $data) { organization { id } organizationId organizationName organizationTin user { id } isAccepted isRejected processedBy { id } processedAt retries createdEmployee { id } ${COMMON_FIELDS} }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -136,6 +151,9 @@ module.exports = {
     ORGANIZATION_FIELDS,
     FIND_ORGANIZATIONS_BY_TIN_QUERY,
     FindOrganizationsByTinLog,
+    OrganizationEmployeeRequest,
+    SEND_ORGANIZATION_EMPLOYEE_REQUEST_MUTATION,
+    ACCEPT_OR_REJECT_ORGANIZATION_EMPLOYEE_REQUEST_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 

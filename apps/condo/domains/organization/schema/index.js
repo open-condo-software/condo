@@ -3,18 +3,21 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
+const { AcceptOrRejectOrganizationEmployeeRequestService } = require('./AcceptOrRejectOrganizationEmployeeRequestService')
 const { AcceptOrRejectOrganizationInviteService } = require('./AcceptOrRejectOrganizationInviteService')
 const { FindOrganizationsByTinLog } = require('./FindOrganizationsByTinLog')
 const { FindOrganizationsByTinService } = require('./FindOrganizationsByTinService')
 const { InviteNewOrganizationEmployeeService } = require('./InviteNewOrganizationEmployeeService')
 const { Organization } = require('./Organization')
 const { OrganizationEmployee } = require('./OrganizationEmployee')
+const { OrganizationEmployeeRequest } = require('./OrganizationEmployeeRequest')
 const { OrganizationEmployeeRole } = require('./OrganizationEmployeeRole')
 const { OrganizationEmployeeSpecialization } = require('./OrganizationEmployeeSpecialization')
 const { OrganizationLink } = require('./OrganizationLink')
 const { RegisterNewOrganizationService } = require('./RegisterNewOrganizationService')
 const { ReplaceOrganizationEmployeeRoleService } = require('./ReplaceOrganizationEmployeeRoleService')
 const { ResetOrganizationService } = require('./ResetOrganizationService')
+const { SendOrganizationEmployeeRequestService } = require('./SendOrganizationEmployeeRequestService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -30,5 +33,8 @@ module.exports = {
     ReplaceOrganizationEmployeeRoleService,
     FindOrganizationsByTinService,
     FindOrganizationsByTinLog,
+    OrganizationEmployeeRequest,
+    SendOrganizationEmployeeRequestService,
+    AcceptOrRejectOrganizationEmployeeRequestService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

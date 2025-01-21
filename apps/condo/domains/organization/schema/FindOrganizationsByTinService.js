@@ -72,7 +72,7 @@ const FindOrganizationsByTinService = new GQLCustomSchema('FindOrganizationsByTi
     types: [
         {
             access: true,
-            type: 'input FindOrganizationsByTinInput { dv: Int!, sender: JSON!, tin: String! }',
+            type: 'input FindOrganizationsByTinInput { dv: Int!, sender: SenderFieldInput!, tin: String! }',
         },
         {
             access: true,

@@ -1,11 +1,12 @@
 const { get } = require('lodash')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
+const { getById, GQLCustomSchema, getByCondition } = require('@open-condo/keystone/schema')
 
 const { NOT_FOUND, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/organization/access/AcceptOrRejectOrganizationInviteService')
-const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
+const { OrganizationEmployee, OrganizationEmployeeRequest } = require('@condo/domains/organization/utils/serverSchema')
+
 
 const ERRORS = {
     acceptOrRejectOrganizationInviteById: {
@@ -65,7 +66,10 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
                 isAccepted = isAccepted || false
 
                 let employee = await OrganizationEmployee.getOne(context, { id, deletedAt: null })
-                if (!employee) throw new GQLError({ ...ERRORS.acceptOrRejectOrganizationInviteById.INVITE_NOT_FOUND, messageInterpolation: { id } }, context)
+                if (!employee) throw new GQLError({
+                    ...ERRORS.acceptOrRejectOrganizationInviteById.INVITE_NOT_FOUND,
+                    messageInterpolation: { id },
+                }, context)
 
                 // if the user accepts the invitation, then update the name, phone number and email address of the employee
                 if (isAccepted) {
@@ -77,7 +81,25 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
                         name: authedItem.name ? authedItem.name : null,
                         phone: authedItem.phone ? authedItem.phone : null,
                         email: authedItem.email ? authedItem.email : null,
+                    }, 'id user { id } organization { id }')
+
+                    const notProcessedEmployeeRequest = await getByCondition('OrganizationEmployeeRequest', {
+                        user: { id: employee.user.id, deletedAt: null },
+                        organization: { id: employee.organization.id, deletedAt: null },
+                        deletedAt: null,
+                        isAccepted: false,
+                        isRejected: false,
                     })
+
+                    if (notProcessedEmployeeRequest) {
+                        await OrganizationEmployeeRequest.update(context, notProcessedEmployeeRequest.id, {
+                            isAccepted: true,
+                            isRejected: false,
+                            createdEmployee: { connect: { id: employee.id } },
+                            dv,
+                            sender,
+                        })
+                    }
                 } else {
                     employee = await OrganizationEmployee.update(context, employee.id, {
                         dv: 1,
@@ -102,8 +124,15 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
                 isRejected = isRejected || false
                 isAccepted = isAccepted || false
 
-                let employee = await OrganizationEmployee.getOne(context, { inviteCode, user_is_null: true, deletedAt: null })
-                if (!employee) throw new GQLError({ ...ERRORS.acceptOrRejectOrganizationInviteByCode.INVITE_NOT_FOUND, messageInterpolation: { inviteCode } }, context)
+                let employee = await OrganizationEmployee.getOne(context, {
+                    inviteCode,
+                    user_is_null: true,
+                    deletedAt: null,
+                })
+                if (!employee) throw new GQLError({
+                    ...ERRORS.acceptOrRejectOrganizationInviteByCode.INVITE_NOT_FOUND,
+                    messageInterpolation: { inviteCode },
+                }, context)
 
                 // if the user accepts the invitation, then update the name, phone number and email address of the employee
                 const needToUpdateUserData = isAccepted ? {
