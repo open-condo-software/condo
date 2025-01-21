@@ -60,7 +60,7 @@ async function _getUser (userIdentity) {
     const where = { type: userType, deletedAt: null }
     if (phone) {
         where.phone = phone
-        // TODO(DOMA-00000): uncomment when active users phones will be verified
+        // TODO(Alllex202): uncomment when active users phones will be verified
         // where.isPhoneVerified = true
     }
     if (email) {
