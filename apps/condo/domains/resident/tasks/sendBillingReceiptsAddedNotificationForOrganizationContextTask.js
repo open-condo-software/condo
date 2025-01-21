@@ -116,7 +116,7 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
     //There is a concern that new receipts may be loaded during execution and then we may lose some of them
     while (hasMoreData) {
         try {
-            const rawReceipts = await itemsQuery('BillingReceipt', { where: receiptsWhere, SEND_BILLING_RECEIPT_CHUNK_SIZE, skip })
+            const rawReceipts = await itemsQuery('BillingReceipt', { where: receiptsWhere, first: SEND_BILLING_RECEIPT_CHUNK_SIZE, skip })
 
             if (!rawReceipts.length && !skip) {
                 logger.info({ msg: 'No new receipts were found for context', data: { contextId } })
@@ -142,6 +142,7 @@ async function sendBillingReceiptsAddedNotificationForOrganizationContext (conte
             updateStats(stats, consumersByAccountKey)
             stats.rawReceiptsCount += rawReceipts.length
             stats.isEligibleForProcessingReceipts += receipts.length
+            console.log('STATS:', stats)
             skip += SEND_BILLING_RECEIPT_CHUNK_SIZE
         } catch (err) {
             logger.error({ msg: 'sendBillingReceiptsAddedNotificationForOrganizationContext fail', err })
