@@ -15,6 +15,7 @@ const {
     AUTH_COUNTER_LIMIT_TYPE,
     RATE_LIMIT_TYPE,
     FIND_ORGANIZATION_BY_TIN_TYPE,
+    LOGIN_BY_PHONE_AND_PASSWORD_LIMIT_TYPE,
 } = require('@condo/domains/user/constants/limits')
 const { ERRORS } = require('@condo/domains/user/schema/ResetUserLimitAction')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
@@ -399,6 +400,47 @@ describe('ResetUserLimitAction', () => {
                 const afterResetTotal = await redisGuard.getCounterValue(totalKey)
 
                 expect(afterResetTotal).toBeNull()
+            })
+        })
+
+        describe(`${LOGIN_BY_PHONE_AND_PASSWORD_LIMIT_TYPE} type`, () => {
+            test('throws error if key is not exists', async () => {
+                const ipv4 = faker.internet.ipv4()
+
+                await expectToThrowGQLError(async () => {
+                    await createTestResetUserLimitAction(admin, LOGIN_BY_PHONE_AND_PASSWORD_LIMIT_TYPE, ipv4)
+                }, ERRORS.KEY_NOT_FOUND)
+            })
+
+            test('throws error if key is not valid ip', async () => {
+                const key = faker.random.alphaNumeric(8)
+                for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
+                    await redisGuard.incrementDayCounter(key)
+                }
+                const beforeReset = await redisGuard.getCounterValue(key)
+
+                expect(Number(beforeReset)).toEqual(COUNTER_VALUE_TO_UPDATE)
+
+                await expectToThrowGQLError(async () => {
+                    await createTestResetUserLimitAction(userWithDirectAccess, LOGIN_BY_PHONE_AND_PASSWORD_LIMIT_TYPE, key)
+                }, ERRORS.INVALID_IDENTIFIER)
+            })
+
+            test('resets counter by ip', async () => {
+                const ip = faker.internet.ipv4()
+                const key = `${LOGIN_BY_PHONE_AND_PASSWORD_LIMIT_TYPE}:${ip}`
+
+                for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
+                    await redisGuard.incrementDayCounter(key)
+                }
+                const beforeReset = await redisGuard.getCounterValue(key)
+
+                expect(Number(beforeReset)).toEqual(COUNTER_VALUE_TO_UPDATE)
+
+                await createTestResetUserLimitAction(userWithDirectAccess, LOGIN_BY_PHONE_AND_PASSWORD_LIMIT_TYPE, ip)
+                const afterReset = await redisGuard.getCounterValue(key)
+
+                expect(afterReset).toBeNull()
             })
         })
     })

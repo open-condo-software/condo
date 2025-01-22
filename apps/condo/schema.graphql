@@ -4147,6 +4147,7 @@ enum ResetUserLimitActionTypeType {
   auth
   rateLimit
   findOrganizationsByTin
+  loginByPhoneAndPassword
 }
 
 """ A model for resetting user counters limit. To reset a counter limit, you need to create a new object and specify the counter type, identifier, and reason for the reset. 
@@ -4161,7 +4162,7 @@ type ResetUserLimitAction {
   """
   _label_: String
 
-  """ Type of limit to reset. Possible values: ["auth", "rateLimit", "findOrganizationsByTin"] 
+  """ Type of limit to reset. Possible values: ["auth", "rateLimit", "findOrganizationsByTin", "loginByPhoneAndPassword"] 
   """
   type: ResetUserLimitActionTypeType
 
@@ -4169,7 +4170,8 @@ type ResetUserLimitAction {
    The identifier of user, to which reset will apply. Possible values are based on reset type: 
   auth: ["phone", "ip"], 
   rateLimit: ["uuid", "ip"], 
-  findOrganizationsByTin: ["email", "phone", "uuid"] 
+  findOrganizationsByTin: ["email", "phone", "uuid"], 
+  loginByPhoneAndPassword: ["ip"] 
   """
   identifier: String
 

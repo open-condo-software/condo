@@ -7,7 +7,7 @@ const { WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { STAFF } = require('@condo/domains/user/constants/common')
 const { WRONG_CREDENTIALS } = require('@condo/domains/user/constants/errors')
-const { AUTH_COUNTER_LIMIT_TYPE } = require('@condo/domains/user/constants/limits')
+const { LOGIN_BY_PHONE_AND_PASSWORD_LIMIT_TYPE } = require('@condo/domains/user/constants/limits')
 const { USER_FIELDS } = require('@condo/domains/user/gql')
 const { User } = require('@condo/domains/user/utils/serverSchema')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
@@ -80,7 +80,7 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
                 const ip = context.req.ip
 
                 await redisGuard.checkCustomLimitCounters(
-                    `${AUTH_COUNTER_LIMIT_TYPE}:${ip}`,
+                    `${LOGIN_BY_PHONE_AND_PASSWORD_LIMIT_TYPE}:${ip}`,
                     customQuotas[ip]?.windowSizeSec || GUARD_DEFAULT_WINDOW_SIZE_SEC,
                     customQuotas[ip]?.windowLimit || GUARD_DEFAULT_WINDOW_LIMIT,
                     context,

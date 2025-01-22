@@ -12,18 +12,21 @@ const {
     AUTH_COUNTER_LIMIT_TYPE,
     FIND_ORGANIZATION_BY_TIN_TYPE,
     RATE_LIMIT_TYPE,
+    LOGIN_BY_PHONE_AND_PASSWORD_LIMIT_TYPE,
 } = require('@condo/domains/user/constants/limits')
 const { getIdentifierType } = require('@condo/domains/user/utils/identifiers')
 const {
     AuthGuardResetter,
     RateLimitResetter,
     FindOrganizationByTinGuardResetter,
+    LoginByPhoneAndPasswordGuardResetter,
 } = require('@condo/domains/user/utils/limits/resetters')
 
 const resetters = {
     [AUTH_COUNTER_LIMIT_TYPE]: new AuthGuardResetter(),
     [RATE_LIMIT_TYPE]: new RateLimitResetter(),
     [FIND_ORGANIZATION_BY_TIN_TYPE]: new FindOrganizationByTinGuardResetter(),
+    [LOGIN_BY_PHONE_AND_PASSWORD_LIMIT_TYPE]: new LoginByPhoneAndPasswordGuardResetter(),
 }
 
 const ERRORS = {
