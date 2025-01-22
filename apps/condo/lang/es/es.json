@@ -463,6 +463,7 @@
   "api.ticket.ticketDocumentGenerationTask.STATUS_IS_ALREADY_ERROR": "La tarea ya se ha completado con un error",
   "api.ticket.updateResidentTicket.TICKET_NOT_FOUND": "No se ha encontrado la solicitud con id \"{ticketId}\" para el usuario actual",
   "api.user.CAPTCHA_CHECK_FAILED": "No se ha podido completar la operación. Por favor, actualice la aplicación",
+  "api.user.CREDENTIAL_VALIDATION_FAILED": "No se pudo autorizar al usuario",
   "api.user.DAILY_REQUEST_LIMIT_FOR_EMAIL_REACHED": "Demasiadas solicitudes con este correo electrónico. Inténtalo de nuevo más tarde",
   "api.user.DAILY_REQUEST_LIMIT_FOR_IP_REACHED": "Demasiadas solicitudes desde esta dirección ip. Inténtelo de nuevo más tarde",
   "api.user.DAILY_REQUEST_LIMIT_FOR_PHONE_REACHED": "Demasiadas solicitudes desde este teléfono. Inténtelo de nuevo más tarde",

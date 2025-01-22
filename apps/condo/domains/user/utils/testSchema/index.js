@@ -50,6 +50,7 @@ const { UserRightsSet: UserRightsSetGQL } = require('@condo/domains/user/gql')
 const { CHECK_USER_EXISTENCE_MUTATION } = require('@condo/domains/user/gql')
 const { ResetUserLimitAction: ResetUserLimitActionGQL } = require('@condo/domains/user/gql')
 const { UserSudoToken: UserSudoTokenGQL } = require('@condo/domains/user/gql')
+const { GENERATE_SUDO_TOKEN_MUTATION } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const OIDC_REDIRECT_URI = 'https://httpbin.org/anything'
@@ -601,6 +602,20 @@ async function updateTestUserSudoToken (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+
+async function generateSudoTokenByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(GENERATE_SUDO_TOKEN_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -643,6 +658,7 @@ module.exports = {
     authenticateUserWithPhoneAndPasswordByTestClient,
     ResetUserLimitAction, createTestResetUserLimitAction, updateTestResetUserLimitAction,
     UserSudoToken, createTestUserSudoToken, updateTestUserSudoToken,
+    generateSudoTokenByTestClient,
     OIDC_REDIRECT_URI,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

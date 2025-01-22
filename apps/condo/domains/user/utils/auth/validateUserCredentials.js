@@ -7,8 +7,8 @@ const { generateSimulatedToken } = require('@condo/domains/user/utils/tokens')
 
 /**
  *
- * @param userIdentity
- * @param authFactors
+ * @param {{ phone?: string, email?: string, userType: 'staff' | 'resident' | 'service' }} userIdentity
+ * @param {{ confirmPhoneToken?: string, confirmEmailToken?: string, password?: string }} authFactors
  * @return {Promise<{success: boolean}|{confirmPhoneAction?: {id: string, phone: string, isPhoneVerified: boolean}, success: boolean, user: Object}>}
  */
 async function validateUserCredentials (userIdentity, authFactors) {
