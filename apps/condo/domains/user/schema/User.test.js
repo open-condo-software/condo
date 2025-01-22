@@ -546,6 +546,37 @@ describe('User fields', () => {
             })
         })
     })
+
+    describe('_label_', () => {
+
+        let admin
+        let support
+        beforeAll(async () => {
+            admin = await makeLoggedInAdminClient()
+            support = await makeClientWithSupportUser()
+        })
+
+        test('Shows "name" -- <id> in "_label_" if requested by admin or support', async () => {
+            const name = faker.name.firstName()
+            const [user] = await registerNewUser(admin, { name })
+            expect(user).toHaveProperty('_label_', `${name} -- <${user.id}>`)
+
+            const anotherUser = await User.getOne(support, { id: user.id })
+            expect(anotherUser).toHaveProperty('_label_', `${name} -- <${user.id}>`)
+        })
+
+        test('Shows "id" in "_label_" if requested by user with no admin / support rights', async () => {
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [rightSet] = await createTestUserRightsSet(admin, { canReadUsers: true })
+            await updateTestUser(admin, client.user.id, { rightsSet: { connect: { id: rightSet.id } } })
+
+            const name = faker.name.firstName()
+            const [{ id: newUserId }] = await registerNewUser(admin, { name })
+            const user = await User.getOne(client, { id: newUserId })
+            expect(user).toHaveProperty('_label_', newUserId)
+        })
+
+    })
 })
 
 const COMMON_FIELDS = 'id dv sender v deletedAt newId createdBy updatedBy createdAt updatedAt'
