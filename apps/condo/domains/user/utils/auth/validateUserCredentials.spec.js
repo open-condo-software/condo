@@ -303,13 +303,13 @@ describe('function "validateUserCredentials"', () => {
             expect(resultWithResident.success).toBeTruthy()
             expect(resultWithResident.user.id).toBe(registeredResidentUser.id)
 
-            const [registeredServiceUser, serviceUserAttrs] = await registerNewUser(await makeClient(), { phone: residentUserAttrs.phonw, email: residentUserAttrs.email })
+            const [registeredServiceUser, serviceUserAttrs] = await registerNewUser(await makeClient(), { phone: residentUserAttrs.phone, email: residentUserAttrs.email })
             await updateTestUser(adminClient, registeredServiceUser.id, { type: 'service' })
             const resultWithService = await validateUserCredentials({ phone: serviceUserAttrs.phone, email: serviceUserAttrs.email, userType: 'service' }, { password: serviceUserAttrs.password })
             expect(resultWithService.success).toBeTruthy()
             expect(resultWithService.user.id).toBe(registeredServiceUser.id)
 
-            const [registeredStaffUser, staffUserAttrs] = await registerNewUser(await makeClient(), { phone: residentUserAttrs.phonw, email: residentUserAttrs.email })
+            const [registeredStaffUser, staffUserAttrs] = await registerNewUser(await makeClient(), { phone: residentUserAttrs.phone, email: residentUserAttrs.email })
             const resultWithStaff = await validateUserCredentials({ phone: staffUserAttrs.phone, email: staffUserAttrs.email, userType: 'staff' }, { password: staffUserAttrs.password })
             expect(resultWithStaff.success).toBeTruthy()
             expect(resultWithStaff.user.id).toBe(registeredStaffUser.id)

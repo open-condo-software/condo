@@ -195,6 +195,14 @@ const ResetUserLimitAction = generateGqlQueries('ResetUserLimitAction', RESET_US
 const USER_SUDO_TOKEN_FIELDS = `{ token expiresAt user { id } remainingUses ${COMMON_FIELDS} }`
 const UserSudoToken = generateGqlQueries('UserSudoToken', USER_SUDO_TOKEN_FIELDS)
 
+// TODO(codegen): write return type result!
+
+const GENERATE_SUDO_TOKEN_MUTATION = gql`
+    mutation generateSudoToken ($data: GenerateSudoTokenInput!) {
+        result: generateSudoToken(data: $data) { token }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -228,5 +236,6 @@ module.exports = {
     USER_FIELDS,
     ResetUserLimitAction,
     UserSudoToken,
+    GENERATE_SUDO_TOKEN_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
