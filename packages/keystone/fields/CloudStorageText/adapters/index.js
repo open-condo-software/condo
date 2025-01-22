@@ -1,8 +1,9 @@
 const { Text } = require('@keystonejs/fields')
 const cuid = require('cuid')
-const isNil = require('lodash/isNil')
 
+const { CLOUD_STORAGE_TEXT_MIMETYPE, CLOUD_STORAGE_TEXT_ENCODING } = require('@open-condo/keystone/fields/CloudStorageText/constants')
 const { bufferToStream, readFileFromStream, getObjectStream } = require('@open-condo/keystone/file')
+
 
 const CommonInterface = superclass => class extends superclass {
 
@@ -16,7 +17,7 @@ const CommonInterface = superclass => class extends superclass {
 
     setupHooks ({ addPreSaveHook, addPostReadHook }) {
         addPreSaveHook(async (item) => {
-            if (this._isFieldDefined(item)) {
+            if (item[this.path]) {
                 item[this.path] = await this._saveFileToAdapter(item[this.path])
             }
             return item
@@ -30,21 +31,15 @@ const CommonInterface = superclass => class extends superclass {
         })
     }
 
-    _isFieldDefined (item) {
-        return item && !isNil(item[this.path])
-    }
-
     async _saveFileToAdapter (content) {
         const stream = bufferToStream(content)
-        const originalFilename = this._generateFilename()
-        const mimetype = 'text/plain'
-        const encoding = 'utf8'
+        const originalFilename = cuid()
 
         const { id, filename, _meta } = await this.fileAdapter.save({
             stream,
             filename: originalFilename,
-            mimetype,
-            encoding,
+            mimetype: CLOUD_STORAGE_TEXT_MIMETYPE,
+            encoding: CLOUD_STORAGE_TEXT_ENCODING,
             id: cuid(),
         })
 
@@ -52,8 +47,8 @@ const CommonInterface = superclass => class extends superclass {
             id,
             filename,
             originalFilename,
-            mimetype,
-            encoding,
+            mimetype: CLOUD_STORAGE_TEXT_MIMETYPE,
+            encoding: CLOUD_STORAGE_TEXT_ENCODING,
             _meta,
         }
     }
@@ -64,12 +59,10 @@ const CommonInterface = superclass => class extends superclass {
         return fileContent.toString()
     }
 
-    _generateFilename () {
-        return `${new Date().toISOString()}`
-    }
-
     addToTableSchema (table) {
-        table.jsonb(this.path)
+        const column = table.jsonb(this.path)
+        if (this.isNotNullable) column.notNullable()
+        if (this.defaultTo) column.defaultTo(this.defaultTo)
     }
 }
 

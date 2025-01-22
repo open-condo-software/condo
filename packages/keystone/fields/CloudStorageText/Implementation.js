@@ -7,6 +7,25 @@ class CloudStorageTextImplementation extends Text.implementation {
         super(...arguments)
         this.fileAdapter = adapter
         this.isMultiline = true
+        this.isOrderable = false
+    }
+    equalityInputFields () {
+        return []
+    }
+    equalityInputFieldsInsensitive () {
+        return []
+    }
+    inInputFields () {
+        return []
+    }
+    orderingInputFields () {
+        return []
+    }
+    stringInputFields () {
+        return []
+    }
+    stringInputFieldsInsensitive () {
+        return []
     }
 }
 

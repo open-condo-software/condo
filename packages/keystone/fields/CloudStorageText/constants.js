@@ -1,0 +1,7 @@
+const CLOUD_STORAGE_TEXT_MIMETYPE = 'text/plain'
+const CLOUD_STORAGE_TEXT_ENCODING = 'utf8'
+
+module.exports = {
+    CLOUD_STORAGE_TEXT_MIMETYPE,
+    CLOUD_STORAGE_TEXT_ENCODING,
+}
