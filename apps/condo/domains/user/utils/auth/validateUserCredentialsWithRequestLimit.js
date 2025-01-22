@@ -1,8 +1,12 @@
 const { get } = require('lodash')
 
+const conf = require('@open-condo/config')
+
 const { validateUserCredentials } = require('./validateUserCredentials')
 
 const { RedisGuard } = require('../serverSchema/guards')
+
+const IP_WHITE_LIST = conf.IP_WHITE_LIST ? JSON.parse(conf.IP_WHITE_LIST) : []
 
 
 const redisGuard = new RedisGuard()
@@ -25,12 +29,14 @@ async function validateUserCredentialsWithRequestLimit (userIdentity, authFactor
     const userType = userIdentity.userType
 
     // todo(doma-10861): add limit reset
-    await redisGuard.checkCustomLimitCounters(
-        ['validate-user-credentials', 'ip', ip].join(':'),
-        60 * 60, // 1 hour
-        20,
-        context,
-    )
+    if (!IP_WHITE_LIST.includes(ip)) {
+        await redisGuard.checkCustomLimitCounters(
+            ['validate-user-credentials', 'ip', ip].join(':'),
+            60 * 60, // 1 hour
+            20,
+            context,
+        )
+    }
 
     if (userId) {
         await redisGuard.checkCustomLimitCounters(
