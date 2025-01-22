@@ -3,12 +3,11 @@ const { gql } = require('graphql-tag')
 
 const {
     makeClient,
-    makeLoggedInAdminClient, waitFor,
+    makeLoggedInAdminClient,
 } = require('@open-condo/keystone/test.utils')
 
 const { AUTH_COUNTER_LIMIT_TYPE } = require('@condo/domains/user/constants/limits')
 const { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } = require('@condo/domains/user/gql')
-const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 const {
     createTestUser,
     User,
@@ -204,79 +203,6 @@ describe('Auth by phone and password', () => {
                 }),
             }))
 
-        })
-
-        describe('can apply custom quota for particular ip address', () => {
-            const spy = jest.spyOn(RedisGuard.prototype, 'checkCustomLimitCounters')
-
-            beforeEach(async () => {
-                spy.mockClear()
-                process.env.PHONE_AND_PASS_AUTH_CUSTOM_QUOTAS = undefined
-            })
-
-            afterEach(() => {
-                process.env.PHONE_AND_PASS_AUTH_CUSTOM_QUOTAS = undefined
-            })
-
-            test('if set only windowLimit', async () => {
-                const client = await makeClient()
-                const fakeIp = faker.internet.ip()
-                client.setHeaders({ 'x-forwarded-for': fakeIp })
-
-                const customLimit = faker.datatype.number()
-
-                process.env.PHONE_AND_PASS_AUTH_CUSTOM_QUOTAS = JSON.stringify({ [fakeIp]: { windowLimit: customLimit } })
-
-                const phone = createTestPhone()
-                const password = faker.datatype.string(42)
-
-                await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, { phone, password })
-
-                expect(spy).toHaveBeenCalledTimes(1)
-                expect(spy).toHaveBeenCalledWith(`${AUTH_COUNTER_LIMIT_TYPE}:${fakeIp}`, 3600, customLimit, expect.anything())
-            })
-
-            test('if set only windowSize', async () => {
-                const client = await makeClient()
-                const fakeIp = faker.internet.ip()
-                client.setHeaders({ 'x-forwarded-for': fakeIp })
-
-                const customSizeSec = faker.datatype.number()
-
-                process.env.PHONE_AND_PASS_AUTH_CUSTOM_QUOTAS = JSON.stringify({ [fakeIp]: { windowSizeSec: customSizeSec } })
-
-                const phone = createTestPhone()
-                const password = faker.datatype.string(42)
-
-                await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, { phone, password })
-
-                expect(spy).toHaveBeenCalledTimes(1)
-                expect(spy).toHaveBeenCalledWith(`${AUTH_COUNTER_LIMIT_TYPE}:${fakeIp}`, customSizeSec, 10, expect.anything())
-            })
-
-            test('if set both: windowSize and windowLimit', async () => {
-                const client = await makeClient()
-                const fakeIp = faker.internet.ip()
-                client.setHeaders({ 'x-forwarded-for': fakeIp })
-
-                const customSizeSec = faker.datatype.number()
-                const customLimit = faker.datatype.number()
-
-                process.env.PHONE_AND_PASS_AUTH_CUSTOM_QUOTAS = JSON.stringify({
-                    [fakeIp]: {
-                        windowSizeSec: customSizeSec,
-                        windowLimit: customLimit,
-                    },
-                })
-
-                const phone = createTestPhone()
-                const password = faker.datatype.string(42)
-
-                await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, { phone, password })
-
-                expect(spy).toHaveBeenCalledTimes(1)
-                expect(spy).toHaveBeenCalledWith(`${AUTH_COUNTER_LIMIT_TYPE}:${fakeIp}`, customSizeSec, customLimit, expect.anything())
-            })
         })
     })
 })

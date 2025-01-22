@@ -18,6 +18,26 @@ const GUARD_DEFAULT_WINDOW_SIZE_SEC = 60 * 60 // seconds
 const GUARD_DEFAULT_WINDOW_LIMIT = 10
 
 /**
+ * @type {Record<string, { windowSizeSec: number, windowLimit: number }>}
+ *
+ * Possible values:
+ * 1. Change all
+ * { "ip": { windowSizeSec: 3600, windowLimit: 60 } }
+ *
+ * 2. Change only window size
+ * { "ip": { windowSizeSec: 3600 } }
+ *
+ * 3. Change only limit
+ * { "ip": { windowLimit: 60 } }
+ */
+let customQuotas
+try {
+    customQuotas = JSON.parse(conf.PHONE_AND_PASS_AUTH_CUSTOM_QUOTAS)
+} catch (e) {
+    customQuotas = {}
+}
+
+/**
  * List of possible errors, that this custom schema can throw
  * They will be rendered in documentation section in GraphiQL for this custom schema
  */
@@ -58,24 +78,6 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
             resolver: async (parent, args, context) => {
 
                 const ip = context.req.ip
-                /** @type {Record<string, { windowSizeSec: number, windowLimit: number }>} */
-                let customQuotas
-                try {
-                    /**
-                     * Possible values:
-                     * 1. Change all
-                     * { "ip": { windowSizeSec: 3600, windowLimit: 60 } }
-                     *
-                     * 2. Change only window size
-                     * { "ip": { windowSizeSec: 3600 } }
-                     *
-                     * 3. Change only limit
-                     * { "ip": { windowLimit: 60 } }
-                     */
-                    customQuotas = JSON.parse(conf.PHONE_AND_PASS_AUTH_CUSTOM_QUOTAS)
-                } catch (e) {
-                    customQuotas = {}
-                }
 
                 await redisGuard.checkCustomLimitCounters(
                     `${AUTH_COUNTER_LIMIT_TYPE}:${ip}`,
@@ -97,7 +99,7 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
                 const { keystone } = getSchemaCtx('User')
                 const { auth: { User: { password: PasswordStrategy } } } = keystone
                 const list = PasswordStrategy.getList()
-                const { success } = await PasswordStrategy._matchItem(user, { password }, list.fieldsByPath['password'] )
+                const { success } = await PasswordStrategy._matchItem(user, { password }, list.fieldsByPath['password'])
                 if (!success) {
                     throw new GQLError(ERRORS.WRONG_CREDENTIALS, context)
                 }
