@@ -1,3 +1,4 @@
+const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { getSchemaCtx, getById } = require('@open-condo/keystone/schema')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
@@ -13,8 +14,8 @@ const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 const redisGuard = new RedisGuard()
 
-const GUARD_WINDOW_SIZE_SEC = 60 * 60 // seconds
-const GUARD_WINDOW_LIMIT = 10
+const GUARD_DEFAULT_WINDOW_SIZE_SEC = 60 * 60 // seconds
+const GUARD_DEFAULT_WINDOW_LIMIT = 10
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -57,10 +58,29 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
             resolver: async (parent, args, context) => {
 
                 const ip = context.req.ip
+                /** @type {Record<string, { windowSizeSec: number, windowLimit: number }>} */
+                let customQuotas
+                try {
+                    /**
+                     * Possible values:
+                     * 1. Change all
+                     * { "ip": { windowSizeSec: 3600, windowLimit: 60 } }
+                     *
+                     * 2. Change only window size
+                     * { "ip": { windowSizeSec: 3600 } }
+                     *
+                     * 3. Change only limit
+                     * { "ip": { windowLimit: 60 } }
+                     */
+                    customQuotas = JSON.parse(conf.PHONE_AND_PASS_AUTH_CUSTOM_QUOTAS)
+                } catch (e) {
+                    customQuotas = {}
+                }
+
                 await redisGuard.checkCustomLimitCounters(
                     `${AUTH_COUNTER_LIMIT_TYPE}:${ip}`,
-                    GUARD_WINDOW_SIZE_SEC,
-                    GUARD_WINDOW_LIMIT,
+                    customQuotas[ip]?.windowSizeSec || GUARD_DEFAULT_WINDOW_SIZE_SEC,
+                    customQuotas[ip]?.windowLimit || GUARD_DEFAULT_WINDOW_LIMIT,
                     context,
                 )
 
