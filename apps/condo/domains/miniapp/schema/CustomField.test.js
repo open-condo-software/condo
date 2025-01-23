@@ -4,7 +4,9 @@
 
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, expectValuesOfCommonFields } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, expectValuesOfCommonFields, expectToThrowGQLError,
+    expectToThrowGraphQLRequestError, expectToThrowValidationFailureError,
+} = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
@@ -14,13 +16,17 @@ const { CustomField, createTestCustomField, updateTestCustomField } = require('@
 const {
     makeEmployeeUserClientWithAbilities,
     createTestOrganizationEmployeeRole,
-    createTestOrganizationEmployee, createTestOrganization,
+    createTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
+const { ERRORS } = require('./CustomField')
+
 const { CONTEXT_FINISHED_STATUS } = require('../constants')
-const { createTestB2BApp, createTestB2BAppContext, createTestB2BAppAccessRight, createTestCustomValue} = require('../utils/testSchema')
+const { createTestB2BApp, createTestB2BAppContext, createTestB2BAppAccessRight } = require('../utils/testSchema')
+const {updateTestTicketExportTask} = require("../../ticket/utils/testSchema");
+const {CANCELLED} = require("../../common/constants/export");
 
 
 describe('CustomField', () => {
@@ -33,6 +39,7 @@ describe('CustomField', () => {
     let serviceUser
     let anonymous
     let connectedApp
+
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
@@ -54,7 +61,6 @@ describe('CustomField', () => {
             canManageB2BApps: true,
             canManageRoles: true,
         });
-
 
         [connectedApp] = await createTestB2BApp(support, { contextDefaultStatus: CONTEXT_FINISHED_STATUS })
         await createTestB2BAppContext(manager, connectedApp, manager.organization)
@@ -85,6 +91,13 @@ describe('CustomField', () => {
                 const [obj, attrs] = await createTestCustomField(support)
 
                 expectValuesOfCommonFields(obj, attrs, support)
+                expect(obj.type).toEqual(attrs.type)
+                expect(obj.schemaName).toEqual(attrs.schemaName)
+                expect(obj.name).toEqual(attrs.name)
+                expect(obj.priority).toBeDefined()
+                expect(obj.locale).toBeDefined()
+                expect(obj.validationRules).toBeDefined()
+                expect(obj.isVisible).toBeDefined()
             })
 
             test('user can\'t', async () => {
@@ -147,7 +160,7 @@ describe('CustomField', () => {
                 const [objCreated] = await createTestCustomField(admin)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await CustomField.delete(admin, objCreated.id)  // TODO(codegen): write 'admin: delete CustomField' test
+                    await CustomField.delete(admin, objCreated.id)
                 })
             })
         })
@@ -181,33 +194,90 @@ describe('CustomField', () => {
         })
     })
 
-    describe('Validation tests', () => {
-        test('Custom validation should be valid json-schema', async () => {
-            const testCustomValidation = {}
+    describe('validationRules field validation:', () => {
 
-            const [obj, attrs] = await createTestCustomField(support)
+        const VALID_JSON_SCHEMAS = {
+            'string': {
+                type: 'string',
+                minLength: 3,
+                maxLength: 15,
+                pattern: '^[a-zA-Z]+$',
+            },
+            'object': {
+                'type': 'object',
+                'properties': {
+                    'name': {
+                        'type': 'string',
+                    },
+                },
+                'required': ['name'],
+                'additionalProperties': false,
+            },
+            'number': {
+                'type': 'number',
+                'minimum': 10,
+                'maximum': 100,
+            },
+        }
 
+        const INVALID_JSON_SCHEMAS = {
+            'additional-props-should-be-boolean': {
+                'type': 'object',
+                'properties': {
+                    'name': {
+                        'type': 'string',
+                    },
+                },
+                'required': ['name'],
+                'additionalProperties': 1234,
+            },
+            'invalid-number-schema': {
+                'type': 'number',
+                'minimum': 'hello world',
+                'maximum': 100,
+            },
+        }
+
+        test.each(Object.keys(VALID_JSON_SCHEMAS))('valid %p schema', async (key) => {
+            const validationRules = VALID_JSON_SCHEMAS[key]
+            const [obj, attrs] = await createTestCustomField(support, { validationRules })
             expectValuesOfCommonFields(obj, attrs, support)
         })
 
-        test('Custom validations can be specified', async () => {
-            const testCustomValidation = {}
+        test.each(Object.keys(INVALID_JSON_SCHEMAS))('invalid schema – %p', async (key) => {
+            const validationRules = INVALID_JSON_SCHEMAS[key]
 
-            const [customField, customFieldAttrs] = await createTestCustomField(support)
+            await expectToThrowValidationFailureError(
+                async () => await createTestCustomField(support, { validationRules }),
+                'Bad validation rules, should be valid json-schema',
+            )
+        })
+    })
 
-            const [organization] = await createTestOrganization(support)
+    describe('Non updatable fields', () => {
 
-            const payload = {
-                objectId: 'test-id',
-                sourceType: 'B2BApp',
-                sourceId: 'test-id',
-            }
+        let customField
 
-            const [customValue, customValueAttrs] = await createTestCustomValue(support, customField, organization, payload)
+        beforeAll(async () => {
+            const [customFieldObj] = await createTestCustomField(admin)
+            customField = customFieldObj
+        })
 
-            const correctPayloads = []
+        const NON_UPDATABLE_FIELDS = [
+            'isUniquePerObject',
+            'type',
+            'schema',
+            'validationRules',
+        ]
 
-            const incorrectPayloads = []
+        test.each(NON_UPDATABLE_FIELDS)( 'field %p can not be updated', async (key) => {
+            await expectToThrowGraphQLRequestError(async () => {
+                await updateTestCustomField(admin, customField.id, { [key]: true })
+            }, `Field "${key}" is not defined`)
+
+            await expectToThrowGraphQLRequestError(async () => {
+                await updateTestCustomField(support, customField.id, { [key]: true })
+            }, `Field "${key}" is not defined`)
         })
     })
 })
