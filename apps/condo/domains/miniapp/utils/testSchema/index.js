@@ -590,7 +590,7 @@ async function createTestCustomField (client, extraAttrs = {}) {
         dv: 1,
         name: faker.random.alphaNumeric(8) ,
         schemaName: 'Property',
-        type: 'Text',
+        type: 'String',
         validationRules: null,
         sender,
         ...extraAttrs,
@@ -624,7 +624,7 @@ async function createTestCustomValue (client, customField, organization, extraAt
         sender,
         customField: { connect: { id: customField.id } },
         organization: { connect: { id: organization.id } },
-        data: {},
+        data: '',
         ...extraAttrs,
     }
     const obj = await CustomValue.create(client, attrs)
