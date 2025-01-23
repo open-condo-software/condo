@@ -4171,7 +4171,7 @@ type ResetUserLimitAction {
   sms: ["phone", "ip"], 
   rateLimit: ["uuid", "ip"], 
   findOrganizationsByTin: ["email", "phone", "uuid"], 
-  auth: ["ip"] 
+  auth: ["ip", "phone", "email"] 
   """
   identifier: String
 
