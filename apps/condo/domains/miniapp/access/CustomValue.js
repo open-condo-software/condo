@@ -5,29 +5,74 @@
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-async function canReadCustomValues ({ authentication: { item: user } }) {
+const { getEmployedOrRelatedOrganizationsByPermissions } = require('../../organization/utils/accessSchema')
+const { SERVICE, STAFF } = require('../../user/constants/common')
+const { canReadObjectsAsB2BAppServiceUser, canManageObjectsAsB2BAppServiceUser } = require('../utils/b2bAppServiceUserAccess')
+
+async function canReadCustomValues (args) {
+    const { authentication: { item: user }, context } = args
+    
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isAdmin || user.isSupport) return {}
 
-    // TODO(codegen): write canReadCustomValues logic for user!
-    return true
+    if (user.type === SERVICE) {
+        const canReadObjsAsB2BAppServiceUser = await canReadObjectsAsB2BAppServiceUser(args)
+        return canReadObjsAsB2BAppServiceUser
+    }
+
+    // Resident user
+    // if (user.type === RESIDENT) {
+    //     const userResidents = await find('Resident', {
+    //         user: { id: user.id, deletedAt: null },
+    //         deletedAt: null,
+    //     })
+    //     const addressKeys = userResidents.map(resident => resident.addressKey).filter(Boolean)
+    //
+    //     const unitName = residentUser.unitName
+    //     const unitType = residentUser.unitType
+    //     const addressKey = residentUser.address
+    //
+    //     return {
+    //         AND: [
+    //             {
+    //                 customField: { residentCanRead: true, deletedAt: false },
+    //                 unitName: {},
+    //             },
+    //         ],
+    //     }
+    // }
+
+    if (user.type === STAFF) {
+        const permittedOrganizations = await getEmployedOrRelatedOrganizationsByPermissions(context, user, [])
+
+        return {
+            customField: { staffCanRead: true, deletedAt: null },
+            organization: {
+                id_in: permittedOrganizations,
+                deletedAt: null,
+            },
+        }
+    }
+
+    return false
 }
 
-async function canManageCustomValues ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageCustomValues (args) {
+    const { authentication: { item: user }, originalInput, operation, itemId } = args
+
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
 
-    if (operation === 'create') {
-        // TODO(codegen): write canManageCustomValues create logic!
-        return false
-    } else if (operation === 'update') {
-        // TODO(codegen): write canManageCustomValues update logic!
-        return false
-    }
+    const isBulkRequest = Array.isArray(originalInput)
+    if (isBulkRequest) { return false }
 
+    if (user.type === SERVICE) {
+        return await canManageObjectsAsB2BAppServiceUser(args)
+    }
+    
     return false
 }
 
