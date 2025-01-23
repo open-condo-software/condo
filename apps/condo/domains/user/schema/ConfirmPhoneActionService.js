@@ -31,7 +31,7 @@ const {
     GQL_ERRORS,
     GENERATE_TOKEN_FAILED,
 } = require('@condo/domains/user/constants/errors')
-const { AUTH_COUNTER_LIMIT_TYPE } = require('@condo/domains/user/constants/limits')
+const { SMS_COUNTER_LIMIT_TYPE } = require('@condo/domains/user/constants/limits')
 const { captchaCheck } = require('@condo/domains/user/utils/hCaptcha')
 const {
     ConfirmPhoneAction,
@@ -121,11 +121,11 @@ const APP_ID_HEADER = 'x-request-app'
 
 const checkSMSDayLimitCounters = async (phone, rawIp, context) => {
     const ip = rawIp.split(':').pop()
-    const byPhoneCounter = await redisGuard.incrementDayCounter(`${AUTH_COUNTER_LIMIT_TYPE}:${phone}`)
+    const byPhoneCounter = await redisGuard.incrementDayCounter(`${SMS_COUNTER_LIMIT_TYPE}:${phone}`)
     if (byPhoneCounter > maxSmsForPhoneByDay && !phoneWhiteList.includes(phone)) {
         throw new GQLError(GQL_ERRORS.SMS_FOR_PHONE_DAY_LIMIT_REACHED, context)
     }
-    const byIpCounter = await redisGuard.incrementDayCounter(`${AUTH_COUNTER_LIMIT_TYPE}:${ip}`)
+    const byIpCounter = await redisGuard.incrementDayCounter(`${SMS_COUNTER_LIMIT_TYPE}:${ip}`)
     if (byIpCounter > maxSmsForIpByDay && !ipWhiteList.includes(ip)) {
         throw new GQLError(GQL_ERRORS.SMS_FOR_IP_DAY_LIMIT_REACHED, context)
     }

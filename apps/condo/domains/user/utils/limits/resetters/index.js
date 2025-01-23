@@ -1,13 +1,13 @@
 const { AuthGuardResetter } = require('./AuthGuardResetter')
 const { FindOrganizationByTinGuardResetter } = require('./FindOrganizationByTinGuardResetter')
-const { LoginByPhoneAndPasswordGuardResetter } = require('./LoginByPhoneAndPasswordGuardResetter')
 const { RateLimitResetter } = require('./RateLimitResetter')
 const { RedisGuardResetter } = require('./RedisGuardResetter')
+const { SmsGuardResetter } = require('./SmsGuardResetter')
 
 module.exports = {
-    AuthGuardResetter,
+    SmsGuardResetter,
     RateLimitResetter,
     RedisGuardResetter,
     FindOrganizationByTinGuardResetter,
-    LoginByPhoneAndPasswordGuardResetter,
+    AuthGuardResetter,
 }
