@@ -232,7 +232,7 @@ const MenuItems: React.FC = () => {
                     path: 'news',
                     icon: AllIcons['Newspaper'],
                     label: 'global.section.newsItems',
-                    access: hasAccessToNewsItems && isManagingCompany,
+                    access: hasAccessToNewsItems,
                 },
             ].filter(checkItemAccess),
         },
