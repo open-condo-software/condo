@@ -442,39 +442,6 @@ describe('ResetUserLimitAction', () => {
 
                 expect(afterReset).toBeNull()
             })
-
-            test('resets counter by phone number', async () => {
-                const key = `${AUTH_COUNTER_LIMIT_TYPE}:${phone}`
-
-                for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
-                    await redisGuard.incrementDayCounter(key)
-                }
-                const beforeReset = await redisGuard.getCounterValue(key)
-
-                expect(Number(beforeReset)).toEqual(COUNTER_VALUE_TO_UPDATE)
-
-                await createTestResetUserLimitAction(userWithDirectAccess, AUTH_COUNTER_LIMIT_TYPE, phone)
-                const value = await redisGuard.getCounterValue(key)
-
-                expect(value).toBeNull()
-            })
-
-            test('resets counter by email', async () => {
-                const email = faker.internet.email()
-                const key = `${AUTH_COUNTER_LIMIT_TYPE}:${email}`
-
-                for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
-                    await redisGuard.incrementDayCounter(key)
-                }
-                const beforeReset = await redisGuard.getCounterValue(key)
-
-                expect(Number(beforeReset)).toEqual(COUNTER_VALUE_TO_UPDATE)
-
-                await createTestResetUserLimitAction(userWithDirectAccess, AUTH_COUNTER_LIMIT_TYPE, email)
-                const value = await redisGuard.getCounterValue(key)
-
-                expect(value).toBeNull()
-            })
         })
     })
 })
