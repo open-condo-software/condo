@@ -1,8 +1,8 @@
 const AddressPartWithType = require('./AddressPartWithType')
 const AutoIncrementInteger = require('./AutoIncrementInteger')
-const CloudStorageText = require('./CloudStorageText')
 const DateInterval = require('./DateInterval')
 const EncryptedText = require('./EncryptedText')
+const FileStorageText = require('./FileStorageText')
 const FileWithUTF8Name = require('./FileWithUTF8Name')
 const Json = require('./Json')
 const LocalizedText = require('./LocalizedText')
@@ -25,5 +25,5 @@ module.exports = {
     FileWithUTF8Name,
     Text,
     EncryptedText,
-    CloudStorageText,
+    FileStorageText,
 }

@@ -1,6 +1,6 @@
 const { Text } = require('@keystonejs/fields')
 
-class CloudStorageTextImplementation extends Text.implementation {
+class FileStorageTextImplementation extends Text.implementation {
     constructor (path, {
         adapter,
     }) {
@@ -30,5 +30,5 @@ class CloudStorageTextImplementation extends Text.implementation {
 }
 
 module.exports = {
-    CloudStorageTextImplementation,
+    FileStorageTextImplementation,
 }

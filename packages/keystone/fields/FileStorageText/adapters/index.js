@@ -1,7 +1,7 @@
 const { Text } = require('@keystonejs/fields')
 const cuid = require('cuid')
 
-const { CLOUD_STORAGE_TEXT_MIMETYPE, CLOUD_STORAGE_TEXT_ENCODING } = require('@open-condo/keystone/fields/CloudStorageText/constants')
+const { FILE_STORAGE_TEXT_MIMETYPE, FILE_STORAGE_TEXT_ENCODING } = require('@open-condo/keystone/fields/FileStorageText/constants')
 const { bufferToStream, readFileFromStream, getObjectStream } = require('@open-condo/keystone/file')
 
 
@@ -10,7 +10,7 @@ const CommonInterface = superclass => class extends superclass {
     constructor () {
         super(...arguments)
         if (!this.config.adapter) {
-            throw new Error('CloudStorageText field cannot be used without a file adapter')
+            throw new Error('FileStorageText field cannot be used without a file adapter')
         }
         this.fileAdapter = this.config.adapter
     }
@@ -38,8 +38,8 @@ const CommonInterface = superclass => class extends superclass {
         const { id, filename, _meta } = await this.fileAdapter.save({
             stream,
             filename: originalFilename,
-            mimetype: CLOUD_STORAGE_TEXT_MIMETYPE,
-            encoding: CLOUD_STORAGE_TEXT_ENCODING,
+            mimetype: FILE_STORAGE_TEXT_MIMETYPE,
+            encoding: FILE_STORAGE_TEXT_ENCODING,
             id: cuid(),
         })
 
@@ -47,8 +47,8 @@ const CommonInterface = superclass => class extends superclass {
             id,
             filename,
             originalFilename,
-            mimetype: CLOUD_STORAGE_TEXT_MIMETYPE,
-            encoding: CLOUD_STORAGE_TEXT_ENCODING,
+            mimetype: FILE_STORAGE_TEXT_MIMETYPE,
+            encoding: FILE_STORAGE_TEXT_ENCODING,
             _meta,
         }
     }
@@ -66,12 +66,12 @@ const CommonInterface = superclass => class extends superclass {
     }
 }
 
-class CloudStorageTextKnexFieldAdapter extends CommonInterface(Text.adapters.knex) {}
-class CloudStorageTextMongooseFieldAdapter extends CommonInterface(Text.adapters.mongoose) {}
-class CloudStorageTextPrismaFieldAdapter extends CommonInterface(Text.adapters.prisma) {}
+class FileStorageTextKnexFieldAdapter extends CommonInterface(Text.adapters.knex) {}
+class FileStorageTextMongooseFieldAdapter extends CommonInterface(Text.adapters.mongoose) {}
+class FileStorageTextPrismaFieldAdapter extends CommonInterface(Text.adapters.prisma) {}
 
 module.exports = {
-    mongoose: CloudStorageTextKnexFieldAdapter,
-    knex: CloudStorageTextMongooseFieldAdapter,
-    prisma: CloudStorageTextPrismaFieldAdapter,
+    mongoose: FileStorageTextKnexFieldAdapter,
+    knex: FileStorageTextMongooseFieldAdapter,
+    prisma: FileStorageTextPrismaFieldAdapter,
 }
