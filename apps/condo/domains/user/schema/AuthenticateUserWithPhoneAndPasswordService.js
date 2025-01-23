@@ -14,12 +14,12 @@ const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 const redisGuard = new RedisGuard()
 
-const GUARD_DEFAULT_WINDOW_SIZE_SEC = 60 * 60 // seconds
+const GUARD_DEFAULT_WINDOW_SIZE_IN_SEC = 60 * 60 // seconds
 const GUARD_DEFAULT_WINDOW_LIMIT = 10
 
 /**
  * @typedef {Object} TAuthGuardQuota
- * @property {number} windowSizeSec The window size in seconds
+ * @property {number} windowSizeInSec The window size in seconds
  * @property {number} windowLimit Attempts limit during the window
  */
 
@@ -28,10 +28,10 @@ const GUARD_DEFAULT_WINDOW_LIMIT = 10
  *
  * Possible values:
  * 1. Change all
- * { "i.p.v.4": { windowSizeSec: 3600, windowLimit: 60 } }
+ * { "i.p.v.4": { windowSizeInSec: 3600, windowLimit: 60 } }
  *
  * 2. Change only window size
- * { "i.p.v.4": { windowSizeSec: 3600 } }
+ * { "i.p.v.4": { windowSizeInSec: 3600 } }
  *
  * 3. Change only limit
  * { "i.p.v.4": { windowLimit: 60 } }
@@ -87,7 +87,7 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
 
                 await redisGuard.checkCustomLimitCounters(
                     `${AUTH_COUNTER_LIMIT_TYPE}:${ip}`,
-                    customQuotas[ip]?.windowSizeSec || GUARD_DEFAULT_WINDOW_SIZE_SEC,
+                    customQuotas[ip]?.windowSizeInSec || GUARD_DEFAULT_WINDOW_SIZE_IN_SEC,
                     customQuotas[ip]?.windowLimit || GUARD_DEFAULT_WINDOW_LIMIT,
                     context,
                 )
