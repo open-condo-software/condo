@@ -530,7 +530,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             expect(messages).toHaveLength(0)
         })
 
-        test('Should correctly fill message body', async () => {
+        test('Should correctly fill message body for RU', async () => {
             const environment = new TestUtils([ResidentTestMixin])
             await environment.init()
             const accountNumber = faker.random.alphaNumeric(12)
@@ -542,7 +542,7 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
                 unitType: resident.unitType,
             }
             const HOUSING_SERVICE = '928c97ef-5289-4daa-b80e-4b9fed50c629'
-            const [[{ id: receiptId }]] = await environment.createReceipts([
+            const [[receipt]] = await environment.createReceipts([
                 environment.createJSONReceipt({
                     accountNumber,
                     address: resident.address,
@@ -565,9 +565,116 @@ describe('sendBillingReceiptsAddedNotificationForOrganizationContext', () => {
             const messages = await Message.getAll(environment.clients.admin, messageWhere)
             expect(messages).toHaveLength(1)
             const data = messages[0].meta.data
-            expect(data.url.slice(-36)).toEqual(receiptId)
+            expect(messages[0].lang).toEqual('ru')
+            expect(data.url.slice(-36)).toEqual(receipt.id)
             expect(data.currencySymbol).toEqual('₽')
             expect(data.category).toEqual('Квартплата')
+            expect(data.residentId).toEqual(resident.id)
+            expect(data.userId).toEqual(resident.user.id)
+            expect(data.period).toEqual('2024-01-01')
+            expect(data.billingReceiptId).toEqual(receipt.id)
+            expect(data.billingAccountNumber).toEqual(accountNumber)
+            expect(data.billingPropertyId).toEqual(receipt.property.id)
+            // DOMA-3581 debt value population is disabled until user will be able to manage push notifications
+            expect(data.toPay).toEqual(null)
+        })
+
+        test('Should correctly fill message body for EN', async () => {
+            const environment = new TestUtils([ResidentTestMixin])
+            await environment.init()
+            const accountNumber = faker.random.alphaNumeric(12)
+            updateTestBillingIntegration(environment.clients.admin, environment.billingContext.integration.id, { currencyCode: 'USD' })
+            updateTestOrganization(environment.clients.admin, environment.billingContext.organization.id, { country: 'en' })
+            const resident = await environment.createResident({ unitName: '1', unitType: FLAT_UNIT_TYPE })
+            const addressUnit = {
+                unitName: resident.unitName,
+                unitType: resident.unitType,
+            }
+            const HOUSING_SERVICE = '928c97ef-5289-4daa-b80e-4b9fed50c629'
+            const [[receipt]] = await environment.createReceipts([
+                environment.createJSONReceipt({
+                    accountNumber,
+                    address: resident.address,
+                    addressMeta: addressUnit,
+                    year: 2024,
+                    month: 1,
+                    toPay: '1000',
+                    category: { id: HOUSING_SERVICE },
+                }),
+            ])
+            await environment.createServiceConsumer(resident, accountNumber)
+
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...environment.billingContext, organization: environment.billingContext.organization.id, integration: environment.billingContext.integration.id }, dayjs().subtract(1, 'h').toISOString())
+
+            const messageWhere = {
+                user: { id: resident.user.id },
+                type: BILLING_RECEIPT_ADDED_TYPE,
+            }
+
+            const messages = await Message.getAll(environment.clients.admin, messageWhere)
+            expect(messages).toHaveLength(1)
+            const data = messages[0].meta.data
+            expect(messages[0].lang).toEqual('en')
+            expect(data.url.slice(-36)).toEqual(receipt.id)
+            expect(data.currencySymbol).toEqual('$')
+            expect(data.category).toEqual('Rent')
+            expect(data.residentId).toEqual(resident.id)
+            expect(data.userId).toEqual(resident.user.id)
+            expect(data.period).toEqual('2024-01-01')
+            expect(data.billingReceiptId).toEqual(receipt.id)
+            expect(data.billingAccountNumber).toEqual(accountNumber)
+            expect(data.billingPropertyId).toEqual(receipt.property.id)
+            // DOMA-3581 debt value population is disabled until user will be able to manage push notifications
+            expect(data.toPay).toEqual(null)
+        })
+
+        test('Should correctly fill message body for ES', async () => {
+            const environment = new TestUtils([ResidentTestMixin])
+            await environment.init()
+            const accountNumber = faker.random.alphaNumeric(12)
+            updateTestBillingIntegration(environment.clients.admin, environment.billingContext.integration.id, { currencyCode: 'EUR' })
+            updateTestOrganization(environment.clients.admin, environment.billingContext.organization.id, { country: 'es' })
+            const resident = await environment.createResident({ unitName: '1', unitType: FLAT_UNIT_TYPE })
+            const addressUnit = {
+                unitName: resident.unitName,
+                unitType: resident.unitType,
+            }
+            const HOUSING_SERVICE = '928c97ef-5289-4daa-b80e-4b9fed50c629'
+            const [[receipt]] = await environment.createReceipts([
+                environment.createJSONReceipt({
+                    accountNumber,
+                    address: resident.address,
+                    addressMeta: addressUnit,
+                    year: 2024,
+                    month: 1,
+                    toPay: '1000',
+                    category: { id: HOUSING_SERVICE },
+                }),
+            ])
+            await environment.createServiceConsumer(resident, accountNumber)
+
+            await sendBillingReceiptsAddedNotificationForOrganizationContext({ ...environment.billingContext, organization: environment.billingContext.organization.id, integration: environment.billingContext.integration.id }, dayjs().subtract(1, 'h').toISOString())
+
+            const messageWhere = {
+                user: { id: resident.user.id },
+                type: BILLING_RECEIPT_ADDED_TYPE,
+            }
+
+            const messages = await Message.getAll(environment.clients.admin, messageWhere)
+            expect(messages).toHaveLength(1)
+            const data = messages[0].meta.data
+            expect(messages[0].lang).toEqual('es')
+            expect(data.url.slice(-36)).toEqual(receipt.id)
+            expect(data.currencySymbol).toEqual('€')
+            expect(data.category).toEqual('Pagos')
+            expect(data.residentId).toEqual(resident.id)
+            expect(data.userId).toEqual(resident.user.id)
+            expect(data.period).toEqual('2024-01-01')
+            expect(data.billingReceiptId).toEqual(receipt.id)
+            expect(data.billingAccountNumber).toEqual(accountNumber)
+            expect(data.billingPropertyId).toEqual(receipt.property.id)
+            // DOMA-3581 debt value population is disabled until user will be able to manage push notifications
+            expect(data.toPay).toEqual(null)
         })
 
         test('Should correctly use pagination', async () => {
