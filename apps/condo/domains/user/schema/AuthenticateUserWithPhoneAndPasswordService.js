@@ -18,7 +18,13 @@ const GUARD_DEFAULT_WINDOW_SIZE_SEC = 60 * 60 // seconds
 const GUARD_DEFAULT_WINDOW_LIMIT = 10
 
 /**
- * @type {Record<string, { windowSizeSec: number, windowLimit: number }>}
+ * @typedef {Object} TAuthGuardQuota
+ * @property {number} windowSizeSec The window size in seconds
+ * @property {number} windowLimit Attempts limit during the window
+ */
+
+/**
+ * @type {Record<string, TAuthGuardQuota>}
  *
  * Possible values:
  * 1. Change all
@@ -32,7 +38,7 @@ const GUARD_DEFAULT_WINDOW_LIMIT = 10
  */
 let customQuotas
 try {
-    customQuotas = JSON.parse(conf.PHONE_AND_PASS_AUTH_CUSTOM_QUOTAS)
+    customQuotas = JSON.parse(conf.AUTH_GUARD_CUSTOM_QUOTAS)
 } catch (e) {
     customQuotas = {}
 }
