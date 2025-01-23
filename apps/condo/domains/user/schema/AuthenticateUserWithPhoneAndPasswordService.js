@@ -28,7 +28,7 @@ const GUARD_DEFAULT_WINDOW_LIMIT = 10
  *
  * Possible values:
  * 1. Change all
- * { "i.p.v.4": { windowSizeInSec: 3600, windowLimit: 60 } }
+ * { "*.*.*.*": { windowSizeInSec: 3600, windowLimit: 60 } }
  *
  * 2. Change only window size
  * { "i.p.v.4": { windowSizeInSec: 3600 } }
