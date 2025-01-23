@@ -40,7 +40,7 @@
  * // 5) You should apply new migrations
  * // run 'yarn migrate'
  *
- * // 6) You can also update the "B2BApp permissions for service user > Get all permissions for app" test so that
+ * // 6) You can also update the "B2BApp permissions for service user > Get all permissions for app" test like
  * in "@condo/domains/miniapp/schema/B2BAppAccessRightSet.test.js"
  *
  * @type {B2bAppServiceUserAccessConfig}
@@ -89,6 +89,9 @@ const B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS = {
 
         // Property domain
         Property: {},
+
+        // Miniapp domain
+        CustomValue: {},
 
         // Ticket domain
         Ticket: {},
