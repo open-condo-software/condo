@@ -16,6 +16,7 @@ const {
     RATE_LIMIT_TYPE,
     FIND_ORGANIZATION_BY_TIN_TYPE,
     AUTH_COUNTER_LIMIT_TYPE,
+    VALIDATE_USER_CREDENTIALS,
 } = require('@condo/domains/user/constants/limits')
 const { ERRORS } = require('@condo/domains/user/schema/ResetUserLimitAction')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
@@ -397,6 +398,102 @@ describe('ResetUserLimitAction', () => {
                 expect(Number(beforeResetTotal)).toEqual(COUNTER_VALUE_TO_UPDATE)
 
                 await createTestResetUserLimitAction(userWithDirectAccess, FIND_ORGANIZATION_BY_TIN_TYPE, identifier)
+                const afterResetTotal = await redisGuard.getCounterValue(totalKey)
+
+                expect(afterResetTotal).toBeNull()
+            })
+        })
+
+        describe(`${VALIDATE_USER_CREDENTIALS} type`, () => {
+            test('throws error if key is not exists', async () => {
+                await expectToThrowGQLError(async () => {
+                    await createTestResetUserLimitAction(admin, VALIDATE_USER_CREDENTIALS, faker.internet.ip())
+                }, ERRORS.KEY_NOT_FOUND)
+
+                await expectToThrowGQLError(async () => {
+                    await createTestResetUserLimitAction(admin, VALIDATE_USER_CREDENTIALS, faker.datatype.uuid())
+                }, ERRORS.KEY_NOT_FOUND)
+
+                await expectToThrowGQLError(async () => {
+                    await createTestResetUserLimitAction(admin, VALIDATE_USER_CREDENTIALS, createTestPhone())
+                }, ERRORS.KEY_NOT_FOUND)
+
+                await expectToThrowGQLError(async () => {
+                    await createTestResetUserLimitAction(admin, VALIDATE_USER_CREDENTIALS, createTestEmail())
+                }, ERRORS.KEY_NOT_FOUND)
+            })
+
+            test('throws error if key is not valid uuid, ip, email or phone', async () => {
+                await expectToThrowGQLError(async () => {
+                    await createTestResetUserLimitAction(userWithDirectAccess, VALIDATE_USER_CREDENTIALS, faker.random.alphaNumeric(10))
+                }, ERRORS.INVALID_IDENTIFIER)
+            })
+
+            test('resets counters by ip', async () => {
+                const ip = faker.internet.ipv4()
+                const totalKey = `validate-user-credentials:ip:${ip}`
+
+                for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
+                    await redisGuard.incrementDayCounter(totalKey)
+                }
+                const beforeResetTotal = await redisGuard.getCounterValue(totalKey)
+
+                expect(Number(beforeResetTotal)).toEqual(COUNTER_VALUE_TO_UPDATE)
+
+                await createTestResetUserLimitAction(userWithDirectAccess, VALIDATE_USER_CREDENTIALS, ip)
+                const afterResetTotal = await redisGuard.getCounterValue(totalKey)
+
+                expect(afterResetTotal).toBeNull()
+            })
+
+            test('resets counters by user id', async () => {
+                const userId = faker.datatype.uuid()
+                const totalKey = `validate-user-credentials:user:${userId}`
+
+                for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
+                    await redisGuard.incrementDayCounter(totalKey)
+                }
+                const beforeResetTotal = await redisGuard.getCounterValue(totalKey)
+
+                expect(Number(beforeResetTotal)).toEqual(COUNTER_VALUE_TO_UPDATE)
+
+                await createTestResetUserLimitAction(userWithDirectAccess, VALIDATE_USER_CREDENTIALS, userId)
+                const afterResetTotal = await redisGuard.getCounterValue(totalKey)
+
+                expect(afterResetTotal).toBeNull()
+            })
+
+            const USER_TYPES = ['staff', 'resident', 'service']
+
+            test.each(USER_TYPES)('resets counters by phone', async (userType) => {
+                const phone = createTestPhone()
+                const totalKey = `validate-user-credentials:phone-and-user-type:${userType}:${phone}`
+
+                for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
+                    await redisGuard.incrementDayCounter(totalKey)
+                }
+                const beforeResetTotal = await redisGuard.getCounterValue(totalKey)
+
+                expect(Number(beforeResetTotal)).toEqual(COUNTER_VALUE_TO_UPDATE)
+
+                await createTestResetUserLimitAction(userWithDirectAccess, VALIDATE_USER_CREDENTIALS, phone)
+                const afterResetTotal = await redisGuard.getCounterValue(totalKey)
+
+                expect(afterResetTotal).toBeNull()
+            })
+
+            test.each(USER_TYPES)('resets counters by email', async (userType) => {
+                const email = createTestEmail()
+                const totalKey = `validate-user-credentials:email-and-user-type:${userType}:${email}`
+
+                for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
+                    await redisGuard.incrementDayCounter(totalKey)
+                }
+                const beforeResetTotal = await redisGuard.getCounterValue(totalKey)
+
+                expect(Number(beforeResetTotal)).toEqual(COUNTER_VALUE_TO_UPDATE)
+
+                await createTestResetUserLimitAction(userWithDirectAccess, VALIDATE_USER_CREDENTIALS, email)
                 const afterResetTotal = await redisGuard.getCounterValue(totalKey)
 
                 expect(afterResetTotal).toBeNull()
