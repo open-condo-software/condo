@@ -43,7 +43,6 @@ const getMessageTypeAndDebt = (toPay, toPayCharge) => {
 const prepareAndSendNotification = async (keystone, context, receipt, resident, lastSendDatePeriod) => {
     // TODO(DOMA-3376): Detect locale by resident locale instead of organization country.
     const country = get(resident, 'residentOrganization.country', conf.DEFAULT_LOCALE)
-    const organizationId = get(resident, 'organization')
     const locale = get(COUNTRIES, country).locale
     const notificationKey = `${lastSendDatePeriod}:${resident.user}`
     const toPayValue = parseFloat(receipt.toPay)
@@ -53,6 +52,11 @@ const prepareAndSendNotification = async (keystone, context, receipt, resident, 
     const category = getLocalized(locale, receipt.category.nameNonLocalized)
     const currencyCode = get(context, 'integration.currencyCode', DEFAULT_CURRENCY_CODE)
     const { messageType, debt } = getMessageTypeAndDebt(toPay, toPayCharge)
+    let organizationId = null
+
+    if (resident.organization) {
+        organizationId = { id: resident.organization }
+    }
 
     const data = {
         residentId: resident.id,
@@ -74,7 +78,7 @@ const prepareAndSendNotification = async (keystone, context, receipt, resident, 
         meta: { dv: 1, data },
         sender: { dv: 1, fingerprint: 'send-billing-receipts-added-notifications' },
         uniqKey: notificationKey,
-        organization: organizationId && { id: organizationId },
+        organization: organizationId,
     }
     logger.info({ msg: 'New receipt push data', data: { messageData } })
 
