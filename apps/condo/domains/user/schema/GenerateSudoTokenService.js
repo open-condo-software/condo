@@ -87,6 +87,11 @@ const GenerateSudoTokenService = new GQLCustomSchema('GenerateSudoTokenService',
         {
             access: access.canGenerateSudoToken,
             schema: 'generateSudoToken(data: GenerateSudoTokenInput!): GenerateSudoTokenOutput',
+            doc: {
+                description: 'Generates a sudo token to confirm changes to sensitive data.' +
+                    ' The user\'s submitted credentials are checked and if they are valid, a sudo token is returned to the user.',
+                errors: ERRORS,
+            },
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data } = args
                 const { captcha, user, authFactors, dv, sender } = data
