@@ -1,9 +1,11 @@
-const AUTH_COUNTER_LIMIT_TYPE = 'auth'
+const SMS_COUNTER_LIMIT_TYPE = 'sms'
 const FIND_ORGANIZATION_BY_TIN_TYPE = 'findOrganizationsByTin'
 const RATE_LIMIT_TYPE = 'rateLimit'
+const AUTH_COUNTER_LIMIT_TYPE = 'auth'
 
 module.exports = {
-    AUTH_COUNTER_LIMIT_TYPE,
+    SMS_COUNTER_LIMIT_TYPE,
     FIND_ORGANIZATION_BY_TIN_TYPE,
     RATE_LIMIT_TYPE,
+    AUTH_COUNTER_LIMIT_TYPE,
 }
