@@ -159,6 +159,10 @@ And then start it using:
 yarn workspace @app/condo worker
 ```
 
+## Major version migration guide
+
+Check [migration.md](docs/migration.md)
+
 ## Developing
 
 Check [developing.md](docs/develop.md)
