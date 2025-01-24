@@ -52,6 +52,11 @@ const prepareAndSendNotification = async (keystone, context, receipt, resident, 
     const category = getLocalized(locale, receipt.category.nameNonLocalized)
     const currencyCode = get(context, 'integration.currencyCode', DEFAULT_CURRENCY_CODE)
     const { messageType, debt } = getMessageTypeAndDebt(toPay, toPayCharge)
+    let organizationId = null
+
+    if (resident.organization) {
+        organizationId = { id: resident.organization }
+    }
 
     const data = {
         residentId: resident.id,
@@ -73,7 +78,7 @@ const prepareAndSendNotification = async (keystone, context, receipt, resident, 
         meta: { dv: 1, data },
         sender: { dv: 1, fingerprint: 'send-billing-receipts-added-notifications' },
         uniqKey: notificationKey,
-        organization: { id: resident.organization },
+        organization: organizationId,
     }
     logger.info({ msg: 'New receipt push data', data: { messageData } })
 
