@@ -22,8 +22,8 @@ describe('Redis adapter', () => {
         await nonPrefixedClient.del('keystone:test1')
         await nonPrefixedClient.del('keystone:incrTest')
         await nonPrefixedClient.del('keystone:testList')
-        await nonPrefixedClient.close()
-        await redisClient.close()
+        await nonPrefixedClient.disconnect()
+        await redisClient.disconnect()
     })
 
     test('redis keyPrefix should be module specific', async () => {
