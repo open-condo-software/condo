@@ -47,6 +47,10 @@
  */
 const B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS = {
     lists: {
+        B2BAccessToken: {
+            pathToOrganizationId: ['context', 'organization', 'id'],
+        },
+
         BillingReceipt: {
             pathToOrganizationId: ['context', 'organization', 'id'],
             canBeManaged: false,

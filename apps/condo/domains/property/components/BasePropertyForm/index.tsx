@@ -145,7 +145,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                 OnCompletedMsg={(property) => ({
                     message: <Typography.Text strong>{OperationCompletedTitle}</Typography.Text>,
                     description: <Typography.Text type='secondary'>
-                        {intl.formatMessage({ id: 'pages.condo.property.form.SuccessNotification' }, { address: property.address })}
+                        {intl.formatMessage({ id: 'pages.condo.property.form.SuccessNotification' }, { address: property?.address || address })}
                     </Typography.Text>,
                 })}
                 {...formLayout}

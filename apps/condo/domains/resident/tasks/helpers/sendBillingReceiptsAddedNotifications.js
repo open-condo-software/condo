@@ -23,7 +23,7 @@ const sendBillingReceiptsAddedNotifications = async (lastSendDate) => {
     for (const context of BillingContexts) {
         const lastReport = get(context, 'lastReport.finishTime')
         if (!lastReport) continue
-        sendBillingReceiptsAddedNotificationForOrganizationContextTask.delay(context, lastSendDate)
+        await sendBillingReceiptsAddedNotificationForOrganizationContextTask.delay(context, lastSendDate)
     }
 }
 

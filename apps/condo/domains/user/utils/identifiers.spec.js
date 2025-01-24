@@ -1,7 +1,7 @@
 const { faker } = require('@faker-js/faker')
 
-const { IPv4_TYPE, UUID_TYPE, PHONE_TYPE } = require('@condo/domains/user/constants/identifiers')
-const { createTestPhone } = require('@condo/domains/user/utils/testSchema')
+const { IPv4_TYPE, UUID_TYPE, PHONE_TYPE, EMAIL_TYPE } = require('@condo/domains/user/constants/identifiers')
+const { createTestPhone, createTestEmail } = require('@condo/domains/user/utils/testSchema')
 
 const { getIdentifierType } = require('./identifiers')
 
@@ -11,7 +11,11 @@ describe('User identifiers utils', () => {
         const UUID_SAMPLES = Array.from({ length: SAMPLES_COUNT }, () => faker.datatype.uuid())
         const IPv4_SAMPLES = Array.from({ length: SAMPLES_COUNT }, () => faker.internet.ipv4())
         const PHONE_SAMPLES = Array.from({ length: SAMPLES_COUNT }, () => createTestPhone())
-        const OTHER_SAMPLES = Array.from({ length: SAMPLES_COUNT }, () => faker.datatype.string())
+        const EMAIL_SAMPLES = Array.from({ length: SAMPLES_COUNT }, () => createTestEmail())
+        const OTHER_SAMPLES = Array.from({ length: SAMPLES_COUNT }, () => {
+            // NOTE: We replace the symbol "@" with "-" so that emails are not accidentally generated
+            return faker.datatype.string().replaceAll('@', '-')
+        })
 
         test('Must correctly detect UUIDs', () => {
             for (const uuid of UUID_SAMPLES) {
@@ -28,6 +32,12 @@ describe('User identifiers utils', () => {
         test('Must correctly detect phones', () => {
             for (const phone of PHONE_SAMPLES) {
                 expect(getIdentifierType(phone)).toEqual(PHONE_TYPE)
+            }
+        })
+
+        test('Must correctly detect email', () => {
+            for (const email of EMAIL_SAMPLES) {
+                expect(getIdentifierType(email)).toEqual(EMAIL_TYPE)
             }
         })
 

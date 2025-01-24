@@ -53,7 +53,7 @@ const createTestReadingData = (property, extraAttrs = {}) => ({
 })
 
 export function setup () {
-    const { token } = setupCondoAuth(true)
+    const { token } = setupCondoAuth()
 
     const createdOrganization = createOrganization({ token })
     const organizationId = createdOrganization.json('data.obj.id')

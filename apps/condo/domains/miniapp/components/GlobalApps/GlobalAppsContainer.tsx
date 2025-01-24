@@ -31,14 +31,13 @@ export const GlobalAppsContainer: React.FC = () => {
     const { organization } = useOrganization()
     const organizationId = get(organization, 'id', null)
 
-
     const { objs, refetch, loading } = B2BApp.useObjects({
         where: {
             isGlobal: true,
             isHidden: false,
         },
         sortBy: [SortB2BAppsBy.CreatedAtAsc],
-    })
+    }, { skip: !user || !organizationId })
 
     const appUrls = objs.map(app => app.appUrl)
 

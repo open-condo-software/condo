@@ -25,20 +25,23 @@ const {
     createTestOrganizationEmployeeRole,
     createTestOrganizationEmployee,
     makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee,
-} = require('@condo/domains/organization/utils/testSchema')
-const { updateTestOrganization, Organization } = require('@condo/domains/organization/utils/testSchema')
-const {
+    updateTestOrganization,
+    Organization,
+    OrganizationEmployeeRequest,
+    sendOrganizationEmployeeRequestByTestClient,
     inviteNewOrganizationEmployee,
     reInviteNewOrganizationEmployee,
     makeClientWithRegisteredOrganization,
     acceptOrRejectOrganizationInviteById,
-} = require('@condo/domains/organization/utils/testSchema/Organization')
+    acceptOrRejectOrganizationEmployeeRequestByTestClient,
+} = require('@condo/domains/organization/utils/testSchema')
 const { createTestTicketCategoryClassifier } = require('@condo/domains/ticket/utils/testSchema')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
     createTestUser,
     createTestPhone,
     createTestEmail,
+    makeClientWithStaffUser,
 } = require('@condo/domains/user/utils/testSchema')
 
 
@@ -446,6 +449,97 @@ describe('InviteNewOrganizationEmployeeService', () => {
                     expect(message.organization.id).toEqual(client.organization.id)
                     expect(message).toHaveProperty(['meta', 'serverUrl'], conf.CALLCENTER_DOMAIN)
                 })
+            })
+        })
+
+        describe('organization employee request', () => {
+            it('should be automatically accepted along with the invitation if exists and not processed', async () => {
+                const employeeClient = await makeClientWithRegisteredOrganization()
+                const staffClient = await makeClientWithStaffUser()
+                const userAttrs = {
+                    name: staffClient.userAttrs.name,
+                    email: staffClient.userAttrs.email,
+                    phone: staffClient.userAttrs.phone,
+                }
+
+                const [createdRequest] = await sendOrganizationEmployeeRequestByTestClient(staffClient, {
+                    organization: { id: employeeClient.organization.id },
+                })
+                expect(createdRequest.user.id).toBe(staffClient.user.id)
+                expect(createdRequest.organizationId).toBe(employeeClient.organization.id)
+                expect(createdRequest.isAccepted).toBeFalsy()
+                expect(createdRequest.isRejected).toBeFalsy()
+                expect(createdRequest.processedBy).toBeNull()
+                expect(createdRequest.v).toBe(1)
+
+                const [role] = await createTestOrganizationEmployeeRole(employeeClient, employeeClient.organization)
+                const [employee] = await inviteNewOrganizationEmployee(employeeClient, employeeClient.organization, userAttrs, role)
+
+                expect(employee.user.id).toBe(staffClient.user.id)
+                expect(employee.name).toBe(staffClient.userAttrs.name)
+                expect(employee.phone).toBe(staffClient.userAttrs.phone)
+                expect(employee.email).toBe(staffClient.userAttrs.email)
+                expect(employee.isAccepted).toBeTruthy()
+                expect(employee.isRejected).toBeFalsy()
+
+                const request = await OrganizationEmployeeRequest.getOne(admin, {
+                    organization: { id: employeeClient.organization.id },
+                    user: { id: staffClient.user.id },
+                    deletedAt: null,
+                })
+
+                expect(request.user.id).toBe(staffClient.user.id)
+                expect(request.organization.id).toBe(employeeClient.organization.id)
+                expect(request.isAccepted).toBeTruthy()
+                expect(request.isRejected).toBeFalsy()
+                expect(request.processedBy.id).toBe(employeeClient.user.id)
+                expect(request.v).toBe(2)
+            })
+
+            it('should not be automatically accepted along with the invitation if exists and processed', async () => {
+                const employeeClient = await makeClientWithRegisteredOrganization()
+                const staffClient = await makeClientWithStaffUser()
+                const userAttrs = {
+                    name: staffClient.userAttrs.name,
+                    email: staffClient.userAttrs.email,
+                    phone: staffClient.userAttrs.phone,
+                }
+
+                const [createdRequest] = await sendOrganizationEmployeeRequestByTestClient(staffClient, {
+                    organization: { id: employeeClient.organization.id },
+                })
+                expect(createdRequest.user.id).toBe(staffClient.user.id)
+                expect(createdRequest.organizationId).toBe(employeeClient.organization.id)
+                expect(createdRequest.isAccepted).toBeFalsy()
+                expect(createdRequest.isRejected).toBeFalsy()
+                expect(createdRequest.processedBy).toBeNull()
+                expect(createdRequest.v).toBe(1)
+
+                const [rejectedRequest] = await acceptOrRejectOrganizationEmployeeRequestByTestClient(employeeClient, {
+                    employeeRequest: { id: createdRequest.id },
+                    isRejected: true,
+                })
+                expect(rejectedRequest.isRejected).toBeTruthy()
+
+                const [role] = await createTestOrganizationEmployeeRole(employeeClient, employeeClient.organization)
+                const [employee] = await inviteNewOrganizationEmployee(employeeClient, employeeClient.organization, userAttrs, role)
+
+                expect(employee.user.id).toBe(staffClient.user.id)
+                expect(employee.name).toBe(staffClient.userAttrs.name)
+                expect(employee.phone).toBe(staffClient.userAttrs.phone)
+                expect(employee.email).toBe(staffClient.userAttrs.email)
+                expect(employee.isAccepted).toBeFalsy()
+                expect(employee.isRejected).toBeFalsy()
+
+                const request = await OrganizationEmployeeRequest.getOne(admin, {
+                    organization: { id: employeeClient.organization.id },
+                    user: { id: staffClient.user.id },
+                    deletedAt: null,
+                })
+                expect(request.isRejected).toBeTruthy()
+                expect(request.isAccepted).toBeFalsy()
+                expect(request.processedBy.id).toBe(employeeClient.user.id)
+                expect(request.v).toBe(2)
             })
         })
     })

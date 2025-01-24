@@ -11,7 +11,11 @@ const {
     expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects,
 } = require('@open-condo/keystone/test.utils')
 
-const { AUTH_COUNTER_LIMIT_TYPE, RATE_LIMIT_TYPE } = require('@condo/domains/user/constants/limits')
+const {
+    AUTH_COUNTER_LIMIT_TYPE,
+    RATE_LIMIT_TYPE,
+    FIND_ORGANIZATION_BY_TIN_TYPE,
+} = require('@condo/domains/user/constants/limits')
 const { ERRORS } = require('@condo/domains/user/schema/ResetUserLimitAction')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 const {
@@ -19,6 +23,7 @@ const {
     createTestResetUserLimitAction,
     updateTestResetUserLimitAction,
     createTestPhone,
+    createTestEmail,
     makeClientWithSupportUser,
     makeClientWithNewRegisteredAndLoggedInUser,
 } = require('@condo/domains/user/utils/testSchema')
@@ -306,6 +311,94 @@ describe('ResetUserLimitAction', () => {
                 const value = await redis.get(key)
 
                 expect(value).toBeNull()
+            })
+        })
+
+        describe(`${FIND_ORGANIZATION_BY_TIN_TYPE} type`, () => {
+            test('throws error if key is not exists', async () => {
+                await expectToThrowGQLError(async () => {
+                    await createTestResetUserLimitAction(admin, FIND_ORGANIZATION_BY_TIN_TYPE, createTestPhone())
+                }, ERRORS.KEY_NOT_FOUND)
+
+                await expectToThrowGQLError(async () => {
+                    await createTestResetUserLimitAction(admin, FIND_ORGANIZATION_BY_TIN_TYPE, createTestEmail())
+                }, ERRORS.KEY_NOT_FOUND)
+
+                await expectToThrowGQLError(async () => {
+                    await createTestResetUserLimitAction(admin, FIND_ORGANIZATION_BY_TIN_TYPE, faker.datatype.uuid())
+                }, ERRORS.KEY_NOT_FOUND)
+            })
+
+            describe('throws error if key is not valid uuid, phone or email', () => {
+                const cases = [
+                    faker.internet.ipv4(),
+                    faker.random.alphaNumeric(10),
+                ]
+                test.each(cases)('%p', async (key) => {
+                    await expectToThrowGQLError(async () => {
+                        await createTestResetUserLimitAction(userWithDirectAccess, FIND_ORGANIZATION_BY_TIN_TYPE, key)
+                    }, ERRORS.INVALID_IDENTIFIER)
+                })
+            })
+
+            const cases = [
+                ['phone', 'phone', createTestPhone()],
+                ['email', 'email', createTestEmail()],
+                ['user id', 'userId', faker.datatype.uuid()],
+            ]
+
+            test.each(cases)('resets counters by %p if daily and total counters exist', async (_, identifierKey, identifier) => {
+                const dailyKey = `${FIND_ORGANIZATION_BY_TIN_TYPE}:${identifierKey}:${identifier}`
+                const totalKey = `${FIND_ORGANIZATION_BY_TIN_TYPE}:total:${identifierKey}:${identifier}`
+
+                for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
+                    await redisGuard.incrementDayCounter(dailyKey)
+                    await redisGuard.incrementDayCounter(totalKey)
+                }
+                const beforeResetDaily = await redisGuard.getCounterValue(dailyKey)
+                const beforeResetTotal = await redisGuard.getCounterValue(totalKey)
+
+                expect(Number(beforeResetDaily)).toEqual(COUNTER_VALUE_TO_UPDATE)
+                expect(Number(beforeResetTotal)).toEqual(COUNTER_VALUE_TO_UPDATE)
+
+                await createTestResetUserLimitAction(userWithDirectAccess, FIND_ORGANIZATION_BY_TIN_TYPE, identifier)
+                const afterResetDaily = await redisGuard.getCounterValue(dailyKey)
+                const afterResetTotal = await redisGuard.getCounterValue(totalKey)
+
+                expect(afterResetDaily).toBeNull()
+                expect(afterResetTotal).toBeNull()
+            })
+
+            test.each(cases)('resets counter by %p if daily counter exist only', async (_, identifierKey, identifier) => {
+                const dailyKey = `${FIND_ORGANIZATION_BY_TIN_TYPE}:${identifierKey}:${identifier}`
+
+                for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
+                    await redisGuard.incrementDayCounter(dailyKey)
+                }
+                const beforeResetDaily = await redisGuard.getCounterValue(dailyKey)
+
+                expect(Number(beforeResetDaily)).toEqual(COUNTER_VALUE_TO_UPDATE)
+
+                await createTestResetUserLimitAction(userWithDirectAccess, FIND_ORGANIZATION_BY_TIN_TYPE, identifier)
+                const afterResetDaily = await redisGuard.getCounterValue(dailyKey)
+
+                expect(afterResetDaily).toBeNull()
+            })
+
+            test.each(cases)('resets counter by %p if total counter exist only', async (_, identifierKey, identifier) => {
+                const totalKey = `${FIND_ORGANIZATION_BY_TIN_TYPE}:total:${identifierKey}:${identifier}`
+
+                for (let i = 0; i < COUNTER_VALUE_TO_UPDATE; i++)  {
+                    await redisGuard.incrementDayCounter(totalKey)
+                }
+                const beforeResetTotal = await redisGuard.getCounterValue(totalKey)
+
+                expect(Number(beforeResetTotal)).toEqual(COUNTER_VALUE_TO_UPDATE)
+
+                await createTestResetUserLimitAction(userWithDirectAccess, FIND_ORGANIZATION_BY_TIN_TYPE, identifier)
+                const afterResetTotal = await redisGuard.getCounterValue(totalKey)
+
+                expect(afterResetTotal).toBeNull()
             })
         })
     })

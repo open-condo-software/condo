@@ -7,7 +7,11 @@ import {
     createOrganization,
     createProperty,
     sendAuthorizedRequest,
-    getOrganizationEmployeeId, getOrganizationEmployees, signInAsUser, createTicket,
+    getOrganizationEmployeeId,
+    getOrganizationEmployees,
+    signInAsUser,
+    createTicket,
+    resetOrganization,
 } from './utils'
 
 
@@ -66,7 +70,7 @@ function setupOrganizationForCheckFrontend () {
     const organizationId = __ENV.ORGANIZATION_ID
     if (!organizationId) return {}
 
-    const { token: adminToken } = setupCondoAuth(true)
+    const { token: adminToken } = setupCondoAuth()
     const organizationEmployees = getOrganizationEmployees(adminToken, {
         organization: { id: organizationId },
         role: { isDefault: true, ticketVisibilityType: 'property' },
@@ -103,6 +107,10 @@ export function setup () {
         organizationLinkId: organizationEmployee.json('data.allOrganizationEmployees.0.id'),
         propertyId: createdProperty.json('data.obj.id'),
     }
+}
+
+export function teardown (data) {
+    resetOrganization(data)
 }
 
 export function healthcheck () {

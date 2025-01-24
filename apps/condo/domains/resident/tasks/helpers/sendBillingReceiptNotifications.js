@@ -16,8 +16,8 @@ const DONE = 'DONE'
 
 const logger = getLogger('sendBillingReceiptsAddedNotifications')
 
-const sendBillingReceiptNotifications = async (context = null) => {
-    const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(context, SEND_BILLING_RECEIPTS_NOTIFICATIONS_TASK)
+const sendBillingReceiptNotifications = async () => {
+    const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(null, SEND_BILLING_RECEIPTS_NOTIFICATIONS_TASK)
     // Skip sending notifications if feature is disabled on https://growthbook.doma.ai/features
     // This affects only cron task, notifications still could be sent using scripts in condo/
     
@@ -27,9 +27,14 @@ const sendBillingReceiptNotifications = async (context = null) => {
         return { status: DISABLED }
     }
 
-    await sendResidentsNoAccountNotifications()
+    try {
+        //TODO: DOMA-10913 This func needs to be refactored and optimized or removed, currently it falls by time out for orgs with a lot of properties
+        await sendResidentsNoAccountNotifications()
+    } catch (error) {
+        logger.error({ msg: 'sendResidentsNoAccountNotifications failed', error })
+    }
 
-    const redisClient = await getRedisClient()
+    const redisClient = getRedisClient()
     const redisKey = await redisClient.get(LAST_SEND_BILLING_RECEIPT_NOTIFICATION_DATE)
 
     if (!redisKey) {

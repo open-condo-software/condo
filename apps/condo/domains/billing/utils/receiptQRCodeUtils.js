@@ -191,12 +191,17 @@ function formatPeriodFromQRCode (period) {
  */
 async function findAuxiliaryData (qrCodeFields, errors) {
     const addressServiceClient = createInstance()
-    const normalizedAddress = await addressServiceClient.search(getQRCodeField(qrCodeFields, 'PayerAddress'), { extractUnit: true })
+    const searchParams = { extractUnit: true }
+    const tin = getQRCodeField(qrCodeFields, 'PayeeINN')
+    if (tin) {
+        searchParams.helpers = JSON.stringify({ tin })
+    }
+    const normalizedAddress = await addressServiceClient.search(getQRCodeField(qrCodeFields, 'PayerAddress'), searchParams)
 
     if (!normalizedAddress.addressKey || !normalizedAddress.unitType || !normalizedAddress.unitName) throw errors.address
 
     const properties = await find('Property', {
-        organization: { tin: getQRCodeField(qrCodeFields, 'PayeeINN'), deletedAt: null },
+        organization: { tin, deletedAt: null },
         addressKey: normalizedAddress.addressKey,
         deletedAt: null,
     })
