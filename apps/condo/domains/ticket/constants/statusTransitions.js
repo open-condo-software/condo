@@ -1,7 +1,3 @@
-/*
-* refs to: https://doma.atlassian.net/browse/SBERDOMA-97
-* */
-
 const { RU_LOCALE, EN_LOCALE, ES_LOCALE } = require('@condo/domains/common/constants/locale')
 const STATUS_IDS = {
     OPEN: '6ef3abc4-022f-481b-90fb-8430345ebfc2',
