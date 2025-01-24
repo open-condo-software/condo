@@ -288,7 +288,7 @@ describe('ValidateQRCodeService', () => {
                     mutation: 'validateQRCode',
                     code: 'INTERNAL_ERROR',
                     type: 'NOT_FOUND',
-                    message: 'No billing account found',
+                    message: 'No billing account was found',
                 },
                 'result',
             )
@@ -322,7 +322,7 @@ describe('ValidateQRCodeService', () => {
                     mutation: 'validateQRCode',
                     code: 'INTERNAL_ERROR',
                     type: 'WRONG_VALUE',
-                    message: '2+ billing accounts found',
+                    message: 'More than one billing accounts were found',
                 },
                 'result',
             )

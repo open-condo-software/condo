@@ -73,8 +73,8 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                 const period = formatPeriodFromQRCode(paymPeriod)
                 const amount = String(Big(sum).div(100))
 
-                // Existence of this billing account was checked at ValidateQRCodeService
-                const billingAccounts = await find('BillingAccount', {
+                // Existence of this billing account and billing property was checked at ValidateQRCodeService
+                const [billingAccount] = await find('BillingAccount', {
                     number: persAcc,
                     context: {
                         organization: { tin: payeeINN, deletedAt: null },
@@ -84,14 +84,10 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                     deletedAt: null,
                 })
 
-                const [billingAccount] = billingAccounts
-
-                const billingProperties = await find('BillingProperty', {
+                const [billingProperty] = await find('BillingProperty', {
                     id: billingAccount.property,
                     deletedAt: null,
                 })
-
-                const [billingProperty] = billingProperties
 
                 const [billingContext] = await find('BillingIntegrationOrganizationContext', {
                     id: billingAccount.context,

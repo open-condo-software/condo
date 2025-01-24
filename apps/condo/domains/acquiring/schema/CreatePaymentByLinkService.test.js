@@ -469,7 +469,7 @@ describe('CreatePaymentByLinkService', () => {
             mutation: 'validateQRCode',
             code: 'INTERNAL_ERROR',
             type: 'NOT_FOUND',
-            message: 'No billing account found',
+            message: 'No billing account was found',
         })
     })
 
