@@ -120,14 +120,14 @@ describe('receiptQRCodeUtils', () => {
         const parsed = parseRUReceiptQRCode(Buffer.from('ST00012|field1=Hello|Field2=world|foo=bar baz').toString('base64'))
         const missedFields = getQRCodeMissedFields(parsed)
 
-        expect(missedFields).toEqual(['BIC', 'PayerAddress', 'Sum', 'PersAcc', 'PayeeINN', 'PersonalAcc'])
+        expect(missedFields).toEqual(['BIC', 'Sum', 'PersAcc', 'PayeeINN', 'PersonalAcc'])
     })
 
     test('check for required fields except one', () => {
         const parsed = parseRUReceiptQRCode(Buffer.from('ST00012|field1=Hello|Field2=world|foo=bar baz|persAcc=01.2024').toString('base64'))
         const missedFields = getQRCodeMissedFields(parsed)
 
-        expect(missedFields).toEqual(['BIC', 'PayerAddress', 'Sum', 'PayeeINN', 'PersonalAcc'])
+        expect(missedFields).toEqual(['BIC', 'Sum', 'PayeeINN', 'PersonalAcc'])
     })
 
     test('format period from QR-code', () => {
