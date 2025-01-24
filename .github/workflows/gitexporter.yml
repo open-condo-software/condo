@@ -11,6 +11,8 @@ jobs:
     name: Gitexporter
     runs-on: self-hosted
     steps:
+      - name: Setup node environment
+        uses: actions/setup-node@v4
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -35,5 +37,4 @@ jobs:
           ref: 'main'
       - name: gitexporter.sh
         run: |
-          npm i -g npx
           bash .github/workflows/gitexporter.sh ignore.gitexporter.source ignore.gitexporter.target
