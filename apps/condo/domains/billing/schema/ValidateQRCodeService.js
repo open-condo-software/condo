@@ -5,8 +5,9 @@ const Big = require('big.js')
 const { get, pick } = require('lodash')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
-const { GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, getById, find } = require('@open-condo/keystone/schema')
 
+const { CONTEXT_FINISHED_STATUS: ACQUIRING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const {
     compactDistributionSettings,
     FeeDistribution,
@@ -16,20 +17,19 @@ const {
     BILLING_VALIDATE_QR_CODE_WINDOW,
     MAX_CLIENT_VALIDATE_QR_CODE_BY_WINDOW,
 } = require('@condo/domains/billing/constants')
-const { SEVERAL_ORGANIZATIONS } = require('@condo/domains/billing/constants/errors')
+const { CONTEXT_FINISHED_STATUS: BILLING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/billing/constants/constants')
 const { getCountrySpecificQRCodeParser } = require('@condo/domains/billing/utils/countrySpecificQRCodeParsers')
 const {
     getQRCodeMissedFields,
     compareQRCodeWithLastReceipt,
     isReceiptPaid,
     formatPeriodFromQRCode,
-    findAuxiliaryData,
     getQRCodeFields,
     getQRCodeField,
     getQRCodePaymPeriod,
 } = require('@condo/domains/billing/utils/receiptQRCodeUtils')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
-const { WRONG_FORMAT, NOT_FOUND, ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
+const { WRONG_FORMAT, NOT_FOUND, ALREADY_EXISTS_ERROR, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 const redisGuard = new RedisGuard()
@@ -46,18 +46,6 @@ const ERRORS = {
         type: WRONG_FORMAT,
         message: `Provided QR code doesn't have required fields: ${missedFieldsArr.join(', ')}`,
     }),
-    NO_ORGANIZATION: {
-        mutation: 'validateQRCode',
-        code: INTERNAL_ERROR,
-        type: NOT_FOUND,
-        message: 'Organization with provided TIN and having provided address is not registered',
-    },
-    NO_BILLING_CONTEXT: {
-        mutation: 'validateQRCode',
-        code: INTERNAL_ERROR,
-        type: NOT_FOUND,
-        message: 'Organization with provided TIN does not have an active billing integration',
-    },
     NO_ACQUIRING_CONTEXT: {
         mutation: 'validateQRCode',
         code: INTERNAL_ERROR,
@@ -78,18 +66,18 @@ const ERRORS = {
         type: WRONG_FORMAT,
         message: 'Invalid QR code',
     },
-    ADDRESS_IS_INVALID: {
-        mutation: 'validateQRCode',
-        code: BAD_USER_INPUT,
-        type: WRONG_FORMAT,
-        message: 'The provided address is invalid',
-    },
-    SEVERAL_ORGANIZATIONS: (count) => ({
+    NO_BILLING_ACCOUNT: {
         mutation: 'validateQRCode',
         code: INTERNAL_ERROR,
-        type: SEVERAL_ORGANIZATIONS,
-        message: `Found ${count} organizations with provided TIN and having provided address`,
-    }),
+        type: NOT_FOUND,
+        message: 'No billing account was found',
+    },
+    MUCH_BILLING_ACCOUNTS: {
+        mutation: 'validateQRCode',
+        code: INTERNAL_ERROR,
+        type: WRONG_VALUE,
+        message: 'More than one billing accounts were found',
+    },
     BANK_ACCOUNT_IS_INVALID: {
         mutation: 'validateQRCode',
         code: BAD_USER_INPUT,
@@ -163,21 +151,42 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
                 }
 
                 const qrCodeAmount = String(Big(getQRCodeField(qrCodeFields, 'Sum')).div(100))
-                const { persAcc, personalAcc } = getQRCodeFields(qrCodeFields, ['persAcc', 'personalAcc'])
+                const { persAcc, personalAcc, payeeINN } = getQRCodeFields(qrCodeFields, ['persAcc', 'personalAcc', 'payeeINN'])
 
-                const auxiliaryData = await findAuxiliaryData(qrCodeFields, { address: ERRORS.ADDRESS_IS_INVALID })
+                const billingAccounts = await find('BillingAccount', {
+                    number: persAcc,
+                    context: {
+                        organization: { tin: payeeINN, deletedAt: null },
+                        status: BILLING_CONTEXT_FINISHED_STATUS,
+                        deletedAt: null,
+                    },
+                    deletedAt: null,
+                })
 
-                const organizationsIds = Object.keys(auxiliaryData.contexts)
+                if (billingAccounts.length === 0) {
+                    throw new GQLError(ERRORS.NO_BILLING_ACCOUNT, context)
+                }
 
-                if (organizationsIds.length === 0) throw new GQLError(ERRORS.NO_ORGANIZATION, context)
-                if (organizationsIds.length > 1) throw new GQLError(ERRORS.SEVERAL_ORGANIZATIONS(organizationsIds.length), context)
+                if (billingAccounts.length > 1) {
+                    throw new GQLError(ERRORS.MUCH_BILLING_ACCOUNTS, context)
+                }
 
-                const organizationId = organizationsIds[0]
+                const [billingAccount] = billingAccounts
 
-                const billingContext = get(auxiliaryData, ['contexts', organizationId, 'billingContext'])
-                const acquiringContext = get(auxiliaryData, ['contexts', organizationId, 'acquiringContext'])
+                const [billingContext] = await find('BillingIntegrationOrganizationContext', {
+                    id: billingAccount.context,
+                    status: BILLING_CONTEXT_FINISHED_STATUS,
+                    deletedAt: null,
+                })
 
-                if (!billingContext) throw new GQLError(ERRORS.NO_BILLING_CONTEXT, context)
+                const organizationId = billingContext.organization
+
+                const [acquiringContext] = await find('AcquiringIntegrationContext', {
+                    organization: { id: organizationId, deletedAt: null },
+                    status: ACQUIRING_CONTEXT_FINISHED_STATUS,
+                    deletedAt: null,
+                })
+
                 if (!acquiringContext) throw new GQLError(ERRORS.NO_ACQUIRING_CONTEXT, context)
 
                 const paymPeriod = getQRCodePaymPeriod(qrCodeFields, billingContext)

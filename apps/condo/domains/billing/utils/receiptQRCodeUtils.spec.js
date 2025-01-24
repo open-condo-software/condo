@@ -29,7 +29,6 @@ const {
     getQRCodeFields,
     formatPeriodFromQRCode,
     compareQRCodeWithLastReceipt,
-    findAuxiliaryData,
     getQRCodePaymPeriod,
 } = require('./receiptQRCodeUtils')
 const {
@@ -121,14 +120,14 @@ describe('receiptQRCodeUtils', () => {
         const parsed = parseRUReceiptQRCode(Buffer.from('ST00012|field1=Hello|Field2=world|foo=bar baz').toString('base64'))
         const missedFields = getQRCodeMissedFields(parsed)
 
-        expect(missedFields).toEqual(['BIC', 'PayerAddress', 'Sum', 'PersAcc', 'PayeeINN', 'PersonalAcc'])
+        expect(missedFields).toEqual(['BIC', 'Sum', 'PersAcc', 'PayeeINN', 'PersonalAcc'])
     })
 
     test('check for required fields except one', () => {
         const parsed = parseRUReceiptQRCode(Buffer.from('ST00012|field1=Hello|Field2=world|foo=bar baz|persAcc=01.2024').toString('base64'))
         const missedFields = getQRCodeMissedFields(parsed)
 
-        expect(missedFields).toEqual(['BIC', 'PayerAddress', 'Sum', 'PayeeINN', 'PersonalAcc'])
+        expect(missedFields).toEqual(['BIC', 'Sum', 'PayeeINN', 'PersonalAcc'])
     })
 
     test('format period from QR-code', () => {
@@ -256,79 +255,6 @@ describe('receiptQRCodeUtils', () => {
                 expect(resolvers.onReceiptPeriodOlderThanQrCodePeriod).toHaveBeenCalledWith(billingReceiptForComparison)
             })
         })
-    })
-
-    test('Auxiliary data has correct format', async () => {
-        const [o10n] = await createTestOrganization(adminClient)
-        const [property] = await createTestProperty(adminClient, o10n)
-
-        const bic = createValidRuRoutingNumber()
-        const qrCodeObj = {
-            BIC: bic,
-            PayerAddress: `${property.address}, кв 1`,
-            PaymPeriod: '06.2024',
-            Sum: '10000',
-            PersAcc: faker.random.numeric(8),
-            PayeeINN: o10n.tin,
-            PersonalAcc: createValidRuNumber(bic),
-        }
-
-        const {
-            billingIntegration,
-            billingIntegrationContext,
-        } = await addBillingIntegrationAndContext(adminClient, o10n, {}, { status: CONTEXT_FINISHED_STATUS })
-        const {
-            acquiringIntegration,
-            acquiringIntegrationContext,
-        } = await addAcquiringIntegrationAndContext(adminClient, o10n, {}, { status: CONTEXT_FINISHED_STATUS })
-
-        const auxiliaryData = await findAuxiliaryData(qrCodeObj, { address: undefined })
-
-        expect(auxiliaryData).toMatchObject({
-            normalizedAddress: expect.objectContaining({
-                addressKey: property.addressKey,
-                unitType: 'flat',
-                unitName: '1',
-            }),
-            contexts: {
-                [o10n.id]: {
-                    billingContext: expect.objectContaining({
-                        id: billingIntegrationContext.id,
-                        integration: billingIntegration.id,
-                    }),
-                    acquiringContext: expect.objectContaining({
-                        id: acquiringIntegrationContext.id,
-                        integration: acquiringIntegration.id,
-                    }),
-                },
-            },
-        })
-    })
-
-    test('Auxiliary data: throw an error if address not found', async () => {
-        const [o10n] = await createTestOrganization(adminClient)
-        const [property] = await createTestProperty(adminClient, o10n)
-
-        const bic = createValidRuRoutingNumber()
-        const qrCodeObj = {
-            BIC: bic,
-            PayerAddress: `${property.address}, кв 1`,
-            PaymPeriod: '06.2024',
-            Sum: '10000',
-            PersAcc: faker.random.numeric(8),
-            PayeeINN: o10n.tin,
-            PersonalAcc: createValidRuNumber(bic),
-        }
-
-        await addBillingIntegrationAndContext(adminClient, o10n, {}, { status: CONTEXT_FINISHED_STATUS })
-        await addAcquiringIntegrationAndContext(adminClient, o10n, {}, { status: CONTEXT_FINISHED_STATUS })
-
-        await catchErrorFrom(
-            async () => await findAuxiliaryData({ ...qrCodeObj, PayerAddress: `${property.address}, кв` }, { address: new Error('error about address') }),
-            (err) => {
-                expect(err.message).toMatch('error about address')
-            }
-        )
     })
 
     describe('Detect PaymPeriod', () => {

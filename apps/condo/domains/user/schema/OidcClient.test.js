@@ -18,7 +18,7 @@ const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
 } = require('@condo/domains/user/utils/testSchema')
-const { OidcClient, createTestOidcClient, updateTestOidcClient } = require('@condo/domains/user/utils/testSchema')
+const { OidcClient, createTestOidcClient, updateTestOidcClient, OIDC_REDIRECT_URI } = require('@condo/domains/user/utils/testSchema')
 
 describe('OidcClient', () => {
     let admin
@@ -186,7 +186,7 @@ describe('OidcClient', () => {
                         client_id: clientId,
                         grant_types: ['implicit', 'authorization_code'],
                         // client_secret: faker.random.alphaNumeric(12), // Trying without this field
-                        redirect_uris: ['https://jwt.io/'],
+                        redirect_uris: [OIDC_REDIRECT_URI],
                         response_types: ['code id_token', 'code', 'id_token'],
                         token_endpoint_auth_method: 'client_secret_basic',
                     },
