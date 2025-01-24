@@ -35,4 +35,5 @@ jobs:
           ref: 'main'
       - name: gitexporter.sh
         run: |
+          npm i -g npx
           bash .github/workflows/gitexporter.sh ignore.gitexporter.source ignore.gitexporter.target
