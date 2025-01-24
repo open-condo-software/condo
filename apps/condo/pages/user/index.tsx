@@ -54,8 +54,12 @@ export const UserInfoPageContent: React.FC<UserInfoPageContentProps> = ({ useAll
     const GlobalHintsTitle = intl.formatMessage({ id: 'pages.condo.profile.globalHints' })
     const RuTitle = intl.formatMessage({ id: 'language.russian.withFlag' })
     const EnTitle = intl.formatMessage({ id: 'language.english-us.withFlag' })
-    const EsTitle = intl.formatMessage({ id: 'language.spanish-es.withFlag' })
-
+    const UzTitle = intl.formatMessage({ id: 'language.uzbek.withFlag' })
+    const FrTitle = intl.formatMessage({ id: 'language.french.withFlag' })
+    const SlTitle = intl.formatMessage({ id: 'language.slovenian.withFlag' })
+    const EsTitle = intl.formatMessage({ id: 'language.spanish.withFlag' })
+    const PtTitle = intl.formatMessage({ id: 'language.portuguese.withFlag' })
+    const DeTitle = intl.formatMessage({ id: 'language.german.withFlag' })
     const [showGlobalHints, setShowGlobalHints] = useState<boolean>(false)
 
     const { user, refetch } = useAuth()
@@ -71,8 +75,13 @@ export const UserInfoPageContent: React.FC<UserInfoPageContentProps> = ({ useAll
     const possibleLocalesOptions = useMemo(() => ([
         { label: RuTitle, value: 'ru' },
         { label: EnTitle, value: 'en' },
+        { label: FrTitle, value: 'fr' },
+        { label: SlTitle, value: 'sl' },
+        { label: UzTitle, value: 'uz' },
         { label: EsTitle, value: 'es' },
-    ]), [EnTitle, RuTitle, EsTitle])
+        { label: PtTitle, value: 'pt' },
+        { label: DeTitle, value: 'de' },
+    ]), [EnTitle, RuTitle, UzTitle, FrTitle, SlTitle, EsTitle, DeTitle, PtTitle])
 
     const handleLocaleChange = useCallback((setLocale) => async (newLocale) => {
         await updateUser({ locale: newLocale }, { id: user.id })

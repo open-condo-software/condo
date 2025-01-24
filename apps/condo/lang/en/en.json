@@ -1,4 +1,12 @@
 {
+  "language.russian.withFlag": "🇷🇺\u00a0Русский",
+  "language.slovenian.withFlag": "🇸🇮 \u00a0Slovenščina",
+  "language.english-us.withFlag": "🇺🇸\u00a0U.S. English",
+  "language.french.withFlag": "🇫🇷\u00a0French",
+  "language.uzbek.withFlag": "🇺🇿\u00a0O'zbekcha",
+  "language.german.withFlag": "🇩🇪\u00a0German",
+  "language.spanish.withFlag": "🇪🇸\u00a0Spanish",
+  "language.portuguese.withFlag": "🇵🇹\u00a0Portuguese",
   "Accept": "Accept",
   "AccessError": "You don't have access to complete this request",
   "Account": "Account",
