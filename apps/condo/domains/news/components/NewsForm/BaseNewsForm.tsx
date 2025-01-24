@@ -544,7 +544,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             title: selectedTitle,
             body: selectedBody,
             properties: scope.selectedPropertiesId,
-            ...(totalProperties === 1 && scope.selectedPropertiesId.length === 1 ? { property: selectedPropertiesId[0] } : undefined),
+            ...(totalProperties === 1 && scope.selectedPropertiesId.length === 1 ? { property: scope.selectedPropertiesId[0] } : undefined),
             validBefore: initialValidBefore ? dayjs(initialValidBefore) : null,
             sendAt: initialSendAt ? dayjs(initialSendAt) : null,
         }
