@@ -159,8 +159,6 @@ const REGISTER_NEW_SERVICE_USER_MUTATION = gql`
     }
 `
 
-// TODO(codegen): write return type result!
-
 const SEND_MESSAGE_TO_SUPPORT_MUTATION = gql`
     mutation sendMessageToSupport ($data: SendMessageToSupportInput!) {
         result: sendMessageToSupport(data: $data) { id, status }
@@ -194,8 +192,6 @@ const ResetUserLimitAction = generateGqlQueries('ResetUserLimitAction', RESET_US
 
 const USER_SUDO_TOKEN_FIELDS = `{ token expiresAt user { id } remainingUses ${COMMON_FIELDS} }`
 const UserSudoToken = generateGqlQueries('UserSudoToken', USER_SUDO_TOKEN_FIELDS)
-
-// TODO(codegen): write return type result!
 
 const GENERATE_SUDO_TOKEN_MUTATION = gql`
     mutation generateSudoToken ($data: GenerateSudoTokenInput!) {
