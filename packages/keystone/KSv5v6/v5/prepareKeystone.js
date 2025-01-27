@@ -20,6 +20,7 @@ const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSche
 const { getKeystonePinoOptions, GraphQLLoggerPlugin, getLogger } = require('@open-condo/keystone/logging')
 const { expressErrorHandler } = require('@open-condo/keystone/logging/expressErrorHandler')
 const metrics = require('@open-condo/keystone/metrics')
+const { composeNonResolveInputHook, composeResolveInputHook } = require('@open-condo/keystone/plugins/utils')
 const { schemaDocPreprocessor, adminDocPreprocessor, escapeSearchPreprocessor, customAccessPostProcessor } = require('@open-condo/keystone/preprocessors')
 const { ApolloRateLimitingPlugin } = require('@open-condo/keystone/rateLimiting')
 const { getRedisClient } = require('@open-condo/keystone/redis')
@@ -30,6 +31,9 @@ const { KeystoneTracingApp } = require('@open-condo/keystone/tracing')
 
 const { Keystone } = require('./keystone')
 const { validateHeaders } = require('./validateHeaders')
+
+const { GraphiqlApp } = require('../../graphiql')
+
 
 const IS_BUILD_PHASE = conf.PHASE === 'build'
 const IS_WORKER_PROCESS = conf.PHASE === 'worker'
@@ -43,6 +47,8 @@ const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLA
 // NOTE(pahaz): it's a magic number tested by @arichiv at https://developer.chrome.com/blog/cookie-max-age-expires/
 const INFINITY_MAX_AGE_COOKIE = 1707195600
 const SERVICE_USER_SESSION_TTL_IN_SEC = 7 * 24 * 60 * 60 // 7 days in sec
+const RATE_LIMIT_CONFIG = JSON.parse(conf['RATE_LIMIT_CONFIG'] || '{}')
+const IS_RATE_LIMIT_DISABLED = conf['DISABLE_RATE_LIMIT'] === 'true'
 
 const logger = getLogger('uncaughtError')
 
@@ -115,7 +121,28 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
     // We need to register all schemas as they will appear in admin ui
     registerSchemas(keystone, schemas(), globalPreprocessors)
 
-    const authStrategyConfig = get(authStrategyOpts, 'config', {})
+    const defaultAuthStrategyConfigHooks = {
+        async afterAuth ({ item, token, success })   {
+            // NOTE: It's triggered only by default Keystone mutation, "authenticateUserWithPhoneAndPassword" will not work here
+            // Step 1. Skip if auth was not succeeded
+            if (!success || !token) {
+                return
+            }
+            // Step 2. Skip this for any non-service user, or users without type field
+            if (!item || !item.type || item.type !== 'service') {
+                return
+            }
+            // NOTE: auth token is just session token prefix (32 chars) + some prefix after dot.
+            // Example: 12345678901234567890123456789012.asdhaksdjhajskdhajskdhjkas
+            // Session token can be build like so "sess:{prefixBeforeDot}"
+            const sessToken = token.split('.')[0]
+            const sessKey = `sess:${sessToken}`
+            const redisClient = getRedisClient()
+            // NOTE: if key not found returns 0, else 1.
+            await redisClient.expire(sessKey, SERVICE_USER_SESSION_TTL_IN_SEC)
+        },
+    }
+
     const authStrategy = keystone.createAuthStrategy({
         type: ExtendedPasswordAuthStrategy,
         list: 'User',
@@ -129,29 +156,9 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
                     deletedAt: null,
                 })
             },
-            ...authStrategyConfig,
+            ...get(authStrategyOpts, 'config', {}),
         },
-        hooks: {
-            async afterAuth ({ item, token, success })  {
-                // NOTE: It's triggered only by default Keystone mutation, "authenticateUserWithPhoneAndPassword" will not work here
-                // Step 1. Skip if auth was not succeeded
-                if (!success || !token) {
-                    return
-                }
-                // Step 2. Skip this for any non-service user, or users without type field
-                if (!item || !item.type || item.type !== 'service') {
-                    return
-                }
-                // NOTE: auth token is just session token prefix (32 chars) + some prefix after dot.
-                // Example: 12345678901234567890123456789012.asdhaksdjhajskdhajskdhjkas
-                // Session token can be build like so "sess:{prefixBeforeDot}"
-                const sessToken = token.split('.')[0]
-                const sessKey = `sess:${sessToken}`
-                const redisClient = getRedisClient()
-                // NOTE: if key not found returns 0, else 1.
-                await redisClient.expire(sessKey, SERVICE_USER_SESSION_TTL_IN_SEC)
-            },
-        },
+        hooks: composeHooks(defaultAuthStrategyConfigHooks, get(authStrategyOpts, 'hooks', {})),
     })
 
     if (!IS_BUILD) {
@@ -165,10 +172,11 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
         setInterval(sendAppMetrics, 2000)
     }
 
-    const apolloPlugins = [
-        new ApolloRateLimitingPlugin(keystone),
-        new GraphQLLoggerPlugin(),
-    ]
+    const apolloPlugins = []
+    if (!IS_RATE_LIMIT_DISABLED) {
+        apolloPlugins.push(new ApolloRateLimitingPlugin(keystone, RATE_LIMIT_CONFIG))
+    }
+    apolloPlugins.push(new GraphQLLoggerPlugin())
 
     if (IS_SENTRY_ENABLED) {
         apolloPlugins.unshift(new ApolloSentryPlugin())
@@ -185,12 +193,17 @@ function prepareKeystone ({ onConnect, extendKeystoneConfig, extendExpressApp, s
             new IpBlackListMiddleware(),
             new KeystoneTracingApp(),
             ...((apps) ? apps() : []),
+            ...(IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND ? [
+                new GraphiqlApp({
+                    allowedQueryParams: ['deleted'],
+                }),
+            ] : []),
             new GraphQLApp({
                 apollo: {
                     formatError: safeApolloErrorFormatter,
                     debug: IS_ENABLE_APOLLO_DEBUG,
                     introspection: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
-                    playground: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
+                    playground: false,
                     plugins: apolloPlugins,
                 },
                 ...(graphql || {}),
@@ -278,6 +291,31 @@ process.on('unhandledRejection', (err, promise) => {
         throw err
     }
 })
+
+function composeHooks (defaultHooksOptions = {}, hooksOptions = {}) {
+    const hooks = {}
+    const hookNames = [
+        'afterAuth',
+        'beforeUnauth',
+        'resolveInput',
+        'validateInput',
+        'beforeChanges',
+        'afterChanges',
+    ]
+    for (const hookName of hookNames) {
+        let composer = composeNonResolveInputHook
+        if (hookName === 'resolveInput') {
+            composer = composeResolveInputHook
+        }
+
+        if (defaultHooksOptions[hookName] && hooksOptions[hookName]) {
+            hooks[hookName] = composer(defaultHooksOptions[hookName], hooksOptions[hookName])
+        } else {
+            hooks[hookName] = defaultHooksOptions[hookName] || hooksOptions[hookName]
+        }
+    }
+    return hooks
+}
 
 module.exports = {
     prepareKeystone,

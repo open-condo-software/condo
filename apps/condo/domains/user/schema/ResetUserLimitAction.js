@@ -7,14 +7,27 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const { NOT_FOUND, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
-const { IPv4_REGEX } = require('@condo/domains/common/constants/regexps')
-const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const access = require('@condo/domains/user/access/ResetUserLimitAction')
-const { RESET_USER_LIMIT_ACTION_TYPES, AUTH_COUNTER_TYPE } = require('@condo/domains/user/constants/common')
-const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
+const {
+    SMS_COUNTER_LIMIT_TYPE,
+    FIND_ORGANIZATION_BY_TIN_TYPE,
+    RATE_LIMIT_TYPE,
+    AUTH_COUNTER_LIMIT_TYPE,
+} = require('@condo/domains/user/constants/limits')
+const { getIdentifierType } = require('@condo/domains/user/utils/identifiers')
+const {
+    SmsGuardResetter,
+    RateLimitResetter,
+    FindOrganizationByTinGuardResetter,
+    AuthGuardResetter,
+} = require('@condo/domains/user/utils/limits/resetters')
 
-
-const redisGuard = new RedisGuard()
+const resetters = {
+    [SMS_COUNTER_LIMIT_TYPE]: new SmsGuardResetter(),
+    [RATE_LIMIT_TYPE]: new RateLimitResetter(),
+    [FIND_ORGANIZATION_BY_TIN_TYPE]: new FindOrganizationByTinGuardResetter(),
+    [AUTH_COUNTER_LIMIT_TYPE]: new AuthGuardResetter(),
+}
 
 const ERRORS = {
     KEY_NOT_FOUND: {
@@ -38,36 +51,33 @@ const ResetUserLimitAction = new GQLListSchema('ResetUserLimitAction', {
         'To reset a counter limit, you need to create a new object and specify the counter type, identifier, and reason for the reset.',
     fields: {
         type: {
-            schemaDoc: `Type of counter to be reset.
-                Possible values: 
-                1. Auth – counter for sending verification SMS based on IP or phone number.
-             `,
+            schemaDoc: `Type of limit to reset. Possible values: [${Object.keys(resetters).map(key => `"${key}"`).join(', ')}]`,
             type: 'Select',
             dataType: 'string',
-            options: RESET_USER_LIMIT_ACTION_TYPES,
+            options: Object.keys(resetters),
             isRequired: true,
         },
         identifier: {
-            schemaDoc: `The identifier of the counter for a specific type.
-                Possible values: 
-                1. For the 'Auth' type, it can be: an IP address or a phone number.
-            `,
+            schemaDoc: 'The identifier of user, to which reset will apply. Possible values are based on reset type: \n' +
+                Object.entries(resetters)
+                    .map(([key, resetter]) => `${key}: [${resetter.supportedIdentifiers.map(type => `"${type}"`).join(', ')}]`)
+                    .join(', \n'),
             type: 'Text',
             isRequired: true,
             hooks: {
                 validateInput: async ({ resolvedData, context }) => {
-                    const { type, identifier } = resolvedData
+                    const { type: limitType, identifier } = resolvedData
 
-                    if (type === AUTH_COUNTER_TYPE) {
-                        const isValidPhone = Boolean(normalizePhone(identifier))
-                        const isValidIP = IPv4_REGEX.test(identifier)
+                    const resetter = resetters[limitType]
 
-                        if (!isValidIP && !isValidPhone) {
-                            throw new GQLError(ERRORS.INVALID_IDENTIFIER, context)
-                        }
+                    const identifierType = getIdentifierType(identifier)
+
+                    if (!resetter.supportedIdentifiers.includes(identifierType)) {
+                        throw new GQLError(ERRORS.INVALID_IDENTIFIER, context)
                     }
 
-                    const isKeyExists = await redisGuard.checkCounterExistence(`${type}:${identifier}`)
+                    const isKeyExists = await resetter.checkExistence(identifier)
+
                     if (!isKeyExists) {
                         throw new GQLError(ERRORS.KEY_NOT_FOUND, context)
                     }
@@ -81,10 +91,11 @@ const ResetUserLimitAction = new GQLListSchema('ResetUserLimitAction', {
         },
     },
     hooks: {
-        afterChange: async ({ originalInput }) => {
-            const { type, identifier } = originalInput
+        afterChange: async ({ updatedItem }) => {
+            const { type: limitType, identifier } = updatedItem
 
-            await redisGuard.deleteCounter(`${type}:${identifier}`)
+            const resetter = resetters[limitType]
+            await resetter.reset(identifier)
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],

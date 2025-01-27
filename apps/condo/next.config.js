@@ -63,6 +63,7 @@ const isDisabledSsr = conf['DISABLE_SSR'] === 'true'
 const termsOfUseUrl = conf['LEGAL_TERMS_OF_USE_URL']
 const privacyPolicyUrl = conf['LEGAL_PRIVACY_POLICY_URL']
 const dataProcessingConsentUrl = conf['LEGAL_DATA_PROCESSING_CONSENT_URL']
+const isSnowfallDisabled = conf['IS_SNOWFALL_DISABLED'] === 'true'
 
 let nextConfig = withTM(withLess(withCSS({
     publicRuntimeConfig: {
@@ -106,6 +107,7 @@ let nextConfig = withTM(withLess(withCSS({
         termsOfUseUrl,
         privacyPolicyUrl,
         dataProcessingConsentUrl,
+        isSnowfallDisabled,
     },
     lessLoaderOptions: {
         javascriptEnabled: true,

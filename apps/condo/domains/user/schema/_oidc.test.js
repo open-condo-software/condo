@@ -14,6 +14,7 @@ const {
     createTestOidcClient,
     updateTestOidcClient,
     makeClientWithSupportUser,
+    OIDC_REDIRECT_URI,
 } = require('@condo/domains/user/utils/testSchema')
 
 const { createAdapterClass } = require('../oidc/adapter')
@@ -118,7 +119,7 @@ test('getCookie test util', async () => {
 describe('OIDC', () => {
     describe('OIDCClient logic tests', () => {
         test('Soft-deleted OIDCClient must not be used for authorization', async () => {
-            const uri = 'https://jwt.io/'
+            const uri = OIDC_REDIRECT_URI
             const clientId = getRandomString()
             const clientSecret = getRandomString()
             const admin = await makeLoggedInAdminClient()
@@ -165,7 +166,7 @@ describe('OIDC', () => {
             })
         })
         test('OIDCClient with "isEnabled: false" must not be used for authorization', async () => {
-            const uri = 'https://jwt.io/'
+            const uri = OIDC_REDIRECT_URI
             const clientId = getRandomString()
             const clientSecret = getRandomString()
             const admin = await makeLoggedInAdminClient()
@@ -211,7 +212,7 @@ describe('OIDC', () => {
         })
         describe('OIDCClient with "canAuthorizeSuperUsers: false" must not be used for authorizing super users',  () => {
             test('canAuthorizeSuperUsers: false', async () => {
-                const uri = 'https://jwt.io/'
+                const uri = OIDC_REDIRECT_URI
                 const clientId = getRandomString()
                 const clientSecret = getRandomString()
                 const admin = await makeLoggedInAdminClient()
@@ -267,7 +268,7 @@ describe('OIDC', () => {
                 expectCookieKeys(res3.cookie, ['keystone.sid', '_interaction', '_interaction.sig', '_interaction_resume', '_interaction_resume.sig', '_session', '_session.sig'])
             })
             test('canAuthorizeSuperUsers: true', async () => {
-                const uri = 'https://jwt.io/'
+                const uri = OIDC_REDIRECT_URI
                 const clientId = getRandomString()
                 const clientSecret = getRandomString()
                 const admin = await makeLoggedInAdminClient()
@@ -362,7 +363,7 @@ describe('OIDC', () => {
     describe('Real-life cases', () => {
 
         test('case: code + id_token with refresh (code flow)', async () => {
-            const uri = 'https://jwt.io/'
+            const uri = OIDC_REDIRECT_URI
             const clientId = getRandomString()
             const clientSecret = getRandomString()
             const admin = await makeLoggedInAdminClient()
@@ -471,7 +472,7 @@ describe('OIDC', () => {
         })
 
         test('case: code without refresh (code flow)', async () => {
-            const uri = 'https://jwt.io/'
+            const uri = OIDC_REDIRECT_URI
             const clientId = getRandomString()
             const clientSecret = getRandomString()
             const admin = await makeLoggedInAdminClient()
@@ -565,7 +566,7 @@ describe('OIDC', () => {
         })
 
         test('case: token (implicit flow)', async () => {
-            const uri = 'https://jwt.io/'
+            const uri = OIDC_REDIRECT_URI
             const clientId = getRandomString()
             const clientSecret = getRandomString()
             const admin = await makeLoggedInAdminClient()
@@ -661,7 +662,7 @@ describe('OIDC', () => {
         })
 
         test('case: code flow with response_type for implicit flow', async () => {
-            const uri = 'https://jwt.io/'
+            const uri = OIDC_REDIRECT_URI
             const clientId = getRandomString()
             const clientSecret = getRandomString()
             const admin = await makeLoggedInAdminClient()
@@ -709,7 +710,7 @@ describe('OIDC', () => {
             const client =  await makeClientWithNewRegisteredAndLoggedInUser()
             const admin = await makeLoggedInAdminClient()
 
-            const uri = 'https://jwt.io/'
+            const uri = OIDC_REDIRECT_URI
             const clientId = getRandomString()
             const clientSecret = getRandomString()
 

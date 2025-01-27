@@ -34,6 +34,12 @@ const { passwordValidations } = require('@condo/domains/user/utils/serverSchema/
 const AVATAR_FILE_ADAPTER = new FileAdapter('avatars')
 
 const User = new GQLListSchema('User', {
+    labelResolver: (item, _, { authedItem: user }) => {
+        if (user && (user.isSupport || user.isAdmin)) {
+            return `${item.name} -- <${item.id}>`
+        }
+        return item.id
+    },
     schemaDoc: 'Individual / person / service account / impersonal company account. Used primarily for authorization purposes, optimized access control with checking of `type` field, tracking authority of performed CRUD operations. Think of `User` as a technical entity, not a business actor. Business actor entities are Resident, OrganizationEmployee etc., — they are participating in high-level business scenarios and have connected to `User`. Almost everyting, created in the system, ends up to `User` as a source of action.',
     fields: {
         name: {

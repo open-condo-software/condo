@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playground</title>
+    <link rel="stylesheet" href="https://unpkg.com/graphiql@3.8.3/graphiql.min.css" integrity="sha384-Mq3vbRBY71jfjQAt/DcjxUIYY33ksal4cgdRt9U/hNPvHBCaT2JfJ/PTRiPKf0aM" crossorigin="anonymous">
+    <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" integrity="sha384-DGyLxAyjq0f9SPpVevD6IgztCFlnMF6oW/XQGmfe+IsZ8TqEiDrcHkMLKI6fiB/Z" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" integrity="sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/graphiql@3.8.3/graphiql.min.js" integrity="sha384-HbRVEFG0JGJZeAHCJ9Xm2+tpknBQ7QZmNlO/DgZtkZ0aJSypT96YYGRNod99l9Ie" crossorigin="anonymous"></script>
+</head>
+
+<body style="height: 100%;width: 100%;margin: 0;overflow: hidden;">
+<div id="graphiql" style="height: 100vh;">Loading playground...</div>
+<script>
+    {
+        document.title = `Playground - ${window.location.href}`
+
+        const url = new URL(window.location.href)
+        const apiPath = '{{ apiPath }}' + url.search
+        const graphQLFetcher = async (graphQLParams, { headers }) =>
+            fetch(apiPath, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...headers,
+                },
+                credentials: 'omit',
+                body: JSON.stringify(graphQLParams),
+            }).then((response) => response.json())
+
+        ReactDOM.render(
+            React.createElement(GraphiQL, {
+                fetcher: graphQLFetcher,
+                shouldPersistHeaders: true
+            }),
+            document.getElementById('graphiql'),
+        )
+    }
+</script>
+</body>
+</html>

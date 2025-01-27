@@ -1,5 +1,3 @@
-const get = require('lodash/get')
-
 const { PLUGIN_KEY_PREFIX } = require('./constants')
 
 function extractArgValue (valueNode, variables) {
@@ -77,13 +75,17 @@ function extractQueriesAndMutationsFromRequest (requestContext) {
     return { queries, mutations }
 }
 
+function buildQuotaKey (identityPrefix, identity) {
+    return [PLUGIN_KEY_PREFIX, identityPrefix, identity].join(':')
+}
+
 function extractQuotaKeyFromRequest (requestContext) {
     const isAuthed = Boolean(requestContext.context.authedItem)
-    const identity = isAuthed ? requestContext.context.authedItem.id : requestContext.context.req.ip
+    const identifier = isAuthed ? requestContext.context.authedItem.id : requestContext.context.req.ip
     const identityPrefix = isAuthed ? 'user' : 'ip'
-    const key = [PLUGIN_KEY_PREFIX, identityPrefix, identity].join(':')
+    const key = buildQuotaKey(identityPrefix, identifier)
 
-    return { isAuthed, key }
+    return { isAuthed, key, identifier }
 }
 
 function addComplexity (existingComplexity, newComplexity) {
@@ -92,6 +94,7 @@ function addComplexity (existingComplexity, newComplexity) {
     }
 
     return {
+        ...existingComplexity,
         details: {
             queries: [...existingComplexity.details.queries, ...newComplexity.details.queries],
             mutations: [...existingComplexity.details.mutations, ...newComplexity.details.mutations],
@@ -106,4 +109,5 @@ module.exports = {
     extractQueriesAndMutationsFromRequest,
     extractQuotaKeyFromRequest,
     addComplexity,
+    buildQuotaKey,
 }

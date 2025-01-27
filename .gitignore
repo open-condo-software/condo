@@ -51,9 +51,6 @@ ignore.*
 .werf_secret_key
 /bin/werf
 
-**/cypress/videos/**
-**/cypress/screenshots/**
-
 # Condo UI-kit static
 apps/condo/public/ui
 

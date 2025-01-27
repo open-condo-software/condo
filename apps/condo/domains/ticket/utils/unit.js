@@ -16,7 +16,7 @@ function getSectionAndFloorByUnitName (property, unitName, unitType) {
         for (const section of sections) {
             for (const floor of section.floors) {
                 for (const unit of floor.units) {
-                    if (unit.label === unitName) {
+                    if (unit.label === unitName && unit.unitType === unitType) {
                         res.sectionName = section.name
                         res.sectionType = unitType !== PARKING_UNIT_TYPE ? SECTION_SECTION_TYPE : PARKING_SECTION_TYPE
                         res.floorName = floor.name

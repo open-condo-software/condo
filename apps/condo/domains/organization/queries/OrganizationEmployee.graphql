@@ -26,6 +26,7 @@ query getActiveOrganizationEmployee($userId: ID!, $employeeId: ID) {
             statusTransitions
             importId
             importRemoteSystem
+            meta
         }
         role {
             id

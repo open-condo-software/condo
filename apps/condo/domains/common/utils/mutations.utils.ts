@@ -2,6 +2,7 @@ import { notification } from 'antd'
 import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
 
+import { TOO_MANY_REQUESTS } from '@condo/domains/user/constants/errors'
 
 type RunMutationProps = {
     action?
@@ -61,7 +62,7 @@ type RunMutationProps = {
  * @param OnCompletedMsg
  * @return {*}
  */
-function runMutation ({ action, mutation, variables, onCompleted, onError, onFinally, intl, form, ErrorToFormFieldMsgMapping, OnErrorMsg, OnCompletedMsg }: RunMutationProps) {
+function runMutation ({ action, mutation, variables, onCompleted, onError, onFinally, intl, form, ErrorToFormFieldMsgMapping, OnErrorMsg = null, OnCompletedMsg }: RunMutationProps) {
     if (!intl) throw new Error('intl prop required')
     if (!mutation && !action) throw new Error('mutation or action prop required')
     if (action && mutation) throw new Error('impossible to pass mutation and action prop')
@@ -75,6 +76,13 @@ function runMutation ({ action, mutation, variables, onCompleted, onError, onFin
     }
     const DoneMsg = intl.formatMessage({ id: 'OperationCompleted' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
+
+    const commonErrorTypesToMessagesMapping: Record<string, { message: string, description?: string }> = {
+        [TOO_MANY_REQUESTS]: {
+            message: intl.formatMessage({ id: 'pages.auth.TooManyRequests' }),
+            description: null,
+        },
+    }
 
     action = (action) ? action : () => mutation({ variables })
 
@@ -137,6 +145,15 @@ function runMutation ({ action, mutation, variables, onCompleted, onError, onFin
                                     name: fieldPath[fieldPath.length - 1],
                                     errors: [messageForUser],
                                 })
+                            } else if (OnErrorMsg === null) {
+                                const type = get(error, ['extensions', 'type'])
+                                const messageData = get(commonErrorTypesToMessagesMapping, type)
+                                if (messageData) {
+                                    notification.error({
+                                        message: messageData.message,
+                                        description: get(messageData, 'description', messageForUser),
+                                    })
+                                }
                             }
                         })
                     }

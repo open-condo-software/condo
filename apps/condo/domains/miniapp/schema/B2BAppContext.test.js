@@ -15,16 +15,21 @@ const { catchErrorFrom } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_STATUSES } = require('@condo/domains/miniapp/constants')
 const {
+    ACCESS_RIGHT_SET_MAX_ITEMS_SCOPED_TYPE,
+} = require('@condo/domains/miniapp/constants')
+const {
     createTestB2BApp,
     createTestB2BAppContext,
     updateTestB2BAppContext,
-    B2BAppContext,
+    B2BAppContext, createTestB2BAppAccessRightSet, createTestB2BAppAccessRight, createTestB2BAccessToken,
+    B2BAccessTokenReadonly,
 } = require('@condo/domains/miniapp/utils/testSchema')
 const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const {
     makeClientWithSupportUser,
     makeClientWithNewRegisteredAndLoggedInUser,
+    registerNewServiceUserByTestClient,
 } = require('@condo/domains/user/utils/testSchema')
 
 describe('B2BAppContext', () => {
@@ -277,6 +282,33 @@ describe('B2BAppContext', () => {
                     message: expect.stringContaining('unique constraint'),
                 }))
             })
+        })
+
+        test('Deleting B2BAppContext leads to deleting B2BAccessTokens', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const support = await makeClientWithSupportUser()
+            const [app] = await createTestB2BApp(admin)
+            const [organization] = await registerNewOrganization(admin)
+            const [context] = await createTestB2BAppContext(admin, app, organization, { status: 'Finished' })
+            expect(context).toBeDefined()
+
+            const [accessRightSet] = await createTestB2BAppAccessRightSet(support, app)
+            const [scopedRightSet] = await createTestB2BAppAccessRightSet(support, app, { type: 'SCOPED' })
+            const [serviceUser] = await registerNewServiceUserByTestClient(support)
+            await createTestB2BAppAccessRight(support, serviceUser, app, accessRightSet)
+
+            const ids = []
+            const tokensCount = Math.round(Math.random() * ACCESS_RIGHT_SET_MAX_ITEMS_SCOPED_TYPE) + 1
+            for (let i = 0; i < tokensCount; i++) {
+                const [{ id }] = await createTestB2BAccessToken(admin, context, scopedRightSet)
+                ids.push(id)
+            }
+            const accessTokens = await B2BAccessTokenReadonly.getAll(admin, { id_in: ids })
+            expect(accessTokens).toHaveLength(tokensCount)
+
+            await updateTestB2BAppContext(support, context.id, { deletedAt: new Date().toISOString() })
+            const accessTokensAfterDelete = await B2BAccessTokenReadonly.getAll(admin, { id_in: ids })
+            expect(accessTokensAfterDelete).toHaveLength(0)
         })
     })
 })

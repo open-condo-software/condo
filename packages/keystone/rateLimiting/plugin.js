@@ -1,7 +1,9 @@
 const ms = require('ms')
 
+const { GQLError, GQLErrorCode: { TOO_MANY_REQUESTS } } = require('@open-condo/keystone/errors')
 const { getRedisClient } = require('@open-condo/keystone/redis')
 
+const { validatePluginOptions } = require('./config.utils')
 const {
     DEFAULT_MAX_TOTAL_RESULTS,
     DEFAULT_MUTATION_WEIGHT,
@@ -11,9 +13,10 @@ const {
     DEFAULT_NON_AUTHED_QUOTA,
     DEFAULT_WHERE_COMPLEXITY_FACTOR,
     DEFAULT_PAGE_LIMIT,
+    ERROR_TYPE,
 } = require('./constants')
 const { extractWhereComplexityFactor, extractRelationsComplexityFactor } = require('./query.utils')
-const { extractQueriesAndMutationsFromRequest, extractQuotaKeyFromRequest, addComplexity } = require('./request.utils')
+const { extractQueriesAndMutationsFromRequest, extractQuotaKeyFromRequest, addComplexity, buildQuotaKey } = require('./request.utils')
 const { extractPossibleArgsFromSchemaQueries, extractKeystoneListsData } = require('./schema.utils')
 
 /** @implements {import('apollo-server-plugin-base').ApolloServerPlugin} */
@@ -37,12 +40,25 @@ class ApolloRateLimitingPlugin {
     #whereScalingFactor = DEFAULT_WHERE_COMPLEXITY_FACTOR
     #redisClient = getRedisClient()
     #pageLimit = DEFAULT_PAGE_LIMIT
+    #customQuotas = {}
 
     /**
      * @param keystone {import('@keystonejs/keystone').Keystone} keystone instance
-     * @param opts {{ queryWeight?: number, mutationWeight?: number, window?: string, authedQuota?: number, nonAuthedQuota?: number, whereScalingFactor?: number, pageLimit?: number }} plugin options
+     * @param opts {{
+     * queryWeight?: number,
+     * mutationWeight?: number,
+     * window?: string,
+     * authedQuota?: number,
+     * nonAuthedQuota?: number,
+     * whereScalingFactor?: number,
+     * pageLimit?: number,
+     * customQuotas?: Record<string, number>,
+     * identifiersWhiteList?: Array<string>
+     * }} plugin options
      */
     constructor (keystone, opts = {}) {
+        opts = validatePluginOptions(opts)
+
         this.#keystone = keystone
         const { listRelations, listMetaQueries, listQueries } = extractKeystoneListsData(keystone)
         this.#listReadQueries = listQueries
@@ -73,7 +89,12 @@ class ApolloRateLimitingPlugin {
         if (opts.pageLimit) {
             this.#pageLimit = opts.pageLimit
         }
+        if (opts.customQuotas) {
+            this.#customQuotas = opts.customQuotas
+        }
     }
+
+    static buildQuotaKey = buildQuotaKey
 
     /**
      * Calculates complexity coefficient of the query
@@ -170,8 +191,13 @@ class ApolloRateLimitingPlugin {
                     total: requestComplexity,
                 })
 
-                const { isAuthed, key } = extractQuotaKeyFromRequest(requestContext)
-                const maxQuota = isAuthed ? this.#authedQuota : this.#nonAuthedQuota
+                const { isAuthed, key, identifier } = extractQuotaKeyFromRequest(requestContext)
+
+                let allowedQuota = isAuthed ? this.#authedQuota : this.#nonAuthedQuota
+
+                if (this.#customQuotas.hasOwnProperty(identifier)) {
+                    allowedQuota = this.#customQuotas[identifier]
+                }
 
 
                 // NOTE: Request in batch are executed via Promise.all (probably),
@@ -180,17 +206,18 @@ class ApolloRateLimitingPlugin {
 
                 const [
                     [incrError, incrValue],
-                    [ttlError, ttlValue],
+                    [ttlError, ttlValueInSec],
                 ] = await this.#redisClient
                     .multi()
                     .incrby(key, requestComplexity)
                     .ttl(key)
                     .exec()
 
-
                 if (incrError || ttlError) {
                     throw (incrError || ttlError)
                 }
+
+                const nowTimestampInMs = (new Date()).getTime()
 
                 // NOTE: If TTL is less than zero,
                 // it means that incrby has created a clean record in the database without expiration time.
@@ -199,13 +226,43 @@ class ApolloRateLimitingPlugin {
                 // so it can potentially be called multiple times (by multiple pods / requests in batch)
                 // but the difference of a couple of ms is not very important for us
                 // ("expire" accepts seconds, "pexpire" - milliseconds)
-                if (ttlValue < 0) {
+                if (ttlValueInSec < 0) {
                     await this.#redisClient.pexpire(key, this.#quotaWindowInMS)
                 }
 
-                if (incrValue > maxQuota) {
-                    // TODO(INFRA-760): Throw error instead here
-                    return
+                // NOTE: Each sub-request in batched request execute "incrBy/ttl" + "pexpire" and executed concurrently
+                // So we need to take largest incrBy result
+                const savedIncrValue = requestContext.context.req.complexity?.quota?.used || 0
+                const maxIncrValue = Math.max(savedIncrValue, incrValue)
+
+                const ttlValueInMs = ttlValueInSec < 0 ? this.#quotaWindowInMS : ttlValueInSec * 1000
+                const resetTimestampInSec = Math.ceil((nowTimestampInMs + ttlValueInMs) / 1000)
+
+                Object.assign(requestContext.context.req.complexity, {
+                    quota: {
+                        limit: allowedQuota,
+                        remaining: Math.max(allowedQuota - maxIncrValue, 0),
+                        used: Math.min(maxIncrValue, allowedQuota),
+                        reset: resetTimestampInSec,
+                    },
+                })
+
+                if (incrValue > allowedQuota) {
+                    throw new GQLError({
+                        code: TOO_MANY_REQUESTS,
+                        type: ERROR_TYPE,
+                        message: 'You\'ve made too many requests recently, try again later',
+                        messageForUser: `api.global.rateLimit.${ERROR_TYPE}`,
+                    }, requestContext.context)
+                }
+            },
+
+            willSendResponse: (requestContext) => {
+                const res = requestContext.context.req.res
+                const quotaInfo = requestContext.context.req?.complexity?.quota || {}
+
+                for (const [key, value] of Object.entries(quotaInfo)) {
+                    res.setHeader(`x-rate-limit-complexity-${key}`, value)
                 }
             },
         }

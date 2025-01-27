@@ -87,7 +87,7 @@ const TableContent = () => {
     }, [])
 
     const disabledDate = useCallback((currentDate) => {
-        return currentDate && currentDate < dayjs().startOf('year')
+        return currentDate && currentDate < dayjs().subtract(12, 'month')
     }, [])
 
     const handleCreateButtonClick = useCallback(async () => {

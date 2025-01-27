@@ -16,7 +16,7 @@ import { colors } from '@condo/domains/common/constants/style'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
-import { WRONG_PASSWORD_ERROR, WRONG_PHONE_ERROR } from '@condo/domains/user/constants/errors'
+import { WRONG_CREDENTIALS } from '@condo/domains/user/constants/errors'
 import { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } from '@condo/domains/user/gql'
 
 import { AgreementText } from './AgreementText'
@@ -58,12 +58,8 @@ export const SignInForm = (): React.ReactElement => {
     // TODO(DOMA-3293): remove this legacy error style and Useless error messages
     const ErrorToFormFieldMsgMapping = useMemo(() => {
         return {
-            [WRONG_PHONE_ERROR]: {
-                name: 'signinError',
-                errors: [PasswordOrPhoneMismatch],
-            },
-            [WRONG_PASSWORD_ERROR]: {
-                name: 'signinError',
+            [WRONG_CREDENTIALS]: {
+                name: 'phone',
                 errors: [PasswordOrPhoneMismatch],
             },
         }

@@ -183,7 +183,7 @@ function generateServerUtils (schemaName) {
      * Get all objects by provided where statement
      * @param context - keystone execution context
      * @param where - gql where statement
-     * @param fields - returning fields in gql notation
+     * @param {string?} fields - returning fields in gql notation
      * @param { sortBy, first, skip } - pagination parameters
      * @param options - server side tuning options
      * @returns {Promise<[*]>} - model stored objects
@@ -208,7 +208,7 @@ function generateServerUtils (schemaName) {
      * Use multipleObjectsError and doesNotExistError options to tweak execution behaviour
      * @param context - keystone execution context
      * @param where - gql where statement
-     * @param fields - returning fields in gql notation
+     * @param {string?} fields - returning fields in gql notation
      * @param options - server side tuning options
      * @returns {Promise<*>} - model stored object
      */
@@ -262,7 +262,7 @@ function generateServerUtils (schemaName) {
      * Create object by provided data.
      * @param context - keystone execution context
      * @param data - object data
-     * @param fields - returning fields in gql notation
+     * @param {string?} fields - returning fields in gql notation
      * @param options - server side tuning options
      * @returns {Promise<*>} - model stored object
      */
@@ -283,7 +283,7 @@ function generateServerUtils (schemaName) {
      * Create many objects by provided data.
      * @param context - keystone execution context
      * @param data - object data
-     * @param fields - returning fields in gql notation
+     * @param {string?} fields - returning fields in gql notation
      * @param options - server side tuning options
      * @returns {Promise<[*]>} - model stored objects
      */
@@ -305,7 +305,7 @@ function generateServerUtils (schemaName) {
      * @param context - keystone execution context
      * @param id - object id
      * @param data - object data
-     * @param fields - returning fields in gql notation
+     * @param {string?} fields - returning fields in gql notation
      * @param options - server side tuning options
      * @returns {Promise<*>} - model stored object
      */
@@ -327,7 +327,7 @@ function generateServerUtils (schemaName) {
      * Update many objects by provided data.
      * @param context - keystone execution context
      * @param data - object data
-     * @param fields - returning fields in gql notation
+     * @param {string?} fields - returning fields in gql notation
      * @param options - server side tuning options
      * @returns {Promise<[*]>} - model stored objects
      */
@@ -349,7 +349,7 @@ function generateServerUtils (schemaName) {
      * Delete an object by provided id DB.
      * @param context - keystone execution context
      * @param id - object id
-     * @param fields - returning fields in gql notation
+     * @param {string?} fields - returning fields in gql notation
      * @param options - server side tuning options
      * @returns {Promise<*>} - model deleted object
      */
@@ -370,7 +370,7 @@ function generateServerUtils (schemaName) {
      * Mark an object as deleted by provided id.
      * @param context - keystone execution context
      * @param id - object id
-     * @param fields - returning fields in gql notation
+     * @param {string?} fields - returning fields in gql notation
      * @param extraAttrs - can hold additional data for an update operation
      * @param options - server side tuning options
      * @returns {Promise<*>} - model stored object
@@ -387,7 +387,7 @@ function generateServerUtils (schemaName) {
      * Mark objects as deleted by provided ids.
      * @param context - keystone execution context
      * @param ids - objects ids
-     * @param fields - returning fields in gql notation
+     * @param {string?} fields - returning fields in gql notation
      * @param extraAttrs - can hold additional data for an update operation
      * @param options - server side tuning options
      * @returns {Promise<[*]>} - model stored objects
@@ -409,7 +409,7 @@ function generateServerUtils (schemaName) {
      * @param context - keystone execution context
      * @param where - getOne where check
      * @param data - create/update data
-     * @param fields - returning fields in gql notation
+     * @param {string?} fields - returning fields in gql notation
      * @param options - server side tuning options
      * @returns {Promise<*|null|undefined>} - model stored object
      */
