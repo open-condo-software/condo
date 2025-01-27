@@ -3,7 +3,7 @@
  */
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, setFeatureFlag } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObj,
@@ -12,6 +12,7 @@ const {
     expectToThrowAuthenticationErrorToObjects, catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 
+const { PLATFORM_NOTIFICATIONS } = require('@condo/domains/common/constants/featureflags')
 const { INVITE_NEW_EMPLOYEE_MESSAGE_TYPE, VOIP_INCOMING_CALL_MESSAGE_TYPE, TICKET_CREATED_TYPE, SHARE_TICKET_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { renderDefaultTemplate } = require('@condo/domains/notification/templates')
 const { Message, createTestMessage, updateTestMessage } = require('@condo/domains/notification/utils/testSchema')
@@ -260,6 +261,8 @@ describe('Message', () => {
     })
 
     describe('defaultContent', () => {
+        setFeatureFlag(PLATFORM_NOTIFICATIONS, true)
+
         it('Message with default template has defaultContent value', async () => {
             const [message] = await createTestMessage(admin, {
                 type: TICKET_CREATED_TYPE,
