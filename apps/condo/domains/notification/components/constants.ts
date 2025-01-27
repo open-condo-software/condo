@@ -7,7 +7,7 @@ export const USER_MESSAGE_TYPES_FILTER_ON_CLIENT = [
     MessageType.TicketCreated,
     MessageType.TicketCommentCreated,
     MessageType.PassTicketCreated,
-]
+] as const
 
 /**
  * Message types which user excluded from USER_MESSAGE_TYPES_FILTER_ON_CLIENT.
