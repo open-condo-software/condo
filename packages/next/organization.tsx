@@ -382,6 +382,15 @@ const OrganizationProvider: React.FC<OrganizationProviderProps> = ({
             setActiveEmployee(employee)
         }
     }, [data, activeEmployee])
+
+    useEffect(() => {
+        if (auth.isLoading) return
+        if (!auth.user && activeEmployee !== null) {
+            setActiveEmployee(null)
+            setActiveEmployeeId(null)
+        }
+    }, [auth.user])
+
     if (DEBUG_RERENDERS) console.log('OrganizationProvider()', activeEmployee, 'loading', employeeLoading, 'skip', (auth.isLoading || !auth.user || !activeEmployeeId))
 
     return (
