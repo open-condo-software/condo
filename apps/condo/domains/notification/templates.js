@@ -126,7 +126,7 @@ function renderDefaultTemplate (message, locale) {
 
     if (templatePath) {
         const messageTranslated = substituteTranslations(message, locale)
-        return unescape(nunjucks.render(templatePath, { message: messageTranslated, env }))
+        return nunjucks.render(templatePath, { message: messageTranslated, env })
     }
 }
 
