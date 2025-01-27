@@ -7,8 +7,6 @@ const uniq = require('lodash/uniq')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { find } = require('@open-condo/keystone/schema')
 
-const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
-const { getEmployedOrganizationsByPermissions } = require('@condo/domains/organization/utils/accessSchema')
 const { STAFF } = require('@condo/domains/user/constants/common')
 
 
@@ -18,13 +16,20 @@ async function canReadAppMessageSetting ({ authentication: { item: user }, conte
     if (user.isAdmin || user.isSupport) return {}
 
     if (user.type === STAFF) {
-        const permittedOrganizationIds = await getEmployedOrganizationsByPermissions(context, user, [])
-        const b2bAppContexts = await find('B2BAppContext', {
+        const userEmployees = await find('OrganizationEmployee', {
             deletedAt: null,
-            organization: { id_in: permittedOrganizationIds },
-            status: CONTEXT_FINISHED_STATUS,
+            organization: { deletedAt: null },
+            role: { deletedAt: null },
+            user: { id: user.id },
+            isBlocked: false,
+            isRejected: false,
         })
-        const b2bAppIds = uniq(b2bAppContexts.map(context => context.app))
+        const employeeRoleIds = userEmployees.map(employee => employee.role)
+        const b2bAppRoles = await find('B2BAppRole', {
+            deletedAt: null,
+            role: { id_in: employeeRoleIds },
+        })
+        const b2bAppIds = uniq(b2bAppRoles.map(b2bAppRole => b2bAppRole.app))
 
         return {
             b2bApp: {
