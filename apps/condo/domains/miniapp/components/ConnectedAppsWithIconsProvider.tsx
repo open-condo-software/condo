@@ -3,6 +3,7 @@ import get from 'lodash/get'
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
 
 import { useLazyQuery } from '@open-condo/next/apollo'
+import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { ALL_MENU_CATEGORIES, DEFAULT_MENU_CATEGORY } from '@condo/domains/common/constants/menuCategories'
@@ -28,7 +29,11 @@ export const ConnectedWithIconsContext = createContext<IConnectedAppsWithIconsCo
 })
 
 export const ConnectedAppsWithIconsContextProvider: React.FC = ({ children }) => {
+    console.log('Render ConnectedAppsWithIconsContextProvider')
+    const { user, isLoading } = useAuth()
     const { organization } = useOrganization()
+    console.log('ConnectedAppsWithIconsContextProvider user', user)
+    console.log('ConnectedAppsWithIconsContextProvider isLoading', isLoading)
     const orgId = get(organization, 'id', null)
     const [appsByCategories, setAppsByCategories] = useState<AppsByCategories>({})
     const [connectedApps, setConnectedApps] = useState<Array<string>>([])

@@ -335,6 +335,7 @@ const _withApollo: WillApolloType = ({ ssr, apolloHelperOptions }) => (PageCompo
     initializeApollo = apolloHelper.initializeApollo as unknown as InitializeApollo<ApolloClient<NormalizedCacheObject>>
 
     const WithApollo = (props) => {
+        console.log('Render WithApollo')
         const { client, cachePersistor } = useApollo(props)
 
         return (

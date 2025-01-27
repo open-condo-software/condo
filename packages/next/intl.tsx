@@ -97,7 +97,10 @@ type IntlProps = {
 }
 
 const Intl: React.FC<IntlProps> = ({ children, initialLocale, initialMessages, onError }) => {
+    console.log('Render Intl')
     const { user, isLoading: isUserLoading } = useAuth()
+    console.log('Intl user', user)
+    console.log('Intl isLoading', isUserLoading)
     const [locale, setLocale] = useState(initialLocale)
     const [messages, setMessages] = useState(initialMessages)
 

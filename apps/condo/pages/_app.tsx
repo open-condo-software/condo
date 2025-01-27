@@ -458,10 +458,14 @@ const TasksProvider = ({ children }) => {
 }
 
 const MyApp = ({ Component, pageProps }) => {
+    console.log('Render MyApp')
     const intl = useIntl()
     useHotCodeReload()
     dayjs.locale(intl.locale)
     const router = useRouter()
+    const auth = useAuth()
+    console.log('MyApp user', auth.user)
+    console.log('MyApp isLoading', auth.isLoading)
     const { publicRuntimeConfig: { yandexMetrikaID, popupSmartConfig, UseDeskWidgetId, isSnowfallDisabled } } = getConfig()
 
     const LayoutComponent = Component.container || BaseLayout
@@ -619,6 +623,7 @@ if (!isDisabledSsr || !isSSR()) {
 
 const withCookies = () => (PageComponent: NextPage): NextPage => {
     const WithCookies = (props) => {
+        console.log('Render WithCookies')
         const ssrCookies = useVitalCookies(props?.pageProps)
 
         return (

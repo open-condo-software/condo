@@ -317,7 +317,10 @@ const OrganizationProvider: React.FC<OrganizationProviderProps> = ({
     children,
     useInitialEmployeeId,
 }) => {
+    console.log('Render OrganizationProvider')
     const auth = useAuth()
+    console.log('OrganizationProvider user', auth.user)
+    console.log('OrganizationProvider isLoading', auth.isLoading)
     const { employeeId } = useInitialEmployeeId()
     const [activeEmployeeId, setActiveEmployeeId] = useState<string | null>(employeeId)
 
@@ -382,15 +385,6 @@ const OrganizationProvider: React.FC<OrganizationProviderProps> = ({
             setActiveEmployee(employee)
         }
     }, [data, activeEmployee])
-
-    useEffect(() => {
-        if (auth.isLoading) return
-        if (!auth.user && activeEmployee !== null) {
-            setActiveEmployee(null)
-            setActiveEmployeeId(null)
-        }
-    }, [auth.user])
-
     if (DEBUG_RERENDERS) console.log('OrganizationProvider()', activeEmployee, 'loading', employeeLoading, 'skip', (auth.isLoading || !auth.user || !activeEmployeeId))
 
     return (
