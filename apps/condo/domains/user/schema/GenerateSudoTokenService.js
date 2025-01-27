@@ -11,10 +11,15 @@ const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/user/access/GenerateSudoTokenService')
-const { CAPTCHA_CHECK_FAILED, CREDENTIAL_VALIDATION_FAILED, GENERATE_TOKEN_FAILED, USER_IDENTITY_INVALID } = require('@condo/domains/user/constants/errors')
-const { validateUserCredentialsWithRequestLimit } = require('@condo/domains/user/utils/auth/validateUserCredentialsWithRequestLimit')
+const {
+    CAPTCHA_CHECK_FAILED,
+    CREDENTIAL_VALIDATION_FAILED,
+    GENERATE_TOKEN_FAILED,
+    USER_IDENTITY_INVALID,
+} = require('@condo/domains/user/constants/errors')
 const { captchaCheck } = require('@condo/domains/user/utils/hCaptcha')
 const { UserSudoToken, ConfirmPhoneAction } = require('@condo/domains/user/utils/serverSchema')
+const { validateUserCredentialsWithRequestLimit } = require('@condo/domains/user/utils/serverSchema/validateUserCredentials')
 const { generateTokenSafely, TOKEN_TYPES } = require('@condo/domains/user/utils/tokens')
 
 
@@ -82,7 +87,7 @@ const GenerateSudoTokenService = new GQLCustomSchema('GenerateSudoTokenService',
             type: 'type GenerateSudoTokenOutput { token: String! }',
         },
     ],
-    
+
     mutations: [
         {
             access: access.canGenerateSudoToken,
@@ -149,7 +154,7 @@ const GenerateSudoTokenService = new GQLCustomSchema('GenerateSudoTokenService',
             },
         },
     ],
-    
+
 })
 
 module.exports = {

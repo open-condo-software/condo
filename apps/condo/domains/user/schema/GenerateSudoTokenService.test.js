@@ -5,18 +5,30 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
-const { makeLoggedInAdminClient, makeClient, expectToThrowAccessDeniedErrorToResult, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObjects,
+const {
+    makeLoggedInAdminClient,
+    makeClient,
+    expectToThrowAccessDeniedErrorToResult,
     expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
-const { registerNewUser, generateSudoTokenByTestClient, makeClientWithStaffUser, updateTestUser, User, ConfirmPhoneAction, UserSudoToken, authenticateUserWithPhoneAndPasswordByTestClient } = require('@condo/domains/user/utils/testSchema')
+const {
+    registerNewUser,
+    generateSudoTokenByTestClient,
+    makeClientWithStaffUser,
+    updateTestUser,
+    User,
+    ConfirmPhoneAction,
+    UserSudoToken,
+    authenticateUserWithPhoneAndPasswordByTestClient,
+    createTestConfirmPhoneAction,
+} = require('@condo/domains/user/utils/testSchema')
 const { detectTokenType, TOKEN_TYPES } = require('@condo/domains/user/utils/tokens')
-
-const { createTestConfirmPhoneAction } = require('../utils/testSchema')
 
 
 const TOKEN_LIFETIME_IN_MS = 15 * 60 * 1000
 const MAX_NUMBER_OF_TOKEN_USES = 1
+const REQUESTS_LIMIT = 10
 
 function getCaptcha () {
     return faker.random.alphaNumeric(32)
@@ -98,7 +110,7 @@ describe('GenerateSudoTokenService', () => {
                 variable: ['data', 'sender'],
                 code: 'BAD_USER_INPUT',
                 type: 'WRONG_FORMAT',
-                message: 'Invalid format of "sender" field value',
+                message: 'Invalid format of "sender" field value. Please, check the example for details',
                 correctExample: '{ "dv": 1, "fingerprint": "uniq-device-or-container-id" }',
             }, 'result')
         })
@@ -254,10 +266,10 @@ describe('GenerateSudoTokenService', () => {
             }, 'result')
         }
 
-        test('should throw error if more than 20 requests are sent by ip per hours', async () => {
-            const anonymous = await makeClient({ generateIP: true })
+        test(`should throw error if more than ${REQUESTS_LIMIT} requests are sent by ip per hours`, async () => {
+            const anonymous = await makeClient()
 
-            for (let i = 0; i < 20; i++) {
+            for (let i = 0; i < REQUESTS_LIMIT; i++) {
                 await expectToThrowErrorCredentialValidationFailed(async () => {
                     await generateSudoTokenByTestClient(anonymous, {
                         captcha: getCaptcha(),
@@ -280,11 +292,11 @@ describe('GenerateSudoTokenService', () => {
             }, 'result')
         })
 
-        test('should throw error if more than 20 requests are sent by authed user per hours', async () => {
+        test(`should throw error if more than ${REQUESTS_LIMIT} requests are sent by authed user per hours`, async () => {
             const staffClient = await makeClientWithStaffUser()
 
-            for (let i = 0; i < 20; i++) {
-                const client = await makeClient({ generateIP: true })
+            for (let i = 0; i < REQUESTS_LIMIT; i++) {
+                const client = await makeClient()
                 await authenticateUserWithPhoneAndPasswordByTestClient(client, {
                     phone: staffClient.userAttrs.phone,
                     password: staffClient.userAttrs.password,
@@ -311,16 +323,22 @@ describe('GenerateSudoTokenService', () => {
             }, 'result')
         })
 
-        test('should throw error if more than 20 requests are sent by phone + userType per hours', async () => {
+        test(`should throw error if more than ${REQUESTS_LIMIT} requests are sent by phone + userType per hours`, async () => {
             const [registeredResidentUser, residentUserAttrs] = await registerNewUser(await makeClient())
             await updateTestUser(adminClient, registeredResidentUser.id, { type: 'resident' })
             const phone = residentUserAttrs.phone
-            const [registeredServiceUser, serviceUserAttrs] = await registerNewUser(await makeClient(), { phone, email: residentUserAttrs.email })
+            const [registeredServiceUser, serviceUserAttrs] = await registerNewUser(await makeClient(), {
+                phone,
+                email: residentUserAttrs.email,
+            })
             await updateTestUser(adminClient, registeredServiceUser.id, { type: 'service' })
-            const [registeredStaffUser, staffUserAttrs] = await registerNewUser(await makeClient(), { phone, email: residentUserAttrs.email })
+            const [registeredStaffUser, staffUserAttrs] = await registerNewUser(await makeClient(), {
+                phone,
+                email: residentUserAttrs.email,
+            })
 
-            for (let i = 0; i < 20; i++) {
-                const anonymous = await makeClient({ generateIP: true })
+            for (let i = 0; i < REQUESTS_LIMIT; i++) {
+                const anonymous = await makeClient()
                 await expectToThrowErrorCredentialValidationFailed(async () => {
                     await generateSudoTokenByTestClient(anonymous, {
                         captcha: getCaptcha(),
@@ -344,7 +362,7 @@ describe('GenerateSudoTokenService', () => {
                 })
             }
 
-            const anonymous = await makeClient({ generateIP: true })
+            const anonymous = await makeClient()
             await expectToThrowGQLError(async () => {
                 await generateSudoTokenByTestClient(anonymous, {
                     captcha: getCaptcha(),
@@ -382,16 +400,22 @@ describe('GenerateSudoTokenService', () => {
             }, 'result')
         })
 
-        test('should throw error if more than 20 requests are sent by email + userType per hours', async () => {
+        test(`should throw error if more than ${REQUESTS_LIMIT} requests are sent by email + userType per hours`, async () => {
             const [registeredResidentUser, residentUserAttrs] = await registerNewUser(await makeClient())
             await updateTestUser(adminClient, registeredResidentUser.id, { type: 'resident' })
             const email = residentUserAttrs.email
-            const [registeredServiceUser, serviceUserAttrs] = await registerNewUser(await makeClient(), { phone: residentUserAttrs.phone, email })
+            const [registeredServiceUser, serviceUserAttrs] = await registerNewUser(await makeClient(), {
+                phone: residentUserAttrs.phone,
+                email,
+            })
             await updateTestUser(adminClient, registeredServiceUser.id, { type: 'service' })
-            const [registeredStaffUser, staffUserAttrs] = await registerNewUser(await makeClient(), { phone: residentUserAttrs.phone, email })
+            const [registeredStaffUser, staffUserAttrs] = await registerNewUser(await makeClient(), {
+                phone: residentUserAttrs.phone,
+                email,
+            })
 
-            for (let i = 0; i < 20; i++) {
-                const anonymous = await makeClient({ generateIP: true })
+            for (let i = 0; i < REQUESTS_LIMIT; i++) {
+                const anonymous = await makeClient()
                 await expectToThrowErrorCredentialValidationFailed(async () => {
                     await generateSudoTokenByTestClient(anonymous, {
                         captcha: getCaptcha(),
@@ -415,7 +439,7 @@ describe('GenerateSudoTokenService', () => {
                 })
             }
 
-            const anonymous = await makeClient({ generateIP: true })
+            const anonymous = await makeClient()
             await expectToThrowGQLError(async () => {
                 await generateSudoTokenByTestClient(anonymous, {
                     captcha: getCaptcha(),

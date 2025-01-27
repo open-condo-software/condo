@@ -16,14 +16,14 @@ const {
     updateTestUser, resetUserByTestClient,
 } = require('@condo/domains/user/utils/testSchema')
 
-const { validateUserCredentials } = require('./validateUserCredentials')
+const { _validateUserCredentials } = require('./validateUserCredentials')
 
 const { generateSimulatedToken } = require('../tokens')
 
 
 setFakeClientMode(index, { excludeApps: ['NextApp', 'AdminUIApp', 'OIDCMiddleware'] })
 
-describe('function "validateUserCredentials"', () => {
+describe('function "_validateUserCredentials"', () => {
     let adminClient
 
     beforeAll(async () => {
@@ -33,41 +33,41 @@ describe('function "validateUserCredentials"', () => {
     describe('Errors', () => {
         test('should throw error if no userIdentity', async () => {
             const anonymous = await makeClient()
-            const [registeredUser, userAttrs] = await registerNewUser(anonymous)
+            const [, userAttrs] = await registerNewUser(anonymous)
             await expect(async () => {
-                await validateUserCredentials(null, { password: userAttrs.password })
+                await _validateUserCredentials(null, { password: userAttrs.password })
             }).rejects.toThrow('You must provide userIdentity')
         })
 
         test('should throw error if no authFactors', async () => {
             const anonymous = await makeClient()
-            const [registeredUser, userAttrs] = await registerNewUser(anonymous)
+            const [, userAttrs] = await registerNewUser(anonymous)
             await expect(async () => {
-                await validateUserCredentials({ phone: userAttrs.phone, userType: 'staff' }, null)
+                await _validateUserCredentials({ phone: userAttrs.phone, userType: 'staff' }, null)
             }).rejects.toThrow('You must provide authFactors')
         })
 
         test('should throw error if pass authFactors.confirmEmailToken', async () => {
             const anonymous = await makeClient()
-            const [registeredUser, userAttrs] = await registerNewUser(anonymous)
+            const [, userAttrs] = await registerNewUser(anonymous)
             await expect(async () => {
-                await validateUserCredentials({ phone: userAttrs.phone, userType: 'staff' }, { confirmEmailToken: generateSimulatedToken() })
+                await _validateUserCredentials({ phone: userAttrs.phone, userType: 'staff' }, { confirmEmailToken: generateSimulatedToken() })
             }).rejects.toThrow('confirmEmailToken is not supported yet')
         })
 
         test('should throw error if no user type', async () => {
             const anonymous = await makeClient()
-            const [registeredUser, userAttrs] = await registerNewUser(anonymous)
+            const [, userAttrs] = await registerNewUser(anonymous)
             await expect(async () => {
-                await validateUserCredentials({ phone: userAttrs.phone }, { password: userAttrs.password })
+                await _validateUserCredentials({ phone: userAttrs.phone }, { password: userAttrs.password })
             }).rejects.toThrow('You must provide a user type')
         })
 
         test('should throw error if no email and phone', async () => {
             const anonymous = await makeClient()
-            const [registeredUser, userAttrs] = await registerNewUser(anonymous)
+            const [, userAttrs] = await registerNewUser(anonymous)
             await expect(async () => {
-                await validateUserCredentials({ userType: 'staff' }, { password: userAttrs.password })
+                await _validateUserCredentials({ userType: 'staff' }, { password: userAttrs.password })
             }).rejects.toThrow('You must provide a phone number or email')
         })
     })
@@ -78,13 +78,13 @@ describe('function "validateUserCredentials"', () => {
                 const anonymous = await makeClient()
                 const [registeredUser, userAttrs] = await registerNewUser(anonymous)
 
-                const resultBeforeDeletion = await validateUserCredentials({ phone: userAttrs.phone, userType: registeredUser.type }, { password: userAttrs.password })
+                const resultBeforeDeletion = await _validateUserCredentials({ phone: userAttrs.phone, userType: registeredUser.type }, { password: userAttrs.password })
                 expect(resultBeforeDeletion.success).toBeTruthy()
                 expect(resultBeforeDeletion.user.id).toBe(registeredUser.id)
 
                 await User.softDelete(adminClient, registeredUser.id)
 
-                const resultAfterDeletion = await validateUserCredentials({ phone: userAttrs.phone, userType: registeredUser.type }, { password: userAttrs.password })
+                const resultAfterDeletion = await _validateUserCredentials({ phone: userAttrs.phone, userType: registeredUser.type }, { password: userAttrs.password })
                 expect(resultAfterDeletion.success).toBeFalsy()
             })
 
@@ -93,17 +93,17 @@ describe('function "validateUserCredentials"', () => {
                 const [registeredUser, userAttrs] = await registerNewUser(anonymous)
                 await resetUserByTestClient(adminClient, { user: { id: registeredUser.id } })
 
-                const resultAfterDeletion = await validateUserCredentials({ phone: userAttrs.phone, userType: registeredUser.type }, { password: userAttrs.password })
+                const resultAfterDeletion = await _validateUserCredentials({ phone: userAttrs.phone, userType: registeredUser.type }, { password: userAttrs.password })
                 expect(resultAfterDeletion.success).toBeFalsy()
             })
 
             test('if phone is wrong', async () => {
-                const result = await validateUserCredentials({ phone: 'wrong-phone', userType: 'staff' }, { password: 'password' })
+                const result = await _validateUserCredentials({ phone: 'wrong-phone', userType: 'staff' }, { password: 'password' })
                 expect(result.success).toBeFalsy()
             })
 
             test('if email is wrong', async () => {
-                const result = await validateUserCredentials({ email: 'wrong-email', userType: 'staff' }, { password: 'password' })
+                const result = await _validateUserCredentials({ email: 'wrong-email', userType: 'staff' }, { password: 'password' })
                 expect(result.success).toBeFalsy()
             })
 
@@ -111,10 +111,10 @@ describe('function "validateUserCredentials"', () => {
                 const anonymous = await makeClient()
                 const [registeredUser, userAttrs] = await registerNewUser(anonymous)
 
-                const resultWithWrongEmail = await validateUserCredentials({ phone: userAttrs.phone, email: 'wrong-email', userType: registeredUser.type }, { password: userAttrs.password })
+                const resultWithWrongEmail = await _validateUserCredentials({ phone: userAttrs.phone, email: 'wrong-email', userType: registeredUser.type }, { password: userAttrs.password })
                 expect(resultWithWrongEmail.success).toBeFalsy()
 
-                const resultWithWrongPhone = await validateUserCredentials({ phone: 'wrong-phone', email: userAttrs.email, userType: registeredUser.type }, { password: userAttrs.password })
+                const resultWithWrongPhone = await _validateUserCredentials({ phone: 'wrong-phone', email: userAttrs.email, userType: registeredUser.type }, { password: userAttrs.password })
                 expect(resultWithWrongPhone.success).toBeFalsy()
             })
 
@@ -122,25 +122,51 @@ describe('function "validateUserCredentials"', () => {
                 const anonymous = await makeClient()
                 const [registeredStaffUser, userAttrs] = await registerNewUser(anonymous)
 
-                const resultWithStaff = await validateUserCredentials({ phone: userAttrs.phone, userType: 'staff' }, { password: userAttrs.password })
+                const resultWithStaff = await _validateUserCredentials({ phone: userAttrs.phone, userType: 'staff' }, { password: userAttrs.password })
                 expect(resultWithStaff.success).toBeTruthy()
                 expect(resultWithStaff.user.id).toBe(registeredStaffUser.id)
 
-                const resultWithResident = await validateUserCredentials({ phone: userAttrs.phone, userType: 'resident' }, { password: userAttrs.password })
+                const resultWithResident = await _validateUserCredentials({ phone: userAttrs.phone, userType: 'resident' }, { password: userAttrs.password })
                 expect(resultWithResident.success).toBeFalsy()
 
-                const resultWithService = await validateUserCredentials({ phone: userAttrs.phone, userType: 'service' }, { password: userAttrs.password })
+                const resultWithService = await _validateUserCredentials({ phone: userAttrs.phone, userType: 'service' }, { password: userAttrs.password })
                 expect(resultWithService.success).toBeFalsy()
             })
         })
 
         describe('one-factor authentication', () => {
+            test('should return "success: false" if user found and user password is null', async () => {
+                const anonymous = await makeClient()
+                const [registeredUser, userAttrs] = await registerNewUser(anonymous)
+                await updateTestUser(adminClient, registeredUser.id, { password: null })
+
+                const result = await _validateUserCredentials({ phone: userAttrs.phone, userType: registeredUser.type }, { password: null })
+                expect(result.success).toBeFalsy()
+            })
+
+            test('should return "success: false" if user found and user password is empty string', async () => {
+                const anonymous = await makeClient()
+                const [registeredUser, userAttrs] = await registerNewUser(anonymous)
+                await updateTestUser(adminClient, registeredUser.id, { password: '' })
+
+                const result = await _validateUserCredentials({ phone: userAttrs.phone, userType: registeredUser.type }, { password: '' })
+                expect(result.success).toBeFalsy()
+            })
+
+            test('should return "success: false" if user found and pass empty confirmPhoneToken', async () => {
+                const anonymous = await makeClient()
+                const [registeredUser, userAttrs] = await registerNewUser(anonymous)
+
+                const result = await _validateUserCredentials({ phone: userAttrs.phone, userType: registeredUser.type }, { confirmPhoneToken: null })
+                expect(result.success).toBeFalsy()
+            })
+
             describe('should return "success: false" if user found but user not match', () => {
                 test('if no pass password and confirmPhoneToken', async () => {
                     const anonymous = await makeClient()
                     const [registeredUser, userAttrs] = await registerNewUser(anonymous)
 
-                    const result = await validateUserCredentials({ phone: userAttrs.phone, userType: registeredUser.type }, {})
+                    const result = await _validateUserCredentials({ phone: userAttrs.phone, userType: registeredUser.type }, {})
                     expect(result.success).toBeFalsy()
                 })
 
@@ -148,7 +174,7 @@ describe('function "validateUserCredentials"', () => {
                     const anonymous = await makeClient()
                     const [registeredUser, userAttrs] = await registerNewUser(anonymous)
 
-                    const result = await validateUserCredentials(
+                    const result = await _validateUserCredentials(
                         { phone: userAttrs.phone, userType: registeredUser.type },
                         { password: faker.random.alphaNumeric(16) }
                     )
@@ -159,7 +185,7 @@ describe('function "validateUserCredentials"', () => {
                     const anonymous = await makeClient()
                     const [registeredUser, userAttrs] = await registerNewUser(anonymous)
 
-                    const result = await validateUserCredentials(
+                    const result = await _validateUserCredentials(
                         { phone: userAttrs.phone, userType: registeredUser.type },
                         { confirmPhoneToken: faker.datatype.uuid() }
                     )
@@ -174,7 +200,7 @@ describe('function "validateUserCredentials"', () => {
                         phone: userAttrs.phone, isPhoneVerified: true, expiresAt: new Date().toISOString(),
                     })
 
-                    const result = await validateUserCredentials(
+                    const result = await _validateUserCredentials(
                         { phone: userAttrs.phone, userType: registeredUser.type },
                         { confirmPhoneToken: token }
                     )
@@ -189,7 +215,7 @@ describe('function "validateUserCredentials"', () => {
                         phone: userAttrs.phone, isPhoneVerified: true, completedAt: new Date().toISOString(),
                     })
 
-                    const result = await validateUserCredentials(
+                    const result = await _validateUserCredentials(
                         { phone: userAttrs.phone, userType: registeredUser.type },
                         { confirmPhoneToken: token }
                     )
@@ -204,7 +230,7 @@ describe('function "validateUserCredentials"', () => {
                         phone: userAttrs.phone, isPhoneVerified: false,
                     })
 
-                    const result = await validateUserCredentials(
+                    const result = await _validateUserCredentials(
                         { phone: userAttrs.phone, userType: registeredUser.type },
                         { confirmPhoneToken: token }
                     )
@@ -217,7 +243,7 @@ describe('function "validateUserCredentials"', () => {
 
                     const [{ token }] = await createTestConfirmPhoneAction(adminClient, { phone: userAttrs.phone, isPhoneVerified: true })
 
-                    const result = await validateUserCredentials(
+                    const result = await _validateUserCredentials(
                         { phone: userAttrs.phone, userType: registeredUser.type },
                         { confirmPhoneToken: token, password: faker.random.alphaNumeric(16) }
                     )
@@ -228,7 +254,7 @@ describe('function "validateUserCredentials"', () => {
                     const anonymous = await makeClient()
                     const [registeredUser, userAttrs] = await registerNewUser(anonymous)
 
-                    const result = await validateUserCredentials(
+                    const result = await _validateUserCredentials(
                         { phone: userAttrs.phone, userType: registeredUser.type },
                         { confirmPhoneToken: faker.datatype.uuid(), password: userAttrs.password }
                     )
@@ -239,7 +265,7 @@ describe('function "validateUserCredentials"', () => {
                     const anonymous = await makeClient()
                     const [registeredUser, userAttrs] = await registerNewUser(anonymous)
 
-                    const result = await validateUserCredentials(
+                    const result = await _validateUserCredentials(
                         { phone: userAttrs.phone, userType: registeredUser.type },
                         { confirmPhoneToken: faker.datatype.uuid(), password: faker.random.alphaNumeric(16) }
                     )
@@ -252,7 +278,7 @@ describe('function "validateUserCredentials"', () => {
                     const anonymous = await makeClient()
                     const [registeredUser, userAttrs] = await registerNewUser(anonymous)
 
-                    const result = await validateUserCredentials(
+                    const result = await _validateUserCredentials(
                         { phone: userAttrs.phone, userType: registeredUser.type },
                         { password: userAttrs.password }
                     )
@@ -268,7 +294,7 @@ describe('function "validateUserCredentials"', () => {
                         phone: userAttrs.phone, isPhoneVerified: true,
                     })
 
-                    const result = await validateUserCredentials(
+                    const result = await _validateUserCredentials(
                         { phone: userAttrs.phone, userType: registeredUser.type },
                         { confirmPhoneToken: token }
                     )
@@ -284,7 +310,7 @@ describe('function "validateUserCredentials"', () => {
                         phone: userAttrs.phone, isPhoneVerified: true,
                     })
 
-                    const result = await validateUserCredentials(
+                    const result = await _validateUserCredentials(
                         { phone: userAttrs.phone, userType: registeredUser.type },
                         { confirmPhoneToken: token, password: userAttrs.password }
                     )
@@ -299,18 +325,18 @@ describe('function "validateUserCredentials"', () => {
         test('correctly separates users with the same phone and email but different types', async () => {
             const [registeredResidentUser, residentUserAttrs] = await registerNewUser(await makeClient())
             await updateTestUser(adminClient, registeredResidentUser.id, { type: 'resident' })
-            const resultWithResident = await validateUserCredentials({ phone: residentUserAttrs.phone, email: residentUserAttrs.email, userType: 'resident' }, { password: residentUserAttrs.password })
+            const resultWithResident = await _validateUserCredentials({ phone: residentUserAttrs.phone, email: residentUserAttrs.email, userType: 'resident' }, { password: residentUserAttrs.password })
             expect(resultWithResident.success).toBeTruthy()
             expect(resultWithResident.user.id).toBe(registeredResidentUser.id)
 
             const [registeredServiceUser, serviceUserAttrs] = await registerNewUser(await makeClient(), { phone: residentUserAttrs.phone, email: residentUserAttrs.email })
             await updateTestUser(adminClient, registeredServiceUser.id, { type: 'service' })
-            const resultWithService = await validateUserCredentials({ phone: serviceUserAttrs.phone, email: serviceUserAttrs.email, userType: 'service' }, { password: serviceUserAttrs.password })
+            const resultWithService = await _validateUserCredentials({ phone: serviceUserAttrs.phone, email: serviceUserAttrs.email, userType: 'service' }, { password: serviceUserAttrs.password })
             expect(resultWithService.success).toBeTruthy()
             expect(resultWithService.user.id).toBe(registeredServiceUser.id)
 
             const [registeredStaffUser, staffUserAttrs] = await registerNewUser(await makeClient(), { phone: residentUserAttrs.phone, email: residentUserAttrs.email })
-            const resultWithStaff = await validateUserCredentials({ phone: staffUserAttrs.phone, email: staffUserAttrs.email, userType: 'staff' }, { password: staffUserAttrs.password })
+            const resultWithStaff = await _validateUserCredentials({ phone: staffUserAttrs.phone, email: staffUserAttrs.email, userType: 'staff' }, { password: staffUserAttrs.password })
             expect(resultWithStaff.success).toBeTruthy()
             expect(resultWithStaff.user.id).toBe(registeredStaffUser.id)
         })
@@ -323,7 +349,7 @@ describe('function "validateUserCredentials"', () => {
                 phone: userAttrs.phone, isPhoneVerified: true,
             })
 
-            const result = await validateUserCredentials(
+            const result = await _validateUserCredentials(
                 { phone: userAttrs.phone, userType: registeredUser.type },
                 { confirmPhoneToken: token }
             )
@@ -343,7 +369,7 @@ describe('function "validateUserCredentials"', () => {
                 phone: userAttrs.phone, isPhoneVerified: true,
             })
 
-            const result = await validateUserCredentials(
+            const result = await _validateUserCredentials(
                 { phone: userAttrs.phone, userType: registeredUser.type },
                 { confirmPhoneToken: confirmPhoneAction.token }
             )
