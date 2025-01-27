@@ -1,17 +1,121 @@
+const { get } = require('lodash')
+
+const conf = require('@open-condo/config')
 const { itemsQuery, getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { ConfirmPhoneAction } = require('@condo/domains/user/utils/serverSchema')
+const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 const { generateSimulatedToken } = require('@condo/domains/user/utils/tokens')
 
+
+const GUARD_DEFAULT_WINDOW_SIZE_IN_SEC = 60 * 60 // 1 hour in sec
+const GUARD_DEFAULT_WINDOW_LIMIT = 10
+
+/**
+ * @typedef {Object} GuardQuota
+ * @property {number} windowSizeInSec The window size in seconds
+ * @property {number} windowLimit Attempts limit during the window
+ */
+
+/**
+ * @type {{ ip?: Record<string, GuardQuota>, user?: Record<string, GuardQuota>, phone?: Record<string, GuardQuota>, email?: Record<string, GuardQuota>, default?: GuardQuota }}
+ *
+ * Examples:
+ *
+ * 1.1 Change only window size for ip
+ * { "ip": { "*.*.*.*": { windowSizeInSec: 3600 } } }
+ *
+ * 1.2 Change only limit for ip
+ * { "ip": { "*.*.*.*": { windowLimit: 60 } } }
+ *
+ * 1.2 Change window size and limit for ip
+ * { "ip": { "*.*.*.*": { windowSizeInSec: 3600, windowLimit: 60 } } }
+ *
+ * 2 Change window size and limit for user id
+ * { "user": { "********-****-****-****-************": { windowSizeInSec: 3600, windowLimit: 60 } } }
+ *
+ * 3 Change window size and limit for user phone
+ * { "phone": { "+7**********": { windowSizeInSec: 3600, windowLimit: 60 } } }
+ *
+ * 4 Change window size and limit for user email
+ * { "email": { "example@mail.com": { windowSizeInSec: 3600, windowLimit: 60 } } }
+ *
+ * 4 Change window size and limit for user email and phone
+ * { "phone": { "+7**********": { windowSizeInSec: 3600, windowLimit: 60 } }, "email": { "example@mail.com": { windowSizeInSec: 3600, windowLimit: 60 } } }
+ */
+let customQuotas
+try {
+    customQuotas = JSON.parse(conf.VALIDATE_USER_CREDENTIALS_GUARD_CUSTOM_QUOTAS)
+} catch (e) {
+    customQuotas = {}
+}
+
+
+const redisGuard = new RedisGuard()
 
 /**
  *
  * @param {{ phone?: string, email?: string, userType: 'staff' | 'resident' | 'service' }} userIdentity
  * @param {{ confirmPhoneToken?: string, confirmEmailToken?: string, password?: string }} authFactors
+ * @param context
  * @return {Promise<{success: boolean}|{confirmPhoneAction?: {id: string, phone: string, isPhoneVerified: boolean}, success: boolean, user: Object}>}
  */
-async function validateUserCredentials (userIdentity, authFactors) {
+async function validateUserCredentialsWithRequestLimit (userIdentity, authFactors, context) {
+    if (!context) throw new Error('context cannot be empty')
+
+    const userId = get(context, 'authedItem.id', null)
+    const ip = context.req.ip
+
+    const phone = userIdentity?.phone
+    const email = userIdentity?.email
+    const userType = userIdentity.userType
+
+    await redisGuard.checkCustomLimitCounters(
+        ['validate-user-credentials', 'ip', ip].join(':'),
+        customQuotas?.ip?.[ip]?.windowSizeInSec || customQuotas?.default?.windowSizeInSec || GUARD_DEFAULT_WINDOW_SIZE_IN_SEC,
+        customQuotas?.ip?.[ip]?.windowLimit || customQuotas?.default?.windowLimit || GUARD_DEFAULT_WINDOW_LIMIT,
+        context,
+    )
+
+    if (userId) {
+        await redisGuard.checkCustomLimitCounters(
+            ['validate-user-credentials', 'user', userId].join(':'),
+            customQuotas?.user?.[userId]?.windowSizeInSec || customQuotas?.default?.windowSizeInSec || GUARD_DEFAULT_WINDOW_SIZE_IN_SEC,
+            customQuotas?.user?.[userId]?.windowLimit || customQuotas?.default?.windowLimit || GUARD_DEFAULT_WINDOW_LIMIT,
+            context,
+        )
+    }
+
+    if (phone) {
+        await redisGuard.checkCustomLimitCounters(
+            ['validate-user-credentials', 'phone-and-user-type', userType, phone].join(':'),
+            customQuotas?.phone?.[phone]?.windowSizeInSec || customQuotas?.default?.windowSizeInSec || GUARD_DEFAULT_WINDOW_SIZE_IN_SEC,
+            customQuotas?.phone?.[phone]?.windowLimit || customQuotas?.default?.windowLimit || GUARD_DEFAULT_WINDOW_LIMIT,
+            context,
+        )
+    }
+
+    if (email) {
+        await redisGuard.checkCustomLimitCounters(
+            ['validate-user-credentials', 'email-and-user-type', userType, email].join(':'),
+            customQuotas?.email?.[email]?.windowSizeInSec || customQuotas?.default?.windowSizeInSec || GUARD_DEFAULT_WINDOW_SIZE_IN_SEC,
+            customQuotas?.email?.[email]?.windowLimit || customQuotas?.default?.windowLimit || GUARD_DEFAULT_WINDOW_LIMIT,
+            context,
+        )
+    }
+
+    return await _validateUserCredentials(userIdentity, authFactors)
+}
+
+/**
+ * @deprecated in real cases you should use validateUserCredentialsWithRequestLimit
+ *
+ * @param {{ phone?: string, email?: string, userType: 'staff' | 'resident' | 'service' }} userIdentity
+ * @param {{ confirmPhoneToken?: string, confirmEmailToken?: string, password?: string }} authFactors
+ * @return {Promise<{success: boolean}|{confirmPhoneAction?: {id: string, phone: string, isPhoneVerified: boolean}, success: boolean, user: Object}>}
+ */
+async function _validateUserCredentials (userIdentity, authFactors) {
     if (!userIdentity || typeof userIdentity !== 'object') throw new Error('You must provide userIdentity')
     if (!authFactors || typeof authFactors !== 'object') throw new Error('You must provide authFactors')
 
@@ -157,6 +261,11 @@ async function _matchUser (user, authFactors) {
  * @private
  */
 async function _matchUserPassword (user, password) {
+    if (password === null) {
+        await _preventTimeBasedAttack({ password: '' })
+        return { success: false }
+    }
+
     const { keystone } = getSchemaCtx('User')
     const { auth: { User: { password: PasswordStrategy } } } = keystone
     const list = PasswordStrategy.getList()
@@ -243,5 +352,6 @@ async function _preventTimeBasedAttack (authFactors) {
 }
 
 module.exports = {
-    validateUserCredentials,
+    _validateUserCredentials,
+    validateUserCredentialsWithRequestLimit,
 }
