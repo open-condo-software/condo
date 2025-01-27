@@ -317,10 +317,7 @@ const OrganizationProvider: React.FC<OrganizationProviderProps> = ({
     children,
     useInitialEmployeeId,
 }) => {
-    console.log('Render OrganizationProvider')
     const auth = useAuth()
-    console.log('OrganizationProvider user', auth.user)
-    console.log('OrganizationProvider isLoading', auth.isLoading)
     const { employeeId } = useInitialEmployeeId()
     const [activeEmployeeId, setActiveEmployeeId] = useState<string | null>(employeeId)
 

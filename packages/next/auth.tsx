@@ -261,7 +261,6 @@ const _withAuthLegacy: WithAuthLegacyType = ({ ssr = false, ...opts } = {}) => P
  * authenticated state and provides methods for managing the auth state.
  */
 const AuthProvider: React.FC = ({ children }) => {
-    console.log('Render AuthProvider')
     const apolloClient = useApolloClient()
 
     const { data, loading: userLoading, refetch } = useQuery(USER_QUERY, {

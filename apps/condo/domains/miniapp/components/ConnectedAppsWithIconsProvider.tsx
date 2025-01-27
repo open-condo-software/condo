@@ -29,7 +29,6 @@ export const ConnectedWithIconsContext = createContext<IConnectedAppsWithIconsCo
 })
 
 export const ConnectedAppsWithIconsContextProvider: React.FC = ({ children }) => {
-    console.log('Render ConnectedAppsWithIconsContextProvider')
     const { isAuthenticated, isLoading } = useAuth()
     const { organization } = useOrganization()
     const orgId = get(organization, 'id', null)
