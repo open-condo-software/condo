@@ -30,10 +30,8 @@ export const ConnectedWithIconsContext = createContext<IConnectedAppsWithIconsCo
 
 export const ConnectedAppsWithIconsContextProvider: React.FC = ({ children }) => {
     console.log('Render ConnectedAppsWithIconsContextProvider')
-    const { user, isLoading } = useAuth()
+    const { isAuthenticated, isLoading } = useAuth()
     const { organization } = useOrganization()
-    console.log('ConnectedAppsWithIconsContextProvider user', user)
-    console.log('ConnectedAppsWithIconsContextProvider isLoading', isLoading)
     const orgId = get(organization, 'id', null)
     const [appsByCategories, setAppsByCategories] = useState<AppsByCategories>({})
     const [connectedApps, setConnectedApps] = useState<Array<string>>([])
@@ -56,7 +54,7 @@ export const ConnectedAppsWithIconsContextProvider: React.FC = ({ children }) =>
     })
 
     const fetchMiniApps = useCallback(() => {
-        if (orgId) {
+        if (orgId && !isLoading && isAuthenticated) {
             fetchMiniAppsQuery({
                 variables: {
                     data: {
@@ -76,11 +74,11 @@ export const ConnectedAppsWithIconsContextProvider: React.FC = ({ children }) =>
             setConnectedApps([])
             setAppsByCategories(Object.assign({}, ...ALL_MENU_CATEGORIES.map(category =>({ [category]: [] }))))
         }
-    }, [orgId, fetchMiniAppsQuery])
+    }, [orgId, isLoading, isAuthenticated, fetchMiniAppsQuery])
 
     useEffect(() => {
         fetchMiniApps()
-    }, [orgId, fetchMiniApps])
+    }, [orgId, isLoading, isAuthenticated, fetchMiniApps])
 
     return (
         <ConnectedWithIconsContext.Provider value={{ appsByCategories: appsByCategories, refetch: fetchMiniApps, connectedAppsIds: connectedApps }}>

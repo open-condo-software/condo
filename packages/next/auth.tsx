@@ -1,7 +1,6 @@
 import { DocumentNode } from 'graphql'
 import { gql } from 'graphql-tag'
 import get from 'lodash/get'
-// import { NetworkStatus } from '@apollo/client';
 import { NextPage } from 'next'
 import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react'
 
@@ -264,16 +263,12 @@ const _withAuthLegacy: WithAuthLegacyType = ({ ssr = false, ...opts } = {}) => P
 const AuthProvider: React.FC = ({ children }) => {
     console.log('Render AuthProvider')
     const apolloClient = useApolloClient()
-    console.log('Read cache in query USER_QUERY', apolloClient.readQuery({ query: USER_QUERY }))
-    console.log('Read allCache', apolloClient.cache.extract())
-    const { data, loading: userLoading, refetch, networkStatus } = useQuery(USER_QUERY, {
+
+    const { data, loading: userLoading, refetch } = useQuery(USER_QUERY, {
         notifyOnNetworkStatusChange: true,
     })
-    console.log('AuthProvider USER_QUERY', data)
-    const user = useMemo(() => data?.authenticatedUser || null, [data])
-    console.log('AuthProvider networkStatus', networkStatus)
-    console.log('AuthProvider user', user)
-    console.log('AuthProvider userLoading', userLoading)
+
+    const user = useMemo(() => get(data, 'authenticatedUser') || null, [data])
 
     const refetchAuth = useCallback(async () => {
         await refetch()
@@ -282,7 +277,6 @@ const AuthProvider: React.FC = ({ children }) => {
     const [signInMutation, { loading: signInLoading }] = useMutation(SIGNIN_MUTATION, {
         onCompleted: async (data) => {
             const item = get(data, 'authenticateUserWithPassword.item')
-            console.log('AuthProvider authenticateUserWithPassword', item)
 
             if (DEBUG_RERENDERS) console.log('AuthProviderLegacy() signIn()')
 
@@ -295,29 +289,21 @@ const AuthProvider: React.FC = ({ children }) => {
         },
     })
 
-    const [signOutMutation, { loading: signOutLoading, called }] = useMutation(SIGNOUT_MUTATION, {
+    const [signOutMutation, { loading: signOutLoading }] = useMutation(SIGNOUT_MUTATION, {
         refetchQueries: [USER_QUERY],
         onCompleted: async () => {
-            console.log('AuthProvider onCompleted start')
             removeCookieEmployeeId()
-            console.log('AuthProvider onCompleted removeCookieEmployeeId end')
             await apolloClient.cache.reset()
-            console.log('AuthProvider onCompleted apolloClient.cache.reset end')
-            console.log('AuthProvider onCompleted end')
+            apolloClient.cache.writeQuery({
+                query: USER_QUERY,
+                data: {
+                    authenticatedUser: null,
+                },
+            })
         },
         onError: (error) => {
             console.error(error)
         },
-    })
-
-    console.log('AuthProvider signInLoading', signInLoading)
-    console.log('AuthProvider signOutLoading', signOutLoading)
-    console.log('AuthProvider userLoading', userLoading)
-    console.log('AuthProvider signOutLoading called?', called)
-    console.log('State AuthContext.Provider', {
-        isLoading: userLoading || signOutLoading || signInLoading,
-        isAuthenticated: !!user,
-        user: user,
     })
 
     return (
