@@ -7,27 +7,22 @@ const uniq = require('lodash/uniq')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { find } = require('@open-condo/keystone/schema')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
+const { getEmployedOrganizationsByPermissions } = require('@condo/domains/organization/utils/accessSchema')
 const { STAFF } = require('@condo/domains/user/constants/common')
 
 
-async function canReadAppMessageSetting ({ authentication: { item: user } }) {
+async function canReadAppMessageSetting ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
 
     if (user.type === STAFF) {
-        const userEmployees = await find('OrganizationEmployee', {
-            deletedAt: null,
-            organization: { deletedAt: null },
-            role: { deletedAt: null },
-            user: { id: user.id },
-            isBlocked: false,
-            isRejected: false,
-        })
-        const organizationIds = uniq(userEmployees.map(employee => employee.organization))
+        const permittedOrganizationIds = await getEmployedOrganizationsByPermissions(context, user, [])
         const b2bAppContexts = await find('B2BAppContext', {
             deletedAt: null,
-            organization: { id_in: organizationIds },
+            organization: { id_in: permittedOrganizationIds },
+            status: CONTEXT_FINISHED_STATUS,
         })
         const b2bAppIds = uniq(b2bAppContexts.map(context => context.app))
 
@@ -41,7 +36,7 @@ async function canReadAppMessageSetting ({ authentication: { item: user } }) {
     return false
 }
 
-async function canManageAppMessageSetting ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageAppMessageSetting ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
