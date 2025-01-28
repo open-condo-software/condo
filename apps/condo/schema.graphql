@@ -92757,7 +92757,8 @@ type Mutation {
   
   
                       B2BApp must has finished context with organization and B2BAccessRight with B2BAccessRightSet with canExecuteSendB2BAppPushMessage right 
-                      between service user (who make request) and B2BApp. Settings for each type of message contains in AppMessageSetting schema.
+                      between service user (who make request) and B2BApp. Employee must has a B2BAppRole with B2BApp. 
+                      Settings for each type of message contains in AppMessageSetting schema.
                       Each message type has specific set of required fields which are defined in the meta field: 
   
   `{
@@ -92826,6 +92827,12 @@ type Mutation {
     "code": "FORBIDDEN",
     "type": "NOT_FOUND",
     "message": "The provided user is not an employee of the specified organization."
+  }`
+  
+  `{
+    "code": "FORBIDDEN",
+    "type": "NOT_FOUND",
+    "message": "No B2BAppRole found for the provided user, organization and B2BApp"
   }`
   """
   sendB2BAppPushMessage(data: SendB2BAppPushMessageInput!): SendB2BAppPushMessageOutput
