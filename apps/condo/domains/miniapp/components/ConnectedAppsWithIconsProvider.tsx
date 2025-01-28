@@ -1,6 +1,6 @@
 import { SortAllMiniAppsBy } from '@app/condo/schema'
 import get from 'lodash/get'
-import React, { createContext, useContext, useState } from 'react'
+import React, {createContext, useCallback, useContext, useState} from 'react'
 
 import { useQuery } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
@@ -66,8 +66,12 @@ export const ConnectedAppsWithIconsContextProvider: React.FC = ({ children }) =>
         },
     })
 
+    const refetchAuth = useCallback(async () => {
+        await refetch()
+    }, [refetch])
+
     return (
-        <ConnectedWithIconsContext.Provider value={{ appsByCategories: appsByCategories, refetch: refetch, connectedAppsIds: connectedApps }}>
+        <ConnectedWithIconsContext.Provider value={{ appsByCategories: appsByCategories, refetch: refetchAuth, connectedAppsIds: connectedApps }}>
             {children}
         </ConnectedWithIconsContext.Provider>
     )
