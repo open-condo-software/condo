@@ -4,6 +4,7 @@ const conf = require('@open-condo/config')
 
 
 describe('Redis adapter', () => {
+    const OLD_ENV = process.env
     let redisClient
     let nonPrefixedClient
 
@@ -24,6 +25,8 @@ describe('Redis adapter', () => {
         await nonPrefixedClient.del('keystone:testList')
         await nonPrefixedClient.disconnect()
         await redisClient.disconnect()
+
+        process.env = { ...OLD_ENV }
     })
 
     test('redis keyPrefix should be module specific', async () => {
