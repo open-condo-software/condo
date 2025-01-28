@@ -1,6 +1,6 @@
 import { SortAllMiniAppsBy } from '@app/condo/schema'
 import get from 'lodash/get'
-import React, {createContext, useCallback, useContext, useState} from 'react'
+import React, { createContext, useCallback, useContext, useState } from 'react'
 
 import { useQuery } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
